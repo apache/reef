@@ -18,9 +18,9 @@ under the License.
 -->
 #Tang
 
-Tang is a configuration managment and checking framework that emphasizes explicit documentation and automatic checkability of configurations and applications instead of ad-hoc, application-specific configuration and bootstrapping logic. It supports distributed, multi-language applications, but gracefully handles simpler use cases as well.
+Tang is a configuration management and checking framework that emphasizes explicit documentation and automatic checkability of configurations and applications instead of ad-hoc, application-specific configuration and bootstrapping logic. It supports distributed, multi-language applications, but gracefully handles simpler use cases as well.
 
-Tang makes use of dependency injection to automatically instantiate applications. Dependency injectors can be thought of as "make for objects" -- given a request for some type of object, and information that explains how dependencies between objects should be resolved, dependency injectors automatically instantiate the requested object and all of the objects it dependes upon. Tang makes use of a few simple wire formats to support remote and even cross-language dependency injection.
+Tang makes use of dependency injection to automatically instantiate applications. Dependency injectors can be thought of as "make for objects" -- given a request for some type of object, and information that explains how dependencies between objects should be resolved, dependency injectors automatically instantiate the requested object and all of the objects it depends upon. Tang makes use of a few simple wire formats to support remote and even cross-language dependency injection.
 
 Outline
 -------
@@ -48,7 +48,7 @@ Tang is our attempt to address these problems.  It consists of a dependency inje
 
 Tang leverages existing language type systems, allowing unmodified IDEs such as Eclipse or NetBeans to surface configuration information in tooltips, provide auto-complete of configuration parameters, and to detect a wide range of configuration problems as you edit your code.  Since such functionality is surfaced in the tools you are already familiar with, there is no need to install (or learn) additional development software to get started with Tang.  Furthermore, we provide a set of sophisticated build time and runtime tools that detect a wide range of common architectural problems and configuration errors.
 
-This documentation consists of tutorials that present prefered Tang design patterns.  By structuring your application according to the patterns we suggest throughout the tutorials, you will allow our static analysis framework, Tint ("Tang Lint"), to detect problematic design patterns and high-level configuration problems as part of your build.  These patterns provide the cornerstone for a number of more advanced features, such as interacting with legacy configuration systems, designing for cross-language applications, and multi-tenancy issues, such as secure injections of untrusted application code.  To the best of our knowledge, implementing such tools and addressing these real-world implementation constraints would be difficult, or even impossible, atop competing frameworks.
+This documentation consists of tutorials that present preferred Tang design patterns.  By structuring your application according to the patterns we suggest throughout the tutorials, you will allow our static analysis framework, Tint ("Tang Lint"), to detect problematic design patterns and high-level configuration problems as part of your build.  These patterns provide the cornerstone for a number of more advanced features, such as interacting with legacy configuration systems, designing for cross-language applications, and multi-tenancy issues, such as secure injections of untrusted application code.  To the best of our knowledge, implementing such tools and addressing these real-world implementation constraints would be difficult, or even impossible, atop competing frameworks.
 
 <a name="design-principles"></a>Design principles
 =================
@@ -57,30 +57,30 @@ Tang encourages application developers to specify default implementations and co
 
 In the process of building complicated systems built atop Tang, we found that, as the length of configurations that are passed around at runtime increased, it rapidly became impossible to debug or maintain our higher-level applications.  In an attempt to address this problem, traditional dependency injection systems actually compound this issue.  They encourage the developers of each application-level component to implement hand-written "Modules" that are executed at runtime.  Hand-written modules introspect on the current runtime configuration, augment and modify it, and then return a new configuration that takes the new application component into account.
 
-In other systems, developers interact with modules by invoking ad-hoc builder methods, and passing configurations (in the correct order) from module to module.  Modules frequently delgate to each other, either via inheritance or wrappers.  This makes it difficult for developers and end-users to figure out which value of a given parameter will be used, or even to figure out why it was (or was not) set.
+In other systems, developers interact with modules by invoking ad-hoc builder methods, and passing configurations (in the correct order) from module to module.  Modules frequently delegate to each other, either via inheritance or wrappers.  This makes it difficult for developers and end-users to figure out which value of a given parameter will be used, or even to figure out why it was (or was not) set.
 
 Tang provides an alternative called `ConfigurationModule`s:
 
 
-- `Configurations` and `ConfigurationModules` are "just data," and can be read and written in human readable formats.
+- `Configurations` and `ConfigurationModules` are "just data", and can be read and written in human readable formats.
 - Interfaces and configuration parameters are encouraged to specify defaults, significantly shortening the configurations generated at runtime, and making it easy to see what was "strange" about a given run of the application.
 - Tang's static analysis and documentation tools sanity check `ConfigurationModule`s, and document their behavior and any extra parameters they export.
-- Configuration options can be set at most once.  This avoids (or at least detects) situations in which users and application-level code inadvertantly "fight" over the setting of a particular option.
+- Configuration options can be set at most once.  This avoids (or at least detects) situations in which users and application-level code inadvertently "fight" over the setting of a particular option.
 
-The last property comes from Tang's use of _monotonic_ set oriented primitives.  This allows us to leverage recent theoretical results in commtative data types; particularly CRDTs, and the CALM theorem.  Concretely:
+The last property comes from Tang's use of _monotonic_ set oriented primitives.  This allows us to leverage recent theoretical results in commutative data types, particularly CRDTs, and the CALM theorem.  Concretely:
 
 - A large subset of Tang's public API is commutative, which frees application-level configuration and bootstrapping logic from worrying about the order in which configuration sources are processed at runtime.
 - Tang can detect configuration and injection problems much earlier than is possible with other approaches.  Also, upon detecting a conflict, Tang lists the configuration sources that contributed to the problem.
 
 
-Finally, Tang is divided into a set of "core" primtives, and higher-level configuration "formats".  Tang's core focuses on dependency injection and static checking of configurations.  The formats provide higher-level configuration languages primitives, such as distributed, cross-language injection, configuration files, and `ConfigurationModule`.  Each Tang format imports and/or exports standard Tang `Configuration` objects, which can then be composed with other configuration data at runtime.
+Finally, Tang is divided into a set of "core" primitives, and higher-level configuration "formats".  Tang's core focuses on dependency injection and static checking of configurations.  The formats provide higher-level configuration languages primitives, such as distributed, cross-language injection, configuration files, and `ConfigurationModule`.  Each Tang format imports and/or exports standard Tang `Configuration` objects, which can then be composed with other configuration data at runtime.
 
 Improvements to these formats are planned, such as command-line tab completion, and improved APIs for extremely complex applications that are built by composing multiple Tang configurations to inject arbitrary object graphs.
 Furthermore, Tang formats include documentation facilities, and automatic command line and configuration file parsing.  From an end-user perspective, this takes a lot of the guesswork out of configuration file formats.
 
 Although Tang surfaces a text-based interface for end-users of the applications built atop it, all configuration options and their types are specified in terms of Java classes and annotations.  As with the core Tang primitives, this allows the Java compiler to statically check Tang formats for problems such as inconsistent usage of configuration parameters, naming conflicts and so on.  This eliminates broad classes of runtime errors.   These checks can be run independently of the application's runtime environment, and can find problems both in the Java-level implementation of the system, and with user-provided configuration files.  The tools that perform these checks are designed to run as a post-processing step of projects built atop Tang.  Like the Java compiler checks, this prevents such errors from making it to production environments.  It also prevents such errors from being exposed to application logic or end-users, greatly simplifying applications built atop Tang.
 
-Taken together, these properties greatly simplify dependency injection in distributed environments.  We expect Tang to be used in environments that are dominated by "plugin"-style APIs with many alternative implementations.  Tang cleanly separates concerns over configuration management, dependency injection and object implementations, which hides most of the complexity of dependency injection from plugin implementers.  It also prevents plugin implementations from inadvertently conflicting with each other or their runtime environements.  Such clean semantics are crucial in distributed, heterogeneous environments.
+Taken together, these properties greatly simplify dependency injection in distributed environments.  We expect Tang to be used in environments that are dominated by "plugin"-style APIs with many alternative implementations.  Tang cleanly separates concerns over configuration management, dependency injection and object implementations, which hides most of the complexity of dependency injection from plugin implementers.  It also prevents plugin implementations from inadvertently conflicting with each other or their runtime environments.  Such clean semantics are crucial in distributed, heterogeneous environments.
 
 <a name="tutorial-getting-started"></a>Tutorial: Getting started
 =========================
@@ -179,7 +179,7 @@ Configuration modules allow applications to perform most configuration generatio
 In the example below, we extend the Timer API to include a second implementation that simply outputs the amount of
 time a real timer would have slept to stderr.  In a real unit testing example, it would likely interact with a scheduler based on logical time.  Of course, in isolation, having the ability to specify configuration parameters is not particularly useful; this example also adds a `main()` method that invokes Tang, and instantiates an object.
 
-The process of instantiting an object with Tang is called _injection_.  As with configurations, Tang's injection process is designed to catch as many potential runtime errors as possible before application code begins to run.  This simplifies debugging and eliminates many types of runtime error handling code, since many configurations can be caught before running (or examining) application-specific initialization code. 
+The process of instantiating an object with Tang is called _injection_.  As with configurations, Tang's injection process is designed to catch as many potential runtime errors as possible before application code begins to run.  This simplifies debugging and eliminates many types of runtime error handling code, since many configurations can be caught before running (or examining) application-specific initialization code. 
 
     package org.apache.reef.tang.examples.timer;
     
@@ -265,7 +265,7 @@ Again, there are a few things going on here:
    - First, we push the implementation of `Timer` into a new class, `TimerImpl`.  The `@DefaultImplementation` tells Tang to use `TimerImpl` when no other implementation is explicitly provided.
    - We leave the `Sleep` class in the Timer interface.  This, plus the `@DefaultImplementation` annotation maintain backward compatibility with code that used Tang to inject the old `Timer` class.
    - The `TimerMock` class includes a dummy implementation of Timer, along with a `ConfigurationModule` final static field called `CONF`.
-   - The main method uses `CONF` to generate a configuration.  Rather than set `Timer.Sleep` directly, it sets `MOCK_SLEEP_TIME`.  In a more complicated example, this would allow `CONF` to route the sleep time to testing infrastructure, or other classes that are specific to the testing environment or implemenation of `TimerMock`.
+   - The main method uses `CONF` to generate a configuration.  Rather than set `Timer.Sleep` directly, it sets `MOCK_SLEEP_TIME`.  In a more complicated example, this would allow `CONF` to route the sleep time to testing infrastructure, or other classes that are specific to the testing environment or implementation of `TimerMock`.
 
 `ConfigurationModule`s serve a number of purposes:
 
@@ -300,7 +300,7 @@ Here are some sample Tint errors.  These (and others) can be run by passing `--t
     Named parameter org.apache.reef.tang.implementation.UnannotatedName is missing its @NamedParameter annotation.
     Field org.apache.reef.tang.formats.MyMissingBindConfigurationModule.BAD_CONF: Found declared options that were not used in binds: { FOO_NESS }
 
-<a name="injnecting-objects-with-getInstance"></a>Injecting objects with getInstance()
+<a name="injecting-objects-with-getinstance"></a>Injecting objects with getInstance()
 --------------------------------------
 
 Above, we explain how to register constructors with Tang, and how to configure Tang to inject the desired objects at runtime.  This section explains how Tang actually instantiates objects, and how the primitives it provides can be combined to support sophisticated application architectures.
@@ -345,7 +345,7 @@ In order to inject an instance of `A`, Tang first injects an instance of `B` by 
 Therefore, along with `forkInjector()` and `bindVolatile()`, this allows Tang to inject arbitrary graphs of objects.  This pattern avoids non-final fields (once set, all fields of all objects are constant), and it also avoids boiler plate error handling code that checks to see if `B`'s instance of `A` has been set.
 
 
-When `get()` is called after the application-level call to `getInstance()` returns, it is guranteed to return a non-null reference to an injected instance of the object.  However, if `get()` is called _before_ the constructor it was passed to returns, then it is guaranteed to throw an exception.    In between these two points in time, `get()`'s behavior is undefined, but, for the sake of race-detection and forward compatibility it makes a best-effort attempt to throw an exception.
+When `get()` is called after the application-level call to `getInstance()` returns, it is guaranteed to return a non-null reference to an injected instance of the object.  However, if `get()` is called _before_ the constructor it was passed to returns, then it is guaranteed to throw an exception.    In between these two points in time, `get()`'s behavior is undefined, but, for the sake of race-detection and forward compatibility it makes a best-effort attempt to throw an exception.
 
 Following Tang's singleton semantics, the instance returned by `get()` will be the same instance the injector would pass into other constructors or return from `getInstance()`.
 
@@ -356,7 +356,7 @@ Tang provides a number of so-called _formats_ that interface with external confi
 
 <a name="raw-configuration-api"></a>Raw configuration API
 ---------
-Tang also provides a lower level configurtion API for applications that need more dynamic control over their configurations:
+Tang also provides a lower level configuration API for applications that need more dynamic control over their configurations:
 
     ...
     import org.apache.reef.tang.Tang;
@@ -389,8 +389,8 @@ Tang also provides a lower level configurtion API for applications that need mor
 
 The first step in using Tang is to get a handle to a Tang object by calling "Tang.Factory.getTang()".  Having obtained a handle, we run through each of the phases of a Tang injection:
 
-   * We use `ConfigurationBuilder` objects to tell Tang about the class hierarchy that it will be using to inject objects and (in later examples) to register the contents of configuration files, override default configuration values, and to set default implementations of classes.  `ConfigurationBuilder` and `ConfigurationModuleBuider` export similar API's.  The difference is that `ConfigurationBuilder` produces `Configuration` objects directly, and is designed to be used at runtime.  `ConfigurationModuleBuilder` is desgined to produce data structures that will be generated and analyzed during the build, and at class load time.
-   * `bindNamedParameter()` overrides the default value of Timer.Sleep, setting it to 5.  Tang inteprets the 5 as a string, but allows instances of Number to be passed in as syntactic sugar.
+   * We use `ConfigurationBuilder` objects to tell Tang about the class hierarchy that it will be using to inject objects and (in later examples) to register the contents of configuration files, override default configuration values, and to set default implementations of classes.  `ConfigurationBuilder` and `ConfigurationModuleBuilder` export similar API's.  The difference is that `ConfigurationBuilder` produces `Configuration` objects directly, and is designed to be used at runtime.  `ConfigurationModuleBuilder` is designed to produce data structures that will be generated and analyzed during the build, and at class load time.
+   * `bindNamedParameter()` overrides the default value of Timer.Sleep, setting it to 5.  Tang interprets the 5 as a string, but allows instances of Number to be passed in as syntactic sugar.
    * We call `.build()` on the `ConfigurationBuilder`, creating an immutable `Configuration` object.  At this point, Tang ensures that all of the classes it has encountered so far are consistent with each other, and that they are suitable for injection.  When Tang encounters conflicting classes or configuration files, it throws a `BindException` to indicate that the problem is due to configuration issues. Note that `ConfigurationBuilder` and `Configuration` do not determine whether or not a particular injection will succeed; that is the business of the _Injector_.
    * To obtain an instance of Injector, we pass our Configuration object into `tang.newInjector()`.
    * `injector.isInjectable(Timer.class)` checks to see if Timer is injectable without actually performing an injection or running application code.  (Note that, in this example, the Java classloader may have run application code.  For more information, see the advanced tutorials on cross-language injections and securely building configurations for untrusted code.)
@@ -402,7 +402,7 @@ The second type of configuration option, _implementation bindings_, are used to 
 
 New parameters are created and passed into constructors as in the examples above, by creating implementations of `Name<T>`, and adding `@NamedParameter`, `@Parameter` and `@Inject` annotations as necessary.  Specifying implementations for interfaces is a bit more involved, as a number of subtle use cases arise.
 
-However, all configuration settings in Tang can be unambiguously represented as a `key=value` pair that can be interpreted either asan `interface=implementation` pair or a `configuration_parameter=value` pair.  This maps well to Java-style properties files.  For example:
+However, all configuration settings in Tang can be unambiguously represented as a `key=value` pair that can be interpreted either as an `interface=implementation` pair or a `configuration_parameter=value` pair.  This maps well to Java-style properties files.  For example:
 
     com.examples.Interface=com.examples.Implementation
 
@@ -419,7 +419,7 @@ See the `ConfigurationFile` API for more information about processing configurat
 ###<a name="injectionPlan"></a>InjectionPlan
 
 InjectionPlan objects explain what Tang would do to instantiate a new object, but don't actually instantiate anything.
-Add the following lines to the Timer example;
+Add the following lines to the Timer example:
 
     import org.apache.reef.tang.implementation.InjectionPlan;
     import org.apache.reef.tang.implementation.InjectorImpl;
