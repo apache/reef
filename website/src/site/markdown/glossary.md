@@ -25,7 +25,7 @@ under the License.
 
 ###<a name="context"></a>Context
 
-Contexts are a way to structure the state and Configuration of an Evaluator. A Context exists on one and only one individual Evaluator. Each Evaluator has at least one Context, which we refer to as the *root* Context. This root context is special, as it is *required* on all Evaluators and because closing it is synonymous to releasing the Evaluator. In many simple REEF programs, this is the only Context used and it is therefore convenient to think of it as synonymous to "the Evaluator": The Driver can submit Tasks to it, is notifified when they are done and can close the root context when it wants to dispose of the Evaluator. 
+Contexts are a way to structure the state and Configuration of an Evaluator. A Context exists on one and only one individual Evaluator. Each Evaluator has at least one Context, which we refer to as the *root* Context. This root context is special, as it is *required* on all Evaluators and because closing it is synonymous to releasing the Evaluator. In many simple REEF programs, this is the only Context used and it is therefore convenient to think of it as synonymous to "the Evaluator": The Driver can submit Tasks to it, is notified when they are done and can close the root context when it wants to dispose of the Evaluator.
 
 Contexts are formed by calls to `submitContext()` to the event types that allow this (`AllocatedEvaluator` and `ActiveContext`) Contexts are the main way for an Evaluator to be exposed and accessed. For instance, Tasks are submitted to an `ActiveContext` which represents the top Context on the Evaluator.
 
@@ -39,11 +39,11 @@ It is only the `ActiveContext` that allows the submission of Tasks or child Cont
 
 It is convenient to think of a Context as a `Configuration` that gets merged with the `Configuration` supplied for Tasks and child Contexts. While not entirely true (see below), this view allows us to show just *why* Contexts are a convenient construct.
 
-It is often the case that subsequent tasks that get executed on an Evaluator want access to the same Configuration variables and / or the same objects. Consider a simple `LinkedList` bound to a named parameter. If that linked list is part of the subsequent Task `Configurations` submited, each Task will get its very *own* `LinkedList`. If the named parameter is bound in the Context `Configuration`, all Tasks subsequently submitted to the Context will get the very *same* `LinkedList` instance.
+It is often the case that subsequent tasks that get executed on an Evaluator want access to the same Configuration variables and / or the same objects. Consider a simple `LinkedList` bound to a named parameter. If that linked list is part of the subsequent Task `Configurations` submitted, each Task will get its very *own* `LinkedList`. If the named parameter is bound in the Context `Configuration`, all Tasks subsequently submitted to the Context will get the very *same* `LinkedList` instance.
 
 ####Contexts are (Tang) Injectors
 
-This mechanism is implemented by using Tang's `Injector`s. On the Evaluator, a Task is launched by first *forking* the Context's `Injector` with the Task`Configuration` and then requesting an instance of the `Task` interface from that forked `Injector`. By this mechanism and the fact that objects are singletons with respect to an `Injector` in Tang, object sharing can be implemented. All objects already instantiated on the Context `Injector` will also be referenced by the Task`Injector`. Hence, the `LinkedList` in the example above would be shared amongst subsequent Task `Injectors` in the construction of the `Task` instance.
+This mechanism is implemented by using Tang's `Injector`s. On the Evaluator, a Task is launched by first *forking* the Context's `Injector` with the Task `Configuration` and then requesting an instance of the `Task` interface from that forked `Injector`. By this mechanism and the fact that objects are singletons with respect to an `Injector` in Tang, object sharing can be implemented. All objects already instantiated on the Context `Injector` will also be referenced by the Task `Injector`. Hence, the `LinkedList` in the example above would be shared amongst subsequent Task `Injectors` in the construction of the `Task` instance.
 
 ###<a name="driver"></a>Driver
 
@@ -77,7 +77,7 @@ Contexts are REEF's form of state management inside of the Evaluator. See the [C
 
 On typical resource managers, an Evaluator is a process executing inside a container. Depending on the resource manager, that process may or may not be guarded by a resource or security isolation layer.
 
-This also means that the Evaluator, not the Task, is the unit of resource consumption: while an Evaluator is occupying a Container, that Container is "used" from the perspective of the Resource Manager.That is true even if the Evaluator is idle from the perspective of the Driver, i.e. when no Task is running on it.
+This also means that the Evaluator, not the Task, is the unit of resource consumption: while an Evaluator is occupying a Container, that Container is "used" from the perspective of the Resource Manager. That is true even if the Evaluator is idle from the perspective of the Driver, i.e. when no Task is running on it.
 
 ###<a name="task"></a>Task
 
