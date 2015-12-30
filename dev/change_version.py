@@ -23,7 +23,6 @@ python change_version <reef_home> <reef_version_for_pom.xml> -s <true or false> 
 
 -s option changes value of 'IsSnapshot' in lang/cs/build.props.
 If you use the option "-s false", bulid.props changes as,
- <RemoveIncubating>true</RemoveIncubating>
  <IsSnapshot>false</IsSnapshot>
  <SnapshotNumber>00</SnapshotNumber>
 
@@ -167,22 +166,18 @@ def change_build_props(file, is_snapshot):
     changed_str = ""
 
     f = open(file, 'r')
-    r1 = re.compile('<RemoveIncubating>(.*?)</RemoveIncubating>')
-    r2 = re.compile('<IsSnapshot>(.*?)</IsSnapshot>')
-    r3 = re.compile('<SnapshotNumber>(.*?)</SnapshotNumber>')
+    r1 = re.compile('<IsSnapshot>(.*?)</IsSnapshot>')
+    r2 = re.compile('<SnapshotNumber>(.*?)</SnapshotNumber>')
 
     while True:
         line = f.readline()
         if not line:
             break
-        if "<RemoveIncubating>" and "</RemoveIncubating>" in line and is_snapshot=="false":
-            old_remove_incubating = r1.search(line).group(1)
-            changed_str += line.replace(old_remove_incubating, "true")
-        elif "<IsSnapshot>" in line and "</IsSnapshot>" in line:
-            old_is_snapshot = r2.search(line).group(1)
+        if "<IsSnapshot>" in line and "</IsSnapshot>" in line:
+            old_is_snapshot = r1.search(line).group(1)
             changed_str += line.replace(old_is_snapshot, is_snapshot)
         elif "<SnapshotNumber>" in line and "</SnapshotNumber>" in line and is_snapshot=="false":
-            old_snapshot_number = r3.search(line).group(1)
+            old_snapshot_number = r2.search(line).group(1)
             changed_str += line.replace(old_snapshot_number, "00")
         else:
             changed_str += line
