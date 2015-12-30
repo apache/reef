@@ -129,13 +129,19 @@ final class DriverFiles {
    * @throws IOException if one or more of the copies fail.
    */
   public void copyTo(final File destinationFolder) throws IOException {
-    destinationFolder.mkdirs();
+    if (!destinationFolder.exists() && !destinationFolder.mkdirs()) {
+      LOG.log(Level.WARNING, "Failed to create [{0}]", destinationFolder.getAbsolutePath());
+    }
     final File reefFolder = new File(destinationFolder, fileNames.getREEFFolderName());
 
     final File localFolder = new File(reefFolder, fileNames.getLocalFolderName());
     final File globalFolder = new File(reefFolder, fileNames.getGlobalFolderName());
-    localFolder.mkdirs();
-    globalFolder.mkdirs();
+    if (!localFolder.exists() && !localFolder.mkdirs()) {
+      LOG.log(Level.WARNING, "Failed to create [{0}]", localFolder.getAbsolutePath());
+    }
+    if (!globalFolder.exists() && !globalFolder.mkdirs()) {
+      LOG.log(Level.WARNING, "Failed to create [{0}]", globalFolder.getAbsolutePath());
+    }
 
     try {
       this.localFiles.createSymbolicLinkTo(localFolder);

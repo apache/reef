@@ -388,9 +388,9 @@ public class InjectorImpl implements Injector {
     if (memo.containsKey(n)) {
       if (BUILDING == memo.get(n)) {
         final StringBuilder loopyList = new StringBuilder("[");
-        for (final Node node : memo.keySet()) {
-          if (memo.get(node) == BUILDING) {
-            loopyList.append(" " + node.getFullName());
+        for (final Map.Entry<Node, InjectionPlan<?>> node : memo.entrySet()) {
+          if (node.getValue() == BUILDING) {
+            loopyList.append(" ").append(node.getKey().getFullName());
           }
         }
         loopyList.append(" ]");
@@ -722,8 +722,8 @@ public class InjectorImpl implements Injector {
         namedParameterInstances.put(np, o);
       } catch (final IllegalArgumentException e) {
         throw new BindException(
-            "Attempt to re-bind named parameter " + ReflectionUtilities.getFullName(cl) + ".  Old value was [" + old
-                + "] new value is [" + o + "]");
+            "Attempt to bind named parameter " + ReflectionUtilities.getFullName(cl) + " failed. "
+                + "Value is [" + o + "]");
 
       }
     } else {

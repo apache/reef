@@ -126,7 +126,7 @@ public final class ReefEventStateManager {
    */
   private String convertTime(final long time) {
     final Date date = new Date(time);
-    return FORMAT.format(date).toString();
+    return FORMAT.format(date);
   }
 
   /**

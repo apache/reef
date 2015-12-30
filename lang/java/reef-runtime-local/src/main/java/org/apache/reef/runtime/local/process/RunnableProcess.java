@@ -101,7 +101,9 @@ public final class RunnableProcess implements Runnable {
     this.id = id;
     this.folder = folder;
     assert this.folder.isDirectory();
-    this.folder.mkdirs();
+    if (!this.folder.exists() && !this.folder.mkdirs()) {
+      LOG.log(Level.WARNING, "Failed to create [{0}]", this.folder.getAbsolutePath());
+    }
     this.standardOutFileName = standardOutFileName;
     this.standardErrorFileName = standardErrorFileName;
     LOG.log(Level.FINEST, "RunnableProcess ready.");
@@ -203,7 +205,9 @@ public final class RunnableProcess implements Runnable {
     try {
       if (this.processIsRunning()) {
         this.process.destroy();
-        this.doneCond.await(DESTROY_WAIT_TIME, TimeUnit.MILLISECONDS);
+        if (!this.doneCond.await(DESTROY_WAIT_TIME, TimeUnit.MILLISECONDS)) {
+          LOG.log(Level.FINE, "{0} milliseconds elapsed", DESTROY_WAIT_TIME);
+        }
       }
 
       if (this.processIsRunning()) {

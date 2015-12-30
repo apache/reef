@@ -84,9 +84,13 @@ final class ProcessContainer implements Container {
     this.processObserver = processObserver;
     this.reefFolder = new File(folder, fileNames.getREEFFolderName());
     this.localFolder = new File(reefFolder, fileNames.getLocalFolderName());
-    this.localFolder.mkdirs();
+    if (!this.localFolder.exists() && !this.localFolder.mkdirs()) {
+      LOG.log(Level.WARNING, "Failed to create [{0}]", this.localFolder.getAbsolutePath());
+    }
     this.globalFolder = new File(reefFolder, fileNames.getGlobalFolderName());
-    this.globalFolder.mkdirs();
+    if (!this.globalFolder.exists() && !this.globalFolder.mkdirs()) {
+      LOG.log(Level.WARNING, "Failed to create [{0}]", this.globalFolder.getAbsolutePath());
+    }
   }
 
   private static void copy(final Iterable<File> files, final File folder) throws IOException {
@@ -114,7 +118,10 @@ final class ProcessContainer implements Container {
   @SuppressWarnings("checkstyle:hiddenfield")
   public void addGlobalFiles(final File globalFolder) {
     try {
-      copy(Arrays.asList(globalFolder.listFiles()), this.globalFolder);
+      final File[] files = globalFolder.listFiles();
+      if (files != null) {
+        copy(Arrays.asList(files), this.globalFolder);
+      }
     } catch (final IOException e) {
       throw new RuntimeException("Unable to copy files to the evaluator folder.", e);
     }

@@ -86,8 +86,8 @@ public final class StringEntry {
 
     final StringEntry that = (StringEntry) o;
 
-    return (this.key == that.key || this.key != null && this.key.equals(that.key))
-        && (this.value == that.value || this.value != null && this.value.equals(that.value));
+    return (this.key == null && that.key == null || this.key != null && this.key.equals(that.key))
+        && (this.value == null && that.value == null || this.value != null && this.value.equals(that.value));
   }
 
   @Override

@@ -136,7 +136,9 @@ public final class HDICLI {
   private void logs(final String applicationId, final File folder) throws IOException {
     LOG.log(Level.FINE, "Fetching logs for application [{0}] and storing them in folder [{1}]",
         new Object[]{applicationId, folder.getAbsolutePath()});
-    folder.mkdirs();
+    if (!folder.exists() && !folder.mkdirs()) {
+      LOG.log(Level.WARNING, "Failed to create [{0}]", folder.getAbsolutePath());
+    }
     this.logFetcher.fetch(applicationId, folder);
   }
 

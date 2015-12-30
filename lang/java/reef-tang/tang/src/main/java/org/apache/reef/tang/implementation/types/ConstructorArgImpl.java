@@ -66,10 +66,7 @@ public class ConstructorArgImpl implements ConstructorArg {
     if (name == null && arg.name == null) {
       return true;
     }
-    if (name == null && arg.name != null) {
-      return false;
-    }
-    if (name != null && arg.name == null) {
+    if (name == null || arg.name == null) {
       return false;
     }
     return name.equals(arg.name);

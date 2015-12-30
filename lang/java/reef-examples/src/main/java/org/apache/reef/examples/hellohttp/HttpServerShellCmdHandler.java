@@ -30,8 +30,6 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.util.List;
-import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -103,7 +101,6 @@ class HttpServerShellCmdHandler implements HttpHandler {
       throws IOException, ServletException {
     LOG.log(Level.INFO, "HttpServeShellCmdHandler in webserver onHttpRequest is called: {0}",
         parsedHttpRequest.getRequestUri());
-    final Map<String, List<String>> queries = parsedHttpRequest.getQueryMap();
     final String queryStr = parsedHttpRequest.getQueryString();
 
     if (parsedHttpRequest.getTargetEntity().equalsIgnoreCase("Evaluators")) {

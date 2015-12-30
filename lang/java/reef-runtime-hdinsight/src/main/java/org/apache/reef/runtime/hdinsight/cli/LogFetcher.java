@@ -118,7 +118,9 @@ final class LogFetcher {
   private File downloadToTempFolder(final String applicationId)
       throws URISyntaxException, StorageException, IOException {
     final File outputFolder = Files.createTempDirectory("reeflogs-" + applicationId).toFile();
-    outputFolder.mkdirs();
+    if (!outputFolder.exists() && !outputFolder.mkdirs()) {
+      LOG.log(Level.WARNING, "Failed to create [{0}]", outputFolder.getAbsolutePath());
+    }
     final CloudBlobDirectory logFolder = this.container.getDirectoryReference(LOG_FOLDER_PREFIX + applicationId + "/");
     int fileCounter = 0;
     for (final ListBlobItem blobItem : logFolder.listBlobs()) {
@@ -129,7 +131,7 @@ final class LogFetcher {
         }
       }
     }
-    LOG.log(Level.FINE, "Downloadeded logs to: {0}", outputFolder.getAbsolutePath());
+    LOG.log(Level.FINE, "Downloaded logs to: {0}", outputFolder.getAbsolutePath());
     return outputFolder;
   }
 

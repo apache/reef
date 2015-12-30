@@ -393,9 +393,10 @@ public class Tint {
             try {
               clz = t.ch.classForName(c.getFullName());
             } catch (final ClassNotFoundException e) {
+              // TODO[JIRA REEF-864] Clarify handling in this case
               e.printStackTrace();
             }
-            final String typ = clz.isInterface() ? "interface" : "class";
+            final String typ = clz == null ? "undefined" : clz.isInterface() ? "interface" : "class";
             out.println("<div class='module-margin' id='" + c.getFullName() + "'><div class='decl'>" +
                 "<span class='fullName'>" + typ + " " + c.getFullName() + "</span>");
             for (final ConstructorDef<?> d : c.getInjectableConstructors()) {

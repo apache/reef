@@ -126,7 +126,7 @@ public final class HttpShellJobDriver {
    *
    * @param command shell command to execute.
    */
-  private void submit(final String command) {
+  private synchronized void submit(final String command) {
     LOG.log(Level.INFO, "Submit command {0} to {1} evaluators. state: {2}",
         new Object[]{command, this.contexts.size(), this.state});
     assert this.state == State.READY;
@@ -346,9 +346,11 @@ public final class HttpShellJobDriver {
   final class StartHandler implements EventHandler<StartTime> {
     @Override
     public void onNext(final StartTime startTime) {
-      LOG.log(Level.INFO, "{0} StartTime: {1}", new Object[]{state, startTime});
-      assert state == State.INIT;
-      requestEvaluators();
+      synchronized (HttpShellJobDriver.this) {
+        LOG.log(Level.INFO, "{0} StartTime: {1}", new Object[]{state, startTime});
+        assert state == State.INIT;
+        requestEvaluators();
+      }
     }
   }
 
@@ -358,9 +360,11 @@ public final class HttpShellJobDriver {
   final class StopHandler implements EventHandler<StopTime> {
     @Override
     public void onNext(final StopTime time) {
-      LOG.log(Level.INFO, "{0} StopTime: {1}", new Object[]{state, time});
-      for (final ActiveContext context : contexts.values()) {
-        context.close();
+      synchronized (HttpShellJobDriver.this) {
+        LOG.log(Level.INFO, "{0} StopTime: {1}", new Object[]{state, time});
+        for (final ActiveContext context : contexts.values()) {
+          context.close();
+        }
       }
     }
   }
