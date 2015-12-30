@@ -55,9 +55,12 @@ public final class HelloCLR {
                                             final OptionalParameter<String> param,
                                             final File folder) {
     ConfigurationModule result = conf;
-    for (final File f : folder.listFiles()) {
-      if (f.canRead() && f.exists() && f.isFile()) {
-        result = result.set(param, f.getAbsolutePath());
+    final File[] files = folder.listFiles();
+    if (files != null) {
+      for (final File f : files) {
+        if (f.canRead() && f.exists() && f.isFile()) {
+          result = result.set(param, f.getAbsolutePath());
+        }
       }
     }
     return result;

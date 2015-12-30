@@ -97,10 +97,10 @@ public class ListInjectionPlan<T> extends InjectionPlan<T> {
   public String toShallowString() {
     final StringBuilder sb = new StringBuilder("list { ");
     for (final InjectionPlan<T> ip : entries) {
-      sb.append("\n" + ip.toShallowString());
+      sb.append("\n").append(ip.toShallowString());
     }
     sb.append("\n } ");
-    return null;
+    return sb.toString();
   }
 
 }

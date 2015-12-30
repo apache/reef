@@ -94,11 +94,13 @@ public final class SchedulerDriver {
   public final class StartHandler implements EventHandler<StartTime> {
     @Override
     public void onNext(final StartTime startTime) {
-      LOG.log(Level.INFO, "Driver started at {0}", startTime);
-      assert state == State.INIT;
-      state = State.WAIT_EVALUATORS;
+      synchronized (SchedulerDriver.this) {
+        LOG.log(Level.INFO, "Driver started at {0}", startTime);
+        assert state == State.INIT;
+        state = State.WAIT_EVALUATORS;
 
-      requestEvaluator(1); // Allocate an initial evaluator to avoid idle state.
+        requestEvaluator(1); // Allocate an initial evaluator to avoid idle state.
+      }
     }
   }
 

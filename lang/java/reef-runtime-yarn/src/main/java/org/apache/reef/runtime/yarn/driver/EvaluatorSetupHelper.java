@@ -120,7 +120,9 @@ final class EvaluatorSetupHelper {
       LOG.log(Level.FINE, "Marking [{0}] for deletion at the exit of this JVM and deleting [{1}]",
           new Object[]{localFile.getAbsolutePath(), localStagingFolder.getAbsolutePath()});
       localFile.deleteOnExit();
-      localStagingFolder.delete();
+      if (!localStagingFolder.delete()) {
+        LOG.log(Level.WARNING, "Failed to delete [{0}]", localStagingFolder.getAbsolutePath());
+      }
     } else {
       LOG.log(Level.FINE, "The evaluator staging folder will be kept at [{0}], the JAR at [{1}]",
           new Object[]{localFile.getAbsolutePath(), localStagingFolder.getAbsolutePath()});

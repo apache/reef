@@ -91,7 +91,9 @@ final class LocalJobSubmissionHandler implements JobSubmissionHandler {
             "/" + t.getIdentifier() + "-" + System.currentTimeMillis() + "/");
 
         final File driverFolder = new File(jobFolder, PreparedDriverFolderLauncher.DRIVER_FOLDER_NAME);
-        driverFolder.mkdirs();
+        if (!driverFolder.exists() && !driverFolder.mkdirs()) {
+          LOG.log(Level.WARNING, "Failed to create [{0}]", driverFolder.getAbsolutePath());
+        }
 
         final DriverFiles driverFiles = DriverFiles.fromJobSubmission(t, this.fileNames);
         driverFiles.copyTo(driverFolder);

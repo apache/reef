@@ -167,7 +167,7 @@ public class SuspendClient {
     @Override
     public void onNext(final FailedRuntime error) {
       LOG.log(Level.SEVERE, "ERROR: " + error, error.getReason().orElse(null));
-      synchronized (SuspendClient.class) {
+      synchronized (SuspendClient.this) {
         SuspendClient.this.notify();
       }
     }

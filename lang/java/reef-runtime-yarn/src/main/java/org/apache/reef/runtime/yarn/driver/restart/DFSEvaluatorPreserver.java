@@ -21,6 +21,7 @@ package org.apache.reef.runtime.yarn.driver.restart;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.yarn.api.records.ApplicationId;
 import org.apache.reef.annotations.Unstable;
 import org.apache.reef.annotations.audience.DriverSide;
 import org.apache.reef.annotations.audience.RuntimeAuthor;
@@ -35,6 +36,7 @@ import org.apache.reef.tang.annotations.Parameter;
 import javax.inject.Inject;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.logging.Level;
@@ -106,9 +108,9 @@ public final class DFSEvaluatorPreserver implements EvaluatorPreserver, AutoClos
    * @return the folder for Evaluator changelog.
    */
   private static String getEvaluatorChangeLogFolderLocation() {
-    final String appId = YarnUtilities.getApplicationId().toString();
+    final ApplicationId appId = YarnUtilities.getApplicationId();
     if (appId != null) {
-      return appId;
+      return appId.toString();
     }
 
     final String jobIdentifier = EvaluatorManager.getJobIdentifier();
@@ -216,7 +218,7 @@ public final class DFSEvaluatorPreserver implements EvaluatorPreserver, AutoClos
       try {
         this.close();
       } catch (Exception e1) {
-        LOG.log(Level.SEVERE, "Failed on closing resource with " + e1.getStackTrace());
+        LOG.log(Level.SEVERE, "Failed on closing resource with " + Arrays.toString(e1.getStackTrace()));
       }
 
       if (fatalMsg != null) {

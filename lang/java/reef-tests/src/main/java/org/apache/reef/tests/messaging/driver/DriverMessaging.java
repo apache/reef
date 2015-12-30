@@ -108,7 +108,9 @@ public final class DriverMessaging {
     }
 
     this.reef.close();
-    return this.status;
+    synchronized (this) {
+      return this.status;
+    }
   }
 
   final class JobMessageHandler implements EventHandler<JobMessage> {

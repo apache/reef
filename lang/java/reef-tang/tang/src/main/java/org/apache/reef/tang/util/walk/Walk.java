@@ -55,7 +55,7 @@ public final class Walk {
         }
       } else {
         for (final T child : node.getChildren()) {
-          if (!preorder(nodeVisitor, edgeVisitor, child)) {
+          if (!preorder(nodeVisitor, null, child)) {
             return false;
           }
         }

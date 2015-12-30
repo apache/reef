@@ -41,6 +41,8 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * The current implementation runs the driver as a local process, similar to reef-runtime-local.
@@ -49,6 +51,8 @@ import java.util.List;
 @Private
 @ClientSide
 final class MesosJobSubmissionHandler implements JobSubmissionHandler {
+  private static final Logger LOG = Logger.getLogger(MesosJobSubmissionHandler.class.getName());
+
   public static final String DRIVER_FOLDER_NAME = "driver";
 
   private final ConfigurationSerializer configurationSerializer;
@@ -84,13 +88,20 @@ final class MesosJobSubmissionHandler implements JobSubmissionHandler {
           "/" + jobSubmissionEvent.getIdentifier() + "-" + System.currentTimeMillis() + "/");
 
       final File driverFolder = new File(jobFolder, DRIVER_FOLDER_NAME);
-      driverFolder.mkdirs();
+      if (!driverFolder.exists() && !driverFolder.mkdirs()) {
+        LOG.log(Level.WARNING, "Failed to create folder {0}", driverFolder.getAbsolutePath());
+      }
 
       final File reefFolder = new File(driverFolder, this.fileNames.getREEFFolderName());
-      reefFolder.mkdirs();
+      if (!reefFolder.exists() && !reefFolder.mkdirs()) {
+        LOG.log(Level.WARNING, "Failed to create folder {0}", reefFolder.getAbsolutePath());
+      }
 
       final File localFolder = new File(reefFolder, this.fileNames.getLocalFolderName());
-      localFolder.mkdirs();
+      if (!localFolder.exists() && !localFolder.mkdirs()) {
+        LOG.log(Level.WARNING, "Failed to create folder {0}", localFolder.getAbsolutePath());
+      }
+
       for (final FileResource file : jobSubmissionEvent.getLocalFileSet()) {
         final Path src = new File(file.getPath()).toPath();
         final Path dst = new File(driverFolder, this.fileNames.getLocalFolderPath() + "/" + file.getName()).toPath();
@@ -98,7 +109,10 @@ final class MesosJobSubmissionHandler implements JobSubmissionHandler {
       }
 
       final File globalFolder = new File(reefFolder, this.fileNames.getGlobalFolderName());
-      globalFolder.mkdirs();
+      if (!globalFolder.exists() && !globalFolder.mkdirs()) {
+        LOG.log(Level.WARNING, "Failed to create folder {0}", globalFolder.getAbsolutePath());
+      }
+
       for (final FileResource file : jobSubmissionEvent.getGlobalFileSet()) {
         final Path src = new File(file.getPath()).toPath();
         final Path dst = new File(driverFolder, this.fileNames.getGlobalFolderPath() + "/" + file.getName()).toPath();

@@ -357,7 +357,9 @@ final class ContainerManager implements AutoCloseable {
     final String processID = nodeId + "-"
         + String.valueOf(System.currentTimeMillis());
     final File processFolder = new File(this.rootFolder, processID);
-    processFolder.mkdirs();
+    if (!processFolder.exists() && !processFolder.mkdirs()) {
+      LOG.log(Level.WARNING, "Failed to create [{0}]", processFolder.getAbsolutePath());
+    }
     final ProcessContainer container = new ProcessContainer(
         this.errorHandlerRID, nodeId, processID, processFolder, megaBytes,
         numberOfCores, rackName, this.fileNames, this.processObserver);

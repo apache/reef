@@ -102,7 +102,7 @@ public final class HelloREEFHttp {
   }
 
   /**
-   * main program.
+   * Main program.
    *
    * @param args
    * @throws InjectionException
@@ -111,7 +111,7 @@ public final class HelloREEFHttp {
     final Configuration runtimeConfiguration = LocalRuntimeConfiguration.CONF
         .set(LocalRuntimeConfiguration.MAX_NUMBER_OF_EVALUATORS, MAX_NUMBER_OF_EVALUATORS)
         .build();
-    final LauncherStatus status = runHelloReef(runtimeConfiguration, HelloREEFHttp.JOB_TIMEOUT);
+    runHelloReef(runtimeConfiguration, HelloREEFHttp.JOB_TIMEOUT);
   }
 
   /**

@@ -69,7 +69,7 @@ public class SetInjectionPlan<T> extends InjectionPlan<T> {
     final StringBuilder sb = new StringBuilder(getNode().getFullName() + "(set) includes ambiguous plans [");
     for (final InjectionPlan<T> ip : entries) {
       if (ip.isAmbiguous()) {
-        sb.append("\n" + ip.toAmbiguousInjectString());
+        sb.append("\n").append(ip.toAmbiguousInjectString());
       }
     }
     sb.append("]");
@@ -81,7 +81,7 @@ public class SetInjectionPlan<T> extends InjectionPlan<T> {
     final StringBuilder sb = new StringBuilder(getNode().getFullName() + "(set) includes infeasible plans [");
     for (final InjectionPlan<T> ip : entries) {
       if (!ip.isFeasible()) {
-        sb.append("\n" + ip.toInfeasibleInjectString());
+        sb.append("\n").append(ip.toInfeasibleInjectString());
       }
     }
     sb.append("\n]");
@@ -97,10 +97,10 @@ public class SetInjectionPlan<T> extends InjectionPlan<T> {
   public String toShallowString() {
     final StringBuilder sb = new StringBuilder("set { ");
     for (final InjectionPlan<T> ip : entries) {
-      sb.append("\n" + ip.toShallowString());
+      sb.append("\n").append(ip.toShallowString());
     }
     sb.append("\n } ");
-    return null;
+    return sb.toString();
   }
 
 }

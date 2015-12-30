@@ -71,7 +71,7 @@ public final class ParsedHttpRequest {
     this.version = parts.length > 2 ? parts[2] : null;
     this.targetEntity = parts.length > 3 ? parts[3] : null;
 
-    if (this.queryString != null && !this.queryString.isEmpty()) {
+    if (!this.queryString.isEmpty()) {
       final String[] pairs = this.queryString.split("&");
       for (final String pair : pairs) {
         final int idx = pair.indexOf("=");
