@@ -27,7 +27,7 @@ under the License.
     <name>REEF</name>
     <artifactId>reef-project</artifactId>
     <description>Retainable Evaluator Execution Framework</description>
-    <url>http://reef.incubator.apache.org</url>
+    <url>http://reef.apache.org</url>
 
     <parent>
         <groupId>org.apache</groupId>
@@ -63,9 +63,9 @@ under the License.
     </properties>
 
     <scm>
-        <connection>scm:git:git@github.com:apache/incubator-reef</connection>
-        <developerConnection>scm:git:https://git-wip-us.apache.org/repos/asf/incubator-reef</developerConnection>
-        <url>scm:git:git@github.com:apache/incubator-reef</url>
+        <connection>scm:git:git@github.com:apache/reef</connection>
+        <developerConnection>scm:git:https://git-wip-us.apache.org/repos/asf/reef</developerConnection>
+        <url>scm:git:git@github.com:apache/reef</url>
         <tag>HEAD</tag>
     </scm>
 
@@ -80,10 +80,10 @@ under the License.
     <mailingLists>
         <mailingList>
             <name>Dev Mailing List</name>
-            <post>dev@reef.incubator.apache.org</post>
-            <subscribe>dev-subscribe@reef.incubator.apache.org</subscribe>
-            <unsubscribe>dev-unsubscribe@reef.incubator.apache.org</unsubscribe>
-            <archive>http://mail-archives.apache.org/mod_mbox/incubator-reef-dev/</archive>
+            <post>dev@reef.apache.org</post>
+            <subscribe>dev-subscribe@reef.apache.org</subscribe>
+            <unsubscribe>dev-unsubscribe@reef.apache.org</unsubscribe>
+            <archive>http://mail-archives.apache.org/mod_mbox/reef-dev/</archive>
         </mailingList>
     </mailingLists>
 
