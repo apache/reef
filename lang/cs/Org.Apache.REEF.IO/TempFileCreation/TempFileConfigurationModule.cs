@@ -24,10 +24,20 @@ using Org.Apache.REEF.Tang.Util;
 
 namespace Org.Apache.REEF.IO.TempFileCreation
 {
+    /// <summary>
+    /// Configuration Module for TempFileCreator.
+    /// </summary>
     public sealed class TempFileConfigurationModule : ConfigurationModuleBuilder
     {
+        /// <summary>
+        /// Temp file folder optional parameter. The default is @"./reef/tmp/" set in TempFileFolder class.
+        /// </summary>
         public static readonly OptionalParameter<string> TempFileFolerParameter = new OptionalParameter<string>();
 
+        /// <summary>
+        /// It binds TempFileConfigurationProvider to DriverConfigurationProviders so that the configuration is set for 
+        /// Driver configuration automatically. TempFileFolerParameter is set as an optional parameter for TempFileFolder.
+        /// </summary>
         public static readonly ConfigurationModule ConfigurationModule = new TempFileConfigurationModule()
             .BindSetEntry<DriverConfigurationProviders, TempFileConfigurationProvider, IConfigurationProvider>(
                 GenericType<DriverConfigurationProviders>.Class, GenericType<TempFileConfigurationProvider>.Class)

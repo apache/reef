@@ -33,7 +33,7 @@ namespace Org.Apache.REEF.IO.TempFileCreation
         string TempFileFolder { get; }
 
         /// <summary>
-        /// CReate a temp folder with given prefix and suffix as part of the name
+        /// Create a temp folder with given prefix and suffix as part of the name
         /// </summary>
         /// <param name="prefix"></param>
         /// <param name="suffix"></param>
