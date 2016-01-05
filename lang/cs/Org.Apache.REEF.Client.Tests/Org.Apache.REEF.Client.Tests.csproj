@@ -62,6 +62,7 @@ under the License.
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="HDInsightYarnClientTests.cs" />
     <Compile Include="JobResourceUploaderTests.cs" />
     <Compile Include="LegacyJobResourceUploaderTests.cs" />
     <Compile Include="MultipleRMUrlProviderTests.cs" />
