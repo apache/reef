@@ -25,7 +25,7 @@ python release.py <reef_home> <reef_version> <rc candidate number> <public key i
 You can also see how to run the script with 'python release.py -h'
 
 (Examples)
-python release.py ~/incubator-reef 0.12.0-incubating 1 E488F925
+python release.py ~/reef 0.14.0 1 E488F925
 
 """
 
@@ -34,7 +34,6 @@ import subprocess
 import fnmatch
 import tarfile
 import hashlib
-import sys
 import os
 import argparse
 
@@ -52,7 +51,7 @@ def get_ignore_list(reef_home):
         line = f.readline()[:-1]
         if not line:
             break
-        if not "#" in line:
+        if "#" not in line:
             ignore_list.insert(0, "*/" + line)
 
     return ignore_list
@@ -79,7 +78,7 @@ def get_mail_text(reef_version, rc_num):
     return_str += "SHA: " + sha + "\n"
 
     return_str += "\nRelease artifacts are signed with a key found in the KEYS file available here:\n"
-    return_str += "\nhttps://dist.apache.org/repos/dist/release/incubator/reef/KEYS\n\n\n\n"
+    return_str += "\nhttps://dist.apache.org/repos/dist/release/reef/KEYS\n\n\n\n"
 
     return_str += "<Issue Things>\n\n\n\n"
 
@@ -127,15 +126,15 @@ if __name__ == "__main__":
 
         # Make tar.gz
         tar = tarfile.open(file_name, "w:gz")
-        tar.add(reef_home, arcname="apache-reef-"+reef_version , exclude=exclude_git_ignore)
+        tar.add(reef_home, arcname="apache-reef-"+reef_version, exclude=exclude_git_ignore)
         tar.close()
 
         gpg_str = "gpg --armor -u " + str(key_id) + " --output " + file_name + ".asc " + "--detach-sig " + file_name
         gpg_result = subprocess.call(gpg_str, shell=True)
 
         if gpg_result == 0:
-            md5 = hashlib.md5(open(file_name,'rb').read()).hexdigest()
-            sha = hashlib.sha512(open(file_name,'rb').read()).hexdigest()
+            md5 = hashlib.md5(open(file_name, 'rb').read()).hexdigest()
+            sha = hashlib.sha512(open(file_name, 'rb').read()).hexdigest()
 
             md5_file = open(file_name + ".md5", "w")
             md5_file.write(md5 + " *" + file_name + "\n")
@@ -148,7 +147,6 @@ if __name__ == "__main__":
             print "\n==================================Result==================================="
             print get_mail_text(reef_version, rc_num)
             print "===========================================================================\n"
-
 
         else:
             print "gpg error"
