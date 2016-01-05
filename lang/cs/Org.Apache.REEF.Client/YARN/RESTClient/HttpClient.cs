@@ -30,10 +30,10 @@ namespace Org.Apache.REEF.Client.YARN.RestClient
         private readonly System.Net.Http.HttpClient _httpClient;
 
         [Inject]
-        private HttpClient()
+        private HttpClient(IYarnRestClientCredential yarnRestClientCredential)
         {
             _httpClient = new System.Net.Http.HttpClient(
-                new HttpClientRetryHandler(new WebRequestHandler()),
+                new HttpClientRetryHandler(new WebRequestHandler { Credentials = yarnRestClientCredential.Credentials }),
                 disposeHandler: false);
         }
 
