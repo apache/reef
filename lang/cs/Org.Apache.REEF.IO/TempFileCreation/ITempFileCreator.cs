@@ -28,9 +28,12 @@ namespace Org.Apache.REEF.IO.TempFileCreation
     public interface ITempFileCreator
     {
         /// <summary>
-        /// return the temp folder path
+        /// Return the full path of a temp file name
         /// </summary>
-        string TempFileFolder { get; }
+        /// <param name="prefix"></param>
+        /// <param name="suffix"></param>
+        /// <returns></returns>
+        string GetTempFileName(string prefix = "", string suffix = "");
 
         /// <summary>
         /// Create a temp folder with given prefix and suffix as part of the name

@@ -51,11 +51,15 @@ namespace Org.Apache.REEF.IO.TempFileCreation
         }
 
         /// <summary>
-        /// returns the temp file folder
+        /// Return a full path of a temp file name with a radom generated file name wraped with prefix and suffix
+        /// and the temp folder as the file folder
         /// </summary>
-        public string TempFileFolder
+        /// <param name="prefix"></param>
+        /// <param name="suffix"></param>
+        /// <returns></returns>
+        public string GetTempFileName(string prefix, string suffix)
         {
-            get { return _tempFileFolder; }
+            return Path.GetFullPath(Path.Combine(_tempFileFolder, prefix + Guid.NewGuid().ToString("N").Substring(0, 8) + suffix));
         }
 
         /// <summary>
@@ -66,7 +70,7 @@ namespace Org.Apache.REEF.IO.TempFileCreation
         /// <returns></returns>
         public string CreateTempDirectory(string prefix, string suffix)
         {
-            string fullPathOfSubFolder = Path.GetFullPath(Path.Combine(_tempFileFolder, prefix, Guid.NewGuid().ToString("N").Substring(0, 8), suffix));
+            string fullPathOfSubFolder = GetTempFileName(prefix, suffix);
             if (!Directory.Exists(fullPathOfSubFolder))
             {
                 Directory.CreateDirectory(fullPathOfSubFolder);

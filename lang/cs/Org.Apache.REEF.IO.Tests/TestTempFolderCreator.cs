@@ -34,9 +34,10 @@ namespace Org.Apache.REEF.IO.Tests
             var b = TempFileConfigurationModule.ConfigurationModule.Build();
             var i = TangFactory.GetTang().NewInjector(b);
             var tempFileCreator = i.GetInstance<ITempFileCreator>();
-            var f1 = tempFileCreator.TempFileFolder;
-            var f2 = i.GetNamedInstance(typeof(TempFileFolder));
-            Assert.IsTrue(f1.Equals(f2));
+            var f1 = tempFileCreator.GetTempFileName();
+            var f2 = (string)i.GetNamedInstance(typeof(TempFileFolder));
+            var f = Path.GetFullPath(f2);
+            Assert.IsTrue(f1.StartsWith(f));
         }
 
         /// <summary>
@@ -50,9 +51,10 @@ namespace Org.Apache.REEF.IO.Tests
                 .Build();
             var i = TangFactory.GetTang().NewInjector(b);
             var tempFileCreator = i.GetInstance<ITempFileCreator>();
-            var f1 = tempFileCreator.TempFileFolder;
-            var f2 = i.GetNamedInstance(typeof(TempFileFolder));
-            Assert.IsTrue(f1.Equals(f2));
+            var f1 = tempFileCreator.GetTempFileName();
+            var f2 = (string)i.GetNamedInstance(typeof(TempFileFolder));
+            var f = Path.GetFullPath(f2);
+            Assert.IsTrue(f1.StartsWith(f));
         }
 
         /// <summary>
