@@ -32,7 +32,7 @@ public class TestClassLoaders {
 
   private static final FilenameFilter JAR_FILE_FILTER = new FilenameFilter() {
     public boolean accept(final File dir, final String name) {
-      return name.endsWith(".jar");
+      return name.matches("tang-test-jar(.*).jar");
     }
   };
 
