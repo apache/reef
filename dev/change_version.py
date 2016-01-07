@@ -238,8 +238,8 @@ def change_version(reef_home, new_version, pom_only):
         change_assembly_info_cs(reef_home + "/lang/cs/Org.Apache.REEF.Bridge/AssemblyInfo.cpp", new_version)
         print reef_home + "/lang/cs/Org.Apache.REEF.Bridge/AssemblyInfo.cpp"
 
-        change_assembly_info_cs(reef_home + "lang/cs/Org.Apache.REEF.ClrDriver/AssemblyInfo.cpp", new_version)
-        print reef_home + "lang/cs/Org.Apache.REEF.ClrDriver/AssemblyInfo.cpp"
+        change_assembly_info_cs(reef_home + "/lang/cs/Org.Apache.REEF.ClrDriver/AssemblyInfo.cpp", new_version)
+        print reef_home + "/lang/cs/Org.Apache.REEF.ClrDriver/AssemblyInfo.cpp"
 
         change_constants_cs(reef_home + "/lang/cs/Org.Apache.REEF.Driver/Constants.cs", new_version)
         print reef_home + "/lang/cs/Org.Apache.REEF.Driver/Constants.cs"
