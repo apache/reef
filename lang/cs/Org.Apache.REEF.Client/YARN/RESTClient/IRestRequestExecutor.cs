@@ -18,21 +18,31 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Org.Apache.REEF.Client.YARN.RestClient;
 using Org.Apache.REEF.Tang.Annotations;
-using RestSharp;
+using Org.Apache.REEF.Utilities.AsyncUtils;
 
 namespace Org.Apache.REEF.Client.Yarn.RestClient
 {
+    /// <summary>
+    /// Executes a REST request
+    /// </summary>
     [DefaultImplementation(typeof(RestRequestExecutor))]
     internal interface IRestRequestExecutor
     {
+        /// <summary>
+        /// Executes a REST request where a response is expected
+        /// </summary>
         Task<T> ExecuteAsync<T>(
-            IRestRequest request,
+            RestRequest request,
             Uri uri,
-            CancellationToken cancellationToken) where T : new();
+            CancellationToken cancellationToken);
 
-        Task<IRestResponse> ExecuteAsync(
-            IRestRequest request,
+        /// <summary>
+        /// Executes a REST request where a response is NOT expected
+        /// </summary>
+        Task<RestResponse<VoidResult>> ExecuteAsync(
+            RestRequest request,
             Uri uri,
             CancellationToken cancellationToken);
     }

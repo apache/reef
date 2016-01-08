@@ -15,32 +15,29 @@
 // specific language governing permissions and limitations
 // under the License.
 
-using Newtonsoft.Json;
-using Newtonsoft.Json.Converters;
-using Newtonsoft.Json.Serialization;
+using System;
+using System.Threading;
+using System.Threading.Tasks;
 using Org.Apache.REEF.Tang.Annotations;
+using Org.Apache.REEF.Utilities.AsyncUtils;
 
 namespace Org.Apache.REEF.Client.YARN.RestClient
 {
     /// <summary>
-    /// Simple implementation of JSON serializer by using Newtonsoft JSON lib
+    /// Interface for the client that executes the RestRequests and handles
+    /// errors and retries
     /// </summary>
-    internal sealed class RestJsonSerializer : ISerializer
+    [DefaultImplementation(typeof(RestClient))]
+    internal interface IRestClient
     {
-        private readonly JsonSerializerSettings _jsonSerializerSettings = new JsonSerializerSettings
-        {
-            ContractResolver = new CamelCasePropertyNamesContractResolver(),
-            Converters = new JsonConverter[] { new StringEnumConverter() }
-        };
+        /// <summary>
+        /// Execute request where the response is expected to be type T
+        /// </summary>
+        Task<RestResponse<T>> ExecuteRequestAsync<T>(RestRequest request, Uri requestBaseUri, CancellationToken cancellationToken);
 
-        [Inject]
-        private RestJsonSerializer()
-        {
-        }
-
-        public string Serialize(object obj)
-        {
-            return JsonConvert.SerializeObject(obj, _jsonSerializerSettings);
-        }
+        /// <summary>
+        /// Execute request where no response object is expected
+        /// </summary>
+        Task<RestResponse<VoidResult>> ExecuteRequestAsync(RestRequest request, Uri requestBaseUri, CancellationToken cancellationToken);
     }
 }

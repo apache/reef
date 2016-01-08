@@ -18,18 +18,21 @@
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Linq;
-using RestSharp;
-using RestSharp.Deserializers;
+using Org.Apache.REEF.Tang.Annotations;
 
 namespace Org.Apache.REEF.Client.YARN.RestClient
 {
+    /// <summary>
+    /// Simple implementation of JSON deserializer by using Newtonsoft JSON lib
+    /// </summary>
     internal sealed class RestJsonDeserializer : IDeserializer
     {
-        public string RootElement { get; set; }
-        public string Namespace { get; set; }
-        public string DateFormat { get; set; }
+        [Inject]
+        private RestJsonDeserializer()
+        {
+        }
 
-        public T Deserialize<T>(IRestResponse response)
+        public T Deserialize<T>(string contentString, string rootElement)
         {
             /* If root element is not empty, then we want to 
              * skip the top level token and parse only one level deeper
@@ -49,17 +52,17 @@ namespace Org.Apache.REEF.Client.YARN.RestClient
              * }
              * 
              * This logic helps us avoid such classes.
-            */ 
-            if (!string.IsNullOrEmpty(RootElement))
+            */
+            if (string.IsNullOrEmpty(rootElement))
             {
-                var jobject = JObject.Parse(response.Content);
-                var jtoken = jobject[RootElement];
-                var jsonSerializer = new JsonSerializer();
-                jsonSerializer.Converters.Add(new StringEnumConverter());
-                return jtoken.ToObject<T>(jsonSerializer);
+                return JsonConvert.DeserializeObject<T>(contentString, new StringEnumConverter());
             }
 
-            return JsonConvert.DeserializeObject<T>(response.Content, new StringEnumConverter());
+            var jobject = JObject.Parse(contentString);
+            var jtoken = jobject[rootElement];
+            var jsonSerializer = new JsonSerializer();
+            jsonSerializer.Converters.Add(new StringEnumConverter());
+            return jtoken.ToObject<T>(jsonSerializer);
         }
     }
 }

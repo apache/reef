@@ -38,6 +38,7 @@ under the License.
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AsyncUtils\RemoveSynchronizationContextAwaiter.cs" />
+    <Compile Include="AsyncUtils\VoidResult.cs" />
     <Compile Include="Attributes\ClientSideAttribute.cs" />
     <Compile Include="Attributes\DriverSideAttribute.cs" />
     <Compile Include="Attributes\EvaluatorSideAttribute.cs" />

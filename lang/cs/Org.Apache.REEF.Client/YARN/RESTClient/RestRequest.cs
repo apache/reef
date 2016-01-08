@@ -15,32 +15,35 @@
 // specific language governing permissions and limitations
 // under the License.
 
-using Newtonsoft.Json;
-using Newtonsoft.Json.Converters;
-using Newtonsoft.Json.Serialization;
-using Org.Apache.REEF.Tang.Annotations;
+using System.Net.Http;
+using System.Text;
 
 namespace Org.Apache.REEF.Client.YARN.RestClient
 {
     /// <summary>
-    /// Simple implementation of JSON serializer by using Newtonsoft JSON lib
+    /// Encapsulated data related to a REST request
     /// </summary>
-    internal sealed class RestJsonSerializer : ISerializer
+    internal class RestRequest
     {
-        private readonly JsonSerializerSettings _jsonSerializerSettings = new JsonSerializerSettings
-        {
-            ContractResolver = new CamelCasePropertyNamesContractResolver(),
-            Converters = new JsonConverter[] { new StringEnumConverter() }
-        };
+        /// <summary>
+        /// Path to the resource being accessed
+        /// This path is relative to the base path.
+        /// </summary>
+        public string Resource { get; set; }
 
-        [Inject]
-        private RestJsonSerializer()
-        {
-        }
+        /// <summary>
+        /// Root element (if any) in the response JSON
+        /// </summary>
+        public string RootElement { get; set; }
 
-        public string Serialize(object obj)
-        {
-            return JsonConvert.SerializeObject(obj, _jsonSerializerSettings);
-        }
+        /// <summary>
+        /// HTTP method to be invoked for the request
+        /// </summary>
+        public Method Method { get; set; }
+
+        /// <summary>
+        /// The serialized string content for the request
+        /// </summary>
+        public StringContent Content { get; internal set; }
     }
 }

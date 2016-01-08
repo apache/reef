@@ -15,32 +15,19 @@
 // specific language governing permissions and limitations
 // under the License.
 
-using Newtonsoft.Json;
-using Newtonsoft.Json.Converters;
-using Newtonsoft.Json.Serialization;
 using Org.Apache.REEF.Tang.Annotations;
 
 namespace Org.Apache.REEF.Client.YARN.RestClient
 {
     /// <summary>
-    /// Simple implementation of JSON serializer by using Newtonsoft JSON lib
+    /// Deserialize from string representation to corresponding data model object
     /// </summary>
-    internal sealed class RestJsonSerializer : ISerializer
+    [DefaultImplementation(typeof(RestJsonDeserializer))]
+    internal interface IDeserializer
     {
-        private readonly JsonSerializerSettings _jsonSerializerSettings = new JsonSerializerSettings
-        {
-            ContractResolver = new CamelCasePropertyNamesContractResolver(),
-            Converters = new JsonConverter[] { new StringEnumConverter() }
-        };
-
-        [Inject]
-        private RestJsonSerializer()
-        {
-        }
-
-        public string Serialize(object obj)
-        {
-            return JsonConvert.SerializeObject(obj, _jsonSerializerSettings);
-        }
+        /// <summary>
+        /// Deserialize content string to <typeparam name="T"></typeparam>
+        /// </summary>
+        T Deserialize<T>(string contentString, string rootElement);
     }
 }
