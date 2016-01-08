@@ -26,7 +26,6 @@ using Org.Apache.REEF.Client.YARN.RestClient.DataModel;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Utilities.AsyncUtils;
 using Org.Apache.REEF.Utilities.Logging;
-using RestSharp;
 
 namespace Org.Apache.REEF.Client.Yarn.RestClient
 {
@@ -39,15 +38,18 @@ namespace Org.Apache.REEF.Client.Yarn.RestClient
     internal sealed partial class YarnClient : IYarnRMClient
     {
         private static readonly Logger Logger = Logger.GetLogger(typeof(YarnClient));
-        private readonly string _baseResourceString;
         private readonly IUrlProvider _yarnRmUrlProviderUri;
         private readonly IRestRequestExecutor _restRequestExecutor;
+        private readonly IRequestFactory _requestFactory;
 
         [Inject]
-        internal YarnClient(IUrlProvider yarnRmUrlProviderUri, IRestRequestExecutor restRequestExecutor)
+        private YarnClient(
+            IUrlProvider yarnRmUrlProviderUri,
+            IRestRequestExecutor restRequestExecutor,
+            IRequestFactory requestFactory)
         {
+            _requestFactory = requestFactory;
             _yarnRmUrlProviderUri = yarnRmUrlProviderUri;
-            _baseResourceString = @"ws/v1/";
             _restRequestExecutor = restRequestExecutor;
         }
 
@@ -55,7 +57,10 @@ namespace Org.Apache.REEF.Client.Yarn.RestClient
         {
             await new RemoveSynchronizationContextAwaiter();
 
-            IRestRequest request = CreateRestRequest(ClusterInfo.Resource, Method.GET, ClusterInfo.RootElement);
+            var request = _requestFactory.CreateRestRequest(
+                ClusterInfo.Resource,
+                Method.GET,
+                ClusterInfo.RootElement);
 
             return
                 await GenerateUrlAndExecuteRequestAsync<ClusterInfo>(request, cancellationToken);
@@ -65,7 +70,9 @@ namespace Org.Apache.REEF.Client.Yarn.RestClient
         {
             await new RemoveSynchronizationContextAwaiter();
 
-            var request = CreateRestRequest(ClusterMetrics.Resource, Method.GET, ClusterMetrics.RootElement);
+            var request = _requestFactory.CreateRestRequest(ClusterMetrics.Resource,
+                Method.GET,
+                ClusterMetrics.RootElement);
 
             return
                 await
@@ -76,7 +83,9 @@ namespace Org.Apache.REEF.Client.Yarn.RestClient
         {
             await new RemoveSynchronizationContextAwaiter();
 
-            var request = CreateRestRequest(Application.Resource + appId, Method.GET, Application.RootElement);
+            var request = _requestFactory.CreateRestRequest(Application.Resource + appId,
+                Method.GET,
+                Application.RootElement);
 
             return
                 await GenerateUrlAndExecuteRequestAsync<Application>(request, cancellationToken);
@@ -86,7 +95,7 @@ namespace Org.Apache.REEF.Client.Yarn.RestClient
         {
             await new RemoveSynchronizationContextAwaiter();
 
-            var request = CreateRestRequest(NewApplication.Resource, Method.POST);
+            var request = _requestFactory.CreateRestRequest(NewApplication.Resource, Method.POST);
 
             return
                 await
@@ -99,38 +108,26 @@ namespace Org.Apache.REEF.Client.Yarn.RestClient
         {
             await new RemoveSynchronizationContextAwaiter();
 
-            var request = CreateRestRequest(SubmitApplication.Resource, Method.POST);
+            var request = _requestFactory.CreateRestRequest(
+                SubmitApplication.Resource,
+                Method.POST,
+                rootElement: null,
+                body: submitApplication);
 
-            request.AddBody(submitApplication);
             var submitResponse = await GenerateUrlAndExecuteRequestAsync(request, cancellationToken);
 
             if (submitResponse.StatusCode != HttpStatusCode.Accepted)
             {
                 throw new YarnRestAPIException(
                     string.Format("Application submission failed with HTTP STATUS {0}",
-                    submitResponse.StatusCode));
+                        submitResponse.StatusCode));
             }
 
             return await GetApplicationAsync(submitApplication.ApplicationId, cancellationToken);
         }
 
-        private RestRequest CreateRestRequest(string resourcePath, Method method, string rootElement = null)
-        {
-            var request = new RestRequest
-            {
-                Resource = _baseResourceString + resourcePath,
-                RootElement = rootElement,
-                Method = method,
-                RequestFormat = DataFormat.Json,
-                JsonSerializer = new RestJsonSerializer()
-            };
-
-            return request;
-        }
-
-        private async Task<T> GenerateUrlAndExecuteRequestAsync<T>(IRestRequest request,
+        private async Task<T> GenerateUrlAndExecuteRequestAsync<T>(RestRequest request,
             CancellationToken cancellationToken)
-            where T : new()
         {
             IEnumerable<Uri> yarnRmUris = await _yarnRmUrlProviderUri.GetUrlAsync();
             var exceptions = new List<Exception>();
@@ -145,7 +142,7 @@ namespace Org.Apache.REEF.Client.Yarn.RestClient
                 catch (Exception e)
                 {
                     exceptions.Add(e);
-                    Logger.Log(Level.Verbose, 
+                    Logger.Log(Level.Verbose,
                         string.Format(CultureInfo.CurrentCulture, "Possibly transient error in rest call {0}", e.Message));
                 }
             }
@@ -153,7 +150,7 @@ namespace Org.Apache.REEF.Client.Yarn.RestClient
             throw new AggregateException("Failed Rest Request", exceptions);
         }
 
-        private async Task<IRestResponse> GenerateUrlAndExecuteRequestAsync(IRestRequest request,
+        private async Task<RestResponse<VoidResult>> GenerateUrlAndExecuteRequestAsync(RestRequest request,
             CancellationToken cancellationToken)
         {
             IEnumerable<Uri> yarnRmUris = await _yarnRmUrlProviderUri.GetUrlAsync();
@@ -169,7 +166,7 @@ namespace Org.Apache.REEF.Client.Yarn.RestClient
                 catch (Exception e)
                 {
                     exceptions.Add(e);
-                    Logger.Log(Level.Verbose, 
+                    Logger.Log(Level.Verbose,
                         string.Format(CultureInfo.CurrentCulture, "Possibly transient error in rest call {0}", e.Message));
                 }
             }

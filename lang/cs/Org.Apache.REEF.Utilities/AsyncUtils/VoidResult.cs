@@ -15,32 +15,17 @@
 // specific language governing permissions and limitations
 // under the License.
 
-using Newtonsoft.Json;
-using Newtonsoft.Json.Converters;
-using Newtonsoft.Json.Serialization;
-using Org.Apache.REEF.Tang.Annotations;
+using System.Threading.Tasks;
 
-namespace Org.Apache.REEF.Client.YARN.RestClient
+namespace Org.Apache.REEF.Utilities.AsyncUtils
 {
     /// <summary>
-    /// Simple implementation of JSON serializer by using Newtonsoft JSON lib
+    /// A type used to indicate that no meaningful value is returned.
+    /// We often use this type with <see cref="Task{TResult}"/> to indicate that an asynchronous
+    /// operation returns no meaningful value. This eliminates the need to simultaneously
+    /// support <see cref="Task"/> APIs and <see cref="Task{TResult}"/> APIs
     /// </summary>
-    internal sealed class RestJsonSerializer : ISerializer
+    public struct VoidResult
     {
-        private readonly JsonSerializerSettings _jsonSerializerSettings = new JsonSerializerSettings
-        {
-            ContractResolver = new CamelCasePropertyNamesContractResolver(),
-            Converters = new JsonConverter[] { new StringEnumConverter() }
-        };
-
-        [Inject]
-        private RestJsonSerializer()
-        {
-        }
-
-        public string Serialize(object obj)
-        {
-            return JsonConvert.SerializeObject(obj, _jsonSerializerSettings);
-        }
     }
 }

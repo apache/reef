@@ -15,32 +15,23 @@
 // specific language governing permissions and limitations
 // under the License.
 
-using Newtonsoft.Json;
-using Newtonsoft.Json.Converters;
-using Newtonsoft.Json.Serialization;
+using System.Net.Http;
+using System.Threading;
+using System.Threading.Tasks;
 using Org.Apache.REEF.Tang.Annotations;
 
 namespace Org.Apache.REEF.Client.YARN.RestClient
 {
     /// <summary>
-    /// Simple implementation of JSON serializer by using Newtonsoft JSON lib
+    /// Wrapper interface on <see cref="System.Net.Http.HttpClient"/> for ease of unit-testing
     /// </summary>
-    internal sealed class RestJsonSerializer : ISerializer
+    [DefaultImplementation(typeof(HttpClient))]
+    internal interface IHttpClient
     {
-        private readonly JsonSerializerSettings _jsonSerializerSettings = new JsonSerializerSettings
-        {
-            ContractResolver = new CamelCasePropertyNamesContractResolver(),
-            Converters = new JsonConverter[] { new StringEnumConverter() }
-        };
+        Task<HttpResponseMessage> GetAsync(string requestResource, CancellationToken cancellationToken);
 
-        [Inject]
-        private RestJsonSerializer()
-        {
-        }
+        Task<HttpResponseMessage> PostAsync(string requestResource, StringContent content, CancellationToken cancellationToken);
 
-        public string Serialize(object obj)
-        {
-            return JsonConvert.SerializeObject(obj, _jsonSerializerSettings);
-        }
+        Task<HttpResponseMessage> PutAsync(string requestResource, StringContent content, CancellationToken cancellationToken);
     }
 }

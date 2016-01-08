@@ -27,7 +27,7 @@ using Org.Apache.REEF.Client.YARN.RestClient;
 using Org.Apache.REEF.Client.YARN.RestClient.DataModel;
 using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Tang.Util;
-using RestSharp;
+using Org.Apache.REEF.Utilities.AsyncUtils;
 using Xunit;
 
 namespace Org.Apache.REEF.Client.Tests
@@ -50,7 +50,7 @@ namespace Org.Apache.REEF.Client.Tests
                 HadoopVersionBuiltOn = "AnyVersionBuildOn",
             };
             restReqExecutor.ExecuteAsync<ClusterInfo>(
-                Arg.Is<IRestRequest>(
+                Arg.Is<RestRequest>(
                     req =>
                         req.Resource == "ws/v1/cluster/info" && req.RootElement == "clusterInfo" &&
                         req.Method == Method.GET),
@@ -82,7 +82,7 @@ namespace Org.Apache.REEF.Client.Tests
                 AppsCompleted = 301
             };
             restReqExecutor.ExecuteAsync<ClusterMetrics>(
-                Arg.Is<IRestRequest>(
+                Arg.Is<RestRequest>(
                     req =>
                         req.Resource == "ws/v1/cluster/metrics" && req.RootElement == "clusterMetrics" &&
                         req.Method == Method.GET),
@@ -116,7 +116,7 @@ namespace Org.Apache.REEF.Client.Tests
                 RunningContainers = 0
             };
             restReqExecutor.ExecuteAsync<Application>(
-                Arg.Is<IRestRequest>(
+                Arg.Is<RestRequest>(
                     req =>
                         req.Resource == "ws/v1/cluster/apps/" + applicationId
                         && req.RootElement == "app"
@@ -152,7 +152,7 @@ namespace Org.Apache.REEF.Client.Tests
                 RunningContainers = 0
             };
             restReqExecutor.ExecuteAsync<Application>(
-                Arg.Is<IRestRequest>(
+                Arg.Is<RestRequest>(
                     req =>
                         req.Resource == "ws/v1/cluster/apps/" + applicationId
                         && req.RootElement == "app"
@@ -181,7 +181,7 @@ namespace Org.Apache.REEF.Client.Tests
                 ApplicationId = applicationId
             };
             restReqExecutor.ExecuteAsync<NewApplication>(
-                Arg.Is<IRestRequest>(
+                Arg.Is<RestRequest>(
                     req =>
                         req.Resource == "ws/v1/cluster/apps/new-application"
                         && req.Method == Method.POST),
@@ -298,30 +298,23 @@ namespace Org.Apache.REEF.Client.Tests
                 RunningContainers = 0
             };
 
-            var response = Substitute.For<IRestResponse>();
-            response.Headers.Returns(new List<Parameter>
+            var response = new RestResponse<VoidResult>
             {
-                new Parameter
-                {
-                    Name = "Location",
-                    Value = "http://somelocation"
-                }
-            });
-            response.StatusCode.Returns(HttpStatusCode.Accepted);
+                StatusCode = HttpStatusCode.Accepted
+            };
 
             restReqExecutor.ExecuteAsync(
-                Arg.Is<IRestRequest>(
+                Arg.Is<RestRequest>(
                     req =>
                         req.Resource == "ws/v1/cluster/apps"
                         && req.Method == Method.POST
-                        && req.JsonSerializer is RestJsonSerializer
-                        && req.Parameters.First().Name == "application/json"
+                        && req.Content.Headers.ContentType.MediaType == "application/json"
                         && IsExpectedJson(req, expectedJson)),
                 anyUri.First(),
                 CancellationToken.None).Returns(Task.FromResult(response));
 
             restReqExecutor.ExecuteAsync<Application>(
-                Arg.Is<IRestRequest>(
+                Arg.Is<RestRequest>(
                     req =>
                         req.Resource == "ws/v1/cluster/apps/" + applicationId
                         && req.RootElement == "app"
@@ -336,9 +329,9 @@ namespace Org.Apache.REEF.Client.Tests
             var unused = urlProvider.Received(2).GetUrlAsync();
         }
 
-        private static bool IsExpectedJson(IRestRequest req, string expectedJson)
+        private static bool IsExpectedJson(RestRequest req, string expectedJson)
         {
-            return (string)req.Parameters.First().Value == expectedJson;
+            return req.Content.ReadAsStringAsync().Result == expectedJson;
         }
 
         private class TestContext
