@@ -268,7 +268,7 @@ public final class ApplicationState {
       OBJECT_MAPPER.writeValue(writer, this);
       objectString = writer.toString();
     } catch (final IOException e) {
-      return null;
+      throw new RuntimeException("Exception while serializing ApplicationState: " + e);
     }
 
     return APPLICATION_STATE + objectString;

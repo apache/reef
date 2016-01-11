@@ -44,7 +44,9 @@ public final class ConfigurableDirectoryTempFileCreator implements TempFileCreat
   ConfigurableDirectoryTempFileCreator(
       @Parameter(TempFileRootFolder.class) final String rootFolder) throws IOException {
     this.tempFolderAsFile = new File(rootFolder);
-    this.tempFolderAsFile.mkdirs();
+    if (!this.tempFolderAsFile.exists() && !this.tempFolderAsFile.mkdirs()) {
+      LOG.log(Level.WARNING, "Failed to create [{0}]", this.tempFolderAsFile.getAbsolutePath());
+    }
     this.tempFolderAsPath = this.tempFolderAsFile.toPath();
     LOG.log(Level.FINE, "Temporary files and folders will be created in [{0}]",
         this.tempFolderAsFile.getAbsolutePath());

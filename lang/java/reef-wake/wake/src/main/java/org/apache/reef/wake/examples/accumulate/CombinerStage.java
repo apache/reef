@@ -119,6 +119,24 @@ public class CombinerStage<K extends Comparable<K>, V> implements Stage {
     }
 
     @Override
+    public boolean equals(final Object o) {
+      if (this == o) {
+        return true;
+      }
+      if (o == null || getClass() != o.getClass()) {
+        return false;
+      }
+
+      Pair<K, V> pair = (Pair<K, V>) o;
+      return k.compareTo(pair.getKey()) == 0;
+    }
+
+    @Override
+    public int hashCode() {
+      return k.hashCode();
+    }
+
+    @Override
     public int compareTo(final Map.Entry<K, V> arg0) {
       return k.compareTo(arg0.getKey());
     }

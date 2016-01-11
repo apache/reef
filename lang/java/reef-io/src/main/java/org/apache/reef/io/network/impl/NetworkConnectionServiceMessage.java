@@ -107,7 +107,7 @@ final class NetworkConnectionServiceMessage<T> implements Message<T> {
     builder.append(destId);
     builder.append(" message=[| ");
     for (final T message : messages) {
-      builder.append(message + " |");
+      builder.append(message).append(" |");
     }
     builder.append("]");
     return builder.toString();

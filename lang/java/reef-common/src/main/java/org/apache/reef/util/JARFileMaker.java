@@ -62,8 +62,11 @@ public class JARFileMaker implements AutoCloseable {
       entry.setTime(inputFile.lastModified());
       this.jarOutputStream.putNextEntry(entry);
       this.jarOutputStream.closeEntry();
-      for (final File nestedFile : inputFile.listFiles()) {
-        add(nestedFile);
+      final File[] files = inputFile.listFiles();
+      if (files != null) {
+        for (final File nestedFile : files) {
+          add(nestedFile);
+        }
       }
       return this;
     }
@@ -82,8 +85,11 @@ public class JARFileMaker implements AutoCloseable {
 
   public JARFileMaker addChildren(final File folder) throws IOException {
     this.relativeStartCanonicalPath = folder.getCanonicalPath();
-    for (final File f : folder.listFiles()) {
-      this.add(f);
+    final File[] files = folder.listFiles();
+    if (files != null) {
+      for (final File f : files) {
+        this.add(f);
+      }
     }
     this.relativeStartCanonicalPath = null;
     return this;

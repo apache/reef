@@ -99,5 +99,51 @@
         <Class name="~org\.apache\.reef\.tang\.util\.AbstractMonotonicMultiMap.*" />
         <Bug code="NP" />
     </Match>
+    <Match>
+        <!-- TODO: reconsider calling System.exit(...) -->
+        <Class name="org.apache.reef.runtime.common.launch.REEFUncaughtExceptionHandler" />
+        <Bug pattern="DM_EXIT" />
+    </Match>
+    <Match>
+        <Class name="org.apache.reef.runtime.common.client.api.JobSubmissionEventImpl$Builder" />
+        <Bug pattern="UWF_UNWRITTEN_FIELD" />
+    </Match>
+    <Match>
+        <Class name="org.apache.reef.runtime.common.driver.resourcemanager.ResourceStatusEventImpl$Builder" />
+        <Bug pattern="URF_UNREAD_FIELD" />
+    </Match>
+    <Match>
+        <Class name="org.apache.reef.io.network.impl.NetworkConnectionServiceMessage" />
+        <Bug pattern="URF_UNREAD_FIELD" />
+    </Match>
+    <Match>
+        <Class name="org.apache.reef.io.network.util.Utils$AddressComparator" />
+        <Bug pattern="SE_COMPARATOR_SHOULD_BE_SERIALIZABLE" />
+    </Match>
+    <Match>
+        <Class name="org.apache.reef.io.data.loading.impl.AbstractEvaluatorToPartitionStrategy" />
+        <Bug pattern="JLM_JSR166_UTILCONCURRENT_MONITORENTER" />
+    </Match>
+    <Match>
+        <Class name="~org\.apache\.reef\.wake\..*" />
+        <Bug pattern="JLM_JSR166_UTILCONCURRENT_MONITORENTER" />
+    </Match>
+    <Match>
+        <!-- example code, won't be subclassed -->
+        <Class name="org.apache.reef.wake.examples.join.TupleSource" />
+        <Bug pattern="SC_START_IN_CTOR" />
+    </Match>
+    <Match>
+        <Class name="org.apache.reef.wake.remote.address.LegacyLocalAddressProvider$AddressComparator" />
+        <Bug pattern="SE_COMPARATOR_SHOULD_BE_SERIALIZABLE" />
+    </Match>
+    <Match>
+        <Class name="org.apache.reef.wake.remote.impl.RemoteEventComparator" />
+        <Bug pattern="SE_COMPARATOR_SHOULD_BE_SERIALIZABLE" />
+    </Match>
+    <Match>
+        <Class name="org.apache.reef.wake.time.runtime.RuntimeClock" />
+        <Bug pattern="REC_CATCH_EXCEPTION" />
+    </Match>
 
 </FindBugsFilter>

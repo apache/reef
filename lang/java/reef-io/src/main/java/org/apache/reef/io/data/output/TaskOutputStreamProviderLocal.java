@@ -25,12 +25,15 @@ import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Implementation of {@link TaskOutputStreamProvider}.
  * It provides FileOutputStreams on the local file system.
  */
 public final class TaskOutputStreamProviderLocal extends TaskOutputStreamProvider {
+  private static final Logger LOG = Logger.getLogger(TaskOutputStreamProviderLocal.class.getName());
 
   /**
    * Path of the output directory on the local disk to write outputs.
@@ -63,8 +66,8 @@ public final class TaskOutputStreamProviderLocal extends TaskOutputStreamProvide
     final File directory = new File(directoryPath);
 
     synchronized (TaskOutputStreamProviderLocal.class) {
-      if (!directory.exists()) {
-        directory.mkdirs();
+      if (!directory.exists() && !directory.mkdirs()) {
+        LOG.log(Level.WARNING, "Failed to create [{0}]", directory.getAbsolutePath());
       }
     }
 

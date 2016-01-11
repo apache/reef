@@ -35,12 +35,15 @@ import java.nio.charset.Charset;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Write events to a file in the root directory of the driver.
  */
 @Unstable
 public final class FileEventStream implements EventStream {
+  private static final Logger LOG = Logger.getLogger(FileEventStream.class.getName());
 
   private final DateFormat dateFormat;
   private final PrintWriter printWriter;
@@ -63,11 +66,12 @@ public final class FileEventStream implements EventStream {
   private File createFileWithPath(final String path) throws Exception {
     final File file = new File(path);
     final File parent = file.getParentFile();
-    if (parent != null && !parent.exists()){
-      parent.mkdirs();
+    if (parent != null && !parent.exists() && !parent.mkdirs()) {
+      LOG.log(Level.WARNING, "Failed to create [{0}]", parent.getAbsolutePath());
     }
-
-    file.createNewFile();
+    if (!file.exists() && !file.createNewFile()) {
+      LOG.log(Level.WARNING, "Failed to create [{0}]", file.getAbsolutePath());
+    }
     return file;
   }
 

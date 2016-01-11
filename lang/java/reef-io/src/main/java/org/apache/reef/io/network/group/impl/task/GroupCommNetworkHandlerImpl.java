@@ -47,11 +47,14 @@ public class GroupCommNetworkHandlerImpl implements GroupCommNetworkHandler {
     LOG.entering("GroupCommNetworkHandlerImpl", "onNext", mesg);
     final Iterator<GroupCommunicationMessage> iter = mesg.getData().iterator();
     final GroupCommunicationMessage msg = iter.hasNext() ? iter.next() : null;
-    try {
-      final Class<? extends Name<String>> groupName = (Class<? extends Name<String>>) Class.forName(msg.getGroupname());
-      commGroupHandlers.get(groupName).onNext(msg);
-    } catch (final ClassNotFoundException e) {
-      throw new RuntimeException("GroupName not found", e);
+    if (msg != null) {
+      try {
+        final Class<? extends Name<String>> groupName =
+            (Class<? extends Name<String>>) Class.forName(msg.getGroupname());
+        commGroupHandlers.get(groupName).onNext(msg);
+      } catch (final ClassNotFoundException e) {
+        throw new RuntimeException("GroupName not found", e);
+      }
     }
     LOG.exiting("GroupCommNetworkHandlerImpl", "onNext", mesg);
   }

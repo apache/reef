@@ -60,8 +60,8 @@ public final class JobJarMaker {
 
   public static void copy(final Iterable<FileResource> files, final File destinationFolder) {
 
-    if (!destinationFolder.exists()) {
-      destinationFolder.mkdirs();
+    if (!destinationFolder.exists() && !destinationFolder.mkdirs()) {
+      LOG.log(Level.WARNING, "Failed to create [{0}]", destinationFolder.getAbsolutePath());
     }
 
     for (final FileResource fileProto : files) {
@@ -103,8 +103,8 @@ public final class JobJarMaker {
     final File localFolder = new File(jobSubmissionFolder, this.fileNames.getLocalFolderName());
     final File globalFolder = new File(jobSubmissionFolder, this.fileNames.getGlobalFolderName());
 
-    this.copy(jobSubmissionEvent.getGlobalFileSet(), globalFolder);
-    this.copy(jobSubmissionEvent.getLocalFileSet(), localFolder);
+    copy(jobSubmissionEvent.getGlobalFileSet(), globalFolder);
+    copy(jobSubmissionEvent.getLocalFileSet(), localFolder);
 
     // Store the Driver Configuration in the JAR file.
     this.configurationSerializer.toFile(
@@ -120,7 +120,9 @@ public final class JobJarMaker {
       LOG.log(Level.FINE,
           "Deleting the temporary job folder [{0}] and marking the jar file [{1}] for deletion after the JVM exits.",
           new Object[]{jobSubmissionFolder.getAbsolutePath(), jarFile.getAbsolutePath()});
-      jobSubmissionFolder.delete();
+      if (!jobSubmissionFolder.delete()) {
+        LOG.log(Level.WARNING, "Failed to delete [{0}]", jobSubmissionFolder.getAbsolutePath());
+      }
       jarFile.deleteOnExit();
     } else {
       LOG.log(Level.FINE, "Keeping the temporary job folder [{0}] and jar file [{1}] available after job submission.",

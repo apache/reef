@@ -336,6 +336,7 @@ class NamingLookupClientHandler implements EventHandler<TransportEvent> {
  * Naming lookup response handler.
  */
 class NamingLookupResponseHandler implements EventHandler<NamingLookupResponse> {
+  private static final Logger LOG = Logger.getLogger(NamingLookupResponseHandler.class.getName());
 
   private final BlockingQueue<NamingLookupResponse> replyQueue;
 
@@ -345,6 +346,8 @@ class NamingLookupResponseHandler implements EventHandler<NamingLookupResponse> 
 
   @Override
   public void onNext(final NamingLookupResponse value) {
-    replyQueue.offer(value);
+    if (!replyQueue.offer(value)) {
+      LOG.log(Level.FINEST, "Element {0} was not added to the queue", value);
+    }
   }
 }

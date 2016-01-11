@@ -58,7 +58,7 @@ public final class Commands {
       OBJECT_MAPPER.writeValue(writer, this);
       objectString = writer.toString();
     } catch (final IOException e) {
-      return null;
+      throw new RuntimeException("Exception while serializing Commands: " + e);
     }
 
     return COMMANDS + objectString;

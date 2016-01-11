@@ -187,7 +187,7 @@ public final class ApplicationSubmission {
       OBJECT_MAPPER.writeValue(writer, this);
       objectString = writer.toString();
     } catch (final IOException e) {
-      return null;
+      throw new RuntimeException("Exception while serializing ApplicationSubmission: " + e);
     }
 
     return APPLICATION_SUBMISSION + objectString;
