@@ -78,7 +78,9 @@ public final class OSUtils {
             .command("bash", "-c", "echo $PPID")
             .start();
         final byte[] returnBytes = new byte[128];
-        process.getInputStream().read(returnBytes);
+        if (process.getInputStream().read(returnBytes) == -1) {
+          LOG.log(Level.FINE, "No data read because end of stream was reached");
+        }
         final Long result = Long.valueOf(new String(returnBytes, StandardCharsets.UTF_8).trim());
         process.destroy();
         return result;
@@ -93,7 +95,9 @@ public final class OSUtils {
                 "wmic process where processid=$pid get parentprocessid")
             .start();
         final byte[] returnBytes = new byte[128];
-        process.getInputStream().read(returnBytes);
+        if (process.getInputStream().read(returnBytes) == -1) {
+          LOG.log(Level.FINE, "No data read because end of stream was reached");
+        }
         final Long result = Long.valueOf(new String(returnBytes, StandardCharsets.UTF_8).split("\n")[1].trim());
         process.destroy();
         return result;

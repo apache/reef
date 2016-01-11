@@ -167,7 +167,7 @@ public final class AmContainerSpec {
       OBJECT_MAPPER.writeValue(writer, this);
       objectString = writer.toString();
     } catch (final IOException e) {
-      return null;
+      throw new RuntimeException("Exception while serializing AmContainerSpec: " + e);
     }
 
     return AM_CONTAINER_SPEC + objectString;

@@ -112,7 +112,9 @@ public final class DriverLauncher {
       }
     }
     this.reef.close();
-    return this.status;
+    synchronized (this) {
+      return this.status;
+    }
   }
 
   /**
@@ -145,14 +147,18 @@ public final class DriverLauncher {
     }
 
     this.reef.close();
-    return this.status;
+    synchronized (this) {
+      return this.status;
+    }
   }
 
   /**
    * @return the current status of the job.
    */
   public LauncherStatus getStatus() {
-    return this.status;
+    synchronized (this) {
+      return this.status;
+    }
   }
 
   /**

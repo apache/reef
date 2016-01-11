@@ -64,7 +64,7 @@ public final class Resource {
       OBJECT_MAPPER.writeValue(writer, this);
       objectString = writer.toString();
     } catch (final IOException e) {
-      return null;
+      throw new RuntimeException("Exception while serializing Resource: " + e);
     }
 
     return RESOURCE + objectString;

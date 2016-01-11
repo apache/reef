@@ -62,6 +62,24 @@ public final class NumberedSplit<E> implements Comparable<NumberedSplit<E>> {
   }
 
   @Override
+  public boolean equals(final Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+
+    NumberedSplit<?> that = (NumberedSplit<?>) o;
+    return index == that.index;
+  }
+
+  @Override
+  public int hashCode() {
+    return index;
+  }
+
+  @Override
   public int compareTo(final NumberedSplit<E> o) {
     if (this.index == o.index) {
       return 0;

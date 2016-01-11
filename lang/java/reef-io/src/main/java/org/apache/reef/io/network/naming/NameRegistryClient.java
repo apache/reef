@@ -197,6 +197,7 @@ class NamingRegistryClientHandler implements EventHandler<TransportEvent> {
  * Naming register response handler.
  */
 class NamingRegistryResponseHandler implements EventHandler<NamingRegisterResponse> {
+  private static final Logger LOG = Logger.getLogger(NamingRegistryResponseHandler.class.getName());
 
   private final BlockingQueue<NamingRegisterResponse> replyQueue;
 
@@ -206,6 +207,8 @@ class NamingRegistryResponseHandler implements EventHandler<NamingRegisterRespon
 
   @Override
   public void onNext(final NamingRegisterResponse value) {
-    replyQueue.offer(value);
+    if (!replyQueue.offer(value)) {
+      LOG.log(Level.FINEST, "Element {0} was not added to the queue", value);
+    }
   }
 }

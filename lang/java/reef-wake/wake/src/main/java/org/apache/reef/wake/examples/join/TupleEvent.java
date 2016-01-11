@@ -31,6 +31,31 @@ public class TupleEvent implements Comparable<TupleEvent> {
   }
 
   @Override
+  public boolean equals(final Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+
+    TupleEvent that = (TupleEvent) o;
+
+    if (key != that.key) {
+      return false;
+    }
+    return val != null ? val.equals(that.val) : that.val == null;
+
+  }
+
+  @Override
+  public int hashCode() {
+    int result = key;
+    result = 31 * result + (val != null ? val.hashCode() : 0);
+    return result;
+  }
+
+  @Override
   public int compareTo(final TupleEvent o) {
     final int keycmp = Integer.compare(key, o.key);
     if (keycmp != 0) {

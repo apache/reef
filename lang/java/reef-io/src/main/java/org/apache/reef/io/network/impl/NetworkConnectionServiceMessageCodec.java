@@ -28,12 +28,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * DefaultNetworkMessageCodec implementation.
  * This codec encodes/decodes NetworkConnectionServiceMessageImpl according to the type <T>.
  */
 final class NetworkConnectionServiceMessageCodec implements Codec<NetworkConnectionServiceMessage> {
+  private static final Logger LOG = Logger.getLogger(NetworkConnectionServiceMessageCodec.class.getName());
 
   private final IdentifierFactory factory;
   /**
@@ -126,7 +129,9 @@ final class NetworkConnectionServiceMessageCodec implements Codec<NetworkConnect
           for (int i = 0; i < size; i++) {
             final int byteSize = dais.readInt();
             final byte[] bytes = new byte[byteSize];
-            dais.read(bytes);
+            if (dais.read(bytes) == -1) {
+              LOG.log(Level.FINE, "No data read because end of stream was reached");
+            }
             list.add(codec.decode(bytes));
           }
         }

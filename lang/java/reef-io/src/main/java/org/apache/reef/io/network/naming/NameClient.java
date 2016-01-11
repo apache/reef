@@ -185,6 +185,7 @@ class NamingClientEventHandler implements EventHandler<TransportEvent> {
  * Naming response message handler.
  */
 class NamingResponseHandler implements EventHandler<NamingMessage> {
+  private static final Logger LOG = Logger.getLogger(NamingResponseHandler.class.getName());
 
   private final BlockingQueue<NamingLookupResponse> replyLookupQueue;
   private final BlockingQueue<NamingRegisterResponse> replyRegisterQueue;
@@ -198,9 +199,13 @@ class NamingResponseHandler implements EventHandler<NamingMessage> {
   @Override
   public void onNext(final NamingMessage value) {
     if (value instanceof NamingLookupResponse) {
-      replyLookupQueue.offer((NamingLookupResponse) value);
+      if (!replyLookupQueue.offer((NamingLookupResponse) value)) {
+        LOG.log(Level.FINEST, "Element {0} was not added to the queue", value);
+      }
     } else if (value instanceof NamingRegisterResponse) {
-      replyRegisterQueue.offer((NamingRegisterResponse) value);
+      if (!replyRegisterQueue.offer((NamingRegisterResponse) value)) {
+        LOG.log(Level.FINEST, "Element {0} was not added to the queue", value);
+      }
     } else {
       throw new NamingRuntimeException("Unknown naming response message");
     }

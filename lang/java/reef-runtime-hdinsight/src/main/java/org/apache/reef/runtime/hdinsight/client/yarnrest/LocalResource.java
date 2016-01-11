@@ -105,7 +105,7 @@ public final class LocalResource {
       OBJECT_MAPPER.writeValue(writer, this);
       objectString = writer.toString();
     } catch (final IOException e) {
-      return null;
+      throw new RuntimeException("Exception while serializing LocalResource: " + e);
     }
 
     return LOCAL_RESOURCE + objectString;
