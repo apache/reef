@@ -50,9 +50,6 @@ namespace Org.Apache.REEF.Driver
         /// </summary>
         public const int DefaultMemoryGranularity = 1024;
 
-        [Obsolete(message: "Use REEFFileNames instead.")]
-        public const string DriverBridgeConfiguration = Common.Constants.ClrBridgeRuntimeConfiguration;
-
         /// <summary>
         /// The directory to load driver DLLs.
         /// </summary>
