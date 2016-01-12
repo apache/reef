@@ -21,6 +21,8 @@ package org.apache.reef.javabridge;
 import org.apache.reef.annotations.audience.Interop;
 import org.apache.reef.annotations.audience.Private;
 
+import java.util.logging.Logger;
+
 /**
  * TODO[JIRA REEF-383] Document/Refactor JavaBridge.
  */
@@ -28,12 +30,14 @@ import org.apache.reef.annotations.audience.Private;
 @Interop(CppFiles = "JavaClrBridge.cs")
 public class JavaBridge {
   private static final String CPP_BRIDGE = "JavaClrBridge";
+  private static final Logger LOG = Logger.getLogger(JavaBridge.class.toString());
 
   static {
     try {
       System.loadLibrary(CPP_BRIDGE);
     } catch (final UnsatisfiedLinkError e) {
       // TODO[JIRA REEF-383] Document/Refactor JavaBridge
+      LOG.severe("Cannot load native JavaClrBridge.");
     }
   }
 }

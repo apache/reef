@@ -181,7 +181,9 @@ public final class YarnJobSubmissionClient {
           reader.close();
           break;
         }
-      } catch (Exception ex) {
+      } catch (Exception ignored) {
+        // readLine might throw IOException although httpEndpointPath file exists.
+        // the for-loop waits until the actual content of file is written completely
       }
       try{
         Thread.sleep(1000);

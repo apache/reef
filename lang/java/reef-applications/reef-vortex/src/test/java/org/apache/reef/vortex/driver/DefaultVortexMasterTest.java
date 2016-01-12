@@ -250,7 +250,7 @@ public class DefaultVortexMasterTest {
     try {
       future.cancel(true, 100, TimeUnit.MILLISECONDS);
       fail();
-    } catch (final TimeoutException e) {
+    } catch (final TimeoutException expected) {
       // TimeoutException is expected.
     }
 

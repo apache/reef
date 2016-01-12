@@ -129,7 +129,7 @@ public final class DFSHandler extends Handler {
     this.streamHandler.flush();
     try {
       this.logOutputStream.flush();
-    } catch (final IOException e) {
+    } catch (final IOException ignored) {
       // Eating it as it has nowhere to go.
     }
   }
@@ -139,7 +139,7 @@ public final class DFSHandler extends Handler {
     this.streamHandler.close();
     try {
       this.logOutputStream.close();
-    } catch (final IOException e) {
+    } catch (final IOException ignored) {
       // Eating it as it has nowhere to go.
     }
   }

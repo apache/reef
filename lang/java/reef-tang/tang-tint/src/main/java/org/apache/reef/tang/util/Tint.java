@@ -46,6 +46,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.logging.Logger;
 
 /**
  * Tang Static Analytics Tool.
@@ -61,6 +62,8 @@ public class Tint {
   private final MonotonicMultiMap<String, String> usages = new MonotonicMultiMap<>();
   private final Set<ClassNode<?>> knownClasses = new MonotonicSet<>();
   private final Set<String> divs = new MonotonicSet<>();
+
+  private static final Logger LOG = Logger.getLogger(Tint.class.getName());
 
   {
     divs.add("doc");
@@ -492,7 +495,8 @@ public class Tint {
                     }
                   }
                 } catch (final NameResolutionException ex) {
-                  //
+                  LOG.warning("The class " + e.getValue() + " not found in the class hierarchy."
+                          + " The exception message: " + ex.getMessage());
                 }
                 try {
                   final String s = e.getValue();
@@ -509,7 +513,8 @@ public class Tint {
                     }
                   }
                 } catch (final NameResolutionException ex) {
-                  //
+                  LOG.warning("The class " + e.getValue() + " not found in the class hierarchy."
+                               + " The exception message: " + ex.getMessage());
                 }
               }
             }

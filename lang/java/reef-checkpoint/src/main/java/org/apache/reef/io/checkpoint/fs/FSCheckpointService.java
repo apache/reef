@@ -129,7 +129,7 @@ public class FSCheckpointService implements CheckpointService {
       if (!fs.delete(tmp, false)) {
         throw new IOException("Failed to delete checkpoint during abort");
       }
-    } catch (final FileNotFoundException e) {
+    } catch (final FileNotFoundException ignored) {
       // IGNORE
     }
   }
@@ -144,7 +144,7 @@ public class FSCheckpointService implements CheckpointService {
     final Path tmp = ((FSCheckpointID) id).getPath();
     try {
       return fs.delete(tmp, false);
-    } catch (final FileNotFoundException e) {
+    } catch (final FileNotFoundException ignored) {
       // IGNORE
     }
     return true;

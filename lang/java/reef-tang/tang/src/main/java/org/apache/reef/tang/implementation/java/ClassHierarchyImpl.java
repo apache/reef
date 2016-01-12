@@ -298,7 +298,7 @@ public class ClassHierarchyImpl implements JavaClassHierarchy {
     try {
       final Node n = getAlreadyBoundNode(c);
       return n;
-    } catch (final NameResolutionException e) {
+    } catch (final NameResolutionException ignored) {
       // node not bound yet
     }
     // First, walk up the class hierarchy, registering all out parents. This
@@ -380,7 +380,7 @@ public class ClassHierarchyImpl implements JavaClassHierarchy {
     }
     try {
       return getAlreadyBoundNode(c);
-    } catch (final NameResolutionException e) {
+    } catch (final NameResolutionException ignored) {
       // node not bound yet
     }
 

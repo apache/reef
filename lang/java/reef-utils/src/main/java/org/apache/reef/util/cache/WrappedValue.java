@@ -83,7 +83,7 @@ final class WrappedValue<V> {
     while (!value.isPresent()) {
       try {
         this.wait();
-      } catch (final InterruptedException e) {
+      } catch (final InterruptedException ignored) {
         // Ignore, as while loop will be re-entered
       }
     }
