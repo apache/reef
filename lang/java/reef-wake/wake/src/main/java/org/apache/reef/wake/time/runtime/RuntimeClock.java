@@ -254,7 +254,7 @@ public final class RuntimeClock implements Clock {
               break; // we're done.
             }
           }
-        } catch (final InterruptedException e) {
+        } catch (final InterruptedException expected) {
           // waiting interrupted - return to loop
         }
       }

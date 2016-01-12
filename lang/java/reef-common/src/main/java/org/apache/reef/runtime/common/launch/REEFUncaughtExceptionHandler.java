@@ -67,7 +67,7 @@ public final class REEFUncaughtExceptionHandler implements Thread.UncaughtExcept
       this.errorHandler.onNext(new Exception(msg, throwable));
       try {
         this.wait(100);
-      } catch (final InterruptedException e) {
+      } catch (final InterruptedException expected) {
         // try-catch block used to wait and give process a chance to setup communication with its parent
       }
       this.errorHandler.close();

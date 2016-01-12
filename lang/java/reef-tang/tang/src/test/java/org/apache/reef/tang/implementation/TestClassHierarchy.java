@@ -71,20 +71,19 @@ public class TestClassHierarchy {
     Node n = null;
     try {
       n = ns.getNode("java");
-    } catch (final NameResolutionException e) {
+    } catch (final NameResolutionException expected) {
     }
     Assert.assertNull(n);
     try {
       n = ns.getNode("java.lang");
-    } catch (final NameResolutionException e) {
+    } catch (final NameResolutionException expected) {
     }
     Assert.assertNull(n);
     Assert.assertNotNull(ns.getNode("java.lang.String"));
     try {
       ns.getNode("com.microsoft");
       Assert.fail("Didn't get expected exception");
-    } catch (final NameResolutionException e) {
-
+    } catch (final NameResolutionException expected) {
     }
   }
 

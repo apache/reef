@@ -225,6 +225,11 @@
         <module name="ForbidReturnInFinallyBlockCheck"/>
         <module name="ForbidThrowAnonymousExceptionsCheck"/>
         <module name="UselessSingleCatchCheck"/>
+        <module name="EmptyCatchBlock">
+            <property name="commentFormat" value="This is expected"/>
+            <property name="exceptionVariableName" value="expected|ignored"/>
+        </module>
+
     </module>
 
 </module>
