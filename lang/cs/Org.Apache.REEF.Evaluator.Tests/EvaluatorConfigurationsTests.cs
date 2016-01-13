@@ -17,7 +17,6 @@
  * under the License.
  */
 
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Org.Apache.REEF.Common.Runtime.Evaluator.Utils;
 using Org.Apache.REEF.Common.Services;
 using Org.Apache.REEF.Common.Tasks;
@@ -31,10 +30,10 @@ using Org.Apache.REEF.Tang.Util;
 using Org.Apache.REEF.Utilities.Logging;
 using Org.Apache.REEF.Wake.Remote.Parameters;
 using Org.Apache.REEF.Wake.StreamingCodec;
+using Xunit;
 
 namespace Org.Apache.REEF.Evaluator.Tests
 {
-    [TestClass]
     public class EvaluatorConfigurationsTests
     {
         private static readonly Logger Logger = Logger.GetLogger(typeof(EvaluatorConfigurationsTests));
@@ -43,7 +42,9 @@ namespace Org.Apache.REEF.Evaluator.Tests
         private const string RemoteIdPrefix = "socket://";
         private const string AppIdForTest = "REEF_LOCAL_RUNTIME";
 
-        [TestMethod, Priority(0), TestCategory("Unit")]
+        [Fact]
+        [Trait("Priority", "0")]
+        [Trait("Category", "Unit")]
         public void TestEvaluatorConfigurations()
         {
             EvaluatorConfigurations evaluatorConfigurations = new EvaluatorConfigurations("evaluator.conf");
@@ -56,27 +57,28 @@ namespace Org.Apache.REEF.Evaluator.Tests
             Logger.Log(Level.Info, "ApplicationId = " + aId);
             Logger.Log(Level.Info, "ErrorHandlerRID = " + rId);
 
-            Assert.IsTrue(eId.StartsWith(EvaluatorIdPrefix));
-            Assert.IsTrue(aId.Equals(AppIdForTest));
-            Assert.IsTrue(rId.StartsWith(RemoteIdPrefix));
+            Assert.True(eId.StartsWith(EvaluatorIdPrefix));
+            Assert.True(aId.Equals(AppIdForTest));
+            Assert.True(rId.StartsWith(RemoteIdPrefix));
 
             var contextConfigString = evaluatorConfigurations.RootContextConfigurationString;
             var serviceConfigString = evaluatorConfigurations.RootServiceConfigurationString;
             var taskConfigString = evaluatorConfigurations.TaskConfigurationString;
 
-            Assert.IsFalse(string.IsNullOrWhiteSpace(contextConfigString));
-            Assert.IsFalse(string.IsNullOrWhiteSpace(taskConfigString));
+            Assert.False(string.IsNullOrWhiteSpace(contextConfigString));
+            Assert.False(string.IsNullOrWhiteSpace(taskConfigString));
         }
 
-        [TestMethod, Priority(0), TestCategory("Unit")]
-        [DeploymentItem(@".")]
+        [Fact]
+        [Trait("Priority", "0")]
+        [Trait("Category", "Unit")]
         public void TestEvaluatorConfigurationFile()
         {
             AvroConfigurationSerializer serializer = new AvroConfigurationSerializer();
             var avroConfiguration = serializer.AvroDeserializeFromFile("evaluator.conf");
 
-            Assert.IsNotNull(avroConfiguration);
-            Assert.AreEqual(avroConfiguration.language, Language.Java.ToString());
+            Assert.NotNull(avroConfiguration);
+            Assert.Equal(avroConfiguration.language, Language.Java.ToString());
 
             foreach (var b in avroConfiguration.Bindings)
             {
@@ -84,14 +86,15 @@ namespace Org.Apache.REEF.Evaluator.Tests
             }
         }
 
-        [TestMethod, Priority(0), TestCategory("Unit")]
-        [DeploymentItem(@".")]
+        [Fact]
+        [Trait("Priority", "0")]
+        [Trait("Category", "Unit")]
         public void TestDeserializationWithAlias()
         {
             AvroConfigurationSerializer serializer = new AvroConfigurationSerializer();
             var avroConfiguration = serializer.AvroDeserializeFromFile("evaluator.conf");
             var language = avroConfiguration.language;
-            Assert.IsTrue(language.ToString().Equals(Language.Java.ToString()));
+            Assert.True(language.ToString().Equals(Language.Java.ToString()));
 
             var classHierarchy = TangFactory.GetTang()
                 .GetClassHierarchy(new string[] { typeof(ApplicationIdentifier).Assembly.GetName().Name });
@@ -105,11 +108,11 @@ namespace Org.Apache.REEF.Evaluator.Tests
             string rid = evaluatorInjector.GetNamedInstance<ErrorHandlerRid, string>();
             string launchId = evaluatorInjector.GetNamedInstance<LaunchId, string>();
 
-            Assert.IsTrue(remoteId.StartsWith(RemoteIdPrefix));
-            Assert.IsTrue(appid.Equals(AppIdForTest));
-            Assert.IsTrue(evaluatorIdentifier.StartsWith(EvaluatorIdPrefix));
-            Assert.IsTrue(rid.StartsWith(RemoteIdPrefix));
-            Assert.IsTrue(launchId.Equals(AppIdForTest));
+            Assert.True(remoteId.StartsWith(RemoteIdPrefix));
+            Assert.True(appid.Equals(AppIdForTest));
+            Assert.True(evaluatorIdentifier.StartsWith(EvaluatorIdPrefix));
+            Assert.True(rid.StartsWith(RemoteIdPrefix));
+            Assert.True(launchId.Equals(AppIdForTest));
         }
 
         /// <summary>
@@ -117,8 +120,9 @@ namespace Org.Apache.REEF.Evaluator.Tests
         /// found in the class hierarchy. The config file used in the test was generated when running HelloRREEF.
         /// It contains task and context configuration strings.  
         /// </summary>
-        [TestMethod, Priority(0), TestCategory("Unit")]
-        [DeploymentItem(@".")]
+        [Fact]
+        [Trait("Priority", "0")]
+        [Trait("Category", "Unit")]
         public void TestDeserializationForContextAndTask()
         {
             AvroConfigurationSerializer serializer = new AvroConfigurationSerializer();
@@ -147,14 +151,14 @@ namespace Org.Apache.REEF.Evaluator.Tests
 
             var contextInjector = evaluatorInjector.ForkInjector(contextConfig);
             string contextId = contextInjector.GetNamedInstance<ContextConfigurationOptions.ContextIdentifier, string>();
-            Assert.IsTrue(contextId.StartsWith(ContextIdPrefix));
+            Assert.True(contextId.StartsWith(ContextIdPrefix));
 
             var taskInjector = contextInjector.ForkInjector(taskConfig);
 
             string taskId = taskInjector.GetNamedInstance<TaskConfigurationOptions.Identifier, string>();
             ITask task = taskInjector.GetInstance<ITask>();
-            Assert.IsTrue(taskId.StartsWith("HelloTask"));
-            Assert.IsTrue(task is HelloTask);
+            Assert.True(taskId.StartsWith("HelloTask"));
+            Assert.True(task is HelloTask);
         }
 
         /// <summary>
@@ -162,8 +166,9 @@ namespace Org.Apache.REEF.Evaluator.Tests
         /// found in the class hierarchy. The config file used in the test was generated when running TestBroadCastReduceOperators.
         /// It contains service and context configuration strings.  
         /// </summary>
-        [TestMethod, Priority(0), TestCategory("Unit")]
-        [DeploymentItem(@".")]
+        [Fact]
+        [Trait("Priority", "0")]
+        [Trait("Category", "Unit")]
         public void TestDeserializationForServiceAndContext()
         {
             AvroConfigurationSerializer serializer = new AvroConfigurationSerializer();
@@ -193,7 +198,7 @@ namespace Org.Apache.REEF.Evaluator.Tests
 
             var contextInjector = evaluatorInjector.ForkInjector(contextConfig);
             string contextId = contextInjector.GetNamedInstance<ContextConfigurationOptions.ContextIdentifier, string>();
-            Assert.IsTrue(contextId.StartsWith("MasterTaskContext"));
+            Assert.True(contextId.StartsWith("MasterTaskContext"));
 
             string serviceConfigString = TangFactory.GetTang().NewInjector(rootServiceConfig)
                 .GetNamedInstance<ServicesConfigurationOptions.ServiceConfigString, string>();
@@ -203,8 +208,8 @@ namespace Org.Apache.REEF.Evaluator.Tests
             var serviceInjector = contextInjector.ForkInjector(serviceConfig);
             var tcpCountRange = serviceInjector.GetNamedInstance<TcpPortRangeStart, int>();
             var tcpCountCount = serviceInjector.GetNamedInstance<TcpPortRangeCount, int>();
-            Assert.IsTrue(tcpCountRange > 0);
-            Assert.IsTrue(tcpCountCount > 0);
+            Assert.True(tcpCountRange > 0);
+            Assert.True(tcpCountCount > 0);
         }
     }
 }
