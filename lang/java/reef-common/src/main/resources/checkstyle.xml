@@ -248,6 +248,8 @@
             <property name="classes" value="java.lang.Throwable, java.lang.Error"/>
         </module>
 
+        <module name="AvoidHidingCauseExceptionCheck" />
+
     </module>
 
 </module>

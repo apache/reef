@@ -227,6 +227,7 @@
         <module name="ForbidReturnInFinallyBlockCheck"/>
         <module name="ForbidThrowAnonymousExceptionsCheck"/>
         <module name="UselessSingleCatchCheck"/>
+
         <module name="EmptyCatchBlock">
             <property name="commentFormat" value="This is expected"/>
             <property name="exceptionVariableName" value="expected|ignored"/>
@@ -245,6 +246,8 @@
         <module name="IllegalInstantiation">
             <property name="classes" value="java.lang.Throwable, java.lang.Error"/>
         </module>
+
+        <module name="AvoidHidingCauseExceptionCheck" />
 
     </module>
 

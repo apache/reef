@@ -230,7 +230,7 @@ public class JobClient {
               driverConfig);
           LOG.log(Level.INFO, "Driver configuration file created at " + driverConfig.getAbsolutePath());
         } catch (final IOException e) {
-          throw new RuntimeException("Cannot create driver configuration file at " + driverConfig.getAbsolutePath());
+          throw new RuntimeException("Cannot create driver configuration file at " + driverConfig.getAbsolutePath(), e);
         }
       }
     }

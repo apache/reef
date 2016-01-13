@@ -52,7 +52,7 @@ public final class TaskletCancellationTestStart implements VortexStart {
       // Harmless.
     } catch (final Exception e) {
       e.printStackTrace();
-      throw new RuntimeException("Unexpected exception.");
+      throw new RuntimeException("Unexpected exception.", e);
     }
 
     Assert.assertTrue(future.cancel(true));
