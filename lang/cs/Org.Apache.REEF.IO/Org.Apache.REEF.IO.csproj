@@ -143,8 +143,5 @@ under the License.
       <Name>Org.Apache.REEF.Common</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup>
-    <WCFMetadata Include="Service References\" />
-  </ItemGroup>
   <ItemGroup />
 </Project>
