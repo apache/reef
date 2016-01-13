@@ -41,6 +41,11 @@ namespace Org.Apache.REEF.Driver
         public const string NameServerConfigFile = "nameServer.config";
         public const string UserSuppliedGlobalLibraries = "userSuppliedGlobalLibraries.txt";
 
+        /// <summary>
+        /// The bridge JAR name.
+        /// </summary>
+        public const string JavaBridgeJarFileName = "reef-bridge-java-0.14.0-SNAPSHOT-shaded.jar";
+
         private static readonly Logger Log = Logger.GetLogger(typeof(DriverConfigGenerator));
 
         public static void DriverConfigurationBuilder(DriverConfigurationSettings driverConfigurationSettings)
@@ -142,7 +147,7 @@ namespace Org.Apache.REEF.Driver
 
         private static void ExtractConfigFromJar(string jarfileFolder)
         {
-            string jarfile = jarfileFolder + Constants.JavaBridgeJarFileName;
+            string jarfile = jarfileFolder + JavaBridgeJarFileName;
             List<string> files = new List<string>();
             files.Add(DriverConfigGenerator.HttpServerConfigFile);
             files.Add(DriverConfigGenerator.JobDriverConfigFile);

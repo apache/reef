@@ -92,6 +92,7 @@ def change_pom(file, new_version):
 
 """
 Change JavaBridgeJarFileName in lang/cs/Org.Apache.REEF.Driver/Constants.cs
+or in lang/cs/Org.Apache.REEF.Driver/DriverConfigGenerator.cs
 """
 def change_constants_cs(file, new_version):
     changed_str = ""
@@ -102,7 +103,7 @@ def change_constants_cs(file, new_version):
         if not line:
             break
 
-        if "JavaBridgeJarFileName" in line:
+        if "JavaBridgeJarFileName =" in line:
             r = re.compile('"(.*?)"')
             m = r.search(line)
             old_version = m.group(1)
@@ -242,6 +243,9 @@ def change_version(reef_home, new_version, pom_only):
 
         change_constants_cs(reef_home + "/lang/cs/Org.Apache.REEF.Driver/Constants.cs", new_version)
         print reef_home + "/lang/cs/Org.Apache.REEF.Driver/Constants.cs"
+
+        change_constants_cs(reef_home + "/lang/cs/Org.Apache.REEF.Driver/DriverConfigGenerator.cs", new_version)
+        print reef_home + "/lang/cs/Org.Apache.REEF.Driver/DriverConfigGenerator.cs"
 
         change_shaded_jar_name(reef_home + "/lang/cs/Org.Apache.REEF.Client/Properties/Resources.xml", new_version)
         print reef_home + "/lang/cs/Org.Apache.REEF.Client/Properties/Resources.xml"
