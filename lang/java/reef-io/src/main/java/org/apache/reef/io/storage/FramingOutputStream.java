@@ -44,15 +44,11 @@ public class FramingOutputStream extends OutputStream implements Accumulable<byt
     this.baos = new ByteArrayOutputStream();
   }
 
-  public void nextFrame() throws StorageException {
-    try {
-      o.writeInt(baos.size());
-      offset += 4;
-      baos.writeTo(o);
-      baos.reset();
-    } catch (final IOException e) {
-      throw new StorageException(e);
-    }
+  public void nextFrame() throws IOException {
+    o.writeInt(baos.size());
+    offset += 4;
+    baos.writeTo(o);
+    baos.reset();
   }
 
   public long getCurrentOffset() {
@@ -85,12 +81,8 @@ public class FramingOutputStream extends OutputStream implements Accumulable<byt
   @Override
   public void close() throws IOException {
     if (!closed) {
-      try {
-        if (this.offset > 0) {
-          nextFrame();
-        }
-      } catch (final StorageException e) {
-        throw (IOException) e.getCause();
+      if (this.offset > 0) {
+        nextFrame();
       }
       o.writeInt(-1);
       o.close();

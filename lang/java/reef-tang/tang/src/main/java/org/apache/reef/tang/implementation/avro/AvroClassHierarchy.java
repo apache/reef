@@ -153,7 +153,7 @@ final class AvroClassHierarchy implements ClassHierarchy {
             final String errorMessage = new StringBuilder()
                     .append("Got 'cant happen' exception when producing error message for ")
                     .append(e).toString();
-            throw new IllegalStateException(errorMessage);
+            throw new IllegalStateException(errorMessage, e2);
           }
         }
       }

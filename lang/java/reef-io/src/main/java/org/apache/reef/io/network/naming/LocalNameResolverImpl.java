@@ -104,7 +104,7 @@ public final class LocalNameResolverImpl implements NameResolver {
             }
           } catch (final NullPointerException e) {
             if (retriesLeft <= 0) {
-              throw new NamingException("Cannot find " + id + " from the name server");
+              throw new NamingException("Cannot find " + id + " from the name server", e);
             } else {
               final int retTimeout = LocalNameResolverImpl.this.retryTimeout
                   * (origRetryCount - retriesLeft + 1);

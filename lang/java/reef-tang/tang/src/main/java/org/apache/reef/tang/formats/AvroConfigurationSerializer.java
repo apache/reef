@@ -97,7 +97,7 @@ public final class AvroConfigurationSerializer implements ConfigurationSerialize
             final String oldValue = importedNames.put(lastTok, value);
             if (oldValue != null) {
               throw new IllegalArgumentException("Name conflict: "
-                  + lastTok + " maps to " + oldValue + " and " + value);
+                  + lastTok + " maps to " + oldValue + " and " + value, e);
             }
           }
         } else if (value.startsWith(ConfigurationBuilderImpl.INIT)) {

@@ -59,13 +59,17 @@ public class FramingTupleSerializer<K, V> implements
 
           @Override
           public void add(final Tuple<K, V> datum) throws ServiceException {
-            if (!first) {
+            try {
+              if (!first) {
+                faos.nextFrame();
+              }
+              first = false;
+              keyAccumulator.add(datum.getKey());
               faos.nextFrame();
+              valAccumulator.add(datum.getValue());
+            } catch (final IOException e) {
+              throw new ServiceException(e);
             }
-            first = false;
-            keyAccumulator.add(datum.getKey());
-            faos.nextFrame();
-            valAccumulator.add(datum.getValue());
           }
 
           @Override

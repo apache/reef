@@ -197,6 +197,9 @@ public final class CommandLine {
    * @return a ConfigurationBuilder with the parsed parameters
    * @throws ParseException if the parsing  of the commandline fails.
    */
+
+  // ParseException constructor does not accept a cause Exception, hence
+  @SuppressWarnings("checkstyle:avoidhidingcauseexception")
   public static ConfigurationBuilder parseToConfigurationBuilder(final String[] args,
                                                                  final Class<? extends Name<?>>... argClasses)
       throws ParseException {

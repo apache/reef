@@ -174,6 +174,7 @@ public class TestConfigurationModule {
   }
 
   @Test
+  @SuppressWarnings("checkstyle:avoidhidingcauseexception")
   public void omitRequiredTest() throws Throwable {
     thrown.expect(BindException.class);
     thrown.expectMessage("Attempt to build configuration before setting required option(s): { THE_FOO }");
@@ -212,6 +213,7 @@ public class TestConfigurationModule {
   }
 
   @Test
+  @SuppressWarnings("checkstyle:avoidhidingcauseexception")
   public void badConfTest() throws Throwable {
     thrown.expect(ClassHierarchyException.class);
     thrown.expectMessage("Found declared options that were not used in binds: { FOO_NESS }");
@@ -254,6 +256,7 @@ public class TestConfigurationModule {
   }
 
   @Test
+  @SuppressWarnings("checkstyle:avoidhidingcauseexception")
   public void foreignSetTest() throws Throwable {
     thrown.expect(ClassHierarchyException.class);
     thrown.expectMessage("Unknown Impl/Param when setting RequiredImpl. " +
@@ -267,6 +270,7 @@ public class TestConfigurationModule {
   }
 
   @Test
+  @SuppressWarnings("checkstyle:avoidhidingcauseexception")
   public void foreignBindTest() throws Throwable {
     thrown.expect(ClassHierarchyException.class);
     thrown.expectMessage("Unknown Impl/Param when binding RequiredImpl. " +

@@ -337,7 +337,7 @@ public class ProtocolBufferClassHierarchy implements ClassHierarchy {
           iface.putImpl((ClassNode) getNode(impl));
         } catch (final NameResolutionException e) {
           throw new IllegalStateException("When reading protocol buffer node "
-              + n + " refers to non-existent implementation:" + impl);
+              + n + " refers to non-existent implementation:" + impl, e);
         } catch (final ClassCastException e) {
           try {
             throw new IllegalStateException(
@@ -347,7 +347,7 @@ public class ProtocolBufferClassHierarchy implements ClassHierarchy {
           } catch (final NameResolutionException e2) {
             throw new IllegalStateException(
                 "Got 'cant happen' exception when producing error message for "
-                    + e);
+                    + e, e2);
           }
         }
       }
