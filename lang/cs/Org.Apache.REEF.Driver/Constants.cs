@@ -27,22 +27,25 @@ namespace Org.Apache.REEF.Driver
         /// <summary>
         /// Null handler that is not used on Java side.
         /// </summary>
+        [Obsolete("Deprecated in 0.14. Will be removed in 0.15.")]
         public const ulong NullHandler = 0;
 
         /// <summary>
         /// The class hierarchy file from .NET.
         /// </summary>
-        [Obsolete("Deprecated in 0.14, please use ClassHierarchyBin instead.")]
+        [Obsolete("Deprecated in 0.14. Will be removed in 0.15.")]
         public const string ClassHierarachyBin = "clrClassHierarchy.bin";
 
         /// <summary>
         /// The class hierarchy file from .NET.
         /// </summary>
+        [Obsolete("Deprecated in 0.14. Will be removed in 0.15.")]
         public const string ClassHierarchyBin = "clrClassHierarchy.bin";
 
         /// <summary>
         /// The file containing user supplied libraries.
         /// </summary>
+        [Obsolete("Deprecated in 0.14. Will be removed in 0.15.")]
         public const string GlobalUserSuppliedJavaLibraries = "userSuppliedGlobalLibraries.txt";
 
         /// <summary>
@@ -58,18 +61,10 @@ namespace Org.Apache.REEF.Driver
         /// <summary>
         /// The bridge JAR name.
         /// </summary>
+        [Obsolete("Deprecated in 0.14. Will be removed in 0.15.")]
         public const string JavaBridgeJarFileName = "reef-bridge-java-0.14.0-SNAPSHOT-shaded.jar";
 
         public const string BridgeLaunchClass = "org.apache.reef.javabridge.generic.Launch";
-
-        [Obsolete(message: "Deprecated in 0.13. Use BridgeLaunchClass instead.")]
-        public const string BridgeLaunchHeadlessClass = "org.apache.reef.javabridge.generic.LaunchHeadless";
-
-        /// <summary>
-        /// The direct launcher class, deprecated in 0.13, please use DirectREEFLauncherClass instead.
-        /// </summary>
-        [Obsolete("Deprecated in 0.13, please use DirectREEFLauncherClass instead.")]
-        public const string DirectLauncherClass = "org.apache.reef.runtime.common.Launcher";
 
         /// <summary>
         /// The direct launcher class.

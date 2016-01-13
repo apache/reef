@@ -40,7 +40,7 @@ namespace Org.Apache.REEF.Driver.Bridge
         /// <summary>
         /// The set of REEF assemblies required for the Driver.
         /// </summary>
-        [Obsolete("Deprecated in 0.14. Will be removed in 0.15.")]
+        [Obsolete("Deprecated in 0.14. Will be made internal in 0.15.")]
         public static string[] ReefAssemblies
         {
             get
