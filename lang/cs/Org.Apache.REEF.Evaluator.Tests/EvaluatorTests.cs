@@ -19,7 +19,6 @@
 
 using System;
 using System.IO;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Org.Apache.REEF.Common.Avro;
 using Org.Apache.REEF.Common.Evaluator;
 using Org.Apache.REEF.Common.Tasks;
@@ -29,26 +28,28 @@ using Org.Apache.REEF.Tang.Formats.AvroConfigurationDataContract;
 using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Tang.Util;
+using Xunit;
 
 namespace Org.Apache.REEF.Evaluator.Tests
 {
-    [TestClass]
     public class EvaluatorTests
     {
-        [TestMethod, Priority(0), TestCategory("Functional")]
-        [Description("Parse Evaluator configuration from Java, inject and execute Shell task with DIR command based on the configuration")]
+        [Fact]
+        [Trait("Priority", "0")]
+        [Trait("Category", "Functional")]
+        [Trait("Description", "Parse Evaluator configuration from Java, inject and execute Shell task with DIR command based on the configuration")]
         public void CanInjectAndExecuteTask()
         {
             // to enforce that shell task dll be copied to output directory.
             ShellTask tmpTask = new ShellTask("invalid");
-            Assert.IsNotNull(tmpTask);
+            Assert.NotNull(tmpTask);
 
             string tmp = Directory.GetCurrentDirectory();
-            Assert.IsNotNull(tmp);
+            Assert.NotNull(tmp);
 
             AvroConfigurationSerializer serializer = new AvroConfigurationSerializer();
             AvroConfiguration avroConfiguration = serializer.AvroDeserializeFromFile("evaluator.conf");
-            Assert.IsNotNull(avroConfiguration);
+            Assert.NotNull(avroConfiguration);
 
             ICsConfigurationBuilder cb = TangFactory.GetTang().NewConfigurationBuilder();
             cb.AddConfiguration(TaskConfiguration.ConfigurationModule
@@ -63,7 +64,7 @@ namespace Org.Apache.REEF.Evaluator.Tests
 
             ITask task = null;
             TaskConfiguration config = new TaskConfiguration(taskConfig);
-            Assert.IsNotNull(config);
+            Assert.NotNull(config);
             try
             {
                 IInjector injector = TangFactory.GetTang().NewInjector(config.TangConfig);
@@ -78,18 +79,20 @@ namespace Org.Apache.REEF.Evaluator.Tests
             string result = System.Text.Encoding.Default.GetString(bytes);
 
             // a dir command is executed in the container directory, which includes the file "evaluator.conf"
-            Assert.IsTrue(result.Contains("evaluator.conf"));
+            Assert.True(result.Contains("evaluator.conf"));
         }
 
-        [TestMethod, Priority(0), TestCategory("Unit")]
-        [Description("Test driver information extracted from Http server")]
+        [Fact]
+        [Trait("Priority", "0")]
+        [Trait("Category", "Unit")]
+        [Trait("Description", "Test driver information extracted from Http server")]
         public void CanExtractDriverInformation()
         {
             const string infoString = "{\"remoteId\":\"socket://10.121.136.231:14272\",\"startTime\":\"2014 08 28 10:50:32\",\"services\":[{\"serviceName\":\"NameServer\",\"serviceInfo\":\"10.121.136.231:16663\"}]}";
             AvroDriverInfo info = AvroJsonSerializer<AvroDriverInfo>.FromString(infoString);
-            Assert.IsTrue(info.remoteId.Equals("socket://10.121.136.231:14272"));
-            Assert.IsTrue(info.startTime.Equals("2014 08 28 10:50:32"));
-            Assert.IsTrue(new DriverInformation(info.remoteId, info.startTime, info.services).NameServerId.Equals("10.121.136.231:16663"));
+            Assert.True(info.remoteId.Equals("socket://10.121.136.231:14272"));
+            Assert.True(info.startTime.Equals("2014 08 28 10:50:32"));
+            Assert.True(new DriverInformation(info.remoteId, info.startTime, info.services).NameServerId.Equals("10.121.136.231:16663"));
         }
     }
 }
