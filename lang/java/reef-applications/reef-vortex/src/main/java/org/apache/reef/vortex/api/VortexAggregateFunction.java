@@ -44,7 +44,7 @@ public interface VortexAggregateFunction<TOutput> extends Serializable{
    * @return the aggregated output of Tasklets.
    * @throws Exception
    */
-  TOutput call(final List<TOutput> taskletOutputs) throws Exception;
+  TOutput call(final List<TOutput> taskletOutputs) throws VortexAggregateException;
 
   /**
    * Users must define codec for the AggregationOutput.

@@ -66,7 +66,9 @@ public final class AggregateResult<TInput, TOutput> {
   }
 
   /**
-   * @return the output of an aggregation, throws the Exception a Tasklet or an aggregation fails.
+   * @return the output of an aggregation, throws the Exception if a Tasklet or an aggregation fails.
+   * If an aggregation fails, {@link VortexAggregateException} will be thrown, otherwise
+   * the Exception that caused the Tasklet to fail will be thrown directly.
    * @throws Exception the Exception that caused the Tasklet or aggregation failure.
    */
   public TOutput getAggregateResult() throws Exception {
@@ -85,6 +87,8 @@ public final class AggregateResult<TInput, TOutput> {
   }
 
   /**
+   * If an aggregation fails, {@link VortexAggregateException} will be thrown, otherwise
+   * the Exception that caused the Tasklet to fail will be thrown directly.
    * @return the Exception that caused the Tasklet or aggregation failure, if any.
    */
   public Optional<Exception> getException() {

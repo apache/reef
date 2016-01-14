@@ -25,7 +25,6 @@ import org.apache.reef.annotations.audience.ClientSide;
 import org.apache.reef.annotations.audience.Private;
 import org.apache.reef.annotations.audience.Public;
 import org.apache.reef.vortex.common.VortexFutureDelegate;
-import org.apache.reef.vortex.driver.VortexMaster;
 import org.apache.reef.wake.remote.Codec;
 
 import javax.annotation.concurrent.NotThreadSafe;
@@ -46,7 +45,6 @@ public final class VortexAggregateFuture<TInput, TOutput> implements VortexFutur
   private static final Logger LOG = Logger.getLogger(VortexAggregateFuture.class.getName());
 
   private final Executor executor;
-  private final VortexMaster vortexMaster;
   private final Codec<TOutput> aggOutputCodec;
   private final BlockingQueue<AggregateResult> resultQueue;
   private final Map<Integer, Pair<TInput, VortexFunction<TInput, TOutput>>> taskletIdFunctionMap;
@@ -54,7 +52,6 @@ public final class VortexAggregateFuture<TInput, TOutput> implements VortexFutur
 
   @Private
   public VortexAggregateFuture(final Executor executor,
-                               final VortexMaster vortexMaster,
                                final Map<Integer, Pair<TInput, VortexFunction<TInput, TOutput>>> taskletIdFunctionMap,
                                final Codec<TOutput> aggOutputCodec,
                                final FutureCallback<AggregateResult<TInput, TOutput>> callbackHandler) {
@@ -63,9 +60,6 @@ public final class VortexAggregateFuture<TInput, TOutput> implements VortexFutur
     this.resultQueue = new ArrayBlockingQueue<>(taskletIdFunctionMap.size());
     this.aggOutputCodec = aggOutputCodec;
     this.callbackHandler = callbackHandler;
-
-    // TODO[JIRA REEF-1129]: Call back from VortexMaster.
-    this.vortexMaster = vortexMaster;
   }
 
   /**
@@ -114,6 +108,7 @@ public final class VortexAggregateFuture<TInput, TOutput> implements VortexFutur
   @Override
   public void completed(final int taskletId, final byte[] serializedResult) {
     try {
+      // TODO[REEF-1113]: Handle serialization failure separately in Vortex
       final TOutput result = aggOutputCodec.decode(serializedResult);
       removeCompletedTasklets(result, Collections.singletonList(taskletId));
     } catch (final InterruptedException e) {
