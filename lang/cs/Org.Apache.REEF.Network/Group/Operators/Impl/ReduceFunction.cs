@@ -23,7 +23,7 @@ using System.Linq;
 
 namespace Org.Apache.REEF.Network.Group.Operators.Impl
 {
-    public class ReduceFunction<T> : IReduceFunction<T>
+    public sealed class ReduceFunction<T> : IReduceFunction<T>
     {
         private readonly Func<T, T, T> _reduceFunction;
         private readonly T _initialValue;

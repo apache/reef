@@ -25,7 +25,7 @@ namespace Org.Apache.REEF.Network.Naming.Events
     /// Event representing a lookup, registering, or unregistering of 
     /// an identifier with the Name Service.
     /// </summary>
-    internal class NamingEvent
+    internal abstract class NamingEvent
     {
         /// <summary>
         /// The link for communication between the NameClient and NameServer

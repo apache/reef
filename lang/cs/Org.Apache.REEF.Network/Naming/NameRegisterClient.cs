@@ -28,7 +28,7 @@ namespace Org.Apache.REEF.Network.Naming
     /// <summary>
     /// Helper class to send register and unregister events to the NameServer.
     /// </summary>
-    internal class NameRegisterClient
+    internal sealed class NameRegisterClient
     {
         private readonly TransportClient<NamingEvent> _client;
         private readonly BlockingCollection<NamingRegisterResponse> _registerResponseQueue;

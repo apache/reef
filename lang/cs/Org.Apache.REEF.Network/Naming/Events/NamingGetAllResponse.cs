@@ -26,7 +26,7 @@ namespace Org.Apache.REEF.Network.Naming.Events
     /// Response event for looking up all registered identifiers and their
     /// mapped IPEndpoints
     /// </summary>
-    internal class NamingGetAllResponse : NamingEvent
+    internal sealed class NamingGetAllResponse : NamingEvent
     {
         public NamingGetAllResponse(List<NameAssignment> assignments)
         {

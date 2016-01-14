@@ -24,7 +24,7 @@ namespace Org.Apache.REEF.Network.Group.Topology
     /// <summary>
     /// Represents a node in the operator topology graph.
     /// </summary>
-    internal class TaskNode
+    internal sealed class TaskNode
     {
         private string _groupName;
         private string _operatorName;

@@ -35,7 +35,7 @@ namespace Org.Apache.REEF.Network.Group.Task.Impl
     /// <summary>
     ///  Used by Tasks to fetch Group Communication Operators in the group configured by the driver.
     /// </summary>
-    public class CommunicationGroupClient : ICommunicationGroupClientInternal
+    internal sealed class CommunicationGroupClient : ICommunicationGroupClientInternal
     {
         private readonly Logger LOGGER = Logger.GetLogger(typeof(CommunicationGroupClient));
         private readonly Dictionary<string, object> _operators;

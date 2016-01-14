@@ -24,7 +24,7 @@ using Org.Apache.REEF.Wake.Remote;
 
 namespace Org.Apache.REEF.Network.Group.Config
 {
-    public class CodecConfiguration<T> : ConfigurationModuleBuilder
+    public sealed class CodecConfiguration<T> : ConfigurationModuleBuilder
     {
         /// <summary>
         /// RequiredImpl for Codec. Client needs to set implementation for this parameter

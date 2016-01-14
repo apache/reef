@@ -31,7 +31,7 @@ namespace Org.Apache.REEF.Network.Naming
     /// <summary>
     /// Helper class to send lookup events to the name server
     /// </summary>
-    internal class NameLookupClient
+    internal sealed class NameLookupClient
     {
         private readonly TransportClient<NamingEvent> _client;
         private readonly BlockingCollection<NamingLookupResponse> _lookupResponseQueue;

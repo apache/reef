@@ -40,7 +40,7 @@ namespace Org.Apache.REEF.Network.Naming
     /// Service that manages names and IPEndpoints for well known hosts.
     /// Can register, unregister, and look up IPAddresses using a string identifier.
     /// </summary>
-    public class NameServer : INameServer
+    public sealed class NameServer : INameServer
     {
         private static readonly Logger _logger = Logger.GetLogger(typeof(NameServer));
 

@@ -34,7 +34,7 @@ namespace Org.Apache.REEF.Network.Group.Topology
     /// nodes: the root and all children extending from the root.
     /// </summary>
     /// <typeparam name="T">The message type</typeparam>
-    public class FlatTopology<T> : ITopology<T> 
+    public sealed class FlatTopology<T> : ITopology<T> 
     {
         private readonly string _groupName;
         private readonly string _operatorName;

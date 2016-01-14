@@ -22,7 +22,7 @@ namespace Org.Apache.REEF.Network.Naming.Events
     /// <summary>
     /// Response event for registering an IPEndpoint with the Name Service
     /// </summary>
-    internal class NamingRegisterResponse : NamingEvent
+    internal sealed class NamingRegisterResponse : NamingEvent
     {
         public NamingRegisterResponse(NamingRegisterRequest request)
         {

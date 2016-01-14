@@ -24,7 +24,7 @@ namespace Org.Apache.REEF.Network.Naming.Events
     /// <summary>
     /// Event to request registering an identifier and endpoint with the Name Service
     /// </summary>
-    internal class NamingRegisterRequest : NamingEvent
+    internal sealed class NamingRegisterRequest : NamingEvent
     {
         public NamingRegisterRequest(NameAssignment nameAssignment)
         {

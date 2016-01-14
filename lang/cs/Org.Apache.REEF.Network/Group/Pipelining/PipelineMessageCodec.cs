@@ -28,14 +28,14 @@ namespace Org.Apache.REEF.Network.Group.Pipelining
     /// The codec for PipelineMessage
     /// </summary>
     /// <typeparam name="T">The message type</typeparam>
-    public class PipelineMessageCodec<T> : ICodec<PipelineMessage<T>>
+    public sealed class PipelineMessageCodec<T> : ICodec<PipelineMessage<T>>
     {
         /// <summary>
         /// Creates new PipelineMessageCodec
         /// </summary>
         /// <param name="baseCodec">The codec for actual message in PipelineMessage</param>
         [Inject]
-        public PipelineMessageCodec(ICodec<T> baseCodec)
+        private PipelineMessageCodec(ICodec<T> baseCodec)
         {
             BaseCodec = baseCodec;
         }

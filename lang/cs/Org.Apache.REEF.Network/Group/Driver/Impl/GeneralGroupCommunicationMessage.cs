@@ -17,11 +17,6 @@
  * under the License.
  */
 
-using System;
-using System.Threading;
-using Org.Apache.REEF.Wake.Remote;
-using Org.Apache.REEF.Tang.Annotations;
-
 namespace Org.Apache.REEF.Network.Group.Driver.Impl
 {
     /// <summary>

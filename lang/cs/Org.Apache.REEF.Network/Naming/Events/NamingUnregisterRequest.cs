@@ -22,7 +22,7 @@ namespace Org.Apache.REEF.Network.Naming.Events
     /// <summary>
     /// Event to request unregistering of an IPEndpoint with the Name Service
     /// </summary>
-    internal class NamingUnregisterRequest : NamingEvent
+    internal sealed class NamingUnregisterRequest : NamingEvent
     {
         public NamingUnregisterRequest(string identifier)
         {

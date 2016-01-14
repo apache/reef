@@ -27,7 +27,7 @@ namespace Org.Apache.REEF.Network.Naming.Observers
     /// <summary>
     /// Handler for looking up IPEndpoints registered with the NameServer
     /// </summary>
-    internal class NamingLookupRequestObserver : AbstractObserver<NamingLookupRequest>
+    internal sealed class NamingLookupRequestObserver : AbstractObserver<NamingLookupRequest>
     {
         private readonly NameServer _server;
 

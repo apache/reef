@@ -22,7 +22,7 @@ using Org.Apache.REEF.Tang.Annotations;
 
 namespace Org.Apache.REEF.Network.Group.Config
 {
-    public class GroupCommConfigurationOptions
+    public sealed class GroupCommConfigurationOptions
     {
         [NamedParameter("Name of the communication group")]
         public class CommunicationGroupName : Name<string>

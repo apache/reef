@@ -34,7 +34,7 @@ namespace Org.Apache.REEF.Network.Group.Task.Impl
     /// Used by Tasks to fetch CommunicationGroupClients.
     /// Writable version
     /// </summary>
-    public sealed class GroupCommClient : IGroupCommClient
+    internal sealed class GroupCommClient : IGroupCommClient
     {
         private readonly Dictionary<string, ICommunicationGroupClientInternal> _commGroups;
 

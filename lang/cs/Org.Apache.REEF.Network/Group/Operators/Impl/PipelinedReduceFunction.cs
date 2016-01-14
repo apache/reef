@@ -26,7 +26,7 @@ namespace Org.Apache.REEF.Network.Group.Operators.Impl
     /// The class used to aggregate pipelined messages sent by ReduceSenders.
     /// </summary>
     /// <typeparam name="T">The message type.</typeparam>
-    public class PipelinedReduceFunction<T> : IReduceFunction<PipelineMessage<T>>
+    public sealed class PipelinedReduceFunction<T> : IReduceFunction<PipelineMessage<T>>
     {
         /// <summary>
         /// The base reduce function class that operates on actual message type T.

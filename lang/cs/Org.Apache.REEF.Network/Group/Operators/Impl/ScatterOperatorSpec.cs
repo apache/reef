@@ -27,7 +27,7 @@ namespace Org.Apache.REEF.Network.Group.Operators.Impl
     /// The specification used to define Scatter Group Communication Operators.
     /// </summary>
     /// TODO[REEF-842] Act on the obsoletes
-    public class ScatterOperatorSpec : IOperatorSpec
+    public sealed class ScatterOperatorSpec : IOperatorSpec
     {
         /// <summary>
         /// Creates a new ScatterOperatorSpec.

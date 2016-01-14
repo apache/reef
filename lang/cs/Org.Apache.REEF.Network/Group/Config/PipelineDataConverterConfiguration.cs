@@ -23,7 +23,7 @@ using Org.Apache.REEF.Tang.Util;
 
 namespace Org.Apache.REEF.Network.Group.Config
 {
-    public class PipelineDataConverterConfiguration<T> : ConfigurationModuleBuilder
+    public sealed class PipelineDataConverterConfiguration<T> : ConfigurationModuleBuilder
     {
         /// <summary>
         /// Required Imple parameter for Pipeline Data Converter. Client needs to set an implementation for it. 

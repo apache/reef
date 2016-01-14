@@ -18,8 +18,6 @@
  */
 
 using System.Collections.Generic;
-using Org.Apache.REEF.Tang.Implementations.Tang;
-using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Tang.Annotations;
 
 namespace Org.Apache.REEF.Network.Group.Pipelining.Impl
@@ -29,7 +27,7 @@ namespace Org.Apache.REEF.Network.Group.Pipelining.Impl
     /// This basically is a non-pipelined implementation that just packs the whole message in one single PipelineMessage
     /// </summary>
     /// <typeparam name="T">The message type</typeparam>
-    public class DefaultPipelineDataConverter<T> : IPipelineDataConverter<T>
+    public sealed class DefaultPipelineDataConverter<T> : IPipelineDataConverter<T>
     {
         [Inject]
         public DefaultPipelineDataConverter()

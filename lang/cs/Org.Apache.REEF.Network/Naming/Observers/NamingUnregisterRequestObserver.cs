@@ -25,7 +25,7 @@ namespace Org.Apache.REEF.Network.Naming.Observers
     /// <summary>
     /// Handler for unregistering an identifier with the NameServer
     /// </summary>
-    internal class NamingUnregisterRequestObserver : AbstractObserver<NamingUnregisterRequest>
+    internal sealed class NamingUnregisterRequestObserver : AbstractObserver<NamingUnregisterRequest>
     {
         private readonly NameServer _server;
 

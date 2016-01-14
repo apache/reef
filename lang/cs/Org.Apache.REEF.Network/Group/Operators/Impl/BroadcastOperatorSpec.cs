@@ -27,7 +27,7 @@ namespace Org.Apache.REEF.Network.Group.Operators.Impl
     /// The specification used to define Broadcast Operators.
     /// </summary>
     /// TODO[REEF-842] Act on the obsoletes
-    public class BroadcastOperatorSpec : IOperatorSpec
+    public sealed class BroadcastOperatorSpec : IOperatorSpec
     {
         /// <summary>
         /// Specification for Broadcast Operator

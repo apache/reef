@@ -29,7 +29,7 @@ namespace Org.Apache.REEF.Network.Naming
     /// <summary>
     /// Cache class for caching IpEndPoint Lookups
     /// </summary>
-    internal class NameCache
+    internal sealed class NameCache
     {
         private readonly MemoryCache _cache;
 

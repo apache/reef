@@ -33,7 +33,7 @@ namespace Org.Apache.REEF.Network.Group.Driver
         /// <summary>
         /// Returns the list of task ids that belong to this Communication Group
         /// </summary>
-        List<string> TaskIds { get; }
+        IList<string> TaskIds { get; }
 
         /// <summary>
         /// Adds the Broadcast Group Communication operator to the communication group.

@@ -23,7 +23,7 @@ namespace Org.Apache.REEF.Network.Naming.Events
     /// Event to request all registered identifiers and their mapped
     /// IPEndpoints
     /// </summary>
-    internal class NamingGetAllRequest : NamingEvent
+    internal sealed class NamingGetAllRequest : NamingEvent
     {
     }
 }
