@@ -220,20 +220,13 @@ namespace Org.Apache.REEF.Network.Naming
         /// </summary>
         public void Dispose()
         {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
-        public void Dispose(bool disposing)
-        {
             if (_disposed)
             {
                 return;
             }
-            if (disposing)
-            {
-                _client.Dispose();
-            }
+
+             _client.Dispose();
+            _client = null;
             _disposed = true;
         }
 
