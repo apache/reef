@@ -21,7 +21,7 @@ namespace Org.Apache.REEF.Network.Group.Pipelining
     /// the message for pipelined communication
     /// </summary>
     /// <typeparam name="T">The message type</typeparam>
-    public class PipelineMessage<T>
+    public sealed class PipelineMessage<T>
     {
         /// <summary>
         /// Create new PipelineMessage.

@@ -40,7 +40,7 @@ namespace Org.Apache.REEF.Network.Naming
     /// Client for the Reef name service. 
     /// Used to register, unregister, and lookup IP Addresses of known hosts.
     /// </summary>
-    public class NameClient : INameClient
+    public sealed class NameClient : INameClient
     {
         private static readonly Logger _logger = Logger.GetLogger(typeof(NameClient));
 
@@ -218,20 +218,13 @@ namespace Org.Apache.REEF.Network.Naming
         /// </summary>
         public void Dispose()
         {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
-        protected virtual void Dispose(bool disposing)
-        {
             if (_disposed)
             {
                 return;
             }
-            if (disposing)
-            {
-                _client.Dispose();
-            }
+
+             _client.Dispose();
+            _client = null;
             _disposed = true;
         }
 

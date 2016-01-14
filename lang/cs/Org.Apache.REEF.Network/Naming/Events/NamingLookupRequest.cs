@@ -22,7 +22,7 @@ namespace Org.Apache.REEF.Network.Naming.Events
     /// <summary>
     /// Event to request look up of IPEndpoints in the Name Service
     /// </summary>
-    internal class NamingLookupRequest : NamingEvent
+    internal sealed class NamingLookupRequest : NamingEvent
     {
         public NamingLookupRequest(List<string> ids)
         {

@@ -18,6 +18,7 @@
 using System;
 using Org.Apache.REEF.Tang.Implementations.Configuration;
 using Org.Apache.REEF.Tang.Interface;
+using Org.Apache.REEF.Utilities.Attributes;
 
 namespace Org.Apache.REEF.Network.Group.Operators.Impl
 {
@@ -25,7 +26,8 @@ namespace Org.Apache.REEF.Network.Group.Operators.Impl
     /// The specification used to define Broadcast Operators.
     /// </summary>
     /// TODO[REEF-842] Act on the obsoletes
-    public class BroadcastOperatorSpec : IOperatorSpec
+    [Private]
+    public sealed class BroadcastOperatorSpec : IOperatorSpec
     {
         /// <summary>
         /// Specification for Broadcast Operator

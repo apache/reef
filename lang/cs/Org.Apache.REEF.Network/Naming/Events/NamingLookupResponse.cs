@@ -24,7 +24,7 @@ namespace Org.Apache.REEF.Network.Naming.Events
     /// <summary>
     /// Event for lookup response in Name Service.
     /// </summary>
-    internal class NamingLookupResponse : NamingEvent
+    internal sealed class NamingLookupResponse : NamingEvent
     {
         public NamingLookupResponse(List<NameAssignment> nameAssignments)
         {

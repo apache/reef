@@ -27,7 +27,7 @@ namespace Org.Apache.REEF.Network.Naming.Observers
     /// Gets all of the identifiers and their mapped IPEndpoints registered 
     /// with the NameServer.
     /// </summary>
-    internal class NamingGetAllRequestObserver : AbstractObserver<NamingGetAllRequest>
+    internal sealed class NamingGetAllRequestObserver : AbstractObserver<NamingGetAllRequest>
     {
         private readonly NameServer _server;
 

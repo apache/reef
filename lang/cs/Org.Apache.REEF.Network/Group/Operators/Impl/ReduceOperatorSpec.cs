@@ -16,11 +16,9 @@
 // under the License.
 
 using System;
-using Org.Apache.REEF.Wake.Remote;
-using Org.Apache.REEF.Network.Group.Pipelining.Impl;
-using Org.Apache.REEF.Network.Group.Pipelining;
 using Org.Apache.REEF.Tang.Implementations.Configuration;
 using Org.Apache.REEF.Tang.Interface;
+using Org.Apache.REEF.Utilities.Attributes;
 
 namespace Org.Apache.REEF.Network.Group.Operators.Impl
 {
@@ -28,7 +26,8 @@ namespace Org.Apache.REEF.Network.Group.Operators.Impl
     /// The specification used to define Reduce Group Communication Operators.
     /// </summary>
     /// TODO[REEF-842] Act on the obsoletes
-    public class ReduceOperatorSpec : IOperatorSpec
+    [Private]
+    public sealed class ReduceOperatorSpec : IOperatorSpec
     {
         /// <summary>
         /// Creates a new ReduceOperatorSpec.

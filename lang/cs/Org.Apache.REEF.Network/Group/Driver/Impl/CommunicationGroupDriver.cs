@@ -35,7 +35,7 @@ namespace Org.Apache.REEF.Network.Group.Driver.Impl
     /// All operators in the same Communication Group run on the the 
     /// same set of tasks.
     /// </summary>
-    public sealed class CommunicationGroupDriver : ICommunicationGroupDriver
+    internal sealed class CommunicationGroupDriver : ICommunicationGroupDriver
     {
         private static readonly Logger LOGGER = Logger.GetLogger(typeof(CommunicationGroupDriver));
 
@@ -85,7 +85,7 @@ namespace Org.Apache.REEF.Network.Group.Driver.Impl
         /// <summary>
         /// Returns the list of task ids that belong to this Communication Group
         /// </summary>
-        public List<string> TaskIds { get; private set; }
+        public IList<string> TaskIds { get; private set; }
 
         /// <summary>
         /// </summary>
