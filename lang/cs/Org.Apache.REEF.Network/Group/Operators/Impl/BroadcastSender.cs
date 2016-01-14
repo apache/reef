@@ -25,6 +25,7 @@ using Org.Apache.REEF.Network.Group.Task;
 using Org.Apache.REEF.Network.Group.Task.Impl;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Network.Group.Pipelining;
+using Org.Apache.REEF.Utilities.Attributes;
 using Org.Apache.REEF.Utilities.Logging;
 
 namespace Org.Apache.REEF.Network.Group.Operators.Impl
@@ -33,6 +34,7 @@ namespace Org.Apache.REEF.Network.Group.Operators.Impl
     /// Group Communication Operator used to send messages to child Tasks in pipelined fashion.
     /// </summary>
     /// <typeparam name="T">The message type</typeparam>
+    [Private]
     public sealed class BroadcastSender<T> : IBroadcastSender<T>, IGroupCommOperatorInternal
     {
         private static readonly Logger Logger = Logger.GetLogger(typeof(BroadcastSender<T>));

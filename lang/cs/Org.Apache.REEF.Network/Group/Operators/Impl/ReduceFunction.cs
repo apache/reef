@@ -20,9 +20,11 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Org.Apache.REEF.Utilities.Attributes;
 
 namespace Org.Apache.REEF.Network.Group.Operators.Impl
 {
+    [Private]
     public sealed class ReduceFunction<T> : IReduceFunction<T>
     {
         private readonly Func<T, T, T> _reduceFunction;

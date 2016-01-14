@@ -20,6 +20,7 @@
 using System;
 using Org.Apache.REEF.Tang.Implementations.Configuration;
 using Org.Apache.REEF.Tang.Interface;
+using Org.Apache.REEF.Utilities.Attributes;
 
 namespace Org.Apache.REEF.Network.Group.Operators.Impl
 {
@@ -27,6 +28,7 @@ namespace Org.Apache.REEF.Network.Group.Operators.Impl
     /// The specification used to define Scatter Group Communication Operators.
     /// </summary>
     /// TODO[REEF-842] Act on the obsoletes
+    [Private]
     public sealed class ScatterOperatorSpec : IOperatorSpec
     {
         /// <summary>
