@@ -18,8 +18,6 @@
  */
 
 using Org.Apache.REEF.Driver.Context;
-using Org.Apache.REEF.Network.Group.Driver.Impl;
-using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Tang.Interface;
 
 namespace Org.Apache.REEF.Network.Group.Driver
@@ -28,7 +26,6 @@ namespace Org.Apache.REEF.Network.Group.Driver
     /// Used to create Communication Groups for Group Communication Operators.
     /// Also manages configuration for Group Communication tasks/services.
     /// </summary>
-    [DefaultImplementation(typeof(GroupCommDriver))]
     public interface IGroupCommDriver
     {
         /// <summary>

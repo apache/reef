@@ -29,7 +29,7 @@ namespace Org.Apache.REEF.Network.Group.Operators.Impl
     /// Group Communication operator used to do point-to-point communication between named Tasks.
     /// It uses Writable classes
     /// </summary>
-    public sealed class Sender
+    internal sealed class Sender
     {
         private readonly INetworkService<GeneralGroupCommunicationMessage> _networkService;
         private readonly IIdentifierFactory _idFactory;
