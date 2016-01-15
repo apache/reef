@@ -22,7 +22,7 @@ using Org.Apache.REEF.Tang.Annotations;
 
 namespace Org.Apache.REEF.Wake.Remote
 {
-    public class RemoteConfiguration
+    public sealed class RemoteConfiguration
     {
         [NamedParameter(shortName: "rm_name", documentation: "The name of the remote manager.")]
         public class ManagerName : Name<string>

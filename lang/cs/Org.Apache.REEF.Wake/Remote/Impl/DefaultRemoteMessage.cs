@@ -19,7 +19,7 @@
 
 namespace Org.Apache.REEF.Wake.Remote.Impl
 {
-    internal class DefaultRemoteMessage<T> : IRemoteMessage<T>
+    internal sealed class DefaultRemoteMessage<T> : IRemoteMessage<T>
     {
         public DefaultRemoteMessage(IRemoteIdentifier id, T message)
         {

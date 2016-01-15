@@ -53,7 +53,6 @@ under the License.
     <Compile Include="Remote\Impl\DefaultRemoteManagerFactory.cs" />
     <Compile Include="Impl\LoggingEventHandler.cs" />
     <Compile Include="Impl\MissingStartHandlerHandler.cs" />
-    <Compile Include="Impl\MultiEventHandler.cs" />
     <Compile Include="Impl\PeriodicEvent.cs" />
     <Compile Include="Impl\PubSubEventHandler.cs" />
     <Compile Include="Impl\SingleThreadStage.cs" />
@@ -78,7 +77,7 @@ under the License.
     <Compile Include="Remote\Impl\StreamingTransportServer.cs" />
     <Compile Include="Remote\IRemoteManagerFactory.cs" />
     <Compile Include="Remote\Proto\WakeRemoteProtosGen.cs">
-        <ExcludeFromStyleCop>true</ExcludeFromStyleCop>
+      <ExcludeFromStyleCop>true</ExcludeFromStyleCop>
     </Compile>
     <Compile Include="Remote\ICodec.cs" />
     <Compile Include="Remote\ICodecFactory.cs" />
@@ -170,12 +169,7 @@ under the License.
     <None Include="packages.config" />
     <None Include="Remote\Proto\RemoteProtocol.proto" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Proto\" />
-    <Folder Include="Time\Time\Event\" />
-    <Folder Include="Time\Time\Runtime\Event\" />
-    <Folder Include="Util\Util\" />
-  </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
     <ProjectReference Include="$(SolutionDir)\Org.Apache.REEF.Tang\Org.Apache.REEF.Tang.csproj">
       <Project>{97dbb573-3994-417a-9f69-ffa25f00d2a6}</Project>

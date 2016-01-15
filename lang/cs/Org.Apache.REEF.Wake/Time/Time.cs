@@ -27,7 +27,7 @@ namespace Org.Apache.REEF.Wake.Time
     /// </summary>
     public abstract class Time : IComparable<Time>
     {
-        public Time(long timeStamp)
+        protected Time(long timeStamp)
         {
             TimeStamp = timeStamp;
         }

@@ -21,7 +21,7 @@ using System.Threading;
 
 namespace Org.Apache.REEF.Wake.Util
 {
-    public class Actionable
+    public sealed class Actionable
     {
         private readonly ThreadStart _threadStart;
 

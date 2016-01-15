@@ -20,7 +20,7 @@
 namespace Org.Apache.REEF.Wake.Impl
 {
     /// <summary>Periodic event for timers</summary>
-    public class PeriodicEvent
+    public sealed class PeriodicEvent
     {
     }
 }

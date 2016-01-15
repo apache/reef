@@ -25,7 +25,7 @@ namespace Org.Apache.REEF.Wake.Remote.Impl
     /// <summary>
     /// Class to compare two IPEndPoint objects.
     /// </summary>
-    internal class IPEndPointComparer : IEqualityComparer<IPEndPoint>
+    internal sealed class IPEndPointComparer : IEqualityComparer<IPEndPoint>
     {
         public bool Equals(IPEndPoint x, IPEndPoint y)
         {

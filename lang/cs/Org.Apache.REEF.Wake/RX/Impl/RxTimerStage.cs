@@ -24,7 +24,7 @@ using Org.Apache.REEF.Wake.Impl;
 namespace Org.Apache.REEF.Wake.RX.Impl
 {
     /// <summary>Timer stage that provides events to the observer periodically</summary>
-    public class RxTimerStage : IStage, IStaticObservable
+    public sealed class RxTimerStage : IStage, IStaticObservable
     {
         private readonly Timer _timer;
         private readonly PeriodicEvent _value = new PeriodicEvent();

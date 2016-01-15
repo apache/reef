@@ -22,7 +22,7 @@ using Org.Apache.REEF.Tang.Annotations;
 
 namespace Org.Apache.REEF.Wake.Remote.Impl
 {
-    public class StringCodec : ICodec<string>
+    public sealed class StringCodec : ICodec<string>
     {
         [Inject]
         public StringCodec()

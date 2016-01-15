@@ -31,7 +31,7 @@ using Org.Apache.REEF.Wake.Time.Runtime.Event;
 
 namespace Org.Apache.REEF.Wake.Time.Runtime
 {
-    public class RuntimeClock : IClock
+    public sealed class RuntimeClock : IClock
     {
         private static readonly Logger LOGGER = Logger.GetLogger(typeof(RuntimeClock));
 
@@ -57,7 +57,7 @@ namespace Org.Apache.REEF.Wake.Time.Runtime
         /// <param name="runtimeStopHandler">The runtime stop handler</param>
         /// <param name="idleHandler">The idle handler</param>
         [Inject]
-        internal RuntimeClock(
+        private RuntimeClock(
             ITimer timer,
             [Parameter(typeof(StartHandler))] IInjectionFuture<ISet<IObserver<StartTime>>> startHandler, 
             [Parameter(typeof(StopHandler))] IInjectionFuture<ISet<IObserver<StopTime>>> stopHandler,

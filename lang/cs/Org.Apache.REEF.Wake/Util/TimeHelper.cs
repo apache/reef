@@ -21,7 +21,7 @@ using System;
 
 namespace Org.Apache.REEF.Wake.Util
 {
-    public class TimeHelper
+    public static class TimeHelper
     {
         public const long TicksPerMilliSecond = 10000;
         public const long TicksPerMicroSecond = 10;

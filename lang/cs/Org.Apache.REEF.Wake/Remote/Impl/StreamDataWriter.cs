@@ -24,7 +24,7 @@ using System.Threading.Tasks;
 
 namespace Org.Apache.REEF.Wake.Remote.Impl
 {
-    public class StreamDataWriter : IDataWriter
+    public sealed class StreamDataWriter : IDataWriter
     {
          /// <summary>
         /// Stream to which to write

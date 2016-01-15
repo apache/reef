@@ -21,7 +21,7 @@ using Org.Apache.REEF.Tang.Annotations;
 
 namespace Org.Apache.REEF.Wake.Remote.Impl
 {
-    public class ByteCodec : ICodec<byte[]>
+    public sealed class ByteCodec : ICodec<byte[]>
     {
         [Inject]
         public ByteCodec()
