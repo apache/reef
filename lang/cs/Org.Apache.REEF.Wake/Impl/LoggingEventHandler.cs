@@ -29,7 +29,7 @@ namespace Org.Apache.REEF.Wake.Impl
         private static readonly Logger LOGGER = Logger.GetLogger(typeof(T));
 
         [Inject]
-        public LoggingEventHandler()
+        private LoggingEventHandler()
         {
         }
 

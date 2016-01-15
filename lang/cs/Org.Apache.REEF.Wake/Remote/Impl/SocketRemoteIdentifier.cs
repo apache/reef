@@ -28,7 +28,7 @@ namespace Org.Apache.REEF.Wake.Remote.Impl
     /// <summary>
     /// Remote identifier based on a socket address
     /// </summary>
-    public class SocketRemoteIdentifier : IRemoteIdentifier
+    public sealed class SocketRemoteIdentifier : IRemoteIdentifier
     {
         private static readonly Logger LOGGER = Logger.GetLogger(typeof(SocketRemoteIdentifier));
         private readonly IPEndPoint _addr;

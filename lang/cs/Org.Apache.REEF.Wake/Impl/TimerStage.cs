@@ -22,7 +22,7 @@ using System.Timers;
 namespace Org.Apache.REEF.Wake.Impl
 {
     /// <summary>Stage that triggers an event handler periodically</summary>
-    public class TimerStage : IStage
+    public sealed class TimerStage : IStage
     {
         // private readonly ScheduledExecutorService executor;
         private readonly Timer _timer;

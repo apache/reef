@@ -21,7 +21,7 @@ using System;
 
 namespace Org.Apache.REEF.Wake.Time.Runtime.Event
 {
-    public class RuntimeStop : Time
+    public sealed class RuntimeStop : Time
     {
         public RuntimeStop(long timestamp) : this(timestamp, null)
         {

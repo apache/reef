@@ -29,7 +29,7 @@ namespace Org.Apache.REEF.Wake.Remote.Impl
     /// <summary>
     /// Class with functions to Read from stream
     /// </summary>
-    public class StreamDataReader : IDataReader
+    public sealed class StreamDataReader : IDataReader
     {
         private static readonly Logger Logger = Logger.GetLogger(typeof(StreamDataReader));
         

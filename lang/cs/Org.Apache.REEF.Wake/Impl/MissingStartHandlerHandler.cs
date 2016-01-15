@@ -23,17 +23,16 @@ using Org.Apache.REEF.Wake.Time.Event;
 
 namespace Org.Apache.REEF.Wake.Impl
 {
-    public class MissingStartHandlerHandler : IObserver<StartTime>
+    public sealed class MissingStartHandlerHandler : IObserver<StartTime>
     {
         [Inject]
-        public MissingStartHandlerHandler()
+        private MissingStartHandlerHandler()
         {
         }
 
         public void OnNext(StartTime value)
         {
             // Do nothing, since we only use this for evaluator, not for driver.
-            // LOGGER.Log(Level.Info, "No binding to Clock.StartHandler. It is likely that the clock will immediately go idle and close.");
         }
 
         public void OnError(Exception error)

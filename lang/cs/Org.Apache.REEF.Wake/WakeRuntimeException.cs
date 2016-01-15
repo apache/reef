@@ -23,7 +23,7 @@ namespace Org.Apache.REEF.Wake
 {
     /// <summary>Wake runtime exception</summary>
     [System.Serializable]
-    public class WakeRuntimeException : Exception
+    public sealed class WakeRuntimeException : Exception
     {
         private const long serialVersionUID = 1L;
 

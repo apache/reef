@@ -19,7 +19,7 @@
 
 namespace Org.Apache.REEF.Wake.Remote.Impl
 {
-    public class StringIdentifier : IIdentifier
+    public sealed class StringIdentifier : IIdentifier
     {
         private readonly string _str;
 

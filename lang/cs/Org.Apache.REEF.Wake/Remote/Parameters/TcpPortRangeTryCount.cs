@@ -22,7 +22,7 @@ using Org.Apache.REEF.Tang.Annotations;
 namespace Org.Apache.REEF.Wake.Remote.Parameters
 {
     [NamedParameter(Documentation = "Count of tries to get a tcp port in the port range", DefaultValue = "1000")]
-    public class TcpPortRangeTryCount : Name<int>
+    public sealed class TcpPortRangeTryCount : Name<int>
     {
     }
 }

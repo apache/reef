@@ -22,10 +22,10 @@ using Org.Apache.REEF.Tang.Annotations;
 
 namespace Org.Apache.REEF.Wake.Time.Runtime
 {
-    public class RealTimer : ITimer
+    public sealed class RealTimer : ITimer
     {
         [Inject]
-        public RealTimer()
+        private RealTimer()
         {
         }
 

@@ -22,7 +22,7 @@ namespace Org.Apache.REEF.Wake.Time.Event
     /// <summary>
     /// Represents the Time at which a component started.
     /// </summary>
-    public class StartTime : Time
+    public sealed class StartTime : Time
     {
         public StartTime(long timeStamp) : base(timeStamp)
         {

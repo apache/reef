@@ -22,7 +22,7 @@ using ProtoBuf;
 
 namespace Org.Apache.REEF.Wake.Util
 {
-    public class SerializationHelper
+    public static class SerializationHelper
     {
         public static byte[] Serialize<T>(T t)
         {

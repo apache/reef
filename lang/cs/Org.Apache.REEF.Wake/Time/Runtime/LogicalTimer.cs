@@ -24,10 +24,10 @@ namespace Org.Apache.REEF.Wake.Time.Runtime
     /// <summary>
     /// LogicalTimer class used for testing purposes.
     /// </summary>
-    public class LogicalTimer : ITimer
+    public sealed class LogicalTimer : ITimer
     {
         [Inject]
-        public LogicalTimer()
+        private LogicalTimer()
         {
         }
 

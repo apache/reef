@@ -27,7 +27,7 @@ using Org.Apache.REEF.Wake.Remote.Parameters;
 
 namespace Org.Apache.REEF.Wake.Remote
 {
-    public class TcpPortProvider : ITcpPortProvider
+    public sealed class TcpPortProvider : ITcpPortProvider
      {
         private readonly int _tcpPortRangeStart;
         private readonly int _tcpPortRangeCount;
@@ -35,7 +35,7 @@ namespace Org.Apache.REEF.Wake.Remote
         private readonly int _tcpPortRangeSeed;
 
         [Inject]
-        internal TcpPortProvider(
+        private TcpPortProvider(
             [Parameter(typeof(TcpPortRangeStart))] int tcpPortRangeStart,
             [Parameter(typeof(TcpPortRangeCount))] int tcpPortRangeCount,
             [Parameter(typeof(TcpPortRangeTryCount))] int tcpPortRangeTryCount,

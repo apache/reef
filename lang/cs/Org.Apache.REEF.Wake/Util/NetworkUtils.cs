@@ -24,7 +24,7 @@ using System.Net.Sockets;
 
 namespace Org.Apache.REEF.Wake.Util
 {
-    public class NetworkUtils
+    public static class NetworkUtils
     {
         private static IPAddress _localAddress;
         private static readonly Random _random = new Random();

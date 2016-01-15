@@ -19,7 +19,7 @@
 
 namespace Org.Apache.REEF.Wake.Remote.Impl
 {
-    internal class RemoteEventCodec<T> : ICodec<IRemoteEvent<T>>
+    internal sealed class RemoteEventCodec<T> : ICodec<IRemoteEvent<T>>
     {
         private readonly RemoteEventEncoder<T> _encoder;
         private readonly RemoteEventDecoder<T> _decoder;

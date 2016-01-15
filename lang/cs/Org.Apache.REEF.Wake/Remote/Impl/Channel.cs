@@ -27,7 +27,7 @@ namespace Org.Apache.REEF.Wake.Remote.Impl
     /// <summary>
     /// Performs low level network IO operations between hosts
     /// </summary>
-    public class Channel
+    public sealed class Channel
     {
         private readonly NetworkStream _stream;
 

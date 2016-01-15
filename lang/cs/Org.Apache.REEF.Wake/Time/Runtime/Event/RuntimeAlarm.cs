@@ -22,7 +22,7 @@ using Org.Apache.REEF.Wake.Time.Event;
 
 namespace Org.Apache.REEF.Wake.Time.Runtime.Event
 {
-    public class RuntimeAlarm : Alarm
+    public sealed class RuntimeAlarm : Alarm
     {
         public RuntimeAlarm(long timestamp, IObserver<Alarm> handler) : base(timestamp, handler)
         {

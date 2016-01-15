@@ -23,7 +23,7 @@ namespace Org.Apache.REEF.Wake.Remote
 {
     /// <summary>Wake remote runtime exception</summary>
     [System.Serializable]
-    public class RemoteRuntimeException : Exception
+    public sealed class RemoteRuntimeException : Exception
     {
         private const long serialVersionUID = 1L;
 

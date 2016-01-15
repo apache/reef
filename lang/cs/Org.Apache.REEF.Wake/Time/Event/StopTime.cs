@@ -22,7 +22,7 @@ namespace Org.Apache.REEF.Wake.Time.Event
     /// <summary>
     /// Represents the Time at which a component stops.
     /// </summary>
-    public class StopTime : Time
+    public sealed class StopTime : Time
     {
         public StopTime(long timeStamp) : base(timeStamp)
         {

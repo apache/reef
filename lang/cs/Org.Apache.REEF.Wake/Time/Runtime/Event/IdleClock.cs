@@ -19,7 +19,7 @@
 
 namespace Org.Apache.REEF.Wake.Time.Runtime.Event
 {
-    public class IdleClock : Time
+    public sealed class IdleClock : Time
     {
         public IdleClock(long timestamp) : base(timestamp)
         {

@@ -21,7 +21,7 @@ using Org.Apache.REEF.Tang.Annotations;
 
 namespace Org.Apache.REEF.Wake.Remote.Impl
 {
-    public class StringIdentifierFactory : IIdentifierFactory
+    public sealed class StringIdentifierFactory : IIdentifierFactory
     {
         [Inject]
         public StringIdentifierFactory()

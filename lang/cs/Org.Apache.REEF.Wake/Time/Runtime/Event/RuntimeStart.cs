@@ -19,7 +19,7 @@
 
 namespace Org.Apache.REEF.Wake.Time.Runtime.Event
 {
-    public class RuntimeStart : Time
+    public sealed class RuntimeStart : Time
     {
         public RuntimeStart(long timeStamp) : base(timeStamp)
         {

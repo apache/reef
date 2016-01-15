@@ -26,7 +26,7 @@ using Org.Apache.REEF.Utilities.Logging;
 
 namespace Org.Apache.REEF.Wake.Util
 {
-    public class FixedThreadPoolTaskService : ITaskService
+    public sealed class FixedThreadPoolTaskService : ITaskService
     {
         private static readonly Logger LOGGER = Logger.GetLogger(typeof(FixedThreadPoolTaskService));
 

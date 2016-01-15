@@ -28,7 +28,7 @@ namespace Org.Apache.REEF.Wake.Remote.Impl
     /// Stores registered IObservers for DefaultRemoteManager.
     /// Can register and look up IObservers by remote IPEndPoint.
     /// </summary>
-    internal class ObserverContainer<T> : IObserver<TransportEvent<IRemoteEvent<T>>>
+    internal sealed class ObserverContainer<T> : IObserver<TransportEvent<IRemoteEvent<T>>>
     {
         private readonly ConcurrentDictionary<IPEndPoint, IObserver<T>> _endpointMap;
         private readonly ConcurrentDictionary<Type, IObserver<IRemoteMessage<T>>> _typeMap;

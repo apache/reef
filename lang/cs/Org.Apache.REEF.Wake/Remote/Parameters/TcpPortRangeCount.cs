@@ -21,9 +21,8 @@ using Org.Apache.REEF.Tang.Annotations;
 
 namespace Org.Apache.REEF.Wake.Remote.Parameters
 {
-    [NamedParameter(Documentation = "Port number count in the range for listening on tcp ports", DefaultValue = "1000")
-    ]
-    public class TcpPortRangeCount : Name<int>
+    [NamedParameter(Documentation = "Port number count in the range for listening on tcp ports", DefaultValue = "1000")]
+    public sealed class TcpPortRangeCount : Name<int>
     {
     }
 }

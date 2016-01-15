@@ -24,7 +24,7 @@ namespace Org.Apache.REEF.Wake.Util
     /// <summary>
     /// Generates IDisposables from a factory method
     /// </summary>
-    internal class Disposable : IDisposable
+    internal sealed class Disposable : IDisposable
     {
         private readonly Action _disposeFunction;
         private readonly bool _disposed;

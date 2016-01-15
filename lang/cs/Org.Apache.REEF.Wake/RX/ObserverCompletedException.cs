@@ -39,7 +39,7 @@ namespace Org.Apache.REEF.Wake.RX
     /// entirely.
     /// </remarks>
     [System.Serializable]
-    public class ObserverCompletedException : InvalidOperationException
+    public sealed class ObserverCompletedException : InvalidOperationException
     {
         private const long serialVersionUID = 1L;
     }
