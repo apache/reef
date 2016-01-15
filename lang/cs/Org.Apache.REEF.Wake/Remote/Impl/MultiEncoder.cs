@@ -29,7 +29,7 @@ namespace Org.Apache.REEF.Wake.Remote.Impl
     /// </summary>
     public class MultiEncoder<T> : IEncoder<T>
     {
-        private static readonly Logger _logger = Logger.GetLogger(typeof(MultiEncoder<>));
+        private static readonly Logger Logger = Logger.GetLogger(typeof(MultiEncoder<>));
         private readonly Dictionary<Type, object> _encoderMap;
         private readonly Dictionary<Type, string> _nameMap;
 
@@ -52,7 +52,7 @@ namespace Org.Apache.REEF.Wake.Remote.Impl
         {
             _encoderMap[typeof(U)] = encoder;
             _nameMap[typeof(U)] = name;
-            _logger.Log(Level.Verbose, "Registering name for " + name);
+            Logger.Log(Level.Verbose, "Registering name for " + name);
         }
 
         /// <summary>Encodes an object to a byte array</summary>
@@ -75,7 +75,7 @@ namespace Org.Apache.REEF.Wake.Remote.Impl
             // To decode, deserialize the tuple, get object type, and look up the
             // decoder for that type
             string name = _nameMap[obj.GetType()];
-            _logger.Log(Level.Verbose, "Encoding name for " + name);
+            Logger.Log(Level.Verbose, "Encoding name for " + name);
             WakeTuplePBuf pbuf = new WakeTuplePBuf { className = name, data = data };
             pbuf.className = name;
             pbuf.data = data; 

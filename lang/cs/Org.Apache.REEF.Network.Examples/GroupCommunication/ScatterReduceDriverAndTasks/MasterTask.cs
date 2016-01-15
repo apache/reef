@@ -27,7 +27,7 @@ namespace Org.Apache.REEF.Network.Examples.GroupCommunication.ScatterReduceDrive
 {
     public class MasterTask : ITask
     {
-        private static readonly Logger _logger = Logger.GetLogger(typeof(MasterTask));
+        private static readonly Logger Logger = Logger.GetLogger(typeof(MasterTask));
 
         private readonly IGroupCommClient _groupCommClient;
         private readonly ICommunicationGroupClient _commGroup;
@@ -37,7 +37,7 @@ namespace Org.Apache.REEF.Network.Examples.GroupCommunication.ScatterReduceDrive
         [Inject]
         public MasterTask(IGroupCommClient groupCommClient)
         {
-            _logger.Log(Level.Info, "Hello from master task");
+            Logger.Log(Level.Info, "Hello from master task");
             _groupCommClient = groupCommClient;
 
             _commGroup = groupCommClient.GetCommunicationGroup(GroupTestConstants.GroupName);
@@ -51,7 +51,7 @@ namespace Org.Apache.REEF.Network.Examples.GroupCommunication.ScatterReduceDrive
             _scatterSender.Send(data);
 
             int sum = _sumReducer.Reduce();
-            _logger.Log(Level.Info, "Received sum: {0}", sum);
+            Logger.Log(Level.Info, "Received sum: {0}", sum);
 
             return null;
         }

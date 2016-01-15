@@ -27,7 +27,7 @@ namespace Org.Apache.REEF.Network.Examples.GroupCommunication.ScatterReduceDrive
 {
     public class SlaveTask : ITask
     {
-        private static readonly Logger _logger = Logger.GetLogger(typeof(SlaveTask));
+        private static readonly Logger Logger = Logger.GetLogger(typeof(SlaveTask));
 
         private readonly IGroupCommClient _groupCommClient;
         private readonly ICommunicationGroupClient _commGroup;
@@ -37,7 +37,7 @@ namespace Org.Apache.REEF.Network.Examples.GroupCommunication.ScatterReduceDrive
         [Inject]
         public SlaveTask(IGroupCommClient groupCommClient)
         {
-            _logger.Log(Level.Info, "Hello from slave task");
+            Logger.Log(Level.Info, "Hello from slave task");
 
             _groupCommClient = groupCommClient;
             _commGroup = _groupCommClient.GetCommunicationGroup(GroupTestConstants.GroupName);
@@ -48,10 +48,10 @@ namespace Org.Apache.REEF.Network.Examples.GroupCommunication.ScatterReduceDrive
         public byte[] Call(byte[] memento)
         {
             List<int> data = _scatterReceiver.Receive();
-            _logger.Log(Level.Info, "Received data: {0}", string.Join(" ", data));
+            Logger.Log(Level.Info, "Received data: {0}", string.Join(" ", data));
 
             int sum = data.Sum();
-            _logger.Log(Level.Info, "Sending back sum: {0}", sum);
+            Logger.Log(Level.Info, "Sending back sum: {0}", sum);
             _sumSender.Send(sum);
 
             return null;

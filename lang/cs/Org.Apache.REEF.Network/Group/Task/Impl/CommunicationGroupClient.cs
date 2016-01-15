@@ -35,7 +35,7 @@ namespace Org.Apache.REEF.Network.Group.Task.Impl
     /// </summary>
     internal sealed class CommunicationGroupClient : ICommunicationGroupClientInternal
     {
-        private readonly Logger LOGGER = Logger.GetLogger(typeof(CommunicationGroupClient));
+        private static readonly Logger LOGGER = Logger.GetLogger(typeof(CommunicationGroupClient));
         private readonly Dictionary<string, object> _operators;
 
         /// <summary>

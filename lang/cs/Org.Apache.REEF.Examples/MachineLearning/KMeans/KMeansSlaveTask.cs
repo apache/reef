@@ -28,7 +28,7 @@ namespace Org.Apache.REEF.Examples.MachineLearning.KMeans
 {
     public class KMeansSlaveTask : ITask
     {
-        private static readonly Logger _logger = Logger.GetLogger(typeof(KMeansSlaveTask));
+        private static readonly Logger Logger = Logger.GetLogger(typeof(KMeansSlaveTask));
         private readonly int _clustersNum;
         private readonly IGroupCommClient _groupCommClient;
         private readonly ICommunicationGroupClient _commGroup;
@@ -43,7 +43,7 @@ namespace Org.Apache.REEF.Examples.MachineLearning.KMeans
             [Parameter(typeof(KMeansConfiguratioinOptions.TotalNumEvaluators))] int clustersNumber,
             IGroupCommClient groupCommClient)
         {
-            using (_logger.LogFunction("KMeansSlaveTask::KMeansSlaveTask"))
+            using (Logger.LogFunction("KMeansSlaveTask::KMeansSlaveTask"))
             {
                 _dataPartition = dataPartition;
                 _groupCommClient = groupCommClient;
@@ -67,10 +67,10 @@ namespace Org.Apache.REEF.Examples.MachineLearning.KMeans
 
                 // we compute the loss here before data is relabled, this does not reflect the latest clustering result at the end of current iteration, 
                 // but it will save another round of group communications in each iteration
-                _logger.Log(Level.Info, "Received centroids from master: " + centroids);
+                Logger.Log(Level.Info, "Received centroids from master: " + centroids);
                 _dataPartition.LabelData(centroids);
                 ProcessedResults partialMeans = new ProcessedResults(ComputePartialMeans(), ComputeLossFunction(centroids, _dataPartition.DataVectors));
-                _logger.Log(Level.Info, "Sending partial means: " + partialMeans);
+                Logger.Log(Level.Info, "Sending partial means: " + partialMeans);
                 _partialMeansSender.Send(partialMeans);
             }
 
@@ -84,7 +84,7 @@ namespace Org.Apache.REEF.Examples.MachineLearning.KMeans
 
         private List<PartialMean> ComputePartialMeans()
         {
-            _logger.Log(Level.Verbose, "cluster number " + _clustersNum);
+            Logger.Log(Level.Verbose, "cluster number " + _clustersNum);
             List<PartialMean> partialMeans = new PartialMean[_clustersNum].ToList();
             for (int i = 0; i < _clustersNum; i++)
             {
@@ -97,7 +97,7 @@ namespace Org.Apache.REEF.Examples.MachineLearning.KMeans
                 }
                 average.Label = i;
                 partialMeans[i] = new PartialMean(average, slices.Count);
-                _logger.Log(Level.Info, "Adding to partial means list: " + partialMeans[i]);
+                Logger.Log(Level.Info, "Adding to partial means list: " + partialMeans[i]);
             }
             return partialMeans;
         }

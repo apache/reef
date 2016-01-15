@@ -87,18 +87,18 @@ namespace Org.Apache.REEF.Tang.Tests.Utilities
         public void TestGetName()
         {
             var asm = Assembly.Load(FileNames.Examples);
-            Type B2 = asm.GetType(FileNames.B2);
+            Type b2 = asm.GetType(FileNames.B2);
 
-            string n = ReflectionUtilities.GetName(B2);
-            Assert.Equal(n, B2.FullName);
+            string n = ReflectionUtilities.GetName(b2);
+            Assert.Equal(n, b2.FullName);
         }
 
         [Fact]
         public void TestGetEnclosingTypesInclusive()
         {
             var asm = Assembly.Load(FileNames.Examples);
-            Type B2 = asm.GetType(FileNames.B2);
-            Type[] ts = ReflectionUtilities.GetEnclosingClasses(B2);
+            Type b2 = asm.GetType(FileNames.B2);
+            Type[] ts = ReflectionUtilities.GetEnclosingClasses(b2);
             Assert.Equal(ts[0], asm.GetType(FileNames.B));
             Assert.Equal(ts[1], asm.GetType(FileNames.B1));
             Assert.Equal(ts[2], asm.GetType(FileNames.B2));

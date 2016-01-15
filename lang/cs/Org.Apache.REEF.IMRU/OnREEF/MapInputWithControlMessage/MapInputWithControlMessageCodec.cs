@@ -32,7 +32,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.MapInputWithControlMessage
     /// <typeparam name="TMapInput"></typeparam>
     internal sealed class MapInputWithControlMessageCodec<TMapInput> : IStreamingCodec<MapInputWithControlMessage<TMapInput>>
     {
-        private static Logger Logger = Logger.GetLogger(typeof(MapInputWithControlMessage<>));
+        private static readonly Logger Logger = Logger.GetLogger(typeof(MapInputWithControlMessage<>));
         private readonly IStreamingCodec<TMapInput> _baseCodec;
 
         [Inject]
