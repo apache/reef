@@ -27,6 +27,11 @@ namespace Org.Apache.REEF.Wake.Time
     {
         protected Time(long timeStamp)
         {
+            if (timeStamp < 0)
+            {
+                throw new ArgumentException("Time must have timeStamp of at least 0.");
+            }
+
             TimeStamp = timeStamp;
         }
 
@@ -39,7 +44,7 @@ namespace Org.Apache.REEF.Wake.Time
 
         public override int GetHashCode()
         {
-            return base.GetHashCode();
+            return TimeStamp.GetHashCode();
         }
 
         public override bool Equals(object obj)
@@ -48,33 +53,21 @@ namespace Org.Apache.REEF.Wake.Time
             {
                 return true;
             }
-            Time other = obj as Time;
+            
+            // Note: This allows for the very strange semantic where
+            // two different subclasses might return true for Equals.
+            var other = obj as Time;
             if (other != null)
             {
                 return CompareTo(other) == 0;
             }
+
             return false;
         }
 
         public int CompareTo(Time other)
         {
-            if (TimeStamp < other.TimeStamp)
-            {
-                return -1;
-            }
-            if (TimeStamp > other.TimeStamp)
-            {
-                return 1;
-            }
-            if (GetHashCode() < other.GetHashCode())
-            {
-                return -1;
-            }
-            if (GetHashCode() > other.GetHashCode())
-            {
-                return 1;
-            }
-            return 0;
+            return TimeStamp.CompareTo(other.TimeStamp);
         }
     }
 }

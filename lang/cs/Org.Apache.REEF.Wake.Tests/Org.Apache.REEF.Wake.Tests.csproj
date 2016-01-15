@@ -69,6 +69,7 @@ under the License.
     <Compile Include="RemoteManagerTest.cs" />
     <Compile Include="StreamingRemoteManagerTest.cs" />
     <Compile Include="StreamingTransportTest.cs" />
+    <Compile Include="TimeTest.cs" />
     <Compile Include="TransportTest.cs" />
   </ItemGroup>
   <ItemGroup>
