@@ -34,9 +34,6 @@ namespace Org.Apache.REEF.Tang.Implementations.Tang
     {
         private static readonly Logger LOGGER = Logger.GetLogger(typeof(TangImpl));
 
-        private static IDictionary<SetValuedKey, ICsClassHierarchy> defaultClassHierarchy = new Dictionary<SetValuedKey, ICsClassHierarchy>();
-
-        private static object classHierarchyLock = new object();
         public IInjector NewInjector()
         {
             try
@@ -130,19 +127,7 @@ namespace Org.Apache.REEF.Tang.Implementations.Tang
 
         public ICsClassHierarchy GetDefaultClassHierarchy(string[] assemblies, Type[] parameterParsers)
         {
-            SetValuedKey key = new SetValuedKey(assemblies, parameterParsers);
-
-            ICsClassHierarchy ret = null;
-            lock (classHierarchyLock)
-            {
-                defaultClassHierarchy.TryGetValue(key, out ret);
-                if (ret == null)
-                {
-                    ret = new ClassHierarchyImpl(assemblies, parameterParsers);
-                    defaultClassHierarchy.Add(key, ret);
-                }
-            }
-            return ret;
+            return new ClassHierarchyImpl(assemblies, parameterParsers);
         }
 
         public ICsConfigurationBuilder NewConfigurationBuilder()
@@ -198,11 +183,6 @@ namespace Org.Apache.REEF.Tang.Implementations.Tang
         public ICsConfigurationBuilder NewConfigurationBuilder(params Type[] parameterParsers) 
         {
             return NewConfigurationBuilder(new string[0], new IConfiguration[0], parameterParsers);
-        }
-
-        public static void Reset() 
-        {
-            defaultClassHierarchy = new Dictionary<SetValuedKey, ICsClassHierarchy>(); 
         }
     }
 }
