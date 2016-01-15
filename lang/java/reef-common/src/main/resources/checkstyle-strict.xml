@@ -227,6 +227,12 @@
             <property name="commentFormat" value="This is expected"/>
             <property name="exceptionVariableName" value="expected|ignored"/>
         </module>
+
+        <!-- IllegalThrows is suppressed for files with the word "Test" in the filename -->
+        <module name="IllegalThrows">
+            <property name="illegalClassNames" value="Throwable, Error, RuntimeException, NullPointerException"/>
+        </module>
+
     </module>
 
 </module>

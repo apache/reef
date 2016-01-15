@@ -52,11 +52,11 @@ public final class Optional<T> implements Serializable {
 
   /**
    * @return An Optional with the given value.
-   * @throws NullPointerException if the value is null
+   * @throws IllegalArgumentException if the value is null
    */
-  public static <T> Optional<T> of(final T value) throws NullPointerException {
+  public static <T> Optional<T> of(final T value) throws IllegalArgumentException {
     if (null == value) {
-      throw new NullPointerException("Passed a null value. Use ofNullable() instead");
+      throw new IllegalArgumentException("Passed a null value. Use ofNullable() instead");
     }
     return new Optional<>(value);
   }
