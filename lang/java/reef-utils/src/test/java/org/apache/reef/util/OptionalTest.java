@@ -40,7 +40,7 @@ public class OptionalTest {
         Optional.of(2).isPresent());
   }
 
-  @Test(expected = NullPointerException.class)
+  @Test(expected = IllegalArgumentException.class)
   public void testOfNull() {
     final Optional<Integer> o = Optional.of(null);
   }
