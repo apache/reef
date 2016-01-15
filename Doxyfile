@@ -1,0 +1,120 @@
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+
+#---------------------------------------------------------------------------
+# Project related configuration options
+#---------------------------------------------------------------------------
+
+DOXYFILE_ENCODING      = UTF-8
+PROJECT_NAME           = "Apache REEF"
+PROJECT_NUMBER         = 0.14.0-SNAPSHOT
+PROJECT_BRIEF          = "Retainable Evaluator Execution Framework"
+OUTPUT_DIRECTORY       = target
+JAVADOC_AUTOBRIEF      = YES
+
+#---------------------------------------------------------------------------
+# Build related configuration options
+#---------------------------------------------------------------------------
+
+EXTRACT_ALL            = YES
+EXTRACT_PRIVATE        = NO
+EXTRACT_PACKAGE        = NO
+EXTRACT_STATIC         = YES
+EXTRACT_LOCAL_CLASSES  = YES
+EXTRACT_LOCAL_METHODS  = NO
+EXTRACT_ANON_NSPACES   = NO
+HIDE_UNDOC_MEMBERS     = NO
+HIDE_UNDOC_CLASSES     = NO
+HIDE_FRIEND_COMPOUNDS  = NO
+HIDE_IN_BODY_DOCS      = NO
+INTERNAL_DOCS          = NO
+CASE_SENSE_NAMES       = NO
+HIDE_SCOPE_NAMES       = NO
+HIDE_COMPOUND_REFERENCE= NO
+SHOW_INCLUDE_FILES     = YES
+SHOW_GROUPED_MEMB_INC  = NO
+FORCE_LOCAL_INCLUDES   = NO
+INLINE_INFO            = YES
+SORT_MEMBER_DOCS       = YES
+SORT_BRIEF_DOCS        = NO
+SORT_MEMBERS_CTORS_1ST = YES
+SORT_GROUP_NAMES       = NO
+SORT_BY_SCOPE_NAME     = YES
+STRICT_PROTO_MATCHING  = NO
+GENERATE_TODOLIST      = NO
+GENERATE_TESTLIST      = NO
+GENERATE_BUGLIST       = NO
+GENERATE_DEPRECATEDLIST= YES
+
+#---------------------------------------------------------------------------
+# Configuration options related to warning and progress messages
+#---------------------------------------------------------------------------
+
+QUIET                  = YES
+WARNINGS               = YES
+WARN_IF_UNDOCUMENTED   = YES
+WARN_IF_DOC_ERROR      = YES
+WARN_NO_PARAMDOC       = NO
+WARN_AS_ERROR          = NO
+WARN_FORMAT            = "$file:$line: $text"
+
+#---------------------------------------------------------------------------
+# Configuration options related to the input files
+#---------------------------------------------------------------------------
+
+INPUT                  = lang/cs
+INPUT_ENCODING         = UTF-8
+FILE_PATTERNS          = *.cs
+RECURSIVE              = YES
+
+EXCLUDE                = lang/cs/Org.Apache.REEF.Client.Tests
+EXCLUDE               += lang/cs/Org.Apache.REEF.Common.Tests
+EXCLUDE               += lang/cs/Org.Apache.REEF.Evaluator.Tests
+EXCLUDE               += lang/cs/Org.Apache.REEF.Examples
+EXCLUDE               += lang/cs/Org.Apache.REEF.Examples.AllHandlers
+EXCLUDE               += lang/cs/Org.Apache.REEF.Examples.DriverRestart
+EXCLUDE               += lang/cs/Org.Apache.REEF.Examples.HelloREEF
+EXCLUDE               += lang/cs/Org.Apache.REEF.IMRU.Examples
+EXCLUDE               += lang/cs/Org.Apache.REEF.IMRU.Tests
+EXCLUDE               += lang/cs/Org.Apache.REEF.IO.Tests
+EXCLUDE               += lang/cs/Org.Apache.REEF.Network.Examples
+EXCLUDE               += lang/cs/Org.Apache.REEF.Network.Examples.Client
+EXCLUDE               += lang/cs/Org.Apache.REEF.Network.Tests
+EXCLUDE               += lang/cs/Org.Apache.REEF.Tang.Examples
+EXCLUDE               += lang/cs/Org.Apache.REEF.Tang.Tests
+EXCLUDE               += lang/cs/Org.Apache.REEF.Tests
+EXCLUDE               += lang/cs/Org.Apache.REEF.Wake.Tests
+
+#---------------------------------------------------------------------------
+# Configuration options related to the HTML output
+#---------------------------------------------------------------------------
+
+GENERATE_HTML          = YES
+HTML_OUTPUT            = apidoc_net
+HTML_FILE_EXTENSION    = .html
+
+#---------------------------------------------------------------------------
+# Configuration options related to the LaTeX output
+#---------------------------------------------------------------------------
+
+GENERATE_LATEX         = NO
+
+#---------------------------------------------------------------------------
+# Configuration options related to the dot tool
+#---------------------------------------------------------------------------
+
+CLASS_DIAGRAMS         = NO

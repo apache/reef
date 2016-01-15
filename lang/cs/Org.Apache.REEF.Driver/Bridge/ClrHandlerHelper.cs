@@ -199,7 +199,7 @@ namespace Org.Apache.REEF.Driver.Bridge
         /// <summary>
         /// Creates a new local directory <see cref="Constants.DriverAppDirectory"/> 
         /// at the current directory and copies all .dll files as specified by 
-        /// the input parameter <see cref="dlls"/> from the current directrory into 
+        /// the input parameter <see cref="dlls"/> from the current directory into
         /// the new directory.
         /// </summary>
         /// <param name="dlls">The set of DLLs to copy from the current directory</param>

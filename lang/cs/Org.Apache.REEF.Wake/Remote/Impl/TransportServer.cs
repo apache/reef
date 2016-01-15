@@ -51,8 +51,8 @@ namespace Org.Apache.REEF.Wake.Remote.Impl
         /// <param name="localEndpoint">Endpoint to listen on</param>
         /// <param name="remoteHandler">The handler to invoke when receiving incoming
         /// remote messages</param>
-        /// <param name="codec">The codec to encode/decode"</param>
-         /// <param name="tcpPortProvider">provides port numbers to listen</param>
+        /// <param name="codec">The codec to encode/decode</param>
+        /// <param name="tcpPortProvider">provides port numbers to listen</param>
         public TransportServer(IPEndPoint localEndpoint, 
                                IObserver<TransportEvent<T>> remoteHandler, 
                                ICodec<T> codec,

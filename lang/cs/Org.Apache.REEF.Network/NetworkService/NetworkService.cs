@@ -52,13 +52,11 @@ namespace Org.Apache.REEF.Network.NetworkService
         /// Create a new NetworkService.
         /// </summary>
         /// <param name="nsPort">The port that the NetworkService will listen on</param>
-        /// <param name="nameServerAddr">The address of the NameServer</param>
-        /// <param name="nameServerPort">The port of the NameServer</param>
         /// <param name="messageHandler">The observer to handle incoming messages</param>
         /// <param name="idFactory">The factory used to create IIdentifiers</param>
         /// <param name="codec">The codec used for serialization</param>
+        /// <param name="nameClient"></param>
         /// <param name="remoteManagerFactory">Used to instantiate remote manager instances.</param>
-        /// <param name="tcpPortProvider">Provides ports for tcp listeners.</param>
         [Inject]
         public NetworkService(
             [Parameter(typeof(NetworkServiceOptions.NetworkServicePort))] int nsPort,

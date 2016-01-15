@@ -21,8 +21,8 @@ namespace Org.Apache.REEF.Client.YARN.RestClient.DataModel
 {
     /// <summary>
     /// Class generated based on schema provided in
-    /// <see cref="!:http://hadoop.apache.org/docs/r2.6.0/hadoop-yarn/hadoop-yarn-site/WebServicesIntro.html">
-    /// Hadoop RM REST API </see> documentation.
+    /// <a href="http://hadoop.apache.org/docs/r2.6.0/hadoop-yarn/hadoop-yarn-site/WebServicesIntro.html">
+    /// Hadoop RM REST API</a> documentation.
     /// </summary>
     internal sealed class Resouce
     {
