@@ -189,7 +189,7 @@ namespace Org.Apache.REEF.Utilities.Diagnostics
         }
 
         /// <summary>
-        /// Gets an exception message that includes the messages of the inner exceptions..
+        /// Gets an exception message that includes the messages of the inner exceptions.
         /// </summary>
         /// <param name="e">The exception.</param>
         /// <returns>The message</returns>

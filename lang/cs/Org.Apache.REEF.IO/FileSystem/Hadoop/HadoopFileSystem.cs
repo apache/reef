@@ -33,7 +33,8 @@ namespace Org.Apache.REEF.IO.FileSystem.Hadoop
     /// Note that operations with this class are enormously slow. If you can, use a more native way to access the file system
     /// in question.
     /// </remarks>
-    /// <see cref="http://hadoop.apache.org/docs/current/hadoop-project-dist/hadoop-common/FileSystemShell.html" />
+    /// <a href="http://hadoop.apache.org/docs/current/hadoop-project-dist/hadoop-common/FileSystemShell.html">
+    /// FileSystemShell</a>
     internal sealed class HadoopFileSystem : IFileSystem
     {
         private static readonly Logger Logger = Logger.GetLogger(typeof(HadoopFileSystem));

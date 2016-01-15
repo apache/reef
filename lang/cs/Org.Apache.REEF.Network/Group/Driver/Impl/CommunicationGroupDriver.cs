@@ -60,6 +60,7 @@ namespace Org.Apache.REEF.Network.Group.Driver.Impl
         /// <param name="groupName">The communication group name</param>
         /// <param name="driverId">Identifier of the Reef driver</param>
         /// <param name="numTasks">The number of tasks each operator will use</param>
+        /// <param name="fanOut"></param>
         /// <param name="confSerializer">Used to serialize task configuration</param>
         public CommunicationGroupDriver(
             string groupName,

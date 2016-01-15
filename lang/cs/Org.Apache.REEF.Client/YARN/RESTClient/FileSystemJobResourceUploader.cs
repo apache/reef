@@ -27,7 +27,7 @@ namespace Org.Apache.REEF.Client.YARN.RestClient
 {
     /// <summary>
     /// Provides FileSystem agnostic job resource uploader.
-    /// User can provide custome implementation of 
+    /// User can provide custom implementation of
     /// <see cref="IFileSystem"/> for their choice of DFS.
     /// </summary>
     internal sealed class FileSystemJobResourceUploader : IJobResourceUploader

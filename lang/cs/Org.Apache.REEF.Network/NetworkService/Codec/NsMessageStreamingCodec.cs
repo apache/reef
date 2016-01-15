@@ -55,7 +55,7 @@ namespace Org.Apache.REEF.Network.NetworkService.Codec
         /// Instantiate the class from the reader.
         /// </summary>
         /// <param name="reader">The reader from which to read</param>
-        /// <returns>The instance of type NsMessage<T></T> read from the reader</returns>
+        /// <returns>The instance of type NsMessage<T> read from the reader</returns>
         public NsMessage<T> Read(IDataReader reader)
         {
             int metadataSize = reader.ReadInt32();
@@ -80,7 +80,7 @@ namespace Org.Apache.REEF.Network.NetworkService.Codec
         /// <summary>
         /// Writes the class fields to the writer.
         /// </summary>
-        /// <param name="obj">The object of type NsMessage<T></T> to be encoded</param>
+        /// <param name="obj">The object of type NsMessage<T> to be encoded</param>
         /// <param name="writer">The writer to which to write</param>
         public void Write(NsMessage<T> obj, IDataWriter writer)
         {

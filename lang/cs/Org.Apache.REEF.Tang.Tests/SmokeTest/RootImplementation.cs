@@ -34,6 +34,15 @@ namespace Org.Apache.REEF.Tang.Tests.SmokeTest
         //// private readonly ListOfBaseTypes listOfBaseTypes;  // TODO: to recover once Avro NuGet support it
         private readonly CyclicDependency cyclicDependency;
 
+        /// <param name="requiredString">required string</param>
+        /// <param name="optionalString">optional string</param>
+        /// <param name="anInt">an int</param>
+        /// <param name="aDouble">a double</param>
+        /// <param name="anInterface">an interface</param>
+        /// <param name="injectableClass">an injectable class</param>
+        /// <param name="setOfImplementations">set of implementations</param>
+        /// <param name="setOfBaseTypes">set of base types</param>
+        /// <param name="cyclicDependency">cyclic dependency</param>
         [Inject]
         public RootImplementation([Parameter(typeof(TestConfigurationModuleBuilder.RequiredString))] string requiredString,
                                   [Parameter(typeof(TestConfigurationModuleBuilder.OptionalString))] string optionalString,
@@ -43,8 +52,7 @@ namespace Org.Apache.REEF.Tang.Tests.SmokeTest
                                   InjectableClass injectableClass,
                                   SetOfImplementations setOfImplementations,
                                   SetOfBaseTypes setOfBaseTypes,
-                                  //// ListOfBaseTypes listOfBaseTypes, // TODO: to recover once Avro NuGet support it
-                                  CyclicDependency cyclicDependency) 
+                                  CyclicDependency cyclicDependency)
         {
                                 this.requiredString = requiredString;
                                 this.optionalString = optionalString;
