@@ -31,7 +31,7 @@ namespace Org.Apache.REEF.Examples.MachineLearning.KMeans
 {
     public class KMeansMasterTask : ITask
     {
-        private static readonly Logger _logger = Logger.GetLogger(typeof(KMeansMasterTask));
+        private static readonly Logger Logger = Logger.GetLogger(typeof(KMeansMasterTask));
 
         private int _iteration = 0;
 
@@ -49,7 +49,7 @@ namespace Org.Apache.REEF.Examples.MachineLearning.KMeans
             [Parameter(Value = typeof(KMeansConfiguratioinOptions.ExecutionDirectory))] string executionDirectory,
             IGroupCommClient groupCommClient)
         {
-            using (_logger.LogFunction("KMeansMasterTask"))
+            using (Logger.LogFunction("KMeansMasterTask"))
             {
                 if (totalNumEvaluators <= 1)
                 {
@@ -78,16 +78,16 @@ namespace Org.Apache.REEF.Examples.MachineLearning.KMeans
                 if (_isInitialIteration)
                 {
                     // broadcast initial centroids to all slave nodes
-                    _logger.Log(Level.Info, "Broadcasting INITIAL centroids to all slave nodes: " + _centroids);
+                    Logger.Log(Level.Info, "Broadcasting INITIAL centroids to all slave nodes: " + _centroids);
                     _isInitialIteration = false;
                 }
                 else
                 {
                     ProcessedResults results = _meansReducerReceiver.Reduce();
                     _centroids = new Centroids(results.Means.Select(m => m.Mean).ToList());
-                    _logger.Log(Level.Info, "Broadcasting new centroids to all slave nodes: " + _centroids);
+                    Logger.Log(Level.Info, "Broadcasting new centroids to all slave nodes: " + _centroids);
                     newLoss = results.Loss;
-                    _logger.Log(Level.Info, string.Format(CultureInfo.InvariantCulture, "The new loss value {0} at iteration {1} ", newLoss, _iteration));
+                    Logger.Log(Level.Info, string.Format(CultureInfo.InvariantCulture, "The new loss value {0} at iteration {1} ", newLoss, _iteration));
                     if (newLoss > loss)
                     {
                         _controlBroadcastSender.Send(ControlMessage.STOP);
@@ -96,7 +96,7 @@ namespace Org.Apache.REEF.Examples.MachineLearning.KMeans
                     }
                     else if (newLoss.Equals(loss))
                     {
-                        _logger.Log(Level.Info, string.Format(CultureInfo.InvariantCulture, "KMeans clustering has converged with a loss value of {0} at iteration {1} ", newLoss, _iteration));
+                        Logger.Log(Level.Info, string.Format(CultureInfo.InvariantCulture, "KMeans clustering has converged with a loss value of {0} at iteration {1} ", newLoss, _iteration));
                         break;
                     }
                     else
@@ -145,7 +145,7 @@ namespace Org.Apache.REEF.Examples.MachineLearning.KMeans
 
                 ProcessedResults returnMeans = new ProcessedResults(aggregatedMeans, aggregatedLoss);
 
-                _logger.Log(Level.Info, "The true means aggregated by the reduce function: " + returnMeans);
+                Logger.Log(Level.Info, "The true means aggregated by the reduce function: " + returnMeans);
                 return returnMeans;
             }
         }

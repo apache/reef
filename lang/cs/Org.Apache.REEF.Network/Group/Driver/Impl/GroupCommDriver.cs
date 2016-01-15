@@ -47,7 +47,7 @@ namespace Org.Apache.REEF.Network.Group.Driver.Impl
         private const string MasterTaskContextName = "MasterTaskContext";
         private const string SlaveTaskContextName = "SlaveTaskContext";
 
-        private static Logger Logger = Logger.GetLogger(typeof(GroupCommDriver));
+        private static readonly Logger Logger = Logger.GetLogger(typeof(GroupCommDriver));
 
         private readonly string _driverId;
         private readonly string _nameServerAddr;

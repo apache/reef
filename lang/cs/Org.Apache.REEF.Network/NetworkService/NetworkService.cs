@@ -34,7 +34,7 @@ namespace Org.Apache.REEF.Network.NetworkService
     /// <typeparam name="T">The message type</typeparam>
     public class NetworkService<T> : INetworkService<T>
     {
-        private readonly Logger LOGGER = Logger.GetLogger(typeof(NetworkService<>));
+        private static readonly Logger LOGGER = Logger.GetLogger(typeof(NetworkService<>));
 
         private readonly IRemoteManager<NsMessage<T>> _remoteManager;
         private readonly IObserver<NsMessage<T>> _messageHandler; 

@@ -25,7 +25,7 @@ namespace Org.Apache.REEF.Wake.Util
     public static class NetworkUtils
     {
         private static IPAddress _localAddress;
-        private static readonly Random _random = new Random();
+        private static readonly Random Random = new Random();
 
         /// <summary>
         /// Returns the first usable IP Address for the machine.
@@ -55,7 +55,7 @@ namespace Org.Apache.REEF.Wake.Util
         /// <returns>The randomly generated port</returns>
         public static int GenerateRandomPort(int low, int high)
         {
-            return _random.Next(low, high);
+            return Random.Next(low, high);
         }
     }
 }

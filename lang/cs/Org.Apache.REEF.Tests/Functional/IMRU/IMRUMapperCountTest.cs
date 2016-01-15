@@ -27,7 +27,7 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
     {
         private static readonly Logger Logger = Logger.GetLogger(typeof(IMRUMapperCountTest));
 
-        private static readonly int numNodes = 4;
+        private static readonly int NumNodes = 4;
 
         [Fact]
         [Trait("Description", "Run IMRU mapper count example as test.")]
@@ -35,7 +35,7 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
         {
             string testFolder = DefaultRuntimeFolder + TestId;
             TestIMRUMapperCount(false, testFolder);
-            ValidateSuccessForLocalRuntime(numNodes, testFolder: testFolder);
+            ValidateSuccessForLocalRuntime(NumNodes, testFolder: testFolder);
             CleanUp(testFolder);
         }
 
@@ -52,7 +52,7 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
                 .Set(TcpPortConfigurationModule.PortRangeStart, "8900")
                 .Set(TcpPortConfigurationModule.PortRangeCount, "1000")
                 .Build();
-            Run.RunMapperTest(tcpPortConfig, runOnYarn, numNodes, " ", testFolder);
+            Run.RunMapperTest(tcpPortConfig, runOnYarn, NumNodes, " ", testFolder);
         }
     }
 }

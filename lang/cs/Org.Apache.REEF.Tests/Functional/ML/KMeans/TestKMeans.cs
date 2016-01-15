@@ -137,7 +137,7 @@ namespace Org.Apache.REEF.Tests.Functional.ML.KMeans
         {
             int fanOut = 2;
             int totalEvaluators = Partitions + 1;
-            string Identifier = "KMeansDriverId";
+            string identifier = "KMeansDriverId";
 
             IConfiguration driverConfig = TangFactory.GetTang().NewConfigurationBuilder(
                 Org.Apache.REEF.Driver.DriverConfiguration.ConfigurationModule
@@ -151,7 +151,7 @@ namespace Org.Apache.REEF.Tests.Functional.ML.KMeans
                 .Build();
 
             IConfiguration groupCommunicationDriverConfig = TangFactory.GetTang().NewConfigurationBuilder()
-                .BindStringNamedParam<GroupCommConfigurationOptions.DriverId>(Identifier)
+                .BindStringNamedParam<GroupCommConfigurationOptions.DriverId>(identifier)
                 .BindStringNamedParam<GroupCommConfigurationOptions.MasterTaskId>(Constants.MasterTaskId)
                 .BindStringNamedParam<GroupCommConfigurationOptions.GroupName>(Constants.KMeansCommunicationGroupName)
                 .BindIntNamedParam<GroupCommConfigurationOptions.FanOut>(fanOut.ToString(CultureInfo.InvariantCulture).ToString(CultureInfo.InvariantCulture))

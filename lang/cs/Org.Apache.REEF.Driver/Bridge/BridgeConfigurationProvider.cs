@@ -40,8 +40,8 @@ namespace Org.Apache.REEF.Driver.Bridge
         private static readonly Logger Logger = Logger.GetLogger(typeof(BridgeConfigurationProvider));
         private static readonly object LockObject = new object();
 
-        private static IConfiguration BridgeConfiguration = null;
-        private static IInjector BridgeInjector = null;
+        private static IConfiguration bridgeConfiguration = null;
+        private static IInjector bridgeInjector = null;
 
         private readonly REEFFileNames _fileNames;
 
@@ -126,12 +126,12 @@ namespace Org.Apache.REEF.Driver.Bridge
         {
             lock (LockObject)
             {
-                if (BridgeConfiguration == null)
+                if (bridgeConfiguration == null)
                 {
-                    BridgeConfiguration = new BridgeConfigurationProvider(new REEFFileNames()).LoadBridgeConfiguration();
+                    bridgeConfiguration = new BridgeConfigurationProvider(new REEFFileNames()).LoadBridgeConfiguration();
                 }
 
-                return BridgeConfiguration;
+                return bridgeConfiguration;
             }
         }
 
@@ -143,16 +143,16 @@ namespace Org.Apache.REEF.Driver.Bridge
         {
             lock (LockObject)
             {
-                if (BridgeInjector == null)
+                if (bridgeInjector == null)
                 {
-                    BridgeInjector = TangFactory.GetTang().NewInjector(GetBridgeConfiguration());
+                    bridgeInjector = TangFactory.GetTang().NewInjector(GetBridgeConfiguration());
                     if (evaluatorRequestor != null)
                     {
-                        BridgeInjector.BindVolatileInstance(GenericType<IEvaluatorRequestor>.Class, evaluatorRequestor);
+                        bridgeInjector.BindVolatileInstance(GenericType<IEvaluatorRequestor>.Class, evaluatorRequestor);
                     }
                 }
 
-                return BridgeInjector;
+                return bridgeInjector;
             }
         }
     }

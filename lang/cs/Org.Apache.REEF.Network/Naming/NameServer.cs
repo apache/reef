@@ -40,7 +40,7 @@ namespace Org.Apache.REEF.Network.Naming
     /// </summary>
     public sealed class NameServer : INameServer
     {
-        private static readonly Logger _logger = Logger.GetLogger(typeof(NameServer));
+        private static readonly Logger Logger = Logger.GetLogger(typeof(NameServer));
 
         private readonly TransportServer<NamingEvent> _server;
         private readonly Dictionary<string, IPEndPoint> _idToAddrMap;
@@ -64,7 +64,7 @@ namespace Org.Apache.REEF.Network.Naming
             ICodec<NamingEvent> codec = CreateServerCodec();
 
             // Start transport server, get listening IP endpoint
-            _logger.Log(Level.Info, "Starting naming server");
+            Logger.Log(Level.Info, "Starting naming server");
             _server = new TransportServer<NamingEvent>(
                 new IPEndPoint(addressProvider.LocalAddress, port), handler, 
                 codec, tcpPortProvider);
@@ -84,7 +84,7 @@ namespace Org.Apache.REEF.Network.Naming
         {
             if (ids == null)
             {
-                Exceptions.Throw(new ArgumentNullException("ids"), _logger);
+                Exceptions.Throw(new ArgumentNullException("ids"), Logger);
             }
 
             return ids.Where(id => _idToAddrMap.ContainsKey(id))
@@ -111,14 +111,14 @@ namespace Org.Apache.REEF.Network.Naming
         {
             if (id == null)
             {
-                Exceptions.Throw(new ArgumentNullException("id"), _logger);
+                Exceptions.Throw(new ArgumentNullException("id"), Logger);
             }
             if (endpoint == null)
             {
-                Exceptions.Throw(new ArgumentNullException("endpoint"), _logger);
+                Exceptions.Throw(new ArgumentNullException("endpoint"), Logger);
             }
 
-            _logger.Log(Level.Info, "Registering id: " + id + ", and endpoint: " + endpoint);
+            Logger.Log(Level.Info, "Registering id: " + id + ", and endpoint: " + endpoint);
             _idToAddrMap[id] = endpoint;
         }
 
@@ -130,10 +130,10 @@ namespace Org.Apache.REEF.Network.Naming
         {
             if (id == null)
             {
-                Exceptions.Throw(new ArgumentNullException("id"), _logger);
+                Exceptions.Throw(new ArgumentNullException("id"), Logger);
             }
 
-            _logger.Log(Level.Info, "Unregistering id: " + id);
+            Logger.Log(Level.Info, "Unregistering id: " + id);
             _idToAddrMap.Remove(id);
         }
 

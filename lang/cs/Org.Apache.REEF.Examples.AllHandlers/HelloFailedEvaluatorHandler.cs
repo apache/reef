@@ -28,7 +28,7 @@ namespace Org.Apache.REEF.Examples.AllHandlers
     {
         private static int _failureCount = 0;
 
-        private static readonly int _maxTrial = 2;
+        private static readonly int MaxTrial = 2;
 
         private readonly IEvaluatorRequestor _evaluatorRequestor;
 
@@ -45,7 +45,7 @@ namespace Org.Apache.REEF.Examples.AllHandlers
         public void OnNext(IFailedEvaluator failedEvaluator)
         {
             Console.WriteLine("Receive a failed evaluator: " + failedEvaluator.Id);
-            if (++_failureCount < _maxTrial)
+            if (++_failureCount < MaxTrial)
             {
                 Console.WriteLine("Requesting another evaluator");
                 var newRequest =

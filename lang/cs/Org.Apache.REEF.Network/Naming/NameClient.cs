@@ -42,7 +42,7 @@ namespace Org.Apache.REEF.Network.Naming
     /// </summary>
     public sealed class NameClient : INameClient
     {
-        private static readonly Logger _logger = Logger.GetLogger(typeof(NameClient));
+        private static readonly Logger Logger = Logger.GetLogger(typeof(NameClient));
 
         private BlockingCollection<NamingLookupResponse> _lookupResponseQueue;
         private BlockingCollection<NamingGetAllResponse> _getAllResponseQueue;
@@ -110,14 +110,14 @@ namespace Org.Apache.REEF.Network.Naming
         {
             if (id == null)
             {
-                Exceptions.Throw(new ArgumentNullException("id"), _logger);
+                Exceptions.Throw(new ArgumentNullException("id"), Logger);
             }
             if (endpoint == null)
             {
-                Exceptions.Throw(new ArgumentNullException("endpoint"), _logger);
+                Exceptions.Throw(new ArgumentNullException("endpoint"), Logger);
             }
 
-            _logger.Log(Level.Info, "Registering id: " + id + ", and endpoint: " + endpoint);
+            Logger.Log(Level.Info, "Registering id: " + id + ", and endpoint: " + endpoint);
             _registerClient.Register(id, endpoint);
         }
 
@@ -129,10 +129,10 @@ namespace Org.Apache.REEF.Network.Naming
         {
             if (id == null)
             {
-                Exceptions.Throw(new ArgumentNullException("id"), _logger);
+                Exceptions.Throw(new ArgumentNullException("id"), Logger);
             }
 
-            _logger.Log(Level.Info, "Unregistering id: " + id);
+            Logger.Log(Level.Info, "Unregistering id: " + id);
             _registerClient.Unregister(id);
         }
 
@@ -147,7 +147,7 @@ namespace Org.Apache.REEF.Network.Naming
         {
             if (id == null)
             {
-                Exceptions.Throw(new ArgumentNullException("id"), _logger);
+                Exceptions.Throw(new ArgumentNullException("id"), Logger);
             }
 
             IPEndPoint value = _cache.Get(id);
@@ -171,7 +171,7 @@ namespace Org.Apache.REEF.Network.Naming
         {
             if (id == null)
             {
-                Exceptions.Throw(new ArgumentNullException("id"), _logger);
+                Exceptions.Throw(new ArgumentNullException("id"), Logger);
             }
 
             List<NameAssignment> assignments = Lookup(new List<string> { id });
@@ -197,16 +197,16 @@ namespace Org.Apache.REEF.Network.Naming
         {
             if (ids == null || ids.Count == 0)
             {
-                Exceptions.Throw(new ArgumentNullException("ids cannot be null or empty"), _logger);
+                Exceptions.Throw(new ArgumentNullException("ids cannot be null or empty"), Logger);
             }
 
-            _logger.Log(Level.Verbose, "Looking up ids");
+            Logger.Log(Level.Verbose, "Looking up ids");
             List<NameAssignment> assignments = _lookupClient.Lookup(ids);
             if (assignments != null)
             {
                 return assignments;
             }
-            Exceptions.Throw(new WakeRuntimeException("NameClient failed to look up ids."), _logger);
+            Exceptions.Throw(new WakeRuntimeException("NameClient failed to look up ids."), Logger);
             return null;  // above line will throw exception. So null will never be returned.
         }
 

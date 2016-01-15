@@ -412,7 +412,7 @@ under the License.
         </Rule>
         <Rule Name="ElementMustBeginWithLowerCaseLetter">
           <RuleSettings>
-            <BooleanProperty Name="Enabled">False</BooleanProperty>
+            <BooleanProperty Name="Enabled">True</BooleanProperty>
           </RuleSettings>
         </Rule>
         <Rule Name="InterfaceNamesMustBeginWithI">
@@ -437,7 +437,7 @@ under the License.
         </Rule>
         <Rule Name="FieldNamesMustBeginWithLowerCaseLetter">
           <RuleSettings>
-            <BooleanProperty Name="Enabled">False</BooleanProperty>
+            <BooleanProperty Name="Enabled">True</BooleanProperty>
           </RuleSettings>
         </Rule>
         <Rule Name="AccessibleFieldsMustBeginWithUpperCaseLetter">
@@ -447,7 +447,7 @@ under the License.
         </Rule>
         <Rule Name="VariableNamesMustNotBePrefixed">
           <RuleSettings>
-            <BooleanProperty Name="Enabled">False</BooleanProperty>
+            <BooleanProperty Name="Enabled">True</BooleanProperty>
           </RuleSettings>
         </Rule>
         <Rule Name="FieldNamesMustNotBeginWithUnderscore">
@@ -462,7 +462,7 @@ under the License.
         </Rule>
         <Rule Name="StaticReadonlyFieldsMustBeginWithUpperCaseLetter">
           <RuleSettings>
-            <BooleanProperty Name="Enabled">False</BooleanProperty>
+            <BooleanProperty Name="Enabled">True</BooleanProperty>
           </RuleSettings>
         </Rule>
       </Rules>

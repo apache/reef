@@ -34,7 +34,7 @@ namespace Org.Apache.REEF.Wake.Time.Runtime
     {
         private static readonly Logger LOGGER = Logger.GetLogger(typeof(RuntimeClock));
 
-        private static int NumberOfInstantiations = 0;
+        private static int numberOfInstantiations = 0;
         private readonly ITimer _timer;
         private readonly PubSubSubject<Time> _handlers;
         private readonly PriorityQueue<Time> _schedule;
@@ -74,10 +74,10 @@ namespace Org.Apache.REEF.Wake.Time.Runtime
             _runtimeStartHandler = runtimeStartHandler;
             _runtimeStopHandler = runtimeStopHandler;
             _idleHandler = idleHandler;
-            ++NumberOfInstantiations;
-            if (NumberOfInstantiations > 1)
+            ++numberOfInstantiations;
+            if (numberOfInstantiations > 1)
             {
-                LOGGER.Log(Level.Warning, "Instantiated `RuntimeClock` instance number " + NumberOfInstantiations);
+                LOGGER.Log(Level.Warning, "Instantiated `RuntimeClock` instance number " + numberOfInstantiations);
             }
         }
 

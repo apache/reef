@@ -30,7 +30,7 @@ namespace Org.Apache.REEF.Common.Catalog
     {
         private static readonly Logger LOGGER = Logger.GetLogger(typeof(ResourceCatalogImpl));
         
-        private static readonly string defaultRackName = "default-rack";
+        private static readonly string DefaultRackName = "default-rack";
 
         private readonly Dictionary<string, RackDescriptorImpl> _racks = new Dictionary<string, RackDescriptorImpl>();
  
@@ -51,7 +51,7 @@ namespace Org.Apache.REEF.Common.Catalog
 
         public void Handle(NodeDescriptorProto node)
         {
-            string rackName = node.rack_name == null ? node.rack_name : defaultRackName;
+            string rackName = node.rack_name == null ? node.rack_name : DefaultRackName;
             string message = string.Format(
                 CultureInfo.InvariantCulture,
                 "Catalog new node: id[{0}], rack[{1}], host[{2}], port[{3}], memory[{4}]",
