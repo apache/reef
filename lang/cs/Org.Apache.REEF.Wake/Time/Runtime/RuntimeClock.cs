@@ -23,6 +23,7 @@ using System.Linq;
 using System.Threading;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Tang.Implementations.InjectionPlan;
+using Org.Apache.REEF.Utilities.Collections;
 using Org.Apache.REEF.Utilities.Diagnostics;
 using Org.Apache.REEF.Utilities.Logging;
 using Org.Apache.REEF.Wake.RX.Impl;
@@ -37,7 +38,7 @@ namespace Org.Apache.REEF.Wake.Time.Runtime
 
         private readonly ITimer _timer;
         private readonly PubSubSubject<Time> _handlers;
-        private readonly ISet<Time> _schedule;
+        private readonly PriorityQueue<Time> _schedule;
 
         private readonly IInjectionFuture<ISet<IObserver<StartTime>>> _startHandler;
         private readonly IInjectionFuture<ISet<IObserver<StopTime>>> _stopHandler;
@@ -66,7 +67,7 @@ namespace Org.Apache.REEF.Wake.Time.Runtime
             [Parameter(typeof(IdleHandler))] IInjectionFuture<ISet<IObserver<IdleClock>>> idleHandler)
         {
             _timer = timer;
-            _schedule = new SortedSet<Time>();
+            _schedule = new PriorityQueue<Time>();
             _handlers = new PubSubSubject<Time>();
 
             _startHandler = startHandler;
@@ -229,9 +230,7 @@ namespace Org.Apache.REEF.Wake.Time.Runtime
                 Monitor.Wait(_schedule, TimeSpan.FromMilliseconds(duration));
             }
 
-            Time time = _schedule.First();
-            _schedule.Remove(time);
-            return time;
+            return _schedule.Dequeue();
         }
 
         /// <summary>
