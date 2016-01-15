@@ -51,19 +51,22 @@ namespace Org.Apache.REEF.Tang.Tests.Configuration
             var serializer = new AvroConfigurationSerializer();
             serializer.ToFile(conf1, "task.config");
 
+            ProtocolBufferClassHierarchy.Serialize("Task.bin", conf1.GetClassHierarchy());
+            IClassHierarchy ns1 = ProtocolBufferClassHierarchy.DeSerialize("Task.bin");
+
             ICsConfigurationBuilder cb2 = tang.NewConfigurationBuilder();
             cb2.BindNamedParameter<Timer.Seconds, int>(GenericType<Timer.Seconds>.Class, "2");
             IConfiguration conf2 = cb2.Build();
             serializer.ToFile(conf2, "timer.config");
 
-            ProtocolBufferClassHierarchy.Serialize("TaskTimer.bin", conf1.GetClassHierarchy());
-            IClassHierarchy ns = ProtocolBufferClassHierarchy.DeSerialize("TaskTimer.bin");
+            ProtocolBufferClassHierarchy.Serialize("Timer.bin", conf2.GetClassHierarchy());
+            IClassHierarchy ns2 = ProtocolBufferClassHierarchy.DeSerialize("Timer.bin");
 
             AvroConfiguration taskAvroconfiguration = serializer.AvroDeserializeFromFile("task.config");
-            IConfiguration taskConfiguration = serializer.FromAvro(taskAvroconfiguration, ns);
+            IConfiguration taskConfiguration = serializer.FromAvro(taskAvroconfiguration, ns1);
 
             AvroConfiguration timerAvroconfiguration = serializer.AvroDeserializeFromFile("timer.config");
-            IConfiguration timerConfiguration = serializer.FromAvro(timerAvroconfiguration, ns);
+            IConfiguration timerConfiguration = serializer.FromAvro(timerAvroconfiguration, ns2);
 
             IConfiguration merged = Configurations.MergeDeserializedConfs(taskConfiguration, timerConfiguration);
 

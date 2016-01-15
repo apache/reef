@@ -25,11 +25,6 @@ namespace Org.Apache.REEF.Tang.Tests.ClassHierarchy
 {
     public class TestGeneric
     {
-        public TestGeneric()
-        {
-            TangImpl.Reset();
-        }
-
         [Fact]
         public void TestGenericClassWithT()
         {

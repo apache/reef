@@ -31,12 +31,6 @@ namespace Org.Apache.REEF.Tang.Tests.ClassHierarchy
     {
         const string ClassHierarchyBinFileName = "example.bin";
 
-        [ClassInitialize]
-        public static void ClassSetup(TestContext context)
-        {
-            TangImpl.Reset();
-        }
-
         [TestMethod]
         public void TestAnonymousTypeWithDictionary()
         {

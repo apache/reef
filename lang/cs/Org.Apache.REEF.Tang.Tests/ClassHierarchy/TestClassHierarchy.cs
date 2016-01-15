@@ -38,7 +38,6 @@ namespace Org.Apache.REEF.Tang.Tests.ClassHierarchy
         {
             if (ns == null)
             {
-                TangImpl.Reset();
                 ns = TangFactory.GetTang().GetClassHierarchy(new string[] { FileNames.Examples, FileNames.Common, FileNames.Tasks });
             }
         }
