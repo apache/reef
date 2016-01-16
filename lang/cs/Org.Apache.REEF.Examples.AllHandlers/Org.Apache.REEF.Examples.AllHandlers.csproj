@@ -33,6 +33,7 @@ under the License.
     <StartupObject />
   </PropertyGroup>
   <Import Project="$(SolutionDir)\build.props" />
+  <Import Project="$(SolutionDir)\build.targets" />
   <PropertyGroup>
     <RestorePackages>true</RestorePackages>
     <BuildPackage>false</BuildPackage>
@@ -113,14 +114,6 @@ under the License.
     <None Include="Readme.md" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <!--begin jar reference-->
-  <PropertyGroup>
-    <AfterBuildDependsOn>
-      $(AfterBuildDependsOn);
-      CopyJarFiles;
-    </AfterBuildDependsOn>
-  </PropertyGroup>
-  <Target Name="AfterBuild" DependsOnTargets="$(AfterBuildDependsOn);" />
   <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
   <Import Project="$(PackagesDir)\StyleCop.MSBuild.4.7.49.1\build\StyleCop.MSBuild.Targets" Condition="Exists('$(PackagesDir)\StyleCop.MSBuild.4.7.49.1\build\StyleCop.MSBuild.Targets')" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
@@ -129,5 +122,4 @@ under the License.
     </PropertyGroup>
     <Error Condition="!Exists('$(SolutionDir)\.nuget\NuGet.targets')" Text="$([System.String]::Format('$(ErrorText)', '$(SolutionDir)\.nuget\NuGet.targets'))" />
   </Target>
-  <!--end jar reference-->
 </Project>
