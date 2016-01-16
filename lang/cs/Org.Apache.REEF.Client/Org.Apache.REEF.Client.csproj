@@ -26,14 +26,14 @@ under the License.
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <RestorePackages>true</RestorePackages>
-    <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..</SolutionDir>
-    <TempResxFile Condition="$(TempResxFile) == ''">$(SolutionDir)bin\$(Platform)\$(Configuration)\$(AssemblyName)\Resources.resx</TempResxFile>
+    <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..</SolutionDir>    
   </PropertyGroup>
   <PropertyGroup>
     <StartupObject />
   </PropertyGroup>
   <Import Project="$(SolutionDir)\build.props" />
   <PropertyGroup>
+    <TempResxFile Condition="$(TempResxFile) == ''">$(SolutionDir)bin\$(PlatformTarget)\$(Configuration)\$(AssemblyName)\Resources.resx</TempResxFile>
     <UseVSHostingProcess>false</UseVSHostingProcess>
   </PropertyGroup>
   <ItemGroup>
@@ -299,6 +299,7 @@ under the License.
           NewLineChars = "\r\n",
           NewLineHandling = NewLineHandling.Replace
       };
+      (new FileInfo(resxOutputPath)).Directory.Create();
       using (var wr = XmlWriter.Create(resxOutputPath, settings))
       {
           root.WriteTo(wr);
@@ -309,6 +310,16 @@ under the License.
   <!--
       A Target that reWrites client resx to point to correct version of jars
     -->
+  <Target Name="CopyJarFiles">
+    <MSBuild Targets="Build" BuildInParallel="$(BuildInParallel)" Properties="Chip=$(Chip);Lang=$(Lang)" Projects="@(ProjectFile)" />
+	<ItemGroup>
+        <MySourceFiles Include="$(Bindir)\**\Org.Apache.REEF.Bridge.JAR\*.jar"/>
+    </ItemGroup>
+    <Copy
+      SourceFiles="@(MySourceFiles)"
+      DestinationFiles="@(MySourceFiles->'$(TargetDir)%(Filename)%(Extension)')"
+    />
+  </Target>
   <Target Name="RewriteClientResources" DependsOnTargets="CopyJarFiles">
     <UpdateClientResources ProjectFolder="$(REEF_Source_Folder)" DebugOrRelease="$(Configuration)" resxOutputPath="$(TempResxFile)">
     </UpdateClientResources>

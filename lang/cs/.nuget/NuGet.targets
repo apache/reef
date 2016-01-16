@@ -33,7 +33,8 @@ under the License.
         <!-- Download NuGet.exe if it does not already exist -->
         <DownloadNuGetExe Condition=" '$(DownloadNuGetExe)' == '' ">true</DownloadNuGetExe>
     </PropertyGroup>
-
+    <Import Project="$(SolutionDir)\build.props" Condition="'$(BuildDotPropsIsImported)'!='true'" />
+    <Import Project="$(SolutionDir)\build.targets" Condition="'$(BuildDotTargetsIsImported)'!='true'"/>
     <ItemGroup Condition=" '$(PackageSources)' == '' ">
         <!-- Package sources used to restore packages. By default, registered sources under %APPDATA%\NuGet\NuGet.Config will be used -->
         <!-- The official NuGet package source (https://www.nuget.org/api/v2/) will be excluded if package sources are specified and it does not appear in the list -->
@@ -51,6 +52,7 @@ under the License.
     <PropertyGroup Condition=" '$(OS)' != 'Windows_NT'">
         <!-- We need to launch nuget.exe with the mono command if we're not on windows -->
         <NuGetToolsPath>$(SolutionDir)\.nuget</NuGetToolsPath>
+        <ThisNugetPackagePath>$(SolutionDir2).nuget\packages\$(RootNamespace).$(REEF_NugetVersion).nupkg</ThisNugetPackagePath>
     </PropertyGroup>
 
     <PropertyGroup>
@@ -108,12 +110,7 @@ under the License.
 
     <!-- Make sure clean will clean up .nuget/packages and .nuget/nuspec directories -->
     <PropertyGroup>
-        <CleanDependsOn>$(CleanDependsOn);CleanNugetPackages</CleanDependsOn>
-    </PropertyGroup>
-
-    <!-- Make sure clean will clean up .nuget/packages and .nuget/nuspec directories -->
-    <PropertyGroup>
-        <CleanDependsOn>$(CleanDependsOn);CleanNugetPackages</CleanDependsOn>
+      <CleanDependsOn>$(CleanDependsOn);CleanNugetPackages</CleanDependsOn>
     </PropertyGroup>
 
     <Target Name="CheckPrerequisites">
@@ -155,12 +152,7 @@ under the License.
     </Target>
 
     <Target Name="CleanNugetPackages">
-        <PropertyGroup>
-            <NuspecFilesDir>$(SolutionDir)\.nuget\nuspec</NuspecFilesDir>
-            <PackagesDir>$(SolutionDir)\.nuget\packages</PackagesDir>
-        </PropertyGroup>
-
-        <RemoveDir Directories="$(NuspecFilesDir);$(PackagesDir)" />
+        <Delete Files="$(ThisNugetPackagePath)" />
     </Target>
 
     <Choose>
@@ -178,7 +170,7 @@ under the License.
 
     <Target Name="PushPackages" >
         <ItemGroup>
-            <PackageFile Include="$(SolutionDir2).nuget\packages\$(RootNamespace).$(REEF_NugetVersion).nupkg" />
+            <PackageFile Include="$(ThisNugetPackagePath)" />
         </ItemGroup>
 
         <PropertyGroup>

@@ -25,6 +25,7 @@ nb-configuration.xml
 .idea
 atlassian-ide-plugin.xml
 *.sln.DotSettings.user
+*.VC.opendb
 #
 # ----------------------------------------------------------------------
 # OS Files

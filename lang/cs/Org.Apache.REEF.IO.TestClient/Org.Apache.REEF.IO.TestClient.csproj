@@ -28,6 +28,7 @@ under the License.
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..</SolutionDir>
   </PropertyGroup>
   <Import Project="$(SolutionDir)\build.props" />
+  <Import Project="$(SolutionDir)\build.targets" />
   <PropertyGroup>
     <BuildPackage>false</BuildPackage>
     <RestorePackages>true</RestorePackages>
