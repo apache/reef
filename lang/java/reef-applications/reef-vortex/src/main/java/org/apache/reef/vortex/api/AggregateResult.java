@@ -18,7 +18,6 @@
  */
 package org.apache.reef.vortex.api;
 
-import org.apache.commons.lang3.tuple.Pair;
 import org.apache.reef.annotations.Unstable;
 import org.apache.reef.annotations.audience.ClientSide;
 import org.apache.reef.annotations.audience.Private;
@@ -37,30 +36,30 @@ import java.util.List;
 public final class AggregateResult<TInput, TOutput> {
 
   private final Optional<TOutput> aggregatedOutput;
-  private final List<Pair<TInput, VortexFunction<TInput, TOutput>>> aggregatedList;
+  private final List<TInput> inputList;
   private final boolean hasNext;
   private final Optional<Exception> exception;
 
   @Private
   public AggregateResult(final Exception exception,
-                         final List<Pair<TInput, VortexFunction<TInput, TOutput>>> aggregatedList,
+                         final List<TInput> inputList,
                          final boolean hasNext) {
-    this(Optional.<TOutput>empty(), Optional.of(exception), aggregatedList, hasNext);
+    this(Optional.<TOutput>empty(), Optional.of(exception), inputList, hasNext);
   }
 
   @Private
   public AggregateResult(final TOutput aggregatedOutput,
-                         final List<Pair<TInput, VortexFunction<TInput, TOutput>>> aggregatedList,
+                         final List<TInput> inputList,
                          final boolean hasNext) {
-    this(Optional.of(aggregatedOutput), Optional.<Exception>empty(), aggregatedList, hasNext);
+    this(Optional.of(aggregatedOutput), Optional.<Exception>empty(), inputList, hasNext);
   }
 
   private AggregateResult(final Optional<TOutput> aggregatedOutput,
                           final Optional<Exception> exception,
-                          final List<Pair<TInput, VortexFunction<TInput, TOutput>>> aggregatedList,
+                          final List<TInput> inputList,
                           final boolean hasNext) {
     this.aggregatedOutput = aggregatedOutput;
-    this.aggregatedList = Collections.unmodifiableList(aggregatedList);
+    this.inputList = Collections.unmodifiableList(inputList);
     this.hasNext = hasNext;
     this.exception = exception;
   }
@@ -71,19 +70,19 @@ public final class AggregateResult<TInput, TOutput> {
    * the Exception that caused the Tasklet to fail will be thrown directly.
    * @throws Exception the Exception that caused the Tasklet or aggregation failure.
    */
-  public TOutput getAggregateResult() throws Exception {
+  public TOutput getAggregateResult() throws VortexAggregateException {
     if (exception.isPresent()) {
-      throw exception.get();
+      throw new VortexAggregateException(exception.get(), inputList);
     }
 
     return aggregatedOutput.get();
   }
 
   /**
-   * @return the associated input and VortexFunction of an aggregation.
+   * @return the associated inputs of an aggregation
    */
-  public List<Pair<TInput, VortexFunction<TInput, TOutput>>> getAggregatedInputAndFunction() {
-    return aggregatedList;
+  public List<TInput> getAggregatedInputs() {
+    return inputList;
   }
 
   /**

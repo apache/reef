@@ -19,7 +19,6 @@
 package org.apache.reef.vortex.api;
 
 import org.apache.commons.lang3.NotImplementedException;
-import org.apache.commons.lang3.tuple.Pair;
 import org.apache.reef.annotations.Unstable;
 import org.apache.reef.annotations.audience.ClientSide;
 import org.apache.reef.annotations.audience.Private;
@@ -47,17 +46,17 @@ public final class VortexAggregateFuture<TInput, TOutput> implements VortexFutur
   private final Executor executor;
   private final Codec<TOutput> aggOutputCodec;
   private final BlockingQueue<AggregateResult> resultQueue;
-  private final Map<Integer, Pair<TInput, VortexFunction<TInput, TOutput>>> taskletIdFunctionMap;
+  private final Map<Integer, TInput> taskletIdInputMap;
   private final FutureCallback<AggregateResult<TInput, TOutput>> callbackHandler;
 
   @Private
   public VortexAggregateFuture(final Executor executor,
-                               final Map<Integer, Pair<TInput, VortexFunction<TInput, TOutput>>> taskletIdFunctionMap,
+                               final Map<Integer, TInput> taskletIdInputMap,
                                final Codec<TOutput> aggOutputCodec,
                                final FutureCallback<AggregateResult<TInput, TOutput>> callbackHandler) {
     this.executor = executor;
-    this.taskletIdFunctionMap = new HashMap<>(taskletIdFunctionMap);
-    this.resultQueue = new ArrayBlockingQueue<>(taskletIdFunctionMap.size());
+    this.taskletIdInputMap = new HashMap<>(taskletIdInputMap);
+    this.resultQueue = new ArrayBlockingQueue<>(taskletIdInputMap.size());
     this.aggOutputCodec = aggOutputCodec;
     this.callbackHandler = callbackHandler;
   }
@@ -66,7 +65,7 @@ public final class VortexAggregateFuture<TInput, TOutput> implements VortexFutur
    * @return the next aggregation result for the future, null if no more results.
    */
   public synchronized AggregateResult get() throws InterruptedException {
-    if (taskletIdFunctionMap.isEmpty()) {
+    if (taskletIdInputMap.isEmpty()) {
       return null;
     }
 
@@ -81,7 +80,7 @@ public final class VortexAggregateFuture<TInput, TOutput> implements VortexFutur
    */
   public synchronized AggregateResult get(final long timeout,
                                           final TimeUnit timeUnit) throws InterruptedException, TimeoutException {
-    if (taskletIdFunctionMap.isEmpty()) {
+    if (taskletIdInputMap.isEmpty()) {
       return null;
     }
 
@@ -98,7 +97,7 @@ public final class VortexAggregateFuture<TInput, TOutput> implements VortexFutur
    * @return true if there are no more results to poll.
    */
   public synchronized boolean isDone() {
-    return taskletIdFunctionMap.size() == 0;
+    return taskletIdInputMap.size() == 0;
   }
 
   /**
@@ -172,7 +171,7 @@ public final class VortexAggregateFuture<TInput, TOutput> implements VortexFutur
   private synchronized void removeCompletedTasklets(final TOutput output, final List<Integer> taskletIds)
       throws InterruptedException {
     final AggregateResult result =
-        new AggregateResult(output, getInputFunctions(taskletIds), taskletIdFunctionMap.size() > 0);
+        new AggregateResult(output, getInputs(taskletIds), taskletIdInputMap.size() > 0);
 
     if (callbackHandler != null) {
       executor.execute(new Runnable() {
@@ -192,34 +191,31 @@ public final class VortexAggregateFuture<TInput, TOutput> implements VortexFutur
   private synchronized void removeFailedTasklets(final Exception exception, final List<Integer> taskletIds)
       throws InterruptedException {
 
-    final AggregateResult result =
-        new AggregateResult(exception, getInputFunctions(taskletIds), taskletIdFunctionMap.size() > 0);
+    final AggregateResult failure =
+        new AggregateResult(exception, getInputs(taskletIds), taskletIdInputMap.size() > 0);
 
     if (callbackHandler != null) {
       executor.execute(new Runnable() {
         @Override
         public void run() {
-          // Note that success is still called here
-          // User should be checking the Exception status in AggregateResult.
           // TODO[JIRA REEF-1129]: Add documentation in VortexThreadPool.
-          callbackHandler.onSuccess(result);
+          callbackHandler.onFailure(new VortexAggregateException(exception, taskletIds));
         }
       });
     }
 
-    resultQueue.put(result);
+    resultQueue.put(failure);
   }
 
   /**
-   * Gets the inputs and their respective {@link VortexFunction}s on Tasklet aggregation completion.
+   * Gets the inputs on Tasklet aggregation completion.
    */
-  private synchronized List<Pair<TInput, VortexFunction<TInput, TOutput>>> getInputFunctions(
-      final List<Integer> taskletIds) {
+  private synchronized List<TInput> getInputs(final List<Integer> taskletIds) {
 
-    final List<Pair<TInput, VortexFunction<TInput, TOutput>>> inputList = new ArrayList<>(taskletIds.size());
+    final List<TInput> inputList = new ArrayList<>(taskletIds.size());
 
     for(final int taskletId : taskletIds) {
-      inputList.add(taskletIdFunctionMap.remove(taskletId));
+      inputList.add(taskletIdInputMap.remove(taskletId));
     }
 
     return inputList;

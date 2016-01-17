@@ -36,7 +36,7 @@ import java.util.List;
 @Public
 @ClientSide
 @Unstable
-public interface VortexAggregateFunction<TOutput> extends Serializable{
+public interface VortexAggregateFunction<TOutput> extends Serializable {
 
   /**
    * Runs a custom local aggregation function on Tasklets assigned to a VortexWorker.

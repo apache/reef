@@ -19,18 +19,40 @@
 package org.apache.reef.vortex.api;
 
 import org.apache.reef.annotations.Unstable;
+import org.apache.reef.annotations.audience.Private;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * Exception thrown when an aggregate function fails.
  * Call {@link Exception#getCause()} to find the cause of failure in aggregation.
+ * Call {@link VortexAggregateException#getInputs()} to get the inputs that correlate
+ * with the failure.
  */
 @Unstable
 public final class VortexAggregateException extends Exception {
-  public VortexAggregateException(final Throwable cause) {
+  private final List<Object> inputList;
+
+  @Private
+  public VortexAggregateException(final Throwable cause, final List<?> inputList) {
     super(cause);
+    this.inputList = new ArrayList<>(inputList);
   }
 
-  public VortexAggregateException(final String message, final Throwable cause) {
+  @Private
+  public VortexAggregateException(final String message,
+                                  final Throwable cause,
+                                  final List<?> inputList) {
     super(message, cause);
+    this.inputList = new ArrayList<>(inputList);
+  }
+
+  /**
+   * @return Inputs that correlate with the aggregation failure.
+   */
+  public List<Object> getInputs() {
+    return Collections.unmodifiableList(inputList);
   }
 }
