@@ -20,7 +20,6 @@ package org.apache.reef.vortex.api;
 
 import org.apache.reef.annotations.Unstable;
 import org.apache.reef.annotations.audience.ClientSide;
-import org.apache.reef.annotations.audience.Private;
 import org.apache.reef.annotations.audience.Public;
 import org.apache.reef.util.Optional;
 
@@ -40,15 +39,13 @@ public final class AggregateResult<TInput, TOutput> {
   private final boolean hasNext;
   private final Optional<Exception> exception;
 
-  @Private
-  public AggregateResult(final Exception exception,
+  AggregateResult(final Exception exception,
                          final List<TInput> inputList,
                          final boolean hasNext) {
     this(Optional.<TOutput>empty(), Optional.of(exception), inputList, hasNext);
   }
 
-  @Private
-  public AggregateResult(final TOutput aggregatedOutput,
+  AggregateResult(final TOutput aggregatedOutput,
                          final List<TInput> inputList,
                          final boolean hasNext) {
     this(Optional.of(aggregatedOutput), Optional.<Exception>empty(), inputList, hasNext);

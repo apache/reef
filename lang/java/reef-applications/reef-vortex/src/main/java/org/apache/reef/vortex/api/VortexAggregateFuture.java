@@ -120,11 +120,11 @@ public final class VortexAggregateFuture<TInput, TOutput> implements VortexFutur
    */
   @Private
   @Override
-  public void aggregationCompleted(final List<Integer> pTaskletIds, final byte[] serializedResult) {
+  public void aggregationCompleted(final List<Integer> taskletIds, final byte[] serializedResult) {
     try {
       // TODO[REEF-1113]: Handle serialization failure separately in Vortex
       final TOutput result = aggOutputCodec.decode(serializedResult);
-      removeCompletedTasklets(result, pTaskletIds);
+      removeCompletedTasklets(result, taskletIds);
     } catch (final InterruptedException e) {
       throw new RuntimeException(e);
     }
@@ -148,9 +148,9 @@ public final class VortexAggregateFuture<TInput, TOutput> implements VortexFutur
    */
   @Private
   @Override
-  public void aggregationThrewException(final List<Integer> pTaskletIds, final Exception exception) {
+  public void aggregationThrewException(final List<Integer> taskletIds, final Exception exception) {
     try {
-      removeFailedTasklets(exception, pTaskletIds);
+      removeFailedTasklets(exception, taskletIds);
     } catch (final InterruptedException e) {
       throw new RuntimeException(e);
     }
