@@ -133,7 +133,7 @@ public final class SingleThreadStage<T> extends AbstractEStage<T> {
             LOG.log(Level.FINEST, name + " Closing Producer due to interruption");
             break;
           }
-        } catch (final Throwable t) {
+        } catch (final Exception t) {
           LOG.log(Level.SEVERE, name + " Exception from event handler", t);
           throw t;
         }

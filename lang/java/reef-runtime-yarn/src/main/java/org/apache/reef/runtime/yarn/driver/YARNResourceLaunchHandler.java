@@ -35,6 +35,7 @@ import org.apache.reef.tang.InjectionFuture;
 import org.apache.reef.tang.annotations.Parameter;
 
 import javax.inject.Inject;
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
@@ -96,7 +97,7 @@ public final class YARNResourceLaunchHandler implements ResourceLaunchHandler {
 
       LOG.log(Level.FINEST, "TIME: End ResourceLaunch {0}", containerId);
 
-    } catch (final Throwable e) {
+    } catch (final IOException e) {
       LOG.log(Level.WARNING, "Error handling resource launch message: " + resourceLaunchEvent, e);
       throw new RuntimeException(e);
     }

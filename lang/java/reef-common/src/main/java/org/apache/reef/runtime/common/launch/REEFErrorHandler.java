@@ -58,6 +58,7 @@ public final class REEFErrorHandler implements EventHandler<Throwable>, AutoClos
   }
 
   @Override
+  @SuppressWarnings("checkstyle:illegalcatch")
   public void onNext(final Throwable e) {
     LOG.log(Level.SEVERE, "Uncaught exception.", e);
     if (!this.errorHandlerRID.equals(ErrorHandlerRID.NONE)) {
@@ -79,6 +80,7 @@ public final class REEFErrorHandler implements EventHandler<Throwable>, AutoClos
     }
   }
 
+  @SuppressWarnings("checkstyle:illegalcatch")
   public void close() {
     try {
       this.remoteManager.get().close();

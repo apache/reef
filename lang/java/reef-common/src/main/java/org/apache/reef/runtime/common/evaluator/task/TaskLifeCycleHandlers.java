@@ -61,6 +61,7 @@ final class TaskLifeCycleHandlers {
   /**
    * Sends the TaskStart event to the handlers for it.
    */
+  @SuppressWarnings("checkstyle:illegalcatch")
   public void beforeTaskStart() throws TaskStartHandlerFailure {
     LOG.log(Level.FINEST, "Sending TaskStart event to the registered event handlers.");
     for (final EventHandler<TaskStart> startHandler : this.taskStartHandlers) {
@@ -76,6 +77,7 @@ final class TaskLifeCycleHandlers {
   /**
    * Sends the TaskStop event to the handlers for it.
    */
+  @SuppressWarnings("checkstyle:illegalcatch")
   public void afterTaskExit() throws TaskStopHandlerFailure {
     LOG.log(Level.FINEST, "Sending TaskStop event to the registered event handlers.");
     for (final EventHandler<TaskStop> stopHandler : this.taskStopHandlers) {

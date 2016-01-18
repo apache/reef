@@ -171,6 +171,7 @@ public final class ThreadPoolStage<T> extends AbstractEStage<T> {
    * @param value the event
    */
   @Override
+  @SuppressWarnings("checkstyle:illegalcatch")
   public void onNext(final T value) {
     beforeOnNext();
     executor.submit(new Runnable() {

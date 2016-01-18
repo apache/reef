@@ -29,6 +29,7 @@ import org.apache.reef.wake.impl.ThreadPoolStage;
 import javax.inject.Inject;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.nio.charset.Charset;
@@ -58,12 +59,12 @@ public final class FileEventStream implements EventStream {
       final OutputStreamWriter writer = new OutputStreamWriter(
           new FileOutputStream(createFileWithPath(path)), Charset.forName("UTF-8"));
       this.printWriter = new PrintWriter(writer);
-    } catch (final Exception e) {
+    } catch (final IOException e) {
       throw new RuntimeException(e);
     }
   }
 
-  private File createFileWithPath(final String path) throws Exception {
+  private File createFileWithPath(final String path) throws IOException {
     final File file = new File(path);
     final File parent = file.getParentFile();
     if (parent != null && !parent.exists() && !parent.mkdirs()) {

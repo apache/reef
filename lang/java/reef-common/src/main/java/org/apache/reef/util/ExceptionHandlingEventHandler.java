@@ -40,6 +40,7 @@ public final class ExceptionHandlingEventHandler<T> implements EventHandler<T> {
   }
 
   @Override
+  @SuppressWarnings("checkstyle:illegalcatch")
   public void onNext(final T t) {
     try {
       this.wrapped.onNext(t);

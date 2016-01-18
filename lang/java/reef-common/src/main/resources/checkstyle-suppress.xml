@@ -22,4 +22,5 @@
 <suppressions>
     <suppress checks=".*" files=".*\\target\\generated-sources\\.*" />
     <suppress checks="IllegalThrows" files=".*Test.*" />
+    <suppress checks="IllegalCatch"  files=".*Test.*" />
 </suppressions>

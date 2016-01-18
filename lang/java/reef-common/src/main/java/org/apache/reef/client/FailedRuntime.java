@@ -21,6 +21,7 @@ package org.apache.reef.client;
 import org.apache.reef.common.AbstractFailure;
 import org.apache.reef.proto.ReefServiceProtos.RuntimeErrorProto;
 import org.apache.reef.util.Optional;
+import org.apache.reef.wake.remote.exception.RemoteRuntimeException;
 import org.apache.reef.wake.remote.impl.ObjectSerializableCodec;
 
 import java.util.logging.Level;
@@ -63,7 +64,7 @@ public final class FailedRuntime extends AbstractFailure {
     if (data != null) {
       try {
         return CODEC.decode(data);
-      } catch (final Throwable ex) {
+      } catch (final RemoteRuntimeException ex) {
         LOG.log(Level.FINE, "Could not decode exception {0}: {1}", new Object[]{error, ex});
       }
     }

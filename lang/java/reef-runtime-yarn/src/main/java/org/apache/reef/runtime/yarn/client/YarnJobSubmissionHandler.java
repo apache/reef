@@ -172,7 +172,7 @@ final class YarnJobSubmissionHandler implements JobSubmissionHandler {
   private String getQueue(final Configuration driverConfiguration) {
     try {
       return Tang.Factory.getTang().newInjector(driverConfiguration).getNamedInstance(JobQueue.class);
-    } catch (final Throwable t) {
+    } catch (final InjectionException e) {
       return this.defaultQueueName;
     }
   }

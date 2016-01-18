@@ -233,6 +233,11 @@
             <property name="illegalClassNames" value="Throwable, Error, RuntimeException, NullPointerException"/>
         </module>
 
+        <!-- IllegalCatch is suppressed for files with the word "Test" in the filename -->
+        <module name="IllegalCatch">
+            <property name="illegalClassNames" value="Throwable, RuntimeException, Error" />
+        </module>
+
     </module>
 
 </module>
