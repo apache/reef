@@ -231,6 +231,7 @@ public final class ContextRuntime {
    * @throws IllegalStateException                                                 If this method is called when
    * there is either a task or child context already present.
    */
+  @SuppressWarnings("checkstyle:illegalcatch")
   void startTask(final Configuration taskConfig) throws TaskClientCodeException {
 
     synchronized (this.contextLifeCycle) {

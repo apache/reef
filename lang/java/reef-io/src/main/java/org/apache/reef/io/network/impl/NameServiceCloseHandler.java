@@ -42,7 +42,7 @@ public final class NameServiceCloseHandler implements EventHandler<ContextStop> 
     try {
       LOG.log(Level.FINEST, "Closing {0}", this.toClose);
       this.toClose.close();
-    } catch (final Throwable ex) {
+    } catch (final Exception ex) {
       LOG.log(Level.SEVERE, "Exception while closing " + this.toClose, ex);
     }
   }

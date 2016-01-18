@@ -149,6 +149,7 @@ public final class REEFLauncher {
    *
    * @param args command-line args
    */
+  @SuppressWarnings("checkstyle:illegalcatch")
   public static void main(final String[] args) {
     LOG.log(Level.INFO, "Entering REEFLauncher.main().");
     LOG.log(Level.FINE, "REEFLauncher started with user name [{0}]", System.getProperty("user.name"));

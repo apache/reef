@@ -86,6 +86,7 @@ public final class SyncStage<T> extends AbstractEStage<T> {
    * @param value the event
    */
   @Override
+  @SuppressWarnings("checkstyle:illegalcatch")
   public void onNext(final T value) {
     beforeOnNext();
     try {

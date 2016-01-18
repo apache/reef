@@ -81,6 +81,7 @@ final class EvaluatorRuntime implements EventHandler<EvaluatorControlProto> {
     clock.scheduleAlarm(heartbeatPeriod, heartbeatAlarmHandler);
   }
 
+  @SuppressWarnings("checkstyle:illegalcatch")
   private void onEvaluatorControlMessage(final EvaluatorControlProto message) {
 
     synchronized (this.heartBeatManager) {
@@ -166,6 +167,7 @@ final class EvaluatorRuntime implements EventHandler<EvaluatorControlProto> {
   final class RuntimeStartHandler implements EventHandler<RuntimeStart> {
 
     @Override
+    @SuppressWarnings("checkstyle:illegalcatch")
     public void onNext(final RuntimeStart runtimeStart) {
       synchronized (EvaluatorRuntime.this.heartBeatManager) {
         try {
