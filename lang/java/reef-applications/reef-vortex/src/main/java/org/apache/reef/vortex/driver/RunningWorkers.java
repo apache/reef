@@ -157,9 +157,10 @@ final class RunningWorkers {
           return;
         }
 
+        final Optional<Integer> taskletAggFunctionId =  tasklet.getAggregateFunctionId();
         final VortexWorkerManager vortexWorkerManager = runningWorkers.get(workerId.get());
-        if (tasklet.getAggregateFunctionId().isPresent() &&
-            !workerAggregateFunctionMap.containsKey(tasklet.getAggregateFunctionId().get())) {
+        if (taskletAggFunctionId.isPresent() &&
+            !workerHasAggregateFunction(vortexWorkerManager.getId(), taskletAggFunctionId.get())) {
           // TODO[JIRA REEF-1130]: fetch aggregate function from repo and send aggregate function to worker.
           throw new NotImplementedException("Serialize aggregate function to worker if it doesn't have it. " +
               "Complete in REEF-1130.");
@@ -265,5 +266,18 @@ final class RunningWorkers {
    */
   boolean isWorkerRunning(final String workerId) {
     return runningWorkers.containsKey(workerId);
+  }
+
+  /**
+   * @return true if Vortex has sent the aggregation function to the worker specified by workerId
+   */
+  private boolean workerHasAggregateFunction(final String workerId, final int aggregateFunctionId) {
+    if (!workerAggregateFunctionMap.containsKey(workerId)) {
+      LOG.log(Level.WARNING, "Trying to look up a worker's aggregation function for a worker with an ID that has " +
+          "not yet been added.");
+      return false;
+    }
+
+    return workerAggregateFunctionMap.get(workerId).contains(aggregateFunctionId);
   }
 }

@@ -99,11 +99,11 @@ final class DefaultVortexMaster implements VortexMaster {
     final List<Tasklet> tasklets = new ArrayList<>(inputs.size());
     final Map<Integer, TInput> taskletIdInputMap = new HashMap<>(inputs.size());
 
-    for (int i = 0; i < inputs.size(); i++) {
-      taskletIdInputMap.put(taskletIdCounter.getAndIncrement(), inputs.get(i));
+    for (final TInput input : inputs) {
+      taskletIdInputMap.put(taskletIdCounter.getAndIncrement(), input);
     }
 
-    final VortexAggregateFuture vortexAggregateFuture =
+    final VortexAggregateFuture<TInput, TOutput> vortexAggregateFuture =
         callback.isPresent() ?
         new VortexAggregateFuture(executor, taskletIdInputMap, aggOutputCodec, callback.get()) :
         new VortexAggregateFuture(executor, taskletIdInputMap, aggOutputCodec, null);

@@ -21,6 +21,8 @@ package org.apache.reef.vortex.driver;
 import org.apache.reef.driver.task.RunningTask;
 import org.apache.reef.io.serialization.Codec;
 import org.apache.reef.io.serialization.SerializableCodec;
+import org.apache.reef.tang.Tang;
+import org.apache.reef.tang.exceptions.InjectionException;
 import org.apache.reef.vortex.util.VoidCodec;
 import org.apache.reef.util.Optional;
 import org.apache.reef.vortex.api.VortexFunction;
@@ -91,6 +93,13 @@ public final class TestUtil {
   public Tasklet newTasklet() {
     final int id = taskletId.getAndIncrement();
     return new Tasklet(id, Optional.empty(), null, null, new VortexFuture(executor, vortexMaster, id, VOID_CODEC));
+  }
+
+  /**
+   * @return a new {@link AggregateFunctionRepository}
+   */
+  public AggregateFunctionRepository newAggregateFunctionRepository() throws InjectionException {
+    return Tang.Factory.getTang().newInjector().getInstance(AggregateFunctionRepository.class);
   }
 
   /**

@@ -24,8 +24,8 @@ import org.apache.reef.vortex.api.VortexAggregateFunction;
 
 import javax.annotation.concurrent.ThreadSafe;
 import javax.inject.Inject;
-import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 /**
  * A repository for {@link VortexAggregateFunction}, used to pass functions between {@link VortexMaster} and
@@ -35,17 +35,17 @@ import java.util.concurrent.ConcurrentHashMap;
 @Unstable
 @Private
 public final class AggregateFunctionRepository {
-  private final Map<Integer, VortexAggregateFunction> aggregateFunctionIdMap = new ConcurrentHashMap<>();
+  private final ConcurrentMap<Integer, VortexAggregateFunction> aggregateFunctionMap = new ConcurrentHashMap<>();
 
   @Inject
   private AggregateFunctionRepository() {
   }
 
   VortexAggregateFunction put(final int aggregateFunctionId, final VortexAggregateFunction function) {
-    return aggregateFunctionIdMap.put(aggregateFunctionId, function);
+    return aggregateFunctionMap.put(aggregateFunctionId, function);
   }
 
   VortexAggregateFunction get(final int aggregateFunctionId) {
-    return aggregateFunctionIdMap.get(aggregateFunctionId);
+    return aggregateFunctionMap.get(aggregateFunctionId);
   }
 }
