@@ -20,6 +20,7 @@ package org.apache.reef.vortex.driver;
 
 import net.jcip.annotations.ThreadSafe;
 
+import org.apache.commons.lang3.NotImplementedException;
 import org.apache.reef.annotations.audience.DriverSide;
 import org.apache.reef.util.Optional;
 
@@ -57,12 +58,18 @@ final class RunningWorkers {
   // Scheduling policy
   private final SchedulingPolicy schedulingPolicy;
 
+  private final AggregateFunctionRepository aggregateFunctionRepository;
+
+  private final Map<String, Set<Integer>> workerAggregateFunctionMap = new HashMap<>();
+
   /**
    * RunningWorkers constructor.
    */
   @Inject
-  RunningWorkers(final SchedulingPolicy schedulingPolicy) {
+  RunningWorkers(final SchedulingPolicy schedulingPolicy,
+                 final AggregateFunctionRepository aggregateFunctionRepository) {
     this.schedulingPolicy = schedulingPolicy;
+    this.aggregateFunctionRepository = aggregateFunctionRepository;
   }
 
   /**
@@ -76,6 +83,7 @@ final class RunningWorkers {
         if (!removedBeforeAddedWorkers.contains(vortexWorkerManager.getId())) {
           this.runningWorkers.put(vortexWorkerManager.getId(), vortexWorkerManager);
           this.schedulingPolicy.workerAdded(vortexWorkerManager);
+          this.workerAggregateFunctionMap.put(vortexWorkerManager.getId(), new HashSet<Integer>());
 
           // Notify (possibly) waiting scheduler
           noWorkerOrResource.signal();
@@ -111,7 +119,11 @@ final class RunningWorkers {
         return Optional.empty();
       }
     } finally {
-      lock.unlock();
+      try {
+        workerAggregateFunctionMap.remove(id);
+      } finally {
+        lock.unlock();
+      }
     }
   }
 
@@ -146,6 +158,13 @@ final class RunningWorkers {
         }
 
         final VortexWorkerManager vortexWorkerManager = runningWorkers.get(workerId.get());
+        if (tasklet.getAggregateFunctionId().isPresent() &&
+            !workerAggregateFunctionMap.containsKey(tasklet.getAggregateFunctionId().get())) {
+          // TODO[JIRA REEF-1130]: fetch aggregate function from repo and send aggregate function to worker.
+          throw new NotImplementedException("Serialize aggregate function to worker if it doesn't have it. " +
+              "Complete in REEF-1130.");
+        }
+
         vortexWorkerManager.launchTasklet(tasklet);
         schedulingPolicy.taskletLaunched(vortexWorkerManager, tasklet);
       }

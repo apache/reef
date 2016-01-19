@@ -19,6 +19,7 @@
 package org.apache.reef.vortex.driver;
 
 import org.apache.reef.annotations.audience.DriverSide;
+import org.apache.reef.util.Optional;
 import org.apache.reef.vortex.api.VortexFunction;
 import org.apache.reef.vortex.common.VortexFutureDelegate;
 
@@ -29,13 +30,16 @@ import org.apache.reef.vortex.common.VortexFutureDelegate;
 class Tasklet<TInput, TOutput> {
   private final int taskletId;
   private final VortexFunction<TInput, TOutput> userTask;
+  private final Optional<Integer> aggregateFunctionId;
   private final TInput input;
   private final VortexFutureDelegate delegate;
 
   Tasklet(final int taskletId,
+          final Optional<Integer> aggregateFunctionId,
           final VortexFunction<TInput, TOutput> userTask,
           final TInput input,
           final VortexFutureDelegate delegate) {
+    this.aggregateFunctionId = aggregateFunctionId;
     this.taskletId = taskletId;
     this.userTask = userTask;
     this.input = input;
@@ -47,6 +51,13 @@ class Tasklet<TInput, TOutput> {
    */
   int getId() {
     return taskletId;
+  }
+
+  /**
+   * @return aggregate function id of the tasklet, not present if the tasklet is not aggregate-able
+   */
+  Optional<Integer> getAggregateFunctionId() {
+    return aggregateFunctionId;
   }
 
   /**

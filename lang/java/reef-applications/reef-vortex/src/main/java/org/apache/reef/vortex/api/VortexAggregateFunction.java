@@ -21,7 +21,7 @@ package org.apache.reef.vortex.api;
 import org.apache.reef.annotations.Unstable;
 import org.apache.reef.annotations.audience.ClientSide;
 import org.apache.reef.annotations.audience.Public;
-import org.apache.reef.wake.remote.Codec;
+import org.apache.reef.io.serialization.Codec;
 
 import java.io.Serializable;
 import java.util.List;

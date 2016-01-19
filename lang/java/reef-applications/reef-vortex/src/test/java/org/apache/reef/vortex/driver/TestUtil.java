@@ -90,7 +90,7 @@ public final class TestUtil {
    */
   public Tasklet newTasklet() {
     final int id = taskletId.getAndIncrement();
-    return new Tasklet(id, null, null, new VortexFuture(executor, vortexMaster, id, VOID_CODEC));
+    return new Tasklet(id, Optional.empty(), null, null, new VortexFuture(executor, vortexMaster, id, VOID_CODEC));
   }
 
   /**

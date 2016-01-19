@@ -23,8 +23,8 @@ import org.apache.reef.annotations.Unstable;
 import org.apache.reef.annotations.audience.ClientSide;
 import org.apache.reef.annotations.audience.Private;
 import org.apache.reef.annotations.audience.Public;
+import org.apache.reef.io.serialization.Codec;
 import org.apache.reef.vortex.common.VortexFutureDelegate;
-import org.apache.reef.wake.remote.Codec;
 
 import javax.annotation.concurrent.NotThreadSafe;
 import java.util.*;
