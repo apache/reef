@@ -19,6 +19,7 @@
 package org.apache.reef.vortex.driver;
 
 import org.apache.reef.io.serialization.SerializableCodec;
+import org.apache.reef.tang.exceptions.InjectionException;
 import org.apache.reef.util.Optional;
 import org.apache.reef.vortex.api.FutureCallback;
 import org.apache.reef.vortex.api.VortexFunction;
@@ -52,9 +53,11 @@ public class DefaultVortexMasterTest {
   public void testSingleTaskletNoFailure() throws Exception {
     final VortexFunction vortexFunction = testUtil.newIntegerFunction();
     final VortexWorkerManager vortexWorkerManager1 = testUtil.newWorker();
-    final RunningWorkers runningWorkers = new RunningWorkers(new RandomSchedulingPolicy());
+    final RunningWorkers runningWorkers = new RunningWorkers(new RandomSchedulingPolicy(),
+        testUtil.newAggregateFunctionRepository());
     final PendingTasklets pendingTasklets = new PendingTasklets();
-    final DefaultVortexMaster vortexMaster = new DefaultVortexMaster(runningWorkers, pendingTasklets, 5);
+    final DefaultVortexMaster vortexMaster = new DefaultVortexMaster(runningWorkers, pendingTasklets,
+        testUtil.newAggregateFunctionRepository(), 5);
 
     final AtomicBoolean callbackReceived = new AtomicBoolean(false);
     final CountDownLatch latch = new CountDownLatch(1);
@@ -96,9 +99,11 @@ public class DefaultVortexMasterTest {
     final VortexFunction vortexFunction = testUtil.newFunction();
     final VortexWorkerManager vortexWorkerManager1 = testUtil.newWorker();
     final VortexWorkerManager vortexWorkerManager2 = testUtil.newWorker();
-    final RunningWorkers runningWorkers = new RunningWorkers(new RandomSchedulingPolicy());
+    final RunningWorkers runningWorkers = new RunningWorkers(new RandomSchedulingPolicy(),
+        testUtil.newAggregateFunctionRepository());
     final PendingTasklets pendingTasklets = new PendingTasklets();
-    final DefaultVortexMaster vortexMaster = new DefaultVortexMaster(runningWorkers, pendingTasklets, 5);
+    final DefaultVortexMaster vortexMaster = new DefaultVortexMaster(runningWorkers, pendingTasklets,
+        testUtil.newAggregateFunctionRepository(), 5);
 
     // Allocate worker & tasklet and schedule
     vortexMaster.workerAllocated(vortexWorkerManager1);
@@ -132,9 +137,11 @@ public class DefaultVortexMasterTest {
   public void testMultipleTaskletsFailure() throws Exception {
     // The tasklets that need to be executed
     final ArrayList<VortexFuture> vortexFutures = new ArrayList<>();
-    final RunningWorkers runningWorkers = new RunningWorkers(new RandomSchedulingPolicy());
+    final RunningWorkers runningWorkers = new RunningWorkers(new RandomSchedulingPolicy(),
+        testUtil.newAggregateFunctionRepository());
     final PendingTasklets pendingTasklets = new PendingTasklets();
-    final DefaultVortexMaster vortexMaster = new DefaultVortexMaster(runningWorkers, pendingTasklets, 5);
+    final DefaultVortexMaster vortexMaster = new DefaultVortexMaster(runningWorkers, pendingTasklets,
+        testUtil.newAggregateFunctionRepository(), 5);
 
     // Allocate iniital evaluators (will all be preempted later...)
     final List<VortexWorkerManager> initialWorkers = new ArrayList<>();
@@ -185,9 +192,11 @@ public class DefaultVortexMasterTest {
   public void testTaskletThrowException() throws Exception {
     final VortexFunction vortexFunction = testUtil.newIntegerFunction();
     final VortexWorkerManager vortexWorkerManager1 = testUtil.newWorker();
-    final RunningWorkers runningWorkers = new RunningWorkers(new RandomSchedulingPolicy());
+    final RunningWorkers runningWorkers = new RunningWorkers(new RandomSchedulingPolicy(),
+        testUtil.newAggregateFunctionRepository());
     final PendingTasklets pendingTasklets = new PendingTasklets();
-    final DefaultVortexMaster vortexMaster = new DefaultVortexMaster(runningWorkers, pendingTasklets, 5);
+    final DefaultVortexMaster vortexMaster = new DefaultVortexMaster(runningWorkers, pendingTasklets,
+        testUtil.newAggregateFunctionRepository(), 5);
 
     final AtomicBoolean callbackReceived = new AtomicBoolean(false);
     final CountDownLatch latch = new CountDownLatch(1);
@@ -227,7 +236,8 @@ public class DefaultVortexMasterTest {
    */
   @Test(timeout = 10000)
   public void testSingleTaskletCancellation() throws Exception {
-    final RunningWorkers runningWorkers = new RunningWorkers(new RandomSchedulingPolicy());
+    final RunningWorkers runningWorkers = new RunningWorkers(new RandomSchedulingPolicy(),
+        testUtil.newAggregateFunctionRepository());
     final PendingTasklets pendingTasklets = new PendingTasklets();
     final VortexFuture future = createTaskletCancellationFuture(runningWorkers, pendingTasklets);
     launchTasklets(runningWorkers, pendingTasklets, 1);
@@ -243,7 +253,8 @@ public class DefaultVortexMasterTest {
   @Test(timeout = 10000)
   public void testSingleTaskletCancellationBeforeLaunch() throws Exception {
 
-    final RunningWorkers runningWorkers = new RunningWorkers(new RandomSchedulingPolicy());
+    final RunningWorkers runningWorkers = new RunningWorkers(new RandomSchedulingPolicy(),
+        testUtil.newAggregateFunctionRepository());
     final PendingTasklets pendingTasklets = new PendingTasklets();
     final VortexFuture future = createTaskletCancellationFuture(runningWorkers, pendingTasklets);
 
@@ -260,10 +271,12 @@ public class DefaultVortexMasterTest {
     assertTrue("The VortexFuture should be done", future.isDone());
   }
 
-  private VortexFuture createTaskletCancellationFuture(final RunningWorkers runningWorkers,
-                                                       final PendingTasklets pendingTasklets) {
+  private VortexFuture createTaskletCancellationFuture(
+      final RunningWorkers runningWorkers, final PendingTasklets pendingTasklets) throws InjectionException {
     final VortexFunction vortexFunction = testUtil.newInfiniteLoopFunction();
-    final DefaultVortexMaster vortexMaster = new DefaultVortexMaster(runningWorkers, pendingTasklets, 5);
+    final DefaultVortexMaster vortexMaster = new DefaultVortexMaster(
+        runningWorkers, pendingTasklets,
+        testUtil.newAggregateFunctionRepository(), 5);
     final VortexWorkerManager vortexWorkerManager1 = testUtil.newWorker(vortexMaster);
 
 

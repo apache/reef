@@ -23,6 +23,7 @@ import org.apache.reef.util.Optional;
 import org.apache.reef.vortex.driver.VortexMaster;
 
 import javax.inject.Inject;
+import java.util.List;
 
 /**
  * Distributed thread pool.
@@ -60,5 +61,36 @@ public final class VortexThreadPool {
       submit(final VortexFunction<TInput, TOutput> function, final TInput input,
              final FutureCallback<TOutput> callback) {
     return vortexMaster.enqueueTasklet(function, input, Optional.of(callback));
+  }
+
+  /**
+   * @param aggregateFunction to run on VortexFunction outputs
+   * @param function to run on Vortex
+   * @param inputs of the function
+   * @param <TInput> input type
+   * @param <TOutput> output type
+   * @return VortexAggregationFuture for tracking execution progress of aggregate-able functions
+   */
+  public <TInput, TOutput> VortexAggregateFuture<TInput, TOutput>
+      submit(final VortexAggregateFunction<TOutput> aggregateFunction,
+             final VortexFunction<TInput, TOutput> function, final List<TInput> inputs) {
+    return vortexMaster.enqueueTasklets(
+        aggregateFunction, function, inputs, Optional.<FutureCallback<AggregateResult<TInput, TOutput>>>empty());
+  }
+
+  /**
+   * @param aggregateFunction to run on VortexFunction outputs
+   * @param function to run on Vortex
+   * @param inputs of the function
+   * @param callback of the aggregation
+   * @param <TInput> input type
+   * @param <TOutput> output type
+   * @return VortexAggregationFuture for tracking execution progress of aggregate-able functions
+   */
+  public <TInput, TOutput> VortexAggregateFuture<TInput, TOutput>
+      submit(final VortexAggregateFunction<TOutput> aggregateFunction,
+             final VortexFunction<TInput, TOutput> function, final List<TInput> inputs,
+             final FutureCallback<AggregateResult<TInput, TOutput>> callback) {
+    return vortexMaster.enqueueTasklets(aggregateFunction, function, inputs, Optional.of(callback));
   }
 }

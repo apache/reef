@@ -22,10 +22,10 @@ import org.apache.reef.annotations.Unstable;
 import org.apache.reef.annotations.audience.DriverSide;
 import org.apache.reef.tang.annotations.DefaultImplementation;
 import org.apache.reef.util.Optional;
-import org.apache.reef.vortex.api.FutureCallback;
-import org.apache.reef.vortex.api.VortexFunction;
-import org.apache.reef.vortex.api.VortexFuture;
+import org.apache.reef.vortex.api.*;
 import org.apache.reef.vortex.common.WorkerReport;
+
+import java.util.List;
 
 /**
  * The heart of Vortex.
@@ -41,6 +41,15 @@ public interface VortexMaster {
   <TInput, TOutput> VortexFuture<TOutput>
       enqueueTasklet(final VortexFunction<TInput, TOutput> vortexFunction, final TInput input,
                      final Optional<FutureCallback<TOutput>> callback);
+
+  /**
+   * Submits aggregate-able Tasklets to be run sometime in the future, with an optional callback function on
+   * the aggregation progress.
+   */
+  <TInput, TOutput> VortexAggregateFuture<TInput, TOutput>
+      enqueueTasklets(final VortexAggregateFunction<TOutput> aggregateFunction,
+                      final VortexFunction<TInput, TOutput> vortexFunction, final List<TInput> inputs,
+                      final Optional<FutureCallback<AggregateResult<TInput, TOutput>>> callback);
 
   /**
    * Call this when a Tasklet is to be cancelled.

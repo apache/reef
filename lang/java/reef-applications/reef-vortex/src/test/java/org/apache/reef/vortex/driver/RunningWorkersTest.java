@@ -18,6 +18,8 @@
  */
 package org.apache.reef.vortex.driver;
 
+import org.apache.reef.tang.Tang;
+import org.apache.reef.tang.exceptions.InjectionException;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -34,7 +36,12 @@ import static org.junit.Assert.assertTrue;
 public class RunningWorkersTest {
   private final TestUtil testUtil = new TestUtil();
   private final TestUtil.TestSchedulingPolicy schedulingPolicy = testUtil.newSchedulingPolicy();
-  private final RunningWorkers runningWorkers = new RunningWorkers(schedulingPolicy);
+  private final RunningWorkers runningWorkers;
+
+  public RunningWorkersTest() throws InjectionException {
+    runningWorkers = new RunningWorkers(
+        schedulingPolicy, Tang.Factory.getTang().newInjector().getInstance(AggregateFunctionRepository.class));
+  }
 
   /**
    * Test executor preemption -> executor allocation.
