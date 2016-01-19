@@ -191,15 +191,16 @@ public final class VortexAggregateFuture<TInput, TOutput> implements VortexFutur
   private synchronized void removeFailedTasklets(final Exception exception, final List<Integer> taskletIds)
       throws InterruptedException {
 
+    final List<TInput> inputs = getInputs(taskletIds);
     final AggregateResult failure =
-        new AggregateResult(exception, getInputs(taskletIds), taskletIdInputMap.size() > 0);
+        new AggregateResult(exception, inputs, taskletIdInputMap.size() > 0);
 
     if (callbackHandler != null) {
       executor.execute(new Runnable() {
         @Override
         public void run() {
           // TODO[JIRA REEF-1129]: Add documentation in VortexThreadPool.
-          callbackHandler.onFailure(new VortexAggregateException(exception, taskletIds));
+          callbackHandler.onFailure(new VortexAggregateException(exception, inputs));
         }
       });
     }
