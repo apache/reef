@@ -15,8 +15,11 @@
 // specific language governing permissions and limitations
 // under the License.
 
+using System;
+
 namespace Org.Apache.REEF.Wake.Remote
 {
+    [Obsolete("Deprecated in 0.14, please use ICodec<T> instead.")]
     public interface IDecoder
     {
     }

@@ -15,6 +15,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
+using Org.Apache.REEF.Tang.Annotations;
+
 namespace Org.Apache.REEF.Wake.Remote.Impl
 {
     /// <summary>
@@ -29,6 +31,7 @@ namespace Org.Apache.REEF.Wake.Remote.Impl
         /// <summary>
         /// Constructs a new MultiCodec object.
         /// </summary>
+        [Inject]
         public MultiCodec()
         {
             _encoder = new MultiEncoder<T>();
