@@ -17,11 +17,13 @@
  * under the License.
  */
 
+using System;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Wake.Remote.Impl;
 
 namespace Org.Apache.REEF.Wake.Remote
 {
+    [Obsolete("Deprecated in 0.14, please inject the ICodec directly or use its constructor instead.")]
     [DefaultImplementation(typeof(ByteCodecFactory))]
     public interface ICodecFactory
     {

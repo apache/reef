@@ -17,8 +17,11 @@
  * under the License.
  */
 
+using System;
+
 namespace Org.Apache.REEF.Wake.Remote
 {
+    [Obsolete("Deprecated in 0.14, please use IEncoder<T> instead.")]
     public interface IEncoder
     {
     }

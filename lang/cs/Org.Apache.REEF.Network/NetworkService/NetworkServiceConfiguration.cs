@@ -17,6 +17,7 @@
  * under the License.
  */
 
+using System;
 using System.Diagnostics.CodeAnalysis;
 using Org.Apache.REEF.Common.Io;
 using Org.Apache.REEF.Tang.Formats;
@@ -25,6 +26,7 @@ using Org.Apache.REEF.Wake.Remote;
 
 namespace Org.Apache.REEF.Network.NetworkService
 {
+    [Obsolete("Deprecated in 0.14.")]
     public class NetworkServiceConfiguration : ConfigurationModuleBuilder
     {
         [SuppressMessage("Microsoft.Security", "CA2104:Do not declare read only mutable reference types", Justification = "not applicable")] 
