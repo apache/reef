@@ -23,58 +23,38 @@ import org.apache.reef.annotations.audience.ClientSide;
 import org.apache.reef.annotations.audience.Public;
 import org.apache.reef.util.Optional;
 
-import java.util.Collections;
 import java.util.List;
 
 /**
- * The result of an aggregate. Registered to callbacks for {@link VortexAggregateFuture}.
+ * The synchronous result of an aggregate, returned by {@link VortexAggregateFuture#get()}.
  */
 @Public
 @ClientSide
 @Unstable
-public final class AggregateResult<TInput, TOutput> {
+public final class AggregateResultSynchronous<TInput, TOutput> {
+  private final AggregateResult<TInput, TOutput> result;
+  private final boolean hasNext;
 
-  private final Optional<TOutput> aggregatedOutput;
-  private final List<TInput> inputList;
-  private final Optional<Exception> exception;
-
-  AggregateResult(final Exception exception,
-                  final List<TInput> inputList) {
-    this(Optional.<TOutput>empty(), Optional.of(exception), inputList);
-  }
-
-  AggregateResult(final TOutput aggregatedOutput,
-                  final List<TInput> inputList) {
-    this(Optional.of(aggregatedOutput), Optional.<Exception>empty(), inputList);
-  }
-
-  private AggregateResult(final Optional<TOutput> aggregatedOutput,
-                          final Optional<Exception> exception,
-                          final List<TInput> inputList) {
-    this.aggregatedOutput = aggregatedOutput;
-    this.inputList = Collections.unmodifiableList(inputList);
-    this.exception = exception;
+  AggregateResultSynchronous(final AggregateResult<TInput, TOutput> result, final boolean hasNext) {
+    this.result = result;
+    this.hasNext = hasNext;
   }
 
   /**
    * @return the output of an aggregation, throws the Exception if a Tasklet or an aggregation fails.
    * If an aggregation fails, {@link VortexAggregateException} will be thrown, otherwise
    * the Exception that caused the Tasklet to fail will be thrown directly.
-   * @throws Exception the Exception that caused the Tasklet or aggregation failure.
+   * @throws VortexAggregateException the Exception that caused the Tasklet or aggregation failure.
    */
   public TOutput getAggregateResult() throws VortexAggregateException {
-    if (exception.isPresent()) {
-      throw new VortexAggregateException(exception.get(), inputList);
-    }
-
-    return aggregatedOutput.get();
+    return result.getAggregateResult();
   }
 
   /**
    * @return the associated inputs of an aggregation
    */
   public List<TInput> getAggregatedInputs() {
-    return inputList;
+    return result.getAggregatedInputs();
   }
 
   /**
@@ -83,6 +63,13 @@ public final class AggregateResult<TInput, TOutput> {
    * @return the Exception that caused the Tasklet or aggregation failure, if any.
    */
   public Optional<Exception> getException() {
-    return exception;
+    return result.getException();
+  }
+
+  /**
+   * @return true if more results will be available, false otherwise.
+   */
+  public boolean hasNext() {
+    return hasNext;
   }
 }

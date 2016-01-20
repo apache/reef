@@ -20,6 +20,7 @@ package org.apache.reef.vortex.driver;
 
 import org.apache.reef.tang.Tang;
 import org.apache.reef.tang.exceptions.InjectionException;
+import org.apache.reef.vortex.common.AggregateFunctionRepository;
 import org.junit.Test;
 
 import java.util.ArrayList;

@@ -94,7 +94,7 @@ final class DefaultVortexMaster implements VortexMaster {
                       final VortexFunction<TInput, TOutput> vortexFunction, final List<TInput> inputs,
                       final Optional<FutureCallback<AggregateResult<TInput, TOutput>>> callback) {
     final int aggregateFunctionId = aggregateIdCounter.getAndIncrement();
-    aggregateFunctionRepository.put(aggregateFunctionId, aggregateFunction);
+    aggregateFunctionRepository.put(aggregateFunctionId, aggregateFunction, vortexFunction);
     final Codec<TOutput> aggOutputCodec = aggregateFunction.getOutputCodec();
     final List<Tasklet> tasklets = new ArrayList<>(inputs.size());
     final Map<Integer, TInput> taskletIdInputMap = new HashMap<>(inputs.size());

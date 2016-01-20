@@ -64,9 +64,8 @@ public final class TaskletExecutionRequest<TInput, TOutput> implements VortexReq
   }
 
   /**
-   * Get id of the tasklet.
+   * @return the ID of the VortexTasklet associated with this VortexRequest.
    */
-  @Override
   public int getTaskletId() {
     return taskletId;
   }

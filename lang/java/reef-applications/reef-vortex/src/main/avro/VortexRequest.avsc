@@ -20,6 +20,26 @@
   {
     "namespace": "org.apache.reef.vortex.common.avro",
     "type": "record",
+    "name": "AvroTaskletAggregateExecutionRequest",
+    "fields": [
+      {"name": "taskletId", "type": "int"},
+      {"name": "aggregateFunctionId", "type": "int"},
+      {"name": "serializedInput", "type": "bytes"}
+    ]
+  },
+  {
+    "namespace": "org.apache.reef.vortex.common.avro",
+    "type": "record",
+    "name": "AvroTaskletAggregationRequest",
+    "fields": [
+      {"name": "aggregateFunctionId", "type": "int"},
+      {"name": "serializedUserFunction", "type": "bytes"},
+      {"name": "serializedAggregateFunction", "type": "bytes"}
+    ]
+  },
+  {
+    "namespace": "org.apache.reef.vortex.common.avro",
+    "type": "record",
     "name": "AvroTaskletExecutionRequest",
     "fields": [
       {"name": "taskletId", "type": "int"},
@@ -41,11 +61,17 @@
       {
         "name": "requestType",
         "type": {"type": "enum", "name": "AvroRequestType",
-        "symbols": ["ExecuteTasklet", "CancelTasklet"]}
+        "symbols": ["ExecuteTasklet", "CancelTasklet", "Aggregate", "AggregateExecute"]}
       },
       {
         "name": "taskletRequest",
-        "type": ["null", "AvroTaskletExecutionRequest", "AvroTaskletCancellationRequest"],
+        "type": [
+          "null",
+          "AvroTaskletAggregateExecutionRequest",
+          "AvroTaskletAggregationRequest",
+          "AvroTaskletExecutionRequest",
+          "AvroTaskletCancellationRequest"
+        ],
         "default": null
       }
     ]
