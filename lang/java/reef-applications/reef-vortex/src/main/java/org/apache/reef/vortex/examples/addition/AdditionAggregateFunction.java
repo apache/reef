@@ -16,27 +16,33 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.vortex.common;
+package org.apache.reef.vortex.examples.addition;
 
-import org.apache.reef.annotations.Unstable;
+import org.apache.reef.io.serialization.Codec;
+import org.apache.reef.io.serialization.SerializableCodec;
+import org.apache.reef.vortex.api.VortexAggregateException;
+import org.apache.reef.vortex.api.VortexAggregateFunction;
+
+import java.util.List;
 
 /**
- * Master-to-Worker protocol.
+ * Aggregates and sums the outputs.
  */
-@Unstable
-public interface VortexRequest {
-  /**
-   * Type of Request.
-   */
-  enum RequestType {
-    AggregateTasklets,
-    ExecuteTasklet,
-    CancelTasklet,
-    ExecuteAggregateTasklet
+public final class AdditionAggregateFunction implements VortexAggregateFunction<Integer> {
+  private static final Codec<Integer> CODEC = new SerializableCodec<>();
+
+  @Override
+  public Integer call(final List<Integer> taskletOutputs) throws VortexAggregateException {
+    int sum = 0;
+    for (int output : taskletOutputs) {
+      sum += output;
+    }
+
+    return sum;
   }
 
-  /**
-   * @return the type of this VortexRequest.
-   */
-  RequestType getType();
+  @Override
+  public Codec<Integer> getOutputCodec() {
+    return CODEC;
+  }
 }

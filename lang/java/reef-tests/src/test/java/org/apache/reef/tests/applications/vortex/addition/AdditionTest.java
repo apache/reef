@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.tests.applications.vortex.addone;
+package org.apache.reef.tests.applications.vortex.addition;
 
 import org.apache.reef.client.LauncherStatus;
 import org.apache.reef.tang.Configuration;
@@ -30,9 +30,9 @@ import org.junit.Before;
 import org.junit.Test;
 
 /**
- * Launch the AddOne Vortex test.
+ * Launch the Addition Vortex test.
  */
-public final class AddOneTest {
+public final class AdditionTest {
   private final TestEnvironment testEnvironment = TestEnvironmentFactory.getNewTestEnvironment();
 
   /**
@@ -52,44 +52,21 @@ public final class AddOneTest {
   }
 
   /**
-   * Run the AddOne test.
+   * Run the Addition test.
    */
   @Test
-  public void testVortexAddOne() {
+  public void testVortexAddition() {
 
     final Configuration vortexMasterConf = VortexMasterConf.CONF
         .set(VortexMasterConf.WORKER_NUM, 2)
         .set(VortexMasterConf.WORKER_MEM, 64)
         .set(VortexMasterConf.WORKER_CORES, 4)
         .set(VortexMasterConf.WORKER_CAPACITY, 2000)
-        .set(VortexMasterConf.VORTEX_START, AddOneTestStart.class)
+        .set(VortexMasterConf.VORTEX_START, AdditionTestStart.class)
         .build();
 
     final VortexJobConf vortexJobConf = VortexJobConf.newBuilder()
-        .setJobName("TEST_Vortex_AddOneTest")
-        .setVortexMasterConf(vortexMasterConf)
-        .build();
-
-    final LauncherStatus status = this.testEnvironment.run(vortexJobConf.getConfiguration());
-    Assert.assertTrue("Job state after execution: " + status, status.isSuccess());
-  }
-
-  /**
-   * Run the AddOne test with a callback registered such that we check the results in the callback instead of
-   * using {@link org.apache.reef.vortex.api.VortexFuture#get()}.
-   */
-  @Test
-  public void testVortexAddOneCallback() {
-    final Configuration vortexMasterConf = VortexMasterConf.CONF
-        .set(VortexMasterConf.WORKER_NUM, 2)
-        .set(VortexMasterConf.WORKER_MEM, 64)
-        .set(VortexMasterConf.WORKER_CORES, 4)
-        .set(VortexMasterConf.WORKER_CAPACITY, 2000)
-        .set(VortexMasterConf.VORTEX_START, AddOneCallbackTestStart.class)
-        .build();
-
-    final VortexJobConf vortexJobConf = VortexJobConf.newBuilder()
-        .setJobName("TEST_Vortex_AddOneCallbackTest")
+        .setJobName("TEST_Vortex_AdditionTest")
         .setVortexMasterConf(vortexMasterConf)
         .build();
 

@@ -33,18 +33,30 @@ import java.util.concurrent.Executors;
 @DriverSide
 class VortexRequestor {
   private final ExecutorService executorService = Executors.newCachedThreadPool();
+  private final VortexAvroUtils vortexAvroUtils;
 
   @Inject
-  VortexRequestor() {
+  VortexRequestor(final VortexAvroUtils vortexAvroUtils) {
+    this.vortexAvroUtils = vortexAvroUtils;
   }
 
-  void send(final RunningTask reefTask, final VortexRequest vortexRequest) {
+  /**
+   * Sends a {@link VortexRequest} asyncrhonously to a {@link org.apache.reef.vortex.evaluator.VortexWorker}.
+   */
+  void sendAsync(final RunningTask reefTask, final VortexRequest vortexRequest) {
     executorService.execute(new Runnable() {
       @Override
       public void run() {
         //  Possible race condition with VortexWorkerManager#terminate is addressed by the global lock in VortexMaster
-        reefTask.send(VortexAvroUtils.toBytes(vortexRequest));
+        send(reefTask, vortexRequest);
       }
     });
+  }
+
+  /**
+   * Sends a {@link VortexRequest} syncrhonously to a {@link org.apache.reef.vortex.evaluator.VortexWorker}.
+   */
+  void send(final RunningTask reefTask, final VortexRequest vortexRequest) {
+    reefTask.send(vortexAvroUtils.toBytes(vortexRequest));
   }
 }

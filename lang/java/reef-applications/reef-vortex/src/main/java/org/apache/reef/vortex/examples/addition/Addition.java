@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.vortex.examples.addone;
+package org.apache.reef.vortex.examples.addition;
 
 import org.apache.reef.tang.Configuration;
 import org.apache.reef.tang.Tang;
@@ -29,8 +29,8 @@ import org.apache.reef.vortex.driver.VortexMasterConf;
 /**
  * User's main function.
  */
-final class AddOne {
-  private AddOne() {
+final class Addition {
+  private Addition() {
   }
 
   /**
@@ -42,11 +42,11 @@ final class AddOne {
         .set(VortexMasterConf.WORKER_MEM, 1024)
         .set(VortexMasterConf.WORKER_CORES, 4)
         .set(VortexMasterConf.WORKER_CAPACITY, 2000)
-        .set(VortexMasterConf.VORTEX_START, AddOneStart.class)
+        .set(VortexMasterConf.VORTEX_START, AdditionAggregateStart.class)
         .build();
 
     final Configuration userConf = Tang.Factory.getTang().newConfigurationBuilder()
-        .bindNamedParameter(Dimension.class, "1000")
+        .bindNamedParameter(Numbers.class, "1000")
         .build();
 
     final VortexJobConf vortexJobConf = VortexJobConf.newBuilder()
@@ -58,7 +58,7 @@ final class AddOne {
     VortexLauncher.launchLocal(vortexJobConf);
   }
 
-  @NamedParameter(doc = "dimension of input vector")
-  public static class Dimension implements Name<Integer> {
+  @NamedParameter(doc = "numbers to add")
+  public static class Numbers implements Name<Integer> {
   }
 }

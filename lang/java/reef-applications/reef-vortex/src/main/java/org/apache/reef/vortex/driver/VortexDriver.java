@@ -64,6 +64,7 @@ final class VortexDriver {
   private final EStage<VortexStart> vortexStartEStage;
   private final VortexStart vortexStart;
   private final EStage<Integer> pendingTaskletSchedulerEStage;
+  private final VortexAvroUtils vortexAvroUtils;
 
   @Inject
   private VortexDriver(final EvaluatorRequestor evaluatorRequestor,
@@ -72,6 +73,7 @@ final class VortexDriver {
                        final VortexStart vortexStart,
                        final VortexStartExecutor vortexStartExecutor,
                        final PendingTaskletLauncher pendingTaskletLauncher,
+                       final VortexAvroUtils vortexAvroUtils,
                        @Parameter(VortexMasterConf.WorkerMem.class) final int workerMem,
                        @Parameter(VortexMasterConf.WorkerNum.class) final int workerNum,
                        @Parameter(VortexMasterConf.WorkerCores.class) final int workerCores,
@@ -79,6 +81,7 @@ final class VortexDriver {
     this.vortexStartEStage = new ThreadPoolStage<>(vortexStartExecutor, numOfStartThreads);
     this.vortexStart = vortexStart;
     this.pendingTaskletSchedulerEStage = new SingleThreadStage<>(pendingTaskletLauncher, 1);
+    this.vortexAvroUtils = vortexAvroUtils;
     this.evaluatorRequestor = evaluatorRequestor;
     this.vortexMaster = vortexMaster;
     this.vortexRequestor = vortexRequestor;
@@ -151,7 +154,7 @@ final class VortexDriver {
     @Override
     public void onNext(final TaskMessage taskMessage) {
       final String workerId = taskMessage.getId();
-      final WorkerReport workerReport = VortexAvroUtils.toWorkerReport(taskMessage.get());
+      final WorkerReport workerReport = vortexAvroUtils.toWorkerReport(taskMessage.get());
       vortexMaster.workerReported(workerId, workerReport);
     }
   }

@@ -19,27 +19,51 @@
 package org.apache.reef.vortex.common;
 
 import org.apache.reef.annotations.Unstable;
+import org.apache.reef.annotations.audience.DriverSide;
+import org.apache.reef.annotations.audience.Private;
 
 /**
- * A {@link VortexRequest} to cancel tasklets.
+ * A request from the Vortex Driver to run an aggregate-able function.
  */
 @Unstable
-public final class TaskletCancellationRequest implements VortexRequest {
+@Private
+@DriverSide
+public final class TaskletAggregateExecutionRequest<TInput> implements VortexRequest {
+  private final TInput input;
+  private final int aggregateFunctionId;
   private final int taskletId;
 
-  public TaskletCancellationRequest(final int taskletId) {
+  public TaskletAggregateExecutionRequest(final int taskletId,
+                                          final int aggregateFunctionId,
+                                          final TInput input) {
     this.taskletId = taskletId;
+    this.input = input;
+    this.aggregateFunctionId = aggregateFunctionId;
   }
 
   /**
-   * @return the ID of the VortexTasklet associated with this VortexRequest.
+   * @return input of the request.
+   */
+  public TInput getInput() {
+    return input;
+  }
+
+  /**
+   * @return tasklet ID corresponding to the tasklet request.
    */
   public int getTaskletId() {
     return taskletId;
   }
 
+  /**
+   * @return the AggregateFunctionID of the request.
+   */
+  public int getAggregateFunctionId() {
+    return aggregateFunctionId;
+  }
+
   @Override
   public RequestType getType() {
-    return RequestType.CancelTasklet;
+    return RequestType.ExecuteAggregateTasklet;
   }
 }

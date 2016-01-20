@@ -18,9 +18,12 @@
  */
 package org.apache.reef.vortex.driver;
 
+import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.reef.annotations.Unstable;
 import org.apache.reef.annotations.audience.Private;
 import org.apache.reef.vortex.api.VortexAggregateFunction;
+import org.apache.reef.vortex.api.VortexFunction;
 
 import javax.annotation.concurrent.ThreadSafe;
 import javax.inject.Inject;
@@ -28,24 +31,40 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 /**
- * A repository for {@link VortexAggregateFunction}, used to pass functions between {@link VortexMaster} and
- * {@link RunningWorkers}.
+ * A repository for {@link VortexAggregateFunction} and its associated {@link VortexFunction},
+ * used to pass functions between {@link VortexMaster} and {@link RunningWorkers}.
  */
 @ThreadSafe
 @Unstable
 @Private
 public final class AggregateFunctionRepository {
-  private final ConcurrentMap<Integer, VortexAggregateFunction> aggregateFunctionMap = new ConcurrentHashMap<>();
+  private final ConcurrentMap<Integer, Pair<VortexAggregateFunction, VortexFunction>>
+      aggregateFunctionMap = new ConcurrentHashMap<>();
 
   @Inject
   private AggregateFunctionRepository() {
   }
 
-  VortexAggregateFunction put(final int aggregateFunctionId, final VortexAggregateFunction function) {
-    return aggregateFunctionMap.put(aggregateFunctionId, function);
+  /**
+   * Associates an aggregate function ID with a {@link VortexAggregateFunction} and a {@link VortexFunction}.
+   */
+  public Pair<VortexAggregateFunction, VortexFunction> put(final int aggregateFunctionId,
+                                                           final VortexAggregateFunction aggregateFunction,
+                                                           final VortexFunction function) {
+    return aggregateFunctionMap.put(aggregateFunctionId, new ImmutablePair<>(aggregateFunction, function));
   }
 
-  VortexAggregateFunction get(final int aggregateFunctionId) {
-    return aggregateFunctionMap.get(aggregateFunctionId);
+  /**
+   * Gets the {@link VortexAggregateFunction} associated with the aggregate function ID.
+   */
+  public VortexAggregateFunction getAggregateFunction(final int aggregateFunctionId) {
+    return aggregateFunctionMap.get(aggregateFunctionId).getLeft();
+  }
+
+  /**
+   * Gets the {@link VortexFunction} associated with the aggregate function ID.
+   */
+  public VortexFunction getFunction(final int aggregateFunctionId) {
+    return aggregateFunctionMap.get(aggregateFunctionId).getRight();
   }
 }

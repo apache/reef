@@ -29,6 +29,7 @@ import org.apache.reef.vortex.common.VortexFutureDelegate;
 import javax.annotation.concurrent.NotThreadSafe;
 import java.util.*;
 import java.util.concurrent.*;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -64,11 +65,7 @@ public final class VortexAggregateFuture<TInput, TOutput> implements VortexFutur
   /**
    * @return the next aggregation result for the future, null if no more results.
    */
-  public synchronized AggregateResult get() throws InterruptedException {
-    if (taskletIdInputMap.isEmpty()) {
-      return null;
-    }
-
+  public AggregateResult get() throws InterruptedException {
     return resultQueue.take();
   }
 
@@ -78,12 +75,8 @@ public final class VortexAggregateFuture<TInput, TOutput> implements VortexFutur
    * @return the next aggregation result for the future, within the user specified timeout, null if no more results.
    * @throws TimeoutException if time out hits.
    */
-  public synchronized AggregateResult get(final long timeout,
+  public AggregateResult get(final long timeout,
                                           final TimeUnit timeUnit) throws InterruptedException, TimeoutException {
-    if (taskletIdInputMap.isEmpty()) {
-      return null;
-    }
-
     final AggregateResult result = resultQueue.poll(timeout, timeUnit);
 
     if (result == null) {
@@ -91,6 +84,10 @@ public final class VortexAggregateFuture<TInput, TOutput> implements VortexFutur
     }
 
     return result;
+  }
+
+  private synchronized boolean taskletIdInputMapIsEmpty() {
+    return taskletIdInputMap.isEmpty();
   }
 
   /**
@@ -170,8 +167,9 @@ public final class VortexAggregateFuture<TInput, TOutput> implements VortexFutur
    */
   private synchronized void removeCompletedTasklets(final TOutput output, final List<Integer> taskletIds)
       throws InterruptedException {
+    final List<TInput> inputs = getInputs(taskletIds);
     final AggregateResult result =
-        new AggregateResult(output, getInputs(taskletIds), taskletIdInputMap.size() > 0);
+        new AggregateResult(output, inputs, !taskletIdInputMapIsEmpty());
 
     if (callbackHandler != null) {
       executor.execute(new Runnable() {
@@ -181,6 +179,8 @@ public final class VortexAggregateFuture<TInput, TOutput> implements VortexFutur
         }
       });
     }
+
+    LOG.log(Level.SEVERE, "PUT IN RESULT QUEUE!");
 
     resultQueue.put(result);
   }
@@ -193,7 +193,7 @@ public final class VortexAggregateFuture<TInput, TOutput> implements VortexFutur
 
     final List<TInput> inputs = getInputs(taskletIds);
     final AggregateResult failure =
-        new AggregateResult(exception, inputs, taskletIdInputMap.size() > 0);
+        new AggregateResult(exception, inputs, !taskletIdInputMapIsEmpty());
 
     if (callbackHandler != null) {
       executor.execute(new Runnable() {

@@ -76,13 +76,14 @@ public final class TestUtil {
       public Object answer(final InvocationOnMock invocation) throws Throwable {
         final VortexRequest request = (VortexRequest)invocation.getArguments()[1];
         if (request instanceof TaskletCancellationRequest) {
-          final TaskletReport cancelReport = new TaskletCancelledReport(request.getTaskletId());
+          final TaskletReport cancelReport = new TaskletCancelledReport(
+              ((TaskletCancellationRequest)request).getTaskletId());
           master.workerReported(workerManager.getId(), new WorkerReport(Collections.singleton(cancelReport)));
         }
 
         return null;
       }
-    }).when(vortexRequestor).send(any(RunningTask.class), any(VortexRequest.class));
+    }).when(vortexRequestor).sendAsync(any(RunningTask.class), any(VortexRequest.class));
 
     return workerManager;
   }
