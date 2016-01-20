@@ -105,8 +105,8 @@ final class DefaultVortexMaster implements VortexMaster {
 
     final VortexAggregateFuture<TInput, TOutput> vortexAggregateFuture =
         callback.isPresent() ?
-        new VortexAggregateFuture(executor, taskletIdInputMap, aggOutputCodec, callback.get()) :
-        new VortexAggregateFuture(executor, taskletIdInputMap, aggOutputCodec, null);
+        new VortexAggregateFuture<>(executor, taskletIdInputMap, aggOutputCodec, callback.get()) :
+        new VortexAggregateFuture<>(executor, taskletIdInputMap, aggOutputCodec, null);
 
     for (final Map.Entry<Integer, TInput> taskletIdInputEntry : taskletIdInputMap.entrySet()) {
       final Tasklet tasklet = new Tasklet<>(taskletIdInputEntry.getKey(), Optional.of(aggregateFunctionId),
