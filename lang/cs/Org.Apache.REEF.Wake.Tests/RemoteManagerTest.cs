@@ -24,7 +24,6 @@ using System.Reactive;
 using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Wake.Remote;
 using Org.Apache.REEF.Wake.Remote.Impl;
-using Org.Apache.REEF.Wake.Util;
 using Xunit;
 
 namespace Org.Apache.REEF.Wake.Tests
@@ -336,6 +335,42 @@ namespace Org.Apache.REEF.Wake.Tests
             Assert.Equal(4, events.Count);
         }
 
+        [Fact]
+        public void TestCachedConnectionRemovedAfterOnCompletedIsCalled()
+        {
+            IPAddress listeningAddress = IPAddress.Parse("127.0.0.1");
+            BlockingCollection<string> queue1 = new BlockingCollection<string>();
+            List<string> events = new List<string>();
+
+            using (var remoteManager1 = GetRemoteManager())
+            using (var remoteManager2 = GetRemoteManager())
+            {
+                var observer = Observer.Create<string>(queue1.Add);
+                IPEndPoint endpoint1 = new IPEndPoint(listeningAddress, 0);
+                remoteManager2.RegisterObserver(endpoint1, observer);
+
+                var remoteObserver = remoteManager1.GetRemoteObserver(remoteManager2.LocalEndpoint);
+                var remoteObserver2 = remoteManager1.GetRemoteObserver(remoteManager2.LocalEndpoint);
+
+                Assert.True(remoteObserver.Equals(remoteObserver2), "Should get cached observer");
+
+                remoteObserver.OnNext("abc");
+                remoteObserver.OnNext("def");
+                events.Add(queue1.Take());
+                events.Add(queue1.Take());
+                remoteObserver.OnCompleted();
+
+                var remoteObserver1 = remoteManager1.GetRemoteObserver(remoteManager2.LocalEndpoint);
+                Assert.False(remoteObserver.Equals(remoteObserver1), "Should get new observer");
+                remoteObserver1.OnNext("ghi");
+                remoteObserver1.OnNext("jkl");
+            }
+
+            events.Add(queue1.Take());
+            events.Add(queue1.Take());
+            
+            Assert.Equal(4, events.Count);
+        }
         private IRemoteManager<string> GetRemoteManager()
         {
             IPAddress listeningAddress = IPAddress.Parse("127.0.0.1");
