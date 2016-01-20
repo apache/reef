@@ -22,6 +22,7 @@ import org.apache.reef.tang.BindLocation;
 
 import java.util.Arrays;
 
+@SuppressWarnings("checkstyle:illegalinstantiation")
 public class StackBindLocation implements BindLocation {
   private final StackTraceElement[] stack;
 

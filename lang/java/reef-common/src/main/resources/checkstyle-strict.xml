@@ -238,6 +238,10 @@
             <property name="illegalClassNames" value="Throwable, RuntimeException, Error" />
         </module>
 
+        <module name="IllegalInstantiation">
+            <property name="classes" value="java.lang.Throwable, java.lang.Error"/>
+        </module>
+
     </module>
 
 </module>
