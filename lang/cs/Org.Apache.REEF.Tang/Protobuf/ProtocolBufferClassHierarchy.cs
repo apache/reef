@@ -30,7 +30,7 @@ using ProtoBuf;
 
 namespace Org.Apache.REEF.Tang.Protobuf
 {
-    public class ProtocolBufferClassHierarchy : IClassHierarchy
+    public sealed class ProtocolBufferClassHierarchy : IClassHierarchy
     {
         private static readonly Logger LOGGER = Logger.GetLogger(typeof(ProtocolBufferClassHierarchy));
 
@@ -40,22 +40,22 @@ namespace Org.Apache.REEF.Tang.Protobuf
 
         public static void Serialize(string fileName, IClassHierarchy classHierarchy)
         {
-            Org.Apache.REEF.Tang.Protobuf.Node node = Serialize(classHierarchy);
+            Node node = Serialize(classHierarchy);
 
             using (var file = File.Create(fileName))
             {
-                Serializer.Serialize<Org.Apache.REEF.Tang.Protobuf.Node>(file, node);
+                Serializer.Serialize<Node>(file, node);
             }
         }
 
-        public static Org.Apache.REEF.Tang.Protobuf.Node Serialize(IClassHierarchy classHierarchy)
+        public static Node Serialize(IClassHierarchy classHierarchy)
         {
             return SerializeNode(classHierarchy.GetNamespace());
         }
 
-        private static Org.Apache.REEF.Tang.Protobuf.Node SerializeNode(INode n)
+        private static Node SerializeNode(INode n)
         {
-            IList<Org.Apache.REEF.Tang.Protobuf.Node> children = new List<Org.Apache.REEF.Tang.Protobuf.Node>();
+            IList<Node> children = new List<Node>();
 
             foreach (INode child in n.GetChildren())
             {
@@ -74,13 +74,13 @@ namespace Org.Apache.REEF.Tang.Protobuf
                     others.Remove(c);
                 }
 
-                IList<Org.Apache.REEF.Tang.Protobuf.ConstructorDef> injectableConstructors = new List<Org.Apache.REEF.Tang.Protobuf.ConstructorDef>();
+                IList<ConstructorDef> injectableConstructors = new List<ConstructorDef>();
                 foreach (IConstructorDef inj in injectable)
                 {
                     injectableConstructors.Add(SerializeConstructorDef(inj));
                 }
 
-                IList<Org.Apache.REEF.Tang.Protobuf.ConstructorDef> otherConstructors = new List<Org.Apache.REEF.Tang.Protobuf.ConstructorDef>();
+                IList<ConstructorDef> otherConstructors = new List<ConstructorDef>();
                 foreach (IConstructorDef other in others)
                 {
                     otherConstructors.Add(SerializeConstructorDef(other));
@@ -107,13 +107,13 @@ namespace Org.Apache.REEF.Tang.Protobuf
             {
                 return NewPackageNode(n.GetName(), n.GetFullName(), children);
             }
-            Org.Apache.REEF.Utilities.Diagnostics.Exceptions.Throw(new IllegalStateException("Encountered unknown type of Node: " + n), LOGGER);
+            Utilities.Diagnostics.Exceptions.Throw(new IllegalStateException("Encountered unknown type of Node: " + n), LOGGER);
             return null;
         }
 
-        private static Org.Apache.REEF.Tang.Protobuf.ConstructorDef SerializeConstructorDef(IConstructorDef def)
+        private static ConstructorDef SerializeConstructorDef(IConstructorDef def)
         {
-            IList<Org.Apache.REEF.Tang.Protobuf.ConstructorArg> args = new List<Org.Apache.REEF.Tang.Protobuf.ConstructorArg>();
+            IList<ConstructorArg> args = new List<ConstructorArg>();
             foreach (IConstructorArg arg in def.GetArgs())
             {
                 args.Add(NewConstructorArg(arg.Gettype(), arg.GetNamedParameterName(), arg.IsInjectionFuture()));
@@ -121,22 +121,22 @@ namespace Org.Apache.REEF.Tang.Protobuf
             return newConstructorDef(def.GetClassName(), args);
         }
 
-        private static Org.Apache.REEF.Tang.Protobuf.ConstructorArg NewConstructorArg(
+        private static ConstructorArg NewConstructorArg(
             string fullArgClassName, string namedParameterName, bool isFuture)
         {
-            Org.Apache.REEF.Tang.Protobuf.ConstructorArg constArg = new Org.Apache.REEF.Tang.Protobuf.ConstructorArg();
+            ConstructorArg constArg = new ConstructorArg();
             constArg.full_arg_class_name = fullArgClassName;
             constArg.named_parameter_name = namedParameterName;
             constArg.is_injection_future = isFuture;
             return constArg;
         }
 
-        private static Org.Apache.REEF.Tang.Protobuf.ConstructorDef newConstructorDef(
-             string fullClassName, IList<Org.Apache.REEF.Tang.Protobuf.ConstructorArg> args)
+        private static ConstructorDef newConstructorDef(
+             string fullClassName, IList<ConstructorArg> args)
         {
-            Org.Apache.REEF.Tang.Protobuf.ConstructorDef constDef = new Org.Apache.REEF.Tang.Protobuf.ConstructorDef();
+            ConstructorDef constDef = new ConstructorDef();
             constDef.full_class_name = fullClassName;
-            foreach (Org.Apache.REEF.Tang.Protobuf.ConstructorArg arg in args)
+            foreach (ConstructorArg arg in args)
             {
                 constDef.args.Add(arg);
             }
@@ -144,14 +144,14 @@ namespace Org.Apache.REEF.Tang.Protobuf
             return constDef;
         }
 
-        private static Org.Apache.REEF.Tang.Protobuf.Node NewClassNode(string name,
+        private static Node NewClassNode(string name,
             string fullName, bool isInjectionCandidate,
             bool isExternalConstructor, bool isUnit,
-            IList<Org.Apache.REEF.Tang.Protobuf.ConstructorDef> injectableConstructors,
-            IList<Org.Apache.REEF.Tang.Protobuf.ConstructorDef> otherConstructors,
-            IList<string> implFullNames, IList<Org.Apache.REEF.Tang.Protobuf.Node> children)
+            IList<ConstructorDef> injectableConstructors,
+            IList<ConstructorDef> otherConstructors,
+            IList<string> implFullNames, IList<Node> children)
         {
-            Org.Apache.REEF.Tang.Protobuf.ClassNode classNode = new Org.Apache.REEF.Tang.Protobuf.ClassNode();
+            ClassNode classNode = new ClassNode();
             classNode.is_injection_candidate = isInjectionCandidate;
             foreach (var ic in injectableConstructors)
             {
@@ -167,7 +167,7 @@ namespace Org.Apache.REEF.Tang.Protobuf
                 classNode.impl_full_names.Add(implFullName);
             }
 
-            Org.Apache.REEF.Tang.Protobuf.Node n = new Org.Apache.REEF.Tang.Protobuf.Node();
+            Node n = new Node();
             n.name = name;
             n.full_name = fullName;
             n.class_node = classNode;
@@ -180,15 +180,15 @@ namespace Org.Apache.REEF.Tang.Protobuf
             return n;
         }
 
-        private static Org.Apache.REEF.Tang.Protobuf.Node NewNamedParameterNode(string name,
+        private static Node NewNamedParameterNode(string name,
             string fullName, string simpleArgClassName, string fullArgClassName,
             bool isSet, bool isList, string documentation, // can be null
             string shortName, // can be null
             string[] instanceDefault, // can be null
-            IList<Org.Apache.REEF.Tang.Protobuf.Node> children,
+            IList<Node> children,
             string alias, Language aliasLanguage)
         {
-            Org.Apache.REEF.Tang.Protobuf.NamedParameterNode namedParameterNode = new Org.Apache.REEF.Tang.Protobuf.NamedParameterNode();
+            NamedParameterNode namedParameterNode = new NamedParameterNode();
             namedParameterNode.simple_arg_class_name = simpleArgClassName;
             namedParameterNode.full_arg_class_name = fullArgClassName;
             namedParameterNode.is_set = isSet;
@@ -216,7 +216,7 @@ namespace Org.Apache.REEF.Tang.Protobuf
                 namedParameterNode.instance_default.Add(id);
             }
 
-            Org.Apache.REEF.Tang.Protobuf.Node n = new Org.Apache.REEF.Tang.Protobuf.Node();
+            Node n = new Node();
             n.name = name;
             n.full_name = fullName;
             n.named_parameter_node = namedParameterNode;
@@ -229,11 +229,11 @@ namespace Org.Apache.REEF.Tang.Protobuf
             return n;
         }
 
-        private static Org.Apache.REEF.Tang.Protobuf.Node NewPackageNode(string name,
-            string fullName, IList<Org.Apache.REEF.Tang.Protobuf.Node> children)
+        private static Node NewPackageNode(string name,
+            string fullName, IList<Node> children)
         {
-            Org.Apache.REEF.Tang.Protobuf.PackageNode packageNode = new Org.Apache.REEF.Tang.Protobuf.PackageNode();
-            Org.Apache.REEF.Tang.Protobuf.Node n = new Org.Apache.REEF.Tang.Protobuf.Node();
+            PackageNode packageNode = new PackageNode();
+            Node n = new Node();
             n.name = name;
             n.full_name = fullName;
             n.package_node = packageNode;
@@ -248,11 +248,11 @@ namespace Org.Apache.REEF.Tang.Protobuf
 
         public static IClassHierarchy DeSerialize(string fileName)
         {
-            Org.Apache.REEF.Tang.Protobuf.Node root;
+            Node root;
 
             using (var file = File.OpenRead(fileName))
             {
-                root = Serializer.Deserialize<Org.Apache.REEF.Tang.Protobuf.Node>(file);
+                root = Serializer.Deserialize<Node>(file);
             }
 
             return new ProtocolBufferClassHierarchy(root);
@@ -264,23 +264,23 @@ namespace Org.Apache.REEF.Tang.Protobuf
             this.rootNode = new PackageNodeImpl();
         }
 
-        public ProtocolBufferClassHierarchy(Org.Apache.REEF.Tang.Protobuf.Node root)
+        public ProtocolBufferClassHierarchy(Node root)
         {
             this.rootNode = new PackageNodeImpl();
             if (root.package_node == null)
             {
-                Org.Apache.REEF.Utilities.Diagnostics.Exceptions.Throw(new ArgumentException("Expected a package node.  Got: " + root), LOGGER); 
+                Utilities.Diagnostics.Exceptions.Throw(new ArgumentException("Expected a package node.  Got: " + root), LOGGER); 
             }
 
             // Register all the classes.
-            foreach (Org.Apache.REEF.Tang.Protobuf.Node child in root.children)
+            foreach (Node child in root.children)
             {
                 ParseSubHierarchy(rootNode, child);
             }
             
             BuildHashTable(rootNode);
 
-            foreach (Org.Apache.REEF.Tang.Protobuf.Node child in root.children)
+            foreach (Node child in root.children)
             {
                 WireUpInheritanceRelationships(child);
             }
@@ -322,7 +322,7 @@ namespace Org.Apache.REEF.Tang.Protobuf
             }
         }
 
-        private static void ParseSubHierarchy(INode parent, Org.Apache.REEF.Tang.Protobuf.Node n)
+        private static void ParseSubHierarchy(INode parent, Node n)
         {
             INode parsed = null;
             if (n.package_node != null)
@@ -331,7 +331,7 @@ namespace Org.Apache.REEF.Tang.Protobuf
             }
             else if (n.named_parameter_node != null)
             {
-                Org.Apache.REEF.Tang.Protobuf.NamedParameterNode np = n.named_parameter_node;
+                NamedParameterNode np = n.named_parameter_node;
 
                 if (!string.IsNullOrWhiteSpace(np.alias_name) && !string.IsNullOrWhiteSpace(np.alias_language))
                 {
@@ -361,17 +361,17 @@ namespace Org.Apache.REEF.Tang.Protobuf
             }
             else if (n.class_node != null)
             {
-                Org.Apache.REEF.Tang.Protobuf.ClassNode cn = n.class_node;
+                ClassNode cn = n.class_node;
                 IList<IConstructorDef> injectableConstructors = new List<IConstructorDef>();
                 IList<IConstructorDef> allConstructors = new List<IConstructorDef>();
 
-                foreach (Org.Apache.REEF.Tang.Protobuf.ConstructorDef injectable in cn.InjectableConstructors)
+                foreach (ConstructorDef injectable in cn.InjectableConstructors)
                 {
                     IConstructorDef def = ParseConstructorDef(injectable, true);
                     injectableConstructors.Add(def);
                     allConstructors.Add(def);
                 }
-                foreach (Org.Apache.REEF.Tang.Protobuf.ConstructorDef other in cn.OtherConstructors)
+                foreach (ConstructorDef other in cn.OtherConstructors)
                 {
                     IConstructorDef def = ParseConstructorDef(other, false);
                     allConstructors.Add(def);
@@ -385,30 +385,30 @@ namespace Org.Apache.REEF.Tang.Protobuf
             }
             else
             {
-                Org.Apache.REEF.Utilities.Diagnostics.Exceptions.Throw(new IllegalStateException("Bad protocol buffer: got abstract node" + n), LOGGER); 
+                Utilities.Diagnostics.Exceptions.Throw(new IllegalStateException("Bad protocol buffer: got abstract node" + n), LOGGER); 
             }
 
-            foreach (Org.Apache.REEF.Tang.Protobuf.Node child in n.children)
+            foreach (Node child in n.children)
             {
                 ParseSubHierarchy(parsed, child);
             }
         }
 
-        private static IConstructorDef ParseConstructorDef(Org.Apache.REEF.Tang.Protobuf.ConstructorDef def, bool isInjectable)
+        private static IConstructorDef ParseConstructorDef(ConstructorDef def, bool isInjectable)
         {
             IList<IConstructorArg> args = new List<IConstructorArg>();
-            foreach (Org.Apache.REEF.Tang.Protobuf.ConstructorArg arg in def.args)
+            foreach (ConstructorArg arg in def.args)
             {
                 args.Add(new ConstructorArgImpl(arg.full_arg_class_name, arg.named_parameter_name, arg.is_injection_future));
             }
             return new ConstructorDefImpl(def.full_class_name, args.ToArray(), isInjectable);
         }
 
-        private void WireUpInheritanceRelationships(Org.Apache.REEF.Tang.Protobuf.Node n)
+        private void WireUpInheritanceRelationships(Node n)
         {
             if (n.class_node != null)
             {
-                Org.Apache.REEF.Tang.Protobuf.ClassNode cn = n.class_node;
+                ClassNode cn = n.class_node;
                 IClassNode iface = null;
                 try
                 {
@@ -419,7 +419,7 @@ namespace Org.Apache.REEF.Tang.Protobuf
                     Org.Apache.REEF.Utilities.Diagnostics.Exceptions.Caught(e, Level.Error, LOGGER);
                     var ex = new IllegalStateException("When reading protocol buffer node "
                         + n.full_name + " does not exist.  Full record is " + n, e);
-                    Org.Apache.REEF.Utilities.Diagnostics.Exceptions.Throw(ex, LOGGER); 
+                    Utilities.Diagnostics.Exceptions.Throw(ex, LOGGER); 
                 }
                 foreach (string impl in cn.impl_full_names)
                 {
@@ -429,28 +429,28 @@ namespace Org.Apache.REEF.Tang.Protobuf
                     }
                     catch (NameResolutionException e)
                     {
-                        Org.Apache.REEF.Utilities.Diagnostics.Exceptions.Caught(e, Level.Error, LOGGER);
+                        Utilities.Diagnostics.Exceptions.Caught(e, Level.Error, LOGGER);
                         var ex = new IllegalStateException("When reading protocol buffer node "
                             + n + " refers to non-existent implementation:" + impl);
-                        Org.Apache.REEF.Utilities.Diagnostics.Exceptions.Throw(ex, LOGGER); 
+                        Utilities.Diagnostics.Exceptions.Throw(ex, LOGGER); 
                     }
                     catch (InvalidCastException e)
                     {
-                        Org.Apache.REEF.Utilities.Diagnostics.Exceptions.Caught(e, Level.Error, LOGGER);
+                        Utilities.Diagnostics.Exceptions.Caught(e, Level.Error, LOGGER);
                         try
                         {
                             var ex = new IllegalStateException(
                                 "When reading protocol buffer node " + n
                                 + " found implementation" + GetNode(impl)
                                 + " which is not a ClassNode!");
-                            Org.Apache.REEF.Utilities.Diagnostics.Exceptions.Throw(ex, LOGGER);
+                            Utilities.Diagnostics.Exceptions.Throw(ex, LOGGER);
                         }
                         catch (NameResolutionException ne)
                         {
-                            Org.Apache.REEF.Utilities.Diagnostics.Exceptions.Caught(ne, Level.Error, LOGGER);
+                            Utilities.Diagnostics.Exceptions.Caught(ne, Level.Error, LOGGER);
                             var ex = new IllegalStateException(
                                 "Got 'cant happen' exception when producing error message for " + e);
-                            Org.Apache.REEF.Utilities.Diagnostics.Exceptions.Throw(ex, LOGGER);
+                            Utilities.Diagnostics.Exceptions.Throw(ex, LOGGER);
                         }
                     }
                 }
@@ -464,7 +464,7 @@ namespace Org.Apache.REEF.Tang.Protobuf
             if (ret == null)
             {
                 var ex = new NameResolutionException(fullName, "Cannot resolve the name from the class hierarchy during deserialization: " + fullName);
-                Org.Apache.REEF.Utilities.Diagnostics.Exceptions.Throw(ex, LOGGER);
+                Utilities.Diagnostics.Exceptions.Throw(ex, LOGGER);
             }
             return ret;
         }
@@ -522,7 +522,7 @@ namespace Org.Apache.REEF.Tang.Protobuf
 
             if (!(ch is ProtocolBufferClassHierarchy))
             {         
-                Org.Apache.REEF.Utilities.Diagnostics.Exceptions.Throw(new NotSupportedException(
+                Utilities.Diagnostics.Exceptions.Throw(new NotSupportedException(
                                                             "Cannot merge ExternalClassHierarchies yet!"), LOGGER);
             }
 

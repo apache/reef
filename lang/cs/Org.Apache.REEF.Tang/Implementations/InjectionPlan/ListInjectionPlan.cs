@@ -21,7 +21,7 @@ using Org.Apache.REEF.Tang.Types;
 
 namespace Org.Apache.REEF.Tang.Implementations.InjectionPlan
 {
-    public class ListInjectionPlan : InjectionPlan
+    internal sealed class ListInjectionPlan : InjectionPlan
     {
        private readonly IList<InjectionPlan> entries = new List<InjectionPlan>();
        private readonly int numAlternatives;

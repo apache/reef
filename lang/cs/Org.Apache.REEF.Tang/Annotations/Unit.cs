@@ -23,7 +23,7 @@ namespace Org.Apache.REEF.Tang.Annotations
     /// UnitAttribute
     /// </summary>
     [AttributeUsage(AttributeTargets.Class, Inherited = false)]
-    public class UnitAttribute : System.Attribute 
+    public sealed class UnitAttribute : Attribute 
     { 
     }
 }

@@ -21,7 +21,7 @@ using Org.Apache.REEF.Utilities.Logging;
 
 namespace Org.Apache.REEF.Tang.Util
 {
-    public class MonotonicSet<T> : SortedSet<T>
+    public sealed class MonotonicSet<T> : SortedSet<T>
     {
         private static readonly Logger LOGGER = Logger.GetLogger(typeof(MonotonicSet<T>));
 

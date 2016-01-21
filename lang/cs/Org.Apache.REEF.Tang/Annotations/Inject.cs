@@ -15,13 +15,15 @@
 // specific language governing permissions and limitations
 // under the License.
 
+using System;
+
 namespace Org.Apache.REEF.Tang.Annotations
 {
     /// <summary>
     /// InjectAttribute
     /// </summary>
-    [System.AttributeUsage(System.AttributeTargets.Constructor)]
-    public class InjectAttribute : System.Attribute 
+    [AttributeUsage(AttributeTargets.Constructor)]
+    public sealed class InjectAttribute : Attribute 
     { 
     }
 }

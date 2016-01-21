@@ -19,7 +19,7 @@ using System;
 
 namespace Org.Apache.REEF.Tang.Util
 {
-    public class GenericType<T>
+    public sealed class GenericType<T>
     {
         public static readonly GenericType<T> Class = null;
 

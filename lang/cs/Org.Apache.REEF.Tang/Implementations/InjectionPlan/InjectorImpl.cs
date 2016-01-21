@@ -31,7 +31,7 @@ using Org.Apache.REEF.Utilities.Logging;
 
 namespace Org.Apache.REEF.Tang.Implementations.InjectionPlan
 {
-    public class InjectorImpl : IInjector
+    internal sealed class InjectorImpl : IInjector
     {
         private static readonly Logger LOGGER = Logger.GetLogger(typeof(InjectorImpl));
 

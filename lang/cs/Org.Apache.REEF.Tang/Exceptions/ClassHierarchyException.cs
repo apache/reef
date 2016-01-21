@@ -19,13 +19,13 @@ using System;
 
 namespace Org.Apache.REEF.Tang.Exceptions
 {
-    public class ClassHierarchyException : SystemException
+    public sealed class ClassHierarchyException : SystemException
     {
-        public ClassHierarchyException(string msg) : base(msg)
+        internal ClassHierarchyException(string msg) : base(msg)
         {           
         }
 
-        public ClassHierarchyException(string message, Exception innerException)
+        internal ClassHierarchyException(string message, Exception innerException)
             : base(message, innerException)
         {
         }

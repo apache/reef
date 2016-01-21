@@ -19,7 +19,7 @@ using Org.Apache.REEF.Tang.Interface;
 
 namespace Org.Apache.REEF.Tang.Implementations.Tang
 {
-    public class TangFactory
+    public static class TangFactory
     {
         public static ITang GetTang()
         {

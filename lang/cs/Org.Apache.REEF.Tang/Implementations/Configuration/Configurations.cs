@@ -21,7 +21,7 @@ using Org.Apache.REEF.Tang.Protobuf;
 
 namespace Org.Apache.REEF.Tang.Implementations.Configuration
 {
-    public class Configurations
+    public static class Configurations
     {
         public static IConfiguration Merge(params IConfiguration[] configurations) 
         {

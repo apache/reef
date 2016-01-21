@@ -26,7 +26,7 @@ using Org.Apache.REEF.Utilities.Logging;
 namespace Org.Apache.REEF.Tang.Implementations.InjectionPlan
 {
     // Base case for an injection plan. A plan for a class. 
-    public class Constructor : InjectionPlan
+    internal sealed class Constructor : InjectionPlan
     {
         private static readonly Logger LOGGER = Logger.GetLogger(typeof(Constructor));
 

@@ -17,7 +17,7 @@
 
 namespace Org.Apache.REEF.Tang.Implementations.Configuration
 {
-    public class CsConfigurationImpl : ConfigurationImpl
+    internal sealed class CsConfigurationImpl : ConfigurationImpl
     {
         public CsConfigurationImpl(CsConfigurationBuilderImpl builder) : base(builder)
         {

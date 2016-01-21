@@ -31,7 +31,7 @@ using Org.Apache.REEF.Utilities.Logging;
 
 namespace Org.Apache.REEF.Tang.Implementations.ClassHierarchy
 {
-    public class ClassHierarchyImpl : ICsClassHierarchy
+    internal sealed class ClassHierarchyImpl : ICsClassHierarchy
     {
         private static readonly Logger LOGGER = Logger.GetLogger(typeof(ClassHierarchyImpl));
         private readonly INode rootNode;

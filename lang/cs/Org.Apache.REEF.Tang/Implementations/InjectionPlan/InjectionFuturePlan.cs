@@ -17,14 +17,11 @@
 
 using System;
 using Org.Apache.REEF.Tang.Types;
-using Org.Apache.REEF.Utilities.Logging;
 
 namespace Org.Apache.REEF.Tang.Implementations.InjectionPlan
 {
-    public class InjectionFuturePlan : InjectionPlan
+    internal sealed class InjectionFuturePlan : InjectionPlan
     {
-        private static readonly Logger LOGGER = Logger.GetLogger(typeof(InjectionFuturePlan));
-
         public InjectionFuturePlan(INode name) : base(name)
         {
         }

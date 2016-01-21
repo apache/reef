@@ -21,7 +21,7 @@ using Org.Apache.REEF.Utilities.Logging;
 
 namespace Org.Apache.REEF.Tang.Util
 {
-    public class MonotonicHashMap<T, U> : Dictionary<T, U>
+    public sealed class MonotonicHashMap<T, U> : Dictionary<T, U>
     {
         private static readonly Logger LOGGER = Logger.GetLogger(typeof(MonotonicHashMap<T, U>));
 

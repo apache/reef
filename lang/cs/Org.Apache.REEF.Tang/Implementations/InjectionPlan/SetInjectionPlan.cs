@@ -22,7 +22,7 @@ using Org.Apache.REEF.Tang.Util;
 
 namespace Org.Apache.REEF.Tang.Implementations.InjectionPlan
 {
-    public class SetInjectionPlan : InjectionPlan
+    internal sealed class SetInjectionPlan : InjectionPlan
     {
         private readonly ISet<InjectionPlan> entries = new MonotonicHashSet<InjectionPlan>();
         private readonly int numAlternatives;
