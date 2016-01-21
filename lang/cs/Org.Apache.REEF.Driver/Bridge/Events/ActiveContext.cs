@@ -30,7 +30,7 @@ namespace Org.Apache.REEF.Driver.Bridge.Events
     [DataContract]
     internal class ActiveContext : IActiveContext
     {
-        private static readonly Logger LOGGER = Logger.GetLogger(typeof(ActiveContext));
+        private static readonly Logger Logger = Logger.GetLogger(typeof(ActiveContext));
         private readonly AvroConfigurationSerializer _serializer;
 
         internal ActiveContext(IActiveContextClr2Java clr2Java)
@@ -68,21 +68,24 @@ namespace Org.Apache.REEF.Driver.Bridge.Events
 
         public void SubmitTask(IConfiguration taskConfiguration)
         {
-            LOGGER.Log(Level.Info, "ActiveContext::SubmitTask");
+            Logger.Log(Level.Info, "ActiveContext::SubmitTask");
             var task = _serializer.ToString(taskConfiguration);
-            LOGGER.Log(Level.Verbose, "serialized taskConfiguration: " + task);
+            Logger.Log(Level.Verbose, "serialized taskConfiguration: " + task);
             Clr2Java.SubmitTask(task);
         }
 
         public void Dispose()
         {
-            LOGGER.Log(Level.Info, "ActiveContext::Dispose");
+            Logger.Log(Level.Info, "ActiveContext::Dispose");
             Clr2Java.Close();
         }
 
         public void SubmitContext(IConfiguration contextConfiguration)
         {
-            throw new NotImplementedException();
+            Logger.Log(Level.Verbose, "ActiveContext::SubmitContext");
+            var context = _serializer.ToString(contextConfiguration);
+            Logger.Log(Level.Verbose, "serialized contextConfiguration: " + contextConfiguration);
+            Clr2Java.SubmitContext(context);
         }
 
         public void SubmitContextAndService(IConfiguration contextConfiguration, IConfiguration serviceConfiguration)

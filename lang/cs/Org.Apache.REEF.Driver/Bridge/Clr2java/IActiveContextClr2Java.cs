@@ -24,6 +24,8 @@ namespace Org.Apache.REEF.Driver.Bridge.Clr2java
     public interface IActiveContextClr2Java : IClr2Java
     {
         void SubmitTask(string taskConfigStr);
+
+        void SubmitContext(string contextConfigStr);
         
         void Close();
 
