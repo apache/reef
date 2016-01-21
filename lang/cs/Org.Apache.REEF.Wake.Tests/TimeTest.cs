@@ -23,6 +23,8 @@ namespace Org.Apache.REEF.Wake.Tests
 {
     public sealed class TimeTest
     {
+        private const int RandomSeed = 5;
+
         [Fact]
         public void BadTime()
         {
@@ -32,7 +34,7 @@ namespace Org.Apache.REEF.Wake.Tests
         [Fact]
         public void SimpleTimeComparison()
         {
-            long ts = new Random().Next(0, 100);
+            long ts = new Random(RandomSeed).Next(0, 100);
             var st1 = new StartTime(ts);
             var st2 = new StartTime(ts);
             Assert.False(ReferenceEquals(st1, st2));
@@ -46,7 +48,7 @@ namespace Org.Apache.REEF.Wake.Tests
         {
             const int testLen = 500;
             var testArr = new Time.Time[testLen];
-            var r = new Random();
+            var r = new Random(RandomSeed);
 
             for (var i = 0; i < testLen; i++)
             {

@@ -150,7 +150,7 @@ namespace Org.Apache.REEF.Tests.Utility
         {
             const int testSize = 500;
             const int testTimes = 5;
-            var r = new Random();
+            var r = new Random(AnyInt);
 
             for (var t = 0; t < testTimes; t++)
             {
@@ -179,7 +179,7 @@ namespace Org.Apache.REEF.Tests.Utility
         {
             const int addSize = 500;
             const int testTimes = 5;
-            var r = new Random();
+            var r = new Random(AnyInt);
 
             for (var t = 0; t < testTimes; t++)
             {
