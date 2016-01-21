@@ -33,7 +33,6 @@ namespace Org.Apache.REEF.Network.Group.Driver.Impl
     /// <summary>
     /// Helper class to start Group Communication tasks.
     /// </summary>
-    [Private]
     public sealed class TaskStarter
     {
         private static readonly Logger LOGGER = Logger.GetLogger(typeof(TaskStarter));

@@ -29,7 +29,7 @@ using Org.Apache.REEF.Tang.Implementations.Configuration;
 
 namespace Org.Apache.REEF.Network.Group.Topology
 {
-    public sealed class TreeTopology<T> : ITopology<T> 
+    internal sealed class TreeTopology<T> : ITopology<T> 
     {
         private readonly string _groupName;
         private readonly string _operatorName;
