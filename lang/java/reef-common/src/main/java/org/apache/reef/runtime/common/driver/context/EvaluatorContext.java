@@ -150,12 +150,15 @@ public final class EvaluatorContext implements ActiveContext {
 
   @Override
   public synchronized void submitContext(final Configuration contextConfiguration) {
+    submitContext(this.configurationSerializer.toString(contextConfiguration));
+  }
 
+  public synchronized void submitContext(final String contextConf) {
     if (this.isClosed) {
       throw new RuntimeException("Active context already closed");
     }
 
-    LOG.log(Level.FINEST, "Submit new context: RunningEvaluator id[{0}] for context id[{1}]",
+    LOG.log(Level.FINEST, "Submit context: RunningEvaluator id[{0}] for context id[{1}]",
         new Object[]{getEvaluatorId(), getId()});
 
     final EvaluatorRuntimeProtocol.ContextControlProto contextControlProto =
@@ -163,7 +166,7 @@ public final class EvaluatorContext implements ActiveContext {
             .setAddContext(
                 EvaluatorRuntimeProtocol.AddContextProto.newBuilder()
                     .setParentContextId(getId())
-                    .setContextConfiguration(this.configurationSerializer.toString(contextConfiguration))
+                    .setContextConfiguration(contextConf)
                     .build())
             .build();
 

@@ -382,7 +382,10 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Context
                 if (_childContext.IsPresent())
                 {
                     _childContext = Optional<ContextRuntime>.Empty();
+                    return;
                 }
+
+                // To reset a child context, there should always be a child context already present.
                 Utilities.Diagnostics.Exceptions.Throw(new InvalidOperationException("no child context set"), LOGGER);
             }
         }

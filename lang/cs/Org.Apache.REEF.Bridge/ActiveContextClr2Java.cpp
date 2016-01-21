@@ -81,6 +81,23 @@ namespace Org {
 							ManagedLog::LOGGER->LogStop("ActiveContextClr2Java::SubmitTask");
 						}
 
+						void ActiveContextClr2Java::SubmitContext(String^ contextConfigStr) {
+							ManagedLog::LOGGER->LogStart("ActiveContextClr2Java::SubmitContext");
+							JNIEnv *env = RetrieveEnv(_jvm);
+							jclass jclassActiveContext = env->GetObjectClass(_jobjectActiveContext);
+							jmethodID jmidSubmitContext = env->GetMethodID(jclassActiveContext, "submitContextString", "(Ljava/lang/String;)V");
+
+							if (jmidSubmitContext == NULL) {
+								ManagedLog::LOGGER->Log("jmidSubmitContext is NULL");
+								return;
+							}
+							env->CallObjectMethod(
+								_jobjectActiveContext,
+								jmidSubmitContext,
+								JavaStringFromManagedString(env, contextConfigStr));
+							ManagedLog::LOGGER->LogStop("ActiveContextClr2Java::SubmitContext");
+						}
+
 						void ActiveContextClr2Java::OnError(String^ message) {
 							JNIEnv *env = RetrieveEnv(_jvm);
 							HandleClr2JavaError(env, message, _jobjectActiveContext);
