@@ -23,7 +23,7 @@ using Org.Apache.REEF.Wake.Remote;
 
 namespace Org.Apache.REEF.Network.Naming.Codec
 {
-    internal class NamingRegisterRequestCodec : ICodec<NamingRegisterRequest>
+    internal sealed class NamingRegisterRequestCodec : ICodec<NamingRegisterRequest>
     {
         public byte[] Encode(NamingRegisterRequest obj)
         {

@@ -25,7 +25,7 @@ using Org.Apache.REEF.Wake.Remote;
 
 namespace Org.Apache.REEF.Network.Naming.Codec
 {
-    internal class NamingLookupResponseCodec : ICodec<NamingLookupResponse>
+    internal sealed class NamingLookupResponseCodec : ICodec<NamingLookupResponse>
     {
         public byte[] Encode(NamingLookupResponse obj)
         {

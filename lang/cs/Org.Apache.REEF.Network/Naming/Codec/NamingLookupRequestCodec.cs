@@ -22,7 +22,7 @@ using Org.Apache.REEF.Wake.Remote;
 
 namespace Org.Apache.REEF.Network.Naming.Codec
 {
-    internal class NamingLookupRequestCodec : ICodec<NamingLookupRequest>
+    internal sealed class NamingLookupRequestCodec : ICodec<NamingLookupRequest>
     {
         public byte[] Encode(NamingLookupRequest obj)
         {

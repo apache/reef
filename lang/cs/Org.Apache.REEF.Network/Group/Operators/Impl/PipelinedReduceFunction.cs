@@ -17,6 +17,7 @@
 
 using System.Collections.Generic;
 using Org.Apache.REEF.Network.Group.Pipelining;
+using Org.Apache.REEF.Utilities.Attributes;
 
 namespace Org.Apache.REEF.Network.Group.Operators.Impl
 {
@@ -24,7 +25,8 @@ namespace Org.Apache.REEF.Network.Group.Operators.Impl
     /// The class used to aggregate pipelined messages sent by ReduceSenders.
     /// </summary>
     /// <typeparam name="T">The message type.</typeparam>
-    public class PipelinedReduceFunction<T> : IReduceFunction<PipelineMessage<T>>
+    [Private]
+    public sealed class PipelinedReduceFunction<T> : IReduceFunction<PipelineMessage<T>>
     {
         /// <summary>
         /// The base reduce function class that operates on actual message type T.

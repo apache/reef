@@ -24,7 +24,7 @@ namespace Org.Apache.REEF.Network.Naming.Observers
     /// <summary>
     /// Handler for registering an identifier and endpoint with the Name Service
     /// </summary>
-    internal class NamingRegisterRequestObserver : AbstractObserver<NamingRegisterRequest>
+    internal sealed class NamingRegisterRequestObserver : AbstractObserver<NamingRegisterRequest>
     {
         private readonly NameServer _server;
 

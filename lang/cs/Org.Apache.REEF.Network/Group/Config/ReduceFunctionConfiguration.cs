@@ -15,18 +15,13 @@
 // specific language governing permissions and limitations
 // under the License.
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Org.Apache.REEF.Network.Group.Operators;
 using Org.Apache.REEF.Tang.Formats;
 using Org.Apache.REEF.Tang.Util;
 
 namespace Org.Apache.REEF.Network.Group.Config
 {
-    public class ReduceFunctionConfiguration<T> : ConfigurationModuleBuilder
+    public sealed class ReduceFunctionConfiguration<T> : ConfigurationModuleBuilder
     {
         /// <summary>
         /// RequiredImpl for Reduced Function. Client needs to set implementation for this paramter

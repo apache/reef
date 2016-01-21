@@ -23,6 +23,7 @@ using Org.Apache.REEF.Driver.Context;
 using Org.Apache.REEF.Network.Utilities;
 using Org.Apache.REEF.Tang.Implementations.Configuration;
 using Org.Apache.REEF.Tang.Interface;
+using Org.Apache.REEF.Utilities.Attributes;
 using Org.Apache.REEF.Utilities.Logging;
 
 namespace Org.Apache.REEF.Network.Group.Driver.Impl
@@ -30,7 +31,7 @@ namespace Org.Apache.REEF.Network.Group.Driver.Impl
     /// <summary>
     /// Helper class to start Group Communication tasks.
     /// </summary>
-    public class TaskStarter
+    public sealed class TaskStarter
     {
         private static readonly Logger LOGGER = Logger.GetLogger(typeof(TaskStarter));
 
