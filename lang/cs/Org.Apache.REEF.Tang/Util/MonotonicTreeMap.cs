@@ -22,7 +22,7 @@ using Org.Apache.REEF.Utilities.Logging;
 
 namespace Org.Apache.REEF.Tang.Util
 {
-    public class MonotonicTreeMap<TKey, TVal> : SortedDictionary<TKey, TVal> 
+    public sealed class MonotonicTreeMap<TKey, TVal> : SortedDictionary<TKey, TVal> 
     {
         private readonly ReaderWriterLockSlim _lock = new ReaderWriterLockSlim(LockRecursionPolicy.SupportsRecursion);
 
@@ -38,7 +38,7 @@ namespace Org.Apache.REEF.Tang.Util
                 {
                     var ex = new ArgumentException("Attempt to re-add: [" + key
                                                    + "]\n old value: " + val + " new value " + value);
-                    Org.Apache.REEF.Utilities.Diagnostics.Exceptions.Throw(ex, LOGGER);
+                    Utilities.Diagnostics.Exceptions.Throw(ex, LOGGER);
                 }
                 else
                 {

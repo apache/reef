@@ -16,14 +16,12 @@
 // under the License.
 
 using System;
-using Org.Apache.REEF.Tang.Formats;
-using Org.Apache.REEF.Tang.Types;
 using Org.Apache.REEF.Tang.Util;
 
 namespace Org.Apache.REEF.Tang.Annotations
 {
-    [System.AttributeUsage(System.AttributeTargets.Class)]
-    public class NamedParameterAttribute : System.Attribute
+    [AttributeUsage(AttributeTargets.Class)]
+    public sealed class NamedParameterAttribute : Attribute
     {
         public const string ReefUninitializedValue = "__REEF_UNINITIALIZED_VALUE__";
 

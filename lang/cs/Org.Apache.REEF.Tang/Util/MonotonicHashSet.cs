@@ -23,7 +23,7 @@ using Org.Apache.REEF.Utilities.Logging;
 
 namespace Org.Apache.REEF.Tang.Util
 {
-    public class MonotonicHashSet<T> : HashSet<T>
+    public sealed class MonotonicHashSet<T> : HashSet<T>
     {
         private static readonly Logger LOGGER = Logger.GetLogger(typeof(MonotonicHashSet<T>));
         private readonly ReaderWriterLockSlim _lock = new ReaderWriterLockSlim(LockRecursionPolicy.SupportsRecursion);
@@ -52,7 +52,7 @@ namespace Org.Apache.REEF.Tang.Util
                 {
                     var ex = new ArgumentException("Attempt to re-add " + e
                                                    + " to MonotonicSet!");
-                    Org.Apache.REEF.Utilities.Diagnostics.Exceptions.Throw(ex, LOGGER);
+                    Utilities.Diagnostics.Exceptions.Throw(ex, LOGGER);
                 }
                 return base.Add(e);
             }
@@ -76,7 +76,7 @@ namespace Org.Apache.REEF.Tang.Util
                     {
                         var ex = new ArgumentException("Attempt to re-add " + t
                                                        + " to MonotonicSet!");
-                        Org.Apache.REEF.Utilities.Diagnostics.Exceptions.Throw(ex, LOGGER);
+                        Utilities.Diagnostics.Exceptions.Throw(ex, LOGGER);
                     }
                     base.Add(t);
                 }
@@ -117,12 +117,12 @@ namespace Org.Apache.REEF.Tang.Util
 
         public new void Clear() 
         {
-            Org.Apache.REEF.Utilities.Diagnostics.Exceptions.Throw(new NotSupportedException("Attempt to clear MonotonicSet!"), LOGGER);
+            Utilities.Diagnostics.Exceptions.Throw(new NotSupportedException("Attempt to clear MonotonicSet!"), LOGGER);
         }
  
         public bool Remove(object o) 
         {
-            Org.Apache.REEF.Utilities.Diagnostics.Exceptions.Throw(new NotSupportedException("Attempt to remove " + o + " from MonotonicSet!"), LOGGER);
+            Utilities.Diagnostics.Exceptions.Throw(new NotSupportedException("Attempt to remove " + o + " from MonotonicSet!"), LOGGER);
             return false;
         }
     }

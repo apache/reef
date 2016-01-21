@@ -25,7 +25,7 @@ using Org.Apache.REEF.Utilities.Logging;
 
 namespace Org.Apache.REEF.Tang.Implementations.ClassHierarchy
 {
-    public class ParameterParser
+    internal sealed class ParameterParser
     {
         private static readonly Logger LOGGER = Logger.GetLogger(typeof(ParameterParser));
 

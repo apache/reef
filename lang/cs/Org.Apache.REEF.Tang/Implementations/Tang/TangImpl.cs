@@ -28,7 +28,7 @@ using Org.Apache.REEF.Utilities.Logging;
 
 namespace Org.Apache.REEF.Tang.Implementations.Tang
 {
-    public class TangImpl : ITang
+    internal sealed class TangImpl : ITang
     {
         private static readonly Logger LOGGER = Logger.GetLogger(typeof(TangImpl));
 

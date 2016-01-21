@@ -36,7 +36,7 @@ namespace Org.Apache.REEF.Tang.Implementations.ClassHierarchy
     /// <summary>
     /// AvroClassHierarchySerializer is to serialize and deserialize ClassHierarchy
     /// </summary>
-    public class AvroClassHierarchySerializer : IClassHierarchySerializer
+    internal sealed class AvroClassHierarchySerializer : IClassHierarchySerializer
     {
         private static readonly Logger LOGGER = Logger.GetLogger(typeof(AvroClassHierarchySerializer));
 

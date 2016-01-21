@@ -15,7 +15,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -25,7 +24,7 @@ using Org.Apache.REEF.Utilities.Logging;
 
 namespace Org.Apache.REEF.Tang.Implementations.ClassHierarchy
 {
-    public class ConstructorDefImpl : IConstructorDef
+    internal sealed class ConstructorDefImpl : IConstructorDef
     {
         private static readonly Logger LOGGER = Logger.GetLogger(typeof(ConstructorDefImpl));
 

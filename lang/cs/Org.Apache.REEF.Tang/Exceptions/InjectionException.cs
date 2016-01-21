@@ -19,14 +19,14 @@ using System;
 
 namespace Org.Apache.REEF.Tang.Exceptions
 {
-    public class InjectionException : Exception
+    public sealed class InjectionException : Exception
     {
-        public InjectionException(string msg)
+        internal InjectionException(string msg)
             : base(msg)
         {           
         }
 
-        public InjectionException(string message, Exception innerException)
+        internal InjectionException(string message, Exception innerException)
             : base(message, innerException)
         {
         }

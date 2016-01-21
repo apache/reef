@@ -27,10 +27,10 @@ namespace Org.Apache.REEF.Tang.Implementations.InjectionPlan
         T Get();
     }
 
-    public class InjectionFutureImpl<T> : IInjectionFuture<T>
+    public sealed class InjectionFutureImpl<T> : IInjectionFuture<T>
     {
-        protected readonly InjectorImpl injector;
-        private readonly Type iface; // extend from T
+        private readonly InjectorImpl injector;
+        private readonly Type iface; // entend from T
         private readonly T instance; 
 
         ////public InjectionFuture()

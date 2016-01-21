@@ -19,15 +19,14 @@ using System;
 
 namespace Org.Apache.REEF.Tang.Exceptions
 {
-    public class ParseException : BindException
+    public sealed class ParseException : BindException
     {
-       // private static readonly long serialVersionUID = 1L;
-        public ParseException(string message)
+        internal ParseException(string message)
             : base(message)
         {           
         }
 
-        public ParseException(string message, Exception innerException)
+        internal ParseException(string message, Exception innerException)
             : base(message, innerException)
         {
         }
