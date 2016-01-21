@@ -17,6 +17,8 @@
 
 using System;
 
+using System;
+
 namespace Org.Apache.REEF.Wake.Remote
 {
     [Obsolete("Deprecated in 0.14, please use IEncoder<T> instead.")]
