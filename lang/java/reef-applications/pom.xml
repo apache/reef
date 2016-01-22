@@ -31,6 +31,10 @@ under the License.
         <relativePath>../../..</relativePath>
     </parent>
 
+    <properties>
+        <rootPath>${basedir}/../../../..</rootPath>
+    </properties>
+
     <modules>
         <module>reef-vortex</module>
     </modules>

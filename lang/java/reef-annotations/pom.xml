@@ -27,6 +27,10 @@ under the License.
         <relativePath>../../..</relativePath>
     </parent>
 
+    <properties>
+        <rootPath>${basedir}/../../..</rootPath>
+    </properties>
+
     <build>
         <pluginManagement>
             <plugins>
