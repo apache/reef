@@ -28,6 +28,10 @@ under the License.
         <relativePath>../../..</relativePath>
     </parent>
 
+    <properties>
+        <rootPath>${basedir}/../../..</rootPath>
+    </properties>
+
     <artifactId>reef-runtime-local</artifactId>
     <name>REEF Runtime Local</name>
     <description>A local implementation of REEF that uses local JVMs for execution.</description>

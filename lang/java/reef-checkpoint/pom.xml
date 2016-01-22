@@ -32,7 +32,9 @@ under the License.
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <test.build.webapps>${project.build.directory}/test-classes/webapps</test.build.webapps>
+        <rootPath>${basedir}/../../..</rootPath>
     </properties>
+
     <build>
         <resources>
             <resource>
