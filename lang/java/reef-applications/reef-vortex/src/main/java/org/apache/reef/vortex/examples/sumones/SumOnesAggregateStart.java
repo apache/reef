@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.vortex.examples.addition;
+package org.apache.reef.vortex.examples.sumones;
 
 import org.apache.reef.tang.annotations.Parameter;
 import org.apache.reef.vortex.api.*;

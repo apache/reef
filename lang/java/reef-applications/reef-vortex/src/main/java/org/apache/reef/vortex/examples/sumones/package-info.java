@@ -19,4 +19,4 @@
 /**
  * A Simple Vortex addition and aggregation example.
  */
-package org.apache.reef.vortex.examples.addition;
+package org.apache.reef.vortex.examples.sumones;

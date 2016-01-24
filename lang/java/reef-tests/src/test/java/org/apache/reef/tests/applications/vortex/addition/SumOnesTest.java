@@ -30,7 +30,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 /**
- * Launch the Addition Vortex test.
+ * Launch the SumOnes Vortex test.
  */
 public final class SumOnesTest {
   private final TestEnvironment testEnvironment = TestEnvironmentFactory.getNewTestEnvironment();
@@ -52,10 +52,10 @@ public final class SumOnesTest {
   }
 
   /**
-   * Run the Addition test.
+   * Run the SumOnes test.
    */
   @Test
-  public void testVortexAddition() {
+  public void testVortexSumOnes() {
 
     final Configuration vortexMasterConf = VortexMasterConf.CONF
         .set(VortexMasterConf.WORKER_NUM, 2)

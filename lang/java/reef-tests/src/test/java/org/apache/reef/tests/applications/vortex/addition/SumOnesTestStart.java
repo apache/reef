@@ -19,8 +19,8 @@
 package org.apache.reef.tests.applications.vortex.addition;
 
 import org.apache.reef.vortex.api.*;
-import org.apache.reef.vortex.examples.addition.AdditionAggregateFunction;
-import org.apache.reef.vortex.examples.addition.IdentityFunction;
+import org.apache.reef.vortex.examples.sumones.AdditionAggregateFunction;
+import org.apache.reef.vortex.examples.sumones.IdentityFunction;
 
 import javax.inject.Inject;
 import java.util.Vector;
