@@ -34,7 +34,7 @@ public final class AdditionAggregateFunction implements VortexAggregateFunction<
   @Override
   public Integer call(final List<Integer> taskletOutputs) throws VortexAggregateException {
     int sum = 0;
-    for (int output : taskletOutputs) {
+    for (final int output : taskletOutputs) {
       sum += output;
     }
 

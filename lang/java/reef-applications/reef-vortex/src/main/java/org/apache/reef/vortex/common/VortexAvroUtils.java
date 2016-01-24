@@ -28,7 +28,6 @@ import org.apache.reef.annotations.audience.Private;
 import org.apache.reef.vortex.api.VortexAggregateFunction;
 import org.apache.reef.vortex.api.VortexFunction;
 import org.apache.reef.vortex.common.avro.*;
-import org.apache.reef.vortex.driver.AggregateFunctionRepository;
 
 import javax.inject.Inject;
 import java.io.ByteArrayOutputStream;

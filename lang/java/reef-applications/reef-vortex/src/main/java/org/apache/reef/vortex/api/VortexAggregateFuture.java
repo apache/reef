@@ -19,6 +19,8 @@
 package org.apache.reef.vortex.api;
 
 import org.apache.commons.lang3.NotImplementedException;
+import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.reef.annotations.Unstable;
 import org.apache.reef.annotations.audience.ClientSide;
 import org.apache.reef.annotations.audience.Private;
@@ -26,11 +28,10 @@ import org.apache.reef.annotations.audience.Public;
 import org.apache.reef.io.serialization.Codec;
 import org.apache.reef.vortex.common.VortexFutureDelegate;
 
+import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.NotThreadSafe;
 import java.util.*;
 import java.util.concurrent.*;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * The interface between user code and aggregation Tasklets.
@@ -42,11 +43,10 @@ import java.util.logging.Logger;
 @NotThreadSafe
 @Unstable
 public final class VortexAggregateFuture<TInput, TOutput> implements VortexFutureDelegate {
-  private static final Logger LOG = Logger.getLogger(VortexAggregateFuture.class.getName());
-
+  private final Object getLock = new Object();
   private final Executor executor;
   private final Codec<TOutput> aggOutputCodec;
-  private final BlockingQueue<AggregateResult> resultQueue;
+  private final BlockingQueue<Pair<List<Integer>, AggregateResult>> resultQueue;
   private final Map<Integer, TInput> taskletIdInputMap;
   private final FutureCallback<AggregateResult<TInput, TOutput>> callbackHandler;
 
@@ -65,8 +65,18 @@ public final class VortexAggregateFuture<TInput, TOutput> implements VortexFutur
   /**
    * @return the next aggregation result for the future, null if no more results.
    */
+  @GuardedBy("getLock")
   public AggregateResult get() throws InterruptedException {
-    return resultQueue.take();
+    synchronized (getLock) {
+      if (taskletIdInputMapIsEmpty()) {
+        return null;
+      }
+
+      final Pair<List<Integer>, AggregateResult> resultPair = resultQueue.take();
+
+      removeFromTaskletIdInputMap(resultPair.getLeft());
+      return resultPair.getRight();
+    }
   }
 
   /**
@@ -75,19 +85,33 @@ public final class VortexAggregateFuture<TInput, TOutput> implements VortexFutur
    * @return the next aggregation result for the future, within the user specified timeout, null if no more results.
    * @throws TimeoutException if time out hits.
    */
+  @GuardedBy("getLock")
   public AggregateResult get(final long timeout,
-                                          final TimeUnit timeUnit) throws InterruptedException, TimeoutException {
-    final AggregateResult result = resultQueue.poll(timeout, timeUnit);
+                             final TimeUnit timeUnit) throws InterruptedException, TimeoutException {
+    synchronized (getLock) {
+      if (taskletIdInputMapIsEmpty()) {
+        return null;
+      }
 
-    if (result == null) {
-      throw new TimeoutException();
+      final Pair<List<Integer>, AggregateResult> resultPair = resultQueue.poll(timeout, timeUnit);
+
+      if (resultPair == null) {
+        throw new TimeoutException();
+      }
+
+      removeFromTaskletIdInputMap(resultPair.getLeft());
+      return resultPair.getRight();
     }
-
-    return result;
   }
 
   private synchronized boolean taskletIdInputMapIsEmpty() {
     return taskletIdInputMap.isEmpty();
+  }
+
+  private synchronized void removeFromTaskletIdInputMap(final List<Integer> taskletIds) {
+    for (final int taskletId : taskletIds) {
+      taskletIdInputMap.remove(taskletId);
+    }
   }
 
   /**
@@ -180,9 +204,7 @@ public final class VortexAggregateFuture<TInput, TOutput> implements VortexFutur
       });
     }
 
-    LOG.log(Level.SEVERE, "PUT IN RESULT QUEUE!");
-
-    resultQueue.put(result);
+    resultQueue.put(new ImmutablePair<>(taskletIds, result));
   }
 
   /**
@@ -205,7 +227,7 @@ public final class VortexAggregateFuture<TInput, TOutput> implements VortexFutur
       });
     }
 
-    resultQueue.put(failure);
+    resultQueue.put(new ImmutablePair<>(taskletIds, failure));
   }
 
   /**

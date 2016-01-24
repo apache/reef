@@ -29,8 +29,8 @@ import org.apache.reef.vortex.driver.VortexMasterConf;
 /**
  * User's main function.
  */
-final class Addition {
-  private Addition() {
+final class SumOnes {
+  private SumOnes() {
   }
 
   /**
@@ -42,15 +42,15 @@ final class Addition {
         .set(VortexMasterConf.WORKER_MEM, 1024)
         .set(VortexMasterConf.WORKER_CORES, 4)
         .set(VortexMasterConf.WORKER_CAPACITY, 2000)
-        .set(VortexMasterConf.VORTEX_START, AdditionAggregateStart.class)
+        .set(VortexMasterConf.VORTEX_START, SumOnesAggregateStart.class)
         .build();
 
     final Configuration userConf = Tang.Factory.getTang().newConfigurationBuilder()
-        .bindNamedParameter(Numbers.class, "1000")
+        .bindNamedParameter(NumberOfOnes.class, "1000")
         .build();
 
     final VortexJobConf vortexJobConf = VortexJobConf.newBuilder()
-        .setJobName("Vortex_Example_AddOne")
+        .setJobName("Vortex_Example_SumOnes")
         .setVortexMasterConf(vortexMasterConf)
         .setUserConf(userConf)
         .build();
@@ -58,7 +58,7 @@ final class Addition {
     VortexLauncher.launchLocal(vortexJobConf);
   }
 
-  @NamedParameter(doc = "numbers to add")
-  public static class Numbers implements Name<Integer> {
+  @NamedParameter(doc = "numbers of ones to sum")
+  public static class NumberOfOnes implements Name<Integer> {
   }
 }

@@ -26,6 +26,7 @@ import org.apache.reef.annotations.audience.Private;
 import org.apache.reef.util.Optional;
 import org.apache.reef.vortex.common.*;
 
+import javax.annotation.concurrent.GuardedBy;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -41,7 +42,11 @@ final class AggregateContainer {
 
   private final Object stateLock = new Object();
   private final TaskletAggregationRequest taskletAggregationRequest;
+
+  @GuardedBy("stateLock")
   private final List<Pair<Integer, Object>> completedTasklets = new ArrayList<>();
+
+  @GuardedBy("stateLock")
   private final List<Pair<Integer, Exception>> failedTasklets = new ArrayList<>();
 
   AggregateContainer(final TaskletAggregationRequest taskletAggregationRequest) {

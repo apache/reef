@@ -41,7 +41,7 @@ class VortexRequestor {
   }
 
   /**
-   * Sends a {@link VortexRequest} asyncrhonously to a {@link org.apache.reef.vortex.evaluator.VortexWorker}.
+   * Sends a {@link VortexRequest} asynchronously to a {@link org.apache.reef.vortex.evaluator.VortexWorker}.
    */
   void sendAsync(final RunningTask reefTask, final VortexRequest vortexRequest) {
     executorService.execute(new Runnable() {
@@ -54,7 +54,7 @@ class VortexRequestor {
   }
 
   /**
-   * Sends a {@link VortexRequest} syncrhonously to a {@link org.apache.reef.vortex.evaluator.VortexWorker}.
+   * Sends a {@link VortexRequest} synchronously to a {@link org.apache.reef.vortex.evaluator.VortexWorker}.
    */
   void send(final RunningTask reefTask, final VortexRequest vortexRequest) {
     reefTask.send(vortexAvroUtils.toBytes(vortexRequest));

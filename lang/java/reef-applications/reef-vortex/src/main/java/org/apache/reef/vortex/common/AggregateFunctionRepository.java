@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.vortex.driver;
+package org.apache.reef.vortex.common;
 
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
@@ -32,7 +32,8 @@ import java.util.concurrent.ConcurrentMap;
 
 /**
  * A repository for {@link VortexAggregateFunction} and its associated {@link VortexFunction},
- * used to pass functions between {@link VortexMaster} and {@link RunningWorkers}.
+ * used to pass functions between VortexMaster and RunningWorkers, as well as used to cache functions
+ * for VortexWorkers on AggregateRequests and AggregateExecutionRequests.
  */
 @ThreadSafe
 @Unstable

@@ -54,6 +54,9 @@ class VortexWorkerManager {
                                                final VortexFunction<TInput, TOutput> function) {
     final TaskletAggregationRequest<TInput, TOutput> taskletAggregationRequest =
         new TaskletAggregationRequest<>(aggregateFunctionId, aggregateFunction, function);
+
+    // The send is synchronous such that we make sure that the aggregate function is sent to the
+    // target worker before attempting to launch an aggregateable tasklet on it.
     vortexRequestor.send(reefTask, taskletAggregationRequest);
   }
 

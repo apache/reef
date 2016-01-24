@@ -26,21 +26,21 @@ import javax.inject.Inject;
 import java.util.Vector;
 
 /**
- * Test correctness of a addition aggregation test on Vortex.
+ * Test correctness of an aggregation function that adds integer outputs (ones) on Vortex.
  */
-public final class AdditionTestStart implements VortexStart {
+public final class SumOnesTestStart implements VortexStart {
   @Inject
-  private AdditionTestStart() {
+  private SumOnesTestStart() {
   }
 
   /**
-   * Test correctness of a addition aggregation test on Vortex.
+   * Test correctness of an aggregation function that adds integer outputs (ones) on Vortex.
    */
   @Override
   public void start(final VortexThreadPool vortexThreadPool) {
-    final int dimension = 100;
+    final int numberOfOnesToSum = 1000;
     final Vector<Integer> inputVector = new Vector<>();
-    for (int i = 0; i < dimension; i++) {
+    for (int i = 0; i < numberOfOnesToSum; i++) {
       inputVector.add(1);
     }
 
@@ -68,7 +68,7 @@ public final class AdditionTestStart implements VortexStart {
         allSum += sumResult;
       }
 
-      assert allSum == dimension;
+      assert allSum == numberOfOnesToSum;
 
     } catch (final InterruptedException ie) {
       throw new RuntimeException(ie);

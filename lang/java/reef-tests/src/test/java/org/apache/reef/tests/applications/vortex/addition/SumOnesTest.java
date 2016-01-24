@@ -32,7 +32,7 @@ import org.junit.Test;
 /**
  * Launch the Addition Vortex test.
  */
-public final class AdditionTest {
+public final class SumOnesTest {
   private final TestEnvironment testEnvironment = TestEnvironmentFactory.getNewTestEnvironment();
 
   /**
@@ -62,7 +62,7 @@ public final class AdditionTest {
         .set(VortexMasterConf.WORKER_MEM, 64)
         .set(VortexMasterConf.WORKER_CORES, 4)
         .set(VortexMasterConf.WORKER_CAPACITY, 2000)
-        .set(VortexMasterConf.VORTEX_START, AdditionTestStart.class)
+        .set(VortexMasterConf.VORTEX_START, SumOnesTestStart.class)
         .build();
 
     final VortexJobConf vortexJobConf = VortexJobConf.newBuilder()

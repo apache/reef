@@ -30,7 +30,7 @@ import org.apache.reef.task.events.CloseEvent;
 import org.apache.reef.task.events.DriverMessage;
 import org.apache.reef.util.Optional;
 import org.apache.reef.vortex.common.*;
-import org.apache.reef.vortex.driver.AggregateFunctionRepository;
+import org.apache.reef.vortex.common.AggregateFunctionRepository;
 import org.apache.reef.vortex.driver.VortexWorkerConf;
 import org.apache.reef.wake.EventHandler;
 
@@ -84,6 +84,7 @@ public final class VortexWorker implements Task, TaskMessageSource {
 
     // Scheduling thread starts
     schedulerThread.execute(new Runnable() {
+      @SuppressWarnings("InfiniteLoopStatement") // Scheduler is supposed to run forever.
       @Override
       public void run() {
         while (true) {
@@ -103,8 +104,13 @@ public final class VortexWorker implements Task, TaskMessageSource {
               final TaskletAggregationRequest taskletAggregationRequest = (TaskletAggregationRequest) vortexRequest;
               aggregates.put(taskletAggregationRequest.getAggregateFunctionId(),
                   new AggregateContainer(taskletAggregationRequest));
+
+              // VortexFunctions need to be put into the repository such that VortexAvroUtils will know how to
+              // convert inputs and functions into a VortexRequest on subsequent messages requesting to
+              // execute the aggregateable tasklets.
               aggregateFunctionRepository.put(taskletAggregationRequest.getAggregateFunctionId(),
                   taskletAggregationRequest.getAggregateFunction(), taskletAggregationRequest.getFunction());
+
               break;
             case ExecuteAggregateTasklet:
               executeAggregateTasklet(commandExecutor, vortexRequest);

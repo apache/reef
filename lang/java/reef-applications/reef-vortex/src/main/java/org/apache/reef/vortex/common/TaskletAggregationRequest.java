@@ -26,8 +26,6 @@ import org.apache.reef.vortex.api.VortexAggregateFunction;
 import org.apache.reef.vortex.api.VortexFunction;
 
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * A request from the Vortex Driver for the {@link org.apache.reef.vortex.evaluator.VortexWorker} to
@@ -37,8 +35,6 @@ import java.util.logging.Logger;
 @Private
 @DriverSide
 public final class TaskletAggregationRequest<TInput, TOutput> implements VortexRequest {
-  private static final Logger LOGGER = Logger.getLogger(TaskletAggregationRequest.class.getName());
-
   private final int aggregateFunctionId;
   private final VortexAggregateFunction<TOutput> userAggregateFunction;
   private final VortexFunction<TInput, TOutput> function;
@@ -82,11 +78,9 @@ public final class TaskletAggregationRequest<TInput, TOutput> implements VortexR
    * @return Output of the function in a serialized form.
    */
   public byte[] executeAggregation(final List<TOutput> outputs) throws Exception {
-    LOGGER.log(Level.SEVERE, "Executing aggregation!");
     final TOutput output = userAggregateFunction.call(outputs);
     final Codec<TOutput> codec = userAggregateFunction.getOutputCodec();
 
-    LOGGER.log(Level.SEVERE, "Aggregate output is " + output);
     // TODO[REEF-1113]: Handle serialization failure separately in Vortex
     return codec.encode(output);
   }

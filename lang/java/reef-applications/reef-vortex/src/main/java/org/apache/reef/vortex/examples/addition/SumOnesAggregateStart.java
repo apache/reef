@@ -25,19 +25,19 @@ import javax.inject.Inject;
 import java.util.Vector;
 
 /**
- * AddOne User Code Example.
+ * SumOnes User Code Example.
  */
-final class AdditionAggregateStart implements VortexStart {
+final class SumOnesAggregateStart implements VortexStart {
 
   private final int numbers;
 
   @Inject
-  private AdditionAggregateStart(@Parameter(Addition.Numbers.class) final int numbers) {
+  private SumOnesAggregateStart(@Parameter(SumOnes.NumberOfOnes.class) final int numbers) {
     this.numbers = numbers;
   }
 
   /**
-   * Perform a simple addition and aggregation calculation on Vortex.
+   * Perform a simple sum and aggregation of ones on Vortex.
    */
   @Override
   public void start(final VortexThreadPool vortexThreadPool) {

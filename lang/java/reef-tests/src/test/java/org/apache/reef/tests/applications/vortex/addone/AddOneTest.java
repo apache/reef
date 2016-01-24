@@ -85,7 +85,7 @@ public final class AddOneTest {
         .set(VortexMasterConf.WORKER_MEM, 64)
         .set(VortexMasterConf.WORKER_CORES, 4)
         .set(VortexMasterConf.WORKER_CAPACITY, 2000)
-        .set(VortexMasterConf.VORTEX_START, AddOneCallbackTestStart.class)
+        .set(VortexMasterConf.VORTEX_START, AddOneTestStart.class)
         .build();
 
     final VortexJobConf vortexJobConf = VortexJobConf.newBuilder()
