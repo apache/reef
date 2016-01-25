@@ -17,6 +17,6 @@
  * under the License.
  */
 /**
- * Vortex Addition Aggregation test.
+ * Vortex SumOnes Aggregation test.
  */
-package org.apache.reef.tests.applications.vortex.addition;
+package org.apache.reef.tests.applications.vortex.sumones;

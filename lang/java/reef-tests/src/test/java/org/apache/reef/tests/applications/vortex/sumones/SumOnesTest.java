@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.tests.applications.vortex.addition;
+package org.apache.reef.tests.applications.vortex.sumones;
 
 import org.apache.reef.client.LauncherStatus;
 import org.apache.reef.tang.Configuration;
