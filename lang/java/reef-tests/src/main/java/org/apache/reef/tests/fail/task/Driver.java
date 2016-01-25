@@ -40,6 +40,9 @@ import javax.inject.Inject;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+/**
+ * Universal driver for the test REEF job that fails on different stages of execution.
+ */
 @Unit
 public final class Driver {
 

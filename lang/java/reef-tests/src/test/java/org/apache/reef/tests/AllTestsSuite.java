@@ -37,6 +37,9 @@ import org.apache.reef.tests.taskresubmit.TaskResubmitTest;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 
+/**
+ * Test suite of all integration tests.
+ */
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
     DriverTest.class,

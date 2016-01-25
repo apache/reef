@@ -24,6 +24,9 @@ import org.apache.reef.tests.applications.vortex.cancellation.TaskletCancellatio
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 
+/**
+ * Test suite of Vortex tests.
+ */
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
     AddOneTest.class,

@@ -22,6 +22,9 @@ import org.apache.reef.tests.group.conf.TestGroupCommServiceInjection;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 
+/**
+ * Test suite of group communication tests.
+ */
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
     TestMultipleCommGroups.class,

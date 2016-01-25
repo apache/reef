@@ -26,6 +26,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
+/**
+ * Count events in the stream.
+ */
 public final class TestEventStream implements EventStream {
 
   private Map<EventType, AtomicInteger> eventCounter;

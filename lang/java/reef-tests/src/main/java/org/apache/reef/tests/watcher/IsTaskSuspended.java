@@ -21,6 +21,9 @@ package org.apache.reef.tests.watcher;
 import org.apache.reef.tang.annotations.Name;
 import org.apache.reef.tang.annotations.NamedParameter;
 
+/**
+ * Boolean value, true = task is suspended.
+ */
 @NamedParameter(default_value = "false")
 public final class IsTaskSuspended implements Name<Boolean> {
 }

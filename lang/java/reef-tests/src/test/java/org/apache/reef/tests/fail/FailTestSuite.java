@@ -21,6 +21,9 @@ package org.apache.reef.tests.fail;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 
+/**
+ * Test suite of tests covering failure scenarios.
+ */
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
 //    FailTaskTest.class,

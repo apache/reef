@@ -24,6 +24,9 @@ import org.junit.Assert;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+/**
+ * Utilities used in tests.
+ */
 public final class TestUtils {
 
   private static final Logger LOG = Logger.getLogger(TestUtils.class.getName());

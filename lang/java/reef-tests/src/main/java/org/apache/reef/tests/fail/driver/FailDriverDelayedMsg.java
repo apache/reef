@@ -39,6 +39,9 @@ import java.util.Arrays;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+/**
+ * Driver which fails due to delayed message.
+ */
 @Unit
 public final class FailDriverDelayedMsg {
 
@@ -57,6 +60,9 @@ public final class FailDriverDelayedMsg {
     this.clock = clock;
   }
 
+  /**
+   * Handler for AllocatedEvaluator.
+   */
   public final class AllocatedEvaluatorHandler implements EventHandler<AllocatedEvaluator> {
     @Override
     public void onNext(final AllocatedEvaluator eval) {
@@ -72,6 +78,9 @@ public final class FailDriverDelayedMsg {
     }
   }
 
+  /**
+   * Handler for ActiveContext.
+   */
   public final class ActiveContextHandler implements EventHandler<ActiveContext> {
     @Override
     public void onNext(final ActiveContext context) {
@@ -93,6 +102,9 @@ public final class FailDriverDelayedMsg {
     }
   }
 
+  /**
+   * Handler for RunningTask.
+   */
   public final class RunningTaskHandler implements EventHandler<RunningTask> {
     @Override
     @SuppressWarnings("checkstyle:hiddenfield")
@@ -109,6 +121,9 @@ public final class FailDriverDelayedMsg {
     }
   }
 
+  /**
+   * Handler for TaskMessage.
+   */
   public final class TaskMessageHandler implements EventHandler<TaskMessage> {
     @Override
     public void onNext(final TaskMessage msg) {
@@ -118,6 +133,9 @@ public final class FailDriverDelayedMsg {
     }
   }
 
+  /**
+   * Handler for StartTime.
+   */
   public final class StartHandler implements EventHandler<StartTime> {
     @Override
     public void onNext(final StartTime time) {

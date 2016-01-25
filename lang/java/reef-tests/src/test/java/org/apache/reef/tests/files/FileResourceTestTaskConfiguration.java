@@ -31,13 +31,16 @@ import java.util.Set;
  */
 public final class FileResourceTestTaskConfiguration extends ConfigurationModuleBuilder {
   /**
-   * the set of file names to expect present on the evaluator.
+   * The set of file names to expect present on the evaluator.
    */
   public static final RequiredParameter<String> EXPECTED_FILE_NAME = new RequiredParameter<>();
   public static final ConfigurationModule CONF = new FileResourceTestTaskConfiguration()
       .bindSetEntry(FileNamesToExpect.class, EXPECTED_FILE_NAME)
       .build();
 
+  /**
+   * The names of the files to expect in the local filesystem.
+   */
   @NamedParameter(doc = "The names of the files to expect in the local filesystem.")
   public static final class FileNamesToExpect implements Name<Set<String>> {
   }

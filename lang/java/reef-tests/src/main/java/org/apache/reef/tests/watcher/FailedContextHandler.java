@@ -23,6 +23,9 @@ import org.apache.reef.wake.EventHandler;
 
 import javax.inject.Inject;
 
+/**
+ * Failing handler for ContextStart (throws exception upon start).
+ */
 public final class FailedContextHandler implements EventHandler<ContextStart> {
 
   @Inject
