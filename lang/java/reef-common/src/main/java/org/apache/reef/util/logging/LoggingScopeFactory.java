@@ -119,7 +119,7 @@ public final class LoggingScopeFactory {
    * @return
    */
   public LoggingScope driverStop(final long timeStamp) {
-    return new LoggingScopeImpl(LOG, logLevel, this.DRIVER_STOP + " :" + timeStamp);
+    return new LoggingScopeImpl(LOG, logLevel, DRIVER_STOP + " :" + timeStamp);
   }
 
   /**
@@ -200,7 +200,7 @@ public final class LoggingScopeFactory {
    * @return
    */
   public LoggingScope evaluatorFailed(final String evaluatorId) {
-    return new LoggingScopeImpl(LOG, logLevel, this.EVALUATOR_FAILED + " :" + evaluatorId);
+    return new LoggingScopeImpl(LOG, logLevel, EVALUATOR_FAILED + " :" + evaluatorId);
   }
 
   /**
@@ -218,7 +218,7 @@ public final class LoggingScopeFactory {
    * @return
    */
   public LoggingScope closedContext(final String contextId) {
-    return new LoggingScopeImpl(LOG, logLevel, this.CONTEXT_CLOSE + " :" + contextId);
+    return new LoggingScopeImpl(LOG, logLevel, CONTEXT_CLOSE + " :" + contextId);
   }
 
   /**
@@ -308,7 +308,7 @@ public final class LoggingScopeFactory {
    * @return
    */
   public LoggingScope httpRequest(final String uri) {
-    return new LoggingScopeImpl(LOG, logLevel, this.HTTP_REQUEST + " :" + uri);
+    return new LoggingScopeImpl(LOG, logLevel, HTTP_REQUEST + " :" + uri);
   }
 
   /**
@@ -316,7 +316,7 @@ public final class LoggingScopeFactory {
    * @return
    */
   public LoggingScope httpServer() {
-    return new LoggingScopeImpl(LOG, logLevel, this.HTTP_SERVER);
+    return new LoggingScopeImpl(LOG, logLevel, HTTP_SERVER);
   }
 
   /**
@@ -333,7 +333,7 @@ public final class LoggingScopeFactory {
    * @return
    */
   public LoggingScope reefSubmit() {
-    return new LoggingScopeImpl(LOG, logLevel, this.REEF_SUBMIT);
+    return new LoggingScopeImpl(LOG, logLevel, REEF_SUBMIT);
   }
 
   /**
@@ -341,6 +341,6 @@ public final class LoggingScopeFactory {
    * @return
    */
   public LoggingScope localJobSubmission() {
-    return new LoggingScopeImpl(LOG, logLevel, this.LOCAL_JOB_SUBMIT);
+    return new LoggingScopeImpl(LOG, logLevel, LOCAL_JOB_SUBMIT);
   }
 }
