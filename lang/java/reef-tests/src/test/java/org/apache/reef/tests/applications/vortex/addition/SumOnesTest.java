@@ -66,7 +66,7 @@ public final class SumOnesTest {
         .build();
 
     final VortexJobConf vortexJobConf = VortexJobConf.newBuilder()
-        .setJobName("TEST_Vortex_AdditionTest")
+        .setJobName("TEST_Vortex_SumOnesTest")
         .setVortexMasterConf(vortexMasterConf)
         .build();
 

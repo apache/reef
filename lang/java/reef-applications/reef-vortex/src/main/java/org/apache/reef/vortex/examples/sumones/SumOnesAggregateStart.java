@@ -50,7 +50,7 @@ final class SumOnesAggregateStart implements VortexStart {
         vortexThreadPool.submit(new AdditionAggregateFunction(), new IdentityFunction(), inputVector);
 
     try {
-      AggregateResult<Integer, Integer> result;
+      AggregateResultSynchronous<Integer, Integer> result;
       result = future.get();
       int allSum = 0;
       while (result.hasNext()) {

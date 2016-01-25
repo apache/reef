@@ -48,7 +48,7 @@ public final class SumOnesTestStart implements VortexStart {
         vortexThreadPool.submit(new AdditionAggregateFunction(), new IdentityFunction(), inputVector);
 
     try {
-      AggregateResult<Integer, Integer> result;
+      AggregateResultSynchronous<Integer, Integer> result;
       int allSum = 0;
 
       result = future.get();
@@ -75,7 +75,7 @@ public final class SumOnesTestStart implements VortexStart {
     }
   }
 
-  private static int getAggregateResult(final AggregateResult<Integer, Integer> result) {
+  private static int getAggregateResult(final AggregateResultSynchronous<Integer, Integer> result) {
     try {
       return result.getAggregateResult();
     } catch (final VortexAggregateException e) {
