@@ -294,7 +294,7 @@ public class TestConfigurationModule {
   }
 
   @Test
-  public void immutablilityTest() throws BindException, InjectionException {
+  public void immutabilityTest() throws BindException, InjectionException {
     // builder methods return copies; the original module is immutable
     final ConfigurationModule builder1 = MyConfigurationModule.CONF
         .set(MyConfigurationModule.THE_FOO, FooImpl.class)
