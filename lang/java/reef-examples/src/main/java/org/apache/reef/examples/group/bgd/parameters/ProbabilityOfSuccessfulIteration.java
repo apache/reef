@@ -26,5 +26,5 @@ import org.apache.reef.tang.annotations.NamedParameter;
  * two iterations is less than this, the optimization stops.
  */
 @NamedParameter(short_name = "psuccess", default_value = "0.5")
-public final class ProbabilityOfSuccesfulIteration implements Name<Double> {
+public final class ProbabilityOfSuccessfulIteration implements Name<Double> {
 }

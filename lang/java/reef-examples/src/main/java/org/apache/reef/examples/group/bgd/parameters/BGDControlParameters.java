@@ -48,7 +48,7 @@ public final class BGDControlParameters {
       @Parameter(Lambda.class) final double lambda,
       @Parameter(Eps.class) final double eps,
       @Parameter(Eta.class) final double eta,
-      @Parameter(ProbabilityOfSuccesfulIteration.class) final double probOfSuccessfulIteration,
+      @Parameter(ProbabilityOfSuccessfulIteration.class) final double probOfSuccessfulIteration,
       @Parameter(Iterations.class) final int iters,
       @Parameter(EnableRampup.class) final boolean rampup,
       @Parameter(MinParts.class) final int minParts,
@@ -70,7 +70,7 @@ public final class BGDControlParameters {
         .bindNamedParameter(Lambda.class, Double.toString(this.lambda))
         .bindNamedParameter(Eps.class, Double.toString(this.eps))
         .bindNamedParameter(Eta.class, Double.toString(this.eta))
-        .bindNamedParameter(ProbabilityOfSuccesfulIteration.class, Double.toString(probOfSuccessfulIteration))
+        .bindNamedParameter(ProbabilityOfSuccessfulIteration.class, Double.toString(probOfSuccessfulIteration))
         .bindNamedParameter(Iterations.class, Integer.toString(this.iters))
         .bindNamedParameter(EnableRampup.class, Boolean.toString(this.rampup))
         .bindNamedParameter(MinParts.class, Integer.toString(this.minParts))
@@ -84,7 +84,7 @@ public final class BGDControlParameters {
         .registerShortNameOfClass(Lambda.class)
         .registerShortNameOfClass(Eps.class)
         .registerShortNameOfClass(Eta.class)
-        .registerShortNameOfClass(ProbabilityOfSuccesfulIteration.class)
+        .registerShortNameOfClass(ProbabilityOfSuccessfulIteration.class)
         .registerShortNameOfClass(Iterations.class)
         .registerShortNameOfClass(EnableRampup.class)
         .registerShortNameOfClass(MinParts.class)
