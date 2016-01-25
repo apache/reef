@@ -24,8 +24,10 @@ import org.apache.reef.task.Task;
 import javax.inject.Inject;
 import java.util.Arrays;
 
+/**
+ * Task for StatePassingTest.
+ */
 public class StatePassingTask implements Task {
-
 
   private final Counter c;
 
@@ -40,7 +42,6 @@ public class StatePassingTask implements Task {
     Arrays.fill(result, value);
     return result;
   }
-
 
   @Override
   public byte[] call(final byte[] memento) throws Exception {

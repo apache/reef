@@ -20,6 +20,9 @@ package org.apache.reef.tests.statepassing;
 
 import javax.inject.Inject;
 
+/**
+ * Simple counter.
+ */
 public class Counter {
 
   private int value = 0;

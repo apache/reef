@@ -36,6 +36,9 @@ import java.util.Arrays;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+/**
+ * Driver for TaskMessagingTest.
+ */
 @Unit
 public final class TaskMessagingDriver {
 
@@ -53,6 +56,9 @@ public final class TaskMessagingDriver {
     this.clock = clock;
   }
 
+  /**
+   * Handler for AllocatedEvaluator.
+   */
   public final class EvaluatorAllocatedHandler implements EventHandler<AllocatedEvaluator> {
 
     @Override
@@ -70,6 +76,9 @@ public final class TaskMessagingDriver {
     }
   }
 
+  /**
+   * Handler for RunningTask.
+   */
   public final class TaskRunningHandler implements EventHandler<RunningTask> {
     @Override
     public void onNext(final RunningTask task) {
@@ -83,6 +92,9 @@ public final class TaskMessagingDriver {
     }
   }
 
+  /**
+   * Handler for TaskMessage.
+   */
   public final class TaskMessageHandler implements EventHandler<TaskMessage> {
     @Override
     public void onNext(final TaskMessage msg) {

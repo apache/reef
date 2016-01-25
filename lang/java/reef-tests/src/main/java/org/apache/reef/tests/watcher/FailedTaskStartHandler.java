@@ -23,6 +23,9 @@ import org.apache.reef.wake.EventHandler;
 
 import javax.inject.Inject;
 
+/**
+ * Failing handler for TaskStart (throws exception upon start).
+ */
 public final class FailedTaskStartHandler implements EventHandler<TaskStart> {
 
   @Inject

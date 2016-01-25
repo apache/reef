@@ -28,6 +28,9 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+/**
+ * Tests the messaging channel between client and driver.
+ */
 public final class DriverMessagingTest {
 
   private final TestEnvironment testEnvironment = TestEnvironmentFactory.getNewTestEnvironment();

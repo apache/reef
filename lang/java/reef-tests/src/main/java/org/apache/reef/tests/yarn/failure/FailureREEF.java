@@ -38,6 +38,9 @@ import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+/**
+ * Entry point class for REEF failure test.
+ */
 public final class FailureREEF {
   /**
    * The upper limit on the number of Evaluators that the local resourcemanager will hand out concurrently.
@@ -121,6 +124,9 @@ public final class FailureREEF {
   public static final class Local implements Name<Boolean> {
   }
 
+  /**
+   * Number of minutes before timeout.
+   */
   @NamedParameter(doc = "Number of minutes before timeout",
       short_name = "timeout", default_value = "2")
   public static final class TimeOut implements Name<Integer> {

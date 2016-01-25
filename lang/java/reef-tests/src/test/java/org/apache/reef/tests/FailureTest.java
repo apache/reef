@@ -27,6 +27,9 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+/**
+ * REEF failure test.
+ */
 public class FailureTest {
 
   private final TestEnvironment testEnvironment = TestEnvironmentFactory.getNewTestEnvironment();
