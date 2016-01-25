@@ -20,9 +20,9 @@ package org.apache.reef.vortex.driver;
 
 import net.jcip.annotations.ThreadSafe;
 
-import org.apache.commons.lang3.NotImplementedException;
 import org.apache.reef.annotations.audience.DriverSide;
 import org.apache.reef.util.Optional;
+import org.apache.reef.vortex.common.AggregateFunctionRepository;
 
 import javax.inject.Inject;
 
@@ -159,11 +159,14 @@ final class RunningWorkers {
 
         final Optional<Integer> taskletAggFunctionId =  tasklet.getAggregateFunctionId();
         final VortexWorkerManager vortexWorkerManager = runningWorkers.get(workerId.get());
+
         if (taskletAggFunctionId.isPresent() &&
             !workerHasAggregateFunction(vortexWorkerManager.getId(), taskletAggFunctionId.get())) {
-          // TODO[JIRA REEF-1130]: fetch aggregate function from repo and send aggregate function to worker.
-          throw new NotImplementedException("Serialize aggregate function to worker if it doesn't have it. " +
-              "Complete in REEF-1130.");
+
+          // This assumes that all aggregate tasklets share the same user function.
+          vortexWorkerManager.sendAggregateFunction(taskletAggFunctionId.get(),
+              aggregateFunctionRepository.getAggregateFunction(taskletAggFunctionId.get()), tasklet.getUserFunction());
+          workerAggregateFunctionMap.get(vortexWorkerManager.getId()).add(taskletAggFunctionId.get());
         }
 
         vortexWorkerManager.launchTasklet(tasklet);

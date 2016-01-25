@@ -16,27 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.vortex.common;
-
-import org.apache.reef.annotations.Unstable;
-
 /**
- * Master-to-Worker protocol.
+ * A Simple Vortex addition and aggregation example.
  */
-@Unstable
-public interface VortexRequest {
-  /**
-   * Type of Request.
-   */
-  enum RequestType {
-    AggregateTasklets,
-    ExecuteTasklet,
-    CancelTasklet,
-    ExecuteAggregateTasklet
-  }
-
-  /**
-   * @return the type of this VortexRequest.
-   */
-  RequestType getType();
-}
+package org.apache.reef.vortex.examples.sumones;

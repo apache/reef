@@ -16,27 +16,33 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.vortex.common;
+package org.apache.reef.vortex.examples.sumones;
 
-import org.apache.reef.annotations.Unstable;
+import org.apache.reef.io.serialization.Codec;
+import org.apache.reef.io.serialization.SerializableCodec;
+import org.apache.reef.vortex.api.VortexFunction;
 
 /**
- * Master-to-Worker protocol.
+ * Identity function.
  */
-@Unstable
-public interface VortexRequest {
-  /**
-   * Type of Request.
-   */
-  enum RequestType {
-    AggregateTasklets,
-    ExecuteTasklet,
-    CancelTasklet,
-    ExecuteAggregateTasklet
-  }
+public final class IdentityFunction implements VortexFunction<Integer, Integer> {
+  private static final Codec<Integer> CODEC = new SerializableCodec<>();
 
   /**
-   * @return the type of this VortexRequest.
+   * Outputs input.
    */
-  RequestType getType();
+  @Override
+  public Integer call(final Integer input) throws Exception {
+    return input;
+  }
+
+  @Override
+  public Codec<Integer> getInputCodec() {
+    return CODEC;
+  }
+
+  @Override
+  public Codec<Integer> getOutputCodec() {
+    return CODEC;
+  }
 }
