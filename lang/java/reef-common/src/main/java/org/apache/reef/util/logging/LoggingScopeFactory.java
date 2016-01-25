@@ -109,7 +109,7 @@ public final class LoggingScopeFactory {
    * @return
    */
   public LoggingScope driverStart(final StartTime startTime) {
-    return new LoggingScopeImpl(LOG, logLevel, DRIVER_START + " :" + startTime);
+    return new LoggingScopeImpl(LOG, logLevel, DRIVER_START + ": " + startTime);
   }
 
   /**
@@ -119,7 +119,7 @@ public final class LoggingScopeFactory {
    * @return
    */
   public LoggingScope driverStop(final long timeStamp) {
-    return new LoggingScopeImpl(LOG, logLevel, this.DRIVER_STOP + " :" + timeStamp);
+    return new LoggingScopeImpl(LOG, logLevel, DRIVER_STOP + ": " + timeStamp);
   }
 
   /**
@@ -155,7 +155,7 @@ public final class LoggingScopeFactory {
    * @return
    */
   public LoggingScope evaluatorRequestSubmitToJavaDriver(final int evaluatorsNumber) {
-    return new LoggingScopeImpl(LOG, logLevel, EVALUATOR_BRIDGE_SUBMIT + ":" + evaluatorsNumber);
+    return new LoggingScopeImpl(LOG, logLevel, EVALUATOR_BRIDGE_SUBMIT + ": " + evaluatorsNumber);
   }
 
   /**
@@ -164,7 +164,7 @@ public final class LoggingScopeFactory {
    * @return
    */
   public LoggingScope evaluatorSubmit(final int evaluatorNumber) {
-    return new LoggingScopeImpl(LOG, logLevel, EVALUATOR_SUBMIT + ":" + evaluatorNumber);
+    return new LoggingScopeImpl(LOG, logLevel, EVALUATOR_SUBMIT + ": " + evaluatorNumber);
   }
 
   /**
@@ -173,7 +173,7 @@ public final class LoggingScopeFactory {
    * @return
    */
   public LoggingScope evaluatorAllocated(final String evaluatorId) {
-    return new LoggingScopeImpl(LOG, logLevel, EVALUATOR_ALLOCATED + " :" + evaluatorId);
+    return new LoggingScopeImpl(LOG, logLevel, EVALUATOR_ALLOCATED + ": " + evaluatorId);
   }
 
   /**
@@ -182,7 +182,7 @@ public final class LoggingScopeFactory {
    * @return
    */
   public LoggingScope evaluatorLaunch(final String evaluatorId) {
-    return new LoggingScopeImpl(LOG, logLevel, EVALUATOR_LAUNCH + " :" + evaluatorId);
+    return new LoggingScopeImpl(LOG, logLevel, EVALUATOR_LAUNCH + ": " + evaluatorId);
   }
 
   /**
@@ -191,7 +191,7 @@ public final class LoggingScopeFactory {
    * @return
    */
   public LoggingScope evaluatorCompleted(final String evaluatorId) {
-    return new LoggingScopeImpl(LOG, logLevel, EVALUATOR_COMPLETED + " :" + evaluatorId);
+    return new LoggingScopeImpl(LOG, logLevel, EVALUATOR_COMPLETED + ": " + evaluatorId);
   }
 
   /**
@@ -200,7 +200,7 @@ public final class LoggingScopeFactory {
    * @return
    */
   public LoggingScope evaluatorFailed(final String evaluatorId) {
-    return new LoggingScopeImpl(LOG, logLevel, this.EVALUATOR_FAILED + " :" + evaluatorId);
+    return new LoggingScopeImpl(LOG, logLevel, EVALUATOR_FAILED + ": " + evaluatorId);
   }
 
   /**
@@ -209,7 +209,7 @@ public final class LoggingScopeFactory {
    * @return
    */
   public LoggingScope activeContextReceived(final String contextId) {
-    return new LoggingScopeImpl(LOG, logLevel, ACTIVE_CONTEXT + " :" + contextId);
+    return new LoggingScopeImpl(LOG, logLevel, ACTIVE_CONTEXT + ": " + contextId);
   }
 
   /**
@@ -218,7 +218,7 @@ public final class LoggingScopeFactory {
    * @return
    */
   public LoggingScope closedContext(final String contextId) {
-    return new LoggingScopeImpl(LOG, logLevel, this.CONTEXT_CLOSE + " :" + contextId);
+    return new LoggingScopeImpl(LOG, logLevel, CONTEXT_CLOSE + ": " + contextId);
   }
 
   /**
@@ -227,7 +227,7 @@ public final class LoggingScopeFactory {
    * @return
    */
   public LoggingScope taskRunning(final String taskId) {
-    return new LoggingScopeImpl(LOG, logLevel, TASK_RUNNING + " :" + taskId);
+    return new LoggingScopeImpl(LOG, logLevel, TASK_RUNNING + ": " + taskId);
   }
 
   /**
@@ -236,7 +236,7 @@ public final class LoggingScopeFactory {
    * @return
    */
   public LoggingScope taskCompleted(final String taskId) {
-    return new LoggingScopeImpl(LOG, logLevel, TASK_COMPLETE + " :" + taskId);
+    return new LoggingScopeImpl(LOG, logLevel, TASK_COMPLETE + ": " + taskId);
   }
 
   /**
@@ -245,7 +245,7 @@ public final class LoggingScopeFactory {
    * @return
    */
   public LoggingScope taskSuspended(final String taskId) {
-    return new LoggingScopeImpl(LOG, logLevel, TASK_SUSPEND + " :" + taskId);
+    return new LoggingScopeImpl(LOG, logLevel, TASK_SUSPEND + ": " + taskId);
   }
 
   /**
@@ -254,7 +254,7 @@ public final class LoggingScopeFactory {
    * @return
    */
   public LoggingScope taskMessageReceived(final String msg) {
-    return new LoggingScopeImpl(LOG, logLevel, TASK_MESSAGE + " :" + msg);
+    return new LoggingScopeImpl(LOG, logLevel, TASK_MESSAGE + ": " + msg);
   }
 
   /**
@@ -263,7 +263,7 @@ public final class LoggingScopeFactory {
    * @return
    */
   public LoggingScope contextMessageReceived(final String msg) {
-    return new LoggingScopeImpl(LOG, logLevel, CONTEXT_MESSAGE + " :" + msg);
+    return new LoggingScopeImpl(LOG, logLevel, CONTEXT_MESSAGE + ": " + msg);
   }
 
   /**
@@ -272,7 +272,7 @@ public final class LoggingScopeFactory {
    * @return
    */
   public LoggingScope driverRestart(final StartTime startTime) {
-    return new LoggingScopeImpl(LOG, logLevel, DRIVER_RESTART + " :" + startTime);
+    return new LoggingScopeImpl(LOG, logLevel, DRIVER_RESTART + ": " + startTime);
   }
 
   /**
@@ -281,7 +281,7 @@ public final class LoggingScopeFactory {
    * @return
    */
   public LoggingScope driverRestartCompleted(final long timeStamp) {
-    return new LoggingScopeImpl(LOG, logLevel, DRIVER_RESTART_COMPLETE + " :" + timeStamp);
+    return new LoggingScopeImpl(LOG, logLevel, DRIVER_RESTART_COMPLETE + ": " + timeStamp);
   }
 
   /**
@@ -290,7 +290,7 @@ public final class LoggingScopeFactory {
    * @return
    */
   public LoggingScope driverRestartRunningTask(final String taskId) {
-    return new LoggingScopeImpl(LOG, logLevel, DRIVER_RESTART_RUNNING_TASK + " :" + taskId);
+    return new LoggingScopeImpl(LOG, logLevel, DRIVER_RESTART_RUNNING_TASK + ": " + taskId);
   }
 
   /**
@@ -299,7 +299,7 @@ public final class LoggingScopeFactory {
    * @return
    */
   public LoggingScope driverRestartActiveContextReceived(final String contextId) {
-    return new LoggingScopeImpl(LOG, logLevel, DRIVER_RESTART_ACTIVE_CONTEXT + " :" + contextId);
+    return new LoggingScopeImpl(LOG, logLevel, DRIVER_RESTART_ACTIVE_CONTEXT + ": " + contextId);
   }
 
   /**
@@ -308,7 +308,7 @@ public final class LoggingScopeFactory {
    * @return
    */
   public LoggingScope httpRequest(final String uri) {
-    return new LoggingScopeImpl(LOG, logLevel, this.HTTP_REQUEST + " :" + uri);
+    return new LoggingScopeImpl(LOG, logLevel, HTTP_REQUEST + ": " + uri);
   }
 
   /**
@@ -316,7 +316,7 @@ public final class LoggingScopeFactory {
    * @return
    */
   public LoggingScope httpServer() {
-    return new LoggingScopeImpl(LOG, logLevel, this.HTTP_SERVER);
+    return new LoggingScopeImpl(LOG, logLevel, HTTP_SERVER);
   }
 
   /**
@@ -325,7 +325,7 @@ public final class LoggingScopeFactory {
    * @return
    */
   public LoggingScope driverSubmit(final Boolean submitDriver) {
-    return new LoggingScopeImpl(LOG, logLevel, DRIVER_SUBMIT + " :" + submitDriver);
+    return new LoggingScopeImpl(LOG, logLevel, DRIVER_SUBMIT + ": " + submitDriver);
   }
 
   /**
@@ -333,7 +333,7 @@ public final class LoggingScopeFactory {
    * @return
    */
   public LoggingScope reefSubmit() {
-    return new LoggingScopeImpl(LOG, logLevel, this.REEF_SUBMIT);
+    return new LoggingScopeImpl(LOG, logLevel, REEF_SUBMIT);
   }
 
   /**
@@ -341,6 +341,6 @@ public final class LoggingScopeFactory {
    * @return
    */
   public LoggingScope localJobSubmission() {
-    return new LoggingScopeImpl(LOG, logLevel, this.LOCAL_JOB_SUBMIT);
+    return new LoggingScopeImpl(LOG, logLevel, LOCAL_JOB_SUBMIT);
   }
 }

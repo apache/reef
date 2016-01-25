@@ -213,7 +213,7 @@ public class JobClient {
                      final boolean local, final Configuration clientConfig) {
     try (final LoggingScope ls = this.loggingScopeFactory.driverSubmit(submitDriver)) {
       if (!local) {
-        this.driverConfiguration = Configurations.merge(this.driverConfiguration, this.getYarnConfiguration());
+        this.driverConfiguration = Configurations.merge(this.driverConfiguration, getYarnConfiguration());
       }
 
       try {

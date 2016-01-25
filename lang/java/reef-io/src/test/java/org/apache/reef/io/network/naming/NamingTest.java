@@ -102,7 +102,7 @@ public class NamingTest {
 
       // run a client
       try (final NameLookupClient client = new NameLookupClient(localAddress, this.port,
-          10000, this.factory, RETRY_COUNT, RETRY_TIMEOUT, new NameCache(this.TTL), this.localAddressProvider)) {
+          10000, this.factory, RETRY_COUNT, RETRY_TIMEOUT, new NameCache(TTL), this.localAddressProvider)) {
 
         final Identifier id1 = this.factory.getNewInstance("task1");
         final Identifier id2 = this.factory.getNewInstance("task2");
@@ -155,8 +155,8 @@ public class NamingTest {
         }
 
         // run a client
-        try (final NameLookupClient client = new NameLookupClient(localAddress, this.port,
-            10000, this.factory, RETRY_COUNT, RETRY_TIMEOUT, new NameCache(this.TTL), this.localAddressProvider)) {
+        try (final NameLookupClient client = new NameLookupClient(localAddress, this.port, 10000, this.factory,
+                RETRY_COUNT, RETRY_TIMEOUT, new NameCache(TTL), this.localAddressProvider)) {
 
           final Identifier id1 = this.factory.getNewInstance("task1");
           final Identifier id2 = this.factory.getNewInstance("task2");
@@ -311,7 +311,7 @@ public class NamingTest {
       final Configuration nameResolverConf = NameResolverConfiguration.CONF
           .set(NameResolverConfiguration.NAME_SERVER_HOSTNAME, localAddress)
           .set(NameResolverConfiguration.NAME_SERVICE_PORT, this.port)
-          .set(NameResolverConfiguration.CACHE_TIMEOUT, this.TTL)
+          .set(NameResolverConfiguration.CACHE_TIMEOUT, TTL)
           .set(NameResolverConfiguration.RETRY_TIMEOUT, RETRY_TIMEOUT)
           .set(NameResolverConfiguration.RETRY_COUNT, RETRY_COUNT)
           .build();
