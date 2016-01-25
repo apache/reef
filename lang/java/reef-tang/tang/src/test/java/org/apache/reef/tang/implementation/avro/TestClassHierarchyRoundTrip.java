@@ -45,7 +45,8 @@ public class TestClassHierarchyRoundTrip extends TestClassHierarchy {
       ns = serializer.fromFile(file);
       file.delete();
     } catch (final IOException e) {
-      Assert.fail(String.format("IOException when serialize/deserialize the ClassHierarchy", e));
+      e.printStackTrace();
+      Assert.fail("IOException when serialize/deserialize the ClassHierarchy");
     }
   }
 
@@ -58,7 +59,8 @@ public class TestClassHierarchyRoundTrip extends TestClassHierarchy {
       ns = serializer.fromTextFile(textFile);
       textFile.delete();
     } catch (final IOException e) {
-      Assert.fail(String.format("IOException when serialize/deserialize the ClassHierarchy", e));
+      e.printStackTrace();
+      Assert.fail("IOException when serialize/deserialize the ClassHierarchy");
     }
   }
 
@@ -68,7 +70,8 @@ public class TestClassHierarchyRoundTrip extends TestClassHierarchy {
     try {
       ns = serializer.fromByteArray(serializer.toByteArray(ns));
     } catch (final IOException e) {
-      Assert.fail(String.format("IOException when serialize/deserialize the ClassHierarchy", e));
+      e.printStackTrace();
+      Assert.fail("IOException when serialize/deserialize the ClassHierarchy");
     }
   }
 
@@ -78,7 +81,8 @@ public class TestClassHierarchyRoundTrip extends TestClassHierarchy {
     try {
       ns = serializer.fromString(serializer.toString(ns));
     } catch (final IOException e) {
-      Assert.fail(String.format("IOException when serialize/deserialize the ClassHierarchy", e));
+      e.printStackTrace();
+      Assert.fail("IOException when serialize/deserialize the ClassHierarchy");
     }
   }
 
