@@ -35,7 +35,7 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Context
     internal sealed class ContextManager : IDisposable
     {
         private static readonly Logger LOGGER = Logger.GetLogger(typeof(ContextManager));
-        private readonly HeartBeatManager _heartBeatManager;
+        private readonly IHeartBeatManager _heartBeatManager;
         private readonly RootContextLauncher _rootContextLauncher;
         private readonly object _contextLock = new object();
         private readonly AvroConfigurationSerializer _serializer;
@@ -43,10 +43,11 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Context
 
         [Inject]
         private ContextManager(
-            HeartBeatManager heartBeatManager,
+            IHeartBeatManager heartBeatManager,
             EvaluatorSettings evaluatorSettings,
             AvroConfigurationSerializer serializer)
         {
+            // TODO[JIRA REEF-217]: Inject base Injector and pass Injector to RootContextLauncher
             using (LOGGER.LogFunction("ContextManager::ContextManager"))
             {
                 _heartBeatManager = heartBeatManager;
@@ -56,7 +57,8 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Context
                     evaluatorSettings.RootContextId,
                     evaluatorSettings.RootContextConfig,
                     evaluatorSettings.RootServiceConfiguration,
-                    evaluatorSettings.RootTaskConfiguration);
+                    evaluatorSettings.RootTaskConfiguration,
+                    heartBeatManager);
             }
         }
 
@@ -346,8 +348,9 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Context
                         string.Format(CultureInfo.InvariantCulture, "Task expected context '{0}' but the active context has Id '{1}'", expectedContextId, currentActiveContext.Id));
                     Utilities.Diagnostics.Exceptions.Throw(e, LOGGER);
                 }
-                TaskConfiguration taskConfiguration = new TaskConfiguration(startTaskProto.configuration);
-                currentActiveContext.StartTask(taskConfiguration, expectedContextId, _heartBeatManager);
+                
+                var configuration = _serializer.FromString(startTaskProto.configuration);
+                currentActiveContext.StartTask(configuration, expectedContextId, _heartBeatManager);
             }
         }
 

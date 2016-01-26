@@ -151,6 +151,7 @@ namespace Org.Apache.REEF.Evaluator
             }
         }
 
+        // TODO[JIRA REEF-217]: Remove this method.
         private static IConfiguration ReadEvaluatorConfiguration(string evaluatorConfigFile)
         {
             if (string.IsNullOrWhiteSpace(evaluatorConfigFile))

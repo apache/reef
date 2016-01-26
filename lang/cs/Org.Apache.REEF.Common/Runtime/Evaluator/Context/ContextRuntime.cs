@@ -44,6 +44,10 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Context
         // The parent context, if any.
         private readonly Optional<ContextRuntime> _parentContext;
 
+        // Flag indicating whether the ContextRuntime was constructed with the deprecated Constructor or not.]
+        // TODO[JIRA REEF-1167]: Remove variable.
+        private readonly bool _deprecatedTaskStart;
+
         // The child context, if any.
         private Optional<ContextRuntime> _childContext = Optional<ContextRuntime>.Empty();
 
@@ -67,6 +71,7 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Context
             _contextInjector = serviceInjector.ForkInjector(contextConfiguration);
             _contextLifeCycle = _contextInjector.GetInstance<ContextLifeCycle>();
             _parentContext = parentContext;
+            _deprecatedTaskStart = false;
             _contextLifeCycle.Start();
         }
 
@@ -104,6 +109,8 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Context
                 Utilities.Diagnostics.Exceptions.Throw(ex, LOGGER);
             }
 
+            _deprecatedTaskStart = true;
+            
             // Trigger the context start events on contextInjector.
             _contextLifeCycle.Start();
         }
@@ -199,7 +206,7 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Context
         /// <param name="taskConfiguration"></param>
         /// <param name="contextId"></param>
         /// <param name="heartBeatManager"></param>
-        public void StartTask(TaskConfiguration taskConfiguration, string contextId, HeartBeatManager heartBeatManager)
+        public void StartTask(IConfiguration taskConfiguration, string contextId, IHeartBeatManager heartBeatManager)
         {
             lock (_contextLifeCycle)
             {
@@ -229,20 +236,43 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Context
                     var e = new InvalidOperationException("Attempting to instantiate a child context on a context that is not the topmost active context.");
                     Utilities.Diagnostics.Exceptions.Throw(e, LOGGER);
                 }
+
+                var taskInjector = _contextInjector.ForkInjector(taskConfiguration);
+
+                var taskRuntime = _deprecatedTaskStart 
+                    ? GetDeprecatedTaskRuntime(taskInjector, contextId, taskConfiguration, heartBeatManager) 
+                    : taskInjector.GetInstance<TaskRuntime>();
+
                 try
                 {
-                    IInjector taskInjector = _contextInjector.ForkInjector(taskConfiguration.TangConfig);
-                    LOGGER.Log(Level.Info, "Trying to inject task with configuration" + taskConfiguration.ToString());
-                    TaskRuntime taskRuntime = new TaskRuntime(taskInjector, contextId, taskConfiguration.TaskId, heartBeatManager);
-                    taskRuntime.RunTask();
                     _task = Optional<TaskRuntime>.Of(taskRuntime);
+                    taskRuntime.RunTask();
                 }
                 catch (Exception e)
                 {
-                    var ex = new TaskClientCodeException(taskConfiguration.TaskId, Id, "Unable to instantiate the new task", e);
+                    var ex = new TaskClientCodeException(string.Empty, Id, "Unable to run the new task", e);
                     Utilities.Diagnostics.Exceptions.CaughtAndThrow(ex, Level.Error, "Task start error.", LOGGER);
                 }
             }
+        }
+
+        private TaskRuntime GetDeprecatedTaskRuntime(
+            IInjector taskInjector, string contextId, IConfiguration taskConfiguration, IHeartBeatManager heartBeatManager)
+        {
+            var taskId = string.Empty;
+            try
+            {
+                taskId = taskInjector.GetNamedInstance<TaskConfigurationOptions.Identifier, string>();
+            }
+            catch (Exception e)
+            {
+                var ex = new TaskClientCodeException(string.Empty, Id, "Unable to instantiate the new task", e);
+                Utilities.Diagnostics.Exceptions.CaughtAndThrow(ex, Level.Error, "Cannot get instance of Task ID: " + e.StackTrace, LOGGER);
+            }
+
+            LOGGER.Log(Level.Info, "Trying to inject task with configuration" + taskConfiguration);
+
+            return new TaskRuntime(taskInjector, contextId, taskId, heartBeatManager);
         }
 
         /// <summary>

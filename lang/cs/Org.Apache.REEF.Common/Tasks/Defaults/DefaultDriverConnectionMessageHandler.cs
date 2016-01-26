@@ -16,24 +16,33 @@
 // under the License.
 
 using System;
-using Org.Apache.REEF.Common.Tasks.Events;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Utilities.Logging;
 
 namespace Org.Apache.REEF.Common.Tasks.Defaults
 {
-    public class DefaultDriverMessageHandler : IDriverMessageHandler
+    public sealed class DefaultDriverConnectionMessageHandler : IDriverConnectionMessageHandler
     {
-        private static readonly Logger Logger = Logger.GetLogger(typeof(DefaultDriverMessageHandler));
+        private static readonly Logger Logger = Logger.GetLogger(typeof(DefaultDriverConnectionMessageHandler));
 
         [Inject]
-        private DefaultDriverMessageHandler()
+        private DefaultDriverConnectionMessageHandler()
         {
         }
 
-        public void Handle(IDriverMessage message)
+        public void OnNext(IDriverConnectionMessage value)
         {
-            Utilities.Diagnostics.Exceptions.Throw(new InvalidOperationException("No DriverMessage handler bound. Message received" + message), Logger);
+            Logger.Log(Level.Verbose, "Driver connection state: {0}", value.State);
+        }
+
+        public void OnError(Exception error)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void OnCompleted()
+        {
+            throw new NotImplementedException();
         }
     }
 }

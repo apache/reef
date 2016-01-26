@@ -141,6 +141,7 @@ under the License.
     <Compile Include="Runtime\Evaluator\EvaluatorRuntime.cs" />
     <Compile Include="Runtime\Evaluator\EvaluatorSettings.cs" />
     <Compile Include="Runtime\Evaluator\HeartBeatManager.cs" />
+    <Compile Include="Runtime\Evaluator\IHeartBeatManager.cs" />
     <Compile Include="Runtime\Evaluator\Parameters\EvaluatorHeartbeatPeriodInMs.cs" />
     <Compile Include="Runtime\Evaluator\Parameters\HeartbeatMaxRetry.cs" />
     <Compile Include="Runtime\Evaluator\ReefMessageProtoObserver.cs" />
@@ -159,6 +160,7 @@ under the License.
     <Compile Include="Services\IService.cs" />
     <Compile Include="Services\ServiceConfiguration.cs" />
     <Compile Include="Services\ServicesConfigurationOptions.cs" />
+    <Compile Include="Tasks\Defaults\DefaultDriverConnectionMessageHandler.cs" />
     <Compile Include="Tasks\Defaults\DefaultDriverMessageHandler.cs" />
     <Compile Include="Tasks\Defaults\DefaultTaskMessageSource.cs" />
     <Compile Include="Tasks\DriverConnectionState.cs" />

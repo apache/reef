@@ -21,6 +21,7 @@ using Org.Apache.REEF.Common.Services;
 using Org.Apache.REEF.Common.Tasks;
 using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Tang.Interface;
+using Org.Apache.REEF.Tang.Util;
 using Org.Apache.REEF.Utilities;
 using Org.Apache.REEF.Utilities.Logging;
 
@@ -40,15 +41,16 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Context
         private ContextRuntime _rootContext = null;
 
         public RootContextLauncher(string id, IConfiguration contextConfiguration,
-            Optional<ServiceConfiguration> rootServiceConfig, Optional<TaskConfiguration> rootTaskConfig)
+            Optional<ServiceConfiguration> rootServiceConfig, Optional<IConfiguration> rootTaskConfig, IHeartBeatManager heartbeatManager)
         {
             Id = id;
             _rootContextConfiguration = contextConfiguration;
             _rootServiceInjector = InjectServices(rootServiceConfig);
+            _rootServiceInjector.BindVolatileInstance(GenericType<IHeartBeatManager>.Class, heartbeatManager);
             RootTaskConfig = rootTaskConfig;
         }
 
-        public Optional<TaskConfiguration> RootTaskConfig { get; set; }
+        public Optional<IConfiguration> RootTaskConfig { get; set; }
 
         public string Id { get; private set; }
 
@@ -73,6 +75,7 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Context
 
         private static IInjector InjectServices(Optional<ServiceConfiguration> serviceConfig)
         {
+            // TODO[JIRA REEF-217]: Use base injector for the Evaluator here instead.
             IInjector rootServiceInjector;
 
             if (serviceConfig.IsPresent())

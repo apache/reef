@@ -15,11 +15,13 @@
 // specific language governing permissions and limitations
 // under the License.
 
+using Org.Apache.REEF.Common.Tasks.Defaults;
 using Org.Apache.REEF.Common.Tasks.Events;
+using Org.Apache.REEF.Tang.Annotations;
 
 namespace Org.Apache.REEF.Common.Tasks
 {
-    // [DefaultImplementation(typeof(DefaultTaskMessageSource))]
+    [DefaultImplementation(typeof(DefaultDriverMessageHandler))]
     public interface IDriverMessageHandler
     {
         void Handle(IDriverMessage message);

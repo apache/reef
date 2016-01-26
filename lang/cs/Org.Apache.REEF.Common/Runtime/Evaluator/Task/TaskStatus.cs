@@ -18,8 +18,10 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using Org.Apache.REEF.Common.Context;
 using Org.Apache.REEF.Common.Protobuf.ReefProtocol;
 using Org.Apache.REEF.Common.Tasks;
+using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Utilities;
 using Org.Apache.REEF.Utilities.Logging;
 
@@ -31,7 +33,7 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Task
 
         private readonly object _stateLock = new object();
         private readonly TaskLifeCycle _taskLifeCycle;
-        private readonly HeartBeatManager _heartBeatManager;
+        private readonly IHeartBeatManager _heartBeatManager;
         private readonly Optional<ISet<ITaskMessageSource>> _evaluatorMessageSources;
         private readonly string _taskId;
         private readonly string _contextId;
@@ -40,7 +42,26 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Task
         private Optional<byte[]> _result = Optional<byte[]>.Empty();
         private TaskState _state;
 
-        public TaskStatus(HeartBeatManager heartBeatManager, string contextId, string taskId, Optional<ISet<ITaskMessageSource>> evaluatorMessageSources)
+        [Inject]
+        private TaskStatus(
+            [Parameter(typeof(ContextConfigurationOptions.ContextIdentifier))] string contextId,
+            [Parameter(typeof(TaskConfigurationOptions.Identifier))] string taskId,
+            [Parameter(typeof(TaskConfigurationOptions.TaskMessageSources))] ISet<ITaskMessageSource> taskMessageSources,
+            IHeartBeatManager heartBeatManager)
+        {
+            _heartBeatManager = heartBeatManager;
+            _taskLifeCycle = new TaskLifeCycle();
+            _evaluatorMessageSources = Optional<ISet<ITaskMessageSource>>.OfNullable(taskMessageSources);
+            State = TaskState.Init;
+            _taskId = taskId;
+            _contextId = contextId;
+        }
+
+        /// <summary>
+        /// TODO[JIRA REEF-1167]: Remove constructor.
+        /// </summary>
+        [Obsolete("Deprecated in 0.14. Will be removed.")]
+        public TaskStatus(IHeartBeatManager heartBeatManager, string contextId, string taskId, Optional<ISet<ITaskMessageSource>> evaluatorMessageSources)
         {
             _heartBeatManager = heartBeatManager;
             _taskLifeCycle = new TaskLifeCycle();

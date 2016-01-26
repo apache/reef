@@ -19,10 +19,10 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Threading;
-using Org.Apache.REEF.Common.Io;
 using Org.Apache.REEF.Common.Protobuf.ReefProtocol;
 using Org.Apache.REEF.Common.Tasks;
 using Org.Apache.REEF.Common.Tasks.Events;
+using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Tang.Exceptions;
 using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Utilities;
@@ -34,20 +34,35 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Task
     {
         private static readonly Logger Logger = Logger.GetLogger(typeof(TaskRuntime));
 
-        private readonly IInjector _injector;
         private readonly TaskStatus _currentStatus;
-        private readonly Lazy<IDriverConnectionMessageHandler> _driverConnectionMessageHandler;
-        private readonly Lazy<IDriverMessageHandler> _driverMessageHandler;
-        private int taskRan = 0;
+        private readonly Optional<IDriverConnectionMessageHandler> _driverConnectionMessageHandler;
+        private readonly Optional<IDriverMessageHandler> _driverMessageHandler;
+        private readonly ITask _userTask;
+        private int _taskRan = 0;
 
-        public TaskRuntime(IInjector taskInjector, string contextId, string taskId, HeartBeatManager heartBeatManager)
+        [Inject]
+        private TaskRuntime(
+            ITask userTask,
+            IDriverMessageHandler driverMessageHandler, 
+            IDriverConnectionMessageHandler driverConnectionMessageHandler,
+            TaskStatus taskStatus)
         {
-            _injector = taskInjector;
+            _currentStatus = taskStatus;
+            _driverMessageHandler = Optional<IDriverMessageHandler>.Of(driverMessageHandler);
+            _driverConnectionMessageHandler = Optional<IDriverConnectionMessageHandler>.Of(driverConnectionMessageHandler);
+            _userTask = userTask;
+        }
 
+        /// <summary>
+        /// TODO[JIRA REEF-1167]: Remove constructor.
+        /// </summary>
+        [Obsolete("Deprecated in 0.14. Will be removed.")]
+        public TaskRuntime(IInjector taskInjector, string contextId, string taskId, IHeartBeatManager heartBeatManager)
+        {
             var messageSources = Optional<ISet<ITaskMessageSource>>.Empty();
             try
             {
-                ITaskMessageSource taskMessageSource = _injector.GetInstance<ITaskMessageSource>();
+                var taskMessageSource = taskInjector.GetInstance<ITaskMessageSource>();
                 messageSources = Optional<ISet<ITaskMessageSource>>.Of(new HashSet<ITaskMessageSource> { taskMessageSource });
             }
             catch (Exception e)
@@ -56,43 +71,36 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Task
 
                 // do not rethrow since this is benign
             }
+
             try
             {
-                heartBeatManager.EvaluatorSettings.NameClient = _injector.GetInstance<INameClient>();
+                _driverConnectionMessageHandler = Optional<IDriverConnectionMessageHandler>.Of(taskInjector.GetInstance<IDriverConnectionMessageHandler>());
             }
             catch (InjectionException)
             {
-                // do not rethrow since user is not required to provide name client
-                Logger.Log(Level.Warning, "Cannot inject name client from task configuration.");
+                Logger.Log(Level.Info, "User did not implement IDriverConnectionMessageHandler.");
+                _driverConnectionMessageHandler = Optional<IDriverConnectionMessageHandler>.Empty();
             }
 
-            _driverConnectionMessageHandler = new Lazy<IDriverConnectionMessageHandler>(() =>
+            try
             {
-                try
-                {
-                    return _injector.GetInstance<IDriverConnectionMessageHandler>();
-                }
-                catch (InjectionException)
-                {
-                    Logger.Log(Level.Info, "User did not implement IDriverConnectionMessageHandler.");
-                }
-
-                return null;
-            });
-
-            _driverMessageHandler = new Lazy<IDriverMessageHandler>(() =>
+                _driverMessageHandler = Optional<IDriverMessageHandler>.Of(taskInjector.GetInstance<IDriverMessageHandler>());
+            }
+            catch (InjectionException)
             {
-                try
-                {
-                    return _injector.GetInstance<IDriverMessageHandler>();
-                }
-                catch (InjectionException ie)
-                {
-                    Utilities.Diagnostics.Exceptions.CaughtAndThrow(ie, Level.Error, "Received Driver message, but unable to inject handler for driver message ", Logger);
-                }
+                Logger.Log(Level.Info, "User did not implement IDriverMessageHandler.");
+                _driverMessageHandler = Optional<IDriverMessageHandler>.Empty();
+            }
 
-                return null;
-            });
+            try
+            {
+                _userTask = taskInjector.GetInstance<ITask>();
+            }
+            catch (InjectionException ie)
+            {
+                const string errorMessage = "User did not implement IDriverMessageHandler.";
+                Utilities.Diagnostics.Exceptions.CaughtAndThrow(ie, Level.Error, errorMessage, Logger);
+            }
 
             Logger.Log(Level.Info, "task message source injected");
             _currentStatus = new TaskStatus(heartBeatManager, contextId, taskId, messageSources);
@@ -113,7 +121,7 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Task
         /// </summary>
         public void RunTask()
         {
-            if (Interlocked.Exchange(ref taskRan, 1) != 0)
+            if (Interlocked.Exchange(ref _taskRan, 1) != 0)
             {
                 // Return if we have already called RunTask
                 throw new InvalidOperationException("TaskRun has already been called on TaskRuntime.");
@@ -121,21 +129,11 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Task
 
             // Send heartbeat such that user receives a TaskRunning message.
             _currentStatus.SetRunning();
-            ITask userTask;
-            try
-            {
-                userTask = _injector.GetInstance<ITask>();
-            }
-            catch (Exception e)
-            {
-                Utilities.Diagnostics.Exceptions.CaughtAndThrow(new InvalidOperationException("Unable to inject task.", e), Level.Error, "Unable to inject task.", Logger);
-                return;
-            }
-
+            
             System.Threading.Tasks.Task.Run(() =>
             {
                 Logger.Log(Level.Info, "Calling into user's task.");
-                return userTask.Call(null);
+                return _userTask.Call(null);
             }).ContinueWith(runTask =>
                 {
                     try
@@ -167,7 +165,11 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Task
                     }
                     finally
                     {
-                        userTask.Dispose();
+                        if (_userTask != null)
+                        {
+                            _userTask.Dispose();
+                        }
+
                         runTask.Dispose();
                     }
                 });
@@ -269,7 +271,7 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Task
         {
             Logger.Log(Level.Info, "TaskRuntime::OnNext(IDriverMessage value)");
 
-            if (_driverMessageHandler.Value == null)
+            if (!_driverMessageHandler.IsPresent())
             {
                 return;
             }
@@ -289,7 +291,7 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Task
         /// </summary>
         internal void HandleDriverConnectionMessage(IDriverConnectionMessage message)
         {
-            if (_driverConnectionMessageHandler.Value == null)
+            if (!_driverConnectionMessageHandler.IsPresent())
             {
                 return;
             }
