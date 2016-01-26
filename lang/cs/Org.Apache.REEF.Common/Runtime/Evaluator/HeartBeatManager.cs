@@ -17,7 +17,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Linq;
 using System.Net;
@@ -38,7 +37,7 @@ using Org.Apache.REEF.Wake.Time.Event;
 
 namespace Org.Apache.REEF.Common.Runtime.Evaluator
 {
-    internal sealed class HeartBeatManager : IObserver<Alarm>
+    internal sealed class HeartBeatManager : IHeartBeatManager
     {
         private static readonly Logger LOGGER = Logger.GetLogger(typeof(HeartBeatManager));
 
@@ -112,7 +111,7 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator
         /// <summary>
         /// EvaluatorSettings contains the configuration data of the evaluators
         /// </summary>
-        internal EvaluatorSettings EvaluatorSettings
+        public EvaluatorSettings EvaluatorSettings
         {
             get { return _evaluatorSettings; }
         }
@@ -159,7 +158,7 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator
                         }
                         catch (Exception ex)
                         {
-                            Org.Apache.REEF.Utilities.Diagnostics.Exceptions.CaughtAndThrow(ex, Level.Error, "Failed to inject the driver reconnect implementation", LOGGER);
+                            Utilities.Diagnostics.Exceptions.CaughtAndThrow(ex, Level.Error, "Failed to inject the driver reconnect implementation", LOGGER);
                         }
                         LOGGER.Log(Level.Info, "instantiate driver reconnect implementation: " + _driverConnection);
                         _evaluatorSettings.OperationState = EvaluatorOperationState.RECOVERY;

@@ -33,7 +33,7 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator
         
         private readonly string _evaluatorId;
         private readonly ContextManager _contextManager;
-        private readonly HeartBeatManager _heartBeatManager;
+        private readonly IHeartBeatManager _heartBeatManager;
         private readonly IClock _clock;
         private readonly IDisposable _evaluatorControlChannel; 
 
@@ -42,7 +42,7 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator
         [Inject]
         public EvaluatorRuntime(
             ContextManager contextManager,
-            HeartBeatManager heartBeatManager)
+            IHeartBeatManager heartBeatManager)
         {
             using (Logger.LogFunction("EvaluatorRuntime::EvaluatorRuntime"))
             {

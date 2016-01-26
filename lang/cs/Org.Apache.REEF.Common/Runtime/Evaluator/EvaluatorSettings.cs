@@ -20,11 +20,9 @@ using Org.Apache.REEF.Common.Context;
 using Org.Apache.REEF.Common.Evaluator;
 using Org.Apache.REEF.Common.Io;
 using Org.Apache.REEF.Common.Protobuf.ReefProtocol;
-using Org.Apache.REEF.Common.Runtime.Evaluator.Context;
 using Org.Apache.REEF.Common.Runtime.Evaluator.Parameters;
 using Org.Apache.REEF.Common.Runtime.Evaluator.Utils;
 using Org.Apache.REEF.Common.Services;
-using Org.Apache.REEF.Common.Tasks;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Tang.Exceptions;
 using Org.Apache.REEF.Tang.Formats;
@@ -51,7 +49,7 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator
         private readonly IInjector _injector;
         private readonly IConfiguration _rootContextConfig;
         private readonly AvroConfigurationSerializer _serializer;
-        private readonly Optional<TaskConfiguration> _rootTaskConfiguration;
+        private readonly Optional<IConfiguration> _rootTaskConfiguration;
         private readonly Optional<ServiceConfiguration> _rootServiceConfiguration;
 
         private EvaluatorOperationState _operationState;
@@ -81,7 +79,25 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator
             RuntimeClock clock,
             IRemoteManagerFactory remoteManagerFactory,
             REEFMessageCodec reefMessageCodec,
-            IInjector injector)
+            IInjector injector) :
+            this(applicationId, evaluatorId, heartbeatPeriodInMs, maxHeartbeatRetries, rootContextConfigString, serializer,
+            clock, remoteManagerFactory, reefMessageCodec, injector, null)
+        {
+        }
+
+        [Inject]
+        private EvaluatorSettings(
+            [Parameter(typeof(ApplicationIdentifier))] string applicationId,
+            [Parameter(typeof(EvaluatorIdentifier))] string evaluatorId,
+            [Parameter(typeof(EvaluatorHeartbeatPeriodInMs))] int heartbeatPeriodInMs,
+            [Parameter(typeof(HeartbeatMaxRetry))] int maxHeartbeatRetries,
+            [Parameter(typeof(RootContextConfiguration))] string rootContextConfigString,
+            AvroConfigurationSerializer serializer,
+            RuntimeClock clock,
+            IRemoteManagerFactory remoteManagerFactory,
+            REEFMessageCodec reefMessageCodec,
+            IInjector injector,
+            INameClient nameClient)
         {
             _serializer = serializer;
             _injector = injector;
@@ -105,7 +121,7 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator
             catch (InjectionException)
             {
                 Logger.Log(Level.Info, "Using deprecated ContextConfiguration.");
-                
+
                 // TODO[JIRA REEF-1167]: Remove this catch.
                 var deprecatedContextConfig = new Context.ContextConfiguration(rootContextConfigString);
                 _rootContextConfig = deprecatedContextConfig;
@@ -117,6 +133,7 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator
 
             _remoteManager = remoteManagerFactory.GetInstance(reefMessageCodec);
             _operationState = EvaluatorOperationState.OPERATIONAL;
+            _nameClient = nameClient;
         }
 
         /// <summary>
@@ -198,7 +215,7 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator
         /// <summary>
         /// return Root Task Configuration passed from Evaluator configuration
         /// </summary>
-        public Optional<TaskConfiguration> RootTaskConfiguration
+        public Optional<IConfiguration> RootTaskConfiguration
         {
             get { return _rootTaskConfiguration; }
         }
@@ -260,7 +277,7 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator
             }
         }
 
-        private Optional<TaskConfiguration> CreateTaskConfiguration()
+        private Optional<IConfiguration> CreateTaskConfiguration()
         {
             string taskConfigString = null;
             try
@@ -272,9 +289,8 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator
                 Logger.Log(Level.Info, "InitialTaskConfiguration is not set in Evaluator.config.");
             }
             return string.IsNullOrEmpty(taskConfigString)
-                ? Optional<TaskConfiguration>.Empty()
-                : Optional<TaskConfiguration>.Of(
-                    new TaskConfiguration(taskConfigString));
+                ? Optional<IConfiguration>.Empty()
+                : Optional<IConfiguration>.Of(_serializer.FromString(taskConfigString));
         }
 
         private Optional<ServiceConfiguration> CreateRootServiceConfiguration()

@@ -16,6 +16,8 @@
 // under the License.
 
 using System;
+using Org.Apache.REEF.Common.Tasks.Defaults;
+using Org.Apache.REEF.Tang.Annotations;
 
 namespace Org.Apache.REEF.Common.Tasks
 {
@@ -23,6 +25,7 @@ namespace Org.Apache.REEF.Common.Tasks
     /// The handler implementable by users to handle IDriverConnectionMessages,
     /// which notifies the Task when there is a change in driver connection state.
     /// </summary>
+    [DefaultImplementation(typeof(DefaultDriverConnectionMessageHandler))]
     public interface IDriverConnectionMessageHandler : IObserver<IDriverConnectionMessage>
     {
     }

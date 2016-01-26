@@ -39,7 +39,7 @@ namespace Org.Apache.REEF.Evaluator.Tests
         public void CanInjectAndExecuteTask()
         {
             // to enforce that shell task dll be copied to output directory.
-            ShellTask tmpTask = new ShellTask("invalid");
+            var tmpTask = new ShellTask("invalid");
             Assert.NotNull(tmpTask);
 
             string tmp = Directory.GetCurrentDirectory();
@@ -56,21 +56,17 @@ namespace Org.Apache.REEF.Evaluator.Tests
                 .Build());
             cb.BindNamedParameter<ShellTask.Command, string>(GenericType<ShellTask.Command>.Class, "dir");
 
-            IConfiguration taskConfiguration = cb.Build();
+            var config = cb.Build();
+            ITask task;
 
-            string taskConfig = serializer.ToString(taskConfiguration);
-
-            ITask task = null;
-            TaskConfiguration config = new TaskConfiguration(taskConfig);
-            Assert.NotNull(config);
             try
             {
-                IInjector injector = TangFactory.GetTang().NewInjector(config.TangConfig);
+                IInjector injector = TangFactory.GetTang().NewInjector(config);
                 task = (ITask)injector.GetInstance(typeof(ITask));
             }
             catch (Exception e)
             {
-                throw new InvalidOperationException("unable to inject task with configuration: " + taskConfig, e);
+                throw new InvalidOperationException("unable to inject task with configuration: " + config, e);
             }
 
             byte[] bytes = task.Call(null);
