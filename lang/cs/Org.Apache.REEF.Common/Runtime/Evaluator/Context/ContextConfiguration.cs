@@ -53,7 +53,7 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Context
                 {
                     string msg = "Required parameter ContextIdentifier not provided.";
                     LOGGER.Log(Level.Error, msg);
-                    Org.Apache.REEF.Utilities.Diagnostics.Exceptions.Throw(new ArgumentException(msg), LOGGER);
+                    Utilities.Diagnostics.Exceptions.Throw(new ArgumentException(msg), LOGGER);
                 }
             }
         }

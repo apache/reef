@@ -24,7 +24,6 @@ using Org.Apache.REEF.Common.Io;
 using Org.Apache.REEF.Common.Services;
 using Org.Apache.REEF.Common.Tasks;
 using Org.Apache.REEF.Driver.Bridge;
-using Org.Apache.REEF.Driver.Context;
 using Org.Apache.REEF.Driver.Evaluator;
 using Org.Apache.REEF.Examples.Tasks.HelloTask;
 using Org.Apache.REEF.Network.Naming;
@@ -34,6 +33,7 @@ using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Tang.Util;
 using Org.Apache.REEF.Utilities;
+using Org.Apache.REEF.Common.Context;
 
 namespace Org.Apache.REEF.Examples.AllHandlers
 {

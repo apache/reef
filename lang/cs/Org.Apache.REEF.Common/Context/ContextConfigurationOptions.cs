@@ -17,21 +17,19 @@
 
 using System;
 using System.Collections.Generic;
-using Org.Apache.REEF.Common.Context;
+using Org.Apache.REEF.Common.Context.Defaults;
 using Org.Apache.REEF.Common.Events;
-using Org.Apache.REEF.Driver.Context.Defaults;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Tang.Formats;
 using Org.Apache.REEF.Utilities.Attributes;
 
-namespace Org.Apache.REEF.Driver.Context
+namespace Org.Apache.REEF.Common.Context
 {
     /// <summary>
     ///  Configuration parameters for ContextConfiguration module.
     /// </summary>
     [ClientSide]
-    [Obsolete("Obsoleted in 0.14, please use Org.Apache.REEF.Common.ContextConfiguration instead.")]
-    public sealed class ContextConfigurationOptions : ConfigurationModuleBuilder 
+    public sealed class ContextConfigurationOptions : ConfigurationModuleBuilder
     {
         [NamedParameter(documentation: "The identifier for the context.")]
         public class ContextIdentifier : Name<string>

@@ -16,12 +16,10 @@
 // under the License.
 
 using System;
-using System.Collections.Generic;
 using System.Globalization;
+using Org.Apache.REEF.Common.Context;
 using Org.Apache.REEF.Common.Tasks;
 using Org.Apache.REEF.Driver;
-using Org.Apache.REEF.Driver.Bridge;
-using Org.Apache.REEF.Driver.Context;
 using Org.Apache.REEF.Driver.Evaluator;
 using Org.Apache.REEF.Driver.Task;
 using Org.Apache.REEF.Tang.Annotations;

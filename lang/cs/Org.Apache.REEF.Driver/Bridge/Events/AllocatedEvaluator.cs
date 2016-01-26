@@ -74,8 +74,9 @@ namespace Org.Apache.REEF.Driver.Bridge.Events
         public void SubmitTask(IConfiguration taskConfiguration)
         {
             var contextConfiguration =
-                ContextConfiguration.ConfigurationModule.Set(ContextConfiguration.Identifier, "RootContext_" + this.Id)
-                    .Build();
+                Common.Context.ContextConfiguration.ConfigurationModule.Set(
+                    Common.Context.ContextConfiguration.Identifier, "RootContext_" + this.Id).Build();
+
             SubmitContextAndTask(contextConfiguration, taskConfiguration);
         }
         public void SubmitContext(IConfiguration contextConfiguration)

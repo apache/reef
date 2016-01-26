@@ -15,33 +15,25 @@
 // specific language governing permissions and limitations
 // under the License.
 
-using System;
-using Org.Apache.REEF.Common.Events;
-using Org.Apache.REEF.Utilities.Logging;
+using Org.Apache.REEF.Utilities;
 
-namespace Org.Apache.REEF.Driver.Context.Defaults
-{ 
+namespace Org.Apache.REEF.Common.Context.Defaults
+{
     /// <summary>
-    // Default handler for ContextStart
+    /// Default ContextMessageSource: return nothing.
     /// </summary>
-    [Obsolete("Deprecated in 0.14, please use Org.Apache.REEF.Common.Evaluator.Defaults.DefaultContextStartHandler instead.")]
-    public class DefaultContextStartHandler : IObserver<IContextStart>
+    public class DefaultContextMessageSource : IContextMessageSource
     {
-        private static readonly Logger LOGGER = Logger.GetLogger(typeof(DefaultContextStartHandler));
-
-        public void OnNext(IContextStart contextStart)
+        public Optional<ContextMessage> Message
         {
-            LOGGER.Log(Level.Info, "DefaultContextStartHandler received for context: " + contextStart.Id);
-        }
+            get
+            {
+                return Optional<ContextMessage>.Empty();
+            }
 
-        public void OnError(Exception error)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void OnCompleted()
-        {
-            throw new NotImplementedException();
+            set
+            {
+            }
         }
     }
 }

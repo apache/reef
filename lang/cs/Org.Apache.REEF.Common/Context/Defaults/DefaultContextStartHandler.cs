@@ -19,19 +19,18 @@ using System;
 using Org.Apache.REEF.Common.Events;
 using Org.Apache.REEF.Utilities.Logging;
 
-namespace Org.Apache.REEF.Driver.Context.Defaults
-{ 
+namespace Org.Apache.REEF.Common.Context.Defaults
+{
     /// <summary>
-    // Default handler for ContextStart
+    /// Default handler for ContextStart
     /// </summary>
-    [Obsolete("Deprecated in 0.14, please use Org.Apache.REEF.Common.Evaluator.Defaults.DefaultContextStartHandler instead.")]
     public class DefaultContextStartHandler : IObserver<IContextStart>
     {
-        private static readonly Logger LOGGER = Logger.GetLogger(typeof(DefaultContextStartHandler));
+        private static readonly Logger Logger = Logger.GetLogger(typeof(DefaultContextStartHandler));
 
         public void OnNext(IContextStart contextStart)
         {
-            LOGGER.Log(Level.Info, "DefaultContextStartHandler received for context: " + contextStart.Id);
+            Logger.Log(Level.Info, "DefaultContextStartHandler received for context: " + contextStart.Id);
         }
 
         public void OnError(Exception error)
