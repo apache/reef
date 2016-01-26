@@ -16,19 +16,6 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-var releaseDirect = {
-    "0.10.0-incubating": "http://www.apache.org/dist/reef/0.10.0-incubating/apache-reef-0.10.0-incubating.tar.gz",
-    "0.11.0-incubating": "http://www.apache.org/dist/reef/0.11.0-incubating/apache-reef-0.11.0-incubating.tar.gz",
-    "0.12.0-incubating": "http://www.apache.org/dist/reef/0.12.0-incubating/apache-reef-0.12.0-incubating.tar.gz",
-    "0.13.0-incubating": "http://www.apache.org/dist/reef/0.13.0-incubating/apache-reef-0.13.0-incubating.tar.gz"
-};
-
-var releaseMirror = {
-    "0.10.0-incubating": "http://www.apache.org/dyn/closer.cgi/reef/0.10.0-incubating",
-    "0.11.0-incubating": "http://www.apache.org/dyn/closer.cgi/reef/0.11.0-incubating",
-    "0.12.0-incubating": "http://www.apache.org/dyn/closer.cgi/reef/0.12.0-incubating",
-    "0.13.0-incubating": "http://www.apache.org/dyn/closer.cgi/reef/0.13.0-incubating"
-};
 
 var releaseSha512 = {
     "0.10.0-incubating": "53844174f701a4c0c99964260c7abb4f8ef9d93aa6b8bdddbca37082e0f5754db5b00e2ae1fdd7732735159df8205a82e7a4dde2ef5abf2ca3e5d7dc43eb62fb",
@@ -44,42 +31,33 @@ var releaseNotes = {
     "0.13.0-incubating": "https://issues.apache.org/jira/secure/ReleaseNote.jspa?projectId=12315820&version=12332972"
 };
 
-var javaApi = {
-    "0.10.0-incubating": "apidocs/0.10.0-incubating/index.html",
-    "0.11.0-incubating": "apidocs/0.11.0-incubating/index.html",
-    "0.12.0-incubating": "apidocs/0.12.0-incubating/index.html",
-    "0.13.0-incubating": "apidocs/0.13.0-incubating/index.html"
-};
-
-var dotnetApi = {
-};
-
 function setReleaseLink() {
     var releaseVersion = this.document.getElementById("selectRelease").value;
-    if (releaseDirect[releaseVersion] == undefined) {
-        this.document.getElementById("listRelease").style.display= "none";
+    this.document.getElementById("listRelease").style.display = "block";
+
+    var releaseDirectStr = "http://www.apache.org/dist/reef/" + releaseVersion + "/apache-reef-" + releaseVersion + ".tar.gz";
+    this.document.getElementById("directLink").setAttribute("href", releaseDirectStr);
+
+    var releaseMirror = "http://www.apache.org/dyn/closer.cgi/reef/" + releaseVersion;
+    this.document.getElementById("mirrorLink").setAttribute("href", releaseMirror);
+    this.document.getElementById("sha512Text").innerHTML = releaseSha512[releaseVersion];
+    this.document.getElementById("releaseNotesLink").setAttribute("href", releaseNotes[releaseVersion]);
+
+    var directReleaseStrSplit = releaseDirectStr.split("/");
+    this.document.getElementById("directLink").innerHTML =
+        directReleaseStrSplit[directReleaseStrSplit.length - 1];
+    this.document.getElementById("verificationLink").setAttribute("href",
+        releaseDirectStr.slice(0, (0 - directReleaseStrSplit[directReleaseStrSplit.length - 1].length)));
+
+    var javaApiLink = "apidocs/" + releaseVersion + "/index.html";
+    this.document.getElementById("javaApiLink").setAttribute("href", javaApiLink);
+    if (releaseVersion.indexOf("incubating") > -1) {
+        // special case: for versions 0.13.0 and earlier (incubation releases) .NET API documentation is not available
+        this.document.getElementById("dotnetApiLink").innerHTML = ".NET API available since release 0.14.0";
     } else {
-        this.document.getElementById("listRelease").style.display = "block";
-
-        var releaseDirectStr = releaseDirect[releaseVersion];
-        this.document.getElementById("directLink").setAttribute("href", releaseDirectStr);
-        this.document.getElementById("mirrorLink").setAttribute("href", releaseMirror[releaseVersion]);
-        this.document.getElementById("sha512Text").innerHTML = releaseSha512[releaseVersion];
-        this.document.getElementById("releaseNotesLink").setAttribute("href", releaseNotes[releaseVersion]);
-
-        var directReleaseStrSplit = releaseDirectStr.split("/");
-        this.document.getElementById("directLink").innerHTML =
-            directReleaseStrSplit[directReleaseStrSplit.length - 1];
-        this.document.getElementById("verificationLink").setAttribute("href",
-            releaseDirectStr.slice(0, (0 - directReleaseStrSplit[directReleaseStrSplit.length - 1].length)));
-
-        this.document.getElementById("javaApiLink").setAttribute("href", javaApi[releaseVersion]);
-        if (dotnetApi[releaseVersion] == undefined) {
-            // special case: for versions 0.13.0 and earlier .NET API documentation is not available
-            this.document.getElementById("dotnetApiLink").innerHTML = ".NET API available since release 0.14.0";
-        } else {
-            this.document.getElementById("dotnetApiLink").innerHTML = "<a href=" + dotnetApi[releaseVersion] + ">.NET API</a>";
-        }
+        var dotnetApiLink = "apidoc_net/" + releaseVersion + "/index.html";
+        this.document.getElementById("dotnetApiLink").innerHTML = "<a href=" + dotnetApiLink + ">.NET API</a>";
     }
-
 }
+
+setReleaseLink();
