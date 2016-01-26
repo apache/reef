@@ -145,6 +145,7 @@ under the License.
     <Compile Include="YARN\YarnREEFDotNetClient.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Avro\README.md" />
     <None Include="Org.Apache.REEF.Client.nuspec" />
     <None Include="packages.config" />
   </ItemGroup>
