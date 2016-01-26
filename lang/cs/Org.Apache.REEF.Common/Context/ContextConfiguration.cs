@@ -17,7 +17,6 @@
 
 using System;
 using System.Diagnostics.CodeAnalysis;
-using Org.Apache.REEF.Common.Context;
 using Org.Apache.REEF.Common.Events;
 using Org.Apache.REEF.Common.Tasks;
 using Org.Apache.REEF.Common.Tasks.Events;
@@ -27,11 +26,9 @@ using Org.Apache.REEF.Utilities.Attributes;
 
 [module: SuppressMessage("StyleCop.CSharp.MaintainabilityRules", "SA1401:FieldsMustBePrivate", Justification = "static field, typical usage in configurations")]
 
-namespace Org.Apache.REEF.Driver.Context
+namespace Org.Apache.REEF.Common.Context
 {
-    // TODO[JIRA REEF-1167]: Delete class.
     [ClientSide]
-    [Obsolete("Obsoleted in 0.14, please use Org.Apache.REEF.Common.ContextConfiguration instead.")]
     public sealed class ContextConfiguration : ConfigurationModuleBuilder
     {
         /// <summary>

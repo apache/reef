@@ -15,17 +15,13 @@
 // specific language governing permissions and limitations
 // under the License.
 
-using System;
-using Org.Apache.REEF.Common.Context;
 using Org.Apache.REEF.Utilities;
 
-namespace Org.Apache.REEF.Driver.Context.Defaults
+namespace Org.Apache.REEF.Common.Context.Defaults
 {
     /// <summary>
     /// Default ContextMessageSource: return nothing.
     /// </summary>
-    /// TODO[JIRA REEF-1167]: Remove this class.
-    [Obsolete("Deprecated in 0.14, please use Org.Apache.REEF.Common.Evaluator.Defaults.DefaultContextMessageSource instead.")]
     public class DefaultContextMessageSource : IContextMessageSource
     {
         public Optional<ContextMessage> Message

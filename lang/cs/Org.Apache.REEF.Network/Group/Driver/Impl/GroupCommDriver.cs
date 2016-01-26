@@ -33,6 +33,7 @@ using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Tang.Util;
 using Org.Apache.REEF.Utilities.Logging;
+using ContextConfiguration = Org.Apache.REEF.Common.Context.ContextConfiguration;
 
 namespace Org.Apache.REEF.Network.Group.Driver.Impl
 {
