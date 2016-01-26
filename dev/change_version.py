@@ -241,7 +241,7 @@ def change_project_number_Doxyfile(file, new_version):
 
 
 """
-Change version of every pom.xml, every AsssemblyInfo.cs, 
+Change version of every pom.xml, every AssemblyInfo.cs,
 Constants.cs, AssemblyInfo.cpp, run.cmd and Resources.xml
 """
 def change_version(reef_home, new_version, pom_only):
