@@ -115,21 +115,6 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Utils
             }
         }
 
-        /// <summary>
-        /// The TaskConfiguration submitted with the evaluator configuration, if any.
-        /// </summary>
-        public Optional<TaskConfiguration> TaskConfiguration
-        {
-            get
-            {
-                var taskConfig = TaskConfigurationString;
-                return string.IsNullOrEmpty(taskConfig)
-                    ? Optional<TaskConfiguration>.Empty()
-                    : Optional<TaskConfiguration>.Of(
-                        new TaskConfiguration(taskConfig));
-            }
-        } 
-
         public string EvaluatorId
         {
             get

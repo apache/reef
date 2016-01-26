@@ -38,7 +38,7 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Task
         private readonly TaskStatus _currentStatus;
         private readonly Lazy<IDriverConnectionMessageHandler> _driverConnectionMessageHandler;
         private readonly Lazy<IDriverMessageHandler> _driverMessageHandler;
-        private int taskRan = 0;
+        private int _taskRan = 0;
 
         public TaskRuntime(IInjector taskInjector, string contextId, string taskId, HeartBeatManager heartBeatManager)
         {
@@ -113,7 +113,7 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Task
         /// </summary>
         public void RunTask()
         {
-            if (Interlocked.Exchange(ref taskRan, 1) != 0)
+            if (Interlocked.Exchange(ref _taskRan, 1) != 0)
             {
                 // Return if we have already called RunTask
                 throw new InvalidOperationException("TaskRun has already been called on TaskRuntime.");

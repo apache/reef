@@ -196,7 +196,7 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Context
         /// <param name="taskConfiguration"></param>
         /// <param name="contextId"></param>
         /// <param name="heartBeatManager"></param>
-        public void StartTask(TaskConfiguration taskConfiguration, string contextId, HeartBeatManager heartBeatManager)
+        public void StartTask(IConfiguration taskConfiguration, string contextId, HeartBeatManager heartBeatManager)
         {
             lock (_contextLifeCycle)
             {
@@ -226,17 +226,30 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Context
                     var e = new InvalidOperationException("Attempting to instantiate a child context on a context that is not the topmost active context.");
                     Utilities.Diagnostics.Exceptions.Throw(e, LOGGER);
                 }
+
+                var taskInjector = _contextInjector.ForkInjector(taskConfiguration);
+                var taskId = string.Empty;
                 try
                 {
-                    IInjector taskInjector = _contextInjector.ForkInjector(taskConfiguration.TangConfig);
-                    LOGGER.Log(Level.Info, "Trying to inject task with configuration" + taskConfiguration.ToString());
-                    TaskRuntime taskRuntime = new TaskRuntime(taskInjector, contextId, taskConfiguration.TaskId, heartBeatManager);
+                    taskId = taskInjector.GetNamedInstance<TaskConfigurationOptions.Identifier, string>();
+                }
+                catch (Exception e)
+                {
+                    var ex = new TaskClientCodeException(string.Empty, Id, "Unable to instantiate the new task", e);
+                    Utilities.Diagnostics.Exceptions.CaughtAndThrow(ex, Level.Error, "Cannot get instance of Task ID: " + e.StackTrace, LOGGER);
+                }
+
+                LOGGER.Log(Level.Info, "Trying to inject task with configuration" + taskConfiguration);
+
+                try
+                {
+                    var taskRuntime = new TaskRuntime(taskInjector, contextId, taskId, heartBeatManager);
                     taskRuntime.RunTask();
                     _task = Optional<TaskRuntime>.Of(taskRuntime);
                 }
                 catch (Exception e)
                 {
-                    var ex = new TaskClientCodeException(taskConfiguration.TaskId, Id, "Unable to instantiate the new task", e);
+                    var ex = new TaskClientCodeException(taskId, Id, "Unable to instantiate the new task", e);
                     Utilities.Diagnostics.Exceptions.CaughtAndThrow(ex, Level.Error, "Task start error.", LOGGER);
                 }
             }

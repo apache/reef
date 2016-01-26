@@ -16,13 +16,9 @@
 // under the License.
 
 using System;
-using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
-using System.Globalization;
 using Org.Apache.REEF.Common.Tasks.Events;
 using Org.Apache.REEF.Tang.Formats;
-using Org.Apache.REEF.Tang.Formats.AvroConfigurationDataContract;
-using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Tang.Util;
 using Org.Apache.REEF.Utilities.Logging;
 
@@ -30,11 +26,8 @@ using Org.Apache.REEF.Utilities.Logging;
 
 namespace Org.Apache.REEF.Common.Tasks
 {
-    public class TaskConfiguration : ConfigurationModuleBuilder
+    public sealed class TaskConfiguration : ConfigurationModuleBuilder
     {
-        // this is a hack for getting the task identifier for now
-        public const string TaskIdentifier = "TaskConfigurationOptions+Identifier";
-
         /// <summary>
         ///  The identifier of the task.
         /// </summary>
@@ -95,32 +88,6 @@ namespace Org.Apache.REEF.Common.Tasks
         [SuppressMessage("Microsoft.Security", "CA2104:Do not declare read only mutable reference types", Justification = "not applicable")]
         public static readonly OptionalParameter<string> Memento = new OptionalParameter<string>();
 
-        private static readonly Logger LOGGER = Logger.GetLogger(typeof(TaskConfiguration));
-
-        public TaskConfiguration()
-            : base()
-        {
-        }
-
-        public TaskConfiguration(string configString)
-        {
-            TangConfig = new AvroConfigurationSerializer().FromString(configString);
-            AvroConfiguration avroConfiguration = AvroConfiguration.GetAvroConfigurationFromEmbeddedString(configString);
-            foreach (ConfigurationEntry config in avroConfiguration.Bindings)
-            {
-                if (config.key.Contains(TaskIdentifier))
-                {
-                    TaskId = config.value;
-                }
-            }
-            if (string.IsNullOrWhiteSpace(TaskId))
-            {
-                string msg = "Required parameter TaskId not provided.";
-                LOGGER.Log(Level.Error, msg);
-                Org.Apache.REEF.Utilities.Diagnostics.Exceptions.Throw(new ArgumentException(msg), LOGGER);
-            }
-        }
-
         public static ConfigurationModule ConfigurationModule
         {
             get
@@ -138,17 +105,6 @@ namespace Org.Apache.REEF.Common.Tasks
                     .BindSetEntry(GenericType<TaskConfigurationOptions.StopHandlers>.Class, OnTaskStop)
                     .Build();
             }
-        }
-
-        public string TaskId { get;  private set; }
-
-        public IList<KeyValuePair<string, string>> Configurations { get; private set; }
-
-        public IConfiguration TangConfig { get; private set; }
-
-        public override string ToString()
-        {
-            return string.Format(CultureInfo.InvariantCulture, "TaskConfiguration - configurations: {0}", TangConfig.ToString());
         }
     }
 }

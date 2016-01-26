@@ -25,6 +25,7 @@ using Org.Apache.REEF.Common.Runtime.Evaluator.Task;
 using Org.Apache.REEF.Common.Services;
 using Org.Apache.REEF.Common.Tasks;
 using Org.Apache.REEF.Tang.Annotations;
+using Org.Apache.REEF.Tang.Formats;
 using Org.Apache.REEF.Utilities;
 using Org.Apache.REEF.Utilities.Logging;
 
@@ -338,8 +339,9 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Context
                         string.Format(CultureInfo.InvariantCulture, "Task expected context '{0}' but the active context has Id '{1}'", expectedContextId, currentActiveContext.Id));
                     Utilities.Diagnostics.Exceptions.Throw(e, LOGGER);
                 }
-                TaskConfiguration taskConfiguration = new TaskConfiguration(startTaskProto.configuration);
-                currentActiveContext.StartTask(taskConfiguration, expectedContextId, _heartBeatManager);
+                
+                var configuration = new AvroConfigurationSerializer().FromString(startTaskProto.configuration);
+                currentActiveContext.StartTask(configuration, expectedContextId, _heartBeatManager);
             }
         }
 
