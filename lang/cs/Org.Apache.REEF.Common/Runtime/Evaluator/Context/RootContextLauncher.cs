@@ -39,14 +39,14 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Context
 
         private ContextConfiguration _rootContextConfiguration = null;
 
-        public RootContextLauncher(ContextConfiguration rootContextConfig, Optional<ServiceConfiguration> rootServiceConfig, Optional<TaskConfiguration> rootTaskConfig)
+        public RootContextLauncher(ContextConfiguration rootContextConfig, Optional<ServiceConfiguration> rootServiceConfig, Optional<IConfiguration> rootTaskConfig)
         {
             _rootContextConfiguration = rootContextConfig;
             _rootServiceInjector = InjectServices(rootServiceConfig);
             RootTaskConfig = rootTaskConfig;
         }
 
-        public Optional<TaskConfiguration> RootTaskConfig { get; set; }
+        public Optional<IConfiguration> RootTaskConfig { get; set; }
 
         public ContextConfiguration RootContextConfig
         {

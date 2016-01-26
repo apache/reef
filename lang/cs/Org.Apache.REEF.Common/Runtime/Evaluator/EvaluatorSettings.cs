@@ -26,6 +26,7 @@ using Org.Apache.REEF.Common.Services;
 using Org.Apache.REEF.Common.Tasks;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Tang.Exceptions;
+using Org.Apache.REEF.Tang.Formats;
 using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Utilities;
 using Org.Apache.REEF.Utilities.Logging;
@@ -47,7 +48,7 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator
         private readonly IRemoteManager<REEFMessage> _remoteManager;
         private readonly IInjector _injector;
         private readonly ContextConfiguration _rootContextConfig;
-        private readonly Optional<TaskConfiguration> _rootTaskConfiguration;
+        private readonly Optional<IConfiguration> _rootTaskConfiguration;
         private readonly Optional<ServiceConfiguration> _rootServiceConfiguration;
 
         private EvaluatorOperationState _operationState;
@@ -168,7 +169,7 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator
         /// <summary>
         /// return Root Task Configuration passed from Evaluator configuration
         /// </summary>
-        public Optional<TaskConfiguration> RootTaskConfiguration
+        public Optional<IConfiguration> RootTaskConfiguration
         {
             get { return _rootTaskConfiguration; }
         }
@@ -230,7 +231,7 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator
             }
         }
 
-        private Optional<TaskConfiguration> CreateTaskConfiguration()
+        private Optional<IConfiguration> CreateTaskConfiguration()
         {
             string taskConfigString = null;
             try
@@ -242,9 +243,8 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator
                 Logger.Log(Level.Info, "InitialTaskConfiguration is not set in Evaluator.config.");
             }
             return string.IsNullOrEmpty(taskConfigString)
-                ? Optional<TaskConfiguration>.Empty()
-                : Optional<TaskConfiguration>.Of(
-                    new TaskConfiguration(taskConfigString));
+                ? Optional<IConfiguration>.Empty()
+                : Optional<IConfiguration>.Of(new AvroConfigurationSerializer().FromString(taskConfigString));
         }
 
         private Optional<ServiceConfiguration> CreateRootServiceConfiguration()

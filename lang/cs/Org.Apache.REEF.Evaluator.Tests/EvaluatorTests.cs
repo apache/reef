@@ -56,21 +56,16 @@ namespace Org.Apache.REEF.Evaluator.Tests
                 .Build());
             cb.BindNamedParameter<ShellTask.Command, string>(GenericType<ShellTask.Command>.Class, "dir");
 
-            IConfiguration taskConfiguration = cb.Build();
-
-            string taskConfig = serializer.ToString(taskConfiguration);
-
-            ITask task = null;
-            TaskConfiguration config = new TaskConfiguration(taskConfig);
-            Assert.NotNull(config);
+            var taskConfiguration = cb.Build();
+            ITask task;
             try
             {
-                IInjector injector = TangFactory.GetTang().NewInjector(config.TangConfig);
-                task = (ITask)injector.GetInstance(typeof(ITask));
+                IInjector injector = TangFactory.GetTang().NewInjector(taskConfiguration);
+                task = injector.GetInstance<ITask>();
             }
             catch (Exception e)
             {
-                throw new InvalidOperationException("unable to inject task with configuration: " + taskConfig, e);
+                throw new InvalidOperationException("unable to inject task with configuration: " + taskConfiguration, e);
             }
 
             byte[] bytes = task.Call(null);
