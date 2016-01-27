@@ -35,35 +35,33 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Context
         
         private readonly IInjector _rootServiceInjector = null;
 
+        private readonly IConfiguration _rootContextConfiguration;
+
         private ContextRuntime _rootContext = null;
 
-        private ContextConfiguration _rootContextConfiguration = null;
-
-        public RootContextLauncher(ContextConfiguration rootContextConfig, Optional<ServiceConfiguration> rootServiceConfig, Optional<TaskConfiguration> rootTaskConfig)
+        public RootContextLauncher(string id, IConfiguration contextConfiguration,
+            Optional<ServiceConfiguration> rootServiceConfig, Optional<TaskConfiguration> rootTaskConfig)
         {
-            _rootContextConfiguration = rootContextConfig;
+            Id = id;
+            _rootContextConfiguration = contextConfiguration;
             _rootServiceInjector = InjectServices(rootServiceConfig);
             RootTaskConfig = rootTaskConfig;
         }
 
         public Optional<TaskConfiguration> RootTaskConfig { get; set; }
 
-        public ContextConfiguration RootContextConfig
-        {
-            get { return _rootContextConfiguration; }
-            set { _rootContextConfiguration = value; }
-        }
+        public string Id { get; private set; }
 
         internal ContextRuntime GetRootContext()
         {
             if (_rootContext == null)
             {
-                _rootContext = GetRootContext(_rootServiceInjector, _rootContextConfiguration);
+                _rootContext = new ContextRuntime(Id, _rootServiceInjector, _rootContextConfiguration);
             }
             return _rootContext;
         }
 
-        private IInjector InjectServices(Optional<ServiceConfiguration> serviceConfig)
+        private static IInjector InjectServices(Optional<ServiceConfiguration> serviceConfig)
         {
             IInjector rootServiceInjector;
 
@@ -91,32 +89,5 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Context
             
             return rootServiceInjector;
         }
-
-        private ContextRuntime GetRootContext( 
-            IInjector rootServiceInjector,
-            IConfiguration rootContextConfiguration)
-        {
-            ContextRuntime result;
-            result = new ContextRuntime(rootServiceInjector, rootContextConfiguration);
-            return result;
-        }
     }
 }
-////if (rootServiceInjector != null)
-////{
-////   try
-////   {
-////       rootServiceInjector = rootServiceInjector.ForkInjector(serviceConfigs);
-////   }
-////   catch (Exception e)
-////   {
-////       throw new ContextClientCodeException(ContextClientCodeException.GetId(rootContextConfiguration),
-////                                            Optional<String>.Empty(),
-////                                            "Unable to instatiate the root context", e);
-////   }
-////   result = new ContextRuntime(rootServiceInjector, rootContextConfiguration);
-////}
-////else
-////{
-////   result = new ContextRuntime(rootServiceInjector.ForkInjector(), rootContextConfiguration);
-////}

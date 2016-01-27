@@ -38,20 +38,21 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Context
         private readonly HeartBeatManager _heartBeatManager;
         private readonly RootContextLauncher _rootContextLauncher;
         private readonly object _contextLock = new object();
-        private readonly AvroConfigurationSerializer _avroConfigSerializer;
+        private readonly AvroConfigurationSerializer _serializer;
         private ContextRuntime _topContext = null;
 
         [Inject]
         private ContextManager(
             HeartBeatManager heartBeatManager,
             EvaluatorSettings evaluatorSetting,
-            AvroConfigurationSerializer avroConfigSerializer)
+            AvroConfigurationSerializer serializer)
         {
             using (LOGGER.LogFunction("ContextManager::ContextManager"))
             {
-                _avroConfigSerializer = avroConfigSerializer;
                 _heartBeatManager = heartBeatManager;
+                _serializer = serializer;
                 _rootContextLauncher = new RootContextLauncher(
+                    evaluatorSetting.RootContextConfig.Id,
                     evaluatorSetting.RootContextConfig,
                     evaluatorSetting.RootServiceConfiguration,
                     evaluatorSetting.RootTaskConfiguration);
@@ -73,7 +74,7 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Context
                     LOGGER.Log(Level.Info, "Launching the initial Task");
                     try
                     {
-                        _topContext.StartTask(_rootContextLauncher.RootTaskConfig.Value, _rootContextLauncher.RootContextConfig.Id, _heartBeatManager);
+                        _topContext.StartTask(_rootContextLauncher.RootTaskConfig.Value, _rootContextLauncher.Id, _heartBeatManager);
                     }
                     catch (TaskClientCodeException e)
                     {
@@ -285,7 +286,7 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Context
                 IConfiguration contextConfiguration;
                 try
                 {
-                    contextConfiguration = _avroConfigSerializer.FromString(addContextProto.context_configuration);
+                    contextConfiguration = _serializer.FromString(addContextProto.context_configuration);
                 }
                 catch (Exception)
                 {

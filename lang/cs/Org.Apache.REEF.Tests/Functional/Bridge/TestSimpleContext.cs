@@ -17,10 +17,12 @@
 
 using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Org.Apache.REEF.Common.Tasks;
 using Org.Apache.REEF.Driver;
 using Org.Apache.REEF.Driver.Bridge;
 using Org.Apache.REEF.Driver.Context;
 using Org.Apache.REEF.Driver.Evaluator;
+using Org.Apache.REEF.Driver.Task;
 using Org.Apache.REEF.Examples.AllHandlers;
 using Org.Apache.REEF.Examples.Tasks.HelloTask;
 using Org.Apache.REEF.Tang.Annotations;
@@ -95,6 +97,8 @@ namespace Org.Apache.REEF.Tests.Functional.Bridge
                 .Set(DriverConfiguration.OnEvaluatorAllocated, GenericType<AllocatedEvaluatorHandler>.Class)
                 .Set(DriverConfiguration.OnContextActive, GenericType<TestContextHandlers>.Class)
                 .Set(DriverConfiguration.OnTaskMessage, GenericType<HelloTaskMessageHandler>.Class)
+                .Set(DriverConfiguration.OnTaskCompleted, GenericType<TestContextHandlers>.Class)
+                .Set(DriverConfiguration.OnTaskRunning, GenericType<TestContextHandlers>.Class)
                 .Build();
         }
 
@@ -102,9 +106,11 @@ namespace Org.Apache.REEF.Tests.Functional.Bridge
         {
             return DriverConfiguration.ConfigurationModule
                 .Set(DriverConfiguration.OnDriverStarted, GenericType<TestContextHandlers>.Class)
-                .Set(DriverConfiguration.OnEvaluatorAllocated, GenericType<AllocatedEvaluatorHandler>.Class)
+                .Set(DriverConfiguration.OnEvaluatorAllocated, GenericType<DeprecatedAllocatedEvaluatorHandler>.Class)
                 .Set(DriverConfiguration.OnContextActive, GenericType<TestContextHandlers>.Class)
                 .Set(DriverConfiguration.OnTaskMessage, GenericType<HelloTaskMessageHandler>.Class)
+                .Set(DriverConfiguration.OnTaskCompleted, GenericType<TestContextHandlers>.Class)
+                .Set(DriverConfiguration.OnTaskRunning, GenericType<TestContextHandlers>.Class)
                 .Build();
         }
 
@@ -158,7 +164,7 @@ namespace Org.Apache.REEF.Tests.Functional.Bridge
             }
         }
 
-        private sealed class TestContextHandlers : IObserver<IDriverStarted>, IObserver<IActiveContext>
+        private sealed class TestContextHandlers : IObserver<IDriverStarted>, IObserver<IActiveContext>, IObserver<IRunningTask>, IObserver<ICompletedTask>
         {
             private readonly IEvaluatorRequestor _requestor;
 
@@ -180,9 +186,23 @@ namespace Org.Apache.REEF.Tests.Functional.Bridge
                 {
                     throw new Exception("Unexpected ContextId: " + value.Id);
                 }
-                
+
+                value.SubmitTask(
+                    TaskConfiguration.ConfigurationModule.Set(TaskConfiguration.Identifier, "helloTaskId")
+                    .Set(TaskConfiguration.Task, GenericType<HelloTask>.Class)
+                    .Build());
+            }
+
+            public void OnNext(IRunningTask value)
+            {
+                Logger.Log(Level.Info, "Running Task" + value.Id);
+            }
+
+            public void OnNext(ICompletedTask value)
+            {
+                Logger.Log(Level.Info, "Completed Task" + value.Id);
                 Logger.Log(Level.Info, ValidationMessage);
-                value.Dispose();
+                value.ActiveContext.Dispose();
             }
 
             public void OnError(Exception error)
