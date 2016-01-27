@@ -103,14 +103,15 @@ public final class VortexWorker implements Task, TaskMessageSource {
             case AggregateTasklets:
               final TaskletAggregationRequest taskletAggregationRequest = (TaskletAggregationRequest) vortexRequest;
               aggregates.put(taskletAggregationRequest.getAggregateFunctionId(),
-                  new AggregateContainer(taskletAggregationRequest));
+                  new AggregateContainer(heartBeatTriggerManager, vortexAvroUtils, workerReports,
+                      taskletAggregationRequest));
 
               // VortexFunctions need to be put into the repository such that VortexAvroUtils will know how to
               // convert inputs and functions into a VortexRequest on subsequent messages requesting to
               // execute the aggregateable tasklets.
               aggregateFunctionRepository.put(taskletAggregationRequest.getAggregateFunctionId(),
-                  taskletAggregationRequest.getAggregateFunction(), taskletAggregationRequest.getFunction());
-
+                  taskletAggregationRequest.getAggregateFunction(), taskletAggregationRequest.getFunction(),
+                  taskletAggregationRequest.getPolicy());
               break;
             case ExecuteAggregateTasklet:
               executeAggregateTasklet(commandExecutor, vortexRequest);
@@ -185,7 +186,6 @@ public final class VortexWorker implements Task, TaskMessageSource {
               LOG.log(Level.SEVERE, "Cannot wait for Future to be put.");
               throw new RuntimeException(e);
             }
-
             futures.remove(taskletExecutionRequest.getTaskletId());
             heartBeatTriggerManager.triggerHeartBeat();
           }
@@ -213,19 +213,11 @@ public final class VortexWorker implements Task, TaskMessageSource {
       @Override
       public void run() {
         try {
+          aggregateContainer.scheduleTasklet(taskletAggregateExecutionRequest.getTaskletId());
           final Object result = aggregationRequest.executeFunction(taskletAggregateExecutionRequest.getInput());
           aggregateContainer.taskletComplete(taskletAggregateExecutionRequest.getTaskletId(), result);
         } catch (final Exception e) {
           aggregateContainer.taskletFailed(taskletAggregateExecutionRequest.getTaskletId(), e);
-        }
-
-        // TODO[JIRA REEF-1131]: Call according to aggregate policies.
-        final Optional<WorkerReport> workerReport = aggregateContainer.aggregateTasklets();
-
-        // Add to worker report only if there is something to report back.
-        if (workerReport.isPresent()) {
-          workerReports.addLast(vortexAvroUtils.toBytes(workerReport.get()));
-          heartBeatTriggerManager.triggerHeartBeat();
         }
       }
     });
