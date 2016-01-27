@@ -33,6 +33,7 @@ import org.apache.reef.vortex.common.*;
 import org.apache.reef.vortex.common.AggregateFunctionRepository;
 import org.apache.reef.vortex.driver.VortexWorkerConf;
 import org.apache.reef.wake.EventHandler;
+import org.apache.reef.wake.time.Clock;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
@@ -60,13 +61,16 @@ public final class VortexWorker implements Task, TaskMessageSource {
   private final VortexAvroUtils vortexAvroUtils;
   private final HeartBeatTriggerManager heartBeatTriggerManager;
   private final int numOfThreads;
+  private final Clock clock;
   private final CountDownLatch terminated = new CountDownLatch(1);
 
   @Inject
   private VortexWorker(final HeartBeatTriggerManager heartBeatTriggerManager,
                        final AggregateFunctionRepository aggregateFunctionRepository,
                        final VortexAvroUtils vortexAvroUtils,
+                       final Clock clock,
                        @Parameter(VortexWorkerConf.NumOfThreads.class) final int numOfThreads) {
+    this.clock = clock;
     this.heartBeatTriggerManager = heartBeatTriggerManager;
     this.aggregateFunctionRepository = aggregateFunctionRepository;
     this.vortexAvroUtils = vortexAvroUtils;
@@ -103,14 +107,15 @@ public final class VortexWorker implements Task, TaskMessageSource {
             case AggregateTasklets:
               final TaskletAggregationRequest taskletAggregationRequest = (TaskletAggregationRequest) vortexRequest;
               aggregates.put(taskletAggregationRequest.getAggregateFunctionId(),
-                  new AggregateContainer(taskletAggregationRequest));
+                  new AggregateContainer(clock, heartBeatTriggerManager,
+                      vortexAvroUtils, workerReports, taskletAggregationRequest));
 
               // VortexFunctions need to be put into the repository such that VortexAvroUtils will know how to
               // convert inputs and functions into a VortexRequest on subsequent messages requesting to
               // execute the aggregateable tasklets.
               aggregateFunctionRepository.put(taskletAggregationRequest.getAggregateFunctionId(),
-                  taskletAggregationRequest.getAggregateFunction(), taskletAggregationRequest.getFunction());
-
+                  taskletAggregationRequest.getAggregateFunction(), taskletAggregationRequest.getFunction(),
+                  taskletAggregationRequest.getPolicy());
               break;
             case ExecuteAggregateTasklet:
               executeAggregateTasklet(commandExecutor, vortexRequest);
@@ -185,7 +190,6 @@ public final class VortexWorker implements Task, TaskMessageSource {
               LOG.log(Level.SEVERE, "Cannot wait for Future to be put.");
               throw new RuntimeException(e);
             }
-
             futures.remove(taskletExecutionRequest.getTaskletId());
             heartBeatTriggerManager.triggerHeartBeat();
           }
@@ -213,19 +217,11 @@ public final class VortexWorker implements Task, TaskMessageSource {
       @Override
       public void run() {
         try {
+          aggregateContainer.scheduleTasklet(taskletAggregateExecutionRequest.getTaskletId());
           final Object result = aggregationRequest.executeFunction(taskletAggregateExecutionRequest.getInput());
           aggregateContainer.taskletComplete(taskletAggregateExecutionRequest.getTaskletId(), result);
         } catch (final Exception e) {
           aggregateContainer.taskletFailed(taskletAggregateExecutionRequest.getTaskletId(), e);
-        }
-
-        // TODO[JIRA REEF-1131]: Call according to aggregate policies.
-        final Optional<WorkerReport> workerReport = aggregateContainer.aggregateTasklets();
-
-        // Add to worker report only if there is something to report back.
-        if (workerReport.isPresent()) {
-          workerReports.addLast(vortexAvroUtils.toBytes(workerReport.get()));
-          heartBeatTriggerManager.triggerHeartBeat();
         }
       }
     });

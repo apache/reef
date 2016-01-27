@@ -34,7 +34,8 @@
     "fields": [
       {"name": "aggregateFunctionId", "type": "int"},
       {"name": "serializedUserFunction", "type": "bytes"},
-      {"name": "serializedAggregateFunction", "type": "bytes"}
+      {"name": "serializedAggregateFunction", "type": "bytes"},
+      {"name": "serializedPolicy", "type": "bytes"}
     ]
   },
   {

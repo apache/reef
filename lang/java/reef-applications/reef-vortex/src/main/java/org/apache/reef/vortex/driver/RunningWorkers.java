@@ -164,8 +164,11 @@ final class RunningWorkers {
             !workerHasAggregateFunction(vortexWorkerManager.getId(), taskletAggFunctionId.get())) {
 
           // This assumes that all aggregate tasklets share the same user function.
-          vortexWorkerManager.sendAggregateFunction(taskletAggFunctionId.get(),
-              aggregateFunctionRepository.getAggregateFunction(taskletAggFunctionId.get()), tasklet.getUserFunction());
+          vortexWorkerManager.sendAggregateFunction(
+              taskletAggFunctionId.get(),
+              aggregateFunctionRepository.getAggregateFunction(taskletAggFunctionId.get()),
+              tasklet.getUserFunction(),
+              aggregateFunctionRepository.getPolicy(taskletAggFunctionId.get()));
           workerAggregateFunctionMap.get(vortexWorkerManager.getId()).add(taskletAggFunctionId.get());
         }
 

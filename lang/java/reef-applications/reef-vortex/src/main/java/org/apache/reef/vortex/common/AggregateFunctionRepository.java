@@ -18,11 +18,12 @@
  */
 package org.apache.reef.vortex.common;
 
-import org.apache.commons.lang3.tuple.ImmutablePair;
-import org.apache.commons.lang3.tuple.Pair;
+import org.apache.commons.lang3.tuple.ImmutableTriple;
+import org.apache.commons.lang3.tuple.Triple;
 import org.apache.reef.annotations.Unstable;
 import org.apache.reef.annotations.audience.Private;
 import org.apache.reef.vortex.api.VortexAggregateFunction;
+import org.apache.reef.vortex.api.VortexAggregatePolicy;
 import org.apache.reef.vortex.api.VortexFunction;
 
 import javax.annotation.concurrent.ThreadSafe;
@@ -39,7 +40,7 @@ import java.util.concurrent.ConcurrentMap;
 @Unstable
 @Private
 public final class AggregateFunctionRepository {
-  private final ConcurrentMap<Integer, Pair<VortexAggregateFunction, VortexFunction>>
+  private final ConcurrentMap<Integer, Triple<VortexAggregateFunction, VortexFunction, VortexAggregatePolicy>>
       aggregateFunctionMap = new ConcurrentHashMap<>();
 
   @Inject
@@ -49,10 +50,12 @@ public final class AggregateFunctionRepository {
   /**
    * Associates an aggregate function ID with a {@link VortexAggregateFunction} and a {@link VortexFunction}.
    */
-  public Pair<VortexAggregateFunction, VortexFunction> put(final int aggregateFunctionId,
-                                                           final VortexAggregateFunction aggregateFunction,
-                                                           final VortexFunction function) {
-    return aggregateFunctionMap.put(aggregateFunctionId, new ImmutablePair<>(aggregateFunction, function));
+  public Triple<VortexAggregateFunction, VortexFunction, VortexAggregatePolicy> put(
+      final int aggregateFunctionId,
+      final VortexAggregateFunction aggregateFunction,
+      final VortexFunction function,
+      final VortexAggregatePolicy policy) {
+    return aggregateFunctionMap.put(aggregateFunctionId, new ImmutableTriple<>(aggregateFunction, function, policy));
   }
 
   /**
@@ -66,6 +69,13 @@ public final class AggregateFunctionRepository {
    * Gets the {@link VortexFunction} associated with the aggregate function ID.
    */
   public VortexFunction getFunction(final int aggregateFunctionId) {
+    return aggregateFunctionMap.get(aggregateFunctionId).getMiddle();
+  }
+
+  /**
+   * Gets the {@link VortexAggregatePolicy} associated with the aggregate function ID.
+   */
+  public VortexAggregatePolicy getPolicy(final int aggregateFunctionId) {
     return aggregateFunctionMap.get(aggregateFunctionId).getRight();
   }
 }

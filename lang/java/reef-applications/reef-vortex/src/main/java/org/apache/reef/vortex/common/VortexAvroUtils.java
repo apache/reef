@@ -26,6 +26,7 @@ import org.apache.reef.annotations.Unstable;
 import org.apache.reef.annotations.audience.DriverSide;
 import org.apache.reef.annotations.audience.Private;
 import org.apache.reef.vortex.api.VortexAggregateFunction;
+import org.apache.reef.vortex.api.VortexAggregatePolicy;
 import org.apache.reef.vortex.api.VortexFunction;
 import org.apache.reef.vortex.common.avro.*;
 
@@ -84,12 +85,15 @@ public final class VortexAvroUtils {
           taskletAggregationRequest.getAggregateFunction());
       final byte[] serializedFunctionForAggregation = SerializationUtils.serialize(
           taskletAggregationRequest.getFunction());
+      final byte[] serializedPolicy = SerializationUtils.serialize(
+          taskletAggregationRequest.getPolicy());
       avroVortexRequest = AvroVortexRequest.newBuilder()
           .setRequestType(AvroRequestType.Aggregate)
           .setTaskletRequest(AvroTaskletAggregationRequest.newBuilder()
               .setAggregateFunctionId(taskletAggregationRequest.getAggregateFunctionId())
               .setSerializedAggregateFunction(ByteBuffer.wrap(serializedAggregateFunction))
               .setSerializedUserFunction(ByteBuffer.wrap(serializedFunctionForAggregation))
+              .setSerializedPolicy(ByteBuffer.wrap(serializedPolicy))
               .build())
           .build();
       break;
@@ -244,8 +248,11 @@ public final class VortexAvroUtils {
       final VortexFunction functionForAggregation =
           (VortexFunction) SerializationUtils.deserialize(
               taskletAggregationRequest.getSerializedUserFunction().array());
+      final VortexAggregatePolicy policy =
+          (VortexAggregatePolicy) SerializationUtils.deserialize(
+              taskletAggregationRequest.getSerializedPolicy().array());
       vortexRequest = new TaskletAggregationRequest<>(taskletAggregationRequest.getAggregateFunctionId(),
-          aggregateFunction, functionForAggregation);
+          aggregateFunction, functionForAggregation, policy);
       break;
     case ExecuteTasklet:
       final AvroTaskletExecutionRequest taskletExecutionRequest =
