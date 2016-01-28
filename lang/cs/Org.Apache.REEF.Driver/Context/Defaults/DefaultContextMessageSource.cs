@@ -31,10 +31,6 @@ namespace Org.Apache.REEF.Driver.Context.Defaults
             {
                 return Optional<Common.Context.ContextMessage>.Empty();
             }
-
-            set
-            {
-            }
         }
     }
 }
