@@ -56,6 +56,7 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Context
         {
             if (_rootContext == null)
             {
+                // TODO[JIRA REEF-1167]: Remove use of this constructor.
                 _rootContext = new ContextRuntime(Id, _rootServiceInjector, _rootContextConfiguration);
             }
             return _rootContext;

@@ -26,6 +26,8 @@ using Org.Apache.REEF.Utilities.Logging;
 
 namespace Org.Apache.REEF.Common.Runtime.Evaluator.Context
 {
+    // TODO[JIRA REEF-1167]: Remove class.
+    [Obsolete("Deprecated in 0.14. Will be removed.")]
     internal sealed class ContextConfiguration : IConfiguration
     {
         private static readonly Logger LOGGER = Logger.GetLogger(typeof(ContextConfiguration));

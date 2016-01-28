@@ -57,7 +57,7 @@ namespace Org.Apache.REEF.Tests.Functional.Bridge
         [Timeout(180 * 1000)]
         public void TestSimpleContextOnLocalRuntime()
         {
-            TestContextOnLocalRuntime(MergeAssembliesConfiguration(ContextDriverConfiguration()));
+            TestContextOnLocalRuntime(ContextDriverConfiguration());
         }
 
         /// <summary>
@@ -69,7 +69,7 @@ namespace Org.Apache.REEF.Tests.Functional.Bridge
         [Timeout(180 * 1000)]
         public void TestDeprecatedContextOnLocalRuntime()
         {
-            TestContextOnLocalRuntime(MergeAssembliesConfiguration(DeprecatedContextDriverConfiguration()));
+            TestContextOnLocalRuntime(DeprecatedContextDriverConfiguration());
         }
 
         private void TestContextOnLocalRuntime(IConfiguration configuration)
@@ -80,14 +80,6 @@ namespace Org.Apache.REEF.Tests.Functional.Bridge
             ValidateSuccessForLocalRuntime(1, testFolder: testFolder);
             ValidateMessageSuccessfullyLogged(ValidationMessage, testFolder);
             CleanUp(testFolder);
-        }
-
-        private static IConfiguration MergeAssembliesConfiguration(IConfiguration configuration)
-        {
-            return TangFactory.GetTang().NewConfigurationBuilder(configuration)
-                .BindSetEntry<DriverBridgeConfigurationOptions.SetOfAssemblies, string>(typeof(HelloTask).Assembly.GetName().Name)
-                .BindSetEntry<DriverBridgeConfigurationOptions.SetOfAssemblies, string>(typeof(TestContextHandlers).Assembly.GetName().Name)
-                .Build();
         }
 
         private static IConfiguration ContextDriverConfiguration()

@@ -160,6 +160,7 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator
         /// <summary>
         /// return Root Context Configuration passed from Evaluator configuration
         /// </summary>
+        /// TODO[JIRA REEF-1167]: Change this to use IConfiguration.
         public ContextConfiguration RootContextConfig
         {
             get { return _rootContextConfig; }

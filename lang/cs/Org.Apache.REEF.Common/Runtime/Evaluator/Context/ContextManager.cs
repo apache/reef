@@ -44,7 +44,7 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Context
         [Inject]
         private ContextManager(
             HeartBeatManager heartBeatManager,
-            EvaluatorSettings evaluatorSetting,
+            EvaluatorSettings evaluatorSettings,
             AvroConfigurationSerializer serializer)
         {
             using (LOGGER.LogFunction("ContextManager::ContextManager"))
@@ -52,10 +52,10 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Context
                 _heartBeatManager = heartBeatManager;
                 _serializer = serializer;
                 _rootContextLauncher = new RootContextLauncher(
-                    evaluatorSetting.RootContextConfig.Id,
-                    evaluatorSetting.RootContextConfig,
-                    evaluatorSetting.RootServiceConfiguration,
-                    evaluatorSetting.RootTaskConfiguration);
+                    evaluatorSettings.RootContextConfig.Id,
+                    evaluatorSettings.RootContextConfig,
+                    evaluatorSettings.RootServiceConfiguration,
+                    evaluatorSettings.RootTaskConfiguration);
             }
         }
 
@@ -290,6 +290,7 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Context
                 }
                 catch (Exception)
                 {
+                    // TODO[JIRA REEF-1167]: Remove the catch.
                     contextConfiguration = new ContextConfiguration(addContextProto.context_configuration);
                 }
 

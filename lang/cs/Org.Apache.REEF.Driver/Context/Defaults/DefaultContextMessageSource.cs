@@ -24,6 +24,7 @@ namespace Org.Apache.REEF.Driver.Context.Defaults
     /// <summary>
     /// Default ContextMessageSource: return nothing.
     /// </summary>
+    /// TODO[JIRA REEF-1167]: Remove this class.
     [Obsolete("Deprecated in 0.14, please use Org.Apache.REEF.Common.Evaluator.Defaults.DefaultContextMessageSource instead.")]
     public class DefaultContextMessageSource : IContextMessageSource
     {

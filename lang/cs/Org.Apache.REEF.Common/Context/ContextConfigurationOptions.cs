@@ -20,7 +20,6 @@ using System.Collections.Generic;
 using Org.Apache.REEF.Common.Context.Defaults;
 using Org.Apache.REEF.Common.Events;
 using Org.Apache.REEF.Tang.Annotations;
-using Org.Apache.REEF.Tang.Formats;
 using Org.Apache.REEF.Utilities.Attributes;
 
 namespace Org.Apache.REEF.Common.Context
@@ -28,8 +27,9 @@ namespace Org.Apache.REEF.Common.Context
     /// <summary>
     ///  Configuration parameters for ContextConfiguration module.
     /// </summary>
+    /// TODO[JIRA REEF-1167]: Remove this class.
     [ClientSide]
-    public sealed class ContextConfigurationOptions : ConfigurationModuleBuilder
+    public static class ContextConfigurationOptions
     {
         [NamedParameter(documentation: "The identifier for the context.")]
         public class ContextIdentifier : Name<string>

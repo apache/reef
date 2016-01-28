@@ -34,6 +34,7 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Context
 
         private readonly HashSet<IContextMessageSource> _contextMessageSources;
 
+        // TODO[JIRA REEF-1167]: Make method private.
         [Inject]
         public ContextLifeCycle([Parameter(typeof(ContextConfigurationOptions.ContextIdentifier))] string contextId)
         {

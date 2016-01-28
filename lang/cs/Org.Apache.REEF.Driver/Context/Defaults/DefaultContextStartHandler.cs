@@ -22,8 +22,9 @@ using Org.Apache.REEF.Utilities.Logging;
 namespace Org.Apache.REEF.Driver.Context.Defaults
 { 
     /// <summary>
-    // Default handler for ContextStart
+    /// Default handler for ContextStart
     /// </summary>
+    /// TODO[JIRA REEF-1167]: Remove this class.
     [Obsolete("Deprecated in 0.14, please use Org.Apache.REEF.Common.Evaluator.Defaults.DefaultContextStartHandler instead.")]
     public class DefaultContextStartHandler : IObserver<IContextStart>
     {
