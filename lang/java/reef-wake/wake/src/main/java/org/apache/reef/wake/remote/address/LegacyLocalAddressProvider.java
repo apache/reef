@@ -83,8 +83,7 @@ public final class LegacyLocalAddressProvider implements LocalAddressProvider {
         cached.set(sortedAddrs.pollFirst().getHostAddress());
         LOG.log(Level.FINE, "Local address is {0}", cached.get());
       } catch (final SocketException e) {
-        throw new WakeRuntimeException("Unable to get local host address",
-            e.getCause());
+        throw new WakeRuntimeException("Unable to get local host address", e);
       }
     }
     return cached.get();

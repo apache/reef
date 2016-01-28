@@ -78,7 +78,7 @@ public final class ClosedContextBridge extends NativeBridge implements ClosedCon
   public void close() throws Exception {
   }
 
-  public String getEvaluatorDescriptorSring() {
+  public String getEvaluatorDescriptorString() {
     final String descriptorString = Utilities.getEvaluatorDescriptorString(evaluatorDescriptor);
     LOG.log(Level.INFO, "Closed Context - serialized evaluator descriptor: " + descriptorString);
     return descriptorString;

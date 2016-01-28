@@ -97,7 +97,7 @@ public class TestBindSingleton {
   }
 
   @Test
-  public void testMultipleInjectorInstaceWithSingleton() throws BindException, InjectionException {
+  public void testMultipleInjectorInstanceWithSingleton() throws BindException, InjectionException {
     final JavaConfigurationBuilder cb = Tang.Factory.getTang().newConfigurationBuilder();
 
     final Injector i1 = Tang.Factory.getTang().newInjector(cb.build());

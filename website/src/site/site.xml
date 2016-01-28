@@ -83,7 +83,7 @@ under the License.
             <item name="Overview" href="index.html"/>
             <item name="FAQ" href="faq.html"/>
             <item name="License" href="license.html"/>
-            <item name="Downloads" href="downloads.html"/>
+            <item name="Downloads &amp; APIs" href="downloads.html"/>
             <item name="Privacy Policy" href="privacy-policy.html"/>
         </menu>
 
@@ -94,10 +94,6 @@ under the License.
             <item name="Glossary" href="glossary.html"/>
             <item name="Tang" href="tang.html"/>
             <item name="Wake" href="wake.html"/>
-            <item name="0.10.0-incubating API" href="apidocs/0.10.0-incubating/index.html"/>
-            <item name="0.11.0-incubating API" href="apidocs/0.11.0-incubating/index.html"/>
-            <item name="0.12.0-incubating API" href="apidocs/0.12.0-incubating/index.html"/>
-            <item name="0.13.0-incubating API" href="apidocs/0.13.0-incubating/index.html"/>
         </menu>
         <menu name="Contribution">
             <item name="Contributing" href="https://cwiki.apache.org/confluence/display/REEF/Contributing"/>

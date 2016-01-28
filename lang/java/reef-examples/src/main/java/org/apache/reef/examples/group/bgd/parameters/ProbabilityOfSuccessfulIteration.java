@@ -16,24 +16,15 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.tests.multipleEventHandlerInstances;
+package org.apache.reef.examples.group.bgd.parameters;
 
-import org.apache.reef.task.Task;
-
-import javax.inject.Inject;
+import org.apache.reef.tang.annotations.Name;
+import org.apache.reef.tang.annotations.NamedParameter;
 
 /**
- *
+ * Break criterion for the optimizer. If the progress in mean loss between
+ * two iterations is less than this, the optimization stops.
  */
-public class EmptyTask implements Task {
-
-  @Inject
-  public EmptyTask() {
-  }
-
-  @Override
-  public byte[] call(final byte[] memento) throws Exception {
-    return null;
-  }
-
+@NamedParameter(short_name = "psuccess", default_value = "0.5")
+public final class ProbabilityOfSuccessfulIteration implements Name<Double> {
 }

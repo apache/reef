@@ -114,7 +114,7 @@ public class InjectorImpl implements Injector {
         i.instances.put(newCn, old.instances.get(cn));
       } catch (final BindException e) {
         throw new IllegalStateException("Could not resolve name "
-            + cn.getFullName() + " when copying injector");
+            + cn.getFullName() + " when copying injector", e);
       }
     }
     // Copy references to the remaining (which must have been set with
@@ -318,7 +318,7 @@ public class InjectorImpl implements Injector {
           } catch (final ParseException e) {
             // Parsability is now pre-checked in bindSet, so it should not be reached!
             throw new IllegalStateException("Could not parse " + o + " which was passed into " + np +
-                " FIXME: Parsability is not currently checked by bindSetEntry(Node,String)");
+                " FIXME: Parsability is not currently checked by bindSetEntry(Node,String)", e);
           }
         } else if (o instanceof Node) {
           ret2.add((T) o);
@@ -339,7 +339,7 @@ public class InjectorImpl implements Injector {
           } catch (final ParseException e) {
             // Parsability is now pre-checked in bindList, so it should not be reached!
             throw new IllegalStateException("Could not parse " + o + " which was passed into " + np + " FIXME: " +
-                "Parsability is not currently checked by bindList(Node,List)");
+                "Parsability is not currently checked by bindList(Node,List)", e);
           }
         } else if (o instanceof Node) {
           ret2.add((T) o);
@@ -608,7 +608,7 @@ public class InjectorImpl implements Injector {
         pendingFutures.add(ret);
         return (T) ret;
       } catch (final ClassNotFoundException e) {
-        throw new InjectionException("Could not get class for " + key);
+        throw new InjectionException("Could not get class for " + key, e);
       }
     } else if (plan.getNode() instanceof ClassNode && null != getCachedInstance((ClassNode<T>) plan.getNode())) {
       return getCachedInstance((ClassNode<T>) plan.getNode());
@@ -723,7 +723,7 @@ public class InjectorImpl implements Injector {
       } catch (final IllegalArgumentException e) {
         throw new BindException(
             "Attempt to bind named parameter " + ReflectionUtilities.getFullName(cl) + " failed. "
-                + "Value is [" + o + "]");
+                + "Value is [" + o + "]", e);
 
       }
     } else {
