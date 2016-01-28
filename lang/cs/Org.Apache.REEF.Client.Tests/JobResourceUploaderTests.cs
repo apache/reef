@@ -48,12 +48,14 @@ namespace Org.Apache.REEF.Client.Tests
         }
 
         [TestMethod]
-        public void UploadJobResourceCreatesResourceArchive()
+        public void UploadJobResourceFlowCreatesResourceArchive()
         {
             var testContext = new TestContext();
+            var jobArchiveCreator = testContext.GetResourceArchiveFileGenerator();
             var jobResourceUploader = testContext.GetJobResourceUploader();
 
-            jobResourceUploader.UploadJobResource(AnyDriverLocalFolderPath, AnyDriverResourceUploadPath);
+            var localArchivePath = jobArchiveCreator.CreateArchiveToUpload(AnyDriverLocalFolderPath);
+            jobResourceUploader.UploadJobResource(localArchivePath, AnyDriverResourceUploadPath);
 
             // Archive file generator recieved exactly one call with correct driver local folder path
             testContext.ResourceArchiveFileGenerator.Received(1).CreateArchiveToUpload(AnyDriverLocalFolderPath);
@@ -63,9 +65,11 @@ namespace Org.Apache.REEF.Client.Tests
         public void UploadJobResourceReturnsJobResourceDetails()
         {
             var testContext = new TestContext();
+            var jobArchiveCreator = testContext.GetResourceArchiveFileGenerator();
             var jobResourceUploader = testContext.GetJobResourceUploader();
 
-            var jobResource = jobResourceUploader.UploadJobResource(AnyDriverLocalFolderPath, AnyDriverResourceUploadPath);
+            var jobResource = jobResourceUploader.UploadJobResource(
+                jobArchiveCreator.CreateArchiveToUpload(AnyDriverLocalFolderPath), AnyDriverResourceUploadPath);
 
             Assert.AreEqual(AnyModificationTime, jobResource.LastModificationUnixTimestamp);
             Assert.AreEqual(AnyResourceSize, jobResource.ResourceSize);
@@ -76,9 +80,11 @@ namespace Org.Apache.REEF.Client.Tests
         public void UploadJobResourceMakesCorrectFileSystemCalls()
         {
             var testContext = new TestContext();
+            var jobArchiveCreator = testContext.GetResourceArchiveFileGenerator();
             var jobResourceUploader = testContext.GetJobResourceUploader();
 
-            jobResourceUploader.UploadJobResource(AnyDriverLocalFolderPath, AnyDriverResourceUploadPath);
+            jobResourceUploader.UploadJobResource(
+                jobArchiveCreator.CreateArchiveToUpload(AnyDriverLocalFolderPath), AnyDriverResourceUploadPath);
 
             testContext.FileSystem.Received(1).CreateUriForPath(AnyDriverResourceUploadPath);
             testContext.FileSystem.Received(1).CreateUriForPath(AnyUploadedResourcePath);
@@ -94,18 +100,26 @@ namespace Org.Apache.REEF.Client.Tests
                 Substitute.For<IResourceArchiveFileGenerator>();
             public readonly IFileSystem FileSystem = Substitute.For<IFileSystem>();
 
-            public FileSystemJobResourceUploader GetJobResourceUploader()
+            public TestContext()
             {
-                var injector = TangFactory.GetTang().NewInjector();
                 FileSystem.GetFileStatus(new Uri(AnyUploadedResourceAbsoluteUri))
                     .Returns(new FileStatus(Epoch + TimeSpan.FromSeconds(AnyModificationTime), AnyResourceSize));
-                ResourceArchiveFileGenerator.CreateArchiveToUpload(AnyDriverLocalFolderPath)
-                    .Returns(AnyLocalArchivePath);
                 FileSystem.CreateUriForPath(AnyDriverResourceUploadPath)
                     .Returns(new Uri(AnyScheme + AnyHost + AnyDriverResourceUploadPath));
                 FileSystem.CreateUriForPath(AnyUploadedResourcePath)
                     .Returns(new Uri(AnyUploadedResourceAbsoluteUri));
-                injector.BindVolatileInstance(GenericType<IResourceArchiveFileGenerator>.Class, ResourceArchiveFileGenerator);
+            }
+
+            public IResourceArchiveFileGenerator GetResourceArchiveFileGenerator()
+            {
+                ResourceArchiveFileGenerator.CreateArchiveToUpload(AnyDriverLocalFolderPath)
+                    .Returns(AnyLocalArchivePath);
+                return ResourceArchiveFileGenerator;
+            }
+
+            public FileSystemJobResourceUploader GetJobResourceUploader()
+            {
+                var injector = TangFactory.GetTang().NewInjector();
                 injector.BindVolatileInstance(GenericType<IFileSystem>.Class, FileSystem);
                 return injector.GetInstance<FileSystemJobResourceUploader>();
             }

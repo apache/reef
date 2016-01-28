@@ -78,42 +78,42 @@ namespace Org.Apache.REEF.Client.YARN
 
         public void Submit(IJobSubmission jobSubmission)
         {
-            var jobId = jobSubmission.JobIdentifier;
-
             // todo: Future client interface should be async.
             // Using GetAwaiter().GetResult() instead of .Result to avoid exception
             // getting wrapped in AggregateException.
             var newApplication = _yarnRMClient.CreateNewApplicationAsync().GetAwaiter().GetResult();
             var applicationId = newApplication.ApplicationId;
+            Log.Log(Level.Verbose, @"Assigned application id {0}", applicationId);
+            Submit(jobSubmission, applicationId);
+        }
+
+        public void Submit(IJobSubmission jobSubmission, string uniqueSubmissionId)
+        {
+            var jobId = jobSubmission.JobIdentifier;
 
             // create job submission remote path
             var jobSubmissionDirectory =
-                _jobSubmissionDirectoryProvider.GetJobSubmissionRemoteDirectory(applicationId);
+                _jobSubmissionDirectoryProvider.GetJobSubmissionRemoteDirectory(uniqueSubmissionId);
 
             // create local driver folder.
-            var localDriverFolderPath = CreateDriverFolder(jobId, applicationId);
+            var localDriverFolderPath = CreateDriverFolder(jobId, uniqueSubmissionId);
 
             // prepare configuration
             var paramInjector = TangFactory.GetTang().NewInjector(jobSubmission.DriverConfigurations.ToArray());
 
             try
             {
-                Log.Log(Level.Verbose, "Preparing driver folder in {0}", localDriverFolderPath);
-                _driverFolderPreparationHelper.PrepareDriverFolder(jobSubmission, localDriverFolderPath);
-
                 var maxApplicationSubmissions =
                     paramInjector.GetNamedInstance<DriverBridgeConfigurationOptions.MaxApplicationSubmissions, int>();
-
-                PrepareDriverSubmissionFolder(paramInjector, jobSubmission, localDriverFolderPath, jobSubmissionDirectory);
+                Log.Log(Level.Verbose, "Preparing driver folder in {0}", localDriverFolderPath);
+                var driverArchivePath = GetSubmissionPackage(jobSubmission, uniqueSubmissionId);
 
                 // upload prepared folder to DFS
-                var jobResource = _jobResourceUploader.UploadJobResource(localDriverFolderPath, jobSubmissionDirectory);
+                var jobResource = _jobResourceUploader.UploadJobResource(driverArchivePath, jobSubmissionDirectory);
 
                 // submit job
-                Log.Log(Level.Verbose, @"Assigned application id {0}", applicationId);
-
                 var submissionReq = CreateApplicationSubmissionRequest(jobSubmission,
-                    applicationId,
+                    uniqueSubmissionId,
                     maxApplicationSubmissions,
                     jobResource);
                 var submittedApplication = _yarnRMClient.SubmitApplicationAsync(submissionReq).GetAwaiter().GetResult();
@@ -138,16 +138,16 @@ namespace Org.Apache.REEF.Client.YARN
         /// Only available in YarnREEFDotNetClient because implementation is YARN specific.
         /// </summary>
         [Unstable("0.14")]
-        public string GetSubmissionPackage(IJobSubmission jobSubmission, string applicationId)
+        public string GetSubmissionPackage(IJobSubmission jobSubmission, string uniqueSubmissionId)
         {
             var jobId = jobSubmission.JobIdentifier;
 
             // create job submission remote path
             var jobSubmissionDirectory =
-                _jobSubmissionDirectoryProvider.GetJobSubmissionRemoteDirectory(applicationId);
+                _jobSubmissionDirectoryProvider.GetJobSubmissionRemoteDirectory(uniqueSubmissionId);
 
             // create local driver folder.
-            var localDriverFolderPath = CreateDriverFolder(jobId, applicationId);
+            var localDriverFolderPath = CreateDriverFolder(jobId, uniqueSubmissionId);
 
             // prepare configuration
             var paramInjector = TangFactory.GetTang().NewInjector(jobSubmission.DriverConfigurations.ToArray());
@@ -170,7 +170,7 @@ namespace Org.Apache.REEF.Client.YARN
 
                 if (Directory.Exists(localDriverFolderPath))
                 {
-                    Directory.Delete(localDriverFolderPath);
+                    Directory.Delete(localDriverFolderPath, true);
                 }
 
                 Exceptions.CaughtAndThrow(ex, Level.Error, Log);
@@ -282,9 +282,9 @@ namespace Org.Apache.REEF.Client.YARN
         /// Creates the temporary directory to hold the job submission.
         /// </summary>
         /// <returns>The path to the folder created.</returns>
-        private string CreateDriverFolder(string jobId, string appId)
+        private static string CreateDriverFolder(string jobId, string uniqueSubmissionId)
         {
-            return Path.GetFullPath(Path.Combine(Path.GetTempPath(), string.Join("-", "reef", jobId, appId)));
+            return Path.GetFullPath(Path.Combine(Path.GetTempPath(), string.Join("-", "reef", jobId, uniqueSubmissionId)));
         }
     }
 }

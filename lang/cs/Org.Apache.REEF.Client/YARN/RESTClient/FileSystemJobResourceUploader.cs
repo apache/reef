@@ -34,32 +34,27 @@ namespace Org.Apache.REEF.Client.YARN.RestClient
     {
         private static readonly Logger Log = Logger.GetLogger(typeof(FileSystemJobResourceUploader));
         private static readonly DateTime Epoch = new DateTime(1970, 1, 1, 0, 0, 0, 0);
-        private readonly IResourceArchiveFileGenerator _resourceArchiveFileGenerator;
         private readonly IFileSystem _fileSystem;
 
         [Inject]
         private FileSystemJobResourceUploader(
-            IResourceArchiveFileGenerator resourceArchiveFileGenerator,
             IFileSystem fileSystem)
         {
             _fileSystem = fileSystem;
-            _resourceArchiveFileGenerator = resourceArchiveFileGenerator;
         }
 
-        public JobResource UploadJobResource(string driverLocalFolderPath, string jobSubmissionDirectory)
+        public JobResource UploadJobResource(string driverArchivePath, string jobSubmissionDirectory)
         {
-            driverLocalFolderPath = driverLocalFolderPath.TrimEnd('\\') + @"\";
             var driverUploadPath = jobSubmissionDirectory.TrimEnd('/') + @"/";
-            Log.Log(Level.Verbose, "DriverFolderPath: {0} DriverUploadPath: {1}", driverLocalFolderPath, driverUploadPath);
-            var archivePath = _resourceArchiveFileGenerator.CreateArchiveToUpload(driverLocalFolderPath);
-
-            var destinationPath = driverUploadPath + Path.GetFileName(archivePath);
+            Log.Log(Level.Verbose, "DriverArchivePath: {0} DriverUploadPath: {1}", driverArchivePath, driverUploadPath);
+            
+            var destinationPath = driverUploadPath + Path.GetFileName(driverArchivePath);
             var remoteFileUri = _fileSystem.CreateUriForPath(destinationPath);
-            Log.Log(Level.Verbose, @"Copy {0} to {1}", archivePath, remoteFileUri);
+            Log.Log(Level.Verbose, @"Copy {0} to {1}", driverArchivePath, remoteFileUri);
 
             var parentDirectoryUri = _fileSystem.CreateUriForPath(driverUploadPath);
             _fileSystem.CreateDirectory(parentDirectoryUri);
-            _fileSystem.CopyFromLocal(archivePath, remoteFileUri);
+            _fileSystem.CopyFromLocal(driverArchivePath, remoteFileUri);
             var fileStatus = _fileSystem.GetFileStatus(remoteFileUri);
 
             return new JobResource
