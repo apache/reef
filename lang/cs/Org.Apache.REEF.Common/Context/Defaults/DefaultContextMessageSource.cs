@@ -30,10 +30,6 @@ namespace Org.Apache.REEF.Common.Context.Defaults
             {
                 return Optional<ContextMessage>.Empty();
             }
-
-            set
-            {
-            }
         }
     }
 }
