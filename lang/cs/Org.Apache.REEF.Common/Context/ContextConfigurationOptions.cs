@@ -27,7 +27,6 @@ namespace Org.Apache.REEF.Common.Context
     /// <summary>
     ///  Configuration parameters for ContextConfiguration module.
     /// </summary>
-    /// TODO[JIRA REEF-1167]: Remove this class.
     [ClientSide]
     public static class ContextConfigurationOptions
     {

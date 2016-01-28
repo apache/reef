@@ -28,9 +28,10 @@ namespace Org.Apache.REEF.Driver.Context
     /// <summary>
     ///  Configuration parameters for ContextConfiguration module.
     /// </summary>
+    /// TODO[JIRA REEF-1167]: Remove this class.
     [ClientSide]
     [Obsolete("Obsoleted in 0.14, please use Org.Apache.REEF.Common.ContextConfiguration instead.")]
-    public sealed class ContextConfigurationOptions
+    public static class ContextConfigurationOptions
     {
         [NamedParameter(documentation: "The identifier for the context.")]
         public class ContextIdentifier : Name<string>
