@@ -64,6 +64,7 @@ def update_doap(file, new_version):
             new_date = datetime.date.today().strftime('%Y-%m-%d')
             line = line.replace(old_date, new_date)
         changed_str += line
+    f.close()
 
     f = open(file, 'w')
     f.write(changed_str)
@@ -106,6 +107,7 @@ def update_downloads(file, new_version, sha512, notes_link):
             m = r.search(line)
             line = line.replace(m.group(1), '<a href="apidoc_net/' + new_version + '/index.html">.NET API</a>')
         changed_str += line
+    f.close()
 
     f = open(file, 'w')
     f.write(changed_str)
@@ -132,6 +134,7 @@ def update_release_js(file, new_version, sha512, notes_link):
             changed_str += '    "' + new_version + '": "' + notes_link + '",\n'
             continue
         changed_str += line
+    f.close()
 
     f = open(file, 'w')
     f.write(changed_str)

@@ -85,6 +85,7 @@ def change_pom(file, new_version):
         if not line: 
             break
         changed_str += line
+    f.close()
 
     f = open(file, 'w')
     f.write(changed_str)
@@ -111,6 +112,7 @@ def change_constants_cs(file, new_version):
             changed_str += line.replace(old_version, new_version)
         else:
             changed_str += line
+    f.close()
 
     f = open(file, 'w')
     f.write(changed_str)
@@ -138,6 +140,7 @@ def change_assembly_info_cs(file, new_version):
             changed_str += line.replace(old_version, new_version)
         else:
             changed_str += line
+    f.close()
 
     f = open(file, 'w')
     f.write(changed_str)
@@ -159,6 +162,7 @@ def read_is_snapshot(file):
                 return True
             else:
                 return False
+    f.close()
 
 """
 Change lang/cs/build.props for the release branch
@@ -182,6 +186,7 @@ def change_build_props(file, is_snapshot):
             changed_str += line.replace(old_snapshot_number, "00")
         else:
             changed_str += line
+    f.close()
 
     f = open(file, 'w')
     f.write(changed_str)
@@ -210,6 +215,7 @@ def change_shaded_jar_name(file, new_version):
             changed_str += line.replace(m2.group(1), new_version)
         else:
             changed_str += line
+    f.close()
 
     f = open(file, 'w')
     f.write(changed_str)
@@ -234,6 +240,7 @@ def change_project_number_Doxyfile(file, new_version):
             changed_str += line.replace(old_version, new_version)
         else:
             changed_str += line
+    f.close()
 
     f = open(file, 'w')
     f.write(changed_str)
