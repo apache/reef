@@ -23,7 +23,6 @@ using Org.Apache.REEF.Examples.HelloREEF;
 using Org.Apache.REEF.Tang.Formats;
 using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Tang.Interface;
-using Org.Apache.REEF.Tang.Types;
 using Org.Apache.REEF.Tang.Util;
 using Org.Apache.REEF.Utilities.Logging;
 using Org.Apache.REEF.Wake.Remote.Parameters;
@@ -39,33 +38,6 @@ namespace Org.Apache.REEF.Evaluator.Tests
         private const string ContextIdPrefix = "RootContext_";
         private const string RemoteIdPrefix = "socket://";
         private const string AppIdForTest = "REEF_LOCAL_RUNTIME";
-
-        [Fact]
-        [Trait("Priority", "0")]
-        [Trait("Category", "Unit")]
-        public void TestEvaluatorConfigurations()
-        {
-            EvaluatorConfigurations evaluatorConfigurations = new EvaluatorConfigurations("evaluator.conf");
-
-            var eId = evaluatorConfigurations.EvaluatorId;
-            var aId = evaluatorConfigurations.ApplicationId;
-            var rId = evaluatorConfigurations.ErrorHandlerRid;
-
-            Logger.Log(Level.Info, "EvaluatorId = " + eId);
-            Logger.Log(Level.Info, "ApplicationId = " + aId);
-            Logger.Log(Level.Info, "ErrorHandlerRID = " + rId);
-
-            Assert.True(eId.StartsWith(EvaluatorIdPrefix));
-            Assert.True(aId.Equals(AppIdForTest));
-            Assert.True(rId.StartsWith(RemoteIdPrefix));
-
-            var contextConfigString = evaluatorConfigurations.RootContextConfigurationString;
-            var serviceConfigString = evaluatorConfigurations.RootServiceConfigurationString;
-            var taskConfigString = evaluatorConfigurations.TaskConfigurationString;
-
-            Assert.False(string.IsNullOrWhiteSpace(contextConfigString));
-            Assert.False(string.IsNullOrWhiteSpace(taskConfigString));
-        }
 
         [Fact]
         [Trait("Priority", "0")]
