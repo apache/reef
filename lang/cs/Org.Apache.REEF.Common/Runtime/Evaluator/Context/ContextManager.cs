@@ -51,8 +51,9 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Context
             {
                 _heartBeatManager = heartBeatManager;
                 _serializer = serializer;
+
                 _rootContextLauncher = new RootContextLauncher(
-                    evaluatorSettings.RootContextConfig.Id,
+                    evaluatorSettings.RootContextId,
                     evaluatorSettings.RootContextConfig,
                     evaluatorSettings.RootServiceConfiguration,
                     evaluatorSettings.RootTaskConfiguration);
@@ -283,16 +284,7 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Context
                     Utilities.Diagnostics.Exceptions.Throw(e, LOGGER);
                 }
 
-                IConfiguration contextConfiguration;
-                try
-                {
-                    contextConfiguration = _serializer.FromString(addContextProto.context_configuration);
-                }
-                catch (Exception)
-                {
-                    // TODO[JIRA REEF-1167]: Remove the catch.
-                    contextConfiguration = new ContextConfiguration(addContextProto.context_configuration);
-                }
+                var contextConfiguration = _serializer.FromString(addContextProto.context_configuration);
 
                 ContextRuntime newTopContext;
                 if (addContextProto.service_configuration != null)

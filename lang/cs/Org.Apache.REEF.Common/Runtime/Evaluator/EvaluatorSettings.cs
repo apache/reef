@@ -16,6 +16,7 @@
 // under the License.
 
 using System;
+using Org.Apache.REEF.Common.Context;
 using Org.Apache.REEF.Common.Evaluator;
 using Org.Apache.REEF.Common.Io;
 using Org.Apache.REEF.Common.Protobuf.ReefProtocol;
@@ -26,6 +27,7 @@ using Org.Apache.REEF.Common.Services;
 using Org.Apache.REEF.Common.Tasks;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Tang.Exceptions;
+using Org.Apache.REEF.Tang.Formats;
 using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Utilities;
 using Org.Apache.REEF.Utilities.Logging;
@@ -41,12 +43,14 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator
 
         private readonly string _applicationId;
         private readonly string _evaluatorId;
+        private readonly string _rootContextId;
         private readonly int _heartBeatPeriodInMs;
         private readonly int _maxHeartbeatRetries;
         private readonly IClock _clock;
         private readonly IRemoteManager<REEFMessage> _remoteManager;
         private readonly IInjector _injector;
-        private readonly ContextConfiguration _rootContextConfig;
+        private readonly IConfiguration _rootContextConfig;
+        private readonly AvroConfigurationSerializer _serializer;
         private readonly Optional<TaskConfiguration> _rootTaskConfiguration;
         private readonly Optional<ServiceConfiguration> _rootServiceConfiguration;
 
@@ -61,6 +65,7 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator
         /// <param name="heartbeatPeriodInMs"></param>
         /// <param name="maxHeartbeatRetries"></param>
         /// <param name="rootContextConfigString"></param>
+        /// <param name="serializer"></param>
         /// <param name="clock"></param>
         /// <param name="remoteManagerFactory"></param>
         /// <param name="reefMessageCodec"></param>
@@ -72,11 +77,13 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator
             [Parameter(typeof(EvaluatorHeartbeatPeriodInMs))] int heartbeatPeriodInMs,
             [Parameter(typeof(HeartbeatMaxRetry))] int maxHeartbeatRetries,
             [Parameter(typeof(RootContextConfiguration))] string rootContextConfigString,
+            AvroConfigurationSerializer serializer,
             RuntimeClock clock,
             IRemoteManagerFactory remoteManagerFactory,
             REEFMessageCodec reefMessageCodec,
             IInjector injector)
         {
+            _serializer = serializer;
             _injector = injector;
             _applicationId = applicationId;
             _evaluatorId = evaluatorId;
@@ -89,7 +96,22 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator
                 Utilities.Diagnostics.Exceptions.Throw(
                     new ArgumentException("empty or null rootContextConfigString"), Logger);
             }
-            _rootContextConfig = new ContextConfiguration(rootContextConfigString);
+            _rootContextConfig = _serializer.FromString(rootContextConfigString);
+
+            try
+            {
+                _rootContextId = injector.ForkInjector(_rootContextConfig).GetNamedInstance<ContextConfigurationOptions.ContextIdentifier, string>();
+            }
+            catch (InjectionException)
+            {
+                Logger.Log(Level.Info, "Using deprecated ContextConfiguration.");
+                
+                // TODO[JIRA REEF-1167]: Remove this catch.
+                var deprecatedContextConfig = new Context.ContextConfiguration(rootContextConfigString);
+                _rootContextConfig = deprecatedContextConfig;
+                _rootContextId = deprecatedContextConfig.Id;
+            }
+
             _rootTaskConfiguration = CreateTaskConfiguration();
             _rootServiceConfiguration = CreateRootServiceConfiguration();
 
@@ -122,6 +144,14 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator
             {
                 return _evaluatorId;
             }
+        }
+
+        /// <summary>
+        /// Returns the root context ID.
+        /// </summary>
+        public string RootContextId
+        {
+            get { return _rootContextId; }
         }
 
         /// <summary>
@@ -160,8 +190,7 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator
         /// <summary>
         /// return Root Context Configuration passed from Evaluator configuration
         /// </summary>
-        /// TODO[JIRA REEF-1167]: Change this to use IConfiguration.
-        public ContextConfiguration RootContextConfig
+        public IConfiguration RootContextConfig
         {
             get { return _rootContextConfig; }
         }

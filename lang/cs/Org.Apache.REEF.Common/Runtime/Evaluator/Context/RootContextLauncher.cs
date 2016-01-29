@@ -56,8 +56,17 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Context
         {
             if (_rootContext == null)
             {
-                // TODO[JIRA REEF-1167]: Remove use of this constructor.
-                _rootContext = new ContextRuntime(Id, _rootServiceInjector, _rootContextConfiguration);
+                // TODO[JIRA REEF-1167]: Remove use of deprecated ContextRuntime constructor and deprecatedContextConfiguration
+                var deprecatedContextConfiguration = _rootContextConfiguration as ContextConfiguration;
+                if (deprecatedContextConfiguration != null)
+                {
+                    LOGGER.Log(Level.Info, "Using deprecated ContextConfiguration.");
+                    _rootContext = new ContextRuntime(Id, _rootServiceInjector, _rootContextConfiguration);
+                }
+                else
+                {
+                    _rootContext = new ContextRuntime(_rootServiceInjector, _rootContextConfiguration, Optional<ContextRuntime>.Empty());
+                }
             }
             return _rootContext;
         }
@@ -76,9 +85,9 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Context
                 }
                 catch (Exception e)
                 {
-                    Org.Apache.REEF.Utilities.Diagnostics.Exceptions.Caught(e, Level.Error, "Failed to instantiate service.", LOGGER);
+                    Utilities.Diagnostics.Exceptions.Caught(e, Level.Error, "Failed to instantiate service.", LOGGER);
                     InvalidOperationException ex = new InvalidOperationException(string.Format(CultureInfo.InvariantCulture, "Failed to inject service: encoutned error {1} with message [{0}] and stack trace:[{1}]", e, e.Message, e.StackTrace));
-                    Org.Apache.REEF.Utilities.Diagnostics.Exceptions.Throw(ex, LOGGER);
+                    Utilities.Diagnostics.Exceptions.Throw(ex, LOGGER);
                 }
                 LOGGER.Log(Level.Info, string.Format(CultureInfo.InvariantCulture, "injected {0} service(s)", services.Services.Count));
             }
