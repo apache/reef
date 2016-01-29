@@ -18,23 +18,22 @@
 using System;
 using System.IO;
 using System.Linq;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Org.Apache.REEF.IO.FileSystem;
 using Org.Apache.REEF.IO.FileSystem.Local;
 using Org.Apache.REEF.Tang.Implementations.Tang;
+using Xunit;
 
 namespace Org.Apache.REEF.IO.Tests
 {
     /// <summary>
     /// Tests for Org.Apache.REEF.IO.FileSystem.Local.LocalFileSystem
     /// </summary>
-    [TestClass]
     public sealed class TestLocalFileSystem
     {
         private const string TempFileName = "REEF.TestLocalFileSystem.tmp";
         private const byte TestByte = 123;
 
-        [TestMethod]
+        [Fact]
         public void TestCreateAndOpenAndDelete()
         {
             var fs = GetFileSystem();
@@ -48,27 +47,27 @@ namespace Org.Apache.REEF.IO.Tests
                 s.WriteByte(TestByte);
             }
 
-            Assert.IsTrue(fs.Exists(tempFileUri));
-            Assert.IsTrue(File.Exists(tempFilePath));
+            Assert.True(fs.Exists(tempFileUri));
+            Assert.True(File.Exists(tempFilePath));
 
             // Make sure it was read correctly
             using (var s = fs.Open(tempFileUri))
             {
-                Assert.AreEqual(TestByte, s.ReadByte());
+                Assert.Equal(TestByte, s.ReadByte());
             }
             using (var s = File.Open(tempFilePath, FileMode.Open))
             {
-                Assert.AreEqual(TestByte, s.ReadByte());
+                Assert.Equal(TestByte, s.ReadByte());
             }
 
             // Delete it
             fs.Delete(tempFileUri);
 
-            Assert.IsFalse(fs.Exists(tempFileUri));
-            Assert.IsFalse(File.Exists(tempFilePath));
+            Assert.False(fs.Exists(tempFileUri));
+            Assert.False(File.Exists(tempFilePath));
         }
 
-        [TestMethod]
+        [Fact]
         public void TestCopyFromLocal()
         {
             var fs = GetFileSystem();
@@ -86,13 +85,13 @@ namespace Org.Apache.REEF.IO.Tests
             TestRemoteFile(fs, destinationUri);
 
             fs.Delete(destinationUri);
-            Assert.IsFalse(fs.Exists(destinationUri));
+            Assert.False(fs.Exists(destinationUri));
 
             File.Delete(sourceFilePath);
-            Assert.IsFalse(File.Exists(sourceFilePath));
+            Assert.False(File.Exists(sourceFilePath));
         }
 
-        [TestMethod]
+        [Fact]
         public void TestCopyToLocal()
         {
             var fs = GetFileSystem();
@@ -109,13 +108,13 @@ namespace Org.Apache.REEF.IO.Tests
             TestLocalFile(destinationFilePath);
 
             fs.Delete(sourceUri);
-            Assert.IsFalse(fs.Exists(sourceUri));
+            Assert.False(fs.Exists(sourceUri));
 
             File.Delete(destinationFilePath);
-            Assert.IsFalse(File.Exists(destinationFilePath));
+            Assert.False(File.Exists(destinationFilePath));
         }
 
-        [TestMethod]
+        [Fact]
         public void TestCopy()
         {
             var fs = GetFileSystem();
@@ -127,17 +126,17 @@ namespace Org.Apache.REEF.IO.Tests
             {
                 fs.Delete(destinationUri);
             }
-            Assert.IsFalse(fs.Exists(destinationUri));
+            Assert.False(fs.Exists(destinationUri));
             fs.Copy(sourceUri, destinationUri);
-            Assert.IsTrue(fs.Exists(destinationUri));
+            Assert.True(fs.Exists(destinationUri));
             TestRemoteFile(fs, destinationUri);
             fs.Delete(destinationUri);
-            Assert.IsFalse(fs.Exists(destinationUri));
+            Assert.False(fs.Exists(destinationUri));
             fs.Delete(sourceUri);
-            Assert.IsFalse(fs.Exists(sourceUri));
+            Assert.False(fs.Exists(sourceUri));
         }
 
-        [TestMethod]
+        [Fact]
         public void TestGetChildren()
         {
             var fs = GetFileSystem();
@@ -152,8 +151,8 @@ namespace Org.Apache.REEF.IO.Tests
                 TestRemoteFile(fs, uri);
             }
 
-            Assert.AreEqual(1, fileUris.Count);
-            Assert.AreEqual(fileUri, fileUris[0]);
+            Assert.Equal(1, fileUris.Count);
+            Assert.Equal(fileUri, fileUris[0]);
             fs.Delete(fileUri);
             fs.DeleteDirectory(directoryUri);
         }
@@ -193,7 +192,7 @@ namespace Org.Apache.REEF.IO.Tests
         {
             using (var s = fs.Open(path))
             {
-                Assert.AreEqual(TestByte, s.ReadByte());
+                Assert.Equal(TestByte, s.ReadByte());
             }
         }
 
@@ -201,7 +200,7 @@ namespace Org.Apache.REEF.IO.Tests
         {
             using (var s = File.Open(filePath, FileMode.Open))
             {
-                Assert.AreEqual(TestByte, s.ReadByte());
+                Assert.Equal(TestByte, s.ReadByte());
             }
         }
     }

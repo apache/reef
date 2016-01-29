@@ -16,19 +16,18 @@
 // under the License.
 
 using System.IO;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Org.Apache.REEF.IO.TempFileCreation;
 using Org.Apache.REEF.Tang.Implementations.Tang;
+using Xunit;
 
 namespace Org.Apache.REEF.IO.Tests
 {
-    [TestClass]
     public class TestTempFolderCreator
     {
         /// <summary>
         /// This is to test default TempFileFolder and ITempFileCreator
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestDefaultTempFolder()
         {
             var b = TempFileConfigurationModule.ConfigurationModule.Build();
@@ -37,13 +36,13 @@ namespace Org.Apache.REEF.IO.Tests
             var f1 = tempFileCreator.GetTempFileName();
             var f2 = (string)i.GetNamedInstance(typeof(TempFileFolder));
             var f = Path.GetFullPath(f2);
-            Assert.IsTrue(f1.StartsWith(f));
+            Assert.True(f1.StartsWith(f));
         }
 
         /// <summary>
         /// This is to test setting a value to TempFileFolder
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestTempFileFolerParameter()
         {
             var b = TempFileConfigurationModule.ConfigurationModule
@@ -54,13 +53,13 @@ namespace Org.Apache.REEF.IO.Tests
             var f1 = tempFileCreator.GetTempFileName();
             var f2 = (string)i.GetNamedInstance(typeof(TempFileFolder));
             var f = Path.GetFullPath(f2);
-            Assert.IsTrue(f1.StartsWith(f));
+            Assert.True(f1.StartsWith(f));
         }
 
         /// <summary>
         /// This is to test CreateTempDirectory() by providing a subfolder 
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestCreateTempFileFoler()
         {
             var b = TempFileConfigurationModule.ConfigurationModule
@@ -71,8 +70,8 @@ namespace Org.Apache.REEF.IO.Tests
             var f1 = tempFileCreator.CreateTempDirectory("ddd\\fff");
             var f3 = tempFileCreator.CreateTempDirectory("ddd\\fff", "bbb");
             var f2 = Path.GetFullPath(@"./test1/abc/" + "ddd\\fff");
-            Assert.IsTrue(f1.StartsWith(f2));
-            Assert.IsTrue(f3.EndsWith("bbb"));
+            Assert.True(f1.StartsWith(f2));
+            Assert.True(f3.EndsWith("bbb"));
         }
     }
 }

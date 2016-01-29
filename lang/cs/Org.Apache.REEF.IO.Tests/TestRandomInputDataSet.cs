@@ -17,17 +17,16 @@
 
 using System.Collections.Generic;
 using System.IO;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Org.Apache.REEF.IO.PartitionedData;
 using Org.Apache.REEF.IO.PartitionedData.Random;
 using Org.Apache.REEF.Tang.Implementations.Tang;
+using Xunit;
 
 namespace Org.Apache.REEF.IO.Tests
 {
     /// <summary>
     /// Tests for Org.Apache.REEF.IO.PartitionedData.Random.
     /// </summary>
-    [TestClass]
     public sealed class TestRandomInputDataSet
     {
         /// <summary>
@@ -53,21 +52,21 @@ namespace Org.Apache.REEF.IO.Tests
         /// <summary>
         /// Test for the driver side APIs of RandomDataSet.
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestDriverSide()
         {
             var dataSet = MakeRandomDataSet();
-            Assert.IsNotNull(dataSet);
-            Assert.IsNotNull(dataSet.Id);
-            Assert.IsNotNull(dataSet.GetEnumerator());
-            Assert.AreEqual(NumberOfPartitions, dataSet.Count);
+            Assert.NotNull(dataSet);
+            Assert.NotNull(dataSet.Id);
+            Assert.NotNull(dataSet.GetEnumerator());
+            Assert.Equal(NumberOfPartitions, dataSet.Count);
 
             IEnumerator<IPartitionDescriptor> desriptors = dataSet.GetEnumerator();
             while (desriptors.MoveNext())
             {
                 var descriptor1 = desriptors.Current;
                 var descriptor2 = dataSet.GetPartitionDescriptorForId(descriptor1.Id);
-                Assert.AreEqual(descriptor1, descriptor2);
+                Assert.Equal(descriptor1, descriptor2);
             }
         }
 
@@ -77,7 +76,7 @@ namespace Org.Apache.REEF.IO.Tests
         /// <remarks>
         /// This instantiates each IInputPartition using the IConfiguration provided by the IPartitionDescriptor.
         /// </remarks>
-        [TestMethod]
+        [Fact]
         public void TestEvaluatorSide()
         {
             var dataSet = MakeRandomDataSet();
@@ -87,15 +86,15 @@ namespace Org.Apache.REEF.IO.Tests
                     TangFactory.GetTang()
                         .NewInjector(partitionDescriptor.GetPartitionConfiguration())
                         .GetInstance<IInputPartition<Stream>>();
-                Assert.IsNotNull(partition);
-                Assert.IsNotNull(partition.Id);
+                Assert.NotNull(partition);
+                Assert.NotNull(partition.Id);
 
                 using (var partitionStream = partition.GetPartitionHandle())
                 {
-                    Assert.IsNotNull(partitionStream);
-                    Assert.IsTrue(partitionStream.CanRead);
-                    Assert.IsFalse(partitionStream.CanWrite);
-                    Assert.AreEqual(ExpectedNumberOfBytesPerPartition, partitionStream.Length);
+                    Assert.NotNull(partitionStream);
+                    Assert.True(partitionStream.CanRead);
+                    Assert.False(partitionStream.CanWrite);
+                    Assert.Equal(ExpectedNumberOfBytesPerPartition, partitionStream.Length);
                 }
             }
         }
