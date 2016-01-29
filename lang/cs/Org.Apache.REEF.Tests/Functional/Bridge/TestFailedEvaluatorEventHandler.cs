@@ -16,7 +16,6 @@
 // under the License.
 
 using System;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Org.Apache.REEF.Common.Tasks;
 using Org.Apache.REEF.Driver;
 using Org.Apache.REEF.Driver.Bridge;
@@ -26,30 +25,25 @@ using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Tang.Util;
 using Org.Apache.REEF.Utilities.Logging;
+using Xunit;
 
 namespace Org.Apache.REEF.Tests.Functional.Bridge
 {
-    [TestClass]
+    [Collection("FunctionalTests")]
     public sealed class TestFailedEvaluatorEventHandler : ReefFunctionalTest
     {
         private const string FailedEvaluatorMessage = "I have succeeded in seeing a failed evaluator.";
 
-        [TestInitialize]
-        public void TestSetup()
+        public TestFailedEvaluatorEventHandler()
         {
             Init();
         }
 
-        [TestCleanup]
-        public void TestCleanup()
-        {
-            CleanUp();
-        }
-
-        [TestMethod, Priority(1), TestCategory("FunctionalGated")]
-        [Description("Test invocation of FailedEvaluatorHandler")]
-        [DeploymentItem(@".")]
-        [Timeout(180 * 1000)]
+        [Fact]
+        [Trait("Priority", "1")]
+        [Trait("Category", "FunctionalGated")]
+        [Trait("Description", "Test invocation of FailedEvaluatorHandler")]
+        //// TODO[JIRA REEF-1184]: add timeout 180 sec
         public void TestFailedEvaluatorEventHandlerOnLocalRuntime()
         {
             string testFolder = DefaultRuntimeFolder + Guid.NewGuid().ToString("N").Substring(0, 4);

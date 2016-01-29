@@ -15,7 +15,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Org.Apache.REEF.Driver;
 using Org.Apache.REEF.Driver.Bridge;
 using Org.Apache.REEF.Driver.Defaults;
@@ -25,33 +24,28 @@ using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Tang.Util;
 using Org.Apache.REEF.Utilities.Logging;
+using Xunit;
 
 namespace Org.Apache.REEF.Tests.Functional.Messaging
 {
-    [TestClass]
+    [Collection("FunctionalTests")]
     public class TestTaskMessage : ReefFunctionalTest
     {
-        [TestInitialize]
-        public void TestSetup()
+        public TestTaskMessage()
         {
             CleanUp();
             Init();
-        }
-
-        [TestCleanup]
-        public void TestCleanup()
-        {
-            CleanUp();
         }
 
         /// <summary>
         /// This test is to test both task message and driver message. The messages are sent 
         /// from one side and received in the corresponding handlers and verified in the test 
         /// </summary>
-        [TestMethod, Priority(1), TestCategory("FunctionalGated")]
-        [Description("Test task message and driver message")]
-        [DeploymentItem(@".")]
-        [Timeout(180 * 1000)]
+        [Fact]
+        [Trait("Priority", "1")]
+        [Trait("Category", "FunctionalGated")]
+        [Trait("Description", "Test task message and driver message")]
+        //// TODO[JIRA REEF-1184]: add timeout 180 sec
         public void TestSendTaskMessage()
         {
             string testFolder = DefaultRuntimeFolder + TestNumber++;
