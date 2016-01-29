@@ -38,6 +38,7 @@ namespace Org.Apache.REEF.IO.PartitionedData.FileSystem
         private readonly IFileDeSerializer<T> _fileSerializer;
         private readonly ISet<string> _filePaths;
         private bool _isInitialized;
+        private readonly bool _copyToLocal;
         private readonly object _lock = new object();
         private string _localFileFolder;
         private readonly ITempFileCreator _tempFileCreator;
@@ -45,6 +46,7 @@ namespace Org.Apache.REEF.IO.PartitionedData.FileSystem
         [Inject]
         private FileSystemInputPartition([Parameter(typeof(PartitionId))] string id,
             [Parameter(typeof(FilePathsInInputPartition))] ISet<string> filePaths,
+            [Parameter(typeof(CopyToLocal))] bool copyToLocal,
             IFileSystem fileSystem,
             ITempFileCreator tempFileCreator,
             IFileDeSerializer<T> fileSerializer)
@@ -55,6 +57,7 @@ namespace Org.Apache.REEF.IO.PartitionedData.FileSystem
             _filePaths = filePaths;
             _tempFileCreator = tempFileCreator;
             _isInitialized = false;
+            _copyToLocal = copyToLocal;
         }
 
         public string Id
@@ -82,11 +85,15 @@ namespace Org.Apache.REEF.IO.PartitionedData.FileSystem
         /// <returns></returns>
         public T GetPartitionHandle()
         {
-            if (!_isInitialized)
+            if (_copyToLocal)
             {
-                Initialize();
+                if (!_isInitialized)
+                {
+                    Initialize();
+                }
+                return _fileSerializer.Deserialize(_localFileFolder);
             }
-            return _fileSerializer.Deserialize(_localFileFolder);
+            return _fileSerializer.Deserialize(_filePaths);
         }
 
         private void CopyFromRemote()

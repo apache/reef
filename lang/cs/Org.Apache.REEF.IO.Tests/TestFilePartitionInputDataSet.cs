@@ -329,6 +329,11 @@ namespace Org.Apache.REEF.IO.Tests
                 }
             }
         }
+
+        public IEnumerable<byte> Deserialize(ISet<string> filePaths)
+        {
+            throw new NotImplementedException();
+        }
     }
 
     public class Row
@@ -371,6 +376,10 @@ namespace Org.Apache.REEF.IO.Tests
                     }
                 }
             }
+        }
+        public IEnumerable<Row> Deserialize(ISet<string> filePaths)
+        {
+            throw new NotImplementedException();
         }
     }
 }
