@@ -19,8 +19,12 @@ using Org.Apache.REEF.Utilities;
 
 namespace Org.Apache.REEF.Common.Context
 {
+    /// <summary>
+    ///     Implement (and bind) this interface to send messages from a context as part of a heartbeat from Evaluator to
+    ///     Driver.
+    /// </summary>
     public interface IContextMessageSource
     {
-        Optional<ContextMessage> Message { get; set; }
+        Optional<ContextMessage> Message { get; }
     }
 }

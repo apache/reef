@@ -44,6 +44,9 @@ import java.util.logging.Logger;
 import static org.apache.reef.tests.fail.driver.FailDriver.ExpectedMessage.RequiredFlag.OPTIONAL;
 import static org.apache.reef.tests.fail.driver.FailDriver.ExpectedMessage.RequiredFlag.REQUIRED;
 
+/**
+ * Driver which fails on receiving certain message class.
+ */
 @Unit
 public final class FailDriver {
 
@@ -155,6 +158,9 @@ public final class FailDriver {
   public static final class FailMsgClassName implements Name<String> {
   }
 
+  /**
+   * Expected message class.
+   */
   public static final class ExpectedMessage {
 
     private final transient Class<?> msgClass;
@@ -172,6 +178,9 @@ public final class FailDriver {
       return this.repr;
     }
 
+    /**
+     * "Required" flag for message class.
+     */
     public enum RequiredFlag {OPTIONAL, REQUIRED}
   }
 
@@ -249,7 +258,6 @@ public final class FailDriver {
     public void onNext(final FailedContext context) {
       LOG.log(Level.WARNING, "Context failed: " + context.getId(), context.getReason().orElse(null));
       checkMsgOrder(context);
-      // TODO: notify client?
 
       // if (context.getParentContext().isPresent()) {
       //   context.getParentContext().get().close();

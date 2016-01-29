@@ -71,7 +71,7 @@ public final class ActiveContextBridge extends NativeBridge implements Identifia
     ((EvaluatorContext)jactiveContext).submitTask(taskConfigurationString);
   }
 
-  public String getEvaluatorDescriptorSring() {
+  public String getEvaluatorDescriptorString() {
     final String descriptorString = Utilities.getEvaluatorDescriptorString(jactiveContext.getEvaluatorDescriptor());
     LOG.log(Level.FINE, "active context - serialized evaluator descriptor: " + descriptorString);
     return descriptorString;

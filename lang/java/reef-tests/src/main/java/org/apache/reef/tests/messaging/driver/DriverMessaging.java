@@ -33,6 +33,9 @@ import java.nio.charset.StandardCharsets;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+/**
+ * Runner for DriverMessagingTest.
+ */
 @Unit
 public final class DriverMessaging {
 

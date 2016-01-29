@@ -213,7 +213,7 @@ public class JobClient {
                      final boolean local, final Configuration clientConfig) {
     try (final LoggingScope ls = this.loggingScopeFactory.driverSubmit(submitDriver)) {
       if (!local) {
-        this.driverConfiguration = Configurations.merge(this.driverConfiguration, this.getYarnConfiguration());
+        this.driverConfiguration = Configurations.merge(this.driverConfiguration, getYarnConfiguration());
       }
 
       try {
@@ -230,7 +230,7 @@ public class JobClient {
               driverConfig);
           LOG.log(Level.INFO, "Driver configuration file created at " + driverConfig.getAbsolutePath());
         } catch (final IOException e) {
-          throw new RuntimeException("Cannot create driver configuration file at " + driverConfig.getAbsolutePath());
+          throw new RuntimeException("Cannot create driver configuration file at " + driverConfig.getAbsolutePath(), e);
         }
       }
     }

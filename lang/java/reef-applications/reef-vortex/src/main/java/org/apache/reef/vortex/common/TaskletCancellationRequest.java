@@ -31,7 +31,9 @@ public final class TaskletCancellationRequest implements VortexRequest {
     this.taskletId = taskletId;
   }
 
-  @Override
+  /**
+   * @return the ID of the VortexTasklet associated with this VortexRequest.
+   */
   public int getTaskletId() {
     return taskletId;
   }

@@ -15,14 +15,13 @@
 // specific language governing permissions and limitations
 // under the License.
 
-using System;
 using System.Collections.Generic;
 using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Tang.Types;
 
 namespace Org.Apache.REEF.Tang.Implementations.Configuration
 {
-    public class ConfigurationImpl : IConfiguration
+    internal class ConfigurationImpl : IConfiguration
     {
         public readonly ConfigurationBuilderImpl Builder;
 

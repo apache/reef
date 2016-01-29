@@ -26,6 +26,8 @@ using Org.Apache.REEF.Utilities.Logging;
 
 namespace Org.Apache.REEF.Common.Runtime.Evaluator.Context
 {
+    // TODO[JIRA REEF-1167]: Remove class.
+    [Obsolete("Deprecated in 0.14. Will be removed.")]
     internal sealed class ContextConfiguration : IConfiguration
     {
         private static readonly Logger LOGGER = Logger.GetLogger(typeof(ContextConfiguration));
@@ -53,7 +55,7 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Context
                 {
                     string msg = "Required parameter ContextIdentifier not provided.";
                     LOGGER.Log(Level.Error, msg);
-                    Org.Apache.REEF.Utilities.Diagnostics.Exceptions.Throw(new ArgumentException(msg), LOGGER);
+                    Utilities.Diagnostics.Exceptions.Throw(new ArgumentException(msg), LOGGER);
                 }
             }
         }

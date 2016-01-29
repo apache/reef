@@ -97,7 +97,7 @@ public final class AvroConfigurationSerializer implements ConfigurationSerialize
             final String oldValue = importedNames.put(lastTok, value);
             if (oldValue != null) {
               throw new IllegalArgumentException("Name conflict: "
-                  + lastTok + " maps to " + oldValue + " and " + value);
+                  + lastTok + " maps to " + oldValue + " and " + value, e);
             }
           }
         } else if (value.startsWith(ConfigurationBuilderImpl.INIT)) {
@@ -142,27 +142,27 @@ public final class AvroConfigurationSerializer implements ConfigurationSerialize
     final List<ConfigurationEntry> configurationEntries = new ArrayList<>();
 
     for (final ClassNode<?> opt : configuration.getBoundImplementations()) {
-      configurationEntries.add(new ConfigurationEntry().newBuilder()
+      configurationEntries.add(ConfigurationEntry.newBuilder()
           .setKey(opt.getFullName())
           .setValue(configuration.getBoundImplementation(opt).getFullName())
           .build());
     }
 
     for (final ClassNode<?> opt : configuration.getBoundConstructors()) {
-      configurationEntries.add(new ConfigurationEntry().newBuilder()
+      configurationEntries.add(ConfigurationEntry.newBuilder()
           .setKey(opt.getFullName())
           .setValue(configuration.getBoundConstructor(opt).getFullName())
           .build());
     }
     for (final NamedParameterNode<?> opt : configuration.getNamedParameters()) {
-      configurationEntries.add(new ConfigurationEntry().newBuilder()
+      configurationEntries.add(ConfigurationEntry.newBuilder()
           .setKey(opt.getFullName())
           .setValue(configuration.getNamedParameter(opt))
           .build());
     }
     for (final ClassNode<?> cn : configuration.getLegacyConstructors()) {
       final String legacyConstructors = StringUtils.join(configuration.getLegacyConstructor(cn).getArgs(), "-");
-      configurationEntries.add(new ConfigurationEntry().newBuilder()
+      configurationEntries.add(ConfigurationEntry.newBuilder()
           .setKey(cn.getFullName())
           .setValue("" + ConfigurationBuilderImpl.INIT + "(" + legacyConstructors + ")")
           .build());
@@ -177,7 +177,7 @@ public final class AvroConfigurationSerializer implements ConfigurationSerialize
         } else {
           throw new IllegalStateException();
         }
-        configurationEntries.add(new ConfigurationEntry().newBuilder()
+        configurationEntries.add(ConfigurationEntry.newBuilder()
             .setKey(key.getFullName())
             .setValue(val)
             .build());

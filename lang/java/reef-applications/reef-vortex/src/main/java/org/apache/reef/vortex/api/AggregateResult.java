@@ -27,7 +27,7 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * The result of an aggregate.
+ * The result of an aggregate. Registered to callbacks for {@link VortexAggregateFuture}.
  */
 @Public
 @ClientSide
@@ -36,28 +36,23 @@ public final class AggregateResult<TInput, TOutput> {
 
   private final Optional<TOutput> aggregatedOutput;
   private final List<TInput> inputList;
-  private final boolean hasNext;
   private final Optional<Exception> exception;
 
   AggregateResult(final Exception exception,
-                  final List<TInput> inputList,
-                  final boolean hasNext) {
-    this(Optional.<TOutput>empty(), Optional.of(exception), inputList, hasNext);
+                  final List<TInput> inputList) {
+    this(Optional.<TOutput>empty(), Optional.of(exception), inputList);
   }
 
   AggregateResult(final TOutput aggregatedOutput,
-                  final List<TInput> inputList,
-                  final boolean hasNext) {
-    this(Optional.of(aggregatedOutput), Optional.<Exception>empty(), inputList, hasNext);
+                  final List<TInput> inputList) {
+    this(Optional.of(aggregatedOutput), Optional.<Exception>empty(), inputList);
   }
 
   private AggregateResult(final Optional<TOutput> aggregatedOutput,
                           final Optional<Exception> exception,
-                          final List<TInput> inputList,
-                          final boolean hasNext) {
+                          final List<TInput> inputList) {
     this.aggregatedOutput = aggregatedOutput;
     this.inputList = Collections.unmodifiableList(inputList);
-    this.hasNext = hasNext;
     this.exception = exception;
   }
 
@@ -89,12 +84,5 @@ public final class AggregateResult<TInput, TOutput> {
    */
   public Optional<Exception> getException() {
     return exception;
-  }
-
-  /**
-   * @return true if more results will be available, false otherwise.
-   */
-  public boolean hasNext() {
-    return hasNext;
   }
 }

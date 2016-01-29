@@ -20,7 +20,7 @@ using Org.Apache.REEF.Tang.Types;
 
 namespace Org.Apache.REEF.Tang.Implementations.ClassHierarchy
 {
-    public class PackageNodeImpl : AbstractNode, IPackageNode
+    internal sealed class PackageNodeImpl : AbstractNode, IPackageNode
     {
         public PackageNodeImpl(INode parent, string name, string fullName) : 
             base(parent, name, fullName)

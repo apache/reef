@@ -66,6 +66,9 @@ public final class FailTaskStop implements Task, EventHandler<TaskStop> {
     throw ex;
   }
 
+  /**
+   * Handler for CloseEvent.
+   */
   public final class CloseEventHandler implements EventHandler<CloseEvent> {
     @Override
     public void onNext(final CloseEvent event) {

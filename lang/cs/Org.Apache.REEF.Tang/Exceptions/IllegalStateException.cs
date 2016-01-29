@@ -19,10 +19,9 @@ using System;
 
 namespace Org.Apache.REEF.Tang.Exceptions
 {
-    public class IllegalStateException : Exception
+    public sealed class IllegalStateException : Exception
     {
         public IllegalStateException()
-            : base()
         {
         }
 

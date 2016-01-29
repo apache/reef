@@ -29,7 +29,9 @@ using Org.Apache.REEF.Utilities.Attributes;
 
 namespace Org.Apache.REEF.Driver.Context
 {
+    // TODO[JIRA REEF-1167]: Delete class.
     [ClientSide]
+    [Obsolete("Obsoleted in 0.14, please use Org.Apache.REEF.Common.ContextConfiguration instead.")]
     public sealed class ContextConfiguration : ConfigurationModuleBuilder
     {
         /// <summary>

@@ -16,7 +16,33 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+package org.apache.reef.vortex.examples.sumones;
+
+import org.apache.reef.io.serialization.Codec;
+import org.apache.reef.io.serialization.SerializableCodec;
+import org.apache.reef.vortex.api.VortexFunction;
+
 /**
- * Tests for multiple event handler registration.
+ * Identity function.
  */
-package org.apache.reef.tests.multipleEventHandlerInstances;
+public final class IdentityFunction implements VortexFunction<Integer, Integer> {
+  private static final Codec<Integer> CODEC = new SerializableCodec<>();
+
+  /**
+   * Outputs input.
+   */
+  @Override
+  public Integer call(final Integer input) throws Exception {
+    return input;
+  }
+
+  @Override
+  public Codec<Integer> getInputCodec() {
+    return CODEC;
+  }
+
+  @Override
+  public Codec<Integer> getOutputCodec() {
+    return CODEC;
+  }
+}

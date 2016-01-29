@@ -37,6 +37,9 @@ import javax.inject.Inject;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+/**
+ * Driver which fails on FailedTask event.
+ */
 @Unit
 public final class DriverFailOnFail {
 
@@ -51,6 +54,9 @@ public final class DriverFailOnFail {
     this.requestor = requestor;
   }
 
+  /**
+   * Handler for AllocatedEvaluator.
+   */
   public final class AllocatedEvaluatorHandler implements EventHandler<AllocatedEvaluator> {
     @Override
     public void onNext(final AllocatedEvaluator eval) {
@@ -77,6 +83,9 @@ public final class DriverFailOnFail {
     }
   }
 
+  /**
+   * Handler for FailedTask.
+   */
   public final class FailedTaskHandler implements EventHandler<FailedTask> {
     @Override
     public void onNext(final FailedTask task) throws SimulatedDriverFailure {
@@ -87,6 +96,9 @@ public final class DriverFailOnFail {
     }
   }
 
+  /**
+   * Handler for StartTime.
+   */
   public final class StartHandler implements EventHandler<StartTime> {
     @Override
     public void onNext(final StartTime time) {

@@ -39,6 +39,9 @@ import org.apache.reef.wake.time.runtime.event.RuntimeStop;
 import javax.inject.Inject;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+/**
+ * Driver for WatcherTest.
+ */
 @Unit
 public final class WatcherTestDriver {
 
@@ -67,6 +70,9 @@ public final class WatcherTestDriver {
     this.isFirstTask = new AtomicBoolean(true);
   }
 
+  /**
+   * Handler for StartTime.
+   */
   public final class DriverStartedHandler implements EventHandler<StartTime> {
 
     @Override
@@ -80,6 +86,9 @@ public final class WatcherTestDriver {
     }
   }
 
+  /**
+   * Handler for AllocatedEvaluator.
+   */
   public final class EvaluatorAllocatedHandler implements EventHandler<AllocatedEvaluator> {
 
     @Override
@@ -94,6 +103,9 @@ public final class WatcherTestDriver {
     }
   }
 
+  /**
+   * Handler for FailedEvaluator.
+   */
   public final class EvaluatorFailedHandler implements EventHandler<FailedEvaluator> {
 
     @Override
@@ -102,6 +114,9 @@ public final class WatcherTestDriver {
     }
   }
 
+  /**
+   * Handler for ActiveContext.
+   */
   public final class ContextActivatedHandler implements EventHandler<ActiveContext> {
 
     @Override
@@ -116,6 +131,9 @@ public final class WatcherTestDriver {
     }
   }
 
+  /**
+   * Handler for FailedContext.
+   */
   public final class ContextFailedHandler implements EventHandler<FailedContext> {
 
     @Override
@@ -124,6 +142,9 @@ public final class WatcherTestDriver {
     }
   }
 
+  /**
+   * Handler for RunningTask.
+   */
   public final class TaskRunningHandler implements EventHandler<RunningTask> {
 
     @Override
@@ -134,6 +155,9 @@ public final class WatcherTestDriver {
     }
   }
 
+  /**
+   * Handler for FailedTask.
+   */
   public final class TaskFailedHandler implements EventHandler<FailedTask> {
 
     @Override
@@ -142,6 +166,9 @@ public final class WatcherTestDriver {
     }
   }
 
+  /**
+   * Handler for SuspendedTask.
+   */
   public final class TaskSuspendedHandler implements EventHandler<SuspendedTask> {
 
     @Override
@@ -150,6 +177,9 @@ public final class WatcherTestDriver {
     }
   }
 
+  /**
+   * Handler for RuntimeStop.
+   */
   public final class RuntimeStopHandler implements EventHandler<RuntimeStop> {
 
     @Override

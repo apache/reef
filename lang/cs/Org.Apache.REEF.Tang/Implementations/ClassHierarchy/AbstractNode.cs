@@ -22,7 +22,7 @@ using Org.Apache.REEF.Tang.Util;
 
 namespace Org.Apache.REEF.Tang.Implementations.ClassHierarchy
 {
-    public class AbstractNode : INode
+    internal abstract class AbstractNode : INode
     {
         /// It is from Type.FullName. This name is used as Name in a Node. 
         /// It is not unique for a generic type with different type of arguments.
@@ -39,7 +39,7 @@ namespace Org.Apache.REEF.Tang.Implementations.ClassHierarchy
         // children in the class hierarchy
         protected IDictionary<string, INode> children = new MonotonicTreeMap<string, INode>();
 
-        public AbstractNode(INode parent, string name, string fullName)
+        protected AbstractNode(INode parent, string name, string fullName)
         {
             this.parent = parent;
             this.name = name;

@@ -24,6 +24,8 @@ namespace Org.Apache.REEF.Driver.Context.Defaults
     /// <summary>
     /// Default event handler for ContextStop
     /// </summary>
+    /// TODO[JIRA REEF-1167]: Remove this class.
+    [Obsolete("Deprecated in 0.14, please use Org.Apache.REEF.Common.Evaluator.Defaults.DefaultContextStopHandler instead.")]
     public class DefaultContextStopHandler : IObserver<IContextStop>
     {
         private static readonly Logger LOGGER = Logger.GetLogger(typeof(DefaultContextStopHandler));

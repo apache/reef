@@ -22,6 +22,9 @@ import org.apache.reef.tests.applications.vortex.VortexTestSuite;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 
+/**
+ * Test suite of all application tests.
+ */
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
     VortexTestSuite.class

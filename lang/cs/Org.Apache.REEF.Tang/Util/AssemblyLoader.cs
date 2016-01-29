@@ -23,7 +23,7 @@ using Org.Apache.REEF.Utilities.Logging;
 
 namespace Org.Apache.REEF.Tang.Util
 {
-    public class AssemblyLoader
+    public sealed class AssemblyLoader
     {
         private static readonly Logger LOGGER = Logger.GetLogger(typeof(AssemblyLoader));
 

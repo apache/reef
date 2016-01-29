@@ -48,7 +48,7 @@ public class VectorCodec implements Codec<Vector> {
         result.set(i, dais.readDouble());
       }
     } catch (final IOException e) {
-      throw new RuntimeException(e.getCause());
+      throw new RuntimeException(e);
     }
     return result;
   }
@@ -63,7 +63,7 @@ public class VectorCodec implements Codec<Vector> {
         daos.writeDouble(vec.get(i));
       }
     } catch (final IOException e) {
-      throw new RuntimeException(e.getCause());
+      throw new RuntimeException(e);
     }
     return baos.toByteArray();
   }

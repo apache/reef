@@ -21,7 +21,7 @@ using Org.Apache.REEF.Utilities.Logging;
 
 namespace Org.Apache.REEF.Tang.Implementations.InjectionPlan
 {
-    public class CsInstance : InjectionPlan
+    internal sealed class CsInstance : InjectionPlan
     {
         public readonly object instance;
         private static readonly Logger LOGGER = Logger.GetLogger(typeof(CsInstance));

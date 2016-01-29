@@ -19,6 +19,7 @@ using System;
 using System.Collections.Generic;
 using Org.Apache.REEF.Common.Context;
 using Org.Apache.REEF.Common.Events;
+using Org.Apache.REEF.Tang.Annotations;
 
 namespace Org.Apache.REEF.Common.Runtime.Evaluator.Context
 {
@@ -33,20 +34,9 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Context
 
         private readonly HashSet<IContextMessageSource> _contextMessageSources;
 
-        // @Inject
-        public ContextLifeCycle(
-            string id,
-            HashSet<IObserver<IContextStart>> contextStartHandlers,
-            HashSet<IObserver<IContextStop>> contextStopHandlers,
-            HashSet<IContextMessageSource> contextMessageSources)
-        {
-            Id = id;
-            _contextStartHandlers = contextStartHandlers;
-            _contextStopHandlers = contextStopHandlers;
-            _contextMessageSources = contextMessageSources;
-        }
-
-        public ContextLifeCycle(string contextId)
+        // TODO[JIRA REEF-1167]: Make method private.
+        [Inject]
+        public ContextLifeCycle([Parameter(typeof(ContextConfigurationOptions.ContextIdentifier))] string contextId)
         {
             Id = contextId;
             _contextStartHandlers = new HashSet<IObserver<IContextStart>>();

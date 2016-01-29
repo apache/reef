@@ -16,24 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.tests.multipleEventHandlerInstances;
-
-import org.apache.reef.task.Task;
-
-import javax.inject.Inject;
-
 /**
- *
+ * A Simple Vortex addition and aggregation example.
  */
-public class EmptyTask implements Task {
-
-  @Inject
-  public EmptyTask() {
-  }
-
-  @Override
-  public byte[] call(final byte[] memento) throws Exception {
-    return null;
-  }
-
-}
+package org.apache.reef.vortex.examples.sumones;

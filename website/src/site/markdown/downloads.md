@@ -51,6 +51,12 @@ Choose a release version:
     <li>
         <a id="releaseNotesLink" href="http://issues.apache.org/jira/secure/ReleaseNote.jspa?projectId=12315820&amp;version=12332972">Release notes</a>
     </li>
+    <li>
+        <a id="javaApiLink" href="apidocs/0.13.0-incubating/index.html">Java API</a>
+    </li>
+    <li>
+        <span id="dotnetApiLink">.NET API available since release 0.14.0</span>
+    </li>
 </ul>
 
 ##Development and Maintenance Branches

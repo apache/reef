@@ -72,6 +72,9 @@ public final class TaskMessagingTask implements Task, TaskMessageSource {
     return this.message;
   }
 
+  /**
+   * Handler for DriverMessage.
+   */
   public class DriverMessageHandler implements EventHandler<DriverMessage> {
     @Override
     public void onNext(final DriverMessage driverMessage) {

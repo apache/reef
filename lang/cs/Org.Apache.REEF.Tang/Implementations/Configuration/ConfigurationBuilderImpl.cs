@@ -29,7 +29,7 @@ using Org.Apache.REEF.Utilities.Logging;
 
 namespace Org.Apache.REEF.Tang.Implementations.Configuration
 {
-    public class ConfigurationBuilderImpl : IConfigurationBuilder
+    internal class ConfigurationBuilderImpl : IConfigurationBuilder
     {
         public IClassHierarchy ClassHierarchy;
 

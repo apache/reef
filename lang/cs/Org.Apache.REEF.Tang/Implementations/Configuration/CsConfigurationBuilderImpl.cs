@@ -27,7 +27,7 @@ using Org.Apache.REEF.Utilities.Logging;
 
 namespace Org.Apache.REEF.Tang.Implementations.Configuration
 {
-    public class CsConfigurationBuilderImpl : ConfigurationBuilderImpl, ICsInternalConfigurationBuilder
+    internal sealed class CsConfigurationBuilderImpl : ConfigurationBuilderImpl, ICsInternalConfigurationBuilder
     {
         private static readonly Logger LOGGER = Logger.GetLogger(typeof(CsConfigurationBuilderImpl));
 

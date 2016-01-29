@@ -26,6 +26,9 @@ import org.apache.reef.tang.formats.RequiredParameter;
 
 import java.util.Set;
 
+/**
+ * Configuration for FileResourceTest.
+ */
 public final class FileResourceTestDriverConfiguration extends ConfigurationModuleBuilder {
 
   public static final RequiredParameter<String> EXPECTED_FILE_NAME = new RequiredParameter<>();
@@ -33,6 +36,9 @@ public final class FileResourceTestDriverConfiguration extends ConfigurationModu
       .bindSetEntry(FileNamesToExpect.class, EXPECTED_FILE_NAME)
       .build();
 
+  /**
+   * The names of the files to expect in the local filesystem.
+   */
   @NamedParameter(doc = "The names of the files to expect in the local filesystem.")
   public static final class FileNamesToExpect implements Name<Set<String>> {
   }

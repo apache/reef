@@ -27,6 +27,10 @@ under the License.
         <relativePath>../../..</relativePath>
     </parent>
 
+    <properties>
+        <rootPath>${basedir}/../../..</rootPath>
+    </properties>
+
     <artifactId>reef-utils-hadoop</artifactId>
     <name>REEF Utils for Hadoop</name>
     <description>Utilities for using REEF on Hadoop.</description>

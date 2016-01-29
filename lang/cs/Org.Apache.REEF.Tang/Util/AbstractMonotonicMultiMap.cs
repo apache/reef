@@ -33,7 +33,7 @@ namespace Org.Apache.REEF.Tang.Util
 
         private int size = 0;
 
-        public AbstractMonotonicMultiMap(IDictionary<K, ISet<V>> map)
+        protected AbstractMonotonicMultiMap(IDictionary<K, ISet<V>> map)
         {
             this.map = map;
         }

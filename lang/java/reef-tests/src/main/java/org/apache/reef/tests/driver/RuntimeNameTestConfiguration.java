@@ -24,6 +24,9 @@ import org.apache.reef.tang.formats.ConfigurationModule;
 import org.apache.reef.tang.formats.ConfigurationModuleBuilder;
 import org.apache.reef.tang.formats.RequiredParameter;
 
+/**
+ * Configuration for RuntimeNameTest.
+ */
 public final class RuntimeNameTestConfiguration extends ConfigurationModuleBuilder {
 
   public static final RequiredParameter<String> RUNTIME_NAME = new RequiredParameter<>();
@@ -31,6 +34,9 @@ public final class RuntimeNameTestConfiguration extends ConfigurationModuleBuild
       .bindNamedParameter(RuntimeName.class, RUNTIME_NAME)
       .build();
 
+  /**
+   * The runtime name.
+   */
   @NamedParameter(doc = "The runtime name")
   public static class RuntimeName implements Name<String> {
   }

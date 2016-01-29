@@ -80,6 +80,9 @@ public final class NoopTask implements Task, TaskMessageSource {
     this.notify();
   }
 
+  /**
+   * Handler for SuspendEvent.
+   */
   public class TaskSuspendHandler implements EventHandler<SuspendEvent> {
     @Override
     public void onNext(final SuspendEvent suspendEvent) {
@@ -88,6 +91,9 @@ public final class NoopTask implements Task, TaskMessageSource {
     }
   }
 
+  /**
+   * Handler for TaskStop.
+   */
   public class TaskStopHandler implements EventHandler<TaskStop> {
     @Override
     public void onNext(final TaskStop event) {
@@ -96,6 +102,9 @@ public final class NoopTask implements Task, TaskMessageSource {
     }
   }
 
+  /**
+   * Handler for CloseEvent.
+   */
   public class TaskCloseHandler implements EventHandler<CloseEvent> {
     @Override
     public void onNext(final CloseEvent closeEvent) {
@@ -104,6 +113,9 @@ public final class NoopTask implements Task, TaskMessageSource {
     }
   }
 
+  /**
+   * Handler for DriverMessage.
+   */
   public class DriverMessageHandler implements EventHandler<DriverMessage> {
     @Override
     public void onNext(final DriverMessage driverMessage) {

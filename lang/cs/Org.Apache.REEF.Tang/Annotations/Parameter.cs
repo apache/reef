@@ -22,8 +22,8 @@ namespace Org.Apache.REEF.Tang.Annotations
     /// <summary>
     /// ParameterAttribute
     /// </summary>
-    [System.AttributeUsage(System.AttributeTargets.Parameter)]
-    public class ParameterAttribute : System.Attribute
+    [AttributeUsage(AttributeTargets.Parameter)]
+    public sealed class ParameterAttribute : Attribute
     {
         public ParameterAttribute()
         {

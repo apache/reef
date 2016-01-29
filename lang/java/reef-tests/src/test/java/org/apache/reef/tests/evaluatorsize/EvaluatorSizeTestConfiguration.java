@@ -24,6 +24,9 @@ import org.apache.reef.tang.formats.ConfigurationModule;
 import org.apache.reef.tang.formats.ConfigurationModuleBuilder;
 import org.apache.reef.tang.formats.RequiredParameter;
 
+/**
+ * Configuration for EvaluatorSizeTest.
+ */
 public final class EvaluatorSizeTestConfiguration extends ConfigurationModuleBuilder {
 
   public static final RequiredParameter<Integer> MEMORY_SIZE = new RequiredParameter<>();
@@ -31,6 +34,9 @@ public final class EvaluatorSizeTestConfiguration extends ConfigurationModuleBui
       .bindNamedParameter(MemorySize.class, MEMORY_SIZE)
       .build();
 
+  /**
+   * The size of the Evaluator to test for.
+   */
   @NamedParameter(doc = "The size of the Evaluator to test for")
   public static class MemorySize implements Name<Integer> {
   }

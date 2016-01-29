@@ -16,36 +16,33 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.tests.multipleEventHandlerInstances;
+package org.apache.reef.vortex.examples.sumones;
 
-import org.apache.reef.driver.context.ClosedContext;
-import org.apache.reef.tests.library.exceptions.DriverSideFailure;
-import org.apache.reef.wake.EventHandler;
+import org.apache.reef.io.serialization.Codec;
+import org.apache.reef.io.serialization.SerializableCodec;
+import org.apache.reef.vortex.api.VortexAggregateException;
+import org.apache.reef.vortex.api.VortexAggregateFunction;
 
-import javax.inject.Inject;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.util.List;
 
 /**
- *
+ * Aggregates and sums the outputs.
  */
-public class ClosedContextHandler implements EventHandler<ClosedContext> {
+public final class AdditionAggregateFunction implements VortexAggregateFunction<Integer> {
+  private static final Codec<Integer> CODEC = new SerializableCodec<>();
 
-  private static final Logger LOG = Logger.getLogger(ClosedContextHandler.class.getName());
-
-  private static int countInstances = 0;
-
-  @Inject
-  public ClosedContextHandler() {
-    ++countInstances;
-    if (countInstances > 1) {
-      throw new DriverSideFailure("Expect ClosedContextHandler to be created only once");
+  @Override
+  public Integer call(final List<Integer> taskletOutputs) throws VortexAggregateException {
+    int sum = 0;
+    for (final int output : taskletOutputs) {
+      sum += output;
     }
+
+    return sum;
   }
 
   @Override
-  public void onNext(final ClosedContext closedContext) {
-    LOG.log(Level.FINEST, "Received a closed context");
+  public Codec<Integer> getOutputCodec() {
+    return CODEC;
   }
-
 }

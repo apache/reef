@@ -34,6 +34,9 @@ import javax.inject.Inject;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+/**
+ * Driver for StatePassingTest.
+ */
 @Unit
 public class StatePassingDriver {
 

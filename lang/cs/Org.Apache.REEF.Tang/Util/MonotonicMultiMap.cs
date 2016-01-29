@@ -19,7 +19,7 @@ using System.Collections.Generic;
 
 namespace Org.Apache.REEF.Tang.Util
 {
-    public class MonotonicMultiMap<K, V> : AbstractMonotonicMultiMap<K, V> 
+    public sealed class MonotonicMultiMap<K, V> : AbstractMonotonicMultiMap<K, V> 
     {
         public MonotonicMultiMap() : base(new MonotonicTreeMap<K, ISet<V>>())
         {

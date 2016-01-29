@@ -29,6 +29,10 @@ under the License.
     <name>REEF Runtime for multiple runtime scenarios</name>
     <artifactId>reef-runtime-multi</artifactId>
 
+    <properties>
+        <rootPath>${basedir}/../../..</rootPath>
+    </properties>
+
     <build>
         <pluginManagement>
             <plugins>

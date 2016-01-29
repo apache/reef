@@ -20,10 +20,12 @@ using Org.Apache.REEF.Common.Events;
 using Org.Apache.REEF.Utilities.Logging;
 
 namespace Org.Apache.REEF.Driver.Context.Defaults
-{
-   /// <summary>
+{ 
+    /// <summary>
     /// Default handler for ContextStart
-   /// </summary>
+    /// </summary>
+    /// TODO[JIRA REEF-1167]: Remove this class.
+    [Obsolete("Deprecated in 0.14, please use Org.Apache.REEF.Common.Evaluator.Defaults.DefaultContextStartHandler instead.")]
     public class DefaultContextStartHandler : IObserver<IContextStart>
     {
         private static readonly Logger LOGGER = Logger.GetLogger(typeof(DefaultContextStartHandler));

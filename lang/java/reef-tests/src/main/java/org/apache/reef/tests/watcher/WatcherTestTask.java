@@ -31,6 +31,9 @@ import org.apache.reef.wake.EventHandler;
 import javax.inject.Inject;
 import java.nio.charset.Charset;
 
+/**
+ * Task for WatcherTest.
+ */
 @Unit
 public final class WatcherTestTask implements Task, TaskMessageSource {
 
@@ -68,6 +71,9 @@ public final class WatcherTestTask implements Task, TaskMessageSource {
     return Optional.of(taskMessage);
   }
 
+  /**
+   * Handler for SuspendEvent.
+   */
   public final class TaskSuspendedHandler implements EventHandler<SuspendEvent> {
 
     @Override

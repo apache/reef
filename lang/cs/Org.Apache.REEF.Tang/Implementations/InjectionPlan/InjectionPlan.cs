@@ -30,7 +30,7 @@ namespace Org.Apache.REEF.Tang.Implementations.InjectionPlan
 
         private static readonly Logger LOGGER = Logger.GetLogger(typeof(InjectionPlan));
 
-        public InjectionPlan(INode node) 
+        protected InjectionPlan(INode node) 
         {
             this.node = node;
         }
@@ -169,7 +169,7 @@ namespace Org.Apache.REEF.Tang.Implementations.InjectionPlan
         public abstract string ToShallowString();
     }
 
-    public class BuildingInjectionPlan : InjectionPlan
+    internal sealed class BuildingInjectionPlan : InjectionPlan
     {
         public BuildingInjectionPlan(INode node)
             : base(node)

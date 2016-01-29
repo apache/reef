@@ -23,7 +23,7 @@ namespace Org.Apache.REEF.Tang.Annotations
     /// DefaultImplementationAttribute
     /// </summary>
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Interface, Inherited = false)]
-    public class DefaultImplementationAttribute : System.Attribute
+    public sealed class DefaultImplementationAttribute : Attribute
     {
         public Type Value { get; set; }
         public string Name { get; set; }

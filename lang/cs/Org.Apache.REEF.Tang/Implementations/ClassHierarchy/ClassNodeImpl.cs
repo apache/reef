@@ -25,7 +25,7 @@ using Org.Apache.REEF.Utilities.Logging;
 
 namespace Org.Apache.REEF.Tang.Implementations.ClassHierarchy
 {
-    public class ClassNodeImpl : AbstractNode, IClassNode
+    internal sealed class ClassNodeImpl : AbstractNode, IClassNode
     {
         private static readonly Logger LOGGER = Logger.GetLogger(typeof(ClassNodeImpl));
 

@@ -28,7 +28,7 @@ using Org.Apache.REEF.Utilities.Logging;
 
 namespace Org.Apache.REEF.Tang.Implementations.ClassHierarchy
 {
-    public class NodeFactory
+    internal static class NodeFactory
     {
         private static readonly Logger LOGGER = Logger.GetLogger(typeof(NodeFactory));
 

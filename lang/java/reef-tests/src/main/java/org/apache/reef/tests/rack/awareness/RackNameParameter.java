@@ -22,6 +22,9 @@ import org.apache.reef.runtime.local.client.parameters.RackNames;
 import org.apache.reef.tang.annotations.Name;
 import org.apache.reef.tang.annotations.NamedParameter;
 
+/**
+ * Rack name.
+ */
 @NamedParameter(default_value = RackNames.DEFAULT_RACK_NAME, short_name = "rack")
 public class RackNameParameter implements Name<String> {
 }

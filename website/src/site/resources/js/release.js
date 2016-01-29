@@ -44,11 +44,20 @@ var releaseNotes = {
     "0.13.0-incubating": "https://issues.apache.org/jira/secure/ReleaseNote.jspa?projectId=12315820&version=12332972"
 };
 
+var javaApi = {
+    "0.10.0-incubating": "apidocs/0.10.0-incubating/index.html",
+    "0.11.0-incubating": "apidocs/0.11.0-incubating/index.html",
+    "0.12.0-incubating": "apidocs/0.12.0-incubating/index.html",
+    "0.13.0-incubating": "apidocs/0.13.0-incubating/index.html"
+};
+
+var dotnetApi = {
+};
+
 function setReleaseLink() {
     var releaseVersion = this.document.getElementById("selectRelease").value;
     if (releaseDirect[releaseVersion] == undefined) {
         this.document.getElementById("listRelease").style.display= "none";
-        
     } else {
         this.document.getElementById("listRelease").style.display = "block";
 
@@ -63,6 +72,14 @@ function setReleaseLink() {
             directReleaseStrSplit[directReleaseStrSplit.length - 1];
         this.document.getElementById("verificationLink").setAttribute("href",
             releaseDirectStr.slice(0, (0 - directReleaseStrSplit[directReleaseStrSplit.length - 1].length)));
+
+        this.document.getElementById("javaApiLink").setAttribute("href", javaApi[releaseVersion]);
+        if (dotnetApi[releaseVersion] == undefined) {
+            // special case: for versions 0.13.0 and earlier .NET API documentation is not available
+            this.document.getElementById("dotnetApiLink").innerHTML = ".NET API available since release 0.14.0";
+        } else {
+            this.document.getElementById("dotnetApiLink").innerHTML = "<a href=" + dotnetApi[releaseVersion] + ">.NET API</a>";
+        }
     }
 
 }

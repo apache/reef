@@ -31,7 +31,7 @@ using Org.Apache.REEF.Utilities.Logging;
 
 namespace Org.Apache.REEF.Tang.Formats
 {
-    public class ConfigurationFile
+    public static class ConfigurationFile
     {
         private static readonly Logger LOGGER = Logger.GetLogger(typeof(ConfigurationFile));
 

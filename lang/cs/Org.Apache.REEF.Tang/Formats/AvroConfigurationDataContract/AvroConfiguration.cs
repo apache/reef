@@ -23,8 +23,12 @@ namespace Org.Apache.REEF.Tang.Formats.AvroConfigurationDataContract
 {
     [KnownType(typeof(HashSet<ConfigurationEntry>))]
     [DataContract(Name = "AvroConfiguration", Namespace = "org.apache.reef.tang.formats.avro")]
-    public class AvroConfiguration
+    public sealed class AvroConfiguration
     {
+        public AvroConfiguration()
+        {
+        }
+
         public AvroConfiguration(string language, ISet<ConfigurationEntry> bindings)
         {
             // TODO: [REEF-276] AvroSerializer currently does not serialize HashSets
@@ -32,10 +36,6 @@ namespace Org.Apache.REEF.Tang.Formats.AvroConfigurationDataContract
             // An ISet is still passed in to guarantee configuration uniqueness.
             this.Bindings = new List<ConfigurationEntry>(bindings);
             this.language = language;
-        }
-
-        public AvroConfiguration()
-        {
         }
 
         [DataMember]

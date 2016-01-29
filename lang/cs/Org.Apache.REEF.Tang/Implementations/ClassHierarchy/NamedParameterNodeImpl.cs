@@ -15,14 +15,12 @@
 // specific language governing permissions and limitations
 // under the License.
 
-using System;
-using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Tang.Types;
 using Org.Apache.REEF.Tang.Util;
 
 namespace Org.Apache.REEF.Tang.Implementations.ClassHierarchy
 {
-    public class NamedParameterNodeImpl : AbstractNode, INamedParameterNode
+    internal sealed class NamedParameterNodeImpl : AbstractNode, INamedParameterNode
     {
         private readonly string fullArgName;
         private readonly string simpleArgName;
