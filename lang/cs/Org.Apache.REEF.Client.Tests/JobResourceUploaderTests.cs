@@ -16,7 +16,6 @@
 // under the License.
 
 using System;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NSubstitute;
 using Org.Apache.REEF.Client.Common;
 using Org.Apache.REEF.Client.Yarn;
@@ -24,10 +23,10 @@ using Org.Apache.REEF.Client.YARN.RestClient;
 using Org.Apache.REEF.IO.FileSystem;
 using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Tang.Util;
+using Xunit;
 
 namespace Org.Apache.REEF.Client.Tests
 {
-    [TestClass]
     public class JobResourceUploaderTests
     {
         private const string AnyDriverLocalFolderPath = @"Any\Local\Folder\Path\";
@@ -41,14 +40,14 @@ namespace Org.Apache.REEF.Client.Tests
         private const long AnyResourceSize = 53092;
         private static readonly DateTime Epoch = new DateTime(1970, 1, 1, 0, 0, 0, 0);
 
-        [TestMethod]
+        [Fact]
         public void JobResourceUploaderCanInstantiateWithDefaultBindings()
         {
             TangFactory.GetTang().NewInjector().GetInstance<FileSystemJobResourceUploader>();
         }
 
-        [TestMethod]
-        public void UploadJobResourceFlowCreatesResourceArchive()
+        [Fact]
+        public void UploadJobResourceCreatesResourceArchive()
         {
             var testContext = new TestContext();
             var jobArchiveCreator = testContext.GetResourceArchiveFileGenerator();
@@ -61,7 +60,7 @@ namespace Org.Apache.REEF.Client.Tests
             testContext.ResourceArchiveFileGenerator.Received(1).CreateArchiveToUpload(AnyDriverLocalFolderPath);
         }
 
-        [TestMethod]
+        [Fact]
         public void UploadJobResourceReturnsJobResourceDetails()
         {
             var testContext = new TestContext();
@@ -71,12 +70,12 @@ namespace Org.Apache.REEF.Client.Tests
             var jobResource = jobResourceUploader.UploadJobResource(
                 jobArchiveCreator.CreateArchiveToUpload(AnyDriverLocalFolderPath), AnyDriverResourceUploadPath);
 
-            Assert.AreEqual(AnyModificationTime, jobResource.LastModificationUnixTimestamp);
-            Assert.AreEqual(AnyResourceSize, jobResource.ResourceSize);
-            Assert.AreEqual(AnyUploadedResourceAbsoluteUri, jobResource.RemoteUploadPath);
+            Assert.Equal(AnyModificationTime, jobResource.LastModificationUnixTimestamp);
+            Assert.Equal(AnyResourceSize, jobResource.ResourceSize);
+            Assert.Equal(AnyUploadedResourceAbsoluteUri, jobResource.RemoteUploadPath);
         }
 
-        [TestMethod]
+        [Fact]
         public void UploadJobResourceMakesCorrectFileSystemCalls()
         {
             var testContext = new TestContext();

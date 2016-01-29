@@ -21,7 +21,6 @@ using System.Linq;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NSubstitute;
 using Org.Apache.REEF.Client.Yarn.RestClient;
 using Org.Apache.REEF.Client.YARN.RestClient;
@@ -29,13 +28,13 @@ using Org.Apache.REEF.Client.YARN.RestClient.DataModel;
 using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Tang.Util;
 using RestSharp;
+using Xunit;
 
 namespace Org.Apache.REEF.Client.Tests
 {
-    [TestClass]
     public class YarnClientTests
     {
-        [TestMethod]
+        [Fact]
         public async Task TestGetClusterInfo()
         {
             // arrange
@@ -63,11 +62,11 @@ namespace Org.Apache.REEF.Client.Tests
             ClusterInfo actualClusterInfo = await yarnClient.GetClusterInfoAsync();
 
             // assert
-            Assert.AreEqual(anyClusterInfo, actualClusterInfo);
+            Assert.Equal(anyClusterInfo, actualClusterInfo);
             var unused = urlProvider.Received(1).GetUrlAsync();
         }
 
-        [TestMethod]
+        [Fact]
         public async Task TestGetClusterMetrics()
         {
             var ctx = new TestContext();
@@ -93,11 +92,11 @@ namespace Org.Apache.REEF.Client.Tests
             var yarnClient = ctx.GetClient();
             ClusterMetrics actualClusterMetrics = await yarnClient.GetClusterMetricsAsync();
 
-            Assert.AreEqual(anyClusterMetrics, actualClusterMetrics);
+            Assert.Equal(anyClusterMetrics, actualClusterMetrics);
             var unused = urlProvider.Received(1).GetUrlAsync();
         }
 
-        [TestMethod]
+        [Fact]
         public async Task TestGetApplication()
         {
             var ctx = new TestContext();
@@ -128,11 +127,11 @@ namespace Org.Apache.REEF.Client.Tests
             var yarnClient = ctx.GetClient();
             Application actualApplication = await yarnClient.GetApplicationAsync(applicationId);
 
-            Assert.AreEqual(anyApplication, actualApplication);
+            Assert.Equal(anyApplication, actualApplication);
             var unused = urlProvider.Received(1).GetUrlAsync();
         }
 
-        [TestMethod]
+        [Fact]
         public async Task TestGetApplicationFinalStatus()
         {
             var ctx = new TestContext();
@@ -165,10 +164,10 @@ namespace Org.Apache.REEF.Client.Tests
 
             Application actualApplication = await yarnClient.GetApplicationAsync(applicationId);
 
-            Assert.AreEqual(actualApplication.FinalStatus, FinalState.SUCCEEDED);
+            Assert.Equal(actualApplication.FinalStatus, FinalState.SUCCEEDED);
         }
 
-        [TestMethod]
+        [Fact]
         public async Task TestCreateNewApplication()
         {
             var ctx = new TestContext();
@@ -192,11 +191,11 @@ namespace Org.Apache.REEF.Client.Tests
             var yarnClient = ctx.GetClient();
             NewApplication actualNewApplication = await yarnClient.CreateNewApplicationAsync();
 
-            Assert.AreEqual(anyNewApplication, actualNewApplication);
+            Assert.Equal(anyNewApplication, actualNewApplication);
             var unused = urlProvider.Received(1).GetUrlAsync();
         }
 
-        [TestMethod]
+        [Fact]
         public async Task TestSubmitNewApplication()
         {
             var ctx = new TestContext();
@@ -333,7 +332,7 @@ namespace Org.Apache.REEF.Client.Tests
             var yarnClient = ctx.GetClient();
             Application actualApplication = await yarnClient.SubmitApplicationAsync(anySubmitApplication);
 
-            Assert.AreEqual(thisApplication, actualApplication);
+            Assert.Equal(thisApplication, actualApplication);
             var unused = urlProvider.Received(2).GetUrlAsync();
         }
 

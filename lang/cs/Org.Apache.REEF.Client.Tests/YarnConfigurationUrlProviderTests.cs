@@ -21,15 +21,15 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Org.Apache.REEF.Client.Yarn.RestClient;
 using Org.Apache.REEF.Client.YARN.RestClient;
 using Org.Apache.REEF.Tang.Exceptions;
 using Org.Apache.REEF.Tang.Implementations.Tang;
+using Xunit;
 
 namespace Org.Apache.REEF.Client.Tests
 {
-    [TestClass]
+    [Collection("UrlProviderTests")]
     public class YarnConfigurationUrlProviderTests
     {
         private const string HadoopConfDirEnvVariable = "HADOOP_CONF_DIR";
@@ -74,7 +74,7 @@ namespace Org.Apache.REEF.Client.Tests
   </property>
 </configuration>";
 
-        [TestMethod]
+        [Fact]
         public void UrlProviderReadsEnvVarConfiguredConfigFileAndParsesCorrectHttpUrl()
         {
             string tempFile = Path.GetTempFileName();
@@ -87,13 +87,13 @@ namespace Org.Apache.REEF.Client.Tests
                 YarnConfigurationUrlProvider urlProvider = GetYarnConfigurationUrlProvider();
                 var url = urlProvider.GetUrlAsync().GetAwaiter().GetResult();
 
-                Assert.AreEqual("http", url.First().Scheme);
-                Assert.AreEqual(AnyHttpAddressConfig.Split(':')[0], url.First().Host);
-                Assert.AreEqual(AnyHttpAddressConfig.Split(':')[1], url.First().Port.ToString(CultureInfo.InvariantCulture));
+                Assert.Equal("http", url.First().Scheme);
+                Assert.Equal(AnyHttpAddressConfig.Split(':')[0], url.First().Host);
+                Assert.Equal(AnyHttpAddressConfig.Split(':')[1], url.First().Port.ToString(CultureInfo.InvariantCulture));
             }
         }
 
-        [TestMethod]
+        [Fact]
         public void UrlProviderReadsEnvVarConfiguredConfigFileAndParsesCorrectHttpsUrl()
         {
             string tempFile = Path.GetTempFileName();
@@ -106,13 +106,13 @@ namespace Org.Apache.REEF.Client.Tests
                 YarnConfigurationUrlProvider urlProvider = GetYarnConfigurationUrlProvider(useHttps: true);
                 IEnumerable<Uri> url = urlProvider.GetUrlAsync().GetAwaiter().GetResult();
 
-                Assert.AreEqual("https", url.First().Scheme);
-                Assert.AreEqual(AnyHttpsAddressConfig.Split(':')[0], url.First().Host);
-                Assert.AreEqual(AnyHttpsAddressConfig.Split(':')[1], url.First().Port.ToString(CultureInfo.InvariantCulture));
+                Assert.Equal("https", url.First().Scheme);
+                Assert.Equal(AnyHttpsAddressConfig.Split(':')[0], url.First().Host);
+                Assert.Equal(AnyHttpsAddressConfig.Split(':')[1], url.First().Port.ToString(CultureInfo.InvariantCulture));
             }
         }
 
-        [TestMethod]
+        [Fact]
         public void UrlProviderReadsUserProvidedConfigFileAndParsesCorrectHttpsUrl()
         {
             string tempFile = Path.GetTempFileName();
@@ -126,13 +126,13 @@ namespace Org.Apache.REEF.Client.Tests
                     useHttps: true);
                 var url = urlProvider.GetUrlAsync().GetAwaiter().GetResult();
 
-                Assert.AreEqual("https", url.First().Scheme);
-                Assert.AreEqual(AnyHttpsAddressConfig.Split(':')[0], url.First().Host);
-                Assert.AreEqual(AnyHttpsAddressConfig.Split(':')[1], url.First().Port.ToString(CultureInfo.InvariantCulture));
+                Assert.Equal("https", url.First().Scheme);
+                Assert.Equal(AnyHttpsAddressConfig.Split(':')[0], url.First().Host);
+                Assert.Equal(AnyHttpsAddressConfig.Split(':')[1], url.First().Port.ToString(CultureInfo.InvariantCulture));
             }
         }
 
-        [TestMethod]
+        [Fact]
         public void CannotFindHadoopConfigDirThrowsArgumentException()
         {
             using (new TemporaryOverrideEnvironmentVariable(HadoopConfDirEnvVariable, string.Empty))
@@ -140,11 +140,11 @@ namespace Org.Apache.REEF.Client.Tests
                 try
                 {
                     YarnConfigurationUrlProvider urlProviderNotUsed = GetYarnConfigurationUrlProvider();
-                    Assert.Fail("Should throw exception");
+                    Assert.True(false, "Should throw exception");
                 }
                 catch (InjectionException injectionException)
                 {
-                    Assert.IsTrue(injectionException.GetBaseException() is ArgumentException);
+                    Assert.True(injectionException.GetBaseException() is ArgumentException);
                 }
             }
         }
