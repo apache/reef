@@ -18,16 +18,16 @@
 using System;
 using System.Globalization;
 using System.IO;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Org.Apache.REEF.Client.Yarn.RestClient;
 using Org.Apache.REEF.Client.YARN.RestClient;
 using Org.Apache.REEF.Tang.Exceptions;
 using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Tang.Util;
+using Xunit;
 
 namespace Org.Apache.REEF.Client.Tests
 {
-    [TestClass]
+    [Collection("UrlProviderTests")]
     public class MultipleRMUrlProviderTests
     {
         private const string HadoopConfDirEnvVariable = "HADOOP_CONF_DIR";
@@ -54,7 +54,7 @@ namespace Org.Apache.REEF.Client.Tests
   </property>
 </configuration>";
 
-        [TestMethod]
+        [Fact]
         public void UrlProviderReadsEnvVarConfiguredConfigFileAndParsesCorrectHttpUrl()
         {
             string tempFile = Path.GetTempFileName();
@@ -71,24 +71,24 @@ namespace Org.Apache.REEF.Client.Tests
                 foreach (var u in url)
                 {
                     i++;
-                    Assert.AreEqual("http", u.Scheme);
+                    Assert.Equal("http", u.Scheme);
                     if (i == 1)
                     {
-                        Assert.AreEqual(AnyHttpAddressConfig.Split(':')[0], u.Host);
-                        Assert.AreEqual(AnyHttpAddressConfig.Split(':')[1],
+                        Assert.Equal(AnyHttpAddressConfig.Split(':')[0], u.Host);
+                        Assert.Equal(AnyHttpAddressConfig.Split(':')[1],
                             u.Port.ToString(CultureInfo.InvariantCulture));
                     }
                     else
                     {
-                        Assert.AreEqual(AnyHttpAddressConfigUpdated.Split(':')[0], u.Host);
-                        Assert.AreEqual(AnyHttpAddressConfigUpdated.Split(':')[1],
+                        Assert.Equal(AnyHttpAddressConfigUpdated.Split(':')[0], u.Host);
+                        Assert.Equal(AnyHttpAddressConfigUpdated.Split(':')[1],
                             u.Port.ToString(CultureInfo.InvariantCulture));
                     }
                 }
             }
         }
 
-        [TestMethod]
+        [Fact]
         public void CannotFindHadoopConfigDirThrowsArgumentException()
         {
             using (new YarnConfigurationUrlProviderTests.TemporaryOverrideEnvironmentVariable(HadoopConfDirEnvVariable, string.Empty))
@@ -96,11 +96,11 @@ namespace Org.Apache.REEF.Client.Tests
                 try
                 {
                     IUrlProvider urlProviderNotUsed = GetYarnConfigurationUrlProvider();
-                    Assert.Fail("Should throw exception");
+                    Assert.True(false, "Should throw exception");
                 }
                 catch (InjectionException injectionException)
                 {
-                    Assert.IsTrue(injectionException.GetBaseException() is ArgumentException);
+                    Assert.True(injectionException.GetBaseException() is ArgumentException);
                 }
             }
         }

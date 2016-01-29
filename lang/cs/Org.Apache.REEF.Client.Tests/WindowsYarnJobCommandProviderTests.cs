@@ -16,17 +16,16 @@
 // under the License.
 
 using System.Collections.Generic;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NSubstitute;
 using Org.Apache.REEF.Client.Yarn;
 using Org.Apache.REEF.Client.YARN;
 using Org.Apache.REEF.Client.YARN.Parameters;
 using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Tang.Util;
+using Xunit;
 
 namespace Org.Apache.REEF.Client.Tests
 {
-    [TestClass]
     public class WindowsYarnJobCommandProviderTests
     {
         private static readonly List<string> AnyClassPathItems = new List<string>
@@ -53,13 +52,13 @@ namespace Org.Apache.REEF.Client.Tests
             "%HADOOP_HOME%/share/hadoop/mapreduce/lib/*"
         };
 
-        [TestMethod]
+        [Fact]
         public void YarnJobCommandBuilderIsDefaultImplementationOfIYarnJobCommandBuilder()
         {
-            Assert.IsInstanceOfType(TangFactory.GetTang().NewInjector().GetInstance<IYarnJobCommandProvider>(), typeof(WindowsYarnJobCommandProvider));
+            Assert.IsType(typeof(WindowsYarnJobCommandProvider), TangFactory.GetTang().NewInjector().GetInstance<IYarnJobCommandProvider>());
         }
 
-        [TestMethod]
+        [Fact]
         public void GetJobSubmissionCommandGeneratesCorrectCommand()
         {
             var testContext = new TestContext();
@@ -79,10 +78,10 @@ namespace Org.Apache.REEF.Client.Tests
 
             var commandBuilder = testContext.GetCommandBuilder();
             var jobSubmissionCommand = commandBuilder.GetJobSubmissionCommand();
-            Assert.AreEqual(expectedCommand, jobSubmissionCommand);
+            Assert.Equal(expectedCommand, jobSubmissionCommand);
         }
 
-        [TestMethod]
+        [Fact]
         public void GetJobSubmissionCommandLoggingEnabledGeneratesCorrectCommand()
         {
             var testContext = new TestContext();
@@ -102,10 +101,10 @@ namespace Org.Apache.REEF.Client.Tests
                                            "ion-params.json 1> <LOG_DIR>/driver.stdout 2> <LOG_DIR>/driver.stderr";
             var commandBuilder = testContext.GetCommandBuilder(true);
             var jobSubmissionCommand = commandBuilder.GetJobSubmissionCommand();
-            Assert.AreEqual(expectedCommand, jobSubmissionCommand);
+            Assert.Equal(expectedCommand, jobSubmissionCommand);
         }
 
-        [TestMethod]
+        [Fact]
         public void GetJobSubmissionCommandSetsCorrectDriverMemoryAllocationSize()
         {
             var testContext = new TestContext();
@@ -126,10 +125,10 @@ namespace Org.Apache.REEF.Client.Tests
             string expectedCommand = string.Format(expectedCommandFormat, sizeMB);
             var commandBuilder = testContext.GetCommandBuilder(maxMemAllocPoolSize: sizeMB);
             var jobSubmissionCommand = commandBuilder.GetJobSubmissionCommand();
-            Assert.AreEqual(expectedCommand, jobSubmissionCommand);
+            Assert.Equal(expectedCommand, jobSubmissionCommand);
         }
 
-        [TestMethod]
+        [Fact]
         public void GetJobSubmissionCommandSetsCorrectMaxPermSize()
         {
             var testContext = new TestContext();
@@ -152,7 +151,7 @@ namespace Org.Apache.REEF.Client.Tests
             var commandBuilder = testContext.GetCommandBuilder(maxPermSize: sizeMB);
             var jobSubmissionCommand = commandBuilder.GetJobSubmissionCommand();
             
-            Assert.AreEqual(expectedCommand, jobSubmissionCommand);
+            Assert.Equal(expectedCommand, jobSubmissionCommand);
         }
 
         private class TestContext
