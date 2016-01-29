@@ -19,7 +19,6 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Org.Apache.REEF.IO.PartitionedData;
 using Org.Apache.REEF.IO.PartitionedData.FileSystem;
 using Org.Apache.REEF.IO.PartitionedData.FileSystem.Parameters;
@@ -29,13 +28,13 @@ using Org.Apache.REEF.Tang.Formats;
 using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Tang.Util;
 using Org.Apache.REEF.Utilities.Logging;
+using Xunit;
 
 namespace Org.Apache.REEF.IO.Tests
 {
     /// <summary>
     /// Tests for Org.Apache.REEF.IO.PartitionedData.FileSystem.
     /// </summary>
-    [TestClass]
     public class TestFilePartitionInputDataSet
     {
         private static readonly Logger Logger = Logger.GetLogger(typeof(TestFilePartitionInputDataSet));
@@ -45,7 +44,7 @@ namespace Org.Apache.REEF.IO.Tests
         string sourceFilePath1 = Path.Combine(Path.GetTempPath(), tempFileName1);
         string sourceFilePath2 = Path.Combine(Path.GetTempPath(), tempFileName2);
 
-        [TestMethod]
+        [Fact]
         public void TestDataSetId()
         {
             string filePaths = string.Format(CultureInfo.CurrentCulture, "{0};{1};{2};{3}", "/tmp/abc", "tmp//cde.txt", "efg", "tmp\\hhh");
@@ -58,14 +57,14 @@ namespace Org.Apache.REEF.IO.Tests
                     .Build())
                 .GetInstance<IPartitionedInputDataSet>();
 
-            Assert.AreEqual(dataSet.Id, "FileSystemDataSet-hhh");
+            Assert.Equal(dataSet.Id, "FileSystemDataSet-hhh");
         }
 
         /// <remarks>
         /// This test creates IPartitionDataSet with FileSystemInputPartitionConfiguration module.
         /// It then instantiates each IInputPartition using the IConfiguration provided by the IPartitionDescriptor.
         /// </remarks>
-        [TestMethod]
+        [Fact]
         public void TestEvaluatorSideWithMultipleFilesOnePartition()
         {
             MakeLocalTestFile(sourceFilePath1, new byte[] { 111, 112, 113 });
@@ -80,7 +79,7 @@ namespace Org.Apache.REEF.IO.Tests
                     .Build())
                 .GetInstance<IPartitionedInputDataSet>();
 
-            Assert.AreEqual(dataSet.Count, 1);
+            Assert.Equal(dataSet.Count, 1);
 
             foreach (var partitionDescriptor in dataSet)
             {
@@ -91,8 +90,8 @@ namespace Org.Apache.REEF.IO.Tests
 
                 using (partition as IDisposable)
                 {
-                    Assert.IsNotNull(partition);
-                    Assert.IsNotNull(partition.Id);
+                    Assert.NotNull(partition);
+                    Assert.NotNull(partition.Id);
                     int count = 0;
                     var e = partition.GetPartitionHandle();
                     foreach (var v in e)
@@ -100,7 +99,7 @@ namespace Org.Apache.REEF.IO.Tests
                         Logger.Log(Level.Info, string.Format(CultureInfo.CurrentCulture, "Data read {0}: ", v));
                         count++;
                     }
-                    Assert.AreEqual(count, 7);
+                    Assert.Equal(count, 7);
                 }
             }
         }
@@ -109,7 +108,7 @@ namespace Org.Apache.REEF.IO.Tests
         /// This test creates IPartitionDataSet using the configuration build directly.
         /// It sets multiple files in each Partition
         /// </remarks>
-        [TestMethod]
+        [Fact]
         public void TestWithoutConfigurationModuleWithTwoPartitions()
         {
             MakeLocalTestFile(sourceFilePath1, new byte[] { 111, 112, 113 });
@@ -127,7 +126,7 @@ namespace Org.Apache.REEF.IO.Tests
                 .NewInjector(partitionConfig)
                 .GetInstance<IPartitionedInputDataSet>();
 
-            Assert.AreEqual(dataSet.Count, 2);
+            Assert.Equal(dataSet.Count, 2);
 
             foreach (var partitionDescriptor in dataSet)
             {
@@ -137,8 +136,8 @@ namespace Org.Apache.REEF.IO.Tests
                         .GetInstance<IInputPartition<IEnumerable<byte>>>();
                 using (partition as IDisposable)
                 {
-                    Assert.IsNotNull(partition);
-                    Assert.IsNotNull(partition.Id);
+                    Assert.NotNull(partition);
+                    Assert.NotNull(partition.Id);
                 }
             }
         }
@@ -146,7 +145,7 @@ namespace Org.Apache.REEF.IO.Tests
         /// <remarks>
         /// This test is to use a ByteSerializer.
         /// </remarks>
-        [TestMethod]
+        [Fact]
         public void TestWithByteDeserializer()
         {
             MakeLocalTestFile(sourceFilePath1, new byte[] { 111, 112, 113 });
@@ -180,13 +179,13 @@ namespace Org.Apache.REEF.IO.Tests
                     }
                 }
             }
-            Assert.AreEqual(count, 7);
+            Assert.Equal(count, 7);
         }
 
         /// <remarks>
         /// This test is to use a RowSerializer. Row is a class at client side. 
         /// </remarks>
-        [TestMethod]
+        [Fact]
         public void TestWithRowDeserializer()
         {
             MakeLocalTestFile(sourceFilePath1, new byte[] { 111, 112, 113 });
@@ -218,13 +217,13 @@ namespace Org.Apache.REEF.IO.Tests
                     }
                 }
             }
-            Assert.AreEqual(count, 5);
+            Assert.Equal(count, 5);
         }
 
         /// <remarks>
         /// This test is to test injected IPartition with TempFileFolerParameter
         /// </remarks>
-        [TestMethod]
+        [Fact]
         public void TestTempFileFolderWithRowDeserializer()
         {
             MakeLocalTestFile(sourceFilePath1, new byte[] { 111, 112, 113 });
@@ -263,7 +262,7 @@ namespace Org.Apache.REEF.IO.Tests
                     }
                 }
             }
-            Assert.AreEqual(count, 5);
+            Assert.Equal(count, 5);
         }
 
         private void MakeLocalTestFile(string filePath, byte[] bytes)

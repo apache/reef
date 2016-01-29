@@ -18,7 +18,6 @@
 using System;
 using System.IO;
 using System.Linq;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.Blob;
 using Microsoft.WindowsAzure.Storage.RetryPolicies;
@@ -29,6 +28,7 @@ using Org.Apache.REEF.IO.FileSystem.AzureBlob.RetryPolicy;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Tang.Util;
+using Xunit;
 
 namespace Org.Apache.REEF.IO.Tests
 {
@@ -37,24 +37,23 @@ namespace Org.Apache.REEF.IO.Tests
     /// Some methods are currently not unit tested due to the complexity of "faking out"
     /// the methods. They are instead tested E2E in TestAzureBlockBlobFileSystemE2E
     /// </summary>
-    [TestClass]
     public sealed class TestAzureBlockBlobFileSystem
     {
         private readonly static Uri FakeUri = new Uri("http://fake.com");
 
-        [TestMethod, ExpectedException(typeof(NotSupportedException))]
+        [Fact]
         public void TestCreateNotSupported()
         {
-            new TestContext().GetAzureFileSystem().Create(FakeUri);
+            Assert.Throws<NotSupportedException>(() => new TestContext().GetAzureFileSystem().Create(FakeUri));
         }
 
-        [TestMethod, ExpectedException(typeof(NotSupportedException))]
+        [Fact]
         public void TestOpenNotSupported()
         {
-            new TestContext().GetAzureFileSystem().Open(FakeUri);
+            Assert.Throws<NotSupportedException>(() => new TestContext().GetAzureFileSystem().Open(FakeUri));
         }
 
-        [TestMethod]
+        [Fact]
         public void TestDelete()
         {
             var testContext = new TestContext();
@@ -62,7 +61,7 @@ namespace Org.Apache.REEF.IO.Tests
             testContext.TestCloudBlockBlob.Received(1).Delete();
         }
 
-        [TestMethod]
+        [Fact]
         public void TestExists()
         {
             var testContext = new TestContext();
@@ -70,7 +69,7 @@ namespace Org.Apache.REEF.IO.Tests
             testContext.TestCloudBlockBlob.Received(1).Exists();
         }
 
-        [TestMethod]
+        [Fact]
         public void TestCopyToLocal()
         {
             var testContext = new TestContext();
@@ -78,7 +77,7 @@ namespace Org.Apache.REEF.IO.Tests
             testContext.TestCloudBlockBlob.Received(1).DownloadToFile("local", FileMode.CreateNew);
         }
 
-        [TestMethod]
+        [Fact]
         public void TestCopyFromLocal()
         {
             var testContext = new TestContext();
@@ -86,7 +85,7 @@ namespace Org.Apache.REEF.IO.Tests
             testContext.TestCloudBlockBlob.Received(1).UploadFromFile("local", FileMode.Open);
         }
 
-        [TestMethod]
+        [Fact]
         public void TestCreateDirectory()
         {
             var testContext = new TestContext();
@@ -94,13 +93,13 @@ namespace Org.Apache.REEF.IO.Tests
             testContext.TestCloudBlobClient.DidNotReceiveWithAnyArgs();
         }
 
-        [TestMethod, ExpectedException(typeof(StorageException))]
+        [Fact]
         public void TestDeleteDirectoryFails()
         {
-            new TestContext().GetAzureFileSystem().DeleteDirectory(FakeUri);
+            Assert.Throws<StorageException>(() => new TestContext().GetAzureFileSystem().DeleteDirectory(FakeUri));
         }
 
-        [TestMethod]
+        [Fact]
         public void TestDeleteDirectoryAtContainer()
         {
             var testContext = new TestContext();
@@ -109,7 +108,7 @@ namespace Org.Apache.REEF.IO.Tests
             testContext.TestCloudBlobContainer.Received(1).DeleteIfExists();
         }
 
-        [TestMethod]
+        [Fact]
         public void TestDeleteDirectoryRecursive()
         {
             var testContext = new TestContext();
@@ -122,12 +121,12 @@ namespace Org.Apache.REEF.IO.Tests
             testContext.TestCloudBlob.Received(5).DeleteIfExists();
         }
 
-        [TestMethod]
+        [Fact]
         public void TestCreateUriForPath()
         {
             var testContext = new TestContext();
             const string dirStructure = "container/directory";
-            Assert.AreEqual(new Uri(FakeUri, dirStructure), testContext.GetAzureFileSystem().CreateUriForPath(dirStructure));
+            Assert.Equal(new Uri(FakeUri, dirStructure), testContext.GetAzureFileSystem().CreateUriForPath(dirStructure));
         }
 
         private sealed class TestContext
