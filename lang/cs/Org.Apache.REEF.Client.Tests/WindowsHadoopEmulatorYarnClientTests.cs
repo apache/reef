@@ -27,6 +27,9 @@ using Xunit;
 
 namespace Org.Apache.REEF.Client.Tests
 {
+    // placed in the same collection as *UrlProviderTests to avoid running in parallel with them
+    // as they rely on setting the same environment variable to different values
+    [Collection("UrlProviderTests")]
     public class WindowsHadoopEmulatorYarnClientTests
     {
         /// <summary>
