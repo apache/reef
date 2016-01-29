@@ -18,7 +18,6 @@
 using System;
 using System.IO;
 using System.Linq;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Org.Apache.REEF.Driver.Bridge;
 using Org.Apache.REEF.Driver.Defaults;
 using Org.Apache.REEF.Examples.AllHandlers;
@@ -28,22 +27,23 @@ using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Tang.Util;
 using Org.Apache.REEF.Utilities.Logging;
+using Xunit;
 
 namespace Org.Apache.REEF.Tests.Functional.Bridge
 {
-    [TestClass]
+    [Collection("FunctionalTests")]
     public class TestSimpleEventHandlers : ReefFunctionalTest
     {
-        [TestInitialize]
-        public void TestSetup()
+        public TestSimpleEventHandlers()
         {
             Init();
         }
 
-        [TestMethod, Priority(1), TestCategory("FunctionalGated")]
-        [Description("Test Hello Handler on local runtime")]
-        [DeploymentItem(@".")]
-        [Timeout(180 * 1000)]
+        [Fact]
+        [Trait("Priority", "1")]
+        [Trait("Category", "FunctionalGated")]
+        [Trait("Description", "Test Hello Handler on local runtime")]
+        //// TODO[JIRA REEF-1184]: add timeout 180 sec
         public void RunSimpleEventHandlerOnLocalRuntime()
         {
             string testFolder = DefaultRuntimeFolder + Guid.NewGuid().ToString("N").Substring(0, 4);

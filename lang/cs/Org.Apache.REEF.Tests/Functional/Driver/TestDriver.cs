@@ -16,27 +16,20 @@
 // under the License.
 
 using System.Collections.Generic;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Org.Apache.REEF.Driver;
 using Org.Apache.REEF.Driver.Bridge;
 using Org.Apache.REEF.Driver.Defaults;
 using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Tang.Util;
 using Org.Apache.REEF.Utilities.Logging;
+using Xunit;
 
 namespace Org.Apache.REEF.Tests.Functional.Driver
 {
-    [TestClass]
+    [Collection("FunctionalTests")]
     public class TestDriver : ReefFunctionalTest
     {
-        [TestInitialize]
-        public void TestSetup()
-        {
-            CleanUp();
-        }
-
-        [TestCleanup]
-        public void TestCleanup()
+        public TestDriver()
         {
             CleanUp();
         }
@@ -44,10 +37,11 @@ namespace Org.Apache.REEF.Tests.Functional.Driver
         /// <summary>
         /// This is to test DriverTestStartHandler. No evaluator and tasks are involved.
         /// </summary>
-        [TestMethod, Priority(1), TestCategory("FunctionalGated")]
-        [Description("Test DriverTestStartHandler. No evaluator and tasks are invoked")]
-        [DeploymentItem(@".")]
-        [Timeout(180 * 1000)]
+        [Fact]
+        [Trait("Priority", "1")]
+        [Trait("Category", "FunctionalGated")]
+        [Trait("Description", "Test DriverTestStartHandler. No evaluator and tasks are invoked")]
+        //// TODO[JIRA REEF-1184]: add timeout 180 sec
         public void TestDriverStart()
         {
             string testFolder = DefaultRuntimeFolder + TestNumber++;

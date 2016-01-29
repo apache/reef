@@ -37,7 +37,7 @@ using Timer = System.Timers.Timer;
 
 namespace Org.Apache.REEF.Tests.Functional
 {
-    public class ReefFunctionalTest
+    public class ReefFunctionalTest : IDisposable
     {
         protected const string _stdout = "driver.stdout";
         protected const string _stderr = "driver.stderr";
@@ -131,6 +131,11 @@ namespace Org.Apache.REEF.Tests.Functional
             {
                 // do not fail if clean up is unsuccessful
             }   
+        }
+
+        public void Dispose() 
+        {
+            CleanUp();
         }
 
         protected void ValidateSuccessForLocalRuntime(int numberOfEvaluatorsToClose, int numberOfTasksToFail = 0, int numberOfEvaluatorsToFail = 0, string testFolder = DefaultRuntimeFolder)
