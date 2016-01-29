@@ -20,90 +20,92 @@ using System.Collections.Generic;
 using System.Linq;
 using System.ServiceProcess;
 using System.Threading.Tasks;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Org.Apache.REEF.Client.Yarn.RestClient;
 using Org.Apache.REEF.Client.YARN.RestClient.DataModel;
 using Org.Apache.REEF.Tang.Implementations.Tang;
+using Xunit;
 
 namespace Org.Apache.REEF.Client.Tests
 {
-    [TestClass]
     public class WindowsHadoopEmulatorYarnClientTests
     {
         /// <summary>
-        /// TestInit here checks if the required hadoop services are running on the local machine.
-        /// If the the services are not available, tests will be marked inconclusive.
+        /// This attribute checks if the required hadoop services are running on the local machine.
+        /// If the the services are not available, tests annotated with this attribute will be skipped.
         /// </summary>
-        [TestInitialize]
-        public void TestInit()
+        class IgnoreOnHadoopNotAvailableFactAttribute : FactAttribute
         {
-            ServiceController[] serviceControllers = ServiceController.GetServices();
-            IEnumerable<string> actualServices = serviceControllers.Select(x => x.ServiceName);
-
-            string[] expectedServices = { "datanode", "namenode", "nodemanager", "resourcemanager" };
-
-            bool allServicesExist = expectedServices.All(expectedService => actualServices.Contains(expectedService));
-
-            if (!allServicesExist)
+            public IgnoreOnHadoopNotAvailableFactAttribute()
             {
-                Assert.Inconclusive(
-                    "At least some required windows services not installed. " +
-                    "Two possible ways: HDInsight Emulator or HortonWorks Data Platform for Windows. " +
-                    "Required services: " + string.Join(", ", expectedServices));
-            }
+                ServiceController[] serviceControllers = ServiceController.GetServices();
+                IEnumerable<string> actualServices = serviceControllers.Select(x => x.ServiceName);
 
-            bool allServicesRunning = expectedServices.All(
-                expectedService =>
+                string[] expectedServices = { "datanode", "namenode", "nodemanager", "resourcemanager" };
+
+                bool allServicesExist = expectedServices.All(expectedService => actualServices.Contains(expectedService));
+
+                if (!allServicesExist)
                 {
-                    ServiceController controller = serviceControllers.First(x => x.ServiceName == expectedService);
-                    return controller.Status == ServiceControllerStatus.Running;
-                });
+                    Skip =
+                        "At least some required windows services not installed. " +
+                        "Two possible ways: HDInsight Emulator or HortonWorks Data Platform for Windows. " +
+                        "Required services: " + string.Join(", ", expectedServices);
+                    return;
+                }
 
-            if (!allServicesRunning)
-            {
-                Assert.Inconclusive("At least some required windows services are not running. " +
-                                    "Required services: " + string.Join(", ", expectedServices));
+                bool allServicesRunning = expectedServices.All(
+                    expectedService =>
+                    {
+                        ServiceController controller = serviceControllers.First(x => x.ServiceName == expectedService);
+                        return controller.Status == ServiceControllerStatus.Running;
+                    });
+
+                if (!allServicesRunning)
+                {
+                    Skip = "At least some required windows services are not running. " +
+                           "Required services: " + string.Join(", ", expectedServices);
+                }
             }
         }
 
-        [TestMethod]
-        [TestCategory("Functional")]
+        [IgnoreOnHadoopNotAvailableFact]
+        [Trait("Category", "Functional")]
         public async Task TestGetClusterInfo()
         {
             var client = TangFactory.GetTang().NewInjector().GetInstance<IYarnRMClient>();
 
             var clusterInfo = await client.GetClusterInfoAsync();
 
-            Assert.IsNotNull(clusterInfo);
-            Assert.AreEqual(ClusterState.STARTED, clusterInfo.State);
-            Assert.IsTrue(clusterInfo.StartedOn > 0);
+            Assert.NotNull(clusterInfo);
+            Assert.Equal(ClusterState.STARTED, clusterInfo.State);
+            Assert.True(clusterInfo.StartedOn > 0);
         }
 
-        [TestMethod]
-        [TestCategory("Functional")]
+        [IgnoreOnHadoopNotAvailableFact]
+        [Trait("Category", "Functional")]
         public async Task TestGetClusterMetrics()
         {
             var client = TangFactory.GetTang().NewInjector().GetInstance<IYarnRMClient>();
 
             var clusterMetrics = await client.GetClusterMetricsAsync();
 
-            Assert.IsNotNull(clusterMetrics);
-            Assert.IsTrue(clusterMetrics.TotalMB > 0);
-            Assert.IsTrue(clusterMetrics.ActiveNodes > 0);
+            Assert.NotNull(clusterMetrics);
+            Assert.True(clusterMetrics.TotalMB > 0);
+            Assert.True(clusterMetrics.ActiveNodes > 0);
         }
 
-        [TestMethod]
-        [TestCategory("Functional")]
+        [IgnoreOnHadoopNotAvailableFact]
+        [Trait("Category", "Functional")]
         public async Task TestApplicationSubmissionAndQuery()
         {
             var client = TangFactory.GetTang().NewInjector().GetInstance<IYarnRMClient>();
 
             var newApplication = await client.CreateNewApplicationAsync();
 
-            Assert.IsNotNull(newApplication);
-            Assert.IsFalse(string.IsNullOrEmpty(newApplication.ApplicationId));
-            Assert.IsTrue(newApplication.MaximumResourceCapability.MemoryMB > 0);
-            Assert.IsTrue(newApplication.MaximumResourceCapability.VCores > 0);
+            Assert.NotNull(newApplication);
+            Assert.False(string.IsNullOrEmpty(newApplication.ApplicationId));
+            Assert.True(newApplication.MaximumResourceCapability.MemoryMB > 0);
+            Assert.True(newApplication.MaximumResourceCapability.VCores > 0);
 
             string applicationName = "REEFTEST_APPLICATION_" + Guid.NewGuid();
             Console.WriteLine(applicationName);
@@ -150,21 +152,21 @@ namespace Org.Apache.REEF.Client.Tests
 
             var application = await client.SubmitApplicationAsync(submitApplicationRequest);
 
-            Assert.IsNotNull(application);
-            Assert.AreEqual(newApplication.ApplicationId, application.Id);
-            Assert.AreEqual(applicationName, application.Name);
-            Assert.AreEqual(anyApplicationType, application.ApplicationType);
+            Assert.NotNull(application);
+            Assert.Equal(newApplication.ApplicationId, application.Id);
+            Assert.Equal(applicationName, application.Name);
+            Assert.Equal(anyApplicationType, application.ApplicationType);
 
             var getApplicationResult = client.GetApplicationAsync(newApplication.ApplicationId).GetAwaiter().GetResult();
 
-            Assert.IsNotNull(getApplicationResult);
-            Assert.AreEqual(newApplication.ApplicationId, getApplicationResult.Id);
-            Assert.AreEqual(applicationName, getApplicationResult.Name);
-            Assert.AreEqual(anyApplicationType, getApplicationResult.ApplicationType);
+            Assert.NotNull(getApplicationResult);
+            Assert.Equal(newApplication.ApplicationId, getApplicationResult.Id);
+            Assert.Equal(applicationName, getApplicationResult.Name);
+            Assert.Equal(anyApplicationType, getApplicationResult.ApplicationType);
         }
 
-        [TestMethod]
-        [TestCategory("Functional")]
+        [IgnoreOnHadoopNotAvailableFact]
+        [Trait("Category", "Functional")]
         public async Task TestErrorResponse()
         {
             const string wrongApplicationName = @"Something";
@@ -174,11 +176,11 @@ namespace Org.Apache.REEF.Client.Tests
             try
             {
                 await client.GetApplicationAsync(wrongApplicationName);
-                Assert.Fail("Should throw YarnRestAPIException");
+                Assert.True(false, "Should throw YarnRestAPIException");
             }
             catch (AggregateException aggregateException)
             {
-                Assert.IsInstanceOfType(aggregateException.GetBaseException(), typeof(YarnRestAPIException));
+                Assert.IsType(typeof(YarnRestAPIException), aggregateException.GetBaseException());
             }
         }
     }
