@@ -31,7 +31,9 @@ using Org.Apache.REEF.Common.Files;
 using Org.Apache.REEF.Driver.Bridge;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Tang.Implementations.Tang;
+using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Utilities.Attributes;
+using Org.Apache.REEF.Utilities.Diagnostics;
 using Org.Apache.REEF.Utilities.Logging;
 using Org.Apache.REEF.Wake.Remote.Parameters;
 
@@ -53,6 +55,7 @@ namespace Org.Apache.REEF.Client.YARN
         private readonly IYarnJobCommandProvider _yarnJobCommandProvider;
         private readonly REEFFileNames _fileNames;
         private readonly IJobSubmissionDirectoryProvider _jobSubmissionDirectoryProvider;
+        private readonly IResourceArchiveFileGenerator _resourceArchiveFileGenerator;
 
         [Inject]
         private YarnREEFDotNetClient(
@@ -61,6 +64,7 @@ namespace Org.Apache.REEF.Client.YARN
             IJobResourceUploader jobResourceUploader,
             IYarnJobCommandProvider yarnJobCommandProvider,
             REEFFileNames fileNames,
+            IResourceArchiveFileGenerator resourceArchiveFileGenerator,
             IJobSubmissionDirectoryProvider jobSubmissionDirectoryProvider)
         {
             _jobSubmissionDirectoryProvider = jobSubmissionDirectoryProvider;
@@ -69,71 +73,47 @@ namespace Org.Apache.REEF.Client.YARN
             _jobResourceUploader = jobResourceUploader;
             _driverFolderPreparationHelper = driverFolderPreparationHelper;
             _yarnRMClient = yarnRMClient;
+            _resourceArchiveFileGenerator = resourceArchiveFileGenerator;
         }
 
         public void Submit(IJobSubmission jobSubmission)
         {
-            string jobId = jobSubmission.JobIdentifier;
-
             // todo: Future client interface should be async.
             // Using GetAwaiter().GetResult() instead of .Result to avoid exception
             // getting wrapped in AggregateException.
             var newApplication = _yarnRMClient.CreateNewApplicationAsync().GetAwaiter().GetResult();
-            string applicationId = newApplication.ApplicationId;
+            var applicationId = newApplication.ApplicationId;
+            Log.Log(Level.Verbose, @"Assigned application id {0}", applicationId);
+            Submit(jobSubmission, applicationId);
+        }
+
+        public void Submit(IJobSubmission jobSubmission, string uniqueSubmissionId)
+        {
+            var jobId = jobSubmission.JobIdentifier;
 
             // create job submission remote path
-            string jobSubmissionDirectory =
-                _jobSubmissionDirectoryProvider.GetJobSubmissionRemoteDirectory(applicationId);
+            var jobSubmissionDirectory =
+                _jobSubmissionDirectoryProvider.GetJobSubmissionRemoteDirectory(uniqueSubmissionId);
 
             // create local driver folder.
-            var localDriverFolderPath = CreateDriverFolder(jobId, applicationId);
+            var localDriverFolderPath = CreateDriverFolder(jobId, uniqueSubmissionId);
+
+            // prepare configuration
+            var paramInjector = TangFactory.GetTang().NewInjector(jobSubmission.DriverConfigurations.ToArray());
+
             try
             {
-                Log.Log(Level.Verbose, "Preparing driver folder in {0}", localDriverFolderPath);
-                _driverFolderPreparationHelper.PrepareDriverFolder(jobSubmission, localDriverFolderPath);
-
-                // prepare configuration
-                var paramInjector = TangFactory.GetTang().NewInjector(jobSubmission.DriverConfigurations.ToArray());
-                int maxApplicationSubmissions =
+                var maxApplicationSubmissions =
                     paramInjector.GetNamedInstance<DriverBridgeConfigurationOptions.MaxApplicationSubmissions, int>();
-
-                var avroJobSubmissionParameters = new AvroJobSubmissionParameters
-                {
-                    jobId = jobSubmission.JobIdentifier,
-                    tcpBeginPort = paramInjector.GetNamedInstance<TcpPortRangeStart, int>(),
-                    tcpRangeCount = paramInjector.GetNamedInstance<TcpPortRangeCount, int>(),
-                    tcpTryCount = paramInjector.GetNamedInstance<TcpPortRangeTryCount, int>(),
-                    jobSubmissionFolder = localDriverFolderPath
-                };
-
-                var avroYarnJobSubmissionParameters = new AvroYarnJobSubmissionParameters
-                {
-                    driverMemory = jobSubmission.DriverMemory,
-                    driverRecoveryTimeout =
-                        paramInjector.GetNamedInstance<DriverBridgeConfigurationOptions.DriverRestartEvaluatorRecoverySeconds, int>(),
-                    jobSubmissionDirectoryPrefix = jobSubmissionDirectory,
-                    dfsJobSubmissionFolder = jobSubmissionDirectory,
-                    sharedJobSubmissionParameters = avroJobSubmissionParameters
-                };
-
-                var submissionArgsFilePath = Path.Combine(localDriverFolderPath,
-                    _fileNames.GetLocalFolderPath(),
-                    _fileNames.GetJobSubmissionParametersFile());
-                using (var argsFileStream = new FileStream(submissionArgsFilePath, FileMode.CreateNew))
-                {
-                    var serializedArgs =
-                        AvroJsonSerializer<AvroYarnJobSubmissionParameters>.ToBytes(avroYarnJobSubmissionParameters);
-                    argsFileStream.Write(serializedArgs, 0, serializedArgs.Length);
-                }
+                Log.Log(Level.Verbose, "Preparing driver folder in {0}", localDriverFolderPath);
+                var driverArchivePath = GetSubmissionPackage(jobSubmission, uniqueSubmissionId);
 
                 // upload prepared folder to DFS
-                var jobResource = _jobResourceUploader.UploadJobResource(localDriverFolderPath, jobSubmissionDirectory);
+                var jobResource = _jobResourceUploader.UploadJobResource(driverArchivePath, jobSubmissionDirectory);
 
                 // submit job
-                Log.Log(Level.Verbose, @"Assigned application id {0}", applicationId);
-
                 var submissionReq = CreateApplicationSubmissionRequest(jobSubmission,
-                    applicationId,
+                    uniqueSubmissionId,
                     maxApplicationSubmissions,
                     jobResource);
                 var submittedApplication = _yarnRMClient.SubmitApplicationAsync(submissionReq).GetAwaiter().GetResult();
@@ -151,6 +131,88 @@ namespace Org.Apache.REEF.Client.YARN
         public IJobSubmissionResult SubmitAndGetJobStatus(IJobSubmission jobSubmission)
         {
             throw new NotSupportedException();
+        }
+
+        /// <summary>
+        /// Gets the path of the submission package without submitting the job.
+        /// Only available in YarnREEFDotNetClient because implementation is YARN specific.
+        /// </summary>
+        [Unstable("0.14")]
+        public string GetSubmissionPackage(IJobSubmission jobSubmission, string uniqueSubmissionId)
+        {
+            var jobId = jobSubmission.JobIdentifier;
+
+            // create job submission remote path
+            var jobSubmissionDirectory =
+                _jobSubmissionDirectoryProvider.GetJobSubmissionRemoteDirectory(uniqueSubmissionId);
+
+            // create local driver folder.
+            var localDriverFolderPath = CreateDriverFolder(jobId, uniqueSubmissionId);
+
+            // prepare configuration
+            var paramInjector = TangFactory.GetTang().NewInjector(jobSubmission.DriverConfigurations.ToArray());
+
+            string archivePath = null;
+
+            try
+            {
+                Log.Log(Level.Verbose, "Preparing driver folder in {0}", localDriverFolderPath);
+                _driverFolderPreparationHelper.PrepareDriverFolder(jobSubmission, localDriverFolderPath);
+                PrepareDriverSubmissionFolder(paramInjector, jobSubmission, localDriverFolderPath, jobSubmissionDirectory);
+                archivePath = _resourceArchiveFileGenerator.CreateArchiveToUpload(localDriverFolderPath);
+            }
+            catch (Exception ex)
+            {
+                if (!string.IsNullOrWhiteSpace(archivePath) && File.Exists(archivePath))
+                {
+                    File.Delete(archivePath);
+                }
+
+                if (Directory.Exists(localDriverFolderPath))
+                {
+                    Directory.Delete(localDriverFolderPath, true);
+                }
+
+                Exceptions.CaughtAndThrow(ex, Level.Error, Log);
+            }
+
+            return archivePath;
+        }
+
+        private void PrepareDriverSubmissionFolder(
+            IInjector paramInjector, 
+            IJobSubmission jobSubmission, 
+            string localDriverFolderPath, 
+            string jobSubmissionDirectory)
+        {
+            var avroJobSubmissionParameters = new AvroJobSubmissionParameters
+            {
+                jobId = jobSubmission.JobIdentifier,
+                tcpBeginPort = paramInjector.GetNamedInstance<TcpPortRangeStart, int>(),
+                tcpRangeCount = paramInjector.GetNamedInstance<TcpPortRangeCount, int>(),
+                tcpTryCount = paramInjector.GetNamedInstance<TcpPortRangeTryCount, int>(),
+                jobSubmissionFolder = localDriverFolderPath
+            };
+
+            var avroYarnJobSubmissionParameters = new AvroYarnJobSubmissionParameters
+            {
+                driverMemory = jobSubmission.DriverMemory,
+                driverRecoveryTimeout =
+                    paramInjector.GetNamedInstance<DriverBridgeConfigurationOptions.DriverRestartEvaluatorRecoverySeconds, int>(),
+                jobSubmissionDirectoryPrefix = jobSubmissionDirectory,
+                dfsJobSubmissionFolder = jobSubmissionDirectory,
+                sharedJobSubmissionParameters = avroJobSubmissionParameters
+            };
+
+            var submissionArgsFilePath = Path.Combine(localDriverFolderPath,
+                _fileNames.GetLocalFolderPath(),
+                _fileNames.GetJobSubmissionParametersFile());
+            using (var argsFileStream = new FileStream(submissionArgsFilePath, FileMode.CreateNew))
+            {
+                var serializedArgs =
+                    AvroJsonSerializer<AvroYarnJobSubmissionParameters>.ToBytes(avroYarnJobSubmissionParameters);
+                argsFileStream.Write(serializedArgs, 0, serializedArgs.Length);
+            }
         }
 
         public async Task<FinalState> GetJobFinalStatus(string appId)
@@ -220,9 +282,9 @@ namespace Org.Apache.REEF.Client.YARN
         /// Creates the temporary directory to hold the job submission.
         /// </summary>
         /// <returns>The path to the folder created.</returns>
-        private string CreateDriverFolder(string jobId, string appId)
+        private static string CreateDriverFolder(string jobId, string uniqueSubmissionId)
         {
-            return Path.GetFullPath(Path.Combine(Path.GetTempPath(), string.Join("-", "reef", jobId, appId)));
+            return Path.GetFullPath(Path.Combine(Path.GetTempPath(), string.Join("-", "reef", jobId, uniqueSubmissionId)));
         }
     }
 }

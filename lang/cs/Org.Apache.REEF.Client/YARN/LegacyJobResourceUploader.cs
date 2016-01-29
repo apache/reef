@@ -40,33 +40,25 @@ namespace Org.Apache.REEF.Client.Yarn
             @"org.apache.reef.bridge.client.JobResourceUploader";
 
         private readonly IJavaClientLauncher _javaLauncher;
-        private readonly IResourceArchiveFileGenerator _resourceArchiveFileGenerator;
         private readonly IFile _file;
 
         [Inject]
         private LegacyJobResourceUploader(
             IJavaClientLauncher javaLauncher,
-            IResourceArchiveFileGenerator resourceArchiveFileGenerator,
             IFile file,
             IYarnCommandLineEnvironment yarn)
         {
             _file = file;
-            _resourceArchiveFileGenerator = resourceArchiveFileGenerator;
             _javaLauncher = javaLauncher;
             _javaLauncher.AddToClassPath(yarn.GetYarnClasspathList());
         }
 
-        public JobResource UploadJobResource(string driverLocalFolderPath, string jobSubmissionDirectory)
+        public JobResource UploadJobResource(string driverArchivePath, string jobSubmissionDirectory)
         {
-            driverLocalFolderPath = driverLocalFolderPath.TrimEnd('\\') + @"\";
-            string driverUploadPath = jobSubmissionDirectory.TrimEnd('/') + @"/";
-            Log.Log(Level.Info, "DriverFolderPath: {0} DriverUploadPath: {1}", driverLocalFolderPath, driverUploadPath);
-
-            var archivePath = _resourceArchiveFileGenerator.CreateArchiveToUpload(driverLocalFolderPath);
-
+            var driverUploadPath = jobSubmissionDirectory.TrimEnd('/') + @"/";
             var resourceDetailsOutputPath = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString("N"));
             _javaLauncher.Launch(JavaClassNameForResourceUploader,
-                archivePath,
+                driverArchivePath,
                 driverUploadPath,
                 resourceDetailsOutputPath);
 

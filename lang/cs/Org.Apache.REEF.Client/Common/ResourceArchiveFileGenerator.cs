@@ -41,8 +41,9 @@ namespace Org.Apache.REEF.Client.Common
 
         public string CreateArchiveToUpload(string folderPath)
         {
-            string archivePath = Path.Combine(folderPath, Path.GetDirectoryName(folderPath) + ".zip");
-            string reefFolder = Path.Combine(folderPath, _reefFileNames.GetReefFolderName());
+            var driverLocalFolderPath = folderPath.TrimEnd('\\') + @"\";
+            var archivePath = Path.Combine(driverLocalFolderPath, Path.GetDirectoryName(driverLocalFolderPath) + ".zip");
+            var reefFolder = Path.Combine(driverLocalFolderPath, _reefFileNames.GetReefFolderName());
             if (!Directory.Exists(reefFolder))
             {
                 Exceptions.Throw(new DirectoryNotFoundException("Cannot find directory " + reefFolder), Log);
