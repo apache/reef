@@ -287,6 +287,7 @@ namespace Org.Apache.REEF.IO.Tests
                 .BindImplementation<IFileDeSerializer<IEnumerable<byte>>, ByteSerializer>(
                     GenericType<IFileDeSerializer<IEnumerable<byte>>>.Class,
                     GenericType<ByteSerializer>.Class)
+                .BindNamedParam<CopyToLocal, bool>("true")
                 .Build();
             return (new AvroConfigurationSerializer()).ToString(serializerConf);
         }
@@ -297,6 +298,7 @@ namespace Org.Apache.REEF.IO.Tests
                 .BindImplementation<IFileDeSerializer<IEnumerable<Row>>, RowSerializer>(
                     GenericType<IFileDeSerializer<IEnumerable<Row>>>.Class,
                     GenericType<RowSerializer>.Class)
+                .BindNamedParam<CopyToLocal, bool>("true")
                 .Build();
             return (new AvroConfigurationSerializer()).ToString(serializerConf);
         }
@@ -317,6 +319,27 @@ namespace Org.Apache.REEF.IO.Tests
         public IEnumerable<byte> Deserialize(string fileFolder)
         {
             foreach (var f in Directory.GetFiles(fileFolder))
+            {
+                using (FileStream stream = File.Open(f, FileMode.Open))
+                {
+                    BinaryReader reader = new BinaryReader(stream);
+                    while (reader.PeekChar() != -1)
+                    {
+                        yield return reader.ReadByte();
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Enumerate all the files in the set and return each byte read
+        /// </summary>
+        /// <param name="filePaths"></param>
+        /// <param name="local"></param>
+        /// <returns></returns>
+        public IEnumerable<byte> Deserialize(ISet<string> filePaths, bool local)
+        {
+            foreach (var f in filePaths)
             {
                 using (FileStream stream = File.Open(f, FileMode.Open))
                 {
@@ -360,6 +383,27 @@ namespace Org.Apache.REEF.IO.Tests
         public IEnumerable<Row> Deserialize(string fileFolder)
         {
             foreach (var f in Directory.GetFiles(fileFolder))
+            {
+                using (FileStream stream = File.Open(f, FileMode.Open))
+                {
+                    BinaryReader reader = new BinaryReader(stream);
+                    while (reader.PeekChar() != -1)
+                    {
+                        yield return new Row(reader.ReadByte());
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// read all the files in the set and return byte read one by one
+        /// </summary>
+        /// <param name="filePaths"></param>
+        /// <param name="local"></param>
+        /// <returns></returns>
+        public IEnumerable<Row> Deserialize(ISet<string> filePaths, bool local)
+        {
+            foreach (var f in filePaths)
             {
                 using (FileStream stream = File.Open(f, FileMode.Open))
                 {

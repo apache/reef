@@ -15,6 +15,10 @@
 // specific language governing permissions and limitations
 // under the License.
 
+using System;
+using System.Collections.Generic;
+using Org.Apache.REEF.Common.Protobuf.ReefProtocol;
+
 namespace Org.Apache.REEF.IO.PartitionedData.FileSystem
 {
     /// <summary>
@@ -30,6 +34,17 @@ namespace Org.Apache.REEF.IO.PartitionedData.FileSystem
         /// </summary>
         /// <param name="fileFolder"></param>
         /// <returns></returns>
+        [Obsolete("Remove after 0.14")]
         T Deserialize(string fileFolder);
+
+        /// <summary>
+        /// The input is a set of file paths. 
+        /// The output is of type T which is defined by the client.
+        /// If there is any IO error, IOException could be thrown.
+        /// </summary>
+        /// <param name="filePaths"></param>
+        /// <param name="local"></param>
+        /// <returns></returns>
+        T Deserialize(ISet<string> filePaths, bool local);
     }
 }
