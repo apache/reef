@@ -23,6 +23,7 @@ using Org.Apache.REEF.IO.FileSystem;
 using Org.Apache.REEF.IO.FileSystem.Hadoop;
 using Org.Apache.REEF.IO.PartitionedData;
 using Org.Apache.REEF.IO.PartitionedData.FileSystem;
+using Org.Apache.REEF.IO.PartitionedData.FileSystem.Parameters;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Tang.Formats;
 using Org.Apache.REEF.Tang.Implementations.Tang;
@@ -45,6 +46,7 @@ namespace Org.Apache.REEF.IO.TestClient
             var serializerConf = TangFactory.GetTang().NewConfigurationBuilder()
                 .BindImplementation<IFileDeSerializer<IEnumerable<byte>>, ByteSerializer>(GenericType<IFileDeSerializer<IEnumerable<byte>>>.Class,
                     GenericType<ByteSerializer>.Class)
+                .BindNamedParam<CopyToLocal, bool>("true")
                 .Build();
             var serializerConfString = (new AvroConfigurationSerializer()).ToString(serializerConf);
 
@@ -147,9 +149,25 @@ namespace Org.Apache.REEF.IO.TestClient
         /// </summary>
         /// <param name="fileFolder"></param>
         /// <returns></returns>
+        [Obsolete("Remove after 0.14")]
         public IEnumerable<byte> Deserialize(string fileFolder)
         {
+            var files = new HashSet<string>();
             foreach (var f in Directory.GetFiles(fileFolder))
+            {
+                files.Add(f);
+            }
+            return Deserialize(files);
+        }
+
+        /// <summary>
+        /// Read bytes from all the files in the set and return one by one
+        /// </summary>
+        /// <param name="filePaths"></param>
+        /// <returns></returns>
+        public IEnumerable<byte> Deserialize(ISet<string> filePaths)
+        {
+            foreach (var f in filePaths)
             {
                 using (FileStream stream = File.Open(f, FileMode.Open))
                 {

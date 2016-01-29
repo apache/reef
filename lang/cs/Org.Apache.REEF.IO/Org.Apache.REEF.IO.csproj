@@ -100,6 +100,7 @@ under the License.
     <Compile Include="FileSystem\Local\LocalFileSystemConfiguration.cs" />
     <Compile Include="PartitionedData\FileSystem\FileSystemInputPartition.cs" />
     <Compile Include="PartitionedData\FileSystem\FileInputPartitionDescriptor.cs" />
+    <Compile Include="PartitionedData\FileSystem\Parameters\CopyToLocal.cs" />
     <Compile Include="PartitionedData\FileSystem\Parameters\FileDeSerializerConfigString.cs" />
     <Compile Include="PartitionedData\FileSystem\IFileDeSerializer.cs" />
     <Compile Include="PartitionedData\FileSystem\FileSystemPartitionInputDataSet.cs" />

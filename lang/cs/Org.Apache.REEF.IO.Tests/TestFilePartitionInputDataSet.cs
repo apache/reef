@@ -287,6 +287,7 @@ namespace Org.Apache.REEF.IO.Tests
                 .BindImplementation<IFileDeSerializer<IEnumerable<byte>>, ByteSerializer>(
                     GenericType<IFileDeSerializer<IEnumerable<byte>>>.Class,
                     GenericType<ByteSerializer>.Class)
+                .BindNamedParam<CopyToLocal, bool>("true")
                 .Build();
             return (new AvroConfigurationSerializer()).ToString(serializerConf);
         }
@@ -297,6 +298,7 @@ namespace Org.Apache.REEF.IO.Tests
                 .BindImplementation<IFileDeSerializer<IEnumerable<Row>>, RowSerializer>(
                     GenericType<IFileDeSerializer<IEnumerable<Row>>>.Class,
                     GenericType<RowSerializer>.Class)
+                .BindNamedParam<CopyToLocal, bool>("true")
                 .Build();
             return (new AvroConfigurationSerializer()).ToString(serializerConf);
         }
@@ -314,9 +316,25 @@ namespace Org.Apache.REEF.IO.Tests
         /// </summary>
         /// <param name="fileFolder"></param>
         /// <returns></returns>
+        [Obsolete("Remove after 0.14")]
         public IEnumerable<byte> Deserialize(string fileFolder)
         {
+            var files = new HashSet<string>();
             foreach (var f in Directory.GetFiles(fileFolder))
+            {
+                files.Add(f);
+            }
+            return Deserialize(files);
+        }
+
+        /// <summary>
+        /// Enumerate all the files in the set and return each byte read
+        /// </summary>
+        /// <param name="filePaths"></param>
+        /// <returns></returns>
+        public IEnumerable<byte> Deserialize(ISet<string> filePaths)
+        {
+            foreach (var f in filePaths)
             {
                 using (FileStream stream = File.Open(f, FileMode.Open))
                 {
@@ -357,9 +375,25 @@ namespace Org.Apache.REEF.IO.Tests
         /// </summary>
         /// <param name="fileFolder"></param>
         /// <returns></returns>
+        [Obsolete("Remove after 0.14")]
         public IEnumerable<Row> Deserialize(string fileFolder)
         {
+            ISet<string> files = new HashSet<string>();
             foreach (var f in Directory.GetFiles(fileFolder))
+            {
+                files.Add(f);
+            }
+            return Deserialize(files);
+        }
+
+        /// <summary>
+        /// read all the files in the set and return byte read one by one
+        /// </summary>
+        /// <param name="filePaths"></param>
+        /// <returns></returns>
+        public IEnumerable<Row> Deserialize(ISet<string> filePaths)
+        {
+            foreach (var f in filePaths)
             {
                 using (FileStream stream = File.Open(f, FileMode.Open))
                 {

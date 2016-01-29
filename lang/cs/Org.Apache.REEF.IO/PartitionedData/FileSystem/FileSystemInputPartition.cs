@@ -38,13 +38,15 @@ namespace Org.Apache.REEF.IO.PartitionedData.FileSystem
         private readonly IFileDeSerializer<T> _fileSerializer;
         private readonly ISet<string> _filePaths;
         private bool _isInitialized;
+        private readonly bool _copyToLocal;
         private readonly object _lock = new object();
-        private string _localFileFolder;
         private readonly ITempFileCreator _tempFileCreator;
+        private readonly ISet<string> _localFiles = new HashSet<string>();
 
         [Inject]
         private FileSystemInputPartition([Parameter(typeof(PartitionId))] string id,
             [Parameter(typeof(FilePathsInInputPartition))] ISet<string> filePaths,
+            [Parameter(typeof(CopyToLocal))] bool copyToLocal,
             IFileSystem fileSystem,
             ITempFileCreator tempFileCreator,
             IFileDeSerializer<T> fileSerializer)
@@ -55,6 +57,7 @@ namespace Org.Apache.REEF.IO.PartitionedData.FileSystem
             _filePaths = filePaths;
             _tempFileCreator = tempFileCreator;
             _isInitialized = false;
+            _copyToLocal = copyToLocal;
         }
 
         public string Id
@@ -82,17 +85,22 @@ namespace Org.Apache.REEF.IO.PartitionedData.FileSystem
         /// <returns></returns>
         public T GetPartitionHandle()
         {
-            if (!_isInitialized)
+            if (_copyToLocal)
             {
-                Initialize();
+                if (!_isInitialized)
+                {
+                    Initialize();
+                }
+
+                return _fileSerializer.Deserialize(_localFiles);
             }
-            return _fileSerializer.Deserialize(_localFileFolder);
+            return _fileSerializer.Deserialize(_filePaths);
         }
 
         private void CopyFromRemote()
         {
-            _localFileFolder = _tempFileCreator.CreateTempDirectory("-partition-");
-            Logger.Log(Level.Info, string.Format(CultureInfo.CurrentCulture, "Local file temp folder: {0}", _localFileFolder));
+            string localFileFolder = _tempFileCreator.CreateTempDirectory("-partition-");
+            Logger.Log(Level.Info, string.Format(CultureInfo.CurrentCulture, "Local file temp folder: {0}", localFileFolder));
 
             foreach (var sourceFilePath in _filePaths)
             {
@@ -104,7 +112,9 @@ namespace Org.Apache.REEF.IO.PartitionedData.FileSystem
                         "Remote File {0} does not exists.", sourceUri));
                 }
 
-                var localFilePath = _localFileFolder + "\\" + Guid.NewGuid().ToString("N").Substring(0, 8);
+                var localFilePath = localFileFolder + "\\" + Guid.NewGuid().ToString("N").Substring(0, 8);
+                _localFiles.Add(localFilePath);
+
                 Logger.Log(Level.Info, string.Format(CultureInfo.CurrentCulture, "LocalFilePath {0}: ", localFilePath));
                 if (File.Exists(localFilePath))
                 {
@@ -134,14 +144,12 @@ namespace Org.Apache.REEF.IO.PartitionedData.FileSystem
         /// </summary>
         public void Dispose()
         {
-            if (_localFileFolder != null)
+            if (_localFiles.Count > 0)
             {
-                foreach (var fileName in Directory.GetFiles(_localFileFolder))
+                foreach (var fileName in _localFiles)
                 {
                     File.Delete(fileName);
                 }
-                Directory.Delete(_localFileFolder);
-                _localFileFolder = null;
             }
         }
     }
