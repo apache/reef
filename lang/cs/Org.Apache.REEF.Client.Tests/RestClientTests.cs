@@ -86,10 +86,9 @@ namespace Org.Apache.REEF.Client.Tests
             {
                 Method = Method.POST,
                 Resource = AnyResource,
-                RootElement = AnyRootElement
+                RootElement = AnyRootElement,
+                Content = new StringContent(AnyPostContent, Encoding, MediaType)
             };
-
-            anyRequest.AddBody(AnyPostContent);
 
             var successfulResponseMessage = CreateSuccessfulResponseMessage();
             tc.HttpClient.PostAsync(AnyRequestUri + anyRequest.Resource,

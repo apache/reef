@@ -15,6 +15,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
+using System.Net.Http;
+using System.Text;
 using Org.Apache.REEF.Tang.Annotations;
 
 namespace Org.Apache.REEF.Client.YARN.RestClient
@@ -65,7 +67,7 @@ namespace Org.Apache.REEF.Client.YARN.RestClient
             if (body != null)
             {
                 string content = _serializer.Serialize(body);
-                request.AddBody(content);
+                request.Content = new StringContent(content, Encoding.UTF8, @"application/json");
             }
 
             return request;

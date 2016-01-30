@@ -44,14 +44,6 @@ namespace Org.Apache.REEF.Client.YARN.RestClient
         /// <summary>
         /// The serialized string content for the request
         /// </summary>
-        public StringContent Content { get; private set; }
-
-        /// <summary>
-        /// Add preserialized content to be used with POST requests
-        /// </summary>
-        public void AddBody(string content)
-        {
-            Content = new StringContent(content, Encoding.UTF8, @"application/json");
-        }
+        public StringContent Content { get; internal set; }
     }
 }

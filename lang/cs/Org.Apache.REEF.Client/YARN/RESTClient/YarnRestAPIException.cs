@@ -16,6 +16,7 @@
 // under the License.
 
 using System;
+using System.Net;
 using Org.Apache.REEF.Client.YARN.RestClient.DataModel;
 
 namespace Org.Apache.REEF.Client.Yarn.RestClient
@@ -38,5 +39,7 @@ namespace Org.Apache.REEF.Client.Yarn.RestClient
         }
 
         public Error Error { get; internal set; }
+
+        public HttpStatusCode StatusCode { get; internal set; }
     }
 }

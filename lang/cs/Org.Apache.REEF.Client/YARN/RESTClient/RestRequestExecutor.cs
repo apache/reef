@@ -85,30 +85,38 @@ namespace Org.Apache.REEF.Client.Yarn.RestClient
         {
             if (responseException != null)
             {
-                throw new YarnRestAPIException("Executing REST API failed", responseException);
+                throw new YarnRestAPIException("Executing REST API failed", responseException)
+                {
+                    StatusCode = httpStatusCode
+                };
             }
 
             // HTTP status code greater than 300 is unexpected here.
             // See if the server sent a error response and throw suitable
             // exception to user.
-            if (httpStatusCode >= HttpStatusCode.Ambiguous)
+            if (httpStatusCode < HttpStatusCode.Ambiguous)
             {
-                Log.Log(Level.Error,
-                    "RESTRequest failed. StatusCode: {0}; Response: {1}",
-                    httpStatusCode,
-                    content);
-                Error errorResponse;
-                try
-                {
-                    errorResponse = JsonConvert.DeserializeObject<Error>(content);
-                }
-                catch (Exception exception)
-                {
-                    throw new YarnRestAPIException("Unhandled exception in deserializing error response.", exception);
-                }
-
-                throw new YarnRestAPIException { Error = errorResponse };
+                return;
             }
+
+            Log.Log(Level.Error,
+                "RESTRequest failed. StatusCode: {0}; Response: {1}",
+                httpStatusCode,
+                content);
+            Error errorResponse;
+            try
+            {
+                errorResponse = JsonConvert.DeserializeObject<Error>(content);
+            }
+            catch (Exception exception)
+            {
+                throw new YarnRestAPIException("Unhandled exception in deserializing error response.", exception)
+                {
+                    StatusCode = httpStatusCode
+                };
+            }
+
+            throw new YarnRestAPIException { Error = errorResponse, StatusCode = httpStatusCode };
         }
     }
 }
