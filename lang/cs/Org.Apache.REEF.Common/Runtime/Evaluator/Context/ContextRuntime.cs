@@ -55,44 +55,6 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Context
         /// <summary>
         /// Create a new ContextRuntime.
         /// </summary>
-        /// <param name="id">ID of the context</param>
-        /// <param name="serviceInjector"></param>
-        /// <param name="contextConfiguration">the Configuration for this context.</param>
-        /// <param name="parentContext"></param>
-        /// TODO[JIRA REEF-1167]: Remove constructor.
-        [Obsolete("Deprecated in 0.14, will be removed.")]
-        public ContextRuntime(
-                string id,
-                IInjector serviceInjector,
-                IConfiguration contextConfiguration,
-                Optional<ContextRuntime> parentContext)
-        {
-            _contextLifeCycle = new ContextLifeCycle(id);
-            _serviceInjector = serviceInjector;
-            _parentContext = parentContext;
-            try
-            {
-                _contextInjector = serviceInjector.ForkInjector();
-            }
-            catch (Exception e)
-            {
-                Utilities.Diagnostics.Exceptions.Caught(e, Level.Error, LOGGER);
-
-                Optional<string> parentId = ParentContext.IsPresent() ?
-                    Optional<string>.Of(ParentContext.Value.Id) :
-                    Optional<string>.Empty();
-                ContextClientCodeException ex = new ContextClientCodeException(ContextClientCodeException.GetId(contextConfiguration), parentId, "Unable to spawn context", e);
-
-                Utilities.Diagnostics.Exceptions.Throw(ex, LOGGER);
-            }
-
-            // Trigger the context start events on contextInjector.
-            _contextLifeCycle.Start();
-        }
-
-        /// <summary>
-        /// Create a new ContextRuntime.
-        /// </summary>
         /// <param name="serviceInjector"></param>
         /// <param name="contextConfiguration">the Configuration for this context.</param>
         /// <param name="parentContext"></param>
@@ -120,9 +82,30 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Context
             string id,
             IInjector serviceInjector,
             IConfiguration contextConfiguration)
-            : this(id, serviceInjector, contextConfiguration, Optional<ContextRuntime>.Empty())
         {
+            // This should only be used at the root context to support backward compatibility.
             LOGGER.Log(Level.Info, "Instantiating root context");
+            _contextLifeCycle = new ContextLifeCycle(id);
+            _serviceInjector = serviceInjector;
+            _parentContext = Optional<ContextRuntime>.Empty();
+            try
+            {
+                _contextInjector = serviceInjector.ForkInjector();
+            }
+            catch (Exception e)
+            {
+                Utilities.Diagnostics.Exceptions.Caught(e, Level.Error, LOGGER);
+
+                Optional<string> parentId = ParentContext.IsPresent() ?
+                    Optional<string>.Of(ParentContext.Value.Id) :
+                    Optional<string>.Empty();
+                ContextClientCodeException ex = new ContextClientCodeException(ContextClientCodeException.GetId(contextConfiguration), parentId, "Unable to spawn context", e);
+
+                Utilities.Diagnostics.Exceptions.Throw(ex, LOGGER);
+            }
+
+            // Trigger the context start events on contextInjector.
+            _contextLifeCycle.Start();
         }
 
         public string Id
@@ -133,18 +116,6 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Context
         public Optional<ContextRuntime> ParentContext
         {
             get { return _parentContext; }
-        }
-
-        private static ContextRuntime GetChildContextRuntime(IInjector childServiceInjector, IConfiguration childContextConfiguration, ContextRuntime parentRuntime)
-        {
-            // TODO[JIRA REEF-1167]: Remove the cast and branch.
-            var actualContextConfiguration = childContextConfiguration as ContextConfiguration;
-            if (actualContextConfiguration == null)
-            {
-                return new ContextRuntime(childServiceInjector, childContextConfiguration, Optional<ContextRuntime>.Of(parentRuntime));
-            }
-
-            return new ContextRuntime(actualContextConfiguration.Id, childServiceInjector, childContextConfiguration, Optional<ContextRuntime>.Of(parentRuntime));
         }
 
         /// <summary>
@@ -174,7 +145,7 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Context
                 try
                 {
                     var childServiceInjector = _serviceInjector.ForkInjector(childServiceConfiguration);
-                    var childContext = GetChildContextRuntime(childServiceInjector, childContextConfiguration, this);
+                    var childContext = new ContextRuntime(childServiceInjector, childContextConfiguration, Optional<ContextRuntime>.Of(this));
 
                     _childContext = Optional<ContextRuntime>.Of(childContext);
                     return childContext;
@@ -217,9 +188,8 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Context
                     Utilities.Diagnostics.Exceptions.Throw(e, LOGGER);
                 }
                 IInjector childServiceInjector = _serviceInjector.ForkInjector();
-                ContextRuntime childContext = new ContextRuntime(childServiceInjector, childContextConfiguration, Optional<ContextRuntime>.Of(this));
-                _childContext = Optional<ContextRuntime>.Of(childContext);
-                return childContext;
+                _childContext = Optional<ContextRuntime>.Of(new ContextRuntime(childServiceInjector, childContextConfiguration, Optional<ContextRuntime>.Of(this)));
+                return _childContext.Value;
             }
         }
 
