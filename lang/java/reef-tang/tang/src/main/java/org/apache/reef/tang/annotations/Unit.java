@@ -37,8 +37,6 @@ import java.lang.annotation.Target;
  * <p>
  * Furthermore, classes annotated with Unit may not have injectable (or Unit)
  * subclasses.
- *
- * @author sears
  */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)

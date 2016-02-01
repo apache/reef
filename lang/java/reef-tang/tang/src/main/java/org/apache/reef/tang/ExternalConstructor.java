@@ -28,7 +28,6 @@ package org.apache.reef.tang;
  * store the resulting object. It will then discard the ExternalConstructor.
  *
  * @param <T> The type this ExternalConstructor will create.
- * @author sears
  */
 public interface ExternalConstructor<T> {
   /**
