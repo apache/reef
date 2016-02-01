@@ -18,20 +18,19 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Org.Apache.REEF.Tang.Examples;
 using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Tang.Protobuf;
+using Xunit;
 
 namespace Org.Apache.REEF.Tang.Tests.ClassHierarchy
 {
-    [TestClass]
     public class TestAnonymousType
     {
         const string ClassHierarchyBinFileName = "example.bin";
 
-        [TestMethod]
+        [Fact]
         public void TestAnonymousTypeWithDictionary()
         {
             List<string> appDlls = new List<string>();
@@ -42,7 +41,7 @@ namespace Org.Apache.REEF.Tang.Tests.ClassHierarchy
             IConfiguration conf = TangFactory.GetTang().NewConfigurationBuilder(c).Build();
             IInjector injector = TangFactory.GetTang().NewInjector(conf);
             var obj = injector.GetInstance<AnonymousType>();
-            Assert.IsNotNull(obj);
+            Assert.NotNull(obj);
 
             var cd = Directory.GetCurrentDirectory();
             Console.WriteLine(cd);
