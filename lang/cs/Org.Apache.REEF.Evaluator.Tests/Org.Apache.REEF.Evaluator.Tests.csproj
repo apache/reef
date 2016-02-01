@@ -60,6 +60,7 @@ under the License.
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ContextRuntimeTests.cs" />
     <Compile Include="EvaluatorConfigurationsTests.cs" />
     <Compile Include="EvaluatorTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

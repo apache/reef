@@ -15,6 +15,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
+using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Utilities;
 
 namespace Org.Apache.REEF.Common.Context.Defaults
@@ -24,6 +25,11 @@ namespace Org.Apache.REEF.Common.Context.Defaults
     /// </summary>
     public class DefaultContextMessageSource : IContextMessageSource
     {
+        [Inject]
+        private DefaultContextMessageSource()
+        {
+        }
+
         public Optional<ContextMessage> Message
         {
             get
