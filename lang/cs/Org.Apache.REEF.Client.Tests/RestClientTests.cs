@@ -21,15 +21,14 @@ using System.Net.Http;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NSubstitute;
 using Org.Apache.REEF.Client.YARN.RestClient;
 using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Tang.Util;
+using Xunit;
 
 namespace Org.Apache.REEF.Client.Tests
 {
-    [TestClass]
     public class RestClientTests
     {
         private const string AnyResource = "anyResource";
@@ -47,7 +46,7 @@ namespace Org.Apache.REEF.Client.Tests
         private static readonly Uri AnyRequestUri = new Uri("http://any/request/uri");
         private static readonly Encoding Encoding = Encoding.UTF8;
 
-        [TestMethod]
+        [Fact]
         public async Task RestClientGetRequestReturnsResponse()
         {
             var tc = new TestContext();
@@ -68,14 +67,14 @@ namespace Org.Apache.REEF.Client.Tests
             var response =
                 await client.ExecuteRequestAsync<AnyResponse>(anyRequest, AnyRequestUri, CancellationToken.None);
 
-            Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
-            Assert.AreEqual(AnyStringField, response.Data.AnyStringField);
-            Assert.AreEqual(AnyIntField, response.Data.AnyIntField);
-            Assert.IsNull(response.Exception);
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+            Assert.Equal(AnyStringField, response.Data.AnyStringField);
+            Assert.Equal(AnyIntField, response.Data.AnyIntField);
+            Assert.Null(response.Exception);
             var unused = tc.HttpClient.Received(1).GetAsync(AnyRequestUri + anyRequest.Resource, CancellationToken.None);
         }
 
-        [TestMethod]
+        [Fact]
         public async Task RestClientPostRequestReturnsResponse()
         {
             var tc = new TestContext();
@@ -102,10 +101,10 @@ namespace Org.Apache.REEF.Client.Tests
             var response =
                 await client.ExecuteRequestAsync<AnyResponse>(anyRequest, AnyRequestUri, CancellationToken.None);
 
-            Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
-            Assert.AreEqual(AnyStringField, response.Data.AnyStringField);
-            Assert.AreEqual(AnyIntField, response.Data.AnyIntField);
-            Assert.IsNull(response.Exception);
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+            Assert.Equal(AnyStringField, response.Data.AnyStringField);
+            Assert.Equal(AnyIntField, response.Data.AnyIntField);
+            Assert.Null(response.Exception);
             var unused = tc.HttpClient.Received(1).PostAsync(AnyRequestUri + anyRequest.Resource,
                 Arg.Is<StringContent>(
                     stringContent =>
@@ -114,7 +113,7 @@ namespace Org.Apache.REEF.Client.Tests
                 CancellationToken.None);
         }
 
-        [TestMethod]
+        [Fact]
         public async Task RestClientRequestReturnsFailureResponse()
         {
             var tc = new TestContext();
@@ -135,10 +134,10 @@ namespace Org.Apache.REEF.Client.Tests
             var response =
                 await client.ExecuteRequestAsync<AnyResponse>(anyRequest, AnyRequestUri, CancellationToken.None);
 
-            Assert.AreEqual(HttpStatusCode.InternalServerError, response.StatusCode);
-            Assert.IsNull(response.Data);
-            Assert.IsNotNull(response.Exception);
-            Assert.IsInstanceOfType(response.Exception, typeof(HttpRequestException));
+            Assert.Equal(HttpStatusCode.InternalServerError, response.StatusCode);
+            Assert.Null(response.Data);
+            Assert.NotNull(response.Exception);
+            Assert.IsType(typeof(HttpRequestException), response.Exception);
             var unused = tc.HttpClient.Received(1).GetAsync(AnyRequestUri + anyRequest.Resource, CancellationToken.None);
         }
 

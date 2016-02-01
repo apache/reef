@@ -15,24 +15,23 @@
 // specific language governing permissions and limitations
 // under the License.
 
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Tang.Interface;
+using Xunit;
 
 namespace Org.Apache.REEF.Tang.Tests.SmokeTest
 {
-    [TestClass]
     public abstract class RoundTripTest
     {
         public abstract IConfiguration RoundTrip(IConfiguration configuration);
 
-        [TestMethod]
-        public void TestRoundTrip() 
+        [Fact]
+        public virtual void TestRoundTrip() 
         {
             IConfiguration conf = ObjectTreeTest.GetConfiguration();
             IRootInterface before = TangFactory.GetTang().NewInjector(conf).GetInstance<IRootInterface>();
             IRootInterface after = TangFactory.GetTang().NewInjector(RoundTrip(conf)).GetInstance<IRootInterface>();
-            Assert.AreEqual(before, after, "Configuration conversion to and from Avro datatypes failed.");
+            Assert.True(before.Equals(after), "Configuration conversion to and from Avro datatypes failed.");
         }
     }
 }
