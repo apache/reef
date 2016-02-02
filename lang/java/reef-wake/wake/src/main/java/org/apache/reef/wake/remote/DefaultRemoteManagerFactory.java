@@ -19,6 +19,7 @@
 package org.apache.reef.wake.remote;
 
 import org.apache.reef.tang.Injector;
+import org.apache.reef.tang.Tang;
 import org.apache.reef.tang.annotations.Parameter;
 import org.apache.reef.tang.exceptions.InjectionException;
 import org.apache.reef.wake.EventHandler;
@@ -53,9 +54,8 @@ final class DefaultRemoteManagerFactory implements RemoteManagerFactory {
       @Parameter(RemoteConfiguration.RetryTimeout.class) final int retryTimeout,
       final LocalAddressProvider localAddressProvider,
       final TransportFactory tpFactory,
-      final TcpPortProvider tcpPortProvider,
-      final Injector injector) {
-    this.injector = injector.forkInjector();
+      final TcpPortProvider tcpPortProvider) {
+    this.injector = Tang.Factory.getTang().newInjector();
     this.codec = codec;
     this.errorHandler = errorHandler;
     this.orderingGuarantee = orderingGuarantee;
