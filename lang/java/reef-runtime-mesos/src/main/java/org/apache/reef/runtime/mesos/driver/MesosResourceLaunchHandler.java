@@ -21,8 +21,6 @@ package org.apache.reef.runtime.mesos.driver;
 import org.apache.reef.annotations.audience.DriverSide;
 import org.apache.reef.annotations.audience.Private;
 import org.apache.reef.driver.evaluator.EvaluatorProcess;
-import org.apache.reef.io.TempFileCreator;
-import org.apache.reef.io.WorkingDirectoryTempFileCreator;
 import org.apache.reef.runtime.common.driver.api.ResourceLaunchEvent;
 import org.apache.reef.runtime.common.driver.api.ResourceLaunchHandler;
 import org.apache.reef.runtime.common.files.ClasspathProvider;
@@ -85,7 +83,6 @@ final class MesosResourceLaunchHandler implements ResourceLaunchHandler {
 
       final Configuration evaluatorConfiguration = Tang.Factory.getTang()
           .newConfigurationBuilder(resourceLaunchEvent.getEvaluatorConf())
-          .bindImplementation(TempFileCreator.class, WorkingDirectoryTempFileCreator.class)
           .build();
 
       final File configurationFile = new File(

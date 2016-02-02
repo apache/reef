@@ -19,6 +19,7 @@
 package org.apache.reef.wake.remote;
 
 import org.apache.reef.tang.Injector;
+import org.apache.reef.tang.Tang;
 import org.apache.reef.tang.annotations.Parameter;
 import org.apache.reef.tang.exceptions.InjectionException;
 import org.apache.reef.wake.EventHandler;
@@ -32,8 +33,6 @@ import javax.inject.Inject;
  * Default implementation of RemoteManagerFactory.
  */
 final class DefaultRemoteManagerFactory implements RemoteManagerFactory {
-
-  private final Injector injector;
 
   private final Codec<?> codec;
   private final EventHandler<Throwable> errorHandler;
@@ -53,9 +52,7 @@ final class DefaultRemoteManagerFactory implements RemoteManagerFactory {
       @Parameter(RemoteConfiguration.RetryTimeout.class) final int retryTimeout,
       final LocalAddressProvider localAddressProvider,
       final TransportFactory tpFactory,
-      final TcpPortProvider tcpPortProvider,
-      final Injector injector) {
-    this.injector = injector.forkInjector();
+      final TcpPortProvider tcpPortProvider) {
     this.codec = codec;
     this.errorHandler = errorHandler;
     this.orderingGuarantee = orderingGuarantee;
@@ -69,7 +66,7 @@ final class DefaultRemoteManagerFactory implements RemoteManagerFactory {
   @Override
   public RemoteManager getInstance(final String name) {
     try {
-      final Injector newInjector = injector.forkInjector();
+      final Injector newInjector = Tang.Factory.getTang().newInjector();
       newInjector.bindVolatileParameter(RemoteConfiguration.ManagerName.class, name);
       newInjector.bindVolatileParameter(RemoteConfiguration.MessageCodec.class, this.codec);
       newInjector.bindVolatileParameter(RemoteConfiguration.ErrorHandler.class, this.errorHandler);
@@ -98,7 +95,7 @@ final class DefaultRemoteManagerFactory implements RemoteManagerFactory {
                                        final LocalAddressProvider localAddressProvider,
                                        final TcpPortProvider tcpPortProvider) {
     try {
-      final Injector newInjector = injector.forkInjector();
+      final Injector newInjector = Tang.Factory.getTang().newInjector();
       newInjector.bindVolatileParameter(RemoteConfiguration.ManagerName.class, name);
       newInjector.bindVolatileParameter(RemoteConfiguration.HostAddress.class, hostAddress);
       newInjector.bindVolatileParameter(RemoteConfiguration.Port.class, listeningPort);
@@ -127,7 +124,7 @@ final class DefaultRemoteManagerFactory implements RemoteManagerFactory {
                                        final int numberOfTries,
                                        final int retryTimeout) {
     try {
-      final Injector newInjector = injector.forkInjector();
+      final Injector newInjector = Tang.Factory.getTang().newInjector();
       newInjector.bindVolatileParameter(RemoteConfiguration.ManagerName.class, name);
       newInjector.bindVolatileParameter(RemoteConfiguration.HostAddress.class, hostAddress);
       newInjector.bindVolatileParameter(RemoteConfiguration.Port.class, listeningPort);
@@ -150,7 +147,7 @@ final class DefaultRemoteManagerFactory implements RemoteManagerFactory {
   public <T> RemoteManager getInstance(
       final String name, final Codec<T> codec, final EventHandler<Throwable> errorHandler) {
     try {
-      final Injector newInjector = injector.forkInjector();
+      final Injector newInjector = Tang.Factory.getTang().newInjector();
       newInjector.bindVolatileParameter(RemoteConfiguration.ManagerName.class, name);
       newInjector.bindVolatileParameter(RemoteConfiguration.MessageCodec.class, codec);
       newInjector.bindVolatileParameter(RemoteConfiguration.ErrorHandler.class, errorHandler);
@@ -173,7 +170,7 @@ final class DefaultRemoteManagerFactory implements RemoteManagerFactory {
                                        final Codec<T> codec,
                                        final EventHandler<Throwable> errorHandler) {
     try {
-      final Injector newInjector = injector.forkInjector();
+      final Injector newInjector = Tang.Factory.getTang().newInjector();
       newInjector.bindVolatileParameter(RemoteConfiguration.ManagerName.class, name);
       newInjector.bindVolatileParameter(RemoteConfiguration.Port.class, listeningPort);
       newInjector.bindVolatileParameter(RemoteConfiguration.MessageCodec.class, codec);
