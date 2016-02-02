@@ -50,7 +50,7 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator
         private readonly IConfiguration _rootContextConfig;
         private readonly AvroConfigurationSerializer _serializer;
         private readonly Optional<IConfiguration> _rootTaskConfiguration;
-        private readonly Optional<ServiceConfiguration> _rootServiceConfiguration;
+        private readonly Optional<IConfiguration> _rootServiceConfiguration;
 
         private EvaluatorOperationState _operationState;
         private INameClient _nameClient;
@@ -223,7 +223,7 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator
         /// <summary>
         /// return Root Service Configuration passed from Evaluator configuration
         /// </summary>
-        public Optional<ServiceConfiguration> RootServiceConfiguration
+        public Optional<IConfiguration> RootServiceConfiguration
         {
             get { return _rootServiceConfiguration; }
         }
@@ -293,7 +293,7 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator
                 : Optional<IConfiguration>.Of(_serializer.FromString(taskConfigString));
         }
 
-        private Optional<ServiceConfiguration> CreateRootServiceConfiguration()
+        private Optional<IConfiguration> CreateRootServiceConfiguration()
         {
             string rootServiceConfigString = null;
             try
@@ -304,10 +304,13 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator
             {
                 Logger.Log(Level.Info, "RootServiceConfiguration is not set in Evaluator.config.");
             }
-            return string.IsNullOrEmpty(rootServiceConfigString)
-                ? Optional<ServiceConfiguration>.Empty()
-                : Optional<ServiceConfiguration>.Of(
-                    new ServiceConfiguration(rootServiceConfigString));
+
+            if (string.IsNullOrEmpty(rootServiceConfigString))
+            {
+                return Optional<IConfiguration>.Empty();
+            }
+
+            return Optional<IConfiguration>.Of(_serializer.FromString(rootServiceConfigString));
         }
     }
 }

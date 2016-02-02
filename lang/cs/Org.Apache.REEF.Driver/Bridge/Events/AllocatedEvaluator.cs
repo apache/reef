@@ -108,7 +108,7 @@ namespace Org.Apache.REEF.Driver.Bridge.Events
 
             var serviceConf = MergeWithConfigurationProviders(serviceConfiguration);
             string context = _serializer.ToString(contextConfiguration);
-            string service = _serializer.ToString(WrapServiceConfigAsString(serviceConf));
+            string service = _serializer.ToString(serviceConf);
 
             LOGGER.Log(Level.Verbose, "serialized contextConfiguration: " + context);
             LOGGER.Log(Level.Verbose, "serialized serviceConfiguration: " + service);
@@ -122,7 +122,7 @@ namespace Org.Apache.REEF.Driver.Bridge.Events
 
             var serviceConf = MergeWithConfigurationProviders(serviceConfiguration);
             string context = _serializer.ToString(contextConfiguration);
-            string service = _serializer.ToString(WrapServiceConfigAsString(serviceConf));
+            string service = _serializer.ToString(serviceConf);
             string task = _serializer.ToString(taskConfiguration);
 
             LOGGER.Log(Level.Verbose, "serialized contextConfiguration: " + context);
@@ -195,22 +195,6 @@ namespace Org.Apache.REEF.Driver.Bridge.Events
                 }
             }
             return config;
-        }
-
-        /// <summary>
-        /// This is to wrap entire service configuration in to a serialized string
-        /// At evaluator side, we will unwrap it to get the original Service Configuration string
-        /// It is to avoid issues that some C# class Node are dropped in the deserialized ClassHierarchy by Goold ProtoBuffer deserializer
-        /// </summary>
-        /// <param name="serviceConfiguration"></param>
-        /// <returns></returns>
-        private IConfiguration WrapServiceConfigAsString(IConfiguration serviceConfiguration)
-        {
-            return TangFactory.GetTang().NewConfigurationBuilder()
-                .BindNamedParameter<ServicesConfigurationOptions.ServiceConfigString, string>(
-                    GenericType<ServicesConfigurationOptions.ServiceConfigString>.Class,
-                    new AvroConfigurationSerializer().ToString(serviceConfiguration))
-                .Build();
         }
     }
 }

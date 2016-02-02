@@ -130,56 +130,5 @@ namespace Org.Apache.REEF.Evaluator.Tests
             Assert.True(taskId.StartsWith("HelloTask"));
             Assert.True(task is HelloTask);
         }
-
-        /// <summary>
-        /// This test is to deserialize a evaluator configuration file using alias if the parameter cannot be 
-        /// found in the class hierarchy. The config file used in the test was generated when running TestBroadCastReduceOperators.
-        /// It contains service and context configuration strings.  
-        /// </summary>
-        [Fact]
-        [Trait("Priority", "0")]
-        [Trait("Category", "Unit")]
-        public void TestDeserializationForServiceAndContext()
-        {
-            AvroConfigurationSerializer serializer = new AvroConfigurationSerializer();
-
-            var classHierarchy = TangFactory.GetTang()
-                .GetClassHierarchy(new string[] { typeof(ApplicationIdentifier).Assembly.GetName().Name });
-            var config = serializer.FromFile("evaluatorWithService.conf", classHierarchy);
-
-            IInjector evaluatorInjector = TangFactory.GetTang().NewInjector(config);
-
-            string contextConfigString = evaluatorInjector.GetNamedInstance<RootContextConfiguration, string>();
-            string rootServiceConfigString = evaluatorInjector.GetNamedInstance<RootServiceConfiguration, string>();
-
-            var contextClassHierarchy = TangFactory.GetTang().GetClassHierarchy(new string[]
-            {
-                typeof(ContextConfigurationOptions.ContextIdentifier).Assembly.GetName().Name
-            });
-
-            var contextConfig = serializer.FromString(contextConfigString, contextClassHierarchy);
-
-            var serviceClassHierarchy = TangFactory.GetTang().GetClassHierarchy(new string[]
-            {
-                typeof(ServicesConfigurationOptions).Assembly.GetName().Name,
-                typeof(IStreamingCodec<>).Assembly.GetName().Name
-            });
-            var rootServiceConfig = serializer.FromString(rootServiceConfigString, serviceClassHierarchy);
-
-            var contextInjector = evaluatorInjector.ForkInjector(contextConfig);
-            string contextId = contextInjector.GetNamedInstance<ContextConfigurationOptions.ContextIdentifier, string>();
-            Assert.True(contextId.StartsWith("MasterTaskContext"));
-
-            string serviceConfigString = TangFactory.GetTang().NewInjector(rootServiceConfig)
-                .GetNamedInstance<ServicesConfigurationOptions.ServiceConfigString, string>();
-
-            var serviceConfig = serializer.FromString(serviceConfigString, serviceClassHierarchy);
-
-            var serviceInjector = contextInjector.ForkInjector(serviceConfig);
-            var tcpCountRange = serviceInjector.GetNamedInstance<TcpPortRangeStart, int>();
-            var tcpCountCount = serviceInjector.GetNamedInstance<TcpPortRangeCount, int>();
-            Assert.True(tcpCountRange > 0);
-            Assert.True(tcpCountCount > 0);
-        }
     }
 }

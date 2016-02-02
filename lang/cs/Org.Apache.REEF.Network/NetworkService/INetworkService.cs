@@ -17,7 +17,6 @@
 
 using System;
 using Org.Apache.REEF.Common.Io;
-using Org.Apache.REEF.Common.Services;
 using Org.Apache.REEF.Wake;
 
 namespace Org.Apache.REEF.Network.NetworkService
@@ -26,7 +25,7 @@ namespace Org.Apache.REEF.Network.NetworkService
     /// Network service used for Reef Task communication.
     /// </summary>
     /// <typeparam name="T">The message type</typeparam>
-    public interface INetworkService<T> : IService, IDisposable
+    public interface INetworkService<T> : IDisposable
     {
         /// <summary>
         /// Name client for registering ids

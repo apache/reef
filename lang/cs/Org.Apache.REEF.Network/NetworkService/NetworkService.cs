@@ -19,14 +19,12 @@ using System;
 using System.Collections.Generic;
 using System.Net;
 using Org.Apache.REEF.Common.Io;
-using Org.Apache.REEF.Network.Naming;
 using Org.Apache.REEF.Network.NetworkService.Codec;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Tang.Exceptions;
 using Org.Apache.REEF.Utilities.Logging;
 using Org.Apache.REEF.Wake;
 using Org.Apache.REEF.Wake.Remote;
-using Org.Apache.REEF.Wake.Remote.Impl;
 using Org.Apache.REEF.Wake.Util;
 
 namespace Org.Apache.REEF.Network.NetworkService

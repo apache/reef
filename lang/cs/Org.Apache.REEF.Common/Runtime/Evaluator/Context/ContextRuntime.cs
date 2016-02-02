@@ -21,9 +21,11 @@ using System.Globalization;
 using System.Linq;
 using Org.Apache.REEF.Common.Protobuf.ReefProtocol;
 using Org.Apache.REEF.Common.Runtime.Evaluator.Task;
+using Org.Apache.REEF.Common.Services;
 using Org.Apache.REEF.Common.Tasks;
 using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Utilities;
+using Org.Apache.REEF.Utilities.Attributes;
 using Org.Apache.REEF.Utilities.Logging;
 
 namespace Org.Apache.REEF.Common.Runtime.Evaluator.Context
@@ -47,6 +49,7 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Context
         // Flag indicating whether the ContextRuntime was constructed with the deprecated Constructor or not.]
         // TODO[JIRA REEF-1167]: Remove variable.
         private readonly bool _deprecatedTaskStart;
+        private readonly Optional<ISet<object>> _injectedServices;
 
         // The child context, if any.
         private Optional<ContextRuntime> _childContext = Optional<ContextRuntime>.Empty();
@@ -68,6 +71,7 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Context
                 Optional<ContextRuntime> parentContext)
         {
             _serviceInjector = serviceInjector;
+            _injectedServices = Optional<ISet<object>>.Of(serviceInjector.GetNamedInstance<ServicesSet, ISet<object>>());
             _contextInjector = serviceInjector.ForkInjector(contextConfiguration);
             _contextLifeCycle = _contextInjector.GetInstance<ContextLifeCycle>();
             _parentContext = parentContext;
@@ -93,6 +97,8 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Context
             _contextLifeCycle = new ContextLifeCycle(id);
             _serviceInjector = serviceInjector;
             _parentContext = Optional<ContextRuntime>.Empty();
+            _injectedServices = Optional<ISet<object>>.Empty();
+
             try
             {
                 _contextInjector = serviceInjector.ForkInjector();
@@ -123,6 +129,30 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Context
         public Optional<ContextRuntime> ParentContext
         {
             get { return _parentContext; }
+        }
+
+        /// <summary>
+        /// For testing only!
+        /// </summary>
+        [Testing]
+        internal Optional<ISet<object>> Services
+        {
+            get
+            {
+                return _injectedServices;
+            }
+        }
+
+        /// <summary>
+        /// For testing only!
+        /// </summary>
+        [Testing]
+        internal IInjector ContextInjector
+        {
+            get
+            {
+                return _contextInjector;
+            }
         }
 
         /// <summary>
@@ -298,6 +328,14 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Context
                 if (_parentContext.IsPresent())
                 {
                     ParentContext.Value.ResetChildContext();
+                }
+
+                if (_injectedServices.IsPresent())
+                {
+                    foreach (var injectedService in _injectedServices.Value.OfType<IDisposable>())
+                    {
+                        injectedService.Dispose();
+                    }
                 }
             }
         }
