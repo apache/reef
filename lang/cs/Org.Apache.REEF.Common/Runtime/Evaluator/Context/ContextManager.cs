@@ -22,11 +22,9 @@ using System.Globalization;
 using System.Linq;
 using Org.Apache.REEF.Common.Protobuf.ReefProtocol;
 using Org.Apache.REEF.Common.Runtime.Evaluator.Task;
-using Org.Apache.REEF.Common.Services;
 using Org.Apache.REEF.Common.Tasks;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Tang.Formats;
-using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Utilities;
 using Org.Apache.REEF.Utilities.Logging;
 
@@ -291,8 +289,8 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Context
                 ContextRuntime newTopContext;
                 if (!string.IsNullOrWhiteSpace(addContextProto.service_configuration))
                 {
-                    var serviceConfiguration = new ServiceConfiguration(addContextProto.service_configuration);
-                    newTopContext = currentTopContext.SpawnChildContext(contextConfiguration, serviceConfiguration.TangConfig);
+                    var serviceConfiguration = _serializer.FromString(addContextProto.service_configuration);
+                    newTopContext = currentTopContext.SpawnChildContext(contextConfiguration, serviceConfiguration);
                 }
                 else
                 {

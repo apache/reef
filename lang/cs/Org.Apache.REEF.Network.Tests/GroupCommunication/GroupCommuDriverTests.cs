@@ -15,13 +15,9 @@
 // specific language governing permissions and limitations
 // under the License.
 
-using Org.Apache.REEF.Common.Services;
 using Org.Apache.REEF.Network.Group.Config;
-using Org.Apache.REEF.Tang.Exceptions;
 using Org.Apache.REEF.Tang.Formats;
 using Org.Apache.REEF.Tang.Implementations.Configuration;
-using Org.Apache.REEF.Tang.Implementations.Tang;
-using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Tang.Util;
 using Org.Apache.REEF.Wake.Remote.Impl;
 using Xunit;
@@ -52,18 +48,12 @@ namespace Org.Apache.REEF.Network.Tests.GroupCommunication
             var driverServiceConfig = groupCommunicationDriver.GetServiceConfiguration();
             var serviceConfig = Configurations.Merge(driverServiceConfig, codecConfig);
 
-            // wrap it before serializing
-            var wrappedSeriveConfig = TangFactory.GetTang().NewConfigurationBuilder()
-                .BindNamedParameter<ServicesConfigurationOptions.ServiceConfigString, string>(
-                    GenericType<ServicesConfigurationOptions.ServiceConfigString>.Class,
-                    new AvroConfigurationSerializer().ToString(serviceConfig))
-                .Build();
-            var serviceConfigString = serializer.ToString(wrappedSeriveConfig);
+            var serviceConfigString = serializer.ToString(serviceConfig);
 
             // the configuration string is received at Evaluator side
-            var serviceConfig2 = new ServiceConfiguration(serviceConfigString);
+            var serviceConfig2 = new AvroConfigurationSerializer().FromString(serviceConfigString);
 
-            Assert.Equal(serializer.ToString(serviceConfig), serializer.ToString(serviceConfig2.TangConfig));
+            Assert.Equal(serializer.ToString(serviceConfig), serializer.ToString(serviceConfig2));
         }
     }
 }

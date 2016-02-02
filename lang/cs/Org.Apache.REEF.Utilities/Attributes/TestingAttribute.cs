@@ -15,9 +15,16 @@
 // specific language governing permissions and limitations
 // under the License.
 
-namespace Org.Apache.REEF.Common.Services
+using System;
+
+namespace Org.Apache.REEF.Utilities.Attributes
 {
-    public interface IService
+    /// <summary>
+    /// Attribute target should only be used in tests.
+    /// </summary>
+    [AttributeUsage(AttributeTargets.All)]
+    public sealed class TestingAttribute : Attribute
     {
+        // Intentionally empty.
     }
 }

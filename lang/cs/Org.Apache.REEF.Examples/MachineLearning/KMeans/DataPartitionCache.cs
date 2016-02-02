@@ -25,7 +25,7 @@ using Org.Apache.REEF.Utilities.Logging;
 namespace Org.Apache.REEF.Examples.MachineLearning.KMeans
 {   
     // TODO: we should outsource some of the functionalites to a data loader implemenation
-    public class DataPartitionCache : IService
+    public class DataPartitionCache
     {
         private static readonly Logger _Logger = Logger.GetLogger(typeof(DataPartitionCache));
 

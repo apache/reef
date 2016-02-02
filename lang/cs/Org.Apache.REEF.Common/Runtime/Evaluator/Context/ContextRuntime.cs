@@ -21,9 +21,11 @@ using System.Globalization;
 using System.Linq;
 using Org.Apache.REEF.Common.Protobuf.ReefProtocol;
 using Org.Apache.REEF.Common.Runtime.Evaluator.Task;
+using Org.Apache.REEF.Common.Services;
 using Org.Apache.REEF.Common.Tasks;
 using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Utilities;
+using Org.Apache.REEF.Utilities.Attributes;
 using Org.Apache.REEF.Utilities.Logging;
 
 namespace Org.Apache.REEF.Common.Runtime.Evaluator.Context
@@ -47,6 +49,7 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Context
         // Flag indicating whether the ContextRuntime was constructed with the deprecated Constructor or not.]
         // TODO[JIRA REEF-1167]: Remove variable.
         private readonly bool _deprecatedTaskStart;
+        private readonly Optional<ISet<object>> _injectedServices;
 
         // The child context, if any.
         private Optional<ContextRuntime> _childContext = Optional<ContextRuntime>.Empty();
@@ -68,6 +71,7 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Context
                 Optional<ContextRuntime> parentContext)
         {
             _serviceInjector = serviceInjector;
+            _injectedServices = Optional<ISet<object>>.Of(serviceInjector.GetNamedInstance<ServicesSet, ISet<object>>());
             _contextInjector = serviceInjector.ForkInjector(contextConfiguration);
             _contextLifeCycle = _contextInjector.GetInstance<ContextLifeCycle>();
             _parentContext = parentContext;
@@ -93,6 +97,8 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Context
             _contextLifeCycle = new ContextLifeCycle(id);
             _serviceInjector = serviceInjector;
             _parentContext = Optional<ContextRuntime>.Empty();
+            _injectedServices = Optional<ISet<object>>.Empty();
+
             try
             {
                 _contextInjector = serviceInjector.ForkInjector();
@@ -126,6 +132,30 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Context
         }
 
         /// <summary>
+        /// For testing only!
+        /// </summary>
+        [Testing]
+        internal Optional<ISet<object>> Services
+        {
+            get
+            {
+                return _injectedServices;
+            }
+        }
+
+        /// <summary>
+        /// For testing only!
+        /// </summary>
+        [Testing]
+        internal IInjector ContextInjector
+        {
+            get
+            {
+                return _contextInjector;
+            }
+        }
+
+        /// <summary>
         ///  Spawns a new context.
         ///  The new context will have a serviceInjector that is created by forking the one in this object with the given
         ///  serviceConfiguration. The contextConfiguration is used to fork the contextInjector from that new serviceInjector.
@@ -139,16 +169,15 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Context
             {
                 if (_task.IsPresent())
                 {
-                    // note: java code is putting thread id here
-                    var e = new InvalidOperationException(
-                        string.Format(CultureInfo.InvariantCulture, "Attempting to spawn a child context when an Task with id '{0}' is running", _task.Value.TaskId));
+                    var message =
+                        string.Format(CultureInfo.InvariantCulture, "Attempting to spawn a child context when an Task with id '{0}' is running", _task.Value.TaskId);
+
+                    var e = new InvalidOperationException(message);
                     Utilities.Diagnostics.Exceptions.Throw(e, LOGGER);
                 }
-                if (_childContext.IsPresent())
-                {
-                    var e = new InvalidOperationException("Attempting to instantiate a child context on a context that is not the topmost active context.");
-                    Utilities.Diagnostics.Exceptions.Throw(e, LOGGER);
-                }
+
+                AssertChildContextNotPresent("Attempting to instantiate a child context on a context that is not the topmost active context.");
+                
                 try
                 {
                     var childServiceInjector = _serviceInjector.ForkInjector(childServiceConfiguration);
@@ -185,15 +214,15 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Context
             {
                 if (_task.IsPresent())
                 {
-                    var e = new InvalidOperationException(
-                        string.Format(CultureInfo.InvariantCulture, "Attempting to spawn a child context when an Task with id '{0}' is running", _task.Value.TaskId)); // note: java code is putting thread id here
+                    var message =
+                        string.Format(CultureInfo.InvariantCulture, "Attempting to spawn a child context when an Task with id '{0}' is running", _task.Value.TaskId);
+
+                    var e = new InvalidOperationException(message);
                     Utilities.Diagnostics.Exceptions.Throw(e, LOGGER);
                 }
-                if (_childContext.IsPresent())
-                {
-                    var e = new InvalidOperationException("Attempting to instantiate a child context on a context that is not the topmost active context.");
-                    Utilities.Diagnostics.Exceptions.Throw(e, LOGGER);
-                }
+
+                AssertChildContextNotPresent("Attempting to instantiate a child context on a context that is not the topmost active context.");
+
                 IInjector childServiceInjector = _serviceInjector.ForkInjector();
                 _childContext = Optional<ContextRuntime>.Of(new ContextRuntime(childServiceInjector, childContextConfiguration, Optional<ContextRuntime>.Of(this)));
                 return _childContext.Value;
@@ -231,11 +260,7 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Context
                     }
                 }
 
-                if (_childContext.IsPresent())
-                {
-                    var e = new InvalidOperationException("Attempting to instantiate a child context on a context that is not the topmost active context.");
-                    Utilities.Diagnostics.Exceptions.Throw(e, LOGGER);
-                }
+                AssertChildContextNotPresent("Attempting to instantiate a child context on a context that is not the topmost active context.");
 
                 var taskInjector = _contextInjector.ForkInjector(taskConfiguration);
 
@@ -299,6 +324,14 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Context
                 {
                     ParentContext.Value.ResetChildContext();
                 }
+
+                if (_injectedServices.IsPresent())
+                {
+                    foreach (var injectedService in _injectedServices.Value.OfType<IDisposable>())
+                    {
+                        injectedService.Dispose();
+                    }
+                }
             }
         }
 
@@ -357,12 +390,6 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Context
                 }
                 _task.Value.Deliver(message);
             }
-        }
-
-        [Obsolete("Deprecated in 0.14, please use HandleContextMessage instead.")]
-        public void HandleContextMessaage(byte[] message)
-        {
-            _contextLifeCycle.HandleContextMessage(message);
         }
 
         public void HandleContextMessage(byte[] message)
@@ -476,6 +503,15 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Context
             {
                 yield return context.Value;
                 context = context.Value.ParentContext;
+            }
+        }
+
+        private void AssertChildContextNotPresent(string message)
+        {
+            if (_childContext.IsPresent())
+            {
+                var e = new InvalidOperationException(message);
+                Utilities.Diagnostics.Exceptions.Throw(e, LOGGER);
             }
         }
     }

@@ -157,9 +157,7 @@ under the License.
     <Compile Include="Runtime\Evaluator\Task\TaskStopImpl.cs" />
     <Compile Include="Runtime\Evaluator\Utils\NamedparameterAlias.cs" />
     <Compile Include="runtime\MachineStatus.cs" />
-    <Compile Include="Services\IService.cs" />
     <Compile Include="Services\ServiceConfiguration.cs" />
-    <Compile Include="Services\ServicesConfigurationOptions.cs" />
     <Compile Include="Tasks\Defaults\DefaultDriverConnectionMessageHandler.cs" />
     <Compile Include="Tasks\Defaults\DefaultDriverMessageHandler.cs" />
     <Compile Include="Tasks\Defaults\DefaultTaskMessageSource.cs" />

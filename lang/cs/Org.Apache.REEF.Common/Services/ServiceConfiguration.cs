@@ -19,8 +19,6 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Tang.Formats;
-using Org.Apache.REEF.Tang.Implementations.Tang;
-using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Tang.Util;
 
 [module: SuppressMessage("StyleCop.CSharp.MaintainabilityRules", "SA1401:FieldsMustBePrivate", Justification = "static field, typical usage in configurations")]
@@ -39,22 +37,7 @@ namespace Org.Apache.REEF.Common.Services
         /// will be made available to child context and tasks.
         /// </summary>
         [SuppressMessage("Microsoft.Security", "CA2104:Do not declare read only mutable reference types", Justification = "not applicable")]
-        public static readonly OptionalParameter<IService> Services = new OptionalParameter<IService>();
-
-        public ServiceConfiguration()
-        {
-        }
-
-        public ServiceConfiguration(string config)
-        {
-            AvroConfigurationSerializer serializer = new AvroConfigurationSerializer();
-
-            string serviceConfigString = (string)TangFactory.GetTang()
-                .NewInjector(serializer.FromString(config))
-                .GetNamedInstance(typeof(ServicesConfigurationOptions.ServiceConfigString));
-
-            TangConfig = serializer.FromString(serviceConfigString);
-        }
+        public static readonly OptionalParameter<object> Services = new OptionalParameter<object>();
 
         public static ConfigurationModule ConfigurationModule
         {
@@ -66,22 +49,13 @@ namespace Org.Apache.REEF.Common.Services
             }
         }
 
-        public IConfiguration TangConfig { get; private set; }
-    }
-
-    public class InjectedServices
-    {
-        [Inject]
-        public InjectedServices([Parameter(typeof(ServicesSet))] ISet<IService> services)
+        private ServiceConfiguration()
         {
-            Services = services;
         }
-
-        public ISet<IService> Services { get; set; }
     }
 
     [NamedParameter("Set of services", "servicesSet")]
-    class ServicesSet : Name<ISet<IService>>
+    class ServicesSet : Name<ISet<object>>
     {      
     }
 }
