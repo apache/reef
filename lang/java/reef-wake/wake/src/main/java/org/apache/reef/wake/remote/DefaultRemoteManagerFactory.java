@@ -34,6 +34,8 @@ import javax.inject.Inject;
  */
 final class DefaultRemoteManagerFactory implements RemoteManagerFactory {
 
+  private final Injector injector;
+
   private final Codec<?> codec;
   private final EventHandler<Throwable> errorHandler;
   private final boolean orderingGuarantee;
@@ -53,6 +55,7 @@ final class DefaultRemoteManagerFactory implements RemoteManagerFactory {
       final LocalAddressProvider localAddressProvider,
       final TransportFactory tpFactory,
       final TcpPortProvider tcpPortProvider) {
+    this.injector = Tang.Factory.getTang().newInjector();
     this.codec = codec;
     this.errorHandler = errorHandler;
     this.orderingGuarantee = orderingGuarantee;
@@ -66,7 +69,7 @@ final class DefaultRemoteManagerFactory implements RemoteManagerFactory {
   @Override
   public RemoteManager getInstance(final String name) {
     try {
-      final Injector newInjector = Tang.Factory.getTang().newInjector();
+      final Injector newInjector = injector.forkInjector();
       newInjector.bindVolatileParameter(RemoteConfiguration.ManagerName.class, name);
       newInjector.bindVolatileParameter(RemoteConfiguration.MessageCodec.class, this.codec);
       newInjector.bindVolatileParameter(RemoteConfiguration.ErrorHandler.class, this.errorHandler);
@@ -95,7 +98,7 @@ final class DefaultRemoteManagerFactory implements RemoteManagerFactory {
                                        final LocalAddressProvider localAddressProvider,
                                        final TcpPortProvider tcpPortProvider) {
     try {
-      final Injector newInjector = Tang.Factory.getTang().newInjector();
+      final Injector newInjector = injector.forkInjector();
       newInjector.bindVolatileParameter(RemoteConfiguration.ManagerName.class, name);
       newInjector.bindVolatileParameter(RemoteConfiguration.HostAddress.class, hostAddress);
       newInjector.bindVolatileParameter(RemoteConfiguration.Port.class, listeningPort);
@@ -124,7 +127,7 @@ final class DefaultRemoteManagerFactory implements RemoteManagerFactory {
                                        final int numberOfTries,
                                        final int retryTimeout) {
     try {
-      final Injector newInjector = Tang.Factory.getTang().newInjector();
+      final Injector newInjector = injector.forkInjector();
       newInjector.bindVolatileParameter(RemoteConfiguration.ManagerName.class, name);
       newInjector.bindVolatileParameter(RemoteConfiguration.HostAddress.class, hostAddress);
       newInjector.bindVolatileParameter(RemoteConfiguration.Port.class, listeningPort);
@@ -147,7 +150,7 @@ final class DefaultRemoteManagerFactory implements RemoteManagerFactory {
   public <T> RemoteManager getInstance(
       final String name, final Codec<T> codec, final EventHandler<Throwable> errorHandler) {
     try {
-      final Injector newInjector = Tang.Factory.getTang().newInjector();
+      final Injector newInjector = injector.forkInjector();
       newInjector.bindVolatileParameter(RemoteConfiguration.ManagerName.class, name);
       newInjector.bindVolatileParameter(RemoteConfiguration.MessageCodec.class, codec);
       newInjector.bindVolatileParameter(RemoteConfiguration.ErrorHandler.class, errorHandler);
@@ -170,7 +173,7 @@ final class DefaultRemoteManagerFactory implements RemoteManagerFactory {
                                        final Codec<T> codec,
                                        final EventHandler<Throwable> errorHandler) {
     try {
-      final Injector newInjector = Tang.Factory.getTang().newInjector();
+      final Injector newInjector = injector.forkInjector();
       newInjector.bindVolatileParameter(RemoteConfiguration.ManagerName.class, name);
       newInjector.bindVolatileParameter(RemoteConfiguration.Port.class, listeningPort);
       newInjector.bindVolatileParameter(RemoteConfiguration.MessageCodec.class, codec);
