@@ -25,13 +25,13 @@ import org.apache.reef.annotations.audience.DriverSide;
 import org.apache.reef.annotations.audience.Private;
 import org.apache.reef.task.HeartBeatTriggerManager;
 import org.apache.reef.vortex.common.*;
-import org.apache.reef.wake.EventHandler;
-import org.apache.reef.wake.time.Clock;
-import org.apache.reef.wake.time.event.Alarm;
 
 import javax.annotation.concurrent.GuardedBy;
 import java.util.*;
 import java.util.concurrent.BlockingDeque;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 /**
  * A container for tasklet aggregation, used to preserve output from individual
@@ -45,10 +45,10 @@ final class AggregateContainer {
 
   private final Object stateLock = new Object();
   private final TaskletAggregationRequest taskletAggregationRequest;
-  private final Clock clock;
   private final HeartBeatTriggerManager heartBeatTriggerManager;
   private final VortexAvroUtils vortexAvroUtils;
   private final BlockingDeque<byte[]> workerReportsQueue;
+  private final ScheduledExecutorService timer = Executors.newScheduledThreadPool(1);
 
   @GuardedBy("stateLock")
   private final HashMap<Integer, Integer> pendingTasklets = new HashMap<>();
@@ -59,12 +59,10 @@ final class AggregateContainer {
   @GuardedBy("stateLock")
   private final List<Pair<Integer, Exception>> failedTasklets = new ArrayList<>();
 
-  AggregateContainer(final Clock clock,
-                     final HeartBeatTriggerManager heartBeatTriggerManager,
+  AggregateContainer(final HeartBeatTriggerManager heartBeatTriggerManager,
                      final VortexAvroUtils vortexAvroUtils,
                      final BlockingDeque<byte[]> workerReportsQueue,
                      final TaskletAggregationRequest taskletAggregationRequest) {
-    this.clock = clock;
     this.heartBeatTriggerManager = heartBeatTriggerManager;
     this.vortexAvroUtils = vortexAvroUtils;
     this.workerReportsQueue = workerReportsQueue;
@@ -75,6 +73,7 @@ final class AggregateContainer {
     return taskletAggregationRequest;
   }
 
+  @GuardedBy("stateLock")
   private void aggregateTasklets(final List<TaskletReport> taskletReports,
                                  final List<Object> results,
                                  final List<Integer> aggregatedTasklets) {
@@ -140,26 +139,36 @@ final class AggregateContainer {
     }
   }
 
+  /**
+   * Schedule aggregation tasks on a Timer. Creates a new timer schedule for triggering the aggregation function
+   * if this is the first time the aggregation function has tasklets scheduled on it.
+   * Adds the Tasklet to pending Tasklets.
+   */
   public void scheduleTasklet(final int taskletId) {
     synchronized (stateLock) {
-      // If no tasklets, then no alarm scheduled.
+      // If there are tasklets are pending to be executed, then that means that a
+      // timer has already been scheduled for an aggregation.
       if (!outstandingTasklets()) {
-
-        final EventHandler<Alarm> alarmHandler = new EventHandler<Alarm>() {
+        timer.schedule(new Runnable() {
           @Override
-          public void onNext(final Alarm value) {
+          public void run() {
             aggregateTasklets(AggregateTriggerType.ALARM);
             synchronized (stateLock) {
+              // On the callback, if there are tasklets pending to be executed, that means that this alarm
+              // was triggered by a previous alarm, so we should continue to trigger more alarms. Otherwise
+              // we are done with tasklets for this aggregation function for now.
+              // If more tasklets for this aggregation function arrive, it will be triggered by the outer
+              // call to timer.schedule.
               if (outstandingTasklets()) {
-                clock.scheduleAlarm(taskletAggregationRequest.getPolicy().getPeriodMilliseconds(), this);
+                timer.schedule(
+                    this, taskletAggregationRequest.getPolicy().getPeriodMilliseconds(), TimeUnit.MILLISECONDS);
               }
             }
           }
-        };
-
-        clock.scheduleAlarm(taskletAggregationRequest.getPolicy().getPeriodMilliseconds(), alarmHandler);
+        }, taskletAggregationRequest.getPolicy().getPeriodMilliseconds(), TimeUnit.MILLISECONDS);
       }
 
+      // Add to pending tasklets, such that on the callback the timer can be refreshed.
       if (!pendingTasklets.containsKey(taskletId)) {
         pendingTasklets.put(taskletId, 0);
       }

@@ -30,6 +30,7 @@ import java.io.Serializable;
  * The policy for local aggregation on the {@link org.apache.reef.vortex.evaluator.VortexWorker}s.
  * The Aggregation function will be triggered on the individual {@link VortexFunction} results on
  * an "OR" basis of what is specified by the policy.
+ * TODO[REEF-504]: Clean up Serializable in Vortex.
  */
 @ClientSide
 @Public
