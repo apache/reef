@@ -1,3 +1,5 @@
+#!/bin/bash
+#
 # Licensed to the Apache Software Foundation (ASF) under one
 # or more contributor license agreements.  See the NOTICE file
 # distributed with this work for additional information
@@ -14,22 +16,24 @@
 # KIND, either express or implied.  See the License for the
 # specific language governing permissions and limitations
 # under the License.
+#
 
-FROM reefrt/apache2.7
-MAINTAINER Apache REEF <dev@reef.apache.org>
+/usr/sbin/sshd
 
-RUN ln -s /usr/lib/jvm/java-7-oracle/jre/lib/amd64/server/libjvm.so /usr/bin/libjvm.so
+hostname > /usr/etc/mesos/masters
+grep hdn /etc/hosts | awk '{print $1}' | sort | uniq > $HADOOP_PREFIX/etc/hadoop/slaves
+cp $HADOOP_PREFIX/etc/hadoop/slaves /usr/etc/mesos/slaves
+for host in `cat $HADOOP_PREFIX/etc/hadoop/slaves`
+do
+    scp /etc/hosts $host:/etc/hosts
+    scp $HADOOP_PREFIX/etc/hadoop/slaves $host:$HADOOP_PREFIX/etc/hadoop/slaves
+    scp /usr/etc/mesos/masters $host:/usr/etc/mesos/masters
+    scp /usr/etc/mesos/slaves $host:/usr/etc/mesos/slaves
+    ssh $host mesos-daemon.sh mesos-slave --master=hnn-001-01:5050
+done
 
-# Apache Mesos 0.25.0
-RUN \
-  apt-key adv --keyserver keyserver.ubuntu.com --recv E56151BF && \
-  echo "deb http://repos.mesosphere.io/ubuntu precise main" > /etc/apt/sources.list.d/mesosphere.list && \
-  apt-get -y update && \
-  apt-get install -y mesos=0.25.0-0.2.70.ubuntu1204 && \
-  apt-get clean && \
-  rm -rf /var/lib/apt/lists/*
-ENV HADOOP_HOME=$HADOOP_PREFIX
-RUN echo 'PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/local/hadoop/bin"' >> /etc/environment
-COPY init-nn.sh /root/
+/usr/local/hadoop/bin/hdfs namenode -format
+/usr/local/hadoop/sbin/start-dfs.sh
+mesos-daemon.sh mesos-master --cluster=REEF --work_dir=/var/lib/mesos --log_dir=/var/log/mesos
 
-EXPOSE 22 5050
+cd ~ && /bin/bash
