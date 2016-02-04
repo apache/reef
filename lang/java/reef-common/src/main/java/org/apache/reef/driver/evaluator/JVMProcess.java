@@ -22,6 +22,7 @@ import org.apache.reef.runtime.common.files.ClasspathProvider;
 import org.apache.reef.runtime.common.files.RuntimePathProvider;
 import org.apache.reef.runtime.common.launch.JavaLaunchCommandBuilder;
 
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -72,7 +73,7 @@ public final class JVMProcess implements EvaluatorProcess {
 
   @Override
   public JVMProcess setConfigurationFileName(final String configurationFileName) {
-    commandBuilder.setConfigurationFileName(configurationFileName);
+    commandBuilder.setConfigurationFilePaths(Collections.singletonList(configurationFileName));
     return this;
   }
 

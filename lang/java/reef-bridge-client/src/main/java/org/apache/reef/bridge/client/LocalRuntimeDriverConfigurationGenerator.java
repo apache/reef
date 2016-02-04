@@ -92,13 +92,20 @@ final class LocalRuntimeDriverConfigurationGenerator {
   }
 
   public static void main(final String[] args) throws InjectionException, IOException {
-    final File jobSubmissionParametersFile = new File(args[0]);
+    final File localAppSubmissionParametersFile = new File(args[0]);
+    final File jobSubmissionParametersFile = new File(args[1]);
+
     if (!(jobSubmissionParametersFile.exists() && jobSubmissionParametersFile.canRead())) {
       throw new IOException("Unable to open and read " + jobSubmissionParametersFile.getAbsolutePath());
     }
 
+    if (!(localAppSubmissionParametersFile.exists() && localAppSubmissionParametersFile.canRead())) {
+      throw new IOException("Unable to open and read " + localAppSubmissionParametersFile.getAbsolutePath());
+    }
+
     final LocalSubmissionFromCS localSubmission =
-        LocalSubmissionFromCS.fromJobSubmissionParametersFile(jobSubmissionParametersFile);
+        LocalSubmissionFromCS.fromSubmissionParameterFiles(
+            jobSubmissionParametersFile, localAppSubmissionParametersFile);
 
     LOG.log(Level.FINE, "Local driver config generation received from C#: {0}", localSubmission);
     final Configuration localRuntimeConfiguration = localSubmission.getRuntimeConfiguration();

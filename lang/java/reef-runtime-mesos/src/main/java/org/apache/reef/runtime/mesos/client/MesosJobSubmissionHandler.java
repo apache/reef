@@ -40,6 +40,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Collections;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -133,7 +134,7 @@ final class MesosJobSubmissionHandler implements JobSubmissionHandler {
       this.configurationSerializer.toFile(driverConfiguration, runtimeConfigurationFile);
 
       final List<String> launchCommand = new JavaLaunchCommandBuilder()
-          .setConfigurationFileName(this.fileNames.getDriverConfigurationPath())
+          .setConfigurationFilePaths(Collections.singletonList(this.fileNames.getDriverConfigurationPath()))
           .setClassPath(this.classpath.getDriverClasspath())
           .setMemory(jobSubmissionEvent.getDriverMemory().get())
           .build();

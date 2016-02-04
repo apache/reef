@@ -16,9 +16,10 @@
 // under the License.
 
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using NSubstitute;
 using Org.Apache.REEF.Client.Common;
-using Org.Apache.REEF.Client.Yarn;
 using Org.Apache.REEF.Client.YARN.RestClient;
 using Org.Apache.REEF.IO.FileSystem;
 using Org.Apache.REEF.Tang.Implementations.Tang;
@@ -32,10 +33,13 @@ namespace Org.Apache.REEF.Client.Tests
         private const string AnyDriverLocalFolderPath = @"Any\Local\Folder\Path\";
         private const string AnyDriverResourceUploadPath = "/vol1/tmp/";
         private const string AnyUploadedResourcePath = "/vol1/tmp/Path.zip";
+        private const string AnyJobFileResourcePath = "/vol1/tmp/job-submission-params.json";
         private const string AnyHost = "host";
         private const string AnyScheme = "hdfs://";
         private const string AnyUploadedResourceAbsoluteUri = AnyScheme + AnyHost + AnyUploadedResourcePath;
+        private const string AnyJobFileResourceAbsoluteUri = AnyScheme + AnyHost + AnyJobFileResourcePath;
         private const string AnyLocalArchivePath = @"Any\Local\Archive\Path.zip";
+        private const string AnyLocalJobFilePath = @"Any\Local\Folder\Path\job-submission-params.json";
         private const long AnyModificationTime = 1447413621;
         private const long AnyResourceSize = 53092;
         private static readonly DateTime Epoch = new DateTime(1970, 1, 1, 0, 0, 0, 0);
@@ -64,11 +68,17 @@ namespace Org.Apache.REEF.Client.Tests
             var testContext = new TestContext();
             var jobResourceUploader = testContext.GetJobResourceUploader();
 
-            var jobResource = jobResourceUploader.UploadJobResource(AnyDriverLocalFolderPath, AnyDriverResourceUploadPath);
+            var jobResources = jobResourceUploader.UploadJobResource(AnyDriverLocalFolderPath, AnyDriverResourceUploadPath);
 
-            Assert.Equal(AnyModificationTime, jobResource.LastModificationUnixTimestamp);
-            Assert.Equal(AnyResourceSize, jobResource.ResourceSize);
-            Assert.Equal(AnyUploadedResourceAbsoluteUri, jobResource.RemoteUploadPath);
+            foreach (var resource in jobResources)
+            {
+                Assert.Equal(AnyModificationTime, resource.LastModificationUnixTimestamp);
+                Assert.Equal(AnyResourceSize, resource.ResourceSize);
+            }
+
+            var resourcePaths = new HashSet<string>(jobResources.Select(resource => resource.RemoteUploadPath));
+            Assert.True(resourcePaths.Contains(AnyUploadedResourceAbsoluteUri));
+            Assert.True(resourcePaths.Contains(AnyJobFileResourceAbsoluteUri));
         }
 
         [Fact]
@@ -79,12 +89,17 @@ namespace Org.Apache.REEF.Client.Tests
 
             jobResourceUploader.UploadJobResource(AnyDriverLocalFolderPath, AnyDriverResourceUploadPath);
 
-            testContext.FileSystem.Received(1).CreateUriForPath(AnyDriverResourceUploadPath);
             testContext.FileSystem.Received(1).CreateUriForPath(AnyUploadedResourcePath);
+
+            testContext.FileSystem.Received(1).CreateUriForPath(AnyDriverResourceUploadPath);
             testContext.FileSystem.Received(1)
                 .CopyFromLocal(AnyLocalArchivePath, new Uri(AnyUploadedResourceAbsoluteUri));
             testContext.FileSystem.Received(1)
                 .CreateDirectory(new Uri(AnyScheme + AnyHost + AnyDriverResourceUploadPath));
+
+            testContext.FileSystem.Received(1).CreateUriForPath(AnyJobFileResourcePath);
+            testContext.FileSystem.Received(1)
+                .CopyFromLocal(AnyLocalJobFilePath, new Uri(AnyJobFileResourceAbsoluteUri));
         }
 
         private class TestContext
@@ -98,12 +113,19 @@ namespace Org.Apache.REEF.Client.Tests
                 var injector = TangFactory.GetTang().NewInjector();
                 FileSystem.GetFileStatus(new Uri(AnyUploadedResourceAbsoluteUri))
                     .Returns(new FileStatus(Epoch + TimeSpan.FromSeconds(AnyModificationTime), AnyResourceSize));
+                FileSystem.GetFileStatus(new Uri(AnyJobFileResourceAbsoluteUri))
+                    .Returns(new FileStatus(Epoch + TimeSpan.FromSeconds(AnyModificationTime), AnyResourceSize));
                 ResourceArchiveFileGenerator.CreateArchiveToUpload(AnyDriverLocalFolderPath)
                     .Returns(AnyLocalArchivePath);
                 FileSystem.CreateUriForPath(AnyDriverResourceUploadPath)
                     .Returns(new Uri(AnyScheme + AnyHost + AnyDriverResourceUploadPath));
                 FileSystem.CreateUriForPath(AnyUploadedResourcePath)
                     .Returns(new Uri(AnyUploadedResourceAbsoluteUri));
+                FileSystem.CreateUriForPath(AnyJobFileResourcePath)
+                    .Returns(new Uri(AnyJobFileResourceAbsoluteUri));
+                IFile file = Substitute.For<IFile>();
+                file.Exists(Arg.Any<string>()).Returns(true);
+                injector.BindVolatileInstance(GenericType<IFile>.Class, file);
                 injector.BindVolatileInstance(GenericType<IResourceArchiveFileGenerator>.Class, ResourceArchiveFileGenerator);
                 injector.BindVolatileInstance(GenericType<IFileSystem>.Class, FileSystem);
                 return injector.GetInstance<FileSystemJobResourceUploader>();

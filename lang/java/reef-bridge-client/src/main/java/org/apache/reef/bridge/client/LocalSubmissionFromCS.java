@@ -24,8 +24,9 @@ import org.apache.avro.specific.SpecificDatumReader;
 import org.apache.commons.lang.Validate;
 import org.apache.reef.client.parameters.DriverConfigurationProviders;
 import org.apache.reef.io.TcpPortConfigurationProvider;
+import org.apache.reef.reef.bridge.client.avro.AvroAppSubmissionParameters;
 import org.apache.reef.reef.bridge.client.avro.AvroJobSubmissionParameters;
-import org.apache.reef.reef.bridge.client.avro.AvroLocalJobSubmissionParameters;
+import org.apache.reef.reef.bridge.client.avro.AvroLocalAppSubmissionParameters;
 import org.apache.reef.runtime.common.files.REEFFileNames;
 import org.apache.reef.runtime.common.launch.parameters.DriverLaunchCommandPrefix;
 import org.apache.reef.runtime.local.client.LocalRuntimeConfiguration;
@@ -58,16 +59,18 @@ final class LocalSubmissionFromCS {
   private final int tcpRangeCount;
   private final int tcpTryCount;
 
-  private LocalSubmissionFromCS(final AvroLocalJobSubmissionParameters avroLocalJobSubmissionParameters) {
+  private LocalSubmissionFromCS(final AvroJobSubmissionParameters avroJobSubmissionParameters,
+                                final AvroLocalAppSubmissionParameters avroLocalAppSubmissionParameters) {
     // We assume the given path to be the one of the driver. The job folder is one level up from there.
-    final AvroJobSubmissionParameters jobSubmissionParameters =
-        avroLocalJobSubmissionParameters.getSharedJobSubmissionParameters();
-    this.driverFolder = new File(jobSubmissionParameters.getJobSubmissionFolder().toString());
-    this.jobId = jobSubmissionParameters.getJobId().toString();
-    this.maxNumberOfConcurrentEvaluators = avroLocalJobSubmissionParameters.getMaxNumberOfConcurrentEvaluators();
-    this.tcpBeginPort = jobSubmissionParameters.getTcpBeginPort();
-    this.tcpRangeCount = jobSubmissionParameters.getTcpRangeCount();
-    this.tcpTryCount = jobSubmissionParameters.getTcpTryCount();
+    final AvroAppSubmissionParameters appSubmissionParameters =
+        avroLocalAppSubmissionParameters.getSharedAppSubmissionParameters();
+    this.tcpBeginPort = appSubmissionParameters.getTcpBeginPort();
+    this.tcpRangeCount = appSubmissionParameters.getTcpRangeCount();
+    this.tcpTryCount = appSubmissionParameters.getTcpTryCount();
+    this.maxNumberOfConcurrentEvaluators = avroLocalAppSubmissionParameters.getMaxNumberOfConcurrentEvaluators();
+
+    this.driverFolder = new File(avroJobSubmissionParameters.getJobSubmissionFolder().toString());
+    this.jobId = avroJobSubmissionParameters.getJobId().toString();
     this.jobFolder = driverFolder.getParentFile();
     this.runtimeRootFolder = jobFolder.getParentFile();
 
@@ -137,16 +140,29 @@ final class LocalSubmissionFromCS {
   /**
    * Takes the local job submission configuration file, deserializes it, and creates submission object.
    */
-  static LocalSubmissionFromCS fromJobSubmissionParametersFile(final File localJobSubmissionParametersFile)
+  static LocalSubmissionFromCS fromSubmissionParameterFiles(final File jobSubmissionParametersFile,
+                                                            final File localAppSubmissionParametersFile)
       throws IOException {
-    try (final FileInputStream fileInputStream = new FileInputStream(localJobSubmissionParametersFile)) {
-      final JsonDecoder decoder = DecoderFactory.get().jsonDecoder(
-          AvroLocalJobSubmissionParameters.getClassSchema(), fileInputStream);
-      final SpecificDatumReader<AvroLocalJobSubmissionParameters> reader =
-          new SpecificDatumReader<>(AvroLocalJobSubmissionParameters.class);
-      final AvroLocalJobSubmissionParameters localJobSubmissionParameters = reader.read(null, decoder);
+    final AvroLocalAppSubmissionParameters localAppSubmissionParameters;
 
-      return new LocalSubmissionFromCS(localJobSubmissionParameters);
+    final AvroJobSubmissionParameters jobSubmissionParameters;
+
+    try (final FileInputStream fileInputStream = new FileInputStream(jobSubmissionParametersFile)) {
+      final JsonDecoder decoder = DecoderFactory.get().jsonDecoder(
+          AvroJobSubmissionParameters.getClassSchema(), fileInputStream);
+      final SpecificDatumReader<AvroJobSubmissionParameters> reader =
+          new SpecificDatumReader<>(AvroJobSubmissionParameters.class);
+      jobSubmissionParameters = reader.read(null, decoder);
     }
+
+    try (final FileInputStream fileInputStream = new FileInputStream(localAppSubmissionParametersFile)) {
+      final JsonDecoder decoder = DecoderFactory.get().jsonDecoder(
+          AvroLocalAppSubmissionParameters.getClassSchema(), fileInputStream);
+      final SpecificDatumReader<AvroLocalAppSubmissionParameters> reader =
+          new SpecificDatumReader<>(AvroLocalAppSubmissionParameters.class);
+      localAppSubmissionParameters = reader.read(null, decoder);
+    }
+
+    return new LocalSubmissionFromCS(jobSubmissionParameters, localAppSubmissionParameters);
   }
 }

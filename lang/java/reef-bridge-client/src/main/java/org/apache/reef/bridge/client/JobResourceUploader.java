@@ -20,6 +20,7 @@ package org.apache.reef.bridge.client;
 
 import org.apache.commons.lang.Validate;
 import org.apache.hadoop.yarn.api.records.LocalResource;
+import org.apache.hadoop.yarn.api.records.LocalResourceType;
 import org.apache.hadoop.yarn.api.records.URL;
 import org.apache.reef.runtime.common.files.RuntimeClasspathProvider;
 import org.apache.reef.runtime.yarn.YarnClasspathProvider;
@@ -44,16 +45,18 @@ public final class JobResourceUploader {
   /**
    * This class is invoked from Org.Apache.REEF.Client.Yarn.LegacyJobResourceUploader in .NET code.
    * Arguments:
-   * [0] : Local path for already generated archive
-   * [1] : Path of job submission directory
-   * [2] : File path for output with details of uploaded resource
+   * [0] : Local path for file.
+   * [1] : Type for file.
+   * [2] : Path of job submission directory
+   * [3] : File path for output with details of uploaded resource
    */
   public static void main(final String[] args) throws InjectionException, IOException {
-    Validate.isTrue(args.length == 3, "Job resource uploader requires 3 args");
+    Validate.isTrue(args.length == 4, "Job resource uploader requires 4 args");
     final File localFile = new File(args[0]);
-    Validate.isTrue(localFile.exists(), "Local archive does not exist " + localFile.getAbsolutePath());
-    final String jobSubmissionDirectory = args[1];
-    final String localOutputPath = args[2];
+    Validate.isTrue(localFile.exists(), "Local file does not exist " + localFile.getAbsolutePath());
+    final String fileType = args[1];
+    final String jobSubmissionDirectory = args[2];
+    final String localOutputPath = args[3];
 
     LOG.log(Level.INFO, "Received args: LocalPath " + localFile.getAbsolutePath() + " Submission directory " +
         jobSubmissionDirectory + " LocalOutputPath " + localOutputPath);
@@ -66,7 +69,7 @@ public final class JobResourceUploader {
         .newInjector(configuration)
         .getInstance(JobUploader.class);
     final LocalResource localResource = jobUploader.createJobFolder(jobSubmissionDirectory)
-        .uploadAsLocalResource(localFile);
+        .uploadAsLocalResource(localFile, LocalResourceType.valueOf(fileType));
 
     // Output: <UploadedPath>;<LastModificationUnixTimestamp>;<ResourceSize>
     final URL resource = localResource.getResource();

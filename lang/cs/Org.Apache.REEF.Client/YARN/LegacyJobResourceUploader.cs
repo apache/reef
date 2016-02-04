@@ -16,8 +16,11 @@
 // under the License.
 
 using System;
+using System.Collections.Generic;
 using System.IO;
 using Org.Apache.REEF.Client.Common;
+using Org.Apache.REEF.Client.YARN.RestClient.DataModel;
+using Org.Apache.REEF.Common.Files;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Utilities.Diagnostics;
 using Org.Apache.REEF.Utilities.Logging;
@@ -42,38 +45,71 @@ namespace Org.Apache.REEF.Client.Yarn
         private readonly IJavaClientLauncher _javaLauncher;
         private readonly IResourceArchiveFileGenerator _resourceArchiveFileGenerator;
         private readonly IFile _file;
+        private readonly REEFFileNames _reefFileNames;
 
         [Inject]
         private LegacyJobResourceUploader(
             IJavaClientLauncher javaLauncher,
             IResourceArchiveFileGenerator resourceArchiveFileGenerator,
             IFile file,
-            IYarnCommandLineEnvironment yarn)
+            IYarnCommandLineEnvironment yarn,
+            REEFFileNames reefFileNames)
         {
             _file = file;
             _resourceArchiveFileGenerator = resourceArchiveFileGenerator;
             _javaLauncher = javaLauncher;
             _javaLauncher.AddToClassPath(yarn.GetYarnClasspathList());
+            _reefFileNames = reefFileNames;
         }
 
-        public JobResource UploadJobResource(string driverLocalFolderPath, string jobSubmissionDirectory)
+        public ICollection<JobResource> UploadJobResource(string driverLocalFolderPath, string jobSubmissionDirectory)
         {
+            var resources = new List<JobResource>();
             driverLocalFolderPath = driverLocalFolderPath.TrimEnd('\\') + @"\";
             string driverUploadPath = jobSubmissionDirectory.TrimEnd('/') + @"/";
             Log.Log(Level.Info, "DriverFolderPath: {0} DriverUploadPath: {1}", driverLocalFolderPath, driverUploadPath);
 
             var archivePath = _resourceArchiveFileGenerator.CreateArchiveToUpload(driverLocalFolderPath);
+            resources.Add(GetJobResource(archivePath, ResourceType.ARCHIVE, driverUploadPath, _reefFileNames.GetReefFolderName()));
 
-            var resourceDetailsOutputPath = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString("N"));
-            _javaLauncher.Launch(JavaClassNameForResourceUploader,
-                archivePath,
-                driverUploadPath,
-                resourceDetailsOutputPath);
+            var jobArgsFilePath = Path.Combine(driverLocalFolderPath, _reefFileNames.GetSubmissionJobParametersFile());
+            resources.Add(GetJobResource(jobArgsFilePath, ResourceType.FILE, driverUploadPath));
 
-            return ParseGeneratedOutputFile(resourceDetailsOutputPath);
+            return resources;
         }
 
-        private JobResource ParseGeneratedOutputFile(string resourceDetailsOutputPath)
+        private JobResource GetJobResource(string filePath, ResourceType resourceType, string driverUploadPath, string localizedName = null)
+        {
+            if (!_file.Exists(filePath))
+            {
+                Exceptions.Throw(
+                    new FileNotFoundException("Could not find resource file " + filePath),
+                    Log);
+            }
+
+            var detailsOutputPath = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString("N"));
+
+            try
+            {
+                _javaLauncher.Launch(JavaClassNameForResourceUploader,
+                    filePath,
+                    resourceType.ToString(),
+                    driverUploadPath,
+                    detailsOutputPath);
+
+                var localizedResourceName = localizedName ?? Path.GetFileName(filePath);
+                return ParseGeneratedOutputFile(detailsOutputPath, localizedResourceName, resourceType);
+            }
+            finally
+            {
+                if (_file.Exists(detailsOutputPath))
+                {
+                    _file.Delete(detailsOutputPath);
+                }
+            }
+        }
+
+        private JobResource ParseGeneratedOutputFile(string resourceDetailsOutputPath, string resourceName, ResourceType resourceType)
         {
             if (!_file.Exists(resourceDetailsOutputPath))
             {
@@ -91,9 +127,11 @@ namespace Org.Apache.REEF.Client.Yarn
 
             return new JobResource
             {
+                Name = resourceName,
                 RemoteUploadPath = tokens[0],
                 LastModificationUnixTimestamp = long.Parse(tokens[1]),
-                ResourceSize = long.Parse(tokens[2])
+                ResourceSize = long.Parse(tokens[2]),
+                ResourceType = resourceType
             };
         }
     }

@@ -22,9 +22,7 @@ import org.apache.avro.io.DecoderFactory;
 import org.apache.avro.io.JsonDecoder;
 import org.apache.avro.specific.SpecificDatumReader;
 import org.apache.commons.lang.Validate;
-import org.apache.reef.reef.bridge.client.avro.AvroJobSubmissionParameters;
-import org.apache.reef.reef.bridge.client.avro.AvroYarnClusterJobSubmissionParameters;
-import org.apache.reef.reef.bridge.client.avro.AvroYarnJobSubmissionParameters;
+import org.apache.reef.reef.bridge.client.avro.*;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -56,22 +54,29 @@ final class YarnClusterSubmissionFromCS {
   private final String tokenKind;
   private final String tokenService;
   private final String jobSubmissionDirectoryPrefix;
+
+  private final AvroYarnAppSubmissionParameters yarnAppSubmissionParameters;
   private final AvroYarnJobSubmissionParameters yarnJobSubmissionParameters;
 
-  private YarnClusterSubmissionFromCS(final AvroYarnClusterJobSubmissionParameters yarnClusterJobSubmissionParameters) {
+  private YarnClusterSubmissionFromCS(final AvroYarnClusterAppSubmissionParameters yarnClusterAppSubmissionParameters,
+                                      final AvroYarnClusterJobSubmissionParameters yarnClusterJobSubmissionParameters) {
     yarnJobSubmissionParameters = yarnClusterJobSubmissionParameters.getYarnJobSubmissionParameters();
+    yarnAppSubmissionParameters = yarnClusterAppSubmissionParameters.getYarnAppSubmissionParameters();
 
     final AvroJobSubmissionParameters jobSubmissionParameters =
         yarnJobSubmissionParameters.getSharedJobSubmissionParameters();
 
+    final AvroAppSubmissionParameters appSubmissionParameters =
+        yarnAppSubmissionParameters.getSharedAppSubmissionParameters();
+
     this.driverFolder = new File(jobSubmissionParameters.getJobSubmissionFolder().toString());
     this.jobId = jobSubmissionParameters.getJobId().toString();
-    this.tcpBeginPort = jobSubmissionParameters.getTcpBeginPort();
-    this.tcpRangeCount = jobSubmissionParameters.getTcpRangeCount();
-    this.tcpTryCount = jobSubmissionParameters.getTcpTryCount();
-    this.maxApplicationSubmissions = yarnClusterJobSubmissionParameters.getMaxApplicationSubmissions();
-    this.driverRecoveryTimeout = yarnJobSubmissionParameters.getDriverRecoveryTimeout();
-    this.driverMemory = yarnJobSubmissionParameters.getDriverMemory();
+    this.tcpBeginPort = appSubmissionParameters.getTcpBeginPort();
+    this.tcpRangeCount = appSubmissionParameters.getTcpRangeCount();
+    this.tcpTryCount = appSubmissionParameters.getTcpTryCount();
+    this.maxApplicationSubmissions = yarnClusterAppSubmissionParameters.getMaxApplicationSubmissions();
+    this.driverRecoveryTimeout = yarnAppSubmissionParameters.getDriverRecoveryTimeout();
+    this.driverMemory = yarnAppSubmissionParameters.getDriverMemory();
     this.priority = DEFAULT_PRIORITY;
     this.queue = DEFAULT_QUEUE;
     this.tokenKind = yarnClusterJobSubmissionParameters.getSecurityTokenKind().toString();
@@ -173,6 +178,13 @@ final class YarnClusterSubmissionFromCS {
   }
 
   /**
+   * @return The submission parameters for YARN applications.
+   */
+  AvroYarnAppSubmissionParameters getYarnAppSubmissionParameters() {
+    return yarnAppSubmissionParameters;
+  }
+
+  /**
    * @return The submission parameters for YARN jobs.
    */
   AvroYarnJobSubmissionParameters getYarnJobSubmissionParameters() {
@@ -189,21 +201,31 @@ final class YarnClusterSubmissionFromCS {
   /**
    * Takes the YARN cluster job submission configuration file, deserializes it, and creates submission object.
    */
-  static YarnClusterSubmissionFromCS fromJobSubmissionParametersFile(final File yarnClusterJobSubmissionParametersFile)
+  static YarnClusterSubmissionFromCS fromJobSubmissionParametersFile(final File yarnClusterAppSubmissionParametersFile,
+                                                                     final File yarnClusterJobSubmissionParametersFile)
       throws IOException {
-    try (final FileInputStream fileInputStream = new FileInputStream(yarnClusterJobSubmissionParametersFile)) {
-      // this is mainly a test hook
-      return readYarnClusterSubmissionFromCSFromInputStream(fileInputStream);
+    try (final FileInputStream appFileInputStream = new FileInputStream(yarnClusterAppSubmissionParametersFile)) {
+      try (final FileInputStream jobFileInputStream = new FileInputStream(yarnClusterJobSubmissionParametersFile)) {
+        // this is mainly a test hook
+        return readYarnClusterSubmissionFromCSFromInputStream(appFileInputStream, jobFileInputStream);
+      }
     }
   }
 
   static YarnClusterSubmissionFromCS readYarnClusterSubmissionFromCSFromInputStream(
-      final InputStream inputStream) throws IOException {
-    final JsonDecoder decoder = DecoderFactory.get().jsonDecoder(
-        AvroYarnClusterJobSubmissionParameters.getClassSchema(), inputStream);
-    final SpecificDatumReader<AvroYarnClusterJobSubmissionParameters> reader = new SpecificDatumReader<>(
+      final InputStream appInputStream, final InputStream jobInputStream) throws IOException {
+    final JsonDecoder appDecoder = DecoderFactory.get().jsonDecoder(
+        AvroYarnClusterAppSubmissionParameters.getClassSchema(), appInputStream);
+    final SpecificDatumReader<AvroYarnClusterAppSubmissionParameters> appReader = new SpecificDatumReader<>(
+        AvroYarnClusterAppSubmissionParameters.class);
+    final AvroYarnClusterAppSubmissionParameters yarnClusterAppSubmissionParameters = appReader.read(null, appDecoder);
+
+    final JsonDecoder jobDecoder = DecoderFactory.get().jsonDecoder(
+        AvroYarnClusterJobSubmissionParameters.getClassSchema(), jobInputStream);
+    final SpecificDatumReader<AvroYarnClusterJobSubmissionParameters> jobReader = new SpecificDatumReader<>(
         AvroYarnClusterJobSubmissionParameters.class);
-    final AvroYarnClusterJobSubmissionParameters yarnClusterJobSubmissionParameters = reader.read(null, decoder);
-    return new YarnClusterSubmissionFromCS(yarnClusterJobSubmissionParameters);
+    final AvroYarnClusterJobSubmissionParameters yarnClusterJobSubmissionParameters = jobReader.read(null, jobDecoder);
+
+    return new YarnClusterSubmissionFromCS(yarnClusterAppSubmissionParameters, yarnClusterJobSubmissionParameters);
   }
 }

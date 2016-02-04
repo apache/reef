@@ -34,9 +34,7 @@ import org.apache.reef.runtime.yarn.util.YarnTypes;
 
 import java.io.Closeable;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -57,7 +55,7 @@ public final class YarnSubmissionHelper implements Closeable{
   private final SecurityTokenProvider tokenProvider;
   private final List<String> commandPrefixList;
   private Class launcherClazz;
-  private String confFileName;
+  private List<String> configurationFilePaths;
 
   public YarnSubmissionHelper(final YarnConfiguration yarnConfiguration,
                               final REEFFileNames fileNames,
@@ -81,7 +79,7 @@ public final class YarnSubmissionHelper implements Closeable{
     this.tokenProvider = tokenProvider;
     this.commandPrefixList = commandPrefixList;
     this.launcherClazz = REEFLauncher.class;
-    this.confFileName = this.fileNames.getDriverConfigurationPath();
+    this.configurationFilePaths = Collections.singletonList(this.fileNames.getDriverConfigurationPath());
     LOG.log(Level.FINEST, "YARN Application ID: {0}", applicationId);
   }
 
@@ -92,12 +90,10 @@ public final class YarnSubmissionHelper implements Closeable{
     this(yarnConfiguration, fileNames, classpath, tokenProvider, null);
   }
 
-
-
-    /**
-     *
-     * @return the application ID assigned by YARN.
-     */
+  /**
+   *
+   * @return the application ID assigned by YARN.
+   */
   public int getApplicationId() {
     return this.applicationId.getId();
   }
@@ -214,21 +210,22 @@ public final class YarnSubmissionHelper implements Closeable{
 
   /**
    * Sets the configuration file for the job.
-   * Note that this does not have to be the Driver TANG configuration. In the bootstrap
-   * launch case, this can be the Avro file that supports the generation of a driver
+   * Note that this is not the Driver TANG configuration. In the bootstrap
+   * launch case, this is the Avro file that supports the generation of a driver
    * configuration file natively at the Launcher.
-   * @param configurationFileName
+   * @param configurationFilePaths
    * @return
    */
-  public YarnSubmissionHelper setConfigurationFileName(final String configurationFileName) {
-    this.confFileName = configurationFileName;
+  public YarnSubmissionHelper setConfigurationFilePaths(final List<String> configurationFilePaths) {
+    this.configurationFilePaths = configurationFilePaths;
     return this;
   }
 
   public void submit() throws IOException, YarnException {
+
     // SET EXEC COMMAND
     final List<String> launchCommand = new JavaLaunchCommandBuilder(launcherClazz, commandPrefixList)
-        .setConfigurationFileName(confFileName)
+        .setConfigurationFilePaths(configurationFilePaths)
         .setClassPath(this.classpath.getDriverClasspath())
         .setMemory(this.applicationSubmissionContext.getResource().getMemory())
         .setStandardOut(ApplicationConstants.LOG_DIR_EXPANSION_VAR + "/" + this.fileNames.getDriverStdoutFileName())

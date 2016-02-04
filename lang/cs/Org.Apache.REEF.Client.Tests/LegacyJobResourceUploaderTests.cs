@@ -17,6 +17,7 @@
 
 using System;
 using System.IO;
+using System.Linq;
 using NSubstitute;
 using Org.Apache.REEF.Client.Common;
 using Org.Apache.REEF.Client.Yarn;
@@ -30,7 +31,7 @@ namespace Org.Apache.REEF.Client.Tests
     {
         private const string AnyDriverLocalFolderPath = @"Any\Local\Folder\Path";
         private const string AnyDriverResourceUploadPath = "/vol1/tmp";
-        private const string AnyUploadedResourcePath = "hdfs://foo/vol1/tmp/driver.zip";
+        private const string AnyUploadedResourcePath = "hdfs://foo/vol1/tmp/anyFile";
         private const long AnyModificationTime = 1446161745550;
         private const long AnyResourceSize = 53092;
 
@@ -52,6 +53,7 @@ namespace Org.Apache.REEF.Client.Tests
             var testContext = new TestContext();
             var jobResourceUploader = testContext.GetJobResourceUploader();
             const string anyLocalArchivePath = @"Any\Local\Archive\Path.zip";
+            var anyLocalJobFilePath = AnyDriverLocalFolderPath.TrimEnd('\\') + @"\job-submission-params.json";
             testContext.ResourceArchiveFileGenerator.CreateArchiveToUpload(AnyDriverLocalFolderPath + @"\")
                 .Returns(anyLocalArchivePath);
             jobResourceUploader.UploadJobResource(AnyDriverLocalFolderPath, AnyDriverResourceUploadPath);
@@ -60,13 +62,25 @@ namespace Org.Apache.REEF.Client.Tests
             Guid notUsed;
 
             // Clientlauncher is called with correct class name, local archive path, upload path and temp file.
-            testContext.JavaClientLauncher.Received()
+            testContext.JavaClientLauncher.Received(1)
                 .Launch(javaClassNameForResourceUploader,
                     anyLocalArchivePath,
+                    "ARCHIVE",
                     AnyDriverResourceUploadPath + "/",
                     Arg.Is<string>(
                         outputFilePath =>
                             Path.GetDirectoryName(outputFilePath) + @"\" == Path.GetTempPath() 
+                            && Guid.TryParse(Path.GetFileName(outputFilePath), out notUsed)));
+
+            // Clientlauncher is called with correct class name, local job file path, upload path and temp file.
+            testContext.JavaClientLauncher.Received(1)
+                .Launch(javaClassNameForResourceUploader,
+                    anyLocalJobFilePath,
+                    "FILE",
+                    AnyDriverResourceUploadPath + "/",
+                    Arg.Is<string>(
+                        outputFilePath =>
+                            Path.GetDirectoryName(outputFilePath) + @"\" == Path.GetTempPath()
                             && Guid.TryParse(Path.GetFileName(outputFilePath), out notUsed)));
         }
 
@@ -86,11 +100,15 @@ namespace Org.Apache.REEF.Client.Tests
             var testContext = new TestContext();
             var jobResourceUploader = testContext.GetJobResourceUploader();
 
-            var jobResource = jobResourceUploader.UploadJobResource(AnyDriverLocalFolderPath, AnyDriverResourceUploadPath);
+            var jobResources = jobResourceUploader.UploadJobResource(AnyDriverLocalFolderPath, AnyDriverResourceUploadPath);
 
-            Assert.Equal(AnyModificationTime, jobResource.LastModificationUnixTimestamp);
-            Assert.Equal(AnyResourceSize, jobResource.ResourceSize);
-            Assert.Equal(AnyUploadedResourcePath, jobResource.RemoteUploadPath);
+            Assert.Equal(jobResources.Count, 2);
+            foreach (var resource in jobResources)
+            {
+                Assert.Equal(AnyModificationTime, resource.LastModificationUnixTimestamp);
+                Assert.Equal(AnyResourceSize, resource.ResourceSize);
+                Assert.Equal(AnyUploadedResourcePath, resource.RemoteUploadPath);
+            }
         }
 
         private class TestContext

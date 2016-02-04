@@ -91,11 +91,12 @@ namespace Org.Apache.REEF.Client.YARN
             }
 
             sb.Append(" " + LauncherClassName);
+            sb.Append(" " + _fileNames.GetSubmissionJobParametersFile());
             sb.Append(" " +
                       string.Format("{0}/{1}/{2}",
                           _fileNames.GetReefFolderName(),
                           _fileNames.GetLocalFolderName(),
-                          _fileNames.GetJobSubmissionParametersFile()));
+                          _fileNames.GetSubmissionAppParametersFile()));
             sb.Append(" " + _fileNames.GetDriverLoggingConfigCommand());
             return sb.ToString();
         }

@@ -15,14 +15,20 @@
 // specific language governing permissions and limitations
 // under the License.
 
+using Org.Apache.REEF.Client.YARN.RestClient.DataModel;
+
 namespace Org.Apache.REEF.Client.Yarn
 {
-    public class JobResource
+    internal class JobResource
     {
+        public string Name { get; set; }
+
         public string RemoteUploadPath { get; set; }
 
         public long LastModificationUnixTimestamp { get; set; }
 
         public long ResourceSize { get; set; }
+
+        public ResourceType ResourceType { get; set; }
     }
 }

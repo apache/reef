@@ -21,6 +21,7 @@ package org.apache.reef.runtime.common.launch;
 import org.apache.commons.lang.StringUtils;
 import org.apache.reef.runtime.common.REEFLauncher;
 import org.apache.reef.util.EnvironmentUtils;
+import org.apache.reef.util.Optional;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -42,7 +43,7 @@ public final class JavaLaunchCommandBuilder implements LaunchCommandBuilder {
   private static final String[] DEFAULT_OPTIONS = {"-XX:PermSize=128m", "-XX:MaxPermSize=128m"};
   private String stderrPath = null;
   private String stdoutPath = null;
-  private String evaluatorConfigurationPath = null;
+  private Optional<List<String>> evaluatorConfigurationPaths = Optional.empty();
   private String javaPath = null;
   private String classPath = null;
   private Boolean assertionsEnabled = null;
@@ -112,7 +113,11 @@ public final class JavaLaunchCommandBuilder implements LaunchCommandBuilder {
             "java.util.logging.config.file", "java.util.logging.config.class");
 
         add(launcherClass.getName());
-        add(evaluatorConfigurationPath);
+        if (evaluatorConfigurationPaths.isPresent()) {
+          for (final String configurationPath : evaluatorConfigurationPaths.get()) {
+            add(configurationPath);
+          }
+        }
 
         if (stdoutPath != null && !stdoutPath.isEmpty()) {
           add("1>");
@@ -133,8 +138,8 @@ public final class JavaLaunchCommandBuilder implements LaunchCommandBuilder {
   }
 
   @Override
-  public JavaLaunchCommandBuilder setConfigurationFileName(final String configurationFileName) {
-    this.evaluatorConfigurationPath = configurationFileName;
+  public JavaLaunchCommandBuilder setConfigurationFilePaths(final List<String> configurationPaths) {
+    this.evaluatorConfigurationPaths = Optional.of(configurationPaths);
     return this;
   }
 

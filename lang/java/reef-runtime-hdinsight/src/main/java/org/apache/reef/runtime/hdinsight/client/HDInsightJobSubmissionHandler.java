@@ -37,6 +37,7 @@ import org.apache.reef.tang.annotations.Parameter;
 import javax.inject.Inject;
 import java.io.File;
 import java.io.IOException;
+import java.util.Collections;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -149,7 +150,7 @@ public final class HDInsightJobSubmissionHandler implements JobSubmissionHandler
 
     return new JavaLaunchCommandBuilder()
         .setJavaPath("%JAVA_HOME%/bin/java")
-        .setConfigurationFileName(this.filenames.getDriverConfigurationPath())
+        .setConfigurationFilePaths(Collections.singletonList(this.filenames.getDriverConfigurationPath()))
         .setClassPath(this.classpath.getDriverClasspath())
         .setMemory(jobSubmissionEvent.getDriverMemory().get())
         .setStandardErr(ApplicationConstants.LOG_DIR_EXPANSION_VAR + "/" + this.filenames.getDriverStderrFileName())

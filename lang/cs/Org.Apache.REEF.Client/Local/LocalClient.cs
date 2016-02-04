@@ -90,29 +90,45 @@ namespace Org.Apache.REEF.Client.Local
             // Intentionally left blank.
         }
 
-        private string CreateBootstrapAvroConfig(IJobSubmission jobSubmission, string driverFolder)
+        private string CreateBootstrapAvroJobConfig(IJobSubmission jobSubmission, string driverFolder)
         {
-            var paramInjector = TangFactory.GetTang().NewInjector(jobSubmission.DriverConfigurations.ToArray());
-
-            var bootstrapArgs = new AvroJobSubmissionParameters
+            var bootstrapJobArgs = new AvroJobSubmissionParameters
             {
                 jobSubmissionFolder = driverFolder,
                 jobId = jobSubmission.JobIdentifier,
+            };
+
+            var submissionArgsFilePath = Path.Combine(driverFolder, _fileNames.GetSubmissionJobParametersFile());
+            using (var argsFileStream = new FileStream(submissionArgsFilePath, FileMode.CreateNew))
+            {
+                var serializedArgs = AvroJsonSerializer<AvroJobSubmissionParameters>.ToBytes(bootstrapJobArgs);
+                argsFileStream.Write(serializedArgs, 0, serializedArgs.Length);
+            }
+
+            return submissionArgsFilePath;
+        }
+
+        private string CreateBootstrapAvroAppConfig(IJobSubmission jobSubmission, string driverFolder)
+        {
+            var paramInjector = TangFactory.GetTang().NewInjector(jobSubmission.DriverConfigurations.ToArray());
+
+            var bootstrapAppArgs = new AvroAppSubmissionParameters
+            {
                 tcpBeginPort = paramInjector.GetNamedInstance<TcpPortRangeStart, int>(),
                 tcpRangeCount = paramInjector.GetNamedInstance<TcpPortRangeCount, int>(),
                 tcpTryCount = paramInjector.GetNamedInstance<TcpPortRangeTryCount, int>(),
             };
 
-            var avroLocalBootstrapArgs = new AvroLocalJobSubmissionParameters
+            var avroLocalBootstrapAppArgs = new AvroLocalAppSubmissionParameters
             {
-                sharedJobSubmissionParameters = bootstrapArgs,
+                sharedAppSubmissionParameters = bootstrapAppArgs,
                 maxNumberOfConcurrentEvaluators = _maxNumberOfConcurrentEvaluators
             };
 
-            var submissionArgsFilePath = Path.Combine(driverFolder, _fileNames.GetJobSubmissionParametersFile());
+            var submissionArgsFilePath = Path.Combine(driverFolder, _fileNames.GetSubmissionAppParametersFile());
             using (var argsFileStream = new FileStream(submissionArgsFilePath, FileMode.CreateNew))
             {
-                var serializedArgs = AvroJsonSerializer<AvroLocalJobSubmissionParameters>.ToBytes(avroLocalBootstrapArgs);
+                var serializedArgs = AvroJsonSerializer<AvroLocalAppSubmissionParameters>.ToBytes(avroLocalBootstrapAppArgs);
                 argsFileStream.Write(serializedArgs, 0, serializedArgs.Length);
             }
 
@@ -134,17 +150,19 @@ namespace Org.Apache.REEF.Client.Local
         public void Submit(IJobSubmission jobSubmission)
         {
             var driverFolder = PrepareDriverFolder(jobSubmission);
-            var submissionArgsFilePath = CreateBootstrapAvroConfig(jobSubmission, driverFolder);
-            _javaClientLauncher.Launch(JavaClassName, submissionArgsFilePath);
+            var submissionJobArgsFilePath = CreateBootstrapAvroJobConfig(jobSubmission, driverFolder);
+            var submissionAppArgsFilePath = CreateBootstrapAvroAppConfig(jobSubmission, driverFolder);
+            _javaClientLauncher.Launch(JavaClassName, submissionJobArgsFilePath, submissionAppArgsFilePath);
             Logger.Log(Level.Info, "Submitted the Driver for execution.");
         }
 
         public IJobSubmissionResult SubmitAndGetJobStatus(IJobSubmission jobSubmission)
         {
             var driverFolder = PrepareDriverFolder(jobSubmission);
-            var submissionArgsFilePath = CreateBootstrapAvroConfig(jobSubmission, driverFolder);
+            var submissionJobArgsFilePath = CreateBootstrapAvroJobConfig(jobSubmission, driverFolder);
+            var submissionAppArgsFilePath = CreateBootstrapAvroAppConfig(jobSubmission, driverFolder);
 
-            Task.Run(() => _javaClientLauncher.Launch(JavaClassName, submissionArgsFilePath));
+            Task.Run(() => _javaClientLauncher.Launch(JavaClassName, submissionJobArgsFilePath, submissionAppArgsFilePath));
 
             var fileName = Path.Combine(driverFolder, _fileNames.DriverHttpEndpoint);
             JobSubmissionResult result = new LocalJobSubmissionResult(this, fileName);

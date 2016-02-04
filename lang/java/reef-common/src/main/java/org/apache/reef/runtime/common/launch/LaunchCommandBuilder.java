@@ -42,10 +42,10 @@ public interface LaunchCommandBuilder {
    * Set the name of the configuration file for the Launcher. This file is assumed to exist in the working directory of
    * the process launched with this command line.
    *
-   * @param configurationFileName
+   * @param configurationFilePaths
    * @return this
    */
-  LaunchCommandBuilder setConfigurationFileName(final String configurationFileName);
+  LaunchCommandBuilder setConfigurationFilePaths(final List<String> configurationFilePaths);
 
   /**
    * Names a file to which stdout will be redirected.

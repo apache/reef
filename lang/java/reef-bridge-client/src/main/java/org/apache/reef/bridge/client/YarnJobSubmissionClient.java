@@ -26,6 +26,7 @@ import org.apache.hadoop.io.Text;
 import org.apache.hadoop.security.UserGroupInformation;
 import org.apache.hadoop.security.token.Token;
 import org.apache.hadoop.yarn.api.records.LocalResource;
+import org.apache.hadoop.yarn.api.records.LocalResourceType;
 import org.apache.hadoop.yarn.conf.YarnConfiguration;
 import org.apache.hadoop.yarn.exceptions.YarnException;
 import org.apache.reef.runtime.common.files.ClasspathProvider;
@@ -68,7 +69,7 @@ public final class YarnJobSubmissionClient {
   private final ClasspathProvider classpath;
   private final SecurityTokenProvider tokenProvider;
   private final List<String> commandPrefixList;
-  private final YarnJobSubmissionParametersFileGenerator jobSubmissionParametersGenerator;
+  private final YarnSubmissionParametersFileGenerator jobSubmissionParametersGenerator;
 
   @Inject
   YarnJobSubmissionClient(final JobUploader uploader,
@@ -78,7 +79,7 @@ public final class YarnJobSubmissionClient {
                           @Parameter(DriverLaunchCommandPrefix.class)
                           final List<String> commandPrefixList,
                           final SecurityTokenProvider tokenProvider,
-                          final YarnJobSubmissionParametersFileGenerator jobSubmissionParametersGenerator) {
+                          final YarnSubmissionParametersFileGenerator jobSubmissionParametersGenerator) {
     this.uploader = uploader;
     this.fileNames = fileNames;
     this.yarnConfiguration = yarnConfiguration;
@@ -121,13 +122,24 @@ public final class YarnJobSubmissionClient {
       // ------------------------------------------------------------------------
       // Upload the JAR
       LOG.info("Uploading job submission JAR");
-      final LocalResource jarFileOnDFS = jobFolderOnDFS.uploadAsLocalResource(jarFile);
+      final LocalResource jarFileOnDFS = jobFolderOnDFS.uploadAsLocalResource(jarFile, LocalResourceType.ARCHIVE);
       LOG.info("Uploaded job submission JAR");
+
+      // ------------------------------------------------------------------------
+      // Upload the job file
+      final LocalResource jobFileOnDFS = jobFolderOnDFS.uploadAsLocalResource(
+          new File(yarnSubmission.getDriverFolder(), fileNames.getYarnBootstrapJobParamFilePath()),
+          LocalResourceType.FILE);
+
+      final List<String> confFiles = new ArrayList<>();
+      confFiles.add(fileNames.getYarnBootstrapJobParamFilePath());
+      confFiles.add(fileNames.getYarnBootstrapAppParamFilePath());
 
       // ------------------------------------------------------------------------
       // Submit
       submissionHelper
           .addLocalResource(this.fileNames.getREEFFolderName(), jarFileOnDFS)
+          .addLocalResource(fileNames.getYarnBootstrapJobParamFilePath(), jobFileOnDFS)
           .setApplicationName(yarnSubmission.getJobId())
           .setDriverMemory(yarnSubmission.getDriverMemory())
           .setPriority(yarnSubmission.getPriority())
@@ -135,7 +147,7 @@ public final class YarnJobSubmissionClient {
           .setMaxApplicationAttempts(yarnSubmission.getMaxApplicationSubmissions())
           .setPreserveEvaluators(yarnSubmission.getDriverRecoveryTimeout() > 0)
           .setLauncherClass(YarnBootstrapREEFLauncher.class)
-          .setConfigurationFileName(fileNames.getYarnBootstrapParamFilePath())
+          .setConfigurationFilePaths(confFiles)
           .submit();
       writeDriverHttpEndPoint(yarnSubmission.getDriverFolder(),
           submissionHelper.getStringApplicationId(), jobFolderOnDFS.getPath());
@@ -221,16 +233,23 @@ public final class YarnJobSubmissionClient {
   /**
    * .NET client calls into this main method for job submission.
    * For arguments detail:
-   * @see YarnClusterSubmissionFromCS#fromJobSubmissionParametersFile(File)
+   * @see YarnClusterSubmissionFromCS#fromJobSubmissionParametersFile(File, File)
    */
   public static void main(final String[] args) throws InjectionException, IOException, YarnException {
     final File jobSubmissionParametersFile = new File(args[0]);
+    final File appSubmissionParametersFile = new File(args[1]);
+
+    if (!(appSubmissionParametersFile.exists() && appSubmissionParametersFile.canRead())) {
+      throw new IOException("Unable to open and read " + appSubmissionParametersFile.getAbsolutePath());
+    }
+
     if (!(jobSubmissionParametersFile.exists() && jobSubmissionParametersFile.canRead())) {
       throw new IOException("Unable to open and read " + jobSubmissionParametersFile.getAbsolutePath());
     }
 
     final YarnClusterSubmissionFromCS yarnSubmission =
-        YarnClusterSubmissionFromCS.fromJobSubmissionParametersFile(jobSubmissionParametersFile);
+        YarnClusterSubmissionFromCS.fromJobSubmissionParametersFile(
+            appSubmissionParametersFile, jobSubmissionParametersFile);
 
     LOG.log(Level.INFO, "YARN job submission received from C#: {0}", yarnSubmission);
     if (!yarnSubmission.getTokenKind().equalsIgnoreCase("NULL")) {

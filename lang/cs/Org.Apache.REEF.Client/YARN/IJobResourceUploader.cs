@@ -15,12 +15,13 @@
 // specific language governing permissions and limitations
 // under the License.
 
+using System.Collections.Generic;
 using Org.Apache.REEF.Tang.Annotations;
 
 namespace Org.Apache.REEF.Client.Yarn
 {
     [DefaultImplementation(typeof(LegacyJobResourceUploader))]
-    public interface IJobResourceUploader
+    internal interface IJobResourceUploader
     {
         /// <summary>
         /// Upload archived local driver folder to DFS destination path.
@@ -28,6 +29,6 @@ namespace Org.Apache.REEF.Client.Yarn
         /// <param name="driverLocalFolderPath">Local folder where REEF application resources are staged</param>
         /// <param name="jobSubmissionDirectory">Remote directory path where we will upload resources</param>
         /// <returns>Path, modification time and size of uploaded file as JobResource</returns>
-        JobResource UploadJobResource(string driverLocalFolderPath, string jobSubmissionDirectory);
+        ICollection<JobResource> UploadJobResource(string driverLocalFolderPath, string jobSubmissionDirectory);
     }
 }

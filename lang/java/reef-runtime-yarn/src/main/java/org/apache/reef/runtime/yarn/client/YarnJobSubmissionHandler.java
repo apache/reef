@@ -20,6 +20,7 @@ package org.apache.reef.runtime.yarn.client;
 
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.yarn.api.records.LocalResource;
+import org.apache.hadoop.yarn.api.records.LocalResourceType;
 import org.apache.hadoop.yarn.conf.YarnConfiguration;
 import org.apache.hadoop.yarn.exceptions.YarnException;
 import org.apache.reef.annotations.audience.ClientSide;
@@ -104,7 +105,8 @@ final class YarnJobSubmissionHandler implements JobSubmissionHandler {
           : this.uploader.createJobFolder(submissionHelper.getApplicationId());
       final Configuration driverConfiguration = makeDriverConfiguration(jobSubmissionEvent, jobFolderOnDfs.getPath());
       final File jobSubmissionFile = this.jobJarMaker.createJobSubmissionJAR(jobSubmissionEvent, driverConfiguration);
-      final LocalResource driverJarOnDfs = jobFolderOnDfs.uploadAsLocalResource(jobSubmissionFile);
+      final LocalResource driverJarOnDfs =
+          jobFolderOnDfs.uploadAsLocalResource(jobSubmissionFile, LocalResourceType.ARCHIVE);
 
       submissionHelper
           .addLocalResource(this.fileNames.getREEFFolderName(), driverJarOnDfs)

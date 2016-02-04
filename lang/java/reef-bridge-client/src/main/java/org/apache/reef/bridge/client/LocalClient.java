@@ -61,12 +61,19 @@ public final class LocalClient {
 
   public static void main(final String[] args) throws IOException, InjectionException {
     final File jobSubmissionParametersFile = new File(args[0]);
+    final File localAppSubmissionParametersFile = new File(args[1]);
+
     if (!(jobSubmissionParametersFile.exists() && jobSubmissionParametersFile.canRead())) {
       throw new IOException("Unable to open and read " + jobSubmissionParametersFile.getAbsolutePath());
     }
 
+    if (!(localAppSubmissionParametersFile.exists() && localAppSubmissionParametersFile.canRead())) {
+      throw new IOException("Unable to open and read " + localAppSubmissionParametersFile.getAbsolutePath());
+    }
+
     final LocalSubmissionFromCS localSubmissionFromCS =
-        LocalSubmissionFromCS.fromJobSubmissionParametersFile(jobSubmissionParametersFile);
+        LocalSubmissionFromCS.fromSubmissionParameterFiles(
+            jobSubmissionParametersFile, localAppSubmissionParametersFile);
     LOG.log(Level.INFO, "Local job submission received from C#: {0}", localSubmissionFromCS);
     final Configuration runtimeConfiguration = localSubmissionFromCS.getRuntimeConfiguration();
 
