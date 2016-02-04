@@ -34,7 +34,6 @@ import org.apache.reef.wake.EStage;
 import org.apache.reef.wake.EventHandler;
 import org.apache.reef.wake.impl.SingleThreadStage;
 
-import javax.inject.Inject;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Map;
@@ -62,7 +61,7 @@ public class OperatorTopologyImpl implements OperatorTopology {
 
   private OperatorTopologyStruct baseTopology;
   private OperatorTopologyStruct effectiveTopology;
-  private final ResettingCountDownLatch topologyLockAquired = new ResettingCountDownLatch(1);
+  private final ResettingCountDownLatch topologyLockAcquired = new ResettingCountDownLatch(1);
   private final AtomicBoolean updatingTopo = new AtomicBoolean(false);
 
   private final EventHandler<GroupCommunicationMessage> baseTopologyUpdateHandler = new BaseTopologyUpdateHandler();
@@ -79,7 +78,6 @@ public class OperatorTopologyImpl implements OperatorTopology {
       dataHandlingStageHandler,
       10000);
 
-  @Inject
   public OperatorTopologyImpl(final Class<? extends Name<String>> groupName,
                               final Class<? extends Name<String>> operName, final String selfId,
                               final String driverId, final Sender sender, final int version) {
@@ -127,8 +125,8 @@ public class OperatorTopologyImpl implements OperatorTopology {
         case UpdateTopology:
           updatingTopo.set(true);
           baseTopologyUpdateStage.onNext(msg);
-          topologyLockAquired.awaitAndReset(1);
-          LOG.finest(getQualifiedName() + "topoLockAquired CDL released. Resetting it to new CDL");
+          topologyLockAcquired.awaitAndReset(1);
+          LOG.finest(getQualifiedName() + "topoLockAcquired CDL released. Resetting it to new CDL");
           sendAckToDriver(msg);
           break;
 
@@ -329,7 +327,7 @@ public class OperatorTopologyImpl implements OperatorTopology {
             throw new ParentDeadException(getQualifiedName()
                 + "Parent dead. Current behavior is for the child to die too.");
           } else {
-            LOG.finest(getQualifiedName() + "Updating basetopology struct");
+            LOG.finest(getQualifiedName() + "Updating baseTopology struct");
             baseTopology.update(msg);
             sendAckToDriver(msg);
           }
@@ -428,7 +426,7 @@ public class OperatorTopologyImpl implements OperatorTopology {
    * Unlike Dead msgs this needs to be synchronized because data msgs are not
    * routed through the base topo changes So we need to make sure to wait for
    * updateTopo to complete and for the new effective topo to take effect. Hence
-   * updatinTopo is set to false in refreshEffTopo. Also, since this is called
+   * updatingTopo is set to false in refreshEffTopo. Also, since this is called
    * from a netty IO thread, we need to create a stage to move the msgs from
    * netty space to application space and release the netty threads. Otherwise
    * weird deadlocks can happen Ex: Sent model to k nodes using broadcast. Send
@@ -447,12 +445,12 @@ public class OperatorTopologyImpl implements OperatorTopology {
           dataMsg});
       LOG.finest(getQualifiedName() + "Waiting to acquire topoLock");
       synchronized (topologyLock) {
-        LOG.finest(getQualifiedName() + "Aqcuired topoLock");
+        LOG.finest(getQualifiedName() + "Acquired topoLock");
         while (updatingTopo.get()) {
           try {
             LOG.finest(getQualifiedName() + "Topology is being updated. Released topoLock, Waiting on topoLock");
             topologyLock.wait();
-            LOG.finest(getQualifiedName() + "Aqcuired topoLock");
+            LOG.finest(getQualifiedName() + "Acquired topoLock");
           } catch (final InterruptedException e) {
             throw new RuntimeException("InterruptedException while data handling"
                 + "stage was waiting for updatingTopo to become false", e);
@@ -480,8 +478,8 @@ public class OperatorTopologyImpl implements OperatorTopology {
       LOG.finest(getQualifiedName() + "Waiting to acquire topoLock");
       synchronized (topologyLock) {
         LOG.finest(getQualifiedName() + "Acquired topoLock");
-        LOG.finest(getQualifiedName() + "Releasing topoLoackAcquired CDL");
-        topologyLockAquired.countDown();
+        LOG.finest(getQualifiedName() + "Releasing topoLockAcquired CDL");
+        topologyLockAcquired.countDown();
         try {
           updateBaseTopology();
           LOG.finest(getQualifiedName() + "Completed updating base & effective topologies");
