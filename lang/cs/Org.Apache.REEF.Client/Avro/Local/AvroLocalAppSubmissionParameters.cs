@@ -21,14 +21,14 @@ using Org.Apache.REEF.Utilities.Attributes;
 namespace Org.Apache.REEF.Client.Avro.Local
 {
     /// <summary>
-    /// Used to serialize and deserialize Avro record org.apache.reef.reef.bridge.client.avro.AvroLocalJobSubmissionParameters.
+    /// Used to serialize and deserialize Avro record org.apache.reef.reef.bridge.client.avro.AvroLocalAppSubmissionParameters.
     /// This is a (mostly) auto-generated class. For instructions on how to regenerate, please view the README.md in the same folder.
     /// </summary>
     [Private]
     [DataContract(Namespace = "org.apache.reef.reef.bridge.client.avro")]
-    public sealed class AvroLocalJobSubmissionParameters
+    public sealed class AvroLocalAppSubmissionParameters
     {
-        private const string JsonSchema = @"{""type"":""record"",""name"":""org.apache.reef.reef.bridge.client.avro.AvroLocalJobSubmissionParameters"",""doc"":""Cross-language submission parameters to the Local runtime"",""fields"":[{""name"":""sharedJobSubmissionParameters"",""type"":{""type"":""record"",""name"":""org.apache.reef.reef.bridge.client.avro.AvroJobSubmissionParameters"",""doc"":""General cross-language submission parameters shared by all runtimes"",""fields"":[{""name"":""jobId"",""type"":""string""},{""name"":""tcpBeginPort"",""type"":""int""},{""name"":""tcpRangeCount"",""type"":""int""},{""name"":""tcpTryCount"",""type"":""int""},{""name"":""jobSubmissionFolder"",""type"":""string""}]}},{""name"":""maxNumberOfConcurrentEvaluators"",""type"":""int""}]}";
+        private const string JsonSchema = @"{""type"":""record"",""name"":""org.apache.reef.reef.bridge.client.avro.AvroLocalAppSubmissionParameters"",""doc"":""Cross-language application submission parameters to the Local runtime"",""fields"":[{""name"":""sharedAppSubmissionParameters"",""type"":{""type"":""record"",""name"":""org.apache.reef.reef.bridge.client.avro.AvroAppSubmissionParameters"",""doc"":""General cross-language application submission parameters shared by all runtimes"",""fields"":[{""name"":""tcpBeginPort"",""type"":""int""},{""name"":""tcpRangeCount"",""type"":""int""},{""name"":""tcpTryCount"",""type"":""int""}]}},{""name"":""maxNumberOfConcurrentEvaluators"",""type"":""int""}]}";
 
         /// <summary>
         /// Gets the schema.
@@ -42,10 +42,10 @@ namespace Org.Apache.REEF.Client.Avro.Local
         }
 
         /// <summary>
-        /// Gets or sets the sharedJobSubmissionParameters field.
+        /// Gets or sets the sharedAppSubmissionParameters field.
         /// </summary>
         [DataMember]
-        public AvroJobSubmissionParameters sharedJobSubmissionParameters { get; set; }
+        public AvroAppSubmissionParameters sharedAppSubmissionParameters { get; set; }
 
         /// <summary>
         /// Gets or sets the maxNumberOfConcurrentEvaluators field.
@@ -54,20 +54,20 @@ namespace Org.Apache.REEF.Client.Avro.Local
         public int maxNumberOfConcurrentEvaluators { get; set; }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="AvroLocalJobSubmissionParameters"/> class.
+        /// Initializes a new instance of the <see cref="AvroLocalAppSubmissionParameters"/> class.
         /// </summary>
-        public AvroLocalJobSubmissionParameters()
+        public AvroLocalAppSubmissionParameters()
         {
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="AvroLocalJobSubmissionParameters"/> class.
+        /// Initializes a new instance of the <see cref="AvroLocalAppSubmissionParameters"/> class.
         /// </summary>
-        /// <param name="sharedJobSubmissionParameters">The sharedJobSubmissionParameters.</param>
+        /// <param name="sharedAppSubmissionParameters">The sharedAppSubmissionParameters.</param>
         /// <param name="maxNumberOfConcurrentEvaluators">The maxNumberOfConcurrentEvaluators.</param>
-        public AvroLocalJobSubmissionParameters(AvroJobSubmissionParameters sharedJobSubmissionParameters, int maxNumberOfConcurrentEvaluators)
+        public AvroLocalAppSubmissionParameters(AvroAppSubmissionParameters sharedAppSubmissionParameters, int maxNumberOfConcurrentEvaluators)
         {
-            this.sharedJobSubmissionParameters = sharedJobSubmissionParameters;
+            this.sharedAppSubmissionParameters = sharedAppSubmissionParameters;
             this.maxNumberOfConcurrentEvaluators = maxNumberOfConcurrentEvaluators;
         }
     }

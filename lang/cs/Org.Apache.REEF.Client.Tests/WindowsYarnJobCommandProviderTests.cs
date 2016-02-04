@@ -73,8 +73,9 @@ namespace Org.Apache.REEF.Client.Tests
                                            "arn/lib/*;%HADOOP_HOME%/share/hadoop/hdfs/*;%HADOOP_HOME%/share/hadoop" +
                                            "/hdfs/lib/*;%HADOOP_HOME%/share/hadoop/mapreduce/*;%HADOOP_HOME%/share" +
                                            "/hadoop/mapreduce/lib/*;reef/local/*;reef/global/* -Dproc_reef org.apa" +
-                                           "che.reef.bridge.client.YarnBootstrapREEFLauncher reef/local/job-submis" +
-                                           "sion-params.json 1> <LOG_DIR>/driver.stdout 2> <LOG_DIR>/driver.stderr";
+                                           "che.reef.bridge.client.YarnBootstrapREEFLauncher job-submission-params" +
+                                           ".json reef/local/app-submission-params.json 1> <LOG_DIR>/driver.stdout" +
+                                           " 2> <LOG_DIR>/driver.stderr";
 
             var commandBuilder = testContext.GetCommandBuilder();
             var jobSubmissionCommand = commandBuilder.GetJobSubmissionCommand();
@@ -97,8 +98,9 @@ namespace Org.Apache.REEF.Client.Tests
                                            "/hdfs/lib/*;%HADOOP_HOME%/share/hadoop/mapreduce/*;%HADOOP_HOME%/share" +
                                            "/hadoop/mapreduce/lib/*;reef/local/*;reef/global/* -Dproc_reef -Djava." +
                                            "util.logging.config.class=org.apache.reef.util.logging.Config org.apac" +
-                                           "he.reef.bridge.client.YarnBootstrapREEFLauncher reef/local/job-submiss" +
-                                           "ion-params.json 1> <LOG_DIR>/driver.stdout 2> <LOG_DIR>/driver.stderr";
+                                           "he.reef.bridge.client.YarnBootstrapREEFLauncher job-submission-params" +
+                                           ".json reef/local/app-submission-params.json 1> <LOG_DIR>/driver.stdout" +
+                                           " 2> <LOG_DIR>/driver.stderr";
             var commandBuilder = testContext.GetCommandBuilder(true);
             var jobSubmissionCommand = commandBuilder.GetJobSubmissionCommand();
             Assert.Equal(expectedCommand, jobSubmissionCommand);
@@ -120,8 +122,9 @@ namespace Org.Apache.REEF.Client.Tests
                                                  "arn/lib/*;%HADOOP_HOME%/share/hadoop/hdfs/*;%HADOOP_HOME%/share/hadoop" +
                                                  "/hdfs/lib/*;%HADOOP_HOME%/share/hadoop/mapreduce/*;%HADOOP_HOME%/share" +
                                                  "/hadoop/mapreduce/lib/*;reef/local/*;reef/global/* -Dproc_reef org.apa" +
-                                                 "che.reef.bridge.client.YarnBootstrapREEFLauncher reef/local/job-submis" +
-                                                 "sion-params.json 1> <LOG_DIR>/driver.stdout 2> <LOG_DIR>/driver.stderr";
+                                                 "che.reef.bridge.client.YarnBootstrapREEFLauncher job-submission-params" +
+                                                 ".json reef/local/app-submission-params.json 1> <LOG_DIR>/driver.stdout" +
+                                                 " 2> <LOG_DIR>/driver.stderr";
             string expectedCommand = string.Format(expectedCommandFormat, sizeMB);
             var commandBuilder = testContext.GetCommandBuilder(maxMemAllocPoolSize: sizeMB);
             var jobSubmissionCommand = commandBuilder.GetJobSubmissionCommand();
@@ -144,8 +147,9 @@ namespace Org.Apache.REEF.Client.Tests
                                                  "arn/lib/*;%HADOOP_HOME%/share/hadoop/hdfs/*;%HADOOP_HOME%/share/hadoop" +
                                                  "/hdfs/lib/*;%HADOOP_HOME%/share/hadoop/mapreduce/*;%HADOOP_HOME%/share" +
                                                  "/hadoop/mapreduce/lib/*;reef/local/*;reef/global/* -Dproc_reef org.apa" +
-                                                 "che.reef.bridge.client.YarnBootstrapREEFLauncher reef/local/job-submis" +
-                                                 "sion-params.json 1> <LOG_DIR>/driver.stdout 2> <LOG_DIR>/driver.stderr";
+                                                 "che.reef.bridge.client.YarnBootstrapREEFLauncher job-submission-params" +
+                                                 ".json reef/local/app-submission-params.json 1> <LOG_DIR>/driver.stdout" +
+                                                 " 2> <LOG_DIR>/driver.stderr";
             string expectedCommand = string.Format(expectedCommandFormat, sizeMB);
             
             var commandBuilder = testContext.GetCommandBuilder(maxPermSize: sizeMB);

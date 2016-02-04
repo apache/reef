@@ -51,7 +51,8 @@ public final class REEFFileNames {
   private static final String BRIDGE_EXE_NAME = "Org.Apache.REEF.Bridge.exe";
   private static final String SECURITY_TOKEN_IDENTIFIER_FILE = "SecurityTokenId";
   private static final String SECURITY_TOKEN_PASSWORD_FILE = "SecurityTokenPwd";
-  private static final String YARN_BOOTSTRAP_PARAM_FILE = "yarnparameters.json";
+  private static final String YARN_BOOTSTRAP_APP_PARAM_FILE = "yarn-app-parameters.json";
+  private static final String YARN_BOOTSTRAP_JOB_PARAM_FILE = "yarn-job-parameters.json";
 
   @Inject
   public REEFFileNames() {
@@ -234,14 +235,32 @@ public final class REEFFileNames {
   }
 
   /**
-   * @return File name the contains the bootstrap parameters for YARN job submission
+   * @return File name the contains the bootstrap application parameters for YARN job submission
    * without Java dependency.
    */
-  public String getYarnBootstrapParamFile() {
-    return YARN_BOOTSTRAP_PARAM_FILE;
+  public String getYarnBootstrapAppParamFile() {
+    return YARN_BOOTSTRAP_APP_PARAM_FILE;
   }
 
-  public String getYarnBootstrapParamFilePath() {
-    return LOCAL_FOLDER_PATH + '/' + getYarnBootstrapParamFile();
+  /**
+   * @return File name the contains the bootstrap job parameters for YARN job submission
+   * without Java dependency.
+   */
+  public String getYarnBootstrapJobParamFile() {
+    return YARN_BOOTSTRAP_JOB_PARAM_FILE;
+  }
+
+  /**
+   * @return Path to the bootstrap application parameters file for YARN job submission without Java dependency.
+   */
+  public String getYarnBootstrapAppParamFilePath() {
+    return LOCAL_FOLDER_PATH + '/' + getYarnBootstrapAppParamFile();
+  }
+
+  /**
+   * @return Path to the bootstrap job parameters file for YARN job submission without Java dependency.
+   */
+  public String getYarnBootstrapJobParamFilePath() {
+    return getYarnBootstrapJobParamFile();
   }
 }

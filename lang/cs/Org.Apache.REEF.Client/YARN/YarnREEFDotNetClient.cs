@@ -16,24 +16,21 @@
 // under the License.
 
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Org.Apache.REEF.Client.API;
-using Org.Apache.REEF.Client.Avro;
-using Org.Apache.REEF.Client.Avro.YARN;
 using Org.Apache.REEF.Client.Common;
 using Org.Apache.REEF.Client.Yarn;
 using Org.Apache.REEF.Client.Yarn.RestClient;
 using Org.Apache.REEF.Client.YARN.RestClient.DataModel;
-using Org.Apache.REEF.Common.Avro;
 using Org.Apache.REEF.Common.Files;
 using Org.Apache.REEF.Driver.Bridge;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Utilities.Attributes;
 using Org.Apache.REEF.Utilities.Logging;
-using Org.Apache.REEF.Wake.Remote.Parameters;
 
 namespace Org.Apache.REEF.Client.YARN
 {
@@ -53,6 +50,7 @@ namespace Org.Apache.REEF.Client.YARN
         private readonly IYarnJobCommandProvider _yarnJobCommandProvider;
         private readonly REEFFileNames _fileNames;
         private readonly IJobSubmissionDirectoryProvider _jobSubmissionDirectoryProvider;
+        private readonly YarnREEFDotNetParamSerializer _paramSerializer;
 
         [Inject]
         private YarnREEFDotNetClient(
@@ -61,7 +59,8 @@ namespace Org.Apache.REEF.Client.YARN
             IJobResourceUploader jobResourceUploader,
             IYarnJobCommandProvider yarnJobCommandProvider,
             REEFFileNames fileNames,
-            IJobSubmissionDirectoryProvider jobSubmissionDirectoryProvider)
+            IJobSubmissionDirectoryProvider jobSubmissionDirectoryProvider,
+            YarnREEFDotNetParamSerializer paramSerializer)
         {
             _jobSubmissionDirectoryProvider = jobSubmissionDirectoryProvider;
             _fileNames = fileNames;
@@ -69,6 +68,7 @@ namespace Org.Apache.REEF.Client.YARN
             _jobResourceUploader = jobResourceUploader;
             _driverFolderPreparationHelper = driverFolderPreparationHelper;
             _yarnRMClient = yarnRMClient;
+            _paramSerializer = paramSerializer;
         }
 
         public void Submit(IJobSubmission jobSubmission)
@@ -94,40 +94,21 @@ namespace Org.Apache.REEF.Client.YARN
 
                 // prepare configuration
                 var paramInjector = TangFactory.GetTang().NewInjector(jobSubmission.DriverConfigurations.ToArray());
-                int maxApplicationSubmissions =
+                var maxApplicationSubmissions = 
                     paramInjector.GetNamedInstance<DriverBridgeConfigurationOptions.MaxApplicationSubmissions, int>();
 
-                var avroJobSubmissionParameters = new AvroJobSubmissionParameters
-                {
-                    jobId = jobSubmission.JobIdentifier,
-                    tcpBeginPort = paramInjector.GetNamedInstance<TcpPortRangeStart, int>(),
-                    tcpRangeCount = paramInjector.GetNamedInstance<TcpPortRangeCount, int>(),
-                    tcpTryCount = paramInjector.GetNamedInstance<TcpPortRangeTryCount, int>(),
-                    jobSubmissionFolder = localDriverFolderPath
-                };
+                _paramSerializer.SerializeAppFile(jobSubmission, paramInjector, localDriverFolderPath);
+                _paramSerializer.SerializeJobFile(jobSubmission, localDriverFolderPath, jobSubmissionDirectory);
 
-                var avroYarnJobSubmissionParameters = new AvroYarnJobSubmissionParameters
-                {
-                    driverMemory = jobSubmission.DriverMemory,
-                    driverRecoveryTimeout =
-                        paramInjector.GetNamedInstance<DriverBridgeConfigurationOptions.DriverRestartEvaluatorRecoverySeconds, int>(),
-                    jobSubmissionDirectoryPrefix = jobSubmissionDirectory,
-                    dfsJobSubmissionFolder = jobSubmissionDirectory,
-                    sharedJobSubmissionParameters = avroJobSubmissionParameters
-                };
+                var archiveResource = _jobResourceUploader.UploadArchiveResource(localDriverFolderPath, jobSubmissionDirectory);
 
-                var submissionArgsFilePath = Path.Combine(localDriverFolderPath,
-                    _fileNames.GetLocalFolderPath(),
-                    _fileNames.GetJobSubmissionParametersFile());
-                using (var argsFileStream = new FileStream(submissionArgsFilePath, FileMode.CreateNew))
-                {
-                    var serializedArgs =
-                        AvroJsonSerializer<AvroYarnJobSubmissionParameters>.ToBytes(avroYarnJobSubmissionParameters);
-                    argsFileStream.Write(serializedArgs, 0, serializedArgs.Length);
-                }
+                // Path to the job args file.
+                var jobArgsFilePath = Path.Combine(localDriverFolderPath, _fileNames.GetJobSubmissionParametersFile());
+
+                var argFileResource = _jobResourceUploader.UploadFileResource(jobArgsFilePath, jobSubmissionDirectory);
 
                 // upload prepared folder to DFS
-                var jobResource = _jobResourceUploader.UploadJobResource(localDriverFolderPath, jobSubmissionDirectory);
+                var jobResources = new List<JobResource> { archiveResource, argFileResource };
 
                 // submit job
                 Log.Log(Level.Verbose, @"Assigned application id {0}", applicationId);
@@ -135,7 +116,7 @@ namespace Org.Apache.REEF.Client.YARN
                 var submissionReq = CreateApplicationSubmissionRequest(jobSubmission,
                     applicationId,
                     maxApplicationSubmissions,
-                    jobResource);
+                    jobResources);
                 var submittedApplication = _yarnRMClient.SubmitApplicationAsync(submissionReq).GetAwaiter().GetResult();
                 Log.Log(Level.Info, @"Submitted application {0}", submittedApplication.Id);
             }
@@ -163,13 +144,16 @@ namespace Org.Apache.REEF.Client.YARN
            IJobSubmission jobSubmission,
            string appId,
            int maxApplicationSubmissions,
-           JobResource jobResource)
+           IReadOnlyCollection<JobResource> jobResources)
         {
             string command = _yarnJobCommandProvider.GetJobSubmissionCommand();
             Log.Log(Level.Verbose, "Command for YARN: {0}", command);
             Log.Log(Level.Verbose, "ApplicationID: {0}", appId);
             Log.Log(Level.Verbose, "MaxApplicationSubmissions: {0}", maxApplicationSubmissions);
-            Log.Log(Level.Verbose, "Driver archive location: {0}", jobResource.RemoteUploadPath);
+            foreach (var jobResource in jobResources)
+            {
+                Log.Log(Level.Verbose, "Remote file: {0}", jobResource.RemoteUploadPath);
+            }
 
             var submitApplication = new SubmitApplication
             {
@@ -188,24 +172,7 @@ namespace Org.Apache.REEF.Client.YARN
                 UnmanagedAM = false,
                 AmContainerSpec = new AmContainerSpec
                 {
-                    LocalResources = new LocalResources
-                    {
-                        Entries = new[]
-                        {
-                            new KeyValuePair<string, LocalResourcesValue>
-                            {
-                                Key = _fileNames.GetReefFolderName(),
-                                Value = new LocalResourcesValue
-                                {
-                                    Resource = jobResource.RemoteUploadPath,
-                                    Type = ResourceType.ARCHIVE,
-                                    Visibility = Visibility.APPLICATION,
-                                    Size = jobResource.ResourceSize,
-                                    Timestamp = jobResource.LastModificationUnixTimestamp
-                                }
-                            }
-                        }
-                    },
+                    LocalResources = CreateLocalResources(jobResources),
                     Commands = new Commands
                     {
                         Command = command
@@ -216,11 +183,30 @@ namespace Org.Apache.REEF.Client.YARN
             return submitApplication;
         }
 
+        private static LocalResources CreateLocalResources(IEnumerable<JobResource> jobResources)
+        {
+            return new LocalResources
+            {
+                Entries = jobResources.Select(jobResource => new RestClient.DataModel.KeyValuePair<string, LocalResourcesValue>
+                {
+                    Key = jobResource.Name,
+                    Value = new LocalResourcesValue
+                    {
+                        Resource = jobResource.RemoteUploadPath,
+                        Type = jobResource.ResourceType,
+                        Visibility = Visibility.APPLICATION,
+                        Size = jobResource.ResourceSize,
+                        Timestamp = jobResource.LastModificationUnixTimestamp
+                    }
+                }).ToArray()
+            };
+        }
+
         /// <summary>
         /// Creates the temporary directory to hold the job submission.
         /// </summary>
         /// <returns>The path to the folder created.</returns>
-        private string CreateDriverFolder(string jobId, string appId)
+        private static string CreateDriverFolder(string jobId, string appId)
         {
             return Path.GetFullPath(Path.Combine(Path.GetTempPath(), string.Join("-", "reef", jobId, appId)));
         }

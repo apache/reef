@@ -88,18 +88,18 @@ public final class JobFolder {
    * @return
    * @throws IOException
    */
-  public LocalResource uploadAsLocalResource(final File localFile) throws IOException {
+  public LocalResource uploadAsLocalResource(final File localFile, final LocalResourceType type) throws IOException {
     final Path p = upload(localFile);
-    return getLocalResourceForPath(p);
+    return getLocalResourceForPath(p, type);
   }
 
   /**
    * Creates a LocalResource instance for the JAR file referenced by the given Path.
    */
-  public LocalResource getLocalResourceForPath(final Path jarPath) throws IOException {
+  public LocalResource getLocalResourceForPath(final Path jarPath, final LocalResourceType type) throws IOException {
     final LocalResource localResource = Records.newRecord(LocalResource.class);
     final FileStatus status = FileContext.getFileContext(fileSystem.getUri()).getFileStatus(jarPath);
-    localResource.setType(LocalResourceType.ARCHIVE);
+    localResource.setType(type);
     localResource.setVisibility(LocalResourceVisibility.APPLICATION);
     localResource.setResource(ConverterUtils.getYarnUrlFromPath(status.getPath()));
     localResource.setTimestamp(status.getModificationTime());

@@ -20,6 +20,7 @@ package org.apache.reef.runtime.common.launch;
 
 import org.junit.Test;
 
+import java.util.Collections;
 import java.util.List;
 
 import static org.apache.reef.runtime.common.launch.JavaLaunchCommandBuilder.JVMOption;
@@ -167,6 +168,7 @@ public final class JavaLaunchCommandBuilderTest {
   }
 
   private static JavaLaunchCommandBuilder newBuilder() {
-    return new JavaLaunchCommandBuilder().setConfigurationFileName("mockConfigurationFileName");
+    return new JavaLaunchCommandBuilder()
+        .setConfigurationFilePaths(Collections.singletonList("mockConfigurationFileName"));
   }
 }

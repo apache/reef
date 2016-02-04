@@ -28,7 +28,7 @@ namespace Org.Apache.REEF.Client.Avro.YARN
     [DataContract(Namespace = "org.apache.reef.reef.bridge.client.avro")]
     public sealed class AvroYarnJobSubmissionParameters
     {
-        private const string JsonSchema = @"{""type"":""record"",""name"":""org.apache.reef.reef.bridge.client.avro.AvroYarnJobSubmissionParameters"",""doc"":""General cross-language submission parameters to the YARN runtime"",""fields"":[{""name"":""sharedJobSubmissionParameters"",""type"":{""type"":""record"",""name"":""org.apache.reef.reef.bridge.client.avro.AvroJobSubmissionParameters"",""doc"":""General cross-language submission parameters shared by all runtimes"",""fields"":[{""name"":""jobId"",""type"":""string""},{""name"":""tcpBeginPort"",""type"":""int""},{""name"":""tcpRangeCount"",""type"":""int""},{""name"":""tcpTryCount"",""type"":""int""},{""name"":""jobSubmissionFolder"",""type"":""string""}]}},{""name"":""driverMemory"",""type"":""int""},{""name"":""driverRecoveryTimeout"",""type"":""int""},{""name"":""dfsJobSubmissionFolder"",""type"":""string""},{""name"":""jobSubmissionDirectoryPrefix"",""type"":""string""}]}";
+        private const string JsonSchema = @"{""type"":""record"",""name"":""org.apache.reef.reef.bridge.client.avro.AvroYarnJobSubmissionParameters"",""doc"":""General cross-language submission parameters to the YARN runtime"",""fields"":[{""name"":""sharedJobSubmissionParameters"",""type"":{""type"":""record"",""name"":""org.apache.reef.reef.bridge.client.avro.AvroJobSubmissionParameters"",""doc"":""General cross-language job submission parameters shared by all runtimes"",""fields"":[{""name"":""jobId"",""type"":""string""},{""name"":""jobSubmissionFolder"",""type"":""string""}]}},{""name"":""dfsJobSubmissionFolder"",""type"":""string""},{""name"":""jobSubmissionDirectoryPrefix"",""type"":""string""}]}";
 
         /// <summary>
         /// Gets the schema.
@@ -46,18 +46,6 @@ namespace Org.Apache.REEF.Client.Avro.YARN
         /// </summary>
         [DataMember]
         public AvroJobSubmissionParameters sharedJobSubmissionParameters { get; set; }
-
-        /// <summary>
-        /// Gets or sets the driverMemory field.
-        /// </summary>
-        [DataMember]
-        public int driverMemory { get; set; }
-
-        /// <summary>
-        /// Gets or sets the driverRecoveryTimeout field.
-        /// </summary>
-        [DataMember]
-        public int driverRecoveryTimeout { get; set; }
 
         /// <summary>
         /// Gets or sets the dfsJobSubmissionFolder field.
@@ -83,15 +71,11 @@ namespace Org.Apache.REEF.Client.Avro.YARN
         /// Initializes a new instance of the <see cref="AvroYarnJobSubmissionParameters"/> class.
         /// </summary>
         /// <param name="sharedJobSubmissionParameters">The sharedJobSubmissionParameters.</param>
-        /// <param name="driverMemory">The driverMemory.</param>
-        /// <param name="driverRecoveryTimeout">The driverRecoveryTimeout.</param>
         /// <param name="dfsJobSubmissionFolder">The dfsJobSubmissionFolder.</param>
         /// <param name="jobSubmissionDirectoryPrefix">The jobSubmissionDirectoryPrefix.</param>
-        public AvroYarnJobSubmissionParameters(AvroJobSubmissionParameters sharedJobSubmissionParameters, int driverMemory, int driverRecoveryTimeout, string dfsJobSubmissionFolder, string jobSubmissionDirectoryPrefix)
+        public AvroYarnJobSubmissionParameters(AvroJobSubmissionParameters sharedJobSubmissionParameters, string dfsJobSubmissionFolder, string jobSubmissionDirectoryPrefix)
         {
             this.sharedJobSubmissionParameters = sharedJobSubmissionParameters;
-            this.driverMemory = driverMemory;
-            this.driverRecoveryTimeout = driverRecoveryTimeout;
             this.dfsJobSubmissionFolder = dfsJobSubmissionFolder;
             this.jobSubmissionDirectoryPrefix = jobSubmissionDirectoryPrefix;
         }

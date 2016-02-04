@@ -41,9 +41,20 @@ public final class YarnBootstrapREEFLauncher {
   public static void main(final String[] args) throws IOException, InjectionException {
     LOG.log(Level.INFO, "Entering BootstrapLauncher.main().");
 
-    if (args.length != 1) {
-      final String message = "Bootstrap launcher should have a single configuration file input specifying the" +
-          " job submission parameters to be deserialized to create the YarnDriverConfiguration on the fly.";
+    if (args.length != 2) {
+      final StringBuilder sb = new StringBuilder();
+      sb.append("[ ");
+      for (String arg : args) {
+        sb.append(arg);
+        sb.append(" ");
+      }
+
+      sb.append("]");
+
+      final String message = "Bootstrap launcher should have two configuration file inputs, one specifying the" +
+          " application submission parameters to be deserialized and the other specifying the job" +
+          " submission parameters to be deserialized to create the YarnDriverConfiguration on the fly." +
+          " Current args are " + sb.toString();
 
       throw fatal(message, new IllegalArgumentException(message));
     }
@@ -51,7 +62,7 @@ public final class YarnBootstrapREEFLauncher {
     try {
       final YarnBootstrapDriverConfigGenerator yarnDriverConfigurationGenerator =
           Tang.Factory.getTang().newInjector().getInstance(YarnBootstrapDriverConfigGenerator.class);
-      REEFLauncher.main(new String[]{yarnDriverConfigurationGenerator.writeDriverConfigurationFile(args[0])});
+      REEFLauncher.main(new String[]{yarnDriverConfigurationGenerator.writeDriverConfigurationFile(args[0], args[1])});
     } catch (final Exception exception) {
       if (!(exception instanceof RuntimeException)) {
         throw fatal("Failed to initialize configurations.", exception);

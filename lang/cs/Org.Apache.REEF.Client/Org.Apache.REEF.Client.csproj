@@ -69,8 +69,11 @@ under the License.
     <Compile Include="API\JobSubmissionBuilder.cs" />
     <Compile Include="API\JobSubmissionBuilderFactory.cs" />
     <Compile Include="API\TcpPortConfigurationModule.cs" />
+    <Compile Include="Avro\AvroAppSubmissionParameters.cs" />
     <Compile Include="Avro\AvroJobSubmissionParameters.cs" />
-    <Compile Include="Avro\Local\AvroLocalJobSubmissionParameters.cs" />
+    <Compile Include="Avro\Local\AvroLocalAppSubmissionParameters.cs" />
+    <Compile Include="Avro\YARN\AvroClusterAppSubmissionParameters.cs" />
+    <Compile Include="Avro\YARN\AvroYarnAppSubmissionParameters.cs" />
     <Compile Include="Avro\YARN\AvroYarnJobSubmissionParameters.cs" />
     <Compile Include="Avro\YARN\AvroYarnClusterJobSubmissionParameters.cs" />
     <Compile Include="Common\DotNetFile.cs" />
@@ -158,6 +161,8 @@ under the License.
     <Compile Include="YARN\YARNClientConfiguration.cs" />
     <Compile Include="YARN\YarnCommandLineEnvironment.cs" />
     <Compile Include="YARN\YarnREEFDotNetClient.cs" />
+    <Compile Include="YARN\YarnREEFDotNetParamSerializer.cs" />
+    <Compile Include="YARN\YarnREEFParamSerializer.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Avro\README.md" />

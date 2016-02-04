@@ -28,6 +28,7 @@ import org.apache.reef.tang.annotations.Parameter;
 
 import javax.inject.Inject;
 import java.io.File;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.logging.Level;
@@ -91,7 +92,7 @@ public class PreparedDriverFolderLauncher {
   private List<String> makeLaunchCommand(final String jobId, final String clientRemoteId) {
 
     final List<String> command = new JavaLaunchCommandBuilder(commandPrefixList)
-        .setConfigurationFileName(this.fileNames.getDriverConfigurationPath())
+        .setConfigurationFilePaths(Collections.singletonList(this.fileNames.getDriverConfigurationPath()))
         .setClassPath(this.classpath.getDriverClasspath())
         .setMemory(DRIVER_MEMORY)
         .build();

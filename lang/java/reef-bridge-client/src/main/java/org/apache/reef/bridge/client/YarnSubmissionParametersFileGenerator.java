@@ -22,6 +22,7 @@ import org.apache.avro.io.DatumWriter;
 import org.apache.avro.io.EncoderFactory;
 import org.apache.avro.io.JsonEncoder;
 import org.apache.avro.specific.SpecificDatumWriter;
+import org.apache.reef.reef.bridge.client.avro.AvroYarnAppSubmissionParameters;
 import org.apache.reef.reef.bridge.client.avro.AvroYarnJobSubmissionParameters;
 import org.apache.reef.runtime.common.files.REEFFileNames;
 import org.apache.reef.runtime.yarn.client.uploader.JobFolder;
@@ -36,12 +37,12 @@ import java.util.logging.Logger;
 /**
  * Does client side manipulation of driver configuration for YARN runtime.
  */
-final class YarnJobSubmissionParametersFileGenerator {
-  private static final Logger LOG = Logger.getLogger(YarnJobSubmissionParametersFileGenerator.class.getName());
+final class YarnSubmissionParametersFileGenerator {
+  private static final Logger LOG = Logger.getLogger(YarnSubmissionParametersFileGenerator.class.getName());
   private final REEFFileNames fileNames;
 
   @Inject
-  private YarnJobSubmissionParametersFileGenerator(final REEFFileNames fileNames) {
+  private YarnSubmissionParametersFileGenerator(final REEFFileNames fileNames) {
     this.fileNames = fileNames;
   }
 
@@ -53,14 +54,34 @@ final class YarnJobSubmissionParametersFileGenerator {
    */
   public void writeConfiguration(final YarnClusterSubmissionFromCS yarnClusterSubmissionFromCS,
                                  final JobFolder jobFolderOnDFS) throws IOException {
-    final File yarnParametersFile = new File(yarnClusterSubmissionFromCS.getDriverFolder(),
-        fileNames.getYarnBootstrapParamFilePath());
+    final File yarnAppParametersFile = new File(yarnClusterSubmissionFromCS.getDriverFolder(),
+        fileNames.getYarnBootstrapAppParamFilePath());
 
-    try (final FileOutputStream fileOutputStream = new FileOutputStream(yarnParametersFile)) {
-      // this is mainly a test hook.
-      writeAvroYarnJobSubmissionParametersToOutputStream(
-          yarnClusterSubmissionFromCS, jobFolderOnDFS.getPath().toString(), fileOutputStream);
+    final File yarnJobParametersFile = new File(yarnClusterSubmissionFromCS.getDriverFolder(),
+        fileNames.getYarnBootstrapJobParamFilePath());
+
+    try (final FileOutputStream appFileOutputStream = new FileOutputStream(yarnAppParametersFile)) {
+      try (final FileOutputStream jobFileOutputStream = new FileOutputStream(yarnJobParametersFile)) {
+        // this is mainly a test hook.
+        writeAvroYarnAppSubmissionParametersToOutputStream(yarnClusterSubmissionFromCS, appFileOutputStream);
+        writeAvroYarnJobSubmissionParametersToOutputStream(
+            yarnClusterSubmissionFromCS, jobFolderOnDFS.getPath().toString(), jobFileOutputStream);
+      }
     }
+  }
+
+  static void writeAvroYarnAppSubmissionParametersToOutputStream(
+      final YarnClusterSubmissionFromCS yarnClusterSubmissionFromCS,
+      final OutputStream outputStream) throws IOException {
+    final DatumWriter<AvroYarnAppSubmissionParameters> datumWriter =
+        new SpecificDatumWriter<>(AvroYarnAppSubmissionParameters.class);
+
+    final AvroYarnAppSubmissionParameters appSubmissionParameters =
+        yarnClusterSubmissionFromCS.getYarnAppSubmissionParameters();
+    final JsonEncoder encoder = EncoderFactory.get().jsonEncoder(appSubmissionParameters.getSchema(), outputStream);
+    datumWriter.write(appSubmissionParameters, encoder);
+    encoder.flush();
+    outputStream.flush();
   }
 
   static void writeAvroYarnJobSubmissionParametersToOutputStream(

@@ -19,6 +19,7 @@
 package org.apache.reef.runtime.common.launch;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.reef.util.Optional;
 
 import java.io.File;
 import java.util.LinkedList;
@@ -33,11 +34,10 @@ public class CLRLaunchCommandBuilder implements LaunchCommandBuilder {
   private static final Logger LOG = Logger.getLogger(CLRLaunchCommandBuilder.class.getName());
   private static final String EVALUATOR_PATH = "reef/global/Org.Apache.Reef.Evaluator.exe";
 
-
   private String standardErrPath = null;
   private String standardOutPath = null;
   private int megaBytes = 0;
-  private String evaluatorConfigurationPath = null;
+  private Optional<List<String>> evaluatorConfigurationPaths = Optional.empty();
 
   @Override
   public List<String> build() {
@@ -47,7 +47,11 @@ public class CLRLaunchCommandBuilder implements LaunchCommandBuilder {
       LOG.log(Level.WARNING, "file can NOT be found: {0}", f.getAbsolutePath());
     }
     result.add(f.getPath());
-    result.add(evaluatorConfigurationPath);
+    if (evaluatorConfigurationPaths.isPresent()) {
+      for (final String evaluatorConfigurationPath : evaluatorConfigurationPaths.get()) {
+        result.add(evaluatorConfigurationPath);
+      }
+    }
     if (null != this.standardOutPath && !standardOutPath.isEmpty()) {
       result.add(">" + this.standardOutPath);
     }
@@ -66,8 +70,8 @@ public class CLRLaunchCommandBuilder implements LaunchCommandBuilder {
   }
 
   @Override
-  public CLRLaunchCommandBuilder setConfigurationFileName(final String configurationFileName) {
-    this.evaluatorConfigurationPath = configurationFileName;
+  public CLRLaunchCommandBuilder setConfigurationFilePaths(final List<String> configurationFilePaths) {
+    this.evaluatorConfigurationPaths = Optional.of(configurationFilePaths);
     return this;
   }
 

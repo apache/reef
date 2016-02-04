@@ -23,11 +23,19 @@ namespace Org.Apache.REEF.Client.Yarn
     public interface IJobResourceUploader
     {
         /// <summary>
-        /// Upload archived local driver folder to DFS destination path.
+        /// Creates the archive from local driver folder and uploads it to DFS destination path.
         /// </summary>
         /// <param name="driverLocalFolderPath">Local folder where REEF application resources are staged</param>
-        /// <param name="jobSubmissionDirectory">Remote directory path where we will upload resources</param>
+        /// <param name="remoteUploadDirectoryPath">Remote directory path where we will upload resources</param>
         /// <returns>Path, modification time and size of uploaded file as JobResource</returns>
-        JobResource UploadJobResource(string driverLocalFolderPath, string jobSubmissionDirectory);
+        JobResource UploadArchiveResource(string driverLocalFolderPath, string remoteUploadDirectoryPath);
+
+        /// <summary>
+        /// Locates a file resource and uploads it to DFS destination path.
+        /// </summary>
+        /// <param name="fileLocalPath">file path</param>
+        /// <param name="remoteUploadDirectoryPath">Remote directory path where we will upload resources</param>
+        /// <returns>Path, modification time and size of uploaded file as JobResource</returns>
+        JobResource UploadFileResource(string fileLocalPath, string remoteUploadDirectoryPath);
     }
 }

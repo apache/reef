@@ -28,7 +28,7 @@ namespace Org.Apache.REEF.Client.Avro
     [DataContract(Namespace = "org.apache.reef.reef.bridge.client.avro")]
     public sealed class AvroJobSubmissionParameters
     {
-        private const string JsonSchema = @"{""type"":""record"",""name"":""org.apache.reef.reef.bridge.client.avro.AvroJobSubmissionParameters"",""doc"":""General cross-language submission parameters shared by all runtimes"",""fields"":[{""name"":""jobId"",""type"":""string""},{""name"":""tcpBeginPort"",""type"":""int""},{""name"":""tcpRangeCount"",""type"":""int""},{""name"":""tcpTryCount"",""type"":""int""},{""name"":""jobSubmissionFolder"",""type"":""string""}]}";
+        private const string JsonSchema = @"{""type"":""record"",""name"":""org.apache.reef.reef.bridge.client.avro.AvroJobSubmissionParameters"",""doc"":""General cross-language job submission parameters shared by all runtimes"",""fields"":[{""name"":""jobId"",""type"":""string""},{""name"":""jobSubmissionFolder"",""type"":""string""}]}";
 
         /// <summary>
         /// Gets the schema.
@@ -48,24 +48,6 @@ namespace Org.Apache.REEF.Client.Avro
         public string jobId { get; set; }
 
         /// <summary>
-        /// Gets or sets the tcpBeginPort field.
-        /// </summary>
-        [DataMember]
-        public int tcpBeginPort { get; set; }
-
-        /// <summary>
-        /// Gets or sets the tcpRangeCount field.
-        /// </summary>
-        [DataMember]
-        public int tcpRangeCount { get; set; }
-
-        /// <summary>
-        /// Gets or sets the tcpTryCount field.
-        /// </summary>
-        [DataMember]
-        public int tcpTryCount { get; set; }
-
-        /// <summary>
         /// Gets or sets the jobSubmissionFolder field.
         /// </summary>
         [DataMember]
@@ -82,16 +64,10 @@ namespace Org.Apache.REEF.Client.Avro
         /// Initializes a new instance of the <see cref="AvroJobSubmissionParameters"/> class.
         /// </summary>
         /// <param name="jobId">The jobId.</param>
-        /// <param name="tcpBeginPort">The tcpBeginPort.</param>
-        /// <param name="tcpRangeCount">The tcpRangeCount.</param>
-        /// <param name="tcpTryCount">The tcpTryCount.</param>
         /// <param name="jobSubmissionFolder">The jobSubmissionFolder.</param>
-        public AvroJobSubmissionParameters(string jobId, int tcpBeginPort, int tcpRangeCount, int tcpTryCount, string jobSubmissionFolder)
+        public AvroJobSubmissionParameters(string jobId, string jobSubmissionFolder)
         {
             this.jobId = jobId;
-            this.tcpBeginPort = tcpBeginPort;
-            this.tcpRangeCount = tcpRangeCount;
-            this.tcpTryCount = tcpTryCount;
             this.jobSubmissionFolder = jobSubmissionFolder;
         }
     }

@@ -20,6 +20,7 @@ package org.apache.reef.driver.evaluator;
 
 import org.apache.reef.runtime.common.launch.CLRLaunchCommandBuilder;
 
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -60,7 +61,7 @@ public final class CLRProcess implements EvaluatorProcess {
 
   @Override
   public CLRProcess setConfigurationFileName(final String configurationFileName) {
-    commandBuilder.setConfigurationFileName(configurationFileName);
+    commandBuilder.setConfigurationFilePaths(Collections.singletonList(configurationFileName));
     return this;
   }
 

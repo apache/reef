@@ -16,11 +16,15 @@
 // under the License.
 
 using System;
+using System.Collections.Generic;
 using System.IO;
 using Org.Apache.REEF.Client.Common;
 using Org.Apache.REEF.Client.Yarn;
+using Org.Apache.REEF.Client.YARN.RestClient.DataModel;
+using Org.Apache.REEF.Common.Files;
 using Org.Apache.REEF.IO.FileSystem;
 using Org.Apache.REEF.Tang.Annotations;
+using Org.Apache.REEF.Utilities.Diagnostics;
 using Org.Apache.REEF.Utilities.Logging;
 
 namespace Org.Apache.REEF.Client.YARN.RestClient
@@ -36,41 +40,72 @@ namespace Org.Apache.REEF.Client.YARN.RestClient
         private static readonly DateTime Epoch = new DateTime(1970, 1, 1, 0, 0, 0, 0);
         private readonly IResourceArchiveFileGenerator _resourceArchiveFileGenerator;
         private readonly IFileSystem _fileSystem;
+        private readonly REEFFileNames _reefFileNames;
+        private readonly IFile _file;
 
         [Inject]
         private FileSystemJobResourceUploader(
             IResourceArchiveFileGenerator resourceArchiveFileGenerator,
-            IFileSystem fileSystem)
+            IFileSystem fileSystem,
+            REEFFileNames reefFileNames,
+            IFile file)
         {
             _fileSystem = fileSystem;
             _resourceArchiveFileGenerator = resourceArchiveFileGenerator;
+            _reefFileNames = reefFileNames;
+            _file = file;
         }
 
-        public JobResource UploadJobResource(string driverLocalFolderPath, string jobSubmissionDirectory)
+        public JobResource UploadArchiveResource(string driverLocalFolderPath, string remoteUploadDirectoryPath)
         {
             driverLocalFolderPath = driverLocalFolderPath.TrimEnd('\\') + @"\";
-            var driverUploadPath = jobSubmissionDirectory.TrimEnd('/') + @"/";
+            var driverUploadPath = remoteUploadDirectoryPath.TrimEnd('/') + @"/";
+            var parentDirectoryUri = _fileSystem.CreateUriForPath(remoteUploadDirectoryPath);
             Log.Log(Level.Verbose, "DriverFolderPath: {0} DriverUploadPath: {1}", driverLocalFolderPath, driverUploadPath);
-            var archivePath = _resourceArchiveFileGenerator.CreateArchiveToUpload(driverLocalFolderPath);
-
-            var destinationPath = driverUploadPath + Path.GetFileName(archivePath);
-            var remoteFileUri = _fileSystem.CreateUriForPath(destinationPath);
-            Log.Log(Level.Verbose, @"Copy {0} to {1}", archivePath, remoteFileUri);
-
-            var parentDirectoryUri = _fileSystem.CreateUriForPath(driverUploadPath);
+            
             _fileSystem.CreateDirectory(parentDirectoryUri);
-            _fileSystem.CopyFromLocal(archivePath, remoteFileUri);
+
+            var archivePath = _resourceArchiveFileGenerator.CreateArchiveToUpload(driverLocalFolderPath);
+            return GetJobResource(archivePath, ResourceType.ARCHIVE, driverUploadPath);
+        }
+
+        public JobResource UploadFileResource(string fileLocalPath, string remoteUploadDirectoryPath)
+        {
+            var driverUploadPath = remoteUploadDirectoryPath.TrimEnd('/') + @"/";
+            var parentDirectoryUri = _fileSystem.CreateUriForPath(driverUploadPath);
+
+            _fileSystem.CreateDirectory(parentDirectoryUri);
+            return GetJobResource(fileLocalPath, ResourceType.FILE, remoteUploadDirectoryPath);
+        }
+
+        private JobResource GetJobResource(string filePath, ResourceType resourceType, string driverUploadPath)
+        {
+            if (!_file.Exists(filePath))
+            {
+                Exceptions.Throw(
+                    new FileNotFoundException("Could not find resource file " + filePath),
+                    Log);
+            }
+
+            var destinationPath = driverUploadPath + Path.GetFileName(filePath);
+            var remoteFileUri = _fileSystem.CreateUriForPath(destinationPath);
+
+            Log.Log(Level.Verbose, @"Copy {0} to {1}", filePath, remoteFileUri);
+
+            _fileSystem.CopyFromLocal(filePath, remoteFileUri);
             var fileStatus = _fileSystem.GetFileStatus(remoteFileUri);
 
             return new JobResource
             {
+                Name = Path.GetFileNameWithoutExtension(filePath),
                 LastModificationUnixTimestamp = DateTimeToUnixTimestamp(fileStatus.ModificationTime),
                 RemoteUploadPath = remoteFileUri.AbsoluteUri,
-                ResourceSize = fileStatus.LengthBytes
+                ResourceSize = fileStatus.LengthBytes,
+                ResourceType = resourceType
             };
         }
 
-        private long DateTimeToUnixTimestamp(DateTime dateTime)
+        private static long DateTimeToUnixTimestamp(DateTime dateTime)
         {
             return (long)(dateTime - Epoch).TotalSeconds;
         }

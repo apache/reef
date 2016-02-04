@@ -18,7 +18,9 @@
  */
 package org.apache.reef.bridge.client;
 
+import org.apache.reef.reef.bridge.client.avro.AvroAppSubmissionParameters;
 import org.apache.reef.reef.bridge.client.avro.AvroJobSubmissionParameters;
+import org.apache.reef.reef.bridge.client.avro.AvroYarnAppSubmissionParameters;
 import org.apache.reef.reef.bridge.client.avro.AvroYarnJobSubmissionParameters;
 import org.apache.reef.runtime.common.driver.parameters.JobIdentifier;
 import org.apache.reef.runtime.yarn.driver.parameters.JobSubmissionDirectory;
@@ -45,28 +47,40 @@ public final class TestAvroJobSubmissionParametersSerializationFromCS {
   private static final String STRING_REP = "HelloREEF";
   private static final String STRING_REP_QUOTED = "\"" + STRING_REP + "\"";
   private static final long NUMBER_REP = 12345;
-  private static final String AVRO_YARN_PARAMETERS_SERIALIZED_STRING =
+  private static final String AVRO_YARN_JOB_PARAMETERS_SERIALIZED_STRING =
       "{" +
           "\"sharedJobSubmissionParameters\":" +
           "{" +
             "\"jobId\":" + STRING_REP_QUOTED + "," +
-            "\"tcpBeginPort\":" + NUMBER_REP + "," +
-            "\"tcpRangeCount\":" + NUMBER_REP + "," +
-            "\"tcpTryCount\":" + NUMBER_REP + "," +
             "\"jobSubmissionFolder\":" + STRING_REP_QUOTED +
           "}," +
-          "\"driverMemory\":" + NUMBER_REP + "," +
-          "\"driverRecoveryTimeout\":" + NUMBER_REP + "," +
           "\"dfsJobSubmissionFolder\":\"" + STRING_REP + "\"," +
           "\"jobSubmissionDirectoryPrefix\":" + STRING_REP_QUOTED +
       "}";
 
-  private static final String AVRO_YARN_CLUSTER_PARAMETERS_SERIALIZED_STRING =
+  private static final String AVRO_YARN_CLUSTER_JOB_PARAMETERS_SERIALIZED_STRING =
       "{" +
-          "\"yarnJobSubmissionParameters\":" + AVRO_YARN_PARAMETERS_SERIALIZED_STRING + "," +
-          "\"maxApplicationSubmissions\":" + NUMBER_REP + "," +
+          "\"yarnJobSubmissionParameters\":" + AVRO_YARN_JOB_PARAMETERS_SERIALIZED_STRING + "," +
           "\"securityTokenKind\":\"" + NULL_REP + "\"," +
           "\"securityTokenService\":\"" + NULL_REP + "\"" +
+      "}";
+
+  private static final String AVRO_YARN_APP_PARAMETERS_SERIALIZED_STRING =
+      "{" +
+          "\"sharedAppSubmissionParameters\":" +
+          "{" +
+            "\"tcpBeginPort\":" + NUMBER_REP + "," +
+            "\"tcpRangeCount\":" + NUMBER_REP + "," +
+            "\"tcpTryCount\":" + NUMBER_REP +
+          "}," +
+          "\"driverMemory\":" + NUMBER_REP + "," +
+          "\"driverRecoveryTimeout\":" + NUMBER_REP +
+      "}";
+
+  private static final String AVRO_YARN_CLUSTER_APP_PARAMETERS_SERIALIZED_STRING =
+      "{" +
+          "\"yarnAppSubmissionParameters\":" + AVRO_YARN_APP_PARAMETERS_SERIALIZED_STRING + "," +
+          "\"maxApplicationSubmissions\":" + NUMBER_REP +
       "}";
 
   /**
@@ -84,7 +98,8 @@ public final class TestAvroJobSubmissionParametersSerializationFromCS {
     assert yarnClusterSubmissionFromCS.getTokenKind().equals(NULL_REP);
     assert yarnClusterSubmissionFromCS.getTokenService().equals(NULL_REP);
 
-    verifyYarnJobSubmissionParams(yarnClusterSubmissionFromCS.getYarnJobSubmissionParameters());
+    verifyYarnJobSubmissionParams(yarnClusterSubmissionFromCS.getYarnJobSubmissionParameters(),
+        yarnClusterSubmissionFromCS.getYarnAppSubmissionParameters());
   }
 
   /**
@@ -93,7 +108,7 @@ public final class TestAvroJobSubmissionParametersSerializationFromCS {
    */
   @Test
   public void testAvroYarnParametersDeserialization() throws IOException {
-    verifyYarnJobSubmissionParams(createAvroYarnJobSubmissionParameters());
+    verifyYarnJobSubmissionParams(createAvroYarnJobSubmissionParameters(), createAvroYarnAppSubmissionParameters());
   }
 
   /**
@@ -102,13 +117,24 @@ public final class TestAvroJobSubmissionParametersSerializationFromCS {
    */
   @Test
   public void testAvroYarnParametersSerialization() throws IOException {
-    try (final ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
-      YarnJobSubmissionParametersFileGenerator.writeAvroYarnJobSubmissionParametersToOutputStream(
-          createYarnClusterSubmissionFromCS(), STRING_REP, outputStream);
-      final byte[] content = outputStream.toByteArray();
-      try (final InputStream stream = new ByteArrayInputStream(content)) {
-        verifyYarnJobSubmissionParams(
-            YarnBootstrapDriverConfigGenerator.readYarnJobSubmissionParametersFromInputStream(stream));
+    try (final ByteArrayOutputStream appOutputStream = new ByteArrayOutputStream()) {
+      try (final ByteArrayOutputStream jobOutputStream = new ByteArrayOutputStream()) {
+        final YarnClusterSubmissionFromCS clusterSubmissionFromCS = createYarnClusterSubmissionFromCS();
+        YarnSubmissionParametersFileGenerator.writeAvroYarnAppSubmissionParametersToOutputStream(
+            clusterSubmissionFromCS, appOutputStream);
+        YarnSubmissionParametersFileGenerator.writeAvroYarnJobSubmissionParametersToOutputStream(
+            clusterSubmissionFromCS, STRING_REP, jobOutputStream);
+
+        final byte[] jobContent = jobOutputStream.toByteArray();
+        final byte[] appContent = appOutputStream.toByteArray();
+
+        try (final InputStream appStream = new ByteArrayInputStream(appContent)) {
+          try (final InputStream jobStream = new ByteArrayInputStream(jobContent)) {
+            verifyYarnJobSubmissionParams(
+                YarnBootstrapDriverConfigGenerator.readYarnJobSubmissionParametersFromInputStream(jobStream),
+                YarnBootstrapDriverConfigGenerator.readYarnAppSubmissionParametersFromInputStream(appStream));
+          }
+        }
       }
     }
   }
@@ -121,7 +147,8 @@ public final class TestAvroJobSubmissionParametersSerializationFromCS {
   @Test
   public void testYarnBootstrapDriverConfigGenerator() throws IOException, InjectionException {
     final Configuration yarnBootstrapDriverConfig =
-        YarnBootstrapDriverConfigGenerator.getYarnDriverConfiguration(createAvroYarnJobSubmissionParameters());
+        YarnBootstrapDriverConfigGenerator.getYarnDriverConfiguration(
+            createAvroYarnJobSubmissionParameters(), createAvroYarnAppSubmissionParameters());
     final Injector injector = Tang.Factory.getTang().newInjector(yarnBootstrapDriverConfig);
 
     assert injector.getNamedInstance(JobSubmissionDirectory.class).equals(STRING_REP);
@@ -132,29 +159,45 @@ public final class TestAvroJobSubmissionParametersSerializationFromCS {
     assert injector.getNamedInstance(TcpPortRangeTryCount.class) == NUMBER_REP;
   }
 
+  private static AvroYarnAppSubmissionParameters createAvroYarnAppSubmissionParameters() throws IOException {
+    try (final InputStream stream =
+             new ByteArrayInputStream(AVRO_YARN_APP_PARAMETERS_SERIALIZED_STRING.getBytes(StandardCharsets.UTF_8))) {
+      return YarnBootstrapDriverConfigGenerator.readYarnAppSubmissionParametersFromInputStream(stream);
+    }
+  }
+
   private static AvroYarnJobSubmissionParameters createAvroYarnJobSubmissionParameters() throws IOException {
     try (final InputStream stream =
-             new ByteArrayInputStream(AVRO_YARN_PARAMETERS_SERIALIZED_STRING.getBytes(StandardCharsets.UTF_8))) {
+             new ByteArrayInputStream(AVRO_YARN_JOB_PARAMETERS_SERIALIZED_STRING.getBytes(StandardCharsets.UTF_8))) {
       return YarnBootstrapDriverConfigGenerator.readYarnJobSubmissionParametersFromInputStream(stream);
     }
   }
 
   private static YarnClusterSubmissionFromCS createYarnClusterSubmissionFromCS() throws IOException {
-    try (final InputStream stream =
+    try (final InputStream appStream =
              new ByteArrayInputStream(
-                 AVRO_YARN_CLUSTER_PARAMETERS_SERIALIZED_STRING.getBytes(StandardCharsets.UTF_8))) {
-      return YarnClusterSubmissionFromCS.readYarnClusterSubmissionFromCSFromInputStream(stream);
+                 AVRO_YARN_CLUSTER_APP_PARAMETERS_SERIALIZED_STRING.getBytes(StandardCharsets.UTF_8))) {
+      try (final InputStream jobStream =
+               new ByteArrayInputStream(
+                   AVRO_YARN_CLUSTER_JOB_PARAMETERS_SERIALIZED_STRING.getBytes(StandardCharsets.UTF_8))) {
+        return YarnClusterSubmissionFromCS.readYarnClusterSubmissionFromCSFromInputStream(appStream, jobStream);
+      }
     }
   }
 
-  private static void verifyYarnJobSubmissionParams(final AvroYarnJobSubmissionParameters jobSubmissionParameters) {
+  private static void verifyYarnJobSubmissionParams(final AvroYarnJobSubmissionParameters jobSubmissionParameters,
+                                                    final AvroYarnAppSubmissionParameters appSubmissionParameters) {
+    final AvroAppSubmissionParameters sharedAppSubmissionParams =
+        appSubmissionParameters.getSharedAppSubmissionParameters();
+
     final AvroJobSubmissionParameters sharedJobSubmissionParams =
         jobSubmissionParameters.getSharedJobSubmissionParameters();
+
+    assert sharedAppSubmissionParams.getTcpBeginPort() == NUMBER_REP;
+    assert sharedAppSubmissionParams.getTcpRangeCount() == NUMBER_REP;
+    assert sharedAppSubmissionParams.getTcpTryCount() == NUMBER_REP;
     assert sharedJobSubmissionParams.getJobId().toString().equals(STRING_REP);
     assert sharedJobSubmissionParams.getJobSubmissionFolder().toString().equals(STRING_REP);
-    assert sharedJobSubmissionParams.getTcpBeginPort() == NUMBER_REP;
-    assert sharedJobSubmissionParams.getTcpRangeCount() == NUMBER_REP;
-    assert sharedJobSubmissionParams.getTcpTryCount() == NUMBER_REP;
     assert jobSubmissionParameters.getDfsJobSubmissionFolder().toString().equals(STRING_REP);
     assert jobSubmissionParameters.getJobSubmissionDirectoryPrefix().toString().equals(STRING_REP);
   }

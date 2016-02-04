@@ -25,7 +25,9 @@ import org.apache.reef.client.DriverRestartConfiguration;
 import org.apache.reef.client.parameters.DriverConfigurationProviders;
 import org.apache.reef.io.TcpPortConfigurationProvider;
 import org.apache.reef.javabridge.generic.JobDriver;
+import org.apache.reef.reef.bridge.client.avro.AvroAppSubmissionParameters;
 import org.apache.reef.reef.bridge.client.avro.AvroJobSubmissionParameters;
+import org.apache.reef.reef.bridge.client.avro.AvroYarnAppSubmissionParameters;
 import org.apache.reef.reef.bridge.client.avro.AvroYarnJobSubmissionParameters;
 import org.apache.reef.runtime.common.driver.parameters.ClientRemoteIdentifier;
 import org.apache.reef.runtime.common.files.REEFFileNames;
@@ -63,31 +65,31 @@ final class YarnBootstrapDriverConfigGenerator {
     this.reefFileNames = reefFileNames;
   }
 
-  public String writeDriverConfigurationFile(final String bootstrapArgsLocation) throws IOException {
-    final File bootstrapArgsFile = new File(bootstrapArgsLocation);
-    final AvroYarnJobSubmissionParameters yarnBootstrapArgs =
-        readYarnJobSubmissionParametersFromFile(bootstrapArgsFile);
+  public String writeDriverConfigurationFile(final String bootstrapJobArgsLocation,
+                                             final String bootstrapAppArgsLocation) throws IOException {
+    final File bootstrapJobArgsFile = new File(bootstrapJobArgsLocation).getCanonicalFile();
+    final File bootstrapAppArgsFile = new File(bootstrapAppArgsLocation);
+
+    final AvroYarnJobSubmissionParameters yarnBootstrapJobArgs =
+        readYarnJobSubmissionParametersFromFile(bootstrapJobArgsFile);
+
+    final AvroYarnAppSubmissionParameters yarnBootstrapAppArgs =
+        readYarnAppSubmissionParametersFromFile(bootstrapAppArgsFile);
+
     final String driverConfigPath = reefFileNames.getDriverConfigurationPath();
 
-    this.configurationSerializer.toFile(getYarnDriverConfiguration(yarnBootstrapArgs),
+    this.configurationSerializer.toFile(getYarnDriverConfiguration(yarnBootstrapJobArgs, yarnBootstrapAppArgs),
         new File(driverConfigPath));
 
     return driverConfigPath;
   }
 
   static Configuration getYarnDriverConfiguration(
-      final AvroYarnJobSubmissionParameters yarnJobSubmissionParams) {
+      final AvroYarnJobSubmissionParameters yarnJobSubmissionParams,
+      final AvroYarnAppSubmissionParameters yarnAppSubmissionParams) {
+
     final AvroJobSubmissionParameters jobSubmissionParameters =
         yarnJobSubmissionParams.getSharedJobSubmissionParameters();
-    final Configuration providerConfig = Tang.Factory.getTang().newConfigurationBuilder()
-        .bindSetEntry(DriverConfigurationProviders.class, TcpPortConfigurationProvider.class)
-        .bindNamedParameter(TcpPortRangeBegin.class, Integer.toString(jobSubmissionParameters.getTcpBeginPort()))
-        .bindNamedParameter(TcpPortRangeCount.class, Integer.toString(jobSubmissionParameters.getTcpRangeCount()))
-        .bindNamedParameter(TcpPortRangeTryCount.class, Integer.toString(jobSubmissionParameters.getTcpTryCount()))
-        .bindNamedParameter(JobSubmissionDirectoryPrefix.class,
-            yarnJobSubmissionParams.getJobSubmissionDirectoryPrefix().toString())
-        .build();
-
     final Configuration yarnDriverConfiguration = YarnDriverConfiguration.CONF
         .set(YarnDriverConfiguration.JOB_SUBMISSION_DIRECTORY,
             yarnJobSubmissionParams.getDfsJobSubmissionFolder().toString())
@@ -96,10 +98,21 @@ final class YarnBootstrapDriverConfigGenerator {
         .set(YarnDriverConfiguration.JVM_HEAP_SLACK, 0.0)
         .build();
 
+    final AvroAppSubmissionParameters appSubmissionParams = yarnAppSubmissionParams.getSharedAppSubmissionParameters();
+
+    final Configuration providerConfig = Tang.Factory.getTang().newConfigurationBuilder()
+        .bindSetEntry(DriverConfigurationProviders.class, TcpPortConfigurationProvider.class)
+        .bindNamedParameter(TcpPortRangeBegin.class, Integer.toString(appSubmissionParams.getTcpBeginPort()))
+        .bindNamedParameter(TcpPortRangeCount.class, Integer.toString(appSubmissionParams.getTcpRangeCount()))
+        .bindNamedParameter(TcpPortRangeTryCount.class, Integer.toString(appSubmissionParams.getTcpTryCount()))
+        .bindNamedParameter(JobSubmissionDirectoryPrefix.class,
+            yarnJobSubmissionParams.getJobSubmissionDirectoryPrefix().toString())
+        .build();
+
     final Configuration driverConfiguration = Configurations.merge(
         Constants.DRIVER_CONFIGURATION_WITH_HTTP_AND_NAMESERVER, yarnDriverConfiguration, providerConfig);
 
-    if (yarnJobSubmissionParams.getDriverRecoveryTimeout() > 0) {
+    if (yarnAppSubmissionParams.getDriverRecoveryTimeout() > 0) {
       LOG.log(Level.FINE, "Driver restart is enabled.");
 
       final Configuration yarnDriverRestartConfiguration =
@@ -113,7 +126,7 @@ final class YarnBootstrapDriverConfigGenerator {
               .set(DriverRestartConfiguration.ON_DRIVER_RESTART_TASK_RUNNING,
                   JobDriver.DriverRestartRunningTaskHandler.class)
               .set(DriverRestartConfiguration.DRIVER_RESTART_EVALUATOR_RECOVERY_SECONDS,
-                  yarnJobSubmissionParams.getDriverRecoveryTimeout())
+                  yarnAppSubmissionParams.getDriverRecoveryTimeout())
               .set(DriverRestartConfiguration.ON_DRIVER_RESTART_COMPLETED,
                   JobDriver.DriverRestartCompletedHandler.class)
               .set(DriverRestartConfiguration.ON_DRIVER_RESTART_EVALUATOR_FAILED,
@@ -124,6 +137,23 @@ final class YarnBootstrapDriverConfigGenerator {
     }
 
     return driverConfiguration;
+  }
+
+  static AvroYarnAppSubmissionParameters readYarnAppSubmissionParametersFromFile(final File file)
+      throws IOException {
+    try (final FileInputStream fileInputStream = new FileInputStream(file)) {
+      // This is mainly a test hook.
+      return readYarnAppSubmissionParametersFromInputStream(fileInputStream);
+    }
+  }
+
+  static AvroYarnAppSubmissionParameters readYarnAppSubmissionParametersFromInputStream(
+      final InputStream inputStream) throws IOException {
+    final JsonDecoder decoder = DecoderFactory.get().jsonDecoder(
+        AvroYarnAppSubmissionParameters.getClassSchema(), inputStream);
+    final SpecificDatumReader<AvroYarnAppSubmissionParameters> reader = new SpecificDatumReader<>(
+        AvroYarnAppSubmissionParameters.class);
+    return reader.read(null, decoder);
   }
 
   static AvroYarnJobSubmissionParameters readYarnJobSubmissionParametersFromFile(final File file)
