@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/apache/reef.svg?branch=master)](https://travis-ci.org/apache/reef)
+
 Apache REEF&trade;
 ========================
 Apache REEF&trade; (Retainable Evaluator Execution Framework) is a scale-out
