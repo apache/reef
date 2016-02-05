@@ -15,7 +15,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-using Org.Apache.REEF.Client.API;
 using Org.Apache.REEF.IMRU.API;
 using Org.Apache.REEF.Tang.Formats;
 using Org.Apache.REEF.Tang.Util;

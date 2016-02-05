@@ -24,7 +24,6 @@ using Org.Apache.REEF.Network.Group.Config;
 using Org.Apache.REEF.Network.Group.Driver;
 using Org.Apache.REEF.Tang.Implementations.Configuration;
 using Org.Apache.REEF.Tang.Implementations.Tang;
-using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Tang.Util;
 using Org.Apache.REEF.Utilities.Diagnostics;
 using Org.Apache.REEF.Utilities.Logging;
@@ -37,7 +36,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
     /// </summary>
     /// <typeparam name="TMapInput"></typeparam>
     /// <typeparam name="TMapOutput"></typeparam>
-    internal class ServiceAndContextConfigurationProvider<TMapInput, TMapOutput>
+    internal sealed class ServiceAndContextConfigurationProvider<TMapInput, TMapOutput>
     {
         private static readonly Logger Logger = Logger.GetLogger(typeof(ServiceAndContextConfigurationProvider<TMapInput, TMapOutput>));
 

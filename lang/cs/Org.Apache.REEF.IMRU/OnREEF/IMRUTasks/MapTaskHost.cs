@@ -16,8 +16,6 @@
 // under the License.
 
 using System;
-using System.Diagnostics;
-using System.Runtime;
 using Org.Apache.REEF.Common.Tasks;
 using Org.Apache.REEF.IMRU.API;
 using Org.Apache.REEF.IMRU.OnREEF.Driver;

@@ -26,7 +26,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.MapInputWithControlMessage
     /// Pipeline Data Converter for MapInputwithControlMessage to chunk and dechunk the message for communication
     /// </summary>
     /// <typeparam name="TMapInput"></typeparam>
-    internal class MapInputwithControlMessagePipelineDataConverter<TMapInput> :
+    internal sealed class MapInputwithControlMessagePipelineDataConverter<TMapInput> :
         IPipelineDataConverter<MapInputWithControlMessage<TMapInput>>
     {
         private readonly IPipelineDataConverter<TMapInput> _basePipelineDataConverter;
