@@ -83,6 +83,7 @@ public interface RemoteManager extends Stage {
    *
    * @param theHandler the exception event handler
    * @return the subscription that can be used to unsubscribe later
+   * @deprecated before 0.14, will be deleted in 0.15
    */
   @Deprecated
   AutoCloseable registerErrorHandler(final EventHandler<Exception> theHandler);
