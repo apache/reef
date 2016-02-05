@@ -19,7 +19,7 @@ using Org.Apache.REEF.Tang.Interface;
 
 namespace Org.Apache.REEF.IMRU.OnREEF.Driver
 {
-    internal class ContextAndServiceConfiguration
+    internal sealed class ContextAndServiceConfiguration
     {
         /// <summary>
         /// The context configuration

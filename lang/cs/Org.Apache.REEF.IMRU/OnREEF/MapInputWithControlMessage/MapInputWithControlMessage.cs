@@ -25,7 +25,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.MapInputWithControlMessage
     /// message from UpdateTask
     /// </summary>
     /// <typeparam name="TMapInput"></typeparam>
-    internal class MapInputWithControlMessage<TMapInput> : IDisposable
+    internal sealed class MapInputWithControlMessage<TMapInput> : IDisposable
     {
         /// <summary>
         /// Internal constructor
