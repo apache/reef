@@ -22,6 +22,7 @@ import net.jcip.annotations.NotThreadSafe;
 import org.apache.reef.annotations.audience.DriverSide;
 import org.apache.reef.driver.task.RunningTask;
 import org.apache.reef.vortex.api.VortexAggregateFunction;
+import org.apache.reef.vortex.api.VortexAggregatePolicy;
 import org.apache.reef.vortex.api.VortexFunction;
 import org.apache.reef.vortex.common.TaskletAggregateExecutionRequest;
 import org.apache.reef.vortex.common.TaskletAggregationRequest;
@@ -51,9 +52,10 @@ class VortexWorkerManager {
    */
   <TInput, TOutput> void sendAggregateFunction(final int aggregateFunctionId,
                                                final VortexAggregateFunction<TOutput> aggregateFunction,
-                                               final VortexFunction<TInput, TOutput> function) {
+                                               final VortexFunction<TInput, TOutput> function,
+                                               final VortexAggregatePolicy policy) {
     final TaskletAggregationRequest<TInput, TOutput> taskletAggregationRequest =
-        new TaskletAggregationRequest<>(aggregateFunctionId, aggregateFunction, function);
+        new TaskletAggregationRequest<>(aggregateFunctionId, aggregateFunction, function, policy);
 
     // The send is synchronous such that we make sure that the aggregate function is sent to the
     // target worker before attempting to launch an aggregateable tasklet on it.

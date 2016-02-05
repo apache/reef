@@ -91,10 +91,12 @@ final class DefaultVortexMaster implements VortexMaster {
   @Override
   public <TInput, TOutput> VortexAggregateFuture<TInput, TOutput>
       enqueueTasklets(final VortexAggregateFunction<TOutput> aggregateFunction,
-                      final VortexFunction<TInput, TOutput> vortexFunction, final List<TInput> inputs,
+                      final VortexFunction<TInput, TOutput> vortexFunction,
+                      final VortexAggregatePolicy policy,
+                      final List<TInput> inputs,
                       final Optional<FutureCallback<AggregateResult<TInput, TOutput>>> callback) {
     final int aggregateFunctionId = aggregateIdCounter.getAndIncrement();
-    aggregateFunctionRepository.put(aggregateFunctionId, aggregateFunction, vortexFunction);
+    aggregateFunctionRepository.put(aggregateFunctionId, aggregateFunction, vortexFunction, policy);
     final Codec<TOutput> aggOutputCodec = aggregateFunction.getOutputCodec();
     final List<Tasklet> tasklets = new ArrayList<>(inputs.size());
     final Map<Integer, TInput> taskletIdInputMap = new HashMap<>(inputs.size());

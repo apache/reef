@@ -23,6 +23,7 @@ import org.apache.reef.annotations.audience.DriverSide;
 import org.apache.reef.annotations.audience.Private;
 import org.apache.reef.io.serialization.Codec;
 import org.apache.reef.vortex.api.VortexAggregateFunction;
+import org.apache.reef.vortex.api.VortexAggregatePolicy;
 import org.apache.reef.vortex.api.VortexFunction;
 
 import java.util.List;
@@ -38,13 +39,16 @@ public final class TaskletAggregationRequest<TInput, TOutput> implements VortexR
   private final int aggregateFunctionId;
   private final VortexAggregateFunction<TOutput> userAggregateFunction;
   private final VortexFunction<TInput, TOutput> function;
+  private final VortexAggregatePolicy policy;
 
   public TaskletAggregationRequest(final int aggregateFunctionId,
                                    final VortexAggregateFunction<TOutput> aggregateFunction,
-                                   final VortexFunction<TInput, TOutput> function) {
+                                   final VortexFunction<TInput, TOutput> function,
+                                   final VortexAggregatePolicy policy) {
     this.aggregateFunctionId = aggregateFunctionId;
     this.userAggregateFunction = aggregateFunction;
     this.function = function;
+    this.policy = policy;
   }
 
   @Override
@@ -71,6 +75,13 @@ public final class TaskletAggregationRequest<TInput, TOutput> implements VortexR
    */
   public VortexFunction getFunction() {
     return function;
+  }
+
+  /**
+   * @return the aggregation policy.
+   */
+  public VortexAggregatePolicy getPolicy() {
+    return policy;
   }
 
   /**

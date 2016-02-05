@@ -17,6 +17,7 @@
 
 using System;
 using Org.Apache.REEF.Common.Events;
+using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Utilities.Logging;
 
 namespace Org.Apache.REEF.Common.Context.Defaults
@@ -27,6 +28,11 @@ namespace Org.Apache.REEF.Common.Context.Defaults
     public class DefaultContextStopHandler : IObserver<IContextStop>
     {
         private static readonly Logger Logger = Logger.GetLogger(typeof(DefaultContextStopHandler));
+
+        [Inject]
+        private DefaultContextStopHandler()
+        {
+        }
 
         public void OnNext(IContextStop contextStop)
         {

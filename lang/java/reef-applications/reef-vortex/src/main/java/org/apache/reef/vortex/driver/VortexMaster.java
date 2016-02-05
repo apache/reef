@@ -48,7 +48,9 @@ public interface VortexMaster {
    */
   <TInput, TOutput> VortexAggregateFuture<TInput, TOutput>
       enqueueTasklets(final VortexAggregateFunction<TOutput> aggregateFunction,
-                      final VortexFunction<TInput, TOutput> vortexFunction, final List<TInput> inputs,
+                      final VortexFunction<TInput, TOutput> vortexFunction,
+                      final VortexAggregatePolicy policy,
+                      final List<TInput> inputs,
                       final Optional<FutureCallback<AggregateResult<TInput, TOutput>>> callback);
 
   /**

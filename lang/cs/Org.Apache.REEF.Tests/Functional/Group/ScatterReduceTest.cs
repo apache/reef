@@ -16,7 +16,6 @@
 // under the License.
 
 using System.Globalization;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Org.Apache.REEF.Driver;
 using Org.Apache.REEF.Driver.Bridge;
 using Org.Apache.REEF.Network.Examples.GroupCommunication;
@@ -28,25 +27,19 @@ using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Tang.Util;
 using Org.Apache.REEF.Utilities.Logging;
+using Xunit;
 
 namespace Org.Apache.REEF.Tests.Functional.Group
 {
-    [TestClass]
+    [Collection("FunctionalTests")]
     public class ScatterReduceTest : ReefFunctionalTest
     {
-        [TestInitialize]
-        public void TestSetup()
+        public ScatterReduceTest()
         {
             CleanUp();
         }
 
-        [TestCleanup]
-        public void TestCleanup()
-        {
-            CleanUp();
-        }
-
-        [TestMethod]
+        [Fact]
         public void TestScatterAndReduceOnLocalRuntime()
         {
             int numTasks = 5;
@@ -56,8 +49,7 @@ namespace Org.Apache.REEF.Tests.Functional.Group
             ValidateSuccessForLocalRuntime(numTasks, testFolder: testFolder);
         }
 
-        [Ignore]
-        [TestMethod]
+        [Fact(Skip = "Requires Yarn")]
         public void TestScatterAndReduceOnYarn()
         {
             int numTasks = 5;

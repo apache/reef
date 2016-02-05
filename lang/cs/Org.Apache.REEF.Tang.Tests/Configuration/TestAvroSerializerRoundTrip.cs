@@ -15,7 +15,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Org.Apache.REEF.Tang.Formats;
 using Org.Apache.REEF.Tang.Formats.AvroConfigurationDataContract;
 using Org.Apache.REEF.Tang.Interface;
@@ -23,9 +22,8 @@ using Org.Apache.REEF.Tang.Tests.SmokeTest;
 
 namespace Org.Apache.REEF.Tang.Tests.Configuration
 {
-    internal class TestAvroSerializerRoundTrip
+    public class TestAvroSerializerRoundTrip
     {
-        [TestClass]
         public class AvroConfigurationTest : RoundTripTest
         {
             public override IConfiguration RoundTrip(IConfiguration configuration)
@@ -35,7 +33,6 @@ namespace Org.Apache.REEF.Tang.Tests.Configuration
             }
         }
 
-        [TestClass]
         public class ByteArrayTest : RoundTripTest
         {
             public override IConfiguration RoundTrip(IConfiguration configuration)
@@ -46,7 +43,6 @@ namespace Org.Apache.REEF.Tang.Tests.Configuration
             }
         }
 
-        [TestClass]
         public class FileTest : RoundTripTest
         {
             public override IConfiguration RoundTrip(IConfiguration configuration)
@@ -57,7 +53,6 @@ namespace Org.Apache.REEF.Tang.Tests.Configuration
             }
         }
 
-        [TestClass]
         public class StringTest : RoundTripTest
         {
             public override IConfiguration RoundTrip(IConfiguration configuration)

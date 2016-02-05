@@ -22,7 +22,6 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Timers;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.Blob;
 using Org.Apache.REEF.Client.API;
@@ -33,11 +32,12 @@ using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Utilities;
 using Org.Apache.REEF.Utilities.Diagnostics;
 using Org.Apache.REEF.Utilities.Logging;
+using Xunit;
 using Timer = System.Timers.Timer;
 
 namespace Org.Apache.REEF.Tests.Functional
 {
-    public class ReefFunctionalTest
+    public class ReefFunctionalTest : IDisposable
     {
         protected const string _stdout = "driver.stdout";
         protected const string _stderr = "driver.stderr";
@@ -133,6 +133,11 @@ namespace Org.Apache.REEF.Tests.Functional
             }   
         }
 
+        public void Dispose() 
+        {
+            CleanUp();
+        }
+
         protected void ValidateSuccessForLocalRuntime(int numberOfEvaluatorsToClose, int numberOfTasksToFail = 0, int numberOfEvaluatorsToFail = 0, string testFolder = DefaultRuntimeFolder)
         {
             const string successIndication = "EXIT: ActiveContextClr2Java::Close";
@@ -158,14 +163,14 @@ namespace Org.Apache.REEF.Tests.Functional
                 string[] successIndicators = lines.Where(s => s.Contains(successIndication)).ToArray();
                 string[] failedTaskIndicators = lines.Where(s => s.Contains(failedTaskIndication)).ToArray();
                 string[] failedIndicators = lines.Where(s => s.Contains(failedEvaluatorIndication)).ToArray();
-                Assert.AreEqual(numberOfEvaluatorsToClose, successIndicators.Length);
-                Assert.AreEqual(numberOfTasksToFail, failedTaskIndicators.Length);
-                Assert.AreEqual(numberOfEvaluatorsToFail, failedIndicators.Length);
+                Assert.Equal(numberOfEvaluatorsToClose, successIndicators.Length);
+                Assert.Equal(numberOfTasksToFail, failedTaskIndicators.Length);
+                Assert.Equal(numberOfEvaluatorsToFail, failedIndicators.Length);
             }
             else
             {
                 Console.WriteLine("Cannot read from log file");
-                Assert.Fail();
+                Assert.True(false);
             }
         }
 
@@ -188,12 +193,12 @@ namespace Org.Apache.REEF.Tests.Functional
             if (lines != null)
             {
                 string[] successIndicators = lines.Where(s => s.Contains(message)).ToArray();
-                Assert.AreEqual(numberOfoccurances, successIndicators.Count());
+                Assert.Equal(numberOfoccurances, successIndicators.Count());
             }
             else
             {
                 Console.WriteLine("Cannot read from log file");
-                Assert.Fail();
+                Assert.True(false);
             }
         }
 

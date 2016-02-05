@@ -19,7 +19,6 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Org.Apache.REEF.Common.Io;
 using Org.Apache.REEF.Common.Tasks;
 using Org.Apache.REEF.Driver.Bridge;
@@ -32,10 +31,11 @@ using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Tang.Util;
 using Org.Apache.REEF.Utilities.Logging;
+using Xunit;
 
 namespace Org.Apache.REEF.Tests.Functional.ML.KMeans
 {
-    [TestClass]
+    [Collection("FunctionalTests")]
     public class TestKMeans : ReefFunctionalTest
     {
         private const int K = 3;
@@ -46,8 +46,7 @@ namespace Org.Apache.REEF.Tests.Functional.ML.KMeans
         private readonly bool _useSmallDataSet = false;
         private string _dataFile = MouseDataFile;
 
-        [TestInitialize]
-        public void TestSetup()
+        public TestKMeans()
         {
             if (_useSmallDataSet)
             {
@@ -58,19 +57,11 @@ namespace Org.Apache.REEF.Tests.Functional.ML.KMeans
             Init();
         }
 
-        [TestCleanup]
-        public void TestCleanup()
-        {
-            Console.WriteLine("Post test check and clean up");
-            CleanUp();
-        }
-
-        [TestMethod, Priority(1), TestCategory("FunctionalGated")]
-        [Description("Test KMeans clustering with things directly run without reef")]
-        [DeploymentItem(@".")]
-        [DeploymentItem(@"Data", ".")]
-        [Ignore]
-        [Timeout(180 * 1000)]
+        [Fact(Skip = "TODO[JIRA REEF-1183] Requires data files not present in enlistment")]
+        [Trait("Priority", "1")]
+        [Trait("Category", "FunctionalGated")]
+        [Trait("Description", "Test KMeans clustering with things directly run without reef")]
+        //// TODO[JIRA REEF-1184]: add timeout 180 sec
         public void TestKMeansOnDirectRunViaFileSystem()
         {
             int iteration = 0;
@@ -116,12 +107,11 @@ namespace Org.Apache.REEF.Tests.Functional.ML.KMeans
             }
         }
 
-        [TestMethod, Priority(1), TestCategory("FunctionalGated")]
-        [Description("Test KMeans clustering on reef local runtime with group communications")]
-        [DeploymentItem(@".")]
-        [DeploymentItem(@"Data", ".")]
-        [Ignore]
-        [Timeout(180 * 1000)]
+        [Fact(Skip = "TODO[JIRA REEF-1183] Requires data files not present in enlistment")]
+        [Trait("Priority", "1")]
+        [Trait("Category", "FunctionalGated")]
+        [Trait("Description", "Test KMeans clustering on reef local runtime with group communications")]
+        //// TODO[JIRA REEF-1184]: add timeout 180 sec
         public void TestKMeansOnLocalRuntimeWithGroupCommunications()
         {
             IsOnLocalRuntime = true;
@@ -131,17 +121,16 @@ namespace Org.Apache.REEF.Tests.Functional.ML.KMeans
             ValidateSuccessForLocalRuntime(Partitions + 1, testFolder: testFolder);
         }
 
-        [TestMethod, Priority(1), TestCategory("FunctionalGated")]
-        [Description("Test KMeans clustering on reef YARN runtime - one box")]
-        [DeploymentItem(@".")]
-        [DeploymentItem(@"Data", ".")]
-        [Timeout(180 * 1000)]
-        [Ignore]    // ignored by default
+        [Fact(Skip = "TODO[JIRA REEF-1183] Requires data files not present in enlistment")]
+        [Trait("Priority", "1")]
+        [Trait("Category", "FunctionalGated")]
+        [Trait("Description", "Test KMeans clustering on reef YARN runtime - one box")]
+        //// TODO[JIRA REEF-1184]: add timeout 180 sec
         public void TestKMeansOnYarnOneBoxWithGroupCommunications()
         {
             string testFolder = DefaultRuntimeFolder + TestNumber++;
             TestRun(DriverConfiguration(), typeof(KMeansDriverHandlers), Partitions + 1, "KMeansDriverHandlers", "yarn", testFolder);
-            Assert.IsNotNull("BreakPointChecker");
+            Assert.NotNull("BreakPointChecker");
         }
 
         private IConfiguration DriverConfiguration()

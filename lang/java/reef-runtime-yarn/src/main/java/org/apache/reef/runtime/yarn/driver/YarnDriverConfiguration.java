@@ -36,7 +36,7 @@ import org.apache.reef.runtime.yarn.util.YarnConfigurationConstructor;
 import org.apache.reef.tang.formats.*;
 
 /**
- * Created by marku_000 on 2014-07-07.
+ * ConfigurationModule to create YARN Driver configurations.
  */
 public class YarnDriverConfiguration extends ConfigurationModuleBuilder {
   /**

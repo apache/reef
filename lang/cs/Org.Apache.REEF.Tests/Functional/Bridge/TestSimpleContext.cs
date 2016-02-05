@@ -16,7 +16,6 @@
 // under the License.
 
 using System;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Org.Apache.REEF.Common.Tasks;
 using Org.Apache.REEF.Driver;
 using Org.Apache.REEF.Driver.Bridge;
@@ -31,10 +30,11 @@ using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Tang.Util;
 using Org.Apache.REEF.Utilities.Logging;
 using ContextConfiguration = Org.Apache.REEF.Common.Context.ContextConfiguration;
+using Xunit;
 
 namespace Org.Apache.REEF.Tests.Functional.Bridge
 {
-    [TestClass]
+    [Collection("FunctionalTests")]
     public sealed class TestSimpleContext : ReefFunctionalTest
     {
         private const string ContextId = "ContextId";
@@ -42,8 +42,7 @@ namespace Org.Apache.REEF.Tests.Functional.Bridge
 
         private static readonly Logger Logger = Logger.GetLogger(typeof(TestSimpleContext));
 
-        [TestInitialize]
-        public void TestSetup()
+        public TestSimpleContext()
         {
             Init();
         }
@@ -51,10 +50,11 @@ namespace Org.Apache.REEF.Tests.Functional.Bridge
         /// <summary>
         /// Does a simple test of context submission.
         /// </summary>
-        [TestMethod, Priority(1), TestCategory("FunctionalGated")]
-        [Description("Test Context ID submission on local runtime")]
-        [DeploymentItem(@".")]
-        [Timeout(180 * 1000)]
+        [Fact]
+        [Trait("Priority", "1")]
+        [Trait("Category", "FunctionalGated")]
+        [Trait("Description", "Test Context ID submission on local runtime")]
+        //// TODO[JIRA REEF-1184]: add timeout 180 sec
         public void TestSimpleContextOnLocalRuntime()
         {
             TestContextOnLocalRuntime(ContextDriverConfiguration());
@@ -63,10 +63,11 @@ namespace Org.Apache.REEF.Tests.Functional.Bridge
         /// <summary>
         /// Does a simple test of context submission with deprecated configurations.
         /// </summary>
-        [TestMethod, Priority(1), TestCategory("FunctionalGated")]
-        [Description("Test deprecated Context ID submission on local runtime")]
-        [DeploymentItem(@".")]
-        [Timeout(180 * 1000)]
+        [Fact]
+        [Trait("Priority", "1")]
+        [Trait("Category", "FunctionalGated")]
+        [Trait("Description", "Test deprecated Context ID submission on local runtime")]
+        //// TODO[JIRA REEF-1184]: add timeout 180 sec
         public void TestDeprecatedContextOnLocalRuntime()
         {
             TestContextOnLocalRuntime(DeprecatedContextDriverConfiguration());

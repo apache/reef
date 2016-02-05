@@ -5,9 +5,9 @@
 // to you under the Apache License, Version 2.0 (the
 // "License"); you may not use this file except in compliance
 // with the License.  You may obtain a copy of the License at
-//
+// 
 //   http://www.apache.org/licenses/LICENSE-2.0
-//
+// 
 // Unless required by applicable law or agreed to in writing,
 // software distributed under the License is distributed on an
 // "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -15,35 +15,21 @@
 // specific language governing permissions and limitations
 // under the License.
 
-using System;
-using System.Threading;
-using System.Threading.Tasks;
-using Org.Apache.REEF.Client.YARN.RestClient;
+using System.Net;
 using Org.Apache.REEF.Tang.Annotations;
-using Org.Apache.REEF.Utilities.AsyncUtils;
 
-namespace Org.Apache.REEF.Client.Yarn.RestClient
+namespace Org.Apache.REEF.Client.YARN.RestClient
 {
     /// <summary>
-    /// Executes a REST request
+    /// Provides the credentials to be used by the REST client to 
+    /// connect to YARN RM.
     /// </summary>
-    [DefaultImplementation(typeof(RestRequestExecutor))]
-    internal interface IRestRequestExecutor
+    [DefaultImplementation(typeof(NullYarnRestClientCredential))]
+    public interface IYarnRestClientCredential
     {
         /// <summary>
-        /// Executes a REST request where a response is expected
+        /// .NET credentials to be used by REST client
         /// </summary>
-        Task<T> ExecuteAsync<T>(
-            RestRequest request,
-            Uri uri,
-            CancellationToken cancellationToken);
-
-        /// <summary>
-        /// Executes a REST request where a response is NOT expected
-        /// </summary>
-        Task<RestResponse<VoidResult>> ExecuteAsync(
-            RestRequest request,
-            Uri uri,
-            CancellationToken cancellationToken);
+        ICredentials Credentials { get; }
     }
 }

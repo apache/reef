@@ -18,7 +18,6 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Org.Apache.REEF.Common.Tasks;
 using Org.Apache.REEF.Examples.Tasks.HelloTask;
 using Org.Apache.REEF.Examples.Tasks.StreamingTasks;
@@ -28,44 +27,28 @@ using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Tang.Protobuf;
 using Org.Apache.REEF.Tang.Types;
 using Org.Apache.REEF.Tang.Util;
+using Xunit;
 
 namespace Org.Apache.REEF.Tang.Tests.ClassHierarchy
 {
-    [TestClass]
-    public class TestSerilization
+    public class TestSerialization
     {
         static Assembly asm = null;
 
-        [ClassInitialize]
-        public static void ClassSetup(TestContext context)
+        public TestSerialization()
         {
             asm = Assembly.Load(FileNames.Examples);
             Assembly.Load(FileNames.Examples);
         }
 
-        [ClassCleanup]
-        public static void ClassCleanup()
-        {
-        }
-
-        [TestInitialize]
-        public void TestSetup()
-        {
-        }
-
-        [TestCleanup]
-        public void TestCleanup()
-        {
-        }
-
-        [TestMethod]
+        [Fact]
         public void TestSerializeClassHierarchy()
         {            
             IClassHierarchy ns = TangFactory.GetTang().GetClassHierarchy(new string[] { typeof(Timer).Assembly.GetName().Name });
             ProtocolBufferClassHierarchy.Serialize("node.bin", ns);
         }
 
-        [TestMethod]
+        [Fact]
         public void TestDeSerializeClassHierarchy()
         {
             Type timerType = typeof(Timer);
@@ -84,16 +67,16 @@ namespace Org.Apache.REEF.Tang.Tests.ClassHierarchy
             INode secondNode2 = ch.GetNode(SecondType.AssemblyQualifiedName);
             IClassNode SimpleConstructorsClassNode2 = (IClassNode)ch.GetNode(simpleCOnstuctorType.AssemblyQualifiedName);
 
-            Assert.AreEqual(timerClassNode.GetFullName(), timerClassNode2.GetFullName());
-            Assert.AreEqual(secondNode.GetFullName(), secondNode2.GetFullName());
-            Assert.AreEqual(SimpleConstructorsClassNode.GetFullName(), SimpleConstructorsClassNode2.GetFullName());
+            Assert.Equal(timerClassNode.GetFullName(), timerClassNode2.GetFullName());
+            Assert.Equal(secondNode.GetFullName(), secondNode2.GetFullName());
+            Assert.Equal(SimpleConstructorsClassNode.GetFullName(), SimpleConstructorsClassNode2.GetFullName());
 
-            Assert.IsTrue(SimpleConstructorsClassNode2.GetChildren().Count == 0);
+            Assert.True(SimpleConstructorsClassNode2.GetChildren().Count == 0);
             IList<IConstructorDef> def = SimpleConstructorsClassNode2.GetInjectableConstructors();
-            Assert.AreEqual(3, def.Count);
+            Assert.Equal(3, def.Count);
         }
 
-        [TestMethod]
+        [Fact]
         public void TestDeSerializeClassHierarchyForTask()
         {
             Type streamTask1Type = typeof(StreamTask1);
@@ -108,32 +91,31 @@ namespace Org.Apache.REEF.Tang.Tests.ClassHierarchy
             IClassNode StreamTask1ClassNode2 = (IClassNode)ch.GetNode(streamTask1Type.AssemblyQualifiedName);
             IClassNode HelloTaskClassNode2 = (IClassNode)ch.GetNode(helloTaskType.AssemblyQualifiedName);
 
-            Assert.AreEqual(StreamTask1ClassNode.GetFullName(), StreamTask1ClassNode2.GetFullName());
-            Assert.AreEqual(HelloTaskClassNode.GetFullName(), HelloTaskClassNode2.GetFullName());
+            Assert.Equal(StreamTask1ClassNode.GetFullName(), StreamTask1ClassNode2.GetFullName());
+            Assert.Equal(HelloTaskClassNode.GetFullName(), HelloTaskClassNode2.GetFullName());
         }
 
-        [TestMethod]
-        [DeploymentItem(@".")]
+        [Fact]
         public void TestDeSerializeClassHierarchyFromJava()
         {
             // the file comes from Java TestClassHierarchyRoundTrip SetUp3 testSimpleConstructors
             IClassHierarchy ch = ProtocolBufferClassHierarchy.DeSerialize("simpleConstructorJavaProto.bin");
             IClassNode simpleConstructorNode = (IClassNode)ch.GetNode("org.apache.reef.tang.implementation.SimpleConstructors");
-            Assert.AreEqual(simpleConstructorNode.GetChildren().Count, 0);
-            Assert.AreEqual(simpleConstructorNode.GetInjectableConstructors().Count, 3);
+            Assert.Equal(simpleConstructorNode.GetChildren().Count, 0);
+            Assert.Equal(simpleConstructorNode.GetInjectableConstructors().Count, 3);
         }
 
-        [TestMethod]
+        [Fact]
         public void TestSerializeClassHierarchyForAvro()
         {
             IClassHierarchy ns = TangFactory.GetTang().GetClassHierarchy(new string[] { typeof(Microsoft.Hadoop.Avro.AvroSerializer).Assembly.GetName().Name });
-            Assert.IsNotNull(ns);
+            Assert.NotNull(ns);
             ProtocolBufferClassHierarchy.Serialize("avro.bin", ns);
             IClassHierarchy ch = ProtocolBufferClassHierarchy.DeSerialize("avro.bin");
-            Assert.IsNotNull(ch);
+            Assert.NotNull(ch);
         }
 
-        [TestMethod]
+        [Fact]
         public void TestDeSerializeClassHierarchyAndBind()
         {
             Type streamTask1Type = typeof(StreamTask1);
@@ -148,8 +130,8 @@ namespace Org.Apache.REEF.Tang.Tests.ClassHierarchy
             IClassNode StreamTask1ClassNode2 = (IClassNode)ch.GetNode(streamTask1Type.AssemblyQualifiedName);
             IClassNode HelloTaskClassNode2 = (IClassNode)ch.GetNode(helloTaskType.AssemblyQualifiedName);
 
-            Assert.AreEqual(StreamTask1ClassNode.GetName(), StreamTask1ClassNode2.GetName());
-            Assert.AreEqual(HelloTaskClassNode.GetName(), HelloTaskClassNode2.GetName());
+            Assert.Equal(StreamTask1ClassNode.GetName(), StreamTask1ClassNode2.GetName());
+            Assert.Equal(HelloTaskClassNode.GetName(), HelloTaskClassNode2.GetName());
 
             // have to use original class hierarchy for the merge. ClassHierarchy from ProtoBuffer doesn't support merge. 
             IConfigurationBuilder cb = TangFactory.GetTang()
@@ -161,10 +143,10 @@ namespace Org.Apache.REEF.Tang.Tests.ClassHierarchy
 
             IConfiguration taskConfiguration = cb.Build();
             StreamTask1 st = TangFactory.GetTang().NewInjector(taskConfiguration).GetInstance<StreamTask1>();
-            Assert.IsNotNull(st);
+            Assert.NotNull(st);
         }
 
-        [TestMethod]
+        [Fact]
         public void TestSerirializeInjectionPlanForTimer()
         {
             Type timerType = typeof(Timer);
@@ -177,10 +159,10 @@ namespace Org.Apache.REEF.Tang.Tests.ClassHierarchy
             ProtocolBufferInjectionPlan.Serialize("timerplan.bin", ip);
             var ch = conf.GetClassHierarchy();
             var ip1 = ProtocolBufferInjectionPlan.DeSerialize("timerplan.bin", ch);
-            Assert.IsNotNull(ip1);
+            Assert.NotNull(ip1);
         }
 
-        [TestMethod]
+        [Fact]
         public void TestSerirializeInjectionPlanForSimpleConstructor()
         {
             Type simpleConstructorType = typeof(SimpleConstructors);
@@ -194,10 +176,10 @@ namespace Org.Apache.REEF.Tang.Tests.ClassHierarchy
             ProtocolBufferInjectionPlan.Serialize("plan.bin", ip);
             var ch = conf.GetClassHierarchy();
             var ipRecovered = ProtocolBufferInjectionPlan.DeSerialize("plan.bin", ch);
-            Assert.IsNotNull(ipRecovered);
+            Assert.NotNull(ipRecovered);
         }
 
-        [TestMethod]
+        [Fact]
         public void TestGenericClass()
         {
             IClassHierarchy ns = TangFactory.GetTang().GetClassHierarchy(new string[] { typeof(Timer).Assembly.GetName().Name });
@@ -207,10 +189,10 @@ namespace Org.Apache.REEF.Tang.Tests.ClassHierarchy
             ProtocolBufferClassHierarchy.Serialize("event.bin", ns);
             IClassHierarchy ch = ProtocolBufferClassHierarchy.DeSerialize("event.bin");
             IClassNode EventClassNode1 = (IClassNode)ns.GetNode(t.AssemblyQualifiedName);
-            Assert.AreEqual(EventClassNode.GetName(), EventClassNode1.GetName());
+            Assert.Equal(EventClassNode.GetName(), EventClassNode1.GetName());
         }
 
-        [TestMethod]
+        [Fact]
         public void TestGenericArgument()
         {
             IClassHierarchy ns = TangFactory.GetTang().GetClassHierarchy(new string[] { typeof(ClassWithGenericArgument<>).Assembly.GetName().Name });
@@ -223,13 +205,13 @@ namespace Org.Apache.REEF.Tang.Tests.ClassHierarchy
                 var args = c.GetArgs();
                 foreach (var a in args)
                 {
-                    Assert.IsNotNull(a.GetName());
+                    Assert.NotNull(a.GetName());
                 }
             }
             ProtocolBufferClassHierarchy.Serialize("generic.bin", ns);
             IClassHierarchy ch = ProtocolBufferClassHierarchy.DeSerialize("generic.bin");
             IClassNode classNode1 = (IClassNode)ns.GetNode(t.AssemblyQualifiedName);
-            Assert.AreEqual(classNode.GetName(), classNode1.GetName());
+            Assert.Equal(classNode.GetName(), classNode1.GetName());
         }
     }
 }

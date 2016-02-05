@@ -17,41 +17,24 @@
 
 using System;
 using System.Reflection;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Org.Apache.REEF.Tang.Examples;
 using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Tang.Util;
+using Xunit;
 
 namespace Org.Apache.REEF.Tang.Tests.Injection
 {
-    [TestClass]
     public class TestForkInjection
     {        
         static Assembly asm = null;
 
-        [ClassInitialize]
-        public static void ClassSetup(TestContext context)
+        public TestForkInjection()
         {
             asm = Assembly.Load(FileNames.Examples);
         }
 
-        [ClassCleanup]
-        public static void ClassCleanup()
-        {
-        }
-
-        [TestInitialize]
-        public void TestSetup()
-        {
-        }
-
-        [TestCleanup]
-        public void TestCleanup()
-        {
-        }
-
-        [TestMethod]
+        [Fact]
         public void TestForksInjectorInConstructor()
         {
             ICsConfigurationBuilder cb = TangFactory.GetTang().NewConfigurationBuilder(new string[] { FileNames.Examples });
@@ -59,7 +42,7 @@ namespace Org.Apache.REEF.Tang.Tests.Injection
             var o = i.GetInstance(typeof(ForksInjectorInConstructor));
         }
 
-        [TestMethod]
+        [Fact]
         public void TestForkWorks()
         {
             Type checkChildIfaceType = typeof(CheckChildIface);
@@ -71,7 +54,7 @@ namespace Org.Apache.REEF.Tang.Tests.Injection
             CheckChildIface c1 = (CheckChildIface)i1.GetInstance(checkChildIfaceType);
             IInjector i2 = i.ForkInjector();
             CheckChildIface c2 = (CheckChildIface)i2.GetInstance(checkChildIfaceType);
-            Assert.AreNotEqual(c1, c2);
+            Assert.NotEqual(c1, c2);
         }
     }
 }

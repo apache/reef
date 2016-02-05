@@ -103,7 +103,9 @@ under the License.
     <Compile Include="YARN\RestClient\IRequestFactory.cs" />
     <Compile Include="YARN\RestClient\IRestClient.cs" />
     <Compile Include="YARN\RestClient\ISerializer.cs" />
+    <Compile Include="YARN\RestClient\IYarnRestClientCredential.cs" />
     <Compile Include="YARN\RestClient\Method.cs" />
+    <Compile Include="YARN\RestClient\NullYarnRestClientCredential.cs" />
     <Compile Include="YARN\RestClient\RequestFactory.cs" />
     <Compile Include="YARN\RestClient\RestClient.cs" />
     <Compile Include="YARN\RestClient\RestJsonDeserializer.cs" />

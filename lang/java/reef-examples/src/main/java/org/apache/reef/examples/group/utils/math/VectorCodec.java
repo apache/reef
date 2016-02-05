@@ -25,8 +25,6 @@ import java.io.*;
 
 /**
  * Codec for the Vector type Uses Data*Stream.
- *
- * @author shravan
  */
 public class VectorCodec implements Codec<Vector> {
   /**

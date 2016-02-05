@@ -45,7 +45,8 @@ public final class SumOnesTestStart implements VortexStart {
     }
 
     final VortexAggregateFuture<Integer, Integer> future =
-        vortexThreadPool.submit(new AdditionAggregateFunction(), new IdentityFunction(), inputVector);
+        vortexThreadPool.submit(new AdditionAggregateFunction(), new IdentityFunction(),
+            VortexAggregatePolicy.newBuilder().setTimerPeriodTrigger(3000).build(), inputVector);
 
     try {
       AggregateResultSynchronous<Integer, Integer> result;
