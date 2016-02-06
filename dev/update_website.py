@@ -151,6 +151,6 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     reef_home = os.path.abspath(args.reef_home)
-    update_doap(reef_home + "/doap.rdf", args.reef_version)
+    update_doap(reef_home + "/website/src/site/resources/doap.rdf", args.reef_version)
     update_release_js(reef_home + "/website/src/site/resources/js/release.js", args.reef_version, args.sha512, args.notes_link)
     update_downloads(reef_home + "/website/src/site/markdown/downloads.md", args.reef_version, args.sha512, args.notes_link)
