@@ -19,9 +19,10 @@
 package org.apache.reef.bridge.client;
 
 import org.apache.reef.client.parameters.DriverConfigurationProviders;
+import org.apache.reef.runtime.common.client.DriverConfigurationProvider;
 import org.apache.reef.runtime.common.driver.parameters.ClientRemoteIdentifier;
 import org.apache.reef.runtime.common.files.REEFFileNames;
-import org.apache.reef.runtime.local.client.DriverConfigurationProvider;
+import org.apache.reef.runtime.local.client.DriverConfigurationProviderImpl;
 import org.apache.reef.runtime.local.client.PreparedDriverFolderLauncher;
 import org.apache.reef.runtime.yarn.driver.parameters.JobSubmissionDirectory;
 import org.apache.reef.tang.*;
@@ -62,7 +63,7 @@ final class LocalRuntimeDriverConfigurationGenerator {
    * Writes driver configuration to disk.
    * @param jobFolder The folder in which the job is staged.
    * @param jobId id of the job to be submitted
-   * @param clientRemoteId
+   * @param clientRemoteId The client remote id
    * @return the configuration
    * @throws IOException
    */
@@ -72,7 +73,7 @@ final class LocalRuntimeDriverConfigurationGenerator {
     final File driverFolder = new File(jobFolder, PreparedDriverFolderLauncher.DRIVER_FOLDER_NAME);
 
     final Configuration driverConfiguration1 = driverConfigurationProvider
-        .getDriverConfiguration(jobFolder, clientRemoteId,
+        .getDriverConfiguration(jobFolder.getAbsolutePath(), clientRemoteId,
         jobId, Constants.DRIVER_CONFIGURATION_WITH_HTTP_AND_NAMESERVER);
     final ConfigurationBuilder configurationBuilder = Tang.Factory.getTang().newConfigurationBuilder();
     for (final ConfigurationProvider configurationProvider : this.configurationProviders) {

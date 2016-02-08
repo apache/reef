@@ -26,18 +26,16 @@ import org.apache.hadoop.yarn.exceptions.YarnException;
 import org.apache.reef.annotations.audience.ClientSide;
 import org.apache.reef.annotations.audience.Private;
 import org.apache.reef.driver.parameters.DriverJobSubmissionDirectory;
+import org.apache.reef.runtime.common.client.DriverConfigurationProvider;
 import org.apache.reef.runtime.common.client.api.JobSubmissionEvent;
 import org.apache.reef.runtime.common.client.api.JobSubmissionHandler;
 import org.apache.reef.runtime.common.files.ClasspathProvider;
 import org.apache.reef.runtime.common.files.JobJarMaker;
 import org.apache.reef.runtime.common.files.REEFFileNames;
-import org.apache.reef.runtime.common.parameters.JVMHeapSlack;
 import org.apache.reef.runtime.yarn.client.parameters.JobQueue;
 import org.apache.reef.runtime.yarn.client.uploader.JobFolder;
 import org.apache.reef.runtime.yarn.client.uploader.JobUploader;
-import org.apache.reef.runtime.yarn.driver.YarnDriverConfiguration;
 import org.apache.reef.tang.Configuration;
-import org.apache.reef.tang.Configurations;
 import org.apache.reef.tang.Tang;
 import org.apache.reef.tang.annotations.Parameter;
 import org.apache.reef.tang.exceptions.InjectionException;
@@ -60,29 +58,29 @@ final class YarnJobSubmissionHandler implements JobSubmissionHandler {
   private final REEFFileNames fileNames;
   private final ClasspathProvider classpath;
   private final JobUploader uploader;
-  private final double jvmSlack;
   private final String defaultQueueName;
   private final SecurityTokenProvider tokenProvider;
+  private final DriverConfigurationProvider driverConfigurationProvider;
 
   @Inject
   YarnJobSubmissionHandler(
-      final YarnConfiguration yarnConfiguration,
-      final JobJarMaker jobJarMaker,
-      final REEFFileNames fileNames,
-      final ClasspathProvider classpath,
-      final JobUploader uploader,
-      @Parameter(JVMHeapSlack.class) final double jvmSlack,
-      @Parameter(JobQueue.class) final String defaultQueueName,
-      final SecurityTokenProvider tokenProvider) throws IOException {
+          final YarnConfiguration yarnConfiguration,
+          final JobJarMaker jobJarMaker,
+          final REEFFileNames fileNames,
+          final ClasspathProvider classpath,
+          final JobUploader uploader,
+          @Parameter(JobQueue.class) final String defaultQueueName,
+          final SecurityTokenProvider tokenProvider,
+          final DriverConfigurationProvider driverConfigurationProvider) throws IOException {
 
     this.yarnConfiguration = yarnConfiguration;
     this.jobJarMaker = jobJarMaker;
     this.fileNames = fileNames;
     this.classpath = classpath;
     this.uploader = uploader;
-    this.jvmSlack = jvmSlack;
     this.defaultQueueName = defaultQueueName;
     this.tokenProvider = tokenProvider;
+    this.driverConfigurationProvider = driverConfigurationProvider;
   }
 
   @Override
@@ -130,14 +128,12 @@ final class YarnJobSubmissionHandler implements JobSubmissionHandler {
   private Configuration makeDriverConfiguration(
       final JobSubmissionEvent jobSubmissionEvent,
       final Path jobFolderPath) throws IOException {
-    return Configurations.merge(
-        YarnDriverConfiguration.CONF
-            .set(YarnDriverConfiguration.JOB_SUBMISSION_DIRECTORY, jobFolderPath.toString())
-            .set(YarnDriverConfiguration.JOB_IDENTIFIER, jobSubmissionEvent.getIdentifier())
-            .set(YarnDriverConfiguration.CLIENT_REMOTE_IDENTIFIER, jobSubmissionEvent.getRemoteId())
-            .set(YarnDriverConfiguration.JVM_HEAP_SLACK, this.jvmSlack)
-            .build(),
-        jobSubmissionEvent.getConfiguration());
+
+    return this.driverConfigurationProvider.getDriverConfiguration(
+            jobFolderPath.toString(),
+            jobSubmissionEvent.getIdentifier(),
+            jobSubmissionEvent.getRemoteId(),
+            jobSubmissionEvent.getConfiguration());
   }
 
   private static int getPriority(final JobSubmissionEvent jobSubmissionEvent) {
@@ -168,7 +164,7 @@ final class YarnJobSubmissionHandler implements JobSubmissionHandler {
   /**
    * Extracts the queue name from the driverConfiguration or return default if none is set.
    *
-   * @param driverConfiguration
+   * @param driverConfiguration The drievr configuration
    * @return the queue name from the driverConfiguration or return default if none is set.
    */
   private String getQueue(final Configuration driverConfiguration) {

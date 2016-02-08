@@ -36,9 +36,9 @@ import org.apache.reef.wake.time.Clock;
 import java.util.concurrent.ExecutorService;
 
 /**
- * A ConfigurationModule to configure the local resourcemanager.
+ * A ConfigurationModule to configure the local resourcemanager with extensibility point.
  */
-public class LocalRuntimeConfiguration extends ConfigurationModuleBuilder {
+public class ExtensibleLocalRuntimeConfiguration extends ConfigurationModuleBuilder {
 
   /**
    * The number of threads or processes available to the resourcemanager. This is the upper limit on the number of
@@ -72,24 +72,27 @@ public class LocalRuntimeConfiguration extends ConfigurationModuleBuilder {
   public static final OptionalParameter<String> RACK_NAMES = new OptionalParameter<>();
 
   /**
+   * Driver configuration provider for the client.
+   */
+  public static final RequiredImpl<DriverConfigurationProvider> DRIVER_CONFIGURATION_PROVIDER = new RequiredImpl<>();
+
+  /**
    * The ConfigurationModule for the local resourcemanager.
    */
-  public static final ConfigurationModule CONF = new LocalRuntimeConfiguration()
-      .merge(CommonRuntimeConfiguration.CONF)
+  public static final ConfigurationModule CONF = new ExtensibleLocalRuntimeConfiguration()
+          .merge(CommonRuntimeConfiguration.CONF)
           // Bind the local runtime
-      .bindImplementation(JobSubmissionHandler.class, LocalJobSubmissionHandler.class)
-      .bindImplementation(DriverConfigurationProvider.class, DriverConfigurationProviderImpl.class)
-      .bindConstructor(ExecutorService.class, ExecutorServiceConstructor.class)
-      .bindImplementation(RuntimeClasspathProvider.class, LocalClasspathProvider.class)
+          .bindImplementation(JobSubmissionHandler.class, LocalJobSubmissionHandler.class)
+          .bindImplementation(DriverConfigurationProvider.class, DRIVER_CONFIGURATION_PROVIDER)
+          .bindConstructor(ExecutorService.class, ExecutorServiceConstructor.class)
+          .bindImplementation(RuntimeClasspathProvider.class, LocalClasspathProvider.class)
           // Bind parameters of the local runtime
-      .bindNamedParameter(MaxNumberOfEvaluators.class, MAX_NUMBER_OF_EVALUATORS)
-      .bindNamedParameter(RootFolder.class, RUNTIME_ROOT_FOLDER)
-      .bindNamedParameter(JVMHeapSlack.class, JVM_HEAP_SLACK)
-      .bindSetEntry(DriverConfigurationProviders.class, DRIVER_CONFIGURATION_PROVIDERS)
-      .bindSetEntry(Clock.StartHandler.class, PIDStoreStartHandler.class)
-      .bindSetEntry(RackNames.class, RACK_NAMES)
-      .build();
-
-
+          .bindNamedParameter(MaxNumberOfEvaluators.class, MAX_NUMBER_OF_EVALUATORS)
+          .bindNamedParameter(RootFolder.class, RUNTIME_ROOT_FOLDER)
+          .bindNamedParameter(JVMHeapSlack.class, JVM_HEAP_SLACK)
+          .bindSetEntry(DriverConfigurationProviders.class, DRIVER_CONFIGURATION_PROVIDERS)
+          .bindSetEntry(Clock.StartHandler.class, PIDStoreStartHandler.class)
+          .bindSetEntry(RackNames.class, RACK_NAMES)
+          .build();
 }
 

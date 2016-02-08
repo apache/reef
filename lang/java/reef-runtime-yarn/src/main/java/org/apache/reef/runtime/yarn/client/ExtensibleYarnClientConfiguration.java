@@ -35,11 +35,11 @@ import org.apache.reef.tang.formats.*;
 import org.apache.reef.util.logging.LoggingSetup;
 
 /**
- * A ConfigurationModule for the YARN resourcemanager.
+ * An extensible  ConfigurationModule for the YARN resourcemanager.
  */
 @Public
 @ClientSide
-public class YarnClientConfiguration extends ConfigurationModuleBuilder {
+public class ExtensibleYarnClientConfiguration extends ConfigurationModuleBuilder {
   static {
     LoggingSetup.setupCommonsLogging();
   }
@@ -59,11 +59,11 @@ public class YarnClientConfiguration extends ConfigurationModuleBuilder {
    */
   public static final RequiredImpl<DriverConfigurationProvider> DRIVER_CONFIGURATION_PROVIDER = new RequiredImpl<>();
 
-  public static final ConfigurationModule CONF = new YarnClientConfiguration()
+  public static final ConfigurationModule CONF = new ExtensibleYarnClientConfiguration()
       .merge(CommonRuntimeConfiguration.CONF)
           // Bind YARN
       .bindImplementation(JobSubmissionHandler.class, YarnJobSubmissionHandler.class)
-      .bindImplementation(DriverConfigurationProvider.class, DriverConfigurationProviderImpl.class)
+      .bindImplementation(DriverConfigurationProvider.class, DRIVER_CONFIGURATION_PROVIDER)
           // Bind the parameters given by the user
       .bindNamedParameter(JobQueue.class, YARN_QUEUE_NAME)
       .bindNamedParameter(JobPriority.class, YARN_PRIORITY)
@@ -73,4 +73,5 @@ public class YarnClientConfiguration extends ConfigurationModuleBuilder {
       .bindConstructor(org.apache.hadoop.yarn.conf.YarnConfiguration.class, YarnConfigurationConstructor.class)
       .bindSetEntry(DriverConfigurationProviders.class, DRIVER_CONFIGURATION_PROVIDERS)
       .build();
+
 }
