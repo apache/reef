@@ -21,6 +21,7 @@ package org.apache.reef.runtime.hdinsight.client;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.reef.client.REEF;
 import org.apache.reef.client.RunningJob;
+import org.apache.reef.runtime.common.client.DriverConfigurationProvider;
 import org.apache.reef.runtime.common.client.REEFImplementation;
 import org.apache.reef.runtime.common.client.RunningJobImpl;
 import org.apache.reef.runtime.common.client.api.JobSubmissionHandler;
@@ -46,6 +47,7 @@ public final class UnsafeHDInsightRuntimeConfigurationStatic extends Configurati
       .bindImplementation(RunningJob.class, RunningJobImpl.class)
       .bindNamedParameter(RemoteConfiguration.MessageCodec.class, REEFMessageCodec.class)
       .bindImplementation(JobSubmissionHandler.class, HDInsightJobSubmissionHandler.class)
+      .bindImplementation(DriverConfigurationProvider.class, HDInsightDriverConfigurationProviderImpl.class)
       .bindConstructor(CloseableHttpClient.class, UnsafeClientConstructor.class)
       .bindImplementation(RuntimeClasspathProvider.class, HDInsightClasspathProvider.class)
       .build();

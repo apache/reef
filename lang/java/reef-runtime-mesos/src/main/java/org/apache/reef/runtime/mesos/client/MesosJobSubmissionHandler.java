@@ -20,18 +20,15 @@ package org.apache.reef.runtime.mesos.client;
 
 import org.apache.reef.annotations.audience.ClientSide;
 import org.apache.reef.annotations.audience.Private;
+import org.apache.reef.runtime.common.client.DriverConfigurationProvider;
 import org.apache.reef.runtime.common.client.api.JobSubmissionEvent;
 import org.apache.reef.runtime.common.client.api.JobSubmissionHandler;
 import org.apache.reef.runtime.common.files.ClasspathProvider;
 import org.apache.reef.runtime.common.files.FileResource;
 import org.apache.reef.runtime.common.files.REEFFileNames;
 import org.apache.reef.runtime.common.launch.JavaLaunchCommandBuilder;
-import org.apache.reef.runtime.common.parameters.JVMHeapSlack;
-import org.apache.reef.runtime.mesos.client.parameters.MasterIp;
 import org.apache.reef.runtime.mesos.client.parameters.RootFolder;
-import org.apache.reef.runtime.mesos.driver.MesosDriverConfiguration;
 import org.apache.reef.tang.Configuration;
-import org.apache.reef.tang.Configurations;
 import org.apache.reef.tang.annotations.Parameter;
 import org.apache.reef.tang.formats.ConfigurationSerializer;
 
@@ -60,22 +57,19 @@ final class MesosJobSubmissionHandler implements JobSubmissionHandler {
   private final ClasspathProvider classpath;
   private final REEFFileNames fileNames;
   private final String rootFolderName;
-  private final String masterIp;
-  private final double jvmSlack;
+  private final DriverConfigurationProvider driverConfigurationProvider;
 
   @Inject
   MesosJobSubmissionHandler(@Parameter(RootFolder.class) final String rootFolderName,
-                            @Parameter(MasterIp.class) final String masterIp,
                             final ConfigurationSerializer configurationSerializer,
                             final REEFFileNames fileNames,
                             final ClasspathProvider classpath,
-                            @Parameter(JVMHeapSlack.class) final double jvmSlack) {
+                            final DriverConfigurationProvider driverConfigurationProvider) {
     this.rootFolderName = new File(rootFolderName).getAbsolutePath();
-    this.masterIp = masterIp;
     this.configurationSerializer = configurationSerializer;
     this.fileNames = fileNames;
     this.classpath = classpath;
-    this.jvmSlack = jvmSlack;
+    this.driverConfigurationProvider = driverConfigurationProvider;
   }
 
   @Override
@@ -86,7 +80,7 @@ final class MesosJobSubmissionHandler implements JobSubmissionHandler {
   public void onNext(final JobSubmissionEvent jobSubmissionEvent) {
     try {
       final File jobFolder = new File(new File(this.rootFolderName),
-          "/" + jobSubmissionEvent.getIdentifier() + "-" + System.currentTimeMillis() + "/");
+              "/" + jobSubmissionEvent.getIdentifier() + "-" + System.currentTimeMillis() + "/");
 
       final File driverFolder = new File(jobFolder, DRIVER_FOLDER_NAME);
       if (!driverFolder.exists() && !driverFolder.mkdirs()) {
@@ -120,16 +114,12 @@ final class MesosJobSubmissionHandler implements JobSubmissionHandler {
         Files.copy(src, dst, java.nio.file.StandardCopyOption.REPLACE_EXISTING);
       }
 
-      final Configuration driverConfiguration =
-          Configurations.merge(MesosDriverConfiguration.CONF
-              .set(MesosDriverConfiguration.MESOS_MASTER_IP, this.masterIp)
-              .set(MesosDriverConfiguration.JOB_IDENTIFIER, jobSubmissionEvent.getIdentifier())
-              .set(MesosDriverConfiguration.CLIENT_REMOTE_IDENTIFIER, jobSubmissionEvent.getRemoteId())
-              .set(MesosDriverConfiguration.JVM_HEAP_SLACK, this.jvmSlack)
-              .set(MesosDriverConfiguration.SCHEDULER_DRIVER_CAPACITY, 1)
-              // must be 1 as there is 1 scheduler at the same time
-              .build(),
-          jobSubmissionEvent.getConfiguration());
+      final Configuration driverConfiguration = this.driverConfigurationProvider.getDriverConfiguration(
+              null,
+              jobSubmissionEvent.getRemoteId(),
+              jobSubmissionEvent.getIdentifier(),
+              jobSubmissionEvent.getConfiguration());
+
       final File runtimeConfigurationFile = new File(driverFolder, this.fileNames.getDriverConfigurationPath());
       this.configurationSerializer.toFile(driverConfiguration, runtimeConfigurationFile);
 
@@ -143,11 +133,11 @@ final class MesosJobSubmissionHandler implements JobSubmissionHandler {
       final File outFile = new File(driverFolder, fileNames.getDriverStdoutFileName());
 
       new ProcessBuilder()
-          .command(launchCommand)
-          .directory(driverFolder)
-          .redirectError(errFile)
-          .redirectOutput(outFile)
-          .start();
+              .command(launchCommand)
+              .directory(driverFolder)
+              .redirectError(errFile)
+              .redirectOutput(outFile)
+              .start();
     } catch (final IOException e) {
       throw new RuntimeException(e);
     }

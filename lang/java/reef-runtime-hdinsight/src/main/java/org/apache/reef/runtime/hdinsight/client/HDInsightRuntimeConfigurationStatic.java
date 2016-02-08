@@ -20,6 +20,7 @@ package org.apache.reef.runtime.hdinsight.client;
 
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.reef.runtime.common.client.CommonRuntimeConfiguration;
+import org.apache.reef.runtime.common.client.DriverConfigurationProvider;
 import org.apache.reef.runtime.common.client.api.JobSubmissionHandler;
 import org.apache.reef.runtime.common.files.RuntimePathProvider;
 import org.apache.reef.runtime.common.files.RuntimeClasspathProvider;
@@ -41,6 +42,7 @@ public final class HDInsightRuntimeConfigurationStatic extends ConfigurationModu
   public static final ConfigurationModule CONF = new HDInsightRuntimeConfigurationStatic()
       .merge(CommonRuntimeConfiguration.CONF)
       .bindImplementation(JobSubmissionHandler.class, HDInsightJobSubmissionHandler.class)
+      .bindImplementation(DriverConfigurationProvider.class, HDInsightDriverConfigurationProviderImpl.class)
       .bindConstructor(CloseableHttpClient.class, DefaultClientConstructor.class)
       .bindImplementation(RuntimeClasspathProvider.class, HDInsightClasspathProvider.class)
       .bindImplementation(RuntimePathProvider.class, HDInsightJVMPathProvider.class)

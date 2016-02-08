@@ -88,13 +88,13 @@ final class AzureUploader {
   }
 
   @SuppressWarnings("checkstyle:hiddenfield")
-  public String createJobFolder(final String applicationID) throws IOException {
+  public URI createJobFolder(final String applicationID) throws IOException {
     try {
       this.applicationID = applicationID;
       this.jobFolderName = assembleJobFolderName(applicationID);
       // Make the directory entry for the job
       final CloudBlockBlob jobFolderBlob = this.container.getBlockBlobReference(this.jobFolderName);
-      final String jobFolderURL = getFileSystemURL(jobFolderBlob);
+      final URI jobFolderURL = getFileSystemURL(jobFolderBlob);
       return jobFolderURL;
     } catch (final StorageException | URISyntaxException e) {
       throw new IOException("Unable to create job Folder", e);
@@ -129,7 +129,7 @@ final class AzureUploader {
           .setVisibility(LocalResource.VISIBILITY_APPLICATION)
           .setSize(blobProperties.getLength())
           .setTimestamp(blobProperties.getLastModified().getTime())
-          .setResource(getFileSystemURL(jobJarBlob));
+          .setResource(getFileSystemURL(jobJarBlob).toString());
 
     } catch (final URISyntaxException | StorageException e) {
       throw new IOException(e);
@@ -140,10 +140,14 @@ final class AzureUploader {
    * @param blob
    * @return a HDFS URL for the blob
    */
-  private String getFileSystemURL(final CloudBlockBlob blob) {
+  private URI getFileSystemURL(final CloudBlockBlob blob) {
     final URI primaryURI = blob.getStorageUri().getPrimaryUri();
     final String path = primaryURI.getPath().replace(this.azureStorageContainerName + "/", "");
-    return "wasb://" + this.azureStorageContainerName + "@" + primaryURI.getHost() + path;
+    try {
+      return new URI("wasb://" + this.azureStorageContainerName + "@" + primaryURI.getHost() + path);
+    } catch (URISyntaxException e) {
+      throw new RuntimeException("Invalid URI constructed ", e);
+    }
   }
 
   private String assembleJobFolderName(final String jobApplicationID) {

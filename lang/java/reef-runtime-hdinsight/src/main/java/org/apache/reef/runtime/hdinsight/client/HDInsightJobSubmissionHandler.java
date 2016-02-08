@@ -22,22 +22,21 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.hadoop.yarn.api.ApplicationConstants;
 import org.apache.reef.annotations.audience.ClientSide;
 import org.apache.reef.annotations.audience.Private;
+import org.apache.reef.runtime.common.client.DriverConfigurationProvider;
 import org.apache.reef.runtime.common.client.api.JobSubmissionEvent;
 import org.apache.reef.runtime.common.client.api.JobSubmissionHandler;
 import org.apache.reef.runtime.common.files.ClasspathProvider;
 import org.apache.reef.runtime.common.files.JobJarMaker;
 import org.apache.reef.runtime.common.files.REEFFileNames;
 import org.apache.reef.runtime.common.launch.JavaLaunchCommandBuilder;
-import org.apache.reef.runtime.common.parameters.JVMHeapSlack;
 import org.apache.reef.runtime.hdinsight.client.yarnrest.*;
 import org.apache.reef.tang.Configuration;
-import org.apache.reef.tang.Configurations;
-import org.apache.reef.tang.annotations.Parameter;
 
 import javax.inject.Inject;
 import java.io.File;
 import java.io.IOException;
 import java.util.Collections;
+import java.net.URI;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -56,7 +55,7 @@ public final class HDInsightJobSubmissionHandler implements JobSubmissionHandler
   private final HDInsightInstance hdInsightInstance;
   private final REEFFileNames filenames;
   private final ClasspathProvider classpath;
-  private final double jvmHeapSlack;
+  private final DriverConfigurationProvider driverConfigurationProvider;
 
   @Inject
   HDInsightJobSubmissionHandler(final AzureUploader uploader,
@@ -64,13 +63,13 @@ public final class HDInsightJobSubmissionHandler implements JobSubmissionHandler
                                 final HDInsightInstance hdInsightInstance,
                                 final REEFFileNames filenames,
                                 final ClasspathProvider classpath,
-                                @Parameter(JVMHeapSlack.class) final double jvmHeapSlack) {
+                                final DriverConfigurationProvider driverConfigurationProvider) {
     this.uploader = uploader;
     this.jobJarMaker = jobJarMaker;
     this.hdInsightInstance = hdInsightInstance;
     this.filenames = filenames;
     this.classpath = classpath;
-    this.jvmHeapSlack = jvmHeapSlack;
+    this.driverConfigurationProvider = driverConfigurationProvider;
   }
 
   @Override
@@ -89,7 +88,7 @@ public final class HDInsightJobSubmissionHandler implements JobSubmissionHandler
       LOG.log(Level.INFO, "Submitting application {0} to YARN.", applicationID.getApplicationId());
 
       LOG.log(Level.FINE, "Creating a job folder on Azure.");
-      final String jobFolderURL = this.uploader.createJobFolder(applicationID.getApplicationId());
+      final URI jobFolderURL = this.uploader.createJobFolder(applicationID.getApplicationId());
 
       LOG.log(Level.FINE, "Assembling Configuration for the Driver.");
       final Configuration driverConfiguration =
@@ -161,17 +160,11 @@ public final class HDInsightJobSubmissionHandler implements JobSubmissionHandler
   private Configuration makeDriverConfiguration(
       final JobSubmissionEvent jobSubmissionEvent,
       final String applicationId,
-      final String jobFolderURL) throws IOException {
+      final URI jobFolderURL) throws IOException {
 
-    final Configuration hdinsightDriverConfiguration = HDInsightDriverConfiguration.CONF
-        .set(HDInsightDriverConfiguration.JOB_IDENTIFIER, applicationId)
-        .set(HDInsightDriverConfiguration.CLIENT_REMOTE_IDENTIFIER, jobSubmissionEvent.getRemoteId())
-        .set(HDInsightDriverConfiguration.JOB_SUBMISSION_DIRECTORY, jobFolderURL)
-        .set(HDInsightDriverConfiguration.JVM_HEAP_SLACK, this.jvmHeapSlack)
-        .build();
-
-    return Configurations.merge(
-        jobSubmissionEvent.getConfiguration(),
-        hdinsightDriverConfiguration);
+    return this.driverConfigurationProvider.getDriverConfiguration(jobFolderURL,
+                                                            jobSubmissionEvent.getRemoteId(),
+                                                            applicationId,
+                                                            jobSubmissionEvent.getConfiguration());
   }
 }
