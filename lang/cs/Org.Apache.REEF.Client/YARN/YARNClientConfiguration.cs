@@ -37,6 +37,7 @@ namespace Org.Apache.REEF.Client.Yarn
 
         public static ConfigurationModule ConfigurationModule = new YARNClientConfiguration()
             .BindImplementation(GenericType<IREEFClient>.Class, GenericType<YarnREEFClient>.Class)
+            .BindImplementation(GenericType<IYarnRestClientCredential>.Class, YarnRestClientCredential)
             .BindNamedParameter(GenericType<JobSubmissionDirectoryPrefixParameter>.Class, JobSubmissionFolderPrefix)
             .BindNamedParameter(GenericType<SecurityTokenKindParameter>.Class, SecurityTokenKind)
             .BindNamedParameter(GenericType<SecurityTokenServiceParameter>.Class, SecurityTokenService)
