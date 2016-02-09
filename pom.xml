@@ -275,6 +275,7 @@ under the License.
                             <!-- The below are sometimes created during tests -->
                             <exclude>REEF_LOCAL_RUNTIME/**</exclude>
                             <exclude>REEF_MESOS_RUNTIME/**</exclude>
+                            <exclude>REEF_STANDALONE_RUNTIME/**</exclude>
                             <!-- JVM error logs, especially troublesome on CI servers -->
                             <exclude>**/hs_err_*.log</exclude>
                             <!-- The Visual Studio and Nuget build files -->
@@ -814,6 +815,7 @@ under the License.
         <module>lang/java/reef-runtime-yarn</module>
         <module>lang/java/reef-runtime-mesos</module>
         <module>lang/java/reef-runtime-multi</module>
+        <module>lang/java/reef-runtime-standalone</module>
         <module>lang/java/reef-tang</module>
         <module>lang/java/reef-tests</module>
         <module>lang/java/reef-wake</module>

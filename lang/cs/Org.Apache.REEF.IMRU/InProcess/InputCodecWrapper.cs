@@ -20,7 +20,7 @@ using Org.Apache.REEF.Wake.StreamingCodec;
 
 namespace Org.Apache.REEF.IMRU.InProcess
 {
-    internal class InputCodecWrapper<T>
+    internal sealed class InputCodecWrapper<T>
     {
         [Inject]
         private InputCodecWrapper(IStreamingCodec<T> codec)

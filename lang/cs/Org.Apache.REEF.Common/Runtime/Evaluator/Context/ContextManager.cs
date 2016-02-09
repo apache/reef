@@ -287,7 +287,7 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Context
                 var contextConfiguration = _serializer.FromString(addContextProto.context_configuration);
 
                 ContextRuntime newTopContext;
-                if (addContextProto.service_configuration != null)
+                if (!string.IsNullOrWhiteSpace(addContextProto.service_configuration))
                 {
                     var serviceConfiguration = new ServiceConfiguration(addContextProto.service_configuration);
                     newTopContext = currentTopContext.SpawnChildContext(contextConfiguration, serviceConfiguration.TangConfig);

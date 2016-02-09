@@ -34,7 +34,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.IMRUTasks
     /// <typeparam name="TMapInput">Map input</typeparam>
     /// <typeparam name="TMapOutput">Map output</typeparam>
     /// <typeparam name="TResult">Final result</typeparam>
-    public sealed class UpdateTaskHost<TMapInput, TMapOutput, TResult> : ITask
+    internal sealed class UpdateTaskHost<TMapInput, TMapOutput, TResult> : ITask
     {
         private static readonly Logger Logger = Logger.GetLogger(typeof(UpdateTaskHost<TMapInput, TMapOutput, TResult>));
 

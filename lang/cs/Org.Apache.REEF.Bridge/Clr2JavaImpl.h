@@ -83,6 +83,7 @@ namespace Org {
                             ~ActiveContextClr2Java();
                             !ActiveContextClr2Java();
                             virtual void SubmitTask(String^ taskConfigStr);
+                            virtual void SubmitContext(String^ contextConfigStr);
                             virtual void Close();
                             virtual void OnError(String^ message);
                             virtual String^ GetId();

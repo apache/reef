@@ -18,7 +18,6 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using Org.Apache.REEF.Network.Group.Driver.Impl;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Utilities.Diagnostics;
 using Org.Apache.REEF.Utilities.Logging;
@@ -31,7 +30,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.MapInputWithControlMessage
     /// Streaming codec for MapInputWithControlMessage
     /// </summary>
     /// <typeparam name="TMapInput"></typeparam>
-    internal class MapInputWithControlMessageCodec<TMapInput> : IStreamingCodec<MapInputWithControlMessage<TMapInput>>
+    internal sealed class MapInputWithControlMessageCodec<TMapInput> : IStreamingCodec<MapInputWithControlMessage<TMapInput>>
     {
         private static Logger Logger = Logger.GetLogger(typeof(MapInputWithControlMessage<>));
         private readonly IStreamingCodec<TMapInput> _baseCodec;

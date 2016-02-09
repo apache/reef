@@ -18,6 +18,7 @@
  */
 package org.apache.reef.javabridge;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.reef.annotations.audience.Interop;
 import org.apache.reef.annotations.audience.Private;
 import org.apache.reef.driver.context.ActiveContext;
@@ -62,13 +63,21 @@ public final class ActiveContextBridge extends NativeBridge implements Identifia
   }
 
   public void submitTaskString(final String taskConfigurationString) {
-    if (taskConfigurationString.isEmpty()) {
+    if (StringUtils.isEmpty(taskConfigurationString)) {
       throw new RuntimeException("empty taskConfigurationString provided.");
     }
 
     //when submit over the bridge, we would keep the task configuration as a serialized string
     //submitTask(String taskConfig) is not exposed in the interface. Therefore cast is necessary.
     ((EvaluatorContext)jactiveContext).submitTask(taskConfigurationString);
+  }
+
+  public void submitContextString(final String contextConfigurationString) {
+    if (StringUtils.isEmpty(contextConfigurationString)) {
+      throw new RuntimeException("empty contextConfigurationString provided.");
+    }
+
+    ((EvaluatorContext)jactiveContext).submitContext(contextConfigurationString);
   }
 
   public String getEvaluatorDescriptorString() {

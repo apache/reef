@@ -23,7 +23,7 @@ using Org.Apache.REEF.Utilities.Attributes;
 namespace Org.Apache.REEF.IMRU.OnREEF.ResultHandler
 {
     [Unstable("0.14", "This API will change after introducing proper API for output in REEF.IO")]
-    internal class DefaultResultHandler<TResult> : IIMRUResultHandler<TResult>
+    internal sealed class DefaultResultHandler<TResult> : IIMRUResultHandler<TResult>
     {
         [Inject]
         private DefaultResultHandler()

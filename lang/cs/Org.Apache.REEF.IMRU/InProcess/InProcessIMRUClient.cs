@@ -40,7 +40,7 @@ namespace Org.Apache.REEF.IMRU.InProcess
     /// <remarks>
     /// This client assumes that all given Configurations can be merged in a conflict-free way.
     /// </remarks> 
-    public class InProcessIMRUClient : IIMRUClient
+    public sealed class InProcessIMRUClient : IIMRUClient
     {
         private static readonly Logger Logger =
             Logger.GetLogger(typeof(InProcessIMRUClient));
