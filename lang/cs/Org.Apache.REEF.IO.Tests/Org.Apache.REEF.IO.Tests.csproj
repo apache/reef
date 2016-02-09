@@ -118,4 +118,9 @@ under the License.
     <Error Condition="!Exists('$(SolutionDir)\packages\xunit.core.2.1.0\build\portable-net45+win8+wp8+wpa81\xunit.core.props')" Text="$([System.String]::Format('$(ErrorText)', '$(PackagesDir)\xunit.core.2.1.0\build\portable-net45+win8+wp8+wpa81\xunit.core.props'))" />
     <Error Condition="!Exists('$(SolutionDir)\packages\xunit.runner.visualstudio.2.1.0\build\net20\xunit.runner.visualstudio.props')" Text="$([System.String]::Format('$(ErrorText)', '$(PackagesDir)\xunit.runner.visualstudio.2.1.0\build\net20\xunit.runner.visualstudio.props'))" />
   </Target>
+  <Target Name="Test">
+    <Exec Command="$(PackagesDir)\xunit.runner.console.2.1.0\tools\xunit.console.exe $(OutputPath)\$(AssemblyName).dll"
+     IgnoreStandardErrorWarningFormat="true"
+    />
+  </Target>
 </Project>

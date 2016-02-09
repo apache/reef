@@ -75,6 +75,6 @@ under the License.
   <!-- Locations -->
   <PropertyGroup>
     <!--The root directory of the REEF source tree. -->
-    <REEF_Source_Folder>$([System.IO.Path]::GetFullPath($(SolutionDir)\..\..))</REEF_Source_Folder>
+    <REEF_Source_Folder>$([System.IO.Path]::GetFullPath($(MSBuildProjectDirectory)\..\..\..))</REEF_Source_Folder>
   </PropertyGroup>
 </Project>
