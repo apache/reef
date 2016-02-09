@@ -67,7 +67,7 @@ via:
 
 To test, execute the following command thereafter:
 
-    vstest.console.exe .\lang\cs\bin\x64\Debug\Org.Apache.REEF.Tests\Org.Apache.REEF.Tests.dll /Platform:x64
+    msbuild .\lang\cs\TestRunner.proj
 
 Additional Information
 ----------------------
