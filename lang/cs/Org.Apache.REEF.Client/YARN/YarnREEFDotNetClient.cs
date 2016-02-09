@@ -102,8 +102,15 @@ namespace Org.Apache.REEF.Client.YARN
                 SerializeAppFile(jobSubmission, paramInjector, localDriverFolderPath);
                 SerializeJobFile(jobSubmission, localDriverFolderPath, jobSubmissionDirectory);
 
+                var archiveResource = _jobResourceUploader.UploadArchiveResource(localDriverFolderPath, jobSubmissionDirectory);
+
+                // Path to the job args file.
+                var jobArgsFilePath = Path.Combine(localDriverFolderPath, _fileNames.GetSubmissionJobParametersFile());
+
+                var argFileResource = _jobResourceUploader.UploadFileResource(jobArgsFilePath, jobSubmissionDirectory);
+
                 // upload prepared folder to DFS
-                var jobResources = _jobResourceUploader.UploadJobResource(localDriverFolderPath, jobSubmissionDirectory);
+                var jobResources = new List<JobResource> { archiveResource, argFileResource };
 
                 // submit job
                 Log.Log(Level.Verbose, @"Assigned application id {0}", applicationId);
@@ -193,7 +200,7 @@ namespace Org.Apache.REEF.Client.YARN
            IJobSubmission jobSubmission,
            string appId,
            int maxApplicationSubmissions,
-           ICollection<JobResource> jobResources)
+           IReadOnlyCollection<JobResource> jobResources)
         {
             string command = _yarnJobCommandProvider.GetJobSubmissionCommand();
             Log.Log(Level.Verbose, "Command for YARN: {0}", command);
@@ -232,7 +239,7 @@ namespace Org.Apache.REEF.Client.YARN
             return submitApplication;
         }
 
-        private static LocalResources CreateLocalResources(ICollection<JobResource> jobResources)
+        private static LocalResources CreateLocalResources(IEnumerable<JobResource> jobResources)
         {
             return new LocalResources
             {
@@ -242,7 +249,7 @@ namespace Org.Apache.REEF.Client.YARN
                     Value = new LocalResourcesValue
                     {
                         Resource = jobResource.RemoteUploadPath,
-                        Type = ResourceType.ARCHIVE,
+                        Type = jobResource.ResourceType,
                         Visibility = Visibility.APPLICATION,
                         Size = jobResource.ResourceSize,
                         Timestamp = jobResource.LastModificationUnixTimestamp

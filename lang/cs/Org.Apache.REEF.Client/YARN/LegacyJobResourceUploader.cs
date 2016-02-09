@@ -62,20 +62,21 @@ namespace Org.Apache.REEF.Client.Yarn
             _reefFileNames = reefFileNames;
         }
 
-        public ICollection<JobResource> UploadJobResource(string driverLocalFolderPath, string jobSubmissionDirectory)
+        public JobResource UploadArchiveResource(string driverLocalFolderPath, string remoteUploadDirectoryPath)
         {
-            var resources = new List<JobResource>();
             driverLocalFolderPath = driverLocalFolderPath.TrimEnd('\\') + @"\";
-            string driverUploadPath = jobSubmissionDirectory.TrimEnd('/') + @"/";
+            var driverUploadPath = remoteUploadDirectoryPath.TrimEnd('/') + @"/";
             Log.Log(Level.Info, "DriverFolderPath: {0} DriverUploadPath: {1}", driverLocalFolderPath, driverUploadPath);
 
             var archivePath = _resourceArchiveFileGenerator.CreateArchiveToUpload(driverLocalFolderPath);
-            resources.Add(GetJobResource(archivePath, ResourceType.ARCHIVE, driverUploadPath, _reefFileNames.GetReefFolderName()));
+            return GetJobResource(archivePath, ResourceType.ARCHIVE, driverUploadPath, _reefFileNames.GetReefFolderName());
+        }
 
-            var jobArgsFilePath = Path.Combine(driverLocalFolderPath, _reefFileNames.GetSubmissionJobParametersFile());
-            resources.Add(GetJobResource(jobArgsFilePath, ResourceType.FILE, driverUploadPath));
-
-            return resources;
+        public JobResource UploadFileResource(string fileLocalPath, string remoteUploadDirectoryPath)
+        {
+            var driverUploadPath = remoteUploadDirectoryPath.TrimEnd('/') + @"/";
+            var jobArgsFilePath = fileLocalPath;
+            return GetJobResource(jobArgsFilePath, ResourceType.FILE, driverUploadPath);
         }
 
         private JobResource GetJobResource(string filePath, ResourceType resourceType, string driverUploadPath, string localizedName = null)

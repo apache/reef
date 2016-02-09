@@ -210,8 +210,8 @@ public final class YarnSubmissionHelper implements Closeable{
 
   /**
    * Sets the configuration file for the job.
-   * Note that this is not the Driver TANG configuration. In the bootstrap
-   * launch case, this is the Avro file that supports the generation of a driver
+   * Note that this does not have to be Driver TANG configuration. In the bootstrap
+   * launch case, this can be the set of  the Avro files that supports the generation of a driver
    * configuration file natively at the Launcher.
    * @param configurationFilePaths
    * @return

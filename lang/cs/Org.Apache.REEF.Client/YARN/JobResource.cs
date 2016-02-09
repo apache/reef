@@ -16,10 +16,12 @@
 // under the License.
 
 using Org.Apache.REEF.Client.YARN.RestClient.DataModel;
+using Org.Apache.REEF.Utilities.Attributes;
 
 namespace Org.Apache.REEF.Client.Yarn
 {
-    internal class JobResource
+    [Unstable("New API.")]
+    public sealed class JobResource
     {
         public string Name { get; set; }
 

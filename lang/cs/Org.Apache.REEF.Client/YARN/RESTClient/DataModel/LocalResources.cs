@@ -56,7 +56,7 @@ namespace Org.Apache.REEF.Client.YARN.RestClient.DataModel
         public long Timestamp { get; set; }
     }
 
-    internal enum ResourceType
+    public enum ResourceType
     {
         ARCHIVE,
 

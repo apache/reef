@@ -56,23 +56,26 @@ namespace Org.Apache.REEF.Client.YARN.RestClient
             _file = file;
         }
 
-        public ICollection<JobResource> UploadJobResource(string driverLocalFolderPath, string jobSubmissionDirectory)
+        public JobResource UploadArchiveResource(string driverLocalFolderPath, string remoteUploadDirectoryPath)
         {
-            var resources = new List<JobResource>();
             driverLocalFolderPath = driverLocalFolderPath.TrimEnd('\\') + @"\";
-            var driverUploadPath = jobSubmissionDirectory.TrimEnd('/') + @"/";
+            var driverUploadPath = remoteUploadDirectoryPath.TrimEnd('/') + @"/";
+            var parentDirectoryUri = _fileSystem.CreateUriForPath(remoteUploadDirectoryPath);
             Log.Log(Level.Verbose, "DriverFolderPath: {0} DriverUploadPath: {1}", driverLocalFolderPath, driverUploadPath);
-
-            var parentDirectoryUri = _fileSystem.CreateUriForPath(driverUploadPath);
+            
             _fileSystem.CreateDirectory(parentDirectoryUri);
 
             var archivePath = _resourceArchiveFileGenerator.CreateArchiveToUpload(driverLocalFolderPath);
-            resources.Add(GetJobResource(archivePath, ResourceType.ARCHIVE, driverUploadPath));
+            return GetJobResource(archivePath, ResourceType.ARCHIVE, driverUploadPath);
+        }
 
-            var jobArgsFilePath = Path.Combine(driverLocalFolderPath, _reefFileNames.GetSubmissionJobParametersFile());
-            resources.Add(GetJobResource(jobArgsFilePath, ResourceType.FILE, driverUploadPath));
+        public JobResource UploadFileResource(string fileLocalPath, string remoteUploadDirectoryPath)
+        {
+            var driverUploadPath = remoteUploadDirectoryPath.TrimEnd('/') + @"/";
+            var parentDirectoryUri = _fileSystem.CreateUriForPath(driverUploadPath);
 
-            return resources;
+            _fileSystem.CreateDirectory(parentDirectoryUri);
+            return GetJobResource(fileLocalPath, ResourceType.FILE, remoteUploadDirectoryPath);
         }
 
         private JobResource GetJobResource(string filePath, ResourceType resourceType, string driverUploadPath)

@@ -20,6 +20,7 @@ using System.Collections.Generic;
 using System.Linq;
 using NSubstitute;
 using Org.Apache.REEF.Client.Common;
+using Org.Apache.REEF.Client.Yarn;
 using Org.Apache.REEF.Client.YARN.RestClient;
 using Org.Apache.REEF.IO.FileSystem;
 using Org.Apache.REEF.Tang.Implementations.Tang;
@@ -56,7 +57,7 @@ namespace Org.Apache.REEF.Client.Tests
             var testContext = new TestContext();
             var jobResourceUploader = testContext.GetJobResourceUploader();
 
-            jobResourceUploader.UploadJobResource(AnyDriverLocalFolderPath, AnyDriverResourceUploadPath);
+            jobResourceUploader.UploadArchiveResource(AnyDriverLocalFolderPath, AnyDriverResourceUploadPath);
 
             // Archive file generator recieved exactly one call with correct driver local folder path
             testContext.ResourceArchiveFileGenerator.Received(1).CreateArchiveToUpload(AnyDriverLocalFolderPath);
@@ -68,7 +69,9 @@ namespace Org.Apache.REEF.Client.Tests
             var testContext = new TestContext();
             var jobResourceUploader = testContext.GetJobResourceUploader();
 
-            var jobResources = jobResourceUploader.UploadJobResource(AnyDriverLocalFolderPath, AnyDriverResourceUploadPath);
+            var archiveJobResource = jobResourceUploader.UploadArchiveResource(AnyDriverLocalFolderPath, AnyDriverResourceUploadPath);
+            var fileJobResource = jobResourceUploader.UploadFileResource(AnyLocalJobFilePath, AnyDriverResourceUploadPath);
+            var jobResources = new List<JobResource> { archiveJobResource, fileJobResource };
 
             foreach (var resource in jobResources)
             {
@@ -87,14 +90,15 @@ namespace Org.Apache.REEF.Client.Tests
             var testContext = new TestContext();
             var jobResourceUploader = testContext.GetJobResourceUploader();
 
-            jobResourceUploader.UploadJobResource(AnyDriverLocalFolderPath, AnyDriverResourceUploadPath);
+            jobResourceUploader.UploadArchiveResource(AnyDriverLocalFolderPath, AnyDriverResourceUploadPath);
+            jobResourceUploader.UploadFileResource(AnyLocalJobFilePath, AnyDriverResourceUploadPath);
 
             testContext.FileSystem.Received(1).CreateUriForPath(AnyUploadedResourcePath);
 
-            testContext.FileSystem.Received(1).CreateUriForPath(AnyDriverResourceUploadPath);
+            testContext.FileSystem.Received(2).CreateUriForPath(AnyDriverResourceUploadPath);
             testContext.FileSystem.Received(1)
                 .CopyFromLocal(AnyLocalArchivePath, new Uri(AnyUploadedResourceAbsoluteUri));
-            testContext.FileSystem.Received(1)
+            testContext.FileSystem.Received(2)
                 .CreateDirectory(new Uri(AnyScheme + AnyHost + AnyDriverResourceUploadPath));
 
             testContext.FileSystem.Received(1).CreateUriForPath(AnyJobFileResourcePath);

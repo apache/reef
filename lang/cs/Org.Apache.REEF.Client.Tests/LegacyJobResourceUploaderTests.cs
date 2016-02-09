@@ -16,8 +16,8 @@
 // under the License.
 
 using System;
+using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using NSubstitute;
 using Org.Apache.REEF.Client.Common;
 using Org.Apache.REEF.Client.Yarn;
@@ -30,6 +30,7 @@ namespace Org.Apache.REEF.Client.Tests
     public class LegacyJobResourceUploaderTests
     {
         private const string AnyDriverLocalFolderPath = @"Any\Local\Folder\Path";
+        private const string AnyLocalJobFilePath = AnyDriverLocalFolderPath + @"\job-submission-params.json";
         private const string AnyDriverResourceUploadPath = "/vol1/tmp";
         private const string AnyUploadedResourcePath = "hdfs://foo/vol1/tmp/anyFile";
         private const long AnyModificationTime = 1446161745550;
@@ -41,7 +42,7 @@ namespace Org.Apache.REEF.Client.Tests
             var testContext = new TestContext();
             var jobResourceUploader = testContext.GetJobResourceUploader();
             
-            jobResourceUploader.UploadJobResource(AnyDriverLocalFolderPath, AnyDriverResourceUploadPath);
+            jobResourceUploader.UploadArchiveResource(AnyDriverLocalFolderPath, AnyDriverResourceUploadPath);
 
             // Archive file generator recieved exactly one call with correct driver local folder path with trailing \
             testContext.ResourceArchiveFileGenerator.Received(1).CreateArchiveToUpload(AnyDriverLocalFolderPath + @"\");
@@ -56,7 +57,8 @@ namespace Org.Apache.REEF.Client.Tests
             var anyLocalJobFilePath = AnyDriverLocalFolderPath.TrimEnd('\\') + @"\job-submission-params.json";
             testContext.ResourceArchiveFileGenerator.CreateArchiveToUpload(AnyDriverLocalFolderPath + @"\")
                 .Returns(anyLocalArchivePath);
-            jobResourceUploader.UploadJobResource(AnyDriverLocalFolderPath, AnyDriverResourceUploadPath);
+            jobResourceUploader.UploadArchiveResource(AnyDriverLocalFolderPath, AnyDriverResourceUploadPath);
+            jobResourceUploader.UploadFileResource(AnyLocalJobFilePath, AnyDriverResourceUploadPath);
 
             const string javaClassNameForResourceUploader = @"org.apache.reef.bridge.client.JobResourceUploader";
             Guid notUsed;
@@ -91,7 +93,7 @@ namespace Org.Apache.REEF.Client.Tests
             var jobResourceUploader = testContext.GetJobResourceUploader(fileExistsReturnValue: false);
 
             // throws filenotfound exception
-            Assert.Throws<FileNotFoundException>(() => jobResourceUploader.UploadJobResource(AnyDriverLocalFolderPath, AnyDriverResourceUploadPath));
+            Assert.Throws<FileNotFoundException>(() => jobResourceUploader.UploadArchiveResource(AnyDriverLocalFolderPath, AnyDriverResourceUploadPath));
         }
 
         [Fact]
@@ -100,7 +102,11 @@ namespace Org.Apache.REEF.Client.Tests
             var testContext = new TestContext();
             var jobResourceUploader = testContext.GetJobResourceUploader();
 
-            var jobResources = jobResourceUploader.UploadJobResource(AnyDriverLocalFolderPath, AnyDriverResourceUploadPath);
+            var jobResources = new List<JobResource>()
+            {
+                jobResourceUploader.UploadArchiveResource(AnyDriverLocalFolderPath, AnyDriverResourceUploadPath),
+                jobResourceUploader.UploadFileResource(AnyLocalJobFilePath, AnyDriverResourceUploadPath)
+            };
 
             Assert.Equal(jobResources.Count, 2);
             foreach (var resource in jobResources)
