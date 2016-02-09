@@ -47,7 +47,7 @@ public final class UnsafeHDInsightRuntimeConfigurationStatic extends Configurati
       .bindImplementation(RunningJob.class, RunningJobImpl.class)
       .bindNamedParameter(RemoteConfiguration.MessageCodec.class, REEFMessageCodec.class)
       .bindImplementation(JobSubmissionHandler.class, HDInsightJobSubmissionHandler.class)
-      .bindImplementation(DriverConfigurationProvider.class, DriverConfigurationProviderImpl.class)
+      .bindImplementation(DriverConfigurationProvider.class, HDInsightDriverConfigurationProviderImpl.class)
       .bindConstructor(CloseableHttpClient.class, UnsafeClientConstructor.class)
       .bindImplementation(RuntimeClasspathProvider.class, HDInsightClasspathProvider.class)
       .build();

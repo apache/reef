@@ -18,8 +18,6 @@
  */
 package org.apache.reef.runtime.yarn.client;
 
-import org.apache.reef.annotations.audience.ClientSide;
-import org.apache.reef.annotations.audience.Public;
 import org.apache.reef.client.parameters.DriverConfigurationProviders;
 import org.apache.reef.runtime.common.client.CommonRuntimeConfiguration;
 import org.apache.reef.runtime.common.client.DriverConfigurationProvider;
@@ -37,9 +35,7 @@ import org.apache.reef.util.logging.LoggingSetup;
 /**
  * An extensible  ConfigurationModule for the YARN resourcemanager.
  */
-@Public
-@ClientSide
-public class ExtensibleYarnClientConfiguration extends ConfigurationModuleBuilder {
+public final class ExtensibleYarnClientConfiguration extends ConfigurationModuleBuilder {
   static {
     LoggingSetup.setupCommonsLogging();
   }

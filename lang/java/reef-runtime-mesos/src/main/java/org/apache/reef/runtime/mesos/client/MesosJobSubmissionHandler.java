@@ -115,7 +115,7 @@ final class MesosJobSubmissionHandler implements JobSubmissionHandler {
       }
 
       final Configuration driverConfiguration = this.driverConfigurationProvider.getDriverConfiguration(
-              "",
+              null,
               jobSubmissionEvent.getRemoteId(),
               jobSubmissionEvent.getIdentifier(),
               jobSubmissionEvent.getConfiguration());

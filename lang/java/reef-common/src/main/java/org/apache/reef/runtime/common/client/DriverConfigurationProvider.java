@@ -20,8 +20,10 @@ package org.apache.reef.runtime.common.client;
 
 import org.apache.reef.tang.Configuration;
 
+import java.net.URI;
+
 /**
- * A contruct for driver configuration provider.
+ * A contract for driver configuration provider.
  */
 public interface DriverConfigurationProvider {
   /**
@@ -33,7 +35,7 @@ public interface DriverConfigurationProvider {
    * @return Generated driver configuration.
    */
   Configuration getDriverConfiguration(
-          final String jobFolder,
+          final URI jobFolder,
           final String clientRemoteId,
           final String jobId,
           final Configuration applicationConfiguration);

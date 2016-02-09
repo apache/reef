@@ -63,7 +63,7 @@ public class YarnClientConfiguration extends ConfigurationModuleBuilder {
       .merge(CommonRuntimeConfiguration.CONF)
           // Bind YARN
       .bindImplementation(JobSubmissionHandler.class, YarnJobSubmissionHandler.class)
-      .bindImplementation(DriverConfigurationProvider.class, DriverConfigurationProviderImpl.class)
+      .bindImplementation(DriverConfigurationProvider.class, YarnDriverConfigurationProviderImpl.class)
           // Bind the parameters given by the user
       .bindNamedParameter(JobQueue.class, YARN_QUEUE_NAME)
       .bindNamedParameter(JobPriority.class, YARN_PRIORITY)

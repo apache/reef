@@ -54,7 +54,7 @@ public class MesosClientConfiguration extends ConfigurationModuleBuilder {
   public static final ConfigurationModule CONF = new MesosClientConfiguration()
       .merge(CommonRuntimeConfiguration.CONF)
       .bindImplementation(JobSubmissionHandler.class, MesosJobSubmissionHandler.class)
-      .bindImplementation(DriverConfigurationProvider.class, DriverConfigurationProviderImpl.class)
+      .bindImplementation(DriverConfigurationProvider.class, MesosDriverConfigurationProviderImpl.class)
       .bindNamedParameter(RootFolder.class, ROOT_FOLDER)
       .bindNamedParameter(MasterIp.class, MASTER_IP)
       .bindConstructor(Configuration.class, HDFSConfigurationConstructor.class)

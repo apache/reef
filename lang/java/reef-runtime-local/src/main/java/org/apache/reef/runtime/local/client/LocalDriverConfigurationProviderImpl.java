@@ -30,32 +30,33 @@ import org.apache.reef.tang.formats.ConfigurationModule;
 
 import javax.inject.Inject;
 
+import java.net.URI;
 import java.util.Set;
 
 /**
  * Helper class that assembles the driver configuration when run on the local runtime.
  */
-public final class DriverConfigurationProviderImpl implements DriverConfigurationProvider {
+final class LocalDriverConfigurationProviderImpl implements DriverConfigurationProvider {
 
   private final int maxEvaluators;
   private final double jvmHeapSlack;
   private final Set<String> rackNames;
 
   @Inject
-  DriverConfigurationProviderImpl(@Parameter(MaxNumberOfEvaluators.class) final int maxEvaluators,
-                                  @Parameter(JVMHeapSlack.class) final double jvmHeapSlack,
-                                  @Parameter(RackNames.class) final Set<String> rackNames) {
+  LocalDriverConfigurationProviderImpl(@Parameter(MaxNumberOfEvaluators.class) final int maxEvaluators,
+                                       @Parameter(JVMHeapSlack.class) final double jvmHeapSlack,
+                                       @Parameter(RackNames.class) final Set<String> rackNames) {
     this.maxEvaluators = maxEvaluators;
     this.jvmHeapSlack = jvmHeapSlack;
     this.rackNames = rackNames;
   }
 
-  private Configuration getDriverConfiguration(final String jobFolder,
+  private Configuration getDriverConfiguration(final URI jobFolder,
                                                final String clientRemoteId,
                                                final String jobId) {
     ConfigurationModule configModule = LocalDriverConfiguration.CONF
         .set(LocalDriverConfiguration.MAX_NUMBER_OF_EVALUATORS, this.maxEvaluators)
-        .set(LocalDriverConfiguration.ROOT_FOLDER, jobFolder)
+        .set(LocalDriverConfiguration.ROOT_FOLDER, jobFolder.getPath())
         .set(LocalDriverConfiguration.JVM_HEAP_SLACK, this.jvmHeapSlack)
         .set(LocalDriverConfiguration.CLIENT_REMOTE_IDENTIFIER, clientRemoteId)
         .set(LocalDriverConfiguration.JOB_IDENTIFIER, jobId);
@@ -75,7 +76,7 @@ public final class DriverConfigurationProviderImpl implements DriverConfiguratio
    * @param applicationConfiguration The configuration of the application, e.g. a filled out DriverConfiguration
    * @return The Driver configuration to be used to instantiate the Driver.
    */
-  public Configuration getDriverConfiguration(final String jobFolder,
+  public Configuration getDriverConfiguration(final URI jobFolder,
                                               final String clientRemoteId,
                                               final String jobId,
                                               final Configuration applicationConfiguration) {

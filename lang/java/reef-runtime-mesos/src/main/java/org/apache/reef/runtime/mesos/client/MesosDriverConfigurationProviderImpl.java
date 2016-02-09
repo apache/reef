@@ -16,44 +16,47 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.runtime.hdinsight.client;
+package org.apache.reef.runtime.mesos.client;
 
 import org.apache.reef.runtime.common.client.DriverConfigurationProvider;
 import org.apache.reef.runtime.common.parameters.JVMHeapSlack;
+import org.apache.reef.runtime.mesos.client.parameters.MasterIp;
+import org.apache.reef.runtime.mesos.driver.MesosDriverConfiguration;
 import org.apache.reef.tang.Configuration;
 import org.apache.reef.tang.Configurations;
 import org.apache.reef.tang.annotations.Parameter;
 
 import javax.inject.Inject;
-
-import static org.apache.reef.runtime.yarn.driver.YarnDriverConfiguration.*;
+import java.net.URI;
 
 /**
- * Default driver configuration provider for HDInsight.
+ * Default driver configuration provider for Mesos.
  */
-public class DriverConfigurationProviderImpl implements DriverConfigurationProvider {
+final class MesosDriverConfigurationProviderImpl implements DriverConfigurationProvider {
+
+  private final String masterIp;
   private final double jvmSlack;
 
   @Inject
-  public DriverConfigurationProviderImpl(@Parameter(JVMHeapSlack.class) final double jvmSlack) {
+  MesosDriverConfigurationProviderImpl(@Parameter(MasterIp.class) final String masterIp,
+                                              @Parameter(JVMHeapSlack.class) final double jvmSlack) {
+    this.masterIp = masterIp;
     this.jvmSlack = jvmSlack;
   }
 
   @Override
-  public Configuration getDriverConfiguration(final String jobFolder,
+  public Configuration getDriverConfiguration(final URI jobFolder,
                                               final String clientRemoteId,
                                               final String jobId,
                                               final Configuration applicationConfiguration) {
-
-    final Configuration hdinsightDriverConfiguration = HDInsightDriverConfiguration.CONF
-            .set(HDInsightDriverConfiguration.JOB_IDENTIFIER, jobId)
-            .set(HDInsightDriverConfiguration.CLIENT_REMOTE_IDENTIFIER, clientRemoteId)
-            .set(HDInsightDriverConfiguration.JOB_SUBMISSION_DIRECTORY, jobFolder)
-            .set(HDInsightDriverConfiguration.JVM_HEAP_SLACK, this.jvmSlack)
-            .build();
-
-    return Configurations.merge(
-            applicationConfiguration,
-            hdinsightDriverConfiguration);
+    return Configurations.merge(MesosDriverConfiguration.CONF
+                    .set(MesosDriverConfiguration.MESOS_MASTER_IP, this.masterIp)
+                    .set(MesosDriverConfiguration.JOB_IDENTIFIER, jobId)
+                    .set(MesosDriverConfiguration.CLIENT_REMOTE_IDENTIFIER, clientRemoteId)
+                    .set(MesosDriverConfiguration.JVM_HEAP_SLACK, this.jvmSlack)
+                    .set(MesosDriverConfiguration.SCHEDULER_DRIVER_CAPACITY, 1)
+                    // must be 1 as there is 1 scheduler at the same time
+                    .build(),
+            applicationConfiguration);
   }
 }

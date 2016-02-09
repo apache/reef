@@ -78,7 +78,7 @@ public class LocalRuntimeConfiguration extends ConfigurationModuleBuilder {
       .merge(CommonRuntimeConfiguration.CONF)
           // Bind the local runtime
       .bindImplementation(JobSubmissionHandler.class, LocalJobSubmissionHandler.class)
-      .bindImplementation(DriverConfigurationProvider.class, DriverConfigurationProviderImpl.class)
+      .bindImplementation(DriverConfigurationProvider.class, LocalDriverConfigurationProviderImpl.class)
       .bindConstructor(ExecutorService.class, ExecutorServiceConstructor.class)
       .bindImplementation(RuntimeClasspathProvider.class, LocalClasspathProvider.class)
           // Bind parameters of the local runtime

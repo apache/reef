@@ -42,7 +42,7 @@ public final class HDInsightRuntimeConfigurationStatic extends ConfigurationModu
   public static final ConfigurationModule CONF = new HDInsightRuntimeConfigurationStatic()
       .merge(CommonRuntimeConfiguration.CONF)
       .bindImplementation(JobSubmissionHandler.class, HDInsightJobSubmissionHandler.class)
-      .bindImplementation(DriverConfigurationProvider.class, DriverConfigurationProviderImpl.class)
+      .bindImplementation(DriverConfigurationProvider.class, HDInsightDriverConfigurationProviderImpl.class)
       .bindConstructor(CloseableHttpClient.class, DefaultClientConstructor.class)
       .bindImplementation(RuntimeClasspathProvider.class, HDInsightClasspathProvider.class)
       .bindImplementation(RuntimePathProvider.class, HDInsightJVMPathProvider.class)

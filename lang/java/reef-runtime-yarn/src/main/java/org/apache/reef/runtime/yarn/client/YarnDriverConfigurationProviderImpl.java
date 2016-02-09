@@ -16,46 +16,42 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.runtime.mesos.client;
+package org.apache.reef.runtime.yarn.client;
 
 import org.apache.reef.runtime.common.client.DriverConfigurationProvider;
 import org.apache.reef.runtime.common.parameters.JVMHeapSlack;
-import org.apache.reef.runtime.mesos.client.parameters.MasterIp;
-import org.apache.reef.runtime.mesos.driver.MesosDriverConfiguration;
 import org.apache.reef.tang.Configuration;
 import org.apache.reef.tang.Configurations;
 import org.apache.reef.tang.annotations.Parameter;
 
 import javax.inject.Inject;
+import java.net.URI;
+
+import static org.apache.reef.runtime.yarn.driver.YarnDriverConfiguration.*;
 
 /**
- * Default driver configuration provider for Mesos.
+ * Default driver configuration provider for yarn runtime.
  */
-public class DriverConfigurationProviderImpl implements DriverConfigurationProvider {
-
-  private final String masterIp;
+final class YarnDriverConfigurationProviderImpl implements DriverConfigurationProvider {
   private final double jvmSlack;
 
   @Inject
-  public DriverConfigurationProviderImpl(@Parameter(MasterIp.class) final String masterIp,
-                                         @Parameter(JVMHeapSlack.class) final double jvmSlack) {
-    this.masterIp = masterIp;
+  YarnDriverConfigurationProviderImpl(@Parameter(JVMHeapSlack.class) final double jvmSlack) {
     this.jvmSlack = jvmSlack;
   }
 
   @Override
-  public Configuration getDriverConfiguration(final String jobFolder,
+  public Configuration getDriverConfiguration(final URI jobFolder,
                                               final String clientRemoteId,
                                               final String jobId,
                                               final Configuration applicationConfiguration) {
-    return Configurations.merge(MesosDriverConfiguration.CONF
-                    .set(MesosDriverConfiguration.MESOS_MASTER_IP, this.masterIp)
-                    .set(MesosDriverConfiguration.JOB_IDENTIFIER, jobId)
-                    .set(MesosDriverConfiguration.CLIENT_REMOTE_IDENTIFIER, clientRemoteId)
-                    .set(MesosDriverConfiguration.JVM_HEAP_SLACK, this.jvmSlack)
-                    .set(MesosDriverConfiguration.SCHEDULER_DRIVER_CAPACITY, 1)
-                    // must be 1 as there is 1 scheduler at the same time
-                    .build(),
-            applicationConfiguration);
+    return Configurations.merge(
+      org.apache.reef.runtime.yarn.driver.YarnDriverConfiguration.CONF
+              .set(JOB_SUBMISSION_DIRECTORY, jobFolder.toString())
+              .set(JOB_IDENTIFIER, jobId)
+              .set(CLIENT_REMOTE_IDENTIFIER, clientRemoteId)
+              .set(JVM_HEAP_SLACK, this.jvmSlack)
+              .build(),
+              applicationConfiguration);
   }
 }

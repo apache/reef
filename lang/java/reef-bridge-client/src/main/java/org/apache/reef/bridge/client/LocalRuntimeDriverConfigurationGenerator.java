@@ -72,7 +72,7 @@ final class LocalRuntimeDriverConfigurationGenerator {
     final File driverFolder = new File(jobFolder, PreparedDriverFolderLauncher.DRIVER_FOLDER_NAME);
 
     final Configuration driverConfiguration1 = driverConfigurationProvider
-        .getDriverConfiguration(jobFolder.getAbsolutePath(), clientRemoteId,
+        .getDriverConfiguration(jobFolder.toURI(), clientRemoteId,
         jobId, Constants.DRIVER_CONFIGURATION_WITH_HTTP_AND_NAMESERVER);
     final ConfigurationBuilder configurationBuilder = Tang.Factory.getTang().newConfigurationBuilder();
     for (final ConfigurationProvider configurationProvider : this.configurationProviders) {

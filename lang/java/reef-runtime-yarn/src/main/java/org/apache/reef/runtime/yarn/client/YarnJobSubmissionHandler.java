@@ -130,7 +130,7 @@ final class YarnJobSubmissionHandler implements JobSubmissionHandler {
       final Path jobFolderPath) throws IOException {
 
     return this.driverConfigurationProvider.getDriverConfiguration(
-            jobFolderPath.toString(),
+            jobFolderPath.toUri(),
             jobSubmissionEvent.getIdentifier(),
             jobSubmissionEvent.getRemoteId(),
             jobSubmissionEvent.getConfiguration());

@@ -100,7 +100,7 @@ final class LocalJobSubmissionHandler implements JobSubmissionHandler {
         driverFiles.copyTo(driverFolder);
 
         final Configuration driverConfiguration = this.driverConfigurationProvider
-            .getDriverConfiguration(jobFolder.getAbsolutePath(),
+            .getDriverConfiguration(jobFolder.toURI(),
                                     t.getRemoteId(),
                                     t.getIdentifier(),
                                     t.getConfiguration());

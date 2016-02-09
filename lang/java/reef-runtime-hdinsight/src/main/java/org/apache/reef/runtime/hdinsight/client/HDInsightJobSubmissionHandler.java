@@ -36,6 +36,7 @@ import javax.inject.Inject;
 import java.io.File;
 import java.io.IOException;
 import java.util.Collections;
+import java.net.URI;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -87,7 +88,7 @@ public final class HDInsightJobSubmissionHandler implements JobSubmissionHandler
       LOG.log(Level.INFO, "Submitting application {0} to YARN.", applicationID.getApplicationId());
 
       LOG.log(Level.FINE, "Creating a job folder on Azure.");
-      final String jobFolderURL = this.uploader.createJobFolder(applicationID.getApplicationId());
+      final URI jobFolderURL = this.uploader.createJobFolder(applicationID.getApplicationId());
 
       LOG.log(Level.FINE, "Assembling Configuration for the Driver.");
       final Configuration driverConfiguration =
@@ -159,7 +160,7 @@ public final class HDInsightJobSubmissionHandler implements JobSubmissionHandler
   private Configuration makeDriverConfiguration(
       final JobSubmissionEvent jobSubmissionEvent,
       final String applicationId,
-      final String jobFolderURL) throws IOException {
+      final URI jobFolderURL) throws IOException {
 
     return this.driverConfigurationProvider.getDriverConfiguration(jobFolderURL,
                                                             jobSubmissionEvent.getRemoteId(),

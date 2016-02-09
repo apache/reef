@@ -38,7 +38,7 @@ import java.util.concurrent.ExecutorService;
 /**
  * A ConfigurationModule to configure the local resourcemanager with extensibility point.
  */
-public class ExtensibleLocalRuntimeConfiguration extends ConfigurationModuleBuilder {
+public final class ExtensibleLocalRuntimeConfiguration extends ConfigurationModuleBuilder {
 
   /**
    * The number of threads or processes available to the resourcemanager. This is the upper limit on the number of

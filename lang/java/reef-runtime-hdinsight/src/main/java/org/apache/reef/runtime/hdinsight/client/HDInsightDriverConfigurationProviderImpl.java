@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.runtime.yarn.client;
+package org.apache.reef.runtime.hdinsight.client;
 
 import org.apache.reef.runtime.common.client.DriverConfigurationProvider;
 import org.apache.reef.runtime.common.parameters.JVMHeapSlack;
@@ -25,31 +25,37 @@ import org.apache.reef.tang.Configurations;
 import org.apache.reef.tang.annotations.Parameter;
 
 import javax.inject.Inject;
+
+import java.net.URI;
+
 import static org.apache.reef.runtime.yarn.driver.YarnDriverConfiguration.*;
 
 /**
- * Default driver configuration provider for yarn runtime.
+ * Default driver configuration provider for HDInsight.
  */
-public class DriverConfigurationProviderImpl implements DriverConfigurationProvider {
+final class HDInsightDriverConfigurationProviderImpl implements DriverConfigurationProvider {
   private final double jvmSlack;
 
   @Inject
-  public DriverConfigurationProviderImpl(@Parameter(JVMHeapSlack.class) final double jvmSlack) {
+  HDInsightDriverConfigurationProviderImpl(@Parameter(JVMHeapSlack.class) final double jvmSlack) {
     this.jvmSlack = jvmSlack;
   }
 
   @Override
-  public Configuration getDriverConfiguration(final String jobFolder,
+  public Configuration getDriverConfiguration(final URI jobFolder,
                                               final String clientRemoteId,
                                               final String jobId,
                                               final Configuration applicationConfiguration) {
+
+    final Configuration hdinsightDriverConfiguration = HDInsightDriverConfiguration.CONF
+            .set(HDInsightDriverConfiguration.JOB_IDENTIFIER, jobId)
+            .set(HDInsightDriverConfiguration.CLIENT_REMOTE_IDENTIFIER, clientRemoteId)
+            .set(HDInsightDriverConfiguration.JOB_SUBMISSION_DIRECTORY, jobFolder.toString())
+            .set(HDInsightDriverConfiguration.JVM_HEAP_SLACK, this.jvmSlack)
+            .build();
+
     return Configurations.merge(
-      org.apache.reef.runtime.yarn.driver.YarnDriverConfiguration.CONF
-              .set(JOB_SUBMISSION_DIRECTORY, jobFolder)
-              .set(JOB_IDENTIFIER, jobId)
-              .set(CLIENT_REMOTE_IDENTIFIER, clientRemoteId)
-              .set(JVM_HEAP_SLACK, this.jvmSlack)
-              .build(),
-              applicationConfiguration);
+            applicationConfiguration,
+            hdinsightDriverConfiguration);
   }
 }
