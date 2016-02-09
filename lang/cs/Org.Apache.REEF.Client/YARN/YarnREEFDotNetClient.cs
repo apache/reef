@@ -21,21 +21,16 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Org.Apache.REEF.Client.API;
-using Org.Apache.REEF.Client.Avro;
-using Org.Apache.REEF.Client.Avro.YARN;
 using Org.Apache.REEF.Client.Common;
 using Org.Apache.REEF.Client.Yarn;
 using Org.Apache.REEF.Client.Yarn.RestClient;
 using Org.Apache.REEF.Client.YARN.RestClient.DataModel;
-using Org.Apache.REEF.Common.Avro;
 using Org.Apache.REEF.Common.Files;
 using Org.Apache.REEF.Driver.Bridge;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Tang.Implementations.Tang;
-using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Utilities.Attributes;
 using Org.Apache.REEF.Utilities.Logging;
-using Org.Apache.REEF.Wake.Remote.Parameters;
 
 namespace Org.Apache.REEF.Client.YARN
 {
@@ -55,6 +50,7 @@ namespace Org.Apache.REEF.Client.YARN
         private readonly IYarnJobCommandProvider _yarnJobCommandProvider;
         private readonly REEFFileNames _fileNames;
         private readonly IJobSubmissionDirectoryProvider _jobSubmissionDirectoryProvider;
+        private readonly YarnREEFDotNetParamSerializer _paramSerializer;
 
         [Inject]
         private YarnREEFDotNetClient(
@@ -63,7 +59,8 @@ namespace Org.Apache.REEF.Client.YARN
             IJobResourceUploader jobResourceUploader,
             IYarnJobCommandProvider yarnJobCommandProvider,
             REEFFileNames fileNames,
-            IJobSubmissionDirectoryProvider jobSubmissionDirectoryProvider)
+            IJobSubmissionDirectoryProvider jobSubmissionDirectoryProvider,
+            YarnREEFDotNetParamSerializer paramSerializer)
         {
             _jobSubmissionDirectoryProvider = jobSubmissionDirectoryProvider;
             _fileNames = fileNames;
@@ -71,6 +68,7 @@ namespace Org.Apache.REEF.Client.YARN
             _jobResourceUploader = jobResourceUploader;
             _driverFolderPreparationHelper = driverFolderPreparationHelper;
             _yarnRMClient = yarnRMClient;
+            _paramSerializer = paramSerializer;
         }
 
         public void Submit(IJobSubmission jobSubmission)
@@ -99,8 +97,8 @@ namespace Org.Apache.REEF.Client.YARN
                 var maxApplicationSubmissions = 
                     paramInjector.GetNamedInstance<DriverBridgeConfigurationOptions.MaxApplicationSubmissions, int>();
 
-                SerializeAppFile(jobSubmission, paramInjector, localDriverFolderPath);
-                SerializeJobFile(jobSubmission, localDriverFolderPath, jobSubmissionDirectory);
+                _paramSerializer.SerializeAppFile(jobSubmission, paramInjector, localDriverFolderPath);
+                _paramSerializer.SerializeJobFile(jobSubmission, localDriverFolderPath, jobSubmissionDirectory);
 
                 var archiveResource = _jobResourceUploader.UploadArchiveResource(localDriverFolderPath, jobSubmissionDirectory);
 
@@ -128,60 +126,6 @@ namespace Org.Apache.REEF.Client.YARN
                 {
                     Directory.Delete(localDriverFolderPath, recursive: true);
                 }
-            }
-        }
-
-        private void SerializeAppFile(IJobSubmission jobSubmission, IInjector paramInjector, string localDriverFolderPath)
-        {
-            var avroAppSubmissionParameters = new AvroAppSubmissionParameters
-            {
-                tcpBeginPort = paramInjector.GetNamedInstance<TcpPortRangeStart, int>(),
-                tcpRangeCount = paramInjector.GetNamedInstance<TcpPortRangeCount, int>(),
-                tcpTryCount = paramInjector.GetNamedInstance<TcpPortRangeTryCount, int>()
-            };
-
-            var avroYarnAppSubmissionParameters = new AvroYarnAppSubmissionParameters
-            {
-                sharedAppSubmissionParameters = avroAppSubmissionParameters,
-                driverMemory = jobSubmission.DriverMemory,
-                driverRecoveryTimeout =
-                    paramInjector.GetNamedInstance<DriverBridgeConfigurationOptions.DriverRestartEvaluatorRecoverySeconds, int>(),
-            };
-
-            var submissionAppArgsFilePath = Path.Combine(
-                localDriverFolderPath, _fileNames.GetLocalFolderPath(), _fileNames.GetSubmissionAppParametersFile());
-
-            using (var jobArgsFileStream = new FileStream(submissionAppArgsFilePath, FileMode.CreateNew))
-            {
-                var serializedArgs =
-                    AvroJsonSerializer<AvroYarnAppSubmissionParameters>.ToBytes(avroYarnAppSubmissionParameters);
-                jobArgsFileStream.Write(serializedArgs, 0, serializedArgs.Length);
-            }
-        }
-
-        private void SerializeJobFile(IJobSubmission jobSubmission, string localDriverFolderPath, string jobSubmissionDirectory)
-        {
-            var avroJobSubmissionParameters = new AvroJobSubmissionParameters
-            {
-                jobId = jobSubmission.JobIdentifier,
-                jobSubmissionFolder = localDriverFolderPath
-            };
-
-            var avroYarnJobSubmissionParameters = new AvroYarnJobSubmissionParameters
-            {
-                jobSubmissionDirectoryPrefix = jobSubmissionDirectory,
-                dfsJobSubmissionFolder = jobSubmissionDirectory,
-                sharedJobSubmissionParameters = avroJobSubmissionParameters
-            };
-
-            var submissionJobArgsFilePath = Path.Combine(localDriverFolderPath,
-                _fileNames.GetSubmissionJobParametersFile());
-
-            using (var jobArgsFileStream = new FileStream(submissionJobArgsFilePath, FileMode.CreateNew))
-            {
-                var serializedArgs =
-                    AvroJsonSerializer<AvroYarnJobSubmissionParameters>.ToBytes(avroYarnJobSubmissionParameters);
-                jobArgsFileStream.Write(serializedArgs, 0, serializedArgs.Length);
             }
         }
 

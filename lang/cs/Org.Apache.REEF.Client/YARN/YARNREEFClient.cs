@@ -21,21 +21,14 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Org.Apache.REEF.Client.API;
-using Org.Apache.REEF.Client.Avro;
-using Org.Apache.REEF.Client.Avro.YARN;
 using Org.Apache.REEF.Client.Common;
 using Org.Apache.REEF.Client.Yarn.RestClient;
 using Org.Apache.REEF.Client.YARN;
-using Org.Apache.REEF.Client.YARN.Parameters;
 using Org.Apache.REEF.Client.YARN.RestClient.DataModel;
-using Org.Apache.REEF.Common.Avro;
 using Org.Apache.REEF.Common.Files;
-using Org.Apache.REEF.Driver.Bridge;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Tang.Implementations.Tang;
-using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Utilities.Logging;
-using Org.Apache.REEF.Wake.Remote.Parameters;
 
 namespace Org.Apache.REEF.Client.Yarn
 {
@@ -49,11 +42,9 @@ namespace Org.Apache.REEF.Client.Yarn
         private static readonly Logger Logger = Logger.GetLogger(typeof(YarnREEFClient));
         private readonly DriverFolderPreparationHelper _driverFolderPreparationHelper;
         private readonly IJavaClientLauncher _javaClientLauncher;
-        private readonly string _securityTokenKind;
-        private readonly string _securityTokenService;
-        private readonly string _jobSubmissionPrefix;
         private readonly REEFFileNames _fileNames;
         private readonly IYarnRMClient _yarnClient;
+        private readonly YarnREEFParamSerializer _paramSerializer;
 
         [Inject]
         internal YarnREEFClient(IJavaClientLauncher javaClientLauncher,
@@ -61,18 +52,14 @@ namespace Org.Apache.REEF.Client.Yarn
             REEFFileNames fileNames,
             YarnCommandLineEnvironment yarn,
             IYarnRMClient yarnClient,
-            [Parameter(typeof(SecurityTokenKindParameter))] string securityTokenKind,
-            [Parameter(typeof(SecurityTokenServiceParameter))] string securityTokenService,
-            [Parameter(typeof(JobSubmissionDirectoryPrefixParameter))] string jobSubmissionPrefix)
+            YarnREEFParamSerializer paramSerializer)
         {
-            _jobSubmissionPrefix = jobSubmissionPrefix;
-            _securityTokenKind = securityTokenKind;
-            _securityTokenService = securityTokenService;
             _javaClientLauncher = javaClientLauncher;
             _javaClientLauncher.AddToClassPath(yarn.GetYarnClasspathList());
             _driverFolderPreparationHelper = driverFolderPreparationHelper;
             _fileNames = fileNames;
             _yarnClient = yarnClient;
+            _paramSerializer = paramSerializer;
         }
 
         public void Submit(IJobSubmission jobSubmission)
@@ -125,75 +112,12 @@ namespace Org.Apache.REEF.Client.Yarn
             // TODO: Remove this when we have a generalized way to pass config to java
             var paramInjector = TangFactory.GetTang().NewInjector(jobSubmission.DriverConfigurations.ToArray());
 
-            var submissionJobArgsFilePath = SerializeJobFile(jobSubmission, driverFolderPath);
-            var submissionAppArgsFilePath = SerializeAppFile(jobSubmission, paramInjector, driverFolderPath);
+            var submissionJobArgsFilePath = _paramSerializer.SerializeJobFile(jobSubmission, driverFolderPath);
+            var submissionAppArgsFilePath = _paramSerializer.SerializeAppFile(jobSubmission, paramInjector, driverFolderPath);
 
             // Submit the driver
             _javaClientLauncher.Launch(JavaClassName, submissionJobArgsFilePath, submissionAppArgsFilePath);
             Logger.Log(Level.Info, "Submitted the Driver for execution." + jobSubmission.JobIdentifier);
-        }
-
-        private string SerializeAppFile(IJobSubmission jobSubmission, IInjector paramInjector, string driverFolderPath)
-        {
-            var avroAppSubmissionParameters = new AvroAppSubmissionParameters
-            {
-                tcpBeginPort = paramInjector.GetNamedInstance<TcpPortRangeStart, int>(),
-                tcpRangeCount = paramInjector.GetNamedInstance<TcpPortRangeCount, int>(),
-                tcpTryCount = paramInjector.GetNamedInstance<TcpPortRangeTryCount, int>()
-            };
-
-            var avroYarnAppSubmissionParameters = new AvroYarnAppSubmissionParameters
-            {
-                sharedAppSubmissionParameters = avroAppSubmissionParameters,
-                driverMemory = jobSubmission.DriverMemory,
-                driverRecoveryTimeout = paramInjector.GetNamedInstance<DriverBridgeConfigurationOptions.DriverRestartEvaluatorRecoverySeconds, int>()
-            };
-
-            var avroYarnClusterAppSubmissionParameters = new AvroYarnClusterAppSubmissionParameters
-            {
-                yarnAppSubmissionParameters = avroYarnAppSubmissionParameters,
-                maxApplicationSubmissions = paramInjector.GetNamedInstance<DriverBridgeConfigurationOptions.MaxApplicationSubmissions, int>()
-            };
-
-            var submissionArgsFilePath = Path.Combine(driverFolderPath, _fileNames.GetSubmissionAppParametersFile());
-            using (var argsFileStream = new FileStream(submissionArgsFilePath, FileMode.CreateNew))
-            {
-                var serializedArgs = AvroJsonSerializer<AvroYarnClusterAppSubmissionParameters>.ToBytes(avroYarnClusterAppSubmissionParameters);
-                argsFileStream.Write(serializedArgs, 0, serializedArgs.Length);
-            }
-
-            return submissionArgsFilePath;
-        }
-
-        private string SerializeJobFile(IJobSubmission jobSubmission, string driverFolderPath)
-        {
-            var avroJobSubmissionParameters = new AvroJobSubmissionParameters
-            {
-                jobId = jobSubmission.JobIdentifier,
-                jobSubmissionFolder = driverFolderPath
-            };
-
-            var avroYarnJobSubmissionParameters = new AvroYarnJobSubmissionParameters
-            {
-                jobSubmissionDirectoryPrefix = _jobSubmissionPrefix,
-                sharedJobSubmissionParameters = avroJobSubmissionParameters
-            };
-
-            var avroYarnClusterJobSubmissionParameters = new AvroYarnClusterJobSubmissionParameters
-            {
-                securityTokenKind = _securityTokenKind,
-                securityTokenService = _securityTokenService,
-                yarnJobSubmissionParameters = avroYarnJobSubmissionParameters
-            };
-
-            var submissionArgsFilePath = Path.Combine(driverFolderPath, _fileNames.GetSubmissionJobParametersFile());
-            using (var argsFileStream = new FileStream(submissionArgsFilePath, FileMode.CreateNew))
-            {
-                var serializedArgs = AvroJsonSerializer<AvroYarnClusterJobSubmissionParameters>.ToBytes(avroYarnClusterJobSubmissionParameters);
-                argsFileStream.Write(serializedArgs, 0, serializedArgs.Length);
-            }
-
-            return submissionArgsFilePath;
         }
 
         /// <summary>

@@ -161,6 +161,8 @@ under the License.
     <Compile Include="YARN\YARNClientConfiguration.cs" />
     <Compile Include="YARN\YarnCommandLineEnvironment.cs" />
     <Compile Include="YARN\YarnREEFDotNetClient.cs" />
+    <Compile Include="YARN\YarnREEFDotNetParamSerializer.cs" />
+    <Compile Include="YARN\YarnREEFParamSerializer.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Avro\README.md" />
