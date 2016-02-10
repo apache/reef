@@ -76,6 +76,7 @@ namespace Org {
                         public ref class ActiveContextClr2Java : public IActiveContextClr2Java {
                             jobject _jobjectActiveContext = NULL;
                             jstring _jstringId = NULL;
+                            jstring _jstringParentId = NULL;
                             jstring _jstringEvaluatorId = NULL;
                             JavaVM* _jvm;
                         public:
@@ -86,6 +87,7 @@ namespace Org {
                             virtual void SubmitContext(String^ contextConfigStr);
                             virtual void Close();
                             virtual void OnError(String^ message);
+                            virtual String^ GetParentId();
                             virtual String^ GetId();
                             virtual String^ GetEvaluatorId();
                             virtual IEvaluatorDescriptor^ GetEvaluatorDescriptor();

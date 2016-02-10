@@ -122,9 +122,14 @@ namespace Org.Apache.REEF.Tests.Functional.Bridge
                                     GenericType<InjectableInterfaceImpl>.Class)
                                     .Build();
 
+                        Assert.False(value.ParentId.IsPresent());
+
                         value.SubmitContext(Configurations.Merge(stackingContextConfig, contextConfig));
                         break;
                     case ContextTwoId:
+                        Assert.True(value.ParentId.IsPresent());
+                        Assert.Equal(value.ParentId.Value, ContextOneId);
+
                         value.SubmitTask(
                             TaskConfiguration.ConfigurationModule.Set(TaskConfiguration.Identifier, "contextStackTestTask")
                                 .Set(TaskConfiguration.Task, GenericType<TestContextStackTask>.Class)

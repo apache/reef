@@ -56,6 +56,13 @@ public final class ActiveContextBridge extends NativeBridge implements Identifia
   }
 
   /**
+   * @return the context ID of the parent.
+   */
+  public String getParentContextId() {
+    return jactiveContext.getParentId().get();
+  }
+
+  /**
    * @return the Evaluator ID of the Evaluator on which the Context runs.
    */
   public String getEvaluatorId() {

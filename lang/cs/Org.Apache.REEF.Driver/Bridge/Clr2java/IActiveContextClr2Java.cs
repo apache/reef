@@ -31,6 +31,8 @@ namespace Org.Apache.REEF.Driver.Bridge.Clr2java
 
         string GetId();
 
+        string GetParentId();
+
         string GetEvaluatorId();
 
         IEvaluatorDescriptor GetEvaluatorDescriptor();
