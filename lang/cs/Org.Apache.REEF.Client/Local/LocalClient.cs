@@ -98,7 +98,7 @@ namespace Org.Apache.REEF.Client.Local
                 jobId = jobSubmission.JobIdentifier,
             };
 
-            var submissionArgsFilePath = Path.Combine(driverFolder, _fileNames.GetSubmissionJobParametersFile());
+            var submissionArgsFilePath = Path.Combine(driverFolder, _fileNames.GetJobSubmissionParametersFile());
             using (var argsFileStream = new FileStream(submissionArgsFilePath, FileMode.CreateNew))
             {
                 var serializedArgs = AvroJsonSerializer<AvroJobSubmissionParameters>.ToBytes(bootstrapJobArgs);
@@ -125,7 +125,7 @@ namespace Org.Apache.REEF.Client.Local
                 maxNumberOfConcurrentEvaluators = _maxNumberOfConcurrentEvaluators
             };
 
-            var submissionArgsFilePath = Path.Combine(driverFolder, _fileNames.GetSubmissionAppParametersFile());
+            var submissionArgsFilePath = Path.Combine(driverFolder, _fileNames.GetAppSubmissionParametersFile());
             using (var argsFileStream = new FileStream(submissionArgsFilePath, FileMode.CreateNew))
             {
                 var serializedArgs = AvroJsonSerializer<AvroLocalAppSubmissionParameters>.ToBytes(avroLocalBootstrapAppArgs);

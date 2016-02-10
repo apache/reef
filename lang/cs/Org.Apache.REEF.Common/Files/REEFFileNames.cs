@@ -247,7 +247,7 @@ namespace Org.Apache.REEF.Common.Files
         /// The Job Submission application parameters file that is used to submit a job through Java,
         /// either directly or via a "bootstrap" method.
         /// </summary>
-        public string GetSubmissionAppParametersFile()
+        public string GetAppSubmissionParametersFile()
         {
             return APP_SUBMISSION_PARAMETERS_FILE;
         }
@@ -256,7 +256,7 @@ namespace Org.Apache.REEF.Common.Files
         /// The Job Submission job parameters file that is used to submit a job through Java,
         /// either directly or via a "bootstrap" method.
         /// </summary>
-        public string GetSubmissionJobParametersFile()
+        public string GetJobSubmissionParametersFile()
         {
             return JOB_SUBMISSION_PARAMETERS_FILE;
         }

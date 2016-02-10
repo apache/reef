@@ -103,7 +103,7 @@ namespace Org.Apache.REEF.Client.YARN
                 var archiveResource = _jobResourceUploader.UploadArchiveResource(localDriverFolderPath, jobSubmissionDirectory);
 
                 // Path to the job args file.
-                var jobArgsFilePath = Path.Combine(localDriverFolderPath, _fileNames.GetSubmissionJobParametersFile());
+                var jobArgsFilePath = Path.Combine(localDriverFolderPath, _fileNames.GetJobSubmissionParametersFile());
 
                 var argFileResource = _jobResourceUploader.UploadFileResource(jobArgsFilePath, jobSubmissionDirectory);
 

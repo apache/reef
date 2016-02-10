@@ -46,6 +46,19 @@ namespace Org.Apache.REEF.Client.YARN
         /// </summary>
         internal void SerializeAppFile(IJobSubmission jobSubmission, IInjector paramInjector, string localDriverFolderPath)
         {
+            var serializedArgs = SerializeAppArgsToBytes(jobSubmission, paramInjector, localDriverFolderPath);
+
+            var submissionAppArgsFilePath = Path.Combine(
+                localDriverFolderPath, _fileNames.GetLocalFolderPath(), _fileNames.GetAppSubmissionParametersFile());
+
+            using (var jobArgsFileStream = new FileStream(submissionAppArgsFilePath, FileMode.CreateNew))
+            {
+                jobArgsFileStream.Write(serializedArgs, 0, serializedArgs.Length);
+            }
+        }
+
+        internal byte[] SerializeAppArgsToBytes(IJobSubmission jobSubmission, IInjector paramInjector, string localDriverFolderPath)
+        {
             var avroAppSubmissionParameters = new AvroAppSubmissionParameters
             {
                 tcpBeginPort = paramInjector.GetNamedInstance<TcpPortRangeStart, int>(),
@@ -61,21 +74,26 @@ namespace Org.Apache.REEF.Client.YARN
                     paramInjector.GetNamedInstance<DriverBridgeConfigurationOptions.DriverRestartEvaluatorRecoverySeconds, int>(),
             };
 
-            var submissionAppArgsFilePath = Path.Combine(
-                localDriverFolderPath, _fileNames.GetLocalFolderPath(), _fileNames.GetSubmissionAppParametersFile());
-
-            using (var jobArgsFileStream = new FileStream(submissionAppArgsFilePath, FileMode.CreateNew))
-            {
-                var serializedArgs =
-                    AvroJsonSerializer<AvroYarnAppSubmissionParameters>.ToBytes(avroYarnAppSubmissionParameters);
-                jobArgsFileStream.Write(serializedArgs, 0, serializedArgs.Length);
-            }
+            return AvroJsonSerializer<AvroYarnAppSubmissionParameters>.ToBytes(avroYarnAppSubmissionParameters);
         }
 
         /// <summary>
         /// Serializes the job parameters to job-submission-params.json.
         /// </summary>
         internal void SerializeJobFile(IJobSubmission jobSubmission, string localDriverFolderPath, string jobSubmissionDirectory)
+        {
+            var serializedArgs = SerializeJobArgsToBytes(jobSubmission, localDriverFolderPath, jobSubmissionDirectory);
+
+            var submissionJobArgsFilePath = Path.Combine(localDriverFolderPath,
+                _fileNames.GetJobSubmissionParametersFile());
+
+            using (var jobArgsFileStream = new FileStream(submissionJobArgsFilePath, FileMode.CreateNew))
+            {
+                jobArgsFileStream.Write(serializedArgs, 0, serializedArgs.Length);
+            }
+        }
+
+        internal byte[] SerializeJobArgsToBytes(IJobSubmission jobSubmission, string localDriverFolderPath, string jobSubmissionDirectory)
         {
             var avroJobSubmissionParameters = new AvroJobSubmissionParameters
             {
@@ -90,15 +108,7 @@ namespace Org.Apache.REEF.Client.YARN
                 sharedJobSubmissionParameters = avroJobSubmissionParameters
             };
 
-            var submissionJobArgsFilePath = Path.Combine(localDriverFolderPath,
-                _fileNames.GetSubmissionJobParametersFile());
-
-            using (var jobArgsFileStream = new FileStream(submissionJobArgsFilePath, FileMode.CreateNew))
-            {
-                var serializedArgs =
-                    AvroJsonSerializer<AvroYarnJobSubmissionParameters>.ToBytes(avroYarnJobSubmissionParameters);
-                jobArgsFileStream.Write(serializedArgs, 0, serializedArgs.Length);
-            }
+            return AvroJsonSerializer<AvroYarnJobSubmissionParameters>.ToBytes(avroYarnJobSubmissionParameters);
         }
     }
 }
