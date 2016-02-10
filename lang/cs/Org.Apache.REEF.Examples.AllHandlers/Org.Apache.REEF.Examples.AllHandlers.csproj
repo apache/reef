@@ -33,7 +33,6 @@ under the License.
     <StartupObject />
   </PropertyGroup>
   <Import Project="$(SolutionDir)\build.props" />
-  <Import Project="$(SolutionDir)\build.targets" />
   <PropertyGroup>
     <RestorePackages>true</RestorePackages>
     <BuildPackage>false</BuildPackage>
