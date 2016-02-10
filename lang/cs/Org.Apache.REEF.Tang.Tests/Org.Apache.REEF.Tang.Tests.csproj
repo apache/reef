@@ -130,6 +130,9 @@ under the License.
     <Compile Include="Utilities\Utilities.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="$(SolutionDir)\Org.Apache.REEF.Examples\ConfigFiles\evaluator.conf">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="packages.config">
       <SubType>Designer</SubType>
     </None>
