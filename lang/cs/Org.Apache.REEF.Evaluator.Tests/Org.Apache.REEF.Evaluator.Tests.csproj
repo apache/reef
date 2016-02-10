@@ -60,6 +60,8 @@ under the License.
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ContextRuntimeTests.cs" />
+    <Compile Include="EvaluatorConfigurationsTests.cs" />
+    <Compile Include="EvaluatorTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -97,6 +99,12 @@ under the License.
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <None Include="$(SolutionDir)\Org.Apache.REEF.Examples\ConfigFiles\evaluator.conf">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="$(SolutionDir)\Org.Apache.REEF.Examples\ConfigFiles\evaluatorWithService.conf">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets" Condition="Exists('$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets')" />
