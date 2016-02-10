@@ -54,23 +54,18 @@ public class YarnClientConfiguration extends ConfigurationModuleBuilder {
    */
   public static final OptionalImpl<ConfigurationProvider> DRIVER_CONFIGURATION_PROVIDERS = new OptionalImpl<>();
 
-  /**
-   * Driver configuration provider for the client.
-   */
-  public static final RequiredImpl<DriverConfigurationProvider> DRIVER_CONFIGURATION_PROVIDER = new RequiredImpl<>();
-
   public static final ConfigurationModule CONF = new YarnClientConfiguration()
-      .merge(CommonRuntimeConfiguration.CONF)
+          .merge(CommonRuntimeConfiguration.CONF)
           // Bind YARN
-      .bindImplementation(JobSubmissionHandler.class, YarnJobSubmissionHandler.class)
-      .bindImplementation(DriverConfigurationProvider.class, YarnDriverConfigurationProviderImpl.class)
+          .bindImplementation(JobSubmissionHandler.class, YarnJobSubmissionHandler.class)
+          .bindImplementation(DriverConfigurationProvider.class, YarnDriverConfigurationProviderImpl.class)
           // Bind the parameters given by the user
-      .bindNamedParameter(JobQueue.class, YARN_QUEUE_NAME)
-      .bindNamedParameter(JobPriority.class, YARN_PRIORITY)
-      .bindNamedParameter(JVMHeapSlack.class, JVM_HEAP_SLACK)
-      .bindImplementation(RuntimeClasspathProvider.class, YarnClasspathProvider.class)
+          .bindNamedParameter(JobQueue.class, YARN_QUEUE_NAME)
+          .bindNamedParameter(JobPriority.class, YARN_PRIORITY)
+          .bindNamedParameter(JVMHeapSlack.class, JVM_HEAP_SLACK)
+          .bindImplementation(RuntimeClasspathProvider.class, YarnClasspathProvider.class)
           // Bind external constructors. Taken from  YarnExternalConstructors.registerClientConstructors
-      .bindConstructor(org.apache.hadoop.yarn.conf.YarnConfiguration.class, YarnConfigurationConstructor.class)
-      .bindSetEntry(DriverConfigurationProviders.class, DRIVER_CONFIGURATION_PROVIDERS)
-      .build();
+          .bindConstructor(org.apache.hadoop.yarn.conf.YarnConfiguration.class, YarnConfigurationConstructor.class)
+          .bindSetEntry(DriverConfigurationProviders.class, DRIVER_CONFIGURATION_PROVIDERS)
+          .build();
 }

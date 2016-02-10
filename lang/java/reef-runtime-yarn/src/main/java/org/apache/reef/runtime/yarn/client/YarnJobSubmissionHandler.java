@@ -131,8 +131,8 @@ final class YarnJobSubmissionHandler implements JobSubmissionHandler {
 
     return this.driverConfigurationProvider.getDriverConfiguration(
             jobFolderPath.toUri(),
-            jobSubmissionEvent.getIdentifier(),
             jobSubmissionEvent.getRemoteId(),
+            jobSubmissionEvent.getIdentifier(),
             jobSubmissionEvent.getConfiguration());
   }
 
