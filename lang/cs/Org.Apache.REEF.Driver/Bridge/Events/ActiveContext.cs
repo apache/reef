@@ -32,12 +32,14 @@ namespace Org.Apache.REEF.Driver.Bridge.Events
     {
         private static readonly Logger Logger = Logger.GetLogger(typeof(ActiveContext));
         private readonly AvroConfigurationSerializer _serializer;
+        private readonly Optional<string> _parentId; 
 
         internal ActiveContext(IActiveContextClr2Java clr2Java)
         {
             InstanceId = Guid.NewGuid().ToString("N");
             Clr2Java = clr2Java;
             _serializer = new AvroConfigurationSerializer();
+            _parentId = Optional<string>.OfNullable(clr2Java.GetParentId());
         }
 
         [DataMember]
@@ -57,8 +59,7 @@ namespace Org.Apache.REEF.Driver.Bridge.Events
 
         public Optional<string> ParentId
         {
-            // TODO[REEF-760]: Implement
-            get { return Optional<string>.Empty(); }
+            get { return _parentId; }
         }
 
         public IEvaluatorDescriptor EvaluatorDescriptor

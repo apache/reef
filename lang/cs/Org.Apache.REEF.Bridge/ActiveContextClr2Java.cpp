@@ -40,6 +40,8 @@ namespace Org {
 							jclass jclassActiveContext = env->GetObjectClass(_jobjectActiveContext);
 							jmethodID jmidGetContextId = env->GetMethodID(jclassActiveContext, "getContextId", "()Ljava/lang/String;");
 							_jstringId = CommonUtilities::CallGetMethodNewGlobalRef<jstring>(env, _jobjectActiveContext, jmidGetContextId);
+							jmethodID jmidGetParentContextId = env->GetMethodID(jclassActiveContext, "getParentContextId", "()Ljava/lang/String;");
+							_jstringParentId = CommonUtilities::CallGetMethodNewGlobalRef<jstring>(env, _jobjectActiveContext, jmidGetParentContextId);
 							_jstringEvaluatorId = CommonUtilities::GetJObjectEvaluatorId(env, _jobjectActiveContext, jclassActiveContext);
 
 							ManagedLog::LOGGER->LogStop("ActiveContextClr2Java::ActiveContextClr2Java");
@@ -117,6 +119,11 @@ namespace Org {
 								_jobjectActiveContext,
 								jmidClose);
 							ManagedLog::LOGGER->LogStop("ActiveContextClr2Java::Close");
+						}
+
+						String^ ActiveContextClr2Java::GetParentId() {
+							JNIEnv *env = RetrieveEnv(_jvm);
+							return ManagedStringFromJavaString(env, _jstringParentId);
 						}
 
 						String^ ActiveContextClr2Java::GetId() {
