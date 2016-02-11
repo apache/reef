@@ -171,6 +171,7 @@ namespace Org.Apache.REEF.Driver
         /// <summary>
         /// The number of times the application should be submitted in case of failures
         /// </summary>
+        [Obsolete("Deprecated in 0.14, will be removed.")]
         public static readonly OptionalParameter<int> MaxApplicationSubmissions =
             new OptionalParameter<int>();
 

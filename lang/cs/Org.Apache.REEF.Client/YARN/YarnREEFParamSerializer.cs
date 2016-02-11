@@ -81,25 +81,18 @@ namespace Org.Apache.REEF.Client.YARN
             var avroYarnAppSubmissionParameters = new AvroYarnAppSubmissionParameters
             {
                 sharedAppSubmissionParameters = avroAppSubmissionParameters,
-                driverMemory = jobSubmission.DriverMemory,
                 driverRecoveryTimeout = paramInjector.GetNamedInstance<DriverBridgeConfigurationOptions.DriverRestartEvaluatorRecoverySeconds, int>()
             };
 
-            var avroYarnClusterAppSubmissionParameters = new AvroYarnClusterAppSubmissionParameters
-            {
-                yarnAppSubmissionParameters = avroYarnAppSubmissionParameters,
-                maxApplicationSubmissions = paramInjector.GetNamedInstance<DriverBridgeConfigurationOptions.MaxApplicationSubmissions, int>()
-            };
-
-            return AvroJsonSerializer<AvroYarnClusterAppSubmissionParameters>.ToBytes(avroYarnClusterAppSubmissionParameters);
+            return AvroJsonSerializer<AvroYarnAppSubmissionParameters>.ToBytes(avroYarnAppSubmissionParameters);
         }
 
         /// <summary>
         /// Serializes the job parameters to job-submission-params.json.
         /// </summary>
-        internal string SerializeJobFile(IJobSubmission jobSubmission, string driverFolderPath)
+        internal string SerializeJobFile(IJobSubmission jobSubmission, IInjector paramInjector, string driverFolderPath)
         {
-            var serializedArgs = SerializeJobArgsToBytes(jobSubmission, driverFolderPath);
+            var serializedArgs = SerializeJobArgsToBytes(jobSubmission, paramInjector, driverFolderPath);
 
             var submissionArgsFilePath = Path.Combine(driverFolderPath, _fileNames.GetJobSubmissionParametersFile());
             using (var argsFileStream = new FileStream(submissionArgsFilePath, FileMode.CreateNew))
@@ -110,7 +103,7 @@ namespace Org.Apache.REEF.Client.YARN
             return submissionArgsFilePath;
         }
 
-        internal byte[] SerializeJobArgsToBytes(IJobSubmission jobSubmission, string driverFolderPath)
+        internal byte[] SerializeJobArgsToBytes(IJobSubmission jobSubmission, IInjector paramInjector, string driverFolderPath)
         {
             var avroJobSubmissionParameters = new AvroJobSubmissionParameters
             {
@@ -124,11 +117,17 @@ namespace Org.Apache.REEF.Client.YARN
                 sharedJobSubmissionParameters = avroJobSubmissionParameters
             };
 
+            var maxApplicationSubmissions = jobSubmission.MaxApplicationSubmissions == 1
+                ? paramInjector.GetNamedInstance<DriverBridgeConfigurationOptions.MaxApplicationSubmissions, int>()
+                : jobSubmission.MaxApplicationSubmissions;
+
             var avroYarnClusterJobSubmissionParameters = new AvroYarnClusterJobSubmissionParameters
             {
                 securityTokenKind = _securityTokenKind,
                 securityTokenService = _securityTokenService,
-                yarnJobSubmissionParameters = avroYarnJobSubmissionParameters
+                yarnJobSubmissionParameters = avroYarnJobSubmissionParameters,
+                driverMemory = jobSubmission.DriverMemory,
+                maxApplicationSubmissions = maxApplicationSubmissions
             };
 
             return AvroJsonSerializer<AvroYarnClusterJobSubmissionParameters>.ToBytes(avroYarnClusterJobSubmissionParameters);

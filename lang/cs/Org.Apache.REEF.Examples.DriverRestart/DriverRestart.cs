@@ -64,7 +64,6 @@ namespace Org.Apache.REEF.Examples.DriverRestart
                 .Set(DriverConfiguration.OnDriverRestartEvaluatorFailed, GenericType<HelloRestartDriver>.Class)
                 .Set(DriverConfiguration.OnDriverReconnect, GenericType<DefaultYarnClusterHttpDriverConnection>.Class)
                 .Set(DriverConfiguration.DriverRestartEvaluatorRecoverySeconds, (5 * 60).ToString())
-                .Set(DriverConfiguration.MaxApplicationSubmissions, 2.ToString())
                 .Build();
 
             // The JobSubmission contains the Driver configuration as well as the files needed on the Driver.
@@ -72,6 +71,7 @@ namespace Org.Apache.REEF.Examples.DriverRestart
                 .AddDriverConfiguration(driverConfiguration)
                 .AddGlobalAssemblyForType(typeof(HelloRestartDriver))
                 .SetJobIdentifier("DriverRestart_" + Guid.NewGuid().ToString().Substring(0, 6))
+                .SetMaxApplicationSubmissions(2)
                 .Build();
 
             _reefClient.SubmitAndGetJobStatus(restartJobSubmission);
