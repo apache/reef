@@ -16,6 +16,7 @@
 // under the License.
 
 using System;
+using System.Threading.Tasks;
 using Org.Apache.REEF.Client.Common;
 using Org.Apache.REEF.Examples.AllHandlers;
 using Org.Apache.REEF.Utilities.Logging;
@@ -37,27 +38,27 @@ namespace Org.Apache.REEF.Tests.Functional.Bridge
         [Trait("Priority", "1")]
         [Trait("Category", "FunctionalGated")]
         [Trait("Description", "Run CLR Bridge on Yarn")]
-        public void CanRunClrBridgeExampleOnYarn()
+        public async Task CanRunClrBridgeExampleOnYarn()
         {
             string testRuntimeFolder = DefaultRuntimeFolder + TestNumber++;
-            RunClrBridgeClient(true, testRuntimeFolder);
+            await RunClrBridgeClient(true, testRuntimeFolder);
         }
 
-        [Fact(Skip = "Test broken, ignoring to unblock xUnit migration. TODO[JIRA REEF-1185]")]
+        [Fact]
         [Trait("Priority", "1")]
         [Trait("Category", "FunctionalGated")]
         [Trait("Description", "Run CLR Bridge on local runtime")]
         //// TODO[JIRA REEF-1184]: add timeout 180 sec
-        public void CanRunClrBridgeExampleOnLocalRuntime()
+        public async Task CanRunClrBridgeExampleOnLocalRuntime()
         {
             string testRuntimeFolder = DefaultRuntimeFolder + TestNumber++;
             CleanUp(testRuntimeFolder);
-            RunClrBridgeClient(false, testRuntimeFolder);
+            await RunClrBridgeClient(false, testRuntimeFolder);
         }
 
-        private async void RunClrBridgeClient(bool runOnYarn, string testRuntimeFolder)
+        private async Task RunClrBridgeClient(bool runOnYarn, string testRuntimeFolder)
         {
-            string[] a = new[] { runOnYarn ? "yarn" : "local", testRuntimeFolder };
+            string[] a = { runOnYarn ? "yarn" : "local", testRuntimeFolder };
             IJobSubmissionResult driverHttpEndpoint = AllHandlers.Run(a);
 
             var uri = driverHttpEndpoint.DriverUrl + "NRT/status?a=1&b=2";
