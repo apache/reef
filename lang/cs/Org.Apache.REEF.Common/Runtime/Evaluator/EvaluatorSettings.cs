@@ -22,7 +22,6 @@ using Org.Apache.REEF.Common.Io;
 using Org.Apache.REEF.Common.Protobuf.ReefProtocol;
 using Org.Apache.REEF.Common.Runtime.Evaluator.Parameters;
 using Org.Apache.REEF.Common.Runtime.Evaluator.Utils;
-using Org.Apache.REEF.Common.Services;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Tang.Exceptions;
 using Org.Apache.REEF.Tang.Formats;

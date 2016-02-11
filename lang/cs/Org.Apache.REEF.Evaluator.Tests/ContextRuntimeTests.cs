@@ -45,8 +45,7 @@ namespace Org.Apache.REEF.Evaluator.Tests
             var contextConfig = GetContextEventHandlerContextConfiguration();
             var injector = TangFactory.GetTang().NewInjector();
 
-            var handler = new ContextEventHandler();
-            injector.BindVolatileInstance(GenericType<ContextEventHandler>.Class, handler);
+            var handler = new TestContextEventHandler();
 
             using (var contextRuntime = new ContextRuntime(injector, contextConfig,
                     Optional<ContextRuntime>.Empty()))
@@ -186,9 +185,9 @@ namespace Org.Apache.REEF.Evaluator.Tests
         {
             return ContextConfiguration.ConfigurationModule
                 .Set(ContextConfiguration.Identifier, "ID")
-                .Set(ContextConfiguration.OnContextStart, GenericType<ContextEventHandler>.Class)
-                .Set(ContextConfiguration.OnContextStop, GenericType<ContextEventHandler>.Class)
-                .Set(ContextConfiguration.OnMessage, GenericType<ContextEventHandler>.Class)
+                .Set(ContextConfiguration.OnContextStart, GenericType<TestContextEventHandler>.Class)
+                .Set(ContextConfiguration.OnContextStop, GenericType<TestContextEventHandler>.Class)
+                .Set(ContextConfiguration.OnMessage, GenericType<TestContextEventHandler>.Class)
                 .Build();
         }
 
@@ -221,11 +220,11 @@ namespace Org.Apache.REEF.Evaluator.Tests
             }
         }
 
-        private sealed class ContextEventHandler 
+        private sealed class TestContextEventHandler 
             : IObserver<IContextStart>, IObserver<IContextStop>, IContextMessageHandler
         {
             [Inject]
-            public ContextEventHandler()
+            public TestContextEventHandler()
             {
             }
 
