@@ -57,7 +57,7 @@ namespace Org.Apache.REEF.Client.API
         int DriverMemory { get; }
 
         /// <summary>
-        /// The maximum amount of time an application can be submitted.
+        /// The maximum amount of times an application can be submitted.
         /// </summary>
         int MaxApplicationSubmissions { get; }
 
