@@ -30,6 +30,7 @@ namespace Org.Apache.REEF.Client.API
         private readonly ISet<string> _localAssemblies = new HashSet<string>();
         private readonly ISet<string> _localFiles = new HashSet<string>();
         private int _driverMemory = 512;
+        private int _maxAppSubmissions = 1;
         private string _jobIdentifier;
         private readonly ISet<IConfigurationProvider> _configurationProviders;
         private string _driverConfigurationFileContents;
@@ -139,6 +140,15 @@ namespace Org.Apache.REEF.Client.API
         }
 
         /// <summary>
+        /// Sets the maximum amount of times a job can be submitted.
+        /// </summary>
+        public IJobSubmissionBuilder SetMaxApplicationSubmissions(int maxAppSubmissions)
+        {
+            _maxAppSubmissions = maxAppSubmissions;
+            return this;
+        }
+
+        /// <summary>
         /// Driver config file contents (Org.Apache.REEF.Bridge.exe.config) contents
         /// Can be use to redirect assembly versions
         /// </summary>
@@ -173,7 +183,7 @@ namespace Org.Apache.REEF.Client.API
             }
 
             return new JobSubmission(_driverConfigurations, _globalAssemblies, _globalFiles, _localAssemblies,
-                _localFiles, _driverMemory, _jobIdentifier, _driverConfigurationFileContents);
+                _localFiles, _driverMemory, _jobIdentifier, _driverConfigurationFileContents, _maxAppSubmissions);
         }
     }
 }

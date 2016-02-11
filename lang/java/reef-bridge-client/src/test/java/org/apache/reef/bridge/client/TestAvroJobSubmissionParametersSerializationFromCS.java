@@ -62,7 +62,9 @@ public final class TestAvroJobSubmissionParametersSerializationFromCS {
       "{" +
           "\"yarnJobSubmissionParameters\":" + AVRO_YARN_JOB_PARAMETERS_SERIALIZED_STRING + "," +
           "\"securityTokenKind\":\"" + NULL_REP + "\"," +
-          "\"securityTokenService\":\"" + NULL_REP + "\"" +
+          "\"securityTokenService\":\"" + NULL_REP + "\"," +
+          "\"maxApplicationSubmissions\":" + NUMBER_REP + "," +
+          "\"driverMemory\":" + NUMBER_REP +
       "}";
 
   private static final String AVRO_YARN_APP_PARAMETERS_SERIALIZED_STRING =
@@ -73,14 +75,7 @@ public final class TestAvroJobSubmissionParametersSerializationFromCS {
             "\"tcpRangeCount\":" + NUMBER_REP + "," +
             "\"tcpTryCount\":" + NUMBER_REP +
           "}," +
-          "\"driverMemory\":" + NUMBER_REP + "," +
           "\"driverRecoveryTimeout\":" + NUMBER_REP +
-      "}";
-
-  private static final String AVRO_YARN_CLUSTER_APP_PARAMETERS_SERIALIZED_STRING =
-      "{" +
-          "\"yarnAppSubmissionParameters\":" + AVRO_YARN_APP_PARAMETERS_SERIALIZED_STRING + "," +
-          "\"maxApplicationSubmissions\":" + NUMBER_REP +
       "}";
 
   /**
@@ -176,7 +171,7 @@ public final class TestAvroJobSubmissionParametersSerializationFromCS {
   private static YarnClusterSubmissionFromCS createYarnClusterSubmissionFromCS() throws IOException {
     try (final InputStream appStream =
              new ByteArrayInputStream(
-                 AVRO_YARN_CLUSTER_APP_PARAMETERS_SERIALIZED_STRING.getBytes(StandardCharsets.UTF_8))) {
+                 AVRO_YARN_APP_PARAMETERS_SERIALIZED_STRING.getBytes(StandardCharsets.UTF_8))) {
       try (final InputStream jobStream =
                new ByteArrayInputStream(
                    AVRO_YARN_CLUSTER_JOB_PARAMETERS_SERIALIZED_STRING.getBytes(StandardCharsets.UTF_8))) {

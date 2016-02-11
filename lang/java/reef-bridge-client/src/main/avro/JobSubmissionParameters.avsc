@@ -46,7 +46,9 @@
       "fields": [
         { "name": "yarnJobSubmissionParameters", "type": "AvroYarnJobSubmissionParameters" },
         { "name": "securityTokenKind", "type": "string", "default": "NULL" },
-        { "name": "securityTokenService", "type": "string", "default": "NULL" }
+        { "name": "securityTokenService", "type": "string", "default": "NULL" },
+        { "name": "driverMemory", "type": "int" },
+        { "name": "maxApplicationSubmissions", "type": "int" }
       ]
   }
 ]

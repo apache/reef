@@ -71,9 +71,14 @@ namespace Org.Apache.REEF.Client.API
         IJobSubmissionBuilder SetJobIdentifier(string id);
 
         /// <summary>
-        /// Set driver memory in megabytes
+        /// Set driver memory in megabytes.
         /// </summary>
         IJobSubmissionBuilder SetDriverMemory(int driverMemoryInMb);
+
+        /// <summary>
+        /// Set the maximum amount of times a job can be submitted.
+        /// </summary>
+        IJobSubmissionBuilder SetMaxApplicationSubmissions(int maxAppSubmissions);
 
         /// <summary>
         /// Driver config file contents (Org.Apache.REEF.Bridge.exe.config) contents

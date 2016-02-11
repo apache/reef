@@ -58,25 +58,25 @@ final class YarnClusterSubmissionFromCS {
   private final AvroYarnAppSubmissionParameters yarnAppSubmissionParameters;
   private final AvroYarnJobSubmissionParameters yarnJobSubmissionParameters;
 
-  private YarnClusterSubmissionFromCS(final AvroYarnClusterAppSubmissionParameters yarnClusterAppSubmissionParameters,
+  private YarnClusterSubmissionFromCS(final AvroYarnAppSubmissionParameters yarnAppSubmissionParameters,
                                       final AvroYarnClusterJobSubmissionParameters yarnClusterJobSubmissionParameters) {
     yarnJobSubmissionParameters = yarnClusterJobSubmissionParameters.getYarnJobSubmissionParameters();
-    yarnAppSubmissionParameters = yarnClusterAppSubmissionParameters.getYarnAppSubmissionParameters();
+    this.yarnAppSubmissionParameters = yarnAppSubmissionParameters;
 
     final AvroJobSubmissionParameters jobSubmissionParameters =
         yarnJobSubmissionParameters.getSharedJobSubmissionParameters();
 
     final AvroAppSubmissionParameters appSubmissionParameters =
-        yarnAppSubmissionParameters.getSharedAppSubmissionParameters();
+        this.yarnAppSubmissionParameters.getSharedAppSubmissionParameters();
 
     this.driverFolder = new File(jobSubmissionParameters.getJobSubmissionFolder().toString());
     this.jobId = jobSubmissionParameters.getJobId().toString();
     this.tcpBeginPort = appSubmissionParameters.getTcpBeginPort();
     this.tcpRangeCount = appSubmissionParameters.getTcpRangeCount();
     this.tcpTryCount = appSubmissionParameters.getTcpTryCount();
-    this.maxApplicationSubmissions = yarnClusterAppSubmissionParameters.getMaxApplicationSubmissions();
-    this.driverRecoveryTimeout = yarnAppSubmissionParameters.getDriverRecoveryTimeout();
-    this.driverMemory = yarnAppSubmissionParameters.getDriverMemory();
+    this.maxApplicationSubmissions = yarnClusterJobSubmissionParameters.getMaxApplicationSubmissions();
+    this.driverRecoveryTimeout = this.yarnAppSubmissionParameters.getDriverRecoveryTimeout();
+    this.driverMemory = yarnClusterJobSubmissionParameters.getDriverMemory();
     this.priority = DEFAULT_PRIORITY;
     this.queue = DEFAULT_QUEUE;
     this.tokenKind = yarnClusterJobSubmissionParameters.getSecurityTokenKind().toString();
@@ -215,10 +215,10 @@ final class YarnClusterSubmissionFromCS {
   static YarnClusterSubmissionFromCS readYarnClusterSubmissionFromCSFromInputStream(
       final InputStream appInputStream, final InputStream jobInputStream) throws IOException {
     final JsonDecoder appDecoder = DecoderFactory.get().jsonDecoder(
-        AvroYarnClusterAppSubmissionParameters.getClassSchema(), appInputStream);
-    final SpecificDatumReader<AvroYarnClusterAppSubmissionParameters> appReader = new SpecificDatumReader<>(
-        AvroYarnClusterAppSubmissionParameters.class);
-    final AvroYarnClusterAppSubmissionParameters yarnClusterAppSubmissionParameters = appReader.read(null, appDecoder);
+        AvroYarnAppSubmissionParameters.getClassSchema(), appInputStream);
+    final SpecificDatumReader<AvroYarnAppSubmissionParameters> appReader = new SpecificDatumReader<>(
+        AvroYarnAppSubmissionParameters.class);
+    final AvroYarnAppSubmissionParameters yarnClusterAppSubmissionParameters = appReader.read(null, appDecoder);
 
     final JsonDecoder jobDecoder = DecoderFactory.get().jsonDecoder(
         AvroYarnClusterJobSubmissionParameters.getClassSchema(), jobInputStream);

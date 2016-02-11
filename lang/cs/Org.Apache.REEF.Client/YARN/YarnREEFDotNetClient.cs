@@ -94,8 +94,6 @@ namespace Org.Apache.REEF.Client.YARN
 
                 // prepare configuration
                 var paramInjector = TangFactory.GetTang().NewInjector(jobSubmission.DriverConfigurations.ToArray());
-                var maxApplicationSubmissions = 
-                    paramInjector.GetNamedInstance<DriverBridgeConfigurationOptions.MaxApplicationSubmissions, int>();
 
                 _paramSerializer.SerializeAppFile(jobSubmission, paramInjector, localDriverFolderPath);
                 _paramSerializer.SerializeJobFile(jobSubmission, localDriverFolderPath, jobSubmissionDirectory);
@@ -115,7 +113,7 @@ namespace Org.Apache.REEF.Client.YARN
 
                 var submissionReq = CreateApplicationSubmissionRequest(jobSubmission,
                     applicationId,
-                    maxApplicationSubmissions,
+                    jobSubmission.MaxApplicationSubmissions,
                     jobResources);
                 var submittedApplication = _yarnRMClient.SubmitApplicationAsync(submissionReq).GetAwaiter().GetResult();
                 Log.Log(Level.Info, @"Submitted application {0}", submittedApplication.Id);

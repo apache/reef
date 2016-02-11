@@ -81,17 +81,10 @@ namespace Org.Apache.REEF.Client.YARN
             var avroYarnAppSubmissionParameters = new AvroYarnAppSubmissionParameters
             {
                 sharedAppSubmissionParameters = avroAppSubmissionParameters,
-                driverMemory = jobSubmission.DriverMemory,
                 driverRecoveryTimeout = paramInjector.GetNamedInstance<DriverBridgeConfigurationOptions.DriverRestartEvaluatorRecoverySeconds, int>()
             };
 
-            var avroYarnClusterAppSubmissionParameters = new AvroYarnClusterAppSubmissionParameters
-            {
-                yarnAppSubmissionParameters = avroYarnAppSubmissionParameters,
-                maxApplicationSubmissions = paramInjector.GetNamedInstance<DriverBridgeConfigurationOptions.MaxApplicationSubmissions, int>()
-            };
-
-            return AvroJsonSerializer<AvroYarnClusterAppSubmissionParameters>.ToBytes(avroYarnClusterAppSubmissionParameters);
+            return AvroJsonSerializer<AvroYarnAppSubmissionParameters>.ToBytes(avroYarnAppSubmissionParameters);
         }
 
         /// <summary>
@@ -128,7 +121,9 @@ namespace Org.Apache.REEF.Client.YARN
             {
                 securityTokenKind = _securityTokenKind,
                 securityTokenService = _securityTokenService,
-                yarnJobSubmissionParameters = avroYarnJobSubmissionParameters
+                yarnJobSubmissionParameters = avroYarnJobSubmissionParameters,
+                driverMemory = jobSubmission.DriverMemory,
+                maxApplicationSubmissions = jobSubmission.MaxApplicationSubmissions
             };
 
             return AvroJsonSerializer<AvroYarnClusterJobSubmissionParameters>.ToBytes(avroYarnClusterJobSubmissionParameters);

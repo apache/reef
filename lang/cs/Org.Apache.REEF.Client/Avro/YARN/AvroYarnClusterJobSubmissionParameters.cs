@@ -28,7 +28,7 @@ namespace Org.Apache.REEF.Client.Avro.YARN
     [DataContract(Namespace = "org.apache.reef.reef.bridge.client.avro")]
     public sealed class AvroYarnClusterJobSubmissionParameters
     {
-        private const string JsonSchema = @"{""type"":""record"",""name"":""org.apache.reef.reef.bridge.client.avro.AvroYarnClusterJobSubmissionParameters"",""doc"":""Cross-language submission parameters to the YARN runtime using Hadoop's submission client"",""fields"":[{""name"":""yarnJobSubmissionParameters"",""type"":{""type"":""record"",""name"":""org.apache.reef.reef.bridge.client.avro.AvroYarnJobSubmissionParameters"",""doc"":""General cross-language submission parameters to the YARN runtime"",""fields"":[{""name"":""sharedJobSubmissionParameters"",""type"":{""type"":""record"",""name"":""org.apache.reef.reef.bridge.client.avro.AvroJobSubmissionParameters"",""doc"":""General cross-language job submission parameters shared by all runtimes"",""fields"":[{""name"":""jobId"",""type"":""string""},{""name"":""jobSubmissionFolder"",""type"":""string""}]}},{""name"":""dfsJobSubmissionFolder"",""type"":""string""},{""name"":""jobSubmissionDirectoryPrefix"",""type"":""string""}]}},{""name"":""securityTokenKind"",""type"":""string""},{""name"":""securityTokenService"",""type"":""string""}]}";
+        private const string JsonSchema = @"{""type"":""record"",""name"":""org.apache.reef.reef.bridge.client.avro.AvroYarnClusterJobSubmissionParameters"",""doc"":""Cross-language submission parameters to the YARN runtime using Hadoop's submission client"",""fields"":[{""name"":""yarnJobSubmissionParameters"",""type"":{""type"":""record"",""name"":""org.apache.reef.reef.bridge.client.avro.AvroYarnJobSubmissionParameters"",""doc"":""General cross-language submission parameters to the YARN runtime"",""fields"":[{""name"":""sharedJobSubmissionParameters"",""type"":{""type"":""record"",""name"":""org.apache.reef.reef.bridge.client.avro.AvroJobSubmissionParameters"",""doc"":""General cross-language job submission parameters shared by all runtimes"",""fields"":[{""name"":""jobId"",""type"":""string""},{""name"":""jobSubmissionFolder"",""type"":""string""}]}},{""name"":""dfsJobSubmissionFolder"",""type"":""string""},{""name"":""jobSubmissionDirectoryPrefix"",""type"":""string""}]}},{""name"":""securityTokenKind"",""type"":""string""},{""name"":""securityTokenService"",""type"":""string""},{""name"":""driverMemory"",""type"":""int""},{""name"":""maxApplicationSubmissions"",""type"":""int""}]}";
 
         /// <summary>
         /// Gets the schema.
@@ -60,6 +60,18 @@ namespace Org.Apache.REEF.Client.Avro.YARN
         public string securityTokenService { get; set; }
 
         /// <summary>
+        /// Gets or sets the driverMemory field.
+        /// </summary>
+        [DataMember]
+        public int driverMemory { get; set; }
+
+        /// <summary>
+        /// Gets or sets the maxApplicationSubmissions field.
+        /// </summary>
+        [DataMember]
+        public int maxApplicationSubmissions { get; set; }
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="AvroYarnClusterJobSubmissionParameters"/> class.
         /// </summary>
         public AvroYarnClusterJobSubmissionParameters()
@@ -74,11 +86,15 @@ namespace Org.Apache.REEF.Client.Avro.YARN
         /// <param name="yarnJobSubmissionParameters">The yarnJobSubmissionParameters.</param>
         /// <param name="securityTokenKind">The securityTokenKind.</param>
         /// <param name="securityTokenService">The securityTokenService.</param>
-        public AvroYarnClusterJobSubmissionParameters(AvroYarnJobSubmissionParameters yarnJobSubmissionParameters, string securityTokenKind, string securityTokenService)
+        /// <param name="driverMemory">The driverMemory.</param>
+        /// <param name="maxApplicationSubmissions">The maxApplicationSubmissions.</param>
+        public AvroYarnClusterJobSubmissionParameters(AvroYarnJobSubmissionParameters yarnJobSubmissionParameters, string securityTokenKind, string securityTokenService, int driverMemory, int maxApplicationSubmissions)
         {
             this.yarnJobSubmissionParameters = yarnJobSubmissionParameters;
             this.securityTokenKind = securityTokenKind;
             this.securityTokenService = securityTokenService;
+            this.driverMemory = driverMemory;
+            this.maxApplicationSubmissions = maxApplicationSubmissions;
         }
     }
 }

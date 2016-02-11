@@ -69,9 +69,8 @@ namespace Org.Apache.REEF.Client.YARN
             var avroYarnAppSubmissionParameters = new AvroYarnAppSubmissionParameters
             {
                 sharedAppSubmissionParameters = avroAppSubmissionParameters,
-                driverMemory = jobSubmission.DriverMemory,
                 driverRecoveryTimeout =
-                    paramInjector.GetNamedInstance<DriverBridgeConfigurationOptions.DriverRestartEvaluatorRecoverySeconds, int>(),
+                    paramInjector.GetNamedInstance<DriverBridgeConfigurationOptions.DriverRestartEvaluatorRecoverySeconds, int>()
             };
 
             return AvroJsonSerializer<AvroYarnAppSubmissionParameters>.ToBytes(avroYarnAppSubmissionParameters);

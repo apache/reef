@@ -45,18 +45,7 @@
       "doc": "General cross-language application submission parameters to the YARN runtime",
       "fields": [
         { "name": "sharedAppSubmissionParameters", "type": "AvroAppSubmissionParameters" },
-        { "name": "driverMemory", "type": "int" },
         { "name": "driverRecoveryTimeout", "type": "int" }
-      ]
-  },
-  {
-      "namespace": "org.apache.reef.reef.bridge.client.avro",
-      "type": "record",
-      "name": "AvroYarnClusterAppSubmissionParameters",
-      "doc": "Cross-language application submission parameters to the YARN runtime using Hadoop's submission client",
-      "fields": [
-        { "name": "yarnAppSubmissionParameters", "type": "AvroYarnAppSubmissionParameters" },
-        { "name": "maxApplicationSubmissions", "type": "int" }
       ]
   }
 ]

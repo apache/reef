@@ -31,6 +31,7 @@ namespace Org.Apache.REEF.Client.API
         private readonly ISet<string> _localAssemblies;
         private readonly ISet<string> _localFiles;
         private readonly int _driverMemory;
+        private readonly int _maxAppSubmissions;
         private readonly string _jobIdentifier;
         private readonly string _driverConfigurationFileContents;
 
@@ -42,7 +43,8 @@ namespace Org.Apache.REEF.Client.API
             ISet<string> localFiles,
             int driverMemory,
             string jobIdentifier,
-            string driverConfigurationFileContents)
+            string driverConfigurationFileContents,
+            int maxAppSubmissions)
         {
             _driverConfigurations = driverConfigurations;
             _globalAssemblies = globalAssemblies;
@@ -52,6 +54,7 @@ namespace Org.Apache.REEF.Client.API
             _driverMemory = driverMemory;
             _jobIdentifier = jobIdentifier;
             _driverConfigurationFileContents = driverConfigurationFileContents;
+            _maxAppSubmissions = maxAppSubmissions;
         }
 
         /// <summary>
@@ -88,6 +91,11 @@ namespace Org.Apache.REEF.Client.API
         int IJobSubmission.DriverMemory
         {
             get { return _driverMemory; }
+        }
+
+        int IJobSubmission.MaxApplicationSubmissions
+        {
+            get { return _maxAppSubmissions; }
         }
 
         /// <summary>

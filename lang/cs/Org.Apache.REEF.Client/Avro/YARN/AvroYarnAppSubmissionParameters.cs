@@ -28,7 +28,7 @@ namespace Org.Apache.REEF.Client.Avro.YARN
     [DataContract(Namespace = "org.apache.reef.reef.bridge.client.avro")]
     public sealed class AvroYarnAppSubmissionParameters
     {
-        private const string JsonSchema = @"{""type"":""record"",""name"":""org.apache.reef.reef.bridge.client.avro.AvroYarnAppSubmissionParameters"",""doc"":""General cross-language application submission parameters to the YARN runtime"",""fields"":[{""name"":""sharedAppSubmissionParameters"",""type"":{""type"":""record"",""name"":""org.apache.reef.reef.bridge.client.avro.AvroAppSubmissionParameters"",""doc"":""General cross-language application submission parameters shared by all runtimes"",""fields"":[{""name"":""tcpBeginPort"",""type"":""int""},{""name"":""tcpRangeCount"",""type"":""int""},{""name"":""tcpTryCount"",""type"":""int""}]}},{""name"":""driverMemory"",""type"":""int""},{""name"":""driverRecoveryTimeout"",""type"":""int""}]}";
+        private const string JsonSchema = @"{""type"":""record"",""name"":""org.apache.reef.reef.bridge.client.avro.AvroYarnAppSubmissionParameters"",""doc"":""General cross-language application submission parameters to the YARN runtime"",""fields"":[{""name"":""sharedAppSubmissionParameters"",""type"":{""type"":""record"",""name"":""org.apache.reef.reef.bridge.client.avro.AvroAppSubmissionParameters"",""doc"":""General cross-language application submission parameters shared by all runtimes"",""fields"":[{""name"":""tcpBeginPort"",""type"":""int""},{""name"":""tcpRangeCount"",""type"":""int""},{""name"":""tcpTryCount"",""type"":""int""}]}},{""name"":""driverRecoveryTimeout"",""type"":""int""}]}";
 
         /// <summary>
         /// Gets the schema.
@@ -48,12 +48,6 @@ namespace Org.Apache.REEF.Client.Avro.YARN
         public AvroAppSubmissionParameters sharedAppSubmissionParameters { get; set; }
 
         /// <summary>
-        /// Gets or sets the driverMemory field.
-        /// </summary>
-        [DataMember]
-        public int driverMemory { get; set; }
-
-        /// <summary>
         /// Gets or sets the driverRecoveryTimeout field.
         /// </summary>
         [DataMember]
@@ -70,12 +64,10 @@ namespace Org.Apache.REEF.Client.Avro.YARN
         /// Initializes a new instance of the <see cref="AvroYarnAppSubmissionParameters"/> class.
         /// </summary>
         /// <param name="sharedAppSubmissionParameters">The sharedAppSubmissionParameters.</param>
-        /// <param name="driverMemory">The driverMemory.</param>
         /// <param name="driverRecoveryTimeout">The driverRecoveryTimeout.</param>
-        public AvroYarnAppSubmissionParameters(AvroAppSubmissionParameters sharedAppSubmissionParameters, int driverMemory, int driverRecoveryTimeout)
+        public AvroYarnAppSubmissionParameters(AvroAppSubmissionParameters sharedAppSubmissionParameters, int driverRecoveryTimeout)
         {
             this.sharedAppSubmissionParameters = sharedAppSubmissionParameters;
-            this.driverMemory = driverMemory;
             this.driverRecoveryTimeout = driverRecoveryTimeout;
         }
     }
