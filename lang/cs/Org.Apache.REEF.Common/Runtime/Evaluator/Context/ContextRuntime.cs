@@ -167,18 +167,11 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Context
         {
             lock (_contextLifeCycle)
             {
-                if (_task.IsPresent())
-                {
-                    // note: java code is putting thread id here
-                    var e = new InvalidOperationException(
-                        string.Format(CultureInfo.InvariantCulture, "Attempting to spawn a child context when an Task with id '{0}' is running", _task.Value.TaskId));
-                    Utilities.Diagnostics.Exceptions.Throw(e, LOGGER);
-                }
-                if (_childContext.IsPresent())
-                {
-                    var e = new InvalidOperationException("Attempting to instantiate a child context on a context that is not the topmost active context.");
-                    Utilities.Diagnostics.Exceptions.Throw(e, LOGGER);
-                }
+                AssertTaskNotPresent(
+                    string.Format(CultureInfo.InvariantCulture, "Attempting to spawn a child context when an Task with id '{0}' is running", _task.Value.TaskId));
+
+                AssertChildContextNotPresent("Attempting to instantiate a child context on a context that is not the topmost active context.");
+                
                 try
                 {
                     var childServiceInjector = _serviceInjector.ForkInjector(childServiceConfiguration);
@@ -213,17 +206,11 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Context
         {
             lock (_contextLifeCycle)
             {
-                if (_task.IsPresent())
-                {
-                    var e = new InvalidOperationException(
-                        string.Format(CultureInfo.InvariantCulture, "Attempting to spawn a child context when an Task with id '{0}' is running", _task.Value.TaskId)); // note: java code is putting thread id here
-                    Utilities.Diagnostics.Exceptions.Throw(e, LOGGER);
-                }
-                if (_childContext.IsPresent())
-                {
-                    var e = new InvalidOperationException("Attempting to instantiate a child context on a context that is not the topmost active context.");
-                    Utilities.Diagnostics.Exceptions.Throw(e, LOGGER);
-                }
+                AssertTaskNotPresent(
+                    string.Format(CultureInfo.InvariantCulture, "Attempting to spawn a child context when an Task with id '{0}' is running", _task.Value.TaskId));
+
+                AssertChildContextNotPresent("Attempting to instantiate a child context on a context that is not the topmost active context.");
+
                 IInjector childServiceInjector = _serviceInjector.ForkInjector();
                 _childContext = Optional<ContextRuntime>.Of(new ContextRuntime(childServiceInjector, childContextConfiguration, Optional<ContextRuntime>.Of(this)));
                 return _childContext.Value;
@@ -261,11 +248,7 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Context
                     }
                 }
 
-                if (_childContext.IsPresent())
-                {
-                    var e = new InvalidOperationException("Attempting to instantiate a child context on a context that is not the topmost active context.");
-                    Utilities.Diagnostics.Exceptions.Throw(e, LOGGER);
-                }
+                AssertChildContextNotPresent("Attempting to instantiate a child context on a context that is not the topmost active context.");
 
                 var taskInjector = _contextInjector.ForkInjector(taskConfiguration);
 
@@ -397,12 +380,6 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Context
             }
         }
 
-        [Obsolete("Deprecated in 0.14, please use HandleContextMessage instead.")]
-        public void HandleContextMessaage(byte[] message)
-        {
-            _contextLifeCycle.HandleContextMessage(message);
-        }
-
         public void HandleContextMessage(byte[] message)
         {
             _contextLifeCycle.HandleContextMessage(message);
@@ -514,6 +491,24 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Context
             {
                 yield return context.Value;
                 context = context.Value.ParentContext;
+            }
+        }
+
+        private void AssertTaskNotPresent(string message)
+        {
+            if (_task.IsPresent())
+            {
+                var e = new InvalidOperationException(message);
+                Utilities.Diagnostics.Exceptions.Throw(e, LOGGER);
+            }
+        }
+
+        private void AssertChildContextNotPresent(string message)
+        {
+            if (_childContext.IsPresent())
+            {
+                var e = new InvalidOperationException();
+                Utilities.Diagnostics.Exceptions.Throw(e, LOGGER);
             }
         }
     }
