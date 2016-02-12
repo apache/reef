@@ -22,6 +22,7 @@ using Org.Apache.REEF.Common.Context;
 using Org.Apache.REEF.Common.Protobuf.ReefProtocol;
 using Org.Apache.REEF.Common.Tasks;
 using Org.Apache.REEF.Tang.Annotations;
+using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Utilities;
 using Org.Apache.REEF.Utilities.Logging;
 
@@ -47,10 +48,11 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Task
             [Parameter(typeof(ContextConfigurationOptions.ContextIdentifier))] string contextId,
             [Parameter(typeof(TaskConfigurationOptions.Identifier))] string taskId,
             [Parameter(typeof(TaskConfigurationOptions.TaskMessageSources))] ISet<ITaskMessageSource> taskMessageSources,
+            TaskLifeCycle taskLifeCycle,
             IHeartBeatManager heartBeatManager)
         {
             _heartBeatManager = heartBeatManager;
-            _taskLifeCycle = new TaskLifeCycle();
+            _taskLifeCycle = taskLifeCycle;
             _evaluatorMessageSources = Optional<ISet<ITaskMessageSource>>.OfNullable(taskMessageSources);
             State = TaskState.Init;
             _taskId = taskId;
@@ -64,7 +66,7 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Task
         public TaskStatus(IHeartBeatManager heartBeatManager, string contextId, string taskId, Optional<ISet<ITaskMessageSource>> evaluatorMessageSources)
         {
             _heartBeatManager = heartBeatManager;
-            _taskLifeCycle = new TaskLifeCycle();
+            _taskLifeCycle = TangFactory.GetTang().NewInjector().GetInstance<TaskLifeCycle>();
             _evaluatorMessageSources = evaluatorMessageSources;
             State = TaskState.Init;
             _taskId = taskId;

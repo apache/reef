@@ -15,8 +15,12 @@
 // specific language governing permissions and limitations
 // under the License.
 
+using Org.Apache.REEF.Common.Runtime.Evaluator.Task;
+using Org.Apache.REEF.Tang.Annotations;
+
 namespace Org.Apache.REEF.Common.Tasks.Events
 {
+    [DefaultImplementation(typeof(TaskStartImpl))]
     public interface ITaskStart
     {
         string Id { get; set; }

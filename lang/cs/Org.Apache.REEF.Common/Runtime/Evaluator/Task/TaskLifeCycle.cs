@@ -17,49 +17,78 @@
 
 using System;
 using System.Collections.Generic;
+using Org.Apache.REEF.Common.Tasks;
 using Org.Apache.REEF.Common.Tasks.Events;
+using Org.Apache.REEF.Tang.Annotations;
+using Org.Apache.REEF.Utilities;
+using Org.Apache.REEF.Utilities.Collections;
 
 namespace Org.Apache.REEF.Common.Runtime.Evaluator.Task
 {
     internal sealed class TaskLifeCycle
     {
-        private readonly HashSet<IObserver<ITaskStop>> _taskStopHandlers;
-        private readonly HashSet<IObserver<ITaskStart>> _taskStartHandlers;
-        private readonly ITaskStart _taskStart;
-        private readonly ITaskStop _taskStop;
+        private readonly IReadOnlyCollection<IObserver<ITaskStop>> _taskStopHandlers;
+        private readonly IReadOnlyCollection<IObserver<ITaskStart>> _taskStartHandlers;
+        private readonly Optional<ITaskStart> _taskStart;
+        private readonly Optional<ITaskStop> _taskStop;
 
-        // INJECT
-        public TaskLifeCycle(
-            HashSet<IObserver<ITaskStop>> taskStopHandlers,
-            HashSet<IObserver<ITaskStart>> taskStartHandlers,
-            TaskStartImpl taskStart,
-            TaskStopImpl taskStop)
+        /// <summary>
+        /// TODO[JIRA REEF-1167]: Remove constructor.
+        /// </summary>
+        [Obsolete("Deprecated in 0.14. Will be removed.")]
+        [Inject]
+        private TaskLifeCycle(
+            [Parameter(typeof(TaskConfigurationOptions.StartHandlers))] ISet<IObserver<ITaskStart>> taskStartHandlers,
+            [Parameter(typeof(TaskConfigurationOptions.StopHandlers))] ISet<IObserver<ITaskStop>> taskStopHandlers)
+            : this(taskStartHandlers, taskStopHandlers, Optional<ITaskStart>.Empty(), Optional<ITaskStop>.Empty())
         {
-            _taskStartHandlers = taskStartHandlers;
-            _taskStopHandlers = taskStopHandlers;
+        }
+
+        [Inject]
+        private TaskLifeCycle(
+            [Parameter(typeof(TaskConfigurationOptions.StartHandlers))] ISet<IObserver<ITaskStart>> taskStartHandlers,
+            [Parameter(typeof(TaskConfigurationOptions.StopHandlers))] ISet<IObserver<ITaskStop>> taskStopHandlers,
+            ITaskStart taskStart,
+            ITaskStop taskStop)
+            : this(taskStartHandlers, taskStopHandlers, Optional<ITaskStart>.Of(taskStart), Optional<ITaskStop>.Of(taskStop))
+        {
+        }
+
+        private TaskLifeCycle(
+            IEnumerable<IObserver<ITaskStart>> taskStartHandlers,
+            IEnumerable<IObserver<ITaskStop>> taskStopHandlers,
+            Optional<ITaskStart> taskStart,
+            Optional<ITaskStop> taskStop)
+        {
+            _taskStartHandlers = new ReadOnlySet<IObserver<ITaskStart>>(taskStartHandlers);
+            _taskStopHandlers = new ReadOnlySet<IObserver<ITaskStop>>(taskStopHandlers);
             _taskStart = taskStart;
             _taskStop = taskStop;
         }
 
-        public TaskLifeCycle()
-        {
-            _taskStartHandlers = new HashSet<IObserver<ITaskStart>>();
-            _taskStopHandlers = new HashSet<IObserver<ITaskStop>>();
-        }
-        
         public void Start() 
         {
-            foreach (IObserver<ITaskStart> startHandler in _taskStartHandlers) 
+            if (!_taskStart.IsPresent())
             {
-                startHandler.OnNext(_taskStart);
+                return;
+            }
+
+            foreach (var startHandler in _taskStartHandlers)
+            {
+                startHandler.OnNext(_taskStart.Value);
             }
         }
 
         public void Stop() 
         {
-            foreach (IObserver<ITaskStop> stopHandler in _taskStopHandlers)
+            if (!_taskStop.IsPresent())
             {
-                stopHandler.OnNext(_taskStop);
+                return;
+            }
+
+            foreach (var stopHandler in _taskStopHandlers)
+            {
+                stopHandler.OnNext(_taskStop.Value);
             }
         }
     }
