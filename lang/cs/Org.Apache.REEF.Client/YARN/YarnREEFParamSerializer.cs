@@ -90,9 +90,9 @@ namespace Org.Apache.REEF.Client.YARN
         /// <summary>
         /// Serializes the job parameters to job-submission-params.json.
         /// </summary>
-        internal string SerializeJobFile(IJobSubmission jobSubmission, string driverFolderPath)
+        internal string SerializeJobFile(IJobSubmission jobSubmission, IInjector paramInjector, string driverFolderPath)
         {
-            var serializedArgs = SerializeJobArgsToBytes(jobSubmission, driverFolderPath);
+            var serializedArgs = SerializeJobArgsToBytes(jobSubmission, paramInjector, driverFolderPath);
 
             var submissionArgsFilePath = Path.Combine(driverFolderPath, _fileNames.GetJobSubmissionParametersFile());
             using (var argsFileStream = new FileStream(submissionArgsFilePath, FileMode.CreateNew))
@@ -103,7 +103,7 @@ namespace Org.Apache.REEF.Client.YARN
             return submissionArgsFilePath;
         }
 
-        internal byte[] SerializeJobArgsToBytes(IJobSubmission jobSubmission, string driverFolderPath)
+        internal byte[] SerializeJobArgsToBytes(IJobSubmission jobSubmission, IInjector paramInjector, string driverFolderPath)
         {
             var avroJobSubmissionParameters = new AvroJobSubmissionParameters
             {
@@ -117,13 +117,17 @@ namespace Org.Apache.REEF.Client.YARN
                 sharedJobSubmissionParameters = avroJobSubmissionParameters
             };
 
+            var maxApplicationSubmissions = jobSubmission.MaxApplicationSubmissions == 1
+                ? paramInjector.GetNamedInstance<DriverBridgeConfigurationOptions.MaxApplicationSubmissions, int>()
+                : jobSubmission.MaxApplicationSubmissions;
+
             var avroYarnClusterJobSubmissionParameters = new AvroYarnClusterJobSubmissionParameters
             {
                 securityTokenKind = _securityTokenKind,
                 securityTokenService = _securityTokenService,
                 yarnJobSubmissionParameters = avroYarnJobSubmissionParameters,
                 driverMemory = jobSubmission.DriverMemory,
-                maxApplicationSubmissions = jobSubmission.MaxApplicationSubmissions
+                maxApplicationSubmissions = maxApplicationSubmissions
             };
 
             return AvroJsonSerializer<AvroYarnClusterJobSubmissionParameters>.ToBytes(avroYarnClusterJobSubmissionParameters);

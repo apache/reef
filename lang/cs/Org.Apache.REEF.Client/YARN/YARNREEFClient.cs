@@ -26,6 +26,7 @@ using Org.Apache.REEF.Client.Yarn.RestClient;
 using Org.Apache.REEF.Client.YARN;
 using Org.Apache.REEF.Client.YARN.RestClient.DataModel;
 using Org.Apache.REEF.Common.Files;
+using Org.Apache.REEF.Driver.Bridge;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Utilities.Logging;
@@ -111,8 +112,7 @@ namespace Org.Apache.REEF.Client.Yarn
 
             // TODO: Remove this when we have a generalized way to pass config to java
             var paramInjector = TangFactory.GetTang().NewInjector(jobSubmission.DriverConfigurations.ToArray());
-
-            var submissionJobArgsFilePath = _paramSerializer.SerializeJobFile(jobSubmission, driverFolderPath);
+            var submissionJobArgsFilePath = _paramSerializer.SerializeJobFile(jobSubmission, paramInjector, driverFolderPath);
             var submissionAppArgsFilePath = _paramSerializer.SerializeAppFile(jobSubmission, paramInjector, driverFolderPath);
 
             // Submit the driver

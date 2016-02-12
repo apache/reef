@@ -178,7 +178,7 @@ namespace Org.Apache.REEF.Client.Tests
                 .SetDriverMemory(AnyInt)
                 .Build();
 
-            var serializedBytes = serializer.SerializeJobArgsToBytes(jobSubmission, AnyString);
+            var serializedBytes = serializer.SerializeJobArgsToBytes(jobSubmission, injector, AnyString);
             var expectedString = Encoding.UTF8.GetString(serializedBytes);
             var jsonObject = JObject.Parse(expectedString);
             var expectedJsonObject = JObject.Parse(expectedJson);
