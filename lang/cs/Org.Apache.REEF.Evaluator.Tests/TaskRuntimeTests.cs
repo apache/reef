@@ -16,6 +16,8 @@
 // under the License.
 
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using NSubstitute;
 using Org.Apache.REEF.Common.Context;
@@ -23,10 +25,12 @@ using Org.Apache.REEF.Common.Protobuf.ReefProtocol;
 using Org.Apache.REEF.Common.Runtime.Evaluator;
 using Org.Apache.REEF.Common.Runtime.Evaluator.Task;
 using Org.Apache.REEF.Common.Tasks;
+using Org.Apache.REEF.Common.Tasks.Events;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Tang.Util;
+using Org.Apache.REEF.Utilities;
 using Xunit;
 
 namespace Org.Apache.REEF.Evaluator.Tests
@@ -107,6 +111,81 @@ namespace Org.Apache.REEF.Evaluator.Tests
             Assert.Equal(taskRuntime.GetTaskState(), TaskState.Done);
         }
 
+        [Fact]
+        public void TestTaskEvents()
+        {
+            var contextId = Guid.NewGuid().ToString();
+            var taskId = Guid.NewGuid().ToString();
+
+            var injector = GetInjector(typeof(CountDownAction), contextId, taskId);
+            var taskRuntime = injector.GetInstance<TaskRuntime>();
+            var startHandlers = injector.GetNamedInstance<TaskConfigurationOptions.StartHandlers, ISet<IObserver<ITaskStart>>>();
+
+            Assert.Equal(startHandlers.Count, 1);
+
+            var testTaskEventStartHandler = startHandlers.Single() as TestTaskEventHandler;
+            Assert.NotNull(testTaskEventStartHandler);
+            if (testTaskEventStartHandler == null)
+            {
+                throw new Exception("Event handler is not expected to be null.");
+            }
+
+            taskRuntime.RunTask();
+
+            Assert.True(testTaskEventStartHandler.StartInvoked.IsPresent());
+            Assert.Equal(testTaskEventStartHandler.StartInvoked.Value, taskId);
+            Assert.False(testTaskEventStartHandler.StopInvoked.IsPresent());
+
+            var countDownAction = injector.GetInstance<CountDownAction>();
+            countDownAction.CountdownEvent.Signal();
+
+            var task = injector.GetInstance<TestTask>();
+            task.FinishCountdownEvent.Wait();
+            task.DisposeCountdownEvent.Wait();
+
+            var stopHandlers = injector.GetNamedInstance<TaskConfigurationOptions.StopHandlers, ISet<IObserver<ITaskStop>>>();
+
+            Assert.Equal(stopHandlers.Count, 1);
+
+            var testTaskEventStopHandler = stopHandlers.Single() as TestTaskEventHandler;
+            Assert.NotNull(testTaskEventStopHandler);
+            if (testTaskEventStopHandler == null)
+            {
+                throw new Exception("Event handler is not expected to be null.");
+            }
+
+            Assert.True(ReferenceEquals(testTaskEventStartHandler, testTaskEventStopHandler));
+            Assert.True(testTaskEventStopHandler.StopInvoked.IsPresent());
+            Assert.Equal(testTaskEventStopHandler.StopInvoked.Value, taskId);
+        }
+
+        [Fact]
+        public void TestTaskEventsOnFailure()
+        {
+            var contextId = Guid.NewGuid().ToString();
+            var taskId = Guid.NewGuid().ToString();
+
+            var injector = GetInjector(typeof(ExceptionAction), contextId, taskId);
+            var taskRuntime = injector.GetInstance<TaskRuntime>();
+
+            taskRuntime.RunTask();
+
+            var task = injector.GetInstance<TestTask>();
+            task.FinishCountdownEvent.Wait();
+            task.DisposeCountdownEvent.Wait();
+
+            var stopHandlers = injector.GetNamedInstance<TaskConfigurationOptions.StopHandlers, ISet<IObserver<ITaskStop>>>();
+            var testTaskEventStopHandler = stopHandlers.Single() as TestTaskEventHandler;
+            Assert.NotNull(testTaskEventStopHandler);
+            if (testTaskEventStopHandler == null)
+            {
+                throw new Exception("Event handler is not expected to be null.");
+            }
+
+            Assert.True(testTaskEventStopHandler.StopInvoked.IsPresent());
+            Assert.Equal(testTaskEventStopHandler.StopInvoked.Value, taskId);
+        }
+
         private static IInjector GetInjector(string contextId = "contextId", string taskId = "taskId")
         {
             return GetInjector(typeof(DefaultAction), contextId, taskId);
@@ -117,17 +196,59 @@ namespace Org.Apache.REEF.Evaluator.Tests
             var confBuilder = TangFactory.GetTang().NewConfigurationBuilder();
             var heartbeatManager = Substitute.For<IHeartBeatManager>();
 
-            var evaluatorConfig = confBuilder
-                .BindNamedParameter(typeof(ContextConfigurationOptions.ContextIdentifier), contextId)
-                .BindNamedParameter(typeof(TaskConfigurationOptions.Identifier), taskId)
-                .BindImplementation(typeof(ITask), typeof(TestTask))
+            var contextConfig = ContextConfiguration.ConfigurationModule
+                .Set(ContextConfiguration.Identifier, contextId)
+                .Build();
+
+            var taskConfig = TaskConfiguration.ConfigurationModule
+                .Set(TaskConfiguration.Identifier, taskId)
+                .Set(TaskConfiguration.OnTaskStart, GenericType<TestTaskEventHandler>.Class)
+                .Set(TaskConfiguration.OnTaskStop, GenericType<TestTaskEventHandler>.Class)
+                .Set(TaskConfiguration.Task, GenericType<TestTask>.Class)
+                .Build();
+            
+            var actionConfig = confBuilder
                 .BindImplementation(typeof(IAction), actionType)
                 .Build();
 
-            var injector = TangFactory.GetTang().NewInjector(evaluatorConfig);
+            var injector = TangFactory.GetTang().NewInjector(contextConfig, taskConfig, actionConfig);
             injector.BindVolatileInstance(GenericType<IHeartBeatManager>.Class, heartbeatManager);
 
             return injector;
+        }
+
+        private sealed class TestTaskEventHandler : IObserver<ITaskStart>, IObserver<ITaskStop>
+        {
+            [Inject]
+            private TestTaskEventHandler()
+            {
+                StartInvoked = Optional<string>.Empty();
+                StopInvoked = Optional<string>.Empty();
+            }
+
+            public Optional<string> StartInvoked { get; private set; }
+
+            public Optional<string> StopInvoked { get; private set; }
+
+            public void OnNext(ITaskStart value)
+            {
+                StartInvoked = Optional<string>.Of(value.Id);
+            }
+
+            public void OnNext(ITaskStop value)
+            {
+                StopInvoked = Optional<string>.Of(value.Id);
+            }
+
+            public void OnError(Exception error)
+            {
+                throw new NotImplementedException();
+            }
+
+            public void OnCompleted()
+            {
+                throw new NotImplementedException();
+            }
         }
 
         private sealed class TestTask : ITask

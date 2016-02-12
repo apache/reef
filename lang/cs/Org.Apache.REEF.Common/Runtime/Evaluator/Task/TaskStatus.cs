@@ -47,10 +47,11 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Task
             [Parameter(typeof(ContextConfigurationOptions.ContextIdentifier))] string contextId,
             [Parameter(typeof(TaskConfigurationOptions.Identifier))] string taskId,
             [Parameter(typeof(TaskConfigurationOptions.TaskMessageSources))] ISet<ITaskMessageSource> taskMessageSources,
+            TaskLifeCycle taskLifeCycle,
             IHeartBeatManager heartBeatManager)
         {
             _heartBeatManager = heartBeatManager;
-            _taskLifeCycle = new TaskLifeCycle();
+            _taskLifeCycle = taskLifeCycle;
             _evaluatorMessageSources = Optional<ISet<ITaskMessageSource>>.OfNullable(taskMessageSources);
             State = TaskState.Init;
             _taskId = taskId;

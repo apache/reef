@@ -15,14 +15,16 @@
 // specific language governing permissions and limitations
 // under the License.
 
+using Org.Apache.REEF.Common.Tasks;
 using Org.Apache.REEF.Common.Tasks.Events;
+using Org.Apache.REEF.Tang.Annotations;
 
 namespace Org.Apache.REEF.Common.Runtime.Evaluator.Task
 {
     internal sealed class TaskStartImpl : ITaskStart
     {        
-        // INJECT
-        public TaskStartImpl(string id)
+        [Inject]
+        private TaskStartImpl([Parameter(typeof(TaskConfigurationOptions.Identifier))] string id)
         {
             Id = id;
         }
