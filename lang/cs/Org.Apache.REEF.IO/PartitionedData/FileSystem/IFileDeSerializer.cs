@@ -15,6 +15,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
+using System.Collections.Generic;
+
 namespace Org.Apache.REEF.IO.PartitionedData.FileSystem
 {
     /// <summary>
@@ -31,5 +33,14 @@ namespace Org.Apache.REEF.IO.PartitionedData.FileSystem
         /// <param name="fileFolder"></param>
         /// <returns></returns>
         T Deserialize(string fileFolder);
+
+        /// <summary>
+        /// The input is a set of remote file paths in the same partition.
+        /// The output is of type T which is defined by the client.
+        /// If there is any IO error, IOException could be thrown.
+        /// </summary>
+        /// <param name="filePaths"></param>
+        /// <returns></returns>
+        T Deserialize(ISet<string> filePaths);
     }
 }

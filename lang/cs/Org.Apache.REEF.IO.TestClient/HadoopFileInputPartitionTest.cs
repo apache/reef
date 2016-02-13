@@ -161,5 +161,10 @@ namespace Org.Apache.REEF.IO.TestClient
                 }
             }
         }
+
+        public IEnumerable<byte> Deserialize(ISet<string> filePaths)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

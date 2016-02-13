@@ -146,6 +146,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Client
                 .AddDriverConfiguration(imruDriverConfiguration)
                 .AddGlobalAssemblyForType(typeof(IMRUDriver<TMapInput, TMapOutput, TResult>))
                 .SetJobIdentifier(jobDefinition.JobName)
+                .SetDriverMemory(5000)
                 .Build();
 
             _jobSubmissionResult = _reefClient.SubmitAndGetJobStatus(imruJobSubmission);
