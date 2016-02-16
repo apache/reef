@@ -41,7 +41,7 @@ namespace Org.Apache.REEF.Client.Tests
         private const string AnyJobFileResourceAbsoluteUri = AnyScheme + AnyHost + AnyJobFileResourcePath;
         private const string AnyLocalArchivePath = @"Any\Local\Archive\Path.zip";
         private const string AnyLocalJobFilePath = @"Any\Local\Folder\Path\job-submission-params.json";
-        private const long AnyModificationTime = 1447413621;
+        private const long AnyModificationTime = 1447413621000;
         private const long AnyResourceSize = 53092;
         private static readonly DateTime Epoch = new DateTime(1970, 1, 1, 0, 0, 0, 0);
 
@@ -116,9 +116,9 @@ namespace Org.Apache.REEF.Client.Tests
             {
                 var injector = TangFactory.GetTang().NewInjector();
                 FileSystem.GetFileStatus(new Uri(AnyUploadedResourceAbsoluteUri))
-                    .Returns(new FileStatus(Epoch + TimeSpan.FromSeconds(AnyModificationTime), AnyResourceSize));
+                    .Returns(new FileStatus(Epoch + TimeSpan.FromMilliseconds(AnyModificationTime), AnyResourceSize));
                 FileSystem.GetFileStatus(new Uri(AnyJobFileResourceAbsoluteUri))
-                    .Returns(new FileStatus(Epoch + TimeSpan.FromSeconds(AnyModificationTime), AnyResourceSize));
+                    .Returns(new FileStatus(Epoch + TimeSpan.FromMilliseconds(AnyModificationTime), AnyResourceSize));
                 ResourceArchiveFileGenerator.CreateArchiveToUpload(AnyDriverLocalFolderPath)
                     .Returns(AnyLocalArchivePath);
                 FileSystem.CreateUriForPath(AnyDriverResourceUploadPath)

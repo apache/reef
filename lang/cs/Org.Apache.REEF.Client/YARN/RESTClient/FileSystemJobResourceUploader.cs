@@ -16,7 +16,6 @@
 // under the License.
 
 using System;
-using System.Collections.Generic;
 using System.IO;
 using Org.Apache.REEF.Client.Common;
 using Org.Apache.REEF.Client.Yarn;
@@ -40,19 +39,22 @@ namespace Org.Apache.REEF.Client.YARN.RestClient
         private static readonly DateTime Epoch = new DateTime(1970, 1, 1, 0, 0, 0, 0);
         private readonly IResourceArchiveFileGenerator _resourceArchiveFileGenerator;
         private readonly IFileSystem _fileSystem;
-        private readonly REEFFileNames _reefFileNames;
         private readonly IFile _file;
+        private readonly REEFFileNames _reefFileNames;
+        private readonly IResourceFileRemoteUrlToClusterUrlConverter _urlConverter;
 
         [Inject]
         private FileSystemJobResourceUploader(
             IResourceArchiveFileGenerator resourceArchiveFileGenerator,
             IFileSystem fileSystem,
             REEFFileNames reefFileNames,
-            IFile file)
+            IFile file,
+            IResourceFileRemoteUrlToClusterUrlConverter urlConverter)
         {
+            _urlConverter = urlConverter;
+            _reefFileNames = reefFileNames;
             _fileSystem = fileSystem;
             _resourceArchiveFileGenerator = resourceArchiveFileGenerator;
-            _reefFileNames = reefFileNames;
             _file = file;
         }
 
@@ -66,7 +68,7 @@ namespace Org.Apache.REEF.Client.YARN.RestClient
             _fileSystem.CreateDirectory(parentDirectoryUri);
 
             var archivePath = _resourceArchiveFileGenerator.CreateArchiveToUpload(driverLocalFolderPath);
-            return GetJobResource(archivePath, ResourceType.ARCHIVE, driverUploadPath);
+            return GetJobResource(archivePath, ResourceType.ARCHIVE, driverUploadPath, _reefFileNames.GetReefFolderName());
         }
 
         public JobResource UploadFileResource(string fileLocalPath, string remoteUploadDirectoryPath)
@@ -78,7 +80,7 @@ namespace Org.Apache.REEF.Client.YARN.RestClient
             return GetJobResource(fileLocalPath, ResourceType.FILE, remoteUploadDirectoryPath);
         }
 
-        private JobResource GetJobResource(string filePath, ResourceType resourceType, string driverUploadPath)
+        private JobResource GetJobResource(string filePath, ResourceType resourceType, string driverUploadPath, string localizedName = null)
         {
             if (!_file.Exists(filePath))
             {
@@ -97,9 +99,9 @@ namespace Org.Apache.REEF.Client.YARN.RestClient
 
             return new JobResource
             {
-                Name = Path.GetFileNameWithoutExtension(filePath),
+                Name = localizedName ?? Path.GetFileName(filePath),
                 LastModificationUnixTimestamp = DateTimeToUnixTimestamp(fileStatus.ModificationTime),
-                RemoteUploadPath = remoteFileUri.AbsoluteUri,
+                RemoteUploadPath = _urlConverter.ConvertToLocalUrl(remoteFileUri),
                 ResourceSize = fileStatus.LengthBytes,
                 ResourceType = resourceType
             };
@@ -107,7 +109,7 @@ namespace Org.Apache.REEF.Client.YARN.RestClient
 
         private static long DateTimeToUnixTimestamp(DateTime dateTime)
         {
-            return (long)(dateTime - Epoch).TotalSeconds;
+            return (long)(dateTime - Epoch).TotalMilliseconds;
         }
     }
 }

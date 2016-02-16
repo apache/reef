@@ -19,12 +19,13 @@ using System;
 using Org.Apache.REEF.Client.API;
 using Org.Apache.REEF.Client.Local;
 using Org.Apache.REEF.Client.Yarn;
+using Org.Apache.REEF.Client.YARN.HDI;
 using Org.Apache.REEF.Driver;
+using Org.Apache.REEF.IO.FileSystem.AzureBlob;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Tang.Util;
-using Org.Apache.REEF.Utilities.Logging;
 
 namespace Org.Apache.REEF.Examples.HelloREEF
 {
@@ -33,10 +34,10 @@ namespace Org.Apache.REEF.Examples.HelloREEF
     /// </summary>
     public sealed class HelloREEF
     {
-        private static readonly Logger Logger = Logger.GetLogger(typeof(HelloREEF));
         private const string Local = "local";
         private const string YARN = "yarn";
         private const string YARNRest = "yarnrest";
+        private const string HDInsight = "hdi";
         private readonly IREEFClient _reefClient;
         private readonly JobRequestBuilder _jobRequestBuilder;
 
@@ -84,6 +85,19 @@ namespace Org.Apache.REEF.Examples.HelloREEF
                     return YARNClientConfiguration.ConfigurationModule.Build();
                 case YARNRest:
                     return YARNClientConfiguration.ConfigurationModuleYARNRest.Build();
+                case HDInsight:
+                    // To run against HDInsight please replace placeholders below, with actual values for
+                    // connection string, container name (available at Azure portal) and HDInsight 
+                    // credentials (username and password)
+                    const string connectionString = "ConnString";
+                    const string continerName = "foo";
+                    return HDInsightClientConfiguration.ConfigurationModule
+                        .Set(HDInsightClientConfiguration.HDInsightPasswordParameter, @"pwd")
+                        .Set(HDInsightClientConfiguration.HDInsightUsernameParameter, @"foo")
+                        .Set(HDInsightClientConfiguration.HDInsightUrlParameter, @"https://foo.azurehdinsight.net/")
+                        .Set(HDInsightClientConfiguration.JobSubmissionDirectoryPrefix, string.Format(@"/{0}/tmp", continerName))
+                        .Set(AzureBlockBlobFileSystemConfiguration.ConnectionString, connectionString)
+                        .Build();
                 default:
                     throw new Exception("Unknown runtime: " + name);
             }

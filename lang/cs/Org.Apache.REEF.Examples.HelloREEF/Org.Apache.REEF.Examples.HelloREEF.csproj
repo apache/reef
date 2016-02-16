@@ -66,6 +66,10 @@
       <Project>{cdfb3464-4041-42b1-9271-83af24cd5008}</Project>
       <Name>Org.Apache.REEF.Wake</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Org.Apache.REEF.IO\Org.Apache.REEF.IO.csproj">
+      <Project>{DEC0F0A8-DBEF-4EBF-B69C-E2369C15ABF1}</Project>
+      <Name>Org.Apache.REEF.IO</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />

@@ -5,9 +5,9 @@
 // to you under the Apache License, Version 2.0 (the
 // "License"); you may not use this file except in compliance
 // with the License.  You may obtain a copy of the License at
-//
+// 
 //   http://www.apache.org/licenses/LICENSE-2.0
-//
+// 
 // Unless required by applicable law or agreed to in writing,
 // software distributed under the License is distributed on an
 // "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -15,23 +15,28 @@
 // specific language governing permissions and limitations
 // under the License.
 
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
+using System.Security;
 using Org.Apache.REEF.Tang.Annotations;
 
-namespace Org.Apache.REEF.Client.Yarn.RestClient
+namespace Org.Apache.REEF.Client.YARN.HDI
 {
-    [DefaultImplementation(typeof(YarnConfigurationUrlProvider))]
-    public interface IUrlProvider
+    [NamedParameter("User name for HDInsight cluster.")]
+    public sealed class HDInsightUserName : Name<string>
     {
-        /// <summary>
-        /// Returns list of available Yarn resourcemanager addresses for the environment
-        /// For environments with single endpoint/single RM this will be list of size 1.
-        /// For environments with multiple RMs with different endpoints this is list of all 
-        /// RMs. Client will try all endpoints until successful/the list is exhausted.
-        /// </summary>
-        /// <returns></returns>
-        Task<IEnumerable<Uri>> GetUrlAsync();
+    }
+
+    [NamedParameter("Password for HDInsight cluster.")]
+    public sealed class HDInsightPasswordString : Name<string>
+    {
+    }
+
+    [NamedParameter("Password for HDInsight cluster.")]
+    public sealed class HDInsightPasswordSecureString : Name<SecureString>
+    {
+    }
+
+    [NamedParameter("URL for HDInsight cluster like https://foo.azurehdinsight.net/.")]
+    public sealed class HDInsightUrl : Name<string>
+    {
     }
 }
