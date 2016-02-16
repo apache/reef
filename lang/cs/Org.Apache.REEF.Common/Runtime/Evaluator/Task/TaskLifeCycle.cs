@@ -21,51 +21,30 @@ using Org.Apache.REEF.Common.Tasks;
 using Org.Apache.REEF.Common.Tasks.Events;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Tang.Interface;
-using Org.Apache.REEF.Utilities;
+using Org.Apache.REEF.Utilities.Collections;
 
 namespace Org.Apache.REEF.Common.Runtime.Evaluator.Task
 {
     internal sealed class TaskLifeCycle
     {
-        private readonly ISet<IObserver<ITaskStop>> _taskStopHandlers;
-        private readonly ISet<IObserver<ITaskStart>> _taskStartHandlers;
-        private readonly Optional<IInjector> _injector; 
-
-        [Inject]
-        internal TaskLifeCycle() 
-            : this(new HashSet<IObserver<ITaskStart>>(), new HashSet<IObserver<ITaskStop>>(), Optional<IInjector>.Empty())
-        {
-            _taskStartHandlers = new HashSet<IObserver<ITaskStart>>();
-            _taskStopHandlers = new HashSet<IObserver<ITaskStop>>();
-        }
+        private readonly IReadOnlyCollection<IObserver<ITaskStop>> _taskStopHandlers;
+        private readonly IReadOnlyCollection<IObserver<ITaskStart>> _taskStartHandlers;
+        private readonly IInjector _injector; 
 
         [Inject]
         private TaskLifeCycle(
             [Parameter(typeof(TaskConfigurationOptions.StartHandlers))] ISet<IObserver<ITaskStart>> taskStartHandlers,
             [Parameter(typeof(TaskConfigurationOptions.StopHandlers))] ISet<IObserver<ITaskStop>> taskStopHandlers,
             IInjector injector)
-            : this(taskStartHandlers, taskStopHandlers, Optional<IInjector>.Of(injector))
         {
-        }
-
-        private TaskLifeCycle(
-            ISet<IObserver<ITaskStart>> taskStartHandlers,
-            ISet<IObserver<ITaskStop>> taskStopHandlers,
-            Optional<IInjector> injector)
-        {
-            _taskStartHandlers = taskStartHandlers;
-            _taskStopHandlers = taskStopHandlers;
+            _taskStartHandlers = new ReadOnlySet<IObserver<ITaskStart>>(taskStartHandlers);
+            _taskStopHandlers = new ReadOnlySet<IObserver<ITaskStop>>(taskStopHandlers);
             _injector = injector;
         }
-        
+
         public void Start() 
         {
-            if (!_injector.IsPresent())
-            {
-                return;
-            }
-
-            var taskStart = _injector.Value.GetInstance<TaskStartImpl>();
+            var taskStart = _injector.GetInstance<TaskStartImpl>();
             foreach (var startHandler in _taskStartHandlers)
             {
                 startHandler.OnNext(taskStart);
@@ -74,12 +53,7 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Task
 
         public void Stop() 
         {
-            if (!_injector.IsPresent())
-            {
-                return;
-            }
-
-            var taskStop = _injector.Value.GetInstance<TaskStopImpl>();
+            var taskStop = _injector.GetInstance<TaskStopImpl>();
             foreach (var stopHandler in _taskStopHandlers)
             {
                 stopHandler.OnNext(taskStop);

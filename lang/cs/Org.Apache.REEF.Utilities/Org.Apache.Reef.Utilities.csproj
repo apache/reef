@@ -49,6 +49,7 @@ under the License.
     <Compile Include="AvroUtils.cs" />
     <Compile Include="ByteUtilities.cs" />
     <Compile Include="Collections\PriorityQueue.cs" />
+    <Compile Include="Collections\ReadOnlySet.cs" />
     <Compile Include="Diagnostics\DiagnosticsMessages.cs" />
     <Compile Include="Diagnostics\Exceptions.cs" />
     <Compile Include="IIdentifiable.cs" />
