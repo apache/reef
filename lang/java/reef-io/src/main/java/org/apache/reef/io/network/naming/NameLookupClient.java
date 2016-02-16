@@ -18,7 +18,6 @@
  */
 package org.apache.reef.io.network.naming;
 
-import com.google.inject.Inject;
 import org.apache.reef.io.naming.NameAssignment;
 import org.apache.reef.io.naming.NamingLookup;
 import org.apache.reef.io.network.naming.exception.NamingException;
@@ -45,8 +44,8 @@ import org.apache.reef.wake.remote.transport.Link;
 import org.apache.reef.wake.remote.transport.Transport;
 import org.apache.reef.wake.remote.transport.TransportFactory;
 import org.apache.reef.wake.remote.transport.netty.LoggingLinkListener;
-import org.apache.reef.wake.remote.transport.netty.MessagingTransportFactory;
 
+import javax.inject.Inject;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.util.Arrays;
@@ -61,7 +60,7 @@ import java.util.logging.Logger;
 /**
  * Naming lookup client.
  */
-public class NameLookupClient implements Stage, NamingLookup {
+public final class NameLookupClient implements Stage, NamingLookup {
 
   private static final Logger LOG = Logger.getLogger(NameLookupClient.class.getName());
   private final SocketAddress serverSocketAddr;
@@ -72,89 +71,6 @@ public class NameLookupClient implements Stage, NamingLookup {
   private final Cache<Identifier, InetSocketAddress> cache;
   private final int retryCount;
   private final int retryTimeout;
-
-  /**
-   * Constructs a naming lookup client.
-   *
-   * @param serverAddr a server address
-   * @param serverPort a server port number
-   * @param factory    an identifier factory
-   * @param cache      an cache
-   *
-   * @deprecated in 0.13. Have an instance injected instead or use the NameResolver interface.
-   */
-  @Deprecated
-  public NameLookupClient(final String serverAddr,
-                          final int serverPort,
-                          final IdentifierFactory factory,
-                          final int retryCount,
-                          final int retryTimeout,
-                          final Cache<Identifier, InetSocketAddress> cache,
-                          final LocalAddressProvider localAddressProvider) {
-    this(serverAddr, serverPort, 10000, factory, retryCount, retryTimeout, cache, localAddressProvider);
-  }
-
-  /**
-   * Constructs a naming lookup client.
-   *
-   * @param serverAddr a server address
-   * @param serverPort a server port number
-   * @param timeout    request timeout in ms
-   * @param factory    an identifier factory
-   * @param cache      an cache
-   *
-   * @deprecated in 0.13. Have an instance injected instead or use the NameResolver interface.
-   */
-  @Deprecated
-  public NameLookupClient(final String serverAddr,
-                          final int serverPort,
-                          final long timeout,
-                          final IdentifierFactory factory,
-                          final int retryCount,
-                          final int retryTimeout,
-                          final Cache<Identifier, InetSocketAddress> cache,
-                          final LocalAddressProvider localAddressProvider) {
-    this(serverAddr, serverPort, timeout, factory, retryCount, retryTimeout,
-        cache, localAddressProvider, new MessagingTransportFactory(localAddressProvider));
-  }
-
-  /**
-   * Constructs a naming lookup client.
-   *
-   * @param serverAddr a server address
-   * @param serverPort a server port number
-   * @param timeout    request timeout in ms
-   * @param factory    an identifier factory
-   * @param cache      an cache
-   * @param tpFactory  a transport factory
-   *
-   * @deprecated in 0.13. Have an instance injected instead or use the NameResolver interface.
-   */
-  @Deprecated
-  public NameLookupClient(final String serverAddr,
-                          final int serverPort,
-                          final long timeout,
-                          final IdentifierFactory factory,
-                          final int retryCount,
-                          final int retryTimeout,
-                          final Cache<Identifier, InetSocketAddress> cache,
-                          final LocalAddressProvider localAddressProvider,
-                          final TransportFactory tpFactory) {
-
-    this.serverSocketAddr = new InetSocketAddress(serverAddr, serverPort);
-    this.timeout = timeout;
-    this.cache = cache;
-    this.codec = NamingCodecFactory.createLookupCodec(factory);
-    this.replyQueue = new LinkedBlockingQueue<>();
-
-    this.transport = tpFactory.newInstance(localAddressProvider.getLocalAddress(), 0,
-        new SyncStage<>(new NamingLookupClientHandler(
-            new NamingLookupResponseHandler(this.replyQueue), this.codec)),
-        null, retryCount, retryTimeout);
-
-    this.retryCount = retryCount;
-    this.retryTimeout = retryTimeout;
-  }
 
   /**
     * Constructs a naming lookup client.
@@ -190,39 +106,6 @@ public class NameLookupClient implements Stage, NamingLookup {
     this.retryCount = retryCount;
     this.retryTimeout = retryTimeout;
   }
-
-  /**
-   * Constructs a naming lookup client.
-   *
-   * @param serverAddr a server address
-   * @param serverPort a server port number
-   * @param timeout request timeout in ms
-   * @param factory an identifier factory
-   * @param retryCount number of retries
-   * @param retryTimeout a timeout for a retry attempt, msec
-   * @param replyQueue a queue of naming lookup responses
-   * @param transport transport for sending and receiving data
-   * @param cache a name cache
-   *
-   * @deprecated in 0.13. Have an instance injected instead or use the NameResolver interface.
-   */
-  @Deprecated
-  NameLookupClient(final String serverAddr, final int serverPort, final long timeout,
-                   final IdentifierFactory factory, final int retryCount, final int retryTimeout,
-                   final BlockingQueue<NamingLookupResponse> replyQueue, final Transport transport,
-                   final Cache<Identifier, InetSocketAddress> cache) {
-
-    this.serverSocketAddr = new InetSocketAddress(serverAddr, serverPort);
-    this.timeout = timeout;
-    this.cache = cache;
-    this.codec = NamingCodecFactory.createFullCodec(factory);
-    this.replyQueue = replyQueue;
-    this.transport = transport;
-    this.retryCount = retryCount;
-    this.retryTimeout = retryTimeout;
-  }
-
-
 
   /**
    * Finds an address for an identifier.

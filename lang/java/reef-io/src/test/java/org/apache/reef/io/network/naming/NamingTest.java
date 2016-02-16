@@ -19,13 +19,13 @@
 package org.apache.reef.io.network.naming;
 
 import org.apache.reef.io.naming.NameAssignment;
-import org.apache.reef.io.network.naming.parameters.NameResolverRetryCount;
-import org.apache.reef.io.network.naming.parameters.NameResolverRetryTimeout;
+import org.apache.reef.io.network.naming.parameters.*;
 import org.apache.reef.io.network.util.StringIdentifierFactory;
 import org.apache.reef.tang.Configuration;
 import org.apache.reef.tang.Injector;
 import org.apache.reef.tang.Tang;
 import org.apache.reef.tang.exceptions.InjectionException;
+import org.apache.reef.util.Optional;
 import org.apache.reef.wake.Identifier;
 import org.apache.reef.wake.IdentifierFactory;
 import org.apache.reef.wake.remote.address.LocalAddressProvider;
@@ -101,8 +101,9 @@ public class NamingTest {
       }
 
       // run a client
-      try (final NameLookupClient client = new NameLookupClient(localAddress, this.port,
-          10000, this.factory, RETRY_COUNT, RETRY_TIMEOUT, new NameCache(TTL), this.localAddressProvider)) {
+      try (final NameLookupClient client =
+               getNewNameLookupClient(localAddress, port, TTL, RETRY_COUNT, RETRY_TIMEOUT,
+                   Optional.of(this.localAddressProvider), Optional.of(this.factory))) {
 
         final Identifier id1 = this.factory.getNewInstance("task1");
         final Identifier id2 = this.factory.getNewInstance("task2");
@@ -120,6 +121,36 @@ public class NamingTest {
         Assert.assertTrue(isEqual(idToAddrMap, respMap));
       }
     }
+  }
+
+  private static NameLookupClient getNewNameLookupClient(final String serverAddr,
+                                                         final int serverPort,
+                                                         final long timeout,
+                                                         final int retryCount,
+                                                         final int retryTimeout,
+                                                         final Optional<LocalAddressProvider> localAddressProvider,
+                                                         final Optional<IdentifierFactory> factory)
+      throws InjectionException {
+
+
+    final Configuration injectorConf = Tang.Factory.getTang().newConfigurationBuilder()
+        .bindNamedParameter(NameResolverNameServerAddr.class, serverAddr)
+        .bindNamedParameter(NameResolverNameServerPort.class, Integer.toString(serverPort))
+        .bindNamedParameter(NameResolverCacheTimeout.class, Long.toString(timeout))
+        .bindNamedParameter(NameResolverRetryCount.class, Integer.toString(retryCount))
+        .bindNamedParameter(NameResolverRetryTimeout.class, Integer.toString(retryTimeout))
+        .build();
+
+    final Injector injector = Tang.Factory.getTang().newInjector(injectorConf);
+    if (localAddressProvider.isPresent()) {
+      injector.bindVolatileInstance(LocalAddressProvider.class, localAddressProvider.get());
+    }
+
+    if (factory.isPresent()) {
+      injector.bindVolatileInstance(IdentifierFactory.class, factory.get());
+    }
+
+    return injector.getInstance(NameLookupClient.class);
   }
 
   /**
@@ -155,9 +186,9 @@ public class NamingTest {
         }
 
         // run a client
-        try (final NameLookupClient client = new NameLookupClient(localAddress, this.port, 10000, this.factory,
-                RETRY_COUNT, RETRY_TIMEOUT, new NameCache(TTL), this.localAddressProvider)) {
-
+        try (final NameLookupClient client =
+            getNewNameLookupClient(localAddress, port, TTL, RETRY_COUNT, RETRY_TIMEOUT,
+                Optional.of(this.localAddressProvider), Optional.of(this.factory))) {
           final Identifier id1 = this.factory.getNewInstance("task1");
           final Identifier id2 = this.factory.getNewInstance("task2");
           final Identifier id3 = this.factory.getNewInstance("task3");
