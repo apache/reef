@@ -46,6 +46,7 @@ namespace Org.Apache.REEF.Evaluator.Tests
             var injector = TangFactory.GetTang().NewInjector();
 
             var handler = new TestContextEventHandler();
+            injector.BindVolatileInstance(GenericType<TestContextEventHandler>.Class, handler);
 
             using (var contextRuntime = new ContextRuntime(injector, contextConfig,
                     Optional<ContextRuntime>.Empty()))
