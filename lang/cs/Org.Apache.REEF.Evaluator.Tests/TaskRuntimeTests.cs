@@ -35,8 +35,14 @@ using Xunit;
 
 namespace Org.Apache.REEF.Evaluator.Tests
 {
+    /// <summary>
+    /// Tests for TaskRuntime and Task events.
+    /// </summary>
     public sealed class TaskRuntimeTests
     {
+        /// <summary>
+        /// Tests that Task ID and Context ID are properly passed to TaskRuntime.
+        /// </summary>
         [Fact]
         public void TestTaskRuntimeFields()
         {
@@ -48,6 +54,9 @@ namespace Org.Apache.REEF.Evaluator.Tests
             Assert.Equal(taskRuntime.ContextId, contextId);
         }
 
+        /// <summary>
+        /// Tests that TaskRuntime has proper state at initialization.
+        /// </summary>
         [Fact]
         public void TestTaskRuntimeInitialization()
         {
@@ -57,6 +66,10 @@ namespace Org.Apache.REEF.Evaluator.Tests
             Assert.False(taskRuntime.HasEnded());
         }
 
+        /// <summary>
+        /// Tests a simple Task on TaskRuntime and tests that the Task is
+        /// properly disposed.
+        /// </summary>
         [Fact]
         public void TestTaskRuntimeRunsAndDisposesTask()
         {
@@ -70,6 +83,9 @@ namespace Org.Apache.REEF.Evaluator.Tests
             Assert.True(taskRuntime.HasEnded());
         }
 
+        /// <summary>
+        /// Tests the correctness of TaskRuntime state on Task failure.
+        /// </summary>
         [Fact]
         public void TestTaskRuntimeFailure()
         {
@@ -82,6 +98,10 @@ namespace Org.Apache.REEF.Evaluator.Tests
             Assert.True(taskRuntime.HasEnded());
         }
 
+        /// <summary>
+        /// Tests the correctness of TaskRuntime state throughout the lifecycle
+        /// of a Task. Also tests that the Task runs properly.
+        /// </summary>
         [Fact]
         public void TestTaskLifeCycle()
         {
@@ -111,6 +131,10 @@ namespace Org.Apache.REEF.Evaluator.Tests
             Assert.Equal(taskRuntime.GetTaskState(), TaskState.Done);
         }
 
+        /// <summary>
+        /// Tests whether task start and stop handlers are properly instantiated and invoked
+        /// in the happy path.
+        /// </summary>
         [Fact]
         public void TestTaskEvents()
         {
@@ -159,6 +183,10 @@ namespace Org.Apache.REEF.Evaluator.Tests
             Assert.Equal(testTaskEventStopHandler.StopInvoked.Value, taskId);
         }
 
+        /// <summary>
+        /// Tests whether task start and stop handlers are properly instantiated and invoked
+        /// on the failure of a task.
+        /// </summary>
         [Fact]
         public void TestTaskEventsOnFailure()
         {
