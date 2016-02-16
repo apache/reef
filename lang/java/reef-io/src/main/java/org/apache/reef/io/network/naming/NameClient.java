@@ -74,9 +74,9 @@ public final class NameClient implements NameResolver {
       @Parameter(NameResolverRetryCount.class) final int retryCount,
       @Parameter(NameResolverRetryTimeout.class) final int retryTimeout,
       final LocalAddressProvider localAddressProvider,
-      final TransportFactory tpFactory) {
+      final TransportFactory tpFactory,
+      final NameLookupClient lookupClient) {
 
-    final NameCache cache = new NameCache(timeout);
     final BlockingQueue<NamingLookupResponse> replyLookupQueue = new LinkedBlockingQueue<>();
     final BlockingQueue<NamingRegisterResponse> replyRegisterQueue = new LinkedBlockingQueue<>();
     final Codec<NamingMessage> codec = NamingCodecFactory.createFullCodec(factory);
@@ -86,8 +86,7 @@ public final class NameClient implements NameResolver {
             new NamingResponseHandler(replyLookupQueue, replyRegisterQueue), codec)),
         null, retryCount, retryTimeout);
 
-    this.lookupClient = new NameLookupClient(serverAddr, serverPort, timeout,
-        factory, retryCount, retryTimeout, replyLookupQueue, this.transport, cache);
+    this.lookupClient = lookupClient;
 
     this.registryClient = new NameRegistryClient(serverAddr, serverPort, timeout,
         factory, replyRegisterQueue, this.transport);
