@@ -230,6 +230,7 @@ public final class TaskStatus {
    */
   void setRunning() {
     this.setState(State.RUNNING);
+    this.heartbeat();
   }
 
   void setCloseRequested() {

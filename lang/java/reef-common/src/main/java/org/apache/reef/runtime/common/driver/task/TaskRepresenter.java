@@ -55,6 +55,7 @@ public final class TaskRepresenter {
 
   // Mutable state
   private State state = State.INIT;
+  private boolean isFirstRunningMessage = true;
 
   public TaskRepresenter(final String taskId,
                          final EvaluatorContext context,
@@ -125,9 +126,6 @@ public final class TaskRepresenter {
       LOG.log(Level.WARNING, "Received a INIT message for task with id {0}" +
           " which we have seen before. Ignoring the second message", this.taskId);
     } else {
-      final RunningTask runningTask = new RunningTaskImpl(
-          this.evaluatorManager, this.taskId, this.context, this);
-      this.messageDispatcher.onTaskRunning(runningTask);
       this.setState(State.RUNNING);
     }
   }
@@ -138,6 +136,13 @@ public final class TaskRepresenter {
     if (this.isNotRunning()) {
       throw new IllegalStateException("Received a task status message from task " + this.taskId +
           " that is believed to be RUNNING on the Evaluator, but the Driver thinks it is in state " + this.state);
+    }
+
+    if (isFirstRunningMessage) {
+      isFirstRunningMessage = false;
+      final RunningTask runningTask = new RunningTaskImpl(
+          this.evaluatorManager, this.taskId, this.context, this);
+      this.messageDispatcher.onTaskRunning(runningTask);
     }
 
     // fire driver restart task running handler if this is a recovery heartbeat
