@@ -17,7 +17,6 @@
 
 using System;
 using System.Collections.Generic;
-using Org.Apache.REEF.Common.Protobuf.ReefProtocol;
 
 namespace Org.Apache.REEF.IO.PartitionedData.FileSystem
 {
@@ -45,6 +44,6 @@ namespace Org.Apache.REEF.IO.PartitionedData.FileSystem
         /// <param name="filePaths"></param>
         /// <param name="local"></param>
         /// <returns></returns>
-        T Deserialize(ISet<string> filePaths, bool local);
+        T Deserialize(ISet<string> filePaths);
     }
 }

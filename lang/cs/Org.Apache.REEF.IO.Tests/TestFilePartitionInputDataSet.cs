@@ -316,28 +316,23 @@ namespace Org.Apache.REEF.IO.Tests
         /// </summary>
         /// <param name="fileFolder"></param>
         /// <returns></returns>
+        [Obsolete("Remove after 0.14")]
         public IEnumerable<byte> Deserialize(string fileFolder)
         {
+            var files = new HashSet<string>();
             foreach (var f in Directory.GetFiles(fileFolder))
             {
-                using (FileStream stream = File.Open(f, FileMode.Open))
-                {
-                    BinaryReader reader = new BinaryReader(stream);
-                    while (reader.PeekChar() != -1)
-                    {
-                        yield return reader.ReadByte();
-                    }
-                }
+                files.Add(f);
             }
+            return Deserialize(files);
         }
 
         /// <summary>
         /// Enumerate all the files in the set and return each byte read
         /// </summary>
         /// <param name="filePaths"></param>
-        /// <param name="local"></param>
         /// <returns></returns>
-        public IEnumerable<byte> Deserialize(ISet<string> filePaths, bool local)
+        public IEnumerable<byte> Deserialize(ISet<string> filePaths)
         {
             foreach (var f in filePaths)
             {
@@ -380,28 +375,23 @@ namespace Org.Apache.REEF.IO.Tests
         /// </summary>
         /// <param name="fileFolder"></param>
         /// <returns></returns>
+        [Obsolete("Remove after 0.14")]
         public IEnumerable<Row> Deserialize(string fileFolder)
         {
+            ISet<string> files = new HashSet<string>();
             foreach (var f in Directory.GetFiles(fileFolder))
             {
-                using (FileStream stream = File.Open(f, FileMode.Open))
-                {
-                    BinaryReader reader = new BinaryReader(stream);
-                    while (reader.PeekChar() != -1)
-                    {
-                        yield return new Row(reader.ReadByte());
-                    }
-                }
+                files.Add(f);
             }
+            return Deserialize(files);
         }
 
         /// <summary>
         /// read all the files in the set and return byte read one by one
         /// </summary>
         /// <param name="filePaths"></param>
-        /// <param name="local"></param>
         /// <returns></returns>
-        public IEnumerable<Row> Deserialize(ISet<string> filePaths, bool local)
+        public IEnumerable<Row> Deserialize(ISet<string> filePaths)
         {
             foreach (var f in filePaths)
             {

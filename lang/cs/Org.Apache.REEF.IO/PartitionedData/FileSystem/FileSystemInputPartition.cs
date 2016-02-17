@@ -92,9 +92,9 @@ namespace Org.Apache.REEF.IO.PartitionedData.FileSystem
                     Initialize();
                 }
 
-                return _fileSerializer.Deserialize(_localFiles, _copyToLocal);
+                return _fileSerializer.Deserialize(_localFiles);
             }
-            return _fileSerializer.Deserialize(_filePaths, !_copyToLocal);
+            return _fileSerializer.Deserialize(_filePaths);
         }
 
         private void CopyFromRemote()
