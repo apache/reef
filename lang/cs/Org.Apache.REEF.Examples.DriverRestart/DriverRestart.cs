@@ -34,13 +34,13 @@ namespace Org.Apache.REEF.Examples.DriverRestart
     public sealed class DriverRestart
     {
         private readonly IREEFClient _reefClient;
-        private readonly JobSubmissionBuilderFactory _jobSubmissionBuilderFactory;
+        private readonly JobRequestBuilder _jobRequestBuilder;
 
         [Inject]
-        private DriverRestart(IREEFClient reefClient, JobSubmissionBuilderFactory jobSubmissionBuilderFactory)
+        private DriverRestart(IREEFClient reefClient, JobRequestBuilder jobRequestBuilder)
         {
             _reefClient = reefClient;
-            _jobSubmissionBuilderFactory = jobSubmissionBuilderFactory;
+            _jobRequestBuilder = jobRequestBuilder;
         }
 
         /// <summary>
@@ -67,7 +67,7 @@ namespace Org.Apache.REEF.Examples.DriverRestart
                 .Build();
 
             // The JobSubmission contains the Driver configuration as well as the files needed on the Driver.
-            var restartJobSubmission = _jobSubmissionBuilderFactory.GetJobSubmissionBuilder()
+            var restartJobSubmission = _jobRequestBuilder
                 .AddDriverConfiguration(driverConfiguration)
                 .AddGlobalAssemblyForType(typeof(HelloRestartDriver))
                 .SetJobIdentifier("DriverRestart_" + Guid.NewGuid().ToString().Substring(0, 6))

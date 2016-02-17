@@ -23,6 +23,7 @@ namespace Org.Apache.REEF.Client.API
     /// <summary>
     /// Facilitates building of job submissions
     /// </summary>
+    [Obsolete("Deprecated in 0.14, please use JobRequestBuilder.")]
     public interface IJobSubmissionBuilder
     {
         /// <summary>

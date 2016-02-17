@@ -38,13 +38,13 @@ namespace Org.Apache.REEF.Examples.HelloREEF
         private const string YARN = "yarn";
         private const string YARNRest = "yarnrest";
         private readonly IREEFClient _reefClient;
-        private readonly JobSubmissionBuilderFactory _jobSubmissionBuilderFactory;
+        private readonly JobRequestBuilder _jobRequestBuilder;
 
         [Inject]
-        private HelloREEF(IREEFClient reefClient, JobSubmissionBuilderFactory jobSubmissionBuilderFactory)
+        private HelloREEF(IREEFClient reefClient, JobRequestBuilder jobRequestBuilder)
         {
             _reefClient = reefClient;
-            _jobSubmissionBuilderFactory = jobSubmissionBuilderFactory;
+            _jobRequestBuilder = jobRequestBuilder;
         }
 
         /// <summary>
@@ -59,13 +59,13 @@ namespace Org.Apache.REEF.Examples.HelloREEF
                 .Build();
 
             // The JobSubmission contains the Driver configuration as well as the files needed on the Driver.
-            var helloJobSubmission = _jobSubmissionBuilderFactory.GetJobSubmissionBuilder()
+            var helloJobRequest = _jobRequestBuilder
                 .AddDriverConfiguration(helloDriverConfiguration)
                 .AddGlobalAssemblyForType(typeof(HelloDriver))
                 .SetJobIdentifier("HelloREEF")
                 .Build();
 
-            _reefClient.Submit(helloJobSubmission);
+            _reefClient.Submit(helloJobRequest);
         }
 
         /// <summary>

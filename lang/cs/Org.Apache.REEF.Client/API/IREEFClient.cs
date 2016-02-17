@@ -30,19 +30,26 @@ namespace Org.Apache.REEF.Client.API
     public interface IREEFClient
     {
         /// <summary>
-        /// Submit the job described in jobSubmission to the cluster.
+        /// Submit the job described in jobRequest to the cluster.
         /// </summary>
         /// <param name="jobSubmission"></param>
+        [Obsolete("Deprecated in 0.14. Please use Submit(JobRequest)")]
         void Submit(IJobSubmission jobSubmission);
 
         /// <summary>
-        /// Submit the job described in jobSubmission to the cluster.
+        /// Submit the job described in jobRequest to the cluster.
+        /// </summary>
+        /// <param name="jobRequest"></param>
+        void Submit(JobRequest jobRequest);
+
+        /// <summary>
+        /// Submit the job described in jobRequest to the cluster.
         /// Expect IJobSubmissionResult returned after the call.
         /// </summary>
-        /// <param name="jobSubmission"></param>
+        /// <param name="jobRequest"></param>
         /// <returns>IJobSubmissionResult</returns>
         [Unstable("0.13", "Working in progress for what to return after submit")]
-        IJobSubmissionResult SubmitAndGetJobStatus(IJobSubmission jobSubmission);
+        IJobSubmissionResult SubmitAndGetJobStatus(JobRequest jobRequest);
 
         /// <summary>
         /// Returns the application status in running the job

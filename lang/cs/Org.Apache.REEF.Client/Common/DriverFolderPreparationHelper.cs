@@ -80,20 +80,20 @@ namespace Org.Apache.REEF.Client.Common
         /// <summary>
         /// Prepares the working directory for a Driver in driverFolderPath.
         /// </summary>
-        /// <param name="jobSubmission"></param>
+        /// <param name="appParameters"></param>
         /// <param name="driverFolderPath"></param>
-        internal void PrepareDriverFolder(IJobSubmission jobSubmission, string driverFolderPath)
+        internal void PrepareDriverFolder(AppParameters appParameters, string driverFolderPath)
         {
             Logger.Log(Level.Info, "Preparing Driver filesystem layout in " + driverFolderPath);
 
             // Setup the folder structure
-            CreateDefaultFolderStructure(jobSubmission, driverFolderPath);
+            CreateDefaultFolderStructure(appParameters, driverFolderPath);
 
-            // Add the jobSubmission into that folder structure
-            _fileSets.AddJobFiles(jobSubmission);
+            // Add the appParameters into that folder structure
+            _fileSets.AddJobFiles(appParameters);
 
             // Create the driver configuration
-            CreateDriverConfiguration(jobSubmission, driverFolderPath);
+            CreateDriverConfiguration(appParameters, driverFolderPath);
 
             // Add the REEF assemblies
             AddAssemblies();
@@ -105,15 +105,15 @@ namespace Org.Apache.REEF.Client.Common
         }
 
         /// <summary>
-        /// Merges the Configurations in jobSubmission and serializes them into the right place within driverFolderPath,
+        /// Merges the Configurations in appParameters and serializes them into the right place within driverFolderPath,
         /// assuming
         /// that points to a Driver's working directory.
         /// </summary>
-        /// <param name="jobSubmission"></param>
+        /// <param name="appParameters"></param>
         /// <param name="driverFolderPath"></param>
-        internal void CreateDriverConfiguration(IJobSubmission jobSubmission, string driverFolderPath)
+        internal void CreateDriverConfiguration(AppParameters appParameters, string driverFolderPath)
         {
-            var driverConfiguration = Configurations.Merge(jobSubmission.DriverConfigurations.ToArray());
+            var driverConfiguration = Configurations.Merge(appParameters.DriverConfigurations.ToArray());
 
             _configurationSerializer.ToFile(driverConfiguration,
                 Path.Combine(driverFolderPath, _fileNames.GetClrDriverConfigurationPath()));
@@ -126,9 +126,9 @@ namespace Org.Apache.REEF.Client.Common
         /// <summary>
         /// Creates the driver folder structure in this given folder as the root
         /// </summary>
-        /// <param name="jobSubmission">Job submission information</param>
+        /// <param name="appParameters">Job submission information</param>
         /// <param name="driverFolderPath">Driver folder path</param>
-        internal void CreateDefaultFolderStructure(IJobSubmission jobSubmission, string driverFolderPath)
+        internal void CreateDefaultFolderStructure(AppParameters appParameters, string driverFolderPath)
         {
             Directory.CreateDirectory(Path.Combine(driverFolderPath, _fileNames.GetReefFolderName()));
             Directory.CreateDirectory(Path.Combine(driverFolderPath, _fileNames.GetLocalFolderPath()));
@@ -146,9 +146,9 @@ namespace Org.Apache.REEF.Client.Common
             }
             
             var config = DefaultDriverConfigurationFileContents;
-            if (!string.IsNullOrEmpty(jobSubmission.DriverConfigurationFileContents))
+            if (!string.IsNullOrEmpty(appParameters.DriverConfigurationFileContents))
             {
-                config = jobSubmission.DriverConfigurationFileContents;
+                config = appParameters.DriverConfigurationFileContents;
             }
             File.WriteAllText(Path.Combine(driverFolderPath, _fileNames.GetBridgeExeConfigPath()), config);
         }
