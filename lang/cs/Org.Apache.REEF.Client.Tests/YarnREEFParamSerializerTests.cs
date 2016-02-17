@@ -62,10 +62,10 @@ namespace Org.Apache.REEF.Client.Tests
             var injector = TangFactory.GetTang().NewInjector(tcpConf, driverConf);
 
             var serializer = injector.GetInstance<YarnREEFDotNetParamSerializer>();
-            var jobSubmission = injector.GetInstance<JobSubmissionBuilderFactory>()
-                .GetJobSubmissionBuilder().Build();
+            var jobRequest = injector.GetInstance<JobRequestBuilder>().Build();
 
-            var serializedBytes = serializer.SerializeAppArgsToBytes(jobSubmission, injector, AnyString);
+            var serializedBytes = serializer.SerializeAppArgsToBytes(
+                jobRequest.AppParameters, injector, AnyString);
             var expectedString = Encoding.UTF8.GetString(serializedBytes);
             var jsonObject = JObject.Parse(expectedString);
             var expectedJsonObject = JObject.Parse(expectedJson);
@@ -90,10 +90,9 @@ namespace Org.Apache.REEF.Client.Tests
             var injector = TangFactory.GetTang().NewInjector();
 
             var serializer = injector.GetInstance<YarnREEFDotNetParamSerializer>();
-            var jobSubmission = injector.GetInstance<JobSubmissionBuilderFactory>()
-                .GetJobSubmissionBuilder().SetJobIdentifier(AnyString).Build();
+            var jobRequest = injector.GetInstance<JobRequestBuilder>().SetJobIdentifier(AnyString).Build();
 
-            var serializedBytes = serializer.SerializeJobArgsToBytes(jobSubmission, AnyString, AnyString);
+            var serializedBytes = serializer.SerializeJobArgsToBytes(jobRequest.JobParameters, AnyString, AnyString);
             var expectedString = Encoding.UTF8.GetString(serializedBytes);
             var jsonObject = JObject.Parse(expectedString);
             var expectedJsonObject = JObject.Parse(expectedJson);
@@ -127,13 +126,12 @@ namespace Org.Apache.REEF.Client.Tests
             var injector = TangFactory.GetTang().NewInjector(tcpConf, driverConf);
 
             var serializer = injector.GetInstance<YarnREEFParamSerializer>();
-            var jobSubmission = injector.GetInstance<JobSubmissionBuilderFactory>()
-                .GetJobSubmissionBuilder()
+            var jobRequest = injector.GetInstance<JobRequestBuilder>()
                 .SetDriverMemory(AnyInt)
                 .SetMaxApplicationSubmissions(AnyInt)
                 .Build();
 
-            var serializedBytes = serializer.SerializeAppArgsToBytes(jobSubmission, injector);
+            var serializedBytes = serializer.SerializeAppArgsToBytes(jobRequest.AppParameters, injector);
             var expectedString = Encoding.UTF8.GetString(serializedBytes);
             var jsonObject = JObject.Parse(expectedString);
             var expectedJsonObject = JObject.Parse(expectedJson);
@@ -171,14 +169,13 @@ namespace Org.Apache.REEF.Client.Tests
             var injector = TangFactory.GetTang().NewInjector(conf);
 
             var serializer = injector.GetInstance<YarnREEFParamSerializer>();
-            var jobSubmission = injector.GetInstance<JobSubmissionBuilderFactory>()
-                .GetJobSubmissionBuilder()
+            var jobRequest = injector.GetInstance<JobRequestBuilder>()
                 .SetJobIdentifier(AnyString)
                 .SetMaxApplicationSubmissions(AnyInt)
                 .SetDriverMemory(AnyInt)
                 .Build();
 
-            var serializedBytes = serializer.SerializeJobArgsToBytes(jobSubmission, injector, AnyString);
+            var serializedBytes = serializer.SerializeJobArgsToBytes(jobRequest.JobParameters, injector, AnyString);
             var expectedString = Encoding.UTF8.GetString(serializedBytes);
             var jsonObject = JObject.Parse(expectedString);
             var expectedJsonObject = JObject.Parse(expectedJson);

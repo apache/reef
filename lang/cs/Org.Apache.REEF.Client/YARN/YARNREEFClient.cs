@@ -26,7 +26,6 @@ using Org.Apache.REEF.Client.Yarn.RestClient;
 using Org.Apache.REEF.Client.YARN;
 using Org.Apache.REEF.Client.YARN.RestClient.DataModel;
 using Org.Apache.REEF.Common.Files;
-using Org.Apache.REEF.Driver.Bridge;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Utilities.Logging;
@@ -65,20 +64,25 @@ namespace Org.Apache.REEF.Client.Yarn
 
         public void Submit(IJobSubmission jobSubmission)
         {
-            // Prepare the job submission folder
-            var driverFolderPath = CreateDriverFolder(jobSubmission.JobIdentifier);
-            Logger.Log(Level.Info, "Preparing driver folder in " + driverFolderPath);
-
-            Launch(jobSubmission, driverFolderPath);
+            Submit(JobRequest.FromJobSubmission(jobSubmission));
         }
 
-        public IJobSubmissionResult SubmitAndGetJobStatus(IJobSubmission jobSubmission)
+        public void Submit(JobRequest jobRequest)
         {
             // Prepare the job submission folder
-            var driverFolderPath = CreateDriverFolder(jobSubmission.JobIdentifier);
+            var driverFolderPath = CreateDriverFolder(jobRequest.JobIdentifier);
             Logger.Log(Level.Info, "Preparing driver folder in " + driverFolderPath);
 
-            Launch(jobSubmission, driverFolderPath);
+            Launch(jobRequest, driverFolderPath);
+        }
+
+        public IJobSubmissionResult SubmitAndGetJobStatus(JobRequest jobRequest)
+        {
+            // Prepare the job submission folder
+            var driverFolderPath = CreateDriverFolder(jobRequest.JobIdentifier);
+            Logger.Log(Level.Info, "Preparing driver folder in " + driverFolderPath);
+
+            Launch(jobRequest, driverFolderPath);
 
             var pointerFileName = Path.Combine(driverFolderPath, _fileNames.DriverHttpEndpoint);
             var jobSubmitionResultImpl = new YarnJobSubmissionResult(this, pointerFileName);
@@ -89,6 +93,11 @@ namespace Org.Apache.REEF.Client.Yarn
             Logger.Log(Level.Info, msg);
 
             return jobSubmitionResultImpl;
+        }
+
+        public IJobSubmissionResult SubmitAndGetJobStatus(IJobSubmission jobSubmission)
+        {
+            return SubmitAndGetJobStatus(JobRequest.FromJobSubmission(jobSubmission));
         }
 
         /// <summary>
@@ -106,18 +115,18 @@ namespace Org.Apache.REEF.Client.Yarn
             return application.FinalStatus;
         }
 
-        private void Launch(IJobSubmission jobSubmission, string driverFolderPath)
+        private void Launch(JobRequest jobRequest, string driverFolderPath)
         {
-            _driverFolderPreparationHelper.PrepareDriverFolder(jobSubmission, driverFolderPath);
+            _driverFolderPreparationHelper.PrepareDriverFolder(jobRequest.AppParameters, driverFolderPath);
 
             // TODO: Remove this when we have a generalized way to pass config to java
-            var paramInjector = TangFactory.GetTang().NewInjector(jobSubmission.DriverConfigurations.ToArray());
-            var submissionJobArgsFilePath = _paramSerializer.SerializeJobFile(jobSubmission, paramInjector, driverFolderPath);
-            var submissionAppArgsFilePath = _paramSerializer.SerializeAppFile(jobSubmission, paramInjector, driverFolderPath);
+            var paramInjector = TangFactory.GetTang().NewInjector(jobRequest.DriverConfigurations.ToArray());
+            var submissionJobArgsFilePath = _paramSerializer.SerializeJobFile(jobRequest.JobParameters, paramInjector, driverFolderPath);
+            var submissionAppArgsFilePath = _paramSerializer.SerializeAppFile(jobRequest.AppParameters, paramInjector, driverFolderPath);
 
             // Submit the driver
             _javaClientLauncher.Launch(JavaClassName, submissionJobArgsFilePath, submissionAppArgsFilePath);
-            Logger.Log(Level.Info, "Submitted the Driver for execution." + jobSubmission.JobIdentifier);
+            Logger.Log(Level.Info, "Submitted the Driver for execution." + jobRequest.JobIdentifier);
         }
 
         /// <summary>

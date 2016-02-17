@@ -48,17 +48,19 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Client
         private static readonly Logger Logger = Logger.GetLogger(typeof(REEFIMRUClient));
 
         private readonly IREEFClient _reefClient;
-        private readonly JobSubmissionBuilderFactory _jobSubmissionBuilderFactory;
+        private readonly JobRequestBuilder _jobRequestBuilder;
         private readonly AvroConfigurationSerializer _configurationSerializer;
         private IJobSubmissionResult _jobSubmissionResult;
 
         [Inject]
-        private REEFIMRUClient(IREEFClient reefClient, AvroConfigurationSerializer configurationSerializer,
-            JobSubmissionBuilderFactory jobSubmissionBuilderFactory)
+        private REEFIMRUClient(
+            IREEFClient reefClient, 
+            AvroConfigurationSerializer configurationSerializer,
+            JobRequestBuilder jobRequestBuilder)
         {
             _reefClient = reefClient;
             _configurationSerializer = configurationSerializer;
-            _jobSubmissionBuilderFactory = jobSubmissionBuilderFactory;
+            _jobRequestBuilder = jobRequestBuilder;
         }
 
         /// <summary>
@@ -142,7 +144,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Client
                 .Build();
 
             // The JobSubmission contains the Driver configuration as well as the files needed on the Driver.
-            var imruJobSubmission = _jobSubmissionBuilderFactory.GetJobSubmissionBuilder()
+            var imruJobSubmission = _jobRequestBuilder
                 .AddDriverConfiguration(imruDriverConfiguration)
                 .AddGlobalAssemblyForType(typeof(IMRUDriver<TMapInput, TMapOutput, TResult>))
                 .SetJobIdentifier(jobDefinition.JobName)

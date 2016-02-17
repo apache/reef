@@ -15,6 +15,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
+using System;
 using System.Collections.Generic;
 using Org.Apache.REEF.Tang.Interface;
 
@@ -24,6 +25,7 @@ namespace Org.Apache.REEF.Client.API
     /// This interfaces provides all the information that is needed for 
     /// a job submission
     /// </summary>
+    [Obsolete("Deprecated in 0.14. Please use JobRequest.")]
     public interface IJobSubmission
     {
         /// <summary>

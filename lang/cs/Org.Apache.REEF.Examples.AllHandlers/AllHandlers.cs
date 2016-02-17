@@ -40,13 +40,13 @@ namespace Org.Apache.REEF.Examples.AllHandlers
         private const string Local = "local";
         private const string YARN = "yarn";
         private readonly IREEFClient _reefClient;
-        private readonly JobSubmissionBuilderFactory _jobSubmissionBuilderFactory;
+        private readonly JobRequestBuilder _jobRequestBuilder;
 
         [Inject]
-        private AllHandlers(IREEFClient reefClient, JobSubmissionBuilderFactory jobSubmissionBuilderFactory)
+        private AllHandlers(IREEFClient reefClient, JobRequestBuilder jobRequestBuilder)
         {
             _reefClient = reefClient;
-            _jobSubmissionBuilderFactory = jobSubmissionBuilderFactory;
+            _jobRequestBuilder = jobRequestBuilder;
         }
 
         private IJobSubmissionResult Run()
@@ -76,7 +76,7 @@ namespace Org.Apache.REEF.Examples.AllHandlers
                 .BindSetEntry<DriverBridgeConfigurationOptions.SetOfAssemblies, string>(typeof(NameClient).Assembly.GetName().Name)
                 .Build();
 
-            var helloJobSubmission = _jobSubmissionBuilderFactory.GetJobSubmissionBuilder()
+            var helloJobSubmission = _jobRequestBuilder
                 .AddDriverConfiguration(driverConfig)
                 .AddGlobalAssemblyForType(typeof(HelloDriverStartHandler))
                 .SetJobIdentifier("HelloDriver")

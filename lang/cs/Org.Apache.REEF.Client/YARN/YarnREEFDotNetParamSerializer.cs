@@ -44,9 +44,9 @@ namespace Org.Apache.REEF.Client.YARN
         /// <summary>
         /// Serializes the application parameters to reef/local/app-submission-params.json.
         /// </summary>
-        internal void SerializeAppFile(IJobSubmission jobSubmission, IInjector paramInjector, string localDriverFolderPath)
+        internal void SerializeAppFile(AppParameters appParameters, IInjector paramInjector, string localDriverFolderPath)
         {
-            var serializedArgs = SerializeAppArgsToBytes(jobSubmission, paramInjector, localDriverFolderPath);
+            var serializedArgs = SerializeAppArgsToBytes(appParameters, paramInjector, localDriverFolderPath);
 
             var submissionAppArgsFilePath = Path.Combine(
                 localDriverFolderPath, _fileNames.GetLocalFolderPath(), _fileNames.GetAppSubmissionParametersFile());
@@ -57,7 +57,7 @@ namespace Org.Apache.REEF.Client.YARN
             }
         }
 
-        internal byte[] SerializeAppArgsToBytes(IJobSubmission jobSubmission, IInjector paramInjector, string localDriverFolderPath)
+        internal byte[] SerializeAppArgsToBytes(AppParameters appParameters, IInjector paramInjector, string localDriverFolderPath)
         {
             var avroAppSubmissionParameters = new AvroAppSubmissionParameters
             {
@@ -79,9 +79,9 @@ namespace Org.Apache.REEF.Client.YARN
         /// <summary>
         /// Serializes the job parameters to job-submission-params.json.
         /// </summary>
-        internal void SerializeJobFile(IJobSubmission jobSubmission, string localDriverFolderPath, string jobSubmissionDirectory)
+        internal void SerializeJobFile(JobParameters jobParameters, string localDriverFolderPath, string jobSubmissionDirectory)
         {
-            var serializedArgs = SerializeJobArgsToBytes(jobSubmission, localDriverFolderPath, jobSubmissionDirectory);
+            var serializedArgs = SerializeJobArgsToBytes(jobParameters, localDriverFolderPath, jobSubmissionDirectory);
 
             var submissionJobArgsFilePath = Path.Combine(localDriverFolderPath,
                 _fileNames.GetJobSubmissionParametersFile());
@@ -92,11 +92,11 @@ namespace Org.Apache.REEF.Client.YARN
             }
         }
 
-        internal byte[] SerializeJobArgsToBytes(IJobSubmission jobSubmission, string localDriverFolderPath, string jobSubmissionDirectory)
+        internal byte[] SerializeJobArgsToBytes(JobParameters jobParameters, string localDriverFolderPath, string jobSubmissionDirectory)
         {
             var avroJobSubmissionParameters = new AvroJobSubmissionParameters
             {
-                jobId = jobSubmission.JobIdentifier,
+                jobId = jobParameters.JobIdentifier,
                 jobSubmissionFolder = localDriverFolderPath
             };
 

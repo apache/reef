@@ -15,93 +15,94 @@
 // specific language governing permissions and limitations
 // under the License.
 
+using System;
 using System.Collections.Generic;
 using Org.Apache.REEF.Tang.Interface;
 
 namespace Org.Apache.REEF.Client.API
 {
     /// <summary>
-    /// Captures a submission of a REEF Job to a cluster.
+    /// The parameters for a REEF application, used to specify application parameters for each REEF application.
+    /// For job parameters which is specified each time for job submissions of the same
+    /// REEF application, see <see cref="JobParameters"/>.
     /// </summary>
-    internal sealed class JobSubmission : IJobSubmission
+    public sealed class AppParameters
     {
         private readonly ISet<IConfiguration> _driverConfigurations;
         private readonly ISet<string> _globalAssemblies;
         private readonly ISet<string> _globalFiles;
         private readonly ISet<string> _localAssemblies;
         private readonly ISet<string> _localFiles;
-        private readonly int _driverMemory;
-        private readonly int _maxAppSubmissions;
-        private readonly string _jobIdentifier;
         private readonly string _driverConfigurationFileContents;
 
-        internal JobSubmission(JobRequest jobRequest)
+        internal AppParameters(
+            ISet<IConfiguration> driverConfigurations,
+            ISet<string> globalAssemblies,
+            ISet<string> globalFiles,
+            ISet<string> localAssemblies,
+            ISet<string> localFiles,
+            string driverConfigurationFileContents)
         {
-            _driverConfigurations = jobRequest.DriverConfigurations;
-            _globalAssemblies = jobRequest.GlobalAssemblies;
-            _globalFiles = jobRequest.GlobalFiles;
-            _localAssemblies = jobRequest.LocalAssemblies;
-            _localFiles = jobRequest.LocalFiles;
-            _driverMemory = jobRequest.DriverMemory;
-            _jobIdentifier = jobRequest.JobIdentifier;
-            _driverConfigurationFileContents = jobRequest.DriverConfigurationFileContents;
-            _maxAppSubmissions = jobRequest.MaxApplicationSubmissions;
+            _driverConfigurations = driverConfigurations;
+            _globalAssemblies = globalAssemblies;
+            _globalFiles = globalFiles;
+            _localAssemblies = localAssemblies;
+            _localFiles = localFiles;
+            _driverConfigurationFileContents = driverConfigurationFileContents;
+        }
+
+        [Obsolete("Introduced to bridge deprecation of IJobSubmission.")]
+        internal static AppParameters FromJobSubmission(IJobSubmission jobSubmission)
+        {
+            return new AppParameters(jobSubmission.DriverConfigurations, jobSubmission.GlobalAssemblies, jobSubmission.GlobalFiles, 
+                jobSubmission.LocalAssemblies, jobSubmission.LocalFiles, jobSubmission.DriverConfigurationFileContents);
         }
 
         /// <summary>
         /// The assemblies to be made available to all containers.
         /// </summary>
-        ISet<string> IJobSubmission.GlobalAssemblies
+        public ISet<string> GlobalAssemblies
         {
             get { return _globalAssemblies; }
         }
 
         /// <summary>
-        /// The driver configurations
+        /// The driver configurations.
         /// </summary>
-        ISet<IConfiguration> IJobSubmission.DriverConfigurations
+        public ISet<IConfiguration> DriverConfigurations
         {
             get { return _driverConfigurations; }
         }
 
-        ISet<string> IJobSubmission.GlobalFiles
+        /// <summary>
+        /// The global files to be made available to all containers.
+        /// </summary>
+        public ISet<string> GlobalFiles
         {
             get { return _globalFiles; }
         }
 
-        ISet<string> IJobSubmission.LocalAssemblies
+        /// <summary>
+        /// The assemblies to be made available only to the local container.
+        /// </summary>
+        public ISet<string> LocalAssemblies
         {
             get { return _localAssemblies; }
         }
 
-        ISet<string> IJobSubmission.LocalFiles
+        /// <summary>
+        /// The files to be made available only to the local container.
+        /// </summary>
+        public ISet<string> LocalFiles
         {
             get { return _localFiles; }
-        }
-
-        int IJobSubmission.DriverMemory
-        {
-            get { return _driverMemory; }
-        }
-
-        int IJobSubmission.MaxApplicationSubmissions
-        {
-            get { return _maxAppSubmissions; }
-        }
-
-        /// <summary>
-        /// The Job's identifier
-        /// </summary>
-        string IJobSubmission.JobIdentifier 
-        {
-            get { return _jobIdentifier; }
         }
 
         /// <summary>
         /// Driver config file contents (Org.Apache.REEF.Bridge.exe.config)
         /// Can be use to redirect assembly versions
         /// </summary>
-        string IJobSubmission.DriverConfigurationFileContents
+        public string DriverConfigurationFileContents
         {
             get { return _driverConfigurationFileContents; }
         }
