@@ -75,7 +75,7 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Context
                     LOGGER.Log(Level.Info, "Launching the initial Task");
                     try
                     {
-                        _topContext.StartTask(_rootContextLauncher.RootTaskConfig.Value, _rootContextLauncher.Id, _heartBeatManager);
+                        _topContext.StartTask(_rootContextLauncher.RootTaskConfig.Value, _heartBeatManager);
                     }
                     catch (TaskClientCodeException e)
                     {
@@ -348,7 +348,7 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Context
                 }
                 
                 var configuration = _serializer.FromString(startTaskProto.configuration);
-                currentActiveContext.StartTask(configuration, expectedContextId, _heartBeatManager);
+                currentActiveContext.StartTask(configuration, _heartBeatManager);
             }
         }
 
