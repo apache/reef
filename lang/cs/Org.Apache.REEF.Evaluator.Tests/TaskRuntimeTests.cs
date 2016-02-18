@@ -26,6 +26,7 @@ using Org.Apache.REEF.Common.Runtime.Evaluator;
 using Org.Apache.REEF.Common.Runtime.Evaluator.Task;
 using Org.Apache.REEF.Common.Tasks;
 using Org.Apache.REEF.Common.Tasks.Events;
+using Org.Apache.REEF.Driver.Task;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Tang.Interface;
@@ -123,7 +124,15 @@ namespace Org.Apache.REEF.Evaluator.Tests
 
             injector.GetInstance<CountDownAction>().CountdownEvent.Signal();
 
-            var task = injector.GetInstance<TestTask>();
+            var taskInterface = injector.GetInstance<ITask>();
+            Assert.True(taskInterface is TestTask);
+
+            var task = taskInterface as TestTask;
+            if (task == null)
+            {
+                throw new Exception("Task is expected to be an instance of TestTask.");
+            }
+
             task.FinishCountdownEvent.Wait();
             task.DisposeCountdownEvent.Wait();
 
@@ -214,6 +223,107 @@ namespace Org.Apache.REEF.Evaluator.Tests
             Assert.Equal(testTaskEventStopHandler.StopInvoked.Value, taskId);
         }
 
+        /// <summary>
+        /// Tests that suspend ends the task and invokes the right handler.
+        /// </summary>
+        [Fact]
+        public void TestSuspendTask()
+        {
+            var contextId = Guid.NewGuid().ToString();
+            var taskId = Guid.NewGuid().ToString();
+
+            var injector = GetInjector(typeof(CountDownAction), contextId, taskId);
+            var taskRuntime = injector.GetInstance<TaskRuntime>();
+            taskRuntime.RunTask();
+
+            var taskInterface = injector.GetInstance<ITask>();
+            Assert.True(taskInterface is TestTask);
+
+            var task = taskInterface as TestTask;
+            if (task == null)
+            {
+                throw new Exception("Task is expected to be an instance of TestTask.");
+            }
+
+            taskRuntime.Suspend(null);
+
+            task.FinishCountdownEvent.Wait();
+            task.DisposeCountdownEvent.Wait();
+
+            Assert.True(task.SuspendInvoked);
+        }
+
+        /// <summary>
+        /// Tests that suspend is not invoked after task is done.
+        /// </summary>
+        [Fact]
+        public void TestSuspendTaskAfterDoneIsNotSuspended()
+        {
+            var contextId = Guid.NewGuid().ToString();
+            var taskId = Guid.NewGuid().ToString();
+
+            var injector = GetInjector(contextId, taskId);
+            var taskRuntime = injector.GetInstance<TaskRuntime>();
+            taskRuntime.RunTask();
+
+            var taskInterface = injector.GetInstance<ITask>();
+            Assert.True(taskInterface is TestTask);
+
+            var task = taskInterface as TestTask;
+            if (task == null)
+            {
+                throw new Exception("Task is expected to be an instance of TestTask.");
+            }
+
+            task.FinishCountdownEvent.Wait();
+            task.DisposeCountdownEvent.Wait();
+
+            var stopHandlers = injector.GetNamedInstance<TaskConfigurationOptions.StopHandlers, ISet<IObserver<ITaskStop>>>();
+
+            var testTaskEventStopHandler = stopHandlers.Single() as TestTaskEventHandler;
+            if (testTaskEventStopHandler == null)
+            {
+                throw new Exception("Event handler is not expected to be null.");
+            }
+
+            Assert.Equal(testTaskEventStopHandler.StopInvoked.Value, taskId);
+
+            taskRuntime.Suspend(null);
+            Assert.False(task.SuspendInvoked);
+        }
+
+        /// <summary>
+        /// Tests that suspend is not invoked after task is done.
+        /// </summary>
+        [Fact]
+        public void TestSuspendTaskAfterFailureIsNotSuspended()
+        {
+            var contextId = Guid.NewGuid().ToString();
+            var taskId = Guid.NewGuid().ToString();
+
+            var injector = GetInjector(typeof(ExceptionAction), contextId, taskId);
+            var taskRuntime = injector.GetInstance<TaskRuntime>();
+            taskRuntime.RunTask();
+
+            var task = injector.GetInstance<TestTask>();
+
+            task.DisposeCountdownEvent.Wait();
+
+            var stopHandlers = injector.GetNamedInstance<TaskConfigurationOptions.StopHandlers, ISet<IObserver<ITaskStop>>>();
+
+            var testTaskEventStopHandler = stopHandlers.Single() as TestTaskEventHandler;
+            if (testTaskEventStopHandler == null)
+            {
+                throw new Exception("Event handler is not expected to be null.");
+            }
+
+            Assert.True(testTaskEventStopHandler.StopInvoked.IsPresent());
+            Assert.Equal(taskRuntime.GetTaskState(), TaskState.Failed);
+
+            taskRuntime.Suspend(null);
+            Assert.False(task.SuspendInvoked);
+        }
+
         private static IInjector GetInjector(string contextId = "contextId", string taskId = "taskId")
         {
             return GetInjector(typeof(DefaultAction), contextId, taskId);
@@ -233,6 +343,7 @@ namespace Org.Apache.REEF.Evaluator.Tests
                 .Set(TaskConfiguration.OnTaskStart, GenericType<TestTaskEventHandler>.Class)
                 .Set(TaskConfiguration.OnTaskStop, GenericType<TestTaskEventHandler>.Class)
                 .Set(TaskConfiguration.Task, GenericType<TestTask>.Class)
+                .Set(TaskConfiguration.OnSuspend, GenericType<TestTask>.Class)
                 .Build();
             
             var actionConfig = confBuilder
@@ -279,7 +390,7 @@ namespace Org.Apache.REEF.Evaluator.Tests
             }
         }
 
-        private sealed class TestTask : ITask
+        private sealed class TestTask : ITask, IObserver<ISuspendEvent>
         {
             private readonly IAction _action;
 
@@ -290,6 +401,8 @@ namespace Org.Apache.REEF.Evaluator.Tests
                 DisposeCountdownEvent = new CountdownEvent(1);
                 _action = action;
             }
+
+            public bool SuspendInvoked { get; private set; }
 
             public CountdownEvent FinishCountdownEvent { get; private set; }
 
@@ -313,11 +426,29 @@ namespace Org.Apache.REEF.Evaluator.Tests
 
                 return null;
             }
+
+            public void OnNext(ISuspendEvent value)
+            {
+                _action.OnSuspend();
+                SuspendInvoked = true;
+            }
+
+            public void OnError(Exception error)
+            {
+                throw new NotImplementedException();
+            }
+
+            public void OnCompleted()
+            {
+                throw new NotImplementedException();
+            }
         }
 
         private interface IAction
         {
-            Action Value { get; } 
+            Action Value { get; }
+
+            void OnSuspend();
         }
 
         private sealed class DefaultAction : IAction
@@ -334,6 +465,10 @@ namespace Org.Apache.REEF.Evaluator.Tests
                     // NOOP
                     return () => { };
                 }
+            }
+
+            public void OnSuspend()
+            {
             }
         }
 
@@ -354,6 +489,10 @@ namespace Org.Apache.REEF.Evaluator.Tests
                     };
                 } 
             }
+
+            public void OnSuspend()
+            {
+            }
         }
 
         private sealed class CountDownAction : IAction
@@ -373,6 +512,11 @@ namespace Org.Apache.REEF.Evaluator.Tests
                         CountdownEvent.Wait();
                     };
                 }
+            }
+
+            public void OnSuspend()
+            {
+                CountdownEvent.Signal();
             }
 
             public CountdownEvent CountdownEvent { get; private set; }

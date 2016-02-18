@@ -17,6 +17,7 @@
 
 using System;
 using System.Collections.Generic;
+using Org.Apache.REEF.Common.Tasks.Defaults;
 using Org.Apache.REEF.Common.Tasks.Events;
 using Org.Apache.REEF.Tang.Annotations;
 
@@ -54,7 +55,7 @@ namespace Org.Apache.REEF.Common.Tasks
         {
         }
 
-        [NamedParameter(documentation: "The event handler that receives the suspend event.")]
+        [NamedParameter(documentation: "The event handler that receives the suspend event.", defaultClass: typeof(DefaultSuspendHandler))]
         public class SuspendHandler : Name<IObserver<ISuspendEvent>>
         {
         }

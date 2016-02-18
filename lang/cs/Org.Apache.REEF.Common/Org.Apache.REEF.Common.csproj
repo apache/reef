@@ -160,6 +160,7 @@ under the License.
     <Compile Include="Services\ServiceConfiguration.cs" />
     <Compile Include="Tasks\Defaults\DefaultDriverConnectionMessageHandler.cs" />
     <Compile Include="Tasks\Defaults\DefaultDriverMessageHandler.cs" />
+    <Compile Include="Tasks\Defaults\DefaultSuspendHandler.cs" />
     <Compile Include="Tasks\Defaults\DefaultTaskMessageSource.cs" />
     <Compile Include="Tasks\DriverConnectionState.cs" />
     <Compile Include="Tasks\DriverConnectionMessageImpl.cs" />
@@ -168,6 +169,7 @@ under the License.
     <Compile Include="Tasks\Events\ISuspendEvent.cs" />
     <Compile Include="Tasks\Events\ITaskStart.cs" />
     <Compile Include="Tasks\Events\ITaskStop.cs" />
+    <Compile Include="Tasks\Exceptions\TaskSuspendHandlerException.cs" />
     <Compile Include="Tasks\IDriverConnectionMessageHandler.cs" />
     <Compile Include="Tasks\IDriverMessageHandler.cs" />
     <Compile Include="Tasks\IDriverConnectionMessage.cs" />

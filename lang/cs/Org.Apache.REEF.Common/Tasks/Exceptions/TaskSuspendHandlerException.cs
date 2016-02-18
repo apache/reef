@@ -15,18 +15,29 @@
 // specific language governing permissions and limitations
 // under the License.
 
-using Org.Apache.REEF.Utilities;
+using System;
 
-namespace Org.Apache.REEF.Common.Tasks.Events
+namespace Org.Apache.REEF.Common.Tasks.Exceptions
 {
     /// <summary>
-    /// An event from the driver signaling that a task should be suspended.
+    /// An exception that is thrown when the task suspension event
+    /// handler is not bound.
     /// </summary>
-    public interface ISuspendEvent
+    internal sealed class TaskSuspendHandlerException : Exception
     {
-        /// <summary>
-        /// The optional suspension message from the driver.
-        /// </summary>
-        Optional<byte[]> Message { get; } 
+        public TaskSuspendHandlerException(string message)
+            : base(message)
+        {
+        }
+
+        public TaskSuspendHandlerException(Exception innerException)
+            : base(innerException.Message, innerException)
+        {
+        }
+
+        public TaskSuspendHandlerException(string message, Exception innerException)
+            : base(message, innerException)
+        {
+        }
     }
 }
