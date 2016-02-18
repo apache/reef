@@ -146,6 +146,14 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Context
         /// <summary>
         /// For testing only!
         /// </summary>
+        internal Optional<TaskRuntime> TaskRuntime
+        {
+            get { return _task; }
+        }
+
+            /// <summary>
+        /// For testing only!
+        /// </summary>
         [Testing]
         internal IInjector ContextInjector
         {
@@ -230,12 +238,12 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Context
         }
 
         /// <summary>
-        ///  Launches an Task on this context.
+        /// Launches an Task on this context.
+        /// TODO[JIRA REEF-217]: Remove heartBeatManager from argument.
         /// </summary>
         /// <param name="taskConfiguration"></param>
-        /// <param name="contextId"></param>
         /// <param name="heartBeatManager"></param>
-        public void StartTask(IConfiguration taskConfiguration, string contextId, IHeartBeatManager heartBeatManager)
+        public void StartTask(IConfiguration taskConfiguration, IHeartBeatManager heartBeatManager)
         {
             lock (_contextLifeCycle)
             {
@@ -265,7 +273,7 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Context
                 var taskInjector = _contextInjector.ForkInjector(taskConfiguration);
 
                 var taskRuntime = _deprecatedTaskStart 
-                    ? GetDeprecatedTaskRuntime(taskInjector, contextId, taskConfiguration, heartBeatManager) 
+                    ? GetDeprecatedTaskRuntime(taskInjector, Id, taskConfiguration, heartBeatManager) 
                     : taskInjector.GetInstance<TaskRuntime>();
 
                 try

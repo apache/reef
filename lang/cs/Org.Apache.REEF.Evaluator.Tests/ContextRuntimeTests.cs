@@ -19,10 +19,16 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
+using NSubstitute;
 using Org.Apache.REEF.Common.Context;
 using Org.Apache.REEF.Common.Events;
+using Org.Apache.REEF.Common.Protobuf.ReefProtocol;
+using Org.Apache.REEF.Common.Runtime.Evaluator;
 using Org.Apache.REEF.Common.Runtime.Evaluator.Context;
 using Org.Apache.REEF.Common.Services;
+using Org.Apache.REEF.Common.Tasks;
+using Org.Apache.REEF.Common.Tasks.Events;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Tang.Implementations.Configuration;
 using Org.Apache.REEF.Tang.Implementations.Tang;
@@ -149,6 +155,176 @@ namespace Org.Apache.REEF.Evaluator.Tests
         [Fact]
         [Trait("Priority", "0")]
         [Trait("Category", "Unit")]
+        public void TestContextStackingDoesNotGetSameInstance()
+        {
+            var serviceInjector = TangFactory.GetTang().NewInjector();
+            var contextConfig = GetContextEventHandlerContextConfiguration();
+
+            using (var contextRuntime = new ContextRuntime(serviceInjector, contextConfig, Optional<ContextRuntime>.Empty()))
+            {
+                var childContextConfiguration = GetContextEventHandlerContextConfiguration();
+                using (var childContextRuntime = contextRuntime.SpawnChildContext(childContextConfiguration))
+                {
+                    Assert.False(ReferenceEquals(
+                        contextRuntime.ContextInjector.GetInstance<TestContextEventHandler>(),
+                        childContextRuntime.ContextInjector.GetInstance<TestContextEventHandler>()));
+                }
+            }
+        }
+
+        [Fact]
+        [Trait("Priority", "0")]
+        [Trait("Category", "Unit")]
+        public void TestContextStackingParentContext()
+        {
+            var serviceInjector = TangFactory.GetTang().NewInjector();
+            var contextConfig = GetSimpleContextConfiguration();
+
+            using (var contextRuntime = new ContextRuntime(serviceInjector, contextConfig, Optional<ContextRuntime>.Empty()))
+            {
+                var childContextConfiguration = GetSimpleContextConfiguration();
+                using (var childContextRuntime = contextRuntime.SpawnChildContext(childContextConfiguration))
+                {
+                    Assert.False(contextRuntime.ParentContext.IsPresent());
+                    Assert.True(childContextRuntime.ParentContext.IsPresent());
+                    Assert.True(ReferenceEquals(contextRuntime, childContextRuntime.ParentContext.Value));
+                }
+            }
+        }
+
+        [Fact]
+        [Trait("Priority", "0")]
+        [Trait("Category", "Unit")]
+        public void TestUnableToSpawnChildWhileTaskIsRunning()
+        {
+            var serviceInjector = TangFactory.GetTang().NewInjector();
+            var contextConfig = GetSimpleContextConfiguration();
+
+            using (var contextRuntime = new ContextRuntime(serviceInjector, contextConfig, Optional<ContextRuntime>.Empty()))
+            {
+                var taskConfig = TaskConfiguration.ConfigurationModule
+                    .Set(TaskConfiguration.Task, GenericType<TestTask>.Class)
+                    .Set(TaskConfiguration.Identifier, "ID")
+                    .Build();
+
+                try
+                {
+                    var hbMgr = Substitute.For<IHeartBeatManager>();
+                    contextRuntime.ContextInjector.BindVolatileInstance(GenericType<IHeartBeatManager>.Class, hbMgr);
+                    contextRuntime.StartTask(taskConfig, hbMgr);
+
+                    Assert.True(contextRuntime.TaskRuntime.IsPresent());
+                    Assert.True(contextRuntime.GetTaskStatus().IsPresent());
+                    Assert.Equal(contextRuntime.GetTaskStatus().Value.state, State.RUNNING);
+
+                    var childContextConfiguration = GetSimpleContextConfiguration();
+
+                    Assert.Throws<InvalidOperationException>(
+                        () => contextRuntime.SpawnChildContext(childContextConfiguration));
+                }
+                finally
+                {
+                    var testTask = contextRuntime.TaskRuntime.Value.Task as TestTask;
+                    if (testTask == null)
+                    {
+                        throw new Exception();
+                    }
+
+                    testTask.CountDownEvent.Signal();
+                }
+            }
+        }
+
+        [Fact]
+        [Trait("Priority", "0")]
+        [Trait("Category", "Unit")]
+        public void TestUnableToRunMultipleTasksAtTheSameTime()
+        {
+            var serviceInjector = TangFactory.GetTang().NewInjector();
+            var contextConfig = GetSimpleContextConfiguration();
+
+            using (var contextRuntime = new ContextRuntime(serviceInjector, contextConfig, Optional<ContextRuntime>.Empty()))
+            {
+                var taskConfig = TaskConfiguration.ConfigurationModule
+                    .Set(TaskConfiguration.Task, GenericType<TestTask>.Class)
+                    .Set(TaskConfiguration.Identifier, "ID")
+                    .Build();
+
+                try
+                {
+                    var hbMgr = Substitute.For<IHeartBeatManager>();
+                    contextRuntime.ContextInjector.BindVolatileInstance(GenericType<IHeartBeatManager>.Class, hbMgr);
+                    contextRuntime.StartTask(taskConfig, hbMgr);
+
+                    Assert.True(contextRuntime.TaskRuntime.IsPresent());
+                    Assert.True(contextRuntime.GetTaskStatus().IsPresent());
+                    Assert.Equal(contextRuntime.GetTaskStatus().Value.state, State.RUNNING);
+
+                    Assert.Throws<InvalidOperationException>(
+                        () => contextRuntime.StartTask(taskConfig, hbMgr));
+                }
+                finally
+                {
+                    var testTask = contextRuntime.TaskRuntime.Value.Task as TestTask;
+                    if (testTask == null)
+                    {
+                        throw new Exception();
+                    }
+
+                    testTask.CountDownEvent.Signal();
+                }
+            }
+        }
+
+        [Fact]
+        [Trait("Priority", "0")]
+        [Trait("Category", "Unit")]
+        public void TestTwoSuccessiveTasksOnSameContext()
+        {
+            var serviceInjector = TangFactory.GetTang().NewInjector();
+            var contextConfig = GetSimpleContextConfiguration();
+
+            using (var contextRuntime = new ContextRuntime(serviceInjector, contextConfig, Optional<ContextRuntime>.Empty()))
+            {
+                var taskConfig = TaskConfiguration.ConfigurationModule
+                    .Set(TaskConfiguration.Task, GenericType<TestTask>.Class)
+                    .Set(TaskConfiguration.OnTaskStop, GenericType<TestTask>.Class)
+                    .Set(TaskConfiguration.Identifier, "ID")
+                    .Build();
+
+                var hbMgr = Substitute.For<IHeartBeatManager>();
+                contextRuntime.ContextInjector.BindVolatileInstance(GenericType<IHeartBeatManager>.Class, hbMgr);
+                contextRuntime.StartTask(taskConfig, hbMgr);
+                var testTask = contextRuntime.TaskRuntime.Value.Task as TestTask;
+                if (testTask == null)
+                {
+                    throw new Exception();
+                }
+
+                testTask.CountDownEvent.Signal();
+                testTask.StopEvent.Wait();
+                Assert.False(contextRuntime.GetTaskStatus().IsPresent());
+
+                contextRuntime.StartTask(taskConfig, hbMgr);
+                Assert.Equal(contextRuntime.GetTaskStatus().Value.state, State.RUNNING);
+
+                var secondTestTask = contextRuntime.TaskRuntime.Value.Task as TestTask;
+                if (secondTestTask == null)
+                {
+                    throw new Exception();
+                }
+
+                Assert.False(ReferenceEquals(testTask, secondTestTask));
+
+                secondTestTask.CountDownEvent.Signal();
+                secondTestTask.StopEvent.Wait();
+                Assert.False(contextRuntime.GetTaskStatus().IsPresent());
+            }
+        }
+
+        [Fact]
+        [Trait("Priority", "0")]
+        [Trait("Category", "Unit")]
         public void TestServiceStacking()
         {
             var serviceConfiguration = ServiceConfiguration.ConfigurationModule
@@ -180,6 +356,11 @@ namespace Org.Apache.REEF.Evaluator.Tests
                         contextRuntime.Services.Value.OfType<TestService>().Single()));
                 }
             }
+        }
+
+        private static IConfiguration GetSimpleContextConfiguration()
+        {
+            return ContextConfiguration.ConfigurationModule.Set(ContextConfiguration.Identifier, "ID").Build();
         }
 
         private static IConfiguration GetContextEventHandlerContextConfiguration()
@@ -248,6 +429,46 @@ namespace Org.Apache.REEF.Evaluator.Tests
             public void OnNext(byte[] value)
             {
                 MessageReceived = value;
+            }
+
+            public void OnError(Exception error)
+            {
+                throw new NotImplementedException();
+            }
+
+            public void OnCompleted()
+            {
+                throw new NotImplementedException();
+            }
+        }
+
+        private sealed class TestTask : ITask, IObserver<ITaskStop>
+        {
+            [Inject]
+            private TestTask()
+            {
+                CountDownEvent = new CountdownEvent(1);
+                StopEvent = new CountdownEvent(1);
+            }
+
+            public CountdownEvent CountDownEvent { get; private set; }
+
+            public CountdownEvent StopEvent { get; private set; }
+
+            public void Dispose()
+            {
+                throw new NotImplementedException();
+            }
+
+            public byte[] Call(byte[] memento)
+            {
+                CountDownEvent.Wait();
+                return null;
+            }
+
+            public void OnNext(ITaskStop value)
+            {
+                StopEvent.Signal();
             }
 
             public void OnError(Exception error)

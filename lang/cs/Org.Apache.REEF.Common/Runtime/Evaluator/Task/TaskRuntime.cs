@@ -26,6 +26,7 @@ using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Tang.Exceptions;
 using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Utilities;
+using Org.Apache.REEF.Utilities.Attributes;
 using Org.Apache.REEF.Utilities.Logging;
 
 namespace Org.Apache.REEF.Common.Runtime.Evaluator.Task
@@ -114,6 +115,15 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Task
         public string ContextId
         {
             get { return _currentStatus.ContextId; }
+        }
+
+        /// <summary>
+        /// For testing only!
+        /// </summary>
+        [Testing]
+        internal ITask Task 
+        { 
+            get { return _userTask; }
         }
 
         /// <summary>
