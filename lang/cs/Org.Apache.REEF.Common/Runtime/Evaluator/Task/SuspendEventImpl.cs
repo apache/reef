@@ -20,27 +20,13 @@ using Org.Apache.REEF.Utilities;
 
 namespace Org.Apache.REEF.Common.Runtime.Evaluator.Task
 {
-    internal sealed class SuspendEventImpl : ICloseEvent
+    internal sealed class SuspendEventImpl : ISuspendEvent
     {
-        public SuspendEventImpl()
-        {
-            Value = Optional<byte[]>.Empty();
-        }
-
         public SuspendEventImpl(byte[] bytes)
         {
-            Value = Optional<byte[]>.OfNullable(bytes);
+            Message = Optional<byte[]>.OfNullable(bytes);
         }
 
-        public Optional<byte[]> Value
-        {
-            get { return Value; }
-            set { value = Value; }
-        }
-
-        public override string ToString()
-        {
-            return "SuspendEvent{value=" + Value.ToString() + "}";
-        }
+        public Optional<byte[]> Message { get; private set; }
     }
 }

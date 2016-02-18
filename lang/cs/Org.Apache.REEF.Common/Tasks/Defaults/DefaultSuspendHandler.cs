@@ -5,9 +5,9 @@
 // to you under the Apache License, Version 2.0 (the
 // "License"); you may not use this file except in compliance
 // with the License.  You may obtain a copy of the License at
-//
+// 
 //   http://www.apache.org/licenses/LICENSE-2.0
-//
+// 
 // Unless required by applicable law or agreed to in writing,
 // software distributed under the License is distributed on an
 // "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -15,12 +15,32 @@
 // specific language governing permissions and limitations
 // under the License.
 
-using Org.Apache.REEF.Utilities;
+using System;
+using Org.Apache.REEF.Common.Tasks.Events;
+using Org.Apache.REEF.Tang.Annotations;
 
-namespace Org.Apache.REEF.Common.Tasks.Events
+namespace Org.Apache.REEF.Common.Tasks.Defaults
 {
-    public interface ISuspendEvent
+    internal sealed class DefaultSuspendHandler : IObserver<ISuspendEvent>
     {
-        Optional<byte[]> Message { get; } 
+        [Inject]
+        private DefaultSuspendHandler()
+        {
+        }
+
+        public void OnNext(ISuspendEvent value)
+        {
+            throw new Exception("No handler for suspend registered.");
+        }
+
+        public void OnError(Exception error)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void OnCompleted()
+        {
+            throw new NotImplementedException();
+        }
     }
 }

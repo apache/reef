@@ -22,8 +22,10 @@ using System.Threading;
 using Org.Apache.REEF.Common.Protobuf.ReefProtocol;
 using Org.Apache.REEF.Common.Tasks;
 using Org.Apache.REEF.Common.Tasks.Events;
+using Org.Apache.REEF.Common.Tasks.Exceptions;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Tang.Exceptions;
+using Org.Apache.REEF.Tang.Implementations.InjectionPlan;
 using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Utilities;
 using Org.Apache.REEF.Utilities.Logging;
@@ -38,6 +40,7 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Task
         private readonly Optional<IDriverConnectionMessageHandler> _driverConnectionMessageHandler;
         private readonly Optional<IDriverMessageHandler> _driverMessageHandler;
         private readonly ITask _userTask;
+        private readonly IInjectionFuture<IObserver<ISuspendEvent>> _suspendHandlerFuture;
         private int _taskRan = 0;
 
         [Inject]
@@ -45,12 +48,14 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Task
             ITask userTask,
             IDriverMessageHandler driverMessageHandler, 
             IDriverConnectionMessageHandler driverConnectionMessageHandler,
-            TaskStatus taskStatus)
+            TaskStatus taskStatus,
+            [Parameter(typeof(TaskConfigurationOptions.SuspendHandler))] IInjectionFuture<IObserver<ISuspendEvent>> suspendHandlerFuture)
         {
             _currentStatus = taskStatus;
             _driverMessageHandler = Optional<IDriverMessageHandler>.Of(driverMessageHandler);
             _driverConnectionMessageHandler = Optional<IDriverConnectionMessageHandler>.Of(driverConnectionMessageHandler);
             _userTask = userTask;
+            _suspendHandlerFuture = suspendHandlerFuture;
         }
 
         /// <summary>
@@ -264,7 +269,15 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Task
         public void OnNext(ISuspendEvent value)
         {
             Logger.Log(Level.Info, "TaskRuntime::OnNext(ISuspendEvent value)");
-            //// TODO: send a heartbeat
+            try
+            {
+                _suspendHandlerFuture.Get().OnNext(value);
+            }
+            catch (Exception ex)
+            {
+                var suspendEx = new TaskSuspendHandlerException("Unable to suspend task.", ex);
+                Utilities.Diagnostics.Exceptions.CaughtAndThrow(suspendEx, Level.Error, Logger);
+            }
         }
 
         public void OnNext(IDriverMessage value)

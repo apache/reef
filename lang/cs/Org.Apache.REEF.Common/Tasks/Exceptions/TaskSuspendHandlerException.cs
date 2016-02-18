@@ -15,12 +15,25 @@
 // specific language governing permissions and limitations
 // under the License.
 
-using Org.Apache.REEF.Utilities;
+using System;
 
-namespace Org.Apache.REEF.Common.Tasks.Events
+namespace Org.Apache.REEF.Common.Tasks.Exceptions
 {
-    public interface ISuspendEvent
+    internal sealed class TaskSuspendHandlerException : Exception
     {
-        Optional<byte[]> Message { get; } 
+        public TaskSuspendHandlerException(string message)
+            : base(message)
+        {
+        }
+
+        public TaskSuspendHandlerException(Exception innerException)
+            : base(innerException.Message, innerException)
+        {
+        }
+
+        public TaskSuspendHandlerException(string message, Exception innerException)
+            : base(message, innerException)
+        {
+        }
     }
 }
