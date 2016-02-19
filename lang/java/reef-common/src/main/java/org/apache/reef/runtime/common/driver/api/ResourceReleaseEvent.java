@@ -34,4 +34,9 @@ public interface ResourceReleaseEvent {
    * @return Id of the resource to release
    */
   String getIdentifier();
+
+  /**
+   * @return name of the runtime that this resource belongs to
+   */
+  String getRuntimeName();
 }

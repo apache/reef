@@ -38,17 +38,28 @@ public final class EvaluatorRequest {
   private final int cores;
   private final List<String> nodeNames;
   private final List<String> rackNames;
+  private final String runtimeName;
 
   EvaluatorRequest(final int number,
-      final int megaBytes,
-      final int cores,
-      final List<String> nodeNames,
-      final List<String> rackNames) {
+                   final int megaBytes,
+                   final int cores,
+                   final List<String> nodeNames,
+                   final List<String> rackNames) {
+    this(number, megaBytes, cores, nodeNames, rackNames, "");
+  }
+
+  EvaluatorRequest(final int number,
+                   final int megaBytes,
+                   final int cores,
+                   final List<String> nodeNames,
+                   final List<String> rackNames,
+                   final String runtimeName) {
     this.number = number;
     this.megaBytes = megaBytes;
     this.cores = cores;
     this.nodeNames = nodeNames;
     this.rackNames = rackNames;
+    this.runtimeName = runtimeName;
   }
 
   /**
@@ -116,6 +127,15 @@ public final class EvaluatorRequest {
   }
 
   /**
+   * Access the required runtime name.
+   *
+   * @return the runtime name that we need the Evaluator to run on
+   */
+  public String getRuntimeName() {
+    return runtimeName;
+  }
+
+  /**
    * {@link EvaluatorRequest}s are build using this Builder.
    */
   public static final class Builder implements org.apache.reef.util.Builder<EvaluatorRequest> {
@@ -125,6 +145,7 @@ public final class EvaluatorRequest {
     private int cores = 1; //if not set, default to 1
     private final List<String> nodeNames = new ArrayList<>();
     private final List<String> rackNames = new ArrayList<>();
+    private String runtimeName = "";
 
     private Builder() {
     }
@@ -139,6 +160,7 @@ public final class EvaluatorRequest {
       setNumber(request.getNumber());
       setMemory(request.getMegaBytes());
       setNumberOfCores(request.getNumberOfCores());
+      setRuntimeName(request.getRuntimeName());
       for (final String nodeName : request.getNodeNames()) {
         addNodeName(nodeName);
       }
@@ -156,6 +178,18 @@ public final class EvaluatorRequest {
     @SuppressWarnings("checkstyle:hiddenfield")
     public Builder setMemory(final int megaBytes) {
       this.megaBytes = megaBytes;
+      return this;
+    }
+
+    /**
+     * Set the name of the desired runtime.
+     *
+     * @param runtimeName to request for the Evaluator.
+     * @return this builder
+     */
+    @SuppressWarnings("checkstyle:hiddenfield")
+    public Builder setRuntimeName(final String runtimeName) {
+      this.runtimeName = runtimeName;
       return this;
     }
 
@@ -215,7 +249,7 @@ public final class EvaluatorRequest {
      */
     @Override
     public EvaluatorRequest build() {
-      return new EvaluatorRequest(this.n, this.megaBytes, this.cores, this.nodeNames, this.rackNames);
+      return new EvaluatorRequest(this.n, this.megaBytes, this.cores, this.nodeNames, this.rackNames, this.runtimeName);
     }
   }
 }

@@ -244,16 +244,20 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
             @Override
             public void onNext(final Alarm alarm) {
               EvaluatorManager.this.resourceReleaseHandler.onNext(
-                  ResourceReleaseEventImpl.newBuilder()
-                      .setIdentifier(EvaluatorManager.this.evaluatorId).build()
+                      ResourceReleaseEventImpl.newBuilder()
+                              .setIdentifier(EvaluatorManager.this.evaluatorId)
+                              .setRuntimeName(EvaluatorManager.this.getEvaluatorDescriptor().getRuntimeName())
+                              .build()
               );
             }
           });
         } catch (final IllegalStateException e) {
           LOG.log(Level.WARNING, "Force resource release because the client closed the clock.", e);
           EvaluatorManager.this.resourceReleaseHandler.onNext(
-              ResourceReleaseEventImpl.newBuilder()
-                  .setIdentifier(EvaluatorManager.this.evaluatorId).build()
+                  ResourceReleaseEventImpl.newBuilder()
+                          .setIdentifier(EvaluatorManager.this.evaluatorId)
+                          .setRuntimeName(EvaluatorManager.this.getEvaluatorDescriptor().getRuntimeName())
+                          .build()
           );
         }
       }

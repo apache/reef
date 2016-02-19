@@ -40,6 +40,7 @@ public final class ResourceLaunchEventImpl implements ResourceLaunchEvent {
   private final Configuration evaluatorConf;
   private final EvaluatorProcess process;
   private final Set<FileResource> fileSet;
+  private final String runtimeName;
 
   private ResourceLaunchEventImpl(final Builder builder) {
     this.identifier = BuilderUtils.notNull(builder.identifier);
@@ -47,6 +48,7 @@ public final class ResourceLaunchEventImpl implements ResourceLaunchEvent {
     this.evaluatorConf = BuilderUtils.notNull(builder.evaluatorConf);
     this.process = BuilderUtils.notNull(builder.process);
     this.fileSet = BuilderUtils.notNull(builder.fileSet);
+    this.runtimeName = BuilderUtils.notNull(builder.runtimeName);
   }
 
   @Override
@@ -74,6 +76,11 @@ public final class ResourceLaunchEventImpl implements ResourceLaunchEvent {
     return fileSet;
   }
 
+  @Override
+  public String getRuntimeName() {
+    return runtimeName;
+  }
+
   public static Builder newBuilder() {
     return new Builder();
   }
@@ -87,12 +94,21 @@ public final class ResourceLaunchEventImpl implements ResourceLaunchEvent {
     private Configuration evaluatorConf;
     private EvaluatorProcess process;
     private Set<FileResource> fileSet = new HashSet<>();
+    private String runtimeName;
 
     /**
      * @see ResourceLaunchEvent#getIdentifier()
      */
     public Builder setIdentifier(final String identifier) {
       this.identifier = identifier;
+      return this;
+    }
+
+    /**
+     * @see ResourceLaunchEvent#getRuntimeName()
+     */
+    public Builder setRuntimeName(final String runtimeName) {
+      this.runtimeName = runtimeName;
       return this;
     }
 

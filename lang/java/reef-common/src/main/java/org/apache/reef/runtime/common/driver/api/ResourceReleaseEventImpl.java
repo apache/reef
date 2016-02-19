@@ -27,14 +27,21 @@ import org.apache.reef.util.BuilderUtils;
 public final class ResourceReleaseEventImpl implements ResourceReleaseEvent {
 
   private final String identifier;
+  private final String runtimeName;
 
   private ResourceReleaseEventImpl(final Builder builder) {
     this.identifier = BuilderUtils.notNull(builder.identifier);
+    this.runtimeName = BuilderUtils.notNull(builder.runtimeName);
   }
 
   @Override
   public String getIdentifier() {
     return identifier;
+  }
+
+  @Override
+  public String getRuntimeName() {
+    return runtimeName;
   }
 
   public static Builder newBuilder() {
@@ -47,12 +54,20 @@ public final class ResourceReleaseEventImpl implements ResourceReleaseEvent {
   public static final class Builder implements org.apache.reef.util.Builder<ResourceReleaseEvent> {
 
     private String identifier;
-
+    private String runtimeName;
     /**
      * @see ResourceReleaseEvent#getIdentifier()
      */
     public Builder setIdentifier(final String identifier) {
       this.identifier = identifier;
+      return this;
+    }
+
+    /**
+     * @see ResourceReleaseEvent#getRuntimeName()
+     */
+    public Builder setRuntimeName(final String runtimeName) {
+      this.runtimeName = runtimeName;
       return this;
     }
 

@@ -36,6 +36,7 @@ public final class ResourceRequestEventImpl implements ResourceRequestEvent {
   private final Optional<Integer> priority;
   private final Optional<Integer> virtualCores;
   private final Optional<Boolean> relaxLocality;
+  private final String runtimeName;
 
   private ResourceRequestEventImpl(final Builder builder) {
     this.resourceCount = BuilderUtils.notNull(builder.resourceCount);
@@ -45,6 +46,7 @@ public final class ResourceRequestEventImpl implements ResourceRequestEvent {
     this.priority = Optional.ofNullable(builder.priority);
     this.virtualCores = Optional.ofNullable(builder.virtualCores);
     this.relaxLocality = Optional.ofNullable(builder.relaxLocality);
+    this.runtimeName = builder.runtimeName == null ? "" : builder.runtimeName;
   }
 
   @Override
@@ -82,6 +84,11 @@ public final class ResourceRequestEventImpl implements ResourceRequestEvent {
     return relaxLocality;
   }
 
+  @Override
+  public String getRuntimeName() {
+    return runtimeName;
+  }
+
   public static Builder newBuilder() {
     return new Builder();
   }
@@ -97,6 +104,7 @@ public final class ResourceRequestEventImpl implements ResourceRequestEvent {
     private Integer priority;
     private Integer virtualCores;
     private Boolean relaxLocality;
+    private String runtimeName;
 
     /**
      * Create a builder from an existing ResourceRequestEvent.
@@ -109,6 +117,7 @@ public final class ResourceRequestEventImpl implements ResourceRequestEvent {
       this.priority = resourceRequestEvent.getPriority().orElse(null);
       this.virtualCores = resourceRequestEvent.getVirtualCores().orElse(null);
       this.relaxLocality = resourceRequestEvent.getRelaxLocality().orElse(null);
+      this.runtimeName = resourceRequestEvent.getRuntimeName();
       return this;
     }
 
@@ -189,6 +198,14 @@ public final class ResourceRequestEventImpl implements ResourceRequestEvent {
      */
     public Builder setRelaxLocality(final boolean relaxLocality) {
       this.relaxLocality = relaxLocality;
+      return this;
+    }
+
+    /**
+     * @see ResourceRequestEvent#getRuntimeName
+     */
+    public Builder setRuntimeName(final String runtimeName) {
+      this.runtimeName = runtimeName;
       return this;
     }
 

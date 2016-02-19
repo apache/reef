@@ -77,7 +77,9 @@ public final class EvaluatorRequestorImpl implements EvaluatorRequestor {
     if (req.getRackNames() == null) {
       throw new IllegalArgumentException("Rack names cannot be null");
     }
-
+    if(req.getRuntimeName() == null) {
+      throw new IllegalArgumentException("Runtime name cannot be null");
+    }
     // for backwards compatibility, we will always set the relax locality flag
     // to true unless the user configured racks, in which case we will check for
     // the ANY modifier (*), if not there, then we won't relax the locality
@@ -105,6 +107,7 @@ public final class EvaluatorRequestorImpl implements EvaluatorRequestor {
           .addNodeNames(req.getNodeNames())
           .addRackNames(req.getRackNames())
           .setRelaxLocality(relaxLocality)
+          .setRuntimeName(req.getRuntimeName())
           .build();
       this.resourceRequestHandler.onNext(request);
     }
