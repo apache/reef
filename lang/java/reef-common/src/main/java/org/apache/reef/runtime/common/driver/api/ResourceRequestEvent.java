@@ -71,4 +71,9 @@ public interface ResourceRequestEvent {
    *   the preferred list. If false, strictly enforce the preferences.
    */
   Optional<Boolean> getRelaxLocality();
+
+  /**
+   * @return The runtime name
+   */
+  Optional<String> getRuntimeName();
 }

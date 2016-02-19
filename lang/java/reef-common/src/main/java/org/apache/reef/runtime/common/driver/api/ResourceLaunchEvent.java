@@ -60,4 +60,9 @@ public interface ResourceLaunchEvent {
      * @return List of libraries local to this Evaluator
      */
   Set<FileResource> getFileSet();
+
+  /**
+   * @return name of the runtime to launch the Evaluator on
+   */
+  String getRuntimeName();
 }

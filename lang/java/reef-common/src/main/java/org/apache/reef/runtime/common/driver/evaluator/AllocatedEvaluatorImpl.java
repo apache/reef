@@ -244,7 +244,8 @@ public final class AllocatedEvaluatorImpl implements AllocatedEvaluator {
             .setRemoteId(this.remoteID)
             .setEvaluatorConf(evaluatorConfiguration)
             .addFiles(this.files)
-            .addLibraries(this.libraries);
+            .addLibraries(this.libraries)
+            .setRuntimeName(this.getEvaluatorDescriptor().getRuntimeName());
 
     rbuilder.setProcess(this.evaluatorManager.getEvaluatorDescriptor().getProcess());
     this.evaluatorManager.onResourceLaunch(rbuilder.build());
