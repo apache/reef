@@ -75,5 +75,5 @@ public interface ResourceRequestEvent {
   /**
    * @return The runtime name
    */
-  Optional<String> getRuntimeName();
+  String getRuntimeName();
 }

@@ -36,7 +36,7 @@ public final class ResourceRequestEventImpl implements ResourceRequestEvent {
   private final Optional<Integer> priority;
   private final Optional<Integer> virtualCores;
   private final Optional<Boolean> relaxLocality;
-  private final Optional<String> runtimeName;
+  private final String runtimeName;
 
   private ResourceRequestEventImpl(final Builder builder) {
     this.resourceCount = BuilderUtils.notNull(builder.resourceCount);
@@ -46,7 +46,7 @@ public final class ResourceRequestEventImpl implements ResourceRequestEvent {
     this.priority = Optional.ofNullable(builder.priority);
     this.virtualCores = Optional.ofNullable(builder.virtualCores);
     this.relaxLocality = Optional.ofNullable(builder.relaxLocality);
-    this.runtimeName = Optional.ofNullable(builder.runtimeName);
+    this.runtimeName = BuilderUtils.notNull(builder.runtimeName);
   }
 
   @Override
@@ -85,7 +85,7 @@ public final class ResourceRequestEventImpl implements ResourceRequestEvent {
   }
 
   @Override
-  public Optional<String> getRuntimeName() {
+  public String getRuntimeName() {
     return runtimeName;
   }
 
@@ -117,7 +117,7 @@ public final class ResourceRequestEventImpl implements ResourceRequestEvent {
       this.priority = resourceRequestEvent.getPriority().orElse(null);
       this.virtualCores = resourceRequestEvent.getVirtualCores().orElse(null);
       this.relaxLocality = resourceRequestEvent.getRelaxLocality().orElse(null);
-      this.runtimeName = resourceRequestEvent.getRuntimeName().orElse(null);
+      this.runtimeName = resourceRequestEvent.getRuntimeName();
       return this;
     }
 
