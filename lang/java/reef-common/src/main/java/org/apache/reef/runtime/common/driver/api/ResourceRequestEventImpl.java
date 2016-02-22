@@ -202,7 +202,7 @@ public final class ResourceRequestEventImpl implements ResourceRequestEvent {
     }
 
     /**
-     * @see ResourceRequestEvent#getRelaxLocality
+     * @see ResourceRequestEvent#getRuntimeName
      */
     public Builder setRuntimeName(final String runtimeName) {
       this.runtimeName = runtimeName;
