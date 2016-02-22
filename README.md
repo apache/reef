@@ -63,11 +63,11 @@ To build and test in Visual Studio, open
 Alternatively, you can build REEF.NET from a developer command line
 via:
 
-    msbuild .\lang\cs\Org.Apache.REEF.sln
+    msbuild .\lang\cs\Org.Apache.REEF.sln /p:Configuration="Debug" /p:Platform="x64"
 
 To test, execute the following command thereafter:
 
-    msbuild .\lang\cs\TestRunner.proj
+    msbuild .\lang\cs\TestRunner.proj /p:Configuration="Debug" /p:Platform="x64"
 
 Additional Information
 ----------------------
