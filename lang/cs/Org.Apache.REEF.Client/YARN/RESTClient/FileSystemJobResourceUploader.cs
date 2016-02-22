@@ -41,7 +41,7 @@ namespace Org.Apache.REEF.Client.YARN.RestClient
         private readonly IFileSystem _fileSystem;
         private readonly IFile _file;
         private readonly REEFFileNames _reefFileNames;
-        private readonly IResourceFileRemoteUrlToLocalUrlConverter _urlConverter;
+        private readonly IResourceFileRemoteUrlToClusterUrlConverter _urlConverter;
 
         [Inject]
         private FileSystemJobResourceUploader(
@@ -49,7 +49,7 @@ namespace Org.Apache.REEF.Client.YARN.RestClient
             IFileSystem fileSystem,
             REEFFileNames reefFileNames,
             IFile file,
-            IResourceFileRemoteUrlToLocalUrlConverter urlConverter)
+            IResourceFileRemoteUrlToClusterUrlConverter urlConverter)
         {
             _urlConverter = urlConverter;
             _reefFileNames = reefFileNames;

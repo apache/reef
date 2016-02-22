@@ -16,7 +16,6 @@
 // under the License.
 
 using System;
-using System.Linq;
 using Org.Apache.REEF.Tang.Annotations;
 
 namespace Org.Apache.REEF.Client.YARN
@@ -33,22 +32,9 @@ namespace Org.Apache.REEF.Client.YARN
     /// This interface allows users to specify logic for the conversion between external URL 
     /// and local URL
     /// </summary>
-    [DefaultImplementation(typeof(IdentityResourceFileRemoteUrlToLocalUrlConverter))]
-    internal interface IResourceFileRemoteUrlToLocalUrlConverter
+    [DefaultImplementation(typeof(IdentityResourceFileRemoteUrlToClusterUrlConverter))]
+    internal interface IResourceFileRemoteUrlToClusterUrlConverter
     {
         string ConvertToLocalUrl(Uri url);
-    }
-
-    internal class IdentityResourceFileRemoteUrlToLocalUrlConverter : IResourceFileRemoteUrlToLocalUrlConverter
-    {
-        [Inject]
-        private IdentityResourceFileRemoteUrlToLocalUrlConverter()
-        {
-        }
-
-        public string ConvertToLocalUrl(Uri url)
-        {
-            return url.AbsoluteUri;
-        }
     }
 }

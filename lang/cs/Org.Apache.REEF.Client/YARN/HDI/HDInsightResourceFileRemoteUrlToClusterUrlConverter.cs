@@ -21,10 +21,10 @@ using Org.Apache.REEF.Tang.Annotations;
 
 namespace Org.Apache.REEF.Client.YARN.HDI
 {
-    internal class HDInsightResourceFileRemoteUrlToLocalUrlConverter : IResourceFileRemoteUrlToLocalUrlConverter
+    internal class HDInsightResourceFileRemoteUrlToClusterUrlConverter : IResourceFileRemoteUrlToClusterUrlConverter
     {
         [Inject]
-        private HDInsightResourceFileRemoteUrlToLocalUrlConverter()
+        private HDInsightResourceFileRemoteUrlToClusterUrlConverter()
         {
         }
 
