@@ -292,8 +292,8 @@ namespace Org.Apache.REEF.Tests.Functional
         {
             IInjector injector = TangFactory.GetTang().NewInjector(GetRuntimeConfiguration(runOnYarn, numberOfEvaluator, runtimeFolder));
             var reefClient = injector.GetInstance<IREEFClient>();
-            var jobSubmissionBuilderFactory = injector.GetInstance<JobSubmissionBuilderFactory>();
-            var jobSubmission = jobSubmissionBuilderFactory.GetJobSubmissionBuilder()
+            var jobRequestBuilder = injector.GetInstance<JobRequestBuilder>();
+            var jobSubmission = jobRequestBuilder
                 .AddDriverConfiguration(driverConfig)
                 .AddGlobalAssemblyForType(globalAssemblyType)
                 .SetJobIdentifier(jobIdentifier)

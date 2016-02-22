@@ -15,6 +15,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
+using System;
 using System.Collections.Generic;
 using Org.Apache.REEF.Common.Client.Parameters;
 using Org.Apache.REEF.Tang.Annotations;
@@ -25,6 +26,7 @@ namespace Org.Apache.REEF.Client.API
     /// <summary>
     /// Instantiates IJobSubmissionBuilder based on configurationProviders.
     /// </summary>
+    [Obsolete("Deprecated in 0.14. Please use JobRequestBuilder instead.")]
     public sealed class JobSubmissionBuilderFactory
     {
         private readonly ISet<IConfigurationProvider> _configurationProviders;

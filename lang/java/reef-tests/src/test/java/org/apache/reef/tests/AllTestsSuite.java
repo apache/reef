@@ -34,6 +34,7 @@ import org.apache.reef.tests.messaging.task.TaskMessagingTest;
 import org.apache.reef.tests.statepassing.StatePassingTest;
 import org.apache.reef.tests.subcontexts.SubContextTest;
 import org.apache.reef.tests.taskresubmit.TaskResubmitTest;
+import org.apache.reef.tests.watcher.WatcherTest;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 
@@ -57,7 +58,8 @@ import org.junit.runners.Suite;
     ExamplesTestSuite.class,
     ConfigurationProviderTest.class,
     ApplicationTestSuite.class,
-    RuntimeNameTest.class
+    RuntimeNameTest.class,
+    WatcherTest.class,
     })
 public final class AllTestsSuite {
 }

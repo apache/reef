@@ -5,9 +5,9 @@
 // to you under the Apache License, Version 2.0 (the
 // "License"); you may not use this file except in compliance
 // with the License.  You may obtain a copy of the License at
-//
+// 
 //   http://www.apache.org/licenses/LICENSE-2.0
-//
+// 
 // Unless required by applicable law or agreed to in writing,
 // software distributed under the License is distributed on an
 // "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -17,39 +17,55 @@
 
 using System;
 using System.Collections.Generic;
+using Org.Apache.REEF.Common.Client.Parameters;
+using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Tang.Interface;
 
 namespace Org.Apache.REEF.Client.API
 {
-    [Obsolete("Deprecated in 0.14. Will be removed.")]
-    internal class JobSubmissionBuilder : IJobSubmissionBuilder
+    public sealed class JobRequestBuilder
     {
-        private readonly JobRequestBuilder _jobRequestBuilder = JobRequestBuilder.NewBuilder();
+        private readonly AppParametersBuilder _appParametersBuilder = AppParametersBuilder.NewBuilder();
+        private readonly JobParametersBuilder _jobParametersBuilder = JobParametersBuilder.NewBuilder();
 
-        internal JobSubmissionBuilder(ISet<IConfigurationProvider> configurationProviders)
+        private JobRequestBuilder()
         {
-            _jobRequestBuilder.AddDriverConfigurationProviders(configurationProviders);
+        }
+
+        [Inject]
+        private JobRequestBuilder([Parameter(typeof(DriverConfigurationProviders))] ISet<IConfigurationProvider> configurationProviders)
+        {
+            AddDriverConfigurationProviders(configurationProviders);
+        }
+
+        public static JobRequestBuilder NewBuilder()
+        {
+            return new JobRequestBuilder();
         }
 
         /// <summary>
-        /// Add a file to be made available in all containers.
+        /// Bake the information provided so far and return a IJobSubmission 
         /// </summary>
-        /// <param name="fileName"></param>
-        /// <returns></returns>
-        public IJobSubmissionBuilder AddGlobalFile(string fileName)
+        public JobRequest Build()
         {
-            _jobRequestBuilder.AddGlobalFile(fileName);
+            return new JobRequest(_jobParametersBuilder.Build(), _appParametersBuilder.Build());
+        }
+
+        /// <summary>
+        /// Make this file available to all containers
+        /// </summary>
+        public JobRequestBuilder AddGlobalFile(string fileName)
+        {
+            _appParametersBuilder.AddGlobalFile(fileName);
             return this;
         }
 
         /// <summary>
-        /// Add a file to be made available only on the driver.
+        /// Files specific to one container
         /// </summary>
-        /// <param name="fileName"></param>
-        /// <returns></returns>
-        public IJobSubmissionBuilder AddLocalFile(string fileName)
+        public JobRequestBuilder AddLocalFile(string fileName)
         {
-            _jobRequestBuilder.AddLocalFile(fileName);
+            _appParametersBuilder.AddLocalFile(fileName);
             return this;
         }
 
@@ -58,9 +74,9 @@ namespace Org.Apache.REEF.Client.API
         /// </summary>
         /// <param name="fileName"></param>
         /// <returns></returns>
-        public IJobSubmissionBuilder AddGlobalAssembly(string fileName)
+        public JobRequestBuilder AddGlobalAssembly(string fileName)
         {
-            _jobRequestBuilder.AddGlobalAssembly(fileName);
+            _appParametersBuilder.AddGlobalAssembly(fileName);
             return this;
         }
 
@@ -69,9 +85,9 @@ namespace Org.Apache.REEF.Client.API
         /// </summary>
         /// <param name="fileName"></param>
         /// <returns></returns>
-        public IJobSubmissionBuilder AddLocalAssembly(string fileName)
+        public JobRequestBuilder AddLocalAssembly(string fileName)
         {
-            _jobRequestBuilder.AddLocalAssembly(fileName);
+            _appParametersBuilder.AddLocalAssembly(fileName);
             return this;
         }
 
@@ -80,9 +96,9 @@ namespace Org.Apache.REEF.Client.API
         /// </summary>
         /// <param name="configuration"></param>
         /// <returns></returns>
-        public IJobSubmissionBuilder AddDriverConfiguration(IConfiguration configuration)
+        public JobRequestBuilder AddDriverConfiguration(IConfiguration configuration)
         {
-            _jobRequestBuilder.AddDriverConfiguration(configuration);
+            _appParametersBuilder.AddDriverConfiguration(configuration);
             return this;
         }
 
@@ -91,9 +107,9 @@ namespace Org.Apache.REEF.Client.API
         /// </summary>
         /// <param name="type"></param>
         /// <returns></returns>
-        public IJobSubmissionBuilder AddLocalAssemblyForType(Type type)
+        public JobRequestBuilder AddLocalAssemblyForType(Type type)
         {
-            _jobRequestBuilder.AddLocalAssemblyForType(type);
+            _appParametersBuilder.AddLocalAssemblyForType(type);
             return this;
         }
 
@@ -102,9 +118,9 @@ namespace Org.Apache.REEF.Client.API
         /// </summary>
         /// <param name="type"></param>
         /// <returns></returns>
-        public IJobSubmissionBuilder AddGlobalAssemblyForType(Type type)
+        public JobRequestBuilder AddGlobalAssemblyForType(Type type)
         {
-            _jobRequestBuilder.AddGlobalAssemblyForType(type);
+            _appParametersBuilder.AddGlobalAssemblyForType(type);
             return this;
         }
 
@@ -113,9 +129,9 @@ namespace Org.Apache.REEF.Client.API
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
-        public IJobSubmissionBuilder SetJobIdentifier(string id)
+        public JobRequestBuilder SetJobIdentifier(string id)
         {
-            _jobRequestBuilder.SetJobIdentifier(id);
+            _jobParametersBuilder.SetJobIdentifier(id);
             return this;
         }
 
@@ -124,18 +140,18 @@ namespace Org.Apache.REEF.Client.API
         /// </summary>
         /// <param name="driverMemoryInMb">The amount of memory (in MB) to allocate for the Driver.</param>
         /// <returns>this</returns>
-        public IJobSubmissionBuilder SetDriverMemory(int driverMemoryInMb)
+        public JobRequestBuilder SetDriverMemory(int driverMemoryInMb)
         {
-            _jobRequestBuilder.SetDriverMemory(driverMemoryInMb);
+            _jobParametersBuilder.SetDriverMemory(driverMemoryInMb);
             return this;
         }
 
         /// <summary>
         /// Sets the maximum amount of times a job can be submitted.
         /// </summary>
-        public IJobSubmissionBuilder SetMaxApplicationSubmissions(int maxAppSubmissions)
+        public JobRequestBuilder SetMaxApplicationSubmissions(int maxAppSubmissions)
         {
-            _jobRequestBuilder.SetMaxApplicationSubmissions(maxAppSubmissions);
+            _jobParametersBuilder.SetMaxApplicationSubmissions(maxAppSubmissions);
             return this;
         }
 
@@ -145,19 +161,16 @@ namespace Org.Apache.REEF.Client.API
         /// </summary>
         /// <param name="driverConfigurationFileContents">Driver configuration file contents.</param>
         /// <returns>this</returns>
-        public IJobSubmissionBuilder SetDriverConfigurationFileContents(string driverConfigurationFileContents)
+        public JobRequestBuilder SetDriverConfigurationFileContents(string driverConfigurationFileContents)
         {
-            _jobRequestBuilder.SetDriverConfigurationFileContents(driverConfigurationFileContents);
+            _appParametersBuilder.SetDriverConfigurationFileContents(driverConfigurationFileContents);
             return this;
         }
 
-        /// <summary>
-        /// Builds the submission
-        /// </summary>
-        /// <returns>IJobSubmission</returns>
-        public IJobSubmission Build()
+        public JobRequestBuilder AddDriverConfigurationProviders(IEnumerable<IConfigurationProvider> configurationProviders)
         {
-            return new JobSubmission(_jobRequestBuilder.Build());
+            _appParametersBuilder.AddDriverConfigurationProviders(configurationProviders);
+            return this;
         }
     }
 }

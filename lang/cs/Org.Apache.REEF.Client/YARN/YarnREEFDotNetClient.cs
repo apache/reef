@@ -26,7 +26,6 @@ using Org.Apache.REEF.Client.Yarn;
 using Org.Apache.REEF.Client.Yarn.RestClient;
 using Org.Apache.REEF.Client.YARN.RestClient.DataModel;
 using Org.Apache.REEF.Common.Files;
-using Org.Apache.REEF.Driver.Bridge;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Utilities.Attributes;
@@ -71,9 +70,9 @@ namespace Org.Apache.REEF.Client.YARN
             _paramSerializer = paramSerializer;
         }
 
-        public void Submit(IJobSubmission jobSubmission)
+        public void Submit(JobRequest jobRequest)
         {
-            string jobId = jobSubmission.JobIdentifier;
+            string jobId = jobRequest.JobIdentifier;
 
             // todo: Future client interface should be async.
             // Using GetAwaiter().GetResult() instead of .Result to avoid exception
@@ -90,13 +89,13 @@ namespace Org.Apache.REEF.Client.YARN
             try
             {
                 Log.Log(Level.Verbose, "Preparing driver folder in {0}", localDriverFolderPath);
-                _driverFolderPreparationHelper.PrepareDriverFolder(jobSubmission, localDriverFolderPath);
+                _driverFolderPreparationHelper.PrepareDriverFolder(jobRequest.AppParameters, localDriverFolderPath);
 
                 // prepare configuration
-                var paramInjector = TangFactory.GetTang().NewInjector(jobSubmission.DriverConfigurations.ToArray());
+                var paramInjector = TangFactory.GetTang().NewInjector(jobRequest.DriverConfigurations.ToArray());
 
-                _paramSerializer.SerializeAppFile(jobSubmission, paramInjector, localDriverFolderPath);
-                _paramSerializer.SerializeJobFile(jobSubmission, localDriverFolderPath, jobSubmissionDirectory);
+                _paramSerializer.SerializeAppFile(jobRequest.AppParameters, paramInjector, localDriverFolderPath);
+                _paramSerializer.SerializeJobFile(jobRequest.JobParameters, localDriverFolderPath, jobSubmissionDirectory);
 
                 var archiveResource = _jobResourceUploader.UploadArchiveResource(localDriverFolderPath, jobSubmissionDirectory);
 
@@ -111,10 +110,12 @@ namespace Org.Apache.REEF.Client.YARN
                 // submit job
                 Log.Log(Level.Verbose, @"Assigned application id {0}", applicationId);
 
-                var submissionReq = CreateApplicationSubmissionRequest(jobSubmission,
+                var submissionReq = CreateApplicationSubmissionRequest(
+                    jobRequest.JobParameters,
                     applicationId,
-                    jobSubmission.MaxApplicationSubmissions,
+                    jobRequest.MaxApplicationSubmissions,
                     jobResources);
+
                 var submittedApplication = _yarnRMClient.SubmitApplicationAsync(submissionReq).GetAwaiter().GetResult();
                 Log.Log(Level.Info, @"Submitted application {0}", submittedApplication.Id);
             }
@@ -127,9 +128,15 @@ namespace Org.Apache.REEF.Client.YARN
             }
         }
 
-        public IJobSubmissionResult SubmitAndGetJobStatus(IJobSubmission jobSubmission)
+        public IJobSubmissionResult SubmitAndGetJobStatus(JobRequest jobRequest)
         {
             throw new NotSupportedException();
+        }
+
+        [Obsolete("Deprecated in 0.14, please use Submit(JobRequest)")]
+        public void Submit(IJobSubmission jobSubmission)
+        {
+            Submit(JobRequest.FromJobSubmission(jobSubmission));
         }
 
         public async Task<FinalState> GetJobFinalStatus(string appId)
@@ -139,7 +146,7 @@ namespace Org.Apache.REEF.Client.YARN
         }
 
         private SubmitApplication CreateApplicationSubmissionRequest(
-           IJobSubmission jobSubmission,
+           JobParameters jobParameters,
            string appId,
            int maxApplicationSubmissions,
            IReadOnlyCollection<JobResource> jobResources)
@@ -156,10 +163,10 @@ namespace Org.Apache.REEF.Client.YARN
             var submitApplication = new SubmitApplication
             {
                 ApplicationId = appId,
-                ApplicationName = jobSubmission.JobIdentifier,
+                ApplicationName = jobParameters.JobIdentifier,
                 AmResource = new Resouce
                 {
-                    MemoryMB = jobSubmission.DriverMemory,
+                    MemoryMB = jobParameters.DriverMemoryInMB,
                     VCores = 1 // keeping parity with existing code
                 },
                 MaxAppAttempts = maxApplicationSubmissions,
