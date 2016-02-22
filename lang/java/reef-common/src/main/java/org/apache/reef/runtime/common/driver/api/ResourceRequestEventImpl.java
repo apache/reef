@@ -46,7 +46,7 @@ public final class ResourceRequestEventImpl implements ResourceRequestEvent {
     this.priority = Optional.ofNullable(builder.priority);
     this.virtualCores = Optional.ofNullable(builder.virtualCores);
     this.relaxLocality = Optional.ofNullable(builder.relaxLocality);
-    this.runtimeName = BuilderUtils.notNull(builder.runtimeName);
+    this.runtimeName = builder.runtimeName == null ? "" : builder.runtimeName;
   }
 
   @Override
