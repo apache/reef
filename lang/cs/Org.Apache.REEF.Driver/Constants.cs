@@ -60,7 +60,7 @@ namespace Org.Apache.REEF.Driver
         /// The bridge JAR name.
         /// </summary>
         [Obsolete("Deprecated in 0.14. Will be removed in 0.15.")]
-        public const string JavaBridgeJarFileName = "reef-bridge-java-0.14.0-SNAPSHOT-shaded.jar";
+        public const string JavaBridgeJarFileName = "reef-bridge-java-0.15.0-SNAPSHOT-shaded.jar";
 
         public const string BridgeLaunchClass = "org.apache.reef.javabridge.generic.Launch";
 
