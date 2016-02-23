@@ -29,7 +29,7 @@ namespace Org.Apache.REEF.IO.FileSystem
         /// </summary>
         /// <param name="modificationTime">Last modification time of the file</param>
         /// <param name="lengthBytes">Size of the file in bytes</param>
-        internal FileStatus(DateTime modificationTime, long lengthBytes)
+        public FileStatus(DateTime modificationTime, long lengthBytes)
         {
             ModificationTime = modificationTime;
             LengthBytes = lengthBytes;
