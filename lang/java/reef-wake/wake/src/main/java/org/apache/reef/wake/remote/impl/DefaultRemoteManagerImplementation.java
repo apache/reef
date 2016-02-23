@@ -153,18 +153,6 @@ public final class DefaultRemoteManagerImplementation implements RemoteManager {
   }
 
   /**
-   * Registers an exception handler and returns a subscription.
-   */
-  @Override
-  public AutoCloseable registerErrorHandler(final EventHandler<Exception> theHandler) {
-    if (LOG.isLoggable(Level.FINE)) {
-      LOG.log(Level.FINE, "RemoteManager: {0} handler: {1}",
-          new Object[]{this.name, theHandler.getClass().getName()});
-    }
-    return this.handlerContainer.registerErrorHandler(theHandler);
-  }
-
-  /**
    * Returns my identifier.
    */
   @Override

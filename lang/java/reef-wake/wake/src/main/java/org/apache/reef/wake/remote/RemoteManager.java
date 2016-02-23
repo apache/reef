@@ -77,18 +77,6 @@ public interface RemoteManager extends Stage {
                                                  final EventHandler<RemoteMessage<T>> theHandler);
 
   /**
-   * Register an EventHandler that gets called by Wake in the presence of
-   * errors. Note that user-level errors that need to cross the network need
-   * to be handled as standard messages.
-   *
-   * @param theHandler the exception event handler
-   * @return the subscription that can be used to unsubscribe later
-   * @deprecated before 0.14, will be deleted in 0.15
-   */
-  @Deprecated
-  AutoCloseable registerErrorHandler(final EventHandler<Exception> theHandler);
-
-  /**
    * Access the Identifier of this.
    *
    * @return the Identifier of this.
