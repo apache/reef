@@ -216,6 +216,7 @@ namespace Org {
                             JavaVM* _jvm;
                             jstring _jstringContextId = NULL;
                             jstring _jstringEvaluatorId = NULL;
+                            ActiveContextClr2Java^ _parentContext = nullptr;
                         public:
                             ClosedContextClr2Java(JNIEnv *env, jobject jobjectClosedContext);
                             ~ClosedContextClr2Java();

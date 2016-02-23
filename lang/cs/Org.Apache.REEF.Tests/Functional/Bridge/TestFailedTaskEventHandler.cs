@@ -50,7 +50,7 @@ namespace Org.Apache.REEF.Tests.Functional.Bridge
             string testFolder = DefaultRuntimeFolder + Guid.NewGuid().ToString("N").Substring(0, 4);
             CleanUp(testFolder);
             TestRun(DriverConfigurations(), typeof(FailedTaskDriver), 1, "failedTaskTest", "local", testFolder);
-            ValidateSuccessForLocalRuntime(numberOfEvaluatorsToClose: 1, numberOfTasksToFail: 1, testFolder: testFolder);
+            ValidateSuccessForLocalRuntime(numberOfContextsToClose: 1, numberOfTasksToFail: 1, testFolder: testFolder);
             ValidateMessageSuccessfullyLogged(FailedTaskMessage, testFolder);
             CleanUp(testFolder);
         }

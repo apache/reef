@@ -43,6 +43,13 @@ namespace Org {
                             _jstringContextId = CommonUtilities::GetJObjectId(env, _jobjectClosedContext, jclassClosedContext);
                             _jstringEvaluatorId = CommonUtilities::GetJObjectEvaluatorId(env, _jobjectClosedContext, jclassClosedContext);
 
+                            jmethodID jmidGetParentContextMid = env->GetMethodID(
+                                jclassClosedContext, "getParentContextBridge", "()Lorg/apache/reef/javabridge/ActiveContextBridge;");
+
+                            jobject parentContext = env->CallObjectMethod(_jobjectClosedContext, jmidGetParentContextMid);
+
+                            _parentContext = gcnew ActiveContextClr2Java(env, parentContext);
+
                             ManagedLog::LOGGER->LogStop("ClosedContextClr2Java::ClosedContextClr2Java");
                         }
 
@@ -69,20 +76,7 @@ namespace Org {
                          * Gets the Parent context of the closed context through a JNI call to Java.
                          */
                         IActiveContextClr2Java^ ClosedContextClr2Java::GetParentContext() {
-                            ManagedLog::LOGGER->LogStart("ClosedContextClr2Java::GetParentContext");
-
-                            JNIEnv *env = RetrieveEnv(_jvm);
-                            jclass jclassClosedContext = env->GetObjectClass(_jobjectClosedContext);
-                            jmethodID jmidGetParentContext = env->GetMethodID(jclassClosedContext, "getParentContext", "()Lorg/apache/reef/javabridge/ActiveContextBridge;");
-                            if (jmidGetParentContext == NULL) {
-                                ManagedLog::LOGGER->Log("jmidGetParentContext is NULL");
-                                return nullptr;
-                            }
-
-                            jobject jobjectParentContext = CommonUtilities::CallGetMethodNewGlobalRef<jobject>(env, _jobjectClosedContext, jmidGetParentContext);
-                            ManagedLog::LOGGER->LogStop("ClosedContextClr2Java::GetParentContext");
-
-                            return gcnew ActiveContextClr2Java(env, jobjectParentContext);
+                            return _parentContext;
                         }
 
                         /**

@@ -56,7 +56,7 @@ namespace Org.Apache.REEF.Tests.Functional.Bridge
             string testFolder = DefaultRuntimeFolder + Guid.NewGuid().ToString("N").Substring(0, 4);
             CleanUp(testFolder);
             TestRun(DriverConfigurations(), typeof(ContextStackHandlers), 1, "testContextStack", "local", testFolder);
-            ValidateSuccessForLocalRuntime(1, testFolder: testFolder);
+            ValidateSuccessForLocalRuntime(2, testFolder: testFolder);
             ValidateMessageSuccessfullyLogged(TaskValidationMessage, testFolder);
             ValidateMessageSuccessfullyLogged(ClosedContextValidationMessage, testFolder);
             CleanUp(testFolder);
@@ -85,6 +85,7 @@ namespace Org.Apache.REEF.Tests.Functional.Bridge
         {
             private readonly IEvaluatorRequestor _requestor;
             private IAllocatedEvaluator _evaluator;
+            private bool _contextTwoClosed = false;
 
             [Inject]
             private ContextStackHandlers(IEvaluatorRequestor evaluatorRequestor)
@@ -148,11 +149,24 @@ namespace Org.Apache.REEF.Tests.Functional.Bridge
 
             public void OnNext(IClosedContext value)
             {
-                // TODO[JIRA REEF-762]: Inspect closing order of contexts.
                 Logger.Log(Level.Info, ClosedContextValidationMessage);
 
-                // TODO[JIRA REEF-762]: Remove disposal of Evaluator, since it should naturally be closed if no contexts.
-                _evaluator.Dispose();
+                if (_contextTwoClosed == false)
+                {
+                    Assert.Equal(value.Id, ContextTwoId);
+                    Assert.True(value.ParentId.IsPresent());
+                    Assert.Equal(value.ParentId.Value, ContextOneId);
+                    Assert.Equal(value.ParentContext.Id, ContextOneId);
+                    _contextTwoClosed = true;
+                }
+                else
+                {
+                    Assert.Equal(value.Id, ContextOneId);
+                    Assert.False(value.ParentId.IsPresent());
+                    Assert.Equal(value.ParentContext, null);
+                }
+
+                value.ParentContext.Dispose();
             }
 
             public void OnError(Exception error)

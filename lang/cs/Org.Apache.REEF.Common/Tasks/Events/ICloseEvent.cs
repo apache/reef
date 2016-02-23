@@ -21,6 +21,6 @@ namespace Org.Apache.REEF.Common.Tasks.Events
 {
     public interface ICloseEvent
     {
-        Optional<byte[]> Value { get; set; }
+        Optional<byte[]> Value { get; }
     }
 }

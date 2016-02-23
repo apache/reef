@@ -29,7 +29,7 @@ namespace Org.Apache.REEF.Driver.Bridge.Events
     /// </summary>
     internal sealed class ClosedContext : IClosedContext
     {
-        private readonly IActiveContextClr2Java _parentContextClr2Java;
+        private readonly ActiveContext _parentContext;
 
         internal ClosedContext(IClosedContextClr2Java clr2java)
         {
@@ -37,9 +37,7 @@ namespace Org.Apache.REEF.Driver.Bridge.Events
             Id = clr2java.GetId();
             EvaluatorId = clr2java.GetEvaluatorId();
             EvaluatorDescriptor = clr2java.GetEvaluatorDescriptor();
-
-            // TODO[JIRA REEF-762]: populate this
-            _parentContextClr2Java = null;
+            _parentContext = clr2java.GetParentContext() == null ? null : new ActiveContext(clr2java.GetParentContext());
         }
 
         /// <summary>
@@ -63,8 +61,11 @@ namespace Org.Apache.REEF.Driver.Bridge.Events
         /// </summary>
         public Optional<string> ParentId
         {
-            // TODO[REEF-762]: Implement
-            get { return Optional<string>.Empty(); }
+            get
+            {
+                return ParentContext == null ? 
+                    Optional<string>.Empty() : Optional<string>.Of(ParentContext.Id);
+            }
         }
 
         /// <summary>
@@ -79,8 +80,7 @@ namespace Org.Apache.REEF.Driver.Bridge.Events
         /// </summary>
         public IActiveContext ParentContext
         {
-            // TODO[JIRA REEF-762]: make sure this doesn't fail.
-            get { return new ActiveContext(_parentContextClr2Java); }
+            get { return _parentContext; }
         }
     }
 }
