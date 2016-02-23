@@ -32,11 +32,7 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Task
             Value = Optional<byte[]>.OfNullable(bytes);
         }
 
-        public Optional<byte[]> Value
-        {
-            get { return Value; }
-            set { value = Value; } 
-        }
+        public Optional<byte[]> Value { get; private set; }
 
         public override string ToString()
         {

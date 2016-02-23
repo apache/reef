@@ -48,7 +48,12 @@ public final class ClosedContextBridge extends NativeBridge implements ClosedCon
   public ClosedContextBridge(final ClosedContext closedContext,
                              final ActiveContextBridgeFactory activeContextBridgeFactory) {
     jcloseContext = closedContext;
-    parentContext = activeContextBridgeFactory.getActiveContextBridge(closedContext.getParentContext());
+    if (closedContext.getParentContext() != null) {
+      parentContext = activeContextBridgeFactory.getActiveContextBridge(closedContext.getParentContext());
+    } else {
+      parentContext = null;
+    }
+
     contextId = closedContext.getId();
     evaluatorId = closedContext.getEvaluatorId();
     evaluatorDescriptor = closedContext.getEvaluatorDescriptor();
@@ -82,6 +87,10 @@ public final class ClosedContextBridge extends NativeBridge implements ClosedCon
     final String descriptorString = Utilities.getEvaluatorDescriptorString(evaluatorDescriptor);
     LOG.log(Level.INFO, "Closed Context - serialized evaluator descriptor: " + descriptorString);
     return descriptorString;
+  }
+
+  public ActiveContextBridge getParentContextBridge() {
+    return parentContext;
   }
 
   @Override
