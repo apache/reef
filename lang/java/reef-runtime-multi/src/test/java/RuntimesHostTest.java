@@ -19,6 +19,10 @@
 
 //*
 
+import org.apache.avro.io.DatumWriter;
+import org.apache.avro.io.EncoderFactory;
+import org.apache.avro.io.JsonEncoder;
+import org.apache.avro.specific.SpecificDatumWriter;
 import org.apache.reef.runtime.common.driver.api.*;
 import org.apache.reef.runtime.common.driver.resourcemanager.NodeDescriptorEvent;
 import org.apache.reef.runtime.common.driver.resourcemanager.ResourceAllocationEvent;
@@ -26,7 +30,9 @@ import org.apache.reef.runtime.common.driver.resourcemanager.ResourceStatusEvent
 import org.apache.reef.runtime.common.driver.resourcemanager.RuntimeStatusEvent;
 import org.apache.reef.runtime.local.driver.*;
 import org.apache.reef.runtime.multi.driver.RuntimesHost;
+import org.apache.reef.runtime.multi.utils.RuntimeDefinition;
 import org.apache.reef.tang.*;
+import org.apache.reef.tang.annotations.Unit;
 import org.apache.reef.tang.exceptions.InjectionException;
 import org.apache.reef.tang.formats.AvroConfigurationSerializer;
 import org.apache.reef.tang.formats.ConfigurationModule;
@@ -38,6 +44,9 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import javax.inject.Inject;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.util.HashSet;
 import java.util.Queue;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -47,7 +56,7 @@ import java.util.concurrent.LinkedBlockingQueue;
  */
 public class RuntimesHostTest {
   private Injector injector;
-  private Queue<Object> commandsQueue = new LinkedBlockingQueue<>();
+  public static Queue<Object> CommandsQueue = new LinkedBlockingQueue<>();
 
   @SuppressWarnings("unchecked")
   @Before
@@ -66,7 +75,7 @@ public class RuntimesHostTest {
             RuntimeParameters.ResourceAllocationHandler.class,
             RuntimesHostTest.TestResourceAllocationHandler.class);
     this.injector = Tang.Factory.getTang().newInjector(cb.build());
-    this.commandsQueue.clear();
+    RuntimesHostTest.CommandsQueue.clear();
   }
 
   @Test(expected = RuntimeException.class)
@@ -213,40 +222,73 @@ public class RuntimesHostTest {
     Configuration driverConfiguration = TestDriverConfiguration.CONF.build();
     AvroConfigurationSerializer serializer = new AvroConfigurationSerializer();
     String config = serializer.toString(driverConfiguration);
+    RuntimeDefinition rd = new RuntimeDefinition();
+    rd.setDefaultConfiguration(true);
+    rd.setSerializedConfiguration(config);
+    rd.setRuntimeName("test");
     HashSet<String> runtimes = new HashSet<>();
-    runtimes.add(config);
+    final String serializedConfiguration = getRuntimeDefinition(rd);
+    runtimes.add(serializedConfiguration);
     final RuntimesHost rHost = new RuntimesHost(injector, runtimes);
     rHost.onNext(new RuntimeStart(System.currentTimeMillis()));
-    Assert.assertEquals(1, this.commandsQueue.size());
-    Object obj = commandsQueue.poll();
-    Assert.assertTrue(obj instanceof RuntimeStatusEvent);
+    Assert.assertEquals(1, RuntimesHostTest.CommandsQueue.size());
+    Object obj = RuntimesHostTest.CommandsQueue.poll();
+    Assert.assertTrue(obj instanceof RuntimeStart);
   }
 
-  class TestResourceStatusHandler implements EventHandler<ResourceStatusEvent> {
+  private String getRuntimeDefinition(RuntimeDefinition rd) {
+    final DatumWriter<RuntimeDefinition> configurationWriter =
+            new SpecificDatumWriter<>(RuntimeDefinition.class);
+    final String serializedConfiguration;
+    try (final ByteArrayOutputStream out = new ByteArrayOutputStream()) {
+      final JsonEncoder encoder = EncoderFactory.get().jsonEncoder(RuntimeDefinition.SCHEMA$, out);
+      configurationWriter.write(rd, encoder);
+      encoder.flush();
+      out.flush();
+      serializedConfiguration = out.toString("ISO-8859-1");
+    } catch (final IOException e) {
+      throw new RuntimeException(e);
+    }
+    return serializedConfiguration;
+  }
+
+  static class TestResourceStatusHandler implements EventHandler<ResourceStatusEvent> {
+    @Inject
+    private TestResourceStatusHandler(){}
+
     @Override
     public void onNext(final ResourceStatusEvent value) {
-      RuntimesHostTest.this.commandsQueue.add(value);
+      RuntimesHostTest.CommandsQueue.add(value);
     }
   }
 
-  class TestRuntimeStatusHandler implements EventHandler<RuntimeStatusEvent> {
+  static class TestRuntimeStatusHandler implements EventHandler<RuntimeStatusEvent> {
+    @Inject
+    private TestRuntimeStatusHandler(){}
+
     @Override
     public void onNext(final RuntimeStatusEvent value) {
-      RuntimesHostTest.this.commandsQueue.add(value);
+      RuntimesHostTest.CommandsQueue.add(value);
     }
   }
 
-  class TestNodeDescriptorHandler implements EventHandler<NodeDescriptorEvent> {
+  static class TestNodeDescriptorHandler implements EventHandler<NodeDescriptorEvent> {
+    @Inject
+    private TestNodeDescriptorHandler(){}
+
     @Override
     public void onNext(final NodeDescriptorEvent value) {
-      RuntimesHostTest.this.commandsQueue.add(value);
+      RuntimesHostTest.CommandsQueue.add(value);
     }
   }
 
-  class TestResourceAllocationHandler implements EventHandler<ResourceAllocationEvent> {
+  static class TestResourceAllocationHandler implements EventHandler<ResourceAllocationEvent> {
+    @Inject
+    TestResourceAllocationHandler(){}
+
     @Override
     public void onNext(final ResourceAllocationEvent value) {
-      RuntimesHostTest.this.commandsQueue.add(value);
+      RuntimesHostTest.CommandsQueue.add(value);
     }
   }
 
@@ -260,37 +302,52 @@ public class RuntimesHostTest {
   }
 
   private static class TestResourceLaunchHandler implements ResourceLaunchHandler {
+    @Inject
+    TestResourceLaunchHandler(){}
+
     @Override
     public void onNext(final ResourceLaunchEvent value) {
-
+      RuntimesHostTest.CommandsQueue.add(value);
     }
   }
 
   private static class TestResourceRequestHandler implements ResourceRequestHandler {
+    @Inject
+    TestResourceRequestHandler(){}
+
     @Override
     public void onNext(final ResourceRequestEvent value) {
-
+      RuntimesHostTest.CommandsQueue.add(value);
     }
   }
 
   private static class TestResourceReleaseHandler implements ResourceReleaseHandler {
+    @Inject
+    TestResourceReleaseHandler(){}
+
     @Override
     public void onNext(final ResourceReleaseEvent value) {
-
+      RuntimesHostTest.CommandsQueue.add(value);
     }
   }
 
   private static class TestResourceManagerStartHandler implements ResourceManagerStartHandler {
+    @Inject
+    TestResourceManagerStartHandler(){}
+
     @Override
     public void onNext(final RuntimeStart value) {
-
+      RuntimesHostTest.CommandsQueue.add(value);
     }
   }
 
   private static class TestResourceManagerStopHandler implements ResourceManagerStopHandler {
+    @Inject
+    TestResourceManagerStopHandler(){}
+
     @Override
     public void onNext(final RuntimeStop value) {
-
+      RuntimesHostTest.CommandsQueue.add(value);
     }
   }
 }
