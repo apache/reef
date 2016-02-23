@@ -266,7 +266,14 @@ namespace Org.Apache.REEF.Evaluator.Tests
             var taskRuntime = injector.GetInstance<TaskRuntime>();
             taskRuntime.RunTask();
 
-            var task = injector.GetInstance<TestTask>();
+            var taskInterface = injector.GetInstance<ITask>();
+            Assert.True(taskInterface is TestTask);
+
+            var task = taskInterface as TestTask;
+            if (task == null)
+            {
+                throw new Exception("Task is expected to be an instance of TestTask.");
+            }
 
             task.FinishCountdownEvent.Wait();
             task.DisposeCountdownEvent.Wait();
