@@ -58,8 +58,8 @@ under the License.
 
   <!-- REEF NuGet properties -->
   <PropertyGroup>
-    <IsSnapshot>true</IsSnapshot>
-    <SnapshotNumber>04</SnapshotNumber>
+    <IsSnapshot>false</IsSnapshot>
+    <SnapshotNumber>00</SnapshotNumber>
     <PushPackages>false</PushPackages>
     <NuGetRepository>https://www.nuget.org</NuGetRepository>
   </PropertyGroup>

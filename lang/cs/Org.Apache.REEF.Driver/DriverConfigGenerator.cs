@@ -42,7 +42,7 @@ namespace Org.Apache.REEF.Driver
         /// <summary>
         /// The bridge JAR name.
         /// </summary>
-        public const string JavaBridgeJarFileName = "reef-bridge-java-0.14.0-SNAPSHOT-shaded.jar";
+        public const string JavaBridgeJarFileName = "reef-bridge-java-0.14.0-shaded.jar";
 
         private static readonly Logger Log = Logger.GetLogger(typeof(DriverConfigGenerator));
 
