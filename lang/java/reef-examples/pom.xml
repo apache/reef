@@ -102,6 +102,11 @@ under the License.
             <artifactId>junit</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.apache.reef</groupId>
+            <artifactId>reef-runtime-multi</artifactId>
+            <version>0.14.0-SNAPSHOT</version>
+        </dependency>
 
     </dependencies>
 
