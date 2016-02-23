@@ -20,6 +20,10 @@ using Org.Apache.REEF.Utilities;
 
 namespace Org.Apache.REEF.Common.Runtime.Evaluator.Task
 {
+    /// <summary>
+    /// The implementation of an event from the driver signaling 
+    /// that a task should be suspended.
+    /// </summary>
     internal sealed class SuspendEventImpl : ISuspendEvent
     {
         public SuspendEventImpl(byte[] bytes)

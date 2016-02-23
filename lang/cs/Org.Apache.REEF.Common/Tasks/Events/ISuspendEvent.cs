@@ -19,8 +19,14 @@ using Org.Apache.REEF.Utilities;
 
 namespace Org.Apache.REEF.Common.Tasks.Events
 {
+    /// <summary>
+    /// An event from the driver signaling that a task should be suspended.
+    /// </summary>
     public interface ISuspendEvent
     {
+        /// <summary>
+        /// The optional suspension message from the driver.
+        /// </summary>
         Optional<byte[]> Message { get; } 
     }
 }

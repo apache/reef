@@ -21,6 +21,11 @@ using Org.Apache.REEF.Tang.Annotations;
 
 namespace Org.Apache.REEF.Common.Tasks.Defaults
 {
+    /// <summary>
+    /// A default handler for an event from the driver signaling the suspension
+    /// of a task. Throws an exception by default, since a task should not have received
+    /// a suspension event if the handler is not bound explicitly.
+    /// </summary>
     internal sealed class DefaultSuspendHandler : IObserver<ISuspendEvent>
     {
         [Inject]

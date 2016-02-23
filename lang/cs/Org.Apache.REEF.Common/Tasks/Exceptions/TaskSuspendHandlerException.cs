@@ -19,6 +19,10 @@ using System;
 
 namespace Org.Apache.REEF.Common.Tasks.Exceptions
 {
+    /// <summary>
+    /// An exception that is thrown when the task suspension event
+    /// handler is not bound.
+    /// </summary>
     internal sealed class TaskSuspendHandlerException : Exception
     {
         public TaskSuspendHandlerException(string message)
