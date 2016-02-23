@@ -86,6 +86,9 @@ namespace Org.Apache.REEF.Examples.HelloREEF
                 case YARNRest:
                     return YARNClientConfiguration.ConfigurationModuleYARNRest.Build();
                 case HDInsight:
+                    // To run against HDInsight please replace placeholders below, with actual values for
+                    // connection string, container name (available at Azure portal) and HDInsight 
+                    // credentials (username and password)
                     const string connectionString = "ConnString";
                     const string continerName = "foo";
                     return HDInsightClientConfiguration.ConfigurationModule
