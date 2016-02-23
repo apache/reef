@@ -32,7 +32,6 @@ import org.apache.reef.runtime.local.driver.*;
 import org.apache.reef.runtime.multi.driver.RuntimesHost;
 import org.apache.reef.runtime.multi.utils.RuntimeDefinition;
 import org.apache.reef.tang.*;
-import org.apache.reef.tang.annotations.Unit;
 import org.apache.reef.tang.exceptions.InjectionException;
 import org.apache.reef.tang.formats.AvroConfigurationSerializer;
 import org.apache.reef.tang.formats.ConfigurationModule;
@@ -56,7 +55,7 @@ import java.util.concurrent.LinkedBlockingQueue;
  */
 public class RuntimesHostTest {
   private Injector injector;
-  public static Queue<Object> CommandsQueue = new LinkedBlockingQueue<>();
+  private static Queue<Object> commandsQueue = new LinkedBlockingQueue<>();
 
   @SuppressWarnings("unchecked")
   @Before
@@ -75,7 +74,7 @@ public class RuntimesHostTest {
             RuntimeParameters.ResourceAllocationHandler.class,
             RuntimesHostTest.TestResourceAllocationHandler.class);
     this.injector = Tang.Factory.getTang().newInjector(cb.build());
-    RuntimesHostTest.CommandsQueue.clear();
+    RuntimesHostTest.commandsQueue.clear();
   }
 
   @Test(expected = RuntimeException.class)
@@ -231,12 +230,12 @@ public class RuntimesHostTest {
     runtimes.add(serializedConfiguration);
     final RuntimesHost rHost = new RuntimesHost(injector, runtimes);
     rHost.onNext(new RuntimeStart(System.currentTimeMillis()));
-    Assert.assertEquals(1, RuntimesHostTest.CommandsQueue.size());
-    Object obj = RuntimesHostTest.CommandsQueue.poll();
+    Assert.assertEquals(1, RuntimesHostTest.commandsQueue.size());
+    Object obj = RuntimesHostTest.commandsQueue.poll();
     Assert.assertTrue(obj instanceof RuntimeStart);
   }
 
-  private String getRuntimeDefinition(RuntimeDefinition rd) {
+  private String getRuntimeDefinition(final RuntimeDefinition rd) {
     final DatumWriter<RuntimeDefinition> configurationWriter =
             new SpecificDatumWriter<>(RuntimeDefinition.class);
     final String serializedConfiguration;
@@ -254,31 +253,31 @@ public class RuntimesHostTest {
 
   static class TestResourceStatusHandler implements EventHandler<ResourceStatusEvent> {
     @Inject
-    private TestResourceStatusHandler(){}
+    TestResourceStatusHandler(){}
 
     @Override
     public void onNext(final ResourceStatusEvent value) {
-      RuntimesHostTest.CommandsQueue.add(value);
+      RuntimesHostTest.commandsQueue.add(value);
     }
   }
 
   static class TestRuntimeStatusHandler implements EventHandler<RuntimeStatusEvent> {
     @Inject
-    private TestRuntimeStatusHandler(){}
+    TestRuntimeStatusHandler(){}
 
     @Override
     public void onNext(final RuntimeStatusEvent value) {
-      RuntimesHostTest.CommandsQueue.add(value);
+      RuntimesHostTest.commandsQueue.add(value);
     }
   }
 
   static class TestNodeDescriptorHandler implements EventHandler<NodeDescriptorEvent> {
     @Inject
-    private TestNodeDescriptorHandler(){}
+    TestNodeDescriptorHandler(){}
 
     @Override
     public void onNext(final NodeDescriptorEvent value) {
-      RuntimesHostTest.CommandsQueue.add(value);
+      RuntimesHostTest.commandsQueue.add(value);
     }
   }
 
@@ -288,7 +287,7 @@ public class RuntimesHostTest {
 
     @Override
     public void onNext(final ResourceAllocationEvent value) {
-      RuntimesHostTest.CommandsQueue.add(value);
+      RuntimesHostTest.commandsQueue.add(value);
     }
   }
 
@@ -307,7 +306,7 @@ public class RuntimesHostTest {
 
     @Override
     public void onNext(final ResourceLaunchEvent value) {
-      RuntimesHostTest.CommandsQueue.add(value);
+      RuntimesHostTest.commandsQueue.add(value);
     }
   }
 
@@ -317,7 +316,7 @@ public class RuntimesHostTest {
 
     @Override
     public void onNext(final ResourceRequestEvent value) {
-      RuntimesHostTest.CommandsQueue.add(value);
+      RuntimesHostTest.commandsQueue.add(value);
     }
   }
 
@@ -327,7 +326,7 @@ public class RuntimesHostTest {
 
     @Override
     public void onNext(final ResourceReleaseEvent value) {
-      RuntimesHostTest.CommandsQueue.add(value);
+      RuntimesHostTest.commandsQueue.add(value);
     }
   }
 
@@ -337,7 +336,7 @@ public class RuntimesHostTest {
 
     @Override
     public void onNext(final RuntimeStart value) {
-      RuntimesHostTest.CommandsQueue.add(value);
+      RuntimesHostTest.commandsQueue.add(value);
     }
   }
 
@@ -347,7 +346,7 @@ public class RuntimesHostTest {
 
     @Override
     public void onNext(final RuntimeStop value) {
-      RuntimesHostTest.CommandsQueue.add(value);
+      RuntimesHostTest.commandsQueue.add(value);
     }
   }
 }
