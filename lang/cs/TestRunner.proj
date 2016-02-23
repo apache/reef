@@ -19,6 +19,12 @@ under the License.
   <ItemGroup>
     <ProjectReferences Include="*\*.Tests.csproj" />
   </ItemGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == '' ">
+    <Configuration>Debug</Configuration>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Platform)' == '' ">
+    <Platform>x64</Platform>
+  </PropertyGroup>
   <Target Name="Test">
     <MSBuild Projects="@(ProjectReferences)"
              Targets="Test" Properties="Configuration=$(Configuration);Platform=$(Platform)" StopOnFirstFailure="true" />
