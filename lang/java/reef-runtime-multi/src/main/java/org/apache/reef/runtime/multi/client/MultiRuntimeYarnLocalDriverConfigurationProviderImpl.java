@@ -33,13 +33,13 @@ import java.util.Set;
 /**
  * MultiRuntime configuration provider for Yarn/Local runtime.
  */
-public class MultiRuntimeYarnLocalDriverConfigurationProviderImpl extends AbstractDriverConfigurationProvider {
+public final class MultiRuntimeYarnLocalDriverConfigurationProviderImpl extends AbstractDriverConfigurationProvider {
   private final double jvmSlack;
   private final int maxEvaluators;
   private final Set<String> rackNames;
 
   @Inject
-  public MultiRuntimeYarnLocalDriverConfigurationProviderImpl(
+  private MultiRuntimeYarnLocalDriverConfigurationProviderImpl(
           @Parameter(JVMHeapSlack.class) final double jvmSlack,
           @Parameter(MaxNumberOfEvaluators.class) final int maxEvaluators,
           @Parameter(RackNames.class) final Set<String> rackNames) {
@@ -58,8 +58,8 @@ public class MultiRuntimeYarnLocalDriverConfigurationProviderImpl extends Abstra
             .set(YarnDriverConfiguration.JOB_IDENTIFIER, jobId)
             .set(YarnDriverConfiguration.CLIENT_REMOTE_IDENTIFIER, clientRemoteId)
             .set(YarnDriverConfiguration.JVM_HEAP_SLACK, this.jvmSlack);
-    String serializedYarnConfig = serializeConfiguration(yarnModule);
-    String serializedYarnConfiguration = serializeRuntimeDefinition(
+    final String serializedYarnConfig = serializeConfiguration(yarnModule);
+    final String serializedYarnConfiguration = serializeRuntimeDefinition(
             serializedYarnConfig,
             true,
             org.apache.reef.runtime.yarn.driver.RuntimeIdentifier.RUNTIME_NAME);
@@ -75,8 +75,8 @@ public class MultiRuntimeYarnLocalDriverConfigurationProviderImpl extends Abstra
       localModule = localModule.set(LocalDriverConfiguration.RACK_NAMES, rackName);
     }
 
-    String serializedLocalConfig = serializeConfiguration(localModule);
-    String serializedLocalConfiguration = serializeRuntimeDefinition(
+    final String serializedLocalConfig = serializeConfiguration(localModule);
+    final String serializedLocalConfiguration = serializeRuntimeDefinition(
             serializedLocalConfig,
             false,
             org.apache.reef.runtime.local.driver.RuntimeIdentifier.RUNTIME_NAME);

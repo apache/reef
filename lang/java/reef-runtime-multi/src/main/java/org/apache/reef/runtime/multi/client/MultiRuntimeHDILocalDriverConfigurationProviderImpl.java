@@ -33,13 +33,13 @@ import java.util.Set;
 /**
  * MultiRuntime configuration provider for HDI/Local runtime.
  */
-public class MultiRuntimeHDILocalDriverConfigurationProviderImpl extends AbstractDriverConfigurationProvider {
+public final class MultiRuntimeHDILocalDriverConfigurationProviderImpl extends AbstractDriverConfigurationProvider {
   private final double jvmSlack;
   private final int maxEvaluators;
   private final Set<String> rackNames;
 
   @Inject
-  public MultiRuntimeHDILocalDriverConfigurationProviderImpl(
+  private MultiRuntimeHDILocalDriverConfigurationProviderImpl(
           @Parameter(JVMHeapSlack.class) final double jvmSlack,
           @Parameter(MaxNumberOfEvaluators.class) final int maxEvaluators,
           @Parameter(RackNames.class) final Set<String> rackNames) {
@@ -57,8 +57,8 @@ public class MultiRuntimeHDILocalDriverConfigurationProviderImpl extends Abstrac
             .set(HDInsightDriverConfiguration.CLIENT_REMOTE_IDENTIFIER, clientRemoteId)
             .set(HDInsightDriverConfiguration.JOB_SUBMISSION_DIRECTORY, jobFolder.toString())
             .set(HDInsightDriverConfiguration.JVM_HEAP_SLACK, this.jvmSlack);
-    String serializedHDIConfig = serializeConfiguration(hdiModule);
-    String serializedHDIConfiguration = serializeRuntimeDefinition(
+    final String serializedHDIConfig = serializeConfiguration(hdiModule);
+    final String serializedHDIConfiguration = serializeRuntimeDefinition(
             serializedHDIConfig,
             true,
             org.apache.reef.runtime.yarn.driver.RuntimeIdentifier.RUNTIME_NAME);
@@ -73,8 +73,8 @@ public class MultiRuntimeHDILocalDriverConfigurationProviderImpl extends Abstrac
       localModule = localModule.set(LocalDriverConfiguration.RACK_NAMES, rackName);
     }
 
-    String serializedLocalConfig = serializeConfiguration(localModule);
-    String serializedLocalConfiguration = serializeRuntimeDefinition(
+    final String serializedLocalConfig = serializeConfiguration(localModule);
+    final String serializedLocalConfiguration = serializeRuntimeDefinition(
             serializedLocalConfig,
             false,
             org.apache.reef.runtime.local.driver.RuntimeIdentifier.RUNTIME_NAME);

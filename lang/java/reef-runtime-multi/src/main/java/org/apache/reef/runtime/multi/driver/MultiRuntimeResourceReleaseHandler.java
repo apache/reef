@@ -29,12 +29,12 @@ import javax.inject.Inject;
  */
 @Private
 @DriverSide
-public final class MultiRuntimeResourceReleaseHandler implements ResourceReleaseHandler {
+final class MultiRuntimeResourceReleaseHandler implements ResourceReleaseHandler {
 
   private RuntimesHost runtimesHost;
 
   @Inject
-  MultiRuntimeResourceReleaseHandler(final RuntimesHost runtimesHost) {
+  private MultiRuntimeResourceReleaseHandler(final RuntimesHost runtimesHost) {
     this.runtimesHost = runtimesHost;
   }
 

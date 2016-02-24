@@ -33,13 +33,14 @@ import java.util.Set;
  * MultiRuntime configuration provider for Local/Local runtime.
  * This is a test provider that wraps local runtime with multi runtime.
  */
-public class MultiRuntimeLocalDriverConfigurationProviderImpl extends AbstractDriverConfigurationProvider {
+public final class MultiRuntimeLocalDriverConfigurationProviderImpl extends AbstractDriverConfigurationProvider {
   private final int maxEvaluators;
   private final double jvmHeapSlack;
   private final Set<String> rackNames;
 
   @Inject
-  MultiRuntimeLocalDriverConfigurationProviderImpl(@Parameter(MaxNumberOfEvaluators.class) final int maxEvaluators,
+  private MultiRuntimeLocalDriverConfigurationProviderImpl(@Parameter(MaxNumberOfEvaluators.class) final int
+                                                                 maxEvaluators,
                                                    @Parameter(JVMHeapSlack.class) final double jvmHeapSlack,
                                                    @Parameter(RackNames.class) final Set<String> rackNames) {
     this.maxEvaluators = maxEvaluators;
@@ -61,12 +62,12 @@ public class MultiRuntimeLocalDriverConfigurationProviderImpl extends AbstractDr
       configModule = configModule.set(LocalDriverConfiguration.RACK_NAMES, rackName);
     }
 
-    String serializedLocalConfig = serializeConfiguration(configModule);
-    String serializedLocalConfiguration = serializeRuntimeDefinition(
+    final String serializedLocalConfig = serializeConfiguration(configModule);
+    final String serializedLocalConfiguration = serializeRuntimeDefinition(
             serializedLocalConfig,
             false,
             org.apache.reef.runtime.local.driver.RuntimeIdentifier.RUNTIME_NAME);
-    String[] ret = {serializedLocalConfiguration};
+    final String[] ret = {serializedLocalConfiguration};
     return ret;
   }
 }

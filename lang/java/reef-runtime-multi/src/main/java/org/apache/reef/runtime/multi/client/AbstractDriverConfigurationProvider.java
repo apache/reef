@@ -38,11 +38,11 @@ import java.util.ArrayList;
 /**
  * Provides base class for driver configuration providers for multi runtimes.
  */
-public abstract class AbstractDriverConfigurationProvider implements DriverConfigurationProvider {
+abstract class AbstractDriverConfigurationProvider implements DriverConfigurationProvider {
 
   protected static String serializeConfiguration(final ConfigurationModule configModule) {
-    Configuration localDriverConfiguration = configModule.build();
-    AvroConfigurationSerializer serializer = new AvroConfigurationSerializer();
+    final Configuration localDriverConfiguration = configModule.build();
+    final AvroConfigurationSerializer serializer = new AvroConfigurationSerializer();
     return serializer.toString(localDriverConfiguration);
   }
 

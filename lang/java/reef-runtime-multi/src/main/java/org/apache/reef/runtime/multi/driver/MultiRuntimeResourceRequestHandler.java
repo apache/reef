@@ -35,7 +35,7 @@ final class MultiRuntimeResourceRequestHandler implements ResourceRequestHandler
   private final RuntimesHost runtimesHost;
 
   @Inject
-  MultiRuntimeResourceRequestHandler(final RuntimesHost runtimesHost) {
+  private MultiRuntimeResourceRequestHandler(final RuntimesHost runtimesHost) {
     this.runtimesHost = runtimesHost;
   }
 

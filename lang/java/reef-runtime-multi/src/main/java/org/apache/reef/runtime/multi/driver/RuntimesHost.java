@@ -47,15 +47,15 @@ import java.util.Set;
 /**
  * Hosts the actual runtime implementations and delegates invocations to them.
  */
-public class RuntimesHost {
+final class RuntimesHost {
   private final Set<String> runtimeDefinitions;
   private Map<String, Injector> runtimesInjectors;
   private final Injector originalInjector;
   private String defaultRuntimeName;
 
   @Inject
-  public RuntimesHost(final Injector injector,
-                      @Parameter(SerializedRuntimeDefinitions.class) final Set<String> runtimeDefinitions) {
+  private RuntimesHost(final Injector injector,
+                       @Parameter(SerializedRuntimeDefinitions.class) final Set<String> runtimeDefinitions) {
     if (runtimeDefinitions == null || runtimeDefinitions.size() == 0) {
       throw new RuntimeException("No runtime configurations are provided for multi-runtime");
     }
@@ -70,7 +70,7 @@ public class RuntimesHost {
     }
 
     this.runtimesInjectors = new HashMap<>();
-    AvroConfigurationSerializer serializer = new AvroConfigurationSerializer();
+    final AvroConfigurationSerializer serializer = new AvroConfigurationSerializer();
 
     for (String serializedRuntimeDefinition : runtimeDefinitions) {
 
@@ -101,18 +101,18 @@ public class RuntimesHost {
   }
 
   private void initializeInjector(final Injector runtimeInjector) throws InjectionException {
-    EventHandler<ResourceStatusEvent> statusEventHandler =
+    final EventHandler<ResourceStatusEvent> statusEventHandler =
             this.originalInjector.getNamedInstance(RuntimeParameters.ResourceStatusHandler.class);
     runtimeInjector.bindVolatileParameter(RuntimeParameters.ResourceStatusHandler.class, statusEventHandler);
-    EventHandler<NodeDescriptorEvent> nodeDescriptorEventHandler =
+    final EventHandler<NodeDescriptorEvent> nodeDescriptorEventHandler =
             this.originalInjector.getNamedInstance(RuntimeParameters.NodeDescriptorHandler.class);
     runtimeInjector.bindVolatileParameter(RuntimeParameters.NodeDescriptorHandler.class, nodeDescriptorEventHandler);
-    EventHandler<ResourceAllocationEvent> resourceAllocationEventHandler =
+    final EventHandler<ResourceAllocationEvent> resourceAllocationEventHandler =
             this.originalInjector.getNamedInstance(RuntimeParameters.ResourceAllocationHandler.class);
     runtimeInjector.bindVolatileParameter(
             RuntimeParameters.ResourceAllocationHandler.class,
             resourceAllocationEventHandler);
-    EventHandler<RuntimeStatusEvent> runtimeStatusEventHandler =
+    final EventHandler<RuntimeStatusEvent> runtimeStatusEventHandler =
             this.originalInjector.getNamedInstance(RuntimeParameters.RuntimeStatusHandler.class);
     runtimeInjector.bindVolatileParameter(
             RuntimeParameters.RuntimeStatusHandler.class,
@@ -121,7 +121,7 @@ public class RuntimesHost {
 
   private RuntimeDefinition parseSerializedRuntimeDefinition(final String serializedRuntimeDefinition) throws
           IOException {
-    RuntimeDefinition rd;
+    final RuntimeDefinition rd;
     final JsonDecoder decoder = DecoderFactory.get().
             jsonDecoder(RuntimeDefinition.getClassSchema(), serializedRuntimeDefinition);
     final SpecificDatumReader<RuntimeDefinition> reader = new SpecificDatumReader<>(RuntimeDefinition.class);
@@ -140,51 +140,46 @@ public class RuntimesHost {
 
   public void onNext(final ResourceLaunchEvent value) {
     try {
-      System.err.println("Resource launch called for runtime " + value.getRuntimeName());
       getInjector(value.getRuntimeName()).getInstance(ResourceLaunchHandler.class).onNext(value);
     } catch (InjectionException e) {
-      e.printStackTrace();
+      throw new RuntimeException("Unable to retrieve ResourceLaunchHandler.", e);
     }
   }
 
   public void onNext(final RuntimeStart value) {
-    System.err.println("Runtime start called for runtime ");
     initialize();
     try {
       for (Injector runtimeInjector : this.runtimesInjectors.values()) {
         runtimeInjector.getInstance(ResourceManagerStartHandler.class).onNext(value);
       }
     } catch (InjectionException e) {
-      e.printStackTrace();
+      throw new RuntimeException("Unable to retrieve ResourceManagerStartHandler.", e);
     }
   }
 
   public void onNext(final RuntimeStop value) {
-    System.err.println("Runtime stop called for runtime ");
     try {
       for (Injector runtimeInjector : this.runtimesInjectors.values()) {
         runtimeInjector.getInstance(ResourceManagerStopHandler.class).onNext(value);
       }
     } catch (InjectionException e) {
-      e.printStackTrace();
+      throw new RuntimeException("Unable to retrieve ResourceManagerStopHandler.", e);
     }
   }
 
   public void onNext(final ResourceReleaseEvent value) {
     try {
-      System.err.println("Resource release called for runtime " + value.getRuntimeName());
       getInjector(value.getRuntimeName()).getInstance(ResourceReleaseHandler.class).onNext(value);
     } catch (InjectionException e) {
-      e.printStackTrace();
+      throw new RuntimeException("Unable to retrieve ResourceReleaseHandler.", e);
     }
   }
 
   public void onNext(final ResourceRequestEvent value) {
     try {
-      System.err.println("Resource request called for runtime " + value.getRuntimeName());
       getInjector(value.getRuntimeName()).getInstance(ResourceRequestHandler.class).onNext(value);
     } catch (InjectionException e) {
-      e.printStackTrace();
+      throw new RuntimeException("Unable to retrieve ResourceRequestHandler.", e);
     }
   }
 }
