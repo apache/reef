@@ -52,6 +52,7 @@ namespace Org.Apache.REEF.IO.Tests
             var dataSet = TangFactory.GetTang()
                 .NewInjector(FileSystemInputPartitionConfiguration<IEnumerable<byte>>.ConfigurationModule
                     .Set(FileSystemInputPartitionConfiguration<IEnumerable<byte>>.FilePathForPartitions, filePaths)
+                    .Set(FileSystemInputPartitionConfiguration<IEnumerable<byte>>.CopyToLocal, "true")
                     .Set(FileSystemInputPartitionConfiguration<IEnumerable<byte>>.FileSerializerConfig,
                         GetByteSerializerConfigString())
                     .Build())
@@ -76,6 +77,7 @@ namespace Org.Apache.REEF.IO.Tests
                         sourceFilePath1 + ";" + sourceFilePath2)
                     .Set(FileSystemInputPartitionConfiguration<IEnumerable<byte>>.FileSerializerConfig,
                         GetByteSerializerConfigString())
+                    .Set(FileSystemInputPartitionConfiguration<IEnumerable<byte>>.CopyToLocal, "true")
                     .Build())
                 .GetInstance<IPartitionedInputDataSet>();
 
@@ -195,6 +197,7 @@ namespace Org.Apache.REEF.IO.Tests
                 .NewInjector(FileSystemInputPartitionConfiguration<IEnumerable<Row>>.ConfigurationModule
                     .Set(FileSystemInputPartitionConfiguration<IEnumerable<Row>>.FilePathForPartitions, sourceFilePath1)
                     .Set(FileSystemInputPartitionConfiguration<IEnumerable<Row>>.FilePathForPartitions, sourceFilePath2)
+                    .Set(FileSystemInputPartitionConfiguration<IEnumerable<Row>>.CopyToLocal, "true")
                     .Set(FileSystemInputPartitionConfiguration<IEnumerable<Row>>.FileSerializerConfig, GetRowSerializerConfigString())
                     .Build())
                 .GetInstance<IPartitionedInputDataSet>();
@@ -287,7 +290,6 @@ namespace Org.Apache.REEF.IO.Tests
                 .BindImplementation<IFileDeSerializer<IEnumerable<byte>>, ByteSerializer>(
                     GenericType<IFileDeSerializer<IEnumerable<byte>>>.Class,
                     GenericType<ByteSerializer>.Class)
-                .BindNamedParam<CopyToLocal, bool>("true")
                 .Build();
             return (new AvroConfigurationSerializer()).ToString(serializerConf);
         }
@@ -298,7 +300,6 @@ namespace Org.Apache.REEF.IO.Tests
                 .BindImplementation<IFileDeSerializer<IEnumerable<Row>>, RowSerializer>(
                     GenericType<IFileDeSerializer<IEnumerable<Row>>>.Class,
                     GenericType<RowSerializer>.Class)
-                .BindNamedParam<CopyToLocal, bool>("true")
                 .Build();
             return (new AvroConfigurationSerializer()).ToString(serializerConf);
         }

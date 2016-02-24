@@ -31,11 +31,13 @@ namespace Org.Apache.REEF.IO.PartitionedData.FileSystem
         private readonly string _id;
         private readonly IList<string> _filePaths;
         private readonly IConfiguration _filePartitionDeserializerConfig;
+        private readonly bool _copyToLocal;
 
-        internal FileInputPartitionDescriptor(string id, IList<string> filePaths, IConfiguration filePartitionDeserializerConfig)
+        internal FileInputPartitionDescriptor(string id, IList<string> filePaths, bool copyToLocal, IConfiguration filePartitionDeserializerConfig)
         {
             _id = id;
             _filePaths = filePaths;
+            _copyToLocal = copyToLocal;
             _filePartitionDeserializerConfig = filePartitionDeserializerConfig;
         }
 
@@ -52,6 +54,7 @@ namespace Org.Apache.REEF.IO.PartitionedData.FileSystem
         {
             var builder = TangFactory.GetTang().NewConfigurationBuilder()
                 .BindImplementation(GenericType<IInputPartition<T>>.Class, GenericType<FileSystemInputPartition<T>>.Class)
+                .BindNamedParameter<CopyToLocal, bool>(GenericType<CopyToLocal>.Class, _copyToLocal.ToString())
                 .BindStringNamedParam<PartitionId>(_id);
 
             foreach (string p in _filePaths)
