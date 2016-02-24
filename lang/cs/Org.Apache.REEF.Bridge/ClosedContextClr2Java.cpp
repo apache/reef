@@ -42,6 +42,13 @@ namespace Org {
                             // Gets the Context ID and Evaluator ID of the closed context from the Java closed context object.
                             _jstringContextId = CommonUtilities::GetJObjectId(env, _jobjectClosedContext, jclassClosedContext);
                             _jstringEvaluatorId = CommonUtilities::GetJObjectEvaluatorId(env, _jobjectClosedContext, jclassClosedContext);
+                            
+                            jmethodID jmidGetParentContextMid = env->GetMethodID(
+                                jclassClosedContext, "getParentContextBridge", "()Lorg/apache/reef/javabridge/ActiveContextBridge;");
+
+                            jobject parentContext = env->CallObjectMethod(_jobjectClosedContext, jmidGetParentContextMid);
+
+                            _parentContext = gcnew ActiveContextClr2Java(env, parentContext);
 
                             jmethodID jmidGetParentContextMid = env->GetMethodID(
                                 jclassClosedContext, "getParentContextBridge", "()Lorg/apache/reef/javabridge/ActiveContextBridge;");
