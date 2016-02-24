@@ -16,7 +16,7 @@ Docker-based Test Cluster
 | YARN        | Ubuntu 12.04 | HDP 2.2.8  (Hadoop 2.6.0) |               | hdp2.2    |
 | YARN        | Ubuntu 12.04 | HDP 2.3.2  (Hadoop 2.7.1) |               | hdp2.3    |
 | YARN        | Ubuntu 12.04 | Apache Hadoop 2.7.2       |               | apache2.7 |
-| MESOS       | Ubuntu 12.04 | Apache Mesos 0.24~0.26    |               | mesos0.24 ~ 0.26 |
+| MESOS       | Ubuntu 12.04 | Apache Mesos 0.24~0.28    |               | mesos0.24 ~ 0.28 |
 
 Please note that all images use Oracle JDK 7u80.
 
@@ -75,9 +75,9 @@ If you see 'OK', it means all tests are passed.
 Test Apache REEF on a docker-based Mesos cluster
 -----------------------------------------------
 
-From reefrt/mesos0.24 to reefrt/mesos0.26,
+From reefrt/mesos0.24 to reefrt/mesos0.28,
 choose one and run it as described in section _Run a docker-based cluster_.
-If you want to test on Mesos 0.26, choose reefrt/mesos0.26.
+If you want to test on Mesos 0.28, choose reefrt/mesos0.28.
 After running a cluster, use the following commands.
 
 ```sh
