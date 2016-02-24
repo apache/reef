@@ -41,7 +41,7 @@ namespace Org.Apache.REEF.IO.PartitionedData.FileSystem
         /// <summary>
         /// This specify if the file needs to be copied to local in FilePathsForInputPartitions 
         /// </summary>
-        public static readonly OptionalParameter<bool> CopyLocal = new OptionalParameter<bool>();
+        public static readonly OptionalParameter<bool> CopyToLocal = new OptionalParameter<bool>();
 
         /// <summary>
         /// This configuration module set FileSystemDataSet as IPartitionedDataSet.
@@ -51,7 +51,7 @@ namespace Org.Apache.REEF.IO.PartitionedData.FileSystem
             .BindImplementation(GenericType<IPartitionedInputDataSet>.Class, GenericType<FileSystemPartitionInputDataSet<T>>.Class)
             .BindSetEntry(GenericType<FilePathsForInputPartitions>.Class, FilePathForPartitions)
             .BindNamedParameter(GenericType<FileDeSerializerConfigString>.Class, FileSerializerConfig)
-            .BindNamedParameter(GenericType<CopyToLocal>.Class, CopyLocal)
+            .BindNamedParameter(GenericType<CopyToLocal>.Class, CopyToLocal)
             .Build();
     }
 }

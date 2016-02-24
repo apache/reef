@@ -54,7 +54,7 @@ namespace Org.Apache.REEF.IO.TestClient
                     .Set(FileSystemInputPartitionConfiguration<IEnumerable<byte>>.FilePathForPartitions, remoteFilePath1)
                     .Set(FileSystemInputPartitionConfiguration<IEnumerable<byte>>.FilePathForPartitions, remoteFilePath2)
                     .Set(FileSystemInputPartitionConfiguration<IEnumerable<byte>>.FileSerializerConfig, serializerConfString)
-                    .Set(FileSystemInputPartitionConfiguration<IEnumerable<byte>>.CopyLocal, "true")
+                    .Set(FileSystemInputPartitionConfiguration<IEnumerable<byte>>.CopyToLocal, "true")
                 .Build(),
                   HadoopFileSystemConfiguration.ConfigurationModule.Build())
                 .GetInstance<IPartitionedInputDataSet>();
