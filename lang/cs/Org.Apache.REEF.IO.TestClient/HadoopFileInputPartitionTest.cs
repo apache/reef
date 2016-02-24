@@ -46,7 +46,6 @@ namespace Org.Apache.REEF.IO.TestClient
             var serializerConf = TangFactory.GetTang().NewConfigurationBuilder()
                 .BindImplementation<IFileDeSerializer<IEnumerable<byte>>, ByteSerializer>(GenericType<IFileDeSerializer<IEnumerable<byte>>>.Class,
                     GenericType<ByteSerializer>.Class)
-                .BindNamedParam<CopyToLocal, bool>("true")
                 .Build();
             var serializerConfString = (new AvroConfigurationSerializer()).ToString(serializerConf);
 
@@ -55,6 +54,7 @@ namespace Org.Apache.REEF.IO.TestClient
                     .Set(FileSystemInputPartitionConfiguration<IEnumerable<byte>>.FilePathForPartitions, remoteFilePath1)
                     .Set(FileSystemInputPartitionConfiguration<IEnumerable<byte>>.FilePathForPartitions, remoteFilePath2)
                     .Set(FileSystemInputPartitionConfiguration<IEnumerable<byte>>.FileSerializerConfig, serializerConfString)
+                    .Set(FileSystemInputPartitionConfiguration<IEnumerable<byte>>.CopyLocal, "true")
                 .Build(),
                   HadoopFileSystemConfiguration.ConfigurationModule.Build())
                 .GetInstance<IPartitionedInputDataSet>();

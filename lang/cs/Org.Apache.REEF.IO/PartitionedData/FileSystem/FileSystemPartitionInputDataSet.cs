@@ -51,6 +51,7 @@ namespace Org.Apache.REEF.IO.PartitionedData.FileSystem
         private FileSystemPartitionInputDataSet(
             [Parameter(typeof(FilePathsForInputPartitions))] ISet<string> filePaths,
             IFileSystem fileSystem,
+            [Parameter(typeof(CopyToLocal))] bool copyToLocal,
             [Parameter(typeof(FileDeSerializerConfigString))] string fileSerializerConfigString,
             AvroConfigurationSerializer avroConfigurationSerializer)
         {
@@ -68,7 +69,7 @@ namespace Org.Apache.REEF.IO.PartitionedData.FileSystem
                 var paths = path.Split(new string[] { StringSeparators }, StringSplitOptions.None);
                
                 var id = "FilePartition-" + i++;
-                _partitions[id] = new FileInputPartitionDescriptor<T>(id, paths.ToList(), fileSerializerConfig); 
+                _partitions[id] = new FileInputPartitionDescriptor<T>(id, paths.ToList(), copyToLocal, fileSerializerConfig); 
             }
         }
 
