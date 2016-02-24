@@ -63,7 +63,7 @@ under the License.
       <Client_JAR_Name>reef-bridge-client-$(REEF_Version)-shaded.jar</Client_JAR_Name>
       <Client_JAR>$(REEF_Source_Folder)\lang\java\reef-bridge-client\target\$(Client_JAR_Name)</Client_JAR>
     </PropertyGroup>
-    <Exec Command='call "$(M2_HOME)\bin\mvn.cmd" --projects lang/java/reef-bridge-java,lang/java/reef-bridge-client --also-make -TC1 -DskipTests -P!code-quality install' Condition="!Exists('$(Bridge_JAR)')" WorkingDirectory="$(REEF_Source_Folder)" />
+    <Exec Command='call "$(M2_HOME)\bin\mvn.cmd" --projects lang/java/reef-bridge-java,lang/java/reef-bridge-client --also-make -TC1 -DskipTests -P!code-quality -q install' Condition="!Exists('$(Bridge_JAR)')" WorkingDirectory="$(REEF_Source_Folder)" />
     <Copy DestinationFolder="$(OutputPath)" SourceFiles="$(Bridge_JAR)" />
     <Copy DestinationFolder="$(OutputPath)" SourceFiles="$(Client_JAR)" />
   </Target>
@@ -79,7 +79,7 @@ under the License.
       <Client_JAR_Name>reef-bridge-client-$(REEF_Version)-shaded.jar</Client_JAR_Name>
       <Client_JAR>$(REEF_Source_Folder)\lang\java\reef-bridge-client\target\$(Client_JAR_Name)</Client_JAR>
     </PropertyGroup>
-    <Exec Command='call "$(M2_HOME)\bin\mvn.cmd" -TC1 -DskipTests clean' Condition="Exists('$(Bridge_JAR)')" WorkingDirectory="$(REEF_Source_Folder)" />
+    <Exec Command='call "$(M2_HOME)\bin\mvn.cmd" -TC1 -DskipTests -q clean' Condition="Exists('$(Bridge_JAR)')" WorkingDirectory="$(REEF_Source_Folder)" />
     <Delete Files="$(OutputPath)\$(Bridge_JAR_Name)" />
     <Delete Files="$(OutputPath)\$(Client_JAR_Name)" />
 
