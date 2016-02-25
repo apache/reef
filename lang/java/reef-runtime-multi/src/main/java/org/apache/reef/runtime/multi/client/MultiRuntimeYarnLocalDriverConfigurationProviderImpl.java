@@ -18,6 +18,8 @@
  */
 package org.apache.reef.runtime.multi.client;
 
+import org.apache.reef.annotations.audience.Private;
+import org.apache.reef.annotations.audience.RuntimeAuthor;
 import org.apache.reef.runtime.common.parameters.JVMHeapSlack;
 import org.apache.reef.runtime.local.client.parameters.MaxNumberOfEvaluators;
 import org.apache.reef.runtime.local.client.parameters.RackNames;
@@ -33,6 +35,8 @@ import java.util.Set;
 /**
  * MultiRuntime configuration provider for Yarn/Local runtime.
  */
+@Private
+@RuntimeAuthor
 public final class MultiRuntimeYarnLocalDriverConfigurationProviderImpl extends AbstractDriverConfigurationProvider {
   private final double jvmSlack;
   private final int maxEvaluators;

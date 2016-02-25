@@ -18,6 +18,8 @@
  */
 package org.apache.reef.runtime.multi.client;
 
+import org.apache.reef.annotations.audience.Private;
+import org.apache.reef.annotations.audience.RuntimeAuthor;
 import org.apache.reef.runtime.common.parameters.JVMHeapSlack;
 import org.apache.reef.runtime.local.client.parameters.MaxNumberOfEvaluators;
 import org.apache.reef.runtime.local.client.parameters.RackNames;
@@ -33,16 +35,18 @@ import java.util.Set;
  * MultiRuntime configuration provider for Local/Local runtime.
  * This is a test provider that wraps local runtime with multi runtime.
  */
+@Private
+@RuntimeAuthor
 public final class MultiRuntimeLocalDriverConfigurationProviderImpl extends AbstractDriverConfigurationProvider {
   private final int maxEvaluators;
   private final double jvmHeapSlack;
   private final Set<String> rackNames;
 
   @Inject
-  private MultiRuntimeLocalDriverConfigurationProviderImpl(@Parameter(MaxNumberOfEvaluators.class) final int
-                                                                 maxEvaluators,
-                                                   @Parameter(JVMHeapSlack.class) final double jvmHeapSlack,
-                                                   @Parameter(RackNames.class) final Set<String> rackNames) {
+  private MultiRuntimeLocalDriverConfigurationProviderImpl(
+          @Parameter(MaxNumberOfEvaluators.class) final int maxEvaluators,
+          @Parameter(JVMHeapSlack.class) final double jvmHeapSlack,
+          @Parameter(RackNames.class) final Set<String> rackNames) {
     this.maxEvaluators = maxEvaluators;
     this.jvmHeapSlack = jvmHeapSlack;
     this.rackNames = rackNames;
@@ -50,8 +54,8 @@ public final class MultiRuntimeLocalDriverConfigurationProviderImpl extends Abst
 
   @Override
   protected String[] getDriverConfiguration(final URI jobFolder,
-                                                         final String clientRemoteId,
-                                                         final String jobId) {
+                                            final String clientRemoteId,
+                                            final String jobId) {
     ConfigurationModule configModule = LocalDriverConfiguration.CONF
             .set(LocalDriverConfiguration.MAX_NUMBER_OF_EVALUATORS, this.maxEvaluators)
             .set(LocalDriverConfiguration.ROOT_FOLDER, jobFolder.toString())

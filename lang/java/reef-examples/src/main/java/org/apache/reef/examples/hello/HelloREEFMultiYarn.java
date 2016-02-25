@@ -21,15 +21,11 @@ package org.apache.reef.examples.hello;
 import org.apache.reef.client.DriverConfiguration;
 import org.apache.reef.client.DriverLauncher;
 import org.apache.reef.client.LauncherStatus;
-import org.apache.reef.runtime.local.client.parameters.MaxNumberOfEvaluators;
-import org.apache.reef.runtime.multi.client.MultiRuntimeYarnLocalDriverConfigurationProviderImpl;
-import org.apache.reef.runtime.yarn.client.ExtensibleYarnClientConfiguration;
+import org.apache.reef.runtime.multi.client.MultiRuntimeConfigurationBuilder;
 import org.apache.reef.tang.Configuration;
 import org.apache.reef.tang.exceptions.BindException;
 import org.apache.reef.tang.exceptions.InjectionException;
-import org.apache.reef.tang.formats.ConfigurationModule;
 
-import java.util.HashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -61,13 +57,12 @@ public final class HelloREEFMultiYarn {
   }
 
   private static Configuration getHybridYarnSubmissionRuntimeConfiguration() {
-    HashMap<Class, Object> params = new HashMap<>();
-    params.put(MaxNumberOfEvaluators.class, 2);
+    MultiRuntimeConfigurationBuilder mrcb = new MultiRuntimeConfigurationBuilder();
+    mrcb.addDefaultRuntime(org.apache.reef.runtime.yarn.driver.RuntimeIdentifier.RUNTIME_NAME)
+        .addRuntime(org.apache.reef.runtime.local.driver.RuntimeIdentifier.RUNTIME_NAME)
+        .setMaxEvaluatorsNumberForLocalRuntime(1);
 
-    ConfigurationModule cm =  ExtensibleYarnClientConfiguration.getConfigurationModule(params)
-            .set(ExtensibleYarnClientConfiguration.DRIVER_CONFIGURATION_PROVIDER,
-                    MultiRuntimeYarnLocalDriverConfigurationProviderImpl.class);
-    return cm.build();
+    return mrcb.build();
   }
 
   /**
