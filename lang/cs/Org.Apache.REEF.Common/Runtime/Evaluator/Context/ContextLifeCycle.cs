@@ -33,17 +33,6 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Context
         private readonly ISet<IContextMessageSource> _contextMessageSources;
         private readonly ISet<IContextMessageHandler> _contextMessageHandlers;
 
-        // TODO[JIRA REEF-1167]: Remove constructor..
-        [Inject]
-        public ContextLifeCycle([Parameter(typeof(ContextConfigurationOptions.ContextIdentifier))] string contextId)
-        {
-            Id = contextId;
-            _contextStartHandlers = new HashSet<IObserver<IContextStart>>();
-            _contextStopHandlers = new HashSet<IObserver<IContextStop>>();
-            _contextMessageSources = new HashSet<IContextMessageSource>();
-            _contextMessageHandlers = new HashSet<IContextMessageHandler>();
-        }
-
         [Inject]
         private ContextLifeCycle(
             [Parameter(typeof(ContextConfigurationOptions.ContextIdentifier))] string contextId,

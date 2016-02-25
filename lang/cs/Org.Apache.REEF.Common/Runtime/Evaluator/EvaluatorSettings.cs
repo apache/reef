@@ -113,20 +113,7 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator
             }
             _rootContextConfig = _serializer.FromString(rootContextConfigString);
 
-            try
-            {
-                _rootContextId = injector.ForkInjector(_rootContextConfig).GetNamedInstance<ContextConfigurationOptions.ContextIdentifier, string>();
-            }
-            catch (InjectionException)
-            {
-                Logger.Log(Level.Info, "Using deprecated ContextConfiguration.");
-
-                // TODO[JIRA REEF-1167]: Remove this catch.
-                var deprecatedContextConfig = new Context.ContextConfiguration(rootContextConfigString);
-                _rootContextConfig = deprecatedContextConfig;
-                _rootContextId = deprecatedContextConfig.Id;
-            }
-
+            _rootContextId = injector.ForkInjector(_rootContextConfig).GetNamedInstance<ContextConfigurationOptions.ContextIdentifier, string>();
             _rootTaskConfiguration = CreateTaskConfiguration();
             _rootServiceConfiguration = CreateRootServiceConfiguration();
 

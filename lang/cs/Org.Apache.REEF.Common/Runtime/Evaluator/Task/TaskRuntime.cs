@@ -59,59 +59,6 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Task
             _suspendHandlerFuture = suspendHandlerFuture;
         }
 
-        /// <summary>
-        /// TODO[JIRA REEF-1167]: Remove constructor.
-        /// </summary>
-        [Obsolete("Deprecated in 0.14. Will be removed.")]
-        public TaskRuntime(IInjector taskInjector, string contextId, string taskId, IHeartBeatManager heartBeatManager)
-        {
-            var messageSources = Optional<ISet<ITaskMessageSource>>.Empty();
-            try
-            {
-                var taskMessageSource = taskInjector.GetInstance<ITaskMessageSource>();
-                messageSources = Optional<ISet<ITaskMessageSource>>.Of(new HashSet<ITaskMessageSource> { taskMessageSource });
-            }
-            catch (Exception e)
-            {
-                Utilities.Diagnostics.Exceptions.Caught(e, Level.Warning, "Cannot inject task message source with error: " + e.StackTrace, Logger);
-
-                // do not rethrow since this is benign
-            }
-
-            try
-            {
-                _driverConnectionMessageHandler = Optional<IDriverConnectionMessageHandler>.Of(taskInjector.GetInstance<IDriverConnectionMessageHandler>());
-            }
-            catch (InjectionException)
-            {
-                Logger.Log(Level.Info, "User did not implement IDriverConnectionMessageHandler.");
-                _driverConnectionMessageHandler = Optional<IDriverConnectionMessageHandler>.Empty();
-            }
-
-            try
-            {
-                _driverMessageHandler = Optional<IDriverMessageHandler>.Of(taskInjector.GetInstance<IDriverMessageHandler>());
-            }
-            catch (InjectionException)
-            {
-                Logger.Log(Level.Info, "User did not implement IDriverMessageHandler.");
-                _driverMessageHandler = Optional<IDriverMessageHandler>.Empty();
-            }
-
-            try
-            {
-                _userTask = taskInjector.GetInstance<ITask>();
-            }
-            catch (InjectionException ie)
-            {
-                const string errorMessage = "User did not implement IDriverMessageHandler.";
-                Utilities.Diagnostics.Exceptions.CaughtAndThrow(ie, Level.Error, errorMessage, Logger);
-            }
-
-            Logger.Log(Level.Info, "task message source injected");
-            _currentStatus = new TaskStatus(heartBeatManager, contextId, taskId, messageSources);
-        }
-
         public string TaskId
         {
             get { return _currentStatus.TaskId; }

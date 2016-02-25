@@ -57,18 +57,9 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Context
         {
             if (_rootContext == null)
             {
-                // TODO[JIRA REEF-1167]: Remove use of deprecated ContextRuntime constructor and deprecatedContextConfiguration
-                var deprecatedContextConfiguration = _rootContextConfiguration as ContextConfiguration;
-                if (deprecatedContextConfiguration != null)
-                {
-                    Logger.Log(Level.Info, "Using deprecated ContextConfiguration.");
-                    _rootContext = new ContextRuntime(Id, _rootServiceInjector, _rootContextConfiguration);
-                }
-                else
-                {
-                    _rootContext = new ContextRuntime(_rootServiceInjector, _rootContextConfiguration, Optional<ContextRuntime>.Empty());
-                }
+                _rootContext = new ContextRuntime(_rootServiceInjector, _rootContextConfiguration, Optional<ContextRuntime>.Empty());
             }
+
             return _rootContext;
         }
 

@@ -16,17 +16,11 @@
 // under the License.
 
 using Org.Apache.REEF.Common.Runtime.Evaluator.Utils;
-using Org.Apache.REEF.Common.Services;
-using Org.Apache.REEF.Common.Tasks;
-using Org.Apache.REEF.Driver.Context;
-using Org.Apache.REEF.Examples.HelloREEF;
 using Org.Apache.REEF.Tang.Formats;
 using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Tang.Util;
 using Org.Apache.REEF.Utilities.Logging;
-using Org.Apache.REEF.Wake.Remote.Parameters;
-using Org.Apache.REEF.Wake.StreamingCodec;
 using Xunit;
 
 namespace Org.Apache.REEF.Evaluator.Tests
@@ -35,7 +29,6 @@ namespace Org.Apache.REEF.Evaluator.Tests
     {
         private static readonly Logger Logger = Logger.GetLogger(typeof(EvaluatorConfigurationsTests));
         private const string EvaluatorIdPrefix = "Node-";
-        private const string ContextIdPrefix = "RootContext_";
         private const string RemoteIdPrefix = "socket://";
         private const string AppIdForTest = "REEF_LOCAL_RUNTIME";
 
@@ -83,52 +76,6 @@ namespace Org.Apache.REEF.Evaluator.Tests
             Assert.True(evaluatorIdentifier.StartsWith(EvaluatorIdPrefix));
             Assert.True(rid.StartsWith(RemoteIdPrefix));
             Assert.True(launchId.Equals(AppIdForTest));
-        }
-
-        /// <summary>
-        /// This test is to deserialize a evaluator configuration file using alias if the parameter cannot be 
-        /// found in the class hierarchy. The config file used in the test was generated when running HelloRREEF.
-        /// It contains task and context configuration strings.  
-        /// </summary>
-        [Fact]
-        [Trait("Priority", "0")]
-        [Trait("Category", "Unit")]
-        public void TestDeserializationForContextAndTask()
-        {
-            AvroConfigurationSerializer serializer = new AvroConfigurationSerializer();
-            
-            var classHierarchy = TangFactory.GetTang()
-                .GetClassHierarchy(new string[] { typeof(ApplicationIdentifier).Assembly.GetName().Name });
-            var config = serializer.FromFile("evaluator.conf", classHierarchy);
-
-            IInjector evaluatorInjector = TangFactory.GetTang().NewInjector(config);
-
-            string taskConfigString = evaluatorInjector.GetNamedInstance<InitialTaskConfiguration, string>();
-            string contextConfigString = evaluatorInjector.GetNamedInstance<RootContextConfiguration, string>();
-
-            var contextClassHierarchy = TangFactory.GetTang().GetClassHierarchy(new string[]
-            {
-                typeof(ContextConfigurationOptions.ContextIdentifier).Assembly.GetName().Name
-            });
-            var contextConfig = serializer.FromString(contextConfigString, contextClassHierarchy);
-
-            var taskClassHierarchy = TangFactory.GetTang().GetClassHierarchy(new string[]
-            {
-                typeof(ITask).Assembly.GetName().Name,
-                typeof(HelloTask).Assembly.GetName().Name
-            });
-            var taskConfig = serializer.FromString(taskConfigString, taskClassHierarchy);
-
-            var contextInjector = evaluatorInjector.ForkInjector(contextConfig);
-            string contextId = contextInjector.GetNamedInstance<ContextConfigurationOptions.ContextIdentifier, string>();
-            Assert.True(contextId.StartsWith(ContextIdPrefix));
-
-            var taskInjector = contextInjector.ForkInjector(taskConfig);
-
-            string taskId = taskInjector.GetNamedInstance<TaskConfigurationOptions.Identifier, string>();
-            ITask task = taskInjector.GetInstance<ITask>();
-            Assert.True(taskId.StartsWith("HelloTask"));
-            Assert.True(task is HelloTask);
         }
     }
 }
