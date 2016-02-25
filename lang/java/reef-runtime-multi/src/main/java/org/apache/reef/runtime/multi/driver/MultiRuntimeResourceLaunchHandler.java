@@ -41,6 +41,6 @@ final class MultiRuntimeResourceLaunchHandler implements ResourceLaunchHandler {
 
   @Override
   public void onNext(final ResourceLaunchEvent value) {
-    this.runtimesHost.onNext(value);
+    this.runtimesHost.onResourceLaunch(value);
   }
 }

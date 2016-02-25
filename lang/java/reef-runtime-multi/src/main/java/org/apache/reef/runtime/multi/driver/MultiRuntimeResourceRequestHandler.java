@@ -41,6 +41,6 @@ final class MultiRuntimeResourceRequestHandler implements ResourceRequestHandler
 
   @Override
   public void onNext(final ResourceRequestEvent t) {
-    this.runtimesHost.onNext(t);
+    this.runtimesHost.onResourceRequest(t);
   }
 }

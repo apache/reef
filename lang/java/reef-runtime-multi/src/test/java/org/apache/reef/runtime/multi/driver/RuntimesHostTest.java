@@ -86,7 +86,7 @@ public class RuntimesHostTest {
 
     Injector forked = injector.forkInjector(cb.build());
     final RuntimesHost rHost = forked.getInstance(RuntimesHost.class);
-    rHost.onNext(new RuntimeStart(System.currentTimeMillis()));
+    rHost.onRuntimeStart(new RuntimeStart(System.currentTimeMillis()));
   }
 
   @Test(expected = RuntimeException.class)
@@ -122,7 +122,7 @@ public class RuntimesHostTest {
 
     Injector forked = badInjector.forkInjector(cbtest.build());
     final RuntimesHost rHost = forked.getInstance(RuntimesHost.class);
-    rHost.onNext(new RuntimeStart(System.currentTimeMillis()));
+    rHost.onRuntimeStart(new RuntimeStart(System.currentTimeMillis()));
   }
 
   @Test(expected = RuntimeException.class)
@@ -157,7 +157,7 @@ public class RuntimesHostTest {
 
     Injector forked = badInjector.forkInjector(cbtest.build());
     final RuntimesHost rHost = forked.getInstance(RuntimesHost.class);
-    rHost.onNext(new RuntimeStart(System.currentTimeMillis()));
+    rHost.onRuntimeStart(new RuntimeStart(System.currentTimeMillis()));
   }
 
   @Test(expected = RuntimeException.class)
@@ -192,7 +192,7 @@ public class RuntimesHostTest {
 
     Injector forked = badInjector.forkInjector(cbtest.build());
     final RuntimesHost rHost = forked.getInstance(RuntimesHost.class);
-    rHost.onNext(new RuntimeStart(System.currentTimeMillis()));
+    rHost.onRuntimeStart(new RuntimeStart(System.currentTimeMillis()));
   }
 
   @Test(expected = RuntimeException.class)
@@ -227,7 +227,7 @@ public class RuntimesHostTest {
 
     Injector forked = badInjector.forkInjector(cbtest.build());
     final RuntimesHost rHost = forked.getInstance(RuntimesHost.class);
-    rHost.onNext(new RuntimeStart(System.currentTimeMillis()));
+    rHost.onRuntimeStart(new RuntimeStart(System.currentTimeMillis()));
   }
 
   @Test
@@ -247,7 +247,7 @@ public class RuntimesHostTest {
 
     Injector forked = injector.forkInjector(cbtest.build());
     final RuntimesHost rHost = forked.getInstance(RuntimesHost.class);
-    rHost.onNext(new RuntimeStart(System.currentTimeMillis()));
+    rHost.onRuntimeStart(new RuntimeStart(System.currentTimeMillis()));
     Assert.assertEquals(1, RuntimesHostTest.commandsQueue.size());
     Object obj = RuntimesHostTest.commandsQueue.poll();
     Assert.assertTrue(obj instanceof RuntimeStart);

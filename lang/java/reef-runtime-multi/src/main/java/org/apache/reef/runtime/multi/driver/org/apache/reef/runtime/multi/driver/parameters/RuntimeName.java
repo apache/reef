@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -16,27 +16,14 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.runtime.multi.driver;
+package org.apache.reef.runtime.multi.driver.org.apache.reef.runtime.multi.driver.parameters;
 
-import org.apache.reef.runtime.common.driver.api.ResourceManagerStopHandler;
-import org.apache.reef.wake.time.runtime.event.RuntimeStop;
-
-import javax.inject.Inject;
+import org.apache.reef.tang.annotations.Name;
+import org.apache.reef.tang.annotations.NamedParameter;
 
 /**
- * This event handler delegates runtime stop events to the runtimes host.
+ * Serialized tang configuration for a runtime.
  */
-final class MultiRuntimeResourceManagerStopHandler implements ResourceManagerStopHandler {
-
-  private final RuntimesHost runtimesHost;
-
-  @Inject
-  private MultiRuntimeResourceManagerStopHandler(final RuntimesHost runtimesHost) {
-    this.runtimesHost = runtimesHost;
-  }
-
-  @Override
-  public void onNext(final RuntimeStop value) {
-    this.runtimesHost.onRuntimeStop(value);
-  }
+@NamedParameter(doc = "The name of the runtime", short_name = "runtime_names")
+public final class RuntimeName implements Name<String> {
 }

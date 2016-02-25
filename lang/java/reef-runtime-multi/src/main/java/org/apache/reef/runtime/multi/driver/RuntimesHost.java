@@ -27,9 +27,11 @@ import org.apache.reef.runtime.common.driver.resourcemanager.ResourceAllocationE
 import org.apache.reef.runtime.common.driver.resourcemanager.ResourceStatusEvent;
 import org.apache.reef.runtime.common.driver.resourcemanager.RuntimeStatusEvent;
 import org.apache.reef.runtime.multi.client.parameters.SerializedRuntimeDefinitions;
+import org.apache.reef.runtime.multi.driver.org.apache.reef.runtime.multi.driver.parameters.RuntimeName;
 import org.apache.reef.runtime.multi.utils.RuntimeDefinition;
 import org.apache.reef.tang.Configuration;
 import org.apache.reef.tang.Injector;
+import org.apache.reef.tang.JavaConfigurationBuilder;
 import org.apache.reef.tang.Tang;
 import org.apache.reef.tang.annotations.Parameter;
 import org.apache.reef.tang.exceptions.InjectionException;
@@ -49,7 +51,7 @@ import java.util.Set;
  */
 final class RuntimesHost {
   private final Set<String> runtimeDefinitions;
-  private Map<String, Injector> runtimesInjectors;
+  private Map<String, Runtime> runtimes;
   private final Injector originalInjector;
   private String defaultRuntimeName;
 
@@ -65,15 +67,14 @@ final class RuntimesHost {
   }
 
   private synchronized void initialize() {
-    if (this.runtimesInjectors != null) {
+    if (this.runtimes != null) {
       return;
     }
 
-    this.runtimesInjectors = new HashMap<>();
+    this.runtimes = new HashMap<>();
     final AvroConfigurationSerializer serializer = new AvroConfigurationSerializer();
 
-    for (String serializedRuntimeDefinition : runtimeDefinitions) {
-
+    for (final String serializedRuntimeDefinition : runtimeDefinitions) {
       Configuration config = null;
       RuntimeDefinition rd = null;
       try {
@@ -88,15 +89,18 @@ final class RuntimesHost {
         throw new RuntimeException("Unable to read runtime configuarion.", e);
       }
 
-      Injector runtimeInjector = Tang.Factory.getTang().newInjector();
+      final Injector rootInjector = Tang.Factory.getTang().newInjector();
       try {
-        initializeInjector(runtimeInjector);
+        initializeInjector(rootInjector);
+        final JavaConfigurationBuilder cb = Tang.Factory.getTang().newConfigurationBuilder();
+        cb.bindNamedParameter(RuntimeName.class, rd.getRuntimeName().toString());
+        cb.bindImplementation(Runtime.class, RuntimeImpl.class);
+
+        final Injector runtimeInjector = rootInjector.forkInjector(config, cb.build());
+        this.runtimes.put(rd.getRuntimeName().toString(), runtimeInjector.getInstance(Runtime.class));
       } catch (InjectionException e) {
         throw new RuntimeException("Unable to initialize runtimes.", e);
       }
-
-      runtimeInjector = runtimeInjector.forkInjector(config);
-      this.runtimesInjectors.put(rd.getRuntimeName().toString(), runtimeInjector);
     }
   }
 
@@ -129,57 +133,37 @@ final class RuntimesHost {
     return rd;
   }
 
-  private Injector getInjector(final String requestedRuntimeName) {
+  private Runtime getRuntime(final String requestedRuntimeName) {
     String runtimeName = requestedRuntimeName;
     if (runtimeName.isEmpty()) {
       runtimeName = defaultRuntimeName;
     }
 
-    return this.runtimesInjectors.get(runtimeName);
+    return this.runtimes.get(runtimeName);
   }
 
-  public void onNext(final ResourceLaunchEvent value) {
-    try {
-      getInjector(value.getRuntimeName()).getInstance(ResourceLaunchHandler.class).onNext(value);
-    } catch (InjectionException e) {
-      throw new RuntimeException("Unable to retrieve ResourceLaunchHandler.", e);
-    }
+  void onResourceLaunch(final ResourceLaunchEvent value) {
+    getRuntime(value.getRuntimeName()).onResourceLaunch(value);
   }
 
-  public void onNext(final RuntimeStart value) {
+  void onRuntimeStart(final RuntimeStart value) {
     initialize();
-    try {
-      for (Injector runtimeInjector : this.runtimesInjectors.values()) {
-        runtimeInjector.getInstance(ResourceManagerStartHandler.class).onNext(value);
-      }
-    } catch (InjectionException e) {
-      throw new RuntimeException("Unable to retrieve ResourceManagerStartHandler.", e);
+    for (Runtime runtime : this.runtimes.values()) {
+      runtime.onRuntimeStart(value);
     }
   }
 
-  public void onNext(final RuntimeStop value) {
-    try {
-      for (Injector runtimeInjector : this.runtimesInjectors.values()) {
-        runtimeInjector.getInstance(ResourceManagerStopHandler.class).onNext(value);
-      }
-    } catch (InjectionException e) {
-      throw new RuntimeException("Unable to retrieve ResourceManagerStopHandler.", e);
+  void onRuntimeStop(final RuntimeStop value) {
+    for (Runtime runtime : this.runtimes.values()) {
+      runtime.onRuntimeStop(value);
     }
   }
 
-  public void onNext(final ResourceReleaseEvent value) {
-    try {
-      getInjector(value.getRuntimeName()).getInstance(ResourceReleaseHandler.class).onNext(value);
-    } catch (InjectionException e) {
-      throw new RuntimeException("Unable to retrieve ResourceReleaseHandler.", e);
-    }
+  void onResourceRelease(final ResourceReleaseEvent value) {
+    getRuntime(value.getRuntimeName()).onResourceRelease(value);
   }
 
-  public void onNext(final ResourceRequestEvent value) {
-    try {
-      getInjector(value.getRuntimeName()).getInstance(ResourceRequestHandler.class).onNext(value);
-    } catch (InjectionException e) {
-      throw new RuntimeException("Unable to retrieve ResourceRequestHandler.", e);
-    }
+  void onResourceRequest(final ResourceRequestEvent value) {
+    getRuntime(value.getRuntimeName()).onResourceRequest(value);
   }
 }

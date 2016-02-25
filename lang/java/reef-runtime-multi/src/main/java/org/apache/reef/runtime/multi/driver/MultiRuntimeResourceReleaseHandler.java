@@ -40,6 +40,6 @@ final class MultiRuntimeResourceReleaseHandler implements ResourceReleaseHandler
 
   @Override
   public void onNext(final ResourceReleaseEvent t) {
-    this.runtimesHost.onNext(t);
+    this.runtimesHost.onResourceRelease(t);
   }
 }

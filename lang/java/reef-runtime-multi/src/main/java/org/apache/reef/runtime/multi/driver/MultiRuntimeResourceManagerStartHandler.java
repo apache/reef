@@ -37,6 +37,6 @@ final class MultiRuntimeResourceManagerStartHandler implements ResourceManagerSt
 
   @Override
   public void onNext(final RuntimeStart value) {
-    this.runtimesHost.onNext(value);
+    this.runtimesHost.onRuntimeStart(value);
   }
 }

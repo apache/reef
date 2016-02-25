@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -18,25 +18,20 @@
  */
 package org.apache.reef.runtime.multi.driver;
 
-import org.apache.reef.runtime.common.driver.api.ResourceManagerStopHandler;
+import org.apache.reef.runtime.common.driver.api.ResourceLaunchEvent;
+import org.apache.reef.runtime.common.driver.api.ResourceReleaseEvent;
+import org.apache.reef.runtime.common.driver.api.ResourceRequestEvent;
+import org.apache.reef.wake.time.runtime.event.RuntimeStart;
 import org.apache.reef.wake.time.runtime.event.RuntimeStop;
 
-import javax.inject.Inject;
-
 /**
- * This event handler delegates runtime stop events to the runtimes host.
+ * An interface for a runtime.
  */
-final class MultiRuntimeResourceManagerStopHandler implements ResourceManagerStopHandler {
-
-  private final RuntimesHost runtimesHost;
-
-  @Inject
-  private MultiRuntimeResourceManagerStopHandler(final RuntimesHost runtimesHost) {
-    this.runtimesHost = runtimesHost;
-  }
-
-  @Override
-  public void onNext(final RuntimeStop value) {
-    this.runtimesHost.onRuntimeStop(value);
-  }
+interface Runtime {
+  String getRuntimeName();
+  void onResourceLaunch(final ResourceLaunchEvent value);
+  void onRuntimeStart(final RuntimeStart value);
+  void onRuntimeStop(final RuntimeStop value);
+  void onResourceRelease(final ResourceReleaseEvent value);
+  void onResourceRequest(final ResourceRequestEvent value);
 }
