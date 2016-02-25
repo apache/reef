@@ -15,8 +15,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
+using Org.Apache.REEF.Common.Context;
 using Org.Apache.REEF.Common.Tasks;
-using Org.Apache.REEF.Driver.Context;
 using Org.Apache.REEF.Tang.Exceptions;
 using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Tang.Interface;

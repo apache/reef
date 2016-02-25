@@ -32,18 +32,6 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Task
         private readonly Optional<ITaskStart> _taskStart;
         private readonly Optional<ITaskStop> _taskStop;
 
-        /// <summary>
-        /// TODO[JIRA REEF-1167]: Remove constructor.
-        /// </summary>
-        [Obsolete("Deprecated in 0.14. Will be removed.")]
-        [Inject]
-        private TaskLifeCycle(
-            [Parameter(typeof(TaskConfigurationOptions.StartHandlers))] ISet<IObserver<ITaskStart>> taskStartHandlers,
-            [Parameter(typeof(TaskConfigurationOptions.StopHandlers))] ISet<IObserver<ITaskStop>> taskStopHandlers)
-            : this(taskStartHandlers, taskStopHandlers, Optional<ITaskStart>.Empty(), Optional<ITaskStop>.Empty())
-        {
-        }
-
         [Inject]
         private TaskLifeCycle(
             [Parameter(typeof(TaskConfigurationOptions.StartHandlers))] ISet<IObserver<ITaskStart>> taskStartHandlers,

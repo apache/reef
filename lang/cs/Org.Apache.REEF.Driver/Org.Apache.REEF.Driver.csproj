@@ -94,11 +94,6 @@ under the License.
     <Compile Include="Bridge\ReefHttpRequest.cs" />
     <Compile Include="Bridge\ReefHttpResponse.cs" />
     <Compile Include="Constants.cs" />
-    <Compile Include="Context\ContextConfiguration.cs" />
-    <Compile Include="Context\ContextConfigurationOptions.cs" />
-    <Compile Include="Context\Defaults\DefaultContextMessageSource.cs" />
-    <Compile Include="Context\Defaults\DefaultContextStartHandler.cs" />
-    <Compile Include="Context\Defaults\DefaultContextStopHandler.cs" />
     <Compile Include="Context\IActiveContext.cs" />
     <Compile Include="Context\IClosedContext.cs" />
     <Compile Include="Context\IContext.cs" />

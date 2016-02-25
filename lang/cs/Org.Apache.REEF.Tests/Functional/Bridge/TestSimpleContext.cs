@@ -18,14 +18,12 @@
 using System;
 using Org.Apache.REEF.Common.Tasks;
 using Org.Apache.REEF.Driver;
-using Org.Apache.REEF.Driver.Bridge;
 using Org.Apache.REEF.Driver.Context;
 using Org.Apache.REEF.Driver.Evaluator;
 using Org.Apache.REEF.Driver.Task;
 using Org.Apache.REEF.Examples.AllHandlers;
 using Org.Apache.REEF.Examples.Tasks.HelloTask;
 using Org.Apache.REEF.Tang.Annotations;
-using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Tang.Util;
 using Org.Apache.REEF.Utilities.Logging;
@@ -60,19 +58,6 @@ namespace Org.Apache.REEF.Tests.Functional.Bridge
             TestContextOnLocalRuntime(ContextDriverConfiguration());
         }
 
-        /// <summary>
-        /// Does a simple test of context submission with deprecated configurations.
-        /// </summary>
-        [Fact]
-        [Trait("Priority", "1")]
-        [Trait("Category", "FunctionalGated")]
-        [Trait("Description", "Test deprecated Context ID submission on local runtime")]
-        //// TODO[JIRA REEF-1184]: add timeout 180 sec
-        public void TestDeprecatedContextOnLocalRuntime()
-        {
-            TestContextOnLocalRuntime(DeprecatedContextDriverConfiguration());
-        }
-
         private void TestContextOnLocalRuntime(IConfiguration configuration)
         {
             string testFolder = DefaultRuntimeFolder + Guid.NewGuid().ToString("N").Substring(0, 4);
@@ -95,18 +80,6 @@ namespace Org.Apache.REEF.Tests.Functional.Bridge
                 .Build();
         }
 
-        private static IConfiguration DeprecatedContextDriverConfiguration()
-        {
-            return DriverConfiguration.ConfigurationModule
-                .Set(DriverConfiguration.OnDriverStarted, GenericType<TestContextHandlers>.Class)
-                .Set(DriverConfiguration.OnEvaluatorAllocated, GenericType<DeprecatedAllocatedEvaluatorHandler>.Class)
-                .Set(DriverConfiguration.OnContextActive, GenericType<TestContextHandlers>.Class)
-                .Set(DriverConfiguration.OnTaskMessage, GenericType<HelloTaskMessageHandler>.Class)
-                .Set(DriverConfiguration.OnTaskCompleted, GenericType<TestContextHandlers>.Class)
-                .Set(DriverConfiguration.OnTaskRunning, GenericType<TestContextHandlers>.Class)
-                .Build();
-        }
-
         private sealed class AllocatedEvaluatorHandler : IObserver<IAllocatedEvaluator>
         {
             [Inject]
@@ -118,31 +91,6 @@ namespace Org.Apache.REEF.Tests.Functional.Bridge
             {
                 value.SubmitContext(ContextConfiguration.ConfigurationModule
                     .Set(ContextConfiguration.Identifier, ContextId)
-                    .Build());
-            }
-
-            public void OnError(Exception error)
-            {
-                throw new NotImplementedException();
-            }
-
-            public void OnCompleted()
-            {
-                throw new NotImplementedException();
-            }
-        }
-
-        private sealed class DeprecatedAllocatedEvaluatorHandler : IObserver<IAllocatedEvaluator>
-        {
-            [Inject]
-            private DeprecatedAllocatedEvaluatorHandler()
-            {
-            }
-
-            public void OnNext(IAllocatedEvaluator value)
-            {
-                value.SubmitContext(REEF.Driver.Context.ContextConfiguration.ConfigurationModule
-                    .Set(REEF.Driver.Context.ContextConfiguration.Identifier, ContextId)
                     .Build());
             }
 

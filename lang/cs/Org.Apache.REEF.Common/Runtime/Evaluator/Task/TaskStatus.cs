@@ -59,20 +59,6 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Task
             _contextId = contextId;
         }
 
-        /// <summary>
-        /// TODO[JIRA REEF-1167]: Remove constructor.
-        /// </summary>
-        [Obsolete("Deprecated in 0.14. Will be removed.")]
-        public TaskStatus(IHeartBeatManager heartBeatManager, string contextId, string taskId, Optional<ISet<ITaskMessageSource>> evaluatorMessageSources)
-        {
-            _heartBeatManager = heartBeatManager;
-            _taskLifeCycle = TangFactory.GetTang().NewInjector().GetInstance<TaskLifeCycle>();
-            _evaluatorMessageSources = evaluatorMessageSources;
-            State = TaskState.Init;
-            _taskId = taskId;
-            _contextId = contextId;
-        }
-
         public TaskState State
         {
             get
