@@ -42,9 +42,12 @@ namespace Org.Apache.REEF.Examples.AllHandlers
     /// </summary>
     public class HelloAllocatedEvaluatorHandler : IObserver<IAllocatedEvaluator>
     {
+        private readonly ISet<string> _arguments;
+        
         [Inject]
-        private HelloAllocatedEvaluatorHandler()
+        private HelloAllocatedEvaluatorHandler(CommandLineArguments arguments)
         {
+            _arguments = arguments.Arguments;
         }
 
         /// <summary>
@@ -55,16 +58,14 @@ namespace Org.Apache.REEF.Examples.AllHandlers
         {
             string control = string.Empty;
 
-            ISet<string> arguments = ClrHandlerHelper.GetCommandLineArguments();
-
-            if (arguments != null && arguments.Any())
+            if (_arguments.Any())
             {
-                foreach (string argument in arguments)
+                foreach (string argument in _arguments)
                 {
                     Console.WriteLine("testing argument: " + argument);
                 }
 
-                control = arguments.Last();
+                control = _arguments.Last();
             }
 
             IEvaluatorDescriptor descriptor = allocatedEvaluator.GetEvaluatorDescriptor();

@@ -66,14 +66,14 @@ namespace Org.Apache.REEF.Examples.MachineLearning.KMeans
         private readonly IEvaluatorRequestor _evaluatorRequestor;
 
         [Inject]
-        public KMeansDriverHandlers(
+        private KMeansDriverHandlers(
             [Parameter(typeof(NumPartitions))] int numPartitions, 
             GroupCommDriver groupCommDriver,
-            IEvaluatorRequestor evaluatorRequestor)
+            IEvaluatorRequestor evaluatorRequestor,
+            CommandLineArguments arguments)
         {
             _executionDirectory = Path.Combine(Directory.GetCurrentDirectory(), Constants.KMeansExecutionBaseDirectory, Guid.NewGuid().ToString("N").Substring(0, 4));
-            ISet<string> arguments = ClrHandlerHelper.GetCommandLineArguments();
-            string dataFile = arguments.Single(a => a.StartsWith("DataFile", StringComparison.Ordinal)).Split(':')[1];
+            string dataFile = arguments.Arguments.Single(a => a.StartsWith("DataFile", StringComparison.Ordinal)).Split(':')[1];
             DataVector.ShuffleDataAndGetInitialCentriods(
                 Path.Combine(Directory.GetCurrentDirectory(), "reef", "global", dataFile),
                 numPartitions,
