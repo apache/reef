@@ -38,8 +38,7 @@ namespace Org.Apache.REEF.Driver.Bridge
         /// <summary>
         /// The set of REEF assemblies required for the Driver.
         /// </summary>
-        [Obsolete("Deprecated in 0.14. Will be made internal in 0.15.")]
-        public static string[] ReefAssemblies
+        internal static string[] ReefAssemblies
         {
             get
             {
@@ -68,8 +67,7 @@ namespace Org.Apache.REEF.Driver.Bridge
         /// </summary>
         /// <param name="handler">The EventHandler</param>
         /// <returns>The InterOp handle</returns>
-        [Obsolete("Deprecated in 0.14. Will be removed in 0.15.")]
-        public static ulong CreateHandler(object handler)
+        internal static ulong CreateHandler(object handler)
         {
             GCHandle gc = GCHandle.Alloc(handler);
             IntPtr intPtr = GCHandle.ToIntPtr(gc);
@@ -89,82 +87,12 @@ namespace Org.Apache.REEF.Driver.Bridge
         }
 
         /// <summary>
-        /// Sets the memory granularity in megabytes for the Evaluator Descriptors.
-        /// </summary>
-        /// <param name="granularity">The memory granularity in megabytes</param>
-        [Obsolete("Deprecated in 0.14. Will be removed in 0.15.")]
-        public static void SetMemoryGranuality(int granularity)
-        {
-            if (granularity <= 0)
-            {
-                var e = new ArgumentException("Granularity must be a positive value, provided: " + granularity);
-                Exceptions.Throw(e, LOGGER);
-            }
-            MemoryGranularity = granularity;
-        }
-
-        /// <summary>
         /// Returns the null handle not used on the Java side (i.e. 0).
         /// </summary>
         /// <returns>The null handle</returns>
-        [Obsolete("Deprecated in 0.14. Will be removed in 0.15.")]
-        public static ulong CreateNullHandler()
+        internal static ulong CreateNullHandler()
         {
             return Constants.NullHandler;
-        }
-
-        /// <summary>
-        /// Gets the command line arguments as specified in <see cref="DriverBridgeConfigurationOptions.ArgumentSets"/>.
-        /// </summary>
-        /// <returns>The set of command line arguments</returns>
-        [Obsolete("Deprecated in 0.14. Will be removed in 0.15. Inject the CommandLineArguments in your Handler instead.")]
-        public static ISet<string> GetCommandLineArguments()
-        {
-            using (LOGGER.LogFunction("ClrHandlerHelper::GetCommandLineArguments"))
-            {
-                CommandLineArguments arguments;
-                try
-                {                       
-                    arguments = BridgeConfigurationProvider.GetBridgeInjector(null).GetInstance<CommandLineArguments>();
-                }
-                catch (InjectionException e)
-                {
-                    const string error = "Cannot inject command line arguments from driver bridge configuration.";
-                    Exceptions.CaughtAndThrow(e, Level.Error, error, LOGGER);
-                    throw;
-                }
-                return arguments.Arguments;
-            }
-        }
-
-        /// <summary>
-        /// Allows additional Java classes to be included into the classpath by the user.
-        /// Generates a file named <see cref="Constants.GlobalUserSuppliedJavaLibraries"/> in the 
-        /// executing directory containing classpath information.
-        /// </summary>
-        /// <param name="classPaths">classpaths to the Java classes</param>
-        [Obsolete("Deprecated in 0.14. Will be removed in 0.15.")]
-        public static void SupplyAdditionalClassPath(params string[] classPaths)
-        {
-            var path = Path.Combine(Directory.GetCurrentDirectory(), Constants.GlobalUserSuppliedJavaLibraries);
-            File.WriteAllText(path, string.Join(",", classPaths));
-        }
-
-        /// <summary>
-        /// Generates the class hierarchy binary to the current directory into a file named
-        /// <see cref="Constants.ClassHierarchyBin"/>.
-        /// </summary>
-        /// <param name="clrDlls">The set of DLLs generating the class hierarchy</param>
-        [Obsolete("Deprecated in 0.14. Will be removed in 0.15.")]
-        public static void GenerateClassHierarchy(ISet<string> clrDlls)
-        {
-            using (LOGGER.LogFunction("ClrHandlerHelper::GenerateClassHierarchy"))
-            {
-                IClassHierarchy ns = TangFactory.GetTang().GetClassHierarchy(clrDlls.ToArray());
-                ProtocolBufferClassHierarchy.Serialize(Constants.ClassHierarchyBin, ns);
-
-                LOGGER.Log(Level.Info, "Class hierarchy written to [{0}].", Path.Combine(Directory.GetCurrentDirectory(), Constants.ClassHierarchyBin));
-            }
         }
 
         /// <summary>
