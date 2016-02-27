@@ -26,23 +26,22 @@ namespace Org.Apache.REEF.ParameterService
         {
             _serverId = serverId;
             _nameClient = nameClient;
-            var ipPort = StartServer(tcpPortProvider);
-            _nameClient.Register(serverId, new IPEndPoint(ipPort.Item1, ipPort.Item2));
+            var ipEndPoint = StartServer(tcpPortProvider);
+            _nameClient.Register(serverId, ipEndPoint);
         }
 
-        private Tuple<IPAddress, int> StartServer(ITcpPortProvider tcpPortProvider)
+        private static IPEndPoint StartServer(ITcpPortProvider tcpPortProvider)
         {
             //Instead of this start the actual parameter server
             //Get the ip & port it is listerning
             //Register that ip & port
-            return new Tuple<IPAddress, int>(IPAddress.Loopback, tcpPortProvider.First());
+            return new IPEndPoint(IPAddress.Loopback, tcpPortProvider.First());
         }
 
         public void Dispose()
         {
             //Free resources
             _nameClient.Unregister(_serverId);
-            //throw new NotImplementedException();
         }
     }
 }

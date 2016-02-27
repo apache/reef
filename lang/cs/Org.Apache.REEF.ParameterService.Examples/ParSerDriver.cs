@@ -23,9 +23,19 @@ namespace Org.Apache.REEF.ParameterService.Examples
         private int _taskCounter;
 
         [Inject]
-        public ParSerDriver(IParameterService parService)
+        public ParSerDriver(ParameterServiceBuilder parameterServiceBuilder)
         {
-            _parService = parService;
+            _parService =
+                parameterServiceBuilder.SetCommunicationType(CommunicationType.Reduce)
+                    .SetSynchronizationType(SynchronizationType.Average)
+                    .SetElementType(ElementType.Single)
+                    .SetNumberOfTasks(5)
+                    .SetTaskCores(2)
+                    .SetTaskMemoryMB(512)
+                    .SetNumTables(1)
+                    .SetNumRows(1000)
+                    .SetNumColumns(1000)
+                    .Build();
         }
 
 

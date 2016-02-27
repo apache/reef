@@ -81,10 +81,22 @@ namespace Org.Apache.REEF.ParameterService
 
         [NamedParameter("The set of <ip:port> where the servers are listening")]
         public class ServerAddresses : Name<ISet<string>> { }
+
+        [NamedParameter("The number of tables of parameters to be configured on the parameter server")]
+        public class NumberOfTables : Name<int> { }
+
+        [NamedParameter("The number of rows of parameters per table to be configured on the parameter server")]
+        public class NumberOfRows : Name<int> { }
+
+        [NamedParameter("The number of parameters for each row of every table to be configured on the parameter server")]
+        public class NumberOfColumns : Name<int> { }
     }
 
     internal class ParameterClient : IParameterClient
     {
+        private readonly int _numberOfTables;
+        private readonly int _numberOfRows;
+        private readonly int _numberOfColumns;
         private readonly CommunicationType _commType;
         private readonly SynchronizationType _syncType;
         private IDictionary<string,AddressPort> _serverAddressPorts;
@@ -94,7 +106,10 @@ namespace Org.Apache.REEF.ParameterService
         [Inject]
         internal ParameterClient([Parameter(typeof(ParameterClientConfig.CommunicationType))] string commType,
             [Parameter(typeof(ParameterClientConfig.SynchronizationType))] string syncType,
-            [Parameter(typeof(ParameterClientConfig.ServerAddresses))] IEnumerable<string> serverAddrPorts)
+            [Parameter(typeof(ParameterClientConfig.ServerAddresses))] IEnumerable<string> serverAddrPorts,
+            [Parameter(typeof(ParameterClientConfig.NumberOfTables))] int numberOfTables,
+            [Parameter(typeof(ParameterClientConfig.NumberOfRows))] int numberOfRows,
+            [Parameter(typeof(ParameterClientConfig.NumberOfColumns))] int numberOfColumns)
         {
             if (!Enum.TryParse(commType, out _commType))
             {
@@ -109,6 +124,10 @@ namespace Org.Apache.REEF.ParameterService
             _serverAddressPorts =
                 serverAddrPorts.ToDictionary(idAddrPort => IdAddressPort.FromString(idAddrPort).ServerId,
                     idAddrPort => IdAddressPort.FromString(idAddrPort).AddrPort);
+
+            _numberOfTables = numberOfTables;
+            _numberOfRows = numberOfRows;
+            _numberOfColumns = numberOfColumns;
         }
 
         public void Dispose()
