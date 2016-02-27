@@ -258,7 +258,7 @@ public class RuntimesHostTest {
             new SpecificDatumWriter<>(RuntimeDefinition.class);
     final String serializedConfiguration;
     try (final ByteArrayOutputStream out = new ByteArrayOutputStream()) {
-      final JsonEncoder encoder = EncoderFactory.get().jsonEncoder(RuntimeDefinition.SCHEMA$, out);
+      final JsonEncoder encoder = EncoderFactory.get().jsonEncoder(rd.getSchema(), out);
       configurationWriter.write(rd, encoder);
       encoder.flush();
       out.flush();

@@ -40,6 +40,8 @@ import java.util.ArrayList;
  */
 abstract class AbstractDriverConfigurationProvider implements DriverConfigurationProvider {
 
+  private static final String CHARSET_NAME = "ISO-8859-1";
+
   protected static String serializeConfiguration(final ConfigurationModule configModule) {
     final Configuration localDriverConfiguration = configModule.build();
     final AvroConfigurationSerializer serializer = new AvroConfigurationSerializer();
@@ -59,7 +61,7 @@ abstract class AbstractDriverConfigurationProvider implements DriverConfiguratio
       configurationWriter.write(rd, encoder);
       encoder.flush();
       out.flush();
-      serializedConfiguration = out.toString("ISO-8859-1");
+      serializedConfiguration = out.toString(CHARSET_NAME);
     } catch (final IOException e) {
       throw new RuntimeException(e);
     }

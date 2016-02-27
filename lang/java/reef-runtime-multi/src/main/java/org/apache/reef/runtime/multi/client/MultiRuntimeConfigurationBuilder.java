@@ -21,12 +21,7 @@ package org.apache.reef.runtime.multi.client;
 import org.apache.reef.runtime.local.client.parameters.MaxNumberOfEvaluators;
 import org.apache.reef.runtime.yarn.client.ExtensibleYarnClientConfiguration;
 import org.apache.reef.tang.Configuration;
-import org.apache.reef.tang.formats.ConfigurationModule;
-
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Set;
-import java.util.TreeSet;
+import java.util.*;
 
 /**
  * A builder for Multi Runtime Configuration.
@@ -38,7 +33,7 @@ public final class MultiRuntimeConfigurationBuilder {
   private static final Set<String> SUPPORTED_DEFAULT_RUNTIMES = new TreeSet<>(Arrays.asList(
           org.apache.reef.runtime.yarn.driver.RuntimeIdentifier.RUNTIME_NAME));
 
-  private Set<String> runtimeNames = new TreeSet<>();
+  private Set<String> runtimeNames = new HashSet<>();
   private String defaultRuntime = null;
   private final HashMap<Class, Object> namedParameters = new HashMap<>();
 
@@ -60,7 +55,7 @@ public final class MultiRuntimeConfigurationBuilder {
     return this;
   }
 
-  public MultiRuntimeConfigurationBuilder addDefaultRuntime(final String runtimeName) {
+  public MultiRuntimeConfigurationBuilder setDefaultRuntime(final String runtimeName) {
     if (!SUPPORTED_DEFAULT_RUNTIMES.contains(runtimeName)) {
       throw new IllegalArgumentException("Unsupported Default Runtime " + runtimeName);
     }
@@ -92,10 +87,8 @@ public final class MultiRuntimeConfigurationBuilder {
     this.runtimeNames.remove(this.defaultRuntime);
 
     // Currently only local runtime is supported as a secondary runtime
-    ConfigurationModule cm = ExtensibleYarnClientConfiguration.getConfigurationModule(this.namedParameters)
+    return ExtensibleYarnClientConfiguration.getConfigurationModule(this.namedParameters)
             .set(ExtensibleYarnClientConfiguration.DRIVER_CONFIGURATION_PROVIDER,
-                    MultiRuntimeYarnLocalDriverConfigurationProviderImpl.class);
-
-    return cm.build();
+                    MultiRuntimeYarnLocalDriverConfigurationProviderImpl.class).build();
   }
 }
