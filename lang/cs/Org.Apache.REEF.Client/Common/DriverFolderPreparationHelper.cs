@@ -40,10 +40,15 @@ namespace Org.Apache.REEF.Client.Common
         @"<configuration>" +
         @"  <runtime>" +
         @"    <assemblyBinding xmlns=""urn:schemas-microsoft-com:asm.v1"">" +
+        @"      <dependentAssembly>" +
+        @"        <assemblyIdentity name=""Newtonsoft.Json"" publicKeyToken=""30ad4fe6b2a6aeed"" culture=""neutral"" />" +
+        @"        <bindingRedirect oldVersion=""0.0.0.0-7.0.0.0"" newVersion=""7.0.0.0"" />" +
+        @"      </dependentAssembly>" +
         @"      <probing privatePath=""local;global""/>" +
         @"    </assemblyBinding>" +
         @"  </runtime>" +
         @"</configuration>";
+        private const string EvaluatorExecutable = "Org.Apache.REEF.Evaluator.exe.config";
 
         private static readonly Logger Logger = Logger.GetLogger(typeof(DriverFolderPreparationHelper));
         private readonly AvroConfigurationSerializer _configurationSerializer;
@@ -129,12 +134,17 @@ namespace Org.Apache.REEF.Client.Common
                 File.WriteAllBytes(fileName, resourceHelper.GetBytes(fileResources.Value));
             }
             
+            // generate .config file for bridge executable
             var config = DefaultDriverConfigurationFileContents;
             if (!string.IsNullOrEmpty(appParameters.DriverConfigurationFileContents))
             {
                 config = appParameters.DriverConfigurationFileContents;
             }
             File.WriteAllText(Path.Combine(driverFolderPath, _fileNames.GetBridgeExeConfigPath()), config);
+
+            // generate .config file for Evaluator executable
+            File.WriteAllText(Path.Combine(driverFolderPath, _fileNames.GetGlobalFolderPath(), EvaluatorExecutable), 
+                DefaultDriverConfigurationFileContents);
         }
 
         /// <summary>
