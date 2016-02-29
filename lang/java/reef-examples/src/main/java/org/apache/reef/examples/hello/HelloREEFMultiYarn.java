@@ -58,7 +58,7 @@ public final class HelloREEFMultiYarn {
 
   private static Configuration getHybridYarnSubmissionRuntimeConfiguration() {
     MultiRuntimeConfigurationBuilder mrcb = new MultiRuntimeConfigurationBuilder();
-    mrcb.addDefaultRuntime(org.apache.reef.runtime.yarn.driver.RuntimeIdentifier.RUNTIME_NAME)
+    mrcb.setDefaultRuntime(org.apache.reef.runtime.yarn.driver.RuntimeIdentifier.RUNTIME_NAME)
         .addRuntime(org.apache.reef.runtime.local.driver.RuntimeIdentifier.RUNTIME_NAME)
         .setMaxEvaluatorsNumberForLocalRuntime(1);
 
