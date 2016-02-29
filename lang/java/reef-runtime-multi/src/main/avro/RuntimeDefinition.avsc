@@ -25,10 +25,23 @@
     "namespace":"org.apache.reef.runtime.multi.utils",
     "type":"record",
     "name":"RuntimeDefinition",
+    "doc":"Defines the schema for runtime definition. This avro object is used to pass runtimes definitions to the runtimes host",
     "fields":[
-      {"name":"runtimeName","type":"string"},
-      {"name":"serializedConfiguration","type":"string"},
-      {"name":"defaultConfiguration","type":"boolean"}
+      {
+        "name":"runtimeName",
+        "type":"string",
+        "doc":"The name of the runtime, that will be provided with teh resource allocation requests"
+      },
+      {
+        "name":"serializedConfiguration",
+        "type":"string",
+        "doc":"Serialized Tang configuration"
+      },
+      {
+        "name":"defaultConfiguration",
+        "type":"boolean",
+        "doc":"Indicates if this is the default runtime that is used when no runtime is specified for a request"
+      }
     ]
   }
 ]

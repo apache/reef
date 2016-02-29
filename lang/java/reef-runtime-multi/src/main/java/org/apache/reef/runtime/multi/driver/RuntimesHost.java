@@ -66,6 +66,16 @@ final class RuntimesHost {
     this.originalInjector = injector;
   }
 
+  private static RuntimeDefinition parseSerializedRuntimeDefinition(final String serializedRuntimeDefinition) throws
+          IOException {
+    final RuntimeDefinition rd;
+    final JsonDecoder decoder = DecoderFactory.get().
+            jsonDecoder(RuntimeDefinition.getClassSchema(), serializedRuntimeDefinition);
+    final SpecificDatumReader<RuntimeDefinition> reader = new SpecificDatumReader<>(RuntimeDefinition.class);
+    rd = reader.read(null, decoder);
+    return rd;
+  }
+
   private synchronized void initialize() {
     if (this.runtimes != null) {
       return;
@@ -121,16 +131,6 @@ final class RuntimesHost {
     runtimeInjector.bindVolatileParameter(
             RuntimeParameters.RuntimeStatusHandler.class,
             runtimeStatusEventHandler);
-  }
-
-  private RuntimeDefinition parseSerializedRuntimeDefinition(final String serializedRuntimeDefinition) throws
-          IOException {
-    final RuntimeDefinition rd;
-    final JsonDecoder decoder = DecoderFactory.get().
-            jsonDecoder(RuntimeDefinition.getClassSchema(), serializedRuntimeDefinition);
-    final SpecificDatumReader<RuntimeDefinition> reader = new SpecificDatumReader<>(RuntimeDefinition.class);
-    rd = reader.read(null, decoder);
-    return rd;
   }
 
   private Runtime getRuntime(final String requestedRuntimeName) {
