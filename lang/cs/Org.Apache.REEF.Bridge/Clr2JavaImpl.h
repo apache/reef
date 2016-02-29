@@ -141,6 +141,7 @@ namespace Org {
                             virtual IActiveContextClr2Java^ GetActiveContext();
                             virtual String^ GetId();
                             virtual void Send(array<byte>^ message);
+                            virtual void Suspend(array<byte>^ message);
                         };
 
                         public ref class FailedEvaluatorClr2Java : public IFailedEvaluatorClr2Java {

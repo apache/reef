@@ -81,7 +81,6 @@ namespace Org {
 						  jclass jclassRunningTask = env->GetObjectClass(_jobjectRunningTask);
 						  jmethodID jmidSend = env->GetMethodID(jclassRunningTask, "send", "([B)V");
 
-
 						  if (jmidSend == NULL) {
 							  ManagedLog::LOGGER->Log("jmidSend is NULL");
 							  return;
@@ -91,6 +90,23 @@ namespace Org {
 							  jmidSend,
 							  JavaByteArrayFromManagedByteArray(env, message));
 						  ManagedLog::LOGGER->LogStop("RunningTaskClr2Java::Send");
+					  }
+
+					  void RunningTaskClr2Java::Suspend(array<byte>^ message) {
+						  ManagedLog::LOGGER->LogStart("RunningTaskClr2Java::Suspend");
+						  JNIEnv *env = RetrieveEnv(_jvm);
+						  jclass jclassRunningTask = env->GetObjectClass(_jobjectRunningTask);
+						  jmethodID jmidSuspend = env->GetMethodID(jclassRunningTask, "suspend", "([B)V");
+
+						  if (jmidSuspend == NULL) {
+							  ManagedLog::LOGGER->Log("jmidSuspend is NULL");
+							  return;
+						  }
+						  env->CallObjectMethod(
+							  _jobjectRunningTask,
+							  jmidSuspend,
+							  JavaByteArrayFromManagedByteArray(env, message));
+						  ManagedLog::LOGGER->LogStop("RunningTaskClr2Java::Suspend");
 					  }
 
 					  void RunningTaskClr2Java::OnError(String^ message) {
