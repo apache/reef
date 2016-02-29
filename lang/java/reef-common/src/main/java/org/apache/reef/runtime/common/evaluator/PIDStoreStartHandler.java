@@ -20,34 +20,65 @@ package org.apache.reef.runtime.common.evaluator;
 
 import org.apache.reef.util.OSUtils;
 import org.apache.reef.wake.EventHandler;
-import org.apache.reef.wake.time.event.StartTime;
+import org.apache.reef.wake.time.runtime.event.RuntimeStart;
 
+import javax.annotation.concurrent.GuardedBy;
+import javax.annotation.concurrent.ThreadSafe;
 import javax.inject.Inject;
-import java.io.*;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
  * This Handler writes the Process ID (PID) to a file with a name given in PID_FILE_NAME to the local working directory.
  */
-public class PIDStoreStartHandler implements EventHandler<StartTime> {
+@ThreadSafe
+public final class PIDStoreStartHandler implements EventHandler<RuntimeStart> {
+  /**
+   * The file name of the PID file created in the current working directory of the process.
+   */
   public static final String PID_FILE_NAME = "PID.txt";
+
   private static final Logger LOG = Logger.getLogger(PIDStoreStartHandler.class.getName());
 
+  @GuardedBy("this")
+  private boolean pidIsWritten = false;
+
   @Inject
-  public PIDStoreStartHandler() {
+  private PIDStoreStartHandler() {
   }
 
+  /**
+   * This call is idempotent: It will only write the PID exactly once per instance.
+   *
+   * @param startTime
+   */
   @Override
-  public void onNext(final StartTime startTime) {
-    final long pid = OSUtils.getPID();
-    final File outfile = new File(PID_FILE_NAME);
-    LOG.log(Level.FINEST, "Storing pid `" + pid + "` in file " + outfile.getAbsolutePath());
-    try (final PrintWriter p = new PrintWriter(PID_FILE_NAME, "UTF-8")) {
-      p.write(String.valueOf(pid));
-      p.write("\n");
-    } catch (final FileNotFoundException | UnsupportedEncodingException e) {
-      LOG.log(Level.WARNING, "Unable to create PID file.", e);
+  public synchronized void onNext(final RuntimeStart startTime) {
+    if (this.isPidNotWritten()) {
+      final long pid = OSUtils.getPID();
+      final File outfile = new File(PID_FILE_NAME);
+      LOG.log(Level.FINEST, "Storing pid `" + pid + "` in file " + outfile.getAbsolutePath());
+      try (final PrintWriter p = new PrintWriter(PID_FILE_NAME, "UTF-8")) {
+        p.write(String.valueOf(pid));
+        p.write("\n");
+      } catch (final FileNotFoundException | UnsupportedEncodingException e) {
+        LOG.log(Level.WARNING, "Unable to create PID file.", e);
+      }
+      this.pidIsWritten = true;
+    } else {
+      LOG.log(Level.FINEST, "PID already written.");
     }
+  }
+
+
+  /**
+   * @return true, if the PID hasn't been written yet.
+   */
+  private synchronized boolean isPidNotWritten() {
+    return !this.pidIsWritten;
   }
 }

@@ -49,6 +49,7 @@ final class EvaluatorRuntime implements EventHandler<EvaluatorControlProto> {
   private final HeartBeatManager heartBeatManager;
   private final ContextManager contextManager;
   private final Clock clock;
+  private final PIDStoreStartHandler pidStoreStartHandler;
 
   private final String evaluatorIdentifier;
   private final ExceptionCodec exceptionCodec;
@@ -66,6 +67,7 @@ final class EvaluatorRuntime implements EventHandler<EvaluatorControlProto> {
       final Clock clock,
       final ContextManager contextManagerFuture,
       final RemoteManager remoteManager,
+      final PIDStoreStartHandler pidStoreStartHandler,
       final ExceptionCodec exceptionCodec) {
 
     this.heartBeatManager = heartBeatManager;
@@ -73,6 +75,7 @@ final class EvaluatorRuntime implements EventHandler<EvaluatorControlProto> {
     this.clock = clock;
 
     this.evaluatorIdentifier = evaluatorIdentifier;
+    this.pidStoreStartHandler = pidStoreStartHandler;
     this.exceptionCodec = exceptionCodec;
     this.evaluatorControlChannel =
         remoteManager.registerHandler(driverRID, EvaluatorControlProto.class, this);
@@ -169,6 +172,8 @@ final class EvaluatorRuntime implements EventHandler<EvaluatorControlProto> {
     @Override
     @SuppressWarnings("checkstyle:illegalcatch")
     public void onNext(final RuntimeStart runtimeStart) {
+      // [REEF-1229] Make sure that the PID is always written before we potentially exit the Evaluator process.
+      EvaluatorRuntime.this.pidStoreStartHandler.onNext(runtimeStart);
       synchronized (EvaluatorRuntime.this.heartBeatManager) {
         try {
           LOG.log(Level.FINEST, "runtime start");
