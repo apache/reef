@@ -23,6 +23,7 @@ git:
 jdk:
   - oraclejdk7
   - oraclejdk8
+  - openjdk7
 
 env: PATH=$PATH:$HOME/local/bin
 
