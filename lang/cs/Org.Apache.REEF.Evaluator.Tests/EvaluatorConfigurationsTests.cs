@@ -15,12 +15,18 @@
 // specific language governing permissions and limitations
 // under the License.
 
+using System.Collections.Generic;
 using Org.Apache.REEF.Common.Runtime.Evaluator.Utils;
+using Org.Apache.REEF.Common.Services;
+using Org.Apache.REEF.Common.Tasks;
+using Org.Apache.REEF.Examples.HelloREEF;
 using Org.Apache.REEF.Tang.Formats;
+using Org.Apache.REEF.Tang.Formats.AvroConfigurationDataContract;
 using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Tang.Util;
 using Org.Apache.REEF.Utilities.Logging;
+using Org.Apache.REEF.Wake.StreamingCodec;
 using Xunit;
 
 namespace Org.Apache.REEF.Evaluator.Tests
@@ -29,41 +35,22 @@ namespace Org.Apache.REEF.Evaluator.Tests
     {
         private static readonly Logger Logger = Logger.GetLogger(typeof(EvaluatorConfigurationsTests));
         private const string EvaluatorIdPrefix = "Node-";
+        private const string ContextIdPrefix = "RootContext_";
         private const string RemoteIdPrefix = "socket://";
         private const string AppIdForTest = "REEF_LOCAL_RUNTIME";
 
+        /// <summary>
+        /// This test is to deserialize evaluator configuration for identifiers
+        /// using alias if the parameter in the configuration cannot be found in the class hierarchy.
+        /// </summary>
         [Fact]
         [Trait("Priority", "0")]
         [Trait("Category", "Unit")]
-        public void TestEvaluatorConfigurationFile()
+        public void TestDeserializationIdsWithAlias()
         {
-            AvroConfigurationSerializer serializer = new AvroConfigurationSerializer();
-            var avroConfiguration = serializer.AvroDeserializeFromFile("evaluator.conf");
+            var config = DeserializeConfigWithAlias();
+            var evaluatorInjector = TangFactory.GetTang().NewInjector(config);
 
-            Assert.NotNull(avroConfiguration);
-            Assert.Equal(avroConfiguration.language, Language.Java.ToString());
-
-            foreach (var b in avroConfiguration.Bindings)
-            {
-               Logger.Log(Level.Info, "Key = " + b.key + " Value = " + b.value); 
-            }
-        }
-
-        [Fact]
-        [Trait("Priority", "0")]
-        [Trait("Category", "Unit")]
-        public void TestDeserializationWithAlias()
-        {
-            AvroConfigurationSerializer serializer = new AvroConfigurationSerializer();
-            var avroConfiguration = serializer.AvroDeserializeFromFile("evaluator.conf");
-            var language = avroConfiguration.language;
-            Assert.True(language.ToString().Equals(Language.Java.ToString()));
-
-            var classHierarchy = TangFactory.GetTang()
-                .GetClassHierarchy(new string[] { typeof(ApplicationIdentifier).Assembly.GetName().Name });
-            var config = serializer.FromAvro(avroConfiguration, classHierarchy);
-
-            IInjector evaluatorInjector = TangFactory.GetTang().NewInjector(config);
             string appid = evaluatorInjector.GetNamedInstance<ApplicationIdentifier, string>();
             string remoteId = evaluatorInjector.GetNamedInstance<DriverRemoteIdentifier, string>();
 
@@ -76,6 +63,121 @@ namespace Org.Apache.REEF.Evaluator.Tests
             Assert.True(evaluatorIdentifier.StartsWith(EvaluatorIdPrefix));
             Assert.True(rid.StartsWith(RemoteIdPrefix));
             Assert.True(launchId.Equals(AppIdForTest));
+        }
+
+        /// <summary>
+        /// This test is to deserialize evaluator configuration for Task, Context and Service
+        /// using alias if the parameter in the configuration cannot be found in the class hierarchy.
+        /// </summary>
+        [Fact]
+        [Trait("Priority", "0")]
+        [Trait("Category", "Unit")]
+        public void TestDeserializeContextServiceTaskWithAlias()
+        {
+            var serializer = new AvroConfigurationSerializer();
+            var config = DeserializeConfigWithAlias();
+            var evaluatorInjector = TangFactory.GetTang().NewInjector(config);
+
+            var taskConfigString = evaluatorInjector.GetNamedInstance<InitialTaskConfiguration, string>();
+            var contextConfigString = evaluatorInjector.GetNamedInstance<RootContextConfiguration, string>();
+            var serviceConfigString = evaluatorInjector.GetNamedInstance<RootServiceConfiguration, string>();
+
+            var contextClassHierarchy = TangFactory.GetTang().GetClassHierarchy(new string[]
+            {
+                typeof(Common.Context.ContextConfigurationOptions.ContextIdentifier).Assembly.GetName().Name
+            });
+            var contextConfig = serializer.FromString(contextConfigString, contextClassHierarchy);
+
+            var taskClassHierarchy = TangFactory.GetTang().GetClassHierarchy(new string[]
+            {
+                typeof(ITask).Assembly.GetName().Name,
+                typeof(HelloTask).Assembly.GetName().Name
+            });
+            var taskConfig = serializer.FromString(taskConfigString, taskClassHierarchy);
+
+            var serviceClassHierarchy = TangFactory.GetTang().GetClassHierarchy(new string[]
+                {
+                    typeof(ServiceConfiguration).Assembly.GetName().Name,
+                    typeof(IStreamingCodec<>).Assembly.GetName().Name
+                });
+            var serviceConfig = serializer.FromString(serviceConfigString, serviceClassHierarchy);
+
+            var contextInjector = evaluatorInjector.ForkInjector(contextConfig);
+            string contextId = contextInjector.GetNamedInstance<Common.Context.ContextConfigurationOptions.ContextIdentifier, string>();
+            Assert.True(contextId.StartsWith(ContextIdPrefix));
+
+            var serviceInjector = contextInjector.ForkInjector(serviceConfig);
+            var service = serviceInjector.GetInstance<ContextRuntimeTests.TestService>();
+            Assert.NotNull(service);
+
+            var taskInjector = serviceInjector.ForkInjector(taskConfig);
+            var taskId = taskInjector.GetNamedInstance<TaskConfigurationOptions.Identifier, string>();
+            var task = taskInjector.GetInstance<ITask>();
+            Assert.True(taskId.StartsWith("HelloTask"));
+            Assert.True(task is HelloTask);
+        }
+
+        /// <summary>
+        /// Deserialize evaluator configuration with alias
+        /// </summary>
+        /// <returns></returns>
+        private static IConfiguration DeserializeConfigWithAlias()
+        {
+            var serializer = new AvroConfigurationSerializer();
+
+            var classHierarchy = TangFactory.GetTang()
+                .GetClassHierarchy(new string[] { typeof(ApplicationIdentifier).Assembly.GetName().Name });
+
+            var avroConfiguration = EvaluatorConfig(serializer);
+            return serializer.FromAvro(avroConfiguration, classHierarchy);
+        }
+
+        /// <summary>
+        /// Simulate evaluator configuration generated from Java for unit testing
+        /// </summary>
+        /// <param name="serializer"></param>
+        /// <returns></returns>
+        private static AvroConfiguration EvaluatorConfig(AvroConfigurationSerializer serializer)
+        {
+            var configurationEntries = new HashSet<ConfigurationEntry>();
+
+            configurationEntries.Add(
+                new ConfigurationEntry("org.apache.reef.runtime.common.evaluator.parameters.ApplicationIdentifier",
+                    "REEF_LOCAL_RUNTIME"));
+            configurationEntries.Add(
+                new ConfigurationEntry("org.apache.reef.runtime.common.evaluator.parameters.DriverRemoteIdentifier",
+                    "socket://10.130.68.76:9723"));
+            configurationEntries.Add(
+                new ConfigurationEntry("org.apache.reef.runtime.common.evaluator.parameters.EvaluatorIdentifier",
+                    "Node-2-1447450298921"));
+
+            var taskConfiguration = TaskConfiguration.ConfigurationModule
+                .Set(TaskConfiguration.Identifier, "HelloTask")
+                .Set(TaskConfiguration.Task, GenericType<HelloTask>.Class)
+                .Build();
+            var taskString = serializer.ToString(taskConfiguration);
+            configurationEntries.Add(
+                new ConfigurationEntry("org.apache.reef.runtime.common.evaluator.parameters.InitialTaskConfiguration",
+                    taskString));
+
+            var contextConfig = Common.Context.ContextConfiguration.ConfigurationModule.Set(Common.Context.ContextConfiguration.Identifier, ContextIdPrefix).Build();
+            configurationEntries.Add(
+                new ConfigurationEntry("org.apache.reef.runtime.common.evaluator.parameters.RootContextConfiguration",
+                    serializer.ToString(contextConfig)));
+
+            var serviceConfiguration = ServiceConfiguration.ConfigurationModule
+                .Set(ServiceConfiguration.Services, GenericType<ContextRuntimeTests.TestService>.Class)
+                .Build();
+            configurationEntries.Add(
+                new ConfigurationEntry("org.apache.reef.runtime.common.evaluator.parameters.RootServiceConfiguration",
+                    serializer.ToString(serviceConfiguration)));
+
+            configurationEntries.Add(new ConfigurationEntry("org.apache.reef.runtime.common.launch.parameters.ErrorHandlerRID",
+                "socket://10.130.68.76:9723"));
+            configurationEntries.Add(new ConfigurationEntry("org.apache.reef.runtime.common.launch.parameters.LaunchID",
+                "REEF_LOCAL_RUNTIME"));
+
+            return new AvroConfiguration(Language.Java.ToString(), configurationEntries);
         }
     }
 }

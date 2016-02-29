@@ -378,7 +378,7 @@ namespace Org.Apache.REEF.Evaluator.Tests
             // empty
         }
 
-        private sealed class TestService : ITestService, IDisposable
+        internal sealed class TestService : ITestService, IDisposable
         {
             [Inject]
             private TestService()

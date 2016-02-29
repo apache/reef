@@ -80,16 +80,13 @@ namespace Org.Apache.REEF.Tang.Tests.Format
             IFoo f4 = (IFoo)TangFactory.GetTang().NewInjector(c4).GetInstance(fooType);
             Assert.Equal(f4.getFooness(), 12);
 
-            IConfigurationSerializer serializerImpl = (IConfigurationSerializer)TangFactory.GetTang().NewInjector().GetInstance(typeof(IConfigurationSerializer));
+            IConfigurationSerializer serializerImpl =
+                (IConfigurationSerializer)
+                    TangFactory.GetTang().NewInjector().GetInstance(typeof(IConfigurationSerializer));
             serializerImpl.ToFile(c, "TangTestCs1.avro");
             var c5 = serializerImpl.FromFile("TangTestCs1.avro");
             IFoo f5 = (IFoo)TangFactory.GetTang().NewInjector(c5).GetInstance(fooType);
             Assert.Equal(f5.getFooness(), 12);
-           
-            // this is to test the file generated from Java. name,value b=must be recognized by C# class hierarchy
-            AvroConfigurationSerializer serializer = new AvroConfigurationSerializer();
-            var avroConfig = serializer.AvroDeserializeFromFile("Evaluator.conf");
-            Assert.NotNull(avroConfig);
         }
 
         [Fact]

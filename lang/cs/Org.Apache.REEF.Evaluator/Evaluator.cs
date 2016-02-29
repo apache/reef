@@ -128,6 +128,7 @@ namespace Org.Apache.REEF.Evaluator
         /// <exception cref="EvaluatorConfigurationFileNotFoundException">When the configuration file cannot be found.</exception>
         /// <exception cref="EvaluatorConfigurationParseException">When the configuration file exists, but can't be deserialized.</exception>
         /// <returns></returns>
+        //// TODO[JIRA REEF-217]: Remove this method.
         private static IConfiguration ReadClrBridgeConfiguration()
         {
             var clrRuntimeConfigurationFile = Path.Combine(Directory.GetCurrentDirectory(), "reef", "global",
@@ -151,7 +152,11 @@ namespace Org.Apache.REEF.Evaluator
             }
         }
 
-        // TODO[JIRA REEF-217]: Remove this method.
+        /// <summary>
+        /// Read evaluator configuration from evaluator.conf generated from Java
+        /// </summary>
+        /// <param name="evaluatorConfigFile"></param>
+        /// <returns></returns>
         private static IConfiguration ReadEvaluatorConfiguration(string evaluatorConfigFile)
         {
             if (string.IsNullOrWhiteSpace(evaluatorConfigFile))
