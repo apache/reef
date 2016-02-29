@@ -47,6 +47,14 @@ public final class RunningTaskBridge extends NativeBridge implements Identifiabl
     jrunningTask.send(message);
   }
 
+  public void suspend(final byte[] message) {
+    if (message != null) {
+      jrunningTask.suspend(message);
+    } else {
+      jrunningTask.suspend();
+    }
+  }
+
   public ActiveContextBridge getActiveContext() {
     return jactiveContext;
   }

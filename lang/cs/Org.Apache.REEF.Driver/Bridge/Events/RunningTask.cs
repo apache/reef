@@ -60,12 +60,12 @@ namespace Org.Apache.REEF.Driver.Bridge.Events
 
         public void Suspend(byte[] message)
         {
-            throw new NotImplementedException();
+            _runningTaskClr2Java.Suspend(message);
         }
 
         public void Suspend()
         {
-            throw new NotImplementedException();
+            Suspend(null);
         }
 
         public void Dispose(byte[] message)
