@@ -87,7 +87,7 @@ public final class HelloMultiDriver {
       LOG.log(Level.INFO, "Submitting HelloREEF task to AllocatedEvaluator: {0}", allocatedEvaluator);
       final Configuration taskConfiguration = TaskConfiguration.CONF
           .set(TaskConfiguration.IDENTIFIER, "HelloREEFTask")
-          .set(TaskConfiguration.TASK, HelloTaskDelayed.class)
+          .set(TaskConfiguration.TASK, HelloTask.class)
           .build();
       allocatedEvaluator.submitTask(taskConfiguration);
     }
