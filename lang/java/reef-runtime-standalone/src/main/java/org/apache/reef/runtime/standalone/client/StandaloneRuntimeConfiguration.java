@@ -21,12 +21,10 @@ package org.apache.reef.runtime.standalone.client;
 import org.apache.reef.annotations.Unstable;
 import org.apache.reef.client.parameters.DriverConfigurationProviders;
 import org.apache.reef.runtime.common.client.CommonRuntimeConfiguration;
-import org.apache.reef.runtime.common.evaluator.PIDStoreStartHandler;
 import org.apache.reef.runtime.standalone.client.parameters.NodeListFilePath;
 import org.apache.reef.runtime.standalone.client.parameters.RootFolder;
 import org.apache.reef.tang.ConfigurationProvider;
 import org.apache.reef.tang.formats.*;
-import org.apache.reef.wake.time.Clock;
 
 /**
  * A ConfigurationModule to configure the standalone resourcemanager.
@@ -62,8 +60,5 @@ public final class StandaloneRuntimeConfiguration extends ConfigurationModuleBui
       .bindNamedParameter(RootFolder.class, RUNTIME_ROOT_FOLDER)
       .bindNamedParameter(NodeListFilePath.class, NODE_LIST_FILE_PATH)
       .bindSetEntry(DriverConfigurationProviders.class, DRIVER_CONFIGURATION_PROVIDERS)
-      .bindSetEntry(Clock.StartHandler.class, PIDStoreStartHandler.class)
       .build();
-
-
 }

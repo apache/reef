@@ -62,7 +62,7 @@ public final class REEFLauncher {
   private static final Logger LOG = Logger.getLogger(REEFLauncher.class.getName());
 
   private static final Configuration LAUNCHER_STATIC_CONFIG = Tang.Factory.getTang().newConfigurationBuilder()
-          .bindSetEntry(Clock.StartHandler.class, PIDStoreStartHandler.class)
+          .bindSetEntry(Clock.RuntimeStartHandler.class, PIDStoreStartHandler.class)
           .bindNamedParameter(RemoteConfiguration.ErrorHandler.class, REEFErrorHandler.class)
           .bindNamedParameter(RemoteConfiguration.ManagerName.class, "REEF_LAUNCHER")
           .bindNamedParameter(RemoteConfiguration.MessageCodec.class, REEFMessageCodec.class)
