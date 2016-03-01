@@ -51,8 +51,8 @@ public final class HelloREEFMultiYarn {
         .set(DriverConfiguration.GLOBAL_LIBRARIES,
             HelloREEFMultiYarn.class.getProtectionDomain().getCodeSource().getLocation().getFile())
         .set(DriverConfiguration.DRIVER_IDENTIFIER, "HelloREEF")
-        .set(DriverConfiguration.ON_DRIVER_STARTED, HelloMultiDriver.StartHandler.class)
-        .set(DriverConfiguration.ON_EVALUATOR_ALLOCATED, HelloMultiDriver.EvaluatorAllocatedHandler.class)
+        .set(DriverConfiguration.ON_DRIVER_STARTED, HelloMultiRuntimeDriver.StartHandler.class)
+        .set(DriverConfiguration.ON_EVALUATOR_ALLOCATED, HelloMultiRuntimeDriver.EvaluatorAllocatedHandler.class)
         .build();
   }
 

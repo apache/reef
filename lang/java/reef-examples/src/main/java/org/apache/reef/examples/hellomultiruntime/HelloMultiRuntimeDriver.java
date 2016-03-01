@@ -36,9 +36,9 @@ import java.util.logging.Logger;
  * The Driver code for the Hello REEF Application with Multi Runtime.
  */
 @Unit
-public final class HelloMultiDriver {
+public final class HelloMultiRuntimeDriver {
 
-  private static final Logger LOG = Logger.getLogger(HelloMultiDriver.class.getName());
+  private static final Logger LOG = Logger.getLogger(HelloMultiRuntimeDriver.class.getName());
 
   private final EvaluatorRequestor requestor;
 
@@ -48,7 +48,7 @@ public final class HelloMultiDriver {
    * @param requestor evaluator requestor object used to create new evaluator containers.
    */
   @Inject
-  private HelloMultiDriver(final EvaluatorRequestor requestor) {
+  private HelloMultiRuntimeDriver(final EvaluatorRequestor requestor) {
     this.requestor = requestor;
     LOG.log(Level.FINE, "Instantiated 'HelloDriver'");
   }
@@ -59,7 +59,7 @@ public final class HelloMultiDriver {
   public final class StartHandler implements EventHandler<StartTime> {
     @Override
     public void onNext(final StartTime startTime) {
-      HelloMultiDriver.this.requestor.submit(EvaluatorRequest.newBuilder()
+      HelloMultiRuntimeDriver.this.requestor.submit(EvaluatorRequest.newBuilder()
           .setNumber(1)
           .setMemory(64)
           .setNumberOfCores(1)
@@ -68,7 +68,7 @@ public final class HelloMultiDriver {
 
       LOG.log(Level.INFO, "Requested Local Evaluator .");
 
-      HelloMultiDriver.this.requestor.submit(EvaluatorRequest.newBuilder()
+      HelloMultiRuntimeDriver.this.requestor.submit(EvaluatorRequest.newBuilder()
               .setNumber(1)
               .setMemory(64)
               .setNumberOfCores(1)

@@ -20,7 +20,7 @@ package org.apache.reef.tests.examples;
 
 import org.apache.reef.client.DriverConfiguration;
 import org.apache.reef.client.LauncherStatus;
-import org.apache.reef.examples.hellomultiruntime.HelloMultiDriver;
+import org.apache.reef.examples.hellomultiruntime.HelloMultiRuntimeDriver;
 import org.apache.reef.tang.Configuration;
 import org.apache.reef.tests.TestEnvironment;
 import org.apache.reef.tests.TestEnvironmentFactory;
@@ -54,8 +54,8 @@ public class TestHelloREEFMultiRuntime {
       final Configuration driverConf = DriverConfiguration.CONF
               .set(DriverConfiguration.GLOBAL_LIBRARIES, EnvironmentUtils.getClassLocation(this.getClass()))
               .set(DriverConfiguration.DRIVER_IDENTIFIER, "TEST_HelloREEF")
-              .set(DriverConfiguration.ON_DRIVER_STARTED, HelloMultiDriver.StartHandler.class)
-              .set(DriverConfiguration.ON_EVALUATOR_ALLOCATED, HelloMultiDriver.EvaluatorAllocatedHandler.class)
+              .set(DriverConfiguration.ON_DRIVER_STARTED, HelloMultiRuntimeDriver.StartHandler.class)
+              .set(DriverConfiguration.ON_EVALUATOR_ALLOCATED, HelloMultiRuntimeDriver.EvaluatorAllocatedHandler.class)
               .build();
       final LauncherStatus state = this.testEnvironment.run(driverConf);
       Assert.assertTrue("Job state after execution: " + state, state.isSuccess());
