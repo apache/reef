@@ -22,6 +22,8 @@ import org.apache.commons.lang.Validate;
 import org.apache.reef.runtime.local.client.parameters.MaxNumberOfEvaluators;
 import org.apache.reef.runtime.yarn.client.ExtensibleYarnClientConfiguration;
 import org.apache.reef.tang.Configuration;
+import org.apache.reef.tang.Configurations;
+import org.apache.reef.tang.formats.ConfigurationModuleBuilder;
 
 import java.util.*;
 
@@ -75,9 +77,16 @@ public final class MultiRuntimeConfigurationBuilder {
     // Remove default runtime from the list
     this.runtimeNames.remove(this.defaultRuntime);
 
+    ConfigurationModuleBuilder conf = new MultiRuntimeHelperConfiguration();
+
+    for(Map.Entry<Class, Object> entry: this.namedParameters.entrySet()){
+      conf = conf.bindNamedParameter(entry.getKey(), entry.getValue().toString());
+    }
+
     // Currently only local runtime is supported as a secondary runtime
-    return ExtensibleYarnClientConfiguration.getConfigurationModule(this.namedParameters)
-            .set(ExtensibleYarnClientConfiguration.DRIVER_CONFIGURATION_PROVIDER,
-                    MultiRuntimeYarnLocalDriverConfigurationProviderImpl.class).build();
+    return Configurations.merge(conf.build().build(),
+            ExtensibleYarnClientConfiguration.CONF
+                    .set(ExtensibleYarnClientConfiguration.DRIVER_CONFIGURATION_PROVIDER,
+                            MultiRuntimeYarnLocalDriverConfigurationProviderImpl.class).build());
   }
 }

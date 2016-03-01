@@ -48,7 +48,6 @@ public final class MultiRuntimeYarnLocalDriverConfigurationProviderImpl extends 
           @Parameter(JVMHeapSlack.class) final double jvmSlack,
           @Parameter(MaxNumberOfEvaluators.class) final int maxEvaluators,
           @Parameter(RackNames.class) final Set<String> rackNames) {
-
     this.jvmSlack = jvmSlack;
     this.maxEvaluators = maxEvaluators;
     this.rackNames = rackNames;

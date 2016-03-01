@@ -32,8 +32,6 @@ import org.apache.reef.tang.ConfigurationProvider;
 import org.apache.reef.tang.formats.*;
 import org.apache.reef.util.logging.LoggingSetup;
 
-import java.util.HashMap;
-import java.util.Map;
 /**
  * An extensible  ConfigurationModule for the YARN resourcemanager.
  */
@@ -57,8 +55,7 @@ public final class ExtensibleYarnClientConfiguration extends ConfigurationModule
    */
   public static final RequiredImpl<DriverConfigurationProvider> DRIVER_CONFIGURATION_PROVIDER = new RequiredImpl<>();
 
-  public static ConfigurationModule getConfigurationModule(final HashMap<Class, Object> configs) {
-    ConfigurationModuleBuilder moduleBuilder = new ExtensibleYarnClientConfiguration()
+  public static final ConfigurationModule CONF = new ExtensibleYarnClientConfiguration()
             .merge(CommonRuntimeConfiguration.CONF)
             // Bind YARN
             .bindImplementation(JobSubmissionHandler.class, YarnJobSubmissionHandler.class)
@@ -70,12 +67,5 @@ public final class ExtensibleYarnClientConfiguration extends ConfigurationModule
             .bindImplementation(RuntimeClasspathProvider.class, YarnClasspathProvider.class)
             // Bind external constructors. Taken from  YarnExternalConstructors.registerClientConstructors
             .bindConstructor(org.apache.hadoop.yarn.conf.YarnConfiguration.class, YarnConfigurationConstructor.class)
-            .bindSetEntry(DriverConfigurationProviders.class, DRIVER_CONFIGURATION_PROVIDERS);
-
-    for (Map.Entry<Class, Object> entry : configs.entrySet()) {
-      moduleBuilder = moduleBuilder.bindNamedParameter(entry.getKey(), entry.getValue().toString());
-    }
-
-    return moduleBuilder.build();
-  }
+            .bindSetEntry(DriverConfigurationProviders.class, DRIVER_CONFIGURATION_PROVIDERS).build();
 }
