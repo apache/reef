@@ -156,7 +156,9 @@ namespace Org.Apache.REEF.Client.Tests
                 "\"securityTokenKind\":\"{0}\"," +
                 "\"securityTokenService\":\"{0}\"," +
                 "\"maxApplicationSubmissions\":{1}," +
-                "\"driverMemory\":{1}" +
+                "\"driverMemory\":{1}," +
+                "\"driverStdoutFilePath\":\"{0}\"," +
+                "\"driverStderrFilePath\":\"{0}\"" +
                 "}}";
 
             var conf = YARNClientConfiguration.ConfigurationModule
@@ -173,6 +175,8 @@ namespace Org.Apache.REEF.Client.Tests
                 .SetJobIdentifier(AnyString)
                 .SetMaxApplicationSubmissions(AnyInt)
                 .SetDriverMemory(AnyInt)
+                .SetDriverStderrFilePath(AnyString)
+                .SetDriverStdoutFilePath(AnyString)
                 .Build();
 
             var serializedBytes = serializer.SerializeJobArgsToBytes(jobRequest.JobParameters, AnyString);

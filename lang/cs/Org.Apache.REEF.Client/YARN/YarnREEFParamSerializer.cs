@@ -123,7 +123,11 @@ namespace Org.Apache.REEF.Client.YARN
                 securityTokenService = _securityTokenService,
                 yarnJobSubmissionParameters = avroYarnJobSubmissionParameters,
                 driverMemory = jobParameters.DriverMemoryInMB,
-                maxApplicationSubmissions = jobParameters.MaxApplicationSubmissions
+                maxApplicationSubmissions = jobParameters.MaxApplicationSubmissions,
+                driverStdoutFilePath = string.IsNullOrWhiteSpace(jobParameters.StdoutFilePath.Value) ?
+                    _fileNames.GetDefaultYarnDriverStdoutFilePath() : jobParameters.StdoutFilePath.Value,
+                driverStderrFilePath = string.IsNullOrWhiteSpace(jobParameters.StderrFilePath.Value) ? 
+                    _fileNames.GetDefaultYarnDriverStderrFilePath() : jobParameters.StderrFilePath.Value
             };
 
             return AvroJsonSerializer<AvroYarnClusterJobSubmissionParameters>.ToBytes(avroYarnClusterJobSubmissionParameters);

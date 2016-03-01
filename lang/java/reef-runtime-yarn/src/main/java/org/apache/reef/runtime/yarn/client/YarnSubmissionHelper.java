@@ -54,6 +54,8 @@ public final class YarnSubmissionHelper implements Closeable{
   private final ClasspathProvider classpath;
   private final SecurityTokenProvider tokenProvider;
   private final List<String> commandPrefixList;
+  private String driverStdoutFilePath;
+  private String driverStderrFilePath;
   private Class launcherClazz;
   private List<String> configurationFilePaths;
 
@@ -64,6 +66,12 @@ public final class YarnSubmissionHelper implements Closeable{
                               final List<String> commandPrefixList) throws IOException, YarnException {
     this.fileNames = fileNames;
     this.classpath = classpath;
+
+    this.driverStdoutFilePath =
+        ApplicationConstants.LOG_DIR_EXPANSION_VAR + "/" + this.fileNames.getDriverStdoutFileName();
+
+    this.driverStderrFilePath =
+        ApplicationConstants.LOG_DIR_EXPANSION_VAR + "/" + this.fileNames.getDriverStderrFileName();
 
     LOG.log(Level.FINE, "Initializing YARN Client");
     this.yarnClient = YarnClient.createYarnClient();
@@ -221,6 +229,26 @@ public final class YarnSubmissionHelper implements Closeable{
     return this;
   }
 
+  /**
+   * Sets the Driver stdout file path.
+   * @param driverStdoutPath
+   * @return
+   */
+  public YarnSubmissionHelper setDriverStdoutPath(final String driverStdoutPath) {
+    this.driverStdoutFilePath = driverStdoutPath;
+    return this;
+  }
+
+  /**
+   * Sets the Driver stderr file path.
+   * @param driverStderrPath
+   * @return
+   */
+  public YarnSubmissionHelper setDriverStderrPath(final String driverStderrPath) {
+    this.driverStderrFilePath = driverStderrPath;
+    return this;
+  }
+
   public void submit() throws IOException, YarnException {
 
     // SET EXEC COMMAND
@@ -228,8 +256,8 @@ public final class YarnSubmissionHelper implements Closeable{
         .setConfigurationFilePaths(configurationFilePaths)
         .setClassPath(this.classpath.getDriverClasspath())
         .setMemory(this.applicationSubmissionContext.getResource().getMemory())
-        .setStandardOut(ApplicationConstants.LOG_DIR_EXPANSION_VAR + "/" + this.fileNames.getDriverStdoutFileName())
-        .setStandardErr(ApplicationConstants.LOG_DIR_EXPANSION_VAR + "/" + this.fileNames.getDriverStderrFileName())
+        .setStandardOut(driverStdoutFilePath)
+        .setStandardErr(driverStderrFilePath)
         .build();
 
     if (this.applicationSubmissionContext.getKeepContainersAcrossApplicationAttempts() &&

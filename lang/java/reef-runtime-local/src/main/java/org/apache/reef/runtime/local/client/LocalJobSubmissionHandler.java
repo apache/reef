@@ -107,7 +107,7 @@ final class LocalJobSubmissionHandler implements JobSubmissionHandler {
 
         this.configurationSerializer.toFile(driverConfiguration,
             new File(driverFolder, this.fileNames.getDriverConfigurationPath()));
-        this.driverLauncher.launch(driverFolder, t.getIdentifier(), t.getRemoteId());
+        this.driverLauncher.launch(driverFolder);
       } catch (final Exception e) {
         LOG.log(Level.SEVERE, "Unable to setup driver.", e);
         throw new RuntimeException("Unable to setup driver.", e);

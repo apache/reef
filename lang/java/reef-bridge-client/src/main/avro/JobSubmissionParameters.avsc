@@ -30,6 +30,17 @@
   {
       "namespace": "org.apache.reef.reef.bridge.client.avro",
       "type": "record",
+      "name": "AvroLocalJobSubmissionParameters",
+      "doc": "Job submission parameters used by the local runtime",
+      "fields": [
+        { "name": "sharedJobSubmissionParameters", "type": "AvroJobSubmissionParameters" },
+        { "name": "driverStdoutFilePath", "type": "string" },
+        { "name": "driverStderrFilePath", "type": "string" }
+      ]
+  },
+  {
+      "namespace": "org.apache.reef.reef.bridge.client.avro",
+      "type": "record",
       "name": "AvroYarnJobSubmissionParameters",
       "doc": "General cross-language submission parameters to the YARN runtime",
       "fields": [
@@ -48,7 +59,9 @@
         { "name": "securityTokenKind", "type": "string", "default": "NULL" },
         { "name": "securityTokenService", "type": "string", "default": "NULL" },
         { "name": "driverMemory", "type": "int" },
-        { "name": "maxApplicationSubmissions", "type": "int" }
+        { "name": "maxApplicationSubmissions", "type": "int" },
+        { "name": "driverStdoutFilePath", "type": "string" },
+        { "name": "driverStderrFilePath", "type": "string" }
       ]
   }
 ]

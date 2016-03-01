@@ -54,6 +54,8 @@ final class YarnClusterSubmissionFromCS {
   private final String tokenKind;
   private final String tokenService;
   private final String jobSubmissionDirectoryPrefix;
+  private final String yarnDriverStdoutFilePath;
+  private final String yarnDriverStderrFilePath;
 
   private final AvroYarnAppSubmissionParameters yarnAppSubmissionParameters;
   private final AvroYarnJobSubmissionParameters yarnJobSubmissionParameters;
@@ -82,6 +84,8 @@ final class YarnClusterSubmissionFromCS {
     this.tokenKind = yarnClusterJobSubmissionParameters.getSecurityTokenKind().toString();
     this.tokenService = yarnClusterJobSubmissionParameters.getSecurityTokenService().toString();
     this.jobSubmissionDirectoryPrefix = yarnJobSubmissionParameters.getJobSubmissionDirectoryPrefix().toString();
+    this.yarnDriverStdoutFilePath = yarnClusterJobSubmissionParameters.getDriverStdoutFilePath().toString();
+    this.yarnDriverStderrFilePath = yarnClusterJobSubmissionParameters.getDriverStderrFilePath().toString();
 
     Validate.notEmpty(jobId, "The job id is null or empty");
     Validate.isTrue(driverMemory > 0, "The amount of driver memory given is <= 0.");
@@ -93,6 +97,8 @@ final class YarnClusterSubmissionFromCS {
     Validate.notEmpty(tokenKind, "Token kind should be either NULL or some custom non empty value");
     Validate.notEmpty(tokenService, "Token service should be either NULL or some custom non empty value");
     Validate.notEmpty(jobSubmissionDirectoryPrefix, "Job submission directory prefix should not be empty");
+    Validate.notEmpty(yarnDriverStdoutFilePath, "Driver stdout file path should not be empty");
+    Validate.notEmpty(yarnDriverStderrFilePath, "Driver stderr file path should not be empty");
   }
 
   @Override
@@ -175,6 +181,14 @@ final class YarnClusterSubmissionFromCS {
    */
   int getDriverRecoveryTimeout() {
     return driverRecoveryTimeout;
+  }
+
+  String getYarnDriverStdoutFilePath() {
+    return yarnDriverStdoutFilePath;
+  }
+
+  String getYarnDriverStderrFilePath() {
+    return yarnDriverStderrFilePath;
   }
 
   /**

@@ -156,6 +156,24 @@ namespace Org.Apache.REEF.Client.API
         }
 
         /// <summary>
+        /// Sets the stdout file path for the driver.
+        /// </summary>
+        public JobRequestBuilder SetDriverStdoutFilePath(string driverStdoutFilePath)
+        {
+            _jobParametersBuilder.SetDriverStdoutFilePath(driverStdoutFilePath);
+            return this;
+        }
+
+        /// <summary>
+        /// Sets the stderr file path for the driver.
+        /// </summary>
+        public JobRequestBuilder SetDriverStderrFilePath(string driverStderrFilePath)
+        {
+            _jobParametersBuilder.SetDriverStderrFilePath(driverStderrFilePath);
+            return this;
+        }
+
+        /// <summary>
         /// Driver config file contents (Org.Apache.REEF.Bridge.exe.config) contents
         /// Can be use to redirect assembly versions
         /// </summary>

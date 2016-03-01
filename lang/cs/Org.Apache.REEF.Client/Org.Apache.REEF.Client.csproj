@@ -78,6 +78,7 @@ under the License.
     <Compile Include="Avro\AvroAppSubmissionParameters.cs" />
     <Compile Include="Avro\AvroJobSubmissionParameters.cs" />
     <Compile Include="Avro\Local\AvroLocalAppSubmissionParameters.cs" />
+    <Compile Include="Avro\Local\AvroLocalJobSubmissionParameters.cs" />
     <Compile Include="Avro\YARN\AvroYarnAppSubmissionParameters.cs" />
     <Compile Include="Avro\YARN\AvroYarnJobSubmissionParameters.cs" />
     <Compile Include="Avro\YARN\AvroYarnClusterJobSubmissionParameters.cs" />
@@ -112,6 +113,8 @@ under the License.
     <Compile Include="YARN\IJobSubmissionDirectoryProvider.cs" />
     <Compile Include="YARN\Parameters\DriverMaxMemoryAllicationPoolSizeMB.cs" />
     <Compile Include="YARN\Parameters\DriverMaxPermSizeMB.cs" />
+    <Compile Include="YARN\Parameters\DriverStderrFilePath.cs" />
+    <Compile Include="YARN\Parameters\DriverStdoutFilePath.cs" />
     <Compile Include="YARN\RestClient\HttpClient.cs" />
     <Compile Include="YARN\RestClient\IDeserializer.cs" />
     <Compile Include="YARN\RestClient\IHttpClient.cs" />
@@ -154,6 +157,7 @@ under the License.
     <Compile Include="YARN\RestClient\IUrlProvider.cs" />
     <Compile Include="YARN\RestClient\FileSystemJobResourceUploader.cs" />
     <Compile Include="YARN\RestClient\MultipleRMUrlProvider.cs" />
+    <Compile Include="YARN\YarnCommandProviderConfiguration.cs" />
     <Compile Include="YARN\YarnJobSubmissionResult.cs" />
     <Compile Include="YARN\YARNREEFClient.cs" />
     <Compile Include="YARN\RestClient\RestRequestExecutor.cs" />
