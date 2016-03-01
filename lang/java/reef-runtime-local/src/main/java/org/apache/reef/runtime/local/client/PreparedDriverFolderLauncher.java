@@ -67,29 +67,33 @@ public class PreparedDriverFolderLauncher {
     this.commandPrefixList = commandPrefixList;
   }
 
+
+
   /**
    * Launches the driver prepared in driverFolder.
    *
    * @param driverFolder
-   * @param jobId
-   * @param clientRemoteId
    */
-  public void launch(final File driverFolder, final String jobId, final String clientRemoteId) {
+  public void launch(final File driverFolder) {
+    launch(driverFolder, this.fileNames.getDriverStdoutFileName(), this.fileNames.getDriverStderrFileName());
+  }
+
+  public void launch(final File driverFolder, final String stdoutFilePath, final String stderrFilePath) {
     assert driverFolder.isDirectory();
 
-    final List<String> command = makeLaunchCommand(jobId, clientRemoteId);
+    final List<String> command = makeLaunchCommand();
 
     final RunnableProcess process = new RunnableProcess(command,
         "driver",
         driverFolder,
         new LoggingRunnableProcessObserver(),
-        this.fileNames.getDriverStdoutFileName(),
-        this.fileNames.getDriverStderrFileName());
+        stdoutFilePath,
+        stderrFilePath);
     this.executor.submit(process);
     this.executor.shutdown();
   }
 
-  private List<String> makeLaunchCommand(final String jobId, final String clientRemoteId) {
+  private List<String> makeLaunchCommand() {
 
     final List<String> command = new JavaLaunchCommandBuilder(commandPrefixList)
         .setConfigurationFilePaths(Collections.singletonList(this.fileNames.getDriverConfigurationPath()))

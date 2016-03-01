@@ -25,6 +25,8 @@ namespace Org.Apache.REEF.Client.API
         private string _jobIdentifier;
         private int _maxApplicationSubmissions = 1;
         private int _driverMemory = 512;
+        private string _stdoutFilePath = null;
+        private string _stderrFilePath = null;
 
         private JobParametersBuilder()
         {
@@ -44,7 +46,12 @@ namespace Org.Apache.REEF.Client.API
         /// <returns></returns>
         public JobParameters Build()
         {
-            return new JobParameters(_jobIdentifier, _maxApplicationSubmissions, _driverMemory);
+            return new JobParameters(
+                _jobIdentifier, 
+                _maxApplicationSubmissions, 
+                _driverMemory,
+                _stdoutFilePath,
+                _stderrFilePath);
         }
 
         /// <summary>
@@ -74,6 +81,24 @@ namespace Org.Apache.REEF.Client.API
         public JobParametersBuilder SetDriverMemory(int driverMemoryInMb)
         {
             _driverMemory = driverMemoryInMb;
+            return this;
+        }
+
+        /// <summary>
+        /// Sets the file path to the stdout file for the driver.
+        /// </summary>
+        public JobParametersBuilder SetDriverStdoutFilePath(string stdoutFilePath)
+        {
+            _stdoutFilePath = stdoutFilePath;
+            return this;
+        }
+
+        /// <summary>
+        /// Sets the file path to the stderr file for the driver.
+        /// </summary>
+        public JobParametersBuilder SetDriverStderrFilePath(string stderrFilePath)
+        {
+            _stderrFilePath = stderrFilePath;
             return this;
         }
     }

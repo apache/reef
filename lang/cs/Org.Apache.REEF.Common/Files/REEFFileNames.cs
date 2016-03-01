@@ -15,6 +15,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
+using System;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using Org.Apache.REEF.Tang.Annotations;
@@ -55,6 +56,9 @@ namespace Org.Apache.REEF.Common.Files
         private const string SECURITY_TOKEN_PASSWORD_FILE = "SecurityTokenPwd";
         private const string APP_SUBMISSION_PARAMETERS_FILE = "app-submission-params.json";
         private const string JOB_SUBMISSION_PARAMETERS_FILE = "job-submission-params.json";
+        private const string YARN_DEFAULT_DRIVER_OUT_VAR = "<LOG_DIR>";
+        private const string YARN_DRIVER_STDOUT_PATH = YARN_DEFAULT_DRIVER_OUT_VAR + "/driver.stdout";
+        private const string YARN_DRIVER_STDERR_PATH = YARN_DEFAULT_DRIVER_OUT_VAR + "/driver.stderr";
         private const string DRIVER_COMMAND_LOGGING_CONFIG = "1> <LOG_DIR>/driver.stdout 2> <LOG_DIR>/driver.stderr";
 
         [Inject]
@@ -262,10 +266,40 @@ namespace Org.Apache.REEF.Common.Files
         }
 
         /// <summary>
+        /// Returns the default driver log output variable for YARN.
+        /// Expands into the constant "&lt;LOG_DIR&gt;".
+        /// </summary>
+        /// <returns>"&lt;LOG_DIR&gt;"</returns>
+        public string GetYarnDriverLogOutputVariable()
+        {
+            return YARN_DEFAULT_DRIVER_OUT_VAR;
+        }
+
+        /// <summary>
+        /// The default YARN Driver stdout file path.
+        /// </summary>
+        /// <returns></returns>
+        public string GetDefaultYarnDriverStdoutFilePath()
+        {
+            return YARN_DRIVER_STDOUT_PATH;
+        }
+
+        /// <summary>
+        /// The default YARN Driver stderr file path.
+        /// </summary>
+        /// <returns></returns>
+        public string GetDefaultYarnDriverStderrFilePath()
+        {
+            return YARN_DRIVER_STDERR_PATH;
+        }
+
+        /// <summary>
         /// The command that allows redirecting Driver stdout and stderr logs
         /// to appropriate files
         /// </summary>
         /// <returns></returns>
+        [Obsolete("Deprecated in 0.15. Will be removed. " +
+                  "Please use GetDefaultYarnDriverStdoutFilePath or GetDefaultYarnDriverStderrFilePath.")]
         public string GetDriverLoggingConfigCommand()
         {
             return DRIVER_COMMAND_LOGGING_CONFIG;

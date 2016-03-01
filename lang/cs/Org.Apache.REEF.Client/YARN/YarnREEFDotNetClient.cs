@@ -28,6 +28,7 @@ using Org.Apache.REEF.Client.YARN.RestClient.DataModel;
 using Org.Apache.REEF.Common.Files;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Tang.Implementations.Tang;
+using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Utilities.Attributes;
 using Org.Apache.REEF.Utilities.Logging;
 
@@ -43,27 +44,27 @@ namespace Org.Apache.REEF.Client.YARN
     {
         private const string REEFApplicationType = @"REEF";
         private static readonly Logger Log = Logger.GetLogger(typeof(YarnREEFDotNetClient));
+        private readonly IInjector _injector;
         private readonly IYarnRMClient _yarnRMClient;
         private readonly DriverFolderPreparationHelper _driverFolderPreparationHelper;
         private readonly IJobResourceUploader _jobResourceUploader;
-        private readonly IYarnJobCommandProvider _yarnJobCommandProvider;
         private readonly REEFFileNames _fileNames;
         private readonly IJobSubmissionDirectoryProvider _jobSubmissionDirectoryProvider;
         private readonly YarnREEFDotNetParamSerializer _paramSerializer;
 
         [Inject]
         private YarnREEFDotNetClient(
+            IInjector injector,
             IYarnRMClient yarnRMClient,
             DriverFolderPreparationHelper driverFolderPreparationHelper,
             IJobResourceUploader jobResourceUploader,
-            IYarnJobCommandProvider yarnJobCommandProvider,
             REEFFileNames fileNames,
             IJobSubmissionDirectoryProvider jobSubmissionDirectoryProvider,
             YarnREEFDotNetParamSerializer paramSerializer)
         {
+            _injector = injector;
             _jobSubmissionDirectoryProvider = jobSubmissionDirectoryProvider;
             _fileNames = fileNames;
-            _yarnJobCommandProvider = yarnJobCommandProvider;
             _jobResourceUploader = jobResourceUploader;
             _driverFolderPreparationHelper = driverFolderPreparationHelper;
             _yarnRMClient = yarnRMClient;
@@ -157,7 +158,24 @@ namespace Org.Apache.REEF.Client.YARN
            int maxApplicationSubmissions,
            IReadOnlyCollection<JobResource> jobResources)
         {
-            string command = _yarnJobCommandProvider.GetJobSubmissionCommand();
+            var commandProviderConfigModule = YarnCommandProviderConfiguration.ConfigurationModule;
+            if (jobParameters.StdoutFilePath.IsPresent())
+            {
+                commandProviderConfigModule = commandProviderConfigModule
+                    .Set(YarnCommandProviderConfiguration.DriverStdoutFilePath, jobParameters.StdoutFilePath.Value);
+            }
+
+            if (jobParameters.StderrFilePath.IsPresent())
+            {
+                commandProviderConfigModule = commandProviderConfigModule
+                    .Set(YarnCommandProviderConfiguration.DriverStderrFilePath, jobParameters.StderrFilePath.Value);
+            }
+
+            var yarnJobCommandProvider = _injector.ForkInjector(commandProviderConfigModule.Build())
+                .GetInstance<IYarnJobCommandProvider>();
+
+            var command = yarnJobCommandProvider.GetJobSubmissionCommand();
+
             Log.Log(Level.Verbose, "Command for YARN: {0}", command);
             Log.Log(Level.Verbose, "ApplicationID: {0}", appId);
             Log.Log(Level.Verbose, "MaxApplicationSubmissions: {0}", maxApplicationSubmissions);

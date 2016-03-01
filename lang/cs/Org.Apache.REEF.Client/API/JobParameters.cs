@@ -16,6 +16,7 @@
 // under the License.
 
 using System;
+using Org.Apache.REEF.Utilities;
 
 namespace Org.Apache.REEF.Client.API
 {
@@ -29,19 +30,36 @@ namespace Org.Apache.REEF.Client.API
         private readonly string _jobIdentifier;
         private readonly int _maxApplicationSubmissions;
         private readonly int _driverMemory;
+        private readonly Optional<string> _stdoutFilePath;
+        private readonly Optional<string> _stderrFilePath;
 
-        internal JobParameters(string jobIdentifier, int maxApplicationSubmissions, int driverMemory)
+        internal JobParameters(
+            string jobIdentifier, 
+            int maxApplicationSubmissions, 
+            int driverMemory,
+            string stdoutFilePath,
+            string stderrFilePath)
         {
             _jobIdentifier = jobIdentifier;
             _maxApplicationSubmissions = maxApplicationSubmissions;
             _driverMemory = driverMemory;
+            
+            _stdoutFilePath = string.IsNullOrWhiteSpace(stdoutFilePath) ? 
+                Optional<string>.Empty() : Optional<string>.Of(stdoutFilePath);
+
+            _stderrFilePath = string.IsNullOrWhiteSpace(stderrFilePath) ?
+                Optional<string>.Empty() : Optional<string>.Of(stderrFilePath);
         }
 
         [Obsolete("Introduced to bridge deprecation of IJobSubmission.")]
         internal static JobParameters FromJobSubmission(IJobSubmission jobSubmission)
         {
             return new JobParameters(
-                jobSubmission.JobIdentifier, jobSubmission.MaxApplicationSubmissions, jobSubmission.DriverMemory);
+                jobSubmission.JobIdentifier, 
+                jobSubmission.MaxApplicationSubmissions, 
+                jobSubmission.DriverMemory,
+                null,
+                null);
         }
 
         /// <summary>
@@ -67,6 +85,22 @@ namespace Org.Apache.REEF.Client.API
         public int DriverMemoryInMB
         {
             get { return _driverMemory; }
+        }
+
+        /// <summary>
+        /// Gets the file path for stdout for the driver.
+        /// </summary>
+        public Optional<string> StdoutFilePath
+        {
+            get { return _stdoutFilePath; }
+        } 
+
+        /// <summary>
+        /// Gets the file path for stderr for the driver.
+        /// </summary>
+        public Optional<string> StderrFilePath
+        {
+            get { return _stderrFilePath; }
         }
     }
 }

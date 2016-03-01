@@ -99,10 +99,17 @@ namespace Org.Apache.REEF.Client.Local
                 jobId = jobParameters.JobIdentifier,
             };
 
+            var bootstrapLocalJobArgs = new AvroLocalJobSubmissionParameters
+            {
+                sharedJobSubmissionParameters = bootstrapJobArgs,
+                driverStdoutFilePath = jobParameters.StdoutFilePath.IsPresent() ? jobParameters.StdoutFilePath.Value : _fileNames.GetDriverStdoutFileName(),
+                driverStderrFilePath = jobParameters.StderrFilePath.IsPresent() ? jobParameters.StderrFilePath.Value : _fileNames.GetDriverStderrFileName()
+            };
+
             var submissionArgsFilePath = Path.Combine(driverFolder, _fileNames.GetJobSubmissionParametersFile());
             using (var argsFileStream = new FileStream(submissionArgsFilePath, FileMode.CreateNew))
             {
-                var serializedArgs = AvroJsonSerializer<AvroJobSubmissionParameters>.ToBytes(bootstrapJobArgs);
+                var serializedArgs = AvroJsonSerializer<AvroLocalJobSubmissionParameters>.ToBytes(bootstrapLocalJobArgs);
                 argsFileStream.Write(serializedArgs, 0, serializedArgs.Length);
             }
 

@@ -148,6 +148,8 @@ public final class YarnJobSubmissionClient {
           .setPreserveEvaluators(yarnSubmission.getDriverRecoveryTimeout() > 0)
           .setLauncherClass(YarnBootstrapREEFLauncher.class)
           .setConfigurationFilePaths(confFiles)
+          .setDriverStdoutPath(yarnSubmission.getYarnDriverStdoutFilePath())
+          .setDriverStderrPath(yarnSubmission.getYarnDriverStderrFilePath())
           .submit();
       writeDriverHttpEndPoint(yarnSubmission.getDriverFolder(),
           submissionHelper.getStringApplicationId(), jobFolderOnDFS.getPath());

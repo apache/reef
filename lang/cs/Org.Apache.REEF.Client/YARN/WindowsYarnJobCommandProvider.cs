@@ -44,6 +44,8 @@ namespace Org.Apache.REEF.Client.YARN
         private readonly REEFFileNames _fileNames;
         private readonly bool _enableDebugLogging;
         private readonly IYarnCommandLineEnvironment _yarnCommandLineEnvironment;
+        private readonly string _driverStdoutFilePath;
+        private readonly string _driverStderrFilePath;
         private readonly int _driverMaxMemoryAllocationPoolSizeMB;
         private readonly int _driverMaxPermSizeMB;
 
@@ -52,6 +54,8 @@ namespace Org.Apache.REEF.Client.YARN
             [Parameter(typeof(EnableDebugLogging))] bool enableDebugLogging,
             [Parameter(typeof(DriverMaxMemoryAllicationPoolSizeMB))] int driverMaxMemoryAllocationPoolSizeMB,
             [Parameter(typeof(DriverMaxPermSizeMB))] int driverMaxPermSizeMB,
+            [Parameter(typeof(DriverStdoutFilePath))] string driverStdoutFilePath,
+            [Parameter(typeof(DriverStderrFilePath))] string driverStderrFilePath,
             IYarnCommandLineEnvironment yarnCommandLineEnvironment,
             REEFFileNames fileNames)
         {
@@ -59,6 +63,8 @@ namespace Org.Apache.REEF.Client.YARN
             _enableDebugLogging = enableDebugLogging;
             _fileNames = fileNames;
             _driverMaxMemoryAllocationPoolSizeMB = driverMaxMemoryAllocationPoolSizeMB;
+            _driverStdoutFilePath = driverStdoutFilePath;
+            _driverStderrFilePath = driverStderrFilePath;
             _driverMaxPermSizeMB = driverMaxPermSizeMB;
         }
 
@@ -97,7 +103,7 @@ namespace Org.Apache.REEF.Client.YARN
                           _fileNames.GetReefFolderName(),
                           _fileNames.GetLocalFolderName(),
                           _fileNames.GetAppSubmissionParametersFile()));
-            sb.Append(" " + _fileNames.GetDriverLoggingConfigCommand());
+            sb.Append(" " + string.Format("1> {0} 2> {1}", _driverStdoutFilePath, _driverStderrFilePath));
             return sb.ToString();
         }
     }
