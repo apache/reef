@@ -20,18 +20,11 @@ using System.Text;
 
 namespace Org.Apache.REEF.Utilities
 {
-    // TODO[REEF-842] Act on the obsoletes
     public class ByteUtilities
     {
         public static byte[] StringToByteArrays(string s)
         {
             return Encoding.UTF8.GetBytes(s);
-        }
-
-        [Obsolete("Deprecated in 0.14, please use ByteArraysToString instead.")]
-        public static string ByteArrarysToString(byte[] b)
-        {
-            return ByteArraysToString(b);
         }
 
         public static string ByteArraysToString(byte[] b)

@@ -26,7 +26,7 @@ namespace Org.Apache.REEF.Tests.Utility
         [Fact]
         public void TestGeneratingFullDriverConfigFile()
         {
-            DriverConfigurationSettings driverSubmissionSettings = new DriverConfigurationSettings()
+            DriverConfigurationSettings driverConfigurationSettings = new DriverConfigurationSettings()
             {
                 DriverMemory = 1024,
                 DriverIdentifier = "juliaDriverId",
@@ -37,13 +37,13 @@ namespace Org.Apache.REEF.Tests.Utility
                 JarFileFolder = ".\\"
             };
 
-            DriverConfigGenerator.DriverConfigurationBuilder(driverSubmissionSettings);
+            DriverConfigGenerator.DriverConfigurationBuilder(driverConfigurationSettings);
         }
 
         [Fact]
         public void TestGeneratingDriverConfigFileWithoutHttp()
         {
-            DriverConfigurationSettings driverSubmissionSettings = new DriverConfigurationSettings()
+            DriverConfigurationSettings driverConfigurationSettings = new DriverConfigurationSettings()
             {
                 DriverMemory = 1024,
                 DriverIdentifier = "juliaDriverId",
@@ -54,13 +54,13 @@ namespace Org.Apache.REEF.Tests.Utility
                 JarFileFolder = ".\\"
             };
 
-            DriverConfigGenerator.DriverConfigurationBuilder(driverSubmissionSettings);
+            DriverConfigGenerator.DriverConfigurationBuilder(driverConfigurationSettings);
         }
 
         [Fact]
         public void TestGeneratingDriverConfigFileWithoutNameServer()
         {
-            DriverConfigurationSettings driverSubmissionSettings = new DriverConfigurationSettings()
+            DriverConfigurationSettings driverConfigurationSettings = new DriverConfigurationSettings()
             {
                 DriverMemory = 1024,
                 DriverIdentifier = "juliaDriverId",
@@ -71,13 +71,13 @@ namespace Org.Apache.REEF.Tests.Utility
                 JarFileFolder = ".\\"
             };
 
-            DriverConfigGenerator.DriverConfigurationBuilder(driverSubmissionSettings);
+            DriverConfigGenerator.DriverConfigurationBuilder(driverConfigurationSettings);
         }
 
         [Fact]
         public void TestGeneratingDriverConfigFileDriverOnly()
         {
-            DriverConfigurationSettings driverSubmissionSettings = new DriverConfigurationSettings()
+            DriverConfigurationSettings driverConfigurationSettings = new DriverConfigurationSettings()
             {
                 DriverMemory = 1024,
                 DriverIdentifier = "juliaDriverId",
@@ -88,7 +88,7 @@ namespace Org.Apache.REEF.Tests.Utility
                 JarFileFolder = ".\\"
             };
 
-            DriverConfigGenerator.DriverConfigurationBuilder(driverSubmissionSettings);
+            DriverConfigGenerator.DriverConfigurationBuilder(driverConfigurationSettings);
         }
     }
 }

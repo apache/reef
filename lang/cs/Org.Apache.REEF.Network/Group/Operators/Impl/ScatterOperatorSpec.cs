@@ -25,7 +25,6 @@ namespace Org.Apache.REEF.Network.Group.Operators.Impl
     /// <summary>
     /// The specification used to define Scatter Group Communication Operators.
     /// </summary>
-    /// TODO[REEF-842] Act on the obsoletes
     [Private]
     public sealed class ScatterOperatorSpec : IOperatorSpec
     {
@@ -45,16 +44,6 @@ namespace Org.Apache.REEF.Network.Group.Operators.Impl
         /// of messages to other tasks.
         /// </summary>
         public string SenderId { get; private set; }
-
-        /// <summary>
-        /// Returns the Configuration for Codec, ReduceFunction and DataConverter
-        /// </summary>
-        [Obsolete("Deprecated in 0.14, please use Configuration instead.")]
-        public IConfiguration Configiration
-        {
-            get { return Configuration; }
-            private set { Configuration = value; }
-        }
 
         /// <summary>
         /// Returns the Configuration for Codec, ReduceFunction and DataConverter

@@ -19,7 +19,6 @@ using System;
 
 namespace Org.Apache.REEF.Driver
 {
-    // TODO[REEF-842] Act on the obsoletes
     public static class Constants
     {
         /// <summary>
@@ -27,12 +26,6 @@ namespace Org.Apache.REEF.Driver
         /// </summary>
         [Obsolete("Deprecated in 0.14. Will be removed in 0.15.")]
         public const ulong NullHandler = 0;
-
-        /// <summary>
-        /// The class hierarchy file from .NET.
-        /// </summary>
-        [Obsolete("Deprecated in 0.14. Will be removed in 0.15.")]
-        public const string ClassHierarachyBin = "clrClassHierarchy.bin";
 
         /// <summary>
         /// The class hierarchy file from .NET.
