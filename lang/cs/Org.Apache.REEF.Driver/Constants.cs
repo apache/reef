@@ -19,32 +19,12 @@ using System;
 
 namespace Org.Apache.REEF.Driver
 {
-    // TODO[REEF-842] Act on the obsoletes
     public static class Constants
     {
         /// <summary>
         /// Null handler that is not used on Java side.
         /// </summary>
-        [Obsolete("Deprecated in 0.14. Will be removed in 0.15.")]
         public const ulong NullHandler = 0;
-
-        /// <summary>
-        /// The class hierarchy file from .NET.
-        /// </summary>
-        [Obsolete("Deprecated in 0.14. Will be removed in 0.15.")]
-        public const string ClassHierarachyBin = "clrClassHierarchy.bin";
-
-        /// <summary>
-        /// The class hierarchy file from .NET.
-        /// </summary>
-        [Obsolete("Deprecated in 0.14. Will be removed in 0.15.")]
-        public const string ClassHierarchyBin = "clrClassHierarchy.bin";
-
-        /// <summary>
-        /// The file containing user supplied libraries.
-        /// </summary>
-        [Obsolete("Deprecated in 0.14. Will be removed in 0.15.")]
-        public const string GlobalUserSuppliedJavaLibraries = "userSuppliedGlobalLibraries.txt";
 
         /// <summary>
         /// The default memory granularity for evaluators.
@@ -56,12 +36,6 @@ namespace Org.Apache.REEF.Driver
         /// </summary>
         public const string DriverAppDirectory = "ReefDriverAppDlls";
         
-        /// <summary>
-        /// The bridge JAR name.
-        /// </summary>
-        [Obsolete("Deprecated in 0.14. Will be removed in 0.15.")]
-        public const string JavaBridgeJarFileName = "reef-bridge-java-0.15.0-SNAPSHOT-shaded.jar";
-
         public const string BridgeLaunchClass = "org.apache.reef.javabridge.generic.Launch";
 
         /// <summary>

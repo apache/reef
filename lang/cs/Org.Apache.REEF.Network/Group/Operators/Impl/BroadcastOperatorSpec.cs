@@ -25,7 +25,6 @@ namespace Org.Apache.REEF.Network.Group.Operators.Impl
     /// <summary>
     /// The specification used to define Broadcast Operators.
     /// </summary>
-    /// TODO[REEF-842] Act on the obsoletes
     [Private]
     public sealed class BroadcastOperatorSpec : IOperatorSpec
     {
@@ -44,16 +43,6 @@ namespace Org.Apache.REEF.Network.Group.Operators.Impl
         /// Returns the identifier of the Task that will broadcast data to other Tasks.
         /// </summary>
         public string SenderId { get; private set; }
-
-        /// <summary>
-        /// Returns the Configuration for Codec, ReduceFunction and DataConverter
-        /// </summary>
-        [Obsolete("Deprecated in 0.14, please use Configuration instead.")]
-        public IConfiguration Configiration
-        {
-            get { return Configuration; }
-            private set { Configuration = value; }
-        }
 
         /// <summary>
         /// Returns the Configuration for Codec, ReduceFunction and DataConverter

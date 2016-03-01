@@ -27,7 +27,6 @@ using Org.Apache.REEF.Utilities.Logging;
 
 namespace Org.Apache.REEF.Tang.Util
 {
-    // TODO[REEF-842] Act on the obsoletes
     public static class ReflectionUtilities
     {
         private static readonly Logger LOGGER = Logger.GetLogger(typeof(ReflectionUtilities));
@@ -509,12 +508,6 @@ namespace Org.Apache.REEF.Tang.Util
         // Here is a more elaborate hack to test for anonymous type:
         // http://stackoverflow.com/questions/2483023/how-to-test-if-a-type-is-anonymous
         // compiler generated classes are always recreatable and need not additional references to check for.
-        [Obsolete("Deprecated in 0.14, please use IsAnonymousType instead.")]
-        public static bool IsAnnonymousType(Type type)
-        {
-            return IsAnonymousType(type);
-        }
-
         public static bool IsAnonymousType(Type type)
         {
             if (type != null)
