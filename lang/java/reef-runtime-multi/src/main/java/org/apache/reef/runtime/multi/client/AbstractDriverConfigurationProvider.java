@@ -18,55 +18,32 @@
  */
 package org.apache.reef.runtime.multi.client;
 
-import org.apache.avro.io.DatumWriter;
-import org.apache.avro.io.EncoderFactory;
-import org.apache.avro.io.JsonEncoder;
-import org.apache.avro.specific.SpecificDatumWriter;
 import org.apache.reef.runtime.common.client.DriverConfigurationProvider;
 import org.apache.reef.runtime.multi.driver.MultiRuntimeDriverConfiguration;
-import org.apache.reef.runtime.multi.utils.RuntimeDefinition;
+import org.apache.reef.runtime.multi.utils.RuntimeDefinitionSerializer;
+import org.apache.reef.runtime.multi.utils.avro.RuntimeDefinition;
 import org.apache.reef.tang.Configuration;
 import org.apache.reef.tang.Configurations;
 import org.apache.reef.tang.formats.AvroConfigurationSerializer;
 import org.apache.reef.tang.formats.ConfigurationModule;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.net.URI;
 import java.util.ArrayList;
 
 /**
  * Provides base class for driver configuration providers for multi runtimes.
  */
-abstract class AbstractDriverConfigurationProvider implements DriverConfigurationProvider {
+public abstract class AbstractDriverConfigurationProvider implements DriverConfigurationProvider {
 
-  private static final String CHARSET_NAME = "ISO-8859-1";
+  private final RuntimeDefinitionSerializer runtimeDefinitionSerializer = new RuntimeDefinitionSerializer();
 
-  protected static String serializeConfiguration(final ConfigurationModule configModule) {
+  protected static RuntimeDefinition createRuntimeDefinition(final ConfigurationModule configModule,
+                                                             final String runtimeName,
+                                                             final boolean defaultRuntime) {
     final Configuration localDriverConfiguration = configModule.build();
     final AvroConfigurationSerializer serializer = new AvroConfigurationSerializer();
-    return serializer.toString(localDriverConfiguration);
-  }
-
-  protected static String serializeRuntimeDefinition(final String serializedConfig,
-                                                     final boolean defaultRuntime,
-                                                     final String runtimeName) {
-    RuntimeDefinition rd =
-            new RuntimeDefinition(runtimeName, serializedConfig, defaultRuntime);
-    final DatumWriter<RuntimeDefinition> configurationWriter =
-            new SpecificDatumWriter<>(RuntimeDefinition.class);
-    final String serializedConfiguration;
-    try (final ByteArrayOutputStream out = new ByteArrayOutputStream()) {
-      final JsonEncoder encoder = EncoderFactory.get().jsonEncoder(RuntimeDefinition.SCHEMA$, out);
-      configurationWriter.write(rd, encoder);
-      encoder.flush();
-      out.flush();
-      serializedConfiguration = out.toString(CHARSET_NAME);
-    } catch (final IOException e) {
-      throw new RuntimeException(e);
-    }
-
-    return serializedConfiguration;
+    final String serializedConfig = serializer.toString(localDriverConfiguration);
+    return new RuntimeDefinition(runtimeName, serializedConfig, defaultRuntime);
   }
 
   private static Configuration generateConfigurationModule(final ArrayList<String> serializedConfigurations,
@@ -88,11 +65,11 @@ abstract class AbstractDriverConfigurationProvider implements DriverConfiguratio
    * @param jobFolder      the job folder
    * @param clientRemoteId the client remote id
    * @param jobId          the job id
-   * @return array of configuration modules for runtimes, when the first element contains the default runtime
+   * @return array of runtime definitions
    */
-  protected abstract String[] getDriverConfiguration(final URI jobFolder,
-                                                     final String clientRemoteId,
-                                                     final String jobId);
+  protected abstract RuntimeDefinition[] getRuntimeDefinitions(final URI jobFolder,
+                                                               final String clientRemoteId,
+                                                               final String jobId);
 
   /**
    * Assembles the driver configuration.
@@ -104,14 +81,15 @@ abstract class AbstractDriverConfigurationProvider implements DriverConfiguratio
    * @param applicationConfiguration The configuration of the application, e.g. a filled out DriverConfiguration
    * @return The Driver configuration to be used to instantiate the Driver.
    */
+  @Override
   public final Configuration getDriverConfiguration(final URI jobFolder,
                                                     final String clientRemoteId,
                                                     final String jobId,
                                                     final Configuration applicationConfiguration) {
-    String[] configurationModules = getDriverConfiguration(jobFolder, clientRemoteId, jobId);
+    RuntimeDefinition[] runtimeDefinitions = getRuntimeDefinitions(jobFolder, clientRemoteId, jobId);
     ArrayList<String> runtimes = new ArrayList<>();
-    for (String module : configurationModules) {
-      runtimes.add(module);
+    for (final RuntimeDefinition module : runtimeDefinitions) {
+      runtimes.add(this.runtimeDefinitionSerializer.serialize(module));
     }
 
     return Configurations.merge(generateConfigurationModule(runtimes, jobId, clientRemoteId), applicationConfiguration);

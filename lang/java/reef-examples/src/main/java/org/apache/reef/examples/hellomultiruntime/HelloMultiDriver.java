@@ -16,12 +16,13 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.examples.hello;
+package org.apache.reef.examples.hellomultiruntime;
 
 import org.apache.reef.driver.evaluator.AllocatedEvaluator;
 import org.apache.reef.driver.evaluator.EvaluatorRequest;
 import org.apache.reef.driver.evaluator.EvaluatorRequestor;
 import org.apache.reef.driver.task.TaskConfiguration;
+import org.apache.reef.examples.hello.HelloTask;
 import org.apache.reef.tang.Configuration;
 import org.apache.reef.tang.annotations.Unit;
 import org.apache.reef.wake.EventHandler;

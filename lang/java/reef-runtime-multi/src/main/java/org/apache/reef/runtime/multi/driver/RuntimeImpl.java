@@ -19,7 +19,7 @@
 package org.apache.reef.runtime.multi.driver;
 
 import org.apache.reef.runtime.common.driver.api.*;
-import org.apache.reef.runtime.multi.driver.org.apache.reef.runtime.multi.driver.parameters.RuntimeName;
+import org.apache.reef.runtime.multi.driver.parameters.RuntimeName;
 import org.apache.reef.tang.annotations.Parameter;
 import org.apache.reef.wake.time.runtime.event.RuntimeStart;
 import org.apache.reef.wake.time.runtime.event.RuntimeStop;

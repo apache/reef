@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.runtime.multi.driver.org.apache.reef.runtime.multi.driver.parameters;
+package org.apache.reef.runtime.multi.driver.parameters;
 
 import org.apache.reef.tang.annotations.Name;
 import org.apache.reef.tang.annotations.NamedParameter;

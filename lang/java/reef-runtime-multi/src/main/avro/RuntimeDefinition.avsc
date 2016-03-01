@@ -22,7 +22,7 @@
  * to the runtimes host
  */
  {
-    "namespace":"org.apache.reef.runtime.multi.utils",
+    "namespace":"org.apache.reef.runtime.multi.utils.avro",
     "type":"record",
     "name":"RuntimeDefinition",
     "doc":"Defines the schema for runtime definition. This avro object is used to pass runtimes definitions to the runtimes host",

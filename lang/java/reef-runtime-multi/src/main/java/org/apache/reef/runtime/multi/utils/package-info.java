@@ -17,6 +17,6 @@
  * under the License.
  */
 /**
- * Parameters for the multi runtime.
+ * Utils for multi runtime.
  */
-package org.apache.reef.runtime.multi.client.parameters;
+package org.apache.reef.runtime.multi.utils;

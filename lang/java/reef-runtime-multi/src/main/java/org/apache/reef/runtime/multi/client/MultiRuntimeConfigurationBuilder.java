@@ -18,19 +18,21 @@
  */
 package org.apache.reef.runtime.multi.client;
 
+import org.apache.commons.lang.Validate;
 import org.apache.reef.runtime.local.client.parameters.MaxNumberOfEvaluators;
 import org.apache.reef.runtime.yarn.client.ExtensibleYarnClientConfiguration;
 import org.apache.reef.tang.Configuration;
+
 import java.util.*;
 
 /**
  * A builder for Multi Runtime Configuration.
  */
 public final class MultiRuntimeConfigurationBuilder {
-  private static final Set<String> SUPPORTED_RUNTIMES = new TreeSet<>(Arrays.asList(
+  private static final Set<String> SUPPORTED_RUNTIMES = new HashSet<>(Arrays.asList(
           org.apache.reef.runtime.yarn.driver.RuntimeIdentifier.RUNTIME_NAME,
           org.apache.reef.runtime.local.driver.RuntimeIdentifier.RUNTIME_NAME));
-  private static final Set<String> SUPPORTED_DEFAULT_RUNTIMES = new TreeSet<>(Arrays.asList(
+  private static final Set<String> SUPPORTED_DEFAULT_RUNTIMES = new HashSet<>(Arrays.asList(
           org.apache.reef.runtime.yarn.driver.RuntimeIdentifier.RUNTIME_NAME));
 
   private Set<String> runtimeNames = new HashSet<>();
@@ -38,49 +40,36 @@ public final class MultiRuntimeConfigurationBuilder {
   private final HashMap<Class, Object> namedParameters = new HashMap<>();
 
   private void addNamedParameter(final Class namedParameter,
-                                           final Object namedParameterValue) {
-    if (namedParameterValue == null) {
-      throw new IllegalArgumentException("Named parameter value cannot be null");
-    }
+                                 final Object namedParameterValue) {
+    Validate.notNull(namedParameterValue);
 
     this.namedParameters.put(namedParameter, namedParameterValue);
   }
 
   public MultiRuntimeConfigurationBuilder addRuntime(final String runtimeName) {
-    if (!SUPPORTED_RUNTIMES.contains(runtimeName)) {
-      throw new IllegalArgumentException("Unsupported Runtime " + runtimeName);
-    }
+    Validate.isTrue(SUPPORTED_RUNTIMES.contains(runtimeName), "unsupported runtime " + runtimeName);
 
     this.runtimeNames.add(runtimeName);
     return this;
   }
 
   public MultiRuntimeConfigurationBuilder setDefaultRuntime(final String runtimeName) {
-    if (!SUPPORTED_DEFAULT_RUNTIMES.contains(runtimeName)) {
-      throw new IllegalArgumentException("Unsupported Default Runtime " + runtimeName);
-    }
-
-    if (this.defaultRuntime != null) {
-      throw new IllegalArgumentException("Default runtime was already added");
-    }
+    Validate.isTrue(SUPPORTED_DEFAULT_RUNTIMES.contains(runtimeName), "Unsupported primary runtime " + runtimeName);
+    Validate.isTrue(this.defaultRuntime == null, "Default runtime was already added");
 
     this.defaultRuntime = runtimeName;
     return this;
   }
 
   public MultiRuntimeConfigurationBuilder setMaxEvaluatorsNumberForLocalRuntime(final int maxLocalEvaluators) {
-    if (maxLocalEvaluators < 1) {
-      throw new IllegalArgumentException("Max evaluators number shoudl be greater then 1");
-    }
+    Validate.isTrue(maxLocalEvaluators > 0, "Max evaluators number shoudl be greater then 0");
 
     addNamedParameter(MaxNumberOfEvaluators.class, maxLocalEvaluators);
     return this;
   }
 
   public Configuration build() {
-    if (defaultRuntime == null) {
-      throw new IllegalStateException("Default Runtime was not defined");
-    }
+    Validate.notNull(this.defaultRuntime, "Default Runtime was not defined");
 
     // Currently only Yarn default runtime is supported
     // Remove default runtime from the list

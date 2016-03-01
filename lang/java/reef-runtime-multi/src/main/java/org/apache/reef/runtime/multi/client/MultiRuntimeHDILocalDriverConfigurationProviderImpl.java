@@ -23,6 +23,7 @@ import org.apache.reef.runtime.hdinsight.client.HDInsightDriverConfiguration;
 import org.apache.reef.runtime.local.client.parameters.MaxNumberOfEvaluators;
 import org.apache.reef.runtime.local.client.parameters.RackNames;
 import org.apache.reef.runtime.local.driver.LocalDriverConfiguration;
+import org.apache.reef.runtime.multi.utils.avro.RuntimeDefinition;
 import org.apache.reef.tang.annotations.Parameter;
 import org.apache.reef.tang.formats.ConfigurationModule;
 
@@ -49,19 +50,19 @@ public final class MultiRuntimeHDILocalDriverConfigurationProviderImpl extends A
   }
 
   @Override
-  protected String[] getDriverConfiguration(final URI jobFolder,
-                                            final String clientRemoteId,
-                                            final String jobId) {
+  protected RuntimeDefinition[] getRuntimeDefinitions(final URI jobFolder,
+                                                      final String clientRemoteId,
+                                                      final String jobId) {
     final ConfigurationModule hdiModule = HDInsightDriverConfiguration.CONF
             .set(HDInsightDriverConfiguration.JOB_IDENTIFIER, jobId)
             .set(HDInsightDriverConfiguration.CLIENT_REMOTE_IDENTIFIER, clientRemoteId)
             .set(HDInsightDriverConfiguration.JOB_SUBMISSION_DIRECTORY, jobFolder.toString())
             .set(HDInsightDriverConfiguration.JVM_HEAP_SLACK, this.jvmSlack);
-    final String serializedHDIConfig = serializeConfiguration(hdiModule);
-    final String serializedHDIConfiguration = serializeRuntimeDefinition(
-            serializedHDIConfig,
-            true,
-            org.apache.reef.runtime.yarn.driver.RuntimeIdentifier.RUNTIME_NAME);
+
+    final RuntimeDefinition hdiRuntimeDefinition = createRuntimeDefinition(
+            hdiModule,
+            org.apache.reef.runtime.yarn.driver.RuntimeIdentifier.RUNTIME_NAME,
+            true);
 
     ConfigurationModule localModule = LocalDriverConfiguration.CONF
             .set(LocalDriverConfiguration.MAX_NUMBER_OF_EVALUATORS, this.maxEvaluators)
@@ -73,11 +74,11 @@ public final class MultiRuntimeHDILocalDriverConfigurationProviderImpl extends A
       localModule = localModule.set(LocalDriverConfiguration.RACK_NAMES, rackName);
     }
 
-    final String serializedLocalConfig = serializeConfiguration(localModule);
-    final String serializedLocalConfiguration = serializeRuntimeDefinition(
-            serializedLocalConfig,
-            false,
-            org.apache.reef.runtime.local.driver.RuntimeIdentifier.RUNTIME_NAME);
-    return new String[]{serializedHDIConfiguration, serializedLocalConfiguration};
+    final RuntimeDefinition localRuntimeDefinition = createRuntimeDefinition(
+            localModule,
+            org.apache.reef.runtime.local.driver.RuntimeIdentifier.RUNTIME_NAME,
+            false);
+
+    return new RuntimeDefinition[]{hdiRuntimeDefinition, localRuntimeDefinition};
   }
 }

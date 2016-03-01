@@ -24,6 +24,7 @@ import org.apache.reef.runtime.common.parameters.JVMHeapSlack;
 import org.apache.reef.runtime.local.client.parameters.MaxNumberOfEvaluators;
 import org.apache.reef.runtime.local.client.parameters.RackNames;
 import org.apache.reef.runtime.local.driver.LocalDriverConfiguration;
+import org.apache.reef.runtime.multi.utils.avro.RuntimeDefinition;
 import org.apache.reef.runtime.yarn.driver.YarnDriverConfiguration;
 import org.apache.reef.tang.annotations.Parameter;
 import org.apache.reef.tang.formats.ConfigurationModule;
@@ -47,26 +48,27 @@ public final class MultiRuntimeYarnLocalDriverConfigurationProviderImpl extends 
           @Parameter(JVMHeapSlack.class) final double jvmSlack,
           @Parameter(MaxNumberOfEvaluators.class) final int maxEvaluators,
           @Parameter(RackNames.class) final Set<String> rackNames) {
+
     this.jvmSlack = jvmSlack;
     this.maxEvaluators = maxEvaluators;
     this.rackNames = rackNames;
   }
 
   @Override
-  protected String[] getDriverConfiguration(final URI jobFolder,
-                                            final String clientRemoteId,
-                                            final String jobId) {
+  protected RuntimeDefinition[] getRuntimeDefinitions(final URI jobFolder,
+                                                      final String clientRemoteId,
+                                                      final String jobId) {
 
     ConfigurationModule yarnModule = YarnDriverConfiguration.CONF
             .set(YarnDriverConfiguration.JOB_SUBMISSION_DIRECTORY, jobFolder.toString())
             .set(YarnDriverConfiguration.JOB_IDENTIFIER, jobId)
             .set(YarnDriverConfiguration.CLIENT_REMOTE_IDENTIFIER, clientRemoteId)
             .set(YarnDriverConfiguration.JVM_HEAP_SLACK, this.jvmSlack);
-    final String serializedYarnConfig = serializeConfiguration(yarnModule);
-    final String serializedYarnConfiguration = serializeRuntimeDefinition(
-            serializedYarnConfig,
-            true,
-            org.apache.reef.runtime.yarn.driver.RuntimeIdentifier.RUNTIME_NAME);
+
+    final RuntimeDefinition yarnRuntimeDefinition = createRuntimeDefinition(
+            yarnModule,
+            org.apache.reef.runtime.yarn.driver.RuntimeIdentifier.RUNTIME_NAME,
+            true);
 
     ConfigurationModule localModule = LocalDriverConfiguration.CONF
             .set(LocalDriverConfiguration.MAX_NUMBER_OF_EVALUATORS, this.maxEvaluators)
@@ -79,11 +81,11 @@ public final class MultiRuntimeYarnLocalDriverConfigurationProviderImpl extends 
       localModule = localModule.set(LocalDriverConfiguration.RACK_NAMES, rackName);
     }
 
-    final String serializedLocalConfig = serializeConfiguration(localModule);
-    final String serializedLocalConfiguration = serializeRuntimeDefinition(
-            serializedLocalConfig,
-            false,
-            org.apache.reef.runtime.local.driver.RuntimeIdentifier.RUNTIME_NAME);
-    return new String[]{serializedYarnConfiguration, serializedLocalConfiguration};
+    final RuntimeDefinition localRuntimeDefinition = createRuntimeDefinition(
+            localModule,
+            org.apache.reef.runtime.local.driver.RuntimeIdentifier.RUNTIME_NAME,
+            false);
+
+    return new RuntimeDefinition[]{yarnRuntimeDefinition, localRuntimeDefinition};
   }
 }

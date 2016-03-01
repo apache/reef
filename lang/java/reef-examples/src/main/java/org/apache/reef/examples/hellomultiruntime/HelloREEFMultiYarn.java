@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.examples.hello;
+package org.apache.reef.examples.hellomultiruntime;
 
 import org.apache.reef.client.DriverConfiguration;
 import org.apache.reef.client.DriverLauncher;
@@ -57,12 +57,11 @@ public final class HelloREEFMultiYarn {
   }
 
   private static Configuration getHybridYarnSubmissionRuntimeConfiguration() {
-    MultiRuntimeConfigurationBuilder mrcb = new MultiRuntimeConfigurationBuilder();
-    mrcb.setDefaultRuntime(org.apache.reef.runtime.yarn.driver.RuntimeIdentifier.RUNTIME_NAME)
-        .addRuntime(org.apache.reef.runtime.local.driver.RuntimeIdentifier.RUNTIME_NAME)
-        .setMaxEvaluatorsNumberForLocalRuntime(1);
-
-    return mrcb.build();
+    return new MultiRuntimeConfigurationBuilder()
+            .setDefaultRuntime(org.apache.reef.runtime.yarn.driver.RuntimeIdentifier.RUNTIME_NAME)
+            .addRuntime(org.apache.reef.runtime.local.driver.RuntimeIdentifier.RUNTIME_NAME)
+            .setMaxEvaluatorsNumberForLocalRuntime(1)
+            .build();
   }
 
   /**

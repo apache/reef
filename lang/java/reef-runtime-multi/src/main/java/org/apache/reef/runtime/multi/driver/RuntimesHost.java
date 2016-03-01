@@ -18,17 +18,16 @@
  */
 package org.apache.reef.runtime.multi.driver;
 
-import org.apache.avro.io.DecoderFactory;
-import org.apache.avro.io.JsonDecoder;
-import org.apache.avro.specific.SpecificDatumReader;
+import org.apache.commons.lang.StringUtils;
 import org.apache.reef.runtime.common.driver.api.*;
 import org.apache.reef.runtime.common.driver.resourcemanager.NodeDescriptorEvent;
 import org.apache.reef.runtime.common.driver.resourcemanager.ResourceAllocationEvent;
 import org.apache.reef.runtime.common.driver.resourcemanager.ResourceStatusEvent;
 import org.apache.reef.runtime.common.driver.resourcemanager.RuntimeStatusEvent;
 import org.apache.reef.runtime.multi.client.parameters.SerializedRuntimeDefinitions;
-import org.apache.reef.runtime.multi.driver.org.apache.reef.runtime.multi.driver.parameters.RuntimeName;
-import org.apache.reef.runtime.multi.utils.RuntimeDefinition;
+import org.apache.reef.runtime.multi.driver.parameters.RuntimeName;
+import org.apache.reef.runtime.multi.utils.RuntimeDefinitionSerializer;
+import org.apache.reef.runtime.multi.utils.avro.RuntimeDefinition;
 import org.apache.reef.tang.Configuration;
 import org.apache.reef.tang.Injector;
 import org.apache.reef.tang.JavaConfigurationBuilder;
@@ -54,6 +53,7 @@ final class RuntimesHost {
   private Map<String, Runtime> runtimes;
   private final Injector originalInjector;
   private String defaultRuntimeName;
+  private RuntimeDefinitionSerializer  runtimeDefinitionSerializer = new RuntimeDefinitionSerializer();
 
   @Inject
   private RuntimesHost(final Injector injector,
@@ -64,16 +64,6 @@ final class RuntimesHost {
 
     this.runtimeDefinitions = runtimeDefinitions;
     this.originalInjector = injector;
-  }
-
-  private static RuntimeDefinition parseSerializedRuntimeDefinition(final String serializedRuntimeDefinition) throws
-          IOException {
-    final RuntimeDefinition rd;
-    final JsonDecoder decoder = DecoderFactory.get().
-            jsonDecoder(RuntimeDefinition.getClassSchema(), serializedRuntimeDefinition);
-    final SpecificDatumReader<RuntimeDefinition> reader = new SpecificDatumReader<>(RuntimeDefinition.class);
-    rd = reader.read(null, decoder);
-    return rd;
   }
 
   private synchronized void initialize() {
@@ -88,15 +78,18 @@ final class RuntimesHost {
       Configuration config = null;
       RuntimeDefinition rd = null;
       try {
-        rd = parseSerializedRuntimeDefinition(serializedRuntimeDefinition);
-
+        rd = this.runtimeDefinitionSerializer.deserialize(serializedRuntimeDefinition);
         if (rd.getDefaultConfiguration()) {
+          if(this.defaultRuntimeName != null){
+            throw new RuntimeException("More then one default runtime was defined");
+          }
+
           this.defaultRuntimeName = rd.getRuntimeName().toString();
         }
 
         config = serializer.fromString(rd.getSerializedConfiguration().toString());
       } catch (IOException e) {
-        throw new RuntimeException("Unable to read runtime configuarion.", e);
+        throw new RuntimeException("Unable to read runtime configuration.", e);
       }
 
       final Injector rootInjector = Tang.Factory.getTang().newInjector();
@@ -135,8 +128,8 @@ final class RuntimesHost {
 
   private Runtime getRuntime(final String requestedRuntimeName) {
     String runtimeName = requestedRuntimeName;
-    if (runtimeName.isEmpty()) {
-      runtimeName = defaultRuntimeName;
+    if (StringUtils.isEmpty(runtimeName) || StringUtils.isBlank(runtimeName)) {
+      runtimeName = this.defaultRuntimeName;
     }
 
     return this.runtimes.get(runtimeName);

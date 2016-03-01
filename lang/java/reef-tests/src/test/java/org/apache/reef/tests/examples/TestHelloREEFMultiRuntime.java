@@ -20,7 +20,7 @@ package org.apache.reef.tests.examples;
 
 import org.apache.reef.client.DriverConfiguration;
 import org.apache.reef.client.LauncherStatus;
-import org.apache.reef.examples.hello.HelloMultiDriver;
+import org.apache.reef.examples.hellomultiruntime.HelloMultiDriver;
 import org.apache.reef.tang.Configuration;
 import org.apache.reef.tests.TestEnvironment;
 import org.apache.reef.tests.TestEnvironmentFactory;

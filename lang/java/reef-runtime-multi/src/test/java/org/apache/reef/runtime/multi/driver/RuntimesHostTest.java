@@ -20,10 +20,6 @@
 //*
 package org.apache.reef.runtime.multi.driver;
 
-import org.apache.avro.io.DatumWriter;
-import org.apache.avro.io.EncoderFactory;
-import org.apache.avro.io.JsonEncoder;
-import org.apache.avro.specific.SpecificDatumWriter;
 import org.apache.reef.runtime.common.driver.api.*;
 import org.apache.reef.runtime.common.driver.resourcemanager.NodeDescriptorEvent;
 import org.apache.reef.runtime.common.driver.resourcemanager.ResourceAllocationEvent;
@@ -31,7 +27,8 @@ import org.apache.reef.runtime.common.driver.resourcemanager.ResourceStatusEvent
 import org.apache.reef.runtime.common.driver.resourcemanager.RuntimeStatusEvent;
 import org.apache.reef.runtime.local.driver.*;
 import org.apache.reef.runtime.multi.client.parameters.SerializedRuntimeDefinitions;
-import org.apache.reef.runtime.multi.utils.RuntimeDefinition;
+import org.apache.reef.runtime.multi.utils.RuntimeDefinitionSerializer;
+import org.apache.reef.runtime.multi.utils.avro.RuntimeDefinition;
 import org.apache.reef.tang.*;
 import org.apache.reef.tang.exceptions.InjectionException;
 import org.apache.reef.tang.formats.AvroConfigurationSerializer;
@@ -45,8 +42,6 @@ import org.junit.Before;
 import org.junit.Test;
 
 import javax.inject.Inject;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.util.Queue;
 import java.util.concurrent.LinkedBlockingQueue;
 
@@ -254,19 +249,7 @@ public class RuntimesHostTest {
   }
 
   private String getRuntimeDefinition(final RuntimeDefinition rd) {
-    final DatumWriter<RuntimeDefinition> configurationWriter =
-            new SpecificDatumWriter<>(RuntimeDefinition.class);
-    final String serializedConfiguration;
-    try (final ByteArrayOutputStream out = new ByteArrayOutputStream()) {
-      final JsonEncoder encoder = EncoderFactory.get().jsonEncoder(rd.getSchema(), out);
-      configurationWriter.write(rd, encoder);
-      encoder.flush();
-      out.flush();
-      serializedConfiguration = out.toString("ISO-8859-1");
-    } catch (final IOException e) {
-      throw new RuntimeException(e);
-    }
-    return serializedConfiguration;
+    return new RuntimeDefinitionSerializer().serialize(rd);
   }
 
   static class TestResourceStatusHandler implements EventHandler<ResourceStatusEvent> {

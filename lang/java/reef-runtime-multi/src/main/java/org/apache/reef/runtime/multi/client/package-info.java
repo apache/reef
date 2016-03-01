@@ -17,6 +17,6 @@
  * under the License.
  */
 /**
- * A local implementation of REEF that uses local JVMs for execution.
+ * client side for the multi runtime implementation.
  */
 package org.apache.reef.runtime.multi.client;

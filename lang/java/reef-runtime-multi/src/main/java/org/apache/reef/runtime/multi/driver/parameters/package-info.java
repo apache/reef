@@ -17,6 +17,6 @@
  * under the License.
  */
 /**
- * A local implementation of REEF that uses local JVMs for execution.
+ * Parameters for multi runtime driver.
  */
-package org.apache.reef.runtime.multi.driver.org.apache.reef.runtime.multi.driver.parameters;
+package org.apache.reef.runtime.multi.driver.parameters;

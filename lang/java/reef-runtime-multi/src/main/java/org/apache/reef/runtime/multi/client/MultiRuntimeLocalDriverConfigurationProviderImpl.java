@@ -24,6 +24,7 @@ import org.apache.reef.runtime.common.parameters.JVMHeapSlack;
 import org.apache.reef.runtime.local.client.parameters.MaxNumberOfEvaluators;
 import org.apache.reef.runtime.local.client.parameters.RackNames;
 import org.apache.reef.runtime.local.driver.LocalDriverConfiguration;
+import org.apache.reef.runtime.multi.utils.avro.RuntimeDefinition;
 import org.apache.reef.tang.annotations.Parameter;
 import org.apache.reef.tang.formats.ConfigurationModule;
 
@@ -53,9 +54,9 @@ public final class MultiRuntimeLocalDriverConfigurationProviderImpl extends Abst
   }
 
   @Override
-  protected String[] getDriverConfiguration(final URI jobFolder,
-                                            final String clientRemoteId,
-                                            final String jobId) {
+  protected RuntimeDefinition[] getRuntimeDefinitions(final URI jobFolder,
+                                                      final String clientRemoteId,
+                                                      final String jobId) {
     ConfigurationModule configModule = LocalDriverConfiguration.CONF
             .set(LocalDriverConfiguration.MAX_NUMBER_OF_EVALUATORS, this.maxEvaluators)
             .set(LocalDriverConfiguration.ROOT_FOLDER, jobFolder.toString())
@@ -66,12 +67,12 @@ public final class MultiRuntimeLocalDriverConfigurationProviderImpl extends Abst
       configModule = configModule.set(LocalDriverConfiguration.RACK_NAMES, rackName);
     }
 
-    final String serializedLocalConfig = serializeConfiguration(configModule);
-    final String serializedLocalConfiguration = serializeRuntimeDefinition(
-            serializedLocalConfig,
-            false,
-            org.apache.reef.runtime.local.driver.RuntimeIdentifier.RUNTIME_NAME);
-    final String[] ret = {serializedLocalConfiguration};
+    final RuntimeDefinition localRuntimeDefinition = createRuntimeDefinition(
+            configModule,
+            org.apache.reef.runtime.local.driver.RuntimeIdentifier.RUNTIME_NAME,
+            true);
+
+    final RuntimeDefinition[] ret = {localRuntimeDefinition};
     return ret;
   }
 }
