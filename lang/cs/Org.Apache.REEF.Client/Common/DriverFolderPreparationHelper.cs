@@ -21,6 +21,7 @@ using System.Linq;
 using Org.Apache.REEF.Client.API;
 using Org.Apache.REEF.Common;
 using Org.Apache.REEF.Common.Files;
+using Org.Apache.REEF.Common.Jar;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Tang.Formats;
 using Org.Apache.REEF.Tang.Implementations.Configuration;
@@ -35,8 +36,6 @@ namespace Org.Apache.REEF.Client.Common
     {
         private const string DLLFileNameExtension = ".dll";
         private const string EXEFileNameExtension = ".exe";
-        private const string BridgeExe = "Org.Apache.REEF.Bridge.exe";
-        private const string ClrDriverFullName = "ClrDriverFullName";
         private const string DefaultDriverConfigurationFileContents =
         @"<configuration>" +
         @"  <runtime>" +
@@ -45,21 +44,6 @@ namespace Org.Apache.REEF.Client.Common
         @"    </assemblyBinding>" +
         @"  </runtime>" +
         @"</configuration>";
-
-        // We embed certain binaries in client dll.
-        // Following items in tuples refer to resource names in Org.Apache.REEF.Client.dll
-        // The first resource item contains the name of the file 
-        // such as "reef-bridge-java-0.13.0-SNAPSHOT-shaded.jar". The second resource
-        // item contains the byte contents for said file.
-        // Please note that the identifiers below need to be in sync with 2 other files
-        // 1. $(SolutionDir)\Org.Apache.REEF.Client\Properties\Resources.xml
-        // 2. $(SolutionDir)\Org.Apache.REEF.Client\Org.Apache.REEF.Client.csproj
-        private readonly static Tuple<string, string>[] clientFileResources = new Tuple<string, string>[]
-        {
-            new Tuple<string, string>("ClientJarFullName", "reef_bridge_client"),
-            new Tuple<string, string>("DriverJarFullName", "reef_bridge_driver"),
-            new Tuple<string, string>(ClrDriverFullName,    "reef_clrdriver"),
-        };
 
         private static readonly Logger Logger = Logger.GetLogger(typeof(DriverFolderPreparationHelper));
         private readonly AvroConfigurationSerializer _configurationSerializer;
@@ -135,14 +119,14 @@ namespace Org.Apache.REEF.Client.Common
             Directory.CreateDirectory(Path.Combine(driverFolderPath, _fileNames.GetGlobalFolderPath()));
 
             var resourceHelper = new ResourceHelper(typeof(DriverFolderPreparationHelper).Assembly);
-            foreach (var fileResources in clientFileResources)
+            foreach (var fileResources in ResourceHelper.FileResources)
             {
-                var fileName = resourceHelper.GetString(fileResources.Item1);
-                if (ClrDriverFullName == fileResources.Item1)
+                var fileName = resourceHelper.GetString(fileResources.Key);
+                if (ResourceHelper.ClrDriverFullName == fileResources.Key)
                 {
                     fileName = Path.Combine(driverFolderPath, _fileNames.GetBridgeExePath());
                 }
-                File.WriteAllBytes(fileName, resourceHelper.GetBytes(fileResources.Item2));
+                File.WriteAllBytes(fileName, resourceHelper.GetBytes(fileResources.Value));
             }
             
             var config = DefaultDriverConfigurationFileContents;

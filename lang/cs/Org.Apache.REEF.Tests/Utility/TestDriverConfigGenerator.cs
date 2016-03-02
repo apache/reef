@@ -16,13 +16,27 @@
 // under the License.
 
 using System;
+using System.IO;
 using Org.Apache.REEF.Driver;
+using Org.Apache.REEF.Client.Common;
+using Org.Apache.REEF.Common.Jar;
 using Xunit;
 
 namespace Org.Apache.REEF.Tests.Utility
 {
     public class TestDriverConfigGenerator
     {
+        public TestDriverConfigGenerator()
+        {
+            var resourceHelper = new ResourceHelper(typeof(IJobSubmissionResult).Assembly);
+            var fileName = resourceHelper.GetString(ResourceHelper.DriverJarFullName);
+            if (!File.Exists(fileName))
+            {
+                File.WriteAllBytes(fileName, 
+                    resourceHelper.GetBytes(ResourceHelper.FileResources[ResourceHelper.DriverJarFullName]));
+            }
+        }
+
         [Fact]
         public void TestGeneratingFullDriverConfigFile()
         {
