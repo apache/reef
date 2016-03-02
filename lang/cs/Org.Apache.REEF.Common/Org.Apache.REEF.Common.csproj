@@ -107,6 +107,7 @@ under the License.
     <Compile Include="Io\NamingConfiguration.cs" />
     <Compile Include="Io\NamingConfigurationOptions.cs" />
     <Compile Include="Io\TcpPortConfigurationProvider.cs" />
+    <Compile Include="Jar\ResourceHelper.cs" />
     <Compile Include="ITaskSubmittable.cs" />
     <Compile Include="Client\Parameters\DriverConfigurationProviders.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

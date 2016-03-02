@@ -92,7 +92,6 @@ under the License.
     <Compile Include="Common\JobSubmissionResult.cs" />
     <Compile Include="Common\JavaClientLauncher.cs" />
     <Compile Include="Common\ResourceArchiveFileGenerator.cs" />
-    <Compile Include="Common\ResourceHelper.cs" />
     <Compile Include="Local\LocalClient.cs" />
     <Compile Include="Local\LocalJobSubmissionResult.cs" />
     <Compile Include="Local\LocalRuntimeClientConfiguration.cs" />
