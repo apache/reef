@@ -73,29 +73,29 @@ public class RuntimesHostTest {
     RuntimesHostTest.commandsQueue.clear();
   }
 
-  @Test(expected = RuntimeException.class)
+  @Test(expected = InjectionException.class)
   public void testRuntimesHostInitializedWithCorruptedRuntimesList() throws InjectionException {
     final JavaConfigurationBuilder cb = Tang.Factory.getTang().newConfigurationBuilder();
     cb.bindNamedParameter(
             SerializedRuntimeDefinition.class,
             "corrupted avro");
 
-    Injector forked = injector.forkInjector(cb.build());
+    final Injector forked = injector.forkInjector(cb.build());
     final RuntimesHost rHost = forked.getInstance(RuntimesHost.class);
     rHost.onRuntimeStart(new RuntimeStart(System.currentTimeMillis()));
   }
 
   @Test(expected = RuntimeException.class)
   public void testRuntimesHostInitializedWithMissingNodeDescriptorHandler() throws InjectionException {
-    final ConfigurationModule configModule = LocalDriverConfiguration.CONF
+    final Configuration configuration = LocalDriverConfiguration.CONF
             .set(LocalDriverConfiguration.MAX_NUMBER_OF_EVALUATORS, 1)
             .set(LocalDriverConfiguration.ROOT_FOLDER, "")
             .set(LocalDriverConfiguration.JVM_HEAP_SLACK, 1024)
             .set(LocalDriverConfiguration.CLIENT_REMOTE_IDENTIFIER, "ID")
             .set(LocalDriverConfiguration.JOB_IDENTIFIER, "ID")
-            .set(LocalDriverConfiguration.RACK_NAMES, "");
+            .set(LocalDriverConfiguration.RACK_NAMES, "").build();
 
-    final String config = getRuntimeDefinition(new MultiRuntimeDefinitionBuilder().addRuntime(configModule, "local")
+    final String config = getRuntimeDefinition(new MultiRuntimeDefinitionBuilder().addRuntime(configuration, "local")
             .build());
 
     final JavaConfigurationBuilder cb = Tang.Factory.getTang().newConfigurationBuilder()
@@ -123,16 +123,16 @@ public class RuntimesHostTest {
 
   @Test(expected = RuntimeException.class)
   public void testRuntimesHostInitializedWithMissingResourceStatusHandler() throws InjectionException {
-    final ConfigurationModule configModule = LocalDriverConfiguration.CONF
+    final Configuration configuration = LocalDriverConfiguration.CONF
             .set(LocalDriverConfiguration.MAX_NUMBER_OF_EVALUATORS, 1)
             .set(LocalDriverConfiguration.ROOT_FOLDER, "")
             .set(LocalDriverConfiguration.JVM_HEAP_SLACK, 1024)
             .set(LocalDriverConfiguration.CLIENT_REMOTE_IDENTIFIER, "ID")
             .set(LocalDriverConfiguration.JOB_IDENTIFIER, "ID")
-            .set(LocalDriverConfiguration.RACK_NAMES, "");
+            .set(LocalDriverConfiguration.RACK_NAMES, "").build();
 
 
-    final String config = getRuntimeDefinition(new MultiRuntimeDefinitionBuilder().addRuntime(configModule, "local")
+    final String config = getRuntimeDefinition(new MultiRuntimeDefinitionBuilder().addRuntime(configuration, "local")
             .build());
     final JavaConfigurationBuilder cb = Tang.Factory.getTang().newConfigurationBuilder()
             .bindNamedParameter(
@@ -159,16 +159,15 @@ public class RuntimesHostTest {
 
   @Test(expected = RuntimeException.class)
   public void testRuntimesHostInitializedWithMissingRuntimeStatusHandler() throws InjectionException {
-    final ConfigurationModule configModule = LocalDriverConfiguration.CONF
+    final Configuration configuration = LocalDriverConfiguration.CONF
             .set(LocalDriverConfiguration.MAX_NUMBER_OF_EVALUATORS, 1)
             .set(LocalDriverConfiguration.ROOT_FOLDER, "")
             .set(LocalDriverConfiguration.JVM_HEAP_SLACK, 1024)
             .set(LocalDriverConfiguration.CLIENT_REMOTE_IDENTIFIER, "ID")
             .set(LocalDriverConfiguration.JOB_IDENTIFIER, "ID")
-            .set(LocalDriverConfiguration.RACK_NAMES, "");
+            .set(LocalDriverConfiguration.RACK_NAMES, "").build();
 
-
-    final String config = getRuntimeDefinition(new MultiRuntimeDefinitionBuilder().addRuntime(configModule, "local")
+    final String config = getRuntimeDefinition(new MultiRuntimeDefinitionBuilder().addRuntime(configuration, "local")
             .build());
     final JavaConfigurationBuilder cb = Tang.Factory.getTang().newConfigurationBuilder()
             .bindNamedParameter(
@@ -195,16 +194,16 @@ public class RuntimesHostTest {
 
   @Test(expected = RuntimeException.class)
   public void testRuntimesHostInitializedWithMissingResourceAllocationHandler() throws InjectionException {
-    final ConfigurationModule configModule = LocalDriverConfiguration.CONF
+    final Configuration configuration = LocalDriverConfiguration.CONF
             .set(LocalDriverConfiguration.MAX_NUMBER_OF_EVALUATORS, 1)
             .set(LocalDriverConfiguration.ROOT_FOLDER, "")
             .set(LocalDriverConfiguration.JVM_HEAP_SLACK, 1024)
             .set(LocalDriverConfiguration.CLIENT_REMOTE_IDENTIFIER, "ID")
             .set(LocalDriverConfiguration.JOB_IDENTIFIER, "ID")
-            .set(LocalDriverConfiguration.RACK_NAMES, "");
+            .set(LocalDriverConfiguration.RACK_NAMES, "").build();
 
 
-    final String config = getRuntimeDefinition(new MultiRuntimeDefinitionBuilder().addRuntime(configModule, "local")
+    final String config = getRuntimeDefinition(new MultiRuntimeDefinitionBuilder().addRuntime(configuration, "local")
             .build());
     final JavaConfigurationBuilder cb = Tang.Factory.getTang().newConfigurationBuilder()
             .bindNamedParameter(
@@ -232,7 +231,7 @@ public class RuntimesHostTest {
   @Test
   public void testRuntimesHostRoutedToDefaultRuntime() throws InjectionException {
     final String serializedConfiguration = getRuntimeDefinition(
-            new MultiRuntimeDefinitionBuilder().addRuntime(TestDriverConfiguration.CONF, "test")
+            new MultiRuntimeDefinitionBuilder().addRuntime(TestDriverConfiguration.CONF.build(), "test")
             .build());
 
     final JavaConfigurationBuilder cbtest = Tang.Factory.getTang().newConfigurationBuilder();
@@ -249,7 +248,7 @@ public class RuntimesHostTest {
   }
 
   private String getRuntimeDefinition(final MultiRuntimeDefinition rd) {
-    return new MultiRuntimeDefinitionSerializer().serialize(rd);
+    return new MultiRuntimeDefinitionSerializer().toString(rd);
   }
 
   static class TestResourceStatusHandler implements EventHandler<ResourceStatusEvent> {

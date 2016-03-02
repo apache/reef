@@ -36,10 +36,10 @@ public final class MultiRuntimeDefinitionSerializer {
 
   /**
    * Serializes MultiRuntimeDefinition.
-   * @param runtimeDefinition the Avro object to serialize
+   * @param runtimeDefinition the Avro object to toString
    * @return Serialized avro string
    */
-  public String serialize(final MultiRuntimeDefinition runtimeDefinition){
+  public String toString(final MultiRuntimeDefinition runtimeDefinition){
     final DatumWriter<MultiRuntimeDefinition> configurationWriter =
             new SpecificDatumWriter<>(MultiRuntimeDefinition.class);
     final String serializedConfiguration;
@@ -62,12 +62,12 @@ public final class MultiRuntimeDefinitionSerializer {
    * @return Avro object
    * @throws IOException
    */
-  public MultiRuntimeDefinition deserialize(final String serializedRuntimeDefinition) throws
+  public MultiRuntimeDefinition fromString(final String serializedRuntimeDefinition) throws
           IOException{
     final JsonDecoder decoder = DecoderFactory.get().
             jsonDecoder(MultiRuntimeDefinition.getClassSchema(), serializedRuntimeDefinition);
     final SpecificDatumReader<MultiRuntimeDefinition> reader = new SpecificDatumReader<>(MultiRuntimeDefinition.class);
-    MultiRuntimeDefinition rd = reader.read(null, decoder);
+    final MultiRuntimeDefinition rd = reader.read(null, decoder);
     return rd;
   }
 }

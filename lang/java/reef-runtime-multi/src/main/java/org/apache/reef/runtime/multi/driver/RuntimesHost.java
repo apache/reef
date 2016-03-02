@@ -49,35 +49,33 @@ import java.util.Map;
  * Hosts the actual runtime implementations and delegates invocations to them.
  */
 final class RuntimesHost {
-  private Map<String, Runtime> runtimes;
+  private final MultiRuntimeDefinition runtimeDefinition;
   private final Injector originalInjector;
-  private String defaultRuntimeName;
-  private final String serializedRuntimeDefinition;
-  private MultiRuntimeDefinitionSerializer  runtimeDefinitionSerializer = new MultiRuntimeDefinitionSerializer();
+  private final String defaultRuntimeName;
+  private final MultiRuntimeDefinitionSerializer  runtimeDefinitionSerializer = new MultiRuntimeDefinitionSerializer();
+  private Map<String, Runtime> runtimes;
 
   @Inject
   private RuntimesHost(final Injector injector,
                        @Parameter(SerializedRuntimeDefinition.class) final String serializedRuntimeDefinition) {
-    this.serializedRuntimeDefinition = serializedRuntimeDefinition;
     this.originalInjector = injector;
+    try {
+      this.runtimeDefinition = this.runtimeDefinitionSerializer.fromString(serializedRuntimeDefinition);
+    } catch (IOException e) {
+      throw new RuntimeException("Unable to read runtime configuration.", e);
+    }
+
+    this.defaultRuntimeName = runtimeDefinition.getDefaultRuntimeName().toString();
   }
 
   /**
-   * Initializes teh configured runtimes.
+   * Initializes the configured runtimes.
    */
   private synchronized void initialize() {
     if (this.runtimes != null) {
       return;
     }
 
-    MultiRuntimeDefinition runtimeDefinition = null;
-    try {
-      runtimeDefinition = this.runtimeDefinitionSerializer.deserialize(serializedRuntimeDefinition);
-    } catch (IOException e) {
-      throw new RuntimeException("Unable to read runtime configuration.", e);
-    }
-
-    this.defaultRuntimeName = runtimeDefinition.getDefaultRuntimeName().toString();
     this.runtimes = new HashMap<>();
 
     for (final RuntimeDefinition rd : runtimeDefinition.getRuntimes()) {
@@ -108,7 +106,7 @@ final class RuntimesHost {
 
   /**
    * Initializes injector by copying needed handlers.
-   * @param runtimeInjector Teh injector to initialize
+   * @param runtimeInjector The injector to initialize
    * @throws InjectionException
    */
   private void initializeInjector(final Injector runtimeInjector) throws InjectionException {
@@ -132,12 +130,12 @@ final class RuntimesHost {
 
   /**
    * Retrieves requested runtime, if requested name is empty a default runtime will be used.
-   * @param requestedRuntimeName teh requested runtime name
+   * @param requestedRuntimeName the requested runtime name
    * @return
    */
   private Runtime getRuntime(final String requestedRuntimeName) {
     String runtimeName = requestedRuntimeName;
-    if (StringUtils.isEmpty(runtimeName) || StringUtils.isBlank(runtimeName)) {
+    if (StringUtils.isBlank(runtimeName)) {
       runtimeName = this.defaultRuntimeName;
     }
 

@@ -81,7 +81,7 @@ public final class MultiRuntimeConfigurationBuilder {
 
   /**
    * Sets the submission runtime. Submission runtime is used for launching the job driver.
-   * @param runtimeName teh submission runtime name
+   * @param runtimeName the submission runtime name
    * @return The builder instance
    */
   public MultiRuntimeConfigurationBuilder setSubmissionRuntime(final String runtimeName) {
@@ -99,7 +99,7 @@ public final class MultiRuntimeConfigurationBuilder {
    * @return The builder instance
    */
   public MultiRuntimeConfigurationBuilder setMaxEvaluatorsNumberForLocalRuntime(final int maxLocalEvaluators) {
-    Validate.isTrue(maxLocalEvaluators > 0, "Max evaluators number shoudl be greater then 0");
+    Validate.isTrue(maxLocalEvaluators > 0, "Max evaluators number should be greater then 0");
 
     addNamedParameter(MaxNumberOfEvaluators.class, maxLocalEvaluators);
     return this;

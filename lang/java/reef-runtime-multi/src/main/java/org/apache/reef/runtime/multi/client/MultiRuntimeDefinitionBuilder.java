@@ -24,7 +24,6 @@ import org.apache.reef.runtime.multi.utils.avro.MultiRuntimeDefinition;
 import org.apache.reef.runtime.multi.utils.avro.RuntimeDefinition;
 import org.apache.reef.tang.Configuration;
 import org.apache.reef.tang.formats.AvroConfigurationSerializer;
-import org.apache.reef.tang.formats.ConfigurationModule;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -37,9 +36,9 @@ public final class MultiRuntimeDefinitionBuilder {
   private Map<String, RuntimeDefinition> runtimes = new HashMap<>();
   private String defaultRuntime;
 
-  private static RuntimeDefinition createRuntimeDefinition(final ConfigurationModule configModule,
+  private static RuntimeDefinition createRuntimeDefinition(final Configuration configModule,
                                                              final String runtimeName) {
-    final Configuration localDriverConfiguration = configModule.build();
+    final Configuration localDriverConfiguration = configModule;
     final AvroConfigurationSerializer serializer = new AvroConfigurationSerializer();
     final String serializedConfig = serializer.toString(localDriverConfiguration);
     return new RuntimeDefinition(runtimeName, serializedConfig);
@@ -48,26 +47,26 @@ public final class MultiRuntimeDefinitionBuilder {
   /**
    * Adds runtime configuration module to the builder.
    * @param config The configuration module
-   * @param runtimeName The name of teh runtime
+   * @param runtimeName The name of the runtime
    * @return The builder instance
    */
-  public MultiRuntimeDefinitionBuilder addRuntime(final ConfigurationModule config, final String runtimeName){
+  public MultiRuntimeDefinitionBuilder addRuntime(final Configuration config, final String runtimeName){
     Validate.notNull(config, "runtime configuration module should not be null");
-    Validate.isTrue(!StringUtils.isEmpty(runtimeName) && !StringUtils.isBlank(runtimeName));
-    RuntimeDefinition rd = createRuntimeDefinition(config, runtimeName);
+    Validate.isTrue(StringUtils.isNotBlank(runtimeName),
+            "runtimeName should be non empty and non blank string");
+    final RuntimeDefinition rd = createRuntimeDefinition(config, runtimeName);
     this.runtimes.put(runtimeName, rd);
     return this;
   }
 
   /**
    * Sets default runtime name.
-   * @param runtimeName The name of teh default runtime
+   * @param runtimeName The name of the default runtime
    * @return The builder instance
    */
   public MultiRuntimeDefinitionBuilder setDefaultRuntimeName(final String runtimeName){
-    Validate.isTrue(!StringUtils.isEmpty(runtimeName) && !StringUtils.isBlank(runtimeName), "runtimeName " +
-            "should" +
-            " be non empty and non blank string");
+    Validate.isTrue(StringUtils.isNotBlank(runtimeName),
+            "runtimeName should be non empty and non blank string");
     this.defaultRuntime = runtimeName;
     return this;
   }
@@ -78,14 +77,14 @@ public final class MultiRuntimeDefinitionBuilder {
    */
   public MultiRuntimeDefinition build(){
     Validate.isTrue(this.runtimes.size() == 1 || !StringUtils.isEmpty(this.defaultRuntime), "Default runtime " +
-            "should be set if more then single runtime provided");
+            "should be set if more than a single runtime provided");
 
     if(StringUtils.isEmpty(this.defaultRuntime)){
       // we have single runtime configured, take its name as a default
       this.defaultRuntime = this.runtimes.keySet().iterator().next();
     }
 
-    Validate.isTrue(this.runtimes.containsKey(this.defaultRuntime), "Default runtime shoudl be configured");
+    Validate.isTrue(this.runtimes.containsKey(this.defaultRuntime), "Default runtime should be configured");
     return new MultiRuntimeDefinition(defaultRuntime, new ArrayList<>(this.runtimes.values()));
   }
 }

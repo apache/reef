@@ -31,6 +31,7 @@ import org.apache.reef.runtime.multi.client.parameters.RuntimeNames;
 import org.apache.reef.runtime.multi.utils.avro.MultiRuntimeDefinition;
 import org.apache.reef.runtime.yarn.driver.RuntimeIdentifier;
 import org.apache.reef.runtime.yarn.driver.YarnDriverConfiguration;
+import org.apache.reef.tang.Configuration;
 import org.apache.reef.tang.annotations.Parameter;
 import org.apache.reef.tang.formats.ConfigurationModule;
 
@@ -77,42 +78,42 @@ final class MultiRuntimeDefinitionGeneratorImpl implements MultiRuntimeDefinitio
 
     this.configModulesCreators.put(RuntimeIdentifier.RUNTIME_NAME, new ConfigurationModuleBuilder() {
         @Override
-        public ConfigurationModule getConfigurationModule(final URI jobFolder,
-                                                          final String clientRemoteId,
-                                                          final String jobId) {
-          return getYarnConfigurationModule(jobFolder, clientRemoteId, jobId);
+        public Configuration getConfiguration(final URI jobFolder,
+                                              final String clientRemoteId,
+                                              final String jobId) {
+          return getYarnConfiguration(jobFolder, clientRemoteId, jobId);
         }
       }
     );
 
     this.configModulesCreators.put(
-            org.apache.reef.runtime.local.driver.RuntimeIdentifier.RUNTIME_NAME,
-            new ConfigurationModuleBuilder() {
+        org.apache.reef.runtime.local.driver.RuntimeIdentifier.RUNTIME_NAME,
+        new ConfigurationModuleBuilder() {
         @Override
-        public ConfigurationModule getConfigurationModule(final URI jobFolder,
-                                                          final String clientRemoteId,
-                                                          final String jobId) {
-          return getLocalConfigurationModule(jobFolder, clientRemoteId, jobId);
+        public Configuration getConfiguration(final URI jobFolder,
+                                              final String clientRemoteId,
+                                              final String jobId) {
+          return getLocalConfiguration(jobFolder, clientRemoteId, jobId);
         }
       }
     );
 
   }
 
-  private ConfigurationModule getYarnConfigurationModule(final URI jobFolder,
-                                                         final String clientRemoteId,
-                                                         final String jobId) {
+  private Configuration getYarnConfiguration(final URI jobFolder,
+                                             final String clientRemoteId,
+                                             final String jobId) {
     return YarnDriverConfiguration.CONF
             .set(YarnDriverConfiguration.JOB_SUBMISSION_DIRECTORY, jobFolder.toString())
             .set(YarnDriverConfiguration.JOB_IDENTIFIER, jobId)
             .set(YarnDriverConfiguration.CLIENT_REMOTE_IDENTIFIER, clientRemoteId)
-            .set(YarnDriverConfiguration.JVM_HEAP_SLACK, this.jvmSlack);
+            .set(YarnDriverConfiguration.JVM_HEAP_SLACK, this.jvmSlack).build();
 
   }
 
-  private ConfigurationModule getLocalConfigurationModule(final URI jobFolder,
-                                                          final String clientRemoteId,
-                                                          final String jobId) {
+  private Configuration getLocalConfiguration(final URI jobFolder,
+                                              final String clientRemoteId,
+                                              final String jobId) {
 
     ConfigurationModule localModule = LocalDriverConfiguration.CONF
             .set(LocalDriverConfiguration.MAX_NUMBER_OF_EVALUATORS, this.maxEvaluators)
@@ -125,7 +126,7 @@ final class MultiRuntimeDefinitionGeneratorImpl implements MultiRuntimeDefinitio
       localModule = localModule.set(LocalDriverConfiguration.RACK_NAMES, rackName);
     }
 
-    return localModule;
+    return localModule.build();
   }
 
 
@@ -137,7 +138,7 @@ final class MultiRuntimeDefinitionGeneratorImpl implements MultiRuntimeDefinitio
     MultiRuntimeDefinitionBuilder builder = new MultiRuntimeDefinitionBuilder();
     for (final String runtime : this.runtimeNames) {
       builder.addRuntime(
-              this.configModulesCreators.get(runtime).getConfigurationModule(jobFolder, clientRemoteId, jobId),
+              this.configModulesCreators.get(runtime).getConfiguration(jobFolder, clientRemoteId, jobId),
               runtime);
     }
 
@@ -145,8 +146,8 @@ final class MultiRuntimeDefinitionGeneratorImpl implements MultiRuntimeDefinitio
   }
 
   private interface ConfigurationModuleBuilder {
-    ConfigurationModule getConfigurationModule(final URI jobFolder,
-                                               final String clientRemoteId,
-                                               final String jobId);
+    Configuration getConfiguration(final URI jobFolder,
+                                   final String clientRemoteId,
+                                   final String jobId);
   }
 }

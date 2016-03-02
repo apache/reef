@@ -30,7 +30,7 @@
       {
         "name":"runtimeName",
         "type":"string",
-        "doc":"The name of the runtime, that will be provided with teh resource allocation requests"
+        "doc":"The name of the runtime, that will be provided with the resource allocation requests"
       },
       {
         "name":"serializedConfiguration",

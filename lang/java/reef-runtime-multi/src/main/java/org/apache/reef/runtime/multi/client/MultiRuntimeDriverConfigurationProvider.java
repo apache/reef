@@ -65,6 +65,6 @@ final class MultiRuntimeDriverConfigurationProvider implements DriverConfigurati
                     .set(MultiRuntimeDriverConfiguration.JOB_IDENTIFIER, jobId)
                     .set(MultiRuntimeDriverConfiguration.CLIENT_REMOTE_IDENTIFIER, clientRemoteId)
                     .set(MultiRuntimeDriverConfiguration.SERIALIZED_RUNTIME_DEFINITION,
-                            this.runtimeDefinitionSerializer.serialize(runtimeDefinitions)).build());
+                            this.runtimeDefinitionSerializer.toString(runtimeDefinitions)).build());
   }
 }
