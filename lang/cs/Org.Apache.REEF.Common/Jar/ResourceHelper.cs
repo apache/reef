@@ -16,17 +16,39 @@
 // under the License.
 
 using System;
+using System.Collections.Generic;
 using System.Reflection;
 using System.Resources;
+using Org.Apache.REEF.Utilities.Attributes;
 
-namespace Org.Apache.REEF.Client.Common
+namespace Org.Apache.REEF.Common.Jar
 {
     /// <summary>
     /// Helps with retrieval of embedded resources.
     /// See Org.Apache.REEF.Client.csproj for embedding resources and use this class to retrieve them.
     /// </summary>
-    internal class ResourceHelper
+    [Private]
+    public class ResourceHelper
     {
+        public const string ClientJarFullName = "ClientJarFullName";
+        public const string DriverJarFullName = "DriverJarFullName";
+        public const string ClrDriverFullName = "ClrDriverFullName";
+
+        // We embed certain binaries in client dll.
+        // Following items in tuples refer to resource names in Org.Apache.REEF.Client.dll
+        // The first resource item contains the name of the file 
+        // such as "reef-bridge-java-<version>-shaded.jar". The second resource
+        // item contains the byte contents for said file.
+        // Please note that the identifiers below need to be in sync with 2 other files
+        // 1. $(SolutionDir)\Org.Apache.REEF.Client\Properties\Resources.xml
+        // 2. $(SolutionDir)\Org.Apache.REEF.Client\Org.Apache.REEF.Client.csproj
+        public readonly static Dictionary<string, string> FileResources = new Dictionary<string, string>
+        {
+            { ClientJarFullName, "reef_bridge_client" },
+            { DriverJarFullName, "reef_bridge_driver" },
+            { ClrDriverFullName, "reef_clrdriver" },
+        };
+
         private const string CouldNotRetrieveResource = "Could not retrieve resource '{0}'";
         private readonly ResourceSet _resourceSet;
 
@@ -35,7 +57,7 @@ namespace Org.Apache.REEF.Client.Common
         /// </summary>
         /// <param name="assembly"></param>
         /// <returns>ResourceSet</returns>
-        internal ResourceHelper(Assembly assembly)
+        public ResourceHelper(Assembly assembly)
         {
             var names = assembly.GetManifestResourceNames();
             if (null == names[0])
@@ -71,7 +93,7 @@ namespace Org.Apache.REEF.Client.Common
         /// </summary>
         /// <param name="resourceName"></param>
         /// <returns>T</returns>
-        internal string GetString(string resourceName)
+        public string GetString(string resourceName)
         {
             return GetResource<string>(resourceName);
         }
@@ -81,7 +103,7 @@ namespace Org.Apache.REEF.Client.Common
         /// </summary>
         /// <param name="resourceName"></param>
         /// <returns>T</returns>
-        internal byte[] GetBytes(string resourceName)
+        public byte[] GetBytes(string resourceName)
         {
             return GetResource<byte[]>(resourceName);
         }
