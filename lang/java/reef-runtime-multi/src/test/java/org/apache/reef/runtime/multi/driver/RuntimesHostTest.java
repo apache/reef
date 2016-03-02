@@ -26,12 +26,12 @@ import org.apache.reef.runtime.common.driver.resourcemanager.ResourceAllocationE
 import org.apache.reef.runtime.common.driver.resourcemanager.ResourceStatusEvent;
 import org.apache.reef.runtime.common.driver.resourcemanager.RuntimeStatusEvent;
 import org.apache.reef.runtime.local.driver.*;
-import org.apache.reef.runtime.multi.client.parameters.SerializedRuntimeDefinitions;
-import org.apache.reef.runtime.multi.utils.RuntimeDefinitionSerializer;
-import org.apache.reef.runtime.multi.utils.avro.RuntimeDefinition;
+import org.apache.reef.runtime.multi.client.MultiRuntimeDefinitionBuilder;
+import org.apache.reef.runtime.multi.client.parameters.SerializedRuntimeDefinition;
+import org.apache.reef.runtime.multi.utils.MultiRuntimeDefinitionSerializer;
+import org.apache.reef.runtime.multi.utils.avro.MultiRuntimeDefinition;
 import org.apache.reef.tang.*;
 import org.apache.reef.tang.exceptions.InjectionException;
-import org.apache.reef.tang.formats.AvroConfigurationSerializer;
 import org.apache.reef.tang.formats.ConfigurationModule;
 import org.apache.reef.tang.formats.ConfigurationModuleBuilder;
 import org.apache.reef.wake.EventHandler;
@@ -55,19 +55,20 @@ public class RuntimesHostTest {
   @SuppressWarnings("unchecked")
   @Before
   public void setUp() throws InjectionException {
-    final JavaConfigurationBuilder cb = Tang.Factory.getTang().newConfigurationBuilder();
-    cb.bindNamedParameter(
-            RuntimeParameters.NodeDescriptorHandler.class,
-            RuntimesHostTest.TestNodeDescriptorHandler.class);
-    cb.bindNamedParameter(
-            RuntimeParameters.ResourceStatusHandler.class,
-            RuntimesHostTest.TestResourceStatusHandler.class);
-    cb.bindNamedParameter(
-            RuntimeParameters.RuntimeStatusHandler.class,
-            RuntimesHostTest.TestRuntimeStatusHandler.class);
-    cb.bindNamedParameter(
-            RuntimeParameters.ResourceAllocationHandler.class,
-            RuntimesHostTest.TestResourceAllocationHandler.class);
+    final JavaConfigurationBuilder cb = Tang.Factory.getTang().newConfigurationBuilder()
+            .bindNamedParameter(
+                    RuntimeParameters.NodeDescriptorHandler.class,
+                    RuntimesHostTest.TestNodeDescriptorHandler.class)
+            .bindNamedParameter(
+                    RuntimeParameters.ResourceStatusHandler.class,
+                    RuntimesHostTest.TestResourceStatusHandler.class)
+            .bindNamedParameter(
+                    RuntimeParameters.RuntimeStatusHandler.class,
+                    RuntimesHostTest.TestRuntimeStatusHandler.class)
+            .bindNamedParameter(
+                    RuntimeParameters.ResourceAllocationHandler.class,
+                    RuntimesHostTest.TestResourceAllocationHandler.class);
+
     this.injector = Tang.Factory.getTang().newInjector(cb.build());
     RuntimesHostTest.commandsQueue.clear();
   }
@@ -75,8 +76,8 @@ public class RuntimesHostTest {
   @Test(expected = RuntimeException.class)
   public void testRuntimesHostInitializedWithCorruptedRuntimesList() throws InjectionException {
     final JavaConfigurationBuilder cb = Tang.Factory.getTang().newConfigurationBuilder();
-    cb.bindSetEntry(
-            SerializedRuntimeDefinitions.class,
+    cb.bindNamedParameter(
+            SerializedRuntimeDefinition.class,
             "corrupted avro");
 
     Injector forked = injector.forkInjector(cb.build());
@@ -86,33 +87,33 @@ public class RuntimesHostTest {
 
   @Test(expected = RuntimeException.class)
   public void testRuntimesHostInitializedWithMissingNodeDescriptorHandler() throws InjectionException {
-    ConfigurationModule configModule = LocalDriverConfiguration.CONF
+    final ConfigurationModule configModule = LocalDriverConfiguration.CONF
             .set(LocalDriverConfiguration.MAX_NUMBER_OF_EVALUATORS, 1)
             .set(LocalDriverConfiguration.ROOT_FOLDER, "")
             .set(LocalDriverConfiguration.JVM_HEAP_SLACK, 1024)
             .set(LocalDriverConfiguration.CLIENT_REMOTE_IDENTIFIER, "ID")
-            .set(LocalDriverConfiguration.JOB_IDENTIFIER, "ID");
-    configModule = configModule.set(LocalDriverConfiguration.RACK_NAMES, "");
+            .set(LocalDriverConfiguration.JOB_IDENTIFIER, "ID")
+            .set(LocalDriverConfiguration.RACK_NAMES, "");
 
-    Configuration localDriverConfiguration = configModule.build();
-    AvroConfigurationSerializer serializer = new AvroConfigurationSerializer();
-    String config = serializer.toString(localDriverConfiguration);
-    final JavaConfigurationBuilder cb = Tang.Factory.getTang().newConfigurationBuilder();
-    cb.bindNamedParameter(
-            RuntimeParameters.ResourceStatusHandler.class,
-            RuntimesHostTest.TestResourceStatusHandler.class);
-    cb.bindNamedParameter(
-            RuntimeParameters.RuntimeStatusHandler.class,
-            RuntimesHostTest.TestRuntimeStatusHandler.class);
-    cb.bindNamedParameter(
-            RuntimeParameters.ResourceAllocationHandler.class,
-            RuntimesHostTest
-            .TestResourceAllocationHandler.class);
+    final String config = getRuntimeDefinition(new MultiRuntimeDefinitionBuilder().addRuntime(configModule, "local")
+            .build());
+
+    final JavaConfigurationBuilder cb = Tang.Factory.getTang().newConfigurationBuilder()
+            .bindNamedParameter(
+                    RuntimeParameters.ResourceStatusHandler.class,
+                    RuntimesHostTest.TestResourceStatusHandler.class)
+            .bindNamedParameter(
+                    RuntimeParameters.RuntimeStatusHandler.class,
+                    RuntimesHostTest.TestRuntimeStatusHandler.class)
+            .bindNamedParameter(
+                    RuntimeParameters.ResourceAllocationHandler.class,
+                    RuntimesHostTest
+                            .TestResourceAllocationHandler.class);
     Injector badInjector = Tang.Factory.getTang().newInjector(cb.build());
 
     final JavaConfigurationBuilder cbtest = Tang.Factory.getTang().newConfigurationBuilder();
-    cbtest.bindSetEntry(
-            SerializedRuntimeDefinitions.class,
+    cbtest.bindNamedParameter(
+            SerializedRuntimeDefinition.class,
             config);
 
     Injector forked = badInjector.forkInjector(cbtest.build());
@@ -122,32 +123,33 @@ public class RuntimesHostTest {
 
   @Test(expected = RuntimeException.class)
   public void testRuntimesHostInitializedWithMissingResourceStatusHandler() throws InjectionException {
-    ConfigurationModule configModule = LocalDriverConfiguration.CONF
+    final ConfigurationModule configModule = LocalDriverConfiguration.CONF
             .set(LocalDriverConfiguration.MAX_NUMBER_OF_EVALUATORS, 1)
             .set(LocalDriverConfiguration.ROOT_FOLDER, "")
             .set(LocalDriverConfiguration.JVM_HEAP_SLACK, 1024)
             .set(LocalDriverConfiguration.CLIENT_REMOTE_IDENTIFIER, "ID")
-            .set(LocalDriverConfiguration.JOB_IDENTIFIER, "ID");
-    configModule = configModule.set(LocalDriverConfiguration.RACK_NAMES, "");
+            .set(LocalDriverConfiguration.JOB_IDENTIFIER, "ID")
+            .set(LocalDriverConfiguration.RACK_NAMES, "");
 
-    Configuration localDriverConfiguration = configModule.build();
-    AvroConfigurationSerializer serializer = new AvroConfigurationSerializer();
-    String config = serializer.toString(localDriverConfiguration);
-    final JavaConfigurationBuilder cb = Tang.Factory.getTang().newConfigurationBuilder();
-    cb.bindNamedParameter(
-            RuntimeParameters.NodeDescriptorHandler.class,
-            RuntimesHostTest.TestNodeDescriptorHandler.class);
-    cb.bindNamedParameter(
-            RuntimeParameters.RuntimeStatusHandler.class,
-            RuntimesHostTest.TestRuntimeStatusHandler.class);
-    cb.bindNamedParameter(
-            RuntimeParameters.ResourceAllocationHandler.class,
-            RuntimesHostTest.TestResourceAllocationHandler.class);
+
+    final String config = getRuntimeDefinition(new MultiRuntimeDefinitionBuilder().addRuntime(configModule, "local")
+            .build());
+    final JavaConfigurationBuilder cb = Tang.Factory.getTang().newConfigurationBuilder()
+            .bindNamedParameter(
+                    RuntimeParameters.NodeDescriptorHandler.class,
+                    RuntimesHostTest.TestNodeDescriptorHandler.class)
+            .bindNamedParameter(
+                    RuntimeParameters.RuntimeStatusHandler.class,
+                    RuntimesHostTest.TestRuntimeStatusHandler.class)
+            .bindNamedParameter(
+                    RuntimeParameters.ResourceAllocationHandler.class,
+                    RuntimesHostTest.TestResourceAllocationHandler.class);
+
     Injector badInjector = Tang.Factory.getTang().newInjector(cb.build());
 
     final JavaConfigurationBuilder cbtest = Tang.Factory.getTang().newConfigurationBuilder();
-    cbtest.bindSetEntry(
-            SerializedRuntimeDefinitions.class,
+    cbtest.bindNamedParameter(
+            SerializedRuntimeDefinition.class,
             config);
 
     Injector forked = badInjector.forkInjector(cbtest.build());
@@ -157,32 +159,33 @@ public class RuntimesHostTest {
 
   @Test(expected = RuntimeException.class)
   public void testRuntimesHostInitializedWithMissingRuntimeStatusHandler() throws InjectionException {
-    ConfigurationModule configModule = LocalDriverConfiguration.CONF
+    final ConfigurationModule configModule = LocalDriverConfiguration.CONF
             .set(LocalDriverConfiguration.MAX_NUMBER_OF_EVALUATORS, 1)
             .set(LocalDriverConfiguration.ROOT_FOLDER, "")
             .set(LocalDriverConfiguration.JVM_HEAP_SLACK, 1024)
             .set(LocalDriverConfiguration.CLIENT_REMOTE_IDENTIFIER, "ID")
-            .set(LocalDriverConfiguration.JOB_IDENTIFIER, "ID");
-    configModule = configModule.set(LocalDriverConfiguration.RACK_NAMES, "");
+            .set(LocalDriverConfiguration.JOB_IDENTIFIER, "ID")
+            .set(LocalDriverConfiguration.RACK_NAMES, "");
 
-    Configuration localDriverConfiguration = configModule.build();
-    AvroConfigurationSerializer serializer = new AvroConfigurationSerializer();
-    String config = serializer.toString(localDriverConfiguration);
-    final JavaConfigurationBuilder cb = Tang.Factory.getTang().newConfigurationBuilder();
-    cb.bindNamedParameter(
-            RuntimeParameters.NodeDescriptorHandler.class,
-            RuntimesHostTest.TestNodeDescriptorHandler.class);
-    cb.bindNamedParameter(
-            RuntimeParameters.ResourceStatusHandler.class,
-            RuntimesHostTest.TestResourceStatusHandler.class);
-    cb.bindNamedParameter(
-            RuntimeParameters.ResourceAllocationHandler.class,
-            RuntimesHostTest.TestResourceAllocationHandler.class);
+
+    final String config = getRuntimeDefinition(new MultiRuntimeDefinitionBuilder().addRuntime(configModule, "local")
+            .build());
+    final JavaConfigurationBuilder cb = Tang.Factory.getTang().newConfigurationBuilder()
+            .bindNamedParameter(
+                    RuntimeParameters.NodeDescriptorHandler.class,
+                    RuntimesHostTest.TestNodeDescriptorHandler.class)
+            .bindNamedParameter(
+                    RuntimeParameters.RuntimeStatusHandler.class,
+                    RuntimesHostTest.TestRuntimeStatusHandler.class)
+            .bindNamedParameter(
+                    RuntimeParameters.ResourceAllocationHandler.class,
+                    RuntimesHostTest.TestResourceAllocationHandler.class);
+
     Injector badInjector = Tang.Factory.getTang().newInjector(cb.build());
 
     final JavaConfigurationBuilder cbtest = Tang.Factory.getTang().newConfigurationBuilder();
-    cbtest.bindSetEntry(
-            SerializedRuntimeDefinitions.class,
+    cbtest.bindNamedParameter(
+            SerializedRuntimeDefinition.class,
             config);
 
     Injector forked = badInjector.forkInjector(cbtest.build());
@@ -192,32 +195,33 @@ public class RuntimesHostTest {
 
   @Test(expected = RuntimeException.class)
   public void testRuntimesHostInitializedWithMissingResourceAllocationHandler() throws InjectionException {
-    ConfigurationModule configModule = LocalDriverConfiguration.CONF
+    final ConfigurationModule configModule = LocalDriverConfiguration.CONF
             .set(LocalDriverConfiguration.MAX_NUMBER_OF_EVALUATORS, 1)
             .set(LocalDriverConfiguration.ROOT_FOLDER, "")
             .set(LocalDriverConfiguration.JVM_HEAP_SLACK, 1024)
             .set(LocalDriverConfiguration.CLIENT_REMOTE_IDENTIFIER, "ID")
-            .set(LocalDriverConfiguration.JOB_IDENTIFIER, "ID");
-    configModule = configModule.set(LocalDriverConfiguration.RACK_NAMES, "");
+            .set(LocalDriverConfiguration.JOB_IDENTIFIER, "ID")
+            .set(LocalDriverConfiguration.RACK_NAMES, "");
 
-    Configuration localDriverConfiguration = configModule.build();
-    AvroConfigurationSerializer serializer = new AvroConfigurationSerializer();
-    String config = serializer.toString(localDriverConfiguration);
-    final JavaConfigurationBuilder cb = Tang.Factory.getTang().newConfigurationBuilder();
-    cb.bindNamedParameter(
-            RuntimeParameters.NodeDescriptorHandler.class,
-            RuntimesHostTest.TestNodeDescriptorHandler.class);
-    cb.bindNamedParameter(
-            RuntimeParameters.ResourceStatusHandler.class,
-            RuntimesHostTest.TestResourceStatusHandler.class);
-    cb.bindNamedParameter(
-            RuntimeParameters.RuntimeStatusHandler.class,
-            RuntimesHostTest.TestRuntimeStatusHandler.class);
+
+    final String config = getRuntimeDefinition(new MultiRuntimeDefinitionBuilder().addRuntime(configModule, "local")
+            .build());
+    final JavaConfigurationBuilder cb = Tang.Factory.getTang().newConfigurationBuilder()
+            .bindNamedParameter(
+                    RuntimeParameters.NodeDescriptorHandler.class,
+                    RuntimesHostTest.TestNodeDescriptorHandler.class)
+            .bindNamedParameter(
+                    RuntimeParameters.RuntimeStatusHandler.class,
+                    RuntimesHostTest.TestRuntimeStatusHandler.class)
+            .bindNamedParameter(
+                    RuntimeParameters.ResourceAllocationHandler.class,
+                    RuntimesHostTest.TestResourceAllocationHandler.class);
+
     Injector badInjector = Tang.Factory.getTang().newInjector(cb.build());
 
     final JavaConfigurationBuilder cbtest = Tang.Factory.getTang().newConfigurationBuilder();
-    cbtest.bindSetEntry(
-            SerializedRuntimeDefinitions.class,
+    cbtest.bindNamedParameter(
+            SerializedRuntimeDefinition.class,
             config);
 
     Injector forked = badInjector.forkInjector(cbtest.build());
@@ -227,17 +231,13 @@ public class RuntimesHostTest {
 
   @Test
   public void testRuntimesHostRoutedToDefaultRuntime() throws InjectionException {
-    Configuration driverConfiguration = TestDriverConfiguration.CONF.build();
-    AvroConfigurationSerializer serializer = new AvroConfigurationSerializer();
-    String config = serializer.toString(driverConfiguration);
-    RuntimeDefinition rd = new RuntimeDefinition();
-    rd.setDefaultConfiguration(true);
-    rd.setSerializedConfiguration(config);
-    rd.setRuntimeName("test");
-    final String serializedConfiguration = getRuntimeDefinition(rd);
+    final String serializedConfiguration = getRuntimeDefinition(
+            new MultiRuntimeDefinitionBuilder().addRuntime(TestDriverConfiguration.CONF, "test")
+            .build());
+
     final JavaConfigurationBuilder cbtest = Tang.Factory.getTang().newConfigurationBuilder();
-    cbtest.bindSetEntry(
-            SerializedRuntimeDefinitions.class,
+    cbtest.bindNamedParameter(
+            SerializedRuntimeDefinition.class,
             serializedConfiguration);
 
     Injector forked = injector.forkInjector(cbtest.build());
@@ -248,13 +248,14 @@ public class RuntimesHostTest {
     Assert.assertTrue(obj instanceof RuntimeStart);
   }
 
-  private String getRuntimeDefinition(final RuntimeDefinition rd) {
-    return new RuntimeDefinitionSerializer().serialize(rd);
+  private String getRuntimeDefinition(final MultiRuntimeDefinition rd) {
+    return new MultiRuntimeDefinitionSerializer().serialize(rd);
   }
 
   static class TestResourceStatusHandler implements EventHandler<ResourceStatusEvent> {
     @Inject
-    TestResourceStatusHandler(){}
+    TestResourceStatusHandler() {
+    }
 
     @Override
     public void onNext(final ResourceStatusEvent value) {
@@ -264,7 +265,8 @@ public class RuntimesHostTest {
 
   static class TestRuntimeStatusHandler implements EventHandler<RuntimeStatusEvent> {
     @Inject
-    TestRuntimeStatusHandler(){}
+    TestRuntimeStatusHandler() {
+    }
 
     @Override
     public void onNext(final RuntimeStatusEvent value) {
@@ -274,7 +276,8 @@ public class RuntimesHostTest {
 
   static class TestNodeDescriptorHandler implements EventHandler<NodeDescriptorEvent> {
     @Inject
-    TestNodeDescriptorHandler(){}
+    TestNodeDescriptorHandler() {
+    }
 
     @Override
     public void onNext(final NodeDescriptorEvent value) {
@@ -284,7 +287,8 @@ public class RuntimesHostTest {
 
   static class TestResourceAllocationHandler implements EventHandler<ResourceAllocationEvent> {
     @Inject
-    TestResourceAllocationHandler(){}
+    TestResourceAllocationHandler() {
+    }
 
     @Override
     public void onNext(final ResourceAllocationEvent value) {
@@ -303,7 +307,8 @@ public class RuntimesHostTest {
 
   private static class TestResourceLaunchHandler implements ResourceLaunchHandler {
     @Inject
-    TestResourceLaunchHandler(){}
+    TestResourceLaunchHandler() {
+    }
 
     @Override
     public void onNext(final ResourceLaunchEvent value) {
@@ -313,7 +318,8 @@ public class RuntimesHostTest {
 
   private static class TestResourceRequestHandler implements ResourceRequestHandler {
     @Inject
-    TestResourceRequestHandler(){}
+    TestResourceRequestHandler() {
+    }
 
     @Override
     public void onNext(final ResourceRequestEvent value) {
@@ -323,7 +329,8 @@ public class RuntimesHostTest {
 
   private static class TestResourceReleaseHandler implements ResourceReleaseHandler {
     @Inject
-    TestResourceReleaseHandler(){}
+    TestResourceReleaseHandler() {
+    }
 
     @Override
     public void onNext(final ResourceReleaseEvent value) {
@@ -333,7 +340,8 @@ public class RuntimesHostTest {
 
   private static class TestResourceManagerStartHandler implements ResourceManagerStartHandler {
     @Inject
-    TestResourceManagerStartHandler(){}
+    TestResourceManagerStartHandler() {
+    }
 
     @Override
     public void onNext(final RuntimeStart value) {
@@ -343,7 +351,8 @@ public class RuntimesHostTest {
 
   private static class TestResourceManagerStopHandler implements ResourceManagerStopHandler {
     @Inject
-    TestResourceManagerStopHandler(){}
+    TestResourceManagerStopHandler() {
+    }
 
     @Override
     public void onNext(final RuntimeStop value) {

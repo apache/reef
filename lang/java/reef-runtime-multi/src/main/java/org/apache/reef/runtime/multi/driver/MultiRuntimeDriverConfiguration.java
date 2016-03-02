@@ -18,12 +18,14 @@
  */
 package org.apache.reef.runtime.multi.driver;
 
+import org.apache.reef.annotations.audience.Private;
+import org.apache.reef.annotations.audience.RuntimeAuthor;
 import org.apache.reef.runtime.common.driver.api.*;
 import org.apache.reef.runtime.common.driver.parameters.ClientRemoteIdentifier;
 import org.apache.reef.runtime.common.driver.parameters.JobIdentifier;
 import org.apache.reef.runtime.common.files.RuntimeClasspathProvider;
 import org.apache.reef.runtime.common.launch.parameters.LaunchID;
-import org.apache.reef.runtime.multi.client.parameters.SerializedRuntimeDefinitions;
+import org.apache.reef.runtime.multi.client.parameters.SerializedRuntimeDefinition;
 import org.apache.reef.runtime.yarn.YarnClasspathProvider;
 import org.apache.reef.runtime.yarn.util.YarnConfigurationConstructor;
 import org.apache.reef.tang.formats.ConfigurationModule;
@@ -32,9 +34,10 @@ import org.apache.reef.tang.formats.OptionalParameter;
 import org.apache.reef.tang.formats.RequiredParameter;
 
 /**
- * ConfigurationModule for the Driver executed in the local resourcemanager. This is meant to eventually replace
- * LocalDriverRuntimeConfiguration.
+ * ConfigurationModule for the multi-runtime Driver.
  */
+@Private
+@RuntimeAuthor
 public class MultiRuntimeDriverConfiguration extends ConfigurationModuleBuilder {
 
   /**
@@ -61,7 +64,7 @@ public class MultiRuntimeDriverConfiguration extends ConfigurationModuleBuilder 
       .bindImplementation(ResourceReleaseHandler.class, MultiRuntimeResourceReleaseHandler.class)
       .bindImplementation(ResourceManagerStartHandler.class, MultiRuntimeResourceManagerStartHandler.class)
       .bindImplementation(ResourceManagerStopHandler.class, MultiRuntimeResourceManagerStopHandler.class)
-      .bindSetEntry(SerializedRuntimeDefinitions.class, SERIALIZED_RUNTIME_DEFINITION)
+      .bindNamedParameter(SerializedRuntimeDefinition.class, SERIALIZED_RUNTIME_DEFINITION)
       .bindNamedParameter(LaunchID.class, JOB_IDENTIFIER)
       .bindNamedParameter(JobIdentifier.class, JOB_IDENTIFIER)
       .bindNamedParameter(ClientRemoteIdentifier.class, CLIENT_REMOTE_IDENTIFIER)

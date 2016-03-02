@@ -21,11 +21,9 @@ package org.apache.reef.runtime.multi.client.parameters;
 import org.apache.reef.tang.annotations.Name;
 import org.apache.reef.tang.annotations.NamedParameter;
 
-import java.util.Set;
-
 /**
  * Serialized tang configuration for a runtime.
  */
-@NamedParameter(doc = "The runtime definitions", short_name = "runtime_definitions")
-public final class SerializedRuntimeDefinitions implements Name<Set<String>> {
+@NamedParameter(doc = "The default runtime name", short_name = "default_runtime")
+public final class DefaultRuntimeName implements Name<String> {
 }

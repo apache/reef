@@ -22,24 +22,26 @@ package org.apache.reef.runtime.multi.utils;
 import org.apache.avro.io.*;
 import org.apache.avro.specific.SpecificDatumReader;
 import org.apache.avro.specific.SpecificDatumWriter;
-import org.apache.reef.runtime.multi.utils.avro.RuntimeDefinition;
+import org.apache.reef.runtime.multi.utils.avro.MultiRuntimeDefinition;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
 /**
- * Serializer for RuntimeDefinition.
+ * Serializer for MultiRuntimeDefinition.
  */
-public final class RuntimeDefinitionSerializer {
+public final class MultiRuntimeDefinitionSerializer {
 
-  private static final String CHARSET_NAME = "ISO-8859-1";
+  private static final String CHARSET_NAME = "UTF-8";
 
-  public RuntimeDefinitionSerializer(){
-  }
-
-  public String serialize(final RuntimeDefinition runtimeDefinition){
-    final DatumWriter<RuntimeDefinition> configurationWriter =
-            new SpecificDatumWriter<>(RuntimeDefinition.class);
+  /**
+   * Serializes MultiRuntimeDefinition.
+   * @param runtimeDefinition the Avro object to serialize
+   * @return Serialized avro string
+   */
+  public String serialize(final MultiRuntimeDefinition runtimeDefinition){
+    final DatumWriter<MultiRuntimeDefinition> configurationWriter =
+            new SpecificDatumWriter<>(MultiRuntimeDefinition.class);
     final String serializedConfiguration;
     try (final ByteArrayOutputStream out = new ByteArrayOutputStream()) {
       final JsonEncoder encoder = EncoderFactory.get().jsonEncoder(runtimeDefinition.getSchema(), out);
@@ -54,12 +56,18 @@ public final class RuntimeDefinitionSerializer {
     return serializedConfiguration;
   }
 
-  public RuntimeDefinition deserialize(final String serializedRuntimeDefinition) throws
+  /**
+   * Deserializes avro definition.
+   * @param serializedRuntimeDefinition serialized definition
+   * @return Avro object
+   * @throws IOException
+   */
+  public MultiRuntimeDefinition deserialize(final String serializedRuntimeDefinition) throws
           IOException{
     final JsonDecoder decoder = DecoderFactory.get().
-            jsonDecoder(RuntimeDefinition.getClassSchema(), serializedRuntimeDefinition);
-    final SpecificDatumReader<RuntimeDefinition> reader = new SpecificDatumReader<>(RuntimeDefinition.class);
-    RuntimeDefinition rd = reader.read(null, decoder);
+            jsonDecoder(MultiRuntimeDefinition.getClassSchema(), serializedRuntimeDefinition);
+    final SpecificDatumReader<MultiRuntimeDefinition> reader = new SpecificDatumReader<>(MultiRuntimeDefinition.class);
+    MultiRuntimeDefinition rd = reader.read(null, decoder);
     return rd;
   }
 }

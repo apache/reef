@@ -24,9 +24,10 @@ import org.apache.reef.runtime.common.driver.resourcemanager.NodeDescriptorEvent
 import org.apache.reef.runtime.common.driver.resourcemanager.ResourceAllocationEvent;
 import org.apache.reef.runtime.common.driver.resourcemanager.ResourceStatusEvent;
 import org.apache.reef.runtime.common.driver.resourcemanager.RuntimeStatusEvent;
-import org.apache.reef.runtime.multi.client.parameters.SerializedRuntimeDefinitions;
+import org.apache.reef.runtime.multi.client.parameters.SerializedRuntimeDefinition;
 import org.apache.reef.runtime.multi.driver.parameters.RuntimeName;
-import org.apache.reef.runtime.multi.utils.RuntimeDefinitionSerializer;
+import org.apache.reef.runtime.multi.utils.MultiRuntimeDefinitionSerializer;
+import org.apache.reef.runtime.multi.utils.avro.MultiRuntimeDefinition;
 import org.apache.reef.runtime.multi.utils.avro.RuntimeDefinition;
 import org.apache.reef.tang.Configuration;
 import org.apache.reef.tang.Injector;
@@ -43,70 +44,73 @@ import javax.inject.Inject;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * Hosts the actual runtime implementations and delegates invocations to them.
  */
 final class RuntimesHost {
-  private final Set<String> runtimeDefinitions;
   private Map<String, Runtime> runtimes;
   private final Injector originalInjector;
   private String defaultRuntimeName;
-  private RuntimeDefinitionSerializer  runtimeDefinitionSerializer = new RuntimeDefinitionSerializer();
+  private final String serializedRuntimeDefinition;
+  private MultiRuntimeDefinitionSerializer  runtimeDefinitionSerializer = new MultiRuntimeDefinitionSerializer();
 
   @Inject
   private RuntimesHost(final Injector injector,
-                       @Parameter(SerializedRuntimeDefinitions.class) final Set<String> runtimeDefinitions) {
-    if (runtimeDefinitions == null || runtimeDefinitions.size() == 0) {
-      throw new RuntimeException("No runtime configurations are provided for multi-runtime");
-    }
-
-    this.runtimeDefinitions = runtimeDefinitions;
+                       @Parameter(SerializedRuntimeDefinition.class) final String serializedRuntimeDefinition) {
+    this.serializedRuntimeDefinition = serializedRuntimeDefinition;
     this.originalInjector = injector;
   }
 
+  /**
+   * Initializes teh configured runtimes.
+   */
   private synchronized void initialize() {
     if (this.runtimes != null) {
       return;
     }
 
+    MultiRuntimeDefinition runtimeDefinition = null;
+    try {
+      runtimeDefinition = this.runtimeDefinitionSerializer.deserialize(serializedRuntimeDefinition);
+    } catch (IOException e) {
+      throw new RuntimeException("Unable to read runtime configuration.", e);
+    }
+
+    this.defaultRuntimeName = runtimeDefinition.getDefaultRuntimeName().toString();
     this.runtimes = new HashMap<>();
-    final AvroConfigurationSerializer serializer = new AvroConfigurationSerializer();
 
-    for (final String serializedRuntimeDefinition : runtimeDefinitions) {
-      Configuration config = null;
-      RuntimeDefinition rd = null;
+    for (final RuntimeDefinition rd : runtimeDefinition.getRuntimes()) {
       try {
-        rd = this.runtimeDefinitionSerializer.deserialize(serializedRuntimeDefinition);
-        if (rd.getDefaultConfiguration()) {
-          if(this.defaultRuntimeName != null){
-            throw new RuntimeException("More then one default runtime was defined");
-          }
 
-          this.defaultRuntimeName = rd.getRuntimeName().toString();
-        }
-
-        config = serializer.fromString(rd.getSerializedConfiguration().toString());
-      } catch (IOException e) {
-        throw new RuntimeException("Unable to read runtime configuration.", e);
-      }
-
-      final Injector rootInjector = Tang.Factory.getTang().newInjector();
-      try {
+        // We need to create different injector for each runtime as they define conflicting bindings. Also we cannot
+        // fork the original injector because of the same reason.
+        // We create new injectors and copy form the original injector what we need.
+        // rootInjector is an emptyInjector that we copy bindings from the original injector into. Then we fork
+        //it to instantiate the actual runtime.
+        Injector rootInjector = Tang.Factory.getTang().newInjector();
         initializeInjector(rootInjector);
         final JavaConfigurationBuilder cb = Tang.Factory.getTang().newConfigurationBuilder();
         cb.bindNamedParameter(RuntimeName.class, rd.getRuntimeName().toString());
         cb.bindImplementation(Runtime.class, RuntimeImpl.class);
 
+        AvroConfigurationSerializer serializer = new AvroConfigurationSerializer();
+        Configuration config = serializer.fromString(rd.getSerializedConfiguration().toString());
         final Injector runtimeInjector = rootInjector.forkInjector(config, cb.build());
         this.runtimes.put(rd.getRuntimeName().toString(), runtimeInjector.getInstance(Runtime.class));
       } catch (InjectionException e) {
+        throw new RuntimeException("Unable to initialize runtimes.", e);
+      } catch (IOException e) {
         throw new RuntimeException("Unable to initialize runtimes.", e);
       }
     }
   }
 
+  /**
+   * Initializes injector by copying needed handlers.
+   * @param runtimeInjector Teh injector to initialize
+   * @throws InjectionException
+   */
   private void initializeInjector(final Injector runtimeInjector) throws InjectionException {
     final EventHandler<ResourceStatusEvent> statusEventHandler =
             this.originalInjector.getNamedInstance(RuntimeParameters.ResourceStatusHandler.class);
@@ -126,6 +130,11 @@ final class RuntimesHost {
             runtimeStatusEventHandler);
   }
 
+  /**
+   * Retrieves requested runtime, if requested name is empty a default runtime will be used.
+   * @param requestedRuntimeName teh requested runtime name
+   * @return
+   */
   private Runtime getRuntime(final String requestedRuntimeName) {
     String runtimeName = requestedRuntimeName;
     if (StringUtils.isEmpty(runtimeName) || StringUtils.isBlank(runtimeName)) {

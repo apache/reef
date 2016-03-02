@@ -36,12 +36,30 @@
         "name":"serializedConfiguration",
         "type":"string",
         "doc":"Serialized Tang configuration"
+      }
+    ]
+  },
+/*
+ * Defines the schema for runtime definition. This avro object is used to pass runtimes definitions
+ * to the runtimes host
+ */
+ {
+    "namespace":"org.apache.reef.runtime.multi.utils.avro",
+    "type":"record",
+    "name":"MultiRuntimeDefinition",
+    "doc":"Defines the schema for multi runtime definition. This avro object is used to pass multi runtime definition to the runtimes host",
+    "fields":[
+      {
+        "name":"defaultRuntimeName",
+        "type":"string",
+        "doc":"The name of the default runtime"
       },
       {
-        "name":"defaultConfiguration",
-        "type":"boolean",
-        "doc":"Indicates if this is the default runtime that is used when no runtime is specified for a request"
+        "name":"runtimes",
+        "type":{"type":"array", "items":"RuntimeDefinition"},
+        "doc":"defined runtimes"
       }
     ]
   }
+
 ]

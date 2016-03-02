@@ -16,13 +16,27 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
 package org.apache.reef.runtime.multi.client;
 
-import org.apache.reef.tang.formats.ConfigurationModuleBuilder;
+import org.apache.reef.runtime.multi.utils.avro.MultiRuntimeDefinition;
+
+import java.net.URI;
 
 /**
- * A ConfigurationModule to bind arbitrary named parameters for runtimes.
+ * Defines a contract for a multi runtime definition generator.
  */
-final class MultiRuntimeHelperConfiguration extends ConfigurationModuleBuilder {
-}
+public interface MultiRuntimeDefinitionGenerator {
+  /**
+   * Generates needed driver configuration modules.
+   *
+   * @param jobFolder      the job folder
+   * @param clientRemoteId the client remote id
+   * @param jobId          the job id
+   * @return Instance of <code>MultiRuntimeDefinition</code>
+   */
+  MultiRuntimeDefinition getMultiRuntimeDefinition(final URI jobFolder,
+                                                   final String clientRemoteId,
+                                                   final String jobId);
 
+}

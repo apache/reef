@@ -16,13 +16,16 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.runtime.multi.client;
+package org.apache.reef.runtime.multi.client.parameters;
 
-import org.apache.reef.tang.formats.ConfigurationModuleBuilder;
+import org.apache.reef.tang.annotations.Name;
+import org.apache.reef.tang.annotations.NamedParameter;
+
+import java.util.Set;
 
 /**
- * A ConfigurationModule to bind arbitrary named parameters for runtimes.
+ * Serialized tang configuration for a runtime.
  */
-final class MultiRuntimeHelperConfiguration extends ConfigurationModuleBuilder {
+@NamedParameter(doc = "The runtime names", short_name = "runtime_names")
+public final class RuntimeNames implements Name<Set<String>> {
 }
-
