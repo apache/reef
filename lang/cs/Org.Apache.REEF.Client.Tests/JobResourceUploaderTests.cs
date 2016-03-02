@@ -18,6 +18,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using NSubstitute;
 using Org.Apache.REEF.Client.Common;
 using Org.Apache.REEF.Client.Yarn;
@@ -52,25 +53,25 @@ namespace Org.Apache.REEF.Client.Tests
         }
 
         [Fact]
-        public void UploadJobResourceCreatesResourceArchive()
+        public async Task UploadJobResourceCreatesResourceArchive()
         {
             var testContext = new TestContext();
             var jobResourceUploader = testContext.GetJobResourceUploader();
 
-            jobResourceUploader.UploadArchiveResource(AnyDriverLocalFolderPath, AnyDriverResourceUploadPath);
+            await jobResourceUploader.UploadArchiveResourceAsync(AnyDriverLocalFolderPath, AnyDriverResourceUploadPath);
 
             // Archive file generator recieved exactly one call with correct driver local folder path
             testContext.ResourceArchiveFileGenerator.Received(1).CreateArchiveToUpload(AnyDriverLocalFolderPath);
         }
 
         [Fact]
-        public void UploadJobResourceReturnsJobResourceDetails()
+        public async Task UploadJobResourceReturnsJobResourceDetails()
         {
             var testContext = new TestContext();
             var jobResourceUploader = testContext.GetJobResourceUploader();
 
-            var archiveJobResource = jobResourceUploader.UploadArchiveResource(AnyDriverLocalFolderPath, AnyDriverResourceUploadPath);
-            var fileJobResource = jobResourceUploader.UploadFileResource(AnyLocalJobFilePath, AnyDriverResourceUploadPath);
+            var archiveJobResource = await jobResourceUploader.UploadArchiveResourceAsync(AnyDriverLocalFolderPath, AnyDriverResourceUploadPath);
+            var fileJobResource = await jobResourceUploader.UploadFileResourceAsync(AnyLocalJobFilePath, AnyDriverResourceUploadPath);
             var jobResources = new List<JobResource> { archiveJobResource, fileJobResource };
 
             foreach (var resource in jobResources)
@@ -85,13 +86,13 @@ namespace Org.Apache.REEF.Client.Tests
         }
 
         [Fact]
-        public void UploadJobResourceMakesCorrectFileSystemCalls()
+        public async Task UploadJobResourceMakesCorrectFileSystemCalls()
         {
             var testContext = new TestContext();
             var jobResourceUploader = testContext.GetJobResourceUploader();
 
-            jobResourceUploader.UploadArchiveResource(AnyDriverLocalFolderPath, AnyDriverResourceUploadPath);
-            jobResourceUploader.UploadFileResource(AnyLocalJobFilePath, AnyDriverResourceUploadPath);
+            await jobResourceUploader.UploadArchiveResourceAsync(AnyDriverLocalFolderPath, AnyDriverResourceUploadPath);
+            await jobResourceUploader.UploadFileResourceAsync(AnyLocalJobFilePath, AnyDriverResourceUploadPath);
 
             testContext.FileSystem.Received(1).CreateUriForPath(AnyUploadedResourcePath);
 

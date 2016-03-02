@@ -17,6 +17,7 @@
 
 using System;
 using System.IO;
+using System.Threading.Tasks;
 using Org.Apache.REEF.Client.Common;
 using Org.Apache.REEF.Client.Yarn;
 using Org.Apache.REEF.Client.YARN.RestClient.DataModel;
@@ -58,7 +59,7 @@ namespace Org.Apache.REEF.Client.YARN.RestClient
             _file = file;
         }
 
-        public JobResource UploadArchiveResource(string driverLocalFolderPath, string remoteUploadDirectoryPath)
+        public async Task<JobResource> UploadArchiveResourceAsync(string driverLocalFolderPath, string remoteUploadDirectoryPath)
         {
             driverLocalFolderPath = driverLocalFolderPath.TrimEnd('\\') + @"\";
             var driverUploadPath = remoteUploadDirectoryPath.TrimEnd('/') + @"/";
@@ -68,19 +69,19 @@ namespace Org.Apache.REEF.Client.YARN.RestClient
             _fileSystem.CreateDirectory(parentDirectoryUri);
 
             var archivePath = _resourceArchiveFileGenerator.CreateArchiveToUpload(driverLocalFolderPath);
-            return GetJobResource(archivePath, ResourceType.ARCHIVE, driverUploadPath, _reefFileNames.GetReefFolderName());
+            return await UploadResourceAndGetInfoAsync(archivePath, ResourceType.ARCHIVE, driverUploadPath, _reefFileNames.GetReefFolderName());
         }
 
-        public JobResource UploadFileResource(string fileLocalPath, string remoteUploadDirectoryPath)
+        public async Task<JobResource> UploadFileResourceAsync(string fileLocalPath, string remoteUploadDirectoryPath)
         {
             var driverUploadPath = remoteUploadDirectoryPath.TrimEnd('/') + @"/";
             var parentDirectoryUri = _fileSystem.CreateUriForPath(driverUploadPath);
 
             _fileSystem.CreateDirectory(parentDirectoryUri);
-            return GetJobResource(fileLocalPath, ResourceType.FILE, remoteUploadDirectoryPath);
+            return await UploadResourceAndGetInfoAsync(fileLocalPath, ResourceType.FILE, remoteUploadDirectoryPath);
         }
 
-        private JobResource GetJobResource(string filePath, ResourceType resourceType, string driverUploadPath, string localizedName = null)
+        private async Task<JobResource> UploadResourceAndGetInfoAsync(string filePath, ResourceType resourceType, string driverUploadPath, string localizedName = null)
         {
             if (!_file.Exists(filePath))
             {
@@ -94,7 +95,8 @@ namespace Org.Apache.REEF.Client.YARN.RestClient
 
             Log.Log(Level.Verbose, @"Copy {0} to {1}", filePath, remoteFileUri);
 
-            _fileSystem.CopyFromLocal(filePath, remoteFileUri);
+            // IFileSystem does not support async APIs; Hence we start the copying in a task
+            await Task.Run(() => _fileSystem.CopyFromLocal(filePath, remoteFileUri));
             var fileStatus = _fileSystem.GetFileStatus(remoteFileUri);
 
             return new JobResource

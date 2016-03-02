@@ -21,6 +21,7 @@ using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using Org.Apache.REEF.Client.API.Exceptions;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Utilities.Diagnostics;
@@ -51,7 +52,7 @@ namespace Org.Apache.REEF.Client.Common
         /// </summary>
         /// <param name="javaClassName"></param>
         /// <param name="parameters"></param>
-        public void Launch(string javaClassName, params string[] parameters)
+        public Task LaunchAsync(string javaClassName, params string[] parameters)
         {
             var startInfo = new ProcessStartInfo
             {
@@ -59,7 +60,7 @@ namespace Org.Apache.REEF.Client.Common
                 FileName = GetJavaCommand(),
                 UseShellExecute = false,
                 RedirectStandardOutput = true,
-                RedirectStandardError = true
+                RedirectStandardError = true,
             };
 
             var msg = string.Format(CultureInfo.CurrentCulture, "Launch Java with command: {0} {1}",
@@ -67,8 +68,10 @@ namespace Org.Apache.REEF.Client.Common
             Logger.Log(Level.Info, msg);
 
             var process = Process.Start(startInfo);
+            var processExitTracker = new TaskCompletionSource<bool>();
             if (process != null)
             {
+                process.EnableRaisingEvents = true;
                 process.OutputDataReceived += delegate(object sender, DataReceivedEventArgs e)
                 {
                     if (!string.IsNullOrWhiteSpace(e.Data))
@@ -85,16 +88,18 @@ namespace Org.Apache.REEF.Client.Common
                 };
                 process.BeginErrorReadLine();
                 process.BeginOutputReadLine();
-                process.WaitForExit();
+                process.Exited += (sender, args) => { processExitTracker.SetResult(process.ExitCode == 0); };
             }
             else
             {
-                Exceptions.Throw(new Exception("Java client process didn't start."), Logger);
+                processExitTracker.SetException(new Exception("Java client process didn't start."));
             }
+
+            return processExitTracker.Task;
         }
 
         /// <summary>
-        /// Assembles the command line arguments. Used by Launch()
+        /// Assembles the command line arguments. Used by LaunchAsync()
         /// </summary>
         /// <param name="javaClassName"></param>
         /// <param name="parameters"></param>

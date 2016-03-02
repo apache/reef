@@ -16,6 +16,7 @@
 // under the License.
 
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Org.Apache.REEF.Tang.Annotations;
 
 namespace Org.Apache.REEF.Client.Common
@@ -26,7 +27,7 @@ namespace Org.Apache.REEF.Client.Common
     [DefaultImplementation(typeof(JavaClientLauncher))]
     internal interface IJavaClientLauncher
     {
-        void Launch(string javaClassName, params string[] parameters);
+        Task LaunchAsync(string javaClassName, params string[] parameters);
 
         /// <summary>
         /// Add entries to the end of the classpath of the java client.
