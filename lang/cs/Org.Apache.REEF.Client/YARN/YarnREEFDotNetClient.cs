@@ -97,12 +97,18 @@ namespace Org.Apache.REEF.Client.YARN
                 _paramSerializer.SerializeAppFile(jobRequest.AppParameters, paramInjector, localDriverFolderPath);
                 _paramSerializer.SerializeJobFile(jobRequest.JobParameters, localDriverFolderPath, jobSubmissionDirectory);
 
-                var archiveResource = _jobResourceUploader.UploadArchiveResource(localDriverFolderPath, jobSubmissionDirectory);
+                var archiveResource =
+                    _jobResourceUploader.UploadArchiveResourceAsync(localDriverFolderPath, jobSubmissionDirectory)
+                        .GetAwaiter()
+                        .GetResult();
 
                 // Path to the job args file.
                 var jobArgsFilePath = Path.Combine(localDriverFolderPath, _fileNames.GetJobSubmissionParametersFile());
 
-                var argFileResource = _jobResourceUploader.UploadFileResource(jobArgsFilePath, jobSubmissionDirectory);
+                var argFileResource =
+                    _jobResourceUploader.UploadFileResourceAsync(jobArgsFilePath, jobSubmissionDirectory)
+                        .GetAwaiter()
+                        .GetResult();
 
                 // upload prepared folder to DFS
                 var jobResources = new List<JobResource> { archiveResource, argFileResource };

@@ -157,7 +157,8 @@ namespace Org.Apache.REEF.Client.Local
             var driverFolder = PrepareDriverFolder(jobRequest);
             var submissionJobArgsFilePath = CreateBootstrapAvroJobConfig(jobRequest.JobParameters, driverFolder);
             var submissionAppArgsFilePath = CreateBootstrapAvroAppConfig(jobRequest.AppParameters, driverFolder);
-            _javaClientLauncher.Launch(JavaClassName, submissionJobArgsFilePath, submissionAppArgsFilePath);
+            _javaClientLauncher.LaunchAsync(JavaClassName, submissionJobArgsFilePath, submissionAppArgsFilePath)
+                .GetAwaiter().GetResult();
             Logger.Log(Level.Info, "Submitted the Driver for execution.");
         }
 
@@ -167,7 +168,8 @@ namespace Org.Apache.REEF.Client.Local
             var submissionJobArgsFilePath = CreateBootstrapAvroJobConfig(jobRequest.JobParameters, driverFolder);
             var submissionAppArgsFilePath = CreateBootstrapAvroAppConfig(jobRequest.AppParameters, driverFolder);
 
-            Task.Run(() => _javaClientLauncher.Launch(JavaClassName, submissionJobArgsFilePath, submissionAppArgsFilePath));
+            _javaClientLauncher.LaunchAsync(JavaClassName, submissionJobArgsFilePath, submissionAppArgsFilePath)
+                .GetAwaiter().GetResult();
 
             var fileName = Path.Combine(driverFolder, _fileNames.DriverHttpEndpoint);
             JobSubmissionResult result = new LocalJobSubmissionResult(this, fileName);

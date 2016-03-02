@@ -15,6 +15,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
+using System.Threading.Tasks;
 using Org.Apache.REEF.Tang.Annotations;
 
 namespace Org.Apache.REEF.Client.Yarn
@@ -28,7 +29,7 @@ namespace Org.Apache.REEF.Client.Yarn
         /// <param name="driverLocalFolderPath">Local folder where REEF application resources are staged</param>
         /// <param name="remoteUploadDirectoryPath">Remote directory path where we will upload resources</param>
         /// <returns>Path, modification time and size of uploaded file as JobResource</returns>
-        JobResource UploadArchiveResource(string driverLocalFolderPath, string remoteUploadDirectoryPath);
+        Task<JobResource> UploadArchiveResourceAsync(string driverLocalFolderPath, string remoteUploadDirectoryPath);
 
         /// <summary>
         /// Locates a file resource and uploads it to DFS destination path.
@@ -36,6 +37,6 @@ namespace Org.Apache.REEF.Client.Yarn
         /// <param name="fileLocalPath">file path</param>
         /// <param name="remoteUploadDirectoryPath">Remote directory path where we will upload resources</param>
         /// <returns>Path, modification time and size of uploaded file as JobResource</returns>
-        JobResource UploadFileResource(string fileLocalPath, string remoteUploadDirectoryPath);
+        Task<JobResource> UploadFileResourceAsync(string fileLocalPath, string remoteUploadDirectoryPath);
     }
 }

@@ -125,7 +125,9 @@ namespace Org.Apache.REEF.Client.Yarn
             var submissionAppArgsFilePath = _paramSerializer.SerializeAppFile(jobRequest.AppParameters, paramInjector, driverFolderPath);
 
             // Submit the driver
-            _javaClientLauncher.Launch(JavaClassName, submissionJobArgsFilePath, submissionAppArgsFilePath);
+            _javaClientLauncher.LaunchAsync(JavaClassName, submissionJobArgsFilePath, submissionAppArgsFilePath)
+                .GetAwaiter()
+                .GetResult();
             Logger.Log(Level.Info, "Submitted the Driver for execution." + jobRequest.JobIdentifier);
         }
 

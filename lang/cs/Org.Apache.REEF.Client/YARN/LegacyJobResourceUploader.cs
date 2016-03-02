@@ -16,8 +16,8 @@
 // under the License.
 
 using System;
-using System.Collections.Generic;
 using System.IO;
+using System.Threading.Tasks;
 using Org.Apache.REEF.Client.Common;
 using Org.Apache.REEF.Client.YARN.RestClient.DataModel;
 using Org.Apache.REEF.Common.Files;
@@ -62,24 +62,24 @@ namespace Org.Apache.REEF.Client.Yarn
             _reefFileNames = reefFileNames;
         }
 
-        public JobResource UploadArchiveResource(string driverLocalFolderPath, string remoteUploadDirectoryPath)
+        public async Task<JobResource> UploadArchiveResourceAsync(string driverLocalFolderPath, string remoteUploadDirectoryPath)
         {
             driverLocalFolderPath = driverLocalFolderPath.TrimEnd('\\') + @"\";
             var driverUploadPath = remoteUploadDirectoryPath.TrimEnd('/') + @"/";
             Log.Log(Level.Info, "DriverFolderPath: {0} DriverUploadPath: {1}", driverLocalFolderPath, driverUploadPath);
 
             var archivePath = _resourceArchiveFileGenerator.CreateArchiveToUpload(driverLocalFolderPath);
-            return GetJobResource(archivePath, ResourceType.ARCHIVE, driverUploadPath, _reefFileNames.GetReefFolderName());
+            return await UploadResourceAndGetInfoAsync(archivePath, ResourceType.ARCHIVE, driverUploadPath, _reefFileNames.GetReefFolderName());
         }
 
-        public JobResource UploadFileResource(string fileLocalPath, string remoteUploadDirectoryPath)
+        public async Task<JobResource> UploadFileResourceAsync(string fileLocalPath, string remoteUploadDirectoryPath)
         {
             var driverUploadPath = remoteUploadDirectoryPath.TrimEnd('/') + @"/";
             var jobArgsFilePath = fileLocalPath;
-            return GetJobResource(jobArgsFilePath, ResourceType.FILE, driverUploadPath);
+            return await UploadResourceAndGetInfoAsync(jobArgsFilePath, ResourceType.FILE, driverUploadPath);
         }
 
-        private JobResource GetJobResource(string filePath, ResourceType resourceType, string driverUploadPath, string localizedName = null)
+        private async Task<JobResource> UploadResourceAndGetInfoAsync(string filePath, ResourceType resourceType, string driverUploadPath, string localizedName = null)
         {
             if (!_file.Exists(filePath))
             {
@@ -92,7 +92,7 @@ namespace Org.Apache.REEF.Client.Yarn
 
             try
             {
-                _javaLauncher.Launch(JavaClassNameForResourceUploader,
+                await _javaLauncher.LaunchAsync(JavaClassNameForResourceUploader,
                     filePath,
                     resourceType.ToString(),
                     driverUploadPath,
@@ -119,6 +119,7 @@ namespace Org.Apache.REEF.Client.Yarn
                     Log);
             }
 
+            // Single line file, easier to deal with sync read
             string fileContent = _file.ReadAllText(resourceDetailsOutputPath).Trim();
 
             Log.Log(Level.Info, "Java uploader returned content: " + fileContent);

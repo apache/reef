@@ -18,6 +18,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Threading.Tasks;
 using NSubstitute;
 using Org.Apache.REEF.Client.Common;
 using Org.Apache.REEF.Client.Yarn;
@@ -37,19 +38,19 @@ namespace Org.Apache.REEF.Client.Tests
         private const long AnyResourceSize = 53092;
 
         [Fact]
-        public void UploadJobResourceCreatesResourceArchive()
+        public async Task UploadJobResourceCreatesResourceArchive()
         {
             var testContext = new TestContext();
             var jobResourceUploader = testContext.GetJobResourceUploader();
             
-            jobResourceUploader.UploadArchiveResource(AnyDriverLocalFolderPath, AnyDriverResourceUploadPath);
+            await jobResourceUploader.UploadArchiveResourceAsync(AnyDriverLocalFolderPath, AnyDriverResourceUploadPath);
 
             // Archive file generator recieved exactly one call with correct driver local folder path with trailing \
             testContext.ResourceArchiveFileGenerator.Received(1).CreateArchiveToUpload(AnyDriverLocalFolderPath + @"\");
         }
 
         [Fact]
-        public void UploadJobResourceJavaLauncherCalledWithCorrectArguments()
+        public async Task UploadJobResourceJavaLauncherCalledWithCorrectArguments()
         {
             var testContext = new TestContext();
             var jobResourceUploader = testContext.GetJobResourceUploader();
@@ -57,55 +58,55 @@ namespace Org.Apache.REEF.Client.Tests
             var anyLocalJobFilePath = AnyDriverLocalFolderPath.TrimEnd('\\') + @"\job-submission-params.json";
             testContext.ResourceArchiveFileGenerator.CreateArchiveToUpload(AnyDriverLocalFolderPath + @"\")
                 .Returns(anyLocalArchivePath);
-            jobResourceUploader.UploadArchiveResource(AnyDriverLocalFolderPath, AnyDriverResourceUploadPath);
-            jobResourceUploader.UploadFileResource(AnyLocalJobFilePath, AnyDriverResourceUploadPath);
+            await jobResourceUploader.UploadArchiveResourceAsync(AnyDriverLocalFolderPath, AnyDriverResourceUploadPath);
+            await jobResourceUploader.UploadFileResourceAsync(AnyLocalJobFilePath, AnyDriverResourceUploadPath);
 
             const string javaClassNameForResourceUploader = @"org.apache.reef.bridge.client.JobResourceUploader";
-            Guid notUsed;
+            Guid notUsedGuid;
 
             // Clientlauncher is called with correct class name, local archive path, upload path and temp file.
-            testContext.JavaClientLauncher.Received(1)
-                .Launch(javaClassNameForResourceUploader,
+            var notUsedTask = testContext.JavaClientLauncher.Received(1)
+                .LaunchAsync(javaClassNameForResourceUploader,
                     anyLocalArchivePath,
                     "ARCHIVE",
                     AnyDriverResourceUploadPath + "/",
                     Arg.Is<string>(
                         outputFilePath =>
                             Path.GetDirectoryName(outputFilePath) + @"\" == Path.GetTempPath() 
-                            && Guid.TryParse(Path.GetFileName(outputFilePath), out notUsed)));
+                            && Guid.TryParse(Path.GetFileName(outputFilePath), out notUsedGuid)));
 
             // Clientlauncher is called with correct class name, local job file path, upload path and temp file.
-            testContext.JavaClientLauncher.Received(1)
-                .Launch(javaClassNameForResourceUploader,
+            notUsedTask = testContext.JavaClientLauncher.Received(1)
+                .LaunchAsync(javaClassNameForResourceUploader,
                     anyLocalJobFilePath,
                     "FILE",
                     AnyDriverResourceUploadPath + "/",
                     Arg.Is<string>(
                         outputFilePath =>
                             Path.GetDirectoryName(outputFilePath) + @"\" == Path.GetTempPath()
-                            && Guid.TryParse(Path.GetFileName(outputFilePath), out notUsed)));
+                            && Guid.TryParse(Path.GetFileName(outputFilePath), out notUsedGuid)));
         }
 
         [Fact]
-        public void UploadJobResourceNoFileCreatedByJavaCallThrowsException()
+        public async Task UploadJobResourceNoFileCreatedByJavaCallThrowsException()
         {
             var testContext = new TestContext();
             var jobResourceUploader = testContext.GetJobResourceUploader(fileExistsReturnValue: false);
 
             // throws filenotfound exception
-            Assert.Throws<FileNotFoundException>(() => jobResourceUploader.UploadArchiveResource(AnyDriverLocalFolderPath, AnyDriverResourceUploadPath));
+            await Assert.ThrowsAsync<FileNotFoundException>(() => jobResourceUploader.UploadArchiveResourceAsync(AnyDriverLocalFolderPath, AnyDriverResourceUploadPath));
         }
 
         [Fact]
-        public void UploadJobResourceReturnsJobResourceDetails()
+        public async Task UploadJobResourceReturnsJobResourceDetails()
         {
             var testContext = new TestContext();
             var jobResourceUploader = testContext.GetJobResourceUploader();
 
-            var jobResources = new List<JobResource>()
+            var jobResources = new List<JobResource>
             {
-                jobResourceUploader.UploadArchiveResource(AnyDriverLocalFolderPath, AnyDriverResourceUploadPath),
-                jobResourceUploader.UploadFileResource(AnyLocalJobFilePath, AnyDriverResourceUploadPath)
+                await jobResourceUploader.UploadArchiveResourceAsync(AnyDriverLocalFolderPath, AnyDriverResourceUploadPath),
+                await jobResourceUploader.UploadFileResourceAsync(AnyLocalJobFilePath, AnyDriverResourceUploadPath)
             };
 
             Assert.Equal(jobResources.Count, 2);
