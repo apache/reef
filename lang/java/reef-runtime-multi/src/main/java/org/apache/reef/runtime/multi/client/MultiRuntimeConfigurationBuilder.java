@@ -44,7 +44,7 @@ public final class MultiRuntimeConfigurationBuilder {
   private final HashMap<Class, Object> namedParameters = new HashMap<>();
 
   private Set<String> runtimeNames = new HashSet<>();
-  private Optional<String> defaultRuntime = null;
+  private Optional<String> defaultRuntime = Optional.empty();
   private String submissionRunitme;
 
   private void addNamedParameter(final Class namedParameter,
@@ -73,7 +73,7 @@ public final class MultiRuntimeConfigurationBuilder {
    */
   public MultiRuntimeConfigurationBuilder setDefaultRuntime(final String runtimeName) {
     Validate.isTrue(SUPPORTED_RUNTIMES.contains(runtimeName), "Unsupported runtime " + runtimeName);
-    Validate.isTrue(this.defaultRuntime == null, "Default runtime was already added");
+    Validate.isTrue(!this.defaultRuntime.isPresent(), "Default runtime was already added");
 
     this.defaultRuntime = Optional.of(runtimeName);
     return this;

@@ -19,6 +19,7 @@
 package org.apache.reef.runtime.multi.driver;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.Validate;
 import org.apache.reef.runtime.common.driver.api.*;
 import org.apache.reef.runtime.common.driver.resourcemanager.NodeDescriptorEvent;
 import org.apache.reef.runtime.common.driver.resourcemanager.ResourceAllocationEvent;
@@ -139,7 +140,10 @@ final class RuntimesHost {
       runtimeName = this.defaultRuntimeName;
     }
 
-    return this.runtimes.get(runtimeName);
+    Runtime runtime = this.runtimes.get(runtimeName);
+
+    Validate.notNull(runtime, "Couldn't find runtime for name " + runtimeName);
+    return runtime;
   }
 
   void onResourceLaunch(final ResourceLaunchEvent value) {
