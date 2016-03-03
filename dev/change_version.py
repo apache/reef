@@ -92,8 +92,7 @@ def change_pom(file, new_version):
     f.close()
 
 """
-Change JavaBridgeJarFileName in lang/cs/Org.Apache.REEF.Driver/Constants.cs
-or in lang/cs/Org.Apache.REEF.Driver/DriverConfigGenerator.cs
+Change JavaBridgeJarFileName in lang/cs/Org.Apache.REEF.Driver/DriverConfigGenerator.cs
 """
 def change_constants_cs(file, new_version):
     changed_str = ""
@@ -181,9 +180,12 @@ def change_build_props(file, is_snapshot):
         if "<IsSnapshot>" in line and "</IsSnapshot>" in line:
             old_is_snapshot = r1.search(line).group(1)
             changed_str += line.replace(old_is_snapshot, is_snapshot)
-        elif "<SnapshotNumber>" in line and "</SnapshotNumber>" in line and is_snapshot=="false":
+        elif "<SnapshotNumber>" in line and "</SnapshotNumber>" in line:
             old_snapshot_number = r2.search(line).group(1)
-            changed_str += line.replace(old_snapshot_number, "00")
+            if is_snapshot=="false":
+              changed_str += line.replace(old_snapshot_number, "00")
+            else:
+              changed_str += line.replace(old_snapshot_number, "01")
         else:
             changed_str += line
     f.close()
@@ -249,7 +251,7 @@ def change_project_number_Doxyfile(file, new_version):
 
 """
 Change version of every pom.xml, every AssemblyInfo.cs,
-Constants.cs, AssemblyInfo.cpp, run.cmd and Resources.xml
+AssemblyInfo.cpp, run.cmd and Resources.xml
 """
 def change_version(reef_home, new_version, pom_only):
     if pom_only:
@@ -273,9 +275,6 @@ def change_version(reef_home, new_version, pom_only):
         change_assembly_info_cs(reef_home + "/lang/cs/Org.Apache.REEF.ClrDriver/AssemblyInfo.cpp", new_version)
         print reef_home + "/lang/cs/Org.Apache.REEF.ClrDriver/AssemblyInfo.cpp"
 
-        change_constants_cs(reef_home + "/lang/cs/Org.Apache.REEF.Driver/Constants.cs", new_version)
-        print reef_home + "/lang/cs/Org.Apache.REEF.Driver/Constants.cs"
-
         change_constants_cs(reef_home + "/lang/cs/Org.Apache.REEF.Driver/DriverConfigGenerator.cs", new_version)
         print reef_home + "/lang/cs/Org.Apache.REEF.Driver/DriverConfigGenerator.cs"
 
@@ -289,8 +288,7 @@ def change_version(reef_home, new_version, pom_only):
         print reef_home + "/Doxyfile"
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Script for changing version of every pom.xml, " \
-        + "every AssemblyInfo.cs, Constants.cs, and AssemblyInfo.cpp")
+    parser = argparse.ArgumentParser(description="Script for changing REEF version in all files that use it")
     parser.add_argument("reef_home", type=str, help="REEF home")
     parser.add_argument("reef_version", type=str, help="REEF version")
     parser.add_argument("-s", "--isSnapshot", type=str, metavar="<true or false>", help="Change 'IsSnapshot' to true or false", required=True)
