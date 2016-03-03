@@ -34,9 +34,9 @@ Requirements
     `mvn` is in your `PATH`.
   * [Protocol Buffers](https://code.google.com/p/protobuf/) Compiler
     version 2.5. Make sure that `protoc` is on your `PATH`.
-  * For REEF.NET, you will also need [Visual Studio
-    2013](http://www.visualstudio.com). Most REEF developers use the
-    free Community Edition.
+  * For REEF.NET, you will also need [Visual Studio]
+    (http://www.visualstudio.com), preferably Version 2015 (2013 is still 
+    supported). Most REEF developers use the free Community Edition.
 
 REEF Java
 ---------
