@@ -80,12 +80,10 @@ under the License.
       <ExcludeFromStyleCop>true</ExcludeFromStyleCop>
     </Compile>
     <Compile Include="Remote\ICodec.cs" />
-    <Compile Include="Remote\ICodecFactory.cs" />
     <Compile Include="Remote\IDecoder.cs" />
     <Compile Include="Remote\IEncoder.cs" />
     <Compile Include="Remote\ILink.cs" />
     <Compile Include="Remote\Impl\ByteCodec.cs" />
-    <Compile Include="Remote\Impl\ByteCodecFactory.cs" />
     <Compile Include="Remote\Impl\Channel.cs" />
     <Compile Include="Remote\Impl\DefaultRemoteManager.cs" />
     <Compile Include="Remote\Impl\DefaultRemoteMessage.cs" />

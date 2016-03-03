@@ -76,17 +76,6 @@ namespace Org.Apache.REEF.Driver.Bridge
         }
 
         /// <summary>
-        /// Frees a .NET handle.
-        /// </summary>
-        /// <param name="handle">The handle to free</param>
-        [Obsolete("Deprecated in 0.14. Will be removed in 0.15.")]
-        public static void FreeHandle(ulong handle)
-        {
-            GCHandle gc = GCHandle.FromIntPtr((IntPtr)handle);
-            gc.Free();
-        }
-
-        /// <summary>
         /// Returns the null handle not used on the Java side (i.e. 0).
         /// </summary>
         /// <returns>The null handle</returns>
