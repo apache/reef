@@ -19,17 +19,12 @@ using System;
 
 namespace Org.Apache.REEF.Wake.Remote
 {
-    [Obsolete("Deprecated in 0.14, please use IEncoder<T> instead.")]
-    public interface IEncoder
-    {
-    }
-
     /// <summary>
     /// Interface for serialization routines that translate back and forth between
     /// byte arrays with low latency.
     /// </summary>
     /// <typeparam name="T">The encoder type</typeparam>
-    public interface IEncoder<T> : IEncoder
+    public interface IEncoder<T>
     {
         /// <summary>Encodes the given object into a Byte Array</summary>
         /// <param name="obj"></param>
