@@ -50,7 +50,7 @@ namespace Org.Apache.REEF.Tests.Functional.Bridge
             CleanUp(testFolder);
             TestRun(DriverConfigurations(), typeof(FailedEvaluatorDriver), 1, "failedEvaluatorTest", "local", testFolder);
             ValidateSuccessForLocalRuntime(0, numberOfEvaluatorsToFail: 1, testFolder: testFolder);
-            ValidateMessageSuccessfullyLogged(FailedEvaluatorMessage, testFolder);
+            ValidateMessageSuccessfullyLoggedForDriver(FailedEvaluatorMessage, testFolder);
             CleanUp(testFolder);
         }
 

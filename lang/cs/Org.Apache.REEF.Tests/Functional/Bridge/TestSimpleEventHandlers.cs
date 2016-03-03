@@ -50,7 +50,7 @@ namespace Org.Apache.REEF.Tests.Functional.Bridge
             CleanUp(testFolder);
             TestRun(DriverConfigurations(), typeof(HelloSimpleEventHandlers), 2, "simpleHandler", "local", testFolder);
             ValidateSuccessForLocalRuntime(1, testFolder: testFolder);
-            ValidateMessageSuccessfullyLogged("Evaluator is assigned with 3072 MB of memory and 1 cores.", testFolder);
+            ValidateMessageSuccessfullyLoggedForDriver("Evaluator is assigned with 3072 MB of memory and 1 cores.", testFolder);
             CleanUp(testFolder);
         }
 

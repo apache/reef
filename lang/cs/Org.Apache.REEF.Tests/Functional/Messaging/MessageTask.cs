@@ -44,10 +44,11 @@ namespace Org.Apache.REEF.Tests.Functional.Messaging
         public Optional<TaskMessage> Message
         {
             get
-            {
+            {              
                 TaskMessage defaultTaskMessage = TaskMessage.From(
                     "messagingSourceId",
                     ByteUtilities.StringToByteArrays(MessageSend + " generated at " + DateTime.Now.ToString(CultureInfo.InvariantCulture)));
+                LOGGER.Log(Level.Info, "Message is sent back from task to driver:" + defaultTaskMessage.Message);
                 return Optional<TaskMessage>.Of(defaultTaskMessage);
             }
 
@@ -70,7 +71,6 @@ namespace Org.Apache.REEF.Tests.Functional.Messaging
 
         private void DriverMessage(string message)
         {
-            LOGGER.Log(Level.Info, "Received DriverMessage in TaskMsg: " + message);
             if (!message.Equals(MessageDriver.Message))
             {
                 Exceptions.Throw(new Exception("Unexpected driver message: " + message), "Unexpected driver message received: " + message, LOGGER);
@@ -90,10 +90,10 @@ namespace Org.Apache.REEF.Tests.Functional.Messaging
             public void Handle(IDriverMessage value)
             {
                 string message = string.Empty;
-                LOGGER.Log(Level.Verbose, "Received a message from driver, handling it with MessagingDriverMessageHandler");
                 if (value.Message.IsPresent())
                 {
                     message = ByteUtilities.ByteArraysToString(value.Message.Value);
+                    LOGGER.Log(Level.Info, "Received a message from driver, handling it with MessagingDriverMessageHandler:" + message);
                 }
                 _parentTask.DriverMessage(message);
             }

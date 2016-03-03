@@ -57,8 +57,8 @@ namespace Org.Apache.REEF.Tests.Functional.Bridge
             CleanUp(testFolder);
             TestRun(DriverConfigurations(), typeof(ContextStackHandlers), 1, "testContextStack", "local", testFolder);
             ValidateSuccessForLocalRuntime(2, testFolder: testFolder);
-            ValidateMessageSuccessfullyLogged(TaskValidationMessage, testFolder);
-            ValidateMessageSuccessfullyLogged(ClosedContextValidationMessage, testFolder);
+            ValidateMessageSuccessfullyLoggedForDriver(TaskValidationMessage, testFolder);
+            ValidateMessageSuccessfullyLoggedForDriver(ClosedContextValidationMessage, testFolder);
             CleanUp(testFolder);
         }
 
