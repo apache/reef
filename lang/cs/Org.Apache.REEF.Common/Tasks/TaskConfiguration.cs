@@ -94,7 +94,7 @@ namespace Org.Apache.REEF.Common.Tasks
             {
                 return new TaskConfiguration()
                     .BindImplementation(GenericType<ITask>.Class, Task)
-                    .BindImplementation(GenericType<ITaskMessageSource>.Class, OnSendMessage)
+                    .BindSetEntry(GenericType<TaskConfigurationOptions.TaskMessageSources>.Class, OnSendMessage)
                     .BindImplementation(GenericType<IDriverMessageHandler>.Class, OnMessage)
                     .BindImplementation(GenericType<IDriverConnectionMessageHandler>.Class, OnDriverConnectionChanged)
                     .BindNamedParameter(GenericType<TaskConfigurationOptions.Identifier>.Class, Identifier)

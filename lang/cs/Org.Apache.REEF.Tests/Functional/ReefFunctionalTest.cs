@@ -16,6 +16,7 @@
 // under the License.
 
 using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -39,10 +40,11 @@ namespace Org.Apache.REEF.Tests.Functional
 {
     public class ReefFunctionalTest : IDisposable
     {
-        protected const string _stdout = "driver.stdout";
-        protected const string _stderr = "driver.stderr";
-        protected const string _cmdFile = "run.cmd";
-        protected const string _binFolder = ".";
+        protected const string DriverStdout = "driver.stdout";
+        protected const string DriverStderr = "driver.stderr";
+        protected const string EvaluatorStdout = "evaluator.stdout";
+        protected const string CmdFile = "run.cmd";
+        protected const string BinFolder = ".";
 
         protected static int TestNumber = 1;
         protected const string DefaultRuntimeFolder = "REEF_LOCAL_RUNTIME";
@@ -99,9 +101,9 @@ namespace Org.Apache.REEF.Tests.Functional
             
             ValidationUtilities.ValidateEnvVariable("JAVA_HOME");
 
-            if (!Directory.Exists(_binFolder))
+            if (!Directory.Exists(BinFolder))
             {
-                throw new InvalidOperationException(_binFolder + " not found in current directory, cannot init test");
+                throw new InvalidOperationException(BinFolder + " not found in current directory, cannot init test");
             }
         }
 
@@ -148,7 +150,7 @@ namespace Org.Apache.REEF.Tests.Functional
             {
                 try
                 {
-                    lines = File.ReadAllLines(GetLogFile(_stdout, testFolder));
+                    lines = File.ReadAllLines(GetLogFile(DriverStdout, "driver", testFolder));
                     break;
                 }
                 catch (Exception)
@@ -174,14 +176,21 @@ namespace Org.Apache.REEF.Tests.Functional
             }
         }
 
-        protected void ValidateMessageSuccessfullyLogged(string message, string testFolder, int numberOfoccurances = 1)
+        protected void ValidateMessageSuccessfullyLoggedForDriver(string message, string testFolder, int numberOfoccurances = 1)
+        {
+            var msgs = new List<string>();
+            msgs.Add(message);
+            ValidateMessageSuccessfullyLogged(msgs, "driver", DriverStdout, testFolder, numberOfoccurances);
+        }
+
+        protected void ValidateMessageSuccessfullyLogged(IList<string> messages, string subfolder, string fileName, string testFolder, int numberOfoccurances = 1)
         {
             string[] lines = null;
             for (int i = 0; i < 60; i++)
             {
                 try
                 {
-                    lines = File.ReadAllLines(GetLogFile(_stdout, testFolder));
+                    lines = File.ReadAllLines(GetLogFile(fileName, subfolder, testFolder));
                     break;
                 }
                 catch (Exception)
@@ -192,8 +201,18 @@ namespace Org.Apache.REEF.Tests.Functional
 
             if (lines != null)
             {
-                string[] successIndicators = lines.Where(s => s.Contains(message)).ToArray();
-                Assert.Equal(numberOfoccurances, successIndicators.Count());
+                foreach (string message in messages)
+                {
+                    string[] successIndicators = lines.Where(s => s.Contains(message)).ToArray();
+                    if (numberOfoccurances > 0)
+                    {
+                        Assert.Equal(numberOfoccurances, successIndicators.Count());
+                    }
+                    else
+                    {
+                        Assert.NotEqual(0, successIndicators.Count());
+                    }
+                }
             }
             else
             {
@@ -214,9 +233,9 @@ namespace Org.Apache.REEF.Tests.Functional
             }
         }
 
-        protected string GetLogFile(string logFileName, string testFolder = DefaultRuntimeFolder)
+        protected string GetLogFile(string logFileName, string subfolder = "driver", string testFolder = DefaultRuntimeFolder)
         {
-            string driverContainerDirectory = Directory.GetDirectories(Path.Combine(Directory.GetCurrentDirectory(), testFolder), "driver", SearchOption.AllDirectories).SingleOrDefault();
+            string driverContainerDirectory = Directory.GetDirectories(Path.Combine(Directory.GetCurrentDirectory(), testFolder), subfolder, SearchOption.AllDirectories).SingleOrDefault();
             Console.WriteLine("GetLogFile, driverContainerDirectory:" + driverContainerDirectory);
 
             if (string.IsNullOrWhiteSpace(driverContainerDirectory))
@@ -226,15 +245,15 @@ namespace Org.Apache.REEF.Tests.Functional
             string logFile = Path.Combine(driverContainerDirectory, logFileName);
             if (!File.Exists(logFile))
             {
-                throw new InvalidOperationException("Driver stdout file not found: " + logFile);
+                throw new InvalidOperationException("Log file not found: " + logFile);
             }
             return logFile;
         }
 
         private void UploadDriverLog()
         {
-            string driverStdout = GetLogFile(_stdout);
-            string driverStderr = GetLogFile(_stderr);
+            string driverStdout = GetLogFile(DriverStdout);
+            string driverStderr = GetLogFile(DriverStderr);
             CloudStorageAccount storageAccount = CloudStorageAccount.Parse(GetStorageConnectionString());
             CloudBlobClient blobClient = storageAccount.CreateCloudBlobClient();
             CloudBlobContainer container = blobClient.GetContainerReference(DateTime.Now.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture));   

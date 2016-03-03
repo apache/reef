@@ -64,7 +64,7 @@ namespace Org.Apache.REEF.Tests.Functional.Bridge
             CleanUp(testFolder);
             TestRun(configuration, typeof(TestContextHandlers), 1, "testSimpleContext", "local", testFolder);
             ValidateSuccessForLocalRuntime(1, testFolder: testFolder);
-            ValidateMessageSuccessfullyLogged(ValidationMessage, testFolder);
+            ValidateMessageSuccessfullyLoggedForDriver(ValidationMessage, testFolder);
             CleanUp(testFolder);
         }
 

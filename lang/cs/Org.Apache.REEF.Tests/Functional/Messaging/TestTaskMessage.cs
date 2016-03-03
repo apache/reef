@@ -15,6 +15,9 @@
 // specific language governing permissions and limitations
 // under the License.
 
+using System;
+using System.Collections.Generic;
+using System.Runtime.InteropServices;
 using Org.Apache.REEF.Driver;
 using Org.Apache.REEF.Driver.Bridge;
 using Org.Apache.REEF.Driver.Defaults;
@@ -48,10 +51,22 @@ namespace Org.Apache.REEF.Tests.Functional.Messaging
         //// TODO[JIRA REEF-1184]: add timeout 180 sec
         public void TestSendTaskMessage()
         {
-            string testFolder = DefaultRuntimeFolder + TestNumber++;
+            string testFolder = DefaultRuntimeFolder + Guid.NewGuid();
             CleanUp(testFolder);
             TestRun(DriverConfigurations(), typeof(MessageDriver), 1, "simpleHandler", "local", testFolder);
             ValidateSuccessForLocalRuntime(1, testFolder: testFolder);
+
+            var messages = new List<string>();
+            messages.Add("TaskMessagingTaskMessageHandler received following message from Task:");
+            messages.Add("Message: MESSAGE:TASK generated");
+            messages.Add("is to send message MESSAGE::DRIVER");      
+            ValidateMessageSuccessfullyLogged(messages, "driver", DriverStdout, testFolder, 0);
+
+            var messages2 = new List<string>();
+            messages.Add("Received a message from driver, handling it with MessagingDriverMessageHandler:MESSAGE::DRIVER");
+            messages.Add("Message is sent back from task to driver:");
+            ValidateMessageSuccessfullyLogged(messages2, "Node-*", EvaluatorStdout, testFolder, 0);
+
             CleanUp(testFolder);
         }
 
