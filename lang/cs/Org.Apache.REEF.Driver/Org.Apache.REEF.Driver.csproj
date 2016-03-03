@@ -125,7 +125,6 @@ under the License.
     <Compile Include="DriverConfigGenerator.cs" />
     <Compile Include="DriverConfiguration.cs" />
     <Compile Include="DriverConfigurationSettings.cs" />
-    <Compile Include="DriverSubmissionSettings.cs" />
     <Compile Include="Evaluator\EvaluatorDescriptorImpl.cs" />
     <Compile Include="Evaluator\EvaluatorException.cs" />
     <Compile Include="Evaluator\EvaluatorRequest.cs" />
