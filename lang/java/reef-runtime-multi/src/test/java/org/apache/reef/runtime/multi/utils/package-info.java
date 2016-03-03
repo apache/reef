@@ -17,6 +17,6 @@
  * under the License.
  */
 /**
- * Tests for runtime host.
+ * TEsts for multi-runtime utilsA local implementation of REEF that uses local JVMs for execution.
  */
-package org.apache.reef.runtime.multi.driver;
+package org.apache.reef.runtime.multi.utils;
