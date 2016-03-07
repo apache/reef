@@ -50,7 +50,10 @@ namespace Org.Apache.REEF.Tests.Functional.Bridge
         }
 
         /// <summary>
-        /// Does a simple test of whether a context can be submitted on top of another context.
+        /// Does a simple test of invoking suspend task with a message from the Driver
+        /// and makes sure the target task receives the suspend message.
+        /// Uses a shared context between both Tasks to record whether the suspend
+        /// message has been received at the Task.
         /// </summary>
         [Fact]
         public void TestSuspendTaskOnLocalRuntime()
@@ -101,6 +104,7 @@ namespace Org.Apache.REEF.Tests.Functional.Bridge
 
             public void OnNext(IActiveContext value)
             {
+                // Submit the Task on the first time receiving an active context.
                 value.SubmitTask(GetTaskConfiguration());
             }
 
@@ -115,18 +119,22 @@ namespace Org.Apache.REEF.Tests.Functional.Bridge
 
             public void OnNext(ICompletedTask value)
             {
+                // Log on task completion to signal a passed test.
                 Logger.Log(Level.Warning, CompletedValidationMessage);
                 value.ActiveContext.Dispose();
             }
 
             public void OnNext(ISuspendedTask value)
             {
+                // Submit a second Task once the first Task has been successfully suspended
+                // on the same context as the first task.
                 Logger.Log(Level.Warning, SuspendValidationMessage);
                 value.ActiveContext.SubmitTask(GetTaskConfiguration());
             }
 
             public void OnNext(IRunningTask value)
             {
+                // Suspend the first instance of the Task.
                 value.Suspend(Encoding.UTF8.GetBytes(SuspendMessageFromDriver));
             }
 

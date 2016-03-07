@@ -70,12 +70,10 @@ namespace Org.Apache.REEF.Driver.Bridge.Events
 
         public void Dispose(byte[] message)
         {
-            throw new NotImplementedException();
         }
 
         public void Dispose()
         {
-            throw new NotImplementedException();
         }
     }
 }
