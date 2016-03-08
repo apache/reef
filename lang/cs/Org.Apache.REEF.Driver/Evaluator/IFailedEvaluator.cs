@@ -26,9 +26,6 @@ namespace Org.Apache.REEF.Driver.Evaluator
     /// <summary>
     /// Represents an Evaluator that became unavailable.
     /// </summary>
-    /// <remarks>
-    /// As per REEF-769, this interface isn't actually implemented beyond the Id property.
-    /// </remarks>
     public interface IFailedEvaluator : IIdentifiable
     {
         /// <summary>

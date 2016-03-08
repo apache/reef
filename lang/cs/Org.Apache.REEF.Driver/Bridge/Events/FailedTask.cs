@@ -71,8 +71,12 @@ namespace Org.Apache.REEF.Driver.Bridge.Events
         /// </summary>
         public Optional<IActiveContext> GetActiveContext()
         {
-            IActiveContext activeContext = new ActiveContext(ActiveContextClr2Java);
-            return ActiveContextClr2Java == null ? Optional<IActiveContext>.Empty() : Optional<IActiveContext>.Of(activeContext);
+            if (ActiveContextClr2Java == null)
+            {
+                return Optional<IActiveContext>.Empty();
+            }
+
+            return Optional<IActiveContext>.Of(new ActiveContext(ActiveContextClr2Java));
         }
 
         public Exception AsError()
