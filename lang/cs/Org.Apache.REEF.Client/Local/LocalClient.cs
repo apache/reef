@@ -30,6 +30,7 @@ using Org.Apache.REEF.Common.Avro;
 using Org.Apache.REEF.Common.Files;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Tang.Implementations.Tang;
+using Org.Apache.REEF.Utilities.AsyncUtils;
 using Org.Apache.REEF.Utilities.Attributes;
 using Org.Apache.REEF.Utilities.Logging;
 using Org.Apache.REEF.Wake.Remote.Parameters;
@@ -169,7 +170,7 @@ namespace Org.Apache.REEF.Client.Local
             var submissionAppArgsFilePath = CreateBootstrapAvroAppConfig(jobRequest.AppParameters, driverFolder);
 
             _javaClientLauncher.LaunchAsync(JavaClassName, submissionJobArgsFilePath, submissionAppArgsFilePath)
-                .GetAwaiter().GetResult();
+                .LogAndIgnoreError(Logger, "Java launcher failed");
 
             var fileName = Path.Combine(driverFolder, _fileNames.DriverHttpEndpoint);
             JobSubmissionResult result = new LocalJobSubmissionResult(this, fileName);
