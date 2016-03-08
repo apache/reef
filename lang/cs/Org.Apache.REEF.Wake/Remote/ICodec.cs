@@ -19,17 +19,12 @@ using System;
 
 namespace Org.Apache.REEF.Wake.Remote
 {
-    [Obsolete("Deprecated in 0.14, please use ICodec<T> instead.")]
-    public interface ICodec
-    {
-    }
-
     /// <summary>
     /// Interface for serialization routines that translate back and forth between
     /// byte arrays with low latency.
     /// </summary>
     /// <typeparam name="T">The codec type</typeparam>
-    public interface ICodec<T> : ICodec, IEncoder<T>, IDecoder<T>
+    public interface ICodec<T> : IEncoder<T>, IDecoder<T>
     {
     }
 }

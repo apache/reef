@@ -154,6 +154,10 @@ namespace Org.Apache.REEF.Client.API
         /// </summary>
         public AppParameters Build()
         {
+            foreach (var conf in _configurationProviders)
+            {
+                _driverConfigurations.Add(conf.GetConfiguration());
+            }
             return new AppParameters(_driverConfigurations, _globalAssemblies, _globalFiles, _localAssemblies,
                 _localFiles, _driverConfigurationFileContents);
         }

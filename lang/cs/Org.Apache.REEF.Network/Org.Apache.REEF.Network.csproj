@@ -150,7 +150,6 @@ under the License.
     <Compile Include="NetworkService\IConnection.cs" />
     <Compile Include="NetworkService\INetworkService.cs" />
     <Compile Include="NetworkService\NetworkService.cs" />
-    <Compile Include="NetworkService\NetworkServiceConfiguration.cs" />
     <Compile Include="NetworkService\NetworkServiceOptions.cs" />
     <Compile Include="NetworkService\NsConnection.cs" />
     <Compile Include="NetworkService\NsMessage.cs" />

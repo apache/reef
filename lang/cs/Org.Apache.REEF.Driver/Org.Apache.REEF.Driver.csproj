@@ -115,7 +115,6 @@ under the License.
     <Compile Include="Defaults\DefaultEvaluatorAllocationHandler.cs" />
     <Compile Include="Defaults\DefaultEvaluatorCompletionHandler.cs" />
     <Compile Include="Defaults\DefaultEvaluatorFailureHandler.cs" />
-    <Compile Include="Defaults\DefaultEvaluatorRequestorHandler.cs" />
     <Compile Include="Defaults\DefaultHttpHandler.cs" />
     <Compile Include="Defaults\DefaultTaskCompletionHandler.cs" />
     <Compile Include="Defaults\DefaultTaskFailureHandler.cs" />

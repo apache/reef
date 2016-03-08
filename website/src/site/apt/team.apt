@@ -26,21 +26,6 @@ Team
 
     The team is comprised of Project Management Committee Members and Contributors. Members have direct access to the source of a project and actively evolve the code-base. Contributors improve the project through submission of patches and suggestions to the Members. The number of Contributors to the project is unbounded. Get involved today. All contributions to the project are greatly appreciated.
 
-* Mentors
-
-*------------*-------------------------*
-<<ID>> | <<Full Name>>              
-*------------*-------------------------*
- cdouglas    | Chris Douglas
-*------------*-------------------------*
- mattmann    | Chris Mattmann
-*------------*-------------------------*
- rgardler    | Ross Gardler
-*------------*-------------------------*
- omalley     | Owen O'Malley
-*------------*-------------------------*
-
-
 *Committers
 
 *------------*--------------------------*---------------------------*
@@ -66,7 +51,17 @@ Team
 *------------*--------------------------*---------------------------*
   afchung90 |       Andrew Chung       |         Microsoft         |
 *------------*--------------------------*---------------------------*
-   dhruv    |       Dhruv Mahajan      |        Microsoft         |
+   dhruv    |       Dhruv Mahajan      |         Microsoft         |
+*------------*--------------------------*---------------------------*
+  cdouglas  |      Chris Douglas       |         Microsoft         |
+*------------*--------------------------*---------------------------*
+   anupam   |        Anupam            |         Microsoft         |
+*------------*--------------------------*---------------------------*
+  rgardler  |      Ross Gardler        |         Microsoft         |
+*------------*--------------------------*---------------------------*
+  mattmann  |     Chris Mattmann       |         Jet Propulsion Laboratory         |
+*------------*--------------------------*---------------------------*
+   omalley  |      Owen O'Malley       |         HortonWorks         |
 *------------*--------------------------*---------------------------*
     sears   |       Russell Sears      |        Purestorage        |
 *------------*--------------------------*---------------------------*
@@ -98,4 +93,5 @@ Team
 *------------*--------------------------*---------------------------*
    gwkim    |       Geon-Woo Kim       | Seoul National University |
 *------------*--------------------------*---------------------------*
-
+    ssd     |     Sergey Dudoladov     | Technische Universität Berlin |
+*------------*--------------------------*---------------------------*
