@@ -36,17 +36,12 @@ import javax.inject.Inject;
 /**
  * Factory that creates a messaging transport.
  */
-public class MessagingTransportFactory implements TransportFactory {
+public final class MessagingTransportFactory implements TransportFactory {
 
   private final String localAddress;
 
-  /**
-   * @deprecated Have an instance injected instead.
-   */
-  @Deprecated
   @Inject
-  // TODO[JIRA REEF-703]: change constructor to private
-  public MessagingTransportFactory(final LocalAddressProvider localAddressProvider) {
+  private MessagingTransportFactory(final LocalAddressProvider localAddressProvider) {
     this.localAddress = localAddressProvider.getLocalAddress();
   }
 
