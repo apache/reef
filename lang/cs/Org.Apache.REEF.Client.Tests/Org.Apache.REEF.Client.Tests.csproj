@@ -49,6 +49,7 @@ under the License.
   </ItemGroup>
   <ItemGroup>
     <Compile Include="HDInsightYarnClientTests.cs" />
+    <Compile Include="JobRequestBuilderTests.cs" />
     <Compile Include="JobResourceUploaderTests.cs" />
     <Compile Include="LegacyJobResourceUploaderTests.cs" />
     <Compile Include="MultipleRMUrlProviderTests.cs" />
@@ -80,6 +81,10 @@ under the License.
     <ProjectReference Include="..\Org.Apache.REEF.Driver\Org.Apache.REEF.Driver.csproj">
       <Project>{A6BAA2A7-F52F-4329-884E-1BCF711D6805}</Project>
       <Name>Org.Apache.REEF.Driver</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Org.Apache.REEF.Wake\Org.Apache.REEF.Wake.csproj">
+      <Project>{cdfb3464-4041-42b1-9271-83af24cd5008}</Project>
+      <Name>Org.Apache.REEF.Wake</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
