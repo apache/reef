@@ -37,6 +37,7 @@ under the License.
     <Reference Include="System.Core" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AsyncUtils\LoggingHelper.cs" />
     <Compile Include="AsyncUtils\RemoveSynchronizationContextAwaiter.cs" />
     <Compile Include="AsyncUtils\VoidResult.cs" />
     <Compile Include="Attributes\ClientSideAttribute.cs" />
