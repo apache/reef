@@ -17,6 +17,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.Serialization;
 using Org.Apache.REEF.Driver.Bridge.Clr2java;
 using Org.Apache.REEF.Driver.Context;
@@ -32,12 +33,16 @@ namespace Org.Apache.REEF.Driver.Bridge.Events
     {
         private static readonly Logger LOGGER = Logger.GetLogger(typeof(FailedEvaluator));
         private readonly string _id;
+        private readonly IList<IFailedContext> _failedContexts;
 
         public FailedEvaluator(IFailedEvaluatorClr2Java clr2Java)
         {
             InstanceId = Guid.NewGuid().ToString("N");
             FailedEvaluatorClr2Java = clr2Java;
             _id = FailedEvaluatorClr2Java.GetId();
+            _failedContexts = new List<IFailedContext>(
+                FailedEvaluatorClr2Java.GetFailedContextsClr2Java().Select(clr2JavaFailedContext => 
+                    new FailedContext(clr2JavaFailedContext)));
         }
 
         [DataMember]
@@ -51,22 +56,27 @@ namespace Org.Apache.REEF.Driver.Bridge.Events
             get { return _id; }
         }
 
-        // TODO[REEF-769]: Implement
         public EvaluatorException EvaluatorException
         {
-            get { return null; }
+            get { return FailedEvaluatorClr2Java.GetException(); }
         }
 
-        // TODO[REEF-769]: Implement
         public IList<IFailedContext> FailedContexts
         {
-            get { return new List<IFailedContext>(0); }
+            get { return _failedContexts; }
         }
 
-        // TODO[REEF-769]: Implement
         public Optional<IFailedTask> FailedTask
         {
-            get { return Optional<IFailedTask>.Empty(); }
+            get 
+            {
+                if (FailedEvaluatorClr2Java.GetFailedTaskClr2Java() == null)
+                {
+                    return Optional<IFailedTask>.Empty();
+                }
+
+                return Optional<IFailedTask>.Of(new FailedTask(FailedEvaluatorClr2Java.GetFailedTaskClr2Java()));
+            }
         }
     }
 }

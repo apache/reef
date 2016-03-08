@@ -16,10 +16,14 @@
 // under the License.
 
 using System;
+using System.Text;
+using System.Threading;
 using Org.Apache.REEF.Common.Tasks;
+using Org.Apache.REEF.Common.Tasks.Events;
 using Org.Apache.REEF.Driver;
 using Org.Apache.REEF.Driver.Bridge;
 using Org.Apache.REEF.Driver.Evaluator;
+using Org.Apache.REEF.Driver.Task;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Tang.Interface;
@@ -33,6 +37,9 @@ namespace Org.Apache.REEF.Tests.Functional.Bridge
     public sealed class TestFailedEvaluatorEventHandler : ReefFunctionalTest
     {
         private const string FailedEvaluatorMessage = "I have succeeded in seeing a failed evaluator.";
+        private const string RightFailedTaskMessage = "I have succeeded in seeing the right failed task.";
+        private const string FailSignal = "Fail";
+        private const string TaskId = "1234567";
 
         public TestFailedEvaluatorEventHandler()
         {
@@ -51,6 +58,7 @@ namespace Org.Apache.REEF.Tests.Functional.Bridge
             TestRun(DriverConfigurations(), typeof(FailedEvaluatorDriver), 1, "failedEvaluatorTest", "local", testFolder);
             ValidateSuccessForLocalRuntime(0, numberOfEvaluatorsToFail: 1, testFolder: testFolder);
             ValidateMessageSuccessfullyLoggedForDriver(FailedEvaluatorMessage, testFolder);
+            ValidateMessageSuccessfullyLoggedForDriver(RightFailedTaskMessage, testFolder);
             CleanUp(testFolder);
         }
 
@@ -61,6 +69,7 @@ namespace Org.Apache.REEF.Tests.Functional.Bridge
                 .Set(DriverConfiguration.OnEvaluatorAllocated, GenericType<FailedEvaluatorDriver>.Class)
                 .Set(DriverConfiguration.OnEvaluatorCompleted, GenericType<FailedEvaluatorDriver>.Class)
                 .Set(DriverConfiguration.OnEvaluatorFailed, GenericType<FailedEvaluatorDriver>.Class)
+                .Set(DriverConfiguration.OnTaskRunning, GenericType<FailedEvaluatorDriver>.Class)
                 .Build();
 
             return TangFactory.GetTang().NewConfigurationBuilder(driverConfig)
@@ -69,7 +78,7 @@ namespace Org.Apache.REEF.Tests.Functional.Bridge
         }
 
         private sealed class FailedEvaluatorDriver : IObserver<IDriverStarted>, IObserver<IAllocatedEvaluator>, 
-            IObserver<ICompletedEvaluator>, IObserver<IFailedEvaluator>
+            IObserver<ICompletedEvaluator>, IObserver<IFailedEvaluator>, IObserver<IRunningTask>
         {
             private static readonly Logger Logger = Logger.GetLogger(typeof(FailedEvaluatorDriver));
 
@@ -89,9 +98,15 @@ namespace Org.Apache.REEF.Tests.Functional.Bridge
             public void OnNext(IAllocatedEvaluator value)
             {
                 value.SubmitTask(TaskConfiguration.ConfigurationModule
-                    .Set(TaskConfiguration.Identifier, "1234567")
+                    .Set(TaskConfiguration.Identifier, TaskId)
                     .Set(TaskConfiguration.Task, GenericType<FailEvaluatorTask>.Class)
+                    .Set(TaskConfiguration.OnMessage, GenericType<FailEvaluatorTask>.Class)
                     .Build());
+            }
+
+            public void OnNext(IRunningTask value)
+            {
+                value.Send(Encoding.UTF8.GetBytes(FailSignal));
             }
 
             public void OnNext(ICompletedEvaluator value)
@@ -102,6 +117,11 @@ namespace Org.Apache.REEF.Tests.Functional.Bridge
             public void OnNext(IFailedEvaluator value)
             {
                 Logger.Log(Level.Error, FailedEvaluatorMessage);
+                Assert.True(value.FailedTask.IsPresent());
+                Assert.Equal(value.FailedTask.Value.Id, TaskId);
+                Assert.Equal(value.FailedContexts.Count, 1);
+                Assert.Equal(value.EvaluatorException.EvaluatorId, value.Id);
+                Logger.Log(Level.Error, RightFailedTaskMessage);
             }
 
             public void OnError(Exception error)
@@ -115,8 +135,10 @@ namespace Org.Apache.REEF.Tests.Functional.Bridge
             }
         }
 
-        private sealed class FailEvaluatorTask : ITask
+        private sealed class FailEvaluatorTask : ITask, IDriverMessageHandler
         {
+            private readonly CountdownEvent _countdownEvent = new CountdownEvent(1);
+
             [Inject]
             private FailEvaluatorTask()
             {
@@ -129,8 +151,14 @@ namespace Org.Apache.REEF.Tests.Functional.Bridge
 
             public byte[] Call(byte[] memento)
             {
+                _countdownEvent.Wait();
                 Environment.Exit(1);
                 return null;
+            }
+
+            public void Handle(IDriverMessage message)
+            {
+                _countdownEvent.Signal();
             }
         }
     }

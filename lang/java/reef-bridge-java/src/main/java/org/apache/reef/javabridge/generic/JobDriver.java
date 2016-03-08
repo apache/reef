@@ -295,7 +295,7 @@ public final class JobDriver {
     LOG.log(Level.INFO, message);
     final FailedEvaluatorBridge failedEvaluatorBridge =
         new FailedEvaluatorBridge(eval, JobDriver.this.evaluatorRequestor,
-        JobDriver.this.isRestarted, loggingScopeFactory);
+        JobDriver.this.isRestarted, loggingScopeFactory, activeContextBridgeFactory);
     if (isRestartFailed) {
       NativeInterop.clrSystemDriverRestartFailedEvaluatorHandlerOnNext(
           JobDriver.this.handlerManager.getDriverRestartFailedEvaluatorHandler(),
