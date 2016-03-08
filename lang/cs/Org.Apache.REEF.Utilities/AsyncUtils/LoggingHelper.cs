@@ -20,16 +20,26 @@ using Org.Apache.REEF.Utilities.Logging;
 
 namespace Org.Apache.REEF.Utilities.AsyncUtils
 {
+    /// <summary>
+    /// Logging helpers for TPL
+    /// </summary>
     public static class LoggingHelper
     {
-        public static void LogAndIgnoreError(this Task t, Logger logger, string msg)
+        /// <summary>
+        /// Logs the and then ignores the exceptions thrown from the task if any.
+        /// </summary>
+        /// <param name="self">The task itself</param>
+        /// <param name="logger">Logger to log against</param>
+        /// <param name="msg">Optional message to be included</param>
+        /// <param name="logLevel">Optional parameter to set log level</param>
+        public static void LogAndIgnoreExceptionIfAny(this Task self, Logger logger, string msg = "", Level logLevel = Level.Error)
         {
-            t.ContinueWith(tsk =>
+            self.ContinueWith(t =>
             {
                 // ReSharper disable once PossibleNullReferenceException ; We know the task is Faulted
-                logger.Log(Level.Error, "{0} Exception:{1}", tsk.Exception.GetBaseException());
+                logger.Log(logLevel, "{0} Exception:{1}", t.Exception.GetBaseException());
             },
-                TaskContinuationOptions.OnlyOnFaulted);
+                TaskContinuationOptions.OnlyOnFaulted | TaskContinuationOptions.ExecuteSynchronously);
         }
     }
 }

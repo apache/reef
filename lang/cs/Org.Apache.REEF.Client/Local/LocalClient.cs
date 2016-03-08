@@ -170,7 +170,7 @@ namespace Org.Apache.REEF.Client.Local
             var submissionAppArgsFilePath = CreateBootstrapAvroAppConfig(jobRequest.AppParameters, driverFolder);
 
             _javaClientLauncher.LaunchAsync(JavaClassName, submissionJobArgsFilePath, submissionAppArgsFilePath)
-                .LogAndIgnoreError(Logger, "Java launcher failed");
+                .LogAndIgnoreExceptionIfAny(Logger, "Java launcher failed");
 
             var fileName = Path.Combine(driverFolder, _fileNames.DriverHttpEndpoint);
             JobSubmissionResult result = new LocalJobSubmissionResult(this, fileName);
