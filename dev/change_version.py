@@ -91,8 +91,6 @@ def change_pom(file, new_version):
     f.write(changed_str)
     f.close()
 
-    print file
-
 """
 Change JavaBridgeJarFileName in lang/cs/Org.Apache.REEF.Driver/DriverConfigGenerator.cs
 """
@@ -118,8 +116,6 @@ def change_constants_cs(file, new_version):
     f = open(file, 'w')
     f.write(changed_str)
     f.close()
-
-    print file
 
 """
 Change version in every AssemblyInfo.cs and AssemblyInfo.cpp
@@ -149,8 +145,6 @@ def change_assembly_info_cs(file, new_version):
     f.write(changed_str)
     f.close()
 
-    print file
-
 """
 Read 'IsSnapshot' from lang/cs/build.props
 """
@@ -168,8 +162,6 @@ def read_is_snapshot(file):
             else:
                 return False
     f.close()
-
-    print file
 
 """
 Change lang/cs/build.props for the release branch
@@ -231,8 +223,6 @@ def change_shaded_jar_name(file, new_version):
     f.write(changed_str)
     f.close()
 
-    print file
-
 """
 Change the version in Doxyfile
 """
@@ -258,34 +248,6 @@ def change_project_number_Doxyfile(file, new_version):
     f.write(changed_str)
     f.close()
 
-    print file
-
-"""
-Change the version in appveyor.yml
-"""
-def change_project_number_appveyor(file, new_version):
-    changed_str = ""
-
-    f = open(file, 'r')
-    while True:
-        line = f.readline()
-        if not line:
-            break
-
-        if "version: " in line:
-            r = re.compile('version: (.*?)\.{build}')
-            m = r.search(line)
-            old_version = m.group(1)
-            changed_str += line.replace(old_version, new_version)
-        else:
-            changed_str += line
-    f.close()
-
-    f = open(file, 'w')
-    f.write(changed_str)
-    f.close()
-
-    print file
 
 """
 Change version of every pom.xml, every AssemblyInfo.cs,
@@ -295,28 +257,35 @@ def change_version(reef_home, new_version, pom_only):
     if pom_only:
         for fi in get_filepaths(reef_home):
             if "pom.xml" in fi:
+                print fi
                 change_pom(fi, new_version)
 
     else:
         for fi in get_filepaths(reef_home):
             if "pom.xml" in fi:
+                print fi
                 change_pom(fi, new_version)
             if "AssemblyInfo.cs" in fi:
+                print fi
                 change_assembly_info_cs(fi, new_version)
 
         change_assembly_info_cs(reef_home + "/lang/cs/Org.Apache.REEF.Bridge/AssemblyInfo.cpp", new_version)
+        print reef_home + "/lang/cs/Org.Apache.REEF.Bridge/AssemblyInfo.cpp"
 
         change_assembly_info_cs(reef_home + "/lang/cs/Org.Apache.REEF.ClrDriver/AssemblyInfo.cpp", new_version)
+        print reef_home + "/lang/cs/Org.Apache.REEF.ClrDriver/AssemblyInfo.cpp"
 
         change_constants_cs(reef_home + "/lang/cs/Org.Apache.REEF.Driver/DriverConfigGenerator.cs", new_version)
+        print reef_home + "/lang/cs/Org.Apache.REEF.Driver/DriverConfigGenerator.cs"
 
         change_shaded_jar_name(reef_home + "/lang/cs/Org.Apache.REEF.Client/Properties/Resources.xml", new_version)
+        print reef_home + "/lang/cs/Org.Apache.REEF.Client/Properties/Resources.xml"
 
         change_shaded_jar_name(reef_home + "/lang/cs/Org.Apache.REEF.Client/run.cmd", new_version)
+        print reef_home + "/lang/cs/Org.Apache.REEF.Client/run.cmd"
 
         change_project_number_Doxyfile(reef_home + "/Doxyfile", new_version)
-
-        change_project_number_appveyor(reef_home + "/appveyor.yml", new_version)
+        print reef_home + "/Doxyfile"
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Script for changing REEF version in all files that use it")

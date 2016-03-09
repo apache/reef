@@ -13,7 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-version: 0.15.0-SNAPSHOT.{build}-{branch}
+version: {build}-{branch}
 
 shallow_clone: true
 
@@ -21,7 +21,8 @@ platform: x64
 configuration: Debug
 
 cache:
-  - packages
+  - .\lang\cs\packages
+  - C:\Users\appveyor\.m2
 
 # install section: install maven, protoc etc.
 install:
@@ -32,9 +33,6 @@ build_script:
 
 test_script:
   - cmd: msbuild .\lang\cs\TestRunner.proj /p:Configuration="Debug" /p:Platform="x64"
-#  To run specific .dll only
-#  - cd .\lang\cs
-#  - cmd: .\packages\xunit.runner.console.2.1.0\tools\xunit.console.exe .\bin\x64\Debug\Org.Apache.REEF.Tests\Org.Apache.REEF.Tests.dll
 
 notifications:
   - provider: Email
