@@ -13,7 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-version: {build}-{branch}
+version: "{build}-{branch}"
 
 shallow_clone: true
 
