@@ -88,6 +88,13 @@ public final class FailedContextBridge extends NativeBridge implements ContextBa
   }
 
   /**
+   * Used by InterOp code.
+   */
+  public String getParentIdString() {
+    return this.parentContextId;
+  }
+
+  /**
    * @return the parent {@link ActiveContextBridge}.
    */
   public ActiveContextBridge getParentContext() {

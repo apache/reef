@@ -18,6 +18,7 @@
  */
 package org.apache.reef.javabridge;
 
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.reef.annotations.audience.Interop;
 import org.apache.reef.annotations.audience.Private;
 import org.apache.reef.driver.evaluator.EvaluatorRequestor;
@@ -34,18 +35,21 @@ import java.util.logging.Logger;
 @Interop(CppFiles = { "FailedEvaluatorClr2Java.cpp" }, CsFiles = { "IFailedEvaluatorClr2Java", "FailedEvaluator" })
 public final class FailedEvaluatorBridge extends NativeBridge implements Identifiable {
   private static final Logger LOG = Logger.getLogger(FailedEvaluatorBridge.class.getName());
-  private FailedEvaluator jfailedEvaluator;
-  private EvaluatorRequestorBridge evaluatorRequestorBridge;
-  private String evaluatorId;
+  private final FailedEvaluator jfailedEvaluator;
+  private final EvaluatorRequestorBridge evaluatorRequestorBridge;
+  private final String evaluatorId;
+  private final ActiveContextBridgeFactory activeContextBridgeFactory;
 
   public FailedEvaluatorBridge(final FailedEvaluator failedEvaluator,
                                final EvaluatorRequestor evaluatorRequestor,
                                final boolean blockedForAdditionalEvaluator,
-                               final LoggingScopeFactory loggingScopeFactory) {
-    jfailedEvaluator = failedEvaluator;
-    evaluatorId = failedEvaluator.getId();
-    evaluatorRequestorBridge =
+                               final LoggingScopeFactory loggingScopeFactory,
+                               final ActiveContextBridgeFactory activeContextBridgeFactory) {
+    this.jfailedEvaluator = failedEvaluator;
+    this.evaluatorId = failedEvaluator.getId();
+    this.evaluatorRequestorBridge =
         new EvaluatorRequestorBridge(evaluatorRequestor, blockedForAdditionalEvaluator, loggingScopeFactory);
+    this.activeContextBridgeFactory = activeContextBridgeFactory;
   }
 
   public int getNewlyRequestedEvaluatorNumber() {
@@ -54,6 +58,46 @@ public final class FailedEvaluatorBridge extends NativeBridge implements Identif
 
   public EvaluatorRequestorBridge getEvaluatorRequestorBridge() {
     return evaluatorRequestorBridge;
+  }
+
+  public String getCause() {
+    if (jfailedEvaluator.getEvaluatorException() != null) {
+      return jfailedEvaluator.getEvaluatorException().getCause().getLocalizedMessage();
+    }
+
+    return null;
+  }
+
+  public String getStackTrace() {
+    if (jfailedEvaluator.getEvaluatorException() != null) {
+      return ExceptionUtils.getStackTrace(jfailedEvaluator.getEvaluatorException());
+    }
+
+    return null;
+  }
+
+  public FailedContextBridge[] getFailedContexts() {
+    if (jfailedEvaluator.getFailedContextList() == null) {
+      return new FailedContextBridge[0];
+    }
+
+    final FailedContextBridge[] failedContextBridges =
+        new FailedContextBridge[jfailedEvaluator.getFailedContextList().size()];
+
+    for (int i = 0; i < jfailedEvaluator.getFailedContextList().size(); i++) {
+      failedContextBridges[i] = new FailedContextBridge(
+          jfailedEvaluator.getFailedContextList().get(i), activeContextBridgeFactory);
+    }
+
+    return failedContextBridges;
+  }
+
+  public FailedTaskBridge getFailedTask() {
+    if (!jfailedEvaluator.getFailedTask().isPresent()) {
+      return null;
+    }
+
+    return new FailedTaskBridge(jfailedEvaluator.getFailedTask().get(), activeContextBridgeFactory);
   }
 
   @Override

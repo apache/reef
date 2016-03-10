@@ -15,6 +15,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
+using Org.Apache.REEF.Driver.Evaluator;
 using Org.Apache.REEF.Utilities.Attributes;
 
 namespace Org.Apache.REEF.Driver.Bridge.Clr2java
@@ -25,5 +26,11 @@ namespace Org.Apache.REEF.Driver.Bridge.Clr2java
         IEvaluatorRequestorClr2Java GetEvaluatorRequestor();
 
         string GetId();
+
+        IFailedContextClr2Java[] GetFailedContextsClr2Java();
+
+        IFailedTaskClr2Java GetFailedTaskClr2Java();
+
+        EvaluatorException GetException();
     }
 }

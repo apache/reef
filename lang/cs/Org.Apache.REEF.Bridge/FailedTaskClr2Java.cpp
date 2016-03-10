@@ -59,6 +59,11 @@ namespace Org {
 						  jobject jobjectActiveContext = env->CallObjectMethod(_jobjectFailedTask, jmidGetActiveContext);
 
 						  ManagedLog::LOGGER->LogStop("FailedTaskClr2Java::GetActiveContext");
+
+                          if (jobjectActiveContext == NULL) {
+                              return nullptr;
+                          }
+
 						  return gcnew ActiveContextClr2Java(env, jobjectActiveContext);
 					  }
 

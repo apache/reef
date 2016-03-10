@@ -16,58 +16,35 @@
 // under the License.
 
 using System;
-using Org.Apache.REEF.Driver.Task;
 using Org.Apache.REEF.Utilities;
+using Org.Apache.REEF.Utilities.Attributes;
 
 namespace Org.Apache.REEF.Driver.Evaluator
 {
-    //// Public only such that it can be used in the bridge.
-
-    /// <summary>
-    /// </summary>
-    public sealed class EvaluatorException : Exception, IIdentifiable
+    public sealed class EvaluatorException : Exception
     {
         private readonly string _evaluatorId;
-        private readonly IRunningTask _runningTask;
+        private readonly Optional<string> _javaStackTrace;
 
-        internal EvaluatorException(string evaluatorId, IRunningTask runningTask = null)
-        {
-            _evaluatorId = evaluatorId;
-            _runningTask = runningTask;
-        }
-
-        internal EvaluatorException(string evaluatorId, string message, Exception cause, IRunningTask runningTask = null)
-            : base(message, cause)
-        {
-            _evaluatorId = evaluatorId;
-            _runningTask = runningTask;
-        }
-
-        internal EvaluatorException(string evaluatorId, string message, IRunningTask runningTask = null)
+        [Private]
+        public EvaluatorException(string evaluatorId, string message, string javaStackTrace)
             : base(message)
         {
             _evaluatorId = evaluatorId;
-            _runningTask = runningTask;
+            _javaStackTrace = Optional<string>.OfNullable(javaStackTrace);
         }
 
-        internal EvaluatorException(string evaluatorId, Exception cause, IRunningTask runningTask = null)
-            : base(string.Empty, cause)
+        public string EvaluatorId
         {
-            _evaluatorId = evaluatorId;
-            _runningTask = runningTask;
+            get { return _evaluatorId; }
         }
 
         /// <summary>
-        /// The task that was running on the Evaluator or null if none was running exists.
+        /// The Java stack trace of the Evaluator failure.
         /// </summary>
-        public IRunningTask RunningTask
+        public Optional<string> JavaStackTrace
         {
-            get { return _runningTask; }
-        }
-
-        public string Id
-        {
-            get { return _evaluatorId; }
+            get { return _javaStackTrace; }
         }
     }
 }

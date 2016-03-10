@@ -76,11 +76,77 @@ namespace Org {
 						  return ManagedStringFromJavaString(env, _jstringId);
 					  }
 
+                      EvaluatorException^ FailedEvaluatorClr2Java::GetException() {
+                          String^ cause = this->GetCause();
+                          String^ stackTrace = this->GetStackTrace();
+                          return gcnew EvaluatorException(this->GetId(), cause, stackTrace);
+                      }
+
+                      array<IFailedContextClr2Java^>^ FailedEvaluatorClr2Java::GetFailedContextsClr2Java() {
+                          JNIEnv *env = RetrieveEnv(_jvm);
+                          jclass jclassFailedEvaluator = env->GetObjectClass(_jobjectFailedEvaluator);
+                          jmethodID jmidGetFailedContexts = 
+                              env->GetMethodID(jclassFailedEvaluator, "getFailedContexts", "()[Lorg/apache/reef/javabridge/FailedContextBridge;");
+                          jobjectArray failedContexts = reinterpret_cast<jobjectArray>(env->CallObjectMethod(_jobjectFailedEvaluator, jmidGetFailedContexts));
+                          
+                          const int arrLen = env->GetArrayLength(failedContexts);
+                          
+                          array<IFailedContextClr2Java^>^ failedContextsArray = gcnew array<IFailedContextClr2Java^>(arrLen);
+                          for (int i = 0; i < arrLen; i++) {
+                              jobject failedContext = env->GetObjectArrayElement(failedContexts, i);
+                              failedContextsArray[i] = gcnew FailedContextClr2Java(env, failedContext);
+                          }
+
+                          return failedContextsArray;
+                      }
+
+                      IFailedTaskClr2Java^ FailedEvaluatorClr2Java::GetFailedTaskClr2Java() {
+                          ManagedLog::LOGGER->Log("FailedEvaluatorClr2Java::GetFailedTaskClr2Java");
+                          JNIEnv *env = RetrieveEnv(_jvm);
+                          jclass jclassFailedEvaluator = env->GetObjectClass(_jobjectFailedEvaluator);
+
+                          jmethodID jmidGetFailedTask =
+                              env->GetMethodID(jclassFailedEvaluator, "getFailedTask", "()Lorg/apache/reef/javabridge/FailedTaskBridge;");
+
+                          jobject failedTask = env->CallObjectMethod(_jobjectFailedEvaluator, jmidGetFailedTask);
+                          if (failedTask == NULL) {
+                              return nullptr;
+                          }
+
+                          return gcnew FailedTaskClr2Java(env, failedTask);
+                      }
+
 					  void FailedEvaluatorClr2Java::OnError(String^ message) {
 						  ManagedLog::LOGGER->Log("FailedEvaluatorClr2Java::OnError");
 						  JNIEnv *env = RetrieveEnv(_jvm);
 						  HandleClr2JavaError(env, message, _jobjectFailedEvaluator);
 					  }
+
+                      String^ FailedEvaluatorClr2Java::GetCause() {
+                          JNIEnv *env = RetrieveEnv(_jvm);
+                          jclass jclassFailedEvaluator = env->GetObjectClass(_jobjectFailedEvaluator);
+                          jmethodID jmidGetCause = env->GetMethodID(jclassFailedEvaluator, "getCause", "()Ljava/lang/String;");
+                          jobject methodCallReturn = env->CallObjectMethod(_jobjectFailedEvaluator, jmidGetCause);
+                          if (methodCallReturn == NULL) {
+                              return nullptr;
+                          }
+
+                          jstring cause = reinterpret_cast<jstring>(methodCallReturn);
+                          return ManagedStringFromJavaString(env, cause);
+                      }
+
+                      String^ FailedEvaluatorClr2Java::GetStackTrace() {
+                          JNIEnv *env = RetrieveEnv(_jvm);
+                          jclass jclassFailedEvaluator = env->GetObjectClass(_jobjectFailedEvaluator);
+                          jmethodID jmidGetStackTrace = env->GetMethodID(jclassFailedEvaluator, "getStackTrace", "()Ljava/lang/String;");
+                          jobject methodCallReturn = env->CallObjectMethod(_jobjectFailedEvaluator, jmidGetStackTrace);
+                          if (methodCallReturn == NULL) {
+                              return nullptr;
+                          }
+
+                          jstring stackTrace = reinterpret_cast<jstring>(methodCallReturn);
+                          return ManagedStringFromJavaString(env, stackTrace);
+                      }
 				  }
 			  }
 		  }
