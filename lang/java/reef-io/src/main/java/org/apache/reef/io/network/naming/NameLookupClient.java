@@ -72,6 +72,37 @@ public final class NameLookupClient implements Stage, NamingLookup {
   private final int retryCount;
   private final int retryTimeout;
 
+
+  /**
+   * Constructs a naming lookup client.
+   *
+   * @param serverAddr a server address
+   * @param serverPort a server port number
+   * @param timeout    request timeout in ms
+   * @param factory    an identifier factory
+   * @param retryCount a count of retrying lookup
+   * @param retryTimeout retry timeout
+   * @param replyQueue a reply queue
+   * @param transport  a transport
+   */
+  NameLookupClient(final String serverAddr,
+                          final int serverPort,
+                          final long timeout,
+                          final IdentifierFactory factory,
+                          final int retryCount,
+                          final int retryTimeout,
+                          final BlockingQueue<NamingLookupResponse> replyQueue,
+                          final Transport transport) {
+    this.serverSocketAddr = new InetSocketAddress(serverAddr, serverPort);
+    this.timeout = timeout;
+    this.cache = new NameCache(timeout);
+    this.codec = NamingCodecFactory.createFullCodec(factory);
+    this.replyQueue = replyQueue;
+    this.retryCount = retryCount;
+    this.retryTimeout = retryTimeout;
+    this.transport = transport;
+  }
+
   /**
     * Constructs a naming lookup client.
     *
@@ -91,7 +122,6 @@ public final class NameLookupClient implements Stage, NamingLookup {
             @Parameter(NameResolverRetryTimeout.class) final int retryTimeout,
             final LocalAddressProvider localAddressProvider,
             final TransportFactory tpFactory) {
-
     this.serverSocketAddr = new InetSocketAddress(serverAddr, serverPort);
     this.timeout = timeout;
     this.cache = new NameCache(timeout);
