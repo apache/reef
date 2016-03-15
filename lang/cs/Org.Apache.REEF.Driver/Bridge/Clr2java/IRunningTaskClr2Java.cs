@@ -29,5 +29,7 @@ namespace Org.Apache.REEF.Driver.Bridge.Clr2java
         void Send(byte[] message);
 
         void Suspend(byte[] message);
+
+        void Close(byte[] message);
     }
 }

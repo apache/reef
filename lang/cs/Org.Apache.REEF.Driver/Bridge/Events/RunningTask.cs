@@ -70,10 +70,12 @@ namespace Org.Apache.REEF.Driver.Bridge.Events
 
         public void Dispose(byte[] message)
         {
+            _runningTaskClr2Java.Close(message);
         }
 
         public void Dispose()
         {
+            _runningTaskClr2Java.Close(null);
         }
     }
 }

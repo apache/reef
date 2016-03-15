@@ -109,6 +109,23 @@ namespace Org {
 						  ManagedLog::LOGGER->LogStop("RunningTaskClr2Java::Suspend");
 					  }
 
+					  void RunningTaskClr2Java::Close(array<byte>^ message) {
+						  ManagedLog::LOGGER->LogStart("RunningTaskClr2Java::Close");
+						  JNIEnv *env = RetrieveEnv(_jvm);
+						  jclass jclassRunningTask = env->GetObjectClass(_jobjectRunningTask);
+						  jmethodID jmidClose = env->GetMethodID(jclassRunningTask, "close", "([B)V");
+
+						  if (jmidClose == NULL) {
+							  ManagedLog::LOGGER->Log("jmidClose is NULL");
+							  return;
+						  }
+						  env->CallObjectMethod(
+							  _jobjectRunningTask,
+							  jmidClose,
+							  JavaByteArrayFromManagedByteArray(env, message));
+						  ManagedLog::LOGGER->LogStop("RunningTaskClr2Java::Close");
+					  }
+
 					  void RunningTaskClr2Java::OnError(String^ message) {
 						  ManagedLog::LOGGER->Log("RunningTaskClr2Java::OnError");
 						  JNIEnv *env = RetrieveEnv(_jvm);
