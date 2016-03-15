@@ -34,6 +34,7 @@ namespace Org.Apache.REEF.Wake.Time.Runtime
     {
         private static readonly Logger LOGGER = Logger.GetLogger(typeof(RuntimeClock));
 
+        private static int NumberOfInstantiations = 0;
         private readonly ITimer _timer;
         private readonly PubSubSubject<Time> _handlers;
         private readonly PriorityQueue<Time> _schedule;
@@ -73,6 +74,11 @@ namespace Org.Apache.REEF.Wake.Time.Runtime
             _runtimeStartHandler = runtimeStartHandler;
             _runtimeStopHandler = runtimeStopHandler;
             _idleHandler = idleHandler;
+            ++NumberOfInstantiations;
+            if (NumberOfInstantiations > 1)
+            {
+                Console.WriteLine("Instantiated `RuntimeClock` instance number " + NumberOfInstantiations);
+            }
         }
 
         public IInjectionFuture<ISet<IObserver<RuntimeStart>>> InjectedRuntimeStartHandler
@@ -90,7 +96,7 @@ namespace Org.Apache.REEF.Wake.Time.Runtime
         /// <summary>
         /// Schedule a TimerEvent at the given future offset
         /// </summary>
-        /// <param name="offset">The offset in the future to schedule the alarm</param>
+        /// <param name="offset">The offset in the future to schedule the alarm, in msec</param>
         /// <param name="handler">The IObserver to to be called</param>
         public override void ScheduleAlarm(long offset, IObserver<Alarm> handler)
         {
