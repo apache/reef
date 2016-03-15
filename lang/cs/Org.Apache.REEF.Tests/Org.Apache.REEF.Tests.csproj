@@ -75,6 +75,7 @@ under the License.
   <ItemGroup>
     <Compile Include="Functional\Bridge\HelloSimpleEventHandlers.cs" />
     <Compile Include="Functional\Bridge\TestBridgeClient.cs" />
+    <Compile Include="Functional\Bridge\TestCloseTask.cs" />
     <Compile Include="Functional\Bridge\TestContextStack.cs" />
     <Compile Include="Functional\Bridge\TestFailedEvaluatorEventHandler.cs" />
     <Compile Include="Functional\Bridge\TestFailedTaskEventHandler.cs" />
