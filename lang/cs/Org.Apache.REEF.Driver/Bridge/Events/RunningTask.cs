@@ -75,7 +75,7 @@ namespace Org.Apache.REEF.Driver.Bridge.Events
 
         public void Dispose()
         {
-            _runningTaskClr2Java.Close(null);
+            Dispose(null);
         }
     }
 }

@@ -26,6 +26,7 @@ using Org.Apache.REEF.Driver.Context;
 using Org.Apache.REEF.Driver.Evaluator;
 using Org.Apache.REEF.Driver.Task;
 using Org.Apache.REEF.Tang.Annotations;
+using Org.Apache.REEF.Tang.Implementations.Configuration;
 using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Tang.Util;
@@ -42,6 +43,7 @@ namespace Org.Apache.REEF.Tests.Functional.Bridge
         private static readonly Logger Logger = Logger.GetLogger(typeof(TestCloseTask));
 
         private const string DisposeMessageFromDriver = "DisposeMessageFromDriver";
+        private const string NoMessage = "NO_MESSAGE";
         private const string CompletedValidationMessage = "CompletedValidationmessage";
 
         public TestCloseTask()
@@ -56,7 +58,7 @@ namespace Org.Apache.REEF.Tests.Functional.Bridge
         public void TestStopTaskOnLocalRuntime()
         {
             string testFolder = DefaultRuntimeFolder + Guid.NewGuid().ToString("N").Substring(0, 4);
-            TestRun(DriverConfigurations(), typeof(StopTaskHandlers), 1, "testStopTask", "local", testFolder);
+            TestRun(DriverConfigurations(DisposeMessageFromDriver), typeof(CloseTaskTestDriver), 1, "testStopTask", "local", testFolder);
             ValidateSuccessForLocalRuntime(1, testFolder: testFolder);
             ValidateMessageSuccessfullyLoggedForDriver(CompletedValidationMessage, testFolder, 1);
             var messages = new List<string>();
@@ -66,37 +68,65 @@ namespace Org.Apache.REEF.Tests.Functional.Bridge
         }
 
         /// <summary>
+        /// This test is to close a running task over the bridge
+        /// </summary>
+        [Fact]
+        public void TestStopTaskOnLocalRuntimeWithNullMessage()
+        {
+            string testFolder = DefaultRuntimeFolder + Guid.NewGuid().ToString("N").Substring(0, 4);
+            TestRun(DriverConfigurations(NoMessage), typeof(CloseTaskTestDriver), 1, "testStopTask", "local", testFolder);
+            ValidateSuccessForLocalRuntime(1, testFolder: testFolder);
+            ValidateMessageSuccessfullyLoggedForDriver(CompletedValidationMessage, testFolder, 1);
+            var messages = new List<string>();
+            messages.Add("Control protobuf to stop task");
+            ValidateMessageSuccessfullyLogged(messages, "Node-*", EvaluatorStdout, testFolder, 1);
+            CleanUp(testFolder);
+        }
+
+        /// <summary>
         /// Driver configuration for the test driver
         /// </summary>
         /// <returns></returns>
-        public IConfiguration DriverConfigurations()
+        public IConfiguration DriverConfigurations(string taskCloseMessage)
         {
-            var helloDriverConfiguration = DriverConfiguration.ConfigurationModule
-                .Set(DriverConfiguration.OnDriverStarted, GenericType<StopTaskHandlers>.Class)
-                .Set(DriverConfiguration.OnEvaluatorAllocated, GenericType<StopTaskHandlers>.Class)
-                .Set(DriverConfiguration.OnContextActive, GenericType<StopTaskHandlers>.Class)
-                .Set(DriverConfiguration.OnTaskRunning, GenericType<StopTaskHandlers>.Class)
-                .Set(DriverConfiguration.OnTaskCompleted, GenericType<StopTaskHandlers>.Class)
+            var handlerConfig = DriverConfiguration.ConfigurationModule
+                .Set(DriverConfiguration.OnDriverStarted, GenericType<CloseTaskTestDriver>.Class)
+                .Set(DriverConfiguration.OnEvaluatorAllocated, GenericType<CloseTaskTestDriver>.Class)
+                .Set(DriverConfiguration.OnContextActive, GenericType<CloseTaskTestDriver>.Class)
+                .Set(DriverConfiguration.OnTaskRunning, GenericType<CloseTaskTestDriver>.Class)
+                .Set(DriverConfiguration.OnTaskCompleted, GenericType<CloseTaskTestDriver>.Class)
                 .Build();
 
-            return TangFactory.GetTang().NewConfigurationBuilder(helloDriverConfiguration).Build();
+            var messageConfig = TangFactory.GetTang().NewConfigurationBuilder()
+                .BindStringNamedParam<DisposeMessage>(taskCloseMessage)
+                .Build();
+
+            return Configurations.Merge(handlerConfig, messageConfig);
         }
 
-        private sealed class StopTaskHandlers :
+        [NamedParameter("Message send with task close", "TaskDisposeMessage", NoMessage)]
+        private class DisposeMessage : Name<string> 
+        {
+        }
+
+        private sealed class CloseTaskTestDriver :
             IObserver<IDriverStarted>,
             IObserver<IAllocatedEvaluator>,
             IObserver<IActiveContext>,
             IObserver<ICompletedTask>,
-            IObserver<IRunningTask>
+            IObserver<IRunningTask>           
         {
             private readonly IEvaluatorRequestor _requestor;
             private int _contextNumber = 0;
             private int _taskNumber = 0;
+            private string _disposeMessage;
 
             [Inject]
-            private StopTaskHandlers(IEvaluatorRequestor evaluatorRequestor)
+            private CloseTaskTestDriver(IEvaluatorRequestor evaluatorRequestor,
+                [Parameter(typeof(DisposeMessage))] string disposeMessage)
             {
                 _requestor = evaluatorRequestor;
+                _disposeMessage = disposeMessage;
             }
 
             public void OnNext(IDriverStarted value)
@@ -127,7 +157,14 @@ namespace Org.Apache.REEF.Tests.Functional.Bridge
             public void OnNext(IRunningTask value)
             {
                 Logger.Log(Level.Info, "Task running: " + value.Id);
-                value.Dispose(Encoding.UTF8.GetBytes(DisposeMessageFromDriver));
+                if (_disposeMessage.Equals(NoMessage))
+                {
+                    value.Dispose();
+                }
+                else
+                {
+                    value.Dispose(Encoding.UTF8.GetBytes(_disposeMessage));
+                }
             }
 
             private IConfiguration GetTaskConfiguration()

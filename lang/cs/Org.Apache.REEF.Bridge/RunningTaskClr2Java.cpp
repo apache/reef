@@ -119,10 +119,19 @@ namespace Org {
 							  ManagedLog::LOGGER->Log("jmidClose is NULL");
 							  return;
 						  }
-						  env->CallObjectMethod(
-							  _jobjectRunningTask,
-							  jmidClose,
-							  JavaByteArrayFromManagedByteArray(env, message));
+
+						  if (message == nullptr) {
+							  env->CallObjectMethod(
+								  _jobjectRunningTask,
+								  jmidClose,
+								  NULL);
+						  }
+						  else {
+							  env->CallObjectMethod(
+								  _jobjectRunningTask,
+								  jmidClose,
+								  JavaByteArrayFromManagedByteArray(env, message));
+						  }
 						  ManagedLog::LOGGER->LogStop("RunningTaskClr2Java::Close");
 					  }
 
