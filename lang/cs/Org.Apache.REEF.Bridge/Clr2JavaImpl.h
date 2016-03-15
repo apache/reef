@@ -143,7 +143,7 @@ namespace Org {
                             virtual void Send(array<byte>^ message);
                             virtual void Suspend(array<byte>^ message);
                             virtual void Close(array<byte>^ message);
-						};
+                        };
 
                         public ref class FailedEvaluatorClr2Java : public IFailedEvaluatorClr2Java {
                             jobject  _jobjectFailedEvaluator = NULL;

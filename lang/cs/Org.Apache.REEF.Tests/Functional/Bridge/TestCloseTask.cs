@@ -195,7 +195,7 @@ namespace Org.Apache.REEF.Tests.Functional.Bridge
 
             public byte[] Call(byte[] memento)
             {
-                ////TODO[REEF-1257]
+                // TODO[REEF-1257]
                 Thread.Sleep(5 * 1000);
                 return null;
             }
