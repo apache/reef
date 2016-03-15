@@ -117,6 +117,7 @@ under the License.
     <Compile Include="Jar\ResourceHelper.cs" />
     <Compile Include="ITaskSubmittable.cs" />
     <Compile Include="Client\Parameters\DriverConfigurationProviders.cs" />
+    <Compile Include="Poison\PoisonedEventHandler.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Protobuf\ReefProtocol\ClientRuntime.pb.cs">
       <ExcludeFromStyleCop>true</ExcludeFromStyleCop>

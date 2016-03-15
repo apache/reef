@@ -86,6 +86,7 @@ under the License.
     <Compile Include="Functional\FaultTolerant\TestContextStart.cs" />
     <Compile Include="Functional\RuntimeName\EvaluatorRequestingDriver.cs" />
     <Compile Include="Functional\Driver\TestDriver.cs" />
+    <Compile Include="Functional\FaultTolerant\PoisonTest.cs" />
     <Compile Include="Functional\Messaging\MessageDriver.cs" />
     <Compile Include="Functional\Messaging\MessageTask.cs" />
     <Compile Include="Functional\Messaging\TestTaskMessage.cs" />
