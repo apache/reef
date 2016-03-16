@@ -50,7 +50,7 @@ namespace Org.Apache.REEF.Common.Tasks
         {
         }
 
-        [NamedParameter(documentation: "The event handler that receives the close event.")]
+        [NamedParameter(documentation: "The event handler that receives the close event.", defaultClass: typeof(DefaultTaskCloseHandler))]
         public class CloseHandler : Name<IObserver<ICloseEvent>>
         {
         }

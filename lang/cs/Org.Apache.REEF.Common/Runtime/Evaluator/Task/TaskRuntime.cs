@@ -16,17 +16,15 @@
 // under the License.
 
 using System;
-using System.Collections.Generic;
 using System.Globalization;
+using System.Text;
 using System.Threading;
 using Org.Apache.REEF.Common.Protobuf.ReefProtocol;
 using Org.Apache.REEF.Common.Tasks;
 using Org.Apache.REEF.Common.Tasks.Events;
 using Org.Apache.REEF.Common.Tasks.Exceptions;
 using Org.Apache.REEF.Tang.Annotations;
-using Org.Apache.REEF.Tang.Exceptions;
 using Org.Apache.REEF.Tang.Implementations.InjectionPlan;
-using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Utilities;
 using Org.Apache.REEF.Utilities.Attributes;
 using Org.Apache.REEF.Utilities.Logging;
@@ -42,6 +40,7 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Task
         private readonly Optional<IDriverMessageHandler> _driverMessageHandler;
         private readonly ITask _userTask;
         private readonly IInjectionFuture<IObserver<ISuspendEvent>> _suspendHandlerFuture;
+        private readonly IInjectionFuture<IObserver<ICloseEvent>> _closeHandlerFuture;
         private int _taskRan = 0;
 
         [Inject]
@@ -50,13 +49,15 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Task
             IDriverMessageHandler driverMessageHandler, 
             IDriverConnectionMessageHandler driverConnectionMessageHandler,
             TaskStatus taskStatus,
-            [Parameter(typeof(TaskConfigurationOptions.SuspendHandler))] IInjectionFuture<IObserver<ISuspendEvent>> suspendHandlerFuture)
+            [Parameter(typeof(TaskConfigurationOptions.SuspendHandler))] IInjectionFuture<IObserver<ISuspendEvent>> suspendHandlerFuture,
+            [Parameter(typeof(TaskConfigurationOptions.CloseHandler))] IInjectionFuture<IObserver<ICloseEvent>> closedHandlerFuture)
         {
             _currentStatus = taskStatus;
             _driverMessageHandler = Optional<IDriverMessageHandler>.Of(driverMessageHandler);
             _driverConnectionMessageHandler = Optional<IDriverConnectionMessageHandler>.Of(driverConnectionMessageHandler);
             _userTask = userTask;
             _suspendHandlerFuture = suspendHandlerFuture;
+            _closeHandlerFuture = closedHandlerFuture;
         }
 
         public string TaskId
@@ -159,6 +160,7 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Task
         public void Close(byte[] message)
         {
             Logger.Log(Level.Info, string.Format(CultureInfo.InvariantCulture, "Trying to close Task {0}", TaskId));
+
             if (_currentStatus.IsNotRunning())
             {
                 Logger.Log(Level.Warning, string.Format(CultureInfo.InvariantCulture, "Trying to close an task that is in {0} state. Ignored.", _currentStatus.State));
@@ -182,7 +184,7 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Task
 
             if (_currentStatus.IsNotRunning())
             {
-                Logger.Log(Level.Warning, string.Format(CultureInfo.InvariantCulture, "Trying to supend an task that is in {0} state. Ignored.", _currentStatus.State));
+                Logger.Log(Level.Warning, string.Format(CultureInfo.InvariantCulture, "Trying to suspend an task that is in {0} state. Ignored.", _currentStatus.State));
                 return;
             }
             try
@@ -220,7 +222,9 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Task
         public void OnNext(ICloseEvent value)
         {
             Logger.Log(Level.Info, "TaskRuntime::OnNext(ICloseEvent value)");
-            //// TODO: send a heartbeat
+            _closeHandlerFuture.Get().OnNext(value);
+
+            // TODO: send a heartbeat
         }
 
         public void OnNext(ISuspendEvent value)
