@@ -85,7 +85,7 @@ public final class NameLookupClient implements Stage, NamingLookup {
    * @param replyQueue a reply queue
    * @param transport  a transport
    */
-  public NameLookupClient(final String serverAddr,
+  NameLookupClient(final String serverAddr,
                           final int serverPort,
                           final long timeout,
                           final IdentifierFactory factory,
@@ -96,7 +96,7 @@ public final class NameLookupClient implements Stage, NamingLookup {
     this.serverSocketAddr = new InetSocketAddress(serverAddr, serverPort);
     this.timeout = timeout;
     this.cache = new NameCache(timeout);
-    this.codec = NamingCodecFactory.createLookupCodec(factory);
+    this.codec = NamingCodecFactory.createFullCodec(factory);
     this.replyQueue = replyQueue;
     this.retryCount = retryCount;
     this.retryTimeout = retryTimeout;
