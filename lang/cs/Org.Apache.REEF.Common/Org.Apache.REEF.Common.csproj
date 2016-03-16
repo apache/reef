@@ -158,6 +158,7 @@ under the License.
     <Compile Include="Runtime\Evaluator\Utils\NamedparameterAlias.cs" />
     <Compile Include="runtime\MachineStatus.cs" />
     <Compile Include="Services\ServiceConfiguration.cs" />
+    <Compile Include="Tasks\Defaults\DefaultCloseTaskHandler.cs" />
     <Compile Include="Tasks\Defaults\DefaultDriverConnectionMessageHandler.cs" />
     <Compile Include="Tasks\Defaults\DefaultDriverMessageHandler.cs" />
     <Compile Include="Tasks\Defaults\DefaultSuspendHandler.cs" />
@@ -169,6 +170,7 @@ under the License.
     <Compile Include="Tasks\Events\ISuspendEvent.cs" />
     <Compile Include="Tasks\Events\ITaskStart.cs" />
     <Compile Include="Tasks\Events\ITaskStop.cs" />
+    <Compile Include="Tasks\Exceptions\TaskCloseHandlerException.cs" />
     <Compile Include="Tasks\Exceptions\TaskSuspendHandlerException.cs" />
     <Compile Include="Tasks\IDriverConnectionMessageHandler.cs" />
     <Compile Include="Tasks\IDriverMessageHandler.cs" />

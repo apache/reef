@@ -21,6 +21,7 @@ using System.Text;
 using System.Threading;
 using Org.Apache.REEF.Common.Context;
 using Org.Apache.REEF.Common.Tasks;
+using Org.Apache.REEF.Common.Tasks.Events;
 using Org.Apache.REEF.Driver;
 using Org.Apache.REEF.Driver.Context;
 using Org.Apache.REEF.Driver.Evaluator;
@@ -63,7 +64,7 @@ namespace Org.Apache.REEF.Tests.Functional.Bridge
             ValidateMessageSuccessfullyLoggedForDriver(CompletedValidationMessage, testFolder, 1);
             var messages = new List<string>();
             messages.Add(DisposeMessageFromDriver);
-            ValidateMessageSuccessfullyLogged(messages, "Node-*", EvaluatorStdout, testFolder, 1);
+            ValidateMessageSuccessfullyLogged(messages, "Node-*", EvaluatorStdout, testFolder, 3);
             CleanUp(testFolder);
         }
 
@@ -150,7 +151,7 @@ namespace Org.Apache.REEF.Tests.Functional.Bridge
             public void OnNext(ICompletedTask value)
             {
                 // Log on task completion to signal a passed test.
-                Logger.Log(Level.Info, CompletedValidationMessage + "Task completed: " + value.Id);
+                Logger.Log(Level.Info, CompletedValidationMessage + ". Task completed: " + value.Id);
                 value.ActiveContext.Dispose();
             }
 
@@ -172,6 +173,7 @@ namespace Org.Apache.REEF.Tests.Functional.Bridge
                 return TaskConfiguration.ConfigurationModule
                     .Set(TaskConfiguration.Identifier, "TaskID" + _taskNumber++)
                     .Set(TaskConfiguration.Task, GenericType<TestCloseTask.StopTestTask>.Class)
+                    .Set(TaskConfiguration.OnClose, GenericType<TestCloseTask.StopTestTask>.Class)
                     .Build();
             }
 
@@ -186,8 +188,10 @@ namespace Org.Apache.REEF.Tests.Functional.Bridge
             }
         }
 
-        private sealed class StopTestTask : ITask
+        private sealed class StopTestTask : ITask, IObserver<ICloseEvent>
         {
+            private readonly CountdownEvent _suspendSignal = new CountdownEvent(1);
+
             [Inject]
             private StopTestTask()
             {
@@ -195,14 +199,40 @@ namespace Org.Apache.REEF.Tests.Functional.Bridge
 
             public byte[] Call(byte[] memento)
             {
-                // TODO[REEF-1257]
-                Thread.Sleep(5 * 1000);
+                Logger.Log(Level.Info, "Hello in StopTestTask");
+                _suspendSignal.Wait();
                 return null;
             }
 
             public void Dispose()
             {
                 Logger.Log(Level.Info, "Task is disposed.");
+            }
+
+            public void OnNext(ICloseEvent value)
+            {
+                try
+                {
+                    if (value.Value != null && value.Value.Value != null)
+                    {
+                        Logger.Log(Level.Info, "Closed event received in task:" + Encoding.UTF8.GetString(value.Value.Value));
+                        Assert.Equal(Encoding.UTF8.GetString(value.Value.Value), DisposeMessageFromDriver);
+                    }                    
+                }
+                finally
+                {
+                    _suspendSignal.Signal();
+                }
+            }
+
+            public void OnCompleted()
+            {
+                throw new NotImplementedException();
+            }
+
+            public void OnError(Exception error)
+            {
+                throw new NotImplementedException();
             }
         }
     }
