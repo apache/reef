@@ -18,6 +18,7 @@
 using System;
 using Org.Apache.REEF.Common.Tasks.Events;
 using Org.Apache.REEF.Tang.Annotations;
+using Org.Apache.REEF.Utilities.Logging;
 
 namespace Org.Apache.REEF.Common.Tasks.Defaults
 {
@@ -26,10 +27,12 @@ namespace Org.Apache.REEF.Common.Tasks.Defaults
     /// of a task. Throws an exception by default, since a task should not have received
     /// a suspension event if the handler is not bound explicitly.
     /// </summary>
-    internal sealed class DefaultCloseTaskHandler : IObserver<ICloseEvent>
+    internal sealed class DefaultTaskCloseHandler : IObserver<ICloseEvent>
     {
+        private static readonly Logger Logger = Logger.GetLogger(typeof(DefaultTaskCloseHandler));
+
         [Inject]
-        private DefaultCloseTaskHandler()
+        private DefaultTaskCloseHandler()
         {
         }
 
@@ -45,6 +48,7 @@ namespace Org.Apache.REEF.Common.Tasks.Defaults
 
         public void OnNext(ICloseEvent value)
         {
+            Utilities.Diagnostics.Exceptions.Throw(new Exception("No EventHandler<CloseEvent> registered. Event received: " + value), Logger);
         }
     }
 }

@@ -23,19 +23,19 @@ namespace Org.Apache.REEF.Common.Tasks.Exceptions
     /// An exception that is thrown when the task close event
     /// handler is not bound.
     /// </summary>
-    internal sealed class TaskCloseHandlerException : Exception
+    internal sealed class TaskCloseHandlerNotBoundException : Exception
     {
-        public TaskCloseHandlerException(string message)
+        internal TaskCloseHandlerNotBoundException(string message)
             : base(message)
         {
         }
 
-        public TaskCloseHandlerException(Exception innerException)
+        internal TaskCloseHandlerNotBoundException(Exception innerException)
             : base(innerException.Message, innerException)
         {
         }
 
-        public TaskCloseHandlerException(string message, Exception innerException)
+        internal TaskCloseHandlerNotBoundException(string message, Exception innerException)
             : base(message, innerException)
         {
         }

@@ -64,7 +64,7 @@ namespace Org.Apache.REEF.Tests.Functional.Bridge
             ValidateMessageSuccessfullyLoggedForDriver(CompletedValidationMessage, testFolder, 1);
             var messages = new List<string>();
             messages.Add(DisposeMessageFromDriver);
-            ValidateMessageSuccessfullyLogged(messages, "Node-*", EvaluatorStdout, testFolder, 3);
+            ValidateMessageSuccessfullyLogged(messages, "Node-*", EvaluatorStdout, testFolder, 2);
             CleanUp(testFolder);
         }
 

@@ -16,7 +16,6 @@
 // under the License.
 
 using System;
-using System.Collections.Generic;
 using System.Globalization;
 using System.Text;
 using System.Threading;
@@ -25,9 +24,7 @@ using Org.Apache.REEF.Common.Tasks;
 using Org.Apache.REEF.Common.Tasks.Events;
 using Org.Apache.REEF.Common.Tasks.Exceptions;
 using Org.Apache.REEF.Tang.Annotations;
-using Org.Apache.REEF.Tang.Exceptions;
 using Org.Apache.REEF.Tang.Implementations.InjectionPlan;
-using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Utilities;
 using Org.Apache.REEF.Utilities.Attributes;
 using Org.Apache.REEF.Utilities.Logging;
@@ -163,10 +160,6 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Task
         public void Close(byte[] message)
         {
             Logger.Log(Level.Info, string.Format(CultureInfo.InvariantCulture, "Trying to close Task {0}", TaskId));
-            if (message != null)
-            {
-                Logger.Log(Level.Info, string.Format(CultureInfo.InvariantCulture, "Message received from task close event {0}.", Encoding.UTF8.GetString(message)));
-            }
 
             if (_currentStatus.IsNotRunning())
             {
@@ -191,7 +184,7 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Task
 
             if (_currentStatus.IsNotRunning())
             {
-                Logger.Log(Level.Warning, string.Format(CultureInfo.InvariantCulture, "Trying to supend an task that is in {0} state. Ignored.", _currentStatus.State));
+                Logger.Log(Level.Warning, string.Format(CultureInfo.InvariantCulture, "Trying to suspend an task that is in {0} state. Ignored.", _currentStatus.State));
                 return;
             }
             try
@@ -235,7 +228,7 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Task
             }
             catch (Exception ex)
             {
-                var closeEx = new TaskCloseHandlerException("Unable to close task.", ex);
+                var closeEx = new TaskCloseHandlerNotBoundException("Unable to close task.", ex);
                 Utilities.Diagnostics.Exceptions.CaughtAndThrow(closeEx, Level.Error, Logger);
             }
             //// TODO: send a heartbeat
