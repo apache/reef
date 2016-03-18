@@ -17,7 +17,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Threading;
 using Org.Apache.REEF.Common.Context;
 using Org.Apache.REEF.Common.Events;
 using Org.Apache.REEF.Common.Tasks;
