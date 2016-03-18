@@ -28,9 +28,10 @@ namespace Org.Apache.REEF.Common.Tasks.Defaults
     /// of a task. Throws an exception by default, since a task should not have received
     /// a suspension event if the handler is not bound explicitly.
     /// </summary>
-    internal sealed class DefaultTaskCloseHandler : IObserver<ICloseEvent>
+    public sealed class DefaultTaskCloseHandler : IObserver<ICloseEvent>
     {
         private static readonly Logger Logger = Logger.GetLogger(typeof(DefaultTaskCloseHandler));
+        public const string ExceptionMessage = "No EventHandler<CloseEvent> registered. Event received.";
 
         [Inject]
         private DefaultTaskCloseHandler()
@@ -49,7 +50,7 @@ namespace Org.Apache.REEF.Common.Tasks.Defaults
 
         public void OnNext(ICloseEvent value)
         {
-            Utilities.Diagnostics.Exceptions.Throw(new TaskCloseHandlerNotBoundException("No EventHandler<CloseEvent> registered. Event received: " + value), Logger);
+            Utilities.Diagnostics.Exceptions.Throw(new TaskCloseHandlerNotBoundException(ExceptionMessage + value), Logger);
         }
     }
 }

@@ -21,6 +21,7 @@ using System.Text;
 using System.Threading;
 using Org.Apache.REEF.Common.Context;
 using Org.Apache.REEF.Common.Tasks;
+using Org.Apache.REEF.Common.Tasks.Defaults;
 using Org.Apache.REEF.Common.Tasks.Events;
 using Org.Apache.REEF.Driver;
 using Org.Apache.REEF.Driver.Context;
@@ -81,14 +82,14 @@ namespace Org.Apache.REEF.Tests.Functional.Bridge
             const string failedTaskIndication = "Java_org_apache_reef_javabridge_NativeInterop_clrSystemFailedTaskHandlerOnNext";
 
             string testFolder = DefaultRuntimeFolder + Guid.NewGuid().ToString("N").Substring(0, 4);
-            TestRun(DriverConfigurations(DisposeMessageFromDriver, GetTaskConfigurationForFailtToCloseTask()), typeof(CloseTaskTestDriver), 1, "testStopTask", "local", testFolder);
+            TestRun(DriverConfigurations(DisposeMessageFromDriver, GetTaskConfigurationForFailToCloseTask()), typeof(CloseTaskTestDriver), 1, "testStopTask", "local", testFolder);
             var messages = new List<string>();
             messages.Add(successIndication);
+            messages.Add(failedTaskIndication);
             ValidateMessageSuccessfullyLogged(messages, "driver", DriverStdout, testFolder, 1);
 
             var messages1 = new List<string>();
-            messages.Add(DisposeMessageFromDriver);
-            messages.Add(failedTaskIndication);
+            messages1.Add(DisposeMessageFromDriver);
             ValidateMessageSuccessfullyLogged(messages1, "Node-*", EvaluatorStdout, testFolder, 2);
             CleanUp(testFolder);
         }
@@ -97,12 +98,15 @@ namespace Org.Apache.REEF.Tests.Functional.Bridge
         /// This test is to close a running task over the bridge
         /// </summary>
         [Fact]
-        public void TestTaskWithNoClosehandlerOnLocalRuntime()
+        public void TestTaskWithNoCloseHandlerOnLocalRuntime()
         {
+            const string closeHandlerNoBound = "ExceptionCaught TaskCloseHandlerNotBoundException";
+
             string testFolder = DefaultRuntimeFolder + Guid.NewGuid().ToString("N").Substring(0, 4);
             TestRun(DriverConfigurations(DisposeMessageFromDriver, GetTaskConfigurationForNoCloseHandlerTask()), typeof(CloseTaskTestDriver), 1, "testStopTask", "local", testFolder);
-            ValidateSuccessForLocalRuntime(1, testFolder: testFolder);
-            ValidateMessageSuccessfullyLoggedForDriver(CompletedValidationMessage, testFolder, 1);
+            var messages = new List<string>();
+            messages.Add(closeHandlerNoBound);
+            ValidateMessageSuccessfullyLogged(messages, "Node-*", EvaluatorStdout, testFolder, 1);
             CleanUp(testFolder);
         }
 
@@ -131,10 +135,10 @@ namespace Org.Apache.REEF.Tests.Functional.Bridge
                 .Build();
         }
 
-        private IConfiguration GetTaskConfigurationForFailtToCloseTask()
+        private IConfiguration GetTaskConfigurationForFailToCloseTask()
         {
             return TaskConfiguration.ConfigurationModule
-                .Set(TaskConfiguration.Identifier, "TaskID")
+                .Set(TaskConfiguration.Identifier, "TaskID-FailToClose")
                 .Set(TaskConfiguration.Task, GenericType<TestCloseTask.FailToCloseTask>.Class)
                 .Set(TaskConfiguration.OnClose, GenericType<TestCloseTask.FailToCloseTask>.Class)
                 .Build();
@@ -143,7 +147,7 @@ namespace Org.Apache.REEF.Tests.Functional.Bridge
         private IConfiguration GetTaskConfigurationForNoCloseHandlerTask()
         {
             return TaskConfiguration.ConfigurationModule
-                .Set(TaskConfiguration.Identifier, "TaskID")
+                .Set(TaskConfiguration.Identifier, "TaskID-NoCloseHandler")
                 .Set(TaskConfiguration.Task, GenericType<TestCloseTask.NoCloseHandlerTask>.Class)
                 .Build();
         }
@@ -235,7 +239,16 @@ namespace Org.Apache.REEF.Tests.Functional.Bridge
             {
                 var failedExeption = ByteUtilities.ByteArraysToString(value.Data.Value);
                 Logger.Log(Level.Error, "In IFailedTask: " + failedExeption);
-                Assert.Contains(FailToCloseTaskMessage, failedExeption);
+
+                if (value.Id.EndsWith("TaskID-FailToClose"))
+                {
+                    Assert.Contains(FailToCloseTaskMessage, failedExeption);
+                }
+                if (value.Id.EndsWith("TaskID-NoCloseHandler"))
+                {
+                    Assert.Contains(DefaultTaskCloseHandler.ExceptionMessage, failedExeption);
+                }
+                
                 value.GetActiveContext().Value.Dispose();
             }
 
@@ -369,6 +382,7 @@ namespace Org.Apache.REEF.Tests.Functional.Bridge
             public byte[] Call(byte[] memento)
             {
                 Logger.Log(Level.Info, "Hello in NoCloseHandlerTask");
+                Thread.Sleep(50 * 1000);
                 return null;
             }
 
