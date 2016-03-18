@@ -193,7 +193,6 @@ namespace Org.Apache.REEF.Tests.Functional.FaultTolerant
                     Logger.Log(Level.Info, DataDownLoadCompletedMessage);
                     return null;
                 }
-                Thread.Sleep(5 * 1000);
                 return null;
             }
         }
