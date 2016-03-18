@@ -17,6 +17,7 @@
 
 using System;
 using Org.Apache.REEF.Common.Tasks.Events;
+using Org.Apache.REEF.Common.Tasks.Exceptions;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Utilities.Logging;
 
@@ -38,17 +39,17 @@ namespace Org.Apache.REEF.Common.Tasks.Defaults
 
         public void OnCompleted()
         {
-            throw new NotImplementedException();
+            Utilities.Diagnostics.Exceptions.Throw(new NotImplementedException(), Logger);
         }
 
         public void OnError(Exception error)
         {
-            throw new NotImplementedException();
+            Utilities.Diagnostics.Exceptions.Throw(new NotImplementedException(), Logger);
         }
 
         public void OnNext(ICloseEvent value)
         {
-            Utilities.Diagnostics.Exceptions.Throw(new Exception("No EventHandler<CloseEvent> registered. Event received: " + value), Logger);
+            Utilities.Diagnostics.Exceptions.Throw(new TaskCloseHandlerNotBoundException("No EventHandler<CloseEvent> registered. Event received: " + value), Logger);
         }
     }
 }

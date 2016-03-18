@@ -222,16 +222,9 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Task
         public void OnNext(ICloseEvent value)
         {
             Logger.Log(Level.Info, "TaskRuntime::OnNext(ICloseEvent value)");
-            try
-            {
-                _closeHandlerFuture.Get().OnNext(value);
-            }
-            catch (Exception ex)
-            {
-                var closeEx = new TaskCloseHandlerNotBoundException("Unable to close task.", ex);
-                Utilities.Diagnostics.Exceptions.CaughtAndThrow(closeEx, Level.Error, Logger);
-            }
-            //// TODO: send a heartbeat
+            _closeHandlerFuture.Get().OnNext(value);
+
+            // TODO: send a heartbeat
         }
 
         public void OnNext(ISuspendEvent value)
