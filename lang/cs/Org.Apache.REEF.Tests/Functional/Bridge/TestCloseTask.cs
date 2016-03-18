@@ -68,7 +68,7 @@ namespace Org.Apache.REEF.Tests.Functional.Bridge
             var messages = new List<string>();
             messages.Add(DisposeMessageFromDriver);
             ValidateMessageSuccessfullyLogged(messages, "Node-*", EvaluatorStdout, testFolder, 2);
-            ////CleanUp(testFolder);
+            CleanUp(testFolder);
         }
 
         /// <summary>
@@ -90,7 +90,7 @@ namespace Org.Apache.REEF.Tests.Functional.Bridge
             messages.Add(DisposeMessageFromDriver);
             messages.Add(failedTaskIndication);
             ValidateMessageSuccessfullyLogged(messages1, "Node-*", EvaluatorStdout, testFolder, 2);
-            ////CleanUp(testFolder);
+            CleanUp(testFolder);
         }
 
         /// <summary>
@@ -103,7 +103,7 @@ namespace Org.Apache.REEF.Tests.Functional.Bridge
             TestRun(DriverConfigurations(DisposeMessageFromDriver, GetTaskConfigurationForNoCloseHandlerTask()), typeof(CloseTaskTestDriver), 1, "testStopTask", "local", testFolder);
             ValidateSuccessForLocalRuntime(1, testFolder: testFolder);
             ValidateMessageSuccessfullyLoggedForDriver(CompletedValidationMessage, testFolder, 1);
-            ////CleanUp(testFolder);
+            CleanUp(testFolder);
         }
 
         /// <summary>
