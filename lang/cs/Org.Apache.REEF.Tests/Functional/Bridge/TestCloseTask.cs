@@ -57,7 +57,7 @@ namespace Org.Apache.REEF.Tests.Functional.Bridge
         }
 
         /// <summary>
-        /// This test is run a normal task without close handler registered
+        /// This test is close a running task with a close handler registered
         /// </summary>
         [Fact]
         public void TestStopTaskOnLocalRuntime()
@@ -73,7 +73,8 @@ namespace Org.Apache.REEF.Tests.Functional.Bridge
         }
 
         /// <summary>
-        /// This test is to close a running task with exception throw during the closing
+        /// This test is to close a running task with exception throw in close handler
+        /// Expect to receive Exception in Failed Task event handler in driver
         /// </summary>
         [Fact]
         public void TestStopTaskWithExceptionOnLocalRuntime()
@@ -95,7 +96,8 @@ namespace Org.Apache.REEF.Tests.Functional.Bridge
         }
 
         /// <summary>
-        /// This test is to close a running task over the bridge
+        /// This test is to close a running task over the bridge without close handler bound
+        /// Expect to get TaskCloseHandlerNotBoundException
         /// </summary>
         [Fact]
         public void TestTaskWithNoCloseHandlerOnLocalRuntime()
@@ -111,7 +113,7 @@ namespace Org.Apache.REEF.Tests.Functional.Bridge
         }
 
         /// <summary>
-        /// This test is to close a running task over the bridge
+        /// This test is to close a running task over the bridge with null message
         /// </summary>
         [Fact]
         public void TestStopTaskOnLocalRuntimeWithNullMessage()
