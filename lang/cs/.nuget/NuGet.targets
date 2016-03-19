@@ -170,7 +170,7 @@ under the License.
 
     <Target Name="PushPackages" >
         <ItemGroup>
-            <PackageFile Include="$(ThisNugetPackagePath)" />
+            <PackageFile Include="$(SolutionDir2).nuget\packages\$(RootNamespace).$(REEF_NugetVersion).nupkg" />
         </ItemGroup>
 
         <PropertyGroup>
