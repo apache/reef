@@ -85,6 +85,7 @@ under the License.
     <Compile Include="Common\DotNetFile.cs" />
     <Compile Include="Common\ClientConstants.cs" />
     <Compile Include="Common\DriverFolderPreparationHelper.cs" />
+    <Compile Include="Common\EnvironmentDriverConfigurationProviders.cs" />
     <Compile Include="Common\IFile.cs" />
     <Compile Include="Common\IResourceArchiveFileGenerator.cs" />
     <Compile Include="Common\FileSets.cs" />
@@ -94,6 +95,7 @@ under the License.
     <Compile Include="Common\JavaClientLauncher.cs" />
     <Compile Include="Common\ResourceArchiveFileGenerator.cs" />
     <Compile Include="Local\LocalClient.cs" />
+    <Compile Include="Local\LocalDriverConfigurationProvider.cs" />
     <Compile Include="Local\LocalJobSubmissionResult.cs" />
     <Compile Include="Local\LocalRuntimeClientConfiguration.cs" />
     <Compile Include="Local\Parameters\LocalRuntimeDirectory.cs" />

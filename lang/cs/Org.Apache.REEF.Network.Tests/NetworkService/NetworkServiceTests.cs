@@ -158,7 +158,7 @@ namespace Org.Apache.REEF.Network.Tests.NetworkService
             var nameClient = injector.GetInstance<NameClient>();
             var remoteManagerFactory = injector.GetInstance<IRemoteManagerFactory>();
             return new NetworkService<string>(networkServicePort,
-                handler, new StringIdentifierFactory(), new StringCodec(), nameClient, remoteManagerFactory);
+                handler, new StringIdentifierFactory(), new StringCodec(), nameClient, injector.GetInstance<ILocalAddressProvider>(), remoteManagerFactory);
         }
 
         private class MessageHandler : IObserver<NsMessage<string>>

@@ -25,7 +25,6 @@ using Org.Apache.REEF.Tang.Exceptions;
 using Org.Apache.REEF.Utilities.Logging;
 using Org.Apache.REEF.Wake;
 using Org.Apache.REEF.Wake.Remote;
-using Org.Apache.REEF.Wake.Util;
 
 namespace Org.Apache.REEF.Network.NetworkService
 {
@@ -42,7 +41,7 @@ namespace Org.Apache.REEF.Network.NetworkService
         private readonly ICodec<NsMessage<T>> _codec; 
         private IIdentifier _localIdentifier;
         private IDisposable _messageHandlerDisposable;
-        private readonly Dictionary<IIdentifier, IConnection<T>> _connectionMap;  
+        private readonly Dictionary<IIdentifier, IConnection<T>> _connectionMap;
 
         /// <summary>
         /// Create a new NetworkService.
@@ -52,6 +51,7 @@ namespace Org.Apache.REEF.Network.NetworkService
         /// <param name="idFactory">The factory used to create IIdentifiers</param>
         /// <param name="codec">The codec used for serialization</param>
         /// <param name="nameClient"></param>
+        /// <param name="localAddressProvider">The local address provider</param>
         /// <param name="remoteManagerFactory">Used to instantiate remote manager instances.</param>
         [Inject]
         public NetworkService(
@@ -60,11 +60,12 @@ namespace Org.Apache.REEF.Network.NetworkService
             IIdentifierFactory idFactory,
             ICodec<T> codec,
             INameClient nameClient,
+            ILocalAddressProvider localAddressProvider,
             IRemoteManagerFactory remoteManagerFactory)
         {
             _codec = new NsMessageCodec<T>(codec, idFactory);
 
-            IPAddress localAddress = NetworkUtils.LocalIPAddress;
+            IPAddress localAddress = localAddressProvider.LocalAddress;
             _remoteManager = remoteManagerFactory.GetInstance(localAddress, nsPort, _codec);
             _messageHandler = messageHandler;
 

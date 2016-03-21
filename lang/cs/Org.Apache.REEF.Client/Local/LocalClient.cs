@@ -30,9 +30,13 @@ using Org.Apache.REEF.Common.Avro;
 using Org.Apache.REEF.Common.Files;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Tang.Implementations.Tang;
+using Org.Apache.REEF.Tang.Interface;
+using Org.Apache.REEF.Tang.Util;
 using Org.Apache.REEF.Utilities.AsyncUtils;
 using Org.Apache.REEF.Utilities.Attributes;
 using Org.Apache.REEF.Utilities.Logging;
+using Org.Apache.REEF.Wake.Remote;
+using Org.Apache.REEF.Wake.Remote.Impl;
 using Org.Apache.REEF.Wake.Remote.Parameters;
 
 namespace Org.Apache.REEF.Client.Local
@@ -58,6 +62,7 @@ namespace Org.Apache.REEF.Client.Local
         private readonly int _maxNumberOfConcurrentEvaluators;
         private readonly string _runtimeFolder;
         private readonly REEFFileNames _fileNames;
+        private readonly IConfiguration _localConfigurationOnDriver;
 
         [Inject]
         private LocalClient(DriverFolderPreparationHelper driverFolderPreparationHelper,
@@ -71,6 +76,7 @@ namespace Org.Apache.REEF.Client.Local
             _maxNumberOfConcurrentEvaluators = maxNumberOfConcurrentEvaluators;
             _javaClientLauncher = javaClientLauncher;
             _fileNames = fileNames;
+            _localConfigurationOnDriver = TangFactory.GetTang().NewConfigurationBuilder().BindImplementation(GenericType<ILocalAddressProvider>.Class, GenericType<LoopbackLocalAddressProvider>.Class).Build();
         }
 
         /// <summary>

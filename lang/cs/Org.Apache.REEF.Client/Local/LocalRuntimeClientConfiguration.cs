@@ -16,8 +16,10 @@
 // under the License.
 
 using Org.Apache.REEF.Client.API;
+using Org.Apache.REEF.Client.Common;
 using Org.Apache.REEF.Client.Local.Parameters;
 using Org.Apache.REEF.Tang.Formats;
+using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Tang.Util;
 
 namespace Org.Apache.REEF.Client.Local
@@ -45,6 +47,8 @@ namespace Org.Apache.REEF.Client.Local
 
         public static ConfigurationModule ConfigurationModule = new LocalRuntimeClientConfiguration()
             .BindImplementation(GenericType<IREEFClient>.Class, GenericType<LocalClient>.Class)
+            .BindSetEntry<EnvironmentDriverConfigurationProviders, LocalDriverConfigurationProvider, IConfigurationProvider>(
+                GenericType<EnvironmentDriverConfigurationProviders>.Class, GenericType<LocalDriverConfigurationProvider>.Class)
             .BindNamedParameter(GenericType<LocalRuntimeDirectory>.Class, RuntimeFolder)
             .BindNamedParameter(GenericType<NumberOfEvaluators>.Class, NumberOfEvaluators)
             .Build();

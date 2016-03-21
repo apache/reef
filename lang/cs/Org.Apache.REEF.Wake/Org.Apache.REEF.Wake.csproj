@@ -53,6 +53,9 @@ under the License.
     <Compile Include="IIdentifierFactory.cs" />
     <Compile Include="Remote\IConnectionRetryHandler.cs" />
     <Compile Include="Remote\Impl\RemoteConnectionRetryHandler.cs" />
+    <Compile Include="Remote\ILocalAddressProvider.cs" />
+    <Compile Include="Remote\Impl\DefaultLocalAddressProvider.cs" />
+    <Compile Include="Remote\Impl\LoopbackLocalAddressProvider.cs" />
     <Compile Include="Remote\Impl\RemoteEventStreamingCodec.cs" />
     <Compile Include="Remote\Impl\StreamingRemoteManagerFactory.cs" />
     <Compile Include="Remote\Impl\DefaultRemoteManagerFactory.cs" />
