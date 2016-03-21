@@ -61,7 +61,7 @@ namespace Org.Apache.REEF.Wake.Remote.Impl
 
             _codec = codec;
             _channel = new Channel(Client.GetStream());
-            _localEndpoint = GetLocalEndpoint();
+            _localEndpoint = (IPEndPoint)Client.Client.LocalEndPoint;
             _disposed = false;
         }
 
@@ -85,7 +85,7 @@ namespace Org.Apache.REEF.Wake.Remote.Impl
             Client = client;
             _codec = codec;
             _channel = new Channel(Client.GetStream());
-            _localEndpoint = GetLocalEndpoint();
+            _localEndpoint = (IPEndPoint)Client.Client.LocalEndPoint;
             _disposed = false;
         }
 
@@ -235,17 +235,6 @@ namespace Org.Apache.REEF.Wake.Remote.Impl
         public override int GetHashCode()
         {
             return RemoteEndpoint.GetHashCode();
-        }
-
-        /// <summary>
-        /// Discovers the IPEndpoint for the current machine.
-        /// </summary>
-        /// <returns>The local IPEndpoint</returns>
-        private IPEndPoint GetLocalEndpoint()
-        {
-            IPAddress address = NetworkUtils.LocalIPAddress;
-            int port = ((IPEndPoint)Client.Client.LocalEndPoint).Port;
-            return new IPEndPoint(address, port);
         }
     }
 }

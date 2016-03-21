@@ -15,17 +15,22 @@
 // specific language governing permissions and limitations
 // under the License.
 
-using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Org.Apache.REEF.Client.API;
-using Org.Apache.REEF.Common;
+using Org.Apache.REEF.Common.Client.Parameters;
+using Org.Apache.REEF.Common.Evaluator.Parameters;
 using Org.Apache.REEF.Common.Files;
 using Org.Apache.REEF.Common.Jar;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Tang.Formats;
 using Org.Apache.REEF.Tang.Implementations.Configuration;
+using Org.Apache.REEF.Tang.Implementations.Tang;
+using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Utilities.Logging;
+using Org.Apache.REEF.Wake.Remote;
+using Org.Apache.REEF.Wake.Remote.Impl;
 
 namespace Org.Apache.REEF.Client.Common
 {
@@ -54,16 +59,19 @@ namespace Org.Apache.REEF.Client.Common
         private readonly AvroConfigurationSerializer _configurationSerializer;
         private readonly REEFFileNames _fileNames;
         private readonly FileSets _fileSets;
+        private readonly ISet<IConfigurationProvider> _driverConfigurationProviders;
 
         [Inject]
         internal DriverFolderPreparationHelper(
             REEFFileNames fileNames,
             AvroConfigurationSerializer configurationSerializer,
-            FileSets fileSets)
+            FileSets fileSets,
+            [Parameter(typeof(EnvironmentDriverConfigurationProviders))] ISet<IConfigurationProvider> driverConfigurationProviders)
         {
             _fileNames = fileNames;
             _configurationSerializer = configurationSerializer;
             _fileSets = fileSets;
+            _driverConfigurationProviders = driverConfigurationProviders;
         }
 
         /// <summary>
@@ -102,7 +110,8 @@ namespace Org.Apache.REEF.Client.Common
         /// <param name="driverFolderPath"></param>
         internal void CreateDriverConfiguration(AppParameters appParameters, string driverFolderPath)
         {
-            var driverConfiguration = Configurations.Merge(appParameters.DriverConfigurations.ToArray());
+            var driverConfigurations = _driverConfigurationProviders.Select(configurationProvider => configurationProvider.GetConfiguration()).ToList();
+            var driverConfiguration = Configurations.Merge(driverConfigurations.Concat(appParameters.DriverConfigurations).ToArray());
 
             _configurationSerializer.ToFile(driverConfiguration,
                 Path.Combine(driverFolderPath, _fileNames.GetClrDriverConfigurationPath()));

@@ -21,9 +21,12 @@ package org.apache.reef.webserver;
 import org.apache.reef.tang.annotations.Parameter;
 import org.apache.reef.util.logging.LoggingScope;
 import org.apache.reef.util.logging.LoggingScopeFactory;
+import org.apache.reef.wake.remote.address.LocalAddressProvider;
 import org.apache.reef.wake.remote.ports.TcpPortProvider;
 import org.apache.reef.wake.remote.ports.parameters.TcpPortRangeBegin;
+import org.mortbay.jetty.Connector;
 import org.mortbay.jetty.Server;
+import org.mortbay.jetty.bio.SocketConnector;
 
 import javax.inject.Inject;
 import java.net.BindException;
@@ -61,6 +64,11 @@ public final class HttpServerImpl implements HttpServer {
   private final LoggingScopeFactory loggingScopeFactory;
 
   /**
+   * The address provider for the HTTPServer.
+   */
+  private final LocalAddressProvider addressProvider;
+
+  /**
    * Constructor of HttpServer that wraps Jetty Server.
    *
    * @param jettyHandler
@@ -69,10 +77,11 @@ public final class HttpServerImpl implements HttpServer {
    */
   @Inject
   HttpServerImpl(final JettyHandler jettyHandler,
-                 @Parameter(TcpPortRangeBegin.class) final int portNumber,
+                 final LocalAddressProvider addressProvider,
+                 @Parameter(TcpPortRangeBegin.class)final int portNumber,
                  final TcpPortProvider tcpPortProvider,
                  final LoggingScopeFactory loggingScopeFactory) throws Exception {
-
+    this.addressProvider = addressProvider;
     this.loggingScopeFactory = loggingScopeFactory;
     this.jettyHandler = jettyHandler;
     int availablePort = portNumber;
@@ -98,7 +107,11 @@ public final class HttpServerImpl implements HttpServer {
   }
 
   private Server tryPort(final int portNumber) throws Exception {
-    Server srv = new Server(portNumber);
+    Server srv = new Server();
+    final Connector connector = new SocketConnector();
+    connector.setHost(addressProvider.getLocalAddress());
+    connector.setPort(portNumber);
+    srv.addConnector(connector);
     try {
       srv.start();
       LOG.log(Level.INFO, "Jetty Server started with port: {0}", portNumber);

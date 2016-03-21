@@ -55,6 +55,7 @@ namespace Org.Apache.REEF.Network.NetworkService
         /// <param name="remoteManagerFactory">Writable RemoteManagerFactory to create a 
         /// Writable RemoteManager</param>
         /// <param name="codec">Codec for Network Service message</param>
+        /// <param name="localAddressProvider">The local address provider</param>
         /// <param name="injector">Fork of the injector that created the Network service</param>
         [Inject]
         private StreamingNetworkService(
@@ -63,10 +64,10 @@ namespace Org.Apache.REEF.Network.NetworkService
             INameClient nameClient,
             StreamingRemoteManagerFactory remoteManagerFactory,
             NsMessageStreamingCodec<T> codec,
+            ILocalAddressProvider localAddressProvider,
             IInjector injector)
         {
-            IPAddress localAddress = NetworkUtils.LocalIPAddress;
-            _remoteManager = remoteManagerFactory.GetInstance(localAddress, codec);
+            _remoteManager = remoteManagerFactory.GetInstance(localAddressProvider.LocalAddress, codec);
 
             // Create and register incoming message handler
             // TODO[REEF-419] This should use the TcpPortProvider mechanism
