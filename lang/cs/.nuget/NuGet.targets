@@ -52,6 +52,9 @@ under the License.
     <PropertyGroup Condition=" '$(OS)' != 'Windows_NT'">
         <!-- We need to launch nuget.exe with the mono command if we're not on windows -->
         <NuGetToolsPath>$(SolutionDir)\.nuget</NuGetToolsPath>
+    </PropertyGroup>
+
+    <PropertyGroup>
         <ThisNugetPackagePath>$(SolutionDir2).nuget\packages\$(RootNamespace).$(REEF_NugetVersion).nupkg</ThisNugetPackagePath>
     </PropertyGroup>
 
