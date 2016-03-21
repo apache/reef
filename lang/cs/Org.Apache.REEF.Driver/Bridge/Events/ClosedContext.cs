@@ -33,18 +33,11 @@ namespace Org.Apache.REEF.Driver.Bridge.Events
 
         internal ClosedContext(IClosedContextClr2Java clr2java)
         {
-            InstanceId = Guid.NewGuid().ToString("N");
             Id = clr2java.GetId();
             EvaluatorId = clr2java.GetEvaluatorId();
             EvaluatorDescriptor = clr2java.GetEvaluatorDescriptor();
             _parentContext = clr2java.GetParentContext() == null ? null : new ActiveContext(clr2java.GetParentContext());
         }
-
-        /// <summary>
-        /// An ID for the ClosedContext instance.
-        /// </summary>
-        [DataMember]
-        public string InstanceId { get; private set; }
 
         /// <summary>
         /// Gets the ID of the closed context.

@@ -28,13 +28,9 @@ namespace Org.Apache.REEF.Driver.Bridge.Events
     {
         internal CompletedTask(ICompletedTaskClr2Java completedTaskClr2Java)
         {
-            InstanceId = Guid.NewGuid().ToString("N");
             CompletedTaskClr2Java = completedTaskClr2Java;
             ActiveContextClr2Java = completedTaskClr2Java.GetActiveContext();
         }
-
-        [DataMember]
-        public string InstanceId { get; set; }
 
         public byte[] Message
         {

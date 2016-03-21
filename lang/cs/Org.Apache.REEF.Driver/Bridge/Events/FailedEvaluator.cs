@@ -15,7 +15,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
@@ -24,29 +23,23 @@ using Org.Apache.REEF.Driver.Context;
 using Org.Apache.REEF.Driver.Evaluator;
 using Org.Apache.REEF.Driver.Task;
 using Org.Apache.REEF.Utilities;
-using Org.Apache.REEF.Utilities.Logging;
 
 namespace Org.Apache.REEF.Driver.Bridge.Events
 {
     [DataContract]
     internal sealed class FailedEvaluator : IFailedEvaluator
     {
-        private static readonly Logger LOGGER = Logger.GetLogger(typeof(FailedEvaluator));
         private readonly string _id;
         private readonly IList<IFailedContext> _failedContexts;
 
         public FailedEvaluator(IFailedEvaluatorClr2Java clr2Java)
         {
-            InstanceId = Guid.NewGuid().ToString("N");
             FailedEvaluatorClr2Java = clr2Java;
             _id = FailedEvaluatorClr2Java.GetId();
             _failedContexts = new List<IFailedContext>(
                 FailedEvaluatorClr2Java.GetFailedContextsClr2Java().Select(clr2JavaFailedContext => 
                     new FailedContext(clr2JavaFailedContext)));
         }
-
-        [DataMember]
-        public string InstanceId { get; set; }
 
         [DataMember]
         private IFailedEvaluatorClr2Java FailedEvaluatorClr2Java { get; set; }

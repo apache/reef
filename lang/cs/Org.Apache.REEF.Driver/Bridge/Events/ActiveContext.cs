@@ -36,14 +36,10 @@ namespace Org.Apache.REEF.Driver.Bridge.Events
 
         internal ActiveContext(IActiveContextClr2Java clr2Java)
         {
-            InstanceId = Guid.NewGuid().ToString("N");
             Clr2Java = clr2Java;
             _serializer = new AvroConfigurationSerializer();
             _parentId = Optional<string>.OfNullable(clr2Java.GetParentId());
         }
-
-        [DataMember]
-        public string InstanceId { get; private set; }
 
         private IActiveContextClr2Java Clr2Java { get; set; }
 

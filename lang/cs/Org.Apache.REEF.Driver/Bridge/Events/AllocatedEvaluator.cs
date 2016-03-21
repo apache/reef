@@ -43,7 +43,6 @@ namespace Org.Apache.REEF.Driver.Bridge.Events
         public AllocatedEvaluator(IAllocatedEvaluatorClr2Java clr2Java, ISet<IConfigurationProvider> configurationProviders)
         {
             _configurationProviders = configurationProviders;
-            InstanceId = Guid.NewGuid().ToString("N");
             _serializer = new AvroConfigurationSerializer();
             Clr2Java = clr2Java;
             Id = Clr2Java.GetId();
@@ -51,9 +50,6 @@ namespace Org.Apache.REEF.Driver.Bridge.Events
 
             NameServerInfo = Clr2Java.GetNameServerInfo();
         }
-
-        [DataMember]
-        public string InstanceId { get; set; }
 
         public string Id { get; private set; }
 

@@ -25,19 +25,9 @@ namespace Org.Apache.REEF.Driver.Bridge.Events
     [DataContract]
     internal class CompletedEvaluator : ICompletedEvaluator
     {
-        private string _instanceId;
-
         public CompletedEvaluator(ICompletedEvaluatorClr2Java clr2Java)
         {
-            _instanceId = Guid.NewGuid().ToString("N");
             CompletedEvaluatorClr2Java = clr2Java;
-        }
-
-        [DataMember]
-        public string InstanceId
-        {
-            get { return _instanceId; }
-            set { _instanceId = value; }
         }
 
         [DataMember]

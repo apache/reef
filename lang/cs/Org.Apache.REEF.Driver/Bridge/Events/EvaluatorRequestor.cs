@@ -40,7 +40,6 @@ namespace Org.Apache.REEF.Driver.Bridge.Events
 
         internal EvaluatorRequestor(IEvaluatorRequestorClr2Java clr2Java)
         {
-            InstanceId = Guid.NewGuid().ToString("N");
             Clr2Java = clr2Java;
         }
 
@@ -54,9 +53,6 @@ namespace Org.Apache.REEF.Driver.Bridge.Events
         }
 
         public IResourceCatalog ResourceCatalog { get; set; }
-
-        [DataMember]
-        public string InstanceId { get; set; }
 
         [DataMember]
         private IEvaluatorRequestorClr2Java Clr2Java { get; set; }
