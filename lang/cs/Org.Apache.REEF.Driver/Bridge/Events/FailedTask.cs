@@ -33,16 +33,12 @@ namespace Org.Apache.REEF.Driver.Bridge.Events
         
         public FailedTask(IFailedTaskClr2Java failedTaskClr2Java)
         {
-            InstanceId = Guid.NewGuid().ToString("N");
             Parse(failedTaskClr2Java);
             FailedTaskClr2Java = failedTaskClr2Java;
             ActiveContextClr2Java = failedTaskClr2Java.GetActiveContext();
         }
 
         public Optional<string> Reason { get; set; }
-
-        [DataMember]
-        public string InstanceId { get; set; }
 
         public string Id { get; private set; }
 

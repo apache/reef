@@ -15,7 +15,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-using System;
 using System.Runtime.Serialization;
 using Org.Apache.REEF.Driver.Bridge.Clr2java;
 using Org.Apache.REEF.Driver.Context;
@@ -28,13 +27,9 @@ namespace Org.Apache.REEF.Driver.Bridge.Events
     {
         internal SuspendedTask(ISuspendedTaskClr2Java suspendedTaskClr2Java)
         {
-            InstanceId = Guid.NewGuid().ToString("N");
             SuspendedTaskClr2Java = suspendedTaskClr2Java;
             ActiveContextClr2Java = suspendedTaskClr2Java.GetActiveContext();
         }
-
-        [DataMember]
-        public string InstanceId { get; set; }
 
         public byte[] Message
         {

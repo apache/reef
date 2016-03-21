@@ -61,9 +61,6 @@ namespace Org.Apache.REEF.Driver.Evaluator
         }
 
         [DataMember]
-        public string InstanceId { get; set; }
-
-        [DataMember]
         public int MemoryMegaBytes { get; private set; }
 
         [DataMember]
