@@ -23,6 +23,7 @@ using Org.Apache.REEF.Common.Tasks;
 using Org.Apache.REEF.Driver;
 using Org.Apache.REEF.Driver.Context;
 using Org.Apache.REEF.Driver.Evaluator;
+using Org.Apache.REEF.Driver.Task;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Tang.Util;
@@ -38,8 +39,8 @@ namespace Org.Apache.REEF.Tests.Functional.FaultTolerant
     {
         private static readonly Logger Logger = Logger.GetLogger(typeof(TestContextStart));
         private const string StartedHandlerMessage = "Start Handler is called.";
-        private const string DataDownLoadStartedMessage = "Data Downloading started.";
-        private const string DataDownLoadCompletedMessage = "Data download completed.";
+        private const string StartedMessage = "Do something started.";
+        private const string CompletedMessage = "Do something completed.";
 
         public TestContextStart()
         {
@@ -47,7 +48,7 @@ namespace Org.Apache.REEF.Tests.Functional.FaultTolerant
         }
 
         /// <summary>
-        /// This test case submit a context with a Context start handler and do something is the handler
+        /// This test case submit a context with a Context start handler and do something in the handler
         /// </summary>
         [Fact]
         public void TestDosomethingOnContextStartOnLocalRuntime()
@@ -55,13 +56,12 @@ namespace Org.Apache.REEF.Tests.Functional.FaultTolerant
             string testFolder = DefaultRuntimeFolder + Guid.NewGuid().ToString("N").Substring(0, 4);
             CleanUp(testFolder);
             TestRun(DriverConfigurations(), typeof(ContextStartDriver), 1, "ContextStartDriver", "local", testFolder);
-            ValidateSuccessForLocalRuntime(1, testFolder: testFolder);
+            ValidateSuccessForLocalRuntime(2, testFolder: testFolder);
 
             var messages = new List<string>();
-            messages.Add(DataDownLoadStartedMessage);
-            messages.Add(DataDownLoadCompletedMessage);
+            messages.Add(StartedMessage);
             messages.Add(StartedHandlerMessage);
-            ValidateMessageSuccessfullyLogged(messages, "Node-*", EvaluatorStdout, testFolder, 1);
+            ValidateMessageSuccessfullyLogged(messages, "Node-*", EvaluatorStdout, testFolder, 2);
             CleanUp(testFolder);
         }
 
@@ -71,15 +71,23 @@ namespace Org.Apache.REEF.Tests.Functional.FaultTolerant
                 .Set(DriverConfiguration.OnDriverStarted, GenericType<ContextStartDriver>.Class)
                 .Set(DriverConfiguration.OnEvaluatorAllocated, GenericType<ContextStartDriver>.Class)
                 .Set(DriverConfiguration.OnContextActive, GenericType<ContextStartDriver>.Class)
+                .Set(DriverConfiguration.OnTaskCompleted, GenericType<ContextStartDriver>.Class)
+                .Set(DriverConfiguration.OnContextClosed, GenericType<ContextStartDriver>.Class)
                 .Build();
         }
 
         private sealed class ContextStartDriver :
              IObserver<IDriverStarted>,
              IObserver<IAllocatedEvaluator>,
-             IObserver<IActiveContext>
+             IObserver<IActiveContext>,
+             IObserver<ICompletedTask>,
+             IObserver<IClosedContext>
         {
             private readonly IEvaluatorRequestor _requestor;
+            private const string ContextId1 = "ContextID1";
+            private const string ContextId2 = "ContextID2";
+            private const string TaskId = "TaskID";
+            private bool _first = true;
 
             [Inject]
             private ContextStartDriver(IEvaluatorRequestor evaluatorRequestor)
@@ -93,21 +101,52 @@ namespace Org.Apache.REEF.Tests.Functional.FaultTolerant
             }
 
             public void OnNext(IActiveContext value)
-            {
-                var c = TaskConfiguration.ConfigurationModule
-                    .Set(TaskConfiguration.Identifier, "TaskID")
-                    .Set(TaskConfiguration.Task, GenericType<TestTask>.Class)
-                    .Build();
-                value.SubmitTask(c);
+            {               
+                Logger.Log(Level.Info, "IActiveContext: " + value.Id);
+
+                if (_first)
+                {
+                    Assert.Equal(value.Id, ContextId1);
+                    _first = false;
+                    value.SubmitContext(
+                        ContextConfiguration.ConfigurationModule
+                            .Set(ContextConfiguration.Identifier, ContextId2)
+                            .Set(ContextConfiguration.OnContextStart, GenericType<ContextStartHandler>.Class)
+                            .Build());
+                }
+                else
+                {
+                    Assert.Equal(value.Id, ContextId2);
+                    var c = TaskConfiguration.ConfigurationModule
+                        .Set(TaskConfiguration.Identifier, TaskId)
+                        .Set(TaskConfiguration.Task, GenericType<TestTask>.Class)
+                        .Build();
+                    value.SubmitTask(c);
+                }
             }
 
             public void OnNext(IAllocatedEvaluator value)
             {
                 value.SubmitContext(
                     ContextConfiguration.ConfigurationModule
-                        .Set(ContextConfiguration.Identifier, "ContextID")
+                        .Set(ContextConfiguration.Identifier, ContextId1)
                         .Set(ContextConfiguration.OnContextStart, GenericType<ContextStartHandler>.Class)
                         .Build());
+            }
+
+            public void OnNext(ICompletedTask value)
+            {
+                Logger.Log(Level.Info, "Task is completed:" + value.Id);
+                Assert.Equal(value.Id, TaskId);
+                value.ActiveContext.Dispose();
+            }
+
+            public void OnNext(IClosedContext value)
+            {
+                Logger.Log(Level.Info, "Context is closed: " + value.Id);
+                Assert.Equal(value.Id, ContextId2);
+                Assert.Equal(value.ParentContext.Id, ContextId1);
+                value.ParentContext.Dispose();
             }
 
             public void OnError(Exception error)
@@ -123,18 +162,18 @@ namespace Org.Apache.REEF.Tests.Functional.FaultTolerant
 
         private sealed class ContextStartHandler : IObserver<IContextStart>
         {
-            private readonly DataDownLoader _dataDownLoader;
+            private readonly DoSomething _doSomething;
 
             [Inject]
-            private ContextStartHandler(DataDownLoader dataDownLoader)
+            private ContextStartHandler(DoSomething dataDownLoader)
             {
-                _dataDownLoader = dataDownLoader;
+                _doSomething = dataDownLoader;
             }
 
             public void OnNext(IContextStart value)
             {
                 Logger.Log(Level.Info, StartedHandlerMessage);
-                _dataDownLoader.LoadData();
+                _doSomething.DoIt();
             }
 
             public void OnError(Exception error)
@@ -148,34 +187,34 @@ namespace Org.Apache.REEF.Tests.Functional.FaultTolerant
             }
         }
 
-        private sealed class DataDownLoader
+        private sealed class DoSomething
         {
-            private bool _dataLoaded;
+            private bool _done;
 
             [Inject]
-            private DataDownLoader()
+            private DoSomething()
             {
-                _dataLoaded = false;
+                _done = false;
             }
 
-            public void LoadData()
+            public void DoIt()
             {
-                Logger.Log(Level.Info, DataDownLoadStartedMessage);
-                _dataLoaded = true;
+                Logger.Log(Level.Info, StartedMessage);
+                _done = true;
             }
 
-            public bool DataLoaded
+            public bool Done
             {
-                get { return _dataLoaded; }
+                get { return _done; }
             }
         }
 
         private sealed class TestTask : ITask
         {
-            private readonly DataDownLoader _dataDownLoader;
+            private readonly DoSomething _dataDownLoader;
 
             [Inject]
-            private TestTask(DataDownLoader dataDownLoader)
+            private TestTask(DoSomething dataDownLoader)
             {
                 _dataDownLoader = dataDownLoader;
             }
@@ -187,9 +226,9 @@ namespace Org.Apache.REEF.Tests.Functional.FaultTolerant
             public byte[] Call(byte[] memento)
             {
                 Logger.Log(Level.Info, "Hello in TestTask");
-                if (_dataDownLoader.DataLoaded == true)
+                if (_dataDownLoader.Done == true)
                 {
-                    Logger.Log(Level.Info, DataDownLoadCompletedMessage);
+                    Logger.Log(Level.Info, CompletedMessage);
                     return null;
                 }
                 return null;
