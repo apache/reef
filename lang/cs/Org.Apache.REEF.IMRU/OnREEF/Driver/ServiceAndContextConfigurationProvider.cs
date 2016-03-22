@@ -17,12 +17,10 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using Org.Apache.REEF.IMRU.OnREEF.MapInputWithControlMessage;
+using Org.Apache.REEF.Common.Context;
+using Org.Apache.REEF.Common.Events;
+using Org.Apache.REEF.Common.Services;
 using Org.Apache.REEF.IO.PartitionedData;
-using Org.Apache.REEF.Network.Group.Config;
-using Org.Apache.REEF.Network.Group.Driver;
-using Org.Apache.REEF.Tang.Implementations.Configuration;
 using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Tang.Util;
 using Org.Apache.REEF.Utilities.Diagnostics;
@@ -36,31 +34,30 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
     /// </summary>
     /// <typeparam name="TMapInput"></typeparam>
     /// <typeparam name="TMapOutput"></typeparam>
-    internal sealed class ServiceAndContextConfigurationProvider<TMapInput, TMapOutput>
+    /// <typeparam name="TDataHandler"></typeparam>
+    internal sealed class ServiceAndContextConfigurationProvider<TMapInput, TMapOutput, TDataHandler>
     {
-        private static readonly Logger Logger = Logger.GetLogger(typeof(ServiceAndContextConfigurationProvider<TMapInput, TMapOutput>));
+        private static readonly Logger Logger = Logger.GetLogger(typeof(ServiceAndContextConfigurationProvider<TMapInput, TMapOutput, TDataHandler>));
 
-        private readonly Dictionary<string, ContextAndServiceConfiguration> _configurationProvider;
-        private readonly ISet<string> _failedEvaluators;
-        private readonly ISet<string> _submittedEvaluators; 
+        private readonly Dictionary<string, string> _configurationProvider;
+        private readonly ISet<string> _submittedEvaluators;
+        private readonly ISet<string> _contextLoadedEvaluators; 
         private readonly object _lock;
-        private readonly int _numNodes;
-        private int _assignedPartitionDescriptors;
-        private readonly IGroupCommDriver _groupCommDriver;
-        private readonly ConfigurationManager _configurationManager;
-        private readonly Stack<IPartitionDescriptor> _partitionDescriptors;
+        private readonly Stack<string> _partitionDescriptorIds;
+        private readonly IPartitionedInputDataSet _dataset;
+        private string _masterEvaluatorId;
 
-        internal ServiceAndContextConfigurationProvider(int numNodes, IGroupCommDriver groupCommDriver,
-            ConfigurationManager configurationManager, Stack<IPartitionDescriptor> partitionDescriptors)
+        internal ServiceAndContextConfigurationProvider(IPartitionedInputDataSet dataset)
         {
-            _configurationProvider = new Dictionary<string, ContextAndServiceConfiguration>();
-            _failedEvaluators = new HashSet<string>();
+            _configurationProvider = new Dictionary<string, string>();
             _submittedEvaluators = new HashSet<string>();
-            _numNodes = numNodes;
-            _groupCommDriver = groupCommDriver;
-            _configurationManager = configurationManager;
-            _assignedPartitionDescriptors = 0;
-            _partitionDescriptors = partitionDescriptors;
+            _contextLoadedEvaluators = new HashSet<string>();
+            _dataset = dataset;
+            _partitionDescriptorIds = new Stack<string>();
+            foreach (var descriptor in _dataset)
+            {
+                _partitionDescriptorIds.Push(descriptor.Id);
+            }
             _lock = new object();
         }
 
@@ -69,17 +66,150 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         /// submitted evaluator to failed evaluator
         /// </summary>
         /// <param name="evaluatorId"></param>
-        internal void EvaluatorFailed(string evaluatorId)
+        /// <returns>Whether failed evaluator is master or not</returns>
+        internal bool EvaluatorFailed(string evaluatorId)
+        {
+            lock (_lock)
+            {
+                string msg;
+                bool isMaster = IsMaster(evaluatorId);
+
+                if (_contextLoadedEvaluators.Contains(evaluatorId))
+                {
+                    msg =
+                        string.Format(
+                            "Failed evaluator:{0} already had context loaded. Cannot handle failure at this stage",
+                            evaluatorId);
+                    Exceptions.Throw(new Exception(msg), Logger);
+                }
+
+                if (!_submittedEvaluators.Contains(evaluatorId))
+                {
+                    msg = string.Format("Failed evaluator:{0} was never submitted", evaluatorId);
+                    Exceptions.Throw(new Exception(msg), Logger);
+                }
+
+                if (!_configurationProvider.ContainsKey(evaluatorId) && !isMaster)
+                {
+                    msg = string.Format("Partition descriptor for Failed evaluator:{0} not present", evaluatorId);
+                    Exceptions.Throw(new Exception(msg), Logger);
+                }
+
+                _submittedEvaluators.Remove(evaluatorId);
+
+                if (isMaster)
+                {
+                    Logger.Log(Level.Info, "Failed Evaluator is Master");
+                    _masterEvaluatorId = null;
+                    return true;
+                }
+                
+                Logger.Log(Level.Info, "Failed Evaluator is a Mapper");
+                _partitionDescriptorIds.Push(_configurationProvider[evaluatorId]);
+                _configurationProvider.Remove(evaluatorId);
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// Notifies that active context state has been reached
+        /// </summary>
+        /// <param name="evaluatorId"></param>
+        internal void ReachedActiveContext(string evaluatorId)
         {
             lock (_lock)
             {
                 if (!_submittedEvaluators.Contains(evaluatorId))
                 {
-                    Exceptions.Throw(new Exception("Failed evaluator was never submitted"), Logger);
+                    var msg = string.Format("Evaluator:{0} never loaded data but still reached active context stage",
+                        evaluatorId);
+                    Exceptions.Throw(new Exception(msg), Logger);
                 }
 
-                _failedEvaluators.Add(evaluatorId);
+                if (_contextLoadedEvaluators.Contains(evaluatorId))
+                {
+                    var msg = string.Format("Evaluator:{0} already reached the active context stage", evaluatorId);
+                    Exceptions.Throw(new Exception(msg), Logger);
+                }
+
+                _contextLoadedEvaluators.Add(evaluatorId);
                 _submittedEvaluators.Remove(evaluatorId);
+            }
+        }
+
+        /// <summary>
+        /// Gets next context configuration. Either master or mapper.
+        /// </summary>
+        /// <param name="evaluatorId">Evaluator Id</param>
+        /// <returns>The context and service configuration</returns>
+        internal ContextAndServiceConfiguration GetNextContextConfiguration(string evaluatorId)
+        {
+            lock (_lock)
+            {
+                if (_submittedEvaluators.Contains(evaluatorId))
+                {
+                    string msg = string.Format("The context is already submitted to evaluator:{0}", evaluatorId);
+                    Exceptions.Throw(new Exception(msg), Logger);
+                }
+
+                if (_masterEvaluatorId == null)
+                {
+                    Logger.Log(Level.Info, "Submitting root context and service for master");
+                    _masterEvaluatorId = evaluatorId;
+                    _submittedEvaluators.Add(evaluatorId);
+                    return new ContextAndServiceConfiguration(
+                        ContextConfiguration.ConfigurationModule.Set(ContextConfiguration.Identifier,
+                            IMRUConstants.MasterContextId).Build(),
+                        TangFactory.GetTang().NewConfigurationBuilder().Build());
+                }
+
+                Logger.Log(Level.Info, "Submitting root context and service for a map task");
+                return GetNextDataLoadingConfiguration(evaluatorId);
+            }
+        }
+
+        /// <summary>
+        /// Checks whether the context id belongs to master
+        /// </summary>
+        /// <param name="activeContextId">context id</param>
+        /// <returns>true of it is master context id, false otherwise</returns>
+        internal bool IsMasterContext(string activeContextId)
+        {
+            lock (_lock)
+            {
+                return activeContextId.Equals(IMRUConstants.MasterContextId);
+            }
+        }
+
+        /// <summary>
+        /// Gets partition Id for the evaluator
+        /// </summary>
+        /// <param name="evaluatorId"></param>
+        /// <returns></returns>
+        internal string GetPartitionId(string evaluatorId)
+        {
+            lock (_lock)
+            {
+                string msg;
+                if (!_submittedEvaluators.Contains(evaluatorId) && !_contextLoadedEvaluators.Contains(evaluatorId))
+                {
+                    msg = string.Format("Context for Evaluator:{0} has never been submitted", evaluatorId);
+                    Exceptions.Throw(new Exception(msg), Logger);
+                }
+
+                if (IsMaster(evaluatorId))
+                {
+                    msg = string.Format("Evaluator:{0} is master and does not get partition", evaluatorId);
+                    Exceptions.Throw(new Exception(msg), Logger);
+                }
+
+                if (!_configurationProvider.ContainsKey(evaluatorId))
+                {
+                    msg = string.Format("Partition descriptor for evaluator:{0} is not present in the mapping", evaluatorId);
+                    Exceptions.Throw(new Exception(msg), Logger);   
+                }
+
+                return _configurationProvider[evaluatorId];
             }
         }
 
@@ -89,93 +219,92 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         /// </summary>
         /// <param name="evaluatorId"></param>
         /// <returns></returns>
-        internal ContextAndServiceConfiguration GetNextConfiguration(string evaluatorId)
+        private ContextAndServiceConfiguration GetNextDataLoadingConfiguration(string evaluatorId)
         {
-            lock (_lock)
+            string msg;
+           
+            if (_contextLoadedEvaluators.Contains(evaluatorId))
             {
-                if (_submittedEvaluators.Contains(evaluatorId))
+                msg = string.Format("Evaluator:{0} already has the data loaded", evaluatorId);
+                Exceptions.Throw(new Exception(msg), Logger);
+            }
+
+            if (_partitionDescriptorIds.Count == 0)
+            {
+                Exceptions.Throw(new Exception("No more data configuration can be provided"), Logger);
+            }
+
+            if (_configurationProvider.ContainsKey(evaluatorId))
+            {
+                msg =
+                    string.Format(
+                        "Evaluator Id:{0} already present in configuration cache, they have to be unique",
+                        evaluatorId);
+                Exceptions.Throw(new Exception(msg), Logger);
+            }
+
+            Logger.Log(Level.Info, "Getting a new data loading configuration");
+            _configurationProvider[evaluatorId] = _partitionDescriptorIds.Pop();
+            _submittedEvaluators.Add(evaluatorId);
+
+            msg = string.Format(
+                "Current status: Submitted Evaluators-{0}, Data Loaded Evaluators-{1}, Unused data partitions-{2}",
+                _submittedEvaluators.Count,
+                _contextLoadedEvaluators.Count,
+                _partitionDescriptorIds.Count);
+            Logger.Log(Level.Info, msg);
+
+            try
+            {
+                IPartitionDescriptor partitionDescriptor =
+                    _dataset.GetPartitionDescriptorForId(_configurationProvider[evaluatorId]);
+
+                if (partitionDescriptor == null)
                 {
-                    Exceptions.Throw(new Exception("The evaluator is already submitted"), Logger);
+                    msg = string.Format("Partition descriptor with Id:{0} does not exist",
+                        _configurationProvider[evaluatorId]);
+                    Exception e = new NullReferenceException(msg);
+                    Exceptions.Throw(e, Logger);
                 }
-
-                if (_failedEvaluators.Count == 0 && _assignedPartitionDescriptors >= _numNodes)
-                {
-                    Exceptions.Throw(new Exception("No more configuration can be provided"), Logger);
-                }
-
-                // if some failed id exists return that configuration
-                if (_failedEvaluators.Count != 0)
-                {
-                    string failedEvaluatorId = _failedEvaluators.First();
-                    _failedEvaluators.Remove(failedEvaluatorId);
-                    var config = _configurationProvider[failedEvaluatorId];
-                    _configurationProvider.Remove(failedEvaluatorId);
-                    _configurationProvider[evaluatorId] = config;
-                }
-                else
-                {
-                    _assignedPartitionDescriptors++;
-
-                    if (_configurationProvider.ContainsKey(evaluatorId))
-                    {
-                        Exceptions.Throw(
-                            new Exception(
-                                "Evaluator Id already present in configuration cache, they have to be unique"),
-                            Logger);
-                    }
-
-                    // Checks whether to put update task configuration or map task configuration
-                    if (_assignedPartitionDescriptors == 1)
-                    {
-                        _configurationProvider[evaluatorId] = GetUpdateTaskContextAndServiceConfiguration();
-                    }
-                    else
-                    {
-                        _configurationProvider[evaluatorId] =
-                            GetMapTaskContextAndServiceConfiguration(_partitionDescriptors.Pop());
-                    }
-                }
-
-                _submittedEvaluators.Add(evaluatorId);
-                return _configurationProvider[evaluatorId];
+                return GetDataLoadingContextAndServiceConfiguration(partitionDescriptor, evaluatorId);
+            }
+            catch (Exception e)
+            {
+                msg = string.Format("Error while trying to access partition descriptor:{0} from dataset",
+                    _configurationProvider[evaluatorId]);
+                Exceptions.Throw(e, msg, Logger);
+                return null;
             }
         }
 
-        private ContextAndServiceConfiguration GetMapTaskContextAndServiceConfiguration(IPartitionDescriptor partitionDescriptor)
+        private ContextAndServiceConfiguration GetDataLoadingContextAndServiceConfiguration(
+            IPartitionDescriptor partitionDescriptor,
+            string evaluatorId)
         {
-            var codecConfig =
+            var dataLoadingContextConf =
                 TangFactory.GetTang()
-                    .NewConfigurationBuilder(
-                        StreamingCodecConfiguration<MapInputWithControlMessage<TMapInput>>.Conf.Set(
-                            StreamingCodecConfiguration<MapInputWithControlMessage<TMapInput>>.Codec,
-                            GenericType<MapInputWithControlMessageCodec<TMapInput>>.Class).Build(),
-                        StreamingCodecConfigurationMinusMessage<TMapOutput>.Conf.Build(),
-                        _configurationManager.MapInputCodecConfiguration)
+                    .NewConfigurationBuilder()
+                    .BindSetEntry<ContextConfigurationOptions.StartHandlers, DataLoadingContext<TDataHandler>, IObserver<IContextStart>>(
+                            GenericType<ContextConfigurationOptions.StartHandlers>.Class,
+                            GenericType<DataLoadingContext<TDataHandler>>.Class)
                     .Build();
 
-            var contextConf = _groupCommDriver.GetContextConfiguration();
-            var serviceConf = Configurations.Merge(_groupCommDriver.GetServiceConfiguration(), codecConfig, partitionDescriptor.GetPartitionConfiguration());
+            var serviceConf =
+                TangFactory.GetTang()
+                    .NewConfigurationBuilder(ServiceConfiguration.ConfigurationModule.Build(),
+                        dataLoadingContextConf,
+                        partitionDescriptor.GetPartitionConfiguration())
+                    .Build();
 
+            var contextConf = ContextConfiguration.ConfigurationModule
+                .Set(ContextConfiguration.Identifier, string.Format("DataLoading-{0}", evaluatorId))
+                .Build();
             return new ContextAndServiceConfiguration(contextConf, serviceConf);
         }
 
-        private ContextAndServiceConfiguration GetUpdateTaskContextAndServiceConfiguration()
+        private bool IsMaster(string evaluatorId)
         {
-            var codecConfig =
-                TangFactory.GetTang()
-                    .NewConfigurationBuilder(
-                        new[]
-                        {
-                            StreamingCodecConfiguration<MapInputWithControlMessage<TMapInput>>.Conf.Set(
-                                StreamingCodecConfiguration<MapInputWithControlMessage<TMapInput>>.Codec,
-                                GenericType<MapInputWithControlMessageCodec<TMapInput>>.Class).Build(),
-                            StreamingCodecConfigurationMinusMessage<TMapOutput>.Conf.Build(),
-                            _configurationManager.UpdateFunctionCodecsConfiguration
-                        })
-                    .Build();
-
-            var serviceConf = Configurations.Merge(_groupCommDriver.GetServiceConfiguration(), codecConfig);
-            return new ContextAndServiceConfiguration(_groupCommDriver.GetContextConfiguration(), serviceConf);
+            return _masterEvaluatorId.Equals(evaluatorId);
         }
     }
 }
