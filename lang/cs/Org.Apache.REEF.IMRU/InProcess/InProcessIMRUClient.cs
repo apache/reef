@@ -64,9 +64,10 @@ namespace Org.Apache.REEF.IMRU.InProcess
         /// <typeparam name="TMapInput">The type of the side information provided to the Map function</typeparam>
         /// <typeparam name="TMapOutput">The return type of the Map function</typeparam>
         /// <typeparam name="TResult">The return type of the computation.</typeparam>
+        /// <typeparam name="TPartitionType">Type of data partition (Generic type in IInputPartition)</typeparam>
         /// <param name="jobDefinition">Job definition given by the user</param>
         /// <returns>The result of the job</returns>
-        public IEnumerable<TResult> Submit<TMapInput, TMapOutput, TResult>(IMRUJobDefinition jobDefinition)
+        public IEnumerable<TResult> Submit<TMapInput, TMapOutput, TResult, TPartitionType>(IMRUJobDefinition jobDefinition)
         {
             IConfiguration overallPerMapConfig = null;
             try

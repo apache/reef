@@ -16,6 +16,7 @@
 // under the License.
 
 using System.Globalization;
+using System.IO;
 using Org.Apache.REEF.IMRU.API;
 using Org.Apache.REEF.IO.PartitionedData.Random;
 using Org.Apache.REEF.Tang.Annotations;
@@ -73,7 +74,7 @@ namespace Org.Apache.REEF.IMRU.Examples.PipelinedBroadcastReduce
                         chunkSize.ToString(CultureInfo.InvariantCulture))
                     .Build();
 
-            var results = _imruClient.Submit<int[], int[], int[]>(
+            var results = _imruClient.Submit<int[], int[], int[], Stream>(
                 new IMRUJobDefinitionBuilder()
                     .SetMapFunctionConfiguration(IMRUMapConfiguration<int[], int[]>.ConfigurationModule
                         .Set(IMRUMapConfiguration<int[], int[]>.MapFunction,

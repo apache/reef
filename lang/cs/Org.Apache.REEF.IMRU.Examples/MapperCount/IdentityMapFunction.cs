@@ -15,7 +15,9 @@
 // specific language governing permissions and limitations
 // under the License.
 
+using System.IO;
 using Org.Apache.REEF.IMRU.API;
+using Org.Apache.REEF.IO.PartitionedData;
 using Org.Apache.REEF.Tang.Annotations;
 
 namespace Org.Apache.REEF.IMRU.Examples.MapperCount
@@ -26,7 +28,7 @@ namespace Org.Apache.REEF.IMRU.Examples.MapperCount
     public sealed class IdentityMapFunction : IMapFunction<int, int>
     {
         [Inject]
-        private IdentityMapFunction()
+        private IdentityMapFunction(IInputPartition<Stream> dataPartition)
         {
         }
 
