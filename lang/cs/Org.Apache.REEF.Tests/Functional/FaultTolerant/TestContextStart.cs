@@ -54,7 +54,6 @@ namespace Org.Apache.REEF.Tests.Functional.FaultTolerant
         public void TestDosomethingOnContextStartOnLocalRuntime()
         {
             string testFolder = DefaultRuntimeFolder + Guid.NewGuid().ToString("N").Substring(0, 4);
-            CleanUp(testFolder);
             TestRun(DriverConfigurations(), typeof(ContextStartDriver), 1, "ContextStartDriver", "local", testFolder);
             ValidateSuccessForLocalRuntime(2, testFolder: testFolder);
 
@@ -73,6 +72,7 @@ namespace Org.Apache.REEF.Tests.Functional.FaultTolerant
                 .Set(DriverConfiguration.OnContextActive, GenericType<ContextStartDriver>.Class)
                 .Set(DriverConfiguration.OnTaskCompleted, GenericType<ContextStartDriver>.Class)
                 .Set(DriverConfiguration.OnContextClosed, GenericType<ContextStartDriver>.Class)
+                .Set(DriverConfiguration.OnEvaluatorCompleted, GenericType<ContextStartDriver>.Class)
                 .Build();
         }
 
@@ -81,13 +81,15 @@ namespace Org.Apache.REEF.Tests.Functional.FaultTolerant
              IObserver<IAllocatedEvaluator>,
              IObserver<IActiveContext>,
              IObserver<ICompletedTask>,
-             IObserver<IClosedContext>
+             IObserver<IClosedContext>,
+             IObserver<ICompletedEvaluator>
         {
             private readonly IEvaluatorRequestor _requestor;
             private const string ContextId1 = "ContextID1";
             private const string ContextId2 = "ContextID2";
             private const string TaskId = "TaskID";
             private bool _first = true;
+            private bool _firstClose = true;
 
             [Inject]
             private ContextStartDriver(IEvaluatorRequestor evaluatorRequestor)
@@ -143,10 +145,24 @@ namespace Org.Apache.REEF.Tests.Functional.FaultTolerant
 
             public void OnNext(IClosedContext value)
             {
-                Logger.Log(Level.Info, "Context is closed: " + value.Id);
-                Assert.Equal(value.Id, ContextId2);
-                Assert.Equal(value.ParentContext.Id, ContextId1);
-                value.ParentContext.Dispose();
+                if (_firstClose)
+                {
+                    Logger.Log(Level.Info, "Second context is closed: " + value.Id);
+                    Assert.Equal(value.Id, ContextId2);
+                    Assert.Equal(value.ParentContext.Id, ContextId1);
+                    value.ParentContext.Dispose();
+                    _firstClose = false;
+                }
+                else
+                {
+                    Logger.Log(Level.Info, "First context is closed: " + value.Id);
+                    Assert.Equal(value.Id, ContextId1);
+                }
+            }
+
+            public void OnNext(ICompletedEvaluator value)
+            {
+                Logger.Log(Level.Info, "In CompletedEvaluator " + value.Id);
             }
 
             public void OnError(Exception error)
