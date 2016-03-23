@@ -84,20 +84,28 @@ namespace Org {
 						}
 
 						void ActiveContextClr2Java::SubmitContext(String^ contextConfigStr) {
-							ManagedLog::LOGGER->LogStart("ActiveContextClr2Java::SubmitContext");
+							SubmitContextAndService(contextConfigStr, nullptr);
+						}
+
+						void ActiveContextClr2Java::SubmitContextAndService(String^ contextConfigStr, String^ serviceConfigStr) {
 							JNIEnv *env = RetrieveEnv(_jvm);
 							jclass jclassActiveContext = env->GetObjectClass(_jobjectActiveContext);
-							jmethodID jmidSubmitContext = env->GetMethodID(jclassActiveContext, "submitContextString", "(Ljava/lang/String;)V");
+							jmethodID jmidSubmitContext = 
+								env->GetMethodID(jclassActiveContext, "submitContextStringAndServiceString", "(Ljava/lang/String;Ljava/lang/String;)V");
 
 							if (jmidSubmitContext == NULL) {
-								ManagedLog::LOGGER->Log("jmidSubmitContext is NULL");
+								ManagedLog::LOGGER->Log("jmidSubmitContextStringAndServiceString is NULL");
 								return;
 							}
+
+							const jstring serviceConfigJavaStr = 
+								serviceConfigStr == nullptr ? NULL : JavaStringFromManagedString(env, serviceConfigStr);
+
 							env->CallObjectMethod(
 								_jobjectActiveContext,
 								jmidSubmitContext,
-								JavaStringFromManagedString(env, contextConfigStr));
-							ManagedLog::LOGGER->LogStop("ActiveContextClr2Java::SubmitContext");
+								JavaStringFromManagedString(env, contextConfigStr),
+								serviceConfigJavaStr);
 						}
 
 						void ActiveContextClr2Java::OnError(String^ message) {

@@ -15,7 +15,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-using System;
 using System.Runtime.Serialization;
 using Org.Apache.REEF.Driver.Bridge.Clr2java;
 using Org.Apache.REEF.Driver.Context;
@@ -87,7 +86,9 @@ namespace Org.Apache.REEF.Driver.Bridge.Events
 
         public void SubmitContextAndService(IConfiguration contextConfiguration, IConfiguration serviceConfiguration)
         {
-            throw new NotImplementedException();
+            var contextConfigString = _serializer.ToString(contextConfiguration);
+            var serviceConfigString = _serializer.ToString(serviceConfiguration);
+            Clr2Java.SubmitContextAndService(contextConfigString, serviceConfigString);
         }
 
         public void SendMessage(byte[] message)

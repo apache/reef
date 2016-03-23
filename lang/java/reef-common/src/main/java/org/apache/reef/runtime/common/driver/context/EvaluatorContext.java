@@ -154,44 +154,37 @@ public final class EvaluatorContext implements ActiveContext {
   }
 
   public synchronized void submitContext(final String contextConf) {
-    if (this.isClosed) {
-      throw new RuntimeException("Active context already closed");
-    }
-
-    LOG.log(Level.FINEST, "Submit context: RunningEvaluator id[{0}] for context id[{1}]",
-        new Object[]{getEvaluatorId(), getId()});
-
-    final EvaluatorRuntimeProtocol.ContextControlProto contextControlProto =
-        EvaluatorRuntimeProtocol.ContextControlProto.newBuilder()
-            .setAddContext(
-                EvaluatorRuntimeProtocol.AddContextProto.newBuilder()
-                    .setParentContextId(getId())
-                    .setContextConfiguration(contextConf)
-                    .build())
-            .build();
-
-    this.contextControlHandler.send(contextControlProto);
+    submitContextAndService(contextConf, Optional.<String>empty());
   }
 
   @Override
   public synchronized void submitContextAndService(
       final Configuration contextConfiguration, final Configuration serviceConfiguration) {
+    submitContextAndService(
+        this.configurationSerializer.toString(contextConfiguration),
+        this.configurationSerializer.toString(serviceConfiguration));
+  }
 
+  public synchronized void submitContextAndService(final String contextConf, final String serviceConf) {
+    submitContextAndService(contextConf, Optional.ofNullable(serviceConf));
+  }
+
+  public synchronized void submitContextAndService(final String contextConf, final Optional<String> serviceConf) {
     if (this.isClosed) {
       throw new RuntimeException("Active context already closed");
     }
 
-    LOG.log(Level.FINEST, "Submit new context: RunningEvaluator id[{0}] for context id[{1}]",
-        new Object[]{getEvaluatorId(), getId()});
+    EvaluatorRuntimeProtocol.AddContextProto.Builder contextBuilder =
+        EvaluatorRuntimeProtocol.AddContextProto.newBuilder()
+            .setParentContextId(getId()).setContextConfiguration(contextConf);
+
+    if (serviceConf.isPresent()) {
+      contextBuilder = contextBuilder.setServiceConfiguration(serviceConf.get());
+    }
 
     final EvaluatorRuntimeProtocol.ContextControlProto contextControlProto =
         EvaluatorRuntimeProtocol.ContextControlProto.newBuilder()
-            .setAddContext(
-                EvaluatorRuntimeProtocol.AddContextProto.newBuilder()
-                    .setParentContextId(getId())
-                    .setContextConfiguration(this.configurationSerializer.toString(contextConfiguration))
-                    .setServiceConfiguration(this.configurationSerializer.toString(serviceConfiguration))
-                    .build())
+            .setAddContext(contextBuilder.build())
             .build();
 
     this.contextControlHandler.send(contextControlProto);

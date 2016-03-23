@@ -26,6 +26,8 @@ namespace Org.Apache.REEF.Driver.Bridge.Clr2java
         void SubmitTask(string taskConfigStr);
 
         void SubmitContext(string contextConfigStr);
+
+        void SubmitContextAndService(string contextConfigStr, string serviceConfigStr);
         
         void Close();
 

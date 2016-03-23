@@ -79,12 +79,13 @@ public final class ActiveContextBridge extends NativeBridge implements Identifia
     ((EvaluatorContext)jactiveContext).submitTask(taskConfigurationString);
   }
 
-  public void submitContextString(final String contextConfigurationString) {
+  public void submitContextStringAndServiceString(final String contextConfigurationString,
+                                                  final String serviceConfigurationString) {
     if (StringUtils.isEmpty(contextConfigurationString)) {
       throw new RuntimeException("empty contextConfigurationString provided.");
     }
 
-    ((EvaluatorContext)jactiveContext).submitContext(contextConfigurationString);
+    ((EvaluatorContext)jactiveContext).submitContextAndService(contextConfigurationString, serviceConfigurationString);
   }
 
   public String getEvaluatorDescriptorString() {
