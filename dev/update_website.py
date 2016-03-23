@@ -101,7 +101,8 @@ def update_downloads(file, new_version, sha512, notes_link):
         if "releaseNotesLink" in line:
             r = re.compile('href="(.*?)"')
             m = r.search(line)
-            line = line.replace(m.group(1), notes_link)
+            url = re.sub('&(?!amp;)', '&amp;', notes_link) # '&' should be replaced to prevent parsing error
+            line = line.replace(m.group(1), url)
         if "dotnetApiLink" in line:
             r = re.compile('<span id="dotnetApiLink">(.*?)</span>')
             m = r.search(line)
