@@ -231,6 +231,7 @@ namespace Org.Apache.REEF.Evaluator.Tests
                     }
 
                     testTask.CountDownEvent.Signal();
+                    testTask.DisposedEvent.Wait();
                 }
             }
         }
@@ -272,6 +273,7 @@ namespace Org.Apache.REEF.Evaluator.Tests
                     }
 
                     testTask.CountDownEvent.Signal();
+                    testTask.DisposedEvent.Wait();
                 }
             }
         }
@@ -304,6 +306,7 @@ namespace Org.Apache.REEF.Evaluator.Tests
                 testTask.CountDownEvent.Signal();
                 testTask.StopEvent.Wait();
                 Assert.False(contextRuntime.GetTaskStatus().IsPresent());
+                testTask.DisposedEvent.Wait();
 
                 contextRuntime.StartTask(taskConfig, hbMgr);
                 Assert.Equal(contextRuntime.GetTaskStatus().Value.state, State.RUNNING);
@@ -319,6 +322,7 @@ namespace Org.Apache.REEF.Evaluator.Tests
                 secondTestTask.CountDownEvent.Signal();
                 secondTestTask.StopEvent.Wait();
                 Assert.False(contextRuntime.GetTaskStatus().IsPresent());
+                secondTestTask.DisposedEvent.Wait();
             }
         }
 
@@ -449,15 +453,18 @@ namespace Org.Apache.REEF.Evaluator.Tests
             {
                 CountDownEvent = new CountdownEvent(1);
                 StopEvent = new CountdownEvent(1);
+                DisposedEvent = new CountdownEvent(1);
             }
 
             public CountdownEvent CountDownEvent { get; private set; }
 
             public CountdownEvent StopEvent { get; private set; }
 
+            public CountdownEvent DisposedEvent { get; private set; }
+
             public void Dispose()
             {
-                throw new NotImplementedException();
+                DisposedEvent.Signal();
             }
 
             public byte[] Call(byte[] memento)
