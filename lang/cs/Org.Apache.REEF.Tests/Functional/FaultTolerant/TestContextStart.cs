@@ -89,7 +89,6 @@ namespace Org.Apache.REEF.Tests.Functional.FaultTolerant
             private const string ContextId2 = "ContextID2";
             private const string TaskId = "TaskID";
             private bool _first = true;
-            private bool _firstClose = true;
 
             [Inject]
             private ContextStartDriver(IEvaluatorRequestor evaluatorRequestor)
@@ -145,19 +144,10 @@ namespace Org.Apache.REEF.Tests.Functional.FaultTolerant
 
             public void OnNext(IClosedContext value)
             {
-                if (_firstClose)
-                {
-                    Logger.Log(Level.Info, "Second context is closed: " + value.Id);
-                    Assert.Equal(value.Id, ContextId2);
-                    Assert.Equal(value.ParentContext.Id, ContextId1);
-                    value.ParentContext.Dispose();
-                    _firstClose = false;
-                }
-                else
-                {
-                    Logger.Log(Level.Info, "First context is closed: " + value.Id);
-                    Assert.Equal(value.Id, ContextId1);
-                }
+                Logger.Log(Level.Info, "Second context is closed: " + value.Id);
+                Assert.Equal(value.Id, ContextId2);
+                Assert.Equal(value.ParentContext.Id, ContextId1);
+                value.ParentContext.Dispose();
             }
 
             public void OnNext(ICompletedEvaluator value)
