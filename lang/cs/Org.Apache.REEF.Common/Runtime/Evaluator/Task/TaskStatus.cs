@@ -95,13 +95,30 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Task
         {
             lock (_stateLock)
             {
-                if (!_lastException.IsPresent())
+                try
                 {
-                    _lastException = Optional<Exception>.Of(e);
+                    if (HasEnded())
+                    {
+                        // Note that this is possible if the job is already DONE, but a
+                        // Task Close is triggered prior to the DONE signal propagates to the
+                        // Driver. If the Task Close handler is not implemented, the Handler will 
+                        // mark the Task with an Exception, although for all intents and purposes
+                        // the Task is already done and should not be affected.
+                        return;
+                    }
+
+                    if (!_lastException.IsPresent())
+                    {
+                        _lastException = Optional<Exception>.Of(e);
+                    }
+
+                    State = TaskState.Failed;
+                    _taskLifeCycle.Stop();
                 }
-                State = TaskState.Failed;
-                _taskLifeCycle.Stop();
-                Heartbeat();
+                finally
+                {
+                    Heartbeat();
+                }
             }
         }
 
