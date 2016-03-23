@@ -164,15 +164,17 @@ namespace Org.Apache.REEF.Tests.Functional
                 Console.WriteLine("Lines read from log file : " + lines.Count());
                 string[] successIndicators = lines.Where(s => s.Contains(successIndication)).ToArray();
                 string[] failedTaskIndicators = lines.Where(s => s.Contains(failedTaskIndication)).ToArray();
-                string[] failedIndicators = lines.Where(s => s.Contains(failedEvaluatorIndication)).ToArray();
-                Assert.Equal(numberOfContextsToClose, successIndicators.Length);
-                Assert.Equal(numberOfTasksToFail, failedTaskIndicators.Length);
-                Assert.Equal(numberOfEvaluatorsToFail, failedIndicators.Length);
+                string[] failedEvaluatorIndicators = lines.Where(s => s.Contains(failedEvaluatorIndication)).ToArray();
+                Assert.True(numberOfContextsToClose == successIndicators.Length,
+                    "Expected number of contexts to close (" + numberOfContextsToClose + ") differs from actual number of success indicators (" + successIndicators.Length + ")");
+                Assert.True(numberOfTasksToFail == failedTaskIndicators.Length,
+                    "Expected number of tasks to fail (" + numberOfTasksToFail + ") differs from actual number of failed task indicators (" + failedTaskIndicators.Length + ")");
+                Assert.True(numberOfEvaluatorsToFail == failedEvaluatorIndicators.Length,
+                    "Expected number of evaluators to fail (" + numberOfEvaluatorsToFail + ") differs from actual number of failed evaluator indicators (" + failedEvaluatorIndicators.Length + ")");
             }
             else
             {
-                Console.WriteLine("Cannot read from log file");
-                Assert.True(false);
+                Assert.True(false, "Cannot read from log file " + DriverStdout);
             }
         }
 
@@ -183,7 +185,7 @@ namespace Org.Apache.REEF.Tests.Functional
             ValidateMessageSuccessfullyLogged(msgs, "driver", DriverStdout, testFolder, numberOfoccurances);
         }
 
-        protected void ValidateMessageSuccessfullyLogged(IList<string> messages, string subfolder, string fileName, string testFolder, int numberOfoccurances = 1)
+        protected void ValidateMessageSuccessfullyLogged(IList<string> messages, string subfolder, string fileName, string testFolder, int numberOfOccurences = 1)
         {
             string[] lines = null;
             for (int i = 0; i < 60; i++)
@@ -204,20 +206,21 @@ namespace Org.Apache.REEF.Tests.Functional
                 foreach (string message in messages)
                 {
                     string[] successIndicators = lines.Where(s => s.Contains(message)).ToArray();
-                    if (numberOfoccurances > 0)
+                    if (numberOfOccurences > 0)
                     {
-                        Assert.Equal(numberOfoccurances, successIndicators.Count());
+                        Assert.True(numberOfOccurences == successIndicators.Count(), 
+                            "Expected number of message occurrences " + numberOfOccurences + " differs from actual " + successIndicators.Count());
                     }
                     else
                     {
-                        Assert.NotEqual(0, successIndicators.Count());
+                        Assert.True(0 == successIndicators.Count(), 
+                            "Message not expected to occur but occurs " + successIndicators.Count() + " times");
                     }
                 }
             }
             else
             {
-                Console.WriteLine("Cannot read from log file");
-                Assert.True(false);
+                Assert.True(false, "Cannot read from log file " + fileName);
             }
         }
 
