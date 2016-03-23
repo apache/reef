@@ -42,6 +42,7 @@ namespace Org.Apache.REEF.Tests.Functional.Bridge
     /// <summary>
     /// This test is to close a running task from driver
     /// </summary>
+    [Collection("FunctionalTests")]
     public sealed class TestCloseTask : ReefFunctionalTest
     {
         private static readonly Logger Logger = Logger.GetLogger(typeof(TestCloseTask));

@@ -85,6 +85,7 @@ namespace Org {
                             !ActiveContextClr2Java();
                             virtual void SubmitTask(String^ taskConfigStr);
                             virtual void SubmitContext(String^ contextConfigStr);
+                            virtual void SubmitContextAndService(String^ contextConfigStr, String^ serviceConfigStr);
                             virtual void Close();
                             virtual void OnError(String^ message);
                             virtual String^ GetParentId();
