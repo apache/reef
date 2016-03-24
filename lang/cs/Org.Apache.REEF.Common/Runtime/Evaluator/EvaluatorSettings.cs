@@ -43,7 +43,9 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator
         private readonly string _rootContextId;
         private readonly int _heartBeatPeriodInMs;
         private readonly int _maxHeartbeatRetries;
-        private readonly IClock _clock;
+
+        // TODO[JIRA REEF-1281]: Use IClock.
+        private readonly RuntimeClock _clock;
         private readonly IRemoteManager<REEFMessage> _remoteManager;
         private readonly IInjector _injector;
         private readonly IConfiguration _rootContextConfig;
@@ -216,8 +218,9 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator
 
         /// <summary>
         /// return Runtime Clock injected from the constructor
+        /// TODO[JIRA REEF-1281]: Use IClock.
         /// </summary>
-        public IClock RuntimeClock
+        public RuntimeClock RuntimeClock
         {
             get
             {
