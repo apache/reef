@@ -84,16 +84,16 @@ namespace Org.Apache.REEF.Tests.Functional.Bridge
 
         public IConfiguration DriverConfigurations<T>(GenericType<T> activeContextHandlerType) where T : IObserver<IActiveContext>
         {
-            var helloDriverConfiguration = DriverConfiguration.ConfigurationModule
-                .Set(DriverConfiguration.OnDriverStarted, GenericType<ContextStackHandlers>.Class)
-                .Set(DriverConfiguration.OnEvaluatorAllocated, GenericType<ContextStackHandlers>.Class)
-                .Set(DriverConfiguration.OnContextActive, activeContextHandlerType)
-                .Set(DriverConfiguration.OnTaskMessage, GenericType<HelloTaskMessageHandler>.Class)
-                .Set(DriverConfiguration.OnTaskCompleted, GenericType<ContextStackHandlers>.Class)
-                .Set(DriverConfiguration.OnContextClosed, GenericType<ContextStackHandlers>.Class)
-                .Build();
-
-            return TangFactory.GetTang().NewConfigurationBuilder(helloDriverConfiguration).Build();
+            return TangFactory.GetTang().NewConfigurationBuilder(
+                DriverConfiguration.ConfigurationModule
+                    .Set(DriverConfiguration.OnDriverStarted, GenericType<ContextStackHandlers>.Class)
+                    .Set(DriverConfiguration.OnEvaluatorAllocated, GenericType<ContextStackHandlers>.Class)
+                    .Set(DriverConfiguration.OnContextActive, activeContextHandlerType)
+                    .Set(DriverConfiguration.OnTaskMessage, GenericType<HelloTaskMessageHandler>.Class)
+                    .Set(DriverConfiguration.OnTaskCompleted, GenericType<ContextStackHandlers>.Class)
+                    .Set(DriverConfiguration.OnContextClosed, GenericType<ContextStackHandlers>.Class)
+                    .Build())
+                    .Build();
         }
 
         /// <summary>
@@ -280,7 +280,6 @@ namespace Org.Apache.REEF.Tests.Functional.Bridge
             IObserver<IClosedContext>
         {
             private readonly IEvaluatorRequestor _requestor;
-            private bool _contextTwoClosed = false;
 
             [Inject]
             private ContextStackHandlers(IEvaluatorRequestor evaluatorRequestor)
@@ -310,20 +309,10 @@ namespace Org.Apache.REEF.Tests.Functional.Bridge
             {
                 Logger.Log(Level.Info, ClosedContextValidationMessage);
 
-                if (_contextTwoClosed == false)
-                {
-                    Assert.Equal(value.Id, ContextTwoId);
-                    Assert.True(value.ParentId.IsPresent());
-                    Assert.Equal(value.ParentId.Value, ContextOneId);
-                    Assert.Equal(value.ParentContext.Id, ContextOneId);
-                    _contextTwoClosed = true;
-                }
-                else
-                {
-                    Assert.Equal(value.Id, ContextOneId);
-                    Assert.False(value.ParentId.IsPresent());
-                    Assert.Equal(value.ParentContext, null);
-                }
+                Assert.Equal(value.Id, ContextTwoId);
+                Assert.True(value.ParentId.IsPresent());
+                Assert.Equal(value.ParentId.Value, ContextOneId);
+                Assert.Equal(value.ParentContext.Id, ContextOneId);
 
                 value.ParentContext.Dispose();
             }
