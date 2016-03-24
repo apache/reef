@@ -16,6 +16,7 @@
 // under the License.
 
 using System;
+using System.Globalization;
 using System.Text;
 using System.Threading;
 using Org.Apache.REEF.Common.Tasks;
@@ -54,7 +55,6 @@ namespace Org.Apache.REEF.Tests.Functional.Bridge
         public void TestFailedEvaluatorEventHandlerOnLocalRuntime()
         {
             string testFolder = DefaultRuntimeFolder + Guid.NewGuid().ToString("N").Substring(0, 4);
-            CleanUp(testFolder);
             TestRun(DriverConfigurations(), typeof(FailedEvaluatorDriver), 1, "failedEvaluatorTest", "local", testFolder);
             ValidateSuccessForLocalRuntime(0, numberOfEvaluatorsToFail: 1, testFolder: testFolder);
             ValidateMessageSuccessfullyLoggedForDriver(FailedEvaluatorMessage, testFolder);
@@ -64,16 +64,12 @@ namespace Org.Apache.REEF.Tests.Functional.Bridge
 
         public IConfiguration DriverConfigurations()
         {
-            var driverConfig = DriverConfiguration.ConfigurationModule
+            return DriverConfiguration.ConfigurationModule
                 .Set(DriverConfiguration.OnDriverStarted, GenericType<FailedEvaluatorDriver>.Class)
                 .Set(DriverConfiguration.OnEvaluatorAllocated, GenericType<FailedEvaluatorDriver>.Class)
                 .Set(DriverConfiguration.OnEvaluatorCompleted, GenericType<FailedEvaluatorDriver>.Class)
                 .Set(DriverConfiguration.OnEvaluatorFailed, GenericType<FailedEvaluatorDriver>.Class)
                 .Set(DriverConfiguration.OnTaskRunning, GenericType<FailedEvaluatorDriver>.Class)
-                .Build();
-
-            return TangFactory.GetTang().NewConfigurationBuilder(driverConfig)
-                .BindSetEntry<DriverBridgeConfigurationOptions.SetOfAssemblies, string>(typeof(FailEvaluatorTask).Assembly.GetName().Name)
                 .Build();
         }
 
@@ -121,6 +117,7 @@ namespace Org.Apache.REEF.Tests.Functional.Bridge
                 Assert.Equal(value.FailedTask.Value.Id, TaskId);
                 Assert.Equal(value.FailedContexts.Count, 1);
                 Assert.Equal(value.EvaluatorException.EvaluatorId, value.Id);
+                Logger.Log(Level.Error, string.Format(CultureInfo.CurrentCulture, "Failed task id:{0}, failed Evaluator id: {1}, Failed Exception msg: {2},", value.FailedTask.Value.Id, value.EvaluatorException.EvaluatorId, value.EvaluatorException.Message));
                 Logger.Log(Level.Error, RightFailedTaskMessage);
             }
 

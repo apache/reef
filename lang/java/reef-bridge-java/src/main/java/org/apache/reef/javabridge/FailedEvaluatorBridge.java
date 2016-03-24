@@ -62,7 +62,7 @@ public final class FailedEvaluatorBridge extends NativeBridge implements Identif
 
   public String getCause() {
     if (jfailedEvaluator.getEvaluatorException() != null) {
-      return jfailedEvaluator.getEvaluatorException().getCause().getLocalizedMessage();
+      return jfailedEvaluator.getEvaluatorException().getLocalizedMessage();
     }
 
     return null;
