@@ -5,9 +5,9 @@
 // to you under the Apache License, Version 2.0 (the
 // "License"); you may not use this file except in compliance
 // with the License.  You may obtain a copy of the License at
-//
+// 
 //   http://www.apache.org/licenses/LICENSE-2.0
-//
+// 
 // Unless required by applicable law or agreed to in writing,
 // software distributed under the License is distributed on an
 // "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -16,14 +16,21 @@
 // under the License.
 
 using Org.Apache.REEF.Tang.Annotations;
-using Org.Apache.REEF.Utilities.Attributes;
+using Org.Apache.REEF.Tang.Implementations.Tang;
+using Org.Apache.REEF.Tang.Interface;
 
-namespace Org.Apache.REEF.Common.Evaluator
+namespace Org.Apache.REEF.Common.Evaluator.DriverConnectionConfigurationProviders
 {
-    [DefaultImplementation(typeof(MissingDriverConnection))]
-    public interface IDriverConnection
+    internal sealed class DefaultDriverReconnectionConfigurationProvider : IDriverReconnectionConfigurationProvider
     {
-        [Private]
-        DriverInformation GetDriverInformation();
+        [Inject]
+        private DefaultDriverReconnectionConfigurationProvider()
+        {
+        }
+
+        public IConfiguration GetConfiguration()
+        {
+            return TangFactory.GetTang().NewConfigurationBuilder().Build();
+        }
     }
 }

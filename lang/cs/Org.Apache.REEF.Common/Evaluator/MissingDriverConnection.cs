@@ -5,9 +5,9 @@
 // to you under the Apache License, Version 2.0 (the
 // "License"); you may not use this file except in compliance
 // with the License.  You may obtain a copy of the License at
-//
+// 
 //   http://www.apache.org/licenses/LICENSE-2.0
-//
+// 
 // Unless required by applicable law or agreed to in writing,
 // software distributed under the License is distributed on an
 // "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -15,15 +15,21 @@
 // specific language governing permissions and limitations
 // under the License.
 
+using System;
 using Org.Apache.REEF.Tang.Annotations;
-using Org.Apache.REEF.Utilities.Attributes;
 
 namespace Org.Apache.REEF.Common.Evaluator
 {
-    [DefaultImplementation(typeof(MissingDriverConnection))]
-    public interface IDriverConnection
+    internal sealed class MissingDriverConnection : IDriverConnection
     {
-        [Private]
-        DriverInformation GetDriverInformation();
+        [Inject]
+        private MissingDriverConnection()
+        {
+        }
+
+        public DriverInformation GetDriverInformation()
+        {
+            throw new NotImplementedException("IDriverConnection has not been bound, so cannot reconnect to Driver!");
+        }
     }
 }
