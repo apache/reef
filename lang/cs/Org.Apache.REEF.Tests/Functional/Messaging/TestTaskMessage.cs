@@ -57,15 +57,12 @@ namespace Org.Apache.REEF.Tests.Functional.Messaging
             ValidateSuccessForLocalRuntime(1, testFolder: testFolder);
 
             var messages = new List<string>();
-            messages.Add("TaskMessagingTaskMessageHandler received following message from Task:");
-            messages.Add("Message: MESSAGE:TASK generated");
-            messages.Add("is to send message MESSAGE::DRIVER");      
-            ValidateMessageSuccessfullyLogged(messages, "driver", DriverStdout, testFolder, 0);
+            messages.Add(MessageTask.MessageSend);
+            ValidateMessageSuccessfullyLogged(messages, "driver", DriverStdout, testFolder, 3);
 
             var messages2 = new List<string>();
-            messages.Add("Received a message from driver, handling it with MessagingDriverMessageHandler:MESSAGE::DRIVER");
-            messages.Add("Message is sent back from task to driver:");
-            ValidateMessageSuccessfullyLogged(messages2, "Node-*", EvaluatorStdout, testFolder, 0);
+            messages.Add(MessageDriver.Message);
+            ValidateMessageSuccessfullyLogged(messages2, "Node-*", EvaluatorStdout, testFolder, 1);
 
             CleanUp(testFolder);
         }
