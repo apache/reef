@@ -24,6 +24,8 @@ using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Tang.Util;
 using Org.Apache.REEF.Utilities;
 using Org.Apache.REEF.Utilities.Logging;
+using Org.Apache.REEF.Wake.Time;
+using Org.Apache.REEF.Wake.Time.Runtime;
 
 namespace Org.Apache.REEF.Common.Runtime.Evaluator.Context
 {
@@ -45,7 +47,12 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Context
             Id = id;
             _rootContextConfiguration = contextConfiguration;
             _rootServiceInjector = InjectServices(rootServiceConfig);
+
+            // TODO[JIRA REEF-217]: Remove usage of BindVolatileInstance.
             _rootServiceInjector.BindVolatileInstance(GenericType<IHeartBeatManager>.Class, heartbeatManager);
+            _rootServiceInjector.BindVolatileInstance(GenericType<IClock>.Class, heartbeatManager.EvaluatorSettings.RuntimeClock);
+            _rootServiceInjector.BindVolatileInstance(GenericType<RuntimeClock>.Class, heartbeatManager.EvaluatorSettings.RuntimeClock);
+
             RootTaskConfig = rootTaskConfig;
         }
 
