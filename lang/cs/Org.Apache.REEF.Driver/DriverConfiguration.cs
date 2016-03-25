@@ -19,6 +19,8 @@ using System;
 using System.Diagnostics;
 using Org.Apache.REEF.Common.Context;
 using Org.Apache.REEF.Common.Evaluator;
+using Org.Apache.REEF.Common.Evaluator.DriverConnectionConfigurationProviders;
+using Org.Apache.REEF.Common.Evaluator.Parameters;
 using Org.Apache.REEF.Driver.Bridge;
 using Org.Apache.REEF.Driver.Context;
 using Org.Apache.REEF.Driver.Evaluator;
@@ -170,8 +172,16 @@ namespace Org.Apache.REEF.Driver
 
         /// <summary>
         /// The implemenation for (attempting to) re-establish connection to driver
+        /// TODO[JIRA REEF-1306]: Remove.
         /// </summary>
+        [Obsolete("Deprecated in 0.15, will be removed. Please use DriverReconnectionConfigurationProvider instead.")]
         public static readonly OptionalImpl<IDriverConnection> OnDriverReconnect = new OptionalImpl<IDriverConnection>();
+
+        /// <summary>
+        /// The configuration provider for driver reconnection.
+        /// </summary>
+        public static readonly OptionalImpl<IDriverReconnConfigProvider> DriverReconnectionConfigurationProvider =
+            new OptionalImpl<IDriverReconnConfigProvider>(); 
 
         /// <summary>
         /// Evaluator recovery timeout for driver restart in seconds. If value is greater than 0, restart is enabled. The default value is -1.
@@ -230,6 +240,9 @@ namespace Org.Apache.REEF.Driver
                     .BindNamedParameter(GenericType<DriverBridgeConfigurationOptions.TraceLevel>.Class, CustomTraceLevel)
                     .BindNamedParameter(GenericType<DriverBridgeConfigurationOptions.DriverRestartEvaluatorRecoverySeconds>.Class,
                         DriverRestartEvaluatorRecoverySeconds)
+
+                    // TODO[JIRA REEF-1306]: Bind DriverReconnectionConfigurationProvider into EvaluatorConfigurationProviders.
+                    .BindImplementation(GenericType<IDriverReconnConfigProvider>.Class, DriverReconnectionConfigurationProvider)
                     .BindImplementation(GenericType<IProgressProvider>.Class, ProgressProvider)
                     .Build();
             }
