@@ -178,14 +178,25 @@ namespace Org.Apache.REEF.Tests.Functional
             }
         }
 
-        protected void ValidateMessageSuccessfullyLoggedForDriver(string message, string testFolder, int numberOfoccurances = 1)
+        /// <summary>
+        /// See <see cref="ValidateMessageSuccessfullyLogged"/> for detail. This function is <see cref="ValidateMessageSuccessfullyLogged"/>
+        /// for the driver log.
+        /// </summary>
+        protected void ValidateMessageSuccessfullyLoggedForDriver(string message, string testFolder, int numberOfOccurrences = 1)
         {
-            var msgs = new List<string>();
-            msgs.Add(message);
-            ValidateMessageSuccessfullyLogged(msgs, "driver", DriverStdout, testFolder, numberOfoccurances);
+            var msgs = new List<string> { message };
+            ValidateMessageSuccessfullyLogged(msgs, "driver", DriverStdout, testFolder, numberOfOccurrences);
         }
 
-        protected void ValidateMessageSuccessfullyLogged(IList<string> messages, string subfolder, string fileName, string testFolder, int numberOfOccurences = 1)
+        /// <summary>
+        /// Validates that each of the message provided in the <see cref="messages"/> parameter occurs 
+        /// some number of times.
+        /// If <see cref="numberOfOccurrences"/> is greater than or equal to 0, validates that each of the message in 
+        /// <see cref="messages"/> occur <see cref="numberOfOccurrences"/> times.
+        /// If <see cref="numberOfOccurrences"/> is less than 0, validates that each of the message in <see cref="messages"/>
+        /// occur at least once.
+        /// </summary>
+        protected void ValidateMessageSuccessfullyLogged(IList<string> messages, string subfolder, string fileName, string testFolder, int numberOfOccurrences = 1)
         {
             string[] lines = null;
             for (int i = 0; i < 60; i++)
@@ -206,15 +217,19 @@ namespace Org.Apache.REEF.Tests.Functional
                 foreach (string message in messages)
                 {
                     string[] successIndicators = lines.Where(s => s.Contains(message)).ToArray();
-                    if (numberOfOccurences > 0)
+                    if (numberOfOccurrences > 0)
                     {
-                        Assert.True(numberOfOccurences == successIndicators.Count(), 
-                            "Expected number of message occurrences " + numberOfOccurences + " differs from actual " + successIndicators.Count());
+                        Assert.True(numberOfOccurrences == successIndicators.Count(), 
+                            "Expected number of message occurrences " + numberOfOccurrences + " differs from actual " + successIndicators.Count());
+                    }
+                    else if (numberOfOccurrences == 0)
+                    {
+                        Assert.True(0 == successIndicators.Count(),
+                            "Message not expected to occur but occurs " + successIndicators.Count() + " times");
                     }
                     else
                     {
-                        Assert.True(0 == successIndicators.Count(), 
-                            "Message not expected to occur but occurs " + successIndicators.Count() + " times");
+                        Assert.True(successIndicators.Count() > 0, "Message expected to occur, but did not.");
                     }
                 }
             }
