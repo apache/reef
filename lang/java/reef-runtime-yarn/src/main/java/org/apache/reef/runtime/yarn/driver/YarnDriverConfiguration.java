@@ -86,8 +86,6 @@ public class YarnDriverConfiguration extends ConfigurationModuleBuilder {
       .bindImplementation(TempFileCreator.class, WorkingDirectoryTempFileCreator.class)
 
       // Bind the YARN Configuration parameters
-      // TODO[JIRA REEF-904]: Act on deprecated JobSubmissionDirectory and JOB_SUBMISSION_DIRECTORY
-      .bindNamedParameter(org.apache.reef.driver.parameters.JobSubmissionDirectory.class, JOB_SUBMISSION_DIRECTORY)
       .bindNamedParameter(JobSubmissionDirectory.class, JOB_SUBMISSION_DIRECTORY)
       .bindNamedParameter(YarnHeartbeatPeriod.class, YARN_HEARTBEAT_INTERVAL)
 
