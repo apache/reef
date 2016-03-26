@@ -18,7 +18,6 @@
 using System;
 using System.Collections.Generic;
 using System.Net;
-using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Utilities.Logging;
 using Org.Apache.REEF.Wake.Util;
 
@@ -144,17 +143,53 @@ namespace Org.Apache.REEF.Wake.Remote.Impl
             ProxyObserver remoteObserver;
             if (!_cachedClients.TryGetValue(remoteEndpoint, out remoteObserver))
             {
-                TransportClient<IRemoteEvent<T>> client = 
-                    new TransportClient<IRemoteEvent<T>>(remoteEndpoint, _codec, _observerContainer);
-                var msg = string.Format("NewClientConnection: Local {0} connected to Remote {1}",
-                    client.Link.LocalEndpoint.ToString(), 
-                    client.Link.RemoteEndpoint.ToString());
-                LOGGER.Log(Level.Info, msg);
-
-                remoteObserver = new ProxyObserver(client);
+                remoteObserver = CreateRemoteObserver(remoteEndpoint);
                 _cachedClients[remoteEndpoint] = remoteObserver;
             }
 
+            return remoteObserver;
+        }
+
+        public IRemoteObserver<T> GetUnmanagedRemoteObserver(RemoteEventEndPoint<T> remoteEndpoint)
+        {
+            if (remoteEndpoint == null)
+            {
+                throw new ArgumentNullException("remoteEndpoint");
+            }
+
+            SocketRemoteIdentifier id = remoteEndpoint.Id as SocketRemoteIdentifier;
+            if (id == null)
+            {
+                throw new ArgumentException("ID not supported");
+            }
+
+            return GetUnmanagedObserver(id.Addr);
+        }
+
+        public IRemoteObserver<T> GetUnmanagedObserver(IPEndPoint remoteEndpoint)
+        {
+            if (remoteEndpoint == null)
+            {
+                throw new ArgumentNullException("remoteEndpoint");
+            }
+
+            ProxyObserver remoteObserver = CreateRemoteObserver(remoteEndpoint);
+            return remoteObserver;
+        }
+
+        private ProxyObserver CreateRemoteObserver(IPEndPoint remoteEndpoint)
+        {
+            TransportClient<IRemoteEvent<T>> client = new TransportClient<IRemoteEvent<T>>(
+                remoteEndpoint,
+                this._codec,
+                this._observerContainer);
+            var msg = string.Format(
+                "NewClientConnection: Local {0} connected to Remote {1}",
+                client.Link.LocalEndpoint.ToString(),
+                client.Link.RemoteEndpoint.ToString());
+            LOGGER.Log(Level.Info, msg);
+
+            ProxyObserver remoteObserver = new ProxyObserver(client);
             return remoteObserver;
         }
 
@@ -240,7 +275,7 @@ namespace Org.Apache.REEF.Wake.Remote.Impl
         /// <summary>
         /// Observer to send messages to connected remote host
         /// </summary>
-        private class ProxyObserver : IObserver<T>, IDisposable
+        private class ProxyObserver : IRemoteObserver<T>
         {
             private readonly TransportClient<IRemoteEvent<T>> _client;
             private int _messageCount;

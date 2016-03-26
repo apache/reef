@@ -14,31 +14,14 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
-
 using System;
-using System.Net;
-using Org.Apache.REEF.Wake.Remote.Impl;
 
 namespace Org.Apache.REEF.Wake.Remote
 {
-    public interface IRemoteManager<T> : IStage
+    /// <summary>
+    /// A disposable remote observer observer, that is not managed by the manager that creates it
+    /// </summary>
+    public interface IRemoteObserver<T> : IObserver<T>, IDisposable
     {
-        IRemoteIdentifier Identifier { get; }
-
-        IPEndPoint LocalEndpoint { get; }
-
-        IObserver<T> GetRemoteObserver(RemoteEventEndPoint<T> dest);
-
-        IObserver<T> GetRemoteObserver(IPEndPoint remoteEndpoint);
-
-        IRemoteObserver<T> GetUnmanagedRemoteObserver(RemoteEventEndPoint<T> dest);
-
-        IRemoteObserver<T> GetUnmanagedObserver(IPEndPoint remoteEndpoint);
-
-        IDisposable RegisterObserver(RemoteEventEndPoint<T> source, IObserver<T> theObserver);
-
-        IDisposable RegisterObserver(IPEndPoint remoteEndpoint, IObserver<T> theObserver);
-
-        IDisposable RegisterObserver(IObserver<IRemoteMessage<T>> theObserver);
     }
 }
