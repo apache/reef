@@ -23,13 +23,14 @@ namespace Org.Apache.REEF.Driver.Bridge.Clr2java
     [Private, Interop("AllocatedEvaluatorClr2Java.cpp", "Clr2JavaImpl.h")]
     public interface IAllocatedEvaluatorClr2Java : IClr2Java
     {
-        void SubmitContextAndTask(string contextConfigStr, string taskConfigStr);
+        void SubmitContextAndTask(string evaluatorConfigStr, string contextConfigStr, string taskConfigStr);
 
-        void SubmitContext(string contextConfigStr);
+        void SubmitContext(string evaluatorConfigStr, string contextConfigStr);
 
-        void SubmitContextAndService(string contextConfigStr, string serviceConfigStr);
+        void SubmitContextAndService(string evaluatorConfigStr, string contextConfigStr, string serviceConfigStr);
 
-        void SubmitContextAndServiceAndTask(string contextConfigStr, string serviceConfigStr, string taskConfigStr);
+        void SubmitContextAndServiceAndTask(
+            string evaluatorConfigStr, string contextConfigStr, string serviceConfigStr, string taskConfigStr);
 
         void Close();
 
