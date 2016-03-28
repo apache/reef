@@ -81,12 +81,12 @@ namespace Org {
 						  env->CallObjectMethod(
 							  _jobjectAllocatedEvaluator,
 							  jmidSubmitContext,
-                              JavaStringFromManagedString(env, evaluatorConfigStr),
+							  JavaStringFromManagedString(env, evaluatorConfigStr),
 							  JavaStringFromManagedString(env, contextConfigStr));
 						  ManagedLog::LOGGER->LogStop("AllocatedEvaluatorClr2Java::SubmitContext");
 					  }
 
-                      void AllocatedEvaluatorClr2Java::SubmitContextAndTask(String^ evaluatorConfigStr, String^ contextConfigStr, String^ taskConfigStr) {
+					  void AllocatedEvaluatorClr2Java::SubmitContextAndTask(String^ evaluatorConfigStr, String^ contextConfigStr, String^ taskConfigStr) {
 						  ManagedLog::LOGGER->LogStart("AllocatedEvaluatorClr2Java::SubmitContextAndTask");
 						  JNIEnv *env = RetrieveEnv(_jvm);
 						  jclass jclassAllocatedEvaluator = env->GetObjectClass(_jobjectAllocatedEvaluator);
@@ -99,13 +99,13 @@ namespace Org {
 						  env->CallObjectMethod(
 							  _jobjectAllocatedEvaluator,
 							  jmidSubmitContextAndTask,
-                              JavaStringFromManagedString(env, evaluatorConfigStr),
+							  JavaStringFromManagedString(env, evaluatorConfigStr),
 							  JavaStringFromManagedString(env, contextConfigStr),
 							  JavaStringFromManagedString(env, taskConfigStr));
 						  ManagedLog::LOGGER->LogStop("AllocatedEvaluatorClr2Java::SubmitContextAndTask");
 					  }
 
-                      void AllocatedEvaluatorClr2Java::SubmitContextAndService(String^ evaluatorConfigStr, String^ contextConfigStr, String^ serviceConfigStr) {
+					  void AllocatedEvaluatorClr2Java::SubmitContextAndService(String^ evaluatorConfigStr, String^ contextConfigStr, String^ serviceConfigStr) {
 						  ManagedLog::LOGGER->LogStart("AllocatedEvaluatorClr2Java::SubmitContextAndService");
 						  JNIEnv *env = RetrieveEnv(_jvm);
 						  jclass jclassAllocatedEvaluator = env->GetObjectClass(_jobjectAllocatedEvaluator);
@@ -118,13 +118,13 @@ namespace Org {
 						  env->CallObjectMethod(
 							  _jobjectAllocatedEvaluator,
 							  jmidSubmitContextAndService,
-                              JavaStringFromManagedString(env, evaluatorConfigStr),
+							  JavaStringFromManagedString(env, evaluatorConfigStr),
 							  JavaStringFromManagedString(env, contextConfigStr),
 							  JavaStringFromManagedString(env, serviceConfigStr));
 						  ManagedLog::LOGGER->LogStop("AllocatedEvaluatorClr2Java::SubmitContextAndService");
 					  }
 
-                      void AllocatedEvaluatorClr2Java::SubmitContextAndServiceAndTask(String^ evaluatorConfigStr, String^ contextConfigStr, String^ serviceConfigStr, String^ taskConfigStr) {
+					  void AllocatedEvaluatorClr2Java::SubmitContextAndServiceAndTask(String^ evaluatorConfigStr, String^ contextConfigStr, String^ serviceConfigStr, String^ taskConfigStr) {
 						  ManagedLog::LOGGER->LogStart("AllocatedEvaluatorClr2Java::SubmitContextAndServiceAndTask");
 						  JNIEnv *env = RetrieveEnv(_jvm);
 						  jclass jclassAllocatedEvaluator = env->GetObjectClass(_jobjectAllocatedEvaluator);
@@ -137,7 +137,7 @@ namespace Org {
 						  env->CallObjectMethod(
 							  _jobjectAllocatedEvaluator,
 							  jmidSubmitContextAndServiceAndTask,
-                              JavaStringFromManagedString(env, evaluatorConfigStr),
+							  JavaStringFromManagedString(env, evaluatorConfigStr),
 							  JavaStringFromManagedString(env, contextConfigStr),
 							  JavaStringFromManagedString(env, serviceConfigStr),
 							  JavaStringFromManagedString(env, taskConfigStr));
