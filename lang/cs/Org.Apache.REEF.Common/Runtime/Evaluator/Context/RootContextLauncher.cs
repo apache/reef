@@ -18,6 +18,7 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using Org.Apache.REEF.Common.Context;
 using Org.Apache.REEF.Common.Services;
 using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Tang.Interface;
@@ -39,17 +40,24 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Context
         private ISet<object> _services;
         private ContextRuntime _rootContext;
 
-        public RootContextLauncher(string id, IConfiguration contextConfiguration,
-            Optional<IConfiguration> rootServiceConfig, Optional<IConfiguration> rootTaskConfig, IHeartBeatManager heartbeatManager)
+        public RootContextLauncher(
+            IConfiguration contextConfiguration, 
+            IConfiguration rootServiceConfig, 
+            Optional<IConfiguration> rootTaskConfig, 
+            IHeartBeatManager heartbeatManager)
         {
-            Id = id;
             _rootContextConfiguration = contextConfiguration;
-            _rootServiceInjector = InjectServices(rootServiceConfig);
+            _rootServiceInjector = TangFactory.GetTang().NewInjector(rootServiceConfig);
+            Id = _rootServiceInjector
+                .ForkInjector(contextConfiguration)
+                .GetNamedInstance<ContextConfigurationOptions.ContextIdentifier, string>();
+            _services = _rootServiceInjector.GetNamedInstance<ServicesSet, ISet<object>>();
+            Logger.Log(Level.Verbose, string.Format(CultureInfo.InvariantCulture, "injected service(s)"));
             _rootServiceInjector.BindVolatileInstance(GenericType<IHeartBeatManager>.Class, heartbeatManager);
             RootTaskConfig = rootTaskConfig;
         }
 
-        public Optional<IConfiguration> RootTaskConfig { get; set; }
+        public Optional<IConfiguration> RootTaskConfig { get; private set; }
 
         public string Id { get; private set; }
 
@@ -61,38 +69,6 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Context
             }
 
             return _rootContext;
-        }
-
-        private IInjector InjectServices(Optional<IConfiguration> serviceConfig)
-        {
-            // TODO[JIRA REEF-217]: Use base injector for the Evaluator here instead.
-            IInjector rootServiceInjector;
-
-            if (serviceConfig.IsPresent())
-            {
-                rootServiceInjector = TangFactory.GetTang().NewInjector(serviceConfig.Value);
-                try
-                {
-                    _services = rootServiceInjector.GetNamedInstance<ServicesSet, ISet<object>>();
-                    Logger.Log(Level.Info, string.Format(CultureInfo.InvariantCulture, "injected service(s)"));
-                }
-                catch (Exception e)
-                {
-                    var errorMessage = string.Format(CultureInfo.InvariantCulture,
-                        "Failed to inject service: encountered error {1} with message [{0}] and stack trace:[{2}]", e,
-                        e.Message, e.StackTrace);
-                    Utilities.Diagnostics.Exceptions.Caught(e, Level.Error, "Failed to instantiate service.", Logger);
-                    var ex = new InvalidOperationException(errorMessage, e);
-                    Utilities.Diagnostics.Exceptions.Throw(ex, Logger);
-                }
-            }
-            else
-            {
-                rootServiceInjector = TangFactory.GetTang().NewInjector();
-                Logger.Log(Level.Info, "no service provided for injection.");
-            }
-            
-            return rootServiceInjector;
         }
     }
 }

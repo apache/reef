@@ -22,9 +22,11 @@ using System.Globalization;
 using System.Linq;
 using Org.Apache.REEF.Common.Protobuf.ReefProtocol;
 using Org.Apache.REEF.Common.Runtime.Evaluator.Task;
+using Org.Apache.REEF.Common.Runtime.Evaluator.Utils;
 using Org.Apache.REEF.Common.Tasks;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Tang.Formats;
+using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Utilities;
 using Org.Apache.REEF.Utilities.Logging;
 
@@ -42,20 +44,42 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Context
         [Inject]
         private ContextManager(
             IHeartBeatManager heartBeatManager,
-            EvaluatorSettings evaluatorSettings,
-            AvroConfigurationSerializer serializer)
+            AvroConfigurationSerializer serializer,
+            [Parameter(typeof(RootContextConfiguration))] string rootContextConfiguration,
+            [Parameter(typeof(RootServiceConfiguration))] string rootServiceConfiguration)
+            : this(heartBeatManager, serializer, serializer.FromString(rootContextConfiguration),
+            serializer.FromString(rootServiceConfiguration), Optional<IConfiguration>.Empty())
         {
-            // TODO[JIRA REEF-217]: Inject base Injector and pass Injector to RootContextLauncher
+        }
+
+        [Inject]
+        private ContextManager(
+            IHeartBeatManager heartBeatManager,
+            AvroConfigurationSerializer serializer,
+            [Parameter(typeof(RootContextConfiguration))] string rootContextConfiguration,
+            [Parameter(typeof(RootServiceConfiguration))] string rootServiceConfiguration,
+            [Parameter(typeof(InitialTaskConfiguration))] string initialTaskConfiguration)
+            : this(heartBeatManager, serializer, serializer.FromString(rootContextConfiguration),
+            serializer.FromString(rootServiceConfiguration), Optional<IConfiguration>.Of(serializer.FromString(initialTaskConfiguration)))
+        {
+        }
+
+        private ContextManager(
+            IHeartBeatManager heartBeatManager,
+            AvroConfigurationSerializer serializer,
+            IConfiguration rootContextConfiguration,
+            IConfiguration rootServiceConfiguration,
+            Optional<IConfiguration> initialTaskConfiguration)
+        {
             using (LOGGER.LogFunction("ContextManager::ContextManager"))
             {
                 _heartBeatManager = heartBeatManager;
                 _serializer = serializer;
 
                 _rootContextLauncher = new RootContextLauncher(
-                    evaluatorSettings.RootContextId,
-                    evaluatorSettings.RootContextConfig,
-                    evaluatorSettings.RootServiceConfiguration,
-                    evaluatorSettings.RootTaskConfiguration,
+                    rootContextConfiguration,
+                    rootServiceConfiguration,
+                    initialTaskConfiguration,
                     heartBeatManager);
             }
         }

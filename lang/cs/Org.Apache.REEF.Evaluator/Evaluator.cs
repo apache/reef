@@ -80,8 +80,14 @@ namespace Org.Apache.REEF.Evaluator
                 }
                 AppDomain.CurrentDomain.UnhandledException += UnhandledExceptionHandler;
 
-                Evaluator evaluator = TangFactory.GetTang()
-                    .NewInjector(ReadClrBridgeConfiguration(), ReadEvaluatorConfiguration(args[0]))
+                var fullEvaluatorConfiguration = ReadEvaluatorConfiguration(args[0]);
+                var injector = TangFactory.GetTang().NewInjector(fullEvaluatorConfiguration);
+                var serializer = injector.GetInstance<AvroConfigurationSerializer>();
+                var rootEvaluatorConfiguration =
+                    serializer.FromString(injector.GetNamedInstance<EvaluatorConfiguration, string>());
+                var evaluator = injector.ForkInjector(
+                    ReadClrBridgeConfiguration(),
+                    rootEvaluatorConfiguration)
                     .GetInstance<Evaluator>();
 
                 evaluator.Run();

@@ -62,10 +62,10 @@ namespace Org {
                             AllocatedEvaluatorClr2Java(JNIEnv *env, jobject jallocatedEvaluator);
                             ~AllocatedEvaluatorClr2Java();
                             !AllocatedEvaluatorClr2Java();
-                            virtual void SubmitContextAndTask(String^ contextConfigStr, String^ taskConfigStr);
-                            virtual void SubmitContext(String^ contextConfigStr);
-                            virtual void SubmitContextAndService(String^ contextConfigStr, String^ serviceConfigStr);
-                            virtual void SubmitContextAndServiceAndTask(String^ contextConfigStr, String^ serviceConfigStr, String^ taskConfigStr);
+                            virtual void SubmitContextAndTask(String^ evaluatorConfigStr, String^ contextConfigStr, String^ taskConfigStr);
+                            virtual void SubmitContext(String^ evaluatorConfigStr, String^ contextConfigStr);
+                            virtual void SubmitContextAndService(String^ evaluatorConfigStr, String^ contextConfigStr, String^ serviceConfigStr);
+                            virtual void SubmitContextAndServiceAndTask(String^ evaluatorConfigStr, String^ contextConfigStr, String^ serviceConfigStr, String^ taskConfigStr);
                             virtual void OnError(String^ message);
                             virtual void Close();
                             virtual String^ GetId();

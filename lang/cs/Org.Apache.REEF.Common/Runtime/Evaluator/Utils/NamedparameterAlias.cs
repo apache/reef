@@ -35,6 +35,11 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Utils
     {
     }
 
+    [NamedParameter(alias: "org.apache.reef.runtime.common.evaluator.parameters.EvaluatorConfiguration", aliasLanguage: Language.Java)]
+    internal sealed class EvaluatorConfiguration : Name<string>
+    {
+    }
+
     [NamedParameter(alias: "org.apache.reef.runtime.common.evaluator.parameters.InitialTaskConfiguration", aliasLanguage: Language.Java)]
     internal sealed class InitialTaskConfiguration : Name<string>
     {

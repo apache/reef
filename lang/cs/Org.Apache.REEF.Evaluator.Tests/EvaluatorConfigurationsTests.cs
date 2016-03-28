@@ -16,6 +16,7 @@
 // under the License.
 
 using System.Collections.Generic;
+using Org.Apache.REEF.Common.Evaluator;
 using Org.Apache.REEF.Common.Runtime.Evaluator.Utils;
 using Org.Apache.REEF.Common.Services;
 using Org.Apache.REEF.Common.Tasks;
@@ -66,26 +67,38 @@ namespace Org.Apache.REEF.Evaluator.Tests
         }
 
         /// <summary>
-        /// This test is to deserialize evaluator configuration for Task, Context and Service
+        /// This test is to deserialize evaluator configuration for Evaluator, Task, Context and Service
         /// using alias if the parameter in the configuration cannot be found in the class hierarchy.
         /// </summary>
         [Fact]
         [Trait("Priority", "0")]
         [Trait("Category", "Unit")]
-        public void TestDeserializeContextServiceTaskWithAlias()
+        public void TestDeserializeEvaluatorContextServiceTaskWithAlias()
         {
             var serializer = new AvroConfigurationSerializer();
             var config = DeserializeConfigWithAlias();
             var evaluatorInjector = TangFactory.GetTang().NewInjector(config);
 
+            var evaluatorConfigString = evaluatorInjector.GetNamedInstance<EvaluatorConfiguration, string>();
             var taskConfigString = evaluatorInjector.GetNamedInstance<InitialTaskConfiguration, string>();
             var contextConfigString = evaluatorInjector.GetNamedInstance<RootContextConfiguration, string>();
             var serviceConfigString = evaluatorInjector.GetNamedInstance<RootServiceConfiguration, string>();
+
+            var evaluatorClassHierarchy = TangFactory.GetTang().GetClassHierarchy(new string[]
+            {
+                typeof(DefaultLocalHttpDriverConnection).Assembly.GetName().Name
+            });
+
+            var evaluatorConfig = serializer.FromString(evaluatorConfigString, evaluatorClassHierarchy);
+            var fullEvaluatorInjector = evaluatorInjector.ForkInjector(evaluatorConfig);
+
+            Assert.True(fullEvaluatorInjector.GetInstance<IDriverConnection>() is DefaultLocalHttpDriverConnection);
 
             var contextClassHierarchy = TangFactory.GetTang().GetClassHierarchy(new string[]
             {
                 typeof(Common.Context.ContextConfigurationOptions.ContextIdentifier).Assembly.GetName().Name
             });
+
             var contextConfig = serializer.FromString(contextConfigString, contextClassHierarchy);
 
             var taskClassHierarchy = TangFactory.GetTang().GetClassHierarchy(new string[]
@@ -93,6 +106,7 @@ namespace Org.Apache.REEF.Evaluator.Tests
                 typeof(ITask).Assembly.GetName().Name,
                 typeof(HelloTask).Assembly.GetName().Name
             });
+
             var taskConfig = serializer.FromString(taskConfigString, taskClassHierarchy);
 
             var serviceClassHierarchy = TangFactory.GetTang().GetClassHierarchy(new string[]
@@ -102,7 +116,7 @@ namespace Org.Apache.REEF.Evaluator.Tests
                 });
             var serviceConfig = serializer.FromString(serviceConfigString, serviceClassHierarchy);
 
-            var contextInjector = evaluatorInjector.ForkInjector(contextConfig);
+            var contextInjector = fullEvaluatorInjector.ForkInjector(contextConfig);
             string contextId = contextInjector.GetNamedInstance<Common.Context.ContextConfigurationOptions.ContextIdentifier, string>();
             Assert.True(contextId.StartsWith(ContextIdPrefix));
 
@@ -150,6 +164,15 @@ namespace Org.Apache.REEF.Evaluator.Tests
             configurationEntries.Add(
                 new ConfigurationEntry("org.apache.reef.runtime.common.evaluator.parameters.EvaluatorIdentifier",
                     "Node-2-1447450298921"));
+
+            var evaluatorConfiguration = TangFactory.GetTang().NewConfigurationBuilder()
+                .BindImplementation(GenericType<IDriverConnection>.Class, GenericType<DefaultLocalHttpDriverConnection>.Class)
+                .Build();
+
+            var evaluatorString = serializer.ToString(evaluatorConfiguration);
+            configurationEntries.Add(
+                new ConfigurationEntry("org.apache.reef.runtime.common.evaluator.parameters.EvaluatorConfiguration",
+                    evaluatorString));
 
             var taskConfiguration = TaskConfiguration.ConfigurationModule
                 .Set(TaskConfiguration.Identifier, "HelloTask")

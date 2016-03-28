@@ -54,11 +54,16 @@ public final class AllocatedEvaluatorBridge extends NativeBridge implements Iden
 
   /**
    * Bridge function for REEF .NET to submit context and task configurations for the allocated evaluator.
+   * @param evaluatorConfigurationString the evaluator configuration from .NET.
    * @param contextConfigurationString the context configuration from .NET.
    * @param taskConfigurationString the task configuration from .NET.
    */
-  public void submitContextAndTaskString(final String contextConfigurationString,
+  public void submitContextAndTaskString(final String evaluatorConfigurationString,
+                                         final String contextConfigurationString,
                                          final String taskConfigurationString) {
+    if (evaluatorConfigurationString.isEmpty()) {
+      throw new RuntimeException("empty evaluatorConfigurationString provided.");
+    }
     if (contextConfigurationString.isEmpty()) {
       throw new RuntimeException("empty contextConfigurationString provided.");
     }
@@ -69,14 +74,19 @@ public final class AllocatedEvaluatorBridge extends NativeBridge implements Iden
     //submitContextAndTask(final String contextConfiguration,
     //final String taskConfiguration) is not exposed in the interface. Therefore cast is necessary.
     ((AllocatedEvaluatorImpl)jallocatedEvaluator)
-        .submitContextAndTask(contextConfigurationString, taskConfigurationString);
+        .submitContextAndTask(evaluatorConfigurationString, contextConfigurationString, taskConfigurationString);
   }
 
   /**
    * Bridge function for REEF .NET to submit context configuration for the allocated evaluator.
+   * @param evaluatorConfigurationString the evaluator configuration from .NET.
    * @param contextConfigurationString the context configuration from .NET.
    */
-  public void submitContextString(final String contextConfigurationString) {
+  public void submitContextString(final String evaluatorConfigurationString,
+                                  final String contextConfigurationString) {
+    if (evaluatorConfigurationString.isEmpty()) {
+      throw new RuntimeException("empty evaluatorConfigurationString provided.");
+    }
     if (contextConfigurationString.isEmpty()) {
       throw new RuntimeException("empty contextConfigurationString provided.");
     }
@@ -84,16 +94,22 @@ public final class AllocatedEvaluatorBridge extends NativeBridge implements Iden
     //When submit over the bridge, we would keep the contextConfigurationString as serialized strings.
     //public void submitContext(final String contextConfiguration)
     // is not exposed in the interface. Therefore cast is necessary.
-    ((AllocatedEvaluatorImpl)jallocatedEvaluator).submitContext(contextConfigurationString);
+    ((AllocatedEvaluatorImpl)jallocatedEvaluator).submitContext(
+        evaluatorConfigurationString, contextConfigurationString);
   }
 
   /**
    * Bridge function for REEF .NET to submit context and service configurations for the allocated evaluator.
+   * @param evaluatorConfigurationString the evaluator configuration from .NET.
    * @param contextConfigurationString the context configuration from .NET.
    * @param serviceConfigurationString the service configuration from .NET.
    */
-  public void submitContextAndServiceString(final String contextConfigurationString,
+  public void submitContextAndServiceString(final String evaluatorConfigurationString,
+                                            final String contextConfigurationString,
                                             final String serviceConfigurationString) {
+    if (evaluatorConfigurationString.isEmpty()) {
+      throw new RuntimeException("empty evaluatorConfigurationString provided.");
+    }
     if (contextConfigurationString.isEmpty()) {
       throw new RuntimeException("empty contextConfigurationString provided.");
     }
@@ -105,19 +121,24 @@ public final class AllocatedEvaluatorBridge extends NativeBridge implements Iden
     //public void submitContextAndService(final String contextConfiguration,
     //final String serviceConfiguration) is not exposed in the interface. Therefore cast is necessary.
     ((AllocatedEvaluatorImpl)jallocatedEvaluator)
-        .submitContextAndService(contextConfigurationString, serviceConfigurationString);
+        .submitContextAndService(evaluatorConfigurationString, contextConfigurationString, serviceConfigurationString);
   }
 
   /**
    * Bridge function for REEF .NET to submit context, service. and task configurations for the allocated evaluator.
+   * @param evaluatorConfigurationString the evaluator configuration from .NET.
    * @param contextConfigurationString the context configuration from .NET.
    * @param serviceConfigurationString the service configuration from .NET.
    * @param taskConfigurationString the task configuration from .NET.
    */
   public void submitContextAndServiceAndTaskString(
+      final String evaluatorConfigurationString,
       final String contextConfigurationString,
       final String serviceConfigurationString,
       final String taskConfigurationString) {
+    if (evaluatorConfigurationString.isEmpty()) {
+      throw new RuntimeException("empty evaluatorConfigurationString provided.");
+    }
     if (contextConfigurationString.isEmpty()) {
       throw new RuntimeException("empty contextConfigurationString provided.");
     }
@@ -132,7 +153,7 @@ public final class AllocatedEvaluatorBridge extends NativeBridge implements Iden
     //submitContextAndServiceAndTask(final Configuration contextConfiguration, final Configuration serviceConfiguration,
     //final String taskConfiguration) is not exposed in the interface. Therefore cast is necessary.
     ((AllocatedEvaluatorImpl)jallocatedEvaluator).submitContextAndServiceAndTask(
-        contextConfigurationString, serviceConfigurationString, taskConfigurationString);
+        evaluatorConfigurationString, contextConfigurationString, serviceConfigurationString, taskConfigurationString);
   }
 
   /**

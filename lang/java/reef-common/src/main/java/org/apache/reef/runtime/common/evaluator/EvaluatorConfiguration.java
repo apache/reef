@@ -41,6 +41,7 @@ public final class EvaluatorConfiguration extends ConfigurationModuleBuilder {
   public static final RequiredParameter<String> DRIVER_REMOTE_IDENTIFIER = new RequiredParameter<>();
   public static final RequiredParameter<String> EVALUATOR_IDENTIFIER = new RequiredParameter<>();
   public static final RequiredParameter<String> ROOT_CONTEXT_CONFIGURATION = new RequiredParameter<>();
+  public static final OptionalParameter<String> EVALUATOR_CONFIGURATION = new OptionalParameter<>();
   public static final OptionalParameter<String> ROOT_SERVICE_CONFIGURATION = new OptionalParameter<>();
   public static final OptionalParameter<String> TASK_CONFIGURATION = new OptionalParameter<>();
   public static final OptionalParameter<Integer> HEARTBEAT_PERIOD = new OptionalParameter<>();
@@ -54,6 +55,8 @@ public final class EvaluatorConfiguration extends ConfigurationModuleBuilder {
       .bindNamedParameter(ErrorHandlerRID.class, DRIVER_REMOTE_IDENTIFIER)
       .bindNamedParameter(EvaluatorIdentifier.class, EVALUATOR_IDENTIFIER)
       .bindNamedParameter(HeartbeatPeriod.class, HEARTBEAT_PERIOD)
+      .bindNamedParameter(org.apache.reef.runtime.common.evaluator.parameters.EvaluatorConfiguration.class,
+          EVALUATOR_CONFIGURATION)
       .bindNamedParameter(RootContextConfiguration.class, ROOT_CONTEXT_CONFIGURATION)
       .bindNamedParameter(InitialTaskConfiguration.class, TASK_CONFIGURATION)
       .bindNamedParameter(RootServiceConfiguration.class, ROOT_SERVICE_CONFIGURATION)
