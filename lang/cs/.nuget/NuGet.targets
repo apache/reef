@@ -55,10 +55,6 @@ under the License.
     </PropertyGroup>
 
     <PropertyGroup>
-        <ThisNugetPackagePath>$(SolutionDir2).nuget\packages\$(RootNamespace).$(REEF_NugetVersion).nupkg</ThisNugetPackagePath>
-    </PropertyGroup>
-
-    <PropertyGroup>
         <PackagesProjectConfig Condition=" '$(OS)' == 'Windows_NT'">$(MSBuildProjectDirectory)\packages.$(MSBuildProjectName.Replace(' ', '_')).config</PackagesProjectConfig>
         <PackagesProjectConfig Condition=" '$(OS)' != 'Windows_NT'">$(MSBuildProjectDirectory)\packages.$(MSBuildProjectName).config</PackagesProjectConfig>
     </PropertyGroup>
@@ -155,7 +151,7 @@ under the License.
     </Target>
 
     <Target Name="CleanNugetPackages">
-        <Delete Files="$(ThisNugetPackagePath)" />
+        <Delete Files="$(SolutionDir2).nuget\packages\$(RootNamespace).$(REEF_NugetVersion).nupkg" />
     </Target>
 
     <Choose>
@@ -173,7 +169,7 @@ under the License.
 
     <Target Name="PushPackages" >
         <ItemGroup>
-            <PackageFile Include="$(ThisNugetPackagePath)" />
+            <PackageFile Include="$(SolutionDir2).nuget\packages\$(RootNamespace).$(REEF_NugetVersion).nupkg" />
         </ItemGroup>
 
         <PropertyGroup>
