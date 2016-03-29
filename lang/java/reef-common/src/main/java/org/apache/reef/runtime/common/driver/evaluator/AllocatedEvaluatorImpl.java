@@ -324,7 +324,6 @@ public final class AllocatedEvaluatorImpl implements AllocatedEvaluator {
 
     // Add the (optional) service configuration
     if (evaluatorConfiguration.isPresent()) {
-      LOG.log(Level.SEVERE, "HELLO!!! Bound!!!");
       evaluatorConfigurationModule = evaluatorConfigurationModule
           .set(EvaluatorConfiguration.EVALUATOR_CONFIGURATION, evaluatorConfiguration.get());
     }
