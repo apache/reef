@@ -40,6 +40,9 @@ final class FailureSchedulingContextStartHandler implements EventHandler<Context
   }
 
   @Override
+  // this check is suppressed for all tests, that is, for files which names contain the word "Test"
+  // the name of this file does not contain the word, but it still belongs to tests
+  @SuppressWarnings("checkstyle:constructorwithoutparams")
   public void onNext(final ContextStart contextStart) {
     this.clock.scheduleAlarm(0, new EventHandler<Alarm>() {
       @Override

@@ -153,8 +153,9 @@ public final class RxThreadPoolStage<T> extends AbstractRxStage<T> {
         try {
           // no timeout for completion, only close()
           if (!executor.awaitTermination(3153600000L, TimeUnit.SECONDS)) {
-            LOG.log(Level.SEVERE, "Executor terminated due to unrequired timeout");
-            observer.onError(new TimeoutException());
+            TimeoutException e = new TimeoutException("Executor terminated due to unrequired timeout");
+            LOG.log(Level.SEVERE, e.getMessage());
+            observer.onError(e);
           }
         } catch (final InterruptedException e) {
           e.printStackTrace();

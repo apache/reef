@@ -89,7 +89,8 @@ public final class VortexAggregateFuture<TInput, TOutput> implements VortexFutur
     final Pair<List<Integer>, AggregateResult> resultPair = resultQueue.poll(timeout, timeUnit);
 
     if (resultPair == null) {
-      throw new TimeoutException();
+      throw new TimeoutException("Synchronous aggregation of the next future result timed out. Timeout = " + timeout
+              + " in time units: " + timeUnit);
     }
 
     removeFromTaskletIdInputMap(resultPair.getLeft());

@@ -30,7 +30,7 @@ public final class FailedContextHandler implements EventHandler<ContextStart> {
 
   @Inject
   private FailedContextHandler() {
-    throw new RuntimeException();
+    throw new RuntimeException("Fails the context.");
   }
 
   @Override

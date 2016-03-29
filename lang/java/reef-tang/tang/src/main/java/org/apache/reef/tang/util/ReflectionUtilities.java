@@ -266,7 +266,8 @@ public final class ReflectionUtilities {
       final Class<?> clazz = (Class<?>) type;
 
       if (!clazz.equals(type)) {
-        throw new IllegalArgumentException();
+        throw new IllegalArgumentException("The clazz is "  + clazz + " and the type is "
+                + type + ". They must be equal to each other.");
       }
 
       final ArrayList<Type> al = new ArrayList<>();

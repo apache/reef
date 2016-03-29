@@ -30,7 +30,7 @@ public final class FailedTaskStartHandler implements EventHandler<TaskStart> {
 
   @Inject
   private FailedTaskStartHandler() {
-    throw new RuntimeException();
+    throw new RuntimeException("Fails the task.");
   }
 
   @Override

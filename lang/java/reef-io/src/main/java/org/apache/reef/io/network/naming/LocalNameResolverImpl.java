@@ -98,7 +98,7 @@ public final class LocalNameResolverImpl implements NameResolver {
           try {
             final InetSocketAddress addr = nameServer.lookup(id);
             if (addr == null) {
-              throw new NullPointerException();
+              throw new NullPointerException("The lookup of the address in the nameServer returned null for id " + id);
             } else {
               return addr;
             }

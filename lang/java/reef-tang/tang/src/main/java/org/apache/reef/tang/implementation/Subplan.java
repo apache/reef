@@ -32,7 +32,8 @@ public final class Subplan<T> extends InjectionPlan<T> {
     super(node);
     this.alternatives = alternatives;
     if (selectedIndex < -1 || selectedIndex >= alternatives.length) {
-      throw new ArrayIndexOutOfBoundsException();
+      throw new ArrayIndexOutOfBoundsException("Actual value of selectedIndex is " + selectedIndex
+      + ". The length of the 'alternatives' vararg is " + alternatives.length);
     }
     this.selectedIndex = selectedIndex;
     if (selectedIndex != -1) {
@@ -127,7 +128,7 @@ public final class Subplan<T> extends InjectionPlan<T> {
 
   public InjectionPlan<? extends T> getDelegatedPlan() {
     if (selectedIndex == -1) {
-      throw new IllegalStateException();
+      throw new IllegalStateException("selectedIndex equals -1");
     } else {
       return alternatives[selectedIndex];
     }

@@ -310,7 +310,7 @@ public class ProtocolBufferClassHierarchy implements ClassHierarchy {
     if (j == 1) {
       return str;
     } else {
-      throw new ArrayIndexOutOfBoundsException();
+      throw new ArrayIndexOutOfBoundsException("The value of j should be 1, but actually is " + j);
     }
   }
 

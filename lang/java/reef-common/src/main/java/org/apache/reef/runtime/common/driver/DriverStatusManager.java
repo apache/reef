@@ -149,6 +149,7 @@ public final class DriverStatusManager {
   /**
    * Perform a clean shutdown of the Driver.
    */
+  @SuppressWarnings("checkstyle:constructorwithoutparams") // Exception() here captures the callstack
   public synchronized void onComplete() {
     LOG.entering(DriverStatusManager.class.getCanonicalName(), "onComplete");
     if (this.isShuttingDownOrFailing()) {

@@ -362,7 +362,8 @@ public class Tint {
           } else if (n instanceof ClassNode<?>) {
             out.println(t.toHtmlString((ClassNode<?>) n, currentPackage));
           } else {
-            throw new IllegalStateException();
+            throw new IllegalStateException("The node is neither ClassNode nor NamedParameterNode."
+                    + "The node variable n has this value: " + n.getFullName());
           }
         }
         out.println("</div>");

@@ -93,7 +93,7 @@ final class HandlerContainer<T> implements EventHandler<RemoteEvent<byte[]>> {
 
   public AutoCloseable registerErrorHandler(final EventHandler<Exception> theHandler) {
     this.transport.registerErrorHandler(theHandler);
-    return new Subscription(new Exception(), this);
+    return new Subscription(new Exception("Token for finding the error handler subscription"), this);
   }
 
   /**

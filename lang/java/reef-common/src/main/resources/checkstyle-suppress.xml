@@ -23,4 +23,5 @@
     <suppress checks=".*" files=".*\\target\\generated-sources\\.*" />
     <suppress checks="IllegalThrows" files=".*Test.*" />
     <suppress checks="IllegalCatch"  files=".*Test.*" />
+    <suppress checks="ConstructorWithoutParams"  files=".*Test.*" />
 </suppressions>

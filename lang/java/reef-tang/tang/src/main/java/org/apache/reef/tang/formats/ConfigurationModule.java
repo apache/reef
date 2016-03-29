@@ -353,7 +353,8 @@ public class ConfigurationModule {
         } else if (value instanceof Node) {
           val = ((Node) value).getFullName();
         } else {
-          throw new IllegalStateException();
+          throw new IllegalStateException("The value bound to a given NamedParameterNode "
+                  + key + " is neither the set of class hierarchy nodes nor strings.");
         }
         l.add(key.getFullName() + '=' + escape(val));
       }
