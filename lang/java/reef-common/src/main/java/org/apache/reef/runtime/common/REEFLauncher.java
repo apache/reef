@@ -120,6 +120,7 @@ public final class REEFLauncher {
     return new RuntimeException(msg, t);
   }
 
+  @SuppressWarnings("checkstyle:constructorwithoutparams") // avoids logging the same message twice in fatal()
   private static Configuration readConfigurationFromDisk(
           final String configPath, final ConfigurationSerializer serializer) {
     LOG.log(Level.FINEST, "Loading configuration file: {0}", configPath);

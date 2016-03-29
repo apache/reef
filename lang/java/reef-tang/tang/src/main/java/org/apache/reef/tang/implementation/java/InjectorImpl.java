@@ -106,7 +106,7 @@ public class InjectorImpl implements Injector {
       if (cn.getFullName().equals(ReflectionUtilities.getFullName(Injector.class))
           || cn.getFullName().equals(ReflectionUtilities.getFullName(InjectorImpl.class))) {
         // This would imply that we're treating injector as a singleton somewhere.  It should be copied fresh each time.
-        throw new IllegalStateException();
+        throw new IllegalStateException("Injector should be copied fresh each time.");
       }
       try {
         final ClassNode<?> newCn = (ClassNode<?>) i.namespace.getNode(cn

@@ -35,14 +35,14 @@ public class Vertex<T> {
                 final Vertex<?>[] constructorArguments) {
     this.object = object;
     if (object == null) {
-      throw new NullPointerException();
+      throw new NullPointerException("The first argument of the Vertex constructor is null.");
     }
     this.name = name;
     this.constructorDef = constructorDef;
     this.constructorArguments = constructorArguments;
     for (final Vertex<?> v : constructorArguments) {
       if (v == null) {
-        throw new NullPointerException();
+        throw new NullPointerException("One of the vertices in the Vertex constructorArguments is null.");
       }
     }
   }
@@ -50,14 +50,14 @@ public class Vertex<T> {
   public Vertex(final T object, final ConstructorDef<T> constructorDef, final Vertex<?>[] constructorArguments) {
     this.object = object;
     if (object == null) {
-      throw new NullPointerException();
+      throw new NullPointerException("The first argument of the Vertex constructor is null.");
     }
     this.name = null;
     this.constructorDef = constructorDef;
     this.constructorArguments = constructorArguments;
     for (final Vertex<?> v : constructorArguments) {
       if (v == null) {
-        throw new NullPointerException();
+        throw new NullPointerException("One of the vertices in the Vertex constructorArguments is null.");
       }
     }
   }
@@ -65,7 +65,7 @@ public class Vertex<T> {
   public Vertex(final Object object) {
     this.object = object;
     if (object == null) {
-      throw new NullPointerException();
+      throw new NullPointerException("The argument of the Vertex constructor is null.");
     }
     this.name = null;
     this.constructorDef = null;

@@ -250,6 +250,12 @@
 
         <module name="AvoidHidingCauseExceptionCheck" />
 
+        <!-- ConstructorWithoutParams is suppressed for files with the word "Test" in the filename -->
+        <module name="ConstructorWithoutParamsCheck" >
+          <property name="classNameFormat" value=".*Exception$" />
+          <property name="ignoredClassNameFormat" value="UnsupportedOperationException|NotImplementedException|NoSuchElementException" />
+        </module>
+
     </module>
 
 </module>

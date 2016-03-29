@@ -142,7 +142,7 @@ public final class TestUtil {
         while(true) {
           Thread.sleep(100);
           if (Thread.currentThread().isInterrupted()) {
-            throw new InterruptedException();
+            throw new InterruptedException("Interrupted thread: " + Thread.currentThread());
           }
         }
       }

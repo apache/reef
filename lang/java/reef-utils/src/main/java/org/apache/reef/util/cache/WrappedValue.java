@@ -73,7 +73,7 @@ final class WrappedValue<V> {
       this.notifyAll();
     }
     if (!value.isPresent()) {
-      throw new ExecutionException("valueFetcher returned null", new NullPointerException());
+      throw new ExecutionException(new NullPointerException("valueFetcher returned null"));
     } else {
       return value.get();
     }

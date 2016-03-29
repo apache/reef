@@ -130,7 +130,8 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
       } else if (e.getValue() instanceof String) {
         bindSetEntry(name, (String) e.getValue());
       } else {
-        throw new IllegalStateException();
+        throw new IllegalStateException("The value of the named parameter node in boundSetEntries"
+                + " is neither String nor Node. The actual type is  " + e.getValue().getClass());
       }
     }
     // The boundLists set contains bound lists with their target NamedParameters

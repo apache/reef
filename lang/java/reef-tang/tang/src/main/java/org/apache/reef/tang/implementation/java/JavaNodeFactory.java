@@ -222,7 +222,10 @@ public final class JavaNodeFactory {
     } else if (hasStringSetDefault) {
       defaultInstanceAsStrings = namedParameter.default_values();
     } else {
-      throw new IllegalStateException();
+      throw new IllegalStateException("The named parameter " + namedParameter.short_name() + " has a default value,"
+              + " but the value cannot be retrieved. The defaultCount is " + defaultCount
+              + ", but hasClassDefault, hasStringDefault, hasClassSetDefault, hasStringSetDefault"
+              + " conditions are all false");
     }
 
     final String documentation = namedParameter.doc();
@@ -303,7 +306,10 @@ public final class JavaNodeFactory {
     final Type[] genericParamTypes = constructor.getGenericParameterTypes();
     final Annotation[][] paramAnnotations = constructor.getParameterAnnotations();
     if (paramTypes.length != paramAnnotations.length) {
-      throw new IllegalStateException();
+      throw new IllegalStateException("The paramTypes.length is " + paramTypes.length
+              + ", and paramAnnotations.length is " + paramAnnotations.length
+              + ". These values should be equal."
+      );
     }
     final ConstructorArg[] args = new ConstructorArg[genericParamTypes.length];
     for (int i = 0; i < genericParamTypes.length; i++) {

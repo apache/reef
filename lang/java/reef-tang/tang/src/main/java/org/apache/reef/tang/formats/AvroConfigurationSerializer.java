@@ -175,7 +175,8 @@ public final class AvroConfigurationSerializer implements ConfigurationSerialize
         } else if (value instanceof Node) {
           val = ((Node) value).getFullName();
         } else {
-          throw new IllegalStateException();
+          throw new IllegalStateException("The value bound to a given NamedParameterNode "
+                  + key + " is neither the set of class hierarchy nodes nor strings.");
         }
         configurationEntries.add(ConfigurationEntry.newBuilder()
             .setKey(key.getFullName())

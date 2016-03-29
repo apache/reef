@@ -200,7 +200,8 @@ public class ClassHierarchyImpl implements JavaClassHierarchy {
     }
 
     if (root == null) {
-      throw new NullPointerException();
+      throw new NullPointerException("The root of the path to node is null. "
+              + "The class name is likely to be malformed. The clazz.getName() returns " + clazz.getName());
     }
     final Node parent = root;
 

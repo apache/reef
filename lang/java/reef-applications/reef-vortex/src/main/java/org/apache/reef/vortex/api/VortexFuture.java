@@ -113,7 +113,8 @@ public final class VortexFuture<TOutput>
     try {
       if (timeout.isPresent() && unit.isPresent()) {
         if (!countDownLatch.await(timeout.get(), unit.get())) {
-          throw new TimeoutException();
+          throw new TimeoutException("Cancellation of the VortexFuture timed out. Timeout = " + timeout.get()
+                  + " in time units: " + unit.get());
         }
       } else {
         countDownLatch.await();
@@ -174,7 +175,8 @@ public final class VortexFuture<TOutput>
   public TOutput get(final long timeout, final TimeUnit unit)
       throws InterruptedException, ExecutionException, TimeoutException, CancellationException {
     if (!countDownLatch.await(timeout, unit)) {
-      throw new TimeoutException();
+      throw new TimeoutException("Waiting for the results of the task timed out. Timeout = " + timeout
+              + " in time units: " + unit);
     }
 
     return get();

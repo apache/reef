@@ -49,7 +49,7 @@ final class EvaluatorControlHandler implements EventHandler<RemoteMessage<Evalua
     } else if (evaluatorControl.getEvaluatorRelease() != null) {
       this.mesosExecutor.get().onEvaluatorRelease(evaluatorControl.getEvaluatorRelease());
     } else {
-      throw new IllegalArgumentException();
+      throw new IllegalArgumentException("Received a remoteMessage with the unknown Evaluator Control status.");
     }
   }
 }
