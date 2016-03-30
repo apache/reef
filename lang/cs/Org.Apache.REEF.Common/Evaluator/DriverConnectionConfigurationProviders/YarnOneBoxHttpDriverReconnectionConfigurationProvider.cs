@@ -21,6 +21,9 @@ using Org.Apache.REEF.Tang.Interface;
 
 namespace Org.Apache.REEF.Common.Evaluator.DriverConnectionConfigurationProviders
 {
+    /// <summary>
+    /// A driver reconnection configuration provider for the YARN OneBox Driver based on HTTP connection.
+    /// </summary>
     public sealed class YarnOneBoxHttpDriverReconnectionConfigurationProvider : IDriverReconnectionConfigurationProvider
     {
         [Inject]

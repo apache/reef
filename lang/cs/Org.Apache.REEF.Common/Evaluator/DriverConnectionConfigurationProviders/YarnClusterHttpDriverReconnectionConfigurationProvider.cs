@@ -21,6 +21,9 @@ using Org.Apache.REEF.Tang.Interface;
 
 namespace Org.Apache.REEF.Common.Evaluator.DriverConnectionConfigurationProviders
 {
+    /// <summary>
+    /// A driver reconnection configuration provider for the YARN Driver based on HTTP connection.
+    /// </summary>
     public sealed class YarnClusterHttpDriverReconnectionConfigurationProvider : IDriverReconnectionConfigurationProvider
     {
         [Inject]
@@ -30,9 +33,7 @@ namespace Org.Apache.REEF.Common.Evaluator.DriverConnectionConfigurationProvider
 
         public IConfiguration GetConfiguration()
         {
-            return
-                TangFactory.GetTang()
-                    .NewConfigurationBuilder()
+            return TangFactory.GetTang().NewConfigurationBuilder()
                     .BindImplementation<IDriverConnection, DefaultYarnClusterHttpDriverConnection>()
                     .Build();
         }

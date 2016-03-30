@@ -20,6 +20,10 @@ using Org.Apache.REEF.Tang.Interface;
 
 namespace Org.Apache.REEF.Common.Evaluator.DriverConnectionConfigurationProviders
 {
+    /// <summary>
+    /// A configuration provider for the Evaluator to create the appropriate reconnection
+    /// object to reconnect to the Driver based on the environment.
+    /// </summary>
     [DefaultImplementation(typeof(DefaultDriverReconnectionConfigurationProvider))]
     public interface IDriverReconnectionConfigurationProvider : IConfigurationProvider
     {

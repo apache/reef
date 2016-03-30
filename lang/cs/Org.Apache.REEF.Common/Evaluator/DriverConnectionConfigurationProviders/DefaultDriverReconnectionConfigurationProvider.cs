@@ -21,6 +21,11 @@ using Org.Apache.REEF.Tang.Interface;
 
 namespace Org.Apache.REEF.Common.Evaluator.DriverConnectionConfigurationProviders
 {
+    /// <summary>
+    /// The default driver reconnection configuration provider. Provides an empty configuration such
+    /// that <see cref="IDriverConnection"/> is bound to its default implementation, 
+    /// and no conflicts are caused in TANG.
+    /// </summary>
     internal sealed class DefaultDriverReconnectionConfigurationProvider : IDriverReconnectionConfigurationProvider
     {
         [Inject]
@@ -28,6 +33,9 @@ namespace Org.Apache.REEF.Common.Evaluator.DriverConnectionConfigurationProvider
         {
         }
 
+        /// <summary>
+        /// Return an empty configuration.
+        /// </summary>
         public IConfiguration GetConfiguration()
         {
             return TangFactory.GetTang().NewConfigurationBuilder().Build();

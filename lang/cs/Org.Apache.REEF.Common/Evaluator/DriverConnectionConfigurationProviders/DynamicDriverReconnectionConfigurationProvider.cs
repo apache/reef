@@ -21,6 +21,13 @@ using Org.Apache.REEF.Tang.Interface;
 
 namespace Org.Apache.REEF.Common.Evaluator.DriverConnectionConfigurationProviders
 {
+    /// <summary>
+    /// A helper <see cref="IDriverReconnectionConfigurationProvider"/> that binds <see cref="IDriverConnection"/>
+    /// dynamically. This is used such that a <see cref="IDriverReconnectionConfigurationProvider"/> can
+    /// be used to provide the type of <see cref="IDriverConnection"/> to the Evaluator if the user only
+    /// binds the deprecated <see cref="IDriverConnection"/> optional implementation, instead of the
+    /// new <see cref="IDriverReconnectionConfigurationProvider"/> implementation.
+    /// </summary>
     internal sealed class DynamicDriverReconnectionConfigurationProvider : IDriverReconnectionConfigurationProvider
     {
         private readonly Type _driverReconnectionType;
@@ -34,10 +41,12 @@ namespace Org.Apache.REEF.Common.Evaluator.DriverConnectionConfigurationProvider
             }
         }
 
+        /// <summary>
+        /// A configuration where the type of <see cref="IDriverConnection"/> is bound dynamically.
+        /// </summary>
         public IConfiguration GetConfiguration()
         {
-            return TangFactory.GetTang()
-                .NewConfigurationBuilder()
+            return TangFactory.GetTang().NewConfigurationBuilder()
                 .BindImplementation(typeof(IDriverConnection), _driverReconnectionType)
                 .Build();
         }

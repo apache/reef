@@ -217,9 +217,9 @@ namespace Org.Apache.REEF.Driver.Bridge
         private static IDriverReconnectionConfigurationProvider GetDriverReconnectionProvider(
             IDriverReconnectionConfigurationProvider driverReconnectionConfigurationProvider)
         {
+            // If not the default, this means that the user has bound the newer configuration. Return it.
             if (!(driverReconnectionConfigurationProvider is DefaultDriverReconnectionConfigurationProvider))
             {
-                _logger.Log(Level.Error, "TYPE IS " + driverReconnectionConfigurationProvider.GetType().AssemblyQualifiedName);
                 return driverReconnectionConfigurationProvider;
             }
 
@@ -227,7 +227,7 @@ namespace Org.Apache.REEF.Driver.Bridge
             // of IDriverConnection to the driver CLRBridgeConfiguration if it is already bound
             // by the user, since the driver configuration and Evaluator configuration will be combined
             // at the Evaluator. We thus need to return the DriverReconnectionConfigurationProvider
-            // that does not bind IDriverConnection.
+            // that does not bind IDriverConnection such that a TANG conflict does not occur.
             return TangFactory.GetTang().NewInjector().GetInstance<DefaultDriverReconnectionConfigurationProvider>();
         }
 

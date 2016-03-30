@@ -20,6 +20,9 @@ using Org.Apache.REEF.Tang.Annotations;
 
 namespace Org.Apache.REEF.Common.Evaluator
 {
+    /// <summary>
+    /// The default <see cref="IDriverConnection"/> that throws an Exception.
+    /// </summary>
     internal sealed class MissingDriverConnection : IDriverConnection
     {
         [Inject]
