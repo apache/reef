@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/apache/reef.svg?branch=master)](https://travis-ci.org/apache/reef)
+![](website/src/site/resources/ApacheREEF_logo_no_margin_small.png)
 
 Apache REEF&trade;
 ========================
@@ -15,11 +15,21 @@ Detailed information on REEF can be found in the following places:
 
   * [The project website](http://reef.apache.org/)
   * [The project wiki](https://cwiki.apache.org/confluence/display/REEF/Home)
-  
+
 [The developer
 mailinglist](http://reef.apache.org/mailing-list.html) is
 the best way to reach REEF's developers when the above aren't
 sufficient.
+
+
+Build Status
+=============
+
+| Component | OS | Status |
+|---|:------:|:------:|
+|REEF Java | Ubuntu | [![Build Status](https://travis-ci.org/apache/reef.svg?branch=master)](https://travis-ci.org/apache/reef) |
+|REEF.NET | Windows | [![Build status](https://ci.appveyor.com/api/projects/status/qwvl6d4d8891e09d/branch/master?svg=true)](https://ci.appveyor.com/project/ApacheSoftwareFoundation/reef/branch/master) |
+
 
 Building REEF
 =============
@@ -27,4 +37,10 @@ Building REEF
 |   | Java   | .NET |
 |---|:------:|:----:|
 |Build & run unit tests| [java\BUILD.md](lang/java/BUILD.md) | [cs\BUILD.md](lang/cs/BUILD.md) |
+
+License
+=============
+
+[![Apache 2.0](https://img.shields.io/badge/License-Apache%202.0-brightgreen.svg)](LICENSE)
+
 
