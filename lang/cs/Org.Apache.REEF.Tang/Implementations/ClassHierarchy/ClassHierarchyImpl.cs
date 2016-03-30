@@ -167,6 +167,17 @@ namespace Org.Apache.REEF.Tang.Implementations.ClassHierarchy
                         RegisterType(constructorArg.Gettype());  // Gettype returns param's Type.fullname
                         if (constructorArg.GetNamedParameterName() != null)
                         {
+                            var pn = RegisterType(constructorArg.GetNamedParameterName());
+                            
+                            if (!(pn is INamedParameterNode))
+                            {
+                                string message = string.Format(CultureInfo.CurrentCulture,
+                                                               "The class {0}, used in the constructor of {1}, should not be defined as a NamedParameter.",
+                                                               constructorArg.GetNamedParameterName(),
+                                                               constructorDef.GetClassName());
+                                Org.Apache.REEF.Utilities.Diagnostics.Exceptions.Throw(new ArgumentException(message), LOGGER);
+                            }
+
                             INamedParameterNode np = (INamedParameterNode)RegisterType(constructorArg.GetNamedParameterName());
                             try
                             {

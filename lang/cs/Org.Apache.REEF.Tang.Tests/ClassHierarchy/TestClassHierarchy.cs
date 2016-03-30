@@ -427,6 +427,17 @@ namespace Org.Apache.REEF.Tang.Tests.ClassHierarchy
             Assert.NotNull(b);
             Assert.NotNull(c);
         }
+
+        // See REEF-1276
+        [Fact]
+        public void TestInjectableClassWithParameterAnnotationThrowsMeaningfulException()
+        {
+            ITang tang = TangFactory.GetTang();
+            IInjector i = tang.NewInjector(tang.NewConfigurationBuilder().Build());
+
+            Action injection = () => i.GetInstance(typeof(ClazzA));
+            Assert.Throws<ArgumentException>(injection);
+        }
     }
 
     [NamedParameter]
@@ -695,5 +706,25 @@ namespace Org.Apache.REEF.Tang.Tests.ClassHierarchy
     [NamedParameter(DefaultClass = typeof(string))]
     class BadParsableDefaultClass : Name<string>
     {        
+    }
+
+    // ClazzB is injectable and does not need the Parameter annotation in the ClazzA constructor
+    class ClazzA
+    {
+        private ClazzB objectB;
+
+        public class ClazzB 
+        {
+            [Inject]
+            public ClazzB()
+            {
+            }
+        }
+
+        [Inject]
+        public ClazzA([Parameter(typeof(ClazzB))] ClazzB objectB)
+        {
+            this.objectB = objectB;
+        }
     }
  }
