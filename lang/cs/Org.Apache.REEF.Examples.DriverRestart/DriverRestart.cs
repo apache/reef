@@ -64,7 +64,7 @@ namespace Org.Apache.REEF.Examples.DriverRestart
                 .Set(DriverConfiguration.OnEvaluatorFailed, GenericType<HelloRestartDriver>.Class)
                 .Set(DriverConfiguration.OnDriverRestartEvaluatorFailed, GenericType<HelloRestartDriver>.Class)
                 .Set(DriverConfiguration.DriverReconnectionConfigurationProvider, 
-                    GenericType<YarnClusterHttpDriverReconnectionConfigurationProvider>.Class)
+                    GenericType<YarnClusterHttpDriverReconnConfigProvider>.Class)
                 .Set(DriverConfiguration.DriverRestartEvaluatorRecoverySeconds, (5 * 60).ToString())
                 .Build();
 

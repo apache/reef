@@ -22,22 +22,23 @@ using Org.Apache.REEF.Tang.Interface;
 namespace Org.Apache.REEF.Common.Evaluator.DriverConnectionConfigurationProviders
 {
     /// <summary>
-    /// A driver reconnection configuration provider for the YARN OneBox Driver based on HTTP connection.
+    /// The default driver reconnection configuration provider. Provides an empty configuration such
+    /// that <see cref="IDriverConnection"/> is bound to its default implementation, 
+    /// and no conflicts are caused in TANG.
     /// </summary>
-    public sealed class YarnOneBoxHttpDriverReconnectionConfigurationProvider : IDriverReconnectionConfigurationProvider
+    internal sealed class DefaultDriverReconnConfigProvider : IDriverReconnConfigProvider
     {
         [Inject]
-        private YarnOneBoxHttpDriverReconnectionConfigurationProvider()
+        private DefaultDriverReconnConfigProvider()
         {
         }
 
+        /// <summary>
+        /// Return an empty configuration.
+        /// </summary>
         public IConfiguration GetConfiguration()
         {
-            return
-                TangFactory.GetTang()
-                    .NewConfigurationBuilder()
-                    .BindImplementation<IDriverConnection, DefaultYarnOneBoxHttpDriverConnection>()
-                    .Build();
+            return TangFactory.GetTang().NewConfigurationBuilder().Build();
         }
     }
 }

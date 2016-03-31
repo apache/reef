@@ -16,16 +16,26 @@
 // under the License.
 
 using Org.Apache.REEF.Tang.Annotations;
+using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Tang.Interface;
 
 namespace Org.Apache.REEF.Common.Evaluator.DriverConnectionConfigurationProviders
 {
     /// <summary>
-    /// A configuration provider for the Evaluator to create the appropriate reconnection
-    /// object to reconnect to the Driver based on the environment.
+    /// A driver reconnection configuration provider for the Local Driver based on HTTP connection.
     /// </summary>
-    [DefaultImplementation(typeof(DefaultDriverReconnectionConfigurationProvider))]
-    public interface IDriverReconnectionConfigurationProvider : IConfigurationProvider
+    public sealed class LocalHttpDriverReconnConfigProvider : IDriverReconnConfigProvider
     {
+        [Inject]
+        private LocalHttpDriverReconnConfigProvider()
+        {
+        }
+
+        public IConfiguration GetConfiguration()
+        {
+            return TangFactory.GetTang().NewConfigurationBuilder()
+                    .BindImplementation<IDriverConnection, DefaultLocalHttpDriverConnection>()
+                    .Build();
+        }
     }
 }

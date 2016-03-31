@@ -145,7 +145,7 @@ namespace Org.Apache.REEF.Driver.Bridge
             [Parameter(Value = typeof(DriverBridgeConfigurationOptions.TraceListenersSet))] ISet<TraceListener> traceListeners,
             [Parameter(Value = typeof(EvaluatorConfigurationProviders))] ISet<IConfigurationProvider> configurationProviders,
             [Parameter(Value = typeof(DriverBridgeConfigurationOptions.TraceLevel))] string traceLevel,
-            IDriverReconnectionConfigurationProvider driverReconnectionConfigurationProvider,
+            IDriverReconnConfigProvider driverReconnConfigProvider,
             HttpServerHandler httpServerHandler,
             IProgressProvider progressProvider)
         {
@@ -189,7 +189,7 @@ namespace Org.Apache.REEF.Driver.Bridge
 
             _configurationProviders = new HashSet<IConfigurationProvider>(configurationProviders)
             {
-                GetDriverReconnectionProvider(driverReconnectionConfigurationProvider)
+                GetDriverReconnectionProvider(driverReconnConfigProvider)
             };
 
             _progressProvider = progressProvider;
@@ -214,13 +214,13 @@ namespace Org.Apache.REEF.Driver.Bridge
             _driverRestartFailedEvaluatorSubscriber = new ClrSystemHandler<IFailedEvaluator>();
         }
 
-        private static IDriverReconnectionConfigurationProvider GetDriverReconnectionProvider(
-            IDriverReconnectionConfigurationProvider driverReconnectionConfigurationProvider)
+        private static IDriverReconnConfigProvider GetDriverReconnectionProvider(
+            IDriverReconnConfigProvider driverReconnConfigProvider)
         {
             // If not the default, this means that the user has bound the newer configuration. Return it.
-            if (!(driverReconnectionConfigurationProvider is DefaultDriverReconnectionConfigurationProvider))
+            if (!(driverReconnConfigProvider is DefaultDriverReconnConfigProvider))
             {
-                return driverReconnectionConfigurationProvider;
+                return driverReconnConfigProvider;
             }
 
             // This is done as a stop gap for deprecation because we cannot bind an implementation 
@@ -228,7 +228,7 @@ namespace Org.Apache.REEF.Driver.Bridge
             // by the user, since the driver configuration and Evaluator configuration will be combined
             // at the Evaluator. We thus need to return the DriverReconnectionConfigurationProvider
             // that does not bind IDriverConnection such that a TANG conflict does not occur.
-            return TangFactory.GetTang().NewInjector().GetInstance<DefaultDriverReconnectionConfigurationProvider>();
+            return TangFactory.GetTang().NewInjector().GetInstance<DefaultDriverReconnConfigProvider>();
         }
 
         public BridgeHandlerManager Subscribe()

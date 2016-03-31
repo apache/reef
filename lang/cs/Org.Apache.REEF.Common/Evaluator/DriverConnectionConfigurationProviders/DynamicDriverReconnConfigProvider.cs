@@ -22,17 +22,17 @@ using Org.Apache.REEF.Tang.Interface;
 namespace Org.Apache.REEF.Common.Evaluator.DriverConnectionConfigurationProviders
 {
     /// <summary>
-    /// A helper <see cref="IDriverReconnectionConfigurationProvider"/> that binds <see cref="IDriverConnection"/>
-    /// dynamically. This is used such that a <see cref="IDriverReconnectionConfigurationProvider"/> can
+    /// A helper <see cref="IDriverReconnConfigProvider"/> that binds <see cref="IDriverConnection"/>
+    /// dynamically. This is used such that a <see cref="IDriverReconnConfigProvider"/> can
     /// be used to provide the type of <see cref="IDriverConnection"/> to the Evaluator if the user only
     /// binds the deprecated <see cref="IDriverConnection"/> optional implementation, instead of the
-    /// new <see cref="IDriverReconnectionConfigurationProvider"/> implementation.
+    /// new <see cref="IDriverReconnConfigProvider"/> implementation.
     /// </summary>
-    internal sealed class DynamicDriverReconnectionConfigurationProvider : IDriverReconnectionConfigurationProvider
+    internal sealed class DynamicDriverReconnConfigProvider : IDriverReconnConfigProvider
     {
         private readonly Type _driverReconnectionType;
 
-        internal DynamicDriverReconnectionConfigurationProvider(Type type)
+        internal DynamicDriverReconnConfigProvider(Type type)
         {
             _driverReconnectionType = type;
             if (!typeof(IDriverConnection).IsAssignableFrom(type))

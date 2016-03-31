@@ -22,23 +22,20 @@ using Org.Apache.REEF.Tang.Interface;
 namespace Org.Apache.REEF.Common.Evaluator.DriverConnectionConfigurationProviders
 {
     /// <summary>
-    /// The default driver reconnection configuration provider. Provides an empty configuration such
-    /// that <see cref="IDriverConnection"/> is bound to its default implementation, 
-    /// and no conflicts are caused in TANG.
+    /// A driver reconnection configuration provider for the YARN Driver based on HTTP connection.
     /// </summary>
-    internal sealed class DefaultDriverReconnectionConfigurationProvider : IDriverReconnectionConfigurationProvider
+    public sealed class YarnClusterHttpDriverReconnConfigProvider : IDriverReconnConfigProvider
     {
         [Inject]
-        private DefaultDriverReconnectionConfigurationProvider()
+        private YarnClusterHttpDriverReconnConfigProvider()
         {
         }
 
-        /// <summary>
-        /// Return an empty configuration.
-        /// </summary>
         public IConfiguration GetConfiguration()
         {
-            return TangFactory.GetTang().NewConfigurationBuilder().Build();
+            return TangFactory.GetTang().NewConfigurationBuilder()
+                    .BindImplementation<IDriverConnection, DefaultYarnClusterHttpDriverConnection>()
+                    .Build();
         }
     }
 }

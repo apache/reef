@@ -179,8 +179,8 @@ namespace Org.Apache.REEF.Driver
         /// <summary>
         /// The configuration provider for driver reconnection.
         /// </summary>
-        public static readonly OptionalImpl<IDriverReconnectionConfigurationProvider> DriverReconnectionConfigurationProvider =
-            new OptionalImpl<IDriverReconnectionConfigurationProvider>(); 
+        public static readonly OptionalImpl<IDriverReconnConfigProvider> DriverReconnectionConfigurationProvider =
+            new OptionalImpl<IDriverReconnConfigProvider>(); 
 
         /// <summary>
         /// Evaluator recovery timeout for driver restart in seconds. If value is greater than 0, restart is enabled. The default value is -1.
@@ -239,7 +239,7 @@ namespace Org.Apache.REEF.Driver
                     .BindNamedParameter(GenericType<DriverBridgeConfigurationOptions.TraceLevel>.Class, CustomTraceLevel)
                     .BindNamedParameter(GenericType<DriverBridgeConfigurationOptions.DriverRestartEvaluatorRecoverySeconds>.Class,
                         DriverRestartEvaluatorRecoverySeconds)
-                    .BindImplementation(GenericType<IDriverReconnectionConfigurationProvider>.Class, DriverReconnectionConfigurationProvider)
+                    .BindImplementation(GenericType<IDriverReconnConfigProvider>.Class, DriverReconnectionConfigurationProvider)
                     .BindImplementation(GenericType<IProgressProvider>.Class, ProgressProvider)
                     .Build();
             }
