@@ -38,7 +38,8 @@ namespace Org.Apache.REEF.Wake.Remote.Impl
         /// </summary>
         /// <param name="remoteEndpoint">The endpoint of the remote server to connect to</param>
         /// <param name="codec">Codec to decode/encode</param>
-        public TransportClient(IPEndPoint remoteEndpoint, ICodec<T> codec) 
+        /// <param name="clientFactory">TcpClient factory</param>
+        public TransportClient(IPEndPoint remoteEndpoint, ICodec<T> codec, ITcpClientConnectionFactory clientFactory) 
         {
             if (remoteEndpoint == null)
             {
@@ -48,8 +49,12 @@ namespace Org.Apache.REEF.Wake.Remote.Impl
             {
                 throw new ArgumentNullException("codec");
             }
+            if (clientFactory == null)
+            {
+                throw new ArgumentNullException("clientFactory");
+            }
 
-            _link = new Link<T>(remoteEndpoint, codec);
+            _link = new Link<T>(remoteEndpoint, codec, clientFactory);
             _cancellationSource = new CancellationTokenSource();
             _disposed = false;
         }
@@ -61,10 +66,12 @@ namespace Org.Apache.REEF.Wake.Remote.Impl
         /// <param name="remoteEndpoint">The endpoint of the remote server to connect to</param>
         /// <param name="codec">Codec to decode/encodec</param>
         /// <param name="observer">Callback used when receiving responses from remote host</param>
-        public TransportClient(IPEndPoint remoteEndpoint, 
-                               ICodec<T> codec, 
-                               IObserver<TransportEvent<T>> observer) 
-                                   : this(remoteEndpoint, codec)
+        /// <param name="clientFactory">TcpClient factory</param>
+        public TransportClient(IPEndPoint remoteEndpoint,
+            ICodec<T> codec,
+            IObserver<TransportEvent<T>> observer,
+            ITcpClientConnectionFactory clientFactory)
+            : this(remoteEndpoint, codec, clientFactory)
         {
             _observer = observer;
             Task.Run(() => ResponseLoop());

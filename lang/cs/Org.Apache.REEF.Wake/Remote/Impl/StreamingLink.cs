@@ -57,16 +57,15 @@ namespace Org.Apache.REEF.Wake.Remote.Impl
         /// </summary>
         /// <param name="remoteEndpoint">The remote endpoint to connect to</param>
         /// <param name="streamingCodec">Streaming codec</param>
-        internal StreamingLink(IPEndPoint remoteEndpoint, IStreamingCodec<T> streamingCodec)
+        /// <param name="tcpClientFactory">TcpClient factory</param>
+        internal StreamingLink(IPEndPoint remoteEndpoint, IStreamingCodec<T> streamingCodec, ITcpClientConnectionFactory tcpClientFactory)
         {
             if (remoteEndpoint == null)
             {
                 throw new ArgumentNullException("remoteEndpoint");
             }
 
-            _client = new TcpClient();
-            _client.Connect(remoteEndpoint);
-
+            _client = tcpClientFactory.Connect(remoteEndpoint);
             var stream = _client.GetStream();
             _localEndpoint = GetLocalEndpoint();
             _disposed = false;

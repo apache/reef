@@ -28,25 +28,49 @@ namespace Org.Apache.REEF.Wake.Impl
     internal sealed class DefaultRemoteManagerFactory : IRemoteManagerFactory
     {
         private readonly ITcpPortProvider _tcpPortProvider;
+        private readonly ITcpClientConnectionFactory _tcpClientFactory;
+
         [Inject]
-        private DefaultRemoteManagerFactory(ITcpPortProvider tcpPortProvider)
+        private DefaultRemoteManagerFactory(ITcpPortProvider tcpPortProvider, ITcpClientConnectionFactory tcpClientFactory)
         {
             _tcpPortProvider = tcpPortProvider;
+            _tcpClientFactory = tcpClientFactory;
         }
 
+        /// <summary>
+        /// Gives DefaultRemoteManager instance
+        /// </summary>
+        /// <typeparam name="T">Type of Message</typeparam>
+        /// <param name="localAddress">Local IP address</param>
+        /// <param name="port">Port number</param>
+        /// <param name="codec">Codec for message type T</param>
+        /// <returns>IRemoteManager instance</returns>
         public IRemoteManager<T> GetInstance<T>(IPAddress localAddress, int port, ICodec<T> codec)
         {
-            return new DefaultRemoteManager<T>(localAddress, port, codec, _tcpPortProvider);
+            return new DefaultRemoteManager<T>(localAddress, port, codec, _tcpPortProvider, _tcpClientFactory);
         }
 
+        /// <summary>
+        /// Gives DefaultRemoteManager instance
+        /// </summary>
+        /// <typeparam name="T">Message type</typeparam>
+        /// <param name="localAddress">Local IP address</param>
+        /// <param name="codec">Codec for message type</param>
+        /// <returns>IRemoteManager instance</returns>
         public IRemoteManager<T> GetInstance<T>(IPAddress localAddress, ICodec<T> codec)
         {
-            return new DefaultRemoteManager<T>(localAddress, 0, codec, _tcpPortProvider);
+            return new DefaultRemoteManager<T>(localAddress, 0, codec, _tcpPortProvider, _tcpClientFactory);
         }
 
+        /// <summary>
+        /// Gives DefaultRemoteManager instance
+        /// </summary>
+        /// <typeparam name="T">Message type</typeparam>
+        /// <param name="codec">Codec for message type</param>
+        /// <returns>IRemoteManager instance</returns>
         public IRemoteManager<T> GetInstance<T>(ICodec<T> codec)
         {
-            return new DefaultRemoteManager<T>(codec);
+            return new DefaultRemoteManager<T>(codec, _tcpClientFactory);
         }
     }
 }

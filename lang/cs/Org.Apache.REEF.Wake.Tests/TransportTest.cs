@@ -21,6 +21,7 @@ using System.Net;
 using System.Reactive;
 using System.Threading.Tasks;
 using Org.Apache.REEF.Tang.Implementations.Tang;
+using Org.Apache.REEF.Tang.Util;
 using Org.Apache.REEF.Wake.Remote;
 using Org.Apache.REEF.Wake.Remote.Impl;
 using Org.Apache.REEF.Wake.Remote.Parameters;
@@ -33,6 +34,8 @@ namespace Org.Apache.REEF.Wake.Tests
     {
         private readonly IPAddress _localIpAddress = IPAddress.Parse("127.0.0.1");
         private readonly ITcpPortProvider _tcpPortProvider = GetTcpProvider(8900, 8940);
+        private readonly ITcpClientConnectionFactory _tcpClientFactory = GetTcpClientFactory(5, 500);
+
         [Fact]
         public void TestTransportServer()
         {
@@ -49,7 +52,7 @@ namespace Org.Apache.REEF.Wake.Tests
                 server.Run();
 
                 IPEndPoint remoteEndpoint = new IPEndPoint(_localIpAddress, server.LocalEndpoint.Port);
-                using (var client = new TransportClient<string>(remoteEndpoint, codec))
+                using (var client = new TransportClient<string>(remoteEndpoint, codec, _tcpClientFactory))
                 {
                     client.Send("Hello");
                     client.Send(", ");
@@ -83,7 +86,7 @@ namespace Org.Apache.REEF.Wake.Tests
                 server.Run();
 
                 IPEndPoint remoteEndpoint = new IPEndPoint(_localIpAddress, server.LocalEndpoint.Port);
-                using (var client = new TransportClient<TestEvent>(remoteEndpoint, codec))
+                using (var client = new TransportClient<TestEvent>(remoteEndpoint, codec, _tcpClientFactory))
                 {
                     client.Send(new TestEvent("Hello"));
                     client.Send(new TestEvent(", "));
@@ -119,7 +122,7 @@ namespace Org.Apache.REEF.Wake.Tests
 
                 var clientHandler = Observer.Create<TransportEvent<string>>(tEvent => queue.Add(tEvent.Data));
                 IPEndPoint remoteEndpoint = new IPEndPoint(_localIpAddress, server.LocalEndpoint.Port);
-                using (var client = new TransportClient<string>(remoteEndpoint, codec, clientHandler))
+                using (var client = new TransportClient<string>(remoteEndpoint, codec, clientHandler, _tcpClientFactory))
                 {
                     client.Send("Hello");
                     client.Send(", ");
@@ -158,7 +161,7 @@ namespace Org.Apache.REEF.Wake.Tests
                     Task.Run(() =>
                     {
                         IPEndPoint remoteEndpoint = new IPEndPoint(_localIpAddress, server.LocalEndpoint.Port);
-                        using (var client = new TransportClient<string>(remoteEndpoint, codec))
+                        using (var client = new TransportClient<string>(remoteEndpoint, codec, _tcpClientFactory))
                         {
                             client.Send("Hello");
                             client.Send(", ");
@@ -212,6 +215,17 @@ namespace Org.Apache.REEF.Wake.Tests
                 .BindIntNamedParam<TcpPortRangeCount>((portRangeEnd - portRangeStart + 1).ToString())
                 .Build();
             return TangFactory.GetTang().NewInjector(configuration).GetInstance<ITcpPortProvider>();
+        }
+
+        private static ITcpClientConnectionFactory GetTcpClientFactory(int connectionRetryCount, int sleepTimeInMs)
+        {
+            var config =
+                TangFactory.GetTang()
+                    .NewConfigurationBuilder()
+                    .BindIntNamedParam<ConnectionRetryCount>(connectionRetryCount.ToString())
+                    .BindIntNamedParam<SleepTimeInMs>(sleepTimeInMs.ToString())
+                    .Build();
+            return TangFactory.GetTang().NewInjector(config).GetInstance<ITcpClientConnectionFactory>();
         }
     }
 }

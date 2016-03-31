@@ -55,6 +55,7 @@ namespace Org.Apache.REEF.Network.Naming
         private NameRegisterClient _registerClient;
         private bool _disposed;
         private readonly NameCache _cache;
+        private readonly ITcpClientConnectionFactory _tcpClientFactory;
 
         /// <summary>
         /// Constructs a NameClient to register, lookup, and unregister IPEndpoints
@@ -62,12 +63,15 @@ namespace Org.Apache.REEF.Network.Naming
         /// </summary>
         /// <param name="remoteAddress">The ip address of the NameServer</param>
         /// <param name="remotePort">The port of the NameServer</param>
+        /// <param name="tcpClientFactory">provides TcpClient for given endpoint</param>
         [Inject]
         private NameClient(
             [Parameter(typeof(NamingConfigurationOptions.NameServerAddress))] string remoteAddress,
-            [Parameter(typeof(NamingConfigurationOptions.NameServerPort))] int remotePort)
+            [Parameter(typeof(NamingConfigurationOptions.NameServerPort))] int remotePort,
+            ITcpClientConnectionFactory tcpClientFactory)
         {
             IPEndPoint remoteEndpoint = new IPEndPoint(IPAddress.Parse(remoteAddress), remotePort);
+            _tcpClientFactory = tcpClientFactory;
             Initialize(remoteEndpoint);
             _disposed = false;
             _cache = TangFactory.GetTang().NewInjector().GetInstance<NameCache>();
@@ -79,14 +83,17 @@ namespace Org.Apache.REEF.Network.Naming
         /// </summary>
         /// <param name="remoteAddress">The ip address of the NameServer</param>
         /// <param name="remotePort">The port of the NameServer</param>
+        /// <param name="tcpClientFactory">provides TcpClient for given endpoint</param>
         /// <param name="cache">The NameCache for caching IpAddresses</param>
         [Inject]
         private NameClient(
             [Parameter(typeof(NamingConfigurationOptions.NameServerAddress))] string remoteAddress,
             [Parameter(typeof(NamingConfigurationOptions.NameServerPort))] int remotePort,
+            ITcpClientConnectionFactory tcpClientFactory,
             NameCache cache)
         {
             IPEndPoint remoteEndpoint = new IPEndPoint(IPAddress.Parse(remoteAddress), remotePort);
+            _tcpClientFactory = tcpClientFactory;
             Initialize(remoteEndpoint);
             _disposed = false;
             _cache = cache;
@@ -241,7 +248,7 @@ namespace Org.Apache.REEF.Network.Naming
 
             IObserver<TransportEvent<NamingEvent>> clientHandler = CreateClientHandler();
             ICodec<NamingEvent> codec = CreateClientCodec();
-            _client = new TransportClient<NamingEvent>(serverEndpoint, codec, clientHandler);
+            _client = new TransportClient<NamingEvent>(serverEndpoint, codec, clientHandler, _tcpClientFactory);
 
             _lookupClient = new NameLookupClient(_client, _lookupResponseQueue, _getAllResponseQueue);
             _registerClient = new NameRegisterClient(_client, _registerResponseQueue, _unregisterResponseQueue);
