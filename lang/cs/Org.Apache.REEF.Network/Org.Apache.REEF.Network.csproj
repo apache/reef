@@ -155,6 +155,8 @@ under the License.
     <Compile Include="NetworkService\NsMessage.cs" />
     <Compile Include="NetworkService\StreamingNetworkService.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="TcpClientConfigurationModule.cs" />
+    <Compile Include="TcpClientConfigurationProvider.cs" />
     <Compile Include="Utilities\BlockingCollectionExtensions.cs" />
     <Compile Include="Utilities\Utils.cs" />
   </ItemGroup>

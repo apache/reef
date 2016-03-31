@@ -39,6 +39,7 @@ namespace Org.Apache.REEF.Wake.Tests
     {
         private readonly ITcpPortProvider _tcpPortProvider = GetTcpProvider(9900, 9940);
         private readonly IInjector _injector = TangFactory.GetTang().NewInjector();
+        private readonly ITcpClientConnectionFactory _tcpClientFactory = GetTcpClientFactory(5, 500);
 
         /// <summary>
         /// Tests whether StreamingTransportServer receives 
@@ -54,12 +55,16 @@ namespace Org.Apache.REEF.Wake.Tests
             IPEndPoint endpoint = new IPEndPoint(IPAddress.Any, 0);
             var remoteHandler = Observer.Create<TransportEvent<string>>(tEvent => queue.Add(tEvent.Data));
 
-            using (var server = new StreamingTransportServer<string>(endpoint.Address, remoteHandler, _tcpPortProvider, stringCodec))
+            using (
+                var server = new StreamingTransportServer<string>(endpoint.Address,
+                    remoteHandler,
+                    _tcpPortProvider,
+                    stringCodec))
             {
                 server.Run();
 
                 IPEndPoint remoteEndpoint = new IPEndPoint(IPAddress.Parse("127.0.0.1"), server.LocalEndpoint.Port);
-                using (var client = new StreamingTransportClient<string>(remoteEndpoint, stringCodec))
+                using (var client = new StreamingTransportClient<string>(remoteEndpoint, stringCodec, _tcpClientFactory))
                 {
                     client.Send("Hello");
                     client.Send(", ");
@@ -68,7 +73,7 @@ namespace Org.Apache.REEF.Wake.Tests
                     events.Add(queue.Take());
                     events.Add(queue.Take());
                     events.Add(queue.Take());
-                } 
+                }
             }
 
             Assert.Equal(3, events.Count);
@@ -92,13 +97,21 @@ namespace Org.Apache.REEF.Wake.Tests
             // Server echoes the message back to the client
             var remoteHandler = Observer.Create<TransportEvent<string>>(tEvent => tEvent.Link.Write(tEvent.Data));
 
-            using (var server = new StreamingTransportServer<string>(endpoint.Address, remoteHandler, _tcpPortProvider, stringCodec))
+            using (
+                var server = new StreamingTransportServer<string>(endpoint.Address,
+                    remoteHandler,
+                    _tcpPortProvider,
+                    stringCodec))
             {
                 server.Run();
 
                 var clientHandler = Observer.Create<TransportEvent<string>>(tEvent => queue.Add(tEvent.Data));
                 IPEndPoint remoteEndpoint = new IPEndPoint(IPAddress.Parse("127.0.0.1"), server.LocalEndpoint.Port);
-                using (var client = new StreamingTransportClient<string>(remoteEndpoint, clientHandler, stringCodec))
+                using (
+                    var client = new StreamingTransportClient<string>(remoteEndpoint,
+                        clientHandler,
+                        stringCodec,
+                        _tcpClientFactory))
                 {
                     client.Send("Hello");
                     client.Send(", ");
@@ -107,7 +120,7 @@ namespace Org.Apache.REEF.Wake.Tests
                     events.Add(queue.Take());
                     events.Add(queue.Take());
                     events.Add(queue.Take());
-                } 
+                }
             }
 
             Assert.Equal(3, events.Count);
@@ -132,7 +145,11 @@ namespace Org.Apache.REEF.Wake.Tests
             IPEndPoint endpoint = new IPEndPoint(IPAddress.Any, 0);
             var remoteHandler = Observer.Create<TransportEvent<string>>(tEvent => queue.Add(tEvent.Data));
 
-            using (var server = new StreamingTransportServer<string>(endpoint.Address, remoteHandler, _tcpPortProvider, stringCodec))
+            using (
+                var server = new StreamingTransportServer<string>(endpoint.Address,
+                    remoteHandler,
+                    _tcpPortProvider,
+                    stringCodec))
             {
                 server.Run();
 
@@ -140,8 +157,12 @@ namespace Org.Apache.REEF.Wake.Tests
                 {
                     Task.Run(() =>
                     {
-                        IPEndPoint remoteEndpoint = new IPEndPoint(IPAddress.Parse("127.0.0.1"), server.LocalEndpoint.Port);
-                        using (var client = new StreamingTransportClient<string>(remoteEndpoint, stringCodec))
+                        IPEndPoint remoteEndpoint = new IPEndPoint(IPAddress.Parse("127.0.0.1"),
+                            server.LocalEndpoint.Port);
+                        using (
+                            var client = new StreamingTransportClient<string>(remoteEndpoint,
+                                stringCodec,
+                                _tcpClientFactory))
                         {
                             client.Send("Hello");
                             client.Send(", ");
@@ -167,6 +188,17 @@ namespace Org.Apache.REEF.Wake.Tests
                 .BindIntNamedParam<TcpPortRangeCount>((portRangeEnd - portRangeStart + 1).ToString())
                 .Build();
             return TangFactory.GetTang().NewInjector(configuration).GetInstance<ITcpPortProvider>();
+        }
+
+        private static ITcpClientConnectionFactory GetTcpClientFactory(int connectionRetryCount, int sleepTimeInMs)
+        {
+            var config =
+                TangFactory.GetTang()
+                    .NewConfigurationBuilder()
+                    .BindIntNamedParam<ConnectionRetryCount>(connectionRetryCount.ToString())
+                    .BindIntNamedParam<SleepTimeInMs>(sleepTimeInMs.ToString())
+                    .Build();
+            return TangFactory.GetTang().NewInjector(config).GetInstance<ITcpClientConnectionFactory>();
         }
     }
 }

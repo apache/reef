@@ -43,11 +43,12 @@ namespace Org.Apache.REEF.Wake.Remote.Impl
         /// </summary>
         /// <param name="remoteEndpoint">The endpoint of the remote server to connect to</param>
         /// <param name="streamingCodec">Streaming codec</param>
-        internal StreamingTransportClient(IPEndPoint remoteEndpoint, IStreamingCodec<T> streamingCodec)
+        /// <param name="clientFactory">TcpClient factory</param>
+        internal StreamingTransportClient(IPEndPoint remoteEndpoint, IStreamingCodec<T> streamingCodec, ITcpClientConnectionFactory clientFactory)
         {
             Exceptions.ThrowIfArgumentNull(remoteEndpoint, "remoteEndpoint", Logger);
 
-            _link = new StreamingLink<T>(remoteEndpoint, streamingCodec);
+            _link = new StreamingLink<T>(remoteEndpoint, streamingCodec, clientFactory);
             _cancellationSource = new CancellationTokenSource();
             _disposed = false;
         }
@@ -59,10 +60,12 @@ namespace Org.Apache.REEF.Wake.Remote.Impl
         /// <param name="remoteEndpoint">The endpoint of the remote server to connect to</param>
         /// <param name="observer">Callback used when receiving responses from remote host</param>
         /// <param name="streamingCodec">Streaming codec</param>
+        /// <param name="clientFactory">TcpClient factory</param>
         internal StreamingTransportClient(IPEndPoint remoteEndpoint,
             IObserver<TransportEvent<T>> observer,
-            IStreamingCodec<T> streamingCodec)
-            : this(remoteEndpoint, streamingCodec)
+            IStreamingCodec<T> streamingCodec, 
+            ITcpClientConnectionFactory clientFactory)
+            : this(remoteEndpoint, streamingCodec, clientFactory)
         {
             _observer = observer;
             Task.Run(() => ResponseLoop());

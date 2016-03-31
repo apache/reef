@@ -28,18 +28,29 @@ namespace Org.Apache.REEF.Wake.Remote.Impl
     public sealed class StreamingRemoteManagerFactory
     {
         private readonly ITcpPortProvider _tcpPortProvider;
+        private readonly ITcpClientConnectionFactory _tcpClientFactory;
         private readonly IInjector _injector;
 
-        [Inject]  
-        private StreamingRemoteManagerFactory(ITcpPortProvider tcpPortProvider, IInjector injector)
+        [Inject]
+        private StreamingRemoteManagerFactory(ITcpPortProvider tcpPortProvider,
+            ITcpClientConnectionFactory tcpClientFactory,
+            IInjector injector)
         {
             _tcpPortProvider = tcpPortProvider;
+            _tcpClientFactory = tcpClientFactory;
             _injector = injector;
         }
 
+        /// <summary>
+        /// Gives StreamingRemoteManager instance
+        /// </summary>
+        /// <typeparam name="T">Type of message</typeparam>
+        /// <param name="localAddress">local IP address</param>
+        /// <param name="codec">codec for message type T</param>
+        /// <returns>IRemoteManager instance</returns>
         public IRemoteManager<T> GetInstance<T>(IPAddress localAddress, IStreamingCodec<T> codec)
         {
-            return new StreamingRemoteManager<T>(localAddress, _tcpPortProvider, codec);
+            return new StreamingRemoteManager<T>(localAddress, _tcpPortProvider, codec, _tcpClientFactory);
         }
     }
 }

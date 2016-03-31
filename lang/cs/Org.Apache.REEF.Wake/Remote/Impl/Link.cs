@@ -45,7 +45,8 @@ namespace Org.Apache.REEF.Wake.Remote.Impl
         /// </summary>
         /// <param name="remoteEndpoint">The remote endpoint to connect to</param>
         /// <param name="codec">The codec for serializing messages</param>
-        public Link(IPEndPoint remoteEndpoint, ICodec<T> codec)
+        /// <param name="tcpClientFactory">TcpClient factory</param>
+        public Link(IPEndPoint remoteEndpoint, ICodec<T> codec, ITcpClientConnectionFactory tcpClientFactory)
         {
             if (remoteEndpoint == null)
             {
@@ -56,8 +57,7 @@ namespace Org.Apache.REEF.Wake.Remote.Impl
                 throw new ArgumentNullException("codec");
             }
 
-            Client = new TcpClient();
-            Client.Connect(remoteEndpoint);
+            Client = tcpClientFactory.Connect(remoteEndpoint);
 
             _codec = codec;
             _channel = new Channel(Client.GetStream());
