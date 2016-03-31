@@ -343,7 +343,7 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
 
     synchronized (this.evaluatorDescriptor) {
       if (this.stateManager.isDoneOrFailedOrKilled()) {
-        LOG.log(Level.FINE, "Ignoring an heartbeat received for Evaluator {0} which is already in state {1}.",
+        LOG.log(Level.FINE, "Ignoring a heartbeat received for Evaluator {0} which is already in state {1}.",
             new Object[]{this.getId(), this.stateManager});
         return;
       }
@@ -438,6 +438,15 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
   private synchronized void onEvaluatorDone(final EvaluatorStatusPOJO message) {
     assert message.getState() == State.DONE;
     LOG.log(Level.FINEST, "Evaluator {0} done.", getId());
+
+    // Send an ACK to the Evaluator.
+    sendEvaluatorControlMessage(
+        EvaluatorRuntimeProtocol.EvaluatorControlProto.newBuilder()
+            .setTimestamp(System.currentTimeMillis())
+            .setIdentifier(getId())
+            .setDoneEvaluator(EvaluatorRuntimeProtocol.DoneEvaluatorProto.newBuilder().build())
+            .build());
+
     this.stateManager.setDone();
     this.messageDispatcher.onEvaluatorCompleted(new CompletedEvaluatorImpl(this.evaluatorId));
     close();

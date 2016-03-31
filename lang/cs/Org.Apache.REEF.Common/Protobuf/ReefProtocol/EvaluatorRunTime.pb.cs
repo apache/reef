@@ -11,6 +11,15 @@
 // Note: requires additional types generated from: reef_service_protos.proto
 namespace Org.Apache.REEF.Common.Protobuf.ReefProtocol
 {
+  [global::System.Serializable, global::ProtoBuf.ProtoContract(Name = @"DoneEvaluatorProto")]
+  public partial class DoneEvaluatorProto : global::ProtoBuf.IExtensible
+  {
+      public DoneEvaluatorProto() { }
+  
+      private global::ProtoBuf.IExtension extensionObject;
+      global::ProtoBuf.IExtension global::ProtoBuf.IExtensible.GetExtensionObject(bool createIfMissing)
+      { return global::ProtoBuf.Extensible.GetExtensionObject(ref extensionObject, createIfMissing); }
+  }
   [global::System.Serializable, global::ProtoBuf.ProtoContract(Name=@"StopEvaluatorProto")]
   public partial class StopEvaluatorProto : global::ProtoBuf.IExtensible
   {
@@ -295,6 +304,22 @@ namespace Org.Apache.REEF.Common.Protobuf.ReefProtocol
     {
       get { return _kill_evaluator; }
       set { _kill_evaluator = value; }
+    }
+    private StopEvaluatorProto _stop_evaluator = null;
+    [global::ProtoBuf.ProtoMember(5, IsRequired = false, Name = @"stop_evaluator", DataFormat = global::ProtoBuf.DataFormat.Default)]
+    [global::System.ComponentModel.DefaultValue(null)]
+    public StopEvaluatorProto stop_evaluator
+    {
+        get { return _stop_evaluator; }
+        set { _stop_evaluator = value; }
+    }
+    private DoneEvaluatorProto _done_evaluator = null;
+    [global::ProtoBuf.ProtoMember(6, IsRequired = false, Name = @"done_evaluator", DataFormat = global::ProtoBuf.DataFormat.Default)]
+    [global::System.ComponentModel.DefaultValue(null)]
+    public DoneEvaluatorProto done_evaluator
+    {
+        get { return _done_evaluator; }
+        set { _done_evaluator = value; }
     }
     private global::ProtoBuf.IExtension extensionObject;
     global::ProtoBuf.IExtension global::ProtoBuf.IExtensible.GetExtensionObject(bool createIfMissing)
