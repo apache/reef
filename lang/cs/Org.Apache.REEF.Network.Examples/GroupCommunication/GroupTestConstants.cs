@@ -20,7 +20,8 @@ namespace Org.Apache.REEF.Network.Examples.GroupCommunication
     public class GroupTestConstants
     {
         public const string DriverId = "BroadcastReduceDriver";
-        public const string GroupName = "BroadcastReduceGroup";
+        public const string DefaultGroupName = "DefaultBroadcastReduceGroup";
+        public const string CommGroupName = "BroadcastReduceGroup";
         public const string BroadcastOperatorName = "Broadcast";
         public const string ReduceOperatorName = "Reduce";
         public const string ScatterOperatorName = "Scatter";

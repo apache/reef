@@ -49,7 +49,7 @@ namespace Org.Apache.REEF.Network.Examples.GroupCommunication.BroadcastReduceDri
             _numReduceSenders = numEvaluators - 1;
             _groupCommClient = groupCommClient;
 
-            _commGroup = groupCommClient.GetCommunicationGroup(GroupTestConstants.GroupName);
+            _commGroup = groupCommClient.GetCommunicationGroup(GroupTestConstants.CommGroupName);
             _broadcastSender = _commGroup.GetBroadcastSender<int>(GroupTestConstants.BroadcastOperatorName);
             _sumReducer = _commGroup.GetReduceReceiver<int>(GroupTestConstants.ReduceOperatorName);
         }

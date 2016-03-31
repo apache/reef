@@ -19,10 +19,8 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
-using Org.Apache.REEF.Common.Io;
 using Org.Apache.REEF.Common.Tasks;
 using Org.Apache.REEF.Driver;
-using Org.Apache.REEF.Driver.Bridge;
 using Org.Apache.REEF.Driver.Context;
 using Org.Apache.REEF.Driver.Evaluator;
 using Org.Apache.REEF.Wake.StreamingCodec.CommonStreamingCodecs;
@@ -32,15 +30,12 @@ using Org.Apache.REEF.Network.Group.Driver.Impl;
 using Org.Apache.REEF.Network.Group.Operators;
 using Org.Apache.REEF.Network.Group.Pipelining.Impl;
 using Org.Apache.REEF.Network.Group.Topology;
-using Org.Apache.REEF.Network.NetworkService;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Tang.Implementations.Configuration;
 using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Tang.Util;
 using Org.Apache.REEF.Utilities.Logging;
-using Org.Apache.REEF.Wake.Remote;
-using Org.Apache.REEF.Wake.Remote.Impl;
 using Org.Apache.REEF.Wake.Remote.Parameters;
 
 namespace Org.Apache.REEF.Network.Examples.GroupCommunication.BroadcastReduceDriverAndTasks
@@ -48,21 +43,21 @@ namespace Org.Apache.REEF.Network.Examples.GroupCommunication.BroadcastReduceDri
     public class BroadcastReduceDriver : 
         IObserver<IAllocatedEvaluator>, 
         IObserver<IActiveContext>, 
-        IObserver<IFailedEvaluator>, 
+        IObserver<IFailedEvaluator>,
         IObserver<IDriverStarted>
     {
-        private static readonly Logger LOGGER = Logger.GetLogger(typeof(BroadcastReduceDriver));
+        private static readonly Logger Logger = Logger.GetLogger(typeof(BroadcastReduceDriver));
 
         private readonly int _numEvaluators;
         private readonly int _numIterations;
-
         private readonly IGroupCommDriver _groupCommDriver;
-        private readonly ICommunicationGroupDriver _commGroup;
-        private readonly TaskStarter _groupCommTaskStarter;
+        private ICommunicationGroupDriver _commGroup;
+        private TaskStarter _groupCommTaskStarter;
         private readonly IConfiguration _tcpPortProviderConfig;
         private readonly IConfiguration _codecConfig;
         private readonly IEvaluatorRequestor _evaluatorRequestor;
-
+        private readonly IList<IActiveContext> _activeContexts = new List<IActiveContext>();
+            
         [Inject]
         public BroadcastReduceDriver(
             [Parameter(typeof(GroupTestConfig.NumEvaluators))] int numEvaluators,
@@ -87,7 +82,10 @@ namespace Org.Apache.REEF.Network.Examples.GroupCommunication.BroadcastReduceDri
             _codecConfig = StreamingCodecConfiguration<int>.Conf
                 .Set(StreamingCodecConfiguration<int>.Codec, GenericType<IntStreamingCodec>.Class)
                 .Build();
+        }
 
+        private void CreateCommGroup()
+        {
             IConfiguration reduceFunctionConfig = ReduceFunctionConfiguration<int>.Conf
                 .Set(ReduceFunctionConfiguration<int>.ReduceFunction, GenericType<SumFunction>.Class)
                 .Build();
@@ -96,21 +94,20 @@ namespace Org.Apache.REEF.Network.Examples.GroupCommunication.BroadcastReduceDri
                 .Set(PipelineDataConverterConfiguration<int>.DataConverter, GenericType<DefaultPipelineDataConverter<int>>.Class)
                 .Build();
 
-            _commGroup = _groupCommDriver.DefaultGroup
-                    .AddBroadcast<int>(
-                        GroupTestConstants.BroadcastOperatorName,
-                        GroupTestConstants.MasterTaskId, 
-                        TopologyTypes.Tree,
-                        dataConverterConfig)
-                    .AddReduce<int>(
-                        GroupTestConstants.ReduceOperatorName,
-                        GroupTestConstants.MasterTaskId,
-                        TopologyTypes.Tree,
-                        reduceFunctionConfig,
-                        dataConverterConfig)
-                    .Build();
-
-            _groupCommTaskStarter = new TaskStarter(_groupCommDriver, numEvaluators);
+            _commGroup = _groupCommDriver
+                .NewCommunicationGroup(GroupTestConstants.CommGroupName, _numEvaluators)
+                .AddBroadcast<int>(
+                    GroupTestConstants.BroadcastOperatorName,
+                    GroupTestConstants.MasterTaskId,
+                    TopologyTypes.Tree,
+                    dataConverterConfig)
+                .AddReduce<int>(
+                    GroupTestConstants.ReduceOperatorName,
+                    GroupTestConstants.MasterTaskId,
+                    TopologyTypes.Tree,
+                    reduceFunctionConfig,
+                    dataConverterConfig)
+                .Build();
         }
 
         public void OnNext(IAllocatedEvaluator allocatedEvaluator)
@@ -121,53 +118,65 @@ namespace Org.Apache.REEF.Network.Examples.GroupCommunication.BroadcastReduceDri
             allocatedEvaluator.SubmitContextAndService(contextConf, serviceConf);
         }
 
-        public void OnNext(IActiveContext activeContext)
+        public void OnNext(IActiveContext value)
         {
-            IConfiguration serviceConfig = _groupCommDriver.GetServiceConfiguration();
+            _activeContexts.Add(value);
 
-            if (_groupCommDriver.IsMasterTaskContext(activeContext))
+            if (_activeContexts.Count < _numEvaluators)
             {
-                // Configure Master Task
-                IConfiguration partialTaskConf = TangFactory.GetTang().NewConfigurationBuilder(
-                    TaskConfiguration.ConfigurationModule
-                        .Set(TaskConfiguration.Identifier, GroupTestConstants.MasterTaskId)
-                        .Set(TaskConfiguration.Task, GenericType<MasterTask>.Class)
-                        .Build())
-                    .BindNamedParameter<GroupTestConfig.NumEvaluators, int>(
-                        GenericType<GroupTestConfig.NumEvaluators>.Class,
-                        _numEvaluators.ToString(CultureInfo.InvariantCulture))
-                    .BindNamedParameter<GroupTestConfig.NumIterations, int>(
-                        GenericType<GroupTestConfig.NumIterations>.Class,
-                        _numIterations.ToString(CultureInfo.InvariantCulture))
-                    .Build();
-
-                _commGroup.AddTask(GroupTestConstants.MasterTaskId);
-                _groupCommTaskStarter.QueueTask(partialTaskConf, activeContext);
+                return;
             }
-            else
-            {
-                // Configure Slave Task
-                string slaveTaskId = "SlaveTask-" + activeContext.Id;
-                IConfiguration partialTaskConf = TangFactory.GetTang().NewConfigurationBuilder(
-                    TaskConfiguration.ConfigurationModule
-                        .Set(TaskConfiguration.Identifier, slaveTaskId)
-                        .Set(TaskConfiguration.Task, GenericType<SlaveTask>.Class)
-                        .Build())
-                    .BindNamedParameter<GroupTestConfig.NumEvaluators, int>(
-                        GenericType<GroupTestConfig.NumEvaluators>.Class,
-                        _numEvaluators.ToString(CultureInfo.InvariantCulture))
-                    .BindNamedParameter<GroupTestConfig.NumIterations, int>(
-                        GenericType<GroupTestConfig.NumIterations>.Class,
-                        _numIterations.ToString(CultureInfo.InvariantCulture))
-                    .Build();
 
-                _commGroup.AddTask(slaveTaskId);
-                _groupCommTaskStarter.QueueTask(partialTaskConf, activeContext);
+            CreateCommGroup();
+            _groupCommTaskStarter = new TaskStarter(_groupCommDriver, _numEvaluators);
+
+            foreach (var activeContext in _activeContexts)
+            {
+                if (_groupCommDriver.IsMasterTaskContext(activeContext))
+                {
+                    // Configure Master Task
+                    IConfiguration partialTaskConf = TangFactory.GetTang().NewConfigurationBuilder(
+                        TaskConfiguration.ConfigurationModule
+                            .Set(TaskConfiguration.Identifier, GroupTestConstants.MasterTaskId)
+                            .Set(TaskConfiguration.Task, GenericType<MasterTask>.Class)
+                            .Build())
+                        .BindNamedParameter<GroupTestConfig.NumEvaluators, int>(
+                            GenericType<GroupTestConfig.NumEvaluators>.Class,
+                            _numEvaluators.ToString(CultureInfo.InvariantCulture))
+                        .BindNamedParameter<GroupTestConfig.NumIterations, int>(
+                            GenericType<GroupTestConfig.NumIterations>.Class,
+                            _numIterations.ToString(CultureInfo.InvariantCulture))
+                        .Build();
+
+                    _commGroup.AddTask(GroupTestConstants.MasterTaskId);
+                    _groupCommTaskStarter.QueueTask(partialTaskConf, activeContext);
+                }
+                else
+                {
+                    // Configure Slave Task
+                    string slaveTaskId = "SlaveTask-" + activeContext.Id;
+                    IConfiguration partialTaskConf = TangFactory.GetTang().NewConfigurationBuilder(
+                        TaskConfiguration.ConfigurationModule
+                            .Set(TaskConfiguration.Identifier, slaveTaskId)
+                            .Set(TaskConfiguration.Task, GenericType<SlaveTask>.Class)
+                            .Build())
+                        .BindNamedParameter<GroupTestConfig.NumEvaluators, int>(
+                            GenericType<GroupTestConfig.NumEvaluators>.Class,
+                            _numEvaluators.ToString(CultureInfo.InvariantCulture))
+                        .BindNamedParameter<GroupTestConfig.NumIterations, int>(
+                            GenericType<GroupTestConfig.NumIterations>.Class,
+                            _numIterations.ToString(CultureInfo.InvariantCulture))
+                        .Build();
+
+                    _commGroup.AddTask(slaveTaskId);
+                    _groupCommTaskStarter.QueueTask(partialTaskConf, activeContext);
+                }
             }
         }
 
         public void OnNext(IFailedEvaluator value)
         {
+            Logger.Log(Level.Error, "In IFailedEvaluator:" + value.Id);
         }
 
         public void OnNext(IDriverStarted value)

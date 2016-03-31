@@ -44,7 +44,7 @@ namespace Org.Apache.REEF.Network.Examples.GroupCommunication.BroadcastReduceDri
 
             _numIterations = numIters;
             _groupCommClient = groupCommClient;
-            _commGroup = _groupCommClient.GetCommunicationGroup(GroupTestConstants.GroupName);
+            _commGroup = _groupCommClient.GetCommunicationGroup(GroupTestConstants.CommGroupName);
             _broadcastReceiver = _commGroup.GetBroadcastReceiver<int>(GroupTestConstants.BroadcastOperatorName);
             _triangleNumberSender = _commGroup.GetReduceSender<int>(GroupTestConstants.ReduceOperatorName);
         }

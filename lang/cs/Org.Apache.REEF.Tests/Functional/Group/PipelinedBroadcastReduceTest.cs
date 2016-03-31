@@ -15,6 +15,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
+using System;
 using System.Globalization;
 using Org.Apache.REEF.Driver;
 using Org.Apache.REEF.Driver.Bridge;
@@ -43,8 +44,7 @@ namespace Org.Apache.REEF.Tests.Functional.Group
         public void TestPipelinedBroadcastAndReduceOnLocalRuntime()
         {
             const int numTasks = 9;
-            string testFolder = DefaultRuntimeFolder + TestNumber++;
-            CleanUp(testFolder);
+            string testFolder = DefaultRuntimeFolder + Guid.NewGuid().ToString("N").Substring(0, 4);
             TestBroadcastAndReduce(false, numTasks, testFolder);
             ValidateSuccessForLocalRuntime(numTasks, testFolder: testFolder);
         }
@@ -87,7 +87,7 @@ namespace Org.Apache.REEF.Tests.Functional.Group
             IConfiguration groupCommDriverConfig = TangFactory.GetTang().NewConfigurationBuilder()
                 .BindStringNamedParam<GroupCommConfigurationOptions.DriverId>(GroupTestConstants.DriverId)
                 .BindStringNamedParam<GroupCommConfigurationOptions.MasterTaskId>(GroupTestConstants.MasterTaskId)
-                .BindStringNamedParam<GroupCommConfigurationOptions.GroupName>(GroupTestConstants.GroupName)
+                .BindStringNamedParam<GroupCommConfigurationOptions.GroupName>(GroupTestConstants.DefaultGroupName)
                 .BindIntNamedParam<GroupCommConfigurationOptions.FanOut>(GroupTestConstants.FanOut.ToString(CultureInfo.InvariantCulture).ToString(CultureInfo.InvariantCulture))
                 .BindIntNamedParam<GroupCommConfigurationOptions.NumberOfTasks>(numTasks.ToString(CultureInfo.InvariantCulture))
                 .Build();
