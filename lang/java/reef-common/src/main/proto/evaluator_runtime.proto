@@ -24,6 +24,10 @@ option java_generate_equals_and_hash = true;
 
 import "reef_service_protos.proto";
 
+// ACK the done message from the evaluator
+message DoneEvaluatorProto {
+}
+
 // Stop the evaluator
 message StopEvaluatorProto {
 }
@@ -89,4 +93,6 @@ message EvaluatorControlProto {
 
     optional ContextControlProto context_control = 3;
     optional KillEvaluatorProto kill_evaluator = 4;
+    optional StopEvaluatorProto stop_evaluator = 5;
+    optional DoneEvaluatorProto done_evaluator = 6;
 }

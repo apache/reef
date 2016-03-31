@@ -83,6 +83,18 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator
                     Handle(new InvalidOperationException(
                         string.Format(CultureInfo.InvariantCulture, "Identifier mismatch: message for evaluator id[{0}] sent to evaluator id[{1}]", message.identifier, _evaluatorId)));
                 }
+                else if (_state == State.DONE)
+                {
+                    if (message.stop_evaluator != null)
+                    {
+                        Logger.Log(Level.Info, "Received ACK from Driver, shutting down Evaluator.");
+                        _clock.Dispose();
+
+                        return;
+                    }
+
+                    Handle(new InvalidOperationException("Received a control message from Driver after Evaluator is done."));
+                }
                 else if (_state != State.RUNNING)
                 {
                     Handle(new InvalidOperationException(
@@ -101,7 +113,6 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator
                                 Logger.Log(Level.Info, "Context stack is empty, done");
                                 _state = State.DONE;
                                 _heartBeatManager.OnNext(GetEvaluatorStatus());
-                                _clock.Dispose();
                             }
                         }
                         catch (Exception e)
@@ -123,7 +134,7 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator
 
         public EvaluatorStatusProto GetEvaluatorStatus()
         {
-            Logger.Log(Level.Info, string.Format(CultureInfo.InvariantCulture, "Evaluator state : {0}", _state));
+            Logger.Log(Level.Info, string.Format(CultureInfo.InvariantCulture, "Evaluator state: {0}", _state));
             EvaluatorStatusProto evaluatorStatusProto = new EvaluatorStatusProto
             {
                 evaluator_id = _evaluatorId,
