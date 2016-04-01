@@ -62,6 +62,7 @@ under the License.
     </Content>
   </ItemGroup>
   <ItemGroup>
+    <None Include="App.config" />
     <None Include="Org.Apache.REEF.Evaluator.nuspec" />
     <None Include="packages.config" />
   </ItemGroup>
