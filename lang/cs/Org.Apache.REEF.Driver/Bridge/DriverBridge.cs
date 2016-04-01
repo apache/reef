@@ -187,6 +187,7 @@ namespace Org.Apache.REEF.Driver.Bridge
             _driverRestartFailedEvaluatorHandlers = driverRestartFailedEvaluatorHandlers;
             _httpServerHandler = httpServerHandler;
 
+            // TODO[JIRA REEF-1306]: Remove after it is bound directly into EvaluatorConfigurationProviders.
             _configurationProviders = new HashSet<IConfigurationProvider>(configurationProviders)
             {
                 GetDriverReconnectionProvider(driverReconnConfigProvider)

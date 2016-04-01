@@ -172,6 +172,7 @@ namespace Org.Apache.REEF.Driver
 
         /// <summary>
         /// The implemenation for (attempting to) re-establish connection to driver
+        /// TODO[JIRA REEF-1306]: Remove.
         /// </summary>
         [Obsolete("Deprecated in 0.15, will be removed. Please use DriverReconnectionConfigurationProvider instead.")]
         public static readonly OptionalImpl<IDriverConnection> OnDriverReconnect = new OptionalImpl<IDriverConnection>();
@@ -239,6 +240,8 @@ namespace Org.Apache.REEF.Driver
                     .BindNamedParameter(GenericType<DriverBridgeConfigurationOptions.TraceLevel>.Class, CustomTraceLevel)
                     .BindNamedParameter(GenericType<DriverBridgeConfigurationOptions.DriverRestartEvaluatorRecoverySeconds>.Class,
                         DriverRestartEvaluatorRecoverySeconds)
+
+                    // TODO[JIRA REEF-1306]: Bind DriverReconnectionConfigurationProvider into EvaluatorConfigurationProviders.
                     .BindImplementation(GenericType<IDriverReconnConfigProvider>.Class, DriverReconnectionConfigurationProvider)
                     .BindImplementation(GenericType<IProgressProvider>.Class, ProgressProvider)
                     .Build();

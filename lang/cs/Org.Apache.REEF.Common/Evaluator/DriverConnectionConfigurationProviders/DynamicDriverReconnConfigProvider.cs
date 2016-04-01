@@ -27,6 +27,7 @@ namespace Org.Apache.REEF.Common.Evaluator.DriverConnectionConfigurationProvider
     /// be used to provide the type of <see cref="IDriverConnection"/> to the Evaluator if the user only
     /// binds the deprecated <see cref="IDriverConnection"/> optional implementation, instead of the
     /// new <see cref="IDriverReconnConfigProvider"/> implementation.
+    /// TODO[JIRA REEF-1306]: Remove.
     /// </summary>
     internal sealed class DynamicDriverReconnConfigProvider : IDriverReconnConfigProvider
     {
