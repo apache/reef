@@ -34,11 +34,6 @@ namespace Org.Apache.REEF.Tests.Functional.Bridge
     [Collection("FunctionalTests")]
     public class TestSimpleEventHandlers : ReefFunctionalTest
     {
-        public TestSimpleEventHandlers()
-        {
-            Init();
-        }
-
         [Fact]
         [Trait("Priority", "1")]
         [Trait("Category", "FunctionalGated")]
@@ -46,8 +41,7 @@ namespace Org.Apache.REEF.Tests.Functional.Bridge
         //// TODO[JIRA REEF-1184]: add timeout 180 sec
         public void RunSimpleEventHandlerOnLocalRuntime()
         {
-            string testFolder = DefaultRuntimeFolder + Guid.NewGuid().ToString("N").Substring(0, 4);
-            CleanUp(testFolder);
+            string testFolder = DefaultRuntimeFolder + TestId;
             TestRun(DriverConfigurations(), typeof(HelloSimpleEventHandlers), 2, "simpleHandler", "local", testFolder);
             ValidateSuccessForLocalRuntime(1, testFolder: testFolder);
             ValidateMessageSuccessfullyLoggedForDriver("Evaluator is assigned with 3072 MB of memory and 1 cores.", testFolder);

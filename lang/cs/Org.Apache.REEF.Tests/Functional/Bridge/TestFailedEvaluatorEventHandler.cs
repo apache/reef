@@ -42,11 +42,6 @@ namespace Org.Apache.REEF.Tests.Functional.Bridge
         private const string FailSignal = "Fail";
         private const string TaskId = "1234567";
 
-        public TestFailedEvaluatorEventHandler()
-        {
-            Init();
-        }
-
         [Fact]
         [Trait("Priority", "1")]
         [Trait("Category", "FunctionalGated")]
@@ -54,7 +49,7 @@ namespace Org.Apache.REEF.Tests.Functional.Bridge
         //// TODO[JIRA REEF-1184]: add timeout 180 sec
         public void TestFailedEvaluatorEventHandlerOnLocalRuntime()
         {
-            string testFolder = DefaultRuntimeFolder + Guid.NewGuid().ToString("N").Substring(0, 4);
+            string testFolder = DefaultRuntimeFolder + TestId;
             TestRun(DriverConfigurations(), typeof(FailedEvaluatorDriver), 1, "failedEvaluatorTest", "local", testFolder);
             ValidateSuccessForLocalRuntime(0, numberOfEvaluatorsToFail: 1, testFolder: testFolder);
             ValidateMessageSuccessfullyLoggedForDriver(FailedEvaluatorMessage, testFolder);

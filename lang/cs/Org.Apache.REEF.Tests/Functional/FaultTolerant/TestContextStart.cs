@@ -42,18 +42,13 @@ namespace Org.Apache.REEF.Tests.Functional.FaultTolerant
         private const string StartedMessage = "Do something started.";
         private const string CompletedMessage = "Do something completed.";
 
-        public TestContextStart()
-        {
-            Init();
-        }
-
         /// <summary>
         /// This test case submit a context with a Context start handler and do something in the handler
         /// </summary>
         [Fact]
         public void TestDosomethingOnContextStartOnLocalRuntime()
         {
-            string testFolder = DefaultRuntimeFolder + Guid.NewGuid().ToString("N").Substring(0, 4);
+            string testFolder = DefaultRuntimeFolder + TestId;
             TestRun(DriverConfigurations(), typeof(ContextStartDriver), 1, "ContextStartDriver", "local", testFolder);
             ValidateSuccessForLocalRuntime(2, testFolder: testFolder);
 

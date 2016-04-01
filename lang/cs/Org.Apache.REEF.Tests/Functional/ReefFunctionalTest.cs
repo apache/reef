@@ -46,7 +46,6 @@ namespace Org.Apache.REEF.Tests.Functional
         protected const string CmdFile = "run.cmd";
         protected const string BinFolder = ".";
 
-        protected static int TestNumber = 1;
         protected const string DefaultRuntimeFolder = "REEF_LOCAL_RUNTIME";
 
         private const string Local = "local";
@@ -77,6 +76,11 @@ namespace Org.Apache.REEF.Tests.Functional
         {
             get { return _onLocalRuntime; }
             set { _onLocalRuntime = value; }
+        }
+
+        public ReefFunctionalTest()
+        {
+            Init();
         }
 
         public void Init()
@@ -111,15 +115,18 @@ namespace Org.Apache.REEF.Tests.Functional
         {
             Console.WriteLine("Cleaning up test.");
 
-            if (TimerTask != null)
+            if (_enableRealtimeLogUpload)
             {
-                TestTimer.Stop();
-                TimerTask.Dispose();
-                TimerTask = null;
+                if (TimerTask != null)
+                {
+                    TestTimer.Stop();
+                    TimerTask.Dispose();
+                    TimerTask = null;
+                }
+
+                // Wait for file upload task to complete
+                Thread.Sleep(500);
             }
-            
-            // Wait for file upload task to complete
-            Thread.Sleep(500);
 
             string dir = Path.Combine(Directory.GetCurrentDirectory(), testFolder);
             try
