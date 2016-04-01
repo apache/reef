@@ -29,18 +29,13 @@ namespace Org.Apache.REEF.Tests.Functional.Bridge
     {
         private static readonly Logger LOGGER = Logger.GetLogger(typeof(TestBridgeClient));
 
-        public TestBridgeClient()
-        {
-            Init();
-        }
-
         [Fact(Skip = "Requires Yarn")]
         [Trait("Priority", "1")]
         [Trait("Category", "FunctionalGated")]
         [Trait("Description", "Run CLR Bridge on Yarn")]
         public async Task CanRunClrBridgeExampleOnYarn()
         {
-            string testRuntimeFolder = DefaultRuntimeFolder + TestNumber++;
+            string testRuntimeFolder = DefaultRuntimeFolder + TestId;
             await RunClrBridgeClient(true, testRuntimeFolder);
         }
 
@@ -51,8 +46,7 @@ namespace Org.Apache.REEF.Tests.Functional.Bridge
         //// TODO[JIRA REEF-1184]: add timeout 180 sec
         public async Task CanRunClrBridgeExampleOnLocalRuntime()
         {
-            string testRuntimeFolder = DefaultRuntimeFolder + TestNumber++;
-            CleanUp(testRuntimeFolder);
+            string testRuntimeFolder = DefaultRuntimeFolder + TestId;
             await RunClrBridgeClient(false, testRuntimeFolder);
         }
 

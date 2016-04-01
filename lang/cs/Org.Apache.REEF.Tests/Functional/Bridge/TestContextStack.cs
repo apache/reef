@@ -44,11 +44,6 @@ namespace Org.Apache.REEF.Tests.Functional.Bridge
 
         private static readonly Logger Logger = Logger.GetLogger(typeof(TestContextStack));
 
-        public TestContextStack()
-        {
-            Init();
-        }
-
         /// <summary>
         /// Does a simple test of whether a context can be submitted on top of another context.
         /// </summary>
@@ -56,7 +51,6 @@ namespace Org.Apache.REEF.Tests.Functional.Bridge
         public void TestContextStackingOnLocalRuntime()
         {
             string testFolder = DefaultRuntimeFolder + Guid.NewGuid().ToString("N").Substring(0, 4);
-            CleanUp(testFolder);
             TestRun(DriverConfigurations(GenericType<ActiveContextSubmitContextHandler>.Class),
                 typeof(ContextStackHandlers), 1, "testContextStack", "local", testFolder);
             ValidateSuccessForLocalRuntime(2, testFolder: testFolder);
@@ -73,7 +67,6 @@ namespace Org.Apache.REEF.Tests.Functional.Bridge
         public void TestContextStackingWithServiceOnLocalRuntime()
         {
             string testFolder = DefaultRuntimeFolder + Guid.NewGuid().ToString("N").Substring(0, 4);
-            CleanUp(testFolder);
             TestRun(DriverConfigurations(GenericType<ActiveContextSubmitContextAndServiceHandler>.Class),
                 typeof(ContextStackHandlers), 1, "testContextAndServiceStack", "local", testFolder);
             ValidateSuccessForLocalRuntime(2, testFolder: testFolder);

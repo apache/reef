@@ -35,11 +35,6 @@ namespace Org.Apache.REEF.Tests.Functional.Bridge
     {
         private const string FailedTaskMessage = "I have successfully seen a failed task.";
 
-        public TestFailedTaskEventHandler()
-        {
-            Init();
-        }
-
         [Fact]
         [Trait("Priority", "1")]
         [Trait("Category", "FunctionalGated")]
@@ -47,8 +42,7 @@ namespace Org.Apache.REEF.Tests.Functional.Bridge
         //// TODO[JIRA REEF-1184]: add timeout 180 sec
         public void TestFailedTaskEventHandlerOnLocalRuntime()
         {
-            string testFolder = DefaultRuntimeFolder + Guid.NewGuid().ToString("N").Substring(0, 4);
-            CleanUp(testFolder);
+            string testFolder = DefaultRuntimeFolder + TestId;
             TestRun(DriverConfigurations(), typeof(FailedTaskDriver), 1, "failedTaskTest", "local", testFolder);
             ValidateSuccessForLocalRuntime(numberOfContextsToClose: 1, numberOfTasksToFail: 1, testFolder: testFolder);
             ValidateMessageSuccessfullyLoggedForDriver(FailedTaskMessage, testFolder);

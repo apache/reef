@@ -115,10 +115,10 @@ namespace Org.Apache.REEF.Tests.Functional.ML.KMeans
         public void TestKMeansOnLocalRuntimeWithGroupCommunications()
         {
             IsOnLocalRuntime = true;
-            string testFolder = DefaultRuntimeFolder + TestNumber++;
-            CleanUp(testFolder);
+            string testFolder = DefaultRuntimeFolder + TestId;
             TestRun(DriverConfiguration(), typeof(KMeansDriverHandlers), Partitions + 1, "KMeansDriverHandlers", "local", testFolder);
             ValidateSuccessForLocalRuntime(Partitions + 1, testFolder: testFolder);
+            CleanUp(testFolder);
         }
 
         [Fact(Skip = "TODO[JIRA REEF-1183] Requires data files not present in enlistment")]
@@ -128,7 +128,7 @@ namespace Org.Apache.REEF.Tests.Functional.ML.KMeans
         //// TODO[JIRA REEF-1184]: add timeout 180 sec
         public void TestKMeansOnYarnOneBoxWithGroupCommunications()
         {
-            string testFolder = DefaultRuntimeFolder + TestNumber++;
+            string testFolder = DefaultRuntimeFolder + TestId + "Yarn";
             TestRun(DriverConfiguration(), typeof(KMeansDriverHandlers), Partitions + 1, "KMeansDriverHandlers", "yarn", testFolder);
             Assert.NotNull("BreakPointChecker");
         }

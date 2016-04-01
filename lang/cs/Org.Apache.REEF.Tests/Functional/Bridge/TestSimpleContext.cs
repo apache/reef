@@ -40,11 +40,6 @@ namespace Org.Apache.REEF.Tests.Functional.Bridge
 
         private static readonly Logger Logger = Logger.GetLogger(typeof(TestSimpleContext));
 
-        public TestSimpleContext()
-        {
-            Init();
-        }
-
         /// <summary>
         /// Does a simple test of context submission.
         /// </summary>
@@ -60,8 +55,7 @@ namespace Org.Apache.REEF.Tests.Functional.Bridge
 
         private void TestContextOnLocalRuntime(IConfiguration configuration)
         {
-            string testFolder = DefaultRuntimeFolder + Guid.NewGuid().ToString("N").Substring(0, 4);
-            CleanUp(testFolder);
+            string testFolder = DefaultRuntimeFolder + TestId;
             TestRun(configuration, typeof(TestContextHandlers), 1, "testSimpleContext", "local", testFolder);
             ValidateSuccessForLocalRuntime(1, testFolder: testFolder);
             ValidateMessageSuccessfullyLoggedForDriver(ValidationMessage, testFolder);
