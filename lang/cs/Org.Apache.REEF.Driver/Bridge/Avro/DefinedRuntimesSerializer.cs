@@ -14,17 +14,25 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
+using System.IO;
 
-using Org.Apache.REEF.Driver.Evaluator;
-using Org.Apache.REEF.Utilities.Attributes;
+using Microsoft.Hadoop.Avro;
 
-namespace Org.Apache.REEF.Driver.Bridge.Clr2java
+namespace Org.Apache.REEF.Driver.Bridge.Avro
 {
-    [Private, Interop("EvaluatorRequestorClr2Java.cpp", "Clr2JavaImpl.h")]
-    public interface IEvaluatorRequestorClr2Java : IClr2Java
+    /// <summary>
+    /// Provides deserialization methods for DefinedRuntimes avro object
+    /// </summary>
+    internal static class DefinedRuntimesSerializer
     {
-        void Submit(IEvaluatorRequest evaluatorRequest);
+        private static readonly IAvroSerializer<DefinedRuntimes> Serializer = AvroSerializer.Create<DefinedRuntimes>();
 
-        byte[] GetDefinedRuntimes();
+        public static DefinedRuntimes FromBytes(byte[] serializedData)
+        {
+            using (Stream stream = new MemoryStream(serializedData))
+            {
+                return Serializer.Deserialize(stream);
+            }
+        }
     }
 }

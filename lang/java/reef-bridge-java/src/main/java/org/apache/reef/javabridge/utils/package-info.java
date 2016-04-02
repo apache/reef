@@ -16,19 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.runtime.local.driver;
-
-import org.apache.reef.annotations.audience.Private;
-
 /**
- * Runtime Identifier Implementation.
+ * utils for clr bridge.
  */
-@Private
-public final class RuntimeIdentifier {
-   /**
-   * Same value is defined on the C# side in the Org.Apache.REEF.Common.Runtime.RuntimeName.
-   */
-  public static final String RUNTIME_NAME = "Local";
-
-  private RuntimeIdentifier() { }
-}
+package org.apache.reef.javabridge.utils;

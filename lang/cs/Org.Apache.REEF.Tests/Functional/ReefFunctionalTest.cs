@@ -217,8 +217,9 @@ namespace Org.Apache.REEF.Tests.Functional
                     lines = File.ReadAllLines(GetLogFile(fileName, subfolder, testFolder));
                     break;
                 }
-                catch (Exception)
+                catch (Exception e)
                 {
+                    Console.Write(e.ToString());
                     Thread.Sleep(SleepTime);
                 }
             }

@@ -53,7 +53,7 @@ namespace Org {
 						  ManagedLog::LOGGER->LogStart("EvaluatorRequestorClr2Java::Submit");
 						  JNIEnv *env = RetrieveEnv(_jvm);
 						  jclass jclassEvaluatorRequestor = env->GetObjectClass(_jobjectEvaluatorRequestor);
-						  jmethodID jmidSubmit = env->GetMethodID(jclassEvaluatorRequestor, "submit", "(IIILjava/lang/String;)V");
+						  jmethodID jmidSubmit = env->GetMethodID(jclassEvaluatorRequestor, "submit", "(IIILjava/lang/String;Ljava/lang/String;)V");
 
 						  if (jmidSubmit == NULL) {
 							  fprintf(stdout, " jmidSubmit is NULL\n");
@@ -66,8 +66,29 @@ namespace Org {
 							  request->Number,
 							  request->MemoryMegaBytes,
 							  request->VirtualCore,
-							  JavaStringFromManagedString(env, request->Rack));
+							  JavaStringFromManagedString(env, request->Rack),
+							  JavaStringFromManagedString(env, request->RuntimeName));
 						  ManagedLog::LOGGER->LogStop("EvaluatorRequestorClr2Java::Submit");
+					  }
+
+					  array<byte>^ EvaluatorRequestorClr2Java::GetDefinedRuntimes() {
+						  ManagedLog::LOGGER->LogStart("EvaluatorRequestorClr2Java::GetDefinedRuntimes");
+						  JNIEnv *env = RetrieveEnv(_jvm);
+						  jclass jclassEvaluatorRequestor = env->GetObjectClass(_jobjectEvaluatorRequestor);
+						  jmethodID jmidGetDefinedRuntimes = env->GetMethodID(jclassEvaluatorRequestor, "getDefinedRuntimes", "()[B");
+
+						  if (jmidGetDefinedRuntimes == NULL) {
+							  fprintf(stdout, " jmidGetDefinedRuntimes is NULL\n");
+							  fflush(stdout);
+							  return nullptr;
+						  }
+
+						  jbyteArray jBytes = (jbyteArray)env->CallObjectMethod(
+							  _jobjectEvaluatorRequestor,
+							  jmidGetDefinedRuntimes);
+
+						  ManagedLog::LOGGER->LogStop("EvaluatorRequestorClr2Java::GetDefinedRuntimes");
+						  return ManagedByteArrayFromJavaByteArray(env, jBytes);
 					  }
 
 					  void EvaluatorRequestorClr2Java::OnError(String^ message) {

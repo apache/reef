@@ -17,6 +17,7 @@
 
 using Org.Apache.REEF.Common.Catalog;
 using Org.Apache.REEF.Common.Evaluator;
+using Org.Apache.REEF.Common.Runtime;
 
 namespace Org.Apache.REEF.Driver.Evaluator
 {
@@ -53,6 +54,6 @@ namespace Org.Apache.REEF.Driver.Evaluator
         /// <summary>
         /// name of the runtime that allocated this evaluator
         /// </summary>
-        string RuntimeName { get; }
+        RuntimeName RuntimeName { get; }
     }
 }

@@ -18,13 +18,19 @@
  */
 package org.apache.reef.javabridge;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.reef.annotations.audience.Interop;
 import org.apache.reef.annotations.audience.Private;
 import org.apache.reef.driver.evaluator.EvaluatorRequest;
 import org.apache.reef.driver.evaluator.EvaluatorRequestor;
+import org.apache.reef.javabridge.avro.DefinedRuntimes;
+import org.apache.reef.javabridge.utils.DefinedRuntimesSerializer;
 import org.apache.reef.util.logging.LoggingScope;
 import org.apache.reef.util.logging.LoggingScopeFactory;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -40,6 +46,7 @@ public final class EvaluatorRequestorBridge extends NativeBridge {
   private final boolean isBlocked;
   private final EvaluatorRequestor jevaluatorRequestor;
   private final LoggingScopeFactory loggingScopeFactory;
+  private final Set<String> definedRuntimes;
 
   // accumulate how many evaluators have been submitted through this instance
   // of EvaluatorRequestorBridge
@@ -47,14 +54,20 @@ public final class EvaluatorRequestorBridge extends NativeBridge {
 
   public EvaluatorRequestorBridge(final EvaluatorRequestor evaluatorRequestor,
                                   final boolean isBlocked,
-                                  final LoggingScopeFactory loggingScopeFactory) {
+                                  final LoggingScopeFactory loggingScopeFactory,
+                                  final Set<String> definedRuntimes) {
     this.jevaluatorRequestor = evaluatorRequestor;
     this.clrEvaluatorsNumber = 0;
     this.isBlocked = isBlocked;
     this.loggingScopeFactory = loggingScopeFactory;
+    this.definedRuntimes = definedRuntimes;
   }
 
-  public void submit(final int evaluatorsNumber, final int memory, final int virtualCore, final String rack) {
+  public void submit(final int evaluatorsNumber,
+                     final int memory,
+                     final int virtualCore,
+                     final String rack,
+                     final String runtimeName) {
     if (this.isBlocked) {
       throw new RuntimeException("Cannot request additional Evaluator, this is probably because " +
           "the Driver has crashed and restarted, and cannot ask for new container due to YARN-2433.");
@@ -71,6 +84,7 @@ public final class EvaluatorRequestorBridge extends NativeBridge {
           .setNumber(evaluatorsNumber)
           .setMemory(memory)
           .setNumberOfCores(virtualCore)
+          .setRuntimeName(runtimeName)
           .build();
 
       LOG.log(Level.FINE, "submitting evaluator request {0}", request);
@@ -84,5 +98,21 @@ public final class EvaluatorRequestorBridge extends NativeBridge {
 
   @Override
   public void close() {
+  }
+
+  public byte[] getDefinedRuntimes(){
+    if(LOG.isLoggable(Level.FINE)) {
+      LOG.log(Level.FINE, "Defined Runtimes :" + StringUtils.join(this.definedRuntimes, ','));
+    }
+
+    final DefinedRuntimes dr = new DefinedRuntimes();
+    final List<CharSequence> runtimeNames = new ArrayList<>();
+    for(final String name : this.definedRuntimes) {
+      runtimeNames.add(name);
+    }
+    dr.setRuntimeNames(runtimeNames);
+    final DefinedRuntimesSerializer drs = new DefinedRuntimesSerializer();
+    final byte[] ret = drs.toBytes(dr);
+    return ret;
   }
 }

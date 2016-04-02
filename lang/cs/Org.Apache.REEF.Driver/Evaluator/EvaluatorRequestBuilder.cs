@@ -17,12 +17,15 @@
 
 using System;
 
+using Org.Apache.REEF.Common.Runtime;
+
 namespace Org.Apache.REEF.Driver.Evaluator
 {
     public sealed class EvaluatorRequestBuilder
     {
         private string _evaluatorBatchId;
         private string _rackName;
+        private string _runtimeName;
 
         [Obsolete("This constructor will be internal after 0.13.")]
         public EvaluatorRequestBuilder(IEvaluatorRequest request)
@@ -32,6 +35,7 @@ namespace Org.Apache.REEF.Driver.Evaluator
             VirtualCore = request.VirtualCore;
             _evaluatorBatchId = request.EvaluatorBatchId;
             _rackName = request.Rack;
+            _runtimeName = request.RuntimeName;
         }
 
         internal EvaluatorRequestBuilder()
@@ -41,6 +45,7 @@ namespace Org.Apache.REEF.Driver.Evaluator
             MegaBytes = 64;
             _rackName = string.Empty;
             _evaluatorBatchId = Guid.NewGuid().ToString("N");
+            _runtimeName = string.Empty;
         }
 
         public int Number { get; private set; }
@@ -103,13 +108,24 @@ namespace Org.Apache.REEF.Driver.Evaluator
         }
 
         /// <summary>
+        /// Sets the runtime name for requested evaluators in the same request. The batch of Evaluators requested in the 
+        /// same request will have the same runtime name.
+        /// </summary>
+        /// <param name="runtimeName">The runtime name for the Evaluator request.</param>
+        public EvaluatorRequestBuilder SetRuntimeName(RuntimeName runtimeName)
+        {
+            _runtimeName = (runtimeName == RuntimeName.Default) ? string.Empty : runtimeName.ToString();
+            return this;
+        }
+
+        /// <summary>
         /// Build the EvaluatorRequest.
         /// </summary>
         /// <returns></returns>
         public IEvaluatorRequest Build()
         {
 #pragma warning disable 618
-            return new EvaluatorRequest(Number, MegaBytes, VirtualCore, rack: _rackName, evaluatorBatchId: _evaluatorBatchId);
+            return new EvaluatorRequest(Number, MegaBytes, VirtualCore, rack: _rackName, evaluatorBatchId: _evaluatorBatchId, runtimeName: _runtimeName);
 #pragma warning restore 618
         }
     }

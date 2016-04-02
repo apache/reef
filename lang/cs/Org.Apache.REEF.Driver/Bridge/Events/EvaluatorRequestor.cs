@@ -16,12 +16,13 @@
 // under the License.
 
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Runtime.Serialization;
+
 using Org.Apache.REEF.Common.Catalog;
 using Org.Apache.REEF.Common.Evaluator;
+using Org.Apache.REEF.Driver.Bridge.Avro;
 using Org.Apache.REEF.Driver.Bridge.Clr2java;
 using Org.Apache.REEF.Driver.Evaluator;
 using Org.Apache.REEF.Utilities.Diagnostics;
@@ -38,9 +39,14 @@ namespace Org.Apache.REEF.Driver.Bridge.Events
         private static readonly IDictionary<string, IEvaluatorDescriptor> EvaluatorDescriptorsDictionary =
             new Dictionary<string, IEvaluatorDescriptor>();
 
+        private readonly DefinedRuntimes runtimes;
+
         internal EvaluatorRequestor(IEvaluatorRequestorClr2Java clr2Java)
         {
             Clr2Java = clr2Java;
+            byte[] data = Clr2Java.GetDefinedRuntimes();
+            runtimes = DefinedRuntimesSerializer.FromBytes(data);
+            LOGGER.Log(Level.Info, "Defined runtimes " + ((runtimes.runtimeNames == null) ? "null" : string.Join(",", runtimes.runtimeNames)));
         }
 
         /// <summary>
@@ -59,13 +65,20 @@ namespace Org.Apache.REEF.Driver.Bridge.Events
 
         public void Submit(IEvaluatorRequest request)
         {
-            LOGGER.Log(Level.Info, "Submitting request for {0} evaluators and {1} MB memory and  {2} core to rack {3}.", request.Number, request.MemoryMegaBytes, request.VirtualCore, request.Rack);
-
+            LOGGER.Log(Level.Info, "Submitting request for {0} evaluators and {1} MB memory and  {2} core to rack {3} and runtime {4}.", request.Number, request.MemoryMegaBytes, request.VirtualCore, request.Rack, request.RuntimeName);
             lock (Evaluators)
             {
                 for (var i = 0; i < request.Number; i++)
                 {
-                    var descriptor = new EvaluatorDescriptorImpl(new NodeDescriptorImpl(), EvaluatorType.CLR, request.MemoryMegaBytes, request.VirtualCore, request.Rack);
+                    if (!string.IsNullOrWhiteSpace(request.RuntimeName))
+                    {
+                        if (runtimes.runtimeNames != null && !runtimes.runtimeNames.Contains(request.RuntimeName))
+                        {
+                            throw new ArgumentException(string.Format("Requested runtime {0} is not in the defined runtimes list {1}", request.RuntimeName, string.Join(",", runtimes.runtimeNames)));
+                        }
+                    }
+
+                    var descriptor = new EvaluatorDescriptorImpl(new NodeDescriptorImpl(), EvaluatorType.CLR, request.MemoryMegaBytes, request.VirtualCore, request.RuntimeName, request.Rack);
                     var key = string.Format(CultureInfo.InvariantCulture, "{0}{1}{2}", request.EvaluatorBatchId, BatchIdxSeparator, i);
                     try
                     {

@@ -23,6 +23,7 @@ import org.apache.reef.io.TempFileCreator;
 import org.apache.reef.io.WorkingDirectoryTempFileCreator;
 import org.apache.reef.runtime.common.driver.api.*;
 import org.apache.reef.runtime.common.driver.parameters.ClientRemoteIdentifier;
+import org.apache.reef.runtime.common.driver.parameters.DefinedRuntimes;
 import org.apache.reef.runtime.common.driver.parameters.EvaluatorTimeout;
 import org.apache.reef.runtime.common.driver.parameters.JobIdentifier;
 import org.apache.reef.runtime.common.files.RuntimeClasspathProvider;
@@ -61,6 +62,10 @@ public final class MesosDriverConfiguration extends ConfigurationModuleBuilder {
    */
   public static final RequiredParameter<String> MESOS_MASTER_IP = new RequiredParameter<>();
 
+  /**
+   * The name of the configured runtimes.
+   */
+  public static final RequiredParameter<String> RUNTIME_NAMES = new RequiredParameter<>();
   /**
    * The port number of Mesos Slave.
    */
@@ -111,5 +116,6 @@ public final class MesosDriverConfiguration extends ConfigurationModuleBuilder {
       .bindNamedParameter(ClientRemoteIdentifier.class, CLIENT_REMOTE_IDENTIFIER)
       .bindNamedParameter(ErrorHandlerRID.class, CLIENT_REMOTE_IDENTIFIER)
       .bindNamedParameter(JVMHeapSlack.class, JVM_HEAP_SLACK)
+      .bindSetEntry(DefinedRuntimes.class, RUNTIME_NAMES)
       .build();
 }

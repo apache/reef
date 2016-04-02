@@ -25,6 +25,7 @@ import org.apache.reef.io.TempFileCreator;
 import org.apache.reef.io.WorkingDirectoryTempFileCreator;
 import org.apache.reef.runtime.common.driver.api.*;
 import org.apache.reef.runtime.common.driver.parameters.ClientRemoteIdentifier;
+import org.apache.reef.runtime.common.driver.parameters.DefinedRuntimes;
 import org.apache.reef.runtime.common.driver.parameters.EvaluatorTimeout;
 import org.apache.reef.runtime.common.driver.parameters.JobIdentifier;
 import org.apache.reef.runtime.common.files.RuntimePathProvider;
@@ -66,6 +67,11 @@ public final class HDInsightDriverConfiguration extends ConfigurationModuleBuild
   public static final RequiredParameter<String> JOB_IDENTIFIER = new RequiredParameter<>();
 
   /**
+   * @see DefinedRuntimes
+   */
+  public static final RequiredParameter<String> RUNTIME_NAMES = new RequiredParameter<>();
+
+  /**
    * The client remote identifier.
    */
   public static final OptionalParameter<String> CLIENT_REMOTE_IDENTIFIER = new OptionalParameter<>();
@@ -104,5 +110,6 @@ public final class HDInsightDriverConfiguration extends ConfigurationModuleBuild
       .bindNamedParameter(JVMHeapSlack.class, JVM_HEAP_SLACK)
       .bindImplementation(RuntimeClasspathProvider.class, HDInsightClasspathProvider.class)
       .bindImplementation(RuntimePathProvider.class, HDInsightJVMPathProvider.class)
+      .bindSetEntry(DefinedRuntimes.class, RUNTIME_NAMES)
       .build();
 }
