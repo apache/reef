@@ -22,11 +22,9 @@ using System.Globalization;
 using System.Linq;
 using Org.Apache.REEF.Common.Protobuf.ReefProtocol;
 using Org.Apache.REEF.Common.Runtime.Evaluator.Task;
-using Org.Apache.REEF.Common.Runtime.Evaluator.Utils;
 using Org.Apache.REEF.Common.Tasks;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Tang.Formats;
-using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Utilities;
 using Org.Apache.REEF.Utilities.Logging;
 
@@ -43,45 +41,13 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Context
 
         [Inject]
         private ContextManager(
-            IHeartBeatManager heartBeatManager,
             AvroConfigurationSerializer serializer,
-            [Parameter(typeof(RootContextConfiguration))] string rootContextConfiguration,
-            [Parameter(typeof(RootServiceConfiguration))] string rootServiceConfiguration)
-            : this(heartBeatManager, serializer, serializer.FromString(rootContextConfiguration),
-            serializer.FromString(rootServiceConfiguration), Optional<IConfiguration>.Empty())
-        {
-        }
-
-        [Inject]
-        private ContextManager(
             IHeartBeatManager heartBeatManager,
-            AvroConfigurationSerializer serializer,
-            [Parameter(typeof(RootContextConfiguration))] string rootContextConfiguration,
-            [Parameter(typeof(RootServiceConfiguration))] string rootServiceConfiguration,
-            [Parameter(typeof(InitialTaskConfiguration))] string initialTaskConfiguration)
-            : this(heartBeatManager, serializer, serializer.FromString(rootContextConfiguration),
-            serializer.FromString(rootServiceConfiguration), Optional<IConfiguration>.Of(serializer.FromString(initialTaskConfiguration)))
+            RootContextLauncher rootContextLauncher)
         {
-        }
-
-        private ContextManager(
-            IHeartBeatManager heartBeatManager,
-            AvroConfigurationSerializer serializer,
-            IConfiguration rootContextConfiguration,
-            IConfiguration rootServiceConfiguration,
-            Optional<IConfiguration> initialTaskConfiguration)
-        {
-            using (LOGGER.LogFunction("ContextManager::ContextManager"))
-            {
-                _heartBeatManager = heartBeatManager;
-                _serializer = serializer;
-
-                _rootContextLauncher = new RootContextLauncher(
-                    rootContextConfiguration,
-                    rootServiceConfiguration,
-                    initialTaskConfiguration,
-                    heartBeatManager);
-            }
+            _rootContextLauncher = rootContextLauncher;
+            _heartBeatManager = heartBeatManager;
+            _serializer = serializer;
         }
 
         /// <summary>
@@ -99,7 +65,7 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Context
                     LOGGER.Log(Level.Info, "Launching the initial Task");
                     try
                     {
-                        _topContext.StartTask(_rootContextLauncher.RootTaskConfig.Value, _heartBeatManager);
+                        _topContext.StartTask(_rootContextLauncher.RootTaskConfig.Value);
                     }
                     catch (TaskClientCodeException e)
                     {
@@ -372,7 +338,7 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Context
                 }
                 
                 var configuration = _serializer.FromString(startTaskProto.configuration);
-                currentActiveContext.StartTask(configuration, _heartBeatManager);
+                currentActiveContext.StartTask(configuration);
             }
         }
 

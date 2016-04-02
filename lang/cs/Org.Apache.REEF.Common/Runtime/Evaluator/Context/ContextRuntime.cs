@@ -193,11 +193,9 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Context
 
         /// <summary>
         /// Launches an Task on this context.
-        /// TODO[JIRA REEF-217]: Remove heartBeatManager from argument.
         /// </summary>
         /// <param name="taskConfiguration"></param>
-        /// <param name="heartBeatManager"></param>
-        public void StartTask(IConfiguration taskConfiguration, IHeartBeatManager heartBeatManager)
+        public void StartTask(IConfiguration taskConfiguration)
         {
             lock (_contextLifeCycle)
             {

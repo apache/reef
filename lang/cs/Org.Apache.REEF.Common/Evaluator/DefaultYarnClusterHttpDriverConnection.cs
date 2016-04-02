@@ -17,6 +17,7 @@
 
 using System;
 using Org.Apache.REEF.Tang.Annotations;
+using Org.Apache.REEF.Utilities;
 
 namespace Org.Apache.REEF.Common.Evaluator
 {
@@ -28,14 +29,15 @@ namespace Org.Apache.REEF.Common.Evaluator
         private DefaultYarnClusterHttpDriverConnection()
         {
             _applicationId = Environment.GetEnvironmentVariable(Constants.ReefYarnApplicationIdEnvironmentVariable);
-            if (_applicationId == null)
-            {
-                throw new ApplicationException("Could not fetch the application ID from YARN's container environment variables.");
-            }
         }
 
         public DriverInformation GetDriverInformation()
         {
+            if (string.IsNullOrWhiteSpace(_applicationId))
+            {
+                throw new ApplicationException("Could not fetch the application ID from YARN's container environment variables.");
+            }
+
             // e.g., http://headnodehost:9014/proxy/application_1407519727821_0012/reef/v1/driver
             Uri queryUri = new Uri(
                 string.Concat(

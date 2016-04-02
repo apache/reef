@@ -211,7 +211,7 @@ namespace Org.Apache.REEF.Evaluator.Tests
                 {
                     var hbMgr = Substitute.For<IHeartBeatManager>();
                     contextRuntime.ContextInjector.BindVolatileInstance(GenericType<IHeartBeatManager>.Class, hbMgr);
-                    contextRuntime.StartTask(taskConfig, hbMgr);
+                    contextRuntime.StartTask(taskConfig);
 
                     Assert.True(contextRuntime.TaskRuntime.IsPresent());
                     Assert.True(contextRuntime.GetTaskStatus().IsPresent());
@@ -255,14 +255,14 @@ namespace Org.Apache.REEF.Evaluator.Tests
                 {
                     var hbMgr = Substitute.For<IHeartBeatManager>();
                     contextRuntime.ContextInjector.BindVolatileInstance(GenericType<IHeartBeatManager>.Class, hbMgr);
-                    contextRuntime.StartTask(taskConfig, hbMgr);
+                    contextRuntime.StartTask(taskConfig);
 
                     Assert.True(contextRuntime.TaskRuntime.IsPresent());
                     Assert.True(contextRuntime.GetTaskStatus().IsPresent());
                     Assert.Equal(contextRuntime.GetTaskStatus().Value.state, State.RUNNING);
 
                     Assert.Throws<InvalidOperationException>(
-                        () => contextRuntime.StartTask(taskConfig, hbMgr));
+                        () => contextRuntime.StartTask(taskConfig));
                 }
                 finally
                 {
@@ -296,7 +296,7 @@ namespace Org.Apache.REEF.Evaluator.Tests
 
                 var hbMgr = Substitute.For<IHeartBeatManager>();
                 contextRuntime.ContextInjector.BindVolatileInstance(GenericType<IHeartBeatManager>.Class, hbMgr);
-                contextRuntime.StartTask(taskConfig, hbMgr);
+                contextRuntime.StartTask(taskConfig);
                 var testTask = contextRuntime.TaskRuntime.Value.Task as TestTask;
                 if (testTask == null)
                 {
@@ -308,7 +308,7 @@ namespace Org.Apache.REEF.Evaluator.Tests
                 Assert.False(contextRuntime.GetTaskStatus().IsPresent());
                 testTask.DisposedEvent.Wait();
 
-                contextRuntime.StartTask(taskConfig, hbMgr);
+                contextRuntime.StartTask(taskConfig);
                 Assert.Equal(contextRuntime.GetTaskStatus().Value.state, State.RUNNING);
 
                 var secondTestTask = contextRuntime.TaskRuntime.Value.Task as TestTask;

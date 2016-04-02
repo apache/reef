@@ -22,11 +22,9 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Threading;
-using Org.Apache.REEF.Common.Files;
 using Org.Apache.REEF.Common.Runtime.Evaluator;
 using Org.Apache.REEF.Common.Runtime.Evaluator.Utils;
 using Org.Apache.REEF.Driver.Bridge;
-using Org.Apache.REEF.Evaluator.Exceptions;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Tang.Formats;
 using Org.Apache.REEF.Tang.Implementations.InjectionPlan;
@@ -85,10 +83,7 @@ namespace Org.Apache.REEF.Evaluator
                 var serializer = injector.GetInstance<AvroConfigurationSerializer>();
                 var rootEvaluatorConfiguration =
                     serializer.FromString(injector.GetNamedInstance<EvaluatorConfiguration, string>());
-                var evaluator = injector.ForkInjector(
-                    ReadClrBridgeConfiguration(),
-                    rootEvaluatorConfiguration)
-                    .GetInstance<Evaluator>();
+                var evaluator = injector.ForkInjector(rootEvaluatorConfiguration).GetInstance<Evaluator>();
 
                 evaluator.Run();
                 logger.Log(Level.Info, "Evaluator is returned from Run()");
@@ -125,36 +120,6 @@ namespace Org.Apache.REEF.Evaluator
 
                 logger.Log(Level.Info, "Evaluator in debug mode, waiting for debugger to be attached...");
                 Thread.Sleep(2000);
-            }
-        }
-
-        /// <summary>
-        /// Reads the Evaluator Configuration.
-        /// </summary>
-        /// <exception cref="EvaluatorConfigurationFileNotFoundException">When the configuration file cannot be found.</exception>
-        /// <exception cref="EvaluatorConfigurationParseException">When the configuration file exists, but can't be deserialized.</exception>
-        /// <returns></returns>
-        //// TODO[JIRA REEF-217]: Remove this method.
-        private static IConfiguration ReadClrBridgeConfiguration()
-        {
-            var clrRuntimeConfigurationFile = Path.Combine(Directory.GetCurrentDirectory(), "reef", "global",
-                new REEFFileNames().GetClrBridgeConfigurationName());
-
-            if (!File.Exists(clrRuntimeConfigurationFile))
-            {
-                throw new EvaluatorConfigurationFileNotFoundException(clrRuntimeConfigurationFile);
-            }
-            
-            try
-            {
-                var clrDriverConfig = new AvroConfigurationSerializer().FromFile(clrRuntimeConfigurationFile);
-                logger.Log(Level.Info, 
-                    string.Format(CultureInfo.CurrentCulture, "Clr Driver Configuration is deserialized from file {0}:", clrRuntimeConfigurationFile));
-                return clrDriverConfig;
-            }
-            catch (Exception e)
-            {
-                throw new EvaluatorConfigurationParseException(e);
             }
         }
 
