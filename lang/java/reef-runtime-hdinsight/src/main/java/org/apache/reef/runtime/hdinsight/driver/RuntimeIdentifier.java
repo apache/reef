@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.runtime.local.driver;
+package org.apache.reef.runtime.hdinsight.driver;
 
 import org.apache.reef.annotations.audience.Private;
 
@@ -25,10 +25,10 @@ import org.apache.reef.annotations.audience.Private;
  */
 @Private
 public final class RuntimeIdentifier {
-   /**
+  /**
    * Same value is defined on the C# side in the Org.Apache.REEF.Common.Runtime.RuntimeName.
    */
-  public static final String RUNTIME_NAME = "Local";
+  public static final String RUNTIME_NAME = "HDInsight";
 
   private RuntimeIdentifier() { }
 }

@@ -21,6 +21,7 @@ using System.Linq;
 using System.Net;
 using Org.Apache.REEF.Common.Catalog;
 using Org.Apache.REEF.Common.Evaluator;
+using Org.Apache.REEF.Common.Runtime;
 using Org.Apache.REEF.Driver.Bridge;
 using Org.Apache.REEF.Utilities.Attributes;
 using Org.Apache.REEF.Utilities.Diagnostics;
@@ -39,17 +40,19 @@ namespace Org.Apache.REEF.Driver.Evaluator
         private readonly int _megaBytes;
         private readonly INodeDescriptor _nodeDescriptor;
         private readonly string _rack;
-        private readonly string _runtimeName;
+        private readonly RuntimeName _runtimeName;
 
-        // TODO[JIRA REEF-1054]: make runtimeName not optional
-        internal EvaluatorDescriptorImpl(INodeDescriptor nodeDescriptor, EvaluatorType type, int megaBytes, int core, string rack = DefaultRackName, string runtimeName = "")
+        internal EvaluatorDescriptorImpl(INodeDescriptor nodeDescriptor, EvaluatorType type, int megaBytes, int core, string runtimeName, string rack = DefaultRackName)
         {
             _nodeDescriptor = nodeDescriptor;
             _evaluatorType = type;
             _megaBytes = megaBytes;
             _core = core;
             _rack = rack;
-            _runtimeName = runtimeName;
+            if (!string.IsNullOrWhiteSpace(runtimeName) && !Enum.TryParse(runtimeName, true, out _runtimeName))
+            {
+                throw new ArgumentException("Unknown runtime name received " + runtimeName);
+            }
         }
 
         /// <summary>
@@ -71,12 +74,19 @@ namespace Org.Apache.REEF.Driver.Evaluator
                 settings.Add(pair[0], pair[1]);
             }
 
-            // TODO[JIRA REEF-1054]: make runtimeName not optional
-            string runtimeName;
-            if (!settings.TryGetValue("RuntimeName", out runtimeName))
+            string runtimeNameStr;
+            if (!settings.TryGetValue("RuntimeName", out runtimeNameStr))
             {
                 Exceptions.Throw(new ArgumentException("cannot find RuntimeName entry"), LOGGER);
             }
+
+            RuntimeName runtimeName;
+
+            if (!Enum.TryParse(runtimeNameStr, true, out runtimeName))
+            {
+                Exceptions.Throw(new ArgumentException("cannot parse RuntimeName entry"), LOGGER);
+            }
+
             string ipAddress;
             if (!settings.TryGetValue("IP", out ipAddress))
             {
@@ -145,7 +155,7 @@ namespace Org.Apache.REEF.Driver.Evaluator
             get { return _rack; }
         }
 
-        public string RuntimeName
+        public RuntimeName RuntimeName
         {
             get { return _runtimeName; }
         }

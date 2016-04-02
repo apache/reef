@@ -20,6 +20,7 @@ package org.apache.reef.runtime.yarn.client;
 
 import org.apache.reef.runtime.common.client.DriverConfigurationProvider;
 import org.apache.reef.runtime.common.parameters.JVMHeapSlack;
+import org.apache.reef.runtime.yarn.driver.RuntimeIdentifier;
 import org.apache.reef.tang.Configuration;
 import org.apache.reef.tang.Configurations;
 import org.apache.reef.tang.annotations.Parameter;
@@ -51,6 +52,7 @@ final class YarnDriverConfigurationProviderImpl implements DriverConfigurationPr
               .set(JOB_IDENTIFIER, jobId)
               .set(CLIENT_REMOTE_IDENTIFIER, clientRemoteId)
               .set(JVM_HEAP_SLACK, this.jvmSlack)
+              .set(RUNTIME_NAMES, RuntimeIdentifier.RUNTIME_NAME)
               .build(),
               applicationConfiguration);
   }

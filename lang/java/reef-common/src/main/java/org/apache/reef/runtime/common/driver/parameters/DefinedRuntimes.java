@@ -16,19 +16,16 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.runtime.local.driver;
+package org.apache.reef.runtime.common.driver.parameters;
 
-import org.apache.reef.annotations.audience.Private;
+import org.apache.reef.tang.annotations.Name;
+import org.apache.reef.tang.annotations.NamedParameter;
+
+import java.util.Set;
 
 /**
- * Runtime Identifier Implementation.
+ * The defined runtimes for the job driver.
  */
-@Private
-public final class RuntimeIdentifier {
-   /**
-   * Same value is defined on the C# side in the Org.Apache.REEF.Common.Runtime.RuntimeName.
-   */
-  public static final String RUNTIME_NAME = "Local";
-
-  private RuntimeIdentifier() { }
+@NamedParameter(doc = "Set of defined runtimes.")
+public final class DefinedRuntimes implements Name<Set<String>> {
 }

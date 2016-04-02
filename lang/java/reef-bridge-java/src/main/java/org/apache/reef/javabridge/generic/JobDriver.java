@@ -30,7 +30,9 @@ import org.apache.reef.io.network.naming.NameServer;
 import org.apache.reef.javabridge.*;
 import org.apache.reef.driver.restart.DriverRestartCompleted;
 import org.apache.reef.runtime.common.driver.DriverStatusManager;
+import org.apache.reef.runtime.common.driver.parameters.DefinedRuntimes;
 import org.apache.reef.runtime.common.files.REEFFileNames;
+import org.apache.reef.tang.annotations.Parameter;
 import org.apache.reef.tang.annotations.Unit;
 import org.apache.reef.util.Optional;
 import org.apache.reef.util.logging.CLRBufferedLogHandler;
@@ -51,10 +53,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.*;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -118,6 +117,7 @@ public final class JobDriver {
    * Logging scope factory that provides LoggingScope.
    */
   private final LoggingScopeFactory loggingScopeFactory;
+  private final Set<String> definedRuntimes;
 
   private BridgeHandlerManager handlerManager = null;
   private boolean isRestarted = false;
@@ -149,7 +149,8 @@ public final class JobDriver {
             final ActiveContextBridgeFactory activeContextBridgeFactory,
             final REEFFileNames reefFileNames,
             final AllocatedEvaluatorBridgeFactory allocatedEvaluatorBridgeFactory,
-            final CLRProcessFactory clrProcessFactory) {
+            final CLRProcessFactory clrProcessFactory,
+            @Parameter(DefinedRuntimes.class) final Set<String> definedRuntimes) {
     this.clock = clock;
     this.httpServer = httpServer;
     this.jobMessageObserver = jobMessageObserver;
@@ -163,6 +164,7 @@ public final class JobDriver {
     this.reefFileNames = reefFileNames;
     this.localAddressProvider = localAddressProvider;
     this.clrProcessFactory = clrProcessFactory;
+    this.definedRuntimes = definedRuntimes;
   }
 
   private void setupBridge(final ClrHandlersInitializer initializer) {
@@ -192,7 +194,8 @@ public final class JobDriver {
       }
 
       this.evaluatorRequestorBridge =
-          new EvaluatorRequestorBridge(JobDriver.this.evaluatorRequestor, false, loggingScopeFactory);
+          new EvaluatorRequestorBridge(JobDriver.this.evaluatorRequestor, false, loggingScopeFactory,
+                  JobDriver.this.definedRuntimes);
       JobDriver.this.handlerManager = initializer.getClrHandlers(portNumber, evaluatorRequestorBridge);
 
       try (final LoggingScope lp =
@@ -295,7 +298,7 @@ public final class JobDriver {
     LOG.log(Level.INFO, message);
     final FailedEvaluatorBridge failedEvaluatorBridge =
         new FailedEvaluatorBridge(eval, JobDriver.this.evaluatorRequestor,
-        JobDriver.this.isRestarted, loggingScopeFactory, activeContextBridgeFactory);
+        JobDriver.this.isRestarted, loggingScopeFactory, activeContextBridgeFactory, JobDriver.this.definedRuntimes);
     if (isRestartFailed) {
       NativeInterop.clrSystemDriverRestartFailedEvaluatorHandlerOnNext(
           JobDriver.this.handlerManager.getDriverRestartFailedEvaluatorHandler(),

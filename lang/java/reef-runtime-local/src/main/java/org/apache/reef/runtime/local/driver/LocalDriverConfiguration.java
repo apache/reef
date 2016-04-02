@@ -20,6 +20,7 @@ package org.apache.reef.runtime.local.driver;
 
 import org.apache.reef.runtime.common.driver.api.*;
 import org.apache.reef.runtime.common.driver.parameters.ClientRemoteIdentifier;
+import org.apache.reef.runtime.common.driver.parameters.DefinedRuntimes;
 import org.apache.reef.runtime.common.driver.parameters.JobIdentifier;
 import org.apache.reef.runtime.common.files.RuntimeClasspathProvider;
 import org.apache.reef.runtime.common.launch.parameters.ErrorHandlerRID;
@@ -47,6 +48,10 @@ public class LocalDriverConfiguration extends ConfigurationModuleBuilder {
    * The root folder of the job. Assumed to be an absolute path.
    */
   public static final RequiredParameter<String> ROOT_FOLDER = new RequiredParameter<>();
+  /**
+   * The name of the runitme.
+   */
+  public static final RequiredParameter<String> RUNTIME_NAMES = new RequiredParameter<>();
   /**
    * The fraction of the container memory NOT to use for the Java Heap.
    */
@@ -82,5 +87,6 @@ public class LocalDriverConfiguration extends ConfigurationModuleBuilder {
       .bindNamedParameter(JVMHeapSlack.class, JVM_HEAP_SLACK)
       .bindSetEntry(RackNames.class, RACK_NAMES)
       .bindImplementation(RuntimeClasspathProvider.class, LocalClasspathProvider.class)
+      .bindSetEntry(DefinedRuntimes.class, RUNTIME_NAMES)
       .build();
 }

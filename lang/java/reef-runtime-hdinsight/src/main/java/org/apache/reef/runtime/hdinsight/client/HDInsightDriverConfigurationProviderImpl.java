@@ -20,6 +20,7 @@ package org.apache.reef.runtime.hdinsight.client;
 
 import org.apache.reef.runtime.common.client.DriverConfigurationProvider;
 import org.apache.reef.runtime.common.parameters.JVMHeapSlack;
+import org.apache.reef.runtime.hdinsight.driver.RuntimeIdentifier;
 import org.apache.reef.tang.Configuration;
 import org.apache.reef.tang.Configurations;
 import org.apache.reef.tang.annotations.Parameter;
@@ -27,8 +28,6 @@ import org.apache.reef.tang.annotations.Parameter;
 import javax.inject.Inject;
 
 import java.net.URI;
-
-import static org.apache.reef.runtime.yarn.driver.YarnDriverConfiguration.*;
 
 /**
  * Default driver configuration provider for HDInsight.
@@ -52,6 +51,7 @@ final class HDInsightDriverConfigurationProviderImpl implements DriverConfigurat
             .set(HDInsightDriverConfiguration.CLIENT_REMOTE_IDENTIFIER, clientRemoteId)
             .set(HDInsightDriverConfiguration.JOB_SUBMISSION_DIRECTORY, jobFolder.toString())
             .set(HDInsightDriverConfiguration.JVM_HEAP_SLACK, this.jvmSlack)
+            .set(HDInsightDriverConfiguration.RUNTIME_NAMES, RuntimeIdentifier.RUNTIME_NAME)
             .build();
 
     return Configurations.merge(

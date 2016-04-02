@@ -22,8 +22,10 @@ import org.apache.reef.runtime.common.client.DriverConfigurationProvider;
 import org.apache.reef.runtime.multi.driver.MultiRuntimeDriverConfiguration;
 import org.apache.reef.runtime.multi.utils.MultiRuntimeDefinitionSerializer;
 import org.apache.reef.runtime.multi.utils.avro.MultiRuntimeDefinition;
+import org.apache.reef.runtime.multi.utils.avro.RuntimeDefinition;
 import org.apache.reef.tang.Configuration;
 import org.apache.reef.tang.Configurations;
+import org.apache.reef.tang.formats.ConfigurationModule;
 
 import javax.inject.Inject;
 import java.net.URI;
@@ -59,9 +61,14 @@ final class MultiRuntimeDriverConfigurationProvider implements DriverConfigurati
             jobFolder,
             clientRemoteId,
             jobId);
+    ConfigurationModule conf = MultiRuntimeDriverConfiguration.CONF;
+
+    for(RuntimeDefinition runtimeDefinition : runtimeDefinitions.getRuntimes()){
+      conf = conf.set(MultiRuntimeDriverConfiguration.RUNTIME_NAMES, runtimeDefinition.getRuntimeName().toString());
+    }
 
     return Configurations.merge(applicationConfiguration,
-            MultiRuntimeDriverConfiguration.CONF
+                    conf
                     .set(MultiRuntimeDriverConfiguration.JOB_IDENTIFIER, jobId)
                     .set(MultiRuntimeDriverConfiguration.CLIENT_REMOTE_IDENTIFIER, clientRemoteId)
                     .set(MultiRuntimeDriverConfiguration.SERIALIZED_RUNTIME_DEFINITION,

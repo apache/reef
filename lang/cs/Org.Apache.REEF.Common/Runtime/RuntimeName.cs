@@ -15,44 +15,31 @@
 // specific language governing permissions and limitations
 // under the License.
 
-using Org.Apache.REEF.Common.Runtime;
-
-namespace Org.Apache.REEF.Driver.Evaluator
+namespace Org.Apache.REEF.Common.Runtime
 {
     /// <summary>
-    /// A request for an Evaluator allocation.
+    /// This enum reflects runtime name values as they defined on teh Java side.
     /// </summary>
-    public interface IEvaluatorRequest
+    public enum RuntimeName
     {
         /// <summary>
-        /// Memory for the Evaluator in megabytes.
+        /// Same value as org.apache.reef.runtime.local.driver.RuntimeIdentifier.RUNTIME_NAME
         /// </summary>
-        int MemoryMegaBytes { get; }
+        Local,
 
         /// <summary>
-        /// Number of Evaluators to allocate.
+        /// Same value as org.apache.reef.runtime.yarn.driver.RuntimeIdentifier.RUNTIME_NAME
         /// </summary>
-        int Number { get; }
+        Yarn,
 
         /// <summary>
-        /// Number of cores in the Evaluator.
+        /// Same value as org.apache.reef.runtime.mesos.driver.RuntimeIdentifier.RUNTIME_NAME
         /// </summary>
-        int VirtualCore { get; }
+        Mesos,
 
         /// <summary>
-        /// The desired rack name for the Evaluator to be allocated in.
+        /// Default value for the enum
         /// </summary>
-        string Rack { get; }
-
-        /// <summary>
-        /// The batch ID for requested evaluators. Evaluators requested in the same batch
-        /// will have the same Batch ID.
-        /// </summary>
-        string EvaluatorBatchId { get; }
-
-        /// <summary>
-        /// The name of the runtime to allocate teh evaluator on
-        /// </summary>
-        string RuntimeName { get; }
+        Default
     }
 }

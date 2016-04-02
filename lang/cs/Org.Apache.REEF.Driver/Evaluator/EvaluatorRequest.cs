@@ -18,6 +18,8 @@
 using System;
 using System.Runtime.Serialization;
 
+using Org.Apache.REEF.Common.Runtime;
+
 namespace Org.Apache.REEF.Driver.Evaluator
 {
     /// <summary>
@@ -27,37 +29,44 @@ namespace Org.Apache.REEF.Driver.Evaluator
     internal class EvaluatorRequest : IEvaluatorRequest
     {
         internal EvaluatorRequest()
-            : this(0, 0, 1, string.Empty, Guid.NewGuid().ToString("N"))
+            : this(0, 0, 1, string.Empty, Guid.NewGuid().ToString("N"), string.Empty)
         {
         }
 
         internal EvaluatorRequest(int number, int megaBytes)
-            : this(number, megaBytes, 1, string.Empty, Guid.NewGuid().ToString("N"))
+            : this(number, megaBytes, 1, string.Empty, Guid.NewGuid().ToString("N"), string.Empty)
         {
         }
 
         internal EvaluatorRequest(int number, int megaBytes, int core)
-            : this(number, megaBytes, core, string.Empty, Guid.NewGuid().ToString("N"))
+            : this(number, megaBytes, core, string.Empty, Guid.NewGuid().ToString("N"), string.Empty)
         {
         }
 
         internal EvaluatorRequest(int number, int megaBytes, string rack)
-            : this(number, megaBytes, 1, rack, Guid.NewGuid().ToString("N"))
+            : this(number, megaBytes, 1, rack, Guid.NewGuid().ToString("N"), string.Empty)
         {
         }
 
         internal EvaluatorRequest(int number, int megaBytes, int core, string rack)
-            : this(number, megaBytes, core, rack, Guid.NewGuid().ToString("N"))
+            : this(number, megaBytes, core, rack, Guid.NewGuid().ToString("N"), string.Empty)
         {
         }
 
         internal EvaluatorRequest(int number, int megaBytes, int core, string rack, string evaluatorBatchId)
+            : this(number, megaBytes, core, rack, evaluatorBatchId, string.Empty)
+
+        {
+        }
+
+        internal EvaluatorRequest(int number, int megaBytes, int core, string rack, string evaluatorBatchId, string runtimeName)
         {
             Number = number;
             MemoryMegaBytes = megaBytes;
             VirtualCore = core;
             Rack = rack;
             EvaluatorBatchId = evaluatorBatchId;
+            RuntimeName = runtimeName;
         }
 
         [DataMember]
@@ -74,6 +83,9 @@ namespace Org.Apache.REEF.Driver.Evaluator
 
         [DataMember]
         public string EvaluatorBatchId { get; private set; }
+
+        [DataMember]
+        public string RuntimeName { get; private set; }
 
         internal static EvaluatorRequestBuilder NewBuilder()
         {

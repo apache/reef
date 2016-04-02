@@ -23,6 +23,7 @@ import org.apache.reef.runtime.common.parameters.JVMHeapSlack;
 import org.apache.reef.runtime.local.client.parameters.MaxNumberOfEvaluators;
 import org.apache.reef.runtime.local.client.parameters.RackNames;
 import org.apache.reef.runtime.local.driver.LocalDriverConfiguration;
+import org.apache.reef.runtime.local.driver.RuntimeIdentifier;
 import org.apache.reef.tang.Configuration;
 import org.apache.reef.tang.Configurations;
 import org.apache.reef.tang.annotations.Parameter;
@@ -59,7 +60,8 @@ final class LocalDriverConfigurationProviderImpl implements DriverConfigurationP
         .set(LocalDriverConfiguration.ROOT_FOLDER, jobFolder.getPath())
         .set(LocalDriverConfiguration.JVM_HEAP_SLACK, this.jvmHeapSlack)
         .set(LocalDriverConfiguration.CLIENT_REMOTE_IDENTIFIER, clientRemoteId)
-        .set(LocalDriverConfiguration.JOB_IDENTIFIER, jobId);
+        .set(LocalDriverConfiguration.JOB_IDENTIFIER, jobId)
+        .set(LocalDriverConfiguration.RUNTIME_NAMES, RuntimeIdentifier.RUNTIME_NAME);
     for (final String rackName : rackNames) {
       configModule = configModule.set(LocalDriverConfiguration.RACK_NAMES, rackName);
     }

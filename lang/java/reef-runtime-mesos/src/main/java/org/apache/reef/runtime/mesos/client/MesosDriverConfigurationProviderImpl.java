@@ -22,6 +22,7 @@ import org.apache.reef.runtime.common.client.DriverConfigurationProvider;
 import org.apache.reef.runtime.common.parameters.JVMHeapSlack;
 import org.apache.reef.runtime.mesos.client.parameters.MasterIp;
 import org.apache.reef.runtime.mesos.driver.MesosDriverConfiguration;
+import org.apache.reef.runtime.mesos.driver.RuntimeIdentifier;
 import org.apache.reef.tang.Configuration;
 import org.apache.reef.tang.Configurations;
 import org.apache.reef.tang.annotations.Parameter;
@@ -56,6 +57,7 @@ final class MesosDriverConfigurationProviderImpl implements DriverConfigurationP
                     .set(MesosDriverConfiguration.JVM_HEAP_SLACK, this.jvmSlack)
                     .set(MesosDriverConfiguration.SCHEDULER_DRIVER_CAPACITY, 1)
                     // must be 1 as there is 1 scheduler at the same time
+                    .set(MesosDriverConfiguration.RUNTIME_NAMES, RuntimeIdentifier.RUNTIME_NAME)
                     .build(),
             applicationConfiguration);
   }

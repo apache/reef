@@ -22,12 +22,10 @@ import org.apache.reef.annotations.audience.Private;
 import org.apache.reef.annotations.audience.RuntimeAuthor;
 import org.apache.reef.runtime.common.driver.api.*;
 import org.apache.reef.runtime.common.driver.parameters.ClientRemoteIdentifier;
+import org.apache.reef.runtime.common.driver.parameters.DefinedRuntimes;
 import org.apache.reef.runtime.common.driver.parameters.JobIdentifier;
-import org.apache.reef.runtime.common.files.RuntimeClasspathProvider;
 import org.apache.reef.runtime.common.launch.parameters.LaunchID;
 import org.apache.reef.runtime.multi.client.parameters.SerializedRuntimeDefinition;
-import org.apache.reef.runtime.yarn.YarnClasspathProvider;
-import org.apache.reef.runtime.yarn.util.YarnConfigurationConstructor;
 import org.apache.reef.tang.formats.ConfigurationModule;
 import org.apache.reef.tang.formats.ConfigurationModuleBuilder;
 import org.apache.reef.tang.formats.OptionalParameter;
@@ -44,6 +42,11 @@ public class MultiRuntimeDriverConfiguration extends ConfigurationModuleBuilder 
    * Serialized runtime configuration.
    */
   public static final RequiredParameter<String> SERIALIZED_RUNTIME_DEFINITION = new RequiredParameter<>();
+
+  /**
+   * Serialized runtime configuration.
+   */
+  public static final RequiredParameter<String> RUNTIME_NAMES = new RequiredParameter<>();
 
   /**
    * The identifier of the Job submitted.
@@ -68,7 +71,6 @@ public class MultiRuntimeDriverConfiguration extends ConfigurationModuleBuilder 
       .bindNamedParameter(LaunchID.class, JOB_IDENTIFIER)
       .bindNamedParameter(JobIdentifier.class, JOB_IDENTIFIER)
       .bindNamedParameter(ClientRemoteIdentifier.class, CLIENT_REMOTE_IDENTIFIER)
-      .bindImplementation(RuntimeClasspathProvider.class, YarnClasspathProvider.class)
-      .bindConstructor(org.apache.hadoop.yarn.conf.YarnConfiguration.class, YarnConfigurationConstructor.class)
+      .bindSetEntry(DefinedRuntimes.class, RUNTIME_NAMES)
       .build();
 }

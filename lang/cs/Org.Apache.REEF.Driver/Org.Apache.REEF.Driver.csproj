@@ -30,6 +30,7 @@ under the License.
   </PropertyGroup>
   <Import Project="$(SolutionDir)\build.props" />
   <ItemGroup>
+    <Reference Include="Microsoft.Hadoop.Avro, Version=1.5.6.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL" />
     <Reference Include="protobuf-net">
       <HintPath>$(PackagesDir)\protobuf-net.$(ProtobufVersion)\lib\net40\protobuf-net.dll</HintPath>
     </Reference>
@@ -38,6 +39,8 @@ under the License.
     <Reference Include="System.Runtime.Serialization" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Bridge\Avro\DefinedRuntimes.cs" />
+    <Compile Include="Bridge\Avro\DefinedRuntimesSerializer.cs" />
     <Compile Include="Bridge\BridgeConfigurationProvider.cs" />
     <Compile Include="Bridge\BridgeHandlerManager.cs" />
     <Compile Include="Bridge\BridgeLogger.cs" />

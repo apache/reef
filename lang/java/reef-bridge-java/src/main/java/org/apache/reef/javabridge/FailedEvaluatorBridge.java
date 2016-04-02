@@ -26,6 +26,7 @@ import org.apache.reef.driver.evaluator.FailedEvaluator;
 import org.apache.reef.io.naming.Identifiable;
 import org.apache.reef.util.logging.LoggingScopeFactory;
 
+import java.util.Set;
 import java.util.logging.Logger;
 
 /**
@@ -44,11 +45,13 @@ public final class FailedEvaluatorBridge extends NativeBridge implements Identif
                                final EvaluatorRequestor evaluatorRequestor,
                                final boolean blockedForAdditionalEvaluator,
                                final LoggingScopeFactory loggingScopeFactory,
-                               final ActiveContextBridgeFactory activeContextBridgeFactory) {
+                               final ActiveContextBridgeFactory activeContextBridgeFactory,
+                               final Set<String> definedRuntimes) {
     this.jfailedEvaluator = failedEvaluator;
     this.evaluatorId = failedEvaluator.getId();
     this.evaluatorRequestorBridge =
-        new EvaluatorRequestorBridge(evaluatorRequestor, blockedForAdditionalEvaluator, loggingScopeFactory);
+        new EvaluatorRequestorBridge(evaluatorRequestor, blockedForAdditionalEvaluator, loggingScopeFactory,
+                definedRuntimes);
     this.activeContextBridgeFactory = activeContextBridgeFactory;
   }
 
