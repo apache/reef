@@ -52,7 +52,9 @@ under the License.
     <None Include="$(SolutionDir)\Org.Apache.REEF.Client\run.cmd">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="App.config" />
+    <None Include="..\App.config">
+      <Link>App.config</Link>
+    </None>
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
