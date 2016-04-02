@@ -29,14 +29,15 @@ namespace Org.Apache.REEF.Common.Evaluator
         private DefaultYarnOneBoxHttpDriverConnection()
         {
             _applicationId = Environment.GetEnvironmentVariable(Constants.ReefYarnApplicationIdEnvironmentVariable);
-            if (_applicationId == null)
-            {
-                throw new ApplicationException("Could not fetch the application ID from YARN's container environment variables.");
-            }
         }
 
         public DriverInformation GetDriverInformation()
         {
+            if (string.IsNullOrWhiteSpace(_applicationId))
+            {
+                throw new ApplicationException("Could not fetch the application ID from YARN's container environment variables.");
+            }
+
             // e.g., http://yingdac1:8088/proxy/application_1407519727821_0012/reef/v1/driver
             string oneBoxHost = string.Format(CultureInfo.InvariantCulture, "http://{0}:8088/proxy/", Environment.MachineName);
             Uri queryUri = new Uri(

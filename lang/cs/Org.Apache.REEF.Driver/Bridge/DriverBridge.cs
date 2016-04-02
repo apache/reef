@@ -146,6 +146,7 @@ namespace Org.Apache.REEF.Driver.Bridge
             [Parameter(Value = typeof(EvaluatorConfigurationProviders))] ISet<IConfigurationProvider> configurationProviders,
             [Parameter(Value = typeof(DriverBridgeConfigurationOptions.TraceLevel))] string traceLevel,
             IDriverReconnConfigProvider driverReconnConfigProvider,
+            IDriverConnection driverConnection,
             HttpServerHandler httpServerHandler,
             IProgressProvider progressProvider)
         {
@@ -190,7 +191,7 @@ namespace Org.Apache.REEF.Driver.Bridge
             // TODO[JIRA REEF-1306]: Remove after it is bound directly into EvaluatorConfigurationProviders.
             _configurationProviders = new HashSet<IConfigurationProvider>(configurationProviders)
             {
-                GetDriverReconnectionProvider(driverReconnConfigProvider)
+                GetDriverReconnectionProvider(driverReconnConfigProvider, driverConnection)
             };
 
             _progressProvider = progressProvider;
@@ -216,12 +217,20 @@ namespace Org.Apache.REEF.Driver.Bridge
         }
 
         private static IDriverReconnConfigProvider GetDriverReconnectionProvider(
-            IDriverReconnConfigProvider driverReconnConfigProvider)
+            IDriverReconnConfigProvider driverReconnConfigProvider,
+            IDriverConnection driverConnection)
         {
             // If not the default, this means that the user has bound the newer configuration. Return it.
             if (!(driverReconnConfigProvider is DefaultDriverReconnConfigProvider))
             {
                 return driverReconnConfigProvider;
+            }
+
+            // If not default, this means that the user has bound the old configuration.
+            // Use the dynamic configuration provider in that case.
+            if (!(driverConnection is MissingDriverConnection))
+            {
+                return new DynamicDriverReconnConfigProvider(driverConnection.GetType());
             }
 
             // This is done as a stop gap for deprecation because we cannot bind an implementation 
