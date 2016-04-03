@@ -16,7 +16,32 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+package org.apache.reef.vortex.protocol.workertomaster;
+
+import org.apache.reef.annotations.Unstable;
+import org.apache.reef.annotations.audience.DriverSide;
+import org.apache.reef.annotations.audience.Private;
+
 /**
- * Utilities used in Vortex.
+ * The interface for a status report from the {@link org.apache.reef.vortex.evaluator.VortexWorker}.
  */
-package org.apache.reef.vortex.util;
+@Unstable
+@Private
+@DriverSide
+public interface WorkerToMasterReport {
+  /**
+   * Type of WorkerToMasterReport.
+   */
+  enum Type {
+    TaskletResult,
+    TaskletAggregationResult,
+    TaskletCancelled,
+    TaskletFailure,
+    TaskletAggregationFailure
+  }
+
+  /**
+   * @return the type of this WorkerToMasterReport.
+   */
+  Type getType();
+}

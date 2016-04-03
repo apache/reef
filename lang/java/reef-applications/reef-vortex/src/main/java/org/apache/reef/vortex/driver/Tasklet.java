@@ -21,7 +21,6 @@ package org.apache.reef.vortex.driver;
 import org.apache.reef.annotations.audience.DriverSide;
 import org.apache.reef.util.Optional;
 import org.apache.reef.vortex.api.VortexFunction;
-import org.apache.reef.vortex.common.VortexFutureDelegate;
 
 /**
  * Representation of user task in Driver.

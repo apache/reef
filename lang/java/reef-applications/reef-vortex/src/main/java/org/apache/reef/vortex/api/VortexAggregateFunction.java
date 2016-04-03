@@ -21,22 +21,16 @@ package org.apache.reef.vortex.api;
 import org.apache.reef.annotations.Unstable;
 import org.apache.reef.annotations.audience.ClientSide;
 import org.apache.reef.annotations.audience.Public;
-import org.apache.reef.io.serialization.Codec;
-
-import java.io.Serializable;
 import java.util.List;
 
 /**
  * Typed user function for Local Aggregation. Implement your functions using this interface.
- * TODO[REEF-504]: Clean up Serializable in Vortex.
- * TODO[REEF-1003]: Use reflection instead of serialization when launching VortexFunction.
- *
  * @param <TOutput> output type of the aggregation function and the functions to-be-aggregated.
  */
 @Public
 @ClientSide
 @Unstable
-public interface VortexAggregateFunction<TOutput> extends Serializable {
+public interface VortexAggregateFunction<TOutput> {
 
   /**
    * Runs a custom local aggregation function on Tasklets assigned to a VortexWorker.
@@ -45,14 +39,4 @@ public interface VortexAggregateFunction<TOutput> extends Serializable {
    * @throws Exception
    */
   TOutput call(final List<TOutput> taskletOutputs) throws VortexAggregateException;
-
-  /**
-   * Users must define codec for the AggregationOutput.
-   * {@link org.apache.reef.vortex.util.VoidCodec} can be used if the aggregation output is
-   * empty, and {@link org.apache.reef.io.serialization.SerializableCodec} can be used for ({@link Serializable}
-   * aggregation output.
-   * Custom aggregation output Codec can also be supplied.
-   * @return Codec used to serialize/deserialize the output.
-   */
-  Codec<TOutput> getOutputCodec();
 }

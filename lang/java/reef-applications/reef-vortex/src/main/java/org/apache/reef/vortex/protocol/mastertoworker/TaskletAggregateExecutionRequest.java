@@ -16,51 +16,60 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.vortex.common;
+package org.apache.reef.vortex.protocol.mastertoworker;
 
 import org.apache.reef.annotations.Unstable;
 import org.apache.reef.annotations.audience.DriverSide;
 import org.apache.reef.annotations.audience.Private;
 
 /**
- * Report of a tasklet execution result.
+ * A request from the Vortex Driver to run an aggregate-able function.
  */
 @Unstable
 @Private
 @DriverSide
-public final class TaskletResultReport implements TaskletReport {
-  private final int taskletId;
-  private final byte[] serializedResult;
+public final class TaskletAggregateExecutionRequest<TInput> implements MasterToWorkerRequest {
+  private TInput input;
+  private int aggregateFunctionId;
+  private int taskletId;
 
   /**
-   * @param taskletId of the Tasklet.
-   * @param serializedResult of the tasklet execution in a serialized form.
+   * No-arg constructor required for Kryo to serialize/deserialize.
    */
-  public TaskletResultReport(final int taskletId, final byte[] serializedResult) {
+  TaskletAggregateExecutionRequest() {
+  }
+
+  public TaskletAggregateExecutionRequest(final int taskletId,
+                                          final int aggregateFunctionId,
+                                          final TInput input) {
     this.taskletId = taskletId;
-    this.serializedResult = serializedResult;
+    this.input = input;
+    this.aggregateFunctionId = aggregateFunctionId;
   }
 
   /**
-   * @return the type of this TaskletReport.
+   * @return input of the request.
    */
-  @Override
-  public TaskletReportType getType() {
-    return TaskletReportType.TaskletResult;
+  public TInput getInput() {
+    return input;
   }
 
   /**
-   * @return the TaskletId of this TaskletReport
+   * @return tasklet ID corresponding to the tasklet request.
    */
   public int getTaskletId() {
     return taskletId;
   }
 
   /**
-   * @return the result of the tasklet execution in a serialized form.
+   * @return the AggregateFunctionID of the request.
    */
-  public byte[] getSerializedResult() {
-    return serializedResult;
+  public int getAggregateFunctionId() {
+    return aggregateFunctionId;
   }
 
+  @Override
+  public Type getType() {
+    return Type.ExecuteAggregateTasklet;
+  }
 }

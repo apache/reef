@@ -26,7 +26,13 @@ import java.util.List;
  * Row-oriented matrix implementation used in {@link MatMul} example.
  */
 final class RowMatrix implements Matrix<Double> {
-  private final List<List<Double>> rows;
+  private List<List<Double>> rows;
+
+  /**
+   * No-arg constructor required for Kryo to serialize/deserialize.
+   */
+  RowMatrix() {
+  }
 
   /**
    * Constructor of matrix which creates an empty matrix of size (numRow x numColumn).

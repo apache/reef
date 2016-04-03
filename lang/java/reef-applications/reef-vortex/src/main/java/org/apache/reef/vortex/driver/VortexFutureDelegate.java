@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.vortex.common;
+package org.apache.reef.vortex.driver;
 
 import org.apache.reef.annotations.Unstable;
 import org.apache.reef.annotations.audience.DriverSide;
@@ -31,18 +31,17 @@ import java.util.List;
 @Unstable
 @DriverSide
 @Private
-public interface VortexFutureDelegate {
+public interface VortexFutureDelegate<TOutput> {
 
   /**
    * A Tasklet associated with the future has completed with a result.
-   * The result should be decoded as in {@link org.apache.reef.vortex.api.VortexFuture#completed(int, byte[])}.
    */
-  void completed(final int taskletId, final byte[] serializedResult);
+  void completed(final int taskletId, TOutput result);
 
   /**
    * The list of aggregated Tasklets associated with the Future that have completed with a result.
    */
-  void aggregationCompleted(final List<Integer> taskletIds, final byte[] serializedResult);
+  void aggregationCompleted(final List<Integer> taskletIds, final TOutput result);
 
   /**
    * A Tasklet associated with the Future has thrown an Exception.

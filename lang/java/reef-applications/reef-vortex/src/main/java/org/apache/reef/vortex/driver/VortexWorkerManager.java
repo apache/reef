@@ -24,10 +24,10 @@ import org.apache.reef.driver.task.RunningTask;
 import org.apache.reef.vortex.api.VortexAggregateFunction;
 import org.apache.reef.vortex.api.VortexAggregatePolicy;
 import org.apache.reef.vortex.api.VortexFunction;
-import org.apache.reef.vortex.common.TaskletAggregateExecutionRequest;
-import org.apache.reef.vortex.common.TaskletAggregationRequest;
-import org.apache.reef.vortex.common.TaskletCancellationRequest;
-import org.apache.reef.vortex.common.TaskletExecutionRequest;
+import org.apache.reef.vortex.protocol.mastertoworker.TaskletAggregateExecutionRequest;
+import org.apache.reef.vortex.protocol.mastertoworker.TaskletAggregationRequest;
+import org.apache.reef.vortex.protocol.mastertoworker.TaskletCancellationRequest;
+import org.apache.reef.vortex.protocol.mastertoworker.TaskletExecutionRequest;
 
 import java.util.*;
 

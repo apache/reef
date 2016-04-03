@@ -19,20 +19,17 @@
 package org.apache.reef.vortex.api;
 
 import org.apache.reef.annotations.Unstable;
-import org.apache.reef.io.serialization.Codec;
-
-import java.io.Serializable;
 
 /**
  * Typed user function. Implement your functions using this interface.
- * TODO[REEF-504]: Clean up Serializable in Vortex.
- * TODO[REEF-1003]: Use reflection instead of serialization when launching VortexFunction.
+ * Note that Kryo should be able to serialize/deserialize your function and input.
+ * Please refer to Kryo project's GitHub repository for how to make Kryo-compatible objects.
  *
  * @param <TInput> input type
  * @param <TOutput> output type
  */
 @Unstable
-public interface VortexFunction<TInput, TOutput> extends Serializable {
+public interface VortexFunction<TInput, TOutput> {
   /**
    * @param input of the function
    * @return output of the function
@@ -41,20 +38,4 @@ public interface VortexFunction<TInput, TOutput> extends Serializable {
    * For example if threads are spawned here, shut them down before throwing an exception
    */
   TOutput call(TInput input) throws Exception;
-
-  /**
-   * Users must define codec for the input. {@link org.apache.reef.vortex.util.VoidCodec} can be used if the input is
-   * empty, and {@link org.apache.reef.io.serialization.SerializableCodec} can be used for ({@link Serializable} input.
-   * {@link org.apache.reef.vortex.examples.matmul.MatMulInputCodec} is an example of codec for the custom input.
-   * @return Codec used to serialize/deserialize the input.
-   */
-  Codec<TInput> getInputCodec();
-
-  /**
-   * Users must define codec for the output. {@link org.apache.reef.vortex.util.VoidCodec} can be used if the output is
-   * empty, and {@link org.apache.reef.io.serialization.SerializableCodec} can be used for ({@link Serializable} output.
-   * {@link org.apache.reef.vortex.examples.matmul.MatMulOutputCodec} is an example of codec for the custom output.
-   * @return Codec used to serialize/deserialize the output.
-   */
-  Codec<TOutput> getOutputCodec();
 }

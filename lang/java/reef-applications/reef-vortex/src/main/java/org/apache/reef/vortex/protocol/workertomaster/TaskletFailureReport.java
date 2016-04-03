@@ -16,55 +16,56 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.vortex.common;
+package org.apache.reef.vortex.protocol.workertomaster;
 
 import org.apache.reef.annotations.Unstable;
 import org.apache.reef.annotations.audience.DriverSide;
 import org.apache.reef.annotations.audience.Private;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
 /**
- * Report of a Tasklet aggregation execution result.
+ * Report of a Tasklet exception.
  */
+@Unstable
 @Private
 @DriverSide
-@Unstable
-public final class TaskletAggregationResultReport implements TaskletReport {
-  private final List<Integer> taskletIds;
-  private final byte[] serializedResult;
+public final class TaskletFailureReport implements WorkerToMasterReport {
+  private int taskletId;
+  private Exception exception;
 
   /**
-   * @param taskletIds of the tasklets.
-   * @param serializedResult of the tasklet execution in a serialized form.
+   * No-arg constructor required for Kryo to serialize/deserialize.
    */
-  public TaskletAggregationResultReport(final List<Integer> taskletIds, final byte[] serializedResult) {
-    this.taskletIds = Collections.unmodifiableList(new ArrayList<>(taskletIds));
-    this.serializedResult = serializedResult;
+  TaskletFailureReport() {
+  }
+
+  /**
+   * @param taskletId of the failed Tasklet.
+   * @param exception that caused the tasklet failure.
+   */
+  public TaskletFailureReport(final int taskletId, final Exception exception) {
+    this.taskletId = taskletId;
+    this.exception = exception;
   }
 
   /**
    * @return the type of this TaskletReport.
    */
   @Override
-  public TaskletReportType getType() {
-    return TaskletReportType.TaskletAggregationResult;
+  public Type getType() {
+    return Type.TaskletFailure;
   }
 
   /**
-   * @return the TaskletId(s) of this TaskletReport
+   * @return the taskletId of this TaskletReport.
    */
-  public List<Integer> getTaskletIds() {
-    return taskletIds;
+  public int getTaskletId() {
+    return taskletId;
   }
 
   /**
-   * @return the result of the Tasklet aggregation execution in a serialized form.
+   * @return the exception that caused the Tasklet failure.
    */
-  public byte[] getSerializedResult() {
-    return serializedResult;
+  public Exception getException() {
+    return exception;
   }
-
 }

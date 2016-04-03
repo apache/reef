@@ -20,8 +20,8 @@ package org.apache.reef.vortex.driver;
 
 import org.apache.reef.annotations.audience.DriverSide;
 import org.apache.reef.driver.task.RunningTask;
-import org.apache.reef.vortex.common.VortexAvroUtils;
-import org.apache.reef.vortex.common.VortexRequest;
+import org.apache.reef.vortex.common.KryoUtils;
+import org.apache.reef.vortex.protocol.mastertoworker.MasterToWorkerRequest;
 
 import javax.inject.Inject;
 import java.util.concurrent.ExecutorService;
@@ -33,30 +33,30 @@ import java.util.concurrent.Executors;
 @DriverSide
 class VortexRequestor {
   private final ExecutorService executorService = Executors.newCachedThreadPool();
-  private final VortexAvroUtils vortexAvroUtils;
+  private final KryoUtils kryoUtils;
 
   @Inject
-  VortexRequestor(final VortexAvroUtils vortexAvroUtils) {
-    this.vortexAvroUtils = vortexAvroUtils;
+  VortexRequestor(final KryoUtils kryoUtils) {
+    this.kryoUtils = kryoUtils;
   }
 
   /**
-   * Sends a {@link VortexRequest} asynchronously to a {@link org.apache.reef.vortex.evaluator.VortexWorker}.
+   * Sends a {@link MasterToWorkerRequest} asynchronously to a {@link org.apache.reef.vortex.evaluator.VortexWorker}.
    */
-  void sendAsync(final RunningTask reefTask, final VortexRequest vortexRequest) {
+  void sendAsync(final RunningTask reefTask, final MasterToWorkerRequest masterToWorkerRequest) {
     executorService.execute(new Runnable() {
       @Override
       public void run() {
         //  Possible race condition with VortexWorkerManager#terminate is addressed by the global lock in VortexMaster
-        send(reefTask, vortexRequest);
+        send(reefTask, masterToWorkerRequest);
       }
     });
   }
 
   /**
-   * Sends a {@link VortexRequest} synchronously to a {@link org.apache.reef.vortex.evaluator.VortexWorker}.
+   * Sends a {@link MasterToWorkerRequest} synchronously to a {@link org.apache.reef.vortex.evaluator.VortexWorker}.
    */
-  void send(final RunningTask reefTask, final VortexRequest vortexRequest) {
-    reefTask.send(vortexAvroUtils.toBytes(vortexRequest));
+  void send(final RunningTask reefTask, final MasterToWorkerRequest masterToWorkerRequest) {
+    reefTask.send(kryoUtils.serialize(masterToWorkerRequest));
   }
 }

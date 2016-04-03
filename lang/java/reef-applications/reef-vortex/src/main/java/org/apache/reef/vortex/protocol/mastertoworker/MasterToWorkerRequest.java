@@ -16,30 +16,27 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.vortex.common;
+package org.apache.reef.vortex.protocol.mastertoworker;
 
 import org.apache.reef.annotations.Unstable;
 
 /**
- * A {@link VortexRequest} to cancel tasklets.
+ * Master-to-Worker protocol.
  */
 @Unstable
-public final class TaskletCancellationRequest implements VortexRequest {
-  private final int taskletId;
-
-  public TaskletCancellationRequest(final int taskletId) {
-    this.taskletId = taskletId;
+public interface MasterToWorkerRequest {
+  /**
+   * Type of Request.
+   */
+  enum Type {
+    AggregateTasklets,
+    ExecuteTasklet,
+    CancelTasklet,
+    ExecuteAggregateTasklet
   }
 
   /**
-   * @return the ID of the VortexTasklet associated with this VortexRequest.
+   * @return the type of this MasterToWorkerRequest.
    */
-  public int getTaskletId() {
-    return taskletId;
-  }
-
-  @Override
-  public RequestType getType() {
-    return RequestType.CancelTasklet;
-  }
+  Type getType();
 }

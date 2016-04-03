@@ -24,20 +24,23 @@ import org.apache.reef.annotations.audience.Public;
 import org.apache.reef.util.Builder;
 import org.apache.reef.util.Optional;
 
-import java.io.Serializable;
-
 /**
  * The policy for local aggregation on the {@link org.apache.reef.vortex.evaluator.VortexWorker}s.
  * The Aggregation function will be triggered on the individual {@link VortexFunction} results on
  * an "OR" basis of what is specified by the policy.
- * TODO[REEF-504]: Clean up Serializable in Vortex.
  */
 @ClientSide
 @Public
 @Unstable
-public final class VortexAggregatePolicy implements Serializable {
-  private final Optional<Integer> count;
-  private final int periodMilliseconds;
+public final class VortexAggregatePolicy {
+  private Optional<Integer> count;
+  private int periodMilliseconds;
+
+  /**
+   * No-arg constructor required for Kryo to serialize/deserialize.
+   */
+  VortexAggregatePolicy() {
+  }
 
   private VortexAggregatePolicy(final int periodMilliseconds, final Optional<Integer> count) {
     this.periodMilliseconds = periodMilliseconds;

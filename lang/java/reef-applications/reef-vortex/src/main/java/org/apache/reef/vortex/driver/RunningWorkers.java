@@ -22,7 +22,6 @@ import net.jcip.annotations.ThreadSafe;
 
 import org.apache.reef.annotations.audience.DriverSide;
 import org.apache.reef.util.Optional;
-import org.apache.reef.vortex.common.AggregateFunctionRepository;
 
 import javax.inject.Inject;
 

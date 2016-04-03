@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.vortex.common;
+package org.apache.reef.vortex.protocol.workertomaster;
 
 import org.apache.reef.annotations.Unstable;
 
@@ -28,9 +28,15 @@ import java.util.List;
  * Report of a tasklet exception on aggregation.
  */
 @Unstable
-public final class TaskletAggregationFailureReport implements TaskletReport {
-  private final List<Integer> taskletIds;
-  private final Exception exception;
+public final class TaskletAggregationFailureReport implements WorkerToMasterReport {
+  private List<Integer> taskletIds;
+  private Exception exception;
+
+  /**
+   * No-arg constructor required for Kryo to serialize/deserialize.
+   */
+  TaskletAggregationFailureReport() {
+  }
 
   /**
    * @param taskletIds of the failed tasklet(s).
@@ -45,8 +51,8 @@ public final class TaskletAggregationFailureReport implements TaskletReport {
    * @return the type of this TaskletReport.
    */
   @Override
-  public TaskletReportType getType() {
-    return TaskletReportType.TaskletAggregationFailure;
+  public Type getType() {
+    return Type.TaskletAggregationFailure;
   }
 
   /**

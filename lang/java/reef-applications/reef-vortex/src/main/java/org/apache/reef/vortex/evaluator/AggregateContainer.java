@@ -24,7 +24,9 @@ import org.apache.reef.annotations.Unstable;
 import org.apache.reef.annotations.audience.DriverSide;
 import org.apache.reef.annotations.audience.Private;
 import org.apache.reef.task.HeartBeatTriggerManager;
-import org.apache.reef.vortex.common.*;
+import org.apache.reef.vortex.common.KryoUtils;
+import org.apache.reef.vortex.protocol.mastertoworker.TaskletAggregationRequest;
+import org.apache.reef.vortex.protocol.workertomaster.*;
 
 import javax.annotation.concurrent.GuardedBy;
 import java.util.*;
@@ -46,7 +48,7 @@ final class AggregateContainer {
   private final Object stateLock = new Object();
   private final TaskletAggregationRequest taskletAggregationRequest;
   private final HeartBeatTriggerManager heartBeatTriggerManager;
-  private final VortexAvroUtils vortexAvroUtils;
+  private final KryoUtils kryoUtils;
   private final BlockingDeque<byte[]> workerReportsQueue;
   private final ScheduledExecutorService timer = Executors.newScheduledThreadPool(1);
 
@@ -60,11 +62,11 @@ final class AggregateContainer {
   private final List<Pair<Integer, Exception>> failedTasklets = new ArrayList<>();
 
   AggregateContainer(final HeartBeatTriggerManager heartBeatTriggerManager,
-                     final VortexAvroUtils vortexAvroUtils,
+                     final KryoUtils kryoUtils,
                      final BlockingDeque<byte[]> workerReportsQueue,
                      final TaskletAggregationRequest taskletAggregationRequest) {
     this.heartBeatTriggerManager = heartBeatTriggerManager;
-    this.vortexAvroUtils = vortexAvroUtils;
+    this.kryoUtils = kryoUtils;
     this.workerReportsQueue = workerReportsQueue;
     this.taskletAggregationRequest = taskletAggregationRequest;
   }
@@ -74,7 +76,7 @@ final class AggregateContainer {
   }
 
   @GuardedBy("stateLock")
-  private void aggregateTasklets(final List<TaskletReport> taskletReports,
+  private void aggregateTasklets(final List<WorkerToMasterReport> workerToMasterReports,
                                  final List<Object> results,
                                  final List<Integer> aggregatedTasklets) {
     synchronized (stateLock) {
@@ -86,7 +88,7 @@ final class AggregateContainer {
 
       // Add failed tasklets to worker report.
       for (final Pair<Integer, Exception> failedPair : failedTasklets) {
-        taskletReports.add(new TaskletFailureReport(failedPair.getLeft(), failedPair.getRight()));
+        workerToMasterReports.add(new TaskletFailureReport(failedPair.getLeft(), failedPair.getRight()));
       }
 
       // Drain the tasklets.
@@ -96,11 +98,11 @@ final class AggregateContainer {
   }
 
   /**
-   * Performs the output aggregation and generates the {@link WorkerReport} to report back to the
+   * Performs the output aggregation and generates the {@link WorkerToMasterReports} to report back to the
    * {@link org.apache.reef.vortex.driver.VortexDriver}.
    */
   private void aggregateTasklets(final AggregateTriggerType type) {
-    final List<TaskletReport> taskletReports = new ArrayList<>();
+    final List<WorkerToMasterReport> workerToMasterReports = new ArrayList<>();
     final List<Object> results = new ArrayList<>();
     final List<Integer> aggregatedTasklets = new ArrayList<>();
 
@@ -108,14 +110,14 @@ final class AggregateContainer {
     synchronized (stateLock) {
       switch(type) {
       case ALARM:
-        aggregateTasklets(taskletReports, results, aggregatedTasklets);
+        aggregateTasklets(workerToMasterReports, results, aggregatedTasklets);
         break;
       case COUNT:
         if (!aggregateOnCount()) {
           return;
         }
 
-        aggregateTasklets(taskletReports, results, aggregatedTasklets);
+        aggregateTasklets(workerToMasterReports, results, aggregatedTasklets);
         break;
       default:
         throw new RuntimeException("Unexpected aggregate type.");
@@ -125,16 +127,16 @@ final class AggregateContainer {
     if (!results.isEmpty()) {
       // Run the aggregation function.
       try {
-        final byte[] aggregationResult = taskletAggregationRequest.executeAggregation(results);
-        taskletReports.add(new TaskletAggregationResultReport(aggregatedTasklets, aggregationResult));
+        final Object aggregationResult = taskletAggregationRequest.executeAggregation(results);
+        workerToMasterReports.add(new TaskletAggregationResultReport(aggregatedTasklets, aggregationResult));
       } catch (final Exception e) {
-        taskletReports.add(new TaskletAggregationFailureReport(aggregatedTasklets, e));
+        workerToMasterReports.add(new TaskletAggregationFailureReport(aggregatedTasklets, e));
       }
     }
 
     // Add to worker report only if there is something to report back.
-    if (!taskletReports.isEmpty()) {
-      workerReportsQueue.addLast(vortexAvroUtils.toBytes(new WorkerReport(taskletReports)));
+    if (!workerToMasterReports.isEmpty()) {
+      workerReportsQueue.addLast(kryoUtils.serialize(new WorkerToMasterReports(workerToMasterReports)));
       heartBeatTriggerManager.triggerHeartBeat();
     }
   }

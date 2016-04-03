@@ -33,7 +33,7 @@ import org.junit.Test;
 /**
  * Tests the cancellation of a tasklet.
  */
-public final class TaskletCancellationTest {
+public final class TaskletCancellationRequestTest {
   private final TestEnvironment testEnvironment = TestEnvironmentFactory.getNewTestEnvironment();
 
   /**

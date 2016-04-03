@@ -16,22 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.vortex.util;
-
-import org.apache.reef.io.serialization.Codec;
-
 /**
- * Codec for empty input/output.
+ * Protocol from VortexWorker to VortexMaster.
  */
-public final class VoidCodec implements Codec<Void> {
-
-  @Override
-  public byte[] encode(final Void obj) {
-    return new byte[0];
-  }
-
-  @Override
-  public Void decode(final byte[] buf) {
-    return null;
-  }
-}
+package org.apache.reef.vortex.protocol.workertomaster;

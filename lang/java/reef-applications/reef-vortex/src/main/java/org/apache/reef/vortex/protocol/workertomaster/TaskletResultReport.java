@@ -16,54 +16,57 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.vortex.common;
+package org.apache.reef.vortex.protocol.workertomaster;
 
 import org.apache.reef.annotations.Unstable;
 import org.apache.reef.annotations.audience.DriverSide;
 import org.apache.reef.annotations.audience.Private;
 
 /**
- * A request from the Vortex Driver to run an aggregate-able function.
+ * Report of a tasklet execution result.
  */
 @Unstable
 @Private
 @DriverSide
-public final class TaskletAggregateExecutionRequest<TInput> implements VortexRequest {
-  private final TInput input;
-  private final int aggregateFunctionId;
-  private final int taskletId;
-
-  public TaskletAggregateExecutionRequest(final int taskletId,
-                                          final int aggregateFunctionId,
-                                          final TInput input) {
-    this.taskletId = taskletId;
-    this.input = input;
-    this.aggregateFunctionId = aggregateFunctionId;
-  }
+public final class TaskletResultReport implements WorkerToMasterReport {
+  private int taskletId;
+  private Object result;
 
   /**
-   * @return input of the request.
+   * No-arg constructor required for Kryo to serialize/deserialize.
    */
-  public TInput getInput() {
-    return input;
+  TaskletResultReport() {
   }
 
   /**
-   * @return tasklet ID corresponding to the tasklet request.
+   * @param taskletId of the Tasklet.
+   * @param result of the tasklet execution.
+   */
+  public TaskletResultReport(final int taskletId, final Object result) {
+    this.taskletId = taskletId;
+    this.result = result;
+  }
+
+  /**
+   * @return the type of this TaskletReport.
+   */
+  @Override
+  public Type getType() {
+    return Type.TaskletResult;
+  }
+
+  /**
+   * @return the TaskletId of this TaskletReport
    */
   public int getTaskletId() {
     return taskletId;
   }
 
   /**
-   * @return the AggregateFunctionID of the request.
+   * @return the result of the tasklet execution.
    */
-  public int getAggregateFunctionId() {
-    return aggregateFunctionId;
+  public Object getResult() {
+    return result;
   }
 
-  @Override
-  public RequestType getType() {
-    return RequestType.ExecuteAggregateTasklet;
-  }
 }

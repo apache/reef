@@ -16,33 +16,40 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.vortex.common;
+package org.apache.reef.vortex.protocol.workertomaster;
 
 import org.apache.reef.annotations.Unstable;
+import org.apache.reef.annotations.audience.DriverSide;
+import org.apache.reef.annotations.audience.Private;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 
 /**
- * The report of a cancelled Tasklet.
+ * Container for multiple WorkerToMasterReports.
  */
+@Private
 @Unstable
-public final class TaskletCancelledReport implements TaskletReport {
-  private int taskletId;
+@DriverSide
+public final class WorkerToMasterReports {
+  private ArrayList<WorkerToMasterReport> workerToMasterReports;
 
   /**
-   * @param taskletId of the cancelled tasklet.
+   * No-arg constructor required for Kryo to serialize/deserialize.
    */
-  public TaskletCancelledReport(final int taskletId) {
-    this.taskletId = taskletId;
+  WorkerToMasterReports() {
   }
 
-  @Override
-  public TaskletReportType getType() {
-    return TaskletReportType.TaskletCancelled;
+  public WorkerToMasterReports(final Collection<WorkerToMasterReport> workerToMasterReports) {
+    this.workerToMasterReports = new ArrayList<>(workerToMasterReports);
   }
 
   /**
-   * @return the taskletId of this TaskletReport.
+   * @return the list of Tasklet reports.
    */
-  public int getTaskletId() {
-    return taskletId;
+  public List<WorkerToMasterReport> getReports() {
+    return Collections.unmodifiableList(workerToMasterReports);
   }
 }

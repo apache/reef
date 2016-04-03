@@ -16,12 +16,11 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.vortex.common;
+package org.apache.reef.vortex.protocol.mastertoworker;
 
 import org.apache.reef.annotations.Unstable;
 import org.apache.reef.annotations.audience.DriverSide;
 import org.apache.reef.annotations.audience.Private;
-import org.apache.reef.io.serialization.Codec;
 import org.apache.reef.vortex.api.VortexAggregateFunction;
 import org.apache.reef.vortex.api.VortexAggregatePolicy;
 import org.apache.reef.vortex.api.VortexFunction;
@@ -35,11 +34,17 @@ import java.util.List;
 @Unstable
 @Private
 @DriverSide
-public final class TaskletAggregationRequest<TInput, TOutput> implements VortexRequest {
-  private final int aggregateFunctionId;
-  private final VortexAggregateFunction<TOutput> userAggregateFunction;
-  private final VortexFunction<TInput, TOutput> function;
-  private final VortexAggregatePolicy policy;
+public final class TaskletAggregationRequest<TInput, TOutput> implements MasterToWorkerRequest {
+  private int aggregateFunctionId;
+  private VortexAggregateFunction<TOutput> userAggregateFunction;
+  private VortexFunction<TInput, TOutput> function;
+  private VortexAggregatePolicy policy;
+
+  /**
+   * No-arg constructor required for Kryo to serialize/deserialize.
+   */
+  TaskletAggregationRequest() {
+  }
 
   public TaskletAggregationRequest(final int aggregateFunctionId,
                                    final VortexAggregateFunction<TOutput> aggregateFunction,
@@ -52,8 +57,8 @@ public final class TaskletAggregationRequest<TInput, TOutput> implements VortexR
   }
 
   @Override
-  public RequestType getType() {
-    return RequestType.AggregateTasklets;
+  public Type getType() {
+    return Type.AggregateTasklets;
   }
 
   /**
@@ -86,14 +91,10 @@ public final class TaskletAggregationRequest<TInput, TOutput> implements VortexR
 
   /**
    * Execute the aggregate function using the list of outputs.
-   * @return Output of the function in a serialized form.
+   * @return Output of the function.
    */
-  public byte[] executeAggregation(final List<TOutput> outputs) throws Exception {
-    final TOutput output = userAggregateFunction.call(outputs);
-    final Codec<TOutput> codec = userAggregateFunction.getOutputCodec();
-
-    // TODO[REEF-1113]: Handle serialization failure separately in Vortex
-    return codec.encode(output);
+  public TOutput executeAggregation(final List<TOutput> outputs) throws Exception {
+    return userAggregateFunction.call(outputs);
   }
 
   /**

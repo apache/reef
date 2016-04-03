@@ -19,9 +19,7 @@
 
 package org.apache.reef.tests.applications.vortex.cancellation;
 
-import org.apache.reef.io.serialization.Codec;
 import org.apache.reef.vortex.api.VortexFunction;
-import org.apache.reef.vortex.util.VoidCodec;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -31,7 +29,6 @@ import java.util.logging.Logger;
  */
 public final class InfiniteLoopWithCancellationFunction implements VortexFunction<Void, Void> {
   private static final Logger LOG = Logger.getLogger(InfiniteLoopWithCancellationFunction.class.getName());
-  private static final Codec<Void> CODEC = new VoidCodec();
 
   @Override
   public Void call(final Void input) throws Exception {
@@ -42,15 +39,5 @@ public final class InfiniteLoopWithCancellationFunction implements VortexFunctio
         throw new InterruptedException("Expected exception!");
       }
     }
-  }
-
-  @Override
-  public Codec<Void> getInputCodec() {
-    return CODEC;
-  }
-
-  @Override
-  public Codec<Void> getOutputCodec() {
-    return CODEC;
   }
 }

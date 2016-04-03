@@ -25,8 +25,7 @@ import org.apache.reef.annotations.Unstable;
 import org.apache.reef.annotations.audience.ClientSide;
 import org.apache.reef.annotations.audience.Private;
 import org.apache.reef.annotations.audience.Public;
-import org.apache.reef.io.serialization.Codec;
-import org.apache.reef.vortex.common.VortexFutureDelegate;
+import org.apache.reef.vortex.driver.VortexFutureDelegate;
 
 import javax.annotation.concurrent.NotThreadSafe;
 import java.util.*;
@@ -41,9 +40,8 @@ import java.util.concurrent.*;
 @ClientSide
 @NotThreadSafe
 @Unstable
-public final class VortexAggregateFuture<TInput, TOutput> implements VortexFutureDelegate {
+public final class VortexAggregateFuture<TInput, TOutput> implements VortexFutureDelegate<TOutput> {
   private final Executor executor;
-  private final Codec<TOutput> aggOutputCodec;
   private final BlockingQueue<Pair<List<Integer>, AggregateResult>> resultQueue;
   private final ConcurrentMap<Integer, TInput> taskletIdInputMap;
   private final FutureCallback<AggregateResult<TInput, TOutput>> callbackHandler;
@@ -51,12 +49,10 @@ public final class VortexAggregateFuture<TInput, TOutput> implements VortexFutur
   @Private
   public VortexAggregateFuture(final Executor executor,
                                final Map<Integer, TInput> taskletIdInputMap,
-                               final Codec<TOutput> aggOutputCodec,
                                final FutureCallback<AggregateResult<TInput, TOutput>> callbackHandler) {
     this.executor = executor;
     this.taskletIdInputMap = new ConcurrentHashMap<>(taskletIdInputMap);
     this.resultQueue = new ArrayBlockingQueue<>(taskletIdInputMap.size());
-    this.aggOutputCodec = aggOutputCodec;
     this.callbackHandler = callbackHandler;
   }
 
@@ -115,10 +111,8 @@ public final class VortexAggregateFuture<TInput, TOutput> implements VortexFutur
    */
   @Private
   @Override
-  public void completed(final int taskletId, final byte[] serializedResult) {
+  public void completed(final int taskletId, final TOutput result) {
     try {
-      // TODO[REEF-1113]: Handle serialization failure separately in Vortex
-      final TOutput result = aggOutputCodec.decode(serializedResult);
       completedTasklets(result, Collections.singletonList(taskletId));
     } catch (final InterruptedException e) {
       throw new RuntimeException(e);
@@ -130,10 +124,8 @@ public final class VortexAggregateFuture<TInput, TOutput> implements VortexFutur
    */
   @Private
   @Override
-  public void aggregationCompleted(final List<Integer> taskletIds, final byte[] serializedResult) {
+  public void aggregationCompleted(final List<Integer> taskletIds, final TOutput result) {
     try {
-      // TODO[REEF-1113]: Handle serialization failure separately in Vortex
-      final TOutput result = aggOutputCodec.decode(serializedResult);
       completedTasklets(result, taskletIds);
     } catch (final InterruptedException e) {
       throw new RuntimeException(e);
