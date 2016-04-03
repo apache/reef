@@ -16,55 +16,57 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.vortex.common;
+package org.apache.reef.vortex.protocol.workertomaster;
 
 import org.apache.reef.annotations.Unstable;
 import org.apache.reef.annotations.audience.DriverSide;
 import org.apache.reef.annotations.audience.Private;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
 /**
- * Report of a Tasklet aggregation execution result.
+ * Report of a tasklet execution result.
  */
+@Unstable
 @Private
 @DriverSide
-@Unstable
-public final class TaskletAggregationResultReport implements TaskletReport {
-  private final List<Integer> taskletIds;
-  private final byte[] serializedResult;
+public final class TaskletResult implements WorkerToMaster {
+  private int taskletId;
+  private Object result;
 
   /**
-   * @param taskletIds of the tasklets.
-   * @param serializedResult of the tasklet execution in a serialized form.
+   * No-arg constructor required for Kryo to ser/des.
    */
-  public TaskletAggregationResultReport(final List<Integer> taskletIds, final byte[] serializedResult) {
-    this.taskletIds = Collections.unmodifiableList(new ArrayList<>(taskletIds));
-    this.serializedResult = serializedResult;
+  TaskletResult() {
+  }
+
+  /**
+   * @param taskletId of the Tasklet.
+   * @param result of the tasklet execution.
+   */
+  public TaskletResult(final int taskletId, final Object result) {
+    this.taskletId = taskletId;
+    this.result = result;
   }
 
   /**
    * @return the type of this TaskletReport.
    */
   @Override
-  public TaskletReportType getType() {
-    return TaskletReportType.TaskletAggregationResult;
+  public Type getType() {
+    return Type.TaskletResult;
   }
 
   /**
-   * @return the TaskletId(s) of this TaskletReport
+   * @return the TaskletId of this TaskletReport
    */
-  public List<Integer> getTaskletIds() {
-    return taskletIds;
+  public int getTaskletId() {
+    return taskletId;
   }
 
   /**
-   * @return the result of the Tasklet aggregation execution in a serialized form.
+   * @return the result of the tasklet execution.
    */
-  public byte[] getSerializedResult() {
-    return serializedResult;
+  public Object getResult() {
+    return result;
   }
 
 }

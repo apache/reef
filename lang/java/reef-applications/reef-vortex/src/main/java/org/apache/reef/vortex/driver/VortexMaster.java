@@ -23,7 +23,7 @@ import org.apache.reef.annotations.audience.DriverSide;
 import org.apache.reef.tang.annotations.DefaultImplementation;
 import org.apache.reef.util.Optional;
 import org.apache.reef.vortex.api.*;
-import org.apache.reef.vortex.common.WorkerReport;
+import org.apache.reef.vortex.protocol.workertomaster.WorkerReport;
 
 import java.util.List;
 

@@ -20,11 +20,11 @@ package org.apache.reef.vortex.driver;
 
 import net.jcip.annotations.ThreadSafe;
 import org.apache.reef.annotations.audience.DriverSide;
-import org.apache.reef.io.serialization.Codec;
 import org.apache.reef.tang.annotations.Parameter;
 import org.apache.reef.util.Optional;
 import org.apache.reef.vortex.api.*;
-import org.apache.reef.vortex.common.*;
+import org.apache.reef.vortex.common.AggregateFunctionRepository;
+import org.apache.reef.vortex.protocol.workertomaster.*;
 
 import javax.inject.Inject;
 import java.util.*;
@@ -71,11 +71,10 @@ final class DefaultVortexMaster implements VortexMaster {
     // TODO[REEF-500]: Simple duplicate Vortex Tasklet launch.
     final VortexFuture<TOutput> vortexFuture;
     final int id = taskletIdCounter.getAndIncrement();
-    final Codec<TOutput> outputCodec = function.getOutputCodec();
     if (callback.isPresent()) {
-      vortexFuture = new VortexFuture<>(executor, this, id, outputCodec, callback.get());
+      vortexFuture = new VortexFuture<>(executor, this, id, callback.get());
     } else {
-      vortexFuture = new VortexFuture<>(executor, this, id, outputCodec);
+      vortexFuture = new VortexFuture<>(executor, this, id);
     }
 
     final Tasklet tasklet = new Tasklet<>(id, Optional.<Integer>empty(), function, input, vortexFuture);
@@ -97,7 +96,6 @@ final class DefaultVortexMaster implements VortexMaster {
                       final Optional<FutureCallback<AggregateResult<TInput, TOutput>>> callback) {
     final int aggregateFunctionId = aggregateIdCounter.getAndIncrement();
     aggregateFunctionRepository.put(aggregateFunctionId, aggregateFunction, vortexFunction, policy);
-    final Codec<TOutput> aggOutputCodec = aggregateFunction.getOutputCodec();
     final List<Tasklet> tasklets = new ArrayList<>(inputs.size());
     final Map<Integer, TInput> taskletIdInputMap = new HashMap<>(inputs.size());
 
@@ -105,10 +103,12 @@ final class DefaultVortexMaster implements VortexMaster {
       taskletIdInputMap.put(taskletIdCounter.getAndIncrement(), input);
     }
 
-    final VortexAggregateFuture<TInput, TOutput> vortexAggregateFuture =
-        callback.isPresent() ?
-        new VortexAggregateFuture<>(executor, taskletIdInputMap, aggOutputCodec, callback.get()) :
-        new VortexAggregateFuture<>(executor, taskletIdInputMap, aggOutputCodec, null);
+    final VortexAggregateFuture<TInput, TOutput> vortexAggregateFuture;
+    if (callback.isPresent()) {
+      vortexAggregateFuture = new VortexAggregateFuture<>(executor, taskletIdInputMap, callback.get());
+    } else {
+      vortexAggregateFuture = new VortexAggregateFuture<>(executor, taskletIdInputMap, null);
+    }
 
     for (final Map.Entry<Integer, TInput> taskletIdInputEntry : taskletIdInputMap.entrySet()) {
       final Tasklet tasklet = new Tasklet<>(taskletIdInputEntry.getKey(), Optional.of(aggregateFunctionId),
@@ -152,51 +152,51 @@ final class DefaultVortexMaster implements VortexMaster {
 
   @Override
   public void workerReported(final String workerId, final WorkerReport workerReport) {
-    for (final TaskletReport taskletReport : workerReport.getTaskletReports()) {
-      switch (taskletReport.getType()) {
+    for (final WorkerToMaster workerToMaster : workerReport.getTaskletReports()) {
+      switch (workerToMaster.getType()) {
       case TaskletResult:
-        final TaskletResultReport taskletResultReport = (TaskletResultReport) taskletReport;
+        final TaskletResult taskletResult = (TaskletResult) workerToMaster;
 
-        final int resultTaskletId = taskletResultReport.getTaskletId();
+        final int resultTaskletId = taskletResult.getTaskletId();
         final List<Integer> singletonResultTaskletId = Collections.singletonList(resultTaskletId);
         runningWorkers.doneTasklets(workerId, singletonResultTaskletId);
-        fetchDelegate(singletonResultTaskletId).completed(resultTaskletId, taskletResultReport.getSerializedResult());
+        fetchDelegate(singletonResultTaskletId).completed(resultTaskletId, taskletResult.getResult());
 
         break;
       case TaskletAggregationResult:
-        final TaskletAggregationResultReport taskletAggregationResultReport =
-            (TaskletAggregationResultReport) taskletReport;
+        final TaskletAggregationResult taskletAggregationResult =
+            (TaskletAggregationResult) workerToMaster;
 
-        final List<Integer> aggregatedTaskletIds = taskletAggregationResultReport.getTaskletIds();
+        final List<Integer> aggregatedTaskletIds = taskletAggregationResult.getTaskletIds();
         runningWorkers.doneTasklets(workerId, aggregatedTaskletIds);
         fetchDelegate(aggregatedTaskletIds).aggregationCompleted(
-            aggregatedTaskletIds, taskletAggregationResultReport.getSerializedResult());
+            aggregatedTaskletIds, taskletAggregationResult.getResult());
 
         break;
       case TaskletCancelled:
-        final TaskletCancelledReport taskletCancelledReport = (TaskletCancelledReport) taskletReport;
-        final List<Integer> cancelledIdToList = Collections.singletonList(taskletCancelledReport.getTaskletId());
+        final TaskletCancelled taskletCancelled = (TaskletCancelled) workerToMaster;
+        final List<Integer> cancelledIdToList = Collections.singletonList(taskletCancelled.getTaskletId());
         runningWorkers.doneTasklets(workerId, cancelledIdToList);
-        fetchDelegate(cancelledIdToList).cancelled(taskletCancelledReport.getTaskletId());
+        fetchDelegate(cancelledIdToList).cancelled(taskletCancelled.getTaskletId());
 
         break;
       case TaskletFailure:
-        final TaskletFailureReport taskletFailureReport = (TaskletFailureReport) taskletReport;
+        final TaskletFailure taskletFailure = (TaskletFailure) workerToMaster;
 
-        final int failureTaskletId = taskletFailureReport.getTaskletId();
+        final int failureTaskletId = taskletFailure.getTaskletId();
         final List<Integer> singletonFailedTaskletId = Collections.singletonList(failureTaskletId);
         runningWorkers.doneTasklets(workerId, singletonFailedTaskletId);
-        fetchDelegate(singletonFailedTaskletId).threwException(failureTaskletId, taskletFailureReport.getException());
+        fetchDelegate(singletonFailedTaskletId).threwException(failureTaskletId, taskletFailure.getException());
 
         break;
       case TaskletAggregationFailure:
-        final TaskletAggregationFailureReport taskletAggregationFailureReport =
-            (TaskletAggregationFailureReport) taskletReport;
+        final TaskletAggregationFailure taskletAggregationFailure =
+            (TaskletAggregationFailure) workerToMaster;
 
-        final List<Integer> aggregationFailedTaskletIds = taskletAggregationFailureReport.getTaskletIds();
+        final List<Integer> aggregationFailedTaskletIds = taskletAggregationFailure.getTaskletIds();
         runningWorkers.doneTasklets(workerId, aggregationFailedTaskletIds);
         fetchDelegate(aggregationFailedTaskletIds).aggregationThrewException(aggregationFailedTaskletIds,
-            taskletAggregationFailureReport.getException());
+            taskletAggregationFailure.getException());
         break;
       default:
         throw new RuntimeException("Unknown Report");

@@ -28,8 +28,9 @@ import org.apache.reef.tang.Configurations;
 import org.apache.reef.tang.annotations.Parameter;
 import org.apache.reef.tang.annotations.Unit;
 import org.apache.reef.vortex.api.VortexStart;
-import org.apache.reef.vortex.common.*;
+import org.apache.reef.vortex.common.KryoUtils;
 import org.apache.reef.vortex.evaluator.VortexWorker;
+import org.apache.reef.vortex.protocol.workertomaster.WorkerReport;
 import org.apache.reef.wake.EStage;
 import org.apache.reef.wake.EventHandler;
 import org.apache.reef.wake.impl.SingleThreadStage;
@@ -64,7 +65,7 @@ final class VortexDriver {
   private final EStage<VortexStart> vortexStartEStage;
   private final VortexStart vortexStart;
   private final EStage<Integer> pendingTaskletSchedulerEStage;
-  private final VortexAvroUtils vortexAvroUtils;
+  private final KryoUtils kryoUtils;
 
   @Inject
   private VortexDriver(final EvaluatorRequestor evaluatorRequestor,
@@ -73,7 +74,7 @@ final class VortexDriver {
                        final VortexStart vortexStart,
                        final VortexStartExecutor vortexStartExecutor,
                        final PendingTaskletLauncher pendingTaskletLauncher,
-                       final VortexAvroUtils vortexAvroUtils,
+                       final KryoUtils kryoUtils,
                        @Parameter(VortexMasterConf.WorkerMem.class) final int workerMem,
                        @Parameter(VortexMasterConf.WorkerNum.class) final int workerNum,
                        @Parameter(VortexMasterConf.WorkerCores.class) final int workerCores,
@@ -81,7 +82,7 @@ final class VortexDriver {
     this.vortexStartEStage = new ThreadPoolStage<>(vortexStartExecutor, numOfStartThreads);
     this.vortexStart = vortexStart;
     this.pendingTaskletSchedulerEStage = new SingleThreadStage<>(pendingTaskletLauncher, 1);
-    this.vortexAvroUtils = vortexAvroUtils;
+    this.kryoUtils = kryoUtils;
     this.evaluatorRequestor = evaluatorRequestor;
     this.vortexMaster = vortexMaster;
     this.vortexRequestor = vortexRequestor;
@@ -154,7 +155,7 @@ final class VortexDriver {
     @Override
     public void onNext(final TaskMessage taskMessage) {
       final String workerId = taskMessage.getId();
-      final WorkerReport workerReport = vortexAvroUtils.toWorkerReport(taskMessage.get());
+      final WorkerReport workerReport = (WorkerReport)kryoUtils.deserialize(taskMessage.get());
       vortexMaster.workerReported(workerId, workerReport);
     }
   }

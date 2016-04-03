@@ -24,10 +24,10 @@ import org.apache.reef.driver.task.RunningTask;
 import org.apache.reef.vortex.api.VortexAggregateFunction;
 import org.apache.reef.vortex.api.VortexAggregatePolicy;
 import org.apache.reef.vortex.api.VortexFunction;
-import org.apache.reef.vortex.common.TaskletAggregateExecutionRequest;
-import org.apache.reef.vortex.common.TaskletAggregationRequest;
-import org.apache.reef.vortex.common.TaskletCancellationRequest;
-import org.apache.reef.vortex.common.TaskletExecutionRequest;
+import org.apache.reef.vortex.protocol.mastertoworker.TaskletAggregateExecution;
+import org.apache.reef.vortex.protocol.mastertoworker.TaskletAggregation;
+import org.apache.reef.vortex.protocol.mastertoworker.TaskletCancellation;
+import org.apache.reef.vortex.protocol.mastertoworker.TaskletExecution;
 
 import java.util.*;
 
@@ -54,12 +54,12 @@ class VortexWorkerManager {
                                                final VortexAggregateFunction<TOutput> aggregateFunction,
                                                final VortexFunction<TInput, TOutput> function,
                                                final VortexAggregatePolicy policy) {
-    final TaskletAggregationRequest<TInput, TOutput> taskletAggregationRequest =
-        new TaskletAggregationRequest<>(aggregateFunctionId, aggregateFunction, function, policy);
+    final TaskletAggregation<TInput, TOutput> taskletAggregation =
+        new TaskletAggregation<>(aggregateFunctionId, aggregateFunction, function, policy);
 
     // The send is synchronous such that we make sure that the aggregate function is sent to the
     // target worker before attempting to launch an aggregateable tasklet on it.
-    vortexRequestor.send(reefTask, taskletAggregationRequest);
+    vortexRequestor.send(reefTask, taskletAggregation);
   }
 
 
@@ -72,15 +72,15 @@ class VortexWorkerManager {
 
     if (tasklet.getAggregateFunctionId().isPresent()) {
       // function is aggregateable.
-      final TaskletAggregateExecutionRequest<TInput> taskletAggregateExecutionRequest =
-          new TaskletAggregateExecutionRequest<>(tasklet.getId(), tasklet.getAggregateFunctionId().get(),
+      final TaskletAggregateExecution<TInput> taskletAggregateExecution =
+          new TaskletAggregateExecution<>(tasklet.getId(), tasklet.getAggregateFunctionId().get(),
               tasklet.getInput());
-      vortexRequestor.sendAsync(reefTask, taskletAggregateExecutionRequest);
+      vortexRequestor.sendAsync(reefTask, taskletAggregateExecution);
     } else {
       // function is not aggregateable.
-      final TaskletExecutionRequest<TInput, TOutput> taskletExecutionRequest
-          = new TaskletExecutionRequest<>(tasklet.getId(), tasklet.getUserFunction(), tasklet.getInput());
-      vortexRequestor.sendAsync(reefTask, taskletExecutionRequest);
+      final TaskletExecution<TInput, TOutput> taskletExecution
+          = new TaskletExecution<>(tasklet.getId(), tasklet.getUserFunction(), tasklet.getInput());
+      vortexRequestor.sendAsync(reefTask, taskletExecution);
     }
   }
 
@@ -88,7 +88,7 @@ class VortexWorkerManager {
    * Sends a request to cancel a Tasklet on a {@link org.apache.reef.vortex.evaluator.VortexWorker}.
    */
   void cancelTasklet(final int taskletId) {
-    final TaskletCancellationRequest cancellationRequest = new TaskletCancellationRequest(taskletId);
+    final TaskletCancellation cancellationRequest = new TaskletCancellation(taskletId);
     vortexRequestor.sendAsync(reefTask, cancellationRequest);
   }
 

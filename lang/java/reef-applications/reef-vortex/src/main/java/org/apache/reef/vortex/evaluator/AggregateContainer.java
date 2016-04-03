@@ -24,7 +24,9 @@ import org.apache.reef.annotations.Unstable;
 import org.apache.reef.annotations.audience.DriverSide;
 import org.apache.reef.annotations.audience.Private;
 import org.apache.reef.task.HeartBeatTriggerManager;
-import org.apache.reef.vortex.common.*;
+import org.apache.reef.vortex.common.KryoUtils;
+import org.apache.reef.vortex.protocol.mastertoworker.TaskletAggregation;
+import org.apache.reef.vortex.protocol.workertomaster.*;
 
 import javax.annotation.concurrent.GuardedBy;
 import java.util.*;
@@ -44,9 +46,9 @@ import java.util.concurrent.TimeUnit;
 final class AggregateContainer {
 
   private final Object stateLock = new Object();
-  private final TaskletAggregationRequest taskletAggregationRequest;
+  private final TaskletAggregation taskletAggregation;
   private final HeartBeatTriggerManager heartBeatTriggerManager;
-  private final VortexAvroUtils vortexAvroUtils;
+  private final KryoUtils kryoUtils;
   private final BlockingDeque<byte[]> workerReportsQueue;
   private final ScheduledExecutorService timer = Executors.newScheduledThreadPool(1);
 
@@ -60,21 +62,21 @@ final class AggregateContainer {
   private final List<Pair<Integer, Exception>> failedTasklets = new ArrayList<>();
 
   AggregateContainer(final HeartBeatTriggerManager heartBeatTriggerManager,
-                     final VortexAvroUtils vortexAvroUtils,
+                     final KryoUtils kryoUtils,
                      final BlockingDeque<byte[]> workerReportsQueue,
-                     final TaskletAggregationRequest taskletAggregationRequest) {
+                     final TaskletAggregation taskletAggregation) {
     this.heartBeatTriggerManager = heartBeatTriggerManager;
-    this.vortexAvroUtils = vortexAvroUtils;
+    this.kryoUtils = kryoUtils;
     this.workerReportsQueue = workerReportsQueue;
-    this.taskletAggregationRequest = taskletAggregationRequest;
+    this.taskletAggregation = taskletAggregation;
   }
 
-  public TaskletAggregationRequest getTaskletAggregationRequest() {
-    return taskletAggregationRequest;
+  public TaskletAggregation getTaskletAggregation() {
+    return taskletAggregation;
   }
 
   @GuardedBy("stateLock")
-  private void aggregateTasklets(final List<TaskletReport> taskletReports,
+  private void aggregateTasklets(final List<WorkerToMaster> workerToMasters,
                                  final List<Object> results,
                                  final List<Integer> aggregatedTasklets) {
     synchronized (stateLock) {
@@ -86,7 +88,7 @@ final class AggregateContainer {
 
       // Add failed tasklets to worker report.
       for (final Pair<Integer, Exception> failedPair : failedTasklets) {
-        taskletReports.add(new TaskletFailureReport(failedPair.getLeft(), failedPair.getRight()));
+        workerToMasters.add(new TaskletFailure(failedPair.getLeft(), failedPair.getRight()));
       }
 
       // Drain the tasklets.
@@ -100,7 +102,7 @@ final class AggregateContainer {
    * {@link org.apache.reef.vortex.driver.VortexDriver}.
    */
   private void aggregateTasklets(final AggregateTriggerType type) {
-    final List<TaskletReport> taskletReports = new ArrayList<>();
+    final List<WorkerToMaster> workerToMasters = new ArrayList<>();
     final List<Object> results = new ArrayList<>();
     final List<Integer> aggregatedTasklets = new ArrayList<>();
 
@@ -108,14 +110,14 @@ final class AggregateContainer {
     synchronized (stateLock) {
       switch(type) {
       case ALARM:
-        aggregateTasklets(taskletReports, results, aggregatedTasklets);
+        aggregateTasklets(workerToMasters, results, aggregatedTasklets);
         break;
       case COUNT:
         if (!aggregateOnCount()) {
           return;
         }
 
-        aggregateTasklets(taskletReports, results, aggregatedTasklets);
+        aggregateTasklets(workerToMasters, results, aggregatedTasklets);
         break;
       default:
         throw new RuntimeException("Unexpected aggregate type.");
@@ -125,16 +127,16 @@ final class AggregateContainer {
     if (!results.isEmpty()) {
       // Run the aggregation function.
       try {
-        final byte[] aggregationResult = taskletAggregationRequest.executeAggregation(results);
-        taskletReports.add(new TaskletAggregationResultReport(aggregatedTasklets, aggregationResult));
+        final Object aggregationResult = taskletAggregation.executeAggregation(results);
+        workerToMasters.add(new TaskletAggregationResult(aggregatedTasklets, aggregationResult));
       } catch (final Exception e) {
-        taskletReports.add(new TaskletAggregationFailureReport(aggregatedTasklets, e));
+        workerToMasters.add(new TaskletAggregationFailure(aggregatedTasklets, e));
       }
     }
 
     // Add to worker report only if there is something to report back.
-    if (!taskletReports.isEmpty()) {
-      workerReportsQueue.addLast(vortexAvroUtils.toBytes(new WorkerReport(taskletReports)));
+    if (!workerToMasters.isEmpty()) {
+      workerReportsQueue.addLast(kryoUtils.serialize(new WorkerReport(workerToMasters)));
       heartBeatTriggerManager.triggerHeartBeat();
     }
   }
@@ -161,11 +163,11 @@ final class AggregateContainer {
               // call to timer.schedule.
               if (outstandingTasklets()) {
                 timer.schedule(
-                    this, taskletAggregationRequest.getPolicy().getPeriodMilliseconds(), TimeUnit.MILLISECONDS);
+                    this, taskletAggregation.getPolicy().getPeriodMilliseconds(), TimeUnit.MILLISECONDS);
               }
             }
           }
-        }, taskletAggregationRequest.getPolicy().getPeriodMilliseconds(), TimeUnit.MILLISECONDS);
+        }, taskletAggregation.getPolicy().getPeriodMilliseconds(), TimeUnit.MILLISECONDS);
       }
 
       // Add to pending tasklets, such that on the callback the timer can be refreshed.
@@ -224,8 +226,8 @@ final class AggregateContainer {
 
   @GuardedBy("stateLock")
   private boolean aggregateOnCount() {
-    return taskletAggregationRequest.getPolicy().getCount().isPresent() &&
-        completedTasklets.size() + failedTasklets.size() >= taskletAggregationRequest.getPolicy().getCount().get();
+    return taskletAggregation.getPolicy().getCount().isPresent() &&
+        completedTasklets.size() + failedTasklets.size() >= taskletAggregation.getPolicy().getCount().get();
   }
 
   private enum AggregateTriggerType {

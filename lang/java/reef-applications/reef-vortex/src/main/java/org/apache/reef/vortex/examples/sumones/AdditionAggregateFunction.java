@@ -18,8 +18,6 @@
  */
 package org.apache.reef.vortex.examples.sumones;
 
-import org.apache.reef.io.serialization.Codec;
-import org.apache.reef.io.serialization.SerializableCodec;
 import org.apache.reef.vortex.api.VortexAggregateException;
 import org.apache.reef.vortex.api.VortexAggregateFunction;
 
@@ -29,8 +27,6 @@ import java.util.List;
  * Aggregates and sums the outputs.
  */
 public final class AdditionAggregateFunction implements VortexAggregateFunction<Integer> {
-  private static final Codec<Integer> CODEC = new SerializableCodec<>();
-
   @Override
   public Integer call(final List<Integer> taskletOutputs) throws VortexAggregateException {
     int sum = 0;
@@ -39,10 +35,5 @@ public final class AdditionAggregateFunction implements VortexAggregateFunction<
     }
 
     return sum;
-  }
-
-  @Override
-  public Codec<Integer> getOutputCodec() {
-    return CODEC;
   }
 }

@@ -16,11 +16,10 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.vortex.common;
+package org.apache.reef.vortex.protocol.mastertoworker;
 
 import org.apache.reef.annotations.Unstable;
 import org.apache.reef.annotations.audience.Private;
-import org.apache.reef.io.serialization.Codec;
 import org.apache.reef.vortex.api.VortexFunction;
 
 /**
@@ -28,25 +27,31 @@ import org.apache.reef.vortex.api.VortexFunction;
  */
 @Unstable
 @Private
-public final class TaskletExecutionRequest<TInput, TOutput> implements VortexRequest {
-  private final int taskletId;
-  private final VortexFunction<TInput, TOutput> userFunction;
-  private final TInput input;
+public final class TaskletExecution<TInput, TOutput> implements MasterToWorker {
+  private int taskletId;
+  private VortexFunction<TInput, TOutput> userFunction;
+  private TInput input;
 
   /**
-   * @return the type of this VortexRequest.
+   * @return the type of this MasterToWorker.
    */
   @Override
-  public RequestType getType() {
-    return RequestType.ExecuteTasklet;
+  public Type getType() {
+    return Type.ExecuteTasklet;
+  }
+
+  /**
+   * No-arg constructor required for Kryo to ser/des.
+   */
+  TaskletExecution() {
   }
 
   /**
    * Request from Vortex Master to Vortex Worker to execute a tasklet.
    */
-  public TaskletExecutionRequest(final int taskletId,
-                                 final VortexFunction<TInput, TOutput> userFunction,
-                                 final TInput input) {
+  public TaskletExecution(final int taskletId,
+                          final VortexFunction<TInput, TOutput> userFunction,
+                          final TInput input) {
     this.taskletId = taskletId;
     this.userFunction = userFunction;
     this.input = input;
@@ -54,17 +59,14 @@ public final class TaskletExecutionRequest<TInput, TOutput> implements VortexReq
 
   /**
    * Execute the function using the input.
-   * @return Output of the function in a serialized form.
+   * @return Output of the function.
    */
-  public byte[] execute() throws Exception {
-    final TOutput output = userFunction.call(input);
-    final Codec<TOutput> codec = userFunction.getOutputCodec();
-    // TODO[REEF-1113]: Handle serialization failure separately in Vortex
-    return codec.encode(output);
+  public TOutput execute() throws Exception {
+    return userFunction.call(input);
   }
 
   /**
-   * @return the ID of the VortexTasklet associated with this VortexRequest.
+   * @return the ID of the VortexTasklet associated with this MasterToWorker.
    */
   public int getTaskletId() {
     return taskletId;

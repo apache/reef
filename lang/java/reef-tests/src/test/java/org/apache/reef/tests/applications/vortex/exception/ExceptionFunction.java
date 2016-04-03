@@ -18,27 +18,14 @@
  */
 package org.apache.reef.tests.applications.vortex.exception;
 
-import org.apache.reef.io.serialization.Codec;
-import org.apache.reef.io.serialization.SerializableCodec;
 import org.apache.reef.vortex.api.VortexFunction;
 
 /**
  * A test Vortex function that throws an Exception.
  */
 public final class ExceptionFunction implements VortexFunction<Integer, Integer> {
-  private static final Codec<Integer> CODEC = new SerializableCodec<>();
   @Override
   public Integer call(final Integer input) throws Exception {
     throw new RuntimeException("Expected test exception.");
-  }
-
-  @Override
-  public Codec<Integer> getInputCodec() {
-    return CODEC;
-  }
-
-  @Override
-  public Codec<Integer> getOutputCodec() {
-    return CODEC;
   }
 }

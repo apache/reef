@@ -22,8 +22,14 @@ package org.apache.reef.vortex.examples.matmul;
  * Output of {@link MatMulFunction} which contains the sub-matrix and index of it in the entire result.
  */
 final class MatMulOutput {
-  private final int index;
-  private final Matrix<Double> result;
+  private int index;
+  private Matrix<Double> result;
+
+  /**
+   * No-arg constructor required for Kryo to ser/des.
+   */
+  MatMulOutput() {
+  }
 
   /**
    * Constructor of the output.

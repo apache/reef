@@ -29,8 +29,10 @@ import org.apache.reef.task.TaskMessageSource;
 import org.apache.reef.task.events.CloseEvent;
 import org.apache.reef.task.events.DriverMessage;
 import org.apache.reef.util.Optional;
-import org.apache.reef.vortex.common.*;
+import org.apache.reef.vortex.common.KryoUtils;
 import org.apache.reef.vortex.common.AggregateFunctionRepository;
+import org.apache.reef.vortex.protocol.mastertoworker.*;
+import org.apache.reef.vortex.protocol.workertomaster.*;
 import org.apache.reef.vortex.driver.VortexWorkerConf;
 import org.apache.reef.wake.EventHandler;
 
@@ -57,7 +59,7 @@ public final class VortexWorker implements Task, TaskMessageSource {
   private final ConcurrentMap<Integer, AggregateContainer> aggregates = new ConcurrentHashMap<>();
 
   private final AggregateFunctionRepository aggregateFunctionRepository;
-  private final VortexAvroUtils vortexAvroUtils;
+  private final KryoUtils kryoUtils;
   private final HeartBeatTriggerManager heartBeatTriggerManager;
   private final int numOfThreads;
   private final CountDownLatch terminated = new CountDownLatch(1);
@@ -65,11 +67,11 @@ public final class VortexWorker implements Task, TaskMessageSource {
   @Inject
   private VortexWorker(final HeartBeatTriggerManager heartBeatTriggerManager,
                        final AggregateFunctionRepository aggregateFunctionRepository,
-                       final VortexAvroUtils vortexAvroUtils,
+                       final KryoUtils kryoUtils,
                        @Parameter(VortexWorkerConf.NumOfThreads.class) final int numOfThreads) {
     this.heartBeatTriggerManager = heartBeatTriggerManager;
     this.aggregateFunctionRepository = aggregateFunctionRepository;
-    this.vortexAvroUtils = vortexAvroUtils;
+    this.kryoUtils = kryoUtils;
     this.numOfThreads = numOfThreads;
   }
 
@@ -97,30 +99,26 @@ public final class VortexWorker implements Task, TaskMessageSource {
           }
 
           // Command Executor: Deserialize the command
-          final VortexRequest vortexRequest = vortexAvroUtils.toVortexRequest(message);
+          final MasterToWorker masterToWorker = (MasterToWorker)kryoUtils.deserialize(message);
 
-          switch (vortexRequest.getType()) {
+          switch (masterToWorker.getType()) {
             case AggregateTasklets:
-              final TaskletAggregationRequest taskletAggregationRequest = (TaskletAggregationRequest) vortexRequest;
-              aggregates.put(taskletAggregationRequest.getAggregateFunctionId(),
-                  new AggregateContainer(heartBeatTriggerManager, vortexAvroUtils, workerReports,
-                      taskletAggregationRequest));
-
-              // VortexFunctions need to be put into the repository such that VortexAvroUtils will know how to
-              // convert inputs and functions into a VortexRequest on subsequent messages requesting to
-              // execute the aggregateable tasklets.
-              aggregateFunctionRepository.put(taskletAggregationRequest.getAggregateFunctionId(),
-                  taskletAggregationRequest.getAggregateFunction(), taskletAggregationRequest.getFunction(),
-                  taskletAggregationRequest.getPolicy());
+              final TaskletAggregation taskletAggregation = (TaskletAggregation) masterToWorker;
+              aggregates.put(taskletAggregation.getAggregateFunctionId(),
+                  new AggregateContainer(heartBeatTriggerManager, kryoUtils, workerReports,
+                      taskletAggregation));
+              aggregateFunctionRepository.put(taskletAggregation.getAggregateFunctionId(),
+                  taskletAggregation.getAggregateFunction(), taskletAggregation.getFunction(),
+                  taskletAggregation.getPolicy());
               break;
             case ExecuteAggregateTasklet:
-              executeAggregateTasklet(commandExecutor, vortexRequest);
+              executeAggregateTasklet(commandExecutor, masterToWorker);
               break;
             case ExecuteTasklet:
-              executeTasklet(commandExecutor, futures, vortexRequest);
+              executeTasklet(commandExecutor, futures, masterToWorker);
               break;
             case CancelTasklet:
-              final TaskletCancellationRequest cancellationRequest = (TaskletCancellationRequest) vortexRequest;
+              final TaskletCancellation cancellationRequest = (TaskletCancellation) masterToWorker;
               LOG.log(Level.FINE, "Cancelling Tasklet with ID {0}.", cancellationRequest.getTaskletId());
               final Future future = futures.get(cancellationRequest.getTaskletId());
               if (future != null) {
@@ -143,50 +141,46 @@ public final class VortexWorker implements Task, TaskMessageSource {
    */
   private void executeTasklet(final ExecutorService commandExecutor,
                               final ConcurrentMap<Integer, Future> futures,
-                              final VortexRequest vortexRequest) {
+                              final MasterToWorker masterToWorker) {
     final CountDownLatch latch = new CountDownLatch(1);
-    final TaskletExecutionRequest taskletExecutionRequest = (TaskletExecutionRequest) vortexRequest;
+    final TaskletExecution taskletExecution = (TaskletExecution) masterToWorker;
 
     // Scheduler Thread: Pass the command to the worker thread pool to be executed
     // Record future to support cancellation.
     futures.put(
-        taskletExecutionRequest.getTaskletId(),
+        taskletExecution.getTaskletId(),
         commandExecutor.submit(new Runnable() {
           @Override
           public void run() {
             final WorkerReport workerReport;
-            final List<TaskletReport> taskletReports = new ArrayList<>();
+            final List<WorkerToMaster> workerToMasters = new ArrayList<>();
 
             try {
               // Command Executor: Execute the command
-              final TaskletReport taskletReport =
-                  new TaskletResultReport(taskletExecutionRequest.getTaskletId(),
-                      taskletExecutionRequest.execute());
-              taskletReports.add(taskletReport);
+              final WorkerToMaster workerToMaster =
+                  new TaskletResult(taskletExecution.getTaskletId(), taskletExecution.execute());
+              workerToMasters.add(workerToMaster);
             } catch (final InterruptedException ex) {
               // Assumes that user's thread follows convention that cancelled Futures
               // should throw InterruptedException.
-              final TaskletReport taskletReport =
-                  new TaskletCancelledReport(taskletExecutionRequest.getTaskletId());
-              LOG.log(Level.WARNING, "Tasklet with ID {0} has been cancelled",
-                  taskletExecutionRequest.getTaskletId());
-              taskletReports.add(taskletReport);
+              final WorkerToMaster workerToMaster = new TaskletCancelled(taskletExecution.getTaskletId());
+              LOG.log(Level.WARNING, "Tasklet with ID {0} has been cancelled", taskletExecution.getTaskletId());
+              workerToMasters.add(workerToMaster);
             } catch (Exception e) {
               // Command Executor: Tasklet throws an exception
-              final TaskletReport taskletReport =
-                  new TaskletFailureReport(taskletExecutionRequest.getTaskletId(), e);
-              taskletReports.add(taskletReport);
+              final WorkerToMaster workerToMaster = new TaskletFailure(taskletExecution.getTaskletId(), e);
+              workerToMasters.add(workerToMaster);
             }
 
-            workerReport = new WorkerReport(taskletReports);
-            workerReports.addLast(vortexAvroUtils.toBytes(workerReport));
+            workerReport = new WorkerReport(workerToMasters);
+            workerReports.addLast(kryoUtils.serialize(workerReport));
             try {
               latch.await();
             } catch (final InterruptedException e) {
               LOG.log(Level.SEVERE, "Cannot wait for Future to be put.");
               throw new RuntimeException(e);
             }
-            futures.remove(taskletExecutionRequest.getTaskletId());
+            futures.remove(taskletExecution.getTaskletId());
             heartBeatTriggerManager.triggerHeartBeat();
           }
         }));
@@ -199,25 +193,23 @@ public final class VortexWorker implements Task, TaskMessageSource {
    * Executes an aggregation request from the {@link org.apache.reef.vortex.driver.VortexDriver}.
    */
   private void executeAggregateTasklet(final ExecutorService commandExecutor,
-                                       final VortexRequest vortexRequest) {
-    final TaskletAggregateExecutionRequest taskletAggregateExecutionRequest =
-        (TaskletAggregateExecutionRequest) vortexRequest;
+                                       final MasterToWorker masterToWorker) {
+    final TaskletAggregateExecution taskletAggregateExecution = (TaskletAggregateExecution) masterToWorker;
 
-    assert aggregates.containsKey(taskletAggregateExecutionRequest.getAggregateFunctionId());
+    assert aggregates.containsKey(taskletAggregateExecution.getAggregateFunctionId());
 
-    final AggregateContainer aggregateContainer = aggregates.get(
-        taskletAggregateExecutionRequest.getAggregateFunctionId());
-    final TaskletAggregationRequest aggregationRequest = aggregateContainer.getTaskletAggregationRequest();
+    final AggregateContainer aggregateContainer = aggregates.get(taskletAggregateExecution.getAggregateFunctionId());
+    final TaskletAggregation aggregationRequest = aggregateContainer.getTaskletAggregation();
 
     commandExecutor.submit(new Runnable() {
       @Override
       public void run() {
         try {
-          aggregateContainer.scheduleTasklet(taskletAggregateExecutionRequest.getTaskletId());
-          final Object result = aggregationRequest.executeFunction(taskletAggregateExecutionRequest.getInput());
-          aggregateContainer.taskletComplete(taskletAggregateExecutionRequest.getTaskletId(), result);
+          aggregateContainer.scheduleTasklet(taskletAggregateExecution.getTaskletId());
+          final Object result = aggregationRequest.executeFunction(taskletAggregateExecution.getInput());
+          aggregateContainer.taskletComplete(taskletAggregateExecution.getTaskletId(), result);
         } catch (final Exception e) {
-          aggregateContainer.taskletFailed(taskletAggregateExecutionRequest.getTaskletId(), e);
+          aggregateContainer.taskletFailed(taskletAggregateExecution.getTaskletId(), e);
         }
       }
     });

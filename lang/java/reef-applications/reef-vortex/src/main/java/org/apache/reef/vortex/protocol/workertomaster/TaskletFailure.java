@@ -16,27 +16,43 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.vortex.common;
+package org.apache.reef.vortex.protocol.workertomaster;
 
 import org.apache.reef.annotations.Unstable;
+import org.apache.reef.annotations.audience.DriverSide;
+import org.apache.reef.annotations.audience.Private;
 
 /**
- * The report of a cancelled Tasklet.
+ * Report of a Tasklet exception.
  */
 @Unstable
-public final class TaskletCancelledReport implements TaskletReport {
+@Private
+@DriverSide
+public final class TaskletFailure implements WorkerToMaster {
   private int taskletId;
+  private Exception exception;
 
   /**
-   * @param taskletId of the cancelled tasklet.
+   * No-arg constructor required for Kryo to ser/des.
    */
-  public TaskletCancelledReport(final int taskletId) {
-    this.taskletId = taskletId;
+  TaskletFailure() {
   }
 
+  /**
+   * @param taskletId of the failed Tasklet.
+   * @param exception that caused the tasklet failure.
+   */
+  public TaskletFailure(final int taskletId, final Exception exception) {
+    this.taskletId = taskletId;
+    this.exception = exception;
+  }
+
+  /**
+   * @return the type of this TaskletReport.
+   */
   @Override
-  public TaskletReportType getType() {
-    return TaskletReportType.TaskletCancelled;
+  public Type getType() {
+    return Type.TaskletFailure;
   }
 
   /**
@@ -44,5 +60,12 @@ public final class TaskletCancelledReport implements TaskletReport {
    */
   public int getTaskletId() {
     return taskletId;
+  }
+
+  /**
+   * @return the exception that caused the Tasklet failure.
+   */
+  public Exception getException() {
+    return exception;
   }
 }

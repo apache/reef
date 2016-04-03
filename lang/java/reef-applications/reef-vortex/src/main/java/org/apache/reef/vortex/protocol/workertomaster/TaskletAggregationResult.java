@@ -16,50 +16,61 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.vortex.common;
+package org.apache.reef.vortex.protocol.workertomaster;
 
 import org.apache.reef.annotations.Unstable;
+import org.apache.reef.annotations.audience.DriverSide;
+import org.apache.reef.annotations.audience.Private;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 /**
- * Report of a tasklet exception on aggregation.
+ * Report of a Tasklet aggregation execution result.
  */
+@Private
+@DriverSide
 @Unstable
-public final class TaskletAggregationFailureReport implements TaskletReport {
-  private final List<Integer> taskletIds;
-  private final Exception exception;
+public final class TaskletAggregationResult implements WorkerToMaster {
+  private List<Integer> taskletIds;
+  private Object result;
 
   /**
-   * @param taskletIds of the failed tasklet(s).
-   * @param exception that caused the tasklet failure.
+   * No-arg constructor required for Kryo to ser/des.
    */
-  public TaskletAggregationFailureReport(final List<Integer> taskletIds, final Exception exception) {
+  TaskletAggregationResult() {
+  }
+
+  /**
+   * @param taskletIds of the tasklets.
+   * @param result of the tasklet execution.
+   */
+  public TaskletAggregationResult(final List<Integer> taskletIds, final Object result) {
     this.taskletIds = Collections.unmodifiableList(new ArrayList<>(taskletIds));
-    this.exception = exception;
+    this.result = result;
   }
 
   /**
    * @return the type of this TaskletReport.
    */
   @Override
-  public TaskletReportType getType() {
-    return TaskletReportType.TaskletAggregationFailure;
+  public Type getType() {
+    return Type.TaskletAggregationResult;
   }
 
   /**
-   * @return the taskletIds that failed on aggregation.
+   * @return the TaskletId(s) of this TaskletReport
    */
   public List<Integer> getTaskletIds() {
     return taskletIds;
   }
 
   /**
-   * @return the exception that caused the tasklet aggregation failure.
+   * @return the result of the Tasklet aggregation execution.
    */
-  public Exception getException() {
-    return exception;
+  public Object getResult() {
+    return result;
   }
+
 }

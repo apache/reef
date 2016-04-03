@@ -16,36 +16,27 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.vortex.common;
+package org.apache.reef.vortex.protocol.mastertoworker;
 
 import org.apache.reef.annotations.Unstable;
-import org.apache.reef.annotations.audience.DriverSide;
-import org.apache.reef.annotations.audience.Private;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
 
 /**
- * Worker-to-Master protocol.
- * A report of Tasklet statuses sent form the {@link org.apache.reef.vortex.evaluator.VortexWorker}
- * to the {@link org.apache.reef.vortex.driver.VortexMaster}.
+ * Master-to-Worker protocol.
  */
-@Private
 @Unstable
-@DriverSide
-public final class WorkerReport {
-  private ArrayList<TaskletReport> taskletReports;
-
-  public WorkerReport(final Collection<TaskletReport> taskletReports) {
-    this.taskletReports = new ArrayList<>(taskletReports);
+public interface MasterToWorker {
+  /**
+   * Type of Request.
+   */
+  enum Type {
+    AggregateTasklets,
+    ExecuteTasklet,
+    CancelTasklet,
+    ExecuteAggregateTasklet
   }
 
   /**
-   * @return the list of Tasklet reports.
+   * @return the type of this MasterToWorker.
    */
-  public List<TaskletReport> getTaskletReports() {
-    return Collections.unmodifiableList(taskletReports);
-  }
+  Type getType();
 }

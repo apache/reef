@@ -32,7 +32,7 @@ public class SchedulingPolicyTest {
   private final TestUtil testUtil = new TestUtil();
 
   /**
-   * Test common traits of different scheduling policies.
+   * Test protocol traits of different scheduling policies.
    */
   @Test
   public void testCommon() throws Exception {
@@ -102,7 +102,7 @@ public class SchedulingPolicyTest {
   }
 
   /**
-   * Simple common tests.
+   * Simple protocol tests.
    */
   private void commonPolicyTests(final SchedulingPolicy policy) {
     // Initial state

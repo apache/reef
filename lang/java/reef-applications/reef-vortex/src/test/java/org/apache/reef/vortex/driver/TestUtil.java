@@ -19,15 +19,17 @@
 package org.apache.reef.vortex.driver;
 
 import org.apache.reef.driver.task.RunningTask;
-import org.apache.reef.io.serialization.Codec;
-import org.apache.reef.io.serialization.SerializableCodec;
 import org.apache.reef.tang.Tang;
 import org.apache.reef.tang.exceptions.InjectionException;
-import org.apache.reef.vortex.util.VoidCodec;
 import org.apache.reef.util.Optional;
 import org.apache.reef.vortex.api.VortexFunction;
 import org.apache.reef.vortex.api.VortexFuture;
-import org.apache.reef.vortex.common.*;
+import org.apache.reef.vortex.common.AggregateFunctionRepository;
+import org.apache.reef.vortex.protocol.mastertoworker.MasterToWorker;
+import org.apache.reef.vortex.protocol.mastertoworker.TaskletCancellation;
+import org.apache.reef.vortex.protocol.workertomaster.TaskletCancelled;
+import org.apache.reef.vortex.protocol.workertomaster.WorkerToMaster;
+import org.apache.reef.vortex.protocol.workertomaster.WorkerReport;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
@@ -48,9 +50,6 @@ import static org.mockito.Mockito.when;
  * Utility methods for tests.
  */
 public final class TestUtil {
-  private static final Codec<Void> VOID_CODEC = new VoidCodec();
-  private static final Codec<Integer> INTEGER_CODEC = new SerializableCodec<>();
-
   private final AtomicInteger taskletId = new AtomicInteger(0);
   private final AtomicInteger workerId = new AtomicInteger(0);
   private final Executor executor = Executors.newFixedThreadPool(5);
@@ -74,16 +73,16 @@ public final class TestUtil {
     doAnswer(new Answer() {
       @Override
       public Object answer(final InvocationOnMock invocation) throws Throwable {
-        final VortexRequest request = (VortexRequest)invocation.getArguments()[1];
-        if (request instanceof TaskletCancellationRequest) {
-          final TaskletReport cancelReport = new TaskletCancelledReport(
-              ((TaskletCancellationRequest)request).getTaskletId());
+        final MasterToWorker request = (MasterToWorker)invocation.getArguments()[1];
+        if (request instanceof TaskletCancellation) {
+          final WorkerToMaster cancelReport = new TaskletCancelled(
+              ((TaskletCancellation)request).getTaskletId());
           master.workerReported(workerManager.getId(), new WorkerReport(Collections.singleton(cancelReport)));
         }
 
         return null;
       }
-    }).when(vortexRequestor).sendAsync(any(RunningTask.class), any(VortexRequest.class));
+    }).when(vortexRequestor).sendAsync(any(RunningTask.class), any(MasterToWorker.class));
 
     return workerManager;
   }
@@ -93,7 +92,7 @@ public final class TestUtil {
    */
   public Tasklet newTasklet() {
     final int id = taskletId.getAndIncrement();
-    return new Tasklet(id, Optional.empty(), null, null, new VortexFuture(executor, vortexMaster, id, VOID_CODEC));
+    return new Tasklet(id, Optional.empty(), null, null, new VortexFuture(executor, vortexMaster, id));
   }
 
   /**
@@ -111,16 +110,6 @@ public final class TestUtil {
       @Override
       public Void call(final Void input) throws Exception {
         return null;
-      }
-
-      @Override
-      public Codec getInputCodec() {
-        return VOID_CODEC;
-      }
-
-      @Override
-      public Codec getOutputCodec() {
-        return VOID_CODEC;
       }
     };
   }
@@ -146,16 +135,6 @@ public final class TestUtil {
           }
         }
       }
-
-      @Override
-      public Codec getInputCodec() {
-        return VOID_CODEC;
-      }
-
-      @Override
-      public Codec getOutputCodec() {
-        return VOID_CODEC;
-      }
     };
   }
 
@@ -167,16 +146,6 @@ public final class TestUtil {
       @Override
       public Integer call(final Integer input) throws Exception {
         return 1;
-      }
-
-      @Override
-      public Codec<Integer> getInputCodec() {
-        return INTEGER_CODEC;
-      }
-
-      @Override
-      public Codec<Integer> getOutputCodec() {
-        return INTEGER_CODEC;
       }
     };
   }

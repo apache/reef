@@ -18,16 +18,15 @@
  */
 package org.apache.reef.vortex.driver;
 
-import org.apache.reef.io.serialization.SerializableCodec;
 import org.apache.reef.tang.exceptions.InjectionException;
 import org.apache.reef.util.Optional;
 import org.apache.reef.vortex.api.FutureCallback;
 import org.apache.reef.vortex.api.VortexFunction;
 import org.apache.reef.vortex.api.VortexFuture;
-import org.apache.reef.vortex.common.TaskletFailureReport;
-import org.apache.reef.vortex.common.TaskletReport;
-import org.apache.reef.vortex.common.TaskletResultReport;
-import org.apache.reef.vortex.common.WorkerReport;
+import org.apache.reef.vortex.protocol.workertomaster.TaskletFailure;
+import org.apache.reef.vortex.protocol.workertomaster.WorkerToMaster;
+import org.apache.reef.vortex.protocol.workertomaster.TaskletResult;
+import org.apache.reef.vortex.protocol.workertomaster.WorkerReport;
 import org.junit.Test;
 
 import java.util.*;
@@ -42,8 +41,8 @@ import static org.junit.Assert.*;
  * Test whether DefaultVortexMaster correctly handles (simulated) events.
  */
 public class DefaultVortexMasterTest {
-  private static final byte[] EMPTY_RESULT = new byte[0];
-  private static final byte[] INTEGER_RESULT = new SerializableCodec<Integer>().encode(1);
+  private static final Object EMPTY_RESULT = null;
+  private static final int INTEGER_RESULT = 1;
   private TestUtil testUtil = new TestUtil();
 
   /**
@@ -81,9 +80,9 @@ public class DefaultVortexMasterTest {
 
     final ArrayList<Integer> taskletIds = launchTasklets(runningWorkers, pendingTasklets, 1);
     for (final int taskletId : taskletIds) {
-      final TaskletReport taskletReport = new TaskletResultReport(taskletId, INTEGER_RESULT);
+      final WorkerToMaster workerToMaster = new TaskletResult(taskletId, INTEGER_RESULT);
       vortexMaster.workerReported(
-          vortexWorkerManager1.getId(), new WorkerReport(Collections.singletonList(taskletReport)));
+          vortexWorkerManager1.getId(), new WorkerReport(Collections.singletonList(workerToMaster)));
     }
 
     assertTrue("The VortexFuture should be done", future.isDone());
@@ -123,9 +122,9 @@ public class DefaultVortexMasterTest {
 
     // Completed?
     for (final int taskletId : taskletIds2) {
-      final TaskletReport taskletReport = new TaskletResultReport(taskletId, EMPTY_RESULT);
+      final WorkerToMaster workerToMaster = new TaskletResult(taskletId, EMPTY_RESULT);
       vortexMaster.workerReported(
-          vortexWorkerManager2.getId(), new WorkerReport(Collections.singletonList(taskletReport)));
+          vortexWorkerManager2.getId(), new WorkerReport(Collections.singletonList(workerToMaster)));
     }
     assertTrue("The VortexFuture should be done", future.isDone());
   }
@@ -176,9 +175,9 @@ public class DefaultVortexMasterTest {
     for (final int taskletId : taskletIds2) {
       final String workerId = runningWorkers.getWhereTaskletWasScheduledTo(taskletId);
       assertNotNull("The tasklet must have been scheduled", workerId);
-      final TaskletReport taskletReport = new TaskletResultReport(taskletId, EMPTY_RESULT);
+      final WorkerToMaster workerToMaster = new TaskletResult(taskletId, EMPTY_RESULT);
       vortexMaster.workerReported(
-          workerId, new WorkerReport(Collections.singletonList(taskletReport)));
+          workerId, new WorkerReport(Collections.singletonList(workerToMaster)));
     }
     for (final VortexFuture vortexFuture : vortexFutures) {
       assertTrue("The VortexFuture should be done", vortexFuture.isDone());
@@ -221,9 +220,9 @@ public class DefaultVortexMasterTest {
     final ArrayList<Integer> taskletIds = launchTasklets(runningWorkers, pendingTasklets, 1);
 
     for (final int taskletId : taskletIds) {
-      final TaskletReport taskletReport = new TaskletFailureReport(taskletId, new RuntimeException("Test exception."));
+      final WorkerToMaster workerToMaster = new TaskletFailure(taskletId, new RuntimeException("Test exception."));
       vortexMaster.workerReported(
-          vortexWorkerManager1.getId(), new WorkerReport(Collections.singletonList(taskletReport)));
+          vortexWorkerManager1.getId(), new WorkerReport(Collections.singletonList(workerToMaster)));
     }
 
     assertTrue("The VortexFuture should be done", future.isDone());

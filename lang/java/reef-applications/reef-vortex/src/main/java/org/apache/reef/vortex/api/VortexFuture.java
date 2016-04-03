@@ -20,9 +20,8 @@ package org.apache.reef.vortex.api;
 
 import org.apache.reef.annotations.Unstable;
 import org.apache.reef.annotations.audience.Private;
-import org.apache.reef.io.serialization.Codec;
 import org.apache.reef.util.Optional;
-import org.apache.reef.vortex.common.VortexFutureDelegate;
+import org.apache.reef.vortex.driver.VortexFutureDelegate;
 import org.apache.reef.vortex.driver.VortexMaster;
 
 import java.util.List;
@@ -35,8 +34,7 @@ import java.util.logging.Logger;
  * The interface between user code and submitted task.
  */
 @Unstable
-public final class VortexFuture<TOutput>
-    implements Future<TOutput>, VortexFutureDelegate {
+public final class VortexFuture<TOutput> implements Future<TOutput>, VortexFutureDelegate<TOutput> {
   private static final Logger LOG = Logger.getLogger(VortexFuture.class.getName());
 
   // userResult starts out as null. If not null => variable is set and tasklet returned.
@@ -49,15 +47,13 @@ public final class VortexFuture<TOutput>
   private final Executor executor;
   private final VortexMaster vortexMaster;
   private final int taskletId;
-  private final Codec<TOutput> outputCodec;
 
   /**
    * Creates a {@link VortexFuture}.
    */
   @Private
-  public VortexFuture(final Executor executor, final VortexMaster vortexMaster, final int taskletId,
-                      final Codec<TOutput> outputCodec) {
-    this(executor, vortexMaster, taskletId, outputCodec, null);
+  public VortexFuture(final Executor executor, final VortexMaster vortexMaster, final int taskletId) {
+    this(executor, vortexMaster, taskletId, null);
   }
 
   /**
@@ -67,12 +63,10 @@ public final class VortexFuture<TOutput>
   public VortexFuture(final Executor executor,
                       final VortexMaster vortexMaster,
                       final int taskletId,
-                      final Codec<TOutput> outputCodec,
                       final FutureCallback<TOutput> callbackHandler) {
     this.executor = executor;
     this.vortexMaster = vortexMaster;
     this.taskletId = taskletId;
-    this.outputCodec = outputCodec;
     this.callbackHandler = callbackHandler;
   }
 
@@ -187,11 +181,8 @@ public final class VortexFuture<TOutput>
    */
   @Private
   @Override
-  public void completed(final int pTaskletId, final byte[] serializedResult) {
+  public void completed(final int pTaskletId, final TOutput result) {
     assert taskletId == pTaskletId;
-
-    // TODO[REEF-1113]: Handle serialization failure separately in Vortex
-    final TOutput result = outputCodec.decode(serializedResult);
     this.userResult = Optional.ofNullable(result);
     if (callbackHandler != null) {
       executor.execute(new Runnable() {
@@ -209,7 +200,7 @@ public final class VortexFuture<TOutput>
    */
   @Private
   @Override
-  public void aggregationCompleted(final List<Integer> taskletIds, final byte[] serializedResult) {
+  public void aggregationCompleted(final List<Integer> taskletIds, final TOutput result) {
     throw new RuntimeException("Functions not associated with AggregationFunctions cannot be aggregated.");
   }
 

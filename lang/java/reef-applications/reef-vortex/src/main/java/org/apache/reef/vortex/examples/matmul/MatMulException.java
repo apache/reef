@@ -23,6 +23,11 @@ package org.apache.reef.vortex.examples.matmul;
  */
 class MatMulException extends Exception {
   /**
+   * No-arg constructor required for Kryo to ser/des.
+   */
+  MatMulException() {}
+
+  /**
    * Constructor of MatMulException.
    * @param message Message to inform users.
    */

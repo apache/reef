@@ -23,9 +23,15 @@ package org.apache.reef.vortex.examples.matmul;
  * and index of the sub-matrix in the entire result.
  */
 final class MatMulInput {
-  private final int index;
-  private final Matrix<Double> leftMatrix;
-  private final Matrix<Double> rightMatrix;
+  private int index;
+  private Matrix<Double> leftMatrix;
+  private Matrix<Double> rightMatrix;
+
+  /**
+   * No-arg constructor required for Kryo to ser/des.
+   */
+  MatMulInput() {
+  }
 
   /**
    * Constructor of MatMulInput which consists of two matrices.

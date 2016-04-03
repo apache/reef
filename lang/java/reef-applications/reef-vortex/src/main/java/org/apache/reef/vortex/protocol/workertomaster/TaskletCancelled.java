@@ -16,7 +16,39 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+package org.apache.reef.vortex.protocol.workertomaster;
+
+import org.apache.reef.annotations.Unstable;
+
 /**
- * Utilities used in Vortex.
+ * The report of a cancelled Tasklet.
  */
-package org.apache.reef.vortex.util;
+@Unstable
+public final class TaskletCancelled implements WorkerToMaster {
+  private int taskletId;
+
+  /**
+   * No-arg constructor required for Kryo to ser/des.
+   */
+  TaskletCancelled() {
+  }
+
+  /**
+   * @param taskletId of the cancelled tasklet.
+   */
+  public TaskletCancelled(final int taskletId) {
+    this.taskletId = taskletId;
+  }
+
+  @Override
+  public Type getType() {
+    return Type.TaskletCancelled;
+  }
+
+  /**
+   * @return the taskletId of this TaskletReport.
+   */
+  public int getTaskletId() {
+    return taskletId;
+  }
+}
