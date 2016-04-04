@@ -20,6 +20,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
 using NSubstitute;
 using Org.Apache.REEF.Common.Context;
 using Org.Apache.REEF.Common.Events;
@@ -29,6 +30,7 @@ using Org.Apache.REEF.Common.Runtime.Evaluator.Context;
 using Org.Apache.REEF.Common.Services;
 using Org.Apache.REEF.Common.Tasks;
 using Org.Apache.REEF.Common.Tasks.Events;
+using Org.Apache.REEF.Evaluator.Tests.TestUtils;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Tang.Implementations.Configuration;
 using Org.Apache.REEF.Tang.Implementations.Tang;
@@ -85,40 +87,6 @@ namespace Org.Apache.REEF.Evaluator.Tests
             // and once in contextConfiguration. The Context injector is forked from the ServiceInjector, which already has the 
             // interface bound.
             Assert.True(ex != null);
-        }
-
-        [Fact]
-        [Trait("Priority", "0")]
-        [Trait("Category", "Unit")]
-        public void TestServiceInstantiatedAndDisposed()
-        {
-            var serviceConfiguration = ServiceConfiguration.ConfigurationModule
-                .Set(ServiceConfiguration.Services, GenericType<TestService>.Class)
-                .Build();
-
-            var serviceInjector = TangFactory.GetTang().NewInjector(serviceConfiguration);
-            var contextConfig = GetContextEventHandlerContextConfiguration();
-
-            TestService testService;
-            using (var contextRuntime = new ContextRuntime(serviceInjector, contextConfig, Optional<ContextRuntime>.Empty()))
-            {
-                var servicesFromInjector = serviceInjector.GetNamedInstance<ServicesSet, ISet<object>>();
-                testService = servicesFromInjector.Single() as TestService;
-                Assert.NotNull(testService);
-                if (testService == null)
-                {
-                    // Not possible
-                    return;
-                }
-
-                var testServiceFromInjector = serviceInjector.GetInstance<TestService>();
-                Assert.True(ReferenceEquals(testService, testServiceFromInjector));
-
-                var contextTestService = contextRuntime.ContextInjector.GetInstance<TestService>();
-                Assert.True(ReferenceEquals(contextTestService, testServiceFromInjector));
-            }
-
-            Assert.True(testService.Disposed);
         }
 
         [Fact]
@@ -239,7 +207,7 @@ namespace Org.Apache.REEF.Evaluator.Tests
         [Fact]
         [Trait("Priority", "0")]
         [Trait("Category", "Unit")]
-        public void TestUnableToRunMultipleTasksAtTheSameTime()
+        public async Task TestUnableToRunMultipleTasksAtTheSameTime()
         {
             var serviceInjector = TangFactory.GetTang().NewInjector();
             var contextConfig = GetSimpleContextConfiguration();
@@ -255,13 +223,13 @@ namespace Org.Apache.REEF.Evaluator.Tests
                 {
                     var hbMgr = Substitute.For<IHeartBeatManager>();
                     contextRuntime.ContextInjector.BindVolatileInstance(GenericType<IHeartBeatManager>.Class, hbMgr);
-                    contextRuntime.StartTask(taskConfig);
+                    var t = contextRuntime.StartTask(taskConfig);
 
                     Assert.True(contextRuntime.TaskRuntime.IsPresent());
                     Assert.True(contextRuntime.GetTaskStatus().IsPresent());
                     Assert.Equal(contextRuntime.GetTaskStatus().Value.state, State.RUNNING);
 
-                    Assert.Throws<InvalidOperationException>(
+                    await Assert.ThrowsAsync<InvalidOperationException>(
                         () => contextRuntime.StartTask(taskConfig));
                 }
                 finally
@@ -351,13 +319,13 @@ namespace Org.Apache.REEF.Evaluator.Tests
                 using (var childContextRuntime = contextRuntime.SpawnChildContext(childContextConfiguration, childServiceConfiguration))
                 {
                     // Check that parent service injector does not contain instances of SecondTestService
-                    Assert.False(contextRuntime.Services.Value.OfType<SecondTestService>().Any());
-                    Assert.True(childContextRuntime.Services.Value.OfType<TestService>().Count() == 1);
-                    Assert.True(childContextRuntime.Services.Value.OfType<SecondTestService>().Count() == 1);
-                    Assert.True(childContextRuntime.Services.Value.Count() == 2);
+                    Assert.False(contextRuntime.Services.OfType<SecondTestService>().Any());
+                    Assert.True(childContextRuntime.Services.OfType<TestService>().Count() == 1);
+                    Assert.True(childContextRuntime.Services.OfType<SecondTestService>().Count() == 1);
+                    Assert.True(childContextRuntime.Services.Count() == 2);
                     Assert.True(ReferenceEquals(
                         childContextRuntime.ContextInjector.GetInstance<TestService>(),
-                        contextRuntime.Services.Value.OfType<TestService>().Single()));
+                        contextRuntime.Services.OfType<TestService>().Single()));
                 }
             }
         }
@@ -375,27 +343,6 @@ namespace Org.Apache.REEF.Evaluator.Tests
                 .Set(ContextConfiguration.OnContextStop, GenericType<TestContextEventHandler>.Class)
                 .Set(ContextConfiguration.OnMessage, GenericType<TestContextEventHandler>.Class)
                 .Build();
-        }
-
-        private interface ITestService
-        {
-            // empty
-        }
-
-        internal sealed class TestService : ITestService, IDisposable
-        {
-            [Inject]
-            private TestService()
-            {
-                Disposed = false;
-            }
-
-            public bool Disposed { get; private set; }
-
-            public void Dispose()
-            {
-                Disposed = true;
-            }
         }
 
         private sealed class SecondTestService
@@ -433,49 +380,6 @@ namespace Org.Apache.REEF.Evaluator.Tests
             public void OnNext(byte[] value)
             {
                 MessageReceived = value;
-            }
-
-            public void OnError(Exception error)
-            {
-                throw new NotImplementedException();
-            }
-
-            public void OnCompleted()
-            {
-                throw new NotImplementedException();
-            }
-        }
-
-        private sealed class TestTask : ITask, IObserver<ITaskStop>
-        {
-            [Inject]
-            private TestTask()
-            {
-                CountDownEvent = new CountdownEvent(1);
-                StopEvent = new CountdownEvent(1);
-                DisposedEvent = new CountdownEvent(1);
-            }
-
-            public CountdownEvent CountDownEvent { get; private set; }
-
-            public CountdownEvent StopEvent { get; private set; }
-
-            public CountdownEvent DisposedEvent { get; private set; }
-
-            public void Dispose()
-            {
-                DisposedEvent.Signal();
-            }
-
-            public byte[] Call(byte[] memento)
-            {
-                CountDownEvent.Wait();
-                return null;
-            }
-
-            public void OnNext(ITaskStop value)
-            {
-                StopEvent.Signal();
             }
 
             public void OnError(Exception error)

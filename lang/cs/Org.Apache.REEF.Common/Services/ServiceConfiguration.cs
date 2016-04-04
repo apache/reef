@@ -15,8 +15,13 @@
 // specific language governing permissions and limitations
 // under the License.
 
+using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using Org.Apache.REEF.Common.Context;
+using Org.Apache.REEF.Common.Events;
+using Org.Apache.REEF.Common.Tasks;
+using Org.Apache.REEF.Common.Tasks.Events;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Tang.Formats;
 using Org.Apache.REEF.Tang.Util;
@@ -39,12 +44,28 @@ namespace Org.Apache.REEF.Common.Services
         [SuppressMessage("Microsoft.Security", "CA2104:Do not declare read only mutable reference types", Justification = "not applicable")]
         public static readonly OptionalParameter<object> Services = new OptionalParameter<object>();
 
+        [SuppressMessage("Microsoft.Security", "CA2104:Do not declare read only mutable reference types", Justification = "not applicable")]
+        public static readonly OptionalImpl<IObserver<IContextStart>> OnContextStarted = new OptionalImpl<IObserver<IContextStart>>();
+
+        [SuppressMessage("Microsoft.Security", "CA2104:Do not declare read only mutable reference types", Justification = "not applicable")]
+        public static readonly OptionalImpl<IObserver<IContextStop>> OnContextStop = new OptionalImpl<IObserver<IContextStop>>();
+
+        [SuppressMessage("Microsoft.Security", "CA2104:Do not declare read only mutable reference types", Justification = "not applicable")]
+        public static readonly OptionalImpl<IObserver<ITaskStart>> OnTaskStarted = new OptionalImpl<IObserver<ITaskStart>>();
+
+        [SuppressMessage("Microsoft.Security", "CA2104:Do not declare read only mutable reference types", Justification = "not applicable")]
+        public static readonly OptionalImpl<IObserver<ITaskStop>> OnTaskStop = new OptionalImpl<IObserver<ITaskStop>>();
+
         public static ConfigurationModule ConfigurationModule
         {
             get
             {
                 return new ServiceConfiguration()
                     .BindSetEntry(GenericType<ServicesSet>.Class, Services)
+                    .BindSetEntry(GenericType<ContextConfigurationOptions.StartHandlers>.Class, OnContextStarted)
+                    .BindSetEntry(GenericType<ContextConfigurationOptions.StopHandlers>.Class, OnContextStop)
+                    .BindSetEntry(GenericType<TaskConfigurationOptions.StartHandlers>.Class, OnTaskStarted)
+                    .BindSetEntry(GenericType<TaskConfigurationOptions.StopHandlers>.Class, OnTaskStop)
                     .Build();
             }
         }

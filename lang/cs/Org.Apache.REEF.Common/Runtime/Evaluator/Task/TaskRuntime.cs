@@ -82,7 +82,7 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Task
         /// <summary>
         /// Runs the task asynchronously.
         /// </summary>
-        public void RunTask()
+        public System.Threading.Tasks.Task RunTask()
         {
             if (Interlocked.Exchange(ref _taskRan, 1) != 0)
             {
@@ -93,7 +93,7 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Task
             // Send heartbeat such that user receives a TaskRunning message.
             _currentStatus.SetRunning();
             
-            System.Threading.Tasks.Task.Run(() =>
+            return System.Threading.Tasks.Task.Run(() =>
             {
                 Logger.Log(Level.Info, "Calling into user's task.");
                 return _userTask.Call(null);
