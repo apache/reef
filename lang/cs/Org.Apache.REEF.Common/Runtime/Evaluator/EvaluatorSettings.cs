@@ -37,9 +37,7 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator
         private readonly string _evaluatorId;
         private readonly int _heartBeatPeriodInMs;
         private readonly int _maxHeartbeatRetries;
-
-        // TODO[JIRA REEF-1281]: Use IClock.
-        private readonly RuntimeClock _clock;
+        private readonly IClock _clock;
         private readonly IRemoteManager<REEFMessage> _remoteManager;
 
         /// <summary>
@@ -144,7 +142,7 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator
         /// <summary>
         /// return Runtime Clock injected from the constructor
         /// </summary>
-        public RuntimeClock RuntimeClock
+        public IClock RuntimeClock
         {
             get
             {

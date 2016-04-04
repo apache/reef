@@ -77,7 +77,7 @@ namespace Org.Apache.REEF.Wake.Time.Runtime
             ++NumberOfInstantiations;
             if (NumberOfInstantiations > 1)
             {
-                Console.WriteLine("Instantiated `RuntimeClock` instance number " + NumberOfInstantiations);
+                LOGGER.Log(Level.Warning, "Instantiated `RuntimeClock` instance number " + NumberOfInstantiations);
             }
         }
 

@@ -40,12 +40,13 @@ namespace Org.Apache.REEF.Tests.Functional.FaultTolerant
         private static readonly Logger Logger = Logger.GetLogger(typeof(PoisonTest));
 
         private const string FailedEvaluatorMessage = "I have succeeded in seeing a failed evaluator.";
+        private const string TaskId = "1234567";
 
         [Fact]
         [Trait("Description", "Test Poison functionality by injecting fault in context start handler.")]
         public void TestPoisonedEvaluatorStartHanlder()
         {
-            string testFolder = DefaultRuntimeFolder + Guid.NewGuid().ToString("N").Substring(0, 4);
+            string testFolder = DefaultRuntimeFolder + TestId;
             TestRun(DriverConfigurations(), typeof(PoisonedEvaluatorDriver), 1, "poisonedEvaluatorStartTest", "local", testFolder);
             ValidateMessageSuccessfullyLoggedForDriver(FailedEvaluatorMessage, testFolder);
             CleanUp(testFolder);
@@ -91,7 +92,7 @@ namespace Org.Apache.REEF.Tests.Functional.FaultTolerant
             public void OnNext(IActiveContext value)
             {
                 value.SubmitTask(TaskConfiguration.ConfigurationModule
-                    .Set(TaskConfiguration.Identifier, "1234567")
+                    .Set(TaskConfiguration.Identifier, TaskId)
                     .Set(TaskConfiguration.Task, GenericType<SleepTask>.Class)
                     .Build());
             }
@@ -125,8 +126,8 @@ namespace Org.Apache.REEF.Tests.Functional.FaultTolerant
 
             public byte[] Call(byte[] memento)
             {
-                Logger.Log(Level.Verbose, "Will sleep for 1 second.");
-                Thread.Sleep(1000);
+                Logger.Log(Level.Verbose, "Will sleep for 2 seconds (expecting to be poisoned faster).");
+                Thread.Sleep(2000);
                 return null;
             }
         }

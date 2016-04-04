@@ -55,6 +55,9 @@ namespace Org.Apache.REEF.Common.Poison
             _clock = clock;
         }
 
+        /// <summary>
+        /// Throws a PoisonException with probability CrashProbability between time CrashMinDelay and CrashMinDelay + CrashTimeout.
+        /// </summary>
         public void OnNext(T value)
         {
             Logger.Log(Level.Verbose, "Poisoned handler for {0}", typeof(T).FullName);
