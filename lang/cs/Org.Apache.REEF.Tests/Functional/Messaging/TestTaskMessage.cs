@@ -34,12 +34,6 @@ namespace Org.Apache.REEF.Tests.Functional.Messaging
     [Collection("FunctionalTests")]
     public class TestTaskMessage : ReefFunctionalTest
     {
-        public TestTaskMessage()
-        {
-            CleanUp();
-            Init();
-        }
-
         /// <summary>
         /// This test is to test both task message and driver message. The messages are sent 
         /// from one side and received in the corresponding handlers and verified in the test 
@@ -51,8 +45,7 @@ namespace Org.Apache.REEF.Tests.Functional.Messaging
         //// TODO[JIRA REEF-1184]: add timeout 180 sec
         public void TestSendTaskMessage()
         {
-            string testFolder = DefaultRuntimeFolder + Guid.NewGuid();
-            CleanUp(testFolder);
+            string testFolder = DefaultRuntimeFolder + TestId;
             TestRun(DriverConfigurations(), typeof(MessageDriver), 1, "simpleHandler", "local", testFolder);
             ValidateSuccessForLocalRuntime(1, testFolder: testFolder);
 

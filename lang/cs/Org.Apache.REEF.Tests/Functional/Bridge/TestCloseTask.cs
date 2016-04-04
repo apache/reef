@@ -52,11 +52,6 @@ namespace Org.Apache.REEF.Tests.Functional.Bridge
         private const string CompletedValidationMessage = "CompletedValidationmessage";
         private const string FailToCloseTaskMessage = "FailToCloseTaskMessage";
 
-        public TestCloseTask()
-        {
-            Init();
-        }
-
         /// <summary>
         /// This test is close a running task with a close handler registered
         /// </summary>

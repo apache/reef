@@ -15,14 +15,15 @@
 // specific language governing permissions and limitations
 // under the License.
 
-using System;
 using System.Collections.Generic;
 using System.Globalization;
 using Org.Apache.REEF.Common.Context;
+using Org.Apache.REEF.Common.Runtime.Evaluator.Utils;
 using Org.Apache.REEF.Common.Services;
+using Org.Apache.REEF.Tang.Annotations;
+using Org.Apache.REEF.Tang.Formats;
 using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Tang.Interface;
-using Org.Apache.REEF.Tang.Util;
 using Org.Apache.REEF.Utilities;
 using Org.Apache.REEF.Utilities.Logging;
 
@@ -40,20 +41,46 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Context
         private ISet<object> _services;
         private ContextRuntime _rootContext;
 
-        public RootContextLauncher(
-            IConfiguration contextConfiguration, 
-            IConfiguration rootServiceConfig, 
-            Optional<IConfiguration> rootTaskConfig, 
-            IHeartBeatManager heartbeatManager)
+        [Inject]
+        private RootContextLauncher(
+            AvroConfigurationSerializer serializer,
+            [Parameter(typeof(RootContextConfiguration))] string rootContextConfiguration,
+            [Parameter(typeof(RootServiceConfiguration))] string rootServiceConfiguration,
+            IInjector injector)
+            : this(serializer.FromString(rootContextConfiguration),
+            serializer.FromString(rootServiceConfiguration), 
+            Optional<IConfiguration>.Empty(),
+            injector)
+        {
+        }
+
+        [Inject]
+        private RootContextLauncher(
+            AvroConfigurationSerializer serializer,
+            [Parameter(typeof(RootContextConfiguration))] string rootContextConfiguration,
+            [Parameter(typeof(RootServiceConfiguration))] string rootServiceConfiguration,
+            [Parameter(typeof(InitialTaskConfiguration))] string initialTaskConfiguration,
+            IInjector injector)
+            : this(serializer.FromString(rootContextConfiguration), 
+            serializer.FromString(rootServiceConfiguration), 
+            Optional<IConfiguration>.Of(serializer.FromString(initialTaskConfiguration)),
+            injector)
+        {
+        }
+
+        private RootContextLauncher(
+            IConfiguration contextConfiguration,
+            IConfiguration rootServiceConfig,
+            Optional<IConfiguration> rootTaskConfig,
+            IInjector injector)
         {
             _rootContextConfiguration = contextConfiguration;
-            _rootServiceInjector = TangFactory.GetTang().NewInjector(rootServiceConfig);
+            _rootServiceInjector = injector.ForkInjector(rootServiceConfig);
             Id = _rootServiceInjector
                 .ForkInjector(contextConfiguration)
                 .GetNamedInstance<ContextConfigurationOptions.ContextIdentifier, string>();
             _services = _rootServiceInjector.GetNamedInstance<ServicesSet, ISet<object>>();
             Logger.Log(Level.Verbose, string.Format(CultureInfo.InvariantCulture, "injected service(s)"));
-            _rootServiceInjector.BindVolatileInstance(GenericType<IHeartBeatManager>.Class, heartbeatManager);
             RootTaskConfig = rootTaskConfig;
         }
 

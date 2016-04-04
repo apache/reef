@@ -35,25 +35,21 @@ namespace Org.Apache.REEF.Tests.Functional.Group
     [Collection("FunctionalTests")]
     public class PipelinedBroadcastReduceTest : ReefFunctionalTest
     {
-        public PipelinedBroadcastReduceTest()
-        {
-            CleanUp();
-        }
-
         [Fact]
         public void TestPipelinedBroadcastAndReduceOnLocalRuntime()
         {
             const int numTasks = 9;
-            string testFolder = DefaultRuntimeFolder + Guid.NewGuid().ToString("N").Substring(0, 4);
+            string testFolder = DefaultRuntimeFolder + TestId;
             TestBroadcastAndReduce(false, numTasks, testFolder);
             ValidateSuccessForLocalRuntime(numTasks, testFolder: testFolder);
+            CleanUp(testFolder);
         }
 
         [Fact(Skip = "Requires Yarn")]
         public void TestPipelinedBroadcastAndReduceOnYarn()
         {
             const int numTasks = 9;
-            string testFolder = DefaultRuntimeFolder + TestNumber++;
+            string testFolder = DefaultRuntimeFolder + TestId + "Yarn";
             TestBroadcastAndReduce(true, numTasks, testFolder);
         }
 

@@ -44,11 +44,6 @@ namespace Org.Apache.REEF.Tests.Functional.Bridge
         private const string SuspendValidationMessage = "SuspendValidationMessage";
         private const string CompletedValidationMessage = "CompletedValidationmessage";
 
-        public TestSuspendTask()
-        {
-            Init();
-        }
-
         /// <summary>
         /// Does a simple test of invoking suspend task with a message from the Driver
         /// and makes sure the target task receives the suspend message.
@@ -58,8 +53,7 @@ namespace Org.Apache.REEF.Tests.Functional.Bridge
         [Fact]
         public void TestSuspendTaskOnLocalRuntime()
         {
-            string testFolder = DefaultRuntimeFolder + Guid.NewGuid().ToString("N").Substring(0, 4);
-            CleanUp(testFolder);
+            string testFolder = DefaultRuntimeFolder + TestId;
             TestRun(DriverConfigurations(), typeof(SuspendTaskHandlers), 1, "testSuspendTask", "local", testFolder);
             ValidateSuccessForLocalRuntime(1, testFolder: testFolder);
             ValidateMessageSuccessfullyLoggedForDriver(SuspendValidationMessage, testFolder);

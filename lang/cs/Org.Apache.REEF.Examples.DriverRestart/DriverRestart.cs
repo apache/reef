@@ -19,6 +19,7 @@ using System;
 using Org.Apache.REEF.Client.API;
 using Org.Apache.REEF.Client.Yarn;
 using Org.Apache.REEF.Common.Evaluator;
+using Org.Apache.REEF.Common.Evaluator.DriverConnectionConfigurationProviders;
 using Org.Apache.REEF.Driver;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Tang.Implementations.Tang;

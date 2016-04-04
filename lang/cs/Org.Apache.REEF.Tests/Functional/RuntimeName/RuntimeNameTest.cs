@@ -32,11 +32,6 @@ namespace Org.Apache.REEF.Tests.Functional.Driver
     [Collection("FunctionalTests")]
     public class RuntimeNameTest : ReefFunctionalTest
     {
-        public RuntimeNameTest()
-        {
-            CleanUp();
-        }
-
         /// <summary>
         /// This is to test DriverTestStartHandler. No evaluator and tasks are involved.
         /// </summary>
@@ -47,8 +42,7 @@ namespace Org.Apache.REEF.Tests.Functional.Driver
         //// TODO[JIRA REEF-1184]: add timeout 180 sec
         public void TestRuntimeName()
         {
-            string testFolder = DefaultRuntimeFolder + TestNumber++;
-            CleanUp(testFolder);
+            string testFolder = DefaultRuntimeFolder + TestId;
             TestRun(DriverConfigurationsWithEvaluatorRequest(), typeof(EvaluatorRequestingDriver), 1, "EvaluatorRequestingDriver", "local", testFolder);
             ValidateMessageSuccessfullyLoggedForDriver("Runtime Name: Local", testFolder, 2);
             CleanUp(testFolder);

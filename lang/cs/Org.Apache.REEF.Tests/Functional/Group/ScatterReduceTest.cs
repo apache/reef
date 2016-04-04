@@ -34,27 +34,21 @@ namespace Org.Apache.REEF.Tests.Functional.Group
     [Collection("FunctionalTests")]
     public class ScatterReduceTest : ReefFunctionalTest
     {
-        public ScatterReduceTest()
-        {
-            CleanUp();
-        }
-
         [Fact]
         public void TestScatterAndReduceOnLocalRuntime()
         {
             int numTasks = 5;
-            string testFolder = DefaultRuntimeFolder + TestNumber++;
-            CleanUp(testFolder);
+            string testFolder = DefaultRuntimeFolder + TestId;
             TestScatterAndReduce(false, numTasks, testFolder);
             ValidateSuccessForLocalRuntime(numTasks, testFolder: testFolder);
+            CleanUp(testFolder);
         }
 
         [Fact(Skip = "Requires Yarn")]
         public void TestScatterAndReduceOnYarn()
         {
             int numTasks = 5;
-            string testFolder = DefaultRuntimeFolder + TestNumber++;
-            CleanUp(testFolder);
+            string testFolder = DefaultRuntimeFolder + TestId + "Yarn";
             TestScatterAndReduce(true, numTasks, testFolder);
         }
 

@@ -106,10 +106,6 @@ namespace Org.Apache.REEF.Client.Common
 
             _configurationSerializer.ToFile(driverConfiguration,
                 Path.Combine(driverFolderPath, _fileNames.GetClrDriverConfigurationPath()));
-
-            // TODO: Remove once we cleaned up the Evaluator to not expect this [REEF-217]
-            _configurationSerializer.ToFile(driverConfiguration,
-                Path.Combine(driverFolderPath, _fileNames.GetGlobalFolderPath(), _fileNames.GetClrBridgeConfigurationName()));
         }
 
         /// <summary>
