@@ -35,6 +35,7 @@ namespace Org.Apache.REEF.Tests.Functional.FaultTolerant
     /// <summary>
     /// This test case servers as an example to put data downloading at part of the ContextStartHandler
     /// </summary>
+    [Collection("FunctionalTests")]
     public class TestContextStart : ReefFunctionalTest
     {
         private static readonly Logger Logger = Logger.GetLogger(typeof(TestContextStart));
