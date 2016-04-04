@@ -24,6 +24,7 @@ using Xunit;
 
 namespace Org.Apache.REEF.Tests.Utility
 {
+    [Collection("FunctionalTests")]
     public class TestDriverConfigGenerator
     {
         public TestDriverConfigGenerator()

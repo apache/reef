@@ -127,7 +127,10 @@ namespace Org.Apache.REEF.Client.Common
                 {
                     fileName = Path.Combine(driverFolderPath, _fileNames.GetBridgeExePath());
                 }
-                File.WriteAllBytes(fileName, resourceHelper.GetBytes(fileResources.Value));
+                if (!File.Exists(fileName))
+                {
+                    File.WriteAllBytes(fileName, resourceHelper.GetBytes(fileResources.Value));
+                }
             }
             
             // generate .config file for bridge executable
