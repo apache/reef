@@ -139,7 +139,11 @@ namespace Org.Apache.REEF.Tests.Functional
             catch (IOException)
             {
                 // do not fail if clean up is unsuccessful
-            }   
+            }
+            catch (UnauthorizedAccessException)
+            {
+                // do not fail if clean up is unsuccessful
+            }
         }
 
         public void Dispose() 
