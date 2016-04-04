@@ -20,6 +20,7 @@ using Org.Apache.REEF.Common.Evaluator;
 using Org.Apache.REEF.Common.Runtime.Evaluator.Utils;
 using Org.Apache.REEF.Common.Services;
 using Org.Apache.REEF.Common.Tasks;
+using Org.Apache.REEF.Evaluator.Tests.TestUtils;
 using Org.Apache.REEF.Examples.HelloREEF;
 using Org.Apache.REEF.Tang.Formats;
 using Org.Apache.REEF.Tang.Formats.AvroConfigurationDataContract;
@@ -121,7 +122,7 @@ namespace Org.Apache.REEF.Evaluator.Tests
             Assert.True(contextId.StartsWith(ContextIdPrefix));
 
             var serviceInjector = contextInjector.ForkInjector(serviceConfig);
-            var service = serviceInjector.GetInstance<ContextRuntimeTests.TestService>();
+            var service = serviceInjector.GetInstance<TestService>();
             Assert.NotNull(service);
 
             var taskInjector = serviceInjector.ForkInjector(taskConfig);
@@ -189,7 +190,7 @@ namespace Org.Apache.REEF.Evaluator.Tests
                     serializer.ToString(contextConfig)));
 
             var serviceConfiguration = ServiceConfiguration.ConfigurationModule
-                .Set(ServiceConfiguration.Services, GenericType<ContextRuntimeTests.TestService>.Class)
+                .Set(ServiceConfiguration.Services, GenericType<TestService>.Class)
                 .Build();
             configurationEntries.Add(
                 new ConfigurationEntry("org.apache.reef.runtime.common.evaluator.parameters.RootServiceConfiguration",

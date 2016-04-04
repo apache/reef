@@ -19,10 +19,13 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using Org.Apache.REEF.Common.Context;
+using Org.Apache.REEF.Common.Events;
 using Org.Apache.REEF.Common.Protobuf.ReefProtocol;
 using Org.Apache.REEF.Common.Runtime.Evaluator.Task;
 using Org.Apache.REEF.Common.Services;
 using Org.Apache.REEF.Common.Tasks;
+using Org.Apache.REEF.Common.Tasks.Events;
 using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Utilities;
 using Org.Apache.REEF.Utilities.Attributes;
@@ -46,7 +49,20 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Context
         // The parent context, if any.
         private readonly Optional<ContextRuntime> _parentContext;
 
-        private readonly Optional<ISet<object>> _injectedServices;
+        // The service objects bound to ServiceConfiguration.
+        private readonly ISet<object> _injectedServices;
+
+        // The ContextStart handlers bound to ServiceConfiguration.
+        private readonly ISet<IObserver<IContextStart>> _serviceContextStartHandlers;
+
+        // The ContextStop handlers bound to ServiceConfiguration.
+        private readonly ISet<IObserver<IContextStop>> _serviceContextStopHandlers;
+
+        // The TaskStart handlers bound to ServiceConfiguration.
+        private readonly ISet<IObserver<ITaskStart>> _serviceTaskStartHandlers;
+
+        // The TaskStop handlers bound to ServiceConfiguration.
+        private readonly ISet<IObserver<ITaskStop>> _serviceTaskStopHandlers;
 
         // The child context, if any.
         private Optional<ContextRuntime> _childContext = Optional<ContextRuntime>.Empty();
@@ -68,7 +84,28 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Context
                 Optional<ContextRuntime> parentContext)
         {
             _serviceInjector = serviceInjector;
-            _injectedServices = Optional<ISet<object>>.Of(serviceInjector.GetNamedInstance<ServicesSet, ISet<object>>());
+
+            // Note that for Service objects and handlers, we are not merging them into a separate
+            // class (e.g. ServiceContainer) due to the inability to allow service stacking if an instance 
+            // of such a class were to be materialized. i.e. if a ServiceContainer object were initialized
+            // and a child ServiceConfiguration is submitted, when the child service injector tries to
+            // get the relevant handlers and services set, it will get the same set of handlers as
+            // previously instantiated by the parent injector, and thus will not allow the stacking
+            // of ServiceConfigurations.
+            _injectedServices = serviceInjector.GetNamedInstance<ServicesSet, ISet<object>>();
+
+            _serviceContextStartHandlers = 
+                serviceInjector.GetNamedInstance<ContextConfigurationOptions.StartHandlers, ISet<IObserver<IContextStart>>>();
+
+            _serviceContextStopHandlers = 
+                serviceInjector.GetNamedInstance<ContextConfigurationOptions.StopHandlers, ISet<IObserver<IContextStop>>>();
+
+            _serviceTaskStartHandlers = 
+                serviceInjector.GetNamedInstance<TaskConfigurationOptions.StartHandlers, ISet<IObserver<ITaskStart>>>();
+
+            _serviceTaskStopHandlers = 
+                serviceInjector.GetNamedInstance<TaskConfigurationOptions.StopHandlers, ISet<IObserver<ITaskStop>>>();
+
             _contextInjector = serviceInjector.ForkInjector(contextConfiguration);
             _contextLifeCycle = _contextInjector.GetInstance<ContextLifeCycle>();
             _parentContext = parentContext;
@@ -89,12 +126,9 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Context
         /// For testing only!
         /// </summary>
         [Testing]
-        internal Optional<ISet<object>> Services
+        internal ISet<object> Services
         {
-            get
-            {
-                return _injectedServices;
-            }
+            get { return _injectedServices; }
         }
 
         /// <summary>
@@ -105,7 +139,7 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Context
             get { return _task; }
         }
 
-            /// <summary>
+        /// <summary>
         /// For testing only!
         /// </summary>
         [Testing]
@@ -114,6 +148,18 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Context
             get
             {
                 return _contextInjector;
+            }
+        }
+
+        /// <summary>
+        /// For testing only!
+        /// </summary>
+        [Testing]
+        internal IInjector ServiceInjector 
+        {
+            get
+            {
+                return _serviceInjector;
             }
         }
 
@@ -195,7 +241,7 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Context
         /// Launches an Task on this context.
         /// </summary>
         /// <param name="taskConfiguration"></param>
-        public void StartTask(IConfiguration taskConfiguration)
+        public System.Threading.Tasks.Task StartTask(IConfiguration taskConfiguration)
         {
             lock (_contextLifeCycle)
             {
@@ -229,12 +275,13 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Context
                 try
                 {
                     _task = Optional<TaskRuntime>.Of(taskRuntime);
-                    taskRuntime.RunTask();
+                    return taskRuntime.RunTask();
                 }
                 catch (Exception e)
                 {
                     var ex = new TaskClientCodeException(string.Empty, Id, "Unable to run the new task", e);
                     Utilities.Diagnostics.Exceptions.CaughtAndThrow(ex, Level.Error, "Task start error.", LOGGER);
+                    return null;
                 }
             }
         }
@@ -264,12 +311,9 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Context
                     ParentContext.Value.ResetChildContext();
                 }
 
-                if (_injectedServices.IsPresent())
+                foreach (var injectedService in _injectedServices.OfType<IDisposable>())
                 {
-                    foreach (var injectedService in _injectedServices.Value.OfType<IDisposable>())
-                    {
-                        injectedService.Dispose();
-                    }
+                    injectedService.Dispose();
                 }
             }
         }
