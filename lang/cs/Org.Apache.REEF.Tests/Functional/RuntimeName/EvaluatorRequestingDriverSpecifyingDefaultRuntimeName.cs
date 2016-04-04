@@ -16,7 +16,6 @@
 // under the License.
 
 using System;
-using System.Diagnostics;
 using System.Globalization;
 using Org.Apache.REEF.Common.Runtime;
 using Org.Apache.REEF.Driver;
@@ -27,17 +26,17 @@ using Org.Apache.REEF.Utilities.Logging;
 
 namespace Org.Apache.REEF.Tests.Functional.Driver
 {
-    public sealed class EvaluatorRequestingDriverSpecifyingRunitmeName : 
+    public sealed class EvaluatorRequestingDriverSpecifyingDefaultRuntimeName : 
         IObserver<IDriverStarted>, 
-        IObserver<IAllocatedEvaluator>,
-        IObserver<IRunningTask> 
+        IObserver<IAllocatedEvaluator>,        
+        IObserver<IRunningTask>         
     {
         private static readonly Logger Logger = Logger.GetLogger(typeof(EvaluatorRequestingDriver));
 
         private readonly IEvaluatorRequestor _evaluatorRequestor;
 
         [Inject]
-        public EvaluatorRequestingDriverSpecifyingRunitmeName(IEvaluatorRequestor evaluatorRequestor)
+        public EvaluatorRequestingDriverSpecifyingDefaultRuntimeName(IEvaluatorRequestor evaluatorRequestor)
         {
             _evaluatorRequestor = evaluatorRequestor;
         }
@@ -45,7 +44,6 @@ namespace Org.Apache.REEF.Tests.Functional.Driver
         public void OnNext(IDriverStarted value)
         {
             Logger.Log(Level.Info, string.Format(CultureInfo.InvariantCulture, "ondriver.start {0}", value.StartTime));
-            Debugger.Break();
             var request =
                 _evaluatorRequestor.NewBuilder()
                     .SetNumber(1)
@@ -53,7 +51,7 @@ namespace Org.Apache.REEF.Tests.Functional.Driver
                     .SetCores(2)
                     .SetRackName("WonderlandRack")
                     .SetEvaluatorBatchId("TestEvaluator")
-                    .SetRuntimeName(RuntimeName.Local)
+                    .SetRuntimeName(RuntimeName.Default)
                     .Build();
             Logger.Log(Level.Info, string.Format(CultureInfo.InvariantCulture, "submitting evaluator request"));
             _evaluatorRequestor.Submit(request);

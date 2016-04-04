@@ -58,14 +58,13 @@ namespace Org.Apache.REEF.Tests.Functional.Driver
         [Fact]
         [Trait("Priority", "1")]
         [Trait("Category", "FunctionalGated")]
-        [Trait("Description", "Test EvaluatorRequestingDriverSpecifyingRunitmeName. Validates that runtime name is propagated to c#, when specified during submission")]
+        [Trait("Description", "Test EvaluatorRequestingDriverSpecifyingRuntimeName. Validates that runtime name is propagated to c#, when specified during submission")]
         //// TODO[JIRA REEF-1184]: add timeout 180 sec
         public void TestRuntimeNameSpecifyingValidName()
         {
             string testFolder = DefaultRuntimeFolder + TestId;
-            TestRun(DriverConfigurationsWithEvaluatorRequest(GenericType<EvaluatorRequestingDriverSpecifyingRunitmeName>.Class), typeof(EvaluatorRequestingDriverSpecifyingRunitmeName), 1, "EvaluatorRequestingDriverSpecifyingRunitmeName", "local", testFolder);
+            TestRun(DriverConfigurationsWithEvaluatorRequest(GenericType<EvaluatorRequestingDriverSpecifyingRuntimeName>.Class), typeof(EvaluatorRequestingDriverSpecifyingRuntimeName), 1, "EvaluatorRequestingDriverSpecifyingRuntimeName", "local", testFolder);
             ValidateMessageSuccessfullyLoggedForDriver("Runtime Name: Local", testFolder, 1);
-            CleanUp(testFolder);
         }
 
         /// <summary>
@@ -95,7 +94,7 @@ namespace Org.Apache.REEF.Tests.Functional.Driver
         public void TestRuntimeNameSpecifyingDefaultName()
         {
             string testFolder = DefaultRuntimeFolder + TestId;
-            TestRun(DriverConfigurationsWithEvaluatorRequest(GenericType<EvaluatorRequestingDriverSpecifyingDefaultRunitmeName>.Class), typeof(EvaluatorRequestingDriverSpecifyingDefaultRunitmeName), 1, "EvaluatorRequestingDriverSpecifyingDefaultRunitmeName", "local", testFolder);
+            TestRun(DriverConfigurationsWithEvaluatorRequest(GenericType<EvaluatorRequestingDriverSpecifyingDefaultRuntimeName>.Class), typeof(EvaluatorRequestingDriverSpecifyingDefaultRuntimeName), 1, "EvaluatorRequestingDriverSpecifyingDefaultRuntimeName", "local", testFolder);
             ValidateMessageSuccessfullyLoggedForDriver("Runtime Name: Local", testFolder, 1);
             CleanUp(testFolder);
         }
