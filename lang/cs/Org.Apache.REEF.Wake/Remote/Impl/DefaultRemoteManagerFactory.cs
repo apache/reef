@@ -34,19 +34,19 @@ namespace Org.Apache.REEF.Wake.Impl
             _tcpPortProvider = tcpPortProvider;
         }
 
-        public IRemoteManager<T> GetInstance<T>(IPAddress localAddress, int port, ICodec<T> codec, bool enableCaching = true)
+        public IRemoteManager<T> GetInstance<T>(IPAddress localAddress, int port, ICodec<T> codec)
         {
-            return new DefaultRemoteManager<T>(localAddress, port, codec, _tcpPortProvider, enableCaching);
+            return new DefaultRemoteManager<T>(localAddress, port, codec, _tcpPortProvider);
         }
 
-        public IRemoteManager<T> GetInstance<T>(IPAddress localAddress, ICodec<T> codec, bool enableCaching = true)
+        public IRemoteManager<T> GetInstance<T>(IPAddress localAddress, ICodec<T> codec)
         {
-            return new DefaultRemoteManager<T>(localAddress, 0, codec, _tcpPortProvider, enableCaching);
+            return new DefaultRemoteManager<T>(localAddress, 0, codec, _tcpPortProvider);
         }
 
-        public IRemoteManager<T> GetInstance<T>(ICodec<T> codec, bool enableCaching = true)
+        public IRemoteManager<T> GetInstance<T>(ICodec<T> codec)
         {
-            return new DefaultRemoteManager<T>(codec, enableCaching);
+            return new DefaultRemoteManager<T>(codec);
         }
     }
 }
