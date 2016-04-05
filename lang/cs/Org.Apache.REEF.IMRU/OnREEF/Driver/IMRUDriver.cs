@@ -151,7 +151,6 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         public void OnNext(IActiveContext value)
         {
             Logger.Log(Level.Verbose, string.Format("Received Active Context {0}", value.Id));
-            _contextManager.AddContext(value);
 
             if (_groupCommDriver.IsMasterTaskContext(value))
             {
@@ -159,11 +158,14 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
                 RequestMapEvaluators(_dataSet.Count);
             }
 
-            if (!_contextManager.AllContextReceived())
+            if (_contextManager.AddContext(value))
             {
-                return;
+                SubmitTasks();
             }
+        }
 
+        private void SubmitTasks()
+        {
             AddGroupCommunicationOperators();
             _groupCommTaskStarter = new TaskStarter(_groupCommDriver, _dataSet.Count + 1);
 
@@ -237,7 +239,8 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
                             {
                                 TaskConfiguration.ConfigurationModule
                                     .Set(TaskConfiguration.Identifier, taskId)
-                                    .Set(TaskConfiguration.Task, GenericType<MapTaskHost<TMapInput, TMapOutput>>.Class)
+                                    .Set(TaskConfiguration.Task,
+                                        GenericType<MapTaskHost<TMapInput, TMapOutput>>.Class)
                                     .Build(),
                                 _configurationManager.MapFunctionConfiguration,
                                 mapSpecificConfig

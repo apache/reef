@@ -122,13 +122,14 @@ namespace Org.Apache.REEF.Network.Examples.GroupCommunication.BroadcastReduceDri
 
         public void OnNext(IActiveContext value)
         {
-            _contextManager.AddContext(value);
-
-            if (!_contextManager.AllContextReceived())
+            if (_contextManager.AddContext(value))
             {
-                return;
+                SubmitTasks();
             }
+        }
 
+        private void SubmitTasks()
+        {
             CreateCommGroup();
             _groupCommTaskStarter = new TaskStarter(_groupCommDriver, _numEvaluators);
 

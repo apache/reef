@@ -32,11 +32,13 @@ namespace Org.Apache.REEF.Network.Group.Driver.Impl
         private static readonly Logger Logger = Logger.GetLogger(typeof(ContextManager));
         private readonly ReaderWriterLockSlim _contextLock = new ReaderWriterLockSlim();
         private readonly int _totalNumberOfContexts;
+        private int _contextsAdded;
         private readonly IDictionary<string, IActiveContext> _activeContexts;
 
         public ContextManager(int numberOfContexts)
         {
             _totalNumberOfContexts = numberOfContexts;
+            _contextsAdded = 0;
             _activeContexts = new Dictionary<string, IActiveContext>();
         }
 
@@ -46,14 +48,19 @@ namespace Org.Apache.REEF.Network.Group.Driver.Impl
         /// <returns></returns>
         public bool AllContextReceived()
         {
-            lock (_contextLock)
+            _contextLock.EnterReadLock();
+            try
             {
                 if (_activeContexts.Count < _totalNumberOfContexts)
                 {
                     return false;
                 }
+                return true;
             }
-            return true;
+            finally
+            {
+                _contextLock.ExitReadLock();
+            }
         }
 
         /// <summary>
@@ -79,7 +86,7 @@ namespace Org.Apache.REEF.Network.Group.Driver.Impl
         /// Add an active context to the collection
         /// </summary>
         /// <param name="context"></param>
-        public void AddContext(IActiveContext context)
+        public bool AddContext(IActiveContext context)
         {
             _contextLock.EnterWriteLock();
             try
@@ -90,6 +97,12 @@ namespace Org.Apache.REEF.Network.Group.Driver.Impl
                 }
 
                 _activeContexts.Add(context.Id, context);
+
+                if (Interlocked.Increment(ref _contextsAdded) == _totalNumberOfContexts)
+                {
+                    return true;
+                }
+                return false;
             }
             finally
             {
@@ -109,6 +122,11 @@ namespace Org.Apache.REEF.Network.Group.Driver.Impl
                 if (_activeContexts.ContainsKey(contextId))
                 {
                     _activeContexts.Remove(contextId);
+                    Interlocked.Decrement(ref _contextsAdded);
+                }
+                else
+                {
+                    Exceptions.Throw(new ArgumentException("The context to remove is not in collection" + contextId), Logger);
                 }
             }
             finally
@@ -129,6 +147,10 @@ namespace Org.Apache.REEF.Network.Group.Driver.Impl
             try
             {
                 _activeContexts.TryGetValue(contextId, out context);
+                if (context == null)
+                {
+                    Exceptions.Throw(new ArgumentException("The context doesn't exist in the collection:" + contextId), Logger);
+                }
             }
             finally
             {
