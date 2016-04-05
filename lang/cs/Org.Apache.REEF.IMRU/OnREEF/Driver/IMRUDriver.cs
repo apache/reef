@@ -77,7 +77,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         private int _currentFailedEvaluators = 0;
         private bool _reachedUpdateTaskActiveContext = false;
         private readonly bool _invokeGC;
-        private readonly IList<IActiveContext> _activeContexts = new List<IActiveContext>();
+        private readonly ContextManager _contextManager;
 
         private readonly ServiceAndContextConfigurationProvider<TMapInput, TMapOutput>
             _serviceAndContextConfigurationProvider;
@@ -108,6 +108,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
             _allowedFailedEvaluators = (int)(failedEvaluatorsFraction * dataSet.Count);
             _invokeGC = invokeGC;
 
+            _contextManager = new ContextManager(_dataSet.Count + 1);
             _taskIdStack = new ConcurrentStack<string>();
             _perMapperConfiguration = new ConcurrentStack<IConfiguration>();
             _partitionDescriptorStack = new Stack<IPartitionDescriptor>();
@@ -150,9 +151,15 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         public void OnNext(IActiveContext value)
         {
             Logger.Log(Level.Verbose, string.Format("Received Active Context {0}", value.Id));
-            _activeContexts.Add(value);
+            _contextManager.AddContext(value);
 
-            if (_activeContexts.Count < _dataSet.Count + 1)
+            if (_groupCommDriver.IsMasterTaskContext(value))
+            {
+                _reachedUpdateTaskActiveContext = true;
+                RequestMapEvaluators(_dataSet.Count);
+            }
+
+            if (!_contextManager.AllContextReceived())
             {
                 return;
             }
@@ -160,13 +167,11 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
             AddGroupCommunicationOperators();
             _groupCommTaskStarter = new TaskStarter(_groupCommDriver, _dataSet.Count + 1);
 
-            foreach (var activeContext in _activeContexts)
+            //// TODO [REEF-1223]: Evaluator may fail during task preparation and submission. More mechanism will be added when working of it.
+            foreach (var activeContext in _contextManager.ActiveContexts)
             {
                 if (_groupCommDriver.IsMasterTaskContext(activeContext))
                 {
-                    _reachedUpdateTaskActiveContext = true;
-                    RequestMapEvaluators(_dataSet.Count);
-
                     var partialTaskConf =
                         TangFactory.GetTang()
                             .NewConfigurationBuilder(new[]
@@ -247,7 +252,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         }
 
         /// <summary>
-        /// Specfies what to do when the task is completed
+        /// Specifies what to do when the task is completed
         /// In this case just disposes off the task
         /// </summary>
         /// <param name="completedTask">The link to the completed task</param>
@@ -301,7 +306,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         }
 
         /// <summary>
-        /// Specfies how to handle exception or error
+        /// Specifies how to handle exception or error
         /// </summary>
         /// <param name="error">Kind of exception</param>
         public void OnError(Exception error)
@@ -311,7 +316,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         }
 
         /// <summary>
-        /// Specfies what to do when driver is done
+        /// Specifies what to do when driver is done
         /// In this case do nothing
         /// </summary>
         public void OnCompleted()

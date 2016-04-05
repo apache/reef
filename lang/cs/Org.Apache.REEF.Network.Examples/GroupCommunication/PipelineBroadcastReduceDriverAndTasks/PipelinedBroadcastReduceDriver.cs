@@ -58,7 +58,7 @@ namespace Org.Apache.REEF.Network.Examples.GroupCommunication.PipelineBroadcastR
         private readonly IConfiguration _tcpPortProviderConfig;
         private readonly IConfiguration _codecConfig;
         private readonly IEvaluatorRequestor _evaluatorRequestor;
-        private readonly IList<IActiveContext> _activeContexts = new List<IActiveContext>();
+        private readonly ContextManager _contextManager;
 
         [Inject]
         public PipelinedBroadcastReduceDriver(
@@ -79,6 +79,8 @@ namespace Org.Apache.REEF.Network.Examples.GroupCommunication.PipelineBroadcastR
             _chunkSize = chunkSize;
             _evaluatorRequestor = evaluatorRequestor;
             _groupCommDriver = groupCommDriver;
+
+            _contextManager = new ContextManager(_numEvaluators);
 
             _tcpPortProviderConfig = TangFactory.GetTang().NewConfigurationBuilder()
                 .BindNamedParameter<TcpPortRangeStart, int>(GenericType<TcpPortRangeStart>.Class,
@@ -134,9 +136,9 @@ namespace Org.Apache.REEF.Network.Examples.GroupCommunication.PipelineBroadcastR
 
         public void OnNext(IActiveContext value)
         {
-            _activeContexts.Add(value);
+            _contextManager.AddContext(value);
 
-            if (_activeContexts.Count < _numEvaluators)
+            if (!_contextManager.AllContextReceived())
             {
                 return;
             }
@@ -144,12 +146,10 @@ namespace Org.Apache.REEF.Network.Examples.GroupCommunication.PipelineBroadcastR
             CreateCommGroup();
             _groupCommTaskStarter = new TaskStarter(_groupCommDriver, _numEvaluators);
 
-            foreach (var activeContext in _activeContexts)
+            foreach (var activeContext in _contextManager.ActiveContexts)
             {
                 if (_groupCommDriver.IsMasterTaskContext(activeContext))
                 {
-                    Logger.Log(Level.Info, "******* Master ID " + activeContext.Id);
-
                     // Configure Master Task
                     var partialTaskConf = TangFactory.GetTang().NewConfigurationBuilder(
                         TaskConfiguration.ConfigurationModule

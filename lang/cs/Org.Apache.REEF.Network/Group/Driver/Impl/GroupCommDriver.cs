@@ -110,10 +110,11 @@ namespace Org.Apache.REEF.Network.Group.Driver.Impl
         {           
             get
             {
-                ICommunicationGroupDriver defaultGroup;
-                _commGroups.TryGetValue(_defaultGroupName, out defaultGroup);
                 lock (_groupsLock)
                 {
+                    ICommunicationGroupDriver defaultGroup;
+                    _commGroups.TryGetValue(_defaultGroupName, out defaultGroup);
+
                     if (defaultGroup == null)
                     {
                         NewCommunicationGroup(_defaultGroupName, _defaultGroupNumberOfTasks);

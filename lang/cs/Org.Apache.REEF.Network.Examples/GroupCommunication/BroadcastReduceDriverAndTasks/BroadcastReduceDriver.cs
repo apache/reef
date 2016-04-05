@@ -56,7 +56,7 @@ namespace Org.Apache.REEF.Network.Examples.GroupCommunication.BroadcastReduceDri
         private readonly IConfiguration _tcpPortProviderConfig;
         private readonly IConfiguration _codecConfig;
         private readonly IEvaluatorRequestor _evaluatorRequestor;
-        private readonly IList<IActiveContext> _activeContexts = new List<IActiveContext>();
+        private readonly ContextManager _contextManager;
             
         [Inject]
         public BroadcastReduceDriver(
@@ -71,6 +71,8 @@ namespace Org.Apache.REEF.Network.Examples.GroupCommunication.BroadcastReduceDri
             _numIterations = numIterations;
             _groupCommDriver = groupCommDriver;
             _evaluatorRequestor = evaluatorRequestor;
+
+            _contextManager = new ContextManager(_numEvaluators);
 
             _tcpPortProviderConfig = TangFactory.GetTang().NewConfigurationBuilder()
                 .BindNamedParameter<TcpPortRangeStart, int>(GenericType<TcpPortRangeStart>.Class,
@@ -120,9 +122,9 @@ namespace Org.Apache.REEF.Network.Examples.GroupCommunication.BroadcastReduceDri
 
         public void OnNext(IActiveContext value)
         {
-            _activeContexts.Add(value);
+            _contextManager.AddContext(value);
 
-            if (_activeContexts.Count < _numEvaluators)
+            if (!_contextManager.AllContextReceived())
             {
                 return;
             }
@@ -130,7 +132,7 @@ namespace Org.Apache.REEF.Network.Examples.GroupCommunication.BroadcastReduceDri
             CreateCommGroup();
             _groupCommTaskStarter = new TaskStarter(_groupCommDriver, _numEvaluators);
 
-            foreach (var activeContext in _activeContexts)
+            foreach (var activeContext in _contextManager.ActiveContexts)
             {
                 if (_groupCommDriver.IsMasterTaskContext(activeContext))
                 {
