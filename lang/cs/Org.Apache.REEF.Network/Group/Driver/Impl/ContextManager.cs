@@ -43,32 +43,11 @@ namespace Org.Apache.REEF.Network.Group.Driver.Impl
         }
 
         /// <summary>
-        /// Check if the number of active context has reached to the total number
-        /// </summary>
-        /// <returns></returns>
-        public bool AllContextReceived()
-        {
-            _contextLock.EnterReadLock();
-            try
-            {
-                if (_activeContexts.Count < _totalNumberOfContexts)
-                {
-                    return false;
-                }
-                return true;
-            }
-            finally
-            {
-                _contextLock.ExitReadLock();
-            }
-        }
-
-        /// <summary>
         /// Get number of active context in the collection
         /// </summary>
         public int Count
         {
-            get { return _activeContexts.Count; }
+            get { return _contextsAdded; }
         }
 
         /// <summary>
