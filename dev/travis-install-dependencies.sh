@@ -17,7 +17,7 @@
 # limitations under the License.
 
 PROTOBUF_VERSION=2.5.0
-INSTALL=${HOME}/local
+INSTALL=${HOME}/tools
 
 if [ ! -d ${INSTALL} ]; then
   echo "mkdir -p ${INSTALL}"
@@ -28,7 +28,7 @@ if [ ! -f ${INSTALL}/bin/protoc ]; then
   cd ${INSTALL}
   echo "Fetching protobuf"
   N="protobuf-${PROTOBUF_VERSION}"
-  wget -q https://protobuf.googlecode.com/files/${N}.tar.gz
+  wget -q https://github.com/google/protobuf/releases/download/v${PROTOBUF_VERSION}/${N}.tar.gz
   tar -xzvf ${N}.tar.gz > /dev/null
   rm ${N}.tar.gz
 
