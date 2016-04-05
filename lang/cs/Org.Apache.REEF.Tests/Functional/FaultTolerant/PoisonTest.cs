@@ -18,11 +18,9 @@
 using System;
 using Org.Apache.REEF.Common.Tasks;
 using Org.Apache.REEF.Driver;
-using Org.Apache.REEF.Driver.Bridge;
 using Org.Apache.REEF.Driver.Context;
 using Org.Apache.REEF.Driver.Evaluator;
 using Org.Apache.REEF.Tang.Annotations;
-using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Tang.Util;
 using Org.Apache.REEF.Utilities.Logging;
@@ -31,6 +29,8 @@ using System.Threading;
 using Org.Apache.REEF.Common.Context;
 using Org.Apache.REEF.Common.Events;
 using Org.Apache.REEF.Common.Poison;
+using Org.Apache.REEF.Tang.Implementations.Tang;
+using Org.Apache.REEF.Tang.Implementations.Configuration;
 
 namespace Org.Apache.REEF.Tests.Functional.FaultTolerant
 {
@@ -83,10 +83,18 @@ namespace Org.Apache.REEF.Tests.Functional.FaultTolerant
 
             public void OnNext(IAllocatedEvaluator value)
             {
-                value.SubmitContext(ContextConfiguration.ConfigurationModule
-                        .Set(ContextConfiguration.Identifier, "ContextID")
-                        .Set(ContextConfiguration.OnContextStart, GenericType<PoisonedEventHandler<IContextStart>>.Class)
-                        .Build());
+                var c1 = ContextConfiguration.ConfigurationModule
+                    .Set(ContextConfiguration.Identifier, "ContextID")
+                    .Set(ContextConfiguration.OnContextStart, GenericType<PoisonedEventHandler<IContextStart>>.Class)
+                    .Build();
+
+                var c2 = TangFactory.GetTang().NewConfigurationBuilder()
+                    .BindIntNamedParam<CrashTimeout>("500")
+                    .BindIntNamedParam<CrashMinDelay>("100")
+                    .BindNamedParameter<CrashProbability, double>(GenericType<CrashProbability>.Class, "1.0")
+                    .Build();
+
+                value.SubmitContext(Configurations.Merge(c1, c2));
             }
 
             public void OnNext(IActiveContext value)

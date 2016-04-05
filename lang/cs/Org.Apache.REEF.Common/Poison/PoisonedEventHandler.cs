@@ -40,7 +40,7 @@ namespace Org.Apache.REEF.Common.Poison
         private readonly int _crashMinDelay;
         private readonly RuntimeClock _clock;
 
-        private readonly Random rand = new Random();
+        private readonly Random _rand = new Random();
 
         [Inject]
         private PoisonedEventHandler(
@@ -61,24 +61,21 @@ namespace Org.Apache.REEF.Common.Poison
         public void OnNext(T value)
         {
             Logger.Log(Level.Verbose, "Poisoned handler for {0}", typeof(T).FullName);
-            if (rand.NextDouble() <= _crashProbability)
+            if (_rand.NextDouble() <= _crashProbability)
             {
-                int timeToCrash = rand.Next(_crashTimeout) + _crashMinDelay;
+                int timeToCrash = _rand.Next(_crashTimeout) + _crashMinDelay;
                 Logger.Log(Level.Info, "Poisoning successful, crashing in {0} msec.", timeToCrash);
                 if (timeToCrash == 0)
                 {
                     throw new PoisonException("Crashed at " + DateTime.Now);
                 }
-                else
-                {
-                    IObserver<Alarm> poisonedAlarm = Observer.Create<Alarm>(
-                        x => 
-                        {
-                            Logger.Log(Level.Verbose, "Alarm firing");
-                            throw new PoisonException("Crashed at " + DateTime.Now);
-                        });
-                    _clock.ScheduleAlarm(timeToCrash, poisonedAlarm);
-                }
+                IObserver<Alarm> poisonedAlarm = Observer.Create<Alarm>(
+                    x =>
+                    {
+                        Logger.Log(Level.Verbose, "Alarm firing");
+                        throw new PoisonException("Crashed at " + DateTime.Now);
+                    });
+                _clock.ScheduleAlarm(timeToCrash, poisonedAlarm);
             }
             else
             {
@@ -109,7 +106,7 @@ namespace Org.Apache.REEF.Common.Poison
     }
 
     [Private]
-    [NamedParameter("The probability with which a crash will occur", "CrashProbability", "1")]
+    [NamedParameter("The probability with which a crash will occur", "CrashProbability", "0.5")]
     public class CrashProbability : Name<double>
     {
     }
