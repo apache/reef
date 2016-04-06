@@ -41,7 +41,7 @@ namespace Org.Apache.REEF.Tang.Implementations.Configuration
         public readonly IDictionary<INamedParameterNode, IList<object>> BoundLists = new MonotonicTreeMap<INamedParameterNode, IList<object>>();
 
         public readonly static string INIT = "<init>";
-
+        public const string DuplicatedEntryForNamedParamater = "Duplicated entries: ";
         private static readonly Logger LOGGER = Logger.GetLogger(typeof(ConfigurationBuilderImpl));
 
         protected ConfigurationBuilderImpl() 
@@ -272,7 +272,15 @@ namespace Org.Apache.REEF.Tang.Implementations.Configuration
             } 
             else 
             {
-                NamedParameters.Add(name, value);
+                try
+                {
+                    NamedParameters.Add(name, value);
+                }
+                catch (ArgumentException e)
+                {
+                    var msg = string.Format(CultureInfo.InvariantCulture, DuplicatedEntryForNamedParamater + "try to bind [{0}] to [{1}], but the configuration has been set for it.", value, name.GetFullName());
+                    Utilities.Diagnostics.Exceptions.Throw(new ArgumentException(msg + e.Message), LOGGER);
+                }
             }
         }
 

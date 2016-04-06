@@ -59,6 +59,7 @@ under the License.
     <Compile Include="Configuration\TestAvroSerializerRoundTrip.cs" />
     <Compile Include="Configuration\TestConfiguration.cs" />
     <Compile Include="Configuration\TestCsConfigurationBuilderExtension.cs" />
+    <Compile Include="Configuration\TestNegativeCases.cs" />
     <Compile Include="Format\TestConfigurationModule.cs" />
     <Compile Include="Format\TestConfigurationModuleForList.cs" />
     <Compile Include="Format\TestTaskConfiguration.cs" />
