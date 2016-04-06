@@ -36,7 +36,7 @@ using Xunit;
 namespace Org.Apache.REEF.Tests.Functional.FaultTolerant
 {
     [Collection("FunctionalTests")]
-    public sealed class TestResubmitContext : ReefFunctionalTest
+    public sealed class TestResubmitEvaluator : ReefFunctionalTest
     {
         private const string FailedEvaluatorMessage = "FailedEvaluatorMessage";
         private const string CompletedTaskValidationMessage = "CompletedTaskValidationmessage";
@@ -44,7 +44,12 @@ namespace Org.Apache.REEF.Tests.Functional.FaultTolerant
         private const string FailSignal = "Fail";
         private const string SuccSignal = "Succ";
         private const string TaskId = "TaskId";
+        private const string ContextId = "ContextId";
 
+        /// <summary>
+        /// This test is to test evaluator resubmit scenarios, verify events received in failure case and successful cases, 
+        /// validate context and task received with failed evaluator
+        /// </summary>
         [Fact]
         [Trait("Priority", "1")]
         [Trait("Category", "FunctionalGated")]
@@ -116,19 +121,21 @@ namespace Org.Apache.REEF.Tests.Functional.FaultTolerant
                 Logger.Log(Level.Info, "AllocatedEvaluator: " + value.Id);
                 value.SubmitContext(
                     ContextConfiguration.ConfigurationModule
-                        .Set(ContextConfiguration.Identifier, "ContextID" + _contextNumber++)
+                        .Set(ContextConfiguration.Identifier, ContextId + _contextNumber)
                         .Build());
+                Interlocked.Increment(ref _contextNumber);
             }
 
             public void OnNext(IActiveContext value)
             {
                 Logger.Log(Level.Info, "ActiveContext: " + value.Id);
                 value.SubmitTask(TaskConfiguration.ConfigurationModule
-                    .Set(TaskConfiguration.Identifier, TaskId + _taskNumber++)
+                    .Set(TaskConfiguration.Identifier, TaskId + _taskNumber)
                     .Set(TaskConfiguration.Task, GenericType<FailEvaluatorTask>.Class)
                     .Set(TaskConfiguration.OnMessage, GenericType<FailEvaluatorTask>.Class)
                     .Set(TaskConfiguration.OnClose, GenericType<FailEvaluatorTask>.Class)
                     .Build());
+                Interlocked.Increment(ref _taskNumber);
             }
 
             public void OnNext(IRunningTask value)
@@ -152,22 +159,24 @@ namespace Org.Apache.REEF.Tests.Functional.FaultTolerant
             public void OnNext(IFailedEvaluator value)
             {
                 Logger.Log(Level.Info, FailedEvaluatorMessage + ". Evaluator failed: " + value.Id + "  FailedTaskId: " + value.FailedTask.Value.Id);
-                foreach (var c in value.FailedContexts)
-                {
-                    Logger.Log(Level.Info, "Failed Context: " + c.Id);
-                    Assert.Equal(c.Id, "ContextID1");
-                }
+                Assert.NotNull(value.FailedTask);
+                Assert.NotNull(value.FailedTask.Value);
+                Assert.NotNull(value.FailedTask.Value.Id);
+                Assert.True(value.FailedTask.Value.Id.Equals(TaskId + "1") || value.FailedTask.Value.Id.Equals(TaskId + "2"));
+                Assert.Equal(value.FailedContexts.Count, 1);
+                Assert.True(value.FailedContexts[0].Id.Equals(ContextId + "1") || value.FailedContexts[0].Id.Equals(ContextId + "2"));
+
                 _requestor.Submit(_requestor.NewBuilder().Build());
             }
 
             public void OnNext(IFailedContext value)
             {
-                Logger.Log(Level.Info, "In IFailedContext handler: " + value.Id);
+                throw new Exception("Did not expect Failed Context.");
             }
 
             public void OnNext(IFailedTask value)
             {
-                Logger.Log(Level.Info, "In IFailedTask handler: " + value.Id);
+                throw new Exception("Did not expect Failed Task.");
             }
 
             public void OnError(Exception error)
@@ -198,10 +207,13 @@ namespace Org.Apache.REEF.Tests.Functional.FaultTolerant
                 Logger.Log(Level.Info, "Hello in FailEvaluatorTask");
                 _countdownEvent.Wait();
 
-                if (_message.Equals(TestResubmitContext.FailSignal))
+                if (_message.Equals(TestResubmitEvaluator.FailSignal))
                 {
                     Environment.Exit(1);
                 }
+
+                // To make sure failed evaluator/context is submitted before other tasks are completed. 
+                Thread.Sleep(2000);
                 return null;
             }
 
