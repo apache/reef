@@ -58,8 +58,3 @@ Invoke-Expression "7z.exe x protoc.zip" | Out-Null
 $env:Path += ";$protocPath"
 
 Pop-Location
-
-# ========================== xUnit console runner
-$root = (Get-Item -Path "." -Verbose).FullName
-$packages = "$root\lang\cs\packages"
-Invoke-Expression "nuget install .\lang\cs\.nuget\packages.config -o $packages"

@@ -45,6 +45,9 @@ under the License.
     <Error Condition="!Exists('$(PackagesDir)\xunit.core.$(xUnitVersion)\build\portable-net45+win8+wp8+wpa81\xunit.core.props')" Text="$([System.String]::Format('$(NuGetError)', '$(PackagesDir)\xunit.core.$(xUnitVersion)\build\portable-net45+win8+wp8+wpa81\xunit.core.props'))" />
     <Error Condition="!Exists('$(PackagesDir)\xunit.runner.visualstudio.$(xUnitVersion)\build\net20\xunit.runner.visualstudio.props')" Text="$([System.String]::Format('$(NuGetError)', '$(PackagesDir)\xunit.runner.visualstudio.$(xUnitVersion)\build\net20\xunit.runner.visualstudio.props'))" />
   </Target>
+  <Target Name="InstallXunitConsoleRunner" BeforeTargets="Test">
+    <Exec Command="$(SolutionDir)\.nuget\nuget.exe restore $(SolutionDir)\.nuget\packages.config -o $(PackagesDir)" />
+  </Target>
   <Target Name="Test">
     <Exec Command="$(PackagesDir)\xunit.runner.console.$(xUnitVersion)\tools\xunit.console.exe $(OutputPath)\$(AssemblyName).dll"
           IgnoreStandardErrorWarningFormat="true"
