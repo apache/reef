@@ -147,18 +147,18 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         /// <summary>
         /// Specifies the Map or Update task to run on the active context
         /// </summary>
-        /// <param name="value"></param>
-        public void OnNext(IActiveContext value)
+        /// <param name="activeContext"></param>
+        public void OnNext(IActiveContext activeContext)
         {
-            Logger.Log(Level.Verbose, string.Format("Received Active Context {0}", value.Id));
+            Logger.Log(Level.Verbose, string.Format("Received Active Context {0}", activeContext.Id));
 
-            if (_groupCommDriver.IsMasterTaskContext(value))
+            if (_groupCommDriver.IsMasterTaskContext(activeContext))
             {
                 _reachedUpdateTaskActiveContext = true;
                 RequestMapEvaluators(_dataSet.Count);
             }
 
-            if (_contextManager.AddContext(value))
+            if (_contextManager.AddContext(activeContext))
             {
                 SubmitTasks();
             }
