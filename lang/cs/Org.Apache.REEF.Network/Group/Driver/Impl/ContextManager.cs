@@ -101,7 +101,7 @@ namespace Org.Apache.REEF.Network.Group.Driver.Impl
                 if (_activeContexts.ContainsKey(contextId))
                 {
                     _activeContexts.Remove(contextId);
-                    Interlocked.Decrement(ref _contextsAdded);
+                    _contextsAdded = _contextsAdded - 1;
                 }
                 else
                 {
