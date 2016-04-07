@@ -51,9 +51,11 @@ namespace Org.Apache.REEF.Network.Group.Driver.Impl
         private readonly string _driverId;
         private readonly string _nameServerAddr;
         private readonly int _nameServerPort;
+        private readonly int _defaultGroupNumberOfTasks;
         private int _contextIds;
         private readonly int _fanOut;
-        private readonly string _groupName;
+        private readonly string _defaultGroupName;
+        private readonly object _groupsLock = new object();
 
         private readonly Dictionary<string, ICommunicationGroupDriver> _commGroups;
         private readonly AvroConfigurationSerializer _configSerializer;
@@ -61,20 +63,20 @@ namespace Org.Apache.REEF.Network.Group.Driver.Impl
         /// <summary>
         /// Create a new GroupCommunicationDriver object.
         /// </summary>
-        /// <param name="driverId">Identifer for the REEF driver</param>
-        /// <param name="masterTaskId">Identifer for Group Communication master task</param>
+        /// <param name="driverId">Identifier for the REEF driver</param>
+        /// <param name="masterTaskId">Identifier for Group Communication master task</param>
         /// <param name="fanOut">fanOut for tree topology</param>
-        /// <param name="groupName">default communication group name</param>
-        /// <param name="numberOfTasks">Number of tasks in the default group</param>
+        /// <param name="defaultGroupName">default communication group name</param>
+        /// <param name="defaultGroupNumberOfTasks">Number of tasks in the default group</param>
         /// <param name="configSerializer">Used to serialize task configuration</param>
-        /// <param name="nameServer">Used to map names to ip adresses</param>
+        /// <param name="nameServer">Used to map names to ip addresses</param>
         [Inject]
         private GroupCommDriver(
             [Parameter(typeof(GroupCommConfigurationOptions.DriverId))] string driverId,
             [Parameter(typeof(GroupCommConfigurationOptions.MasterTaskId))] string masterTaskId,
             [Parameter(typeof(GroupCommConfigurationOptions.FanOut))] int fanOut,
-            [Parameter(typeof(GroupCommConfigurationOptions.GroupName))] string groupName,
-            [Parameter(typeof(GroupCommConfigurationOptions.NumberOfTasks))] int numberOfTasks,
+            [Parameter(typeof(GroupCommConfigurationOptions.GroupName))] string defaultGroupName,
+            [Parameter(typeof(GroupCommConfigurationOptions.NumberOfTasks))] int defaultGroupNumberOfTasks,
             AvroConfigurationSerializer configSerializer,
             INameServer nameServer)
         {
@@ -82,7 +84,8 @@ namespace Org.Apache.REEF.Network.Group.Driver.Impl
             _contextIds = -1;
             _fanOut = fanOut;
             MasterTaskId = masterTaskId;
-            _groupName = groupName;
+            _defaultGroupName = defaultGroupName;
+            _defaultGroupNumberOfTasks = defaultGroupNumberOfTasks;
 
             _configSerializer = configSerializer;
             _commGroups = new Dictionary<string, ICommunicationGroupDriver>();
@@ -91,7 +94,7 @@ namespace Org.Apache.REEF.Network.Group.Driver.Impl
             _nameServerAddr = localEndpoint.Address.ToString();
             _nameServerPort = localEndpoint.Port;
 
-            NewCommunicationGroup(groupName, numberOfTasks);
+            ////NewCommunicationGroup(groupName, numberOfTasks);
         }
 
         /// <summary>
@@ -99,9 +102,26 @@ namespace Org.Apache.REEF.Network.Group.Driver.Impl
         /// </summary>
         public string MasterTaskId { get; private set; }
 
+        /// <summary>
+        /// A communication group created using default group name and default number of tasks
+        /// It is created when this property is referenced first time.
+        /// </summary>
         public ICommunicationGroupDriver DefaultGroup
-        {
-            get { return _commGroups[_groupName]; }
+        {           
+            get
+            {
+                lock (_groupsLock)
+                {
+                    ICommunicationGroupDriver defaultGroup;
+                    _commGroups.TryGetValue(_defaultGroupName, out defaultGroup);
+
+                    if (defaultGroup == null)
+                    {
+                        NewCommunicationGroup(_defaultGroupName, _defaultGroupNumberOfTasks);
+                    }
+                }
+                return _commGroups[_defaultGroupName];
+            }
         }
 
         /// <summary>

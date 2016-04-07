@@ -63,7 +63,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         private readonly IEvaluatorRequestor _evaluatorRequestor;
         private ICommunicationGroupDriver _commGroup;
         private readonly IGroupCommDriver _groupCommDriver;
-        private readonly TaskStarter _groupCommTaskStarter;
+        private TaskStarter _groupCommTaskStarter;
         private readonly ConcurrentStack<string> _taskIdStack;
         private readonly ConcurrentStack<IConfiguration> _perMapperConfiguration;
         private readonly Stack<IPartitionDescriptor> _partitionDescriptorStack;
@@ -77,6 +77,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         private int _currentFailedEvaluators = 0;
         private bool _reachedUpdateTaskActiveContext = false;
         private readonly bool _invokeGC;
+        private readonly ContextManager _contextManager;
 
         private readonly ServiceAndContextConfigurationProvider<TMapInput, TMapOutput>
             _serviceAndContextConfigurationProvider;
@@ -107,9 +108,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
             _allowedFailedEvaluators = (int)(failedEvaluatorsFraction * dataSet.Count);
             _invokeGC = invokeGC;
 
-            AddGroupCommunicationOperators();
-            _groupCommTaskStarter = new TaskStarter(_groupCommDriver, _dataSet.Count + 1);
-
+            _contextManager = new ContextManager(_dataSet.Count + 1);
             _taskIdStack = new ConcurrentStack<string>();
             _perMapperConfiguration = new ConcurrentStack<IConfiguration>();
             _partitionDescriptorStack = new Stack<IPartitionDescriptor>();
@@ -146,7 +145,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         }
 
         /// <summary>
-        /// Specfies the Map or Update task to run on the active context
+        /// Specifies the Map or Update task to run on the active context
         /// </summary>
         /// <param name="activeContext"></param>
         public void OnNext(IActiveContext activeContext)
@@ -157,86 +156,106 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
             {
                 _reachedUpdateTaskActiveContext = true;
                 RequestMapEvaluators(_dataSet.Count);
-
-                var partialTaskConf =
-                    TangFactory.GetTang()
-                        .NewConfigurationBuilder(new[]
-                        {
-                            TaskConfiguration.ConfigurationModule
-                                .Set(TaskConfiguration.Identifier,
-                                    IMRUConstants.UpdateTaskName)
-                                .Set(TaskConfiguration.Task,
-                                    GenericType<UpdateTaskHost<TMapInput, TMapOutput, TResult>>.Class)
-                                .Build(),
-                            _configurationManager.UpdateFunctionConfiguration,
-                            _configurationManager.ResultHandlerConfiguration
-                        })
-                        .BindNamedParameter(typeof(InvokeGC), _invokeGC.ToString())
-                        .Build();
-
-                try
-                {
-                    TangFactory.GetTang()
-                        .NewInjector(partialTaskConf, _configurationManager.UpdateFunctionCodecsConfiguration)
-                        .GetInstance<IIMRUResultHandler<TResult>>();
-                }
-                catch (InjectionException)
-                {
-                    partialTaskConf = TangFactory.GetTang().NewConfigurationBuilder(partialTaskConf)
-                        .BindImplementation(GenericType<IIMRUResultHandler<TResult>>.Class,
-                            GenericType<DefaultResultHandler<TResult>>.Class)
-                        .Build();
-                    Logger.Log(Level.Warning,
-                        "User has not given any way to handle IMRU result, defaulting to ignoring it");
-                }
-
-                _commGroup.AddTask(IMRUConstants.UpdateTaskName);
-                _groupCommTaskStarter.QueueTask(partialTaskConf, activeContext);
             }
-            else
+
+            if (_contextManager.AddContext(activeContext))
             {
-                string taskId;
+                SubmitTasks();
+            }
+        }
 
-                if (!_taskIdStack.TryPop(out taskId))
+        private void SubmitTasks()
+        {
+            AddGroupCommunicationOperators();
+            _groupCommTaskStarter = new TaskStarter(_groupCommDriver, _dataSet.Count + 1);
+
+            //// TODO [REEF-1223]: Evaluator may fail during task preparation and submission. More mechanism will be added when working of it.
+            foreach (var activeContext in _contextManager.ActiveContexts)
+            {
+                if (_groupCommDriver.IsMasterTaskContext(activeContext))
                 {
-                    Logger.Log(Level.Warning, "No task Ids exist for the active context {0}. Disposing the context.",
-                        activeContext.Id);
-                    activeContext.Dispose();
-                    return;
+                    var partialTaskConf =
+                        TangFactory.GetTang()
+                            .NewConfigurationBuilder(new[]
+                            {
+                                TaskConfiguration.ConfigurationModule
+                                    .Set(TaskConfiguration.Identifier,
+                                        IMRUConstants.UpdateTaskName)
+                                    .Set(TaskConfiguration.Task,
+                                        GenericType<UpdateTaskHost<TMapInput, TMapOutput, TResult>>.Class)
+                                    .Build(),
+                                _configurationManager.UpdateFunctionConfiguration,
+                                _configurationManager.ResultHandlerConfiguration
+                            })
+                            .BindNamedParameter(typeof(InvokeGC), _invokeGC.ToString())
+                            .Build();
+
+                    try
+                    {
+                        TangFactory.GetTang()
+                            .NewInjector(partialTaskConf, _configurationManager.UpdateFunctionCodecsConfiguration)
+                            .GetInstance<IIMRUResultHandler<TResult>>();
+                    }
+                    catch (InjectionException)
+                    {
+                        partialTaskConf = TangFactory.GetTang().NewConfigurationBuilder(partialTaskConf)
+                            .BindImplementation(GenericType<IIMRUResultHandler<TResult>>.Class,
+                                GenericType<DefaultResultHandler<TResult>>.Class)
+                            .Build();
+                        Logger.Log(Level.Warning,
+                            "User has not given any way to handle IMRU result, defaulting to ignoring it");
+                    }
+
+                    _commGroup.AddTask(IMRUConstants.UpdateTaskName);
+                    _groupCommTaskStarter.QueueTask(partialTaskConf, activeContext);
                 }
-
-                IConfiguration mapSpecificConfig;
-
-                if (!_perMapperConfiguration.TryPop(out mapSpecificConfig))
+                else
                 {
-                    Logger.Log(Level.Warning,
-                        "No per map configuration exist for the active context {0}. Disposing the context.",
-                        activeContext.Id);
-                    activeContext.Dispose();
-                    return;
+                    string taskId;
+
+                    if (!_taskIdStack.TryPop(out taskId))
+                    {
+                        Logger.Log(Level.Warning,
+                            "No task Ids exist for the active context {0}. Disposing the context.",
+                            activeContext.Id);
+                        activeContext.Dispose();
+                        return;
+                    }
+
+                    IConfiguration mapSpecificConfig;
+
+                    if (!_perMapperConfiguration.TryPop(out mapSpecificConfig))
+                    {
+                        Logger.Log(Level.Warning,
+                            "No per map configuration exist for the active context {0}. Disposing the context.",
+                            activeContext.Id);
+                        activeContext.Dispose();
+                        return;
+                    }
+
+                    var partialTaskConf =
+                        TangFactory.GetTang()
+                            .NewConfigurationBuilder(new[]
+                            {
+                                TaskConfiguration.ConfigurationModule
+                                    .Set(TaskConfiguration.Identifier, taskId)
+                                    .Set(TaskConfiguration.Task,
+                                        GenericType<MapTaskHost<TMapInput, TMapOutput>>.Class)
+                                    .Build(),
+                                _configurationManager.MapFunctionConfiguration,
+                                mapSpecificConfig
+                            })
+                            .BindNamedParameter(typeof(InvokeGC), _invokeGC.ToString())
+                            .Build();
+
+                    _commGroup.AddTask(taskId);
+                    _groupCommTaskStarter.QueueTask(partialTaskConf, activeContext);
                 }
-
-                var partialTaskConf =
-                    TangFactory.GetTang()
-                        .NewConfigurationBuilder(new[]
-                        {
-                            TaskConfiguration.ConfigurationModule
-                                .Set(TaskConfiguration.Identifier, taskId)
-                                .Set(TaskConfiguration.Task, GenericType<MapTaskHost<TMapInput, TMapOutput>>.Class)
-                                .Build(),
-                            _configurationManager.MapFunctionConfiguration,
-                            mapSpecificConfig
-                        })
-                        .BindNamedParameter(typeof(InvokeGC), _invokeGC.ToString())
-                        .Build();
-
-                _commGroup.AddTask(taskId);
-                _groupCommTaskStarter.QueueTask(partialTaskConf, activeContext);
             }
         }
 
         /// <summary>
-        /// Specfies what to do when the task is completed
+        /// Specifies what to do when the task is completed
         /// In this case just disposes off the task
         /// </summary>
         /// <param name="completedTask">The link to the completed task</param>
@@ -290,7 +309,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         }
 
         /// <summary>
-        /// Specfies how to handle exception or error
+        /// Specifies how to handle exception or error
         /// </summary>
         /// <param name="error">Kind of exception</param>
         public void OnError(Exception error)
@@ -300,7 +319,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         }
 
         /// <summary>
-        /// Specfies what to do when driver is done
+        /// Specifies what to do when driver is done
         /// In this case do nothing
         /// </summary>
         public void OnCompleted()

@@ -40,7 +40,7 @@ namespace Org.Apache.REEF.Network.Examples.GroupCommunication.ScatterReduceDrive
             _logger.Log(Level.Info, "Hello from slave task");
 
             _groupCommClient = groupCommClient;
-            _commGroup = _groupCommClient.GetCommunicationGroup(GroupTestConstants.GroupName);
+            _commGroup = _groupCommClient.GetCommunicationGroup(GroupTestConstants.DefaultGroupName);
             _scatterReceiver = _commGroup.GetScatterReceiver<int>(GroupTestConstants.ScatterOperatorName);
             _sumSender = _commGroup.GetReduceSender<int>(GroupTestConstants.ReduceOperatorName);
         }
