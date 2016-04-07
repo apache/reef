@@ -27,6 +27,6 @@ under the License.
   </PropertyGroup>
   <Target Name="Test">
     <MSBuild Projects="@(ProjectReferences)"
-             Targets="Test" Properties="Configuration=$(Configuration);Platform=$(Platform)" StopOnFirstFailure="true" />
+             Targets="Test" Properties="Configuration=$(Configuration);Platform=$(Platform)" StopOnFirstFailure="false" />
   </Target>
 </Project>
