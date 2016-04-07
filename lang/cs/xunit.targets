@@ -49,7 +49,7 @@ under the License.
     <Exec Command="$(SolutionDir)\.nuget\nuget.exe restore $(SolutionDir)\.nuget\packages.config -o $(PackagesDir)" />
   </Target>
   <Target Name="Test">
-    <Exec Command="$(PackagesDir)\xunit.runner.console.$(xUnitVersion)\tools\xunit.console.exe $(OutputPath)\$(AssemblyName).dll"
+    <Exec Command="$(PackagesDir)\xunit.runner.console.$(xUnitVersion)\tools\xunit.console.exe $(OutputPath)\$(AssemblyName).dll -html $(OutputPath)\xunit_report.html"
           IgnoreStandardErrorWarningFormat="true"
       />
   </Target>
