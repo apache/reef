@@ -104,6 +104,8 @@ namespace Org.Apache.REEF.Tests.Functional.FaultTolerant
             private readonly IEvaluatorRequestor _requestor;
             private int _taskNumber = 1;
             private int _contextNumber = 1;
+            private readonly ISet<ICompletedTask> _completedTasks = new HashSet<ICompletedTask>();
+            private readonly object _compeletedTaskLock = new object();
 
             [Inject]
             private ResubmitEvaluatorDriver(IEvaluatorRequestor requestor)
@@ -148,7 +150,18 @@ namespace Org.Apache.REEF.Tests.Functional.FaultTolerant
             public void OnNext(ICompletedTask value)
             {
                 Logger.Log(Level.Info, CompletedTaskValidationMessage + ". Task completed: " + value.Id);
-                value.ActiveContext.Dispose();
+                lock (_compeletedTaskLock)
+                {
+                    _completedTasks.Add(value);
+                    if (_completedTasks.Count < 2)
+                    {
+                        return;
+                    }
+                    foreach (var t in _completedTasks)
+                    {
+                        t.ActiveContext.Dispose();
+                    }
+                }
             }
 
             public void OnNext(ICompletedEvaluator value)
@@ -163,7 +176,7 @@ namespace Org.Apache.REEF.Tests.Functional.FaultTolerant
                 Assert.NotNull(value.FailedTask.Value);
                 Assert.NotNull(value.FailedTask.Value.Id);
                 Assert.True(value.FailedTask.Value.Id.Equals(TaskId + "1") || value.FailedTask.Value.Id.Equals(TaskId + "2"));
-                Assert.Equal(value.FailedContexts.Count, 1);
+                Assert.Equal(1, value.FailedContexts.Count);
                 Assert.True(value.FailedContexts[0].Id.Equals(ContextId + "1") || value.FailedContexts[0].Id.Equals(ContextId + "2"));
 
                 _requestor.Submit(_requestor.NewBuilder().Build());
@@ -195,7 +208,6 @@ namespace Org.Apache.REEF.Tests.Functional.FaultTolerant
             private static readonly Logger Logger = Logger.GetLogger(typeof(FailEvaluatorTask));
 
             private readonly CountdownEvent _countdownEvent = new CountdownEvent(1);
-            private string _message;
 
             [Inject]
             private FailEvaluatorTask()
@@ -206,21 +218,20 @@ namespace Org.Apache.REEF.Tests.Functional.FaultTolerant
             {
                 Logger.Log(Level.Info, "Hello in FailEvaluatorTask");
                 _countdownEvent.Wait();
-
-                if (_message.Equals(TestResubmitEvaluator.FailSignal))
-                {
-                    Environment.Exit(1);
-                }
-
-                // To make sure failed evaluator/context is submitted before other tasks are completed. 
-                Thread.Sleep(2000);
                 return null;
             }
 
             public void Handle(IDriverMessage value)
             {
-                _message = ByteUtilities.ByteArraysToString(value.Message.Value);
-                _countdownEvent.Signal();
+                var message = ByteUtilities.ByteArraysToString(value.Message.Value);
+                if (message.Equals(FailSignal))
+                {
+                    Environment.Exit(1);
+                }
+                else
+                {
+                    _countdownEvent.Signal();                   
+                }
             }
 
             public void OnNext(ICloseEvent value)
