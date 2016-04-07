@@ -68,6 +68,7 @@ under the License.
     <Compile Include="Bridge\CustomTraceListeners.cs" />
     <Compile Include="Bridge\DriverBridge.cs" />
     <Compile Include="Bridge\DriverBridgeConfigurationOptions.cs" />
+    <Compile Include="Bridge\EvaluatorLogLevelProvider.cs" />
     <Compile Include="Bridge\Events\ActiveContext.cs" />
     <Compile Include="Bridge\Events\AllocatedEvaluator.cs" />
     <Compile Include="Bridge\Events\ClosedContext.cs" />

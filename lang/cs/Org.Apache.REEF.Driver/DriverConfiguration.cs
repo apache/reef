@@ -26,6 +26,7 @@ using Org.Apache.REEF.Driver.Context;
 using Org.Apache.REEF.Driver.Evaluator;
 using Org.Apache.REEF.Driver.Task;
 using Org.Apache.REEF.Tang.Formats;
+using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Tang.Util;
 using Org.Apache.REEF.Utilities.Attributes;
 
@@ -240,6 +241,8 @@ namespace Org.Apache.REEF.Driver
                     .BindNamedParameter(GenericType<DriverBridgeConfigurationOptions.TraceLevel>.Class, CustomTraceLevel)
                     .BindNamedParameter(GenericType<DriverBridgeConfigurationOptions.DriverRestartEvaluatorRecoverySeconds>.Class,
                         DriverRestartEvaluatorRecoverySeconds)
+                    .BindSetEntry<EvaluatorConfigurationProviders, EvaluatorLogLevelProvider, IConfigurationProvider>(
+                        GenericType<EvaluatorConfigurationProviders>.Class, GenericType<EvaluatorLogLevelProvider>.Class)
 
                     // TODO[JIRA REEF-1306]: Bind DriverReconnectionConfigurationProvider into EvaluatorConfigurationProviders.
                     .BindImplementation(GenericType<IDriverReconnConfigProvider>.Class, DriverReconnectionConfigurationProvider)
