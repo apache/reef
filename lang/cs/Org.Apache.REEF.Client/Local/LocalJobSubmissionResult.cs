@@ -76,6 +76,11 @@ namespace Org.Apache.REEF.Client.Local
             {
                 LOGGER.Log(Level.Info, "File does not exist: " + fileName);
             }
+            catch (IOException)
+            {
+                LOGGER.Log(Level.Info, "Encountered IOException on reading " + fileName + ".");
+            }
+
             return httpServerIpAndPort;
         }
     }
