@@ -20,6 +20,7 @@ using System.IO;
 using System.Net;
 using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Wake.Remote;
+using Org.Apache.REEF.Wake.Remote.Impl;
 using Org.Apache.REEF.Wake.Remote.Parameters;
 using Xunit;
 
@@ -38,7 +39,6 @@ namespace Org.Apache.REEF.Wake.Tests
             IPAddress localIpAddress = IPAddress.Parse("127.0.0.1");
             const int retryCount = 5;
             const int sleepTimeInMs = 500;
-            const string message = "Retry - Count:";
             IPEndPoint remoteEndpoint = new IPEndPoint(localIpAddress, 8900);
 
             var memStream = new MemoryStream();
@@ -55,23 +55,22 @@ namespace Org.Apache.REEF.Wake.Tests
             try
             {
                 tmp.Connect(remoteEndpoint);
-                Assert.False(true);
+                Assert.False(true, "The connection is supposed to be unsuccessful since server is not present.");
             }
-            catch
+            catch (Exception e)
             {
-                memStream.Position = 0;
-                using (var reader = new StreamReader(memStream))
+                var exception = e as TcpClientConnectionException;
+                if (exception != null)
                 {
-                    string line;
-                    int counter = 0;
-                    while ((line = reader.ReadLine()) != null)
-                    {
-                        if (line.Contains(message))
-                        {
-                            counter++;
-                        }
-                    }
-                    Assert.Equal(counter, retryCount);
+                    bool areEqual = exception.RetriesDone == retryCount;
+                    string failureMsg = string.Format("Expected {0} retries but only {1} were done",
+                        retryCount,
+                        exception.RetriesDone);
+                    Assert.True(areEqual, failureMsg);
+                }
+                else
+                {
+                    throw;
                 }
             }
         }
