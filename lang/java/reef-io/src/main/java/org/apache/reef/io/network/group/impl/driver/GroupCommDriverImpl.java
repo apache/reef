@@ -73,7 +73,7 @@ import java.util.logging.Logger;
  * <p>
  * Also starts the NameService and the NetworkService on the driver
  */
-public class GroupCommDriverImpl implements GroupCommServiceDriver {
+public final class GroupCommDriverImpl implements GroupCommServiceDriver {
   private static final Logger LOG = Logger.getLogger(GroupCommDriverImpl.class.getName());
   /**
    * TANG instance.
@@ -107,12 +107,8 @@ public class GroupCommDriverImpl implements GroupCommServiceDriver {
   private final EStage<GroupCommunicationMessage> groupCommMessageStage;
   private final int fanOut;
 
-  /**
-   * @deprecated in 0.12. Use Tang to obtain an instance of this instead.
-   */
-  @Deprecated
   @Inject
-  public GroupCommDriverImpl(final ConfigurationSerializer confSerializer,
+  private GroupCommDriverImpl(final ConfigurationSerializer confSerializer,
                              @Parameter(DriverIdentifier.class) final String driverId,
                              @Parameter(TreeTopologyFanOut.class) final int fanOut,
                              final LocalAddressProvider localAddressProvider,
@@ -140,22 +136,33 @@ public class GroupCommDriverImpl implements GroupCommServiceDriver {
         .build())
         .build();
 
-    NameResolver nameResolver = null;
+    final NameResolver nameResolver;
     try {
       nameResolver = Tang.Factory.getTang().newInjector(nameResolverConf).getInstance(NameResolver.class);
     } catch (final InjectionException e) {
-      throw new RuntimeException(e);
+      throw new RuntimeException("Failed to instantiate NameResolver", e);
     }
 
-    this.netService = new NetworkService<>(idFac, 0, nameResolver,
-        new GroupCommunicationMessageCodec(), tpFactory,
-        new EventHandler<Message<GroupCommunicationMessage>>() {
-
-          @Override
-          public void onNext(final Message<GroupCommunicationMessage> msg) {
-            groupCommMessageStage.onNext(Utils.getGCM(msg));
-          }
-        }, new LoggingEventHandler<Exception>(), localAddressProvider);
+    try {
+      final Injector injector = TANG.newInjector();
+      injector.bindVolatileParameter(NetworkServiceParameters.NetworkServiceIdentifierFactory.class, idFac);
+      injector.bindVolatileInstance(NameResolver.class, nameResolver);
+      injector.bindVolatileParameter(NetworkServiceParameters.NetworkServiceCodec.class,
+          new GroupCommunicationMessageCodec());
+      injector.bindVolatileParameter(NetworkServiceParameters.NetworkServiceTransportFactory.class, tpFactory);
+      injector.bindVolatileParameter(NetworkServiceParameters.NetworkServiceHandler.class,
+          new EventHandler<Message<GroupCommunicationMessage>>() {
+            @Override
+            public void onNext(final Message<GroupCommunicationMessage> msg) {
+              groupCommMessageStage.onNext(Utils.getGCM(msg));
+            }
+          });
+      injector.bindVolatileParameter(NetworkServiceParameters.NetworkServiceExceptionHandler.class,
+          new LoggingEventHandler<Exception>());
+      this.netService = injector.getInstance(NetworkService.class);
+    } catch (final InjectionException e) {
+      throw new RuntimeException("Failed to instantiate NetworkService", e);
+    }
     this.netService.registerId(idFac.getNewInstance(driverId));
     final EStage<GroupCommunicationMessage> senderStage
         = new ThreadPoolStage<>("SrcCtrlMsgSender", new CtrlMsgSender(idFac, netService), 5);

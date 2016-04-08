@@ -29,7 +29,6 @@ import org.apache.reef.wake.*;
 import org.apache.reef.wake.impl.LoggingEventHandler;
 import org.apache.reef.wake.impl.SingleThreadStage;
 import org.apache.reef.wake.remote.Codec;
-import org.apache.reef.wake.remote.address.LocalAddressProvider;
 import org.apache.reef.wake.remote.impl.TransportEvent;
 import org.apache.reef.wake.remote.transport.Transport;
 import org.apache.reef.wake.remote.transport.TransportFactory;
@@ -58,21 +57,16 @@ public final class NetworkService<T> implements Stage, ConnectionFactory<T> {
   private final EStage<Identifier> nameServiceUnregisteringStage;
   private Identifier myId;
 
-  /**
-   * @deprecated in 0.12. Use Tang to obtain an instance of this instead.
-   */
-  @Deprecated
   @Inject
-  public NetworkService(
+  private NetworkService(
       @Parameter(NetworkServiceParameters.NetworkServiceIdentifierFactory.class) final IdentifierFactory factory,
       @Parameter(NetworkServiceParameters.NetworkServicePort.class) final int nsPort,
       final NameResolver nameResolver,
       @Parameter(NetworkServiceParameters.NetworkServiceCodec.class) final Codec<T> codec,
       @Parameter(NetworkServiceParameters.NetworkServiceTransportFactory.class) final TransportFactory tpFactory,
       @Parameter(NetworkServiceParameters.NetworkServiceHandler.class) final EventHandler<Message<T>> recvHandler,
-      @Parameter(NetworkServiceParameters.NetworkServiceExceptionHandler.class) final EventHandler<Exception> exHandler,
-      final LocalAddressProvider localAddressProvider) {
-
+      @Parameter(NetworkServiceParameters.NetworkServiceExceptionHandler.class)
+      final EventHandler<Exception> exHandler) {
     this.factory = factory;
     this.codec = codec;
     this.transport = tpFactory.newInstance(nsPort,

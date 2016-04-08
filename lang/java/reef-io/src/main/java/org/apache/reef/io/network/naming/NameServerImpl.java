@@ -61,11 +61,9 @@ public final class NameServerImpl implements NameServer {
    * @param factory an identifier factory
    * @param localAddressProvider a local address provider
    * Constructs a name server
-   * @deprecated in 0.12. Use Tang to obtain an instance of this or, better, NameServer, instead.
    */
-  @Deprecated
   @Inject
-  public NameServerImpl(
+  private NameServerImpl(
       @Parameter(NameServerParameters.NameServerPort.class) final int port,
       @Parameter(NameServerParameters.NameServerIdentifierFactory.class) final IdentifierFactory factory,
       final LocalAddressProvider localAddressProvider) {
