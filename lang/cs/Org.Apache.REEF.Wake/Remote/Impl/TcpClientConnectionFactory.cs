@@ -49,18 +49,25 @@ namespace Org.Apache.REEF.Wake.Remote.Impl
         public TcpClient Connect(IPEndPoint endPoint)
         {
             TcpClient client = new TcpClient();
+            int tryCounter = 0;
 
             try
             {
-                _retryHandler.Policy.ExecuteAction(() => client.Connect(endPoint));
+                _retryHandler.Policy.ExecuteAction(() =>
+                {
+                    tryCounter++;
+                    client.Connect(endPoint);
+                });
                 var msg = string.Format("Connection to endpoint {0} established", endPoint);
                 Logger.Log(Level.Info, msg);
                 return client;
             }
             catch (Exception e)
             {
-                var msg = string.Format("Connection to endpoint {0} failed", endPoint);
-                Exceptions.CaughtAndThrow(e, Level.Error, msg, Logger);
+                var msg = string.Format("Retried {0} times but connection to endpoint {1} failed",
+                    tryCounter - 1,
+                    endPoint);
+                Exceptions.CaughtAndThrow(new TcpClientConnectionException(msg, e, tryCounter - 1), Level.Error, Logger);
                 return null;
             }
         }
