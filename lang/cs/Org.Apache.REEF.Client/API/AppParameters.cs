@@ -15,7 +15,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-using System;
 using System.Collections.Generic;
 using Org.Apache.REEF.Tang.Interface;
 
@@ -49,13 +48,6 @@ namespace Org.Apache.REEF.Client.API
             _localAssemblies = localAssemblies;
             _localFiles = localFiles;
             _driverConfigurationFileContents = driverConfigurationFileContents;
-        }
-
-        [Obsolete("Introduced to bridge deprecation of IJobSubmission.")]
-        internal static AppParameters FromJobSubmission(IJobSubmission jobSubmission)
-        {
-            return new AppParameters(jobSubmission.DriverConfigurations, jobSubmission.GlobalAssemblies, jobSubmission.GlobalFiles, 
-                jobSubmission.LocalAssemblies, jobSubmission.LocalFiles, jobSubmission.DriverConfigurationFileContents);
         }
 
         /// <summary>

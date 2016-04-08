@@ -15,7 +15,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-using System;
 using System.Collections.Generic;
 using Org.Apache.REEF.Tang.Interface;
 
@@ -33,13 +32,6 @@ namespace Org.Apache.REEF.Client.API
         {
             _jobParameters = jobParameters;
             _appParameters = appParameters;
-        }
-
-        [Obsolete("Introduced to bridge deprecation of IJobSubmission.")]
-        internal static JobRequest FromJobSubmission(IJobSubmission jobSubmission)
-        {
-            return new JobRequest(
-                JobParameters.FromJobSubmission(jobSubmission), AppParameters.FromJobSubmission(jobSubmission));
         }
 
         /// <summary>

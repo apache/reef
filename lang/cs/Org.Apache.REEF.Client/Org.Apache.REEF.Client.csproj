@@ -64,16 +64,11 @@ under the License.
     <Compile Include="API\ClientFactory.cs" />
     <Compile Include="API\Exceptions\ClasspathException.cs" />
     <Compile Include="API\Exceptions\JavaNotFoundException.cs" />
-    <Compile Include="API\IJobSubmission.cs" />
-    <Compile Include="API\IJobSubmissionBuilder.cs" />
     <Compile Include="API\IREEFClient.cs" />
     <Compile Include="API\JobParameters.cs" />
     <Compile Include="API\JobParametersBuilder.cs" />
     <Compile Include="API\JobRequest.cs" />
     <Compile Include="API\JobRequestBuilder.cs" />
-    <Compile Include="API\JobSubmission.cs" />
-    <Compile Include="API\JobSubmissionBuilder.cs" />
-    <Compile Include="API\JobSubmissionBuilderFactory.cs" />
     <Compile Include="API\TcpPortConfigurationModule.cs" />
     <Compile Include="Avro\AvroAppSubmissionParameters.cs" />
     <Compile Include="Avro\AvroJobSubmissionParameters.cs" />

@@ -140,12 +140,6 @@ namespace Org.Apache.REEF.Client.YARN
             throw new NotSupportedException();
         }
 
-        [Obsolete("Deprecated in 0.14, please use Submit(JobRequest)")]
-        public void Submit(IJobSubmission jobSubmission)
-        {
-            Submit(JobRequest.FromJobSubmission(jobSubmission));
-        }
-
         public async Task<FinalState> GetJobFinalStatus(string appId)
         {
             var application = await _yarnRMClient.GetApplicationAsync(appId).ConfigureAwait(false);
