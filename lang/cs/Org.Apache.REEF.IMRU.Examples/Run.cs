@@ -36,7 +36,7 @@ namespace Org.Apache.REEF.IMRU.Examples
     {
         private static readonly Logger Logger = Logger.GetLogger(typeof(Run));
 
-        private static void RunMapperTest(IConfiguration tcpPortConfig, bool runOnYarn, int numNodes, string filename)
+        public static void RunMapperTest(IConfiguration tcpPortConfig, bool runOnYarn, int numNodes, string filename, params string[] runtimeDir)
         {
             IInjector injector;
             IConfiguration fileSystemConfig;
@@ -45,7 +45,7 @@ namespace Org.Apache.REEF.IMRU.Examples
             {
                 injector =
                     TangFactory.GetTang()
-                        .NewInjector(OnREEFIMRURunTimeConfiguration<int, int, int>.GetLocalIMRUConfiguration(numNodes), tcpPortConfig);
+                        .NewInjector(OnREEFIMRURunTimeConfiguration<int, int, int>.GetLocalIMRUConfiguration(numNodes, runtimeDir), tcpPortConfig);
                 fileSystemConfig = LocalFileSystemConfiguration.ConfigurationModule.Build();
             }
             else
@@ -59,7 +59,7 @@ namespace Org.Apache.REEF.IMRU.Examples
             mapperCountExample.Run(numNodes - 1, filename, fileSystemConfig);
         }
 
-        private static void RunBroadcastReduceTest(IConfiguration tcpPortConfig, bool runOnYarn, int numNodes, string[] args)
+        public static void RunBroadcastReduceTest(IConfiguration tcpPortConfig, bool runOnYarn, int numNodes, string[] args, params string[] runtimeDir)
         {
             int chunkSize = 2;
             int dims = 10;
@@ -98,7 +98,7 @@ namespace Org.Apache.REEF.IMRU.Examples
             {
                 injector =
                     TangFactory.GetTang()
-                        .NewInjector(OnREEFIMRURunTimeConfiguration<int[], int[], int[]>.GetLocalIMRUConfiguration(numNodes), tcpPortConfig);
+                        .NewInjector(OnREEFIMRURunTimeConfiguration<int[], int[], int[]>.GetLocalIMRUConfiguration(numNodes, runtimeDir), tcpPortConfig);
             }
             else
             {

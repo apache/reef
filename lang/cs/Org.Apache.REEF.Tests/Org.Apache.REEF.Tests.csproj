@@ -85,6 +85,8 @@ under the License.
     <Compile Include="Functional\Driver\DriverTestStartHandler.cs" />
     <Compile Include="Functional\FaultTolerant\TestContextStart.cs" />
     <Compile Include="Functional\FaultTolerant\TestResubmitEvaluator.cs" />
+    <Compile Include="Functional\IMRU\IMRUBroadcastReduceTest.cs" />
+    <Compile Include="Functional\IMRU\IMRUMapperCountTest.cs" />
     <Compile Include="Functional\RuntimeName\EvaluatorRequestingDriverSpecifyingDefaultRuntimeName.cs" />
     <Compile Include="Functional\RuntimeName\EvaluatorRequestingDriverSpecifyingInvalidRuntimeName.cs" />
     <Compile Include="Functional\RuntimeName\EvaluatorRequestingDriverSpecifyingRuntimeName.cs" />
@@ -159,6 +161,10 @@ under the License.
     <ProjectReference Include="$(SolutionDir)\Org.Apache.REEF.Examples.AllHandlers\Org.Apache.REEF.Examples.AllHandlers.csproj">
       <Project>{159f7d70-8acc-4d97-9f6d-2fc4ca0d8682}</Project>
       <Name>Org.Apache.REEF.Examples.AllHandlers</Name>
+    </ProjectReference>
+    <ProjectReference Include="$(SolutionDir)\Org.Apache.REEF.IMRU.Examples\Org.Apache.REEF.IMRU.Examples.csproj">
+      <Project>{6dc3b04e-2b99-4fda-bd23-2c7864f4c477}</Project>
+      <Name>Org.Apache.REEF.IMRU.Examples</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
