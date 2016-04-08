@@ -161,11 +161,6 @@ namespace Org.Apache.REEF.Client.Local
             return driverFolder;
         }
 
-        public void Submit(IJobSubmission jobSubmission)
-        {
-            Submit(JobRequest.FromJobSubmission(jobSubmission));
-        }
-
         public void Submit(JobRequest jobRequest)
         {
             var driverFolder = PrepareDriverFolder(jobRequest);

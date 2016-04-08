@@ -15,7 +15,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-using System;
 using System.Threading.Tasks;
 using Org.Apache.REEF.Client.Common;
 using Org.Apache.REEF.Client.YARN.RestClient.DataModel;
@@ -29,13 +28,6 @@ namespace Org.Apache.REEF.Client.API
     // ReSharper disable once InconsistentNaming
     public interface IREEFClient
     {
-        /// <summary>
-        /// Submit the job described in jobRequest to the cluster.
-        /// </summary>
-        /// <param name="jobSubmission"></param>
-        [Obsolete("Deprecated in 0.14. Please use Submit(JobRequest)")]
-        void Submit(IJobSubmission jobSubmission);
-
         /// <summary>
         /// Submit the job described in jobRequest to the cluster.
         /// </summary>

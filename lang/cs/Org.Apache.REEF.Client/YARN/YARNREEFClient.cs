@@ -62,11 +62,6 @@ namespace Org.Apache.REEF.Client.Yarn
             _paramSerializer = paramSerializer;
         }
 
-        public void Submit(IJobSubmission jobSubmission)
-        {
-            Submit(JobRequest.FromJobSubmission(jobSubmission));
-        }
-
         public void Submit(JobRequest jobRequest)
         {
             // Prepare the job submission folder
@@ -93,11 +88,6 @@ namespace Org.Apache.REEF.Client.Yarn
             Logger.Log(Level.Info, msg);
 
             return jobSubmitionResultImpl;
-        }
-
-        public IJobSubmissionResult SubmitAndGetJobStatus(IJobSubmission jobSubmission)
-        {
-            return SubmitAndGetJobStatus(JobRequest.FromJobSubmission(jobSubmission));
         }
 
         /// <summary>

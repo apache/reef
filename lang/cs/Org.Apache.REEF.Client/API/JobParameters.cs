@@ -15,7 +15,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-using System;
 using Org.Apache.REEF.Utilities;
 
 namespace Org.Apache.REEF.Client.API
@@ -49,17 +48,6 @@ namespace Org.Apache.REEF.Client.API
 
             _stderrFilePath = string.IsNullOrWhiteSpace(stderrFilePath) ?
                 Optional<string>.Empty() : Optional<string>.Of(stderrFilePath);
-        }
-
-        [Obsolete("Introduced to bridge deprecation of IJobSubmission.")]
-        internal static JobParameters FromJobSubmission(IJobSubmission jobSubmission)
-        {
-            return new JobParameters(
-                jobSubmission.JobIdentifier, 
-                jobSubmission.MaxApplicationSubmissions, 
-                jobSubmission.DriverMemory,
-                null,
-                null);
         }
 
         /// <summary>
