@@ -55,7 +55,7 @@ namespace Org.Apache.REEF.Tests.Functional.FaultTolerant
         [Trait("Priority", "1")]
         [Trait("Category", "FunctionalGated")]
         [Trait("Description", "Test invocation of ResubmitEvaluatorDriver")]
-        public void ResubmitContextOnLocalRuntime()
+        public void ResubmitEvaluatorOnLocalRuntime()
         {
             string testFolder = DefaultRuntimeFolder + TestId;
             TestRun(DriverConfigurations(), typeof(ResubmitEvaluatorDriver), 3, "ResubmitContextOnLocalRuntime", "local", testFolder);
@@ -146,7 +146,10 @@ namespace Org.Apache.REEF.Tests.Functional.FaultTolerant
             public void OnNext(IRunningTask value)
             {
                 Logger.Log(Level.Info, string.Format(CultureInfo.InvariantCulture, "RunningTask: {0}, Context: {1}.", value.Id, value.ActiveContext.Id));
-                _failedContextId = value.ActiveContext.Id;
+                if (value.Id.Equals(_failedTaskId))
+                {
+                    _failedContextId = value.ActiveContext.Id;
+                }
                 string msg = value.Id.Equals(_failedTaskId) ? FailSignal : SuccSignal;
                 value.Send(Encoding.UTF8.GetBytes(msg));
             }
