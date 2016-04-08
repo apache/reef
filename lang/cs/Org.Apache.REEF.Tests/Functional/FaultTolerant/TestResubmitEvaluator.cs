@@ -17,6 +17,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Text;
 using System.Threading;
 using Org.Apache.REEF.Common.Context;
@@ -104,6 +105,8 @@ namespace Org.Apache.REEF.Tests.Functional.FaultTolerant
             private readonly IEvaluatorRequestor _requestor;
             private int _taskNumber = 1;
             private int _contextNumber = 1;
+            private string _failedContextId;
+            private string _failedTaskId = TaskId + "1";
             private readonly ISet<ICompletedTask> _completedTasks = new HashSet<ICompletedTask>();
             private readonly object _compeletedTaskLock = new object();
 
@@ -142,8 +145,9 @@ namespace Org.Apache.REEF.Tests.Functional.FaultTolerant
 
             public void OnNext(IRunningTask value)
             {
-                Logger.Log(Level.Info, "RunningTask: " + value.Id);
-                string msg = value.Id.Equals(TaskId + "1") ? FailSignal : SuccSignal;
+                Logger.Log(Level.Info, string.Format(CultureInfo.InvariantCulture, "RunningTask: {0}, Context: {1}.", value.Id, value.ActiveContext.Id));
+                _failedContextId = value.ActiveContext.Id;
+                string msg = value.Id.Equals(_failedTaskId) ? FailSignal : SuccSignal;
                 value.Send(Encoding.UTF8.GetBytes(msg));
             }
 
@@ -175,9 +179,9 @@ namespace Org.Apache.REEF.Tests.Functional.FaultTolerant
                 Assert.NotNull(value.FailedTask);
                 Assert.NotNull(value.FailedTask.Value);
                 Assert.NotNull(value.FailedTask.Value.Id);
-                Assert.True(value.FailedTask.Value.Id.Equals(TaskId + "1") || value.FailedTask.Value.Id.Equals(TaskId + "2"));
+                Assert.Equal(_failedTaskId, value.FailedTask.Value.Id);
                 Assert.Equal(1, value.FailedContexts.Count);
-                Assert.True(value.FailedContexts[0].Id.Equals(ContextId + "1") || value.FailedContexts[0].Id.Equals(ContextId + "2"));
+                Assert.Equal(_failedContextId, value.FailedContexts[0].Id);
 
                 _requestor.Submit(_requestor.NewBuilder().Build());
             }
