@@ -60,7 +60,11 @@ under the License.
   </PropertyGroup>
   <!--
     End of: Switch the PlatformToolset based on the Visual Studio Version
-  -->
+  --> 
+  <PropertyGroup>
+    <!-- Auto generate binding redirects to make sure the latest Newtonsoft JSON is picked up -->
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+  </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <UseDebugLibraries>true</UseDebugLibraries>
     <CLRSupport>true</CLRSupport>
