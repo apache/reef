@@ -81,7 +81,7 @@ namespace Org.Apache.REEF.Client.Common
         /// <param name="driverFolderPath"></param>
         internal void PrepareDriverFolder(AppParameters appParameters, string driverFolderPath)
         {
-            Logger.Log(Level.Info, "Preparing Driver filesystem layout in " + driverFolderPath);
+            Logger.Log(Level.Verbose, "Preparing Driver filesystem layout in " + driverFolderPath);
 
             // Setup the folder structure
             CreateDefaultFolderStructure(appParameters, driverFolderPath);

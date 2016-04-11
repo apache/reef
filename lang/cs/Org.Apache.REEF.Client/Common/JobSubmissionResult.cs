@@ -195,10 +195,10 @@ namespace Org.Apache.REEF.Client.Common
                 try
                 {
                     string strResult = null;
-                    LOGGER.Log(Level.Warning, "Try url [" + commandUri + "] connectAttemptCount " + connectAttemptCount + ".");
+                    LOGGER.Log(Level.Verbose, "Try url [" + commandUri + "] connectAttemptCount " + connectAttemptCount + ".");
                     strResult = await _client.GetStringAsync(commandUri);
                     result = CommandSucceeded(strResult);
-                    LOGGER.Log(Level.Warning, "Connection succeeded. connectAttemptCount was " + connectAttemptCount + ".");
+                    LOGGER.Log(Level.Verbose, "Connection succeeded. connectAttemptCount was " + connectAttemptCount + ".");
                     break;
                 }
                 catch (HttpRequestException httpRequestException)
@@ -242,7 +242,7 @@ namespace Org.Apache.REEF.Client.Common
                 try
                 {
                     var strResult = await _client.GetStringAsync(commandUri);
-                    LOGGER.Log(Level.Info,
+                    LOGGER.Log(Level.Verbose,
                         "Connection succeeded. connectAttemptCount was " + connectAttemptCount + ".");
                 }
                 catch (HttpRequestException httpRequestException)

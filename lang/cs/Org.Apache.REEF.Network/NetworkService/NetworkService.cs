@@ -72,7 +72,7 @@ namespace Org.Apache.REEF.Network.NetworkService
             NamingClient = nameClient;
             _connectionMap = new Dictionary<IIdentifier, IConnection<T>>();
 
-            LOGGER.Log(Level.Info, "Started network service");
+            LOGGER.Log(Level.Verbose, "Started network service");
         }
 
         /// <summary>
@@ -112,7 +112,7 @@ namespace Org.Apache.REEF.Network.NetworkService
         /// <param name="id">The identifier to register</param>
         public void Register(IIdentifier id)
         {
-            LOGGER.Log(Level.Info, "Registering id {0} with network service.", id);
+            LOGGER.Log(Level.Verbose, "Registering id {0} with network service.", id);
 
             _localIdentifier = id;
             NamingClient.Register(id.ToString(), _remoteManager.LocalEndpoint);
@@ -121,7 +121,7 @@ namespace Org.Apache.REEF.Network.NetworkService
             var anyEndpoint = new IPEndPoint(IPAddress.Any, 0);
             _messageHandlerDisposable = _remoteManager.RegisterObserver(anyEndpoint, _messageHandler);
 
-            LOGGER.Log(Level.Info, "End of Registering id {0} with network service.", id);
+            LOGGER.Log(Level.Verbose, "End of Registering id {0} with network service.", id);
         }
 
         /// <summary>
@@ -147,7 +147,7 @@ namespace Org.Apache.REEF.Network.NetworkService
             NamingClient.Dispose();
             _remoteManager.Dispose();
 
-            LOGGER.Log(Level.Info, "Disposed of network service");
+            LOGGER.Log(Level.Verbose, "Disposed of network service");
         }
     }
 }

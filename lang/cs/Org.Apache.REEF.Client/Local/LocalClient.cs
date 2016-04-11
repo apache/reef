@@ -154,7 +154,7 @@ namespace Org.Apache.REEF.Client.Local
             // Prepare the job submission folder
             var jobFolder = CreateJobFolder(jobRequest.JobIdentifier);
             var driverFolder = Path.Combine(jobFolder, DriverFolderName);
-            Logger.Log(Level.Info, "Preparing driver folder in " + driverFolder);
+            Logger.Log(Level.Verbose, "Preparing driver folder in " + driverFolder);
 
             _driverFolderPreparationHelper.PrepareDriverFolder(jobRequest.AppParameters, driverFolder);
 

@@ -86,7 +86,7 @@ namespace Org.Apache.REEF.Tests.Functional
         public void Init()
         {
             TestId = Guid.NewGuid().ToString("N").Substring(0, 8);
-            Console.WriteLine("Running test " + TestId + ". If failed AND log uploaded is enabled, log can be find in " + Path.Combine(DateTime.Now.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture), TestId));
+            Logger.Log(Level.Info, "Running test " + TestId + ". If failed AND log uploaded is enabled, log can be find in " + Path.Combine(DateTime.Now.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture), TestId));
             if (_enableRealtimeLogUpload)
             {
                 TimerTask = new Task(() =>
@@ -113,7 +113,7 @@ namespace Org.Apache.REEF.Tests.Functional
 
         protected void CleanUp(string testFolder = DefaultRuntimeFolder)
         {
-            Console.WriteLine("Cleaning up test.");
+            Logger.Log(Level.Verbose, "Cleaning up test.");
 
             if (_enableRealtimeLogUpload)
             {
@@ -172,7 +172,7 @@ namespace Org.Apache.REEF.Tests.Functional
 
             if (lines != null)
             {
-                Console.WriteLine("Lines read from log file : " + lines.Count());
+                Logger.Log(Level.Verbose, "Lines read from log file : " + lines.Count());
                 string[] successIndicators = lines.Where(s => s.Contains(successIndication)).ToArray();
                 string[] failedTaskIndicators = lines.Where(s => s.Contains(failedTaskIndication)).ToArray();
                 string[] failedEvaluatorIndicators = lines.Where(s => s.Contains(failedEvaluatorIndication)).ToArray();
@@ -219,7 +219,7 @@ namespace Org.Apache.REEF.Tests.Functional
                 }
                 catch (Exception e)
                 {
-                    Console.Write(e.ToString());
+                    Logger.Log(Level.Verbose, e.ToString());
                     Thread.Sleep(SleepTime);
                 }
             }
@@ -266,7 +266,7 @@ namespace Org.Apache.REEF.Tests.Functional
         protected string GetLogFile(string logFileName, string subfolder = "driver", string testFolder = DefaultRuntimeFolder)
         {
             string driverContainerDirectory = Directory.GetDirectories(Path.Combine(Directory.GetCurrentDirectory(), testFolder), subfolder, SearchOption.AllDirectories).SingleOrDefault();
-            Console.WriteLine("GetLogFile, driverContainerDirectory:" + driverContainerDirectory);
+            Logger.Log(Level.Verbose, "GetLogFile, driverContainerDirectory:" + driverContainerDirectory);
 
             if (string.IsNullOrWhiteSpace(driverContainerDirectory))
             {

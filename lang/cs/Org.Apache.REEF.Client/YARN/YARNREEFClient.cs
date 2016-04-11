@@ -66,7 +66,7 @@ namespace Org.Apache.REEF.Client.Yarn
         {
             // Prepare the job submission folder
             var driverFolderPath = CreateDriverFolder(jobRequest.JobIdentifier);
-            Logger.Log(Level.Info, "Preparing driver folder in " + driverFolderPath);
+            Logger.Log(Level.Verbose, "Preparing driver folder in " + driverFolderPath);
 
             Launch(jobRequest, driverFolderPath);
         }
@@ -75,7 +75,7 @@ namespace Org.Apache.REEF.Client.Yarn
         {
             // Prepare the job submission folder
             var driverFolderPath = CreateDriverFolder(jobRequest.JobIdentifier);
-            Logger.Log(Level.Info, "Preparing driver folder in " + driverFolderPath);
+            Logger.Log(Level.Verbose, "Preparing driver folder in " + driverFolderPath);
 
             Launch(jobRequest, driverFolderPath);
 

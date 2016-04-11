@@ -59,7 +59,7 @@ namespace Org.Apache.REEF.Wake.Remote.Impl
                     client.Connect(endPoint);
                 });
                 var msg = string.Format("Connection to endpoint {0} established", endPoint);
-                Logger.Log(Level.Info, msg);
+                Logger.Log(Level.Verbose, msg);
                 return client;
             }
             catch (Exception e)
