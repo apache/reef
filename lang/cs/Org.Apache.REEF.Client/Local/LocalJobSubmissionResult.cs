@@ -65,20 +65,20 @@ namespace Org.Apache.REEF.Client.Local
             string httpServerIpAndPort = null;
             try
             {
-                LOGGER.Log(Level.Info, "try open " + fileName);
+                LOGGER.Log(Level.Verbose, "try open " + fileName);
                 using (var rdr = new StreamReader(File.OpenRead(fileName)))
                 {
                     httpServerIpAndPort = rdr.ReadLine();
-                    LOGGER.Log(Level.Info, "httpServerIpAndPort is " + httpServerIpAndPort);
+                    LOGGER.Log(Level.Verbose, "httpServerIpAndPort is " + httpServerIpAndPort);
                 }
             }
             catch (FileNotFoundException)
             {
-                LOGGER.Log(Level.Info, "File does not exist: " + fileName);
+                LOGGER.Log(Level.Verbose, "File does not exist: " + fileName);
             }
             catch (IOException)
             {
-                LOGGER.Log(Level.Info, "Encountered IOException on reading " + fileName + ".");
+                LOGGER.Log(Level.Verbose, "Encountered IOException on reading " + fileName + ".");
             }
 
             return httpServerIpAndPort;

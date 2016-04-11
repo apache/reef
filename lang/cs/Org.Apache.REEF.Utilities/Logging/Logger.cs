@@ -47,7 +47,7 @@ namespace Org.Apache.REEF.Utilities.Logging
                         { Level.Verbose, TraceEventType.Verbose },
                     };
 
-        private static Level _customLevel = Level.Verbose;
+        private static Level _customLevel = Level.Info;
 
         private static List<TraceListener> _traceListeners;
 
