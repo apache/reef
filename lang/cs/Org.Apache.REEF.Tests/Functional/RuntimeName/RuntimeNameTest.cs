@@ -78,7 +78,7 @@ namespace Org.Apache.REEF.Tests.Functional.Driver
         public void TestRuntimeNameSpecifyingInvalidName()
         {
             string testFolder = DefaultRuntimeFolder + TestId;
-            TestRun(DriverConfigurationsWithEvaluatorRequest(GenericType<EvaluatorRequestingDriverSpecifyingInvalidRunitmeName>.Class), typeof(EvaluatorRequestingDriverSpecifyingInvalidRunitmeName), 1, "EvaluatorRequestingDriverSpecifyingInvalidRunitmeName", "local", testFolder);
+            TestRun(DriverConfigurationsWithEvaluatorRequest(GenericType<EvaluatorRequestingDriverSpecifyingInvalidRuntimeName>.Class), typeof(EvaluatorRequestingDriverSpecifyingInvalidRuntimeName), 1, "EvaluatorRequestingDriverSpecifyingInvalidRunitmeName", "local", testFolder);
             ValidateMessageSuccessfullyLoggedForDriver("System.ArgumentException: Requested runtime Yarn is not in the defined runtimes list Local", testFolder, 1);
             CleanUp(testFolder);
         }

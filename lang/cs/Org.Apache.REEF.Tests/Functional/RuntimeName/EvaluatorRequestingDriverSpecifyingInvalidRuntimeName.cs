@@ -16,25 +16,17 @@
 // under the License.
 
 using System;
-using System.Diagnostics;
 using System.Globalization;
-using Org.Apache.REEF.Common.Context;
 using Org.Apache.REEF.Common.Runtime;
-using Org.Apache.REEF.Common.Tasks;
 using Org.Apache.REEF.Driver;
 using Org.Apache.REEF.Driver.Evaluator;
 using Org.Apache.REEF.Driver.Task;
 using Org.Apache.REEF.Tang.Annotations;
-using Org.Apache.REEF.Tang.Interface;
-using Org.Apache.REEF.Tang.Util;
-using Org.Apache.REEF.Tests.Functional.Messaging;
 using Org.Apache.REEF.Utilities.Logging;
-
-using Xunit;
 
 namespace Org.Apache.REEF.Tests.Functional.Driver
 {
-    public sealed class EvaluatorRequestingDriverSpecifyingInvalidRunitmeName : 
+    public sealed class EvaluatorRequestingDriverSpecifyingInvalidRuntimeName : 
         IObserver<IDriverStarted>, 
         IObserver<IAllocatedEvaluator>,
         IObserver<IRunningTask> 
@@ -44,7 +36,7 @@ namespace Org.Apache.REEF.Tests.Functional.Driver
         private readonly IEvaluatorRequestor _evaluatorRequestor;
 
         [Inject]
-        public EvaluatorRequestingDriverSpecifyingInvalidRunitmeName(IEvaluatorRequestor evaluatorRequestor)
+        public EvaluatorRequestingDriverSpecifyingInvalidRuntimeName(IEvaluatorRequestor evaluatorRequestor)
         {
             _evaluatorRequestor = evaluatorRequestor;
         }
