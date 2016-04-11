@@ -73,7 +73,7 @@ namespace Org {
 
 				Boolean InteropReturnInfo::HasExceptions() {
 					jobject obj = _env->CallObjectMethod(_jobjectInteropReturnInfo, _jmidHasExceptions);
-					return ((int)obj) != 0;
+					return obj != NULL;
 				}
 				void InteropReturnInfo::SetReturnCode(int rc) {
 					_env->CallObjectMethod(_jobjectInteropReturnInfo, _jmidsetReturnCode, rc);
