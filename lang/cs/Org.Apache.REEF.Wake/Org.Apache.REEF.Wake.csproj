@@ -70,6 +70,7 @@ under the License.
     <Compile Include="IObserverFactory.cs" />
     <Compile Include="IStage.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Remote\Impl\TcpClientConnectionException.cs" />
     <Compile Include="Remote\IRemoteObserver.cs" />
     <Compile Include="Remote\Impl\TcpClientConnectionFactory.cs" />
     <Compile Include="Remote\ITcpClientConnectionFactory.cs" />
