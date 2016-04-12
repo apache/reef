@@ -42,6 +42,13 @@ namespace Org.Apache.REEF.Network.Group.Driver
         ICommunicationGroupDriver NewCommunicationGroup(string groupName, int numTasks);
 
         /// <summary>
+        /// remove a communication group
+        /// Throw ArgumentException if the group does not exist
+        /// </summary>
+        /// <param name="groupName"></param>
+        void RemoveCommunicationGroup(string groupName);
+
+        /// <summary>
         /// Generates context configuration with a unique identifier.
         /// </summary>
         /// <returns>The configured context configuration</returns>
