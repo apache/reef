@@ -17,6 +17,7 @@
 
 using System.Collections.Generic;
 using Org.Apache.REEF.Tang.Interface;
+using Org.Apache.REEF.Utilities.Logging;
 
 namespace Org.Apache.REEF.Client.API
 {
@@ -106,6 +107,14 @@ namespace Org.Apache.REEF.Client.API
         public string DriverConfigurationFileContents
         {
             get { return _appParameters.DriverConfigurationFileContents; }
+        }
+
+        /// <summary>
+        /// Java log level.
+        /// </summary>
+        public JavaLoggingSetting JavaLogLevel
+        {
+            get { return _jobParameters.JavaLogLevel; }
         }
 
         /// <summary>

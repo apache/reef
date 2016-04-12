@@ -24,6 +24,7 @@ using Org.Apache.REEF.Client.Common;
 using Org.Apache.REEF.Client.Yarn;
 using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Tang.Util;
+using Org.Apache.REEF.Utilities.Logging;
 using Xunit;
 
 namespace Org.Apache.REEF.Client.Tests
@@ -66,7 +67,9 @@ namespace Org.Apache.REEF.Client.Tests
 
             // Clientlauncher is called with correct class name, local archive path, upload path and temp file.
             var notUsedTask = testContext.JavaClientLauncher.Received(1)
-                .LaunchAsync(javaClassNameForResourceUploader,
+                .LaunchAsync(
+                    JavaLoggingSetting.Info,
+                    javaClassNameForResourceUploader,
                     anyLocalArchivePath,
                     "ARCHIVE",
                     AnyDriverResourceUploadPath + "/",
@@ -77,7 +80,9 @@ namespace Org.Apache.REEF.Client.Tests
 
             // Clientlauncher is called with correct class name, local job file path, upload path and temp file.
             notUsedTask = testContext.JavaClientLauncher.Received(1)
-                .LaunchAsync(javaClassNameForResourceUploader,
+                .LaunchAsync(
+                    JavaLoggingSetting.Info,    
+                    javaClassNameForResourceUploader,
                     anyLocalJobFilePath,
                     "FILE",
                     AnyDriverResourceUploadPath + "/",

@@ -25,6 +25,7 @@ namespace Org.Apache.REEF.Client.YARN
     {
         public static readonly OptionalParameter<string> DriverStdoutFilePath = new OptionalParameter<string>();
         public static readonly OptionalParameter<string> DriverStderrFilePath = new OptionalParameter<string>();
+        public static readonly OptionalParameter<bool> JavaDebugLogging = new OptionalParameter<bool>();
 
         public static ConfigurationModule ConfigurationModule
         {
@@ -33,6 +34,7 @@ namespace Org.Apache.REEF.Client.YARN
                 return new YarnCommandProviderConfiguration()
                     .BindNamedParameter(GenericType<DriverStdoutFilePath>.Class, DriverStdoutFilePath)
                     .BindNamedParameter(GenericType<DriverStderrFilePath>.Class, DriverStderrFilePath)
+                    .BindNamedParameter(GenericType<EnableDebugLogging>.Class, JavaDebugLogging)
                     .Build();
             }
         }

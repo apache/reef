@@ -50,13 +50,14 @@ namespace Org.Apache.REEF.Client.Common
         /// <summary>
         /// Launch a java class in ClientConstants.ClientJarFilePrefix with provided parameters.
         /// </summary>
+        /// <param name="javaLogLevel"></param>
         /// <param name="javaClassName"></param>
         /// <param name="parameters"></param>
-        public Task LaunchAsync(string javaClassName, params string[] parameters)
+        public Task LaunchAsync(JavaLoggingSetting javaLogLevel, string javaClassName, params string[] parameters)
         {
             var startInfo = new ProcessStartInfo
             {
-                Arguments = AssembleArguments(javaClassName, parameters),
+                Arguments = AssembleArguments(javaLogLevel, javaClassName, parameters),
                 FileName = GetJavaCommand(),
                 UseShellExecute = false,
                 RedirectStandardOutput = true,
@@ -101,12 +102,19 @@ namespace Org.Apache.REEF.Client.Common
         /// <summary>
         /// Assembles the command line arguments. Used by LaunchAsync()
         /// </summary>
+        /// <param name="javaLogLevel"></param>
         /// <param name="javaClassName"></param>
         /// <param name="parameters"></param>
         /// <returns></returns>
-        private string AssembleArguments(string javaClassName, params string[] parameters)
+        private string AssembleArguments(JavaLoggingSetting javaLogLevel, string javaClassName, params string[] parameters)
         {
             IList<string> arguments = new List<string>();
+
+            if (javaLogLevel == JavaLoggingSetting.Verbose)
+            {
+                arguments.Add("-Djava.util.logging.config.class=org.apache.reef.util.logging.Config");
+            }
+
             arguments.Add("-cp");
             arguments.Add(GetClientClasspath());
             arguments.Add(javaClassName);

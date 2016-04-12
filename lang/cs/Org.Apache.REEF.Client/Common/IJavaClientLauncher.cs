@@ -18,6 +18,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Org.Apache.REEF.Tang.Annotations;
+using Org.Apache.REEF.Utilities.Logging;
 
 namespace Org.Apache.REEF.Client.Common
 {
@@ -27,7 +28,7 @@ namespace Org.Apache.REEF.Client.Common
     [DefaultImplementation(typeof(JavaClientLauncher))]
     internal interface IJavaClientLauncher
     {
-        Task LaunchAsync(string javaClassName, params string[] parameters);
+        Task LaunchAsync(JavaLoggingSetting javaLogLevel, string javaClassName, params string[] parameters);
 
         /// <summary>
         /// Add entries to the end of the classpath of the java client.

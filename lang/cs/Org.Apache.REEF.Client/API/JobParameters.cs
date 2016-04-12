@@ -16,6 +16,7 @@
 // under the License.
 
 using Org.Apache.REEF.Utilities;
+using Org.Apache.REEF.Utilities.Logging;
 
 namespace Org.Apache.REEF.Client.API
 {
@@ -31,13 +32,15 @@ namespace Org.Apache.REEF.Client.API
         private readonly int _driverMemory;
         private readonly Optional<string> _stdoutFilePath;
         private readonly Optional<string> _stderrFilePath;
+        private readonly JavaLoggingSetting _logSetting;
 
         internal JobParameters(
             string jobIdentifier, 
             int maxApplicationSubmissions, 
             int driverMemory,
             string stdoutFilePath,
-            string stderrFilePath)
+            string stderrFilePath,
+            JavaLoggingSetting logSetting)
         {
             _jobIdentifier = jobIdentifier;
             _maxApplicationSubmissions = maxApplicationSubmissions;
@@ -48,6 +51,8 @@ namespace Org.Apache.REEF.Client.API
 
             _stderrFilePath = string.IsNullOrWhiteSpace(stderrFilePath) ?
                 Optional<string>.Empty() : Optional<string>.Of(stderrFilePath);
+
+            _logSetting = logSetting;
         }
 
         /// <summary>
@@ -89,6 +94,14 @@ namespace Org.Apache.REEF.Client.API
         public Optional<string> StderrFilePath
         {
             get { return _stderrFilePath; }
+        }
+
+        /// <summary>
+        /// Gets the Java log level.
+        /// </summary>
+        public JavaLoggingSetting JavaLogLevel
+        {
+            get { return _logSetting; }
         }
     }
 }

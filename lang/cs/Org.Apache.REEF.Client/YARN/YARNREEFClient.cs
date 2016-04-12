@@ -24,6 +24,7 @@ using Org.Apache.REEF.Client.API;
 using Org.Apache.REEF.Client.Common;
 using Org.Apache.REEF.Client.Yarn.RestClient;
 using Org.Apache.REEF.Client.YARN;
+using Org.Apache.REEF.Client.YARN.Parameters;
 using Org.Apache.REEF.Client.YARN.RestClient.DataModel;
 using Org.Apache.REEF.Common.Files;
 using Org.Apache.REEF.Tang.Annotations;
@@ -115,7 +116,8 @@ namespace Org.Apache.REEF.Client.Yarn
             var submissionAppArgsFilePath = _paramSerializer.SerializeAppFile(jobRequest.AppParameters, paramInjector, driverFolderPath);
 
             // Submit the driver
-            _javaClientLauncher.LaunchAsync(JavaClassName, submissionJobArgsFilePath, submissionAppArgsFilePath)
+            _javaClientLauncher.LaunchAsync(
+                jobRequest.JavaLogLevel, JavaClassName, submissionJobArgsFilePath, submissionAppArgsFilePath)
                 .GetAwaiter()
                 .GetResult();
             Logger.Log(Level.Info, "Submitted the Driver for execution." + jobRequest.JobIdentifier);
