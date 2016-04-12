@@ -25,11 +25,11 @@ import org.apache.reef.util.Optional;
 import org.apache.reef.vortex.api.VortexFunction;
 import org.apache.reef.vortex.api.VortexFuture;
 import org.apache.reef.vortex.common.AggregateFunctionRepository;
-import org.apache.reef.vortex.protocol.mastertoworker.MasterToWorker;
-import org.apache.reef.vortex.protocol.mastertoworker.TaskletCancellation;
-import org.apache.reef.vortex.protocol.workertomaster.TaskletCancelled;
-import org.apache.reef.vortex.protocol.workertomaster.WorkerToMaster;
-import org.apache.reef.vortex.protocol.workertomaster.WorkerReport;
+import org.apache.reef.vortex.protocol.mastertoworker.MasterToWorkerRequest;
+import org.apache.reef.vortex.protocol.mastertoworker.TaskletCancellationRequest;
+import org.apache.reef.vortex.protocol.workertomaster.TaskletCancelledReport;
+import org.apache.reef.vortex.protocol.workertomaster.WorkerToMasterReport;
+import org.apache.reef.vortex.protocol.workertomaster.WorkerToMasterReports;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
@@ -73,16 +73,16 @@ public final class TestUtil {
     doAnswer(new Answer() {
       @Override
       public Object answer(final InvocationOnMock invocation) throws Throwable {
-        final MasterToWorker request = (MasterToWorker)invocation.getArguments()[1];
-        if (request instanceof TaskletCancellation) {
-          final WorkerToMaster cancelReport = new TaskletCancelled(
-              ((TaskletCancellation)request).getTaskletId());
-          master.workerReported(workerManager.getId(), new WorkerReport(Collections.singleton(cancelReport)));
+        final MasterToWorkerRequest request = (MasterToWorkerRequest)invocation.getArguments()[1];
+        if (request instanceof TaskletCancellationRequest) {
+          final WorkerToMasterReport cancelReport = new TaskletCancelledReport(
+              ((TaskletCancellationRequest)request).getTaskletId());
+          master.workerReported(workerManager.getId(), new WorkerToMasterReports(Collections.singleton(cancelReport)));
         }
 
         return null;
       }
-    }).when(vortexRequestor).sendAsync(any(RunningTask.class), any(MasterToWorker.class));
+    }).when(vortexRequestor).sendAsync(any(RunningTask.class), any(MasterToWorkerRequest.class));
 
     return workerManager;
   }

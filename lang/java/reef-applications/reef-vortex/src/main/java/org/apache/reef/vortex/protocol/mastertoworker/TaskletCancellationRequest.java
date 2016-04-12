@@ -16,32 +16,36 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.vortex.protocol.workertomaster;
+package org.apache.reef.vortex.protocol.mastertoworker;
 
 import org.apache.reef.annotations.Unstable;
-import org.apache.reef.annotations.audience.DriverSide;
-import org.apache.reef.annotations.audience.Private;
 
 /**
- * The interface for a status report from the {@link org.apache.reef.vortex.evaluator.VortexWorker}.
+ * A {@link MasterToWorkerRequest} to cancel tasklets.
  */
 @Unstable
-@Private
-@DriverSide
-public interface WorkerToMaster {
+public final class TaskletCancellationRequest implements MasterToWorkerRequest {
+  private int taskletId;
+
   /**
-   * Type of TaskletReport.
+   * No-arg constructor required for Kryo to serialize/deserialize.
    */
-  enum Type {
-    TaskletResult,
-    TaskletAggregationResult,
-    TaskletCancelled,
-    TaskletFailure,
-    TaskletAggregationFailure
+  TaskletCancellationRequest() {
+  }
+
+  public TaskletCancellationRequest(final int taskletId) {
+    this.taskletId = taskletId;
   }
 
   /**
-   * @return the type of this TaskletReport.
+   * @return the ID of the VortexTasklet associated with this MasterToWorkerRequest.
    */
-  Type getType();
+  public int getTaskletId() {
+    return taskletId;
+  }
+
+  @Override
+  public Type getType() {
+    return Type.CancelTasklet;
+  }
 }

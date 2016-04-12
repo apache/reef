@@ -34,22 +34,22 @@ import java.util.List;
 @Unstable
 @Private
 @DriverSide
-public final class TaskletAggregation<TInput, TOutput> implements MasterToWorker {
+public final class TaskletAggregationRequest<TInput, TOutput> implements MasterToWorkerRequest {
   private int aggregateFunctionId;
   private VortexAggregateFunction<TOutput> userAggregateFunction;
   private VortexFunction<TInput, TOutput> function;
   private VortexAggregatePolicy policy;
 
   /**
-   * No-arg constructor required for Kryo to ser/des.
+   * No-arg constructor required for Kryo to serialize/deserialize.
    */
-  TaskletAggregation() {
+  TaskletAggregationRequest() {
   }
 
-  public TaskletAggregation(final int aggregateFunctionId,
-                            final VortexAggregateFunction<TOutput> aggregateFunction,
-                            final VortexFunction<TInput, TOutput> function,
-                            final VortexAggregatePolicy policy) {
+  public TaskletAggregationRequest(final int aggregateFunctionId,
+                                   final VortexAggregateFunction<TOutput> aggregateFunction,
+                                   final VortexFunction<TInput, TOutput> function,
+                                   final VortexAggregatePolicy policy) {
     this.aggregateFunctionId = aggregateFunctionId;
     this.userAggregateFunction = aggregateFunction;
     this.function = function;

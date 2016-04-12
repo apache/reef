@@ -30,7 +30,7 @@ import org.apache.reef.tang.annotations.Unit;
 import org.apache.reef.vortex.api.VortexStart;
 import org.apache.reef.vortex.common.KryoUtils;
 import org.apache.reef.vortex.evaluator.VortexWorker;
-import org.apache.reef.vortex.protocol.workertomaster.WorkerReport;
+import org.apache.reef.vortex.protocol.workertomaster.WorkerToMasterReports;
 import org.apache.reef.wake.EStage;
 import org.apache.reef.wake.EventHandler;
 import org.apache.reef.wake.impl.SingleThreadStage;
@@ -155,8 +155,9 @@ final class VortexDriver {
     @Override
     public void onNext(final TaskMessage taskMessage) {
       final String workerId = taskMessage.getId();
-      final WorkerReport workerReport = (WorkerReport)kryoUtils.deserialize(taskMessage.get());
-      vortexMaster.workerReported(workerId, workerReport);
+      final WorkerToMasterReports workerToMasterReports =
+          (WorkerToMasterReports)kryoUtils.deserialize(taskMessage.get());
+      vortexMaster.workerReported(workerId, workerToMasterReports);
     }
   }
 

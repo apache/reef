@@ -22,36 +22,51 @@ import org.apache.reef.annotations.Unstable;
 import org.apache.reef.annotations.audience.DriverSide;
 import org.apache.reef.annotations.audience.Private;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-
 /**
- * Worker-to-Master protocol.
- * A report of Tasklet statuses sent form the {@link org.apache.reef.vortex.evaluator.VortexWorker}
- * to the {@link org.apache.reef.vortex.driver.VortexMaster}.
+ * Report of a tasklet execution result.
  */
-@Private
 @Unstable
+@Private
 @DriverSide
-public final class WorkerReport {
-  private ArrayList<WorkerToMaster> workerToMasters;
+public final class TaskletResultReport implements WorkerToMasterReport {
+  private int taskletId;
+  private Object result;
 
   /**
-   * No-arg constructor required for Kryo to ser/des.
+   * No-arg constructor required for Kryo to serialize/deserialize.
    */
-  WorkerReport() {
-  }
-
-  public WorkerReport(final Collection<WorkerToMaster> workerToMasters) {
-    this.workerToMasters = new ArrayList<>(workerToMasters);
+  TaskletResultReport() {
   }
 
   /**
-   * @return the list of Tasklet reports.
+   * @param taskletId of the Tasklet.
+   * @param result of the tasklet execution.
    */
-  public List<WorkerToMaster> getTaskletReports() {
-    return Collections.unmodifiableList(workerToMasters);
+  public TaskletResultReport(final int taskletId, final Object result) {
+    this.taskletId = taskletId;
+    this.result = result;
   }
+
+  /**
+   * @return the type of this TaskletReport.
+   */
+  @Override
+  public Type getType() {
+    return Type.TaskletResult;
+  }
+
+  /**
+   * @return the TaskletId of this TaskletReport
+   */
+  public int getTaskletId() {
+    return taskletId;
+  }
+
+  /**
+   * @return the result of the tasklet execution.
+   */
+  public Object getResult() {
+    return result;
+  }
+
 }

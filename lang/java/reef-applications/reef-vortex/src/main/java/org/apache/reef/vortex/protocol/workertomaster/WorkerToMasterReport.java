@@ -19,36 +19,29 @@
 package org.apache.reef.vortex.protocol.workertomaster;
 
 import org.apache.reef.annotations.Unstable;
+import org.apache.reef.annotations.audience.DriverSide;
+import org.apache.reef.annotations.audience.Private;
 
 /**
- * The report of a cancelled Tasklet.
+ * The interface for a status report from the {@link org.apache.reef.vortex.evaluator.VortexWorker}.
  */
 @Unstable
-public final class TaskletCancelled implements WorkerToMaster {
-  private int taskletId;
-
+@Private
+@DriverSide
+public interface WorkerToMasterReport {
   /**
-   * No-arg constructor required for Kryo to ser/des.
+   * Type of WorkerToMasterReport.
    */
-  TaskletCancelled() {
-  }
-
-  /**
-   * @param taskletId of the cancelled tasklet.
-   */
-  public TaskletCancelled(final int taskletId) {
-    this.taskletId = taskletId;
-  }
-
-  @Override
-  public Type getType() {
-    return Type.TaskletCancelled;
+  enum Type {
+    TaskletResult,
+    TaskletAggregationResult,
+    TaskletCancelled,
+    TaskletFailure,
+    TaskletAggregationFailure
   }
 
   /**
-   * @return the taskletId of this TaskletReport.
+   * @return the type of this WorkerToMasterReport.
    */
-  public int getTaskletId() {
-    return taskletId;
-  }
+  Type getType();
 }

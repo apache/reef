@@ -21,31 +21,22 @@ package org.apache.reef.vortex.protocol.mastertoworker;
 import org.apache.reef.annotations.Unstable;
 
 /**
- * A {@link MasterToWorker} to cancel tasklets.
+ * Master-to-Worker protocol.
  */
 @Unstable
-public final class TaskletCancellation implements MasterToWorker {
-  private int taskletId;
-
+public interface MasterToWorkerRequest {
   /**
-   * No-arg constructor required for Kryo to ser/des.
+   * Type of Request.
    */
-  TaskletCancellation() {
-  }
-
-  public TaskletCancellation(final int taskletId) {
-    this.taskletId = taskletId;
+  enum Type {
+    AggregateTasklets,
+    ExecuteTasklet,
+    CancelTasklet,
+    ExecuteAggregateTasklet
   }
 
   /**
-   * @return the ID of the VortexTasklet associated with this MasterToWorker.
+   * @return the type of this MasterToWorkerRequest.
    */
-  public int getTaskletId() {
-    return taskletId;
-  }
-
-  @Override
-  public Type getType() {
-    return Type.CancelTasklet;
-  }
+  Type getType();
 }

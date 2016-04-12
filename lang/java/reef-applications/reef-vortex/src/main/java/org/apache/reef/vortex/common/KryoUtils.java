@@ -48,7 +48,7 @@ public final class KryoUtils {
       @Override
       public Kryo create() {
         final Kryo kryo = new Kryo();
-        UnmodifiableCollectionsSerializer.registerSerializers(kryo); // Required to ser/des Throwable
+        UnmodifiableCollectionsSerializer.registerSerializers(kryo); // Required to serialize/deserialize Throwable
         return kryo;
       }
     };

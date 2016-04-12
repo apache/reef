@@ -16,27 +16,39 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.vortex.protocol.mastertoworker;
+package org.apache.reef.vortex.protocol.workertomaster;
 
 import org.apache.reef.annotations.Unstable;
 
 /**
- * Master-to-Worker protocol.
+ * The report of a cancelled Tasklet.
  */
 @Unstable
-public interface MasterToWorker {
+public final class TaskletCancelledReport implements WorkerToMasterReport {
+  private int taskletId;
+
   /**
-   * Type of Request.
+   * No-arg constructor required for Kryo to serialize/deserialize.
    */
-  enum Type {
-    AggregateTasklets,
-    ExecuteTasklet,
-    CancelTasklet,
-    ExecuteAggregateTasklet
+  TaskletCancelledReport() {
   }
 
   /**
-   * @return the type of this MasterToWorker.
+   * @param taskletId of the cancelled tasklet.
    */
-  Type getType();
+  public TaskletCancelledReport(final int taskletId) {
+    this.taskletId = taskletId;
+  }
+
+  @Override
+  public Type getType() {
+    return Type.TaskletCancelled;
+  }
+
+  /**
+   * @return the taskletId of this TaskletReport.
+   */
+  public int getTaskletId() {
+    return taskletId;
+  }
 }

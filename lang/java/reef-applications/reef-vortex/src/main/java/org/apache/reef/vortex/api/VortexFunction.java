@@ -22,7 +22,7 @@ import org.apache.reef.annotations.Unstable;
 
 /**
  * Typed user function. Implement your functions using this interface.
- * Note that Kryo should be able to ser/des your function and input.
+ * Note that Kryo should be able to serialize/deserialize your function and input.
  * Please refer to Kryo project's GitHub repository for how to make Kryo-compatible objects.
  *
  * @param <TInput> input type

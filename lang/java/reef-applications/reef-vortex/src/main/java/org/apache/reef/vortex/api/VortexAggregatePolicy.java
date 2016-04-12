@@ -37,7 +37,7 @@ public final class VortexAggregatePolicy {
   private int periodMilliseconds;
 
   /**
-   * No-arg constructor required for Kryo to ser/des.
+   * No-arg constructor required for Kryo to serialize/deserialize.
    */
   VortexAggregatePolicy() {
   }

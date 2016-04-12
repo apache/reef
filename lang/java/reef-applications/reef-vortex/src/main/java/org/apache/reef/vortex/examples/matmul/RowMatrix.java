@@ -29,7 +29,7 @@ final class RowMatrix implements Matrix<Double> {
   private List<List<Double>> rows;
 
   /**
-   * No-arg constructor required for Kryo to ser/des.
+   * No-arg constructor required for Kryo to serialize/deserialize.
    */
   RowMatrix() {
   }

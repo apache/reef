@@ -28,7 +28,7 @@ final class MatMulInput {
   private Matrix<Double> rightMatrix;
 
   /**
-   * No-arg constructor required for Kryo to ser/des.
+   * No-arg constructor required for Kryo to serialize/deserialize.
    */
   MatMulInput() {
   }

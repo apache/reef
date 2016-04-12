@@ -16,60 +16,56 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.vortex.protocol.mastertoworker;
+package org.apache.reef.vortex.protocol.workertomaster;
 
 import org.apache.reef.annotations.Unstable;
 import org.apache.reef.annotations.audience.DriverSide;
 import org.apache.reef.annotations.audience.Private;
 
 /**
- * A request from the Vortex Driver to run an aggregate-able function.
+ * Report of a Tasklet exception.
  */
 @Unstable
 @Private
 @DriverSide
-public final class TaskletAggregateExecution<TInput> implements MasterToWorker {
-  private TInput input;
-  private int aggregateFunctionId;
+public final class TaskletFailureReport implements WorkerToMasterReport {
   private int taskletId;
+  private Exception exception;
 
   /**
-   * No-arg constructor required for Kryo to ser/des.
+   * No-arg constructor required for Kryo to serialize/deserialize.
    */
-  TaskletAggregateExecution() {
+  TaskletFailureReport() {
   }
 
-  public TaskletAggregateExecution(final int taskletId,
-                                   final int aggregateFunctionId,
-                                   final TInput input) {
+  /**
+   * @param taskletId of the failed Tasklet.
+   * @param exception that caused the tasklet failure.
+   */
+  public TaskletFailureReport(final int taskletId, final Exception exception) {
     this.taskletId = taskletId;
-    this.input = input;
-    this.aggregateFunctionId = aggregateFunctionId;
+    this.exception = exception;
   }
 
   /**
-   * @return input of the request.
+   * @return the type of this TaskletReport.
    */
-  public TInput getInput() {
-    return input;
+  @Override
+  public Type getType() {
+    return Type.TaskletFailure;
   }
 
   /**
-   * @return tasklet ID corresponding to the tasklet request.
+   * @return the taskletId of this TaskletReport.
    */
   public int getTaskletId() {
     return taskletId;
   }
 
   /**
-   * @return the AggregateFunctionID of the request.
+   * @return the exception that caused the Tasklet failure.
    */
-  public int getAggregateFunctionId() {
-    return aggregateFunctionId;
-  }
-
-  @Override
-  public Type getType() {
-    return Type.ExecuteAggregateTasklet;
+  public Exception getException() {
+    return exception;
   }
 }

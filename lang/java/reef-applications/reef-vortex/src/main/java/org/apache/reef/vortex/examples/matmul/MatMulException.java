@@ -23,7 +23,7 @@ package org.apache.reef.vortex.examples.matmul;
  */
 class MatMulException extends Exception {
   /**
-   * No-arg constructor required for Kryo to ser/des.
+   * No-arg constructor required for Kryo to serialize/deserialize.
    */
   MatMulException() {}
 

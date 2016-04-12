@@ -34,7 +34,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Default implementation of VortexMaster.
- * Uses two thread-safe data structures(pendingTasklets, runningWorkers) in implementing VortexMaster interface.
+ * Uses two thread-safe data structuㅍres(pendingTasklets, runningWorkers) in implementing VortexMaster interface.
  */
 @ThreadSafe
 @DriverSide
@@ -95,7 +95,7 @@ final class DefaultVortexMaster implements VortexMaster {
                       final List<TInput> inputs,
                       final Optional<FutureCallback<AggregateResult<TInput, TOutput>>> callback) {
     final int aggregateFunctionId = aggregateIdCounter.getAndIncrement();
-    aggregateFunctionRepository.put(aggregateFunctionId, aggregateFunction, vortexFunction, policy);
+    aggregateFunctionRepository.put(aggregateFunctionId, aggregateFunction, policy);
     final List<Tasklet> tasklets = new ArrayList<>(inputs.size());
     final Map<Integer, TInput> taskletIdInputMap = new HashMap<>(inputs.size());
 
@@ -151,52 +151,52 @@ final class DefaultVortexMaster implements VortexMaster {
   }
 
   @Override
-  public void workerReported(final String workerId, final WorkerReport workerReport) {
-    for (final WorkerToMaster workerToMaster : workerReport.getTaskletReports()) {
-      switch (workerToMaster.getType()) {
+  public void workerReported(final String workerId, final WorkerToMasterReports workerToMasterReports) {
+    for (final WorkerToMasterReport workerToMasterReport : workerToMasterReports.getReports()) {
+      switch (workerToMasterReport.getType()) {
       case TaskletResult:
-        final TaskletResult taskletResult = (TaskletResult) workerToMaster;
+        final TaskletResultReport taskletResultReport = (TaskletResultReport) workerToMasterReport;
 
-        final int resultTaskletId = taskletResult.getTaskletId();
+        final int resultTaskletId = taskletResultReport.getTaskletId();
         final List<Integer> singletonResultTaskletId = Collections.singletonList(resultTaskletId);
         runningWorkers.doneTasklets(workerId, singletonResultTaskletId);
-        fetchDelegate(singletonResultTaskletId).completed(resultTaskletId, taskletResult.getResult());
+        fetchDelegate(singletonResultTaskletId).completed(resultTaskletId, taskletResultReport.getResult());
 
         break;
       case TaskletAggregationResult:
-        final TaskletAggregationResult taskletAggregationResult =
-            (TaskletAggregationResult) workerToMaster;
+        final TaskletAggregationResultReport taskletAggregationResultReport =
+            (TaskletAggregationResultReport) workerToMasterReport;
 
-        final List<Integer> aggregatedTaskletIds = taskletAggregationResult.getTaskletIds();
+        final List<Integer> aggregatedTaskletIds = taskletAggregationResultReport.getTaskletIds();
         runningWorkers.doneTasklets(workerId, aggregatedTaskletIds);
         fetchDelegate(aggregatedTaskletIds).aggregationCompleted(
-            aggregatedTaskletIds, taskletAggregationResult.getResult());
+            aggregatedTaskletIds, taskletAggregationResultReport.getResult());
 
         break;
       case TaskletCancelled:
-        final TaskletCancelled taskletCancelled = (TaskletCancelled) workerToMaster;
-        final List<Integer> cancelledIdToList = Collections.singletonList(taskletCancelled.getTaskletId());
+        final TaskletCancelledReport taskletCancelledReport = (TaskletCancelledReport) workerToMasterReport;
+        final List<Integer> cancelledIdToList = Collections.singletonList(taskletCancelledReport.getTaskletId());
         runningWorkers.doneTasklets(workerId, cancelledIdToList);
-        fetchDelegate(cancelledIdToList).cancelled(taskletCancelled.getTaskletId());
+        fetchDelegate(cancelledIdToList).cancelled(taskletCancelledReport.getTaskletId());
 
         break;
       case TaskletFailure:
-        final TaskletFailure taskletFailure = (TaskletFailure) workerToMaster;
+        final TaskletFailureReport taskletFailureReport = (TaskletFailureReport) workerToMasterReport;
 
-        final int failureTaskletId = taskletFailure.getTaskletId();
+        final int failureTaskletId = taskletFailureReport.getTaskletId();
         final List<Integer> singletonFailedTaskletId = Collections.singletonList(failureTaskletId);
         runningWorkers.doneTasklets(workerId, singletonFailedTaskletId);
-        fetchDelegate(singletonFailedTaskletId).threwException(failureTaskletId, taskletFailure.getException());
+        fetchDelegate(singletonFailedTaskletId).threwException(failureTaskletId, taskletFailureReport.getException());
 
         break;
       case TaskletAggregationFailure:
-        final TaskletAggregationFailure taskletAggregationFailure =
-            (TaskletAggregationFailure) workerToMaster;
+        final TaskletAggregationFailureReport taskletAggregationFailureReport =
+            (TaskletAggregationFailureReport) workerToMasterReport;
 
-        final List<Integer> aggregationFailedTaskletIds = taskletAggregationFailure.getTaskletIds();
+        final List<Integer> aggregationFailedTaskletIds = taskletAggregationFailureReport.getTaskletIds();
         runningWorkers.doneTasklets(workerId, aggregationFailedTaskletIds);
         fetchDelegate(aggregationFailedTaskletIds).aggregationThrewException(aggregationFailedTaskletIds,
-            taskletAggregationFailure.getException());
+            taskletAggregationFailureReport.getException());
         break;
       default:
         throw new RuntimeException("Unknown Report");

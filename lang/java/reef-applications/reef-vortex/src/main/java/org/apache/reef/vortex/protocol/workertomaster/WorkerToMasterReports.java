@@ -23,54 +23,33 @@ import org.apache.reef.annotations.audience.DriverSide;
 import org.apache.reef.annotations.audience.Private;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
 /**
- * Report of a Tasklet aggregation execution result.
+ * Container for multiple WorkerToMasterReports.
  */
 @Private
-@DriverSide
 @Unstable
-public final class TaskletAggregationResult implements WorkerToMaster {
-  private List<Integer> taskletIds;
-  private Object result;
+@DriverSide
+public final class WorkerToMasterReports {
+  private ArrayList<WorkerToMasterReport> workerToMasterReports;
 
   /**
-   * No-arg constructor required for Kryo to ser/des.
+   * No-arg constructor required for Kryo to serialize/deserialize.
    */
-  TaskletAggregationResult() {
+  WorkerToMasterReports() {
+  }
+
+  public WorkerToMasterReports(final Collection<WorkerToMasterReport> workerToMasterReports) {
+    this.workerToMasterReports = new ArrayList<>(workerToMasterReports);
   }
 
   /**
-   * @param taskletIds of the tasklets.
-   * @param result of the tasklet execution.
+   * @return the list of Tasklet reports.
    */
-  public TaskletAggregationResult(final List<Integer> taskletIds, final Object result) {
-    this.taskletIds = Collections.unmodifiableList(new ArrayList<>(taskletIds));
-    this.result = result;
+  public List<WorkerToMasterReport> getReports() {
+    return Collections.unmodifiableList(workerToMasterReports);
   }
-
-  /**
-   * @return the type of this TaskletReport.
-   */
-  @Override
-  public Type getType() {
-    return Type.TaskletAggregationResult;
-  }
-
-  /**
-   * @return the TaskletId(s) of this TaskletReport
-   */
-  public List<Integer> getTaskletIds() {
-    return taskletIds;
-  }
-
-  /**
-   * @return the result of the Tasklet aggregation execution.
-   */
-  public Object getResult() {
-    return result;
-  }
-
 }

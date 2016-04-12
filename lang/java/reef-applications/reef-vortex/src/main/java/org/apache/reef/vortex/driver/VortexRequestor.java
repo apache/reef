@@ -21,7 +21,7 @@ package org.apache.reef.vortex.driver;
 import org.apache.reef.annotations.audience.DriverSide;
 import org.apache.reef.driver.task.RunningTask;
 import org.apache.reef.vortex.common.KryoUtils;
-import org.apache.reef.vortex.protocol.mastertoworker.MasterToWorker;
+import org.apache.reef.vortex.protocol.mastertoworker.MasterToWorkerRequest;
 
 import javax.inject.Inject;
 import java.util.concurrent.ExecutorService;
@@ -41,22 +41,22 @@ class VortexRequestor {
   }
 
   /**
-   * Sends a {@link MasterToWorker} asynchronously to a {@link org.apache.reef.vortex.evaluator.VortexWorker}.
+   * Sends a {@link MasterToWorkerRequest} asynchronously to a {@link org.apache.reef.vortex.evaluator.VortexWorker}.
    */
-  void sendAsync(final RunningTask reefTask, final MasterToWorker masterToWorker) {
+  void sendAsync(final RunningTask reefTask, final MasterToWorkerRequest masterToWorkerRequest) {
     executorService.execute(new Runnable() {
       @Override
       public void run() {
         //  Possible race condition with VortexWorkerManager#terminate is addressed by the global lock in VortexMaster
-        send(reefTask, masterToWorker);
+        send(reefTask, masterToWorkerRequest);
       }
     });
   }
 
   /**
-   * Sends a {@link MasterToWorker} synchronously to a {@link org.apache.reef.vortex.evaluator.VortexWorker}.
+   * Sends a {@link MasterToWorkerRequest} synchronously to a {@link org.apache.reef.vortex.evaluator.VortexWorker}.
    */
-  void send(final RunningTask reefTask, final MasterToWorker masterToWorker) {
-    reefTask.send(kryoUtils.serialize(masterToWorker));
+  void send(final RunningTask reefTask, final MasterToWorkerRequest masterToWorkerRequest) {
+    reefTask.send(kryoUtils.serialize(masterToWorkerRequest));
   }
 }

@@ -27,13 +27,13 @@ import org.apache.reef.vortex.api.VortexFunction;
  */
 @Unstable
 @Private
-public final class TaskletExecution<TInput, TOutput> implements MasterToWorker {
+public final class TaskletExecutionRequest<TInput, TOutput> implements MasterToWorkerRequest {
   private int taskletId;
   private VortexFunction<TInput, TOutput> userFunction;
   private TInput input;
 
   /**
-   * @return the type of this MasterToWorker.
+   * @return the type of this MasterToWorkerRequest.
    */
   @Override
   public Type getType() {
@@ -41,17 +41,17 @@ public final class TaskletExecution<TInput, TOutput> implements MasterToWorker {
   }
 
   /**
-   * No-arg constructor required for Kryo to ser/des.
+   * No-arg constructor required for Kryo to serialize/deserialize.
    */
-  TaskletExecution() {
+  TaskletExecutionRequest() {
   }
 
   /**
    * Request from Vortex Master to Vortex Worker to execute a tasklet.
    */
-  public TaskletExecution(final int taskletId,
-                          final VortexFunction<TInput, TOutput> userFunction,
-                          final TInput input) {
+  public TaskletExecutionRequest(final int taskletId,
+                                 final VortexFunction<TInput, TOutput> userFunction,
+                                 final TInput input) {
     this.taskletId = taskletId;
     this.userFunction = userFunction;
     this.input = input;
@@ -66,7 +66,7 @@ public final class TaskletExecution<TInput, TOutput> implements MasterToWorker {
   }
 
   /**
-   * @return the ID of the VortexTasklet associated with this MasterToWorker.
+   * @return the ID of the VortexTasklet associated with this MasterToWorkerRequest.
    */
   public int getTaskletId() {
     return taskletId;

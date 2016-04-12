@@ -23,7 +23,7 @@ import org.apache.reef.annotations.audience.DriverSide;
 import org.apache.reef.tang.annotations.DefaultImplementation;
 import org.apache.reef.util.Optional;
 import org.apache.reef.vortex.api.*;
-import org.apache.reef.vortex.protocol.workertomaster.WorkerReport;
+import org.apache.reef.vortex.protocol.workertomaster.WorkerToMasterReports;
 
 import java.util.List;
 
@@ -74,7 +74,7 @@ public interface VortexMaster {
   /**
    * Call this when a worker has reported back.
    */
-  void workerReported(final String workerId, final WorkerReport workerReport);
+  void workerReported(final String workerId, final WorkerToMasterReports workerToMasterReports);
 
   /**
    * Release all resources and shut down.

@@ -19,32 +19,36 @@
 package org.apache.reef.vortex.protocol.workertomaster;
 
 import org.apache.reef.annotations.Unstable;
+import org.apache.reef.annotations.audience.DriverSide;
+import org.apache.reef.annotations.audience.Private;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 /**
- * Report of a tasklet exception on aggregation.
+ * Report of a Tasklet aggregation execution result.
  */
+@Private
+@DriverSide
 @Unstable
-public final class TaskletAggregationFailure implements WorkerToMaster {
+public final class TaskletAggregationResultReport implements WorkerToMasterReport {
   private List<Integer> taskletIds;
-  private Exception exception;
+  private Object result;
 
   /**
-   * No-arg constructor required for Kryo to ser/des.
+   * No-arg constructor required for Kryo to serialize/deserialize.
    */
-  TaskletAggregationFailure() {
+  TaskletAggregationResultReport() {
   }
 
   /**
-   * @param taskletIds of the failed tasklet(s).
-   * @param exception that caused the tasklet failure.
+   * @param taskletIds of the tasklets.
+   * @param result of the tasklet execution.
    */
-  public TaskletAggregationFailure(final List<Integer> taskletIds, final Exception exception) {
+  public TaskletAggregationResultReport(final List<Integer> taskletIds, final Object result) {
     this.taskletIds = Collections.unmodifiableList(new ArrayList<>(taskletIds));
-    this.exception = exception;
+    this.result = result;
   }
 
   /**
@@ -52,20 +56,21 @@ public final class TaskletAggregationFailure implements WorkerToMaster {
    */
   @Override
   public Type getType() {
-    return Type.TaskletAggregationFailure;
+    return Type.TaskletAggregationResult;
   }
 
   /**
-   * @return the taskletIds that failed on aggregation.
+   * @return the TaskletId(s) of this TaskletReport
    */
   public List<Integer> getTaskletIds() {
     return taskletIds;
   }
 
   /**
-   * @return the exception that caused the tasklet aggregation failure.
+   * @return the result of the Tasklet aggregation execution.
    */
-  public Exception getException() {
-    return exception;
+  public Object getResult() {
+    return result;
   }
+
 }

@@ -26,7 +26,7 @@ final class MatMulOutput {
   private Matrix<Double> result;
 
   /**
-   * No-arg constructor required for Kryo to ser/des.
+   * No-arg constructor required for Kryo to serialize/deserialize.
    */
   MatMulOutput() {
   }
