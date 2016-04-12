@@ -96,6 +96,14 @@ final class EvaluatorRuntime implements EventHandler<EvaluatorControlProto> {
             "Identifier mismatch: message for evaluator id[" + message.getIdentifier()
                 + "] sent to evaluator id[" + this.evaluatorIdentifier + "]"
         ));
+      } else if (ReefServiceProtos.State.DONE == this.state) {
+        if (message.getDoneEvaluator() != null) {
+          LOG.log(Level.INFO, "Received ACK from Driver, shutting down Evaluator.");
+          this.clock.close();
+          return;
+        } else {
+          this.onException(new RuntimeException("Received a control message from Driver after Evaluator is done."));
+        }
       } else if (ReefServiceProtos.State.RUNNING != this.state) {
         this.onException(new RuntimeException(
             "Evaluator sent a control message but its state is not "
@@ -112,7 +120,6 @@ final class EvaluatorRuntime implements EventHandler<EvaluatorControlProto> {
             if (this.contextManager.contextStackIsEmpty() && this.state == ReefServiceProtos.State.RUNNING) {
               this.state = ReefServiceProtos.State.DONE;
               this.heartBeatManager.sendEvaluatorStatus(this.getEvaluatorStatus());
-              this.clock.close();
             }
           } catch (final Throwable e) {
             this.onException(e);
