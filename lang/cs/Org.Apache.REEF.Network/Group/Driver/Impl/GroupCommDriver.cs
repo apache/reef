@@ -147,6 +147,23 @@ namespace Org.Apache.REEF.Network.Group.Driver.Impl
         }
 
         /// <summary>
+        /// Remove a group form the GroupCommDriver
+        /// </summary>
+        /// <param name="groupName"></param>
+        public void RemoveCommunicationGroup(string groupName)
+        {
+            lock (_groupsLock)
+            {
+                if (!_commGroups.ContainsKey(groupName))
+                {
+                    REEF.Utilities.Diagnostics.Exceptions.Throw(new ArgumentException("Group Name is not registered with GroupCommunicationDriver"), LOGGER);
+                }
+
+                _commGroups.Remove(groupName);
+            }
+        }
+
+        /// <summary>
         /// Generates context configuration with a unique identifier.
         /// </summary>
         /// <returns>The configured context configuration</returns>

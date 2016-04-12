@@ -160,6 +160,63 @@ namespace Org.Apache.REEF.Network.Tests.GroupCommunication
         }
 
         /// <summary>
+        /// Test create a new group then remove it from the GroupDriver
+        /// </summary>
+        [Fact]
+        public void TestRemoveCommunicationGroup()
+        {
+            string groupName = "group1";
+            string groupName2 = "group2";
+            string masterTaskId = "task0";
+            string driverId = "Driver Id";
+            int numTasks = 3;
+            int fanOut = 2;
+
+            var groupCommunicationDriver = GetInstanceOfGroupCommDriver(driverId, masterTaskId, groupName, fanOut, numTasks);
+            groupCommunicationDriver.NewCommunicationGroup(groupName2, 5);
+            groupCommunicationDriver.RemoveCommunicationGroup(groupName2);
+        }
+
+        /// <summary>
+        /// Test remove default group
+        /// </summary>
+        [Fact]
+        public void TestRemoveDefaultGroup()
+        {
+            string groupName = "group1";
+            string masterTaskId = "task0";
+            string driverId = "Driver Id";
+            int numTasks = 3;
+            int fanOut = 2;
+
+            var groupCommunicationDriver = GetInstanceOfGroupCommDriver(driverId, masterTaskId, groupName, fanOut, numTasks);
+            ICommunicationGroupDriver group = groupCommunicationDriver.DefaultGroup;
+            groupCommunicationDriver.RemoveCommunicationGroup(groupName);
+        }
+
+        [Fact]
+        public void TestRemoveNoExistGroup()
+        {
+            string groupName = "group1";
+            string masterTaskId = "task0";
+            string driverId = "Driver Id";
+            int numTasks = 3;
+            int fanOut = 2;
+            string msg = null;
+
+            var groupCommunicationDriver = GetInstanceOfGroupCommDriver(driverId, masterTaskId, groupName, fanOut, numTasks);
+            try
+            {
+                groupCommunicationDriver.RemoveCommunicationGroup("group1");
+            }
+            catch (ArgumentException e)
+            {
+                msg = e.Message;
+            }
+            Assert.NotNull(msg);
+        }
+
+        /// <summary>
         /// This is to test operator injection in CommunicationGroupClient with int[] as message type
         /// </summary>
         [Fact]
