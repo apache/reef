@@ -37,39 +37,64 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Context
     {
         private static readonly Logger LOGGER = Logger.GetLogger(typeof(ContextRuntime));
 
-        // Context-local injector. This contains information that will not be available in child injectors.
+        /// <summary>
+        /// Context-local injector. This contains information that will not be available in child injectors.
+        /// </summary>
         private readonly IInjector _contextInjector;
 
-        // Service injector. State in this injector moves to child injectors.
+        /// <summary>
+        /// Service injector. State in this injector moves to child injectors.
+        /// </summary>
         private readonly IInjector _serviceInjector;
 
-        // Convenience class to hold all the event handlers for the context as well as the service instances.
+        /// <summary>
+        /// Convenience class to hold all the event handlers for the context as well as the service instances.
+        /// </summary>
         private readonly ContextLifeCycle _contextLifeCycle;
 
-        // The parent context, if any.
+        /// <summary>
+        /// The parent context, if any.
+        /// </summary>
         private readonly Optional<ContextRuntime> _parentContext;
 
-        // The service objects bound to ServiceConfiguration.
+        /// <summary>
+        /// The service objects bound to ServiceConfiguration.
+        /// </summary> 
         private readonly ISet<object> _injectedServices;
 
-        // The ContextStart handlers bound to ServiceConfiguration.
+        /// <summary>
+        /// The ContextStart handlers bound to ServiceConfiguration.
+        /// </summary>
         private readonly ISet<IObserver<IContextStart>> _serviceContextStartHandlers;
 
-        // The ContextStop handlers bound to ServiceConfiguration.
+        /// <summary>
+        /// The ContextStop handlers bound to ServiceConfiguration.
+        /// </summary>
         private readonly ISet<IObserver<IContextStop>> _serviceContextStopHandlers;
 
-        // The TaskStart handlers bound to ServiceConfiguration.
+        /// <summary>
+        /// The TaskStart handlers bound to ServiceConfiguration.
+        /// </summary>
         private readonly ISet<IObserver<ITaskStart>> _serviceTaskStartHandlers;
 
-        // The TaskStop handlers bound to ServiceConfiguration.
+        /// <summary>
+        /// The TaskStop handlers bound to ServiceConfiguration.
+        /// </summary>
         private readonly ISet<IObserver<ITaskStop>> _serviceTaskStopHandlers;
 
-        // The child context, if any.
+        /// <summary>
+        /// The child context, if any.
+        /// </summary>
         private Optional<ContextRuntime> _childContext = Optional<ContextRuntime>.Empty();
 
-        // The currently running task, if any.
+        /// <summary>
+        /// The currently running task, if any.
+        /// </summary>
         private Optional<TaskRuntime> _task = Optional<TaskRuntime>.Empty();
 
+        /// <summary>
+        /// Current state of the context.
+        /// </summary>
         private ContextStatusProto.State _contextState = ContextStatusProto.State.READY;
 
         /// <summary>
