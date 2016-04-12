@@ -30,52 +30,52 @@ namespace Org.Apache.REEF.Driver.Tests
         public void TestHappySenario()
         {
             var taskState = new DriverTaskState();
-            Assert.True(taskState.CurrentState.Equals(TaskStates.TaskNew));
-            Assert.True(taskState.MoveNext(TaskEvents.SubmittingTask).Equals(TaskStates.TaskSubmitting));
-            Assert.True(taskState.MoveNext(TaskEvents.RunningTask).Equals(TaskStates.TaskRunning));
-            Assert.True(taskState.MoveNext(TaskEvents.CompleteTask).Equals(TaskStates.TaskCompeleted));
+            Assert.True(taskState.CurrentState.Equals(TaskState.TaskNew));
+            Assert.True(taskState.MoveNext(TaskEvent.SubmittedTask).Equals(TaskState.TaskSubmitting));
+            Assert.True(taskState.MoveNext(TaskEvent.RunningTask).Equals(TaskState.TaskRunning));
+            Assert.True(taskState.MoveNext(TaskEvent.CompletedTask).Equals(TaskState.TaskCompeleted));
         }
 
         [Fact]
         public void TestRunningToCloseSenario()
         {
             var taskState = new DriverTaskState();
-            Assert.True(taskState.CurrentState.Equals(TaskStates.TaskNew));
-            Assert.True(taskState.MoveNext(TaskEvents.SubmittingTask).Equals(TaskStates.TaskSubmitting));
-            Assert.True(taskState.MoveNext(TaskEvents.RunningTask).Equals(TaskStates.TaskRunning));
-            Assert.True(taskState.MoveNext(TaskEvents.WaitingTaskToClose).Equals(TaskStates.TaskWaitingForClose));
-            Assert.True(taskState.MoveNext(TaskEvents.CloseTask).Equals(TaskStates.TaskClosedByDriver));
+            Assert.True(taskState.CurrentState.Equals(TaskState.TaskNew));
+            Assert.True(taskState.MoveNext(TaskEvent.SubmittedTask).Equals(TaskState.TaskSubmitting));
+            Assert.True(taskState.MoveNext(TaskEvent.RunningTask).Equals(TaskState.TaskRunning));
+            Assert.True(taskState.MoveNext(TaskEvent.WaitingTaskToClose).Equals(TaskState.TaskWaitingForClose));
+            Assert.True(taskState.MoveNext(TaskEvent.ClosedTask).Equals(TaskState.TaskClosedByDriver));
         }
 
         [Fact]
         public void TestRunningToFailByEvaluator()
         {
             var taskState = new DriverTaskState();
-            Assert.True(taskState.CurrentState.Equals(TaskStates.TaskNew));
-            Assert.True(taskState.MoveNext(TaskEvents.SubmittingTask).Equals(TaskStates.TaskSubmitting));
-            Assert.True(taskState.MoveNext(TaskEvents.RunningTask).Equals(TaskStates.TaskRunning));
-            Assert.True(taskState.MoveNext(TaskEvents.FaileTaskEvaluatorError).Equals(TaskStates.TaskFailedByEvaluatorFailure));
+            Assert.True(taskState.CurrentState.Equals(TaskState.TaskNew));
+            Assert.True(taskState.MoveNext(TaskEvent.SubmittedTask).Equals(TaskState.TaskSubmitting));
+            Assert.True(taskState.MoveNext(TaskEvent.RunningTask).Equals(TaskState.TaskRunning));
+            Assert.True(taskState.MoveNext(TaskEvent.FailedTaskEvaluatorError).Equals(TaskState.TaskFailedByEvaluatorFailure));
         }
 
         [Fact]
         public void TestRunningToFailByCommuThenEvaluator()
         {
             var taskState = new DriverTaskState();
-            Assert.True(taskState.CurrentState.Equals(TaskStates.TaskNew));
-            Assert.True(taskState.MoveNext(TaskEvents.SubmittingTask).Equals(TaskStates.TaskSubmitting));
-            Assert.True(taskState.MoveNext(TaskEvents.RunningTask).Equals(TaskStates.TaskRunning));
-            Assert.True(taskState.MoveNext(TaskEvents.FailTaskCommuError).Equals(TaskStates.TaskFailedByGroupCommunication));
-            Assert.True(taskState.MoveNext(TaskEvents.FaileTaskEvaluatorError).Equals(TaskStates.TaskFailedByEvaluatorFailure));
+            Assert.True(taskState.CurrentState.Equals(TaskState.TaskNew));
+            Assert.True(taskState.MoveNext(TaskEvent.SubmittedTask).Equals(TaskState.TaskSubmitting));
+            Assert.True(taskState.MoveNext(TaskEvent.RunningTask).Equals(TaskState.TaskRunning));
+            Assert.True(taskState.MoveNext(TaskEvent.FailedTaskCommunicationError).Equals(TaskState.TaskFailedByGroupCommunication));
+            Assert.True(taskState.MoveNext(TaskEvent.FailedTaskEvaluatorError).Equals(TaskState.TaskFailedByEvaluatorFailure));
         }
 
         [Fact]
         public void TestFromNewToNotAllowed()
         {
             var taskState = new DriverTaskState();
-            Assert.True(taskState.CurrentState.Equals(TaskStates.TaskNew));
+            Assert.True(taskState.CurrentState.Equals(TaskState.TaskNew));
             try
             {
-                taskState.MoveNext(TaskEvents.RunningTask);
+                taskState.MoveNext(TaskEvent.RunningTask);
             }
             catch (Exception e)
             {
@@ -84,7 +84,7 @@ namespace Org.Apache.REEF.Driver.Tests
 
             try
             {
-                taskState.MoveNext(TaskEvents.WaitingTaskToClose);
+                taskState.MoveNext(TaskEvent.WaitingTaskToClose);
             }
             catch (Exception e)
             {
@@ -93,7 +93,7 @@ namespace Org.Apache.REEF.Driver.Tests
 
             try
             {
-                taskState.MoveNext(TaskEvents.CompleteTask);
+                taskState.MoveNext(TaskEvent.CompletedTask);
             }
             catch (Exception e)
             {
@@ -105,15 +105,15 @@ namespace Org.Apache.REEF.Driver.Tests
         public void TestFromRunningToNotAllowed()
         {
             var taskState = new DriverTaskState();
-            Assert.True(taskState.CurrentState.Equals(TaskStates.TaskNew));
-            taskState.MoveNext(TaskEvents.SubmittingTask);
-            Assert.True(taskState.CurrentState.Equals(TaskStates.TaskSubmitting));
-            taskState.MoveNext(TaskEvents.RunningTask);
-            Assert.True(taskState.CurrentState.Equals(TaskStates.TaskRunning));
+            Assert.True(taskState.CurrentState.Equals(TaskState.TaskNew));
+            taskState.MoveNext(TaskEvent.SubmittedTask);
+            Assert.True(taskState.CurrentState.Equals(TaskState.TaskSubmitting));
+            taskState.MoveNext(TaskEvent.RunningTask);
+            Assert.True(taskState.CurrentState.Equals(TaskState.TaskRunning));
 
             try
             {
-                taskState.MoveNext(TaskEvents.SubmittingTask);
+                taskState.MoveNext(TaskEvent.SubmittedTask);
             }
             catch (Exception e)
             {
@@ -122,7 +122,7 @@ namespace Org.Apache.REEF.Driver.Tests
 
             try
             {
-                taskState.MoveNext(TaskEvents.CloseTask);
+                taskState.MoveNext(TaskEvent.ClosedTask);
             }
             catch (Exception e)
             {
@@ -134,17 +134,17 @@ namespace Org.Apache.REEF.Driver.Tests
         public void TestFromFailToNotAllowed()
         {
             var taskState = new DriverTaskState();
-            Assert.True(taskState.CurrentState.Equals(TaskStates.TaskNew));
-            taskState.MoveNext(TaskEvents.SubmittingTask);
-            Assert.True(taskState.CurrentState.Equals(TaskStates.TaskSubmitting));
-            taskState.MoveNext(TaskEvents.RunningTask);
-            Assert.True(taskState.CurrentState.Equals(TaskStates.TaskRunning));
-            taskState.MoveNext(TaskEvents.FaileTaskEvaluatorError);
-            Assert.True(taskState.CurrentState.Equals(TaskStates.TaskFailedByEvaluatorFailure));
+            Assert.True(taskState.CurrentState.Equals(TaskState.TaskNew));
+            taskState.MoveNext(TaskEvent.SubmittedTask);
+            Assert.True(taskState.CurrentState.Equals(TaskState.TaskSubmitting));
+            taskState.MoveNext(TaskEvent.RunningTask);
+            Assert.True(taskState.CurrentState.Equals(TaskState.TaskRunning));
+            taskState.MoveNext(TaskEvent.FailedTaskEvaluatorError);
+            Assert.True(taskState.CurrentState.Equals(TaskState.TaskFailedByEvaluatorFailure));
 
             try
             {
-                taskState.MoveNext(TaskEvents.RunningTask);
+                taskState.MoveNext(TaskEvent.RunningTask);
             }
             catch (Exception e)
             {
@@ -153,7 +153,7 @@ namespace Org.Apache.REEF.Driver.Tests
 
             try
             {
-                taskState.MoveNext(TaskEvents.CloseTask);
+                taskState.MoveNext(TaskEvent.ClosedTask);
             }
             catch (Exception e)
             {
@@ -162,7 +162,7 @@ namespace Org.Apache.REEF.Driver.Tests
 
             try
             {
-                taskState.MoveNext(TaskEvents.CompleteTask);
+                taskState.MoveNext(TaskEvent.CompletedTask);
             }
             catch (Exception e)
             {
@@ -171,7 +171,7 @@ namespace Org.Apache.REEF.Driver.Tests
 
             try
             {
-                taskState.MoveNext(TaskEvents.SubmittingTask);
+                taskState.MoveNext(TaskEvent.SubmittedTask);
             }
             catch (Exception e)
             {
@@ -180,7 +180,7 @@ namespace Org.Apache.REEF.Driver.Tests
 
             try
             {
-                taskState.MoveNext(TaskEvents.WaitingTaskToClose);
+                taskState.MoveNext(TaskEvent.WaitingTaskToClose);
             }
             catch (Exception e)
             {
@@ -189,7 +189,7 @@ namespace Org.Apache.REEF.Driver.Tests
 
             try
             {
-                taskState.MoveNext(TaskEvents.FailTaskAppError);
+                taskState.MoveNext(TaskEvent.FailedTaskAppError);
             }
             catch (Exception e)
             {
@@ -198,7 +198,7 @@ namespace Org.Apache.REEF.Driver.Tests
 
             try
             {
-                taskState.MoveNext(TaskEvents.FailTaskCommuError);
+                taskState.MoveNext(TaskEvent.FailedTaskCommunicationError);
             }
             catch (Exception e)
             {
@@ -207,7 +207,7 @@ namespace Org.Apache.REEF.Driver.Tests
 
             try
             {
-                taskState.MoveNext(TaskEvents.FailTaskSystemError);
+                taskState.MoveNext(TaskEvent.FailedTaskSystemError);
             }
             catch (Exception e)
             {

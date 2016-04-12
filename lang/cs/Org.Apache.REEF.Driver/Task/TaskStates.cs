@@ -20,7 +20,7 @@ namespace Org.Apache.REEF.Driver.Task
     /// <summary>
     /// Task states in task transitions
     /// </summary>
-    public enum TaskStates
+    public enum TaskState
     {
         TaskNew,
         TaskSubmitting,
@@ -37,16 +37,16 @@ namespace Org.Apache.REEF.Driver.Task
     /// <summary>
     /// Task events that triggers task state transition
     /// </summary>
-    public enum TaskEvents
+    public enum TaskEvent
     {
-        SubmittingTask,
+        SubmittedTask,
         RunningTask,
-        CompleteTask,
+        CompletedTask,
         WaitingTaskToClose,
-        CloseTask,
-        FailTaskAppError,
-        FailTaskSystemError,
-        FaileTaskEvaluatorError,
-        FailTaskCommuError
+        ClosedTask,
+        FailedTaskAppError,
+        FailedTaskSystemError,
+        FailedTaskEvaluatorError,
+        FailedTaskCommunicationError
     }
 }
