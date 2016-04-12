@@ -81,18 +81,6 @@ namespace Org.Apache.REEF.Wake.Time.Runtime
             }
         }
 
-        public IInjectionFuture<ISet<IObserver<RuntimeStart>>> InjectedRuntimeStartHandler
-        {
-            get { return _runtimeStartHandler; }
-            set { _runtimeStartHandler = value; }
-        }
-
-        public IInjectionFuture<ISet<IObserver<RuntimeStop>>> InjectedRuntimeStopHandler
-        {
-            get { return _runtimeStopHandler; }
-            set { _runtimeStopHandler = value; }
-        }
-
         /// <summary>
         /// Schedule a TimerEvent at the given future offset
         /// </summary>

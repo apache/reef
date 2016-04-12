@@ -27,10 +27,10 @@ using Org.Apache.REEF.Common.Runtime.Evaluator.Utils;
 using Org.Apache.REEF.Driver.Bridge;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Tang.Formats;
-using Org.Apache.REEF.Tang.Implementations.InjectionPlan;
 using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Utilities.Logging;
+using Org.Apache.REEF.Wake.Time;
 using Org.Apache.REEF.Wake.Time.Runtime;
 using Org.Apache.REEF.Wake.Time.Runtime.Event;
 
@@ -44,13 +44,11 @@ namespace Org.Apache.REEF.Evaluator
         [Inject]
         private Evaluator(
             RuntimeClock clock,
-            EvaluatorRuntime evaluatorRuntime,
             CustomTraceListeners customTraceListeners,
             CustomTraceLevel customTraceLevel)
         {
             _clock = clock;
             SetCustomTraceListeners(customTraceListeners, customTraceLevel);
-            SetRuntimeHandlers(evaluatorRuntime, clock);
         }
 
         private void Run()
@@ -81,8 +79,11 @@ namespace Org.Apache.REEF.Evaluator
                 var fullEvaluatorConfiguration = ReadEvaluatorConfiguration(args[0]);
                 var injector = TangFactory.GetTang().NewInjector(fullEvaluatorConfiguration);
                 var serializer = injector.GetInstance<AvroConfigurationSerializer>();
-                var rootEvaluatorConfiguration =
-                    serializer.FromString(injector.GetNamedInstance<EvaluatorConfiguration, string>());
+                var rootEvaluatorConfiguration = 
+                    TangFactory.GetTang().NewConfigurationBuilder(serializer.FromString(injector.GetNamedInstance<EvaluatorConfiguration, string>()))
+                        .BindSetEntry<IClock.RuntimeStartHandler, EvaluatorRuntime, IObserver<RuntimeStart>>()
+                        .BindSetEntry<IClock.RuntimeStopHandler, EvaluatorRuntime, IObserver<RuntimeStop>>()
+                        .Build();
                 var evaluator = injector.ForkInjector(rootEvaluatorConfiguration).GetInstance<Evaluator>();
 
                 evaluator.Run();
@@ -164,17 +165,6 @@ namespace Org.Apache.REEF.Evaluator
         private static void UnhandledExceptionHandler(object sender, UnhandledExceptionEventArgs e)
         {
             Fail((Exception)e.ExceptionObject);
-        }
-
-        // set the handlers for runtimeclock manually
-        // we only need runtimestart and runtimestop handlers now
-        private static void SetRuntimeHandlers(EvaluatorRuntime evaluatorRuntime, RuntimeClock clock)
-        {
-            ISet<IObserver<RuntimeStart>> runtimeStarts = new HashSet<IObserver<RuntimeStart>> { evaluatorRuntime };
-            clock.InjectedRuntimeStartHandler = new InjectionFutureImpl<ISet<IObserver<RuntimeStart>>>(runtimeStarts);
-
-            ISet<IObserver<RuntimeStop>> runtimeStops = new HashSet<IObserver<RuntimeStop>> { evaluatorRuntime };
-            clock.InjectedRuntimeStopHandler = new InjectionFutureImpl<ISet<IObserver<RuntimeStop>>>(runtimeStops);
         }
 
         private static void Fail(Exception ex)
