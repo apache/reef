@@ -166,7 +166,7 @@ namespace Org.Apache.REEF.Client.Local
             var driverFolder = PrepareDriverFolder(jobRequest);
             var submissionJobArgsFilePath = CreateBootstrapAvroJobConfig(jobRequest.JobParameters, driverFolder);
             var submissionAppArgsFilePath = CreateBootstrapAvroAppConfig(jobRequest.AppParameters, driverFolder);
-            _javaClientLauncher.LaunchAsync(JavaClassName, submissionJobArgsFilePath, submissionAppArgsFilePath)
+            _javaClientLauncher.LaunchAsync(jobRequest.JavaLogLevel, JavaClassName, submissionJobArgsFilePath, submissionAppArgsFilePath)
                 .GetAwaiter().GetResult();
             Logger.Log(Level.Info, "Submitted the Driver for execution.");
         }
@@ -177,7 +177,7 @@ namespace Org.Apache.REEF.Client.Local
             var submissionJobArgsFilePath = CreateBootstrapAvroJobConfig(jobRequest.JobParameters, driverFolder);
             var submissionAppArgsFilePath = CreateBootstrapAvroAppConfig(jobRequest.AppParameters, driverFolder);
 
-            _javaClientLauncher.LaunchAsync(JavaClassName, submissionJobArgsFilePath, submissionAppArgsFilePath)
+            _javaClientLauncher.LaunchAsync(jobRequest.JavaLogLevel, JavaClassName, submissionJobArgsFilePath, submissionAppArgsFilePath)
                 .LogAndIgnoreExceptionIfAny(Logger, "Java launcher failed");
 
             var fileName = Path.Combine(driverFolder, _fileNames.DriverHttpEndpoint);

@@ -20,6 +20,7 @@ using System.Collections.Generic;
 using Org.Apache.REEF.Common.Client.Parameters;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Tang.Interface;
+using Org.Apache.REEF.Utilities.Logging;
 
 namespace Org.Apache.REEF.Client.API
 {
@@ -188,6 +189,12 @@ namespace Org.Apache.REEF.Client.API
         public JobRequestBuilder AddDriverConfigurationProviders(IEnumerable<IConfigurationProvider> configurationProviders)
         {
             _appParametersBuilder.AddDriverConfigurationProviders(configurationProviders);
+            return this;
+        }
+
+        public JobRequestBuilder SetJavaLogLevel(JavaLoggingSetting javaLogLevel)
+        {
+            _jobParametersBuilder.SetJavaLogLevel(javaLogLevel);
             return this;
         }
     }

@@ -15,6 +15,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
+using Org.Apache.REEF.Utilities.Logging;
+
 namespace Org.Apache.REEF.Client.API
 {
     /// <summary>
@@ -27,6 +29,7 @@ namespace Org.Apache.REEF.Client.API
         private int _driverMemory = 512;
         private string _stdoutFilePath = null;
         private string _stderrFilePath = null;
+        private JavaLoggingSetting _javaLogLevel = JavaLoggingSetting.Info;
 
         private JobParametersBuilder()
         {
@@ -51,7 +54,8 @@ namespace Org.Apache.REEF.Client.API
                 _maxApplicationSubmissions, 
                 _driverMemory,
                 _stdoutFilePath,
-                _stderrFilePath);
+                _stderrFilePath,
+                _javaLogLevel);
         }
 
         /// <summary>
@@ -99,6 +103,15 @@ namespace Org.Apache.REEF.Client.API
         public JobParametersBuilder SetDriverStderrFilePath(string stderrFilePath)
         {
             _stderrFilePath = stderrFilePath;
+            return this;
+        }
+
+        /// <summary>
+        /// Sets the Java Log Level.
+        /// </summary>
+        public JobParametersBuilder SetJavaLogLevel(JavaLoggingSetting javaLogLevel)
+        {
+            _javaLogLevel = javaLogLevel;
             return this;
         }
     }

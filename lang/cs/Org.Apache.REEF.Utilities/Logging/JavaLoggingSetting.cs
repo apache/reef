@@ -20,18 +20,13 @@ namespace Org.Apache.REEF.Utilities.Logging
     public enum JavaLoggingSetting
     {
          /// <summary>
-        /// info level log, and not transferred to CLR 
+        /// info level log
         /// </summary>
-        INFO = 0,
+        Info = 0,
 
         /// <summary>
-        /// verbose log, but not to CLR
+        /// verbose log
         /// </summary>
-        VERBOSE = 1,
-
-        /// <summary>
-        /// verbose log, transferred to CLR
-        /// </summary>
-        VERBOSE_TO_CLR = 2,
+        Verbose = 1
     }
 }

@@ -153,6 +153,12 @@ namespace Org.Apache.REEF.Client.YARN
            IReadOnlyCollection<JobResource> jobResources)
         {
             var commandProviderConfigModule = YarnCommandProviderConfiguration.ConfigurationModule;
+            if (jobParameters.JavaLogLevel == JavaLoggingSetting.Verbose)
+            {
+                commandProviderConfigModule = commandProviderConfigModule
+                    .Set(YarnCommandProviderConfiguration.JavaDebugLogging, true.ToString().ToLowerInvariant());
+            }
+
             if (jobParameters.StdoutFilePath.IsPresent())
             {
                 commandProviderConfigModule = commandProviderConfigModule
