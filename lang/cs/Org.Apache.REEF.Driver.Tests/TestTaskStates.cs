@@ -27,13 +27,13 @@ namespace Org.Apache.REEF.Driver.Tests
     public class TestTaskStates
     {
         [Fact]
-        public void TestHappySenario()
+        public void TestNewToCompleteSenario()
         {
             var taskState = new DriverTaskState();
             Assert.True(taskState.CurrentState.Equals(TaskTransitionState.TaskNew));
             Assert.True(taskState.MoveNext(TaskEvent.SubmittedTask).Equals(TaskTransitionState.TaskSubmitting));
             Assert.True(taskState.MoveNext(TaskEvent.RunningTask).Equals(TaskTransitionState.TaskRunning));
-            Assert.True(taskState.MoveNext(TaskEvent.CompletedTask).Equals(TaskTransitionState.TaskCompeleted));
+            Assert.True(taskState.MoveNext(TaskEvent.CompletedTask).Equals(TaskTransitionState.TaskCompleted));
         }
 
         [Fact]

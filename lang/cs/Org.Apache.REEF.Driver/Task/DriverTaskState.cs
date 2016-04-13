@@ -23,7 +23,7 @@ namespace Org.Apache.REEF.Driver.Task
     /// <summary>
     /// DriverTaskState wraps current state and provides methods to move from one state to the next state
     /// </summary>
-    sealed public class DriverTaskState
+    public sealed class DriverTaskState
     {
         internal static IDictionary<TaskStateTransition, TaskTransitionState> Transitions = new Dictionary<TaskStateTransition, TaskTransitionState>
         {
@@ -34,7 +34,7 @@ namespace Org.Apache.REEF.Driver.Task
             { new TaskStateTransition(TaskTransitionState.TaskSubmitting, TaskEvent.FailedTaskSystemError), TaskTransitionState.TaskFailedSystemError },
             { new TaskStateTransition(TaskTransitionState.TaskSubmitting, TaskEvent.FailedTaskEvaluatorError), TaskTransitionState.TaskFailedByEvaluatorFailure },
             { new TaskStateTransition(TaskTransitionState.TaskSubmitting, TaskEvent.FailedTaskCommunicationError), TaskTransitionState.TaskFailedByGroupCommunication },
-            { new TaskStateTransition(TaskTransitionState.TaskRunning, TaskEvent.CompletedTask), TaskTransitionState.TaskCompeleted },
+            { new TaskStateTransition(TaskTransitionState.TaskRunning, TaskEvent.CompletedTask), TaskTransitionState.TaskCompleted },
             { new TaskStateTransition(TaskTransitionState.TaskRunning, TaskEvent.WaitingTaskToClose), TaskTransitionState.TaskWaitingForClose },
             { new TaskStateTransition(TaskTransitionState.TaskRunning, TaskEvent.FailedTaskAppError), TaskTransitionState.TaskFailedAppError },
             { new TaskStateTransition(TaskTransitionState.TaskRunning, TaskEvent.FailedTaskSystemError), TaskTransitionState.TaskFailedSystemError },
@@ -50,6 +50,7 @@ namespace Org.Apache.REEF.Driver.Task
         };
 
         volatile private TaskTransitionState _currentState;
+        readonly private object _lock = new object();
 
         public DriverTaskState()
         {
@@ -77,8 +78,11 @@ namespace Org.Apache.REEF.Driver.Task
 
         public TaskTransitionState MoveNext(TaskEvent command)
         {
-            _currentState = GetNext(command);
-            return _currentState;
+            lock (_lock)
+            {
+                _currentState = GetNext(command);
+                return _currentState;
+            }
         }
     }
 }

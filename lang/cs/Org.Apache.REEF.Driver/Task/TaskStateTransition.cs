@@ -20,7 +20,7 @@ namespace Org.Apache.REEF.Driver.Task
     /// <summary>
     /// It defines task state and task event combination that would determine the next transition state 
     /// </summary>
-    public class TaskStateTransition
+    public sealed class TaskStateTransition
     {
         private readonly TaskTransitionState _currentState;
         private readonly TaskEvent _taskEvent;

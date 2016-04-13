@@ -40,7 +40,7 @@ namespace Org.Apache.REEF.Driver.Task
         /// <summary>
         /// After receiving CompletedTask event, the task state is TaskCompeleted
         /// </summary>
-        TaskCompeleted,
+        TaskCompleted,
 
         /// <summary>
         /// After driver send command to close a task, the task state is set to TaskWaitingForClose
