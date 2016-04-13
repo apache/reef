@@ -47,7 +47,7 @@ namespace Org.Apache.REEF.Network.Group.Driver.Impl
         private const string MasterTaskContextName = "MasterTaskContext";
         private const string SlaveTaskContextName = "SlaveTaskContext";
 
-        private static Logger LOGGER = Logger.GetLogger(typeof(GroupCommDriver));
+        private static Logger Logger = Logger.GetLogger(typeof(GroupCommDriver));
 
         private readonly string _driverId;
         private readonly string _nameServerAddr;
@@ -114,8 +114,8 @@ namespace Org.Apache.REEF.Network.Group.Driver.Impl
                     {
                         NewCommunicationGroup(_defaultGroupName, _defaultGroupNumberOfTasks);
                     }
+                    return _commGroups[_defaultGroupName];
                 }
-                return _commGroups[_defaultGroupName];
             }
         }
 
@@ -129,22 +129,25 @@ namespace Org.Apache.REEF.Network.Group.Driver.Impl
         {
             if (string.IsNullOrEmpty(groupName))
             {
-                throw new ArgumentNullException("groupName");
+                Exceptions.Throw(new ArgumentNullException("groupName"), Logger);
             }
 
             if (numTasks < 1)
             {
-                throw new ArgumentException("NumTasks must be greater than 0");
-            }
-            
-            if (_commGroups.ContainsKey(groupName))
-            {
-                throw new ArgumentException("Group Name already registered with GroupCommunicationDriver");
+               Exceptions.Throw(new ArgumentException("NumTasks must be greater than 0"), Logger);
             }
 
-            var commGroup = new CommunicationGroupDriver(groupName, _driverId, numTasks, _fanOut, _configSerializer);
-            _commGroups[groupName] = commGroup;
-            return commGroup;
+            lock (_groupsLock)
+            {
+                if (_commGroups.ContainsKey(groupName))
+                {
+                    Exceptions.Throw(new ArgumentException("Group Name already registered with GroupCommunicationDriver"), Logger);
+                }
+
+                var commGroup = new CommunicationGroupDriver(groupName, _driverId, numTasks, _fanOut, _configSerializer);
+                _commGroups[groupName] = commGroup;
+                return commGroup;
+            }
         }
 
         /// <summary>
@@ -158,7 +161,7 @@ namespace Org.Apache.REEF.Network.Group.Driver.Impl
             {
                 if (!_commGroups.ContainsKey(groupName))
                 {
-                    Exceptions.Throw(new ArgumentException("Group Name is not registered with GroupCommunicationDriver"), LOGGER);
+                    Exceptions.Throw(new ArgumentException("Group Name is not registered with GroupCommunicationDriver"), Logger);
                 }
 
                 _commGroups.Remove(groupName);
@@ -271,7 +274,7 @@ namespace Org.Apache.REEF.Network.Group.Driver.Impl
             string[] parts = activeContext.Id.Split('-');
             if (parts.Length != 2)
             {
-                throw new ArgumentException("Invalid id in active context");
+                Exceptions.Throw(new ArgumentException("Invalid id in active context"), Logger);
             }
 
             return int.Parse(parts[1], CultureInfo.InvariantCulture);
