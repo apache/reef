@@ -22,7 +22,6 @@ using Org.Apache.REEF.Wake.Time.Event;
 using Org.Apache.REEF.Wake.Time.Runtime;
 using System;
 using System.Reactive;
-using System.Threading.Tasks;
 
 namespace Org.Apache.REEF.Common.Poison
 {

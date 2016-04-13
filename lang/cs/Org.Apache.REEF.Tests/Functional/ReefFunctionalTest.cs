@@ -156,37 +156,18 @@ namespace Org.Apache.REEF.Tests.Functional
             const string successIndication = "EXIT: ActiveContextClr2Java::Close";
             const string failedTaskIndication = "Java_org_apache_reef_javabridge_NativeInterop_clrSystemFailedTaskHandlerOnNext";
             const string failedEvaluatorIndication = "Java_org_apache_reef_javabridge_NativeInterop_clrSystemFailedEvaluatorHandlerOnNext";
-            string[] lines = null;
-            for (int i = 0; i < 60; i++)
-            {
-                try
-                {
-                    lines = File.ReadAllLines(GetLogFile(DriverStdout, "driver", testFolder));
-                    break;
-                }
-                catch (Exception)
-                {
-                    Thread.Sleep(SleepTime);
-                }
-            }
+            string[] lines = ReadLogFile(DriverStdout, "driver", testFolder);
 
-            if (lines != null)
-            {
-                Logger.Log(Level.Verbose, "Lines read from log file : " + lines.Count());
-                string[] successIndicators = lines.Where(s => s.Contains(successIndication)).ToArray();
-                string[] failedTaskIndicators = lines.Where(s => s.Contains(failedTaskIndication)).ToArray();
-                string[] failedEvaluatorIndicators = lines.Where(s => s.Contains(failedEvaluatorIndication)).ToArray();
-                Assert.True(numberOfContextsToClose == successIndicators.Length,
-                    "Expected number of contexts to close (" + numberOfContextsToClose + ") differs from actual number of success indicators (" + successIndicators.Length + ")");
-                Assert.True(numberOfTasksToFail == failedTaskIndicators.Length,
-                    "Expected number of tasks to fail (" + numberOfTasksToFail + ") differs from actual number of failed task indicators (" + failedTaskIndicators.Length + ")");
-                Assert.True(numberOfEvaluatorsToFail == failedEvaluatorIndicators.Length,
-                    "Expected number of evaluators to fail (" + numberOfEvaluatorsToFail + ") differs from actual number of failed evaluator indicators (" + failedEvaluatorIndicators.Length + ")");
-            }
-            else
-            {
-                Assert.True(false, "Cannot read from log file " + DriverStdout);
-            }
+            Logger.Log(Level.Verbose, "Lines read from log file : " + lines.Count());
+            string[] successIndicators = lines.Where(s => s.Contains(successIndication)).ToArray();
+            string[] failedTaskIndicators = lines.Where(s => s.Contains(failedTaskIndication)).ToArray();
+            string[] failedEvaluatorIndicators = lines.Where(s => s.Contains(failedEvaluatorIndication)).ToArray();
+            Assert.True(numberOfContextsToClose == successIndicators.Length,
+                "Expected number of contexts to close (" + numberOfContextsToClose + ") differs from actual number of success indicators (" + successIndicators.Length + ")");
+            Assert.True(numberOfTasksToFail == failedTaskIndicators.Length,
+                "Expected number of tasks to fail (" + numberOfTasksToFail + ") differs from actual number of failed task indicators (" + failedTaskIndicators.Length + ")");
+            Assert.True(numberOfEvaluatorsToFail == failedEvaluatorIndicators.Length,
+                "Expected number of evaluators to fail (" + numberOfEvaluatorsToFail + ") differs from actual number of failed evaluator indicators (" + failedEvaluatorIndicators.Length + ")");
         }
 
         /// <summary>
@@ -209,45 +190,24 @@ namespace Org.Apache.REEF.Tests.Functional
         /// </summary>
         protected void ValidateMessageSuccessfullyLogged(IList<string> messages, string subfolder, string fileName, string testFolder, int numberOfOccurrences = 1)
         {
-            string[] lines = null;
-            for (int i = 0; i < 60; i++)
+            string[] lines = ReadLogFile(fileName, subfolder, testFolder);
+            foreach (string message in messages)
             {
-                try
+                string[] successIndicators = lines.Where(s => s.Contains(message)).ToArray();
+                if (numberOfOccurrences > 0)
                 {
-                    lines = File.ReadAllLines(GetLogFile(fileName, subfolder, testFolder));
-                    break;
+                    Assert.True(numberOfOccurrences == successIndicators.Count(), 
+                        "Expected number of message occurrences " + numberOfOccurrences + " differs from actual " + successIndicators.Count());
                 }
-                catch (Exception e)
+                else if (numberOfOccurrences == 0)
                 {
-                    Logger.Log(Level.Verbose, e.ToString());
-                    Thread.Sleep(SleepTime);
+                    Assert.True(0 == successIndicators.Count(),
+                        "Message not expected to occur but occurs " + successIndicators.Count() + " times");
                 }
-            }
-
-            if (lines != null)
-            {
-                foreach (string message in messages)
+                else
                 {
-                    string[] successIndicators = lines.Where(s => s.Contains(message)).ToArray();
-                    if (numberOfOccurrences > 0)
-                    {
-                        Assert.True(numberOfOccurrences == successIndicators.Count(), 
-                            "Expected number of message occurrences " + numberOfOccurrences + " differs from actual " + successIndicators.Count());
-                    }
-                    else if (numberOfOccurrences == 0)
-                    {
-                        Assert.True(0 == successIndicators.Count(),
-                            "Message not expected to occur but occurs " + successIndicators.Count() + " times");
-                    }
-                    else
-                    {
-                        Assert.True(successIndicators.Count() > 0, "Message expected to occur, but did not.");
-                    }
+                    Assert.True(successIndicators.Count() > 0, "Message expected to occur, but did not.");
                 }
-            }
-            else
-            {
-                Assert.True(false, "Cannot read from log file " + fileName);
             }
         }
 
@@ -263,10 +223,39 @@ namespace Org.Apache.REEF.Tests.Functional
             }
         }
 
-        protected string GetLogFile(string logFileName, string subfolder = "driver", string testFolder = DefaultRuntimeFolder)
+        internal string[] ReadLogFile(string logFileName, string subfolder = "driver", string testFolder = DefaultRuntimeFolder)
+        {
+            string fileName = string.Empty;
+            string[] lines = null;
+            for (int i = 0; i < 60; i++)
+            {
+                try
+                {
+                    fileName = GetLogFileName(logFileName, subfolder, testFolder);
+                    lines = File.ReadAllLines(fileName);
+                    break;
+                }
+                catch (Exception e)
+                {
+                    if (i == 59)
+                    {
+                        // log only last exception before failure
+                        Logger.Log(Level.Verbose, e.ToString());
+                    }
+                    if (i < 59)
+                    {
+                        Thread.Sleep(SleepTime);
+                    }
+                }
+            }
+            Assert.True(lines != null, "Cannot read from log file " + fileName);
+            return lines;
+        }
+
+        protected string GetLogFileName(string logFileName, string subfolder = "driver", string testFolder = DefaultRuntimeFolder)
         {
             string driverContainerDirectory = Directory.GetDirectories(Path.Combine(Directory.GetCurrentDirectory(), testFolder), subfolder, SearchOption.AllDirectories).SingleOrDefault();
-            Logger.Log(Level.Verbose, "GetLogFile, driverContainerDirectory:" + driverContainerDirectory);
+            Logger.Log(Level.Verbose, "GetLogFileName, driverContainerDirectory:" + driverContainerDirectory);
 
             if (string.IsNullOrWhiteSpace(driverContainerDirectory))
             {
@@ -282,8 +271,8 @@ namespace Org.Apache.REEF.Tests.Functional
 
         private void UploadDriverLog()
         {
-            string driverStdout = GetLogFile(DriverStdout);
-            string driverStderr = GetLogFile(DriverStderr);
+            string driverStdout = GetLogFileName(DriverStdout);
+            string driverStderr = GetLogFileName(DriverStderr);
             CloudStorageAccount storageAccount = CloudStorageAccount.Parse(GetStorageConnectionString());
             CloudBlobClient blobClient = storageAccount.CreateCloudBlobClient();
             CloudBlobContainer container = blobClient.GetContainerReference(DateTime.Now.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture));   
