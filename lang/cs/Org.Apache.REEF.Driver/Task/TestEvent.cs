@@ -18,35 +18,53 @@
 namespace Org.Apache.REEF.Driver.Task
 {
     /// <summary>
-    /// Task states in task transitions
-    /// </summary>
-    public enum TaskState
-    {
-        TaskNew,
-        TaskSubmitting,
-        TaskRunning,
-        TaskCompeleted,
-        TaskWaitingForClose,
-        TaskClosedByDriver,
-        TaskFailedByEvaluatorFailure,
-        TaskFailedByGroupCommunication,
-        TaskFailedAppError,
-        TaskFailedSystemError
-    }
-
-    /// <summary>
     /// Task events that triggers task state transition
     /// </summary>
     public enum TaskEvent
     {
+        /// <summary>
+        /// Task is submitted
+        /// </summary>
         SubmittedTask,
+
+        /// <summary>
+        /// Task is running
+        /// </summary>
         RunningTask,
+
+        /// <summary>
+        /// Task is completed
+        /// </summary>
         CompletedTask,
+
+        /// <summary>
+        /// Waiting for task is closed
+        /// </summary>
         WaitingTaskToClose,
+
+        /// <summary>
+        /// Task is closed
+        /// </summary>
         ClosedTask,
+
+        /// <summary>
+        /// Received failed task with application error
+        /// </summary>
         FailedTaskAppError,
+
+        /// <summary>
+        /// Received failed task with system error
+        /// </summary>
         FailedTaskSystemError,
+
+        /// <summary>
+        /// Received failed Evaluator that caused associated task fail
+        /// </summary>
         FailedTaskEvaluatorError,
+
+        /// <summary>
+        /// Received failed task with communication error
+        /// </summary>
         FailedTaskCommunicationError
     }
 }

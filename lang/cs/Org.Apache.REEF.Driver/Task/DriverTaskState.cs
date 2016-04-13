@@ -20,69 +20,65 @@ using System.Collections.Generic;
 
 namespace Org.Apache.REEF.Driver.Task
 {
+    /// <summary>
+    /// DriverTaskState wraps current state and provides methods to move from one state to the next state
+    /// </summary>
     sealed public class DriverTaskState
     {
-        internal static IDictionary<TaskStateTransition, TaskState> Transitions = new Dictionary<TaskStateTransition, TaskState>
+        internal static IDictionary<TaskStateTransition, TaskTransitionState> Transitions = new Dictionary<TaskStateTransition, TaskTransitionState>
         {
-            { new TaskStateTransition(TaskState.TaskNew, TaskEvent.SubmittedTask), TaskState.TaskSubmitting },
-            { new TaskStateTransition(TaskState.TaskNew, TaskEvent.ClosedTask), TaskState.TaskClosedByDriver },            
-            { new TaskStateTransition(TaskState.TaskSubmitting, TaskEvent.RunningTask), TaskState.TaskRunning },
-            { new TaskStateTransition(TaskState.TaskSubmitting, TaskEvent.FailedTaskAppError), TaskState.TaskFailedAppError },
-            { new TaskStateTransition(TaskState.TaskSubmitting, TaskEvent.FailedTaskSystemError), TaskState.TaskFailedSystemError },
-            { new TaskStateTransition(TaskState.TaskSubmitting, TaskEvent.FailedTaskEvaluatorError), TaskState.TaskFailedByEvaluatorFailure },
-            { new TaskStateTransition(TaskState.TaskSubmitting, TaskEvent.FailedTaskCommunicationError), TaskState.TaskFailedByGroupCommunication },
-            { new TaskStateTransition(TaskState.TaskRunning, TaskEvent.CompletedTask), TaskState.TaskCompeleted },
-            { new TaskStateTransition(TaskState.TaskRunning, TaskEvent.WaitingTaskToClose), TaskState.TaskWaitingForClose },
-            { new TaskStateTransition(TaskState.TaskRunning, TaskEvent.FailedTaskAppError), TaskState.TaskFailedAppError },
-            { new TaskStateTransition(TaskState.TaskRunning, TaskEvent.FailedTaskSystemError), TaskState.TaskFailedSystemError },
-            { new TaskStateTransition(TaskState.TaskRunning, TaskEvent.FailedTaskEvaluatorError), TaskState.TaskFailedByEvaluatorFailure },
-            { new TaskStateTransition(TaskState.TaskRunning, TaskEvent.FailedTaskCommunicationError), TaskState.TaskFailedByGroupCommunication },
-            { new TaskStateTransition(TaskState.TaskWaitingForClose, TaskEvent.ClosedTask), TaskState.TaskClosedByDriver },
-            { new TaskStateTransition(TaskState.TaskWaitingForClose, TaskEvent.FailedTaskAppError), TaskState.TaskFailedAppError },
-            { new TaskStateTransition(TaskState.TaskWaitingForClose, TaskEvent.FailedTaskSystemError), TaskState.TaskFailedSystemError },
-            { new TaskStateTransition(TaskState.TaskWaitingForClose, TaskEvent.FailedTaskEvaluatorError), TaskState.TaskFailedByEvaluatorFailure },
-            { new TaskStateTransition(TaskState.TaskWaitingForClose, TaskEvent.FailedTaskCommunicationError), TaskState.TaskFailedByGroupCommunication },
-            { new TaskStateTransition(TaskState.TaskFailedSystemError, TaskEvent.FailedTaskEvaluatorError), TaskState.TaskFailedByEvaluatorFailure },
-            { new TaskStateTransition(TaskState.TaskFailedByGroupCommunication, TaskEvent.FailedTaskEvaluatorError), TaskState.TaskFailedByEvaluatorFailure }
+            { new TaskStateTransition(TaskTransitionState.TaskNew, TaskEvent.SubmittedTask), TaskTransitionState.TaskSubmitting },
+            { new TaskStateTransition(TaskTransitionState.TaskNew, TaskEvent.ClosedTask), TaskTransitionState.TaskClosedByDriver },            
+            { new TaskStateTransition(TaskTransitionState.TaskSubmitting, TaskEvent.RunningTask), TaskTransitionState.TaskRunning },
+            { new TaskStateTransition(TaskTransitionState.TaskSubmitting, TaskEvent.FailedTaskAppError), TaskTransitionState.TaskFailedAppError },
+            { new TaskStateTransition(TaskTransitionState.TaskSubmitting, TaskEvent.FailedTaskSystemError), TaskTransitionState.TaskFailedSystemError },
+            { new TaskStateTransition(TaskTransitionState.TaskSubmitting, TaskEvent.FailedTaskEvaluatorError), TaskTransitionState.TaskFailedByEvaluatorFailure },
+            { new TaskStateTransition(TaskTransitionState.TaskSubmitting, TaskEvent.FailedTaskCommunicationError), TaskTransitionState.TaskFailedByGroupCommunication },
+            { new TaskStateTransition(TaskTransitionState.TaskRunning, TaskEvent.CompletedTask), TaskTransitionState.TaskCompeleted },
+            { new TaskStateTransition(TaskTransitionState.TaskRunning, TaskEvent.WaitingTaskToClose), TaskTransitionState.TaskWaitingForClose },
+            { new TaskStateTransition(TaskTransitionState.TaskRunning, TaskEvent.FailedTaskAppError), TaskTransitionState.TaskFailedAppError },
+            { new TaskStateTransition(TaskTransitionState.TaskRunning, TaskEvent.FailedTaskSystemError), TaskTransitionState.TaskFailedSystemError },
+            { new TaskStateTransition(TaskTransitionState.TaskRunning, TaskEvent.FailedTaskEvaluatorError), TaskTransitionState.TaskFailedByEvaluatorFailure },
+            { new TaskStateTransition(TaskTransitionState.TaskRunning, TaskEvent.FailedTaskCommunicationError), TaskTransitionState.TaskFailedByGroupCommunication },
+            { new TaskStateTransition(TaskTransitionState.TaskWaitingForClose, TaskEvent.ClosedTask), TaskTransitionState.TaskClosedByDriver },
+            { new TaskStateTransition(TaskTransitionState.TaskWaitingForClose, TaskEvent.FailedTaskAppError), TaskTransitionState.TaskFailedAppError },
+            { new TaskStateTransition(TaskTransitionState.TaskWaitingForClose, TaskEvent.FailedTaskSystemError), TaskTransitionState.TaskFailedSystemError },
+            { new TaskStateTransition(TaskTransitionState.TaskWaitingForClose, TaskEvent.FailedTaskEvaluatorError), TaskTransitionState.TaskFailedByEvaluatorFailure },
+            { new TaskStateTransition(TaskTransitionState.TaskWaitingForClose, TaskEvent.FailedTaskCommunicationError), TaskTransitionState.TaskFailedByGroupCommunication },
+            { new TaskStateTransition(TaskTransitionState.TaskFailedSystemError, TaskEvent.FailedTaskEvaluatorError), TaskTransitionState.TaskFailedByEvaluatorFailure },
+            { new TaskStateTransition(TaskTransitionState.TaskFailedByGroupCommunication, TaskEvent.FailedTaskEvaluatorError), TaskTransitionState.TaskFailedByEvaluatorFailure }
         };
 
-        private readonly object _stateLock = new object();
-        private TaskState _currentState;
+        volatile private TaskTransitionState _currentState;
 
         public DriverTaskState()
         {
-            _currentState = TaskState.TaskNew;
+            _currentState = TaskTransitionState.TaskNew;
         }
 
-        public TaskState CurrentState
+        public TaskTransitionState CurrentState
         {
             get
             {
-                lock (_stateLock)
-                {
-                    return _currentState;
-                }
+                return _currentState;
             }
         }
 
-        private TaskState GetNext(TaskEvent taskEvent)
+        private TaskTransitionState GetNext(TaskEvent taskEvent)
         {
             TaskStateTransition transition = new TaskStateTransition(_currentState, taskEvent);
-            TaskState nextState;
+            TaskTransitionState nextState;
             if (!Transitions.TryGetValue(transition, out nextState))
             {
-                throw new Exception("Invalid transition: " + _currentState + " -> " + taskEvent);
+                throw new ApplicationException("Invalid transition: " + _currentState + " -> " + taskEvent);
             }
             return nextState;
         }
 
-        public TaskState MoveNext(TaskEvent command)
+        public TaskTransitionState MoveNext(TaskEvent command)
         {
-            lock (_stateLock)
-            {
-                _currentState = GetNext(command);
-                return _currentState;
-            }
+            _currentState = GetNext(command);
+            return _currentState;
         }
     }
 }

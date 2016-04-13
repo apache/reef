@@ -146,8 +146,9 @@ under the License.
     <Compile Include="Task\ISuspendedTask.cs" />
     <Compile Include="Task\ITaskMessage.cs" />
     <Compile Include="Task\DriverTaskState.cs" />
-    <Compile Include="Task\TaskStates.cs" />
+    <Compile Include="Task\TaskTransitionState.cs" />
     <Compile Include="Task\TaskStateTransition.cs" />
+    <Compile Include="Task\TestEvent.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Org.Apache.REEF.Driver.nuspec" />

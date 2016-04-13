@@ -30,189 +30,117 @@ namespace Org.Apache.REEF.Driver.Tests
         public void TestHappySenario()
         {
             var taskState = new DriverTaskState();
-            Assert.True(taskState.CurrentState.Equals(TaskState.TaskNew));
-            Assert.True(taskState.MoveNext(TaskEvent.SubmittedTask).Equals(TaskState.TaskSubmitting));
-            Assert.True(taskState.MoveNext(TaskEvent.RunningTask).Equals(TaskState.TaskRunning));
-            Assert.True(taskState.MoveNext(TaskEvent.CompletedTask).Equals(TaskState.TaskCompeleted));
+            Assert.True(taskState.CurrentState.Equals(TaskTransitionState.TaskNew));
+            Assert.True(taskState.MoveNext(TaskEvent.SubmittedTask).Equals(TaskTransitionState.TaskSubmitting));
+            Assert.True(taskState.MoveNext(TaskEvent.RunningTask).Equals(TaskTransitionState.TaskRunning));
+            Assert.True(taskState.MoveNext(TaskEvent.CompletedTask).Equals(TaskTransitionState.TaskCompeleted));
         }
 
         [Fact]
         public void TestRunningToCloseSenario()
         {
             var taskState = new DriverTaskState();
-            Assert.True(taskState.CurrentState.Equals(TaskState.TaskNew));
-            Assert.True(taskState.MoveNext(TaskEvent.SubmittedTask).Equals(TaskState.TaskSubmitting));
-            Assert.True(taskState.MoveNext(TaskEvent.RunningTask).Equals(TaskState.TaskRunning));
-            Assert.True(taskState.MoveNext(TaskEvent.WaitingTaskToClose).Equals(TaskState.TaskWaitingForClose));
-            Assert.True(taskState.MoveNext(TaskEvent.ClosedTask).Equals(TaskState.TaskClosedByDriver));
+            Assert.True(taskState.CurrentState.Equals(TaskTransitionState.TaskNew));
+            Assert.True(taskState.MoveNext(TaskEvent.SubmittedTask).Equals(TaskTransitionState.TaskSubmitting));
+            Assert.True(taskState.MoveNext(TaskEvent.RunningTask).Equals(TaskTransitionState.TaskRunning));
+            Assert.True(taskState.MoveNext(TaskEvent.WaitingTaskToClose).Equals(TaskTransitionState.TaskWaitingForClose));
+            Assert.True(taskState.MoveNext(TaskEvent.ClosedTask).Equals(TaskTransitionState.TaskClosedByDriver));
         }
 
         [Fact]
         public void TestRunningToFailByEvaluator()
         {
             var taskState = new DriverTaskState();
-            Assert.True(taskState.CurrentState.Equals(TaskState.TaskNew));
-            Assert.True(taskState.MoveNext(TaskEvent.SubmittedTask).Equals(TaskState.TaskSubmitting));
-            Assert.True(taskState.MoveNext(TaskEvent.RunningTask).Equals(TaskState.TaskRunning));
-            Assert.True(taskState.MoveNext(TaskEvent.FailedTaskEvaluatorError).Equals(TaskState.TaskFailedByEvaluatorFailure));
+            Assert.True(taskState.CurrentState.Equals(TaskTransitionState.TaskNew));
+            Assert.True(taskState.MoveNext(TaskEvent.SubmittedTask).Equals(TaskTransitionState.TaskSubmitting));
+            Assert.True(taskState.MoveNext(TaskEvent.RunningTask).Equals(TaskTransitionState.TaskRunning));
+            Assert.True(taskState.MoveNext(TaskEvent.FailedTaskEvaluatorError).Equals(TaskTransitionState.TaskFailedByEvaluatorFailure));
         }
 
         [Fact]
         public void TestRunningToFailByCommuThenEvaluator()
         {
             var taskState = new DriverTaskState();
-            Assert.True(taskState.CurrentState.Equals(TaskState.TaskNew));
-            Assert.True(taskState.MoveNext(TaskEvent.SubmittedTask).Equals(TaskState.TaskSubmitting));
-            Assert.True(taskState.MoveNext(TaskEvent.RunningTask).Equals(TaskState.TaskRunning));
-            Assert.True(taskState.MoveNext(TaskEvent.FailedTaskCommunicationError).Equals(TaskState.TaskFailedByGroupCommunication));
-            Assert.True(taskState.MoveNext(TaskEvent.FailedTaskEvaluatorError).Equals(TaskState.TaskFailedByEvaluatorFailure));
+            Assert.True(taskState.CurrentState.Equals(TaskTransitionState.TaskNew));
+            Assert.True(taskState.MoveNext(TaskEvent.SubmittedTask).Equals(TaskTransitionState.TaskSubmitting));
+            Assert.True(taskState.MoveNext(TaskEvent.RunningTask).Equals(TaskTransitionState.TaskRunning));
+            Assert.True(taskState.MoveNext(TaskEvent.FailedTaskCommunicationError).Equals(TaskTransitionState.TaskFailedByGroupCommunication));
+            Assert.True(taskState.MoveNext(TaskEvent.FailedTaskEvaluatorError).Equals(TaskTransitionState.TaskFailedByEvaluatorFailure));
         }
 
         [Fact]
         public void TestFromNewToNotAllowed()
         {
             var taskState = new DriverTaskState();
-            Assert.True(taskState.CurrentState.Equals(TaskState.TaskNew));
-            try
-            {
-                taskState.MoveNext(TaskEvent.RunningTask);
-            }
-            catch (Exception e)
-            {
-                Assert.True(e.Message.Contains("Invalid transition:"));
-            }
+            Assert.True(taskState.CurrentState.Equals(TaskTransitionState.TaskNew));
+            
+            Action moveNext = () => taskState.MoveNext(TaskEvent.RunningTask);
+            Assert.Throws<ApplicationException>(moveNext);
 
-            try
-            {
-                taskState.MoveNext(TaskEvent.WaitingTaskToClose);
-            }
-            catch (Exception e)
-            {
-                Assert.True(e.Message.Contains("Invalid transition:"));
-            }
+            moveNext = () => taskState.MoveNext(TaskEvent.WaitingTaskToClose);
+            Assert.Throws<ApplicationException>(moveNext);
 
-            try
-            {
-                taskState.MoveNext(TaskEvent.CompletedTask);
-            }
-            catch (Exception e)
-            {
-                Assert.True(e.Message.Contains("Invalid transition:"));
-            }
+            moveNext = () => taskState.MoveNext(TaskEvent.CompletedTask);
+            Assert.Throws<ApplicationException>(moveNext);
         }
 
         [Fact]
         public void TestFromRunningToNotAllowed()
         {
             var taskState = new DriverTaskState();
-            Assert.True(taskState.CurrentState.Equals(TaskState.TaskNew));
+            Assert.True(taskState.CurrentState.Equals(TaskTransitionState.TaskNew));
+
             taskState.MoveNext(TaskEvent.SubmittedTask);
-            Assert.True(taskState.CurrentState.Equals(TaskState.TaskSubmitting));
+            Assert.True(taskState.CurrentState.Equals(TaskTransitionState.TaskSubmitting));
+
             taskState.MoveNext(TaskEvent.RunningTask);
-            Assert.True(taskState.CurrentState.Equals(TaskState.TaskRunning));
+            Assert.True(taskState.CurrentState.Equals(TaskTransitionState.TaskRunning));
 
-            try
-            {
-                taskState.MoveNext(TaskEvent.SubmittedTask);
-            }
-            catch (Exception e)
-            {
-                Assert.True(e.Message.Contains("Invalid transition:"));
-            }
+            Action moveNext = () => taskState.MoveNext(TaskEvent.SubmittedTask);
+            Assert.Throws<ApplicationException>(moveNext);
 
-            try
-            {
-                taskState.MoveNext(TaskEvent.ClosedTask);
-            }
-            catch (Exception e)
-            {
-                Assert.True(e.Message.Contains("Invalid transition:"));
-            }
+            moveNext = () => taskState.MoveNext(TaskEvent.ClosedTask);
+            Assert.Throws<ApplicationException>(moveNext);
         }
 
         [Fact]
         public void TestFromFailToNotAllowed()
         {
             var taskState = new DriverTaskState();
-            Assert.True(taskState.CurrentState.Equals(TaskState.TaskNew));
+            Assert.True(taskState.CurrentState.Equals(TaskTransitionState.TaskNew));
+
             taskState.MoveNext(TaskEvent.SubmittedTask);
-            Assert.True(taskState.CurrentState.Equals(TaskState.TaskSubmitting));
+            Assert.True(taskState.CurrentState.Equals(TaskTransitionState.TaskSubmitting));
+
             taskState.MoveNext(TaskEvent.RunningTask);
-            Assert.True(taskState.CurrentState.Equals(TaskState.TaskRunning));
+            Assert.True(taskState.CurrentState.Equals(TaskTransitionState.TaskRunning));
+
             taskState.MoveNext(TaskEvent.FailedTaskEvaluatorError);
-            Assert.True(taskState.CurrentState.Equals(TaskState.TaskFailedByEvaluatorFailure));
+            Assert.True(taskState.CurrentState.Equals(TaskTransitionState.TaskFailedByEvaluatorFailure));
 
-            try
-            {
-                taskState.MoveNext(TaskEvent.RunningTask);
-            }
-            catch (Exception e)
-            {
-                Assert.True(e.Message.Contains("Invalid transition:"));
-            }
+            Action moveNext = () => taskState.MoveNext(TaskEvent.RunningTask);
+            Assert.Throws<ApplicationException>(moveNext);
 
-            try
-            {
-                taskState.MoveNext(TaskEvent.ClosedTask);
-            }
-            catch (Exception e)
-            {
-                Assert.True(e.Message.Contains("Invalid transition:"));
-            }
+            moveNext = () => taskState.MoveNext(TaskEvent.ClosedTask);
+            Assert.Throws<ApplicationException>(moveNext);
 
-            try
-            {
-                taskState.MoveNext(TaskEvent.CompletedTask);
-            }
-            catch (Exception e)
-            {
-                Assert.True(e.Message.Contains("Invalid transition:"));
-            }
+            moveNext = () => taskState.MoveNext(TaskEvent.CompletedTask);
+            Assert.Throws<ApplicationException>(moveNext);
 
-            try
-            {
-                taskState.MoveNext(TaskEvent.SubmittedTask);
-            }
-            catch (Exception e)
-            {
-                Assert.True(e.Message.Contains("Invalid transition:"));
-            }
+            moveNext = () => taskState.MoveNext(TaskEvent.SubmittedTask);
+            Assert.Throws<ApplicationException>(moveNext);
 
-            try
-            {
-                taskState.MoveNext(TaskEvent.WaitingTaskToClose);
-            }
-            catch (Exception e)
-            {
-                Assert.True(e.Message.Contains("Invalid transition:"));
-            }
+            moveNext = () => taskState.MoveNext(TaskEvent.WaitingTaskToClose);
+            Assert.Throws<ApplicationException>(moveNext);
 
-            try
-            {
-                taskState.MoveNext(TaskEvent.FailedTaskAppError);
-            }
-            catch (Exception e)
-            {
-                Assert.True(e.Message.Contains("Invalid transition:"));
-            }
+            moveNext = () => taskState.MoveNext(TaskEvent.FailedTaskAppError);
+            Assert.Throws<ApplicationException>(moveNext);
 
-            try
-            {
-                taskState.MoveNext(TaskEvent.FailedTaskCommunicationError);
-            }
-            catch (Exception e)
-            {
-                Assert.True(e.Message.Contains("Invalid transition:"));
-            }
+            moveNext = () => taskState.MoveNext(TaskEvent.FailedTaskCommunicationError);
+            Assert.Throws<ApplicationException>(moveNext);
 
-            try
-            {
-                taskState.MoveNext(TaskEvent.FailedTaskSystemError);
-            }
-            catch (Exception e)
-            {
-                Assert.True(e.Message.Contains("Invalid transition:"));
-            }
+            moveNext = () => taskState.MoveNext(TaskEvent.FailedTaskSystemError);
+            Assert.Throws<ApplicationException>(moveNext); 
         }
     }
 }
