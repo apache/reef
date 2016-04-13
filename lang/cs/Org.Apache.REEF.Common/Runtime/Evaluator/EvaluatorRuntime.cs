@@ -85,15 +85,17 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator
                 }
                 else if (_state == State.DONE)
                 {
-                    if (message.stop_evaluator != null)
+                    if (message.done_evaluator != null)
                     {
                         Logger.Log(Level.Info, "Received ACK from Driver, shutting down Evaluator.");
                         _clock.Dispose();
 
                         return;
                     }
-
-                    Handle(new InvalidOperationException("Received a control message from Driver after Evaluator is done."));
+                    else
+                    {
+                        Handle(new InvalidOperationException("Received a control message from Driver after Evaluator is done."));
+                    }
                 }
                 else if (_state != State.RUNNING)
                 {
