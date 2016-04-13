@@ -23,7 +23,6 @@ import org.apache.reef.annotations.audience.DriverSide;
 import org.apache.reef.tang.annotations.Parameter;
 import org.apache.reef.util.Optional;
 import org.apache.reef.vortex.api.*;
-import org.apache.reef.vortex.common.AggregateFunctionRepository;
 import org.apache.reef.vortex.protocol.workertomaster.*;
 
 import javax.inject.Inject;
@@ -34,7 +33,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Default implementation of VortexMaster.
- * Uses two thread-safe data structuㅍres(pendingTasklets, runningWorkers) in implementing VortexMaster interface.
+ * Uses two thread-safe data structures(pendingTasklets, runningWorkers) in implementing VortexMaster interface.
  */
 @ThreadSafe
 @DriverSide

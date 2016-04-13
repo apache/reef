@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.vortex.common;
+package org.apache.reef.vortex.driver;
 
 import org.apache.reef.annotations.Unstable;
 import org.apache.reef.annotations.audience.Private;
@@ -30,13 +30,12 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 /**
- * A repository for {@link VortexAggregateFunction} and its associated {@link VortexAggregatePolicy},
- * used to pass functions between VortexMaster and RunningWorkers.
+ * A repository for {@link VortexAggregateFunction} and its associated {@link VortexAggregatePolicy}.
  */
 @ThreadSafe
 @Unstable
 @Private
-public final class AggregateFunctionRepository {
+final class AggregateFunctionRepository {
   private final ConcurrentMap<Integer, Tuple<VortexAggregateFunction, VortexAggregatePolicy>>
       aggregateFunctionMap = new ConcurrentHashMap<>();
 

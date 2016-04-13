@@ -30,7 +30,6 @@ import org.apache.reef.task.events.CloseEvent;
 import org.apache.reef.task.events.DriverMessage;
 import org.apache.reef.util.Optional;
 import org.apache.reef.vortex.common.KryoUtils;
-import org.apache.reef.vortex.common.AggregateFunctionRepository;
 import org.apache.reef.vortex.protocol.mastertoworker.*;
 import org.apache.reef.vortex.protocol.workertomaster.*;
 import org.apache.reef.vortex.driver.VortexWorkerConf;
@@ -50,7 +49,7 @@ import java.util.logging.Logger;
 @Unstable
 @Unit
 @TaskSide
-public final class  VortexWorker implements Task, TaskMessageSource {
+public final class VortexWorker implements Task, TaskMessageSource {
   private static final Logger LOG = Logger.getLogger(VortexWorker.class.getName());
   private static final String MESSAGE_SOURCE_ID = ""; // empty string as there is no use for it
 
@@ -58,7 +57,6 @@ public final class  VortexWorker implements Task, TaskMessageSource {
   private final BlockingDeque<byte[]> workerReports = new LinkedBlockingDeque<>();
   private final ConcurrentMap<Integer, AggregateContainer> aggregates = new ConcurrentHashMap<>();
 
-  private final AggregateFunctionRepository aggregateFunctionRepository;
   private final KryoUtils kryoUtils;
   private final HeartBeatTriggerManager heartBeatTriggerManager;
   private final int numOfThreads;
@@ -66,11 +64,9 @@ public final class  VortexWorker implements Task, TaskMessageSource {
 
   @Inject
   private VortexWorker(final HeartBeatTriggerManager heartBeatTriggerManager,
-                       final AggregateFunctionRepository aggregateFunctionRepository,
                        final KryoUtils kryoUtils,
                        @Parameter(VortexWorkerConf.NumOfThreads.class) final int numOfThreads) {
     this.heartBeatTriggerManager = heartBeatTriggerManager;
-    this.aggregateFunctionRepository = aggregateFunctionRepository;
     this.kryoUtils = kryoUtils;
     this.numOfThreads = numOfThreads;
   }
@@ -108,8 +104,6 @@ public final class  VortexWorker implements Task, TaskMessageSource {
               aggregates.put(taskletAggregationRequest.getAggregateFunctionId(),
                   new AggregateContainer(heartBeatTriggerManager, kryoUtils, workerReports,
                       taskletAggregationRequest));
-              aggregateFunctionRepository.put(taskletAggregationRequest.getAggregateFunctionId(),
-                  taskletAggregationRequest.getAggregateFunction(), taskletAggregationRequest.getPolicy());
               break;
             case ExecuteAggregateTasklet:
               executeAggregateTasklet(commandExecutor, masterToWorkerRequest);

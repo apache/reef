@@ -24,7 +24,6 @@ import org.apache.reef.tang.exceptions.InjectionException;
 import org.apache.reef.util.Optional;
 import org.apache.reef.vortex.api.VortexFunction;
 import org.apache.reef.vortex.api.VortexFuture;
-import org.apache.reef.vortex.common.AggregateFunctionRepository;
 import org.apache.reef.vortex.protocol.mastertoworker.MasterToWorkerRequest;
 import org.apache.reef.vortex.protocol.mastertoworker.TaskletCancellationRequest;
 import org.apache.reef.vortex.protocol.workertomaster.TaskletCancelledReport;
