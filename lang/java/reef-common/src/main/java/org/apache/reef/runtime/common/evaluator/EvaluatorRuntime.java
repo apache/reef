@@ -97,13 +97,13 @@ final class EvaluatorRuntime implements EventHandler<EvaluatorControlProto> {
                 + "] sent to evaluator id[" + this.evaluatorIdentifier + "]"
         ));
       } else if (ReefServiceProtos.State.DONE == this.state) {
-        if (message.getStopEvaluator() != null) {
+        if (message.getDoneEvaluator() != null) {
           LOG.log(Level.INFO, "Received ACK from Driver, shutting down Evaluator.");
           this.clock.close();
           return;
+        } else {
+          this.onException(new RuntimeException("Received a control message from Driver after Evaluator is done."));
         }
-
-        this.onException(new RuntimeException("Received a control message from Driver after Evaluator is done."));
       } else if (ReefServiceProtos.State.RUNNING != this.state) {
         this.onException(new RuntimeException(
             "Evaluator sent a control message but its state is not "
