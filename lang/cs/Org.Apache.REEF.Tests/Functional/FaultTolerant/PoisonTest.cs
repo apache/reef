@@ -29,6 +29,7 @@ using System.Threading;
 using Org.Apache.REEF.Common.Context;
 using Org.Apache.REEF.Common.Events;
 using Org.Apache.REEF.Common.Poison;
+using Org.Apache.REEF.Driver.Task;
 using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Tang.Implementations.Configuration;
 
@@ -39,6 +40,7 @@ namespace Org.Apache.REEF.Tests.Functional.FaultTolerant
     {
         private static readonly Logger Logger = Logger.GetLogger(typeof(PoisonTest));
 
+        private const string Prefix = "Poison: ";
         private const string FailedEvaluatorMessage = "I have succeeded in seeing a failed evaluator.";
         private const string TaskId = "1234567";
 
@@ -59,6 +61,7 @@ namespace Org.Apache.REEF.Tests.Functional.FaultTolerant
                 .Set(DriverConfiguration.OnEvaluatorAllocated, GenericType<PoisonedEvaluatorDriver>.Class)
                 .Set(DriverConfiguration.OnEvaluatorFailed, GenericType<PoisonedEvaluatorDriver>.Class)
                 .Set(DriverConfiguration.OnContextActive, GenericType<PoisonedEvaluatorDriver>.Class)
+                .Set(DriverConfiguration.OnTaskCompleted, GenericType<PoisonedEvaluatorDriver>.Class)
                 .Build();
         }
 
@@ -66,7 +69,8 @@ namespace Org.Apache.REEF.Tests.Functional.FaultTolerant
             IObserver<IDriverStarted>,
             IObserver<IAllocatedEvaluator>,
             IObserver<IActiveContext>,
-            IObserver<IFailedEvaluator>
+            IObserver<IFailedEvaluator>,
+            IObserver<ICompletedTask>
         {
             private readonly IEvaluatorRequestor _requestor;
 
@@ -108,6 +112,19 @@ namespace Org.Apache.REEF.Tests.Functional.FaultTolerant
             public void OnNext(IFailedEvaluator value)
             {
                 Logger.Log(Level.Error, FailedEvaluatorMessage);
+                if (value.FailedTask.Value == null)
+                {
+                    Logger.Log(Level.Error, "No failed task associated with failed evaluator");
+                }
+                else
+                {
+                    Logger.Log(Level.Error, "Failed task id '" + value.FailedTask.Value.Id + "'");
+                }
+            }
+            public void OnNext(ICompletedTask value)
+            {
+                // TODO: shouldn't receive ICompletedTask after failed evaluator
+                Logger.Log(Level.Info, "ICompletedTask");
             }
 
             public void OnError(Exception error)
@@ -134,8 +151,9 @@ namespace Org.Apache.REEF.Tests.Functional.FaultTolerant
 
             public byte[] Call(byte[] memento)
             {
-                Logger.Log(Level.Verbose, "Will sleep for 2 seconds (expecting to be poisoned faster).");
+                Logger.Log(Level.Info, Prefix + "Will sleep for 2 seconds (expecting to be poisoned faster).");
                 Thread.Sleep(2000);
+                Logger.Log(Level.Info, Prefix + "Task sleep finished successfully.");
                 return null;
             }
         }
