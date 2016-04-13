@@ -43,6 +43,7 @@ namespace Org.Apache.REEF.Network.Group.Driver
 
         /// <summary>
         /// remove a communication group
+        /// Throw ArgumentException if the group does not exist
         /// </summary>
         /// <param name="groupName"></param>
         void RemoveCommunicationGroup(string groupName);

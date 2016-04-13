@@ -165,16 +165,20 @@ namespace Org.Apache.REEF.Network.Tests.GroupCommunication
         [Fact]
         public void TestRemoveCommunicationGroup()
         {
-            string groupName = "group1";
-            string groupName2 = "group2";
-            string masterTaskId = "task0";
-            string driverId = "Driver Id";
-            int numTasks = 3;
-            int fanOut = 2;
+            const string groupName = "group1";
+            const string groupName2 = "group2";
+            const string masterTaskId = "task0";
+            const string driverId = "Driver Id";
+            const int numTasks = 3;
+            const int fanOut = 2;
 
             var groupCommunicationDriver = GetInstanceOfGroupCommDriver(driverId, masterTaskId, groupName, fanOut, numTasks);
-            groupCommunicationDriver.NewCommunicationGroup(groupName2, 5);
+            var group = groupCommunicationDriver.NewCommunicationGroup(groupName2, 5);
+            Assert.NotNull(group);
             groupCommunicationDriver.RemoveCommunicationGroup(groupName2);
+
+            Action remove = () => groupCommunicationDriver.RemoveCommunicationGroup(groupName2);
+            Assert.Throws<ArgumentException>(remove);
         }
 
         /// <summary>
@@ -183,37 +187,33 @@ namespace Org.Apache.REEF.Network.Tests.GroupCommunication
         [Fact]
         public void TestRemoveDefaultGroup()
         {
-            string groupName = "group1";
-            string masterTaskId = "task0";
-            string driverId = "Driver Id";
-            int numTasks = 3;
-            int fanOut = 2;
+            const string groupName = "group1";
+            const string masterTaskId = "task0";
+            const string driverId = "Driver Id";
+            const int numTasks = 3;
+            const int fanOut = 2;
 
             var groupCommunicationDriver = GetInstanceOfGroupCommDriver(driverId, masterTaskId, groupName, fanOut, numTasks);
-            ICommunicationGroupDriver group = groupCommunicationDriver.DefaultGroup;
+            var group = groupCommunicationDriver.DefaultGroup;
+            Assert.NotNull(group);
             groupCommunicationDriver.RemoveCommunicationGroup(groupName);
+
+            Action remove = () => groupCommunicationDriver.RemoveCommunicationGroup(groupName);
+            Assert.Throws<ArgumentException>(remove);
         }
 
         [Fact]
         public void TestRemoveNoExistGroup()
         {
-            string groupName = "group1";
-            string masterTaskId = "task0";
-            string driverId = "Driver Id";
-            int numTasks = 3;
-            int fanOut = 2;
-            string msg = null;
+            const string groupName = "group1";
+            const string masterTaskId = "task0";
+            const string driverId = "Driver Id";
+            const int numTasks = 3;
+            const int fanOut = 2;
 
             var groupCommunicationDriver = GetInstanceOfGroupCommDriver(driverId, masterTaskId, groupName, fanOut, numTasks);
-            try
-            {
-                groupCommunicationDriver.RemoveCommunicationGroup("group1");
-            }
-            catch (ArgumentException e)
-            {
-                msg = e.Message;
-            }
-            Assert.NotNull(msg);
+            Action remove = () => groupCommunicationDriver.RemoveCommunicationGroup(groupName);
+            Assert.Throws<ArgumentException>(remove);
         }
 
         /// <summary>

@@ -33,6 +33,7 @@ using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Tang.Util;
 using Org.Apache.REEF.Utilities.Logging;
+using Org.Apache.REEF.Utilities.Diagnostics;
 using ContextConfiguration = Org.Apache.REEF.Common.Context.ContextConfiguration;
 
 namespace Org.Apache.REEF.Network.Group.Driver.Impl
@@ -147,7 +148,8 @@ namespace Org.Apache.REEF.Network.Group.Driver.Impl
         }
 
         /// <summary>
-        /// Remove a group form the GroupCommDriver
+        /// Remove a group from the GroupCommDriver
+        /// Throw ArgumentException if the group does not exist
         /// </summary>
         /// <param name="groupName"></param>
         public void RemoveCommunicationGroup(string groupName)
@@ -156,7 +158,7 @@ namespace Org.Apache.REEF.Network.Group.Driver.Impl
             {
                 if (!_commGroups.ContainsKey(groupName))
                 {
-                    REEF.Utilities.Diagnostics.Exceptions.Throw(new ArgumentException("Group Name is not registered with GroupCommunicationDriver"), LOGGER);
+                    Exceptions.Throw(new ArgumentException("Group Name is not registered with GroupCommunicationDriver"), LOGGER);
                 }
 
                 _commGroups.Remove(groupName);
