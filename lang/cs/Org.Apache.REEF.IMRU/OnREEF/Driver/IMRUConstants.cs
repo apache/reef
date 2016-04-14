@@ -25,5 +25,6 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         internal const int TreeFanout = 2;
         internal const string MapTaskPrefix = "IMRUMap";
         internal const string UpdateTaskName = "IMRUMaster";
+        internal const string MasterContextId = "MasterRootContext";
     }
 }
