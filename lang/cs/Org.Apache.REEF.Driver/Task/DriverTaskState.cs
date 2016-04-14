@@ -49,8 +49,8 @@ namespace Org.Apache.REEF.Driver.Task
             { new TaskStateTransition(TaskTransitionState.TaskFailedByGroupCommunication, TaskEvent.FailedTaskEvaluatorError), TaskTransitionState.TaskFailedByEvaluatorFailure }
         };
 
-        volatile private TaskTransitionState _currentState;
-        readonly private object _lock = new object();
+        private volatile TaskTransitionState _currentState;
+        private readonly object _lock = new object();
 
         public DriverTaskState()
         {
