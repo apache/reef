@@ -31,41 +31,47 @@ namespace Org.Apache.REEF.Driver.Tests
         {
             var taskState = new DriverTaskState();
             Assert.True(taskState.CurrentState.Equals(TaskTransitionState.TaskNew));
-            Assert.True(taskState.MoveNext(TaskEvent.SubmittedTask).Equals(TaskTransitionState.TaskSubmitting));
-            Assert.True(taskState.MoveNext(TaskEvent.RunningTask).Equals(TaskTransitionState.TaskRunning));
-            Assert.True(taskState.MoveNext(TaskEvent.CompletedTask).Equals(TaskTransitionState.TaskCompleted));
+            Assert.False(taskState.IsFinalState(), "TaskNew is not final state.");
+            Assert.True(taskState.MoveNext(TaskEvent.SubmittedTask).Equals(TaskTransitionState.TaskSubmitting), "Fail to move to TaskSubmitting state.");
+            Assert.False(taskState.IsFinalState(), "TaskSubmitting is not final state."); 
+            Assert.True(taskState.MoveNext(TaskEvent.RunningTask).Equals(TaskTransitionState.TaskRunning), "Fail to move to TaskRunning state.");
+            Assert.False(taskState.IsFinalState(), "TaskRunning is not final state."); 
+            Assert.True(taskState.MoveNext(TaskEvent.CompletedTask).Equals(TaskTransitionState.TaskCompleted), "Fail to move to TaskCompleted state.");
+            Assert.True(taskState.IsFinalState(), "TaskCompleted should be a final state.");
         }
 
         [Fact]
         public void TestRunningToCloseSenario()
         {
             var taskState = new DriverTaskState();
-            Assert.True(taskState.CurrentState.Equals(TaskTransitionState.TaskNew));
-            Assert.True(taskState.MoveNext(TaskEvent.SubmittedTask).Equals(TaskTransitionState.TaskSubmitting));
-            Assert.True(taskState.MoveNext(TaskEvent.RunningTask).Equals(TaskTransitionState.TaskRunning));
-            Assert.True(taskState.MoveNext(TaskEvent.WaitingTaskToClose).Equals(TaskTransitionState.TaskWaitingForClose));
-            Assert.True(taskState.MoveNext(TaskEvent.ClosedTask).Equals(TaskTransitionState.TaskClosedByDriver));
+            taskState.MoveNext(TaskEvent.SubmittedTask);
+            taskState.MoveNext(TaskEvent.RunningTask);
+            Assert.True(taskState.MoveNext(TaskEvent.WaitingTaskToClose).Equals(TaskTransitionState.TaskWaitingForClose), "Fail to move to TaskWaitingForClose state.");
+            Assert.False(taskState.IsFinalState(), "TaskWaitingForClose is not final state."); 
+            Assert.True(taskState.MoveNext(TaskEvent.ClosedTask).Equals(TaskTransitionState.TaskClosedByDriver), "Fail to move to TaskClosedByDriver state.");
+            Assert.True(taskState.IsFinalState(), "TaskClosedByDriver should be a final state.");
         }
 
         [Fact]
         public void TestRunningToFailByEvaluator()
         {
             var taskState = new DriverTaskState();
-            Assert.True(taskState.CurrentState.Equals(TaskTransitionState.TaskNew));
-            Assert.True(taskState.MoveNext(TaskEvent.SubmittedTask).Equals(TaskTransitionState.TaskSubmitting));
-            Assert.True(taskState.MoveNext(TaskEvent.RunningTask).Equals(TaskTransitionState.TaskRunning));
-            Assert.True(taskState.MoveNext(TaskEvent.FailedTaskEvaluatorError).Equals(TaskTransitionState.TaskFailedByEvaluatorFailure));
+            taskState.MoveNext(TaskEvent.SubmittedTask);
+            taskState.MoveNext(TaskEvent.RunningTask);
+            Assert.True(taskState.MoveNext(TaskEvent.FailedTaskEvaluatorError).Equals(TaskTransitionState.TaskFailedByEvaluatorFailure), "Fail to move to TaskFailedByEvaluatorFailure state.");
+            Assert.True(taskState.IsFinalState(), "TaskFailedByEvaluatorFailure should be a final state.");
         }
 
         [Fact]
         public void TestRunningToFailByCommuThenEvaluator()
         {
             var taskState = new DriverTaskState();
-            Assert.True(taskState.CurrentState.Equals(TaskTransitionState.TaskNew));
-            Assert.True(taskState.MoveNext(TaskEvent.SubmittedTask).Equals(TaskTransitionState.TaskSubmitting));
-            Assert.True(taskState.MoveNext(TaskEvent.RunningTask).Equals(TaskTransitionState.TaskRunning));
-            Assert.True(taskState.MoveNext(TaskEvent.FailedTaskCommunicationError).Equals(TaskTransitionState.TaskFailedByGroupCommunication));
-            Assert.True(taskState.MoveNext(TaskEvent.FailedTaskEvaluatorError).Equals(TaskTransitionState.TaskFailedByEvaluatorFailure));
+            taskState.MoveNext(TaskEvent.SubmittedTask);
+            taskState.MoveNext(TaskEvent.RunningTask);
+            Assert.True(taskState.MoveNext(TaskEvent.FailedTaskCommunicationError).Equals(TaskTransitionState.TaskFailedByGroupCommunication), "Fail to move to TaskFailedByGroupCommunication state.");
+            Assert.True(taskState.IsFinalState(), "TaskFailedByGroupCommunication should be a final state.");
+            Assert.True(taskState.MoveNext(TaskEvent.FailedTaskEvaluatorError).Equals(TaskTransitionState.TaskFailedByEvaluatorFailure), "Fail to move to TaskFailedByEvaluatorFailure state.");
+            Assert.True(taskState.IsFinalState(), "TaskFailedByEvaluatorFailure should be a final state.");
         }
 
         [Fact]
@@ -88,13 +94,13 @@ namespace Org.Apache.REEF.Driver.Tests
         public void TestFromRunningToNotAllowed()
         {
             var taskState = new DriverTaskState();
-            Assert.True(taskState.CurrentState.Equals(TaskTransitionState.TaskNew));
+            Assert.True(taskState.CurrentState.Equals(TaskTransitionState.TaskNew), "Task initial state is not TaskNew.");
 
             taskState.MoveNext(TaskEvent.SubmittedTask);
-            Assert.True(taskState.CurrentState.Equals(TaskTransitionState.TaskSubmitting));
+            Assert.True(taskState.CurrentState.Equals(TaskTransitionState.TaskSubmitting), "Fail to move to TaskSubmitting state.");
 
             taskState.MoveNext(TaskEvent.RunningTask);
-            Assert.True(taskState.CurrentState.Equals(TaskTransitionState.TaskRunning));
+            Assert.True(taskState.CurrentState.Equals(TaskTransitionState.TaskRunning), "Fail to move to TaskRunning state.");
 
             Action moveNext = () => taskState.MoveNext(TaskEvent.SubmittedTask);
             Assert.Throws<ApplicationException>(moveNext);
@@ -107,16 +113,16 @@ namespace Org.Apache.REEF.Driver.Tests
         public void TestFromFailToNotAllowed()
         {
             var taskState = new DriverTaskState();
-            Assert.True(taskState.CurrentState.Equals(TaskTransitionState.TaskNew));
+            Assert.True(taskState.CurrentState.Equals(TaskTransitionState.TaskNew), "Task initial state is not TaskNew.");
 
             taskState.MoveNext(TaskEvent.SubmittedTask);
-            Assert.True(taskState.CurrentState.Equals(TaskTransitionState.TaskSubmitting));
+            Assert.True(taskState.CurrentState.Equals(TaskTransitionState.TaskSubmitting), "Fail to move to TaskSubmitting state.");
 
             taskState.MoveNext(TaskEvent.RunningTask);
-            Assert.True(taskState.CurrentState.Equals(TaskTransitionState.TaskRunning));
+            Assert.True(taskState.CurrentState.Equals(TaskTransitionState.TaskRunning), "Fail to move to TaskRunning state.");
 
             taskState.MoveNext(TaskEvent.FailedTaskEvaluatorError);
-            Assert.True(taskState.CurrentState.Equals(TaskTransitionState.TaskFailedByEvaluatorFailure));
+            Assert.True(taskState.CurrentState.Equals(TaskTransitionState.TaskFailedByEvaluatorFailure), "Fail to move to TaskFailedByEvaluatorFailure state.");
 
             Action moveNext = () => taskState.MoveNext(TaskEvent.RunningTask);
             Assert.Throws<ApplicationException>(moveNext);

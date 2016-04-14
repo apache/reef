@@ -17,6 +17,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Org.Apache.REEF.Driver.Task
 {
@@ -49,14 +50,30 @@ namespace Org.Apache.REEF.Driver.Task
             { new TaskStateTransition(TaskTransitionState.TaskFailedByGroupCommunication, TaskEvent.FailedTaskEvaluatorError), TaskTransitionState.TaskFailedByEvaluatorFailure }
         };
 
+        private static TaskTransitionState[] FinalStatae = 
+        {
+            TaskTransitionState.TaskFailedAppError,
+            TaskTransitionState.TaskFailedSystemError,
+            TaskTransitionState.TaskFailedByEvaluatorFailure,
+            TaskTransitionState.TaskFailedByGroupCommunication,
+            TaskTransitionState.TaskClosedByDriver,
+            TaskTransitionState.TaskCompleted
+        };
+
         private volatile TaskTransitionState _currentState;
         private readonly object _lock = new object();
 
+        /// <summary>
+        /// Create a new DriverTaskState with TaskNew as the task initial state
+        /// </summary>
         public DriverTaskState()
         {
             _currentState = TaskTransitionState.TaskNew;
         }
 
+        /// <summary>
+        /// return the current task state
+        /// </summary>
         public TaskTransitionState CurrentState
         {
             get
@@ -76,6 +93,11 @@ namespace Org.Apache.REEF.Driver.Task
             return nextState;
         }
 
+        /// <summary>
+        /// Move to the next state
+        /// </summary>
+        /// <param name="command"></param>
+        /// <returns></returns>
         public TaskTransitionState MoveNext(TaskEvent command)
         {
             lock (_lock)
@@ -83,6 +105,25 @@ namespace Org.Apache.REEF.Driver.Task
                 _currentState = GetNext(command);
                 return _currentState;
             }
+        }
+
+        /// <summary>
+        /// Check it the task has reached to a final state
+        /// </summary>
+        /// <returns></returns>
+        public bool IsFinalState()
+        {
+            return FinalStatae.Contains(_currentState);
+        }
+
+        /// <summary>
+        /// Checks if the given TaskTransitionState is a final state
+        /// </summary>
+        /// <param name="taskState"></param>
+        /// <returns></returns>
+        public static bool IsFinalState(TaskTransitionState taskState)
+        {
+            return FinalStatae.Contains(taskState);
         }
     }
 }
