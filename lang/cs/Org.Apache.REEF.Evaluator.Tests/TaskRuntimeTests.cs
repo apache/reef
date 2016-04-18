@@ -26,13 +26,13 @@ using Org.Apache.REEF.Common.Runtime.Evaluator;
 using Org.Apache.REEF.Common.Runtime.Evaluator.Task;
 using Org.Apache.REEF.Common.Tasks;
 using Org.Apache.REEF.Common.Tasks.Events;
-using Org.Apache.REEF.Driver.Task;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Tang.Util;
 using Org.Apache.REEF.Utilities;
 using Xunit;
+using EvaluatorTaskState = Org.Apache.REEF.Common.Runtime.Evaluator.Task.TaskState;
 
 namespace Org.Apache.REEF.Evaluator.Tests
 {
@@ -63,7 +63,7 @@ namespace Org.Apache.REEF.Evaluator.Tests
         {
             var injector = GetInjector();
             var taskRuntime = injector.GetInstance<TaskRuntime>();
-            Assert.Equal(taskRuntime.GetTaskState(), TaskState.Init);
+            Assert.Equal(taskRuntime.GetTaskState(), EvaluatorTaskState.Init);
             Assert.False(taskRuntime.HasEnded());
         }
 
@@ -80,7 +80,7 @@ namespace Org.Apache.REEF.Evaluator.Tests
             var task = injector.GetInstance<TestTask>();
             task.FinishCountdownEvent.Wait();
             task.DisposeCountdownEvent.Wait();
-            Assert.Equal(taskRuntime.GetTaskState(), TaskState.Done);
+            Assert.Equal(taskRuntime.GetTaskState(), EvaluatorTaskState.Done);
             Assert.True(taskRuntime.HasEnded());
         }
 
@@ -95,7 +95,7 @@ namespace Org.Apache.REEF.Evaluator.Tests
             taskRuntime.RunTask();
             var task = injector.GetInstance<TestTask>();
             task.DisposeCountdownEvent.Wait();
-            Assert.Equal(taskRuntime.GetTaskState(), TaskState.Failed);
+            Assert.Equal(taskRuntime.GetTaskState(), EvaluatorTaskState.Failed);
             Assert.True(taskRuntime.HasEnded());
         }
 
@@ -116,11 +116,11 @@ namespace Org.Apache.REEF.Evaluator.Tests
             Assert.Equal(statusProto.task_id, taskId);
             Assert.Equal(statusProto.context_id, contextId);
             Assert.Equal(statusProto.state, State.INIT);
-            Assert.Equal(taskRuntime.GetTaskState(), TaskState.Init);
+            Assert.Equal(taskRuntime.GetTaskState(), EvaluatorTaskState.Init);
 
             taskRuntime.RunTask();
             Assert.Equal(taskRuntime.GetStatusProto().state, State.RUNNING);
-            Assert.Equal(taskRuntime.GetTaskState(), TaskState.Running);
+            Assert.Equal(taskRuntime.GetTaskState(), EvaluatorTaskState.Running);
 
             injector.GetInstance<CountDownAction>().CountdownEvent.Signal();
 
@@ -137,7 +137,7 @@ namespace Org.Apache.REEF.Evaluator.Tests
             task.DisposeCountdownEvent.Wait();
 
             Assert.Equal(taskRuntime.GetStatusProto().state, State.DONE);
-            Assert.Equal(taskRuntime.GetTaskState(), TaskState.Done);
+            Assert.Equal(taskRuntime.GetTaskState(), EvaluatorTaskState.Done);
         }
 
         /// <summary>
@@ -318,7 +318,7 @@ namespace Org.Apache.REEF.Evaluator.Tests
             }
 
             Assert.True(testTaskEventStopHandler.StopInvoked.IsPresent());
-            Assert.Equal(taskRuntime.GetTaskState(), TaskState.Failed);
+            Assert.Equal(taskRuntime.GetTaskState(), EvaluatorTaskState.Failed);
 
             taskRuntime.Suspend(null);
             Assert.False(task.SuspendInvoked);

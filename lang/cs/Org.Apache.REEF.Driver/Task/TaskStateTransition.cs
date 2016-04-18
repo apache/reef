@@ -22,10 +22,10 @@ namespace Org.Apache.REEF.Driver.Task
     /// </summary>
     public sealed class TaskStateTransition
     {
-        private readonly TaskTransitionState _currentState;
+        private readonly TaskState _currentState;
         private readonly TaskEvent _taskEvent;
 
-        public TaskStateTransition(TaskTransitionState currentState, TaskEvent taskEvent)
+        public TaskStateTransition(TaskState currentState, TaskEvent taskEvent)
         {
             _currentState = currentState;
             _taskEvent = taskEvent;

@@ -20,7 +20,7 @@ namespace Org.Apache.REEF.Driver.Task
     /// <summary>
     /// Task states in task transitions
     /// </summary>
-    public enum TaskTransitionState
+    public enum TaskState
     {
         /// <summary>
         /// When task (task configuration) is first created and added in the task list, its state is TaskNew
@@ -28,9 +28,9 @@ namespace Org.Apache.REEF.Driver.Task
         TaskNew,
 
         /// <summary>
-        /// After submit a task with an IActiveContext, the task state is changed to TaskSubmitting
+        /// After submitting a task with an IActiveContext, the task state is changed to TaskSubmittedg
         /// </summary>
-        TaskSubmitting,
+        TaskSubmitted,
 
         /// <summary>
         /// After receiving RunningTask event, the task state is TaskRunning
@@ -48,7 +48,7 @@ namespace Org.Apache.REEF.Driver.Task
         TaskWaitingForClose,
 
         /// <summary>
-        /// After receiving FaiedTask event and verified it is closed by driver, the state is set to TaskClosedByDriver
+        /// After receiving FailedTask event and verified it is closed by driver, the state is set to TaskClosedByDriver
         /// </summary>
         TaskClosedByDriver,
 
@@ -58,17 +58,17 @@ namespace Org.Apache.REEF.Driver.Task
         TaskFailedByEvaluatorFailure,
 
         /// <summary>
-        /// After receiving FaiedTask event and verified it is caused by group communication
+        /// After receiving FailedTask event and verified it is caused by group communication
         /// </summary>
         TaskFailedByGroupCommunication,
 
         /// <summary>
-        /// After receiving FaiedTask event and verified it is caused by application error
+        /// After receiving FailedTask event and verified it is caused by application error
         /// </summary>
         TaskFailedAppError,
 
         /// <summary>
-        /// After receiving FaiedTask event and verified it is caused by system error
+        /// After receiving FailedTask event and verified it is caused by system error
         /// </summary>
         TaskFailedSystemError
     }
