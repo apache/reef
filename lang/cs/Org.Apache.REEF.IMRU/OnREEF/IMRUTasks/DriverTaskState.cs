@@ -17,8 +17,9 @@
 
 using System;
 using System.Collections.Generic;
+using Org.Apache.REEF.IMRU.OnREEF.Exceptions;
 
-namespace Org.Apache.REEF.Driver.Task
+namespace Org.Apache.REEF.IMRU.OnREEF.IMRUTasks
 {
     /// <summary>
     /// Driver Task State represents task states from creating a new task, to submitted task, to task running, until task is completed. 
@@ -27,7 +28,7 @@ namespace Org.Apache.REEF.Driver.Task
     /// For the task state transition diagram <see href="https://issues.apache.org/jira/browse/REEF-1327"></see>
     /// This class wraps current state and provides methods to move from one state to the next state
     /// </summary>
-    public sealed class DriverTaskState
+    internal sealed class DriverTaskState
     {
         private readonly static IDictionary<TaskStateTransition, TaskState> Transitions = new Dictionary<TaskStateTransition, TaskState>
         {
@@ -69,7 +70,7 @@ namespace Org.Apache.REEF.Driver.Task
         /// <summary>
         /// Create a new DriverTaskState with TaskNew as the task initial state
         /// </summary>
-        public DriverTaskState()
+        internal DriverTaskState()
         {
             _currentState = TaskState.TaskNew;
         }
@@ -77,7 +78,7 @@ namespace Org.Apache.REEF.Driver.Task
         /// <summary>
         /// return the current task state
         /// </summary>
-        public TaskState CurrentState
+        internal TaskState CurrentState
         {
             get
             {
@@ -91,13 +92,13 @@ namespace Org.Apache.REEF.Driver.Task
         /// </summary>
         /// <param name="taskEvent"></param>
         /// <returns></returns>
-        public TaskState GetNext(TaskEvent taskEvent)
+        internal TaskState GetNext(TaskEvent taskEvent)
         {
             TaskStateTransition transition = new TaskStateTransition(_currentState, taskEvent);
             TaskState nextState;
             if (!Transitions.TryGetValue(transition, out nextState))
             {
-                throw new ApplicationException("Invalid transition: " + _currentState + " -> " + taskEvent);
+                throw new TaskStateTransitionException(_currentState, taskEvent);
             }
             return nextState;
         }
@@ -108,7 +109,7 @@ namespace Org.Apache.REEF.Driver.Task
         /// </summary>
         /// <param name="taskEvent"></param>
         /// <returns></returns>
-        public TaskState MoveNext(TaskEvent taskEvent)
+        internal TaskState MoveNext(TaskEvent taskEvent)
         {
             lock (_lock)
             {
@@ -121,17 +122,17 @@ namespace Org.Apache.REEF.Driver.Task
         /// Checks if the current state is a final state
         /// </summary>
         /// <returns></returns>
-        public bool IsFinalState()
+        internal bool IsFinalState()
         {
             return FinalState.Contains(_currentState);
         }
 
         /// <summary>
-        /// Checks if the given TaskTransitionState is a final state
+        /// Checks if the given TaskState is a final state
         /// </summary>
         /// <param name="taskState"></param>
         /// <returns></returns>
-        public static bool IsFinalState(TaskState taskState)
+        internal static bool IsFinalState(TaskState taskState)
         {
             return FinalState.Contains(taskState);
         }

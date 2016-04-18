@@ -15,12 +15,12 @@
 // specific language governing permissions and limitations
 // under the License.
 
-namespace Org.Apache.REEF.Driver.Task
+namespace Org.Apache.REEF.IMRU.OnREEF.IMRUTasks
 {
     /// <summary>
     /// Task events that triggers task state transition
     /// </summary>
-    public enum TaskEvent
+    internal enum TaskEvent
     {
         /// <summary>
         /// Task is submitted

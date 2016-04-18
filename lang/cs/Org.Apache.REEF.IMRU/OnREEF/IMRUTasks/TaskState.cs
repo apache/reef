@@ -15,12 +15,12 @@
 // specific language governing permissions and limitations
 // under the License.
 
-namespace Org.Apache.REEF.Driver.Task
+namespace Org.Apache.REEF.IMRU.OnREEF.IMRUTasks
 {
     /// <summary>
-    /// Task states in task transitions
+    /// Task states in task state transitions
     /// </summary>
-    public enum TaskState
+    internal enum TaskState
     {
         /// <summary>
         /// When task (task configuration) is first created and added in the task list, its state is TaskNew

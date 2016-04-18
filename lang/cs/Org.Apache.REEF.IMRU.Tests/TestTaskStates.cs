@@ -16,10 +16,11 @@
 // under the License.
 
 using System;
-using Org.Apache.REEF.Driver.Task;
+using Org.Apache.REEF.IMRU.OnREEF.Exceptions;
+using Org.Apache.REEF.IMRU.OnREEF.IMRUTasks;
 using Xunit;
 
-namespace Org.Apache.REEF.Driver.Tests
+namespace Org.Apache.REEF.IMRU.Tests
 {
     /// <summary>
     /// The test cases in this classes test TaskState and transitions
@@ -47,9 +48,33 @@ namespace Org.Apache.REEF.Driver.Tests
             taskState.MoveNext(TaskEvent.SubmittedTask);
             taskState.MoveNext(TaskEvent.RunningTask);
             Assert.True(taskState.MoveNext(TaskEvent.WaitingTaskToClose).Equals(TaskState.TaskWaitingForClose), "Fail to move to TaskWaitingForClose state.");
-            Assert.False(taskState.IsFinalState(), "TaskWaitingForClose is not final state."); 
+            Assert.False(taskState.IsFinalState(), "TaskWaitingForClose should not be a final state."); 
             Assert.True(taskState.MoveNext(TaskEvent.ClosedTask).Equals(TaskState.TaskClosedByDriver), "Fail to move to TaskClosedByDriver state.");
             Assert.True(taskState.IsFinalState(), "TaskClosedByDriver should be a final state.");
+        }
+
+        [Fact]
+        public void TestRunningToCloseAndFail()
+        {
+            var taskState = new DriverTaskState();
+            taskState.MoveNext(TaskEvent.SubmittedTask);
+            taskState.MoveNext(TaskEvent.RunningTask);
+            taskState.MoveNext(TaskEvent.WaitingTaskToClose);
+
+            Action moveNext = () => taskState.MoveNext(TaskEvent.FailedTaskAppError);
+            Assert.Throws<TaskStateTransitionException>(moveNext);
+
+            moveNext = () => taskState.MoveNext(TaskEvent.FailedTaskCommunicationError);
+            Assert.Throws<TaskStateTransitionException>(moveNext);
+
+            moveNext = () => taskState.MoveNext(TaskEvent.FailedTaskSystemError);
+            Assert.Throws<TaskStateTransitionException>(moveNext);
+
+            moveNext = () => taskState.MoveNext(TaskEvent.RunningTask);
+            Assert.Throws<TaskStateTransitionException>(moveNext);
+
+            moveNext = () => taskState.MoveNext(TaskEvent.CompletedTask);
+            Assert.Throws<TaskStateTransitionException>(moveNext);
         }
 
         [Fact]
@@ -80,13 +105,13 @@ namespace Org.Apache.REEF.Driver.Tests
             var taskState = new DriverTaskState();
             
             Action moveNext = () => taskState.MoveNext(TaskEvent.RunningTask);
-            Assert.Throws<ApplicationException>(moveNext);
+            Assert.Throws<TaskStateTransitionException>(moveNext);
 
             moveNext = () => taskState.MoveNext(TaskEvent.WaitingTaskToClose);
-            Assert.Throws<ApplicationException>(moveNext);
+            Assert.Throws<TaskStateTransitionException>(moveNext);
 
             moveNext = () => taskState.MoveNext(TaskEvent.CompletedTask);
-            Assert.Throws<ApplicationException>(moveNext);
+            Assert.Throws<TaskStateTransitionException>(moveNext);
         }
 
         [Fact]
@@ -97,10 +122,10 @@ namespace Org.Apache.REEF.Driver.Tests
             taskState.MoveNext(TaskEvent.RunningTask);
 
             Action moveNext = () => taskState.MoveNext(TaskEvent.SubmittedTask);
-            Assert.Throws<ApplicationException>(moveNext);
+            Assert.Throws<TaskStateTransitionException>(moveNext);
 
             moveNext = () => taskState.MoveNext(TaskEvent.ClosedTask);
-            Assert.Throws<ApplicationException>(moveNext);
+            Assert.Throws<TaskStateTransitionException>(moveNext);
         }
 
         [Fact]
@@ -114,28 +139,28 @@ namespace Org.Apache.REEF.Driver.Tests
             Assert.True(taskState.CurrentState.Equals(TaskState.TaskFailedByEvaluatorFailure), "Fail to move to TaskFailedByEvaluatorFailure state.");
 
             Action moveNext = () => taskState.MoveNext(TaskEvent.RunningTask);
-            Assert.Throws<ApplicationException>(moveNext);
+            Assert.Throws<TaskStateTransitionException>(moveNext);
 
             moveNext = () => taskState.MoveNext(TaskEvent.ClosedTask);
-            Assert.Throws<ApplicationException>(moveNext);
+            Assert.Throws<TaskStateTransitionException>(moveNext);
 
             moveNext = () => taskState.MoveNext(TaskEvent.CompletedTask);
-            Assert.Throws<ApplicationException>(moveNext);
+            Assert.Throws<TaskStateTransitionException>(moveNext);
 
             moveNext = () => taskState.MoveNext(TaskEvent.SubmittedTask);
-            Assert.Throws<ApplicationException>(moveNext);
+            Assert.Throws<TaskStateTransitionException>(moveNext);
 
             moveNext = () => taskState.MoveNext(TaskEvent.WaitingTaskToClose);
-            Assert.Throws<ApplicationException>(moveNext);
+            Assert.Throws<TaskStateTransitionException>(moveNext);
 
             moveNext = () => taskState.MoveNext(TaskEvent.FailedTaskAppError);
-            Assert.Throws<ApplicationException>(moveNext);
+            Assert.Throws<TaskStateTransitionException>(moveNext);
 
             moveNext = () => taskState.MoveNext(TaskEvent.FailedTaskCommunicationError);
-            Assert.Throws<ApplicationException>(moveNext);
+            Assert.Throws<TaskStateTransitionException>(moveNext);
 
             moveNext = () => taskState.MoveNext(TaskEvent.FailedTaskSystemError);
-            Assert.Throws<ApplicationException>(moveNext); 
+            Assert.Throws<TaskStateTransitionException>(moveNext); 
         }
     }
 }

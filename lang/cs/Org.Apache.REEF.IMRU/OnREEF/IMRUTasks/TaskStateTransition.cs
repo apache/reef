@@ -15,17 +15,17 @@
 // specific language governing permissions and limitations
 // under the License.
 
-namespace Org.Apache.REEF.Driver.Task
+namespace Org.Apache.REEF.IMRU.OnREEF.IMRUTasks
 {
     /// <summary>
     /// It defines task state and task event combination that would determine the next transition state 
     /// </summary>
-    public sealed class TaskStateTransition
+    internal sealed class TaskStateTransition
     {
         private readonly TaskState _currentState;
         private readonly TaskEvent _taskEvent;
 
-        public TaskStateTransition(TaskState currentState, TaskEvent taskEvent)
+        internal TaskStateTransition(TaskState currentState, TaskEvent taskEvent)
         {
             _currentState = currentState;
             _taskEvent = taskEvent;
