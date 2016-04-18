@@ -248,10 +248,7 @@ namespace Org.Apache.REEF.Tests.Functional
                     }
                 }
             }
-            if (lines == null)
-            {
-                Assert.True(false, "Cannot read from log file " + fileName);
-            }
+            Assert.True(lines != null, "Cannot read from log file " + fileName);
             return lines;
         }
 

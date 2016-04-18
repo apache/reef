@@ -114,6 +114,7 @@ namespace Org.Apache.REEF.Tests.Functional.FaultTolerant
                 Logger.Log(Level.Error, FailedEvaluatorMessage);
                 if (value.FailedTask.Value == null)
                 {
+                    // TODO[JIRA REEF-1343]: fail the test if there's no failed task
                     Logger.Log(Level.Error, "No failed task associated with failed evaluator");
                 }
                 else
@@ -123,7 +124,7 @@ namespace Org.Apache.REEF.Tests.Functional.FaultTolerant
             }
             public void OnNext(ICompletedTask value)
             {
-                // TODO: shouldn't receive ICompletedTask after failed evaluator
+                // TODO[JIRA REEF-1343]: fail the test if receive ICompletedTask after failed evaluator
                 Logger.Log(Level.Info, "ICompletedTask");
             }
 
