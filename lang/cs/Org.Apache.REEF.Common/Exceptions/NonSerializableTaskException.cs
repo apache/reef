@@ -16,28 +16,26 @@
 // under the License.
 
 using System;
-using System.Text;
 
-namespace Org.Apache.REEF.Utilities
+namespace Org.Apache.REEF.Common.Exceptions
 {
-    public static class ByteUtilities
+    /// <summary>
+    /// An Exception from a REEF Task that was not Serializable to the Job Driver.
+    /// </summary>
+    public sealed class NonSerializableTaskException : Exception
     {
-        public static byte[] StringToByteArrays(string s)
+        public NonSerializableTaskException()
         {
-            return Encoding.UTF8.GetBytes(s);
         }
 
-        public static string ByteArraysToString(byte[] b)
+        public NonSerializableTaskException(string message)
+            : base(message)
         {
-            return Encoding.UTF8.GetString(b);
         }
 
-        public static byte[] CopyBytesFrom(byte[] from)
+        public NonSerializableTaskException(string message, Exception inner)
+            : base(message, inner)
         {
-            int length = Buffer.ByteLength(from);
-            byte[] to = new byte[length];
-            Buffer.BlockCopy(from, 0, to, 0, length);
-            return to;
         }
     }
 }

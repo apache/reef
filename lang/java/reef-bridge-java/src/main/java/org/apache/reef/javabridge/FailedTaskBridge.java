@@ -71,6 +71,14 @@ public final class FailedTaskBridge extends NativeBridge {
     return poorSerializedString;
   }
 
+  public byte[] getFailedTaskBytes() {
+    if (jfailedTask.getData().isPresent()) {
+      return jfailedTask.getData().get();
+    }
+
+    return null;
+  }
+
   @Override
   public void close() {
   }

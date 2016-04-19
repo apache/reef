@@ -35,7 +35,11 @@ namespace Org {
 							  ManagedLog::LOGGER->LogError("Failed to get JavaVM", nullptr);
 						  }
 						  _jobjectFailedTask = reinterpret_cast<jobject>(env->NewGlobalRef(jobjectFailedTask));
-						  ManagedLog::LOGGER->LogStop("FailedTaskClr2Java::AllocatedEvaluatorClr2Java");
+
+                          jclass jclassFailedTask = env->GetObjectClass(_jobjectFailedTask);
+                          jmethodID jmidGetFailedTaskBytes = env->GetMethodID(jclassFailedTask, "getFailedTaskBytes", "()[B");
+                          jbyteArray jarrayErrorBytes = CommonUtilities::CallGetMethodNewGlobalRef<jbyteArray>(env, _jobjectFailedTask, jmidGetFailedTaskBytes);
+                          _errorBytes = ManagedByteArrayFromJavaByteArray(env, jarrayErrorBytes);
 					  }
 
 					  FailedTaskClr2Java::~FailedTaskClr2Java() {
@@ -43,8 +47,9 @@ namespace Org {
 					  }
 
 					  FailedTaskClr2Java::!FailedTaskClr2Java() {
+                          JNIEnv *env = RetrieveEnv(_jvm);
+
 						  if (_jobjectFailedTask != NULL) {
-							  JNIEnv *env = RetrieveEnv(_jvm);
 							  env->DeleteGlobalRef(_jobjectFailedTask);
 						  }
 					  }
@@ -84,6 +89,10 @@ namespace Org {
 						  ManagedLog::LOGGER->LogStop("FailedTaskClr2Java::GetString");
 						  return ManagedStringFromJavaString(env, jFailedTaskString);
 					  }
+
+                      array<byte>^ FailedTaskClr2Java::GetFailedTaskBytes() {
+                          return _errorBytes;
+                      }
 
 					  void FailedTaskClr2Java::OnError(String^ message) {
 						  ManagedLog::LOGGER->Log("FailedTaskClr2Java::OnError");

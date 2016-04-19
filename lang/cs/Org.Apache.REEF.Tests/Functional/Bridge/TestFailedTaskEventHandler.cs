@@ -16,6 +16,7 @@
 // under the License.
 
 using System;
+using System.Runtime.Serialization;
 using Org.Apache.REEF.Common.Tasks;
 using Org.Apache.REEF.Driver;
 using Org.Apache.REEF.Driver.Bridge;
@@ -34,6 +35,7 @@ namespace Org.Apache.REEF.Tests.Functional.Bridge
     public sealed class TestFailedTaskEventHandler : ReefFunctionalTest
     {
         private const string FailedTaskMessage = "I have successfully seen a failed task.";
+        private const string TaskExceptionMessage = "Expected exception.";
 
         [Fact]
         [Trait("Priority", "1")]
@@ -91,6 +93,17 @@ namespace Org.Apache.REEF.Tests.Functional.Bridge
             public void OnNext(IFailedTask value)
             {
                 Logger.Log(Level.Error, FailedTaskMessage);
+                if (value.AsError() == null || !(value.AsError() is SerializableException))
+                {
+                    throw new Exception("Exception should have been serialized properly.");
+                }
+
+                if (value.AsError().Message != TaskExceptionMessage)
+                {
+                    throw new Exception("Incorrect Exception message, got message: " + value.AsError().Message);
+                }
+
+                Logger.Log(Level.Error, value.AsError().Message);
                 value.GetActiveContext().Value.Dispose();
             }
 
@@ -123,7 +136,19 @@ namespace Org.Apache.REEF.Tests.Functional.Bridge
 
             public byte[] Call(byte[] memento)
             {
-                throw new Exception("Expected exception.");
+                throw new SerializableException(TaskExceptionMessage);
+            }
+        }
+
+        [Serializable]
+        private sealed class SerializableException : Exception
+        {
+            public SerializableException(string message) : base(message)
+            {
+            }
+
+            public SerializableException(SerializationInfo info, StreamingContext context) : base(info, context)
+            {
             }
         }
     }

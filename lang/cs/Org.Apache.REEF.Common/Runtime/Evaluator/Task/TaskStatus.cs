@@ -18,11 +18,12 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.IO;
+using System.Runtime.Serialization.Formatters.Binary;
 using Org.Apache.REEF.Common.Context;
 using Org.Apache.REEF.Common.Protobuf.ReefProtocol;
 using Org.Apache.REEF.Common.Tasks;
 using Org.Apache.REEF.Tang.Annotations;
-using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Utilities;
 using Org.Apache.REEF.Utilities.Logging;
 
@@ -38,6 +39,7 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Task
         private readonly Optional<ISet<ITaskMessageSource>> _evaluatorMessageSources;
         private readonly string _taskId;
         private readonly string _contextId;
+        private readonly BinaryFormatter _binaryFormatter = new BinaryFormatter();
 
         private Optional<Exception> _lastException = Optional<Exception>.Empty();
         private Optional<byte[]> _result = Optional<byte[]>.Empty();
@@ -246,7 +248,21 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Task
                 }
                 else if (_lastException.IsPresent())
                 {
-                    byte[] error = ByteUtilities.StringToByteArrays(_lastException.Value.ToString());
+                    byte[] error;
+                    try
+                    {
+                        using (var memStream = new MemoryStream())
+                        {
+                            _binaryFormatter.Serialize(memStream, _lastException.Value);
+                            error = memStream.ToArray();
+                        }
+                    }
+                    catch (Exception)
+                    {
+                        // Get the string value if not serializable.
+                        error = ByteUtilities.StringToByteArrays(_lastException.Value.ToString());
+                    }
+                    
                     taskStatusProto.result = ByteUtilities.CopyBytesFrom(error);
                 }
                 else if (_state == TaskState.Running)
