@@ -21,7 +21,7 @@ using Org.Apache.REEF.IMRU.OnREEF.IMRUTasks;
 
 namespace Org.Apache.REEF.IMRU.OnREEF.Exceptions
 {
-    internal class TaskStateTransitionException : Exception
+    internal sealed class TaskStateTransitionException : Exception
     {
         internal TaskStateTransitionException(TaskState taskState, TaskEvent taskEvent)
             : base(string.Format(CultureInfo.InvariantCulture,

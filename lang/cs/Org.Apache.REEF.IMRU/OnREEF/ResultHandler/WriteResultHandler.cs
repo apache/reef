@@ -21,7 +21,6 @@ using Org.Apache.REEF.IMRU.API;
 using Org.Apache.REEF.IO.FileSystem;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Utilities.Attributes;
-using Org.Apache.REEF.Utilities.Diagnostics;
 using Org.Apache.REEF.Utilities.Logging;
 using Org.Apache.REEF.Wake.Remote.Impl;
 using Org.Apache.REEF.Wake.StreamingCodec;
@@ -83,7 +82,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.ResultHandler
 
             if (_fileSystem.Exists(remoteUri))
             {
-                Exceptions.Throw(
+                Utilities.Diagnostics.Exceptions.Throw(
                     new Exception(string.Format("Output Uri: {0} already exists", remoteUri)), Logger);
             }
 

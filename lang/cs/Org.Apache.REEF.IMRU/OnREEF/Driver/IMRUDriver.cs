@@ -263,13 +263,13 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
 
             if (value.FailedContexts != null && value.FailedContexts.Count != 0)
             {
-                Logger.Log(Level.Info, "Some active context failed, cannot continue IMRU task");        
-                Exceptions.Throw(new Exception(), Logger);
+                Logger.Log(Level.Info, "Some active context failed, cannot continue IMRU task");
+                Utilities.Diagnostics.Exceptions.Throw(new Exception(), Logger);
             }
 
             if (currFailedEvaluators > _allowedFailedEvaluators)
             {
-                Exceptions.Throw(new Exception("Cannot continue IMRU job, Failed evaluators reach maximum limit"),
+                Utilities.Diagnostics.Exceptions.Throw(new Exception("Cannot continue IMRU job, Failed evaluators reach maximum limit"),
                     Logger);
             }
 

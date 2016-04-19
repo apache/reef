@@ -15,8 +15,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
-using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using Org.Apache.REEF.IMRU.OnREEF.Exceptions;
 
 namespace Org.Apache.REEF.IMRU.OnREEF.IMRUTasks
@@ -30,7 +30,8 @@ namespace Org.Apache.REEF.IMRU.OnREEF.IMRUTasks
     /// </summary>
     internal sealed class DriverTaskState
     {
-        private readonly static IDictionary<TaskStateTransition, TaskState> Transitions = new Dictionary<TaskStateTransition, TaskState>
+        private readonly static IDictionary<TaskStateTransition, TaskState> Transitions = new ReadOnlyDictionary<TaskStateTransition, TaskState>(
+            new Dictionary<TaskStateTransition, TaskState>
         {
             { new TaskStateTransition(TaskState.TaskNew, TaskEvent.SubmittedTask), TaskState.TaskSubmitted },
             { new TaskStateTransition(TaskState.TaskNew, TaskEvent.ClosedTask), TaskState.TaskClosedByDriver },            
@@ -46,13 +47,9 @@ namespace Org.Apache.REEF.IMRU.OnREEF.IMRUTasks
             { new TaskStateTransition(TaskState.TaskRunning, TaskEvent.FailedTaskEvaluatorError), TaskState.TaskFailedByEvaluatorFailure },
             { new TaskStateTransition(TaskState.TaskRunning, TaskEvent.FailedTaskCommunicationError), TaskState.TaskFailedByGroupCommunication },
             { new TaskStateTransition(TaskState.TaskWaitingForClose, TaskEvent.ClosedTask), TaskState.TaskClosedByDriver },
-            { new TaskStateTransition(TaskState.TaskWaitingForClose, TaskEvent.FailedTaskAppError), TaskState.TaskClosedByDriver },
-            { new TaskStateTransition(TaskState.TaskWaitingForClose, TaskEvent.FailedTaskSystemError), TaskState.TaskClosedByDriver },
-            { new TaskStateTransition(TaskState.TaskWaitingForClose, TaskEvent.FailedTaskEvaluatorError), TaskState.TaskClosedByDriver },
-            { new TaskStateTransition(TaskState.TaskWaitingForClose, TaskEvent.FailedTaskCommunicationError), TaskState.TaskClosedByDriver },
             { new TaskStateTransition(TaskState.TaskFailedSystemError, TaskEvent.FailedTaskEvaluatorError), TaskState.TaskFailedByEvaluatorFailure },
             { new TaskStateTransition(TaskState.TaskFailedByGroupCommunication, TaskEvent.FailedTaskEvaluatorError), TaskState.TaskFailedByEvaluatorFailure }
-        };
+        });
 
         private readonly static ISet<TaskState> FinalState = new HashSet<TaskState>()
         {

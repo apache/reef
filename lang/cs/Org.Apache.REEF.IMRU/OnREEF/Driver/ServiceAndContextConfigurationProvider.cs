@@ -25,7 +25,6 @@ using Org.Apache.REEF.Network.Group.Driver;
 using Org.Apache.REEF.Tang.Implementations.Configuration;
 using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Tang.Util;
-using Org.Apache.REEF.Utilities.Diagnostics;
 using Org.Apache.REEF.Utilities.Logging;
 
 namespace Org.Apache.REEF.IMRU.OnREEF.Driver
@@ -75,7 +74,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
             {
                 if (!_submittedEvaluators.Contains(evaluatorId))
                 {
-                    Exceptions.Throw(new Exception("Failed evaluator was never submitted"), Logger);
+                    Utilities.Diagnostics.Exceptions.Throw(new Exception("Failed evaluator was never submitted"), Logger);
                 }
 
                 _failedEvaluators.Add(evaluatorId);
@@ -95,12 +94,12 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
             {
                 if (_submittedEvaluators.Contains(evaluatorId))
                 {
-                    Exceptions.Throw(new Exception("The evaluator is already submitted"), Logger);
+                    Utilities.Diagnostics.Exceptions.Throw(new Exception("The evaluator is already submitted"), Logger);
                 }
 
                 if (_failedEvaluators.Count == 0 && _assignedPartitionDescriptors >= _numNodes)
                 {
-                    Exceptions.Throw(new Exception("No more configuration can be provided"), Logger);
+                    Utilities.Diagnostics.Exceptions.Throw(new Exception("No more configuration can be provided"), Logger);
                 }
 
                 // if some failed id exists return that configuration
@@ -118,7 +117,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
 
                     if (_configurationProvider.ContainsKey(evaluatorId))
                     {
-                        Exceptions.Throw(
+                        Utilities.Diagnostics.Exceptions.Throw(
                             new Exception(
                                 "Evaluator Id already present in configuration cache, they have to be unique"),
                             Logger);

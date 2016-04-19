@@ -34,7 +34,6 @@ using Org.Apache.REEF.Tang.Implementations.Configuration;
 using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Tang.Util;
-using Org.Apache.REEF.Utilities.Diagnostics;
 using Org.Apache.REEF.Utilities.Logging;
 using TraceLevel = System.Diagnostics.TraceLevel;
 
@@ -82,7 +81,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Client
             }
             catch (Exception e)
             {
-                Exceptions.Throw(e, "Issues in merging PerMapCOnfigGenerator configurations", Logger);
+                Utilities.Diagnostics.Exceptions.Throw(e, "Issues in merging PerMapCOnfigGenerator configurations", Logger);
             }
 
             // The driver configuration contains all the needed bindings.
