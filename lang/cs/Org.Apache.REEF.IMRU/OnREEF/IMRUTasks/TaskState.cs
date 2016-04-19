@@ -60,16 +60,16 @@ namespace Org.Apache.REEF.IMRU.OnREEF.IMRUTasks
         /// <summary>
         /// After receiving FailedTask event and verified it is caused by group communication
         /// </summary>
-        TaskFailedByGroupCommunication,
+        TaskFailedByGroupCommunication,  
 
         /// <summary>
         /// After receiving FailedTask event and verified it is caused by application error
         /// </summary>
-        TaskFailedAppError,
+        TaskFailedByAppError,
 
         /// <summary>
         /// After receiving FailedTask event and verified it is caused by system error
         /// </summary>
-        TaskFailedSystemError
+        TaskFailedBySystemError
     }
 }

@@ -80,7 +80,7 @@ under the License.
     <Compile Include="OnREEF\IMRUTasks\MapTaskHost.cs" />
     <Compile Include="OnREEF\IMRUTasks\TaskState.cs" />
     <Compile Include="OnREEF\IMRUTasks\TaskStateTransition.cs" />
-    <Compile Include="OnREEF\IMRUTasks\TestEvent.cs" />
+    <Compile Include="OnREEF\IMRUTasks\TaskEvent.cs" />
     <Compile Include="OnREEF\IMRUTasks\UpdateTaskHost.cs" />
     <Compile Include="OnREEF\MapInputWithControlMessage\MapControlMessage.cs" />
     <Compile Include="OnREEF\MapInputWithControlMessage\MapInputWithControlMessage.cs" />

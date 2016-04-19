@@ -27,6 +27,10 @@ namespace Org.Apache.REEF.IMRU.Tests
     /// </summary>
     public class TestTaskStates
     {
+        /// <summary>
+        /// This is to test a successful life cycle of task state transitions.
+        /// For TaskNew->TaskSubmitted->TaskRunning->TaskCompleted
+        /// </summary>
         [Fact]
         public void TestNewToCompleteSenario()
         {
@@ -41,6 +45,9 @@ namespace Org.Apache.REEF.IMRU.Tests
             Assert.True(taskState.IsFinalState(), "TaskCompleted should be a final state.");
         }
 
+        /// <summary>
+        /// This is to test a scenario from task running to close.
+        /// </summary>
         [Fact]
         public void TestRunningToCloseSenario()
         {
@@ -53,6 +60,35 @@ namespace Org.Apache.REEF.IMRU.Tests
             Assert.True(taskState.IsFinalState(), "TaskClosedByDriver should be a final state.");
         }
 
+        /// <summary>
+        /// This is to test scenario from waiting for close and then get FailedTaskCommunicationError.
+        /// </summary>
+        [Fact]
+        public void TestRunningToCloseToFailTaskCommuniSenario()
+        {
+            var taskState = new DriverTaskState();
+            taskState.MoveNext(TaskEvent.SubmittedTask);
+            taskState.MoveNext(TaskEvent.RunningTask);
+            taskState.MoveNext(TaskEvent.WaitingTaskToClose);
+            Assert.True(taskState.MoveNext(TaskEvent.FailedTaskCommunicationError).Equals(TaskState.TaskClosedByDriver), "Fail to move to TaskClosedByDriver state.");
+        }
+
+        /// <summary>
+        /// This is to test scenario from waiting for close and then get FailedTaskAppError.
+        /// </summary>
+        [Fact]
+        public void TestRunningToCloseToFailTaskAppSenario()
+        {
+            var taskState = new DriverTaskState();
+            taskState.MoveNext(TaskEvent.SubmittedTask);
+            taskState.MoveNext(TaskEvent.RunningTask);
+            taskState.MoveNext(TaskEvent.WaitingTaskToClose);
+            Assert.True(taskState.MoveNext(TaskEvent.FailedTaskAppError).Equals(TaskState.TaskClosedByDriver), "Fail to move to TaskClosedByDriver state.");
+        }
+
+        /// <summary>
+        /// This is to test from WaitingTaskToClose to not allowed transition.
+        /// </summary>
         [Fact]
         public void TestRunningToCloseAndFail()
         {
@@ -61,22 +97,16 @@ namespace Org.Apache.REEF.IMRU.Tests
             taskState.MoveNext(TaskEvent.RunningTask);
             taskState.MoveNext(TaskEvent.WaitingTaskToClose);
 
-            Action moveNext = () => taskState.MoveNext(TaskEvent.FailedTaskAppError);
-            Assert.Throws<TaskStateTransitionException>(moveNext);
-
-            moveNext = () => taskState.MoveNext(TaskEvent.FailedTaskCommunicationError);
-            Assert.Throws<TaskStateTransitionException>(moveNext);
-
-            moveNext = () => taskState.MoveNext(TaskEvent.FailedTaskSystemError);
-            Assert.Throws<TaskStateTransitionException>(moveNext);
-
-            moveNext = () => taskState.MoveNext(TaskEvent.RunningTask);
+            Action moveNext = () => taskState.MoveNext(TaskEvent.RunningTask);
             Assert.Throws<TaskStateTransitionException>(moveNext);
 
             moveNext = () => taskState.MoveNext(TaskEvent.CompletedTask);
             Assert.Throws<TaskStateTransitionException>(moveNext);
         }
 
+        /// <summary>
+        /// This is to test from RunningTask to TaskFailedByEvaluatorFailure.
+        /// </summary>
         [Fact]
         public void TestRunningToFailByEvaluator()
         {
@@ -87,6 +117,9 @@ namespace Org.Apache.REEF.IMRU.Tests
             Assert.True(taskState.IsFinalState(), "TaskFailedByEvaluatorFailure should be a final state.");
         }
 
+        /// <summary>
+        /// This is to test from RunningTask to TaskFailedByGroupCommunication, then TaskFailedByEvaluatorFailure.
+        /// </summary>
         [Fact]
         public void TestRunningToFailByCommuThenEvaluator()
         {
@@ -99,6 +132,9 @@ namespace Org.Apache.REEF.IMRU.Tests
             Assert.True(taskState.IsFinalState(), "TaskFailedByEvaluatorFailure should be a final state.");
         }
 
+        /// <summary>
+        /// This is to test from TaskNew to not allowed transitions
+        /// </summary>
         [Fact]
         public void TestFromNewToNotAllowed()
         {
@@ -114,6 +150,9 @@ namespace Org.Apache.REEF.IMRU.Tests
             Assert.Throws<TaskStateTransitionException>(moveNext);
         }
 
+        /// <summary>
+        /// This is to test from RunningTask to not allowed transitions
+        /// </summary>
         [Fact]
         public void TestFromRunningToNotAllowed()
         {
@@ -128,6 +167,9 @@ namespace Org.Apache.REEF.IMRU.Tests
             Assert.Throws<TaskStateTransitionException>(moveNext);
         }
 
+        /// <summary>
+        /// This is to test from FailedTaskEvaluatorError to not allowed transitions
+        /// </summary>
         [Fact]
         public void TestFromFailToNotAllowed()
         {

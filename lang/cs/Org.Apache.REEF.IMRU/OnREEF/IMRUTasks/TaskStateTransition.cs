@@ -25,17 +25,33 @@ namespace Org.Apache.REEF.IMRU.OnREEF.IMRUTasks
         private readonly TaskState _currentState;
         private readonly TaskEvent _taskEvent;
 
+        /// <summary>
+        /// Constructor of the TaskStateTransition which wraps currentState and taskEvent
+        /// </summary>
+        /// <param name="currentState"></param>
+        /// <param name="taskEvent"></param>
         internal TaskStateTransition(TaskState currentState, TaskEvent taskEvent)
         {
             _currentState = currentState;
             _taskEvent = taskEvent;
         }
 
+        /// <summary>
+        /// Hash code for the instance.
+        /// It should be the same for the given object and as evenly distributed as possible within the integer range.
+        /// One way to get a better distribution is to multiply a member by a prime number and add the next member, repeating as needed.
+        /// </summary>
+        /// <returns></returns>
         public override int GetHashCode()
         {
             return 17 + (31 * _currentState.GetHashCode()) + (31 * _taskEvent.GetHashCode());
         }
 
+        /// <summary>
+        /// Checks if two TaskStateTransition objects have the same value of _currentState and _taskEvent
+        /// </summary>
+        /// <param name="obj"></param>
+        /// <returns></returns>
         public override bool Equals(object obj)
         {
             TaskStateTransition other = obj as TaskStateTransition;

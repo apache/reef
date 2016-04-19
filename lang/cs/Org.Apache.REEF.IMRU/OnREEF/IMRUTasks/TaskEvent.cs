@@ -58,7 +58,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.IMRUTasks
         FailedTaskSystemError,
 
         /// <summary>
-        /// Received failed Evaluator that caused associated task fail
+        /// Received failed Evaluator that caused associated task failure
         /// </summary>
         FailedTaskEvaluatorError,
 
