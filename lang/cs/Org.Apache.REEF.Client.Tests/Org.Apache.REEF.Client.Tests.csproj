@@ -53,6 +53,7 @@ under the License.
     <Compile Include="JobResourceUploaderTests.cs" />
     <Compile Include="LegacyJobResourceUploaderTests.cs" />
     <Compile Include="MultipleRMUrlProviderTests.cs" />
+    <Compile Include="MultiRuntimeConfigurationBuilderTests.cs" />
     <Compile Include="RestClientTests.cs" />
     <Compile Include="WindowsHadoopEmulatorYarnClientTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -77,6 +78,10 @@ under the License.
     <ProjectReference Include="$(SolutionDir)\Org.Apache.REEF.Utilities\Org.Apache.REEF.Utilities.csproj">
       <Project>{79E7F89A-1DFB-45E1-8D43-D71A954AEB98}</Project>
       <Name>Org.Apache.REEF.Utilities</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Org.Apache.REEF.Common\Org.Apache.REEF.Common.csproj">
+      <Project>{545A0582-4105-44CE-B99C-B1379514A630}</Project>
+      <Name>Org.Apache.REEF.Common</Name>
     </ProjectReference>
     <ProjectReference Include="..\Org.Apache.REEF.Driver\Org.Apache.REEF.Driver.csproj">
       <Project>{A6BAA2A7-F52F-4329-884E-1BCF711D6805}</Project>
