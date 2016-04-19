@@ -5,9 +5,9 @@
 // to you under the Apache License, Version 2.0 (the
 // "License"); you may not use this file except in compliance
 // with the License.  You may obtain a copy of the License at
-//
+// 
 //   http://www.apache.org/licenses/LICENSE-2.0
-//
+// 
 // Unless required by applicable law or agreed to in writing,
 // software distributed under the License is distributed on an
 // "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -16,28 +16,26 @@
 // under the License.
 
 using System;
-using System.Text;
 
-namespace Org.Apache.REEF.Utilities
+namespace Org.Apache.REEF.Common.Exceptions
 {
-    public static class ByteUtilities
+    /// <summary>
+    /// A Task Exception from the Java side. Generally not expected.
+    /// </summary>
+    public sealed class JavaTaskException : Exception
     {
-        public static byte[] StringToByteArrays(string s)
+        public JavaTaskException()
         {
-            return Encoding.UTF8.GetBytes(s);
         }
 
-        public static string ByteArraysToString(byte[] b)
+        public JavaTaskException(string message)
+            : base(message)
         {
-            return Encoding.UTF8.GetString(b);
         }
 
-        public static byte[] CopyBytesFrom(byte[] from)
+        public JavaTaskException(string message, Exception inner)
+            : base(message, inner)
         {
-            int length = Buffer.ByteLength(from);
-            byte[] to = new byte[length];
-            Buffer.BlockCopy(from, 0, to, 0, length);
-            return to;
         }
     }
 }

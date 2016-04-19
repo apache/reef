@@ -17,6 +17,7 @@
 
 using System;
 using System.Globalization;
+using System.Linq;
 using System.Text;
 using System.Threading;
 using Org.Apache.REEF.Common.Protobuf.ReefProtocol;
@@ -97,16 +98,26 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Task
             {
                 Logger.Log(Level.Info, "Calling into user's task.");
                 return _userTask.Call(null);
-            }).ContinueWith(runTask =>
+            }).ContinueWith((System.Threading.Tasks.Task<byte[]> runTask) =>
                 {
                     try
                     {
                         // Task failed.
                         if (runTask.IsFaulted)
                         {
-                            Logger.Log(Level.Warning,
-                                string.Format(CultureInfo.InvariantCulture, "Task failed caused by exception [{0}]", runTask.Exception));
-                            _currentStatus.SetException(runTask.Exception);
+                            if (runTask.Exception == null)
+                            {
+                                Logger.Log(Level.Error, "Task failed without an Exception.");
+                                _currentStatus.SetException(new ApplicationException());
+                            }
+                            else
+                            {
+                                var aggregateException = runTask.Exception.Flatten();
+                                _currentStatus.SetException(
+                                    aggregateException.InnerExceptions.Count == 1 ?
+                                    aggregateException.InnerExceptions.First() : aggregateException);
+                            }
+
                             return;
                         }
 

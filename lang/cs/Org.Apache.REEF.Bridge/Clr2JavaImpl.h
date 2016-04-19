@@ -121,6 +121,7 @@ namespace Org {
 
                         public ref class FailedTaskClr2Java : public IFailedTaskClr2Java {
                             jobject  _jobjectFailedTask = NULL;
+                            array<byte>^ _errorBytes = nullptr;
                             JavaVM* _jvm;
                         public:
                             FailedTaskClr2Java(JNIEnv *env, jobject jfailedTask);
@@ -129,6 +130,7 @@ namespace Org {
                             virtual void OnError(String^ message);
                             virtual IActiveContextClr2Java^ GetActiveContext();
                             virtual String^ GetString();
+                            virtual array<byte>^ GetFailedTaskBytes();
                         };
 
                         public ref class RunningTaskClr2Java : public IRunningTaskClr2Java {

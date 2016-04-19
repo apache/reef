@@ -17,7 +17,10 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Runtime.Serialization;
+using System.Runtime.Serialization.Formatters.Binary;
+using Org.Apache.REEF.Common.Exceptions;
 using Org.Apache.REEF.Driver.Bridge.Clr2java;
 using Org.Apache.REEF.Driver.Context;
 using Org.Apache.REEF.Driver.Task;
@@ -29,13 +32,39 @@ namespace Org.Apache.REEF.Driver.Bridge.Events
 {
     internal sealed class FailedTask : IFailedTask
     {
-        private static readonly Logger LOGGER = Logger.GetLogger(typeof(FailedTask));
-        
+        private static readonly Logger Logger = Logger.GetLogger(typeof(FailedTask));
+
+        private readonly BinaryFormatter _formatter = new BinaryFormatter();
+
         public FailedTask(IFailedTaskClr2Java failedTaskClr2Java)
         {
             Parse(failedTaskClr2Java);
             FailedTaskClr2Java = failedTaskClr2Java;
             ActiveContextClr2Java = failedTaskClr2Java.GetActiveContext();
+            var failedTaskBytes = failedTaskClr2Java.GetFailedTaskBytes();
+
+            // If null, Exception is most likely from the Java side.
+            if (failedTaskBytes == null)
+            {
+                Cause = new JavaTaskException();
+            }
+            else
+            {
+                try
+                {
+                    using (var memStream = new MemoryStream(failedTaskBytes))
+                    {
+                        Cause = (Exception)_formatter.Deserialize(memStream);
+                    }
+                }
+                catch (Exception e)
+                {
+                    Exceptions.Caught(e, Level.Info, "Exception from Task was not able to be deserialized, returning a non Serializable Exception.", Logger);
+                    Cause = string.IsNullOrWhiteSpace(Message)
+                        ? new NonSerializableTaskException()
+                        : new NonSerializableTaskException(Message);
+                }
+            }
         }
 
         public Optional<string> Reason { get; set; }
@@ -46,7 +75,7 @@ namespace Org.Apache.REEF.Driver.Bridge.Events
 
         public Optional<string> Description { get; set; }
 
-        public Optional<Exception> Cause { get; set; }
+        public Exception Cause { get; set; }
 
         public Optional<byte[]> Data { get; set; }
 
@@ -77,13 +106,13 @@ namespace Org.Apache.REEF.Driver.Bridge.Events
 
         public Exception AsError()
         {
-            throw new NotImplementedException();
+            return Cause;
         }
 
         private void Parse(IFailedTaskClr2Java failedTaskClr2Java)
         {
             string serializedInfo = failedTaskClr2Java.GetString();
-            LOGGER.Log(Level.Verbose, "serialized failed task: " + serializedInfo);
+            Logger.Log(Level.Verbose, "serialized failed task: " + serializedInfo);
             Dictionary<string, string> settings = new Dictionary<string, string>();
             string[] components = serializedInfo.Split(',');
             foreach (string component in components)
@@ -91,7 +120,7 @@ namespace Org.Apache.REEF.Driver.Bridge.Events
                 string[] pair = component.Trim().Split('=');
                 if (pair == null || pair.Length != 2)
                 {
-                    Exceptions.Throw(new ArgumentException("invalid component to be used as key-value pair:", component), LOGGER);
+                    Exceptions.Throw(new ArgumentException("invalid component to be used as key-value pair:", component), Logger);
                 }
                 settings.Add(pair[0], pair[1]);
             }
@@ -99,14 +128,14 @@ namespace Org.Apache.REEF.Driver.Bridge.Events
             string id;
             if (!settings.TryGetValue("Identifier", out id))
             {
-                Exceptions.Throw(new ArgumentException("cannot find Identifier entry."), LOGGER);
+                Exceptions.Throw(new ArgumentException("cannot find Identifier entry."), Logger);
             }
             Id = id;
 
             string msg;
             if (!settings.TryGetValue("Message", out msg))
             {
-                LOGGER.Log(Level.Verbose, "no Message in Failed Task.");
+                Logger.Log(Level.Verbose, "no Message in Failed Task.");
                 msg = string.Empty;
             }
             Message = msg;
@@ -114,7 +143,7 @@ namespace Org.Apache.REEF.Driver.Bridge.Events
             string description;
             if (!settings.TryGetValue("Description", out description))
             {
-                LOGGER.Log(Level.Verbose, "no Description in Failed Task.");
+                Logger.Log(Level.Verbose, "no Description in Failed Task.");
                 description = string.Empty;
             }
             Description = string.IsNullOrWhiteSpace(description) ? Optional<string>.Empty() : Optional<string>.Of(description);
@@ -122,7 +151,7 @@ namespace Org.Apache.REEF.Driver.Bridge.Events
             string cause;
             if (!settings.TryGetValue("Cause", out cause))
             {
-                LOGGER.Log(Level.Verbose, "no Cause in Failed Task.");
+                Logger.Log(Level.Verbose, "no Cause in Failed Task.");
                 cause = string.Empty;
             }
             Reason = string.IsNullOrWhiteSpace(cause) ? Optional<string>.Empty() : Optional<string>.Of(cause);
@@ -130,7 +159,7 @@ namespace Org.Apache.REEF.Driver.Bridge.Events
             string rawData;
             if (!settings.TryGetValue("Data", out rawData))
             {
-                LOGGER.Log(Level.Verbose, "no Data in Failed Task.");
+                Logger.Log(Level.Verbose, "no Data in Failed Task.");
                 rawData = string.Empty;
             }
             Data = string.IsNullOrWhiteSpace(rawData) ? Optional<byte[]>.Empty() : Optional<byte[]>.Of(ByteUtilities.StringToByteArrays(rawData));
