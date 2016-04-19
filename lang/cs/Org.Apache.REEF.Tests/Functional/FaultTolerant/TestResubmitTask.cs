@@ -36,7 +36,22 @@ using Xunit;
 namespace Org.Apache.REEF.Tests.Functional.FaultTolerant
 {
     /// <summary>
-    /// This test is to close a running task from driver
+    /// This is scenario testing. It is to test the following scenario to make sure the events, messages we receive are what expected.
+    /// * Submit a task on an active context
+    /// * After the task is running, driver sends an event to evaluator to close the task
+    /// * Task throws exception with a message telling the driver that the task fails as instructed by driver
+    /// * Driver receives the FailedTask event and resubmit a task on the existing context
+    /// * In task IDriverMessage, verify the message send from drive is the same as what is expected
+    /// * In task ICloseEvent, verify the message in the close event is the same as what is expected.
+    /// The test can submit two evaluators/Contexts/Tasks and let both to close, and verify:
+    /// * In IFailedTask, the task and context mappings are the same as the assignment before the task was submitted. 
+    /// * In IFailedTask, the exception message in IFailedTask is the same as the one thrown in the Task 
+    /// * In ICompletedTask, verify the task and context mapping are still remain the same as the assignment before the task was submitted. 
+    /// Test Verification:
+    /// * numberOfContextsToClose == 2
+    /// * numberOfTasksToFail == 2
+    /// * numberOfEvaluatorsToFail == 0
+    /// If any of above verification fails, the test fails. 
     /// </summary>
     [Collection("FunctionalTests")]
     public sealed class TestResubimitTask : ReefFunctionalTest
@@ -50,7 +65,9 @@ namespace Org.Apache.REEF.Tests.Functional.FaultTolerant
         private const string UnExpectedCompleteMessage = "UnExpectedCompleteMessage";
 
         /// <summary>
-        /// This test is to close a running task and resubmit one on the existing context
+        /// This test submits two evaluators/contexts/tasks, then close the two running tasks and resubmit two new tasks 
+        /// on the existing active contexts. It is to verify events and messages received are the same as what we expected. 
+        /// It is to verify we can submit tasks on existing contexts if previous tasks fail.
         /// </summary>
         [Fact]
         public void TestStopAndResubmitTaskOnLocalRuntime()
@@ -77,6 +94,9 @@ namespace Org.Apache.REEF.Tests.Functional.FaultTolerant
                 .Build();
         }
 
+        /// <summary>
+        /// Test driver
+        /// </summary>
         private sealed class ResubmitTaskTestDriver :
             IObserver<IDriverStarted>,
             IObserver<IAllocatedEvaluator>,
@@ -133,6 +153,11 @@ namespace Org.Apache.REEF.Tests.Functional.FaultTolerant
                 value.ActiveContext.Dispose();
             }
 
+            /// <summary>
+            /// Verify when exception is shown in task, IFailedTask will be received here with the message set in the task
+            /// And verify the context associated with the failed task is the same as the context that the task was submitted
+            /// </summary>
+            /// <param name="value"></param>
             public void OnNext(IFailedTask value)
             {
                 var failedExeption = ByteUtilities.ByteArraysToString(value.Data.Value);
@@ -154,6 +179,10 @@ namespace Org.Apache.REEF.Tests.Functional.FaultTolerant
                 }
             }
 
+            /// <summary>
+            /// Close the first two tasks and send message to the 3rd and 4th tasks
+            /// </summary>
+            /// <param name="value"></param>
             public void OnNext(IRunningTask value)
             {
                 Logger.Log(Level.Info, "Task running: " + value.Id);
@@ -214,6 +243,12 @@ namespace Org.Apache.REEF.Tests.Functional.FaultTolerant
                 Logger.Log(Level.Info, "Task is disposed.");
             }
 
+            /// <summary>
+            /// When receiving closed task event, verify the command from the driver. If it matches expected message, 
+            /// throw exception to close the task. Otherwise, signal the task to return, that would result in test failure 
+            /// as the test expect two failed tasks. 
+            /// </summary>
+            /// <param name="value"></param>
             public void OnNext(ICloseEvent value)
             {
                 if (value.Value != null && value.Value.Value != null)
@@ -229,6 +264,11 @@ namespace Org.Apache.REEF.Tests.Functional.FaultTolerant
                 }
             }
 
+            /// <summary>
+            /// Expect the message from driver. If the message is the same as what is sent from driver, signal the task to properly return
+            /// Otherwise, throw exception which would cause an unexpected failed task therefore failed test verification. 
+            /// </summary>
+            /// <param name="value"></param>
             public void Handle(IDriverMessage value)
             {
                 var message = ByteUtilities.ByteArraysToString(value.Message.Value);
