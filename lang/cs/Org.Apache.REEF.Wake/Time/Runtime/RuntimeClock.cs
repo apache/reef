@@ -21,6 +21,7 @@ using System.Linq;
 using System.Threading;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Tang.Implementations.InjectionPlan;
+using Org.Apache.REEF.Utilities;
 using Org.Apache.REEF.Utilities.Collections;
 using Org.Apache.REEF.Utilities.Diagnostics;
 using Org.Apache.REEF.Utilities.Logging;
@@ -151,29 +152,43 @@ namespace Org.Apache.REEF.Wake.Time.Runtime
         public void Run()
         {
             SubscribeHandlers();
-            _handlers.OnNext(new RuntimeStart(_timer.CurrentTime));
-            _handlers.OnNext(new StartTime(_timer.CurrentTime));
 
-            while (true)
+            var runtimeException = Optional<Exception>.Empty();
+            try
             {
-                lock (_schedule)
-                {
-                    if (IsIdle())
-                    {
-                        _handlers.OnNext(new IdleClock(_timer.CurrentTime));
-                    }
-                    
-                    // Blocks and releases lock until it receives the next event
-                    Time alarm = GetNextEvent();
-                    ProcessEvent(alarm);
+                _handlers.OnNext(new RuntimeStart(_timer.CurrentTime));
+                _handlers.OnNext(new StartTime(_timer.CurrentTime));
 
-                    if (alarm is StopTime)
+                while (true)
+                {
+                    lock (_schedule)
                     {
-                        break;
+                        if (IsIdle())
+                        {
+                            _handlers.OnNext(new IdleClock(_timer.CurrentTime));
+                        }
+
+                        // Blocks and releases lock until it receives the next event
+                        Time alarm = GetNextEvent();
+                        ProcessEvent(alarm);
+
+                        if (alarm is StopTime)
+                        {
+                            break;
+                        }
                     }
                 }
             }
-            _handlers.OnNext(new RuntimeStop(_timer.CurrentTime));
+            catch (Exception e)
+            {
+                runtimeException = Optional<Exception>.Of(new SystemException("Caught Exception in clock, failing the Evaluator.", e));
+            }
+
+            var runtimeStop = runtimeException.IsPresent()
+                ? new RuntimeStop(_timer.CurrentTime, runtimeException.Value)
+                : new RuntimeStop(_timer.CurrentTime);
+
+            _handlers.OnNext(runtimeStop);
         }
 
         /// <summary>

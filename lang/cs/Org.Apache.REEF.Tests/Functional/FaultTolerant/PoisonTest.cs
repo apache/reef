@@ -16,6 +16,7 @@
 // under the License.
 
 using System;
+using System.Linq;
 using Org.Apache.REEF.Common.Tasks;
 using Org.Apache.REEF.Driver;
 using Org.Apache.REEF.Driver.Context;
@@ -27,8 +28,8 @@ using Org.Apache.REEF.Utilities.Logging;
 using Xunit;
 using System.Threading;
 using Org.Apache.REEF.Common.Context;
-using Org.Apache.REEF.Common.Events;
 using Org.Apache.REEF.Common.Poison;
+using Org.Apache.REEF.Common.Tasks.Events;
 using Org.Apache.REEF.Driver.Task;
 using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Tang.Implementations.Configuration;
@@ -43,10 +44,11 @@ namespace Org.Apache.REEF.Tests.Functional.FaultTolerant
         private const string Prefix = "Poison: ";
         private const string FailedEvaluatorMessage = "I have succeeded in seeing a failed evaluator.";
         private const string TaskId = "1234567";
+        private const string ContextId = "ContextID";
 
         [Fact]
         [Trait("Description", "Test Poison functionality by injecting fault in context start handler.")]
-        public void TestPoisonedEvaluatorStartHanlder()
+        public void TestPoisonedEvaluatorStartHandler()
         {
             string testFolder = DefaultRuntimeFolder + TestId;
             TestRun(DriverConfigurations(), typeof(PoisonedEvaluatorDriver), 1, "poisonedEvaluatorStartTest", "local", testFolder);
@@ -87,45 +89,67 @@ namespace Org.Apache.REEF.Tests.Functional.FaultTolerant
 
             public void OnNext(IAllocatedEvaluator value)
             {
-                var c1 = ContextConfiguration.ConfigurationModule
-                    .Set(ContextConfiguration.Identifier, "ContextID")
-                    .Set(ContextConfiguration.OnContextStart, GenericType<PoisonedEventHandler<IContextStart>>.Class)
-                    .Build();
-
-                var c2 = TangFactory.GetTang().NewConfigurationBuilder()
-                    .BindIntNamedParam<CrashTimeout>("500")
-                    .BindIntNamedParam<CrashMinDelay>("100")
-                    .BindNamedParameter<CrashProbability, double>(GenericType<CrashProbability>.Class, "1.0")
-                    .Build();
-
-                value.SubmitContext(Configurations.Merge(c1, c2));
+                value.SubmitContext(ContextConfiguration.ConfigurationModule
+                    .Set(ContextConfiguration.Identifier, ContextId)
+                    .Build());
             }
 
             public void OnNext(IActiveContext value)
             {
-                value.SubmitTask(TaskConfiguration.ConfigurationModule
+                var taskConfig = TaskConfiguration.ConfigurationModule
                     .Set(TaskConfiguration.Identifier, TaskId)
                     .Set(TaskConfiguration.Task, GenericType<SleepTask>.Class)
-                    .Build());
+                    .Set(TaskConfiguration.OnTaskStart, GenericType<PoisonedEventHandler<ITaskStart>>.Class)
+                    .Build();
+
+                var poisonConfig = TangFactory.GetTang().NewConfigurationBuilder()
+                    .BindIntNamedParam<CrashTimeout>("500")
+                    .BindIntNamedParam<CrashMinDelay>("100")
+                    .BindNamedParameter<CrashProbability, double>(GenericType<CrashProbability>.Class, "1.0")
+                    .Build();
+                
+                value.SubmitTask(Configurations.Merge(taskConfig, poisonConfig));
             }
 
             public void OnNext(IFailedEvaluator value)
             {
                 Logger.Log(Level.Error, FailedEvaluatorMessage);
-                if (value.FailedTask.Value == null)
+                if (value.FailedTask.Value == null || !value.FailedTask.IsPresent())
                 {
-                    // TODO[JIRA REEF-1343]: fail the test if there's no failed task
-                    Logger.Log(Level.Error, "No failed task associated with failed evaluator");
+                    throw new Exception("No failed Task associated with failed Evaluator");
                 }
-                else
+
+                if (value.FailedTask.Value.Id != TaskId)
                 {
-                    Logger.Log(Level.Error, "Failed task id '" + value.FailedTask.Value.Id + "'");
+                    throw new Exception("Failed Task ID returned " + value.FailedTask.Value.Id
+                        + ", was expecting Task ID " + TaskId);
                 }
+
+                Logger.Log(Level.Info, "Received all expected failed Tasks.");
+
+                const string expectedStr = "expected a single Context with Context ID " + ContextId + ".";
+
+                if (value.FailedContexts == null)
+                {
+                    throw new Exception("No Context was present but " + expectedStr);
+                }
+
+                if (value.FailedContexts.Count != 1)
+                {
+                    throw new Exception("Collection of failed Contexts contains " + value.FailedContexts.Count + " failed Contexts but only " + expectedStr);
+                }
+                
+                if (!value.FailedContexts.Select(ctx => ctx.Id).Contains(ContextId))
+                {
+                    throw new Exception("Collection of failed Contexts does not contain expected Context ID " + ContextId + ".");
+                }
+
+                Logger.Log(Level.Info, "Received all expected failed Contexts.");
             }
+
             public void OnNext(ICompletedTask value)
             {
-                // TODO[JIRA REEF-1343]: fail the test if receive ICompletedTask after failed evaluator
-                Logger.Log(Level.Info, "ICompletedTask");
+                throw new Exception("A completed task was not expected.");
             }
 
             public void OnError(Exception error)

@@ -80,7 +80,7 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator
                 Logger.Log(Level.Info, "Handle Evaluator control message");
                 if (!message.identifier.Equals(_evaluatorId, StringComparison.OrdinalIgnoreCase))
                 {
-                    Handle(new InvalidOperationException(
+                    OnException(new InvalidOperationException(
                         string.Format(CultureInfo.InvariantCulture, "Identifier mismatch: message for evaluator id[{0}] sent to evaluator id[{1}]", message.identifier, _evaluatorId)));
                 }
                 else if (_state == State.DONE)
@@ -94,12 +94,12 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator
                     }
                     else
                     {
-                        Handle(new InvalidOperationException("Received a control message from Driver after Evaluator is done."));
+                        OnException(new InvalidOperationException("Received a control message from Driver after Evaluator is done."));
                     }
                 }
                 else if (_state != State.RUNNING)
                 {
-                    Handle(new InvalidOperationException(
+                    OnException(new InvalidOperationException(
                         string.Format(CultureInfo.InvariantCulture, "Evaluator received a control message but its state is not {0} but rather {1}", State.RUNNING, _state)));
                 }
                 else
@@ -120,7 +120,7 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator
                         catch (Exception e)
                         {
                             Utilities.Diagnostics.Exceptions.Caught(e, Level.Error, Logger);
-                            Handle(e);
+                            OnException(e);
                             Utilities.Diagnostics.Exceptions.Throw(new InvalidOperationException(e.ToString(), e), Logger);
                         }
                     }
@@ -164,7 +164,7 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator
                 catch (Exception e)
                 {
                     Utilities.Diagnostics.Exceptions.Caught(e, Level.Error, Logger);
-                    Handle(e);
+                    OnException(e);
                 }
             }
         }
@@ -172,22 +172,33 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator
         public void OnNext(RuntimeStop runtimeStop)
         {
             Logger.Log(Level.Info, "Runtime stop");
-            _contextManager.Dispose();
 
             if (_state == State.RUNNING)
             {
-                _state = State.DONE;
-                _heartBeatManager.OnNext();
+                const string msg = "RuntimeStopHandler invoked in state RUNNING.";
+                if (runtimeStop.Exception != null)
+                {
+                    OnException(new SystemException(msg, runtimeStop.Exception));
+                }
+                else
+                {
+                    OnException(new SystemException(msg));
+                }
             }
-            try
+            else
             {
-                _evaluatorControlChannel.Dispose();
+                try
+                {
+                    _contextManager.Dispose();
+                    _evaluatorControlChannel.Dispose();
+                }
+                catch (Exception e)
+                {
+                    Utilities.Diagnostics.Exceptions.CaughtAndThrow(new InvalidOperationException("Cannot stop evaluator properly", e), Level.Error, "Exception during shut down.", Logger);
+                }
             }
-            catch (Exception e)
-            {
-                Utilities.Diagnostics.Exceptions.CaughtAndThrow(new InvalidOperationException("Cannot stop evaluator properly", e), Level.Error, "Exception during shut down.", Logger);
-            }
-            Logger.Log(Level.Info, "EvaluatorRuntime shutdown complete");        
+
+            Logger.Log(Level.Info, "EvaluatorRuntime shutdown complete");      
         }
 
         public void OnNext(REEFMessage value)
@@ -199,27 +210,30 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator
             }
         }
 
-        private void Handle(Exception e)
+        private void OnException(Exception e)
         {
             lock (_heartBeatManager)
             {
-                Logger.Log(Level.Error, string.Format(CultureInfo.InvariantCulture, "evaluator {0} failed with exception", _evaluatorId), e);
+                Logger.Log(Level.Error, "Evaluator {0} failed with exception {1}.", _evaluatorId, e);
                 _state = State.FAILED;
-                string errorMessage = string.Format(
+
+                var errorMessage = string.Format(
                         CultureInfo.InvariantCulture,
                         "failed with error [{0}] with message [{1}] and stack trace [{2}]",
                         e,
                         e.Message,
                         e.StackTrace);
-                EvaluatorStatusProto evaluatorStatusProto = new EvaluatorStatusProto()
+
+                var evaluatorStatusProto = new EvaluatorStatusProto()
                 {
                     evaluator_id = _evaluatorId,
                     error = ByteUtilities.StringToByteArrays(errorMessage),
                     state = _state
                 };
+
                 _heartBeatManager.OnNext(evaluatorStatusProto);
                 _contextManager.Dispose();
-            }       
+            }
         }
 
         public void OnError(Exception error)
