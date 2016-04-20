@@ -136,11 +136,11 @@ public final class GroupCommDriverImpl implements GroupCommServiceDriver {
         .build())
         .build();
 
-    NameResolver nameResolver;
+    final NameResolver nameResolver;
     try {
       nameResolver = Tang.Factory.getTang().newInjector(nameResolverConf).getInstance(NameResolver.class);
     } catch (final InjectionException e) {
-      throw new RuntimeException(e);
+      throw new RuntimeException("Failed to instantiate NameResolver", e);
     }
 
     try {
@@ -161,7 +161,7 @@ public final class GroupCommDriverImpl implements GroupCommServiceDriver {
           new LoggingEventHandler<Exception>());
       this.netService = injector.getInstance(NetworkService.class);
     } catch (final InjectionException e) {
-      throw new RuntimeException(e);
+      throw new RuntimeException("Failed to instantiate NetworkService", e);
     }
     this.netService.registerId(idFac.getNewInstance(driverId));
     final EStage<GroupCommunicationMessage> senderStage
