@@ -34,6 +34,7 @@ namespace Org.Apache.REEF.Tests.Functional.Bridge
     public sealed class TestFailedTaskEventHandler : ReefFunctionalTest
     {
         private const string FailedTaskMessage = "I have successfully seen a failed task.";
+        private const string ExpectedExceptionMessage = "Expected exception.";
 
         [Fact]
         [Trait("Priority", "1")]
@@ -65,6 +66,7 @@ namespace Org.Apache.REEF.Tests.Functional.Bridge
         private sealed class FailedTaskDriver : IObserver<IDriverStarted>, IObserver<IAllocatedEvaluator>, 
             IObserver<IFailedTask>, IObserver<ICompletedTask>
         {
+            private const string TaskId = "1234567";
             private static readonly Logger Logger = Logger.GetLogger(typeof(FailedTaskDriver));
 
             private readonly IEvaluatorRequestor _requestor;
@@ -83,7 +85,7 @@ namespace Org.Apache.REEF.Tests.Functional.Bridge
             public void OnNext(IAllocatedEvaluator value)
             {
                 value.SubmitTask(TaskConfiguration.ConfigurationModule
-                    .Set(TaskConfiguration.Identifier, "1234567")
+                    .Set(TaskConfiguration.Identifier, TaskId)
                     .Set(TaskConfiguration.Task, GenericType<FailTask>.Class)
                     .Build());
             }
@@ -91,6 +93,16 @@ namespace Org.Apache.REEF.Tests.Functional.Bridge
             public void OnNext(IFailedTask value)
             {
                 Logger.Log(Level.Error, FailedTaskMessage);
+                if (value.Message == null || value.Message != ExpectedExceptionMessage)
+                {
+                    throw new Exception("Exception message not properly propagated. Received message " + value.Message);
+                }
+
+                if (value.Id != TaskId)
+                {
+                    throw new Exception("Received Task ID " + value.Id + " instead of the expected Task ID " + TaskId);
+                }
+
                 value.GetActiveContext().Value.Dispose();
             }
 
@@ -123,7 +135,7 @@ namespace Org.Apache.REEF.Tests.Functional.Bridge
 
             public byte[] Call(byte[] memento)
             {
-                throw new Exception("Expected exception.");
+                throw new Exception(ExpectedExceptionMessage);
             }
         }
     }

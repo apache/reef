@@ -17,7 +17,7 @@
 
 using System;
 using System.Globalization;
-using System.Text;
+using System.Linq;
 using System.Threading;
 using Org.Apache.REEF.Common.Protobuf.ReefProtocol;
 using Org.Apache.REEF.Common.Tasks;
@@ -92,28 +92,27 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Task
 
             // Send heartbeat such that user receives a TaskRunning message.
             _currentStatus.SetRunning();
-            
+
             return System.Threading.Tasks.Task.Run(() =>
             {
                 Logger.Log(Level.Info, "Calling into user's task.");
                 return _userTask.Call(null);
-            }).ContinueWith(runTask =>
+            }).ContinueWith((System.Threading.Tasks.Task<byte[]> runTask) =>
                 {
                     try
                     {
                         // Task failed.
                         if (runTask.IsFaulted)
                         {
-                            Logger.Log(Level.Warning,
-                                string.Format(CultureInfo.InvariantCulture, "Task failed caused by exception [{0}]", runTask.Exception));
-                            _currentStatus.SetException(runTask.Exception);
+                            OnTaskFailure(runTask);
                             return;
                         }
 
                         if (runTask.IsCanceled)
                         {
-                            Logger.Log(Level.Warning,
-                                string.Format(CultureInfo.InvariantCulture, "Task failed caused by task cancellation"));
+                            Logger.Log(Level.Error,
+                                string.Format(CultureInfo.InvariantCulture, "Task failed caused by System.Threading.Task cancellation"));
+                            OnTaskFailure(runTask);
                             return;
                         }
 
@@ -121,9 +120,12 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Task
                         var result = runTask.Result;
                         Logger.Log(Level.Info, "Task Call Finished");
                         _currentStatus.SetResult(result);
-                        if (result != null && result.Length > 0)
+
+                        const Level resultLogLevel = Level.Verbose;
+
+                        if (Logger.CustomLevel >= resultLogLevel && result != null && result.Length > 0)
                         {
-                            Logger.Log(Level.Info, "Task running result:\r\n" + System.Text.Encoding.Default.GetString(result));
+                            Logger.Log(resultLogLevel, "Task running result:\r\n" + System.Text.Encoding.Default.GetString(result));
                         }
                     }
                     finally
@@ -136,6 +138,24 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Task
                         runTask.Dispose();
                     }
                 });
+        }
+
+        /// <summary>
+        /// Sets the current status of the Task with the Exception it failed with.
+        /// </summary>
+        private void OnTaskFailure(System.Threading.Tasks.Task runTask)
+        {
+            if (runTask.Exception == null)
+            {
+                _currentStatus.SetException(new SystemException("Task failed without an Exception."));
+            }
+            else
+            {
+                var aggregateException = runTask.Exception.Flatten();
+                _currentStatus.SetException(
+                    aggregateException.InnerExceptions.Count == 1 ?
+                    aggregateException.InnerExceptions.First() : aggregateException);
+            }
         }
 
         public TaskState GetTaskState()

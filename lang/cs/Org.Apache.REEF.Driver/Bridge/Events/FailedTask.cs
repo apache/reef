@@ -16,13 +16,12 @@
 // under the License.
 
 using System;
-using System.Collections.Generic;
 using System.Runtime.Serialization;
+using Org.Apache.REEF.Common.Avro;
 using Org.Apache.REEF.Driver.Bridge.Clr2java;
 using Org.Apache.REEF.Driver.Context;
 using Org.Apache.REEF.Driver.Task;
 using Org.Apache.REEF.Utilities;
-using Org.Apache.REEF.Utilities.Diagnostics;
 using Org.Apache.REEF.Utilities.Logging;
 
 namespace Org.Apache.REEF.Driver.Bridge.Events
@@ -33,7 +32,18 @@ namespace Org.Apache.REEF.Driver.Bridge.Events
         
         public FailedTask(IFailedTaskClr2Java failedTaskClr2Java)
         {
-            Parse(failedTaskClr2Java);
+            var serializedInfo = failedTaskClr2Java.GetFailedTaskSerializedAvro();
+            var avroFailedTask = AvroJsonSerializer<AvroFailedTask>.FromBytes(serializedInfo);
+
+            Id = avroFailedTask.identifier;
+            Data = Optional<byte[]>.OfNullable(avroFailedTask.data);
+            Message = avroFailedTask.message ?? "No message in Failed Task.";
+
+            // TODO[JIRA REEF-1258]: Fill this in with avroFailedTask.cause.
+            Cause = Optional<Exception>.Empty();
+
+            // This is always empty, even in Java.
+            Description = Optional<string>.Empty();
             FailedTaskClr2Java = failedTaskClr2Java;
             ActiveContextClr2Java = failedTaskClr2Java.GetActiveContext();
         }
@@ -78,62 +88,6 @@ namespace Org.Apache.REEF.Driver.Bridge.Events
         public Exception AsError()
         {
             throw new NotImplementedException();
-        }
-
-        private void Parse(IFailedTaskClr2Java failedTaskClr2Java)
-        {
-            string serializedInfo = failedTaskClr2Java.GetString();
-            LOGGER.Log(Level.Verbose, "serialized failed task: " + serializedInfo);
-            Dictionary<string, string> settings = new Dictionary<string, string>();
-            string[] components = serializedInfo.Split(',');
-            foreach (string component in components)
-            {
-                string[] pair = component.Trim().Split('=');
-                if (pair == null || pair.Length != 2)
-                {
-                    Exceptions.Throw(new ArgumentException("invalid component to be used as key-value pair:", component), LOGGER);
-                }
-                settings.Add(pair[0], pair[1]);
-            }
-
-            string id;
-            if (!settings.TryGetValue("Identifier", out id))
-            {
-                Exceptions.Throw(new ArgumentException("cannot find Identifier entry."), LOGGER);
-            }
-            Id = id;
-
-            string msg;
-            if (!settings.TryGetValue("Message", out msg))
-            {
-                LOGGER.Log(Level.Verbose, "no Message in Failed Task.");
-                msg = string.Empty;
-            }
-            Message = msg;
-
-            string description;
-            if (!settings.TryGetValue("Description", out description))
-            {
-                LOGGER.Log(Level.Verbose, "no Description in Failed Task.");
-                description = string.Empty;
-            }
-            Description = string.IsNullOrWhiteSpace(description) ? Optional<string>.Empty() : Optional<string>.Of(description);
-
-            string cause;
-            if (!settings.TryGetValue("Cause", out cause))
-            {
-                LOGGER.Log(Level.Verbose, "no Cause in Failed Task.");
-                cause = string.Empty;
-            }
-            Reason = string.IsNullOrWhiteSpace(cause) ? Optional<string>.Empty() : Optional<string>.Of(cause);
-
-            string rawData;
-            if (!settings.TryGetValue("Data", out rawData))
-            {
-                LOGGER.Log(Level.Verbose, "no Data in Failed Task.");
-                rawData = string.Empty;
-            }
-            Data = string.IsNullOrWhiteSpace(rawData) ? Optional<byte[]>.Empty() : Optional<byte[]>.Of(ByteUtilities.StringToByteArrays(rawData));
         }
     }
 }

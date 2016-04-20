@@ -57,6 +57,7 @@ under the License.
     <Compile Include="Avro\AvroDriverInfo.cs">
       <ExcludeFromStyleCop>true</ExcludeFromStyleCop>
     </Compile>
+    <Compile Include="Avro\AvroFailedTask.cs" />
     <Compile Include="Avro\AvroHttpRequest.cs">
       <ExcludeFromStyleCop>true</ExcludeFromStyleCop>
     </Compile>
@@ -191,6 +192,7 @@ under the License.
     <Compile Include="Tasks\TaskMessage.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Avro\README.md" />
     <None Include="Org.Apache.REEF.Common.nuspec" />
     <None Include="packages.config" />
     <None Include="Protobuf\Proto\client_runtime.proto" />
