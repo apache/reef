@@ -19,7 +19,6 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Org.Apache.REEF.Tang.Annotations;
-using Org.Apache.REEF.Utilities.Diagnostics;
 using Org.Apache.REEF.Utilities.Logging;
 using Org.Apache.REEF.Wake.Remote;
 using Org.Apache.REEF.Wake.StreamingCodec;
@@ -64,7 +63,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.MapInputWithControlMessage
                     return new MapInputWithControlMessage<TMapInput>(controlMessage);
             }
 
-            Exceptions.Throw(new Exception("Control message type not valid in Codec read"), Logger);
+            Utilities.Diagnostics.Exceptions.Throw(new Exception("Control message type not valid in Codec read"), Logger);
             return null;
         }
 
@@ -112,7 +111,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.MapInputWithControlMessage
                     return new MapInputWithControlMessage<TMapInput>(controlMessage);
             }
 
-            Exceptions.Throw(new Exception("Control message type not valis in Codec read"), Logger);
+            Utilities.Diagnostics.Exceptions.Throw(new Exception("Control message type not valis in Codec read"), Logger);
             return null;
         }
 

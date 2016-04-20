@@ -47,6 +47,7 @@ under the License.
     <Compile Include="MapInputWithControlMessageTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="MapperCountTest.cs" />
+    <Compile Include="TestTaskStates.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="$(SolutionDir)\Org.Apache.REEF.IMRU\Org.Apache.REEF.IMRU.csproj">

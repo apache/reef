@@ -20,7 +20,6 @@ using Org.Apache.REEF.IMRU.OnREEF.Parameters;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Tang.Formats;
 using Org.Apache.REEF.Tang.Interface;
-using Org.Apache.REEF.Utilities.Diagnostics;
 using Org.Apache.REEF.Utilities.Logging;
 
 namespace Org.Apache.REEF.IMRU.OnREEF.Driver
@@ -59,7 +58,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
             }
             catch (Exception e)
             {
-                Exceptions.Throw(e, "Unable to deserialize map function configuration", Logger);
+                Utilities.Diagnostics.Exceptions.Throw(e, "Unable to deserialize map function configuration", Logger);
             }
 
             try
@@ -68,7 +67,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
             }
             catch (Exception e)
             {
-                Exceptions.Throw(e, "Unable to deserialize reduce function configuration", Logger);
+                Utilities.Diagnostics.Exceptions.Throw(e, "Unable to deserialize reduce function configuration", Logger);
             }
 
             try
@@ -77,7 +76,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
             }
             catch (Exception e)
             {
-                Exceptions.Throw(e, "Unable to deserialize update function configuration", Logger);
+                Utilities.Diagnostics.Exceptions.Throw(e, "Unable to deserialize update function configuration", Logger);
             }
 
             try
@@ -86,7 +85,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
             }
             catch (Exception e)
             {
-                Exceptions.Throw(e, "Unable to deserialize update function codec configuration", Logger);
+                Utilities.Diagnostics.Exceptions.Throw(e, "Unable to deserialize update function codec configuration", Logger);
             }
 
             try
@@ -95,7 +94,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
             }
             catch (Exception e)
             {
-                Exceptions.Throw(e, "Unable to deserialize map input codec configuration", Logger);
+                Utilities.Diagnostics.Exceptions.Throw(e, "Unable to deserialize map input codec configuration", Logger);
             }
 
             try
@@ -105,7 +104,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
             }
             catch (Exception e)
             {
-                Exceptions.Throw(e, "Unable to deserialize map output pipeline data converter configuration", Logger);
+                Utilities.Diagnostics.Exceptions.Throw(e, "Unable to deserialize map output pipeline data converter configuration", Logger);
             }
 
             try
@@ -115,7 +114,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
             }
             catch (Exception e)
             {
-                Exceptions.Throw(e, "Unable to deserialize map input pipeline data converter configuration", Logger);
+                Utilities.Diagnostics.Exceptions.Throw(e, "Unable to deserialize map input pipeline data converter configuration", Logger);
             }
 
             try
@@ -126,7 +125,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
             }
             catch (Exception e)
             {
-                Exceptions.Throw(e, "Unable to deserialize map input pipeline data converter configuration", Logger);
+                Utilities.Diagnostics.Exceptions.Throw(e, "Unable to deserialize map input pipeline data converter configuration", Logger);
             }
         }
 

@@ -37,6 +37,8 @@ under the License.
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -73,7 +75,12 @@ under the License.
     <Compile Include="OnREEF\Driver\IMRUConstants.cs" />
     <Compile Include="OnREEF\Driver\IMRUDriver.cs" />
     <Compile Include="OnREEF\Driver\ServiceAndContextConfigurationProvider.cs" />
+    <Compile Include="OnREEF\Exceptions\TaskStateTransitionException.cs" />
+    <Compile Include="OnREEF\IMRUTasks\DriverTaskState.cs" />
     <Compile Include="OnREEF\IMRUTasks\MapTaskHost.cs" />
+    <Compile Include="OnREEF\IMRUTasks\TaskState.cs" />
+    <Compile Include="OnREEF\IMRUTasks\TaskStateTransition.cs" />
+    <Compile Include="OnREEF\IMRUTasks\TaskEvent.cs" />
     <Compile Include="OnREEF\IMRUTasks\UpdateTaskHost.cs" />
     <Compile Include="OnREEF\MapInputWithControlMessage\MapControlMessage.cs" />
     <Compile Include="OnREEF\MapInputWithControlMessage\MapInputWithControlMessage.cs" />
@@ -140,5 +147,4 @@ under the License.
     <None Include="Org.Apache.REEF.IMRU.nuspec" />
     <None Include="packages.config" />
   </ItemGroup>
-  <ItemGroup />
 </Project>
