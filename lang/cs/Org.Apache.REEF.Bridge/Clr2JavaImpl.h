@@ -128,7 +128,7 @@ namespace Org {
                             !FailedTaskClr2Java();
                             virtual void OnError(String^ message);
                             virtual IActiveContextClr2Java^ GetActiveContext();
-                            virtual String^ GetString();
+                            virtual array<byte>^ GetFailedTaskSerializedAvro();
                         };
 
                         public ref class RunningTaskClr2Java : public IRunningTaskClr2Java {

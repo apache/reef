@@ -18,6 +18,7 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using Org.Apache.REEF.Common.Avro;
 using Org.Apache.REEF.Common.Context;
 using Org.Apache.REEF.Common.Protobuf.ReefProtocol;
 using Org.Apache.REEF.Common.Tasks;
@@ -246,8 +247,17 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Task
                 }
                 else if (_lastException.IsPresent())
                 {
-                    byte[] error = ByteUtilities.StringToByteArrays(_lastException.Value.ToString());
-                    taskStatusProto.result = ByteUtilities.CopyBytesFrom(error);
+                    var avroFailedTask = new AvroFailedTask
+                    {
+                        identifier = _taskId,
+                        
+                        // TODO[JIRA REEF-1258]: Serialize Exception properly.
+                        cause = new byte[0],
+                        data = ByteUtilities.StringToByteArrays(_lastException.Value.ToString()),
+                        message = _lastException.Value.Message
+                    };
+
+                    taskStatusProto.result = AvroJsonSerializer<AvroFailedTask>.ToBytes(avroFailedTask);
                 }
                 else if (_state == TaskState.Running)
                 {

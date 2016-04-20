@@ -18,12 +18,19 @@
  */
 package org.apache.reef.javabridge;
 
+import org.apache.avro.io.*;
+import org.apache.avro.specific.SpecificDatumReader;
+import org.apache.avro.specific.SpecificDatumWriter;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.reef.annotations.audience.Interop;
 import org.apache.reef.annotations.audience.Private;
 import org.apache.reef.driver.task.FailedTask;
+import org.apache.reef.javabridge.avro.AvroFailedTask;
 
-import java.nio.charset.StandardCharsets;
-import java.util.logging.Level;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.util.logging.Logger;
 
 /**
@@ -36,8 +43,9 @@ import java.util.logging.Logger;
 public final class FailedTaskBridge extends NativeBridge {
   private static final Logger LOG = Logger.getLogger(FailedTaskBridge.class.getName());
 
-  private FailedTask jfailedTask;
-  private ActiveContextBridge jactiveContext;
+  private final FailedTask jfailedTask;
+  private final ActiveContextBridge jactiveContext;
+  private final byte[] failedTaskSerializedAvro;
 
   public FailedTaskBridge(final FailedTask failedTask, final ActiveContextBridgeFactory factory) {
     this.jfailedTask = failedTask;
@@ -46,29 +54,60 @@ public final class FailedTaskBridge extends NativeBridge {
     } else {
       this.jactiveContext = null;
     }
+
+    try {
+      this.failedTaskSerializedAvro = generateFailedTaskSerializedAvro();
+    } catch(final Exception e) {
+      throw new RuntimeException(e);
+    }
   }
 
   public ActiveContextBridge getActiveContext() {
     return jactiveContext;
   }
 
-  public String getFailedTaskString() {
-    final String description = jfailedTask.getDescription().isPresent() ?
-        jfailedTask.getDescription().get().replace("=", "").replace(",", "") : "";
-    final String cause = jfailedTask.getReason().isPresent() ?
-        jfailedTask.getReason().get().toString().replace("=", "").replace(",", "") : "";
-    final String data = jfailedTask.getData().isPresent() ?
-        new String(jfailedTask.getData().get(), StandardCharsets.UTF_8).replace("=", "").replace(",", "") : "";
+  public byte[] getFailedTaskSerializedAvro() {
+    return failedTaskSerializedAvro;
+  }
 
-    // TODO[JIRA REEF-796]: deserialize/serialize with proper Avro schema
-    final String poorSerializedString = "Identifier=" + jfailedTask.getId().replace("=", "").replace(",", "")
-        + ", Message=" + jfailedTask.getMessage().replace("=", "").replace(",", "")
-        + ", Description=" + description
-        + ", Cause=" + cause
-        + ", Data=" + data;
+  private byte[] generateFailedTaskSerializedAvro() throws IOException {
+    AvroFailedTask avroFailedTask = null;
 
-    LOG.log(Level.INFO, "serialized failed task " + poorSerializedString);
-    return poorSerializedString;
+    if (jfailedTask.getData() != null && jfailedTask.getData().isPresent()) {
+      // Deserialize what was passed in from C#.
+      try (final ByteArrayInputStream fileInputStream = new ByteArrayInputStream(jfailedTask.getData().get())) {
+        final JsonDecoder decoder = DecoderFactory.get().jsonDecoder(
+            AvroFailedTask.getClassSchema(), fileInputStream);
+        final SpecificDatumReader<AvroFailedTask> reader =
+            new SpecificDatumReader<>(AvroFailedTask.class);
+        avroFailedTask = reader.read(null, decoder);
+      }
+    } else {
+      // This may result from a failed Evaluator.
+      avroFailedTask = AvroFailedTask.newBuilder()
+          .setIdentifier(jfailedTask.getId())
+          .setCause(ByteBuffer.wrap(new byte[0]))
+          .setData(ByteBuffer.wrap(new byte[0]))
+          .setMessage("")
+          .build();
+    }
+
+    // Overwrite the message if Java provides a message and C# does not.
+    // Typically the case for failed Evaluators.
+    if (StringUtils.isNoneBlank(jfailedTask.getMessage()) &&
+        StringUtils.isBlank(avroFailedTask.getMessage().toString())) {
+      avroFailedTask.setMessage(jfailedTask.getMessage());
+    }
+
+    final DatumWriter<AvroFailedTask> datumWriter = new SpecificDatumWriter<>(AvroFailedTask.class);
+
+    try (final ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
+      final JsonEncoder encoder = EncoderFactory.get().jsonEncoder(avroFailedTask.getSchema(), outputStream);
+      datumWriter.write(avroFailedTask, encoder);
+      encoder.flush();
+      outputStream.flush();
+      return outputStream.toByteArray();
+    }
   }
 
   @Override

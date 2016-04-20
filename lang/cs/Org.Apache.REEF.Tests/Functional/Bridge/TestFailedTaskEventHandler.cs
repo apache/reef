@@ -34,6 +34,7 @@ namespace Org.Apache.REEF.Tests.Functional.Bridge
     public sealed class TestFailedTaskEventHandler : ReefFunctionalTest
     {
         private const string FailedTaskMessage = "I have successfully seen a failed task.";
+        private const string ExpectedExceptionMessage = "Expected exception.";
 
         [Fact]
         [Trait("Priority", "1")]
@@ -91,6 +92,11 @@ namespace Org.Apache.REEF.Tests.Functional.Bridge
             public void OnNext(IFailedTask value)
             {
                 Logger.Log(Level.Error, FailedTaskMessage);
+                if (value.Message == null || value.Message != ExpectedExceptionMessage)
+                {
+                    throw new Exception("Exception message not properly propagated. Received message " + value.Message);
+                }
+
                 value.GetActiveContext().Value.Dispose();
             }
 
@@ -123,7 +129,7 @@ namespace Org.Apache.REEF.Tests.Functional.Bridge
 
             public byte[] Call(byte[] memento)
             {
-                throw new Exception("Expected exception.");
+                throw new Exception(ExpectedExceptionMessage);
             }
         }
     }

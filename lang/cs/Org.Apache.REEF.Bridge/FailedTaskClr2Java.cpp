@@ -60,29 +60,29 @@ namespace Org {
 
 						  ManagedLog::LOGGER->LogStop("FailedTaskClr2Java::GetActiveContext");
 
-                          if (jobjectActiveContext == NULL) {
-                              return nullptr;
-                          }
+						  if (jobjectActiveContext == NULL) {
+							  return nullptr;
+						  }
 
 						  return gcnew ActiveContextClr2Java(env, jobjectActiveContext);
 					  }
 
-					  String^ FailedTaskClr2Java::GetString() {
-						  ManagedLog::LOGGER->LogStart("FailedTaskClr2Java::GetString");
+					  array<byte>^ FailedTaskClr2Java::GetFailedTaskSerializedAvro() {
+						  ManagedLog::LOGGER->LogStart("FailedTaskClr2Java::GetFailedTaskSerializedAvro");
 						  JNIEnv *env = RetrieveEnv(_jvm);
 
 						  jclass jclassFailedTask = env->GetObjectClass(_jobjectFailedTask);
-						  jmethodID jmidGetFailedTaskString = env->GetMethodID(jclassFailedTask, "getFailedTaskString", "()Ljava/lang/String;");
+						  jmethodID jmidGetFailedTaskSerializedAvro = env->GetMethodID(jclassFailedTask, "getFailedTaskSerializedAvro", "()[B");
 
-						  if (jmidGetFailedTaskString == NULL) {
-							  ManagedLog::LOGGER->LogStart("jmidGetFailedTaskString is NULL");
+						  if (jmidGetFailedTaskSerializedAvro == NULL) {
+							  ManagedLog::LOGGER->LogStart("jmidGetFailedTaskSerializedAvro is NULL");
 							  return nullptr;
 						  }
-						  jstring jFailedTaskString = (jstring)env->CallObjectMethod(
+						  jbyteArray jFailedTaskSerializedAvro = (jbyteArray)env->CallObjectMethod(
 							  _jobjectFailedTask,
-							  jmidGetFailedTaskString);
-						  ManagedLog::LOGGER->LogStop("FailedTaskClr2Java::GetString");
-						  return ManagedStringFromJavaString(env, jFailedTaskString);
+							  jmidGetFailedTaskSerializedAvro);
+						  ManagedLog::LOGGER->LogStop("FailedTaskClr2Java::GetFailedTaskSerializedAvro");
+						  return ManagedByteArrayFromJavaByteArray(env, jFailedTaskSerializedAvro);
 					  }
 
 					  void FailedTaskClr2Java::OnError(String^ message) {

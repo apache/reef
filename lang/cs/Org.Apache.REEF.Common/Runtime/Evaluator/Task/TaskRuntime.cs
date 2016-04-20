@@ -17,6 +17,7 @@
 
 using System;
 using System.Globalization;
+using System.Linq;
 using System.Text;
 using System.Threading;
 using Org.Apache.REEF.Common.Protobuf.ReefProtocol;
@@ -46,7 +47,7 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Task
         [Inject]
         private TaskRuntime(
             ITask userTask,
-            IDriverMessageHandler driverMessageHandler, 
+            IDriverMessageHandler driverMessageHandler,
             IDriverConnectionMessageHandler driverConnectionMessageHandler,
             TaskStatus taskStatus,
             [Parameter(typeof(TaskConfigurationOptions.SuspendHandler))] IInjectionFuture<IObserver<ISuspendEvent>> suspendHandlerFuture,
@@ -74,8 +75,8 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Task
         /// For testing only!
         /// </summary>
         [Testing]
-        internal ITask Task 
-        { 
+        internal ITask Task
+        {
             get { return _userTask; }
         }
 
@@ -92,50 +93,60 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Task
 
             // Send heartbeat such that user receives a TaskRunning message.
             _currentStatus.SetRunning();
-            
+
             return System.Threading.Tasks.Task.Run(() =>
             {
                 Logger.Log(Level.Info, "Calling into user's task.");
                 return _userTask.Call(null);
-            }).ContinueWith(runTask =>
+            }).ContinueWith((System.Threading.Tasks.Task<byte[]> runTask) =>
+            {
+                try
                 {
-                    try
+                    // Task failed.
+                    if (runTask.IsFaulted)
                     {
-                        // Task failed.
-                        if (runTask.IsFaulted)
+                        if (runTask.Exception == null)
                         {
-                            Logger.Log(Level.Warning,
-                                string.Format(CultureInfo.InvariantCulture, "Task failed caused by exception [{0}]", runTask.Exception));
-                            _currentStatus.SetException(runTask.Exception);
-                            return;
+                            Logger.Log(Level.Error, "Task failed without an Exception.");
+                            _currentStatus.SetException(new ApplicationException());
+                        }
+                        else
+                        {
+                            var aggregateException = runTask.Exception.Flatten();
+                            _currentStatus.SetException(
+                                aggregateException.InnerExceptions.Count == 1 ?
+                                aggregateException.InnerExceptions.First() : aggregateException);
                         }
 
-                        if (runTask.IsCanceled)
-                        {
-                            Logger.Log(Level.Warning,
-                                string.Format(CultureInfo.InvariantCulture, "Task failed caused by task cancellation"));
-                            return;
-                        }
-
-                        // Task completed.
-                        var result = runTask.Result;
-                        Logger.Log(Level.Info, "Task Call Finished");
-                        _currentStatus.SetResult(result);
-                        if (result != null && result.Length > 0)
-                        {
-                            Logger.Log(Level.Info, "Task running result:\r\n" + System.Text.Encoding.Default.GetString(result));
-                        }
+                        return;
                     }
-                    finally
+
+                    if (runTask.IsCanceled)
                     {
-                        if (_userTask != null)
-                        {
-                            _userTask.Dispose();
-                        }
-
-                        runTask.Dispose();
+                        Logger.Log(Level.Warning,
+                            string.Format(CultureInfo.InvariantCulture, "Task failed caused by task cancellation"));
+                        return;
                     }
-                });
+
+                    // Task completed.
+                    var result = runTask.Result;
+                    Logger.Log(Level.Info, "Task Call Finished");
+                    _currentStatus.SetResult(result);
+                    if (result != null && result.Length > 0)
+                    {
+                        Logger.Log(Level.Info, "Task running result:\r\n" + System.Text.Encoding.Default.GetString(result));
+                    }
+                }
+                finally
+                {
+                    if (_userTask != null)
+                    {
+                        _userTask.Dispose();
+                    }
+
+                    runTask.Dispose();
+                }
+            });
         }
 
         public TaskState GetTaskState()

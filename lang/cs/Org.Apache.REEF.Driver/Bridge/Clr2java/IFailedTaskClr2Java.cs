@@ -24,6 +24,6 @@ namespace Org.Apache.REEF.Driver.Bridge.Clr2java
     {
         IActiveContextClr2Java GetActiveContext();
 
-        string GetString();
+        byte[] GetFailedTaskSerializedAvro();
     }
 }
