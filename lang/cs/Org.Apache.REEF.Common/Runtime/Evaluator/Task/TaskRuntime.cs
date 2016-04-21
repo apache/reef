@@ -105,26 +105,15 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Task
                     // Task failed.
                     if (runTask.IsFaulted)
                     {
-                        if (runTask.Exception == null)
-                        {
-                            Logger.Log(Level.Error, "Task failed without an Exception.");
-                            _currentStatus.SetException(new ApplicationException());
-                        }
-                        else
-                        {
-                            var aggregateException = runTask.Exception.Flatten();
-                            _currentStatus.SetException(
-                                aggregateException.InnerExceptions.Count == 1 ?
-                                aggregateException.InnerExceptions.First() : aggregateException);
-                        }
-
+                        OnTaskFailure(runTask);
                         return;
                     }
 
                     if (runTask.IsCanceled)
                     {
-                        Logger.Log(Level.Warning,
-                            string.Format(CultureInfo.InvariantCulture, "Task failed caused by task cancellation"));
+                        Logger.Log(Level.Error,
+                            string.Format(CultureInfo.InvariantCulture, "Task failed caused by System.Threading.Task cancellation"));
+                        OnTaskFailure(runTask);
                         return;
                     }
 
@@ -147,6 +136,24 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Task
                     runTask.Dispose();
                 }
             });
+        }
+
+        /// <summary>
+        /// Sets the current status of the Task with the Exception it failed with.
+        /// </summary>
+        private void OnTaskFailure(System.Threading.Tasks.Task runTask)
+        {
+            if (runTask.Exception == null)
+            {
+                _currentStatus.SetException(new SystemException("Task failed without an Exception."));
+            }
+            else
+            {
+                var aggregateException = runTask.Exception.Flatten();
+                _currentStatus.SetException(
+                    aggregateException.InnerExceptions.Count == 1 ?
+                    aggregateException.InnerExceptions.First() : aggregateException);
+            }
         }
 
         public TaskState GetTaskState()

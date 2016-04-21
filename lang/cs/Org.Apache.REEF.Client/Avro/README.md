@@ -7,7 +7,7 @@ unless there is absolutely a reason to!
 
 Instructions On C# Code-Generation
 ----------------------------------
-To code-generate thes files, please use instructions on how 
+To code-generate these files, please use instructions on how 
 to use Microsoft.Hadoop.Avro.Tools.exe as provided 
 [here](https://azure.microsoft.com/en-us/documentation/articles/hdinsight-dotnet-avro-serialization/)
 on the files in lang/java/reef-bridge-client/src/avro.
