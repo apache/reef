@@ -175,7 +175,15 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator
 
             if (_state == State.RUNNING)
             {
-                OnException(runtimeStop.Exception);
+                const string msg = "RuntimeStopHandler invoked in state RUNNING.";
+                if (runtimeStop.Exception != null)
+                {
+                    OnException(new SystemException(msg, runtimeStop.Exception));
+                }
+                else
+                {
+                    OnException(new SystemException(msg));
+                }
             }
             else
             {
@@ -206,7 +214,7 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator
         {
             lock (_heartBeatManager)
             {
-                Logger.Log(Level.Error, "evaluator {0} failed with exception {1}.", _evaluatorId, e);
+                Logger.Log(Level.Error, "Evaluator {0} failed with exception {1}.", _evaluatorId, e);
                 _state = State.FAILED;
 
                 var errorMessage = string.Format(

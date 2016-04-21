@@ -16,6 +16,7 @@
 // under the License.
 
 using System;
+using System.Linq;
 using Org.Apache.REEF.Common.Tasks;
 using Org.Apache.REEF.Driver;
 using Org.Apache.REEF.Driver.Context;
@@ -27,7 +28,6 @@ using Org.Apache.REEF.Utilities.Logging;
 using Xunit;
 using System.Threading;
 using Org.Apache.REEF.Common.Context;
-using Org.Apache.REEF.Common.Events;
 using Org.Apache.REEF.Common.Poison;
 using Org.Apache.REEF.Common.Tasks.Events;
 using Org.Apache.REEF.Driver.Task;
@@ -44,10 +44,11 @@ namespace Org.Apache.REEF.Tests.Functional.FaultTolerant
         private const string Prefix = "Poison: ";
         private const string FailedEvaluatorMessage = "I have succeeded in seeing a failed evaluator.";
         private const string TaskId = "1234567";
+        private const string ContextId = "ContextID";
 
         [Fact]
         [Trait("Description", "Test Poison functionality by injecting fault in context start handler.")]
-        public void TestPoisonedEvaluatorStartHanlder()
+        public void TestPoisonedEvaluatorStartHandler()
         {
             string testFolder = DefaultRuntimeFolder + TestId;
             TestRun(DriverConfigurations(), typeof(PoisonedEvaluatorDriver), 1, "poisonedEvaluatorStartTest", "local", testFolder);
@@ -89,7 +90,7 @@ namespace Org.Apache.REEF.Tests.Functional.FaultTolerant
             public void OnNext(IAllocatedEvaluator value)
             {
                 value.SubmitContext(ContextConfiguration.ConfigurationModule
-                    .Set(ContextConfiguration.Identifier, "ContextID")
+                    .Set(ContextConfiguration.Identifier, ContextId)
                     .Build());
             }
 
@@ -115,16 +116,35 @@ namespace Org.Apache.REEF.Tests.Functional.FaultTolerant
                 Logger.Log(Level.Error, FailedEvaluatorMessage);
                 if (value.FailedTask.Value == null || !value.FailedTask.IsPresent())
                 {
-                    throw new Exception("No failed task associated with failed evaluator");
+                    throw new Exception("No failed Task associated with failed Evaluator");
                 }
 
                 if (value.FailedTask.Value.Id != TaskId)
                 {
-                    throw new Exception("Failed Task ID returned " + value.FailedTask.Value.Id 
+                    throw new Exception("Failed Task ID returned " + value.FailedTask.Value.Id
                         + ", was expecting Task ID " + TaskId);
                 }
+
+                Logger.Log(Level.Info, "Received all expected failed Tasks.");
+
+                const string expectedStr = "expected a single Context with Context ID " + ContextId + ".";
+
+                if (value.FailedContexts == null)
+                {
+                    throw new Exception("No Context was present but " + expectedStr);
+                }
+
+                if (value.FailedContexts.Count != 1)
+                {
+                    throw new Exception("Collection of failed Contexts contains " + value.FailedContexts.Count + " failed Contexts but only " + expectedStr);
+                }
                 
-                Logger.Log(Level.Error, "Failed task id '" + value.FailedTask.Value.Id + "'");
+                if (!value.FailedContexts.Select(ctx => ctx.Id).Contains(ContextId))
+                {
+                    throw new Exception("Collection of failed Contexts does not contain expected Context ID " + ContextId + ".");
+                }
+
+                Logger.Log(Level.Info, "Received all expected failed Contexts.");
             }
 
             public void OnNext(ICompletedTask value)

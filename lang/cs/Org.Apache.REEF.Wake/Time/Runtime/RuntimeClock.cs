@@ -181,7 +181,7 @@ namespace Org.Apache.REEF.Wake.Time.Runtime
             }
             catch (Exception e)
             {
-                runtimeException = Optional<Exception>.Of(e);
+                runtimeException = Optional<Exception>.Of(new SystemException("Caught Exception in clock, failing the Evaluator.", e));
             }
 
             var runtimeStop = runtimeException.IsPresent()
