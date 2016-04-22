@@ -5,9 +5,9 @@
 // to you under the Apache License, Version 2.0 (the
 // "License"); you may not use this file except in compliance
 // with the License.  You may obtain a copy of the License at
-// 
+//
 //   http://www.apache.org/licenses/LICENSE-2.0
-// 
+//
 // Unless required by applicable law or agreed to in writing,
 // software distributed under the License is distributed on an
 // "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -20,29 +20,29 @@ using System.Globalization;
 namespace Org.Apache.REEF.IMRU.OnREEF.Driver.StateMachine
 {
     /// <summary>
-    /// Exception for SystemState Transition
+    /// Exception for TaskState Transition
     /// </summary>
-    internal sealed class SystemStateTransitionException : IMRUSystemException
+    internal sealed class TaskStateTransitionException : IMRUSystemException
     {
         /// <summary>
-        /// Exception when error happens in system state transition
+        /// Exception when error happens in task state transition
         /// </summary>
-        /// <param name="systemState"></param>
-        /// <param name="stateEvent"></param>
-        internal SystemStateTransitionException(SystemState systemState, SystemStateEvent stateEvent)
-            : base(ExceptionMessage(systemState, stateEvent))
+        /// <param name="taskState"></param>
+        /// <param name="taskEvent"></param>
+        internal TaskStateTransitionException(TaskState taskState, TaskStateEvent taskEvent)
+            : base(ExceptionMessage(taskState, taskEvent))
         {            
         }
 
         /// <summary>
         /// Format a message
         /// </summary>
-        /// <param name="systemState"></param>
-        /// <param name="stateEvent"></param>
+        /// <param name="taskState"></param>
+        /// <param name="taskEvent"></param>
         /// <returns></returns>
-        private static string ExceptionMessage(SystemState systemState, SystemStateEvent stateEvent)
+        private static string ExceptionMessage(TaskState taskState, TaskStateEvent taskEvent)
         {
-            return string.Format(CultureInfo.InvariantCulture, "Unexpected event {0} in state {1}.", stateEvent, systemState);
+            return string.Format(CultureInfo.InvariantCulture, "Unexpected event {0} in state {1}.", taskEvent, taskState);
         }
     }
 }
