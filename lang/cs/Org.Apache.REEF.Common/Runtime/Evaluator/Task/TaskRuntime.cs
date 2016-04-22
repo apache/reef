@@ -18,7 +18,6 @@
 using System;
 using System.Globalization;
 using System.Linq;
-using System.Text;
 using System.Threading;
 using Org.Apache.REEF.Common.Protobuf.ReefProtocol;
 using Org.Apache.REEF.Common.Tasks;
@@ -47,7 +46,7 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Task
         [Inject]
         private TaskRuntime(
             ITask userTask,
-            IDriverMessageHandler driverMessageHandler,
+            IDriverMessageHandler driverMessageHandler, 
             IDriverConnectionMessageHandler driverConnectionMessageHandler,
             TaskStatus taskStatus,
             [Parameter(typeof(TaskConfigurationOptions.SuspendHandler))] IInjectionFuture<IObserver<ISuspendEvent>> suspendHandlerFuture,
@@ -75,8 +74,8 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Task
         /// For testing only!
         /// </summary>
         [Testing]
-        internal ITask Task
-        {
+        internal ITask Task 
+        { 
             get { return _userTask; }
         }
 
@@ -99,43 +98,46 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Task
                 Logger.Log(Level.Info, "Calling into user's task.");
                 return _userTask.Call(null);
             }).ContinueWith((System.Threading.Tasks.Task<byte[]> runTask) =>
-            {
-                try
                 {
-                    // Task failed.
-                    if (runTask.IsFaulted)
+                    try
                     {
-                        OnTaskFailure(runTask);
-                        return;
-                    }
+                        // Task failed.
+                        if (runTask.IsFaulted)
+                        {
+                            OnTaskFailure(runTask);
+                            return;
+                        }
 
-                    if (runTask.IsCanceled)
-                    {
-                        Logger.Log(Level.Error,
-                            string.Format(CultureInfo.InvariantCulture, "Task failed caused by System.Threading.Task cancellation"));
-                        OnTaskFailure(runTask);
-                        return;
-                    }
+                        if (runTask.IsCanceled)
+                        {
+                            Logger.Log(Level.Error,
+                                string.Format(CultureInfo.InvariantCulture, "Task failed caused by System.Threading.Task cancellation"));
+                            OnTaskFailure(runTask);
+                            return;
+                        }
 
-                    // Task completed.
-                    var result = runTask.Result;
-                    Logger.Log(Level.Info, "Task Call Finished");
-                    _currentStatus.SetResult(result);
-                    if (result != null && result.Length > 0)
-                    {
-                        Logger.Log(Level.Info, "Task running result:\r\n" + System.Text.Encoding.Default.GetString(result));
-                    }
-                }
-                finally
-                {
-                    if (_userTask != null)
-                    {
-                        _userTask.Dispose();
-                    }
+                        // Task completed.
+                        var result = runTask.Result;
+                        Logger.Log(Level.Info, "Task Call Finished");
+                        _currentStatus.SetResult(result);
 
-                    runTask.Dispose();
-                }
-            });
+                        const Level resultLogLevel = Level.Verbose;
+
+                        if (Logger.CustomLevel >= resultLogLevel && result != null && result.Length > 0)
+                        {
+                            Logger.Log(resultLogLevel, "Task running result:\r\n" + System.Text.Encoding.Default.GetString(result));
+                        }
+                    }
+                    finally
+                    {
+                        if (_userTask != null)
+                        {
+                            _userTask.Dispose();
+                        }
+
+                        runTask.Dispose();
+                    }
+                });
         }
 
         /// <summary>

@@ -24,12 +24,28 @@
     "namespace":"org.apache.reef.javabridge.avro",
     "type":"record",
     "name":"AvroFailedTask",
-    "doc":"Defines the schema for the failed task.",
+    "doc":"Defines the schema for failed task. Tunnels Task failures from C# Evaluator to Java Driver to C# Driver.",
     "fields":[
-      {"name":"identifier", "type":"string"},
-      {"name":"data", "type":"bytes"},
-      {"name":"cause", "type":"bytes"},
-      {"name":"message", "type":"string"}
+      {
+        "name":"identifier",
+        "doc":"The Task ID of the failed Task.",
+        "type":"string"
+      },
+      {
+        "name":"data",
+        "doc":"The data passed back from the Failed Task, if any.",
+        "type":"bytes"
+      },
+      {
+        "name":"cause",
+        "doc":"The serialized Exception of that caused the Task failure.",
+        "type":"bytes"
+      },
+      {
+        "name":"message",
+        "doc":"The message of the Task failure, if any.",
+        "type":"string"
+      }
     ]
   }
 ]
