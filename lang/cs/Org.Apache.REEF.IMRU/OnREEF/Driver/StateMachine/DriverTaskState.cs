@@ -21,7 +21,7 @@ using System.Collections.ObjectModel;
 namespace Org.Apache.REEF.IMRU.OnREEF.Driver.StateMachine
 {
     /// <summary>
-    /// Driver Task State represents task states from creating a new task, to submitted task, to task running, until task is completed. 
+    /// Driver Task State represents task state transition from creating a new task, to submitted task, to task running, until task is completed. 
     /// It also defines the state transition condition from one to another
     /// All the task states are defined in <see cref="TaskState"></see>
     /// For the task state transition diagram <see href="https://issues.apache.org/jira/browse/REEF-1327"></see>
@@ -54,6 +54,15 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver.StateMachine
             { new StateTransition<TaskState, TaskStateEvent>(TaskState.TaskFailedByGroupCommunication, TaskStateEvent.FailedTaskEvaluatorError), TaskState.TaskFailedByEvaluatorFailure }
         });
 
+        /// <summary>
+        /// Final state means that the task is not running and will not attempt to run. 
+        /// When all tasks are in final states, we can proceed to recovery or fail. 
+        /// Transitions between final states are possible if causes of task termination are clarified. For example, we might receive 
+        /// FailedTask event first, then set the task state as TaskFailedBySystemError or TaskFailedByGroupCommunication. And later 
+        /// received FailedEvaluator that indicates the attached task was failed is actually caused by evaluator failure. We can then 
+        /// change the state to TaskFailedByEvaluatorFailure.
+        /// For the task state transition diagram <see href="https://issues.apache.org/jira/browse/REEF-1327"></see>
+        /// </summary>
         private readonly static ISet<TaskState> FinalState = new HashSet<TaskState>()
         {
             TaskState.TaskFailedByAppError,
@@ -120,7 +129,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver.StateMachine
         /// <returns></returns>
         internal bool IsFinalState()
         {
-            return FinalState.Contains(_currentState);
+            return IsFinalState(_currentState);
         }
 
         /// <summary>
