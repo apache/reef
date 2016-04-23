@@ -20,13 +20,19 @@ using Org.Apache.REEF.Utilities.Logging;
 
 namespace Org.Apache.REEF.Utilities
 {
+    /// <summary>
+    /// A convenience class that indicates whether a variable is set or not.
+    /// The generic type T can either be of nullable or non-nullable type.
+    /// </summary>
     [Serializable]
     public sealed class Optional<T>
     {
+        private readonly bool _isSet = false;
         private readonly T _value;
 
         private Optional(T value)
         {
+            _isSet = true;
             _value = value;
         }
 
@@ -35,11 +41,21 @@ namespace Org.Apache.REEF.Utilities
             _value = default(T);
         }
 
+        /// <summary>
+        /// Gets the Value associated with the <see cref="Optional{T}"/> object.
+        /// If empty and <see cref="T"/> is nullable, the Value will return null.
+        /// If empty and <see cref="T"/> is non-nullable, the Value will return default(T).
+        /// </summary>
         public T Value 
         {
             get { return _value; }
         }
 
+        /// <summary>
+        /// Creates an <see cref="Optional{T}"/> with <see cref="Value"/> of parameter <see cref="value"/>.
+        /// If <see cref="T"/> is nullable and null is passed in, an <see cref="ArgumentNullException"/> will be thrown.
+        /// If <see cref="T"/> is non-nullable and default(T) is passed in, a non-empty <see cref="Optional{T}"/> object will be returned.
+        /// </summary>
         public static Optional<T> Of(T value)
         {
             if (value == null)
@@ -49,11 +65,19 @@ namespace Org.Apache.REEF.Utilities
             return new Optional<T>(value);
         }
 
+        /// <summary>
+        /// Creates an empty <see cref="Optional{T}"/>.
+        /// </summary>
         public static Optional<T> Empty()
         {
             return new Optional<T>();
         }
 
+        /// <summary>
+        /// Creates an <see cref="Optional{T}"/> with <see cref="Value"/> of parameter <see cref="value"/>.
+        /// If <see cref="T"/> is nullable and null is passed in, an empty <see cref="Optional{T}"/> will be returned.
+        /// If <see cref="T"/> is non-nullable and default(T) is passed in, a non-empty <see cref="Optional{T}"/> object will be returned.
+        /// </summary>
         public static Optional<T> OfNullable(T value)
         {
             if (value == null)
@@ -66,6 +90,9 @@ namespace Org.Apache.REEF.Utilities
             }
         }
 
+        /// <summary>
+        /// Returns <see cref="other"/> if the current <see cref="Optional{T}"/> is empty.
+        /// </summary>
         public T OrElse(T other)
         {
             if (IsPresent())
@@ -78,11 +105,20 @@ namespace Org.Apache.REEF.Utilities
             }
         }
 
+        /// <summary>
+        /// Returns true if the current <see cref="Optional{T}"/> is empty, false otherwise.
+        /// For nullable <see cref="T"/>, the <see cref="Optional{T}"/> is empty if <see cref="Value"/> is null.
+        /// For non-nullable <see cref="T"/>, the <see cref="Optional{T}"/> is empty if <see cref="Optional{T}"/> 
+        /// is created with <see cref="Empty"/>.
+        /// </summary>
         public bool IsPresent()
         {
-            return _value != null;
+            return _isSet && _value != null;
         }
 
+        /// <summary>
+        /// Tests the equality of the underlying <see cref="Value"/>.
+        /// </summary>
         public override bool Equals(object obj)
         {
             if (this == obj)
@@ -101,6 +137,10 @@ namespace Org.Apache.REEF.Utilities
             return true;
         }
 
+        /// <summary>
+        /// Gets the hashcode of the underlying <see cref="Value"/>.
+        /// </summary>
+        /// <returns></returns>
         public override int GetHashCode()
         {
             return _value != null ? _value.GetHashCode() : 0;

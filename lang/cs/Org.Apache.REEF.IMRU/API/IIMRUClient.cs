@@ -22,16 +22,17 @@ using Org.Apache.REEF.Utilities.Attributes;
 namespace Org.Apache.REEF.IMRU.API
 {
     public interface IIMRUClient
-    {        
+    {
         /// <summary>
         /// Submit the given job for execution.
         /// </summary>
         /// <typeparam name="TMapInput">The type of the side information provided to the Map function</typeparam>
         /// <typeparam name="TMapOutput">The return type of the Map function</typeparam>
         /// <typeparam name="TResult">The return type of the computation.</typeparam>
+        /// <typeparam name="TPartitionType">Type of data partition (Generic type in IInputPartition)</typeparam>
         /// <param name="jobDefinition">IMRU job definition</param>
         /// <returns>Result of IMRU</returns>
-        IEnumerable<TResult> Submit<TMapInput, TMapOutput, TResult>(IMRUJobDefinition jobDefinition);
+        IEnumerable<TResult> Submit<TMapInput, TMapOutput, TResult, TPartitionType>(IMRUJobDefinition jobDefinition);
 
         /// <summary>
         /// DriverHttpEndPoint returned by IReefClient after job submission

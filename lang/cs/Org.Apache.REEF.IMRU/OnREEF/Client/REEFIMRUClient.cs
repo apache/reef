@@ -69,9 +69,10 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Client
         /// <typeparam name="TMapInput">The type of the side information provided to the Map function</typeparam>
         /// <typeparam name="TMapOutput">The return type of the Map function</typeparam>
         /// <typeparam name="TResult">The return type of the computation.</typeparam>
+        /// <typeparam name="TPartitionType">Type of data partition (Generic type in IInputPartition)</typeparam>
         /// <param name="jobDefinition">IMRU job definition given by the user</param>
         /// <returns>Null as results will be later written to some directory</returns>
-        IEnumerable<TResult> IIMRUClient.Submit<TMapInput, TMapOutput, TResult>(IMRUJobDefinition jobDefinition)
+        IEnumerable<TResult> IIMRUClient.Submit<TMapInput, TMapOutput, TResult, TPartitionType>(IMRUJobDefinition jobDefinition)
         {
             string driverId = string.Format("IMRU-{0}-Driver", jobDefinition.JobName);
             IConfiguration overallPerMapConfig = null;
@@ -90,15 +91,19 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Client
             {
                 DriverConfiguration.ConfigurationModule
                     .Set(DriverConfiguration.OnEvaluatorAllocated,
-                        GenericType<IMRUDriver<TMapInput, TMapOutput, TResult>>.Class)
+                        GenericType<IMRUDriver<TMapInput, TMapOutput, TResult, TPartitionType>>.Class)
                     .Set(DriverConfiguration.OnDriverStarted,
-                        GenericType<IMRUDriver<TMapInput, TMapOutput, TResult>>.Class)
+                        GenericType<IMRUDriver<TMapInput, TMapOutput, TResult, TPartitionType>>.Class)
                     .Set(DriverConfiguration.OnContextActive,
-                        GenericType<IMRUDriver<TMapInput, TMapOutput, TResult>>.Class)
+                        GenericType<IMRUDriver<TMapInput, TMapOutput, TResult, TPartitionType>>.Class)
                     .Set(DriverConfiguration.OnTaskCompleted,
-                        GenericType<IMRUDriver<TMapInput, TMapOutput, TResult>>.Class)
+                        GenericType<IMRUDriver<TMapInput, TMapOutput, TResult, TPartitionType>>.Class)
                     .Set(DriverConfiguration.OnEvaluatorFailed,
-                        GenericType<IMRUDriver<TMapInput, TMapOutput, TResult>>.Class)
+                        GenericType<IMRUDriver<TMapInput, TMapOutput, TResult, TPartitionType>>.Class)
+                    .Set(DriverConfiguration.OnContextFailed,
+                        GenericType<IMRUDriver<TMapInput, TMapOutput, TResult, TPartitionType>>.Class)
+                    .Set(DriverConfiguration.OnTaskFailed,
+                        GenericType<IMRUDriver<TMapInput, TMapOutput, TResult, TPartitionType>>.Class)
                     .Set(DriverConfiguration.CustomTraceLevel, TraceLevel.Info.ToString())
                     .Build(),
                 TangFactory.GetTang().NewConfigurationBuilder()
@@ -146,7 +151,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Client
             // The JobSubmission contains the Driver configuration as well as the files needed on the Driver.
             var imruJobSubmission = _jobRequestBuilder
                 .AddDriverConfiguration(imruDriverConfiguration)
-                .AddGlobalAssemblyForType(typeof(IMRUDriver<TMapInput, TMapOutput, TResult>))
+                .AddGlobalAssemblyForType(typeof(IMRUDriver<TMapInput, TMapOutput, TResult, TPartitionType>))
                 .SetJobIdentifier(jobDefinition.JobName)
                 .SetDriverMemory(5000)
                 .Build();

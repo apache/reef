@@ -16,6 +16,7 @@
 // under the License.
 
 using System;
+using System.IO;
 using System.Linq;
 using Org.Apache.REEF.IMRU.API;
 using Org.Apache.REEF.IMRU.OnREEF.Parameters;
@@ -49,7 +50,7 @@ namespace Org.Apache.REEF.IMRU.Examples.MapperCount
         /// <returns>The number of MapFunction instances that are part of the job.</returns>
         public int Run(int numberofMappers, string outputFile, IConfiguration fileSystemConfig)
         {
-            var results = _imruClient.Submit<int, int, int>(
+            var results = _imruClient.Submit<int, int, int, Stream>(
                 new IMRUJobDefinitionBuilder()
                     .SetMapFunctionConfiguration(IMRUMapConfiguration<int, int>.ConfigurationModule
                         .Set(IMRUMapConfiguration<int, int>.MapFunction, GenericType<IdentityMapFunction>.Class)
