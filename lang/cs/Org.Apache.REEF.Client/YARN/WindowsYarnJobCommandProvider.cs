@@ -48,6 +48,7 @@ namespace Org.Apache.REEF.Client.YARN
         private readonly string _driverStderrFilePath;
         private readonly int _driverMaxMemoryAllocationPoolSizeMB;
         private readonly int _driverMaxPermSizeMB;
+        private readonly string _launcherClassName;
 
         [Inject]
         private WindowsYarnJobCommandProvider(
@@ -56,6 +57,7 @@ namespace Org.Apache.REEF.Client.YARN
             [Parameter(typeof(DriverMaxPermSizeMB))] int driverMaxPermSizeMB,
             [Parameter(typeof(DriverStdoutFilePath))] string driverStdoutFilePath,
             [Parameter(typeof(DriverStderrFilePath))] string driverStderrFilePath,
+            [Parameter(typeof(LauncherClassName))] string launcherClassName,
             IYarnCommandLineEnvironment yarnCommandLineEnvironment,
             REEFFileNames fileNames)
         {
@@ -66,6 +68,7 @@ namespace Org.Apache.REEF.Client.YARN
             _driverStdoutFilePath = driverStdoutFilePath;
             _driverStderrFilePath = driverStderrFilePath;
             _driverMaxPermSizeMB = driverMaxPermSizeMB;
+            _launcherClassName = string.IsNullOrWhiteSpace(launcherClassName) ? LauncherClassName : launcherClassName;
         }
 
         /// <summary>
@@ -96,7 +99,7 @@ namespace Org.Apache.REEF.Client.YARN
                 sb.Append(" " + JavaLoggingProperty);
             }
 
-            sb.Append(" " + LauncherClassName);
+            sb.Append(" " + _launcherClassName);
             sb.Append(" " + _fileNames.GetJobSubmissionParametersFile());
             sb.Append(" " +
                       string.Format("{0}/{1}/{2}",

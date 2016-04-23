@@ -74,6 +74,7 @@ under the License.
     <Compile Include="Avro\AvroJobSubmissionParameters.cs" />
     <Compile Include="Avro\Local\AvroLocalAppSubmissionParameters.cs" />
     <Compile Include="Avro\Local\AvroLocalJobSubmissionParameters.cs" />
+    <Compile Include="Avro\Multi\AvroMultiRuntimeAppSubmissionParameters.cs" />
     <Compile Include="Avro\YARN\AvroYarnAppSubmissionParameters.cs" />
     <Compile Include="Avro\YARN\AvroYarnJobSubmissionParameters.cs" />
     <Compile Include="Avro\YARN\AvroYarnClusterJobSubmissionParameters.cs" />
@@ -95,6 +96,11 @@ under the License.
     <Compile Include="Local\LocalRuntimeClientConfiguration.cs" />
     <Compile Include="Local\Parameters\LocalRuntimeDirectory.cs" />
     <Compile Include="Local\Parameters\NumberOfEvaluators.cs" />
+    <Compile Include="Multi\Parameters\DefaultRuntime.cs" />
+    <Compile Include="Multi\MultiRuntimeConfigurationBuilder.cs" />
+    <Compile Include="Multi\Parameters\DefinedRuntimes.cs" />
+    <Compile Include="Multi\SubmissionRuntimeName.cs" />
+    <Compile Include="Multi\YarnMultiREEFDotNetAppParamSerializer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="YARN\HDI\HDInsightClientConfiguration.cs" />
     <Compile Include="YARN\HDI\HDInsightCommandLineEnvironment.cs" />
@@ -103,6 +109,8 @@ under the License.
     <Compile Include="YARN\HDI\HDInsightUrlProvider.cs" />
     <Compile Include="YARN\HDI\NamedParameters.cs" />
     <Compile Include="YARN\IdentityResourceFileRemoteUrlToClusterUrlConverter.cs" />
+    <Compile Include="YARN\IYarnREEFDotNetAppParamsSerializer.cs" />
+    <Compile Include="YARN\IYarnREEFDotNetJobParamsSerializer.cs" />
     <Compile Include="YARN\IResourceFileRemoteUrlToClusterUrlConverter.cs" />
     <Compile Include="YARN\IYarnCommandLineEnvironment.cs" />
     <Compile Include="YARN\IYarnJobCommandProvider.cs" />
@@ -110,6 +118,8 @@ under the License.
     <Compile Include="YARN\IJobSubmissionDirectoryProvider.cs" />
     <Compile Include="YARN\Parameters\DriverMaxMemoryAllicationPoolSizeMB.cs" />
     <Compile Include="YARN\Parameters\DriverMaxPermSizeMB.cs" />
+    <Compile Include="YARN\Parameters\AdditionalDriverAppConfiguration.cs" />
+    <Compile Include="YARN\Parameters\LauncherClassName.cs" />
     <Compile Include="YARN\Parameters\DriverStderrFilePath.cs" />
     <Compile Include="YARN\Parameters\DriverStdoutFilePath.cs" />
     <Compile Include="YARN\RestClient\HttpClient.cs" />
@@ -173,8 +183,10 @@ under the License.
     <Compile Include="YARN\RestClient\YarnRestAPIException.cs" />
     <Compile Include="YARN\YARNClientConfiguration.cs" />
     <Compile Include="YARN\YarnCommandLineEnvironment.cs" />
+    <Compile Include="YARN\YarnREEFDotNetAppParamSerializer.cs" />
     <Compile Include="YARN\YarnREEFDotNetClient.cs" />
-    <Compile Include="YARN\YarnREEFDotNetParamSerializer.cs" />
+    <Compile Include="YARN\YarnREEFDotNetJobParamSerializer.cs" />
+    <Compile Include="YARN\YarnREEFDotNetParamsSerializer.cs" />
     <Compile Include="YARN\YarnREEFParamSerializer.cs" />
   </ItemGroup>
   <ItemGroup>
