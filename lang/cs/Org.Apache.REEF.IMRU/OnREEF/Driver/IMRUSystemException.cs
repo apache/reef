@@ -24,7 +24,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
     /// Type of exception thrown when possible bugs are detected in IMRU code.
     /// For example, we reach forbidden region of codes, inconsistent state etc.
     /// </summary>
-    public sealed class IMRUSystemException : Exception
+    public class IMRUSystemException : Exception
     {
         private static readonly Logger Logger = Logger.GetLogger(typeof(IMRUSystemException));
 

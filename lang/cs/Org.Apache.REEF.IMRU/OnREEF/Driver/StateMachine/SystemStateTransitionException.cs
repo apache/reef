@@ -15,7 +15,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-using System;
 using System.Globalization;
 
 namespace Org.Apache.REEF.IMRU.OnREEF.Driver.StateMachine
@@ -23,7 +22,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver.StateMachine
     /// <summary>
     /// Exception for SystemState Transition
     /// </summary>
-    internal sealed class SystemStateTransitionException : Exception
+    internal sealed class SystemStateTransitionException : IMRUSystemException
     {
         /// <summary>
         /// Exception when error happens in system state transition
