@@ -42,7 +42,6 @@ namespace Org.Apache.REEF.IO.PartitionedData.FileSystem
         /// If there is any IO error, IOException could be thrown.
         /// </summary>
         /// <param name="filePaths"></param>
-        /// <param name="local"></param>
         /// <returns></returns>
         T Deserialize(ISet<string> filePaths);
     }
