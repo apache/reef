@@ -21,13 +21,13 @@ using System.Collections.ObjectModel;
 namespace Org.Apache.REEF.IMRU.OnREEF.Driver.StateMachine
 {
     /// <summary>
-    /// Driver Task State represents task state transition from creating a new task, to submitted task, to task running, until task is completed. 
+    /// Task state machine which defines task state transition from creating a new task, to submitted task, to task running, until task is completed. 
     /// It also defines the state transition condition from one to another
     /// All the task states are defined in <see cref="TaskState"></see>
-    /// For the task state transition diagram <see href="https://issues.apache.org/jira/browse/REEF-1327"></see>
+    /// For the task state transition diagram <see href="https://issues.apache.org/jira/browse/REEF-1223"></see>
     /// This class wraps current state and provides methods to move from one state to the next state
     /// </summary>
-    internal sealed class DriverTaskState
+    internal sealed class TaskStateMachine
     {
         private readonly static IDictionary<StateTransition<TaskState, TaskStateEvent>, TaskState> Transitions = new ReadOnlyDictionary<StateTransition<TaskState, TaskStateEvent>, TaskState>(
             new Dictionary<StateTransition<TaskState, TaskStateEvent>, TaskState>
@@ -61,7 +61,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver.StateMachine
         /// FailedTask event first, then set the task state as TaskFailedBySystemError or TaskFailedByGroupCommunication. And later 
         /// received FailedEvaluator that indicates the attached task was failed is actually caused by evaluator failure. We can then 
         /// change the state to TaskFailedByEvaluatorFailure.
-        /// For the task state transition diagram <see href="https://issues.apache.org/jira/browse/REEF-1327"></see>
+        /// For the task state transition diagram <see href="https://issues.apache.org/jira/browse/REEF-1223"></see>
         /// </summary>
         private readonly static ISet<TaskState> FinalState = new HashSet<TaskState>()
         {
@@ -78,7 +78,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver.StateMachine
         /// <summary>
         /// Create a new DriverTaskState with TaskNew as the task initial state
         /// </summary>
-        internal DriverTaskState()
+        internal TaskStateMachine()
         {
             _currentState = TaskState.TaskNew;
         }

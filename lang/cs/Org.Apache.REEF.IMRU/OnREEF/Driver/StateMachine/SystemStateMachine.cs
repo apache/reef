@@ -23,7 +23,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver.StateMachine
     /// <summary>
     /// This is a state transition machine which wraps current state, defines valid state transitions and API to move to next state. 
     /// All the system states are defined in <see cref="SystemState"></see>
-    /// For the system state transition diagram <see href="https://issues.apache.org/jira/browse/REEF-1335"></see>
+    /// For the system state transition diagram <see href="https://issues.apache.org/jira/browse/REEF-1223"></see>
     /// </summary>
     internal sealed class SystemStateMachine
     {

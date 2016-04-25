@@ -76,7 +76,7 @@ under the License.
     <Compile Include="OnREEF\Driver\IMRUConstants.cs" />
     <Compile Include="OnREEF\Driver\IMRUDriver.cs" />
     <Compile Include="OnREEF\Driver\ServiceAndContextConfigurationProvider.cs" />
-    <Compile Include="OnREEF\Driver\StateMachine\DriverTaskState.cs" />
+    <Compile Include="OnREEF\Driver\StateMachine\TaskStateMachine.cs" />
     <Compile Include="OnREEF\Driver\StateMachine\StateTransition.cs" />
     <Compile Include="OnREEF\Driver\StateMachine\SystemState.cs" />
     <Compile Include="OnREEF\Driver\StateMachine\SystemStateEvent.cs" />

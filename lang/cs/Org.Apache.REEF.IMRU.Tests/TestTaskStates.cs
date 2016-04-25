@@ -33,7 +33,7 @@ namespace Org.Apache.REEF.IMRU.Tests
         [Fact]
         public void TestNewToCompleteScenario()
         {
-            var taskState = new DriverTaskState();
+            var taskState = new TaskStateMachine();
             Assert.True(taskState.CurrentState.Equals(TaskState.TaskNew), "State of newly created task should be TaskNew");
             Assert.False(taskState.IsFinalState(), "TaskNew should not be a final state.");
             Assert.True(taskState.MoveNext(TaskStateEvent.SubmittedTask).Equals(TaskState.TaskSubmitted), "Failed to move from TaskNew to TaskSubmitted state.");
@@ -50,7 +50,7 @@ namespace Org.Apache.REEF.IMRU.Tests
         [Fact]
         public void TestRunningToCloseScenario()
         {
-            var taskState = new DriverTaskState();
+            var taskState = new TaskStateMachine();
             taskState.MoveNext(TaskStateEvent.SubmittedTask);
             taskState.MoveNext(TaskStateEvent.RunningTask);
             Assert.True(taskState.MoveNext(TaskStateEvent.WaitingTaskToClose).Equals(TaskState.TaskWaitingForClose), "Failed to move from RunningTask to TaskWaitingForClose state.");
@@ -65,7 +65,7 @@ namespace Org.Apache.REEF.IMRU.Tests
         [Fact]
         public void TestRunningToCloseToFailedTaskCommunicationErrorScenario()
         {
-            var taskState = new DriverTaskState();
+            var taskState = new TaskStateMachine();
             taskState.MoveNext(TaskStateEvent.SubmittedTask);
             taskState.MoveNext(TaskStateEvent.RunningTask);
             taskState.MoveNext(TaskStateEvent.WaitingTaskToClose);
@@ -78,7 +78,7 @@ namespace Org.Apache.REEF.IMRU.Tests
         [Fact]
         public void TestRunningToCloseToFailedTaskAppErrorScenario()
         {
-            var taskState = new DriverTaskState();
+            var taskState = new TaskStateMachine();
             taskState.MoveNext(TaskStateEvent.SubmittedTask);
             taskState.MoveNext(TaskStateEvent.RunningTask);
             taskState.MoveNext(TaskStateEvent.WaitingTaskToClose);
@@ -91,7 +91,7 @@ namespace Org.Apache.REEF.IMRU.Tests
         [Fact]
         public void TestRunningToCloseToFailedTaskSystemErrorScenario()
         {
-            var taskState = new DriverTaskState();
+            var taskState = new TaskStateMachine();
             taskState.MoveNext(TaskStateEvent.SubmittedTask);
             taskState.MoveNext(TaskStateEvent.RunningTask);
             taskState.MoveNext(TaskStateEvent.WaitingTaskToClose);
@@ -104,7 +104,7 @@ namespace Org.Apache.REEF.IMRU.Tests
         [Fact]
         public void TestRunningToCloseToFailedTaskEvaluatorErrorScenario()
         {
-            var taskState = new DriverTaskState();
+            var taskState = new TaskStateMachine();
             taskState.MoveNext(TaskStateEvent.SubmittedTask);
             taskState.MoveNext(TaskStateEvent.RunningTask);
             taskState.MoveNext(TaskStateEvent.WaitingTaskToClose);
@@ -117,7 +117,7 @@ namespace Org.Apache.REEF.IMRU.Tests
         [Fact]
         public void TestRunningToWaitingTaskToCloseToNotAllowedTransitions()
         {
-            var taskState = new DriverTaskState();
+            var taskState = new TaskStateMachine();
             taskState.MoveNext(TaskStateEvent.SubmittedTask);
             taskState.MoveNext(TaskStateEvent.RunningTask);
             taskState.MoveNext(TaskStateEvent.WaitingTaskToClose);
@@ -138,7 +138,7 @@ namespace Org.Apache.REEF.IMRU.Tests
         [Fact]
         public void TestRunningToFailByEvaluatorScenario()
         {
-            var taskState = new DriverTaskState();
+            var taskState = new TaskStateMachine();
             taskState.MoveNext(TaskStateEvent.SubmittedTask);
             taskState.MoveNext(TaskStateEvent.RunningTask);
             Assert.True(taskState.MoveNext(TaskStateEvent.FailedTaskEvaluatorError).Equals(TaskState.TaskFailedByEvaluatorFailure), "Failed to move from RunningTask to TaskFailedByEvaluatorFailure state with FailedTaskEvaluatorError.");
@@ -151,7 +151,7 @@ namespace Org.Apache.REEF.IMRU.Tests
         [Fact]
         public void TestRunningToFailByCommunicationThenByEvaluatorScenario()
         {
-            var taskState = new DriverTaskState();
+            var taskState = new TaskStateMachine();
             taskState.MoveNext(TaskStateEvent.SubmittedTask);
             taskState.MoveNext(TaskStateEvent.RunningTask);
             Assert.True(taskState.MoveNext(TaskStateEvent.FailedTaskCommunicationError).Equals(TaskState.TaskFailedByGroupCommunication), "Failed to move from RunningTask to TaskFailedByGroupCommunication state with FailedTaskCommunicationError.");
@@ -166,7 +166,7 @@ namespace Org.Apache.REEF.IMRU.Tests
         [Fact]
         public void TestRunningToFailBySystemThenByEvaluatorScenario()
         {
-            var taskState = new DriverTaskState();
+            var taskState = new TaskStateMachine();
             taskState.MoveNext(TaskStateEvent.SubmittedTask);
             taskState.MoveNext(TaskStateEvent.RunningTask);
             Assert.True(taskState.MoveNext(TaskStateEvent.FailedTaskSystemError).Equals(TaskState.TaskFailedBySystemError), "Failed to move from RunningTask to TaskFailedBySystemError state with FailedTaskSystemError.");
@@ -181,7 +181,7 @@ namespace Org.Apache.REEF.IMRU.Tests
         [Fact]
         public void TestFromNewToNotAllowedTransitions()
         {
-            var taskState = new DriverTaskState();
+            var taskState = new TaskStateMachine();
             
             Action moveNext = () => taskState.MoveNext(TaskStateEvent.RunningTask);
             Assert.Throws<TaskStateTransitionException>(moveNext);
@@ -199,7 +199,7 @@ namespace Org.Apache.REEF.IMRU.Tests
         [Fact]
         public void TestFromRunningToNotAllowedTransitions()
         {
-            var taskState = new DriverTaskState();
+            var taskState = new TaskStateMachine();
             taskState.MoveNext(TaskStateEvent.SubmittedTask);
             taskState.MoveNext(TaskStateEvent.RunningTask);
 
@@ -216,7 +216,7 @@ namespace Org.Apache.REEF.IMRU.Tests
         [Fact]
         public void TestFromFailToNotAllowedTransitions()
         {
-            var taskState = new DriverTaskState();
+            var taskState = new TaskStateMachine();
             taskState.MoveNext(TaskStateEvent.SubmittedTask);
             taskState.MoveNext(TaskStateEvent.RunningTask);
 
