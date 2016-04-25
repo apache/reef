@@ -24,11 +24,14 @@ using Org.Apache.REEF.IO.PartitionedData.FileSystem.Parameters;
 using Org.Apache.REEF.IO.PartitionedData.Random.Parameters;
 using Org.Apache.REEF.IO.TempFileCreation;
 using Org.Apache.REEF.Tang.Annotations;
+using Org.Apache.REEF.Utilities;
+using Org.Apache.REEF.Utilities.Attributes;
 using Org.Apache.REEF.Utilities.Diagnostics;
 using Org.Apache.REEF.Utilities.Logging;
 
 namespace Org.Apache.REEF.IO.PartitionedData.FileSystem
 {
+    [ThreadSafe]
     internal sealed class FileSystemInputPartition<T> : IInputPartition<T>, IDisposable
     {
         private static readonly Logger Logger = Logger.GetLogger(typeof(FileSystemInputPartition<T>));
@@ -36,16 +39,16 @@ namespace Org.Apache.REEF.IO.PartitionedData.FileSystem
         private readonly string _id;
         private readonly IFileSystem _fileSystem;
         private readonly IFileDeSerializer<T> _fileSerializer;
-        private readonly ISet<string> _filePaths;
-        private bool _isInitialized;
-        private readonly bool _copyToLocal;
         private readonly object _lock = new object();
         private readonly ITempFileCreator _tempFileCreator;
-        private readonly ISet<string> _localFiles = new HashSet<string>();
+        private readonly ISet<string> _remoteFilePaths;
+        private readonly bool _copyToLocal;
 
+        private Optional<ISet<string>> _localFiles;
+        
         [Inject]
         private FileSystemInputPartition([Parameter(typeof(PartitionId))] string id,
-            [Parameter(typeof(FilePathsInInputPartition))] ISet<string> filePaths,
+            [Parameter(typeof(FilePathsInInputPartition))] ISet<string> remoteFilePaths,
             [Parameter(typeof(CopyToLocal))] bool copyToLocal,
             IFileSystem fileSystem,
             ITempFileCreator tempFileCreator,
@@ -54,10 +57,10 @@ namespace Org.Apache.REEF.IO.PartitionedData.FileSystem
             _id = id;
             _fileSystem = fileSystem;
             _fileSerializer = fileSerializer;
-            _filePaths = filePaths;
             _tempFileCreator = tempFileCreator;
-            _isInitialized = false;
+            _remoteFilePaths = remoteFilePaths;
             _copyToLocal = copyToLocal;
+            _localFiles = Optional<ISet<string>>.Empty();
         }
 
         public string Id
@@ -65,75 +68,78 @@ namespace Org.Apache.REEF.IO.PartitionedData.FileSystem
             get { return _id; }
         }
 
-        private void Initialize()
+        /// <summary>
+        /// Caches from the remote File System to a local disk.
+        /// </summary>
+        public void Cache()
         {
             lock (_lock)
             {
-                if (!_isInitialized)
+                if (!_localFiles.IsPresent())
                 {
-                    CopyFromRemote();
-                    _isInitialized = true;
+                    _localFiles = Optional<ISet<string>>.Of(Download());
                 }
             }
         }
 
         /// <summary>
-        /// This method copy remote files to local and then deserialize the files.
+        /// Downloads the remote file to local disk.
+        /// </summary>
+        private ISet<string> Download()
+        {
+            lock (_lock)
+            {
+                var set = new HashSet<string>();
+                var localFileFolder = _tempFileCreator.CreateTempDirectory("-partition-");
+                Logger.Log(Level.Info, string.Format(CultureInfo.CurrentCulture, "Local file temp folder: {0}", localFileFolder));
+
+                foreach (var sourceFilePath in _remoteFilePaths)
+                {
+                    var sourceUri = _fileSystem.CreateUriForPath(sourceFilePath);
+                    Logger.Log(Level.Verbose, "sourceUri {0}: ", sourceUri);
+
+                    var localFilePath = Path.Combine(localFileFolder, Guid.NewGuid().ToString("N").Substring(0, 8));
+                    set.Add(localFilePath);
+
+                    Logger.Log(Level.Verbose, "LocalFilePath {0}: ", localFilePath);
+                    if (File.Exists(localFilePath))
+                    {
+                        File.Delete(localFilePath);
+                        Logger.Log(Level.Warning, "localFile {0} already exists, deleting it. ", localFilePath);
+                    }
+
+                    _fileSystem.CopyToLocal(sourceUri, localFilePath);
+                }
+
+                return set;
+            }
+        }
+
+        /// <summary>
+        /// This method copies remote files to local if CopyToLocal is enabled, and then deserializes the files.
+        /// Otherwise, this method assumes that the files are remote, and that the injected IFileDeSerializer
+        /// can handle the remote file system access.
         /// It returns the IEnumerble of T, the details is defined in the Deserialize() method 
         /// provided by the Serializer
         /// </summary>
         /// <returns></returns>
         public T GetPartitionHandle()
         {
-            if (_copyToLocal)
+            lock (_lock)
             {
-                if (!_isInitialized)
+                if (_copyToLocal)
                 {
-                    Initialize();
+                    if (!_localFiles.IsPresent())
+                    {
+                        Cache();
+                    }
+
+                    // For now, assume IFileDeSerializer is local.
+                    return _fileSerializer.Deserialize(_localFiles.Value);
                 }
 
-                return _fileSerializer.Deserialize(_localFiles);
-            }
-            return _fileSerializer.Deserialize(_filePaths);
-        }
-
-        private void CopyFromRemote()
-        {
-            string localFileFolder = _tempFileCreator.CreateTempDirectory("-partition-");
-            Logger.Log(Level.Info, string.Format(CultureInfo.CurrentCulture, "Local file temp folder: {0}", localFileFolder));
-
-            foreach (var sourceFilePath in _filePaths)
-            {
-                Uri sourceUri = _fileSystem.CreateUriForPath(sourceFilePath);
-                Logger.Log(Level.Info, string.Format(CultureInfo.CurrentCulture, "sourceUri {0}: ", sourceUri));
-                if (!_fileSystem.Exists(sourceUri))
-                {
-                    throw new FileNotFoundException(string.Format(CultureInfo.CurrentCulture,
-                        "Remote File {0} does not exists.", sourceUri));
-                }
-
-                var localFilePath = localFileFolder + "\\" + Guid.NewGuid().ToString("N").Substring(0, 8);
-                _localFiles.Add(localFilePath);
-
-                Logger.Log(Level.Info, string.Format(CultureInfo.CurrentCulture, "LocalFilePath {0}: ", localFilePath));
-                if (File.Exists(localFilePath))
-                {
-                    File.Delete(localFilePath);
-                    Logger.Log(Level.Warning, "localFile already exists, delete it: " + localFilePath);
-                }
-
-                _fileSystem.CopyToLocal(sourceUri, localFilePath);
-                if (File.Exists(localFilePath))
-                {
-                    Logger.Log(Level.Info, 
-                        string.Format(CultureInfo.CurrentCulture, "File {0} is Copied to local {1}.", sourceUri, localFilePath));
-                }
-                else
-                {
-                    string msg = string.Format(CultureInfo.CurrentCulture, 
-                        "The IFilesystem completed the copy of `{0}` to `{1}`. But the file `{1}` does not exist.", sourceUri, localFilePath);
-                    Exceptions.Throw(new FileLoadException(msg), msg, Logger);
-                }
+                // For now, assume IFileDeSerializer is remote.
+                return _fileSerializer.Deserialize(_remoteFilePaths);
             }
         }
 
@@ -144,11 +150,14 @@ namespace Org.Apache.REEF.IO.PartitionedData.FileSystem
         /// </summary>
         public void Dispose()
         {
-            if (_localFiles.Count > 0)
+            lock (_lock)
             {
-                foreach (var fileName in _localFiles)
+                if (_localFiles.IsPresent())
                 {
-                    File.Delete(fileName);
+                    foreach (var fileName in _localFiles.Value)
+                    {
+                        File.Delete(fileName);
+                    }
                 }
             }
         }

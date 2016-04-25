@@ -20,37 +20,31 @@ using System.Diagnostics;
 using System.IO;
 using Org.Apache.REEF.IO.PartitionedData.Random.Parameters;
 using Org.Apache.REEF.Tang.Annotations;
+using Org.Apache.REEF.Utilities;
+using Org.Apache.REEF.Utilities.Attributes;
 
 namespace Org.Apache.REEF.IO.PartitionedData.Random
 {
     /// <summary>
     /// An implementation of IInputPartition that returns a configurable number of random doubles.
     /// </summary>
+    [ThreadSafe]
     internal sealed class RandomInputPartition : IInputPartition<Stream>
     {
+        private readonly object _lock = new object();
         private readonly string _id;
-        private readonly byte[] _randomData;
+        private readonly int _numberOfDoubles;
+
+        private Optional<byte[]> _randomData;
 
         [Inject]
-        private RandomInputPartition([Parameter(typeof(PartitionId))] string id,
+        private RandomInputPartition(
+            [Parameter(typeof(PartitionId))] string id,
             [Parameter(typeof(NumberOfDoublesPerPartition))] int numberOfDoubles)
         {
             _id = id;
-            _randomData = new byte[numberOfDoubles * 8];
-            var random = new System.Random();
-
-            for (var i = 0; i < numberOfDoubles; ++i)
-            {
-                var randomDouble = random.NextDouble();
-                var randomDoubleAsBytes = BitConverter.GetBytes(randomDouble);
-                Debug.Assert(randomDoubleAsBytes.Length == 8, "randomDoubleAsBytes.Length should be 8.");
-                for (var j = 0; j < 8; ++j)
-                {
-                    var index = (i * 8) + j;
-                    Debug.Assert(index < _randomData.Length, "Index should be less than _randomData.Length.");
-                    _randomData[index] = randomDoubleAsBytes[j];
-                }
-            }
+            _numberOfDoubles = numberOfDoubles;
+            _randomData = Optional<byte[]>.Empty();
         }
 
         public string Id
@@ -58,9 +52,44 @@ namespace Org.Apache.REEF.IO.PartitionedData.Random
             get { return _id; }
         }
 
+        public void Cache()
+        {
+            lock (_lock)
+            {
+                if (_randomData.IsPresent())
+                {
+                    return;
+                }
+
+                var random = new System.Random();
+                var generatedData = new byte[_numberOfDoubles * sizeof(long)];
+                for (var i = 0; i < _numberOfDoubles; ++i)
+                {
+                    var randomDouble = random.NextDouble();
+                    var randomDoubleAsBytes = BitConverter.GetBytes(randomDouble);
+                    Debug.Assert(randomDoubleAsBytes.Length == 8, "randomDoubleAsBytes.Length should be 8.");
+                    for (var j = 0; j < sizeof(long); ++j)
+                    {
+                        var index = (i * 8) + j;
+                        Debug.Assert(index < generatedData.Length, "Index should be less than _randomData.Length.");
+                        generatedData[index] = randomDoubleAsBytes[j];
+                    }
+                }
+                _randomData = Optional<byte[]>.Of(generatedData);
+            }
+        }
+
         public Stream GetPartitionHandle()
         {
-            return new MemoryStream(_randomData, false);
+            lock (_lock)
+            {
+                if (!_randomData.IsPresent())
+                {
+                    Cache();
+                }
+
+                return new MemoryStream(_randomData.Value, false);
+            }
         }
     }
 }

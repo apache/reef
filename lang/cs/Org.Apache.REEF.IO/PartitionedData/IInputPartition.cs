@@ -15,7 +15,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-using System;
+using Org.Apache.REEF.Utilities.Attributes;
 
 namespace Org.Apache.REEF.IO.PartitionedData
 {
@@ -24,12 +24,18 @@ namespace Org.Apache.REEF.IO.PartitionedData
     /// </summary>
     /// <typeparam name="T">Generic Type representing data pointer.
     /// For example, for data in local file it can be file pointer </typeparam>
-    public interface IInputPartition<T> 
+    public interface IInputPartition<T>
     {
         /// <summary>
         /// The id of the partition.
         /// </summary>
         string Id { get; }
+
+        /// <summary>
+        /// Caches the data locally, cached location is based on the implementation.
+        /// </summary>
+        [Unstable("0.14", "Contract may change.")]
+        void Cache();
 
         /// <summary>
         /// Gives a pointer to the underlying partition.
