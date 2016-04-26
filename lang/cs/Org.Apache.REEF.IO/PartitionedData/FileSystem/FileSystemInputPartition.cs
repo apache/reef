@@ -41,13 +41,14 @@ namespace Org.Apache.REEF.IO.PartitionedData.FileSystem
         private readonly IFileDeSerializer<T> _fileSerializer;
         private readonly object _lock = new object();
         private readonly ITempFileCreator _tempFileCreator;
-        private readonly ISet<string> _filePaths;
+        private readonly ISet<string> _remoteFilePaths;
+        private readonly bool _copyToLocal;
 
         private Optional<ISet<string>> _localFiles;
         
         [Inject]
         private FileSystemInputPartition([Parameter(typeof(PartitionId))] string id,
-            [Parameter(typeof(FilePathsInInputPartition))] ISet<string> filePaths,
+            [Parameter(typeof(FilePathsInInputPartition))] ISet<string> remoteFilePaths,
             [Parameter(typeof(CopyToLocal))] bool copyToLocal,
             IFileSystem fileSystem,
             ITempFileCreator tempFileCreator,
@@ -57,17 +58,9 @@ namespace Org.Apache.REEF.IO.PartitionedData.FileSystem
             _fileSystem = fileSystem;
             _fileSerializer = fileSerializer;
             _tempFileCreator = tempFileCreator;
-            _filePaths = filePaths;
-
-            if (!copyToLocal)
-            {
-                // Implies that the files are already local.
-                _localFiles = Optional<ISet<string>>.Of(filePaths);
-            }
-            else
-            {
-                _localFiles = Optional<ISet<string>>.Empty();
-            }
+            _remoteFilePaths = remoteFilePaths;
+            _copyToLocal = copyToLocal;
+            _localFiles = Optional<ISet<string>>.Empty();
         }
 
         public string Id
@@ -75,6 +68,9 @@ namespace Org.Apache.REEF.IO.PartitionedData.FileSystem
             get { return _id; }
         }
 
+        /// <summary>
+        /// Caches from the remote File System to a local disk.
+        /// </summary>
         public void Cache()
         {
             lock (_lock)
@@ -88,7 +84,7 @@ namespace Org.Apache.REEF.IO.PartitionedData.FileSystem
                 string localFileFolder = _tempFileCreator.CreateTempDirectory("-partition-");
                 Logger.Log(Level.Info, string.Format(CultureInfo.CurrentCulture, "Local file temp folder: {0}", localFileFolder));
 
-                foreach (var sourceFilePath in _filePaths)
+                foreach (var sourceFilePath in _remoteFilePaths)
                 {
                     Uri sourceUri = _fileSystem.CreateUriForPath(sourceFilePath);
                     Logger.Log(Level.Info, string.Format(CultureInfo.CurrentCulture, "sourceUri {0}: ", sourceUri));
@@ -127,7 +123,9 @@ namespace Org.Apache.REEF.IO.PartitionedData.FileSystem
         }
 
         /// <summary>
-        /// This method copy remote files to local and then deserialize the files.
+        /// This method copies remote files to local if CopyToLocal is enabled, and then deserializes the files.
+        /// Otherwise, this method assumes that the files are remote, and that the injected IFileDeSerializer
+        /// can handle the remote file system access.
         /// It returns the IEnumerble of T, the details is defined in the Deserialize() method 
         /// provided by the Serializer
         /// </summary>
@@ -136,12 +134,21 @@ namespace Org.Apache.REEF.IO.PartitionedData.FileSystem
         {
             lock (_lock)
             {
-                if (!_localFiles.IsPresent())
+                if (_copyToLocal)
                 {
-                    Cache();
-                }
+                    if (!_localFiles.IsPresent())
+                    {
+                        Cache();
+                    }
 
-                return _fileSerializer.Deserialize(_localFiles.Value);
+                    // For now, assume IFileDeSerializer is local.
+                    return _fileSerializer.Deserialize(_localFiles.Value);
+                }
+                else
+                {
+                    // For now, assume IFileDeSerializer is remote.
+                    return _fileSerializer.Deserialize(_remoteFilePaths);
+                }
             }
         }
 
