@@ -125,8 +125,16 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Task
 
                         if (Logger.CustomLevel >= resultLogLevel && result != null && result.Length > 0)
                         {
-                            Logger.Log(resultLogLevel, "Task running result:\r\n" + System.Text.Encoding.Default.GetString(result));
+                            Logger.Log(resultLogLevel,
+                                "Task running result:\r\n" + System.Text.Encoding.Default.GetString(result));
                         }
+                    }
+                    catch (Exception)
+                    {
+                        // TODO[JIRA REEF-1364]: Properly handle Exceptions and send a message to the Driver.
+                        Logger.Log(Level.Error, "Received uncaught System Exception, force shutting down the Evaluator.");
+
+                        Environment.Exit(1);
                     }
                     finally
                     {

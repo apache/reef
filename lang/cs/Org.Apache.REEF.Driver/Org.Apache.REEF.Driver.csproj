@@ -138,6 +138,7 @@ under the License.
     <Compile Include="Evaluator\IEvaluatorRequest.cs" />
     <Compile Include="Evaluator\IEvaluatorRequestor.cs" />
     <Compile Include="Evaluator\IFailedEvaluator.cs" />
+    <Compile Include="Task\JavaTaskException.cs" />
     <Compile Include="IDriver.cs" />
     <Compile Include="IDriverRestarted.cs" />
     <Compile Include="IDriverStarted.cs" />

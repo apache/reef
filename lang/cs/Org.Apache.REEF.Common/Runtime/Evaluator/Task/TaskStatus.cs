@@ -18,8 +18,12 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.IO;
+using System.Runtime.Serialization;
+using System.Runtime.Serialization.Formatters.Binary;
 using Org.Apache.REEF.Common.Avro;
 using Org.Apache.REEF.Common.Context;
+using Org.Apache.REEF.Common.Exceptions;
 using Org.Apache.REEF.Common.Protobuf.ReefProtocol;
 using Org.Apache.REEF.Common.Tasks;
 using Org.Apache.REEF.Tang.Annotations;
@@ -33,6 +37,8 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Task
         private static readonly Logger LOGGER = Logger.GetLogger(typeof(TaskStatus));
 
         private readonly object _stateLock = new object();
+        private readonly BinaryFormatter _binaryFormatter = new BinaryFormatter();
+
         private readonly TaskLifeCycle _taskLifeCycle;
         private readonly IHeartBeatManager _heartBeatManager;
         private readonly Optional<ISet<ITaskMessageSource>> _evaluatorMessageSources;
@@ -246,12 +252,20 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Task
                 }
                 else if (_lastException.IsPresent())
                 {
+                    byte[] error;
+                    try
+                    {
+                        error = SerializeException(_lastException.Value);
+                    }
+                    catch (SerializationException se)
+                    {
+                        error = SerializeException(new NonSerializableTaskException(_lastException.Value.ToString(), se));
+                    }
+
                     var avroFailedTask = new AvroFailedTask
                     {
                         identifier = _taskId,
-                        
-                        // TODO[JIRA REEF-1258]: Serialize Exception properly.
-                        cause = new byte[0],
+                        cause = error,
                         data = ByteUtilities.StringToByteArrays(_lastException.Value.ToString()),
                         message = _lastException.Value.Message
                     };
@@ -271,6 +285,15 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Task
                     }
                 }
                 return taskStatusProto;
+            }
+        }
+
+        private byte[] SerializeException(Exception ex)
+        {
+            using (var memStream = new MemoryStream())
+            {
+                _binaryFormatter.Serialize(memStream, ex);
+                return memStream.ToArray();
             }
         }
 
