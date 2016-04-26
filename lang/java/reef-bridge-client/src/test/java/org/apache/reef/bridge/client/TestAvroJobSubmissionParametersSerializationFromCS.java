@@ -378,8 +378,8 @@ public final class TestAvroJobSubmissionParametersSerializationFromCS {
       lst.add(charSeq.toString());
     }
 
-    assert lst.contains((CharSequence) "Local");
-    assert lst.contains((CharSequence) "Yarn");
+    assert lst.contains("Local");
+    assert lst.contains("Yarn");
   }
 
   private static void verifyYarnOnlyMultiRuntimeJobSubmissionParams(
@@ -410,7 +410,7 @@ public final class TestAvroJobSubmissionParametersSerializationFromCS {
       lst.add(charSeq.toString());
     }
 
-    assert lst.contains((CharSequence) "Yarn");
+    assert lst.contains("Yarn");
   }
 
   private static void verifyLocalOnlyMultiRuntimeJobSubmissionParams(
@@ -442,6 +442,6 @@ public final class TestAvroJobSubmissionParametersSerializationFromCS {
       lst.add(charSeq.toString());
     }
 
-    assert lst.contains((CharSequence) "Local");
+    assert lst.contains("Local");
   }
 }
