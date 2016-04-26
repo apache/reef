@@ -143,12 +143,6 @@ namespace Org.Apache.REEF.Driver.Bridge
         {
         }
 
-        [Obsolete("Deprecated in 0.14, will be removed.")]
-        [NamedParameter("The number of times an application should be submitted in case of failure.", "MaxApplicationSubmissions", "1")]
-        public class MaxApplicationSubmissions : Name<int>
-        {
-        }
-
         [NamedParameter("Command Line Arguments supplied by client", "CommandLineArguments", null)]
         public class ArgumentSets : Name<ISet<string>>
         {

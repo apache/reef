@@ -313,22 +313,6 @@ namespace Org.Apache.REEF.IO.Tests
         }
 
         /// <summary>
-        /// Enumerate all the files in the file foder and return each byte read
-        /// </summary>
-        /// <param name="fileFolder"></param>
-        /// <returns></returns>
-        [Obsolete("Remove after 0.14")]
-        public IEnumerable<byte> Deserialize(string fileFolder)
-        {
-            var files = new HashSet<string>();
-            foreach (var f in Directory.GetFiles(fileFolder))
-            {
-                files.Add(f);
-            }
-            return Deserialize(files);
-        }
-
-        /// <summary>
         /// Enumerate all the files in the set and return each byte read
         /// </summary>
         /// <param name="filePaths"></param>
@@ -369,22 +353,6 @@ namespace Org.Apache.REEF.IO.Tests
         [Inject]
         private RowSerializer()
         { 
-        }
-
-        /// <summary>
-        /// read all the files in the fileFolder cand return byte read one by one
-        /// </summary>
-        /// <param name="fileFolder"></param>
-        /// <returns></returns>
-        [Obsolete("Remove after 0.14")]
-        public IEnumerable<Row> Deserialize(string fileFolder)
-        {
-            ISet<string> files = new HashSet<string>();
-            foreach (var f in Directory.GetFiles(fileFolder))
-            {
-                files.Add(f);
-            }
-            return Deserialize(files);
         }
 
         /// <summary>

@@ -241,8 +241,7 @@ namespace Org.Apache.REEF.Tang.Formats
             }
         }
 
-        [Obsolete("Will be changed as internal after 0.14")]
-        public static void ProcessConfigData(IConfigurationBuilder conf, IList<KeyValuePair<string, string>> settings)
+        internal static void ProcessConfigData(IConfigurationBuilder conf, IList<KeyValuePair<string, string>> settings)
         {
             foreach (KeyValuePair<string, string> kv in settings)
             {
