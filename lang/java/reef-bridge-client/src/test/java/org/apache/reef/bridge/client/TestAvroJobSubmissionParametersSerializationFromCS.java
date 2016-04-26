@@ -18,10 +18,7 @@
  */
 package org.apache.reef.bridge.client;
 
-import org.apache.reef.reef.bridge.client.avro.AvroAppSubmissionParameters;
-import org.apache.reef.reef.bridge.client.avro.AvroJobSubmissionParameters;
-import org.apache.reef.reef.bridge.client.avro.AvroYarnAppSubmissionParameters;
-import org.apache.reef.reef.bridge.client.avro.AvroYarnJobSubmissionParameters;
+import org.apache.reef.reef.bridge.client.avro.*;
 import org.apache.reef.runtime.common.driver.parameters.JobIdentifier;
 import org.apache.reef.runtime.yarn.driver.parameters.JobSubmissionDirectory;
 import org.apache.reef.runtime.yarn.driver.parameters.JobSubmissionDirectoryPrefix;
@@ -36,6 +33,8 @@ import org.junit.Test;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Tests for generating Driver configuration by bootstrapping the process to the
@@ -80,6 +79,37 @@ public final class TestAvroJobSubmissionParametersSerializationFromCS {
           "\"driverRecoveryTimeout\":" + NUMBER_REP +
       "}";
 
+  private static final String AVRO_YARN_MULTIRUNTIME_APP_PARAMETERS_SERIALIZED_STRING =
+          "{" +
+                  "\"sharedAppSubmissionParameters\":" +
+                  "{" +
+                    "\"tcpBeginPort\":" + NUMBER_REP + "," +
+                    "\"tcpRangeCount\":" + NUMBER_REP + "," +
+                    "\"tcpTryCount\":" + NUMBER_REP +
+                  "}," +
+                  "\"localRuntimeAppParameters\":" +
+                  "{" +
+                    "\"sharedAppSubmissionParameters\":" +
+                    "{" +
+                      "\"tcpBeginPort\":" + NUMBER_REP + "," +
+                      "\"tcpRangeCount\":" + NUMBER_REP + "," +
+                      "\"tcpTryCount\":" + NUMBER_REP +
+                    "}," +
+                   "\"maxNumberOfConcurrentEvaluators\":" + NUMBER_REP +
+                  "}," +
+                  "\"yarnRuntimeAppParameters\":" +
+                  "{" +
+                  "\"sharedAppSubmissionParameters\":" +
+                    "{" +
+                      "\"tcpBeginPort\":" + NUMBER_REP + "," +
+                      "\"tcpRangeCount\":" + NUMBER_REP + "," +
+                      "\"tcpTryCount\":" + NUMBER_REP +
+                    "}," +
+                    "\"driverRecoveryTimeout\":" + NUMBER_REP +
+                  "}," +
+                  "\"defaultRuntimeName\":" + "\"Local\"" + "," +
+                  "\"runtimes\":" + "[\"Local\", \"Yarn\" ]" +
+            "}";
   /**
    * Tests deserialization of the Avro parameters for submission from the cluster from C#.
    * @throws IOException
@@ -108,6 +138,17 @@ public final class TestAvroJobSubmissionParametersSerializationFromCS {
   @Test
   public void testAvroYarnParametersDeserialization() throws IOException {
     verifyYarnJobSubmissionParams(createAvroYarnJobSubmissionParameters(), createAvroYarnAppSubmissionParameters());
+  }
+
+  /**
+   * Tests deserialization of the Avro parameters for multiruntime from C#.
+   * @throws IOException
+   */
+  @Test
+  public void testAvroMultiruntimeParametersDeserialization() throws IOException {
+    verifyYarnMultiRuntimeJobSubmissionParams(
+            createAvroYarnJobSubmissionParameters(),
+            createAvroMultiruntimeAppSubmissionParameters());
   }
 
   /**
@@ -165,6 +206,16 @@ public final class TestAvroJobSubmissionParametersSerializationFromCS {
     }
   }
 
+  private static AvroMultiRuntimeAppSubmissionParameters createAvroMultiruntimeAppSubmissionParameters()
+          throws IOException {
+    try (final InputStream stream =
+                 new ByteArrayInputStream(
+                         AVRO_YARN_MULTIRUNTIME_APP_PARAMETERS_SERIALIZED_STRING.getBytes(StandardCharsets.UTF_8))) {
+      return MultiRuntimeYarnBootstrapDriverConfigGenerator
+              .readMultiRuntimeAppSubmissionParametersFromInputStream(stream);
+    }
+  }
+
   private static AvroYarnJobSubmissionParameters createAvroYarnJobSubmissionParameters() throws IOException {
     try (final InputStream stream =
              new ByteArrayInputStream(AVRO_YARN_JOB_PARAMETERS_SERIALIZED_STRING.getBytes(StandardCharsets.UTF_8))) {
@@ -199,5 +250,39 @@ public final class TestAvroJobSubmissionParametersSerializationFromCS {
     assert sharedJobSubmissionParams.getJobSubmissionFolder().toString().equals(STRING_REP);
     assert jobSubmissionParameters.getDfsJobSubmissionFolder().toString().equals(STRING_REP);
     assert jobSubmissionParameters.getJobSubmissionDirectoryPrefix().toString().equals(STRING_REP);
+  }
+
+  private static void verifyYarnMultiRuntimeJobSubmissionParams(
+          final AvroYarnJobSubmissionParameters   jobSubmissionParameters,
+          final AvroMultiRuntimeAppSubmissionParameters appSubmissionParameters) {
+    final AvroAppSubmissionParameters sharedAppSubmissionParams =
+            appSubmissionParameters.getSharedAppSubmissionParameters();
+
+    final AvroJobSubmissionParameters sharedJobSubmissionParams =
+            jobSubmissionParameters.getSharedJobSubmissionParameters();
+
+    assert sharedAppSubmissionParams.getTcpBeginPort() == NUMBER_REP;
+    assert sharedAppSubmissionParams.getTcpRangeCount() == NUMBER_REP;
+    assert sharedAppSubmissionParams.getTcpTryCount() == NUMBER_REP;
+    assert sharedJobSubmissionParams.getJobId().toString().equals(STRING_REP);
+    assert sharedJobSubmissionParams.getJobSubmissionFolder().toString().equals(STRING_REP);
+    assert jobSubmissionParameters.getDfsJobSubmissionFolder().toString().equals(STRING_REP);
+    assert jobSubmissionParameters.getJobSubmissionDirectoryPrefix().toString().equals(STRING_REP);
+    assert appSubmissionParameters.getLocalRuntimeAppParameters() != null;
+    assert appSubmissionParameters.
+            getLocalRuntimeAppParameters().getMaxNumberOfConcurrentEvaluators() == NUMBER_REP;
+    assert appSubmissionParameters.getYarnRuntimeAppParameters() != null;
+    assert appSubmissionParameters.getYarnRuntimeAppParameters().getDriverRecoveryTimeout() == NUMBER_REP;
+    assert appSubmissionParameters.getDefaultRuntimeName().toString().equals("Local");
+    assert appSubmissionParameters.getRuntimes().size() == 2;
+
+    List<String> lst = new ArrayList<>();
+    // create list of string
+    for (CharSequence charSeq : appSubmissionParameters.getRuntimes()){
+      lst.add(charSeq.toString());
+    }
+
+    assert lst.contains((CharSequence) "Local");
+    assert lst.contains((CharSequence) "Yarn");
   }
 }

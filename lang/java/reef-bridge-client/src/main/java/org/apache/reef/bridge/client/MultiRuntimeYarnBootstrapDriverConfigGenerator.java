@@ -151,6 +151,11 @@ final class MultiRuntimeYarnBootstrapDriverConfigGenerator {
           final AvroYarnJobSubmissionParameters yarnJobSubmissionParams,
           final AvroMultiRuntimeAppSubmissionParameters multiruntimeAppSubmissionParams) {
 
+    if (multiruntimeAppSubmissionParams.getLocalRuntimeAppParameters() == null &&
+        multiruntimeAppSubmissionParams.getYarnRuntimeAppParameters() == null){
+      throw new IllegalArgumentException("At least on execution runtime has to be provided");
+    }
+
     // read yarn job submission parameters
     final AvroJobSubmissionParameters jobSubmissionParameters =
         yarnJobSubmissionParams.getSharedJobSubmissionParameters();
@@ -175,17 +180,16 @@ final class MultiRuntimeYarnBootstrapDriverConfigGenerator {
             multiruntimeAppSubmissionParams.getDefaultRuntimeName().toString());
 
     // generate multi runtime configuration
-    ConfigurationModule multiRuntimeDriverConfiguration = MultiRuntimeDriverConfiguration.CONF;
+    ConfigurationModule multiRuntimeDriverConfiguration = MultiRuntimeDriverConfiguration.CONF
+                    .set(MultiRuntimeDriverConfiguration.JOB_IDENTIFIER, jobSubmissionParameters.getJobId().toString())
+                    .set(MultiRuntimeDriverConfiguration.CLIENT_REMOTE_IDENTIFIER, ClientRemoteIdentifier.NONE)
+                    .set(MultiRuntimeDriverConfiguration.SERIALIZED_RUNTIME_DEFINITION,
+                            this.runtimeDefinitionSerializer.toString(multiRuntimeDefinitionBuilder.build()));
+
     for (final CharSequence runtimeName : multiruntimeAppSubmissionParams.getRuntimes()){
       multiRuntimeDriverConfiguration = multiRuntimeDriverConfiguration.set(
               MultiRuntimeDriverConfiguration.RUNTIME_NAMES, runtimeName.toString());
     }
-
-    multiRuntimeDriverConfiguration = multiRuntimeDriverConfiguration
-            .set(MultiRuntimeDriverConfiguration.JOB_IDENTIFIER, jobSubmissionParameters.getJobId().toString())
-            .set(MultiRuntimeDriverConfiguration.CLIENT_REMOTE_IDENTIFIER, ClientRemoteIdentifier.NONE)
-            .set(MultiRuntimeDriverConfiguration.SERIALIZED_RUNTIME_DEFINITION,
-                    this.runtimeDefinitionSerializer.toString(multiRuntimeDefinitionBuilder.build()));
 
     final AvroAppSubmissionParameters appSubmissionParams =
             multiruntimeAppSubmissionParams.getSharedAppSubmissionParameters();
@@ -208,7 +212,8 @@ final class MultiRuntimeYarnBootstrapDriverConfigGenerator {
             providerConfig);
 
     // add restart configuration if needed
-    if (multiruntimeAppSubmissionParams.getYarnRuntimeAppParameters().getDriverRecoveryTimeout() > 0) {
+    if (multiruntimeAppSubmissionParams.getYarnRuntimeAppParameters() != null &&
+            multiruntimeAppSubmissionParams.getYarnRuntimeAppParameters().getDriverRecoveryTimeout() > 0) {
       LOG.log(Level.FINE, "Driver restart is enabled.");
 
       final Configuration yarnDriverRestartConfiguration =
