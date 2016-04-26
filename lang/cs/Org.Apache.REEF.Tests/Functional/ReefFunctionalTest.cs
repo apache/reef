@@ -197,16 +197,16 @@ namespace Org.Apache.REEF.Tests.Functional
                 if (numberOfOccurrences > 0)
                 {
                     Assert.True(numberOfOccurrences == successIndicators.Count(), 
-                        "Expected number of message occurrences " + numberOfOccurrences + " differs from actual " + successIndicators.Count());
+                        "Expected number of message \"" + message + "\" occurrences " + numberOfOccurrences + " differs from actual " + successIndicators.Count());
                 }
                 else if (numberOfOccurrences == 0)
                 {
                     Assert.True(0 == successIndicators.Count(),
-                        "Message not expected to occur but occurs " + successIndicators.Count() + " times");
+                        "Message \"" + message + "\" not expected to occur but occurs " + successIndicators.Count() + " times");
                 }
                 else
                 {
-                    Assert.True(successIndicators.Count() > 0, "Message expected to occur, but did not.");
+                    Assert.True(successIndicators.Count() > 0, "Message \"" + message + "\" expected to occur, but did not.");
                 }
             }
         }

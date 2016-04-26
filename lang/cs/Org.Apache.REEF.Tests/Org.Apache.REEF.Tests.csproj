@@ -84,6 +84,15 @@ under the License.
     <Compile Include="Functional\Bridge\TestSuspendTask.cs" />
     <Compile Include="Functional\Bridge\TestUnhandledTaskException.cs" />
     <Compile Include="Functional\Driver\DriverTestStartHandler.cs" />
+    <Compile Include="Functional\Failure\BasePoisonedEvaluatorWithActiveContextDriver.cs" />
+    <Compile Include="Functional\Failure\BasePoisonedEvaluatorWithRunningTaskDriver.cs" />
+    <Compile Include="Functional\Failure\BasePoisonedEvaluatorDriver.cs" />
+    <Compile Include="Functional\Failure\TestEvaluatorWithActiveContextDelayedPoison.cs" />
+    <Compile Include="Functional\Failure\TestEvaluatorWithCompletedTaskDelayedPoison.cs" />
+    <Compile Include="Functional\Failure\TestEvaluatorWithRunningTaskDelayedPoison.cs" />
+    <Compile Include="Functional\Failure\TestEvaluatorWithActiveContextImmediatePoison.cs" />
+    <Compile Include="Functional\Failure\TestEvaluatorWithRunningTaskImmediatePoison.cs" />
+    <Compile Include="Functional\Failure\SleepTask.cs" />
     <Compile Include="Functional\FaultTolerant\TestContextStart.cs" />
     <Compile Include="Functional\FaultTolerant\TestResubmitEvaluator.cs" />
     <Compile Include="Functional\FaultTolerant\TestResubmitTask.cs" />
@@ -94,7 +103,6 @@ under the License.
     <Compile Include="Functional\RuntimeName\EvaluatorRequestingDriverSpecifyingRuntimeName.cs" />
     <Compile Include="Functional\RuntimeName\EvaluatorRequestingDriver.cs" />
     <Compile Include="Functional\Driver\TestDriver.cs" />
-    <Compile Include="Functional\FaultTolerant\PoisonTest.cs" />
     <Compile Include="Functional\Messaging\MessageDriver.cs" />
     <Compile Include="Functional\Messaging\MessageTask.cs" />
     <Compile Include="Functional\Messaging\TestTaskMessage.cs" />
