@@ -50,16 +50,12 @@ namespace Org.Apache.REEF.Tests.Functional.Bridge
             CleanUp(testFolder);
         }
 
-        public IConfiguration DriverConfigurations()
+        private IConfiguration DriverConfigurations()
         {
-            var driverConfig = DriverConfiguration.ConfigurationModule
+            return DriverConfiguration.ConfigurationModule
                 .Set(DriverConfiguration.OnDriverStarted, GenericType<FailedTaskDriver>.Class)
                 .Set(DriverConfiguration.OnEvaluatorAllocated, GenericType<FailedTaskDriver>.Class)
                 .Set(DriverConfiguration.OnTaskFailed, GenericType<FailedTaskDriver>.Class)
-                .Build();
-
-            return TangFactory.GetTang().NewConfigurationBuilder(driverConfig)
-                .BindSetEntry<DriverBridgeConfigurationOptions.SetOfAssemblies, string>(typeof(FailTask).Assembly.GetName().Name)
                 .Build();
         }
 

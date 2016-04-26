@@ -159,6 +159,7 @@ namespace Org.Apache.REEF.Driver.Bridge
         }
 
         [NamedParameter]
+        [Obsolete("Deprecated in 0.15, will be removed.")]
         public class SetOfAssemblies : Name<ISet<string>>
         {
         }

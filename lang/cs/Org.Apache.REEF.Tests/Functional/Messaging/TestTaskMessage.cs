@@ -63,9 +63,9 @@ namespace Org.Apache.REEF.Tests.Functional.Messaging
             CleanUp(testFolder);
         }
 
-        public IConfiguration DriverConfigurations()
+        private IConfiguration DriverConfigurations()
         {
-            IConfiguration driverConfig = DriverConfiguration.ConfigurationModule
+            return DriverConfiguration.ConfigurationModule
             .Set(DriverConfiguration.OnDriverStarted, GenericType<MessageDriver>.Class)
             .Set(DriverConfiguration.OnEvaluatorAllocated, GenericType<MessageDriver>.Class)
             .Set(DriverConfiguration.OnTaskMessage, GenericType<MessageDriver>.Class)
@@ -73,13 +73,6 @@ namespace Org.Apache.REEF.Tests.Functional.Messaging
             .Set(DriverConfiguration.CustomTraceListeners, GenericType<DefaultCustomTraceListener>.Class)
             .Set(DriverConfiguration.CustomTraceLevel, Level.Info.ToString())
             .Build();
-
-            IConfiguration taskConfig = TangFactory.GetTang().NewConfigurationBuilder()
-                .BindSetEntry<DriverBridgeConfigurationOptions.SetOfAssemblies, string>(typeof(MessageTask).Assembly.GetName().Name)
-                .BindSetEntry<DriverBridgeConfigurationOptions.SetOfAssemblies, string>(typeof(NameClient).Assembly.GetName().Name)
-                .Build();
-
-            return Configurations.Merge(driverConfig, taskConfig);
         }
     }
 }

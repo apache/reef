@@ -158,14 +158,7 @@ namespace Org.Apache.REEF.Tests.Functional.ML.KMeans
                 .BindIntNamedParam<GroupCommConfigurationOptions.NumberOfTasks>(totalEvaluators.ToString())
                 .Build();
 
-            IConfiguration merged = Configurations.Merge(driverConfig, groupCommunicationDriverConfig);
-
-            IConfiguration taskConfig = TangFactory.GetTang().NewConfigurationBuilder()
-                .BindSetEntry<DriverBridgeConfigurationOptions.SetOfAssemblies, string>(typeof(KMeansMasterTask).Assembly.GetName().Name)
-                .BindSetEntry<DriverBridgeConfigurationOptions.SetOfAssemblies, string>(typeof(NameClient).Assembly.GetName().Name)
-                .Build();
-
-            return Configurations.Merge(merged, taskConfig);
+            return Configurations.Merge(driverConfig, groupCommunicationDriverConfig);
         }
     }
 }

@@ -72,14 +72,6 @@ namespace Org.Apache.REEF.Network.Examples.Client
 
             IConfiguration merged = Configurations.Merge(driverConfig, groupCommDriverConfig);
 
-            IConfiguration taskConfig = TangFactory.GetTang().NewConfigurationBuilder()
-                .BindSetEntry<DriverBridgeConfigurationOptions.SetOfAssemblies, string>(typeof(PipelinedMasterTask).Assembly.GetName().Name)
-                .BindSetEntry<DriverBridgeConfigurationOptions.SetOfAssemblies, string>(typeof(PipelinedSlaveTask).Assembly.GetName().Name)
-                .BindSetEntry<DriverBridgeConfigurationOptions.SetOfAssemblies, string>(typeof(NameClient).Assembly.GetName().Name)
-                .Build();
-
-            merged = Configurations.Merge(merged, taskConfig);
-
             string runPlatform = runOnYarn ? "yarn" : "local";
             BroadcastAndReduceClient.TestRun(merged, typeof(PipelinedBroadcastReduceDriver), numTasks, "PipelinedBroadcastReduceDriver", runPlatform);
         }

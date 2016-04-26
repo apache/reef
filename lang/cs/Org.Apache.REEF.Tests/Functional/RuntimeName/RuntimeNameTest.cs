@@ -99,23 +99,16 @@ namespace Org.Apache.REEF.Tests.Functional.Driver
             CleanUp(testFolder);
         }
 
-        public IConfiguration DriverConfigurationsWithEvaluatorRequest<T>(GenericType<T> type) 
+        private IConfiguration DriverConfigurationsWithEvaluatorRequest<T>(GenericType<T> type)
             where T : IObserver<IAllocatedEvaluator>, IObserver<IDriverStarted>, IObserver<IRunningTask>
         {
-            IConfiguration driverConfig = DriverConfiguration.ConfigurationModule
+            return DriverConfiguration.ConfigurationModule
                 .Set(DriverConfiguration.OnDriverStarted, type)
                 .Set(DriverConfiguration.OnEvaluatorAllocated, type)
                 .Set(DriverConfiguration.OnTaskRunning, type)
                 .Set(DriverConfiguration.CustomTraceListeners, GenericType<DefaultCustomTraceListener>.Class)
                 .Set(DriverConfiguration.CustomTraceLevel, Level.Info.ToString())
                 .Build();
-
-            IConfiguration taskConfig = TangFactory.GetTang().NewConfigurationBuilder()
-                .BindSetEntry<DriverBridgeConfigurationOptions.SetOfAssemblies, string>(typeof(RuntimeNameTask).Assembly.GetName().Name)
-                .BindSetEntry<DriverBridgeConfigurationOptions.SetOfAssemblies, string>(typeof(NameClient).Assembly.GetName().Name)
-                .Build();
-
-            return Configurations.Merge(driverConfig, taskConfig);
         }
     }
 }
