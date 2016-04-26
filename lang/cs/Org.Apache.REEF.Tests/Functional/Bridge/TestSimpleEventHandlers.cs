@@ -48,7 +48,7 @@ namespace Org.Apache.REEF.Tests.Functional.Bridge
             CleanUp(testFolder);
         }
 
-        public IConfiguration DriverConfigurations()
+        private IConfiguration DriverConfigurations()
         {
             var helloDriverConfiguration = REEF.Driver.DriverConfiguration.ConfigurationModule
                 .Set(REEF.Driver.DriverConfiguration.OnDriverStarted, GenericType<HelloSimpleEventHandlers>.Class)
@@ -67,8 +67,6 @@ namespace Org.Apache.REEF.Tests.Functional.Bridge
                 .Build();
 
             return TangFactory.GetTang().NewConfigurationBuilder(helloDriverConfiguration)
-                .BindSetEntry<DriverBridgeConfigurationOptions.SetOfAssemblies, string>(typeof(HelloTask).Assembly.GetName().Name)
-                .BindSetEntry<DriverBridgeConfigurationOptions.SetOfAssemblies, string>(typeof(NameClient).Assembly.GetName().Name)
                 .BindNamedParameter<IsRetain, bool>(GenericType<IsRetain>.Class, "false")
                 .BindNamedParameter<NumberOfEvaluators, int>(GenericType<NumberOfEvaluators>.Class, "1")
                 .Build();

@@ -81,13 +81,6 @@ namespace Org.Apache.REEF.Network.Examples.Client
 
             IConfiguration merged = Configurations.Merge(driverConfig, groupCommDriverConfig);
 
-            IConfiguration taskConfig = TangFactory.GetTang().NewConfigurationBuilder()
-                .BindSetEntry<DriverBridgeConfigurationOptions.SetOfAssemblies, string>(typeof(MasterTask).Assembly.GetName().Name)
-                .BindSetEntry<DriverBridgeConfigurationOptions.SetOfAssemblies, string>(typeof(NameClient).Assembly.GetName().Name)
-                .Build();
-
-            merged = Configurations.Merge(merged, taskConfig);
-
             string runPlatform = runOnYarn ? "yarn" : "local";
             TestRun(merged, typeof(BroadcastReduceDriver), numTasks, "BroadcastReduceDriver", runPlatform);
         }

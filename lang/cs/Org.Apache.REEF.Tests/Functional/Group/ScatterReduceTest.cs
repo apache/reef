@@ -58,7 +58,7 @@ namespace Org.Apache.REEF.Tests.Functional.Group
             TestRun(DriverConfigurations(numTasks), typeof(ScatterReduceDriver), numTasks, "ScatterReduceDriver", runPlatform, testFolder);
         }
 
-        public IConfiguration DriverConfigurations(int numTasks)
+        private IConfiguration DriverConfigurations(int numTasks)
         {
             IConfiguration driverConfig = TangFactory.GetTang().NewConfigurationBuilder(
                DriverConfiguration.ConfigurationModule
@@ -81,14 +81,7 @@ namespace Org.Apache.REEF.Tests.Functional.Group
                .BindIntNamedParam<GroupCommConfigurationOptions.NumberOfTasks>(numTasks.ToString())
                .Build();
 
-            IConfiguration merged = Configurations.Merge(driverConfig, groupCommDriverConfig);
-
-            IConfiguration taskConfig = TangFactory.GetTang().NewConfigurationBuilder()
-                .BindSetEntry<DriverBridgeConfigurationOptions.SetOfAssemblies, string>(typeof(MasterTask).Assembly.GetName().Name)
-                .BindSetEntry<DriverBridgeConfigurationOptions.SetOfAssemblies, string>(typeof(NameClient).Assembly.GetName().Name)
-                .Build();
-
-            return Configurations.Merge(merged, taskConfig);
+            return Configurations.Merge(driverConfig, groupCommDriverConfig);
         }
     }
 }
