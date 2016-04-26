@@ -106,7 +106,9 @@ under the License.
     <Compile Include="Evaluator\DriverConnectionConfigurationProviders\YarnClusterHttpDriverReconnConfigProvider.cs" />
     <Compile Include="Events\IContextStart.cs" />
     <Compile Include="Events\IContextStop.cs" />
+    <Compile Include="Exceptions\JavaTaskException.cs" />
     <Compile Include="Exceptions\JobException.cs" />
+    <Compile Include="Exceptions\NonSerializableTaskException.cs" />
     <Compile Include="Files\PathUtilities.cs" />
     <Compile Include="IContextAndTaskSubmittable.cs" />
     <Compile Include="IContextSubmittable.cs" />

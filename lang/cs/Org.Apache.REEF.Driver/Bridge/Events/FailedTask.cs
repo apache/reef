@@ -16,19 +16,26 @@
 // under the License.
 
 using System;
+using System.IO;
 using System.Runtime.Serialization;
+using System.Runtime.Serialization.Formatters.Binary;
 using Org.Apache.REEF.Common.Avro;
+using Org.Apache.REEF.Common.Exceptions;
 using Org.Apache.REEF.Driver.Bridge.Clr2java;
 using Org.Apache.REEF.Driver.Context;
 using Org.Apache.REEF.Driver.Task;
 using Org.Apache.REEF.Utilities;
+using Org.Apache.REEF.Utilities.Diagnostics;
 using Org.Apache.REEF.Utilities.Logging;
 
 namespace Org.Apache.REEF.Driver.Bridge.Events
 {
     internal sealed class FailedTask : IFailedTask
     {
-        private static readonly Logger LOGGER = Logger.GetLogger(typeof(FailedTask));
+        private static readonly Logger Logger = Logger.GetLogger(typeof(FailedTask));
+        
+        private readonly BinaryFormatter _formatter = new BinaryFormatter();
+        private readonly Exception _cause;
         
         public FailedTask(IFailedTaskClr2Java failedTaskClr2Java)
         {
@@ -38,9 +45,7 @@ namespace Org.Apache.REEF.Driver.Bridge.Events
             Id = avroFailedTask.identifier;
             Data = Optional<byte[]>.OfNullable(avroFailedTask.data);
             Message = avroFailedTask.message ?? "No message in Failed Task.";
-
-            // TODO[JIRA REEF-1258]: Fill this in with avroFailedTask.cause.
-            Cause = Optional<Exception>.Empty();
+            _cause = GetCause(avroFailedTask.cause, _formatter);
 
             // This is always empty, even in Java.
             Description = Optional<string>.Empty();
@@ -56,9 +61,12 @@ namespace Org.Apache.REEF.Driver.Bridge.Events
 
         public Optional<string> Description { get; set; }
 
-        public Optional<Exception> Cause { get; set; }
-
         public Optional<byte[]> Data { get; set; }
+
+        public Exception Cause
+        {
+            get { return _cause; }
+        }
 
         [DataMember]
         private IFailedTaskClr2Java FailedTaskClr2Java { get; set; }
@@ -87,7 +95,30 @@ namespace Org.Apache.REEF.Driver.Bridge.Events
 
         public Exception AsError()
         {
-            throw new NotImplementedException();
+            return Cause;
+        }
+
+        private static Exception GetCause(byte[] serializedCause, IFormatter formatter)
+        {
+            if (serializedCause == null)
+            {
+                return new JavaTaskException();
+            }
+
+            try
+            {
+                using (var memStream = new MemoryStream(serializedCause))
+                {
+                    return (Exception)formatter.Deserialize(memStream);
+                }
+            }
+            catch (Exception exception)
+            {
+                Exceptions.Caught(exception, Level.Info,
+                    "Exception from Task was not able to be deserialized, returning a NonSerializableException.", Logger);
+
+                return new NonSerializableTaskException("Exception from Task was not able to be deserialized");
+            }
         }
     }
 }
