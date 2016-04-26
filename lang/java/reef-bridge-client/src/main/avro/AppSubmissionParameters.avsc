@@ -55,8 +55,9 @@
         "doc": "General cross-language application submission parameters to the YARN runtime",
         "fields": [
           { "name": "sharedAppSubmissionParameters", "type": "AvroAppSubmissionParameters" },
-          { "name": "localRuntimeAppParameters", "type": "AvroLocalAppSubmissionParameters" },
-          { "name": "yarnRuntimeAppParameters", "type": "AvroYarnAppSubmissionParameters" },
+          { "name": "localRuntimeAppParameters", "type": ["null", "AvroLocalAppSubmissionParameters"], "default":
+          null },
+          { "name": "yarnRuntimeAppParameters", "type": ["null", "AvroYarnAppSubmissionParameters"], "default": null },
           { "name": "defaultRuntimeName", "type":"string", "doc":"The name of the default runtime" },
           { "name": "runtimes", "type": { "type" :"array", "items": "string"}, "doc":"defined runtimes" }
         ]
