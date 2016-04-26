@@ -125,7 +125,6 @@ public final class CommandLine {
    * @throws BindException if a binding of short-named parameter fails
    */
   @SafeVarargs
-  @SuppressWarnings("checkstyle:redundantmodifier")
   public final <T> CommandLine processCommandLine(
       final String[] args, final Class<? extends Name<?>>... argClasses)
       throws IOException, BindException {
