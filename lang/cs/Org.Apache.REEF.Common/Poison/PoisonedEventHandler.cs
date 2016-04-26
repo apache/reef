@@ -56,18 +56,15 @@ namespace Org.Apache.REEF.Common.Poison
 
         /// <summary>
         /// Throws a PoisonException with probability CrashProbability between time CrashMinDelay and CrashMinDelay + CrashTimeout.
+        /// Uses a separate thread to throw the exception.
         /// </summary>
         public void OnNext(T value)
         {
-            Logger.Log(Level.Verbose, "Poisoned handler for {0}", typeof(T).FullName);
+            Logger.Log(Level.Info, "Poisoned handler for {0}", typeof(T).FullName);
             if (_rand.NextDouble() <= _crashProbability)
             {
                 int timeToCrash = _rand.Next(_crashTimeout) + _crashMinDelay;
                 Logger.Log(Level.Info, "Poisoning successful, crashing in {0} msec.", timeToCrash);
-                if (timeToCrash == 0)
-                {
-                    throw new PoisonException("Crashed at " + DateTime.Now);
-                }
                 IObserver<Alarm> poisonedAlarm = Observer.Create<Alarm>(
                     x =>
                     {
