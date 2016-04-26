@@ -145,22 +145,6 @@ namespace Org.Apache.REEF.IO.TestClient
         }
 
         /// <summary>
-        /// Read bytes from all the files in the file folder and return one by one
-        /// </summary>
-        /// <param name="fileFolder"></param>
-        /// <returns></returns>
-        [Obsolete("Remove after 0.14")]
-        public IEnumerable<byte> Deserialize(string fileFolder)
-        {
-            var files = new HashSet<string>();
-            foreach (var f in Directory.GetFiles(fileFolder))
-            {
-                files.Add(f);
-            }
-            return Deserialize(files);
-        }
-
-        /// <summary>
         /// Read bytes from all the files in the set and return one by one
         /// </summary>
         /// <param name="filePaths"></param>

@@ -102,9 +102,7 @@ namespace Org.Apache.REEF.Driver.Bridge.Events
 
         public EvaluatorRequestBuilder NewBuilder(IEvaluatorRequest request)
         {
-#pragma warning disable 618
             return new EvaluatorRequestBuilder(request);
-#pragma warning restore 618
         }
 
         public void Dispose()

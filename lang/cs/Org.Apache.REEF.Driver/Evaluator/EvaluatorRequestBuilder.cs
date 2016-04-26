@@ -16,7 +16,6 @@
 // under the License.
 
 using System;
-
 using Org.Apache.REEF.Common.Runtime;
 
 namespace Org.Apache.REEF.Driver.Evaluator
@@ -27,8 +26,7 @@ namespace Org.Apache.REEF.Driver.Evaluator
         private string _rackName;
         private string _runtimeName;
 
-        [Obsolete("This constructor will be internal after 0.13.")]
-        public EvaluatorRequestBuilder(IEvaluatorRequest request)
+        internal EvaluatorRequestBuilder(IEvaluatorRequest request)
         {
             Number = request.Number;
             MegaBytes = request.MemoryMegaBytes;
@@ -124,9 +122,7 @@ namespace Org.Apache.REEF.Driver.Evaluator
         /// <returns></returns>
         public IEvaluatorRequest Build()
         {
-#pragma warning disable 618
             return new EvaluatorRequest(Number, MegaBytes, VirtualCore, rack: _rackName, evaluatorBatchId: _evaluatorBatchId, runtimeName: _runtimeName);
-#pragma warning restore 618
         }
     }
 }
