@@ -187,7 +187,6 @@ public final class EvaluatorRequest {
      * @param runtimeName to request for the Evaluator.
      * @return this builder
      */
-    @SuppressWarnings("checkstyle:hiddenfield")
     public Builder setRuntimeName(final String runtimeName) {
       this.runtimeName = runtimeName;
       return this;
