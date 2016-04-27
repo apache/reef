@@ -18,6 +18,7 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Threading;
 using Org.Apache.REEF.Common.Tasks;
@@ -72,7 +73,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         private readonly IEvaluatorRequestor _evaluatorRequestor;
         private ICommunicationGroupDriver _commGroup;
         private readonly IGroupCommDriver _groupCommDriver;
-        private readonly TaskStarter _groupCommTaskStarter;
+        private TaskStarter _groupCommTaskStarter;
         private readonly ConcurrentStack<IConfiguration> _perMapperConfiguration;
         private readonly int _coresPerMapper;
         private readonly int _coresForUpdateTask;
@@ -80,10 +81,12 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         private readonly int _memoryForUpdateTask;
         private readonly ISet<IPerMapperConfigGenerator> _perMapperConfigs;
         private readonly ISet<ICompletedTask> _completedTasks = new HashSet<ICompletedTask>();
+        private readonly IDictionary<string, IActiveContext> _activeContexts = new Dictionary<string, IActiveContext>();
         private readonly int _allowedFailedEvaluators;
         private int _currentFailedEvaluators = 0;
         private readonly bool _invokeGC;
         private int _numberOfReadyTasks = 0;
+        private readonly object _lock = new object();
 
         private readonly ServiceAndContextConfigurationProvider<TMapInput, TMapOutput, TPartitionType>
             _serviceAndContextConfigurationProvider;
@@ -114,8 +117,6 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
             _allowedFailedEvaluators = (int)(failedEvaluatorsFraction * dataSet.Count);
             _invokeGC = invokeGC;
 
-            AddGroupCommunicationOperators();
-            _groupCommTaskStarter = new TaskStarter(_groupCommDriver, _totalMappers + 1);
             _perMapperConfiguration = ConstructPerMapperConfigStack(_totalMappers);
             _serviceAndContextConfigurationProvider =
                 new ServiceAndContextConfigurationProvider<TMapInput, TMapOutput, TPartitionType>(dataSet);
@@ -136,6 +137,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         public void OnNext(IDriverStarted value)
         {
             RequestUpdateEvaluator();
+            RequestMapEvaluators(_totalMappers);
             //// TODO[REEF-598]: Set a timeout for this request to be satisfied. If it is not within that time, exit the Driver.
         }
 
@@ -152,29 +154,61 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         }
 
         /// <summary>
-        /// Specifies the Map or Update task to run on the active context
+        /// Adds active context to _activeContexts collection. After all the active context is received, calls SubmitTasks().
         /// </summary>
         /// <param name="activeContext"></param>
         public void OnNext(IActiveContext activeContext)
         {
-            Logger.Log(Level.Verbose, string.Format("Received Active Context {0}", activeContext.Id));
+            Logger.Log(Level.Verbose, string.Format(CultureInfo.InvariantCulture, "Received Active Context {0}", activeContext.Id));
 
-            if (_serviceAndContextConfigurationProvider.IsMasterEvaluatorId(activeContext.EvaluatorId))
+            lock (_lock)
             {
-                Logger.Log(Level.Verbose, "Submitting master task");
-                _commGroup.AddTask(IMRUConstants.UpdateTaskName);
-                _groupCommTaskStarter.QueueTask(GetUpdateTaskConfiguration(), activeContext);
-                RequestMapEvaluators(_totalMappers);
+                if (_activeContexts.ContainsKey(activeContext.Id))
+                {
+                    var msg = string.Format(CultureInfo.InvariantCulture, "The context [{0}] received is already exists.", activeContext.Id);
+                    Exceptions.Throw(new ApplicationException(msg), Logger);
+                }
+                _activeContexts.Add(activeContext.Id, activeContext);
+
+                if (_activeContexts.Count == _totalMappers + 1)
+                {
+                    SubmitTasks();
+                }
             }
-            else
+        }
+
+        /// <summary>
+        /// Creates a new Communication Group and adds Group Communication Operators,
+        /// specifies the Map or Update task to run on each active context.
+        /// </summary>
+        private void SubmitTasks()
+        {
+            lock (_lock)
             {
-                Logger.Log(Level.Verbose, "Submitting map task");
-                _serviceAndContextConfigurationProvider.RecordActiveContextPerEvaluatorId(activeContext.EvaluatorId);
-                string taskId = GetTaskIdByEvaluatorId(activeContext.EvaluatorId);
-                _commGroup.AddTask(taskId);
-                _groupCommTaskStarter.QueueTask(GetMapTaskConfiguration(activeContext, taskId), activeContext);
-                Interlocked.Increment(ref _numberOfReadyTasks);
-                Logger.Log(Level.Verbose, string.Format("{0} Tasks are ready for submission", _numberOfReadyTasks));
+                AddGroupCommunicationOperators();
+                _groupCommTaskStarter = new TaskStarter(_groupCommDriver, _totalMappers + 1);
+
+                foreach (var activeContext in _activeContexts.Values)
+                {
+                    if (_serviceAndContextConfigurationProvider.IsMasterEvaluatorId(activeContext.EvaluatorId))
+                    {
+                        Logger.Log(Level.Verbose, "Submitting master task");
+                        _commGroup.AddTask(IMRUConstants.UpdateTaskName);
+                        _groupCommTaskStarter.QueueTask(GetUpdateTaskConfiguration(), activeContext);
+                    }
+                    else
+                    {
+                        Logger.Log(Level.Verbose, "Submitting map task");
+                        _serviceAndContextConfigurationProvider.RecordActiveContextPerEvaluatorId(
+                            activeContext.EvaluatorId);
+                        string taskId = GetTaskIdByEvaluatorId(activeContext.EvaluatorId);
+                        _commGroup.AddTask(taskId);
+                        _groupCommTaskStarter.QueueTask(GetMapTaskConfiguration(activeContext, taskId), activeContext);
+                        _numberOfReadyTasks++;
+                        Logger.Log(Level.Verbose,
+                            string.Format("{0} Tasks are ready for submission", _numberOfReadyTasks));
+                    }
+                }
             }
         }
 
@@ -226,6 +260,8 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
             }
 
             _serviceAndContextConfigurationProvider.RecordEvaluatorFailureById(value.Id);
+            RemovedFailedContext(value);
+
             bool isMaster = _serviceAndContextConfigurationProvider.IsMasterEvaluatorId(value.Id);
 
             // If failed evaluator is master then ask for master 
@@ -239,6 +275,44 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
             {
                 Logger.Log(Level.Info, string.Format("Requesting a replacement master Evaluator for {0}", value.Id));
                 RequestUpdateEvaluator();
+            }
+        }
+
+        /// <summary>
+        /// This is to remove failed context from _activeContexts
+        /// More details will be implemented when working on REEF-1251
+        /// </summary>
+        /// <param name="value"></param>
+        private void RemovedFailedContext(IFailedEvaluator value)
+        {
+            //// The lock might be move to IFailedEvaluator handler when working on REEF-1251
+            lock (_lock)
+            {
+                if (value.FailedContexts == null)
+                {
+                    Exceptions.Throw(new SystemException("There is no context attached with failed evaluator."), Logger);
+                }
+                else if (value.FailedContexts.Count == 1)
+                {
+                    var failedContextId = value.FailedContexts[0].Id;
+                    if (!_activeContexts.ContainsKey(failedContextId))
+                    {
+                        var msg = string.Format(CultureInfo.InvariantCulture,
+                       "The active context [{0}] attached in IFailedEvaluator [{1}] is not in the _activeContexts", failedContextId, value.Id);
+                        Exceptions.Throw(new SystemException(msg), Logger);
+                    }
+                    else
+                    {
+                        _activeContexts.Remove(value.FailedContexts[0].Id);
+                    }
+                }
+                else
+                {
+                    var msg = string.Format(CultureInfo.InvariantCulture,
+                        "There are [{0}] contexts attached in the failed evaluator. Expected number is 1.",
+                        value.FailedContexts.Count);
+                    Exceptions.Throw(new IMRUSystemException(msg), Logger);
+                }
             }
         }
 
@@ -450,7 +524,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
             }
 
             _commGroup =
-                _groupCommDriver.DefaultGroup
+                _groupCommDriver.NewCommunicationGroup(IMRUConstants.CommunicationGroupName, _totalMappers + 1)
                     .AddBroadcast<MapInputWithControlMessage<TMapInput>>(
                         IMRUConstants.BroadcastOperatorName,
                         IMRUConstants.UpdateTaskName,
