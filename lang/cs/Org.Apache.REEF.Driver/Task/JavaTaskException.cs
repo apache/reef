@@ -17,7 +17,7 @@
 
 using System;
 
-namespace Org.Apache.REEF.Common.Exceptions
+namespace Org.Apache.REEF.Driver.Task
 {
     /// <summary>
     /// A Task Exception from the Java side. Generally not expected.

@@ -34,7 +34,6 @@ namespace Org.Apache.REEF.Driver.Bridge.Events
     {
         private static readonly Logger Logger = Logger.GetLogger(typeof(FailedTask));
         
-        private readonly BinaryFormatter _formatter = new BinaryFormatter();
         private readonly Exception _cause;
         
         public FailedTask(IFailedTaskClr2Java failedTaskClr2Java)
@@ -45,7 +44,7 @@ namespace Org.Apache.REEF.Driver.Bridge.Events
             Id = avroFailedTask.identifier;
             Data = Optional<byte[]>.OfNullable(avroFailedTask.data);
             Message = avroFailedTask.message ?? "No message in Failed Task.";
-            _cause = GetCause(avroFailedTask.cause, ByteUtilities.ByteArraysToString(avroFailedTask.data), _formatter);
+            _cause = GetCause(avroFailedTask.cause, ByteUtilities.ByteArraysToString(avroFailedTask.data));
 
             // This is always empty, even in Java.
             Description = Optional<string>.Empty();
@@ -98,7 +97,7 @@ namespace Org.Apache.REEF.Driver.Bridge.Events
             return Cause;
         }
 
-        private static Exception GetCause(byte[] serializedCause, string taskExceptionString, IFormatter formatter)
+        private static Exception GetCause(byte[] serializedCause, string taskExceptionString)
         {
             if (serializedCause == null)
             {
@@ -109,7 +108,7 @@ namespace Org.Apache.REEF.Driver.Bridge.Events
             {
                 using (var memStream = new MemoryStream(serializedCause))
                 {
-                    return (Exception)formatter.Deserialize(memStream);
+                    return (Exception)new BinaryFormatter().Deserialize(memStream);
                 }
             }
             catch (SerializationException se)
