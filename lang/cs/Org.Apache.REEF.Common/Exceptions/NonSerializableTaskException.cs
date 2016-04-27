@@ -27,8 +27,8 @@ namespace Org.Apache.REEF.Common.Exceptions
     [Serializable]
     public sealed class NonSerializableTaskException : Exception
     {
-        public NonSerializableTaskException(string message)
-            : base(message)
+        public NonSerializableTaskException(string message, SerializationException serializationException)
+            : base(message, serializationException)
         {
         }
 

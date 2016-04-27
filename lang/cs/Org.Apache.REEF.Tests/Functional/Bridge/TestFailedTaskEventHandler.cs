@@ -130,9 +130,22 @@ namespace Org.Apache.REEF.Tests.Functional.Bridge
                 }
                 else
                 {
-                    if (value.AsError() == null || !(value.AsError() is NonSerializableTaskException))
+                    var taskException = value.AsError();
+                    if (taskException == null)
                     {
-                        throw new Exception("Expected a NonSerializableTaskException.");
+                        throw new Exception("Expected a non-null task exception.");
+                    }
+
+                    var nonSerializableTaskException = taskException as NonSerializableTaskException;
+                    if (nonSerializableTaskException == null)
+                    {
+                        throw new Exception(
+                            "Expected a NonSerializableTaskException from Task, instead got Exception of type " + taskException.GetType());
+                    }
+
+                    if (!(nonSerializableTaskException.InnerException is SerializationException))
+                    {
+                        throw new Exception("Expected a SerializationException as the inner Exception of the Task Exception.");
                     }
 
                     _shouldReceiveSerializableException = true;

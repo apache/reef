@@ -24,17 +24,8 @@ namespace Org.Apache.REEF.Common.Exceptions
     /// </summary>
     public sealed class JavaTaskException : Exception
     {
-        public JavaTaskException()
-        {
-        }
-
-        public JavaTaskException(string message)
+        internal JavaTaskException(string message)
             : base(message)
-        {
-        }
-
-        public JavaTaskException(string message, Exception inner)
-            : base(message, inner)
         {
         }
     }

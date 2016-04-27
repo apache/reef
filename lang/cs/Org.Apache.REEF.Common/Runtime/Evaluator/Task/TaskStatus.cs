@@ -257,9 +257,9 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Task
                     {
                         error = SerializeException(_lastException.Value);
                     }
-                    catch (SerializationException)
+                    catch (SerializationException se)
                     {
-                        error = SerializeException(new NonSerializableTaskException(_lastException.Value.ToString()));
+                        error = SerializeException(new NonSerializableTaskException(_lastException.Value.ToString(), se));
                     }
 
                     var avroFailedTask = new AvroFailedTask

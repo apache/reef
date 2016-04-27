@@ -134,8 +134,9 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Task
                     }
                     catch (Exception)
                     {
-                        // TODO[JIRA REEF-1364]: Properly handle Exceptions.
+                        // TODO[JIRA REEF-1364]: Properly handle Exceptions and send a message to the Driver.
                         Logger.Log(Level.Error, "Received uncaught System Exception, force shutting down the Evaluator.");
+
                         Environment.Exit(1);
                     }
                     finally
