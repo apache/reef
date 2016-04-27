@@ -144,11 +144,9 @@ namespace Org.Apache.REEF.IO.PartitionedData.FileSystem
                     // For now, assume IFileDeSerializer is local.
                     return _fileSerializer.Deserialize(_localFiles.Value);
                 }
-                else
-                {
-                    // For now, assume IFileDeSerializer is remote.
-                    return _fileSerializer.Deserialize(_remoteFilePaths);
-                }
+
+                // For now, assume IFileDeSerializer is remote.
+                return _fileSerializer.Deserialize(_remoteFilePaths);
             }
         }
 
