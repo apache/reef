@@ -144,6 +144,7 @@ namespace Org.Apache.REEF.IO.PartitionedData.FileSystem
         /// </summary>
         public void Dispose()
         {
+            _fileSerializer.Dispose();
             if (_localFiles.Count > 0)
             {
                 foreach (var fileName in _localFiles)

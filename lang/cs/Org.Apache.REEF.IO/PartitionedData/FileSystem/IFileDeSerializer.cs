@@ -23,7 +23,7 @@ namespace Org.Apache.REEF.IO.PartitionedData.FileSystem
     /// A interface for user to implement its deserializer.
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public interface IFileDeSerializer<T>
+    public interface IFileDeSerializer<T> : IDisposable
     {
         /// <summary>
         /// The input is a set of file paths. 

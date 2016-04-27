@@ -331,6 +331,13 @@ namespace Org.Apache.REEF.IO.Tests
                 }
             }
         }
+
+        /// <summary>
+        /// Dispose logic for the class. In this case does nothing
+        /// </summary>
+        public void Dispose()
+        {
+        }
     }
 
     public class Row
@@ -373,6 +380,13 @@ namespace Org.Apache.REEF.IO.Tests
                     }
                 }
             }
+        }
+
+        /// <summary>
+        /// Dispose logic for the class. In this case does nothing
+        /// </summary>
+        public void Dispose()
+        {
         }
     }
 }

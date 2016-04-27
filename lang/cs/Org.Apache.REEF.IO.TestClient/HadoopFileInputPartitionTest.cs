@@ -163,5 +163,12 @@ namespace Org.Apache.REEF.IO.TestClient
                 }
             }
         }
+
+        /// <summary>
+        /// Dispose logic for the class. In this case does nothing
+        /// </summary>
+        public void Dispose()
+        {
+        }
     }
 }
