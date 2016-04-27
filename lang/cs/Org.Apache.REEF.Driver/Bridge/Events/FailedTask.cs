@@ -62,11 +62,6 @@ namespace Org.Apache.REEF.Driver.Bridge.Events
 
         public Optional<byte[]> Data { get; set; }
 
-        public Exception Cause
-        {
-            get { return _cause; }
-        }
-
         [DataMember]
         private IFailedTaskClr2Java FailedTaskClr2Java { get; set; }
 
@@ -94,7 +89,7 @@ namespace Org.Apache.REEF.Driver.Bridge.Events
 
         public Exception AsError()
         {
-            return Cause;
+            return _cause;
         }
 
         private static Exception GetCause(byte[] serializedCause, string taskExceptionString)
