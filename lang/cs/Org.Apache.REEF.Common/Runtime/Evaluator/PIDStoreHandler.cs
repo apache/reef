@@ -32,11 +32,11 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator
     {
         private static readonly Logger Logger = Logger.GetLogger(typeof(PIDStoreHandler));
 
+        private readonly object _lockObject = new object();
+
+        private readonly REEFFileNames _reefFileNames;
+
         private bool _pidIsWritten = false;
-
-        private object lockObject = new object();
-
-        private REEFFileNames _reefFileNames;
 
         [Inject]
         private PIDStoreHandler(REEFFileNames reefFileNames)
@@ -49,7 +49,7 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator
         /// </summary>
         internal void WritePID()
         {
-            lock (lockObject)
+            lock (_lockObject)
             {
                 if (!_pidIsWritten)
                 {
@@ -68,9 +68,9 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator
                         Logger.Log(Level.Verbose, "Writing PID {0} to file {1}", pid, path);
                         _pidIsWritten = true;
                     }
-                    catch (Exception e)
+                    catch (IOException e)
                     {
-                        Logger.Log(Level.Error, "Failed writing PID with exception {0}", e);                        
+                        Utilities.Diagnostics.Exceptions.Caught(e, Level.Error, Logger);
                     }
                 }
             }
