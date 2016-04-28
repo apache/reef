@@ -150,7 +150,7 @@ namespace Org.Apache.REEF.Wake.Time.Runtime
         /// Start the RuntimeClock.
         /// Clock will continue to run and handle events until it has been disposed.
         /// </summary>
-        public void Run()
+        public override void Run()
         {
             SubscribeHandlers();
 

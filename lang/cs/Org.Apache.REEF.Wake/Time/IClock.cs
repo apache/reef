@@ -45,6 +45,14 @@ namespace Org.Apache.REEF.Wake.Time
         public abstract void Dispose();
 
         /// <summary>
+        /// Start the Clock.
+        /// </summary>
+        /// <remarks>
+        /// The clock will continue to run and handle events until it has been disposed.
+        /// </remarks>
+        public abstract void Run();
+
+        /// <summary>
         /// Bind this to an event handler to statically subscribe to the StartTime Event
         /// </summary>
         [NamedParameter(documentation: "Will be called upon the start even", defaultClass: typeof(MissingStartHandlerHandler))]
