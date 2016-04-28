@@ -155,7 +155,7 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator
             {
                 try
                 {
-                    Logger.Log(Level.Error, "Runtime start");
+                    Logger.Log(Level.Info, "Runtime start");
                     _pidStoreHelper.WritePID();
                     if (_state != State.INIT)
                     {

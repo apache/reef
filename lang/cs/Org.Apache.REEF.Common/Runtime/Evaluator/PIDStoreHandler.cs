@@ -15,9 +15,11 @@
 // specific language governing permissions and limitations
 // under the License.
 
+using System;
 using System.Diagnostics;
 using System.IO;
 
+using Org.Apache.REEF.Common.Files;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Utilities.Logging;
 
@@ -30,39 +32,46 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator
     {
         private static readonly Logger Logger = Logger.GetLogger(typeof(PIDStoreHandler));
 
-        /// <summary>
-        /// The file name of the PID file created in the current working directory of the process.
-        /// This is similar to the file name in teh PIDStoreHandler.java
-        /// </summary>
-        public const string PidFileName = "PID.txt";
-
         private bool _pidIsWritten = false;
 
+        private object lockObject = new object();
+
+        private REEFFileNames _reefFileNames;
+
         [Inject]
-        private PIDStoreHandler()
+        private PIDStoreHandler(REEFFileNames reefFileNames)
         {
+            _reefFileNames = reefFileNames;
         }
 
         /// <summary>
-        /// 
+        /// Writes PID to the runtime folder
         /// </summary>
         public void WritePID()
         {
-            lock (this)
+            lock (lockObject)
             {
                 if (!_pidIsWritten)
                 {
                     string currentDirectory = Directory.GetCurrentDirectory();
-                    string path = currentDirectory + @"\" + PidFileName;
-                    var pid = Process.GetCurrentProcess().Id;
-                    using (StreamWriter sw = File.CreateText(path))
-                    {
-                        sw.WriteLine(pid);
-                        sw.Flush();
-                    }
+                    string path = Path.Combine(currentDirectory, _reefFileNames.GetPidFileName());
 
-                    Logger.Log(Level.Error, "Writing PID {0} to file {1}", pid, path);
-                    _pidIsWritten = true;
+                    try
+                    {
+                        var pid = Process.GetCurrentProcess().Id;
+                        using (StreamWriter sw = File.CreateText(path))
+                        {
+                            sw.WriteLine(pid);
+                            sw.Flush();
+                        }
+
+                        Logger.Log(Level.Verbose, "Writing PID {0} to file {1}", pid, path);
+                        _pidIsWritten = true;
+                    }
+                    catch (Exception e)
+                    {
+                        Logger.Log(Level.Error, "Failed writing PID with exception {0}", e);                        
+                    }
                 }
             }
         }
