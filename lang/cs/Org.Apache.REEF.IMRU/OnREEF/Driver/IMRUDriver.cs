@@ -288,30 +288,31 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
             //// The lock might be move to IFailedEvaluator handler when working on REEF-1251
             lock (_lock)
             {
-                if (value.FailedContexts == null)
+                if (value.FailedContexts != null && value.FailedContexts.Count > 0)
                 {
-                    Exceptions.Throw(new SystemException("There is no context attached with failed evaluator."), Logger);
-                }
-                else if (value.FailedContexts.Count == 1)
-                {
-                    var failedContextId = value.FailedContexts[0].Id;
-                    if (!_activeContexts.ContainsKey(failedContextId))
+                    if (value.FailedContexts.Count == 1)
                     {
-                        var msg = string.Format(CultureInfo.InvariantCulture,
-                       "The active context [{0}] attached in IFailedEvaluator [{1}] is not in the _activeContexts", failedContextId, value.Id);
-                        Exceptions.Throw(new SystemException(msg), Logger);
+                        var failedContextId = value.FailedContexts[0].Id;
+                        if (!_activeContexts.ContainsKey(failedContextId))
+                        {
+                            var msg = string.Format(CultureInfo.InvariantCulture,
+                                "The active context [{0}] attached in IFailedEvaluator [{1}] is not in the Active Contexts collection.",
+                                failedContextId,
+                                value.Id);
+                            Exceptions.Throw(new SystemException(msg), Logger);
+                        }
+                        else
+                        {
+                            _activeContexts.Remove(failedContextId);
+                        }
                     }
                     else
                     {
-                        _activeContexts.Remove(value.FailedContexts[0].Id);
+                        var msg = string.Format(CultureInfo.InvariantCulture,
+                            "There are [{0}] contexts attached in the failed evaluator. Expected number is 1.",
+                            value.FailedContexts.Count);
+                        Exceptions.Throw(new IMRUSystemException(msg), Logger);
                     }
-                }
-                else
-                {
-                    var msg = string.Format(CultureInfo.InvariantCulture,
-                        "There are [{0}] contexts attached in the failed evaluator. Expected number is 1.",
-                        value.FailedContexts.Count);
-                    Exceptions.Throw(new IMRUSystemException(msg), Logger);
                 }
             }
         }
