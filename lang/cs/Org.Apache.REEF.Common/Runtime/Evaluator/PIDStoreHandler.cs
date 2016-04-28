@@ -28,7 +28,7 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator
     /// <summary>
     /// A PID store handler for c# evaluator
     /// </summary>
-    public sealed class PIDStoreHandler
+    internal sealed class PIDStoreHandler
     {
         private static readonly Logger Logger = Logger.GetLogger(typeof(PIDStoreHandler));
 
@@ -47,7 +47,7 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator
         /// <summary>
         /// Writes PID to the runtime folder
         /// </summary>
-        public void WritePID()
+        internal void WritePID()
         {
             lock (lockObject)
             {
