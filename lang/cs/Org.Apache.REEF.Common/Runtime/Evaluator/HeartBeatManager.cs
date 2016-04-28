@@ -194,7 +194,6 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator
             LOGGER.Log(Level.Verbose, "Before acquiring lock: HeartbeatManager::OnNext(TaskStatusProto)");
             lock (this)
             {
-                LOGGER.Log(Level.Verbose, "TASKSTATUSPROTO: " + taskStatusProto); 
                 LOGGER.Log(Level.Verbose, "HeartbeatManager::OnNext(TaskStatusProto)");
                 EvaluatorHeartbeatProto heartbeatProto = GetEvaluatorHeartbeatProto(
                     EvaluatorRuntime.GetEvaluatorStatus(),

@@ -101,9 +101,6 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Task
                 {
                     try
                     {
-                        Logger.Log(Level.Error,
-                            string.Format(CultureInfo.InvariantCulture, "Task is done."));
-
                         // Task failed.
                         if (runTask.IsFaulted)
                         {
