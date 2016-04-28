@@ -39,10 +39,13 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator
 
         private State _state = State.INIT;
 
+        private PIDStoreHandler _pidStoreHelper;
+
         [Inject]
         public EvaluatorRuntime(
             ContextManager contextManager,
-            IHeartBeatManager heartBeatManager)
+            IHeartBeatManager heartBeatManager,
+            PIDStoreHandler pidStoreHelper)
         {
             using (Logger.LogFunction("EvaluatorRuntime::EvaluatorRuntime"))
             {
@@ -50,6 +53,7 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator
                 _clock = _heartBeatManager.EvaluatorSettings.RuntimeClock;
                 _contextManager = contextManager;
                 _evaluatorId = _heartBeatManager.EvaluatorSettings.EvalutorId;
+                _pidStoreHelper = pidStoreHelper;
                 var remoteManager = _heartBeatManager.EvaluatorSettings.RemoteManager;
 
                 ReefMessageProtoObserver driverObserver = new ReefMessageProtoObserver();
@@ -152,6 +156,7 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator
                 try
                 {
                     Logger.Log(Level.Info, "Runtime start");
+                    _pidStoreHelper.WritePID();
                     if (_state != State.INIT)
                     {
                         var e = new InvalidOperationException("State should be init.");

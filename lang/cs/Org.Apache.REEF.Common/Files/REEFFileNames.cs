@@ -60,6 +60,7 @@ namespace Org.Apache.REEF.Common.Files
         private const string YARN_DRIVER_STDOUT_PATH = YARN_DEFAULT_DRIVER_OUT_VAR + "/driver.stdout";
         private const string YARN_DRIVER_STDERR_PATH = YARN_DEFAULT_DRIVER_OUT_VAR + "/driver.stderr";
         private const string DRIVER_COMMAND_LOGGING_CONFIG = "1> <LOG_DIR>/driver.stdout 2> <LOG_DIR>/driver.stderr";
+        private const string PID_FILE_NAME = "PID.txt";
 
         [Inject]
         public REEFFileNames()
@@ -323,6 +324,15 @@ namespace Org.Apache.REEF.Common.Files
         public string GetSecurityTokenPasswordFileName()
         {
             return SECURITY_TOKEN_PASSWORD_FILE;
+        }
+
+        /// <summary>
+        /// The file name of the PID file created in the current working directory of the process.
+        /// This is similar to the file name in the PIDStoreHandler.java
+        /// </summary>
+        public string GetPidFileName()
+        {
+            return PID_FILE_NAME;
         }
 
         /// <summary>
