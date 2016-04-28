@@ -70,6 +70,7 @@ under the License.
     <Compile Include="OnREEF\Client\REEFIMRUClient.cs" />
     <Compile Include="OnREEF\Driver\ConfigurationManager.cs" />
     <Compile Include="OnREEF\Driver\ContextAndServiceConfiguration.cs" />
+    <Compile Include="OnREEF\Driver\ActiveContextManager.cs" />
     <Compile Include="OnREEF\Driver\DataLoadingContext.cs" />
     <Compile Include="OnREEF\Driver\MaximumNumberOfEvalutorFailuresExceededException.cs" />
     <Compile Include="OnREEF\Driver\IMRUSystemException.cs" />
