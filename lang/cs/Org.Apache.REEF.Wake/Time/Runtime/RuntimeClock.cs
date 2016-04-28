@@ -135,6 +135,7 @@ namespace Org.Apache.REEF.Wake.Time.Runtime
         /// Register the IObserver for the particular Time event.
         /// </summary>
         /// <param name="observer">The handler to register</param>
+        [Obsolete("Will be removed in REEF 0.16")]
         public void RegisterObserver<U>(IObserver<U> observer) where U : Time
         {
             if (_disposed)
