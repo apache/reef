@@ -215,7 +215,7 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator
             }
         }
 
-        private void OnException(Exception e)
+        internal void OnException(Exception e)
         {
             lock (_heartBeatManager)
             {

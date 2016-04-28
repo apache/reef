@@ -297,17 +297,8 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Context
 
                 var taskRuntime = taskInjector.GetInstance<TaskRuntime>();
 
-                try
-                {
-                    _task = Optional<TaskRuntime>.Of(taskRuntime);
-                    return taskRuntime.RunTask();
-                }
-                catch (Exception e)
-                {
-                    var ex = new TaskClientCodeException(string.Empty, Id, "Unable to run the new task", e);
-                    Utilities.Diagnostics.Exceptions.CaughtAndThrow(ex, Level.Error, "Task start error.", LOGGER);
-                    return null;
-                }
+                _task = Optional<TaskRuntime>.Of(taskRuntime);
+                return taskRuntime.RunTask();
             }
         }
 

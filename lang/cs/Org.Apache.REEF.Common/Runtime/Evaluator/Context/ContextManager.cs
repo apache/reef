@@ -20,11 +20,14 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Globalization;
 using System.Linq;
+using System.Threading.Tasks;
 using Org.Apache.REEF.Common.Protobuf.ReefProtocol;
 using Org.Apache.REEF.Common.Runtime.Evaluator.Task;
 using Org.Apache.REEF.Common.Tasks;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Tang.Formats;
+using Org.Apache.REEF.Tang.Implementations.InjectionPlan;
+using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Utilities;
 using Org.Apache.REEF.Utilities.Logging;
 
@@ -33,21 +36,26 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Context
     internal sealed class ContextManager : IDisposable
     {
         private static readonly Logger LOGGER = Logger.GetLogger(typeof(ContextManager));
+        
         private readonly IHeartBeatManager _heartBeatManager;
         private readonly RootContextLauncher _rootContextLauncher;
         private readonly object _contextLock = new object();
         private readonly AvroConfigurationSerializer _serializer;
+        private readonly IInjectionFuture<EvaluatorRuntime> _evaluatorRuntime;
+
         private ContextRuntime _topContext = null;
 
         [Inject]
         private ContextManager(
             AvroConfigurationSerializer serializer,
             IHeartBeatManager heartBeatManager,
-            RootContextLauncher rootContextLauncher)
+            RootContextLauncher rootContextLauncher,
+            IInjectionFuture<EvaluatorRuntime> evaluatorRuntime)
         {
             _rootContextLauncher = rootContextLauncher;
             _heartBeatManager = heartBeatManager;
             _serializer = serializer;
+            _evaluatorRuntime = evaluatorRuntime;
         }
 
         /// <summary>
@@ -63,15 +71,7 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Context
                 if (_rootContextLauncher.RootTaskConfig.IsPresent())
                 {
                     LOGGER.Log(Level.Info, "Launching the initial Task");
-                    try
-                    {
-                        _topContext.StartTask(_rootContextLauncher.RootTaskConfig.Value);
-                    }
-                    catch (TaskClientCodeException e)
-                    {
-                        Utilities.Diagnostics.Exceptions.Caught(e, Level.Error, "Exception when trying to start a task.", LOGGER);
-                        HandleTaskException(e);
-                    }
+                    StartTask(_rootContextLauncher.RootTaskConfig.Value);
                 }
             }
         }
@@ -109,7 +109,7 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Context
                     if (controlMessage.start_task != null)
                     {
                         LOGGER.Log(Level.Info, "StartTask");
-                        StartTask(controlMessage.start_task);
+                        OnStartTaskProto(controlMessage.start_task);
                     }
                     else
                     {
@@ -127,7 +127,7 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Context
                 else if (controlMessage.start_task != null)
                 {
                     LOGGER.Log(Level.Info, "StartTask only");
-                    StartTask(controlMessage.start_task);
+                    OnStartTaskProto(controlMessage.start_task);
                 }
                 else if (controlMessage.stop_task != null)
                 {
@@ -324,22 +324,52 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Context
         /// Launch an Task.
         /// </summary>
         /// <param name="startTaskProto"></param>
-        private void StartTask(StartTaskProto startTaskProto)
+        private void OnStartTaskProto(StartTaskProto startTaskProto)
         {
             lock (_contextLock)
             {
-                ContextRuntime currentActiveContext = _topContext;
                 string expectedContextId = startTaskProto.context_id;
-                if (!expectedContextId.Equals(currentActiveContext.Id, StringComparison.OrdinalIgnoreCase))
+                if (!expectedContextId.Equals(_topContext.Id, StringComparison.OrdinalIgnoreCase))
                 {
                     var e = new InvalidOperationException(
-                        string.Format(CultureInfo.InvariantCulture, "Task expected context '{0}' but the active context has Id '{1}'", expectedContextId, currentActiveContext.Id));
+                        string.Format(CultureInfo.InvariantCulture, "Task expected context '{0}' but the active context has Id '{1}'", expectedContextId, _topContext.Id));
                     Utilities.Diagnostics.Exceptions.Throw(e, LOGGER);
                 }
                 
                 var configuration = _serializer.FromString(startTaskProto.configuration);
-                currentActiveContext.StartTask(configuration);
+                StartTask(configuration);
             }
+        }
+
+        private void StartTask(IConfiguration taskConfiguration)
+        {
+            // This ContinueWith is placed here to provide access to EvaluatorRuntime.
+            // This is unable to be put at the Task level because the Injector is forked before
+            // EvaluatorRuntime is properly instantiated, so if EvaluatorRuntime were to be injected
+            // at the Task level, a new EvaluatorRuntime instance will be created.
+            _topContext.StartTask(taskConfiguration).ContinueWith(
+                failedTaskCleanup =>
+                {
+                    Exception failureException;
+                    if (failedTaskCleanup.IsFaulted)
+                    {
+                        failureException = failedTaskCleanup.Exception == null
+                                ? new SystemException("Done Task failed to clean up, causing the Evaluator to fail.")
+                                : new SystemException("Unexpected Failure when handling a done Task.", failedTaskCleanup.Exception.Flatten());
+                    }
+                    else if (failedTaskCleanup.IsCanceled)
+                    {
+                        failureException =
+                            new SystemException("Unexpected System.Threading.Tasks.Task Cancellation.");
+                    }
+                    else
+                    {
+                        failureException = new SystemException("Unexpected done task clean up failure.");
+                    }
+
+                    _evaluatorRuntime.Get().OnException(failureException);
+                    throw failureException;
+                }, TaskContinuationOptions.NotOnRanToCompletion);
         }
 
         /// <summary>
