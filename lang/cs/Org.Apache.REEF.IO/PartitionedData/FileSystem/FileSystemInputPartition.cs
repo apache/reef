@@ -75,50 +75,43 @@ namespace Org.Apache.REEF.IO.PartitionedData.FileSystem
         {
             lock (_lock)
             {
-                if (_localFiles.IsPresent())
+                if (!_localFiles.IsPresent())
                 {
-                    return;
+                    _localFiles = Optional<ISet<string>>.Of(Download());
                 }
+            }
+        }
 
+        /// <summary>
+        /// Downloads the remote file to local disk.
+        /// </summary>
+        private ISet<string> Download()
+        {
+            lock (_lock)
+            {
                 var set = new HashSet<string>();
-                string localFileFolder = _tempFileCreator.CreateTempDirectory("-partition-");
+                var localFileFolder = _tempFileCreator.CreateTempDirectory("-partition-");
                 Logger.Log(Level.Info, string.Format(CultureInfo.CurrentCulture, "Local file temp folder: {0}", localFileFolder));
 
                 foreach (var sourceFilePath in _remoteFilePaths)
                 {
-                    Uri sourceUri = _fileSystem.CreateUriForPath(sourceFilePath);
-                    Logger.Log(Level.Info, string.Format(CultureInfo.CurrentCulture, "sourceUri {0}: ", sourceUri));
-                    if (!_fileSystem.Exists(sourceUri))
-                    {
-                        throw new FileNotFoundException(string.Format(CultureInfo.CurrentCulture,
-                            "Remote File {0} does not exists.", sourceUri));
-                    }
+                    var sourceUri = _fileSystem.CreateUriForPath(sourceFilePath);
+                    Logger.Log(Level.Verbose, "sourceUri {0}: ", sourceUri);
 
-                    var localFilePath = localFileFolder + "\\" + Guid.NewGuid().ToString("N").Substring(0, 8);
+                    var localFilePath = Path.Combine(localFileFolder, Guid.NewGuid().ToString("N").Substring(0, 8));
                     set.Add(localFilePath);
 
-                    Logger.Log(Level.Info, string.Format(CultureInfo.CurrentCulture, "LocalFilePath {0}: ", localFilePath));
+                    Logger.Log(Level.Verbose, "LocalFilePath {0}: ", localFilePath);
                     if (File.Exists(localFilePath))
                     {
                         File.Delete(localFilePath);
-                        Logger.Log(Level.Warning, "localFile already exists, delete it: " + localFilePath);
+                        Logger.Log(Level.Warning, "localFile {0} already exists, deleting it. ", localFilePath);
                     }
 
                     _fileSystem.CopyToLocal(sourceUri, localFilePath);
-                    if (File.Exists(localFilePath))
-                    {
-                        Logger.Log(Level.Info,
-                            string.Format(CultureInfo.CurrentCulture, "File {0} is Copied to local {1}.", sourceUri, localFilePath));
-                    }
-                    else
-                    {
-                        string msg = string.Format(CultureInfo.CurrentCulture,
-                            "The IFilesystem completed the copy of `{0}` to `{1}`. But the file `{1}` does not exist.", sourceUri, localFilePath);
-                        Exceptions.Throw(new FileLoadException(msg), msg, Logger);
-                    }
                 }
 
-                _localFiles = Optional<ISet<string>>.Of(set);
+                return set;
             }
         }
 
