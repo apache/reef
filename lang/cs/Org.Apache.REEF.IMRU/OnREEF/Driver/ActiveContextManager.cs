@@ -64,14 +64,14 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         /// <summary>
         /// Checks if all the requested contexts are received. 
         /// </summary>
-        internal bool AllContextsReceived
+        internal bool AreAllContextsReceived
         {
-            get { return NumberOfMissingContexts == 0; }
+            get { return _totalExpectedContexts == NumberOfActiveContexts; }
         }
 
         /// <summary>
         /// Adding an IActiveContext to the ActiveContext collection
-        /// Throw ApplicationException if the IActiveContext already exists.
+        /// Throw IMRUSystemException if the IActiveContext already exists or NumberOfActiveContexts has exceeded the total expected contexts
         /// </summary>
         /// <param name="activeContext"></param>
         internal void Add(IActiveContext activeContext)
@@ -93,7 +93,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
 
         /// <summary>
         /// Remove an IActiveContext from the ActiveContext collection
-        /// Throw ApplicationException if the IActiveContext doesn't exist.
+        /// Throw IMRUSystemException if the IActiveContext doesn't exist.
         /// </summary>
         /// <param name="activeContextId"></param>
         internal void Remove(string activeContextId)
@@ -116,8 +116,8 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
 
         /// <summary>
         /// Given an IFailedEvaluator, remove associated IActiveContext from the collection
-        /// Throw SystemException if associated IActiveContext doesn't exist.
-        /// Throw IMRUSystemException if more than one IActiveContexts are associated with the IFailedEvaluator
+        /// Throw IMRUSystemException if associated IActiveContext doesn't exist or
+        /// if more than one IActiveContexts are associated with the IFailedEvaluator
         /// as current IMRU driver assumes that there is only one context associated with the IFailedEvalutor
         /// </summary>
         /// <param name="value"></param>
@@ -128,17 +128,13 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
                 if (value.FailedContexts.Count == 1)
                 {
                     var failedContextId = value.FailedContexts[0].Id;
-                    if (!_activeContexts.ContainsKey(failedContextId))
+                    if (!_activeContexts.Remove(failedContextId))
                     {
                         var msg = string.Format(CultureInfo.InvariantCulture,
                             "The active context [{0}] attached in IFailedEvaluator [{1}] is not in the Active Contexts collection.",
                             failedContextId,
                             value.Id);
                         Exceptions.Throw(new IMRUSystemException(msg), Logger);
-                    }
-                    else
-                    {
-                        _activeContexts.Remove(failedContextId);
                     }
                 }
                 else

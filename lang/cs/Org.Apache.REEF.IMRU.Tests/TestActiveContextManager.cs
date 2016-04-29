@@ -37,15 +37,16 @@ namespace Org.Apache.REEF.IMRU.Tests
         /// in ActiveContexManager
         /// </summary>
         [Fact]
-        public void TestActiveContexManager()
+        public void TestValidAddRemoveCases()
         {
-            var activeContextManager = new ActiveContextManager(5);
-            for (int i = 0; i < 5; i++)
+            const int totalEvaluators = 5;
+            var activeContextManager = new ActiveContextManager(totalEvaluators);
+            for (int i = 0; i < totalEvaluators; i++)
             {
                 var c = new MyActiveContext(ContextIdPrefix + i);
                 activeContextManager.Add(c);
             }
-            Assert.True(activeContextManager.AllContextsReceived);
+            Assert.True(activeContextManager.AreAllContextsReceived);
             Assert.Equal(5, activeContextManager.NumberOfActiveContexts);
 
             IList<string> contextIds = new List<string>();
@@ -85,8 +86,9 @@ namespace Org.Apache.REEF.IMRU.Tests
         [Fact]
         public void TestRemoveFailedEvaluatorWithTwoContexts()
         {
-            var activeContextManager = new ActiveContextManager(5);
-            for (int i = 0; i < 5; i++)
+            const int totalEvaluators = 5;
+            var activeContextManager = new ActiveContextManager(totalEvaluators);
+            for (int i = 0; i < totalEvaluators; i++)
             {
                 var c = new MyActiveContext(ContextIdPrefix + i);
                 activeContextManager.Add(c);
@@ -105,15 +107,16 @@ namespace Org.Apache.REEF.IMRU.Tests
         [Fact]
         public void TestRemoveFailedEvaluatorWithNoExistsContexts()
         {
-            var activeContextManager = new ActiveContextManager(5);
-            for (int i = 0; i < 5; i++)
+            const int totalEvaluators = 5;
+            var activeContextManager = new ActiveContextManager(totalEvaluators);
+            for (int i = 0; i < totalEvaluators; i++)
             {
                 var c = new MyActiveContext(ContextIdPrefix + i);
                 activeContextManager.Add(c);
             }
 
             IList<string> contextIds = new List<string>();
-            contextIds.Add(ContextIdPrefix + "5");
+            contextIds.Add(ContextIdPrefix + totalEvaluators);
             var e = new MyFailedEvaluator(contextIds);
             Action remove = () => activeContextManager.RemoveFailedContextInFailedEvaluator(e);
             Assert.Throws<IMRUSystemException>(remove);
@@ -126,8 +129,9 @@ namespace Org.Apache.REEF.IMRU.Tests
         [Fact]
         public void TestRemoveFailedEvaluatorWithNoContext()
         {
-            var activeContextManager = new ActiveContextManager(5);
-            for (int i = 0; i < 5; i++)
+            const int totalEvaluators = 5;
+            var activeContextManager = new ActiveContextManager(totalEvaluators);
+            for (int i = 0; i < totalEvaluators; i++)
             {
                 var c = new MyActiveContext(ContextIdPrefix + i);
                 activeContextManager.Add(c);
