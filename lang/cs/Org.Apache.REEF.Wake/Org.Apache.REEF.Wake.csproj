@@ -154,6 +154,11 @@ under the License.
     <Compile Include="Time\Event\StartTime.cs" />
     <Compile Include="Time\Event\StopTime.cs" />
     <Compile Include="Time\IClock.cs" />
+    <Compile Include="Time\Parameters\IdleHandler.cs" />
+    <Compile Include="Time\Parameters\RuntimeStartHandler.cs" />
+    <Compile Include="Time\Parameters\RuntimeStopHandler.cs" />
+    <Compile Include="Time\Parameters\StartHandler.cs" />
+    <Compile Include="Time\Parameters\StopHandler.cs" />
     <Compile Include="Time\Runtime\Event\ClientAlarm.cs" />
     <Compile Include="Time\Runtime\Event\IdleClock.cs" />
     <Compile Include="Time\Runtime\Event\RuntimeAlarm.cs" />

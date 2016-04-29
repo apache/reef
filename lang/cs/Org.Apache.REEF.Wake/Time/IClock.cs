@@ -55,7 +55,8 @@ namespace Org.Apache.REEF.Wake.Time
         /// <summary>
         /// Bind this to an event handler to statically subscribe to the StartTime Event
         /// </summary>
-        [NamedParameter(documentation: "Will be called upon the start even", defaultClass: typeof(MissingStartHandlerHandler))]
+        [Obsolete("Will be removed in 0.16. See [REEF-1069]")]
+        [NamedParameter(documentation: "Will be called upon the start event")]
         public class StartHandler : Name<ISet<IObserver<StartTime>>>
         {
         }
@@ -63,7 +64,8 @@ namespace Org.Apache.REEF.Wake.Time
         /// <summary>
         /// Bind this to an event handler to statically subscribe to the StopTime Event
         /// </summary>
-        [NamedParameter(documentation: "Will be called upon the stop event", defaultClass: typeof(LoggingEventHandler<StopTime>))]
+        [Obsolete("Will be removed in 0.16. See [REEF-1069]")]
+        [NamedParameter(documentation: "Will be called upon the stop event")]
         public class StopHandler : Name<ISet<IObserver<StopTime>>>
         {
         }
@@ -71,7 +73,8 @@ namespace Org.Apache.REEF.Wake.Time
         /// <summary>
         /// Bind this to an event handler to statically subscribe to the RuntimeStart Event
         /// </summary>
-        [NamedParameter(documentation: "Will be called upon the runtime start event", defaultClass: typeof(LoggingEventHandler<RuntimeStart>))]
+        [Obsolete("Will be removed in 0.16. See [REEF-1069]")]
+        [NamedParameter(documentation: "Will be called upon the runtime start event")]
         public class RuntimeStartHandler : Name<ISet<IObserver<RuntimeStart>>>
         {
         }
@@ -79,7 +82,8 @@ namespace Org.Apache.REEF.Wake.Time
         /// <summary>
         /// Bind this to an event handler to statically subscribe to the RuntimeStop Event
         /// </summary>
-        [NamedParameter(documentation: "Will be called upon the runtime stop event", defaultClass: typeof(LoggingEventHandler<RuntimeStop>))]
+        [Obsolete("Will be removed in 0.16. See [REEF-1069]")]
+        [NamedParameter(documentation: "Will be called upon the runtime stop event")]
         public class RuntimeStopHandler : Name<ISet<IObserver<RuntimeStop>>>
         {
         }
@@ -87,7 +91,8 @@ namespace Org.Apache.REEF.Wake.Time
         /// <summary>
         /// Bind this to an event handler to statically subscribe to the IdleClock Event
         /// </summary>
-        [NamedParameter(documentation: "Will be called upon the Idle event", defaultClass: typeof(LoggingEventHandler<IdleClock>))]
+        [Obsolete("Will be removed in 0.16. See [REEF-1069]")]
+        [NamedParameter(documentation: "Will be called upon the Idle event")]
         public class IdleHandler : Name<ISet<IObserver<IdleClock>>>
         {
         }

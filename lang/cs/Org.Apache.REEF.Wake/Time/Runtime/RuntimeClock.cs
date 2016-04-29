@@ -40,14 +40,21 @@ namespace Org.Apache.REEF.Wake.Time.Runtime
         private readonly PubSubSubject<Time> _handlers;
         private readonly PriorityQueue<Time> _schedule;
 
+        // TODO[REEF-1373]: Remove the the _old* handlers
+        private readonly IInjectionFuture<ISet<IObserver<StartTime>>> _oldStartHandler;
+        private readonly IInjectionFuture<ISet<IObserver<StopTime>>> _oldStopHandler;
+        private readonly IInjectionFuture<ISet<IObserver<RuntimeStart>>> _oldRuntimeStartHandler;
+        private readonly IInjectionFuture<ISet<IObserver<RuntimeStop>>> _oldRuntimeStopHandler;
+        private readonly IInjectionFuture<ISet<IObserver<IdleClock>>> _oldIdleHandler;
+        
         private readonly IInjectionFuture<ISet<IObserver<StartTime>>> _startHandler;
         private readonly IInjectionFuture<ISet<IObserver<StopTime>>> _stopHandler;
-        private IInjectionFuture<ISet<IObserver<RuntimeStart>>> _runtimeStartHandler;
-        private IInjectionFuture<ISet<IObserver<RuntimeStop>>> _runtimeStopHandler;
+        private readonly IInjectionFuture<ISet<IObserver<RuntimeStart>>> _runtimeStartHandler;
+        private readonly IInjectionFuture<ISet<IObserver<RuntimeStop>>> _runtimeStopHandler;
         private readonly IInjectionFuture<ISet<IObserver<IdleClock>>> _idleHandler;
 
         private bool _disposed;
-            
+
         /// <summary>
         /// Create a new RuntimeClock with injectable IObservers
         /// </summary>
@@ -57,15 +64,30 @@ namespace Org.Apache.REEF.Wake.Time.Runtime
         /// <param name="runtimeStartHandler">The runtime start handler</param>
         /// <param name="runtimeStopHandler">The runtime stop handler</param>
         /// <param name="idleHandler">The idle handler</param>
+        /// <param name="oldStartHandler">Start handlers prior to REEF-1372</param>
+        /// <param name="oldStopHandler">Stop handlers prior to REEF-1372</param>
+        /// <param name="oldRuntimeStartHandler">Runtime start handlers prior to REEF-1372</param>
+        /// <param name="oldRuntimeStopHandler">Runtime stop handlers prior to REEF-1372</param>
+        /// <param name="oldIdleHandler">Idle handlers prior to REEF-1372</param>
+#pragma warning disable 618
         [Inject]
         private RuntimeClock(
             ITimer timer,
-            [Parameter(typeof(StartHandler))] IInjectionFuture<ISet<IObserver<StartTime>>> startHandler, 
-            [Parameter(typeof(StopHandler))] IInjectionFuture<ISet<IObserver<StopTime>>> stopHandler,
-            [Parameter(typeof(RuntimeStartHandler))] IInjectionFuture<ISet<IObserver<RuntimeStart>>> runtimeStartHandler,
-            [Parameter(typeof(RuntimeStopHandler))] IInjectionFuture<ISet<IObserver<RuntimeStop>>> runtimeStopHandler,
-            [Parameter(typeof(IdleHandler))] IInjectionFuture<ISet<IObserver<IdleClock>>> idleHandler)
+
+            // TODO[REEF-1373]: Remove the _old* handlers
+            [Parameter(typeof(StartHandler))] IInjectionFuture<ISet<IObserver<StartTime>>> oldStartHandler,
+            [Parameter(typeof(StopHandler))] IInjectionFuture<ISet<IObserver<StopTime>>> oldStopHandler,
+            [Parameter(typeof(RuntimeStartHandler))] IInjectionFuture<ISet<IObserver<RuntimeStart>>> oldRuntimeStartHandler,
+            [Parameter(typeof(RuntimeStopHandler))] IInjectionFuture<ISet<IObserver<RuntimeStop>>> oldRuntimeStopHandler,
+            [Parameter(typeof(IdleHandler))] IInjectionFuture<ISet<IObserver<IdleClock>>> oldIdleHandler,
+
+            [Parameter(typeof(Parameters.StartHandler))] IInjectionFuture<ISet<IObserver<StartTime>>> startHandler,
+            [Parameter(typeof(Parameters.StopHandler))] IInjectionFuture<ISet<IObserver<StopTime>>> stopHandler,
+            [Parameter(typeof(Parameters.RuntimeStartHandler))] IInjectionFuture<ISet<IObserver<RuntimeStart>>> runtimeStartHandler,
+            [Parameter(typeof(Parameters.RuntimeStopHandler))] IInjectionFuture<ISet<IObserver<RuntimeStop>>> runtimeStopHandler,
+            [Parameter(typeof(Parameters.IdleHandler))] IInjectionFuture<ISet<IObserver<IdleClock>>> idleHandler)
         {
+#pragma warning restore 618
             _timer = timer;
             _schedule = new PriorityQueue<Time>();
             _handlers = new PubSubSubject<Time>();
@@ -75,6 +97,14 @@ namespace Org.Apache.REEF.Wake.Time.Runtime
             _runtimeStartHandler = runtimeStartHandler;
             _runtimeStopHandler = runtimeStopHandler;
             _idleHandler = idleHandler;
+
+            // TODO[REEF-1373]: Remove the _old* handlers
+            _oldStartHandler = oldStartHandler;
+            _oldStopHandler = oldStopHandler;
+            _oldRuntimeStartHandler = oldRuntimeStartHandler;
+            _oldRuntimeStopHandler = oldRuntimeStopHandler;
+            _oldIdleHandler = oldIdleHandler;
+
             ++numberOfInstantiations;
             if (numberOfInstantiations > 1)
             {
@@ -197,6 +227,13 @@ namespace Org.Apache.REEF.Wake.Time.Runtime
         /// </summary>
         private void SubscribeHandlers()
         {
+            // TODO[REEF-1373]: Remove the subscriptions of the _old* handlers
+            Subscribe(_oldStartHandler.Get());
+            Subscribe(_oldStopHandler.Get());
+            Subscribe(_oldRuntimeStartHandler.Get());
+            Subscribe(_oldRuntimeStopHandler.Get());
+            Subscribe(_oldIdleHandler.Get());
+
             Subscribe(_startHandler.Get());
             Subscribe(_stopHandler.Get());
             Subscribe(_runtimeStartHandler.Get());

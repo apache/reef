@@ -31,6 +31,7 @@ using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Utilities.Logging;
 using Org.Apache.REEF.Wake.Time;
+using Org.Apache.REEF.Wake.Time.Parameters;
 using Org.Apache.REEF.Wake.Time.Runtime;
 using Org.Apache.REEF.Wake.Time.Runtime.Event;
 
@@ -81,8 +82,8 @@ namespace Org.Apache.REEF.Evaluator
                 var serializer = injector.GetInstance<AvroConfigurationSerializer>();
                 var rootEvaluatorConfiguration = 
                     TangFactory.GetTang().NewConfigurationBuilder(serializer.FromString(injector.GetNamedInstance<EvaluatorConfiguration, string>()))
-                        .BindSetEntry<IClock.RuntimeStartHandler, EvaluatorRuntime, IObserver<RuntimeStart>>()
-                        .BindSetEntry<IClock.RuntimeStopHandler, EvaluatorRuntime, IObserver<RuntimeStop>>()
+                        .BindSetEntry<RuntimeStartHandler, EvaluatorRuntime, IObserver<RuntimeStart>>()
+                        .BindSetEntry<RuntimeStopHandler, EvaluatorRuntime, IObserver<RuntimeStop>>()
                         .Build();
                 var evaluator = injector.ForkInjector(rootEvaluatorConfiguration).GetInstance<Evaluator>();
 
