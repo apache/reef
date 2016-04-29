@@ -80,8 +80,15 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
             if (_activeContexts.ContainsKey(activeContext.Id))
             {
                 var msg = string.Format(CultureInfo.InvariantCulture, "The context [{0}] received already exists.", activeContext.Id);
-                Exceptions.Throw(new ApplicationException(msg), Logger);
+                Exceptions.Throw(new IMRUSystemException(msg), Logger);
             }
+
+            if (NumberOfActiveContexts >= _totalExpectedContexts)
+            {
+                var msg = string.Format(CultureInfo.InvariantCulture, "Trying to add an extra active context {0}. The total number of the active contexts has reached to the expected number {1}.", activeContext.Id, _totalExpectedContexts);
+                Exceptions.Throw(new IMRUSystemException(msg), Logger);
+            }
+
             _activeContexts.Add(activeContext.Id, activeContext);
         }
 
@@ -95,7 +102,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
             if (!_activeContexts.ContainsKey(activeContextId))
             {
                 var msg = string.Format(CultureInfo.InvariantCulture, "The context [{0}] to be removed does not exist.", activeContextId);
-                Exceptions.Throw(new ApplicationException(msg), Logger);
+                Exceptions.Throw(new IMRUSystemException(msg), Logger);
             }
             _activeContexts.Remove(activeContextId);
         }
@@ -128,7 +135,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
                             "The active context [{0}] attached in IFailedEvaluator [{1}] is not in the Active Contexts collection.",
                             failedContextId,
                             value.Id);
-                        Exceptions.Throw(new SystemException(msg), Logger);
+                        Exceptions.Throw(new IMRUSystemException(msg), Logger);
                     }
                     else
                     {

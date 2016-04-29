@@ -58,6 +58,27 @@ namespace Org.Apache.REEF.IMRU.Tests
         }
 
         /// <summary>
+        /// Test invalid Add and Remove
+        /// </summary>
+        public void TestInvalidAddRemoveCases()
+        {
+            var contextManager = new ActiveContextManager(3);
+            contextManager.Add(new MyActiveContext(ContextIdPrefix + "1"));
+
+            Action add = () => contextManager.Add(new MyActiveContext(ContextIdPrefix + "1"));
+            Assert.Throws<IMRUSystemException>(add);
+
+            Action remove = () => contextManager.Remove(ContextIdPrefix + "2");
+            Assert.Throws<IMRUSystemException>(remove);
+
+            contextManager.Add(new MyActiveContext(ContextIdPrefix + "2"));
+            contextManager.Add(new MyActiveContext(ContextIdPrefix + "3"));
+
+            add = () => contextManager.Add(new MyActiveContext(ContextIdPrefix + "4"));
+            Assert.Throws<IMRUSystemException>(add);
+        }
+
+        /// <summary>
         /// Test remove a failed evaluator which has two contexts associated.
         /// In current IMRU driver, assume there is only one context associated to the IFailedEvalutor
         /// </summary>
@@ -95,7 +116,7 @@ namespace Org.Apache.REEF.IMRU.Tests
             contextIds.Add(ContextIdPrefix + "5");
             var e = new MyFailedEvaluator(contextIds);
             Action remove = () => contextManager.RemovedFailedContextInFailedEvaluator(e);
-            Assert.Throws<SystemException>(remove);
+            Assert.Throws<IMRUSystemException>(remove);
         }
 
         /// <summary>
