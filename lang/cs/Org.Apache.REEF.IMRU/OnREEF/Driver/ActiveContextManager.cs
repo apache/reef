@@ -16,7 +16,9 @@
 // under the License.
 
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Globalization;
+using System.Linq;
 using Org.Apache.REEF.Driver.Context;
 using Org.Apache.REEF.Driver.Evaluator;
 using Org.Apache.REEF.Utilities.Attributes;
@@ -48,9 +50,9 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         /// <summary>
         /// Returns the collection of IActiveContext
         /// </summary>
-        internal ICollection<IActiveContext> ActiveContexts
+        internal IReadOnlyCollection<IActiveContext> ActiveContexts
         {
-            get { return _activeContexts.Values; }
+            get { return new ReadOnlyCollection<IActiveContext>(_activeContexts.Values.ToList()); }
         }
 
         /// <summary>

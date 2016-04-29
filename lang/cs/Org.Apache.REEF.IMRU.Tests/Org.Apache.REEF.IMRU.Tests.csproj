@@ -42,6 +42,10 @@ under the License.
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
+    <Reference Include="NSubstitute, Version=$(NSubstituteVersion), Culture=neutral, PublicKeyToken=92dd2e9066daa5ca, processorArchitecture=MSIL">
+      <HintPath>$(PackagesDir)\NSubstitute.$(NSubstituteVersion)\lib\net45\NSubstitute.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="MapInputWithControlMessageTests.cs" />

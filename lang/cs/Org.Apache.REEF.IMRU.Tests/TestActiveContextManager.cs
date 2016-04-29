@@ -17,6 +17,7 @@
 
 using System;
 using System.Collections.Generic;
+using NSubstitute;
 using Org.Apache.REEF.Driver.Context;
 using Org.Apache.REEF.Driver.Evaluator;
 using Org.Apache.REEF.IMRU.OnREEF.Driver;
@@ -33,28 +34,35 @@ namespace Org.Apache.REEF.IMRU.Tests
         private const string ContextIdPrefix = "ContextId";
 
         /// <summary>
+        /// Create a ActiveContextManager and add some IActiveContexts to it.
+        /// </summary>
+        /// <returns></returns>
+        private ActiveContextManager InitializeActiveContextManager()
+        {
+            const int totalEvaluators = 5;
+            var activeContextManager = new ActiveContextManager(totalEvaluators);
+            for (int i = 0; i < totalEvaluators; i++)
+            {
+                activeContextManager.Add(CreateMockActiveContext(i));
+            }
+            Assert.True(activeContextManager.AreAllContextsReceived);
+            Assert.Equal(totalEvaluators, activeContextManager.NumberOfActiveContexts);
+
+            return activeContextManager;
+        }
+
+        /// <summary>
         /// Test add, Remove, RemovedFailedContextInFailedEvaluator, NumberOfMissingContexts and NumberOfActiveContext
         /// in ActiveContexManager
         /// </summary>
         [Fact]
         public void TestValidAddRemoveCases()
         {
-            const int totalEvaluators = 5;
-            var activeContextManager = new ActiveContextManager(totalEvaluators);
-            for (int i = 0; i < totalEvaluators; i++)
-            {
-                var c = new MyActiveContext(ContextIdPrefix + i);
-                activeContextManager.Add(c);
-            }
-            Assert.True(activeContextManager.AreAllContextsReceived);
-            Assert.Equal(5, activeContextManager.NumberOfActiveContexts);
-
-            IList<string> contextIds = new List<string>();
-            contextIds.Add(ContextIdPrefix + "3");
-            var e = new MyFailedEvaluator(contextIds);
-            activeContextManager.RemoveFailedContextInFailedEvaluator(e);
+            var activeContextManager = InitializeActiveContextManager();
+            activeContextManager.RemoveFailedContextInFailedEvaluator(CreateMockFailedEvaluator(new List<int> { 3 }));
             Assert.Equal(1, activeContextManager.NumberOfMissingContexts);
-            activeContextManager.Remove(ContextIdPrefix + "4");
+
+            activeContextManager.Remove(ContextIdPrefix + 4);
             Assert.Equal(3, activeContextManager.NumberOfActiveContexts);
         }
 
@@ -64,245 +72,104 @@ namespace Org.Apache.REEF.IMRU.Tests
         public void TestInvalidAddRemoveCases()
         {
             var activeContextManager = new ActiveContextManager(3);
-            activeContextManager.Add(new MyActiveContext(ContextIdPrefix + "1"));
+            activeContextManager.Add(CreateMockActiveContext(1));
 
-            Action add = () => activeContextManager.Add(new MyActiveContext(ContextIdPrefix + "1"));
+            Action add = () => activeContextManager.Add(CreateMockActiveContext(1));
             Assert.Throws<IMRUSystemException>(add);
 
-            Action remove = () => activeContextManager.Remove(ContextIdPrefix + "2");
+            Action remove = () => activeContextManager.Remove(ContextIdPrefix + 2);
             Assert.Throws<IMRUSystemException>(remove);
 
-            activeContextManager.Add(new MyActiveContext(ContextIdPrefix + "2"));
-            activeContextManager.Add(new MyActiveContext(ContextIdPrefix + "3"));
+            activeContextManager.Add(CreateMockActiveContext(2));
+            activeContextManager.Add(CreateMockActiveContext(3));
 
-            add = () => activeContextManager.Add(new MyActiveContext(ContextIdPrefix + "4"));
+            add = () => activeContextManager.Add(CreateMockActiveContext(4));
             Assert.Throws<IMRUSystemException>(add);
         }
 
         /// <summary>
-        /// Test remove a failed evaluator which has two contexts associated.
+        /// Test removing a failed evaluator which has two contexts associated.
         /// In current IMRU driver, assume there is only one context associated to the IFailedEvalutor
         /// </summary>
         [Fact]
         public void TestRemoveFailedEvaluatorWithTwoContexts()
         {
-            const int totalEvaluators = 5;
-            var activeContextManager = new ActiveContextManager(totalEvaluators);
-            for (int i = 0; i < totalEvaluators; i++)
-            {
-                var c = new MyActiveContext(ContextIdPrefix + i);
-                activeContextManager.Add(c);
-            }
-            IList<string> contextIds = new List<string>();
-            contextIds.Add(ContextIdPrefix + "3");
-            contextIds.Add(ContextIdPrefix + "4");
-            var e = new MyFailedEvaluator(contextIds);
-            Action remove = () => activeContextManager.RemoveFailedContextInFailedEvaluator(e);
+            var activeContextManager = InitializeActiveContextManager();
+
+            Action remove = () => activeContextManager.RemoveFailedContextInFailedEvaluator(CreateMockFailedEvaluator(new List<int> { 3, 4 }));
             Assert.Throws<IMRUSystemException>(remove);
         }
 
         /// <summary>
-        /// Test remove a failed evaluator which has a context but it doesn't exist.
+        /// Test removing a failed evaluator which has a context but it doesn't exist.
         /// </summary>
         [Fact]
         public void TestRemoveFailedEvaluatorWithNoExistsContexts()
         {
-            const int totalEvaluators = 5;
-            var activeContextManager = new ActiveContextManager(totalEvaluators);
-            for (int i = 0; i < totalEvaluators; i++)
-            {
-                var c = new MyActiveContext(ContextIdPrefix + i);
-                activeContextManager.Add(c);
-            }
+            var activeContextManager = InitializeActiveContextManager();
 
-            IList<string> contextIds = new List<string>();
-            contextIds.Add(ContextIdPrefix + totalEvaluators);
-            var e = new MyFailedEvaluator(contextIds);
-            Action remove = () => activeContextManager.RemoveFailedContextInFailedEvaluator(e);
+            Action remove = () => activeContextManager.RemoveFailedContextInFailedEvaluator(CreateMockFailedEvaluator(new List<int> { 5 }));
             Assert.Throws<IMRUSystemException>(remove);
         }
 
         /// <summary>
-        /// Test remove a failed evaluator which has no context associated.
+        /// Test removing a failed evaluator which has no context associated.
         /// The scenario may happen when an evaluator failed but context has not created yet. 
         /// </summary>
         [Fact]
         public void TestRemoveFailedEvaluatorWithNoContext()
         {
-            const int totalEvaluators = 5;
-            var activeContextManager = new ActiveContextManager(totalEvaluators);
-            for (int i = 0; i < totalEvaluators; i++)
-            {
-                var c = new MyActiveContext(ContextIdPrefix + i);
-                activeContextManager.Add(c);
-            }
+            var activeContextManager = InitializeActiveContextManager();
 
-            var e = new MyFailedEvaluator(null);
-            activeContextManager.RemoveFailedContextInFailedEvaluator(e);
-            Assert.Equal(5, activeContextManager.NumberOfActiveContexts);
+            activeContextManager.RemoveFailedContextInFailedEvaluator(CreateMockFailedEvaluator(null));
+            Assert.Equal(0, activeContextManager.NumberOfMissingContexts);
         }
 
         /// <summary>
-        /// An implementation of IFailedEvaluator for testing
+        /// Create a mock IActiveContext
         /// </summary>
-        private class MyFailedEvaluator : IFailedEvaluator
+        /// <param name="id"></param>
+        /// <returns></returns>
+        private static IActiveContext CreateMockActiveContext(int id)
         {
-            private readonly IList<string> _contextIds;
-
-            /// <summary>
-            /// Constructor of MyFailedEvaluator
-            /// The contextIds is used in the associated IFailedContext 
-            /// </summary>
-            /// <param name="contextIds"></param>
-            internal MyFailedEvaluator(IList<string> contextIds)
-            {
-                _contextIds = contextIds;
-            }
-
-            public EvaluatorException EvaluatorException
-            {
-                get { throw new NotImplementedException(); }
-            }
-
-            /// <summary>
-            /// Have one failed context in the failed Evaluator
-            /// </summary>
-            public IList<IFailedContext> FailedContexts
-            {
-                get
-                {
-                    if (_contextIds == null)
-                    {
-                        return null;
-                    }
-
-                    IList<IFailedContext> contexts = new List<IFailedContext>();
-                    foreach (var cid in _contextIds)
-                    {
-                        contexts.Add(new MyFailedContext(cid));
-                    }
-                    return contexts;
-                }
-            }
-
-            public Utilities.Optional<Driver.Task.IFailedTask> FailedTask
-            {
-                get { throw new NotImplementedException(); }
-            }
-
-            /// <summary>
-            /// Returns Evaluator id
-            /// </summary>
-            public string Id
-            {
-                get
-                {
-                    return EvaluatorIdPrefix + "no";
-                }
-            }
-        }
-
-        private class MyFailedContext : IFailedContext
-        {
-            private readonly string _id;
-
-            internal MyFailedContext(string id)
-            {
-                _id = id;
-            }
-
-            public Utilities.Optional<IActiveContext> ParentContext
-            {
-                get { throw new NotImplementedException(); }
-            }
-
-            public string EvaluatorId
-            {
-                get { return EvaluatorIdPrefix + _id; }
-            }
-
-            public Utilities.Optional<string> ParentId
-            {
-                get { throw new NotImplementedException(); }
-            }
-
-            public IEvaluatorDescriptor EvaluatorDescriptor
-            {
-                get { throw new NotImplementedException(); }
-            }
-
-            public string Id
-            {
-                get { return _id; }
-            }
+            IActiveContext mockActiveContext = Substitute.For<IActiveContext>();
+            mockActiveContext.Id.Returns(ContextIdPrefix + id);
+            mockActiveContext.EvaluatorId.Returns(EvaluatorIdPrefix + ContextIdPrefix + id);
+            return mockActiveContext;
         }
 
         /// <summary>
-        /// An implementation of IActiveContext for testing
+        /// Create a mock IFailedContext
         /// </summary>
-        private sealed class MyActiveContext : IActiveContext
+        /// <param name="id"></param>
+        /// <returns></returns>
+        private static IFailedContext CreateMockFailedContext(int id)
         {
-            private readonly string _id;
+            IFailedContext mockFailedContext = Substitute.For<IFailedContext>();
+            mockFailedContext.Id.Returns(ContextIdPrefix + id);
+            mockFailedContext.EvaluatorId.Returns(EvaluatorIdPrefix + ContextIdPrefix + id);
+            return mockFailedContext;
+        }
 
-            /// <summary>
-            /// Constructor which gets id of MyActiveContext
-            /// </summary>
-            /// <param name="id"></param>
-            internal MyActiveContext(string id)
+        /// <summary>
+        /// Create a mock IFailedEvaluator
+        /// </summary>
+        /// <param name="ids"></param>
+        /// <returns></returns>
+        private static IFailedEvaluator CreateMockFailedEvaluator(IList<int> ids)
+        {
+            IFailedEvaluator mockFailedEvalutor = Substitute.For<IFailedEvaluator>();
+            IList<IFailedContext> failedContexts = null;
+            if (ids != null)
             {
-                _id = id;
+                failedContexts = new List<IFailedContext>();
+                foreach (var id in ids)
+                {
+                    failedContexts.Add(CreateMockFailedContext(id));
+                }
             }
-
-            public void SendMessage(byte[] message)
-            {
-                throw new NotImplementedException();
-            }
-
-            public void Dispose()
-            {
-                throw new NotImplementedException();
-            }
-
-            /// <summary>
-            /// Returns Evaluator Id of the MyActiveContext
-            /// </summary>
-            public string EvaluatorId
-            {
-                get { return EvaluatorIdPrefix + _id; }
-            }
-
-            public Utilities.Optional<string> ParentId
-            {
-                get { throw new NotImplementedException(); }
-            }
-
-            public IEvaluatorDescriptor EvaluatorDescriptor
-            {
-                get { throw new NotImplementedException(); }
-            }
-
-            /// <summary>
-            /// Returns Id of the Active Context
-            /// </summary>
-            public string Id
-            {
-                get { return _id; }
-            }
-
-            public void SubmitTask(Tang.Interface.IConfiguration taskConf)
-            {
-                throw new NotImplementedException();
-            }
-
-            public void SubmitContext(Tang.Interface.IConfiguration contextConfiguration)
-            {
-                throw new NotImplementedException();
-            }
-
-            public void SubmitContextAndService(Tang.Interface.IConfiguration contextConfiguration, Tang.Interface.IConfiguration serviceConfiguration)
-            {
-                throw new NotImplementedException();
-            }
+            mockFailedEvalutor.FailedContexts.Returns(failedContexts);
+            return mockFailedEvalutor;
         }
     }
 }
