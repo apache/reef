@@ -27,7 +27,7 @@ namespace Org.Apache.REEF.IMRU.Tests
     /// <summary>
     /// Test methods in ContextManager
     /// </summary>
-    public class TestContextManager
+    public class TestActiveContextManager
     {
         private const string EvaluatorIdPrefix = "EvaluatorId";
         private const string ContextIdPrefix = "ContextId";
@@ -37,21 +37,24 @@ namespace Org.Apache.REEF.IMRU.Tests
         /// in ContextManager
         /// </summary>
         [Fact]
-        public void TestContextmanager()
+        public void TestActiveContexManager()
         {
-            var contextManager = new ContextManager(5);
+            var contextManager = new ActiveContextManager(5);
             for (int i = 0; i < 5; i++)
             {
                 var c = new MyActiveContext(ContextIdPrefix + i);
                 contextManager.Add(c);
             }
             Assert.True(contextManager.AllContextsReceived);
-            Assert.Equal(5, contextManager.NumberOfActiveContext);
-            var e = new MyFailedEvaluator(ContextIdPrefix + "3");
+            Assert.Equal(5, contextManager.NumberOfActiveContexts);
+
+            IList<string> contextIds = new List<string>();
+            contextIds.Add(ContextIdPrefix + "3");
+            var e = new MyFailedEvaluator(contextIds);
             contextManager.RemovedFailedContextInFailedEvaluator(e);
             Assert.Equal(1, contextManager.NumberOfMissingContexts);
             contextManager.Remove(ContextIdPrefix + "4");
-            Assert.Equal(3, contextManager.NumberOfActiveContext);
+            Assert.Equal(3, contextManager.NumberOfActiveContexts);
         }
 
         /// <summary>
@@ -61,14 +64,16 @@ namespace Org.Apache.REEF.IMRU.Tests
         [Fact]
         public void TestRemoveFailedEvaluatorWithTwoContexts()
         {
-            var contextManager = new ContextManager(5);
+            var contextManager = new ActiveContextManager(5);
             for (int i = 0; i < 5; i++)
             {
                 var c = new MyActiveContext(ContextIdPrefix + i);
                 contextManager.Add(c);
             }
-
-            var e = new MyFailedEvaluatorWithTwoContexts();
+            IList<string> contextIds = new List<string>();
+            contextIds.Add(ContextIdPrefix + "3");
+            contextIds.Add(ContextIdPrefix + "4");
+            var e = new MyFailedEvaluator(contextIds);
             Action remove = () => contextManager.RemovedFailedContextInFailedEvaluator(e);
             Assert.Throws<IMRUSystemException>(remove);
         }
@@ -79,14 +84,16 @@ namespace Org.Apache.REEF.IMRU.Tests
         [Fact]
         public void TestRemoveFailedEvaluatorWithNoExistsContexts()
         {
-            var contextManager = new ContextManager(5);
+            var contextManager = new ActiveContextManager(5);
             for (int i = 0; i < 5; i++)
             {
                 var c = new MyActiveContext(ContextIdPrefix + i);
                 contextManager.Add(c);
             }
 
-            var e = new MyFailedEvaluator(ContextIdPrefix + "5");
+            IList<string> contextIds = new List<string>();
+            contextIds.Add(ContextIdPrefix + "5");
+            var e = new MyFailedEvaluator(contextIds);
             Action remove = () => contextManager.RemovedFailedContextInFailedEvaluator(e);
             Assert.Throws<SystemException>(remove);
         }
@@ -98,16 +105,16 @@ namespace Org.Apache.REEF.IMRU.Tests
         [Fact]
         public void TestRemoveFailedEvaluatorWithNoContext()
         {
-            var contextManager = new ContextManager(5);
+            var contextManager = new ActiveContextManager(5);
             for (int i = 0; i < 5; i++)
             {
                 var c = new MyActiveContext(ContextIdPrefix + i);
                 contextManager.Add(c);
             }
 
-            var e = new MyFailedEvaluatorWithNoContext();
+            var e = new MyFailedEvaluator(null);
             contextManager.RemovedFailedContextInFailedEvaluator(e);
-            Assert.Equal(5, contextManager.NumberOfActiveContext);
+            Assert.Equal(5, contextManager.NumberOfActiveContexts);
         }
 
         /// <summary>
@@ -115,16 +122,16 @@ namespace Org.Apache.REEF.IMRU.Tests
         /// </summary>
         private class MyFailedEvaluator : IFailedEvaluator
         {
-            private readonly string _contextId;
+            private readonly IList<string> _contextIds;
 
             /// <summary>
             /// Constructor of MyFailedEvaluator
-            /// The contextId is used in the associated IFailedContext 
+            /// The contextIds is used in the associated IFailedContext 
             /// </summary>
-            /// <param name="contextId"></param>
-            internal MyFailedEvaluator(string contextId)
+            /// <param name="contextIds"></param>
+            internal MyFailedEvaluator(IList<string> contextIds)
             {
-                _contextId = contextId;
+                _contextIds = contextIds;
             }
 
             public EvaluatorException EvaluatorException
@@ -139,8 +146,16 @@ namespace Org.Apache.REEF.IMRU.Tests
             {
                 get
                 {
+                    if (_contextIds == null)
+                    {
+                        return null;
+                    }
+
                     IList<IFailedContext> contexts = new List<IFailedContext>();
-                    contexts.Add(new MyFailedContext(_contextId));
+                    foreach (var cid in _contextIds)
+                    {
+                        contexts.Add(new MyFailedContext(cid));
+                    }
                     return contexts;
                 }
             }
@@ -154,80 +169,15 @@ namespace Org.Apache.REEF.IMRU.Tests
             /// Returns Evaluator id
             /// </summary>
             public string Id
-            {
-                get { return EvaluatorIdPrefix + _contextId; }
-            }
-        }
-
-        /// <summary>
-        /// An implementation of IFailedEvaluator for testing
-        /// with no context associated
-        /// </summary>
-        private class MyFailedEvaluatorWithNoContext : IFailedEvaluator
-        {
-            public EvaluatorException EvaluatorException
-            {
-                get { throw new NotImplementedException(); }
-            }
-
-            /// <summary>
-            /// Returns null FailedContexts
-            /// </summary>
-            public IList<IFailedContext> FailedContexts
-            {
-                get { return null; }
-            }
-
-            public Utilities.Optional<Driver.Task.IFailedTask> FailedTask
-            {
-                get { throw new NotImplementedException(); }
-            }
-
-            /// <summary>
-            /// Returns Evaluator id
-            /// </summary>
-            public string Id
-            {
-                get { return EvaluatorIdPrefix + "no"; }
-            }
-        }
-
-        /// <summary>
-        /// An implementation of IFailedEvaluator for testing
-        /// with two contexts associated
-        /// </summary>
-        private class MyFailedEvaluatorWithTwoContexts : IFailedEvaluator
-        {
-            public EvaluatorException EvaluatorException
-            {
-                get { throw new NotImplementedException(); }
-            }
-
-            /// <summary>
-            /// Returns two FailedContexts
-            /// </summary>
-            public IList<IFailedContext> FailedContexts
             {
                 get
                 {
-                    IList<IFailedContext> contexts = new List<IFailedContext>();
-                    contexts.Add(new MyFailedContext(ContextIdPrefix + "1"));
-                    contexts.Add(new MyFailedContext(ContextIdPrefix + "2"));
-                    return contexts;
+                    if (_contextIds != null && _contextIds.Count == 1)
+                    {
+                        return EvaluatorIdPrefix + _contextIds[0];
+                    }
+                    return EvaluatorIdPrefix + "no";
                 }
-            }
-
-            public Utilities.Optional<Driver.Task.IFailedTask> FailedTask
-            {
-                get { throw new NotImplementedException(); }
-            }
-
-            /// <summary>
-            /// Returns Evaluator id
-            /// </summary>
-            public string Id
-            {
-                get { return EvaluatorIdPrefix + "no"; }
             }
         }
 

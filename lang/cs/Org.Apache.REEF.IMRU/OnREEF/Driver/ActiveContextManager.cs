@@ -30,9 +30,9 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
     /// Manages active contexts for the driver
     /// </summary>
     [NotThreadSafe]
-    internal sealed class ContextManager
+    internal sealed class ActiveContextManager
     {
-        private static readonly Logger Logger = Logger.GetLogger(typeof(ContextManager));
+        private static readonly Logger Logger = Logger.GetLogger(typeof(ActiveContextManager));
         private readonly IDictionary<string, IActiveContext> _activeContexts = new Dictionary<string, IActiveContext>();
         private readonly int _totalExpectedContexts;
 
@@ -41,7 +41,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         /// totalContexts specify the total number of expected active contexts that driver needs
         /// </summary>
         /// <param name="totalContexts"></param>
-        internal ContextManager(int totalContexts)
+        internal ActiveContextManager(int totalContexts)
         {
             _totalExpectedContexts = totalContexts;
         }
@@ -59,7 +59,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         /// </summary>
         internal int NumberOfMissingContexts
         {
-            get { return _totalExpectedContexts - _activeContexts.Count; }
+            get { return _totalExpectedContexts - NumberOfActiveContexts; }
         }
 
         /// <summary>
@@ -103,7 +103,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         /// <summary>
         /// Returns the current number of IActiveContext in the ActiveContext collection
         /// </summary>
-        internal int NumberOfActiveContext
+        internal int NumberOfActiveContexts
         {
             get { return _activeContexts.Count; }
         }
@@ -111,7 +111,8 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         /// <summary>
         /// Given an IFailedEvaluator, remove associated IActiveContext from the collection
         /// Throw SystemException if associated IActiveContext doesn't exist.
-        /// Throw IMRUSystemException if more than one IActiveContext are associated with the IFailedEvaluator
+        /// Throw IMRUSystemException if more than one IActiveContexts are associated with the IFailedEvaluator
+        /// as current IMRU driver assumes that there is only one context associated with the IFailedEvalutor
         /// </summary>
         /// <param name="value"></param>
         internal void RemovedFailedContextInFailedEvaluator(IFailedEvaluator value)
