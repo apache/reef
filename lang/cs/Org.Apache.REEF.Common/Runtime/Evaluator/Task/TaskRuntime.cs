@@ -129,21 +129,21 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Task
                                 "Task running result:\r\n" + System.Text.Encoding.Default.GetString(result));
                         }
                     }
-                    catch (Exception)
-                    {
-                        // TODO[JIRA REEF-1364]: Properly handle Exceptions and send a message to the Driver.
-                        Logger.Log(Level.Error, "Received uncaught System Exception, force shutting down the Evaluator.");
-
-                        Environment.Exit(1);
-                    }
                     finally
                     {
-                        if (_userTask != null)
+                        try
                         {
-                            _userTask.Dispose();
-                        }
+                            if (_userTask != null)
+                            {
+                                _userTask.Dispose();
+                            }
 
-                        runTask.Dispose();
+                            runTask.Dispose();
+                        }
+                        catch (Exception e)
+                        {
+                            Utilities.Diagnostics.Exceptions.Caught(e, Level.Error, "Error when disposing Task.", Logger);
+                        }
                     }
                 });
         }
