@@ -121,7 +121,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         /// as current IMRU driver assumes that there is only one context associated with the IFailedEvalutor
         /// </summary>
         /// <param name="value"></param>
-        internal void RemovedFailedContextInFailedEvaluator(IFailedEvaluator value)
+        internal void RemoveFailedContextInFailedEvaluator(IFailedEvaluator value)
         {
             if (value.FailedContexts != null && value.FailedContexts.Count > 0)
             {

@@ -51,7 +51,7 @@ namespace Org.Apache.REEF.IMRU.Tests
             IList<string> contextIds = new List<string>();
             contextIds.Add(ContextIdPrefix + "3");
             var e = new MyFailedEvaluator(contextIds);
-            activeContextManager.RemovedFailedContextInFailedEvaluator(e);
+            activeContextManager.RemoveFailedContextInFailedEvaluator(e);
             Assert.Equal(1, activeContextManager.NumberOfMissingContexts);
             activeContextManager.Remove(ContextIdPrefix + "4");
             Assert.Equal(3, activeContextManager.NumberOfActiveContexts);
@@ -95,7 +95,7 @@ namespace Org.Apache.REEF.IMRU.Tests
             contextIds.Add(ContextIdPrefix + "3");
             contextIds.Add(ContextIdPrefix + "4");
             var e = new MyFailedEvaluator(contextIds);
-            Action remove = () => activeContextManager.RemovedFailedContextInFailedEvaluator(e);
+            Action remove = () => activeContextManager.RemoveFailedContextInFailedEvaluator(e);
             Assert.Throws<IMRUSystemException>(remove);
         }
 
@@ -115,7 +115,7 @@ namespace Org.Apache.REEF.IMRU.Tests
             IList<string> contextIds = new List<string>();
             contextIds.Add(ContextIdPrefix + "5");
             var e = new MyFailedEvaluator(contextIds);
-            Action remove = () => activeContextManager.RemovedFailedContextInFailedEvaluator(e);
+            Action remove = () => activeContextManager.RemoveFailedContextInFailedEvaluator(e);
             Assert.Throws<IMRUSystemException>(remove);
         }
 
@@ -134,7 +134,7 @@ namespace Org.Apache.REEF.IMRU.Tests
             }
 
             var e = new MyFailedEvaluator(null);
-            activeContextManager.RemovedFailedContextInFailedEvaluator(e);
+            activeContextManager.RemoveFailedContextInFailedEvaluator(e);
             Assert.Equal(5, activeContextManager.NumberOfActiveContexts);
         }
 
@@ -193,10 +193,6 @@ namespace Org.Apache.REEF.IMRU.Tests
             {
                 get
                 {
-                    if (_contextIds != null && _contextIds.Count == 1)
-                    {
-                        return EvaluatorIdPrefix + _contextIds[0];
-                    }
                     return EvaluatorIdPrefix + "no";
                 }
             }
