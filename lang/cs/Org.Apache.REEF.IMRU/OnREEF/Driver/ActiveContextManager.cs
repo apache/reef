@@ -15,7 +15,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-using System;
 using System.Collections.Generic;
 using System.Globalization;
 using Org.Apache.REEF.Driver.Context;
@@ -37,7 +36,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         private readonly int _totalExpectedContexts;
 
         /// <summary>
-        /// Constructor of ContextManager
+        /// Constructor of ActiveContextManager
         /// totalContexts specify the total number of expected active contexts that driver needs
         /// </summary>
         /// <param name="totalContexts"></param>
