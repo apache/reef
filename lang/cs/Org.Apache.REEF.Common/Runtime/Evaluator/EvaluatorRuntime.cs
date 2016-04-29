@@ -66,14 +66,14 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator
                 _evaluatorControlChannel = remoteManager.RegisterObserver(driverObserver);
 
                 AppDomain.CurrentDomain.UnhandledException += UnhandledExceptionHandler;
-                TaskScheduler.UnobservedTaskException += TaskScheduler_UnobservedTaskException;
+                TaskScheduler.UnobservedTaskException += UnobservedTaskException;
 
                 // start the heart beat
                 _clock.ScheduleAlarm(0, _heartBeatManager);
             }
         }
 
-        void TaskScheduler_UnobservedTaskException(object sender, UnobservedTaskExceptionEventArgs e)
+        private void UnobservedTaskException(object sender, UnobservedTaskExceptionEventArgs e)
         {
             OnException(e.Exception);
         }
