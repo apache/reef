@@ -29,5 +29,9 @@ namespace Org.Apache.REEF.Wake.Time.Parameters
     [NamedParameter(documentation: "Will be called upon the runtime stop event", defaultClass: typeof(LoggingEventHandler<RuntimeStop>))]
     public sealed class RuntimeStopHandler : Name<ISet<IObserver<RuntimeStop>>>
     {
+        // This class is a named parameter and shall never be instantiated.
+        private RuntimeStopHandler()
+        {
+        }
     }
 }

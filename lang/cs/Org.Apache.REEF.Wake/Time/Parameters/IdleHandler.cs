@@ -29,5 +29,9 @@ namespace Org.Apache.REEF.Wake.Time.Parameters
     [NamedParameter(documentation: "Will be called upon the Idle event", defaultClass: typeof(LoggingEventHandler<IdleClock>))]
     public sealed class IdleHandler : Name<ISet<IObserver<IdleClock>>>
     {
+        // This class is a named parameter and shall never be instantiated.
+        private IdleHandler()
+        {
+        }
     }
 }

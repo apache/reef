@@ -29,5 +29,9 @@ namespace Org.Apache.REEF.Wake.Time.Parameters
     [NamedParameter(documentation: "Will be called upon the runtime start event", defaultClass: typeof(LoggingEventHandler<RuntimeStart>))]
     public sealed class RuntimeStartHandler : Name<ISet<IObserver<RuntimeStart>>>
     {
+        // This class is a named parameter and shall never be instantiated.
+        private RuntimeStartHandler()
+        {
+        }
     }
 }

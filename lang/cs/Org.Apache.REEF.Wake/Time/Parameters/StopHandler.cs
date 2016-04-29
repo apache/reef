@@ -29,5 +29,9 @@ namespace Org.Apache.REEF.Wake.Time.Parameters
     [NamedParameter("Will be called upon the stop event", defaultClass: typeof(LoggingEventHandler<StopTime>))]
     public sealed class StopHandler : Name<ISet<IObserver<StopTime>>>
     {
+        // This class is a named parameter and shall never be instantiated.
+        private StopHandler()
+        {
+        }
     }
 }

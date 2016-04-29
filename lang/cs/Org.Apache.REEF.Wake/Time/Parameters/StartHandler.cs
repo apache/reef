@@ -29,5 +29,9 @@ namespace Org.Apache.REEF.Wake.Time.Parameters
     [NamedParameter(documentation: "Will be called upon the start event", defaultClass: typeof(MissingStartHandlerHandler))]
     public sealed class StartHandler : Name<ISet<IObserver<StartTime>>>
     {
+        // This class is a named parameter and shall never be instantiated.
+        private StartHandler()
+        {
+        }
     }
 }
