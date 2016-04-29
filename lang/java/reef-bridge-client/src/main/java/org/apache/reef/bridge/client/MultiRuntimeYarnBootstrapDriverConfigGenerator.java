@@ -35,9 +35,7 @@ import org.apache.reef.runtime.multi.client.*;
 import org.apache.reef.runtime.multi.driver.MultiRuntimeDriverConfiguration;
 import org.apache.reef.runtime.multi.utils.MultiRuntimeDefinitionSerializer;
 import org.apache.reef.runtime.yarn.YarnClasspathProvider;
-import org.apache.reef.runtime.yarn.driver.RuntimeIdentifier;
-import org.apache.reef.runtime.yarn.driver.YarnDriverConfiguration;
-import org.apache.reef.runtime.yarn.driver.YarnDriverRestartConfiguration;
+import org.apache.reef.runtime.yarn.driver.*;
 import org.apache.reef.runtime.yarn.driver.parameters.JobSubmissionDirectoryPrefix;
 import org.apache.reef.runtime.yarn.util.YarnConfigurationConstructor;
 import org.apache.reef.tang.Configuration;
@@ -60,6 +58,8 @@ import java.util.logging.Logger;
  */
 final class MultiRuntimeYarnBootstrapDriverConfigGenerator {
   private static final Logger LOG = Logger.getLogger(MultiRuntimeYarnBootstrapDriverConfigGenerator.class.getName());
+  private static final String DUMMY_YARN_RUNTIME = "DummyYarnRuntime";
+
   private final MultiRuntimeDefinitionSerializer runtimeDefinitionSerializer = new MultiRuntimeDefinitionSerializer();
 
   private final REEFFileNames reefFileNames;
@@ -83,7 +83,17 @@ final class MultiRuntimeYarnBootstrapDriverConfigGenerator {
           final AvroJobSubmissionParameters jobSubmissionParameters,
           final MultiRuntimeDefinitionBuilder builder) {
     // create and serialize yarn configuration if defined
-    final Configuration yarnDriverConfiguration = YarnDriverConfiguration.CONF
+    final Configuration yarnDriverConfiguration =
+            createYarnConfiguration(yarnJobSubmissionParams, jobSubmissionParameters);
+
+    // add yarn runtime to the builder
+    builder.addRuntime(yarnDriverConfiguration, RuntimeIdentifier.RUNTIME_NAME);
+  }
+
+  private Configuration createYarnConfiguration(
+          final AvroYarnJobSubmissionParameters yarnJobSubmissionParams,
+          final AvroJobSubmissionParameters jobSubmissionParameters) {
+    return YarnDriverConfiguration.CONF
             .set(YarnDriverConfiguration.JOB_SUBMISSION_DIRECTORY,
                     yarnJobSubmissionParams.getDfsJobSubmissionFolder().toString())
             .set(YarnDriverConfiguration.JOB_IDENTIFIER,
@@ -93,11 +103,24 @@ final class MultiRuntimeYarnBootstrapDriverConfigGenerator {
             .set(YarnDriverConfiguration.JVM_HEAP_SLACK, 0.0)
             .set(YarnDriverConfiguration.RUNTIME_NAMES, RuntimeIdentifier.RUNTIME_NAME)
             .build();
-
-    // add yarn runtime to the builder
-    builder.addRuntime(yarnDriverConfiguration, RuntimeIdentifier.RUNTIME_NAME);
   }
 
+  /**
+   * Adds yarn runtime definitions to the builder, with a dumy name, to prevent evaluator submission.
+   * @param yarnJobSubmissionParams Yarn job submission parameters
+   * @param jobSubmissionParameters Generic job submission parameters
+   * @param builder The multi runtime builder
+   */
+  private void addDummyYarnRuntimeDefinition(
+          final AvroYarnJobSubmissionParameters yarnJobSubmissionParams,
+          final AvroJobSubmissionParameters jobSubmissionParameters,
+          final MultiRuntimeDefinitionBuilder builder) {
+    // create and serialize yarn configuration if defined
+    final Configuration yarnDriverConfiguration =
+            createYarnConfiguration(yarnJobSubmissionParams, jobSubmissionParameters);
+    // add yarn runtime to the builder
+    builder.addRuntime(yarnDriverConfiguration, DUMMY_YARN_RUNTIME);
+  }
   /**
    * Adds local runtime definitions to the builder.
    * @param localAppSubmissionParams Local app submission parameters
@@ -126,39 +149,18 @@ final class MultiRuntimeYarnBootstrapDriverConfigGenerator {
     builder.addRuntime(localModule, org.apache.reef.runtime.local.driver.RuntimeIdentifier.RUNTIME_NAME);
   }
 
-  public String writeDriverConfigurationFile(final String bootstrapJobArgsLocation,
-                                             final String bootstrapAppArgsLocation) throws IOException {
-    final File bootstrapJobArgsFile = new File(bootstrapJobArgsLocation).getCanonicalFile();
-    final File bootstrapAppArgsFile = new File(bootstrapAppArgsLocation);
-
-    final AvroYarnJobSubmissionParameters yarnBootstrapJobArgs =
-        readYarnJobSubmissionParametersFromFile(bootstrapJobArgsFile);
-
-    final AvroMultiRuntimeAppSubmissionParameters multiruntimeBootstrapAppArgs =
-        readMultiRuntimeAppSubmissionParametersFromFile(bootstrapAppArgsFile);
-
-    final String driverConfigPath = reefFileNames.getDriverConfigurationPath();
-
-    this.configurationSerializer.toFile(
-            getMultiRuntimeDriverConfiguration(
-                    yarnBootstrapJobArgs, multiruntimeBootstrapAppArgs),
-        new File(driverConfigPath));
-
-    return driverConfigPath;
-  }
-
-  Configuration getMultiRuntimeDriverConfiguration(
+  private Configuration getMultiRuntimeDriverConfiguration(
           final AvroYarnJobSubmissionParameters yarnJobSubmissionParams,
           final AvroMultiRuntimeAppSubmissionParameters multiruntimeAppSubmissionParams) {
 
     if (multiruntimeAppSubmissionParams.getLocalRuntimeAppParameters() == null &&
-        multiruntimeAppSubmissionParams.getYarnRuntimeAppParameters() == null){
+            multiruntimeAppSubmissionParams.getYarnRuntimeAppParameters() == null){
       throw new IllegalArgumentException("At least on execution runtime has to be provided");
     }
 
     // read yarn job submission parameters
     final AvroJobSubmissionParameters jobSubmissionParameters =
-        yarnJobSubmissionParams.getSharedJobSubmissionParameters();
+            yarnJobSubmissionParams.getSharedJobSubmissionParameters();
 
     // generate multi runtime definition
     final MultiRuntimeDefinitionBuilder multiRuntimeDefinitionBuilder = new MultiRuntimeDefinitionBuilder();
@@ -174,6 +176,11 @@ final class MultiRuntimeYarnBootstrapDriverConfigGenerator {
               yarnJobSubmissionParams,
               jobSubmissionParameters,
               multiRuntimeDefinitionBuilder);
+    } else {
+      addDummyYarnRuntimeDefinition(
+              yarnJobSubmissionParams,
+              jobSubmissionParameters,
+              multiRuntimeDefinitionBuilder);
     }
 
     multiRuntimeDefinitionBuilder.setDefaultRuntimeName(
@@ -181,10 +188,10 @@ final class MultiRuntimeYarnBootstrapDriverConfigGenerator {
 
     // generate multi runtime configuration
     ConfigurationModule multiRuntimeDriverConfiguration = MultiRuntimeDriverConfiguration.CONF
-                    .set(MultiRuntimeDriverConfiguration.JOB_IDENTIFIER, jobSubmissionParameters.getJobId().toString())
-                    .set(MultiRuntimeDriverConfiguration.CLIENT_REMOTE_IDENTIFIER, ClientRemoteIdentifier.NONE)
-                    .set(MultiRuntimeDriverConfiguration.SERIALIZED_RUNTIME_DEFINITION,
-                            this.runtimeDefinitionSerializer.toString(multiRuntimeDefinitionBuilder.build()));
+            .set(MultiRuntimeDriverConfiguration.JOB_IDENTIFIER, jobSubmissionParameters.getJobId().toString())
+            .set(MultiRuntimeDriverConfiguration.CLIENT_REMOTE_IDENTIFIER, ClientRemoteIdentifier.NONE)
+            .set(MultiRuntimeDriverConfiguration.SERIALIZED_RUNTIME_DEFINITION,
+                    this.runtimeDefinitionSerializer.toString(multiRuntimeDefinitionBuilder.build()));
 
     for (final CharSequence runtimeName : multiruntimeAppSubmissionParams.getRuntimes()){
       multiRuntimeDriverConfiguration = multiRuntimeDriverConfiguration.set(
@@ -196,15 +203,15 @@ final class MultiRuntimeYarnBootstrapDriverConfigGenerator {
 
     // generate yarn related driver configuration
     final Configuration providerConfig = Tang.Factory.getTang().newConfigurationBuilder()
-        .bindSetEntry(DriverConfigurationProviders.class, TcpPortConfigurationProvider.class)
-        .bindNamedParameter(TcpPortRangeBegin.class, Integer.toString(appSubmissionParams.getTcpBeginPort()))
-        .bindNamedParameter(TcpPortRangeCount.class, Integer.toString(appSubmissionParams.getTcpRangeCount()))
-        .bindNamedParameter(TcpPortRangeTryCount.class, Integer.toString(appSubmissionParams.getTcpTryCount()))
-        .bindNamedParameter(JobSubmissionDirectoryPrefix.class,
-            yarnJobSubmissionParams.getJobSubmissionDirectoryPrefix().toString())
-        .bindImplementation(RuntimeClasspathProvider.class, YarnClasspathProvider.class)
-        .bindConstructor(YarnConfiguration.class, YarnConfigurationConstructor.class)
-        .build();
+            .bindSetEntry(DriverConfigurationProviders.class, TcpPortConfigurationProvider.class)
+            .bindNamedParameter(TcpPortRangeBegin.class, Integer.toString(appSubmissionParams.getTcpBeginPort()))
+            .bindNamedParameter(TcpPortRangeCount.class, Integer.toString(appSubmissionParams.getTcpRangeCount()))
+            .bindNamedParameter(TcpPortRangeTryCount.class, Integer.toString(appSubmissionParams.getTcpTryCount()))
+            .bindNamedParameter(JobSubmissionDirectoryPrefix.class,
+                    yarnJobSubmissionParams.getJobSubmissionDirectoryPrefix().toString())
+            .bindImplementation(RuntimeClasspathProvider.class, YarnClasspathProvider.class)
+            .bindConstructor(YarnConfiguration.class, YarnConfigurationConstructor.class)
+            .build();
 
     final Configuration driverConfiguration = Configurations.merge(
             Constants.DRIVER_CONFIGURATION_WITH_HTTP_AND_NAMESERVER,
@@ -217,22 +224,22 @@ final class MultiRuntimeYarnBootstrapDriverConfigGenerator {
       LOG.log(Level.FINE, "Driver restart is enabled.");
 
       final Configuration yarnDriverRestartConfiguration =
-          YarnDriverRestartConfiguration.CONF.build();
+              YarnDriverRestartConfiguration.CONF.build();
 
       final Configuration driverRestartConfiguration =
-          DriverRestartConfiguration.CONF
-              .set(DriverRestartConfiguration.ON_DRIVER_RESTARTED, JobDriver.RestartHandler.class)
-              .set(DriverRestartConfiguration.ON_DRIVER_RESTART_CONTEXT_ACTIVE,
-                  JobDriver.DriverRestartActiveContextHandler.class)
-              .set(DriverRestartConfiguration.ON_DRIVER_RESTART_TASK_RUNNING,
-                  JobDriver.DriverRestartRunningTaskHandler.class)
-              .set(DriverRestartConfiguration.DRIVER_RESTART_EVALUATOR_RECOVERY_SECONDS,
-                  multiruntimeAppSubmissionParams.getYarnRuntimeAppParameters().getDriverRecoveryTimeout())
-              .set(DriverRestartConfiguration.ON_DRIVER_RESTART_COMPLETED,
-                  JobDriver.DriverRestartCompletedHandler.class)
-              .set(DriverRestartConfiguration.ON_DRIVER_RESTART_EVALUATOR_FAILED,
-                  JobDriver.DriverRestartFailedEvaluatorHandler.class)
-              .build();
+              DriverRestartConfiguration.CONF
+                      .set(DriverRestartConfiguration.ON_DRIVER_RESTARTED, JobDriver.RestartHandler.class)
+                      .set(DriverRestartConfiguration.ON_DRIVER_RESTART_CONTEXT_ACTIVE,
+                              JobDriver.DriverRestartActiveContextHandler.class)
+                      .set(DriverRestartConfiguration.ON_DRIVER_RESTART_TASK_RUNNING,
+                              JobDriver.DriverRestartRunningTaskHandler.class)
+                      .set(DriverRestartConfiguration.DRIVER_RESTART_EVALUATOR_RECOVERY_SECONDS,
+                              multiruntimeAppSubmissionParams.getYarnRuntimeAppParameters().getDriverRecoveryTimeout())
+                      .set(DriverRestartConfiguration.ON_DRIVER_RESTART_COMPLETED,
+                              JobDriver.DriverRestartCompletedHandler.class)
+                      .set(DriverRestartConfiguration.ON_DRIVER_RESTART_EVALUATOR_FAILED,
+                              JobDriver.DriverRestartFailedEvaluatorHandler.class)
+                      .build();
 
       return Configurations.merge(driverConfiguration, yarnDriverRestartConfiguration, driverRestartConfiguration);
     }
@@ -240,25 +247,16 @@ final class MultiRuntimeYarnBootstrapDriverConfigGenerator {
     return driverConfiguration;
   }
 
-  static AvroMultiRuntimeAppSubmissionParameters readMultiRuntimeAppSubmissionParametersFromFile(final File file)
-      throws IOException {
+  private static AvroMultiRuntimeAppSubmissionParameters readMultiRuntimeAppSubmissionParametersFromFile(
+          final File file) throws IOException {
     try (final FileInputStream fileInputStream = new FileInputStream(file)) {
       // This is mainly a test hook.
       return readMultiRuntimeAppSubmissionParametersFromInputStream(fileInputStream);
     }
   }
 
-  static AvroMultiRuntimeAppSubmissionParameters readMultiRuntimeAppSubmissionParametersFromInputStream(
-      final InputStream inputStream) throws IOException {
-    final JsonDecoder decoder = DecoderFactory.get().jsonDecoder(
-            AvroMultiRuntimeAppSubmissionParameters.getClassSchema(), inputStream);
-    final SpecificDatumReader<AvroMultiRuntimeAppSubmissionParameters> reader = new SpecificDatumReader<>(
-            AvroMultiRuntimeAppSubmissionParameters.class);
-    return reader.read(null, decoder);
-  }
-
-  static AvroYarnJobSubmissionParameters readYarnJobSubmissionParametersFromFile(final File file)
-      throws IOException {
+  private static AvroYarnJobSubmissionParameters readYarnJobSubmissionParametersFromFile(final File file)
+          throws IOException {
     try (final FileInputStream fileInputStream = new FileInputStream(file)) {
       // This is mainly a test hook.
       return readYarnJobSubmissionParametersFromInputStream(fileInputStream);
@@ -266,11 +264,47 @@ final class MultiRuntimeYarnBootstrapDriverConfigGenerator {
   }
 
   static AvroYarnJobSubmissionParameters readYarnJobSubmissionParametersFromInputStream(
-      final InputStream inputStream) throws IOException {
+          final InputStream inputStream) throws IOException {
     final JsonDecoder decoder = DecoderFactory.get().jsonDecoder(
-        AvroYarnJobSubmissionParameters.getClassSchema(), inputStream);
+            AvroYarnJobSubmissionParameters.getClassSchema(), inputStream);
     final SpecificDatumReader<AvroYarnJobSubmissionParameters> reader = new SpecificDatumReader<>(
-        AvroYarnJobSubmissionParameters.class);
+            AvroYarnJobSubmissionParameters.class);
     return reader.read(null, decoder);
+  }
+
+  static AvroMultiRuntimeAppSubmissionParameters readMultiRuntimeAppSubmissionParametersFromInputStream(
+          final InputStream inputStream) throws IOException {
+    final JsonDecoder decoder = DecoderFactory.get().jsonDecoder(
+            AvroMultiRuntimeAppSubmissionParameters.getClassSchema(), inputStream);
+    final SpecificDatumReader<AvroMultiRuntimeAppSubmissionParameters> reader = new SpecificDatumReader<>(
+            AvroMultiRuntimeAppSubmissionParameters.class);
+    return reader.read(null, decoder);
+  }
+
+  /**
+   * Writes the driver configuration files to the provided location.
+   * @param bootstrapJobArgsLocation The path fro the job args file
+   * @param bootstrapAppArgsLocation The path for the app args file
+   * @throws IOException
+   */
+  public String writeDriverConfigurationFile(final String bootstrapJobArgsLocation,
+                                             final String bootstrapAppArgsLocation) throws IOException {
+    final File bootstrapJobArgsFile = new File(bootstrapJobArgsLocation).getCanonicalFile();
+    final File bootstrapAppArgsFile = new File(bootstrapAppArgsLocation);
+
+    final AvroYarnJobSubmissionParameters yarnBootstrapJobArgs =
+            readYarnJobSubmissionParametersFromFile(bootstrapJobArgsFile);
+
+    final AvroMultiRuntimeAppSubmissionParameters multiruntimeBootstrapAppArgs =
+            readMultiRuntimeAppSubmissionParametersFromFile(bootstrapAppArgsFile);
+
+    final String driverConfigPath = reefFileNames.getDriverConfigurationPath();
+
+    this.configurationSerializer.toFile(
+            getMultiRuntimeDriverConfiguration(
+                    yarnBootstrapJobArgs, multiruntimeBootstrapAppArgs),
+            new File(driverConfigPath));
+
+    return driverConfigPath;
   }
 }
