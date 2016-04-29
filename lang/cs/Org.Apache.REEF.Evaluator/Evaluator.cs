@@ -22,6 +22,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using Org.Apache.REEF.Common.Runtime.Evaluator;
 using Org.Apache.REEF.Common.Runtime.Evaluator.Utils;
 using Org.Apache.REEF.Driver.Bridge;
@@ -64,6 +65,9 @@ namespace Org.Apache.REEF.Evaluator
         {
             try
             {
+                AppDomain.CurrentDomain.UnhandledException += UnhandledExceptionHandler;
+                TaskScheduler.UnobservedTaskException += UnobservedTaskException;
+
                 if (args.Count() != 1)
                 {
                     var e = new InvalidOperationException("Must supply only the evaluator.config file!");
@@ -74,7 +78,6 @@ namespace Org.Apache.REEF.Evaluator
                 {
                     AttachDebugger();
                 }
-                AppDomain.CurrentDomain.UnhandledException += UnhandledExceptionHandler;
 
                 var fullEvaluatorConfiguration = ReadEvaluatorConfiguration(args[0]);
                 var injector = TangFactory.GetTang().NewInjector(fullEvaluatorConfiguration);
@@ -165,6 +168,11 @@ namespace Org.Apache.REEF.Evaluator
         private static void UnhandledExceptionHandler(object sender, UnhandledExceptionEventArgs e)
         {
             Fail((Exception)e.ExceptionObject);
+        }
+
+        private static void UnobservedTaskException(object sender, UnobservedTaskExceptionEventArgs e)
+        {
+            Fail(e.Exception);
         }
 
         private static void Fail(Exception ex)

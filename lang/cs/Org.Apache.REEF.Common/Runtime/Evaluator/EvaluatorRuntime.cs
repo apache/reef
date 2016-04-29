@@ -17,6 +17,7 @@
 
 using System;
 using System.Globalization;
+using System.Threading.Tasks;
 using Org.Apache.REEF.Common.Protobuf.ReefProtocol;
 using Org.Apache.REEF.Common.Runtime.Evaluator.Context;
 using Org.Apache.REEF.Tang.Annotations;
@@ -64,9 +65,17 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator
                 // register the driver observer
                 _evaluatorControlChannel = remoteManager.RegisterObserver(driverObserver);
 
+                AppDomain.CurrentDomain.UnhandledException += UnhandledExceptionHandler;
+                TaskScheduler.UnobservedTaskException += UnobservedTaskException;
+
                 // start the heart beat
                 _clock.ScheduleAlarm(0, _heartBeatManager);
             }
+        }
+
+        private void UnobservedTaskException(object sender, UnobservedTaskExceptionEventArgs e)
+        {
+            OnException(e.Exception);
         }
 
         public State State
@@ -239,6 +248,11 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator
                 _heartBeatManager.OnNext(evaluatorStatusProto);
                 _contextManager.Dispose();
             }
+        }
+
+        private void UnhandledExceptionHandler(object sender, UnhandledExceptionEventArgs e)
+        {
+            OnException((Exception)e.ExceptionObject);
         }
 
         public void OnError(Exception error)
