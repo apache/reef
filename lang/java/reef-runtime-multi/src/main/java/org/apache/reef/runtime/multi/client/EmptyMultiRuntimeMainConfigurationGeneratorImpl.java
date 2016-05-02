@@ -16,13 +16,31 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
 package org.apache.reef.runtime.multi.client;
 
-import org.apache.reef.tang.formats.ConfigurationModuleBuilder;
+import org.apache.reef.tang.Configuration;
+import org.apache.reef.tang.Tang;
+
+import javax.inject.Inject;
 
 /**
- * A ConfigurationModule to bind arbitrary named parameters for runtimes.
+ * Default implementation for MultiRuntimeMainConfigurationGenerator that returns an empty configuration.
  */
-final class MultiRuntimeHelperConfiguration extends ConfigurationModuleBuilder {
-}
+final class EmptyMultiRuntimeMainConfigurationGeneratorImpl
+        implements MultiRuntimeMainConfigurationGenerator {
 
+  @Inject
+  private EmptyMultiRuntimeMainConfigurationGeneratorImpl() {
+  }
+
+  /**
+   * Generates needed driver configuration such as class path provider.
+   *
+   * @return Instance of <code>Configuration</code>
+   */
+  @Override
+  public Configuration getMainConfiguration() {
+    return Tang.Factory.getTang().newConfigurationBuilder().build();
+  }
+}

@@ -20,8 +20,8 @@ package org.apache.reef.runtime.multi.client;
 
 import org.apache.commons.lang.Validate;
 import org.apache.commons.lang.StringUtils;
-import org.apache.reef.runtime.multi.utils.avro.MultiRuntimeDefinition;
-import org.apache.reef.runtime.multi.utils.avro.RuntimeDefinition;
+import org.apache.reef.runtime.multi.utils.avro.AvroMultiRuntimeDefinition;
+import org.apache.reef.runtime.multi.utils.avro.AvroRuntimeDefinition;
 import org.apache.reef.tang.Configuration;
 import org.apache.reef.tang.formats.AvroConfigurationSerializer;
 
@@ -33,15 +33,15 @@ import java.util.Map;
  * Builder for multi runtime definition.
  */
 public final class MultiRuntimeDefinitionBuilder {
-  private Map<String, RuntimeDefinition> runtimes = new HashMap<>();
+  private Map<String, AvroRuntimeDefinition> runtimes = new HashMap<>();
   private String defaultRuntime;
 
-  private static RuntimeDefinition createRuntimeDefinition(final Configuration configModule,
+  private static AvroRuntimeDefinition createRuntimeDefinition(final Configuration configModule,
                                                              final String runtimeName) {
     final Configuration localDriverConfiguration = configModule;
     final AvroConfigurationSerializer serializer = new AvroConfigurationSerializer();
     final String serializedConfig = serializer.toString(localDriverConfiguration);
-    return new RuntimeDefinition(runtimeName, serializedConfig);
+    return new AvroRuntimeDefinition(runtimeName, serializedConfig);
   }
 
   /**
@@ -54,7 +54,7 @@ public final class MultiRuntimeDefinitionBuilder {
     Validate.notNull(config, "runtime configuration module should not be null");
     Validate.isTrue(StringUtils.isNotBlank(runtimeName),
             "runtimeName should be non empty and non blank string");
-    final RuntimeDefinition rd = createRuntimeDefinition(config, runtimeName);
+    final AvroRuntimeDefinition rd = createRuntimeDefinition(config, runtimeName);
     this.runtimes.put(runtimeName, rd);
     return this;
   }
@@ -75,7 +75,7 @@ public final class MultiRuntimeDefinitionBuilder {
    * Builds multi runtime definition.
    * @return The populated definition object
    */
-  public MultiRuntimeDefinition build(){
+  public AvroMultiRuntimeDefinition build(){
     Validate.isTrue(this.runtimes.size() == 1 || !StringUtils.isEmpty(this.defaultRuntime), "Default runtime " +
             "should be set if more than a single runtime provided");
 
@@ -85,6 +85,6 @@ public final class MultiRuntimeDefinitionBuilder {
     }
 
     Validate.isTrue(this.runtimes.containsKey(this.defaultRuntime), "Default runtime should be configured");
-    return new MultiRuntimeDefinition(defaultRuntime, new ArrayList<>(this.runtimes.values()));
+    return new AvroMultiRuntimeDefinition(defaultRuntime, new ArrayList<>(this.runtimes.values()));
   }
 }

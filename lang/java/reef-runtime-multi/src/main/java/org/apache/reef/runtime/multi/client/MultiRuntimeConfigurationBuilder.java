@@ -26,7 +26,8 @@ import org.apache.reef.runtime.yarn.client.ExtensibleYarnClientConfiguration;
 import org.apache.reef.runtime.yarn.driver.RuntimeIdentifier;
 import org.apache.reef.tang.Configuration;
 import org.apache.reef.tang.Configurations;
-import org.apache.reef.tang.formats.ConfigurationModuleBuilder;
+import org.apache.reef.tang.JavaConfigurationBuilder;
+import org.apache.reef.tang.Tang;
 import org.apache.reef.util.Optional;
 
 import java.util.*;
@@ -45,7 +46,7 @@ public final class MultiRuntimeConfigurationBuilder {
 
   private Set<String> runtimeNames = new HashSet<>();
   private Optional<String> defaultRuntime = Optional.empty();
-  private String submissionRunitme;
+  private String submissionRuntime;
 
   private void addNamedParameter(final Class namedParameter,
                                  final Object namedParameterValue) {
@@ -85,11 +86,12 @@ public final class MultiRuntimeConfigurationBuilder {
    * @return The builder instance
    */
   public MultiRuntimeConfigurationBuilder setSubmissionRuntime(final String runtimeName) {
-    Validate.isTrue(SUPPORTED_SUBMISSION_RUNTIMES.contains(runtimeName), "Unsupported submission runtime " +
+    Validate.isTrue(
+            SUPPORTED_SUBMISSION_RUNTIMES.contains(runtimeName), "Unsupported submission runtime " +
             runtimeName);
-    Validate.isTrue(this.submissionRunitme == null, "Submission runtime was already added");
+    Validate.isTrue(this.submissionRuntime == null, "Submission runtime was already added");
 
-    this.submissionRunitme = runtimeName;
+    this.submissionRuntime = runtimeName;
     return this;
   }
 
@@ -110,7 +112,7 @@ public final class MultiRuntimeConfigurationBuilder {
    * @return The built configuration
    */
   public Configuration build() {
-    Validate.notNull(this.submissionRunitme, "Default Runtime was not defined");
+    Validate.notNull(this.submissionRuntime, "Default Runtime was not defined");
 
     if(!this.defaultRuntime.isPresent() || this.runtimeNames.size() == 1){
       this.defaultRuntime = Optional.of(this.runtimeNames.toArray(new String[0])[0]);
@@ -123,7 +125,7 @@ public final class MultiRuntimeConfigurationBuilder {
       this.runtimeNames.add(this.defaultRuntime.get());
     }
 
-    ConfigurationModuleBuilder conf = new MultiRuntimeHelperConfiguration();
+    JavaConfigurationBuilder conf = Tang.Factory.getTang().newConfigurationBuilder();
 
     for(Map.Entry<Class, Object> entry: this.namedParameters.entrySet()){
       conf = conf.bindNamedParameter(entry.getKey(), entry.getValue().toString());
@@ -135,15 +137,15 @@ public final class MultiRuntimeConfigurationBuilder {
       conf = conf.bindSetEntry(RuntimeNames.class, runtimeName);
     }
 
-    conf = conf.bindImplementation(
-            MultiRuntimeDefinitionGenerator.class, MultiRuntimeDefinitionGeneratorImpl.class);
-
-    if(!this.submissionRunitme.equalsIgnoreCase(RuntimeIdentifier.RUNTIME_NAME)){
-      throw new RuntimeException("Unsupported submission runtime " + this.submissionRunitme);
+    if(!this.submissionRuntime.equalsIgnoreCase(RuntimeIdentifier.RUNTIME_NAME)){
+      throw new RuntimeException("Unsupported submission runtime " + this.submissionRuntime);
     }
 
+    conf = conf.bindImplementation(MultiRuntimeMainConfigurationGenerator.class,
+            YarnMultiRuntimeMainConfigurationGeneratorImpl.class);
+
     // Currently only local runtime is supported as a secondary runtime
-    return Configurations.merge(conf.build().build(),
+    return Configurations.merge(conf.build(),
             ExtensibleYarnClientConfiguration.CONF
                     .set(ExtensibleYarnClientConfiguration.DRIVER_CONFIGURATION_PROVIDER,
                             MultiRuntimeDriverConfigurationProvider.class).build());

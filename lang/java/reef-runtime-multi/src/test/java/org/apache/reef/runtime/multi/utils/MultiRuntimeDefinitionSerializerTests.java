@@ -18,8 +18,8 @@
  */
 package org.apache.reef.runtime.multi.utils;
 
-import org.apache.reef.runtime.multi.utils.avro.MultiRuntimeDefinition;
-import org.apache.reef.runtime.multi.utils.avro.RuntimeDefinition;
+import org.apache.reef.runtime.multi.utils.avro.AvroMultiRuntimeDefinition;
+import org.apache.reef.runtime.multi.utils.avro.AvroRuntimeDefinition;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -33,14 +33,14 @@ public class MultiRuntimeDefinitionSerializerTests {
   @Test
   public void testSerailze() throws IOException {
     final MultiRuntimeDefinitionSerializer serializer = new MultiRuntimeDefinitionSerializer();
-    final MultiRuntimeDefinition def = new MultiRuntimeDefinition();
-    final RuntimeDefinition rd = new RuntimeDefinition();
+    final AvroMultiRuntimeDefinition def = new AvroMultiRuntimeDefinition();
+    final AvroRuntimeDefinition rd = new AvroRuntimeDefinition();
     rd.setRuntimeName("default");
     rd.setSerializedConfiguration("config");
     def.setDefaultRuntimeName("default");
-    def.setRuntimes(Arrays.asList(new RuntimeDefinition[]{rd}));
+    def.setRuntimes(Arrays.asList(new AvroRuntimeDefinition[]{rd}));
     final String serialized = serializer.toString(def);
-    final MultiRuntimeDefinition fromStringdef = serializer.fromString(serialized);
+    final AvroMultiRuntimeDefinition fromStringdef = serializer.fromString(serialized);
     Assert.assertEquals(def, fromStringdef);
   }
 
