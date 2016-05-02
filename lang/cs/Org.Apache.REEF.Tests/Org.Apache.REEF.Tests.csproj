@@ -82,6 +82,7 @@ under the License.
     <Compile Include="Functional\Bridge\TestSimpleContext.cs" />
     <Compile Include="Functional\Bridge\TestSimpleEventHandlers.cs" />
     <Compile Include="Functional\Bridge\TestSuspendTask.cs" />
+    <Compile Include="Functional\Bridge\TestUnhandledTaskException.cs" />
     <Compile Include="Functional\Driver\DriverTestStartHandler.cs" />
     <Compile Include="Functional\FaultTolerant\TestContextStart.cs" />
     <Compile Include="Functional\FaultTolerant\TestResubmitEvaluator.cs" />

@@ -29,6 +29,7 @@ using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Tang.Formats;
 using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Tang.Interface;
+using Org.Apache.REEF.Utilities.Diagnostics;
 using Org.Apache.REEF.Utilities.Logging;
 using Org.Apache.REEF.Wake.Time;
 using Org.Apache.REEF.Wake.Time.Parameters;
@@ -63,37 +64,31 @@ namespace Org.Apache.REEF.Evaluator
         /// <param name="args"></param>
         public static void Main(string[] args)
         {
-            try
+            DefaultUnhandledExceptionHandler.Register();
+
+            if (args.Count() != 1)
             {
-                if (args.Count() != 1)
-                {
-                    var e = new InvalidOperationException("Must supply only the evaluator.config file!");
-                    Utilities.Diagnostics.Exceptions.Throw(e, logger);
-                }
-
-                if (IsDebuggingEnabled())
-                {
-                    AttachDebugger();
-                }
-                AppDomain.CurrentDomain.UnhandledException += UnhandledExceptionHandler;
-
-                var fullEvaluatorConfiguration = ReadEvaluatorConfiguration(args[0]);
-                var injector = TangFactory.GetTang().NewInjector(fullEvaluatorConfiguration);
-                var serializer = injector.GetInstance<AvroConfigurationSerializer>();
-                var rootEvaluatorConfiguration = 
-                    TangFactory.GetTang().NewConfigurationBuilder(serializer.FromString(injector.GetNamedInstance<EvaluatorConfiguration, string>()))
-                        .BindSetEntry<RuntimeStartHandler, EvaluatorRuntime, IObserver<RuntimeStart>>()
-                        .BindSetEntry<RuntimeStopHandler, EvaluatorRuntime, IObserver<RuntimeStop>>()
-                        .Build();
-                var evaluator = injector.ForkInjector(rootEvaluatorConfiguration).GetInstance<Evaluator>();
-
-                evaluator.Run();
-                logger.Log(Level.Info, "Evaluator is returned from Run()");
+                var e = new InvalidOperationException("Must supply only the evaluator.config file!");
+                Utilities.Diagnostics.Exceptions.Throw(e, logger);
             }
-            catch (Exception e)
+
+            if (IsDebuggingEnabled())
             {
-                Fail(e);
+                AttachDebugger();
             }
+
+            var fullEvaluatorConfiguration = ReadEvaluatorConfiguration(args[0]);
+            var injector = TangFactory.GetTang().NewInjector(fullEvaluatorConfiguration);
+            var serializer = injector.GetInstance<AvroConfigurationSerializer>();
+            var rootEvaluatorConfiguration = 
+                TangFactory.GetTang().NewConfigurationBuilder(serializer.FromString(injector.GetNamedInstance<EvaluatorConfiguration, string>()))
+                    .BindSetEntry<RuntimeStartHandler, EvaluatorRuntime, IObserver<RuntimeStart>>()
+                    .BindSetEntry<RuntimeStopHandler, EvaluatorRuntime, IObserver<RuntimeStop>>()
+                    .Build();
+            var evaluator = injector.ForkInjector(rootEvaluatorConfiguration).GetInstance<Evaluator>();
+
+            evaluator.Run();
+            logger.Log(Level.Info, "Evaluator is returned from Run()");
         }
 
         /// <summary>
@@ -161,18 +156,6 @@ namespace Org.Apache.REEF.Evaluator
             }
             logger = Logger.GetLogger(typeof(Evaluator));
             Logger.SetCustomLevel(traceLevel.TraceLevel);
-        }
-
-        private static void UnhandledExceptionHandler(object sender, UnhandledExceptionEventArgs e)
-        {
-            Fail((Exception)e.ExceptionObject);
-        }
-
-        private static void Fail(Exception ex)
-        {
-            var message = "Unhandled exception caught in Evaluator. Current files in the working directory: " +
-                          string.Join(", ", Directory.EnumerateFiles(Directory.GetCurrentDirectory(), "*.*", SearchOption.AllDirectories));
-            Utilities.Diagnostics.Exceptions.Throw(ex, message, logger);
         }
     }
 }

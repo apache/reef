@@ -56,6 +56,7 @@ under the License.
     <Compile Include="Collections\ReadOnlySet.cs" />
     <Compile Include="Diagnostics\DiagnosticsMessages.cs" />
     <Compile Include="Diagnostics\Exceptions.cs" />
+    <Compile Include="Diagnostics\DefaultUnhandledExceptionHandler.cs" />
     <Compile Include="IIdentifiable.cs" />
     <Compile Include="IMessage.cs" />
     <Compile Include="Logging\JavaLoggingSetting.cs" />

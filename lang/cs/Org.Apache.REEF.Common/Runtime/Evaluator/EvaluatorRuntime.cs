@@ -21,6 +21,7 @@ using Org.Apache.REEF.Common.Protobuf.ReefProtocol;
 using Org.Apache.REEF.Common.Runtime.Evaluator.Context;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Utilities;
+using Org.Apache.REEF.Utilities.Diagnostics;
 using Org.Apache.REEF.Utilities.Logging;
 using Org.Apache.REEF.Wake.Time;
 using Org.Apache.REEF.Wake.Time.Runtime.Event;
@@ -64,9 +65,17 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator
                 // register the driver observer
                 _evaluatorControlChannel = remoteManager.RegisterObserver(driverObserver);
 
+                AppDomain.CurrentDomain.UnhandledException += EvaluatorRuntimeUnhandledException;
+                DefaultUnhandledExceptionHandler.Unregister();
+
                 // start the heart beat
                 _clock.ScheduleAlarm(0, _heartBeatManager);
             }
+        }
+
+        private void EvaluatorRuntimeUnhandledException(object sender, UnhandledExceptionEventArgs e)
+        {
+            OnException((Exception)e.ExceptionObject);
         }
 
         public State State
