@@ -28,7 +28,7 @@ import org.apache.reef.runtime.local.client.parameters.RackNames;
 import org.apache.reef.runtime.local.driver.LocalDriverConfiguration;
 import org.apache.reef.runtime.multi.client.parameters.DefaultRuntimeName;
 import org.apache.reef.runtime.multi.client.parameters.RuntimeNames;
-import org.apache.reef.runtime.multi.utils.avro.MultiRuntimeDefinition;
+import org.apache.reef.runtime.multi.utils.avro.AvroMultiRuntimeDefinition;
 import org.apache.reef.runtime.yarn.driver.RuntimeIdentifier;
 import org.apache.reef.runtime.yarn.driver.YarnDriverConfiguration;
 import org.apache.reef.tang.Configuration;
@@ -42,7 +42,7 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * MultiRuntime configuration provider.
+ * MultiRuntime definition provider. Creates avro definition for the multi runtime environment.
  */
 @Private
 @RuntimeAuthor
@@ -107,7 +107,9 @@ final class MultiRuntimeDefinitionGeneratorImpl implements MultiRuntimeDefinitio
             .set(YarnDriverConfiguration.JOB_SUBMISSION_DIRECTORY, jobFolder.toString())
             .set(YarnDriverConfiguration.JOB_IDENTIFIER, jobId)
             .set(YarnDriverConfiguration.CLIENT_REMOTE_IDENTIFIER, clientRemoteId)
-            .set(YarnDriverConfiguration.JVM_HEAP_SLACK, this.jvmSlack).build();
+            .set(YarnDriverConfiguration.JVM_HEAP_SLACK, this.jvmSlack)
+            .set(YarnDriverConfiguration.RUNTIME_NAMES, RuntimeIdentifier.RUNTIME_NAME)
+            .build();
 
   }
 
@@ -121,7 +123,9 @@ final class MultiRuntimeDefinitionGeneratorImpl implements MultiRuntimeDefinitio
             .set(LocalDriverConfiguration.ROOT_FOLDER, ".")
             .set(LocalDriverConfiguration.JVM_HEAP_SLACK, this.jvmSlack)
             .set(LocalDriverConfiguration.CLIENT_REMOTE_IDENTIFIER, clientRemoteId)
-            .set(LocalDriverConfiguration.JOB_IDENTIFIER, jobId);
+            .set(LocalDriverConfiguration.JOB_IDENTIFIER, jobId)
+            .set(LocalDriverConfiguration.RUNTIME_NAMES,
+                    org.apache.reef.runtime.local.driver.RuntimeIdentifier.RUNTIME_NAME);
     for (final String rackName : rackNames) {
       localModule = localModule.set(LocalDriverConfiguration.RACK_NAMES, rackName);
     }
@@ -130,9 +134,9 @@ final class MultiRuntimeDefinitionGeneratorImpl implements MultiRuntimeDefinitio
   }
 
 
-  public MultiRuntimeDefinition getMultiRuntimeDefinition(final URI jobFolder,
-                                                          final String clientRemoteId,
-                                                          final String jobId) {
+  public AvroMultiRuntimeDefinition getMultiRuntimeDefinition(final URI jobFolder,
+                                                              final String clientRemoteId,
+                                                              final String jobId) {
 
 
     MultiRuntimeDefinitionBuilder builder = new MultiRuntimeDefinitionBuilder();

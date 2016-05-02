@@ -21,8 +21,8 @@ package org.apache.reef.runtime.multi.client;
 import org.apache.reef.runtime.common.client.DriverConfigurationProvider;
 import org.apache.reef.runtime.multi.driver.MultiRuntimeDriverConfiguration;
 import org.apache.reef.runtime.multi.utils.MultiRuntimeDefinitionSerializer;
-import org.apache.reef.runtime.multi.utils.avro.MultiRuntimeDefinition;
-import org.apache.reef.runtime.multi.utils.avro.RuntimeDefinition;
+import org.apache.reef.runtime.multi.utils.avro.AvroMultiRuntimeDefinition;
+import org.apache.reef.runtime.multi.utils.avro.AvroRuntimeDefinition;
 import org.apache.reef.tang.Configuration;
 import org.apache.reef.tang.Configurations;
 import org.apache.reef.tang.formats.ConfigurationModule;
@@ -35,11 +35,15 @@ import java.net.URI;
  */
 final class MultiRuntimeDriverConfigurationProvider implements DriverConfigurationProvider {
   private final MultiRuntimeDefinitionSerializer runtimeDefinitionSerializer = new MultiRuntimeDefinitionSerializer();
+  private final MultiRuntimeMainConfigurationGenerator mainRuntimeConfigGenerator;
   private MultiRuntimeDefinitionGenerator definitionGenerator;
 
   @Inject
-  MultiRuntimeDriverConfigurationProvider(final MultiRuntimeDefinitionGenerator definitionGenerator) {
+  MultiRuntimeDriverConfigurationProvider(
+          final MultiRuntimeDefinitionGenerator definitionGenerator,
+          final MultiRuntimeMainConfigurationGenerator mainRuntimeConfigGenerator) {
     this.definitionGenerator = definitionGenerator;
+    this.mainRuntimeConfigGenerator = mainRuntimeConfigGenerator;
   }
 
   /**
@@ -57,21 +61,24 @@ final class MultiRuntimeDriverConfigurationProvider implements DriverConfigurati
                                               final String clientRemoteId,
                                               final String jobId,
                                               final Configuration applicationConfiguration) {
-    MultiRuntimeDefinition runtimeDefinitions = this.definitionGenerator.getMultiRuntimeDefinition(
+    AvroMultiRuntimeDefinition runtimeDefinitions = this.definitionGenerator.getMultiRuntimeDefinition(
             jobFolder,
             clientRemoteId,
             jobId);
     ConfigurationModule conf = MultiRuntimeDriverConfiguration.CONF;
 
-    for(RuntimeDefinition runtimeDefinition : runtimeDefinitions.getRuntimes()){
+    for(AvroRuntimeDefinition runtimeDefinition : runtimeDefinitions.getRuntimes()){
       conf = conf.set(MultiRuntimeDriverConfiguration.RUNTIME_NAMES, runtimeDefinition.getRuntimeName().toString());
     }
 
-    return Configurations.merge(applicationConfiguration,
+    final Configuration mainConfiguration = this.mainRuntimeConfigGenerator.getMainConfiguration();
+
+    return Configurations.merge(mainConfiguration, applicationConfiguration,
                     conf
                     .set(MultiRuntimeDriverConfiguration.JOB_IDENTIFIER, jobId)
                     .set(MultiRuntimeDriverConfiguration.CLIENT_REMOTE_IDENTIFIER, clientRemoteId)
                     .set(MultiRuntimeDriverConfiguration.SERIALIZED_RUNTIME_DEFINITION,
-                            this.runtimeDefinitionSerializer.toString(runtimeDefinitions)).build());
+                            this.runtimeDefinitionSerializer.toString(runtimeDefinitions))
+                    .build());
   }
 }

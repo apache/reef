@@ -26,7 +26,8 @@ import org.junit.runners.Suite;
  */
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
-    TestHelloREEF.class
+    TestHelloREEF.class,
+    TestHelloREEFMultiRuntime.class
     })
 public final class ExamplesTestSuite {
 }

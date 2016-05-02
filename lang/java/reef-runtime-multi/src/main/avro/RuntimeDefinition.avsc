@@ -24,7 +24,7 @@
  {
     "namespace":"org.apache.reef.runtime.multi.utils.avro",
     "type":"record",
-    "name":"RuntimeDefinition",
+    "name":"AvroRuntimeDefinition",
     "doc":"Defines the schema for runtime definition. This avro object is used to pass runtimes definitions to the runtimes host",
     "fields":[
       {
@@ -46,7 +46,7 @@
  {
     "namespace":"org.apache.reef.runtime.multi.utils.avro",
     "type":"record",
-    "name":"MultiRuntimeDefinition",
+    "name":"AvroMultiRuntimeDefinition",
     "doc":"Defines the schema for multi runtime definition. This avro object is used to pass multi runtime definition to the runtimes host",
     "fields":[
       {
@@ -56,7 +56,7 @@
       },
       {
         "name":"runtimes",
-        "type":{"type":"array", "items":"RuntimeDefinition"},
+        "type":{"type":"array", "items":"AvroRuntimeDefinition"},
         "doc":"defined runtimes"
       }
     ]

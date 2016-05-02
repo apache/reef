@@ -28,8 +28,8 @@ import org.apache.reef.runtime.common.driver.resourcemanager.RuntimeStatusEvent;
 import org.apache.reef.runtime.multi.client.parameters.SerializedRuntimeDefinition;
 import org.apache.reef.runtime.multi.driver.parameters.RuntimeName;
 import org.apache.reef.runtime.multi.utils.MultiRuntimeDefinitionSerializer;
-import org.apache.reef.runtime.multi.utils.avro.MultiRuntimeDefinition;
-import org.apache.reef.runtime.multi.utils.avro.RuntimeDefinition;
+import org.apache.reef.runtime.multi.utils.avro.AvroMultiRuntimeDefinition;
+import org.apache.reef.runtime.multi.utils.avro.AvroRuntimeDefinition;
 import org.apache.reef.tang.Configuration;
 import org.apache.reef.tang.Injector;
 import org.apache.reef.tang.JavaConfigurationBuilder;
@@ -50,7 +50,7 @@ import java.util.Map;
  * Hosts the actual runtime implementations and delegates invocations to them.
  */
 final class RuntimesHost {
-  private final MultiRuntimeDefinition runtimeDefinition;
+  private final AvroMultiRuntimeDefinition runtimeDefinition;
   private final Injector originalInjector;
   private final String defaultRuntimeName;
   private final MultiRuntimeDefinitionSerializer  runtimeDefinitionSerializer = new MultiRuntimeDefinitionSerializer();
@@ -79,7 +79,7 @@ final class RuntimesHost {
 
     this.runtimes = new HashMap<>();
 
-    for (final RuntimeDefinition rd : runtimeDefinition.getRuntimes()) {
+    for (final AvroRuntimeDefinition rd : runtimeDefinition.getRuntimes()) {
       try {
 
         // We need to create different injector for each runtime as they define conflicting bindings. Also we cannot

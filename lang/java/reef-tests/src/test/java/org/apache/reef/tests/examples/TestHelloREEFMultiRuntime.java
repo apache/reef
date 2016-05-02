@@ -19,9 +19,13 @@
 package org.apache.reef.tests.examples;
 
 import org.apache.reef.client.DriverConfiguration;
+import org.apache.reef.client.DriverLauncher;
 import org.apache.reef.client.LauncherStatus;
 import org.apache.reef.examples.hellomultiruntime.HelloMultiRuntimeDriver;
+import org.apache.reef.runtime.multi.client.MultiRuntimeConfigurationBuilder;
+import org.apache.reef.runtime.yarn.driver.RuntimeIdentifier;
 import org.apache.reef.tang.Configuration;
+import org.apache.reef.tang.exceptions.InjectionException;
 import org.apache.reef.tests.TestEnvironment;
 import org.apache.reef.tests.TestEnvironmentFactory;
 import org.apache.reef.tests.YarnTestEnvironment;
@@ -48,16 +52,27 @@ public class TestHelloREEFMultiRuntime {
   }
 
   @Test
-  public void testHelloREEFMultiRuntime() {
+  public void testHelloREEFMultiRuntime() throws InjectionException {
     if(this.testEnvironment instanceof YarnTestEnvironment){
       // multi runtime can be tested on yarn only
       final Configuration driverConf = DriverConfiguration.CONF
               .set(DriverConfiguration.GLOBAL_LIBRARIES, EnvironmentUtils.getClassLocation(this.getClass()))
-              .set(DriverConfiguration.DRIVER_IDENTIFIER, "TEST_HelloREEF")
+              .set(DriverConfiguration.DRIVER_IDENTIFIER, "TEST_HelloREEFMultiRunitme")
               .set(DriverConfiguration.ON_DRIVER_STARTED, HelloMultiRuntimeDriver.StartHandler.class)
               .set(DriverConfiguration.ON_EVALUATOR_ALLOCATED, HelloMultiRuntimeDriver.EvaluatorAllocatedHandler.class)
               .build();
-      final LauncherStatus state = this.testEnvironment.run(driverConf);
+
+      // create the multi runtime environment
+      Configuration multiruntimeConfig = new MultiRuntimeConfigurationBuilder()
+              .addRuntime(RuntimeIdentifier.RUNTIME_NAME)
+              .addRuntime(org.apache.reef.runtime.local.driver.RuntimeIdentifier.RUNTIME_NAME)
+              .setDefaultRuntime(RuntimeIdentifier.RUNTIME_NAME)
+              .setMaxEvaluatorsNumberForLocalRuntime(1)
+              .setSubmissionRuntime(RuntimeIdentifier.RUNTIME_NAME)
+              .build();
+
+      final LauncherStatus state = DriverLauncher.getLauncher(multiruntimeConfig).run(driverConf, this
+              .testEnvironment.getTestTimeout());
       Assert.assertTrue("Job state after execution: " + state, state.isSuccess());
     }
   }

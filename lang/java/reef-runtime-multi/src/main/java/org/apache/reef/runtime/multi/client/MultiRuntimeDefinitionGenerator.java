@@ -19,13 +19,19 @@
 
 package org.apache.reef.runtime.multi.client;
 
-import org.apache.reef.runtime.multi.utils.avro.MultiRuntimeDefinition;
+import org.apache.reef.annotations.Unstable;
+import org.apache.reef.runtime.multi.utils.avro.AvroMultiRuntimeDefinition;
+import org.apache.reef.tang.annotations.DefaultImplementation;
 
 import java.net.URI;
 
 /**
  * Defines a contract for a multi runtime definition generator.
+ * The multi runtime avro definition contains all the needed information to instantiate
+ * runtimes inside runtime host.
  */
+@DefaultImplementation(MultiRuntimeDefinitionGeneratorImpl.class)
+@Unstable
 public interface MultiRuntimeDefinitionGenerator {
   /**
    * Generates needed driver configuration modules.
@@ -35,8 +41,8 @@ public interface MultiRuntimeDefinitionGenerator {
    * @param jobId          the job id
    * @return Instance of <code>MultiRuntimeDefinition</code>
    */
-  MultiRuntimeDefinition getMultiRuntimeDefinition(final URI jobFolder,
-                                                   final String clientRemoteId,
-                                                   final String jobId);
+  AvroMultiRuntimeDefinition getMultiRuntimeDefinition(final URI jobFolder,
+                                                       final String clientRemoteId,
+                                                       final String jobId);
 
 }

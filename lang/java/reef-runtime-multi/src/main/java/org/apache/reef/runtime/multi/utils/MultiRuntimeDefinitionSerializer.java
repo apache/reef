@@ -22,7 +22,7 @@ package org.apache.reef.runtime.multi.utils;
 import org.apache.avro.io.*;
 import org.apache.avro.specific.SpecificDatumReader;
 import org.apache.avro.specific.SpecificDatumWriter;
-import org.apache.reef.runtime.multi.utils.avro.MultiRuntimeDefinition;
+import org.apache.reef.runtime.multi.utils.avro.AvroMultiRuntimeDefinition;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -39,9 +39,9 @@ public final class MultiRuntimeDefinitionSerializer {
    * @param runtimeDefinition the Avro object to toString
    * @return Serialized avro string
    */
-  public String toString(final MultiRuntimeDefinition runtimeDefinition){
-    final DatumWriter<MultiRuntimeDefinition> configurationWriter =
-            new SpecificDatumWriter<>(MultiRuntimeDefinition.class);
+  public String toString(final AvroMultiRuntimeDefinition runtimeDefinition){
+    final DatumWriter<AvroMultiRuntimeDefinition> configurationWriter =
+            new SpecificDatumWriter<>(AvroMultiRuntimeDefinition.class);
     final String serializedConfiguration;
     try (final ByteArrayOutputStream out = new ByteArrayOutputStream()) {
       final JsonEncoder encoder = EncoderFactory.get().jsonEncoder(runtimeDefinition.getSchema(), out);
@@ -62,12 +62,13 @@ public final class MultiRuntimeDefinitionSerializer {
    * @return Avro object
    * @throws IOException
    */
-  public MultiRuntimeDefinition fromString(final String serializedRuntimeDefinition) throws
+  public AvroMultiRuntimeDefinition fromString(final String serializedRuntimeDefinition) throws
           IOException{
     final JsonDecoder decoder = DecoderFactory.get().
-            jsonDecoder(MultiRuntimeDefinition.getClassSchema(), serializedRuntimeDefinition);
-    final SpecificDatumReader<MultiRuntimeDefinition> reader = new SpecificDatumReader<>(MultiRuntimeDefinition.class);
-    final MultiRuntimeDefinition rd = reader.read(null, decoder);
+            jsonDecoder(AvroMultiRuntimeDefinition.getClassSchema(), serializedRuntimeDefinition);
+    final SpecificDatumReader<AvroMultiRuntimeDefinition> reader = new SpecificDatumReader<>(AvroMultiRuntimeDefinition
+            .class);
+    final AvroMultiRuntimeDefinition rd = reader.read(null, decoder);
     return rd;
   }
 }

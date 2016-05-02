@@ -27,7 +27,7 @@ import org.apache.reef.runtime.local.driver.*;
 import org.apache.reef.runtime.multi.client.MultiRuntimeDefinitionBuilder;
 import org.apache.reef.runtime.multi.client.parameters.SerializedRuntimeDefinition;
 import org.apache.reef.runtime.multi.utils.MultiRuntimeDefinitionSerializer;
-import org.apache.reef.runtime.multi.utils.avro.MultiRuntimeDefinition;
+import org.apache.reef.runtime.multi.utils.avro.AvroMultiRuntimeDefinition;
 import org.apache.reef.tang.*;
 import org.apache.reef.tang.exceptions.InjectionException;
 import org.apache.reef.tang.formats.ConfigurationModule;
@@ -245,7 +245,7 @@ public class RuntimesHostTest {
     Assert.assertTrue(obj instanceof RuntimeStart);
   }
 
-  private String getRuntimeDefinition(final MultiRuntimeDefinition rd) {
+  private String getRuntimeDefinition(final AvroMultiRuntimeDefinition rd) {
     return new MultiRuntimeDefinitionSerializer().toString(rd);
   }
 
