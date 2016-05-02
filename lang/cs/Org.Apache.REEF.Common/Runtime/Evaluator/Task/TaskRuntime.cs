@@ -82,7 +82,7 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Task
         /// <summary>
         /// Runs the task asynchronously.
         /// </summary>
-        public System.Threading.Tasks.Task RunTask()
+        public Thread RunTask()
         {
             if (Interlocked.Exchange(ref _taskRan, 1) != 0)
             {
@@ -93,77 +93,46 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Task
             // Send heartbeat such that user receives a TaskRunning message.
             _currentStatus.SetRunning();
 
-            return System.Threading.Tasks.Task.Run(() =>
+            var taskThread = new Thread(() =>
             {
-                Logger.Log(Level.Info, "Calling into user's task.");
-                return _userTask.Call(null);
-            }).ContinueWith((System.Threading.Tasks.Task<byte[]> runTask) =>
+                try
+                {
+                    Logger.Log(Level.Verbose, "Calling into user's task.");
+                    var result = _userTask.Call(null);
+                    Logger.Log(Level.Info, "Task Call Finished");
+                    _currentStatus.SetResult(result);
+
+                    const Level resultLogLevel = Level.Verbose;
+
+                    if (Logger.CustomLevel >= resultLogLevel && result != null && result.Length > 0)
+                    {
+                        Logger.Log(resultLogLevel,
+                            "Task running result:\r\n" + System.Text.Encoding.Default.GetString(result));
+                    }
+                }
+                catch (Exception e)
+                {
+                    _currentStatus.SetException(e);
+                }
+                finally
                 {
                     try
-                    {
-                        // Task failed.
-                        if (runTask.IsFaulted)
-                        {
-                            OnTaskFailure(runTask);
-                            return;
-                        }
-
-                        if (runTask.IsCanceled)
-                        {
-                            Logger.Log(Level.Error,
-                                string.Format(CultureInfo.InvariantCulture, "Task failed caused by System.Threading.Task cancellation"));
-                            OnTaskFailure(runTask);
-                            return;
-                        }
-
-                        // Task completed.
-                        var result = runTask.Result;
-                        Logger.Log(Level.Info, "Task Call Finished");
-                        _currentStatus.SetResult(result);
-
-                        const Level resultLogLevel = Level.Verbose;
-
-                        if (Logger.CustomLevel >= resultLogLevel && result != null && result.Length > 0)
-                        {
-                            Logger.Log(resultLogLevel,
-                                "Task running result:\r\n" + System.Text.Encoding.Default.GetString(result));
-                        }
-                    }
-                    catch (Exception)
-                    {
-                        // TODO[JIRA REEF-1364]: Properly handle Exceptions and send a message to the Driver.
-                        Logger.Log(Level.Error, "Received uncaught System Exception, force shutting down the Evaluator.");
-
-                        Environment.Exit(1);
-                    }
-                    finally
                     {
                         if (_userTask != null)
                         {
                             _userTask.Dispose();
                         }
-
-                        runTask.Dispose();
                     }
-                });
-        }
+                    catch (Exception e)
+                    {
+                        Utilities.Diagnostics.Exceptions.Caught(
+                            e, Level.Error, "Exception in disposing Task but ignoring as Task has already completed.", Logger);
+                    }
+                }
+            });
 
-        /// <summary>
-        /// Sets the current status of the Task with the Exception it failed with.
-        /// </summary>
-        private void OnTaskFailure(System.Threading.Tasks.Task runTask)
-        {
-            if (runTask.Exception == null)
-            {
-                _currentStatus.SetException(new SystemException("Task failed without an Exception."));
-            }
-            else
-            {
-                var aggregateException = runTask.Exception.Flatten();
-                _currentStatus.SetException(
-                    aggregateException.InnerExceptions.Count == 1 ?
-                    aggregateException.InnerExceptions.First() : aggregateException);
-            }
+            taskThread.Start();
+            return taskThread;
         }
 
         public TaskState GetTaskState()

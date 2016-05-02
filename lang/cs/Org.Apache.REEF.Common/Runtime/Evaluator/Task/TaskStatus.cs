@@ -28,10 +28,12 @@ using Org.Apache.REEF.Common.Protobuf.ReefProtocol;
 using Org.Apache.REEF.Common.Tasks;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Utilities;
+using Org.Apache.REEF.Utilities.Attributes;
 using Org.Apache.REEF.Utilities.Logging;
 
 namespace Org.Apache.REEF.Common.Runtime.Evaluator.Task
 {
+    [ThreadSafe]
     internal sealed class TaskStatus
     {
         private static readonly Logger LOGGER = Logger.GetLogger(typeof(TaskStatus));

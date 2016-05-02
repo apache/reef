@@ -210,20 +210,20 @@ namespace Org.Apache.REEF.Evaluator.Tests
         [Fact]
         [Trait("Priority", "0")]
         [Trait("Category", "Unit")]
-        public async Task TestServiceTaskEventHandlersTriggered()
+        public void TestServiceTaskEventHandlersTriggered()
         {
-            await RunTasksAndVerifyEventHandlers(1);
+            RunTasksAndVerifyEventHandlers(1);
         }
 
         [Fact]
         [Trait("Priority", "0")]
         [Trait("Category", "Unit")]
-        public async Task TestServiceTaskEventHandlersTriggeredSuccessiveTasks()
+        public void TestServiceTaskEventHandlersTriggeredSuccessiveTasks()
         {
-            await RunTasksAndVerifyEventHandlers(5);
+            RunTasksAndVerifyEventHandlers(5);
         }
 
-        private static async Task RunTasksAndVerifyEventHandlers(int tasksRun)
+        private static void RunTasksAndVerifyEventHandlers(int tasksRun)
         {
             var launcher = GetRootContextLauncher(
                GetContextConfiguration(), GetServiceConfiguration(), Optional<IConfiguration>.Of(GetTaskConfiguration()));
@@ -235,7 +235,7 @@ namespace Org.Apache.REEF.Evaluator.Tests
                 serviceInjector = rootContext.ServiceInjector;
                 for (var i = 0; i < tasksRun; i++)
                 {
-                    await rootContext.StartTask(launcher.RootTaskConfig.Value);
+                    rootContext.StartTask(launcher.RootTaskConfig.Value).Join();
                 }
 
                 Assert.NotNull(serviceInjector);

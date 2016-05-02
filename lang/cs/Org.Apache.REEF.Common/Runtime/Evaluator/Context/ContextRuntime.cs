@@ -19,6 +19,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Threading;
 using Org.Apache.REEF.Common.Context;
 using Org.Apache.REEF.Common.Events;
 using Org.Apache.REEF.Common.Protobuf.ReefProtocol;
@@ -266,7 +267,7 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Context
         /// Launches an Task on this context.
         /// </summary>
         /// <param name="taskConfiguration"></param>
-        public System.Threading.Tasks.Task StartTask(IConfiguration taskConfiguration)
+        public Thread StartTask(IConfiguration taskConfiguration)
         {
             lock (_contextLifeCycle)
             {

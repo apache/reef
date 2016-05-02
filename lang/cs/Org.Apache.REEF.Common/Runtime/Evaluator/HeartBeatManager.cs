@@ -29,6 +29,7 @@ using Org.Apache.REEF.Common.Tasks;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Tang.Implementations.InjectionPlan;
 using Org.Apache.REEF.Utilities;
+using Org.Apache.REEF.Utilities.Attributes;
 using Org.Apache.REEF.Utilities.Logging;
 using Org.Apache.REEF.Wake.Remote;
 using Org.Apache.REEF.Wake.Remote.Impl;
@@ -37,6 +38,7 @@ using Org.Apache.REEF.Wake.Time.Event;
 
 namespace Org.Apache.REEF.Common.Runtime.Evaluator
 {
+    [ThreadSafe]
     internal sealed class HeartBeatManager : IHeartBeatManager
     {
         private static readonly Logger LOGGER = Logger.GetLogger(typeof(HeartBeatManager));
