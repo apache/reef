@@ -23,13 +23,9 @@ namespace Org.Apache.REEF.Driver.Context
     public interface IActiveContext : IDisposable, IContext, ITaskSubmittable, IContextSubmittable
     {
         /// <summary>
-        /// Sends a context message to the Driver. Currently does not work due to the
-        /// original .NET evaluator implementation not propagating ContextConfiguration
-        /// properly via Tang. Work on the new Evaluator is being done in 
-        /// <a href="https://issues.apache.org/jira/browse/REEF-289">REEF-289</a>.
+        /// Sends a context message to the Driver.
         /// </summary>
         /// <param name="message">Message to send</param>
-        /// TODO[JIRA REEF-863]: Test after unblocked by REEF-289
         void SendMessage(byte[] message); 
     }
 }

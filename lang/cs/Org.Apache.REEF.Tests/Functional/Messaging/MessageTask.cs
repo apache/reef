@@ -16,7 +16,6 @@
 // under the License.
 
 using System;
-using System.Globalization;
 using System.Threading;
 using Org.Apache.REEF.Common.Tasks;
 using Org.Apache.REEF.Common.Tasks.Events;
@@ -28,27 +27,38 @@ using Org.Apache.REEF.Utilities.Logging;
 
 namespace Org.Apache.REEF.Tests.Functional.Messaging
 {
-    public class MessageTask : ITask, ITaskMessageSource
+    /// <summary>
+    /// A Task that sends messages to the Driver and receives messages from the
+    /// Driver for testing.
+    /// </summary>
+    public class MessageTask : ITask, ITaskMessageSource, IDriverMessageHandler
     {
+        private static readonly Logger Logger = Logger.GetLogger(typeof(MessageTask));
+
         public const string MessageSend = "MESSAGE:TASK";
 
-        private static readonly Logger LOGGER = Logger.GetLogger(typeof(MessageTask));
+        public const string MessageSentToDriverLog = "Message sent to Driver from Task.";
+        public const string MessageReceivedFromDriverLog = "Message received from Driver in Task.";
+
+        private readonly MessageManager _messageManager;
 
         [Inject]
-        public MessageTask()
+        private MessageTask(MessageManager messageManager)
         {
+            _messageManager = messageManager;
         }
-
-        public HelloService Service { get; set; }
 
         public Optional<TaskMessage> Message
         {
             get
-            {              
-                TaskMessage defaultTaskMessage = TaskMessage.From(
+            {
+                var defaultTaskMessage = TaskMessage.From(
                     "messagingSourceId",
-                    ByteUtilities.StringToByteArrays(MessageSend + " generated at " + DateTime.Now.ToString(CultureInfo.InvariantCulture)));
-                LOGGER.Log(Level.Info, "Message is sent back from task to driver:" + defaultTaskMessage.Message);
+                    ByteUtilities.StringToByteArrays(MessageSend));
+                    
+                Logger.Log(Level.Info, MessageSentToDriverLog);
+                _messageManager.OnTaskMessageSent();
+
                 return Optional<TaskMessage>.Of(defaultTaskMessage);
             }
 
@@ -59,44 +69,33 @@ namespace Org.Apache.REEF.Tests.Functional.Messaging
 
         public byte[] Call(byte[] memento)
         {
-            Console.WriteLine("Hello, CLR TaskMsg!");
-            Thread.Sleep(5 * 1000);
+            while (!(_messageManager.IsTaskMessageSent && _messageManager.IsContextMessageSent))
+            {
+                // Do not exit until task and context messages are both sent.
+                Thread.Sleep(5000);
+            }
+
             return null;
+        }
+
+        public void Handle(IDriverMessage value)
+        {
+            if (!value.Message.IsPresent())
+            {
+                throw new Exception("Expecting message from Driver but got missing message.");
+            }
+
+            Logger.Log(Level.Info, MessageReceivedFromDriverLog);
+
+            var message = ByteUtilities.ByteArraysToString(value.Message.Value);
+            if (!message.Equals(MessageDriver.Message))
+            {
+                Exceptions.Throw(new Exception("Unexpected driver message: " + message), "Unexpected driver message received: " + message, Logger);
+            }
         }
 
         public void Dispose()
         {
-            LOGGER.Log(Level.Info, "TaskMsg disposed.");
-        }
-
-        private void DriverMessage(string message)
-        {
-            if (!message.Equals(MessageDriver.Message))
-            {
-                Exceptions.Throw(new Exception("Unexpected driver message: " + message), "Unexpected driver message received: " + message, LOGGER);
-            }
-        }
-
-        public class MessagingDriverMessageHandler : IDriverMessageHandler
-        {
-            private readonly MessageTask _parentTask;
-
-            [Inject]
-            public MessagingDriverMessageHandler(MessageTask task)
-            {
-                _parentTask = task;
-            }
-
-            public void Handle(IDriverMessage value)
-            {
-                string message = string.Empty;
-                if (value.Message.IsPresent())
-                {
-                    message = ByteUtilities.ByteArraysToString(value.Message.Value);
-                    LOGGER.Log(Level.Info, "Received a message from driver, handling it with MessagingDriverMessageHandler:" + message);
-                }
-                _parentTask.DriverMessage(message);
-            }
         }
     }
 }

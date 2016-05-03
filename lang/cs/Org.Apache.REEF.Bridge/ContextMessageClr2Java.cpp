@@ -36,8 +36,7 @@ namespace Org {
 						  }
 						  _jobjectContextMessage = reinterpret_cast<jobject>(env->NewGlobalRef(jobjectContextMessage));
 						  jclass jclassContextMessage = env->GetObjectClass(_jobjectContextMessage);
-
-						  jmethodID jmidGetSourceId = env->GetMethodID(jclassContextMessage, "getMessageSourceId", "()Ljava/lang/String;");
+						  jmethodID jmidGetSourceId = env->GetMethodID(jclassContextMessage, "getMessageSourceID", "()Ljava/lang/String;");
 						  jmethodID jmidGetMessage = env->GetMethodID(jclassContextMessage, "get", "()[B");
 
 						  _jstringId = CommonUtilities::GetJObjectId(env, _jobjectContextMessage, jclassContextMessage);

@@ -16,14 +16,14 @@
 // under the License.
 
 using System;
-using System.Globalization;
 using Org.Apache.REEF.Common.Context;
+using Org.Apache.REEF.Common.Services;
 using Org.Apache.REEF.Common.Tasks;
 using Org.Apache.REEF.Driver;
+using Org.Apache.REEF.Driver.Context;
 using Org.Apache.REEF.Driver.Evaluator;
 using Org.Apache.REEF.Driver.Task;
 using Org.Apache.REEF.Tang.Annotations;
-using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Tang.Util;
 using Org.Apache.REEF.Utilities;
 using Org.Apache.REEF.Utilities.Diagnostics;
@@ -32,17 +32,25 @@ using IRunningTask = Org.Apache.REEF.Driver.Task.IRunningTask;
 
 namespace Org.Apache.REEF.Tests.Functional.Messaging
 {
-    public class MessageDriver :
+    public sealed class MessageDriver :
         IObserver<IAllocatedEvaluator>, 
         IObserver<ITaskMessage>, 
+        IObserver<IContextMessage>,
         IObserver<IRunningTask>, 
-        IObserver<IDriverStarted>
+        IObserver<IDriverStarted>,
+        IObserver<IActiveContext>
     {
         public const int NumberOfEvaluator = 1;
 
         public const string Message = "MESSAGE::DRIVER";
 
-        private static readonly Logger LOGGER = Logger.GetLogger(typeof(MessageDriver));
+        public const string SendingMessageToTaskLog = "Sending message to Task.";
+        public const string DriverReceivedTaskMessageLog = "Driver received message from Task.";
+
+        public const string SendingMessageToContextLog = "Sending message to Context.";
+        public const string DriverReceivedContextMessageLog = "Driver received message from Context.";
+
+        private static readonly Logger Logger = Logger.GetLogger(typeof(MessageDriver));
         private readonly IEvaluatorRequestor _evaluatorRequestor;
 
         [Inject]
@@ -50,40 +58,68 @@ namespace Org.Apache.REEF.Tests.Functional.Messaging
         {
             _evaluatorRequestor = evaluatorRequestor;
         }
+
         public void OnNext(IAllocatedEvaluator eval)
         {
-            string taskId = "Task_" + eval.Id;
+            const string contextId = "ContextID";
 
-            IConfiguration contextConfiguration = ContextConfiguration.ConfigurationModule
-                .Set(ContextConfiguration.Identifier, taskId)
+            var serviceConfiguration = ServiceConfiguration.ConfigurationModule
+                .Set(ServiceConfiguration.Services, GenericType<MessageManager>.Class)
                 .Build();
 
-            IConfiguration taskConfiguration = TaskConfiguration.ConfigurationModule
-                .Set(TaskConfiguration.Identifier, taskId)
-                .Set(TaskConfiguration.Task, GenericType<MessageTask>.Class)
-                .Set(TaskConfiguration.OnMessage, GenericType<MessageTask.MessagingDriverMessageHandler>.Class)
-                .Set(TaskConfiguration.OnSendMessage, GenericType<MessageTask>.Class)
+            var contextConfiguration = ContextConfiguration.ConfigurationModule
+                .Set(ContextConfiguration.Identifier, contextId)
+                .Set(ContextConfiguration.OnSendMessage, GenericType<MessageContext>.Class)
+                .Set(ContextConfiguration.OnMessage, GenericType<MessageContext>.Class)
                 .Build();
 
-            eval.SubmitContextAndTask(contextConfiguration, taskConfiguration);
+            eval.SubmitContextAndService(contextConfiguration, serviceConfiguration);
         }
 
         public void OnNext(ITaskMessage taskMessage)
         {
-            string msgReceived = ByteUtilities.ByteArraysToString(taskMessage.Message);
+            var msgReceived = ByteUtilities.ByteArraysToString(taskMessage.Message);
 
-            LOGGER.Log(Level.Info, string.Format(CultureInfo.InvariantCulture, "CLR TaskMessagingTaskMessageHandler received following message from Task: {0}, Message: {1}.", taskMessage.TaskId, msgReceived));
+            Logger.Log(Level.Info, DriverReceivedTaskMessageLog);
 
-            if (!msgReceived.StartsWith(MessageTask.MessageSend, true, CultureInfo.CurrentCulture))
+            if (!msgReceived.Equals(MessageTask.MessageSend))
             {
-                Exceptions.Throw(new Exception("Unexpected message: " + msgReceived), "Unexpected task message received: " + msgReceived, LOGGER);
+                Exceptions.Throw(new Exception("Unexpected message: " + msgReceived), "Unexpected task message received: " + msgReceived, Logger);
+            }
+        }
+
+        public void OnNext(IContextMessage contextMessage)
+        {
+            var msgReceived = ByteUtilities.ByteArraysToString(contextMessage.Message);
+
+            Logger.Log(Level.Info, DriverReceivedContextMessageLog);
+
+            if (!msgReceived.Equals(MessageContext.MessageSend))
+            {
+                Exceptions.Throw(new Exception("Unexpected message: " + msgReceived), "Unexpected task message received: " + msgReceived, Logger);
             }
         }
 
         public void OnNext(IRunningTask runningTask)
         {
-            LOGGER.Log(Level.Info, string.Format(CultureInfo.InvariantCulture, "TaskMessegingRunningTaskHandler: {0} is to send message {1}.", runningTask.Id, Message));
+            Logger.Log(Level.Info, SendingMessageToTaskLog);
             runningTask.Send(ByteUtilities.StringToByteArrays(Message));
+        }
+
+        public void OnNext(IActiveContext activeContext)
+        {
+            const string taskId = "TaskID";
+
+            Logger.Log(Level.Info, SendingMessageToContextLog);
+            activeContext.SendMessage(ByteUtilities.StringToByteArrays(Message));
+
+            var taskConfiguration = TaskConfiguration.ConfigurationModule
+                .Set(TaskConfiguration.Identifier, taskId)
+                .Set(TaskConfiguration.Task, GenericType<MessageTask>.Class)
+                .Set(TaskConfiguration.OnMessage, GenericType<MessageTask>.Class)
+                .Set(TaskConfiguration.OnSendMessage, GenericType<MessageTask>.Class)
+                .Build();
+            activeContext.SubmitTask(taskConfiguration);
         }
 
         public void OnNext(IDriverStarted value)
@@ -94,7 +130,7 @@ namespace Org.Apache.REEF.Tests.Functional.Messaging
                     .SetMegabytes(512)
                     .SetCores(2)
                     .SetRackName("WonderlandRack")
-                    .SetEvaluatorBatchId("TaskMessagingEvaluator")
+                    .SetEvaluatorBatchId("MessagingEvaluator")
                     .Build();
             _evaluatorRequestor.Submit(request);
         }
