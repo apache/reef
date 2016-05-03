@@ -94,6 +94,10 @@ public final class ActiveContextBridge extends NativeBridge implements Identifia
     return descriptorString;
   }
 
+  public void sendMessage(final byte[] message) {
+    jactiveContext.sendMessage(message);
+  }
+
   @Override
   public void close() {
     jactiveContext.close();

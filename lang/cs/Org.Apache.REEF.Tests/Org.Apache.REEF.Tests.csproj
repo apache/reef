@@ -101,6 +101,8 @@ under the License.
     <Compile Include="Functional\FaultTolerant\TestResubmitTask.cs" />
     <Compile Include="Functional\IMRU\IMRUBroadcastReduceTest.cs" />
     <Compile Include="Functional\IMRU\IMRUMapperCountTest.cs" />
+    <Compile Include="Functional\Messaging\TestContextMessageSourceAndHandler.cs" />
+    <Compile Include="Functional\Messaging\TestMessageEventManager.cs" />
     <Compile Include="Functional\RuntimeName\EvaluatorRequestingDriverSpecifyingDefaultRuntimeName.cs" />
     <Compile Include="Functional\RuntimeName\EvaluatorRequestingDriverSpecifyingInvalidRuntimeName.cs" />
     <Compile Include="Functional\RuntimeName\EvaluatorRequestingDriverSpecifyingRuntimeName.cs" />
@@ -108,7 +110,7 @@ under the License.
     <Compile Include="Functional\Driver\TestDriver.cs" />
     <Compile Include="Functional\Messaging\MessageDriver.cs" />
     <Compile Include="Functional\Messaging\MessageTask.cs" />
-    <Compile Include="Functional\Messaging\TestTaskMessage.cs" />
+    <Compile Include="Functional\Messaging\TestEvaluatorMessaging.cs" />
     <Compile Include="Functional\ML\KMeans\TestKMeans.cs" />
     <Compile Include="Functional\Group\BroadcastReduceTest.cs" />
     <Compile Include="Functional\Group\PipelinedBroadcastReduceTest.cs" />

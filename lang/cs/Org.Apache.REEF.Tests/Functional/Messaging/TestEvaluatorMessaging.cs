@@ -15,15 +15,9 @@
 // specific language governing permissions and limitations
 // under the License.
 
-using System;
 using System.Collections.Generic;
-using System.Runtime.InteropServices;
 using Org.Apache.REEF.Driver;
-using Org.Apache.REEF.Driver.Bridge;
 using Org.Apache.REEF.Driver.Defaults;
-using Org.Apache.REEF.Network.Naming;
-using Org.Apache.REEF.Tang.Implementations.Configuration;
-using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Tang.Util;
 using Org.Apache.REEF.Utilities.Logging;
@@ -32,44 +26,56 @@ using Xunit;
 namespace Org.Apache.REEF.Tests.Functional.Messaging
 {
     [Collection("FunctionalTests")]
-    public class TestTaskMessage : ReefFunctionalTest
+    public class TestEvaluatorMessaging : ReefFunctionalTest
     {
         /// <summary>
-        /// This test is to test both task message and driver message. The messages are sent 
-        /// from one side and received in the corresponding handlers and verified in the test 
+        /// This test is to test message passing between Evaluator and Driver.
+        /// Such messages include Context, Task, and Driver messages. The messages are sent 
+        /// from one side and received in the corresponding handlers and verified in the test.
         /// </summary>
         [Fact]
         [Trait("Priority", "1")]
         [Trait("Category", "FunctionalGated")]
-        [Trait("Description", "Test task message and driver message")]
+        [Trait("Description", "Test messaging between Driver and Evaluators.")]
         //// TODO[JIRA REEF-1184]: add timeout 180 sec
-        public void TestSendTaskMessage()
+        public void TestSendMessages()
         {
             string testFolder = DefaultRuntimeFolder + TestId;
-            TestRun(DriverConfigurations(), typeof(MessageDriver), 1, "simpleHandler", "local", testFolder);
+            TestRun(DriverConfigurations(), typeof(MessageDriver), 1, "sendMessages", "local", testFolder);
             ValidateSuccessForLocalRuntime(1, testFolder: testFolder);
 
-            var messages = new List<string>();
-            messages.Add("TaskMessagingTaskMessageHandler received following message from Task:");
-            messages.Add("Message: MESSAGE:TASK generated");
-            messages.Add("is to send message MESSAGE::DRIVER");      
-            ValidateMessageSuccessfullyLogged(messages, "driver", DriverStdout, testFolder, -1);
+            var expectedDriverLogs = new List<string>
+            {
+                MessageDriver.SendingMessageToTaskLog,
+                MessageDriver.DriverReceivedTaskMessageLog,
+                MessageDriver.SendingMessageToContextLog,
+                MessageDriver.DriverReceivedContextMessageLog,
+            };
 
-            var messages2 = new List<string>();
-            messages.Add("Received a message from driver, handling it with MessagingDriverMessageHandler:MESSAGE::DRIVER");
-            messages.Add("Message is sent back from task to driver:");
-            ValidateMessageSuccessfullyLogged(messages2, "Node-*", EvaluatorStdout, testFolder, -1);
+            ValidateMessageSuccessfullyLogged(expectedDriverLogs, "driver", DriverStdout, testFolder, -1);
+
+            var expectedEvaluatorLogs = new List<string>
+            {
+                MessageTask.MessageReceivedFromDriverLog,
+                MessageTask.MessageSentToDriverLog,
+                TestContextMessageSourceAndHandler.MessageReceivedFromDriverLog,
+                TestContextMessageSourceAndHandler.MessageSentToDriverLog
+            };
+
+            ValidateMessageSuccessfullyLogged(expectedEvaluatorLogs, "Node-*", EvaluatorStdout, testFolder, -1);
 
             CleanUp(testFolder);
         }
 
-        private IConfiguration DriverConfigurations()
+        private static IConfiguration DriverConfigurations()
         {
             return DriverConfiguration.ConfigurationModule
             .Set(DriverConfiguration.OnDriverStarted, GenericType<MessageDriver>.Class)
             .Set(DriverConfiguration.OnEvaluatorAllocated, GenericType<MessageDriver>.Class)
             .Set(DriverConfiguration.OnTaskMessage, GenericType<MessageDriver>.Class)
             .Set(DriverConfiguration.OnTaskRunning, GenericType<MessageDriver>.Class)
+            .Set(DriverConfiguration.OnContextActive, GenericType<MessageDriver>.Class)
+            .Set(DriverConfiguration.OnContextMessage, GenericType<MessageDriver>.Class)
             .Set(DriverConfiguration.CustomTraceListeners, GenericType<DefaultCustomTraceListener>.Class)
             .Set(DriverConfiguration.CustomTraceLevel, Level.Info.ToString())
             .Build();

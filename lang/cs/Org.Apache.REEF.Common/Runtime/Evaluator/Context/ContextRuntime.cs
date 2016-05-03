@@ -474,14 +474,21 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Context
                     contextStatusProto.parent_id = _parentContext.Value.Id;
                 }
 
-                foreach (var sourceMessage in _contextLifeCycle.ContextMessageSources.Where(src => src.Message.IsPresent()).Select(src => src.Message.Value))
+                foreach (var source in _contextLifeCycle.ContextMessageSources)
                 {
-                    var contextMessageProto = new ContextStatusProto.ContextMessageProto
+                    // Note: Please do not convert to LINQ expression, as source.Message
+                    // may not return the same object in subsequent Get calls.
+                    var sourceMessage = source.Message;
+                    if (sourceMessage.IsPresent())
                     {
-                        source_id = sourceMessage.MessageSourceId,
-                        message = ByteUtilities.CopyBytesFrom(sourceMessage.Bytes),
-                    };
-                    contextStatusProto.context_message.Add(contextMessageProto);
+                        var contextMessageProto = new ContextStatusProto.ContextMessageProto
+                        {
+                            source_id = sourceMessage.Value.MessageSourceId,
+                            message = ByteUtilities.CopyBytesFrom(sourceMessage.Value.Bytes),
+                        };
+
+                        contextStatusProto.context_message.Add(contextMessageProto);
+                    }
                 }
 
                 return contextStatusProto;

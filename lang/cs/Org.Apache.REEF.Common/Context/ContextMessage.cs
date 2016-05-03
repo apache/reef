@@ -43,7 +43,7 @@ namespace Org.Apache.REEF.Common.Context
         }
 
         /// <summary>
-        /// construt a new new ContextMessage with the given content.
+        /// construct a new ContextMessage with the given content.
         /// </summary>
         /// <param name="messageSourceId">The message's sourceID. This will be accessible in the Driver for routing.</param>
         /// <param name="bytes">The actual content of the message, serialized into a byte[]</param>

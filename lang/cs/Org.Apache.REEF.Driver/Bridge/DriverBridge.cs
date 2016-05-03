@@ -337,7 +337,7 @@ namespace Org.Apache.REEF.Driver.Bridge
             foreach (var handler in _contextMessageHandlers)
             {
                 _contextMessageSubscriber.Subscribe(handler);
-                _logger.Log(Level.Verbose, "subscribed to IContextMesage handler: " + handler);
+                _logger.Log(Level.Verbose, "subscribed to IContextMessage handler: " + handler);
             }
             bridgeHandlerManager.ContextMessageHandler = ClrHandlerHelper.CreateHandler(_contextMessageSubscriber);
                 
