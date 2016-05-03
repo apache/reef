@@ -106,7 +106,7 @@ final class MultiRuntimeYarnBootstrapDriverConfigGenerator {
   }
 
   /**
-   * Adds yarn runtime definitions to the builder, with a dumy name, to prevent evaluator submission.
+   * Adds yarn runtime definitions to the builder, with a dummy name, to prevent evaluator submission.
    * @param yarnJobSubmissionParams Yarn job submission parameters
    * @param jobSubmissionParameters Generic job submission parameters
    * @param builder The multi runtime builder
@@ -283,11 +283,11 @@ final class MultiRuntimeYarnBootstrapDriverConfigGenerator {
 
   /**
    * Writes the driver configuration files to the provided location.
-   * @param bootstrapJobArgsLocation The path fro the job args file
+   * @param bootstrapJobArgsLocation The path for the job args file
    * @param bootstrapAppArgsLocation The path for the app args file
    * @throws IOException
    */
-  public String writeDriverConfigurationFile(final String bootstrapJobArgsLocation,
+  String writeDriverConfigurationFile(final String bootstrapJobArgsLocation,
                                              final String bootstrapAppArgsLocation) throws IOException {
     final File bootstrapJobArgsFile = new File(bootstrapJobArgsLocation).getCanonicalFile();
     final File bootstrapAppArgsFile = new File(bootstrapAppArgsLocation);
