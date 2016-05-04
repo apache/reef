@@ -21,7 +21,11 @@ using Org.Apache.REEF.Utilities.Logging;
 
 namespace Org.Apache.REEF.Utilities.Diagnostics
 {
-    public static class DefaultUnhandledExceptionHandler
+    /// <summary>
+    /// A static class that allows the registering/unregistering of the default UnhandledException
+    /// Handler, which logs the Exception and lists all files in the current working directory.
+    /// </summary>
+    internal static class DefaultUnhandledExceptionHandler
     {
         private static readonly Logger Logger = Logger.GetLogger(typeof(DefaultUnhandledExceptionHandler));
 
