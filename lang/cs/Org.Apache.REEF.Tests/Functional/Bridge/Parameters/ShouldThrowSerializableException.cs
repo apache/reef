@@ -5,9 +5,9 @@
 // to you under the Apache License, Version 2.0 (the
 // "License"); you may not use this file except in compliance
 // with the License.  You may obtain a copy of the License at
-//
+// 
 //   http://www.apache.org/licenses/LICENSE-2.0
-//
+// 
 // Unless required by applicable law or agreed to in writing,
 // software distributed under the License is distributed on an
 // "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -15,25 +15,15 @@
 // specific language governing permissions and limitations
 // under the License.
 
-using Org.Apache.REEF.Utilities.Attributes;
+using Org.Apache.REEF.Tang.Annotations;
 
-namespace Org.Apache.REEF.Driver.Bridge.Clr2java
+namespace Org.Apache.REEF.Tests.Functional.Bridge.Parameters
 {
-    [Private, Interop("FailedEvaluatorClr2Java.cpp", "Clr2JavaImpl.h")]
-    public interface IFailedEvaluatorClr2Java
+    [NamedParameter(documentation: "Used to indicate whether FailTask should throw a Serializable or non-Serializable Exception.")]
+    internal sealed class ShouldThrowSerializableException : Name<bool>
     {
-        IEvaluatorRequestorClr2Java GetEvaluatorRequestor();
-
-        string GetId();
-
-        IFailedContextClr2Java[] GetFailedContextsClr2Java();
-
-        IFailedTaskClr2Java GetFailedTaskClr2Java();
-
-        byte[] GetErrorBytes();
-
-        string GetJavaCause();
-
-        string GetJavaStackTrace();
+        private ShouldThrowSerializableException()
+        {
+        }
     }
 }

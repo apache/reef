@@ -74,11 +74,14 @@ under the License.
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Functional\Bridge\HelloSimpleEventHandlers.cs" />
+    <Compile Include="Functional\Bridge\Parameters\ShouldThrowSerializableException.cs" />
     <Compile Include="Functional\Bridge\TestBridgeClient.cs" />
     <Compile Include="Functional\Bridge\TestCloseTask.cs" />
     <Compile Include="Functional\Bridge\TestContextStack.cs" />
     <Compile Include="Functional\Bridge\TestFailedEvaluatorEventHandler.cs" />
     <Compile Include="Functional\Bridge\TestFailedTaskEventHandler.cs" />
+    <Compile Include="Functional\Bridge\Exceptions\TestNonSerializableException.cs" />
+    <Compile Include="Functional\Bridge\Exceptions\TestSerializableException.cs" />
     <Compile Include="Functional\Bridge\TestSimpleContext.cs" />
     <Compile Include="Functional\Bridge\TestSimpleEventHandlers.cs" />
     <Compile Include="Functional\Bridge\TestSuspendTask.cs" />
@@ -173,6 +176,7 @@ under the License.
   <ItemGroup>
     <Service Include="{82A7F48D-3B50-4B1E-B82E-3ADA8210C358}" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
   <Import Project="$(PackagesDir)\StyleCop.MSBuild.$(StyleCopVersion)\build\StyleCop.MSBuild.Targets" Condition="Exists('$(PackagesDir)\StyleCop.MSBuild.$(StyleCopVersion)\build\StyleCop.MSBuild.Targets')" />

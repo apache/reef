@@ -23,6 +23,7 @@ import org.apache.reef.annotations.audience.Interop;
 import org.apache.reef.annotations.audience.Private;
 import org.apache.reef.driver.evaluator.EvaluatorRequestor;
 import org.apache.reef.driver.evaluator.FailedEvaluator;
+import org.apache.reef.exception.NonSerializableException;
 import org.apache.reef.io.naming.Identifiable;
 import org.apache.reef.util.logging.LoggingScopeFactory;
 
@@ -55,14 +56,35 @@ public final class FailedEvaluatorBridge extends NativeBridge implements Identif
     this.activeContextBridgeFactory = activeContextBridgeFactory;
   }
 
+  /**
+   * @return the Evaluator number.
+   */
   public int getNewlyRequestedEvaluatorNumber() {
     return evaluatorRequestorBridge.getEvaluatorNumber();
   }
 
+  /**
+   * @return the Evaluator requestor.
+   */
   public EvaluatorRequestorBridge getEvaluatorRequestorBridge() {
     return evaluatorRequestorBridge;
   }
 
+  /**
+   * @return the non-serializable error in bytes, may translate into a serialized C# Exception.
+   */
+  public byte[] getErrorBytes() {
+    if (jfailedEvaluator.getEvaluatorException() != null &&
+        jfailedEvaluator.getEvaluatorException().getCause() instanceof NonSerializableException) {
+      return ((NonSerializableException)jfailedEvaluator.getEvaluatorException().getCause()).getError();
+    }
+
+    return null;
+  }
+
+  /**
+   * @return the localized message of the Evaluator Exception.
+   */
   public String getCause() {
     if (jfailedEvaluator.getEvaluatorException() != null) {
       return jfailedEvaluator.getEvaluatorException().getLocalizedMessage();
@@ -71,6 +93,9 @@ public final class FailedEvaluatorBridge extends NativeBridge implements Identif
     return null;
   }
 
+  /**
+   * @return the stack trace of the Evaluator Exception.
+   */
   public String getStackTrace() {
     if (jfailedEvaluator.getEvaluatorException() != null) {
       return ExceptionUtils.getStackTrace(jfailedEvaluator.getEvaluatorException());
@@ -79,6 +104,9 @@ public final class FailedEvaluatorBridge extends NativeBridge implements Identif
     return null;
   }
 
+  /**
+   * @return the list of failed Contexts associated with the Evaluator.
+   */
   public FailedContextBridge[] getFailedContexts() {
     if (jfailedEvaluator.getFailedContextList() == null) {
       return new FailedContextBridge[0];
@@ -95,6 +123,9 @@ public final class FailedEvaluatorBridge extends NativeBridge implements Identif
     return failedContextBridges;
   }
 
+  /**
+   * @return the failed task running on the Evaluator, if any.
+   */
   public FailedTaskBridge getFailedTask() {
     if (!jfailedEvaluator.getFailedTask().isPresent()) {
       return null;

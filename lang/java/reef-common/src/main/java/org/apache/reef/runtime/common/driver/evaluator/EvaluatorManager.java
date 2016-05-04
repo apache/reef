@@ -24,6 +24,7 @@ import org.apache.reef.driver.evaluator.FailedEvaluator;
 import org.apache.reef.driver.parameters.EvaluatorConfigurationProviders;
 import org.apache.reef.driver.restart.DriverRestartManager;
 import org.apache.reef.driver.restart.EvaluatorRestartState;
+import org.apache.reef.exception.NonSerializableException;
 import org.apache.reef.runtime.common.driver.evaluator.pojos.ContextStatusPOJO;
 import org.apache.reef.runtime.common.driver.evaluator.pojos.EvaluatorStatusPOJO;
 import org.apache.reef.runtime.common.driver.evaluator.pojos.State;
@@ -468,7 +469,7 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
         evaluatorException = new EvaluatorException(getId(), exception.get());
       } else {
         evaluatorException = new EvaluatorException(getId(),
-            new Exception("Exception sent, but can't be deserialized"));
+            new NonSerializableException("Exception sent, but can't be deserialized", evaluatorStatus.getError()));
       }
     } else {
       evaluatorException = new EvaluatorException(getId(), new Exception("No exception sent"));

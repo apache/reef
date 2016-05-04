@@ -158,12 +158,11 @@ namespace Org {
                             virtual void OnError(String^ message);
                             virtual IEvaluatorRequestorClr2Java^ GetEvaluatorRequestor();
                             virtual String^ GetId();
-                            virtual EvaluatorException^ GetException();
                             virtual array<IFailedContextClr2Java^>^ GetFailedContextsClr2Java();
                             virtual IFailedTaskClr2Java^ GetFailedTaskClr2Java();
-                        private:
-                            String^ GetCause();
-                            String^ GetStackTrace();
+                            virtual array<byte>^ GetErrorBytes();
+                            virtual String^ GetJavaCause();
+                            virtual String^ GetJavaStackTrace();
                         };
 
                         public ref class HttpServerClr2Java : public IHttpServerBridgeClr2Java {
