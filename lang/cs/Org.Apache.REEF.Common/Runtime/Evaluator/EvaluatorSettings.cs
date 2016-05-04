@@ -50,7 +50,6 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator
         /// <param name="clock"></param>
         /// <param name="remoteManagerFactory"></param>
         /// <param name="reefMessageCodec"></param>
-        /// <param name="injector"></param>
         [Inject]
         private EvaluatorSettings(
             [Parameter(typeof(ApplicationIdentifier))] string applicationId,
@@ -59,10 +58,9 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator
             [Parameter(typeof(HeartbeatMaxRetry))] int maxHeartbeatRetries,
             RuntimeClock clock,
             IRemoteManagerFactory remoteManagerFactory,
-            REEFMessageCodec reefMessageCodec,
-            IInjector injector) :
+            REEFMessageCodec reefMessageCodec) :
             this(applicationId, evaluatorId, heartbeatPeriodInMs, maxHeartbeatRetries, 
-            clock, remoteManagerFactory, reefMessageCodec, injector, null)
+            clock, remoteManagerFactory, reefMessageCodec, null)
         {
         }
 
@@ -75,7 +73,6 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator
             RuntimeClock clock,
             IRemoteManagerFactory remoteManagerFactory,
             REEFMessageCodec reefMessageCodec,
-            IInjector injector,
             INameClient nameClient)
         {
             _applicationId = applicationId;
@@ -85,7 +82,6 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator
             _clock = clock;
 
             _remoteManager = remoteManagerFactory.GetInstance(reefMessageCodec);
-            EvaluatorInjector = injector;
             OperationState = EvaluatorOperationState.OPERATIONAL;
             NameClient = nameClient;
         }
@@ -162,7 +158,5 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator
         {
             get { return _remoteManager; }
         }
-
-        public IInjector EvaluatorInjector { get; private set; }
     }
 }
