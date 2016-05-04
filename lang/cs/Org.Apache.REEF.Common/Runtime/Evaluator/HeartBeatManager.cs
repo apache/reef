@@ -27,7 +27,9 @@ using Org.Apache.REEF.Common.Runtime.Evaluator.Context;
 using Org.Apache.REEF.Common.Runtime.Evaluator.Utils;
 using Org.Apache.REEF.Common.Tasks;
 using Org.Apache.REEF.Tang.Annotations;
+using Org.Apache.REEF.Tang.Exceptions;
 using Org.Apache.REEF.Tang.Implementations.InjectionPlan;
+using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Utilities;
 using Org.Apache.REEF.Utilities.Attributes;
 using Org.Apache.REEF.Utilities.Logging;
@@ -59,7 +61,7 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator
 
         private int _heartbeatFailures = 0;
 
-        private IDriverConnection _driverConnection;
+        private readonly IInjectionFuture<IDriverConnection> _driverConnection;
 
         private readonly EvaluatorSettings _evaluatorSettings;
 
@@ -77,7 +79,8 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator
             EvaluatorSettings settings,
             IInjectionFuture<EvaluatorRuntime> evaluatorRuntime,
             IInjectionFuture<ContextManager> contextManager,
-            [Parameter(typeof(ErrorHandlerRid))] string errorHandlerRid)
+            [Parameter(typeof(ErrorHandlerRid))] string errorHandlerRid,
+            IInjectionFuture<IDriverConnection> driverConnection)
         {
             using (LOGGER.LogFunction("HeartBeatManager::HeartBeatManager"))
             {
@@ -90,6 +93,7 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator
                 _clock = settings.RuntimeClock;
                 _heartBeatPeriodInMillSeconds = settings.HeartBeatPeriodInMs;
                 _maxHeartbeatRetries = settings.MaxHeartbeatRetries;
+                _driverConnection = driverConnection;
                 MachineStatus.ToString(); // kick start the CPU perf counter
             }
         }
@@ -154,14 +158,6 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator
                         LOGGER.Log(Level.Info, "=========== Entering RECOVERY mode. ===========");
                         ContextManager.HandleDriverConnectionMessage(new DriverConnectionMessageImpl(DriverConnectionState.Disconnected));
 
-                        try
-                        {
-                            _driverConnection = _evaluatorSettings.EvaluatorInjector.GetInstance<IDriverConnection>();
-                        }
-                        catch (Exception ex)
-                        {
-                            Utilities.Diagnostics.Exceptions.CaughtAndThrow(ex, Level.Error, "Failed to inject the driver reconnect implementation", LOGGER);
-                        }
                         LOGGER.Log(Level.Info, "instantiate driver reconnect implementation: " + _driverConnection);
                         _evaluatorSettings.OperationState = EvaluatorOperationState.RECOVERY;
 
@@ -254,38 +250,50 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator
             lock (this)
             {
                 LOGGER.Log(Level.Verbose, "HeartbeatManager::OnNext(Alarm)");
+                
                 if (_evaluatorSettings.OperationState == EvaluatorOperationState.OPERATIONAL && EvaluatorRuntime.State == State.RUNNING)
                 {
                     EvaluatorHeartbeatProto evaluatorHeartbeatProto = GetEvaluatorHeartbeatProto();
                     LOGGER.Log(Level.Verbose, string.Format(CultureInfo.InvariantCulture, "Triggered a heartbeat: {0}. {1}Node Health: {2}", evaluatorHeartbeatProto, Environment.NewLine, MachineStatus.ToString()));
                     Send(evaluatorHeartbeatProto);
-                    _clock.ScheduleAlarm(_heartBeatPeriodInMillSeconds, this);
                 }
                 else
                 {
-                    LOGGER.Log(Level.Verbose, string.Format(CultureInfo.InvariantCulture, "Ignoring regular heartbeat since Evaluator operation state is [{0}] and runtime state is [{1}]. ", EvaluatorSettings.OperationState,  EvaluatorRuntime.State));
-                    try
+                    LOGGER.Log(Level.Verbose, "Ignoring regular heartbeat since Evaluator operation state is [{0}] and runtime state is [{1}]. ", EvaluatorSettings.OperationState, EvaluatorRuntime.State);
+
+                    if (EvaluatorRuntime.State == State.DONE || EvaluatorRuntime.State == State.FAILED || EvaluatorRuntime.State == State.KILLED)
                     {
-                        DriverInformation driverInformation = _driverConnection.GetDriverInformation();
-                        if (driverInformation == null)
+                        return;
+                    }
+
+                    if (_evaluatorSettings.OperationState == EvaluatorOperationState.RECOVERY)
+                    {
+                        var driverConnection = _driverConnection.Get();
+
+                        try
                         {
-                            LOGGER.Log(Level.Verbose, "In RECOVERY mode, cannot retrieve driver information, will try again later.");
+                            var driverInformation = driverConnection.GetDriverInformation();
+                            if (driverInformation == null)
+                            {
+                                LOGGER.Log(Level.Verbose, "In RECOVERY mode, cannot retrieve driver information, will try again later.");
+                            }
+                            else
+                            {
+                                LOGGER.Log(
+                                    Level.Info,
+                                    string.Format(CultureInfo.InvariantCulture, "Detect driver restarted at {0} and is running on endpoint {1} with services {2}. Now trying to re-establish connection", driverInformation.DriverStartTime, driverInformation.DriverRemoteIdentifier, driverInformation.NameServerId));
+                                Recover(driverInformation);
+                            }
                         }
-                        else
+                        catch (Exception e)
                         {
-                            LOGGER.Log(
-                                Level.Info, 
-                                string.Format(CultureInfo.InvariantCulture, "Detect driver restarted at {0} and is running on endpoint {1} with services {2}. Now trying to re-establish connection", driverInformation.DriverStartTime, driverInformation.DriverRemoteIdentifier, driverInformation.NameServerId));
-                            Recover(driverInformation);
+                            // we do not want any exception to stop the query for driver status
+                            Utilities.Diagnostics.Exceptions.Caught(e, Level.Warning, LOGGER);
                         }
                     }
-                    catch (Exception e)
-                    {
-                        // we do not want any exception to stop the query for driver status
-                        Org.Apache.REEF.Utilities.Diagnostics.Exceptions.Caught(e, Level.Warning, LOGGER);
-                    }
-                    _clock.ScheduleAlarm(_heartBeatPeriodInMillSeconds, this);
                 }
+
+                _clock.ScheduleAlarm(_heartBeatPeriodInMillSeconds, this);
             }
         }
 
