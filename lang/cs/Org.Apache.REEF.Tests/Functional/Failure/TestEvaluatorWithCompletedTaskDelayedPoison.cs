@@ -34,16 +34,16 @@ using Org.Apache.REEF.Utilities.Logging;
 namespace Org.Apache.REEF.Tests.Functional.Failure
 {
     [Collection("FunctionalTests")]
-    public sealed class TestEvaluatorWithCompletedTaskImmediatePoison : ReefFunctionalTest
+    public sealed class TestEvaluatorWithCompletedTaskDelayedPoison : ReefFunctionalTest
     {
         private const string ExpectedCompletedTask = "A completed task was expected.";
 
         [Fact]
         [Trait("Description", "Test evaluator failure by injecting immediate fault in completed task handler.")]
-        public void TestPoisonedCompletedTaskHandlerImmediate()
+        public void TestPoisonedCompletedTaskHandlerWithDelay()
         {
             var testFolder = DefaultRuntimeFolder + TestId;
-            TestRun(DriverConfigurations(), typeof(PoisonedEvaluatorDriver), 1, "poisonedCompletedTaskImmediateTest", "local", testFolder);
+            TestRun(DriverConfigurations(), typeof(PoisonedEvaluatorDriver), 1, "poisonedCompletedTaskWithDelayTest", "local", testFolder);
             ValidateMessageSuccessfullyLoggedForDriver(BasePoisonedEvaluatorWithActiveContextDriver.FailedEvaluatorMessage, testFolder);
             ValidateMessageSuccessfullyLoggedForDriver(ExpectedCompletedTask, testFolder);
 
@@ -88,7 +88,7 @@ namespace Org.Apache.REEF.Tests.Functional.Failure
 
                 var poisonConfig = TangFactory.GetTang().NewConfigurationBuilder()
                     .BindIntNamedParam<CrashTimeout>("0")
-                    .BindIntNamedParam<CrashMinDelay>("0")
+                    .BindIntNamedParam<CrashMinDelay>("50")
                     .BindNamedParameter<CrashProbability, double>(GenericType<CrashProbability>.Class, "1.0")
                     .Build();
 

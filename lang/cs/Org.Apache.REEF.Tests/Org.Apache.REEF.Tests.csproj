@@ -88,7 +88,7 @@ under the License.
     <Compile Include="Functional\Failure\BasePoisonedEvaluatorWithRunningTaskDriver.cs" />
     <Compile Include="Functional\Failure\BasePoisonedEvaluatorDriver.cs" />
     <Compile Include="Functional\Failure\TestEvaluatorWithActiveContextDelayedPoison.cs" />
-    <Compile Include="Functional\Failure\TestEvaluatorWithCompletedTaskImmediatePoison.cs" />
+    <Compile Include="Functional\Failure\TestEvaluatorWithCompletedTaskDelayedPoison.cs" />
     <Compile Include="Functional\Failure\TestEvaluatorWithRunningTaskDelayedPoison.cs" />
     <Compile Include="Functional\Failure\TestEvaluatorWithActiveContextImmediatePoison.cs" />
     <Compile Include="Functional\Failure\TestEvaluatorWithRunningTaskImmediatePoison.cs" />
