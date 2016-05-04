@@ -98,7 +98,7 @@ namespace Org.Apache.REEF.Tests.Functional.FaultTolerant
             }
 
             public void OnNext(IActiveContext value)
-            {               
+            {
                 Logger.Log(Level.Info, "IActiveContext: " + value.Id);
 
                 if (_first)
