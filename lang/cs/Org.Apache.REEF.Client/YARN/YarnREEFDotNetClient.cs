@@ -78,8 +78,8 @@ namespace Org.Apache.REEF.Client.YARN
             // todo: Future client interface should be async.
             // Using GetAwaiter().GetResult() instead of .Result to avoid exception
             // getting wrapped in AggregateException.
-            var newApplication = _yarnRMClient.CreateNewApplicationAsync().GetAwaiter().GetResult();
-            string applicationId = newApplication.ApplicationId;
+            ////var newApplication = _yarnRMClient.CreateNewApplicationAsync().GetAwaiter().GetResult();
+            string applicationId = "appid"; ////newApplication.ApplicationId;
 
             // create job submission remote path
             string jobSubmissionDirectory =

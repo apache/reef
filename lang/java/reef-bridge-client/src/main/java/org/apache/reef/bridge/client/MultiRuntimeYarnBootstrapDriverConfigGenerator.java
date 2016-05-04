@@ -286,6 +286,7 @@ final class MultiRuntimeYarnBootstrapDriverConfigGenerator {
    * @param bootstrapJobArgsLocation The path for the job args file
    * @param bootstrapAppArgsLocation The path for the app args file
    * @throws IOException
+   * @return A path to the written driver configuration
    */
   String writeDriverConfigurationFile(final String bootstrapJobArgsLocation,
                                              final String bootstrapAppArgsLocation) throws IOException {
