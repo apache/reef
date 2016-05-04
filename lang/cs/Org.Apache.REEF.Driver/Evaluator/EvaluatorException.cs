@@ -26,12 +26,20 @@ namespace Org.Apache.REEF.Driver.Evaluator
         private readonly string _evaluatorId;
         private readonly Optional<string> _javaStackTrace;
 
-        [Private]
-        public EvaluatorException(string evaluatorId, string message, string javaStackTrace)
+        internal EvaluatorException(string evaluatorId, string message, string javaStackTrace)
             : base(message)
         {
             _evaluatorId = evaluatorId;
-            _javaStackTrace = Optional<string>.OfNullable(javaStackTrace);
+            _javaStackTrace = string.IsNullOrWhiteSpace(javaStackTrace)
+                ? Optional<string>.Empty()
+                : Optional<string>.Of(javaStackTrace);
+        }
+
+        internal EvaluatorException(string evaluatorId, string message, Exception inner)
+            : base(message, inner)
+        {
+            _evaluatorId = evaluatorId;
+            _javaStackTrace = Optional<string>.Empty();
         }
 
         public string EvaluatorId

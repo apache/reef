@@ -15,9 +15,12 @@
 // specific language governing permissions and limitations
 // under the License.
 
+using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Runtime.Serialization;
+using System.Runtime.Serialization.Formatters.Binary;
 using Org.Apache.REEF.Driver.Bridge.Clr2java;
 using Org.Apache.REEF.Driver.Context;
 using Org.Apache.REEF.Driver.Evaluator;
@@ -31,6 +34,7 @@ namespace Org.Apache.REEF.Driver.Bridge.Events
     {
         private readonly string _id;
         private readonly IList<IFailedContext> _failedContexts;
+        private readonly EvaluatorException _evaluatorException;
 
         public FailedEvaluator(IFailedEvaluatorClr2Java clr2Java)
         {
@@ -39,6 +43,24 @@ namespace Org.Apache.REEF.Driver.Bridge.Events
             _failedContexts = new List<IFailedContext>(
                 FailedEvaluatorClr2Java.GetFailedContextsClr2Java().Select(clr2JavaFailedContext => 
                     new FailedContext(clr2JavaFailedContext)));
+
+            var errorBytes = FailedEvaluatorClr2Java.GetErrorBytes();
+            if (errorBytes != null)
+            {
+                // When the Exception originates from the C# side.
+                var formatter = new BinaryFormatter();
+                using (var memStream = new MemoryStream(errorBytes))
+                {
+                    var inner = (Exception)formatter.Deserialize(memStream);
+                    _evaluatorException = new EvaluatorException(_id, inner.Message, inner);
+                }
+            }
+            else
+            {
+                // When the Exception originates from Java.
+                _evaluatorException = new EvaluatorException(
+                    _id, FailedEvaluatorClr2Java.GetJavaCause(), FailedEvaluatorClr2Java.GetJavaStackTrace());
+            }
         }
 
         [DataMember]
@@ -51,7 +73,7 @@ namespace Org.Apache.REEF.Driver.Bridge.Events
 
         public EvaluatorException EvaluatorException
         {
-            get { return FailedEvaluatorClr2Java.GetException(); }
+            get { return _evaluatorException; }
         }
 
         public IList<IFailedContext> FailedContexts

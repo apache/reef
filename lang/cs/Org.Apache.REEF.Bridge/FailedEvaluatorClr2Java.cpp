@@ -76,12 +76,6 @@ namespace Org {
 						  return ManagedStringFromJavaString(env, _jstringId);
 					  }
 
-                      EvaluatorException^ FailedEvaluatorClr2Java::GetException() {
-                          String^ cause = this->GetCause();
-                          String^ stackTrace = this->GetStackTrace();
-                          return gcnew EvaluatorException(this->GetId(), cause, stackTrace);
-                      }
-
                       array<IFailedContextClr2Java^>^ FailedEvaluatorClr2Java::GetFailedContextsClr2Java() {
                           JNIEnv *env = RetrieveEnv(_jvm);
                           jclass jclassFailedEvaluator = env->GetObjectClass(_jobjectFailedEvaluator);
@@ -122,7 +116,20 @@ namespace Org {
 						  HandleClr2JavaError(env, message, _jobjectFailedEvaluator);
 					  }
 
-                      String^ FailedEvaluatorClr2Java::GetCause() {
+                      array<byte>^ FailedEvaluatorClr2Java::GetErrorBytes() {
+                          JNIEnv *env = RetrieveEnv(_jvm);
+                          jclass jclassFailedEvaluator = env->GetObjectClass(_jobjectFailedEvaluator);
+                          jmethodID jmidGetError = env->GetMethodID(jclassFailedEvaluator, "getErrorBytes", "()[B");
+                          jobject methodCallReturn = env->CallObjectMethod(_jobjectFailedEvaluator, jmidGetError);
+                          if (methodCallReturn == NULL) {
+                              return nullptr;
+                          }
+
+                          jbyteArray error = reinterpret_cast<jbyteArray>(methodCallReturn);
+                          return ManagedByteArrayFromJavaByteArray(env, error);
+                      }
+
+                      String^ FailedEvaluatorClr2Java::GetJavaCause() {
                           JNIEnv *env = RetrieveEnv(_jvm);
                           jclass jclassFailedEvaluator = env->GetObjectClass(_jobjectFailedEvaluator);
                           jmethodID jmidGetCause = env->GetMethodID(jclassFailedEvaluator, "getCause", "()Ljava/lang/String;");
@@ -135,7 +142,7 @@ namespace Org {
                           return ManagedStringFromJavaString(env, cause);
                       }
 
-                      String^ FailedEvaluatorClr2Java::GetStackTrace() {
+                      String^ FailedEvaluatorClr2Java::GetJavaStackTrace() {
                           JNIEnv *env = RetrieveEnv(_jvm);
                           jclass jclassFailedEvaluator = env->GetObjectClass(_jobjectFailedEvaluator);
                           jmethodID jmidGetStackTrace = env->GetMethodID(jclassFailedEvaluator, "getStackTrace", "()Ljava/lang/String;");

@@ -17,13 +17,18 @@
 
 using System;
 using System.Threading;
+using Org.Apache.REEF.Common.Exceptions;
 using Org.Apache.REEF.Common.Tasks;
 using Org.Apache.REEF.Driver;
 using Org.Apache.REEF.Driver.Evaluator;
 using Org.Apache.REEF.Driver.Task;
 using Org.Apache.REEF.Tang.Annotations;
+using Org.Apache.REEF.Tang.Implementations.Configuration;
+using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Tang.Util;
+using Org.Apache.REEF.Tests.Functional.Bridge.Exceptions;
+using Org.Apache.REEF.Tests.Functional.Bridge.Parameters;
 using Org.Apache.REEF.Utilities.Logging;
 using Xunit;
 
@@ -34,21 +39,21 @@ namespace Org.Apache.REEF.Tests.Functional.Bridge
     {
         private const string ExpectedEvaluatorFailureMessage = "Unhandled Exception.";
         private const string ExpectedTaskId = "TaskID";
-        private const string SuccessMessage = "Evaluator successfully received unhandled Exception.";
+        private const string SerializableSuccessMessage = "Evaluator successfully received serializable unhandled Exception.";
+        private const string NonSerializableSuccessMessage = "Evaluator successfully received nonserializable unhandled Exception.";
 
         /// <summary>
         /// This test validates that an unhandled Task Exception crashes the Evaluator and the Evaluator
         /// does an attempt to send a final message to the Driver.
-        /// TODO[JIRA REEF-1286]: Currently, this only validates the first portion, but does not yet validate the final message.
-        /// TODO[JIRA REEF-1286]: The verification of the final message can be done when the Exceptions are serializable.
         /// </summary>
         [Fact]
         public void TestUnhandledTaskExceptionCrashesEvaluator()
         {
             var testFolder = DefaultRuntimeFolder + Guid.NewGuid().ToString("N").Substring(0, 4);
             TestRun(GetDriverConfiguration(), typeof(TestUnhandledTaskException), 1, "testUnhandledTaskException", "local", testFolder);
-            ValidateSuccessForLocalRuntime(0, numberOfEvaluatorsToFail: 1, testFolder: testFolder);
-            ValidateMessageSuccessfullyLoggedForDriver(SuccessMessage, testFolder, 1);
+            ValidateSuccessForLocalRuntime(0, numberOfEvaluatorsToFail: 2, testFolder: testFolder);
+            ValidateMessageSuccessfullyLoggedForDriver(SerializableSuccessMessage, testFolder, 1);
+            ValidateMessageSuccessfullyLoggedForDriver(NonSerializableSuccessMessage, testFolder, 1);
         }
 
         private static IConfiguration GetDriverConfiguration()
@@ -68,16 +73,27 @@ namespace Org.Apache.REEF.Tests.Functional.Bridge
         /// </summary>
         private sealed class UnhandledExceptionTestTask : ITask
         {
+            private readonly bool _shouldThrowSerializableException;
+
             [Inject]
-            private UnhandledExceptionTestTask()
+            private UnhandledExceptionTestTask(
+                [Parameter(typeof(ShouldThrowSerializableException))] bool shouldThrowSerializableException)
             {
+                _shouldThrowSerializableException = shouldThrowSerializableException;
             }
 
             public byte[] Call(byte[] memento)
             {
                 var thread = new Thread(() =>
                 {
-                    throw new Exception(ExpectedEvaluatorFailureMessage);
+                    if (_shouldThrowSerializableException)
+                    {
+                        throw new TestSerializableException(ExpectedEvaluatorFailureMessage);
+                    }
+                    else
+                    {
+                        throw new TestNonSerializableException(ExpectedEvaluatorFailureMessage);
+                    }
                 });
 
                 thread.Start();
@@ -105,6 +121,7 @@ namespace Org.Apache.REEF.Tests.Functional.Bridge
             private static readonly Logger Logger = Logger.GetLogger(typeof(UnhandledExceptionTestDriver));
 
             private readonly IEvaluatorRequestor _evaluatorRequestor;
+            private bool _shouldReceiveSerializableException = true;
 
             [Inject]
             private UnhandledExceptionTestDriver(IEvaluatorRequestor evaluatorRequestor)
@@ -128,7 +145,12 @@ namespace Org.Apache.REEF.Tests.Functional.Bridge
                     .Set(TaskConfiguration.Task, GenericType<UnhandledExceptionTestTask>.Class)
                     .Build();
 
-                value.SubmitTask(taskConf);
+                var shouldThrowSerializableConfig = TangFactory.GetTang().NewConfigurationBuilder()
+                    .BindNamedParameter<ShouldThrowSerializableException, bool>(
+                        GenericType<ShouldThrowSerializableException>.Class, _shouldReceiveSerializableException.ToString())
+                    .Build();
+
+                value.SubmitTask(Configurations.Merge(taskConf, shouldThrowSerializableConfig));
             }
 
             public void OnNext(ICompletedTask value)
@@ -150,7 +172,7 @@ namespace Org.Apache.REEF.Tests.Functional.Bridge
 
                 if (!value.EvaluatorException.Message.Contains(ExpectedEvaluatorFailureMessage))
                 {
-                    // TODO[JIRA REEF-1286]: Verify the Exception message and the type of Exception.
+                    throw new Exception("Evaluator expected to contain the message " + ExpectedEvaluatorFailureMessage);
                 }
 
                 if (!value.FailedTask.IsPresent())
@@ -163,7 +185,43 @@ namespace Org.Apache.REEF.Tests.Functional.Bridge
                     throw new Exception("Failed Task does not have the right Task ID.");
                 }
 
-                Logger.Log(Level.Info, SuccessMessage);
+                if (_shouldReceiveSerializableException)
+                {
+                    var serializableEx = value.EvaluatorException.InnerException as TestSerializableException;
+                    if (serializableEx == null)
+                    {
+                        throw new Exception("Evaluator InnerException expected to be of type " + typeof(TestSerializableException).Name);
+                    }
+
+                    if (!serializableEx.Message.Equals(ExpectedEvaluatorFailureMessage))
+                    {
+                        throw new Exception("Evaluator InnerException.Message expected to be " + ExpectedEvaluatorFailureMessage);
+                    }
+
+                    _shouldReceiveSerializableException = false;
+                    Logger.Log(Level.Info, SerializableSuccessMessage);
+
+                    _evaluatorRequestor.Submit(
+                        _evaluatorRequestor.NewBuilder()
+                            .SetCores(1)
+                            .SetNumber(1)
+                            .Build());
+                }
+                else
+                {
+                    var nonSerializableEx = value.EvaluatorException.InnerException as NonSerializableEvaluatorException;
+                    if (nonSerializableEx == null)
+                    {
+                        throw new Exception("Evaluator Exception expected to be of type " + typeof(NonSerializableEvaluatorException));
+                    }
+
+                    if (!nonSerializableEx.Message.Contains(ExpectedEvaluatorFailureMessage))
+                    {
+                        throw new Exception("Evaluator InnerException.Message expected to contain the message " + ExpectedEvaluatorFailureMessage);
+                    }
+
+                    Logger.Log(Level.Info, NonSerializableSuccessMessage);
+                }
             }
 
             public void OnError(Exception error)

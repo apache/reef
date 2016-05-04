@@ -28,6 +28,8 @@ using Org.Apache.REEF.Tang.Implementations.Configuration;
 using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Tang.Util;
+using Org.Apache.REEF.Tests.Functional.Bridge.Exceptions;
+using Org.Apache.REEF.Tests.Functional.Bridge.Parameters;
 using Org.Apache.REEF.Utilities.Logging;
 using Xunit;
 
@@ -202,36 +204,6 @@ namespace Org.Apache.REEF.Tests.Functional.Bridge
                 }
 
                 throw new TestNonSerializableException(ExpectedExceptionMessage);
-            }
-        }
-
-        [NamedParameter(documentation: "Used to indicate whether FailTask should throw a Serializable or non-Serializable Exception.")]
-        private sealed class ShouldThrowSerializableException : Name<bool>
-        {
-            private ShouldThrowSerializableException()
-            {
-            }
-        }
-
-        [Serializable]
-        private sealed class TestSerializableException : Exception
-        {
-            public TestSerializableException(string message)
-                : base(message)
-            {
-            }
-
-            public TestSerializableException(SerializationInfo info, StreamingContext context)
-                : base(info, context)
-            {
-            }
-        }
-
-        private sealed class TestNonSerializableException : Exception
-        {
-            public TestNonSerializableException(string message)
-                : base(message)
-            {
             }
         }
     }

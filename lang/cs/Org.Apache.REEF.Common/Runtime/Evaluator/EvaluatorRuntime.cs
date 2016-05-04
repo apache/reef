@@ -17,10 +17,13 @@
 
 using System;
 using System.Globalization;
+using System.IO;
+using System.Runtime.Serialization;
+using System.Runtime.Serialization.Formatters.Binary;
+using Org.Apache.REEF.Common.Exceptions;
 using Org.Apache.REEF.Common.Protobuf.ReefProtocol;
 using Org.Apache.REEF.Common.Runtime.Evaluator.Context;
 using Org.Apache.REEF.Tang.Annotations;
-using Org.Apache.REEF.Utilities;
 using Org.Apache.REEF.Utilities.Diagnostics;
 using Org.Apache.REEF.Utilities.Logging;
 using Org.Apache.REEF.Wake.Time;
@@ -242,17 +245,31 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator
                 Logger.Log(Level.Error, "Evaluator {0} failed with exception {1}.", _evaluatorId, e);
                 _state = State.FAILED;
 
-                var errorMessage = string.Format(
-                        CultureInfo.InvariantCulture,
-                        "failed with error [{0}] with message [{1}] and stack trace [{2}]",
-                        e,
-                        e.Message,
-                        e.StackTrace);
+                byte[] errorBytes = null;
+
+                try
+                {
+                    using (var memStream = new MemoryStream())
+                    {
+                        var formatter = new BinaryFormatter();
+                        formatter.Serialize(memStream, e);
+                        errorBytes = memStream.ToArray();
+                    }
+                }
+                catch (SerializationException se)
+                {
+                    using (var memStream = new MemoryStream())
+                    {
+                        var formatter = new BinaryFormatter();
+                        formatter.Serialize(memStream, new NonSerializableEvaluatorException(e.ToString(), se));
+                        errorBytes = memStream.ToArray();
+                    }
+                }
 
                 var evaluatorStatusProto = new EvaluatorStatusProto()
                 {
                     evaluator_id = _evaluatorId,
-                    error = ByteUtilities.StringToByteArrays(errorMessage),
+                    error = errorBytes,
                     state = _state
                 };
 
