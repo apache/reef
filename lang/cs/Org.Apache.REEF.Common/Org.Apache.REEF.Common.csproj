@@ -148,6 +148,7 @@ under the License.
     <Compile Include="Runtime\Evaluator\Context\ContextStartImpl.cs" />
     <Compile Include="Runtime\Evaluator\Context\ContextStopImpl.cs" />
     <Compile Include="Runtime\Evaluator\Context\RootContextLauncher.cs" />
+    <Compile Include="Runtime\Evaluator\EvaluatorExitLogger.cs" />
     <Compile Include="Runtime\Evaluator\EvaluatorRuntime.cs" />
     <Compile Include="Runtime\Evaluator\EvaluatorSettings.cs" />
     <Compile Include="Runtime\Evaluator\HeartBeatManager.cs" />

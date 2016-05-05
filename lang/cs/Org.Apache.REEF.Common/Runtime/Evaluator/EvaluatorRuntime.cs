@@ -37,16 +37,17 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator
         private readonly IHeartBeatManager _heartBeatManager;
         private readonly IClock _clock;
         private readonly IDisposable _evaluatorControlChannel; 
+        private readonly PIDStoreHandler _pidStoreHelper;
+        private readonly EvaluatorExitLogger _evaluatorExitLogger;
 
         private State _state = State.INIT;
-
-        private PIDStoreHandler _pidStoreHelper;
 
         [Inject]
         public EvaluatorRuntime(
             ContextManager contextManager,
             IHeartBeatManager heartBeatManager,
-            PIDStoreHandler pidStoreHelper)
+            PIDStoreHandler pidStoreHelper,
+            EvaluatorExitLogger evaluatorExitLogger)
         {
             using (Logger.LogFunction("EvaluatorRuntime::EvaluatorRuntime"))
             {
@@ -55,6 +56,8 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator
                 _contextManager = contextManager;
                 _evaluatorId = _heartBeatManager.EvaluatorSettings.EvalutorId;
                 _pidStoreHelper = pidStoreHelper;
+                _evaluatorExitLogger = evaluatorExitLogger;
+
                 var remoteManager = _heartBeatManager.EvaluatorSettings.RemoteManager;
 
                 ReefMessageProtoObserver driverObserver = new ReefMessageProtoObserver();
@@ -201,6 +204,7 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator
             }
             else
             {
+                var exceptionOccurredOnDispose = false;
                 try
                 {
                     _contextManager.Dispose();
@@ -208,11 +212,18 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator
                 }
                 catch (Exception e)
                 {
-                    Utilities.Diagnostics.Exceptions.CaughtAndThrow(new InvalidOperationException("Cannot stop evaluator properly", e), Level.Error, "Exception during shut down.", Logger);
+                    exceptionOccurredOnDispose = true;
+                    Utilities.Diagnostics.Exceptions.CaughtAndThrow(
+                        new InvalidOperationException("Cannot stop evaluator properly", e),
+                        Level.Error,
+                        "Exception during shut down.",
+                        Logger);
+                }
+                finally
+                {
+                    _evaluatorExitLogger.LogExit(exceptionOccurredOnDispose);
                 }
             }
-
-            Logger.Log(Level.Info, "EvaluatorRuntime shutdown complete");      
         }
 
         public void OnNext(REEFMessage value)
@@ -247,6 +258,8 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator
 
                 _heartBeatManager.OnNext(evaluatorStatusProto);
                 _contextManager.Dispose();
+
+                _evaluatorExitLogger.LogExit(false);
             }
         }
 

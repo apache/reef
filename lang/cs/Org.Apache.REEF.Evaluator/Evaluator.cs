@@ -42,13 +42,16 @@ namespace Org.Apache.REEF.Evaluator
     {
         private static Logger logger = Logger.GetLogger(typeof(Evaluator));
         private readonly RuntimeClock _clock;
+        private readonly EvaluatorExitLogger _evaluatorExitLogger;
 
         [Inject]
         private Evaluator(
             RuntimeClock clock,
             CustomTraceListeners customTraceListeners,
-            CustomTraceLevel customTraceLevel)
+            CustomTraceLevel customTraceLevel,
+            EvaluatorExitLogger evaluatorExitLogger)
         {
+            _evaluatorExitLogger = evaluatorExitLogger;
             _clock = clock;
             SetCustomTraceListeners(customTraceListeners, customTraceLevel);
         }
@@ -56,6 +59,7 @@ namespace Org.Apache.REEF.Evaluator
         private void Run()
         {
             _clock.Run();
+            _evaluatorExitLogger.LogExit(true);
         }
 
         /// <summary>
