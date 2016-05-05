@@ -15,6 +15,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Globalization;
@@ -31,15 +32,17 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
     /// Manages active contexts for the driver
     /// </summary>
     [NotThreadSafe]
-    internal sealed class ActiveContextManager
+    internal sealed class ActiveContextManager : IDisposable
     {
         private static readonly Logger Logger = Logger.GetLogger(typeof(ActiveContextManager));
         private readonly IDictionary<string, IActiveContext> _activeContexts = new Dictionary<string, IActiveContext>();
         private readonly int _totalExpectedContexts;
+        private IObserver<IDictionary<string, IActiveContext>> _activeContextObserver;
 
         /// <summary>
         /// Constructor of ActiveContextManager
         /// totalContexts specify the total number of expected active contexts that driver needs
+        /// activeContextObserver will be notified when all active contexts are received. 
         /// </summary>
         /// <param name="totalContexts"></param>
         internal ActiveContextManager(int totalContexts)
@@ -64,16 +67,31 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         }
 
         /// <summary>
+        /// Subscribe an observer of ActiveContextManager
+        /// </summary>
+        /// <param name="activeContextObserver"></param>
+        /// <returns></returns>
+        public IDisposable Subscribe(IObserver<IDictionary<string, IActiveContext>> activeContextObserver)
+        {
+            if (_activeContextObserver != null)
+            {
+                return null;
+            }
+            _activeContextObserver = activeContextObserver;
+            return this;
+        }
+
+        /// <summary>
         /// Checks if all the requested contexts are received. 
         /// </summary>
-        internal bool AreAllContextsReceived
+        private bool AreAllContextsReceived
         {
             get { return _totalExpectedContexts == NumberOfActiveContexts; }
         }
 
         /// <summary>
-        /// Adding an IActiveContext to the ActiveContext collection
-        /// Throw IMRUSystemException if the IActiveContext already exists or NumberOfActiveContexts has exceeded the total expected contexts
+        /// Adds an IActiveContext to the ActiveContext collection
+        /// Throws IMRUSystemException if the IActiveContext already exists or NumberOfActiveContexts has exceeded the total expected contexts
         /// </summary>
         /// <param name="activeContext"></param>
         internal void Add(IActiveContext activeContext)
@@ -91,11 +109,16 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
             }
 
             _activeContexts.Add(activeContext.Id, activeContext);
+
+            if (AreAllContextsReceived && _activeContextObserver != null)
+            {
+                _activeContextObserver.OnNext(_activeContexts);
+            }
         }
 
         /// <summary>
-        /// Remove an IActiveContext from the ActiveContext collection
-        /// Throw IMRUSystemException if the IActiveContext doesn't exist.
+        /// Removes an IActiveContext from the ActiveContext collection
+        /// Throws IMRUSystemException if the IActiveContext doesn't exist.
         /// </summary>
         /// <param name="activeContextId"></param>
         internal void Remove(string activeContextId)
@@ -117,8 +140,8 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         }
 
         /// <summary>
-        /// Given an IFailedEvaluator, remove associated IActiveContext from the collection
-        /// Throw IMRUSystemException if associated IActiveContext doesn't exist or
+        /// Given an IFailedEvaluator, removes associated IActiveContext from the collection
+        /// Throws IMRUSystemException if associated IActiveContext doesn't exist or
         /// if more than one IActiveContexts are associated with the IFailedEvaluator
         /// as current IMRU driver assumes that there is only one context associated with the IFailedEvalutor
         /// </summary>
@@ -147,6 +170,14 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
                     Exceptions.Throw(new IMRUSystemException(msg), Logger);
                 }
             }
+        }
+
+        /// <summary>
+        /// sets _activeContextObserver to null 
+        /// </summary>
+        public void Dispose()
+        {
+            _activeContextObserver = null;
         }
     }
 }

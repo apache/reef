@@ -34,19 +34,23 @@ namespace Org.Apache.REEF.IMRU.Tests
         private const string ContextIdPrefix = "ContextId";
 
         /// <summary>
-        /// Create a ActiveContextManager and add some IActiveContexts to it.
+        /// Create a ActiveContextManager and add total number of IActiveContexts to it.
+        /// Expect to receive notification in the observer
         /// </summary>
         /// <returns></returns>
-        private ActiveContextManager InitializeActiveContextManager()
+        private static ActiveContextManager InitializeActiveContextManager()
         {
             const int totalEvaluators = 5;
             var activeContextManager = new ActiveContextManager(totalEvaluators);
+            var contextObserver = new TestContextObserver(totalEvaluators);
+            activeContextManager.Subscribe(contextObserver);
+
             for (int i = 0; i < totalEvaluators; i++)
             {
                 activeContextManager.Add(CreateMockActiveContext(i));
             }
-            Assert.True(activeContextManager.AreAllContextsReceived);
             Assert.Equal(totalEvaluators, activeContextManager.NumberOfActiveContexts);
+            Assert.Equal(totalEvaluators, contextObserver.NumberOfActiveContextsReceived());
 
             return activeContextManager;
         }
@@ -58,12 +62,13 @@ namespace Org.Apache.REEF.IMRU.Tests
         [Fact]
         public void TestValidAddRemoveCases()
         {
+            const int totalEvaluators = 3;
             var activeContextManager = InitializeActiveContextManager();
-            activeContextManager.RemoveFailedContextInFailedEvaluator(CreateMockFailedEvaluator(new List<int> { 3 }));
+            activeContextManager.RemoveFailedContextInFailedEvaluator(CreateMockFailedEvaluator(new List<int> { totalEvaluators }));
             Assert.Equal(1, activeContextManager.NumberOfMissingContexts);
 
             activeContextManager.Remove(ContextIdPrefix + 4);
-            Assert.Equal(3, activeContextManager.NumberOfActiveContexts);
+            Assert.Equal(totalEvaluators, activeContextManager.NumberOfActiveContexts);
         }
 
         /// <summary>
@@ -71,7 +76,8 @@ namespace Org.Apache.REEF.IMRU.Tests
         /// </summary>
         public void TestInvalidAddRemoveCases()
         {
-            var activeContextManager = new ActiveContextManager(3);
+            const int totalEvaluators = 3;
+            var activeContextManager = new ActiveContextManager(totalEvaluators);
             activeContextManager.Add(CreateMockActiveContext(1));
 
             Action add = () => activeContextManager.Add(CreateMockActiveContext(1));
@@ -170,6 +176,44 @@ namespace Org.Apache.REEF.IMRU.Tests
             }
             mockFailedEvalutor.FailedContexts.Returns(failedContexts);
             return mockFailedEvalutor;
+        }
+
+        /// <summary>
+        /// A Context Manager observer for test
+        /// </summary>
+        private sealed class TestContextObserver : IObserver<IDictionary<string, IActiveContext>>
+        {
+            private readonly int _totalExpected;
+            private IDictionary<string, IActiveContext> _contexts = null;
+
+            internal TestContextObserver(int totalExpected)
+            {
+                _totalExpected = totalExpected;
+            }
+
+            public void OnCompleted()
+            {
+                throw new NotImplementedException();
+            }
+
+            public void OnError(Exception error)
+            {
+                throw new NotImplementedException();
+            }
+
+            public int NumberOfActiveContextsReceived()
+            {
+                if (_contexts != null)
+                {
+                    return _contexts.Count;                    
+                }
+                return 0;
+            }
+
+            public void OnNext(IDictionary<string, IActiveContext> value)
+            {
+                _contexts = value;
+            }
         }
     }
 }
