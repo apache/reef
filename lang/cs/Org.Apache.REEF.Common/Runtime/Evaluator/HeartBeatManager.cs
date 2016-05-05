@@ -61,7 +61,7 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator
 
         private int _heartbeatFailures = 0;
 
-        private Lazy<IDriverConnection> _driverConnection;
+        private readonly IInjectionFuture<IDriverConnection> _driverConnection;
 
         private readonly EvaluatorSettings _evaluatorSettings;
 
@@ -80,7 +80,7 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator
             IInjectionFuture<EvaluatorRuntime> evaluatorRuntime,
             IInjectionFuture<ContextManager> contextManager,
             [Parameter(typeof(ErrorHandlerRid))] string errorHandlerRid,
-            IInjector injector)
+            IInjectionFuture<IDriverConnection> driverConnection)
         {
             using (LOGGER.LogFunction("HeartBeatManager::HeartBeatManager"))
             {
@@ -93,24 +93,7 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator
                 _clock = settings.RuntimeClock;
                 _heartBeatPeriodInMillSeconds = settings.HeartBeatPeriodInMs;
                 _maxHeartbeatRetries = settings.MaxHeartbeatRetries;
-                _driverConnection = new Lazy<IDriverConnection>(
-                    () =>
-                    {
-                        try
-                        {
-                            return injector.GetInstance<IDriverConnection>();
-                        }
-                        catch (InjectionException ie)
-                        {
-                            Utilities.Diagnostics.Exceptions.CaughtAndThrow(ie,
-                                Level.Error,
-                                "Failed to inject the driver reconnect implementation",
-                                LOGGER);
-
-                            return null;
-                        }
-                    });
-
+                _driverConnection = driverConnection;
                 MachineStatus.ToString(); // kick start the CPU perf counter
             }
         }
@@ -285,7 +268,8 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator
 
                     if (_evaluatorSettings.OperationState == EvaluatorOperationState.RECOVERY)
                     {
-                        var driverConnection = _driverConnection.Value;
+                        var driverConnection = _driverConnection.Get();
+
                         try
                         {
                             var driverInformation = driverConnection.GetDriverInformation();
