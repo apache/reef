@@ -34,6 +34,7 @@ import java.util.logging.Logger;
  * submission is used. Note that the name of the class must contain "REEFLauncher" for the time
  * being in order for the Interop code to discover the class.
  */
+// TODO[JIRA REEF-1382]: This class does things both for client and driver need to split it
 @Interop(CppFiles = "DriverLauncher.cpp")
 public final class MultiRuntimeYarnBootstrapREEFLauncher {
   private static final Logger LOG = Logger.getLogger(MultiRuntimeYarnBootstrapREEFLauncher.class.getName());

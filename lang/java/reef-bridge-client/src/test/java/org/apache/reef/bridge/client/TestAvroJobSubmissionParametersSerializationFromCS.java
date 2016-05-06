@@ -285,8 +285,7 @@ public final class TestAvroJobSubmissionParametersSerializationFromCS {
     try (final InputStream stream =
                  new ByteArrayInputStream(
                          AVRO_YARN_MULTIRUNTIME_APP_PARAMETERS_SERIALIZED_STRING.getBytes(StandardCharsets.UTF_8))) {
-      return MultiRuntimeYarnBootstrapDriverConfigGenerator
-              .readMultiRuntimeAppSubmissionParametersFromInputStream(stream);
+      return AvroMultiRuntimeAppSubmissionParametersSerializer.fromInputStream(stream);
     }
   }
 
@@ -296,8 +295,7 @@ public final class TestAvroJobSubmissionParametersSerializationFromCS {
                  new ByteArrayInputStream(
                          AVRO_YARN_MULTIRUNTIME_YARNONLY_APP_PARAMETERS_SERIALIZED_STRING.getBytes(StandardCharsets
                                  .UTF_8))) {
-      return MultiRuntimeYarnBootstrapDriverConfigGenerator
-              .readMultiRuntimeAppSubmissionParametersFromInputStream(stream);
+      return AvroMultiRuntimeAppSubmissionParametersSerializer.fromInputStream(stream);
     }
   }
 
@@ -307,8 +305,7 @@ public final class TestAvroJobSubmissionParametersSerializationFromCS {
                  new ByteArrayInputStream(
                          AVRO_YARN_MULTIRUNTIME_LOCALONLY_APP_PARAMETERS_SERIALIZED_STRING.getBytes(StandardCharsets
                                  .UTF_8))) {
-      return MultiRuntimeYarnBootstrapDriverConfigGenerator
-              .readMultiRuntimeAppSubmissionParametersFromInputStream(stream);
+      return AvroMultiRuntimeAppSubmissionParametersSerializer.fromInputStream(stream);
     }
   }
 

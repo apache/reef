@@ -18,10 +18,8 @@
  */
 package org.apache.reef.bridge.client;
 
-import org.apache.avro.io.DecoderFactory;
-import org.apache.avro.io.JsonDecoder;
-import org.apache.avro.specific.SpecificDatumReader;
 import org.apache.hadoop.yarn.conf.YarnConfiguration;
+import org.apache.reef.annotations.audience.DriverSide;
 import org.apache.reef.client.DriverRestartConfiguration;
 import org.apache.reef.client.parameters.DriverConfigurationProviders;
 import org.apache.reef.io.TcpPortConfigurationProvider;
@@ -56,6 +54,7 @@ import java.util.logging.Logger;
  * This is the Java Driver configuration generator for .NET Drivers that generates
  * the Driver configuration at runtime for multiruntime. Called by {@link MultiRuntimeYarnBootstrapREEFLauncher}.
  */
+@DriverSide
 final class MultiRuntimeYarnBootstrapDriverConfigGenerator {
   private static final Logger LOG = Logger.getLogger(MultiRuntimeYarnBootstrapDriverConfigGenerator.class.getName());
   private static final String DUMMY_YARN_RUNTIME = "DummyYarnRuntime";
@@ -106,7 +105,9 @@ final class MultiRuntimeYarnBootstrapDriverConfigGenerator {
   }
 
   /**
-   * Adds yarn runtime definitions to the builder, with a dummy name, to prevent evaluator submission.
+   * Adds yarn runtime definitions to the builder, with a dummy name.
+   * This is needed to initialze yarn runtme that registers with RM but does not allows submitting evaluators
+   * as evaluator submissions submits to Yarn runtime.
    * @param yarnJobSubmissionParams Yarn job submission parameters
    * @param jobSubmissionParameters Generic job submission parameters
    * @param builder The multi runtime builder
@@ -247,39 +248,6 @@ final class MultiRuntimeYarnBootstrapDriverConfigGenerator {
     return driverConfiguration;
   }
 
-  private static AvroMultiRuntimeAppSubmissionParameters readMultiRuntimeAppSubmissionParametersFromFile(
-          final File file) throws IOException {
-    try (final FileInputStream fileInputStream = new FileInputStream(file)) {
-      // This is mainly a test hook.
-      return readMultiRuntimeAppSubmissionParametersFromInputStream(fileInputStream);
-    }
-  }
-
-  private static AvroYarnJobSubmissionParameters readYarnJobSubmissionParametersFromFile(final File file)
-          throws IOException {
-    try (final FileInputStream fileInputStream = new FileInputStream(file)) {
-      // This is mainly a test hook.
-      return readYarnJobSubmissionParametersFromInputStream(fileInputStream);
-    }
-  }
-
-  static AvroYarnJobSubmissionParameters readYarnJobSubmissionParametersFromInputStream(
-          final InputStream inputStream) throws IOException {
-    final JsonDecoder decoder = DecoderFactory.get().jsonDecoder(
-            AvroYarnJobSubmissionParameters.getClassSchema(), inputStream);
-    final SpecificDatumReader<AvroYarnJobSubmissionParameters> reader = new SpecificDatumReader<>(
-            AvroYarnJobSubmissionParameters.class);
-    return reader.read(null, decoder);
-  }
-
-  static AvroMultiRuntimeAppSubmissionParameters readMultiRuntimeAppSubmissionParametersFromInputStream(
-          final InputStream inputStream) throws IOException {
-    final JsonDecoder decoder = DecoderFactory.get().jsonDecoder(
-            AvroMultiRuntimeAppSubmissionParameters.getClassSchema(), inputStream);
-    final SpecificDatumReader<AvroMultiRuntimeAppSubmissionParameters> reader = new SpecificDatumReader<>(
-            AvroMultiRuntimeAppSubmissionParameters.class);
-    return reader.read(null, decoder);
-  }
 
   /**
    * Writes the driver configuration files to the provided location.
@@ -294,10 +262,10 @@ final class MultiRuntimeYarnBootstrapDriverConfigGenerator {
     final File bootstrapAppArgsFile = new File(bootstrapAppArgsLocation);
 
     final AvroYarnJobSubmissionParameters yarnBootstrapJobArgs =
-            readYarnJobSubmissionParametersFromFile(bootstrapJobArgsFile);
+            AvroYarnJobSubmissionParametersSerializer.fromFile(bootstrapJobArgsFile);
 
     final AvroMultiRuntimeAppSubmissionParameters multiruntimeBootstrapAppArgs =
-            readMultiRuntimeAppSubmissionParametersFromFile(bootstrapAppArgsFile);
+            AvroMultiRuntimeAppSubmissionParametersSerializer.fromFile(bootstrapAppArgsFile);
 
     final String driverConfigPath = reefFileNames.getDriverConfigurationPath();
 
