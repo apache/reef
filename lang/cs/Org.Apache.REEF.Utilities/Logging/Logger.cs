@@ -49,6 +49,8 @@ namespace Org.Apache.REEF.Utilities.Logging
 
         private static Level _customLevel = Level.Info;
 
+        private Level _instanceLevel = Level.Unset;
+
         private static List<TraceListener> _traceListeners;
 
         private readonly string _name;       
@@ -59,7 +61,6 @@ namespace Org.Apache.REEF.Utilities.Logging
         {
             _name = name;
             _traceSource = new TraceSource(_name, SourceLevels.All);
-            CustomLevel = _customLevel;
             if (TraceListeners.Count == 0)
             {
                 // before customized listener is added, we would need to log to console
@@ -85,6 +86,19 @@ namespace Org.Apache.REEF.Utilities.Logging
             set
             {
                 _customLevel = value;
+            }
+        }
+
+        public Level InstanceLevel
+        {
+            get
+            {
+                return _instanceLevel;
+            }
+
+            set
+            {
+                _instanceLevel = value;
             }
         }
 
@@ -125,7 +139,7 @@ namespace Org.Apache.REEF.Utilities.Logging
         /// </summary>
         public bool IsLoggable(Level level)
         {
-            return CustomLevel >= level;
+            return (InstanceLevel != Level.Unset ? InstanceLevel : CustomLevel) >= level;
         }
 
         /// <summary>
@@ -140,7 +154,7 @@ namespace Org.Apache.REEF.Utilities.Logging
         /// <param name="args"></param>
         public void Log(Level level, string formatStr, params object[] args)
         {
-            if (CustomLevel >= level)
+            if (IsLoggable(level))
             {
                 string msg = FormatMessage(formatStr, args);
                 string logMessage = 
@@ -161,7 +175,7 @@ namespace Org.Apache.REEF.Utilities.Logging
         {
             string exceptionLog;
 
-            if (CustomLevel >= level && exception != null)
+            if (IsLoggable(level) && exception != null)
             {
                 exceptionLog = string.Format(
                     CultureInfo.InvariantCulture,

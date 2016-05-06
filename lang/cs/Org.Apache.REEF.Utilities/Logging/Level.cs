@@ -53,5 +53,11 @@ namespace Org.Apache.REEF.Utilities.Logging
         /// Output all debugging and tracing messages.
         /// </summary>
         Verbose = 6,
+
+        /// <summary>
+        /// Used by the logger to initialize the instance log level field,
+        /// indicating that it has not been set by a user yet.
+        /// </summary>
+        Unset,
     }
 }

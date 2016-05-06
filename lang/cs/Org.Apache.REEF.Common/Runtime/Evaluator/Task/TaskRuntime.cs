@@ -104,7 +104,7 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Task
 
                     const Level resultLogLevel = Level.Verbose;
 
-                    if (Logger.CustomLevel >= resultLogLevel && result != null && result.Length > 0)
+                    if (Logger.IsLoggable(resultLogLevel) && result != null && result.Length > 0)
                     {
                         Logger.Log(resultLogLevel,
                             "Task running result:\r\n" + System.Text.Encoding.Default.GetString(result));
