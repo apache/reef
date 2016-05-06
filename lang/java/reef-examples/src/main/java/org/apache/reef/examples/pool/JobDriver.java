@@ -22,7 +22,6 @@ import org.apache.reef.driver.context.ActiveContext;
 import org.apache.reef.driver.context.ContextConfiguration;
 import org.apache.reef.driver.evaluator.AllocatedEvaluator;
 import org.apache.reef.driver.evaluator.CompletedEvaluator;
-import org.apache.reef.driver.evaluator.EvaluatorRequest;
 import org.apache.reef.driver.evaluator.EvaluatorRequestor;
 import org.apache.reef.driver.task.CompletedTask;
 import org.apache.reef.driver.task.RunningTask;
@@ -131,12 +130,11 @@ public final class JobDriver {
     @Override
     public void onNext(final StartTime startTime) {
       LOG.log(Level.INFO, "TIME: Start Driver with {0} Evaluators", numEvaluators);
-      evaluatorRequestor.submit(
-          EvaluatorRequest.newBuilder()
-              .setMemory(128)
-              .setNumberOfCores(1)
-              .setNumber(numEvaluators).build()
-      );
+      evaluatorRequestor.newRequest()
+          .setMemory(128)
+          .setNumberOfCores(1)
+          .setNumber(numEvaluators)
+          .submit();
     }
   }
 

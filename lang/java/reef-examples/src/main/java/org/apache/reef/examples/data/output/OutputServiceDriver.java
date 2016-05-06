@@ -21,7 +21,6 @@ package org.apache.reef.examples.data.output;
 import org.apache.reef.driver.context.ActiveContext;
 import org.apache.reef.driver.context.ContextConfiguration;
 import org.apache.reef.driver.evaluator.AllocatedEvaluator;
-import org.apache.reef.driver.evaluator.EvaluatorRequest;
 import org.apache.reef.driver.evaluator.EvaluatorRequestor;
 import org.apache.reef.driver.task.TaskConfiguration;
 import org.apache.reef.io.data.output.OutputService;
@@ -79,11 +78,11 @@ public final class OutputServiceDriver {
   public final class StartHandler implements EventHandler<StartTime> {
     @Override
     public void onNext(final StartTime startTime) {
-      OutputServiceDriver.this.requestor.submit(EvaluatorRequest.newBuilder()
+      OutputServiceDriver.this.requestor.newRequest()
           .setNumber(3)
           .setMemory(64)
           .setNumberOfCores(1)
-          .build());
+          .submit();
       LOG.log(Level.INFO, "Requested Evaluator.");
     }
   }

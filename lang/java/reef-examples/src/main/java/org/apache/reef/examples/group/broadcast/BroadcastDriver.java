@@ -23,7 +23,6 @@ import org.apache.reef.driver.context.ActiveContext;
 import org.apache.reef.driver.context.ClosedContext;
 import org.apache.reef.driver.context.ContextConfiguration;
 import org.apache.reef.driver.evaluator.AllocatedEvaluator;
-import org.apache.reef.driver.evaluator.EvaluatorRequest;
 import org.apache.reef.driver.evaluator.EvaluatorRequestor;
 import org.apache.reef.driver.task.FailedTask;
 import org.apache.reef.driver.task.TaskConfiguration;
@@ -129,10 +128,10 @@ public class BroadcastDriver {
     public void onNext(final StartTime startTime) {
       final int numEvals = BroadcastDriver.this.numberOfReceivers + 1;
       LOG.log(Level.FINE, "Requesting {0} evaluators", numEvals);
-      BroadcastDriver.this.requestor.submit(EvaluatorRequest.newBuilder()
+      BroadcastDriver.this.requestor.newRequest()
           .setNumber(numEvals)
           .setMemory(2048)
-          .build());
+          .submit();
     }
   }
 

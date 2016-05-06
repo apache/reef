@@ -19,10 +19,10 @@
 package org.apache.reef.examples.hellomultiruntime;
 
 import org.apache.reef.driver.evaluator.AllocatedEvaluator;
-import org.apache.reef.driver.evaluator.EvaluatorRequest;
 import org.apache.reef.driver.evaluator.EvaluatorRequestor;
 import org.apache.reef.driver.task.TaskConfiguration;
 import org.apache.reef.examples.hello.HelloTask;
+import org.apache.reef.runtime.local.driver.RuntimeIdentifier;
 import org.apache.reef.tang.Configuration;
 import org.apache.reef.tang.annotations.Unit;
 import org.apache.reef.wake.EventHandler;
@@ -59,21 +59,21 @@ public final class HelloMultiRuntimeDriver {
   public final class StartHandler implements EventHandler<StartTime> {
     @Override
     public void onNext(final StartTime startTime) {
-      HelloMultiRuntimeDriver.this.requestor.submit(EvaluatorRequest.newBuilder()
+      HelloMultiRuntimeDriver.this.requestor.newRequest()
           .setNumber(1)
           .setMemory(64)
           .setNumberOfCores(1)
-          .setRuntimeName(org.apache.reef.runtime.local.driver.RuntimeIdentifier.RUNTIME_NAME)
-          .build());
+          .setRuntimeName(RuntimeIdentifier.RUNTIME_NAME)
+          .submit();
 
       LOG.log(Level.INFO, "Requested Local Evaluator .");
 
-      HelloMultiRuntimeDriver.this.requestor.submit(EvaluatorRequest.newBuilder()
-              .setNumber(1)
-              .setMemory(64)
-              .setNumberOfCores(1)
-              .setRuntimeName(org.apache.reef.runtime.yarn.driver.RuntimeIdentifier.RUNTIME_NAME)
-              .build());
+      HelloMultiRuntimeDriver.this.requestor.newRequest()
+          .setNumber(1)
+          .setMemory(64)
+          .setNumberOfCores(1)
+          .setRuntimeName(RuntimeIdentifier.RUNTIME_NAME)
+          .submit();
 
       LOG.log(Level.INFO, "Requested Yarn Evaluator.");
     }

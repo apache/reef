@@ -23,7 +23,6 @@ import org.apache.reef.driver.context.ActiveContext;
 import org.apache.reef.driver.context.ContextConfiguration;
 import org.apache.reef.driver.evaluator.AllocatedEvaluator;
 import org.apache.reef.driver.evaluator.EvaluatorDescriptor;
-import org.apache.reef.driver.evaluator.EvaluatorRequest;
 import org.apache.reef.driver.evaluator.EvaluatorRequestor;
 import org.apache.reef.driver.task.*;
 import org.apache.reef.io.checkpoint.fs.FSCheckPointServiceConfiguration;
@@ -322,8 +321,11 @@ public class SuspendDriver {
     @Override
     public void onNext(final StartTime time) {
       LOG.log(Level.INFO, "StartTime: {0}", time);
-      evaluatorRequestor.submit(EvaluatorRequest.newBuilder()
-          .setMemory(128).setNumberOfCores(1).setNumber(NUM_EVALUATORS).build());
+      evaluatorRequestor.newRequest()
+          .setMemory(128)
+          .setNumberOfCores(1)
+          .setNumber(NUM_EVALUATORS)
+          .submit();
     }
   }
 
