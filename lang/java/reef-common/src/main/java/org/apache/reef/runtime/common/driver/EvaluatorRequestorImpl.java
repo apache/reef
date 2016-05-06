@@ -112,4 +112,24 @@ public final class EvaluatorRequestorImpl implements EvaluatorRequestor {
       this.resourceRequestHandler.onNext(request);
     }
   }
+
+  /**
+   * Get a new builder.
+   *
+   * @return a new EvaluatorRequest Builder extended with the new submit method.
+   */
+  @Override
+  public Builder newRequest() {
+    return new Builder();
+  }
+
+  /**
+   * {@link EvaluatorRequest.Builder} extended with a new submit method.
+   * {@link EvaluatorRequest}s are built using this builder.
+   */
+  public final class Builder extends EvaluatorRequest.Builder<Builder> {
+    public synchronized void submit() {
+      EvaluatorRequestorImpl.this.submit(this.build());
+    }
+  }
 }

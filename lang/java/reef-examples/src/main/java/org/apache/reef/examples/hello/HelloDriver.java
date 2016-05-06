@@ -19,7 +19,6 @@
 package org.apache.reef.examples.hello;
 
 import org.apache.reef.driver.evaluator.AllocatedEvaluator;
-import org.apache.reef.driver.evaluator.EvaluatorRequest;
 import org.apache.reef.driver.evaluator.EvaluatorRequestor;
 import org.apache.reef.driver.task.TaskConfiguration;
 import org.apache.reef.tang.Configuration;
@@ -58,11 +57,11 @@ public final class HelloDriver {
   public final class StartHandler implements EventHandler<StartTime> {
     @Override
     public void onNext(final StartTime startTime) {
-      HelloDriver.this.requestor.submit(EvaluatorRequest.newBuilder()
+      HelloDriver.this.requestor.newRequest()
           .setNumber(1)
           .setMemory(64)
           .setNumberOfCores(1)
-          .build());
+          .submit();
       LOG.log(Level.INFO, "Requested Evaluator.");
     }
   }

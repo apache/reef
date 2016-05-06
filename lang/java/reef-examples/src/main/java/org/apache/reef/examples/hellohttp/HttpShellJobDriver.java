@@ -23,7 +23,6 @@ import org.apache.reef.driver.context.ClosedContext;
 import org.apache.reef.driver.context.ContextConfiguration;
 import org.apache.reef.driver.context.FailedContext;
 import org.apache.reef.driver.evaluator.AllocatedEvaluator;
-import org.apache.reef.driver.evaluator.EvaluatorRequest;
 import org.apache.reef.driver.evaluator.EvaluatorRequestor;
 import org.apache.reef.driver.evaluator.FailedEvaluator;
 import org.apache.reef.driver.task.CompletedTask;
@@ -167,12 +166,11 @@ public final class HttpShellJobDriver {
   private synchronized void requestEvaluators() {
     assert this.state == State.INIT;
     LOG.log(Level.INFO, "Schedule on {0} Evaluators.", this.numEvaluators);
-    this.evaluatorRequestor.submit(
-        EvaluatorRequest.newBuilder()
-            .setMemory(128)
-            .setNumberOfCores(1)
-            .setNumber(this.numEvaluators).build()
-    );
+    this.evaluatorRequestor.newRequest()
+        .setMemory(128)
+        .setNumberOfCores(1)
+        .setNumber(this.numEvaluators)
+        .submit();
     this.state = State.WAIT_EVALUATORS;
     this.expectCount = this.numEvaluators;
   }

@@ -21,7 +21,6 @@ package org.apache.reef.examples.scheduler.driver;
 import org.apache.reef.driver.context.ActiveContext;
 import org.apache.reef.driver.context.ContextConfiguration;
 import org.apache.reef.driver.evaluator.AllocatedEvaluator;
-import org.apache.reef.driver.evaluator.EvaluatorRequest;
 import org.apache.reef.driver.evaluator.EvaluatorRequestor;
 import org.apache.reef.driver.task.CompletedTask;
 import org.apache.reef.examples.scheduler.client.SchedulerREEF;
@@ -251,10 +250,10 @@ public final class SchedulerDriver {
     }
 
     nRequestedEval += numToRequest;
-    requestor.submit(EvaluatorRequest.newBuilder()
+    requestor.newRequest()
         .setMemory(32)
         .setNumber(numToRequest)
-        .build());
+        .submit();
   }
 
   /**

@@ -20,6 +20,7 @@ package org.apache.reef.driver.evaluator;
 
 import org.apache.reef.annotations.Provided;
 import org.apache.reef.annotations.audience.DriverSide;
+import org.apache.reef.annotations.audience.Private;
 import org.apache.reef.annotations.audience.Public;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -138,7 +139,7 @@ public final class EvaluatorRequest {
   /**
    * {@link EvaluatorRequest}s are build using this Builder.
    */
-  public static final class Builder implements org.apache.reef.util.Builder<EvaluatorRequest> {
+  public static class Builder<T extends Builder> implements org.apache.reef.util.Builder<EvaluatorRequest> {
 
     private int n = 1;
     private int megaBytes = -1;
@@ -147,7 +148,8 @@ public final class EvaluatorRequest {
     private final List<String> rackNames = new ArrayList<>();
     private String runtimeName = "";
 
-    private Builder() {
+    @Private
+    public Builder() {
     }
 
     /**
@@ -176,9 +178,9 @@ public final class EvaluatorRequest {
      * @return this builder
      */
     @SuppressWarnings("checkstyle:hiddenfield")
-    public Builder setMemory(final int megaBytes) {
+    public T setMemory(final int megaBytes) {
       this.megaBytes = megaBytes;
-      return this;
+      return (T) this;
     }
 
     /**
@@ -187,9 +189,10 @@ public final class EvaluatorRequest {
      * @param runtimeName to request for the Evaluator.
      * @return this builder
      */
-    public Builder setRuntimeName(final String runtimeName) {
+    @SuppressWarnings("checkstyle:hiddenfield")
+    public T setRuntimeName(final String runtimeName) {
       this.runtimeName = runtimeName;
-      return this;
+      return (T) this;
     }
 
     /**
@@ -199,9 +202,9 @@ public final class EvaluatorRequest {
      * @return this Builder.
      */
     @SuppressWarnings("checkstyle:hiddenfield")
-    public Builder setNumberOfCores(final int cores) {
+    public T setNumberOfCores(final int cores) {
       this.cores = cores;
-      return this;
+      return (T) this;
     }
 
     /**
@@ -211,9 +214,9 @@ public final class EvaluatorRequest {
      * @return this Builder.
      */
     @SuppressWarnings("checkstyle:hiddenfield")
-    public Builder setNumber(final int n) {
+    public T setNumber(final int n) {
       this.n = n;
-      return this;
+      return (T) this;
     }
 
     /**
@@ -224,9 +227,9 @@ public final class EvaluatorRequest {
      * @param nodeName a preferred node name
      * @return this Builder.
      */
-    public Builder addNodeName(final String nodeName) {
+    public T addNodeName(final String nodeName) {
       this.nodeNames.add(nodeName);
-      return this;
+      return (T) this;
     }
 
     /**
@@ -238,9 +241,9 @@ public final class EvaluatorRequest {
      * @param rackName a preferred rack name
      * @return this Builder.
      */
-    public Builder addRackName(final String rackName) {
+    public T addRackName(final String rackName) {
       this.rackNames.add(rackName);
-      return this;
+      return (T) this;
     }
 
     /**
