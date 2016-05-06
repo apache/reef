@@ -16,14 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.examples.library;
-
-import org.apache.reef.tang.annotations.Name;
-import org.apache.reef.tang.annotations.NamedParameter;
-
 /**
- * Command line parameter: a command to run, e.g. "echo Hello REEF"
+ * Simple Distributed Shell example.
  */
-@NamedParameter(doc = "The shell command", short_name = "cmd")
-public final class Command implements Name<String> {
-}
+package org.apache.reef.examples.distributedshell;
