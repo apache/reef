@@ -16,6 +16,7 @@
 // under the License.
 
 using System.Collections.Generic;
+using System.Globalization;
 using Org.Apache.REEF.Driver.Evaluator;
 using Org.Apache.REEF.Utilities.Attributes;
 using Org.Apache.REEF.Utilities.Diagnostics;
@@ -35,6 +36,8 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         private static readonly Logger Logger = Logger.GetLogger(typeof(EvaluatorManager));
         internal const string MasterBatchId = "MasterBatchId";
         internal const string MapperBatchId = "MapperBatchId";
+        private int _masterBatchIdSquenceNumber = 0;
+        private int _mapperBatchIdSquenceNumber = 0;
 
         private readonly ISet<string> _allocatedEvaluatorIds = new HashSet<string>();
         private readonly ISet<string> _failedEvaluatorIds = new HashSet<string>();
@@ -79,8 +82,17 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
                     .SetCores(_updateEvaluatorSpecification.Core)
                     .SetMegabytes(_updateEvaluatorSpecification.Megabytes)
                     .SetNumber(1)
-                    .SetEvaluatorBatchId(MasterBatchId)
+                    .SetEvaluatorBatchId(MasterBatchId + _masterBatchIdSquenceNumber)
                     .Build());
+
+            var message = string.Format(CultureInfo.InvariantCulture,
+                "Submitted master evaluator with core [{0}], memory [{1}] and batch id [{2}].",
+                _updateEvaluatorSpecification.Core,
+                _updateEvaluatorSpecification.Megabytes,
+                MasterBatchId + _masterBatchIdSquenceNumber);
+            Logger.Log(Level.Info, message);
+
+            _masterBatchIdSquenceNumber++;
         }
 
         /// <summary>
@@ -94,8 +106,18 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
                     .SetMegabytes(_mapperEvaluatorSpecification.Megabytes)
                     .SetNumber(numEvaluators)
                     .SetCores(_mapperEvaluatorSpecification.Core)
-                    .SetEvaluatorBatchId(MapperBatchId)
+                    .SetEvaluatorBatchId(MapperBatchId + _mapperBatchIdSquenceNumber)
                     .Build());
+
+            var message = string.Format(CultureInfo.InvariantCulture,
+                "Submitted [{0}] mapper evaluators with core [{1}], memory [{2}] and batch id [{3}].",
+                numEvaluators,
+                _mapperEvaluatorSpecification.Core,
+                _mapperEvaluatorSpecification.Megabytes,
+                MasterBatchId + _mapperBatchIdSquenceNumber);
+            Logger.Log(Level.Info, message);
+
+            _mapperBatchIdSquenceNumber++;
         }
 
         /// <summary>
@@ -262,7 +284,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         /// <returns></returns>
         internal bool IsEvaluatorForMaster(IAllocatedEvaluator evaluator)
         {
-            return evaluator.EvaluatorBatchId.Equals(MasterBatchId);
+            return evaluator.EvaluatorBatchId.StartsWith(MasterBatchId);
         }
 
         /// <summary>

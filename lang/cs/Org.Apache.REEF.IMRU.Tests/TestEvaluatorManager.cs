@@ -29,6 +29,8 @@ namespace Org.Apache.REEF.IMRU.Tests
     public sealed class TestEvaluatorManager
     {
         private const string EvaluatorIdPrefix = "EvaluatorId";
+        private int _masterBatchIdSquenceNumber = 0;
+        private int _mapperBatchIdSquenceNumber = 0;
 
         /// <summary>
         /// Test valid add, remove Evaluators
@@ -50,7 +52,7 @@ namespace Org.Apache.REEF.IMRU.Tests
             Assert.Equal(0, evalutorManager.NumberofFailedMappers());
 
             evalutorManager.ResetFailedEvaluators();
-            evalutorManager.AddAllocatedEvaluator(CreateMockAllocatedEvaluator(1, EvaluatorManager.MasterBatchId));
+            evalutorManager.AddAllocatedEvaluator(CreateMockAllocatedEvaluator(1, EvaluatorManager.MasterBatchId + _masterBatchIdSquenceNumber++));
             Assert.True(evalutorManager.AreAllEvaluatorsAllocated());
         }
 
@@ -61,9 +63,9 @@ namespace Org.Apache.REEF.IMRU.Tests
         public void TestNoMasterEvaluator()
         {
             var evalutorManager = CreateEvaluatorManager(3, 1);
-            evalutorManager.AddAllocatedEvaluator(CreateMockAllocatedEvaluator(1, EvaluatorManager.MapperBatchId));
-            evalutorManager.AddAllocatedEvaluator(CreateMockAllocatedEvaluator(2, EvaluatorManager.MapperBatchId));
-            Action add = () => evalutorManager.AddAllocatedEvaluator(CreateMockAllocatedEvaluator(3, EvaluatorManager.MapperBatchId));
+            evalutorManager.AddAllocatedEvaluator(CreateMockAllocatedEvaluator(1, EvaluatorManager.MapperBatchId + _mapperBatchIdSquenceNumber++));
+            evalutorManager.AddAllocatedEvaluator(CreateMockAllocatedEvaluator(2, EvaluatorManager.MapperBatchId + _mapperBatchIdSquenceNumber++));
+            Action add = () => evalutorManager.AddAllocatedEvaluator(CreateMockAllocatedEvaluator(3, EvaluatorManager.MapperBatchId + _mapperBatchIdSquenceNumber++));
             Assert.Throws<IMRUSystemException>(add);
         }
 
@@ -74,9 +76,9 @@ namespace Org.Apache.REEF.IMRU.Tests
         public void TestTwoMasterEvaluator()
         {
             var evalutorManager = CreateEvaluatorManager(3, 1);
-            evalutorManager.AddAllocatedEvaluator(CreateMockAllocatedEvaluator(1, EvaluatorManager.MasterBatchId));
-            evalutorManager.AddAllocatedEvaluator(CreateMockAllocatedEvaluator(2, EvaluatorManager.MapperBatchId));
-            Action add = () => evalutorManager.AddAllocatedEvaluator(CreateMockAllocatedEvaluator(3, EvaluatorManager.MasterBatchId));
+            evalutorManager.AddAllocatedEvaluator(CreateMockAllocatedEvaluator(1, EvaluatorManager.MasterBatchId + _masterBatchIdSquenceNumber++));
+            evalutorManager.AddAllocatedEvaluator(CreateMockAllocatedEvaluator(2, EvaluatorManager.MapperBatchId + _mapperBatchIdSquenceNumber++));
+            Action add = () => evalutorManager.AddAllocatedEvaluator(CreateMockAllocatedEvaluator(3, EvaluatorManager.MasterBatchId + _masterBatchIdSquenceNumber++));
             Assert.Throws<IMRUSystemException>(add);
         }
 
@@ -87,9 +89,9 @@ namespace Org.Apache.REEF.IMRU.Tests
         public void TestTooManyEvaluators()
         {
             var evalutorManager = CreateEvaluatorManager(2, 1);
-            evalutorManager.AddAllocatedEvaluator(CreateMockAllocatedEvaluator(1, EvaluatorManager.MasterBatchId));
-            evalutorManager.AddAllocatedEvaluator(CreateMockAllocatedEvaluator(2, EvaluatorManager.MapperBatchId));
-            Action add = () => evalutorManager.AddAllocatedEvaluator(CreateMockAllocatedEvaluator(3, EvaluatorManager.MapperBatchId));
+            evalutorManager.AddAllocatedEvaluator(CreateMockAllocatedEvaluator(1, EvaluatorManager.MasterBatchId + _masterBatchIdSquenceNumber++));
+            evalutorManager.AddAllocatedEvaluator(CreateMockAllocatedEvaluator(2, EvaluatorManager.MapperBatchId + _mapperBatchIdSquenceNumber++));
+            Action add = () => evalutorManager.AddAllocatedEvaluator(CreateMockAllocatedEvaluator(3, EvaluatorManager.MapperBatchId + _mapperBatchIdSquenceNumber++));
             Assert.Throws<IMRUSystemException>(add);
         }
 
@@ -134,7 +136,7 @@ namespace Org.Apache.REEF.IMRU.Tests
         }
 
         /// <summary>
-        /// Create a an EvaluatorManager and add mock Evaluators for testing
+        /// Create an EvaluatorManager and add mock Evaluators for testing
         /// </summary>
         /// <param name="totalEvaluators"></param>
         /// <param name="allowedNumberOfEvaluatorFailures"></param>
@@ -142,10 +144,10 @@ namespace Org.Apache.REEF.IMRU.Tests
         private EvaluatorManager CreateTestEvaluators(int totalEvaluators, int allowedNumberOfEvaluatorFailures)
         {
             var evaluatorManager = CreateEvaluatorManager(totalEvaluators, allowedNumberOfEvaluatorFailures);
-            evaluatorManager.AddAllocatedEvaluator(CreateMockAllocatedEvaluator(1, EvaluatorManager.MasterBatchId));
+            evaluatorManager.AddAllocatedEvaluator(CreateMockAllocatedEvaluator(1, EvaluatorManager.MasterBatchId + _masterBatchIdSquenceNumber++));
             for (var i = 2; i <= totalEvaluators; i++)
             {
-                evaluatorManager.AddAllocatedEvaluator(CreateMockAllocatedEvaluator(i, EvaluatorManager.MapperBatchId));
+                evaluatorManager.AddAllocatedEvaluator(CreateMockAllocatedEvaluator(i, EvaluatorManager.MapperBatchId + _mapperBatchIdSquenceNumber++));
             }
             return evaluatorManager;
         }
