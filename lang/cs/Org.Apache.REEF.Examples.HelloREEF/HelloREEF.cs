@@ -89,7 +89,7 @@ namespace Org.Apache.REEF.Examples.HelloREEF
                     // To run against HDInsight please replace placeholders below, with actual values for
                     // connection string, container name (available at Azure portal) and HDInsight 
                     // credentials (username and password)
-                    const string connectionString = "AccountName=asafxsa3;AccountKey=z5ZUAERFDfzADm/GMA/Eeqs+RVOQyVkuAMVe3thQwVsjF7w6I0KDGtHb6PjMZtiQWYXPNKPEzjXO9gzB9mR/YQ==;DefaultEndpointsProtocol=http";
+                    const string connectionString = "ConnString";
                     const string continerName = "foo";
                     return HDInsightClientConfiguration.ConfigurationModule
                         .Set(HDInsightClientConfiguration.HDInsightPasswordParameter, @"pwd")
