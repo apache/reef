@@ -38,20 +38,20 @@ namespace Org.Apache.REEF.IMRU.Tests
         {
             var evalutorManager = CreateTestEvaluators(3, 1);
             Assert.Equal(3, evalutorManager.NumberOfAllocatedEvaluators);
-            Assert.True(evalutorManager.AreAllEvaluatorsAllocated);
+            Assert.True(evalutorManager.AreAllEvaluatorsAllocated());
             Assert.True(evalutorManager.IsMasterEvaluatorId(EvaluatorIdPrefix + 1));
             Assert.False(evalutorManager.IsMasterEvaluatorId(EvaluatorIdPrefix + 2));
             Assert.True(evalutorManager.IsAllocatedEvaluator(EvaluatorIdPrefix + 2));
-            Assert.False(evalutorManager.IsMasterEvaluatorFailed);
+            Assert.False(evalutorManager.IsMasterEvaluatorFailed());
 
             evalutorManager.RecordFailedEvaluator(EvaluatorIdPrefix + 1);
             Assert.Equal(2, evalutorManager.NumberOfAllocatedEvaluators);
-            Assert.True(evalutorManager.IsMasterEvaluatorFailed);
-            Assert.Equal(0, evalutorManager.NumberofFailedMappers);
+            Assert.True(evalutorManager.IsMasterEvaluatorFailed());
+            Assert.Equal(0, evalutorManager.NumberofFailedMappers());
 
             evalutorManager.ResetFailedEvaluators();
             evalutorManager.AddAllocatedEvaluator(CreateMockAllocatedEvaluator(1, EvaluatorManager.MasterBatchId));
-            Assert.True(evalutorManager.AreAllEvaluatorsAllocated);
+            Assert.True(evalutorManager.AreAllEvaluatorsAllocated());
         }
 
         /// <summary>
@@ -114,9 +114,11 @@ namespace Org.Apache.REEF.IMRU.Tests
             var evalutorManager = CreateTestEvaluators(3, 1);
             evalutorManager.RecordFailedEvaluator(EvaluatorIdPrefix + 1);
             evalutorManager.RecordFailedEvaluator(EvaluatorIdPrefix + 2);
-            Assert.Equal(2, evalutorManager.NumberOfMissingEvaluators);
+            Assert.Equal(2, evalutorManager.NumberOfMissingEvaluators());
             evalutorManager.ResetFailedEvaluators();
-            Assert.Equal(0, evalutorManager.NumberofFailedMappers);
+            Assert.Equal(0, evalutorManager.NumberofFailedMappers());
+            Assert.False(evalutorManager.IsMasterEvaluatorId(EvaluatorIdPrefix + 1));
+            Assert.False(evalutorManager.IsMasterEvaluatorFailed());
         }
 
         /// <summary>
@@ -128,7 +130,7 @@ namespace Org.Apache.REEF.IMRU.Tests
             var evalutorManager = CreateTestEvaluators(3, 2);
             evalutorManager.RecordFailedEvaluator(EvaluatorIdPrefix + 1);
             evalutorManager.RecordFailedEvaluator(EvaluatorIdPrefix + 2);
-            Assert.True(evalutorManager.ReachedMaximumNumberOfEvaluatorFailures);
+            Assert.True(evalutorManager.ReachedMaximumNumberOfEvaluatorFailures());
         }
 
         /// <summary>

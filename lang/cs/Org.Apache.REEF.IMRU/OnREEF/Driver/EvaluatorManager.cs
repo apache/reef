@@ -36,8 +36,8 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         internal const string MasterBatchId = "MasterBatchId";
         internal const string MapperBatchId = "MapperBatchId";
 
-        private readonly ISet<string> _allocatedEvaluators = new HashSet<string>();
-        private readonly ISet<string> _failedEvaluators = new HashSet<string>();
+        private readonly ISet<string> _allocatedEvaluatorIds = new HashSet<string>();
+        private readonly ISet<string> _failedEvaluatorIds = new HashSet<string>();
 
         private readonly int _totalExpectedEvaluators;
         private readonly int _allowedNumberOfEvaluatorFailures;
@@ -120,18 +120,19 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
                 SetMasterEvaluatorId(evaluator.Id);
             }
 
-            if (_masterEvaluatorId == null && NumberOfAllocatedEvaluators + 1 == _totalExpectedEvaluators)
-            {
-                string msg = string.Format("Trying to add the last Evaluator {0} but master Evaluator is not added yet.", evaluator.Id);
-                Exceptions.Throw(new IMRUSystemException(msg), Logger);
-            }
-
-            if (NumberOfAllocatedEvaluators == _totalExpectedEvaluators)
+            if (NumberOfAllocatedEvaluators >= _totalExpectedEvaluators)
             {
                 string msg = string.Format("Trying to add an additional Evaluator {0}, but the total expected Evaluator number {1} has been reached.", evaluator.Id, _totalExpectedEvaluators);
                 Exceptions.Throw(new IMRUSystemException(msg), Logger);
             }
-            _allocatedEvaluators.Add(evaluator.Id);
+            
+            _allocatedEvaluatorIds.Add(evaluator.Id);
+
+            if (_masterEvaluatorId == null && NumberOfAllocatedEvaluators == _totalExpectedEvaluators)
+            {
+                string msg = string.Format("Added the last Evaluator {0} but master Evaluator is not added yet.", evaluator.Id);
+                Exceptions.Throw(new IMRUSystemException(msg), Logger);
+            }
         }
 
         /// <summary>
@@ -146,7 +147,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
                 string msg = string.Format("The allocated evaluator to be removed {0} does not exist.", evaluatorId);
                 Exceptions.Throw(new IMRUSystemException(msg), Logger);
             }
-            _allocatedEvaluators.Remove(evaluatorId);
+            _allocatedEvaluatorIds.Remove(evaluatorId);
         }
 
         /// <summary>
@@ -154,7 +155,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         /// </summary>
         internal int NumberOfAllocatedEvaluators
         {
-            get { return _allocatedEvaluators.Count; }
+            get { return _allocatedEvaluatorIds.Count; }
         }
 
         /// <summary>
@@ -164,15 +165,15 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         /// <returns></returns>
         internal bool IsAllocatedEvaluator(string evaluatorId)
         {
-            return _allocatedEvaluators.Contains(evaluatorId);
+            return _allocatedEvaluatorIds.Contains(evaluatorId);
         }
 
         /// <summary>
         /// Checks if all the expected Evaluators are allocated.
         /// </summary>
-        internal bool AreAllEvaluatorsAllocated
+        internal bool AreAllEvaluatorsAllocated()
         {
-            get { return _totalExpectedEvaluators == NumberOfAllocatedEvaluators && _masterEvaluatorId != null; }
+            return _totalExpectedEvaluators == NumberOfAllocatedEvaluators && _masterEvaluatorId != null;
         }
 
         /// <summary>
@@ -185,20 +186,20 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         {
             RemoveAllocatedEvaluator(evaluatorId);
 
-            if (_failedEvaluators.Contains(evaluatorId))
+            if (_failedEvaluatorIds.Contains(evaluatorId))
             {
                 string msg = string.Format("The failed evaluator {0} has been recorded.", evaluatorId);
                 Exceptions.Throw(new IMRUSystemException(msg), Logger);
             }
-            _failedEvaluators.Add(evaluatorId);
+            _failedEvaluatorIds.Add(evaluatorId);
         }
 
         /// <summary>
         /// Checks if the number of failed Evaluators has reached allowed maximum number of evaluator failures 
         /// </summary>
-        internal bool ReachedMaximumNumberOfEvaluatorFailures
+        internal bool ReachedMaximumNumberOfEvaluatorFailures()
         {
-            get { return _failedEvaluators.Count >= AllowedNumberOfEvaluatorFailures; }
+            return _failedEvaluatorIds.Count >= AllowedNumberOfEvaluatorFailures;
         }
 
         /// <summary>
@@ -214,11 +215,11 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         /// </summary>
         internal void ResetFailedEvaluators()
         {
-            if (IsMasterEvaluatorFailed)
+            if (IsMasterEvaluatorFailed())
             {
                 ResetMasterEvaluatorId();
             }
-            _failedEvaluators.Clear();
+            _failedEvaluatorIds.Clear();
         }
 
         /// <summary>
@@ -282,36 +283,30 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         /// Checks if the master Evaluator failed
         /// </summary>
         /// <returns></returns>
-        internal bool IsMasterEvaluatorFailed
+        internal bool IsMasterEvaluatorFailed()
         {
-            get
-            {
-                return _masterEvaluatorId != null && _failedEvaluators.Contains(_masterEvaluatorId);
-            }
+            return _masterEvaluatorId != null && _failedEvaluatorIds.Contains(_masterEvaluatorId);
         }
 
         /// <summary>
         /// Returns number of failed mapper Evaluators
         /// </summary>
         /// <returns></returns>
-        internal int NumberofFailedMappers
+        internal int NumberofFailedMappers()
         {
-            get
+            if (IsMasterEvaluatorFailed())
             {
-                if (IsMasterEvaluatorFailed)
-                {
-                    return _failedEvaluators.Count - 1;
-                }
-                return _failedEvaluators.Count;
+                return _failedEvaluatorIds.Count - 1;
             }
+            return _failedEvaluatorIds.Count;
         }
 
         /// <summary>
         /// Returns number of missing Evaluators
         /// </summary>
-        internal int NumberOfMissingEvaluators
+        internal int NumberOfMissingEvaluators()
         {
-            get { return _totalExpectedEvaluators - NumberOfAllocatedEvaluators; }
+            return _totalExpectedEvaluators - NumberOfAllocatedEvaluators;
         }
     }
 }
