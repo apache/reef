@@ -16,14 +16,14 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.examples.library;
+package org.apache.reef.examples.distributedshell;
 
 import org.apache.reef.tang.annotations.Name;
 import org.apache.reef.tang.annotations.NamedParameter;
 
-/**
- * Command line parameter: a command to run, e.g. "echo Hello REEF"
- */
-@NamedParameter(doc = "The shell command", short_name = "cmd")
-public final class Command implements Name<String> {
+/** Command line parameter: Number of evaluators to request. */
+@NamedParameter(doc = "Number of evaluators", short_name = "n", default_value = "1")
+final class NumEvaluators implements Name<Integer> {
+  /** Do not instantiate this class. */
+  private NumEvaluators() { }
 }

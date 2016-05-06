@@ -16,14 +16,14 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.examples.library;
+package org.apache.reef.examples.distributedshell;
 
 import org.apache.reef.tang.annotations.Name;
 import org.apache.reef.tang.annotations.NamedParameter;
 
-/**
- * Command line parameter: a command to run, e.g. "echo Hello REEF"
- */
-@NamedParameter(doc = "The shell command", short_name = "cmd")
-public final class Command implements Name<String> {
+/** Command line parameter: REEF runtime to use. Can be local, yarn, mesos, or hdi. */
+@NamedParameter(doc = "Runtime", short_name = "r", default_value = "local")
+final class RuntimeName implements Name<String> {
+  /** Do not instantiate this class. */
+  private RuntimeName() { }
 }
