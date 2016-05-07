@@ -20,6 +20,7 @@ package org.apache.reef.runtime.multi.client;
 
 import org.apache.commons.lang.Validate;
 import org.apache.commons.lang.StringUtils;
+import org.apache.reef.annotations.Unstable;
 import org.apache.reef.runtime.multi.utils.avro.AvroMultiRuntimeDefinition;
 import org.apache.reef.runtime.multi.utils.avro.AvroRuntimeDefinition;
 import org.apache.reef.tang.Configuration;
@@ -32,6 +33,7 @@ import java.util.Map;
 /**
  * Builder for multi runtime definition.
  */
+@Unstable
 public final class MultiRuntimeDefinitionBuilder {
   private Map<String, AvroRuntimeDefinition> runtimes = new HashMap<>();
   private String defaultRuntime;

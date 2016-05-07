@@ -19,6 +19,7 @@
 package org.apache.reef.runtime.multi.client;
 
 import org.apache.commons.lang.Validate;
+import org.apache.reef.annotations.Unstable;
 import org.apache.reef.runtime.local.client.parameters.MaxNumberOfEvaluators;
 import org.apache.reef.runtime.multi.client.parameters.DefaultRuntimeName;
 import org.apache.reef.runtime.multi.client.parameters.RuntimeNames;
@@ -35,6 +36,7 @@ import java.util.*;
 /**
  * A builder for Multi Runtime Configuration.
  */
+@Unstable
 public final class MultiRuntimeConfigurationBuilder {
   private static final Set<String> SUPPORTED_RUNTIMES = new HashSet<>(Arrays.asList(
           org.apache.reef.runtime.yarn.driver.RuntimeIdentifier.RUNTIME_NAME,
