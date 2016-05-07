@@ -19,6 +19,7 @@
 
 package org.apache.reef.bridge.client;
 
+import org.apache.reef.annotations.Unstable;
 import org.apache.reef.annotations.audience.Interop;
 import org.apache.reef.runtime.common.REEFLauncher;
 import org.apache.reef.tang.Tang;
@@ -35,6 +36,7 @@ import java.util.logging.Logger;
  * being in order for the Interop code to discover the class.
  */
 // TODO[JIRA REEF-1382]: This class does things both for client and driver need to split it
+@Unstable
 @Interop(CppFiles = "DriverLauncher.cpp")
 public final class MultiRuntimeYarnBootstrapREEFLauncher {
   private static final Logger LOG = Logger.getLogger(MultiRuntimeYarnBootstrapREEFLauncher.class.getName());
