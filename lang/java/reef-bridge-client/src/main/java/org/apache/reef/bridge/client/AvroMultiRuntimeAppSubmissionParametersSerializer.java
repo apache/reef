@@ -23,6 +23,7 @@ import org.apache.avro.io.JsonDecoder;
 import org.apache.avro.specific.SpecificDatumReader;
 import org.apache.reef.reef.bridge.client.avro.AvroMultiRuntimeAppSubmissionParameters;
 
+import javax.inject.Inject;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -32,6 +33,7 @@ import java.io.InputStream;
  * Searializer class for the AvroMultiRuntimeAppSubmissionParameters.
  */
 final class AvroMultiRuntimeAppSubmissionParametersSerializer {
+  @Inject
   private AvroMultiRuntimeAppSubmissionParametersSerializer(){
   }
 
@@ -42,7 +44,7 @@ final class AvroMultiRuntimeAppSubmissionParametersSerializer {
    * @return Avro object
    * @throws IOException
    */
-  static AvroMultiRuntimeAppSubmissionParameters fromFile(final File file) throws IOException {
+  AvroMultiRuntimeAppSubmissionParameters fromFile(final File file) throws IOException {
     try (final FileInputStream fileInputStream = new FileInputStream(file)) {
       // This is mainly a test hook.
       return fromInputStream(fileInputStream);
@@ -56,7 +58,7 @@ final class AvroMultiRuntimeAppSubmissionParametersSerializer {
    * @return Avro object
    * @throws IOException
    */
-  static AvroMultiRuntimeAppSubmissionParameters fromInputStream(final InputStream inputStream) throws IOException {
+  AvroMultiRuntimeAppSubmissionParameters fromInputStream(final InputStream inputStream) throws IOException {
     final JsonDecoder decoder = DecoderFactory.get().jsonDecoder(
             AvroMultiRuntimeAppSubmissionParameters.getClassSchema(), inputStream);
     final SpecificDatumReader<AvroMultiRuntimeAppSubmissionParameters> reader = new SpecificDatumReader<>(

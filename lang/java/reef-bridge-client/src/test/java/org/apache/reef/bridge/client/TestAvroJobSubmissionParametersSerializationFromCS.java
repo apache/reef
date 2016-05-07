@@ -197,7 +197,7 @@ public final class TestAvroJobSubmissionParametersSerializationFromCS {
    * @throws IOException
    */
   @Test
-  public void testAvroMultiruntimeParametersDeserialization() throws IOException {
+  public void testAvroMultiruntimeParametersDeserialization() throws IOException, InjectionException {
     verifyYarnMultiRuntimeJobSubmissionParams(
             createAvroYarnJobSubmissionParameters(),
             createAvroMultiruntimeAppSubmissionParameters());
@@ -208,7 +208,7 @@ public final class TestAvroJobSubmissionParametersSerializationFromCS {
    * @throws IOException
    */
   @Test
-  public void testAvroMultiruntimeYarnOnlyParametersDeserialization() throws IOException {
+  public void testAvroMultiruntimeYarnOnlyParametersDeserialization() throws IOException, InjectionException {
     verifyYarnOnlyMultiRuntimeJobSubmissionParams(
             createAvroYarnJobSubmissionParameters(),
             createAvroMultiruntimeYarnOnlyAppSubmissionParameters());
@@ -219,7 +219,7 @@ public final class TestAvroJobSubmissionParametersSerializationFromCS {
    * @throws IOException
    */
   @Test
-  public void testAvroMultiruntimeLocalOnlyParametersDeserialization() throws IOException {
+  public void testAvroMultiruntimeLocalOnlyParametersDeserialization() throws IOException, InjectionException {
     verifyLocalOnlyMultiRuntimeJobSubmissionParams(
             createAvroYarnJobSubmissionParameters(),
             createAvroMultiruntimeLocalOnlyAppSubmissionParameters());
@@ -281,31 +281,34 @@ public final class TestAvroJobSubmissionParametersSerializationFromCS {
   }
 
   private static AvroMultiRuntimeAppSubmissionParameters createAvroMultiruntimeAppSubmissionParameters()
-          throws IOException {
+          throws IOException, InjectionException {
     try (final InputStream stream =
                  new ByteArrayInputStream(
                          AVRO_YARN_MULTIRUNTIME_APP_PARAMETERS_SERIALIZED_STRING.getBytes(StandardCharsets.UTF_8))) {
-      return AvroMultiRuntimeAppSubmissionParametersSerializer.fromInputStream(stream);
+      return Tang.Factory.getTang().newInjector().getInstance(AvroMultiRuntimeAppSubmissionParametersSerializer.class)
+              .fromInputStream(stream);
     }
   }
 
   private static AvroMultiRuntimeAppSubmissionParameters createAvroMultiruntimeYarnOnlyAppSubmissionParameters()
-          throws IOException {
+          throws IOException, InjectionException {
     try (final InputStream stream =
                  new ByteArrayInputStream(
                          AVRO_YARN_MULTIRUNTIME_YARNONLY_APP_PARAMETERS_SERIALIZED_STRING.getBytes(StandardCharsets
                                  .UTF_8))) {
-      return AvroMultiRuntimeAppSubmissionParametersSerializer.fromInputStream(stream);
+      return Tang.Factory.getTang().newInjector().getInstance(AvroMultiRuntimeAppSubmissionParametersSerializer.class)
+              .fromInputStream(stream);
     }
   }
 
   private static AvroMultiRuntimeAppSubmissionParameters createAvroMultiruntimeLocalOnlyAppSubmissionParameters()
-          throws IOException {
+          throws IOException, InjectionException {
     try (final InputStream stream =
                  new ByteArrayInputStream(
                          AVRO_YARN_MULTIRUNTIME_LOCALONLY_APP_PARAMETERS_SERIALIZED_STRING.getBytes(StandardCharsets
                                  .UTF_8))) {
-      return AvroMultiRuntimeAppSubmissionParametersSerializer.fromInputStream(stream);
+      return Tang.Factory.getTang().newInjector().getInstance(AvroMultiRuntimeAppSubmissionParametersSerializer.class)
+              .fromInputStream(stream);
     }
   }
 

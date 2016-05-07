@@ -63,12 +63,20 @@ final class MultiRuntimeYarnBootstrapDriverConfigGenerator {
 
   private final REEFFileNames reefFileNames;
   private final ConfigurationSerializer configurationSerializer;
+  private final AvroMultiRuntimeAppSubmissionParametersSerializer avroMultiRuntimeAppSubmissionParametersSerializer;
+  private final AvroYarnJobSubmissionParametersSerializer avroYarnJobSubmissionParametersSerializer;
 
   @Inject
   private MultiRuntimeYarnBootstrapDriverConfigGenerator(final REEFFileNames reefFileNames,
-                                                         final ConfigurationSerializer configurationSerializer) {
+                                                         final ConfigurationSerializer configurationSerializer,
+                                                         final AvroMultiRuntimeAppSubmissionParametersSerializer
+                                                                   avroMultiRuntimeAppSubmissionParameters,
+                                                         final AvroYarnJobSubmissionParametersSerializer
+                                                                   avroYarnJobSubmissionParametersSerializer) {
     this.configurationSerializer = configurationSerializer;
     this.reefFileNames = reefFileNames;
+    this.avroYarnJobSubmissionParametersSerializer = avroYarnJobSubmissionParametersSerializer;
+    this.avroMultiRuntimeAppSubmissionParametersSerializer = avroMultiRuntimeAppSubmissionParameters;
   }
 
   /**
@@ -262,10 +270,10 @@ final class MultiRuntimeYarnBootstrapDriverConfigGenerator {
     final File bootstrapAppArgsFile = new File(bootstrapAppArgsLocation);
 
     final AvroYarnJobSubmissionParameters yarnBootstrapJobArgs =
-            AvroYarnJobSubmissionParametersSerializer.fromFile(bootstrapJobArgsFile);
+            this.avroYarnJobSubmissionParametersSerializer.fromFile(bootstrapJobArgsFile);
 
     final AvroMultiRuntimeAppSubmissionParameters multiruntimeBootstrapAppArgs =
-            AvroMultiRuntimeAppSubmissionParametersSerializer.fromFile(bootstrapAppArgsFile);
+            this.avroMultiRuntimeAppSubmissionParametersSerializer.fromFile(bootstrapAppArgsFile);
 
     final String driverConfigPath = reefFileNames.getDriverConfigurationPath();
 
