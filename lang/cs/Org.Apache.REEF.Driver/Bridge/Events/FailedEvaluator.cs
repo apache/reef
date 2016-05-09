@@ -47,6 +47,7 @@ namespace Org.Apache.REEF.Driver.Bridge.Events
             var errorBytes = FailedEvaluatorClr2Java.GetErrorBytes();
             if (errorBytes != null)
             {
+                // When the Exception originates from the C# side.
                 var formatter = new BinaryFormatter();
                 using (var memStream = new MemoryStream(errorBytes))
                 {
@@ -56,6 +57,7 @@ namespace Org.Apache.REEF.Driver.Bridge.Events
             }
             else
             {
+                // When the Exception originates from Java.
                 _evaluatorException = new EvaluatorException(
                     _id, FailedEvaluatorClr2Java.GetJavaCause(), FailedEvaluatorClr2Java.GetJavaStackTrace());
             }

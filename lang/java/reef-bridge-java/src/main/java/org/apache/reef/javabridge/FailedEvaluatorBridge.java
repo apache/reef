@@ -79,6 +79,7 @@ public final class FailedEvaluatorBridge extends NativeBridge implements Identif
       return ((NonSerializableException)jfailedEvaluator.getEvaluatorException().getCause()).getError();
     }
 
+    // If not an instance of NonSerializableException, that means that the Exception is from Java.
     return null;
   }
 
