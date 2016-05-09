@@ -62,7 +62,11 @@ public final class EvaluatorResourceManagerErrorHandler
     if (evaluatorManager.isPresent()) {
       evaluatorManager.get().onEvaluatorException(evaluatorException);
     } else {
-      LOG.log(Level.WARNING, "Unknown evaluator runtime error: " + error);
+      if (this.evaluators.wasClosed(evaluatorId)) {
+        LOG.log(Level.WARNING, "Evaluator [" + evaluatorId + "] has raised exception after it was closed.");
+      } else {
+        LOG.log(Level.WARNING, "Unknown evaluator runtime error: " + error);
+      }
     }
   }
 }

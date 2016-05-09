@@ -71,6 +71,11 @@ public final class EvaluatorHeartbeatHandler
         return;
       }
 
+      if (this.evaluators.wasClosed(evaluatorId)) {
+        LOG.log(Level.WARNING, "Evaluator [" + evaluatorId + "] has reported back to the driver after it was closed.");
+        return;
+      }
+
       if (driverRestartManager.isRestarting() &&
           driverRestartManager.getEvaluatorRestartState(evaluatorId) == EvaluatorRestartState.EXPECTED) {
 
