@@ -32,21 +32,33 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator
         private static readonly Logger Logger = Logger.GetLogger(typeof(EvaluatorExitLogger));
 
         private readonly object _lock = new object();
-        private bool _exitLogged = false;
+        private bool? _successfulExit;
 
         [Inject]
         private EvaluatorExitLogger()
         {
         }
 
-        public void LogExit(bool successfulExit)
+        /// <summary>
+        /// Logs an Evaluator message based on successful/unsuccessful exit.
+        /// </summary>
+        internal void LogExit(bool successfulExit)
         {
             lock (_lock)
             {
-                if (_exitLogged)
+                if (_successfulExit != null)
                 {
+                    if (_successfulExit != successfulExit)
+                    {
+                        Logger.Log(
+                            Level.Warning, 
+                            "Evaluator exit has been logged multiple times with conflicting exit status.");
+                    }
+
                     return;
                 }
+
+                _successfulExit = successfulExit;
 
                 if (successfulExit)
                 {
@@ -56,8 +68,6 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator
                 {
                     Logger.Log(Level.Error, Common.Constants.EvaluatorExitFailureLog);
                 }
-
-                _exitLogged = true;
             }
         }
     }

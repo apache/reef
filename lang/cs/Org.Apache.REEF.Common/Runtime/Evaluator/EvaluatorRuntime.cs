@@ -204,6 +204,7 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator
             }
             else
             {
+                var exceptionOccurredOnDispose = false;
                 try
                 {
                     _contextManager.Dispose();
@@ -211,9 +212,16 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator
                 }
                 catch (Exception e)
                 {
-                    _evaluatorExitLogger.LogExit(false);
+                    exceptionOccurredOnDispose = true;
                     Utilities.Diagnostics.Exceptions.CaughtAndThrow(
-                        new InvalidOperationException("Cannot stop evaluator properly", e), Level.Error, "Exception during shut down.", Logger);
+                        new InvalidOperationException("Cannot stop evaluator properly", e),
+                        Level.Error,
+                        "Exception during shut down.",
+                        Logger);
+                }
+                finally
+                {
+                    _evaluatorExitLogger.LogExit(exceptionOccurredOnDispose);
                 }
             }
         }
