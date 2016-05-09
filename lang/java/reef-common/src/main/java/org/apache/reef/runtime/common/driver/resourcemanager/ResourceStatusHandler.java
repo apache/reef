@@ -50,8 +50,8 @@ public final class ResourceStatusHandler implements EventHandler<ResourceStatusE
   }
 
   /**
-   * This resource status message comes from the ResourceManager layer; telling me what it thinks.
-   * about the state of the resource executing an Evaluator; This method simply passes the message
+   * This resource status message comes from the ResourceManager layer, telling me what it thinks
+   * about the state of the resource executing an Evaluator. This method simply passes the message
    * off to the referenced EvaluatorManager
    *
    * @param resourceStatusEvent resource status message from the ResourceManager
@@ -61,7 +61,15 @@ public final class ResourceStatusHandler implements EventHandler<ResourceStatusE
     final Optional<EvaluatorManager> evaluatorManager = this.evaluators.get(resourceStatusEvent.getIdentifier());
     if (evaluatorManager.isPresent()) {
       evaluatorManager.get().onResourceStatusMessage(resourceStatusEvent);
+
+      if (evaluatorManager.get().isClosed()) {
+        this.evaluators.removeClosedEvaluator(evaluatorManager.get());
+      }
     } else {
+      if (this.evaluators.wasClosed(evaluatorManager.get().getId())) {
+        return;
+      }
+
       if (driverRestartManager.get().getEvaluatorRestartState(resourceStatusEvent.getIdentifier())
             .isFailedOrExpired()) {
         final EvaluatorManager previousEvaluatorManager = this.evaluatorManagerFactory

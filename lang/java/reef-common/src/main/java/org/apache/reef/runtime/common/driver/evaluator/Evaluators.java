@@ -25,10 +25,7 @@ import org.apache.reef.util.Optional;
 import org.apache.reef.util.SingletonAsserter;
 
 import javax.inject.Inject;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -47,6 +44,10 @@ public final class Evaluators implements AutoCloseable {
    */
   private final Map<String, EvaluatorManager> evaluators = new HashMap<>();
 
+  /**
+   * A map between evaluatorId and evaluator status for failed and returned evaluators.
+   */
+  private final Set<String> closedEvaluators = new HashSet<>();
 
   @Inject
   Evaluators() {
@@ -95,6 +96,14 @@ public final class Evaluators implements AutoCloseable {
   }
 
   /**
+   * @param evaluatorId
+   * @return true if evaluator with this id has already been closed.
+   */
+  public synchronized boolean wasClosed(final String evaluatorId) {
+    return this.closedEvaluators.contains(evaluatorId);
+  }
+
+  /**
    * Create new EvaluatorManager and add it to the collection.
    * <p>
    * FIXME: This method is a temporary fix for the race condition
@@ -118,11 +127,35 @@ public final class Evaluators implements AutoCloseable {
    */
   public synchronized void put(final EvaluatorManager evaluatorManager) {
     final String evaluatorId = evaluatorManager.getId();
+    if (this.closedEvaluators.contains(evaluatorId)) {
+      throw new IllegalArgumentException(
+        "Trying to re-add an Evaluator that has already been closed: " + evaluatorId);
+    }
     final EvaluatorManager prev = this.evaluators.put(evaluatorId, evaluatorManager);
     LOG.log(Level.FINEST, "Adding: {0} previous: {1}", new Object[]{evaluatorId, prev});
     if (prev != null) {
       throw new IllegalArgumentException(
-          "Trying to re-add an Evaluator that is already known: " + evaluatorId);
+        "Trying to re-add an Evaluator that is already known: " + evaluatorId);
+    }
+  }
+
+  /**
+   * Moves evaluator from map of active evaluators to set of closed evaluators.
+   */
+  public synchronized void removeClosedEvaluator(final EvaluatorManager evaluatorManager) {
+    final String evaluatorId = evaluatorManager.getId();
+    if (!evaluatorManager.isClosed()) {
+      throw new IllegalArgumentException("Trying to remove evaluator " + evaluatorId + " which is not closed yet.");
+    }
+    if (!this.evaluators.containsKey(evaluatorId) && !this.closedEvaluators.contains(evaluatorId)) {
+      throw new IllegalArgumentException("Trying to remove unknown evaluator " + evaluatorId + ".");
+    }
+    if (!this.evaluators.containsKey(evaluatorId)) {
+      LOG.log(Level.FINE, "Trying to remove closed evaluator " + evaluatorId + " which has already been removed.");
+    } else {
+      LOG.log(Level.FINE, "Removing closed evaluator " + evaluatorId + ".");
+      this.evaluators.remove(evaluatorId);
+      this.closedEvaluators.add(evaluatorId);
     }
   }
 }
