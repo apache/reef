@@ -41,7 +41,9 @@ namespace Org.Apache.REEF.IMRU.Tests
         private static ActiveContextManager InitializeActiveContextManager()
         {
             const int totalEvaluators = 5;
-            var activeContextManager = new ActiveContextManager(totalEvaluators, new TestContextObserver(totalEvaluators));
+            var activeContextManager = new ActiveContextManager(totalEvaluators);
+            activeContextManager.Subscribe(new TestContextObserver(totalEvaluators));
+
             for (int i = 0; i < totalEvaluators; i++)
             {
                 activeContextManager.Add(CreateMockActiveContext(i));
@@ -73,7 +75,8 @@ namespace Org.Apache.REEF.IMRU.Tests
         public void TestInvalidAddRemoveCases()
         {
             const int totalEvaluators = 3;
-            var activeContextManager = new ActiveContextManager(totalEvaluators, new TestContextObserver(totalEvaluators));
+            var activeContextManager = new ActiveContextManager(totalEvaluators);
+            activeContextManager.Subscribe(new TestContextObserver(totalEvaluators));
             activeContextManager.Add(CreateMockActiveContext(1));
 
             Action add = () => activeContextManager.Add(CreateMockActiveContext(1));
@@ -175,7 +178,7 @@ namespace Org.Apache.REEF.IMRU.Tests
         }
 
         /// <summary>
-        /// A Context observer for test
+        /// A Context Manager observer for test
         /// </summary>
         private sealed class TestContextObserver : IObserver<ActiveContextManager>
         {

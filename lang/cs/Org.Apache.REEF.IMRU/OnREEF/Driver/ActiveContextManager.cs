@@ -32,12 +32,12 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
     /// Manages active contexts for the driver
     /// </summary>
     [NotThreadSafe]
-    internal sealed class ActiveContextManager
+    internal sealed class ActiveContextManager : IDisposable
     {
         private static readonly Logger Logger = Logger.GetLogger(typeof(ActiveContextManager));
         private readonly IDictionary<string, IActiveContext> _activeContexts = new Dictionary<string, IActiveContext>();
         private readonly int _totalExpectedContexts;
-        private readonly IObserver<ActiveContextManager> _activeContextObserver;
+        private IObserver<ActiveContextManager> _activeContextObserver;
 
         /// <summary>
         /// Constructor of ActiveContextManager
@@ -45,11 +45,9 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         /// activeContextObserver will be notified when all active contexts are received. 
         /// </summary>
         /// <param name="totalContexts"></param>
-        /// <param name="activeContextObserver"></param>
-        internal ActiveContextManager(int totalContexts, IObserver<ActiveContextManager> activeContextObserver)
+        internal ActiveContextManager(int totalContexts)
         {
             _totalExpectedContexts = totalContexts;
-            _activeContextObserver = activeContextObserver;
         }
 
         /// <summary>
@@ -66,6 +64,21 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         internal int NumberOfMissingContexts
         {
             get { return _totalExpectedContexts - NumberOfActiveContexts; }
+        }
+
+        /// <summary>
+        /// Subscribe an observer of ActiveContextManager
+        /// </summary>
+        /// <param name="activeContextObserver"></param>
+        /// <returns></returns>
+        public IDisposable Subscribe(IObserver<ActiveContextManager> activeContextObserver)
+        {
+            if (_activeContextObserver != null)
+            {
+                return null;
+            }
+            _activeContextObserver = activeContextObserver;
+            return this;
         }
 
         /// <summary>
@@ -157,6 +170,14 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
                     Exceptions.Throw(new IMRUSystemException(msg), Logger);
                 }
             }
+        }
+
+        /// <summary>
+        /// sets _activeContextObserver to null 
+        /// </summary>
+        public void Dispose()
+        {
+            _activeContextObserver = null;
         }
     }
 }
