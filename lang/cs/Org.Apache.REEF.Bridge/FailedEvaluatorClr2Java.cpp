@@ -76,14 +76,6 @@ namespace Org {
 						  return ManagedStringFromJavaString(env, _jstringId);
 					  }
 
-                      /*
-                      EvaluatorException^ FailedEvaluatorClr2Java::GetException() {
-                          String^ cause = this->GetCause();
-                          String^ stackTrace = this->GetStackTrace();
-                          return gcnew EvaluatorException(this->GetId(), cause, stackTrace);
-                      }
-                      */
-
                       array<IFailedContextClr2Java^>^ FailedEvaluatorClr2Java::GetFailedContextsClr2Java() {
                           JNIEnv *env = RetrieveEnv(_jvm);
                           jclass jclassFailedEvaluator = env->GetObjectClass(_jobjectFailedEvaluator);

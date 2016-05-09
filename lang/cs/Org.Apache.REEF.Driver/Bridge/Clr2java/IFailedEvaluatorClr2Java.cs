@@ -22,18 +22,39 @@ namespace Org.Apache.REEF.Driver.Bridge.Clr2java
     [Private, Interop("FailedEvaluatorClr2Java.cpp", "Clr2JavaImpl.h")]
     public interface IFailedEvaluatorClr2Java
     {
+        /// <summary>
+        /// Gets the Evaluator requestor.
+        /// </summary>
         IEvaluatorRequestorClr2Java GetEvaluatorRequestor();
 
+        /// <summary>
+        /// Gets the ID of the failed Evaluator.
+        /// </summary>
         string GetId();
 
+        /// <summary>
+        /// Gets the failed Contexts on the Evaluator.
+        /// </summary>
         IFailedContextClr2Java[] GetFailedContextsClr2Java();
 
+        /// <summary>
+        /// Gets the failed Task on the Evaluator.
+        /// </summary>
         IFailedTaskClr2Java GetFailedTaskClr2Java();
 
+        /// <summary>
+        /// Gets the Serialized Exception.
+        /// </summary>
         byte[] GetErrorBytes();
 
+        /// <summary>
+        /// Gets the Java Exception message.
+        /// </summary>
         string GetJavaCause();
 
+        /// <summary>
+        /// Gets the Java stack trace.
+        /// </summary>
         string GetJavaStackTrace();
     }
 }
