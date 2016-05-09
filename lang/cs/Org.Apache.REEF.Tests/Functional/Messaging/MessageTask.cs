@@ -19,7 +19,6 @@ using System;
 using System.Threading;
 using Org.Apache.REEF.Common.Tasks;
 using Org.Apache.REEF.Common.Tasks.Events;
-using Org.Apache.REEF.Examples.Tasks.HelloTask;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Utilities;
 using Org.Apache.REEF.Utilities.Diagnostics;
@@ -37,9 +36,13 @@ namespace Org.Apache.REEF.Tests.Functional.Messaging
 
         public const string MessageSend = "MESSAGE:TASK";
 
+        // TODO[JIRA REEF-1385]: Check the MessageTaskSourceID on the Driver side.
+        public const string MessageTaskSourceId = "MessageTaskSourceId";
+
         public const string MessageSentToDriverLog = "Message sent to Driver from Task.";
         public const string MessageReceivedFromDriverLog = "Message received from Driver in Task.";
 
+        private readonly ManualResetEventSlim _messageFromDriverEvent = new ManualResetEventSlim(false);
         private readonly MessageManager _messageManager;
 
         [Inject]
@@ -53,7 +56,7 @@ namespace Org.Apache.REEF.Tests.Functional.Messaging
             get
             {
                 var defaultTaskMessage = TaskMessage.From(
-                    "messagingSourceId",
+                    MessageTaskSourceId,
                     ByteUtilities.StringToByteArrays(MessageSend));
                     
                 Logger.Log(Level.Info, MessageSentToDriverLog);
@@ -69,28 +72,40 @@ namespace Org.Apache.REEF.Tests.Functional.Messaging
 
         public byte[] Call(byte[] memento)
         {
-            while (!(_messageManager.IsTaskMessageSent && _messageManager.IsContextMessageSent))
+            WaitHandle.WaitAll(new[]
             {
-                // Do not exit until task and context messages are both sent.
-                Thread.Sleep(5000);
-            }
+                _messageManager.IsContextMessageSentEvent,
+                _messageManager.IsTaskMessageSentEvent,
+                _messageFromDriverEvent.WaitHandle
+            });
 
             return null;
         }
 
         public void Handle(IDriverMessage value)
         {
-            if (!value.Message.IsPresent())
+            try
             {
-                throw new Exception("Expecting message from Driver but got missing message.");
+                if (!value.Message.IsPresent())
+                {
+                    throw new Exception("Expecting message from Driver but got missing message.");
+                }
+
+                var message = ByteUtilities.ByteArraysToString(value.Message.Value);
+                if (!message.Equals(MessageDriver.Message))
+                {
+                    Exceptions.Throw(new Exception("Unexpected driver message: " + message),
+                        "Unexpected driver message received: " + message,
+                        Logger);
+                }
+                else
+                {
+                    Logger.Log(Level.Info, MessageReceivedFromDriverLog);
+                }
             }
-
-            Logger.Log(Level.Info, MessageReceivedFromDriverLog);
-
-            var message = ByteUtilities.ByteArraysToString(value.Message.Value);
-            if (!message.Equals(MessageDriver.Message))
+            finally
             {
-                Exceptions.Throw(new Exception("Unexpected driver message: " + message), "Unexpected driver message received: " + message, Logger);
+                _messageFromDriverEvent.Set();
             }
         }
 

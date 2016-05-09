@@ -78,13 +78,18 @@ namespace Org.Apache.REEF.Tests.Functional.Messaging
 
         public void OnNext(ITaskMessage taskMessage)
         {
+            // TODO[JIRA REEF-1385]: Check the MessageTaskSourceID.
             var msgReceived = ByteUtilities.ByteArraysToString(taskMessage.Message);
-
-            Logger.Log(Level.Info, DriverReceivedTaskMessageLog);
 
             if (!msgReceived.Equals(MessageTask.MessageSend))
             {
-                Exceptions.Throw(new Exception("Unexpected message: " + msgReceived), "Unexpected task message received: " + msgReceived, Logger);
+                Exceptions.Throw(new Exception("Unexpected message: " + msgReceived),
+                    "Unexpected task message received: " + msgReceived,
+                    Logger);
+            }
+            else
+            {
+                Logger.Log(Level.Info, DriverReceivedTaskMessageLog);
             }
         }
 
@@ -92,11 +97,21 @@ namespace Org.Apache.REEF.Tests.Functional.Messaging
         {
             var msgReceived = ByteUtilities.ByteArraysToString(contextMessage.Message);
 
-            Logger.Log(Level.Info, DriverReceivedContextMessageLog);
-
             if (!msgReceived.Equals(MessageContext.MessageSend))
             {
-                Exceptions.Throw(new Exception("Unexpected message: " + msgReceived), "Unexpected task message received: " + msgReceived, Logger);
+                Exceptions.Throw(new Exception("Expected message: " + MessageContext.MessageSend),
+                    "Unxpected context message received: " + msgReceived,
+                    Logger);
+            }
+            else if (!contextMessage.MessageSourceId.Equals(MessageContext.MessageSourceID))
+            {
+                Exceptions.Throw(new Exception("Expected Context MessageSourceID: " + MessageContext.MessageSourceID),
+                    "Unexpected context MessageSourceID received: " + contextMessage.MessageSourceId,
+                    Logger);
+            }
+            else
+            {
+                Logger.Log(Level.Info, DriverReceivedContextMessageLog);
             }
         }
 

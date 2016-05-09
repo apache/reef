@@ -15,6 +15,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
+using System.Threading;
 using Org.Apache.REEF.Tang.Annotations;
 
 namespace Org.Apache.REEF.Tests.Functional.Messaging
@@ -25,9 +26,8 @@ namespace Org.Apache.REEF.Tests.Functional.Messaging
     /// </summary>
     public sealed class MessageManager
     {
-        private readonly object _lock = new object();
-        private bool _isContextMessageSent = false;
-        private bool _isTaskMessageSent = false;
+        private readonly ManualResetEventSlim _isContextMessageSentEvent = new ManualResetEventSlim(false);
+        private readonly ManualResetEventSlim _isTaskMessageSentEvent = new ManualResetEventSlim(false);
 
         [Inject]
         private MessageManager()
@@ -37,29 +37,17 @@ namespace Org.Apache.REEF.Tests.Functional.Messaging
         /// <summary>
         /// Returns true if context message has been sent.
         /// </summary>
-        public bool IsContextMessageSent
+        public WaitHandle IsContextMessageSentEvent
         {
-            get
-            {
-                lock (_lock)
-                {
-                    return _isContextMessageSent;
-                }
-            }
+            get { return _isContextMessageSentEvent.WaitHandle; }
         }
 
         /// <summary>
         /// Returns true if task message has been sent.
         /// </summary>
-        public bool IsTaskMessageSent
+        public WaitHandle IsTaskMessageSentEvent
         {
-            get
-            {
-                lock (_lock)
-                {
-                    return _isTaskMessageSent;
-                }
-            }
+            get { return _isTaskMessageSentEvent.WaitHandle; }
         }
 
         /// <summary>
@@ -67,10 +55,7 @@ namespace Org.Apache.REEF.Tests.Functional.Messaging
         /// </summary>
         public void OnTaskMessageSent()
         {
-            lock (_lock)
-            {
-                _isTaskMessageSent = true;
-            }
+            _isTaskMessageSentEvent.Set();
         }
 
         /// <summary>
@@ -78,10 +63,7 @@ namespace Org.Apache.REEF.Tests.Functional.Messaging
         /// </summary>
         public void OnContextMessageSent()
         {
-            lock (_lock)
-            {
-                _isContextMessageSent = true;
-            }
+            _isContextMessageSentEvent.Set();
         }
     }
 }

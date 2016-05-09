@@ -34,6 +34,8 @@ namespace Org.Apache.REEF.Tests.Functional.Messaging
 
         public const string MessageSend = "MESSAGE:CONTEXT";
 
+        public const string MessageSourceID = "ContextMessageSourceID";
+
         public const string MessageSentToDriverLog = "Message sent to Driver from Context.";
         public const string MessageReceivedFromDriverLog = "Message received from Driver in Context.";
 
@@ -53,21 +55,24 @@ namespace Org.Apache.REEF.Tests.Functional.Messaging
                 _messageManager.OnContextMessageSent();
 
                 return Optional<ContextMessage>.Of(
-                    ContextMessage.From("Context", ByteUtilities.StringToByteArrays(MessageSend)));
+                    ContextMessage.From(MessageSourceID, ByteUtilities.StringToByteArrays(MessageSend)));
             }
         }
 
         public void OnNext(byte[] messageBytes)
         {
             var message = ByteUtilities.ByteArraysToString(messageBytes);
-            Logger.Log(Level.Info, MessageReceivedFromDriverLog);
 
             if (!message.Equals(MessageDriver.Message))
             {
                 Exceptions.Throw(
-                    new Exception("Unexpected driver message: " + message), 
+                    new Exception("Unexpected driver message: " + message),
                     "Unexpected driver message received: " + message,
                     Logger);
+            }
+            else
+            {
+                Logger.Log(Level.Info, MessageReceivedFromDriverLog);
             }
         }
 
