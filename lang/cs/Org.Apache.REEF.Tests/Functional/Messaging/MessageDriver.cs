@@ -64,13 +64,13 @@ namespace Org.Apache.REEF.Tests.Functional.Messaging
             const string contextId = "ContextID";
 
             var serviceConfiguration = ServiceConfiguration.ConfigurationModule
-                .Set(ServiceConfiguration.Services, GenericType<MessageManager>.Class)
+                .Set(ServiceConfiguration.Services, GenericType<TestMessageEventManager>.Class)
                 .Build();
 
             var contextConfiguration = ContextConfiguration.ConfigurationModule
                 .Set(ContextConfiguration.Identifier, contextId)
-                .Set(ContextConfiguration.OnSendMessage, GenericType<MessageContext>.Class)
-                .Set(ContextConfiguration.OnMessage, GenericType<MessageContext>.Class)
+                .Set(ContextConfiguration.OnSendMessage, GenericType<TestContextMessageSourceAndHandler>.Class)
+                .Set(ContextConfiguration.OnMessage, GenericType<TestContextMessageSourceAndHandler>.Class)
                 .Build();
 
             eval.SubmitContextAndService(contextConfiguration, serviceConfiguration);
@@ -97,15 +97,15 @@ namespace Org.Apache.REEF.Tests.Functional.Messaging
         {
             var msgReceived = ByteUtilities.ByteArraysToString(contextMessage.Message);
 
-            if (!msgReceived.Equals(MessageContext.MessageSend))
+            if (!msgReceived.Equals(TestContextMessageSourceAndHandler.MessageSend))
             {
-                Exceptions.Throw(new Exception("Expected message: " + MessageContext.MessageSend),
+                Exceptions.Throw(new Exception("Expected message: " + TestContextMessageSourceAndHandler.MessageSend),
                     "Unxpected context message received: " + msgReceived,
                     Logger);
             }
-            else if (!contextMessage.MessageSourceId.Equals(MessageContext.MessageSourceID))
+            else if (!contextMessage.MessageSourceId.Equals(TestContextMessageSourceAndHandler.MessageSourceID))
             {
-                Exceptions.Throw(new Exception("Expected Context MessageSourceID: " + MessageContext.MessageSourceID),
+                Exceptions.Throw(new Exception("Expected Context MessageSourceID: " + TestContextMessageSourceAndHandler.MessageSourceID),
                     "Unexpected context MessageSourceID received: " + contextMessage.MessageSourceId,
                     Logger);
             }

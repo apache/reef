@@ -28,9 +28,9 @@ namespace Org.Apache.REEF.Tests.Functional.Messaging
     /// A Context event handler class that generates context messages for the Driver 
     /// and receives context messages from the Driver for testing.
     /// </summary>
-    public sealed class MessageContext : IContextMessageHandler, IContextMessageSource
+    public sealed class TestContextMessageSourceAndHandler : IContextMessageHandler, IContextMessageSource
     {
-        private static readonly Logger Logger = Logger.GetLogger(typeof(MessageContext));
+        private static readonly Logger Logger = Logger.GetLogger(typeof(TestContextMessageSourceAndHandler));
 
         public const string MessageSend = "MESSAGE:CONTEXT";
 
@@ -39,10 +39,10 @@ namespace Org.Apache.REEF.Tests.Functional.Messaging
         public const string MessageSentToDriverLog = "Message sent to Driver from Context.";
         public const string MessageReceivedFromDriverLog = "Message received from Driver in Context.";
 
-        private readonly MessageManager _messageManager;
+        private readonly TestMessageEventManager _messageManager;
 
         [Inject]
-        private MessageContext(MessageManager messageManager)
+        private TestContextMessageSourceAndHandler(TestMessageEventManager messageManager)
         {
             _messageManager = messageManager;
         }

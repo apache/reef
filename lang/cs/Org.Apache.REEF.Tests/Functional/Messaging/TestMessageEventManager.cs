@@ -24,13 +24,13 @@ namespace Org.Apache.REEF.Tests.Functional.Messaging
     /// A test helper class that keeps track of whether context/task messages 
     /// have been sent.
     /// </summary>
-    public sealed class MessageManager
+    public sealed class TestMessageEventManager
     {
         private readonly ManualResetEventSlim _isContextMessageSentEvent = new ManualResetEventSlim(false);
         private readonly ManualResetEventSlim _isTaskMessageSentEvent = new ManualResetEventSlim(false);
 
         [Inject]
-        private MessageManager()
+        private TestMessageEventManager()
         {
         }
 

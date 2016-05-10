@@ -43,10 +43,10 @@ namespace Org.Apache.REEF.Tests.Functional.Messaging
         public const string MessageReceivedFromDriverLog = "Message received from Driver in Task.";
 
         private readonly ManualResetEventSlim _messageFromDriverEvent = new ManualResetEventSlim(false);
-        private readonly MessageManager _messageManager;
+        private readonly TestMessageEventManager _messageManager;
 
         [Inject]
-        private MessageTask(MessageManager messageManager)
+        private MessageTask(TestMessageEventManager messageManager)
         {
             _messageManager = messageManager;
         }

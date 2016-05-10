@@ -16,7 +16,6 @@
 // under the License.
 
 using System.Collections.Generic;
-using System.Security.Policy;
 using Org.Apache.REEF.Driver;
 using Org.Apache.REEF.Driver.Defaults;
 using Org.Apache.REEF.Tang.Interface;
@@ -59,8 +58,8 @@ namespace Org.Apache.REEF.Tests.Functional.Messaging
             {
                 MessageTask.MessageReceivedFromDriverLog,
                 MessageTask.MessageSentToDriverLog,
-                MessageContext.MessageReceivedFromDriverLog,
-                MessageContext.MessageSentToDriverLog
+                TestContextMessageSourceAndHandler.MessageReceivedFromDriverLog,
+                TestContextMessageSourceAndHandler.MessageSentToDriverLog
             };
 
             ValidateMessageSuccessfullyLogged(expectedEvaluatorLogs, "Node-*", EvaluatorStdout, testFolder, -1);

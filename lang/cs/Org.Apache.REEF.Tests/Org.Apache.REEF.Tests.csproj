@@ -88,8 +88,8 @@ under the License.
     <Compile Include="Functional\FaultTolerant\TestResubmitTask.cs" />
     <Compile Include="Functional\IMRU\IMRUBroadcastReduceTest.cs" />
     <Compile Include="Functional\IMRU\IMRUMapperCountTest.cs" />
-    <Compile Include="Functional\Messaging\MessageContext.cs" />
-    <Compile Include="Functional\Messaging\MessageManager.cs" />
+    <Compile Include="Functional\Messaging\TestContextMessageSourceAndHandler.cs" />
+    <Compile Include="Functional\Messaging\TestMessageEventManager.cs" />
     <Compile Include="Functional\RuntimeName\EvaluatorRequestingDriverSpecifyingDefaultRuntimeName.cs" />
     <Compile Include="Functional\RuntimeName\EvaluatorRequestingDriverSpecifyingInvalidRuntimeName.cs" />
     <Compile Include="Functional\RuntimeName\EvaluatorRequestingDriverSpecifyingRuntimeName.cs" />
