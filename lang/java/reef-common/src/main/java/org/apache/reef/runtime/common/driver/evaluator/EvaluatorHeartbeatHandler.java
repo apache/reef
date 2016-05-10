@@ -72,7 +72,7 @@ public final class EvaluatorHeartbeatHandler
       }
 
       if (this.evaluators.wasClosed(evaluatorId)) {
-        LOG.log(Level.FINE, "Evaluator [" + evaluatorId + "] has reported back to the driver after it was closed.");
+        LOG.log(Level.WARNING, "Evaluator [" + evaluatorId + "] has reported back to the driver after it was closed.");
         return;
       }
 

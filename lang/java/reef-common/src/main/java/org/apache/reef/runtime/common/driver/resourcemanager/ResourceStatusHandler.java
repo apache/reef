@@ -28,6 +28,8 @@ import org.apache.reef.util.Optional;
 import org.apache.reef.wake.EventHandler;
 
 import javax.inject.Inject;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * A ResourceStatusProto message comes from the ResourceManager layer to indicate what it thinks
@@ -35,6 +37,7 @@ import javax.inject.Inject;
  */
 @Private
 public final class ResourceStatusHandler implements EventHandler<ResourceStatusEvent> {
+  private static final Logger LOG = Logger.getLogger(Evaluators.class.getName());
 
   private final Evaluators evaluators;
   private final EvaluatorManagerFactory evaluatorManagerFactory;
@@ -66,8 +69,9 @@ public final class ResourceStatusHandler implements EventHandler<ResourceStatusE
         this.evaluators.removeClosedEvaluator(evaluatorManager.get());
       }
     } else {
-      if (this.evaluators.wasClosed(evaluatorManager.get().getId())) {
-        return;
+      if (this.evaluators.wasClosed(resourceStatusEvent.getIdentifier())) {
+        LOG.log(Level.WARNING, "Unexpected resource status from closed evaluator " +
+            resourceStatusEvent.getIdentifier() + " with state " + resourceStatusEvent.getState());
       }
 
       if (driverRestartManager.get().getEvaluatorRestartState(resourceStatusEvent.getIdentifier())

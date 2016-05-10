@@ -23,6 +23,7 @@ import org.apache.reef.annotations.audience.Private;
 import org.apache.reef.runtime.common.driver.resourcemanager.ResourceAllocationEvent;
 import org.apache.reef.util.Optional;
 import org.apache.reef.util.SingletonAsserter;
+import org.apache.reef.tang.util.MonotonicSet;
 
 import javax.inject.Inject;
 import java.util.*;
@@ -45,9 +46,9 @@ public final class Evaluators implements AutoCloseable {
   private final Map<String, EvaluatorManager> evaluators = new HashMap<>();
 
   /**
-   * A map between evaluatorId and evaluator status for failed and returned evaluators.
+   * A set of evaluatorIds for "closed" (failed and returned) evaluators.
    */
-  private final Set<String> closedEvaluators = new HashSet<>();
+  private final MonotonicSet<String> closedEvaluatorIds = new MonotonicSet<>();
 
   @Inject
   Evaluators() {
@@ -100,7 +101,7 @@ public final class Evaluators implements AutoCloseable {
    * @return true if evaluator with this id has already been closed.
    */
   public synchronized boolean wasClosed(final String evaluatorId) {
-    return this.closedEvaluators.contains(evaluatorId);
+    return this.closedEvaluatorIds.contains(evaluatorId);
   }
 
   /**
@@ -127,7 +128,7 @@ public final class Evaluators implements AutoCloseable {
    */
   public synchronized void put(final EvaluatorManager evaluatorManager) {
     final String evaluatorId = evaluatorManager.getId();
-    if (this.closedEvaluators.contains(evaluatorId)) {
+    if (this.wasClosed(evaluatorId)) {
       throw new IllegalArgumentException(
         "Trying to re-add an Evaluator that has already been closed: " + evaluatorId);
     }
@@ -147,15 +148,15 @@ public final class Evaluators implements AutoCloseable {
     if (!evaluatorManager.isClosed()) {
       throw new IllegalArgumentException("Trying to remove evaluator " + evaluatorId + " which is not closed yet.");
     }
-    if (!this.evaluators.containsKey(evaluatorId) && !this.closedEvaluators.contains(evaluatorId)) {
+    if (!this.evaluators.containsKey(evaluatorId) && !this.closedEvaluatorIds.contains(evaluatorId)) {
       throw new IllegalArgumentException("Trying to remove unknown evaluator " + evaluatorId + ".");
     }
-    if (!this.evaluators.containsKey(evaluatorId)) {
+    if (!this.evaluators.containsKey(evaluatorId) && this.closedEvaluatorIds.contains(evaluatorId)) {
       LOG.log(Level.FINE, "Trying to remove closed evaluator " + evaluatorId + " which has already been removed.");
     } else {
       LOG.log(Level.FINE, "Removing closed evaluator " + evaluatorId + ".");
       this.evaluators.remove(evaluatorId);
-      this.closedEvaluators.add(evaluatorId);
+      this.closedEvaluatorIds.add(evaluatorId);
     }
   }
 }

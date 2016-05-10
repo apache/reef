@@ -63,7 +63,7 @@ public final class EvaluatorResourceManagerErrorHandler
       evaluatorManager.get().onEvaluatorException(evaluatorException);
     } else {
       if (this.evaluators.wasClosed(evaluatorId)) {
-        LOG.log(Level.FINE, "Evaluator [" + evaluatorId + "] has raised exception after it was closed.");
+        LOG.log(Level.WARNING, "Evaluator [" + evaluatorId + "] has raised exception after it was closed.");
       } else {
         LOG.log(Level.WARNING, "Unknown evaluator runtime error: " + error);
       }
