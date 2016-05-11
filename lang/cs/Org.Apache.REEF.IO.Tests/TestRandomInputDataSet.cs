@@ -17,6 +17,7 @@
 
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using Org.Apache.REEF.IO.PartitionedData;
 using Org.Apache.REEF.IO.PartitionedData.Random;
 using Org.Apache.REEF.Tang.Implementations.Tang;
@@ -89,9 +90,10 @@ namespace Org.Apache.REEF.IO.Tests
                 Assert.NotNull(partition);
                 Assert.NotNull(partition.Id);
 
-                using (var partitionStream = partition.GetPartitionHandle())
+                var partitionStreams = partition.GetPartitionHandle();
+                Assert.NotNull(partitionStreams);
+                using (var partitionStream = partitionStreams.Single())
                 {
-                    Assert.NotNull(partitionStream);
                     Assert.True(partitionStream.CanRead);
                     Assert.False(partitionStream.CanWrite);
                     Assert.Equal(ExpectedNumberOfBytesPerPartition, partitionStream.Length);
