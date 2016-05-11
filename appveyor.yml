@@ -34,17 +34,8 @@ build_script:
 # test script temporarily excludes StreamingRemoteManagerTest (see REEF-1311) and downloads xunit.runner.console
 # to be reverted as part of REEF-1243
 test_script:
-  - cmd: cd .\lang\cs
-  - cmd: nuget restore .\.nuget\packages.config -o .\packages
-  - cmd: .\packages\xunit.runner.console.2.1.0\tools\xunit.console.exe .\bin\x64\Debug\Org.Apache.REEF.Client.Tests\Org.Apache.REEF.Client.Tests.dll
-  - cmd: .\packages\xunit.runner.console.2.1.0\tools\xunit.console.exe .\bin\x64\Debug\Org.Apache.REEF.Common.Tests\Org.Apache.REEF.Common.Tests.dll
-  - cmd: .\packages\xunit.runner.console.2.1.0\tools\xunit.console.exe .\bin\x64\Debug\Org.Apache.REEF.Evaluator.Tests\Org.Apache.REEF.Evaluator.Tests.dll
-  - cmd: .\packages\xunit.runner.console.2.1.0\tools\xunit.console.exe .\bin\x64\Debug\Org.Apache.REEF.IMRU.Tests\Org.Apache.REEF.IMRU.Tests.dll
-  - cmd: .\packages\xunit.runner.console.2.1.0\tools\xunit.console.exe .\bin\x64\Debug\Org.Apache.REEF.IO.Tests\Org.Apache.REEF.IO.Tests.dll
-  - cmd: .\packages\xunit.runner.console.2.1.0\tools\xunit.console.exe .\bin\x64\Debug\Org.Apache.REEF.Network.Tests\Org.Apache.REEF.Network.Tests.dll
-  - cmd: .\packages\xunit.runner.console.2.1.0\tools\xunit.console.exe .\bin\x64\Debug\Org.Apache.REEF.Tang.Tests\Org.Apache.REEF.Tang.Tests.dll
-  - cmd: .\packages\xunit.runner.console.2.1.0\tools\xunit.console.exe .\bin\x64\Debug\Org.Apache.REEF.Wake.Tests\Org.Apache.REEF.Wake.Tests.dll -class Org.Apache.REEF.Wake.Tests.ClockTest -class Org.Apache.REEF.Wake.Tests.MultiCodecTest -class Org.Apache.REEF.Wake.Tests.PubSubSubjectTest -class Org.Apache.REEF.Wake.Tests.RemoteManagerTest -class Org.Apache.REEF.Wake.Tests.StreamingTransportTest -class Org.Apache.REEF.Wake.Tests.TimeTest -class Org.Apache.REEF.Wake.Tests.TransportTest
-  - cmd: .\packages\xunit.runner.console.2.1.0\tools\xunit.console.exe .\bin\x64\Debug\Org.Apache.REEF.Tests\Org.Apache.REEF.Tests.dll
+  - cmd: nuget restore .\lang\cs\.nuget\packages.config -o .\lang\cs\packages
+  - cmd: msbuild .\lang\cs\TestRunner.proj /p:Configuration="Debug" /p:Platform="x64"
 
 notifications:
   - provider: Email
