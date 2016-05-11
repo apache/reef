@@ -31,10 +31,7 @@ install:
 build_script:
   - cmd: msbuild .\lang\cs\Org.Apache.REEF.sln /p:Configuration="Debug" /p:Platform="x64" /m
 
-# test script temporarily excludes StreamingRemoteManagerTest (see REEF-1311) and downloads xunit.runner.console
-# to be reverted as part of REEF-1243
 test_script:
-  - cmd: nuget restore .\lang\cs\.nuget\packages.config -o .\lang\cs\packages
   - cmd: msbuild .\lang\cs\TestRunner.proj /p:Configuration="Debug" /p:Platform="x64"
 
 notifications:
