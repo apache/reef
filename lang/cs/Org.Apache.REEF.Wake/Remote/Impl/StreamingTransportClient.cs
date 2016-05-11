@@ -68,7 +68,7 @@ namespace Org.Apache.REEF.Wake.Remote.Impl
             : this(remoteEndpoint, streamingCodec, clientFactory)
         {
             _observer = observer;
-            Task.Run(() => ResponseLoop());
+            Task.Factory.StartNew(() => ResponseLoop(), TaskCreationOptions.LongRunning);
         }
 
         /// <summary>
