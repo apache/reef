@@ -89,13 +89,14 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Task
                 throw new InvalidOperationException("TaskRun has already been called on TaskRuntime.");
             }
 
-            // Send heartbeat such that user receives a TaskRunning message.
-            _currentStatus.SetRunning();
+            _currentStatus.SetInit();
 
             var taskThread = new Thread(() =>
             {
                 try
                 {
+                    Logger.Log(Level.Verbose, "Set running status for task");
+                    _currentStatus.SetRunning();
                     Logger.Log(Level.Verbose, "Calling into user's task.");
                     var result = _userTask.Call(null);
                     Logger.Log(Level.Info, "Task Call Finished");

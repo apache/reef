@@ -20,7 +20,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 using NSubstitute;
 using Org.Apache.REEF.Common.Context;
 using Org.Apache.REEF.Common.Events;
@@ -29,7 +28,6 @@ using Org.Apache.REEF.Common.Runtime.Evaluator;
 using Org.Apache.REEF.Common.Runtime.Evaluator.Context;
 using Org.Apache.REEF.Common.Services;
 using Org.Apache.REEF.Common.Tasks;
-using Org.Apache.REEF.Common.Tasks.Events;
 using Org.Apache.REEF.Evaluator.Tests.TestUtils;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Tang.Implementations.Configuration;
@@ -37,6 +35,7 @@ using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Tang.Util;
 using Org.Apache.REEF.Utilities;
+using Org.Apache.REEF.Wake.Remote.Parameters;
 using Xunit;
 using ContextConfiguration = Org.Apache.REEF.Common.Context.ContextConfiguration;
 
@@ -44,6 +43,9 @@ namespace Org.Apache.REEF.Evaluator.Tests
 {
     public sealed class ContextRuntimeTests
     {
+        private const int SleepTime = 10;
+        private const int MaxSleepTime = 1000;
+
         [Fact]
         [Trait("Priority", "0")]
         [Trait("Category", "Unit")]
@@ -184,7 +186,17 @@ namespace Org.Apache.REEF.Evaluator.Tests
 
                     Assert.True(contextRuntime.TaskRuntime.IsPresent());
                     Assert.True(contextRuntime.GetTaskStatus().IsPresent());
-                    Assert.Equal(contextRuntime.GetTaskStatus().Value.state, State.RUNNING);
+
+                    // wait for the task to start
+                    var totalSleep = 0;
+                    while (contextRuntime.GetTaskStatus().Value.state == State.INIT && totalSleep < MaxSleepTime)
+                    {
+                        Thread.Sleep(SleepTime);
+                        totalSleep += SleepTime;
+                    }
+
+                    // if the task failed to start even after MaxSleepTime delay, the test should fail
+                    Assert.Equal(State.RUNNING, contextRuntime.GetTaskStatus().Value.state);
 
                     var childContextConfiguration = GetSimpleContextConfiguration();
 
@@ -235,7 +247,17 @@ namespace Org.Apache.REEF.Evaluator.Tests
 
                     Assert.True(contextRuntime.TaskRuntime.IsPresent());
                     Assert.True(contextRuntime.GetTaskStatus().IsPresent());
-                    Assert.Equal(contextRuntime.GetTaskStatus().Value.state, State.RUNNING);
+
+                    // wait for the task to start
+                    var totalSleep = 0;
+                    while (contextRuntime.GetTaskStatus().Value.state == State.INIT && totalSleep < MaxSleepTime)
+                    {
+                        Thread.Sleep(SleepTime);
+                        totalSleep += SleepTime;
+                    }
+
+                    // if the task failed to start even after MaxSleepTime delay, the test should fail
+                    Assert.Equal(State.RUNNING, contextRuntime.GetTaskStatus().Value.state);
 
                     Assert.Throws<InvalidOperationException>(() => contextRuntime.StartTaskOnNewThread(taskConfig));
                 }

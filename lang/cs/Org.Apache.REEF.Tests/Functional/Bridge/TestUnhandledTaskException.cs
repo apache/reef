@@ -49,11 +49,12 @@ namespace Org.Apache.REEF.Tests.Functional.Bridge
         [Fact]
         public void TestUnhandledTaskExceptionCrashesEvaluator()
         {
-            var testFolder = DefaultRuntimeFolder + Guid.NewGuid().ToString("N").Substring(0, 4);
+            var testFolder = DefaultRuntimeFolder + TestId;
             TestRun(GetDriverConfiguration(), typeof(TestUnhandledTaskException), 1, "testUnhandledTaskException", "local", testFolder);
             ValidateSuccessForLocalRuntime(0, numberOfEvaluatorsToFail: 2, testFolder: testFolder);
             ValidateMessageSuccessfullyLoggedForDriver(SerializableSuccessMessage, testFolder, 1);
             ValidateMessageSuccessfullyLoggedForDriver(NonSerializableSuccessMessage, testFolder, 1);
+            CleanUp(testFolder);
         }
 
         private static IConfiguration GetDriverConfiguration()

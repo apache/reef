@@ -61,7 +61,7 @@ namespace Org.Apache.REEF.Tests.Functional.Bridge
             CleanUp(testFolder);
         }
 
-        public IConfiguration DriverConfigurations()
+        private static IConfiguration DriverConfigurations()
         {
             var helloDriverConfiguration = DriverConfiguration.ConfigurationModule
                 .Set(DriverConfiguration.OnDriverStarted, GenericType<SuspendTaskHandlers>.Class)
@@ -84,11 +84,13 @@ namespace Org.Apache.REEF.Tests.Functional.Bridge
             IObserver<ISuspendedTask>
         {
             private readonly IEvaluatorRequestor _requestor;
+            private int _taskIndex;
 
             [Inject]
             private SuspendTaskHandlers(IEvaluatorRequestor evaluatorRequestor)
             {
                 _requestor = evaluatorRequestor;
+                _taskIndex = 0;
             }
 
             public void OnNext(IDriverStarted value)
@@ -120,16 +122,23 @@ namespace Org.Apache.REEF.Tests.Functional.Bridge
 
             public void OnNext(ISuspendedTask value)
             {
-                // Submit a second Task once the first Task has been successfully suspended
-                // on the same context as the first task.
-                Logger.Log(Level.Warning, SuspendValidationMessage);
-                value.ActiveContext.SubmitTask(GetTaskConfiguration());
+                if (_taskIndex == 1)
+                {
+                    // Submit a second Task once the first Task has been successfully suspended
+                    // on the same context as the first task.
+                    Logger.Log(Level.Warning, SuspendValidationMessage);
+                    value.ActiveContext.SubmitTask(GetTaskConfiguration());
+                }
             }
 
             public void OnNext(IRunningTask value)
             {
-                // Suspend the first instance of the Task.
-                value.Suspend(Encoding.UTF8.GetBytes(SuspendMessageFromDriver));
+                ++_taskIndex;
+                if (_taskIndex == 1)
+                {
+                    // Suspend the first instance of the Task.
+                    value.Suspend(Encoding.UTF8.GetBytes(SuspendMessageFromDriver));
+                }
             }
 
             public void OnError(Exception error)

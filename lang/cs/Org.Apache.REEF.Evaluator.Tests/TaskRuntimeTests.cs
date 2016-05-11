@@ -26,7 +26,6 @@ using Org.Apache.REEF.Common.Runtime.Evaluator;
 using Org.Apache.REEF.Common.Runtime.Evaluator.Task;
 using Org.Apache.REEF.Common.Tasks;
 using Org.Apache.REEF.Common.Tasks.Events;
-using Org.Apache.REEF.Driver.Task;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Tang.Interface;
@@ -122,8 +121,19 @@ namespace Org.Apache.REEF.Evaluator.Tests
 
             var taskThread = taskRuntime.StartTaskOnNewThread();
 
-            Assert.Equal(taskRuntime.GetStatusProto().state, State.RUNNING);
-            Assert.Equal(taskRuntime.GetTaskState(), TaskState.Running);
+            // wait for the task to start
+            const int sleepTime = 10;
+            const int maxSleepTime = 1000;
+            var totalSleep = 0;
+            while (taskRuntime.GetStatusProto().state == State.INIT && totalSleep < maxSleepTime)
+            {
+                Thread.Sleep(sleepTime);
+                totalSleep += sleepTime;
+            }
+
+            // if the task failed to start even after maxSleepTime delay, the test should fail
+            Assert.Equal(State.RUNNING, taskRuntime.GetStatusProto().state);
+            Assert.Equal(TaskState.Running, taskRuntime.GetTaskState());
 
             injector.GetInstance<CountDownAction>().CountdownEvent.Signal();
 

@@ -440,15 +440,7 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Context
                 }
 
                 var taskStatusProto = _task.Value.GetStatusProto();
-                if (taskStatusProto.state == State.RUNNING)
-                {
-                    // only RUNNING status is allowed to rurn here, all other state pushed out to heartbeat 
-                    return Optional<TaskStatusProto>.Of(taskStatusProto);
-                }
-
-                var e = new InvalidOperationException(string.Format(CultureInfo.InvariantCulture, "Task state must be RUNNING, but instead is in {0} state", taskStatusProto.state));
-                Utilities.Diagnostics.Exceptions.Throw(e, LOGGER);
-                return Optional<TaskStatusProto>.Empty();
+                return Optional<TaskStatusProto>.Of(taskStatusProto);
             }
         }
 

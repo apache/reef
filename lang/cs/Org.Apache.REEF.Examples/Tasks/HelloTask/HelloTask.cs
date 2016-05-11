@@ -66,7 +66,7 @@ namespace Org.Apache.REEF.Examples.Tasks.HelloTask
                 Console.WriteLine("IP Address: {0}", _nameClient.Lookup("abc"));
             }
             PrintGuestList();
-            Thread.Sleep(5 * 1000);
+            Thread.Sleep(1000);
             Console.WriteLine("Bye, CLR REEF!");
 
             return null;
