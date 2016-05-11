@@ -42,13 +42,15 @@ namespace Org.Apache.REEF.IMRU.Tests
         {
             const int totalEvaluators = 5;
             var activeContextManager = new ActiveContextManager(totalEvaluators);
-            activeContextManager.Subscribe(new TestContextObserver(totalEvaluators));
+            var contextObserver = new TestContextObserver(totalEvaluators);
+            activeContextManager.Subscribe(contextObserver);
 
             for (int i = 0; i < totalEvaluators; i++)
             {
                 activeContextManager.Add(CreateMockActiveContext(i));
             }
             Assert.Equal(totalEvaluators, activeContextManager.NumberOfActiveContexts);
+            Assert.Equal(totalEvaluators, contextObserver.NumberOfActiveContextsReceived());
 
             return activeContextManager;
         }
@@ -76,7 +78,6 @@ namespace Org.Apache.REEF.IMRU.Tests
         {
             const int totalEvaluators = 3;
             var activeContextManager = new ActiveContextManager(totalEvaluators);
-            activeContextManager.Subscribe(new TestContextObserver(totalEvaluators));
             activeContextManager.Add(CreateMockActiveContext(1));
 
             Action add = () => activeContextManager.Add(CreateMockActiveContext(1));
@@ -180,9 +181,10 @@ namespace Org.Apache.REEF.IMRU.Tests
         /// <summary>
         /// A Context Manager observer for test
         /// </summary>
-        private sealed class TestContextObserver : IObserver<ActiveContextManager>
+        private sealed class TestContextObserver : IObserver<IDictionary<string, IActiveContext>>
         {
             private readonly int _totalExpected;
+            private IDictionary<string, IActiveContext> _contexts = null;
 
             internal TestContextObserver(int totalExpected)
             {
@@ -199,10 +201,18 @@ namespace Org.Apache.REEF.IMRU.Tests
                 throw new NotImplementedException();
             }
 
-            public void OnNext(ActiveContextManager value)
+            public int NumberOfActiveContextsReceived()
             {
-                Assert.Equal(_totalExpected, value.NumberOfActiveContexts);
-                Assert.Equal(0, value.NumberOfMissingContexts);
+                if (_contexts != null)
+                {
+                    return _contexts.Count;                    
+                }
+                return 0;
+            }
+
+            public void OnNext(IDictionary<string, IActiveContext> value)
+            {
+                _contexts = value;
             }
         }
     }
