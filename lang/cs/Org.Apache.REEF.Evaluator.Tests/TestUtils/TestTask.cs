@@ -28,10 +28,13 @@ namespace Org.Apache.REEF.Evaluator.Tests.TestUtils
         [Inject]
         private TestTask()
         {
+            StartEvent = new CountdownEvent(1);
             CountDownEvent = new CountdownEvent(1);
             StopEvent = new CountdownEvent(1);
             DisposedEvent = new CountdownEvent(1);
         }
+
+        public CountdownEvent StartEvent { get; private set; }
 
         public CountdownEvent CountDownEvent { get; private set; }
 
@@ -46,6 +49,7 @@ namespace Org.Apache.REEF.Evaluator.Tests.TestUtils
 
         public byte[] Call(byte[] memento)
         {
+            StartEvent.Signal();
             CountDownEvent.Wait();
             return null;
         }

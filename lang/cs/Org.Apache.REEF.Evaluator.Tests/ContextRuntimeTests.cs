@@ -20,7 +20,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 using NSubstitute;
 using Org.Apache.REEF.Common.Context;
 using Org.Apache.REEF.Common.Events;
@@ -29,7 +28,6 @@ using Org.Apache.REEF.Common.Runtime.Evaluator;
 using Org.Apache.REEF.Common.Runtime.Evaluator.Context;
 using Org.Apache.REEF.Common.Services;
 using Org.Apache.REEF.Common.Tasks;
-using Org.Apache.REEF.Common.Tasks.Events;
 using Org.Apache.REEF.Evaluator.Tests.TestUtils;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Tang.Implementations.Configuration;
@@ -184,7 +182,11 @@ namespace Org.Apache.REEF.Evaluator.Tests
 
                     Assert.True(contextRuntime.TaskRuntime.IsPresent());
                     Assert.True(contextRuntime.GetTaskStatus().IsPresent());
-                    Assert.Equal(contextRuntime.GetTaskStatus().Value.state, State.RUNNING);
+
+                    // wait for the task to start
+                    var testTask = contextRuntime.TaskRuntime.Value.Task as TestTask;
+                    testTask.StartEvent.Wait();
+                    Assert.Equal(State.RUNNING, contextRuntime.GetTaskStatus().Value.state);
 
                     var childContextConfiguration = GetSimpleContextConfiguration();
 
@@ -235,7 +237,11 @@ namespace Org.Apache.REEF.Evaluator.Tests
 
                     Assert.True(contextRuntime.TaskRuntime.IsPresent());
                     Assert.True(contextRuntime.GetTaskStatus().IsPresent());
-                    Assert.Equal(contextRuntime.GetTaskStatus().Value.state, State.RUNNING);
+
+                    // wait for the task to start
+                    var testTask = contextRuntime.TaskRuntime.Value.Task as TestTask;
+                    testTask.StartEvent.Wait();
+                    Assert.Equal(State.RUNNING, contextRuntime.GetTaskStatus().Value.state);
 
                     Assert.Throws<InvalidOperationException>(() => contextRuntime.StartTaskOnNewThread(taskConfig));
                 }

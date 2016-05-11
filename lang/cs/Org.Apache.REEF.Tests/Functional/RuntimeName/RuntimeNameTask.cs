@@ -37,7 +37,6 @@ namespace Org.Apache.REEF.Tests.Functional.Messaging
         public byte[] Call(byte[] memento)
         {
             Logger.Log(Level.Info, "Hello, CLR Task!");
-            Thread.Sleep(5 * 1000);
             return null;
         }
 

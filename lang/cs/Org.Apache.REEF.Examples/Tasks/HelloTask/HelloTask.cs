@@ -18,7 +18,6 @@
 using System;
 using System.Linq;
 using System.Net;
-using System.Threading;
 using Org.Apache.REEF.Common.Io;
 using Org.Apache.REEF.Common.Tasks;
 using Org.Apache.REEF.Common.Tasks.Events;
@@ -66,7 +65,6 @@ namespace Org.Apache.REEF.Examples.Tasks.HelloTask
                 Console.WriteLine("IP Address: {0}", _nameClient.Lookup("abc"));
             }
             PrintGuestList();
-            Thread.Sleep(5 * 1000);
             Console.WriteLine("Bye, CLR REEF!");
 
             return null;

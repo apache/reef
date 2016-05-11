@@ -145,6 +145,28 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Task
             }
         }
 
+        public void SetInit()
+        {
+            lock (_heartBeatManager)
+            {
+                LOGGER.Log(Level.Verbose, "TaskStatus::SetInit");
+                if (_state == TaskState.Init)
+                {
+                    try
+                    {
+                        _taskLifeCycle.Start();
+                        LOGGER.Log(Level.Info, "Sending task INIT heartbeat");
+                        Heartbeat();
+                    }
+                    catch (Exception e)
+                    {
+                        Utilities.Diagnostics.Exceptions.Caught(e, Level.Error, "Cannot set task status to INIT.", LOGGER);
+                        SetException(e);
+                    }
+                }
+            }
+        }
+
         public void SetRunning()
         {
             lock (_heartBeatManager)
@@ -154,12 +176,9 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Task
                 {
                     try
                     {
-                        _taskLifeCycle.Start();
-                        
-                        // Need to send an INIT heartbeat to the driver prompting it to create an RunningTask event. 
-                        LOGGER.Log(Level.Info, "Sending task INIT heartbeat");
-                        Heartbeat();
                         State = TaskState.Running;
+                        LOGGER.Log(Level.Info, "Sending task Running heartbeat");
+                        Heartbeat();
                     }
                     catch (Exception e)
                     {

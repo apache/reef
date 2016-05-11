@@ -26,7 +26,6 @@ using Org.Apache.REEF.Common.Runtime.Evaluator;
 using Org.Apache.REEF.Common.Runtime.Evaluator.Task;
 using Org.Apache.REEF.Common.Tasks;
 using Org.Apache.REEF.Common.Tasks.Events;
-using Org.Apache.REEF.Driver.Task;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Tang.Interface;
@@ -122,8 +121,12 @@ namespace Org.Apache.REEF.Evaluator.Tests
 
             var taskThread = taskRuntime.StartTaskOnNewThread();
 
-            Assert.Equal(taskRuntime.GetStatusProto().state, State.RUNNING);
-            Assert.Equal(taskRuntime.GetTaskState(), TaskState.Running);
+            // wait for the task to start
+            var testTask = taskRuntime.Task as TestTask;
+            testTask.StartEvent.Wait();
+
+            Assert.Equal(State.RUNNING, taskRuntime.GetStatusProto().state);
+            Assert.Equal(TaskState.Running, taskRuntime.GetTaskState());
 
             injector.GetInstance<CountDownAction>().CountdownEvent.Signal();
 
@@ -412,12 +415,15 @@ namespace Org.Apache.REEF.Evaluator.Tests
             [Inject]
             private TestTask(IAction action)
             {
+                StartEvent = new CountdownEvent(1);
                 FinishCountdownEvent = new CountdownEvent(1);
                 DisposeCountdownEvent = new CountdownEvent(1);
                 _action = action;
             }
 
             public bool SuspendInvoked { get; private set; }
+
+            public CountdownEvent StartEvent { get; private set; }
 
             public CountdownEvent FinishCountdownEvent { get; private set; }
 
@@ -430,6 +436,7 @@ namespace Org.Apache.REEF.Evaluator.Tests
 
             public byte[] Call(byte[] memento)
             {
+                StartEvent.Signal();
                 try
                 {
                     _action.Value();

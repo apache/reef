@@ -118,7 +118,7 @@ namespace Org.Apache.REEF.Tests.Functional.Bridge
             const string failedTaskIndication = "Java_org_apache_reef_javabridge_NativeInterop_clrSystemFailedTaskHandlerOnNext";
 
             string testFolder = DefaultRuntimeFolder + Guid.NewGuid().ToString("N").Substring(0, 4);
-            TestRun(DriverConfigurations(DisposeMessageFromDriver, GetTaskConfigurationForFailToCloseTask()), typeof(CloseTaskTestDriver), 1, "testStopTask", "local", testFolder);
+            TestRun(DriverConfigurations(DisposeMessageFromDriver, GetTaskConfigurationForFailToCloseTask()), typeof(CloseTaskTestDriver), 1, "testStopTaskWithException", "local", testFolder);
             var messages = new List<string>();
             messages.Add(successIndication);
             messages.Add(failedTaskIndication);
@@ -140,7 +140,7 @@ namespace Org.Apache.REEF.Tests.Functional.Bridge
             const string closeHandlerNoBound = "ExceptionCaught TaskCloseHandlerNotBoundException";
 
             string testFolder = DefaultRuntimeFolder + Guid.NewGuid().ToString("N").Substring(0, 4);
-            TestRun(DriverConfigurations(DisposeMessageFromDriver, GetTaskConfigurationForNoCloseHandlerTask()), typeof(CloseTaskTestDriver), 1, "testStopTask", "local", testFolder);
+            TestRun(DriverConfigurations(DisposeMessageFromDriver, GetTaskConfigurationForNoCloseHandlerTask()), typeof(CloseTaskTestDriver), 1, "testStopTaskWithNoCloseHandler", "local", testFolder);
             var messages = new List<string>();
             messages.Add(closeHandlerNoBound);
             ValidateMessageSuccessfullyLogged(messages, "Node-*", EvaluatorStdout, testFolder, 1);
@@ -154,7 +154,7 @@ namespace Org.Apache.REEF.Tests.Functional.Bridge
         public void TestStopTaskOnLocalRuntimeWithNullMessage()
         {
             string testFolder = DefaultRuntimeFolder + Guid.NewGuid().ToString("N").Substring(0, 4);
-            TestRun(DriverConfigurations(NoMessage, GetTaskConfigurationForCloseTask()), typeof(CloseTaskTestDriver), 1, "testStopTask", "local", testFolder);
+            TestRun(DriverConfigurations(NoMessage, GetTaskConfigurationForCloseTask()), typeof(CloseTaskTestDriver), 1, "testStopTaskWithNullMessage", "local", testFolder);
             ValidateSuccessForLocalRuntime(1, testFolder: testFolder);
             ValidateMessageSuccessfullyLoggedForDriver(CompletedValidationMessage, testFolder, 1);
             var messages = new List<string>();

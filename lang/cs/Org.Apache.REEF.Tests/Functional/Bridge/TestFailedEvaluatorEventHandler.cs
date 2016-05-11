@@ -55,7 +55,7 @@ namespace Org.Apache.REEF.Tests.Functional.Bridge
             CleanUp(testFolder);
         }
 
-        public IConfiguration DriverConfigurations()
+        private IConfiguration DriverConfigurations()
         {
             return DriverConfiguration.ConfigurationModule
                 .Set(DriverConfiguration.OnDriverStarted, GenericType<FailedEvaluatorDriver>.Class)
@@ -106,10 +106,10 @@ namespace Org.Apache.REEF.Tests.Functional.Bridge
             public void OnNext(IFailedEvaluator value)
             {
                 Logger.Log(Level.Error, FailedEvaluatorMessage);
-                Assert.True(value.FailedTask.IsPresent());
-                Assert.Equal(value.FailedTask.Value.Id, TaskId);
-                Assert.Equal(value.FailedContexts.Count, 1);
-                Assert.Equal(value.EvaluatorException.EvaluatorId, value.Id);
+                Assert.True(value.FailedTask.IsPresent(), "No failed task found");
+                Assert.Equal(TaskId, value.FailedTask.Value.Id);
+                Assert.Equal(1, value.FailedContexts.Count);
+                Assert.Equal(value.Id, value.EvaluatorException.EvaluatorId);
                 Logger.Log(Level.Error, string.Format(CultureInfo.CurrentCulture, "Failed task id:{0}, failed Evaluator id: {1}, Failed Exception msg: {2},", value.FailedTask.Value.Id, value.EvaluatorException.EvaluatorId, value.EvaluatorException.Message));
                 Logger.Log(Level.Error, RightFailedTaskMessage);
             }

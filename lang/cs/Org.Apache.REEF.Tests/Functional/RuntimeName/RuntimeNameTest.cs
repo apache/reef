@@ -65,6 +65,7 @@ namespace Org.Apache.REEF.Tests.Functional.Driver
             string testFolder = DefaultRuntimeFolder + TestId;
             TestRun(DriverConfigurationsWithEvaluatorRequest(GenericType<EvaluatorRequestingDriverSpecifyingRuntimeName>.Class), typeof(EvaluatorRequestingDriverSpecifyingRuntimeName), 1, "EvaluatorRequestingDriverSpecifyingRuntimeName", "local", testFolder);
             ValidateMessageSuccessfullyLoggedForDriver("Runtime Name: Local", testFolder, 1);
+            CleanUp(testFolder);
         }
 
         /// <summary>
