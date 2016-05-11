@@ -98,6 +98,12 @@ under the License.
     <Compile Include="FileSystem\AzureBlob\ICloudBlobContainer.cs" />
     <Compile Include="FileSystem\Local\LocalFileSystem.cs" />
     <Compile Include="FileSystem\Local\LocalFileSystemConfiguration.cs" />
+    <Compile Include="Files\DefaultDirectoryInfo.cs" />
+    <Compile Include="Files\DefaultFileInfo.cs" />
+    <Compile Include="Files\FileSystemInfoFactory.cs" />
+    <Compile Include="Files\IDirectoryInfo.cs" />
+    <Compile Include="Files\IFileInfo.cs" />
+    <Compile Include="Files\IFIleSystemInfo.cs" />
     <Compile Include="PartitionedData\FileSystem\FileSystemInputPartition.cs" />
     <Compile Include="PartitionedData\FileSystem\FileInputPartitionDescriptor.cs" />
     <Compile Include="PartitionedData\FileSystem\Parameters\CopyToLocal.cs" />
