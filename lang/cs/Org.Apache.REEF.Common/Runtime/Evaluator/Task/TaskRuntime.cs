@@ -17,7 +17,6 @@
 
 using System;
 using System.Globalization;
-using System.Linq;
 using System.Threading;
 using Org.Apache.REEF.Common.Protobuf.ReefProtocol;
 using Org.Apache.REEF.Common.Tasks;
@@ -220,8 +219,6 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Task
         {
             Logger.Log(Level.Info, "TaskRuntime::OnNext(ICloseEvent value)");
             _closeHandlerFuture.Get().OnNext(value);
-
-            // TODO: send a heartbeat
         }
 
         public void OnNext(ISuspendEvent value)
