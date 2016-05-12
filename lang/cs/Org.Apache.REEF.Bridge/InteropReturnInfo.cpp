@@ -64,24 +64,20 @@ namespace Org {
 				}
 
 				void InteropReturnInfo::AddExceptionString(String^ exceptionString) {
-					HasExceptions();
 					pin_ptr<const wchar_t> wch = PtrToStringChars(exceptionString);
 					jstring ret = _env->NewString((const jchar*)wch, exceptionString->Length);
-					_env->CallObjectMethod(_jobjectInteropReturnInfo, _jmidAddExceptionString, ret);
-					HasExceptions();
+					_env->CallVoidMethod(_jobjectInteropReturnInfo, _jmidAddExceptionString, ret);
 				}
 
 				Boolean InteropReturnInfo::HasExceptions() {
-					jobject obj = _env->CallObjectMethod(_jobjectInteropReturnInfo, _jmidHasExceptions);
-					return obj != NULL;
+					jboolean obj = _env->CallBooleanMethod(_jobjectInteropReturnInfo, _jmidHasExceptions);
+					return obj != 0;
 				}
 				void InteropReturnInfo::SetReturnCode(int rc) {
-					_env->CallObjectMethod(_jobjectInteropReturnInfo, _jmidsetReturnCode, rc);
-					GetReturnCode();
+					_env->CallVoidMethod(_jobjectInteropReturnInfo, _jmidsetReturnCode, rc);
 				}
 				int InteropReturnInfo::GetReturnCode() {
-					jobject obj = _env->CallObjectMethod(_jobjectInteropReturnInfo, _jmidgetReturnCode);
-					return (int)obj;
+					return _env->CallIntMethod(_jobjectInteropReturnInfo, _jmidgetReturnCode);
 				}
 			}
 		}
