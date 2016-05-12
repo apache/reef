@@ -15,14 +15,27 @@
 // specific language governing permissions and limitations
 // under the License.
 
+using System;
 using System.Threading.Tasks;
+using Org.Apache.REEF.Utilities.Diagnostics;
+using Org.Apache.REEF.Utilities.Logging;
 
 namespace Org.Apache.REEF.Wake.Util
 {
     public static class TaskExtensions
     {
-        public static void Forget(this Task task)
+        private static readonly Logger Logger = Logger.GetLogger(typeof(TaskExtensions));
+
+        public static async void Forget(this Task task)
         {
+            try
+            {
+                await task.ConfigureAwait(false);
+            }
+            catch (Exception e)
+            {
+                Exceptions.Caught(e, Level.Warning, "Uncaught Task Exception in a fire-and-forget Task.", Logger);
+            }
         }
     }
 }
