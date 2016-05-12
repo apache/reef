@@ -69,6 +69,8 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator
 
         private readonly IInjectionFuture<ContextManager> _contextManager;
 
+        private bool _isCompletedHeartbeatQueued = false;
+
         // the queue can only contains the following:
         // 1. all failed heartbeats (regular and event-based) before entering RECOVERY state
         // 2. event-based heartbeats generated in RECOVERY state (since there will be no attempt to send regular heartbeat)
@@ -126,6 +128,18 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator
         {
             lock (_queuedHeartbeats)
             {
+                // Do not send a heartbeat if Evaluator has already signaled that it was done.
+                if (_isCompletedHeartbeatQueued)
+                {
+                    LOGGER.Log(Level.Warning, "Evaluator trying to schedule a heartbeat after a completed heartbeat has already been scheduled or sent.");
+                    return;
+                }
+
+                if (IsEvaluatorStateCompleted(evaluatorHeartbeatProto.evaluator_status.state))
+                {
+                    _isCompletedHeartbeatQueued = true;
+                }
+
                 if (_evaluatorSettings.OperationState == EvaluatorOperationState.RECOVERY)
                 {
                     LOGGER.Log(Level.Warning, string.Format(CultureInfo.InvariantCulture, "In RECOVERY mode, heartbeat queued as [{0}]. ", evaluatorHeartbeatProto));
@@ -261,7 +275,8 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator
                 {
                     LOGGER.Log(Level.Verbose, "Ignoring regular heartbeat since Evaluator operation state is [{0}] and runtime state is [{1}]. ", EvaluatorSettings.OperationState, EvaluatorRuntime.State);
 
-                    if (EvaluatorRuntime.State == State.DONE || EvaluatorRuntime.State == State.FAILED || EvaluatorRuntime.State == State.KILLED)
+                    // Do not try to recover if Evaluator is done.
+                    if (IsEvaluatorStateCompleted(EvaluatorRuntime.State))
                     {
                         return;
                     }
@@ -305,6 +320,11 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator
         public void OnCompleted()
         {
             throw new NotImplementedException();
+        }
+
+        private static bool IsEvaluatorStateCompleted(State state)
+        {
+            return state == State.DONE || state == State.FAILED || state == State.KILLED;
         }
 
         private static long CurrentTimeMilliSeconds()
