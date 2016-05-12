@@ -54,6 +54,7 @@ under the License.
     <Compile Include="TestActiveContextManager.cs" />
     <Compile Include="TestEvaluatorManager.cs" />
     <Compile Include="TestSystemStates.cs" />
+    <Compile Include="TestTaskManager.cs" />
     <Compile Include="TestTaskStates.cs" />
   </ItemGroup>
   <ItemGroup>
