@@ -60,7 +60,7 @@ under the License.
   </PropertyGroup>
   <!--
     End of: Switch the PlatformToolset based on the Visual Studio Version
-  --> 
+  -->
   <PropertyGroup>
     <!-- Auto generate binding redirects to make sure the latest Newtonsoft JSON is picked up -->
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
@@ -138,7 +138,6 @@ under the License.
     <ClInclude Include="Clr2JavaImpl.h" />
     <ClInclude Include="InteropAssemblies.h" />
     <ClInclude Include="InteropLogger.h" />
-    <ClInclude Include="InteropReturnInfo.h" />
     <ClInclude Include="InteropUtil.h" />
     <ClInclude Include="JavaClrBridge.h" />
     <ClInclude Include="resource.h" />
@@ -164,7 +163,6 @@ under the License.
     <ClCompile Include="FailedTaskClr2Java.cpp" />
     <ClCompile Include="HttpServerClr2Java.cpp" />
     <ClCompile Include="InteropLogger.cpp" />
-    <ClCompile Include="InteropReturnInfo.cpp" />
     <ClCompile Include="InteropUtil.cpp" />
     <ClCompile Include="JavaClrBridge.cpp" />
     <ClCompile Include="RunningTaskClr2Java.cpp" />

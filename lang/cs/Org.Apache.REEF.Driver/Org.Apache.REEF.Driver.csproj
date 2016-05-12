@@ -93,7 +93,6 @@ under the License.
     <Compile Include="Bridge\HttpServerPort.cs" />
     <Compile Include="Bridge\IHttpHandler.cs" />
     <Compile Include="Bridge\IHttpMessage.cs" />
-    <Compile Include="Bridge\IInteropReturnInfo.cs" />
     <Compile Include="Bridge\ILogger.cs" />
     <Compile Include="Bridge\ReefHttpRequest.cs" />
     <Compile Include="Bridge\ReefHttpResponse.cs" />

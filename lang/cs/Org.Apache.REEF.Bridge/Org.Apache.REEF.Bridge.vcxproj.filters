@@ -33,9 +33,6 @@
     <ClInclude Include="InteropLogger.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="InteropReturnInfo.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="InteropUtil.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -93,9 +90,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="InteropLogger.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="InteropReturnInfo.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="InteropUtil.cpp">
