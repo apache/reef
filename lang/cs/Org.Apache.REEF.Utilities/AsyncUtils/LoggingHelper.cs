@@ -15,6 +15,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
+using System;
 using System.Threading.Tasks;
 using Org.Apache.REEF.Utilities.Logging;
 
@@ -36,8 +37,10 @@ namespace Org.Apache.REEF.Utilities.AsyncUtils
         {
             self.ContinueWith(t =>
             {
+                var message = string.IsNullOrWhiteSpace(msg) ? string.Empty : msg + " ";
+
                 // ReSharper disable once PossibleNullReferenceException ; We know the task is Faulted
-                logger.Log(logLevel, "{0} Exception:{1}", t.Exception.GetBaseException());
+                logger.Log(logLevel, "{0}Exception: {1}", message, t.Exception.GetBaseException());
             },
                 TaskContinuationOptions.OnlyOnFaulted | TaskContinuationOptions.ExecuteSynchronously);
         }

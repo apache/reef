@@ -20,6 +20,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
+using Org.Apache.REEF.Utilities.AsyncUtils;
 using Org.Apache.REEF.Utilities.Diagnostics;
 using Org.Apache.REEF.Utilities.Logging;
 using Org.Apache.REEF.Wake.Util;
@@ -175,7 +176,8 @@ namespace Org.Apache.REEF.Wake.Remote.Impl
                 while (!_cancellationSource.Token.IsCancellationRequested)
                 {
                     TcpClient client = await _listener.AcceptTcpClientAsync().ConfigureAwait(false);
-                    ProcessClient(client).Forget();
+                    ProcessClient(client).LogAndIgnoreExceptionIfAny(
+                        LOGGER, "Task Exception observed processing client in TransportServer.", Level.Warning);
                 }
             }
             catch (InvalidOperationException)

@@ -15,12 +15,16 @@
 // specific language governing permissions and limitations
 // under the License.
 
+using System;
 using System.Threading.Tasks;
 
 namespace Org.Apache.REEF.Wake.Util
 {
+    [Obsolete("Deprecated in 0.15. Will be removed in 0.16.")]
     public static class TaskExtensions
     {
+        [Obsolete("Deprecated in 0.15. Will be removed in 0.16. " +
+                  "Please use LoggingHelper.LogAndIgnoreExceptionIfAny instead.")]
         public static void Forget(this Task task)
         {
         }
