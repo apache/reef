@@ -21,36 +21,76 @@ using System.IO;
 namespace Org.Apache.REEF.IO.Files
 {
     /// <summary>
-    /// A Proxy interface for <see cref="FileSystemInfo"/>.
+    /// This is meant only as a proxy interface for <see cref="FileSystemInfo"/> and has no 
+    /// relation to classes in <see cref="Org.Apache.REEF.IO.FileSystem"/>.
     /// To create an <see cref="IFileSystemInfo"/> object from a <see cref="FileSystemInfo"/>
     /// object, please use the static factory method <see cref="FileSystemInfoFactory.FromFileSystemInfo"/>.
     /// </summary>
     public interface IFileSystemInfo
     {
+        /// <summary>
+        /// See <see cref="FileSystemInfo#Attributes"/>.
+        /// </summary>
         FileAttributes Attributes { get; }
 
+        /// <summary>
+        /// See <see cref="FileSystemInfo#CreationTime"/>.
+        /// </summary>
         DateTime CreationTime { get; }
 
+        /// <summary>
+        /// See <see cref="FileSystemInfo#CreationTimeUtc"/>.
+        /// </summary>
         DateTime CreationTimeUtc { get; }
 
+        /// <summary>
+        /// See <see cref="FileSystemInfo#Exists"/>.
+        /// </summary>
         bool Exists { get; }
 
+        /// <summary>
+        /// See <see cref="FileSystemInfo#Extension"/>.
+        /// </summary>
         string Extension { get; }
 
+        /// <summary>
+        /// See <see cref="FileSystemInfo#FullName"/>.
+        /// </summary>
         string FullName { get; }
 
+        /// <summary>
+        /// See <see cref="FileSystemInfo#LastAccessTime"/>.
+        /// </summary>
         DateTime LastAccessTime { get; }
 
+        /// <summary>
+        /// See <see cref="FileSystemInfo#LastAccessTimeUtc"/>.
+        /// </summary>
         DateTime LastAccessTimeUtc { get; }
 
+        /// <summary>
+        /// See <see cref="FileSystemInfo#LastWriteTime"/>.
+        /// </summary>
         DateTime LastWriteTime { get; }
 
+        /// <summary>
+        /// See <see cref="FileSystemInfo#LastWriteTimeUtc"/>.
+        /// </summary>
         DateTime LastWriteTimeUtc { get; }
 
+        /// <summary>
+        /// See <see cref="FileSystemInfo#Name"/>.
+        /// </summary>
         string Name { get; }
 
+        /// <summary>
+        /// See <see cref="FileSystemInfo#Delete"/>.
+        /// </summary>
         void Delete();
 
+        /// <summary>
+        /// See <see cref="FileSystemInfo#Refresh"/>.
+        /// </summary>
         void Refresh();
     }
 }

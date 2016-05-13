@@ -103,7 +103,7 @@ under the License.
     <Compile Include="Files\FileSystemInfoFactory.cs" />
     <Compile Include="Files\IDirectoryInfo.cs" />
     <Compile Include="Files\IFileInfo.cs" />
-    <Compile Include="Files\IFIleSystemInfo.cs" />
+    <Compile Include="Files\IFileSystemInfo.cs" />
     <Compile Include="PartitionedData\FileSystem\FileSystemInputPartition.cs" />
     <Compile Include="PartitionedData\FileSystem\FileInputPartitionDescriptor.cs" />
     <Compile Include="PartitionedData\FileSystem\Parameters\CopyToLocal.cs" />
