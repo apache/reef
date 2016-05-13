@@ -19,7 +19,6 @@
 #include "org_apache_reef_javabridge_NativeInterop.h"
 #include "JavaClrBridge.h"
 #include "InteropAssemblies.h"
-#include "InteropReturnInfo.h"
 #include "Clr2JavaImpl.h"
 #include "InteropLogger.h"
 #include "BinaryUtil.h"
