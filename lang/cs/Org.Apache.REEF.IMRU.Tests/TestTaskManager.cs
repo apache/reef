@@ -71,7 +71,7 @@ namespace Org.Apache.REEF.IMRU.Tests
         {
             var taskManager = TaskManagerWithTasksAdded();
             taskManager.SubmitTasks();
-            Assert.True(taskManager.AllInTheState(TaskState.TaskSubmitted));
+            Assert.True(taskManager.AreAllTasksInState(TaskState.TaskSubmitted));
         }
 
         /// <summary>
@@ -195,12 +195,12 @@ namespace Org.Apache.REEF.IMRU.Tests
             taskManager.SetRunningTask(CreateMockRunningTask(MasterTaskId));
             taskManager.SetRunningTask(CreateMockRunningTask(MapperTaskIdPrefix + 1));
             taskManager.SetRunningTask(CreateMockRunningTask(MapperTaskIdPrefix + 2));
-            Assert.True(taskManager.AllInTheState(TaskState.TaskRunning));
+            Assert.True(taskManager.AreAllTasksInState(TaskState.TaskRunning));
 
             taskManager.SetCompletedTask(MapperTaskIdPrefix + 1);
             taskManager.SetCompletedTask(MapperTaskIdPrefix + 2);
             taskManager.SetCompletedTask(MasterTaskId);
-            Assert.True(taskManager.AllInTheState(TaskState.TaskCompleted));
+            Assert.True(taskManager.AreAllTasksInState(TaskState.TaskCompleted));
         }
 
         /// <summary>
@@ -216,10 +216,10 @@ namespace Org.Apache.REEF.IMRU.Tests
             taskManager.SetRunningTask(CreateMockRunningTask(MapperTaskIdPrefix + 1));
 
             var runningTask2 = CreateMockRunningTask(MapperTaskIdPrefix + 2);
-            taskManager.CloseRunningTask(runningTask2, TaskManager.CloseTaskByDriver);
+            taskManager.CloseRunningTaskInSystemFailure(runningTask2, TaskManager.CloseTaskByDriver);
 
             taskManager.CloseAllRunningTasks(TaskManager.CloseTaskByDriver);
-            Assert.True(taskManager.AllInTheState(TaskState.TaskWaitingForClose));
+            Assert.True(taskManager.AreAllTasksInState(TaskState.TaskWaitingForClose));
         }
 
         /// <summary>
@@ -271,7 +271,7 @@ namespace Org.Apache.REEF.IMRU.Tests
             taskManager.SetTaskFailByEvaluator(CreateMockFailedEvaluator("eId1", failedTask1));
             Assert.Equal(TaskState.TaskFailedByEvaluatorFailure, taskManager.TaskState(MapperTaskIdPrefix + 1));
             //// no state change should happen in this case
-            taskManager.SetFailedTaskInShuttinDown(failedTask1);
+            taskManager.SetFailedTaskInShuttingDown(failedTask1);
             Assert.Equal(TaskState.TaskFailedByEvaluatorFailure, taskManager.TaskState(MapperTaskIdPrefix + 1));
 
             //// This task failed by itself first, then failed by Evaluator failure
@@ -283,8 +283,8 @@ namespace Org.Apache.REEF.IMRU.Tests
 
             //// close the running task during shutting down
             var masterRuningTask = CreateMockRunningTask(MasterTaskId);
-            taskManager.CloseRunningTask(masterRuningTask, TaskManager.CloseTaskByDriver);
-            taskManager.SetFailedTaskInShuttinDown(CreateMockFailedTask(MasterTaskId, TaskManager.TaskKilledByDriver));
+            taskManager.CloseRunningTaskInSystemFailure(masterRuningTask, TaskManager.CloseTaskByDriver);
+            taskManager.SetFailedTaskInShuttingDown(CreateMockFailedTask(MasterTaskId, TaskManager.TaskKilledByDriver));
             Assert.Equal(TaskState.TaskClosedByDriver, taskManager.TaskState(MasterTaskId));
 
             Assert.True(taskManager.AllInFinalState());
@@ -313,11 +313,11 @@ namespace Org.Apache.REEF.IMRU.Tests
 
             //// task 2 is killed by driver
             var failedTask2 = CreateMockFailedTask(MapperTaskIdPrefix + 2, TaskManager.TaskKilledByDriver);
-            taskManager.SetFailedTaskInShuttinDown(failedTask2);
+            taskManager.SetFailedTaskInShuttingDown(failedTask2);
 
             //// master task is killed by driver
             var masterTask = CreateMockFailedTask(MasterTaskId, TaskManager.TaskKilledByDriver);
-            taskManager.SetFailedTaskInShuttinDown(masterTask);
+            taskManager.SetFailedTaskInShuttingDown(masterTask);
 
             Assert.True(taskManager.AllInFinalState());
         }
@@ -347,12 +347,12 @@ namespace Org.Apache.REEF.IMRU.Tests
 
             //// Another task may get failed by communication during the shutting down
             var failedTask2 = CreateMockFailedTask(MapperTaskIdPrefix + 2, TaskManager.TaskGroupCommunicationError);
-            taskManager.SetFailedTaskInShuttinDown(failedTask2);
+            taskManager.SetFailedTaskInShuttingDown(failedTask2);
             Assert.Equal(TaskState.TaskClosedByDriver, taskManager.TaskState(MapperTaskIdPrefix + 2));
 
             //// The task that receives the close from driver now send failed event back to driver
             var masterTask = CreateMockFailedTask(MasterTaskId, TaskManager.TaskKilledByDriver);
-            taskManager.SetFailedTaskInShuttinDown(masterTask);
+            taskManager.SetFailedTaskInShuttingDown(masterTask);
             Assert.Equal(TaskState.TaskClosedByDriver, taskManager.TaskState(MasterTaskId));
 
             Assert.True(taskManager.AllInFinalState());
@@ -386,7 +386,7 @@ namespace Org.Apache.REEF.IMRU.Tests
 
             //// master task gets communication error before it receives close event, as the task is already in waiting for close state, its state will be changed to TaskClosedByDriver
             var masterTask = CreateMockFailedTask(MasterTaskId, TaskManager.TaskGroupCommunicationError);
-            taskManager.SetFailedTaskInShuttinDown(masterTask);
+            taskManager.SetFailedTaskInShuttingDown(masterTask);
             Assert.Equal(TaskState.TaskClosedByDriver, taskManager.TaskState(MasterTaskId));
 
             Assert.True(taskManager.AllInFinalState());
@@ -411,21 +411,21 @@ namespace Org.Apache.REEF.IMRU.Tests
 
             //// task2 is running , close it
             var runingTask2 = CreateMockRunningTask(MapperTaskIdPrefix + 2);
-            taskManager.CloseRunningTask(runingTask2, TaskManager.CloseTaskByDriver);
+            taskManager.CloseRunningTaskInSystemFailure(runingTask2, TaskManager.CloseTaskByDriver);
             Assert.Equal(TaskState.TaskWaitingForClose, taskManager.TaskState(MapperTaskIdPrefix + 2));
 
             //// master task is running, close it
             var masterTask = CreateMockRunningTask(MasterTaskId);
-            taskManager.CloseRunningTask(masterTask, TaskManager.CloseTaskByDriver);
+            taskManager.CloseRunningTaskInSystemFailure(masterTask, TaskManager.CloseTaskByDriver);
             Assert.Equal(TaskState.TaskWaitingForClose, taskManager.TaskState(MasterTaskId));
 
             //// received task failure because of the closing
             var failedTask2 = CreateMockFailedTask(MapperTaskIdPrefix + 2, TaskManager.TaskKilledByDriver);
-            taskManager.SetFailedTaskInShuttinDown(failedTask2);
+            taskManager.SetFailedTaskInShuttingDown(failedTask2);
 
             //// received task failure because of the closing
             var failedMasterTask = CreateMockFailedTask(MasterTaskId, TaskManager.TaskKilledByDriver);
-            taskManager.SetFailedTaskInShuttinDown(failedMasterTask);
+            taskManager.SetFailedTaskInShuttingDown(failedMasterTask);
 
             Assert.True(taskManager.AllInFinalState());
         }
@@ -452,14 +452,14 @@ namespace Org.Apache.REEF.IMRU.Tests
 
             //// task 2 is now running, close it
             var runingTask2 = CreateMockRunningTask(MapperTaskIdPrefix + 2);
-            taskManager.CloseRunningTask(runingTask2, TaskManager.CloseTaskByDriver);
+            taskManager.CloseRunningTaskInSystemFailure(runingTask2, TaskManager.CloseTaskByDriver);
             Assert.Equal(TaskState.TaskWaitingForClose, taskManager.TaskState(MapperTaskIdPrefix + 2));
 
             var failedTask2 = CreateMockFailedTask(MapperTaskIdPrefix + 2, TaskManager.TaskKilledByDriver);
-            taskManager.SetFailedTaskInShuttinDown(failedTask2);
+            taskManager.SetFailedTaskInShuttingDown(failedTask2);
 
             var failedMasterTask = CreateMockFailedTask(MasterTaskId, TaskManager.TaskKilledByDriver);
-            taskManager.SetFailedTaskInShuttinDown(failedMasterTask);
+            taskManager.SetFailedTaskInShuttingDown(failedMasterTask);
 
             Assert.True(taskManager.AllInFinalState());
         }
@@ -485,10 +485,10 @@ namespace Org.Apache.REEF.IMRU.Tests
             taskManager.CloseAllRunningTasks(TaskManager.CloseTaskByDriver);
 
             var failedTask1 = CreateMockFailedTask(MapperTaskIdPrefix + 1, TaskManager.TaskKilledByDriver);
-            taskManager.SetFailedTaskInShuttinDown(failedTask1);
+            taskManager.SetFailedTaskInShuttingDown(failedTask1);
 
             var failedMasterTask = CreateMockFailedTask(MasterTaskId, TaskManager.TaskKilledByDriver);
-            taskManager.SetFailedTaskInShuttinDown(failedMasterTask);
+            taskManager.SetFailedTaskInShuttingDown(failedMasterTask);
 
             Assert.True(taskManager.AllInFinalState());
         }
@@ -512,21 +512,21 @@ namespace Org.Apache.REEF.IMRU.Tests
 
             //// task 2 is running, now close it
             var runingTask2 = CreateMockRunningTask(MapperTaskIdPrefix + 2);
-            taskManager.CloseRunningTask(runingTask2, TaskManager.CloseTaskByDriver);
+            taskManager.CloseRunningTaskInSystemFailure(runingTask2, TaskManager.CloseTaskByDriver);
             Assert.Equal(TaskState.TaskWaitingForClose, taskManager.TaskState(MapperTaskIdPrefix + 2));
 
             //// master task is running, close it
             var masterTask = CreateMockRunningTask(MasterTaskId);
-            taskManager.CloseRunningTask(masterTask, TaskManager.CloseTaskByDriver);
+            taskManager.CloseRunningTaskInSystemFailure(masterTask, TaskManager.CloseTaskByDriver);
             Assert.Equal(TaskState.TaskWaitingForClose, taskManager.TaskState(MasterTaskId));
 
             //// The task 2 could be failed by communication before receiving close event
             var failedTask2 = CreateMockFailedTask(MapperTaskIdPrefix + 2, TaskManager.TaskGroupCommunicationError);
-            taskManager.SetFailedTaskInShuttinDown(failedTask2);
+            taskManager.SetFailedTaskInShuttingDown(failedTask2);
 
             //// master task failed because receiving close event
             var failedMasterTask = CreateMockFailedTask(MasterTaskId, TaskManager.TaskKilledByDriver);
-            taskManager.SetFailedTaskInShuttinDown(failedMasterTask);
+            taskManager.SetFailedTaskInShuttingDown(failedMasterTask);
 
             Assert.True(taskManager.AllInFinalState());
         }
@@ -552,21 +552,21 @@ namespace Org.Apache.REEF.IMRU.Tests
 
             //// task 2 is running, now close it
             var runingTask2 = CreateMockRunningTask(MapperTaskIdPrefix + 2);
-            taskManager.CloseRunningTask(runingTask2, TaskManager.CloseTaskByDriver);
+            taskManager.CloseRunningTaskInSystemFailure(runingTask2, TaskManager.CloseTaskByDriver);
             Assert.Equal(TaskState.TaskWaitingForClose, taskManager.TaskState(MapperTaskIdPrefix + 2));
 
             //// master task is running, close it
             var masterTask = CreateMockRunningTask(MasterTaskId);
-            taskManager.CloseRunningTask(masterTask, TaskManager.CloseTaskByDriver);
+            taskManager.CloseRunningTaskInSystemFailure(masterTask, TaskManager.CloseTaskByDriver);
             Assert.Equal(TaskState.TaskWaitingForClose, taskManager.TaskState(MasterTaskId));
 
             //// The task 2 could be failed by communication before receiving close event
             var failedTask2 = CreateMockFailedTask(MapperTaskIdPrefix + 2, TaskManager.TaskGroupCommunicationError);
-            taskManager.SetFailedTaskInShuttinDown(failedTask2);
+            taskManager.SetFailedTaskInShuttingDown(failedTask2);
 
             //// master task failed because receiving close event
             var failedMasterTask = CreateMockFailedTask(MasterTaskId, TaskManager.TaskKilledByDriver);
-            taskManager.SetFailedTaskInShuttinDown(failedMasterTask);
+            taskManager.SetFailedTaskInShuttingDown(failedMasterTask);
 
             Assert.True(taskManager.AllInFinalState());
         }
@@ -592,16 +592,16 @@ namespace Org.Apache.REEF.IMRU.Tests
 
             //// master task is running, close it
             var masterTask = CreateMockRunningTask(MasterTaskId);
-            taskManager.CloseRunningTask(masterTask, TaskManager.CloseTaskByDriver);
+            taskManager.CloseRunningTaskInSystemFailure(masterTask, TaskManager.CloseTaskByDriver);
             Assert.Equal(TaskState.TaskWaitingForClose, taskManager.TaskState(MasterTaskId));
 
             //// The task 1 could be failed by communication before receiving close event
             var failedTask1 = CreateMockFailedTask(MapperTaskIdPrefix + 1, TaskManager.TaskGroupCommunicationError);
-            taskManager.SetFailedTaskInShuttinDown(failedTask1);
+            taskManager.SetFailedTaskInShuttingDown(failedTask1);
 
             //// master task failed could be failed by communication error as well
             var failedMasterTask = CreateMockFailedTask(MasterTaskId, TaskManager.TaskGroupCommunicationError);
-            taskManager.SetFailedTaskInShuttinDown(failedMasterTask);
+            taskManager.SetFailedTaskInShuttingDown(failedMasterTask);
 
             Assert.True(taskManager.AllInFinalState());
         }

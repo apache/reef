@@ -50,13 +50,39 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         internal const string TaskKilledByDriver = "TaskKilledByDriver";
         internal const string CloseTaskByDriver = "CloseTaskByDriver";
 
-        private readonly IDictionary<string, Tuple<TaskStateMachine, IConfiguration, IActiveContext>> _tasks
-            = new Dictionary<string, Tuple<TaskStateMachine, IConfiguration, IActiveContext>>();
+        /// <summary>
+        /// This Dictionary contains task information. The key is the Id of the Task, the value is TaskInfo which contains
+        /// task state, partial task configuration, and active context that the task is running on. 
+        /// </summary>
+        private readonly IDictionary<string, TaskInfo> _tasks
+            = new Dictionary<string, TaskInfo>();
+
+        /// <summary>
+        /// This Dictionary keeps all the running tasks. The key is the Task Id and the value is IRunningTask. 
+        /// After a task is running, it will be added to this collection. After the task is requested to close, 
+        /// or fails, completed, it will be removed from this collection. 
+        /// </summary>
         private readonly IDictionary<string, IRunningTask> _runningTasks = new Dictionary<string, IRunningTask>();
 
+        /// <summary>
+        /// This is the reference of the IGroupCommDriver. The IGroupCommDriver is injected with the driver constructor
+        /// and passed to this class. 
+        /// </summary>
         private readonly IGroupCommDriver _groupCommDriver;
+
+        /// <summary>
+        /// Total expected tasks
+        /// </summary>
         private readonly int _totalExpectedTasks;
+
+        /// <summary>
+        /// Master tasks Id is set in the IGroupCommDriver. It must be the same Id used in the TaskManager.
+        /// </summary>
         private readonly string _masterTaskId;
+
+        /// <summary>
+        /// Total number of Application error received from tasks
+        /// </summary>
         private int _numberOfAppError = 0;
 
         /// <summary>
@@ -68,12 +94,12 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         /// <param name="groupCommDriver"></param>
         internal TaskManager(int numTasks, string masterTaskId, IGroupCommDriver groupCommDriver)
         {
-            if (numTasks == 0)
+            if (numTasks <= 0)
             {
                 Exceptions.Throw(new IMRUSystemException("Number of expected task cannot be 0"), Logger);
             }
 
-            if (masterTaskId == null)
+            if (string.IsNullOrWhiteSpace(masterTaskId))
             {
                 Exceptions.Throw(new IMRUSystemException("masterTaskId cannot be null"), Logger);
             }
@@ -131,7 +157,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
                 Exceptions.Throw(new IMRUSystemException(msg), Logger);
             }
 
-            _tasks.Add(taskId, new Tuple<TaskStateMachine, IConfiguration, IActiveContext>(new TaskStateMachine(), taskConfiguration, activeContext));
+            _tasks.Add(taskId, new TaskInfo(new TaskStateMachine(), taskConfiguration, activeContext));
 
             if (NumberOfTasks == _totalExpectedTasks && !MasterTaskExists())
             {
@@ -213,7 +239,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         /// TaskFailedByEvaluatorFailure, update the task state based on the error received. 
         /// </summary>
         /// <param name="failedTask"></param>
-        internal void SetFailedTaskInShuttinDown(IFailedTask failedTask)
+        internal void SetFailedTaskInShuttingDown(IFailedTask failedTask)
         {
             if (TaskState(failedTask.Id) == StateMachine.TaskState.TaskWaitingForClose)
             {
@@ -276,16 +302,16 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
                 var msg = string.Format(CultureInfo.InvariantCulture, "The task [{0}] doesn't exist.", taskId);
                 Exceptions.Throw(new IMRUSystemException(msg), Logger);
             }
-            GetTaskInfo(taskId).Item1.MoveNext(taskEvent);
+            GetTaskInfo(taskId).TaskState.MoveNext(taskEvent);
         }
 
         /// <summary>
         /// Checks if all the tasks are running.
         /// </summary>
         /// <returns></returns>
-        internal bool AreAllTasksAreRunning()
+        internal bool AreAllTasksRunning()
         {
-            return _tasks.All(t => t.Value.Item1.CurrentState == StateMachine.TaskState.TaskRunning) &&
+            return _tasks.All(t => t.Value.TaskState.CurrentState == StateMachine.TaskState.TaskRunning) &&
                 _runningTasks.Count == _totalExpectedTasks;
         }
 
@@ -295,7 +321,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         /// <returns></returns>
         internal bool AreAllTasksAreCompleted()
         {
-            return AllInTheState(StateMachine.TaskState.TaskCompleted) && _tasks.Count == _totalExpectedTasks && _runningTasks.Count == 0;
+            return AreAllTasksInState(StateMachine.TaskState.TaskCompleted) && _tasks.Count == _totalExpectedTasks && _runningTasks.Count == 0;
         }
 
         /// <summary>
@@ -307,7 +333,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         /// </summary>
         internal void CloseAllRunningTasks(string closeMessage)
         {
-            Logger.Log(Level.Info, string.Format(CultureInfo.InvariantCulture, "Closing [{0}] running tasks.", _runningTasks.Count));
+            Logger.Log(Level.Verbose, string.Format(CultureInfo.InvariantCulture, "Closing [{0}] running tasks.", _runningTasks.Count));
             foreach (var runningTask in _runningTasks.Values)
             {
                 runningTask.Dispose(Encoding.UTF8.GetBytes(closeMessage));
@@ -326,7 +352,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         /// </summary>
         /// <param name="runningTask"></param>
         /// <param name="closeMessage"></param>
-        internal void CloseRunningTask(IRunningTask runningTask, string closeMessage)
+        internal void CloseRunningTaskInSystemFailure(IRunningTask runningTask, string closeMessage)
         {
             if (runningTask == null)
             {
@@ -375,7 +401,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         /// Returns the number of application error caused by FailedTask
         /// </summary>
         /// <returns></returns>
-        public int NumberOfAppError()
+        internal int NumberOfAppError()
         {
             return _numberOfAppError;
         }
@@ -386,7 +412,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         /// <returns></returns>
         internal bool AllInFinalState()
         {
-            return _tasks.All(t => t.Value.Item1.IsFinalState());
+            return _tasks.All(t => t.Value.TaskState.IsFinalState());
         }
 
         /// <summary>
@@ -403,7 +429,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
             }
 
             var taskInfo = GetTaskInfo(taskId);
-            return taskInfo.Item1.CurrentState;
+            return taskInfo.TaskState.CurrentState;
         }
 
         /// <summary>
@@ -412,9 +438,9 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         /// </summary>
         /// <param name="taskState"></param>
         /// <returns></returns>
-        internal bool AllInTheState(TaskState taskState)
+        internal bool AreAllTasksInState(TaskState taskState)
         {
-            return _tasks.All(t => t.Value.Item1.CurrentState == taskState);
+            return _tasks.All(t => t.Value.TaskState.CurrentState == taskState);
         }
 
         /// <summary>
@@ -449,8 +475,8 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         private void StartTask(string taskId)
         {
             var taskInfo = GetTaskInfo(taskId);
-            StartTask(taskId, taskInfo.Item2, taskInfo.Item3);
-            taskInfo.Item1.MoveNext(TaskStateEvent.SubmittedTask);
+            StartTask(taskId, taskInfo.TaskConfiguration, taskInfo.ActiveContext);
+            taskInfo.TaskState.MoveNext(TaskStateEvent.SubmittedTask);
         }
 
         /// <summary>
@@ -485,9 +511,9 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         /// </summary>
         /// <param name="taskId"></param>
         /// <returns></returns>
-        private Tuple<TaskStateMachine, IConfiguration, IActiveContext> GetTaskInfo(string taskId)
+        private TaskInfo GetTaskInfo(string taskId)
         {
-            Tuple<TaskStateMachine, IConfiguration, IActiveContext> taskInfo;
+            TaskInfo taskInfo;
             _tasks.TryGetValue(taskId, out taskInfo);
             if (taskInfo == null)
             {
