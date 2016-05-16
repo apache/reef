@@ -35,19 +35,15 @@ public final class Optional<T> implements Serializable {
   private static final long serialVersionUID = 42L;
 
   private final T value;
-  private final String valueStr;
-  private final int valueHash;
+  private static final String EMPTY_VALUE_STR = "OptionalvNothing";
+  private static final int EMPTY_VALUE_HASH = 0;
 
   private Optional(final T value) {
     this.value = value;
-    this.valueStr = "Optional:{" + value + '}';
-    this.valueHash = value.hashCode();
   }
 
   private Optional() {
     this.value = null;
-    this.valueStr = "OptionalvNothing";
-    this.valueHash = 0;
   }
 
   /**
@@ -122,11 +118,19 @@ public final class Optional<T> implements Serializable {
 
   @Override
   public int hashCode() {
-    return this.valueHash;
+    if (this.isPresent()) {
+      return this.value.hashCode();
+    } else {
+      return EMPTY_VALUE_HASH;
+    }
   }
 
   @Override
   public String toString() {
-    return this.valueStr;
+    if (this.isPresent()) {
+      return "Optional:{" + this.value + "}";
+    } else {
+      return EMPTY_VALUE_STR;
+    }
   }
 }
