@@ -173,13 +173,10 @@ namespace Org.Apache.REEF.IMRU.Tests
         [Fact]
         public void InvalidArgumentsInCreatingTaskManger()
         {
-            Action taskManager = () => CreateTaskManager(0, MasterTaskId, CreateMockGroupDriver());
+            Action taskManager = () => CreateTaskManager(0, MasterTaskId);
             Assert.Throws<IMRUSystemException>(taskManager);
 
-            taskManager = () => CreateTaskManager(1, null, CreateMockGroupDriver());
-            Assert.Throws<IMRUSystemException>(taskManager);
-
-            taskManager = () => CreateTaskManager(1, MasterTaskId, null);
+            taskManager = () => CreateTaskManager(1, null);
             Assert.Throws<IMRUSystemException>(taskManager);
         }
 
@@ -192,14 +189,14 @@ namespace Org.Apache.REEF.IMRU.Tests
             var taskManager = TaskManagerWithTasksAdded();
             taskManager.SubmitTasks();
 
-            taskManager.SetRunningTask(CreateMockRunningTask(MasterTaskId));
-            taskManager.SetRunningTask(CreateMockRunningTask(MapperTaskIdPrefix + 1));
-            taskManager.SetRunningTask(CreateMockRunningTask(MapperTaskIdPrefix + 2));
+            taskManager.RecordRunningTask(CreateMockRunningTask(MasterTaskId));
+            taskManager.RecordRunningTask(CreateMockRunningTask(MapperTaskIdPrefix + 1));
+            taskManager.RecordRunningTask(CreateMockRunningTask(MapperTaskIdPrefix + 2));
             Assert.True(taskManager.AreAllTasksInState(TaskState.TaskRunning));
 
-            taskManager.SetCompletedTask(MapperTaskIdPrefix + 1);
-            taskManager.SetCompletedTask(MapperTaskIdPrefix + 2);
-            taskManager.SetCompletedTask(MasterTaskId);
+            taskManager.RecordCompletedTask(MapperTaskIdPrefix + 1);
+            taskManager.RecordCompletedTask(MapperTaskIdPrefix + 2);
+            taskManager.RecordCompletedTask(MasterTaskId);
             Assert.True(taskManager.AreAllTasksInState(TaskState.TaskCompleted));
         }
 
@@ -212,11 +209,11 @@ namespace Org.Apache.REEF.IMRU.Tests
             var taskManager = TaskManagerWithTasksAdded();
             taskManager.SubmitTasks();
 
-            taskManager.SetRunningTask(CreateMockRunningTask(MasterTaskId));
-            taskManager.SetRunningTask(CreateMockRunningTask(MapperTaskIdPrefix + 1));
+            taskManager.RecordRunningTask(CreateMockRunningTask(MasterTaskId));
+            taskManager.RecordRunningTask(CreateMockRunningTask(MapperTaskIdPrefix + 1));
 
             var runningTask2 = CreateMockRunningTask(MapperTaskIdPrefix + 2);
-            taskManager.CloseRunningTaskInSystemFailure(runningTask2, TaskManager.CloseTaskByDriver);
+            taskManager.RecordRunningTaskDuringSystemFailure(runningTask2, TaskManager.CloseTaskByDriver);
 
             taskManager.CloseAllRunningTasks(TaskManager.CloseTaskByDriver);
             Assert.True(taskManager.AreAllTasksInState(TaskState.TaskWaitingForClose));
@@ -231,13 +228,13 @@ namespace Org.Apache.REEF.IMRU.Tests
             var taskManager = TaskManagerWithTasksAdded();
             taskManager.SubmitTasks();
 
-            taskManager.SetRunningTask(CreateMockRunningTask(MasterTaskId));
-            taskManager.SetRunningTask(CreateMockRunningTask(MapperTaskIdPrefix + 1));
-            taskManager.SetRunningTask(CreateMockRunningTask(MapperTaskIdPrefix + 2));
+            taskManager.RecordRunningTask(CreateMockRunningTask(MasterTaskId));
+            taskManager.RecordRunningTask(CreateMockRunningTask(MapperTaskIdPrefix + 1));
+            taskManager.RecordRunningTask(CreateMockRunningTask(MapperTaskIdPrefix + 2));
 
-            taskManager.SetFailedRunningTask(CreateMockFailedTask(MapperTaskIdPrefix + 1, TaskManager.TaskAppError));
-            taskManager.SetFailedRunningTask(CreateMockFailedTask(MapperTaskIdPrefix + 2, TaskManager.TaskGroupCommunicationError));
-            taskManager.SetFailedRunningTask(CreateMockFailedTask(MasterTaskId, TaskManager.TaskSystemError));
+            taskManager.RecordFailedTaskDuringRunningOrSubmissionState(CreateMockFailedTask(MapperTaskIdPrefix + 1, TaskManager.TaskAppError));
+            taskManager.RecordFailedTaskDuringRunningOrSubmissionState(CreateMockFailedTask(MapperTaskIdPrefix + 2, TaskManager.TaskGroupCommunicationError));
+            taskManager.RecordFailedTaskDuringRunningOrSubmissionState(CreateMockFailedTask(MasterTaskId, TaskManager.TaskSystemError));
             Assert.True(taskManager.AllInFinalState());
         }
 
@@ -249,8 +246,8 @@ namespace Org.Apache.REEF.IMRU.Tests
         {
             var taskManager = TaskManagerWithTasksAdded();
             taskManager.SubmitTasks();
-            taskManager.SetFailedRunningTask(CreateMockFailedTask(MapperTaskIdPrefix + 1, TaskManager.TaskAppError));
-            taskManager.SetFailedRunningTask(CreateMockFailedTask(MapperTaskIdPrefix + 2, TaskManager.TaskSystemError));
+            taskManager.RecordFailedTaskDuringRunningOrSubmissionState(CreateMockFailedTask(MapperTaskIdPrefix + 1, TaskManager.TaskAppError));
+            taskManager.RecordFailedTaskDuringRunningOrSubmissionState(CreateMockFailedTask(MapperTaskIdPrefix + 2, TaskManager.TaskSystemError));
             Assert.Equal(1, taskManager.NumberOfAppError());
         }
 
@@ -263,28 +260,28 @@ namespace Org.Apache.REEF.IMRU.Tests
             var taskManager = TaskManagerWithTasksAdded();
             taskManager.SubmitTasks();
 
-            taskManager.SetRunningTask(CreateMockRunningTask(MapperTaskIdPrefix + 1));
-            taskManager.SetRunningTask(CreateMockRunningTask(MapperTaskIdPrefix + 2));
+            taskManager.RecordRunningTask(CreateMockRunningTask(MapperTaskIdPrefix + 1));
+            taskManager.RecordRunningTask(CreateMockRunningTask(MapperTaskIdPrefix + 2));
 
             //// This task failed by evaluator then failed by itself
             var failedTask1 = CreateMockFailedTask(MapperTaskIdPrefix + 1, TaskManager.TaskSystemError);
-            taskManager.SetTaskFailByEvaluator(CreateMockFailedEvaluator("eId1", failedTask1));
+            taskManager.RecordTaskFailWhenReceivingFailedEvaluator(CreateMockFailedEvaluator("eId1", failedTask1));
             Assert.Equal(TaskState.TaskFailedByEvaluatorFailure, taskManager.TaskState(MapperTaskIdPrefix + 1));
             //// no state change should happen in this case
-            taskManager.SetFailedTaskInShuttingDown(failedTask1);
+            taskManager.RecordFailedTaskDuringSystemShuttingDownState(failedTask1);
             Assert.Equal(TaskState.TaskFailedByEvaluatorFailure, taskManager.TaskState(MapperTaskIdPrefix + 1));
 
             //// This task failed by itself first, then failed by Evaluator failure
             var failedTask2 = CreateMockFailedTask(MapperTaskIdPrefix + 2, TaskManager.TaskGroupCommunicationError);
-            taskManager.SetFailedRunningTask(failedTask2);
+            taskManager.RecordFailedTaskDuringRunningOrSubmissionState(failedTask2);
             Assert.Equal(TaskState.TaskFailedByGroupCommunication, taskManager.TaskState(MapperTaskIdPrefix + 2));
-            taskManager.SetTaskFailByEvaluator(CreateMockFailedEvaluator("eId2", failedTask2));
+            taskManager.RecordTaskFailWhenReceivingFailedEvaluator(CreateMockFailedEvaluator("eId2", failedTask2));
             Assert.Equal(TaskState.TaskFailedByEvaluatorFailure, taskManager.TaskState(MapperTaskIdPrefix + 2));
 
             //// close the running task during shutting down
             var masterRuningTask = CreateMockRunningTask(MasterTaskId);
-            taskManager.CloseRunningTaskInSystemFailure(masterRuningTask, TaskManager.CloseTaskByDriver);
-            taskManager.SetFailedTaskInShuttingDown(CreateMockFailedTask(MasterTaskId, TaskManager.TaskKilledByDriver));
+            taskManager.RecordRunningTaskDuringSystemFailure(masterRuningTask, TaskManager.CloseTaskByDriver);
+            taskManager.RecordFailedTaskDuringSystemShuttingDownState(CreateMockFailedTask(MasterTaskId, TaskManager.TaskKilledByDriver));
             Assert.Equal(TaskState.TaskClosedByDriver, taskManager.TaskState(MasterTaskId));
 
             Assert.True(taskManager.AllInFinalState());
@@ -299,13 +296,13 @@ namespace Org.Apache.REEF.IMRU.Tests
             var taskManager = TaskManagerWithTasksAdded();
             taskManager.SubmitTasks();
 
-            taskManager.SetRunningTask(CreateMockRunningTask(MasterTaskId));
-            taskManager.SetRunningTask(CreateMockRunningTask(MapperTaskIdPrefix + 1));
-            taskManager.SetRunningTask(CreateMockRunningTask(MapperTaskIdPrefix + 2));
+            taskManager.RecordRunningTask(CreateMockRunningTask(MasterTaskId));
+            taskManager.RecordRunningTask(CreateMockRunningTask(MapperTaskIdPrefix + 1));
+            taskManager.RecordRunningTask(CreateMockRunningTask(MapperTaskIdPrefix + 2));
 
             //// A task fail first
             var failedTask1 = CreateMockFailedTask(MapperTaskIdPrefix + 1, TaskManager.TaskSystemError);
-            taskManager.SetFailedRunningTask(failedTask1);
+            taskManager.RecordFailedTaskDuringRunningOrSubmissionState(failedTask1);
             Assert.Equal(TaskState.TaskFailedBySystemError, taskManager.TaskState(MapperTaskIdPrefix + 1));
 
             //// system is in shutting down, close all other tasks
@@ -313,11 +310,11 @@ namespace Org.Apache.REEF.IMRU.Tests
 
             //// task 2 is killed by driver
             var failedTask2 = CreateMockFailedTask(MapperTaskIdPrefix + 2, TaskManager.TaskKilledByDriver);
-            taskManager.SetFailedTaskInShuttingDown(failedTask2);
+            taskManager.RecordFailedTaskDuringSystemShuttingDownState(failedTask2);
 
             //// master task is killed by driver
             var masterTask = CreateMockFailedTask(MasterTaskId, TaskManager.TaskKilledByDriver);
-            taskManager.SetFailedTaskInShuttingDown(masterTask);
+            taskManager.RecordFailedTaskDuringSystemShuttingDownState(masterTask);
 
             Assert.True(taskManager.AllInFinalState());
         }
@@ -331,13 +328,13 @@ namespace Org.Apache.REEF.IMRU.Tests
             var taskManager = TaskManagerWithTasksAdded();
             taskManager.SubmitTasks();
 
-            taskManager.SetRunningTask(CreateMockRunningTask(MasterTaskId));
-            taskManager.SetRunningTask(CreateMockRunningTask(MapperTaskIdPrefix + 1));
-            taskManager.SetRunningTask(CreateMockRunningTask(MapperTaskIdPrefix + 2));
+            taskManager.RecordRunningTask(CreateMockRunningTask(MasterTaskId));
+            taskManager.RecordRunningTask(CreateMockRunningTask(MapperTaskIdPrefix + 1));
+            taskManager.RecordRunningTask(CreateMockRunningTask(MapperTaskIdPrefix + 2));
 
             //// Evaluator error
             var failedTask1 = CreateMockFailedTask(MapperTaskIdPrefix + 1, TaskManager.TaskSystemError);
-            taskManager.SetTaskFailByEvaluator(CreateMockFailedEvaluator("eId1", failedTask1));
+            taskManager.RecordTaskFailWhenReceivingFailedEvaluator(CreateMockFailedEvaluator("eId1", failedTask1));
             Assert.Equal(TaskState.TaskFailedByEvaluatorFailure, taskManager.TaskState(MapperTaskIdPrefix + 1));
 
             //// system is in shutting down, close all other tasks
@@ -347,12 +344,12 @@ namespace Org.Apache.REEF.IMRU.Tests
 
             //// Another task may get failed by communication during the shutting down
             var failedTask2 = CreateMockFailedTask(MapperTaskIdPrefix + 2, TaskManager.TaskGroupCommunicationError);
-            taskManager.SetFailedTaskInShuttingDown(failedTask2);
+            taskManager.RecordFailedTaskDuringSystemShuttingDownState(failedTask2);
             Assert.Equal(TaskState.TaskClosedByDriver, taskManager.TaskState(MapperTaskIdPrefix + 2));
 
             //// The task that receives the close from driver now send failed event back to driver
             var masterTask = CreateMockFailedTask(MasterTaskId, TaskManager.TaskKilledByDriver);
-            taskManager.SetFailedTaskInShuttingDown(masterTask);
+            taskManager.RecordFailedTaskDuringSystemShuttingDownState(masterTask);
             Assert.Equal(TaskState.TaskClosedByDriver, taskManager.TaskState(MasterTaskId));
 
             Assert.True(taskManager.AllInFinalState());
@@ -367,13 +364,13 @@ namespace Org.Apache.REEF.IMRU.Tests
             var taskManager = TaskManagerWithTasksAdded();
             taskManager.SubmitTasks();
 
-            taskManager.SetRunningTask(CreateMockRunningTask(MasterTaskId));
-            taskManager.SetRunningTask(CreateMockRunningTask(MapperTaskIdPrefix + 1));
-            taskManager.SetRunningTask(CreateMockRunningTask(MapperTaskIdPrefix + 2));
+            taskManager.RecordRunningTask(CreateMockRunningTask(MasterTaskId));
+            taskManager.RecordRunningTask(CreateMockRunningTask(MapperTaskIdPrefix + 1));
+            taskManager.RecordRunningTask(CreateMockRunningTask(MapperTaskIdPrefix + 2));
 
             //// A task fails first
             var failedTask1 = CreateMockFailedTask(MapperTaskIdPrefix + 1, TaskManager.TaskSystemError);
-            taskManager.SetFailedRunningTask(failedTask1);
+            taskManager.RecordFailedTaskDuringRunningOrSubmissionState(failedTask1);
             Assert.Equal(TaskState.TaskFailedBySystemError, taskManager.TaskState(MapperTaskIdPrefix + 1));
 
             //// system is in shutting down, close all other tasks
@@ -381,12 +378,12 @@ namespace Org.Apache.REEF.IMRU.Tests
 
             //// An Evaluator fails during shut down, as the task is already in waiting for close state, its state will be changed to TaskClosedByDriver
             var failedTask2 = CreateMockFailedTask(MapperTaskIdPrefix + 2, TaskManager.TaskSystemError);
-            taskManager.SetTaskFailByEvaluator(CreateMockFailedEvaluator("eId2", failedTask2));
+            taskManager.RecordTaskFailWhenReceivingFailedEvaluator(CreateMockFailedEvaluator("eId2", failedTask2));
             Assert.Equal(TaskState.TaskClosedByDriver, taskManager.TaskState(MapperTaskIdPrefix + 2));
 
             //// master task gets communication error before it receives close event, as the task is already in waiting for close state, its state will be changed to TaskClosedByDriver
             var masterTask = CreateMockFailedTask(MasterTaskId, TaskManager.TaskGroupCommunicationError);
-            taskManager.SetFailedTaskInShuttingDown(masterTask);
+            taskManager.RecordFailedTaskDuringSystemShuttingDownState(masterTask);
             Assert.Equal(TaskState.TaskClosedByDriver, taskManager.TaskState(MasterTaskId));
 
             Assert.True(taskManager.AllInFinalState());
@@ -403,7 +400,7 @@ namespace Org.Apache.REEF.IMRU.Tests
 
             //// Evaluator error
             var failedTask1 = CreateMockFailedTask(MapperTaskIdPrefix + 1, TaskManager.TaskSystemError);
-            taskManager.SetTaskFailByEvaluator(CreateMockFailedEvaluator("eId1", failedTask1));
+            taskManager.RecordTaskFailWhenReceivingFailedEvaluator(CreateMockFailedEvaluator("eId1", failedTask1));
             Assert.Equal(TaskState.TaskFailedByEvaluatorFailure, taskManager.TaskState(MapperTaskIdPrefix + 1));
 
             //// there is no any running task yet
@@ -411,21 +408,21 @@ namespace Org.Apache.REEF.IMRU.Tests
 
             //// task2 is running , close it
             var runingTask2 = CreateMockRunningTask(MapperTaskIdPrefix + 2);
-            taskManager.CloseRunningTaskInSystemFailure(runingTask2, TaskManager.CloseTaskByDriver);
+            taskManager.RecordRunningTaskDuringSystemFailure(runingTask2, TaskManager.CloseTaskByDriver);
             Assert.Equal(TaskState.TaskWaitingForClose, taskManager.TaskState(MapperTaskIdPrefix + 2));
 
             //// master task is running, close it
             var masterTask = CreateMockRunningTask(MasterTaskId);
-            taskManager.CloseRunningTaskInSystemFailure(masterTask, TaskManager.CloseTaskByDriver);
+            taskManager.RecordRunningTaskDuringSystemFailure(masterTask, TaskManager.CloseTaskByDriver);
             Assert.Equal(TaskState.TaskWaitingForClose, taskManager.TaskState(MasterTaskId));
 
             //// received task failure because of the closing
             var failedTask2 = CreateMockFailedTask(MapperTaskIdPrefix + 2, TaskManager.TaskKilledByDriver);
-            taskManager.SetFailedTaskInShuttingDown(failedTask2);
+            taskManager.RecordFailedTaskDuringSystemShuttingDownState(failedTask2);
 
             //// received task failure because of the closing
             var failedMasterTask = CreateMockFailedTask(MasterTaskId, TaskManager.TaskKilledByDriver);
-            taskManager.SetFailedTaskInShuttingDown(failedMasterTask);
+            taskManager.RecordFailedTaskDuringSystemShuttingDownState(failedMasterTask);
 
             Assert.True(taskManager.AllInFinalState());
         }
@@ -439,12 +436,12 @@ namespace Org.Apache.REEF.IMRU.Tests
             var taskManager = TaskManagerWithTasksAdded();
             taskManager.SubmitTasks();
 
-            taskManager.SetRunningTask(CreateMockRunningTask(MasterTaskId));
-            taskManager.SetRunningTask(CreateMockRunningTask(MapperTaskIdPrefix + 1));
+            taskManager.RecordRunningTask(CreateMockRunningTask(MasterTaskId));
+            taskManager.RecordRunningTask(CreateMockRunningTask(MapperTaskIdPrefix + 1));
 
             //// Evaluator error
             var failedTask1 = CreateMockFailedTask(MapperTaskIdPrefix + 1, TaskManager.TaskSystemError);
-            taskManager.SetTaskFailByEvaluator(CreateMockFailedEvaluator("eId1", failedTask1));
+            taskManager.RecordTaskFailWhenReceivingFailedEvaluator(CreateMockFailedEvaluator("eId1", failedTask1));
             Assert.Equal(TaskState.TaskFailedByEvaluatorFailure, taskManager.TaskState(MapperTaskIdPrefix + 1));
 
             //// the master task should be closed
@@ -452,14 +449,14 @@ namespace Org.Apache.REEF.IMRU.Tests
 
             //// task 2 is now running, close it
             var runingTask2 = CreateMockRunningTask(MapperTaskIdPrefix + 2);
-            taskManager.CloseRunningTaskInSystemFailure(runingTask2, TaskManager.CloseTaskByDriver);
+            taskManager.RecordRunningTaskDuringSystemFailure(runingTask2, TaskManager.CloseTaskByDriver);
             Assert.Equal(TaskState.TaskWaitingForClose, taskManager.TaskState(MapperTaskIdPrefix + 2));
 
             var failedTask2 = CreateMockFailedTask(MapperTaskIdPrefix + 2, TaskManager.TaskKilledByDriver);
-            taskManager.SetFailedTaskInShuttingDown(failedTask2);
+            taskManager.RecordFailedTaskDuringSystemShuttingDownState(failedTask2);
 
             var failedMasterTask = CreateMockFailedTask(MasterTaskId, TaskManager.TaskKilledByDriver);
-            taskManager.SetFailedTaskInShuttingDown(failedMasterTask);
+            taskManager.RecordFailedTaskDuringSystemShuttingDownState(failedMasterTask);
 
             Assert.True(taskManager.AllInFinalState());
         }
@@ -473,22 +470,22 @@ namespace Org.Apache.REEF.IMRU.Tests
             var taskManager = TaskManagerWithTasksAdded();
             taskManager.SubmitTasks();
 
-            taskManager.SetRunningTask(CreateMockRunningTask(MasterTaskId));
-            taskManager.SetRunningTask(CreateMockRunningTask(MapperTaskIdPrefix + 1));
+            taskManager.RecordRunningTask(CreateMockRunningTask(MasterTaskId));
+            taskManager.RecordRunningTask(CreateMockRunningTask(MapperTaskIdPrefix + 1));
 
             //// Evaluator error
             var failedTask2 = CreateMockFailedTask(MapperTaskIdPrefix + 2, TaskManager.TaskSystemError);
-            taskManager.SetTaskFailByEvaluator(CreateMockFailedEvaluator("eId2", failedTask2));
+            taskManager.RecordTaskFailWhenReceivingFailedEvaluator(CreateMockFailedEvaluator("eId2", failedTask2));
             Assert.Equal(TaskState.TaskFailedByEvaluatorFailure, taskManager.TaskState(MapperTaskIdPrefix + 2));
 
             //// Send event to close master task and task1
             taskManager.CloseAllRunningTasks(TaskManager.CloseTaskByDriver);
 
             var failedTask1 = CreateMockFailedTask(MapperTaskIdPrefix + 1, TaskManager.TaskKilledByDriver);
-            taskManager.SetFailedTaskInShuttingDown(failedTask1);
+            taskManager.RecordFailedTaskDuringSystemShuttingDownState(failedTask1);
 
             var failedMasterTask = CreateMockFailedTask(MasterTaskId, TaskManager.TaskKilledByDriver);
-            taskManager.SetFailedTaskInShuttingDown(failedMasterTask);
+            taskManager.RecordFailedTaskDuringSystemShuttingDownState(failedMasterTask);
 
             Assert.True(taskManager.AllInFinalState());
         }
@@ -504,7 +501,7 @@ namespace Org.Apache.REEF.IMRU.Tests
 
             //// Evaluator error
             var failedTask1 = CreateMockFailedTask(MapperTaskIdPrefix + 1, TaskManager.TaskSystemError);
-            taskManager.SetFailedRunningTask(failedTask1);
+            taskManager.RecordFailedTaskDuringRunningOrSubmissionState(failedTask1);
             Assert.Equal(TaskState.TaskFailedBySystemError, taskManager.TaskState(MapperTaskIdPrefix + 1));
 
             //// there is no any running task yet
@@ -512,21 +509,21 @@ namespace Org.Apache.REEF.IMRU.Tests
 
             //// task 2 is running, now close it
             var runingTask2 = CreateMockRunningTask(MapperTaskIdPrefix + 2);
-            taskManager.CloseRunningTaskInSystemFailure(runingTask2, TaskManager.CloseTaskByDriver);
+            taskManager.RecordRunningTaskDuringSystemFailure(runingTask2, TaskManager.CloseTaskByDriver);
             Assert.Equal(TaskState.TaskWaitingForClose, taskManager.TaskState(MapperTaskIdPrefix + 2));
 
             //// master task is running, close it
             var masterTask = CreateMockRunningTask(MasterTaskId);
-            taskManager.CloseRunningTaskInSystemFailure(masterTask, TaskManager.CloseTaskByDriver);
+            taskManager.RecordRunningTaskDuringSystemFailure(masterTask, TaskManager.CloseTaskByDriver);
             Assert.Equal(TaskState.TaskWaitingForClose, taskManager.TaskState(MasterTaskId));
 
             //// The task 2 could be failed by communication before receiving close event
             var failedTask2 = CreateMockFailedTask(MapperTaskIdPrefix + 2, TaskManager.TaskGroupCommunicationError);
-            taskManager.SetFailedTaskInShuttingDown(failedTask2);
+            taskManager.RecordFailedTaskDuringSystemShuttingDownState(failedTask2);
 
             //// master task failed because receiving close event
             var failedMasterTask = CreateMockFailedTask(MasterTaskId, TaskManager.TaskKilledByDriver);
-            taskManager.SetFailedTaskInShuttingDown(failedMasterTask);
+            taskManager.RecordFailedTaskDuringSystemShuttingDownState(failedMasterTask);
 
             Assert.True(taskManager.AllInFinalState());
         }
@@ -540,11 +537,11 @@ namespace Org.Apache.REEF.IMRU.Tests
             var taskManager = TaskManagerWithTasksAdded();
             taskManager.SubmitTasks();
 
-            taskManager.SetRunningTask(CreateMockRunningTask(MapperTaskIdPrefix + 1));
+            taskManager.RecordRunningTask(CreateMockRunningTask(MapperTaskIdPrefix + 1));
 
             //// Evaluator error
             var failedTask1 = CreateMockFailedTask(MapperTaskIdPrefix + 1, TaskManager.TaskSystemError);
-            taskManager.SetFailedRunningTask(failedTask1);
+            taskManager.RecordFailedTaskDuringRunningOrSubmissionState(failedTask1);
             Assert.Equal(TaskState.TaskFailedBySystemError, taskManager.TaskState(MapperTaskIdPrefix + 1));
 
             //// there is no any running task yet
@@ -552,21 +549,21 @@ namespace Org.Apache.REEF.IMRU.Tests
 
             //// task 2 is running, now close it
             var runingTask2 = CreateMockRunningTask(MapperTaskIdPrefix + 2);
-            taskManager.CloseRunningTaskInSystemFailure(runingTask2, TaskManager.CloseTaskByDriver);
+            taskManager.RecordRunningTaskDuringSystemFailure(runingTask2, TaskManager.CloseTaskByDriver);
             Assert.Equal(TaskState.TaskWaitingForClose, taskManager.TaskState(MapperTaskIdPrefix + 2));
 
             //// master task is running, close it
             var masterTask = CreateMockRunningTask(MasterTaskId);
-            taskManager.CloseRunningTaskInSystemFailure(masterTask, TaskManager.CloseTaskByDriver);
+            taskManager.RecordRunningTaskDuringSystemFailure(masterTask, TaskManager.CloseTaskByDriver);
             Assert.Equal(TaskState.TaskWaitingForClose, taskManager.TaskState(MasterTaskId));
 
             //// The task 2 could be failed by communication before receiving close event
             var failedTask2 = CreateMockFailedTask(MapperTaskIdPrefix + 2, TaskManager.TaskGroupCommunicationError);
-            taskManager.SetFailedTaskInShuttingDown(failedTask2);
+            taskManager.RecordFailedTaskDuringSystemShuttingDownState(failedTask2);
 
             //// master task failed because receiving close event
             var failedMasterTask = CreateMockFailedTask(MasterTaskId, TaskManager.TaskKilledByDriver);
-            taskManager.SetFailedTaskInShuttingDown(failedMasterTask);
+            taskManager.RecordFailedTaskDuringSystemShuttingDownState(failedMasterTask);
 
             Assert.True(taskManager.AllInFinalState());
         }
@@ -580,11 +577,11 @@ namespace Org.Apache.REEF.IMRU.Tests
             var taskManager = TaskManagerWithTasksAdded();
             taskManager.SubmitTasks();
 
-            taskManager.SetRunningTask(CreateMockRunningTask(MapperTaskIdPrefix + 1));
+            taskManager.RecordRunningTask(CreateMockRunningTask(MapperTaskIdPrefix + 1));
 
             //// Evaluator error
             var failedTask2 = CreateMockFailedTask(MapperTaskIdPrefix + 2, TaskManager.TaskSystemError);
-            taskManager.SetFailedRunningTask(failedTask2);
+            taskManager.RecordFailedTaskDuringRunningOrSubmissionState(failedTask2);
             Assert.Equal(TaskState.TaskFailedBySystemError, taskManager.TaskState(MapperTaskIdPrefix + 2));
 
             //// there is no any running task yet
@@ -592,16 +589,16 @@ namespace Org.Apache.REEF.IMRU.Tests
 
             //// master task is running, close it
             var masterTask = CreateMockRunningTask(MasterTaskId);
-            taskManager.CloseRunningTaskInSystemFailure(masterTask, TaskManager.CloseTaskByDriver);
+            taskManager.RecordRunningTaskDuringSystemFailure(masterTask, TaskManager.CloseTaskByDriver);
             Assert.Equal(TaskState.TaskWaitingForClose, taskManager.TaskState(MasterTaskId));
 
             //// The task 1 could be failed by communication before receiving close event
             var failedTask1 = CreateMockFailedTask(MapperTaskIdPrefix + 1, TaskManager.TaskGroupCommunicationError);
-            taskManager.SetFailedTaskInShuttingDown(failedTask1);
+            taskManager.RecordFailedTaskDuringSystemShuttingDownState(failedTask1);
 
             //// master task failed could be failed by communication error as well
             var failedMasterTask = CreateMockFailedTask(MasterTaskId, TaskManager.TaskGroupCommunicationError);
-            taskManager.SetFailedTaskInShuttingDown(failedMasterTask);
+            taskManager.RecordFailedTaskDuringSystemShuttingDownState(failedMasterTask);
 
             Assert.True(taskManager.AllInFinalState());
         }
@@ -612,7 +609,7 @@ namespace Org.Apache.REEF.IMRU.Tests
         /// <returns></returns>
         private static TaskManager CreateTaskManager()
         {
-            return CreateTaskManager(TotalNumberOfTasks, MasterTaskId, CreateMockGroupDriver());
+            return CreateTaskManager(TotalNumberOfTasks, MasterTaskId);
         }
 
         /// <summary>
@@ -620,11 +617,10 @@ namespace Org.Apache.REEF.IMRU.Tests
         /// </summary>
         /// <param name="numTasks"></param>
         /// <param name="masterTaskId"></param>
-        /// <param name="groupCommDriver"></param>
         /// <returns></returns>
-        private static TaskManager CreateTaskManager(int numTasks, string masterTaskId, IGroupCommDriver groupCommDriver)
+        private static TaskManager CreateTaskManager(int numTasks, string masterTaskId)
         {
-            var taskManager = new TaskManager(numTasks, masterTaskId, groupCommDriver);
+            var taskManager = new TaskManager(numTasks, masterTaskId);
             return taskManager;
         }
 
@@ -652,20 +648,6 @@ namespace Org.Apache.REEF.IMRU.Tests
             mockActiveContext.Id.Returns(ContextIdPrefix + id);
             mockActiveContext.EvaluatorId.Returns(EvaluatorIdPrefix + ContextIdPrefix + id);
             return mockActiveContext;
-        }
-
-        /// <summary>
-        /// Creates a mock IGroupCommDriver
-        /// </summary>
-        /// <returns></returns>
-        private static IGroupCommDriver CreateMockGroupDriver()
-        {
-            var groupDriver = Substitute.For<IGroupCommDriver>();
-            groupDriver.MasterTaskId.Returns(MasterTaskId);
-            groupDriver.GetGroupCommTaskConfiguration(MasterTaskId).Returns(MockConfig());
-            groupDriver.GetGroupCommTaskConfiguration(MapperTaskIdPrefix + 1).Returns(MockConfig());
-            groupDriver.GetGroupCommTaskConfiguration(MapperTaskIdPrefix + 2).Returns(MockConfig());
-            return groupDriver;
         }
 
         /// <summary>

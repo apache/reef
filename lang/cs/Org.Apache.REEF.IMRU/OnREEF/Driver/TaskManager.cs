@@ -15,18 +15,14 @@
 // specific language governing permissions and limitations
 // under the License.
 
-using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Text;
-using Org.Apache.REEF.Common;
 using Org.Apache.REEF.Driver.Context;
 using Org.Apache.REEF.Driver.Evaluator;
 using Org.Apache.REEF.Driver.Task;
 using Org.Apache.REEF.IMRU.OnREEF.Driver.StateMachine;
-using Org.Apache.REEF.Network.Group.Driver;
-using Org.Apache.REEF.Tang.Implementations.Configuration;
 using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Utilities.Attributes;
 using Org.Apache.REEF.Utilities.Diagnostics;
@@ -51,7 +47,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         internal const string CloseTaskByDriver = "CloseTaskByDriver";
 
         /// <summary>
-        /// This Dictionary contains task information. The key is the Id of the Task, the value is TaskInfo which contains
+        /// This Dictionary contains task information. The key is the Id of CloseAllRunningTasksthe Task, the value is TaskInfo which contains
         /// task state, partial task configuration, and active context that the task is running on. 
         /// </summary>
         private readonly IDictionary<string, TaskInfo> _tasks
@@ -63,12 +59,6 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         /// or fails, completed, it will be removed from this collection. 
         /// </summary>
         private readonly IDictionary<string, IRunningTask> _runningTasks = new Dictionary<string, IRunningTask>();
-
-        /// <summary>
-        /// This is the reference of the IGroupCommDriver. The IGroupCommDriver is injected with the driver constructor
-        /// and passed to this class. 
-        /// </summary>
-        private readonly IGroupCommDriver _groupCommDriver;
 
         /// <summary>
         /// Total expected tasks
@@ -86,13 +76,12 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         private int _numberOfAppError = 0;
 
         /// <summary>
-        /// Creates a TaskManager with specified total number of tasks, master task id and associated IGroupCommDriver.
-        /// Throws IMRUSystemException if numTasks is 0, or masterTaskId is null, or groupCommDriver is null.
+        /// Creates a TaskManager with specified total number of tasks and master task id.
+        /// Throws IMRUSystemException if numTasks is 0 or masterTaskId is null.
         /// </summary>
         /// <param name="numTasks"></param>
         /// <param name="masterTaskId"></param>
-        /// <param name="groupCommDriver"></param>
-        internal TaskManager(int numTasks, string masterTaskId, IGroupCommDriver groupCommDriver)
+        internal TaskManager(int numTasks, string masterTaskId)
         {
             if (numTasks <= 0)
             {
@@ -104,14 +93,8 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
                 Exceptions.Throw(new IMRUSystemException("masterTaskId cannot be null"), Logger);
             }
 
-            if (groupCommDriver == null)
-            {
-                Exceptions.Throw(new IMRUSystemException("groupCommDriver cannot be null"), Logger);
-            }
-
             _totalExpectedTasks = numTasks;
             _masterTaskId = masterTaskId;
-            _groupCommDriver = groupCommDriver;
         }
 
         /// <summary>
@@ -129,6 +112,11 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         /// <param name="activeContext"></param>
         internal void AddTask(string taskId, IConfiguration taskConfiguration, IActiveContext activeContext)
         {
+            if (taskId == null)
+            {
+                Exceptions.Throw(new IMRUSystemException("The taskId is null."), Logger);
+            }
+
             if (_tasks.ContainsKey(taskId))
             {
                 var msg = string.Format(CultureInfo.InvariantCulture, "The task [{0}] already exists.", taskId);
@@ -179,7 +167,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         /// Throws IMRUSystemException if running tasks already contains this task or tasks collection doesn't contain this task.
         /// </summary>
         /// <param name="runningTask"></param>
-        internal void SetRunningTask(IRunningTask runningTask)
+        internal void RecordRunningTask(IRunningTask runningTask)
         {
             if (_runningTasks.ContainsKey(runningTask.Id))
             {
@@ -214,7 +202,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         /// Changes the task state from RunningTask to CompletedTask
         /// </summary>
         /// <param name="taskId"></param>
-        internal void SetCompletedTask(string taskId)
+        internal void RecordCompletedTask(string taskId)
         {
             RemoveRunningTask(taskId);
             UpdateState(taskId, TaskStateEvent.CompletedTask);
@@ -226,9 +214,10 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         /// Updates the task state to fail based on the error message in the failed task
         /// </summary>
         /// <param name="failedTask"></param>
-        internal void SetFailedRunningTask(IFailedTask failedTask)
+        internal void RecordFailedTaskDuringRunningOrSubmissionState(IFailedTask failedTask)
         {
-            RemoveRunningTask(failedTask.Id);
+            //// Remove the task from running tasks if it exists there
+            _runningTasks.Remove(failedTask.Id);
             UpdateState(failedTask.Id, GetTaskErrorEvent(failedTask));
         }
 
@@ -239,13 +228,14 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         /// TaskFailedByEvaluatorFailure, update the task state based on the error received. 
         /// </summary>
         /// <param name="failedTask"></param>
-        internal void SetFailedTaskInShuttingDown(IFailedTask failedTask)
+        internal void RecordFailedTaskDuringSystemShuttingDownState(IFailedTask failedTask)
         {
-            if (TaskState(failedTask.Id) == StateMachine.TaskState.TaskWaitingForClose)
+            var taskState = TaskState(failedTask.Id);
+            if (taskState == StateMachine.TaskState.TaskWaitingForClose)
             {
                 UpdateState(failedTask.Id, TaskStateEvent.ClosedTask);
             }
-            else if (TaskState(failedTask.Id) != StateMachine.TaskState.TaskFailedByEvaluatorFailure)
+            else if (taskState != StateMachine.TaskState.TaskFailedByEvaluatorFailure)
             {
                 UpdateState(failedTask.Id, GetTaskErrorEvent(failedTask));
             }
@@ -257,12 +247,13 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         /// Sets the task state to TaskFailedByEvaluatorFailure 
         /// </summary>
         /// <param name="failedEvaluator"></param>
-        internal void SetTaskFailByEvaluator(IFailedEvaluator failedEvaluator)
+        internal void RecordTaskFailWhenReceivingFailedEvaluator(IFailedEvaluator failedEvaluator)
         {
             if (failedEvaluator.FailedTask.IsPresent())
             {
                 var taskId = failedEvaluator.FailedTask.Value.Id;
-                if (TaskState(taskId) == StateMachine.TaskState.TaskRunning)
+                var taskState = TaskState(taskId);
+                if (taskState == StateMachine.TaskState.TaskRunning)
                 {
                     RemoveRunningTask(taskId);
                 }
@@ -284,10 +275,12 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         /// <param name="taskId"></param>
         private void RemoveRunningTask(string taskId)
         {
-            if (_runningTasks.ContainsKey(taskId))
+            if (!_runningTasks.ContainsKey(taskId))
             {
-                _runningTasks.Remove(taskId);
+                var msg = string.Format(CultureInfo.InvariantCulture, "The task [{0}] doesn't exist in Running Tasks.", taskId);
+                Exceptions.Throw(new IMRUSystemException(msg), Logger);
             }
+            _runningTasks.Remove(taskId);
         }
 
         /// <summary>
@@ -297,11 +290,6 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         /// <param name="taskEvent"></param>
         private void UpdateState(string taskId, TaskStateEvent taskEvent)
         {
-            if (!_tasks.ContainsKey(taskId))
-            {
-                var msg = string.Format(CultureInfo.InvariantCulture, "The task [{0}] doesn't exist.", taskId);
-                Exceptions.Throw(new IMRUSystemException(msg), Logger);
-            }
             GetTaskInfo(taskId).TaskState.MoveNext(taskEvent);
         }
 
@@ -311,7 +299,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         /// <returns></returns>
         internal bool AreAllTasksRunning()
         {
-            return _tasks.All(t => t.Value.TaskState.CurrentState == StateMachine.TaskState.TaskRunning) &&
+            return AreAllTasksInState(StateMachine.TaskState.TaskRunning) &&
                 _runningTasks.Count == _totalExpectedTasks;
         }
 
@@ -319,7 +307,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         /// Checks if all the tasks are completed.
         /// </summary>
         /// <returns></returns>
-        internal bool AreAllTasksAreCompleted()
+        internal bool AreAllTasksCompleted()
         {
             return AreAllTasksInState(StateMachine.TaskState.TaskCompleted) && _tasks.Count == _totalExpectedTasks && _runningTasks.Count == 0;
         }
@@ -333,7 +321,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         /// </summary>
         internal void CloseAllRunningTasks(string closeMessage)
         {
-            Logger.Log(Level.Verbose, string.Format(CultureInfo.InvariantCulture, "Closing [{0}] running tasks.", _runningTasks.Count));
+            Logger.Log(Level.Verbose, "Closing [{0}] running tasks.", _runningTasks.Count);
             foreach (var runningTask in _runningTasks.Values)
             {
                 runningTask.Dispose(Encoding.UTF8.GetBytes(closeMessage));
@@ -352,26 +340,25 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         /// </summary>
         /// <param name="runningTask"></param>
         /// <param name="closeMessage"></param>
-        internal void CloseRunningTaskInSystemFailure(IRunningTask runningTask, string closeMessage)
+        internal void RecordRunningTaskDuringSystemFailure(IRunningTask runningTask, string closeMessage)
         {
             if (runningTask == null)
             {
                 Exceptions.Throw(new IMRUSystemException("RunningTask is null."), Logger);
             }
-            else if (_runningTasks.ContainsKey(runningTask.Id))
+
+            if (_runningTasks.ContainsKey(runningTask.Id))
             {
                 var msg = string.Format(CultureInfo.InvariantCulture, "The task [{0}] is already in running tasks.", runningTask.Id);
                 Exceptions.Throw(new IMRUSystemException(msg), Logger);
             }
-            else
+
+            if (TaskState(runningTask.Id) == StateMachine.TaskState.TaskSubmitted)
             {
-                if (TaskState(runningTask.Id) == StateMachine.TaskState.TaskSubmitted)
-                {
-                    UpdateState(runningTask.Id, TaskStateEvent.RunningTask);
-                }
-                runningTask.Dispose(Encoding.UTF8.GetBytes(closeMessage));
-                UpdateState(runningTask.Id, TaskStateEvent.WaitingTaskToClose);
+                UpdateState(runningTask.Id, TaskStateEvent.RunningTask);
             }
+            runningTask.Dispose(Encoding.UTF8.GetBytes(closeMessage));
+            UpdateState(runningTask.Id, TaskStateEvent.WaitingTaskToClose);
         }
 
         /// <summary>
@@ -382,8 +369,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         /// <returns></returns>
         private TaskStateEvent GetTaskErrorEvent(IFailedTask failedTask)
         {
-            var errorMessage = failedTask.Message;
-            switch (errorMessage)
+            switch (failedTask.Message)
             {
                 case TaskAppError:
                     _numberOfAppError++;
@@ -422,12 +408,6 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         /// <returns></returns>
         internal TaskState TaskState(string taskId)
         {
-            if (!_tasks.ContainsKey(taskId))
-            {
-                var msg = string.Format(CultureInfo.InvariantCulture, "The task [{0}] doesn't exist.", taskId);
-                Exceptions.Throw(new IMRUSystemException(msg), Logger);
-            }
-
             var taskInfo = GetTaskInfo(taskId);
             return taskInfo.TaskState.CurrentState;
         }
@@ -456,44 +436,12 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
                 Exceptions.Throw(new IMRUSystemException(msg), Logger);
             }
 
-            StartTask(_masterTaskId);
-
             foreach (var taskId in _tasks.Keys)
             {
-                if (taskId.Equals(_masterTaskId))
-                {
-                    continue;
-                }
-                StartTask(taskId);
+                var taskInfo = GetTaskInfo(taskId);
+                taskInfo.ActiveContext.SubmitTask(taskInfo.TaskConfiguration);
+                UpdateState(taskId, TaskStateEvent.SubmittedTask);
             }
-        }
-
-        /// <summary>
-        /// Starts a task and then update the task status to submitted.
-        /// </summary>
-        /// <param name="taskId"></param>
-        private void StartTask(string taskId)
-        {
-            var taskInfo = GetTaskInfo(taskId);
-            StartTask(taskId, taskInfo.TaskConfiguration, taskInfo.ActiveContext);
-            taskInfo.TaskState.MoveNext(TaskStateEvent.SubmittedTask);
-        }
-
-        /// <summary>
-        /// Gets GroupCommTaskConfiguration from IGroupCommDriver and merges it with the user partial task configuration.
-        /// Then submits the task with the ActiveContext.
-        /// </summary>
-        /// <param name="taskId"></param>
-        /// <param name="userPartialTaskConf"></param>
-        /// <param name="activeContext"></param>
-        private void StartTask(
-            string taskId,
-            IConfiguration userPartialTaskConf,
-            ITaskSubmittable activeContext)
-        {
-            var groupCommTaskConfiguration = _groupCommDriver.GetGroupCommTaskConfiguration(taskId);
-            var mergedTaskConf = Configurations.Merge(userPartialTaskConf, groupCommTaskConfiguration);
-            activeContext.SubmitTask(mergedTaskConf);
         }
 
         /// <summary>

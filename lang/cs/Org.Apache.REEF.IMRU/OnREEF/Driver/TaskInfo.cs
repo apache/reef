@@ -23,17 +23,36 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
 {
     internal sealed class TaskInfo
     {
-        internal TaskStateMachine TaskState { get; set; }
-    
-        internal IConfiguration TaskConfiguration { get; set; }
-            
-        internal IActiveContext ActiveContext { get; set; }
+        private readonly TaskStateMachine _taskState;
+        private readonly IConfiguration _taskConfiguration;
+        private readonly IActiveContext _activeContext;
 
+        /// <summary>
+        /// Construct a TaskInfo that wraps task state, task configuration, and active context for submitting the task 
+        /// </summary>
+        /// <param name="taskState"></param>
+        /// <param name="config"></param>
+        /// <param name="context"></param>
         internal TaskInfo(TaskStateMachine taskState, IConfiguration config, IActiveContext context)
         {
-            TaskState = taskState;
-            TaskConfiguration = config;
-            ActiveContext = context;
+            _taskState = taskState;
+            _taskConfiguration = config;
+            _activeContext = context;
+        }
+
+        internal TaskStateMachine TaskState
+        {
+            get { return _taskState; }
+        }
+
+        internal IConfiguration TaskConfiguration
+        {
+            get { return _taskConfiguration; }
+        }
+
+        internal IActiveContext ActiveContext
+        {
+            get { return _activeContext; }
         }
     }
 }
