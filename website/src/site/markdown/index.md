@@ -16,36 +16,35 @@ KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
 -->
-#Apache REEF&trade;
+Apache REEF&trade; - a `stdlib` for Big Data
+=============================================
+Apache REEF&trade; (Retainable Evaluator Execution Framework) is a  library for developing portable applications for cluster resource managers such as [Apache Hadoop&trade; YARN][YARN] or [Apache Mesos&trade;][Mesos]. Apache REEF drastically simplifies development of those resource managers through the following features:
 
-###What is REEF?
+Features
+--------
+ * **Centralized Control Flow:** Apache REEF turns the chaos of a distributed application into events in a single machine, the Job Driver. Events include container allocation, Task launch, completion and failure. For failures, Apache REEF makes every effort of making the actual `Exception` thrown by the Task available to the Driver.
+ * **Task runtime:** Apache REEF provides a Task runtime called Evaluator. Evaluators are instantiated in every container of a REEF application. They can be reused for subsequent tasks as well as support to handover data between such tasks.
+ * **Support for multiple resource managers:** Apache REEF applications are portable between any supported resource manager with minimal effort. Further, new resource managers are easy to support in REEF. 
+ * **.NET and Java API:** Apache REEF is the only API to write YARN or Mesos applications in .NET. Further, a single REEF application is free to mix and match Tasks written for .NET or Java.
+ * **Plugins:** Apache REEF allows for plugins (called "Services") to augment its feature set without adding bloat to the core. REEF includes many Services, such as a name-based communications between Tasks, MPI-inspired group communications (`Broadcast`, `Reduce`, `Gather`, ...) and data ingress.   
 
-**REEF**, the Retainable Evaluator Execution Framework, is our approach to simplify and unify the lower layers of big data systems on modern resource managers.
+REEF @ Apache Big Data 2016
+---------------------------
 
-For managers like Apache YARN, Apache Mesos, Google Omega, and Facebook Corona, REEF provides a centralized control plane abstraction that can be used to build a decentralized data plane for supporting big data systems. Special consideration is given to graph computation and machine learning applications, both of which require data *retention* on allocated resources to execute multiple passes over the data.
+<iframe src="//www.slideshare.net/slideshow/embed_code/key/1HgrkEUWqqD2x1" width="595" height="485" frameborder="0" marginwidth="0" marginheight="0" scrolling="no" style="border:1px solid #CCC; border-width:1px; margin-bottom:5px; max-width: 100%;"> </iframe>
 
-More broadly, applications that run on YARN will have the need for a variety of data-processing tasks e.g., data shuffle, group communication, aggregation, checkpointing, and many more. Rather than reimplement these for each application, REEF aims to provide them in a library form, so that they can be reused by higher-level applications and tuned for a specific domain problem e.g., Machine Learning.
+Latest Release
+--------------
+The latest release of Apache REEF is 0.14.0. Please go to the [downloads] page to find out more.
 
-In that sense, our long-term vision is that REEF will mature into a Big Data Application Server, that will host a variety of tool kits and applications, on modern resource managers.
+Is it Building?
+--------------
+| Component |    OS   | Status |
+|-----------|:-------:|:------:|
+|REEF Java  | Ubuntu  | [![Build Status](https://travis-ci.org/apache/reef.svg?branch=master)](https://travis-ci.org/apache/reef) |
+|REEF.NET   | Windows | [![Build status](https://ci.appveyor.com/api/projects/status/qwvl6d4d8891e09d/branch/master?svg=true)](https://ci.appveyor.com/project/ApacheSoftwareFoundation/reef/branch/master) |
 
-<div style="text-align:center" markdown="1">
-    <img>
-        <img src ="REEFDiagram.png"/>
-    </img>
-</div>
-
-###How can I get started?
-
-The official home for the REEF (and Tang and Wake) source code is at the Apache Software Foundation. You can check out the current code via:
-
-    $ git clone git://git.apache.org/reef.git
-
-or directly access its GitHub page [here](https://github.com/apache/reef).
-
-Detailed information about REEF and using it can be found in the [FAQ](faq.html) and the [Tutorial](https://cwiki.apache.org/confluence/display/REEF/Tutorials).
-
-If you wish to contribute, start at the [Contributing](https://cwiki.apache.org/confluence/display/REEF/Contributing) tutorial or the [Committer Guide](https://cwiki.apache.org/confluence/display/REEF/Committer+Guide)!
-
-###Further questions?
-
-Please visit our [Frequently Asked Questions](faq.html) page or use our [Mailing List](mailing-list.html) to send us a question!
+[YARN]: https://hadoop.apache.org/docs/current/hadoop-yarn/hadoop-yarn-site/YARN.html
+[Mesos]: https://mesos.apache.org/
+[Twill]: http://twill.apache.org/
+[downloads]: /downloads.html
