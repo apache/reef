@@ -32,26 +32,35 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
 {
     /// <summary>
     /// Manages Tasks, maintains task states and responsible for task submission
-    /// It covers the functionality in TaskStarter which will be not used in IMRU driver. 
     /// </summary>
     [NotThreadSafe]
     internal sealed class TaskManager
     {
         private static readonly Logger Logger = Logger.GetLogger(typeof(TaskManager));
 
+        /// <summary>
+        /// Error messages thrown in IMRU tasks when an exception happens
+        /// </summary>
         internal const string TaskAppError = "TaskAppError";
         internal const string TaskSystemError = "TaskSystemError";
         internal const string TaskGroupCommunicationError = "TaskGroupCommunicationError";
         internal const string TaskEvaluatorError = "TaskEvaluatorError";
-        internal const string TaskKilledByDriver = "TaskKilledByDriver";
+
+        /// <summary>
+        /// Message sending from driver to evaluator to close a running task
+        /// </summary>
         internal const string CloseTaskByDriver = "CloseTaskByDriver";
 
         /// <summary>
-        /// This Dictionary contains task information. The key is the Id of CloseAllRunningTasksthe Task, the value is TaskInfo which contains
-        /// task state, partial task configuration, and active context that the task is running on. 
+        /// Error message in Task exception to show the task received close event
         /// </summary>
-        private readonly IDictionary<string, TaskInfo> _tasks
-            = new Dictionary<string, TaskInfo>();
+        internal const string TaskKilledByDriver = "TaskKilledByDriver";
+
+        /// <summary>
+        /// This Dictionary contains task information. The key is the Id of the Task, the value is TaskInfo which contains
+        /// task state, task configuration, and active context that the task is running on. 
+        /// </summary>
+        private readonly IDictionary<string, TaskInfo> _tasks = new Dictionary<string, TaskInfo>();
 
         /// <summary>
         /// This Dictionary keeps all the running tasks. The key is the Task Id and the value is IRunningTask. 
@@ -77,7 +86,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
 
         /// <summary>
         /// Creates a TaskManager with specified total number of tasks and master task id.
-        /// Throws IMRUSystemException if numTasks is 0 or masterTaskId is null.
+        /// Throws IMRUSystemException if numTasks is smaller than or equals to 0 or masterTaskId is null.
         /// </summary>
         /// <param name="numTasks"></param>
         /// <param name="masterTaskId"></param>
@@ -139,12 +148,6 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
                 Exceptions.Throw(new IMRUSystemException(msg), Logger);
             }
 
-            if (taskId.Equals(_masterTaskId) && MasterTaskExists())
-            {
-                string msg = string.Format("Trying to add second master Task {0}.", taskId);
-                Exceptions.Throw(new IMRUSystemException(msg), Logger);
-            }
-
             _tasks.Add(taskId, new TaskInfo(new TaskStateMachine(), taskConfiguration, activeContext));
 
             if (NumberOfTasks == _totalExpectedTasks && !MasterTaskExists())
@@ -162,7 +165,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         }
 
         /// <summary>
-        /// This method is called when receiving IRunningTask event during system SubmittingTasks state.
+        /// This method is called when receiving IRunningTask event during task submitting.
         /// Adds the IRunningTask to the running tasks collection and update the task state to TaskRunning.
         /// Throws IMRUSystemException if running tasks already contains this task or tasks collection doesn't contain this task.
         /// </summary>
@@ -201,11 +204,11 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         /// Removes the task from running tasks
         /// Changes the task state from RunningTask to CompletedTask
         /// </summary>
-        /// <param name="taskId"></param>
-        internal void RecordCompletedTask(string taskId)
+        /// <param name="completedTask"></param>
+        internal void RecordCompletedTask(ICompletedTask completedTask)
         {
-            RemoveRunningTask(taskId);
-            UpdateState(taskId, TaskStateEvent.CompletedTask);
+            RemoveRunningTask(completedTask.Id);
+            UpdateState(completedTask.Id, TaskStateEvent.CompletedTask);
         }
 
         /// <summary>
@@ -230,7 +233,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         /// <param name="failedTask"></param>
         internal void RecordFailedTaskDuringSystemShuttingDownState(IFailedTask failedTask)
         {
-            var taskState = TaskState(failedTask.Id);
+            var taskState = GetTaskState(failedTask.Id);
             if (taskState == StateMachine.TaskState.TaskWaitingForClose)
             {
                 UpdateState(failedTask.Id, TaskStateEvent.ClosedTask);
@@ -242,7 +245,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         }
 
         /// <summary>
-        /// This method is called when receiving an IFailedEvaluator event during TaskSubmitted, TaskRunning or system ShuttingDown.
+        /// This method is called when receiving an IFailedEvaluator event during TaskSubmitted, TaskRunning or system shutting down.
         /// Removes the task from RunningTasks if the task associated with the FailedEvaluator is present and running. 
         /// Sets the task state to TaskFailedByEvaluatorFailure 
         /// </summary>
@@ -252,13 +255,13 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
             if (failedEvaluator.FailedTask.IsPresent())
             {
                 var taskId = failedEvaluator.FailedTask.Value.Id;
-                var taskState = TaskState(taskId);
+                var taskState = GetTaskState(taskId);
                 if (taskState == StateMachine.TaskState.TaskRunning)
                 {
                     RemoveRunningTask(taskId);
                 }
 
-                if (TaskState(taskId) == StateMachine.TaskState.TaskWaitingForClose)
+                if (GetTaskState(taskId) == StateMachine.TaskState.TaskWaitingForClose)
                 {
                     UpdateState(taskId, TaskStateEvent.ClosedTask);
                 }
@@ -331,7 +334,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         }
 
         /// <summary>
-        /// This method is called when receiving an IRunningTask event but system is either in ShuttingDown or Fail state.
+        /// This method is called when receiving an IRunningTask event but system is either in shutting down or fail.
         /// In this case, the task should not be added in Running Tasks yet.
         /// Change the task state to TaskRunning if it is still in TaskSubmitted state
         /// Closes the IRunningTask 
@@ -353,7 +356,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
                 Exceptions.Throw(new IMRUSystemException(msg), Logger);
             }
 
-            if (TaskState(runningTask.Id) == StateMachine.TaskState.TaskSubmitted)
+            if (GetTaskState(runningTask.Id) == StateMachine.TaskState.TaskSubmitted)
             {
                 UpdateState(runningTask.Id, TaskStateEvent.RunningTask);
             }
@@ -406,7 +409,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         /// </summary>
         /// <param name="taskId"></param>
         /// <returns></returns>
-        internal TaskState TaskState(string taskId)
+        internal TaskState GetTaskState(string taskId)
         {
             var taskInfo = GetTaskInfo(taskId);
             return taskInfo.TaskState.CurrentState;
