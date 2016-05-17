@@ -1,0 +1,42 @@
+<!--
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+
+http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+-->
+Apache REEF&trade; - a `stdlib` for Big Data
+=============================================
+Apache REEF&trade; (Retainable Evaluator Execution Framework) is a  library for developing portable applications for cluster resource managers such as [Apache Hadoop&trade; YARN][YARN] or [Apache Mesos&trade;][Mesos]. Apache REEF drastically simplifies development of those resource managers through the following features:
+
+Features
+--------
+ * **Centralized Control Flow:** Apache REEF turns the chaos of a distributed application into events in a single machine, the Job Driver. Events include container allocation, Task launch, completion and failure. For failures, Apache REEF makes every effort of making the actual `Exception` thrown by the Task available to the Driver.
+ * **Task runtime:** Apache REEF provides a Task runtime called Evaluator. Evaluators are instantiated in every container of a REEF application. Evaluators can keep data in memory in between Tasks, which enables efficient pipelines on REEF.
+ * **Support for multiple resource managers:** Apache REEF applications are portable to any supported resource manager with minimal effort. Further, new resource managers are easy to support in REEF. 
+ * **.NET and Java API:** Apache REEF is the only API to write YARN or Mesos applications in .NET. Further, a single REEF application is free to mix and match Tasks written for .NET or Java.
+ * **Plugins:** Apache REEF allows for plugins (called "Services") to augment its feature set without adding bloat to the core. REEF includes many Services, such as a name-based communications between Tasks, MPI-inspired group communications (`Broadcast`, `Reduce`, `Gather`, ...) and data ingress.   
+
+REEF @ Apache Big Data 2016
+---------------------------
+
+<iframe src="http://www.slideshare.net/slideshow/embed_code/key/1HgrkEUWqqD2x1" width="595" height="485" frameborder="0" marginwidth="0" marginheight="0" scrolling="no" style="border:1px solid #CCC; border-width:1px; margin-bottom:5px; max-width: 100%;"> </iframe>
+
+Latest Release
+--------------
+The latest release of Apache REEF is ${currentStableVersion}. Please go to the [downloads] page to find out more.
+
+[YARN]: https://hadoop.apache.org/docs/current/hadoop-yarn/hadoop-yarn-site/YARN.html
+[Mesos]: https://mesos.apache.org/
+[downloads]: downloads.html
