@@ -39,40 +39,26 @@ namespace Org.Apache.REEF.Client.Tests
         private const string AnyHttpsAddressConfig = @"anyotherhost:9088";
 
         private const string YarnConfigurationXmlContent = @"<?xml version=""1.0""?>
-<?xml-stylesheet type=""text/xsl"" href=""configuration.xsl""?>
-<!-- Put site-specific property overrides in this file. -->
-<configuration xmlns:xi=""http://www.w3.org/2001/XInclude"">
-  <property>
-    <name>yarn.resourcemanager.webapp.https.address</name>
-    <value>" + AnyHttpsAddressConfig + @"</value>
-  </property>
-  <property>
-    <name>yarn.resourcemanager.webapp.address</name>
-    <value>" + AnyHttpAddressConfig + @"</value>
-  </property>
-  <property>
-    <name>yarn.nodemanager.local-dirs</name>
-    <value>C:\hdpdata\hadoop\local</value>
-  </property>
-</configuration>";
-
-        private const string YarnConfigurationXmlContentChanged = @"<?xml version=""1.0""?>
-<?xml-stylesheet type=""text/xsl"" href=""configuration.xsl""?>
-<!-- Put site-specific property overrides in this file. -->
-<configuration xmlns:xi=""http://www.w3.org/2001/XInclude"">
-  <property>
-    <name>yarn.resourcemanager.webapp.https.address</name>
-    <value>" + AnyHttpsAddressConfig + @"</value>
-  </property>
-  <property>
-    <name>yarn.resourcemanager.webapp.address</name>
-    <value>" + AnyHttpAddressConfigUpdated + @"</value>
-  </property>
-  <property>
-    <name>yarn.nodemanager.local-dirs</name>
-    <value>C:\hdpdata\hadoop\local</value>
-  </property>
-</configuration>";
+            <?xml-stylesheet type=""text/xsl"" href=""configuration.xsl""?>
+            <!-- Put site-specific property overrides in this file. -->
+            <configuration xmlns:xi=""http://www.w3.org/2001/XInclude"">
+              <property>
+                <name>yarn.http.policy</name>
+                <value>HTTP_AND_HTTPS</value>
+              </property>
+              <property>
+                <name>yarn.resourcemanager.webapp.https.address</name>
+                <value>" + AnyHttpsAddressConfig + @"</value>
+              </property>
+              <property>
+                <name>yarn.resourcemanager.webapp.address</name>
+                <value>" + AnyHttpAddressConfigUpdated + @"</value>
+              </property>
+              <property>
+                <name>yarn.nodemanager.local-dirs</name>
+                <value>C:\hdpdata\hadoop\local</value>
+              </property>
+            </configuration>";
 
         [Fact]
         public void UrlProviderReadsEnvVarConfiguredConfigFileAndParsesCorrectHttpUrl()
@@ -137,19 +123,11 @@ namespace Org.Apache.REEF.Client.Tests
         {
             using (new TemporaryOverrideEnvironmentVariable(HadoopConfDirEnvVariable, string.Empty))
             {
-                try
-                {
-                    YarnConfigurationUrlProvider urlProviderNotUsed = GetYarnConfigurationUrlProvider();
-                    Assert.True(false, "Should throw exception");
-                }
-                catch (InjectionException injectionException)
-                {
-                    Assert.True(injectionException.GetBaseException() is ArgumentException);
-                }
+                Assert.Throws<InjectionException>(() => GetYarnConfigurationUrlProvider());
             }
         }
 
-        private YarnConfigurationUrlProvider GetYarnConfigurationUrlProvider(
+        private static YarnConfigurationUrlProvider GetYarnConfigurationUrlProvider(
             string anyHadoopConfigDir = null,
             bool useHttps = false)
         {
