@@ -82,7 +82,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         /// <summary>
         /// Total number of Application error received from tasks
         /// </summary>
-        private int _numberOfAppError = 0;
+        private int _numberOfAppErrors = 0;
 
         /// <summary>
         /// Creates a TaskManager with specified total number of tasks and master task id.
@@ -196,7 +196,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         {
             _tasks.Clear();
             _runningTasks.Clear();
-            _numberOfAppError = 0;
+            _numberOfAppErrors = 0;
         }
 
         /// <summary>
@@ -261,14 +261,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
                     RemoveRunningTask(taskId);
                 }
 
-                if (GetTaskState(taskId) == StateMachine.TaskState.TaskWaitingForClose)
-                {
-                    UpdateState(taskId, TaskStateEvent.ClosedTask);
-                }
-                else
-                {
-                    UpdateState(taskId, TaskStateEvent.FailedTaskEvaluatorError);
-                }
+                UpdateState(taskId, TaskStateEvent.FailedTaskEvaluatorError);
             }
         }
 
@@ -356,10 +349,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
                 Exceptions.Throw(new IMRUSystemException(msg), Logger);
             }
 
-            if (GetTaskState(runningTask.Id) == StateMachine.TaskState.TaskSubmitted)
-            {
-                UpdateState(runningTask.Id, TaskStateEvent.RunningTask);
-            }
+            UpdateState(runningTask.Id, TaskStateEvent.RunningTask);
             runningTask.Dispose(Encoding.UTF8.GetBytes(closeMessage));
             UpdateState(runningTask.Id, TaskStateEvent.WaitingTaskToClose);
         }
@@ -375,7 +365,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
             switch (failedTask.Message)
             {
                 case TaskAppError:
-                    _numberOfAppError++;
+                    _numberOfAppErrors++;
                     return TaskStateEvent.FailedTaskAppError;
                 case TaskSystemError:
                     return TaskStateEvent.FailedTaskSystemError;
@@ -390,9 +380,9 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         /// Returns the number of application error caused by FailedTask
         /// </summary>
         /// <returns></returns>
-        internal int NumberOfAppError()
+        internal int NumberOfAppErrors()
         {
-            return _numberOfAppError;
+            return _numberOfAppErrors;
         }
 
         /// <summary>

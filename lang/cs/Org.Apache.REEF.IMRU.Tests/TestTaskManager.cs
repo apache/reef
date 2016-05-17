@@ -51,7 +51,7 @@ namespace Org.Apache.REEF.IMRU.Tests
             Assert.Equal(TotalNumberOfTasks, taskManager.NumberOfTasks);
             taskManager.Reset();
             Assert.Equal(0, taskManager.NumberOfTasks);
-            Assert.Equal(0, taskManager.NumberOfAppError());
+            Assert.Equal(0, taskManager.NumberOfAppErrors());
         }
 
         /// <summary>
@@ -100,7 +100,7 @@ namespace Org.Apache.REEF.IMRU.Tests
         {
             var taskManager = CreateTaskManager();
             taskManager.AddTask(MapperTaskIdPrefix + 1, MockConfig(), CreateMockActiveContext(1));
-            taskManager.AddTask(MapperTaskIdPrefix + 2, MockConfig(), CreateMockActiveContext(1));
+            taskManager.AddTask(MapperTaskIdPrefix + 2, MockConfig(), CreateMockActiveContext(2));
             Action add = () => taskManager.AddTask(MapperTaskIdPrefix + 3, MockConfig(), CreateMockActiveContext(3));
             Assert.Throws<IMRUSystemException>(add);
         }
@@ -161,7 +161,7 @@ namespace Org.Apache.REEF.IMRU.Tests
         }
 
         /// <summary>
-        /// Tests set tasks to complete for running tasks
+        /// Tests whether all tasks rightly reach Running and Completed states
         /// </summary>
         [Fact]
         public void TestCompletingTasks()
@@ -176,10 +176,10 @@ namespace Org.Apache.REEF.IMRU.Tests
         }
 
         /// <summary>
-        /// Tests adding/closing running tasks
+        /// Tests closing running tasks
         /// </summary>
         [Fact]
-        public void TestAddingClosingRunningTasks()
+        public void TestClosingRunningTasks()
         {
             var taskManager = TaskManagerWithTasksSubmitted();
 
@@ -194,7 +194,7 @@ namespace Org.Apache.REEF.IMRU.Tests
         }
 
         /// <summary>
-        /// Tests set tasks to fail for running tasks
+        /// Tests record failed tasks after all the tasks are running
         /// </summary>
         [Fact]
         public void TestFailedRunningTasks()
@@ -217,7 +217,7 @@ namespace Org.Apache.REEF.IMRU.Tests
 
             taskManager.RecordFailedTaskDuringRunningOrSubmissionState(CreateMockFailedTask(MapperTaskIdPrefix + 1, TaskManager.TaskAppError));
             taskManager.RecordFailedTaskDuringRunningOrSubmissionState(CreateMockFailedTask(MapperTaskIdPrefix + 2, TaskManager.TaskSystemError));
-            Assert.Equal(1, taskManager.NumberOfAppError());
+            Assert.Equal(1, taskManager.NumberOfAppErrors());
         }
 
         /// <summary>
