@@ -17,11 +17,15 @@
 
 using System;
 using Org.Apache.REEF.Tang.Annotations;
+using Org.Apache.REEF.Utilities;
+using Org.Apache.REEF.Utilities.Logging;
 
 namespace Org.Apache.REEF.Common.Evaluator
 {
     public sealed class DefaultYarnClusterHttpDriverConnection : IDriverConnection
     {
+        private static readonly Logger Logger = Logger.GetLogger(typeof(DefaultYarnClusterHttpDriverConnection));
+
         private readonly string _applicationId;
 
         [Inject]
@@ -37,14 +41,28 @@ namespace Org.Apache.REEF.Common.Evaluator
                 throw new ApplicationException("Could not fetch the application ID from YARN's container environment variables.");
             }
 
-            // e.g., http://headnodehost:9014/proxy/application_1407519727821_0012/reef/v1/driver
-            Uri queryUri = new Uri(
-                string.Concat(
-                Constants.HDInsightClusterHttpEndpointBaseUri,
-                _applicationId + "/",
-                Constants.HttpReefUriSpecification,
-                Constants.HttpDriverUriTarget));
-            return DriverInformation.GetDriverInformationFromHttp(queryUri);
+            var yarnRMWebAppEndpoints = Yarn.GetYarnRMWebappEndpoints();
+
+            foreach (var yarnRMWebAppEndpoint in yarnRMWebAppEndpoints)
+            {
+                try
+                {
+                    var queryUri = new Uri(
+                        yarnRMWebAppEndpoint, 
+                        "proxy/" + _applicationId + "/" + Constants.HttpReefUriSpecification + Constants.HttpDriverUriTarget);
+                    return DriverInformation.GetDriverInformationFromHttp(queryUri);
+                }
+                catch (Exception ex)
+                {
+                    Utilities.Diagnostics.Exceptions.Caught(
+                        ex,
+                        Level.Info,
+                        "Unable to reach RM at " + yarnRMWebAppEndpoint,
+                        Logger);
+                }
+            }
+
+            throw new ApplicationException("Unable to get Driver Information.");
         }
     }
 }

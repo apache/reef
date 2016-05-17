@@ -133,23 +133,16 @@ namespace Org.Apache.REEF.Client.Tests
         }
 
         [Fact]
-        public void CannotFindHadoopConfigDirThrowsArgumentException()
+        public async Task CannotFindHadoopConfigDirThrowsArgumentException()
         {
             using (new TemporaryOverrideEnvironmentVariable(HadoopConfDirEnvVariable, string.Empty))
             {
-                try
-                {
-                    YarnConfigurationUrlProvider urlProviderNotUsed = GetYarnConfigurationUrlProvider();
-                    Assert.True(false, "Should throw exception");
-                }
-                catch (InjectionException injectionException)
-                {
-                    Assert.True(injectionException.GetBaseException() is ArgumentException);
-                }
+                var urlProvider = GetYarnConfigurationUrlProvider();
+                await Assert.ThrowsAsync<ArgumentException>(async () => await urlProvider.GetUrlAsync());
             }
         }
 
-        private YarnConfigurationUrlProvider GetYarnConfigurationUrlProvider(
+        private static YarnConfigurationUrlProvider GetYarnConfigurationUrlProvider(
             string anyHadoopConfigDir = null,
             bool useHttps = false)
         {

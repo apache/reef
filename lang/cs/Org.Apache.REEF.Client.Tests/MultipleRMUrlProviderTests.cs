@@ -18,6 +18,7 @@
 using System;
 using System.Globalization;
 using System.IO;
+using System.Threading.Tasks;
 using Org.Apache.REEF.Client.Yarn.RestClient;
 using Org.Apache.REEF.Client.YARN.RestClient;
 using Org.Apache.REEF.Tang.Exceptions;
@@ -40,6 +41,10 @@ namespace Org.Apache.REEF.Client.Tests
 <?xml-stylesheet type=""text/xsl"" href=""configuration.xsl""?>
 <!-- Put site-specific property overrides in this file. -->
 <configuration xmlns:xi=""http://www.w3.org/2001/XInclude"">
+  <property>
+    <name>yarn.resourcemanager.ha.rm-ids</name>
+    <value>rm1,rm2</value>
+  </property>
   <property>
     <name>yarn.resourcemanager.webapp.address.rm1</name>
     <value>" + AnyHttpAddressConfig + @"</value>
@@ -89,23 +94,16 @@ namespace Org.Apache.REEF.Client.Tests
         }
 
         [Fact]
-        public void CannotFindHadoopConfigDirThrowsArgumentException()
+        public async Task CannotFindHadoopConfigDirThrowsArgumentException()
         {
             using (new YarnConfigurationUrlProviderTests.TemporaryOverrideEnvironmentVariable(HadoopConfDirEnvVariable, string.Empty))
             {
-                try
-                {
-                    IUrlProvider urlProviderNotUsed = GetYarnConfigurationUrlProvider();
-                    Assert.True(false, "Should throw exception");
-                }
-                catch (InjectionException injectionException)
-                {
-                    Assert.True(injectionException.GetBaseException() is ArgumentException);
-                }
+                var urlProvider = GetYarnConfigurationUrlProvider();
+                await Assert.ThrowsAsync<ArgumentException>(async () => await urlProvider.GetUrlAsync());
             }
         }
 
-        private IUrlProvider GetYarnConfigurationUrlProvider()
+        private static IUrlProvider GetYarnConfigurationUrlProvider()
         {
             var builder = TangFactory.GetTang().NewConfigurationBuilder()
                 .BindImplementation(GenericType<IUrlProvider>.Class, GenericType<MultipleRMUrlProvider>.Class)

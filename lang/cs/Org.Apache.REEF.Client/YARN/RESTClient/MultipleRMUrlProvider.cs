@@ -17,58 +17,24 @@
 
 using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 using System.Threading.Tasks;
-using System.Xml.Linq;
 using Org.Apache.REEF.Client.Yarn.RestClient;
 using Org.Apache.REEF.Tang.Annotations;
-using Org.Apache.REEF.Utilities.Logging;
 
 namespace Org.Apache.REEF.Client.YARN.RestClient
 {
-    public class MultipleRMUrlProvider : IUrlProvider
+    [Obsolete("Deprecated in 0.16. The default implementation of IUrlProvider," +
+              " YarnConfigurationUrlProvider, provides the same functionality as MultipleRMUrlProvider.")]
+    public sealed class MultipleRMUrlProvider : IUrlProvider
     {
-        private const string RmConfigKeyPrefix = "yarn.resourcemanager.webapp.address.rm";
-        private static readonly string HadoopConfDirEnvVariable = "HADOOP_CONF_DIR";
-        private static readonly string YarnConfigFileName = "yarn-site.xml";
-        private static readonly Logger Logger = Logger.GetLogger(typeof(MultipleRMUrlProvider));
-        private IList<Uri> _yarnRmUri;
-
         [Inject]
         private MultipleRMUrlProvider()
         {
-            var hadoopConfigDir = Environment.GetEnvironmentVariable(HadoopConfDirEnvVariable);
-
-            if (string.IsNullOrEmpty(hadoopConfigDir) || !Directory.Exists(hadoopConfigDir))
-            {
-                throw new ArgumentException(HadoopConfDirEnvVariable + " is not configured or does not exist.",
-                    "hadoopConfigDir");
-            }
-
-            Logger.Log(Level.Verbose, "Using {0} as hadoop configuration directory", hadoopConfigDir);
-            string yarnConfigurationFile = Path.Combine(hadoopConfigDir, YarnConfigFileName);
-            LoadYarnConfiguration(yarnConfigurationFile);
         }
 
         public Task<IEnumerable<Uri>> GetUrlAsync()
         {
-            return Task.FromResult((IEnumerable<Uri>)_yarnRmUri);
-        }
-
-        private void LoadYarnConfiguration(string yarnConfigurationFile)
-        {
-            var configRoot = XElement.Load(yarnConfigurationFile);
-            var address = configRoot.Elements("property")
-                .Where(x =>
-                    ((string)x.Element("name")).ToUpper().StartsWith(RmConfigKeyPrefix.ToUpper()))
-                .Select(x => (string)x.Element("value"));
-            _yarnRmUri =
-                address.Select(x => x.TrimEnd('/') + @"/")
-                    .Select(x => string.Format("http://{0}", x))
-                    .Where(x => Uri.IsWellFormedUriString(x, UriKind.Absolute))
-                    .Select(x => new Uri(x))
-                    .ToList();
+            return Task.FromResult(Utilities.Yarn.GetYarnRMWebappEndpoints());
         }
     }
 }
