@@ -35,8 +35,8 @@ public final class Optional<T> implements Serializable {
   private static final long serialVersionUID = 42L;
 
   private final T value;
-  private static final String EMPTY_VALUE_STR = "OptionalvNothing";
-  private static final int EMPTY_VALUE_HASH = 0;
+  private static final Optional<?> EMPTY = new Optional<>();
+  private static final String EMPTY_VALUE_STR = "Optional.empty";
 
   private Optional(final T value) {
     this.value = value;
@@ -61,7 +61,7 @@ public final class Optional<T> implements Serializable {
    * @return an Optional with no value.
    */
   public static <T> Optional<T> empty() {
-    return new Optional<>();
+    return (Optional<T>) EMPTY;
   }
 
   /**
@@ -118,19 +118,11 @@ public final class Optional<T> implements Serializable {
 
   @Override
   public int hashCode() {
-    if (this.isPresent()) {
-      return this.value.hashCode();
-    } else {
-      return EMPTY_VALUE_HASH;
-    }
+    return this.value == null ? 0 : this.value.hashCode();
   }
 
   @Override
   public String toString() {
-    if (this.isPresent()) {
-      return "Optional:{" + this.value + "}";
-    } else {
-      return EMPTY_VALUE_STR;
-    }
+    return this.value == null ? EMPTY_VALUE_STR : "Optional:{" + this.value + "}";
   }
 }
