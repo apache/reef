@@ -32,6 +32,7 @@ import org.apache.reef.driver.task.*;
 import org.apache.reef.proto.ClientRuntimeProtocol;
 import org.apache.reef.runtime.common.driver.api.ResourceLaunchHandler;
 import org.apache.reef.runtime.common.driver.api.ResourceReleaseHandler;
+import org.apache.reef.runtime.common.driver.evaluator.EvaluatorIdlenessThreadPool;
 import org.apache.reef.tang.annotations.Parameter;
 import org.apache.reef.wake.EventHandler;
 
@@ -98,6 +99,8 @@ final class DriverSingletons {
       // we get container failures dure to modifications
       // to already submitted global jar file
       final ResourceLaunchHandler resourceLaunchHandler,
-      final ResourceReleaseHandler resourceReleaseHandler) {
+      final ResourceReleaseHandler resourceReleaseHandler,
+
+      final EvaluatorIdlenessThreadPool evaluatorIdlenessThreadPool) {
   }
 }
