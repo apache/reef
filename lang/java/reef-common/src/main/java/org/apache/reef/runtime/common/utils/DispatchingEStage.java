@@ -114,7 +114,7 @@ public final class DispatchingEStage implements AutoCloseable {
    * Return true if there are no messages queued or in processing, false otherwise.
    */
   public boolean isEmpty() {
-    return this.stage.getQueueLength() == 0;
+    return this.stage.getQueueLength() + this.stage.getActiveCount() == 0;
   }
 
   /**

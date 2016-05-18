@@ -107,6 +107,7 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
   private final LoggingScopeFactory loggingScopeFactory;
   private final Set<ConfigurationProvider> evaluatorConfigurationProviders;
   private final DriverRestartManager driverRestartManager;
+  private final EvaluatorIdlenessThreadPool idlenessThreadPool;
 
   // Mutable fields
   private Optional<TaskRepresenter> task = Optional.empty();
@@ -132,7 +133,8 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
       final LoggingScopeFactory loggingScopeFactory,
       @Parameter(EvaluatorConfigurationProviders.class)
       final Set<ConfigurationProvider> evaluatorConfigurationProviders,
-      final DriverRestartManager driverRestartManager) {
+      final DriverRestartManager driverRestartManager,
+      final EvaluatorIdlenessThreadPool idlenessThreadPool) {
     this.contextRepresenters = contextRepresenters;
     this.idlenessSource = idlenessSource;
     LOG.log(Level.FINEST, "Instantiating 'EvaluatorManager' for evaluator: {0}", evaluatorId);
@@ -153,6 +155,7 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
     this.loggingScopeFactory = loggingScopeFactory;
     this.evaluatorConfigurationProviders = evaluatorConfigurationProviders;
     this.driverRestartManager = driverRestartManager;
+    this.idlenessThreadPool = idlenessThreadPool;
 
     LOG.log(Level.FINEST, "Instantiated 'EvaluatorManager' for evaluator: [{0}]", this.getId());
   }
@@ -264,12 +267,7 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
       }
     }
 
-    try {
-      this.messageDispatcher.close();
-    } catch (Exception e) {
-      LOG.log(Level.SEVERE, "Exception while closing EvaluatorManager", e);
-    }
-    this.idlenessSource.check();
+    idlenessThreadPool.runCheckAsync(this);
   }
 
   /**
@@ -279,6 +277,13 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
   public boolean isClosed() {
     return this.messageDispatcher.isEmpty() &&
            this.stateManager.isDoneOrFailedOrKilled();
+  }
+
+  /**
+   * Triggers a call to check the idleness of the Evaluator.
+   */
+  void checkIdlenessSource() {
+    this.idlenessSource.check();
   }
 
   /**

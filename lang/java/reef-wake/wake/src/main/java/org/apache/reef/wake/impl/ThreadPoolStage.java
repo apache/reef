@@ -174,24 +174,32 @@ public final class ThreadPoolStage<T> extends AbstractEStage<T> {
   @SuppressWarnings("checkstyle:illegalcatch")
   public void onNext(final T value) {
     beforeOnNext();
-    executor.submit(new Runnable() {
+    try {
+      executor.submit(new Runnable() {
 
-      @Override
-      public void run() {
-        try {
-          handler.onNext(value);
-          afterOnNext();
-        } catch (final Throwable t) {
-          if (errorHandler != null) {
-            errorHandler.onNext(t);
-          } else {
-            LOG.log(Level.SEVERE, name + " Exception from event handler", t);
-            throw t;
+        @Override
+        public void run() {
+          try {
+            handler.onNext(value);
+          } catch (final Throwable t) {
+            if (errorHandler != null) {
+              errorHandler.onNext(t);
+            } else {
+              LOG.log(Level.SEVERE, name + " Exception from event handler", t);
+              throw t;
+            }
+          } finally {
+            afterOnNext();
           }
         }
-      }
 
-    });
+      });
+    } catch (final Exception e) {
+      LOG.log(Level.SEVERE, "Encountered error when submitting to executor in ThreadPoolStage.");
+      afterOnNext();
+      throw e;
+    }
+
   }
 
   /**
@@ -218,4 +226,11 @@ public final class ThreadPoolStage<T> extends AbstractEStage<T> {
     return ((ThreadPoolExecutor) executor).getQueue().size();
   }
 
+  /**
+   * Gets the active count of this stage.
+   * @return the active count
+   */
+  public int getActiveCount() {
+    return (int)(getInMeter().getCount() - getOutMeter().getCount());
+  }
 }
