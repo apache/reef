@@ -88,6 +88,8 @@ under the License.
     <Compile Include="OnREEF\Driver\StateMachine\TaskStateEvent.cs" />
     <Compile Include="OnREEF\Driver\StateMachine\TaskState.cs" />
     <Compile Include="OnREEF\Driver\StateMachine\TaskStateTransitionException.cs" />
+    <Compile Include="OnREEF\Driver\TaskInfo.cs" />
+    <Compile Include="OnREEF\Driver\TaskManager.cs" />
     <Compile Include="OnREEF\IMRUTasks\MapTaskHost.cs" />
     <Compile Include="OnREEF\IMRUTasks\UpdateTaskHost.cs" />
     <Compile Include="OnREEF\MapInputWithControlMessage\MapControlMessage.cs" />
