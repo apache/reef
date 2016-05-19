@@ -36,7 +36,6 @@ namespace Org.Apache.REEF.Tests.Functional.Messaging
 
         public const string MessageSend = "MESSAGE:TASK";
 
-        // TODO[JIRA REEF-1385]: Check the MessageTaskSourceID on the Driver side.
         public const string MessageTaskSourceId = "MessageTaskSourceId";
 
         public const string MessageSentToDriverLog = "Message sent to Driver from Task.";

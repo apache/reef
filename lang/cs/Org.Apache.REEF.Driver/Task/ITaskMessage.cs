@@ -31,5 +31,10 @@ namespace Org.Apache.REEF.Driver.Task
         /// The ID of the task that sent the message.
         /// </summary>
         string TaskId { get; }
+
+        /// <summary>
+        /// The message source ID of the TaskMessage.
+        /// </summary>
+        string MessageSourceId { get; }
     }
 }
