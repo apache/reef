@@ -23,28 +23,20 @@ Apache REEF&trade; (Retainable Evaluator Execution Framework) is a  library for 
 Features
 --------
  * **Centralized Control Flow:** Apache REEF turns the chaos of a distributed application into events in a single machine, the Job Driver. Events include container allocation, Task launch, completion and failure. For failures, Apache REEF makes every effort of making the actual `Exception` thrown by the Task available to the Driver.
- * **Task runtime:** Apache REEF provides a Task runtime called Evaluator. Evaluators are instantiated in every container of a REEF application. They can be reused for subsequent tasks as well as support to handover data between such tasks.
- * **Support for multiple resource managers:** Apache REEF applications are portable between any supported resource manager with minimal effort. Further, new resource managers are easy to support in REEF. 
+ * **Task runtime:** Apache REEF provides a Task runtime called Evaluator. Evaluators are instantiated in every container of a REEF application. Evaluators can keep data in memory in between Tasks, which enables efficient pipelines on REEF.
+ * **Support for multiple resource managers:** Apache REEF applications are portable to any supported resource manager with minimal effort. Further, new resource managers are easy to support in REEF. 
  * **.NET and Java API:** Apache REEF is the only API to write YARN or Mesos applications in .NET. Further, a single REEF application is free to mix and match Tasks written for .NET or Java.
  * **Plugins:** Apache REEF allows for plugins (called "Services") to augment its feature set without adding bloat to the core. REEF includes many Services, such as a name-based communications between Tasks, MPI-inspired group communications (`Broadcast`, `Reduce`, `Gather`, ...) and data ingress.   
 
 REEF @ Apache Big Data 2016
 ---------------------------
 
-<iframe src="//www.slideshare.net/slideshow/embed_code/key/1HgrkEUWqqD2x1" width="595" height="485" frameborder="0" marginwidth="0" marginheight="0" scrolling="no" style="border:1px solid #CCC; border-width:1px; margin-bottom:5px; max-width: 100%;"> </iframe>
+<iframe src="http://www.slideshare.net/slideshow/embed_code/key/1HgrkEUWqqD2x1" width="595" height="485" frameborder="0" marginwidth="0" marginheight="0" scrolling="no" style="border:1px solid #CCC; border-width:1px; margin-bottom:5px; max-width: 100%;"> </iframe>
 
 Latest Release
 --------------
-The latest release of Apache REEF is 0.14.0. Please go to the [downloads] page to find out more.
-
-Is it Building?
---------------
-| Component |    OS   | Status |
-|-----------|:-------:|:------:|
-|REEF Java  | Ubuntu  | [![Build Status](https://travis-ci.org/apache/reef.svg?branch=master)](https://travis-ci.org/apache/reef) |
-|REEF.NET   | Windows | [![Build status](https://ci.appveyor.com/api/projects/status/qwvl6d4d8891e09d/branch/master?svg=true)](https://ci.appveyor.com/project/ApacheSoftwareFoundation/reef/branch/master) |
+The latest release of Apache REEF is ${currentStableVersion}. Please go to the [downloads] page to find out more.
 
 [YARN]: https://hadoop.apache.org/docs/current/hadoop-yarn/hadoop-yarn-site/YARN.html
 [Mesos]: https://mesos.apache.org/
-[Twill]: http://twill.apache.org/
-[downloads]: /downloads.html
+[downloads]: downloads.html
