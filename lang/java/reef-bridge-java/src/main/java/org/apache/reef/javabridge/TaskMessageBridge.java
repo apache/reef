@@ -32,12 +32,10 @@ import org.apache.reef.io.naming.Identifiable;
     CsFiles = { "ITaskMessageClr2Java.cs", "TaskMessage.cs" })
 public final class TaskMessageBridge extends NativeBridge implements Identifiable {
   private TaskMessage jtaskMessage;
-  private String taskId;
 
   // we don't really need to pass this around, just have this as place holder for future.
   public TaskMessageBridge(final TaskMessage taskMessage) {
     jtaskMessage = taskMessage;
-    taskId = taskMessage.getId();
   }
 
   @Override
@@ -46,6 +44,10 @@ public final class TaskMessageBridge extends NativeBridge implements Identifiabl
 
   @Override
   public String getId() {
-    return taskId;
+    return jtaskMessage.getId();
+  }
+
+  public String getMessageSourceId() {
+    return jtaskMessage.getMessageSourceID();
   }
 }

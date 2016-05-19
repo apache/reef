@@ -111,12 +111,14 @@ namespace Org {
                             jobject  _jobjectTaskMessage = NULL;
                             JavaVM* _jvm;
                             jstring _jstringId = NULL;
+                            jstring _jstringMessageSourceId = NULL;
                         public:
                             TaskMessageClr2Java(JNIEnv *env, jobject jtaskMessage);
                             ~TaskMessageClr2Java();
                             !TaskMessageClr2Java();
                             virtual void OnError(String^ message);
                             virtual String^ GetId();
+                            virtual String^ GetMessageSourceId();
                         };
 
                         public ref class FailedTaskClr2Java : public IFailedTaskClr2Java {

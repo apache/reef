@@ -23,7 +23,6 @@ namespace Org.Apache.REEF.Driver.Bridge.Events
 {
     /// <summary>
     /// TaskMessage which wraps ITaskMessageClr2Java
-    /// TODO[JIRA REEF-1385]: Implement MessageSourceID.
     /// </summary>
     [DataContract]
     internal sealed class TaskMessage : ITaskMessage
@@ -41,6 +40,11 @@ namespace Org.Apache.REEF.Driver.Bridge.Events
         public string TaskId
         {
             get { return _taskMessageClr2Java.GetId(); }
+        }
+
+        public string MessageSourceId
+        {
+            get { return _taskMessageClr2Java.GetMessageSourceId(); }
         }
 
         [DataMember]

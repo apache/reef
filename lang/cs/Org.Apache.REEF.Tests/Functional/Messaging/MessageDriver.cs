@@ -78,14 +78,19 @@ namespace Org.Apache.REEF.Tests.Functional.Messaging
 
         public void OnNext(ITaskMessage taskMessage)
         {
-            // TODO[JIRA REEF-1385]: Check the MessageTaskSourceID.
             var msgReceived = ByteUtilities.ByteArraysToString(taskMessage.Message);
 
             if (!msgReceived.Equals(MessageTask.MessageSend))
             {
-                Exceptions.Throw(new Exception("Unexpected message: " + msgReceived),
-                    "Unexpected task message received: " + msgReceived,
-                    Logger);
+                var errorMessage = "Unexpected task message received: " + msgReceived + ". Expected: " +
+                                   MessageTask.MessageSend;
+                Exceptions.Throw(new Exception(errorMessage), errorMessage, Logger);
+            }
+            else if (!taskMessage.MessageSourceId.Equals(MessageTask.MessageTaskSourceId))
+            {
+                var errorMessage = "Unexpected TaskMessage.MessageSourceId received: " + taskMessage.MessageSourceId +
+                                   ". Expected: " + MessageTask.MessageTaskSourceId;
+                Exceptions.Throw(new Exception(errorMessage), errorMessage, Logger);
             }
             else
             {

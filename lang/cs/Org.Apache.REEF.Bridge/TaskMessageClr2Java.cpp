@@ -36,8 +36,14 @@ namespace Org {
 						  }
 						  _jobjectTaskMessage = reinterpret_cast<jobject>(env->NewGlobalRef(jtaskMessage));
 
+						  // Get the Task ID.
 						  jclass jclassTaskMessage = env->GetObjectClass(_jobjectTaskMessage);
 						  _jstringId = CommonUtilities::GetJObjectId(env, _jobjectTaskMessage, jclassTaskMessage);
+						  
+						  // Get the Task Message Source ID.
+						  jmethodID jmid = env->GetMethodID(jclassTaskMessage, "getMessageSourceId", "()Ljava/lang/String;");
+						  _jstringMessageSourceId = CommonUtilities::CallGetMethodNewGlobalRef<jstring>(env, _jobjectTaskMessage, jmid);
+
 						  ManagedLog::LOGGER->LogStop("TaskMessageClr2Java::TaskMessageClr2Java");
 					  }
 
@@ -54,6 +60,10 @@ namespace Org {
 						  if (_jstringId != NULL) {
 							  env->DeleteGlobalRef(_jstringId);
 						  }
+
+						  if (_jstringMessageSourceId != NULL) {
+							  env->DeleteGlobalRef(_jstringMessageSourceId);
+						  }
 					  }
 
 					  void TaskMessageClr2Java::OnError(String^ message) {
@@ -66,6 +76,11 @@ namespace Org {
 						  ManagedLog::LOGGER->Log("TaskMessageClr2Java::GetId");
 						  JNIEnv *env = RetrieveEnv(_jvm);
 						  return ManagedStringFromJavaString(env, _jstringId);
+					  }
+
+					  String^ TaskMessageClr2Java::GetMessageSourceId() {
+						  JNIEnv *env = RetrieveEnv(_jvm);
+						  return ManagedStringFromJavaString(env, _jstringMessageSourceId);
 					  }
 				  }
 			  }

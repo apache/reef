@@ -23,5 +23,7 @@ namespace Org.Apache.REEF.Driver.Bridge.Clr2java
     public interface ITaskMessageClr2Java : IClr2Java
     {
         string GetId();
+
+        string GetMessageSourceId();
     }
 }
