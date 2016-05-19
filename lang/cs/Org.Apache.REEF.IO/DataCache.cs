@@ -23,6 +23,8 @@ using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Tang.Exceptions;
 using Org.Apache.REEF.Utilities;
 using Org.Apache.REEF.Utilities.Attributes;
+using Org.Apache.REEF.Utilities.Diagnostics;
+using Org.Apache.REEF.Utilities.Logging;
 
 namespace Org.Apache.REEF.IO
 {
@@ -32,6 +34,8 @@ namespace Org.Apache.REEF.IO
     [Unstable("0.15", "API contract may change.")]
     public sealed class DataCache<T>
     {
+        private static readonly Logger Logger = Logger.GetLogger(typeof(DataCache<>));
+
         private readonly IInputDataMover<T> _inputDataMover;
 
         private Optional<IDirectoryInfo> _diskDirectory = Optional<IDirectoryInfo>.Empty();
@@ -57,7 +61,7 @@ namespace Org.Apache.REEF.IO
         /// <summary>
         /// The directory where cached data resides, if the data is cached on disk.
         /// </summary>
-        public Optional<IDirectoryInfo> DiskDirectory
+        internal Optional<IDirectoryInfo> DiskDirectory
         {
             get { return _diskDirectory; }
         }
@@ -66,7 +70,7 @@ namespace Org.Apache.REEF.IO
         /// The collection of memory streams where cached data resides, if the data is
         /// cached in memory.
         /// </summary>
-        public Optional<IReadOnlyCollection<MemoryStream>> MemoryStreams
+        internal Optional<IReadOnlyCollection<MemoryStream>> MemoryStreams
         {
             get { return _memStreams; }
         }
@@ -75,7 +79,7 @@ namespace Org.Apache.REEF.IO
         /// The cached collection of "materialized" objects, if the data is cached
         /// in memory and deserialized.
         /// </summary>
-        public Optional<IReadOnlyCollection<T>> Materialized
+        internal Optional<IReadOnlyCollection<T>> Materialized
         {
             get { return _materialized; }
         }
@@ -115,7 +119,10 @@ namespace Org.Apache.REEF.IO
                 case CacheLevel.InMemoryMaterialized:
                     return CacheToMaterialized(shouldCleanHigherLevelCache);
                 default:
-                    throw new SystemException("Unexpected cache level " + cacheToLevel);
+                    Exceptions.Throw(new SystemException("Unexpected cache level " + cacheToLevel), Logger);
+
+                    // should not reach this statement.
+                    return _lowestCacheLevel;
             }
         }
 
@@ -136,10 +143,74 @@ namespace Org.Apache.REEF.IO
                 case CacheLevel.InMemoryMaterialized:
                     CleanUpMaterialized(false);
                     break;
+                case CacheLevel.NotLocal:
+                    return _lowestCacheLevel;
+                default:
+                    Exceptions.Throw(new SystemException("Unrecognized CacheLevel in CleanCacheAtLevel."), Logger);
+
+                    // should not reach this statement.
+                    break;
             }
 
             _lowestCacheLevel = FindLowestCacheLevel();
             return _lowestCacheLevel;
+        }
+
+        /// <summary>
+        /// Cache to memory with the injected <see cref="IInputDataMover{T}"/>.
+        /// </summary>
+        /// <returns>The cached level.</returns>
+        public CacheLevel CacheToMemory(bool shouldCleanHigherLevelCache)
+        {
+            Optional<IReadOnlyCollection<MemoryStream>> memStreams;
+            switch (_lowestCacheLevel)
+            {
+                case CacheLevel.Disk:
+                    CheckDisk(true);
+                    memStreams = Optional<IReadOnlyCollection<MemoryStream>>.Of(
+                        new List<MemoryStream>(_inputDataMover.DiskToMemory(_diskDirectory.Value)));
+                    break;
+                case CacheLevel.NotLocal:
+                    memStreams = Optional<IReadOnlyCollection<MemoryStream>>.Of(
+                        new List<MemoryStream>(_inputDataMover.RemoteToMemory()));
+                    break;
+                default:
+                    Exceptions.Throw(
+                        new SystemException("Unexpected cache level transition from " + _lowestCacheLevel + " to " + CacheLevel.InMemoryAsStream),
+                        Logger);
+
+                    // should not reach this statement.
+                    return _lowestCacheLevel;
+            }
+
+            if (shouldCleanHigherLevelCache)
+            {
+                CleanHigherLevelCache(CacheLevel.InMemoryAsStream);
+            }
+
+            _memStreams = memStreams;
+            _lowestCacheLevel = CacheLevel.InMemoryAsStream;
+            return _lowestCacheLevel;
+        }
+
+        /// <summary>
+        /// "Materializes" and deserializes the data. Also caches to memory.
+        /// To not cache to memory, please use the <see cref="Materialize"/> method.
+        /// </summary>
+        /// <returns>The deserialized data.</returns>
+        public IEnumerable<T> MaterializeAndCache(bool shouldCleanHigherLevelCache)
+        {
+            return Materialize(true, shouldCleanHigherLevelCache);
+        }
+
+        /// <summary>
+        /// "Materializes" and deserializes the data. Does not cache the materialized data.
+        /// To cache, please use the <see cref="MaterializeAndCache"/> method.
+        /// </summary>
+        /// <returns>The deserialized data.</returns>
+        public IEnumerable<T> Materialize()
+        {
+            return Materialize(false, false);
         }
 
         /// <summary>
@@ -177,65 +248,17 @@ namespace Org.Apache.REEF.IO
                     _diskDirectory = Optional<IDirectoryInfo>.Of(_inputDataMover.RemoteToDisk());
                     break;
                 default:
-                    throw new SystemException(
-                        "Unexpected cache level transition from " + _lowestCacheLevel + " to " + CacheLevel.Disk);
+                    Exceptions.Throw(
+                        new SystemException(
+                            "Unexpected cache level transition from " + _lowestCacheLevel + " to " + CacheLevel.Disk),
+                            Logger);
+                    
+                    // should not reach this statement.
+                    break;
             }
 
             _lowestCacheLevel = CacheLevel.Disk;
             return _lowestCacheLevel;
-        }
-
-        /// <summary>
-        /// Cache to memory with the injected <see cref="IInputDataMover{T}"/>.
-        /// </summary>
-        /// <returns>The cached level.</returns>
-        public CacheLevel CacheToMemory(bool shouldCleanHigherLevelCache)
-        {
-            Optional<IReadOnlyCollection<MemoryStream>> memStreams;
-            switch (_lowestCacheLevel)
-            {
-                case CacheLevel.Disk:
-                    CheckDisk(true);
-                    memStreams = Optional<IReadOnlyCollection<MemoryStream>>.Of(
-                        new List<MemoryStream>(_inputDataMover.DiskToMemory(_diskDirectory.Value)));
-                    break;
-                case CacheLevel.NotLocal:
-                    memStreams = Optional<IReadOnlyCollection<MemoryStream>>.Of(
-                        new List<MemoryStream>(_inputDataMover.RemoteToMemory()));
-                    break;
-                default:
-                    throw new SystemException(
-                        "Unexpected cache level transition from " + _lowestCacheLevel + " to " + CacheLevel.InMemoryAsStream);
-            }
-
-            if (shouldCleanHigherLevelCache)
-            {
-                CleanHigherLevelCache(CacheLevel.InMemoryAsStream);
-            }
-
-            _memStreams = memStreams;
-            _lowestCacheLevel = CacheLevel.InMemoryAsStream;
-            return _lowestCacheLevel;
-        }
-
-        /// <summary>
-        /// "Materializes" and deserializes the data. Also caches to memory.
-        /// To not cache to memory, please use the <see cref="Materialize"/> method.
-        /// </summary>
-        /// <returns>The deserialized data.</returns>
-        public IEnumerable<T> MaterializeAndCache(bool shouldCleanHigherLevelCache)
-        {
-            return Materialize(true, shouldCleanHigherLevelCache);
-        }
-
-        /// <summary>
-        /// "Materializes" and deserializes the data. Does not cache.
-        /// To cache, please use the <see cref="MaterializeAndCache"/> method.
-        /// </summary>
-        /// <returns>The deserialized data.</returns>
-        public IEnumerable<T> Materialize()
-        {
-            return Materialize(false, false);
         }
 
         private IEnumerable<T> Materialize(bool shouldCache, bool shouldCleanHigherLevelCache)
@@ -259,12 +282,15 @@ namespace Org.Apache.REEF.IO
                     CheckMaterialized(true);
                     return _materialized.Value;
                 default:
-                    throw new IllegalStateException("Illegal cache layer.");
+                    Exceptions.Throw(new IllegalStateException("Illegal cache layer."), Logger);
+
+                    // Should not reach this statement.
+                    return null;
             }
         }
 
         /// <summary>
-        /// Deserialize and cache the data in memory from the level the data is currently at.
+        /// Deserialize and cache the materialized data in memory from the level the data is currently at.
         /// </summary>
         private CacheLevel CacheToMaterialized(bool shouldCleanHigherLevelCache)
         {
@@ -288,8 +314,13 @@ namespace Org.Apache.REEF.IO
                         new List<T>(_inputDataMover.RemoteToMaterialized()));
                     break;
                 default:
-                    throw new SystemException(
-                        "Unexpected cache level transition from " + _lowestCacheLevel + " to " + CacheLevel.InMemoryMaterialized);
+                    Exceptions.Throw(
+                        new SystemException(
+                            "Unexpected cache level transition from " + _lowestCacheLevel + " to " + CacheLevel.InMemoryMaterialized), 
+                            Logger);
+
+                    // should not reach this statement.
+                    return _lowestCacheLevel;
             }
 
             if (shouldCleanHigherLevelCache)
@@ -324,14 +355,19 @@ namespace Org.Apache.REEF.IO
                         // We cannot go to a higher level than this, return.
                         return;
                     default:
-                        throw new SystemException("Unexpected cache level " + _lowestCacheLevel + ".");
+                        Exceptions.Throw(new SystemException("Unexpected cache level " + _lowestCacheLevel + "."), Logger);
+
+                        // should not reach this statement.
+                        return;
                 }
 
                 var prevLowest = _lowestCacheLevel;
                 _lowestCacheLevel = FindLowestCacheLevel();
                 if (prevLowest > _lowestCacheLevel)
                 {
-                    throw new SystemException("The new lowest CacheLevel must be higher than the previous lowest CacheLevel.");
+                    Exceptions.Throw(
+                        new SystemException(
+                            "The new lowest CacheLevel must be higher than the previous lowest CacheLevel."), Logger);
                 }
             }
         }
@@ -348,7 +384,10 @@ namespace Org.Apache.REEF.IO
 
             if (shouldThrow)
             {
-                throw new IllegalStateException("Collection is expected to be materialized in memory.");
+                Exceptions.Throw(new IllegalStateException("Collection is expected to be materialized in memory."), Logger);
+                
+                // should not reach this statement.
+                return false;
             }
 
             return false;
@@ -379,7 +418,10 @@ namespace Org.Apache.REEF.IO
 
             if (shouldThrow)
             {
-                throw new IllegalStateException("Data is expected to be in memory.");
+                Exceptions.Throw(new IllegalStateException("Data is expected to be in memory."), Logger);
+
+                // should not reach this statement.
+                return false;
             }
 
             return false;
@@ -413,7 +455,10 @@ namespace Org.Apache.REEF.IO
 
             if (shouldThrow)
             {
-                throw new IllegalStateException("Disk directory is expected to be present.");
+                Exceptions.Throw(new IllegalStateException("Disk directory is expected to be present."), Logger);
+
+                // should not reach this statement.
+                return false;
             }
 
             return false;

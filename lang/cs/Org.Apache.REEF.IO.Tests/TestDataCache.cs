@@ -39,21 +39,13 @@ namespace Org.Apache.REEF.IO.Tests
         private static readonly MemoryStream AnyTestStrStream = new MemoryStream(AnyTestStrBytes);
         private static readonly string[] MaterializeCompareArray = new[] { AnyTestStr };
 
-        private TestContext _context;
-
-        public TestDataCache()
-        {
-            _context = new TestContext();
-        }
-
         /// <summary>
         /// Tests that caching to a lower level returns the lower level.
         /// </summary>
         [Fact]
         public void TestCacheToLowerLevelReturnsLowerLevel()
         {
-            var cache = _context.GetDataCache();
-            SubstituteForBasicDataMover();
+            var cache = GetDataCacheAndSubstituteWithBasicDataMover(new TestContext());
             Assert.Equal(CacheLevel.Disk, cache.Cache(CacheLevel.Disk, false));
             Assert.Equal(CacheLevel.Disk, cache.CacheLevel);
             Assert.True(cache.DiskDirectory.IsPresent());
@@ -71,8 +63,7 @@ namespace Org.Apache.REEF.IO.Tests
         [Fact]
         public void TestCacheToHigherLevelReturnsLowerLevel()
         {
-            var cache = _context.GetDataCache();
-            SubstituteForBasicDataMover();
+            var cache = GetDataCacheAndSubstituteWithBasicDataMover(new TestContext());
             Assert.Equal(CacheLevel.InMemoryMaterialized, cache.Cache(CacheLevel.InMemoryMaterialized, false));
             Assert.True(cache.Materialized.IsPresent());
             Assert.Equal(CacheLevel.InMemoryMaterialized, cache.Cache(CacheLevel.Disk, false));
@@ -88,8 +79,7 @@ namespace Org.Apache.REEF.IO.Tests
         [Fact]
         public void TestCleanCacheWhileLoweringLevelReturnsRightLevel()
         {
-            var cache = _context.GetDataCache();
-            SubstituteForBasicDataMover();
+            var cache = GetDataCacheAndSubstituteWithBasicDataMover(new TestContext());
             Assert.Equal(CacheLevel.NotLocal, cache.CacheLevel);
             Assert.Equal(CacheLevel.Disk, cache.Cache(CacheLevel.Disk, true));
             Assert.Equal(CacheLevel.Disk, cache.CacheLevel);
@@ -107,8 +97,7 @@ namespace Org.Apache.REEF.IO.Tests
         [Fact]
         public void TestCleanCacheClearsAllUpperCacheLevels()
         {
-            var cache = _context.GetDataCache();
-            SubstituteForBasicDataMover();
+            var cache = GetDataCacheAndSubstituteWithBasicDataMover(new TestContext());
             Assert.Equal(CacheLevel.Disk, cache.Cache(CacheLevel.Disk, false));
             Assert.Equal(CacheLevel.InMemoryAsStream, cache.Cache(CacheLevel.InMemoryAsStream, false));
             Assert.Equal(CacheLevel.InMemoryMaterialized, cache.Cache(CacheLevel.InMemoryMaterialized, true));
@@ -121,8 +110,7 @@ namespace Org.Apache.REEF.IO.Tests
         [Fact]
         public void TestClearCache()
         {
-            var cache = _context.GetDataCache();
-            SubstituteForBasicDataMover();
+            var cache = GetDataCacheAndSubstituteWithBasicDataMover(new TestContext());
             Assert.Equal(CacheLevel.Disk, cache.Cache(CacheLevel.Disk, false));
             Assert.Equal(CacheLevel.InMemoryAsStream, cache.Cache(CacheLevel.InMemoryAsStream, false));
             Assert.Equal(CacheLevel.InMemoryMaterialized, cache.Cache(CacheLevel.InMemoryMaterialized, false));
@@ -139,8 +127,7 @@ namespace Org.Apache.REEF.IO.Tests
         [Fact]
         public void TestCleanCacheJumpLevels()
         {
-            var cache = _context.GetDataCache();
-            SubstituteForBasicDataMover();
+            var cache = GetDataCacheAndSubstituteWithBasicDataMover(new TestContext());
             Assert.Equal(CacheLevel.Disk, cache.Cache(CacheLevel.Disk, false));
             Assert.Equal(CacheLevel.InMemoryMaterialized, cache.Cache(CacheLevel.InMemoryMaterialized, false));
             Assert.Equal(CacheLevel.Disk, cache.CleanCacheAtLevel(CacheLevel.InMemoryMaterialized));
@@ -152,8 +139,7 @@ namespace Org.Apache.REEF.IO.Tests
         [Fact]
         public void TestCleanCacheReturnsRightLevel()
         {
-            var cache = _context.GetDataCache();
-            SubstituteForBasicDataMover();
+            var cache = GetDataCacheAndSubstituteWithBasicDataMover(new TestContext());
             cache.Cache(CacheLevel.InMemoryMaterialized, false);
             
             Assert.Equal(CacheLevel.NotLocal, cache.CleanCacheAtLevel(CacheLevel.InMemoryMaterialized));
@@ -172,16 +158,16 @@ namespace Org.Apache.REEF.IO.Tests
         [Fact]
         public void TestMaterializeFromDifferentLevels()
         {
-            var cache = _context.GetDataCache();
-            SubstituteForBasicDataMover();
+            var context = new TestContext();
+            var cache = GetDataCacheAndSubstituteWithBasicDataMover(context);
 
             // Test remote to materialized
             Assert.True(MaterializeCompareArray.SequenceEqual(cache.Materialize()));
-            _context.DataMover.ReceivedWithAnyArgs(1).RemoteToMaterialized();
+            context.DataMover.ReceivedWithAnyArgs(1).RemoteToMaterialized();
             Assert.Equal(CacheLevel.NotLocal, cache.CacheLevel);
 
             Assert.True(MaterializeCompareArray.SequenceEqual(cache.MaterializeAndCache(false)));
-            _context.DataMover.ReceivedWithAnyArgs(2).RemoteToMaterialized();
+            context.DataMover.ReceivedWithAnyArgs(2).RemoteToMaterialized();
 
             Assert.Equal(CacheLevel.InMemoryMaterialized, cache.CacheLevel);
             cache.Clear();
@@ -189,11 +175,11 @@ namespace Org.Apache.REEF.IO.Tests
             // Test disk to materialized
             cache.Cache(CacheLevel.Disk, false);
             Assert.True(MaterializeCompareArray.SequenceEqual(cache.Materialize()));
-            _context.DataMover.ReceivedWithAnyArgs(1).DiskToMaterialized(_context.DirectoryInfo);
+            context.DataMover.ReceivedWithAnyArgs(1).DiskToMaterialized(context.DirectoryInfo);
 
             Assert.Equal(CacheLevel.Disk, cache.CacheLevel);
             Assert.True(MaterializeCompareArray.SequenceEqual(cache.MaterializeAndCache(false)));
-            _context.DataMover.ReceivedWithAnyArgs(2).DiskToMaterialized(_context.DirectoryInfo);
+            context.DataMover.ReceivedWithAnyArgs(2).DiskToMaterialized(context.DirectoryInfo);
 
             Assert.Equal(CacheLevel.InMemoryMaterialized, cache.CacheLevel);
             cache.Clear();
@@ -201,11 +187,11 @@ namespace Org.Apache.REEF.IO.Tests
             // Test memStream to materialized
             cache.Cache(CacheLevel.InMemoryAsStream, false);
             Assert.True(MaterializeCompareArray.SequenceEqual(cache.Materialize()));
-            _context.DataMover.ReceivedWithAnyArgs(1).MemoryToMaterialized(new[] { AnyTestStrStream });
+            context.DataMover.ReceivedWithAnyArgs(1).MemoryToMaterialized(new[] { AnyTestStrStream });
 
             Assert.Equal(CacheLevel.InMemoryAsStream, cache.CacheLevel);
             Assert.True(MaterializeCompareArray.SequenceEqual(cache.MaterializeAndCache(false)));
-            _context.DataMover.ReceivedWithAnyArgs(2).MemoryToMaterialized(new[] { AnyTestStrStream });
+            context.DataMover.ReceivedWithAnyArgs(2).MemoryToMaterialized(new[] { AnyTestStrStream });
 
             Assert.Equal(CacheLevel.InMemoryMaterialized, cache.CacheLevel);
             cache.Clear();
@@ -217,15 +203,15 @@ namespace Org.Apache.REEF.IO.Tests
         [Fact]
         public void TestCachedDoesNotInvokeDataMover()
         {
-            var cache = _context.GetDataCache();
-            SubstituteForBasicDataMover();
+            var context = new TestContext();
+            var cache = GetDataCacheAndSubstituteWithBasicDataMover(context);
             cache.Cache(CacheLevel.InMemoryMaterialized, false);
-            _context.DataMover.ClearReceivedCalls();
+            context.DataMover.ClearReceivedCalls();
             var materialized = cache.Materialize();
             Assert.True(MaterializeCompareArray.SequenceEqual(materialized));
-            _context.DataMover.ReceivedWithAnyArgs(0).RemoteToMaterialized();
+            context.DataMover.ReceivedWithAnyArgs(0).RemoteToMaterialized();
             cache.Cache(CacheLevel.InMemoryMaterialized, false);
-            _context.DataMover.ReceivedWithAnyArgs(0).RemoteToMaterialized();
+            context.DataMover.ReceivedWithAnyArgs(0).RemoteToMaterialized();
         }
 
         /// <summary>
@@ -235,11 +221,11 @@ namespace Org.Apache.REEF.IO.Tests
         [Fact]
         public void TestErrorThrowingDataMoverDoesNotCorruptState()
         {
-            var cache = _context.GetDataCache();
-            SubstituteForBasicDataMover();
+            var context = new TestContext();
+            var cache = GetDataCacheAndSubstituteWithBasicDataMover(context);
 
             // Test remote to disk.
-            _context.DataMover.RemoteToDisk().ThrowsForAnyArgs(new Exception());
+            context.DataMover.RemoteToDisk().ThrowsForAnyArgs(new Exception());
 
             try
             {
@@ -250,16 +236,15 @@ namespace Org.Apache.REEF.IO.Tests
                 // Empty to suppress exception.
             }
 
-            _context.DataMover.ReceivedWithAnyArgs(1).RemoteToDisk();
+            context.DataMover.ReceivedWithAnyArgs(1).RemoteToDisk();
             Assert.Equal(CacheLevel.NotLocal, cache.CacheLevel);
             Assert.False(cache.DiskDirectory.IsPresent());
 
-            // Test remote to memory stream.
-            _context = new TestContext();
-            cache = _context.GetDataCache();
-            SubstituteForBasicDataMover();
+            // Test remote to materialized.
+            context = new TestContext();
+            cache = GetDataCacheAndSubstituteWithBasicDataMover(context);
 
-            _context.DataMover.RemoteToMaterialized().ThrowsForAnyArgs(new Exception());
+            context.DataMover.RemoteToMaterialized().ThrowsForAnyArgs(new Exception());
 
             try
             {
@@ -270,16 +255,15 @@ namespace Org.Apache.REEF.IO.Tests
                 // Empty to suppress exception.
             }
 
-            _context.DataMover.ReceivedWithAnyArgs(1).RemoteToMaterialized();
+            context.DataMover.ReceivedWithAnyArgs(1).RemoteToMaterialized();
             Assert.Equal(CacheLevel.NotLocal, cache.CacheLevel);
             Assert.False(cache.Materialized.IsPresent());
 
-            // Test remote to materialized.
-            _context = new TestContext();
-            cache = _context.GetDataCache();
-            SubstituteForBasicDataMover();
+            // Test remote to memory stream.
+            context = new TestContext();
+            cache = GetDataCacheAndSubstituteWithBasicDataMover(context);
 
-            _context.DataMover.RemoteToMemory().ThrowsForAnyArgs(new Exception());
+            context.DataMover.RemoteToMemory().ThrowsForAnyArgs(new Exception());
 
             try
             {
@@ -290,17 +274,16 @@ namespace Org.Apache.REEF.IO.Tests
                 // Empty to suppress exception.
             }
 
-            _context.DataMover.ReceivedWithAnyArgs(1).RemoteToMemory();
+            context.DataMover.ReceivedWithAnyArgs(1).RemoteToMemory();
             Assert.Equal(CacheLevel.NotLocal, cache.CacheLevel);
             Assert.False(cache.MemoryStreams.IsPresent());
 
             // Test disk to memory streams.
-            _context = new TestContext();
-            cache = _context.GetDataCache();
-            SubstituteForBasicDataMover();
+            context = new TestContext();
+            cache = GetDataCacheAndSubstituteWithBasicDataMover(context);
 
             cache.Cache(CacheLevel.Disk, false);
-            _context.DataMover.DiskToMemory(_context.DirectoryInfo).ThrowsForAnyArgs(new Exception());
+            context.DataMover.DiskToMemory(context.DirectoryInfo).ThrowsForAnyArgs(new Exception());
 
             try
             {
@@ -311,18 +294,17 @@ namespace Org.Apache.REEF.IO.Tests
                 // Empty to suppress exception.
             }
 
-            _context.DataMover.ReceivedWithAnyArgs(1).DiskToMemory(_context.DirectoryInfo);
+            context.DataMover.ReceivedWithAnyArgs(1).DiskToMemory(context.DirectoryInfo);
             Assert.Equal(CacheLevel.Disk, cache.CacheLevel);
             Assert.True(cache.DiskDirectory.IsPresent());
             Assert.False(cache.MemoryStreams.IsPresent());
 
             // Test disk to materialized
-            _context = new TestContext();
-            cache = _context.GetDataCache();
-            SubstituteForBasicDataMover();
+            context = new TestContext();
+            cache = GetDataCacheAndSubstituteWithBasicDataMover(context);
 
             cache.Cache(CacheLevel.Disk, false);
-            _context.DataMover.DiskToMaterialized(_context.DirectoryInfo).ThrowsForAnyArgs(new Exception());
+            context.DataMover.DiskToMaterialized(context.DirectoryInfo).ThrowsForAnyArgs(new Exception());
 
             try
             {
@@ -333,18 +315,17 @@ namespace Org.Apache.REEF.IO.Tests
                 // Empty to suppress exception.
             }
 
-            _context.DataMover.ReceivedWithAnyArgs(1).DiskToMaterialized(_context.DirectoryInfo);
+            context.DataMover.ReceivedWithAnyArgs(1).DiskToMaterialized(context.DirectoryInfo);
             Assert.Equal(CacheLevel.Disk, cache.CacheLevel);
             Assert.True(cache.DiskDirectory.IsPresent());
             Assert.False(cache.Materialized.IsPresent());
 
             // Test memory streams to materialized.
-            _context = new TestContext();
-            cache = _context.GetDataCache();
-            SubstituteForBasicDataMover();
+            context = new TestContext();
+            cache = GetDataCacheAndSubstituteWithBasicDataMover(context);
 
             cache.Cache(CacheLevel.InMemoryAsStream, false);
-            _context.DataMover.MemoryToMaterialized(new[] { AnyTestStrStream }).ThrowsForAnyArgs(new Exception());
+            context.DataMover.MemoryToMaterialized(new[] { AnyTestStrStream }).ThrowsForAnyArgs(new Exception());
 
             try
             {
@@ -355,20 +336,26 @@ namespace Org.Apache.REEF.IO.Tests
                 // Empty to suppress exception.
             }
 
-            _context.DataMover.ReceivedWithAnyArgs(1).MemoryToMaterialized(new[] { AnyTestStrStream });
+            context.DataMover.ReceivedWithAnyArgs(1).MemoryToMaterialized(new[] { AnyTestStrStream });
             Assert.Equal(CacheLevel.InMemoryAsStream, cache.CacheLevel);
             Assert.True(cache.MemoryStreams.IsPresent());
             Assert.False(cache.Materialized.IsPresent());
         }
 
-        private void SubstituteForBasicDataMover()
+        private DataCache<string> GetDataCacheAndSubstituteWithBasicDataMover(TestContext context)
         {
-            _context.DataMover.RemoteToDisk().ReturnsForAnyArgs(_context.DirectoryInfo);
-            _context.DataMover.RemoteToMemory().ReturnsForAnyArgs(new[] { AnyTestStrStream });
-            _context.DataMover.RemoteToMaterialized().ReturnsForAnyArgs(new[] { AnyTestStr });
-            _context.DataMover.DiskToMaterialized(_context.DirectoryInfo).ReturnsForAnyArgs(new[] { AnyTestStr });
-            _context.DataMover.DiskToMemory(_context.DirectoryInfo).ReturnsForAnyArgs(new[] { AnyTestStrStream });
-            _context.DataMover.MemoryToMaterialized(new[] { AnyTestStrStream }).ReturnsForAnyArgs(new[] { AnyTestStr });
+            SubstituteForBasicDataMover(context);
+            return context.GetDataCache();
+        }
+
+        private void SubstituteForBasicDataMover(TestContext context)
+        {
+            context.DataMover.RemoteToDisk().ReturnsForAnyArgs(context.DirectoryInfo);
+            context.DataMover.RemoteToMemory().ReturnsForAnyArgs(new[] { AnyTestStrStream });
+            context.DataMover.RemoteToMaterialized().ReturnsForAnyArgs(new[] { AnyTestStr });
+            context.DataMover.DiskToMaterialized(context.DirectoryInfo).ReturnsForAnyArgs(new[] { AnyTestStr });
+            context.DataMover.DiskToMemory(context.DirectoryInfo).ReturnsForAnyArgs(new[] { AnyTestStrStream });
+            context.DataMover.MemoryToMaterialized(new[] { AnyTestStrStream }).ReturnsForAnyArgs(new[] { AnyTestStr });
         }
 
         private class TestContext
