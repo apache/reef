@@ -25,11 +25,11 @@ import org.apache.hadoop.yarn.api.records.ApplicationId;
 import org.apache.reef.annotations.Unstable;
 import org.apache.reef.annotations.audience.DriverSide;
 import org.apache.reef.annotations.audience.RuntimeAuthor;
-import org.apache.reef.driver.parameters.DriverJobSubmissionDirectory;
 import org.apache.reef.driver.parameters.FailDriverOnEvaluatorLogErrors;
 import org.apache.reef.exception.DriverFatalRuntimeException;
 import org.apache.reef.runtime.common.driver.EvaluatorPreserver;
 import org.apache.reef.runtime.common.driver.evaluator.EvaluatorManager;
+import org.apache.reef.runtime.yarn.driver.parameters.JobSubmissionDirectory;
 import org.apache.reef.runtime.yarn.util.YarnUtilities;
 import org.apache.reef.tang.annotations.Parameter;
 
@@ -74,7 +74,7 @@ public final class DFSEvaluatorPreserver implements EvaluatorPreserver, AutoClos
   @Inject
   private DFSEvaluatorPreserver(@Parameter(FailDriverOnEvaluatorLogErrors.class)
                                 final boolean failDriverOnEvaluatorLogErrors,
-                                @Parameter(DriverJobSubmissionDirectory.class)
+                                @Parameter(JobSubmissionDirectory.class)
                                 final String jobSubmissionDirectory) {
 
     this.failDriverOnEvaluatorLogErrors = failDriverOnEvaluatorLogErrors;
@@ -83,7 +83,7 @@ public final class DFSEvaluatorPreserver implements EvaluatorPreserver, AutoClos
       final org.apache.hadoop.conf.Configuration config = new org.apache.hadoop.conf.Configuration();
       this.fileSystem = FileSystem.get(config);
       this.changeLogLocation =
-          new Path(StringUtils.stripEnd(jobSubmissionDirectory, "/") + "/evaluatorsChangesLog");
+          new Path("/" + StringUtils.strip(jobSubmissionDirectory, "/") + "/evaluatorsChangesLog");
 
       boolean appendSupported = config.getBoolean("dfs.support.append", false);
 
@@ -226,6 +226,8 @@ public final class DFSEvaluatorPreserver implements EvaluatorPreserver, AutoClos
       } else {
         throw new DriverFatalRuntimeException("Driver failed on Evaluator log error.", e);
       }
+    } else {
+      LOG.log(Level.WARNING, errorMsg, e);
     }
   }
 
