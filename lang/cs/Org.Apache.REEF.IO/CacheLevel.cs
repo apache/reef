@@ -25,21 +25,21 @@ namespace Org.Apache.REEF.IO
         /// <summary>
         /// The data is deserialized.
         /// </summary>
-        InMemoryMaterialized = 0,
+        InMemoryMaterialized = 100,
 
         /// <summary>
         /// The data is in memory, but as MemoryStream.
         /// </summary>
-        InMemoryAsStream = 1,
+        InMemoryAsStream = 200,
 
         /// <summary>
         /// The data is in disk.
         /// </summary>
-        Disk = 2,
+        Disk = 5000,
         
         /// <summary>
         /// The data is not local.
         /// </summary>
-        NotLocal = 3,
+        NotLocal = 10000,
     }
 }
