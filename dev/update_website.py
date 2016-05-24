@@ -35,6 +35,30 @@ import argparse
 import datetime
 
 """
+pom.xml
+"""
+def update_pom(file, new_version):
+    changed_str = ""
+    f = open(file, 'r')
+
+    while True:
+        line = f.readline()
+        if not line:
+            break
+        if "<currentStableVersion>" in line:
+            r = re.compile('>(.*?)<')
+            m = r.search(line)
+            old_version = m.group(1)
+            line = line.replace(old_version, new_version)
+        changed_str += line
+    f.close()
+
+    f = open(file, 'w')
+    f.write(changed_str)
+    f.close()
+    print file
+
+"""
 doap.rdf
 """
 def update_doap(file, new_version):
@@ -152,6 +176,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     reef_home = os.path.abspath(args.reef_home)
+    update_pom(reef_home + "/pom.xml", args.reef_version)
     update_doap(reef_home + "/website/src/site/resources/doap.rdf", args.reef_version)
     update_release_js(reef_home + "/website/src/site/resources/js/release.js", args.reef_version, args.sha512, args.notes_link)
     update_downloads(reef_home + "/website/src/site/markdown/downloads.md", args.reef_version, args.sha512, args.notes_link)
