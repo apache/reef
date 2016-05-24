@@ -23,6 +23,7 @@ using Org.Apache.REEF.Driver.Context;
 using Org.Apache.REEF.Driver.Evaluator;
 using Org.Apache.REEF.Driver.Task;
 using Org.Apache.REEF.IMRU.OnREEF.Driver.StateMachine;
+using Org.Apache.REEF.IMRU.OnREEF.IMRUTasks;
 using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Utilities.Attributes;
 using Org.Apache.REEF.Utilities.Diagnostics;
@@ -220,7 +221,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         {
             //// Remove the task from running tasks if it exists there
             _runningTasks.Remove(failedTask.Id);
-            UpdateState(failedTask.Id, GetTaskErrorEvent(failedTask));
+            UpdateState(failedTask.Id, GetTaskErrorEventByExceptionType(failedTask));
         }
 
         /// <summary>
@@ -239,7 +240,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
             }
             else if (taskState != StateMachine.TaskState.TaskFailedByEvaluatorFailure)
             {
-                UpdateState(failedTask.Id, GetTaskErrorEvent(failedTask));
+                UpdateState(failedTask.Id, GetTaskErrorEventByExceptionType(failedTask));
             }
         }
 
@@ -354,24 +355,25 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         }
 
         /// <summary>
-        /// Gets error type based on the information in IFailedTask 
-        /// Currently we use the Message in IFailedTask to distinguish different types of errors
+        /// Gets error type based on the exception type in IFailedTask 
         /// </summary>
         /// <param name="failedTask"></param>
         /// <returns></returns>
-        private TaskStateEvent GetTaskErrorEvent(IFailedTask failedTask)
+        private TaskStateEvent GetTaskErrorEventByExceptionType(IFailedTask failedTask)
         {
-            switch (failedTask.Message)
+            var exception = failedTask.AsError();
+            if (exception is IMRUTaskAppException)
             {
-                case TaskAppError:
-                    _numberOfAppErrors++;
-                    return TaskStateEvent.FailedTaskAppError;
-                case TaskSystemError:
-                    return TaskStateEvent.FailedTaskSystemError;
-                case TaskGroupCommunicationError:
-                    return TaskStateEvent.FailedTaskCommunicationError;
-                default:
-                    return TaskStateEvent.FailedTaskSystemError;
+                _numberOfAppErrors++;
+                return TaskStateEvent.FailedTaskAppError;
+            }
+            if (exception is IMRUTaskGroupCommunicationException)
+            {
+                return TaskStateEvent.FailedTaskCommunicationError;
+            }
+            else
+            {
+                return TaskStateEvent.FailedTaskSystemError;
             }
         }
 

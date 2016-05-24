@@ -22,6 +22,7 @@ using Org.Apache.REEF.Driver.Evaluator;
 using Org.Apache.REEF.Driver.Task;
 using Org.Apache.REEF.IMRU.OnREEF.Driver;
 using Org.Apache.REEF.IMRU.OnREEF.Driver.StateMachine;
+using Org.Apache.REEF.IMRU.OnREEF.IMRUTasks;
 using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Utilities;
@@ -623,9 +624,24 @@ namespace Org.Apache.REEF.IMRU.Tests
         /// <returns></returns>
         private static IFailedTask CreateMockFailedTask(string taskId, string errorMsg)
         {
+            Exception taskException;
+            switch (errorMsg)
+            {
+                case TaskManager.TaskAppError:
+                    taskException = new IMRUTaskAppException(errorMsg);
+                    break;
+                case TaskManager.TaskGroupCommunicationError:
+                    taskException = new IMRUTaskGroupCommunicationException(errorMsg);
+                    break;
+                default:
+                    taskException = new IMRUTaskSystemException(errorMsg);
+                    break;
+            }
+
             IFailedTask failedtask = Substitute.For<IFailedTask>();
             failedtask.Id.Returns(taskId);
             failedtask.Message.Returns(errorMsg);
+            failedtask.AsError().Returns(taskException);
             return failedtask;
         }
 
