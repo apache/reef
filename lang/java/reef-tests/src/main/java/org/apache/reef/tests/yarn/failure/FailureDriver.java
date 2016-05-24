@@ -18,16 +18,19 @@
  */
 package org.apache.reef.tests.yarn.failure;
 
+import org.apache.commons.lang3.Validate;
 import org.apache.reef.driver.context.ContextConfiguration;
-import org.apache.reef.driver.evaluator.AllocatedEvaluator;
-import org.apache.reef.driver.evaluator.EvaluatorRequest;
-import org.apache.reef.driver.evaluator.EvaluatorRequestor;
-import org.apache.reef.driver.evaluator.FailedEvaluator;
+import org.apache.reef.driver.evaluator.*;
 import org.apache.reef.poison.PoisonedConfiguration;
 import org.apache.reef.tang.Tang;
+import org.apache.reef.tang.annotations.Parameter;
 import org.apache.reef.tang.annotations.Unit;
+import org.apache.reef.tests.library.exceptions.DriverSideFailure;
+import org.apache.reef.tests.yarn.failure.parameters.NumEvaluatorsToFail;
+import org.apache.reef.tests.yarn.failure.parameters.NumEvaluatorsToSubmit;
 import org.apache.reef.wake.EventHandler;
 import org.apache.reef.wake.time.event.StartTime;
+import org.apache.reef.wake.time.event.StopTime;
 
 import javax.inject.Inject;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -40,14 +43,29 @@ import java.util.logging.Logger;
 @Unit
 public class FailureDriver {
 
-  private static final int NUM_EVALUATORS = 40;
-  private static final int NUM_FAILURES = 10;
-  private final AtomicInteger toSubmit = new AtomicInteger(NUM_FAILURES);
+  private final int numEvaluatorsToSubmit;
+  private final int numEvaluatorsToFail;
+  private final AtomicInteger numEvaluatorsLeftToSubmit;
+  private final AtomicInteger numEvaluatorsLeftToClose;
   private static final Logger LOG = Logger.getLogger(FailureDriver.class.getName());
   private final EvaluatorRequestor requestor;
 
   @Inject
-  public FailureDriver(final EvaluatorRequestor requestor) {
+  public FailureDriver(@Parameter(NumEvaluatorsToSubmit.class) final int numEvaluatorsToSubmit,
+                       @Parameter(NumEvaluatorsToFail.class) final int numEvaluatorsToFail,
+                       final EvaluatorRequestor requestor) {
+    Validate.isTrue(numEvaluatorsToSubmit > 0, "The number of Evaluators to submit must be greater than 0.");
+    Validate.inclusiveBetween(1, numEvaluatorsToSubmit, numEvaluatorsToFail,
+        "The number of Evaluators to fail must be between 1 and numEvaluatorsToSubmit, inclusive.");
+
+    this.numEvaluatorsToSubmit = numEvaluatorsToSubmit;
+    this.numEvaluatorsToFail = numEvaluatorsToFail;
+
+    this.numEvaluatorsLeftToSubmit = new AtomicInteger(numEvaluatorsToSubmit);
+
+    // We should close numEvaluatorsToSubmit because all failed Evaluators are eventually resubmitted and closed.
+    this.numEvaluatorsLeftToClose = new AtomicInteger(numEvaluatorsToSubmit);
+
     this.requestor = requestor;
     LOG.info("Driver instantiated");
   }
@@ -58,9 +76,9 @@ public class FailureDriver {
   final class StartHandler implements EventHandler<StartTime> {
     @Override
     public void onNext(final StartTime startTime) {
-      LOG.log(Level.FINE, "Request {0} Evaluators.", NUM_EVALUATORS);
+      LOG.log(Level.FINE, "Request {0} Evaluators.", numEvaluatorsToSubmit);
       FailureDriver.this.requestor.submit(EvaluatorRequest.newBuilder()
-          .setNumber(NUM_EVALUATORS)
+          .setNumber(numEvaluatorsToSubmit)
           .setMemory(64)
           .setNumberOfCores(1)
           .build());
@@ -75,8 +93,8 @@ public class FailureDriver {
     public void onNext(final AllocatedEvaluator allocatedEvaluator) {
       final String evalId = allocatedEvaluator.getId();
       LOG.log(Level.FINE, "Got allocated evaluator: {0}", evalId);
-      if (toSubmit.getAndDecrement() > 0) {
-        LOG.log(Level.FINE, "Submitting poisoned context. {0} to go.", toSubmit);
+      if (numEvaluatorsLeftToSubmit.getAndDecrement() > 0) {
+        LOG.log(Level.FINE, "Submitting poisoned context. {0} to go.", numEvaluatorsLeftToSubmit);
         allocatedEvaluator.submitContext(
             Tang.Factory.getTang()
                 .newConfigurationBuilder(
@@ -91,6 +109,7 @@ public class FailureDriver {
       } else {
         LOG.log(Level.FINE, "Closing evaluator {0}", evalId);
         allocatedEvaluator.close();
+        FailureDriver.this.numEvaluatorsLeftToClose.decrementAndGet();
       }
     }
   }
@@ -107,6 +126,22 @@ public class FailureDriver {
           .setMemory(64)
           .setNumberOfCores(1)
           .build());
+    }
+  }
+
+  /**
+   * Checks whether all failed Evaluators were properly resubmitted and restarted.
+   */
+  final class RuntimeStopHandler implements EventHandler<StopTime> {
+    @Override
+    public void onNext(final StopTime stopTime) {
+      final int numEvaluatorsToClose = FailureDriver.this.numEvaluatorsLeftToClose.get();
+      if (numEvaluatorsToClose != 0){
+        final String message = "Got RuntimeStop Event. Expected to close " + numEvaluatorsToSubmit + " Evaluators " +
+            "but only " + (numEvaluatorsToSubmit - numEvaluatorsToClose) + " Evaluators were closed.";
+        LOG.log(Level.SEVERE, message);
+        throw new DriverSideFailure(message);
+      }
     }
   }
 }

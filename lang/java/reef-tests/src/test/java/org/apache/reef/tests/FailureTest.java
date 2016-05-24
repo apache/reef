@@ -45,12 +45,24 @@ public class FailureTest {
   }
 
   @Test
+  public void testSingleEvaluatorFailureAndRestart() throws InjectionException {
+    runTestFailureReefWithParams(1, 1, "testSingleEvaluatorFailureAndRestart");
+  }
+
+  @Test
   public void testFailureRestart() throws InjectionException {
+    runTestFailureReefWithParams(40, 10, "testFailureRestart");
+  }
+
+  private void runTestFailureReefWithParams(final int numEvaluatorsToSubmit,
+                                            final int numEvaluatorsTofail,
+                                            final String testName) throws InjectionException {
     final Configuration runtimeConfiguration = this.testEnvironment.getRuntimeConfiguration();
 
     final LauncherStatus status =
-        FailureREEF.runFailureReef(runtimeConfiguration, this.testEnvironment.getTestTimeout());
+        FailureREEF.runFailureReef(runtimeConfiguration, this.testEnvironment.getTestTimeout(),
+            numEvaluatorsToSubmit, numEvaluatorsTofail);
 
-    Assert.assertTrue("FailureReef failed: " + status, status.isSuccess());
+    Assert.assertTrue("FailureReef " + testName + " failed: " + status, status.isSuccess());
   }
 }
