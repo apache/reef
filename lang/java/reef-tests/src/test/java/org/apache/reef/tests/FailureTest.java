@@ -21,7 +21,7 @@ package org.apache.reef.tests;
 import org.apache.reef.client.LauncherStatus;
 import org.apache.reef.tang.Configuration;
 import org.apache.reef.tang.exceptions.InjectionException;
-import org.apache.reef.tests.yarn.failure.FailureREEF;
+import org.apache.reef.tests.evaluator.failure.FailureREEF;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -45,12 +45,24 @@ public class FailureTest {
   }
 
   @Test
+  public void testSingleEvaluatorFailureAndRestart() throws InjectionException {
+    runTestFailureReefWithParams(1, 1, "testSingleEvaluatorFailureAndRestart");
+  }
+
+  @Test
   public void testFailureRestart() throws InjectionException {
+    runTestFailureReefWithParams(30, 5, "testFailureRestart");
+  }
+
+  private void runTestFailureReefWithParams(final int numEvaluatorsToSubmit,
+                                            final int numEvaluatorsTofail,
+                                            final String testName) throws InjectionException {
     final Configuration runtimeConfiguration = this.testEnvironment.getRuntimeConfiguration();
 
     final LauncherStatus status =
-        FailureREEF.runFailureReef(runtimeConfiguration, this.testEnvironment.getTestTimeout());
+        FailureREEF.runFailureReef(runtimeConfiguration, this.testEnvironment.getTestTimeout(),
+            numEvaluatorsToSubmit, numEvaluatorsTofail);
 
-    Assert.assertTrue("FailureReef failed: " + status, status.isSuccess());
+    Assert.assertTrue("FailureReef " + testName + " failed: " + status, status.isSuccess());
   }
 }

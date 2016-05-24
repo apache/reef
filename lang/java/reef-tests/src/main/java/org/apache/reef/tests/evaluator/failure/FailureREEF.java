@@ -16,22 +16,21 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.tests.yarn.failure;
+package org.apache.reef.tests.evaluator.failure;
 
 import org.apache.reef.client.DriverConfiguration;
 import org.apache.reef.client.DriverLauncher;
 import org.apache.reef.client.LauncherStatus;
 import org.apache.reef.runtime.local.client.LocalRuntimeConfiguration;
 import org.apache.reef.runtime.yarn.client.YarnClientConfiguration;
-import org.apache.reef.tang.Configuration;
-import org.apache.reef.tang.Injector;
-import org.apache.reef.tang.JavaConfigurationBuilder;
-import org.apache.reef.tang.Tang;
+import org.apache.reef.tang.*;
 import org.apache.reef.tang.annotations.Name;
 import org.apache.reef.tang.annotations.NamedParameter;
 import org.apache.reef.tang.exceptions.BindException;
 import org.apache.reef.tang.exceptions.InjectionException;
 import org.apache.reef.tang.formats.CommandLine;
+import org.apache.reef.tests.evaluator.failure.parameters.NumEvaluatorsToFail;
+import org.apache.reef.tests.evaluator.failure.parameters.NumEvaluatorsToSubmit;
 import org.apache.reef.util.EnvironmentUtils;
 
 import java.io.IOException;
@@ -87,7 +86,8 @@ public final class FailureREEF {
   }
 
   public static LauncherStatus runFailureReef(
-      final Configuration runtimeConfig, final int timeout) throws InjectionException {
+      final Configuration runtimeConfig, final int timeout, final int numEvaluatorsToSubmit,
+      final int numEvaluatorsToFail) throws InjectionException {
 
     final Configuration driverConf = DriverConfiguration.CONF
         .set(DriverConfiguration.GLOBAL_LIBRARIES, EnvironmentUtils.getClassLocation(FailureDriver.class))
@@ -95,9 +95,17 @@ public final class FailureREEF {
         .set(DriverConfiguration.ON_DRIVER_STARTED, FailureDriver.StartHandler.class)
         .set(DriverConfiguration.ON_EVALUATOR_ALLOCATED, FailureDriver.EvaluatorAllocatedHandler.class)
         .set(DriverConfiguration.ON_EVALUATOR_FAILED, FailureDriver.EvaluatorFailedHandler.class)
+        .set(DriverConfiguration.ON_DRIVER_STOP, FailureDriver.StopHandler.class)
         .build();
 
-    final LauncherStatus state = DriverLauncher.getLauncher(runtimeConfig).run(driverConf, timeout);
+    final Configuration namedParamsConf = Tang.Factory.getTang().newConfigurationBuilder()
+        .bindNamedParameter(NumEvaluatorsToSubmit.class, Integer.toString(numEvaluatorsToSubmit))
+        .bindNamedParameter(NumEvaluatorsToFail.class, Integer.toString(numEvaluatorsToFail))
+        .build();
+
+    final LauncherStatus state = DriverLauncher.getLauncher(runtimeConfig)
+        .run(Configurations.merge(driverConf, namedParamsConf), timeout);
+
     LOG.log(Level.INFO, "REEF job completed: {0}", state);
     return state;
   }
@@ -107,7 +115,7 @@ public final class FailureREEF {
     final Injector injector = Tang.Factory.getTang().newInjector(commandLineConf);
     final boolean isLocal = injector.getNamedInstance(Local.class);
     final int jobTimeout = injector.getNamedInstance(TimeOut.class) * 60 * 1000;
-    runFailureReef(getRunTimeConfiguration(isLocal), jobTimeout);
+    runFailureReef(getRunTimeConfiguration(isLocal), jobTimeout, 40, 10);
   }
 
   /**
