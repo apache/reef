@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.tests.yarn.failure;
+package org.apache.reef.tests.evaluator.failure;
 
 import org.apache.reef.client.DriverConfiguration;
 import org.apache.reef.client.DriverLauncher;
@@ -29,8 +29,8 @@ import org.apache.reef.tang.annotations.NamedParameter;
 import org.apache.reef.tang.exceptions.BindException;
 import org.apache.reef.tang.exceptions.InjectionException;
 import org.apache.reef.tang.formats.CommandLine;
-import org.apache.reef.tests.yarn.failure.parameters.NumEvaluatorsToFail;
-import org.apache.reef.tests.yarn.failure.parameters.NumEvaluatorsToSubmit;
+import org.apache.reef.tests.evaluator.failure.parameters.NumEvaluatorsToFail;
+import org.apache.reef.tests.evaluator.failure.parameters.NumEvaluatorsToSubmit;
 import org.apache.reef.util.EnvironmentUtils;
 
 import java.io.IOException;
@@ -95,7 +95,7 @@ public final class FailureREEF {
         .set(DriverConfiguration.ON_DRIVER_STARTED, FailureDriver.StartHandler.class)
         .set(DriverConfiguration.ON_EVALUATOR_ALLOCATED, FailureDriver.EvaluatorAllocatedHandler.class)
         .set(DriverConfiguration.ON_EVALUATOR_FAILED, FailureDriver.EvaluatorFailedHandler.class)
-        .set(DriverConfiguration.ON_DRIVER_STOP, FailureDriver.RuntimeStopHandler.class)
+        .set(DriverConfiguration.ON_DRIVER_STOP, FailureDriver.StopHandler.class)
         .build();
 
     final Configuration namedParamsConf = Tang.Factory.getTang().newConfigurationBuilder()

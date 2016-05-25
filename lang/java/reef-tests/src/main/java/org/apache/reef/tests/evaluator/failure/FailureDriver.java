@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.tests.yarn.failure;
+package org.apache.reef.tests.evaluator.failure;
 
 import org.apache.commons.lang3.Validate;
 import org.apache.reef.driver.context.ContextConfiguration;
@@ -25,9 +25,9 @@ import org.apache.reef.poison.PoisonedConfiguration;
 import org.apache.reef.tang.Tang;
 import org.apache.reef.tang.annotations.Parameter;
 import org.apache.reef.tang.annotations.Unit;
+import org.apache.reef.tests.evaluator.failure.parameters.NumEvaluatorsToFail;
+import org.apache.reef.tests.evaluator.failure.parameters.NumEvaluatorsToSubmit;
 import org.apache.reef.tests.library.exceptions.DriverSideFailure;
-import org.apache.reef.tests.yarn.failure.parameters.NumEvaluatorsToFail;
-import org.apache.reef.tests.yarn.failure.parameters.NumEvaluatorsToSubmit;
 import org.apache.reef.wake.EventHandler;
 import org.apache.reef.wake.time.event.StartTime;
 import org.apache.reef.wake.time.event.StopTime;
@@ -132,7 +132,7 @@ public class FailureDriver {
   /**
    * Checks whether all failed Evaluators were properly resubmitted and restarted.
    */
-  final class RuntimeStopHandler implements EventHandler<StopTime> {
+  final class StopHandler implements EventHandler<StopTime> {
     @Override
     public void onNext(final StopTime stopTime) {
       final int numEvaluatorsToClose = FailureDriver.this.numEvaluatorsLeftToClose.get();

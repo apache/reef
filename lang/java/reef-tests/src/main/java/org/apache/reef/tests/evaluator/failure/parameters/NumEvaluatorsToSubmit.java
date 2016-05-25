@@ -16,13 +16,14 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.tests.yarn.failure.parameters;
+package org.apache.reef.tests.evaluator.failure.parameters;
 
 import org.apache.reef.tang.annotations.Name;
 import org.apache.reef.tang.annotations.NamedParameter;
+import org.apache.reef.tests.evaluator.failure.FailureDriver;
 
 /**
- * The number of Evaluators to submit in {@link org.apache.reef.tests.yarn.failure.FailureDriver}.
+ * The number of Evaluators to submit in {@link FailureDriver}.
  */
 @NamedParameter(doc = "The number of Evaluators to submit in FailureDriver.")
 public final class NumEvaluatorsToSubmit implements Name<Integer> {

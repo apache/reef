@@ -17,6 +17,6 @@
  * under the License.
  */
 /**
- * Tests for YARN failures.
+ * Parameters for {@link org.apache.reef.tests.evaluator.failure.FailureDriver}.
  */
-package org.apache.reef.tests.yarn.failure;
+package org.apache.reef.tests.evaluator.failure.parameters;

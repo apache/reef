@@ -21,7 +21,7 @@ package org.apache.reef.tests;
 import org.apache.reef.client.LauncherStatus;
 import org.apache.reef.tang.Configuration;
 import org.apache.reef.tang.exceptions.InjectionException;
-import org.apache.reef.tests.yarn.failure.FailureREEF;
+import org.apache.reef.tests.evaluator.failure.FailureREEF;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
