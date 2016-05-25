@@ -17,13 +17,12 @@ KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>org.apache.reef</groupId>
         <artifactId>reef-project</artifactId>
-        <version>0.15.0-SNAPSHOT</version>
+        <version>0.15.0</version>
         <relativePath>../../..</relativePath>
     </parent>
 
@@ -57,23 +56,23 @@ under the License.
                         <configuration>
                             <target>
                                 <exec executable="protoc" outputproperty="protoc.version">
-                                    <arg value="--version"/>
+                                    <arg value="--version" />
                                 </exec>
                                 <fail message="${protobuf.version} expected, but protoc version was: ${protoc.version}">
                                     <condition>
                                         <not>
-                                            <contains substring="${protobuf.version}" string="${protoc.version}"/>
+                                            <contains substring="${protobuf.version}" string="${protoc.version}" />
                                         </not>
                                     </condition>
                                 </fail>
-                                <mkdir dir="target/generated-sources/proto"/>
+                                <mkdir dir="target/generated-sources/proto" />
                                 <exec executable="protoc">
-                                    <arg value="--proto_path=src/main/proto/"/>
-                                    <arg value="--java_out=target/generated-sources/proto"/>
-                                    <arg value="src/main/proto/reef_service_protos.proto"/>
-                                    <arg value="src/main/proto/evaluator_runtime.proto"/>
-                                    <arg value="src/main/proto/client_runtime.proto"/>
-                                    <arg value="src/main/proto/reef_protocol.proto"/>
+                                    <arg value="--proto_path=src/main/proto/" />
+                                    <arg value="--java_out=target/generated-sources/proto" />
+                                    <arg value="src/main/proto/reef_service_protos.proto" />
+                                    <arg value="src/main/proto/evaluator_runtime.proto" />
+                                    <arg value="src/main/proto/client_runtime.proto" />
+                                    <arg value="src/main/proto/reef_protocol.proto" />
                                 </exec>
                             </target>
                             <sourceRoot>target/generated-sources/proto</sourceRoot>
