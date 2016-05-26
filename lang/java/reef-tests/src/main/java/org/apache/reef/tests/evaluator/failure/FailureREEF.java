@@ -115,7 +115,7 @@ public final class FailureREEF {
     final Injector injector = Tang.Factory.getTang().newInjector(commandLineConf);
     final boolean isLocal = injector.getNamedInstance(Local.class);
     final int jobTimeout = injector.getNamedInstance(TimeOut.class) * 60 * 1000;
-    runFailureReef(getRunTimeConfiguration(isLocal), jobTimeout, 40, 10);
+    runFailureReef(getRunTimeConfiguration(isLocal), jobTimeout, 30, 5);
   }
 
   /**
