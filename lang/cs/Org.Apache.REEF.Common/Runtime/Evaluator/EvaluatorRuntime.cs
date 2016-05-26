@@ -145,7 +145,7 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator
                     }
                     if (message.kill_evaluator != null)
                     {
-                        Logger.Log(Level.Info, string.Format(CultureInfo.InvariantCulture, "Evaluator {0} has been killed by the driver.", _evaluatorId));
+                        Logger.Log(Level.Info, "Evaluator {0} has been killed by the driver.", _evaluatorId);
                         _state = State.KILLED;
                         _clock.Dispose();
                     }
@@ -155,18 +155,20 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator
 
         public EvaluatorStatusProto GetEvaluatorStatus()
         {
-            Logger.Log(Level.Info, string.Format(CultureInfo.InvariantCulture, "Evaluator state: {0}", _state));
-            EvaluatorStatusProto evaluatorStatusProto = new EvaluatorStatusProto
+            lock (_heartBeatManager)
             {
-                evaluator_id = _evaluatorId,
-                state = _state
-            };
-            return evaluatorStatusProto;
+                Logger.Log(Level.Verbose, "Evaluator state: {0}", _state);
+                return new EvaluatorStatusProto
+                {
+                    evaluator_id = _evaluatorId,
+                    state = _state
+                };
+            }
         }
 
         public void OnNext(RuntimeStart runtimeStart)
         {
-            lock (_evaluatorId)
+            lock (_heartBeatManager)
             {
                 try
                 {
@@ -191,40 +193,43 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator
 
         public void OnNext(RuntimeStop runtimeStop)
         {
-            Logger.Log(Level.Info, "Runtime stop");
+            Logger.Log(Level.Verbose, "Runtime stop");
 
-            if (_state == State.RUNNING)
+            lock (_heartBeatManager)
             {
-                const string msg = "RuntimeStopHandler invoked in state RUNNING.";
-                if (runtimeStop.Exception != null)
+                if (_state == State.RUNNING)
                 {
-                    OnException(new SystemException(msg, runtimeStop.Exception));
+                    const string msg = "RuntimeStopHandler invoked in state RUNNING.";
+                    if (runtimeStop.Exception != null)
+                    {
+                        OnException(new SystemException(msg, runtimeStop.Exception));
+                    }
+                    else
+                    {
+                        OnException(new SystemException(msg));
+                    }
                 }
                 else
                 {
-                    OnException(new SystemException(msg));
-                }
-            }
-            else
-            {
-                var exceptionOccurredOnDispose = false;
-                try
-                {
-                    _contextManager.Dispose();
-                    _evaluatorControlChannel.Dispose();
-                }
-                catch (Exception e)
-                {
-                    exceptionOccurredOnDispose = true;
-                    Utilities.Diagnostics.Exceptions.CaughtAndThrow(
-                        new InvalidOperationException("Cannot stop evaluator properly", e),
-                        Level.Error,
-                        "Exception during shut down.",
-                        Logger);
-                }
-                finally
-                {
-                    _evaluatorExitLogger.LogExit(exceptionOccurredOnDispose);
+                    var exceptionOccurredOnDispose = false;
+                    try
+                    {
+                        _contextManager.Dispose();
+                        _evaluatorControlChannel.Dispose();
+                    }
+                    catch (Exception e)
+                    {
+                        exceptionOccurredOnDispose = true;
+                        Utilities.Diagnostics.Exceptions.CaughtAndThrow(
+                            new InvalidOperationException("Cannot stop evaluator properly", e),
+                            Level.Error,
+                            "Exception during shut down.",
+                            Logger);
+                    }
+                    finally
+                    {
+                        _evaluatorExitLogger.LogExit(exceptionOccurredOnDispose);
+                    }
                 }
             }
         }
@@ -233,7 +238,7 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator
         {
             if (value != null && value.evaluatorControl != null)
             {
-                Logger.Log(Level.Info, "Received a REEFMessage with EvaluatorControl");
+                Logger.Log(Level.Verbose, "Received a REEFMessage with EvaluatorControl");
                 Handle(value.evaluatorControl);
             }
         }

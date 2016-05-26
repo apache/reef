@@ -38,7 +38,6 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Task
     {
         private static readonly Logger LOGGER = Logger.GetLogger(typeof(TaskStatus));
 
-        private readonly object _stateLock = new object();
         private readonly BinaryFormatter _binaryFormatter = new BinaryFormatter();
 
         private readonly TaskLifeCycle _taskLifeCycle;
@@ -101,7 +100,7 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Task
 
         public void SetException(Exception e)
         {
-            lock (_stateLock)
+            lock (_heartBeatManager)
             {
                 try
                 {
@@ -132,7 +131,7 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Task
 
         public void SetResult(byte[] result)
         {
-            lock (_stateLock)
+            lock (_heartBeatManager)
             {
                 _result = Optional<byte[]>.OfNullable(result);
                 switch (State)
@@ -152,7 +151,7 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Task
 
         public void SetRunning()
         {
-            lock (_stateLock)
+            lock (_heartBeatManager)
             {
                 LOGGER.Log(Level.Verbose, "TaskStatus::SetRunning");
                 if (_state == TaskState.Init)
@@ -177,7 +176,7 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Task
 
         public void SetCloseRequested()
         {
-            lock (_stateLock)
+            lock (_heartBeatManager)
             {
                 if (HasEnded())
                 {
@@ -190,7 +189,7 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Task
 
         public void SetSuspendRequested()
         {
-            lock (_stateLock)
+            lock (_heartBeatManager)
             {
                 if (HasEnded())
                 {
@@ -203,7 +202,7 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Task
 
         public void SetKilled()
         {
-            lock (_stateLock)
+            lock (_heartBeatManager)
             {
                 if (HasEnded())
                 {
@@ -239,7 +238,7 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Task
         {
             // This is locked because the Task continuation thread which sets the
             // result is potentially different from the HeartBeat thread.
-            lock (_stateLock)
+            lock (_heartBeatManager)
             {
                 Check();
                 TaskStatusProto taskStatusProto = new TaskStatusProto()
