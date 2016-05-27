@@ -5,9 +5,9 @@
 // to you under the Apache License, Version 2.0 (the
 // "License"); you may not use this file except in compliance
 // with the License.  You may obtain a copy of the License at
-//
+// 
 //   http://www.apache.org/licenses/LICENSE-2.0
-//
+// 
 // Unless required by applicable law or agreed to in writing,
 // software distributed under the License is distributed on an
 // "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -15,34 +15,31 @@
 // specific language governing permissions and limitations
 // under the License.
 
-using System.Collections.Generic;
-using Org.Apache.REEF.Utilities.Attributes;
-
-namespace Org.Apache.REEF.IO.PartitionedData
+namespace Org.Apache.REEF.IO
 {
     /// <summary>
-    /// Evaluator-Side representation of a data set partition.
+    /// The level at which data is cached.
     /// </summary>
-    /// <typeparam name="T">Generic Type representing data pointer.
-    /// For example, for data in local file it can be file pointer </typeparam>
-    [Unstable("API contract may change.")]
-    public interface IInputPartition<T> 
+    public enum CacheLevel
     {
         /// <summary>
-        /// The id of the partition.
+        /// The data is deserialized.
         /// </summary>
-        string Id { get; }
+        InMemoryMaterialized = 100,
 
         /// <summary>
-        /// Caches the data based on the method parameter. Returns the actual cached level.
+        /// The data is in memory, but as MemoryStream.
         /// </summary>
-        [Unstable("0.15", "Contract may change.")]
-        CacheLevel Cache(CacheLevel level);
+        InMemoryAsStream = 200,
 
         /// <summary>
-        /// Gives a pointer to the underlying partition.
+        /// The data is in disk.
         /// </summary>
-        /// <returns>The pointer to the underlying partition</returns>
-        IEnumerable<T> GetPartitionHandle();
+        Disk = 5000,
+        
+        /// <summary>
+        /// The data is not local.
+        /// </summary>
+        NotLocal = 10000,
     }
 }

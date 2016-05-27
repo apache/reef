@@ -5,9 +5,9 @@
 // to you under the Apache License, Version 2.0 (the
 // "License"); you may not use this file except in compliance
 // with the License.  You may obtain a copy of the License at
-//
+// 
 //   http://www.apache.org/licenses/LICENSE-2.0
-//
+// 
 // Unless required by applicable law or agreed to in writing,
 // software distributed under the License is distributed on an
 // "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -15,34 +15,24 @@
 // specific language governing permissions and limitations
 // under the License.
 
-using System.Collections.Generic;
-using Org.Apache.REEF.Utilities.Attributes;
+using System.IO;
 
-namespace Org.Apache.REEF.IO.PartitionedData
+namespace Org.Apache.REEF.IO
 {
     /// <summary>
-    /// Evaluator-Side representation of a data set partition.
+    /// The interface for a Serializer that serializes an object into a Stream and deserializes
+    /// from a Stream into an object.
     /// </summary>
-    /// <typeparam name="T">Generic Type representing data pointer.
-    /// For example, for data in local file it can be file pointer </typeparam>
-    [Unstable("API contract may change.")]
-    public interface IInputPartition<T> 
+    public interface ISerializer<T>
     {
         /// <summary>
-        /// The id of the partition.
+        /// Serialize into the Stream.
         /// </summary>
-        string Id { get; }
+        void Serialize(T value, Stream stream);
 
         /// <summary>
-        /// Caches the data based on the method parameter. Returns the actual cached level.
+        /// Deserialize from the Stream.
         /// </summary>
-        [Unstable("0.15", "Contract may change.")]
-        CacheLevel Cache(CacheLevel level);
-
-        /// <summary>
-        /// Gives a pointer to the underlying partition.
-        /// </summary>
-        /// <returns>The pointer to the underlying partition</returns>
-        IEnumerable<T> GetPartitionHandle();
+        T Deserialize(Stream stream);
     }
 }

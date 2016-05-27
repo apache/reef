@@ -19,6 +19,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
+using System.Linq;
 using Org.Apache.REEF.IO.PartitionedData;
 using Org.Apache.REEF.IO.PartitionedData.FileSystem;
 using Org.Apache.REEF.IO.PartitionedData.FileSystem.Parameters;
@@ -95,7 +96,7 @@ namespace Org.Apache.REEF.IO.Tests
                     Assert.NotNull(partition);
                     Assert.NotNull(partition.Id);
                     int count = 0;
-                    var e = partition.GetPartitionHandle();
+                    var e = partition.GetPartitionHandle().First();
                     foreach (var v in e)
                     {
                         Logger.Log(Level.Info, string.Format(CultureInfo.CurrentCulture, "Data read {0}: ", v));
@@ -173,7 +174,7 @@ namespace Org.Apache.REEF.IO.Tests
                         .GetInstance<IInputPartition<IEnumerable<byte>>>();
                 using (partition as IDisposable)
                 {
-                    var e = partition.GetPartitionHandle();
+                    var e = partition.GetPartitionHandle().First();
                     foreach (var v in e)
                     {
                         Logger.Log(Level.Info, string.Format(CultureInfo.CurrentCulture, "Data read {0}: ", v));
@@ -211,7 +212,7 @@ namespace Org.Apache.REEF.IO.Tests
                         .GetInstance<IInputPartition<IEnumerable<Row>>>();
                 using (partition as IDisposable)
                 {
-                    IEnumerable<Row> e = partition.GetPartitionHandle();
+                    IEnumerable<Row> e = partition.GetPartitionHandle().First();
 
                     foreach (var row in e)
                     {
@@ -256,7 +257,7 @@ namespace Org.Apache.REEF.IO.Tests
                         .GetInstance<IInputPartition<IEnumerable<Row>>>();
                 using (partition as IDisposable)
                 {
-                    IEnumerable<Row> e = partition.GetPartitionHandle();
+                    IEnumerable<Row> e = partition.GetPartitionHandle().First();
 
                     foreach (var row in e)
                     {
