@@ -38,7 +38,6 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Task
     {
         private static readonly Logger LOGGER = Logger.GetLogger(typeof(TaskStatus));
 
-        private readonly object _stateLock = new object();
         private readonly BinaryFormatter _binaryFormatter = new BinaryFormatter();
 
         private readonly TaskLifeCycle _taskLifeCycle;
