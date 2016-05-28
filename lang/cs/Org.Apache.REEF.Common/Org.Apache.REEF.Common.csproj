@@ -92,7 +92,6 @@ under the License.
     <Compile Include="Evaluator\DefaultLocalHttpDriverConnection.cs" />
     <Compile Include="Evaluator\DefaultYarnClusterHttpDriverConnection.cs" />
     <Compile Include="Evaluator\DefaultYarnOneBoxHttpDriverConnection.cs" />
-    <Compile Include="Evaluator\DriverConnectionConfigurationProviders\DynamicDriverReconnConfigProvider.cs" />
     <Compile Include="Evaluator\DriverConnectionConfigurationProviders\LocalHttpDriverReconnConfigProvider.cs" />
     <Compile Include="Evaluator\DriverConnectionConfigurationProviders\YarnOneBoxHttpDriverReconnConfigProvider.cs" />
     <Compile Include="Evaluator\DriverInformation.cs" />

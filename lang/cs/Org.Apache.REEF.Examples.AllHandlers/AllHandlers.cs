@@ -22,6 +22,7 @@ using Org.Apache.REEF.Client.Common;
 using Org.Apache.REEF.Client.Local;
 using Org.Apache.REEF.Client.Yarn;
 using Org.Apache.REEF.Common.Evaluator;
+using Org.Apache.REEF.Common.Evaluator.DriverConnectionConfigurationProviders;
 using Org.Apache.REEF.Driver;
 using Org.Apache.REEF.Driver.Bridge;
 using Org.Apache.REEF.Driver.Defaults;
@@ -66,7 +67,8 @@ namespace Org.Apache.REEF.Examples.AllHandlers
                 .Set(DriverConfiguration.CustomTraceListeners, GenericType<DefaultCustomTraceListener>.Class)
                 .Set(DriverConfiguration.CustomTraceLevel, Level.Info.ToString())
                 .Set(DriverConfiguration.OnDriverRestarted, GenericType<HelloRestartHandler>.Class)
-                .Set(DriverConfiguration.OnDriverReconnect, GenericType<DefaultLocalHttpDriverConnection>.Class)
+                .Set(DriverConfiguration.DriverReconnectionConfigurationProvider, 
+                    GenericType<LocalHttpDriverReconnConfigProvider>.Class)
                 .Set(DriverConfiguration.OnDriverRestartContextActive, GenericType<HelloDriverRestartActiveContextHandler>.Class)
                 .Set(DriverConfiguration.OnDriverRestartTaskRunning, GenericType<HelloDriverRestartRunningTaskHandler>.Class)
                 .Build();
