@@ -18,7 +18,6 @@
 using System;
 using System.Diagnostics;
 using Org.Apache.REEF.Common.Context;
-using Org.Apache.REEF.Common.Evaluator;
 using Org.Apache.REEF.Common.Evaluator.DriverConnectionConfigurationProviders;
 using Org.Apache.REEF.Common.Evaluator.Parameters;
 using Org.Apache.REEF.Driver.Bridge;
@@ -172,13 +171,6 @@ namespace Org.Apache.REEF.Driver
             new OptionalParameter<TraceListener>();
 
         /// <summary>
-        /// The implemenation for (attempting to) re-establish connection to driver
-        /// TODO[JIRA REEF-1306]: Remove.
-        /// </summary>
-        [Obsolete("Deprecated in 0.15, will be removed. Please use DriverReconnectionConfigurationProvider instead.")]
-        public static readonly OptionalImpl<IDriverConnection> OnDriverReconnect = new OptionalImpl<IDriverConnection>();
-
-        /// <summary>
         /// The configuration provider for driver reconnection.
         /// </summary>
         public static readonly OptionalImpl<IDriverReconnConfigProvider> DriverReconnectionConfigurationProvider =
@@ -203,7 +195,6 @@ namespace Org.Apache.REEF.Driver
                         OnDriverStarted)
                     .BindSetEntry(GenericType<DriverBridgeConfigurationOptions.DriverRestartedHandlers>.Class,
                         OnDriverRestarted)
-                    .BindImplementation(GenericType<IDriverConnection>.Class, OnDriverReconnect)
                     .BindSetEntry(GenericType<DriverBridgeConfigurationOptions.AllocatedEvaluatorHandlers>.Class,
                         OnEvaluatorAllocated)
                     .BindSetEntry(GenericType<DriverBridgeConfigurationOptions.ActiveContextHandlers>.Class,
@@ -243,8 +234,6 @@ namespace Org.Apache.REEF.Driver
                         DriverRestartEvaluatorRecoverySeconds)
                     .BindSetEntry<EvaluatorConfigurationProviders, EvaluatorLogLevelProvider, IConfigurationProvider>(
                         GenericType<EvaluatorConfigurationProviders>.Class, GenericType<EvaluatorLogLevelProvider>.Class)
-
-                    // TODO[JIRA REEF-1306]: Bind DriverReconnectionConfigurationProvider into EvaluatorConfigurationProviders.
                     .BindImplementation(GenericType<IDriverReconnConfigProvider>.Class, DriverReconnectionConfigurationProvider)
                     .BindImplementation(GenericType<IProgressProvider>.Class, ProgressProvider)
                     .Build();

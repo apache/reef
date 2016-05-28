@@ -188,11 +188,7 @@ namespace Org.Apache.REEF.Driver.Bridge
             _driverRestartFailedEvaluatorHandlers = driverRestartFailedEvaluatorHandlers;
             _httpServerHandler = httpServerHandler;
 
-            // TODO[JIRA REEF-1306]: Remove after it is bound directly into EvaluatorConfigurationProviders.
-            _configurationProviders = new HashSet<IConfigurationProvider>(configurationProviders)
-            {
-                GetDriverReconnectionProvider(driverReconnConfigProvider, driverConnection)
-            };
+            _configurationProviders = new HashSet<IConfigurationProvider>(configurationProviders) { driverReconnConfigProvider };
 
             _progressProvider = progressProvider;
             
@@ -214,31 +210,6 @@ namespace Org.Apache.REEF.Driver.Bridge
             _driverRestartRunningTaskSubscriber = new ClrSystemHandler<IRunningTask>();
             _driverRestartCompletedSubscriber = new ClrSystemHandler<IDriverRestartCompleted>();
             _driverRestartFailedEvaluatorSubscriber = new ClrSystemHandler<IFailedEvaluator>();
-        }
-
-        private static IDriverReconnConfigProvider GetDriverReconnectionProvider(
-            IDriverReconnConfigProvider driverReconnConfigProvider,
-            IDriverConnection driverConnection)
-        {
-            // If not the default, this means that the user has bound the newer configuration. Return it.
-            if (!(driverReconnConfigProvider is DefaultDriverReconnConfigProvider))
-            {
-                return driverReconnConfigProvider;
-            }
-
-            // If not default, this means that the user has bound the old configuration.
-            // Use the dynamic configuration provider in that case.
-            if (!(driverConnection is MissingDriverConnection))
-            {
-                return new DynamicDriverReconnConfigProvider(driverConnection.GetType());
-            }
-
-            // This is done as a stop gap for deprecation because we cannot bind an implementation 
-            // of IDriverConnection to the driver CLRBridgeConfiguration if it is already bound
-            // by the user, since the driver configuration and Evaluator configuration will be combined
-            // at the Evaluator. We thus need to return the DriverReconnectionConfigurationProvider
-            // that does not bind IDriverConnection such that a TANG conflict does not occur.
-            return TangFactory.GetTang().NewInjector().GetInstance<DefaultDriverReconnConfigProvider>();
         }
 
         public BridgeHandlerManager Subscribe()
