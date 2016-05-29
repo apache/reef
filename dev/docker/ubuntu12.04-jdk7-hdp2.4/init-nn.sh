@@ -20,8 +20,6 @@
 
 /usr/sbin/sshd
 
-/root/sync-hosts.sh
-
 grep hdn /etc/hosts | awk '{print $1}' | sort | uniq > $HADOOP_PREFIX/etc/hadoop/slaves
 for host in `cat $HADOOP_PREFIX/etc/hadoop/slaves`
 do
@@ -32,9 +30,9 @@ done
 hdfs namenode -format
 
 hadoop-daemon.sh --script hdfs start namenode
-slaves.sh /usr/hdp/2.4.0.0-169/hadoop/sbin/hadoop-daemon.sh --script hdfs start datanode
+slaves.sh /usr/hdp/2.4.2.0-258/hadoop/sbin/hadoop-daemon.sh --script hdfs start datanode
 
 yarn-daemon.sh start resourcemanager
-slaves.sh /usr/hdp/2.4.0.0-169/hadoop-yarn/sbin/yarn-daemon.sh start nodemanager
+slaves.sh /usr/hdp/2.4.2.0-258/hadoop-yarn/sbin/yarn-daemon.sh start nodemanager
 
 cd ~ && /bin/bash
