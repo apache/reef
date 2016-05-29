@@ -18,25 +18,25 @@
 FROM reefrt/ubuntu12.04-jdk7
 MAINTAINER Apache REEF <dev@reef.apache.org>
 
-# HDP 2.4.0
+# HDP 2.4.2
 RUN \
-  wget http://public-repo-1.hortonworks.com/HDP/ubuntu12/2.x/updates/2.4.0.0/hdp.list -O /etc/apt/sources.list.d/hdp.list && \
+  wget http://public-repo-1.hortonworks.com/HDP/ubuntu12/2.x/updates/2.4.2.0/hdp.list -O /etc/apt/sources.list.d/hdp.list && \
   gpg --keyserver pgp.mit.edu --recv-keys B9733A7A07513CAD && \
   gpg -a --export 07513CAD | apt-key add - && \
   apt-get update && \
-  apt-get install -y hadoop-2-4-0* && \
+  apt-get install -y hadoop-2-4-2* && \
   apt-get clean
-ENV HADOOP_PREFIX /usr/hdp/2.4.0.0-169/hadoop
+ENV HADOOP_PREFIX /usr/hdp/2.4.2.0-258/hadoop
 
 ENV YARN_CONF_DIR $HADOOP_PREFIX/etc/hadoop
 RUN \
-  echo 'HADOOP_PREFIX="/usr/hdp/2.4.0.0-169/hadoop"' >> /etc/environment && \
-  echo 'HADOOP_COMMON_HOME="/usr/hdp/2.4.0.0-169/hadoop"' >> /etc/environment && \
-  echo 'HADOOP_HDFS_HOME="/usr/hdp/2.4.0.0-169/hadoop"' >> /etc/environment && \
-  echo 'HADOOP_MAPRED_HOME="/usr/hdp/2.4.0.0-169/hadoop"' >> /etc/environment && \
-  echo 'HADOOP_YARN_HOME="/usr/hdp/2.4.0.0-169/hadoop-yarn"' >> /etc/environment && \
-  echo 'HADOOP_CONF_DIR="/usr/hdp/2.4.0.0-169/hadoop/etc/hadoop"' >> /etc/environment && \
-  echo 'YARN_CONF_DIR="/usr/hdp/2.4.0.0-169/hadoop/etc/hadoop"' >> /etc/environment
+  echo 'HADOOP_PREFIX="/usr/hdp/2.4.2.0-258/hadoop"' >> /etc/environment && \
+  echo 'HADOOP_COMMON_HOME="/usr/hdp/2.4.2.0-258/hadoop"' >> /etc/environment && \
+  echo 'HADOOP_HDFS_HOME="/usr/hdp/2.4.2.0-258/hadoop"' >> /etc/environment && \
+  echo 'HADOOP_MAPRED_HOME="/usr/hdp/2.4.2.0-258/hadoop"' >> /etc/environment && \
+  echo 'HADOOP_YARN_HOME="/usr/hdp/2.4.2.0-258/hadoop-yarn"' >> /etc/environment && \
+  echo 'HADOOP_CONF_DIR="/usr/hdp/2.4.2.0-258/hadoop/etc/hadoop"' >> /etc/environment && \
+  echo 'YARN_CONF_DIR="/usr/hdp/2.4.2.0-258/hadoop/etc/hadoop"' >> /etc/environment
 ENV PATH $PATH:$HADOOP_PREFIX/bin:$HADOOP_PREFIX/sbin:$HADOOP_PREFIX-yarn/bin:$HADOOP_PREFIX-yarn/sbin:$HADOOP_PREFIX-hdfs/bin:$HADOOP_PREFIX-hdfs/sbin
 
 COPY core-site.xml $HADOOP_PREFIX/etc/hadoop/
