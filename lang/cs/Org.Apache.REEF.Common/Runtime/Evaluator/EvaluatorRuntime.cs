@@ -158,12 +158,11 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator
             lock (_heartBeatManager)
             {
                 Logger.Log(Level.Verbose, "Evaluator state: {0}", _state);
-                EvaluatorStatusProto evaluatorStatusProto = new EvaluatorStatusProto
+                return new EvaluatorStatusProto
                 {
                     evaluator_id = _evaluatorId,
                     state = _state
                 };
-                return evaluatorStatusProto;
             }
         }
 
