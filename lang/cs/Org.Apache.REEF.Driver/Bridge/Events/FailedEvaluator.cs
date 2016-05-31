@@ -17,10 +17,9 @@
 
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Runtime.Serialization;
-using System.Runtime.Serialization.Formatters.Binary;
+using Org.Apache.REEF.Common.Exceptions;
 using Org.Apache.REEF.Driver.Bridge.Clr2java;
 using Org.Apache.REEF.Driver.Context;
 using Org.Apache.REEF.Driver.Evaluator;
@@ -45,15 +44,21 @@ namespace Org.Apache.REEF.Driver.Bridge.Events
                     new FailedContext(clr2JavaFailedContext)));
 
             var errorBytes = FailedEvaluatorClr2Java.GetErrorBytes();
-            if (errorBytes != null)
+            if (errorBytes != null && errorBytes.Length != 0)
             {
                 // When the Exception originates from the C# side.
-                var formatter = new BinaryFormatter();
-                using (var memStream = new MemoryStream(errorBytes))
+                Exception inner;
+                try
                 {
-                    var inner = (Exception)formatter.Deserialize(memStream);
-                    _evaluatorException = new EvaluatorException(_id, inner.Message, inner);
+                    inner = (Exception)ByteUtilities.DeserializeFromBinaryFormat(errorBytes);
                 }
+                catch (SerializationException se)
+                {
+                    inner = NonSerializableEvaluatorException.UnableToDeserialize(
+                        "Exception from Evaluator was not able to be deserialized, returning a NonSerializableEvaluatorException.", se);
+                }
+
+                _evaluatorException = new EvaluatorException(_id, inner.Message, inner);
             }
             else
             {

@@ -76,7 +76,7 @@ namespace Org.Apache.REEF.Evaluator.Tests
         {
             var injector = GetInjector();
             var taskRuntime = injector.GetInstance<TaskRuntime>();
-            var taskThread = taskRuntime.RunTask();
+            var taskThread = taskRuntime.StartTaskOnNewThread();
             var task = injector.GetInstance<TestTask>();
             task.FinishCountdownEvent.Wait();
             task.DisposeCountdownEvent.Wait();
@@ -93,7 +93,7 @@ namespace Org.Apache.REEF.Evaluator.Tests
         {
             var injector = GetInjector(typeof(ExceptionAction));
             var taskRuntime = injector.GetInstance<TaskRuntime>();
-            var taskThread = taskRuntime.RunTask();
+            var taskThread = taskRuntime.StartTaskOnNewThread();
             var task = injector.GetInstance<TestTask>();
             task.DisposeCountdownEvent.Wait();
             Assert.Equal(taskRuntime.GetTaskState(), TaskState.Failed);
@@ -120,7 +120,7 @@ namespace Org.Apache.REEF.Evaluator.Tests
             Assert.Equal(statusProto.state, State.INIT);
             Assert.Equal(taskRuntime.GetTaskState(), TaskState.Init);
 
-            var taskThread = taskRuntime.RunTask();
+            var taskThread = taskRuntime.StartTaskOnNewThread();
 
             Assert.Equal(taskRuntime.GetStatusProto().state, State.RUNNING);
             Assert.Equal(taskRuntime.GetTaskState(), TaskState.Running);
@@ -168,7 +168,7 @@ namespace Org.Apache.REEF.Evaluator.Tests
                 throw new Exception("Event handler is not expected to be null.");
             }
 
-            var taskThread = taskRuntime.RunTask();
+            var taskThread = taskRuntime.StartTaskOnNewThread();
 
             Assert.True(testTaskEventStartHandler.StartInvoked.IsPresent());
             Assert.Equal(testTaskEventStartHandler.StartInvoked.Value, taskId);
@@ -212,7 +212,7 @@ namespace Org.Apache.REEF.Evaluator.Tests
             var injector = GetInjector(typeof(ExceptionAction), contextId, taskId);
             var taskRuntime = injector.GetInstance<TaskRuntime>();
 
-            var taskThread = taskRuntime.RunTask();
+            var taskThread = taskRuntime.StartTaskOnNewThread();
 
             var task = injector.GetInstance<TestTask>();
             task.FinishCountdownEvent.Wait();
@@ -243,7 +243,7 @@ namespace Org.Apache.REEF.Evaluator.Tests
 
             var injector = GetInjector(typeof(CountDownAction), contextId, taskId);
             var taskRuntime = injector.GetInstance<TaskRuntime>();
-            var taskThread = taskRuntime.RunTask();
+            var taskThread = taskRuntime.StartTaskOnNewThread();
 
             var taskInterface = injector.GetInstance<ITask>();
             Assert.True(taskInterface is TestTask);
@@ -275,7 +275,7 @@ namespace Org.Apache.REEF.Evaluator.Tests
 
             var injector = GetInjector(contextId, taskId);
             var taskRuntime = injector.GetInstance<TaskRuntime>();
-            var taskThread = taskRuntime.RunTask();
+            var taskThread = taskRuntime.StartTaskOnNewThread();
 
             var taskInterface = injector.GetInstance<ITask>();
             Assert.True(taskInterface is TestTask);
@@ -316,7 +316,7 @@ namespace Org.Apache.REEF.Evaluator.Tests
 
             var injector = GetInjector(typeof(ExceptionAction), contextId, taskId);
             var taskRuntime = injector.GetInstance<TaskRuntime>();
-            var taskThread = taskRuntime.RunTask();
+            var taskThread = taskRuntime.StartTaskOnNewThread();
 
             var task = injector.GetInstance<TestTask>();
 

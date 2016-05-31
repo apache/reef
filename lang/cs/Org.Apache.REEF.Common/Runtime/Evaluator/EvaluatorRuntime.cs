@@ -17,13 +17,12 @@
 
 using System;
 using System.Globalization;
-using System.IO;
 using System.Runtime.Serialization;
-using System.Runtime.Serialization.Formatters.Binary;
 using Org.Apache.REEF.Common.Exceptions;
 using Org.Apache.REEF.Common.Protobuf.ReefProtocol;
 using Org.Apache.REEF.Common.Runtime.Evaluator.Context;
 using Org.Apache.REEF.Tang.Annotations;
+using Org.Apache.REEF.Utilities;
 using Org.Apache.REEF.Utilities.Diagnostics;
 using Org.Apache.REEF.Utilities.Logging;
 using Org.Apache.REEF.Wake.Time;
@@ -254,24 +253,15 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator
 
                 try
                 {
-                    using (var memStream = new MemoryStream())
-                    {
-                        var formatter = new BinaryFormatter();
-                        formatter.Serialize(memStream, e);
-                        errorBytes = memStream.ToArray();
-                    }
+                    errorBytes = ByteUtilities.SerializeToBinaryFormat(e);
                 }
                 catch (SerializationException se)
                 {
-                    using (var memStream = new MemoryStream())
-                    {
-                        var formatter = new BinaryFormatter();
-                        formatter.Serialize(memStream, new NonSerializableEvaluatorException(e.ToString(), se));
-                        errorBytes = memStream.ToArray();
-                    }
+                    errorBytes = ByteUtilities.SerializeToBinaryFormat(
+                        NonSerializableEvaluatorException.UnableToSerialize(e, se));
                 }
 
-                var evaluatorStatusProto = new EvaluatorStatusProto()
+                var evaluatorStatusProto = new EvaluatorStatusProto
                 {
                     evaluator_id = _evaluatorId,
                     error = errorBytes,

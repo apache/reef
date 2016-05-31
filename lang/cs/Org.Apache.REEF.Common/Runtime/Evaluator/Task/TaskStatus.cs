@@ -18,9 +18,7 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
-using System.IO;
 using System.Runtime.Serialization;
-using System.Runtime.Serialization.Formatters.Binary;
 using Org.Apache.REEF.Common.Avro;
 using Org.Apache.REEF.Common.Context;
 using Org.Apache.REEF.Common.Exceptions;
@@ -37,8 +35,6 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Task
     internal sealed class TaskStatus
     {
         private static readonly Logger LOGGER = Logger.GetLogger(typeof(TaskStatus));
-
-        private readonly BinaryFormatter _binaryFormatter = new BinaryFormatter();
 
         private readonly TaskLifeCycle _taskLifeCycle;
         private readonly IHeartBeatManager _heartBeatManager;
@@ -256,11 +252,12 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Task
                     byte[] error;
                     try
                     {
-                        error = SerializeException(_lastException.Value);
+                        error = ByteUtilities.SerializeToBinaryFormat(_lastException.Value);
                     }
                     catch (SerializationException se)
                     {
-                        error = SerializeException(new NonSerializableTaskException(_lastException.Value.ToString(), se));
+                        error = ByteUtilities.SerializeToBinaryFormat(
+                            NonSerializableTaskException.UnableToSerialize(_lastException.Value, se));
                     }
 
                     var avroFailedTask = new AvroFailedTask
@@ -286,15 +283,6 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Task
                     }
                 }
                 return taskStatusProto;
-            }
-        }
-
-        private byte[] SerializeException(Exception ex)
-        {
-            using (var memStream = new MemoryStream())
-            {
-                _binaryFormatter.Serialize(memStream, ex);
-                return memStream.ToArray();
             }
         }
 

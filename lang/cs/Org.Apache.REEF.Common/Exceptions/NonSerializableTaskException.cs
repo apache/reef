@@ -27,14 +27,34 @@ namespace Org.Apache.REEF.Common.Exceptions
     [Serializable]
     public sealed class NonSerializableTaskException : Exception
     {
-        public NonSerializableTaskException(string message, SerializationException serializationException)
-            : base(message, serializationException)
+        internal static NonSerializableTaskException UnableToSerialize(Exception originalException, SerializationException serializationException)
+        {
+            return new NonSerializableTaskException(originalException, serializationException);
+        }
+
+        internal static NonSerializableTaskException UnableToDeserialize(string exceptionString, SerializationException serializationException)
+        {
+            return new NonSerializableTaskException(exceptionString, serializationException);
+        }
+
+        private NonSerializableTaskException(Exception originalException, SerializationException serializationException)
+            : base(GetNonSerializableExceptionMessage(originalException), serializationException)
         {
         }
 
-        public NonSerializableTaskException(SerializationInfo info, StreamingContext context)
+        private NonSerializableTaskException(string exceptionString, SerializationException serializationException)
+            : base(exceptionString, serializationException)
+        {
+        }
+
+        private NonSerializableTaskException(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
+        }
+
+        private static string GetNonSerializableExceptionMessage(Exception e)
+        {
+            return string.Format("Unable to serialize the original Task Exception. Original Exception.ToString(): {0}", e);
         }
     }
 }

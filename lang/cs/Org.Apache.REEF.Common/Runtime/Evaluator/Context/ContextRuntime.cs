@@ -27,6 +27,7 @@ using Org.Apache.REEF.Common.Runtime.Evaluator.Task;
 using Org.Apache.REEF.Common.Services;
 using Org.Apache.REEF.Common.Tasks;
 using Org.Apache.REEF.Common.Tasks.Events;
+using Org.Apache.REEF.Tang.Exceptions;
 using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Utilities;
 using Org.Apache.REEF.Utilities.Attributes;
@@ -267,7 +268,7 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Context
         /// Launches an Task on this context.
         /// </summary>
         /// <param name="taskConfiguration"></param>
-        public Thread StartTask(IConfiguration taskConfiguration)
+        public Thread StartTaskOnNewThread(IConfiguration taskConfiguration)
         {
             lock (_contextLifeCycle)
             {
@@ -296,18 +297,31 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Context
 
                 var taskInjector = _contextInjector.ForkInjector(taskConfiguration);
 
-                var taskRuntime = taskInjector.GetInstance<TaskRuntime>();
-
                 try
                 {
+                    var taskRuntime = taskInjector.GetInstance<TaskRuntime>();
                     _task = Optional<TaskRuntime>.Of(taskRuntime);
-                    return taskRuntime.RunTask();
+                    return taskRuntime.StartTaskOnNewThread();
+                }
+                catch (InjectionException e)
+                {
+                    var taskId = string.Empty;
+                    try
+                    {
+                        taskId = taskInjector.GetNamedInstance<TaskConfigurationOptions.Identifier, string>();
+                    }
+                    catch (Exception)
+                    {
+                        LOGGER.Log(Level.Error, "Unable to get Task ID from TaskConfiguration.");
+                    }
+
+                    var ex = TaskClientCodeException.Create(taskId, Id, "Unable to run the new task", e);
+                    Utilities.Diagnostics.Exceptions.CaughtAndThrow(ex, Level.Error, "Task start error.", LOGGER);
+                    return null;
                 }
                 catch (Exception e)
                 {
-                    var ex = new TaskClientCodeException(string.Empty, Id, "Unable to run the new task", e);
-                    Utilities.Diagnostics.Exceptions.CaughtAndThrow(ex, Level.Error, "Task start error.", LOGGER);
-                    return null;
+                    throw new SystemException("System error in starting Task.", e);
                 }
             }
         }

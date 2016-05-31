@@ -16,15 +16,44 @@
 // under the License.
 
 using System;
-using Org.Apache.REEF.Tang.Interface;
+using System.Runtime.Serialization;
+using System.Security.Permissions;
+using Org.Apache.REEF.Common.Exceptions;
 
 namespace Org.Apache.REEF.Common.Runtime.Evaluator.Task
 {
-    internal sealed class TaskClientCodeException : Exception
+    /// <summary>
+    /// An Exception thrown when Task operations (Start, Stop, Suspend) fail.
+    /// </summary>
+    [Serializable]
+    public sealed class TaskClientCodeException : Exception
     {
-        private readonly string _taskId;
+        private const string TaskIdStr = "TaskId";
+        private const string ContextIdStr = "ContextId";
 
         private readonly string _contextId;
+        private readonly string _taskId;
+
+        internal static TaskClientCodeException Create(
+            string taskId,
+            string contextId,
+            string message,
+            Exception cause)
+        {
+            return new TaskClientCodeException(taskId, contextId, message, cause);
+        }
+
+        internal static TaskClientCodeException CreateWithNonSerializableInnerException(
+            TaskClientCodeException e, SerializationException serializationException)
+        {
+            var nonSerializableTaskException = NonSerializableTaskException.UnableToSerialize(e.InnerException, serializationException);
+
+            return new TaskClientCodeException(
+                e.TaskId, 
+                e.ContextId, 
+                string.Format("Unable to serialize Task control message. TaskClientCodeException message: {0}", e.Message), 
+                nonSerializableTaskException);
+        }
 
         /// <summary>
         /// construct the exception that caused the Task to fail
@@ -33,7 +62,7 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Task
         /// <param name="contextId"> the id of the context the failed Task was executing in.</param>
         /// <param name="message"> the error message </param>
         /// <param name="cause"> the exception that caused the Task to fail.</param>
-        public TaskClientCodeException(
+        private TaskClientCodeException(
                 string taskId,
                 string contextId,
                 string message,
@@ -44,7 +73,33 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Task
             _contextId = contextId;
         }
 
-        public string TaskId 
+        /// <summary>
+        /// construct the exception that caused the Task to fail
+        /// </summary>
+        /// <param name="taskId"> the id of the failed task.</param>
+        /// <param name="contextId"> the id of the context the failed Task was executing in.</param>
+        /// <param name="message"> the error message </param>
+        private TaskClientCodeException(
+                string taskId,
+                string contextId,
+                string message)
+            : base(message)
+        {
+            _taskId = taskId;
+            _contextId = contextId;
+        }
+
+        /// <summary>
+        /// Constructor used for serialization.
+        /// </summary>
+        private TaskClientCodeException(SerializationInfo info, StreamingContext context)
+            : base(info, context)
+        {
+            _taskId = info.GetString(TaskIdStr);
+            _contextId = info.GetString(ContextIdStr);
+        }
+
+        public string TaskId
         {
             get { return _taskId; }
         }
@@ -54,10 +109,17 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Task
             get { return _contextId; }
         }
 
-        public static string GetTaskIdentifier(IConfiguration c)
+        [SecurityPermission(SecurityAction.Demand, SerializationFormatter = true)]
+        public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
-            // TODO: update after TANG is available
-            return string.Empty;
+            if (info == null)
+            {
+                throw new ArgumentNullException("info");
+            }
+
+            info.AddValue(TaskIdStr, TaskId);
+            info.AddValue(ContextIdStr, ContextId);
+            base.GetObjectData(info, context);
         }
     }
 }

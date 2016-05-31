@@ -20,6 +20,8 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Globalization;
 using System.Linq;
+using System.Runtime.Serialization;
+using Org.Apache.REEF.Common.Avro;
 using Org.Apache.REEF.Common.Protobuf.ReefProtocol;
 using Org.Apache.REEF.Common.Runtime.Evaluator.Task;
 using Org.Apache.REEF.Common.Tasks;
@@ -65,7 +67,7 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Context
                     LOGGER.Log(Level.Info, "Launching the initial Task");
                     try
                     {
-                        _topContext.StartTask(_rootContextLauncher.RootTaskConfig.Value);
+                        _topContext.StartTaskOnNewThread(_rootContextLauncher.RootTaskConfig.Value);
                     }
                     catch (TaskClientCodeException e)
                     {
@@ -338,7 +340,7 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Context
                 }
                 
                 var configuration = _serializer.FromString(startTaskProto.configuration);
-                currentActiveContext.StartTask(configuration);
+                currentActiveContext.StartTaskOnNewThread(configuration);
             }
         }
 
@@ -349,14 +351,33 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Context
         private void HandleTaskException(TaskClientCodeException e)
         {
             LOGGER.Log(Level.Error, "TaskClientCodeException", e);
-            byte[] exception = ByteUtilities.StringToByteArrays(e.ToString());
-            TaskStatusProto taskStatus = new TaskStatusProto()
+            byte[] error;
+            try
+            {
+                error = ByteUtilities.SerializeToBinaryFormat(e);
+            }
+            catch (SerializationException se)
+            {
+                error = ByteUtilities.SerializeToBinaryFormat(
+                    TaskClientCodeException.CreateWithNonSerializableInnerException(e, se));
+            }
+
+            var avroFailedTask = new AvroFailedTask
+            {
+                identifier = e.TaskId,
+                cause = error,
+                data = ByteUtilities.StringToByteArrays(e.ToString()),
+                message = e.Message
+            };
+
+            var taskStatus = new TaskStatusProto
             {
                 context_id = e.ContextId,
                 task_id = e.TaskId,
-                result = exception,
+                result = AvroJsonSerializer<AvroFailedTask>.ToBytes(avroFailedTask),
                 state = State.FAILED
             };
+
             LOGGER.Log(Level.Error, "Sending Heartbeat for a failed task: {0}", taskStatus);
             _heartBeatManager.OnNext(taskStatus);
         }

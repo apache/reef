@@ -101,17 +101,14 @@ namespace Org.Apache.REEF.Driver.Bridge.Events
 
             try
             {
-                using (var memStream = new MemoryStream(serializedCause))
-                {
-                    return (Exception)new BinaryFormatter().Deserialize(memStream);
-                }
+                return (Exception)ByteUtilities.DeserializeFromBinaryFormat(serializedCause);
             }
             catch (SerializationException se)
             {
                 Exceptions.Caught(se, Level.Info,
-                    "Exception from Task was not able to be deserialized, returning a NonSerializableException.", Logger);
+                    "Exception from Task was not able to be deserialized, returning a NonSerializableTaskException.", Logger);
 
-                return new NonSerializableTaskException(taskExceptionString, se);
+                return NonSerializableTaskException.UnableToDeserialize(taskExceptionString, se);
             }
         }
     }

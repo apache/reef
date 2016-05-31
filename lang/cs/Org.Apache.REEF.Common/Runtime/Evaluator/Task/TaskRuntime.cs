@@ -81,11 +81,11 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Task
         /// <summary>
         /// Runs the task asynchronously.
         /// </summary>
-        public Thread RunTask()
+        public Thread StartTaskOnNewThread()
         {
             if (Interlocked.Exchange(ref _taskRan, 1) != 0)
             {
-                // Return if we have already called RunTask
+                // Return if we have already called StartTaskOnNewThread
                 throw new InvalidOperationException("TaskRun has already been called on TaskRuntime.");
             }
 
@@ -170,7 +170,8 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Task
             catch (Exception e)
             {
                 Utilities.Diagnostics.Exceptions.Caught(e, Level.Error, "Error during Close.", Logger);
-                _currentStatus.SetException(new TaskClientCodeException(TaskId, ContextId, "Error during Close().", e));
+                _currentStatus.SetException(TaskClientCodeException.Create(
+                    TaskId, ContextId, "Error during Close().", e));
             }
         }
 
@@ -192,7 +193,7 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Task
             {
                 Utilities.Diagnostics.Exceptions.Caught(e, Level.Error, "Error during Suspend.", Logger);
                 _currentStatus.SetException(
-                    new TaskClientCodeException(TaskId, ContextId, "Error during Suspend().", e));
+                    TaskClientCodeException.Create(TaskId, ContextId, "Error during Suspend().", e));
             }
         }
 
@@ -211,7 +212,7 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Task
             {
                 Utilities.Diagnostics.Exceptions.Caught(e, Level.Error, "Error during message delivery.", Logger);
                 _currentStatus.SetException(
-                    new TaskClientCodeException(TaskId, ContextId, "Error during message delivery.", e));
+                    TaskClientCodeException.Create(TaskId, ContextId, "Error during message delivery.", e));
             }
         }
 
