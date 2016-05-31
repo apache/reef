@@ -16,28 +16,63 @@
 // under the License.
 
 using System;
+using System.IO;
+using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
 
 namespace Org.Apache.REEF.Utilities
 {
-    public class ByteUtilities
+    public static class ByteUtilities
     {
+        /// <summary>
+        /// Converts a string to a UTF-8 encoded byte array.
+        /// </summary>
         public static byte[] StringToByteArrays(string s)
         {
             return Encoding.UTF8.GetBytes(s);
         }
 
+        /// <summary>
+        /// Converts from a UTF-8 encoded byte array to a string.
+        /// </summary>
         public static string ByteArraysToString(byte[] b)
         {
             return Encoding.UTF8.GetString(b);
         }
 
+        /// <summary>
+        /// Performs a deep copy of a byte array.
+        /// </summary>
         public static byte[] CopyBytesFrom(byte[] from)
         {
             int length = Buffer.ByteLength(from);
             byte[] to = new byte[length];
             Buffer.BlockCopy(from, 0, to, 0, length);
             return to;
+        }
+
+        /// <summary>
+        /// Serializes object to a byte array with a <see cref="BinaryFormatter"/>.
+        /// </summary>
+        public static byte[] SerializeToBinaryFormat(object obj)
+        {
+            using (var memStream = new MemoryStream())
+            {
+                new BinaryFormatter().Serialize(memStream, obj);
+                return memStream.ToArray();
+            }
+        }
+
+        /// <summary>
+        /// Deserializes object from a byte array with a <see cref="BinaryFormatter"/>.
+        /// </summary>
+        public static object DeserializeFromBinaryFormat(byte[] bytes)
+        {
+            var formatter = new BinaryFormatter();
+            using (var memStream = new MemoryStream(bytes))
+            {
+                return formatter.Deserialize(memStream);
+            }
         }
     }
 }

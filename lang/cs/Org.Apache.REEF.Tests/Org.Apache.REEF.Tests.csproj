@@ -96,6 +96,7 @@ under the License.
     <Compile Include="Functional\Failure\TestEvaluatorWithActiveContextImmediatePoison.cs" />
     <Compile Include="Functional\Failure\TestEvaluatorWithRunningTaskImmediatePoison.cs" />
     <Compile Include="Functional\Failure\SleepTask.cs" />
+    <Compile Include="Functional\Failure\User\TaskConstructorExceptionTest.cs" />
     <Compile Include="Functional\FaultTolerant\TestContextStart.cs" />
     <Compile Include="Functional\FaultTolerant\TestResubmitEvaluator.cs" />
     <Compile Include="Functional\FaultTolerant\TestResubmitTask.cs" />

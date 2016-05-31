@@ -17,10 +17,8 @@
 
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Runtime.Serialization;
-using System.Runtime.Serialization.Formatters.Binary;
 using Org.Apache.REEF.Driver.Bridge.Clr2java;
 using Org.Apache.REEF.Driver.Context;
 using Org.Apache.REEF.Driver.Evaluator;
@@ -48,12 +46,8 @@ namespace Org.Apache.REEF.Driver.Bridge.Events
             if (errorBytes != null)
             {
                 // When the Exception originates from the C# side.
-                var formatter = new BinaryFormatter();
-                using (var memStream = new MemoryStream(errorBytes))
-                {
-                    var inner = (Exception)formatter.Deserialize(memStream);
-                    _evaluatorException = new EvaluatorException(_id, inner.Message, inner);
-                }
+                var inner = (Exception)ByteUtilities.DeserializeFromBinaryFormat(errorBytes);
+                _evaluatorException = new EvaluatorException(_id, inner.Message, inner);
             }
             else
             {

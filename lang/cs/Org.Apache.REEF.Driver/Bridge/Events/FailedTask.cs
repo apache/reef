@@ -101,10 +101,7 @@ namespace Org.Apache.REEF.Driver.Bridge.Events
 
             try
             {
-                using (var memStream = new MemoryStream(serializedCause))
-                {
-                    return (Exception)new BinaryFormatter().Deserialize(memStream);
-                }
+                return (Exception)ByteUtilities.DeserializeFromBinaryFormat(serializedCause);
             }
             catch (SerializationException se)
             {

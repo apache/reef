@@ -170,7 +170,8 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Task
             catch (Exception e)
             {
                 Utilities.Diagnostics.Exceptions.Caught(e, Level.Error, "Error during Close.", Logger);
-                _currentStatus.SetException(new TaskClientCodeException(TaskId, ContextId, "Error during Close().", e));
+                _currentStatus.SetException(TaskClientCodeException.Create(
+                    TaskId, ContextId, "Error during Close().", e));
             }
         }
 
@@ -192,7 +193,7 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Task
             {
                 Utilities.Diagnostics.Exceptions.Caught(e, Level.Error, "Error during Suspend.", Logger);
                 _currentStatus.SetException(
-                    new TaskClientCodeException(TaskId, ContextId, "Error during Suspend().", e));
+                    TaskClientCodeException.Create(TaskId, ContextId, "Error during Suspend().", e));
             }
         }
 
@@ -211,7 +212,7 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Task
             {
                 Utilities.Diagnostics.Exceptions.Caught(e, Level.Error, "Error during message delivery.", Logger);
                 _currentStatus.SetException(
-                    new TaskClientCodeException(TaskId, ContextId, "Error during message delivery.", e));
+                    TaskClientCodeException.Create(TaskId, ContextId, "Error during message delivery.", e));
             }
         }
 

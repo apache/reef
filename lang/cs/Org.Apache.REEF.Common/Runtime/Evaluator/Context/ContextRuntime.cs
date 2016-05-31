@@ -296,16 +296,25 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Context
 
                 var taskInjector = _contextInjector.ForkInjector(taskConfiguration);
 
-                var taskRuntime = taskInjector.GetInstance<TaskRuntime>();
-
                 try
                 {
+                    var taskRuntime = taskInjector.GetInstance<TaskRuntime>();
                     _task = Optional<TaskRuntime>.Of(taskRuntime);
                     return taskRuntime.RunTask();
                 }
                 catch (Exception e)
                 {
-                    var ex = new TaskClientCodeException(string.Empty, Id, "Unable to run the new task", e);
+                    var taskId = string.Empty;
+                    try
+                    {
+                        taskId = taskInjector.GetNamedInstance<TaskConfigurationOptions.Identifier, string>();
+                    }
+                    catch (Exception)
+                    {
+                        LOGGER.Log(Level.Error, "Unable to get Task ID from TaskConfiguration.");
+                    }
+
+                    var ex = TaskClientCodeException.Create(taskId, Id, "Unable to run the new task", e);
                     Utilities.Diagnostics.Exceptions.CaughtAndThrow(ex, Level.Error, "Task start error.", LOGGER);
                     return null;
                 }
