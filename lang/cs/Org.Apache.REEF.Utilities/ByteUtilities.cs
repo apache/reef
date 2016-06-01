@@ -17,6 +17,7 @@
 
 using System;
 using System.IO;
+using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
 
@@ -54,6 +55,7 @@ namespace Org.Apache.REEF.Utilities
         /// <summary>
         /// Serializes object to a byte array with a <see cref="BinaryFormatter"/>.
         /// </summary>
+        /// <exception cref="SerializationException">When serialization fails.</exception>
         public static byte[] SerializeToBinaryFormat(object obj)
         {
             using (var memStream = new MemoryStream())
@@ -66,6 +68,7 @@ namespace Org.Apache.REEF.Utilities
         /// <summary>
         /// Deserializes object from a byte array with a <see cref="BinaryFormatter"/>.
         /// </summary>
+        /// <exception cref="SerializationException">When deserialization fails.</exception>
         public static object DeserializeFromBinaryFormat(byte[] bytes)
         {
             var formatter = new BinaryFormatter();
