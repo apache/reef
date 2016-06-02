@@ -24,11 +24,21 @@ using Org.Apache.REEF.Utilities.Logging;
 
 namespace Org.Apache.REEF.Utilities
 {
+    /// <summary>
+    /// A static helper class for the YARN runtime.
+    /// </summary>
     public static class Yarn
     {
         private static readonly Logger Logger = Logger.GetLogger(typeof(Yarn));
 
+        /// <summary>
+        /// The Hadoop configuration directory environment variable.
+        /// </summary>
         public const string HadoopConfDirEnvVariable = "HADOOP_CONF_DIR";
+
+        /// <summary>
+        /// The YARN configuration XML file name.
+        /// </summary>
         public const string YarnConfigFileName = "yarn-site.xml";
 
         private const string YarnRmWebappHttpsAddressPropertyName = "yarn.resourcemanager.webapp.https.address";
@@ -36,6 +46,9 @@ namespace Org.Apache.REEF.Utilities
 
         private const string RMIdsProperty = "yarn.resourcemanager.ha.rm-ids";
 
+        /// <summary>
+        /// Gets the YARN RM web application endpoints.
+        /// </summary>
         public static IEnumerable<Uri> GetYarnRMWebappEndpoints(string hadoopConfigDir = null, bool useHttps = false)
         {
             hadoopConfigDir = string.IsNullOrWhiteSpace(hadoopConfigDir) ? 
@@ -53,7 +66,7 @@ namespace Org.Apache.REEF.Utilities
             var doc = new XmlDocument();
             doc.Load(yarnConfigurationFile);
 
-            var rmIdsText = GetValueNodeTextWithPropertyName(doc, RMIdsProperty);
+            var rmIdsText = GetYarnSiteValueNodeTextWithPropertyName(doc, RMIdsProperty);
             if (rmIdsText == null)
             {
                 // No RM HA, only single RM.
@@ -67,7 +80,7 @@ namespace Org.Apache.REEF.Utilities
             {
                 var rmAddrPropertyToUse = useHttps ? YarnRmWebappHttpsAddressPropertyName : YarnRmWebappHttpAddressPropertyName;
                 var rmWebAppAddressProperty = rmAddrPropertyToUse + "." + rmId;
-                var rmWebAppAddressNodeText = GetValueNodeTextWithPropertyName(doc, rmWebAppAddressProperty);
+                var rmWebAppAddressNodeText = GetYarnSiteValueNodeTextWithPropertyName(doc, rmWebAppAddressProperty);
                 if (string.IsNullOrWhiteSpace(rmWebAppAddressNodeText))
                 {
                     continue;
@@ -86,9 +99,13 @@ namespace Org.Apache.REEF.Utilities
             return rmIdWebAppEndpoints;
         }
 
+        /// <summary>
+        /// Gets the resource manager web application endpoint when there is only a single RM.
+        /// The logic is different from when there are multiple RMs.
+        /// </summary>
         private static IEnumerable<Uri> GetRMWebappEndpointWithSingleRM(XmlNode doc, bool useHttps)
         {
-            var rmAddressNodeText = GetValueNodeTextWithPropertyName(
+            var rmAddressNodeText = GetYarnSiteValueNodeTextWithPropertyName(
                 doc,
                 useHttps ? YarnRmWebappHttpsAddressPropertyName : YarnRmWebappHttpAddressPropertyName);
             if (string.IsNullOrWhiteSpace(rmAddressNodeText))
@@ -99,12 +116,19 @@ namespace Org.Apache.REEF.Utilities
             return new[] { YarnRmWebAppUriFromString(rmAddressNodeText, useHttps) };
         }
 
-        private static string GetValueNodeTextWithPropertyName(XmlNode doc, string propertyName)
+        /// <summary>
+        /// Helper function to get the text value of an XML node under 
+        /// /configuration/property with name <see cref="propertyName"/> in the YARN configuration file.
+        /// </summary>
+        private static string GetYarnSiteValueNodeTextWithPropertyName(XmlNode doc, string propertyName)
         {
             var node = doc.SelectSingleNode("/configuration/property[name='" + propertyName + "']/value/text()");
             return node == null ? null : node.Value;
         }
 
+        /// <summary>
+        /// Returns the YARN RM web application URI from string.
+        /// </summary>
         private static Uri YarnRmWebAppUriFromString(string webAppUriStr, bool useHttps)
         {
             var protocolStr = useHttps ? "https://" : "http://";
