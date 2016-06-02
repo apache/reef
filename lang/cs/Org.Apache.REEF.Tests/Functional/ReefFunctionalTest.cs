@@ -28,6 +28,7 @@ using Microsoft.WindowsAzure.Storage.Blob;
 using Org.Apache.REEF.Client.API;
 using Org.Apache.REEF.Client.Local;
 using Org.Apache.REEF.Client.Yarn;
+using Org.Apache.REEF.Tang.Implementations.Configuration;
 using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Utilities;
@@ -40,6 +41,8 @@ namespace Org.Apache.REEF.Tests.Functional
 {
     public class ReefFunctionalTest : IDisposable
     {
+        private readonly static Logger Logger = Logger.GetLogger(typeof(ReefFunctionalTest));
+
         protected const string DriverStdout = "driver.stdout";
         protected const string DriverStderr = "driver.stderr";
         protected const string EvaluatorStdout = "evaluator.stdout";
@@ -51,8 +54,9 @@ namespace Org.Apache.REEF.Tests.Functional
         private const string Local = "local";
         private const string YARN = "yarn";
         private const int SleepTime = 1000;
+        private const string PortRangeStart = "8900";
+        private const string PortRangeCount = "1000";
 
-        private readonly static Logger Logger = Logger.GetLogger(typeof(ReefFunctionalTest));
         private const string StorageAccountKeyEnvironmentVariable = "REEFTestStorageAccountKey";
         private const string StorageAccountNameEnvironmentVariable = "REEFTestStorageAccountName";
         private bool _testSuccess = false;
@@ -168,6 +172,17 @@ namespace Org.Apache.REEF.Tests.Functional
                 "Expected number of tasks to fail (" + numberOfTasksToFail + ") differs from actual number of failed task indicators (" + failedTaskIndicators.Length + ")");
             Assert.True(numberOfEvaluatorsToFail == failedEvaluatorIndicators.Length,
                 "Expected number of evaluators to fail (" + numberOfEvaluatorsToFail + ") differs from actual number of failed evaluator indicators (" + failedEvaluatorIndicators.Length + ")");
+        }
+
+        /// <summary>
+        /// Get message counts from lines given
+        /// </summary>
+        /// <param name="lines"></param>
+        /// <param name="message"></param>
+        /// <returns></returns>
+        protected int GetMessageCount(string[] lines, string message)
+        {
+            return lines.Where(s => s.Contains(message)).ToArray().Length;
         }
 
         /// <summary>
@@ -351,7 +366,12 @@ namespace Org.Apache.REEF.Tests.Functional
                         .Set(LocalRuntimeClientConfiguration.RuntimeFolder, dir)
                         .Build();
                 case YARN:
-                    return YARNClientConfiguration.ConfigurationModule.Build();
+                    var yarnClientConfig = YARNClientConfiguration.ConfigurationModule.Build();
+                    var tcpPortConfig = TcpPortConfigurationModule.ConfigurationModule
+                       .Set(TcpPortConfigurationModule.PortRangeStart, PortRangeStart)
+                       .Set(TcpPortConfigurationModule.PortRangeCount, PortRangeCount)
+                       .Build();
+                    return Configurations.Merge(yarnClientConfig, tcpPortConfig);
                 default:
                     throw new Exception("Unknown runtime: " + runOnYarn);
             }
