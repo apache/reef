@@ -39,7 +39,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.IMRUTasks
         }
 
         /// <summary>
-        /// Constructor. A serializable exception object that represents a task system error and wraps an inner exception
+        /// Constructor. A serializable exception object that represents a task system error and wraps an inner exception.
         /// </summary>
         /// <param name="message"></param>
         /// <param name="innerException"></param>
