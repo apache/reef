@@ -211,7 +211,7 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator
                 }
                 else
                 {
-                    var exceptionOccurredOnDispose = false;
+                    var successfulExit = true;
                     try
                     {
                         _contextManager.Dispose();
@@ -219,7 +219,7 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator
                     }
                     catch (Exception e)
                     {
-                        exceptionOccurredOnDispose = true;
+                        successfulExit = false;
                         Utilities.Diagnostics.Exceptions.CaughtAndThrow(
                             new InvalidOperationException("Cannot stop evaluator properly", e),
                             Level.Error,
@@ -228,7 +228,7 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator
                     }
                     finally
                     {
-                        _evaluatorExitLogger.LogExit(exceptionOccurredOnDispose);
+                        _evaluatorExitLogger.LogExit(successfulExit);
                     }
                 }
             }
