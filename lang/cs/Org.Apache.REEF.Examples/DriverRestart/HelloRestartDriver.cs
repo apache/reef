@@ -47,8 +47,8 @@ namespace Org.Apache.REEF.Examples.DriverRestart
         IObserver<IFailedEvaluator>
     {
         private static readonly Logger Logger = Logger.GetLogger(typeof(HelloRestartDriver));
-        private const int NumberOfTasksToSubmit = 1;
-        private const int NumberOfTasksToSubmitOnRestart = 1;
+        private const int NumberOfTasksToSubmit = 3;
+        private const int NumberOfTasksToSubmitOnRestart = 3;
 
         private readonly IEvaluatorRequestor _evaluatorRequestor;
 
