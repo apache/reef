@@ -183,7 +183,7 @@ under the License.
       <Project>{6dc3b04e-2b99-4fda-bd23-2c7864f4c477}</Project>
       <Name>Org.Apache.REEF.IMRU.Examples</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Org.Apache.REEF.IMRU\Org.Apache.REEF.IMRU.csproj">
+    <ProjectReference Include="$(SolutionDir)\Org.Apache.REEF.IMRU\Org.Apache.REEF.IMRU.csproj">
       <Project>{cc797c57-b465-4d11-98ac-edaaef5899a6}</Project>
       <Name>Org.Apache.REEF.IMRU</Name>
     </ProjectReference>
