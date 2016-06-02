@@ -23,12 +23,11 @@ import org.apache.reef.annotations.audience.Private;
 import java.io.IOException;
 
 /**
- * The Evaluator log writer that writes to DFS. Currently supports regular append and append by overwrite.
- * Actual log entries should be immutable and no entry should ever be deleted. To remove an evaluator, a
- * removal entry should be preferred.
+ * The Evaluator log reader/writer that reads from and writes to the Hadoop DFS.
+ * Currently supports regular append and append by overwrite.
  */
 @Private
-public interface DFSEvaluatorLogWriter extends AutoCloseable {
+public interface DFSEvaluatorLogReaderWriter extends AutoCloseable {
 
   /**
    * Writes a formatted entry (addition or removal) for an Evaluator ID into the DFS evaluator log.
@@ -36,4 +35,11 @@ public interface DFSEvaluatorLogWriter extends AutoCloseable {
    * @throws IOException
    */
   void writeToEvaluatorLog(final String formattedEntry) throws IOException;
+
+  /**
+   * Reads a formatted entry (addition or removal) from the DFS evaluator log.
+   * @return the formatted entry.
+   * @throws IOException
+   */
+  Iterable<String> readFromEvaluatorLog() throws IOException;
 }

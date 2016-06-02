@@ -31,17 +31,18 @@ import java.nio.charset.StandardCharsets;
  * The DFS evaluator logger that performs regular append. dfs.support.append should be true.
  */
 @Private
-public final class DFSEvaluatorLogAppendWriter implements DFSEvaluatorLogWriter {
+public final class DFSEvaluatorLogAppendReaderWriter implements DFSEvaluatorLogReaderWriter {
 
   private final FileSystem fileSystem;
-
   private final Path changelogPath;
+  private final DFSLineReader reader;
 
   private boolean fsClosed = false;
 
-  DFSEvaluatorLogAppendWriter(final FileSystem fileSystem, final Path changelogPath) {
+  DFSEvaluatorLogAppendReaderWriter(final FileSystem fileSystem, final Path changelogPath) {
     this.fileSystem = fileSystem;
     this.changelogPath = changelogPath;
+    this.reader = new DFSLineReader(fileSystem);
   }
 
   /**
@@ -63,6 +64,11 @@ public final class DFSEvaluatorLogAppendWriter implements DFSEvaluatorLogWriter 
     ) {
       bw.write(formattedEntry);
     }
+  }
+
+  @Override
+  public Iterable<String> readFromEvaluatorLog() throws IOException {
+    return reader.readLinesFromFile(changelogPath);
   }
 
   /**

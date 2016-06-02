@@ -35,7 +35,6 @@ import org.apache.reef.tang.annotations.Parameter;
 
 import javax.inject.Inject;
 import java.io.*;
-import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
@@ -57,7 +56,7 @@ public final class DFSEvaluatorPreserver implements EvaluatorPreserver, AutoClos
 
   private final boolean failDriverOnEvaluatorLogErrors;
 
-  private DFSEvaluatorLogWriter writer;
+  private DFSEvaluatorLogReaderWriter readerWriter;
 
   private Path changeLogLocation;
 
@@ -88,9 +87,9 @@ public final class DFSEvaluatorPreserver implements EvaluatorPreserver, AutoClos
       boolean appendSupported = config.getBoolean("dfs.support.append", false);
 
       if (appendSupported) {
-        this.writer = new DFSEvaluatorLogAppendWriter(this.fileSystem, this.changeLogLocation);
+        this.readerWriter = new DFSEvaluatorLogAppendReaderWriter(this.fileSystem, this.changeLogLocation);
       } else {
-        this.writer = new DFSEvaluatorLogOverwriteWriter(this.fileSystem, this.changeLogLocation);
+        this.readerWriter = new DFSEvaluatorLogOverwriteReaderWriter(this.fileSystem, this.changeLogLocation);
       }
     } catch (final IOException e) {
       final String errMsg = "Cannot read from log file with Exception " + e +
@@ -100,7 +99,7 @@ public final class DFSEvaluatorPreserver implements EvaluatorPreserver, AutoClos
       this.handleException(e, errMsg, fatalMsg);
       this.fileSystem = null;
       this.changeLogLocation = null;
-      this.writer = null;
+      this.readerWriter = null;
     }
   }
 
@@ -135,33 +134,23 @@ public final class DFSEvaluatorPreserver implements EvaluatorPreserver, AutoClos
         return expectedContainers;
       }
 
-      if (!this.fileSystem.exists(this.changeLogLocation)) {
-        // empty set
-        return expectedContainers;
-      } else {
-        final BufferedReader br = new BufferedReader(
-            new InputStreamReader(this.fileSystem.open(this.changeLogLocation), StandardCharsets.UTF_8));
-        String line = br.readLine();
-        while (line != null) {
-          if (line.startsWith(ADD_FLAG)) {
-            final String containerId = line.substring(ADD_FLAG.length());
-            if (expectedContainers.contains(containerId)) {
-              LOG.log(Level.WARNING, "Duplicated add container record found in the change log for container " +
-                  containerId);
-            } else {
-              expectedContainers.add(containerId);
-            }
-          } else if (line.startsWith(REMOVE_FLAG)) {
-            final String containerId = line.substring(REMOVE_FLAG.length());
-            if (!expectedContainers.contains(containerId)) {
-              LOG.log(Level.WARNING, "Change log includes record that try to remove non-exist or duplicate " +
-                  "remove record for container + " + containerId);
-            }
-            expectedContainers.remove(containerId);
+      for (final String line : readerWriter.readFromEvaluatorLog()) {
+        if (line.startsWith(ADD_FLAG)) {
+          final String containerId = line.substring(ADD_FLAG.length());
+          if (expectedContainers.contains(containerId)) {
+            LOG.log(Level.WARNING, "Duplicated add container record found in the change log for container " +
+                containerId);
+          } else {
+            expectedContainers.add(containerId);
           }
-          line = br.readLine();
+        } else if (line.startsWith(REMOVE_FLAG)) {
+          final String containerId = line.substring(REMOVE_FLAG.length());
+          if (!expectedContainers.contains(containerId)) {
+            LOG.log(Level.WARNING, "Change log includes record that try to remove non-exist or duplicate " +
+                "remove record for container + " + containerId);
+          }
+          expectedContainers.remove(containerId);
         }
-        br.close();
       }
     } catch (final IOException e) {
       final String errMsg = "Cannot read from log file with Exception " + e +
@@ -200,7 +189,7 @@ public final class DFSEvaluatorPreserver implements EvaluatorPreserver, AutoClos
 
   private void logContainerChange(final String entry) {
     try {
-      this.writer.writeToEvaluatorLog(entry);
+      this.readerWriter.writeToEvaluatorLog(entry);
     } catch (final IOException e) {
       final String errorMsg = "Unable to log the change of container [" + entry +
           "] to the container log. Driver restart won't work properly.";
@@ -232,13 +221,13 @@ public final class DFSEvaluatorPreserver implements EvaluatorPreserver, AutoClos
   }
 
   /**
-   * Closes the writer, which in turn closes the FileSystem.
+   * Closes the readerWriter, which in turn closes the FileSystem.
    * @throws Exception
    */
   @Override
   public synchronized void close() throws Exception {
-    if (this.writer != null && !this.writerClosed) {
-      this.writer.close();
+    if (this.readerWriter != null && !this.writerClosed) {
+      this.readerWriter.close();
       this.writerClosed = true;
     }
   }
