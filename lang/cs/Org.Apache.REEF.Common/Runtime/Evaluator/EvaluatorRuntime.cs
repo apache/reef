@@ -258,10 +258,10 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator
                 catch (SerializationException se)
                 {
                     errorBytes = ByteUtilities.SerializeToBinaryFormat(
-                        new NonSerializableEvaluatorException(e.ToString(), se));
+                        NonSerializableEvaluatorException.UnableToSerialize(e, se));
                 }
 
-                var evaluatorStatusProto = new EvaluatorStatusProto()
+                var evaluatorStatusProto = new EvaluatorStatusProto
                 {
                     evaluator_id = _evaluatorId,
                     error = errorBytes,

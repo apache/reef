@@ -106,9 +106,9 @@ namespace Org.Apache.REEF.Driver.Bridge.Events
             catch (SerializationException se)
             {
                 Exceptions.Caught(se, Level.Info,
-                    "Exception from Task was not able to be deserialized, returning a NonSerializableException.", Logger);
+                    "Exception from Task was not able to be deserialized, returning a NonSerializableTaskException.", Logger);
 
-                return new NonSerializableTaskException(taskExceptionString, se);
+                return NonSerializableTaskException.UnableToDeserialize(taskExceptionString, se);
             }
         }
     }

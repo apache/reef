@@ -356,10 +356,10 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Context
             {
                 error = ByteUtilities.SerializeToBinaryFormat(e);
             }
-            catch (SerializationException)
+            catch (SerializationException se)
             {
                 error = ByteUtilities.SerializeToBinaryFormat(
-                    TaskClientCodeException.CreateWithNonSerializableInnerException(e));
+                    TaskClientCodeException.CreateWithNonSerializableInnerException(e, se));
             }
 
             var avroFailedTask = new AvroFailedTask

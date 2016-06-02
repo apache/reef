@@ -18,9 +18,7 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
-using System.IO;
 using System.Runtime.Serialization;
-using System.Runtime.Serialization.Formatters.Binary;
 using Org.Apache.REEF.Common.Avro;
 using Org.Apache.REEF.Common.Context;
 using Org.Apache.REEF.Common.Exceptions;
@@ -258,7 +256,8 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Task
                     }
                     catch (SerializationException se)
                     {
-                        error = ByteUtilities.SerializeToBinaryFormat(new NonSerializableTaskException(_lastException.Value.ToString(), se));
+                        error = ByteUtilities.SerializeToBinaryFormat(
+                            NonSerializableTaskException.UnableToSerialize(_lastException.Value, se));
                     }
 
                     var avroFailedTask = new AvroFailedTask

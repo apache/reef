@@ -27,6 +27,7 @@ using Org.Apache.REEF.Common.Runtime.Evaluator.Task;
 using Org.Apache.REEF.Common.Services;
 using Org.Apache.REEF.Common.Tasks;
 using Org.Apache.REEF.Common.Tasks.Events;
+using Org.Apache.REEF.Tang.Exceptions;
 using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Utilities;
 using Org.Apache.REEF.Utilities.Attributes;
@@ -302,7 +303,7 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Context
                     _task = Optional<TaskRuntime>.Of(taskRuntime);
                     return taskRuntime.RunTask();
                 }
-                catch (Exception e)
+                catch (InjectionException e)
                 {
                     var taskId = string.Empty;
                     try
@@ -317,6 +318,10 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Context
                     var ex = TaskClientCodeException.Create(taskId, Id, "Unable to run the new task", e);
                     Utilities.Diagnostics.Exceptions.CaughtAndThrow(ex, Level.Error, "Task start error.", LOGGER);
                     return null;
+                }
+                catch (Exception e)
+                {
+                    throw new SystemException("System error in starting Task.", e);
                 }
             }
         }

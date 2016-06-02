@@ -27,14 +27,34 @@ namespace Org.Apache.REEF.Common.Exceptions
     [Serializable]
     public sealed class NonSerializableEvaluatorException : Exception
     {
-        public NonSerializableEvaluatorException(string message, SerializationException serializationException)
-            : base(message, serializationException)
+        internal static NonSerializableEvaluatorException UnableToSerialize(Exception originalException, SerializationException serializationException)
+        {
+            return new NonSerializableEvaluatorException(originalException, serializationException);
+        }
+
+        internal static NonSerializableEvaluatorException UnableToDeserialize(string exceptionString, SerializationException serializationException)
+        {
+            return new NonSerializableEvaluatorException(exceptionString, serializationException);
+        }
+
+        private NonSerializableEvaluatorException(Exception originalException, SerializationException serializationException)
+            : base(GetNonSerializableExceptionMessage(originalException), serializationException)
         {
         }
 
-        public NonSerializableEvaluatorException(SerializationInfo info, StreamingContext context)
+        private NonSerializableEvaluatorException(string exceptionString, SerializationException serializationException)
+            : base(exceptionString, serializationException)
+        {
+        }
+
+        private NonSerializableEvaluatorException(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
+        }
+
+        private static string GetNonSerializableExceptionMessage(Exception e)
+        {
+            return string.Format("Unable to serialize the original Evaluator Exception. Original Exception.ToString(): {0}", e);
         }
     }
 }

@@ -18,6 +18,7 @@
 using System;
 using System.Runtime.Serialization;
 using System.Security.Permissions;
+using Org.Apache.REEF.Common.Exceptions;
 
 namespace Org.Apache.REEF.Common.Runtime.Evaluator.Task
 {
@@ -43,13 +44,15 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Task
         }
 
         internal static TaskClientCodeException CreateWithNonSerializableInnerException(
-            TaskClientCodeException e)
+            TaskClientCodeException e, SerializationException serializationException)
         {
-            var messageWithCause = string.Format(
-                "Unable to serialize original Exception.{0}Message: {1}.{0}Original Exception.ToString(): {2}", 
-                Environment.NewLine, e.Message, e.InnerException);
+            var nonSerializableTaskException = NonSerializableTaskException.UnableToSerialize(e.InnerException, serializationException);
 
-            return new TaskClientCodeException(e.TaskId, e.ContextId, messageWithCause);
+            return new TaskClientCodeException(
+                e.TaskId, 
+                e.ContextId, 
+                string.Format("Unable to serialize Task control message. TaskClientCodeException message: {0}", e.Message), 
+                nonSerializableTaskException);
         }
 
         /// <summary>
