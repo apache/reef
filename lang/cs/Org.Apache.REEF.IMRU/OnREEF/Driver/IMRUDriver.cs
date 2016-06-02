@@ -329,6 +329,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
                 .NewConfigurationBuilder(TaskConfiguration.ConfigurationModule
                     .Set(TaskConfiguration.Identifier, taskId)
                     .Set(TaskConfiguration.Task, GenericType<MapTaskHost<TMapInput, TMapOutput>>.Class)
+                    .Set(TaskConfiguration.OnClose, GenericType<MapTaskHost<TMapInput, TMapOutput>>.Class)
                     .Build(),
                     _configurationManager.MapFunctionConfiguration,
                     mapSpecificConfig,
@@ -350,6 +351,8 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
                         .Set(TaskConfiguration.Identifier,
                             IMRUConstants.UpdateTaskName)
                         .Set(TaskConfiguration.Task,
+                            GenericType<UpdateTaskHost<TMapInput, TMapOutput, TResult>>.Class)
+                        .Set(TaskConfiguration.OnClose,
                             GenericType<UpdateTaskHost<TMapInput, TMapOutput, TResult>>.Class)
                         .Build(),
                         _configurationManager.UpdateFunctionConfiguration,

@@ -201,13 +201,13 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
 
         /// <summary>
         /// This method is called when receiving ICompletedTask event during task running or system shutting down.
-        /// Removes the task from running tasks
+        /// Removes the task from running tasks if it was running
         /// Changes the task state from RunningTask to CompletedTask
         /// </summary>
         /// <param name="completedTask"></param>
         internal void RecordCompletedTask(ICompletedTask completedTask)
         {
-            RemoveRunningTask(completedTask.Id);
+            _runningTasks.Remove(completedTask.Id);
             UpdateState(completedTask.Id, TaskStateEvent.CompletedTask);
         }
 
@@ -258,25 +258,16 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
                 var taskState = GetTaskState(taskId);
                 if (taskState == StateMachine.TaskState.TaskRunning)
                 {
-                    RemoveRunningTask(taskId);
+                    if (!_runningTasks.ContainsKey(taskId))
+                    {
+                        var msg = string.Format(CultureInfo.InvariantCulture, "The task [{0}] doesn't exist in Running Tasks.", taskId);
+                        Exceptions.Throw(new IMRUSystemException(msg), Logger);
+                    }
+                    _runningTasks.Remove(taskId);
                 }
 
                 UpdateState(taskId, TaskStateEvent.FailedTaskEvaluatorError);
             }
-        }
-
-        /// <summary>
-        /// Removes a task from running tasks if it exists in the running tasks collection
-        /// </summary>
-        /// <param name="taskId"></param>
-        private void RemoveRunningTask(string taskId)
-        {
-            if (!_runningTasks.ContainsKey(taskId))
-            {
-                var msg = string.Format(CultureInfo.InvariantCulture, "The task [{0}] doesn't exist in Running Tasks.", taskId);
-                Exceptions.Throw(new IMRUSystemException(msg), Logger);
-            }
-            _runningTasks.Remove(taskId);
         }
 
         /// <summary>

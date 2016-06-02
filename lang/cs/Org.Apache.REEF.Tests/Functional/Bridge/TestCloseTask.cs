@@ -27,6 +27,9 @@ using Org.Apache.REEF.Driver;
 using Org.Apache.REEF.Driver.Context;
 using Org.Apache.REEF.Driver.Evaluator;
 using Org.Apache.REEF.Driver.Task;
+using Org.Apache.REEF.IMRU.OnREEF.Driver;
+using Org.Apache.REEF.IMRU.OnREEF.IMRUTasks;
+using Org.Apache.REEF.IMRU.OnREEF.Parameters;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Tang.Formats;
 using Org.Apache.REEF.Tang.Implementations.Configuration;
@@ -51,6 +54,8 @@ namespace Org.Apache.REEF.Tests.Functional.Bridge
         private const string NoMessage = "NO_MESSAGE";
         private const string CompletedValidationMessage = "CompletedValidationmessage";
         private const string FailToCloseTaskMessage = "FailToCloseTaskMessage";
+        private const string BreakTaskMessage = "BreakTaskMessage";
+        private const string EnforceToCloseMessage = "EnforceToCloseMessage";
 
         /// <summary>
         /// This test is close a running task with a close handler registered
@@ -65,6 +70,40 @@ namespace Org.Apache.REEF.Tests.Functional.Bridge
             var messages = new List<string>();
             messages.Add(DisposeMessageFromDriver);
             ValidateMessageSuccessfullyLogged(messages, "Node-*", EvaluatorStdout, testFolder, 2);
+            CleanUp(testFolder);
+        }
+
+        /// <summary>
+        /// This test is to close a running task and enforce it to break and return after the current iteration
+        /// </summary>
+        [Fact]
+        public void TestBreakTaskOnLocalRuntime()
+        {
+            string testFolder = DefaultRuntimeFolder + Guid.NewGuid().ToString("N").Substring(0, 4);
+            TestRun(DriverConfigurations(DisposeMessageFromDriver, GetTaskConfigurationForBreakTask()), typeof(CloseTaskTestDriver), 1, "TestBreakTask", "local", testFolder);
+            ValidateSuccessForLocalRuntime(1, testFolder: testFolder);
+            ValidateMessageSuccessfullyLoggedForDriver(CompletedValidationMessage, testFolder, 1);
+            var messages = new List<string>();
+            messages.Add(DisposeMessageFromDriver);
+            messages.Add(BreakTaskMessage);
+            ValidateMessageSuccessfullyLogged(messages, "Node-*", EvaluatorStdout, testFolder, -1);
+            CleanUp(testFolder);
+        }
+
+        /// <summary>
+        /// This test is to close a running task and enforce it to break and return after the current iteration
+        /// </summary>
+        [Fact]
+        public void TestEnforceCloseTaskOnLocalRuntime()
+        {
+            string testFolder = DefaultRuntimeFolder + Guid.NewGuid().ToString("N").Substring(0, 4);
+            TestRun(DriverConfigurations(DisposeMessageFromDriver, GetTaskConfigurationForEnforceToCloseTask()), typeof(CloseTaskTestDriver), 1, "TestEnforceCloseTask", "local", testFolder);
+            ValidateSuccessForLocalRuntime(1, 1, 0, testFolder);
+            ValidateMessageSuccessfullyLoggedForDriver(CompletedValidationMessage, testFolder, 0);
+            var messages = new List<string>();
+            messages.Add(DisposeMessageFromDriver);
+            messages.Add(EnforceToCloseMessage);
+            ValidateMessageSuccessfullyLogged(messages, "Node-*", EvaluatorStdout, testFolder, -1);
             CleanUp(testFolder);
         }
 
@@ -128,8 +167,31 @@ namespace Org.Apache.REEF.Tests.Functional.Bridge
         {
             return TaskConfiguration.ConfigurationModule
                 .Set(TaskConfiguration.Identifier, "TaskID")
-                .Set(TaskConfiguration.Task, GenericType<TestCloseTask.CloseTestTask>.Class)
-                .Set(TaskConfiguration.OnClose, GenericType<TestCloseTask.CloseTestTask>.Class)
+                .Set(TaskConfiguration.Task, GenericType<TestCloseTask.CloseByReturnTestTask>.Class)
+                .Set(TaskConfiguration.OnClose, GenericType<TestCloseTask.CloseByReturnTestTask>.Class)
+                .Build();
+        }
+
+        private IConfiguration GetTaskConfigurationForBreakTask()
+        {
+            return TaskConfiguration.ConfigurationModule
+                .Set(TaskConfiguration.Identifier, "TaskID")
+                .Set(TaskConfiguration.Task, GenericType<TestCloseTask.CloseByBreakAndEnforceToStopTask>.Class)
+                .Set(TaskConfiguration.OnClose, GenericType<TestCloseTask.CloseByBreakAndEnforceToStopTask>.Class)
+                .Build();
+        }
+        private IConfiguration GetTaskConfigurationForEnforceToCloseTask()
+        {
+            var taskConfig = TaskConfiguration.ConfigurationModule
+                .Set(TaskConfiguration.Identifier, "TaskID-EnforceToClose")
+                .Set(TaskConfiguration.Task, GenericType<TestCloseTask.CloseByBreakAndEnforceToStopTask>.Class)
+                .Set(TaskConfiguration.OnClose, GenericType<TestCloseTask.CloseByBreakAndEnforceToStopTask>.Class)
+                .Build();
+
+            return TangFactory.GetTang()
+                .NewConfigurationBuilder(taskConfig)
+                .BindIntNamedParam<EnforceCloseTimeoutMilliseconds>("1000")
+                .BindNamedParameter<EnforceClose, bool>(GenericType<EnforceClose>.Class, "true")
                 .Build();
         }
 
@@ -137,8 +199,8 @@ namespace Org.Apache.REEF.Tests.Functional.Bridge
         {
             return TaskConfiguration.ConfigurationModule
                 .Set(TaskConfiguration.Identifier, "TaskID-FailToClose")
-                .Set(TaskConfiguration.Task, GenericType<TestCloseTask.FailToCloseTask>.Class)
-                .Set(TaskConfiguration.OnClose, GenericType<TestCloseTask.FailToCloseTask>.Class)
+                .Set(TaskConfiguration.Task, GenericType<TestCloseTask.CloseByThrowExceptionTask>.Class)
+                .Set(TaskConfiguration.OnClose, GenericType<TestCloseTask.CloseByThrowExceptionTask>.Class)
                 .Build();
         }
 
@@ -146,7 +208,7 @@ namespace Org.Apache.REEF.Tests.Functional.Bridge
         {
             return TaskConfiguration.ConfigurationModule
                 .Set(TaskConfiguration.Identifier, "TaskID-NoCloseHandler")
-                .Set(TaskConfiguration.Task, GenericType<TestCloseTask.NoCloseHandlerTask>.Class)
+                .Set(TaskConfiguration.Task, GenericType<TestCloseTask.MissingCloseHandlerTask>.Class)
                 .Build();
         }
 
@@ -194,14 +256,14 @@ namespace Org.Apache.REEF.Tests.Functional.Bridge
         {
             private readonly IEvaluatorRequestor _requestor;
             private int _contextNumber = 0;
-            private string _disposeMessage;
-            private IConfiguration _taskConfiguration;
+            private readonly string _disposeMessage;
+            private readonly IConfiguration _taskConfiguration;
 
             [Inject]
             private CloseTaskTestDriver(IEvaluatorRequestor evaluatorRequestor,
                 [Parameter(typeof(DisposeMessage))] string disposeMessage,
                 [Parameter(typeof(TaskConfigurationString))] string taskConfigString,
-                AvroConfigurationSerializer avroConfigurationSerializer)
+                IConfigurationSerializer avroConfigurationSerializer)
             {
                 _requestor = evaluatorRequestor;
                 _disposeMessage = disposeMessage;
@@ -246,7 +308,11 @@ namespace Org.Apache.REEF.Tests.Functional.Bridge
                 {
                     Assert.Contains(DefaultTaskCloseHandler.ExceptionMessage, failedExeption);
                 }
-                
+                if (value.Id.EndsWith("TaskID-EnforceToClose"))
+                {
+                    Assert.Contains(TaskManager.TaskKilledByDriver, failedExeption);
+                }
+
                 value.GetActiveContext().Value.Dispose();
             }
 
@@ -274,12 +340,15 @@ namespace Org.Apache.REEF.Tests.Functional.Bridge
             }
         }
 
-        private sealed class CloseTestTask : ITask, IObserver<ICloseEvent>
+        /// <summary>
+        /// This test task receives close event, then signals Call() method to properly return.
+        /// </summary>
+        private sealed class CloseByReturnTestTask : ITask, IObserver<ICloseEvent>
         {
             private readonly CountdownEvent _suspendSignal = new CountdownEvent(1);
 
             [Inject]
-            private CloseTestTask()
+            private CloseByReturnTestTask([Parameter(typeof(EnforceCloseTimeoutMilliseconds))] int enforceCloseTimeout)
             {
             }
 
@@ -322,12 +391,123 @@ namespace Org.Apache.REEF.Tests.Functional.Bridge
             }
         }
 
-        private sealed class FailToCloseTask : ITask, IObserver<ICloseEvent>
+        /// <summary>
+        /// This is a testing task. It serves for two test cases.
+        /// In the first case, EnforceClose is false (default). When the task receives the close event, it signals the Call method
+        /// to let it continue the iteration. As _shouldCloseTask is set to 1, the Call() will return after
+        /// completing the current iteration.
+        /// In the second case, EnforceClose is set to true. When the task receives the close event, it sets
+        /// _shouldCloseTask to 1. As the task is hung in this scenario, Call() would never return.
+        ///  After waiting for _enforceCloseTimeoutMilliseconds, the close handler throws an exception, enforcing the task to stop.
+        /// </summary>
+        private sealed class CloseByBreakAndEnforceToStopTask : ITask, IObserver<ICloseEvent>
+        {
+            private long _shouldCloseTask = 0;
+            private long _isTaskStopped = 0;
+            private readonly bool _enforceClose;
+            private readonly int _enforceCloseTimeoutMilliseconds;
+
+            private readonly CountdownEvent _suspendSignal1 = new CountdownEvent(1);
+            private readonly CountdownEvent _suspendSignal2 = new CountdownEvent(1);
+            private readonly ManualResetEventSlim _waitToCloseEvent = new ManualResetEventSlim(false);
+
+            [Inject]
+            private CloseByBreakAndEnforceToStopTask(
+                [Parameter(typeof(EnforceCloseTimeoutMilliseconds))] int enforceCloseTimeoutMilliseconds,
+                [Parameter(typeof(EnforceClose))] bool enforceClose)
+            {
+                _enforceClose = enforceClose;
+                _enforceCloseTimeoutMilliseconds = enforceCloseTimeoutMilliseconds;
+            }
+
+            public byte[] Call(byte[] memento)
+            {
+                int iterate = 1;
+
+                while (Interlocked.Read(ref _shouldCloseTask) == 0 && iterate < 100)
+                {
+                    iterate++;
+                    if (_enforceClose)
+                    {
+                        _suspendSignal1.Wait();
+                    }
+                    else
+                    {
+                        _suspendSignal2.Wait();
+                    }
+                }
+
+                Interlocked.Exchange(ref _isTaskStopped, 1);
+
+                if (Interlocked.Read(ref _shouldCloseTask) == 1)
+                {
+                    Logger.Log(Level.Info, BreakTaskMessage);
+                    _waitToCloseEvent.Set();
+                }
+
+                return null;
+            }
+
+            public void Dispose()
+            {
+                Logger.Log(Level.Info, "Task is disposed.");
+            }
+
+            /// <summary>
+            /// When the close event is received, it sets _shouldCloseTask to 1.
+            /// If _enforceClose is false, _suspendSignal2 is signaled to let the task to continue to run. This is to simulate that the
+            /// task is running properly and will break after completing the current iteration. It will set the _waitToCloseEvent
+            /// to let the flow in the close event handler to continue.
+            /// If _enforceClose is true,  _suspendSignal1 will be not signaled, this is to simulate that the task is hung.
+            /// After waiting for specified time, the close handler will throw exception to enforce the task to stop.
+            /// </summary>
+            /// <param name="closeEvent"></param>
+            public void OnNext(ICloseEvent closeEvent)
+            {
+                if (closeEvent.Value.IsPresent() && Encoding.UTF8.GetString(closeEvent.Value.Value).Equals(DisposeMessageFromDriver))
+                {
+                    Logger.Log(Level.Info, "Closed event received in task:" + Encoding.UTF8.GetString(closeEvent.Value.Value));
+                    Interlocked.Exchange(ref _shouldCloseTask, 1);
+                    if (!_enforceClose)
+                    {
+                        _suspendSignal2.Signal();
+                    }
+
+                    _waitToCloseEvent.Wait(TimeSpan.FromMilliseconds(_enforceCloseTimeoutMilliseconds));
+
+                    if (Interlocked.Read(ref _isTaskStopped) == 0)
+                    {
+                        Logger.Log(Level.Info, EnforceToCloseMessage);
+                        throw new IMRUTaskSystemException(TaskManager.TaskKilledByDriver);
+                    }
+                }
+                else
+                {
+                    throw new Exception("Expected close event message is not received.");
+                }
+            }
+
+            public void OnCompleted()
+            {
+                throw new NotImplementedException();
+            }
+
+            public void OnError(Exception error)
+            {
+                throw new NotImplementedException();
+            }
+        }
+
+        /// <summary>
+        /// This is a test task for the scenario in which the task receives close event, instead of
+        /// let the task to return properly, it throws exception.
+        /// </summary>
+        private sealed class CloseByThrowExceptionTask : ITask, IObserver<ICloseEvent>
         {
             private readonly CountdownEvent _suspendSignal = new CountdownEvent(1);
 
             [Inject]
-            private FailToCloseTask()
+            private CloseByThrowExceptionTask()
             {
             }
 
@@ -370,10 +550,13 @@ namespace Org.Apache.REEF.Tests.Functional.Bridge
             }
         }
 
-        private sealed class NoCloseHandlerTask : ITask
+        /// <summary>
+        /// This task doesn't implement close handler. It is to test closeHandlerNoBound exception.
+        /// </summary>
+        private sealed class MissingCloseHandlerTask : ITask
         {
             [Inject]
-            private NoCloseHandlerTask()
+            private MissingCloseHandlerTask()
             {
             }
 
@@ -388,6 +571,11 @@ namespace Org.Apache.REEF.Tests.Functional.Bridge
             {
                 Logger.Log(Level.Info, "Task is disposed.");
             }
+        }
+
+        [NamedParameter("Enforce the task to close", "EnforceClose", "false")]
+        private sealed class EnforceClose : Name<bool>
+        {
         }
     }
 }

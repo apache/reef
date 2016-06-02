@@ -125,11 +125,22 @@ namespace Org.Apache.REEF.IMRU.Tests
             Action moveNext = () => taskState.MoveNext(TaskStateEvent.RunningTask);
             Assert.Throws<TaskStateTransitionException>(moveNext);
 
-            moveNext = () => taskState.MoveNext(TaskStateEvent.CompletedTask);
-            Assert.Throws<TaskStateTransitionException>(moveNext);
-
             moveNext = () => taskState.MoveNext(TaskStateEvent.SubmittedTask);
             Assert.Throws<TaskStateTransitionException>(moveNext);
+        }
+
+        /// <summary>
+        /// This is to test from WaitingTaskToClose to receiving CompletedTask event
+        /// </summary>
+        [Fact]
+        public void TestRunningToWaitingTaskToCloseToComplete()
+        {
+            var taskState = new TaskStateMachine();
+            taskState.MoveNext(TaskStateEvent.SubmittedTask);
+            taskState.MoveNext(TaskStateEvent.RunningTask);
+            taskState.MoveNext(TaskStateEvent.WaitingTaskToClose);
+            taskState.MoveNext(TaskStateEvent.CompletedTask);
+            Assert.Equal(TaskState.TaskClosedByDriver, taskState.CurrentState);
         }
 
         /// <summary>
