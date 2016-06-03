@@ -34,6 +34,14 @@ namespace Org.Apache.REEF.Utilities
         }
 
         /// <summary>
+        /// Returns true if the byte array is null or empty.
+        /// </summary>
+        public static bool IsNullOrEmpty(byte[] bytes)
+        {
+            return bytes == null || bytes.Length == 0;
+        }
+        
+        /// <summary>
         /// Converts from a UTF-8 encoded byte array to a string.
         /// </summary>
         public static string ByteArraysToString(byte[] b)

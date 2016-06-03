@@ -20,13 +20,14 @@ using System;
 namespace Org.Apache.REEF.Driver.Task
 {
     /// <summary>
-    /// A Task Exception from the Java side. Generally not expected.
+    /// An Exception that is used to indicate that there are no Task Exceptions
+    /// in a Context. Could occur when an Evaluator fails or when a Context fails
+    /// before a Task is reported to be initialized.
     /// </summary>
-    [Obsolete("Deprecated in 0.16. Please expect TaskExceptionMissingException instead.")]
-    public sealed class JavaTaskException : Exception
+    [Serializable]
+    public sealed class TaskExceptionMissingException : Exception
     {
-        internal JavaTaskException(string message)
-            : base(message)
+        internal TaskExceptionMissingException(string message) : base(message)
         {
         }
     }
