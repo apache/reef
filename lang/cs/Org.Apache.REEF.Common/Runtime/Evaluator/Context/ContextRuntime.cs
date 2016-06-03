@@ -268,7 +268,7 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Context
         /// Launches an Task on this context.
         /// </summary>
         /// <param name="taskConfiguration"></param>
-        public Thread StartTask(IConfiguration taskConfiguration)
+        public Thread StartTaskOnNewThread(IConfiguration taskConfiguration)
         {
             lock (_contextLifeCycle)
             {
@@ -301,7 +301,7 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Context
                 {
                     var taskRuntime = taskInjector.GetInstance<TaskRuntime>();
                     _task = Optional<TaskRuntime>.Of(taskRuntime);
-                    return taskRuntime.RunTask();
+                    return taskRuntime.StartTaskOnNewThread();
                 }
                 catch (InjectionException e)
                 {

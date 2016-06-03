@@ -180,7 +180,7 @@ namespace Org.Apache.REEF.Evaluator.Tests
                 {
                     var hbMgr = Substitute.For<IHeartBeatManager>();
                     contextRuntime.ContextInjector.BindVolatileInstance(GenericType<IHeartBeatManager>.Class, hbMgr);
-                    taskThread = contextRuntime.StartTask(taskConfig);
+                    taskThread = contextRuntime.StartTaskOnNewThread(taskConfig);
 
                     Assert.True(contextRuntime.TaskRuntime.IsPresent());
                     Assert.True(contextRuntime.GetTaskStatus().IsPresent());
@@ -231,13 +231,13 @@ namespace Org.Apache.REEF.Evaluator.Tests
                 {
                     var hbMgr = Substitute.For<IHeartBeatManager>();
                     contextRuntime.ContextInjector.BindVolatileInstance(GenericType<IHeartBeatManager>.Class, hbMgr);
-                    taskThread = contextRuntime.StartTask(taskConfig);
+                    taskThread = contextRuntime.StartTaskOnNewThread(taskConfig);
 
                     Assert.True(contextRuntime.TaskRuntime.IsPresent());
                     Assert.True(contextRuntime.GetTaskStatus().IsPresent());
                     Assert.Equal(contextRuntime.GetTaskStatus().Value.state, State.RUNNING);
 
-                    Assert.Throws<InvalidOperationException>(() => contextRuntime.StartTask(taskConfig));
+                    Assert.Throws<InvalidOperationException>(() => contextRuntime.StartTaskOnNewThread(taskConfig));
                 }
                 finally
                 {
@@ -275,7 +275,7 @@ namespace Org.Apache.REEF.Evaluator.Tests
                 var hbMgr = Substitute.For<IHeartBeatManager>();
                 contextRuntime.ContextInjector.BindVolatileInstance(GenericType<IHeartBeatManager>.Class, hbMgr);
 
-                var taskThread = contextRuntime.StartTask(taskConfig);
+                var taskThread = contextRuntime.StartTaskOnNewThread(taskConfig);
                 var testTask = contextRuntime.TaskRuntime.Value.Task as TestTask;
                 if (testTask == null)
                 {
@@ -288,7 +288,7 @@ namespace Org.Apache.REEF.Evaluator.Tests
 
                 taskThread.Join();
 
-                taskThread = contextRuntime.StartTask(taskConfig);
+                taskThread = contextRuntime.StartTaskOnNewThread(taskConfig);
                 Assert.Equal(contextRuntime.GetTaskStatus().Value.state, State.RUNNING);
 
                 var secondTestTask = contextRuntime.TaskRuntime.Value.Task as TestTask;

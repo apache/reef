@@ -235,7 +235,7 @@ namespace Org.Apache.REEF.Evaluator.Tests
                 serviceInjector = rootContext.ServiceInjector;
                 for (var i = 0; i < tasksRun; i++)
                 {
-                    rootContext.StartTask(launcher.RootTaskConfig.Value).Join();
+                    rootContext.StartTaskOnNewThread(launcher.RootTaskConfig.Value).Join();
                 }
 
                 Assert.NotNull(serviceInjector);

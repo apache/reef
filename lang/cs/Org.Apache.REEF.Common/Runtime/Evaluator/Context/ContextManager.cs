@@ -67,7 +67,7 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Context
                     LOGGER.Log(Level.Info, "Launching the initial Task");
                     try
                     {
-                        _topContext.StartTask(_rootContextLauncher.RootTaskConfig.Value);
+                        _topContext.StartTaskOnNewThread(_rootContextLauncher.RootTaskConfig.Value);
                     }
                     catch (TaskClientCodeException e)
                     {
@@ -340,7 +340,7 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Context
                 }
                 
                 var configuration = _serializer.FromString(startTaskProto.configuration);
-                currentActiveContext.StartTask(configuration);
+                currentActiveContext.StartTaskOnNewThread(configuration);
             }
         }
 

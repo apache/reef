@@ -81,11 +81,11 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Task
         /// <summary>
         /// Runs the task asynchronously.
         /// </summary>
-        public Thread RunTask()
+        public Thread StartTaskOnNewThread()
         {
             if (Interlocked.Exchange(ref _taskRan, 1) != 0)
             {
-                // Return if we have already called RunTask
+                // Return if we have already called StartTaskOnNewThread
                 throw new InvalidOperationException("TaskRun has already been called on TaskRuntime.");
             }
 
