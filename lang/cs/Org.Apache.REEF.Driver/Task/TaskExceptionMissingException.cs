@@ -21,18 +21,18 @@ using System.Runtime.Serialization;
 namespace Org.Apache.REEF.Driver.Task
 {
     /// <summary>
-    /// A Task Exception from the Java side.
-    /// TODO[JIRA REEF-1422]: Throw on the right occasion, when C# Driver orchestrates Java Tasks.
+    /// An Exception that is used to indicate that there are no Task Exceptions
+    /// in a Context. Could occur when an Evaluator fails or when a Context fails
+    /// before a Task is reported to be initialized.
     /// </summary>
     [Serializable]
-    public sealed class JavaTaskException : Exception
+    public sealed class TaskExceptionMissingException : Exception
     {
-        internal JavaTaskException(string message)
-            : base(message)
+        internal TaskExceptionMissingException(string message) : base(message)
         {
         }
 
-        private JavaTaskException(SerializationInfo serializationInfo, StreamingContext streamingContext)
+        private TaskExceptionMissingException(SerializationInfo serializationInfo, StreamingContext streamingContext)
             : base(serializationInfo, streamingContext)
         {
         }
