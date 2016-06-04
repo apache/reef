@@ -101,7 +101,7 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
         /// <param name="jobDefinition"></param>
         /// <param name="driverHandlerConfig"></param>
         /// <returns></returns>
-        protected IConfiguration DriverConfiguration<TMapInput, TMapOutput, TResult, TPartitionType>(
+        private IConfiguration DriverConfiguration<TMapInput, TMapOutput, TResult, TPartitionType>(
             IMRUJobDefinition jobDefinition,
             IConfiguration driverHandlerConfig)
         {
@@ -166,7 +166,7 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
         /// <param name="numberOfTasks"></param>
         /// <param name="driverId"></param>
         /// <returns></returns>
-        protected IConfiguration CreateGroupCommunicationConfiguration<TMapInput, TMapOutput, TResult, TPartitionType>(
+        private IConfiguration CreateGroupCommunicationConfiguration<TMapInput, TMapOutput, TResult, TPartitionType>(
             int numberOfTasks,
             string driverId)
         {
@@ -174,7 +174,7 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
                 .BindStringNamedParam<GroupCommConfigurationOptions.DriverId>(driverId)
                 .BindStringNamedParam<GroupCommConfigurationOptions.MasterTaskId>(IMRUConstants.UpdateTaskName)
                 .BindStringNamedParam<GroupCommConfigurationOptions.GroupName>(IMRUConstants.CommunicationGroupName)
-                .BindIntNamedParam<GroupCommConfigurationOptions.FanOut>(IMRUConstants.TreeFanout.ToString(CultureInfo.InvariantCulture).ToString(CultureInfo.InvariantCulture))
+                .BindIntNamedParam<GroupCommConfigurationOptions.FanOut>(IMRUConstants.TreeFanout.ToString(CultureInfo.InvariantCulture))
                 .BindIntNamedParam<GroupCommConfigurationOptions.NumberOfTasks>(numberOfTasks.ToString(CultureInfo.InvariantCulture))
                 .BindImplementation(GenericType<IGroupCommDriver>.Class, GenericType<GroupCommDriver>.Class)
                 .Build();
@@ -210,7 +210,7 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
             return new IMRUJobDefinitionBuilder()
                 .SetMapFunctionConfiguration(BuildMapperFunctionConfig())
                 .SetUpdateFunctionConfiguration(updateFunctionConfig)
-                .SetMapInputCodecConfiguration(BuildUpdateFunctionCodecsConfig())
+                .SetMapInputCodecConfiguration(BuildMapInputCodecConfig())
                 .SetUpdateFunctionCodecsConfiguration(BuildUpdateFunctionCodecsConfig())
                 .SetReduceFunctionConfiguration(BuildReduceFunctionConfig())
                 .SetMapInputPipelineDataConverterConfiguration(BuildDataConverterConfig(chunkSize))

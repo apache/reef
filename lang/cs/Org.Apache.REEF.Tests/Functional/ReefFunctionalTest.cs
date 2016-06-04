@@ -175,18 +175,14 @@ namespace Org.Apache.REEF.Tests.Functional
         }
 
         /// <summary>
-        /// Find the number of log lines that contains the message in the log file specified
+        /// Get message counts from lines given
         /// </summary>
+        /// <param name="lines"></param>
         /// <param name="message"></param>
-        /// <param name="subfolder"></param>
-        /// <param name="fileName"></param>
-        /// <param name="testFolder"></param>
         /// <returns></returns>
-        protected int GetMessageCount(string message, string subfolder, string fileName, string testFolder)
+        protected int GetMessageCount(string[] lines, string message)
         {
-            string[] lines = ReadLogFile(fileName, subfolder, testFolder);
-            string[] linesContainsMessage = lines.Where(s => s.Contains(message)).ToArray();
-            return linesContainsMessage.Length;
+            return lines.Where(s => s.Contains(message)).ToArray().Length;
         }
 
         /// <summary>

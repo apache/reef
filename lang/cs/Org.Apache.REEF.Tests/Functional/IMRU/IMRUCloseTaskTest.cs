@@ -45,6 +45,8 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
         /// For tasks that can close properly after receiving the close event, the driver will get ICompletedTask event. 
         /// For tasks that cannot close properly after receiving the close event, they will throw exceptions
         /// and the driver will get IFailedTask event. 
+        /// No matter how the task is closed, the total number of completed task and failed task should be equal to the 
+        /// total number of the tasks.
         /// </summary>
         [Fact]
         public void TestTaskCloseOnLocalRuntime()
@@ -57,8 +59,9 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
             int numTasks = 4;
             string testFolder = DefaultRuntimeFolder + TestId;
             TestBroadCastAndReduce(false, numTasks, chunkSize, dims, iterations, mapperMemory, updateTaskMemory, testFolder);
-            int failedCount = GetMessageCount(FailTaskMessage, "driver", DriverStdout, testFolder);
-            int completedCount = GetMessageCount(CompletedTaskMessage, "driver", DriverStdout, testFolder);
+            string[] lines = ReadLogFile(DriverStdout, "driver", testFolder);
+            int failedCount = GetMessageCount(lines, FailTaskMessage);
+            int completedCount = GetMessageCount(lines, CompletedTaskMessage);
             Assert.Equal(numTasks, failedCount + completedCount);
             CleanUp(testFolder);
         }
@@ -103,37 +106,27 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
                 .Set(REEF.Driver.DriverConfiguration.OnContextActive,
                     GenericType<IMRUDriver<TMapInput, TMapOutput, TResult, TPartitionType>>.Class)
                 .Set(REEF.Driver.DriverConfiguration.OnTaskCompleted,
-                    GenericType<CompletedTaskHandler>.Class)
+                    GenericType<TestHandlers>.Class)
                 .Set(REEF.Driver.DriverConfiguration.OnEvaluatorFailed,
                     GenericType<IMRUDriver<TMapInput, TMapOutput, TResult, TPartitionType>>.Class)
                 .Set(REEF.Driver.DriverConfiguration.OnContextFailed,
                     GenericType<IMRUDriver<TMapInput, TMapOutput, TResult, TPartitionType>>.Class)
                 .Set(REEF.Driver.DriverConfiguration.OnTaskFailed,
-                    GenericType<FailedTaskHandler>.Class)
+                    GenericType<TestHandlers>.Class)
                 .Set(REEF.Driver.DriverConfiguration.OnTaskRunning,
-                    GenericType<RunningTaskHandler>.Class)
+                    GenericType<TestHandlers>.Class)
                 .Set(REEF.Driver.DriverConfiguration.CustomTraceLevel, TraceLevel.Info.ToString())
                 .Build();
         }
 
         /// <summary>
-        /// IRunningTask event handler. It sends close event to each running task
+        /// Test handlers
         /// </summary>
-        internal sealed class RunningTaskHandler : IObserver<IRunningTask>
+        internal sealed class TestHandlers : IObserver<IRunningTask>, IObserver<IFailedTask>, IObserver<ICompletedTask>
         {
             [Inject]
-            private RunningTaskHandler()
-            {                
-            }
-
-            public void OnCompleted()
+            private TestHandlers()
             {
-                throw new NotImplementedException();
-            }
-
-            public void OnError(Exception error)
-            {
-                throw new NotImplementedException();
             }
 
             /// <summary>
@@ -143,28 +136,6 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
             {
                 Logger.Log(Level.Info, "Received running task, closing it" + value.Id);
                 value.Dispose(ByteUtilities.StringToByteArrays(TaskManager.CloseTaskByDriver));
-            }
-        }
-
-        /// <summary>
-        /// IFailedTask event handler. For tasks that throw exception after receiving close event, 
-        /// we would expect to receive IFailedTask event in this handler.
-        /// </summary>
-        internal sealed class FailedTaskHandler : IObserver<IFailedTask>
-        {
-            [Inject]
-            private FailedTaskHandler()
-            {
-            }
-
-            public void OnCompleted()
-            {
-                throw new NotImplementedException();
-            }
-
-            public void OnError(Exception error)
-            {
-                throw new NotImplementedException();
             }
 
             /// <summary>
@@ -178,17 +149,14 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
                 Assert.Contains(TaskManager.TaskKilledByDriver, failedExeption);
                 value.GetActiveContext().Value.Dispose();
             }
-        }
 
-        /// <summary>
-        /// ICompletedTask handler. For task that properly returns from Call() method after receiving close event
-        /// we would expect to receive ICompletedTask event in this handler.
-        /// </summary>
-        internal sealed class CompletedTaskHandler : IObserver<ICompletedTask>
-        {
-            [Inject]
-            private CompletedTaskHandler()
+            /// <summary>
+            /// Log the task id and dispose the context
+            /// </summary>
+            public void OnNext(ICompletedTask value)
             {
+                Logger.Log(Level.Info, CompletedTaskMessage + value.Id);
+                value.ActiveContext.Dispose();
             }
 
             public void OnCompleted()
@@ -199,15 +167,6 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
             public void OnError(Exception error)
             {
                 throw new NotImplementedException();
-            }
-
-            /// <summary>
-            /// Log the task id and dispose the context
-            /// </summary>
-            public void OnNext(ICompletedTask value)
-            {
-                Logger.Log(Level.Info, CompletedTaskMessage + value.Id);
-                value.ActiveContext.Dispose();
             }
         }
     }
