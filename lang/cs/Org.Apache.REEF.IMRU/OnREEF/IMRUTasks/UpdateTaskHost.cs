@@ -72,6 +72,11 @@ namespace Org.Apache.REEF.IMRU.OnREEF.IMRUTasks
         private readonly ManualResetEventSlim _waitToCloseEvent = new ManualResetEventSlim(false);
 
         /// <summary>
+        /// Group Communication client for the task
+        /// </summary>
+        private IGroupCommClient _groupCommunicationsClient;
+
+        /// <summary>
         /// </summary>
         /// <param name="updateTask">The UpdateTask hosted in this REEF Task.</param>
         /// <param name="groupCommunicationsClient">Used to setup the communications.</param>
@@ -87,6 +92,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.IMRUTasks
             [Parameter(typeof(InvokeGC))] bool invokeGC)
         {
             _updateTask = updateTask;
+            _groupCommunicationsClient = groupCommunicationsClient;
             var cg = groupCommunicationsClient.GetCommunicationGroup(IMRUConstants.CommunicationGroupName);
             _dataAndControlMessageSender =
                 cg.GetBroadcastSender<MapInputWithControlMessage<TMapInput>>(IMRUConstants.BroadcastOperatorName);
@@ -180,6 +186,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.IMRUTasks
         /// </summary>
         public void Dispose()
         {
+            _groupCommunicationsClient.Dispose();
         }
 
         public void OnError(Exception error)
