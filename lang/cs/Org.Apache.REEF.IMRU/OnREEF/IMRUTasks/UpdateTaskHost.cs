@@ -62,6 +62,11 @@ namespace Org.Apache.REEF.IMRU.OnREEF.IMRUTasks
         private long _isTaskStopped = 0;
 
         /// <summary>
+        /// Shows if the object has been disposed.
+        /// </summary>
+        private int _disposed = 0;
+
+        /// <summary>
         /// Waiting time for the task to close by itself
         /// </summary>
         private readonly int _enforceCloseTimeoutMilliseconds;
@@ -70,6 +75,11 @@ namespace Org.Apache.REEF.IMRU.OnREEF.IMRUTasks
         /// An event that will wait in close handler until it is either signaled from Call method or timeout.
         /// </summary>
         private readonly ManualResetEventSlim _waitToCloseEvent = new ManualResetEventSlim(false);
+
+        /// <summary>
+        /// Group Communication client for the task
+        /// </summary>
+        private readonly IGroupCommClient _groupCommunicationsClient;
 
         /// <summary>
         /// </summary>
@@ -87,6 +97,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.IMRUTasks
             [Parameter(typeof(InvokeGC))] bool invokeGC)
         {
             _updateTask = updateTask;
+            _groupCommunicationsClient = groupCommunicationsClient;
             var cg = groupCommunicationsClient.GetCommunicationGroup(IMRUConstants.CommunicationGroupName);
             _dataAndControlMessageSender =
                 cg.GetBroadcastSender<MapInputWithControlMessage<TMapInput>>(IMRUConstants.BroadcastOperatorName);
@@ -180,6 +191,10 @@ namespace Org.Apache.REEF.IMRU.OnREEF.IMRUTasks
         /// </summary>
         public void Dispose()
         {
+            if (Interlocked.Exchange(ref _disposed, 1) == 0)
+            {
+                _groupCommunicationsClient.Dispose();
+            }
         }
 
         public void OnError(Exception error)
