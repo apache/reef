@@ -100,6 +100,7 @@ namespace Org.Apache.REEF.Wake.Remote.Impl
         {
             if (!_disposed)
             {
+                _cancellationSource.Cancel();
                 _link.Dispose();
                 _disposed = true;
             }
