@@ -162,21 +162,6 @@ namespace Org.Apache.REEF.Wake.Time.Runtime
         }
 
         /// <summary>
-        /// Register the IObserver for the particular Time event.
-        /// </summary>
-        /// <param name="observer">The handler to register</param>
-        [Obsolete("Will be removed in REEF 0.16")]
-        public void RegisterObserver<U>(IObserver<U> observer) where U : Time
-        {
-            if (_disposed)
-            {
-                return;
-            }
-
-            _handlers.Subscribe(observer);
-        }
-
-        /// <summary>
         /// Start the RuntimeClock.
         /// Clock will continue to run and handle events until it has been disposed.
         /// </summary>
