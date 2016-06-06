@@ -33,7 +33,6 @@ using Org.Apache.REEF.Utilities.Diagnostics;
 using Org.Apache.REEF.Utilities.Logging;
 using Org.Apache.REEF.Wake.Time;
 using Org.Apache.REEF.Wake.Time.Parameters;
-using Org.Apache.REEF.Wake.Time.Runtime;
 using Org.Apache.REEF.Wake.Time.Runtime.Event;
 
 namespace Org.Apache.REEF.Evaluator
@@ -41,12 +40,12 @@ namespace Org.Apache.REEF.Evaluator
     public sealed class Evaluator
     {
         private static Logger logger = Logger.GetLogger(typeof(Evaluator));
-        private readonly RuntimeClock _clock;
+        private readonly IClock _clock;
         private readonly EvaluatorExitLogger _evaluatorExitLogger;
 
         [Inject]
         private Evaluator(
-            RuntimeClock clock,
+            IClock clock,
             CustomTraceListeners customTraceListeners,
             CustomTraceLevel customTraceLevel,
             EvaluatorExitLogger evaluatorExitLogger)

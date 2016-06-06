@@ -21,11 +21,9 @@ using Org.Apache.REEF.Common.Protobuf.ReefProtocol;
 using Org.Apache.REEF.Common.Runtime.Evaluator.Parameters;
 using Org.Apache.REEF.Common.Runtime.Evaluator.Utils;
 using Org.Apache.REEF.Tang.Annotations;
-using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Utilities.Logging;
 using Org.Apache.REEF.Wake.Remote;
 using Org.Apache.REEF.Wake.Time;
-using Org.Apache.REEF.Wake.Time.Runtime;
 
 namespace Org.Apache.REEF.Common.Runtime.Evaluator
 {
@@ -56,7 +54,7 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator
             [Parameter(typeof(EvaluatorIdentifier))] string evaluatorId,
             [Parameter(typeof(EvaluatorHeartbeatPeriodInMs))] int heartbeatPeriodInMs,
             [Parameter(typeof(HeartbeatMaxRetry))] int maxHeartbeatRetries,
-            RuntimeClock clock,
+            IClock clock,
             IRemoteManagerFactory remoteManagerFactory,
             REEFMessageCodec reefMessageCodec) :
             this(applicationId, evaluatorId, heartbeatPeriodInMs, maxHeartbeatRetries, 
@@ -70,7 +68,7 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator
             [Parameter(typeof(EvaluatorIdentifier))] string evaluatorId,
             [Parameter(typeof(EvaluatorHeartbeatPeriodInMs))] int heartbeatPeriodInMs,
             [Parameter(typeof(HeartbeatMaxRetry))] int maxHeartbeatRetries,
-            RuntimeClock clock,
+            IClock clock,
             IRemoteManagerFactory remoteManagerFactory,
             REEFMessageCodec reefMessageCodec,
             INameClient nameClient)

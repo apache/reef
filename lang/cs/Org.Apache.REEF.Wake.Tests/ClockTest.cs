@@ -23,6 +23,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Tang.Util;
+using Org.Apache.REEF.Wake.Time;
 using Org.Apache.REEF.Wake.Time.Event;
 using Org.Apache.REEF.Wake.Time.Runtime;
 using Xunit;
@@ -34,7 +35,7 @@ namespace Org.Apache.REEF.Wake.Tests
         [Fact]
         public void TestClock()
         {
-            using (RuntimeClock clock = BuildClock())
+            using (IClock clock = BuildClock())
             {
                 Task.Run(new Action(clock.Run));
 
@@ -49,7 +50,7 @@ namespace Org.Apache.REEF.Wake.Tests
         [Fact]
         public void TestAlarmRegistrationRaceConditions()
         {
-            using (RuntimeClock clock = BuildClock())
+            using (IClock clock = BuildClock())
             {
                 Task.Run(new Action(clock.Run));
 
@@ -85,7 +86,7 @@ namespace Org.Apache.REEF.Wake.Tests
         [Fact]
         public void TestSimultaneousAlarms()
         {
-            using (RuntimeClock clock = BuildClock())
+            using (IClock clock = BuildClock())
             {
                 Task.Run(new Action(clock.Run));
 
@@ -104,7 +105,7 @@ namespace Org.Apache.REEF.Wake.Tests
         [Fact]
         public void TestAlarmOrder()
         {
-            using (RuntimeClock clock = BuildLogicalClock())
+            using (IClock clock = BuildLogicalClock())
             {
                 Task.Run(new Action(clock.Run));
 
@@ -122,30 +123,30 @@ namespace Org.Apache.REEF.Wake.Tests
             }
         }
 
-        private RuntimeClock BuildClock()
+        private IClock BuildClock()
         {
             var builder = TangFactory.GetTang().NewConfigurationBuilder();
 
             return TangFactory.GetTang()
                               .NewInjector(builder.Build())
-                              .GetInstance<RuntimeClock>();
+                              .GetInstance<IClock>();
         }
 
-        private RuntimeClock BuildLogicalClock()
+        private IClock BuildLogicalClock()
         {
             var builder = TangFactory.GetTang().NewConfigurationBuilder();
             builder.BindImplementation(GenericType<ITimer>.Class, GenericType<LogicalTimer>.Class);
 
             return TangFactory.GetTang()
                               .NewInjector(builder.Build())
-                              .GetInstance<RuntimeClock>();
+                              .GetInstance<IClock>();
         }
 
         private class HeartbeatObserver : IObserver<Alarm>
         {
-            private readonly RuntimeClock _clock;
+            private readonly IClock _clock;
 
-            public HeartbeatObserver(RuntimeClock clock)
+            public HeartbeatObserver(IClock clock)
             {
                 _clock = clock;
                 EventCount = 0;

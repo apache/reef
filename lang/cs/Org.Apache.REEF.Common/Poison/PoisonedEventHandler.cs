@@ -19,9 +19,9 @@ using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Utilities.Attributes;
 using Org.Apache.REEF.Utilities.Logging;
 using Org.Apache.REEF.Wake.Time.Event;
-using Org.Apache.REEF.Wake.Time.Runtime;
 using System;
 using System.Reactive;
+using Org.Apache.REEF.Wake.Time;
 
 namespace Org.Apache.REEF.Common.Poison
 {
@@ -37,7 +37,7 @@ namespace Org.Apache.REEF.Common.Poison
         private readonly double _crashProbability;
         private readonly int _crashTimeout;
         private readonly int _crashMinDelay;
-        private readonly RuntimeClock _clock;
+        private readonly IClock _clock;
 
         private readonly Random _rand = new Random();
 
@@ -46,7 +46,7 @@ namespace Org.Apache.REEF.Common.Poison
             [Parameter(typeof(CrashProbability))] double crashProbability,
             [Parameter(typeof(CrashTimeout))] int crashTimeout,
             [Parameter(typeof(CrashMinDelay))] int crashMinDelay,
-            RuntimeClock clock) 
+            IClock clock) 
         {
             _crashProbability = crashProbability;
             _crashTimeout = crashTimeout;
