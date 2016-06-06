@@ -108,6 +108,7 @@ namespace Org.Apache.REEF.Driver.Bridge.Events
         private static Exception GetCause(
             byte[] serializedCause, string originalTaskExceptionToString)
         {
+            // TODO[JIRA REEF-1422]: Distinguish between Java Task Exception and missing Exception.
             if (ByteUtilities.IsNullOrEmpty(serializedCause))
             {
                 return new TaskExceptionMissingException(

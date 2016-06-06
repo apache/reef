@@ -16,6 +16,7 @@
 // under the License.
 
 using System;
+using System.Runtime.Serialization;
 
 namespace Org.Apache.REEF.Driver.Task
 {
@@ -28,6 +29,11 @@ namespace Org.Apache.REEF.Driver.Task
     public sealed class TaskExceptionMissingException : Exception
     {
         internal TaskExceptionMissingException(string message) : base(message)
+        {
+        }
+
+        private TaskExceptionMissingException(SerializationInfo serializationInfo, StreamingContext streamingContext)
+            : base(serializationInfo, streamingContext)
         {
         }
     }
