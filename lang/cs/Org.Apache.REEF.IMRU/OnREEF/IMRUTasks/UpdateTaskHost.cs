@@ -64,7 +64,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.IMRUTasks
         /// <summary>
         /// Shows if the object has been disposed.
         /// </summary>
-        private long _disposed = 0;
+        private int _disposed = 0;
 
         /// <summary>
         /// Waiting time for the task to close by itself
@@ -191,10 +191,9 @@ namespace Org.Apache.REEF.IMRU.OnREEF.IMRUTasks
         /// </summary>
         public void Dispose()
         {
-            if (Interlocked.Read(ref _disposed) == 0)
+            if (Interlocked.Exchange(ref _disposed, 1) == 0)
             {
                 _groupCommunicationsClient.Dispose();
-                Interlocked.Exchange(ref _disposed, 1);
             }
         }
 
