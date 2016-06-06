@@ -40,13 +40,6 @@ namespace Org.Apache.REEF.Wake.Time.Runtime
         private readonly PubSubSubject<Time> _handlers;
         private readonly PriorityQueue<Time> _schedule;
 
-        // TODO[REEF-1373]: Remove the the _old* handlers
-        private readonly IInjectionFuture<ISet<IObserver<StartTime>>> _oldStartHandler;
-        private readonly IInjectionFuture<ISet<IObserver<StopTime>>> _oldStopHandler;
-        private readonly IInjectionFuture<ISet<IObserver<RuntimeStart>>> _oldRuntimeStartHandler;
-        private readonly IInjectionFuture<ISet<IObserver<RuntimeStop>>> _oldRuntimeStopHandler;
-        private readonly IInjectionFuture<ISet<IObserver<IdleClock>>> _oldIdleHandler;
-        
         private readonly IInjectionFuture<ISet<IObserver<StartTime>>> _startHandler;
         private readonly IInjectionFuture<ISet<IObserver<StopTime>>> _stopHandler;
         private readonly IInjectionFuture<ISet<IObserver<RuntimeStart>>> _runtimeStartHandler;
@@ -64,30 +57,15 @@ namespace Org.Apache.REEF.Wake.Time.Runtime
         /// <param name="runtimeStartHandler">The runtime start handler</param>
         /// <param name="runtimeStopHandler">The runtime stop handler</param>
         /// <param name="idleHandler">The idle handler</param>
-        /// <param name="oldStartHandler">Start handlers prior to REEF-1372</param>
-        /// <param name="oldStopHandler">Stop handlers prior to REEF-1372</param>
-        /// <param name="oldRuntimeStartHandler">Runtime start handlers prior to REEF-1372</param>
-        /// <param name="oldRuntimeStopHandler">Runtime stop handlers prior to REEF-1372</param>
-        /// <param name="oldIdleHandler">Idle handlers prior to REEF-1372</param>
-#pragma warning disable 618
         [Inject]
         private RuntimeClock(
             ITimer timer,
-
-            // TODO[REEF-1373]: Remove the _old* handlers
-            [Parameter(typeof(StartHandler))] IInjectionFuture<ISet<IObserver<StartTime>>> oldStartHandler,
-            [Parameter(typeof(StopHandler))] IInjectionFuture<ISet<IObserver<StopTime>>> oldStopHandler,
-            [Parameter(typeof(RuntimeStartHandler))] IInjectionFuture<ISet<IObserver<RuntimeStart>>> oldRuntimeStartHandler,
-            [Parameter(typeof(RuntimeStopHandler))] IInjectionFuture<ISet<IObserver<RuntimeStop>>> oldRuntimeStopHandler,
-            [Parameter(typeof(IdleHandler))] IInjectionFuture<ISet<IObserver<IdleClock>>> oldIdleHandler,
-
             [Parameter(typeof(Parameters.StartHandler))] IInjectionFuture<ISet<IObserver<StartTime>>> startHandler,
             [Parameter(typeof(Parameters.StopHandler))] IInjectionFuture<ISet<IObserver<StopTime>>> stopHandler,
             [Parameter(typeof(Parameters.RuntimeStartHandler))] IInjectionFuture<ISet<IObserver<RuntimeStart>>> runtimeStartHandler,
             [Parameter(typeof(Parameters.RuntimeStopHandler))] IInjectionFuture<ISet<IObserver<RuntimeStop>>> runtimeStopHandler,
             [Parameter(typeof(Parameters.IdleHandler))] IInjectionFuture<ISet<IObserver<IdleClock>>> idleHandler)
         {
-#pragma warning restore 618
             _timer = timer;
             _schedule = new PriorityQueue<Time>();
             _handlers = new PubSubSubject<Time>();
@@ -97,13 +75,6 @@ namespace Org.Apache.REEF.Wake.Time.Runtime
             _runtimeStartHandler = runtimeStartHandler;
             _runtimeStopHandler = runtimeStopHandler;
             _idleHandler = idleHandler;
-
-            // TODO[REEF-1373]: Remove the _old* handlers
-            _oldStartHandler = oldStartHandler;
-            _oldStopHandler = oldStopHandler;
-            _oldRuntimeStartHandler = oldRuntimeStartHandler;
-            _oldRuntimeStopHandler = oldRuntimeStopHandler;
-            _oldIdleHandler = oldIdleHandler;
 
             ++numberOfInstantiations;
             if (numberOfInstantiations > 1)
@@ -117,7 +88,7 @@ namespace Org.Apache.REEF.Wake.Time.Runtime
         /// </summary>
         /// <param name="offset">The offset in the future to schedule the alarm, in msec</param>
         /// <param name="handler">The IObserver to to be called</param>
-        public override void ScheduleAlarm(long offset, IObserver<Alarm> handler)
+        public void ScheduleAlarm(long offset, IObserver<Alarm> handler)
         {
             if (_disposed)
             {
@@ -139,7 +110,7 @@ namespace Org.Apache.REEF.Wake.Time.Runtime
         /// Clock is idle if it has no future alarms set
         /// </summary>
         /// <returns>True if no future alarms are set, otherwise false</returns>
-        public override bool IsIdle()
+        public bool IsIdle()
         {
             lock (_schedule)
             {
@@ -150,7 +121,7 @@ namespace Org.Apache.REEF.Wake.Time.Runtime
         /// <summary>
         /// Dispose of the clock and all scheduled alarms
         /// </summary>
-        public override void Dispose()
+        public void Dispose()
         {
             lock (_schedule)
             {
@@ -180,7 +151,7 @@ namespace Org.Apache.REEF.Wake.Time.Runtime
         /// Start the RuntimeClock.
         /// Clock will continue to run and handle events until it has been disposed.
         /// </summary>
-        public override void Run()
+        public void Run()
         {
             SubscribeHandlers();
 
@@ -227,13 +198,6 @@ namespace Org.Apache.REEF.Wake.Time.Runtime
         /// </summary>
         private void SubscribeHandlers()
         {
-            // TODO[REEF-1373]: Remove the subscriptions of the _old* handlers
-            Subscribe(_oldStartHandler.Get());
-            Subscribe(_oldStopHandler.Get());
-            Subscribe(_oldRuntimeStartHandler.Get());
-            Subscribe(_oldRuntimeStopHandler.Get());
-            Subscribe(_oldIdleHandler.Get());
-
             Subscribe(_startHandler.Get());
             Subscribe(_stopHandler.Get());
             Subscribe(_runtimeStartHandler.Get());
