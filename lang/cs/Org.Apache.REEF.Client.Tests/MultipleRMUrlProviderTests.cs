@@ -42,6 +42,10 @@ namespace Org.Apache.REEF.Client.Tests
 <!-- Put site-specific property overrides in this file. -->
 <configuration xmlns:xi=""http://www.w3.org/2001/XInclude"">
   <property>
+    <name>yarn.resourcemanager.ha.enabled</name>
+    <value>TRUE</value>
+  </property>
+  <property>
     <name>yarn.resourcemanager.ha.rm-ids</name>
     <value>rm1,rm2</value>
   </property>
@@ -94,12 +98,11 @@ namespace Org.Apache.REEF.Client.Tests
         }
 
         [Fact]
-        public async Task CannotFindHadoopConfigDirThrowsArgumentException()
+        public void CannotFindHadoopConfigDirThrowsException()
         {
             using (new YarnConfigurationUrlProviderTests.TemporaryOverrideEnvironmentVariable(HadoopConfDirEnvVariable, string.Empty))
             {
-                var urlProvider = GetYarnConfigurationUrlProvider();
-                await Assert.ThrowsAsync<ArgumentException>(async () => await urlProvider.GetUrlAsync());
+                Assert.Throws<InjectionException>(() => GetYarnConfigurationUrlProvider());
             }
         }
 

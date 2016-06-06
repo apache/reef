@@ -20,6 +20,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Org.Apache.REEF.Client.Yarn.RestClient;
 using Org.Apache.REEF.Tang.Annotations;
+using Org.Apache.REEF.Utilities.Runtime.Yarn;
 
 namespace Org.Apache.REEF.Client.YARN.RestClient
 {
@@ -27,14 +28,17 @@ namespace Org.Apache.REEF.Client.YARN.RestClient
               " YarnConfigurationUrlProvider, provides the same functionality as MultipleRMUrlProvider.")]
     public sealed class MultipleRMUrlProvider : IUrlProvider
     {
+        private readonly YarnConfiguration _yarnConfiguration;
+
         [Inject]
         private MultipleRMUrlProvider()
         {
+            _yarnConfiguration = YarnConfiguration.GetConfiguration();
         }
 
         public Task<IEnumerable<Uri>> GetUrlAsync()
         {
-            return Task.FromResult(Utilities.Yarn.GetYarnRMWebappEndpoints());
+            return Task.FromResult(_yarnConfiguration.GetYarnRMWebappEndpoints());
         }
     }
 }

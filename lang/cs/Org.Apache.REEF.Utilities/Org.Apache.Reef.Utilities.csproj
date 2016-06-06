@@ -66,8 +66,9 @@ under the License.
     <Compile Include="NetUtilities.cs" />
     <Compile Include="Optional.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Runtime\Yarn\HttpConfig.cs" />
+    <Compile Include="Runtime\Yarn\YarnConfiguration.cs" />
     <Compile Include="ValidationUtilities.cs" />
-    <Compile Include="Yarn.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Org.Apache.Reef.Utilities.nuspec" />

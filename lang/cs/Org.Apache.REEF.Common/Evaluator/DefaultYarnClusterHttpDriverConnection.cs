@@ -17,8 +17,8 @@
 
 using System;
 using Org.Apache.REEF.Tang.Annotations;
-using Org.Apache.REEF.Utilities;
 using Org.Apache.REEF.Utilities.Logging;
+using Org.Apache.REEF.Utilities.Runtime.Yarn;
 
 namespace Org.Apache.REEF.Common.Evaluator
 {
@@ -27,11 +27,13 @@ namespace Org.Apache.REEF.Common.Evaluator
         private static readonly Logger Logger = Logger.GetLogger(typeof(DefaultYarnClusterHttpDriverConnection));
 
         private readonly string _applicationId;
+        private readonly YarnConfiguration _yarnConfiguration;
 
         [Inject]
         private DefaultYarnClusterHttpDriverConnection()
         {
             _applicationId = Environment.GetEnvironmentVariable(Constants.ReefYarnApplicationIdEnvironmentVariable);
+            _yarnConfiguration = YarnConfiguration.GetConfiguration();
         }
 
         public DriverInformation GetDriverInformation()
@@ -41,7 +43,7 @@ namespace Org.Apache.REEF.Common.Evaluator
                 throw new ApplicationException("Could not fetch the application ID from YARN's container environment variables.");
             }
 
-            var yarnRMWebAppEndpoints = Yarn.GetYarnRMWebappEndpoints();
+            var yarnRMWebAppEndpoints = _yarnConfiguration.GetYarnRMWebappEndpoints();
 
             foreach (var yarnRMWebAppEndpoint in yarnRMWebAppEndpoints)
             {

@@ -19,6 +19,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Org.Apache.REEF.Tang.Annotations;
+using Org.Apache.REEF.Utilities.Runtime.Yarn;
 
 namespace Org.Apache.REEF.Client.Yarn.RestClient
 {
@@ -28,8 +29,7 @@ namespace Org.Apache.REEF.Client.Yarn.RestClient
     /// </summary>
     public sealed class YarnConfigurationUrlProvider : IUrlProvider
     {
-        private readonly string _hadoopConfigDir;
-        private readonly bool _useHttps;
+        private readonly YarnConfiguration _yarnConfiguration;
 
         /// <summary>
         /// The location of Hadoop configurations. Defaults to a whitespace string,
@@ -67,13 +67,12 @@ namespace Org.Apache.REEF.Client.Yarn.RestClient
             [Parameter(typeof(HadoopConfigurationDirectory))] string hadoopConfigDir,
             [Parameter(typeof(UseHttpsForYarnCommunication))] bool useHttps)
         {
-            _hadoopConfigDir = hadoopConfigDir;
-            _useHttps = useHttps;
+            _yarnConfiguration = YarnConfiguration.GetConfiguration(hadoopConfigDir, useHttps: useHttps);
         }
 
         public Task<IEnumerable<Uri>> GetUrlAsync()
         {
-            return Task.FromResult(Utilities.Yarn.GetYarnRMWebappEndpoints(_hadoopConfigDir, _useHttps));
+            return Task.FromResult(_yarnConfiguration.GetYarnRMWebappEndpoints());
         }
     }
 }
