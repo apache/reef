@@ -35,7 +35,6 @@ using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Tang.Util;
 using Org.Apache.REEF.Utilities;
-using Org.Apache.REEF.Wake.Remote.Parameters;
 using Xunit;
 using ContextConfiguration = Org.Apache.REEF.Common.Context.ContextConfiguration;
 
@@ -43,9 +42,6 @@ namespace Org.Apache.REEF.Evaluator.Tests
 {
     public sealed class ContextRuntimeTests
     {
-        private const int SleepTime = 10;
-        private const int MaxSleepTime = 1000;
-
         [Fact]
         [Trait("Priority", "0")]
         [Trait("Category", "Unit")]
@@ -188,14 +184,8 @@ namespace Org.Apache.REEF.Evaluator.Tests
                     Assert.True(contextRuntime.GetTaskStatus().IsPresent());
 
                     // wait for the task to start
-                    var totalSleep = 0;
-                    while (contextRuntime.GetTaskStatus().Value.state == State.INIT && totalSleep < MaxSleepTime)
-                    {
-                        Thread.Sleep(SleepTime);
-                        totalSleep += SleepTime;
-                    }
-
-                    // if the task failed to start even after MaxSleepTime delay, the test should fail
+                    var testTask = contextRuntime.TaskRuntime.Value.Task as TestTask;
+                    testTask.StartEvent.Wait();
                     Assert.Equal(State.RUNNING, contextRuntime.GetTaskStatus().Value.state);
 
                     var childContextConfiguration = GetSimpleContextConfiguration();
@@ -249,14 +239,8 @@ namespace Org.Apache.REEF.Evaluator.Tests
                     Assert.True(contextRuntime.GetTaskStatus().IsPresent());
 
                     // wait for the task to start
-                    var totalSleep = 0;
-                    while (contextRuntime.GetTaskStatus().Value.state == State.INIT && totalSleep < MaxSleepTime)
-                    {
-                        Thread.Sleep(SleepTime);
-                        totalSleep += SleepTime;
-                    }
-
-                    // if the task failed to start even after MaxSleepTime delay, the test should fail
+                    var testTask = contextRuntime.TaskRuntime.Value.Task as TestTask;
+                    testTask.StartEvent.Wait();
                     Assert.Equal(State.RUNNING, contextRuntime.GetTaskStatus().Value.state);
 
                     Assert.Throws<InvalidOperationException>(() => contextRuntime.StartTaskOnNewThread(taskConfig));

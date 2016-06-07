@@ -122,16 +122,9 @@ namespace Org.Apache.REEF.Evaluator.Tests
             var taskThread = taskRuntime.StartTaskOnNewThread();
 
             // wait for the task to start
-            const int sleepTime = 10;
-            const int maxSleepTime = 1000;
-            var totalSleep = 0;
-            while (taskRuntime.GetStatusProto().state == State.INIT && totalSleep < maxSleepTime)
-            {
-                Thread.Sleep(sleepTime);
-                totalSleep += sleepTime;
-            }
+            var testTask = taskRuntime.Task as TestTask;
+            testTask.StartEvent.Wait();
 
-            // if the task failed to start even after maxSleepTime delay, the test should fail
             Assert.Equal(State.RUNNING, taskRuntime.GetStatusProto().state);
             Assert.Equal(TaskState.Running, taskRuntime.GetTaskState());
 
@@ -422,12 +415,15 @@ namespace Org.Apache.REEF.Evaluator.Tests
             [Inject]
             private TestTask(IAction action)
             {
+                StartEvent = new CountdownEvent(1);
                 FinishCountdownEvent = new CountdownEvent(1);
                 DisposeCountdownEvent = new CountdownEvent(1);
                 _action = action;
             }
 
             public bool SuspendInvoked { get; private set; }
+
+            public CountdownEvent StartEvent { get; private set; }
 
             public CountdownEvent FinishCountdownEvent { get; private set; }
 
@@ -440,6 +436,7 @@ namespace Org.Apache.REEF.Evaluator.Tests
 
             public byte[] Call(byte[] memento)
             {
+                StartEvent.Signal();
                 try
                 {
                     _action.Value();

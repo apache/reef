@@ -84,13 +84,13 @@ namespace Org.Apache.REEF.Tests.Functional.Bridge
             IObserver<ISuspendedTask>
         {
             private readonly IEvaluatorRequestor _requestor;
-            private int _taskIndex;
+            private bool _firstTask;
 
             [Inject]
             private SuspendTaskHandlers(IEvaluatorRequestor evaluatorRequestor)
             {
                 _requestor = evaluatorRequestor;
-                _taskIndex = 0;
+                _firstTask = true;
             }
 
             public void OnNext(IDriverStarted value)
@@ -122,19 +122,21 @@ namespace Org.Apache.REEF.Tests.Functional.Bridge
 
             public void OnNext(ISuspendedTask value)
             {
-                if (_taskIndex == 1)
+                if (_firstTask)
                 {
                     // Submit a second Task once the first Task has been successfully suspended
                     // on the same context as the first task.
                     Logger.Log(Level.Warning, SuspendValidationMessage);
                     value.ActiveContext.SubmitTask(GetTaskConfiguration());
                 }
+
+                // after this we'll get more RunningTask events which have to be ignored
+                _firstTask = false;
             }
 
             public void OnNext(IRunningTask value)
             {
-                ++_taskIndex;
-                if (_taskIndex == 1)
+                if (_firstTask)
                 {
                     // Suspend the first instance of the Task.
                     value.Suspend(Encoding.UTF8.GetBytes(SuspendMessageFromDriver));
