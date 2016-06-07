@@ -957,7 +957,6 @@ namespace Org.Apache.REEF.Network.Tests.GroupCommunication
     {
         public void Dispose()
         {
-            throw new NotImplementedException();
         }
 
         public byte[] Call(byte[] memento)
