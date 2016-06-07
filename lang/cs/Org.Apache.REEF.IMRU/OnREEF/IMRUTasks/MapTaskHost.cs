@@ -17,6 +17,8 @@
 
 using System;
 using System.IO;
+using System.Net.Sockets;
+using System.Runtime.Remoting;
 using System.Text;
 using System.Threading;
 using Org.Apache.REEF.Common.Tasks;
@@ -75,13 +77,16 @@ namespace Org.Apache.REEF.IMRU.OnREEF.IMRUTasks
         /// <param name="groupCommunicationsClient">Used to setup the communications.</param>
         /// <param name="taskCloseCoordinator">Task close Coordinator</param>
         /// <param name="invokeGC">Whether to call Garbage Collector after each iteration or not</param>
+        /// <param name="taskId">task id</param>
         [Inject]
         private MapTaskHost(
             IMapFunction<TMapInput, TMapOutput> mapTask,
             IGroupCommClient groupCommunicationsClient,
             TaskCloseCoordinator taskCloseCoordinator,
-            [Parameter(typeof(InvokeGC))] bool invokeGC)
+            [Parameter(typeof(InvokeGC))] bool invokeGC,
+            [Parameter(typeof(TaskConfigurationOptions.Identifier))] string taskId)
         {
+            Logger.Log(Level.Info, "Entering constructor of MapTaskHost for task id {0}", taskId);
             _mapTask = mapTask;
             _groupCommunicationsClient = groupCommunicationsClient;
             var cg = groupCommunicationsClient.GetCommunicationGroup(IMRUConstants.CommunicationGroupName);
@@ -91,6 +96,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.IMRUTasks
             _invokeGC = invokeGC;
             _taskCloseCoordinator = taskCloseCoordinator;
             _cancellationSource = new CancellationTokenSource();
+            Logger.Log(Level.Info, "MapTaskHost initialized.");
         }
 
         /// <summary>
@@ -100,21 +106,22 @@ namespace Org.Apache.REEF.IMRU.OnREEF.IMRUTasks
         /// <returns></returns>
         public byte[] Call(byte[] memento)
         {
+            Logger.Log(Level.Info, "Entering MapTaskHost Call().");
             MapControlMessage controlMessage = MapControlMessage.AnotherRound;
-
-            while (!_cancellationSource.IsCancellationRequested && controlMessage != MapControlMessage.Stop)
+            try
             {
-                if (_invokeGC)
+                while (!_cancellationSource.IsCancellationRequested && controlMessage != MapControlMessage.Stop)
                 {
-                    Logger.Log(Level.Verbose, "Calling Garbage Collector");
-                    GC.Collect();
-                    GC.WaitForPendingFinalizers();
-                }
+                    if (_invokeGC)
+                    {
+                        Logger.Log(Level.Verbose, "Calling Garbage Collector");
+                        GC.Collect();
+                        GC.WaitForPendingFinalizers();
+                    }
 
-                try
-                {
                     using (
-                    MapInputWithControlMessage<TMapInput> mapInput = _dataAndMessageReceiver.Receive(_cancellationSource))
+                        MapInputWithControlMessage<TMapInput> mapInput =
+                            _dataAndMessageReceiver.Receive(_cancellationSource))
                     {
                         controlMessage = mapInput.ControlMessage;
                         if (controlMessage != MapControlMessage.Stop)
@@ -123,32 +130,77 @@ namespace Org.Apache.REEF.IMRU.OnREEF.IMRUTasks
                         }
                     }
                 }
-                catch (OperationCanceledException e)
+            }
+            catch (OperationCanceledException e)
+            {
+                Logger.Log(Level.Warning,
+                    "Received OperationCanceledException in MapTaskHost with message: {0}. The cancellation token is: {1}.",
+                    e.Message,
+                    _cancellationSource.IsCancellationRequested);
+            }
+            catch (Exception e)
+            {
+                if (e is IOException || e is TcpClientConnectionException || e is RemotingException ||
+                    e is SocketException)
                 {
-                    Logger.Log(Level.Warning, "Received OperationCanceledException in MapTaskHost with message: {0}.", e.Message);
-                    break;
-                }
-                catch (IOException e)
-                {
-                    Logger.Log(Level.Error, "Received IOException in MapTaskHost with message: {0}.", e.Message);
+                    Logger.Log(Level.Error,
+                        "Received Exception {0} in MapTaskHost with message: {1}. The cancellation token is: {2}.",
+                        e.GetType(),
+                        e.Message,
+                        _cancellationSource.IsCancellationRequested);
                     if (!_cancellationSource.IsCancellationRequested)
                     {
+                        Logger.Log(Level.Error,
+                            "MapTask is throwing IMRUTaskGroupCommunicationException with cancellation token: {0}.",
+                            _cancellationSource.IsCancellationRequested);
                         throw new IMRUTaskGroupCommunicationException(TaskManager.TaskGroupCommunicationError);
                     }
-                    break;
                 }
-                catch (TcpClientConnectionException e)
+                else if (e is AggregateException)
                 {
-                    Logger.Log(Level.Error, "Received TcpClientConnectionException in MapTaskHost with message: {0}.", e.Message);
+                    Logger.Log(Level.Error,
+                        "Received AggregateException. The cancellation token is: {0}.",
+                        _cancellationSource.IsCancellationRequested);
+                    if (e.InnerException != null)
+                    {
+                        Logger.Log(Level.Error,
+                            "InnerException {0}, with message {1}.",
+                            e.InnerException.GetType(),
+                            e.InnerException.Message);
+                    }
                     if (!_cancellationSource.IsCancellationRequested)
                     {
-                        throw new IMRUTaskGroupCommunicationException(TaskManager.TaskGroupCommunicationError);
+                        if (e.InnerException != null && e.InnerException is IOException)
+                        {
+                            Logger.Log(Level.Error,
+                                "MapTask is throwing IMRUTaskGroupCommunicationException with cancellation token: {0}.",
+                                _cancellationSource.IsCancellationRequested);
+                            throw new IMRUTaskGroupCommunicationException(TaskManager.TaskGroupCommunicationError);
+                        }
+                        else
+                        {
+                            throw e;
+                        }
+                    }                   
+                }
+                else
+                {
+                    Logger.Log(Level.Error,
+                       "MapTask is throwing Excetion {0}, messge {1} with cancellation token: {2} and StackTrace {3}.",
+                       e.GetType(),
+                       e.Message,
+                       _cancellationSource.IsCancellationRequested,
+                       e.StackTrace);
+                    if (!_cancellationSource.IsCancellationRequested)
+                    {
+                        throw e;
                     }
-                    break;
                 }
             }
-
-            _taskCloseCoordinator.SignalTaskStopped();
+            finally
+            {
+                _taskCloseCoordinator.SignalTaskStopped();
+            } 
             Logger.Log(Level.Info, "MapTaskHost returned with cancellation token:{0}.", _cancellationSource.IsCancellationRequested);
             return null;
         }

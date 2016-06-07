@@ -201,7 +201,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         /// <summary>
         /// Records failed Evaluator
         /// Removes it from allocated Evaluator and adds it to the failed Evaluators collection
-        /// If the evaluatorId is not in _failedEvaluators, throw IMRUSystemException
+        /// If the evaluatorId is already in _failedEvaluators, throw IMRUSystemException
         /// </summary>
         /// <param name="evaluatorId"></param>
         internal void RecordFailedEvaluator(string evaluatorId)
@@ -217,11 +217,25 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         }
 
         /// <summary>
+        /// Remove failed evaluator from the colletion
+        /// </summary>
+        /// <param name="evaluatorId"></param>
+        internal void RemoveFailedEvaluator(string evaluatorId)
+        {
+            if (!_failedEvaluatorIds.Contains(evaluatorId))
+            {
+                string msg = string.Format("The failed evaluator {0} is not recorded.", evaluatorId);
+                Exceptions.Throw(new IMRUSystemException(msg), Logger);
+            }
+            _failedEvaluatorIds.Remove(evaluatorId);
+        }
+
+        /// <summary>
         /// Checks if the number of failed Evaluators has reached allowed maximum number of evaluator failures 
         /// </summary>
         internal bool ReachedMaximumNumberOfEvaluatorFailures()
         {
-            return _failedEvaluatorIds.Count >= AllowedNumberOfEvaluatorFailures;
+            return _failedEvaluatorIds.Count > AllowedNumberOfEvaluatorFailures;
         }
 
         /// <summary>

@@ -95,7 +95,11 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator
         {
             lock (_heartBeatManager)
             {
-                Logger.Log(Level.Info, "Handle Evaluator control message");
+                var msg = " done_evaluator = " + (message.done_evaluator == null ? "null" : "not null")
+                          + " kill_evaluator = " + (message.kill_evaluator == null ? "null" : "not null")
+                          + " stop_evaluator = " + (message.stop_evaluator == null ? "null" : "not null")
+                          + " context_control = " + (message.context_control == null ? "null" : "not null");
+                Logger.Log(Level.Info, "Handle Evaluator control message: " + msg);
                 if (!message.identifier.Equals(_evaluatorId, StringComparison.OrdinalIgnoreCase))
                 {
                     OnException(new InvalidOperationException(

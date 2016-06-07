@@ -16,12 +16,17 @@
 // under the License.
 
 using System.Globalization;
+using System.IO;
 using Org.Apache.REEF.Client.Local;
 using Org.Apache.REEF.Client.Yarn;
+using Org.Apache.REEF.Client.Yarn.RestClient;
 using Org.Apache.REEF.IMRU.OnREEF.Client;
 using Org.Apache.REEF.IO.FileSystem.Hadoop;
+using Org.Apache.REEF.Network;
 using Org.Apache.REEF.Tang.Implementations.Configuration;
+using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Tang.Interface;
+using Org.Apache.REEF.Tang.Util;
 
 namespace Org.Apache.REEF.IMRU.Examples
 {
@@ -59,7 +64,7 @@ namespace Org.Apache.REEF.IMRU.Examples
                    .Build();
             }
 
-            return Configurations.Merge(runtimeConfig, imruClientConfig);
+            return Configurations.Merge(runtimeConfig, imruClientConfig, GetTcpConfiguration());
         }
 
         /// <summary>
@@ -71,9 +76,18 @@ namespace Org.Apache.REEF.IMRU.Examples
             IConfiguration imruClientConfig =
                 REEFIMRUClientConfiguration.ConfigurationModule.Build();
 
-            IConfiguration runtimeConfig =
-                YARNClientConfiguration.ConfigurationModule.Build();
-            return Configurations.Merge(runtimeConfig, imruClientConfig);
+            var runtimeConfig = YARNClientConfiguration.ConfigurationModule
+                .Build();
+
+            return Configurations.Merge(runtimeConfig, imruClientConfig, GetTcpConfiguration());
+        }
+
+        private static IConfiguration GetTcpConfiguration()
+        {
+            return TcpClientConfigurationModule.ConfigurationModule
+                .Set(TcpClientConfigurationModule.MaxConnectionRetry, "200")
+                .Set(TcpClientConfigurationModule.SleepTime, "1000")
+                .Build();
         }
     }
 }

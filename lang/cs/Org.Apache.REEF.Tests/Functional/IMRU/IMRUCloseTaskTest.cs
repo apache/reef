@@ -34,23 +34,19 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
 {
     /// <summary>
     /// This is to test close event handler in IMRU tasks
-    /// The test provide IRunningTask, IFailedTask and ICompletedTask handlers so that to trigger close events and handle the 
+    /// The test provide IRunningTask, IFailedTask and ICompletedTask handlers so that to trigger close events and handle the
     /// failed tasks and completed tasks
     /// </summary>
     [Collection("FunctionalTests")]
     public class IMRUCloseTaskTest : IMRUBrodcastReduceTestBase
     {
-        private const string CompletedTaskMessage = "CompletedTaskMessage";
-        private const string FailEvaluatorMessage = "FailEvaluatorMessage";
-        private const string FailTaskMessage = "FailTaskMessage";
-
         /// <summary>
         /// This test is for running in local runtime
         /// It sends close event for all the running tasks.
-        /// In the task close handler, the cancellation token will be set, and as a result tasks will return from the Call() 
+        /// In the task close handler, the cancellation token will be set, and as a result tasks will return from the Call()
         /// method and driver will receive ICompletedTask.
-        /// In the exceptional case, task might throw exception from Call() method, as a result, driver will receive IFailedTask. 
-        /// Expect number of CompletedTask and FailedTask equals to the total number of tasks. No failed Evaluator. 
+        /// In the exceptional case, task might throw exception from Call() method, as a result, driver will receive IFailedTask.
+        /// Expect number of CompletedTask and FailedTask equals to the total number of tasks. No failed Evaluator.
         /// </summary>
         [Fact]
         public void TestTaskCloseOnLocalRuntime()
@@ -61,11 +57,12 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
             const int mapperMemory = 512;
             const int updateTaskMemory = 512;
             const int numTasks = 4;
+            const int numOfRetryInRecovery = 4;
             var testFolder = DefaultRuntimeFolder + TestId;
-            TestBroadCastAndReduce(false, numTasks, chunkSize, dims, iterations, mapperMemory, updateTaskMemory, testFolder);
+            TestBroadCastAndReduce(false, numTasks, chunkSize, dims, iterations, mapperMemory, updateTaskMemory, numOfRetryInRecovery, testFolder);
             string[] lines = ReadLogFile(DriverStdout, "driver", testFolder, 120);
             var completedCount = GetMessageCount(lines, CompletedTaskMessage);
-            var failedCount = GetMessageCount(lines, FailTaskMessage);
+            var failedCount = GetMessageCount(lines, FailedTaskMessage);
             Assert.Equal(numTasks, completedCount + failedCount);
             CleanUp(testFolder);
         }
@@ -83,12 +80,13 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
             const int mapperMemory = 512;
             const int updateTaskMemory = 512;
             const int numTasks = 4;
-            TestBroadCastAndReduce(true, numTasks, chunkSize, dims, iterations, mapperMemory, updateTaskMemory);
+            const int numOfRetryInRecovery = 4;
+            TestBroadCastAndReduce(true, numTasks, chunkSize, dims, iterations, mapperMemory, updateTaskMemory, numOfRetryInRecovery);
         }
 
         /// <summary>
         /// This method overrides base class method and defines its own event handlers for driver. 
-        /// It uses its own RunningTaskHandler, FailedEvaluatorHandler and CompletedTaskHandler, FailedTaskHandler so that to simulate the test scenarios 
+        /// It uses its own RunningTaskHandler, FailedEvaluatorHandler and CompletedTaskHandler, FailedTaskHandler so that to simulate the test scenarios
         /// and verify the test result. 
         /// Rest of the event handlers use those from IMRUDriver. In IActiveContext handler in IMRUDriver, IMRU tasks are bound for the test.
         /// </summary>
@@ -190,7 +188,7 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
             {
                 lock (_lock)
                 {
-                    Logger.Log(Level.Info, FailTaskMessage + value.Id);
+                    Logger.Log(Level.Info, FailedTaskMessage + value.Id);
                     CloseRunningTasks();
                     value.GetActiveContext().Value.Dispose();
                 }
@@ -202,7 +200,7 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
             /// <param name="value"></param>
             public void OnNext(IFailedEvaluator value)
             {
-                throw new Exception(FailEvaluatorMessage);
+                throw new Exception(FailedEvaluatorMessage);
             }
 
             /// <summary>

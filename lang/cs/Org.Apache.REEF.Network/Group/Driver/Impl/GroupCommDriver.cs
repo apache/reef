@@ -100,7 +100,7 @@ namespace Org.Apache.REEF.Network.Group.Driver.Impl
         /// <summary>
         /// Returns the identifier for the master task
         /// </summary>
-        public string MasterTaskId { get; private set; }
+        public string MasterTaskId { get; set; }
 
         public ICommunicationGroupDriver DefaultGroup
         {

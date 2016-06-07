@@ -17,6 +17,8 @@
 
 using System;
 using System.IO;
+using System.Net.Sockets;
+using System.Runtime.Remoting;
 using System.Threading;
 using Org.Apache.REEF.Common.Tasks;
 using Org.Apache.REEF.Common.Tasks.Events;
@@ -77,14 +79,17 @@ namespace Org.Apache.REEF.IMRU.OnREEF.IMRUTasks
         /// <param name="resultHandler">Result handler</param>
         /// <param name="taskCloseCoordinator">Task close Coordinator</param>
         /// <param name="invokeGC">Whether to call Garbage Collector after each iteration or not</param>
+        /// <param name="taskId">task id</param>
         [Inject]
         private UpdateTaskHost(
             IUpdateFunction<TMapInput, TMapOutput, TResult> updateTask,
             IGroupCommClient groupCommunicationsClient,
             IIMRUResultHandler<TResult> resultHandler,
             TaskCloseCoordinator taskCloseCoordinator,
-            [Parameter(typeof(InvokeGC))] bool invokeGC)
+            [Parameter(typeof(InvokeGC))] bool invokeGC,
+            [Parameter(typeof(TaskConfigurationOptions.Identifier))] string taskId)
         {
+            Logger.Log(Level.Info, "Entering constructor of UpdateTaskHost for task id {0}", taskId);
             _updateTask = updateTask;
             _groupCommunicationsClient = groupCommunicationsClient;
             var cg = groupCommunicationsClient.GetCommunicationGroup(IMRUConstants.CommunicationGroupName);
@@ -95,6 +100,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.IMRUTasks
             _resultHandler = resultHandler;
             _taskCloseCoordinator = taskCloseCoordinator;
             _cancellationSource = new CancellationTokenSource();
+            Logger.Log(Level.Info, "UpdateTaskHost initialized.");
         }
 
         /// <summary>
@@ -104,6 +110,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.IMRUTasks
         /// <returns></returns>
         public byte[] Call(byte[] memento)
         {
+            Logger.Log(Level.Info, "Entering UpdateTaskHost Call().");
             var updateResult = _updateTask.Initialize();
             int iterNo = 0;
             try
@@ -148,27 +155,80 @@ namespace Org.Apache.REEF.IMRU.OnREEF.IMRUTasks
                     "Received OperationCanceledException in UpdateTaskHost with message: {0}.",
                     e.Message);
             }
-            catch (IOException e)
+            catch (Exception e)
             {
-                Logger.Log(Level.Error, "Received IOException in UpdateTaskHost with message: {0}.", e.Message);
-                if (!_cancellationSource.IsCancellationRequested)
+                if (e is IOException || e is TcpClientConnectionException || e is RemotingException ||
+                    e is SocketException)
                 {
-                    throw new IMRUTaskGroupCommunicationException(TaskManager.TaskGroupCommunicationError);
+                    Logger.Log(Level.Error,
+                        "Received Exception {0} in UpdateTaskHost with message: {1}. The cancellation token is: {2}.",
+                        e.GetType(),
+                        e.Message,
+                        _cancellationSource.IsCancellationRequested);
+                    if (!_cancellationSource.IsCancellationRequested)
+                    {
+                        Logger.Log(Level.Error,
+                            "UpdateTaskHost is throwing IMRUTaskGroupCommunicationException with cancellation token: {0}.",
+                            _cancellationSource.IsCancellationRequested);
+                        throw new IMRUTaskGroupCommunicationException(TaskManager.TaskGroupCommunicationError);
+                    }
+                }
+                else if (e is AggregateException)
+                {
+                    Logger.Log(Level.Error,
+                        "Received AggregateException. The cancellation token is: {0}.",
+                        _cancellationSource.IsCancellationRequested);
+                    if (e.InnerException != null)
+                    {
+                        Logger.Log(Level.Error,
+                            "InnerException {0}, with message {1}.",
+                            e.InnerException.GetType(),
+                            e.InnerException.Message);
+                    }
+                    if (!_cancellationSource.IsCancellationRequested)
+                    {
+                        if (e.InnerException != null && e.InnerException is IOException)
+                        {
+                            Logger.Log(Level.Error,
+                                "UpdateTaskHost is throwing IMRUTaskGroupCommunicationException with cancellation token: {0}.",
+                                _cancellationSource.IsCancellationRequested);
+                            throw new IMRUTaskGroupCommunicationException(TaskManager.TaskGroupCommunicationError);
+                        }
+                        else
+                        {
+                            throw e;
+                        }
+                    }
+                }
+                else
+                {
+                    Logger.Log(Level.Error,
+                       "UpdateTaskHost is throwing Excetion {0}, messge {1} with cancellation token: {2} and StackTrace {3}.",
+                       e.GetType(),
+                       e.Message,
+                       _cancellationSource.IsCancellationRequested,
+                       e.StackTrace);
+                    if (!_cancellationSource.IsCancellationRequested)
+                    {
+                        throw e;
+                    }
                 }
             }
-            catch (TcpClientConnectionException e)
+            finally
             {
-                Logger.Log(Level.Error,
-                    "Received TcpClientConnectionException in UpdateTaskHost with message: {0}.",
-                    e.Message);
-                if (!_cancellationSource.IsCancellationRequested)
+                try
                 {
-                    throw new IMRUTaskGroupCommunicationException(TaskManager.TaskGroupCommunicationError);
+                    _resultHandler.Dispose();
                 }
+                catch (Exception e)
+                {
+                    Logger.Log(Level.Error, "Exception in dispose result handler.", e);
+                    //// TODO throw proper exceptions JIRA REEF-1492
+                }
+                _taskCloseCoordinator.SignalTaskStopped();
+                Logger.Log(Level.Info, "UpdateTaskHost returned with cancellation token {0}.", _cancellationSource.IsCancellationRequested);
             }
-            _resultHandler.Dispose();
-            _taskCloseCoordinator.SignalTaskStopped();
-            Logger.Log(Level.Info, "UpdateTaskHost returned with cancellation token {0}.", _cancellationSource.IsCancellationRequested);
+
             return null;
         }
 

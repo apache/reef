@@ -15,12 +15,14 @@
 // specific language governing permissions and limitations
 // under the License.
 
+using System;
 using System.Globalization;
 using System.IO;
 using Org.Apache.REEF.IMRU.API;
 using Org.Apache.REEF.IO.PartitionedData.Random;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Tang.Implementations.Tang;
+using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Tang.Util;
 using Org.Apache.REEF.Wake.StreamingCodec.CommonStreamingCodecs;
 
@@ -29,12 +31,12 @@ namespace Org.Apache.REEF.IMRU.Examples.PipelinedBroadcastReduce
     /// <summary>
     /// IMRU program that performs broadcast and reduce
     /// </summary>
-    public sealed class PipelinedBroadcastAndReduce
+    public class PipelinedBroadcastAndReduce
     {
         private readonly IIMRUClient _imruClient;
 
         [Inject]
-        private PipelinedBroadcastAndReduce(IIMRUClient imruClient)
+        protected PipelinedBroadcastAndReduce(IIMRUClient imruClient)
         {
             _imruClient = imruClient;
         }
@@ -42,7 +44,7 @@ namespace Org.Apache.REEF.IMRU.Examples.PipelinedBroadcastReduce
         /// <summary>
         /// Runs the actual broadcast and reduce job
         /// </summary>
-        public void Run(int numberofMappers, int chunkSize, int numIterations, int dim, int mapperMemory, int updateTaskMemory)
+        public void Run(int numberofMappers, int chunkSize, int numIterations, int dim, int mapperMemory, int updateTaskMemory, int maxRetryNumberInRecovery)
         {
             var updateFunctionConfig =
                 TangFactory.GetTang().NewConfigurationBuilder(IMRUUpdateConfiguration<int[], int[], int[]>.ConfigurationModule
@@ -76,10 +78,7 @@ namespace Org.Apache.REEF.IMRU.Examples.PipelinedBroadcastReduce
 
             var results = _imruClient.Submit<int[], int[], int[], Stream>(
                 new IMRUJobDefinitionBuilder()
-                    .SetMapFunctionConfiguration(IMRUMapConfiguration<int[], int[]>.ConfigurationModule
-                        .Set(IMRUMapConfiguration<int[], int[]>.MapFunction,
-                            GenericType<BroadcastReceiverReduceSenderMapFunction>.Class)
-                        .Build())
+                    .SetMapFunctionConfiguration(BuildMapperFunctionConfig(maxRetryNumberInRecovery))
                     .SetUpdateFunctionConfiguration(updateFunctionConfig)
                     .SetMapInputCodecConfiguration(IMRUCodecConfiguration<int[]>.ConfigurationModule
                         .Set(IMRUCodecConfiguration<int[]>.Codec, GenericType<IntArrayStreamingCodec>.Class)
@@ -99,8 +98,22 @@ namespace Org.Apache.REEF.IMRU.Examples.PipelinedBroadcastReduce
                     .SetJobName("BroadcastReduce")
                     .SetNumberOfMappers(numberofMappers)
                     .SetMapperMemory(mapperMemory)
+                    .SetMaxRetryNumberInRecovery(maxRetryNumberInRecovery)
                     .SetUpdateTaskMemory(updateTaskMemory)
                     .Build());
+        }
+
+        protected virtual IConfiguration BuildMapperFunctionConfig(int maxRetryInRecovery)
+        {
+            return IMRUMapConfiguration<int[], int[]>.ConfigurationModule
+                .Set(IMRUMapConfiguration<int[], int[]>.MapFunction,
+                    GenericType<BroadcastReceiverReduceSenderMapFunction>.Class)
+                .Build();
+        }
+
+        internal void Run(int v, int chunkSize, int iterations, int dims, int mapperMemory, int updateTaskMemory)
+        {
+            throw new NotImplementedException();
         }
     }
 }

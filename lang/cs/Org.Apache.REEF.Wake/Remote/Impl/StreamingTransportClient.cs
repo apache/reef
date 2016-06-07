@@ -19,6 +19,7 @@ using System;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
+using Org.Apache.REEF.Utilities.AsyncUtils;
 using Org.Apache.REEF.Utilities.Diagnostics;
 using Org.Apache.REEF.Utilities.Logging;
 using Org.Apache.REEF.Wake.StreamingCodec;
@@ -68,7 +69,15 @@ namespace Org.Apache.REEF.Wake.Remote.Impl
             : this(remoteEndpoint, streamingCodec, clientFactory)
         {
             _observer = observer;
-            Task.Factory.StartNew(() => ResponseLoop(), TaskCreationOptions.LongRunning);
+            try
+            {
+                Task.Factory.StartNew(() => ResponseLoop(), TaskCreationOptions.LongRunning);
+            }
+            catch (Exception e)
+            {
+                Logger.Log(Level.Warning, "StreamingTransportClient get exception from ResponseLoop: {0}.", e.GetType());
+                throw e;
+            }            
         }
 
         /// <summary>
@@ -111,16 +120,24 @@ namespace Org.Apache.REEF.Wake.Remote.Impl
         /// </summary>
         private async Task ResponseLoop()
         {
-            while (!_cancellationSource.IsCancellationRequested)
+            try
             {
-                T message = await _link.ReadAsync(_cancellationSource.Token);
-                if (message == null)
+                while (!_cancellationSource.IsCancellationRequested)
                 {
-                    break;
-                }
+                    T message = await _link.ReadAsync(_cancellationSource.Token);
+                    if (message == null)
+                    {
+                        break;
+                    }
 
-                TransportEvent<T> transportEvent = new TransportEvent<T>(message, _link);
-                _observer.OnNext(transportEvent);
+                    TransportEvent<T> transportEvent = new TransportEvent<T>(message, _link);
+                    _observer.OnNext(transportEvent);
+                }
+            }
+            catch (Exception e)
+            {
+                Logger.Log(Level.Warning, "StreamingTransportClient get exception in ResponseLoop: {0}.", e.GetType());
+                throw e;
             }
         }
     }

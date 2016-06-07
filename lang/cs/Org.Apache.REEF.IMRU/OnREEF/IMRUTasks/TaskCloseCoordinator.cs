@@ -56,6 +56,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.IMRUTasks
         /// <param name="cancellationTokenSource"></param>
         internal void HandleEvent(ICloseEvent closeEvent, CancellationTokenSource cancellationTokenSource)
         {
+            Logger.Log(Level.Info, "HandleEvent: The task received close event");
             cancellationTokenSource.Cancel();
             _waitToCloseEvent.Wait();
 

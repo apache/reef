@@ -19,7 +19,6 @@ using System;
 using System.Globalization;
 using System.Linq;
 using Org.Apache.REEF.Client.API;
-using Org.Apache.REEF.Client.Yarn;
 using Org.Apache.REEF.IMRU.Examples.PipelinedBroadcastReduce;
 using Org.Apache.REEF.IO.FileSystem.Hadoop;
 using Org.Apache.REEF.IO.FileSystem.Local;
@@ -30,7 +29,7 @@ using Org.Apache.REEF.Utilities.Logging;
 namespace Org.Apache.REEF.IMRU.Examples
 {
     /// <summary>
-    /// Runs IMRU for mapper count either in localruntime or on cluster.
+    /// Runs IMRU for mapper count either in local runtime or on cluster.
     /// </summary>
     public class Run
     {
@@ -59,13 +58,14 @@ namespace Org.Apache.REEF.IMRU.Examples
             mapperCountExample.Run(numNodes - 1, filename, fileSystemConfig);
         }
 
-        public static void RunBroadcastReduceTest(IConfiguration tcpPortConfig, bool runOnYarn, int numNodes, string[] args, params string[] runtimeDir)
+        public static void RunBroadcastReduceTest(IConfiguration tcpPortConfig, bool runOnYarn, int numNodes, bool failtTolerant, string[] args, params string[] runtimeDir)
         {
             int chunkSize = 2;
             int dims = 10;
-            int iterations = 10;
+            int iterations = 100;
             int mapperMemory = 512;
             int updateTaskMemory = 512;
+            int maxRetryNumberInRecovery = 2;         
 
             if (args.Length > 0)
             {
@@ -92,6 +92,11 @@ namespace Org.Apache.REEF.IMRU.Examples
                 iterations = Convert.ToInt32(args[4]);
             }
 
+            if (args.Length > 5)
+            {
+                maxRetryNumberInRecovery = Convert.ToInt32(args[5]);
+            }
+
             IInjector injector;
 
             if (!runOnYarn)
@@ -105,10 +110,26 @@ namespace Org.Apache.REEF.IMRU.Examples
                 injector = TangFactory.GetTang()
                     .NewInjector(OnREEFIMRURunTimeConfiguration<int[], int[], int[]>.GetYarnIMRUConfiguration(), tcpPortConfig);
             }
-            var broadcastReduceExample = injector.GetInstance<PipelinedBroadcastAndReduce>();
-            broadcastReduceExample.Run(numNodes - 1, chunkSize, iterations, dims, mapperMemory, updateTaskMemory);
+
+            if (failtTolerant)
+            {
+                var broadcastReduceFtExample = injector.GetInstance<PipelinedBroadcastAndReduceFaultTolerant>();
+                broadcastReduceFtExample.Run(numNodes - 1, chunkSize, iterations, dims, mapperMemory, updateTaskMemory, maxRetryNumberInRecovery);
+            }
+            else
+            {
+                var broadcastReduceExample = injector.GetInstance<PipelinedBroadcastAndReduce>();
+                broadcastReduceExample.Run(numNodes - 1, chunkSize, iterations, dims, mapperMemory, updateTaskMemory, maxRetryNumberInRecovery);
+            }
         }
 
+        /// <summary>
+        /// Run IMRU examples from command line
+        /// </summary>
+        /// Sample command line:  
+        /// .\Org.Apache.REEF.IMRU.Examples.exe true 500 8900 1000 broadcastandreduce 20000000 1000000 1024 1024 10 2
+        /// .\Org.Apache.REEF.IMRU.Examples.exe true 500 8900 1000 broadcastandreduceft 20000000 1000000 1024 1024 100 2
+        /// <param name="args"></param>
         private static void Main(string[] args)
         {
             Logger.Log(Level.Info, "start running client: " + DateTime.Now);
@@ -168,8 +189,14 @@ namespace Org.Apache.REEF.IMRU.Examples
 
                 case "broadcastandreduce":
                     Logger.Log(Level.Info, "Running Broadcast and Reduce");
-                    RunBroadcastReduceTest(tcpPortConfig, runOnYarn, numNodes, args.Skip(5).ToArray());
+                    RunBroadcastReduceTest(tcpPortConfig, runOnYarn, numNodes, false, args.Skip(5).ToArray());
                     Logger.Log(Level.Info, "Done Running Broadcast and Reduce");
+                    return;
+
+                case "broadcastandreduceft":
+                    Logger.Log(Level.Info, "Running Broadcast and Reduce FT");
+                    RunBroadcastReduceTest(tcpPortConfig, runOnYarn, numNodes, true, args.Skip(5).ToArray());
+                    Logger.Log(Level.Info, "Done Running Broadcast and Reduce FT");
                     return;
 
                 default:

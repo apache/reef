@@ -46,6 +46,7 @@ under the License.
     <Compile Include="MapperCount\IdentityMapFunction.cs" />
     <Compile Include="IntSumReduceFunction.cs" />
     <Compile Include="MapperCount\MapperCount.cs" />
+    <Compile Include="PipelinedBroadcastReduce\PipelinedBroadcastAndReduceFaultTolerant.cs" />
     <Compile Include="SingleIterUpdateFunction.cs" />
     <Compile Include="NaturalSum\NaturalSum.cs" />
     <Compile Include="NaturalSum\NaturalSumMapFunction.cs" />

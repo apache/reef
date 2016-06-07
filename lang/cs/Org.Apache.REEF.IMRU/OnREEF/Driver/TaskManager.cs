@@ -1,4 +1,4 @@
-﻿// Licensed to the Apache Software Foundation (ASF) under one
+﻿﻿// Licensed to the Apache Software Foundation (ASF) under one
 // or more contributor license agreements.  See the NOTICE file
 // distributed with this work for additional information
 // regarding copyright ownership.  The ASF licenses this file
@@ -15,15 +15,19 @@
 // specific language governing permissions and limitations
 // under the License.
 
+using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Text;
+using Org.Apache.REEF.Common.Runtime.Evaluator.Task;
 using Org.Apache.REEF.Driver.Context;
 using Org.Apache.REEF.Driver.Evaluator;
 using Org.Apache.REEF.Driver.Task;
 using Org.Apache.REEF.IMRU.OnREEF.Driver.StateMachine;
 using Org.Apache.REEF.IMRU.OnREEF.IMRUTasks;
+using Org.Apache.REEF.Tang.Exceptions;
 using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Utilities.Attributes;
 using Org.Apache.REEF.Utilities.Diagnostics;
@@ -202,7 +206,8 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         /// <summary>
         /// This method is called when receiving ICompletedTask event during task running or system shutting down.
         /// Removes the task from running tasks if it was running
-        /// Changes the task state from RunningTask to CompletedTask
+        /// Changes the task state from RunningTask to CompletedTask if the task was running
+        /// Change the task stat from TaskWaitingForClose to TaskClosedByDriver if the task was in TaskWaitingForClose state
         /// </summary>
         /// <param name="completedTask"></param>
         internal void RecordCompletedTask(ICompletedTask completedTask)
@@ -233,6 +238,8 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         /// <param name="failedTask"></param>
         internal void RecordFailedTaskDuringSystemShuttingDownState(IFailedTask failedTask)
         {
+            Logger.Log(Level.Info, "RecordFailedTaskDuringSystemShuttingDownState, exceptionType: {0}", GetTaskErrorEventByExceptionType(failedTask).ToString());
+
             var taskState = GetTaskState(failedTask.Id);
             if (taskState == StateMachine.TaskState.TaskWaitingForClose)
             {
@@ -260,7 +267,9 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
                 {
                     if (!_runningTasks.ContainsKey(taskId))
                     {
-                        var msg = string.Format(CultureInfo.InvariantCulture, "The task [{0}] doesn't exist in Running Tasks.", taskId);
+                        var msg = string.Format(CultureInfo.InvariantCulture,
+                            "The task [{0}] doesn't exist in Running Tasks.",
+                            taskId);
                         Exceptions.Throw(new IMRUSystemException(msg), Logger);
                     }
                     _runningTasks.Remove(taskId);
@@ -268,6 +277,20 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
 
                 UpdateState(taskId, TaskStateEvent.FailedTaskEvaluatorError);
             }
+            else
+            {
+                var taskId = FindTaskAssociatedWithTheEvalutor(failedEvaluator.Id);
+                var taskState = GetTaskState(taskId);
+                if (taskState == StateMachine.TaskState.TaskSubmitted)
+                {
+                    UpdateState(taskId, TaskStateEvent.FailedTaskEvaluatorError);
+                }
+            }
+        }
+
+        private string FindTaskAssociatedWithTheEvalutor(string evaluatorId)
+        {
+            return _tasks.Where(e => e.Value.ActiveContext.EvaluatorId.Equals(evaluatorId)).Select(e => e.Key).FirstOrDefault();
         }
 
         /// <summary>
@@ -347,12 +370,36 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
 
         /// <summary>
         /// Gets error type based on the exception type in IFailedTask 
+        /// For unknown exceptions or exceptions that doesn't belong to defined IMRU task exceptions
+        /// treat then as application error.
         /// </summary>
         /// <param name="failedTask"></param>
         /// <returns></returns>
         private TaskStateEvent GetTaskErrorEventByExceptionType(IFailedTask failedTask)
         {
             var exception = failedTask.AsError();
+            var innerExceptionType = exception.InnerException != null ? exception.InnerException.GetType().ToString() : "InnerException null";
+            var innerExceptionMsg = exception.InnerException != null ? exception.InnerException.Message : "No InnerException";
+
+
+            if (failedTask.GetActiveContext().IsPresent())
+            {
+                Logger.Log(Level.Info, "GetTaskErrorEventByExceptionType: with task id: {0}, exception type {1}, innerException type {2}, InnerExceptionMessage {3}, evaluator id: {4}",
+                     failedTask.Id,
+                     exception.GetType(),
+                     innerExceptionType,
+                     innerExceptionMsg,
+                     failedTask.GetActiveContext().Value.EvaluatorId);
+            }
+            else
+            {
+                Logger.Log(Level.Info, "GetTaskErrorEventByExceptionType: with task id: {0}, exception type {1}, innerException type {2}, InnerExceptionMessage {3}",
+                     failedTask.Id,
+                     exception.GetType(),
+                     innerExceptionType,
+                     innerExceptionMsg);
+            }
+
             if (exception is IMRUTaskAppException)
             {
                 _numberOfAppErrors++;
@@ -362,10 +409,41 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
             {
                 return TaskStateEvent.FailedTaskCommunicationError;
             }
-            else
+            if (exception is IMRUTaskSystemException)
             {
                 return TaskStateEvent.FailedTaskSystemError;
             }
+
+            // special case for communication error during group communication initialization
+            if (exception is TaskClientCodeException)
+            {
+                {
+                    // try extract cause and check whether it is InjectionException for GroupCommClient
+                    if (exception.InnerException != null &&
+                        exception.InnerException is InjectionException &&
+                        exception.InnerException.Message.Contains("GroupCommClient"))
+                    {
+                        Logger.Log(Level.Info, "GetTaskErrorEventByExceptionType:FailedTaskCommunicationError with task id {0}", failedTask.Id);
+                        return TaskStateEvent.FailedTaskCommunicationError;
+                    }
+                }
+            }
+
+            if (exception is AggregateException)
+            {
+                {
+                    // try extract cause and check whether it is InjectionException for GroupCommClient
+                    if (exception.InnerException != null &&
+                        exception.InnerException is IOException)
+                    {
+                        Logger.Log(Level.Info, "GetTaskErrorEventByExceptionType:AggregateException-IOException with task id {0}", failedTask.Id);
+                        return TaskStateEvent.FailedTaskCommunicationError;
+                    }
+                }
+            }
+
+            Logger.Log(Level.Info, "GetTaskErrorEventByExceptionType for un-hanlded exception with task id {0} and exception type {1}", failedTask.Id, exception.GetType());
+            return TaskStateEvent.FailedTaskAppError;
         }
 
         /// <summary>
@@ -381,9 +459,38 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         /// Checks if all the tasks are in final states
         /// </summary>
         /// <returns></returns>
-        internal bool AllInFinalState()
+        internal bool AreAllTasksInFinalState()
         {
-            return _tasks.All(t => t.Value.TaskState.IsFinalState());
+            var notInFinalState = _tasks.Where(t => !t.Value.TaskState.IsFinalState()).Take(5).ToList();
+            var count = _tasks.Where(t => !t.Value.TaskState.IsFinalState()).Count();
+
+            if (notInFinalState.Any())
+            {
+                Logger.Log(Level.Info, "Total tasks that are not in final state: {0}, and first 5 are:\r\n {1}", count, string.Join("\r\n", notInFinalState.Select(ToLog)));
+            }
+            else
+            {
+                Logger.Log(Level.Info, "All the tasks are in final state");
+            }
+
+            return !notInFinalState.Any();
+        }
+
+        private string ToLog(KeyValuePair<string, TaskInfo> t)
+        {
+            try
+            {
+                return string.Format("State={0}, taskId={1}, ContextId={2}, evaluatorId={3}, evaluatorHost={4}",
+                    t.Value.TaskState.CurrentState,
+                    t.Key,
+                    t.Value.ActiveContext.Id,
+                    t.Value.ActiveContext.EvaluatorId,
+                    t.Value.ActiveContext.EvaluatorDescriptor.NodeDescriptor.HostName);
+            }
+            catch (Exception ex)
+            {
+                return string.Format("Failed to get task string: {0}", ex);
+            }
         }
 
         /// <summary>
@@ -415,18 +522,37 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         /// </summary>
         internal void SubmitTasks()
         {
-            if (NumberOfTasks < _totalExpectedTasks || !MasterTaskExists())
+            using (Logger.LogFunction("TaskManager::SubmitTasks"))
             {
-                string msg = string.Format("Trying to submit tasks but either master task doesn't exist or number of tasks [{0}] is smaller than expected number of tasks [{1}].", NumberOfTasks, _totalExpectedTasks);
-                Exceptions.Throw(new IMRUSystemException(msg), Logger);
-            }
+                if (NumberOfTasks < _totalExpectedTasks || !MasterTaskExists())
+                {
+                    string msg =
+                        string.Format(
+                            "Trying to submit tasks but either master task doesn't exist or number of tasks [{0}] is smaller than expected number of tasks [{1}].",
+                            NumberOfTasks,
+                            _totalExpectedTasks);
+                    Exceptions.Throw(new IMRUSystemException(msg), Logger);
+                }
 
-            foreach (var taskId in _tasks.Keys)
-            {
-                var taskInfo = GetTaskInfo(taskId);
-                taskInfo.ActiveContext.SubmitTask(taskInfo.TaskConfiguration);
-                UpdateState(taskId, TaskStateEvent.SubmittedTask);
-            }
+                SubmitTask(_masterTaskId);
+
+                foreach (var taskId in _tasks.Keys)
+                {
+                    if (taskId.Equals(_masterTaskId))
+                    {
+                        continue;
+                    }
+                    SubmitTask(taskId);
+                }
+        }
+    }
+
+        private void SubmitTask(string taskId)
+        {
+            Logger.Log(Level.Info, "SubmitTask with task id: {0}.", taskId);
+            var taskInfo = GetTaskInfo(taskId);
+            taskInfo.ActiveContext.SubmitTask(taskInfo.TaskConfiguration);
+            UpdateState(taskId, TaskStateEvent.SubmittedTask);
         }
 
         /// <summary>
