@@ -32,10 +32,10 @@ using Org.Apache.REEF.Tests.Functional.Bridge.Parameters;
 using Org.Apache.REEF.Utilities.Logging;
 using Xunit;
 
-namespace Org.Apache.REEF.Tests.Functional.Bridge
+namespace Org.Apache.REEF.Tests.Functional.Failure.User
 {
     [Collection("FunctionalTests")]
-    public sealed class TestUnhandledTaskException : ReefFunctionalTest
+    public sealed class UnhandledThreadExceptionInTaskTest : ReefFunctionalTest
     {
         private const string ExpectedEvaluatorFailureMessage = "Unhandled Exception.";
         private const string ExpectedTaskId = "TaskID";
@@ -43,14 +43,14 @@ namespace Org.Apache.REEF.Tests.Functional.Bridge
         private const string NonSerializableSuccessMessage = "Evaluator successfully received nonserializable unhandled Exception.";
 
         /// <summary>
-        /// This test validates that an unhandled Task Exception crashes the Evaluator and the Evaluator
-        /// does an attempt to send a final message to the Driver.
+        /// This test validates that an unhandled Thread Exception in a user's Task crashes the Evaluator and 
+        /// the Evaluator does an attempt to send a final message to the Driver.
         /// </summary>
         [Fact]
         public void TestUnhandledTaskExceptionCrashesEvaluator()
         {
             var testFolder = DefaultRuntimeFolder + TestId;
-            TestRun(GetDriverConfiguration(), typeof(TestUnhandledTaskException), 1, "testUnhandledTaskException", "local", testFolder);
+            TestRun(GetDriverConfiguration(), typeof(UnhandledThreadExceptionInTaskTest), 1, "testUnhandledTaskException", "local", testFolder);
             ValidateSuccessForLocalRuntime(0, numberOfEvaluatorsToFail: 2, testFolder: testFolder);
             ValidateMessageSuccessfullyLoggedForDriver(SerializableSuccessMessage, testFolder, 1);
             ValidateMessageSuccessfullyLoggedForDriver(NonSerializableSuccessMessage, testFolder, 1);
@@ -60,11 +60,11 @@ namespace Org.Apache.REEF.Tests.Functional.Bridge
         private static IConfiguration GetDriverConfiguration()
         {
             return DriverConfiguration.ConfigurationModule
-                .Set(DriverConfiguration.OnDriverStarted, GenericType<UnhandledExceptionTestDriver>.Class)
-                .Set(DriverConfiguration.OnEvaluatorCompleted, GenericType<UnhandledExceptionTestDriver>.Class)
-                .Set(DriverConfiguration.OnEvaluatorFailed, GenericType<UnhandledExceptionTestDriver>.Class)
-                .Set(DriverConfiguration.OnEvaluatorAllocated, GenericType<UnhandledExceptionTestDriver>.Class)
-                .Set(DriverConfiguration.OnTaskCompleted, GenericType<UnhandledExceptionTestDriver>.Class)
+                .Set(DriverConfiguration.OnDriverStarted, GenericType<UnhandledThreadExceptionInTaskTestDriver>.Class)
+                .Set(DriverConfiguration.OnEvaluatorCompleted, GenericType<UnhandledThreadExceptionInTaskTestDriver>.Class)
+                .Set(DriverConfiguration.OnEvaluatorFailed, GenericType<UnhandledThreadExceptionInTaskTestDriver>.Class)
+                .Set(DriverConfiguration.OnEvaluatorAllocated, GenericType<UnhandledThreadExceptionInTaskTestDriver>.Class)
+                .Set(DriverConfiguration.OnTaskCompleted, GenericType<UnhandledThreadExceptionInTaskTestDriver>.Class)
                 .Build();
         }
 
@@ -72,12 +72,12 @@ namespace Org.Apache.REEF.Tests.Functional.Bridge
         /// This Task throws an unhandled Exception in the thread that it spins off to
         /// trigger an Evaluator failure.
         /// </summary>
-        private sealed class UnhandledExceptionTestTask : ITask
+        private sealed class UnhandledThreadExceptionInTaskTestTask : ITask
         {
             private readonly bool _shouldThrowSerializableException;
 
             [Inject]
-            private UnhandledExceptionTestTask(
+            private UnhandledThreadExceptionInTaskTestTask(
                 [Parameter(typeof(ShouldThrowSerializableException))] bool shouldThrowSerializableException)
             {
                 _shouldThrowSerializableException = shouldThrowSerializableException;
@@ -111,20 +111,20 @@ namespace Org.Apache.REEF.Tests.Functional.Bridge
         /// This Driver verifies that the unhandled Exception triggers an Evaluator failure
         /// and verifies the type of Exception and its message.
         /// </summary>
-        private sealed class UnhandledExceptionTestDriver : 
+        private sealed class UnhandledThreadExceptionInTaskTestDriver : 
             IObserver<IDriverStarted>,
             IObserver<IAllocatedEvaluator>, 
             IObserver<IFailedEvaluator>,
             IObserver<ICompletedEvaluator>,
             IObserver<ICompletedTask>
         {
-            private static readonly Logger Logger = Logger.GetLogger(typeof(UnhandledExceptionTestDriver));
+            private static readonly Logger Logger = Logger.GetLogger(typeof(UnhandledThreadExceptionInTaskTestDriver));
 
             private readonly IEvaluatorRequestor _evaluatorRequestor;
             private bool _shouldReceiveSerializableException = true;
 
             [Inject]
-            private UnhandledExceptionTestDriver(IEvaluatorRequestor evaluatorRequestor)
+            private UnhandledThreadExceptionInTaskTestDriver(IEvaluatorRequestor evaluatorRequestor)
             {
                 _evaluatorRequestor = evaluatorRequestor;
             }
@@ -142,7 +142,7 @@ namespace Org.Apache.REEF.Tests.Functional.Bridge
             {
                 var taskConf = TaskConfiguration.ConfigurationModule
                     .Set(TaskConfiguration.Identifier, ExpectedTaskId)
-                    .Set(TaskConfiguration.Task, GenericType<UnhandledExceptionTestTask>.Class)
+                    .Set(TaskConfiguration.Task, GenericType<UnhandledThreadExceptionInTaskTestTask>.Class)
                     .Build();
 
                 var shouldThrowSerializableConfig = TangFactory.GetTang().NewConfigurationBuilder()
