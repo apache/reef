@@ -100,16 +100,6 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Task
             {
                 try
                 {
-                    if (HasEnded())
-                    {
-                        // Note that this is possible if the job is already DONE, but a
-                        // Task Close is triggered prior to the DONE signal propagates to the
-                        // Driver. If the Task Close handler is not implemented, the Handler will 
-                        // mark the Task with an Exception, although for all intents and purposes
-                        // the Task is already done and should not be affected.
-                        return;
-                    }
-
                     if (!_lastException.IsPresent())
                     {
                         _lastException = Optional<Exception>.Of(e);
@@ -130,6 +120,8 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Task
             lock (_heartBeatManager)
             {
                 _result = Optional<byte[]>.OfNullable(result);
+                _taskLifeCycle.Stop();
+
                 switch (State)
                 {
                     case TaskState.SuspendRequested:
@@ -140,7 +132,6 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Task
                         State = TaskState.Done;
                         break;
                 }
-                _taskLifeCycle.Stop();
                 Heartbeat();
             }
         }

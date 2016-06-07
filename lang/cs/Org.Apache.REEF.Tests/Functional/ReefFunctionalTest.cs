@@ -181,6 +181,19 @@ namespace Org.Apache.REEF.Tests.Functional
         }
 
         /// <summary>
+        /// See <see cref="ValidateMessageSuccessfullyLogged"/> for detail. This function is <see cref="ValidateMessageSuccessfullyLogged"/>
+        /// for the driver log.
+        /// </summary>
+        protected void ValidateMessagesSuccessfullyLoggedForDriver(
+            IEnumerable<string> messages,
+            string testFolder,
+            int numberOfOccurrences = 1)
+        {
+            var msgs = new List<string>(messages);
+            ValidateMessageSuccessfullyLogged(msgs, "driver", DriverStdout, testFolder, numberOfOccurrences);
+        }
+
+        /// <summary>
         /// Validates that each of the message provided in the <see cref="messages"/> parameter occurs 
         /// some number of times.
         /// If <see cref="numberOfOccurrences"/> is greater than or equal to 0, validates that each of the message in 
@@ -188,7 +201,8 @@ namespace Org.Apache.REEF.Tests.Functional
         /// If <see cref="numberOfOccurrences"/> is less than 0, validates that each of the message in <see cref="messages"/>
         /// occur at least once.
         /// </summary>
-        protected void ValidateMessageSuccessfullyLogged(IList<string> messages, string subfolder, string fileName, string testFolder, int numberOfOccurrences = 1)
+        protected void ValidateMessageSuccessfullyLogged(
+            IEnumerable<string> messages, string subfolder, string fileName, string testFolder, int numberOfOccurrences = 1)
         {
             string[] lines = ReadLogFile(fileName, subfolder, testFolder);
             foreach (string message in messages)

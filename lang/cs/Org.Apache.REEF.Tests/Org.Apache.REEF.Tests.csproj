@@ -86,6 +86,9 @@ under the License.
     <Compile Include="Functional\Bridge\TestSimpleEventHandlers.cs" />
     <Compile Include="Functional\Bridge\TestSuspendTask.cs" />
     <Compile Include="Functional\Bridge\TestUnhandledTaskException.cs" />
+    <Compile Include="Functional\Common\Task\Handlers\LoggingHandler.cs" />
+    <Compile Include="Functional\Common\Task\LoggingTask.cs" />
+    <Compile Include="Functional\Common\Task\Handlers\ExceptionThrowingHandler.cs" />
     <Compile Include="Functional\Driver\DriverTestStartHandler.cs" />
     <Compile Include="Functional\Failure\BasePoisonedEvaluatorWithActiveContextDriver.cs" />
     <Compile Include="Functional\Failure\BasePoisonedEvaluatorWithRunningTaskDriver.cs" />
@@ -97,6 +100,7 @@ under the License.
     <Compile Include="Functional\Failure\TestEvaluatorWithRunningTaskImmediatePoison.cs" />
     <Compile Include="Functional\Failure\SleepTask.cs" />
     <Compile Include="Functional\Failure\User\TaskConstructorExceptionTest.cs" />
+    <Compile Include="Functional\Failure\User\TaskStopExceptionTest.cs" />
     <Compile Include="Functional\FaultTolerant\TestContextStart.cs" />
     <Compile Include="Functional\FaultTolerant\TestResubmitEvaluator.cs" />
     <Compile Include="Functional\FaultTolerant\TestResubmitTask.cs" />

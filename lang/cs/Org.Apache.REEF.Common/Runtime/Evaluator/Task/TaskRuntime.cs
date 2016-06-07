@@ -110,6 +110,10 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Task
                             "Task running result:\r\n" + System.Text.Encoding.Default.GetString(result));
                     }
                 }
+                catch (TaskStopHandlerException e)
+                {
+                    _currentStatus.SetException(e.InnerException);
+                }
                 catch (Exception e)
                 {
                     _currentStatus.SetException(e);
@@ -156,11 +160,11 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Task
 
         public void Close(byte[] message)
         {
-            Logger.Log(Level.Info, string.Format(CultureInfo.InvariantCulture, "Trying to close Task {0}", TaskId));
+            Logger.Log(Level.Info, "Trying to close Task {0}", TaskId);
 
             if (_currentStatus.IsNotRunning())
             {
-                Logger.Log(Level.Warning, string.Format(CultureInfo.InvariantCulture, "Trying to close an task that is in {0} state. Ignored.", _currentStatus.State));
+                Logger.Log(Level.Warning, "Trying to close an task that is in {0} state. Ignored.", _currentStatus.State);
                 return;
             }
             try
@@ -171,8 +175,7 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Task
             catch (Exception e)
             {
                 Utilities.Diagnostics.Exceptions.Caught(e, Level.Error, "Error during Close.", Logger);
-                _currentStatus.SetException(TaskClientCodeException.Create(
-                    TaskId, ContextId, "Error during Close().", e));
+                _currentStatus.SetException(e);
             }
         }
 

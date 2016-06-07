@@ -350,7 +350,6 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Context
         /// <param name="e"></param>
         private void HandleTaskException(TaskClientCodeException e)
         {
-            LOGGER.Log(Level.Error, "TaskClientCodeException", e);
             byte[] error;
             try
             {
