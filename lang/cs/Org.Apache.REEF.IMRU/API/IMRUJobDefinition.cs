@@ -41,6 +41,7 @@ namespace Org.Apache.REEF.IMRU.API
         private readonly int _updateTaskMemory;
         private readonly int _mapTaskCores;
         private readonly int _updateTaskCores;
+        private readonly int _maxRetryNumberInRecovery;
         private readonly ISet<IConfiguration> _perMapConfigGeneratorConfig;
         private readonly bool _invokeGC;
 
@@ -66,6 +67,7 @@ namespace Org.Apache.REEF.IMRU.API
         /// <param name="updateTaskMemory">Update task memory</param>
         /// <param name="mapTaskCores">Number of map task cores</param>
         /// <param name="updateTaskCores">Number of update task cores</param>
+        /// <param name="maxRetryNumberInRecovery">Max number of retries done if first run of IMRU job failed</param>
         /// <param name="jobName">Job name</param>
         /// <param name="invokeGC">Whether to call garbage collector after each iteration</param>
         internal IMRUJobDefinition(
@@ -84,6 +86,7 @@ namespace Org.Apache.REEF.IMRU.API
             int updateTaskMemory,
             int mapTaskCores,
             int updateTaskCores,
+            int maxRetryNumberInRecovery,
             string jobName,
             bool invokeGC)
         {
@@ -101,6 +104,7 @@ namespace Org.Apache.REEF.IMRU.API
             _updateTaskMemory = updateTaskMemory;
             _mapTaskCores = mapTaskCores;
             _updateTaskCores = updateTaskCores;
+            _maxRetryNumberInRecovery = maxRetryNumberInRecovery;
             _perMapConfigGeneratorConfig = perMapConfigGeneratorConfig;
             _invokeGC = invokeGC;
             _resultHandlerConfiguration = resultHandlerConfiguration;
@@ -220,6 +224,14 @@ namespace Org.Apache.REEF.IMRU.API
         internal int UpdateTaskCores
         {
             get { return _updateTaskCores; }
+        }
+
+        /// <summary>
+        /// Max number of retries done if first run of IMRU job failed.
+        /// </summary>
+        internal int MaxRetryNumberInRecovery
+        {
+            get { return _maxRetryNumberInRecovery; }
         }
 
         /// <summary>

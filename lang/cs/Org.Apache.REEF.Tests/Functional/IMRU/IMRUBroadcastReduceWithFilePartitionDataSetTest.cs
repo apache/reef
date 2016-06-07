@@ -75,6 +75,7 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
                 iterations,
                 mapperMemory,
                 updateTaskMemory,
+                0,
                 testFolder);
             ValidateSuccessForLocalRuntime(numTasks, 0, 0, testFolder, 100);
             CleanUp(testFolder);
@@ -90,11 +91,12 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
             int iterations,
             int mapperMemory,
             int updateTaskMemory,
+            int numberOfRetryInRecovery = 0,
             string testFolder = DefaultRuntimeFolder)
         {
             string runPlatform = runOnYarn ? "yarn" : "local";
             TestRun(DriverConfiguration<int[], int[], int[], IEnumerable<Row>>(
-                CreateIMRUJobDefinitionBuilder(numTasks - 1, chunkSize, iterations, dims, mapperMemory, updateTaskMemory),
+                CreateIMRUJobDefinitionBuilder(numTasks - 1, chunkSize, iterations, dims, mapperMemory, updateTaskMemory, numberOfRetryInRecovery),
                 DriverEventHandlerConfigurations<int[], int[], int[], IEnumerable<Row>>()),
                 typeof(BroadcastReduceDriver),
                 numTasks,
@@ -120,6 +122,8 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
                 .Set(REEF.Driver.DriverConfiguration.OnEvaluatorFailed,
                     GenericType<IMRUDriver<TMapInput, TMapOutput, TResult, TPartitionType>>.Class)
                 .Set(REEF.Driver.DriverConfiguration.OnContextFailed,
+                    GenericType<IMRUDriver<TMapInput, TMapOutput, TResult, TPartitionType>>.Class)
+                .Set(REEF.Driver.DriverConfiguration.OnTaskRunning,
                     GenericType<IMRUDriver<TMapInput, TMapOutput, TResult, TPartitionType>>.Class)
                 .Set(REEF.Driver.DriverConfiguration.OnTaskFailed,
                     GenericType<IMRUDriver<TMapInput, TMapOutput, TResult, TPartitionType>>.Class)

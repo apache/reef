@@ -162,8 +162,7 @@ namespace Org.Apache.REEF.Wake.Remote.Impl
             }
             catch (Exception e)
             {
-                Logger.Log(Level.Warning, "In Read function unable to read the message.");
-                Exceptions.CaughtAndThrow(e, Level.Error, Logger);
+                Logger.Log(Level.Warning, "In StreamingLink::Read function unable to read the message {0}.", e.GetType());
                 throw;
             }
         }
@@ -186,8 +185,7 @@ namespace Org.Apache.REEF.Wake.Remote.Impl
             }
             catch (Exception e)
             {
-                Logger.Log(Level.Warning, "In ReadAsync function unable to read the message.");
-                Exceptions.CaughtAndThrow(e, Level.Error, Logger);
+                Logger.Log(Level.Warning, "In StreamingLink::ReadAsync function unable to read the message, {0}.", e.GetType());
                 throw;
             }
         }

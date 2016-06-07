@@ -16,10 +16,11 @@
 // under the License.
 
 using System;
-using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using Org.Apache.REEF.Driver.Evaluator;
+using Org.Apache.REEF.Driver.Task;
 using Org.Apache.REEF.IMRU.API;
 using Org.Apache.REEF.IMRU.Examples.PipelinedBroadcastReduce;
 using Org.Apache.REEF.IMRU.OnREEF.Driver;
@@ -29,6 +30,7 @@ using Org.Apache.REEF.Network.Examples.GroupCommunication.BroadcastReduceDriverA
 using Org.Apache.REEF.Network.Group.Config;
 using Org.Apache.REEF.Network.Group.Driver;
 using Org.Apache.REEF.Network.Group.Driver.Impl;
+using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Tang.Formats;
 using Org.Apache.REEF.Tang.Implementations.Configuration;
 using Org.Apache.REEF.Tang.Implementations.Tang;
@@ -47,6 +49,11 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
     {
         protected static readonly Logger Logger = Logger.GetLogger(typeof(IMRUBrodcastReduceTestBase));
         private const string IMRUJobName = "IMRUBroadcastReduce";
+
+        protected const string CompletedTaskMessage = "CompletedTaskMessage";
+        protected const string RunningTaskMessage = "RunningTaskMessage";
+        protected const string FailedTaskMessage = "FailedTaskMessage";
+        protected const string FailedEvaluatorMessage = "FailedEvaluatorMessage";
 
         /// <summary>
         /// Abstract method for subclass to override it to provide configurations for driver handlers 
@@ -70,6 +77,7 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
         /// <param name="dims"></param>
         /// <param name="iterations"></param>
         /// <param name="mapperMemory"></param>
+        /// <param name="numberOfRetryInRecovery"></param>
         /// <param name="updateTaskMemory"></param>
         /// <param name="testFolder"></param>
         protected void TestBroadCastAndReduce(bool runOnYarn,
@@ -79,11 +87,12 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
             int iterations,
             int mapperMemory,
             int updateTaskMemory,
+            int numberOfRetryInRecovery = 0,
             string testFolder = DefaultRuntimeFolder)
         {
             string runPlatform = runOnYarn ? "yarn" : "local";
             TestRun(DriverConfiguration<int[], int[], int[], Stream>(
-                CreateIMRUJobDefinitionBuilder(numTasks - 1, chunkSize, iterations, dims, mapperMemory, updateTaskMemory),
+                CreateIMRUJobDefinitionBuilder(numTasks - 1, chunkSize, iterations, dims, mapperMemory, updateTaskMemory, numberOfRetryInRecovery),
                 DriverEventHandlerConfigurations<int[], int[], int[], Stream>()),
                 typeof(BroadcastReduceDriver),
                 numTasks,
@@ -151,6 +160,8 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
                     jobDefinition.MapTaskCores.ToString(CultureInfo.InvariantCulture))
                 .BindNamedParameter(typeof(CoresForUpdateTask),
                     jobDefinition.UpdateTaskCores.ToString(CultureInfo.InvariantCulture))
+                .BindNamedParameter(typeof(MaxRetryNumberInRecovery),
+                    jobDefinition.MaxRetryNumberInRecovery.ToString(CultureInfo.InvariantCulture))
                 .BindNamedParameter(typeof(InvokeGC),
                     jobDefinition.InvokeGarbageCollectorAfterIteration.ToString(CultureInfo.InvariantCulture))
                 .Build();
@@ -190,13 +201,15 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
         /// <param name="dim"></param>
         /// <param name="mapperMemory"></param>
         /// <param name="updateTaskMemory"></param>
+        /// <param name="numberOfRetryInRecovery"></param>
         /// <returns></returns>
         protected IMRUJobDefinition CreateIMRUJobDefinitionBuilder(int numberofMappers,
             int chunkSize,
             int numIterations,
             int dim,
             int mapperMemory,
-            int updateTaskMemory)
+            int updateTaskMemory,
+            int numberOfRetryInRecovery)
         {
             var updateFunctionConfig =
                 TangFactory.GetTang().NewConfigurationBuilder(BuildUpdateFunctionConfig())
@@ -221,6 +234,7 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
                 .SetNumberOfMappers(numberofMappers)
                 .SetMapperMemory(mapperMemory)
                 .SetUpdateTaskMemory(updateTaskMemory)
+                .SetMaxRetryNumberInRecovery(numberOfRetryInRecovery)
                 .Build();
         }
 
@@ -308,6 +322,51 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
                 .Set(IMRUReduceFunctionConfiguration<int[]>.ReduceFunction,
                     GenericType<IntArraySumReduceFunction>.Class)
                 .Build();
+        }
+
+        /// <summary>
+        /// This class contains handlers for log purpose only
+        /// </summary>
+        protected sealed class MessageLogger :
+            IObserver<ICompletedTask>,
+            IObserver<IFailedEvaluator>,
+            IObserver<IFailedTask>,
+            IObserver<IRunningTask>
+        {
+            [Inject]
+            private MessageLogger()
+            {
+            }
+
+            public void OnCompleted()
+            {
+                throw new NotImplementedException();
+            }
+
+            public void OnError(Exception error)
+            {
+                throw new NotImplementedException();
+            }
+
+            public void OnNext(ICompletedTask value)
+            {
+                Logger.Log(Level.Info, CompletedTaskMessage + " " + value.Id + " " + value.ActiveContext.EvaluatorId);
+            }
+
+            public void OnNext(IFailedTask value)
+            {
+                Logger.Log(Level.Info, FailedTaskMessage + " " + value.Id + " " + value.GetActiveContext().Value.EvaluatorId);
+            }
+
+            public void OnNext(IFailedEvaluator value)
+            {
+                Logger.Log(Level.Info, FailedEvaluatorMessage + " " + value.Id + " " + (value.FailedTask.IsPresent() ? value.FailedTask.Value.Id : "no task"));
+            }
+
+            public void OnNext(IRunningTask value)
+            {
+                Logger.Log(Level.Info, RunningTaskMessage + " " + value.Id + " " + value.ActiveContext.EvaluatorId);
+            }
         }
     }
 }

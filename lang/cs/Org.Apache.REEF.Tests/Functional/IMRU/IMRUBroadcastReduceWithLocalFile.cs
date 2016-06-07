@@ -48,6 +48,7 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
                 iterations,
                 mapperMemory,
                 updateTaskMemory,
+                0,
                 testFolder);
             ValidateSuccessForLocalRuntime(numTasks, 0, 0, testFolder, 100);
             CleanUp(testFolder);

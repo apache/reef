@@ -16,18 +16,25 @@
 // under the License.
 
 using System;
+using System.Runtime.Serialization;
 
 namespace Org.Apache.REEF.Tang.Exceptions
 {
+    [Serializable]
     public sealed class InjectionException : Exception
     {
         internal InjectionException(string msg)
             : base(msg)
-        {           
+        {
         }
 
         internal InjectionException(string message, Exception innerException)
             : base(message, innerException)
+        {
+        }
+
+        public InjectionException(SerializationInfo info, StreamingContext context)
+            : base(info, context)
         {
         }
     }
