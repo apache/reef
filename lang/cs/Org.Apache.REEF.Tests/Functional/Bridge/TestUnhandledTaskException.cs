@@ -103,7 +103,6 @@ namespace Org.Apache.REEF.Tests.Functional.Bridge
 
             public void Dispose()
             {
-                throw new NotImplementedException();
             }
         }
 
