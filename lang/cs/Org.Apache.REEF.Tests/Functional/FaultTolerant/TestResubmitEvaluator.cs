@@ -248,7 +248,6 @@ namespace Org.Apache.REEF.Tests.Functional.FaultTolerant
 
             public void Dispose()
             {
-                throw new NotImplementedException();
             }
 
             public void OnCompleted()
