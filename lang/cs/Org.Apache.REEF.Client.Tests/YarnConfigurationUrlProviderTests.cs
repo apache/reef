@@ -35,7 +35,6 @@ namespace Org.Apache.REEF.Client.Tests
         private const string HadoopConfDirEnvVariable = "HADOOP_CONF_DIR";
         private const string YarnConfigFileName = "yarn-site.xml";
         private const string AnyHttpAddressConfig = @"anyhost:8088";
-        private const string AnyHttpAddressConfigUpdated = @"anyhost1:8088";
         private const string AnyHttpsAddressConfig = @"anyotherhost:9088";
 
         private const string YarnConfigurationXmlContent = @"<?xml version=""1.0""?>
@@ -52,7 +51,7 @@ namespace Org.Apache.REEF.Client.Tests
               </property>
               <property>
                 <name>yarn.resourcemanager.webapp.address</name>
-                <value>" + AnyHttpAddressConfigUpdated + @"</value>
+                <value>" + AnyHttpAddressConfig + @"</value>
               </property>
               <property>
                 <name>yarn.nodemanager.local-dirs</name>
