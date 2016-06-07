@@ -166,6 +166,7 @@ under the License.
     <Compile Include="Runtime\Evaluator\Task\TaskStartImpl.cs" />
     <Compile Include="Runtime\Evaluator\Task\TaskState.cs" />
     <Compile Include="Runtime\Evaluator\Task\TaskStatus.cs" />
+    <Compile Include="Runtime\Evaluator\Task\TaskStopHandlerException.cs" />
     <Compile Include="Runtime\Evaluator\Task\TaskStopImpl.cs" />
     <Compile Include="Runtime\Evaluator\Utils\NamedparameterAlias.cs" />
     <Compile Include="runtime\MachineStatus.cs" />
