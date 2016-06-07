@@ -152,20 +152,12 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Task
                 LOGGER.Log(Level.Verbose, "TaskStatus::SetRunning");
                 if (_state == TaskState.Init)
                 {
-                    try
-                    {
-                        _taskLifeCycle.Start();
-                        
-                        // Need to send an INIT heartbeat to the driver prompting it to create an RunningTask event. 
-                        LOGGER.Log(Level.Info, "Sending task INIT heartbeat");
-                        Heartbeat();
-                        State = TaskState.Running;
-                    }
-                    catch (Exception e)
-                    {
-                        Utilities.Diagnostics.Exceptions.Caught(e, Level.Error, "Cannot set task status to running.", LOGGER);
-                        SetException(e);
-                    }
+                    _taskLifeCycle.Start();
+
+                    // Need to send an INIT heartbeat to the driver prompting it to create an RunningTask event. 
+                    LOGGER.Log(Level.Info, "Sending task INIT heartbeat");
+                    Heartbeat();
+                    State = TaskState.Running;
                 }
             }
         }

@@ -61,9 +61,16 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Task
                 return;
             }
 
-            foreach (var startHandler in _taskStartHandlers)
+            try
             {
-                startHandler.OnNext(_taskStart.Value);
+                foreach (var startHandler in _taskStartHandlers)
+                {
+                    startHandler.OnNext(_taskStart.Value);
+                }
+            }
+            catch (Exception e)
+            {
+                throw new TaskStartHandlerException("Failed to invoke TaskStartHandler.", e);
             }
         }
 

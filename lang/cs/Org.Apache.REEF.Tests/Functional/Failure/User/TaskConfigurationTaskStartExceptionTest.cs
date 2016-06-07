@@ -16,9 +16,12 @@
 // under the License.
 
 using System;
+using System.Collections.Generic;
+using System.Runtime.Serialization;
 using Org.Apache.REEF.Common.Context;
 using Org.Apache.REEF.Common.Runtime.Evaluator.Task;
 using Org.Apache.REEF.Common.Tasks;
+using Org.Apache.REEF.Common.Tasks.Events;
 using Org.Apache.REEF.Driver;
 using Org.Apache.REEF.Driver.Evaluator;
 using Org.Apache.REEF.Driver.Task;
@@ -30,50 +33,53 @@ using Xunit;
 namespace Org.Apache.REEF.Tests.Functional.Failure.User
 {
     /// <summary>
-    /// This test class contains a test that validates that an Exception in an <see cref="ITask"/> 
-    /// constructor triggers an <see cref="IFailedTask"/> event.
+    /// This test class contains a test that validates that an Exception in 
+    /// a TaskStartHandler triggers an <see cref="IFailedTask"/> event.
     /// </summary>
     [Collection("FunctionalTests")]
-    public sealed class TaskConstructorExceptionTest : ReefFunctionalTest
+    public sealed class TaskConfigurationTaskStartExceptionTest : ReefFunctionalTest
     {
-        private static readonly Logger Logger = Logger.GetLogger(typeof(TaskConstructorExceptionTest));
+        private static readonly Logger Logger = Logger.GetLogger(typeof(TaskConfigurationTaskStartExceptionTest));
+
+        private const string TaskStartErrorString = "TaskStartErrorString";
+        private const string ReceivedFailedTaskEvent = "ReceivedFailedTaskEvent";
+        private const string TaskNotExpectedToStartString = "Task was not expected to start!";
 
         private const string TaskId = "TaskID";
         private const string ContextId = "ContextID";
-
-        /// <summary>
-        /// This test validates that an Exception in an <see cref="ITask"/> constructor triggers
-        /// a <see cref="IFailedTask"/> event.
-        /// </summary>
+        
         [Fact]
-        public void TestTaskConstructorException()
+        public void TestTaskConfigurationTaskStartException()
         {
             var testFolder = DefaultRuntimeFolder + Guid.NewGuid().ToString("N").Substring(0, 4);
 
             TestRun(
                 DriverConfiguration.ConfigurationModule
-                    .Set(DriverConfiguration.OnDriverStarted, GenericType<TestTaskConstructorExceptionDriver>.Class)
-                    .Set(DriverConfiguration.OnEvaluatorAllocated, GenericType<TestTaskConstructorExceptionDriver>.Class)
-                    .Set(DriverConfiguration.OnTaskFailed, GenericType<TestTaskConstructorExceptionDriver>.Class)
+                    .Set(DriverConfiguration.OnDriverStarted, GenericType<TestTaskConfigurationTaskStartExceptionDriver>.Class)
+                    .Set(DriverConfiguration.OnEvaluatorAllocated, GenericType<TestTaskConfigurationTaskStartExceptionDriver>.Class)
+                    .Set(DriverConfiguration.OnTaskFailed, GenericType<TestTaskConfigurationTaskStartExceptionDriver>.Class)
                     .Build(),
-                typeof(TestTaskConstructorExceptionDriver), 1, "TestTaskConstructorException", "local", testFolder);
+                typeof(TestTaskConfigurationTaskStartExceptionDriver), 1, "TestTaskStartException", "local", testFolder);
 
             ValidateSuccessForLocalRuntime(numberOfContextsToClose: 1, numberOfTasksToFail: 1, testFolder: testFolder);
-            ValidateMessageSuccessfullyLoggedForDriver(TestTaskConstructorExceptionDriver.ReceivedFailedTaskEvent, testFolder);
+            ValidateMessageSuccessfullyLoggedForDriver(ReceivedFailedTaskEvent, testFolder);
+            
+            // Not expecting TaskNotExpectedToStartString
+            ValidateMessageSuccessfullyLogged(
+                new List<string> { TaskNotExpectedToStartString }, "Node-*", EvaluatorStdout, testFolder, 0);
+
             CleanUp(testFolder);
         }
 
-        private sealed class TestTaskConstructorExceptionDriver :
+        private sealed class TestTaskConfigurationTaskStartExceptionDriver :
             IObserver<IDriverStarted>,
             IObserver<IAllocatedEvaluator>,
             IObserver<IFailedTask>
         {
-            public const string ReceivedFailedTaskEvent = "ReceivedFailedTaskEvent";
-
             private readonly IEvaluatorRequestor _requestor;
 
             [Inject]
-            private TestTaskConstructorExceptionDriver(IEvaluatorRequestor requestor)
+            private TestTaskConfigurationTaskStartExceptionDriver(IEvaluatorRequestor requestor)
             {
                 _requestor = requestor;
             }
@@ -91,7 +97,8 @@ namespace Org.Apache.REEF.Tests.Functional.Failure.User
 
                 var taskConf = TaskConfiguration.ConfigurationModule
                     .Set(TaskConfiguration.Identifier, TaskId)
-                    .Set(TaskConfiguration.Task, GenericType<TestConstructorExceptionTask>.Class)
+                    .Set(TaskConfiguration.OnTaskStart, GenericType<TaskConfigurationTaskStartExceptionTask>.Class)
+                    .Set(TaskConfiguration.Task, GenericType<TaskConfigurationTaskStartExceptionTask>.Class)
                     .Build();
 
                 value.SubmitContextAndTask(contextConf, taskConf);
@@ -99,8 +106,7 @@ namespace Org.Apache.REEF.Tests.Functional.Failure.User
 
             public void OnNext(IFailedTask value)
             {
-                Validate.ValidateTaskClientCodeException(
-                    value, ContextId, TaskId, TestConstructorExceptionTask.ConstructorErrorMessage);
+                Validate.ValidateTaskClientCodeException(value, ContextId, TaskId, TaskStartErrorString);
 
                 Logger.Log(Level.Info, ReceivedFailedTaskEvent);
                 value.GetActiveContext().Value.Dispose();
@@ -117,23 +123,38 @@ namespace Org.Apache.REEF.Tests.Functional.Failure.User
             }
         }
 
-        private sealed class TestConstructorExceptionTask : ITask
+        private sealed class TaskConfigurationTaskStartExceptionTask :
+            ITask, 
+            IObserver<ITaskStart>
         {
-            public const string ConstructorErrorMessage = "ConstructorErrorMessage";
-
             [Inject]
-            private TestConstructorExceptionTask()
-            {
-                throw new Exception(ConstructorErrorMessage);
-            }
-
-            public void Dispose()
+            private TaskConfigurationTaskStartExceptionTask()
             {
             }
 
             public byte[] Call(byte[] memento)
             {
+                Logger.Log(Level.Error, TaskNotExpectedToStartString);
+                return null;
+            }
+
+            public void OnNext(ITaskStart value)
+            {
+                throw new Exception(TaskStartErrorString);
+            }
+
+            public void OnError(Exception error)
+            {
                 throw new NotImplementedException();
+            }
+
+            public void OnCompleted()
+            {
+                throw new NotImplementedException();
+            }
+
+            public void Dispose()
+            {
             }
         }
     }

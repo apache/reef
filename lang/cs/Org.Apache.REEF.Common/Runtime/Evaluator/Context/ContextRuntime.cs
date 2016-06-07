@@ -303,24 +303,27 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Context
                     _task = Optional<TaskRuntime>.Of(taskRuntime);
                     return taskRuntime.StartTaskOnNewThread();
                 }
-                catch (InjectionException e)
-                {
-                    var taskId = string.Empty;
-                    try
-                    {
-                        taskId = taskInjector.GetNamedInstance<TaskConfigurationOptions.Identifier, string>();
-                    }
-                    catch (Exception)
-                    {
-                        LOGGER.Log(Level.Error, "Unable to get Task ID from TaskConfiguration.");
-                    }
-
-                    var ex = TaskClientCodeException.Create(taskId, Id, "Unable to run the new task", e);
-                    Utilities.Diagnostics.Exceptions.CaughtAndThrow(ex, Level.Error, "Task start error.", LOGGER);
-                    return null;
-                }
                 catch (Exception e)
                 {
+                    if (e is InjectionException || e is TaskStartHandlerException)
+                    {
+                        var taskId = string.Empty;
+                        try
+                        {
+                            taskId = taskInjector.GetNamedInstance<TaskConfigurationOptions.Identifier, string>();
+                        }
+                        catch (Exception)
+                        {
+                            LOGGER.Log(Level.Error, "Unable to get Task ID from TaskConfiguration.");
+                        }
+
+                        _task = Optional<TaskRuntime>.Empty();
+
+                        var ex = TaskClientCodeException.Create(taskId, Id, "Unable to run the new task", e);
+                        Utilities.Diagnostics.Exceptions.CaughtAndThrow(ex, Level.Error, "Task start error.", LOGGER);
+                        return null;
+                    }
+                    
                     throw new SystemException("System error in starting Task.", e);
                 }
             }
