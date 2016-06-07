@@ -181,10 +181,10 @@ namespace Org.Apache.REEF.IMRU.Tests
         /// <summary>
         /// A Context Manager observer for test
         /// </summary>
-        private sealed class TestContextObserver : IObserver<IDictionary<string, IActiveContext>>
+        private sealed class TestContextObserver : IObserver<int>
         {
             private readonly int _totalExpected;
-            private IDictionary<string, IActiveContext> _contexts = null;
+            private int _contextCount = 0;
 
             internal TestContextObserver(int totalExpected)
             {
@@ -203,16 +203,12 @@ namespace Org.Apache.REEF.IMRU.Tests
 
             public int NumberOfActiveContextsReceived()
             {
-                if (_contexts != null)
-                {
-                    return _contexts.Count;                    
-                }
-                return 0;
+                return _contextCount;
             }
 
-            public void OnNext(IDictionary<string, IActiveContext> value)
+            public void OnNext(int value)
             {
-                _contexts = value;
+                _contextCount = value;
             }
         }
     }

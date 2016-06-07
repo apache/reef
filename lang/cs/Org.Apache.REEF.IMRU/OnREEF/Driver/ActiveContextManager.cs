@@ -37,7 +37,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         private static readonly Logger Logger = Logger.GetLogger(typeof(ActiveContextManager));
         private readonly IDictionary<string, IActiveContext> _activeContexts = new Dictionary<string, IActiveContext>();
         private readonly int _totalExpectedContexts;
-        private IObserver<IDictionary<string, IActiveContext>> _activeContextObserver;
+        private IObserver<int> _activeContextObserver;
 
         /// <summary>
         /// Constructor of ActiveContextManager
@@ -71,7 +71,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         /// </summary>
         /// <param name="activeContextObserver"></param>
         /// <returns></returns>
-        public IDisposable Subscribe(IObserver<IDictionary<string, IActiveContext>> activeContextObserver)
+        public IDisposable Subscribe(IObserver<int> activeContextObserver)
         {
             if (_activeContextObserver != null)
             {
@@ -84,7 +84,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         /// <summary>
         /// Checks if all the requested contexts are received. 
         /// </summary>
-        private bool AreAllContextsReceived
+        internal bool AreAllContextsReceived
         {
             get { return _totalExpectedContexts == NumberOfActiveContexts; }
         }
@@ -112,7 +112,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
 
             if (AreAllContextsReceived && _activeContextObserver != null)
             {
-                _activeContextObserver.OnNext(_activeContexts);
+                _activeContextObserver.OnNext(_activeContexts.Count);
             }
         }
 
