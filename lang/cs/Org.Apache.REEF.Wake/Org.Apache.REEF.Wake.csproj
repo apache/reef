@@ -177,7 +177,6 @@ under the License.
     <Compile Include="Util\LimitedConcurrencyLevelTaskScheduler.cs" />
     <Compile Include="Util\NetworkUtils.cs" />
     <Compile Include="Util\SerializationHelper.cs" />
-    <Compile Include="Util\TaskExtensions.cs" />
     <Compile Include="Util\TimeHelper.cs" />
     <Compile Include="WakeRuntimeException.cs" />
   </ItemGroup>
