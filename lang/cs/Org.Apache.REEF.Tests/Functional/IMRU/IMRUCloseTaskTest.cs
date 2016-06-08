@@ -42,9 +42,10 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
         /// <summary>
         /// This test is for running in local runtime
         /// It sends close event for all the running tasks.
-        /// For tasks that can close properly after receiving the close event, the driver will get ICompletedTask event. 
-        /// For tasks that cannot close properly after receiving the close event, they will throw exceptions
-        /// and the driver will get IFailedTask event. 
+        /// It first informs the Call method to stop.
+        /// If Call method is running properly, it will respect to this flag and will return properly, that will end up ICompletedTask event.
+        ////If Call method is hung some where and cannot be returned, the close handler will throw exception, that would cause IFailedTask event.
+        /// As we are testing IMRU Task not a test task, the behavior is not deterministic. It can be CompletedTask or FailedTask
         /// No matter how the task is closed, the total number of completed task and failed task should be equal to the 
         /// total number of the tasks.
         /// </summary>
@@ -69,9 +70,12 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
         /// <summary>
         /// Same testing for running on YARN
         /// It sends close event for all the running tasks.
-        /// For tasks that can close properly after receiving the close event, the driver will get ICompletedTask event. 
-        /// For those tasks that cannot close properly after receiving the close event, they will throw exceptions
-        /// and the driver will get IFailedTask event. 
+        /// It first informs the Call method to stop.
+        /// If Call method is running properly, it will respect to this flag and will return properly, that will end up ICompletedTask event.
+        ////If Call method is hung some where and cannot be returned, the close handler will throw exception, that would cause IFailedTask event.
+        /// As we are testing IMRU Task not a test task, the behavior is not deterministic. It can be CompletedTask or FailedTask
+        /// No matter how the task is closed, the total number of completed task and failed task should be equal to the 
+        /// total number of the tasks.
         /// </summary>
         [Fact(Skip = "Requires Yarn")]
         public void TestTaskCloseOnLocalRuntimeOnYarn()
