@@ -51,7 +51,7 @@ public class FailureTest {
 
   @Test
   public void testFailureRestart() throws InjectionException {
-    runTestFailureReefWithParams(30, 5, "testFailureRestart");
+    runTestFailureReefWithParams(5, 3, "testFailureRestart");
   }
 
   private void runTestFailureReefWithParams(final int numEvaluatorsToSubmit,
