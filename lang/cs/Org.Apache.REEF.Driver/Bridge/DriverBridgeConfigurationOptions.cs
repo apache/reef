@@ -157,11 +157,5 @@ namespace Org.Apache.REEF.Driver.Bridge
         public class TraceLevel : Name<string>
         {
         }
-
-        [NamedParameter]
-        [Obsolete("Deprecated in 0.15, will be removed.")]
-        public class SetOfAssemblies : Name<ISet<string>>
-        {
-        }
     }
 }

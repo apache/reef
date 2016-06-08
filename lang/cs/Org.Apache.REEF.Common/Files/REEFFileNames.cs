@@ -15,7 +15,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-using System;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using Org.Apache.REEF.Tang.Annotations;
@@ -292,18 +291,6 @@ namespace Org.Apache.REEF.Common.Files
         public string GetDefaultYarnDriverStderrFilePath()
         {
             return YARN_DRIVER_STDERR_PATH;
-        }
-
-        /// <summary>
-        /// The command that allows redirecting Driver stdout and stderr logs
-        /// to appropriate files
-        /// </summary>
-        /// <returns></returns>
-        [Obsolete("Deprecated in 0.15. Will be removed. " +
-                  "Please use GetDefaultYarnDriverStdoutFilePath or GetDefaultYarnDriverStderrFilePath.")]
-        public string GetDriverLoggingConfigCommand()
-        {
-            return DRIVER_COMMAND_LOGGING_CONFIG;
         }
 
         /// <summary>
