@@ -17,6 +17,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Threading;
 using Org.Apache.REEF.Common.Context;
@@ -74,7 +75,7 @@ namespace Org.Apache.REEF.Tests.Functional.FaultTolerant
         {
             string testFolder = DefaultRuntimeFolder + TestId;
             TestRun(DriverConfigurations(), typeof(ResubmitTaskTestDriver), 2, "TestResubimitTask", "local", testFolder);
-            ValidateSuccessForLocalRuntime(2, 2, 0, testFolder);
+            ValidateSuccessForLocalRuntime(1, 0, 1, testFolder);
             CleanUp(testFolder);
         }
 
@@ -90,7 +91,7 @@ namespace Org.Apache.REEF.Tests.Functional.FaultTolerant
                 .Set(DriverConfiguration.OnContextActive, GenericType<ResubmitTaskTestDriver>.Class)
                 .Set(DriverConfiguration.OnTaskRunning, GenericType<ResubmitTaskTestDriver>.Class)
                 .Set(DriverConfiguration.OnTaskCompleted, GenericType<ResubmitTaskTestDriver>.Class)
-                .Set(DriverConfiguration.OnTaskFailed, GenericType<ResubmitTaskTestDriver>.Class)
+                .Set(DriverConfiguration.OnEvaluatorFailed, GenericType<ResubmitTaskTestDriver>.Class)
                 .Build();
         }
 
@@ -102,7 +103,7 @@ namespace Org.Apache.REEF.Tests.Functional.FaultTolerant
             IObserver<IAllocatedEvaluator>,
             IObserver<IActiveContext>,
             IObserver<ICompletedTask>,
-            IObserver<IFailedTask>,
+            IObserver<IFailedEvaluator>,
             IObserver<IRunningTask>
         {
             private readonly IEvaluatorRequestor _requestor;
@@ -154,19 +155,17 @@ namespace Org.Apache.REEF.Tests.Functional.FaultTolerant
             }
 
             /// <summary>
-            /// Verify when exception is shown in task, IFailedTask will be received here with the message set in the task
-            /// And verify the context associated with the failed task is the same as the context that the task was submitted
+            /// Verify when exception is shown in TaskCloseHandler, IFailedEvaluator will be received here with the message set in the task
             /// </summary>
-            /// <param name="value"></param>
-            public void OnNext(IFailedTask value)
+            public void OnNext(IFailedEvaluator value)
             {
-                var failedExeption = ByteUtilities.ByteArraysToString(value.Data.Value);
-                Logger.Log(Level.Error, "In IFailedTask: " + failedExeption);
+                Assert.True(value.FailedTask.IsPresent());
+                var failedExeption = value.EvaluatorException.InnerException;
+                Assert.Contains(TaskKilledByDriver, failedExeption.Message);
 
-                VerifyContextTaskMapping(value.Id, value.GetActiveContext().Value.Id);
-                Assert.Contains(TaskKilledByDriver, failedExeption);
+                Logger.Log(Level.Error, "In IFailedEvaluator: " + failedExeption);
 
-                OnNext(value.GetActiveContext().Value);
+                VerifyContextTaskMapping(value.FailedTask.Value.Id, value.FailedContexts.Single().Id);
             }
 
             private void VerifyContextTaskMapping(string taskId, string contextId)
@@ -189,11 +188,10 @@ namespace Org.Apache.REEF.Tests.Functional.FaultTolerant
                 switch (value.Id)
                 {
                     case TaskId + "1":
-                    case TaskId + "2":
                         value.Dispose(Encoding.UTF8.GetBytes(KillTaskCommandFromDriver));
                         break;
+                    case TaskId + "2":
                     case TaskId + "3":
-                    case TaskId + "4":
                         value.Send(Encoding.UTF8.GetBytes(CompleteTaskCommandFromDriver));
                         break;
                     default: 

@@ -41,6 +41,7 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Task
         private readonly IInjectionFuture<IObserver<ISuspendEvent>> _suspendHandlerFuture;
         private readonly IInjectionFuture<IObserver<ICloseEvent>> _closeHandlerFuture;
         private int _taskRan = 0;
+        private int _taskClosed = 0;
 
         [Inject]
         private TaskRuntime(
@@ -165,6 +166,13 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Task
         public void Close(byte[] message)
         {
             Logger.Log(Level.Info, "Trying to close Task {0}", TaskId);
+            if (Interlocked.Exchange(ref _taskClosed, 1) != 0)
+            {
+                // Return if we have already called close. This can happen when TaskCloseHandler
+                // is invoked and throws an Exception before the Task is completed. The control flows
+                // to failing the Evaluator, which eventually tries to close the Task again on Dispose.
+                return;
+            }
 
             if (_currentStatus.IsNotRunning())
             {
@@ -178,8 +186,7 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Task
             }
             catch (Exception e)
             {
-                Utilities.Diagnostics.Exceptions.Caught(e, Level.Error, "Error during Close.", Logger);
-                _currentStatus.SetException(e);
+                Utilities.Diagnostics.Exceptions.CaughtAndThrow(e, Level.Error, "Error during Close.", Logger);
             }
             finally
             {

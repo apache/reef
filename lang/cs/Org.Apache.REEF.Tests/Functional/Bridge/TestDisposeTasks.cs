@@ -20,7 +20,6 @@ using System.Collections.Generic;
 using System.Text;
 using System.Threading;
 using Org.Apache.REEF.Common.Context;
-using Org.Apache.REEF.Common.Runtime.Evaluator.Task;
 using Org.Apache.REEF.Common.Tasks;
 using Org.Apache.REEF.Common.Tasks.Events;
 using Org.Apache.REEF.Driver;
@@ -32,12 +31,13 @@ using Org.Apache.REEF.Tang.Implementations.Configuration;
 using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Tang.Util;
-using Org.Apache.REEF.Utilities;
+using Org.Apache.REEF.Tests.Functional.Bridge.Exceptions;
 using Org.Apache.REEF.Utilities.Logging;
 using Xunit;
 
 namespace Org.Apache.REEF.Tests.Functional.Bridge
 {
+    [Collection("FunctionalTests")]
     public class TestDisposeTasks : ReefFunctionalTest
     {
         private static readonly Logger Logger = Logger.GetLogger(typeof(TestDisposeTasks));
@@ -71,7 +71,7 @@ namespace Org.Apache.REEF.Tests.Functional.Bridge
         {
             string testFolder = DefaultRuntimeFolder + TestId;
             TestRun(DriverConfigurations(2), typeof(TestDisposeTasks), 1, "TestDisposeTasks", "local", testFolder);
-            ValidateSuccessForLocalRuntime(1, 1, 0, testFolder);
+            ValidateSuccessForLocalRuntime(0, 0, 1, testFolder);
             var messages = new List<string> { TaskIsDisposed };
             ValidateMessageSuccessfullyLogged(messages, "Node-*", EvaluatorStdout, testFolder, 1);
             CleanUp(testFolder);
@@ -109,7 +109,7 @@ namespace Org.Apache.REEF.Tests.Functional.Bridge
                 .Set(DriverConfiguration.OnContextActive, GenericType<DisposeTaskTestDriver>.Class)
                 .Set(DriverConfiguration.OnTaskRunning, GenericType<DisposeTaskTestDriver>.Class)
                 .Set(DriverConfiguration.OnTaskCompleted, GenericType<DisposeTaskTestDriver>.Class)
-                .Set(DriverConfiguration.OnTaskFailed, GenericType<DisposeTaskTestDriver>.Class)
+                .Set(DriverConfiguration.OnEvaluatorFailed, GenericType<DisposeTaskTestDriver>.Class)
                 .Build();
 
             return Configurations.Merge(taskIdConfig, driverConfig);
@@ -123,7 +123,7 @@ namespace Org.Apache.REEF.Tests.Functional.Bridge
             IObserver<IAllocatedEvaluator>,
             IObserver<IActiveContext>,
             IObserver<ICompletedTask>,
-            IObserver<IFailedTask>,
+            IObserver<IFailedEvaluator>,
             IObserver<IRunningTask>            
         {
             private readonly IEvaluatorRequestor _requestor;            
@@ -167,20 +167,16 @@ namespace Org.Apache.REEF.Tests.Functional.Bridge
             /// And verify the context associated with the failed task is the same as the context that the task was submitted
             /// </summary>
             /// <param name="value"></param>
-            public void OnNext(IFailedTask value)
+            public void OnNext(IFailedEvaluator value)
             {
-                Assert.Equal(TaskId + "2", value.Id);
+                Assert.True(value.FailedTask.IsPresent());
+                Assert.Equal(TaskId + "2", value.FailedTask.Value.Id);
 
-                var failedException = ByteUtilities.ByteArraysToString(value.Data.Value);
-                var e = value.AsError();
+                var e = value.EvaluatorException.InnerException;
                 Logger.Log(Level.Error, "In IFailedTask: e.type: {0}, e.message: {1}.", e.GetType(), e.Message);
-                Logger.Log(Level.Error, "In IFailedTask: value.Data.Value: {0}, value.Message {1}.", failedException, value.Message);
 
-                Assert.Equal(typeof(Exception), e.GetType());
+                Assert.Equal(typeof(TestSerializableException), e.GetType());
                 Assert.Equal(TaskKilledByDriver, e.Message);
-                Assert.Contains(TaskKilledByDriver, failedException);
-
-                value.GetActiveContext().Value.Dispose();
             }
 
             /// <summary>
@@ -272,7 +268,7 @@ namespace Org.Apache.REEF.Tests.Functional.Bridge
                         }
                         else if (msg.Equals(ExitByException))
                         {
-                            throw new Exception(TaskKilledByDriver);
+                            throw new TestSerializableException(TaskKilledByDriver);
                         }
                     }
                     else
