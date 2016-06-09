@@ -27,10 +27,15 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 /**
  * REEF failure test.
  */
 public class FailureTest {
+
+  private static final Logger LOG = Logger.getLogger(FailureTest.class.getName());
 
   private final TestEnvironment testEnvironment = TestEnvironmentFactory.getNewTestEnvironment();
 
@@ -57,6 +62,9 @@ public class FailureTest {
   private void runTestFailureReefWithParams(final int numEvaluatorsToSubmit,
                                             final int numEvaluatorsTofail,
                                             final String testName) throws InjectionException {
+    LOG.log(Level.INFO, "Running testFailureREEF with " + numEvaluatorsToSubmit + " evaluators to submit and " +
+        numEvaluatorsTofail + " evaluators to fail.");
+    
     final Configuration runtimeConfiguration = this.testEnvironment.getRuntimeConfiguration();
 
     final LauncherStatus status =
