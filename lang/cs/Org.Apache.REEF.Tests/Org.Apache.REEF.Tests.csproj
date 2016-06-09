@@ -129,6 +129,7 @@ under the License.
     <Compile Include="Functional\ReefFunctionalTest.cs" />
     <Compile Include="Functional\RuntimeName\RuntimeNameTask.cs" />
     <Compile Include="Functional\RuntimeName\RuntimeNameTest.cs" />
+    <Compile Include="Functional\Bridge\TestDisposeTasks.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Utility\TestDriverConfigGenerator.cs" />
     <Compile Include="Utility\TestExceptions.cs" />
