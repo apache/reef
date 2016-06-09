@@ -52,17 +52,17 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
         [Fact]
         public void TestTaskCloseOnLocalRuntime()
         {
-            int chunkSize = 2;
-            int dims = 50;
-            int iterations = 200;
-            int mapperMemory = 5120;
-            int updateTaskMemory = 5120;
-            int numTasks = 4;
-            string testFolder = DefaultRuntimeFolder + TestId;
+            const int chunkSize = 2;
+            const int dims = 50;
+            const int iterations = 200;
+            const int mapperMemory = 5120;
+            const int updateTaskMemory = 5120;
+            const int numTasks = 4;
+            var testFolder = DefaultRuntimeFolder + TestId;
             TestBroadCastAndReduce(false, numTasks, chunkSize, dims, iterations, mapperMemory, updateTaskMemory, testFolder);
             string[] lines = ReadLogFile(DriverStdout, "driver", testFolder);
-            int failedCount = GetMessageCount(lines, FailTaskMessage);
-            int completedCount = GetMessageCount(lines, CompletedTaskMessage);
+            var failedCount = GetMessageCount(lines, FailTaskMessage);
+            var completedCount = GetMessageCount(lines, CompletedTaskMessage);
             Assert.Equal(numTasks, failedCount + completedCount);
             CleanUp(testFolder);
         }
@@ -80,12 +80,12 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
         [Fact(Skip = "Requires Yarn")]
         public void TestTaskCloseOnLocalRuntimeOnYarn()
         {
-            int chunkSize = 2;
-            int dims = 50;
-            int iterations = 200;
-            int mapperMemory = 5120;
-            int updateTaskMemory = 5120;
-            int numTasks = 4;
+            const int chunkSize = 2;
+            const int dims = 50;
+            const int iterations = 200;
+            const int mapperMemory = 5120;
+            const int updateTaskMemory = 5120;
+            const int numTasks = 4;
             TestBroadCastAndReduce(true, numTasks, chunkSize, dims, iterations, mapperMemory, updateTaskMemory);
         }
 

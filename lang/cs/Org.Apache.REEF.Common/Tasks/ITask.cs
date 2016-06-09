@@ -19,6 +19,12 @@ using System;
 
 namespace Org.Apache.REEF.Common.Tasks
 {
+    /// <summary>
+    /// Task interface. Client should implement his own tasks. 
+    /// Each Task should implement Dispose() to release resources if any. 
+    /// Dispose will be called after the Call() is returned or task is closed. If there is any exception during the task dispose, 
+    /// the error will be logged and the exception will be ignored as the task has been completed. 
+    /// </summary>
     public interface ITask : IDisposable
     {
         byte[] Call(byte[] memento);

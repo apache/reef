@@ -181,6 +181,24 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Task
                 Utilities.Diagnostics.Exceptions.Caught(e, Level.Error, "Error during Close.", Logger);
                 _currentStatus.SetException(e);
             }
+            finally
+            {
+                try
+                {
+                    if (_userTask != null)
+                    {
+                        _userTask.Dispose();
+                    }
+                }
+                catch (Exception e)
+                {
+                    Utilities.Diagnostics.Exceptions.CaughtAndThrow(
+                        new InvalidOperationException("Cannot dispose task properly", e),
+                        Level.Error,
+                        "Exception during task dispose.",
+                        Logger);
+                }
+            }
         }
 
         public void Suspend(byte[] message)

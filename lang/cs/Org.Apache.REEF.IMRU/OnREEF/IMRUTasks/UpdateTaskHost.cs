@@ -50,31 +50,9 @@ namespace Org.Apache.REEF.IMRU.OnREEF.IMRUTasks
         private readonly IIMRUResultHandler<TResult> _resultHandler;
 
         /// <summary>
-        /// When receiving a close event, this variable is set to 1. At the beginning of each task iteration,
-        /// if this variable is set to 1, the task will break from the loop and return from the Call() method.
-        /// </summary>
-        private long _shouldCloseTask = 0;
-
-        /// <summary>
-        /// Before the task is returned, this variable is set to 1.
-        /// Close handler will check this variable to decide if it needs to throw an exception.
-        /// </summary>
-        private long _isTaskStopped = 0;
-
-        /// <summary>
         /// Shows if the object has been disposed.
         /// </summary>
         private int _disposed = 0;
-
-        /// <summary>
-        /// Waiting time for the task to close by itself
-        /// </summary>
-        private readonly int _enforceCloseTimeoutMilliseconds;
-
-        /// <summary>
-        /// An event that will wait in close handler until it is either signaled from Call method or timeout.
-        /// </summary>
-        private readonly ManualResetEventSlim _waitToCloseEvent = new ManualResetEventSlim(false);
 
         /// <summary>
         /// Group Communication client for the task
@@ -82,18 +60,23 @@ namespace Org.Apache.REEF.IMRU.OnREEF.IMRUTasks
         private readonly IGroupCommClient _groupCommunicationsClient;
 
         /// <summary>
+        /// Task close Coordinator to handle the work when receiving task close event
+        /// </summary>
+        private readonly TaskCloseCoordinator _taskCloseCoordinator;
+
+        /// <summary>
         /// </summary>
         /// <param name="updateTask">The UpdateTask hosted in this REEF Task.</param>
         /// <param name="groupCommunicationsClient">Used to setup the communications.</param>
         /// <param name="resultHandler">Result handler</param>
-        /// <param name="enforceCloseTimeoutMilliseconds">Timeout in milliseconds to enforce the task to close if receiving task close event</param>
+        /// <param name="taskCloseCoordinator">Task close Coordinator</param>
         /// <param name="invokeGC">Whether to call Garbage Collector after each iteration or not</param>
         [Inject]
         private UpdateTaskHost(
             IUpdateFunction<TMapInput, TMapOutput, TResult> updateTask,
             IGroupCommClient groupCommunicationsClient,
             IIMRUResultHandler<TResult> resultHandler,
-            [Parameter(typeof(EnforceCloseTimeoutMilliseconds))] int enforceCloseTimeoutMilliseconds,
+            TaskCloseCoordinator taskCloseCoordinator,
             [Parameter(typeof(InvokeGC))] bool invokeGC)
         {
             _updateTask = updateTask;
@@ -104,7 +87,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.IMRUTasks
             _dataReceiver = cg.GetReduceReceiver<TMapOutput>(IMRUConstants.ReduceOperatorName);
             _invokeGC = invokeGC;
             _resultHandler = resultHandler;
-            _enforceCloseTimeoutMilliseconds = enforceCloseTimeoutMilliseconds;
+            _taskCloseCoordinator = taskCloseCoordinator;
         }
 
         /// <summary>
@@ -117,7 +100,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.IMRUTasks
             var updateResult = _updateTask.Initialize();
             int iterNo = 0;
 
-            while (updateResult.HasMapInput && Interlocked.Read(ref _shouldCloseTask) == 0)
+            while (updateResult.HasMapInput && !_taskCloseCoordinator.ShouldCloseTask())
             {
                 iterNo++;
 
@@ -145,7 +128,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.IMRUTasks
                 }
             }
 
-            if (Interlocked.Read(ref _shouldCloseTask) == 0)
+            if (!_taskCloseCoordinator.ShouldCloseTask())
             {
                 MapInputWithControlMessage<TMapInput> stopMessage =
                     new MapInputWithControlMessage<TMapInput>(MapControlMessage.Stop);
@@ -153,41 +136,21 @@ namespace Org.Apache.REEF.IMRU.OnREEF.IMRUTasks
             }
 
             _resultHandler.Dispose();
-            Interlocked.Exchange(ref _isTaskStopped, 1);
-
-            if (Interlocked.Read(ref _shouldCloseTask) == 1)
-            {
-                _waitToCloseEvent.Set();
-            }
+            _taskCloseCoordinator.SignalTaskStopped();
             return null;
         }
 
         /// <summary>
-        /// Task close handler.
-        /// If the closed event is sent from driver, set _shouldCloseTask to 1 so that to inform the Call() to stop at the end of the current iteration.
-        /// Then waiting for the signal from Call method. Either it is signaled or after _enforceCloseTimeoutMilliseconds,
-        /// checks if the task has been stopped. If not, throw IMRUTaskSystemException to enforce the task to stop.
+        /// Task close handler. Call TaskCloseCoordinator to handle the event.
         /// </summary>
         /// <param name="closeEvent"></param>
         public void OnNext(ICloseEvent closeEvent)
         {
-            var msg = Encoding.UTF8.GetString(closeEvent.Value.Value);
-            if (closeEvent.Value.IsPresent() && msg.Equals(TaskManager.CloseTaskByDriver))
-            {
-                Logger.Log(Level.Info, "The task received close event with message: {0}.", msg);
-                Interlocked.Exchange(ref _shouldCloseTask, 1);
-
-                _waitToCloseEvent.Wait(TimeSpan.FromMilliseconds(_enforceCloseTimeoutMilliseconds));
-
-                if (Interlocked.Read(ref _isTaskStopped) == 0)
-                {
-                    throw new IMRUTaskSystemException(TaskManager.TaskKilledByDriver);
-                }
-            }
+            _taskCloseCoordinator.HandleEvent(closeEvent);
         }
 
         /// <summary>
-        /// Dispose function
+        /// Dispose function. Dispose IGroupCommunicationsClient.
         /// </summary>
         public void Dispose()
         {
