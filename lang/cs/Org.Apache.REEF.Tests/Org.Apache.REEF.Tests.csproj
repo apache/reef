@@ -84,7 +84,6 @@ under the License.
     <Compile Include="Functional\Failure\User\ServiceConstructorExceptionTest.cs" />
     <Compile Include="Functional\Failure\User\ReceiveContextMessageExceptionTest.cs" />
     <Compile Include="Functional\Failure\User\ContextStartExceptionTest.cs" />
-    <Compile Include="Functional\Common\Task\WaitingTask.cs" />
     <Compile Include="Functional\Failure\User\ReceiveTaskMessageExceptionTest.cs" />
     <Compile Include="Functional\Failure\User\TaskCallExceptionTest.cs" />
     <Compile Include="Functional\Bridge\Exceptions\TestNonSerializableException.cs" />
@@ -97,6 +96,7 @@ under the License.
     <Compile Include="Functional\Common\Task\Handlers\ExceptionThrowingHandler.cs" />
     <Compile Include="Functional\Failure\User\TaskStartExceptionTest.cs" />
     <Compile Include="Functional\Failure\User\UnhandledThreadExceptionInTaskTest.cs" />
+    <Compile Include="Functional\Common\Task\WaitingTask.cs" />
     <Compile Include="Functional\Driver\DriverTestStartHandler.cs" />
     <Compile Include="Functional\Failure\BasePoisonedEvaluatorWithActiveContextDriver.cs" />
     <Compile Include="Functional\Failure\BasePoisonedEvaluatorWithRunningTaskDriver.cs" />
@@ -107,6 +107,7 @@ under the License.
     <Compile Include="Functional\Failure\TestEvaluatorWithActiveContextImmediatePoison.cs" />
     <Compile Include="Functional\Failure\TestEvaluatorWithRunningTaskImmediatePoison.cs" />
     <Compile Include="Functional\Failure\SleepTask.cs" />
+    <Compile Include="Functional\Failure\User\TaskCloseExceptionTest.cs" />
     <Compile Include="Functional\Failure\User\TaskConstructorExceptionTest.cs" />
     <Compile Include="Functional\Failure\User\TaskStopExceptionTest.cs" />
     <Compile Include="Functional\FaultTolerant\TestContextStart.cs" />

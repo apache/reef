@@ -98,20 +98,9 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Task
         {
             lock (_heartBeatManager)
             {
-                try
-                {
-                    if (!_lastException.IsPresent())
-                    {
-                        _lastException = Optional<Exception>.Of(e);
-                    }
-
-                    State = TaskState.Failed;
-                    _taskLifeCycle.Stop();
-                }
-                finally
-                {
-                    Heartbeat();
-                }
+                _lastException = Optional<Exception>.Of(e);
+                State = TaskState.Failed;
+                Heartbeat();
             }
         }
 
@@ -120,6 +109,8 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Task
             lock (_heartBeatManager)
             {
                 _result = Optional<byte[]>.OfNullable(result);
+
+                // This can throw an Exception.
                 _taskLifeCycle.Stop();
 
                 switch (State)
@@ -132,6 +123,7 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Task
                         State = TaskState.Done;
                         break;
                 }
+                
                 Heartbeat();
             }
         }
@@ -354,9 +346,9 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Task
         {
             if (_result.IsPresent() && _lastException.IsPresent())
             {
-                LOGGER.Log(Level.Warning, "Both task result and exception are present, the expcetion will take over. Thrown away result:" + ByteUtilities.ByteArraysToString(_result.Value));
-                State = TaskState.Failed;
-                _result = Optional<byte[]>.Empty();
+                throw new ApplicationException(
+                    string.Format("Both Exception and Result are present. One of the Threads have already sent a result back." +
+                    "Result returned [{0}]. Exception was [{1}]. Failing the Evaluator.", _result.Value, _lastException.Value));
             }
         }
 

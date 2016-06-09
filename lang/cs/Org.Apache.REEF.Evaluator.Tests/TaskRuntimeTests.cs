@@ -206,7 +206,7 @@ namespace Org.Apache.REEF.Evaluator.Tests
 
         /// <summary>
         /// Tests whether task start and stop handlers are properly instantiated and invoked
-        /// on the failure of a task.
+        /// on the failure of a task. On failure, TaskStop handler should not be invoked.
         /// </summary>
         [Fact]
         public void TestTaskEventsOnFailure()
@@ -232,8 +232,7 @@ namespace Org.Apache.REEF.Evaluator.Tests
                 throw new Exception("Event handler is not expected to be null.");
             }
 
-            Assert.True(testTaskEventStopHandler.StopInvoked.IsPresent());
-            Assert.Equal(testTaskEventStopHandler.StopInvoked.Value, taskId);
+            Assert.False(testTaskEventStopHandler.StopInvoked.IsPresent());
 
             taskThread.Join();
         }
@@ -337,7 +336,7 @@ namespace Org.Apache.REEF.Evaluator.Tests
                 throw new Exception("Event handler is not expected to be null.");
             }
 
-            Assert.True(testTaskEventStopHandler.StopInvoked.IsPresent());
+            Assert.False(testTaskEventStopHandler.StopInvoked.IsPresent());
             Assert.Equal(taskRuntime.GetTaskState(), TaskState.Failed);
 
             taskRuntime.Suspend(null);

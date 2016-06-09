@@ -26,23 +26,28 @@ namespace Org.Apache.REEF.Tests.Functional.Common.Task.Handlers
     internal abstract class ExceptionThrowingHandler<T> : IObserver<T>
     {
         private readonly Exception _exceptionToThrow;
-        private readonly Action<T> _action;
+        private readonly Action<T> _finallyAction;
 
         protected ExceptionThrowingHandler(
-            Exception exceptionToThrow, Action<T> action = null)
+            Exception exceptionToThrow, Action<T> finallyAction = null)
         {
             _exceptionToThrow = exceptionToThrow;
-            _action = action;
+            _finallyAction = finallyAction;
         }
 
         public void OnNext(T value)
         {
-            if (_action != null)
+            try
             {
-                _action(value);
+                throw _exceptionToThrow;
             }
-
-            throw _exceptionToThrow;
+            finally
+            {
+                if (_finallyAction != null)
+                {
+                    _finallyAction(value);
+                }
+            }
         }
 
         public void OnError(Exception error)
