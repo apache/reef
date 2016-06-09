@@ -101,7 +101,7 @@ namespace Org.Apache.REEF.Tests.Functional.Failure.User
                 value.SubmitTask(TaskConfiguration.ConfigurationModule
                         .Set(TaskConfiguration.Identifier, "TaskID")
                         .Set(TaskConfiguration.Task, GenericType<TaskStopExceptionTask>.Class)
-                        .Set(TaskConfiguration.OnTaskStop, GenericType<TaskStopExceptionHandler>.Class)
+                        .Set(TaskConfiguration.OnTaskStop, GenericType<TaskStopHandlerWithException>.Class)
                         .Build());
             }
 
@@ -173,10 +173,10 @@ namespace Org.Apache.REEF.Tests.Functional.Failure.User
             }
         }
 
-        private sealed class TaskStopExceptionHandler : ExceptionThrowingHandler<ITaskStop>
+        private sealed class TaskStopHandlerWithException : ExceptionThrowingHandler<ITaskStop>
         {
             [Inject]
-            private TaskStopExceptionHandler() : 
+            private TaskStopHandlerWithException() : 
                 base(new TaskStopExceptionTestException(TaskStopExceptionMessage))
             {
             }
