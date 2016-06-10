@@ -99,7 +99,7 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Task
                     _currentStatus.SetRunning();
                     Logger.Log(Level.Verbose, "Calling into user's task.");
                     var result = _userTask.Call(null);
-                    Logger.Log(Level.Info, "Task Call Finished");
+                    Logger.Log(Level.Verbose, "Task Call Finished");
                     _currentStatus.SetResult(result);
 
                     const Level resultLogLevel = Level.Verbose;
@@ -109,6 +109,10 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Task
                         Logger.Log(resultLogLevel,
                             "Task running result:\r\n" + System.Text.Encoding.Default.GetString(result));
                     }
+                }
+                catch (TaskStartHandlerException e)
+                {
+                    _currentStatus.SetException(e.InnerException);
                 }
                 catch (TaskStopHandlerException e)
                 {

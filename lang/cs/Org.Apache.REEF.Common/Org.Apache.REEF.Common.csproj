@@ -163,6 +163,7 @@ under the License.
     <Compile Include="Runtime\Evaluator\Task\TaskClientCodeException.cs" />
     <Compile Include="Runtime\Evaluator\Task\TaskLifeCycle.cs" />
     <Compile Include="Runtime\Evaluator\Task\TaskRuntime.cs" />
+    <Compile Include="Runtime\Evaluator\Task\TaskStartHandlerException.cs" />
     <Compile Include="Runtime\Evaluator\Task\TaskStartImpl.cs" />
     <Compile Include="Runtime\Evaluator\Task\TaskState.cs" />
     <Compile Include="Runtime\Evaluator\Task\TaskStatus.cs" />
