@@ -20,7 +20,6 @@ using System.Runtime.Serialization;
 using Org.Apache.REEF.Common.Exceptions;
 using Org.Apache.REEF.Common.Tasks;
 using Org.Apache.REEF.Driver;
-using Org.Apache.REEF.Driver.Bridge;
 using Org.Apache.REEF.Driver.Evaluator;
 using Org.Apache.REEF.Driver.Task;
 using Org.Apache.REEF.Tang.Annotations;
@@ -30,13 +29,14 @@ using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Tang.Util;
 using Org.Apache.REEF.Tests.Functional.Bridge.Exceptions;
 using Org.Apache.REEF.Tests.Functional.Bridge.Parameters;
+using Org.Apache.REEF.Tests.Functional.Common.Task;
 using Org.Apache.REEF.Utilities.Logging;
 using Xunit;
 
-namespace Org.Apache.REEF.Tests.Functional.Bridge
+namespace Org.Apache.REEF.Tests.Functional.Failure.User
 {
     [Collection("FunctionalTests")]
-    public sealed class TestFailedTaskEventHandler : ReefFunctionalTest
+    public sealed class TaskCallExceptionTest : ReefFunctionalTest
     {
         private const string FailedTaskMessage = "I have successfully seen all failed tasks.";
         private const string ExpectedExceptionMessage = "Expected exception.";
@@ -50,27 +50,25 @@ namespace Org.Apache.REEF.Tests.Functional.Bridge
         public void TestFailedTaskEventHandlerOnLocalRuntime()
         {
             string testFolder = DefaultRuntimeFolder + TestId;
-            TestRun(DriverConfigurations(), typeof(FailedTaskDriver), 1, "failedTaskTest", "local", testFolder);
+            TestRun(
+                DriverConfiguration.ConfigurationModule
+                    .Set(DriverConfiguration.OnDriverStarted, GenericType<TaskCallExceptionDriver>.Class)
+                    .Set(DriverConfiguration.OnEvaluatorAllocated, GenericType<TaskCallExceptionDriver>.Class)
+                    .Set(DriverConfiguration.OnTaskFailed, GenericType<TaskCallExceptionDriver>.Class)
+                    .Build(), 
+                typeof(TaskCallExceptionDriver), 1, "failedTaskTest", "local", testFolder);
+
             ValidateSuccessForLocalRuntime(numberOfContextsToClose: 1, numberOfTasksToFail: NumFailedTasksExpected, testFolder: testFolder);
             ValidateMessageSuccessfullyLoggedForDriver(FailedTaskMessage, testFolder);
             CleanUp(testFolder);
         }
 
-        private IConfiguration DriverConfigurations()
-        {
-            return DriverConfiguration.ConfigurationModule
-                .Set(DriverConfiguration.OnDriverStarted, GenericType<FailedTaskDriver>.Class)
-                .Set(DriverConfiguration.OnEvaluatorAllocated, GenericType<FailedTaskDriver>.Class)
-                .Set(DriverConfiguration.OnTaskFailed, GenericType<FailedTaskDriver>.Class)
-                .Build();
-        }
-
-        private sealed class FailedTaskDriver : IObserver<IDriverStarted>, IObserver<IAllocatedEvaluator>, 
+        private sealed class TaskCallExceptionDriver : IObserver<IDriverStarted>, IObserver<IAllocatedEvaluator>, 
             IObserver<IFailedTask>, IObserver<ICompletedTask>
         {
             private const string TaskId = "1234567";
 
-            private static readonly Logger Logger = Logger.GetLogger(typeof(FailedTaskDriver));
+            private static readonly Logger Logger = Logger.GetLogger(typeof(TaskCallExceptionDriver));
 
             private readonly IEvaluatorRequestor _requestor;
 
@@ -78,7 +76,7 @@ namespace Org.Apache.REEF.Tests.Functional.Bridge
             private int _numFailedTasksReceived = 0;
 
             [Inject]
-            private FailedTaskDriver(IEvaluatorRequestor requestor)
+            private TaskCallExceptionDriver(IEvaluatorRequestor requestor)
             {
                 _requestor = requestor;
             }
@@ -175,35 +173,30 @@ namespace Org.Apache.REEF.Tests.Functional.Bridge
 
                 var taskConfig = TaskConfiguration.ConfigurationModule
                     .Set(TaskConfiguration.Identifier, TaskId)
-                    .Set(TaskConfiguration.Task, GenericType<FailTask>.Class)
+                    .Set(TaskConfiguration.Task, GenericType<TaskCallExceptionTask>.Class)
                     .Build();
 
                 return Configurations.Merge(shouldThrowSerializableConfig, taskConfig);
             }
         }
 
-        private sealed class FailTask : ITask
+        private sealed class TaskCallExceptionTask : ExceptionTask
         {
-            private readonly bool _shouldThrowSerializableException;
-
             [Inject]
-            private FailTask([Parameter(typeof(ShouldThrowSerializableException))] bool shouldThrowSerializableException)
-            {
-                _shouldThrowSerializableException = shouldThrowSerializableException;
-            }
-
-            public void Dispose()
+            private TaskCallExceptionTask(
+                [Parameter(typeof(ShouldThrowSerializableException))] bool shouldThrowSerializableException) 
+                : base(ExceptionToThrow(shouldThrowSerializableException))
             {
             }
 
-            public byte[] Call(byte[] memento)
+            private static Exception ExceptionToThrow(bool shouldThrowSerializableException)
             {
-                if (_shouldThrowSerializableException)
+                if (shouldThrowSerializableException)
                 {
-                    throw new TestSerializableException(ExpectedExceptionMessage);
+                    return new TestSerializableException(ExpectedExceptionMessage);
                 }
-
-                throw new TestNonSerializableException(ExpectedExceptionMessage);
+                
+                return new TestNonSerializableException(ExpectedExceptionMessage);
             }
         }
     }
