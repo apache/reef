@@ -143,17 +143,8 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Task
                 LOGGER.Log(Level.Verbose, "TaskStatus::SetInit");
                 if (_state == TaskState.Init)
                 {
-                    try
-                    {
-                        _taskLifeCycle.Start();
-                        LOGGER.Log(Level.Info, "Sending task INIT heartbeat");
-                        Heartbeat();
-                    }
-                    catch (Exception e)
-                    {
-                        Utilities.Diagnostics.Exceptions.Caught(e, Level.Error, "Cannot set task status to INIT.", LOGGER);
-                        SetException(e);
-                    }
+                    LOGGER.Log(Level.Verbose, "Sending task INIT heartbeat");
+                    Heartbeat();
                 }
             }
         }
@@ -165,17 +156,10 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Task
                 LOGGER.Log(Level.Verbose, "TaskStatus::SetRunning");
                 if (_state == TaskState.Init)
                 {
-                    try
-                    {
-                        State = TaskState.Running;
-                        LOGGER.Log(Level.Info, "Sending task Running heartbeat");
-                        Heartbeat();
-                    }
-                    catch (Exception e)
-                    {
-                        Utilities.Diagnostics.Exceptions.Caught(e, Level.Error, "Cannot set task status to running.", LOGGER);
-                        SetException(e);
-                    }
+                    _taskLifeCycle.Start();
+                    State = TaskState.Running;
+                    LOGGER.Log(Level.Verbose, "Sending task Running heartbeat");
+                    Heartbeat();
                 }
             }
         }

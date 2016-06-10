@@ -51,12 +51,19 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Task
 
         public void Start() 
         {
-            if (Interlocked.Exchange(ref _startHasBeenInvoked, 1) == 0)
+            try
             {
-                foreach (var startHandler in _taskStartHandlers)
+                if (Interlocked.Exchange(ref _startHasBeenInvoked, 1) == 0)
                 {
-                    startHandler.OnNext(_taskStart);
+                    foreach (var startHandler in _taskStartHandlers)
+                    {
+                        startHandler.OnNext(_taskStart);
+                    }
                 }
+            }
+            catch (Exception e)
+            {
+                throw new TaskStartHandlerException("Encountered Exception in TaskStartHandler.", e);
             }
         }
 
@@ -74,7 +81,7 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Task
             }
             catch (Exception e)
             {
-                throw new TaskStopHandlerException("Encountered Exception on TaskStopHandler.", e);
+                throw new TaskStopHandlerException("Encountered Exception in TaskStopHandler.", e);
             }
         }
     }

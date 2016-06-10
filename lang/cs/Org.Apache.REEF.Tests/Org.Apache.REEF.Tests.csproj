@@ -88,6 +88,7 @@ under the License.
     <Compile Include="Functional\Common\Task\Handlers\LoggingHandler.cs" />
     <Compile Include="Functional\Common\Task\LoggingTask.cs" />
     <Compile Include="Functional\Common\Task\Handlers\ExceptionThrowingHandler.cs" />
+    <Compile Include="Functional\Failure\User\TaskStartExceptionTest.cs" />
     <Compile Include="Functional\Failure\User\UnhandledThreadExceptionInTaskTest.cs" />
     <Compile Include="Functional\Driver\DriverTestStartHandler.cs" />
     <Compile Include="Functional\Failure\BasePoisonedEvaluatorWithActiveContextDriver.cs" />

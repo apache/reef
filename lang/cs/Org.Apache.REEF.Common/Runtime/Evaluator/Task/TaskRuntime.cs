@@ -110,6 +110,10 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Task
                             "Task running result:\r\n" + System.Text.Encoding.Default.GetString(result));
                     }
                 }
+                catch (TaskStartHandlerException e)
+                {
+                    _currentStatus.SetException(e.InnerException);
+                }
                 catch (TaskStopHandlerException e)
                 {
                     _currentStatus.SetException(e.InnerException);

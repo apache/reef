@@ -18,6 +18,7 @@
 using System;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
+using Org.Apache.REEF.Common.Context;
 using Org.Apache.REEF.Common.Tasks;
 using Org.Apache.REEF.Common.Tasks.Events;
 using Org.Apache.REEF.Driver;
@@ -33,22 +34,22 @@ using Xunit;
 namespace Org.Apache.REEF.Tests.Functional.Failure.User
 {
     /// <summary>
-    /// This test class contains a test that validates that an Exception in the 
-    /// TaskStopHandler causes a FailedTask event in the Driver.
+    /// This test class contains a test that validates that an Exception in 
+    /// a TaskStartHandler triggers an <see cref="IFailedTask"/> event.
     /// </summary>
     [Collection("FunctionalTests")]
-    public sealed class TaskStopExceptionTest : ReefFunctionalTest
+    public sealed class TaskStartExceptionTest : ReefFunctionalTest
     {
-        private static readonly Logger Logger = Logger.GetLogger(typeof(TaskStopExceptionTest));
+        private static readonly Logger Logger = Logger.GetLogger(typeof(TaskStartExceptionTest));
 
-        private const string TaskStopExceptionMessage = "TaskStopExceptionMessage";
+        private const string TaskStartExceptionMessage = "TaskStartExceptionMessage";
         private const string InitialTaskMessage = "InitialTaskMessage";
         private const string ResubmitTaskMessage = "ResubmitTaskMessage";
         private const string FailedTaskReceived = "FailedTaskReceived";
         private const string CompletedTaskReceived = "CompletedTaskReceived";
 
         /// <summary>
-        /// This test validates that an Exception in the TaskStopHandler causes a FailedTask
+        /// This test validates that an Exception in the TaskStartHandler causes a FailedTask
         /// event in the Driver, and that a new Task can be submitted on the original Context.
         /// </summary>
         [Fact]
@@ -56,11 +57,11 @@ namespace Org.Apache.REEF.Tests.Functional.Failure.User
         {
             string testFolder = DefaultRuntimeFolder + Guid.NewGuid().ToString("N").Substring(0, 4);
             TestRun(DriverConfiguration.ConfigurationModule
-                .Set(DriverConfiguration.OnDriverStarted, GenericType<TaskStopExceptionTestDriver>.Class)
-                .Set(DriverConfiguration.OnEvaluatorAllocated, GenericType<TaskStopExceptionTestDriver>.Class)
-                .Set(DriverConfiguration.OnTaskCompleted, GenericType<TaskStopExceptionTestDriver>.Class)
-                .Set(DriverConfiguration.OnTaskFailed, GenericType<TaskStopExceptionTestDriver>.Class)
-                .Build(), typeof(TaskStopExceptionTestDriver), 1, "testStopTaskWithExceptionOnLocalRuntime", "local", testFolder);
+                .Set(DriverConfiguration.OnDriverStarted, GenericType<TaskStartExceptionTestDriver>.Class)
+                .Set(DriverConfiguration.OnEvaluatorAllocated, GenericType<TaskStartExceptionTestDriver>.Class)
+                .Set(DriverConfiguration.OnTaskCompleted, GenericType<TaskStartExceptionTestDriver>.Class)
+                .Set(DriverConfiguration.OnTaskFailed, GenericType<TaskStartExceptionTestDriver>.Class)
+                .Build(), typeof(TaskStartExceptionTestDriver), 1, "testStartTaskWithExceptionOnLocalRuntime", "local", testFolder);
 
             var driverMessages = new List<string>
             {
@@ -70,21 +71,26 @@ namespace Org.Apache.REEF.Tests.Functional.Failure.User
 
             ValidateMessagesSuccessfullyLoggedForDriver(driverMessages, testFolder, 1);
 
-            var evaluatorMessages = new List<string> { InitialTaskMessage, ResubmitTaskMessage };
-            ValidateMessageSuccessfullyLogged(evaluatorMessages, "Node-*", EvaluatorStdout, testFolder, 1);
+            // Validate that the first Task never starts.
+            ValidateMessageSuccessfullyLogged(
+                new List<string> { InitialTaskMessage }, "Node-*", EvaluatorStdout, testFolder, 0);
+
+            ValidateMessageSuccessfullyLogged(
+                new List<string> { ResubmitTaskMessage }, "Node-*", EvaluatorStdout, testFolder, 1);
+
             CleanUp(testFolder);
         }
 
-        private sealed class TaskStopExceptionTestDriver : 
-            IObserver<IDriverStarted>, 
-            IObserver<IAllocatedEvaluator>, 
-            IObserver<ICompletedTask>, 
+        private sealed class TaskStartExceptionTestDriver :
+            IObserver<IDriverStarted>,
+            IObserver<IAllocatedEvaluator>,
+            IObserver<ICompletedTask>,
             IObserver<IFailedTask>
         {
             private readonly IEvaluatorRequestor _requestor;
 
             [Inject]
-            private TaskStopExceptionTestDriver(IEvaluatorRequestor requestor)
+            private TaskStartExceptionTestDriver(IEvaluatorRequestor requestor)
             {
                 _requestor = requestor;
             }
@@ -99,8 +105,8 @@ namespace Org.Apache.REEF.Tests.Functional.Failure.User
                 // submit the first Task.
                 value.SubmitTask(TaskConfiguration.ConfigurationModule
                         .Set(TaskConfiguration.Identifier, "TaskID")
-                        .Set(TaskConfiguration.Task, GenericType<TaskStopExceptionTask>.Class)
-                        .Set(TaskConfiguration.OnTaskStop, GenericType<TaskStopHandlerWithException>.Class)
+                        .Set(TaskConfiguration.Task, GenericType<TaskStartExceptionTask>.Class)
+                        .Set(TaskConfiguration.OnTaskStart, GenericType<TaskStartHandlerWithException>.Class)
                         .Build());
             }
 
@@ -120,18 +126,11 @@ namespace Org.Apache.REEF.Tests.Functional.Failure.User
                     throw new Exception("Exception was not expected to be null.");
                 }
 
-                var taskStopEx = ex as TaskStopExceptionTestException;
+                var taskStartEx = ex as TaskStartExceptionTestException;
 
-                if (taskStopEx == null)
-                {
-                    throw new Exception("Expected Exception to be of type TaskStopExceptionTestException, but instead got type " + ex.GetType().Name);
-                }
-
-                if (taskStopEx.Message != TaskStopExceptionMessage)
-                {
-                    throw new Exception(
-                        "Expected message to be " + TaskStopExceptionMessage + " but instead got " + taskStopEx.Message + ".");
-                }
+                Assert.True(taskStartEx != null, "Expected Exception to be of type TaskStartExceptionTestException, but instead got type " + ex.GetType().Name);
+                Assert.True(taskStartEx.Message.Equals(TaskStartExceptionMessage),
+                    "Expected message to be " + TaskStartExceptionMessage + " but instead got " + taskStartEx.Message + ".");
 
                 Logger.Log(Level.Info, FailedTaskReceived);
 
@@ -139,7 +138,7 @@ namespace Org.Apache.REEF.Tests.Functional.Failure.User
                 value.GetActiveContext().Value.SubmitTask(
                     TaskConfiguration.ConfigurationModule
                         .Set(TaskConfiguration.Identifier, "TaskID")
-                        .Set(TaskConfiguration.Task, GenericType<TaskStopExceptionResubmitTask>.Class)
+                        .Set(TaskConfiguration.Task, GenericType<TaskStartExceptionResubmitTask>.Class)
                         .Build());
             }
 
@@ -154,29 +153,36 @@ namespace Org.Apache.REEF.Tests.Functional.Failure.User
             }
         }
 
-        private sealed class TaskStopExceptionTask : LoggingTask
+        private sealed class TaskStartExceptionTask : LoggingTask
         {
             [Inject]
-            private TaskStopExceptionTask() 
+            private TaskStartExceptionTask()
                 : base(InitialTaskMessage)
             {
             }
         }
 
-        private sealed class TaskStopExceptionResubmitTask : LoggingTask
+        /// <summary>
+        /// A simple Task for Task resubmission validation on a Context with a previous Task
+        /// that failed on a Task StartHandler.
+        /// </summary>
+        private sealed class TaskStartExceptionResubmitTask : LoggingTask
         {
             [Inject]
-            private TaskStopExceptionResubmitTask() 
+            private TaskStartExceptionResubmitTask()
                 : base(ResubmitTaskMessage)
             {
             }
         }
 
-        private sealed class TaskStopHandlerWithException : ExceptionThrowingHandler<ITaskStop>
+        /// <summary>
+        /// Throws a test Exception on Task Start to trigger a task failure.
+        /// </summary>
+        private sealed class TaskStartHandlerWithException : ExceptionThrowingHandler<ITaskStart>
         {
             [Inject]
-            private TaskStopHandlerWithException() : 
-                base(new TaskStopExceptionTestException(TaskStopExceptionMessage))
+            private TaskStartHandlerWithException() :
+                base(new TaskStartExceptionTestException(TaskStartExceptionMessage))
             {
             }
         }
@@ -185,13 +191,14 @@ namespace Org.Apache.REEF.Tests.Functional.Failure.User
         /// A Serializable Exception to verify that the Exception is deserialized correctly.
         /// </summary>
         [Serializable]
-        private sealed class TaskStopExceptionTestException : Exception
+        private sealed class TaskStartExceptionTestException : Exception
         {
-            public TaskStopExceptionTestException(string message) : base(message)
+            public TaskStartExceptionTestException(string message)
+                : base(message)
             {
             }
 
-            private TaskStopExceptionTestException(SerializationInfo info, StreamingContext context)
+            private TaskStartExceptionTestException(SerializationInfo info, StreamingContext context)
                 : base(info, context)
             {
             }
