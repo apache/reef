@@ -64,7 +64,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         /// </summary>
         /// <param name="evaluatorId"></param>
         /// <returns>Whether failed evaluator is master or not</returns>
-        internal bool RemoveEvaluatorIdFromPartitionIdProvider(string evaluatorId)
+        internal void RemoveEvaluatorIdFromPartitionIdProvider(string evaluatorId)
         {
             if (!_partitionIdProvider.ContainsKey(evaluatorId))
             {
@@ -73,7 +73,6 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
             }
             _partitionDescriptorIds.Push(_partitionIdProvider[evaluatorId]);
             _partitionIdProvider.Remove(evaluatorId);
-            return false;
         }
 
         /// <summary>

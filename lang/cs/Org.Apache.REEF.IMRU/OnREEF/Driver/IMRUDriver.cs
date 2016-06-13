@@ -168,7 +168,8 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         /// <param name="value">Event fired when driver started</param>
         public void OnNext(IDriverStarted value)
         {
-            StartAction();
+            _evaluatorManager.RequestUpdateEvaluator();
+            _evaluatorManager.RequestMapEvaluators(_totalMappers);
         }
         #endregion IDriverStarted
 
@@ -327,7 +328,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         #region IRunningTask
         /// <summary>
         /// IRunningTask handler. The method is called when a task is running. The following action will be taken based on the system state:
-        /// Case WaitingForEvaluator
+        /// Case SubmittingTasks
         ///     Add it to RunningTasks and set task state to TaskRunning
         ///     When all the tasks are running, change system state to TasksRunning
         /// Case ShuttingDown/Fail
@@ -447,7 +448,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
                 switch (_systemState.CurrentState)
                 {
                     case SystemState.WaitingForEvaluator:
-                        if (IsRecoverable())
+                        if (!_evaluatorManager.ReachedMaximumNumberOfEvaluatorFailures())
                         {
                             if (isMaster)
                             {
@@ -613,7 +614,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
                 if (IsRecoverable())
                 {
                     _isFirstTry = false;
-                    StartAction();
+                    RecoveryAction();
                 }
                 else
                 {
@@ -654,28 +655,24 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         }
 
         /// <summary>
-        /// Resets Failed Evaluators
-        /// Changes state to WaitingForEvaluator if it is in recovery.
-        /// If it is first time, request both master and map evaluators
-        /// If it is in recovery, based on the count of failed evaluators, requests missing map evaluators
+        /// This method is called for recovery. It resets Failed Evaluators and changes state to WaitingForEvaluator
+        /// If there is no failed mappers, meaning the recovery is caused by failed tasks, resubmit all the tasks. 
+        /// Else, based on the number of failed evaluators, requests missing map evaluators
         /// </summary>
-        private void StartAction()
+        private void RecoveryAction()
         {
             lock (_lock)
             {
-                if (!_isFirstTry)
-                {
-                    _numberOfRetryForFaultTolerant++;
-                    Logger.Log(Level.Info, "Start recovery with _numberOfRetryForFaultTolerant:" + _numberOfRetryForFaultTolerant);
-                    _systemState.MoveNext(SystemStateEvent.Recover);
-                }
+                _numberOfRetryForFaultTolerant++;
+                Logger.Log(Level.Info, "Start recovery with _numberOfRetryForFaultTolerant:" + _numberOfRetryForFaultTolerant);
+                _systemState.MoveNext(SystemStateEvent.Recover);
 
-                var mappersToRequest = _isFirstTry ? _totalMappers : _evaluatorManager.NumberofFailedMappers();
+                var mappersToRequest = _evaluatorManager.NumberofFailedMappers();
                 _evaluatorManager.ResetFailedEvaluators();
 
-                if (!_isFirstTry && mappersToRequest == 0)
+                if (mappersToRequest == 0)
                 {
-                    Logger.Log(Level.Info, "There is no failed Evaluator in this recovery.");
+                    Logger.Log(Level.Info, "There is no failed Evaluator in this recovery but failed tasks.");
                     if (_contextManager.AreAllContextsReceived)
                     {
                         OnNext(_contextManager.NumberOfActiveContexts);
@@ -684,16 +681,8 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
                     {
                         Exceptions.Throw(new IMRUSystemException("In recovery, there are no Failed evaluators but not all the contexts are received"), Logger);
                     }
-                    return;
                 }
-
-                if (_isFirstTry)
-                {
-                    Logger.Log(Level.Info, "Requesting a master Evaluator.");
-                    _evaluatorManager.RequestUpdateEvaluator();
-                }
-
-                if (mappersToRequest > 0)
+                else
                 {
                     Logger.Log(Level.Info, "Requesting {0} map Evaluators.", mappersToRequest);
                     _evaluatorManager.RequestMapEvaluators(mappersToRequest);
@@ -714,7 +703,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         }
 
         /// <summary>
-        /// Generates map task configuration given the active context. 
+        /// Generates map task configuration given the active context. S
         /// Merge configurations of all the inputs to the MapTaskHost.
         /// </summary>
         /// <param name="activeContext">Active context to which task needs to be submitted</param>
