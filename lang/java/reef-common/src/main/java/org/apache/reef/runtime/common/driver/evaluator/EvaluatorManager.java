@@ -487,6 +487,9 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
       if (this.stateManager.isAllocated()) {
         this.stateManager.setSubmitted();
         this.resourceLaunchHandler.onNext(resourceLaunchEvent);
+      } else if (this.stateManager.isFailedOrKilled()) {
+        LOG.log(Level.WARNING, "Evaluator manager expected" + EvaluatorState.ALLOCATED +
+            " state but instead is in state " + this.stateManager);
       } else {
         throw new RuntimeException("Evaluator manager expected " + EvaluatorState.ALLOCATED +
             " state but instead is in state " + this.stateManager);
