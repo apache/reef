@@ -185,11 +185,11 @@ namespace Org.Apache.REEF.Tests.Functional.Failure.User
             [Inject]
             private TaskCallExceptionTask(
                 [Parameter(typeof(ShouldThrowSerializableException))] bool shouldThrowSerializableException) 
-                : base(ExceptionToThrow(shouldThrowSerializableException))
+                : base(GetExceptionToThrow(shouldThrowSerializableException))
             {
             }
 
-            private static Exception ExceptionToThrow(bool shouldThrowSerializableException)
+            private static Exception GetExceptionToThrow(bool shouldThrowSerializableException)
             {
                 if (shouldThrowSerializableException)
                 {

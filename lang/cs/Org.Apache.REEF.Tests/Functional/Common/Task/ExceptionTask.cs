@@ -36,7 +36,6 @@ namespace Org.Apache.REEF.Tests.Functional.Common.Task
 
         public void Dispose()
         {
-            throw new System.NotImplementedException();
         }
     }
 }
