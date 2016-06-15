@@ -64,7 +64,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         IObserver<IFailedContext>,
         IObserver<IFailedTask>,
         IObserver<IRunningTask>,
-        IObserver<int>
+        IObserver<IAllContextsReceived>
     {
         private static readonly Logger Logger =
             Logger.GetLogger(typeof(IMRUDriver<TMapInput, TMapOutput, TResult, TPartitionType>));
@@ -197,7 +197,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
                         SubmitContextAndService(allocatedEvaluator);
                         break;
                     case SystemState.Fail:
-                        Logger.Log(Level.Verbose, "Receiving IAllocatedEvaluator event, but system is in FAIL state, ignore it.");
+                        Logger.Log(Level.Info, "Receiving IAllocatedEvaluator event, but system is in FAIL state, ignore it.");
                         break;
                     default:
                         UnexpectedState(allocatedEvaluator.Id, "IAllocatedEvaluator");
@@ -270,9 +270,9 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         /// It changes the system state then calls SubmitTasks().
         /// </summary>
         /// <param name="value"></param>
-        public void OnNext(int value)
+        public void OnNext(IAllContextsReceived value)
         {
-            Logger.Log(Level.Info, "Received event from ActiveContextManager with NumberOfActiveContexts:" + value);
+            Logger.Log(Level.Info, "Received event from ActiveContextManager with NumberOfActiveContexts:" + value.GetNumberOfActiveContext());
             lock (_lock)
             {
                 // Change the system state to SubmittingTasks
@@ -338,7 +338,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         /// <param name="runningTask"></param>
         public void OnNext(IRunningTask runningTask)
         {
-            Logger.Log(Level.Info, "Received IRunningTask {0} at SystemState {1} in retry # {2}.", runningTask.Id, _systemState.CurrentState, _numberOfRetryForFaultTolerant);
+            Logger.Log(Level.Verbose, "Received IRunningTask {0} at SystemState {1} in retry # {2}.", runningTask.Id, _systemState.CurrentState, _numberOfRetryForFaultTolerant);
             lock (_lock)
             {
                 switch (_systemState.CurrentState)
@@ -377,8 +377,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         /// <param name="completedTask">The link to the completed task</param>
         public void OnNext(ICompletedTask completedTask)
         {
-            Logger.Log(Level.Info, "Received ICompletedTask {0}, systemState {1} in retry # {2}.", completedTask.Id, _systemState.CurrentState, _numberOfRetryForFaultTolerant);
-
+            Logger.Log(Level.Verbose, "Received ICompletedTask {0}, with systemState {1} in retry# {2}.", completedTask.Id, _systemState.CurrentState, _numberOfRetryForFaultTolerant);
             lock (_lock)
             {
                 switch (_systemState.CurrentState)
@@ -432,14 +431,14 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         /// <param name="failedEvaluator"></param>
         public void OnNext(IFailedEvaluator failedEvaluator)
         {
+            Logger.Log(Level.Warning, "Received IFailedEvaluator {0}, with systemState {1} in retry# {2} with Exception: {3}.", failedEvaluator.Id, _systemState.CurrentState, _numberOfRetryForFaultTolerant, failedEvaluator.EvaluatorException);
             lock (_lock)
             {
                 if (_taskManager.AreAllTasksCompleted())
                 {
-                    Logger.Log(Level.Verbose, "Evaluator with Id: {0} failed but IMRU task is completed. So ignoring.", failedEvaluator.Id);
+                    Logger.Log(Level.Verbose, "All IMRU tasks have been completed. So ignoring the Evaluator {0} failure.", failedEvaluator.Id);
                     return;
                 }
-                Logger.Log(Level.Info, "Evaluator with Id: {0} failed with Exception: {1} in retry # {2}.", failedEvaluator.Id, failedEvaluator.EvaluatorException, _numberOfRetryForFaultTolerant);
 
                 var isMaster = _evaluatorManager.IsMasterEvaluatorId(failedEvaluator.Id);
                 _evaluatorManager.RecordFailedEvaluator(failedEvaluator.Id);
@@ -498,7 +497,6 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
                         break;
 
                     case SystemState.Fail:
-                        Logger.Log(Level.Error, "Evaluator with Id: {0} failed System is in Fail state.", failedEvaluator.Id);
                         break;
 
                     default:
@@ -551,15 +549,14 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         /// <param name="failedTask"></param>
         public void OnNext(IFailedTask failedTask)
         {
+            Logger.Log(Level.Warning, "Receive IFailedTask with Id: {0} and message: {1} in retry#: {2}.", failedTask.Id, failedTask.Message, _numberOfRetryForFaultTolerant);
             lock (_lock)
             {
                 if (_taskManager.AreAllTasksCompleted())
                 {
-                    Logger.Log(Level.Info, "Task with Id: {0} failed but IMRU task is completed. So ignoring.", failedTask.Id);
+                    Logger.Log(Level.Info, "Task with Id: {0} failed but all IMRU tasks are completed. So ignoring.", failedTask.Id);
                     return;
                 }
-
-                Logger.Log(Level.Info, "Task with Id: {0} failed with message: {1} in retry #: {2}.", failedTask.Id, failedTask.Message, _numberOfRetryForFaultTolerant);
 
                 switch (_systemState.CurrentState)
                 {
@@ -675,7 +672,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
                     Logger.Log(Level.Info, "There is no failed Evaluator in this recovery but failed tasks.");
                     if (_contextManager.AreAllContextsReceived)
                     {
-                        OnNext(_contextManager.NumberOfActiveContexts);
+                        OnNext(new ActiveContextReceived(_contextManager.NumberOfActiveContexts));
                     }
                     else
                     {

@@ -260,7 +260,9 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
                 {
                     if (!_runningTasks.ContainsKey(taskId))
                     {
-                        var msg = string.Format(CultureInfo.InvariantCulture, "The task [{0}] doesn't exist in Running Tasks.", taskId);
+                        var msg = string.Format(CultureInfo.InvariantCulture,
+                            "The task [{0}] doesn't exist in Running Tasks.",
+                            taskId);
                         Exceptions.Throw(new IMRUSystemException(msg), Logger);
                     }
                     _runningTasks.Remove(taskId);
@@ -268,6 +270,20 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
 
                 UpdateState(taskId, TaskStateEvent.FailedTaskEvaluatorError);
             }
+            else
+            {
+                var taskId = FindTaskAssociatedWithTheEvalutor(failedEvaluator.Id);
+                var taskState = GetTaskState(taskId);
+                if (taskState == StateMachine.TaskState.TaskSubmitted)
+                {
+                    UpdateState(taskId, TaskStateEvent.FailedTaskEvaluatorError);
+                }
+            }
+        }
+
+        private string FindTaskAssociatedWithTheEvalutor(string evaluatorId)
+        {
+            return _tasks.Where(e => e.Value.ActiveContext.EvaluatorId.Equals(evaluatorId)).Select(e => e.Key).FirstOrDefault();
         }
 
         /// <summary>

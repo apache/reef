@@ -345,6 +345,18 @@ namespace Org.Apache.REEF.IMRU.Tests
         }
 
         /// <summary>
+        /// Test the scenario where there is no task associated with the Failed Evaluator. 
+        /// This can happen when submitting a task on a failed evaluator. 
+        /// </summary>
+        [Fact]
+        public void TestFailedEvaluatorWithUnsuccessfullySubmittedTask()
+        {
+            var taskManager = TaskManagerWithTasksSubmitted();
+            taskManager.RecordTaskFailWhenReceivingFailedEvaluator(CreateMockFailedEvaluatorWithoutTaskId(EvaluatorIdPrefix + ContextIdPrefix + 1));
+            Assert.Equal(TaskState.TaskFailedByEvaluatorFailure, taskManager.GetTaskState(MapperTaskIdPrefix + 1));
+        }
+
+        /// <summary>
         /// Test evaluator fails before any task is running after all the tasks are submitted
         /// </summary>
         [Fact]
@@ -680,6 +692,20 @@ namespace Org.Apache.REEF.IMRU.Tests
             var failedEvalutor = Substitute.For<IFailedEvaluator>();
             failedEvalutor.Id.Returns(evaluatorId);
             failedEvalutor.FailedTask.Returns(Optional<IFailedTask>.Of(failedTask));
+            return failedEvalutor;
+        }
+
+        /// <summary>
+        /// Creates a mock IFailedEvaluator with no task id associated
+        /// This is to simulate the case where task is submitted on a failed evaluator. 
+        /// </summary>
+        /// <param name="evaluatorId"></param>
+        /// <returns></returns>
+        private static IFailedEvaluator CreateMockFailedEvaluatorWithoutTaskId(string evaluatorId)
+        {
+            var failedEvalutor = Substitute.For<IFailedEvaluator>();
+            failedEvalutor.Id.Returns(evaluatorId);
+            failedEvalutor.FailedTask.Returns(Optional<IFailedTask>.Empty());
             return failedEvalutor;
         }
 
