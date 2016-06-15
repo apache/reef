@@ -128,16 +128,9 @@ namespace Org.Apache.REEF.Tests.Functional.Failure.User
 
                 var taskStartEx = ex as TaskStartExceptionTestException;
 
-                if (taskStartEx == null)
-                {
-                    throw new Exception("Expected Exception to be of type TaskStartExceptionTestException, but instead got type " + ex.GetType().Name);
-                }
-
-                if (taskStartEx.Message != TaskStartExceptionMessage)
-                {
-                    throw new Exception(
-                        "Expected message to be " + TaskStartExceptionMessage + " but instead got " + taskStartEx.Message + ".");
-                }
+                Assert.True(taskStartEx != null, "Expected Exception to be of type TaskStartExceptionTestException, but instead got type " + ex.GetType().Name);
+                Assert.True(taskStartEx.Message.Equals(TaskStartExceptionMessage),
+                    "Expected message to be " + TaskStartExceptionMessage + " but instead got " + taskStartEx.Message + ".");
 
                 Logger.Log(Level.Info, FailedTaskReceived);
 
@@ -169,6 +162,10 @@ namespace Org.Apache.REEF.Tests.Functional.Failure.User
             }
         }
 
+        /// <summary>
+        /// A simple Task for Task resubmission validation on a Context with a previous Task
+        /// that failed on a Task StartHandler.
+        /// </summary>
         private sealed class TaskStartExceptionResubmitTask : LoggingTask
         {
             [Inject]
@@ -178,6 +175,9 @@ namespace Org.Apache.REEF.Tests.Functional.Failure.User
             }
         }
 
+        /// <summary>
+        /// Throws a test Exception on Task Start to trigger a task failure.
+        /// </summary>
         private sealed class TaskStartHandlerWithException : ExceptionThrowingHandler<ITaskStart>
         {
             [Inject]
