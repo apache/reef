@@ -99,7 +99,7 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Task
                     _currentStatus.SetRunning();
                     Logger.Log(Level.Verbose, "Calling into user's task.");
                     var result = _userTask.Call(null);
-                    Logger.Log(Level.Verbose, "Task Call Finished");
+                    Logger.Log(Level.Info, "Task Call Finished");
                     _currentStatus.SetResult(result);
 
                     const Level resultLogLevel = Level.Verbose;
