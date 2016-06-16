@@ -32,6 +32,7 @@ import org.apache.reef.runtime.common.driver.evaluator.EvaluatorManager;
 import org.apache.reef.runtime.yarn.driver.parameters.JobSubmissionDirectory;
 import org.apache.reef.runtime.yarn.util.YarnUtilities;
 import org.apache.reef.tang.annotations.Parameter;
+import org.apache.reef.util.CloseableIterable;
 
 import javax.inject.Inject;
 import java.io.*;
@@ -122,7 +123,6 @@ public final class DFSEvaluatorPreserver implements EvaluatorPreserver, AutoClos
 
   /**
    * Recovers the set of evaluators that are alive.
-   * @return
    */
   @Override
   public synchronized Set<String> recoverEvaluators() {
@@ -134,32 +134,34 @@ public final class DFSEvaluatorPreserver implements EvaluatorPreserver, AutoClos
         return expectedContainers;
       }
 
-      for (final String line : readerWriter.readFromEvaluatorLog()) {
-        if (line.startsWith(ADD_FLAG)) {
-          final String containerId = line.substring(ADD_FLAG.length());
-          if (expectedContainers.contains(containerId)) {
-            LOG.log(Level.WARNING, "Duplicated add container record found in the change log for container " +
-                containerId);
-          } else {
-            expectedContainers.add(containerId);
+      try (final CloseableIterable<String> evaluatorLogIterable = readerWriter.readFromEvaluatorLog()) {
+        for (final String line : evaluatorLogIterable) {
+          if (line.startsWith(ADD_FLAG)) {
+            final String containerId = line.substring(ADD_FLAG.length());
+            if (expectedContainers.contains(containerId)) {
+              LOG.log(Level.WARNING, "Duplicated add container record found in the change log for container " +
+                  containerId);
+            } else {
+              expectedContainers.add(containerId);
+            }
+          } else if (line.startsWith(REMOVE_FLAG)) {
+            final String containerId = line.substring(REMOVE_FLAG.length());
+            if (!expectedContainers.contains(containerId)) {
+              LOG.log(Level.WARNING, "Change log includes record that try to remove non-exist or duplicate " +
+                  "remove record for container + " + containerId);
+            }
+            expectedContainers.remove(containerId);
           }
-        } else if (line.startsWith(REMOVE_FLAG)) {
-          final String containerId = line.substring(REMOVE_FLAG.length());
-          if (!expectedContainers.contains(containerId)) {
-            LOG.log(Level.WARNING, "Change log includes record that try to remove non-exist or duplicate " +
-                "remove record for container + " + containerId);
-          }
-          expectedContainers.remove(containerId);
         }
       }
-    } catch (final IOException e) {
+    } catch (final Exception e) {
       final String errMsg = "Cannot read from log file with Exception " + e +
           ", evaluators will not be recovered.";
 
       final String fatalMsg = "Cannot read from evaluator log.";
-
       this.handleException(e, errMsg, fatalMsg);
     }
+
     return expectedContainers;
   }
 

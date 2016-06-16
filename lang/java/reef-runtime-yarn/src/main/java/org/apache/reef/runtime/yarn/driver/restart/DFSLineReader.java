@@ -20,6 +20,7 @@ package org.apache.reef.runtime.yarn.driver.restart;
 
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
+import org.apache.reef.util.CloseableIterable;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -43,33 +44,36 @@ final class DFSLineReader {
   /**
    * Reads lines from the specified path.
    */
-  Iterable<String> readLinesFromFile(final Path path) {
+  CloseableIterable<String> readLinesFromFile(final Path path) {
     return new DFSLineReaderIterable(fileSystem, path);
   }
 
   /**
    * Iterable of DFS file lines.
    */
-  private final class DFSLineReaderIterable implements Iterable<String> {
+  private final class DFSLineReaderIterable implements CloseableIterable<String> {
 
-    private final FileSystem fileSystem;
-    private final Path path;
+    private final DFSLineReaderIterator iterator;
 
     private DFSLineReaderIterable(final FileSystem fileSystem, final Path path) {
-      this.fileSystem = fileSystem;
-      this.path = path;
+      this.iterator = new DFSLineReaderIterator(fileSystem, path);
     }
 
     @Override
     public Iterator<String> iterator() {
-      return new DFSLineReaderIterator(fileSystem, path);
+      return iterator;
+    }
+
+    @Override
+    public void close() throws Exception {
+      iterator.close();
     }
   }
 
   /**
    * Iterator of DFS file lines.
    */
-  private final class DFSLineReaderIterator implements Iterator<String> {
+  private final class DFSLineReaderIterator implements Iterator<String>, AutoCloseable {
     private final Path path;
 
     private String line = null;
@@ -120,6 +124,13 @@ final class DFSLineReader {
     @Override
     public void remove() {
       throw new UnsupportedOperationException("remove is not supported.");
+    }
+
+    @Override
+    public synchronized void close() throws Exception {
+      if (reader != null) {
+        reader.close();
+      }
     }
   }
 }

@@ -24,6 +24,7 @@ import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.IOUtils;
 import org.apache.reef.annotations.audience.Private;
+import org.apache.reef.util.CloseableIterable;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
@@ -96,7 +97,7 @@ public final class DFSEvaluatorLogOverwriteReaderWriter implements DFSEvaluatorL
    * uses a two-file approach, where when we read, we always read from the newer file.
    */
   @Override
-  public synchronized Iterable<String> readFromEvaluatorLog() throws IOException {
+  public synchronized CloseableIterable<String> readFromEvaluatorLog() throws IOException {
     return reader.readLinesFromFile(getLongerFile());
   }
 

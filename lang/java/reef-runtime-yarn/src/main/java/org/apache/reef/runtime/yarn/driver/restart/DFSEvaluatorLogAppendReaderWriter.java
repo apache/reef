@@ -21,6 +21,7 @@ package org.apache.reef.runtime.yarn.driver.restart;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.reef.annotations.audience.Private;
+import org.apache.reef.util.CloseableIterable;
 
 import java.io.BufferedWriter;
 import java.io.IOException;
@@ -67,7 +68,7 @@ public final class DFSEvaluatorLogAppendReaderWriter implements DFSEvaluatorLogR
   }
 
   @Override
-  public Iterable<String> readFromEvaluatorLog() throws IOException {
+  public CloseableIterable<String> readFromEvaluatorLog() throws IOException {
     return reader.readLinesFromFile(changelogPath);
   }
 

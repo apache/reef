@@ -19,6 +19,7 @@
 package org.apache.reef.runtime.yarn.driver.restart;
 
 import org.apache.reef.annotations.audience.Private;
+import org.apache.reef.util.CloseableIterable;
 
 import java.io.IOException;
 
@@ -41,5 +42,5 @@ public interface DFSEvaluatorLogReaderWriter extends AutoCloseable {
    * @return the formatted entry.
    * @throws IOException
    */
-  Iterable<String> readFromEvaluatorLog() throws IOException;
+  CloseableIterable<String> readFromEvaluatorLog() throws IOException;
 }
