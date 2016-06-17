@@ -16,7 +16,6 @@
 // under the License.
 
 using System;
-using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Utilities;
 
 namespace Org.Apache.REEF.Common.Runtime.Evaluator.Context
@@ -52,17 +51,6 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Context
         public Optional<string> ParentId
         {
             get { return _parentId; }
-        }
-
-        /// <summary>
-        /// Extracts a context id from the given configuration.
-        /// </summary>
-        /// <param name="c"></param>
-        /// <returns>the context id in the given configuration.</returns>
-        public static string GetId(IConfiguration c)
-        {
-            // TODO: update after TANG is available
-            return string.Empty;
         }
     }
 }

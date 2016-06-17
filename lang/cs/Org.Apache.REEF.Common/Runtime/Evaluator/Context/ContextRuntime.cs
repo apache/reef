@@ -28,6 +28,7 @@ using Org.Apache.REEF.Common.Services;
 using Org.Apache.REEF.Common.Tasks;
 using Org.Apache.REEF.Common.Tasks.Events;
 using Org.Apache.REEF.Tang.Exceptions;
+using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Utilities;
 using Org.Apache.REEF.Utilities.Attributes;
@@ -225,15 +226,20 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Context
                 {
                     Utilities.Diagnostics.Exceptions.Caught(e, Level.Error, LOGGER);
 
-                    Optional<string> parentId = ParentContext.IsPresent() ?
-                        Optional<string>.Of(ParentContext.Value.Id) :
-                        Optional<string>.Empty();
-                    ContextClientCodeException ex = new ContextClientCodeException(ContextClientCodeException.GetId(childContextConfiguration), parentId, "Unable to spawn context", e);
-                    
-                    Utilities.Diagnostics.Exceptions.Throw(ex, LOGGER);
+                    var contextId = string.Empty;
+                    try
+                    {
+                        var injector = TangFactory.GetTang().NewInjector(childContextConfiguration);
+                        contextId = injector.GetNamedInstance<ContextConfigurationOptions.ContextIdentifier, string>();
+                    }
+                    catch (InjectionException)
+                    {
+                        LOGGER.Log(Level.Error, "Unable to get Context ID from child ContextConfiguration. Using empty string.");
+                    }
+
+                    throw new ContextClientCodeException(contextId, Optional<string>.Of(Id), "Unable to spawn context", e);
                 }
             }
-            return null;
         }
 
         /// <summary>

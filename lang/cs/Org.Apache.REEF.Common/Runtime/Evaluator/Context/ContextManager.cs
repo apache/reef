@@ -194,7 +194,6 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Context
                 {
                     HandleContextException(e as ContextClientCodeException);
                 }
-                Utilities.Diagnostics.Exceptions.CaughtAndThrow(e, Level.Error, LOGGER);
             }  
         }
 
