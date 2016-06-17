@@ -34,18 +34,12 @@ namespace Org {
 						  if (env->GetJavaVM(pJavaVm) != 0) {
 							  ManagedLog::LOGGER->LogError("Failed to get JavaVM", nullptr);
 						  }
-                          ManagedLog::LOGGER->LogStart("FailedContextClr2Java::FailedContextClr2Java");
 						  _jobjectFailedContext = reinterpret_cast<jobject>(env->NewGlobalRef(jobjectFailedContext));
 						  jclass jclassFailedContext = env->GetObjectClass(_jobjectFailedContext);
-                          ManagedLog::LOGGER->LogStart("FailedContextClr2Java::FailedContextClr2Java");
 
 						  jmethodID jmidGetParentId = env->GetMethodID(jclassFailedContext, "getParentIdString", "()Ljava/lang/String;");
-
-                          ManagedLog::LOGGER->LogStart("FailedContextClr2Java::FailedContextClr2Java");
 						  _jstringContextId = CommonUtilities::GetJObjectId(env, jobjectFailedContext, jclassFailedContext);
-                          ManagedLog::LOGGER->LogStart("FailedContextClr2Java::FailedContextClr2Java");
 						  _jstringEvaluatorId = CommonUtilities::GetJObjectEvaluatorId(env, jobjectFailedContext, jclassFailedContext);
-                          ManagedLog::LOGGER->LogStart("FailedContextClr2Java::FailedContextClr2Java");
 						  _jstringParentContextId = reinterpret_cast<jstring>(env->NewGlobalRef(env->CallObjectMethod(_jobjectFailedContext, jmidGetParentId)));
 
 						  ManagedLog::LOGGER->LogStop("FailedContextClr2Java::FailedContextClr2Java");
