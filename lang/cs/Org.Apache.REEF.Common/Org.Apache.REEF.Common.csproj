@@ -188,7 +188,6 @@ under the License.
     <Compile Include="Tasks\Events\ITaskStart.cs" />
     <Compile Include="Tasks\Events\ITaskStop.cs" />
     <Compile Include="Tasks\Exceptions\TaskCloseHandlerNotBoundException.cs" />
-    <Compile Include="Tasks\Exceptions\TaskSuspendHandlerException.cs" />
     <Compile Include="Tasks\IDriverConnectionMessageHandler.cs" />
     <Compile Include="Tasks\IDriverMessageHandler.cs" />
     <Compile Include="Tasks\IDriverConnectionMessage.cs" />
