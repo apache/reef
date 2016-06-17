@@ -56,10 +56,6 @@ jbyteArray JavaByteArrayFromManagedByteArray(
   JNIEnv *env,
   array<byte>^ managedByteArray);
 
-jlongArray JavaLongArrayFromManagedLongArray(
-  JNIEnv *env,
-  array<unsigned long long>^ managedLongArray);
-
 JNIEnv* RetrieveEnv(JavaVM* jvm);
 
 String^ FormatJavaExceptionMessage(String^ errorMessage, Exception^ exception);
