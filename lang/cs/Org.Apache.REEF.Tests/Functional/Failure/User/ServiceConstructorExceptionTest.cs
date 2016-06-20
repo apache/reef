@@ -16,6 +16,7 @@
 // under the License.
 
 using System;
+using System.Linq;
 using Org.Apache.REEF.Common.Context;
 using Org.Apache.REEF.Common.Services;
 using Org.Apache.REEF.Common.Tasks;
@@ -105,6 +106,9 @@ namespace Org.Apache.REEF.Tests.Functional.Failure.User
 
             public void OnNext(IFailedEvaluator value)
             {
+                // We should expect 0 failed contexts here, since the Evaluator fails
+                // to instantiate the RootContext.
+                Assert.Equal(0, value.FailedContexts.Count);
                 Logger.Log(Level.Info, FailedEvaluatorReceived);
             }
 
@@ -132,7 +136,6 @@ namespace Org.Apache.REEF.Tests.Functional.Failure.User
                     }
                     else
                     {
-
                         // Context stacking config.
                         value.SubmitContext(
                             ContextConfiguration.ConfigurationModule
@@ -164,6 +167,12 @@ namespace Org.Apache.REEF.Tests.Functional.Failure.User
                 }
             }
 
+            /// <summary>
+            /// Only Context2 is expected as the FailedContext.
+            /// Context0 should trigger a FailedEvaluator directly.
+            /// Submit a Task on to the parent of Context2 (Context1) and make sure 
+            /// that it runs to completion.
+            /// </summary>
             public void OnNext(IFailedContext value)
             {
                 Assert.Equal(Context2, value.Id);
