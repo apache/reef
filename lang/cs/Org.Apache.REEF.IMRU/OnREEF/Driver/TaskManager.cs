@@ -363,6 +363,8 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
 
         /// <summary>
         /// Gets error type based on the exception type in IFailedTask 
+        /// For unknown exceptions or exceptions that doesn't belong to defined IMRU task exceptions
+        /// treat then as application error.
         /// </summary>
         /// <param name="failedTask"></param>
         /// <returns></returns>
@@ -378,9 +380,14 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
             {
                 return TaskStateEvent.FailedTaskCommunicationError;
             }
-            else
+            if (exception is IMRUTaskSystemException)
             {
                 return TaskStateEvent.FailedTaskSystemError;
+            }
+            else
+            {
+                _numberOfAppErrors++;
+                return TaskStateEvent.FailedTaskAppError;
             }
         }
 
@@ -397,7 +404,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         /// Checks if all the tasks are in final states
         /// </summary>
         /// <returns></returns>
-        internal bool AllInFinalState()
+        internal bool AreAllTasksInFinalState()
         {
             return _tasks.All(t => t.Value.TaskState.IsFinalState());
         }

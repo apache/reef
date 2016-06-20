@@ -181,7 +181,7 @@ namespace Org.Apache.REEF.IMRU.Tests
         /// <summary>
         /// A Context Manager observer for test
         /// </summary>
-        private sealed class TestContextObserver : IObserver<IAllContextsReceived>
+        private sealed class TestContextObserver : IObserver<int>
         {
             private readonly int _totalExpected;
             private int _contextCount = 0;
@@ -206,9 +206,9 @@ namespace Org.Apache.REEF.IMRU.Tests
                 return _contextCount;
             }
 
-            public void OnNext(IAllContextsReceived value)
+            public void OnNext(int value)
             {
-                _contextCount = value.GetNumberOfActiveContext();
+                _contextCount = value;
             }
         }
     }

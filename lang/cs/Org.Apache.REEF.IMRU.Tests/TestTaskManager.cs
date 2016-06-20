@@ -205,7 +205,7 @@ namespace Org.Apache.REEF.IMRU.Tests
             taskManager.RecordFailedTaskDuringRunningOrSubmissionState(CreateMockFailedTask(MapperTaskIdPrefix + 1, TaskManager.TaskAppError));
             taskManager.RecordFailedTaskDuringRunningOrSubmissionState(CreateMockFailedTask(MapperTaskIdPrefix + 2, TaskManager.TaskGroupCommunicationError));
             taskManager.RecordFailedTaskDuringRunningOrSubmissionState(CreateMockFailedTask(MasterTaskId, TaskManager.TaskSystemError));
-            Assert.True(taskManager.AllInFinalState());
+            Assert.True(taskManager.AreAllTasksInFinalState());
         }
 
         /// <summary>
@@ -254,7 +254,7 @@ namespace Org.Apache.REEF.IMRU.Tests
             taskManager.RecordFailedTaskDuringSystemShuttingDownState(CreateMockFailedTask(MasterTaskId, TaskManager.TaskKilledByDriver));
             Assert.Equal(TaskState.TaskClosedByDriver, taskManager.GetTaskState(MasterTaskId));
 
-            Assert.True(taskManager.AllInFinalState());
+            Assert.True(taskManager.AreAllTasksInFinalState());
         }
 
         /// <summary>
@@ -281,7 +281,7 @@ namespace Org.Apache.REEF.IMRU.Tests
             var masterTask = CreateMockFailedTask(MasterTaskId, TaskManager.TaskKilledByDriver);
             taskManager.RecordFailedTaskDuringSystemShuttingDownState(masterTask);
 
-            Assert.True(taskManager.AllInFinalState());
+            Assert.True(taskManager.AreAllTasksInFinalState());
         }
 
         /// <summary>
@@ -312,7 +312,7 @@ namespace Org.Apache.REEF.IMRU.Tests
             taskManager.RecordFailedTaskDuringSystemShuttingDownState(masterTask);
             Assert.Equal(TaskState.TaskClosedByDriver, taskManager.GetTaskState(MasterTaskId));
 
-            Assert.True(taskManager.AllInFinalState());
+            Assert.True(taskManager.AreAllTasksInFinalState());
         }
 
         /// <summary>
@@ -341,7 +341,7 @@ namespace Org.Apache.REEF.IMRU.Tests
             taskManager.RecordFailedTaskDuringSystemShuttingDownState(masterTask);
             Assert.Equal(TaskState.TaskClosedByDriver, taskManager.GetTaskState(MasterTaskId));
 
-            Assert.True(taskManager.AllInFinalState());
+            Assert.True(taskManager.AreAllTasksInFinalState());
         }
 
         /// <summary>
@@ -390,7 +390,7 @@ namespace Org.Apache.REEF.IMRU.Tests
             var failedMasterTask = CreateMockFailedTask(MasterTaskId, TaskManager.TaskKilledByDriver);
             taskManager.RecordFailedTaskDuringSystemShuttingDownState(failedMasterTask);
 
-            Assert.True(taskManager.AllInFinalState());
+            Assert.True(taskManager.AreAllTasksInFinalState());
         }
 
         /// <summary>
@@ -423,7 +423,7 @@ namespace Org.Apache.REEF.IMRU.Tests
             var failedMasterTask = CreateMockFailedTask(MasterTaskId, TaskManager.TaskKilledByDriver);
             taskManager.RecordFailedTaskDuringSystemShuttingDownState(failedMasterTask);
 
-            Assert.True(taskManager.AllInFinalState());
+            Assert.True(taskManager.AreAllTasksInFinalState());
         }
 
         /// <summary>
@@ -451,7 +451,7 @@ namespace Org.Apache.REEF.IMRU.Tests
             var failedMasterTask = CreateMockFailedTask(MasterTaskId, TaskManager.TaskKilledByDriver);
             taskManager.RecordFailedTaskDuringSystemShuttingDownState(failedMasterTask);
 
-            Assert.True(taskManager.AllInFinalState());
+            Assert.True(taskManager.AreAllTasksInFinalState());
         }
 
         /// <summary>
@@ -488,7 +488,7 @@ namespace Org.Apache.REEF.IMRU.Tests
             var failedMasterTask = CreateMockFailedTask(MasterTaskId, TaskManager.TaskKilledByDriver);
             taskManager.RecordFailedTaskDuringSystemShuttingDownState(failedMasterTask);
 
-            Assert.True(taskManager.AllInFinalState());
+            Assert.True(taskManager.AreAllTasksInFinalState());
         }
 
         /// <summary>
@@ -527,7 +527,7 @@ namespace Org.Apache.REEF.IMRU.Tests
             var failedMasterTask = CreateMockFailedTask(MasterTaskId, TaskManager.TaskKilledByDriver);
             taskManager.RecordFailedTaskDuringSystemShuttingDownState(failedMasterTask);
 
-            Assert.True(taskManager.AllInFinalState());
+            Assert.True(taskManager.AreAllTasksInFinalState());
         }
 
         /// <summary>
@@ -560,7 +560,7 @@ namespace Org.Apache.REEF.IMRU.Tests
             var failedMasterTask = CreateMockFailedTask(MasterTaskId, TaskManager.TaskGroupCommunicationError);
             taskManager.RecordFailedTaskDuringSystemShuttingDownState(failedMasterTask);
 
-            Assert.True(taskManager.AllInFinalState());
+            Assert.True(taskManager.AreAllTasksInFinalState());
         }
 
         /// <summary>
@@ -645,8 +645,11 @@ namespace Org.Apache.REEF.IMRU.Tests
                 case TaskManager.TaskGroupCommunicationError:
                     taskException = new IMRUTaskGroupCommunicationException(errorMsg);
                     break;
-                default:
+                case TaskManager.TaskSystemError:
                     taskException = new IMRUTaskSystemException(errorMsg);
+                    break;
+                default:
+                    taskException = new IMRUTaskAppException(errorMsg);
                     break;
             }
 

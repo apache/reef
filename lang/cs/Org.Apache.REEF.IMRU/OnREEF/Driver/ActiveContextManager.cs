@@ -32,12 +32,12 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
     /// Manages active contexts for the driver
     /// </summary>
     [NotThreadSafe]
-    internal sealed class ActiveContextManager : IDisposable
+    internal sealed class ActiveContextManager : IDisposable, IObservable<int>
     {
         private static readonly Logger Logger = Logger.GetLogger(typeof(ActiveContextManager));
         private readonly IDictionary<string, IActiveContext> _activeContexts = new Dictionary<string, IActiveContext>();
         private readonly int _totalExpectedContexts;
-        private IObserver<IAllContextsReceived> _activeContextObserver;
+        private IObserver<int> _activeContextObserver;
 
         /// <summary>
         /// Constructor of ActiveContextManager
@@ -71,7 +71,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         /// </summary>
         /// <param name="activeContextObserver"></param>
         /// <returns></returns>
-        public IDisposable Subscribe(IObserver<IAllContextsReceived> activeContextObserver)
+        public IDisposable Subscribe(IObserver<int> activeContextObserver)
         {
             if (_activeContextObserver != null)
             {
@@ -112,7 +112,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
 
             if (AreAllContextsReceived && _activeContextObserver != null)
             {
-                _activeContextObserver.OnNext(new ActiveContextReceived(_activeContexts.Count));
+                _activeContextObserver.OnNext(_activeContexts.Count);
             }
         }
 

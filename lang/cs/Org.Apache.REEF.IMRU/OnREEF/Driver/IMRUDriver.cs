@@ -64,7 +64,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         IObserver<IFailedContext>,
         IObserver<IFailedTask>,
         IObserver<IRunningTask>,
-        IObserver<IAllContextsReceived>
+        IObserver<int>
     {
         private static readonly Logger Logger =
             Logger.GetLogger(typeof(IMRUDriver<TMapInput, TMapOutput, TResult, TPartitionType>));
@@ -116,7 +116,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         /// <summary>
         /// It records the number of retry for the recoveries. 
         /// </summary>
-        private int _numberOfRetryForFaultTolerant = 1;
+        private int _numberOfRetriesForFaultTolerant = 1;
 
         [Inject]
         private IMRUDriver(IPartitionedInputDataSet dataSet,
@@ -144,7 +144,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
 
             var updateSpec = new EvaluatorSpecification(memoryForUpdateTask, coresForUpdateTask);
             var mapperSpec = new EvaluatorSpecification(memoryPerMapper, coresPerMapper);
-            var allowedFailedEvaluators = (int)(failedEvaluatorsFraction * dataSet.Count);
+            var allowedFailedEvaluators = (int)(failedEvaluatorsFraction * _totalMappers);
             _evaluatorManager = new EvaluatorManager(_totalMappers + 1, allowedFailedEvaluators, evaluatorRequestor, updateSpec, mapperSpec);
 
             _taskManager = new TaskManager(_totalMappers + 1, _groupCommDriver.MasterTaskId);
@@ -270,12 +270,12 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         /// It changes the system state then calls SubmitTasks().
         /// </summary>
         /// <param name="value"></param>
-        public void OnNext(IAllContextsReceived value)
+        public void OnNext(int value)
         {
-            Logger.Log(Level.Info, "Received event from ActiveContextManager with NumberOfActiveContexts:" + value.GetNumberOfActiveContext());
+            Logger.Log(Level.Info, "Received event from ActiveContextManager with NumberOfActiveContexts:" + value);
             lock (_lock)
             {
-                // Change the system state to SubmittingTasks
+                // When the event AllContextsAreReady happens, change the system state from WaitingForEvaluator to SubmittingTasks
                 _systemState.MoveNext(SystemStateEvent.AllContextsAreReady);
                 SubmitTasks();
             }
@@ -338,7 +338,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         /// <param name="runningTask"></param>
         public void OnNext(IRunningTask runningTask)
         {
-            Logger.Log(Level.Verbose, "Received IRunningTask {0} at SystemState {1} in retry # {2}.", runningTask.Id, _systemState.CurrentState, _numberOfRetryForFaultTolerant);
+            Logger.Log(Level.Verbose, "Received IRunningTask {0} at SystemState {1} in retry # {2}.", runningTask.Id, _systemState.CurrentState, _numberOfRetriesForFaultTolerant);
             lock (_lock)
             {
                 switch (_systemState.CurrentState)
@@ -377,7 +377,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         /// <param name="completedTask">The link to the completed task</param>
         public void OnNext(ICompletedTask completedTask)
         {
-            Logger.Log(Level.Verbose, "Received ICompletedTask {0}, with systemState {1} in retry# {2}.", completedTask.Id, _systemState.CurrentState, _numberOfRetryForFaultTolerant);
+            Logger.Log(Level.Verbose, "Received ICompletedTask {0}, with systemState {1} in retry# {2}.", completedTask.Id, _systemState.CurrentState, _numberOfRetriesForFaultTolerant);
             lock (_lock)
             {
                 switch (_systemState.CurrentState)
@@ -431,7 +431,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         /// <param name="failedEvaluator"></param>
         public void OnNext(IFailedEvaluator failedEvaluator)
         {
-            Logger.Log(Level.Warning, "Received IFailedEvaluator {0}, with systemState {1} in retry# {2} with Exception: {3}.", failedEvaluator.Id, _systemState.CurrentState, _numberOfRetryForFaultTolerant, failedEvaluator.EvaluatorException);
+            Logger.Log(Level.Warning, "Received IFailedEvaluator {0}, with systemState {1} in retry# {2} with Exception: {3}.", failedEvaluator.Id, _systemState.CurrentState, _numberOfRetriesForFaultTolerant, failedEvaluator.EvaluatorException);
             lock (_lock)
             {
                 if (_taskManager.AreAllTasksCompleted())
@@ -463,7 +463,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
                         }
                         else
                         {
-                            Logger.Log(Level.Warning, "The system is not recoverable, change the state to Fail.");
+                            Logger.Log(Level.Error, "The system is not recoverable, change the state to Fail.");
                             _systemState.MoveNext(SystemStateEvent.NotRecoverable);
                             FailAction();
                         }
@@ -471,7 +471,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
 
                     case SystemState.SubmittingTasks:
                     case SystemState.TasksRunning:
-                        // set system state to ShuttingDown
+                        // When the event FailedNode happens, change the system state to ShuttingDown
                         _systemState.MoveNext(SystemStateEvent.FailedNode);
                         _taskManager.RecordTaskFailWhenReceivingFailedEvaluator(failedEvaluator);
                         _taskManager.CloseAllRunningTasks(TaskManager.CloseTaskByDriver);
@@ -511,7 +511,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         /// <summary>
         /// IFailedContext handler. It specifies what to do if Failed Context is received.
         /// If we get all completed tasks then ignore the failure otherwise throw exception
-        /// Fault tolerant would be similar to FailedEvaluator. It is in TODO
+        /// Fault tolerant would be similar to FailedEvaluator.
         /// </summary>
         /// <param name="failedContext"></param>
         public void OnNext(IFailedContext failedContext)
@@ -549,7 +549,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         /// <param name="failedTask"></param>
         public void OnNext(IFailedTask failedTask)
         {
-            Logger.Log(Level.Warning, "Receive IFailedTask with Id: {0} and message: {1} in retry#: {2}.", failedTask.Id, failedTask.Message, _numberOfRetryForFaultTolerant);
+            Logger.Log(Level.Warning, "Receive IFailedTask with Id: {0} and message: {1} in retry#: {2}.", failedTask.Id, failedTask.Message, _numberOfRetriesForFaultTolerant);
             lock (_lock)
             {
                 if (_taskManager.AreAllTasksCompleted())
@@ -562,7 +562,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
                 {
                     case SystemState.SubmittingTasks:
                     case SystemState.TasksRunning:
-                        // set system state to ShuttingDown
+                        // When the event FailedNode happens, change the system state to ShuttingDown
                         _systemState.MoveNext(SystemStateEvent.FailedNode);
                         _taskManager.RecordFailedTaskDuringRunningOrSubmissionState(failedTask);
                         _taskManager.CloseAllRunningTasks(TaskManager.CloseTaskByDriver);
@@ -606,7 +606,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         /// </summary>
         private void TryRecovery()
         {
-            if (_taskManager.AllInFinalState())
+            if (_taskManager.AreAllTasksInFinalState())
             {
                 if (IsRecoverable())
                 {
@@ -629,11 +629,17 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
                 _serviceAndContextConfigurationProvider.GetPartitionIdByEvaluatorId(evaluatorId));
         }
 
+        /// <summary>
+        /// This method is called when all the tasks are successfully completed. 
+        /// </summary>
         private void DoneAction()
         {
             ShutDownAllEvaluators();
         }
 
+        /// <summary>
+        /// This method is called when there are failures and the system is not recoverable. 
+        /// </summary>
         private void FailAction()
         {
             ShutDownAllEvaluators();
@@ -660,8 +666,8 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         {
             lock (_lock)
             {
-                _numberOfRetryForFaultTolerant++;
-                Logger.Log(Level.Info, "Start recovery with _numberOfRetryForFaultTolerant:" + _numberOfRetryForFaultTolerant);
+                _numberOfRetriesForFaultTolerant++;
+                Logger.Log(Level.Info, "Start recovery with _numberOfRetryForFaultTolerant:" + _numberOfRetriesForFaultTolerant);
                 _systemState.MoveNext(SystemStateEvent.Recover);
 
                 var mappersToRequest = _evaluatorManager.NumberofFailedMappers();
@@ -672,7 +678,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
                     Logger.Log(Level.Info, "There is no failed Evaluator in this recovery but failed tasks.");
                     if (_contextManager.AreAllContextsReceived)
                     {
-                        OnNext(new ActiveContextReceived(_contextManager.NumberOfActiveContexts));
+                        OnNext(_contextManager.NumberOfActiveContexts);
                     }
                     else
                     {
@@ -696,7 +702,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
             return !_evaluatorManager.ReachedMaximumNumberOfEvaluatorFailures()
                 && _taskManager.NumberOfAppErrors() == 0
                 && !_evaluatorManager.IsMasterEvaluatorFailed()
-                && _numberOfRetryForFaultTolerant < _maxRetryNumberForFaultTolerant;
+                && _numberOfRetriesForFaultTolerant < _maxRetryNumberForFaultTolerant;
         }
 
         /// <summary>
