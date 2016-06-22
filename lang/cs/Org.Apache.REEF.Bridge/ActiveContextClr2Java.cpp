@@ -36,6 +36,7 @@ namespace Org {
 							}
 
 							_jobjectActiveContext = reinterpret_cast<jobject>(env->NewGlobalRef(jobjectActiveContext));
+
 							jclass jclassActiveContext = env->GetObjectClass(_jobjectActiveContext);
 							jmethodID jmidGetContextId = env->GetMethodID(jclassActiveContext, "getContextId", "()Ljava/lang/String;");
 							_jstringId = CommonUtilities::CallGetMethodNewGlobalRef<jstring>(env, _jobjectActiveContext, jmidGetContextId);

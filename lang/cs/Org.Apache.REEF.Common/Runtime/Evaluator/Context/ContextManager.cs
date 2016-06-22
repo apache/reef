@@ -184,21 +184,14 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Context
                     Utilities.Diagnostics.Exceptions.Throw(e, LOGGER);
                 } 
             }
-            catch (Exception e)
+            catch (TaskClientCodeException e)
             {
-                if (e is TaskClientCodeException)
-                {
-                    HandleTaskException(e as TaskClientCodeException);
-                }
-                else if (e is ContextClientCodeException)
-                {
-                    HandleContextException(e as ContextClientCodeException);
-                }
-                else
-                {
-                    Utilities.Diagnostics.Exceptions.CaughtAndThrow(e, Level.Error, LOGGER);
-                }
-            }  
+                HandleTaskException(e);
+            }
+            catch (ContextClientCodeException e)
+            {
+                HandleContextException(e);
+            }
         }
 
         /// <summary>
