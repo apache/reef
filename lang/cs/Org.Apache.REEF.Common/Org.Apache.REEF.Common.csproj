@@ -142,9 +142,11 @@ under the License.
     <Compile Include="Files\REEFFileNames.cs" />
     <Compile Include="Runtime\Evaluator\Constants.cs" />
     <Compile Include="Runtime\Evaluator\Context\ContextClientCodeException.cs" />
+    <Compile Include="Runtime\Evaluator\Context\ContextException.cs" />
     <Compile Include="Runtime\Evaluator\Context\ContextLifeCycle.cs" />
     <Compile Include="Runtime\Evaluator\Context\ContextManager.cs" />
     <Compile Include="Runtime\Evaluator\Context\ContextRuntime.cs" />
+    <Compile Include="Runtime\Evaluator\Context\ContextStartHandlerException.cs" />
     <Compile Include="Runtime\Evaluator\Context\ContextStartImpl.cs" />
     <Compile Include="Runtime\Evaluator\Context\ContextStopImpl.cs" />
     <Compile Include="Runtime\Evaluator\Context\RootContextLauncher.cs" />

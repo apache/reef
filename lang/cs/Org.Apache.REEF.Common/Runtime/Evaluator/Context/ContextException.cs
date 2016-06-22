@@ -16,16 +16,31 @@
 // under the License.
 
 using System;
+using Org.Apache.REEF.Utilities;
 
-namespace Org.Apache.REEF.Common.Runtime.Evaluator.Task
+namespace Org.Apache.REEF.Common.Runtime.Evaluator.Context
 {
-    /// <summary>
-    /// Exception that is thrown when the TaskStartHandler encounters an Exception.
-    /// </summary>
-    internal sealed class TaskStartHandlerException : Exception
+    internal abstract class ContextException : Exception
     {
-        internal TaskStartHandlerException(string message, Exception inner) : base(message, inner)
+        private readonly string _contextId;
+        private readonly Optional<string> _parentId;
+        
+        internal ContextException(
+            string contextId, Optional<string> parentId, string message, Exception inner) :
+            base(message, inner)
         {
+            _contextId = contextId;
+            _parentId = parentId;
+        }
+
+        internal string ContextId
+        {
+            get { return _contextId; }
+        }
+
+        internal Optional<string> ParentId
+        {
+            get { return _parentId; }
         }
     }
 }

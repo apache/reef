@@ -82,6 +82,7 @@ under the License.
     <Compile Include="Functional\Common\Task\ExceptionTask.cs" />
     <Compile Include="Functional\Failure\User\ServiceConstructorExceptionTest.cs" />
     <Compile Include="Functional\Failure\User\ReceiveContextMessageExceptionTest.cs" />
+    <Compile Include="Functional\Failure\User\ContextStartExceptionTest.cs" />
     <Compile Include="Functional\Failure\User\TaskCallExceptionTest.cs" />
     <Compile Include="Functional\Bridge\Exceptions\TestNonSerializableException.cs" />
     <Compile Include="Functional\Bridge\Exceptions\TestSerializableException.cs" />
