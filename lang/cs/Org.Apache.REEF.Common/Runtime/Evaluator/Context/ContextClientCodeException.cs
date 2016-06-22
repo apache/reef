@@ -20,11 +20,8 @@ using Org.Apache.REEF.Utilities;
 
 namespace Org.Apache.REEF.Common.Runtime.Evaluator.Context
 {
-    internal sealed class ContextClientCodeException : Exception
+    internal sealed class ContextClientCodeException : ContextException
     {
-        private readonly string _contextId;
-        private readonly Optional<string> _parentId;
-
         /// <summary>
         /// construct the exception that caused the error
         /// </summary>
@@ -37,20 +34,8 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Context
                 Optional<string> parentId,
                 string message,
                 Exception cause)
-            : base("Failure in context '" + contextId + "': " + message, cause)
+            : base(contextId, parentId, "Failure in context '" + contextId + "': " + message, cause)
         {
-            _contextId = contextId;
-            _parentId = parentId;
-        }
-
-        public string ContextId
-        {
-            get { return _contextId; }
-        }
-
-        public Optional<string> ParentId
-        {
-            get { return _parentId; }
         }
     }
 }

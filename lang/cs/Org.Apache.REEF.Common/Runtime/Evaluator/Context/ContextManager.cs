@@ -72,7 +72,7 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Context
                     catch (TaskClientCodeException e)
                     {
                         Utilities.Diagnostics.Exceptions.Caught(e, Level.Error, "Exception when trying to start a task.", LOGGER);
-                        HandleTaskException(e);
+                        HandleTaskInitializationException(e);
                     }
                 }
             }
@@ -100,13 +100,16 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Context
                 byte[] message = controlMessage.task_message;
                 if (controlMessage.add_context != null && controlMessage.remove_context != null)
                 {
-                    Utilities.Diagnostics.Exceptions.Throw(new InvalidOperationException("Received a message with both add and remove context. This is unsupported."), LOGGER);
+                    Utilities.Diagnostics.Exceptions.Throw(
+                        new InvalidOperationException(
+                            "Received a message with both add and remove context. This is unsupported."),
+                        LOGGER);
                 }
                 if (controlMessage.add_context != null)
                 {
                     LOGGER.Log(Level.Info, "AddContext");
                     AddContext(controlMessage.add_context);
-                    
+
                     // support submitContextAndTask()
                     if (controlMessage.start_task != null)
                     {
@@ -123,7 +126,9 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Context
                 }
                 else if (controlMessage.remove_context != null)
                 {
-                    LOGGER.Log(Level.Info, string.Format(CultureInfo.InvariantCulture, "RemoveContext with id {0}", controlMessage.remove_context.context_id));
+                    LOGGER.Log(Level.Info,
+                            "RemoveContext with id {0}",
+                            controlMessage.remove_context.context_id);
                     RemoveContext(controlMessage.remove_context.context_id);
                 }
                 else if (controlMessage.start_task != null)
@@ -164,7 +169,8 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Context
                     {
                         if (_topContext != null)
                         {
-                            context = _topContext.GetContextStack().FirstOrDefault(ctx => ctx.Id.Equals(contextMessageProto.context_id));
+                            context = _topContext.GetContextStack()
+                                    .FirstOrDefault(ctx => ctx.Id.Equals(contextMessageProto.context_id));
                         }
                     }
 
@@ -174,23 +180,33 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Context
                     }
                     else
                     {
-                        var e = new InvalidOperationException(string.Format(CultureInfo.InvariantCulture, "Sent message to unknown context {0}", contextMessageProto.context_id));
+                        var e = new InvalidOperationException(
+                            string.Format(CultureInfo.InvariantCulture,
+                                "Sent message to unknown context {0}",
+                                contextMessageProto.context_id));
                         Utilities.Diagnostics.Exceptions.Throw(e, LOGGER);
                     }
                 }
                 else
                 {
-                    InvalidOperationException e = new InvalidOperationException(string.Format(CultureInfo.InvariantCulture, "Unknown task control message: {0}", controlMessage.ToString()));
+                    InvalidOperationException e = new InvalidOperationException(
+                        string.Format(CultureInfo.InvariantCulture,
+                            "Unknown task control message: {0}",
+                            controlMessage));
                     Utilities.Diagnostics.Exceptions.Throw(e, LOGGER);
-                } 
+                }
             }
             catch (TaskClientCodeException e)
             {
-                HandleTaskException(e);
+                HandleTaskInitializationException(e);
             }
             catch (ContextClientCodeException e)
             {
-                HandleContextException(e);
+                HandleContextException(e, e.ContextId, e.ParentId);
+            }
+            catch (ContextException e)
+            {
+                HandleContextException(e.InnerException, e.ContextId, e.ParentId);
             }
         }
 
@@ -344,7 +360,7 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Context
         ///  THIS ASSUMES THAT IT IS CALLED ON A THREAD HOLDING THE LOCK ON THE HeartBeatManager
         /// </summary>
         /// <param name="e"></param>
-        private void HandleTaskException(TaskClientCodeException e)
+        private void HandleTaskInitializationException(TaskClientCodeException e)
         {
             byte[] error;
             try
@@ -377,26 +393,27 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Context
             _heartBeatManager.OnNext(taskStatus);
         }
 
-        /// <summary>
-        /// THIS ASSUMES THAT IT IS CALLED ON A THREAD HOLDING THE LOCK ON THE HeartBeatManager
-        /// </summary>
-        /// <param name="e"></param>
-        private void HandleContextException(ContextClientCodeException e)
+        private void HandleContextException(Exception e, string contextId, Optional<string> parentContextId)
         {
-            LOGGER.Log(Level.Error, "ContextClientCodeException", e);
-            byte[] exception = ByteUtilities.StringToByteArrays(e.ToString());
-            ContextStatusProto contextStatusProto = new ContextStatusProto()
+            lock (_heartBeatManager)
             {
-                context_id = e.ContextId,
-                context_state = ContextStatusProto.State.FAIL,
-                error = exception
-            };
-            if (e.ParentId.IsPresent())
-            {
-                contextStatusProto.parent_id = e.ParentId.Value;
+                LOGGER.Log(Level.Warning, "ContextException", e);
+                byte[] exception = ByteUtilities.StringToByteArrays(e.ToString());
+                var contextStatusProto = new ContextStatusProto
+                {
+                    context_id = contextId,
+                    context_state = ContextStatusProto.State.FAIL,
+                    error = exception
+                };
+
+                if (parentContextId.IsPresent())
+                {
+                    contextStatusProto.parent_id = parentContextId.Value;
+                }
+
+                LOGGER.Log(Level.Error, "Sending Heartbeat for a failed context: {0}", contextStatusProto);
+                _heartBeatManager.OnNext(contextStatusProto);
             }
-            LOGGER.Log(Level.Error, "Sending Heartbeat for a failed context: {0}", contextStatusProto);
-            _heartBeatManager.OnNext(contextStatusProto);
         }
     }
 }

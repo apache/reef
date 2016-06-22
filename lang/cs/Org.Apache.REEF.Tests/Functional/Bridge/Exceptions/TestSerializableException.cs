@@ -28,7 +28,7 @@ namespace Org.Apache.REEF.Tests.Functional.Bridge.Exceptions
         {
         }
 
-        public TestSerializableException(SerializationInfo info, StreamingContext context)
+        private TestSerializableException(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
         }
