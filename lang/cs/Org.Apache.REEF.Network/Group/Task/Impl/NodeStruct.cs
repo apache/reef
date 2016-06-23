@@ -15,7 +15,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-using System;
 using System.Collections.Concurrent;
 using Org.Apache.REEF.Network.Group.Driver.Impl;
 
@@ -62,22 +61,6 @@ namespace Org.Apache.REEF.Network.Group.Task.Impl
         internal void AddData(GroupCommunicationMessage<T> gcm)
         {
             _messageQueue.Add(gcm);
-        }
-
-        /// <summary>
-        /// Tells whether there is a message in queue or not.
-        /// </summary>
-        /// <returns>True if queue is non empty, false otherwise.</returns>
-        internal bool HasMessage()
-        {
-            if (_messageQueue.Count != 0)
-            {
-                return true;
-            }
-            else
-            {
-                return false;
-            }
         }
     }
 }
