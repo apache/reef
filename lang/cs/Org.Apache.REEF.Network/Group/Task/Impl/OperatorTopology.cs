@@ -16,7 +16,6 @@
 // under the License.
 
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -51,13 +50,10 @@ namespace Org.Apache.REEF.Network.Group.Task.Impl
         private readonly int _retryCount;
         private readonly int _sleepTime;
 
+        private readonly ChildNodeContainer<T> _childNodeContainer = new ChildNodeContainer<T>();
         private readonly NodeStruct<T> _parent;
-        private readonly List<NodeStruct<T>> _children;
-        private readonly Dictionary<string, NodeStruct<T>> _idToNodeMap;
         private readonly INameClient _nameClient;
         private readonly Sender _sender;
-        private readonly BlockingCollection<NodeStruct<T>> _nodesWithData;
-        private readonly object _thisLock = new object();
 
         /// <summary>
         /// Creates a new OperatorTopology object.
@@ -93,24 +89,12 @@ namespace Org.Apache.REEF.Network.Group.Task.Impl
             _sleepTime = sleepTime;
             _nameClient = networkService.NamingClient;
             _sender = sender;
-            _nodesWithData = new BlockingCollection<NodeStruct<T>>();
-            _children = new List<NodeStruct<T>>();
-            _idToNodeMap = new Dictionary<string, NodeStruct<T>>();
 
-            if (_selfId.Equals(rootId))
-            {
-                _parent = null;
-            }
-            else
-            {
-                _parent = new NodeStruct<T>(rootId);
-                _idToNodeMap[rootId] = _parent;
-            }
+            _parent = _selfId.Equals(rootId) ? null : new NodeStruct<T>(rootId);
+
             foreach (var childId in childIds)
             {
-                var node = new NodeStruct<T>(childId);
-                _children.Add(node);
-                _idToNodeMap[childId] = node;
+                _childNodeContainer.PutNode(new NodeStruct<T>(childId));
             }
         }
 
@@ -128,9 +112,9 @@ namespace Org.Apache.REEF.Network.Group.Task.Impl
                     WaitForTaskRegistration(_parent.Identifier, _retryCount);
                 }
 
-                if (_children.Count > 0)
+                if (_childNodeContainer.Count > 0)
                 {
-                    foreach (var child in _children)
+                    foreach (var child in _childNodeContainer)
                     {
                         WaitForTaskRegistration(child.Identifier, _retryCount);
                     }
@@ -154,24 +138,23 @@ namespace Org.Apache.REEF.Network.Group.Task.Impl
                 throw new ArgumentException("Message must have a source");
             }
 
-            var sourceNode = FindNode(gcm.Source);
+            var sourceNode = (_parent != null && _parent.Identifier == gcm.Source) 
+                ? _parent 
+                : _childNodeContainer.GetChild(gcm.Source);
+
             if (sourceNode == null)
             {
                 throw new IllegalStateException("Received message from invalid task id: " + gcm.Source);
             }
 
-            lock (_thisLock)
+            var message = gcm as GroupCommunicationMessage<T>;
+
+            if (message == null)
             {
-                _nodesWithData.Add(sourceNode);
-                var message = gcm as GroupCommunicationMessage<T>;
-
-                if (message == null)
-                {
-                    throw new NullReferenceException("message passed not of type GroupCommunicationMessage");
-                }
-
-                sourceNode.AddData(message);
+                throw new NullReferenceException("message passed not of type GroupCommunicationMessage");
             }
+
+            sourceNode.AddData(message);
         }
 
         /// <summary>
@@ -201,7 +184,7 @@ namespace Org.Apache.REEF.Network.Group.Task.Impl
                 throw new ArgumentNullException("message");
             }
 
-            foreach (var child in _children)
+            foreach (var child in _childNodeContainer)
             {
                 SendToNode(message, child);
             }
@@ -219,13 +202,13 @@ namespace Org.Apache.REEF.Network.Group.Task.Impl
             {
                 throw new ArgumentNullException("messages");
             }
-            if (_children.Count <= 0)
+            if (_childNodeContainer.Count <= 0)
             {
                 return;
             }
 
-            var count = (int)Math.Ceiling(((double)messages.Count) / _children.Count);
-            ScatterHelper(messages, _children, count);
+            var numMessagesPerChild = (int)Math.Ceiling(((double)messages.Count) / _childNodeContainer.Count);
+            ScatterHelper(messages, _childNodeContainer.ToList(), numMessagesPerChild);
         }
 
         /// <summary>
@@ -246,7 +229,7 @@ namespace Org.Apache.REEF.Network.Group.Task.Impl
                 throw new ArgumentException("Count must be positive");
             }
 
-            ScatterHelper(messages, _children, count);
+            ScatterHelper(messages, _childNodeContainer.ToList(), count);
         }
 
         /// <summary>
@@ -262,7 +245,7 @@ namespace Org.Apache.REEF.Network.Group.Task.Impl
             {
                 throw new ArgumentNullException("messages");
             }
-            if (order == null || order.Count != _children.Count)
+            if (order == null || order.Count != _childNodeContainer.Count)
             {
                 throw new ArgumentException("order cannot be null and must have the same number of elements as child tasks");
             }
@@ -270,8 +253,8 @@ namespace Org.Apache.REEF.Network.Group.Task.Impl
             List<NodeStruct<T>> nodes = new List<NodeStruct<T>>();
             foreach (string taskId in order)
             {
-                NodeStruct<T> node = FindNode(taskId);
-                if (node == null)
+                NodeStruct<T> node;
+                if (!_childNodeContainer.TryGetChild(taskId, out node))
                 {
                     throw new IllegalStateException("Received message from invalid task id: " + taskId);
                 }
@@ -279,8 +262,8 @@ namespace Org.Apache.REEF.Network.Group.Task.Impl
                 nodes.Add(node);
             }
 
-            int count = (int)Math.Ceiling(((double)messages.Count) / _children.Count);
-            ScatterHelper(messages, nodes, count);
+            int numMessagesPerChild = (int)Math.Ceiling(((double)messages.Count) / _childNodeContainer.Count);
+            ScatterHelper(messages, nodes, numMessagesPerChild);
         }
 
         /// <summary>
@@ -289,7 +272,7 @@ namespace Org.Apache.REEF.Network.Group.Task.Impl
         /// <returns>The parent Task's message</returns>
         public T ReceiveFromParent()
         {
-            T[] data = ReceiveFromNode(_parent);
+            T[] data = _parent.GetData();
             if (data == null || data.Length != 1)
             {
                 throw new InvalidOperationException("Cannot receive data from parent node");
@@ -300,7 +283,7 @@ namespace Org.Apache.REEF.Network.Group.Task.Impl
 
         public IList<T> ReceiveListFromParent()
         {
-            T[] data = ReceiveFromNode(_parent);
+            T[] data = _parent.GetData();
             if (data == null || data.Length == 0)
             {
                 throw new InvalidOperationException("Cannot receive data from parent node");
@@ -322,27 +305,7 @@ namespace Org.Apache.REEF.Network.Group.Task.Impl
                 throw new ArgumentNullException("reduceFunction");
             }
 
-            var receivedData = new List<T>();
-            var childrenToReceiveFrom = new HashSet<string>(_children.Select(node => node.Identifier));
-
-            while (childrenToReceiveFrom.Count > 0)
-            {
-                var childrenWithData = GetNodeWithData(childrenToReceiveFrom);
-
-                foreach (var child in childrenWithData)
-                {
-                    T[] data = ReceiveFromNode(child);
-                    if (data == null || data.Length != 1)
-                    {
-                        throw new InvalidOperationException("Received invalid data from child with id: " + child.Identifier);
-                    }
-
-                    receivedData.Add(data[0]);
-                    childrenToReceiveFrom.Remove(child.Identifier);
-                }
-            }
-
-            return reduceFunction.Reduce(receivedData);
+            return reduceFunction.Reduce(_childNodeContainer.GetDataFromAllChildren());
         }
 
         public void OnError(Exception error)
@@ -355,78 +318,13 @@ namespace Org.Apache.REEF.Network.Group.Task.Impl
 
         public bool HasChildren()
         {
-            return _children.Count > 0;
-        }
-
-        /// <summary>
-        /// Get a set of nodes containing an incoming message and belonging to candidate set of nodes.
-        /// </summary>
-        /// <param name="nodeSetIdentifier">Candidate set of nodes from which data is to be received</param>
-        /// <returns>A Vector of NodeStruct with incoming data.</returns>
-        private IEnumerable<NodeStruct<T>> GetNodeWithData(IEnumerable<string> nodeSetIdentifier)
-        {
-            CancellationTokenSource timeoutSource = new CancellationTokenSource(_timeout);
-            List<NodeStruct<T>> nodesSubsetWithData = new List<NodeStruct<T>>();
-
-            try
-            {
-                lock (_thisLock)
-                {
-                    foreach (var identifier in nodeSetIdentifier)
-                    {
-                        if (!_idToNodeMap.ContainsKey(identifier))
-                        {
-                            throw new Exception("Trying to get data from the node not present in the node map");
-                        }
-
-                        if (_idToNodeMap[identifier].HasMessage())
-                        {
-                            nodesSubsetWithData.Add(_idToNodeMap[identifier]);
-                        }
-                    }
-
-                    if (nodesSubsetWithData.Count > 0)
-                    {
-                        return nodesSubsetWithData;
-                    }
-
-                    while (_nodesWithData.Count != 0)
-                    {
-                        _nodesWithData.Take();
-                    }
-                }
-
-                var potentialNode = _nodesWithData.Take();
-
-                while (!nodeSetIdentifier.Contains(potentialNode.Identifier))
-                {
-                    potentialNode = _nodesWithData.Take();
-                }
-
-                return new NodeStruct<T>[] { potentialNode };
-            }
-            catch (OperationCanceledException)
-            {
-                Logger.Log(Level.Error, "No data to read from child");
-                throw;
-            }
-            catch (ObjectDisposedException)
-            {
-                Logger.Log(Level.Error, "No data to read from child");
-                throw;
-            }
-            catch (InvalidOperationException)
-            {
-                Logger.Log(Level.Error, "No data to read from child");
-                throw;
-            }
+            return _childNodeContainer.Count > 0;
         }
 
         /// <summary>
         /// Sends the message to the Task represented by the given NodeStruct.
         /// </summary>
         /// <param name="message">The message to send</param>
-        /// <param name="msgType">The message type</param>
         /// <param name="node">The NodeStruct representing the Task to send to</param>
         private void SendToNode(T message, NodeStruct<T> node)
         {
@@ -440,7 +338,6 @@ namespace Org.Apache.REEF.Network.Group.Task.Impl
         /// Sends the list of messages to the Task represented by the given NodeStruct.
         /// </summary>
         /// <param name="messages">The list of messages to send</param>
-        /// <param name="msgType">The message type</param>
         /// <param name="node">The NodeStruct representing the Task to send to</param>
         private void SendToNode(IList<T> messages, NodeStruct<T> node)
         {
@@ -452,52 +349,29 @@ namespace Org.Apache.REEF.Network.Group.Task.Impl
             _sender.Send(gcm);
         }
 
-        /// <summary>
-        /// Receive a message from the Task represented by the given NodeStruct.
-        /// Removes the NodeStruct from the nodesWithData queue if requested.
-        /// </summary>
-        /// <param name="node">The node to receive from</param>
-        /// <returns>The byte array message from the node</returns>
-        private T[] ReceiveFromNode(NodeStruct<T> node)
+        private void ScatterHelper(IList<T> messages, IList<NodeStruct<T>> order, int numMessagesPerChild)
         {
-            var data = node.GetData();
-            return data;
-        }
-
-        /// <summary>
-        /// Find the NodeStruct with the given Task identifier.
-        /// </summary>
-        /// <param name="identifier">The identifier of the Task</param>
-        /// <returns>The NodeStruct</returns>
-        private NodeStruct<T> FindNode(string identifier)
-        {
-            NodeStruct<T> node;
-            return _idToNodeMap.TryGetValue(identifier, out node) ? node : null;
-        }
-
-        private void ScatterHelper(IList<T> messages, List<NodeStruct<T>> order, int count)
-        {
-            if (count <= 0)
+            if (numMessagesPerChild <= 0)
             {
                 throw new ArgumentException("Count must be positive");
             }
 
-            int i = 0;
+            int numMessagesSent = 0;
             foreach (var nodeStruct in order)
             {
                 // The last sublist might be smaller than count if the number of
                 // child tasks is not evenly divisible by count
-                int left = messages.Count - i;
-                int size = (left < count) ? left : count;
-                if (size <= 0)
+                int numMessagesLeft = messages.Count - numMessagesSent;
+                int numMessagesToSend = (numMessagesLeft < numMessagesPerChild) ? numMessagesLeft : numMessagesPerChild;
+                if (numMessagesToSend <= 0)
                 {
                     throw new ArgumentException("Scatter count must be positive");
                 }
 
-                IList<T> sublist = messages.ToList().GetRange(i, size);
+                IList<T> sublist = messages.ToList().GetRange(numMessagesSent, numMessagesToSend);
                 SendToNode(sublist, nodeStruct);
 
-                i += size;
+                numMessagesSent += numMessagesToSend;
             }
         }
 
@@ -511,8 +385,7 @@ namespace Org.Apache.REEF.Network.Group.Task.Impl
         {
             for (int i = 0; i < retries; i++)
             {
-                System.Net.IPEndPoint endPoint;
-                if ((endPoint = _nameClient.Lookup(identifier)) != null)
+                if (_nameClient.Lookup(identifier) != null)
                 {
                     return;
                 }
