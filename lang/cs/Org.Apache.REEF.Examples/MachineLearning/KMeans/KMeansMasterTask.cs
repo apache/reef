@@ -140,7 +140,8 @@ namespace Org.Apache.REEF.Examples.MachineLearning.KMeans
                 for (int i = 0; i < clustersNum; i++)
                 {
                     List<PartialMean> means = totalList.Where(m => m.Mean.Label == i).ToList();
-                    aggregatedMeans.Add(new PartialMean(PartialMean.AggreatedMean(means), means.Count));
+                    PartialMean aggregatedPartialMean = PartialMean.AggregatedPartialMean(means);
+                    aggregatedMeans.Add(new PartialMean(aggregatedPartialMean.Mean, aggregatedPartialMean.Size));
                 }
 
                 ProcessedResults returnMeans = new ProcessedResults(aggregatedMeans, aggregatedLoss);

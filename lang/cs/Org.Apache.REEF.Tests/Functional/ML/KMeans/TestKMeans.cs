@@ -40,24 +40,15 @@ namespace Org.Apache.REEF.Tests.Functional.ML.KMeans
     {
         private const int K = 3;
         private const int Partitions = 2;
-        private const string SmallMouseDataFile = @"mouseData_small.csv";
-        private const string MouseDataFile = @"mouseData.csv";
-
-        private readonly bool _useSmallDataSet = false;
-        private string _dataFile = MouseDataFile;
+        private const string DataFileNamePrefix = "KMeansInput-";
 
         public TestKMeans()
         {
-            if (_useSmallDataSet)
-            {
-                _dataFile = SmallMouseDataFile;
-            }  
-
             CleanUp();
             Init();
         }
 
-        [Fact(Skip = "TODO[JIRA REEF-1183] Requires data files not present in enlistment")]
+        [Fact]
         [Trait("Priority", "1")]
         [Trait("Category", "FunctionalGated")]
         [Trait("Description", "Test KMeans clustering with things directly run without reef")]
@@ -65,8 +56,10 @@ namespace Org.Apache.REEF.Tests.Functional.ML.KMeans
         public void TestKMeansOnDirectRunViaFileSystem()
         {
             int iteration = 0;
-            string executionDirectory = Path.Combine(Directory.GetCurrentDirectory(), Constants.KMeansExecutionBaseDirectory, Guid.NewGuid().ToString("N").Substring(0, 4));
-            List<DataVector> centroids = DataVector.ShuffleDataAndGetInitialCentriods(_dataFile, Partitions, K, executionDirectory);
+            string executionDirectory = Path.Combine(Directory.GetCurrentDirectory(),
+                string.Join("-", Constants.KMeansExecutionBaseDirectory, Guid.NewGuid().ToString("N").Substring(0, 4)));
+            string dataFilePath = GenerateDataFileAndGetPath();
+            List<DataVector> centroids = DataVector.ShuffleDataAndGetInitialCentriods(dataFilePath, Partitions, K, executionDirectory);
             
             // initialize all tasks
             List<LegacyKMeansTask> tasks = new List<LegacyKMeansTask>();
@@ -105,9 +98,19 @@ namespace Org.Apache.REEF.Tests.Functional.ML.KMeans
                 }
                 iteration++;
             }
+
+            // cleanup workspace
+            try
+            {
+                Directory.Delete(executionDirectory, true);
+            }
+            catch (Exception)
+            {
+                // do not fail if clean up is unsuccessful
+            }
         }
 
-        [Fact(Skip = "TODO[JIRA REEF-1183] Requires data files not present in enlistment")]
+        [Fact]
         [Trait("Priority", "1")]
         [Trait("Category", "FunctionalGated")]
         [Trait("Description", "Test KMeans clustering on reef local runtime with group communications")]
@@ -116,12 +119,14 @@ namespace Org.Apache.REEF.Tests.Functional.ML.KMeans
         {
             IsOnLocalRuntime = true;
             string testFolder = DefaultRuntimeFolder + TestId;
-            TestRun(DriverConfiguration(), typeof(KMeansDriverHandlers), Partitions + 1, "KMeansDriverHandlers", "local", testFolder);
+            string dataFilePath = GenerateDataFileAndGetPath();
+
+            TestRun(DriverConfiguration(dataFilePath), typeof(KMeansDriverHandlers), Partitions + 1, "KMeansDriverHandlers", "local", testFolder);
             ValidateSuccessForLocalRuntime(Partitions + 1, testFolder: testFolder);
             CleanUp(testFolder);
         }
 
-        [Fact(Skip = "TODO[JIRA REEF-1183] Requires data files not present in enlistment")]
+        [Fact(Skip = "Requires Yarn Single Node")]
         [Trait("Priority", "1")]
         [Trait("Category", "FunctionalGated")]
         [Trait("Description", "Test KMeans clustering on reef YARN runtime - one box")]
@@ -129,11 +134,12 @@ namespace Org.Apache.REEF.Tests.Functional.ML.KMeans
         public void TestKMeansOnYarnOneBoxWithGroupCommunications()
         {
             string testFolder = DefaultRuntimeFolder + TestId + "Yarn";
-            TestRun(DriverConfiguration(), typeof(KMeansDriverHandlers), Partitions + 1, "KMeansDriverHandlers", "yarn", testFolder);
+            string dataFilePath = GenerateDataFileAndGetPath();
+            TestRun(DriverConfiguration(dataFilePath), typeof(KMeansDriverHandlers), Partitions + 1, "KMeansDriverHandlers", "yarn", testFolder);
             Assert.NotNull("BreakPointChecker");
         }
 
-        private IConfiguration DriverConfiguration()
+        private IConfiguration DriverConfiguration(string dataFilePath)
         {
             int fanOut = 2;
             int totalEvaluators = Partitions + 1;
@@ -144,7 +150,7 @@ namespace Org.Apache.REEF.Tests.Functional.ML.KMeans
                     .Set(Org.Apache.REEF.Driver.DriverConfiguration.OnDriverStarted, GenericType<KMeansDriverHandlers>.Class)
                     .Set(Org.Apache.REEF.Driver.DriverConfiguration.OnEvaluatorAllocated, GenericType<KMeansDriverHandlers>.Class)
                     .Set(Org.Apache.REEF.Driver.DriverConfiguration.OnContextActive, GenericType<KMeansDriverHandlers>.Class)
-                    .Set(Org.Apache.REEF.Driver.DriverConfiguration.CommandLineArguments, "DataFile:" + _dataFile)
+                    .Set(Org.Apache.REEF.Driver.DriverConfiguration.CommandLineArguments, dataFilePath)
                     .Set(Org.Apache.REEF.Driver.DriverConfiguration.CustomTraceLevel, Level.Info.ToString())
                     .Build())
                 .BindIntNamedParam<NumPartitions>(Partitions.ToString())
@@ -159,6 +165,34 @@ namespace Org.Apache.REEF.Tests.Functional.ML.KMeans
                 .Build();
 
             return Configurations.Merge(driverConfig, groupCommunicationDriverConfig);
+        }
+
+        private static string GenerateDataFileAndGetPath()
+        {
+            string dataFilePath = Path.Combine(Path.GetTempPath(), DataFileNamePrefix + Guid.NewGuid().ToString("N").Substring(0, 4));
+
+            DataVector[] centroids =
+            {
+                new DataVector(new List<float> { +2f, 0f }, 0),
+                new DataVector(new List<float> { -2f, 0f }, 0),
+                new DataVector(new List<float> { +0f, 2f }, 0)
+            };
+
+            using (StreamWriter writer = new StreamWriter(File.OpenWrite(dataFilePath)))
+            {
+                Random rnd = new Random();
+                for (int i = 0; i < 10000; i++)
+                {
+                    int label = rnd.Next(centroids.Length);
+                    float x = Convert.ToSingle(centroids[label].Data[0] + rnd.NextDouble());
+                    float y = Convert.ToSingle(centroids[label].Data[1] + rnd.NextDouble());
+
+                    writer.WriteLine("{0},{1};{2}", x, y, label);
+                }
+                writer.Close();
+            }
+
+            return dataFilePath;
         }
     }
 }

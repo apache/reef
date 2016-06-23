@@ -73,9 +73,9 @@ namespace Org.Apache.REEF.Examples.MachineLearning.KMeans
             CommandLineArguments arguments)
         {
             _executionDirectory = Path.Combine(Directory.GetCurrentDirectory(), Constants.KMeansExecutionBaseDirectory, Guid.NewGuid().ToString("N").Substring(0, 4));
-            string dataFile = arguments.Arguments.Single(a => a.StartsWith("DataFile", StringComparison.Ordinal)).Split(':')[1];
+            string dataFile = arguments.Arguments.First();
             DataVector.ShuffleDataAndGetInitialCentriods(
-                Path.Combine(Directory.GetCurrentDirectory(), "reef", "global", dataFile),
+                dataFile,
                 numPartitions,
                 _clustersNumber,
                 _executionDirectory);
@@ -86,7 +86,7 @@ namespace Org.Apache.REEF.Examples.MachineLearning.KMeans
             _evaluatorRequestor = evaluatorRequestor;
 
             _centroidCodecConf = CodecToStreamingCodecConfiguration<Centroids>.Conf
-                .Set(CodecConfiguration<Centroids>.Codec, GenericType<CentroidsCodec>.Class)
+                .Set(CodecToStreamingCodecConfiguration<Centroids>.Codec, GenericType<CentroidsCodec>.Class)
                 .Build();
 
             IConfiguration dataConverterConfig1 = PipelineDataConverterConfiguration<Centroids>.Conf
@@ -94,7 +94,7 @@ namespace Org.Apache.REEF.Examples.MachineLearning.KMeans
                 .Build();
 
             _controlMessageCodecConf = CodecToStreamingCodecConfiguration<ControlMessage>.Conf
-                .Set(CodecConfiguration<ControlMessage>.Codec, GenericType<ControlMessageCodec>.Class)
+                .Set(CodecToStreamingCodecConfiguration<ControlMessage>.Codec, GenericType<ControlMessageCodec>.Class)
                 .Build();
 
             IConfiguration dataConverterConfig2 = PipelineDataConverterConfiguration<ControlMessage>.Conf
@@ -102,7 +102,7 @@ namespace Org.Apache.REEF.Examples.MachineLearning.KMeans
                 .Build();
 
             _processedResultsCodecConf = CodecToStreamingCodecConfiguration<ProcessedResults>.Conf
-                .Set(CodecConfiguration<ProcessedResults>.Codec, GenericType<ProcessedResultsCodec>.Class)
+                .Set(CodecToStreamingCodecConfiguration<ProcessedResults>.Codec, GenericType<ProcessedResultsCodec>.Class)
                 .Build();
 
             IConfiguration reduceFunctionConfig = ReduceFunctionConfiguration<ProcessedResults>.Conf
@@ -187,7 +187,7 @@ namespace Org.Apache.REEF.Examples.MachineLearning.KMeans
 
         public void OnNext(IDriverStarted value)
         {
-            var request = _evaluatorRequestor.NewBuilder().SetCores(1).SetMegabytes(2048).Build();
+            var request = _evaluatorRequestor.NewBuilder().SetNumber(_totalEvaluators).SetCores(1).SetMegabytes(2048).Build();
 
             _evaluatorRequestor.Submit(request);
         }
