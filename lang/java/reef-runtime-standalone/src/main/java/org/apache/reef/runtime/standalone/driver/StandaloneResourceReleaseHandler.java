@@ -16,21 +16,31 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.runtime.local.client.parameters;
+package org.apache.reef.runtime.standalone.driver;
 
-import org.apache.reef.tang.annotations.Name;
-import org.apache.reef.tang.annotations.NamedParameter;
+import org.apache.reef.annotations.audience.DriverSide;
+import org.apache.reef.annotations.audience.Private;
+import org.apache.reef.runtime.common.driver.api.ResourceReleaseEvent;
+import org.apache.reef.runtime.common.driver.api.ResourceReleaseHandler;
+
+import javax.inject.Inject;
 
 /**
- * The folder where logs etc. shall be stored.
+ * Takes Resource Release requests and closes process managers.
  */
-@NamedParameter(default_value = RootFolder.DEFAULT_VALUE, doc = "The folder where the logs and results are stored.")
-public final class RootFolder implements Name<String> {
-  public static final String DEFAULT_VALUE = "REEF_LOCAL_RUNTIME";
+@Private
+@DriverSide
+public final class StandaloneResourceReleaseHandler implements ResourceReleaseHandler {
 
-  /**
-   * Empty private constructor to prohibit instantiation of utility class.
-   */
-  private RootFolder() {
+  private final RemoteNodeManager nodeListManager;
+
+  @Inject
+  StandaloneResourceReleaseHandler(final RemoteNodeManager nodeListManager) {
+    this.nodeListManager = nodeListManager;
+  }
+
+  @Override
+  public void onNext(final ResourceReleaseEvent t) {
+    this.nodeListManager.onResourceReleaseRequest(t);
   }
 }

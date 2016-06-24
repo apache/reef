@@ -39,7 +39,7 @@ import java.util.logging.Logger;
  */
 @Private
 @TaskSide
-final class ProcessContainer implements Container {
+public final class ProcessContainer implements Container {
 
   private static final Logger LOG = Logger.getLogger(ProcessContainer.class.getName());
 

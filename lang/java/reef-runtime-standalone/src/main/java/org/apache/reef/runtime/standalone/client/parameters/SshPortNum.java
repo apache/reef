@@ -16,21 +16,19 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.runtime.local.client.parameters;
+package org.apache.reef.runtime.standalone.client.parameters;
 
 import org.apache.reef.tang.annotations.Name;
 import org.apache.reef.tang.annotations.NamedParameter;
 
 /**
- * The folder where logs etc. shall be stored.
+ * The port number to access the remote nodes.
  */
-@NamedParameter(default_value = RootFolder.DEFAULT_VALUE, doc = "The folder where the logs and results are stored.")
-public final class RootFolder implements Name<String> {
-  public static final String DEFAULT_VALUE = "REEF_LOCAL_RUNTIME";
-
+@NamedParameter(doc = "The port number to access remote nodes with ssh.", short_name = "port", default_value = "22")
+public final class SshPortNum implements Name<Integer> {
   /**
    * Empty private constructor to prohibit instantiation of utility class.
    */
-  private RootFolder() {
+  private SshPortNum() {
   }
 }

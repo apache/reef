@@ -18,15 +18,13 @@
  */
 package org.apache.reef.runtime.standalone.client.parameters;
 
-import org.apache.reef.annotations.Unstable;
 import org.apache.reef.tang.annotations.Name;
 import org.apache.reef.tang.annotations.NamedParameter;
 
 /**
  * The folder where logs etc. shall be stored.
  */
-@Unstable
-@NamedParameter(default_value = RootFolder.DEFAULT_VALUE, doc = "The folder where logs etc. shall be stored.")
+@NamedParameter(default_value = RootFolder.DEFAULT_VALUE, doc = "The folder where the logs and results are stored.")
 public final class RootFolder implements Name<String> {
   public static final String DEFAULT_VALUE = "REEF_STANDALONE_RUNTIME";
 

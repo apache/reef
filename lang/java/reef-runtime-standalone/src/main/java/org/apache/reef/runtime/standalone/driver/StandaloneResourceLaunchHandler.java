@@ -16,21 +16,27 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.runtime.local.client.parameters;
+package org.apache.reef.runtime.standalone.driver;
 
-import org.apache.reef.tang.annotations.Name;
-import org.apache.reef.tang.annotations.NamedParameter;
+import org.apache.reef.annotations.audience.DriverSide;
+import org.apache.reef.annotations.audience.Private;
+import org.apache.reef.runtime.common.driver.api.ResourceLaunchEvent;
+import org.apache.reef.runtime.common.driver.api.ResourceLaunchHandler;
 
-/**
- * The folder where logs etc. shall be stored.
- */
-@NamedParameter(default_value = RootFolder.DEFAULT_VALUE, doc = "The folder where the logs and results are stored.")
-public final class RootFolder implements Name<String> {
-  public static final String DEFAULT_VALUE = "REEF_LOCAL_RUNTIME";
+import javax.inject.Inject;
 
-  /**
-   * Empty private constructor to prohibit instantiation of utility class.
-   */
-  private RootFolder() {
+@Private
+@DriverSide
+final class StandaloneResourceLaunchHandler implements ResourceLaunchHandler {
+  private final RemoteNodeManager nodeListManager;
+
+  @Inject
+  StandaloneResourceLaunchHandler(final RemoteNodeManager nodeListManager) {
+    this.nodeListManager = nodeListManager;
+  }
+
+  @Override
+  public void onNext(final ResourceLaunchEvent t) {
+    this.nodeListManager.onResourceLaunchRequest(t);
   }
 }

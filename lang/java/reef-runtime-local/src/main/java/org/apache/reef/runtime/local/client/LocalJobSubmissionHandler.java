@@ -38,11 +38,11 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Handles Job Submissions for the Local Runtime.
+ * Handles Job Submissions for the Local and the Standalone Runtime.
  */
 @Private
 @ClientSide
-final class LocalJobSubmissionHandler implements JobSubmissionHandler {
+public final class LocalJobSubmissionHandler implements JobSubmissionHandler {
 
 
   private static final Logger LOG = Logger.getLogger(LocalJobSubmissionHandler.class.getName());

@@ -34,7 +34,7 @@ import javax.inject.Inject;
  */
 // This is a great place to add a thread boundary, should that need arise.
 @Private
-final class REEFEventHandlers implements AutoCloseable {
+public final class REEFEventHandlers implements AutoCloseable {
   private final EventHandler<ResourceAllocationEvent> resourceAllocationHandler;
   private final EventHandler<ResourceStatusEvent> resourceStatusHandler;
   private final EventHandler<RuntimeStatusEvent> runtimeStatusHandler;
@@ -69,7 +69,8 @@ final class REEFEventHandlers implements AutoCloseable {
    *
    * @param runtimeStatusEvent
    */
-  void onRuntimeStatus(final RuntimeStatusEvent runtimeStatusEvent) {
+  @Private
+  public void onRuntimeStatus(final RuntimeStatusEvent runtimeStatusEvent) {
     this.runtimeStatusHandler.onNext(runtimeStatusEvent);
   }
 
@@ -78,7 +79,8 @@ final class REEFEventHandlers implements AutoCloseable {
    *
    * @param resourceAllocationEvent
    */
-  void onResourceAllocation(final ResourceAllocationEvent resourceAllocationEvent) {
+  @Private
+  public void onResourceAllocation(final ResourceAllocationEvent resourceAllocationEvent) {
     this.resourceAllocationHandler.onNext(resourceAllocationEvent);
   }
 

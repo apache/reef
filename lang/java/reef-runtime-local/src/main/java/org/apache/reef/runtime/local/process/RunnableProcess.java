@@ -243,6 +243,9 @@ public final class RunnableProcess implements Runnable {
     }
   }
 
+  /**
+   * @return a boolean that indicates if the process is running.
+   */
   private boolean processIsRunning() {
     return this.getState() == State.RUNNING;
   }
@@ -252,6 +255,20 @@ public final class RunnableProcess implements Runnable {
    */
   private State getState() {
     return this.state;
+  }
+
+  /**
+   * @return the ID of the process.
+   */
+  public String getId() {
+    return this.id;
+  }
+
+  /**
+   * @return the command given to the process.
+   */
+  public List<String> getCommand() {
+    return this.command;
   }
 
   /**

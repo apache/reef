@@ -16,21 +16,16 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.runtime.local.client.parameters;
+package org.apache.reef.runtime.standalone.client.parameters;
 
 import org.apache.reef.tang.annotations.Name;
 import org.apache.reef.tang.annotations.NamedParameter;
 
-/**
- * The folder where logs etc. shall be stored.
- */
-@NamedParameter(default_value = RootFolder.DEFAULT_VALUE, doc = "The folder where the logs and results are stored.")
-public final class RootFolder implements Name<String> {
-  public static final String DEFAULT_VALUE = "REEF_LOCAL_RUNTIME";
+import java.util.Set;
 
-  /**
-   * Empty private constructor to prohibit instantiation of utility class.
-   */
-  private RootFolder() {
-  }
+/**
+ * Information of remote nodes available in the standalone runtime.
+ */
+@NamedParameter(short_name = "nodes", doc = "Information of remote nodes available in the standalone runtime.")
+public final class NodeInfoSet implements Name<Set<String>> {
 }
