@@ -18,26 +18,26 @@
 using Org.Apache.REEF.IMRU.API;
 using Org.Apache.REEF.Tang.Annotations;
 
-namespace Org.Apache.REEF.IMRU.Examples.MapperCount
+namespace Org.Apache.REEF.IMRU.Examples
 {
     /// <summary>
-    /// The Update function for the mapper counting job.
+    /// A simple Update function for IMRU examples.
     /// </summary>
     /// <remarks>
-    /// Upon Initialize(), this sends `1` to all Map Function instances. Each of them returns `1`, which shows up as the
+    /// Upon Initialize(), this sends `1` to all Map Function instances. Each of them returns some result, which shows up as the
     /// parameter passed into `Update`. At that point, we can immediately terminate.
     /// </remarks>
-    public sealed class MapperCountUpdateFunction : IUpdateFunction<int, int, int>
+    public sealed class SingleIterUpdateFunction : IUpdateFunction<int, int, int>
     {
         [Inject]
-        private MapperCountUpdateFunction()
+        private SingleIterUpdateFunction()
         {
         }
 
         /// <summary>
         /// Update function
         /// </summary>
-        /// <param name="input">Input containing sum of all mappers</param>
+        /// <param name="input">Input containing sum of all mapper results</param>
         /// <returns>The Update Result with only result</returns>
         public UpdateResult<int, int> Update(int input)
         {
