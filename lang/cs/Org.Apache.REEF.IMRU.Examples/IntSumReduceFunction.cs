@@ -20,7 +20,7 @@ using System.Linq;
 using Org.Apache.REEF.Network.Group.Operators;
 using Org.Apache.REEF.Tang.Annotations;
 
-namespace Org.Apache.REEF.IMRU.Examples.MapperCount
+namespace Org.Apache.REEF.IMRU.Examples
 {
     /// <summary>
     /// A reduce function that sums integers.

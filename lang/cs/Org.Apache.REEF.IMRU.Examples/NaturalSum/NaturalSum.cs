@@ -15,13 +15,10 @@
 // specific language governing permissions and limitations
 // under the License.
 
-using System;
 using System.IO;
 using System.Linq;
 using Org.Apache.REEF.IMRU.API;
-using Org.Apache.REEF.IMRU.OnREEF.Parameters;
 using Org.Apache.REEF.IMRU.OnREEF.ResultHandler;
-using Org.Apache.REEF.IO.FileSystem.Local;
 using Org.Apache.REEF.IO.PartitionedData.Random;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Tang.Implementations.Tang;
@@ -29,31 +26,31 @@ using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Tang.Util;
 using Org.Apache.REEF.Wake.StreamingCodec.CommonStreamingCodecs;
 
-namespace Org.Apache.REEF.IMRU.Examples.MapperCount
+namespace Org.Apache.REEF.IMRU.Examples.NaturalSum
 {
     /// <summary>
-    /// A simple IMRU program that counts the number of map function instances launched.
+    /// A simple IMRU program that caclulates the sum of natural numbers.
     /// </summary>
-    public sealed class MapperCount
+    public sealed class NaturalSum
     {
         private readonly IIMRUClient _imruClient;
 
         [Inject]
-        private MapperCount(IIMRUClient imruClient)
+        private NaturalSum(IIMRUClient imruClient)
         {
             _imruClient = imruClient;
         }
 
         /// <summary>
-        /// Runs the actual mapper count job
+        /// Runs the actual natural sum job.
         /// </summary>
-        /// <returns>The number of MapFunction instances that are part of the job.</returns>
+        /// <returns>The result of the natural sum IMRU job.</returns>
         public int Run(int numberofMappers, string outputFile, IConfiguration fileSystemConfig)
         {
             var results = _imruClient.Submit<int, int, int, Stream>(
                 new IMRUJobDefinitionBuilder()
                     .SetMapFunctionConfiguration(IMRUMapConfiguration<int, int>.ConfigurationModule
-                        .Set(IMRUMapConfiguration<int, int>.MapFunction, GenericType<IdentityMapFunction>.Class)
+                        .Set(IMRUMapConfiguration<int, int>.MapFunction, GenericType<NaturalSumMapFunction>.Class)
                         .Build())
                     .SetUpdateFunctionConfiguration(
                         IMRUUpdateConfiguration<int, int, int>.ConfigurationModule
@@ -62,6 +59,10 @@ namespace Org.Apache.REEF.IMRU.Examples.MapperCount
                             .Build())
                     .SetMapInputCodecConfiguration(IMRUCodecConfiguration<int>.ConfigurationModule
                         .Set(IMRUCodecConfiguration<int>.Codec, GenericType<IntStreamingCodec>.Class)
+                        .Build())
+                    .SetPerMapConfigurations(IMRUPerMapperConfigGeneratorConfiguration.ConfigurationModule
+                        .Set(IMRUPerMapperConfigGeneratorConfiguration.PerMapperConfigGenerator,
+                            GenericType<NaturalSumPerMapperConfigGenerator>.Class)
                         .Build())
                     .SetUpdateFunctionCodecsConfiguration(IMRUCodecConfiguration<int>.ConfigurationModule
                         .Set(IMRUCodecConfiguration<int>.Codec, GenericType<IntStreamingCodec>.Class)
@@ -81,9 +82,7 @@ namespace Org.Apache.REEF.IMRU.Examples.MapperCount
                                 GenericType<WriteResultHandler<int>>.Class)
                             .BindNamedParameter(typeof(ResultOutputLocation), outputFile)
                             .Build())
-                    .SetMapTaskCores(2)
-                    .SetUpdateTaskCores(3)
-                    .SetJobName("MapperCount")
+                    .SetJobName("NaturalSum")
                     .SetNumberOfMappers(numberofMappers)
                     .Build());
 
