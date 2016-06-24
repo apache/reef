@@ -16,19 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.runtime.standalone.client.parameters;
-
-import org.apache.reef.tang.annotations.Name;
-import org.apache.reef.tang.annotations.NamedParameter;
-
 /**
- * The file which will contain information of remote nodes.
+ * The resource manager for the standalone resourcemanager.
  */
-@NamedParameter(doc = "The file contains lines of ssh info of remote nodes", short_name = "node_list_file_path")
-public final class NodeListFilePath implements Name<String> {
-  /**
-   * Empty private constructor to prohibit instantiation of utility class.
-   */
-  private NodeListFilePath() {
-  }
-}
+package org.apache.reef.runtime.standalone.driver;

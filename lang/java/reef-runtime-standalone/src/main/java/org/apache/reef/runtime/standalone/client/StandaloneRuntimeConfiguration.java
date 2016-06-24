@@ -18,19 +18,35 @@
  */
 package org.apache.reef.runtime.standalone.client;
 
-import org.apache.reef.annotations.Unstable;
+import org.apache.reef.runtime.local.LocalClasspathProvider;
+import org.apache.reef.runtime.local.client.LocalJobSubmissionHandler;
+import org.apache.reef.runtime.local.client.ExecutorServiceConstructor;
 import org.apache.reef.client.parameters.DriverConfigurationProviders;
 import org.apache.reef.runtime.common.client.CommonRuntimeConfiguration;
+import org.apache.reef.runtime.common.client.DriverConfigurationProvider;
+import org.apache.reef.runtime.common.client.api.JobSubmissionHandler;
+import org.apache.reef.runtime.common.files.RuntimeClasspathProvider;
+import org.apache.reef.runtime.standalone.client.parameters.NodeFolder;
 import org.apache.reef.runtime.standalone.client.parameters.NodeListFilePath;
-import org.apache.reef.runtime.standalone.client.parameters.RootFolder;
+import org.apache.reef.runtime.local.client.parameters.RootFolder;
 import org.apache.reef.tang.ConfigurationProvider;
 import org.apache.reef.tang.formats.*;
+
+import java.util.concurrent.ExecutorService;
 
 /**
  * A ConfigurationModule to configure the standalone resourcemanager.
  */
-@Unstable
 public final class StandaloneRuntimeConfiguration extends ConfigurationModuleBuilder {
+
+  /**
+   * The file with information of remote nodes.
+   */
+  public static final RequiredParameter<String> NODE_LIST_FILE_PATH = new RequiredParameter<>();
+  /**
+   * Destination folder for the remote nodes.
+   */
+  public static final OptionalParameter<String> NODE_FOLDER = new OptionalParameter<>();
 
   /**
    * The folder in which the sub-folders, one per Node, will be created. Those will contain one folder per
@@ -47,18 +63,21 @@ public final class StandaloneRuntimeConfiguration extends ConfigurationModuleBui
   public static final OptionalImpl<ConfigurationProvider> DRIVER_CONFIGURATION_PROVIDERS = new OptionalImpl<>();
 
   /**
-   * The file which will contain information of remote nodes.
-   */
-  public static final RequiredParameter<String> NODE_LIST_FILE_PATH = new RequiredParameter<>();
-
-  /**
    * The ConfigurationModule for the standalone resourcemanager.
    */
   public static final ConfigurationModule CONF = new StandaloneRuntimeConfiguration()
       .merge(CommonRuntimeConfiguration.CONF)
+          // Bind the standalone runtime
+      .bindImplementation(JobSubmissionHandler.class, LocalJobSubmissionHandler.class)
+      .bindImplementation(DriverConfigurationProvider.class, StandaloneDriverConfigurationProviderImpl.class)
+      .bindConstructor(ExecutorService.class, ExecutorServiceConstructor.class)
+      .bindImplementation(RuntimeClasspathProvider.class, LocalClasspathProvider.class)
           // Bind parameters of the standalone runtime
-      .bindNamedParameter(RootFolder.class, RUNTIME_ROOT_FOLDER)
       .bindNamedParameter(NodeListFilePath.class, NODE_LIST_FILE_PATH)
+      .bindNamedParameter(NodeFolder.class, NODE_FOLDER)
+      .bindNamedParameter(RootFolder.class, RUNTIME_ROOT_FOLDER)
       .bindSetEntry(DriverConfigurationProviders.class, DRIVER_CONFIGURATION_PROVIDERS)
       .build();
+
+
 }

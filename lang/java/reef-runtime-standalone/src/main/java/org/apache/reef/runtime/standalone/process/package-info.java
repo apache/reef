@@ -16,23 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.runtime.standalone.client.parameters;
-
-import org.apache.reef.annotations.Unstable;
-import org.apache.reef.tang.annotations.Name;
-import org.apache.reef.tang.annotations.NamedParameter;
-
 /**
- * The folder where logs etc. shall be stored.
+ * Infrastructure for managing processes.
  */
-@Unstable
-@NamedParameter(default_value = RootFolder.DEFAULT_VALUE, doc = "The folder where logs etc. shall be stored.")
-public final class RootFolder implements Name<String> {
-  public static final String DEFAULT_VALUE = "REEF_STANDALONE_RUNTIME";
-
-  /**
-   * Empty private constructor to prohibit instantiation of utility class.
-   */
-  private RootFolder() {
-  }
-}
+package org.apache.reef.runtime.standalone.process;

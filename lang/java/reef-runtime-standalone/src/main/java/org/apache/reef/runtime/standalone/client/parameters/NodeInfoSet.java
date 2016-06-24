@@ -21,14 +21,11 @@ package org.apache.reef.runtime.standalone.client.parameters;
 import org.apache.reef.tang.annotations.Name;
 import org.apache.reef.tang.annotations.NamedParameter;
 
+import java.util.Set;
+
 /**
- * The file which will contain information of remote nodes.
+ * Information of remote nodes available in the standalone runtime.
  */
-@NamedParameter(doc = "The file contains lines of ssh info of remote nodes", short_name = "node_list_file_path")
-public final class NodeListFilePath implements Name<String> {
-  /**
-   * Empty private constructor to prohibit instantiation of utility class.
-   */
-  private NodeListFilePath() {
-  }
+@NamedParameter(short_name = "nodes", doc = "Information of remote nodes available in the standalone runtime.")
+public final class NodeInfoSet implements Name<Set<String>> {
 }

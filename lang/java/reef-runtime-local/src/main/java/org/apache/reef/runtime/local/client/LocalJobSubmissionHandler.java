@@ -42,7 +42,7 @@ import java.util.logging.Logger;
  */
 @Private
 @ClientSide
-final class LocalJobSubmissionHandler implements JobSubmissionHandler {
+public final class LocalJobSubmissionHandler implements JobSubmissionHandler {
 
 
   private static final Logger LOG = Logger.getLogger(LocalJobSubmissionHandler.class.getName());

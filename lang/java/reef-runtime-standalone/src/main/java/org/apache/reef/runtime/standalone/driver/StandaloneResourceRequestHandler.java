@@ -16,19 +16,28 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.runtime.standalone.client.parameters;
+package org.apache.reef.runtime.standalone.driver;
 
-import org.apache.reef.tang.annotations.Name;
-import org.apache.reef.tang.annotations.NamedParameter;
+import org.apache.reef.runtime.common.driver.api.ResourceRequestEvent;
+import org.apache.reef.runtime.common.driver.api.ResourceRequestHandler;
 
-/**
- * The file which will contain information of remote nodes.
- */
-@NamedParameter(doc = "The file contains lines of ssh info of remote nodes", short_name = "node_list_file_path")
-public final class NodeListFilePath implements Name<String> {
-  /**
-   * Empty private constructor to prohibit instantiation of utility class.
-   */
-  private NodeListFilePath() {
+import org.apache.reef.annotations.audience.DriverSide;
+import org.apache.reef.annotations.audience.Private;
+
+import javax.inject.Inject;
+
+@Private
+@DriverSide
+final class StandaloneResourceRequestHandler implements ResourceRequestHandler {
+  private final NodeListManager nodeListManager;
+
+  @Inject
+  StandaloneResourceRequestHandler(final NodeListManager nodeListManager) {
+    this.nodeListManager = nodeListManager;
+  }
+
+  @Override
+  public void onNext(final ResourceRequestEvent resourceRequestEvent) {
+    this.nodeListManager.onResourceRequest(resourceRequestEvent);
   }
 }
