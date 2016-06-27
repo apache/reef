@@ -59,7 +59,7 @@ under the License.
   <!-- REEF NuGet properties -->
   <PropertyGroup>
     <IsSnapshot>true</IsSnapshot>
-    <SnapshotNumber>01</SnapshotNumber>
+    <SnapshotNumber>02</SnapshotNumber>
     <PushPackages>false</PushPackages>
     <NuGetRepository>https://www.nuget.org</NuGetRepository>
     <NuGetError>This project references NuGet package(s) that are missing on this computer. Enable NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</NuGetError>
