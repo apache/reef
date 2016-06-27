@@ -199,7 +199,6 @@ under the License.
   <ItemGroup>
     <None Include="Avro\README.md" />
     <None Include="Org.Apache.REEF.Common.nuspec" />
-    <None Include="packages.config" />
     <None Include="Protobuf\Proto\client_runtime.proto" />
     <None Include="Protobuf\Proto\driver_runtime.proto" />
     <None Include="Protobuf\Proto\evaluator_runtime.proto" />

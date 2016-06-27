@@ -154,7 +154,6 @@ under the License.
   <ItemGroup>
     <None Include="Bridge\Avro\README.md" />
     <None Include="Org.Apache.REEF.Driver.nuspec" />
-    <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="$(SolutionDir)\Org.Apache.REEF.Common\Org.Apache.REEF.Common.csproj">

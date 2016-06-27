@@ -109,7 +109,6 @@ under the License.
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <None Include="packages.config" />
     <None Include="Readme.md" />
     <None Include="..\App.config">
       <Link>App.config</Link>

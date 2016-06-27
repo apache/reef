@@ -182,7 +182,6 @@ under the License.
   </ItemGroup>
   <ItemGroup>
     <None Include="Org.Apache.REEF.Wake.nuspec" />
-    <None Include="packages.config" />
     <None Include="Remote\Proto\RemoteProtocol.proto" />
   </ItemGroup>
   <ItemGroup />

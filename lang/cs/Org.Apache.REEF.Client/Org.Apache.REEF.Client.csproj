@@ -180,7 +180,6 @@ under the License.
   <ItemGroup>
     <None Include="Avro\README.md" />
     <None Include="Org.Apache.REEF.Client.nuspec" />
-    <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="$(SolutionDir)\Org.Apache.REEF.Utilities\Org.Apache.REEF.Utilities.csproj">

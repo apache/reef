@@ -160,7 +160,6 @@ under the License.
   </ItemGroup>
   <ItemGroup>
     <None Include="Org.Apache.REEF.IMRU.nuspec" />
-    <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup />
 </Project>
