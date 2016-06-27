@@ -230,16 +230,8 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Task
                 Logger.Log(Level.Warning, string.Format(CultureInfo.InvariantCulture, "Trying to send a message to an task that is in {0} state. Ignored.", _currentStatus.State));
                 return;
             }
-            try
-            {
-                OnNext(new DriverMessageImpl(message));
-            }
-            catch (Exception e)
-            {
-                Utilities.Diagnostics.Exceptions.Caught(e, Level.Error, "Error during message delivery.", Logger);
-                _currentStatus.SetException(
-                    TaskClientCodeException.Create(TaskId, ContextId, "Error during message delivery.", e));
-            }
+
+            OnNext(new DriverMessageImpl(message));
         }
 
         public void OnNext(ICloseEvent value)
@@ -262,23 +254,21 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Task
             }
         }
 
+        /// <summary>
+        /// Call Handle on the user's DriverMessageHandler.
+        /// If the user's handler throws an Exception, the Exception will bubble up as
+        /// an Evaluator Exception and fail the Evaluator.
+        /// </summary>
         public void OnNext(IDriverMessage value)
         {
-            Logger.Log(Level.Info, "TaskRuntime::OnNext(IDriverMessage value)");
+            Logger.Log(Level.Verbose, "TaskRuntime::OnNext(IDriverMessage value)");
 
             if (!_driverMessageHandler.IsPresent())
             {
                 return;
             }
-            try
-            {
-                _driverMessageHandler.Value.Handle(value);
-            }
-            catch (Exception e)
-            {
-                Utilities.Diagnostics.Exceptions.Caught(e, Level.Warning, "Exception throw when handling driver message: " + e, Logger);
-                _currentStatus.SetException(e);
-            }
+            
+            _driverMessageHandler.Value.Handle(value);
         }
 
         /// <summary>
