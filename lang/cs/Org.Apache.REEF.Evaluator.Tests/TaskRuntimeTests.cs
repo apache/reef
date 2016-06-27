@@ -173,6 +173,9 @@ namespace Org.Apache.REEF.Evaluator.Tests
 
             var taskThread = taskRuntime.StartTaskOnNewThread();
 
+            var task = injector.GetInstance<TestTask>();
+            task.StartEvent.Wait();
+
             Assert.True(testTaskEventStartHandler.StartInvoked.IsPresent());
             Assert.Equal(testTaskEventStartHandler.StartInvoked.Value, taskId);
             Assert.False(testTaskEventStartHandler.StopInvoked.IsPresent());
@@ -180,7 +183,6 @@ namespace Org.Apache.REEF.Evaluator.Tests
             var countDownAction = injector.GetInstance<CountDownAction>();
             countDownAction.CountdownEvent.Signal();
 
-            var task = injector.GetInstance<TestTask>();
             task.FinishCountdownEvent.Wait();
             task.DisposeCountdownEvent.Wait();
 
@@ -218,6 +220,7 @@ namespace Org.Apache.REEF.Evaluator.Tests
             var taskThread = taskRuntime.StartTaskOnNewThread();
 
             var task = injector.GetInstance<TestTask>();
+            task.StartEvent.Wait();
             task.FinishCountdownEvent.Wait();
             task.DisposeCountdownEvent.Wait();
 
@@ -257,6 +260,7 @@ namespace Org.Apache.REEF.Evaluator.Tests
                 throw new Exception("Task is expected to be an instance of TestTask.");
             }
 
+            task.StartEvent.Wait();
             taskRuntime.Suspend(null);
 
             task.FinishCountdownEvent.Wait();

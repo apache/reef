@@ -288,6 +288,7 @@ namespace Org.Apache.REEF.Evaluator.Tests
                     throw new Exception();
                 }
 
+                testTask.StartEvent.Wait();
                 testTask.CountDownEvent.Signal();
                 testTask.StopEvent.Wait();
                 Assert.False(contextRuntime.GetTaskStatus().IsPresent());
@@ -295,13 +296,14 @@ namespace Org.Apache.REEF.Evaluator.Tests
                 taskThread.Join();
 
                 taskThread = contextRuntime.StartTaskOnNewThread(taskConfig);
-                Assert.Equal(contextRuntime.GetTaskStatus().Value.state, State.RUNNING);
-
                 var secondTestTask = contextRuntime.TaskRuntime.Value.Task as TestTask;
                 if (secondTestTask == null)
                 {
                     throw new Exception();
                 }
+
+                secondTestTask.StartEvent.Wait();
+                Assert.Equal(contextRuntime.GetTaskStatus().Value.state, State.RUNNING);
 
                 Assert.False(ReferenceEquals(testTask, secondTestTask));
 
