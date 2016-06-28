@@ -291,9 +291,9 @@ namespace Org.Apache.REEF.Evaluator.Tests
                 testTask.StartEvent.Wait();
                 testTask.CountDownEvent.Signal();
                 testTask.StopEvent.Wait();
-                Assert.False(contextRuntime.GetTaskStatus().IsPresent());
-
                 taskThread.Join();
+
+                Assert.False(contextRuntime.GetTaskStatus().IsPresent());
 
                 taskThread = contextRuntime.StartTaskOnNewThread(taskConfig);
                 var secondTestTask = contextRuntime.TaskRuntime.Value.Task as TestTask;
