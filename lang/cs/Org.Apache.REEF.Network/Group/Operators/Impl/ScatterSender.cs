@@ -46,23 +46,18 @@ namespace Org.Apache.REEF.Network.Group.Operators.Impl
         /// <param name="initialize">Require Topology Initialize to be called to wait for all task being registered. 
         /// Default is true. For unit testing, it can be set to false.</param>
         /// <param name="topology">The operator topology</param>
-        /// <param name="networkHandler">The network handler</param>
         [Inject]
         private ScatterSender(
             [Parameter(typeof(GroupCommConfigurationOptions.OperatorName))] string operatorName,
             [Parameter(typeof(GroupCommConfigurationOptions.CommunicationGroupName))] string groupName,
             [Parameter(typeof(GroupCommConfigurationOptions.Initialize))] bool initialize,
-            OperatorTopology<T> topology,
-            ICommunicationGroupNetworkObserver networkHandler)
+            OperatorTopology<T> topology)
         {
             OperatorName = operatorName;
             GroupName = groupName;
             Version = DefaultVersion;
             _topology = topology;
             _initialize = initialize;
-
-            var msgHandler = Observer.Create<GeneralGroupCommunicationMessage>(message => topology.OnNext(message));
-            networkHandler.Register(operatorName, msgHandler);
         }
 
         public string OperatorName { get; private set; }
