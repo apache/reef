@@ -60,7 +60,7 @@ namespace Org.Apache.REEF.Tests.Functional.Bridge
             ValidateSuccessForLocalRuntime(1, 0, 0, testFolder);
             var messages = new List<string> { TaskIsDisposed };
             ValidateMessageSuccessfullyLogged(messages, "Node-*", EvaluatorStdout, testFolder, 1);
-            ////CleanUp(testFolder);
+            CleanUp(testFolder);
         }
 
         /// <summary>

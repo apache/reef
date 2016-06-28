@@ -16,12 +16,17 @@
 // under the License.
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using Org.Apache.REEF.Network.Group.Driver.Impl;
 using Org.Apache.REEF.Network.NetworkService;
 using Org.Apache.REEF.Tang.Annotations;
+using Org.Apache.REEF.Tang.Implementations.InjectionPlan;
+using Org.Apache.REEF.Utilities.Diagnostics;
 using Org.Apache.REEF.Utilities.Logging;
+using Org.Apache.REEF.Wake.Remote;
+using Org.Apache.REEF.Wake.Remote.Impl;
 
 namespace Org.Apache.REEF.Network.Group.Task.Impl
 {
@@ -29,71 +34,63 @@ namespace Org.Apache.REEF.Network.Group.Task.Impl
     /// Handles all incoming messages for this Task.
     /// Writable version
     /// </summary>
-    internal sealed class GroupCommNetworkObserver : IGroupCommNetworkObserver
+    internal sealed class GroupCommNetworkObserver : IObserver<IRemoteMessage<NsMessage<GeneralGroupCommunicationMessage>>>
     {
-        private static readonly Logger LOGGER = Logger.GetLogger(typeof(GroupCommNetworkObserver));
+        private static readonly Logger Logger = Logger.GetLogger(typeof(GroupCommNetworkObserver));
 
-        private readonly Dictionary<string, IObserver<GeneralGroupCommunicationMessage>> _commGroupHandlers;
+        private readonly IInjectionFuture<StreamingNetworkService<GeneralGroupCommunicationMessage>> _networkService;
+
+        private readonly ConcurrentDictionary<string, TaskMessageObserver> _taskMessageObservers =
+            new ConcurrentDictionary<string, TaskMessageObserver>();
+
+        private readonly ConcurrentDictionary<string, byte> _registeredNodes = new ConcurrentDictionary<string, byte>();
 
         /// <summary>
         /// Creates a new GroupCommNetworkObserver.
         /// </summary>
         [Inject]
-        private GroupCommNetworkObserver()
+        private GroupCommNetworkObserver(
+            IInjectionFuture<StreamingNetworkService<GeneralGroupCommunicationMessage>> networkService)
         {
-            _commGroupHandlers = new Dictionary<string, IObserver<GeneralGroupCommunicationMessage>>();
+            _networkService = networkService;
         }
 
         /// <summary>
-        /// Handles the incoming WritableNsMessage for this Task.
-        /// Delegates the GeneralGroupCommunicationMessage to the correct 
-        /// WritableCommunicationGroupNetworkObserver.
+        /// Registers a <see cref="TaskMessageObserver"/> for a given <see cref="taskSourceId"/>.
+        /// If if the <see cref="TaskMessageObserver"/> has already been initialized, it will return
+        /// the existing one.
         /// </summary>
-        /// <param name="nsMessage"></param>
-        public void OnNext(NsMessage<GeneralGroupCommunicationMessage> nsMessage)
+        public TaskMessageObserver RegisterAndGetForTask(string taskSourceId)
         {
-            if (nsMessage == null)
-            {
-                throw new ArgumentNullException("nsMessage");
-            }
+            // Add a TaskMessage observer for each upstream/downstream source.
+            return _taskMessageObservers.GetOrAdd(taskSourceId, new TaskMessageObserver(_networkService.Get()));
+        }
 
+        public void OnNext(IRemoteMessage<NsMessage<GeneralGroupCommunicationMessage>> remoteMessage)
+        {
             try
             {
-                GeneralGroupCommunicationMessage gcm = nsMessage.Data.First();
-                _commGroupHandlers[gcm.GroupName].OnNext(gcm);
-            }
-            catch (InvalidOperationException)
-            {
-                LOGGER.Log(Level.Error, "Group Communication Network Handler received message with no data");
-                throw;
-            }
-            catch (KeyNotFoundException)
-            {
-                LOGGER.Log(Level.Error, "Group Communication Network Handler received message for nonexistant group");
-                throw;
-            }
-        }
+                var nsMessage = remoteMessage.Message;
+                var gcm = nsMessage.Data.First();
+                var gcMessageTaskSource = gcm.Source;
+                TaskMessageObserver observer;
+                if (!_taskMessageObservers.TryGetValue(gcMessageTaskSource, out observer))
+                {
+                    throw new KeyNotFoundException("Unable to find registered NodeMessageObserver for source Task " +
+                                                   gcMessageTaskSource + ".");
+                }
 
-        /// <summary>
-        /// Registers the network handler for the given CommunicationGroup.
-        /// When messages are sent to the specified group name, the given handler
-        /// will be invoked with that message.
-        /// </summary>
-        /// <param name="groupName">The group name for the network handler</param>
-        /// <param name="commGroupHandler">The network handler to invoke when
-        /// messages are sent to the given group.</param>
-        public void Register(string groupName, IObserver<GeneralGroupCommunicationMessage> commGroupHandler)
-        {
-            if (string.IsNullOrEmpty(groupName))
-            {
-                throw new ArgumentNullException("groupName");
+                _registeredNodes.GetOrAdd(gcMessageTaskSource,
+                    id =>
+                    {
+                        observer.OnNext(remoteMessage);
+                        return new byte();
+                    });
             }
-            if (commGroupHandler == null)
+            catch (Exception e)
             {
-                throw new ArgumentNullException("commGroupHandler");
+                Exceptions.CaughtAndThrow(e, Level.Error, Logger);
             }
-
-            _commGroupHandlers[groupName] = commGroupHandler;
         }
 
         public void OnError(Exception error)

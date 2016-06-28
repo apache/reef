@@ -22,13 +22,10 @@ using Org.Apache.REEF.Common.Io;
 using Org.Apache.REEF.Network.NetworkService.Codec;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Tang.Exceptions;
-using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Utilities.Logging;
 using Org.Apache.REEF.Wake;
 using Org.Apache.REEF.Wake.Remote;
 using Org.Apache.REEF.Wake.Remote.Impl;
-using Org.Apache.REEF.Wake.StreamingCodec;
-using Org.Apache.REEF.Wake.Util;
 
 namespace Org.Apache.REEF.Network.NetworkService
 {
@@ -42,7 +39,8 @@ namespace Org.Apache.REEF.Network.NetworkService
 
         private readonly IRemoteManager<NsMessage<T>> _remoteManager;
         private IIdentifier _localIdentifier;
-        private readonly IDisposable _messageHandlerDisposable;
+        private readonly IDisposable _messageHandlerDisposable1;
+        private readonly IDisposable _messageHandlerDisposable2;
         private readonly Dictionary<IIdentifier, IConnection<T>> _connectionMap;
         private readonly INameClient _nameClient;
 
@@ -50,29 +48,69 @@ namespace Org.Apache.REEF.Network.NetworkService
         /// Create a new Writable NetworkService.
         /// </summary>
         /// <param name="messageHandler">The observer to handle incoming messages</param>
-        /// <param name="idFactory">The factory used to create IIdentifiers</param>
         /// <param name="nameClient">The name client used to register Ids</param>
-        /// <param name="remoteManagerFactory">Writable RemoteManagerFactory to create a 
-        /// Writable RemoteManager</param>
+        /// <param name="remoteManagerFactory">
+        /// Writable RemoteManagerFactory to create a Writable RemoteManager
+        /// </param>
         /// <param name="codec">Codec for Network Service message</param>
         /// <param name="localAddressProvider">The local address provider</param>
-        /// <param name="injector">Fork of the injector that created the Network service</param>
         [Inject]
         private StreamingNetworkService(
             IObserver<NsMessage<T>> messageHandler,
-            IIdentifierFactory idFactory,
             INameClient nameClient,
             StreamingRemoteManagerFactory remoteManagerFactory,
             NsMessageStreamingCodec<T> codec,
-            ILocalAddressProvider localAddressProvider,
-            IInjector injector)
+            ILocalAddressProvider localAddressProvider)
+            : this(messageHandler, null, nameClient, remoteManagerFactory, codec, localAddressProvider)
+        {
+        }
+
+        /// <summary>
+        /// Create a new Writable NetworkService
+        /// </summary>
+        /// <param name="messageHandler">The observer to handle incoming messages</param>
+        /// <param name="nameClient">The name client used to register Ids</param>
+        /// <param name="remoteManagerFactory">
+        /// Writable RemoteManagerFactory to create a Writable RemoteManager
+        /// </param>
+        /// <param name="codec">Codec for Network Service message</param>
+        /// <param name="localAddressProvider">The local address provider</param>
+        [Inject]
+        private StreamingNetworkService(
+            IObserver<IRemoteMessage<NsMessage<T>>> messageHandler,
+            INameClient nameClient,
+            StreamingRemoteManagerFactory remoteManagerFactory,
+            NsMessageStreamingCodec<T> codec,
+            ILocalAddressProvider localAddressProvider)
+            : this(null, messageHandler, nameClient, remoteManagerFactory, codec, localAddressProvider)
+        {
+        }
+
+        [Inject]
+        private StreamingNetworkService(
+            IObserver<NsMessage<T>> messageHandler1,
+            IObserver<IRemoteMessage<NsMessage<T>>> messageHandler2,
+            INameClient nameClient,
+            StreamingRemoteManagerFactory remoteManagerFactory,
+            NsMessageStreamingCodec<T> codec,
+            ILocalAddressProvider localAddressProvider)
         {
             _remoteManager = remoteManagerFactory.GetInstance(localAddressProvider.LocalAddress, codec);
 
-            // Create and register incoming message handler
-            // TODO[REEF-419] This should use the TcpPortProvider mechanism
-            var anyEndpoint = new IPEndPoint(IPAddress.Any, 0);
-            _messageHandlerDisposable = _remoteManager.RegisterObserver(anyEndpoint, messageHandler);
+            if (messageHandler1 != null)
+            {
+                // Create and register incoming message handler
+                // TODO[REEF-419] This should use the TcpPortProvider mechanism
+                var anyEndpoint = new IPEndPoint(IPAddress.Any, 0);
+                _messageHandlerDisposable1 = _remoteManager.RegisterObserver(anyEndpoint, messageHandler1);
+            }
+            else
+            {
+                _messageHandlerDisposable1 = null;
+            }
+
+            _messageHandlerDisposable2 = messageHandler2 != null ?
+                _remoteManager.RegisterObserver(messageHandler2) : null;
 
             _nameClient = nameClient;
             _connectionMap = new Dictionary<IIdentifier, IConnection<T>>();
@@ -86,6 +124,14 @@ namespace Org.Apache.REEF.Network.NetworkService
         public INameClient NamingClient
         {
             get { return _nameClient; }
+        }
+
+        /// <summary>
+        /// RemoteManager for registering Observers.
+        /// </summary>
+        public IRemoteManager<NsMessage<T>> RemoteManager
+        {
+            get { return _remoteManager; }
         }
 
         /// <summary>
@@ -141,8 +187,18 @@ namespace Org.Apache.REEF.Network.NetworkService
             }
 
             NamingClient.Unregister(_localIdentifier.ToString());
+
             _localIdentifier = null;
-            _messageHandlerDisposable.Dispose();
+
+            if (_messageHandlerDisposable1 != null)
+            {
+                _messageHandlerDisposable1.Dispose();
+            }
+
+            if (_messageHandlerDisposable2 != null)
+            {
+                _messageHandlerDisposable2.Dispose();
+            }
         }
 
         /// <summary>

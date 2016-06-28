@@ -18,6 +18,7 @@
 using System;
 using Org.Apache.REEF.Common.Io;
 using Org.Apache.REEF.Wake;
+using Org.Apache.REEF.Wake.Remote;
 
 namespace Org.Apache.REEF.Network.NetworkService
 {
@@ -33,6 +34,11 @@ namespace Org.Apache.REEF.Network.NetworkService
         INameClient NamingClient { get; }
 
         /// <summary>
+        /// The remote manager of the NetworkService.
+        /// </summary>
+        IRemoteManager<NsMessage<T>> RemoteManager { get; }
+
+            /// <summary>
         /// Open a new connection to the remote host registered to
         /// the name service with the given identifier
         /// </summary>

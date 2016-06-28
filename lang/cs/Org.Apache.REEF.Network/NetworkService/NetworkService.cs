@@ -81,6 +81,14 @@ namespace Org.Apache.REEF.Network.NetworkService
         public INameClient NamingClient { get; private set; }
 
         /// <summary>
+        /// The remote manager of the network service.
+        /// </summary>
+        public IRemoteManager<NsMessage<T>> RemoteManager
+        {
+            get { return _remoteManager; }
+        }
+
+        /// <summary>
         /// Open a new connection to the remote host registered to
         /// the name service with the given identifier
         /// </summary>

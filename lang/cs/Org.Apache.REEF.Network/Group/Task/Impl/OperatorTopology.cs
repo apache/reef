@@ -39,7 +39,7 @@ namespace Org.Apache.REEF.Network.Group.Task.Impl
     /// Communication Group.
     /// </summary>
     /// <typeparam name="T">The message type</typeparam>
-    public sealed class OperatorTopology<T> : IOperatorTopology<T>, IObserver<GeneralGroupCommunicationMessage>
+    public sealed class OperatorTopology<T> : IOperatorTopology<T>
     {
         private static readonly Logger Logger = Logger.GetLogger(typeof(OperatorTopology<>));
 
@@ -66,6 +66,7 @@ namespace Org.Apache.REEF.Network.Group.Task.Impl
         /// <param name="sleepTime">Sleep time between retry wating for registration</param>
         /// <param name="rootId">The identifier for the root Task in the topology graph</param>
         /// <param name="childIds">The set of child Task identifiers in the topology graph</param>
+        /// <param name="networkObserver"></param>
         /// <param name="networkService">The network service</param>
         /// <param name="sender">The Sender used to do point to point communication</param>
         [Inject]
@@ -78,6 +79,7 @@ namespace Org.Apache.REEF.Network.Group.Task.Impl
             [Parameter(typeof(GroupCommConfigurationOptions.SleepTimeWaitingForRegistration))] int sleepTime,
             [Parameter(typeof(GroupCommConfigurationOptions.TopologyRootTaskId))] string rootId,
             [Parameter(typeof(GroupCommConfigurationOptions.TopologyChildTaskIds))] ISet<string> childIds,
+            GroupCommNetworkObserver networkObserver,
             StreamingNetworkService<GeneralGroupCommunicationMessage> networkService,
             Sender sender)
         {
@@ -89,12 +91,20 @@ namespace Org.Apache.REEF.Network.Group.Task.Impl
             _sleepTime = sleepTime;
             _nameClient = networkService.NamingClient;
             _sender = sender;
+            _parent = _selfId.Equals(rootId) ? null : new NodeStruct<T>(rootId, groupName, operatorName);
 
-            _parent = _selfId.Equals(rootId) ? null : new NodeStruct<T>(rootId);
+            // Register the observers for Task IDs and nodes adjacent to the current node
+            // in the group communication graph.
+            if (_parent != null)
+            {
+                networkObserver.RegisterAndGetForTask(_parent.Identifier).RegisterNodeObserver(new NodeMessageObserver<T>(_parent));
+            }
 
             foreach (var childId in childIds)
             {
-                _childNodeContainer.PutNode(new NodeStruct<T>(childId));
+                var childNode = new NodeStruct<T>(childId, groupName, operatorName);
+                _childNodeContainer.PutNode(childNode);
+                networkObserver.RegisterAndGetForTask(childId).RegisterNodeObserver(new NodeMessageObserver<T>(childNode));
             }
         }
 
@@ -120,41 +130,6 @@ namespace Org.Apache.REEF.Network.Group.Task.Impl
                     }
                 }
             }
-        }
-
-        /// <summary>
-        /// Handles the incoming GroupCommunicationMessage.
-        /// Updates the sending node's message queue.
-        /// </summary>
-        /// <param name="gcm">The incoming message</param>
-        public void OnNext(GeneralGroupCommunicationMessage gcm)
-        {
-            if (gcm == null)
-            {
-                throw new ArgumentNullException("gcm");
-            }
-            if (gcm.Source == null)
-            {
-                throw new ArgumentException("Message must have a source");
-            }
-
-            var sourceNode = (_parent != null && _parent.Identifier == gcm.Source) 
-                ? _parent 
-                : _childNodeContainer.GetChild(gcm.Source);
-
-            if (sourceNode == null)
-            {
-                throw new IllegalStateException("Received message from invalid task id: " + gcm.Source);
-            }
-
-            var message = gcm as GroupCommunicationMessage<T>;
-
-            if (message == null)
-            {
-                throw new NullReferenceException("message passed not of type GroupCommunicationMessage");
-            }
-
-            sourceNode.AddData(message);
         }
 
         /// <summary>
@@ -306,14 +281,6 @@ namespace Org.Apache.REEF.Network.Group.Task.Impl
             }
 
             return reduceFunction.Reduce(_childNodeContainer.GetDataFromAllChildren());
-        }
-
-        public void OnError(Exception error)
-        {
-        }
-
-        public void OnCompleted()
-        {
         }
 
         public bool HasChildren()

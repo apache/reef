@@ -34,6 +34,7 @@ using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Tang.Util;
 using Org.Apache.REEF.Utilities.Logging;
 using Org.Apache.REEF.Utilities.Diagnostics;
+using Org.Apache.REEF.Wake.Remote;
 using ContextConfiguration = Org.Apache.REEF.Common.Context.ContextConfiguration;
 
 namespace Org.Apache.REEF.Network.Group.Driver.Impl
@@ -196,7 +197,7 @@ namespace Org.Apache.REEF.Network.Group.Driver.Impl
 
             return TangFactory.GetTang().NewConfigurationBuilder(serviceConfig)
                 .BindImplementation(
-                    GenericType<IObserver<NsMessage<GeneralGroupCommunicationMessage>>>.Class,
+                    GenericType<IObserver<IRemoteMessage<NsMessage<GeneralGroupCommunicationMessage>>>>.Class,
                     GenericType<GroupCommNetworkObserver>.Class)
                 .BindNamedParameter<NamingConfigurationOptions.NameServerAddress, string>(
                     GenericType<NamingConfigurationOptions.NameServerAddress>.Class,

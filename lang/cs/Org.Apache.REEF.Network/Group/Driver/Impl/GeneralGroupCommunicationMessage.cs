@@ -15,21 +15,16 @@
 // specific language governing permissions and limitations
 // under the License.
 
+using System;
+
 namespace Org.Apache.REEF.Network.Group.Driver.Impl
 {
     /// <summary>
     /// Messages sent by MPI Operators. This is the class inherited by 
     /// GroupCommunicationMessage but seen by Network Service
     /// </summary>
-    public class GeneralGroupCommunicationMessage
-    {        
-        /// <summary>
-        /// Empty constructor to allow instantiation by reflection
-        /// </summary>
-        protected GeneralGroupCommunicationMessage()
-        {
-        }
-
+    public abstract class GeneralGroupCommunicationMessage
+    {
         /// <summary>
         /// Create new CommunicationGroupMessage.
         /// </summary>
@@ -37,36 +32,44 @@ namespace Org.Apache.REEF.Network.Group.Driver.Impl
         /// <param name="operatorName">The name of the MPI operator</param>
         /// <param name="source">The message source</param>
         /// <param name="destination">The message destination</param>
+        /// <param name="type">The type of the GC message</param>
         protected GeneralGroupCommunicationMessage(
             string groupName,
             string operatorName,
             string source,
-            string destination)
+            string destination,
+            Type type)
         {
             GroupName = groupName;
             OperatorName = operatorName;
             Source = source;
             Destination = destination;
+            Type = type;
         }
 
         /// <summary>
         /// Returns the Communication Group name.
         /// </summary>
-        internal string GroupName { get; set; }
+        internal string GroupName { get; private set; }
 
         /// <summary>
         /// Returns the MPI Operator name.
         /// </summary>
-        internal string OperatorName { get; set; }
+        internal string OperatorName { get; private set; }
 
         /// <summary>
         /// Returns the source of the message.
         /// </summary>
-        internal string Source { get; set; }
+        internal string Source { get; private set; }
 
         /// <summary>
         /// Returns the destination of the message.
         /// </summary>
-        internal string Destination { get; set; }
+        internal string Destination { get; private set; }
+
+        /// <summary>
+        /// The Type of the GroupCommunicationMessage.
+        /// </summary>
+        internal Type Type { get; private set; }
     }
 }
