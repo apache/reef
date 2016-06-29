@@ -16,7 +16,6 @@
 // under the License.
 
 using System;
-using System.Linq;
 using Org.Apache.REEF.Common.Context;
 using Org.Apache.REEF.Common.Services;
 using Org.Apache.REEF.Common.Tasks;

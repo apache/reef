@@ -226,18 +226,19 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Context
                 {
                     Utilities.Diagnostics.Exceptions.Caught(e, Level.Error, LOGGER);
 
-                    var contextId = string.Empty;
+                    var childContextId = string.Empty;
                     try
                     {
                         var injector = TangFactory.GetTang().NewInjector(childContextConfiguration);
-                        contextId = injector.GetNamedInstance<ContextConfigurationOptions.ContextIdentifier, string>();
+                        childContextId = injector.GetNamedInstance<ContextConfigurationOptions.ContextIdentifier, string>();
                     }
                     catch (InjectionException)
                     {
-                        LOGGER.Log(Level.Error, "Unable to get Context ID from child ContextConfiguration. Using empty string.");
+                        Utilities.Diagnostics.Exceptions.Caught(
+                            e, Level.Error, "Unable to get Context ID from child ContextConfiguration. Using empty string.", LOGGER);
                     }
 
-                    throw new ContextClientCodeException(contextId, Optional<string>.Of(Id), "Unable to spawn context", e);
+                    throw new ContextClientCodeException(childContextId, Optional<string>.Of(Id), "Unable to spawn context", e);
                 }
             }
         }
