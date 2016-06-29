@@ -309,10 +309,10 @@ namespace Org.Apache.REEF.Evaluator.Tests
 
                 secondTestTask.CountDownEvent.Signal();
                 secondTestTask.StopEvent.Wait();
+                taskThread.Join();
+
                 Assert.False(contextRuntime.GetTaskStatus().IsPresent());
                 secondTestTask.DisposedEvent.Wait();
-
-                taskThread.Join();
             }
         }
 
