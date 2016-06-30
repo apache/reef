@@ -222,12 +222,11 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Context
             {
                 if (_task.IsPresent())
                 {
-                    var message =
-                        string.Format(CultureInfo.InvariantCulture, "Attempting to spawn a child context when an Task with id '{0}' is running", _task.Value.TaskId);
-
-                    var e = new InvalidOperationException(message);
-                    Utilities.Diagnostics.Exceptions.Throw(e, LOGGER);
-                    throw e;
+                    throw new InvalidOperationException(
+                        string.Format(
+                            CultureInfo.InvariantCulture, 
+                            "Attempting to spawn a child context when an Task with id '{0}' is running",
+                            _task.Value.TaskId));
                 }
 
                 AssertChildContextNotPresent("Attempting to instantiate a child context on a context that is not the topmost active context.");
