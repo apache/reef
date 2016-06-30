@@ -79,13 +79,15 @@ under the License.
     <Compile Include="Functional\Bridge\TestCloseTask.cs" />
     <Compile Include="Functional\Bridge\TestContextStack.cs" />
     <Compile Include="Functional\Bridge\TestFailedEvaluatorEventHandler.cs" />
+    <Compile Include="Functional\Common\Task\ExceptionTask.cs" />
+    <Compile Include="Functional\Common\Task\NullTask.cs" />
+    <Compile Include="Functional\Failure\User\ContextStopExceptionTest.cs" />
     <Compile Include="Functional\Common\EventMonitor.cs" />
     <Compile Include="Functional\Failure\User\SendContextMessageExceptionTest.cs" />
     <Compile Include="Functional\Failure\User\ServiceConstructorExceptionTest.cs" />
     <Compile Include="Functional\Failure\User\ReceiveContextMessageExceptionTest.cs" />
     <Compile Include="Functional\Failure\User\ContextStartExceptionTest.cs" />
     <Compile Include="Functional\Failure\User\ReceiveTaskMessageExceptionTest.cs" />
-    <Compile Include="Functional\Common\Task\ExceptionTask.cs" />
     <Compile Include="Functional\Failure\User\TaskCallExceptionTest.cs" />
     <Compile Include="Functional\Bridge\Exceptions\TestNonSerializableException.cs" />
     <Compile Include="Functional\Bridge\Exceptions\TestSerializableException.cs" />

@@ -245,18 +245,7 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Context
                 catch (Exception e)
                 {
                     Utilities.Diagnostics.Exceptions.Caught(e, Level.Error, LOGGER);
-
-                    var childContextId = string.Empty;
-                    try
-                    {
-                        var injector = TangFactory.GetTang().NewInjector(childContextConfiguration);
-                        childContextId = injector.GetNamedInstance<ContextConfigurationOptions.ContextIdentifier, string>();
-                    }
-                    catch (InjectionException)
-                    {
-                        Utilities.Diagnostics.Exceptions.Caught(
-                            e, Level.Error, "Unable to get Context ID from child ContextConfiguration. Using empty string.", LOGGER);
-                    }
+                    var childContextId = GetChildContextId(childContextConfiguration);
 
                     throw new ContextClientCodeException(childContextId, Optional<string>.Of(Id), "Unable to spawn context", e);
                 }
@@ -360,15 +349,33 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Context
                     LOGGER.Log(Level.Warning, "Closing a context because its parent context is being closed.");
                     _childContext.Value.Dispose();
                 }
-                _contextLifeCycle.Close();
-                if (_parentContext.IsPresent())
-                {
-                    ParentContext.Value.ResetChildContext();
-                }
 
-                foreach (var injectedService in _injectedServices.OfType<IDisposable>())
+                try
                 {
-                    injectedService.Dispose();
+                    _contextLifeCycle.Close();
+                }
+                catch (Exception e)
+                {
+                    const string message = "Encountered Exception in ContextStopHandler.";
+                    if (ParentContext.IsPresent())
+                    {
+                        throw new ContextStopHandlerException(
+                            Id, Optional<string>.Of(ParentContext.Value.Id), message, e);
+                    }
+
+                    throw new ContextStopHandlerException(Id, Optional<string>.Empty(), message, e);
+                }
+                finally
+                {
+                    if (_parentContext.IsPresent())
+                    {
+                        ParentContext.Value.ResetChildContext();
+                    }
+
+                    foreach (var injectedService in _injectedServices.OfType<IDisposable>())
+                    {
+                        injectedService.Dispose();
+                    }
                 }
             }
         }
