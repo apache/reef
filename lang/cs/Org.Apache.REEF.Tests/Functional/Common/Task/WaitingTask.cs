@@ -23,7 +23,7 @@ namespace Org.Apache.REEF.Tests.Functional.Common.Task
     /// <summary>
     /// A helper test class that implements <see cref="ITask"/>, which logs
     /// messages provided by the caller of the constructor and waits for an 
-    /// <see cref="EventHandle"/> to be signaled.
+    /// <see cref="EventMonitor"/> to be signaled.
     /// </summary>
     public abstract class WaitingTask : ITask
     {
@@ -31,14 +31,14 @@ namespace Org.Apache.REEF.Tests.Functional.Common.Task
 
         private readonly string _messageToLogPreWait;
         private readonly string _messageToLogPostWait;
-        private readonly EventHandle _eventHandle;
+        private readonly EventMonitor _eventMonitor;
 
         protected WaitingTask(
-            EventHandle eventHandle,
+            EventMonitor eventMonitor,
             string messageToLogPreWait = null,
             string messageToLogPostWait = null)
         {
-            _eventHandle = eventHandle;
+            _eventMonitor = eventMonitor;
             _messageToLogPreWait = messageToLogPreWait;
             _messageToLogPostWait = messageToLogPostWait;
         }
@@ -50,7 +50,7 @@ namespace Org.Apache.REEF.Tests.Functional.Common.Task
                 Logger.Log(Level.Info, _messageToLogPreWait);
             }
 
-            _eventHandle.Wait();
+            _eventMonitor.Wait();
 
             if (!string.IsNullOrWhiteSpace(_messageToLogPostWait))
             {

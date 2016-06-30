@@ -21,14 +21,14 @@ using Org.Apache.REEF.Tang.Annotations;
 namespace Org.Apache.REEF.Tests.Functional.Common
 {
     /// <summary>
-    /// An test EventHandle that simply wraps around a <see cref="ManualResetEventSlim"/>.
+    /// An test EventMonitor that simply wraps around a <see cref="ManualResetEventSlim"/>.
     /// </summary>
-    public sealed class EventHandle
+    public sealed class EventMonitor
     {
         private readonly ManualResetEventSlim _eventHandle = new ManualResetEventSlim();
 
         [Inject]
-        private EventHandle()
+        private EventMonitor()
         {
         }
 

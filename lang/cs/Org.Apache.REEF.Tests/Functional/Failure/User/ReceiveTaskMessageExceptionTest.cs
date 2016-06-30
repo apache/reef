@@ -139,7 +139,7 @@ namespace Org.Apache.REEF.Tests.Functional.Failure.User
         private sealed class TestTask : WaitingTask
         {
             [Inject]
-            private TestTask(EventHandle eventHandle) : base(eventHandle)
+            private TestTask(EventMonitor eventMonitor) : base(eventMonitor)
             {
             }
         }
