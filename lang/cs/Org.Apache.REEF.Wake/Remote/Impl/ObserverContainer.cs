@@ -48,7 +48,7 @@ namespace Org.Apache.REEF.Wake.Remote.Impl
         /// <param name="remoteEndpoint">The IPEndPoint of the remote host</param>
         /// <param name="observer">The IObserver to handle incoming messages</param>
         /// <returns>An IDisposable used to unregister the observer with</returns>
-        public IDisposable RegisterObserver(IPEndPoint remoteEndpoint, IObserver<T> observer)
+        public IDisposable RegisterObserver(IPEndPoint remoteEndpoint, IObserver<T> observer) 
         {
             if (remoteEndpoint.Address.Equals(IPAddress.Any))
             {

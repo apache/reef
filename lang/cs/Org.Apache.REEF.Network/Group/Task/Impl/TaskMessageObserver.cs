@@ -63,37 +63,6 @@ namespace Org.Apache.REEF.Network.Group.Task.Impl
         }
 
         /// <summary>
-        /// Handles the group communication message.
-        /// </summary>
-        private void Handle(NsMessage<GeneralGroupCommunicationMessage> value, bool isRegistration = false)
-        {
-            // This is mainly used to handle the case should ObserverContainer
-            // decide to trigger handlers concurrently for a single message.
-            if (isRegistration)
-            {
-                // Process the registration message
-                _registrationMessage = value;
-            }
-            else if (_registrationMessage != null && value == _registrationMessage)
-            {
-                // This means that we've already processed the message.
-                // Ignore this message and discard the reference.
-                _registrationMessage = null;
-                return;
-            }
-
-            var gcMessage = value.Data.First();
-
-            IObserver<NsMessage<GeneralGroupCommunicationMessage>> observer;
-            if (!_observers.TryGetValue(NodeObserverIdentifier.FromMessage(gcMessage), out observer))
-            {
-                throw new InvalidOperationException();
-            }
-
-            observer.OnNext(value);
-        }
-
-        /// <summary>
         /// This is called from the universal observer in ObserverContainer for the first message.
         /// </summary>
         public void OnNext(IRemoteMessage<NsMessage<GeneralGroupCommunicationMessage>> value)
@@ -129,6 +98,37 @@ namespace Org.Apache.REEF.Network.Group.Task.Impl
         {
             // TODO[JIRA REEF-1407]: Propagate completion to nodes associated with the Task.
             throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// Handles the group communication message.
+        /// </summary>
+        private void Handle(NsMessage<GeneralGroupCommunicationMessage> value, bool isRegistration = false)
+        {
+            // This is mainly used to handle the case should ObserverContainer
+            // decide to trigger handlers concurrently for a single message.
+            if (isRegistration)
+            {
+                // Process the registration message
+                _registrationMessage = value;
+            }
+            else if (_registrationMessage != null && value == _registrationMessage)
+            {
+                // This means that we've already processed the message.
+                // Ignore this message and discard the reference.
+                _registrationMessage = null;
+                return;
+            }
+
+            var gcMessage = value.Data.First();
+
+            IObserver<NsMessage<GeneralGroupCommunicationMessage>> observer;
+            if (!_observers.TryGetValue(NodeObserverIdentifier.FromMessage(gcMessage), out observer))
+            {
+                throw new InvalidOperationException();
+            }
+
+            observer.OnNext(value);
         }
     }
 }

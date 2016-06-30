@@ -32,19 +32,19 @@ namespace Org.Apache.REEF.Network.Group.Driver.Impl
         /// <param name="operatorName">The name of the MPI operator</param>
         /// <param name="source">The message source</param>
         /// <param name="destination">The message destination</param>
-        /// <param name="type">The type of the GC message</param>
+        /// <param name="messageType">The type of the GC message</param>
         protected GeneralGroupCommunicationMessage(
             string groupName,
             string operatorName,
             string source,
             string destination,
-            Type type)
+            Type messageType)
         {
             GroupName = groupName;
             OperatorName = operatorName;
             Source = source;
             Destination = destination;
-            Type = type;
+            MessageType = messageType;
         }
 
         /// <summary>
@@ -70,6 +70,6 @@ namespace Org.Apache.REEF.Network.Group.Driver.Impl
         /// <summary>
         /// The Type of the GroupCommunicationMessage.
         /// </summary>
-        internal Type Type { get; private set; }
+        internal Type MessageType { get; private set; }
     }
 }

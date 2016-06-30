@@ -44,7 +44,7 @@ namespace Org.Apache.REEF.Network.Group.Task.Impl
         /// </summary>
         public static NodeObserverIdentifier FromMessage(GeneralGroupCommunicationMessage message)
         {
-            return new NodeObserverIdentifier(message.Type, message.GroupName, message.OperatorName);
+            return new NodeObserverIdentifier(message.MessageType, message.GroupName, message.OperatorName);
         }
 
         private NodeObserverIdentifier(Type type, string groupName, string operatorName)
@@ -78,13 +78,9 @@ namespace Org.Apache.REEF.Network.Group.Task.Impl
             get { return _operatorName; }
         }
 
-        private bool Equals(NodeObserverIdentifier other)
-        {
-            return _type == other.Type &&
-                _groupName.Equals(other.GroupName) &&
-                _operatorName.Equals(other.OperatorName);
-        }
-
+        /// <summary>
+        /// Overrides <see cref="Equals"/>. Simply compares equivalence of instance fields.
+        /// </summary>
         public override bool Equals(object obj)
         {
             if (ReferenceEquals(null, obj))
@@ -100,12 +96,25 @@ namespace Org.Apache.REEF.Network.Group.Task.Impl
             return obj is NodeObserverIdentifier && Equals((NodeObserverIdentifier)obj);
         }
 
+        /// <summary>
+        /// Overrides <see cref="GetHashCode"/>. Generates hashcode based on the instance fields.
+        /// </summary>
         public override int GetHashCode()
         {
             int hash = 17;
             hash = (hash * 31) + _type.GetHashCode();
             hash = (hash * 31) + _groupName.GetHashCode();
             return (hash * 31) + _operatorName.GetHashCode();
+        }
+
+        /// <summary>
+        /// Compare equality of instance fields.
+        /// </summary>
+        private bool Equals(NodeObserverIdentifier other)
+        {
+            return _type == other.Type &&
+                _groupName.Equals(other.GroupName) &&
+                _operatorName.Equals(other.OperatorName);
         }
     }
 }

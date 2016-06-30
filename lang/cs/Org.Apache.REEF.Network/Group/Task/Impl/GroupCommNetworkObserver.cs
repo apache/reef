@@ -19,6 +19,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using Org.Apache.REEF.Network.Group.Driver.Impl;
 using Org.Apache.REEF.Network.NetworkService;
 using Org.Apache.REEF.Tang.Annotations;
@@ -43,6 +44,10 @@ namespace Org.Apache.REEF.Network.Group.Task.Impl
         private readonly ConcurrentDictionary<string, TaskMessageObserver> _taskMessageObservers =
             new ConcurrentDictionary<string, TaskMessageObserver>();
 
+        /// <summary>
+        /// A ConcurrentDictionary is used here since there is no ConcurrentSet implementation in C#, and ConcurrentBag
+        /// does not allow for us to check for the existence of an item. The byte is simply a placeholder.
+        /// </summary>
         private readonly ConcurrentDictionary<string, byte> _registeredNodes = new ConcurrentDictionary<string, byte>();
 
         /// <summary>
@@ -66,31 +71,31 @@ namespace Org.Apache.REEF.Network.Group.Task.Impl
             return _taskMessageObservers.GetOrAdd(taskSourceId, new TaskMessageObserver(_networkService.Get()));
         }
 
+        /// <summary>
+        /// On the first message, we map the <see cref="TaskMessageObserver"/> to the <see cref="IPEndPoint"/>
+        /// of the sending Task and register the observer with <see cref="IRemoteManager{T}"/> 
+        /// by calling <see cref="TaskMessageObserver#OnNext"/>. On subsequent messages we simply ignore the message
+        /// and allow <see cref="ObserverContainer{T}"/> to send the message directly via the <see cref="IPEndPoint"/>.
+        /// </summary>
+        /// <param name="remoteMessage"></param>
         public void OnNext(IRemoteMessage<NsMessage<GeneralGroupCommunicationMessage>> remoteMessage)
         {
-            try
+            var nsMessage = remoteMessage.Message;
+            var gcm = nsMessage.Data.First();
+            var gcMessageTaskSource = gcm.Source;
+            TaskMessageObserver observer;
+            if (!_taskMessageObservers.TryGetValue(gcMessageTaskSource, out observer))
             {
-                var nsMessage = remoteMessage.Message;
-                var gcm = nsMessage.Data.First();
-                var gcMessageTaskSource = gcm.Source;
-                TaskMessageObserver observer;
-                if (!_taskMessageObservers.TryGetValue(gcMessageTaskSource, out observer))
-                {
-                    throw new KeyNotFoundException("Unable to find registered NodeMessageObserver for source Task " +
-                                                   gcMessageTaskSource + ".");
-                }
+                throw new KeyNotFoundException("Unable to find registered NodeMessageObserver for source Task " +
+                                                gcMessageTaskSource + ".");
+            }
 
-                _registeredNodes.GetOrAdd(gcMessageTaskSource,
-                    id =>
-                    {
-                        observer.OnNext(remoteMessage);
-                        return new byte();
-                    });
-            }
-            catch (Exception e)
-            {
-                Exceptions.CaughtAndThrow(e, Level.Error, Logger);
-            }
+            _registeredNodes.GetOrAdd(gcMessageTaskSource,
+                id =>
+                {
+                    observer.OnNext(remoteMessage);
+                    return new byte();
+                });
         }
 
         public void OnError(Exception error)
