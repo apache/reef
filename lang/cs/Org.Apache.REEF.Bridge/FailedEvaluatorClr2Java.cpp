@@ -21,60 +21,60 @@ using namespace JavaClrBridge;
 
 namespace Org {
   namespace Apache {
-	  namespace REEF {
-		  namespace Driver {
-			  namespace Bridge {
-				  namespace Clr2java {
-					  ref class ManagedLog {
-					  internal:
-						  static BridgeLogger^ LOGGER = BridgeLogger::GetLogger("<C++>");
-					  };
+    namespace REEF {
+      namespace Driver {
+        namespace Bridge {
+          namespace Clr2java {
+            ref class ManagedLog {
+            internal:
+              static BridgeLogger^ LOGGER = BridgeLogger::GetLogger("<C++>");
+            };
 
-					  FailedEvaluatorClr2Java::FailedEvaluatorClr2Java(JNIEnv *env, jobject jobjectFailedEvaluator) {
-						  ManagedLog::LOGGER->LogStart("FailedEvaluatorClr2Java::FailedEvaluatorClr2Java");
-						  pin_ptr<JavaVM*> pJavaVm = &_jvm;
-						  if (env->GetJavaVM(pJavaVm) != 0) {
-							  ManagedLog::LOGGER->LogError("Failed to get JavaVM", nullptr);
-						  }
-						  _jobjectFailedEvaluator = reinterpret_cast<jobject>(env->NewGlobalRef(jobjectFailedEvaluator));
+            FailedEvaluatorClr2Java::FailedEvaluatorClr2Java(JNIEnv *env, jobject jobjectFailedEvaluator) {
+              ManagedLog::LOGGER->LogStart("FailedEvaluatorClr2Java::FailedEvaluatorClr2Java");
+              pin_ptr<JavaVM*> pJavaVm = &_jvm;
+              if (env->GetJavaVM(pJavaVm) != 0) {
+                ManagedLog::LOGGER->LogError("Failed to get JavaVM", nullptr);
+              }
+              _jobjectFailedEvaluator = reinterpret_cast<jobject>(env->NewGlobalRef(jobjectFailedEvaluator));
 
-						  jclass jclassFailedEvaluator = env->GetObjectClass(_jobjectFailedEvaluator);
-						  _jstringId = CommonUtilities::GetJObjectId(env, _jobjectFailedEvaluator, jclassFailedEvaluator);
-						  ManagedLog::LOGGER->LogStop("FailedEvaluatorClr2Java::FailedEvaluatorClr2Java");
-					  }
+              jclass jclassFailedEvaluator = env->GetObjectClass(_jobjectFailedEvaluator);
+              _jstringId = CommonUtilities::GetJObjectId(env, _jobjectFailedEvaluator, jclassFailedEvaluator);
+              ManagedLog::LOGGER->LogStop("FailedEvaluatorClr2Java::FailedEvaluatorClr2Java");
+            }
 
-					  FailedEvaluatorClr2Java::~FailedEvaluatorClr2Java() {
-						  this->!FailedEvaluatorClr2Java();
-					  }
+            FailedEvaluatorClr2Java::~FailedEvaluatorClr2Java() {
+              this->!FailedEvaluatorClr2Java();
+            }
 
-					  FailedEvaluatorClr2Java::!FailedEvaluatorClr2Java() {
-						  JNIEnv *env = RetrieveEnv(_jvm);
-						  if (_jobjectFailedEvaluator != NULL) {
-							  env->DeleteGlobalRef(_jobjectFailedEvaluator);
-						  }
+            FailedEvaluatorClr2Java::!FailedEvaluatorClr2Java() {
+              JNIEnv *env = RetrieveEnv(_jvm);
+              if (_jobjectFailedEvaluator != NULL) {
+                env->DeleteGlobalRef(_jobjectFailedEvaluator);
+              }
 
-						  if (_jstringId != NULL) {
-							  env->DeleteGlobalRef(_jstringId);
-						  }
-					  }
+              if (_jstringId != NULL) {
+                env->DeleteGlobalRef(_jstringId);
+              }
+            }
 
-					  IEvaluatorRequestorClr2Java^ FailedEvaluatorClr2Java::GetEvaluatorRequestor() {
-						  ManagedLog::LOGGER->LogStart("FailedEvaluatorClr2Java::GetEvaluatorRequestor");
-						  JNIEnv *env = RetrieveEnv(_jvm);
+            IEvaluatorRequestorClr2Java^ FailedEvaluatorClr2Java::GetEvaluatorRequestor() {
+              ManagedLog::LOGGER->LogStart("FailedEvaluatorClr2Java::GetEvaluatorRequestor");
+              JNIEnv *env = RetrieveEnv(_jvm);
 
-						  jclass jclassFailedEvaluator = env->GetObjectClass(_jobjectFailedEvaluator);
-						  jmethodID jmidGetEvaluatorRequestor = env->GetMethodID(jclassFailedEvaluator, "getEvaluatorRequestorBridge", "()Lorg/apache/reef/javabridge/EvaluatorRequestorBridge;");
-						  jobject jobjectEvaluatorRequestor = env->CallObjectMethod(_jobjectFailedEvaluator, jmidGetEvaluatorRequestor);
-						  ManagedLog::LOGGER->LogStop("FailedEvaluatorClr2Java::GetEvaluatorRequestor");
-						  return gcnew EvaluatorRequestorClr2Java(env, jobjectEvaluatorRequestor);
-					  }
+              jclass jclassFailedEvaluator = env->GetObjectClass(_jobjectFailedEvaluator);
+              jmethodID jmidGetEvaluatorRequestor = env->GetMethodID(jclassFailedEvaluator, "getEvaluatorRequestorBridge", "()Lorg/apache/reef/javabridge/EvaluatorRequestorBridge;");
+              jobject jobjectEvaluatorRequestor = env->CallObjectMethod(_jobjectFailedEvaluator, jmidGetEvaluatorRequestor);
+              ManagedLog::LOGGER->LogStop("FailedEvaluatorClr2Java::GetEvaluatorRequestor");
+              return gcnew EvaluatorRequestorClr2Java(env, jobjectEvaluatorRequestor);
+            }
 
-					  String^ FailedEvaluatorClr2Java::GetId() {
-						  ManagedLog::LOGGER->Log("FailedEvaluatorClr2Java::GetId");
+            String^ FailedEvaluatorClr2Java::GetId() {
+              ManagedLog::LOGGER->Log("FailedEvaluatorClr2Java::GetId");
 
-						  JNIEnv *env = RetrieveEnv(_jvm);
-						  return ManagedStringFromJavaString(env, _jstringId);
-					  }
+              JNIEnv *env = RetrieveEnv(_jvm);
+              return ManagedStringFromJavaString(env, _jstringId);
+            }
 
                       array<IFailedContextClr2Java^>^ FailedEvaluatorClr2Java::GetFailedContextsClr2Java() {
                           JNIEnv *env = RetrieveEnv(_jvm);
@@ -110,11 +110,11 @@ namespace Org {
                           return gcnew FailedTaskClr2Java(env, failedTask);
                       }
 
-					  void FailedEvaluatorClr2Java::OnError(String^ message) {
-						  ManagedLog::LOGGER->Log("FailedEvaluatorClr2Java::OnError");
-						  JNIEnv *env = RetrieveEnv(_jvm);
-						  HandleClr2JavaError(env, message, _jobjectFailedEvaluator);
-					  }
+            void FailedEvaluatorClr2Java::OnError(String^ message) {
+              ManagedLog::LOGGER->Log("FailedEvaluatorClr2Java::OnError");
+              JNIEnv *env = RetrieveEnv(_jvm);
+              HandleClr2JavaError(env, message, _jobjectFailedEvaluator);
+            }
 
                       array<byte>^ FailedEvaluatorClr2Java::GetErrorBytes() {
                           JNIEnv *env = RetrieveEnv(_jvm);
@@ -154,9 +154,9 @@ namespace Org {
                           jstring stackTrace = reinterpret_cast<jstring>(methodCallReturn);
                           return ManagedStringFromJavaString(env, stackTrace);
                       }
-				  }
-			  }
-		  }
-	  }
+          }
+        }
+      }
+    }
   }
 }

@@ -58,9 +58,9 @@ String^ ManagedStringFromJavaString (
 }
 
 bool ClrBoolFromJavaBoolean(
-	JNIEnv * env,
-	jboolean jbool) {
-	return jbool != JNI_FALSE;
+  JNIEnv * env,
+  jboolean jbool) {
+  return jbool != JNI_FALSE;
 }
 
 jstring JavaStringFromManagedString(
@@ -129,5 +129,5 @@ JNIEnv* RetrieveEnv(JavaVM* jvm) {
 }
 
 String^ FormatJavaExceptionMessage(String^ errorMessage, Exception^ exception) {
-	return String::Concat(errorMessage, Environment::NewLine, exception->StackTrace);
+  return String::Concat(errorMessage, Environment::NewLine, exception->StackTrace);
 }
