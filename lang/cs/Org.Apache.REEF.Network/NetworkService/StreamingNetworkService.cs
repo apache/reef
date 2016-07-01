@@ -39,15 +39,15 @@ namespace Org.Apache.REEF.Network.NetworkService
 
         private readonly IRemoteManager<NsMessage<T>> _remoteManager;
         private IIdentifier _localIdentifier;
-        private readonly IDisposable _messageHandlerDisposable1;
-        private readonly IDisposable _messageHandlerDisposable2;
+        private readonly IDisposable _universalObserverDisposable;
+        private readonly IDisposable _remoteMessageUniversalObserver;
         private readonly Dictionary<IIdentifier, IConnection<T>> _connectionMap;
         private readonly INameClient _nameClient;
 
         /// <summary>
         /// Create a new Writable NetworkService.
         /// </summary>
-        /// <param name="messageHandler">The observer to handle incoming messages</param>
+        /// <param name="universalObserver">The observer to handle incoming messages</param>
         /// <param name="nameClient">The name client used to register Ids</param>
         /// <param name="remoteManagerFactory">
         /// Writable RemoteManagerFactory to create a Writable RemoteManager
@@ -56,19 +56,19 @@ namespace Org.Apache.REEF.Network.NetworkService
         /// <param name="localAddressProvider">The local address provider</param>
         [Inject]
         private StreamingNetworkService(
-            IObserver<NsMessage<T>> messageHandler,
+            IObserver<NsMessage<T>> universalObserver,
             INameClient nameClient,
             StreamingRemoteManagerFactory remoteManagerFactory,
             NsMessageStreamingCodec<T> codec,
             ILocalAddressProvider localAddressProvider)
-            : this(messageHandler, null, nameClient, remoteManagerFactory, codec, localAddressProvider)
+            : this(universalObserver, null, nameClient, remoteManagerFactory, codec, localAddressProvider)
         {
         }
 
         /// <summary>
         /// Create a new Writable NetworkService
         /// </summary>
-        /// <param name="messageHandler">The observer to handle incoming messages</param>
+        /// <param name="remoteMessageUniversalObserver">The observer to handle incoming messages</param>
         /// <param name="nameClient">The name client used to register Ids</param>
         /// <param name="remoteManagerFactory">
         /// Writable RemoteManagerFactory to create a Writable RemoteManager
@@ -77,19 +77,19 @@ namespace Org.Apache.REEF.Network.NetworkService
         /// <param name="localAddressProvider">The local address provider</param>
         [Inject]
         private StreamingNetworkService(
-            IObserver<IRemoteMessage<NsMessage<T>>> messageHandler,
+            IObserver<IRemoteMessage<NsMessage<T>>> remoteMessageUniversalObserver,
             INameClient nameClient,
             StreamingRemoteManagerFactory remoteManagerFactory,
             NsMessageStreamingCodec<T> codec,
             ILocalAddressProvider localAddressProvider)
-            : this(null, messageHandler, nameClient, remoteManagerFactory, codec, localAddressProvider)
+            : this(null, remoteMessageUniversalObserver, nameClient, remoteManagerFactory, codec, localAddressProvider)
         {
         }
 
         [Inject]
         private StreamingNetworkService(
-            IObserver<NsMessage<T>> messageHandler1,
-            IObserver<IRemoteMessage<NsMessage<T>>> messageHandler2,
+            IObserver<NsMessage<T>> universalObserver,
+            IObserver<IRemoteMessage<NsMessage<T>>> remoteMessageUniversalObserver,
             INameClient nameClient,
             StreamingRemoteManagerFactory remoteManagerFactory,
             NsMessageStreamingCodec<T> codec,
@@ -97,20 +97,20 @@ namespace Org.Apache.REEF.Network.NetworkService
         {
             _remoteManager = remoteManagerFactory.GetInstance(localAddressProvider.LocalAddress, codec);
 
-            if (messageHandler1 != null)
+            if (universalObserver != null)
             {
                 // Create and register incoming message handler
                 // TODO[REEF-419] This should use the TcpPortProvider mechanism
                 var anyEndpoint = new IPEndPoint(IPAddress.Any, 0);
-                _messageHandlerDisposable1 = _remoteManager.RegisterObserver(anyEndpoint, messageHandler1);
+                _universalObserverDisposable = _remoteManager.RegisterObserver(anyEndpoint, universalObserver);
             }
             else
             {
-                _messageHandlerDisposable1 = null;
+                _universalObserverDisposable = null;
             }
 
-            _messageHandlerDisposable2 = messageHandler2 != null ?
-                _remoteManager.RegisterObserver(messageHandler2) : null;
+            _remoteMessageUniversalObserver = remoteMessageUniversalObserver != null ?
+                _remoteManager.RegisterObserver(remoteMessageUniversalObserver) : null;
 
             _nameClient = nameClient;
             _connectionMap = new Dictionary<IIdentifier, IConnection<T>>();
@@ -190,14 +190,14 @@ namespace Org.Apache.REEF.Network.NetworkService
 
             _localIdentifier = null;
 
-            if (_messageHandlerDisposable1 != null)
+            if (_universalObserverDisposable != null)
             {
-                _messageHandlerDisposable1.Dispose();
+                _universalObserverDisposable.Dispose();
             }
 
-            if (_messageHandlerDisposable2 != null)
+            if (_remoteMessageUniversalObserver != null)
             {
-                _messageHandlerDisposable2.Dispose();
+                _remoteMessageUniversalObserver.Dispose();
             }
         }
 

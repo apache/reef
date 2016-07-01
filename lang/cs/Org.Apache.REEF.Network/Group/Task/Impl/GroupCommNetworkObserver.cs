@@ -62,7 +62,7 @@ namespace Org.Apache.REEF.Network.Group.Task.Impl
 
         /// <summary>
         /// Registers a <see cref="TaskMessageObserver"/> for a given <see cref="taskSourceId"/>.
-        /// If if the <see cref="TaskMessageObserver"/> has already been initialized, it will return
+        /// If the <see cref="TaskMessageObserver"/> has already been initialized, it will return
         /// the existing one.
         /// </summary>
         public TaskMessageObserver RegisterAndGetForTask(string taskSourceId)

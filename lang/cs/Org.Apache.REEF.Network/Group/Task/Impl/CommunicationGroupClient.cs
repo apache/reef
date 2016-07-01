@@ -43,15 +43,12 @@ namespace Org.Apache.REEF.Network.Group.Task.Impl
         /// </summary>
         /// <param name="groupName">The name of the CommunicationGroup</param>
         /// <param name="operatorConfigs">The serialized operator configurations</param>
-        /// <param name="groupCommNetworkObserver">The handler for all incoming messages
-        /// across all Communication Groups</param>
         /// <param name="configSerializer">Used to deserialize operator configuration.</param>
         /// <param name="injector">injector forked from the injector that creates this instance</param>
         [Inject]
         private CommunicationGroupClient(
             [Parameter(typeof(GroupCommConfigurationOptions.CommunicationGroupName))] string groupName,
             [Parameter(typeof(GroupCommConfigurationOptions.SerializedOperatorConfigs))] ISet<string> operatorConfigs,
-            GroupCommNetworkObserver groupCommNetworkObserver,
             AvroConfigurationSerializer configSerializer,
             IInjector injector)
         {
