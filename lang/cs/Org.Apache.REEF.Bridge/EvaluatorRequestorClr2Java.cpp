@@ -19,86 +19,86 @@
 
 namespace Org {
   namespace Apache {
-	  namespace REEF {
-		  namespace Driver {
-			  namespace Bridge {
-				  namespace Clr2java {
-					  ref class ManagedLog {
-					  internal:
-						  static BridgeLogger^ LOGGER = BridgeLogger::GetLogger("<C++>");
-					  };
+    namespace REEF {
+      namespace Driver {
+        namespace Bridge {
+          namespace Clr2java {
+            ref class ManagedLog {
+            internal:
+              static BridgeLogger^ LOGGER = BridgeLogger::GetLogger("<C++>");
+            };
 
-					  EvaluatorRequestorClr2Java::EvaluatorRequestorClr2Java(JNIEnv *env, jobject jevaluatorRequestor) {
-						  ManagedLog::LOGGER->LogStart("EvaluatorRequestorClr2Java::EvaluatorRequestorClr2Java");
-						  pin_ptr<JavaVM*> pJavaVm = &_jvm;
-						  if (env->GetJavaVM(pJavaVm) != 0) {
-							  ManagedLog::LOGGER->LogError("Failed to get JavaVM", nullptr);
-						  }
-						  _jobjectEvaluatorRequestor = reinterpret_cast<jobject>(env->NewGlobalRef(jevaluatorRequestor));
-						  ManagedLog::LOGGER->LogStop("EvaluatorRequestorClr2Java::EvaluatorRequestorClr2Java");
-					  }
+            EvaluatorRequestorClr2Java::EvaluatorRequestorClr2Java(JNIEnv *env, jobject jevaluatorRequestor) {
+              ManagedLog::LOGGER->LogStart("EvaluatorRequestorClr2Java::EvaluatorRequestorClr2Java");
+              pin_ptr<JavaVM*> pJavaVm = &_jvm;
+              if (env->GetJavaVM(pJavaVm) != 0) {
+                ManagedLog::LOGGER->LogError("Failed to get JavaVM", nullptr);
+              }
+              _jobjectEvaluatorRequestor = reinterpret_cast<jobject>(env->NewGlobalRef(jevaluatorRequestor));
+              ManagedLog::LOGGER->LogStop("EvaluatorRequestorClr2Java::EvaluatorRequestorClr2Java");
+            }
 
-					  EvaluatorRequestorClr2Java::~EvaluatorRequestorClr2Java() {
-						  this->!EvaluatorRequestorClr2Java();
-					  }
+            EvaluatorRequestorClr2Java::~EvaluatorRequestorClr2Java() {
+              this->!EvaluatorRequestorClr2Java();
+            }
 
-					  EvaluatorRequestorClr2Java::!EvaluatorRequestorClr2Java() {
-						  if (_jobjectEvaluatorRequestor != NULL) {
-							  JNIEnv *env = RetrieveEnv(_jvm);
-							  env->DeleteGlobalRef(_jobjectEvaluatorRequestor);
-						  }
-					  }
+            EvaluatorRequestorClr2Java::!EvaluatorRequestorClr2Java() {
+              if (_jobjectEvaluatorRequestor != NULL) {
+                JNIEnv *env = RetrieveEnv(_jvm);
+                env->DeleteGlobalRef(_jobjectEvaluatorRequestor);
+              }
+            }
 
-					  void EvaluatorRequestorClr2Java::Submit(IEvaluatorRequest^ request) {
-						  ManagedLog::LOGGER->LogStart("EvaluatorRequestorClr2Java::Submit");
-						  JNIEnv *env = RetrieveEnv(_jvm);
-						  jclass jclassEvaluatorRequestor = env->GetObjectClass(_jobjectEvaluatorRequestor);
-						  jmethodID jmidSubmit = env->GetMethodID(jclassEvaluatorRequestor, "submit", "(IIILjava/lang/String;Ljava/lang/String;)V");
+            void EvaluatorRequestorClr2Java::Submit(IEvaluatorRequest^ request) {
+              ManagedLog::LOGGER->LogStart("EvaluatorRequestorClr2Java::Submit");
+              JNIEnv *env = RetrieveEnv(_jvm);
+              jclass jclassEvaluatorRequestor = env->GetObjectClass(_jobjectEvaluatorRequestor);
+              jmethodID jmidSubmit = env->GetMethodID(jclassEvaluatorRequestor, "submit", "(IIILjava/lang/String;Ljava/lang/String;)V");
 
-						  if (jmidSubmit == NULL) {
-							  fprintf(stdout, " jmidSubmit is NULL\n");
-							  fflush(stdout);
-							  return;
-						  }
-						  env->CallObjectMethod(
-							  _jobjectEvaluatorRequestor,
-							  jmidSubmit,
-							  request->Number,
-							  request->MemoryMegaBytes,
-							  request->VirtualCore,
-							  JavaStringFromManagedString(env, request->Rack),
-							  JavaStringFromManagedString(env, request->RuntimeName));
-						  ManagedLog::LOGGER->LogStop("EvaluatorRequestorClr2Java::Submit");
-					  }
+              if (jmidSubmit == NULL) {
+                fprintf(stdout, " jmidSubmit is NULL\n");
+                fflush(stdout);
+                return;
+              }
+              env->CallObjectMethod(
+                _jobjectEvaluatorRequestor,
+                jmidSubmit,
+                request->Number,
+                request->MemoryMegaBytes,
+                request->VirtualCore,
+                JavaStringFromManagedString(env, request->Rack),
+                JavaStringFromManagedString(env, request->RuntimeName));
+              ManagedLog::LOGGER->LogStop("EvaluatorRequestorClr2Java::Submit");
+            }
 
-					  array<byte>^ EvaluatorRequestorClr2Java::GetDefinedRuntimes() {
-						  ManagedLog::LOGGER->LogStart("EvaluatorRequestorClr2Java::GetDefinedRuntimes");
-						  JNIEnv *env = RetrieveEnv(_jvm);
-						  jclass jclassEvaluatorRequestor = env->GetObjectClass(_jobjectEvaluatorRequestor);
-						  jmethodID jmidGetDefinedRuntimes = env->GetMethodID(jclassEvaluatorRequestor, "getDefinedRuntimes", "()[B");
+            array<byte>^ EvaluatorRequestorClr2Java::GetDefinedRuntimes() {
+              ManagedLog::LOGGER->LogStart("EvaluatorRequestorClr2Java::GetDefinedRuntimes");
+              JNIEnv *env = RetrieveEnv(_jvm);
+              jclass jclassEvaluatorRequestor = env->GetObjectClass(_jobjectEvaluatorRequestor);
+              jmethodID jmidGetDefinedRuntimes = env->GetMethodID(jclassEvaluatorRequestor, "getDefinedRuntimes", "()[B");
 
-						  if (jmidGetDefinedRuntimes == NULL) {
-							  fprintf(stdout, " jmidGetDefinedRuntimes is NULL\n");
-							  fflush(stdout);
-							  return nullptr;
-						  }
+              if (jmidGetDefinedRuntimes == NULL) {
+                fprintf(stdout, " jmidGetDefinedRuntimes is NULL\n");
+                fflush(stdout);
+                return nullptr;
+              }
 
-						  jbyteArray jBytes = (jbyteArray)env->CallObjectMethod(
-							  _jobjectEvaluatorRequestor,
-							  jmidGetDefinedRuntimes);
+              jbyteArray jBytes = (jbyteArray)env->CallObjectMethod(
+                _jobjectEvaluatorRequestor,
+                jmidGetDefinedRuntimes);
 
-						  ManagedLog::LOGGER->LogStop("EvaluatorRequestorClr2Java::GetDefinedRuntimes");
-						  return ManagedByteArrayFromJavaByteArray(env, jBytes);
-					  }
+              ManagedLog::LOGGER->LogStop("EvaluatorRequestorClr2Java::GetDefinedRuntimes");
+              return ManagedByteArrayFromJavaByteArray(env, jBytes);
+            }
 
-					  void EvaluatorRequestorClr2Java::OnError(String^ message) {
-						  ManagedLog::LOGGER->Log("EvaluatorRequestorClr2Java::OnError");
-						  JNIEnv *env = RetrieveEnv(_jvm);
-						  HandleClr2JavaError(env, message, _jobjectEvaluatorRequestor);
-					  }
-				  }
-			  }
-		  }
-	  }
+            void EvaluatorRequestorClr2Java::OnError(String^ message) {
+              ManagedLog::LOGGER->Log("EvaluatorRequestorClr2Java::OnError");
+              JNIEnv *env = RetrieveEnv(_jvm);
+              HandleClr2JavaError(env, message, _jobjectEvaluatorRequestor);
+            }
+          }
+        }
+      }
+    }
   }
 }

@@ -19,83 +19,83 @@
 
 namespace Org {
   namespace Apache {
-	  namespace REEF {
-		  namespace Driver {
-			  namespace Bridge {
-				  namespace Clr2java {
-					  ref class ManagedLog {
-					  internal:
-						  static BridgeLogger^ LOGGER = BridgeLogger::GetLogger("<C++>");
-					  };
+    namespace REEF {
+      namespace Driver {
+        namespace Bridge {
+          namespace Clr2java {
+            ref class ManagedLog {
+            internal:
+              static BridgeLogger^ LOGGER = BridgeLogger::GetLogger("<C++>");
+            };
 
-					  CompletedTaskClr2Java::CompletedTaskClr2Java(JNIEnv *env, jobject jobjectCompletedTask) {
-						  ManagedLog::LOGGER->LogStart("CompletedTaskClr2Java::CompletedTaskClr2Java");
-						  pin_ptr<JavaVM*> pJavaVm = &_jvm;
-						  if (env->GetJavaVM(pJavaVm) != 0) {
-							  ManagedLog::LOGGER->LogError("Failed to get JavaVM", nullptr);
-						  }
-						  _jobjectCompletedTask = reinterpret_cast<jobject>(env->NewGlobalRef(jobjectCompletedTask));
+            CompletedTaskClr2Java::CompletedTaskClr2Java(JNIEnv *env, jobject jobjectCompletedTask) {
+              ManagedLog::LOGGER->LogStart("CompletedTaskClr2Java::CompletedTaskClr2Java");
+              pin_ptr<JavaVM*> pJavaVm = &_jvm;
+              if (env->GetJavaVM(pJavaVm) != 0) {
+                ManagedLog::LOGGER->LogError("Failed to get JavaVM", nullptr);
+              }
+              _jobjectCompletedTask = reinterpret_cast<jobject>(env->NewGlobalRef(jobjectCompletedTask));
 
-						  jclass jclassCompletedTask = env->GetObjectClass(_jobjectCompletedTask);
-						  jmethodID jmidGetTaskId = env->GetMethodID(jclassCompletedTask, "getTaskId", "()Ljava/lang/String;");
-						  _jstringId = CommonUtilities::CallGetMethodNewGlobalRef<jstring>(env, _jobjectCompletedTask, jmidGetTaskId);
-						  ManagedLog::LOGGER->LogStop("CompletedTaskClr2Java::CompletedTaskClr2Java");
-					  }
+              jclass jclassCompletedTask = env->GetObjectClass(_jobjectCompletedTask);
+              jmethodID jmidGetTaskId = env->GetMethodID(jclassCompletedTask, "getTaskId", "()Ljava/lang/String;");
+              _jstringId = CommonUtilities::CallGetMethodNewGlobalRef<jstring>(env, _jobjectCompletedTask, jmidGetTaskId);
+              ManagedLog::LOGGER->LogStop("CompletedTaskClr2Java::CompletedTaskClr2Java");
+            }
 
-					  CompletedTaskClr2Java::~CompletedTaskClr2Java(){
-						  this->!CompletedTaskClr2Java();
-					  }
+            CompletedTaskClr2Java::~CompletedTaskClr2Java(){
+              this->!CompletedTaskClr2Java();
+            }
 
-					  CompletedTaskClr2Java::!CompletedTaskClr2Java() {
-						  JNIEnv *env = RetrieveEnv(_jvm);
-						  if (_jobjectCompletedTask != NULL) {
-							  env->DeleteGlobalRef(_jobjectCompletedTask);
-						  }
+            CompletedTaskClr2Java::!CompletedTaskClr2Java() {
+              JNIEnv *env = RetrieveEnv(_jvm);
+              if (_jobjectCompletedTask != NULL) {
+                env->DeleteGlobalRef(_jobjectCompletedTask);
+              }
 
-						  if (_jstringId != NULL) {
-							  env->DeleteGlobalRef(_jstringId);
-						  }
-					  }
+              if (_jstringId != NULL) {
+                env->DeleteGlobalRef(_jstringId);
+              }
+            }
 
-					  void CompletedTaskClr2Java::OnError(String^ message) {
-						  ManagedLog::LOGGER->Log("CompletedTaskClr2Java::OnError");
-						  JNIEnv *env = RetrieveEnv(_jvm);
-						  HandleClr2JavaError(env, message, _jobjectCompletedTask);
-					  }
+            void CompletedTaskClr2Java::OnError(String^ message) {
+              ManagedLog::LOGGER->Log("CompletedTaskClr2Java::OnError");
+              JNIEnv *env = RetrieveEnv(_jvm);
+              HandleClr2JavaError(env, message, _jobjectCompletedTask);
+            }
 
-					  IActiveContextClr2Java^ CompletedTaskClr2Java::GetActiveContext() {
-						  ManagedLog::LOGGER->LogStart("CompletedTaskClr2Java::GetActiveContext");
-						  JNIEnv *env = RetrieveEnv(_jvm);
+            IActiveContextClr2Java^ CompletedTaskClr2Java::GetActiveContext() {
+              ManagedLog::LOGGER->LogStart("CompletedTaskClr2Java::GetActiveContext");
+              JNIEnv *env = RetrieveEnv(_jvm);
 
-						  jclass jclassCompletedTask = env->GetObjectClass(_jobjectCompletedTask);
-						  jmethodID jmidGetActiveContext = env->GetMethodID(jclassCompletedTask, "getActiveContext", "()Lorg/apache/reef/javabridge/ActiveContextBridge;");
-						  jobject jobjectActiveContext = env->CallObjectMethod(_jobjectCompletedTask, jmidGetActiveContext);
-						  ManagedLog::LOGGER->LogStop("CompletedTaskClr2Java::GetActiveContext");
-						  return gcnew ActiveContextClr2Java(env, jobjectActiveContext);
-					  }
+              jclass jclassCompletedTask = env->GetObjectClass(_jobjectCompletedTask);
+              jmethodID jmidGetActiveContext = env->GetMethodID(jclassCompletedTask, "getActiveContext", "()Lorg/apache/reef/javabridge/ActiveContextBridge;");
+              jobject jobjectActiveContext = env->CallObjectMethod(_jobjectCompletedTask, jmidGetActiveContext);
+              ManagedLog::LOGGER->LogStop("CompletedTaskClr2Java::GetActiveContext");
+              return gcnew ActiveContextClr2Java(env, jobjectActiveContext);
+            }
 
-					  String^ CompletedTaskClr2Java::GetId() {
-						  ManagedLog::LOGGER->Log("CompletedTaskClr2Java::GetId");
-						  JNIEnv *env = RetrieveEnv(_jvm);
-						  return ManagedStringFromJavaString(env, _jstringId);
-					  }
+            String^ CompletedTaskClr2Java::GetId() {
+              ManagedLog::LOGGER->Log("CompletedTaskClr2Java::GetId");
+              JNIEnv *env = RetrieveEnv(_jvm);
+              return ManagedStringFromJavaString(env, _jstringId);
+            }
 
-					  array<byte>^ CompletedTaskClr2Java::Get() {
-						  ManagedLog::LOGGER->Log("CompletedTaskClr2Java::GetMessage");
-						  JNIEnv *env = RetrieveEnv(_jvm);
-						  jclass jclassCompletedTask = env->GetObjectClass(_jobjectCompletedTask);
-						  jmethodID jmidGet = env->GetMethodID(jclassCompletedTask, "get", "()[B");
+            array<byte>^ CompletedTaskClr2Java::Get() {
+              ManagedLog::LOGGER->Log("CompletedTaskClr2Java::GetMessage");
+              JNIEnv *env = RetrieveEnv(_jvm);
+              jclass jclassCompletedTask = env->GetObjectClass(_jobjectCompletedTask);
+              jmethodID jmidGet = env->GetMethodID(jclassCompletedTask, "get", "()[B");
 
-						  if (jmidGet == NULL) {
-							  ManagedLog::LOGGER->Log("jmidGet is NULL");
-							  return nullptr;
-						  }
-						  jbyteArray jMessage = (jbyteArray)env->CallObjectMethod(_jobjectCompletedTask, jmidGet);
-						  return ManagedByteArrayFromJavaByteArray(env, jMessage);
-					  }
-				  }
-			  }
-		  }
-	  }
+              if (jmidGet == NULL) {
+                ManagedLog::LOGGER->Log("jmidGet is NULL");
+                return nullptr;
+              }
+              jbyteArray jMessage = (jbyteArray)env->CallObjectMethod(_jobjectCompletedTask, jmidGet);
+              return ManagedByteArrayFromJavaByteArray(env, jMessage);
+            }
+          }
+        }
+      }
+    }
   }
 }

@@ -51,3 +51,4 @@ public final class DriverExceptionHandler implements EventHandler<Throwable> {
     this.driverStatusManager.onError(throwable);
   }
 }
+
