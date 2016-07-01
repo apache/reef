@@ -247,6 +247,15 @@
           <property name="ignoredClassNameFormat" value="UnsupportedOperationException|NotImplementedException|NoSuchElementException" />
         </module>
 
+        <!-- Checks for System.exit() call -->
+        <!-- See https://issues.apache.org/jira/browse/REEF-1139 -->
+        <module name="Regexp">
+            <property name="severity" value="warning"/>
+            <property name="format" value="System\.exit\("/>
+            <property name="illegalPattern" value="true"/>
+            <property name="ignoreComments" value="true"/>
+        </module>
+
     </module>
 
 </module>
