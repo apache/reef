@@ -81,6 +81,8 @@ under the License.
     <Compile Include="Functional\Bridge\TestFailedEvaluatorEventHandler.cs" />
     <Compile Include="Functional\Common\EventMonitor.cs" />
     <Compile Include="Functional\Common\Task\ExceptionTask.cs" />
+    <Compile Include="Functional\Common\Task\NullTask.cs" />
+    <Compile Include="Functional\Failure\User\ContextStopExceptionTest.cs" />
     <Compile Include="Functional\Failure\User\ServiceConstructorExceptionTest.cs" />
     <Compile Include="Functional\Failure\User\ReceiveContextMessageExceptionTest.cs" />
     <Compile Include="Functional\Failure\User\ContextStartExceptionTest.cs" />
