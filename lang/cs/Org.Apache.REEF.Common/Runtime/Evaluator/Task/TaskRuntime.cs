@@ -217,17 +217,10 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Task
                 Logger.Log(Level.Warning, string.Format(CultureInfo.InvariantCulture, "Trying to suspend an task that is in {0} state. Ignored.", _currentStatus.State));
                 return;
             }
-            try
-            {
-                OnNext(new SuspendEventImpl(message));
-                _currentStatus.SetSuspendRequested();
-            }
-            catch (Exception e)
-            {
-                Utilities.Diagnostics.Exceptions.Caught(e, Level.Error, "Error during Suspend.", Logger);
-                _currentStatus.SetException(
-                    TaskClientCodeException.Create(TaskId, ContextId, "Error during Suspend().", e));
-            }
+            
+            // An Exception in suspend should crash the Evaluator.
+            OnNext(new SuspendEventImpl(message));
+            _currentStatus.SetSuspendRequested();
         }
 
         public void Deliver(byte[] message)
@@ -250,15 +243,7 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Task
         public void OnNext(ISuspendEvent value)
         {
             Logger.Log(Level.Info, "TaskRuntime::OnNext(ISuspendEvent value)");
-            try
-            {
-                _suspendHandlerFuture.Get().OnNext(value);
-            }
-            catch (Exception ex)
-            {
-                var suspendEx = new TaskSuspendHandlerException("Unable to suspend task.", ex);
-                Utilities.Diagnostics.Exceptions.CaughtAndThrow(suspendEx, Level.Error, Logger);
-            }
+            _suspendHandlerFuture.Get().OnNext(value);
         }
 
         /// <summary>
