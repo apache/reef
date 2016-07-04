@@ -90,8 +90,8 @@ public class LargeMsgTest {
         new ServerHandler(monitor, dataSize), 1, new LoggingEventHandler<Throwable>());
 
     final String hostAddress = this.localAddressProvider.getLocalAddress();
-    final int port = 7001;
-    final Transport transport = tpFactory.newInstance(hostAddress, port, clientStage, serverStage, 1, 10000);
+    final Transport transport = tpFactory.newInstance(hostAddress, 0, clientStage, serverStage, 1, 10000);
+    final int port = transport.getListeningPort();
     final Link<byte[]> link = transport.open(new InetSocketAddress(hostAddress, port), new PassThroughEncoder(), null);
     final EStage<byte[]> writeSubmitter = new ThreadPoolStage<>("Submitter", new EventHandler<byte[]>() {
 

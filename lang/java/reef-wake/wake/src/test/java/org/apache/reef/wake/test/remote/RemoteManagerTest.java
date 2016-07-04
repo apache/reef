@@ -67,7 +67,6 @@ public class RemoteManagerTest {
   public final TestName name = new TestName();
 
   private static final String LOG_PREFIX = "TEST ";
-  private static final int PORT = 9100;
 
   @Test
   public void testRemoteManagerTest() throws Exception {
@@ -87,11 +86,10 @@ public class RemoteManagerTest {
     final String hostAddress = localAddressProvider.getLocalAddress();
 
     final RemoteManager rm = this.remoteManagerFactory.getInstance(
-        "name", hostAddress, PORT, codec, new LoggingEventHandler<Throwable>(), false, 3, 10000,
+        "name", hostAddress, 0, codec, new LoggingEventHandler<Throwable>(), false, 3, 10000,
         localAddressProvider, Tang.Factory.getTang().newInjector().getInstance(TcpPortProvider.class));
 
-    final RemoteIdentifierFactory factory = new DefaultRemoteIdentifierFactoryImplementation();
-    final RemoteIdentifier remoteId = factory.getNewInstance("socket://" + hostAddress + ":" + PORT);
+    final RemoteIdentifier remoteId = rm.getMyIdentifier();
     Assert.assertTrue(rm.getMyIdentifier().equals(remoteId));
 
     final EventHandler<StartEvent> proxyConnection = rm.getHandler(remoteId, StartEvent.class);
@@ -191,11 +189,10 @@ public class RemoteManagerTest {
     final String hostAddress = localAddressProvider.getLocalAddress();
 
     final RemoteManager rm = this.remoteManagerFactory.getInstance(
-        "name", hostAddress, PORT, codec, new LoggingEventHandler<Throwable>(), true, 3, 10000,
+        "name", hostAddress, 0, codec, new LoggingEventHandler<Throwable>(), true, 3, 10000,
         localAddressProvider, Tang.Factory.getTang().newInjector().getInstance(TcpPortProvider.class));
 
-    final RemoteIdentifierFactory factory = new DefaultRemoteIdentifierFactoryImplementation();
-    final RemoteIdentifier remoteId = factory.getNewInstance("socket://" + hostAddress + ":" + PORT);
+    final RemoteIdentifier remoteId = rm.getMyIdentifier();
 
     final EventHandler<StartEvent> proxyConnection = rm.getHandler(remoteId, StartEvent.class);
     final EventHandler<TestEvent1> proxyHandler1 = rm.getHandler(remoteId, TestEvent1.class);
@@ -235,11 +232,10 @@ public class RemoteManagerTest {
     final String hostAddress = localAddressProvider.getLocalAddress();
 
     final RemoteManager rm = this.remoteManagerFactory.getInstance(
-        "name", hostAddress, PORT, codec, new LoggingEventHandler<Throwable>(), false, 3, 10000,
+        "name", hostAddress, 0, codec, new LoggingEventHandler<Throwable>(), false, 3, 10000,
         localAddressProvider, Tang.Factory.getTang().newInjector().getInstance(TcpPortProvider.class));
 
-    final RemoteIdentifierFactory factory = new DefaultRemoteIdentifierFactoryImplementation();
-    final RemoteIdentifier remoteId = factory.getNewInstance("socket://" + hostAddress + ":" + PORT);
+    final RemoteIdentifier remoteId = rm.getMyIdentifier();
 
     final EventHandler<TestEvent> proxyHandler = rm.getHandler(remoteId, TestEvent.class);
 
@@ -270,13 +266,10 @@ public class RemoteManagerTest {
     clazzToCodecMap.put(TestEvent.class, new ObjectSerializableCodec<TestEvent>());
     final Codec<?> codec = new MultiCodec<Object>(clazzToCodecMap);
 
-    final String hostAddress = localAddressProvider.getLocalAddress();
-
     final ExceptionHandler errorHandler = new ExceptionHandler(monitor);
 
-    try (final RemoteManager rm = remoteManagerFactory.getInstance("name", PORT, codec, errorHandler)) {
-      final RemoteIdentifierFactory factory = new DefaultRemoteIdentifierFactoryImplementation();
-      final RemoteIdentifier remoteId = factory.getNewInstance("socket://" + hostAddress + ":" + PORT);
+    try (final RemoteManager rm = remoteManagerFactory.getInstance("name", 0, codec, errorHandler)) {
+      final RemoteIdentifier remoteId = rm.getMyIdentifier();
 
       final EventHandler<StartEvent> proxyConnection = rm.getHandler(remoteId, StartEvent.class);
       rm.registerHandler(StartEvent.class, new ExceptionGenEventHandler<StartEvent>("recvExceptionGen"));
