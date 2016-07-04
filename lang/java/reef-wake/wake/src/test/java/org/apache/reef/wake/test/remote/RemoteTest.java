@@ -117,9 +117,6 @@ public class RemoteTest {
     final Monitor monitor = new Monitor();
     final TimerStage timer = new TimerStage(new TimeoutHandler(monitor), 5000, 5000);
 
-    // port
-    final int port = 9101;
-
     // receiver stage
     // decoder map
     final Map<Class<?>, Decoder<?>> clazzToDecoderMap = new HashMap<>();
@@ -142,7 +139,10 @@ public class RemoteTest {
     final String hostAddress = this.localAddressProvider.getLocalAddress();
 
     // transport
-    final Transport transport = tpFactory.newInstance(hostAddress, port, reRecvStage, reRecvStage, 1, 10000);
+    final Transport transport = tpFactory.newInstance(hostAddress, 0, reRecvStage, reRecvStage, 1, 10000);
+
+    // port
+    final int port = transport.getListeningPort();
 
     // mux encoder with encoder map
     final Map<Class<?>, Encoder<?>> clazzToEncoderMap = new HashMap<>();

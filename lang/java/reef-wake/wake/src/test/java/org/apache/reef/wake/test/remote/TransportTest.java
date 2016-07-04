@@ -71,12 +71,12 @@ public class TransportTest {
 
     final int expected = 2;
     final String hostAddress = this.localAddressProvider.getLocalAddress();
-    final int port = 9100;
 
     // Codec<String>
     final ReceiverStage<String> stage =
         new ReceiverStage<>(new ObjectSerializableCodec<String>(), monitor, expected);
-    final Transport transport = tpFactory.newInstance(hostAddress, port, stage, stage, 1, 10000);
+    final Transport transport = tpFactory.newInstance(hostAddress, 0, stage, stage, 1, 10000);
+    final int port = transport.getListeningPort();
 
     // sending side
     final Link<String> link = transport.open(
@@ -103,12 +103,12 @@ public class TransportTest {
 
     final int expected = 2;
     final String hostAddress = this.localAddressProvider.getLocalAddress();
-    final int port = 9100;
 
     // Codec<TestEvent>
     final ReceiverStage<TestEvent> stage =
         new ReceiverStage<>(new ObjectSerializableCodec<TestEvent>(), monitor, expected);
-    final Transport transport = tpFactory.newInstance(hostAddress, port, stage, stage, 1, 10000);
+    final Transport transport = tpFactory.newInstance(hostAddress, 0, stage, stage, 1, 10000);
+    final int port = transport.getListeningPort();
 
     // sending side
     final Link<TestEvent> link = transport.open(
