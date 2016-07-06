@@ -16,16 +16,24 @@
 // under the License.
 
 using System;
+using System.Runtime.Serialization;
 
 namespace Org.Apache.REEF.Driver.Task
 {
     /// <summary>
-    /// A Task Exception from the Java side. Generally not expected.
+    /// A Task Exception from the Java side.
+    /// TODO[JIRA REEF-1422]: Throw on the right occasion, when C# Driver orchestrates Java Tasks.
     /// </summary>
+    [Serializable]
     public sealed class JavaTaskException : Exception
     {
         internal JavaTaskException(string message)
             : base(message)
+        {
+        }
+
+        private JavaTaskException(SerializationInfo serializationInfo, StreamingContext streamingContext)
+            : base(serializationInfo, streamingContext)
         {
         }
     }

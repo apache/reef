@@ -21,6 +21,7 @@ using Org.Apache.REEF.Utilities.Logging;
 using Org.Apache.REEF.Wake.Time.Event;
 using System;
 using System.Reactive;
+using System.Runtime.Serialization;
 using Org.Apache.REEF.Wake.Time;
 
 namespace Org.Apache.REEF.Common.Poison
@@ -94,9 +95,15 @@ namespace Org.Apache.REEF.Common.Poison
     /// Exception thrown by PoisonedEventHandler.
     /// </summary>
     [Private]
+    [Serializable]
     public class PoisonException : Exception
     {
         public PoisonException(string s) : base(s)
+        {
+        }
+
+        public PoisonException(SerializationInfo info, StreamingContext context)
+            : base(info, context)
         {
         }
     }

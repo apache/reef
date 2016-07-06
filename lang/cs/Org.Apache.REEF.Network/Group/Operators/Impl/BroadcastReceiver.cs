@@ -15,7 +15,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-using System.Reactive;
 using System.Collections.Generic;
 using Org.Apache.REEF.Network.Group.Config;
 using Org.Apache.REEF.Network.Group.Driver.Impl;
@@ -48,7 +47,6 @@ namespace Org.Apache.REEF.Network.Group.Operators.Impl
         /// <param name="initialize">Require Topology Initialize to be called to wait for all task being registered. 
         /// Default is true. For unit testing, it can be set to false.</param>
         /// <param name="topology">The node's topology graph</param>
-        /// <param name="networkHandler">The incoming message handler</param>
         /// <param name="dataConverter">The converter used to convert original message to pipelined ones and vice versa.</param>
         [Inject]
         private BroadcastReceiver(
@@ -56,7 +54,6 @@ namespace Org.Apache.REEF.Network.Group.Operators.Impl
             [Parameter(typeof(GroupCommConfigurationOptions.CommunicationGroupName))] string groupName,
             [Parameter(typeof(GroupCommConfigurationOptions.Initialize))] bool initialize,
             OperatorTopology<PipelineMessage<T>> topology,
-            ICommunicationGroupNetworkObserver networkHandler,
             IPipelineDataConverter<T> dataConverter)
         {
             OperatorName = operatorName;
@@ -65,9 +62,6 @@ namespace Org.Apache.REEF.Network.Group.Operators.Impl
             PipelineDataConverter = dataConverter;
             _topology = topology;
             _initialize = initialize;
-
-            var msgHandler = Observer.Create<GeneralGroupCommunicationMessage>(message => topology.OnNext(message));
-            networkHandler.Register(operatorName, msgHandler);
         }
 
         /// <summary>

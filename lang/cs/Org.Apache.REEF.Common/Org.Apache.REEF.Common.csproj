@@ -142,9 +142,11 @@ under the License.
     <Compile Include="Files\REEFFileNames.cs" />
     <Compile Include="Runtime\Evaluator\Constants.cs" />
     <Compile Include="Runtime\Evaluator\Context\ContextClientCodeException.cs" />
+    <Compile Include="Runtime\Evaluator\Context\ContextException.cs" />
     <Compile Include="Runtime\Evaluator\Context\ContextLifeCycle.cs" />
     <Compile Include="Runtime\Evaluator\Context\ContextManager.cs" />
     <Compile Include="Runtime\Evaluator\Context\ContextRuntime.cs" />
+    <Compile Include="Runtime\Evaluator\Context\ContextStartHandlerException.cs" />
     <Compile Include="Runtime\Evaluator\Context\ContextStartImpl.cs" />
     <Compile Include="Runtime\Evaluator\Context\ContextStopImpl.cs" />
     <Compile Include="Runtime\Evaluator\Context\RootContextLauncher.cs" />
@@ -163,9 +165,11 @@ under the License.
     <Compile Include="Runtime\Evaluator\Task\TaskClientCodeException.cs" />
     <Compile Include="Runtime\Evaluator\Task\TaskLifeCycle.cs" />
     <Compile Include="Runtime\Evaluator\Task\TaskRuntime.cs" />
+    <Compile Include="Runtime\Evaluator\Task\TaskStartHandlerException.cs" />
     <Compile Include="Runtime\Evaluator\Task\TaskStartImpl.cs" />
     <Compile Include="Runtime\Evaluator\Task\TaskState.cs" />
     <Compile Include="Runtime\Evaluator\Task\TaskStatus.cs" />
+    <Compile Include="Runtime\Evaluator\Task\TaskStopHandlerException.cs" />
     <Compile Include="Runtime\Evaluator\Task\TaskStopImpl.cs" />
     <Compile Include="Runtime\Evaluator\Utils\NamedparameterAlias.cs" />
     <Compile Include="runtime\MachineStatus.cs" />
@@ -184,7 +188,6 @@ under the License.
     <Compile Include="Tasks\Events\ITaskStart.cs" />
     <Compile Include="Tasks\Events\ITaskStop.cs" />
     <Compile Include="Tasks\Exceptions\TaskCloseHandlerNotBoundException.cs" />
-    <Compile Include="Tasks\Exceptions\TaskSuspendHandlerException.cs" />
     <Compile Include="Tasks\IDriverConnectionMessageHandler.cs" />
     <Compile Include="Tasks\IDriverMessageHandler.cs" />
     <Compile Include="Tasks\IDriverConnectionMessage.cs" />

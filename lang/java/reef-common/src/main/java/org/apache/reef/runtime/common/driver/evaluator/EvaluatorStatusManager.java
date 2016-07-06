@@ -147,6 +147,10 @@ final class EvaluatorStatusManager {
     return EvaluatorState.ALLOCATED == this.state;
   }
 
+  synchronized boolean isFailedOrKilled() {
+    return EvaluatorState.FAILED == this.state || EvaluatorState.KILLED == this.state;
+  }
+
   @Override
   public synchronized String toString() {
     return this.state.toString();

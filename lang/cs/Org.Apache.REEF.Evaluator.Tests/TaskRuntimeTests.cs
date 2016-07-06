@@ -173,6 +173,9 @@ namespace Org.Apache.REEF.Evaluator.Tests
 
             var taskThread = taskRuntime.StartTaskOnNewThread();
 
+            var task = injector.GetInstance<TestTask>();
+            task.StartEvent.Wait();
+
             Assert.True(testTaskEventStartHandler.StartInvoked.IsPresent());
             Assert.Equal(testTaskEventStartHandler.StartInvoked.Value, taskId);
             Assert.False(testTaskEventStartHandler.StopInvoked.IsPresent());
@@ -180,7 +183,6 @@ namespace Org.Apache.REEF.Evaluator.Tests
             var countDownAction = injector.GetInstance<CountDownAction>();
             countDownAction.CountdownEvent.Signal();
 
-            var task = injector.GetInstance<TestTask>();
             task.FinishCountdownEvent.Wait();
             task.DisposeCountdownEvent.Wait();
 
@@ -204,7 +206,7 @@ namespace Org.Apache.REEF.Evaluator.Tests
 
         /// <summary>
         /// Tests whether task start and stop handlers are properly instantiated and invoked
-        /// on the failure of a task.
+        /// on the failure of a task. On failure, TaskStop handler should not be invoked.
         /// </summary>
         [Fact]
         public void TestTaskEventsOnFailure()
@@ -218,6 +220,7 @@ namespace Org.Apache.REEF.Evaluator.Tests
             var taskThread = taskRuntime.StartTaskOnNewThread();
 
             var task = injector.GetInstance<TestTask>();
+            task.StartEvent.Wait();
             task.FinishCountdownEvent.Wait();
             task.DisposeCountdownEvent.Wait();
 
@@ -229,8 +232,7 @@ namespace Org.Apache.REEF.Evaluator.Tests
                 throw new Exception("Event handler is not expected to be null.");
             }
 
-            Assert.True(testTaskEventStopHandler.StopInvoked.IsPresent());
-            Assert.Equal(testTaskEventStopHandler.StopInvoked.Value, taskId);
+            Assert.False(testTaskEventStopHandler.StopInvoked.IsPresent());
 
             taskThread.Join();
         }
@@ -257,6 +259,7 @@ namespace Org.Apache.REEF.Evaluator.Tests
                 throw new Exception("Task is expected to be an instance of TestTask.");
             }
 
+            task.StartEvent.Wait();
             taskRuntime.Suspend(null);
 
             task.FinishCountdownEvent.Wait();
@@ -333,7 +336,7 @@ namespace Org.Apache.REEF.Evaluator.Tests
                 throw new Exception("Event handler is not expected to be null.");
             }
 
-            Assert.True(testTaskEventStopHandler.StopInvoked.IsPresent());
+            Assert.False(testTaskEventStopHandler.StopInvoked.IsPresent());
             Assert.Equal(taskRuntime.GetTaskState(), TaskState.Failed);
 
             taskRuntime.Suspend(null);

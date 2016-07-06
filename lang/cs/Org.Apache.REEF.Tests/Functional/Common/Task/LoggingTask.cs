@@ -5,9 +5,9 @@
 // to you under the Apache License, Version 2.0 (the
 // "License"); you may not use this file except in compliance
 // with the License.  You may obtain a copy of the License at
-//
+// 
 //   http://www.apache.org/licenses/LICENSE-2.0
-//
+// 
 // Unless required by applicable law or agreed to in writing,
 // software distributed under the License is distributed on an
 // "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -15,29 +15,34 @@
 // specific language governing permissions and limitations
 // under the License.
 
-using System;
+using Org.Apache.REEF.Common.Tasks;
+using Org.Apache.REEF.Utilities.Logging;
 
-namespace Org.Apache.REEF.Common.Tasks.Exceptions
+namespace Org.Apache.REEF.Tests.Functional.Common.Task
 {
     /// <summary>
-    /// An exception that is thrown when the task suspension event
-    /// handler is not bound.
+    /// A helper test class that implements <see cref="ITask"/>, which logs
+    /// a message provided by the caller of the constructor.
     /// </summary>
-    internal sealed class TaskSuspendHandlerException : Exception
+    public abstract class LoggingTask : ITask
     {
-        public TaskSuspendHandlerException(string message)
-            : base(message)
+        private static readonly Logger Logger = Logger.GetLogger(typeof(LoggingTask));
+
+        private readonly string _messageToLog;
+
+        protected LoggingTask(string messageToLog)
+        {
+            _messageToLog = messageToLog;
+        }
+
+        public void Dispose()
         {
         }
 
-        public TaskSuspendHandlerException(Exception innerException)
-            : base(innerException.Message, innerException)
+        public byte[] Call(byte[] memento)
         {
-        }
-
-        public TaskSuspendHandlerException(string message, Exception innerException)
-            : base(message, innerException)
-        {
+            Logger.Log(Level.Info, _messageToLog);
+            return null;
         }
     }
 }

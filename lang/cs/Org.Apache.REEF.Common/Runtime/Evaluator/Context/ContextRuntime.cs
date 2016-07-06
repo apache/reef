@@ -28,6 +28,7 @@ using Org.Apache.REEF.Common.Services;
 using Org.Apache.REEF.Common.Tasks;
 using Org.Apache.REEF.Common.Tasks.Events;
 using Org.Apache.REEF.Tang.Exceptions;
+using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Utilities;
 using Org.Apache.REEF.Utilities.Attributes;
@@ -136,7 +137,22 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Context
             _contextInjector = serviceInjector.ForkInjector(contextConfiguration);
             _contextLifeCycle = _contextInjector.GetInstance<ContextLifeCycle>();
             _parentContext = parentContext;
-            _contextLifeCycle.Start();
+
+            try
+            {
+                _contextLifeCycle.Start();
+            }
+            catch (Exception e)
+            {
+                const string message = "Encountered Exception in ContextStartHandler.";
+                if (ParentContext.IsPresent())
+                {
+                    throw new ContextStartHandlerException(
+                        Id, Optional<string>.Of(ParentContext.Value.Id), message, e);
+                }
+                
+                throw new ContextStartHandlerException(Id, Optional<string>.Empty(), message, e);
+            }
         }
 
         public string Id
@@ -198,70 +214,69 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Context
         /// <param name="childContextConfiguration">the new context's context (local) Configuration.</param>
         /// <param name="childServiceConfiguration">the new context's service Configuration.</param>
         /// <returns>a child context.</returns>
-        public ContextRuntime SpawnChildContext(IConfiguration childContextConfiguration, IConfiguration childServiceConfiguration)
+        public ContextRuntime SpawnChildContext(
+            IConfiguration childContextConfiguration, 
+            IConfiguration childServiceConfiguration = null)
         {
             lock (_contextLifeCycle)
             {
                 if (_task.IsPresent())
                 {
-                    var message =
-                        string.Format(CultureInfo.InvariantCulture, "Attempting to spawn a child context when an Task with id '{0}' is running", _task.Value.TaskId);
-
-                    var e = new InvalidOperationException(message);
-                    Utilities.Diagnostics.Exceptions.Throw(e, LOGGER);
+                    throw new InvalidOperationException(
+                        string.Format(
+                            CultureInfo.InvariantCulture, 
+                            "Attempting to spawn a child context when an Task with id '{0}' is running",
+                            _task.Value.TaskId));
                 }
 
                 AssertChildContextNotPresent("Attempting to instantiate a child context on a context that is not the topmost active context.");
                 
                 try
                 {
-                    var childServiceInjector = _serviceInjector.ForkInjector(childServiceConfiguration);
-                    var childContext = new ContextRuntime(childServiceInjector, childContextConfiguration, Optional<ContextRuntime>.Of(this));
+                    var childServiceInjector = childServiceConfiguration == null 
+                        ? _serviceInjector.ForkInjector() 
+                        : _serviceInjector.ForkInjector(childServiceConfiguration);
 
-                    _childContext = Optional<ContextRuntime>.Of(childContext);
-                    return childContext;
+                    _childContext = Optional<ContextRuntime>.Of(
+                        new ContextRuntime(childServiceInjector, childContextConfiguration, Optional<ContextRuntime>.Of(this)));
+
+                    return _childContext.Value;
                 }
                 catch (Exception e)
                 {
                     Utilities.Diagnostics.Exceptions.Caught(e, Level.Error, LOGGER);
 
-                    Optional<string> parentId = ParentContext.IsPresent() ?
-                        Optional<string>.Of(ParentContext.Value.Id) :
-                        Optional<string>.Empty();
-                    ContextClientCodeException ex = new ContextClientCodeException(ContextClientCodeException.GetId(childContextConfiguration), parentId, "Unable to spawn context", e);
-                    
-                    Utilities.Diagnostics.Exceptions.Throw(ex, LOGGER);
+                    var childContextId = string.Empty;
+                    try
+                    {
+                        var injector = TangFactory.GetTang().NewInjector(childContextConfiguration);
+                        childContextId = injector.GetNamedInstance<ContextConfigurationOptions.ContextIdentifier, string>();
+                    }
+                    catch (InjectionException)
+                    {
+                        Utilities.Diagnostics.Exceptions.Caught(
+                            e, Level.Error, "Unable to get Context ID from child ContextConfiguration. Using empty string.", LOGGER);
+                    }
+
+                    throw new ContextClientCodeException(childContextId, Optional<string>.Of(Id), "Unable to spawn context", e);
                 }
             }
-            return null;
         }
 
-        /// <summary>
-        /// Spawns a new context without services of its own.
-        /// The new context will have a serviceInjector that is created by forking the one in this object. The
-        /// contextConfiguration is used to fork the contextInjector from that new serviceInjector.
-        /// </summary>
-        /// <param name="childContextConfiguration">the new context's context (local) Configuration.</param>
-        /// <returns> a child context.</returns>
-        public ContextRuntime SpawnChildContext(IConfiguration childContextConfiguration)
+        private static string GetChildContextId(IConfiguration childContextConfiguration)
         {
-            lock (_contextLifeCycle)
+            var contextId = string.Empty;
+            try
             {
-                if (_task.IsPresent())
-                {
-                    var message =
-                        string.Format(CultureInfo.InvariantCulture, "Attempting to spawn a child context when an Task with id '{0}' is running", _task.Value.TaskId);
-
-                    var e = new InvalidOperationException(message);
-                    Utilities.Diagnostics.Exceptions.Throw(e, LOGGER);
-                }
-
-                AssertChildContextNotPresent("Attempting to instantiate a child context on a context that is not the topmost active context.");
-
-                IInjector childServiceInjector = _serviceInjector.ForkInjector();
-                _childContext = Optional<ContextRuntime>.Of(new ContextRuntime(childServiceInjector, childContextConfiguration, Optional<ContextRuntime>.Of(this)));
-                return _childContext.Value;
+                var injector = TangFactory.GetTang().NewInjector(childContextConfiguration);
+                contextId = injector.GetNamedInstance<ContextConfigurationOptions.ContextIdentifier, string>();
             }
+            catch (InjectionException)
+            {
+                LOGGER.Log(Level.Error, "Unable to get Context ID from child ContextConfiguration. Using empty string.");
+            }
+
+            return contextId;
         }
 
         /// <summary>

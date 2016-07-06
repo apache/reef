@@ -182,6 +182,11 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator
                     _contextManager.Start();
                     _heartBeatManager.OnNext();
                 }
+                catch (ContextException e)
+                {
+                    Utilities.Diagnostics.Exceptions.Caught(e, Level.Error, Logger);
+                    OnException(e.InnerException);
+                }
                 catch (Exception e)
                 {
                     Utilities.Diagnostics.Exceptions.Caught(e, Level.Error, Logger);

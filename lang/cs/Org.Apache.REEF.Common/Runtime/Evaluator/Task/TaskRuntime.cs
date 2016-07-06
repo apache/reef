@@ -41,6 +41,7 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Task
         private readonly IInjectionFuture<IObserver<ISuspendEvent>> _suspendHandlerFuture;
         private readonly IInjectionFuture<IObserver<ICloseEvent>> _closeHandlerFuture;
         private int _taskRan = 0;
+        private int _taskClosed = 0;
 
         [Inject]
         private TaskRuntime(
@@ -110,6 +111,14 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Task
                             "Task running result:\r\n" + System.Text.Encoding.Default.GetString(result));
                     }
                 }
+                catch (TaskStartHandlerException e)
+                {
+                    _currentStatus.SetException(e.InnerException);
+                }
+                catch (TaskStopHandlerException e)
+                {
+                    _currentStatus.SetException(e.InnerException);
+                }
                 catch (Exception e)
                 {
                     _currentStatus.SetException(e);
@@ -156,11 +165,18 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Task
 
         public void Close(byte[] message)
         {
-            Logger.Log(Level.Info, string.Format(CultureInfo.InvariantCulture, "Trying to close Task {0}", TaskId));
+            Logger.Log(Level.Info, "Trying to close Task {0}", TaskId);
+            if (Interlocked.Exchange(ref _taskClosed, 1) != 0)
+            {
+                // Return if we have already called close. This can happen when TaskCloseHandler
+                // is invoked and throws an Exception before the Task is completed. The control flows
+                // to failing the Evaluator, which eventually tries to close the Task again on Dispose.
+                return;
+            }
 
             if (_currentStatus.IsNotRunning())
             {
-                Logger.Log(Level.Warning, string.Format(CultureInfo.InvariantCulture, "Trying to close an task that is in {0} state. Ignored.", _currentStatus.State));
+                Logger.Log(Level.Warning, "Trying to close an task that is in {0} state. Ignored.", _currentStatus.State);
                 return;
             }
             try
@@ -170,9 +186,25 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Task
             }
             catch (Exception e)
             {
-                Utilities.Diagnostics.Exceptions.Caught(e, Level.Error, "Error during Close.", Logger);
-                _currentStatus.SetException(TaskClientCodeException.Create(
-                    TaskId, ContextId, "Error during Close().", e));
+                Utilities.Diagnostics.Exceptions.CaughtAndThrow(e, Level.Error, "Error during Close.", Logger);
+            }
+            finally
+            {
+                try
+                {
+                    if (_userTask != null)
+                    {
+                        _userTask.Dispose();
+                    }
+                }
+                catch (Exception e)
+                {
+                    Utilities.Diagnostics.Exceptions.CaughtAndThrow(
+                        new InvalidOperationException("Cannot dispose task properly", e),
+                        Level.Error,
+                        "Exception during task dispose.",
+                        Logger);
+                }
             }
         }
 
@@ -185,17 +217,10 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Task
                 Logger.Log(Level.Warning, string.Format(CultureInfo.InvariantCulture, "Trying to suspend an task that is in {0} state. Ignored.", _currentStatus.State));
                 return;
             }
-            try
-            {
-                OnNext(new SuspendEventImpl(message));
-                _currentStatus.SetSuspendRequested();
-            }
-            catch (Exception e)
-            {
-                Utilities.Diagnostics.Exceptions.Caught(e, Level.Error, "Error during Suspend.", Logger);
-                _currentStatus.SetException(
-                    TaskClientCodeException.Create(TaskId, ContextId, "Error during Suspend().", e));
-            }
+            
+            // An Exception in suspend should crash the Evaluator.
+            OnNext(new SuspendEventImpl(message));
+            _currentStatus.SetSuspendRequested();
         }
 
         public void Deliver(byte[] message)
@@ -205,16 +230,8 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Task
                 Logger.Log(Level.Warning, string.Format(CultureInfo.InvariantCulture, "Trying to send a message to an task that is in {0} state. Ignored.", _currentStatus.State));
                 return;
             }
-            try
-            {
-                OnNext(new DriverMessageImpl(message));
-            }
-            catch (Exception e)
-            {
-                Utilities.Diagnostics.Exceptions.Caught(e, Level.Error, "Error during message delivery.", Logger);
-                _currentStatus.SetException(
-                    TaskClientCodeException.Create(TaskId, ContextId, "Error during message delivery.", e));
-            }
+
+            OnNext(new DriverMessageImpl(message));
         }
 
         public void OnNext(ICloseEvent value)
@@ -226,34 +243,24 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Task
         public void OnNext(ISuspendEvent value)
         {
             Logger.Log(Level.Info, "TaskRuntime::OnNext(ISuspendEvent value)");
-            try
-            {
-                _suspendHandlerFuture.Get().OnNext(value);
-            }
-            catch (Exception ex)
-            {
-                var suspendEx = new TaskSuspendHandlerException("Unable to suspend task.", ex);
-                Utilities.Diagnostics.Exceptions.CaughtAndThrow(suspendEx, Level.Error, Logger);
-            }
+            _suspendHandlerFuture.Get().OnNext(value);
         }
 
+        /// <summary>
+        /// Call Handle on the user's DriverMessageHandler.
+        /// If the user's handler throws an Exception, the Exception will bubble up as
+        /// an Evaluator Exception and fail the Evaluator.
+        /// </summary>
         public void OnNext(IDriverMessage value)
         {
-            Logger.Log(Level.Info, "TaskRuntime::OnNext(IDriverMessage value)");
+            Logger.Log(Level.Verbose, "TaskRuntime::OnNext(IDriverMessage value)");
 
             if (!_driverMessageHandler.IsPresent())
             {
                 return;
             }
-            try
-            {
-                _driverMessageHandler.Value.Handle(value);
-            }
-            catch (Exception e)
-            {
-                Utilities.Diagnostics.Exceptions.Caught(e, Level.Warning, "Exception throw when handling driver message: " + e, Logger);
-                _currentStatus.SetException(e);
-            }
+            
+            _driverMessageHandler.Value.Handle(value);
         }
 
         /// <summary>

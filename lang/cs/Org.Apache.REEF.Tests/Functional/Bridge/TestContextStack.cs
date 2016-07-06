@@ -106,8 +106,8 @@ namespace Org.Apache.REEF.Tests.Functional.Bridge
                 {
                     case ContextOneId:
                         var contextConfig =
-                            Common.Context.ContextConfiguration.ConfigurationModule.Set(
-                                Common.Context.ContextConfiguration.Identifier, ContextTwoId)
+                            REEF.Common.Context.ContextConfiguration.ConfigurationModule.Set(
+                                REEF.Common.Context.ContextConfiguration.Identifier, ContextTwoId)
                                 .Build();
                         var stackingContextConfig =
                             TangFactory.GetTang()
@@ -193,9 +193,9 @@ namespace Org.Apache.REEF.Tests.Functional.Bridge
                 {
                     case ContextOneId:
                         var contextConfig =
-                            Common.Context.ContextConfiguration.ConfigurationModule
-                                .Set(Common.Context.ContextConfiguration.Identifier, ContextTwoId)
-                                .Set(Common.Context.ContextConfiguration.OnContextStart, GenericType<TestContextStackContextStartHandler>.Class)
+                            REEF.Common.Context.ContextConfiguration.ConfigurationModule
+                                .Set(REEF.Common.Context.ContextConfiguration.Identifier, ContextTwoId)
+                                .Set(REEF.Common.Context.ContextConfiguration.OnContextStart, GenericType<TestContextStackContextStartHandler>.Class)
                                 .Build();
 
                         var stackingContextConfig =
@@ -287,8 +287,8 @@ namespace Org.Apache.REEF.Tests.Functional.Bridge
 
             public void OnNext(IAllocatedEvaluator value)
             {
-                value.SubmitContext(Common.Context.ContextConfiguration.ConfigurationModule
-                    .Set(Common.Context.ContextConfiguration.Identifier, ContextOneId)
+                value.SubmitContext(REEF.Common.Context.ContextConfiguration.ConfigurationModule
+                    .Set(REEF.Common.Context.ContextConfiguration.Identifier, ContextOneId)
                     .Build());
             }
 

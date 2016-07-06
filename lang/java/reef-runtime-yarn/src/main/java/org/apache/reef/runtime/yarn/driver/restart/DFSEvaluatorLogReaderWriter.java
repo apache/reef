@@ -16,29 +16,31 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.javabridge;
+package org.apache.reef.runtime.yarn.driver.restart;
 
-import org.apache.reef.annotations.audience.Interop;
 import org.apache.reef.annotations.audience.Private;
+import org.apache.reef.util.CloseableIterable;
 
-import java.util.logging.Logger;
+import java.io.IOException;
 
 /**
- * TODO[JIRA REEF-383] Document/Refactor JavaBridge.
+ * The Evaluator log reader/writer that reads from and writes to the Hadoop DFS.
+ * Currently supports regular append and append by overwrite.
  */
 @Private
-@Interop(CppFiles = "JavaClrBridge.cs")
-public class JavaBridge {
-  private static final String CPP_BRIDGE = "JavaClrBridge";
-  private static final Logger LOG = Logger.getLogger(JavaBridge.class.toString());
+public interface DFSEvaluatorLogReaderWriter extends AutoCloseable {
 
-  static {
-    try {
-      System.loadLibrary(CPP_BRIDGE);
-    } catch (final UnsatisfiedLinkError e) {
-      // TODO[JIRA REEF-383] Document/Refactor JavaBridge
-      LOG.severe("Cannot load native JavaClrBridge.");
-    }
-  }
+  /**
+   * Writes a formatted entry (addition or removal) for an Evaluator ID into the DFS evaluator log.
+   * @param formattedEntry The formatted entry (entry with evaluator ID and addition/removal information)
+   * @throws IOException
+   */
+  void writeToEvaluatorLog(final String formattedEntry) throws IOException;
+
+  /**
+   * Reads a formatted entry (addition or removal) from the DFS evaluator log.
+   * @return the formatted entry.
+   * @throws IOException
+   */
+  CloseableIterable<String> readFromEvaluatorLog() throws IOException;
 }
-

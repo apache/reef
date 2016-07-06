@@ -288,29 +288,31 @@ namespace Org.Apache.REEF.Evaluator.Tests
                     throw new Exception();
                 }
 
+                testTask.StartEvent.Wait();
                 testTask.CountDownEvent.Signal();
                 testTask.StopEvent.Wait();
-                Assert.False(contextRuntime.GetTaskStatus().IsPresent());
-
                 taskThread.Join();
 
-                taskThread = contextRuntime.StartTaskOnNewThread(taskConfig);
-                Assert.Equal(contextRuntime.GetTaskStatus().Value.state, State.RUNNING);
+                Assert.False(contextRuntime.GetTaskStatus().IsPresent());
 
+                taskThread = contextRuntime.StartTaskOnNewThread(taskConfig);
                 var secondTestTask = contextRuntime.TaskRuntime.Value.Task as TestTask;
                 if (secondTestTask == null)
                 {
                     throw new Exception();
                 }
 
+                secondTestTask.StartEvent.Wait();
+                Assert.Equal(contextRuntime.GetTaskStatus().Value.state, State.RUNNING);
+
                 Assert.False(ReferenceEquals(testTask, secondTestTask));
 
                 secondTestTask.CountDownEvent.Signal();
                 secondTestTask.StopEvent.Wait();
+                taskThread.Join();
+
                 Assert.False(contextRuntime.GetTaskStatus().IsPresent());
                 secondTestTask.DisposedEvent.Wait();
-
-                taskThread.Join();
             }
         }
 

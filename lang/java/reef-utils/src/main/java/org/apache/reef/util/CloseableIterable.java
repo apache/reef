@@ -16,24 +16,10 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.runtime.yarn.driver.restart;
-
-import org.apache.reef.annotations.audience.Private;
-
-import java.io.IOException;
+package org.apache.reef.util;
 
 /**
- * The Evaluator log writer that writes to DFS. Currently supports regular append and append by overwrite.
- * Actual log entries should be immutable and no entry should ever be deleted. To remove an evaluator, a
- * removal entry should be preferred.
+ * An iterable that is closeable.
  */
-@Private
-public interface DFSEvaluatorLogWriter extends AutoCloseable {
-
-  /**
-   * Writes a formatted entry (addition or removal) for an Evaluator ID into the DFS evaluator log.
-   * @param formattedEntry The formatted entry (entry with evaluator ID and addition/removal information)
-   * @throws IOException
-   */
-  void writeToEvaluatorLog(final String formattedEntry) throws IOException;
+public interface CloseableIterable<T> extends AutoCloseable, Iterable<T> {
 }

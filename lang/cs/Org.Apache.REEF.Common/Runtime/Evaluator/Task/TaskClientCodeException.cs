@@ -23,7 +23,7 @@ using Org.Apache.REEF.Common.Exceptions;
 namespace Org.Apache.REEF.Common.Runtime.Evaluator.Task
 {
     /// <summary>
-    /// An Exception thrown when Task operations (Start, Stop, Suspend) fail.
+    /// An Exception thrown when Task creation fails.
     /// </summary>
     [Serializable]
     public sealed class TaskClientCodeException : Exception
@@ -68,22 +68,6 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Task
                 string message,
                 Exception cause)
             : base(message, cause)
-        {
-            _taskId = taskId;
-            _contextId = contextId;
-        }
-
-        /// <summary>
-        /// construct the exception that caused the Task to fail
-        /// </summary>
-        /// <param name="taskId"> the id of the failed task.</param>
-        /// <param name="contextId"> the id of the context the failed Task was executing in.</param>
-        /// <param name="message"> the error message </param>
-        private TaskClientCodeException(
-                string taskId,
-                string contextId,
-                string message)
-            : base(message)
         {
             _taskId = taskId;
             _contextId = contextId;

@@ -45,7 +45,7 @@ under the License.
 
     <properties>
         <!-- The latest released version. This is used e.g. on the website -->
-        <currentStableVersion>0.14.0</currentStableVersion>
+        <currentStableVersion>0.15.0</currentStableVersion>
         <reef.conf.dir>${project.build.directory}/conf</reef.conf.dir>
         <reef.log.dir>${project.build.directory}/log</reef.log.dir>
         <bundle.snappy>false</bundle.snappy>

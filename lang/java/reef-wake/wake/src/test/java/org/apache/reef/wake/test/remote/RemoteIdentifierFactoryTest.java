@@ -65,14 +65,13 @@ public class RemoteIdentifierFactoryTest {
     final RemoteManagerFactory remoteManagerFactory = Tang.Factory.getTang().newInjector()
         .getInstance(RemoteManagerFactory.class);
 
-    final int port = 9100;
     final Map<Class<?>, Codec<?>> clazzToCodecMap = new HashMap<>();
     clazzToCodecMap.put(TestEvent.class, new TestEventCodec());
     final Codec<?> codec = new MultiCodec<Object>(clazzToCodecMap);
 
 
     try (final RemoteManager rm =
-             remoteManagerFactory.getInstance("TestRemoteManager", port, codec, new LoggingEventHandler<Throwable>())) {
+             remoteManagerFactory.getInstance("TestRemoteManager", 0, codec, new LoggingEventHandler<Throwable>())) {
       final RemoteIdentifier id = rm.getMyIdentifier();
 
       final IdentifierFactory factory = new DefaultIdentifierFactory();

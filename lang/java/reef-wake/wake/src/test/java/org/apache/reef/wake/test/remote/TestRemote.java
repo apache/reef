@@ -23,8 +23,6 @@ import org.apache.reef.tang.exceptions.InjectionException;
 import org.apache.reef.wake.EventHandler;
 import org.apache.reef.wake.impl.LoggingEventHandler;
 import org.apache.reef.wake.remote.*;
-import org.apache.reef.wake.remote.address.LocalAddressProvider;
-import org.apache.reef.wake.remote.impl.DefaultRemoteIdentifierFactoryImplementation;
 
 import javax.inject.Inject;
 import java.net.UnknownHostException;
@@ -34,26 +32,19 @@ import java.net.UnknownHostException;
  */
 public class TestRemote implements Runnable {
   private final RemoteManagerFactory remoteManagerFactory;
-  private final LocalAddressProvider localAddressProvider;
 
   @Inject
-  public TestRemote(final LocalAddressProvider localAddressProvider,
-                    final RemoteManagerFactory remoteManagerFactory) {
-    this.localAddressProvider = localAddressProvider;
+  public TestRemote(final RemoteManagerFactory remoteManagerFactory) {
     this.remoteManagerFactory = remoteManagerFactory;
   }
 
   @Override
   public void run() {
-    final String hostAddress = localAddressProvider.getLocalAddress();
-    final int myPort = 10011;
-    final int remotePort = 10001;
     final Codec<TestEvent> codec = new TestEventCodec();
     try (RemoteManager rm =
-             remoteManagerFactory.getInstance("name", myPort, codec, new LoggingEventHandler<Throwable>())) {
+             remoteManagerFactory.getInstance("name", 0, codec, new LoggingEventHandler<Throwable>())) {
       // proxy handler
-      final RemoteIdentifierFactory factory = new DefaultRemoteIdentifierFactoryImplementation();
-      final RemoteIdentifier remoteId = factory.getNewInstance("socket://" + hostAddress + ":" + remotePort);
+      final RemoteIdentifier remoteId = rm.getMyIdentifier();
       final EventHandler<TestEvent> proxyHandler = rm.getHandler(remoteId, TestEvent.class);
 
       proxyHandler.onNext(new TestEvent("hello", 1.0));

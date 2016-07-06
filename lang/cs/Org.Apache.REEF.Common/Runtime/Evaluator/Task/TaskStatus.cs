@@ -98,30 +98,9 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Task
         {
             lock (_heartBeatManager)
             {
-                try
-                {
-                    if (HasEnded())
-                    {
-                        // Note that this is possible if the job is already DONE, but a
-                        // Task Close is triggered prior to the DONE signal propagates to the
-                        // Driver. If the Task Close handler is not implemented, the Handler will 
-                        // mark the Task with an Exception, although for all intents and purposes
-                        // the Task is already done and should not be affected.
-                        return;
-                    }
-
-                    if (!_lastException.IsPresent())
-                    {
-                        _lastException = Optional<Exception>.Of(e);
-                    }
-
-                    State = TaskState.Failed;
-                    _taskLifeCycle.Stop();
-                }
-                finally
-                {
-                    Heartbeat();
-                }
+                _lastException = Optional<Exception>.Of(e);
+                State = TaskState.Failed;
+                Heartbeat();
             }
         }
 
@@ -130,6 +109,10 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Task
             lock (_heartBeatManager)
             {
                 _result = Optional<byte[]>.OfNullable(result);
+
+                // This can throw an Exception.
+                _taskLifeCycle.Stop();
+
                 switch (State)
                 {
                     case TaskState.SuspendRequested:
@@ -140,7 +123,7 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Task
                         State = TaskState.Done;
                         break;
                 }
-                _taskLifeCycle.Stop();
+                
                 Heartbeat();
             }
         }
@@ -152,17 +135,8 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Task
                 LOGGER.Log(Level.Verbose, "TaskStatus::SetInit");
                 if (_state == TaskState.Init)
                 {
-                    try
-                    {
-                        _taskLifeCycle.Start();
-                        LOGGER.Log(Level.Info, "Sending task INIT heartbeat");
-                        Heartbeat();
-                    }
-                    catch (Exception e)
-                    {
-                        Utilities.Diagnostics.Exceptions.Caught(e, Level.Error, "Cannot set task status to INIT.", LOGGER);
-                        SetException(e);
-                    }
+                    LOGGER.Log(Level.Verbose, "Sending task INIT heartbeat");
+                    Heartbeat();
                 }
             }
         }
@@ -174,17 +148,10 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Task
                 LOGGER.Log(Level.Verbose, "TaskStatus::SetRunning");
                 if (_state == TaskState.Init)
                 {
-                    try
-                    {
-                        State = TaskState.Running;
-                        LOGGER.Log(Level.Info, "Sending task Running heartbeat");
-                        Heartbeat();
-                    }
-                    catch (Exception e)
-                    {
-                        Utilities.Diagnostics.Exceptions.Caught(e, Level.Error, "Cannot set task status to running.", LOGGER);
-                        SetException(e);
-                    }
+                    _taskLifeCycle.Start();
+                    State = TaskState.Running;
+                    LOGGER.Log(Level.Verbose, "Sending task Running heartbeat");
+                    Heartbeat();
                 }
             }
         }
@@ -379,9 +346,9 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Task
         {
             if (_result.IsPresent() && _lastException.IsPresent())
             {
-                LOGGER.Log(Level.Warning, "Both task result and exception are present, the expcetion will take over. Thrown away result:" + ByteUtilities.ByteArraysToString(_result.Value));
-                State = TaskState.Failed;
-                _result = Optional<byte[]>.Empty();
+                throw new ApplicationException(
+                    string.Format("Both Exception and Result are present. One of the Threads have already sent a result back." +
+                    "Result returned [{0}]. Exception was [{1}]. Failing the Evaluator.", _result.Value, _lastException.Value));
             }
         }
 

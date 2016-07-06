@@ -17,6 +17,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Threading;
 using Org.Apache.REEF.Common.Tasks;
 using Org.Apache.REEF.Common.Tasks.Events;
 using Org.Apache.REEF.Tang.Annotations;
@@ -29,8 +30,11 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Task
     {
         private readonly IReadOnlyCollection<IObserver<ITaskStop>> _taskStopHandlers;
         private readonly IReadOnlyCollection<IObserver<ITaskStart>> _taskStartHandlers;
-        private readonly Optional<ITaskStart> _taskStart;
-        private readonly Optional<ITaskStop> _taskStop;
+        private readonly ITaskStart _taskStart;
+        private readonly ITaskStop _taskStop;
+
+        private int _startHasBeenInvoked = 0;
+        private int _stopHasBeenInvoked = 0;
 
         [Inject]
         private TaskLifeCycle(
@@ -38,15 +42,6 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Task
             [Parameter(typeof(TaskConfigurationOptions.StopHandlers))] ISet<IObserver<ITaskStop>> taskStopHandlers,
             ITaskStart taskStart,
             ITaskStop taskStop)
-            : this(taskStartHandlers, taskStopHandlers, Optional<ITaskStart>.Of(taskStart), Optional<ITaskStop>.Of(taskStop))
-        {
-        }
-
-        private TaskLifeCycle(
-            IEnumerable<IObserver<ITaskStart>> taskStartHandlers,
-            IEnumerable<IObserver<ITaskStop>> taskStopHandlers,
-            Optional<ITaskStart> taskStart,
-            Optional<ITaskStop> taskStop)
         {
             _taskStartHandlers = new ReadOnlySet<IObserver<ITaskStart>>(taskStartHandlers);
             _taskStopHandlers = new ReadOnlySet<IObserver<ITaskStop>>(taskStopHandlers);
@@ -56,27 +51,37 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Task
 
         public void Start() 
         {
-            if (!_taskStart.IsPresent())
+            try
             {
-                return;
+                if (Interlocked.Exchange(ref _startHasBeenInvoked, 1) == 0)
+                {
+                    foreach (var startHandler in _taskStartHandlers)
+                    {
+                        startHandler.OnNext(_taskStart);
+                    }
+                }
             }
-
-            foreach (var startHandler in _taskStartHandlers)
+            catch (Exception e)
             {
-                startHandler.OnNext(_taskStart.Value);
+                throw new TaskStartHandlerException("Encountered Exception in TaskStartHandler.", e);
             }
         }
 
         public void Stop() 
         {
-            if (!_taskStop.IsPresent())
+            try
             {
-                return;
+                if (Interlocked.Exchange(ref _stopHasBeenInvoked, 1) == 0)
+                {
+                    foreach (var stopHandler in _taskStopHandlers)
+                    {
+                        stopHandler.OnNext(_taskStop);
+                    }
+                }
             }
-
-            foreach (var stopHandler in _taskStopHandlers)
+            catch (Exception e)
             {
-                stopHandler.OnNext(_taskStop.Value);
+                throw new TaskStopHandlerException("Encountered Exception in TaskStopHandler.", e);
             }
         }
     }

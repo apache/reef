@@ -86,6 +86,10 @@ under the License.
     <Compile Include="Group\Operators\IOperatorSpec.cs" />
     <Compile Include="Group\Pipelining\StreamingPipelineMessageCodec.cs" />
     <Compile Include="Group\Task\ICommunicationGroupClientInternal.cs" />
+    <Compile Include="Group\Task\Impl\ChildNodeContainer.cs" />
+    <Compile Include="Group\Task\Impl\NodeMessageObserver.cs" />
+    <Compile Include="Group\Task\Impl\NodeObserverIdentifier.cs" />
+    <Compile Include="Group\Task\Impl\TaskMessageObserver.cs" />
     <Compile Include="Group\Task\IOperatorTopology.cs" />
     <Compile Include="Group\Operators\IReduceFunction.cs" />
     <Compile Include="Group\Operators\IReduceReceiver.cs" />
@@ -97,11 +101,8 @@ under the License.
     <Compile Include="Group\Pipelining\PipelineMessage.cs" />
     <Compile Include="Group\Pipelining\PipelineMessageCodec.cs" />
     <Compile Include="Group\Task\ICommunicationGroupClient.cs" />
-    <Compile Include="Group\Task\ICommunicationGroupNetworkObserver.cs" />
     <Compile Include="Group\Task\IGroupCommClient.cs" />
-    <Compile Include="Group\Task\IGroupCommNetworkObserver.cs" />
     <Compile Include="Group\Task\Impl\CommunicationGroupClient.cs" />
-    <Compile Include="Group\Task\Impl\CommunicationGroupNetworkObserver.cs" />
     <Compile Include="Group\Task\Impl\GroupCommClient.cs" />
     <Compile Include="Group\Task\Impl\GroupCommNetworkObserver.cs" />
     <Compile Include="Group\Task\Impl\NodeStruct.cs" />

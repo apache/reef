@@ -98,35 +98,12 @@ namespace Org.Apache.REEF.Tests.Functional.Bridge
         {
             string testFolder = DefaultRuntimeFolder + Guid.NewGuid().ToString("N").Substring(0, 4);
             TestRun(DriverConfigurations(DisposeMessageFromDriver, GetTaskConfigurationForEnforceToCloseTask()), typeof(CloseTaskTestDriver), 1, "TestEnforceCloseTask", "local", testFolder);
-            ValidateSuccessForLocalRuntime(1, 1, 0, testFolder);
+            ValidateSuccessForLocalRuntime(0, 0, 1, testFolder);
             ValidateMessageSuccessfullyLoggedForDriver(CompletedValidationMessage, testFolder, 0);
             var messages = new List<string>();
             messages.Add(DisposeMessageFromDriver);
             messages.Add(EnforceToCloseMessage);
             ValidateMessageSuccessfullyLogged(messages, "Node-*", EvaluatorStdout, testFolder, -1);
-            CleanUp(testFolder);
-        }
-
-        /// <summary>
-        /// This test is to close a running task with exception throw in close handler
-        /// Expect to receive Exception in Failed Task event handler in driver
-        /// </summary>
-        [Fact]
-        public void TestStopTaskWithExceptionOnLocalRuntime()
-        {
-            const string successIndication = "EXIT: ActiveContextClr2Java::Close";
-            const string failedTaskIndication = "Java_org_apache_reef_javabridge_NativeInterop_clrSystemFailedTaskHandlerOnNext";
-
-            string testFolder = DefaultRuntimeFolder + Guid.NewGuid().ToString("N").Substring(0, 4);
-            TestRun(DriverConfigurations(DisposeMessageFromDriver, GetTaskConfigurationForFailToCloseTask()), typeof(CloseTaskTestDriver), 1, "testStopTaskWithException", "local", testFolder);
-            var messages = new List<string>();
-            messages.Add(successIndication);
-            messages.Add(failedTaskIndication);
-            ValidateMessageSuccessfullyLogged(messages, "driver", DriverStdout, testFolder, 1);
-
-            var messages1 = new List<string>();
-            messages1.Add(DisposeMessageFromDriver);
-            ValidateMessageSuccessfullyLogged(messages1, "Node-*", EvaluatorStdout, testFolder, 2);
             CleanUp(testFolder);
         }
 
@@ -143,7 +120,7 @@ namespace Org.Apache.REEF.Tests.Functional.Bridge
             TestRun(DriverConfigurations(DisposeMessageFromDriver, GetTaskConfigurationForNoCloseHandlerTask()), typeof(CloseTaskTestDriver), 1, "testStopTaskWithNoCloseHandler", "local", testFolder);
             var messages = new List<string>();
             messages.Add(closeHandlerNoBound);
-            ValidateMessageSuccessfullyLogged(messages, "Node-*", EvaluatorStdout, testFolder, 1);
+            ValidateMessageSuccessfullyLogged(messages, "Node-*", EvaluatorStdout, testFolder, -1);
             CleanUp(testFolder);
         }
 
@@ -195,15 +172,6 @@ namespace Org.Apache.REEF.Tests.Functional.Bridge
                 .Build();
         }
 
-        private IConfiguration GetTaskConfigurationForFailToCloseTask()
-        {
-            return TaskConfiguration.ConfigurationModule
-                .Set(TaskConfiguration.Identifier, "TaskID-FailToClose")
-                .Set(TaskConfiguration.Task, GenericType<TestCloseTask.CloseByThrowExceptionTask>.Class)
-                .Set(TaskConfiguration.OnClose, GenericType<TestCloseTask.CloseByThrowExceptionTask>.Class)
-                .Build();
-        }
-
         private IConfiguration GetTaskConfigurationForNoCloseHandlerTask()
         {
             return TaskConfiguration.ConfigurationModule
@@ -225,6 +193,7 @@ namespace Org.Apache.REEF.Tests.Functional.Bridge
                 .Set(DriverConfiguration.OnTaskRunning, GenericType<CloseTaskTestDriver>.Class)
                 .Set(DriverConfiguration.OnTaskCompleted, GenericType<CloseTaskTestDriver>.Class)
                 .Set(DriverConfiguration.OnTaskFailed, GenericType<CloseTaskTestDriver>.Class)
+                .Set(DriverConfiguration.OnEvaluatorFailed, GenericType<CloseTaskTestDriver>.Class)
                 .Build();
 
             AvroConfigurationSerializer serializer = new AvroConfigurationSerializer();
@@ -252,6 +221,7 @@ namespace Org.Apache.REEF.Tests.Functional.Bridge
             IObserver<IActiveContext>,
             IObserver<ICompletedTask>,
             IObserver<IFailedTask>,
+            IObserver<IFailedEvaluator>,
             IObserver<IRunningTask>           
         {
             private readonly IEvaluatorRequestor _requestor;
@@ -295,6 +265,13 @@ namespace Org.Apache.REEF.Tests.Functional.Bridge
                 value.ActiveContext.Dispose();
             }
 
+            public void OnNext(IFailedEvaluator value)
+            {
+                Assert.True(value.FailedTask.IsPresent());
+                Assert.Equal(value.FailedTask.Value.Id, "TaskID-EnforceToClose");
+                Assert.Contains(TaskManager.TaskKilledByDriver, value.EvaluatorException.InnerException.Message);
+            }
+
             public void OnNext(IFailedTask value)
             {
                 var failedExeption = ByteUtilities.ByteArraysToString(value.Data.Value);
@@ -308,11 +285,7 @@ namespace Org.Apache.REEF.Tests.Functional.Bridge
                 {
                     Assert.Contains(DefaultTaskCloseHandler.ExceptionMessage, failedExeption);
                 }
-                if (value.Id.EndsWith("TaskID-EnforceToClose"))
-                {
-                    Assert.Contains(TaskManager.TaskKilledByDriver, failedExeption);
-                }
-
+                
                 value.GetActiveContext().Value.Dispose();
             }
 
@@ -484,58 +457,6 @@ namespace Org.Apache.REEF.Tests.Functional.Bridge
                 else
                 {
                     throw new Exception("Expected close event message is not received.");
-                }
-            }
-
-            public void OnCompleted()
-            {
-                throw new NotImplementedException();
-            }
-
-            public void OnError(Exception error)
-            {
-                throw new NotImplementedException();
-            }
-        }
-
-        /// <summary>
-        /// This is a test task for the scenario in which the task receives close event, instead of
-        /// let the task to return properly, it throws exception.
-        /// </summary>
-        private sealed class CloseByThrowExceptionTask : ITask, IObserver<ICloseEvent>
-        {
-            private readonly CountdownEvent _suspendSignal = new CountdownEvent(1);
-
-            [Inject]
-            private CloseByThrowExceptionTask()
-            {
-            }
-
-            public byte[] Call(byte[] memento)
-            {
-                Logger.Log(Level.Info, "Hello in FailtToCloseTask");
-                _suspendSignal.Wait();
-                return null;
-            }
-
-            public void Dispose()
-            {
-                Logger.Log(Level.Info, "Task is disposed.");
-            }
-
-            public void OnNext(ICloseEvent value)
-            {
-                try
-                {
-                    if (value.Value != null && value.Value.Value != null)
-                    {
-                        Logger.Log(Level.Info, "Closed event received in task:" + Encoding.UTF8.GetString(value.Value.Value));
-                        Assert.Equal(Encoding.UTF8.GetString(value.Value.Value), DisposeMessageFromDriver);
-                    }
-                }
-                finally
-                {
-                    throw new Exception(FailToCloseTaskMessage);
                 }
             }
 
