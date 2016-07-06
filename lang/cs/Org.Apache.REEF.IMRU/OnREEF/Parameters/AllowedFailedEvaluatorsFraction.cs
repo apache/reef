@@ -19,7 +19,7 @@ using Org.Apache.REEF.Tang.Annotations;
 
 namespace Org.Apache.REEF.IMRU.OnREEF.Parameters
 {
-    [NamedParameter("Determines number of failed evaluators (AllowedFailedEvaluators * Number of mappers) tolerated before throwing exception", "failedevaluators", "2.0")]
+    [NamedParameter("Determines number of failed evaluators (AllowedFailedEvaluators * Number of mappers) tolerated before throwing exception", "failedevaluators", "0.5")]
     internal sealed class AllowedFailedEvaluatorsFraction : Name<double>
     {
     }

@@ -168,6 +168,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         /// <param name="value">Event fired when driver started</param>
         public void OnNext(IDriverStarted value)
         {
+            //// TODO[REEF-598]: Set a timeout for this request to be satisfied. If it is not within that time, exit the Driver.
             _evaluatorManager.RequestUpdateEvaluator();
             _evaluatorManager.RequestMapEvaluators(_totalMappers);
         }
@@ -196,8 +197,9 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
                         _evaluatorManager.AddAllocatedEvaluator(allocatedEvaluator);
                         SubmitContextAndService(allocatedEvaluator);
                         break;
-                    case SystemState.Fail:
+                    case SystemState.Fail:                        
                         Logger.Log(Level.Info, "Receiving IAllocatedEvaluator event, but system is in FAIL state, ignore it.");
+                        allocatedEvaluator.Dispose();
                         break;
                     default:
                         UnexpectedState(allocatedEvaluator.Id, "IAllocatedEvaluator");
