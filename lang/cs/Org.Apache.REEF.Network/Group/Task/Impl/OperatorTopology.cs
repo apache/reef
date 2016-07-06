@@ -62,8 +62,8 @@ namespace Org.Apache.REEF.Network.Group.Task.Impl
         /// <param name="groupName">The name of the operator's Communication Group</param>
         /// <param name="taskId">The operator's Task identifier</param>
         /// <param name="timeout">Timeout value for cancellation token</param>
-        /// <param name="retryCount">Number of times to retry wating for registration</param>
-        /// <param name="sleepTime">Sleep time between retry wating for registration</param>
+        /// <param name="retryCount">Number of times to retry waiting for registration</param>
+        /// <param name="sleepTime">Sleep time between retry waiting for registration</param>
         /// <param name="rootId">The identifier for the root Task in the topology graph</param>
         /// <param name="childIds">The set of child Task identifiers in the topology graph</param>
         /// <param name="networkObserver"></param>
@@ -244,10 +244,11 @@ namespace Org.Apache.REEF.Network.Group.Task.Impl
         /// <summary>
         /// Receive an incoming message from the parent Task.
         /// </summary>
+        /// <param name="cancellationSource">The cancellation token for the data reading operation cancellation</param>
         /// <returns>The parent Task's message</returns>
-        public T ReceiveFromParent()
+        public T ReceiveFromParent(CancellationTokenSource cancellationSource = null)
         {
-            T[] data = _parent.GetData();
+            T[] data = _parent.GetData(cancellationSource);
             if (data == null || data.Length != 1)
             {
                 throw new InvalidOperationException("Cannot receive data from parent node");
@@ -256,9 +257,14 @@ namespace Org.Apache.REEF.Network.Group.Task.Impl
             return data[0];
         }
 
-        public IList<T> ReceiveListFromParent()
+        /// <summary>
+        /// Receive a list of incoming messages from the parent Task.
+        /// </summary>
+        /// <param name="cancellationSource">The cancellation token for the data reading operation cancellation</param>
+        /// <returns></returns>
+        public IList<T> ReceiveListFromParent(CancellationTokenSource cancellationSource = null)
         {
-            T[] data = _parent.GetData();
+            T[] data = _parent.GetData(cancellationSource);
             if (data == null || data.Length == 0)
             {
                 throw new InvalidOperationException("Cannot receive data from parent node");
@@ -272,15 +278,16 @@ namespace Org.Apache.REEF.Network.Group.Task.Impl
         /// given IReduceFunction.
         /// </summary>
         /// <param name="reduceFunction">The class used to reduce messages</param>
+        /// <param name="cancellationSource">The cancellation token for the data reading operation cancellation</param>
         /// <returns>The result of reducing messages</returns>
-        public T ReceiveFromChildren(IReduceFunction<T> reduceFunction)
+        public T ReceiveFromChildren(IReduceFunction<T> reduceFunction, CancellationTokenSource cancellationSource = null)
         {
             if (reduceFunction == null)
             {
                 throw new ArgumentNullException("reduceFunction");
             }
 
-            return reduceFunction.Reduce(_childNodeContainer.GetDataFromAllChildren());
+            return reduceFunction.Reduce(_childNodeContainer.GetDataFromAllChildren(cancellationSource));
         }
 
         public bool HasChildren()
@@ -297,7 +304,6 @@ namespace Org.Apache.REEF.Network.Group.Task.Impl
         {
             GeneralGroupCommunicationMessage gcm = new GroupCommunicationMessage<T>(_groupName, _operatorName,
                 _selfId, node.Identifier, message);
-
             _sender.Send(gcm);
         }
 

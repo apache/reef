@@ -15,8 +15,10 @@
 // specific language governing permissions and limitations
 // under the License.
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using Org.Apache.REEF.Network.Group.Config;
 using Org.Apache.REEF.Network.Group.Driver;
 using Org.Apache.REEF.Network.Group.Operators;
@@ -633,6 +635,94 @@ namespace Org.Apache.REEF.Network.Tests.GroupCommunication
 
             int sum = sumReducer.Reduce();
             Assert.Equal(sum, 6325);
+        }
+
+        /// <summary>
+        /// Test IReduceSender.Send() and IReduceReceiver.Receive() with and without cancellation token
+        /// </summary>
+        [Fact]
+        public void TestScatterReduceOperatorsWithCancelation()
+        {
+            string groupName = "group1";
+            string scatterOperatorName = "scatter";
+            string reduceOperatorName = "reduce";
+            string masterTaskId = "task0";
+            string driverId = "Driver Id";
+            int numTasks = 5;
+            int fanOut = 2;
+
+            var groupCommDriver = GroupCommunicationTests.GetInstanceOfGroupCommDriver(driverId, masterTaskId, groupName, fanOut, numTasks);
+            ICommunicationGroupDriver commGroup = groupCommDriver.DefaultGroup
+              .AddScatter<int>(
+                    scatterOperatorName,
+                    masterTaskId,
+                    TopologyTypes.Tree,
+                    GetDefaultDataConverterConfig())
+                .AddReduce<int>(
+                    reduceOperatorName,
+                    masterTaskId,
+                    TopologyTypes.Tree,
+                    GetDefaultDataConverterConfig(),
+                    GetDefaultReduceFuncConfig())
+                .Build();
+
+            var commGroups = GroupCommunicationTests.CommGroupClients(groupName, numTasks, groupCommDriver, commGroup, GetDefaultCodecConfig());
+
+            IScatterSender<int> sender = commGroups[0].GetScatterSender<int>(scatterOperatorName);
+            IReduceReceiver<int> sumReducer = commGroups[0].GetReduceReceiver<int>(reduceOperatorName);
+
+            IScatterReceiver<int> receiver1 = commGroups[1].GetScatterReceiver<int>(scatterOperatorName);
+            IReduceSender<int> sumSender1 = commGroups[1].GetReduceSender<int>(reduceOperatorName);
+
+            IScatterReceiver<int> receiver2 = commGroups[2].GetScatterReceiver<int>(scatterOperatorName);
+            IReduceSender<int> sumSender2 = commGroups[2].GetReduceSender<int>(reduceOperatorName);
+
+            IScatterReceiver<int> receiver3 = commGroups[3].GetScatterReceiver<int>(scatterOperatorName);
+            IReduceSender<int> sumSender3 = commGroups[3].GetReduceSender<int>(reduceOperatorName);
+
+            IScatterReceiver<int> receiver4 = commGroups[4].GetScatterReceiver<int>(scatterOperatorName);
+            IReduceSender<int> sumSender4 = commGroups[4].GetReduceSender<int>(reduceOperatorName);
+
+            Assert.NotNull(sender);
+            Assert.NotNull(receiver1);
+            Assert.NotNull(receiver2);
+            Assert.NotNull(receiver3);
+            Assert.NotNull(receiver4);
+
+            List<int> data = Enumerable.Range(1, 100).ToList();
+
+            sender.Send(data);
+
+            List<int> data1 = receiver1.Receive();
+            List<int> data2 = receiver2.Receive();
+
+            List<int> data3 = receiver3.Receive();
+            List<int> data4 = receiver4.Receive();
+
+            int sum3 = data3.Sum();
+            sumSender3.Send(sum3);
+
+            int sum4 = data4.Sum();
+            sumSender4.Send(sum4);
+
+            int sum2 = data2.Sum();
+            sumSender2.Send(sum2);
+
+            int sum1 = data1.Sum();
+
+            var token = new CancellationTokenSource();
+            token.Cancel();
+            Action send = () => sumSender1.Send(sum1, token);
+            Assert.Throws<OperationCanceledException>(send);
+
+            var taskThread = new Thread(() =>
+            {
+                Action reduce = () => sumReducer.Reduce(token);
+                Assert.Throws<OperationCanceledException>(reduce);
+            });
+
+            taskThread.Start();
+            token.Cancel();
         }
 
         private IConfiguration GetDefaultCodecConfig()

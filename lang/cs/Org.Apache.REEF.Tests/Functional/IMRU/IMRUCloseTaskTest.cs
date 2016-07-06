@@ -16,9 +16,13 @@
 // under the License.
 
 using System;
+using System.Collections.Generic;
+using Org.Apache.REEF.Driver.Evaluator;
 using Org.Apache.REEF.Driver.Task;
 using Org.Apache.REEF.IMRU.OnREEF.Driver;
+using Org.Apache.REEF.Network;
 using Org.Apache.REEF.Tang.Annotations;
+using Org.Apache.REEF.Tang.Implementations.Configuration;
 using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Tang.Util;
 using Org.Apache.REEF.Utilities;
@@ -30,24 +34,23 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
 {
     /// <summary>
     /// This is to test close event handler in IMRU tasks
-    /// The test provide IRunningTask, IFailedTask and ICOmpletedTask handlers so that to trigger close events and handle the 
+    /// The test provide IRunningTask, IFailedTask and ICompletedTask handlers so that to trigger close events and handle the 
     /// failed tasks and completed tasks
     /// </summary>
     [Collection("FunctionalTests")]
     public class IMRUCloseTaskTest : IMRUBrodcastReduceTestBase
     {
         private const string CompletedTaskMessage = "CompletedTaskMessage";
+        private const string FailEvaluatorMessage = "FailEvaluatorMessage";
         private const string FailTaskMessage = "FailTaskMessage";
 
         /// <summary>
         /// This test is for running in local runtime
         /// It sends close event for all the running tasks.
-        /// It first informs the Call method to stop.
-        /// If Call method is running properly, it will respect to this flag and will return properly, that will end up ICompletedTask event.
-        ////If Call method is hung some where and cannot be returned, the close handler will throw exception, that would cause IFailedTask event.
-        /// As we are testing IMRU Task not a test task, the behavior is not deterministic. It can be CompletedTask or FailedTask
-        /// No matter how the task is closed, the total number of completed task and failed task should be equal to the 
-        /// total number of the tasks.
+        /// In the task close handler, the cancellation token will be set, and as a result tasks will return from the Call() 
+        /// method and driver will receive ICompletedTask.
+        /// In the exceptional case, task might throw exception from Call() method, as a result, driver will receive IFailedTask. 
+        /// Expect number of CompletedTask and FailedTask equals to the total number of tasks. No failed Evaluator. 
         /// </summary>
         [Fact]
         public void TestTaskCloseOnLocalRuntime()
@@ -55,27 +58,21 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
             const int chunkSize = 2;
             const int dims = 50;
             const int iterations = 200;
-            const int mapperMemory = 5120;
-            const int updateTaskMemory = 5120;
+            const int mapperMemory = 512;
+            const int updateTaskMemory = 512;
             const int numTasks = 4;
             var testFolder = DefaultRuntimeFolder + TestId;
             TestBroadCastAndReduce(false, numTasks, chunkSize, dims, iterations, mapperMemory, updateTaskMemory, testFolder);
-            string[] lines = ReadLogFile(DriverStdout, "driver", testFolder);
-            var failedCount = GetMessageCount(lines, FailTaskMessage);
+            string[] lines = ReadLogFile(DriverStdout, "driver", testFolder, 120);
             var completedCount = GetMessageCount(lines, CompletedTaskMessage);
-            Assert.Equal(numTasks, failedCount + completedCount);
+            var failedCount = GetMessageCount(lines, FailTaskMessage);
+            Assert.Equal(numTasks, completedCount + failedCount);
             CleanUp(testFolder);
         }
 
         /// <summary>
         /// Same testing for running on YARN
         /// It sends close event for all the running tasks.
-        /// It first informs the Call method to stop.
-        /// If Call method is running properly, it will respect to this flag and will return properly, that will end up ICompletedTask event.
-        ////If Call method is hung some where and cannot be returned, the close handler will throw exception, that would cause IFailedTask event.
-        /// As we are testing IMRU Task not a test task, the behavior is not deterministic. It can be CompletedTask or FailedTask
-        /// No matter how the task is closed, the total number of completed task and failed task should be equal to the 
-        /// total number of the tasks.
         /// </summary>
         [Fact(Skip = "Requires Yarn")]
         public void TestTaskCloseOnLocalRuntimeOnYarn()
@@ -83,15 +80,15 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
             const int chunkSize = 2;
             const int dims = 50;
             const int iterations = 200;
-            const int mapperMemory = 5120;
-            const int updateTaskMemory = 5120;
+            const int mapperMemory = 512;
+            const int updateTaskMemory = 512;
             const int numTasks = 4;
             TestBroadCastAndReduce(true, numTasks, chunkSize, dims, iterations, mapperMemory, updateTaskMemory);
         }
 
         /// <summary>
         /// This method overrides base class method and defines its own event handlers for driver. 
-        /// It uses its own RunningTaskHandler, FailedTaskHandler and CompletedTaskHandler so that to simulate the test scenarios 
+        /// It uses its own RunningTaskHandler, FailedEvaluatorHandler and CompletedTaskHandler, FailedTaskHandler so that to simulate the test scenarios 
         /// and verify the test result. 
         /// Rest of the event handlers use those from IMRUDriver. In IActiveContext handler in IMRUDriver, IMRU tasks are bound for the test.
         /// </summary>
@@ -112,7 +109,7 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
                 .Set(REEF.Driver.DriverConfiguration.OnTaskCompleted,
                     GenericType<TestHandlers>.Class)
                 .Set(REEF.Driver.DriverConfiguration.OnEvaluatorFailed,
-                    GenericType<IMRUDriver<TMapInput, TMapOutput, TResult, TPartitionType>>.Class)
+                    GenericType<TestHandlers>.Class)
                 .Set(REEF.Driver.DriverConfiguration.OnContextFailed,
                     GenericType<IMRUDriver<TMapInput, TMapOutput, TResult, TPartitionType>>.Class)
                 .Set(REEF.Driver.DriverConfiguration.OnTaskFailed,
@@ -124,43 +121,112 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
         }
 
         /// <summary>
+        /// Mapper function configuration. Add TcpConfiguration to the base configuration
+        /// </summary>
+        /// <returns></returns>
+        protected override IConfiguration BuildMapperFunctionConfig()
+        {
+            return Configurations.Merge(GetTcpConfiguration(), base.BuildMapperFunctionConfig());
+        }
+
+        /// <summary>
+        /// Update function configuration. Add TcpConfiguration to the base configuration.
+        /// </summary>
+        /// <returns></returns>
+        protected override IConfiguration BuildUpdateFunctionConfig()
+        {
+            return Configurations.Merge(GetTcpConfiguration(), base.BuildUpdateFunctionConfig());
+        }
+
+        /// <summary>
+        /// Override default setting for retry policy
+        /// </summary>
+        /// <returns></returns>
+        private IConfiguration GetTcpConfiguration()
+        {
+            return TcpClientConfigurationModule.ConfigurationModule
+                .Set(TcpClientConfigurationModule.MaxConnectionRetry, "5")
+                .Set(TcpClientConfigurationModule.SleepTime, "1000")
+                .Build();
+        }
+
+        /// <summary>
         /// Test handlers
         /// </summary>
-        internal sealed class TestHandlers : IObserver<IRunningTask>, IObserver<IFailedTask>, IObserver<ICompletedTask>
+        internal sealed class TestHandlers : IObserver<IRunningTask>, IObserver<ICompletedTask>, IObserver<IFailedTask>, IObserver<IFailedEvaluator>
         {
+            private readonly ISet<IRunningTask> _runningTasks = new HashSet<IRunningTask>();
+            private readonly object _lock = new object();
+
             [Inject]
             private TestHandlers()
             {
             }
 
             /// <summary>
-            /// Log the task id and dispose the context
+            /// Add the RunningTask to _runningTasks and dispose the last received running task
             /// </summary>
             public void OnNext(IRunningTask value)
             {
-                Logger.Log(Level.Info, "Received running task, closing it" + value.Id);
-                value.Dispose(ByteUtilities.StringToByteArrays(TaskManager.CloseTaskByDriver));
+                lock (_lock)
+                {
+                    Logger.Log(Level.Info, "Received running task:" + value.Id);
+                    _runningTasks.Add(value);
+                    if (_runningTasks.Count == 4)
+                    {
+                        Logger.Log(Level.Info, "Dispose running task from driver:" + value.Id);
+                        value.Dispose(ByteUtilities.StringToByteArrays(TaskManager.CloseTaskByDriver));
+                        _runningTasks.Remove(value);
+                    }
+                }
             }
 
             /// <summary>
-            /// Validate the event and dispose the context
+            /// Log the task id and FailTaskMessage
+            /// Close the rest of the running tasks, then dispose the context
             /// </summary>
             /// <param name="value"></param>
             public void OnNext(IFailedTask value)
             {
-                Logger.Log(Level.Info, FailTaskMessage + value.Id);
-                var failedExeption = ByteUtilities.ByteArraysToString(value.Data.Value);
-                Assert.Contains(TaskManager.TaskKilledByDriver, failedExeption);
-                value.GetActiveContext().Value.Dispose();
+                lock (_lock)
+                {
+                    Logger.Log(Level.Info, FailTaskMessage + value.Id);
+                    CloseRunningTasks();
+                    value.GetActiveContext().Value.Dispose();
+                }
             }
 
             /// <summary>
-            /// Log the task id and dispose the context
+            /// No Failed Evaluator is expected
+            /// </summary>
+            /// <param name="value"></param>
+            public void OnNext(IFailedEvaluator value)
+            {
+                throw new Exception(FailEvaluatorMessage);
+            }
+
+            /// <summary>
+            /// Log the task id and ICompletedTask
+            /// Close the rest of the running tasks, then dispose the context
             /// </summary>
             public void OnNext(ICompletedTask value)
             {
-                Logger.Log(Level.Info, CompletedTaskMessage + value.Id);
-                value.ActiveContext.Dispose();
+                lock (_lock)
+                {
+                    Logger.Log(Level.Info, CompletedTaskMessage + value.Id);
+                    CloseRunningTasks();
+                    value.ActiveContext.Dispose();
+                }
+            }
+
+            private void CloseRunningTasks()
+            {
+                foreach (var task in _runningTasks)
+                {
+                    Logger.Log(Level.Info, "Dispose running task from driver:" + task.Id);
+                    task.Dispose(ByteUtilities.StringToByteArrays(TaskManager.CloseTaskByDriver));
+                }
+                _runningTasks.Clear();
             }
 
             public void OnCompleted()

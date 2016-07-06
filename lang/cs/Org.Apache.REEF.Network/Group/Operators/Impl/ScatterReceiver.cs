@@ -17,6 +17,7 @@
 
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using Org.Apache.REEF.Network.Group.Config;
 using Org.Apache.REEF.Network.Group.Driver.Impl;
 using Org.Apache.REEF.Network.Group.Task;
@@ -84,15 +85,15 @@ namespace Org.Apache.REEF.Network.Group.Operators.Impl
         /// Receive a sublist of messages sent from the IScatterSender.
         /// </summary>
         /// <returns>The sublist of messages</returns>
-        public List<T> Receive()
+        public List<T> Receive(CancellationTokenSource cancellationSource = null)
         {
-            IList<T> elements = _topology.ReceiveListFromParent();
+            IList<T> elements = _topology.ReceiveListFromParent(cancellationSource);
             _topology.ScatterToChildren(elements, MessageType.Data);
             return elements.ToList();
         }
 
         /// <summary>
-        /// Ensure all parent and children nodes in the topology are registered with teh Name Service.
+        /// Ensure all parent and children nodes in the topology are registered with the Name Service.
         /// </summary>
         void IGroupCommOperatorInternal.WaitForRegistration()
         {
