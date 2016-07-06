@@ -58,7 +58,7 @@ import java.util.logging.Logger;
 /**
  * Implements a tree topology with the specified Fan Out.
  */
-public class TreeTopology implements Topology {
+public final class TreeTopology implements Topology {
 
   private static final Logger LOG = Logger.getLogger(TreeTopology.class.getName());
 
@@ -76,22 +76,6 @@ public class TreeTopology implements Topology {
 
   private final ConcurrentMap<String, TaskNode> nodes = new ConcurrentSkipListMap<>();
   private final ConfigurationSerializer confSer = new AvroConfigurationSerializer();
-
-  /**
-   * @deprecated in 0.14. Use Tang to obtain an instance of this instead.
-   */
-  @Deprecated
-  public TreeTopology(final EStage<GroupCommunicationMessage> senderStage,
-                      final Class<? extends Name<String>> groupName,
-                      final Class<? extends Name<String>> operatorName,
-                      final String driverId, final int numberOfTasks, final int fanOut) {
-    this.senderStage = senderStage;
-    this.groupName = groupName;
-    this.operName = operatorName;
-    this.driverId = driverId;
-    this.fanOut = fanOut;
-    LOG.config(getQualifiedName() + "Tree Topology running with a fan-out of " + fanOut);
-  }
 
   @Inject
   private TreeTopology(@Parameter(GroupCommSenderStage.class) final EStage<GroupCommunicationMessage> senderStage,

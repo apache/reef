@@ -42,7 +42,6 @@ import org.apache.reef.io.network.util.Pair;
 import org.apache.reef.io.serialization.Codec;
 import org.apache.reef.tang.Configuration;
 import org.apache.reef.tang.Injector;
-import org.apache.reef.tang.Tang;
 import org.apache.reef.tang.annotations.Name;
 import org.apache.reef.tang.annotations.Parameter;
 import org.apache.reef.tang.exceptions.InjectionException;
@@ -59,7 +58,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Logger;
 
-public class CommunicationGroupClientImpl implements CommunicationGroupServiceClient {
+public final class CommunicationGroupClientImpl implements CommunicationGroupServiceClient {
   private static final Logger LOG = Logger.getLogger(CommunicationGroupClientImpl.class.getName());
 
   private final GroupCommNetworkHandler groupCommNetworkHandler;
@@ -78,67 +77,6 @@ public class CommunicationGroupClientImpl implements CommunicationGroupServiceCl
   private final CommGroupNetworkHandler commGroupNetworkHandler;
 
   private final AtomicBoolean init = new AtomicBoolean(false);
-
-  /**
-   * @deprecated in 0.14.
-   * Use the private constructor that receives an {@code injector} as a parameter instead.
-   */
-  @Deprecated
-  @Inject
-  public CommunicationGroupClientImpl(@Parameter(CommunicationGroupName.class) final String groupName,
-                                      @Parameter(TaskConfigurationOptions.Identifier.class) final String taskId,
-                                      @Parameter(DriverIdentifierGroupComm.class) final String driverId,
-                                      final GroupCommNetworkHandler groupCommNetworkHandler,
-                                      @Parameter(SerializedOperConfigs.class) final Set<String> operatorConfigs,
-                                      final ConfigurationSerializer configSerializer,
-                                      final NetworkService<GroupCommunicationMessage> netService) {
-    this.taskId = taskId;
-    this.driverId = driverId;
-    LOG.finest(groupName + " has GroupCommHandler-" + groupCommNetworkHandler.toString());
-    this.identifierFactory = netService.getIdentifierFactory();
-    this.groupName = Utils.getClass(groupName);
-    this.groupCommNetworkHandler = groupCommNetworkHandler;
-    this.sender = new Sender(netService);
-    this.operators = new TreeMap<>(new Comparator<Class<? extends Name<String>>>() {
-
-      @Override
-      public int compare(final Class<? extends Name<String>> o1, final Class<? extends Name<String>> o2) {
-        final String s1 = o1.getSimpleName();
-        final String s2 = o2.getSimpleName();
-        return s1.compareTo(s2);
-      }
-    });
-    try {
-      this.commGroupNetworkHandler = Tang.Factory.getTang().newInjector().getInstance(CommGroupNetworkHandler.class);
-      this.groupCommNetworkHandler.register(this.groupName, commGroupNetworkHandler);
-
-      boolean operatorIsScatterSender = false;
-      for (final String operatorConfigStr : operatorConfigs) {
-
-        final Configuration operatorConfig = configSerializer.fromString(operatorConfigStr);
-        final Injector injector = Tang.Factory.getTang().newInjector(operatorConfig);
-
-        injector.bindVolatileParameter(TaskConfigurationOptions.Identifier.class, taskId);
-        injector.bindVolatileParameter(CommunicationGroupName.class, groupName);
-        injector.bindVolatileInstance(CommGroupNetworkHandler.class, commGroupNetworkHandler);
-        injector.bindVolatileInstance(NetworkService.class, netService);
-        injector.bindVolatileInstance(CommunicationGroupServiceClient.class, this);
-
-        final GroupCommOperator operator = injector.getInstance(GroupCommOperator.class);
-        final String operName = injector.getNamedInstance(OperatorName.class);
-        this.operators.put(Utils.getClass(operName), operator);
-        LOG.finest(operName + " has CommGroupHandler-" + commGroupNetworkHandler.toString());
-
-        if (!operatorIsScatterSender && operator instanceof Scatter.Sender) {
-          LOG.fine(operName + " is a scatter sender. Will keep track of active slave tasks.");
-          operatorIsScatterSender = true;
-        }
-      }
-      this.isScatterSender = operatorIsScatterSender;
-    } catch (final InjectionException | IOException e) {
-      throw new RuntimeException("Unable to deserialize operator config", e);
-    }
-  }
 
   @Inject
   private CommunicationGroupClientImpl(@Parameter(CommunicationGroupName.class) final String groupName,
