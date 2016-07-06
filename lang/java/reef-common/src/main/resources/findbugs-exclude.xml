@@ -134,10 +134,6 @@
         <Bug pattern="SC_START_IN_CTOR" />
     </Match>
     <Match>
-        <Class name="org.apache.reef.wake.remote.address.LegacyLocalAddressProvider$AddressComparator" />
-        <Bug pattern="SE_COMPARATOR_SHOULD_BE_SERIALIZABLE" />
-    </Match>
-    <Match>
         <Class name="org.apache.reef.wake.remote.impl.RemoteEventComparator" />
         <Bug pattern="SE_COMPARATOR_SHOULD_BE_SERIALIZABLE" />
     </Match>
