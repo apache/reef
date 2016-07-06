@@ -56,7 +56,7 @@ import java.util.logging.Logger;
 /**
  * Implements a one level Tree Topology.
  */
-public class FlatTopology implements Topology {
+public final class FlatTopology implements Topology {
 
   private static final Logger LOG = Logger.getLogger(FlatTopology.class.getName());
 
@@ -69,20 +69,6 @@ public class FlatTopology implements Topology {
 
   private TaskNode root;
   private final ConcurrentMap<String, TaskNode> nodes = new ConcurrentSkipListMap<>();
-
-  /**
-   * @deprecated in 0.14. Use Tang to obtain an instance of this instead.
-   */
-  @Deprecated
-  public FlatTopology(final EStage<GroupCommunicationMessage> senderStage,
-                      final Class<? extends Name<String>> groupName,
-                      final Class<? extends Name<String>> operatorName,
-                      final String driverId, final int numberOfTasks) {
-    this.senderStage = senderStage;
-    this.groupName = groupName;
-    this.operName = operatorName;
-    this.driverId = driverId;
-  }
 
   @Inject
   private FlatTopology(@Parameter(GroupCommSenderStage.class) final EStage<GroupCommunicationMessage> senderStage,
