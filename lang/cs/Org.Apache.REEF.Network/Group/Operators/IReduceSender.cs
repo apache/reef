@@ -15,6 +15,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
+using System.Threading;
+
 namespace Org.Apache.REEF.Network.Group.Operators
 {
     /// <summary>
@@ -27,6 +29,7 @@ namespace Org.Apache.REEF.Network.Group.Operators
         /// Get reduced data from children, reduce with the data given, then sends reduced data to parent
         /// </summary>
         /// <param name="data">The data to send</param>
-        void Send(T data);
+        /// <param name="cancellationSource">The cancellation token for the data reading operation cancellation</param>
+        void Send(T data, CancellationTokenSource cancellationSource = null);
     }
 }

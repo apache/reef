@@ -15,8 +15,11 @@
 // specific language governing permissions and limitations
 // under the License.
 
+using System;
 using System.Collections.Concurrent;
+using System.Threading;
 using Org.Apache.REEF.Network.Group.Driver.Impl;
+using Org.Apache.REEF.Utilities.Logging;
 
 namespace Org.Apache.REEF.Network.Group.Task.Impl
 {
@@ -27,6 +30,8 @@ namespace Org.Apache.REEF.Network.Group.Task.Impl
     /// <typeparam name="T"> Generic type of message</typeparam>
     internal sealed class NodeStruct<T>
     {
+        private static readonly Logger Logger = Logger.GetLogger(typeof(NodeStruct<T>));
+
         private readonly BlockingCollection<GroupCommunicationMessage<T>> _messageQueue;
 
         /// <summary>
@@ -62,10 +67,29 @@ namespace Org.Apache.REEF.Network.Group.Task.Impl
         /// <summary>
         /// Gets the first message in the message queue.
         /// </summary>
+        /// <param name="cancellationSource">The cancellation token for the data reading operation cancellation</param>
         /// <returns>The first available message.</returns>
-        internal T[] GetData()
+        internal T[] GetData(CancellationTokenSource cancellationSource = null)
         {
-            return _messageQueue.Take().Data;
+            try
+            {
+                if (cancellationSource == null || !cancellationSource.IsCancellationRequested)
+                {
+                    var r = cancellationSource == null
+                        ? _messageQueue.Take().Data
+                        : _messageQueue.Take(cancellationSource.Token).Data;
+                    return r;
+                }
+                else
+                {
+                    throw new OperationCanceledException("GetData operation is canceled");
+                }
+            }
+            catch (OperationCanceledException e)
+            {
+                Logger.Log(Level.Warning, "Received OperationCanceledException in NodeStruct.GetData() with message {0}.", e.Message);
+                throw e;
+            }
         }
 
         /// <summary>

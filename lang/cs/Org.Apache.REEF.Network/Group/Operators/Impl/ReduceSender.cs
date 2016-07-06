@@ -16,8 +16,8 @@
 // under the License.
 
 using System;
-using System.Reactive;
 using System.Collections.Generic;
+using System.Threading;
 using Org.Apache.REEF.Network.Group.Config;
 using Org.Apache.REEF.Network.Group.Driver.Impl;
 using Org.Apache.REEF.Network.Group.Task;
@@ -50,7 +50,6 @@ namespace Org.Apache.REEF.Network.Group.Operators.Impl
         /// <param name="initialize">Require Topology Initialize to be called to wait for all task being registered. 
         /// Default is true. For unit testing, it can be set to false.</param>
         /// <param name="topology">The Task's operator topology graph</param>
-        /// <param name="networkHandler">The handler used to handle incoming messages</param>
         /// <param name="reduceFunction">The function used to reduce the incoming messages</param>
         /// <param name="dataConverter">The converter used to convert original
         /// message to pipelined ones and vice versa.</param>
@@ -105,7 +104,8 @@ namespace Org.Apache.REEF.Network.Group.Operators.Impl
         /// Sends the data to the operator's ReduceReceiver to be aggregated.
         /// </summary>
         /// <param name="data">The data to send</param>
-        public void Send(T data)
+        /// <param name="cancellationSource">The cancellationSource for cancel the operation</param>
+        public void Send(T data, CancellationTokenSource cancellationSource = null)
         {
             var messageList = PipelineDataConverter.PipelineMessage(data);
 
@@ -118,7 +118,7 @@ namespace Org.Apache.REEF.Network.Group.Operators.Impl
             {
                 if (_topology.HasChildren())
                 {
-                    var reducedValueOfChildren = _topology.ReceiveFromChildren(_pipelinedReduceFunc);
+                    var reducedValueOfChildren = _topology.ReceiveFromChildren(_pipelinedReduceFunc, cancellationSource);
 
                     var mergeddData = new List<PipelineMessage<T>> { message };
 

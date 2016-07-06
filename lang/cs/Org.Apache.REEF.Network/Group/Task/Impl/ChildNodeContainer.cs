@@ -18,7 +18,9 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using Org.Apache.REEF.Utilities.Attributes;
+using Org.Apache.REEF.Utilities.Logging;
 
 namespace Org.Apache.REEF.Network.Group.Task.Impl
 {
@@ -28,6 +30,8 @@ namespace Org.Apache.REEF.Network.Group.Task.Impl
     [NotThreadSafe]
     internal sealed class ChildNodeContainer<T> : IEnumerable<NodeStruct<T>>
     {
+        private static readonly Logger Logger = Logger.GetLogger(typeof(ChildNodeContainer<T>));
+
         private readonly Dictionary<string, NodeStruct<T>> _childIdToNodeMap = 
             new Dictionary<string, NodeStruct<T>>();
 
@@ -68,9 +72,11 @@ namespace Org.Apache.REEF.Network.Group.Task.Impl
         /// <summary>
         /// Gets the data from all children nodes synchronously.
         /// </summary>
-        public IEnumerable<T> GetDataFromAllChildren()
+        /// <param name="cancellationSource">The cancellation token for GetData operation</param>
+        public IEnumerable<T> GetDataFromAllChildren(CancellationTokenSource cancellationSource = null)
         {
-            return this.SelectMany(child => child.GetData());
+            var r = this.SelectMany(child => child.GetData(cancellationSource));
+            return r;
         }
 
         /// <summary>

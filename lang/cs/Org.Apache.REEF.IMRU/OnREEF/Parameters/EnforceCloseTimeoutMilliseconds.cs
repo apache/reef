@@ -23,8 +23,11 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Parameters
     /// When driver sends close event to a task, it would expect the task to close gracefully. 
     /// After specified time out, if the task is still not closed, the close handler will throw exception, 
     /// enforce the task to close after waiting for this much time (in milliseconds). 
+    /// Reference the value set in ConnectionRetryCount, SleepTimeInMs used in the RetryPolicy in RemoteConnectionRetryHandler
+    /// as they control the timeout for TcpClient connection. We would like to wait until connection cannot be made
+    /// before enforce closing. 
     /// </summary>
-    [NamedParameter("Enforce the task to close after waiting for this much time (in milliseconds).", "EnforceCloseTimeout", "1000")]
+    [NamedParameter("Enforce the task to close after waiting for this much time (in milliseconds).", "EnforceCloseTimeout", "40000")]
     internal sealed class EnforceCloseTimeoutMilliseconds : Name<int>
     {
     }

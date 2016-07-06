@@ -15,6 +15,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
+using System.Threading;
+
 namespace Org.Apache.REEF.Network.Group.Operators
 {
     /// <summary>
@@ -26,13 +28,14 @@ namespace Org.Apache.REEF.Network.Group.Operators
         /// <summary>
         /// Returns the class used to reduce incoming messages sent by ReduceSenders.
         /// </summary>
-        IReduceFunction<T> ReduceFunction { get; } 
+        IReduceFunction<T> ReduceFunction { get; }
 
         /// <summary>
         /// Receives messages sent by all ReduceSenders and aggregates them
         /// using the specified IReduceFunction.
         /// </summary>
+        /// <param name="cancellationSource">The cancellation token for the data reading operation cancellation</param>
         /// <returns>The single aggregated data</returns>
-        T Reduce();
+        T Reduce(CancellationTokenSource cancellationSource = null);
     }
 }

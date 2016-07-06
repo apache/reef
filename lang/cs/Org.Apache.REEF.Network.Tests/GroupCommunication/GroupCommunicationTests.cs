@@ -380,6 +380,45 @@ namespace Org.Apache.REEF.Network.Tests.GroupCommunication
             Assert.Equal(value, receiver2.Receive());
         }
 
+        /// <summary>
+        /// Test IBroadcastReceiver.Receive() with and without cancellation token
+        /// </summary>
+        [Fact]
+        public void TestBroadcastOperatorWithCancelation()
+        {
+            string groupName = "group1";
+            string operatorName = "broadcast";
+            string masterTaskId = "task0";
+            string driverId = "Driver Id";
+            int numTasks = 10;
+            int value = 1337;
+            int fanOut = 3;
+
+            IGroupCommDriver groupCommDriver = GetInstanceOfGroupCommDriver(driverId, masterTaskId, groupName, fanOut, numTasks);
+
+            var commGroup = groupCommDriver.DefaultGroup
+                .AddBroadcast(operatorName, masterTaskId)
+                .Build();
+
+            List<ICommunicationGroupClient> commGroups = CommGroupClients(groupName, numTasks, groupCommDriver, commGroup, GetDefaultCodecConfig());
+
+            IBroadcastSender<int> sender = commGroups[0].GetBroadcastSender<int>(operatorName);
+            IBroadcastReceiver<int> receiver1 = commGroups[1].GetBroadcastReceiver<int>(operatorName);
+            IBroadcastReceiver<int> receiver2 = commGroups[2].GetBroadcastReceiver<int>(operatorName);
+
+            Assert.NotNull(sender);
+            Assert.NotNull(receiver1);
+            Assert.NotNull(receiver2);
+
+            sender.Send(value);
+            Assert.Equal(value, receiver1.Receive());
+
+            var token = new CancellationTokenSource();
+            token.Cancel();
+            Action receive = () => receiver2.Receive(token);
+            Assert.Throws<OperationCanceledException>(receive);
+        }
+
         [Fact]
         public void TestBroadcastOperatorWithDefaultCodec()
         {
@@ -611,6 +650,51 @@ namespace Org.Apache.REEF.Network.Tests.GroupCommunication
             Assert.Equal(2, receiver2.Receive().Single());
             Assert.Equal(3, receiver3.Receive().Single());
             Assert.Equal(4, receiver4.Receive().Single());
+        }
+
+        /// <summary>
+        /// Test IScatterRecever.Receive() with and without Cancellation token.
+        /// </summary>
+        [Fact]
+        public void TestScatterOperatorWithCancellation()
+        {
+            string groupName = "group1";
+            string operatorName = "scatter";
+            string masterTaskId = "task0";
+            string driverId = "Driver Id";
+            int numTasks = 5;
+            int fanOut = 2;
+
+            IGroupCommDriver groupCommDriver = GetInstanceOfGroupCommDriver(driverId, masterTaskId, groupName, fanOut, numTasks);
+
+            var commGroup = groupCommDriver.DefaultGroup
+                .AddScatter(operatorName, masterTaskId)
+                .Build();
+
+            List<ICommunicationGroupClient> commGroups = CommGroupClients(groupName, numTasks, groupCommDriver, commGroup, GetDefaultCodecConfig());
+
+            IScatterSender<int> sender = commGroups[0].GetScatterSender<int>(operatorName);
+            IScatterReceiver<int> receiver1 = commGroups[1].GetScatterReceiver<int>(operatorName);
+            IScatterReceiver<int> receiver2 = commGroups[2].GetScatterReceiver<int>(operatorName);
+            IScatterReceiver<int> receiver3 = commGroups[3].GetScatterReceiver<int>(operatorName);
+            IScatterReceiver<int> receiver4 = commGroups[4].GetScatterReceiver<int>(operatorName);
+
+            Assert.NotNull(sender);
+            Assert.NotNull(receiver1);
+            Assert.NotNull(receiver2);
+            Assert.NotNull(receiver3);
+            Assert.NotNull(receiver4);
+
+            List<int> data = new List<int> { 1, 2, 3, 4 };
+            var token = new CancellationTokenSource();
+            sender.Send(data);
+            Assert.Equal(1, receiver1.Receive(token).Single());
+            Assert.Equal(2, receiver2.Receive(token).Single());
+            Assert.Equal(3, receiver3.Receive(token).Single());
+
+            token.Cancel();
+            Action receive = () => receiver4.Receive(token);
+            Assert.Throws<OperationCanceledException>(receive);
         }
 
         [Fact]

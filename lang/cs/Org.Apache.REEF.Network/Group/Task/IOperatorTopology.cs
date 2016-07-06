@@ -16,6 +16,7 @@
 // under the License.
 
 using System.Collections.Generic;
+using System.Threading;
 using Org.Apache.REEF.Network.Group.Driver.Impl;
 using Org.Apache.REEF.Network.Group.Operators;
 
@@ -79,22 +80,24 @@ namespace Org.Apache.REEF.Network.Group.Task
         /// <summary>
         /// Receive an incoming message from the parent Task.
         /// </summary>
+        /// <param name="cancellationSource">The cancellation token for the data reading operation cancellation</param>
         /// <returns>The parent Task's message</returns>
-        T ReceiveFromParent();
+        T ReceiveFromParent(CancellationTokenSource cancellationSource = null);
 
         /// <summary>
         /// Receive a list of incoming messages from the parent Task.
         /// </summary>
         /// <returns>The parent Task's list of messages</returns>
-        IList<T> ReceiveListFromParent();
+        IList<T> ReceiveListFromParent(CancellationTokenSource cancellationSource = null);
 
         /// <summary>
         /// Receives all messages from child Tasks and reduces them with the
         /// given IReduceFunction.
         /// </summary>
         /// <param name="reduceFunction">The class used to reduce messages</param>
+        /// <param name="cancellationSource">The cancellationSource to cancel the operation</param>
         /// <returns>The result of reducing messages</returns>
-        T ReceiveFromChildren(IReduceFunction<T> reduceFunction);
+        T ReceiveFromChildren(IReduceFunction<T> reduceFunction, CancellationTokenSource cancellationSource = null);
 
         /// <summary>
         /// Checks if the node has children

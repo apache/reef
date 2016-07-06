@@ -16,7 +16,7 @@
 // under the License.
 
 using System;
-using System.Text;
+using System.IO;
 using System.Threading;
 using Org.Apache.REEF.Common.Tasks;
 using Org.Apache.REEF.Common.Tasks.Events;
@@ -65,6 +65,11 @@ namespace Org.Apache.REEF.IMRU.OnREEF.IMRUTasks
         private readonly TaskCloseCoordinator _taskCloseCoordinator;
 
         /// <summary>
+        /// The cancellation token to control the group communication operation cancellation
+        /// </summary>
+        private readonly CancellationTokenSource _cancellationSource;
+
+        /// <summary>
         /// </summary>
         /// <param name="updateTask">The UpdateTask hosted in this REEF Task.</param>
         /// <param name="groupCommunicationsClient">Used to setup the communications.</param>
@@ -88,6 +93,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.IMRUTasks
             _invokeGC = invokeGC;
             _resultHandler = resultHandler;
             _taskCloseCoordinator = taskCloseCoordinator;
+            _cancellationSource = new CancellationTokenSource();
         }
 
         /// <summary>
@@ -100,43 +106,82 @@ namespace Org.Apache.REEF.IMRU.OnREEF.IMRUTasks
             var updateResult = _updateTask.Initialize();
             int iterNo = 0;
 
-            while (updateResult.HasMapInput && !_taskCloseCoordinator.ShouldCloseTask())
+            while (updateResult.HasMapInput && !_cancellationSource.IsCancellationRequested)
             {
                 iterNo++;
-
-                using (
-                    var message = new MapInputWithControlMessage<TMapInput>(updateResult.MapInput,
-                        MapControlMessage.AnotherRound))
+                try
                 {
-                    _dataAndControlMessageSender.Send(message);
+                    using (
+                        var message = new MapInputWithControlMessage<TMapInput>(updateResult.MapInput,
+                            MapControlMessage.AnotherRound))
+                    {
+                        _dataAndControlMessageSender.Send(message);
+                    }
+
+                    var input = _dataReceiver.Reduce(_cancellationSource);
+
+                    if (_invokeGC)
+                    {
+                        Logger.Log(Level.Verbose, "Calling Garbage Collector");
+                        GC.Collect();
+                        GC.WaitForPendingFinalizers();
+                    }
+
+                    updateResult = _updateTask.Update(input);
+
+                    if (updateResult.HasResult)
+                    {
+                        _resultHandler.HandleResult(updateResult.Result);
+                    }
                 }
-
-                var input = _dataReceiver.Reduce();
-
-                if (_invokeGC)
+                catch (OperationCanceledException e)
                 {
-                    Logger.Log(Level.Verbose, "Calling Garbage Collector");
-                    GC.Collect();
-                    GC.WaitForPendingFinalizers();
+                    Logger.Log(Level.Warning, "Received OperationCanceledException in UpdateTaskHost with message: {0}.", e.Message);
+                    break;
                 }
-
-                updateResult = _updateTask.Update(input);
-
-                if (updateResult.HasResult)
+                catch (IOException e)
                 {
-                    _resultHandler.HandleResult(updateResult.Result);
+                    Logger.Log(Level.Error, "Received IOException in UpdateTaskHost with message: {0}.", e.Message);
+                    if (!_cancellationSource.IsCancellationRequested)
+                    {
+                        throw new IMRUTaskGroupCommunicationException(TaskManager.TaskGroupCommunicationError);
+                    }
+                    break;
+                }
+                catch (Exception e)
+                {
+                    Logger.Log(Level.Error, "Received Exception in UpdateTaskHost with exception type {0} and stack trace {1}.", e.GetType(), e.StackTrace);
+                    throw e;
                 }
             }
 
-            if (!_taskCloseCoordinator.ShouldCloseTask())
+            if (!_cancellationSource.IsCancellationRequested)
             {
-                MapInputWithControlMessage<TMapInput> stopMessage =
-                    new MapInputWithControlMessage<TMapInput>(MapControlMessage.Stop);
-                _dataAndControlMessageSender.Send(stopMessage);
+                try
+                {
+                    MapInputWithControlMessage<TMapInput> stopMessage =
+                        new MapInputWithControlMessage<TMapInput>(MapControlMessage.Stop);
+                    _dataAndControlMessageSender.Send(stopMessage);
+                }
+                catch (OperationCanceledException e)
+                {
+                    Logger.Log(Level.Warning, "Received OperationCanceledException in UpdateTaskHost with message: {0}.", e.Message);
+                }
+                catch (IOException e)
+                {
+                    Logger.Log(Level.Error, "Received IOException in UpdateTaskHost with message: {0}.", e.Message);
+                    throw new IMRUTaskGroupCommunicationException(TaskManager.TaskGroupCommunicationError);
+                }
+                catch (Exception e)
+                {
+                    Logger.Log(Level.Error, "Received Exception in UpdateTaskHost with exception type {0} and stack trace {1}.", e.GetType(), e.StackTrace);
+                    throw e;
+                }
             }
 
             _resultHandler.Dispose();
             _taskCloseCoordinator.SignalTaskStopped();
+            Logger.Log(Level.Info, "UpdateTaskHost returned with cancellation token {0}.", _cancellationSource.IsCancellationRequested);
             return null;
         }
 
@@ -146,7 +191,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.IMRUTasks
         /// <param name="closeEvent"></param>
         public void OnNext(ICloseEvent closeEvent)
         {
-            _taskCloseCoordinator.HandleEvent(closeEvent);
+            _taskCloseCoordinator.HandleEvent(closeEvent, _cancellationSource);
         }
 
         /// <summary>

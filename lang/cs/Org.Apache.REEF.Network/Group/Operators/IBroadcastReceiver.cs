@@ -15,6 +15,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
+using System.Threading;
+
 namespace Org.Apache.REEF.Network.Group.Operators
 {
     /// <summary>
@@ -26,7 +28,8 @@ namespace Org.Apache.REEF.Network.Group.Operators
         /// <summary>
         /// Receive a message from parent BroadcastSender.
         /// </summary>
+        /// <param name="cancellationSource">The cancellation token for the data reading operation cancellation</param>
         /// <returns>The incoming message</returns>
-        T Receive();
+        T Receive(CancellationTokenSource cancellationSource = null);
     }
 }

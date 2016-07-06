@@ -252,11 +252,11 @@ namespace Org.Apache.REEF.Tests.Functional
             }
         }
 
-        internal string[] ReadLogFile(string logFileName, string subfolder = "driver", string testFolder = DefaultRuntimeFolder)
+        internal string[] ReadLogFile(string logFileName, string subfolder = "driver", string testFolder = DefaultRuntimeFolder, int retryCount = 60)
         {
             string fileName = string.Empty;
             string[] lines = null;
-            for (int i = 0; i < 60; i++)
+            for (int i = 0; i < retryCount; i++)
             {
                 try
                 {
@@ -266,12 +266,12 @@ namespace Org.Apache.REEF.Tests.Functional
                 }
                 catch (Exception e)
                 {
-                    if (i == 59)
+                    if (i == retryCount - 1)
                     {
                         // log only last exception before failure
                         Logger.Log(Level.Verbose, e.ToString());
                     }
-                    if (i < 59)
+                    if (i < retryCount - 1)
                     {
                         Thread.Sleep(SleepTime);
                     }
