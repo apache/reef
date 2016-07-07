@@ -381,7 +381,7 @@ namespace Org.Apache.REEF.Network.Tests.GroupCommunication
         }
 
         /// <summary>
-        /// Test IBroadcastReceiver.Receive() with and without cancellation token
+        /// Test IBroadcastReceiver.Receive() with cancellation token
         /// </summary>
         [Fact]
         public void TestBroadcastOperatorWithCancelation()
@@ -391,7 +391,6 @@ namespace Org.Apache.REEF.Network.Tests.GroupCommunication
             string masterTaskId = "task0";
             string driverId = "Driver Id";
             int numTasks = 10;
-            int value = 1337;
             int fanOut = 3;
 
             IGroupCommDriver groupCommDriver = GetInstanceOfGroupCommDriver(driverId, masterTaskId, groupName, fanOut, numTasks);
@@ -410,13 +409,22 @@ namespace Org.Apache.REEF.Network.Tests.GroupCommunication
             Assert.NotNull(receiver1);
             Assert.NotNull(receiver2);
 
-            sender.Send(value);
-            Assert.Equal(value, receiver1.Receive());
-
             var token = new CancellationTokenSource();
+            var taskThread1 = new Thread(() =>
+            {
+                Action receive = () => receiver1.Receive(token);
+                Assert.Throws<OperationCanceledException>(receive);
+            });
+
+            var taskThread2 = new Thread(() =>
+            {
+                Action receive = () => receiver2.Receive(token);
+                Assert.Throws<OperationCanceledException>(receive);
+            });
+
+            taskThread1.Start();
+            taskThread2.Start();
             token.Cancel();
-            Action receive = () => receiver2.Receive(token);
-            Assert.Throws<OperationCanceledException>(receive);
         }
 
         [Fact]
@@ -691,10 +699,16 @@ namespace Org.Apache.REEF.Network.Tests.GroupCommunication
             Assert.Equal(1, receiver1.Receive(token).Single());
             Assert.Equal(2, receiver2.Receive(token).Single());
             Assert.Equal(3, receiver3.Receive(token).Single());
+            Assert.Equal(4, receiver4.Receive(token).Single());
 
+            var taskThread = new Thread(() =>
+            {
+                Action receive = () => receiver1.Receive(token);
+                Assert.Throws<OperationCanceledException>(receive);
+            });
+
+            taskThread.Start();
             token.Cancel();
-            Action receive = () => receiver4.Receive(token);
-            Assert.Throws<OperationCanceledException>(receive);
         }
 
         [Fact]

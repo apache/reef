@@ -36,55 +36,36 @@ namespace Org.Apache.REEF.IMRU.OnREEF.IMRUTasks
         private static readonly Logger Logger = Logger.GetLogger(typeof(TaskCloseCoordinator));
 
         /// <summary>
-        /// Waiting time for the task to close by itself
-        /// </summary>
-        private readonly int _enforceCloseTimeoutMilliseconds;
-
-        /// <summary>
-        /// An event that will wait in close handler until it is either signaled from Call method or timeout.
+        /// An event that will wait in close handler to be signaled from Call method.
         /// </summary>
         private readonly ManualResetEventSlim _waitToCloseEvent = new ManualResetEventSlim(false);
 
         /// <summary>
-        /// Handle task close event and manage the states, wait/signal when closing the task
+        /// Handle task close event, wait/signal when closing the task
         /// </summary>
-        /// <param name="enforceCloseTimeoutMilliseconds">Timeout in milliseconds to enforce the task to close if receiving task close event</param>
         [Inject]
-        private TaskCloseCoordinator([Parameter(typeof(EnforceCloseTimeoutMilliseconds))] int enforceCloseTimeoutMilliseconds)
+        private TaskCloseCoordinator()
         {
-            _enforceCloseTimeoutMilliseconds = enforceCloseTimeoutMilliseconds;
         }
 
         /// <summary>
         /// Handle Task close event.
-        /// Cancel the CancellationToken for data reading operation
-        /// Then waiting for the signal from Call method. Either it is signaled or after _enforceCloseTimeoutMilliseconds,
-        /// If the closed event is sent from driver, checks if the _waitToCloseEvent has been signaled. If not, throw 
-        /// IMRUTaskSystemException.
+        /// Cancel the CancellationToken for data reading operation, then waiting for the signal from Call method. 
         /// </summary>
         /// <param name="closeEvent"></param>
         /// <param name="cancellationTokenSource"></param>
         internal void HandleEvent(ICloseEvent closeEvent, CancellationTokenSource cancellationTokenSource)
         {
             cancellationTokenSource.Cancel();
-            var taskSignaled = _waitToCloseEvent.Wait(TimeSpan.FromMilliseconds(_enforceCloseTimeoutMilliseconds));
+            _waitToCloseEvent.Wait();
 
             if (closeEvent.Value.IsPresent())
             {
-                var msg = Encoding.UTF8.GetString(closeEvent.Value.Value);
-                if (msg.Equals(TaskManager.CloseTaskByDriver))
-                {
-                    Logger.Log(Level.Info, "The task received close event with message: {0}. Received task signal: {1}", msg, taskSignaled);
-
-                    if (!taskSignaled)
-                    {
-                        throw new IMRUTaskSystemException(TaskManager.TaskKilledByDriver);
-                    }
-                }
+                Logger.Log(Level.Info, "The task received close event with message: {0}.", Encoding.UTF8.GetString(closeEvent.Value.Value));
             }
             else
             {
-                Logger.Log(Level.Warning, "The task received close event with no message.");
+                Logger.Log(Level.Info, "The task received close event with no message.");
             }
         }
 

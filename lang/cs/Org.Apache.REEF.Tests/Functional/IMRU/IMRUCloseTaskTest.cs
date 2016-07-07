@@ -21,7 +21,9 @@ using Org.Apache.REEF.Driver.Evaluator;
 using Org.Apache.REEF.Driver.Task;
 using Org.Apache.REEF.IMRU.OnREEF.Driver;
 using Org.Apache.REEF.IMRU.OnREEF.IMRUTasks;
+using Org.Apache.REEF.Network;
 using Org.Apache.REEF.Tang.Annotations;
+using Org.Apache.REEF.Tang.Implementations.Configuration;
 using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Tang.Util;
 using Org.Apache.REEF.Utilities;
@@ -33,7 +35,7 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
 {
     /// <summary>
     /// This is to test close event handler in IMRU tasks
-    /// The test provide IRunningTask, IFailedTask and ICOmpletedTask handlers so that to trigger close events and handle the 
+    /// The test provide IRunningTask, IFailedTask and ICompletedTask handlers so that to trigger close events and handle the 
     /// failed tasks and completed tasks
     /// </summary>
     [Collection("FunctionalTests")]
@@ -41,6 +43,7 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
     {
         private const string CompletedTaskMessage = "CompletedTaskMessage";
         private const string FailEvaluatorMessage = "FailEvaluatorMessage";
+        private const string FailTaskMessage = "FailTaskMessage";
 
         /// <summary>
         /// This test is for running in local runtime
@@ -58,10 +61,13 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
             var testFolder = DefaultRuntimeFolder + TestId;
             TestBroadCastAndReduce(false, numTasks, chunkSize, dims, iterations, mapperMemory, updateTaskMemory, testFolder);
             string[] lines = ReadLogFile(DriverStdout, "driver", testFolder, 120);
-            var failedCount = GetMessageCount(lines, FailEvaluatorMessage);
+            var failedEvaluatorCount = GetMessageCount(lines, FailEvaluatorMessage);
+            var failedTaskCount = GetMessageCount(lines, FailTaskMessage);
             var completedCount = GetMessageCount(lines, CompletedTaskMessage);
-            Assert.Equal(numTasks, completedCount + failedCount);
-            ////CleanUp(testFolder);
+            Assert.Equal(numTasks, completedCount);
+            Assert.Equal(0, failedEvaluatorCount);
+            Assert.Equal(0, failedTaskCount);
+            CleanUp(testFolder);
         }
 
         /// <summary>
@@ -82,7 +88,7 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
 
         /// <summary>
         /// This method overrides base class method and defines its own event handlers for driver. 
-        /// It uses its own RunningTaskHandler, FailedEvaluatorHandler and CompletedTaskHandler so that to simulate the test scenarios 
+        /// It uses its own RunningTaskHandler, FailedEvaluatorHandler and CompletedTaskHandler, FailedTaskHandler so that to simulate the test scenarios 
         /// and verify the test result. 
         /// Rest of the event handlers use those from IMRUDriver. In IActiveContext handler in IMRUDriver, IMRU tasks are bound for the test.
         /// </summary>
@@ -107,7 +113,7 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
                 .Set(REEF.Driver.DriverConfiguration.OnContextFailed,
                     GenericType<IMRUDriver<TMapInput, TMapOutput, TResult, TPartitionType>>.Class)
                 .Set(REEF.Driver.DriverConfiguration.OnTaskFailed,
-                    GenericType<IMRUDriver<TMapInput, TMapOutput, TResult, TPartitionType>>.Class)
+                    GenericType<TestHandlers>.Class)
                 .Set(REEF.Driver.DriverConfiguration.OnTaskRunning,
                     GenericType<TestHandlers>.Class)
                 .Set(REEF.Driver.DriverConfiguration.CustomTraceLevel, TraceLevel.Info.ToString())
@@ -115,9 +121,39 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
         }
 
         /// <summary>
+        /// Mapper function configuration. Add TcpConfiguration to the base configuration
+        /// </summary>
+        /// <returns></returns>
+        protected override IConfiguration BuildMapperFunctionConfig()
+        {
+            return Configurations.Merge(GetTcpConfiguration(), base.BuildMapperFunctionConfig());
+        }
+
+        /// <summary>
+        /// Update function configuration. Add TcpConfiguration to the base configuration.
+        /// </summary>
+        /// <returns></returns>
+        protected override IConfiguration BuildUpdateFunctionConfig()
+        {
+            return Configurations.Merge(GetTcpConfiguration(), base.BuildUpdateFunctionConfig());
+        }
+
+        /// <summary>
+        /// Override default setting for retry policy
+        /// </summary>
+        /// <returns></returns>
+        private IConfiguration GetTcpConfiguration()
+        {
+            return TcpClientConfigurationModule.ConfigurationModule
+                .Set(TcpClientConfigurationModule.MaxConnectionRetry, "5")
+                .Set(TcpClientConfigurationModule.SleepTime, "1000")
+                .Build();
+        }
+
+        /// <summary>
         /// Test handlers
         /// </summary>
-        internal sealed class TestHandlers : IObserver<IRunningTask>, IObserver<ICompletedTask>, IObserver<IFailedEvaluator>
+        internal sealed class TestHandlers : IObserver<IRunningTask>, IObserver<ICompletedTask>, IObserver<IFailedTask>, IObserver<IFailedEvaluator>
         {
             private readonly ISet<IRunningTask> _runningTasks = new HashSet<IRunningTask>();
             private readonly object _lock = new object();
@@ -142,6 +178,22 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
                         value.Dispose(ByteUtilities.StringToByteArrays(TaskManager.CloseTaskByDriver));
                         _runningTasks.Remove(value);
                     }
+                }
+            }
+
+            /// <summary>
+            /// Validate the event and dispose the context
+            /// </summary>
+            /// <param name="value"></param>
+            public void OnNext(IFailedTask value)
+            {
+                lock (_lock)
+                {
+                    Logger.Log(Level.Info, FailTaskMessage + value.Id);
+                    var failedExeption = ByteUtilities.ByteArraysToString(value.Data.Value);
+                    Assert.Contains(TaskManager.TaskKilledByDriver, failedExeption);
+                    CloseRunningTasks();
+                    value.GetActiveContext().Value.Dispose();
                 }
             }
 

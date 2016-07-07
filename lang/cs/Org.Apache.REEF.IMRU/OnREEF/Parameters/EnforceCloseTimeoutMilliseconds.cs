@@ -27,7 +27,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Parameters
     /// as they control the timeout for TcpClient connection. We would like to wait until connection cannot be made
     /// before enforce closing. 
     /// </summary>
-    [NamedParameter("Enforce the task to close after waiting for this much time (in milliseconds).", "EnforceCloseTimeout", "40000")]
+    [NamedParameter("Enforce the task to close after waiting for this much time (in milliseconds).", "EnforceCloseTimeout", "1000")]
     internal sealed class EnforceCloseTimeoutMilliseconds : Name<int>
     {
     }

@@ -30,6 +30,7 @@ using Org.Apache.REEF.Network.Group.Task;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Utilities.Attributes;
 using Org.Apache.REEF.Utilities.Logging;
+using Org.Apache.REEF.Wake.Remote.Impl;
 
 namespace Org.Apache.REEF.IMRU.OnREEF.IMRUTasks
 {
@@ -136,10 +137,13 @@ namespace Org.Apache.REEF.IMRU.OnREEF.IMRUTasks
                     }
                     break;
                 }
-                catch (Exception e)
+                catch (TcpClientConnectionException e)
                 {
-                    Logger.Log(Level.Error, "Received Exception in MapTaskHos with exception type {0} and stack trace {1}.", e.GetType(), e.StackTrace);
-                    throw e;
+                    Logger.Log(Level.Error, "Received TcpClientConnectionException in MapTaskHost with message: {0}.", e.Message);
+                    if (!_cancellationSource.IsCancellationRequested)
+                    {
+                        throw new IMRUTaskGroupCommunicationException(TaskManager.TaskGroupCommunicationError);
+                    }
                 }
             }
 

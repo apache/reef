@@ -715,8 +715,14 @@ namespace Org.Apache.REEF.Network.Tests.GroupCommunication
             Action send = () => sumSender1.Send(sum1, token);
             Assert.Throws<OperationCanceledException>(send);
 
-            Action reduce = () => sumReducer.Reduce(token);
-            Assert.Throws<OperationCanceledException>(reduce);
+            var taskThread = new Thread(() =>
+            {
+                Action reduce = () => sumReducer.Reduce(token);
+                Assert.Throws<OperationCanceledException>(reduce);
+            });
+
+            taskThread.Start();
+            token.Cancel();
         }
 
         private IConfiguration GetDefaultCodecConfig()

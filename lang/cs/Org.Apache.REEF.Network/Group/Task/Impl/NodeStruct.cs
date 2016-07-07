@@ -71,24 +71,16 @@ namespace Org.Apache.REEF.Network.Group.Task.Impl
         /// <returns>The first available message.</returns>
         internal T[] GetData(CancellationTokenSource cancellationSource = null)
         {
-            try
+            if (cancellationSource == null || !cancellationSource.IsCancellationRequested)
             {
-                if (cancellationSource == null || !cancellationSource.IsCancellationRequested)
-                {
-                    var r = cancellationSource == null
-                        ? _messageQueue.Take().Data
-                        : _messageQueue.Take(cancellationSource.Token).Data;
-                    return r;
-                }
-                else
-                {
-                    throw new OperationCanceledException("GetData operation is canceled");
-                }
+                var r = cancellationSource == null
+                    ? _messageQueue.Take().Data
+                    : _messageQueue.Take(cancellationSource.Token).Data;
+                return r;
             }
-            catch (OperationCanceledException e)
+            else
             {
-                Logger.Log(Level.Warning, "Received OperationCanceledException in NodeStruct.GetData() with message {0}.", e.Message);
-                throw e;
+                throw new OperationCanceledException("GetData operation is canceled");
             }
         }
 
