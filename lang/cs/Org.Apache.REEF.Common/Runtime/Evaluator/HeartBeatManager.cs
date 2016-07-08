@@ -287,9 +287,18 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator
                 
                 if (_evaluatorSettings.OperationState == EvaluatorOperationState.OPERATIONAL && EvaluatorRuntime.State == State.RUNNING)
                 {
-                    EvaluatorHeartbeatProto evaluatorHeartbeatProto = GetEvaluatorHeartbeatProto();
-                    LOGGER.Log(Level.Verbose, string.Format(CultureInfo.InvariantCulture, "Triggered a heartbeat: {0}. {1}Node Health: {2}", evaluatorHeartbeatProto, Environment.NewLine, MachineStatus.ToString()));
-                    Send(evaluatorHeartbeatProto);
+                    try
+                    {
+                        EvaluatorHeartbeatProto evaluatorHeartbeatProto = GetEvaluatorHeartbeatProto();
+                        LOGGER.Log(Level.Verbose,
+                            string.Format(CultureInfo.InvariantCulture, "Triggered a heartbeat: {0}. {1}Node Health: {2}", evaluatorHeartbeatProto, Environment.NewLine, MachineStatus));
+                        Send(evaluatorHeartbeatProto);
+                    }
+                    catch (Exception e)
+                    {
+                        Utilities.Diagnostics.Exceptions.Caught(e, Level.Error, LOGGER);
+                        EvaluatorRuntime.OnException(e);
+                    }
                 }
                 else
                 {
