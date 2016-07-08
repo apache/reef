@@ -36,6 +36,7 @@ namespace Org.Apache.REEF.Network.Group.Operators
         /// </summary>
         /// <param name="cancellationSource">The cancellation token for the data reading operation cancellation</param>
         /// <returns>The single aggregated data</returns>
+        //// TODO : REEF-1489 to remove null
         T Reduce(CancellationTokenSource cancellationSource = null);
     }
 }

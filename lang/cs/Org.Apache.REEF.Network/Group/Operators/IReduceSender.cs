@@ -30,6 +30,7 @@ namespace Org.Apache.REEF.Network.Group.Operators
         /// </summary>
         /// <param name="data">The data to send</param>
         /// <param name="cancellationSource">The cancellation token for the data reading operation cancellation</param>
+        //// TODO : REEF-1489 to remove null
         void Send(T data, CancellationTokenSource cancellationSource = null);
     }
 }

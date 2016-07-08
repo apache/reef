@@ -31,6 +31,7 @@ namespace Org.Apache.REEF.Network.Group.Operators
         /// Receive a sublist of messages sent from the IScatterSender.
         /// </summary>
         /// <returns>The sublist of messages</returns>
+        //// TODO : REEF-1489 to remove null
         List<T> Receive(CancellationTokenSource cancellationSource = null);
     }
 }

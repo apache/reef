@@ -82,12 +82,14 @@ namespace Org.Apache.REEF.Network.Group.Task
         /// </summary>
         /// <param name="cancellationSource">The cancellation token for the data reading operation cancellation</param>
         /// <returns>The parent Task's message</returns>
+        //// TODO : REEF-1489 to remove null
         T ReceiveFromParent(CancellationTokenSource cancellationSource = null);
 
         /// <summary>
         /// Receive a list of incoming messages from the parent Task.
         /// </summary>
         /// <returns>The parent Task's list of messages</returns>
+        //// TODO : REEF-1489 to remove null
         IList<T> ReceiveListFromParent(CancellationTokenSource cancellationSource = null);
 
         /// <summary>
@@ -97,6 +99,7 @@ namespace Org.Apache.REEF.Network.Group.Task
         /// <param name="reduceFunction">The class used to reduce messages</param>
         /// <param name="cancellationSource">The cancellationSource to cancel the operation</param>
         /// <returns>The result of reducing messages</returns>
+        //// TODO : REEF-1489 to remove null
         T ReceiveFromChildren(IReduceFunction<T> reduceFunction, CancellationTokenSource cancellationSource = null);
 
         /// <summary>
