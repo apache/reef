@@ -64,7 +64,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         IObserver<IFailedContext>,
         IObserver<IFailedTask>,
         IObserver<IRunningTask>,
-        IObserver<int>
+        IObserver<IEnumerable<IActiveContext>>
     {
         private static readonly Logger Logger =
             Logger.GetLogger(typeof(IMRUDriver<TMapInput, TMapOutput, TResult, TPartitionType>));
@@ -272,14 +272,14 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         /// It changes the system state then calls SubmitTasks().
         /// </summary>
         /// <param name="value"></param>
-        public void OnNext(int value)
+        public void OnNext(IEnumerable<IActiveContext> value)
         {
             Logger.Log(Level.Info, "Received event from ActiveContextManager with NumberOfActiveContexts:" + value);
             lock (_lock)
             {
                 // When the event AllContextsAreReady happens, change the system state from WaitingForEvaluator to SubmittingTasks
                 _systemState.MoveNext(SystemStateEvent.AllContextsAreReady);
-                SubmitTasks();
+                SubmitTasks(value);
             }
         }
 
@@ -292,7 +292,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         /// and merges it with the task configuration.
         /// When all the tasks are added, calls TaskManager to SubmitTasks().
         /// </summary>
-        private void SubmitTasks()
+        private void SubmitTasks(IEnumerable<IActiveContext> activeContexts)
         {
             Logger.Log(Level.Info, "SubmitTasks with system state :" + _systemState.CurrentState);
             if (!_isFirstTry)
@@ -305,7 +305,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
             _perMapperConfigurationStack = ConstructPerMapperConfigStack(_totalMappers);
 
             var taskIdAndContextMapping = new Dictionary<string, IActiveContext>();
-            foreach (var activeContext in _contextManager.ActiveContexts)
+            foreach (var activeContext in activeContexts)
             {
                 var taskId = _evaluatorManager.IsMasterEvaluatorId(activeContext.EvaluatorId) ?
                     _groupCommDriver.MasterTaskId :
@@ -680,7 +680,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
                     Logger.Log(Level.Info, "There is no failed Evaluator in this recovery but failed tasks.");
                     if (_contextManager.AreAllContextsReceived)
                     {
-                        OnNext(_contextManager.NumberOfActiveContexts);
+                        OnNext(_contextManager.ActiveContexts);
                     }
                     else
                     {
