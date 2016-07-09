@@ -43,6 +43,12 @@ under the License.
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Metrics\DefaultMetricSourceTests.cs" />
+    <Compile Include="Metrics\ImmutableMetricTest.cs" />
+    <Compile Include="Metrics\MetricTestUtils.cs" />
+    <Compile Include="Metrics\MutableMetricTest.cs" />
+    <Compile Include="Metrics\SnapshotRequestTest.cs" />
+    <Compile Include="Metrics\TestMetricsTag.cs" />
     <Compile Include="TestHttpSerialization.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
@@ -54,6 +60,10 @@ under the License.
     <ProjectReference Include="$(SolutionDir)\Org.Apache.REEF.Utilities\Org.Apache.REEF.Utilities.csproj">
       <Project>{79e7f89a-1dfb-45e1-8d43-d71a954aeb98}</Project>
       <Name>Org.Apache.REEF.Utilities</Name>
+    </ProjectReference>
+    <ProjectReference Include="$(SolutionDir)\Org.Apache.REEF.Tang\Org.Apache.REEF.Tang.csproj">
+      <Project>{97dbb573-3994-417a-9f69-ffa25f00d2a6}</Project>
+      <Name>Org.Apache.REEF.Tang</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
