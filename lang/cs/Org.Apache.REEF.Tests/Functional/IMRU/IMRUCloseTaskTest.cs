@@ -20,7 +20,6 @@ using System.Collections.Generic;
 using Org.Apache.REEF.Driver.Evaluator;
 using Org.Apache.REEF.Driver.Task;
 using Org.Apache.REEF.IMRU.OnREEF.Driver;
-using Org.Apache.REEF.IMRU.OnREEF.IMRUTasks;
 using Org.Apache.REEF.Network;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Tang.Implementations.Configuration;
@@ -48,6 +47,9 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
         /// <summary>
         /// This test is for running in local runtime
         /// It sends close event for all the running tasks.
+        /// In the task close handler, the cancellation token will be set, resulting the task
+        /// returned from the Call() method. 
+        /// Expect all the 4 tasks are completed. No Failed task and no failed Evaluator. 
         /// </summary>
         [Fact]
         public void TestTaskCloseOnLocalRuntime()
@@ -61,12 +63,8 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
             var testFolder = DefaultRuntimeFolder + TestId;
             TestBroadCastAndReduce(false, numTasks, chunkSize, dims, iterations, mapperMemory, updateTaskMemory, testFolder);
             string[] lines = ReadLogFile(DriverStdout, "driver", testFolder, 120);
-            var failedEvaluatorCount = GetMessageCount(lines, FailEvaluatorMessage);
-            var failedTaskCount = GetMessageCount(lines, FailTaskMessage);
             var completedCount = GetMessageCount(lines, CompletedTaskMessage);
             Assert.Equal(numTasks, completedCount);
-            Assert.Equal(0, failedEvaluatorCount);
-            Assert.Equal(0, failedTaskCount);
             CleanUp(testFolder);
         }
 
@@ -182,54 +180,26 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
             }
 
             /// <summary>
-            /// Validate the event and dispose the context
+            /// No Failed Evaluator is expected
             /// </summary>
             /// <param name="value"></param>
             public void OnNext(IFailedTask value)
             {
-                lock (_lock)
-                {
-                    Logger.Log(Level.Info, FailTaskMessage + value.Id);
-                    var failedExeption = ByteUtilities.ByteArraysToString(value.Data.Value);
-                    Assert.Contains(TaskManager.TaskKilledByDriver, failedExeption);
-                    CloseRunningTasks();
-                    value.GetActiveContext().Value.Dispose();
-                }
+                throw new Exception(FailTaskMessage);
             }
 
             /// <summary>
-            /// If the task cannot be returned properly, it will fail the Evaluator.
-            /// Then close rest of the RunningTasks.
+            /// No Failed Task is expected
             /// </summary>
             /// <param name="value"></param>
             public void OnNext(IFailedEvaluator value)
             {
-                lock (_lock)
-                {
-                    Logger.Log(Level.Info, FailEvaluatorMessage + value.Id);
-                    if (value.FailedTask.IsPresent())
-                    {
-                        Logger.Log(Level.Info, "failed Task in failed Evaluator: " + value.FailedTask.Value.Id);
-                    }
-
-                    var ex = value.EvaluatorException.InnerException;
-                    if (ex != null)
-                    {
-                        Assert.Equal(typeof(IMRUTaskSystemException), ex.GetType());
-                        Assert.Equal(TaskManager.TaskKilledByDriver, ex.Message);
-                        Logger.Log(Level.Info,
-                            "EvaluatorException in failed Evaluator {0}, with message {1}.",
-                            ex.GetType(),
-                            ex.Message);
-                    }
-                    CloseRunningTasks();
-                }
+                throw new Exception(FailEvaluatorMessage);
             }
 
             /// <summary>
             /// Log the task id
-            /// Close the running tasks if any
-            /// Then dispose the context
+            /// Close the rest of the running tasks, then dispose the context
             /// </summary>
             public void OnNext(ICompletedTask value)
             {

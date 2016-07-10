@@ -16,6 +16,7 @@
 // under the License.
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading;
@@ -29,7 +30,6 @@ using Org.Apache.REEF.Driver.Evaluator;
 using Org.Apache.REEF.Driver.Task;
 using Org.Apache.REEF.IMRU.OnREEF.Driver;
 using Org.Apache.REEF.IMRU.OnREEF.IMRUTasks;
-using Org.Apache.REEF.IMRU.OnREEF.Parameters;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Tang.Formats;
 using Org.Apache.REEF.Tang.Implementations.Configuration;
@@ -55,6 +55,7 @@ namespace Org.Apache.REEF.Tests.Functional.Bridge
         private const string CompletedValidationMessage = "CompletedValidationmessage";
         private const string FailToCloseTaskMessage = "FailToCloseTaskMessage";
         private const string BreakTaskMessage = "BreakTaskMessage";
+        private const string CancelTaskMessage = "CancelTaskMessage";
         private const string EnforceToCloseMessage = "EnforceToCloseMessage";
 
         /// <summary>
@@ -74,35 +75,18 @@ namespace Org.Apache.REEF.Tests.Functional.Bridge
         }
 
         /// <summary>
-        /// This test is to close a running task and enforce it to break and return after the current iteration
+        /// This test is to close a running task and with CalcellationToken
         /// </summary>
         [Fact]
-        public void TestBreakTaskOnLocalRuntime()
+        public void TestCancelTaskWithTaskCloseCoordinatorOnLocalRuntime()
         {
             string testFolder = DefaultRuntimeFolder + Guid.NewGuid().ToString("N").Substring(0, 4);
-            TestRun(DriverConfigurations(DisposeMessageFromDriver, GetTaskConfigurationForBreakTask()), typeof(CloseTaskTestDriver), 1, "TestBreakTask", "local", testFolder);
+            TestRun(DriverConfigurations(DisposeMessageFromDriver, GetTaskConfigurationForCancellationTask()), typeof(CloseTaskTestDriver), 1, "TestBreakTask", "local", testFolder);
             ValidateSuccessForLocalRuntime(1, testFolder: testFolder);
             ValidateMessageSuccessfullyLoggedForDriver(CompletedValidationMessage, testFolder, 1);
             var messages = new List<string>();
             messages.Add(DisposeMessageFromDriver);
-            messages.Add(BreakTaskMessage);
-            ValidateMessageSuccessfullyLogged(messages, "Node-*", EvaluatorStdout, testFolder, -1);
-            CleanUp(testFolder);
-        }
-
-        /// <summary>
-        /// This test is to close a running task and enforce it to break and return after the current iteration
-        /// </summary>
-        [Fact]
-        public void TestEnforceCloseTaskOnLocalRuntime()
-        {
-            string testFolder = DefaultRuntimeFolder + Guid.NewGuid().ToString("N").Substring(0, 4);
-            TestRun(DriverConfigurations(DisposeMessageFromDriver, GetTaskConfigurationForEnforceToCloseTask()), typeof(CloseTaskTestDriver), 1, "TestEnforceCloseTask", "local", testFolder);
-            ValidateSuccessForLocalRuntime(0, 0, 1, testFolder);
-            ValidateMessageSuccessfullyLoggedForDriver(CompletedValidationMessage, testFolder, 0);
-            var messages = new List<string>();
-            messages.Add(DisposeMessageFromDriver);
-            messages.Add(EnforceToCloseMessage);
+            messages.Add(CancelTaskMessage);
             ValidateMessageSuccessfullyLogged(messages, "Node-*", EvaluatorStdout, testFolder, -1);
             CleanUp(testFolder);
         }
@@ -149,26 +133,12 @@ namespace Org.Apache.REEF.Tests.Functional.Bridge
                 .Build();
         }
 
-        private IConfiguration GetTaskConfigurationForBreakTask()
+        private IConfiguration GetTaskConfigurationForCancellationTask()
         {
             return TaskConfiguration.ConfigurationModule
                 .Set(TaskConfiguration.Identifier, "TaskID")
-                .Set(TaskConfiguration.Task, GenericType<TestCloseTask.CloseByBreakAndEnforceToStopTask>.Class)
-                .Set(TaskConfiguration.OnClose, GenericType<TestCloseTask.CloseByBreakAndEnforceToStopTask>.Class)
-                .Build();
-        }
-        private IConfiguration GetTaskConfigurationForEnforceToCloseTask()
-        {
-            var taskConfig = TaskConfiguration.ConfigurationModule
-                .Set(TaskConfiguration.Identifier, "TaskID-EnforceToClose")
-                .Set(TaskConfiguration.Task, GenericType<TestCloseTask.CloseByBreakAndEnforceToStopTask>.Class)
-                .Set(TaskConfiguration.OnClose, GenericType<TestCloseTask.CloseByBreakAndEnforceToStopTask>.Class)
-                .Build();
-
-            return TangFactory.GetTang()
-                .NewConfigurationBuilder(taskConfig)
-                .BindIntNamedParam<EnforceCloseTimeoutMilliseconds>("1000")
-                .BindNamedParameter<EnforceClose, bool>(GenericType<EnforceClose>.Class, "true")
+                .Set(TaskConfiguration.Task, GenericType<TestCloseTask.CloseByCancellationTask>.Class)
+                .Set(TaskConfiguration.OnClose, GenericType<TestCloseTask.CloseByCancellationTask>.Class)
                 .Build();
         }
 
@@ -321,7 +291,7 @@ namespace Org.Apache.REEF.Tests.Functional.Bridge
             private readonly CountdownEvent _suspendSignal = new CountdownEvent(1);
 
             [Inject]
-            private CloseByReturnTestTask([Parameter(typeof(EnforceCloseTimeoutMilliseconds))] int enforceCloseTimeout)
+            private CloseByReturnTestTask()
             {
             }
 
@@ -364,108 +334,69 @@ namespace Org.Apache.REEF.Tests.Functional.Bridge
             }
         }
 
-        /// <summary>
-        /// This is a testing task. It serves for two test cases.
-        /// In the first case, EnforceClose is false (default). When the task receives the close event, it signals the Call method
-        /// to let it continue the iteration. As _shouldCloseTask is set to 1, the Call() will return after
-        /// completing the current iteration.
-        /// In the second case, EnforceClose is set to true. When the task receives the close event, it sets
-        /// _shouldCloseTask to 1. As the task is hung in this scenario, Call() would never return.
-        ///  After waiting for _enforceCloseTimeoutMilliseconds, the close handler throws an exception, enforcing the task to stop.
-        /// </summary>
-        private sealed class CloseByBreakAndEnforceToStopTask : ITask, IObserver<ICloseEvent>
+        private sealed class CloseByCancellationTask : ITask, IObserver<ICloseEvent>
         {
-            private long _shouldCloseTask = 0;
-            private long _isTaskStopped = 0;
-            private readonly bool _enforceClose;
-            private readonly int _enforceCloseTimeoutMilliseconds;
+            /// <summary>
+            /// Task close Coordinator to handle the work when receiving task close event
+            /// </summary>
+            private readonly TaskCloseCoordinator _taskCloseCoordinator;
 
-            private readonly CountdownEvent _suspendSignal1 = new CountdownEvent(1);
-            private readonly CountdownEvent _suspendSignal2 = new CountdownEvent(1);
-            private readonly ManualResetEventSlim _waitToCloseEvent = new ManualResetEventSlim(false);
+            /// <summary>
+            /// The cancellation token to control the group communication operation cancellation
+            /// </summary>
+            private readonly CancellationTokenSource _cancellationSource;
+
+            /// <summary>
+            /// A blocking collection to simulate a blocking data reading
+            /// </summary>
+            private readonly BlockingCollection<int> _messageQueue;
 
             [Inject]
-            private CloseByBreakAndEnforceToStopTask(
-                [Parameter(typeof(EnforceCloseTimeoutMilliseconds))] int enforceCloseTimeoutMilliseconds,
-                [Parameter(typeof(EnforceClose))] bool enforceClose)
+            private CloseByCancellationTask(TaskCloseCoordinator taskCloseCoordinator)
             {
-                _enforceClose = enforceClose;
-                _enforceCloseTimeoutMilliseconds = enforceCloseTimeoutMilliseconds;
+                _taskCloseCoordinator = taskCloseCoordinator;
+                _cancellationSource = new CancellationTokenSource();
+                _messageQueue = new BlockingCollection<int>();
             }
 
+            /// <summary>
+            /// Blocking the call until it is canceled, then signal the TaskCloseCoordinator
+            /// </summary>
+            /// <param name="memento"></param>
+            /// <returns></returns>
             public byte[] Call(byte[] memento)
             {
-                int iterate = 1;
-
-                while (Interlocked.Read(ref _shouldCloseTask) == 0 && iterate < 100)
+                try
                 {
-                    iterate++;
-                    if (_enforceClose)
-                    {
-                        _suspendSignal1.Wait();
-                    }
-                    else
-                    {
-                        _suspendSignal2.Wait();
-                    }
+                    _messageQueue.Take(_cancellationSource.Token);
                 }
-
-                Interlocked.Exchange(ref _isTaskStopped, 1);
-
-                if (Interlocked.Read(ref _shouldCloseTask) == 1)
+                catch (OperationCanceledException)
                 {
-                    Logger.Log(Level.Info, BreakTaskMessage);
-                    _waitToCloseEvent.Set();
+                    Logger.Log(Level.Info, CancelTaskMessage);
                 }
-
+                _taskCloseCoordinator.SignalTaskStopped();
                 return null;
             }
 
             public void Dispose()
             {
-                Logger.Log(Level.Info, "Task is disposed.");
             }
 
             /// <summary>
-            /// When the close event is received, it sets _shouldCloseTask to 1.
-            /// If _enforceClose is false, _suspendSignal2 is signaled to let the task to continue to run. This is to simulate that the
-            /// task is running properly and will break after completing the current iteration. It will set the _waitToCloseEvent
-            /// to let the flow in the close event handler to continue.
-            /// If _enforceClose is true,  _suspendSignal1 will be not signaled, this is to simulate that the task is hung.
-            /// After waiting for specified time, the close handler will throw exception to enforce the task to stop.
+            /// Task close handler. Call TaskCloseCoordinator to handle the event.
             /// </summary>
             /// <param name="closeEvent"></param>
             public void OnNext(ICloseEvent closeEvent)
             {
-                if (closeEvent.Value.IsPresent() && Encoding.UTF8.GetString(closeEvent.Value.Value).Equals(DisposeMessageFromDriver))
-                {
-                    Logger.Log(Level.Info, "Closed event received in task:" + Encoding.UTF8.GetString(closeEvent.Value.Value));
-                    Interlocked.Exchange(ref _shouldCloseTask, 1);
-                    if (!_enforceClose)
-                    {
-                        _suspendSignal2.Signal();
-                    }
-
-                    _waitToCloseEvent.Wait(TimeSpan.FromMilliseconds(_enforceCloseTimeoutMilliseconds));
-
-                    if (Interlocked.Read(ref _isTaskStopped) == 0)
-                    {
-                        Logger.Log(Level.Info, EnforceToCloseMessage);
-                        throw new IMRUTaskSystemException(TaskManager.TaskKilledByDriver);
-                    }
-                }
-                else
-                {
-                    throw new Exception("Expected close event message is not received.");
-                }
+                _taskCloseCoordinator.HandleEvent(closeEvent, _cancellationSource);
             }
 
-            public void OnCompleted()
+            public void OnError(Exception error)
             {
                 throw new NotImplementedException();
             }
 
-            public void OnError(Exception error)
+            public void OnCompleted()
             {
                 throw new NotImplementedException();
             }

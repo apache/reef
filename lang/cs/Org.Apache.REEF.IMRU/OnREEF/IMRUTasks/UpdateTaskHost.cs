@@ -106,12 +106,12 @@ namespace Org.Apache.REEF.IMRU.OnREEF.IMRUTasks
         {
             var updateResult = _updateTask.Initialize();
             int iterNo = 0;
-
-            while (updateResult.HasMapInput && !_cancellationSource.IsCancellationRequested)
+            try
             {
-                iterNo++;
-                try
+                while (updateResult.HasMapInput && !_cancellationSource.IsCancellationRequested)
                 {
+                    iterNo++;
+
                     using (
                         var message = new MapInputWithControlMessage<TMapInput>(updateResult.MapInput,
                             MapControlMessage.AnotherRound))
@@ -135,55 +135,37 @@ namespace Org.Apache.REEF.IMRU.OnREEF.IMRUTasks
                         _resultHandler.HandleResult(updateResult.Result);
                     }
                 }
-                catch (OperationCanceledException e)
-                {
-                    Logger.Log(Level.Warning, "Received OperationCanceledException in UpdateTaskHost with message: {0}.", e.Message);
-                    break;
-                }
-                catch (IOException e)
-                {
-                    Logger.Log(Level.Error, "Received IOException in UpdateTaskHost with message: {0}.", e.Message);
-                    if (!_cancellationSource.IsCancellationRequested)
-                    {
-                        throw new IMRUTaskGroupCommunicationException(TaskManager.TaskGroupCommunicationError);
-                    }
-                    break;
-                }
-                catch (TcpClientConnectionException e)
-                {
-                    Logger.Log(Level.Error, "Received TcpClientConnectionException in UpdateTaskHost with message: {0}.", e.Message);
-                    if (!_cancellationSource.IsCancellationRequested)
-                    {
-                        throw new IMRUTaskGroupCommunicationException(TaskManager.TaskGroupCommunicationError);
-                    }
-                    break;
-                }
-            }
-
-            if (!_cancellationSource.IsCancellationRequested)
-            {
-                try
+                if (!_cancellationSource.IsCancellationRequested)
                 {
                     MapInputWithControlMessage<TMapInput> stopMessage =
                         new MapInputWithControlMessage<TMapInput>(MapControlMessage.Stop);
                     _dataAndControlMessageSender.Send(stopMessage);
                 }
-                catch (OperationCanceledException e)
-                {
-                    Logger.Log(Level.Warning, "Received OperationCanceledException in UpdateTaskHost with message: {0}.", e.Message);
-                }
-                catch (IOException e)
-                {
-                    Logger.Log(Level.Error, "Received IOException in UpdateTaskHost with message: {0}.", e.Message);
-                    throw new IMRUTaskGroupCommunicationException(TaskManager.TaskGroupCommunicationError);
-                }
-                catch (TcpClientConnectionException e)
-                {
-                    Logger.Log(Level.Error, "Received TcpClientConnectionException in UpdateTaskHost with message: {0}.", e.Message);
-                    throw new IMRUTaskGroupCommunicationException(TaskManager.TaskGroupCommunicationError);
-                }                
             }
-
+            catch (OperationCanceledException e)
+            {
+                Logger.Log(Level.Warning,
+                    "Received OperationCanceledException in UpdateTaskHost with message: {0}.",
+                    e.Message);
+            }
+            catch (IOException e)
+            {
+                Logger.Log(Level.Error, "Received IOException in UpdateTaskHost with message: {0}.", e.Message);
+                if (!_cancellationSource.IsCancellationRequested)
+                {
+                    throw new IMRUTaskGroupCommunicationException(TaskManager.TaskGroupCommunicationError);
+                }
+            }
+            catch (TcpClientConnectionException e)
+            {
+                Logger.Log(Level.Error,
+                    "Received TcpClientConnectionException in UpdateTaskHost with message: {0}.",
+                    e.Message);
+                if (!_cancellationSource.IsCancellationRequested)
+                {
+                    throw new IMRUTaskGroupCommunicationException(TaskManager.TaskGroupCommunicationError);
+                }
+            }
             _resultHandler.Dispose();
             _taskCloseCoordinator.SignalTaskStopped();
             Logger.Log(Level.Info, "UpdateTaskHost returned with cancellation token {0}.", _cancellationSource.IsCancellationRequested);
