@@ -15,6 +15,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
+using Org.Apache.REEF.Common.Context.Defaults;
+using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Utilities;
 
 namespace Org.Apache.REEF.Common.Context
@@ -23,6 +25,7 @@ namespace Org.Apache.REEF.Common.Context
     ///     Implement (and bind) this interface to send messages from a context as part of a heartbeat from Evaluator to
     ///     Driver.
     /// </summary>
+    [DefaultImplementation(typeof(DefaultContextMessageSource))]
     public interface IContextMessageSource
     {
         Optional<ContextMessage> Message { get; }

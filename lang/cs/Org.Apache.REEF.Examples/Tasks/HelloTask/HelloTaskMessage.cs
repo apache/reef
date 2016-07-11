@@ -39,10 +39,6 @@ namespace Org.Apache.REEF.Examples.Tasks.HelloTask
                     ByteUtilities.StringToByteArrays("hello message generated at " + DateTime.Now.ToString(CultureInfo.InvariantCulture)));
                 return Optional<TaskMessage>.Of(defaultTaskMessage);
             }
-
-            set
-            {
-            }
         }
     }
 }

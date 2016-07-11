@@ -63,10 +63,6 @@ namespace Org.Apache.REEF.Tests.Functional.Messaging
 
                 return Optional<TaskMessage>.Of(defaultTaskMessage);
             }
-
-            set
-            {
-            }
         }
 
         public byte[] Call(byte[] memento)
