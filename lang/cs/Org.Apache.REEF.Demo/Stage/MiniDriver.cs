@@ -24,7 +24,7 @@ namespace Org.Apache.REEF.Demo.Stage
 {
     public abstract class MiniDriver
     {
-        public abstract void OnStart(IDictionary<IActiveContext, ISet<BlockInfo>> blockDistribution);
+        public abstract void OnStart(IDictionary<IActiveContext, ISet<PartitionInfo>> partitionDistribution);
 
         public virtual void OnRunningTask(IRunningTask runningTask)
         {

@@ -21,14 +21,29 @@ namespace Org.Apache.REEF.Demo.Stage
 {
     public class BlockInfo
     {
+        private readonly string _id;
+        private readonly IList<string> _evaluatorIds;
+
+        public BlockInfo(string id, IList<string> evaluatorIds)
+        {
+            _id = id;
+            _evaluatorIds = evaluatorIds;
+        }
+
         /// <summary>
         /// String identifier of this block.
         /// </summary>
-        public string Id { get; set; }
+        public string Id
+        {
+            get { return _id; }
+        }
 
         /// <summary>
         /// The ids of the evaluators this block is loaded on.
         /// </summary>
-        public IList<string> EvaluatorIds { get; set; }
+        public IList<string> EvaluatorIds
+        {
+            get { return _evaluatorIds; }
+        }
     }
 }

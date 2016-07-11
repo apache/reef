@@ -27,13 +27,13 @@ namespace Org.Apache.REEF.Demo.Driver
     public class DataSet<T> : IDataSet<T>
     {
         private readonly string _id;
-        private readonly IDictionary<IActiveContext, ISet<BlockInfo>> _blockDistribution;
+        private readonly IDictionary<IActiveContext, ISet<PartitionInfo>> _partitionDistribution;
 
         public DataSet(string id,
-                       IDictionary<IActiveContext, ISet<BlockInfo>> blockDistribution)
+                       IDictionary<IActiveContext, ISet<PartitionInfo>> partitionDistribution)
         {
             _id = id;
-            _blockDistribution = blockDistribution;
+            _partitionDistribution = partitionDistribution;
         }
 
         public string Id
@@ -49,11 +49,11 @@ namespace Org.Apache.REEF.Demo.Driver
         public IDataSet<T2> RunStage<T2>(IConfiguration stageConf)
         {
             MiniDriver miniDriver = TangFactory.GetTang().NewInjector(stageConf).GetInstance<MiniDriver>();
-            miniDriver.OnStart(_blockDistribution);
-            return null; // retrieve IDataSet somehow
+            miniDriver.OnStart(_partitionDistribution);
+            return null; // retrieve IDataSet<T2> somehow
         }
 
-        public T[] Collect()
+        public IEnumerable<T> Collect()
         {
             throw new NotImplementedException();
         }

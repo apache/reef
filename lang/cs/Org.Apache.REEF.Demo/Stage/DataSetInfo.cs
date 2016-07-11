@@ -19,14 +19,29 @@ namespace Org.Apache.REEF.Demo.Stage
 {
     public class DataSetInfo
     {
+        private readonly string _id;
+        private readonly PartitionInfo[] _partitionInfos;
+
+        public DataSetInfo(string id, PartitionInfo[] partitionInfos)
+        {
+            _id = id;
+            _partitionInfos = partitionInfos;
+        }
+
         /// <summary>
         /// String identifier of this dataset.
         /// </summary>
-        public string Id { get; set; }
+        public string Id
+        {
+            get { return _id; }
+        }
 
         /// <summary>
         /// PartitionInfos of the partitions that belong to this dataset.
         /// </summary>
-        public PartitionInfo[] PartitionIds { get; set; }
+        public PartitionInfo[] PartitionInfos
+        {
+            get { return _partitionInfos; }
+        }
     }
 }

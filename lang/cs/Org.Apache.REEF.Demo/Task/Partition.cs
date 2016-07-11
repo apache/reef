@@ -15,11 +15,13 @@
 // specific language governing permissions and limitations
 // under the License.
 
+using System.Collections.Generic;
+
 namespace Org.Apache.REEF.Demo.Task
 {
     public class Partition
     {
-        public Partition(string id, Block[] blocks)
+        public Partition(string id, IEnumerable<Block> blocks)
         {
             Id = id;
             Blocks = blocks;
@@ -27,6 +29,6 @@ namespace Org.Apache.REEF.Demo.Task
 
         public string Id { get; private set; }
 
-        public Block[] Blocks { get; private set; }
+        public IEnumerable<Block> Blocks { get; private set; }
     }
 }

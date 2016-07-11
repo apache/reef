@@ -15,18 +15,35 @@
 // specific language governing permissions and limitations
 // under the License.
 
+using System.Collections.Generic;
+
 namespace Org.Apache.REEF.Demo.Stage
 {
     public class PartitionInfo
     {
+        private readonly string _id;
+        private readonly IEnumerable<BlockInfo> _blockInfos;
+
+        public PartitionInfo(string id, IEnumerable<BlockInfo> blockInfos)
+        {
+            _id = id;
+            _blockInfos = blockInfos;
+        }
+
         /// <summary>
         /// String identifier of this partition.
         /// </summary>
-        public string Id { get; set; }
+        public string Id
+        {
+            get { return _id; }
+        }
 
         /// <summary>
         /// BlockInfos of the blocks that belong to this partition.
         /// </summary>
-        public BlockInfo[] BlockInfos { get; set; }
+        public IEnumerable<BlockInfo> BlockInfos
+        {
+            get { return _blockInfos; }
+        }
     }
 }

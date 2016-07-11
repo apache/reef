@@ -40,6 +40,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Driver\DataSet.cs" />
     <Compile Include="Examples\DataSetUri.cs" />
     <Compile Include="Examples\DemoDriver.cs" />
     <Compile Include="Driver\IDataSetMaster.cs" />
@@ -48,12 +49,13 @@
     <Compile Include="Stage\BlockInfo.cs" />
     <Compile Include="Driver\IDataSet.cs" />
     <Compile Include="Stage\DataSetInfo.cs" />
+    <Compile Include="Stage\MiniDriver.cs" />
     <Compile Include="Stage\PartitionInfo.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Task\Block.cs" />
     <Compile Include="Task\IDataSetManager.cs" />
     <Compile Include="Task\Partition.cs" />
-    <Compile Include="Examples\BlockIds.cs" />
+    <Compile Include="Examples\PartitionIds.cs" />
     <Compile Include="Examples\SampleTask.cs" />
   </ItemGroup>
   <ItemGroup>

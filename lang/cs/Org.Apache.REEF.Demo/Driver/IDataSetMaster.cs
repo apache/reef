@@ -19,6 +19,12 @@ using System;
 
 namespace Org.Apache.REEF.Demo.Driver
 {
+    /// <summary>
+    /// Driver-side manager of partition datasets.
+    /// </summary>
+    /// <remarks>
+    /// NEED A BETTER NAME. Current suggestions: IDataManager
+    /// </remarks>
     public interface IDataSetMaster
     {
         /// <summary>

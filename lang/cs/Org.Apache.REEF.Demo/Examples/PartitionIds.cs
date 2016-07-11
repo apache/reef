@@ -20,8 +20,8 @@ using Org.Apache.REEF.Tang.Annotations;
 
 namespace Org.Apache.REEF.Demo.Examples
 {
-    [NamedParameter("set of block ids to be passed to the task")]
-    public sealed class BlockIds : Name<ISet<string>>
+    [NamedParameter("set of partition ids to be passed to the task")]
+    public sealed class PartitionIds : Name<ISet<string>>
     {
     }
 }

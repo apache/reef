@@ -15,10 +15,15 @@
 // specific language governing permissions and limitations
 // under the License.
 
+using System.Collections.Generic;
 using Org.Apache.REEF.Tang.Interface;
 
 namespace Org.Apache.REEF.Demo.Driver
 {
+    /// <summary>
+    /// A driver-side representation of a partitioned dataset that is distributed across evaluators.
+    /// </summary>
+    /// <typeparam name="T">Partition type</typeparam>
     public interface IDataSet<T>
     {
         /// <summary>
@@ -49,6 +54,6 @@ namespace Org.Apache.REEF.Demo.Driver
         /// May result in OutOfMemory exception if <code>T</code> is too large.
         /// </summary>
         /// <returns></returns>
-        T[] Collect();
+        IEnumerable<T> Collect();
     }
 }

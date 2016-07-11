@@ -23,27 +23,34 @@ using Org.Apache.REEF.Tang.Annotations;
 
 namespace Org.Apache.REEF.Demo.Examples
 {
+    /// <summary>
+    /// Demonstration of how partitions and blocks can be fetched from the dataset layer.
+    /// </summary>
     public sealed class SampleTask : ITask
     {
         private readonly IDataSetManager _dataSetManager;
-        private readonly ISet<string> _blockIds;
+        private readonly ISet<string> _partitionIds;
 
         [Inject]
         private SampleTask(IDataSetManager dataSetManager,
-                           [Parameter(typeof(BlockIds))] ISet<string> blockIds)
+                           [Parameter(typeof(PartitionIds))] ISet<string> partitionIds)
         {
             _dataSetManager = dataSetManager;
-            _blockIds = blockIds;
+            _partitionIds = partitionIds;
         }
 
         public byte[] Call(byte[] memento)
         {
-            foreach (string blockId in _blockIds)
+            // This does not necessarily have to be done at the task; doing this in a context (service) may be better.
+            foreach (string partitionId in _partitionIds)
             {
-                Block block = _dataSetManager.FetchBlock(blockId);
-                // do something with the block data
-                // decoding needed
-                Console.WriteLine(block.Data);
+                Partition partition = _dataSetManager.FetchPartition(partitionId);
+                foreach (Block block in partition.Blocks)
+                {
+                    // do something with the block data
+                    // decoding needed
+                    Console.WriteLine(block.Data);
+                }
             }
 
             return null;
