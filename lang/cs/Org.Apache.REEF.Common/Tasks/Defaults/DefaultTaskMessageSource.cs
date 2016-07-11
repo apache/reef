@@ -33,14 +33,7 @@ namespace Org.Apache.REEF.Common.Tasks.Defaults
         {
             get
             {
-                TaskMessage defaultTaskMessage = TaskMessage.From(
-                    "defaultSourceId", 
-                    ByteUtilities.StringToByteArrays("default message generated at " + DateTime.Now.ToString(CultureInfo.InvariantCulture)));
-                return Optional<TaskMessage>.Of(defaultTaskMessage);
-            }
-
-            set
-            {
+                return Optional<TaskMessage>.Empty();
             }
         }
     }

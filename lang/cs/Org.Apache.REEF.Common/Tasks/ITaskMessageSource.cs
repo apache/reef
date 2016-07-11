@@ -21,9 +21,12 @@ using Org.Apache.REEF.Utilities;
 
 namespace Org.Apache.REEF.Common.Tasks
 {
+    /// <summary>
+    /// Implement (and bind) this interface to send messages from a task as part of a heartbeat from Evaluator to Driver.
+    /// </summary>
     [DefaultImplementation(typeof(DefaultTaskMessageSource))]
     public interface ITaskMessageSource
     {
-        Optional<TaskMessage> Message { get; set; }
+        Optional<TaskMessage> Message { get; }
     }
 }
