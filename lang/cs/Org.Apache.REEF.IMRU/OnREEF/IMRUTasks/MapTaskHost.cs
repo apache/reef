@@ -144,6 +144,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.IMRUTasks
                     {
                         throw new IMRUTaskGroupCommunicationException(TaskManager.TaskGroupCommunicationError);
                     }
+                    break;
                 }
             }
 

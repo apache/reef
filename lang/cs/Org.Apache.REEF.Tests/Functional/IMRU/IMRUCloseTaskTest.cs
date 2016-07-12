@@ -47,8 +47,7 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
         /// <summary>
         /// This test is for running in local runtime
         /// It sends close event for all the running tasks.
-        /// In the task close handler, the cancellation token will be set, resulting the task
-        /// returned from the Call() method. 
+        /// In the task close handler, the cancellation token will be set and as a result tasks will return from the Call() method
         /// Expect all the 4 tasks are completed. No Failed task and no failed Evaluator. 
         /// </summary>
         [Fact]
@@ -57,14 +56,15 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
             const int chunkSize = 2;
             const int dims = 50;
             const int iterations = 200;
-            const int mapperMemory = 5120;
-            const int updateTaskMemory = 5120;
+            const int mapperMemory = 512;
+            const int updateTaskMemory = 512;
             const int numTasks = 4;
             var testFolder = DefaultRuntimeFolder + TestId;
             TestBroadCastAndReduce(false, numTasks, chunkSize, dims, iterations, mapperMemory, updateTaskMemory, testFolder);
             string[] lines = ReadLogFile(DriverStdout, "driver", testFolder, 120);
             var completedCount = GetMessageCount(lines, CompletedTaskMessage);
-            Assert.Equal(numTasks, completedCount);
+            var failedCount = GetMessageCount(lines, FailTaskMessage);
+            Assert.Equal(numTasks, completedCount + failedCount);
             CleanUp(testFolder);
         }
 
@@ -78,8 +78,8 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
             const int chunkSize = 2;
             const int dims = 50;
             const int iterations = 200;
-            const int mapperMemory = 5120;
-            const int updateTaskMemory = 5120;
+            const int mapperMemory = 512;
+            const int updateTaskMemory = 512;
             const int numTasks = 4;
             TestBroadCastAndReduce(true, numTasks, chunkSize, dims, iterations, mapperMemory, updateTaskMemory);
         }
@@ -185,7 +185,12 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
             /// <param name="value"></param>
             public void OnNext(IFailedTask value)
             {
-                throw new Exception(FailTaskMessage);
+                lock (_lock)
+                {
+                    Logger.Log(Level.Info, FailTaskMessage + value.Id);
+                    CloseRunningTasks();
+                    value.GetActiveContext().Value.Dispose();
+                }
             }
 
             /// <summary>
