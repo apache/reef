@@ -153,12 +153,13 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
                 new ServiceAndContextConfigurationProvider<TMapInput, TMapOutput, TPartitionType>(dataSet);
 
             var msg =
-                string.Format(CultureInfo.InvariantCulture, "map task memory:{0}, update task memory:{1}, map task cores:{2}, update task cores:{3}, maxRetry {4}.",
+                string.Format(CultureInfo.InvariantCulture, "map task memory:{0}, update task memory:{1}, map task cores:{2}, update task cores:{3}, maxRetry {4}, allowedFailedEvaluators {5}.",
                     memoryPerMapper,
                     memoryForUpdateTask,
                     coresPerMapper,
                     coresForUpdateTask,
-                    maxRetryNumberInRecovery);
+                    maxRetryNumberInRecovery,
+                    allowedFailedEvaluators);
             Logger.Log(Level.Info, msg);
         }
 
@@ -189,7 +190,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         /// <param name="allocatedEvaluator">The allocated evaluator</param>
         public void OnNext(IAllocatedEvaluator allocatedEvaluator)
         {
-            Logger.Log(Level.Verbose, "AllocatedEvaluator EvaluatorBatchId [{0}], memory [{1}], systemState {2}.", allocatedEvaluator.EvaluatorBatchId, allocatedEvaluator.GetEvaluatorDescriptor().Memory, _systemState.CurrentState);
+            Logger.Log(Level.Info, "AllocatedEvaluator EvaluatorBatchId [{0}], memory [{1}], systemState {2}.", allocatedEvaluator.EvaluatorBatchId, allocatedEvaluator.GetEvaluatorDescriptor().Memory, _systemState.CurrentState);
             lock (_lock)
             {
                 switch (_systemState.CurrentState)
@@ -341,7 +342,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         /// <param name="runningTask"></param>
         public void OnNext(IRunningTask runningTask)
         {
-            Logger.Log(Level.Verbose, "Received IRunningTask {0} at SystemState {1} in retry # {2}.", runningTask.Id, _systemState.CurrentState, _numberOfRetriesForFaultTolerant);
+            Logger.Log(Level.Info, "Received IRunningTask {0} at SystemState {1} in retry # {2}.", runningTask.Id, _systemState.CurrentState, _numberOfRetriesForFaultTolerant);
             lock (_lock)
             {
                 switch (_systemState.CurrentState)
@@ -380,7 +381,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         /// <param name="completedTask">The link to the completed task</param>
         public void OnNext(ICompletedTask completedTask)
         {
-            Logger.Log(Level.Verbose, "Received ICompletedTask {0}, with systemState {1} in retry# {2}.", completedTask.Id, _systemState.CurrentState, _numberOfRetriesForFaultTolerant);
+            Logger.Log(Level.Info, "Received ICompletedTask {0}, with systemState {1} in retry# {2}.", completedTask.Id, _systemState.CurrentState, _numberOfRetriesForFaultTolerant);
             lock (_lock)
             {
                 switch (_systemState.CurrentState)
@@ -395,7 +396,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
                         }
                         break;
                     case SystemState.ShuttingDown:
-                        // The task might be in running state or waiting for close, set it to complete anyway to make its state final
+                        // The task might be in running state or waiting for close, record the completed task
                         _taskManager.RecordCompletedTask(completedTask);
                         TryRecovery();
                         break;
@@ -674,7 +675,12 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
             lock (_lock)
             {
                 _numberOfRetriesForFaultTolerant++;
-                Logger.Log(Level.Info, "Start recovery with _numberOfRetryForFaultTolerant:" + _numberOfRetriesForFaultTolerant);
+                var msg = string.Format(CultureInfo.InvariantCulture,
+                    "Start recovery with _numberOfRetryForFaultTolerant {0}, NumberofFailedMappers {1}.",
+                    _numberOfRetriesForFaultTolerant,
+                    _evaluatorManager.NumberofFailedMappers());
+                Logger.Log(Level.Info, msg);
+
                 _systemState.MoveNext(SystemStateEvent.Recover);
 
                 var mappersToRequest = _evaluatorManager.NumberofFailedMappers();
@@ -706,6 +712,14 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         /// <returns></returns>
         private bool IsRecoverable()
         {
+            var msg = string.Format(CultureInfo.InvariantCulture,
+                "IsRecoverable: _numberOfRetryForFaultTolerant {0}, NumberofFailedMappers {1}, NumberOfAppErrors {2}, IsMasterEvaluatorFailed{3}.",
+                _numberOfRetriesForFaultTolerant,
+                _evaluatorManager.NumberofFailedMappers(),
+                _taskManager.NumberOfAppErrors(),
+                _evaluatorManager.IsMasterEvaluatorFailed());
+            Logger.Log(Level.Info, msg);
+
             return !_evaluatorManager.ReachedMaximumNumberOfEvaluatorFailures()
                 && _taskManager.NumberOfAppErrors() == 0
                 && !_evaluatorManager.IsMasterEvaluatorFailed()

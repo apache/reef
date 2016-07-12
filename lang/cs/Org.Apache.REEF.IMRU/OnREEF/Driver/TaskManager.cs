@@ -202,7 +202,8 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         /// <summary>
         /// This method is called when receiving ICompletedTask event during task running or system shutting down.
         /// Removes the task from running tasks if it was running
-        /// Changes the task state from RunningTask to CompletedTask
+        /// Changes the task state from RunningTask to CompletedTask if the task was running
+        /// Change the task stat from TaskWaitingForClose to TaskClosedByDriver if the task was in TaskWaitingForClose state
         /// </summary>
         /// <param name="completedTask"></param>
         internal void RecordCompletedTask(ICompletedTask completedTask)
