@@ -16,6 +16,7 @@
 // under the License.
 
 using System.Collections.Generic;
+using System.Threading;
 using Org.Apache.REEF.Network.Group.Config;
 using Org.Apache.REEF.Network.Group.Task;
 using Org.Apache.REEF.Network.Group.Task.Impl;
@@ -99,15 +100,16 @@ namespace Org.Apache.REEF.Network.Group.Operators.Impl
         /// Receives messages sent by all ReduceSenders and aggregates them
         /// using the specified IReduceFunction.
         /// </summary>
+        /// <param name="cancellationSource">The cancellation token for the data reading operation cancellation</param>
         /// <returns>The single aggregated data</returns>
-        public T Reduce()
+        public T Reduce(CancellationTokenSource cancellationSource = null)
         {
             PipelineMessage<T> message;
             var messageList = new List<PipelineMessage<T>>();
 
             do
             {
-                message = _topology.ReceiveFromChildren(_pipelinedReduceFunc);
+                message = _topology.ReceiveFromChildren(_pipelinedReduceFunc, cancellationSource);
                 messageList.Add(message);
             } 
             while (!message.IsLast);

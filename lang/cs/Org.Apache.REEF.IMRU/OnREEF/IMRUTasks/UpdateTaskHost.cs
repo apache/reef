@@ -16,7 +16,7 @@
 // under the License.
 
 using System;
-using System.Text;
+using System.IO;
 using System.Threading;
 using Org.Apache.REEF.Common.Tasks;
 using Org.Apache.REEF.Common.Tasks.Events;
@@ -29,6 +29,7 @@ using Org.Apache.REEF.Network.Group.Task;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Utilities.Attributes;
 using Org.Apache.REEF.Utilities.Logging;
+using Org.Apache.REEF.Wake.Remote.Impl;
 
 namespace Org.Apache.REEF.IMRU.OnREEF.IMRUTasks
 {
@@ -65,6 +66,11 @@ namespace Org.Apache.REEF.IMRU.OnREEF.IMRUTasks
         private readonly TaskCloseCoordinator _taskCloseCoordinator;
 
         /// <summary>
+        /// The cancellation token to control the group communication operation cancellation
+        /// </summary>
+        private readonly CancellationTokenSource _cancellationSource;
+
+        /// <summary>
         /// </summary>
         /// <param name="updateTask">The UpdateTask hosted in this REEF Task.</param>
         /// <param name="groupCommunicationsClient">Used to setup the communications.</param>
@@ -88,6 +94,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.IMRUTasks
             _invokeGC = invokeGC;
             _resultHandler = resultHandler;
             _taskCloseCoordinator = taskCloseCoordinator;
+            _cancellationSource = new CancellationTokenSource();
         }
 
         /// <summary>
@@ -99,44 +106,69 @@ namespace Org.Apache.REEF.IMRU.OnREEF.IMRUTasks
         {
             var updateResult = _updateTask.Initialize();
             int iterNo = 0;
-
-            while (updateResult.HasMapInput && !_taskCloseCoordinator.ShouldCloseTask())
+            try
             {
-                iterNo++;
-
-                using (
-                    var message = new MapInputWithControlMessage<TMapInput>(updateResult.MapInput,
-                        MapControlMessage.AnotherRound))
+                while (updateResult.HasMapInput && !_cancellationSource.IsCancellationRequested)
                 {
-                    _dataAndControlMessageSender.Send(message);
+                    iterNo++;
+
+                    using (
+                        var message = new MapInputWithControlMessage<TMapInput>(updateResult.MapInput,
+                            MapControlMessage.AnotherRound))
+                    {
+                        _dataAndControlMessageSender.Send(message);
+                    }
+
+                    var input = _dataReceiver.Reduce(_cancellationSource);
+
+                    if (_invokeGC)
+                    {
+                        Logger.Log(Level.Verbose, "Calling Garbage Collector");
+                        GC.Collect();
+                        GC.WaitForPendingFinalizers();
+                    }
+
+                    updateResult = _updateTask.Update(input);
+
+                    if (updateResult.HasResult)
+                    {
+                        _resultHandler.HandleResult(updateResult.Result);
+                    }
                 }
-
-                var input = _dataReceiver.Reduce();
-
-                if (_invokeGC)
+                if (!_cancellationSource.IsCancellationRequested)
                 {
-                    Logger.Log(Level.Verbose, "Calling Garbage Collector");
-                    GC.Collect();
-                    GC.WaitForPendingFinalizers();
-                }
-
-                updateResult = _updateTask.Update(input);
-
-                if (updateResult.HasResult)
-                {
-                    _resultHandler.HandleResult(updateResult.Result);
+                    MapInputWithControlMessage<TMapInput> stopMessage =
+                        new MapInputWithControlMessage<TMapInput>(MapControlMessage.Stop);
+                    _dataAndControlMessageSender.Send(stopMessage);
                 }
             }
-
-            if (!_taskCloseCoordinator.ShouldCloseTask())
+            catch (OperationCanceledException e)
             {
-                MapInputWithControlMessage<TMapInput> stopMessage =
-                    new MapInputWithControlMessage<TMapInput>(MapControlMessage.Stop);
-                _dataAndControlMessageSender.Send(stopMessage);
+                Logger.Log(Level.Warning,
+                    "Received OperationCanceledException in UpdateTaskHost with message: {0}.",
+                    e.Message);
             }
-
+            catch (IOException e)
+            {
+                Logger.Log(Level.Error, "Received IOException in UpdateTaskHost with message: {0}.", e.Message);
+                if (!_cancellationSource.IsCancellationRequested)
+                {
+                    throw new IMRUTaskGroupCommunicationException(TaskManager.TaskGroupCommunicationError);
+                }
+            }
+            catch (TcpClientConnectionException e)
+            {
+                Logger.Log(Level.Error,
+                    "Received TcpClientConnectionException in UpdateTaskHost with message: {0}.",
+                    e.Message);
+                if (!_cancellationSource.IsCancellationRequested)
+                {
+                    throw new IMRUTaskGroupCommunicationException(TaskManager.TaskGroupCommunicationError);
+                }
+            }
             _resultHandler.Dispose();
             _taskCloseCoordinator.SignalTaskStopped();
+            Logger.Log(Level.Info, "UpdateTaskHost returned with cancellation token {0}.", _cancellationSource.IsCancellationRequested);
             return null;
         }
 
@@ -146,7 +178,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.IMRUTasks
         /// <param name="closeEvent"></param>
         public void OnNext(ICloseEvent closeEvent)
         {
-            _taskCloseCoordinator.HandleEvent(closeEvent);
+            _taskCloseCoordinator.HandleEvent(closeEvent, _cancellationSource);
         }
 
         /// <summary>

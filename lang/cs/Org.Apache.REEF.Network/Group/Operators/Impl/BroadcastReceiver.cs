@@ -16,6 +16,7 @@
 // under the License.
 
 using System.Collections.Generic;
+using System.Threading;
 using Org.Apache.REEF.Network.Group.Config;
 using Org.Apache.REEF.Network.Group.Driver.Impl;
 using Org.Apache.REEF.Network.Group.Task;
@@ -87,15 +88,16 @@ namespace Org.Apache.REEF.Network.Group.Operators.Impl
         /// <summary>
         /// Receive a message from parent BroadcastSender.
         /// </summary>
+        /// <param name="cancellationSource">The cancellation token for the data reading operation cancellation</param>
         /// <returns>The incoming message</returns>
-        public T Receive()
+        public T Receive(CancellationTokenSource cancellationSource = null)
         {
             PipelineMessage<T> message;
             var messageList = new List<PipelineMessage<T>>();
 
             do
             {
-                message = _topology.ReceiveFromParent();
+                message = _topology.ReceiveFromParent(cancellationSource);
 
                 if (_topology.HasChildren())
                 {
