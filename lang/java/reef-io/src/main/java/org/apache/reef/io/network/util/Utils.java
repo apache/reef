@@ -54,19 +54,6 @@ public final class Utils {
     return result;
   }
 
-  /**
-   * @deprecated in 0.14. Please use parseList instead.
-   */
-  @Deprecated
-  public static List<ComparableIdentifier> parseListCmp(
-      final String ids, final IdentifierFactory factory) {
-    final List<ComparableIdentifier> result = new ArrayList<>();
-    for (final String token : ids.split(DELIMITER)) {
-      result.add((ComparableIdentifier) factory.getNewInstance(token.trim()));
-    }
-    return result;
-  }
-
   public static String listToString(final List<ComparableIdentifier> ids) {
     return StringUtils.join(ids, DELIMITER);
   }

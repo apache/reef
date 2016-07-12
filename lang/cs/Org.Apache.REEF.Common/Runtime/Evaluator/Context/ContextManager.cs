@@ -20,6 +20,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Globalization;
 using System.Linq;
+using System.Runtime.ExceptionServices;
 using System.Runtime.Serialization;
 using Org.Apache.REEF.Common.Avro;
 using Org.Apache.REEF.Common.Protobuf.ReefProtocol;
@@ -127,8 +128,8 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Context
                 else if (controlMessage.remove_context != null)
                 {
                     LOGGER.Log(Level.Info,
-                            "RemoveContext with id {0}",
-                            controlMessage.remove_context.context_id);
+                        "RemoveContext with id {0}",
+                        controlMessage.remove_context.context_id);
                     RemoveContext(controlMessage.remove_context.context_id);
                 }
                 else if (controlMessage.start_task != null)
@@ -170,7 +171,7 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Context
                         if (_topContext != null)
                         {
                             context = _topContext.GetContextStack()
-                                    .FirstOrDefault(ctx => ctx.Id.Equals(contextMessageProto.context_id));
+                                .FirstOrDefault(ctx => ctx.Id.Equals(contextMessageProto.context_id));
                         }
                     }
 
@@ -202,11 +203,47 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Context
             }
             catch (ContextClientCodeException e)
             {
-                HandleContextException(e, e.ContextId, e.ParentId);
+                if (!e.ParentId.IsPresent())
+                {
+                    // Crash the Evaluator if an error occurs in the root context.
+                    throw;
+                }
+
+                HandleContextException(e, e.ContextId, e.ParentId.Value);
+            }
+            catch (ContextStartHandlerException e)
+            {
+                if (!e.ParentId.IsPresent())
+                {
+                    // Crash the Evaluator if an error occurs in the root context.
+                    ExceptionDispatchInfo.Capture(e.InnerException).Throw();
+                }
+
+                // Send back the InnerException to the Driver.
+                HandleContextException(e.InnerException, e.ContextId, e.ParentId.Value);
             }
             catch (ContextException e)
             {
-                HandleContextException(e.InnerException, e.ContextId, e.ParentId);
+                if (!e.ParentId.IsPresent())
+                {
+                    // Crash the Evaluator if an error occurs in the root context.
+                    ExceptionDispatchInfo.Capture(e.InnerException).Throw();
+                }
+                else
+                {
+                    // Remove the top context.
+                    // We do not need to do this for ContextStartHandlerException or ContextClientCodeException
+                    // since the child Context has not been spawned those Exceptions were thrown.
+                    if (_topContext == null || !_topContext.ParentContext.IsPresent())
+                    {
+                        throw new InvalidOperationException("Top context cannot be null if Parent ID is present.");
+                    }
+
+                    _topContext = _topContext.ParentContext.Value;
+                }
+
+                // Send back the InnerException to the Driver.
+                HandleContextException(e.InnerException, e.ContextId, e.ParentId.Value);
             }
         }
 
@@ -393,23 +430,20 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Context
             _heartBeatManager.OnNext(taskStatus);
         }
 
-        private void HandleContextException(Exception e, string contextId, Optional<string> parentContextId)
+        private void HandleContextException(Exception e, string contextId, string parentContextId)
         {
             lock (_heartBeatManager)
             {
                 LOGGER.Log(Level.Warning, "ContextException", e);
+
                 byte[] exception = ByteUtilities.StringToByteArrays(e.ToString());
                 var contextStatusProto = new ContextStatusProto
                 {
                     context_id = contextId,
                     context_state = ContextStatusProto.State.FAIL,
+                    parent_id = parentContextId,
                     error = exception
                 };
-
-                if (parentContextId.IsPresent())
-                {
-                    contextStatusProto.parent_id = parentContextId.Value;
-                }
 
                 LOGGER.Log(Level.Error, "Sending Heartbeat for a failed context: {0}", contextStatusProto);
                 _heartBeatManager.OnNext(contextStatusProto);

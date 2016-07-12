@@ -19,72 +19,72 @@
 
 namespace Org {
   namespace Apache {
-	  namespace REEF {
-		  namespace Driver {
-			  namespace Bridge {
-				  namespace Clr2java {
-					  ref class ManagedLog {
-					  internal:
-						  static BridgeLogger^ LOGGER = BridgeLogger::GetLogger("<C++>");
-					  };
+    namespace REEF {
+      namespace Driver {
+        namespace Bridge {
+          namespace Clr2java {
+            ref class ManagedLog {
+            internal:
+              static BridgeLogger^ LOGGER = BridgeLogger::GetLogger("<C++>");
+            };
 
-					  TaskMessageClr2Java::TaskMessageClr2Java(JNIEnv *env, jobject jtaskMessage) {
-						  ManagedLog::LOGGER->LogStart("TaskMessageClr2Java::TaskMessageClr2Java");
-						  pin_ptr<JavaVM*> pJavaVm = &_jvm;
-						  if (env->GetJavaVM(pJavaVm) != 0) {
-							  ManagedLog::LOGGER->LogError("Failed to get JavaVM", nullptr);
-						  }
-						  _jobjectTaskMessage = reinterpret_cast<jobject>(env->NewGlobalRef(jtaskMessage));
+            TaskMessageClr2Java::TaskMessageClr2Java(JNIEnv *env, jobject jtaskMessage) {
+              ManagedLog::LOGGER->LogStart("TaskMessageClr2Java::TaskMessageClr2Java");
+              pin_ptr<JavaVM*> pJavaVm = &_jvm;
+              if (env->GetJavaVM(pJavaVm) != 0) {
+                ManagedLog::LOGGER->LogError("Failed to get JavaVM", nullptr);
+              }
+              _jobjectTaskMessage = reinterpret_cast<jobject>(env->NewGlobalRef(jtaskMessage));
 
-						  // Get the Task ID.
-						  jclass jclassTaskMessage = env->GetObjectClass(_jobjectTaskMessage);
-						  _jstringId = CommonUtilities::GetJObjectId(env, _jobjectTaskMessage, jclassTaskMessage);
-						  
-						  // Get the Task Message Source ID.
-						  jmethodID jmid = env->GetMethodID(jclassTaskMessage, "getMessageSourceId", "()Ljava/lang/String;");
-						  _jstringMessageSourceId = CommonUtilities::CallGetMethodNewGlobalRef<jstring>(env, _jobjectTaskMessage, jmid);
+              // Get the Task ID.
+              jclass jclassTaskMessage = env->GetObjectClass(_jobjectTaskMessage);
+              _jstringId = CommonUtilities::GetJObjectId(env, _jobjectTaskMessage, jclassTaskMessage);
 
-						  ManagedLog::LOGGER->LogStop("TaskMessageClr2Java::TaskMessageClr2Java");
-					  }
+              // Get the Task Message Source ID.
+              jmethodID jmid = env->GetMethodID(jclassTaskMessage, "getMessageSourceId", "()Ljava/lang/String;");
+              _jstringMessageSourceId = CommonUtilities::CallGetMethodNewGlobalRef<jstring>(env, _jobjectTaskMessage, jmid);
 
-					  TaskMessageClr2Java::~TaskMessageClr2Java() {
-						  this->!TaskMessageClr2Java();
-					  }
+              ManagedLog::LOGGER->LogStop("TaskMessageClr2Java::TaskMessageClr2Java");
+            }
 
-					  TaskMessageClr2Java::!TaskMessageClr2Java() {
-						  JNIEnv *env = RetrieveEnv(_jvm);
-						  if (_jobjectTaskMessage != NULL) {
-							  env->DeleteGlobalRef(_jobjectTaskMessage);
-						  }
+            TaskMessageClr2Java::~TaskMessageClr2Java() {
+              this->!TaskMessageClr2Java();
+            }
 
-						  if (_jstringId != NULL) {
-							  env->DeleteGlobalRef(_jstringId);
-						  }
+            TaskMessageClr2Java::!TaskMessageClr2Java() {
+              JNIEnv *env = RetrieveEnv(_jvm);
+              if (_jobjectTaskMessage != NULL) {
+                env->DeleteGlobalRef(_jobjectTaskMessage);
+              }
 
-						  if (_jstringMessageSourceId != NULL) {
-							  env->DeleteGlobalRef(_jstringMessageSourceId);
-						  }
-					  }
+              if (_jstringId != NULL) {
+                env->DeleteGlobalRef(_jstringId);
+              }
 
-					  void TaskMessageClr2Java::OnError(String^ message) {
-						  ManagedLog::LOGGER->Log("TaskMessageClr2Java::OnError");
-						  JNIEnv *env = RetrieveEnv(_jvm);
-						  HandleClr2JavaError(env, message, _jobjectTaskMessage);
-					  }
+              if (_jstringMessageSourceId != NULL) {
+                env->DeleteGlobalRef(_jstringMessageSourceId);
+              }
+            }
 
-					  String^ TaskMessageClr2Java::GetId() {
-						  ManagedLog::LOGGER->Log("TaskMessageClr2Java::GetId");
-						  JNIEnv *env = RetrieveEnv(_jvm);
-						  return ManagedStringFromJavaString(env, _jstringId);
-					  }
+            void TaskMessageClr2Java::OnError(String^ message) {
+              ManagedLog::LOGGER->Log("TaskMessageClr2Java::OnError");
+              JNIEnv *env = RetrieveEnv(_jvm);
+              HandleClr2JavaError(env, message, _jobjectTaskMessage);
+            }
 
-					  String^ TaskMessageClr2Java::GetMessageSourceId() {
-						  JNIEnv *env = RetrieveEnv(_jvm);
-						  return ManagedStringFromJavaString(env, _jstringMessageSourceId);
-					  }
-				  }
-			  }
-		  }
-	  }
+            String^ TaskMessageClr2Java::GetId() {
+              ManagedLog::LOGGER->Log("TaskMessageClr2Java::GetId");
+              JNIEnv *env = RetrieveEnv(_jvm);
+              return ManagedStringFromJavaString(env, _jstringId);
+            }
+
+            String^ TaskMessageClr2Java::GetMessageSourceId() {
+              JNIEnv *env = RetrieveEnv(_jvm);
+              return ManagedStringFromJavaString(env, _jstringMessageSourceId);
+            }
+          }
+        }
+      }
+    }
   }
 }

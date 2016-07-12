@@ -18,75 +18,75 @@
 #include "Clr2JavaImpl.h"
 
 namespace Org {
-	namespace Apache {
-		namespace REEF {
-			namespace Driver {
-				namespace Bridge {
-					namespace Clr2java {
-						ref class ManagedLog {
-						internal:
-							static BridgeLogger^ LOGGER = BridgeLogger::GetLogger("<C++>");
-						};
+  namespace Apache {
+    namespace REEF {
+      namespace Driver {
+        namespace Bridge {
+          namespace Clr2java {
+            ref class ManagedLog {
+            internal:
+              static BridgeLogger^ LOGGER = BridgeLogger::GetLogger("<C++>");
+            };
 
-						DriverRestartedClr2Java::DriverRestartedClr2Java(JNIEnv *env, jobject jdriverRestarted) {
-							ManagedLog::LOGGER->LogStart("DriverRestartedClr2Java::DriverRestartedClr2Java");
-							pin_ptr<JavaVM*> pJavaVm = &_jvm;
-							if (env->GetJavaVM(pJavaVm) != 0) {
-								ManagedLog::LOGGER->LogError("Failed to get JavaVM", nullptr);
-							}
-							_jobjectDriverRestarted = reinterpret_cast<jobject>(env->NewGlobalRef(jdriverRestarted));
+            DriverRestartedClr2Java::DriverRestartedClr2Java(JNIEnv *env, jobject jdriverRestarted) {
+              ManagedLog::LOGGER->LogStart("DriverRestartedClr2Java::DriverRestartedClr2Java");
+              pin_ptr<JavaVM*> pJavaVm = &_jvm;
+              if (env->GetJavaVM(pJavaVm) != 0) {
+                ManagedLog::LOGGER->LogError("Failed to get JavaVM", nullptr);
+              }
+              _jobjectDriverRestarted = reinterpret_cast<jobject>(env->NewGlobalRef(jdriverRestarted));
 
-							jclass jclassDriverRestarted = env->GetObjectClass(_jobjectDriverRestarted);
-							jmethodID jmidGetExpectedEvaluatorIds = env->GetMethodID(jclassDriverRestarted, "getExpectedEvaluatorIds", "()[Ljava/lang/String;");
-							jmethodID jmidGetResubmissionAttempts = env->GetMethodID(jclassDriverRestarted, "getResubmissionAttempts", "()I");
+              jclass jclassDriverRestarted = env->GetObjectClass(_jobjectDriverRestarted);
+              jmethodID jmidGetExpectedEvaluatorIds = env->GetMethodID(jclassDriverRestarted, "getExpectedEvaluatorIds", "()[Ljava/lang/String;");
+              jmethodID jmidGetResubmissionAttempts = env->GetMethodID(jclassDriverRestarted, "getResubmissionAttempts", "()I");
 
-							_resubmissionAttempts = env->CallIntMethod(_jobjectDriverRestarted, jmidGetResubmissionAttempts);
-							jobjectArray jevaluatorIds = CommonUtilities::CallGetMethodNewGlobalRef<jobjectArray>(env, _jobjectDriverRestarted, jmidGetExpectedEvaluatorIds);
-							_startTime = System::DateTime::Now;
-							int count = env->GetArrayLength(jevaluatorIds);
-							_expectedEvaluatorIds = gcnew array<String^>(count);
+              _resubmissionAttempts = env->CallIntMethod(_jobjectDriverRestarted, jmidGetResubmissionAttempts);
+              jobjectArray jevaluatorIds = CommonUtilities::CallGetMethodNewGlobalRef<jobjectArray>(env, _jobjectDriverRestarted, jmidGetExpectedEvaluatorIds);
+              _startTime = System::DateTime::Now;
+              int count = env->GetArrayLength(jevaluatorIds);
+              _expectedEvaluatorIds = gcnew array<String^>(count);
 
-							for (int i = 0; i < count; i++) {
-								jstring string = (jstring)(*env).GetObjectArrayElement(jevaluatorIds, i);
-								_expectedEvaluatorIds[i] = ManagedStringFromJavaString(env, string);
-							}
+              for (int i = 0; i < count; i++) {
+                jstring string = (jstring)(*env).GetObjectArrayElement(jevaluatorIds, i);
+                _expectedEvaluatorIds[i] = ManagedStringFromJavaString(env, string);
+              }
 
-							env->DeleteGlobalRef(jevaluatorIds);
+              env->DeleteGlobalRef(jevaluatorIds);
 
-							ManagedLog::LOGGER->LogStop("DriverRestartedClr2Java::DriverRestartedClr2Java");
-						}
+              ManagedLog::LOGGER->LogStop("DriverRestartedClr2Java::DriverRestartedClr2Java");
+            }
 
-						DriverRestartedClr2Java::~DriverRestartedClr2Java() {
-							this->!DriverRestartedClr2Java();
-						}
+            DriverRestartedClr2Java::~DriverRestartedClr2Java() {
+              this->!DriverRestartedClr2Java();
+            }
 
-						DriverRestartedClr2Java::!DriverRestartedClr2Java() {
-							if (_jobjectDriverRestarted != NULL) {
-								JNIEnv *env = RetrieveEnv(_jvm);
-								env->DeleteGlobalRef(_jobjectDriverRestarted);
-							}
-						}
+            DriverRestartedClr2Java::!DriverRestartedClr2Java() {
+              if (_jobjectDriverRestarted != NULL) {
+                JNIEnv *env = RetrieveEnv(_jvm);
+                env->DeleteGlobalRef(_jobjectDriverRestarted);
+              }
+            }
 
-						array<String^>^ DriverRestartedClr2Java::GetExpectedEvaluatorIds() {
-							return _expectedEvaluatorIds;
-						}
+            array<String^>^ DriverRestartedClr2Java::GetExpectedEvaluatorIds() {
+              return _expectedEvaluatorIds;
+            }
 
-						DateTime DriverRestartedClr2Java::GetStartTime() {
-							return _startTime;
-						}
+            DateTime DriverRestartedClr2Java::GetStartTime() {
+              return _startTime;
+            }
 
-						int DriverRestartedClr2Java::GetResubmissionAttempts() {
-							return _resubmissionAttempts;
-						}
+            int DriverRestartedClr2Java::GetResubmissionAttempts() {
+              return _resubmissionAttempts;
+            }
 
-						void DriverRestartedClr2Java::OnError(String^ message) {
-							ManagedLog::LOGGER->Log("DriverRestartedClr2Java::OnError");
-							JNIEnv *env = RetrieveEnv(_jvm);
-							HandleClr2JavaError(env, message, _jobjectDriverRestarted);
-						}
-					}
-				}
-			}
-		}
-	}
+            void DriverRestartedClr2Java::OnError(String^ message) {
+              ManagedLog::LOGGER->Log("DriverRestartedClr2Java::OnError");
+              JNIEnv *env = RetrieveEnv(_jvm);
+              HandleClr2JavaError(env, message, _jobjectDriverRestarted);
+            }
+          }
+        }
+      }
+    }
+  }
 }

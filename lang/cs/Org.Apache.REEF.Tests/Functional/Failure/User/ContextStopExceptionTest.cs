@@ -16,6 +16,7 @@
 // under the License.
 
 using System;
+using System.Linq;
 using Org.Apache.REEF.Common.Context;
 using Org.Apache.REEF.Common.Events;
 using Org.Apache.REEF.Common.Tasks;
@@ -33,10 +34,13 @@ using Xunit;
 
 namespace Org.Apache.REEF.Tests.Functional.Failure.User
 {
+    /// <summary>
+    /// This class contains a test that tests whether throwing an Exception in ContextStopHandler behaves correctly.
+    /// </summary>
     [Collection("FunctionalTests")]
-    public sealed class ContextStartExceptionTest : ReefFunctionalTest
+    public sealed class ContextStopExceptionTest : ReefFunctionalTest
     {
-        private static readonly Logger Logger = Logger.GetLogger(typeof(ContextStartExceptionTest));
+        private static readonly Logger Logger = Logger.GetLogger(typeof(ContextStopExceptionTest));
 
         private static readonly string ExpectedException = "ExpectedException";
         private static readonly string FailEvaluatorContextId = "FailEvaluatorContextId";
@@ -47,26 +51,34 @@ namespace Org.Apache.REEF.Tests.Functional.Failure.User
         private static readonly string FailedContextReceived = "FailedContextReceived";
         private static readonly string FailedEvaluatorReceived = "FailedEvaluatorReceived";
 
+        /// <summary>
+        /// This test tests whether throwing an Exception in ContextStopHandler behaves correctly.
+        /// The test requests two Evaluators, the first Evaluator will only have a Root Context on which
+        /// will throw an Exception upon calling ActiveContext.Dispose. The second Evaluator will have two
+        /// stacked Contexts - ContextId1 will be stacked on top of ContextId0. ContextId1 will contain the
+        /// failing ContextStopHandler, in which the Evaluator will pop the Context and submit a Task to ContextId0,
+        /// verify that the Task completes successfully, and verify that the Context is disposed without an Exception.
+        /// </summary>
         [Fact]
         [Trait("Priority", "1")]
         [Trait("Category", "FunctionalGated")]
-        [Trait("Description", "Test throwing an Exception in ContextStartHandler should cause the Driver to receive a ContextFailed event." +
+        [Trait("Description", "Test throwing an Exception in ContextStopHandler should cause the Driver to receive a ContextFailed event." +
                               "In the case of the Root Context, the Driver should receive a FailedEvaluator event.")]
-        public void TestContextStartException()
+        public void TestContextStopException()
         {
             string testFolder = DefaultRuntimeFolder + TestId;
             TestRun(
                 DriverConfiguration.ConfigurationModule
-                    .Set(DriverConfiguration.OnDriverStarted, GenericType<ContextStartExceptionDriver>.Class)
-                    .Set(DriverConfiguration.OnEvaluatorAllocated, GenericType<ContextStartExceptionDriver>.Class)
-                    .Set(DriverConfiguration.OnEvaluatorFailed, GenericType<ContextStartExceptionDriver>.Class)
-                    .Set(DriverConfiguration.OnContextActive, GenericType<ContextStartExceptionDriver>.Class)
-                    .Set(DriverConfiguration.OnContextFailed, GenericType<ContextStartExceptionDriver>.Class)
-                    .Set(DriverConfiguration.OnTaskCompleted, GenericType<ContextStartExceptionDriver>.Class)
+                    .Set(DriverConfiguration.OnDriverStarted, GenericType<ContextStopExceptionDriver>.Class)
+                    .Set(DriverConfiguration.OnEvaluatorAllocated, GenericType<ContextStopExceptionDriver>.Class)
+                    .Set(DriverConfiguration.OnEvaluatorFailed, GenericType<ContextStopExceptionDriver>.Class)
+                    .Set(DriverConfiguration.OnContextActive, GenericType<ContextStopExceptionDriver>.Class)
+                    .Set(DriverConfiguration.OnContextFailed, GenericType<ContextStopExceptionDriver>.Class)
+                    .Set(DriverConfiguration.OnTaskCompleted, GenericType<ContextStopExceptionDriver>.Class)
                     .Build(),
-                typeof(ContextStartExceptionDriver), 1, "ContextStartExceptionTest", "local", testFolder);
+                typeof(ContextStopExceptionDriver), 1, "ContextStopExceptionTest", "local", testFolder);
 
-            ValidateSuccessForLocalRuntime(numberOfContextsToClose: 1, numberOfTasksToFail: 0, numberOfEvaluatorsToFail: 1, testFolder: testFolder);
+            ValidateSuccessForLocalRuntime(numberOfContextsToClose: 3, numberOfTasksToFail: 0, numberOfEvaluatorsToFail: 1, testFolder: testFolder);
             var driverMessages = new[]
             {
                 CompletedTaskReceived,
@@ -78,7 +90,7 @@ namespace Org.Apache.REEF.Tests.Functional.Failure.User
             CleanUp(testFolder);
         }
 
-        private sealed class ContextStartExceptionDriver : 
+        private sealed class ContextStopExceptionDriver : 
             IObserver<IDriverStarted>, 
             IObserver<IAllocatedEvaluator>,
             IObserver<IActiveContext>,
@@ -91,7 +103,7 @@ namespace Org.Apache.REEF.Tests.Functional.Failure.User
             private bool _shouldSubmitFailEvaluatorContext = true;
 
             [Inject]
-            private ContextStartExceptionDriver(IEvaluatorRequestor requestor)
+            private ContextStopExceptionDriver(IEvaluatorRequestor requestor)
             {
                 _requestor = requestor;
             }
@@ -107,12 +119,14 @@ namespace Org.Apache.REEF.Tests.Functional.Failure.User
                 {
                     if (_shouldSubmitFailEvaluatorContext)
                     {
+                        // This context should fail the Evaluator upon calling ActiveContext.Dispose().
                         value.SubmitContext(
-                            GetContextStartExceptionContextConfiguration(FailEvaluatorContextId));
+                            GetContextStopExceptionContextConfiguration(FailEvaluatorContextId));
                         _shouldSubmitFailEvaluatorContext = false;
                     }
                     else
                     {
+                        // This is the Context that will be stacked upon by ContextId1.
                         value.SubmitContext(
                             ContextConfiguration.ConfigurationModule
                                 .Set(ContextConfiguration.Identifier, ContextId0)
@@ -121,6 +135,10 @@ namespace Org.Apache.REEF.Tests.Functional.Failure.User
                 }
             }
 
+            /// <summary>
+            /// This will be ContextId1.
+            /// It will submit a Task to the parent of Context with ContextId1.
+            /// </summary>
             public void OnNext(IFailedContext value)
             {
                 Assert.Equal(ContextId1, value.Id);
@@ -137,10 +155,13 @@ namespace Org.Apache.REEF.Tests.Functional.Failure.User
                         .Build());
             }
 
+            /// <summary>
+            /// This will be a FailedEvaluator generated by the Context with ID as FailEvaluatorContextId.
+            /// </summary>
             public void OnNext(IFailedEvaluator value)
             {
-                // We should not have any failed contexts since the context has never become active.
-                Assert.Equal(0, value.FailedContexts.Count);
+                Assert.Equal(1, value.FailedContexts.Count);
+                Assert.Equal(FailEvaluatorContextId, value.FailedContexts.First().Id);
                 Assert.NotNull(value.EvaluatorException.InnerException);
                 Assert.True(value.EvaluatorException.InnerException is TestSerializableException);
                 Assert.Equal(ExpectedException, value.EvaluatorException.InnerException.Message);
@@ -149,12 +170,30 @@ namespace Org.Apache.REEF.Tests.Functional.Failure.User
 
             public void OnNext(IActiveContext value)
             {
-                Assert.Equal(ContextId0, value.Id);
-                value.SubmitContext(GetContextStartExceptionContextConfiguration(ContextId1));
+                if (value.Id.Equals(FailEvaluatorContextId))
+                {
+                    // Close context and trigger failure immediately.
+                    value.Dispose();
+                }
+                else
+                {
+                    if (value.Id.Equals(ContextId0))
+                    {
+                        // Stack Context with ContextId1 on top of Context with ContextId0.
+                        value.SubmitContext(GetContextStopExceptionContextConfiguration(ContextId1));
+                    }
+                    else
+                    {
+                        // Verify the stacked Context and close it.
+                        Assert.Equal(ContextId1, value.Id);
+                        value.Dispose();
+                    }
+                }
             }
 
             public void OnNext(ICompletedTask value)
             {
+                // Verify the completion of Task on Context with ContextId0.
                 Assert.Equal(TaskId, value.Id);
                 Assert.Equal(ContextId0, value.ActiveContext.Id);
                 Logger.Log(Level.Info, CompletedTaskReceived);
@@ -171,23 +210,26 @@ namespace Org.Apache.REEF.Tests.Functional.Failure.User
                 throw new NotImplementedException();
             }
 
-            private static IConfiguration GetContextStartExceptionContextConfiguration(string contextId)
+            private static IConfiguration GetContextStopExceptionContextConfiguration(string contextId)
             {
                 return ContextConfiguration.ConfigurationModule
                     .Set(ContextConfiguration.Identifier, contextId)
-                    .Set(ContextConfiguration.OnContextStart, GenericType<ContextStartExceptionHandler>.Class)
+                    .Set(ContextConfiguration.OnContextStop, GenericType<ContextStopExceptionHandler>.Class)
                     .Build();
             }
         }
 
-        private sealed class ContextStartExceptionHandler : IObserver<IContextStart>
+        /// <summary>
+        /// A ContextStopHandler that throws a Serializable Exception.
+        /// </summary>
+        private sealed class ContextStopExceptionHandler : IObserver<IContextStop>
         {
             [Inject]
-            private ContextStartExceptionHandler()
+            private ContextStopExceptionHandler()
             {
             }
 
-            public void OnNext(IContextStart value)
+            public void OnNext(IContextStop value)
             {
                 throw new TestSerializableException(ExpectedException);
             }

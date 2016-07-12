@@ -19,20 +19,18 @@
 package org.apache.reef.io.network.group.impl.driver;
 
 import org.apache.reef.io.network.group.impl.GroupCommunicationMessage;
-import org.apache.reef.io.network.group.impl.utils.BroadcastingEventHandler;
 import org.apache.reef.io.network.group.impl.utils.Utils;
 import org.apache.reef.tang.annotations.Name;
 import org.apache.reef.wake.AbstractEStage;
 import org.apache.reef.wake.EventHandler;
 import org.apache.reef.wake.impl.SingleThreadStage;
-import org.apache.reef.wake.impl.SyncStage;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Logger;
 
 /**
- * The network handler for the group communcation service on the driver side.
+ * The network handler for the group communication service on the driver side.
  */
 public class GroupCommMessageHandler implements EventHandler<GroupCommunicationMessage> {
 
@@ -40,17 +38,6 @@ public class GroupCommMessageHandler implements EventHandler<GroupCommunicationM
 
   private final Map<Class<? extends Name<String>>, AbstractEStage<GroupCommunicationMessage>>
       commGroupMessageStages = new HashMap<>();
-
-  /**
-   * @deprecated in 0.14.
-   */
-  @Deprecated
-  public void addHandler(final Class<? extends Name<String>> groupName,
-                         final BroadcastingEventHandler<GroupCommunicationMessage> handler) {
-    LOG.entering("GroupCommMessageHandler", "addHandler", new Object[]{Utils.simpleName(groupName), handler});
-    commGroupMessageStages.put(groupName, new SyncStage<>(groupName.getName(), handler));
-    LOG.exiting("GroupCommMessageHandler", "addHandler", Utils.simpleName(groupName));
-  }
 
   public void addHandler(final Class<? extends Name<String>> groupName,
                          final SingleThreadStage<GroupCommunicationMessage> stage) {

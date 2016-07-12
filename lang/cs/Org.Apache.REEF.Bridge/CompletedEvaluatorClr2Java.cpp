@@ -19,57 +19,57 @@
 
 namespace Org {
   namespace Apache {
-	  namespace REEF {
-		  namespace Driver {
-			  namespace Bridge {
-				  namespace Clr2java {
-					  ref class ManagedLog {
-					  internal:
-						  static BridgeLogger^ LOGGER = BridgeLogger::GetLogger("<C++>");
-					  };
+    namespace REEF {
+      namespace Driver {
+        namespace Bridge {
+          namespace Clr2java {
+            ref class ManagedLog {
+            internal:
+              static BridgeLogger^ LOGGER = BridgeLogger::GetLogger("<C++>");
+            };
 
-					  CompletedEvaluatorClr2Java::CompletedEvaluatorClr2Java(JNIEnv *env, jobject jCompletedEvaluator) {
-						  ManagedLog::LOGGER->LogStart("CompletedEvaluatorClr2Java::CompletedEvaluatorClr2Java");
-						  pin_ptr<JavaVM*> pJavaVm = &_jvm;
-						  if (env->GetJavaVM(pJavaVm) != 0) {
-							  ManagedLog::LOGGER->LogError("Failed to get JavaVM", nullptr);
-						  }
-						  _jobjectCompletedEvaluator = reinterpret_cast<jobject>(env->NewGlobalRef(jCompletedEvaluator));
+            CompletedEvaluatorClr2Java::CompletedEvaluatorClr2Java(JNIEnv *env, jobject jCompletedEvaluator) {
+              ManagedLog::LOGGER->LogStart("CompletedEvaluatorClr2Java::CompletedEvaluatorClr2Java");
+              pin_ptr<JavaVM*> pJavaVm = &_jvm;
+              if (env->GetJavaVM(pJavaVm) != 0) {
+                ManagedLog::LOGGER->LogError("Failed to get JavaVM", nullptr);
+              }
+              _jobjectCompletedEvaluator = reinterpret_cast<jobject>(env->NewGlobalRef(jCompletedEvaluator));
 
-						  jclass jclassCompletedEvaluator = env->GetObjectClass(_jobjectCompletedEvaluator);
-						  _jstringId = CommonUtilities::GetJObjectId(env, _jobjectCompletedEvaluator, jclassCompletedEvaluator);
-						  ManagedLog::LOGGER->LogStop("CompletedEvaluatorClr2Java::CompletedEvaluatorClr2Java");
-					  }
+              jclass jclassCompletedEvaluator = env->GetObjectClass(_jobjectCompletedEvaluator);
+              _jstringId = CommonUtilities::GetJObjectId(env, _jobjectCompletedEvaluator, jclassCompletedEvaluator);
+              ManagedLog::LOGGER->LogStop("CompletedEvaluatorClr2Java::CompletedEvaluatorClr2Java");
+            }
 
-					  CompletedEvaluatorClr2Java::~CompletedEvaluatorClr2Java() {
-						  this->!CompletedEvaluatorClr2Java();
-					  }
+            CompletedEvaluatorClr2Java::~CompletedEvaluatorClr2Java() {
+              this->!CompletedEvaluatorClr2Java();
+            }
 
-					  CompletedEvaluatorClr2Java::!CompletedEvaluatorClr2Java() {
-						  JNIEnv *env = RetrieveEnv(_jvm);
-						  if (_jobjectCompletedEvaluator != NULL) {
-							  env->DeleteGlobalRef(_jobjectCompletedEvaluator);
-						  }
+            CompletedEvaluatorClr2Java::!CompletedEvaluatorClr2Java() {
+              JNIEnv *env = RetrieveEnv(_jvm);
+              if (_jobjectCompletedEvaluator != NULL) {
+                env->DeleteGlobalRef(_jobjectCompletedEvaluator);
+              }
 
-						  if (_jstringId != NULL) {
-							  env->DeleteGlobalRef(_jstringId); 
-						  }
-					  }
+              if (_jstringId != NULL) {
+                env->DeleteGlobalRef(_jstringId);
+              }
+            }
 
-					  void CompletedEvaluatorClr2Java::OnError(String^ message) {
-						  ManagedLog::LOGGER->Log("CompletedEvaluatorClr2Java::OnError");
-						  JNIEnv *env = RetrieveEnv(_jvm);
-						  HandleClr2JavaError(env, message, _jobjectCompletedEvaluator);
-					  }
+            void CompletedEvaluatorClr2Java::OnError(String^ message) {
+              ManagedLog::LOGGER->Log("CompletedEvaluatorClr2Java::OnError");
+              JNIEnv *env = RetrieveEnv(_jvm);
+              HandleClr2JavaError(env, message, _jobjectCompletedEvaluator);
+            }
 
-					  String^ CompletedEvaluatorClr2Java::GetId() {
-						  ManagedLog::LOGGER->Log("CompletedEvaluatorClr2Java::GetId");
-						  JNIEnv *env = RetrieveEnv(_jvm);
-						  return ManagedStringFromJavaString(env, _jstringId);
-					  }
-				  }
-			  }
-		  }
-	  }
+            String^ CompletedEvaluatorClr2Java::GetId() {
+              ManagedLog::LOGGER->Log("CompletedEvaluatorClr2Java::GetId");
+              JNIEnv *env = RetrieveEnv(_jvm);
+              return ManagedStringFromJavaString(env, _jstringId);
+            }
+          }
+        }
+      }
+    }
   }
 }

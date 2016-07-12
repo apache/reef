@@ -19,80 +19,80 @@
 
 namespace Org {
   namespace Apache {
-	  namespace REEF {
-		  namespace Driver {
-			  namespace Bridge {
-				  namespace Clr2java {
-					  ref class ManagedLog {
-					  internal:
-						  static BridgeLogger^ LOGGER = BridgeLogger::GetLogger("<C++>");
-					  };
+    namespace REEF {
+      namespace Driver {
+        namespace Bridge {
+          namespace Clr2java {
+            ref class ManagedLog {
+            internal:
+              static BridgeLogger^ LOGGER = BridgeLogger::GetLogger("<C++>");
+            };
 
-					  FailedTaskClr2Java::FailedTaskClr2Java(JNIEnv *env, jobject jobjectFailedTask) {
-						  ManagedLog::LOGGER->LogStart("FailedTaskClr2Java::AllocatedEvaluatorClr2Java");
-						  pin_ptr<JavaVM*> pJavaVm = &_jvm;
-						  if (env->GetJavaVM(pJavaVm) != 0) {
-							  ManagedLog::LOGGER->LogError("Failed to get JavaVM", nullptr);
-						  }
-						  _jobjectFailedTask = reinterpret_cast<jobject>(env->NewGlobalRef(jobjectFailedTask));
-						  ManagedLog::LOGGER->LogStop("FailedTaskClr2Java::AllocatedEvaluatorClr2Java");
-					  }
+            FailedTaskClr2Java::FailedTaskClr2Java(JNIEnv *env, jobject jobjectFailedTask) {
+              ManagedLog::LOGGER->LogStart("FailedTaskClr2Java::AllocatedEvaluatorClr2Java");
+              pin_ptr<JavaVM*> pJavaVm = &_jvm;
+              if (env->GetJavaVM(pJavaVm) != 0) {
+                ManagedLog::LOGGER->LogError("Failed to get JavaVM", nullptr);
+              }
+              _jobjectFailedTask = reinterpret_cast<jobject>(env->NewGlobalRef(jobjectFailedTask));
+              ManagedLog::LOGGER->LogStop("FailedTaskClr2Java::AllocatedEvaluatorClr2Java");
+            }
 
-					  FailedTaskClr2Java::~FailedTaskClr2Java() {
-						  this->!FailedTaskClr2Java();
-					  }
+            FailedTaskClr2Java::~FailedTaskClr2Java() {
+              this->!FailedTaskClr2Java();
+            }
 
-					  FailedTaskClr2Java::!FailedTaskClr2Java() {
-						  if (_jobjectFailedTask != NULL) {
-							  JNIEnv *env = RetrieveEnv(_jvm);
-							  env->DeleteGlobalRef(_jobjectFailedTask);
-						  }
-					  }
+            FailedTaskClr2Java::!FailedTaskClr2Java() {
+              if (_jobjectFailedTask != NULL) {
+                JNIEnv *env = RetrieveEnv(_jvm);
+                env->DeleteGlobalRef(_jobjectFailedTask);
+              }
+            }
 
-					  IActiveContextClr2Java^ FailedTaskClr2Java::GetActiveContext() {
-						  ManagedLog::LOGGER->LogStart("FailedTaskClr2Java::GetActiveContext");
+            IActiveContextClr2Java^ FailedTaskClr2Java::GetActiveContext() {
+              ManagedLog::LOGGER->LogStart("FailedTaskClr2Java::GetActiveContext");
 
-						  JNIEnv *env = RetrieveEnv(_jvm);
+              JNIEnv *env = RetrieveEnv(_jvm);
 
-						  jclass jclassFailedTask = env->GetObjectClass(_jobjectFailedTask);
-						  jmethodID jmidGetActiveContext = env->GetMethodID(jclassFailedTask, "getActiveContext", "()Lorg/apache/reef/javabridge/ActiveContextBridge;");
-						  jobject jobjectActiveContext = env->CallObjectMethod(_jobjectFailedTask, jmidGetActiveContext);
+              jclass jclassFailedTask = env->GetObjectClass(_jobjectFailedTask);
+              jmethodID jmidGetActiveContext = env->GetMethodID(jclassFailedTask, "getActiveContext", "()Lorg/apache/reef/javabridge/ActiveContextBridge;");
+              jobject jobjectActiveContext = env->CallObjectMethod(_jobjectFailedTask, jmidGetActiveContext);
 
-						  ManagedLog::LOGGER->LogStop("FailedTaskClr2Java::GetActiveContext");
+              ManagedLog::LOGGER->LogStop("FailedTaskClr2Java::GetActiveContext");
 
-						  if (jobjectActiveContext == NULL) {
-							  return nullptr;
-						  }
+              if (jobjectActiveContext == NULL) {
+                return nullptr;
+              }
 
-						  return gcnew ActiveContextClr2Java(env, jobjectActiveContext);
-					  }
+              return gcnew ActiveContextClr2Java(env, jobjectActiveContext);
+            }
 
-					  array<byte>^ FailedTaskClr2Java::GetFailedTaskSerializedAvro() {
-						  ManagedLog::LOGGER->LogStart("FailedTaskClr2Java::GetFailedTaskSerializedAvro");
-						  JNIEnv *env = RetrieveEnv(_jvm);
+            array<byte>^ FailedTaskClr2Java::GetFailedTaskSerializedAvro() {
+              ManagedLog::LOGGER->LogStart("FailedTaskClr2Java::GetFailedTaskSerializedAvro");
+              JNIEnv *env = RetrieveEnv(_jvm);
 
-						  jclass jclassFailedTask = env->GetObjectClass(_jobjectFailedTask);
-						  jmethodID jmidGetFailedTaskSerializedAvro = env->GetMethodID(jclassFailedTask, "getFailedTaskSerializedAvro", "()[B");
+              jclass jclassFailedTask = env->GetObjectClass(_jobjectFailedTask);
+              jmethodID jmidGetFailedTaskSerializedAvro = env->GetMethodID(jclassFailedTask, "getFailedTaskSerializedAvro", "()[B");
 
-						  if (jmidGetFailedTaskSerializedAvro == NULL) {
-							  ManagedLog::LOGGER->LogStart("jmidGetFailedTaskSerializedAvro is NULL");
-							  return nullptr;
-						  }
-						  jbyteArray jFailedTaskSerializedAvro = (jbyteArray)env->CallObjectMethod(
-							  _jobjectFailedTask,
-							  jmidGetFailedTaskSerializedAvro);
-						  ManagedLog::LOGGER->LogStop("FailedTaskClr2Java::GetFailedTaskSerializedAvro");
-						  return ManagedByteArrayFromJavaByteArray(env, jFailedTaskSerializedAvro);
-					  }
+              if (jmidGetFailedTaskSerializedAvro == NULL) {
+                ManagedLog::LOGGER->LogStart("jmidGetFailedTaskSerializedAvro is NULL");
+                return nullptr;
+              }
+              jbyteArray jFailedTaskSerializedAvro = (jbyteArray)env->CallObjectMethod(
+                _jobjectFailedTask,
+                jmidGetFailedTaskSerializedAvro);
+              ManagedLog::LOGGER->LogStop("FailedTaskClr2Java::GetFailedTaskSerializedAvro");
+              return ManagedByteArrayFromJavaByteArray(env, jFailedTaskSerializedAvro);
+            }
 
-					  void FailedTaskClr2Java::OnError(String^ message) {
-						  ManagedLog::LOGGER->Log("FailedTaskClr2Java::OnError");
-						  JNIEnv *env = RetrieveEnv(_jvm);
-						  HandleClr2JavaError(env, message, _jobjectFailedTask);
-					  }
-				  }
-			  }
-		  }
-	  }
+            void FailedTaskClr2Java::OnError(String^ message) {
+              ManagedLog::LOGGER->Log("FailedTaskClr2Java::OnError");
+              JNIEnv *env = RetrieveEnv(_jvm);
+              HandleClr2JavaError(env, message, _jobjectFailedTask);
+            }
+          }
+        }
+      }
+    }
   }
 }
