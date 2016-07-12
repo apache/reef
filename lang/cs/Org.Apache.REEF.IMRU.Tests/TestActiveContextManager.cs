@@ -17,6 +17,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using NSubstitute;
 using Org.Apache.REEF.Driver.Context;
 using Org.Apache.REEF.Driver.Evaluator;
@@ -181,7 +182,7 @@ namespace Org.Apache.REEF.IMRU.Tests
         /// <summary>
         /// A Context Manager observer for test
         /// </summary>
-        private sealed class TestContextObserver : IObserver<int>
+        private sealed class TestContextObserver : IObserver<IEnumerable<IActiveContext>>
         {
             private readonly int _totalExpected;
             private int _contextCount = 0;
@@ -206,9 +207,9 @@ namespace Org.Apache.REEF.IMRU.Tests
                 return _contextCount;
             }
 
-            public void OnNext(int value)
+            public void OnNext(IEnumerable<IActiveContext> value)
             {
-                _contextCount = value;
+                _contextCount = value.Count();
             }
         }
     }

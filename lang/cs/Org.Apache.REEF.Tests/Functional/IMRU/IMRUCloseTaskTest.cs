@@ -58,13 +58,14 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
             const int mapperMemory = 5120;
             const int updateTaskMemory = 5120;
             const int numTasks = 4;
+            const int numOfRetryInRecovery = 4;
             var testFolder = DefaultRuntimeFolder + TestId;
-            TestBroadCastAndReduce(false, numTasks, chunkSize, dims, iterations, mapperMemory, updateTaskMemory, testFolder);
+            TestBroadCastAndReduce(false, numTasks, chunkSize, dims, iterations, mapperMemory, updateTaskMemory, numOfRetryInRecovery, testFolder);
             string[] lines = ReadLogFile(DriverStdout, "driver", testFolder);
             var failedCount = GetMessageCount(lines, FailTaskMessage);
             var completedCount = GetMessageCount(lines, CompletedTaskMessage);
             Assert.Equal(numTasks, failedCount + completedCount);
-            CleanUp(testFolder);
+            ////CleanUp(testFolder);
         }
 
         /// <summary>
@@ -86,7 +87,8 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
             const int mapperMemory = 5120;
             const int updateTaskMemory = 5120;
             const int numTasks = 4;
-            TestBroadCastAndReduce(true, numTasks, chunkSize, dims, iterations, mapperMemory, updateTaskMemory);
+            const int numOfRetryInRecovery = 4;
+            TestBroadCastAndReduce(true, numTasks, chunkSize, dims, iterations, mapperMemory, updateTaskMemory, numOfRetryInRecovery);
         }
 
         /// <summary>

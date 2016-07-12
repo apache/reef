@@ -38,8 +38,9 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
             int mapperMemory = 5120;
             int updateTaskMemory = 5120;
             int numTasks = 4;
+            int numberOfRetryInRecovery = 4;
             string testFolder = DefaultRuntimeFolder + TestId;
-            TestBroadCastAndReduce(false, numTasks, chunkSize, dims, iterations, mapperMemory, updateTaskMemory, testFolder);
+            TestBroadCastAndReduce(false, numTasks, chunkSize, dims, iterations, mapperMemory, updateTaskMemory, numberOfRetryInRecovery, testFolder);
             ValidateSuccessForLocalRuntime(numTasks, 0, 0, testFolder);
             CleanUp(testFolder);
         }
@@ -56,7 +57,8 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
             int mapperMemory = 5120;
             int updateTaskMemory = 5120;
             int numTasks = 4;
-            TestBroadCastAndReduce(false, numTasks, chunkSize, dims, iterations, mapperMemory, updateTaskMemory);
+            int numberOfRetryInRecovery = 4;
+            TestBroadCastAndReduce(false, numTasks, chunkSize, dims, iterations, mapperMemory, updateTaskMemory, numberOfRetryInRecovery);
         }
 
         /// <summary>

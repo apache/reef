@@ -116,7 +116,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         /// <summary>
         /// It records the number of retry for the recoveries. 
         /// </summary>
-        private int _numberOfRetriesForFaultTolerant = 1;
+        private int _numberOfRetriesForFaultTolerant = 0;
 
         [Inject]
         private IMRUDriver(IPartitionedInputDataSet dataSet,
@@ -153,11 +153,12 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
                 new ServiceAndContextConfigurationProvider<TMapInput, TMapOutput, TPartitionType>(dataSet);
 
             var msg =
-                string.Format(CultureInfo.InvariantCulture, "map task memory:{0}, update task memory:{1}, map task cores:{2}, update task cores:{3}",
+                string.Format(CultureInfo.InvariantCulture, "map task memory:{0}, update task memory:{1}, map task cores:{2}, update task cores:{3}, maxRetry {4}.",
                     memoryPerMapper,
                     memoryForUpdateTask,
                     coresPerMapper,
-                    coresForUpdateTask);
+                    coresForUpdateTask,
+                    maxRetryNumberInRecovery);
             Logger.Log(Level.Info, msg);
         }
 
@@ -645,6 +646,10 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         private void FailAction()
         {
             ShutDownAllEvaluators();
+            var msg = string.Format(CultureInfo.InvariantCulture,
+                "The system cannot be recovered after {0} retries. NumberofFailedMappers in the last try is {1}.",
+                _numberOfRetriesForFaultTolerant, _evaluatorManager.NumberofFailedMappers());
+            Exceptions.Throw(new ApplicationException(msg), Logger);
         }
 
         /// <summary>
