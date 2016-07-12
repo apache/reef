@@ -47,8 +47,10 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
         /// <summary>
         /// This test is for running in local runtime
         /// It sends close event for all the running tasks.
-        /// In the task close handler, the cancellation token will be set and as a result tasks will return from the Call() method
-        /// Expect all the 4 tasks are completed. No Failed task and no failed Evaluator. 
+        /// In the task close handler, the cancellation token will be set, and as a result tasks will return from the Call() 
+        /// method and driver will receive ICompletedTask.
+        /// In the exceptional case, task might throw exception from Call() method, as a result, driver will receive IFailedTask. 
+        /// Expect number of CompletedTask and FailedTask equals to the total number of tasks. No failed Evaluator. 
         /// </summary>
         [Fact]
         public void TestTaskCloseOnLocalRuntime()
@@ -180,7 +182,8 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
             }
 
             /// <summary>
-            /// No Failed Evaluator is expected
+            /// Log the task id and FailTaskMessage
+            /// Close the rest of the running tasks, then dispose the context
             /// </summary>
             /// <param name="value"></param>
             public void OnNext(IFailedTask value)
@@ -194,7 +197,7 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
             }
 
             /// <summary>
-            /// No Failed Task is expected
+            /// No Failed Evaluator is expected
             /// </summary>
             /// <param name="value"></param>
             public void OnNext(IFailedEvaluator value)
@@ -203,7 +206,7 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
             }
 
             /// <summary>
-            /// Log the task id
+            /// Log the task id and ICompletedTask
             /// Close the rest of the running tasks, then dispose the context
             /// </summary>
             public void OnNext(ICompletedTask value)
