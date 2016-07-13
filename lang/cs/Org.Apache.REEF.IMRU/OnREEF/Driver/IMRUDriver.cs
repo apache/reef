@@ -342,7 +342,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         /// <param name="runningTask"></param>
         public void OnNext(IRunningTask runningTask)
         {
-            Logger.Log(Level.Info, "Received IRunningTask {0} at SystemState {1} in retry # {2}.", runningTask.Id, _systemState.CurrentState, _numberOfRetriesForFaultTolerant);
+            Logger.Log(Level.Info, "Received IRunningTask {0} at SystemState {1} IsRecoverable retry # {2}.", runningTask.Id, _systemState.CurrentState, _numberOfRetriesForFaultTolerant);
             lock (_lock)
             {
                 switch (_systemState.CurrentState)
@@ -553,7 +553,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         /// <param name="failedTask"></param>
         public void OnNext(IFailedTask failedTask)
         {
-            Logger.Log(Level.Warning, "Receive IFailedTask with Id: {0} and message: {1} in retry#: {2}.", failedTask.Id, failedTask.Message, _numberOfRetriesForFaultTolerant);
+            Logger.Log(Level.Warning, "Receive IFailedTask with Id: {0} and message: {1} with systemState {2} in retry#: {3}.", failedTask.Id, failedTask.Message, _systemState.CurrentState, _numberOfRetriesForFaultTolerant);
             lock (_lock)
             {
                 if (_taskManager.AreAllTasksCompleted())
@@ -713,11 +713,13 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         private bool IsRecoverable()
         {
             var msg = string.Format(CultureInfo.InvariantCulture,
-                "IsRecoverable: _numberOfRetryForFaultTolerant {0}, NumberofFailedMappers {1}, NumberOfAppErrors {2}, IsMasterEvaluatorFailed{3}.",
+                "IsRecoverable: _numberOfRetryForFaultTolerant {0}, NumberofFailedMappers {1}, NumberOfAppErrors {2}, IsMasterEvaluatorFailed {3} AllowedNumberOfEvaluatorFailures {4}, _maxRetryNumberForFaultTolerant {5}.",
                 _numberOfRetriesForFaultTolerant,
                 _evaluatorManager.NumberofFailedMappers(),
                 _taskManager.NumberOfAppErrors(),
-                _evaluatorManager.IsMasterEvaluatorFailed());
+                _evaluatorManager.IsMasterEvaluatorFailed(),
+                _evaluatorManager.AllowedNumberOfEvaluatorFailures,
+                _maxRetryNumberForFaultTolerant);
             Logger.Log(Level.Info, msg);
 
             return !_evaluatorManager.ReachedMaximumNumberOfEvaluatorFailures()
