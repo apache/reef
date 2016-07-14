@@ -553,7 +553,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         /// <param name="failedTask"></param>
         public void OnNext(IFailedTask failedTask)
         {
-            Logger.Log(Level.Warning, "Receive IFailedTask with Id: {0} and message: {1} with systemState {2} in retry#: {3}.", failedTask.Id, failedTask.Message, _systemState.CurrentState, _numberOfRetriesForFaultTolerant);
+            Logger.Log(Level.Warning, "Received IFailedTask with Id: {0} and message: {1} with systemState {2} in retry#: {3}.", failedTask.Id, failedTask.Message, _systemState.CurrentState, _numberOfRetriesForFaultTolerant);
             lock (_lock)
             {
                 if (_taskManager.AreAllTasksCompleted())
@@ -628,9 +628,10 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
 
         private string GetMapperTaskIdByEvaluatorId(string evaluatorId)
         {
-            return string.Format("{0}-{1}-Version0",
+            return string.Format("{0}-{1}-{2}",
                 IMRUConstants.MapTaskPrefix,
-                _serviceAndContextConfigurationProvider.GetPartitionIdByEvaluatorId(evaluatorId));
+                _serviceAndContextConfigurationProvider.GetPartitionIdByEvaluatorId(evaluatorId),
+                _numberOfRetriesForFaultTolerant);
         }
 
         /// <summary>
