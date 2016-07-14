@@ -85,7 +85,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         /// <summary>
         /// Manages Tasks, maintains task states and responsible for task submission for the driver.
         /// </summary>
-        private readonly TaskManager _taskManager;
+        private TaskManager _taskManager;
 
         /// <summary>
         /// Manages Active Contexts for the driver.
@@ -147,7 +147,6 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
             var allowedFailedEvaluators = (int)(failedEvaluatorsFraction * _totalMappers);
             _evaluatorManager = new EvaluatorManager(_totalMappers + 1, allowedFailedEvaluators, evaluatorRequestor, updateSpec, mapperSpec);
 
-            _taskManager = new TaskManager(_totalMappers + 1, _groupCommDriver.MasterTaskId);
             _systemState = new SystemStateMachine();
             _serviceAndContextConfigurationProvider =
                 new ServiceAndContextConfigurationProvider<TMapInput, TMapOutput, TPartitionType>(dataSet);
@@ -299,10 +298,11 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
             Logger.Log(Level.Info, "SubmitTasks with system state :" + _systemState.CurrentState);
             if (!_isFirstTry)
             {
-                _taskManager.Reset();
                 _groupCommDriver.RemoveCommunicationGroup(IMRUConstants.CommunicationGroupName);
             }
 
+            UpdateMaterTaskId();
+            _taskManager = new TaskManager(_totalMappers + 1, _groupCommDriver.MasterTaskId);
             var commGroup = AddCommunicationGroupWithOperators();
             _perMapperConfigurationStack = ConstructPerMapperConfigStack(_totalMappers);
 
@@ -326,6 +326,20 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
                 _taskManager.AddTask(mapping.Key, mergedTaskConf, mapping.Value);
             }
             _taskManager.SubmitTasks();
+        }
+
+        private void UpdateMaterTaskId()
+        {
+            if (_isFirstTry)
+            {
+                _groupCommDriver.MasterTaskId = _groupCommDriver.MasterTaskId + "-" + _numberOfRetriesForFaultTolerant;
+            }
+            else
+            {
+                _groupCommDriver.MasterTaskId =
+                    _groupCommDriver.MasterTaskId.Substring(0, _groupCommDriver.MasterTaskId.Length - 1) +
+                    _numberOfRetriesForFaultTolerant;
+            }
         }
         #endregion submit tasks
 
