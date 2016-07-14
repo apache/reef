@@ -16,12 +16,15 @@
 // under the License.
 
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using Org.Apache.REEF.Common.Tasks;
 using Org.Apache.REEF.Driver.Evaluator;
 using Org.Apache.REEF.Driver.Task;
 using Org.Apache.REEF.IMRU.API;
 using Org.Apache.REEF.IMRU.OnREEF.Driver;
 using Org.Apache.REEF.Tang.Annotations;
+using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Tang.Util;
 using Org.Apache.REEF.Utilities.Diagnostics;
@@ -70,7 +73,7 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
             var failedTaskCount = GetMessageCount(lines, FailedTaskMessage);
             Assert.Equal((NumberOfRetry + 1) * numTasks, completedCount + failedEvaluatorCount + failedTaskCount);
             Assert.Equal((NumberOfRetry + 1) * numTasks, runningTaskCount);
-            ////CleanUp(testFolder);
+            CleanUp(testFolder);
         }
 
         /// <summary>
@@ -129,22 +132,40 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
         /// <returns></returns>
         protected override IConfiguration BuildMapperFunctionConfig()
         {
-            return IMRUMapConfiguration<int[], int[]>.ConfigurationModule
+            var c = IMRUMapConfiguration<int[], int[]>.ConfigurationModule
                 .Set(IMRUMapConfiguration<int[], int[]>.MapFunction,
-                    GenericType<TestSenderMapFunction>.Class)
+                    GenericType<TestSenderMapFunction>.Class)                   
                 .Build();
+
+            return TangFactory.GetTang().NewConfigurationBuilder(c)
+                .BindSetEntry<TaskIdsToFail, string>(GenericType<TaskIdsToFail>.Class, "IMRUMap-RandomInputPartition-2-")
+                .BindSetEntry<TaskIdsToFail, string>(GenericType<TaskIdsToFail>.Class, "IMRUMap-RandomInputPartition-3-")
+                .Build();
+        }
+
+        [NamedParameter]
+        private class TaskIdsToFail : Name<ISet<string>>
+        {            
         }
 
         internal sealed class TestSenderMapFunction : IMapFunction<int[], int[]>
         {
             private int _iterations;
             private readonly string _taskId;
+            private readonly ISet<string> _taskIdsToFail;
 
             [Inject]
-            private TestSenderMapFunction([Parameter(typeof(TaskConfigurationOptions.Identifier))] string taskId)
+            private TestSenderMapFunction(
+                [Parameter(typeof(TaskConfigurationOptions.Identifier))] string taskId,
+                [Parameter(typeof(TaskIdsToFail))] ISet<string> taskIdsToFail)
             {
                 _taskId = taskId;
-                Logger.Log(Level.Info, "TestSenderMapFunction: TaskId:" + _taskId);
+                _taskIdsToFail = taskIdsToFail;
+                Logger.Log(Level.Info, "TestSenderMapFunction: TaskId: {0}", _taskId);
+                foreach (var n in taskIdsToFail)
+                {
+                    Logger.Log(Level.Info, "TestSenderMapFunction: taskIdsToFail: {0}", n);
+                }
             }
 
             /// <summary>
@@ -157,7 +178,7 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
                 _iterations++;
 
                 MakeException();
-                Logger.Log(Level.Info, string.Format("Received value {0} in iteration {1}.", mapInput[0], _iterations));
+                Logger.Log(Level.Info, "Received value {0} in iteration {1}.", mapInput[0], _iterations);
 
                 if (mapInput[0] != _iterations)
                 {
@@ -169,9 +190,10 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
 
             private void MakeException()
             {
-                if (_iterations == 10 && _taskId.StartsWith("IMRUMap-RandomInputPartition-2-") &&
-                    !_taskId.Equals("IMRUMap-RandomInputPartition-2-" + NumberOfRetry))
-                {
+                if (_iterations == 10 && 
+                    _taskIdsToFail.FirstOrDefault(e => _taskId.StartsWith(e)) != null &&
+                    _taskIdsToFail.FirstOrDefault(e => _taskId.Equals(e + NumberOfRetry)) == null)
+                { 
                     Logger.Log(Level.Warning, "Simulating Evaluator failure for taskId: " + _taskId);
                     Environment.Exit(1);
                 }
