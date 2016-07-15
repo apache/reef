@@ -18,25 +18,12 @@
  */
 package org.apache.reef.tang.types;
 
-import java.util.Collection;
-
-public interface Node extends Comparable<Node>, Traversable<Node>, Boundable {
-
-  String getName();
-
-  String getFullName();
-
-  boolean contains(String key);
-
-  Node get(String key);
-
-  Node getParent();
-
-  void put(Node node);
-
-  @Override
-  Collection<Node> getChildren();
-
-  @Override
-  String toString();
+/**
+ * NamedObject is used for providing a unique configuration
+ * for a specific object statically, within a Tang Configuration.
+ */
+public interface NamedObjectElement<T> extends Comparable<NamedObjectElement>, Boundable {
+  ClassNode<T> getTypeNode();
+  Class<T> getImplementationClass();
+  boolean isNull();
 }

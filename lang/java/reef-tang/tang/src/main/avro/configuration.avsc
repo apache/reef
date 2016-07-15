@@ -20,10 +20,22 @@
 {
     "namespace":"org.apache.reef.tang.formats.avro",
     "type":"record",
+    "name":"AvroNamedObject",
+    "fields":[
+      {"name":"type","type":"string"},
+      {"name":"name","type":"string"},
+      {"name":"isGlobal","type":"boolean"}
+    ]
+},
+{
+    "namespace":"org.apache.reef.tang.formats.avro",
+    "type":"record",
     "name":"ConfigurationEntry",
     "fields":[
       {"name":"key","type":"string"},
-      {"name":"value","type":"string"}
+      {"name":"value","type":["string","AvroNamedObject"]},
+      {"name":"namedObject", "type":"AvroNamedObject",
+        "default": {"type":"", "name":"", "isGlobal":true}}
     ]
 },
 {

@@ -21,6 +21,8 @@ package org.apache.reef.tang;
 import org.apache.reef.tang.annotations.Name;
 import org.apache.reef.tang.exceptions.InjectionException;
 import org.apache.reef.tang.implementation.java.InjectorImpl;
+import org.apache.reef.tang.implementation.types.NamedObjectImpl;
+import org.apache.reef.tang.types.NamedObjectElement;
 
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
@@ -68,23 +70,28 @@ public final class InjectionFuture<T> implements Future<T> {
 
   private final Class<? extends T> iface;
 
+  private final NamedObjectElement noe;
+
   private final T instance;
 
   public InjectionFuture() {
     injector = null;
     iface = null;
+    noe = null;
     instance = null;
   }
 
-  public InjectionFuture(final Injector injector, final Class<? extends T> iface) {
+  public InjectionFuture(final Injector injector, final Class<? extends T> iface, final NamedObjectElement noe) {
     this.injector = (InjectorImpl) injector;
     this.iface = iface;
+    this.noe = noe;
     this.instance = null;
   }
 
   public InjectionFuture(final T instance) {
     this.injector = null;
     this.iface = null;
+    this.noe = null;
     this.instance = instance;
   }
 
@@ -113,9 +120,20 @@ public final class InjectionFuture<T> implements Future<T> {
       synchronized (injector) {
         final T t;
         if (Name.class.isAssignableFrom(iface)) {
-          t = injector.getNamedInstance((Class<Name<T>>) iface);
+          // nullNamedObjectElement has been assigned
+          if (!noe.isNull()) {
+            t = injector.getNamedInstance((Class<Name<T>>) iface,
+                new NamedObjectImpl(noe.getImplementationClass(), noe.getName()));
+          } else {
+            t = injector.getNamedInstance((Class<Name<T>>) iface);
+          }
         } else {
-          t = injector.getInstance(iface);
+          // nullNamedObjectElement has been assigned
+          if (!noe.isNull()) {
+            t = injector.getInstance(iface, new NamedObjectImpl(noe.getImplementationClass(), noe.getName()));
+          } else {
+            t = injector.getInstance(iface);
+          }
         }
         final Aspect a = injector.getAspect();
         if (a != null) {

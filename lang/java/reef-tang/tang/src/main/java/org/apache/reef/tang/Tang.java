@@ -20,6 +20,7 @@ package org.apache.reef.tang;
 
 import org.apache.reef.tang.exceptions.BindException;
 import org.apache.reef.tang.implementation.TangImpl;
+import org.apache.reef.tang.types.NamedObject;
 
 import java.net.URL;
 
@@ -136,6 +137,12 @@ public interface Tang {
    * @return a configuration builder
    */
   JavaConfigurationBuilder newConfigurationBuilder();
+
+  /**
+   * Create a new NamedObject which is backed by default NamedObjectImpl
+   * implementation. NamedObject should be provided with its type and name.
+   */
+  <T> NamedObject<T> newNamedObject(Class<T> namedObjectType, String namedObjectName);
 
   /**
    * @return an instance of JavaClassHierarchy that is backed by the default

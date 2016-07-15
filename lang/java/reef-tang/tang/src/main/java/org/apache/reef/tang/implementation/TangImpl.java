@@ -23,7 +23,10 @@ import org.apache.reef.tang.exceptions.BindException;
 import org.apache.reef.tang.implementation.java.ClassHierarchyImpl;
 import org.apache.reef.tang.implementation.java.InjectorImpl;
 import org.apache.reef.tang.implementation.java.JavaConfigurationBuilderImpl;
+import org.apache.reef.tang.implementation.types.NamedObjectImpl;
+import org.apache.reef.tang.types.NamedObject;
 
+import java.lang.reflect.Modifier;
 import java.net.URL;
 import java.util.*;
 
@@ -126,6 +129,14 @@ public class TangImpl implements Tang {
     } catch (final BindException e) {
       throw new IllegalStateException("Unexpected error from empty configuration", e);
     }
+  }
+
+  @Override
+  public <T> NamedObject newNamedObject(final Class<T> namedObjectType, final String name) {
+    if (namedObjectType.isInterface() || Modifier.isAbstract(namedObjectType.getModifiers())) {
+      throw new IllegalArgumentException("Every NamedObject should have a concrete class type.");
+    }
+    return new NamedObjectImpl<>(namedObjectType, name);
   }
 
   private class SetValuedKey {

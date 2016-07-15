@@ -332,7 +332,7 @@ public class ConfigurationModule {
     for (final NamedParameterNode<?> opt : conf.getNamedParameters()) {
       l.add(opt.getFullName()
           + '='
-          + escape(conf.getNamedParameter(opt)));
+          + escape(conf.getNamedParameter(opt).toString()));
     }
     for (final ClassNode<?> cn : conf.getLegacyConstructors()) {
       final StringBuilder sb = new StringBuilder();

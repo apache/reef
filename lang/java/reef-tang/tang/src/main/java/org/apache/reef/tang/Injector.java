@@ -23,6 +23,7 @@ import org.apache.reef.tang.exceptions.BindException;
 import org.apache.reef.tang.exceptions.InjectionException;
 import org.apache.reef.tang.exceptions.NameResolutionException;
 import org.apache.reef.tang.implementation.InjectionPlan;
+import org.apache.reef.tang.types.NamedObject;
 
 public interface Injector {
 
@@ -38,6 +39,10 @@ public interface Injector {
    * @throws InjectionException if it fails to find corresponding class
    */
   <U> U getInstance(Class<U> iface) throws InjectionException;
+
+  <U> U getInstance(Class<U> iface, NamedObject namedObject) throws InjectionException;
+
+  <U> U getInstance(String iface, NamedObject namedObject) throws InjectionException, NameResolutionException;
 
   /**
    * Gets an instance of iface, or the implementation that has been bound to it.
@@ -63,8 +68,22 @@ public interface Injector {
    * given interface class.
    * @throws InjectionException if name resolution fails
    */
+  <U> U getNamedInstance(Class<? extends Name<U>> iface, NamedObject namedObject)
+      throws InjectionException;
+
   <U> U getNamedInstance(Class<? extends Name<U>> iface)
       throws InjectionException;
+
+  /**
+   * Gets an instance of the implementation that has been bound to the type of namedObject
+   * in the space of namedObject.
+   *
+   * @param namedObject
+   * @param <U>
+   * @return an Instance of the NamedObject.
+   * @throws InjectionException
+   */
+  <U> U getNamedObjectInstance(NamedObject<U> namedObject) throws InjectionException;
 
   /**
    * Binds the given object to the class. Note that this only affects objects
@@ -77,7 +96,13 @@ public interface Injector {
    * @param inst an instance
    * @throws BindException when trying to re-bind
    */
+  <T> void bindVolatileInstance(Class<T> iface, T inst, NamedObject o)
+      throws BindException;
+
   <T> void bindVolatileInstance(Class<T> iface, T inst)
+      throws BindException;
+
+  <T> void bindVolatileParameter(Class<? extends Name<T>> iface, T inst, NamedObject o)
       throws BindException;
 
   <T> void bindVolatileParameter(Class<? extends Name<T>> iface, T inst)
@@ -133,13 +158,23 @@ public interface Injector {
    */
   boolean isInjectable(String name) throws BindException;
 
+  boolean isInjectable(String name, NamedObject no) throws NameResolutionException;
+
   boolean isParameterSet(String name) throws BindException;
+
+  boolean isParameterSet(String name, NamedObject no) throws NameResolutionException;
 
   boolean isInjectable(Class<?> clazz) throws BindException;
 
+  boolean isInjectable(Class<?> clazz, NamedObject no) throws BindException;
+
   boolean isParameterSet(Class<? extends Name<?>> name) throws BindException;
 
+  boolean isParameterSet(Class<? extends Name<?>> name, NamedObject no) throws BindException;
+
   InjectionPlan<?> getInjectionPlan(String name) throws NameResolutionException;
+
+  InjectionPlan<?> getInjectionPlan(String name, NamedObject no) throws NameResolutionException;
 
   <T> InjectionPlan<T> getInjectionPlan(Class<T> name);
 

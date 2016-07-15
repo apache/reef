@@ -22,6 +22,7 @@ import org.apache.reef.tang.BindLocation;
 import org.apache.reef.tang.implementation.StackBindLocation;
 
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -44,8 +45,14 @@ public final class TracingMonotonicTreeMap<K, V> implements TracingMonotonicMap<
   }
 
   @Override
-  public Set<Entry<K, V>> entrySet() {
-    throw new UnsupportedOperationException();
+  public Set<Map.Entry<K, V>> entrySet() {
+    // This implementation is not efficient, but we need to use entrySet() to pass findbugs' static code analysis
+    final Set<Map.Entry<K, EntryImpl>> innerMapEntrySet = innerMap.entrySet();
+    final Set<Map.Entry<K, V>> entrySet = new HashSet<>();
+    for(final Map.Entry<K, EntryImpl> entry: innerMapEntrySet) {
+      entrySet.add(new Entry(entry.getKey(), entry.getValue().getKey()));
+    }
+    return entrySet;
   }
 
   @Override
@@ -142,6 +149,34 @@ public final class TracingMonotonicTreeMap<K, V> implements TracingMonotonicMap<
     public String toString() {
       return "[" + key + "] set by " + value;
     }
-
   }
+
+  /**
+   * An implementation class for representing TracingMonotoricTreeMap's entry.
+   */
+  private class Entry implements Map.Entry<K, V> {
+    private final K key;
+    private final V value;
+
+    Entry(final K key, final V value) {
+      this.key = key;
+      this.value = value;
+    }
+
+    @Override
+    public K getKey() {
+      return key;
+    }
+
+    @Override
+    public V getValue() {
+      return value;
+    }
+
+    @Override
+    public V setValue(final V newValue) {
+      throw new UnsupportedOperationException();
+    }
+  }
+
 }

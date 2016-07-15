@@ -16,27 +16,30 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.tang.types;
+package org.apache.reef.tang.implementation.types;
 
-import java.util.Collection;
+import org.apache.reef.tang.types.NamedObject;
 
-public interface Node extends Comparable<Node>, Traversable<Node>, Boundable {
+/**
+ * Default implementation class for NamedObject interface.
+ */
+public final class NamedObjectImpl<T> implements NamedObject {
 
-  String getName();
+  private Class<T> type;
+  private String name;
 
-  String getFullName();
-
-  boolean contains(String key);
-
-  Node get(String key);
-
-  Node getParent();
-
-  void put(Node node);
-
-  @Override
-  Collection<Node> getChildren();
+  public NamedObjectImpl(final Class<T> type, final String name) {
+    this.type = type;
+    this.name = name;
+  }
 
   @Override
-  String toString();
+  public Class<T> getType() {
+    return type;
+  }
+
+  @Override
+  public String getName() {
+    return name;
+  }
 }

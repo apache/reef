@@ -25,16 +25,16 @@ import org.apache.avro.specific.SpecificDatumReader;
 import org.apache.avro.specific.SpecificDatumWriter;
 import org.apache.commons.lang.NotImplementedException;
 import org.apache.commons.lang.StringUtils;
-import org.apache.reef.tang.ClassHierarchy;
-import org.apache.reef.tang.Configuration;
-import org.apache.reef.tang.ConfigurationBuilder;
-import org.apache.reef.tang.Tang;
+import org.apache.reef.tang.*;
 import org.apache.reef.tang.exceptions.BindException;
 import org.apache.reef.tang.exceptions.ClassHierarchyException;
+import org.apache.reef.tang.formats.avro.AvroNamedObject;
 import org.apache.reef.tang.formats.avro.AvroConfiguration;
 import org.apache.reef.tang.formats.avro.ConfigurationEntry;
 import org.apache.reef.tang.implementation.ConfigurationBuilderImpl;
+import org.apache.reef.tang.implementation.types.NamedObjectElementImpl;
 import org.apache.reef.tang.types.ClassNode;
+import org.apache.reef.tang.types.NamedObjectElement;
 import org.apache.reef.tang.types.NamedParameterNode;
 import org.apache.reef.tang.types.Node;
 import org.apache.reef.tang.util.ReflectionUtilities;
@@ -79,13 +79,28 @@ public final class AvroConfigurationSerializer implements ConfigurationSerialize
         key = longName;
       }
 
-      // entry.getValue()'s type can be either string or array of string
       final Object rawValue = entry.getValue();
+      final AvroNamedObject ano = entry.getNamedObject();
 
       try {
+        // entry.getValue()'s type can be either string or array of string
+        final NamedObjectElement noe = ano.getIsGlobal() ?
+            new NamedObjectElementImpl<>(null, null, null, true) :
+            new NamedObjectElementImpl<>(
+                (ClassNode<?>) configurationBuilder.getClassHierarchy().getNode(ano.getType().toString()),
+                ((JavaClassHierarchy) configurationBuilder.getClassHierarchy()).classForName(ano.getType().toString()),
+                ano.getName().toString(),
+                false);
+
         // TODO[JIRA REEF-402]: Implement list deserialization
-        // rawValue is String.
-        final String value = rawValue.toString();
+        final String value;
+        if (rawValue instanceof CharSequence) {
+          // rawValue can be identified as a String name
+          value = rawValue.toString();
+        } else {
+          // rawValue is a NamedObject, and cannot be identified as a String name
+          value = "";
+        }
         if (key.equals(ConfigurationBuilderImpl.IMPORT)) {
           configurationBuilder.getClassHierarchy().getNode(value);
           final String[] tok = value.split(ReflectionUtilities.REGEXP);
@@ -100,16 +115,28 @@ public final class AvroConfigurationSerializer implements ConfigurationSerialize
                   + lastTok + " maps to " + oldValue + " and " + value, e);
             }
           }
-        } else if (value.startsWith(ConfigurationBuilderImpl.INIT)) {
+        } else if (rawValue instanceof CharSequence && value.startsWith(ConfigurationBuilderImpl.INIT)) {
           final String[] classes = value.substring(ConfigurationBuilderImpl.INIT.length(), value.length())
               .replaceAll("^[\\s\\(]+", "")
               .replaceAll("[\\s\\)]+$", "")
               .split("[\\s\\-]+");
           configurationBuilder.registerLegacyConstructor(key, classes);
         } else {
-          configurationBuilder.bind(key, value);
+          if (rawValue instanceof CharSequence) {
+            configurationBuilder.bind(key, value, noe);
+          } else {
+            final AvroNamedObject boundAno = (AvroNamedObject) rawValue;
+            final NamedObjectElement boundNoe =
+                new NamedObjectElementImpl<>(
+                    (ClassNode<?>) configurationBuilder.getClassHierarchy().getNode(boundAno.getType().toString()),
+                    (Class<?>) ((JavaClassHierarchy) configurationBuilder.getClassHierarchy())
+                        .classForName(boundAno.getType().toString()),
+                    boundAno.getName().toString(),
+                    boundAno.getIsGlobal());
+            configurationBuilder.bind(key, boundNoe, noe);
+          }
         }
-      } catch (final BindException | ClassHierarchyException e) {
+      } catch (final BindException | ClassHierarchyException | ClassNotFoundException e) {
         throw new BindException("Failed to process configuration tuple: [" + key + "=" + rawValue + "]", e);
       }
     }
@@ -141,11 +168,70 @@ public final class AvroConfigurationSerializer implements ConfigurationSerialize
 
     final List<ConfigurationEntry> configurationEntries = new ArrayList<>();
 
-    for (final ClassNode<?> opt : configuration.getBoundImplementations()) {
-      configurationEntries.add(ConfigurationEntry.newBuilder()
-          .setKey(opt.getFullName())
-          .setValue(configuration.getBoundImplementation(opt).getFullName())
-          .build());
+    for (final NamedObjectElement noe : configuration.getNamedObjectElements()) {
+      final AvroNamedObject ano;
+      AvroNamedObject.Builder anoBuilder = new AvroNamedObject().newBuilder();
+      anoBuilder = noe.isNull() ?
+          anoBuilder.setType("") :
+          anoBuilder.setType(noe.getTypeNode().getFullName());
+      ano = anoBuilder.setName(noe.getName()).setIsGlobal(noe.isNull()).build();
+      Object avroValue;
+      for (final ClassNode<?> opt : configuration.getBoundImplementations(noe)) {
+        avroValue = configuration.getBoundImplementation(opt, noe);
+        if (avroValue instanceof Node) {
+          avroValue = ((Node) avroValue).getFullName();
+        } else if (avroValue instanceof NamedObjectElement) {
+          avroValue = new AvroNamedObject().newBuilder()
+              .setType(((NamedObjectElement) avroValue).getTypeNode().getFullName())
+              .setName(((NamedObjectElement) avroValue).getName())
+              .setIsGlobal(((NamedObjectElement) avroValue).isNull())
+              .build();
+        }
+        configurationEntries.add(new ConfigurationEntry().newBuilder()
+            .setKey(opt.getFullName())
+            .setValue(avroValue)
+            .setNamedObject(ano)
+            .build());
+      }
+      for (final NamedParameterNode<?> opt : configuration.getNamedParameters(noe)) {
+        avroValue = configuration.getNamedParameter(opt, noe);
+        if (avroValue instanceof NamedObjectElement) {
+          avroValue = new AvroNamedObject().newBuilder()
+              .setType(((NamedObjectElement) avroValue).getTypeNode().getFullName())
+              .setName(((NamedObjectElement) avroValue).getName())
+              .setIsGlobal(((NamedObjectElement) avroValue).isNull())
+              .build();
+        }
+        configurationEntries.add(new ConfigurationEntry().newBuilder()
+            .setKey(opt.getFullName())
+            .setValue(avroValue)
+            .setNamedObject(ano)
+            .build());
+      }
+      for (final NamedParameterNode<Set<?>> key : configuration.getBoundSets()) {
+        for (final Object value : configuration.getBoundSet(key, noe)) {
+          final Object val;
+          if (value instanceof String) {
+            val = value;
+          } else if (value instanceof Node) {
+            val = ((Node) value).getFullName();
+          } else if (value instanceof NamedObjectElement) {
+            val = new AvroNamedObject().newBuilder()
+                .setType(((NamedObjectElement) value).getTypeNode().getFullName())
+                .setName(((NamedObjectElement) value).getName())
+                .setIsGlobal(((NamedObjectElement) value).isNull())
+                .build();
+          } else {
+            throw new IllegalStateException("Invalid Configuration: Bound set entries should be one of " +
+                "String, Node or NamedObjectElement!");
+          }
+          configurationEntries.add(new ConfigurationEntry().newBuilder()
+              .setKey(key.getFullName())
+              .setValue(val)
+              .setNamedObject(ano)
+              .build());
+        }
+      }
     }
 
     for (final ClassNode<?> opt : configuration.getBoundConstructors()) {
@@ -154,35 +240,12 @@ public final class AvroConfigurationSerializer implements ConfigurationSerialize
           .setValue(configuration.getBoundConstructor(opt).getFullName())
           .build());
     }
-    for (final NamedParameterNode<?> opt : configuration.getNamedParameters()) {
-      configurationEntries.add(ConfigurationEntry.newBuilder()
-          .setKey(opt.getFullName())
-          .setValue(configuration.getNamedParameter(opt))
-          .build());
-    }
     for (final ClassNode<?> cn : configuration.getLegacyConstructors()) {
       final String legacyConstructors = StringUtils.join(configuration.getLegacyConstructor(cn).getArgs(), "-");
       configurationEntries.add(ConfigurationEntry.newBuilder()
           .setKey(cn.getFullName())
           .setValue("" + ConfigurationBuilderImpl.INIT + "(" + legacyConstructors + ")")
           .build());
-    }
-    for (final NamedParameterNode<Set<?>> key : configuration.getBoundSets()) {
-      for (final Object value : configuration.getBoundSet(key)) {
-        final String val;
-        if (value instanceof String) {
-          val = (String) value;
-        } else if (value instanceof Node) {
-          val = ((Node) value).getFullName();
-        } else {
-          throw new IllegalStateException("The value bound to a given NamedParameterNode "
-                  + key + " is neither the set of class hierarchy nodes nor strings.");
-        }
-        configurationEntries.add(ConfigurationEntry.newBuilder()
-            .setKey(key.getFullName())
-            .setValue(val)
-            .build());
-      }
     }
     // TODO[JIRA REEF-402]: Implement list serialization
     if (configuration.getBoundLists() != null && !configuration.getBoundLists().isEmpty()) {

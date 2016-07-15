@@ -22,10 +22,11 @@ import org.apache.reef.tang.ClassHierarchy;
 import org.apache.reef.tang.Configuration;
 import org.apache.reef.tang.ConfigurationBuilder;
 import org.apache.reef.tang.ExternalConstructor;
-import org.apache.reef.tang.types.ClassNode;
-import org.apache.reef.tang.types.ConstructorDef;
-import org.apache.reef.tang.types.NamedParameterNode;
+import org.apache.reef.tang.implementation.types.NamedObjectElementImpl;
+import org.apache.reef.tang.types.*;
 
+
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
@@ -37,8 +38,13 @@ public class ConfigurationImpl implements Configuration {
   }
 
   @Override
-  public String getNamedParameter(final NamedParameterNode<?> np) {
-    return builder.namedParameters.get(np);
+  public Object getNamedParameter(final NamedParameterNode<?> np, final NamedObjectElement noe) {
+    return builder.namedParameters.containsKey(noe) ? builder.namedParameters.get(noe).get(np) : null;
+  }
+
+  @Override
+  public Object getNamedParameter(final NamedParameterNode<?> np) {
+    return getNamedParameter(np, builder.nullNamedObjectElement);
   }
 
   @Override
@@ -49,8 +55,15 @@ public class ConfigurationImpl implements Configuration {
   }
 
   @Override
+  public Set<ClassNode<?>> getBoundImplementations(final NamedObjectElement noe) {
+
+    return builder.boundImpls.containsKey(noe) ?
+        builder.boundImpls.get(noe).keySet() : Collections.<ClassNode<?>>emptySet();
+  }
+
+  @Override
   public Set<ClassNode<?>> getBoundImplementations() {
-    return builder.boundImpls.keySet();
+    return getBoundImplementations(builder.nullNamedObjectElement);
   }
 
   @Override
@@ -59,8 +72,14 @@ public class ConfigurationImpl implements Configuration {
   }
 
   @Override
+  public Set<NamedParameterNode<?>> getNamedParameters(final NamedObjectElement noe) {
+    return builder.namedParameters.containsKey(noe) ?
+        builder.namedParameters.get(noe).keySet() : Collections.<NamedParameterNode<?>>emptySet();
+  }
+
+  @Override
   public Set<NamedParameterNode<?>> getNamedParameters() {
-    return builder.namedParameters.keySet();
+    return getNamedParameters(builder.nullNamedObjectElement);
   }
 
   @Override
@@ -69,9 +88,14 @@ public class ConfigurationImpl implements Configuration {
   }
 
   @Override
+  public Boundable getBoundImplementation(final ClassNode cn, final NamedObjectElement noe) {
+    return builder.boundImpls.containsKey(noe) ? builder.boundImpls.get(noe).get(cn) : null;
+  }
+
+  @Override
   @SuppressWarnings("unchecked")
-  public <T> ClassNode<T> getBoundImplementation(final ClassNode<T> cn) {
-    return (ClassNode<T>) builder.boundImpls.get(cn);
+  public Boundable getBoundImplementation(final ClassNode cn) {
+    return getBoundImplementation(cn, builder.nullNamedObjectElement);
   }
 
   @Override
@@ -91,23 +115,47 @@ public class ConfigurationImpl implements Configuration {
   }
 
   @Override
+  public Set<Object> getBoundSet(final NamedParameterNode<Set<?>> np, final NamedObjectElement noe) {
+    return builder.boundSetEntries.containsKey(noe) ?
+        builder.boundSetEntries.get(noe).getValuesForKey(np) : Collections.emptySet();
+  }
+
+  @Override
   public Set<Object> getBoundSet(final NamedParameterNode<Set<?>> np) {
-    return this.builder.boundSetEntries.getValuesForKey(np);
+    return getBoundSet(np, builder.nullNamedObjectElement);
+  }
+
+  @Override
+  public List<Object> getBoundList(final NamedParameterNode<List<?>> np, final NamedObjectElement noe) {
+    return builder.boundLists.containsKey(noe) ? builder.boundLists.get(noe).get(np) : null;
   }
 
   @Override
   public List<Object> getBoundList(final NamedParameterNode<List<?>> np) {
-    return this.builder.boundLists.get(np);
+    return getBoundList(np, builder.nullNamedObjectElement);
+  }
+
+  @Override
+  public Set<NamedParameterNode<Set<?>>> getBoundSets(final NamedObjectElement noe) {
+    return builder.boundSetEntries.containsKey(noe) ?
+        builder.boundSetEntries.get(noe).keySet() : Collections.<NamedParameterNode<Set<?>>>emptySet();
   }
 
   @Override
   public Set<NamedParameterNode<Set<?>>> getBoundSets() {
-    return builder.boundSetEntries.keySet();
+    return getBoundSets(builder.nullNamedObjectElement);
+  }
+
+
+  @Override
+  public Set<NamedParameterNode<List<?>>> getBoundLists(final NamedObjectElement noe) {
+    return builder.boundLists.containsKey(noe) ?
+        builder.boundLists.get(noe).keySet() : Collections.<NamedParameterNode<List<?>>>emptySet();
   }
 
   @Override
   public Set<NamedParameterNode<List<?>>> getBoundLists() {
-    return builder.boundLists.keySet();
+    return getBoundLists(builder.nullNamedObjectElement);
   }
 
   @Override
@@ -135,5 +183,23 @@ public class ConfigurationImpl implements Configuration {
 
   public ConfigurationBuilderImpl getBuilder() {
     return builder;
+  }
+
+  @Override
+  public <T> NamedObjectElement<T> getNamedObjectElement(final NamedObject<T> no) {
+    if (no == null) {
+      return builder.nullNamedObjectElement;
+    }
+    final Node n = builder.getClassHierarchy().getNode(no.getType().getName());
+    if (n instanceof ClassNode) {
+      return new NamedObjectElementImpl((ClassNode) n, no.getType(), no.getName(), false);
+    } else {
+      throw new IllegalArgumentException("Internal error: Invalid type in NamedObject!");
+    }
+  }
+
+  @Override
+  public Set<NamedObjectElement> getNamedObjectElements() {
+    return builder.namedObjectElements;
   }
 }
