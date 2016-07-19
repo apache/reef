@@ -39,21 +39,19 @@ namespace Org.Apache.REEF.Demo.Driver
         private static readonly Logger Logger = Logger.GetLogger(typeof(DataSetMaster));
 
         private readonly IEvaluatorRequestor _evaluatorRequestor;
-        private readonly IFileSystem _fileSystem;
         private readonly string _serializerConfString;
         private readonly IInjector _injector;
+        private readonly Stack<string> _partitionDescriptorIds = new Stack<string>();
 
         private IPartitionedInputDataSet _partitionedInputDataSet;
-        private Stack<string> _partitionDescriptorIds = new Stack<string>();
+        
 
         [Inject]
         private DataSetMaster(IEvaluatorRequestor evaluatorRequestor,
-                              IFileSystem fileSystem,
                               AvroConfigurationSerializer avroConfigurationSerializer,
                               IInjector injector)
         {
             _evaluatorRequestor = evaluatorRequestor;
-            _fileSystem = fileSystem;
 
             IConfiguration serializerConf = TangFactory.GetTang().NewConfigurationBuilder()
                 .BindImplementation(GenericType<IFileDeSerializer<IEnumerable<byte>>>.Class,
@@ -72,20 +70,23 @@ namespace Org.Apache.REEF.Demo.Driver
             var partitionUris = GetPartitionUris(uri);
             foreach (var partitionUri in partitionUris)
             {
-                tmpConfModule = tmpConfModule.Set(FileSystemInputPartitionConfiguration<IEnumerable<byte>>.FilePathForPartitions,
-                   partitionUri);
-                _partitionedInputDataSet =
+                tmpConfModule =
+                    tmpConfModule.Set(FileSystemInputPartitionConfiguration<IEnumerable<byte>>.FilePathForPartitions,
+                        partitionUri);
+            }
+
+            _partitionedInputDataSet =
                     _injector.ForkInjector(tmpConfModule.Build()).GetInstance<IPartitionedInputDataSet>();
 
-                foreach (var descriptor in _partitionedInputDataSet)
-                {
-                    _partitionDescriptorIds.Push(descriptor.Id);
-                }
-                _evaluatorRequestor.Submit(_evaluatorRequestor.NewBuilder()
-                   .SetNumber(1)
-                   .SetMegabytes(1024)
-                   .Build());
+            foreach (var descriptor in _partitionedInputDataSet)
+            {
+                _partitionDescriptorIds.Push(descriptor.Id);
             }
+
+            _evaluatorRequestor.Submit(_evaluatorRequestor.NewBuilder()
+                .SetNumber(partitionUris.Length)
+                .SetMegabytes(1024)
+                .Build());
 
             return null; // must return IDataSet
         }
