@@ -16,6 +16,7 @@
 // under the License.
 
 using System;
+using Org.Apache.REEF.Tang.Annotations;
 
 namespace Org.Apache.REEF.Demo.Driver
 {
@@ -25,6 +26,7 @@ namespace Org.Apache.REEF.Demo.Driver
     /// <remarks>
     /// NEED A BETTER NAME. Current suggestions: IDataManager
     /// </remarks>
+    [DefaultImplementation(typeof(DataSetMaster))]
     public interface IDataSetMaster
     {
         /// <summary>

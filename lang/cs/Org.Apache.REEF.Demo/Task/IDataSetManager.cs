@@ -20,13 +20,6 @@ namespace Org.Apache.REEF.Demo.Task
     public interface IDataSetManager
     {
         /// <summary>
-        /// Fetch a block using its id.
-        /// </summary>
-        /// <param name="blockId"></param>
-        /// <returns></returns>
-        Block FetchBlock(string blockId);
-
-        /// <summary>
         /// Fetch a partition using its id.
         /// </summary>
         /// <param name="partitionId"></param>

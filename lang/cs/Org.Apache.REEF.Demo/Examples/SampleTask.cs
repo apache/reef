@@ -45,12 +45,9 @@ namespace Org.Apache.REEF.Demo.Examples
             foreach (string partitionId in _partitionIds)
             {
                 Partition partition = _dataSetManager.FetchPartition(partitionId);
-                foreach (Block block in partition.Blocks)
-                {
-                    // do something with the block data
-                    // decoding needed
-                    Console.WriteLine(block.Data);
-                }
+                // do something with the partition data
+                // deserialization needed
+                Console.WriteLine(partition.Data);
             }
 
             return null;

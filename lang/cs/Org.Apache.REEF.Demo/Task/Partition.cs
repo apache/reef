@@ -16,19 +16,36 @@
 // under the License.
 
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Org.Apache.REEF.Demo.Task
 {
     public class Partition
     {
-        public Partition(string id, IEnumerable<Block> blocks)
+        private readonly string _id;
+        private readonly IEnumerable<Block> _blocks;
+        private readonly byte[] _data;
+
+        private Partition(string id, IEnumerable<Block> blocks)
         {
-            Id = id;
-            Blocks = blocks;
+            _id = id;
+            _blocks = blocks;
+            IEnumerable<byte> data = new byte[0];
+            foreach (Block block in _blocks)
+            {
+                data = data.Concat(block.Data);
+            }
+            _data = data.ToArray();
         }
 
-        public string Id { get; private set; }
+        public string Id
+        {
+            get { return _id; }
+        }
 
-        public IEnumerable<Block> Blocks { get; private set; }
+        public byte[] Data
+        {
+            get { return _data; }
+        }
     }
 }
