@@ -248,6 +248,7 @@ public class SuspendDriver {
             .set(TaskConfiguration.IDENTIFIER, context.getId() + "_task")
             .set(TaskConfiguration.TASK, SuspendTestTask.class)
             .set(TaskConfiguration.ON_SUSPEND, SuspendTestTask.SuspendHandler.class)
+            .set(TaskConfiguration.ON_SEND_MESSAGE, SuspendTestTask.class)
             .build());
       } catch (final BindException ex) {
         LOG.log(Level.SEVERE, "Bad Task configuration for context: " + context.getId(), ex);
@@ -295,6 +296,9 @@ public class SuspendDriver {
             try {
               suspendedTask.getActiveContext().submitTask(TaskConfiguration.CONF
                     .set(TaskConfiguration.IDENTIFIER, taskId)
+                    .set(TaskConfiguration.TASK, SuspendTestTask.class)
+                    .set(TaskConfiguration.ON_SUSPEND, SuspendTestTask.SuspendHandler.class)
+                    .set(TaskConfiguration.ON_SEND_MESSAGE, SuspendTestTask.class)
                     .set(TaskConfiguration.MEMENTO,
                         DatatypeConverter.printBase64Binary(suspendedTask.get()))
                     .build());

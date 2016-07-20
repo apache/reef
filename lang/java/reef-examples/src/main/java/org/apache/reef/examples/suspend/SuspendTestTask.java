@@ -169,13 +169,11 @@ public class SuspendTestTask implements Task, TaskMessageSource {
    * Handler for suspend event.
    */
   public class SuspendHandler implements EventHandler<SuspendEvent> {
-
     @Override
     public void onNext(final SuspendEvent suspendEvent) {
-      final byte[] message = suspendEvent.get().get();
       synchronized (SuspendTestTask.this) {
-        LOG.log(Level.INFO, "Suspend: {0} with: {1} bytes; counter: {2}",
-            new Object[]{this, message.length, SuspendTestTask.this.counter});
+        LOG.log(Level.INFO, "Suspend: {0}; counter: {1}",
+            new Object[]{this, SuspendTestTask.this.counter});
         SuspendTestTask.this.suspended = true;
         SuspendTestTask.this.notify();
       }
