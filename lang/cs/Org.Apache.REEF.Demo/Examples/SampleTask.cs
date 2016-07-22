@@ -19,6 +19,7 @@ using System;
 using System.Collections.Generic;
 using Org.Apache.REEF.Common.Tasks;
 using Org.Apache.REEF.Demo.Task;
+using Org.Apache.REEF.IO.PartitionedData;
 using Org.Apache.REEF.Tang.Annotations;
 
 namespace Org.Apache.REEF.Demo.Examples
@@ -44,10 +45,11 @@ namespace Org.Apache.REEF.Demo.Examples
             // This does not necessarily have to be done at the task; doing this in a context (service) may be better.
             foreach (string partitionId in _partitionIds)
             {
-                Partition partition = _dataSetManager.FetchPartition(partitionId);
-                // do something with the partition data
-                // deserialization needed
-                Console.WriteLine(partition.Data);
+                IInputPartition<byte[]> partition = _dataSetManager.FetchPartition<byte[]>(partitionId);
+
+                // do something with the partition data.. deserialization needed
+                // e.g. IInputPartition<byte[]> -> IInputPartition<Vector>
+                Console.WriteLine(partition.GetPartitionHandle());
             }
 
             return null;

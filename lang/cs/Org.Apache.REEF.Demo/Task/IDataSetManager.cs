@@ -15,6 +15,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
+using Org.Apache.REEF.IO.PartitionedData;
+
 namespace Org.Apache.REEF.Demo.Task
 {
     public interface IDataSetManager
@@ -24,6 +26,6 @@ namespace Org.Apache.REEF.Demo.Task
         /// </summary>
         /// <param name="partitionId"></param>
         /// <returns></returns>
-        Partition FetchPartition(string partitionId);
+        IInputPartition<T> FetchPartition<T>(string partitionId);
     }
 }

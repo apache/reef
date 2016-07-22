@@ -16,34 +16,12 @@
 // under the License.
 
 using System.Collections.Generic;
+using Org.Apache.REEF.Tang.Annotations;
 
-namespace Org.Apache.REEF.Demo.Stage
+namespace Org.Apache.REEF.Demo.Task
 {
-    public class BlockInfo
+    [NamedParameter("The id of this data partition.")]
+    public sealed class SerializedInitialDataLoadPartitions : Name<ISet<string>>
     {
-        private readonly string _id;
-        private readonly IList<string> _evaluatorIds;
-
-        public BlockInfo(string id, IList<string> evaluatorIds)
-        {
-            _id = id;
-            _evaluatorIds = evaluatorIds;
-        }
-
-        /// <summary>
-        /// String identifier of this block.
-        /// </summary>
-        public string Id
-        {
-            get { return _id; }
-        }
-
-        /// <summary>
-        /// The ids of the evaluators this block is loaded on.
-        /// </summary>
-        public IList<string> EvaluatorIds
-        {
-            get { return _evaluatorIds; }
-        }
     }
 }

@@ -16,18 +16,19 @@
 // under the License.
 
 using System.Collections.Generic;
+using Org.Apache.REEF.Driver.Context;
 
 namespace Org.Apache.REEF.Demo.Stage
 {
     public class PartitionInfo
     {
         private readonly string _id;
-        private readonly IEnumerable<BlockInfo> _blockInfos;
+        private readonly IList<IActiveContext> _loadedContexts;
 
-        public PartitionInfo(string id, IEnumerable<BlockInfo> blockInfos)
+        public PartitionInfo(string id, params IActiveContext[] loadedContexts)
         {
             _id = id;
-            _blockInfos = blockInfos;
+            _loadedContexts = new List<IActiveContext>(loadedContexts);
         }
 
         /// <summary>
@@ -39,11 +40,11 @@ namespace Org.Apache.REEF.Demo.Stage
         }
 
         /// <summary>
-        /// BlockInfos of the blocks that belong to this partition.
+        /// LoadedContexts of the blocks that belong to this partition.
         /// </summary>
-        public IEnumerable<BlockInfo> BlockInfos
+        public IList<IActiveContext> LoadedContexts
         {
-            get { return _blockInfos; }
+            get { return _loadedContexts; }
         }
     }
 }

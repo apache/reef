@@ -24,7 +24,7 @@ namespace Org.Apache.REEF.Demo.Driver
     /// A driver-side representation of a partitioned dataset that is distributed across evaluators.
     /// </summary>
     /// <typeparam name="T">Partition type</typeparam>
-    public interface IDataSet<T>
+    public interface IDataSet<out T>
     {
         /// <summary>
         /// String identifier of this dataset.

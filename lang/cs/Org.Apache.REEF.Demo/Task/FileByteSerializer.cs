@@ -15,27 +15,32 @@
 // specific language governing permissions and limitations
 // under the License.
 
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using Org.Apache.REEF.IO.PartitionedData.FileSystem;
+using Org.Apache.REEF.Tang.Annotations;
+
 namespace Org.Apache.REEF.Demo.Task
 {
-    internal class Block
+    public sealed class FileByteSerializer : IFileDeSerializer<byte[]>
     {
-        private readonly string _id;
-        private readonly byte[] _data;
-
-        internal Block(string id, byte[] data)
+        [Inject]
+        public FileByteSerializer()
         {
-            _id = id;
-            _data = data;
         }
 
-        internal string Id
+        public byte[] Deserialize(ISet<string> filePaths)
         {
-            get { return _id; }
-        }
+            IEnumerable<byte> data = new byte[0];
 
-        internal byte[] Data
-        {
-            get { return _data; }
+            foreach (string filePath in filePaths)
+            {
+                data = data.Concat(File.ReadAllBytes(filePath));
+            }
+
+            return data.ToArray();
         }
     }
 }

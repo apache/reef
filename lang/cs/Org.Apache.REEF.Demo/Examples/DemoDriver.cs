@@ -47,6 +47,7 @@ namespace Org.Apache.REEF.Demo.Examples
             // MiniDriver configuration
             // information on which block is on which evaluator will be given
             IConfiguration conf = TangFactory.GetTang().NewConfigurationBuilder().Build();
+            
             IDataSet<AnotherSerializableClass> anotherDataSet = _dataSet.RunStage<AnotherSerializableClass>(conf);
 
             // store the new dataset/model

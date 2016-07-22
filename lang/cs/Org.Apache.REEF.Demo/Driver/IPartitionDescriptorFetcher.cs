@@ -15,33 +15,24 @@
 // specific language governing permissions and limitations
 // under the License.
 
+using System;
 using System.Collections.Generic;
-using System.IO;
-using Org.Apache.REEF.IO.PartitionedData.FileSystem;
+using Org.Apache.REEF.IO.PartitionedData;
 using Org.Apache.REEF.Tang.Annotations;
 
-namespace Org.Apache.REEF.Demo.Task
+namespace Org.Apache.REEF.Demo.Driver
 {
-    public class ByteSerializer : IFileDeSerializer<IEnumerable<byte>>
+    /// <summary>
+    /// Interface for fetching partition info with a given URI, at the driver.
+    /// </summary>
+    [DefaultImplementation(typeof(FileInputPartitionDescriptorFetcher))]
+    public interface IPartitionDescriptorFetcher
     {
-        [Inject]
-        public ByteSerializer()
-        {
-        }
-
-        public IEnumerable<byte> Deserialize(ISet<string> filePaths)
-        {
-            foreach (var f in filePaths)
-            {
-                using (FileStream stream = File.Open(f, FileMode.Open))
-                {
-                    BinaryReader reader = new BinaryReader(stream);
-                    while (reader.PeekChar() != -1)
-                    {
-                        yield return reader.ReadByte();
-                    }
-                }
-            }
-        }
+        /// <summary>
+        /// Check the partitions that the given <code>uri</code> is comprised of and return the corresponding partition descriptors.
+        /// </summary>
+        /// <param name="uri">dataset identifier</param>
+        /// <returns>partition descriptors of the dataset</returns>
+        IEnumerable<IPartitionDescriptor> GetPartitionDescriptors(Uri uri);
     }
 }
