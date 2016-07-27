@@ -220,19 +220,42 @@ public class ConfigurationModule {
 
     for (final Class<?> clazz : c.builder.freeImpls.keySet()) {
       final Impl<?> i = c.builder.freeImpls.get(clazz);
+      boolean foundOne = false;
       if (c.setImpls.containsKey(i)) {
-        c.builder.b.bind(clazz, c.setImpls.get(i));
-      } else if (c.setLateImpls.containsKey(i)) {
-        c.builder.b.bind(ReflectionUtilities.getFullName(clazz), c.setLateImpls.get(i));
-      } else if (c.setImplSets.containsKey(i) || c.setLateImplSets.containsKey(i)) {
-        for (final Class<?> clz : c.setImplSets.getValuesForKey(i)) {
-          c.builder.b.bindSetEntry((Class) clazz, (Class) clz);
+        if (c.setImpls.get(i) != null) {
+          c.builder.b.bind(clazz, c.setImpls.get(i));
+          foundOne = true;
         }
-        for (final String s : c.setLateImplSets.getValuesForKey(i)) {
-          c.builder.b.bindSetEntry((Class) clazz, s);
+      } else if (c.setLateImpls.containsKey(i)) {
+        if (c.setLateImpls.get(i) != null) {
+          c.builder.b.bind(ReflectionUtilities.getFullName(clazz), c.setLateImpls.get(i));
+          foundOne = true;
+        }
+      } else if (c.setImplSets.containsKey(i) || c.setLateImplSets.containsKey(i)) {
+        if (c.setImplSets.getValuesForKey(i) != null) {
+          for (final Class<?> clz : c.setImplSets.getValuesForKey(i)) {
+            c.builder.b.bindSetEntry((Class) clazz, (Class) clz);
+          }
+          foundOne = true;
+        }
+        if (c.setLateImplSets.getValuesForKey(i) != null) {
+          for (final String s : c.setLateImplSets.getValuesForKey(i)) {
+            c.builder.b.bindSetEntry((Class) clazz, s);
+          }
+          foundOne = true;
         }
       } else if (c.setImplLists.containsKey(i)) {
-        c.builder.b.bindList((Class) clazz, c.setImplLists.get(i));
+        if (c.setImplLists.get(i) != null) {
+          c.builder.b.bindList((Class) clazz, c.setImplLists.get(i));
+          foundOne = true;
+        }
+      }
+      if(!foundOne && !(i instanceof  OptionalImpl)) {
+        final IllegalStateException e =
+            new IllegalStateException("Cannot find the value for the RequiredImplementation of the " + clazz
+            + ". Check that you don't pass null as an implementation value.");
+        LOG.log(Level.SEVERE, "Failed to build configuration", e);
+        throw e;
       }
     }
     for (final Class<? extends Name<?>> clazz : c.builder.freeParams.keySet()) {
