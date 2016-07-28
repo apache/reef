@@ -15,6 +15,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Org.Apache.REEF.IMRU.API;
@@ -31,6 +32,13 @@ namespace Org.Apache.REEF.IMRU.Examples.NaturalSum
     /// <summary>
     /// A simple IMRU program that caclulates the sum of natural numbers.
     /// </summary>
+    /// <remarks>
+    /// This example demonstrates the use of <see cref="IPerMapperConfigGenerator"/>.
+    /// N mappers are instantiated, each given an integer id (1, 2, 3, ... N) with <see cref="NaturalSumPerMapperConfigGenerator"/>.
+    /// The map functions simply return the mapper's ids, and the ids get summed up via the reduce function and get passed to the updater.
+    /// The job finishes after this single iteration.
+    /// Call the <see cref="Run"/> method to run the example with custom parameters.
+    /// </remarks>
     public sealed class NaturalSum
     {
         private readonly IIMRUClient _imruClient;
