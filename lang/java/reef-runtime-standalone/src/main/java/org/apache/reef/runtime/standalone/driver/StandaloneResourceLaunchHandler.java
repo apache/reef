@@ -28,10 +28,10 @@ import javax.inject.Inject;
 @Private
 @DriverSide
 final class StandaloneResourceLaunchHandler implements ResourceLaunchHandler {
-  private final NodeListManager nodeListManager;
+  private final RemoteNodeManager nodeListManager;
 
   @Inject
-  StandaloneResourceLaunchHandler(final NodeListManager nodeListManager) {
+  StandaloneResourceLaunchHandler(final RemoteNodeManager nodeListManager) {
     this.nodeListManager = nodeListManager;
   }
 

@@ -24,7 +24,8 @@ import org.apache.reef.tang.annotations.NamedParameter;
 /**
  * The folder where required jar files shall be stored.
  */
-@NamedParameter(default_value = NodeFolder.DEFAULT_VALUE, doc = "The folder where required jar files shall be stored.")
+@NamedParameter(default_value = NodeFolder.DEFAULT_VALUE,
+    doc = "The folder where the shaded JAR file is stored in remote nodes.")
 public final class NodeFolder implements Name<String> {
   public static final String DEFAULT_VALUE = "REEF_STANDALONE_RUNTIME";
 

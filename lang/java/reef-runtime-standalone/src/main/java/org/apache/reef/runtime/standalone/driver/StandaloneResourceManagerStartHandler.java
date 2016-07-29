@@ -25,12 +25,15 @@ import javax.inject.Inject;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+/**
+ * Dummy class for the common REEF driver configuration.
+ */
 final class StandaloneResourceManagerStartHandler implements ResourceManagerStartHandler {
   private static final Logger LOG = Logger.getLogger(StandaloneResourceManagerStartHandler.class.getName());
-  private final NodeListManager nodeListManager;
+  private final RemoteNodeManager nodeListManager;
 
   @Inject
-  private StandaloneResourceManagerStartHandler(final NodeListManager nodeListManager) {
+  private StandaloneResourceManagerStartHandler(final RemoteNodeManager nodeListManager) {
     this.nodeListManager = nodeListManager;
   }
 

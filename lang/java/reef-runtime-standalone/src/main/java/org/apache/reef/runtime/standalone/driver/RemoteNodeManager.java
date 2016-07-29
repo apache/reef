@@ -19,9 +19,7 @@
 package org.apache.reef.runtime.standalone.driver;
 
 import com.jcraft.jsch.*;
-import org.apache.reef.client.FailedRuntime;
 import org.apache.reef.driver.evaluator.EvaluatorProcess;
-import org.apache.reef.proto.ReefServiceProtos;
 import org.apache.reef.runtime.common.driver.api.ResourceLaunchEvent;
 import org.apache.reef.runtime.common.driver.api.ResourceReleaseEvent;
 import org.apache.reef.runtime.common.driver.api.ResourceRequestEvent;
@@ -34,6 +32,9 @@ import org.apache.reef.runtime.common.files.REEFFileNames;
 import org.apache.reef.runtime.common.parameters.JVMHeapSlack;
 import org.apache.reef.runtime.common.utils.RemoteManager;
 import org.apache.reef.runtime.local.client.parameters.RootFolder;
+import org.apache.reef.runtime.local.driver.ProcessContainer;
+import org.apache.reef.runtime.local.process.ReefRunnableProcessObserver;
+import org.apache.reef.runtime.standalone.client.parameters.SshPortNum;
 import org.apache.reef.runtime.yarn.driver.REEFEventHandlers;
 import org.apache.reef.runtime.standalone.client.parameters.NodeFolder;
 import org.apache.reef.runtime.standalone.client.parameters.NodeInfoSet;
@@ -42,8 +43,6 @@ import org.apache.reef.tang.exceptions.BindException;
 import org.apache.reef.tang.formats.ConfigurationSerializer;
 import org.apache.reef.util.CollectionUtils;
 import org.apache.reef.util.Optional;
-import org.apache.reef.wake.EventHandler;
-import org.apache.reef.wake.remote.RemoteMessage;
 
 import javax.inject.Inject;
 import java.io.File;
@@ -55,76 +54,79 @@ import java.util.logging.Logger;
 /**
  * Management module for remote nodes in standalone runtime.
  */
-public final class NodeListManager {
-  private static final Logger LOG = Logger.getLogger(NodeListManager.class.getName());
+public final class RemoteNodeManager {
+  private static final Logger LOG = Logger.getLogger(RemoteNodeManager.class.getName());
 
   /**
-   * Map from containerID -> Container.
+   * Map from containerID -> SshProcessContainer.
    */
-  private final Map<String, Container> containers = new HashMap<>();
+  private final Map<String, SshProcessContainer> containers = new HashMap<>();
+  private final Map<String, ProcessContainer> processContainers = new HashMap<>();
 
-  private final Set<String> nodeInfoSet;
-  private Iterator<String> nodeSetIterator;
   private final ConfigurationSerializer configurationSerializer;
   private final REEFFileNames fileNames;
   private final double jvmHeapFactor;
   private final REEFEventHandlers reefEventHandlers;
   private final String errorHandlerRID;
+  private final Set<String> nodeInfoSet;
+  private Iterator<String> nodeSetIterator;
+  private final ReefRunnableProcessObserver processObserver;
   private final String rootFolder;
   private final String nodeFolder;
-  private final int sshPort = 22;
+  private final int sshPortNum;
 
   @Inject
-  NodeListManager(@Parameter(NodeInfoSet.class) final Set<String> nodeInfoSet,
-                  final ConfigurationSerializer configurationSerializer,
-                  final REEFFileNames fileNames,
-                  @Parameter(JVMHeapSlack.class) final double jvmHeapSlack,
-                  final RemoteManager remoteManager,
-                  final REEFEventHandlers reefEventHandlers,
-                  @Parameter(RootFolder.class) final String rootFolder,
-                  @Parameter(NodeFolder.class) final String nodeFolder) {
-    this.nodeInfoSet = nodeInfoSet;
+  RemoteNodeManager(final ConfigurationSerializer configurationSerializer,
+                    final REEFFileNames fileNames,
+                    final RemoteManager remoteManager,
+                    final REEFEventHandlers reefEventHandlers,
+                    final ReefRunnableProcessObserver processObserver,
+                    @Parameter(JVMHeapSlack.class) final double jvmHeapSlack,
+                    @Parameter(NodeInfoSet.class) final Set<String> nodeInfoSet,
+                    @Parameter(RootFolder.class) final String rootFolder,
+                    @Parameter(NodeFolder.class) final String nodeFolder,
+                    @Parameter(SshPortNum.class) final int sshPortNum) {
     this.configurationSerializer = configurationSerializer;
     this.fileNames = fileNames;
-    this.jvmHeapFactor = 1.0 - jvmHeapSlack;
-    this.reefEventHandlers = reefEventHandlers;
+    this.processObserver = processObserver;
     this.errorHandlerRID = remoteManager.getMyIdentifier();
+    this.reefEventHandlers = reefEventHandlers;
+    this.jvmHeapFactor = 1.0 - jvmHeapSlack;
+    this.nodeInfoSet = nodeInfoSet;
     this.rootFolder = rootFolder;
     this.nodeFolder = nodeFolder;
+    this.sshPortNum = sshPortNum;
 
     this.nodeSetIterator = this.nodeInfoSet.iterator();
 
-    remoteManager.registerHandler(ReefServiceProtos.RuntimeErrorProto.class,
-        new EventHandler<RemoteMessage<ReefServiceProtos.RuntimeErrorProto>>() {
-          @Override
-          public void onNext(final RemoteMessage<ReefServiceProtos.RuntimeErrorProto> value) {
-            final FailedRuntime error = new FailedRuntime(value.getMessage());
-            LOG.log(Level.SEVERE, "FailedRuntime: " + error, error.getReason().orElse(null));
-            release(error.getId());
-          }
-        });
-
-    LOG.log(Level.FINEST, "Initialized NodeListManager.");
+    LOG.log(Level.FINEST, "Initialized RemoteNodeManager.");
   }
 
-  void release(final String containerID) {
+  private void release(final String containerID) {
     synchronized (this.containers) {
-      final Container ctr = this.containers.get(containerID);
+      final SshProcessContainer ctr = this.containers.get(containerID);
+      final ProcessContainer pc = this.processContainers.get(containerID);
       if (null != ctr) {
         LOG.log(Level.INFO, "Releasing Container with containerId [{0}]", ctr);
         if (ctr.isRunning()) {
           ctr.close();
         }
         this.containers.remove(ctr.getContainerID());
+
+        if (pc.isRunning()) {
+          pc.close();
+        }
+        this.processContainers.remove(pc.getContainerID());
       } else {
         LOG.log(Level.INFO, "Ignoring release request for unknown containerID [{0}]", containerID);
       }
     }
   }
 
-  public void onResourceLaunchRequest(final ResourceLaunchEvent resourceLaunchEvent) {
-    LOG.log(Level.INFO, "NodeListManager:onResourceLaunchRequest");
+  void onResourceLaunchRequest(final ResourceLaunchEvent resourceLaunchEvent) {
+    LOG.log(Level.INFO, "RemoteNodeManager:onResourceLaunchRequest");
 
+    // connect to the remote node.
     final String remoteNode;
     try {
       synchronized (this.nodeSetIterator) {
@@ -139,11 +141,10 @@ public final class NodeListManager {
     final String privatekey = userHomeDir + "/.ssh/id_dsa";
 
     synchronized (this.containers) {
-      final JSch remoteConnection = new JSch();
-      final Session sshSession;
       try {
+        final JSch remoteConnection = new JSch();
         remoteConnection.addIdentity(privatekey);
-        sshSession = remoteConnection.getSession(username, hostname, sshPort);
+        final Session sshSession = remoteConnection.getSession(username, hostname, sshPortNum);
 
         final Properties jschConfig = new Properties();
         jschConfig.put("StrictHostKeyChecking", "no");
@@ -152,20 +153,22 @@ public final class NodeListManager {
         try {
           sshSession.connect();
         } catch (JSchException ex) {
-          throw new RuntimeException("Unable to connect to the session. Check your authorized_keys settings.", ex);
+          throw new RuntimeException("Unable to connect to " + remoteNode + ". " +
+              "Check your authorized_keys settings. It should contain the public key of " + privatekey, ex);
         }
 
         LOG.log(Level.FINEST, "Established connection with {0}", hostname);
 
-        final Container c = this.containers.get(resourceLaunchEvent.getIdentifier());
-        c.setRemoteConnection(sshSession, remoteNode);
+        final SshProcessContainer spc = this.containers.get(resourceLaunchEvent.getIdentifier())
+            .withRemoteConnection(sshSession, remoteNode);
+        final ProcessContainer c = this.processContainers.get(resourceLaunchEvent.getIdentifier());
 
         // Add the global files and libraries.
         c.addGlobalFiles(this.fileNames.getGlobalFolder());
         c.addLocalFiles(getLocalFiles(resourceLaunchEvent));
 
         // Make the configuration file of the evaluator.
-        final File evaluatorConfigurationFile = new File(c.getFolder(), fileNames.getEvaluatorConfigurationPath());
+        final File evaluatorConfigurationFile = new File(spc.getFolder(), fileNames.getEvaluatorConfigurationPath());
 
         try {
           this.configurationSerializer.toFile(resourceLaunchEvent.getEvaluatorConf(), evaluatorConfigurationFile);
@@ -179,11 +182,10 @@ public final class NodeListManager {
         ((ChannelExec) channel).setCommand(mkdirCommand);
         channel.connect();
 
-        // TODO[JIRA-1137]: Make the file copy job non-blocking; share common files in a node; execute the code itself
-        final List<String> copyCommand = new ArrayList<>(Arrays.asList("scp", "-r", c.getFolder().toString(),
-            remoteNode + ":~/" + nodeFolder + "/" + c.getContainerID()));
+        final List<String> copyCommand = new ArrayList<>(Arrays.asList("scp", "-r", spc.getFolder().toString(),
+            remoteNode + ":~/" + nodeFolder + "/" + spc.getContainerID()));
         LOG.log(Level.INFO, "Copying files: {0}", copyCommand);
-        Process copyProcess = new ProcessBuilder(copyCommand).start();
+        final Process copyProcess = new ProcessBuilder(copyCommand).start();
         try {
           copyProcess.waitFor();
         } catch (final InterruptedException ex) {
@@ -191,8 +193,8 @@ public final class NodeListManager {
         }
 
         final List<String> command = getLaunchCommand(resourceLaunchEvent, c.getMemory());
-        LOG.log(Level.FINEST, "Launching container: {0}", c);
-        c.run(command);
+        LOG.log(Level.FINEST, "Launching container: {0}", spc);
+        spc.run(command);
       } catch (final JSchException | IOException ex) {
         LOG.log(Level.WARNING, "Failed to establish connection with {0}@{1}:\n Exception:{2}",
             new Object[]{username, hostname, ex});
@@ -200,7 +202,7 @@ public final class NodeListManager {
     }
   }
 
-  public String getNode() {
+  private String getNode() {
     if (!nodeSetIterator.hasNext()) {
       nodeSetIterator = this.nodeInfoSet.iterator();
     }
@@ -229,24 +231,28 @@ public final class NodeListManager {
     }
   }
 
-  public void onResourceRequest(final ResourceRequestEvent resourceRequestEvent) {
+  void onResourceRequest(final ResourceRequestEvent resourceRequestEvent) {
     final Optional<String> node = selectNode(resourceRequestEvent);
     final String nodeId;
 
     if (node.isPresent()) {
-      // If nodeId is not in NodeList, raise Runtime Exception
       nodeId = node.get();
     } else {
       // Allocate new container
-      nodeId = this.getNode() + ":" + String.valueOf(sshPort);
+      nodeId = this.getNode() + ":" + String.valueOf(sshPortNum);
     }
 
     final String processID = nodeId + "-" + String.valueOf(System.currentTimeMillis());
     final File processFolder = new File(this.rootFolder, processID);
-    final Container c = new ProcessContainer(this.errorHandlerRID, nodeId,
-        processID, processFolder, resourceRequestEvent.getMemorySize().get(),
-        resourceRequestEvent.getVirtualCores().get(), this.fileNames, nodeFolder);
+
+    final SshProcessContainer c = new SshProcessContainer(processID, processFolder,
+        this.fileNames, nodeFolder, processObserver);
     this.containers.put(processID, c);
+    final ProcessContainer pc = new ProcessContainer(this.errorHandlerRID, nodeId, processID, processFolder,
+        resourceRequestEvent.getMemorySize().get(), resourceRequestEvent.getVirtualCores().get(),
+        this.fileNames, this.processObserver);
+    this.processContainers.put(processID, pc);
+
     final ResourceAllocationEvent alloc = ResourceEventImpl.newAllocationBuilder()
         .setIdentifier(processID)
         .setNodeId(nodeId)
@@ -256,6 +262,7 @@ public final class NodeListManager {
         .build();
     reefEventHandlers.onResourceAllocation(alloc);
 
+    // set the status as RUNNING.
     updateRuntimeStatus();
   }
 
@@ -268,11 +275,15 @@ public final class NodeListManager {
 
   public synchronized void close() {
     synchronized (this.containers) {
-      if (this.containers.isEmpty()) {
+      if (this.containers.isEmpty() && this.processContainers.isEmpty()) {
         LOG.log(Level.FINEST, "Clean shutdown with no outstanding containers.");
       } else {
         LOG.log(Level.WARNING, "Dirty shutdown with outstanding containers.");
-        for (final Container c : this.containers.values()) {
+        for (final SshProcessContainer c : this.containers.values()) {
+          LOG.log(Level.WARNING, "Force shutdown of: {0}", c);
+          c.close();
+        }
+        for (final ProcessContainer c : this.processContainers.values()) {
           LOG.log(Level.WARNING, "Force shutdown of: {0}", c);
           c.close();
         }

@@ -29,10 +29,10 @@ import javax.inject.Inject;
 @Private
 @DriverSide
 final class StandaloneResourceRequestHandler implements ResourceRequestHandler {
-  private final NodeListManager nodeListManager;
+  private final RemoteNodeManager nodeListManager;
 
   @Inject
-  StandaloneResourceRequestHandler(final NodeListManager nodeListManager) {
+  StandaloneResourceRequestHandler(final RemoteNodeManager nodeListManager) {
     this.nodeListManager = nodeListManager;
   }
 

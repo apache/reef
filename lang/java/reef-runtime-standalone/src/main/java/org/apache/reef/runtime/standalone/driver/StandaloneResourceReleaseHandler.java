@@ -26,17 +26,16 @@ import org.apache.reef.runtime.common.driver.api.ResourceReleaseHandler;
 import javax.inject.Inject;
 
 /**
- * Takes Resource Release requests and patches them through to the resource
- * manager.
+ * Takes Resource Release requests and closes process managers.
  */
 @Private
 @DriverSide
 public final class StandaloneResourceReleaseHandler implements ResourceReleaseHandler {
 
-  private final NodeListManager nodeListManager;
+  private final RemoteNodeManager nodeListManager;
 
   @Inject
-  StandaloneResourceReleaseHandler(final NodeListManager nodeListManager) {
+  StandaloneResourceReleaseHandler(final RemoteNodeManager nodeListManager) {
     this.nodeListManager = nodeListManager;
   }
 

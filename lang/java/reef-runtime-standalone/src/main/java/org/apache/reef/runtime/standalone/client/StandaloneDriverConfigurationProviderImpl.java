@@ -22,6 +22,7 @@ import org.apache.reef.runtime.common.client.DriverConfigurationProvider;
 import org.apache.reef.runtime.common.parameters.JVMHeapSlack;
 import org.apache.reef.runtime.standalone.client.parameters.NodeFolder;
 import org.apache.reef.runtime.standalone.client.parameters.NodeListFilePath;
+import org.apache.reef.runtime.standalone.client.parameters.SshPortNum;
 import org.apache.reef.runtime.standalone.driver.StandaloneDriverConfiguration;
 import org.apache.reef.tang.Configuration;
 import org.apache.reef.tang.Configurations;
@@ -46,15 +47,18 @@ final class StandaloneDriverConfigurationProviderImpl implements DriverConfigura
   private final double jvmHeapSlack;
   private final String nodeListFilePath;
   private final String nodeFolder;
+  private final int sshPortNum;
   private final Set<String> nodeInfoSet;
 
   @Inject
   StandaloneDriverConfigurationProviderImpl(@Parameter(JVMHeapSlack.class) final double jvmHeapSlack,
                                             @Parameter(NodeListFilePath.class) final String nodeListFilePath,
-                                            @Parameter(NodeFolder.class) final String nodeFolder) {
+                                            @Parameter(NodeFolder.class) final String nodeFolder,
+                                            @Parameter(SshPortNum.class) final int sshPortNum) {
     this.jvmHeapSlack = jvmHeapSlack;
     this.nodeListFilePath = nodeListFilePath;
     this.nodeFolder = nodeFolder;
+    this.sshPortNum = sshPortNum;
     this.nodeInfoSet = new HashSet<>();
 
     LOG.log(Level.FINEST, "Reading NodeListFilePath");
@@ -86,6 +90,7 @@ final class StandaloneDriverConfigurationProviderImpl implements DriverConfigura
         .set(StandaloneDriverConfiguration.ROOT_FOLDER, jobFolder.getPath())
         .set(StandaloneDriverConfiguration.NODE_FOLDER, this.nodeFolder)
         .set(StandaloneDriverConfiguration.NODE_LIST_FILE_PATH, this.nodeListFilePath)
+        .set(StandaloneDriverConfiguration.SSH_PORT_NUM, this.sshPortNum)
         .set(StandaloneDriverConfiguration.JVM_HEAP_SLACK, this.jvmHeapSlack)
         .set(StandaloneDriverConfiguration.CLIENT_REMOTE_IDENTIFIER, clientRemoteId)
         .set(StandaloneDriverConfiguration.JOB_IDENTIFIER, jobId);

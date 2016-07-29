@@ -25,10 +25,10 @@ import javax.inject.Inject;
 
 final class StandaloneResourceManagerStopHandler implements ResourceManagerStopHandler {
 
-  private final NodeListManager nodeListManager;
+  private final RemoteNodeManager nodeListManager;
 
   @Inject
-  StandaloneResourceManagerStopHandler(final NodeListManager nodeListManager) {
+  StandaloneResourceManagerStopHandler(final RemoteNodeManager nodeListManager) {
     this.nodeListManager = nodeListManager;
   }
 

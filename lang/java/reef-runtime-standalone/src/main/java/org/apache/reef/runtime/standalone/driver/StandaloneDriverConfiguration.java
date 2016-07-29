@@ -30,6 +30,7 @@ import org.apache.reef.runtime.local.client.parameters.RootFolder;
 import org.apache.reef.runtime.standalone.client.parameters.NodeFolder;
 import org.apache.reef.runtime.standalone.client.parameters.NodeListFilePath;
 import org.apache.reef.runtime.standalone.client.parameters.NodeInfoSet;
+import org.apache.reef.runtime.standalone.client.parameters.SshPortNum;
 import org.apache.reef.tang.formats.ConfigurationModule;
 import org.apache.reef.tang.formats.ConfigurationModuleBuilder;
 import org.apache.reef.tang.formats.OptionalParameter;
@@ -60,15 +61,23 @@ public class StandaloneDriverConfiguration extends ConfigurationModuleBuilder {
   public static final RequiredParameter<String> JOB_IDENTIFIER = new RequiredParameter<>();
 
   /**
-   * Set of nodes.
+   * The file containing a list of remote ssh nodes (i.e. `username@147.0.23.14`), separated by newlines.
    */
   public static final RequiredParameter<String> NODE_LIST_FILE_PATH = new RequiredParameter<>();
+  /**
+   * Set of objects containing information about the nodes.
+   */
   public static final RequiredParameter<String> NODE_INFO_SET = new RequiredParameter<>();
 
   /**
-   * Folder where the file with the set of nodes are saved in.
+   * Folder to save the shaded jar for the remote nodes.
    */
   public static final OptionalParameter<String> NODE_FOLDER = new OptionalParameter<>();
+
+  /**
+   * SSh port number.
+   */
+  public static final OptionalParameter<Integer> SSH_PORT_NUM = new OptionalParameter<>();
 
   public static final ConfigurationModule CONF = new StandaloneDriverConfiguration()
       .bindImplementation(ResourceLaunchHandler.class, StandaloneResourceLaunchHandler.class)
@@ -83,6 +92,7 @@ public class StandaloneDriverConfiguration extends ConfigurationModuleBuilder {
       .bindNamedParameter(RootFolder.class, ROOT_FOLDER)
       .bindNamedParameter(NodeListFilePath.class, NODE_LIST_FILE_PATH)
       .bindNamedParameter(NodeFolder.class, NODE_FOLDER)
+      .bindNamedParameter(SshPortNum.class, SSH_PORT_NUM)
       .bindNamedParameter(JVMHeapSlack.class, JVM_HEAP_SLACK)
       .bindSetEntry(NodeInfoSet.class, NODE_INFO_SET)
       .bindImplementation(RuntimeClasspathProvider.class, LocalClasspathProvider.class)

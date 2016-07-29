@@ -24,7 +24,7 @@ import org.apache.reef.tang.annotations.NamedParameter;
 /**
  * The file which will contain information of remote nodes.
  */
-@NamedParameter(doc = "The file contains lines of ssh info of remote nodes", short_name = "node_list_file_path")
+@NamedParameter(doc = "The file contains lines of ssh info of remote nodes", short_name = "nodelist")
 public final class NodeListFilePath implements Name<String> {
   /**
    * Empty private constructor to prohibit instantiation of utility class.

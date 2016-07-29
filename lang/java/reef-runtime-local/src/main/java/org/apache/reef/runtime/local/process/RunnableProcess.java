@@ -36,7 +36,7 @@ import java.util.logging.Logger;
 /**
  * A runnable class that encapsulates a process.
  */
-public final class RunnableProcess implements Runnable {
+public class RunnableProcess implements Runnable {
 
   private static final Logger LOG = Logger.getLogger(RunnableProcess.class.getName());
 
@@ -252,6 +252,14 @@ public final class RunnableProcess implements Runnable {
    */
   private State getState() {
     return this.state;
+  }
+
+  public String getId() {
+    return this.id;
+  }
+
+  public List<String> getCommand() {
+    return this.command;
   }
 
   /**
