@@ -28,7 +28,7 @@ import org.apache.reef.runtime.common.client.api.JobSubmissionHandler;
 import org.apache.reef.runtime.common.files.RuntimeClasspathProvider;
 import org.apache.reef.runtime.standalone.client.parameters.NodeFolder;
 import org.apache.reef.runtime.standalone.client.parameters.NodeListFilePath;
-import org.apache.reef.runtime.local.client.parameters.RootFolder;
+import org.apache.reef.runtime.standalone.client.parameters.RootFolder;
 import org.apache.reef.runtime.standalone.client.parameters.SshPortNum;
 import org.apache.reef.tang.ConfigurationProvider;
 import org.apache.reef.tang.formats.*;

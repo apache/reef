@@ -26,7 +26,7 @@ import org.apache.reef.runtime.common.launch.parameters.ErrorHandlerRID;
 import org.apache.reef.runtime.common.launch.parameters.LaunchID;
 import org.apache.reef.runtime.common.parameters.JVMHeapSlack;
 import org.apache.reef.runtime.local.LocalClasspathProvider;
-import org.apache.reef.runtime.local.client.parameters.RootFolder;
+import org.apache.reef.runtime.standalone.client.parameters.RootFolder;
 import org.apache.reef.runtime.standalone.client.parameters.NodeFolder;
 import org.apache.reef.runtime.standalone.client.parameters.NodeListFilePath;
 import org.apache.reef.runtime.standalone.client.parameters.NodeInfoSet;

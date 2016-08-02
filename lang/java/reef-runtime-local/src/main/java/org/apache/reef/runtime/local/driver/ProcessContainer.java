@@ -93,17 +93,6 @@ public final class ProcessContainer implements Container {
     }
   }
 
-  public ProcessContainer(final String errorHandlerRID,
-                          final String nodeID,
-                          final String containedID,
-                          final File folder,
-                          final int megaBytes,
-                          final int numberOfCores,
-                          final REEFFileNames fileNames,
-                          final ReefRunnableProcessObserver processObserver) {
-    this(errorHandlerRID, nodeID, containedID, folder, megaBytes, numberOfCores, null, fileNames, processObserver);
-  }
-
   private static void copy(final Iterable<File> files, final File folder) throws IOException {
     for (final File sourceFile : files) {
       final File destinationFile = new File(folder, sourceFile.getName());

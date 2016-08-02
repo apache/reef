@@ -31,8 +31,7 @@ import org.apache.reef.runtime.common.files.FileResource;
 import org.apache.reef.runtime.common.files.REEFFileNames;
 import org.apache.reef.runtime.common.parameters.JVMHeapSlack;
 import org.apache.reef.runtime.common.utils.RemoteManager;
-import org.apache.reef.runtime.local.client.parameters.RootFolder;
-import org.apache.reef.runtime.local.driver.ProcessContainer;
+import org.apache.reef.runtime.standalone.client.parameters.RootFolder;
 import org.apache.reef.runtime.local.process.ReefRunnableProcessObserver;
 import org.apache.reef.runtime.standalone.client.parameters.SshPortNum;
 import org.apache.reef.runtime.yarn.driver.REEFEventHandlers;
@@ -61,7 +60,6 @@ public final class RemoteNodeManager {
    * Map from containerID -> SshProcessContainer.
    */
   private final Map<String, SshProcessContainer> containers = new HashMap<>();
-  private final Map<String, ProcessContainer> processContainers = new HashMap<>();
 
   private final ConfigurationSerializer configurationSerializer;
   private final REEFFileNames fileNames;
@@ -104,19 +102,13 @@ public final class RemoteNodeManager {
 
   private void release(final String containerID) {
     synchronized (this.containers) {
-      final SshProcessContainer ctr = this.containers.get(containerID);
-      final ProcessContainer pc = this.processContainers.get(containerID);
-      if (null != ctr) {
-        LOG.log(Level.INFO, "Releasing Container with containerId [{0}]", ctr);
-        if (ctr.isRunning()) {
-          ctr.close();
+      final SshProcessContainer sshProcessContainer = this.containers.get(containerID);
+      if (null != sshProcessContainer) {
+        LOG.log(Level.INFO, "Releasing Container with containerId [{0}]", sshProcessContainer);
+        if (sshProcessContainer.isRunning()) {
+          sshProcessContainer.close();
         }
-        this.containers.remove(ctr.getContainerID());
-
-        if (pc.isRunning()) {
-          pc.close();
-        }
-        this.processContainers.remove(pc.getContainerID());
+        this.containers.remove(containerID);
       } else {
         LOG.log(Level.INFO, "Ignoring release request for unknown containerID [{0}]", containerID);
       }
@@ -159,16 +151,16 @@ public final class RemoteNodeManager {
 
         LOG.log(Level.FINEST, "Established connection with {0}", hostname);
 
-        final SshProcessContainer spc = this.containers.get(resourceLaunchEvent.getIdentifier())
+        final SshProcessContainer sshProcessContainer = this.containers.get(resourceLaunchEvent.getIdentifier())
             .withRemoteConnection(sshSession, remoteNode);
-        final ProcessContainer c = this.processContainers.get(resourceLaunchEvent.getIdentifier());
 
         // Add the global files and libraries.
-        c.addGlobalFiles(this.fileNames.getGlobalFolder());
-        c.addLocalFiles(getLocalFiles(resourceLaunchEvent));
+        sshProcessContainer.addGlobalFiles(this.fileNames.getGlobalFolder());
+        sshProcessContainer.addLocalFiles(getLocalFiles(resourceLaunchEvent));
 
         // Make the configuration file of the evaluator.
-        final File evaluatorConfigurationFile = new File(spc.getFolder(), fileNames.getEvaluatorConfigurationPath());
+        final File evaluatorConfigurationFile =
+            new File(sshProcessContainer.getFolder(), fileNames.getEvaluatorConfigurationPath());
 
         try {
           this.configurationSerializer.toFile(resourceLaunchEvent.getEvaluatorConf(), evaluatorConfigurationFile);
@@ -182,8 +174,10 @@ public final class RemoteNodeManager {
         ((ChannelExec) channel).setCommand(mkdirCommand);
         channel.connect();
 
-        final List<String> copyCommand = new ArrayList<>(Arrays.asList("scp", "-r", spc.getFolder().toString(),
-            remoteNode + ":~/" + nodeFolder + "/" + spc.getContainerID()));
+        final List<String> copyCommand =
+            new ArrayList<>(Arrays.asList("scp", "-r",
+                sshProcessContainer.getFolder().toString(),
+                remoteNode + ":~/" + nodeFolder + "/" + sshProcessContainer.getContainerID()));
         LOG.log(Level.INFO, "Copying files: {0}", copyCommand);
         final Process copyProcess = new ProcessBuilder(copyCommand).start();
         try {
@@ -192,9 +186,9 @@ public final class RemoteNodeManager {
           LOG.log(Level.SEVERE, "Copying Interrupted: {0}", ex);
         }
 
-        final List<String> command = getLaunchCommand(resourceLaunchEvent, c.getMemory());
-        LOG.log(Level.FINEST, "Launching container: {0}", spc);
-        spc.run(command);
+        final List<String> command = getLaunchCommand(resourceLaunchEvent, sshProcessContainer.getMemory());
+        LOG.log(Level.FINEST, "Launching container: {0}", sshProcessContainer);
+        sshProcessContainer.run(command);
       } catch (final JSchException | IOException ex) {
         LOG.log(Level.WARNING, "Failed to establish connection with {0}@{1}:\n Exception:{2}",
             new Object[]{username, hostname, ex});
@@ -245,13 +239,10 @@ public final class RemoteNodeManager {
     final String processID = nodeId + "-" + String.valueOf(System.currentTimeMillis());
     final File processFolder = new File(this.rootFolder, processID);
 
-    final SshProcessContainer c = new SshProcessContainer(processID, processFolder,
-        this.fileNames, nodeFolder, processObserver);
-    this.containers.put(processID, c);
-    final ProcessContainer pc = new ProcessContainer(this.errorHandlerRID, nodeId, processID, processFolder,
-        resourceRequestEvent.getMemorySize().get(), resourceRequestEvent.getVirtualCores().get(),
-        this.fileNames, this.processObserver);
-    this.processContainers.put(processID, pc);
+    final SshProcessContainer sshProcessContainer = new SshProcessContainer(errorHandlerRID, nodeId, processID,
+        processFolder, resourceRequestEvent.getMemorySize().get(), resourceRequestEvent.getVirtualCores().get(),
+        null, this.fileNames, nodeFolder, processObserver);
+    this.containers.put(processID, sshProcessContainer);
 
     final ResourceAllocationEvent alloc = ResourceEventImpl.newAllocationBuilder()
         .setIdentifier(processID)
@@ -275,15 +266,11 @@ public final class RemoteNodeManager {
 
   public synchronized void close() {
     synchronized (this.containers) {
-      if (this.containers.isEmpty() && this.processContainers.isEmpty()) {
+      if (this.containers.isEmpty()) {
         LOG.log(Level.FINEST, "Clean shutdown with no outstanding containers.");
       } else {
         LOG.log(Level.WARNING, "Dirty shutdown with outstanding containers.");
         for (final SshProcessContainer c : this.containers.values()) {
-          LOG.log(Level.WARNING, "Force shutdown of: {0}", c);
-          c.close();
-        }
-        for (final ProcessContainer c : this.processContainers.values()) {
           LOG.log(Level.WARNING, "Force shutdown of: {0}", c);
           c.close();
         }
