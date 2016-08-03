@@ -43,12 +43,13 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         }
 
         /// <summary>
-        /// Specifies what to do when context starts.
+        /// Download data files when context starts.
         /// </summary>
         /// <param name="value">context start token</param>
-        /// TODO[REEF-1339] - AddCache() function of IInputPartition will be called here.
         public void OnNext(IContextStart value)
         {
+            _partition.Cache();
+            Logger.Log(Level.Info, "Data files are downloaded.");
         }
 
         /// <summary>
@@ -58,7 +59,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         /// <param name="error">Exception</param>
         public void OnError(Exception error)
         {
-            Exceptions.Throw(error, "Error occured in Data Loading context start", Logger);
+            Exceptions.Throw(error, "Error occurred in Data Loading context start", Logger);
         }
 
         /// <summary>

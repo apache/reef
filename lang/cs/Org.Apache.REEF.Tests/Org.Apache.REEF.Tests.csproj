@@ -118,6 +118,7 @@ under the License.
     <Compile Include="Functional\FaultTolerant\TestResubmitEvaluator.cs" />
     <Compile Include="Functional\FaultTolerant\TestResubmitTask.cs" />
     <Compile Include="Functional\IMRU\IMRUBroadcastReduceTest.cs" />
+    <Compile Include="Functional\IMRU\IMRUBroadcastReduceWithFilePartitionDataSetTest.cs" />
     <Compile Include="Functional\IMRU\IMRUBrodcastReduceWithoutIMRUClientTest.cs" />
     <Compile Include="Functional\IMRU\IMRUBrodcastReduceTestBase.cs" />
     <Compile Include="Functional\IMRU\IMRUCloseTaskTest.cs" />
