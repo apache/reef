@@ -155,12 +155,12 @@ namespace Org.Apache.REEF.Tests.Functional
             CleanUp();
         }
 
-        protected void ValidateSuccessForLocalRuntime(int numberOfContextsToClose, int numberOfTasksToFail = 0, int numberOfEvaluatorsToFail = 0, string testFolder = DefaultRuntimeFolder)
+        protected void ValidateSuccessForLocalRuntime(int numberOfContextsToClose, int numberOfTasksToFail = 0, int numberOfEvaluatorsToFail = 0, string testFolder = DefaultRuntimeFolder, int retryCount = 60)
         {
             const string successIndication = "EXIT: ActiveContextClr2Java::Close";
             const string failedTaskIndication = "Java_org_apache_reef_javabridge_NativeInterop_clrSystemFailedTaskHandlerOnNext";
             const string failedEvaluatorIndication = "Java_org_apache_reef_javabridge_NativeInterop_clrSystemFailedEvaluatorHandlerOnNext";
-            string[] lines = ReadLogFile(DriverStdout, "driver", testFolder);
+            string[] lines = ReadLogFile(DriverStdout, "driver", testFolder, retryCount);
 
             Logger.Log(Level.Verbose, "Lines read from log file : " + lines.Count());
             string[] successIndicators = lines.Where(s => s.Contains(successIndication)).ToArray();

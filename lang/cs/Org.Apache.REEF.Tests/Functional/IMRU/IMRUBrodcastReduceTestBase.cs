@@ -16,6 +16,7 @@
 // under the License.
 
 using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -101,7 +102,7 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
         /// <param name="jobDefinition"></param>
         /// <param name="driverHandlerConfig"></param>
         /// <returns></returns>
-        private IConfiguration DriverConfiguration<TMapInput, TMapOutput, TResult, TPartitionType>(
+        protected IConfiguration DriverConfiguration<TMapInput, TMapOutput, TResult, TPartitionType>(
             IMRUJobDefinition jobDefinition,
             IConfiguration driverHandlerConfig)
         {
