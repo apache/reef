@@ -19,6 +19,8 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
+using System.Linq;
+using System.Text.RegularExpressions;
 using Org.Apache.REEF.Common.Tasks;
 using Org.Apache.REEF.IMRU.API;
 using Org.Apache.REEF.IMRU.OnREEF.Driver;
@@ -53,7 +55,8 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
         /// This test tests DataLoadingContext with FilePartitionDataSet
         /// The IPartitionedInputDataSet configured in this test is passed to IMRUDriver, and IInputPartition associated with it is injected in 
         /// DataLoadingContext for the Evaluator. Cache method in IInputPartition is called when the context starts. 
-        /// Mapper function injected in this test will verify if the temp file downloaded exists.
+        /// Most of the validation of the test is done inside test Mapper function.
+        /// It will verify if the temp file downloaded exists before calling IInputPartition.GetPartitionHandle()
         /// </summary>
         [Fact]
         public void TestWithFilePartitionDataSetOnLocalRuntime()
@@ -74,20 +77,12 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
                 updateTaskMemory,
                 testFolder);
             ValidateSuccessForLocalRuntime(numTasks, 0, 0, testFolder);
-            CleanUp(testFolder);
+            ////CleanUp(testFolder);
         }
 
         /// <summary>
         /// This method overrides base class method to pass IEnumerable<Row> as TPartitionType
         /// </summary>
-        /// <param name="runOnYarn"></param>
-        /// <param name="numTasks"></param>
-        /// <param name="chunkSize"></param>
-        /// <param name="dims"></param>
-        /// <param name="iterations"></param>
-        /// <param name="mapperMemory"></param>
-        /// <param name="updateTaskMemory"></param>
-        /// <param name="testFolder"></param>
         protected new void TestBroadCastAndReduce(bool runOnYarn,
             int numTasks,
             int chunkSize,
@@ -111,11 +106,6 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
         /// <summary>
         /// This method defines event handlers for driver. As default, it uses all the handlers defined in IMRUDriver.
         /// </summary>
-        /// <typeparam name="TMapInput"></typeparam>
-        /// <typeparam name="TMapOutput"></typeparam>
-        /// <typeparam name="TResult"></typeparam>
-        /// <typeparam name="TPartitionType"></typeparam>
-        /// <returns></returns>
         protected override IConfiguration DriverEventHandlerConfigurations<TMapInput, TMapOutput, TResult, TPartitionType>()
         {
             return REEF.Driver.DriverConfiguration.ConfigurationModule
@@ -162,7 +152,7 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
 
                     foreach (var row in e)
                     {
-                        Logger.Log(Level.Info, string.Format(CultureInfo.CurrentCulture, "Data read {0}: ", row.GetValue()));
+                        Logger.Log(Level.Info, "Data read {0}: ", row.GetValue());
                         count++;
                     }
                 }
@@ -198,9 +188,25 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
                 [Parameter(typeof(TaskConfigurationOptions.Identifier))] string taskId,
                 IInputPartition<T> partition)
             {
-                var tempFile = TangFactory.GetTang().NewInjector().GetNamedInstance<TempFileFolder, string>();
-                var tmpFileFodler = Directory.GetCurrentDirectory() + tempFile;
+                var tempFileDir = TangFactory.GetTang().NewInjector().GetNamedInstance<TempFileFolder, string>();
+                var tmpFileFodler = Directory.GetCurrentDirectory() + tempFileDir.Substring(1, tempFileDir.Length - 1);
                 Assert.True(Directory.Exists(tmpFileFodler));
+                
+                var directories = Directory.EnumerateDirectories(tmpFileFodler);
+                Assert.Equal(1, directories.Count());
+
+                var directory = directories.FirstOrDefault();
+                Assert.True(directory.Contains("-partition-"));
+
+                var files = Directory.EnumerateFiles(directory);
+                Assert.Equal(1, files.Count());
+                var file = files.FirstOrDefault();
+                var a = file.Split('\\');
+                var fileName = a[a.Length - 1];
+                Assert.Equal(8, fileName.Length);
+
+                var matchCounter = Regex.Matches("40af4c53", @"[a-zA-Z0-9]").Count;
+                Assert.Equal(8, matchCounter);
 
                 int count = 0;
                 var e = (IEnumerable<Row>)partition.GetPartitionHandle();
@@ -268,7 +274,7 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
             var bytes = new byte[dataNumber];
             for (int i = 0; i < dataNumber; i++)
             {
-                bytes[i] = (byte)i;
+                bytes[i] = (byte)(i + 'a');
             }
             return bytes;
         }
@@ -332,7 +338,7 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
         private static string GetRowSerializerConfigString()
         {
             var serializerConf = TangFactory.GetTang().NewConfigurationBuilder()
-                .BindImplementation<IFileDeSerializer<IEnumerable<Row>>, RowSerializer>(
+                .BindImplementation(
                     GenericType<IFileDeSerializer<IEnumerable<Row>>>.Class,
                     GenericType<RowSerializer>.Class)
                 .Build();
@@ -342,7 +348,7 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
         /// <summary>
         /// Test Row class
         /// </summary>
-        public class Row
+        private class Row
         {
             private readonly byte _b;
 
