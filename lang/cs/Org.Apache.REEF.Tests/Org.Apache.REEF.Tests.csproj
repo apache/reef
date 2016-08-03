@@ -154,7 +154,6 @@ under the License.
     <None Include="..\App.config">
       <Link>App.config</Link>
     </None>
-    <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="$(SolutionDir)\Org.Apache.REEF.Common\Org.Apache.REEF.Common.csproj">

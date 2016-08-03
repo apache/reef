@@ -66,7 +66,6 @@ under the License.
       <Link>App.config</Link>
     </None>
     <None Include="Org.Apache.REEF.Evaluator.nuspec" />
-    <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="$(SolutionDir)\Org.Apache.REEF.Tang\Org.Apache.REEF.Tang.csproj">

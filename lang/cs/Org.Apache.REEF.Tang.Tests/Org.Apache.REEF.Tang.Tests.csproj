@@ -117,9 +117,6 @@ under the License.
     <None Include="..\App.config">
       <Link>App.config</Link>
     </None>
-    <None Include="packages.config">
-      <SubType>Designer</SubType>
-    </None>
     <None Include="simpleConstructorJavaProto.bin">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

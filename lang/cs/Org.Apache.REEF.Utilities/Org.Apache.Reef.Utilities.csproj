@@ -72,7 +72,6 @@ under the License.
   </ItemGroup>
   <ItemGroup>
     <None Include="Org.Apache.Reef.Utilities.nuspec" />
-    <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
