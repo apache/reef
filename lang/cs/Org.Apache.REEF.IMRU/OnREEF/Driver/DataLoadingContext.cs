@@ -16,6 +16,7 @@
 // under the License.
 
 using System;
+using System.Collections.Generic;
 using Org.Apache.REEF.Common.Events;
 using Org.Apache.REEF.IO.PartitionedData;
 using Org.Apache.REEF.Tang.Annotations;
@@ -49,7 +50,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         public void OnNext(IContextStart value)
         {
             _partition.Cache();
-            Logger.Log(Level.Info, "Data files are downloaded.");
+            Logger.Log(Level.Info, "Returned from IInputPartition.Cache().");
         }
 
         /// <summary>

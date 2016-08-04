@@ -43,6 +43,7 @@ namespace Org.Apache.REEF.IO.PartitionedData.FileSystem
         private readonly ITempFileCreator _tempFileCreator;
         private readonly ISet<string> _remoteFilePaths;
         private readonly bool _copyToLocal;
+        private Optional<T> _data = Optional<T>.Empty();
 
         private Optional<ISet<string>> _localFiles;
         
@@ -69,15 +70,29 @@ namespace Org.Apache.REEF.IO.PartitionedData.FileSystem
         }
 
         /// <summary>
-        /// Caches from the remote File System to a local disk.
+        /// This method copies remote files to local if CopyToLocal is enabled, and then deserializes the files.
+        /// Otherwise, this method assumes that the files are remote, and the injected IFileDeSerializer
+        /// can handle the remote file system access.
+        /// It caches the data reference returned from IFileDeSerializer.Deserialize() method. 
         /// </summary>
         public void Cache()
         {
             lock (_lock)
             {
-                if (!_localFiles.IsPresent())
+                if (_copyToLocal)
                 {
-                    _localFiles = Optional<ISet<string>>.Of(Download());
+                    if (!_localFiles.IsPresent())
+                    {
+                        _localFiles = Optional<ISet<string>>.Of(Download());
+                    }
+
+                    // For now, assume IFileDeSerializer is local.
+                    _data = Optional<T>.Of(_fileSerializer.Deserialize(_localFiles.Value));
+                }
+                else
+                {
+                    // For now, assume IFileDeSerializer is remote.
+                    _data = Optional<T>.Of(_fileSerializer.Deserialize(_remoteFilePaths));
                 }
             }
         }
@@ -91,7 +106,7 @@ namespace Org.Apache.REEF.IO.PartitionedData.FileSystem
             {
                 var set = new HashSet<string>();
                 var localFileFolder = _tempFileCreator.CreateTempDirectory("-partition-");
-                Logger.Log(Level.Info, string.Format(CultureInfo.CurrentCulture, "Local file temp folder: {0}", localFileFolder));
+                Logger.Log(Level.Info, "Local file temp folder: {0}", localFileFolder);
 
                 foreach (var sourceFilePath in _remoteFilePaths)
                 {
@@ -111,35 +126,24 @@ namespace Org.Apache.REEF.IO.PartitionedData.FileSystem
                     _fileSystem.CopyToLocal(sourceUri, localFilePath);
                 }
 
+                Logger.Log(Level.Info, "File downloading is completed");
                 return set;
             }
         }
 
         /// <summary>
-        /// This method copies remote files to local if CopyToLocal is enabled, and then deserializes the files.
-        /// Otherwise, this method assumes that the files are remote, and that the injected IFileDeSerializer
-        /// can handle the remote file system access.
-        /// It returns the IEnumerble of T, the details is defined in the Deserialize() method 
-        /// provided by the Serializer
+        /// If the data is not present, call cache() to get it. Then returns the data. 
         /// </summary>
         /// <returns></returns>
         public T GetPartitionHandle()
         {
             lock (_lock)
             {
-                if (_copyToLocal)
+                if (!_data.IsPresent())
                 {
-                    if (!_localFiles.IsPresent())
-                    {
-                        Cache();
-                    }
-
-                    // For now, assume IFileDeSerializer is local.
-                    return _fileSerializer.Deserialize(_localFiles.Value);
+                    Cache();
                 }
-
-                // For now, assume IFileDeSerializer is remote.
-                return _fileSerializer.Deserialize(_remoteFilePaths);
+                return _data.Value;
             }
         }
 

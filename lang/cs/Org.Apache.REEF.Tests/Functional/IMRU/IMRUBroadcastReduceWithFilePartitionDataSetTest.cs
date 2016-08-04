@@ -49,7 +49,7 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
         /// <summary>
         /// Defines the number of data in input data bytes in the test
         /// </summary>
-        private const int DataCount = 3;
+        protected const int DataCount = 3;
 
         /// <summary>
         /// This test tests DataLoadingContext with FilePartitionDataSet
@@ -77,7 +77,7 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
                 updateTaskMemory,
                 testFolder);
             ValidateSuccessForLocalRuntime(numTasks, 0, 0, testFolder);
-            ////CleanUp(testFolder);
+            CleanUp(testFolder);
         }
 
         /// <summary>
@@ -133,6 +133,11 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
         [Fact]
         public void TestBuildPartitionedDatasetConfiguration()
         {
+            PartitionDatasetConfig();
+        }
+
+        protected void PartitionDatasetConfig()
+        {
             int count = 0;
             int numberOfTasks = 4;
 
@@ -145,6 +150,8 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
                     TangFactory.GetTang()
                         .NewInjector(partitionDescriptor.GetPartitionConfiguration())
                         .GetInstance<IInputPartition<IEnumerable<Row>>>();
+
+                partition.Cache();
 
                 using (partition as IDisposable)
                 {
@@ -242,11 +249,20 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
         }
 
         /// <summary>
-        /// This method builds partition dataset configuration. It uses local file system and test RowSerializer
+        /// This method builds partition dataset configuration. It simulate copy to local from local files and test RowSerializer
         /// </summary>
         /// <param name="numberofMappers"></param>
         /// <returns></returns>
         protected override IConfiguration BuildPartitionedDatasetConfiguration(int numberofMappers)
+        {
+            var cm = CreateDatasetConfigurationModule(numberofMappers);
+
+            return cm.Set(FileSystemInputPartitionConfiguration<IEnumerable<Row>>.CopyToLocal, "true")
+                     .Set(FileSystemInputPartitionConfiguration<IEnumerable<Row>>.FileSerializerConfig, GetRowSerializerConfigString())
+                     .Build();
+        }
+
+        protected static ConfigurationModule CreateDatasetConfigurationModule(int numberofMappers)
         {
             const string tempFileName = "REEF.TestLocalFileSystem.tmp";
             string sourceFilePath = Path.Combine(Path.GetTempPath(), tempFileName);
@@ -258,10 +274,7 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
                 MakeLocalTestFile(sourceFilePath + i, CreateTestData(DataCount));
                 cm = cm.Set(FileSystemInputPartitionConfiguration<IEnumerable<Row>>.FilePathForPartitions, sourceFilePath + i);
             }
-            
-            return cm.Set(FileSystemInputPartitionConfiguration<IEnumerable<Row>>.CopyToLocal, "true")
-                     .Set(FileSystemInputPartitionConfiguration<IEnumerable<Row>>.FileSerializerConfig, GetRowSerializerConfigString())
-                     .Build();
+            return cm;
         }
 
         /// <summary>
@@ -269,7 +282,7 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
         /// </summary>
         /// <param name="dataNumber"></param>
         /// <returns></returns>
-        private static byte[] CreateTestData(int dataNumber)
+        protected static byte[] CreateTestData(int dataNumber)
         {
             var bytes = new byte[dataNumber];
             for (int i = 0; i < dataNumber; i++)
@@ -284,7 +297,7 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
         /// </summary>
         /// <param name="filePath"></param>
         /// <param name="bytes"></param>
-        private static void MakeLocalTestFile(string filePath, byte[] bytes)
+        protected static void MakeLocalTestFile(string filePath, byte[] bytes)
         {
             if (File.Exists(filePath))
             {
@@ -303,7 +316,7 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
         /// <summary>
         /// Test DeSerializer
         /// </summary>
-        private class RowSerializer : IFileDeSerializer<IEnumerable<Row>>
+        protected class RowSerializer : IFileDeSerializer<IEnumerable<Row>>
         {
             [Inject]
             private RowSerializer()
@@ -335,7 +348,7 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
         /// Build RowSerialzer configuration and serialize it as string so that to pass it to driver
         /// </summary>
         /// <returns></returns>
-        private static string GetRowSerializerConfigString()
+        protected static string GetRowSerializerConfigString()
         {
             var serializerConf = TangFactory.GetTang().NewConfigurationBuilder()
                 .BindImplementation(
@@ -348,7 +361,7 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
         /// <summary>
         /// Test Row class
         /// </summary>
-        private class Row
+        protected class Row
         {
             private readonly byte _b;
 

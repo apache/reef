@@ -252,7 +252,7 @@ namespace Org.Apache.REEF.Tests.Functional
             }
         }
 
-        internal string[] ReadLogFile(string logFileName, string subfolder = "driver", string testFolder = DefaultRuntimeFolder, int retryCount = 60)
+        internal string[] ReadLogFile(string logFileName, string subfolder = "driver", string testFolder = DefaultRuntimeFolder, int retryCount = 100)
         {
             string fileName = string.Empty;
             string[] lines = null;
