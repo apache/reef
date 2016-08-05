@@ -129,7 +129,7 @@ namespace Org.Apache.REEF.IMRU.Tests
         [Fact]
         public void TestReachedMaximumNumberOfEvaluatorFailures()
         {
-            var evalutorManager = CreateTestEvaluators(3, 2);
+            var evalutorManager = CreateTestEvaluators(3, 1);
             evalutorManager.RecordFailedEvaluator(EvaluatorIdPrefix + 1);
             evalutorManager.RecordFailedEvaluator(EvaluatorIdPrefix + 2);
             Assert.True(evalutorManager.ReachedMaximumNumberOfEvaluatorFailures());

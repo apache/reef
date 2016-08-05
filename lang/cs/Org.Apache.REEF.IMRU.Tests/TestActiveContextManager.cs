@@ -17,6 +17,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using NSubstitute;
 using Org.Apache.REEF.Driver.Context;
 using Org.Apache.REEF.Driver.Evaluator;
@@ -181,10 +182,10 @@ namespace Org.Apache.REEF.IMRU.Tests
         /// <summary>
         /// A Context Manager observer for test
         /// </summary>
-        private sealed class TestContextObserver : IObserver<IDictionary<string, IActiveContext>>
+        private sealed class TestContextObserver : IObserver<IEnumerable<IActiveContext>>
         {
             private readonly int _totalExpected;
-            private IDictionary<string, IActiveContext> _contexts = null;
+            private int _contextCount = 0;
 
             internal TestContextObserver(int totalExpected)
             {
@@ -203,16 +204,12 @@ namespace Org.Apache.REEF.IMRU.Tests
 
             public int NumberOfActiveContextsReceived()
             {
-                if (_contexts != null)
-                {
-                    return _contexts.Count;                    
-                }
-                return 0;
+                return _contextCount;
             }
 
-            public void OnNext(IDictionary<string, IActiveContext> value)
+            public void OnNext(IEnumerable<IActiveContext> value)
             {
-                _contexts = value;
+                _contextCount = value.Count();
             }
         }
     }

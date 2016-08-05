@@ -19,7 +19,6 @@ using System;
 using System.Globalization;
 using System.Linq;
 using Org.Apache.REEF.Client.API;
-using Org.Apache.REEF.Client.Yarn;
 using Org.Apache.REEF.IMRU.Examples.PipelinedBroadcastReduce;
 using Org.Apache.REEF.IO.FileSystem.Hadoop;
 using Org.Apache.REEF.IO.FileSystem.Local;
@@ -30,7 +29,7 @@ using Org.Apache.REEF.Utilities.Logging;
 namespace Org.Apache.REEF.IMRU.Examples
 {
     /// <summary>
-    /// Runs IMRU for mapper count either in localruntime or on cluster.
+    /// Runs IMRU for mapper count either in local runtime or on cluster.
     /// </summary>
     public class Run
     {
@@ -66,6 +65,7 @@ namespace Org.Apache.REEF.IMRU.Examples
             int iterations = 10;
             int mapperMemory = 512;
             int updateTaskMemory = 512;
+            int maxRetryNumberInRecovery = 0;         
 
             if (args.Length > 0)
             {
@@ -92,6 +92,11 @@ namespace Org.Apache.REEF.IMRU.Examples
                 iterations = Convert.ToInt32(args[4]);
             }
 
+            if (args.Length > 5)
+            {
+                maxRetryNumberInRecovery = Convert.ToInt32(args[5]);
+            }
+
             IInjector injector;
 
             if (!runOnYarn)
@@ -106,7 +111,7 @@ namespace Org.Apache.REEF.IMRU.Examples
                     .NewInjector(OnREEFIMRURunTimeConfiguration<int[], int[], int[]>.GetYarnIMRUConfiguration(), tcpPortConfig);
             }
             var broadcastReduceExample = injector.GetInstance<PipelinedBroadcastAndReduce>();
-            broadcastReduceExample.Run(numNodes - 1, chunkSize, iterations, dims, mapperMemory, updateTaskMemory);
+            broadcastReduceExample.Run(numNodes - 1, chunkSize, iterations, dims, mapperMemory, updateTaskMemory, maxRetryNumberInRecovery);
         }
 
         private static void Main(string[] args)

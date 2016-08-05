@@ -15,6 +15,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
+using System;
 using System.Globalization;
 using System.IO;
 using Org.Apache.REEF.IMRU.API;
@@ -42,7 +43,7 @@ namespace Org.Apache.REEF.IMRU.Examples.PipelinedBroadcastReduce
         /// <summary>
         /// Runs the actual broadcast and reduce job
         /// </summary>
-        public void Run(int numberofMappers, int chunkSize, int numIterations, int dim, int mapperMemory, int updateTaskMemory)
+        public void Run(int numberofMappers, int chunkSize, int numIterations, int dim, int mapperMemory, int updateTaskMemory, int maxRetryNumberInRecovery)
         {
             var updateFunctionConfig =
                 TangFactory.GetTang().NewConfigurationBuilder(IMRUUpdateConfiguration<int[], int[], int[]>.ConfigurationModule
@@ -99,8 +100,14 @@ namespace Org.Apache.REEF.IMRU.Examples.PipelinedBroadcastReduce
                     .SetJobName("BroadcastReduce")
                     .SetNumberOfMappers(numberofMappers)
                     .SetMapperMemory(mapperMemory)
+                    .SetMaxRetryNumberInRecovery(maxRetryNumberInRecovery)
                     .SetUpdateTaskMemory(updateTaskMemory)
                     .Build());
+        }
+
+        internal void Run(int v, int chunkSize, int iterations, int dims, int mapperMemory, int updateTaskMemory)
+        {
+            throw new NotImplementedException();
         }
     }
 }

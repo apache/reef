@@ -69,6 +69,7 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
         /// <param name="dims"></param>
         /// <param name="iterations"></param>
         /// <param name="mapperMemory"></param>
+        /// <param name="numberOfRetryInRecovery"></param>
         /// <param name="updateTaskMemory"></param>
         /// <param name="testFolder"></param>
         protected void TestBroadCastAndReduce(bool runOnYarn,
@@ -78,11 +79,12 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
             int iterations,
             int mapperMemory,
             int updateTaskMemory,
+            int numberOfRetryInRecovery = 0,
             string testFolder = DefaultRuntimeFolder)
         {
             string runPlatform = runOnYarn ? "yarn" : "local";
             TestRun(DriverConfiguration<int[], int[], int[], Stream>(
-                CreateIMRUJobDefinitionBuilder(numTasks - 1, chunkSize, iterations, dims, mapperMemory, updateTaskMemory),
+                CreateIMRUJobDefinitionBuilder(numTasks - 1, chunkSize, iterations, dims, mapperMemory, updateTaskMemory, numberOfRetryInRecovery),
                 DriverEventHandlerConfigurations<int[], int[], int[], Stream>()),
                 typeof(BroadcastReduceDriver),
                 numTasks,
@@ -150,6 +152,8 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
                     jobDefinition.MapTaskCores.ToString(CultureInfo.InvariantCulture))
                 .BindNamedParameter(typeof(CoresForUpdateTask),
                     jobDefinition.UpdateTaskCores.ToString(CultureInfo.InvariantCulture))
+                .BindNamedParameter(typeof(MaxRetryNumberInRecovery),
+                    jobDefinition.MaxRetryNumberInRecovery.ToString(CultureInfo.InvariantCulture))
                 .BindNamedParameter(typeof(InvokeGC),
                     jobDefinition.InvokeGarbageCollectorAfterIteration.ToString(CultureInfo.InvariantCulture))
                 .Build();
@@ -189,13 +193,15 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
         /// <param name="dim"></param>
         /// <param name="mapperMemory"></param>
         /// <param name="updateTaskMemory"></param>
+        /// <param name="numberOfRetryInRecovery"></param>
         /// <returns></returns>
         protected IMRUJobDefinition CreateIMRUJobDefinitionBuilder(int numberofMappers,
             int chunkSize,
             int numIterations,
             int dim,
             int mapperMemory,
-            int updateTaskMemory)
+            int updateTaskMemory,
+            int numberOfRetryInRecovery)
         {
             var updateFunctionConfig =
                 TangFactory.GetTang().NewConfigurationBuilder(BuildUpdateFunctionConfig())
@@ -220,6 +226,7 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
                 .SetNumberOfMappers(numberofMappers)
                 .SetMapperMemory(mapperMemory)
                 .SetUpdateTaskMemory(updateTaskMemory)
+                .SetMaxRetryNumberInRecovery(numberOfRetryInRecovery)
                 .Build();
         }
 

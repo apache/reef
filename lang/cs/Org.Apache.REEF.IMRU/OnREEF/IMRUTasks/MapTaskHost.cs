@@ -91,6 +91,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.IMRUTasks
             _invokeGC = invokeGC;
             _taskCloseCoordinator = taskCloseCoordinator;
             _cancellationSource = new CancellationTokenSource();
+            Logger.Log(Level.Info, "MapTaskHost initialized.");
         }
 
         /// <summary>
@@ -100,6 +101,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.IMRUTasks
         /// <returns></returns>
         public byte[] Call(byte[] memento)
         {
+            Logger.Log(Level.Info, "Entering MapTaskHost Call().");
             MapControlMessage controlMessage = MapControlMessage.AnotherRound;
 
             while (!_cancellationSource.IsCancellationRequested && controlMessage != MapControlMessage.Stop)
@@ -130,7 +132,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.IMRUTasks
                 }
                 catch (IOException e)
                 {
-                    Logger.Log(Level.Error, "Received IOException in MapTaskHost with message: {0}.", e.Message);
+                    Logger.Log(Level.Error, "Received IOException in MapTaskHost with message: {0}. The cancellation token is: {1}.", e.Message, _cancellationSource.IsCancellationRequested);
                     if (!_cancellationSource.IsCancellationRequested)
                     {
                         throw new IMRUTaskGroupCommunicationException(TaskManager.TaskGroupCommunicationError);
@@ -139,7 +141,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.IMRUTasks
                 }
                 catch (TcpClientConnectionException e)
                 {
-                    Logger.Log(Level.Error, "Received TcpClientConnectionException in MapTaskHost with message: {0}.", e.Message);
+                    Logger.Log(Level.Error, "Received TcpClientConnectionException in MapTaskHost with message: {0}. The cancellation token is: {1}.", e.Message, _cancellationSource.IsCancellationRequested);
                     if (!_cancellationSource.IsCancellationRequested)
                     {
                         throw new IMRUTaskGroupCommunicationException(TaskManager.TaskGroupCommunicationError);

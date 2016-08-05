@@ -202,7 +202,8 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         /// <summary>
         /// This method is called when receiving ICompletedTask event during task running or system shutting down.
         /// Removes the task from running tasks if it was running
-        /// Changes the task state from RunningTask to CompletedTask
+        /// Changes the task state from RunningTask to CompletedTask if the task was running
+        /// Change the task stat from TaskWaitingForClose to TaskClosedByDriver if the task was in TaskWaitingForClose state
         /// </summary>
         /// <param name="completedTask"></param>
         internal void RecordCompletedTask(ICompletedTask completedTask)
@@ -260,7 +261,9 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
                 {
                     if (!_runningTasks.ContainsKey(taskId))
                     {
-                        var msg = string.Format(CultureInfo.InvariantCulture, "The task [{0}] doesn't exist in Running Tasks.", taskId);
+                        var msg = string.Format(CultureInfo.InvariantCulture,
+                            "The task [{0}] doesn't exist in Running Tasks.",
+                            taskId);
                         Exceptions.Throw(new IMRUSystemException(msg), Logger);
                     }
                     _runningTasks.Remove(taskId);
@@ -268,6 +271,20 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
 
                 UpdateState(taskId, TaskStateEvent.FailedTaskEvaluatorError);
             }
+            else
+            {
+                var taskId = FindTaskAssociatedWithTheEvalutor(failedEvaluator.Id);
+                var taskState = GetTaskState(taskId);
+                if (taskState == StateMachine.TaskState.TaskSubmitted)
+                {
+                    UpdateState(taskId, TaskStateEvent.FailedTaskEvaluatorError);
+                }
+            }
+        }
+
+        private string FindTaskAssociatedWithTheEvalutor(string evaluatorId)
+        {
+            return _tasks.Where(e => e.Value.ActiveContext.EvaluatorId.Equals(evaluatorId)).Select(e => e.Key).FirstOrDefault();
         }
 
         /// <summary>
@@ -347,6 +364,8 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
 
         /// <summary>
         /// Gets error type based on the exception type in IFailedTask 
+        /// For unknown exceptions or exceptions that doesn't belong to defined IMRU task exceptions
+        /// treat then as application error.
         /// </summary>
         /// <param name="failedTask"></param>
         /// <returns></returns>
@@ -362,9 +381,14 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
             {
                 return TaskStateEvent.FailedTaskCommunicationError;
             }
-            else
+            if (exception is IMRUTaskSystemException)
             {
                 return TaskStateEvent.FailedTaskSystemError;
+            }
+            else
+            {
+                _numberOfAppErrors++;
+                return TaskStateEvent.FailedTaskAppError;
             }
         }
 
@@ -381,7 +405,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         /// Checks if all the tasks are in final states
         /// </summary>
         /// <returns></returns>
-        internal bool AllInFinalState()
+        internal bool AreAllTasksInFinalState()
         {
             return _tasks.All(t => t.Value.TaskState.IsFinalState());
         }

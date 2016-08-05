@@ -95,6 +95,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.IMRUTasks
             _resultHandler = resultHandler;
             _taskCloseCoordinator = taskCloseCoordinator;
             _cancellationSource = new CancellationTokenSource();
+            Logger.Log(Level.Info, "UpdateTaskHost initialized.");
         }
 
         /// <summary>
@@ -104,6 +105,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.IMRUTasks
         /// <returns></returns>
         public byte[] Call(byte[] memento)
         {
+            Logger.Log(Level.Info, "Entering UpdateTaskHost Call().");
             var updateResult = _updateTask.Initialize();
             int iterNo = 0;
             try
@@ -166,9 +168,21 @@ namespace Org.Apache.REEF.IMRU.OnREEF.IMRUTasks
                     throw new IMRUTaskGroupCommunicationException(TaskManager.TaskGroupCommunicationError);
                 }
             }
-            _resultHandler.Dispose();
-            _taskCloseCoordinator.SignalTaskStopped();
-            Logger.Log(Level.Info, "UpdateTaskHost returned with cancellation token {0}.", _cancellationSource.IsCancellationRequested);
+            finally
+            {
+                try
+                {
+                    _resultHandler.Dispose();
+                }
+                catch (Exception e)
+                {
+                    Logger.Log(Level.Error, "Exception in dispose result handler.", e);
+                    //// TODO throw proper exceptions JIRA REEF-1492
+                }
+                _taskCloseCoordinator.SignalTaskStopped();
+                Logger.Log(Level.Info, "UpdateTaskHost returned with cancellation token {0}.", _cancellationSource.IsCancellationRequested);
+            }
+
             return null;
         }
 

@@ -221,7 +221,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         /// </summary>
         internal bool ReachedMaximumNumberOfEvaluatorFailures()
         {
-            return _failedEvaluatorIds.Count >= AllowedNumberOfEvaluatorFailures;
+            return _failedEvaluatorIds.Count > AllowedNumberOfEvaluatorFailures;
         }
 
         /// <summary>

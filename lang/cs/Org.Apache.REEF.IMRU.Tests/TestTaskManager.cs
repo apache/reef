@@ -205,7 +205,7 @@ namespace Org.Apache.REEF.IMRU.Tests
             taskManager.RecordFailedTaskDuringRunningOrSubmissionState(CreateMockFailedTask(MapperTaskIdPrefix + 1, TaskManager.TaskAppError));
             taskManager.RecordFailedTaskDuringRunningOrSubmissionState(CreateMockFailedTask(MapperTaskIdPrefix + 2, TaskManager.TaskGroupCommunicationError));
             taskManager.RecordFailedTaskDuringRunningOrSubmissionState(CreateMockFailedTask(MasterTaskId, TaskManager.TaskSystemError));
-            Assert.True(taskManager.AllInFinalState());
+            Assert.True(taskManager.AreAllTasksInFinalState());
         }
 
         /// <summary>
@@ -254,7 +254,7 @@ namespace Org.Apache.REEF.IMRU.Tests
             taskManager.RecordFailedTaskDuringSystemShuttingDownState(CreateMockFailedTask(MasterTaskId, TaskManager.TaskKilledByDriver));
             Assert.Equal(TaskState.TaskClosedByDriver, taskManager.GetTaskState(MasterTaskId));
 
-            Assert.True(taskManager.AllInFinalState());
+            Assert.True(taskManager.AreAllTasksInFinalState());
         }
 
         /// <summary>
@@ -281,7 +281,7 @@ namespace Org.Apache.REEF.IMRU.Tests
             var masterTask = CreateMockFailedTask(MasterTaskId, TaskManager.TaskKilledByDriver);
             taskManager.RecordFailedTaskDuringSystemShuttingDownState(masterTask);
 
-            Assert.True(taskManager.AllInFinalState());
+            Assert.True(taskManager.AreAllTasksInFinalState());
         }
 
         /// <summary>
@@ -312,7 +312,7 @@ namespace Org.Apache.REEF.IMRU.Tests
             taskManager.RecordFailedTaskDuringSystemShuttingDownState(masterTask);
             Assert.Equal(TaskState.TaskClosedByDriver, taskManager.GetTaskState(MasterTaskId));
 
-            Assert.True(taskManager.AllInFinalState());
+            Assert.True(taskManager.AreAllTasksInFinalState());
         }
 
         /// <summary>
@@ -341,7 +341,19 @@ namespace Org.Apache.REEF.IMRU.Tests
             taskManager.RecordFailedTaskDuringSystemShuttingDownState(masterTask);
             Assert.Equal(TaskState.TaskClosedByDriver, taskManager.GetTaskState(MasterTaskId));
 
-            Assert.True(taskManager.AllInFinalState());
+            Assert.True(taskManager.AreAllTasksInFinalState());
+        }
+
+        /// <summary>
+        /// Test the scenario where there is no task associated with the Failed Evaluator. 
+        /// This can happen when submitting a task on a failed evaluator. 
+        /// </summary>
+        [Fact]
+        public void TestFailedEvaluatorWithUnsuccessfullySubmittedTask()
+        {
+            var taskManager = TaskManagerWithTasksSubmitted();
+            taskManager.RecordTaskFailWhenReceivingFailedEvaluator(CreateMockFailedEvaluatorWithoutTaskId(EvaluatorIdPrefix + ContextIdPrefix + 1));
+            Assert.Equal(TaskState.TaskFailedByEvaluatorFailure, taskManager.GetTaskState(MapperTaskIdPrefix + 1));
         }
 
         /// <summary>
@@ -378,7 +390,7 @@ namespace Org.Apache.REEF.IMRU.Tests
             var failedMasterTask = CreateMockFailedTask(MasterTaskId, TaskManager.TaskKilledByDriver);
             taskManager.RecordFailedTaskDuringSystemShuttingDownState(failedMasterTask);
 
-            Assert.True(taskManager.AllInFinalState());
+            Assert.True(taskManager.AreAllTasksInFinalState());
         }
 
         /// <summary>
@@ -411,7 +423,7 @@ namespace Org.Apache.REEF.IMRU.Tests
             var failedMasterTask = CreateMockFailedTask(MasterTaskId, TaskManager.TaskKilledByDriver);
             taskManager.RecordFailedTaskDuringSystemShuttingDownState(failedMasterTask);
 
-            Assert.True(taskManager.AllInFinalState());
+            Assert.True(taskManager.AreAllTasksInFinalState());
         }
 
         /// <summary>
@@ -439,7 +451,7 @@ namespace Org.Apache.REEF.IMRU.Tests
             var failedMasterTask = CreateMockFailedTask(MasterTaskId, TaskManager.TaskKilledByDriver);
             taskManager.RecordFailedTaskDuringSystemShuttingDownState(failedMasterTask);
 
-            Assert.True(taskManager.AllInFinalState());
+            Assert.True(taskManager.AreAllTasksInFinalState());
         }
 
         /// <summary>
@@ -476,7 +488,7 @@ namespace Org.Apache.REEF.IMRU.Tests
             var failedMasterTask = CreateMockFailedTask(MasterTaskId, TaskManager.TaskKilledByDriver);
             taskManager.RecordFailedTaskDuringSystemShuttingDownState(failedMasterTask);
 
-            Assert.True(taskManager.AllInFinalState());
+            Assert.True(taskManager.AreAllTasksInFinalState());
         }
 
         /// <summary>
@@ -515,7 +527,7 @@ namespace Org.Apache.REEF.IMRU.Tests
             var failedMasterTask = CreateMockFailedTask(MasterTaskId, TaskManager.TaskKilledByDriver);
             taskManager.RecordFailedTaskDuringSystemShuttingDownState(failedMasterTask);
 
-            Assert.True(taskManager.AllInFinalState());
+            Assert.True(taskManager.AreAllTasksInFinalState());
         }
 
         /// <summary>
@@ -548,7 +560,7 @@ namespace Org.Apache.REEF.IMRU.Tests
             var failedMasterTask = CreateMockFailedTask(MasterTaskId, TaskManager.TaskGroupCommunicationError);
             taskManager.RecordFailedTaskDuringSystemShuttingDownState(failedMasterTask);
 
-            Assert.True(taskManager.AllInFinalState());
+            Assert.True(taskManager.AreAllTasksInFinalState());
         }
 
         /// <summary>
@@ -633,8 +645,11 @@ namespace Org.Apache.REEF.IMRU.Tests
                 case TaskManager.TaskGroupCommunicationError:
                     taskException = new IMRUTaskGroupCommunicationException(errorMsg);
                     break;
-                default:
+                case TaskManager.TaskSystemError:
                     taskException = new IMRUTaskSystemException(errorMsg);
+                    break;
+                default:
+                    taskException = new IMRUTaskAppException(errorMsg);
                     break;
             }
 
@@ -680,6 +695,20 @@ namespace Org.Apache.REEF.IMRU.Tests
             var failedEvalutor = Substitute.For<IFailedEvaluator>();
             failedEvalutor.Id.Returns(evaluatorId);
             failedEvalutor.FailedTask.Returns(Optional<IFailedTask>.Of(failedTask));
+            return failedEvalutor;
+        }
+
+        /// <summary>
+        /// Creates a mock IFailedEvaluator with no task id associated
+        /// This is to simulate the case where task is submitted on a failed evaluator. 
+        /// </summary>
+        /// <param name="evaluatorId"></param>
+        /// <returns></returns>
+        private static IFailedEvaluator CreateMockFailedEvaluatorWithoutTaskId(string evaluatorId)
+        {
+            var failedEvalutor = Substitute.For<IFailedEvaluator>();
+            failedEvalutor.Id.Returns(evaluatorId);
+            failedEvalutor.FailedTask.Returns(Optional<IFailedTask>.Empty());
             return failedEvalutor;
         }
 
