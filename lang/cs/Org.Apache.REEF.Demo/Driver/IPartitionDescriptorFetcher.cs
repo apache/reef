@@ -5,9 +5,9 @@
 // to you under the Apache License, Version 2.0 (the
 // "License"); you may not use this file except in compliance
 // with the License.  You may obtain a copy of the License at
-//
+// 
 //   http://www.apache.org/licenses/LICENSE-2.0
-//
+// 
 // Unless required by applicable law or agreed to in writing,
 // software distributed under the License is distributed on an
 // "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -15,32 +15,24 @@
 // specific language governing permissions and limitations
 // under the License.
 
-using Org.Apache.REEF.Utilities.Attributes;
+using System;
+using System.Collections.Generic;
+using Org.Apache.REEF.IO.PartitionedData;
+using Org.Apache.REEF.Tang.Annotations;
 
-namespace Org.Apache.REEF.IO.PartitionedData
+namespace Org.Apache.REEF.Demo.Driver
 {
     /// <summary>
-    /// Evaluator-Side representation of a data set partition.
+    /// Interface for fetching partition info with a given URI, at the driver.
     /// </summary>
-    /// <typeparam name="T">Generic Type representing data pointer.
-    /// For example, for data in local file it can be file pointer </typeparam>
-    public interface IInputPartition<out T>
+    [DefaultImplementation(typeof(FileInputPartitionDescriptorFetcher))]
+    public interface IPartitionDescriptorFetcher
     {
         /// <summary>
-        /// The id of the partition.
+        /// Check the partitions that the given <code>uri</code> is comprised of and return the corresponding partition descriptors.
         /// </summary>
-        string Id { get; }
-
-        /// <summary>
-        /// Caches the data locally, cached location is based on the implementation.
-        /// </summary>
-        [Unstable("0.14", "Contract may change.")]
-        void Cache();
-
-        /// <summary>
-        /// Gives a pointer to the underlying partition.
-        /// </summary>
-        /// <returns>The pointer to the underlying partition</returns>
-        T GetPartitionHandle();
+        /// <param name="uri">dataset identifier</param>
+        /// <returns>partition descriptors of the dataset</returns>
+        IEnumerable<IPartitionDescriptor> GetPartitionDescriptors(Uri uri);
     }
 }

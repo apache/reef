@@ -5,9 +5,9 @@
 // to you under the Apache License, Version 2.0 (the
 // "License"); you may not use this file except in compliance
 // with the License.  You may obtain a copy of the License at
-//
+// 
 //   http://www.apache.org/licenses/LICENSE-2.0
-//
+// 
 // Unless required by applicable law or agreed to in writing,
 // software distributed under the License is distributed on an
 // "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -15,32 +15,33 @@
 // specific language governing permissions and limitations
 // under the License.
 
-using Org.Apache.REEF.Utilities.Attributes;
+using System;
+using Org.Apache.REEF.Tang.Annotations;
 
-namespace Org.Apache.REEF.IO.PartitionedData
+namespace Org.Apache.REEF.Demo.Driver
 {
     /// <summary>
-    /// Evaluator-Side representation of a data set partition.
+    /// Driver-side manager of partition datasets.
     /// </summary>
-    /// <typeparam name="T">Generic Type representing data pointer.
-    /// For example, for data in local file it can be file pointer </typeparam>
-    public interface IInputPartition<out T>
+    /// <remarks>
+    /// NEED A BETTER NAME. Current suggestions: IDataManager
+    /// </remarks>
+    [DefaultImplementation(typeof(DataSetMaster))]
+    public interface IDataSetMaster
     {
         /// <summary>
-        /// The id of the partition.
+        /// Spawn evaluators and load data from the given uri on them.
         /// </summary>
-        string Id { get; }
+        /// <typeparam name="T"></typeparam>
+        /// <param name="uri"></param>
+        /// <returns></returns>
+        IDataSet<T> Load<T>(Uri uri);
 
         /// <summary>
-        /// Caches the data locally, cached location is based on the implementation.
+        /// Store the data to stable storage.
         /// </summary>
-        [Unstable("0.14", "Contract may change.")]
-        void Cache();
-
-        /// <summary>
-        /// Gives a pointer to the underlying partition.
-        /// </summary>
-        /// <returns>The pointer to the underlying partition</returns>
-        T GetPartitionHandle();
+        /// <typeparam name="T"></typeparam>
+        /// <param name="dataSet"></param>
+        void Store<T>(IDataSet<T> dataSet);
     }
 }
