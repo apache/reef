@@ -89,6 +89,7 @@ under the License.
         <menu name="Documentation">
             <item name="Introduction to REEF" href="introduction.html"/>
             <item name="REEF Tutorial" href="https://cwiki.apache.org/confluence/display/REEF/Tutorials"/>
+            <item name="Publications" href="publications.html"/>
             <item name="Talks" href="talks.html"/>
             <item name="Glossary" href="glossary.html"/>
             <item name="Tang" href="tang.html"/>
