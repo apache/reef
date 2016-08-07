@@ -311,6 +311,8 @@ under the License.
                             <!-- The below are binary data files used in tests -->
                             <exclude>Org.Apache.REEF.Examples/ConfigFiles/*</exclude>
                             <exclude>Org.Apache.REEF.Tang.Tests/simpleConstructorJavaProto.bin</exclude>
+                            <!-- Bibliography info for papers about REEF -->
+                            <exclude>**/bib/**</exclude>
                         </excludes>
                     </configuration>
                 </plugin>
