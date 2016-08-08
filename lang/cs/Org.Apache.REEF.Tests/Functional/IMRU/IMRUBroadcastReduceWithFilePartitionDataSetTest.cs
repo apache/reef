@@ -25,6 +25,7 @@ using Org.Apache.REEF.IMRU.API;
 using Org.Apache.REEF.IMRU.OnREEF.Driver;
 using Org.Apache.REEF.IO.PartitionedData;
 using Org.Apache.REEF.IO.PartitionedData.FileSystem;
+using Org.Apache.REEF.IO.PartitionedData.FileSystem.Parameters;
 using Org.Apache.REEF.IO.TempFileCreation;
 using Org.Apache.REEF.Network.Examples.GroupCommunication.BroadcastReduceDriverAndTasks;
 using Org.Apache.REEF.Tang.Annotations;
@@ -75,7 +76,7 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
                 mapperMemory,
                 updateTaskMemory,
                 testFolder);
-            ValidateSuccessForLocalRuntime(numTasks, 0, 0, testFolder);
+            ValidateSuccessForLocalRuntime(numTasks, 0, 0, testFolder, 100);
             CleanUp(testFolder);
         }
 
@@ -192,27 +193,36 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
             [Inject]
             private TestSenderMapFunction(
                 [Parameter(typeof(TaskConfigurationOptions.Identifier))] string taskId,
-                IInputPartition<T> partition)
+                IInputPartition<T> partition,
+                [Parameter(typeof(CopyToLocal))] bool copyToLocal)
             {
                 var tempFileDir = TangFactory.GetTang().NewInjector().GetNamedInstance<TempFileFolder, string>();
                 var tmpFileFodler = Directory.GetCurrentDirectory() + tempFileDir.Substring(1, tempFileDir.Length - 1);
                 Assert.True(Directory.Exists(tmpFileFodler));
                 
                 var directories = Directory.EnumerateDirectories(tmpFileFodler);
-                Assert.Equal(1, directories.Count());
 
-                var directory = directories.FirstOrDefault();
-                Assert.True(directory.Contains("-partition-"));
+                if (copyToLocal)
+                {
+                    Assert.Equal(1, directories.Count());
 
-                var files = Directory.EnumerateFiles(directory);
-                Assert.Equal(1, files.Count());
-                var file = files.FirstOrDefault();
-                var a = file.Split('\\');
-                var fileName = a[a.Length - 1];
-                Assert.Equal(8, fileName.Length);
+                    var directory = directories.FirstOrDefault();
+                    Assert.True(directory.Contains("-partition-"));
 
-                var matchCounter = Regex.Matches(fileName, @"[a-zA-Z0-9]").Count;
-                Assert.Equal(8, matchCounter);
+                    var files = Directory.EnumerateFiles(directory);
+                    Assert.Equal(1, files.Count());
+                    var file = files.FirstOrDefault();
+                    var a = file.Split('\\');
+                    var fileName = a[a.Length - 1];
+                    Assert.Equal(8, fileName.Length);
+
+                    var matchCounter = Regex.Matches(fileName, @"[a-zA-Z0-9]").Count;
+                    Assert.Equal(8, matchCounter);
+                }
+                else
+                {
+                    Assert.Equal(0, directories.Count());
+                }
 
                 int count = 0;
                 var e = (IEnumerable<Row>)partition.GetPartitionHandle();
