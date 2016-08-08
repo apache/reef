@@ -16,6 +16,7 @@
 // under the License.
 
 using System.Collections.Generic;
+using System.Reflection;
 using Org.Apache.REEF.Tang.Examples;
 using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Wake.RX;
@@ -29,8 +30,8 @@ namespace Org.Apache.REEF.Tang.Tests.ClassHierarchy
         public void TestGenericClassWithT()
         {
             List<string> appDlls = new List<string>();
-            appDlls.Add(typeof(GenericArgument<>).Assembly.GetName().Name);
-            appDlls.Add(typeof(AbstractObserver<>).Assembly.GetName().Name);
+            appDlls.Add(typeof(GenericArgument<>).GetTypeInfo().Assembly.GetName().Name);
+            appDlls.Add(typeof(AbstractObserver<>).GetTypeInfo().Assembly.GetName().Name);
             TangFactory.GetTang().GetClassHierarchy(appDlls.ToArray());
         }
     }  

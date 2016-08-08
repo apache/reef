@@ -18,6 +18,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Reflection;
 using Org.Apache.REEF.Tang.Examples;
 using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Tang.Interface;
@@ -34,7 +35,7 @@ namespace Org.Apache.REEF.Tang.Tests.ClassHierarchy
         public void TestAnonymousTypeWithDictionary()
         {
             List<string> appDlls = new List<string>();
-            appDlls.Add(typeof(AnonymousType).Assembly.GetName().Name);
+            appDlls.Add(typeof(AnonymousType).GetTypeInfo().Assembly.GetName().Name);
             var c = TangFactory.GetTang().GetClassHierarchy(appDlls.ToArray());
             c.GetNode(typeof(AnonymousType).AssemblyQualifiedName);
 
