@@ -68,8 +68,11 @@ final class SshProcessContainer implements Container {
   private final String nodeFolder;
 
   /**
+   * @param errorHandlerRID the remoteID of the error handler.
+   * @param nodeID          the ID of the (fake) node this Container is instantiated on
    * @param containedID     the  ID used to identify this container uniquely
-   * @param folder          the folder in which logs etc. will be deposited
+   * @param folder          the folder in which logs etc. will be deposited.
+   * @param nodeFolder      the folder in which the shaded jar file should be stored.
    */
   SshProcessContainer(final String errorHandlerRID,
                       final String nodeID,

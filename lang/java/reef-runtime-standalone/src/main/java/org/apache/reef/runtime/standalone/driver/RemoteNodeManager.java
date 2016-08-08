@@ -127,8 +127,15 @@ public final class RemoteNodeManager {
     } catch (Exception e) {
       throw new RuntimeException("Unable to get remote node", e);
     }
-    final String username = remoteNode.substring(0, remoteNode.indexOf('@'));
-    final String hostname = remoteNode.substring(remoteNode.indexOf('@') + 1);
+    final String username;
+    final String hostname;
+    if (remoteNode.indexOf('@') < 0) {
+      username = System.getProperty("user.name");
+      hostname = remoteNode;
+    } else {
+      username = remoteNode.substring(0, remoteNode.indexOf('@'));
+      hostname = remoteNode.substring(remoteNode.indexOf('@') + 1, remoteNode.length());
+    }
     final String userHomeDir = System.getProperty("user.home");
     final String privatekey = userHomeDir + "/.ssh/id_dsa";
 
@@ -183,7 +190,7 @@ public final class RemoteNodeManager {
         try {
           copyProcess.waitFor();
         } catch (final InterruptedException ex) {
-          LOG.log(Level.SEVERE, "Copying Interrupted: {0}", ex);
+          throw new RuntimeException("Copying Interrupted: ", ex);
         }
 
         final List<String> command = getLaunchCommand(resourceLaunchEvent, sshProcessContainer.getMemory());
@@ -200,7 +207,7 @@ public final class RemoteNodeManager {
     if (!nodeSetIterator.hasNext()) {
       nodeSetIterator = this.nodeInfoSet.iterator();
     }
-    return nodeSetIterator.next();
+    return nodeSetIterator.next().trim();
   }
 
   private static List<File> getLocalFiles(final ResourceLaunchEvent launchRequest) {

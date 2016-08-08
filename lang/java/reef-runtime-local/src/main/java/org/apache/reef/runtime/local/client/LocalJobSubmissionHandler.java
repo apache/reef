@@ -38,7 +38,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Handles Job Submissions for the Local Runtime.
+ * Handles Job Submissions for the Local and the Standalone Runtime.
  */
 @Private
 @ClientSide

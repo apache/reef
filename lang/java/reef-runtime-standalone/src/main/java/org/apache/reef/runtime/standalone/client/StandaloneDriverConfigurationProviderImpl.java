@@ -18,6 +18,7 @@
  */
 package org.apache.reef.runtime.standalone.client;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.reef.runtime.common.client.DriverConfigurationProvider;
 import org.apache.reef.runtime.common.parameters.JVMHeapSlack;
 import org.apache.reef.runtime.standalone.client.parameters.NodeFolder;
@@ -32,7 +33,6 @@ import org.apache.reef.tang.formats.ConfigurationModule;
 import javax.inject.Inject;
 import java.io.*;
 import java.net.URI;
-import java.nio.charset.StandardCharsets;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.logging.Level;
@@ -62,24 +62,13 @@ final class StandaloneDriverConfigurationProviderImpl implements DriverConfigura
     this.nodeInfoSet = new HashSet<>();
 
     LOG.log(Level.FINEST, "Reading NodeListFilePath");
+    final InputStream in;
     try {
-      final InputStream in = new FileInputStream(this.nodeListFilePath);
-      final Reader reader = new InputStreamReader(in, StandardCharsets.UTF_8);
-      final BufferedReader br = new BufferedReader(reader);
-      while (true) {
-        final String line = br.readLine();
-        if (line == null) {
-          break;
-        }
-        this.nodeInfoSet.add(line);
-      }
-      br.close();
-    } catch (final FileNotFoundException ex) {
-      LOG.log(Level.SEVERE, "Failed to open file in NodeListFilePath: {0}", nodeListFilePath);
-      throw new RuntimeException("Failed to open file in NodeListFilePath: " + nodeListFilePath, ex);
-    } catch (final IOException ex) {
-      LOG.log(Level.SEVERE, "Failed to read file");
-      throw new RuntimeException("Failed to read file", ex);
+      in = new FileInputStream(this.nodeListFilePath);
+      this.nodeInfoSet.add(IOUtils.toString(in));
+      IOUtils.closeQuietly(in);
+    } catch(Exception e) {
+      throw new RuntimeException("File not found exception in StandaloneDriverConfigurationProviderImpl", e);
     }
   }
 
