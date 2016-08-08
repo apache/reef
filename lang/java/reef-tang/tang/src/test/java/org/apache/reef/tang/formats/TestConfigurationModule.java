@@ -38,6 +38,8 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Set;
 
+import static junit.framework.TestCase.fail;
+
 /*
  * Define a configuration module that explains how Foo should be injected.
  * 
@@ -210,6 +212,39 @@ public class TestConfigurationModule {
               .set(MyConfigurationModule.FOO_STRING_NESS, (String) null)
               .build();
 
+  }
+
+  @Test
+  public void nullInRequiredImplementationValueRaisesIllegalStateExceptionTest() {
+    final String nullString = null;
+    final Class<? extends TestConfigurationModule.Foo> nullClass = null;
+    try {
+      //case 1: string
+      MyConfigurationModule.CONF
+          .set(MyConfigurationModule.THE_FOO, nullString)
+          .set(MyConfigurationModule.FOO_STRING_NESS, "abc")
+          .build();
+      fail();
+    } catch (IllegalStateException e) {
+      nullInRequiredImplementationValueRaisesIllegalStateExceptionTestAssert(e);
+    }
+    try {
+      //case 2: class
+      MyConfigurationModule.CONF
+          .set(MyConfigurationModule.THE_FOO, nullClass)
+          .set(MyConfigurationModule.FOO_STRING_NESS, "abc")
+          .build();
+      fail();
+    } catch (IllegalStateException e) {
+      nullInRequiredImplementationValueRaisesIllegalStateExceptionTestAssert(e);
+    }
+  }
+
+  private void nullInRequiredImplementationValueRaisesIllegalStateExceptionTestAssert(final Exception e) {
+    Assert.assertTrue(e instanceof IllegalStateException);
+    Assert.assertEquals(e.getMessage(), "Cannot find the value for the RequiredImplementation of the interface"
+        + " org.apache.reef.tang.formats.TestConfigurationModule$Foo."
+        + " Check that you don't pass null as an implementation value.");
   }
 
   @Test

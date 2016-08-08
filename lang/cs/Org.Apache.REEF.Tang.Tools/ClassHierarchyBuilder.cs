@@ -19,6 +19,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
+using System.Reflection;
 using Org.Apache.REEF.Common.Tasks;
 using Org.Apache.REEF.Examples.Tasks.HelloTask;
 using Org.Apache.REEF.Examples.Tasks.ShellTask;
@@ -92,7 +93,7 @@ namespace Org.Apache.REEF.Tang.Tools
 
         private static string GetAssemblyName(Type type)
         {
-            return type.Assembly.GetName().Name;
+            return type.GetTypeInfo().Assembly.GetName().Name;
         }
     }
 }

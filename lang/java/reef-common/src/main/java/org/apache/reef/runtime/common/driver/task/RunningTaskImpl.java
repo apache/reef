@@ -92,7 +92,7 @@ public final class RunningTaskImpl implements RunningTask {
           .build();
       this.evaluatorManager.sendContextControlMessage(contextControlProto);
     } else {
-      LOG.log(Level.FINE, "Ignoring call to .close() because the task is no longer RUNNING.");
+      LOG.log(Level.INFO, "Ignoring call to .close() because the task is no longer RUNNING.");
     }
   }
 
@@ -107,7 +107,8 @@ public final class RunningTaskImpl implements RunningTask {
           .build();
       this.evaluatorManager.sendContextControlMessage(contextControlProto);
     } else {
-      throw new RuntimeException("Trying to send a message to a Task that is no longer RUNNING.");
+      LOG.log(Level.INFO, "Ignoring call to .close(byte[] message) because the task is no longer RUNNING "
+          + "(see REEF-1503 for an example of scenario in which this happens).");
     }
   }
 

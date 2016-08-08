@@ -49,6 +49,7 @@ under the License.
   </ItemGroup>
   <ItemGroup>
     <Compile Include="MapInputWithControlMessageTests.cs" />
+    <Compile Include="NaturalSumTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="MapperCountTest.cs" />
     <Compile Include="TestActiveContextManager.cs" />

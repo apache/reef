@@ -58,7 +58,7 @@ namespace Org.Apache.REEF.Driver.Bridge
                     Exceptions.Throw(new ArgumentException("spec cannot contain :"), "The http spec given is " + spec, LOGGER);
                 }
                 LOGGER.Log(Level.Info, "HttpHandler spec:" + spec);   
-                eventHandlers.Add(spec.ToLower(CultureInfo.CurrentCulture), h);
+                eventHandlers.Add(CultureInfo.CurrentCulture.TextInfo.ToLower(spec), h);
             }
             this.httpServerPort = httpServerPort;
         }
@@ -99,7 +99,7 @@ namespace Org.Apache.REEF.Driver.Bridge
                     ReefHttpResponse response = new ReefHttpResponse();
 
                     IHttpHandler handler;
-                    eventHandlers.TryGetValue(spec.ToLower(CultureInfo.CurrentCulture), out handler);
+                    eventHandlers.TryGetValue(CultureInfo.CurrentCulture.TextInfo.ToLower(spec), out handler);
 
                     byte[] responseData;
                     if (handler != null)
