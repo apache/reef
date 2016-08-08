@@ -17,6 +17,7 @@
 
 using System;
 using System.IO;
+using System.Reflection;
 using Microsoft.Hadoop.Avro;
 using Org.Apache.REEF.Examples.Tasks.HelloTask;
 using Org.Apache.REEF.Tang.Examples;
@@ -46,7 +47,7 @@ namespace Org.Apache.REEF.Tang.Tests.ClassHierarchy
             Type simpleConstructorType = typeof(SimpleConstructors);
 
             IClassHierarchy ns = TangFactory.GetTang().GetClassHierarchy(
-                new string[] { typeof(Timer).Assembly.GetName().Name, typeof(SimpleConstructors).Assembly.GetName().Name });
+                new string[] { typeof(Timer).GetTypeInfo().Assembly.GetName().Name, typeof(SimpleConstructors).GetTypeInfo().Assembly.GetName().Name });
             IClassNode timerClassNode = (IClassNode)ns.GetNode(timerType.AssemblyQualifiedName);
             INode secondNode = ns.GetNode(secondType.AssemblyQualifiedName);
             IClassNode simpleConstructorsClassNode = (IClassNode)ns.GetNode(simpleConstructorType.AssemblyQualifiedName);
@@ -84,14 +85,14 @@ namespace Org.Apache.REEF.Tang.Tests.ClassHierarchy
         public void TestAvroClassHierarchyMerge()
         {
             IClassHierarchy ns = TangFactory.GetTang().GetClassHierarchy(
-                new string[] { typeof(Timer).Assembly.GetName().Name });
+                new string[] { typeof(Timer).GetTypeInfo().Assembly.GetName().Name });
             IClassNode timerClassNode = (IClassNode)ns.GetNode(typeof(Timer).AssemblyQualifiedName);
 
             AvroNode n = _serializer.ToAvroNode(ns);
             IClassHierarchy ns2 = _serializer.FromAvroNode(n);
 
             IClassHierarchy ns3 = TangFactory.GetTang().GetClassHierarchy(
-                    new string[] { typeof(AvroNode).Assembly.GetName().Name });
+                    new string[] { typeof(AvroNode).GetTypeInfo().Assembly.GetName().Name });
             IClassNode avroNodeClassNode = (IClassNode)ns3.GetNode(typeof(AvroNode).AssemblyQualifiedName);
 
             AvroNode n2 = _serializer.ToAvroNode(ns3);
@@ -112,7 +113,7 @@ namespace Org.Apache.REEF.Tang.Tests.ClassHierarchy
         [Fact]
         public void TestToTextFileForTask()
         {
-            IClassHierarchy ns = TangFactory.GetTang().GetClassHierarchy(new string[] { typeof(HelloTask).Assembly.GetName().Name });
+            IClassHierarchy ns = TangFactory.GetTang().GetClassHierarchy(new string[] { typeof(HelloTask).GetTypeInfo().Assembly.GetName().Name });
             _serializer.ToTextFile(ns, "avroTask.bin");
             Assert.True(File.Exists("avroTask.bin"));
         }
@@ -123,7 +124,7 @@ namespace Org.Apache.REEF.Tang.Tests.ClassHierarchy
         [Fact]
         public void TestToString()
         {
-            IClassHierarchy ns = TangFactory.GetTang().GetClassHierarchy(new string[] { typeof(HelloTask).Assembly.GetName().Name });
+            IClassHierarchy ns = TangFactory.GetTang().GetClassHierarchy(new string[] { typeof(HelloTask).GetTypeInfo().Assembly.GetName().Name });
             string s = _serializer.ToString(ns);
             Assert.NotNull(s);
         }
@@ -142,7 +143,7 @@ namespace Org.Apache.REEF.Tang.Tests.ClassHierarchy
             Type simpleConstructorType = typeof(SimpleConstructors);
 
             IClassHierarchy ns = TangFactory.GetTang().GetClassHierarchy(
-                new string[] { typeof(Timer).Assembly.GetName().Name, typeof(SimpleConstructors).Assembly.GetName().Name });
+                new string[] { typeof(Timer).GetTypeInfo().Assembly.GetName().Name, typeof(SimpleConstructors).GetTypeInfo().Assembly.GetName().Name });
             IClassNode timerClassNode = (IClassNode)ns.GetNode(timerType.AssemblyQualifiedName);
             INode secondNode = ns.GetNode(secondType.AssemblyQualifiedName);
             IClassNode simpleConstructorsClassNode = (IClassNode)ns.GetNode(simpleConstructorType.AssemblyQualifiedName);
@@ -173,7 +174,7 @@ namespace Org.Apache.REEF.Tang.Tests.ClassHierarchy
             Type simpleConstructorType = typeof(SimpleConstructors);
 
             IClassHierarchy ns = TangFactory.GetTang().GetClassHierarchy(
-                new string[] { typeof(Timer).Assembly.GetName().Name, typeof(SimpleConstructors).Assembly.GetName().Name });
+                new string[] { typeof(Timer).GetTypeInfo().Assembly.GetName().Name, typeof(SimpleConstructors).GetTypeInfo().Assembly.GetName().Name });
             IClassNode timerClassNode = (IClassNode)ns.GetNode(timerType.AssemblyQualifiedName);
             INode secondNode = ns.GetNode(secondType.AssemblyQualifiedName);
             IClassNode simpleConstructorsClassNode = (IClassNode)ns.GetNode(simpleConstructorType.AssemblyQualifiedName);
@@ -202,7 +203,7 @@ namespace Org.Apache.REEF.Tang.Tests.ClassHierarchy
             Type simpleConstructorType = typeof(SimpleConstructors);
 
             IClassHierarchy ns = TangFactory.GetTang().GetClassHierarchy(
-                new string[] { typeof(Timer).Assembly.GetName().Name, typeof(SimpleConstructors).Assembly.GetName().Name });
+                new string[] { typeof(Timer).GetTypeInfo().Assembly.GetName().Name, typeof(SimpleConstructors).GetTypeInfo().Assembly.GetName().Name });
             IClassNode timerClassNode = (IClassNode)ns.GetNode(timerType.AssemblyQualifiedName);
             INode secondNode = ns.GetNode(secondType.AssemblyQualifiedName);
             IClassNode simpleConstructorsClassNode = (IClassNode)ns.GetNode(simpleConstructorType.AssemblyQualifiedName);
@@ -231,7 +232,7 @@ namespace Org.Apache.REEF.Tang.Tests.ClassHierarchy
             Type simpleConstructorType = typeof(SimpleConstructors);
 
             IClassHierarchy ns = TangFactory.GetTang().GetClassHierarchy(
-                new string[] { typeof(Timer).Assembly.GetName().Name, typeof(SimpleConstructors).Assembly.GetName().Name });
+                new string[] { typeof(Timer).GetTypeInfo().Assembly.GetName().Name, typeof(SimpleConstructors).GetTypeInfo().Assembly.GetName().Name });
             IClassNode timerClassNode = (IClassNode)ns.GetNode(timerType.AssemblyQualifiedName);
             INode secondNode = ns.GetNode(secondType.AssemblyQualifiedName);
             IClassNode simpleConstructorsClassNode = (IClassNode)ns.GetNode(simpleConstructorType.AssemblyQualifiedName);

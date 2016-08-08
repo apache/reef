@@ -44,7 +44,7 @@ namespace Org.Apache.REEF.Tang.Tests.ClassHierarchy
         [Fact]
         public void TestSerializeClassHierarchy()
         {            
-            IClassHierarchy ns = TangFactory.GetTang().GetClassHierarchy(new string[] { typeof(Timer).Assembly.GetName().Name });
+            IClassHierarchy ns = TangFactory.GetTang().GetClassHierarchy(new string[] { typeof(Timer).GetTypeInfo().Assembly.GetName().Name });
             ProtocolBufferClassHierarchy.Serialize("node.bin", ns);
         }
 
@@ -55,7 +55,7 @@ namespace Org.Apache.REEF.Tang.Tests.ClassHierarchy
             Type secondType = typeof(Timer.Seconds);
             Type simpleCOnstuctorType = typeof(SimpleConstructors);
 
-            IClassHierarchy ns = TangFactory.GetTang().GetClassHierarchy(new string[] { typeof(Timer).Assembly.GetName().Name });
+            IClassHierarchy ns = TangFactory.GetTang().GetClassHierarchy(new string[] { typeof(Timer).GetTypeInfo().Assembly.GetName().Name });
             IClassNode timerClassNode = (IClassNode)ns.GetNode(timerType.AssemblyQualifiedName);
             INode secondNode = (INode)ns.GetNode(secondType.AssemblyQualifiedName);
             IClassNode simpleConstructorsClassNode = (IClassNode)ns.GetNode(simpleCOnstuctorType.AssemblyQualifiedName);
@@ -82,7 +82,7 @@ namespace Org.Apache.REEF.Tang.Tests.ClassHierarchy
             Type streamTask1Type = typeof(StreamTask1);
             Type helloTaskType = typeof(HelloTask);
 
-            IClassHierarchy ns = TangFactory.GetTang().GetClassHierarchy(new string[] { typeof(HelloTask).Assembly.GetName().Name });
+            IClassHierarchy ns = TangFactory.GetTang().GetClassHierarchy(new string[] { typeof(HelloTask).GetTypeInfo().Assembly.GetName().Name });
             IClassNode streamTask1ClassNode = (IClassNode)ns.GetNode(streamTask1Type.AssemblyQualifiedName);
             IClassNode helloTaskClassNode = (IClassNode)ns.GetNode(helloTaskType.AssemblyQualifiedName);
 
@@ -108,7 +108,7 @@ namespace Org.Apache.REEF.Tang.Tests.ClassHierarchy
         [Fact]
         public void TestSerializeClassHierarchyForAvro()
         {
-            IClassHierarchy ns = TangFactory.GetTang().GetClassHierarchy(new string[] { typeof(Microsoft.Hadoop.Avro.AvroSerializer).Assembly.GetName().Name });
+            IClassHierarchy ns = TangFactory.GetTang().GetClassHierarchy(new string[] { typeof(Microsoft.Hadoop.Avro.AvroSerializer).GetTypeInfo().Assembly.GetName().Name });
             Assert.NotNull(ns);
             ProtocolBufferClassHierarchy.Serialize("avro.bin", ns);
             IClassHierarchy ch = ProtocolBufferClassHierarchy.DeSerialize("avro.bin");
@@ -121,7 +121,7 @@ namespace Org.Apache.REEF.Tang.Tests.ClassHierarchy
             Type streamTask1Type = typeof(StreamTask1);
             Type helloTaskType = typeof(HelloTask);
 
-            IClassHierarchy ns = TangFactory.GetTang().GetClassHierarchy(new string[] { typeof(HelloTask).Assembly.GetName().Name });
+            IClassHierarchy ns = TangFactory.GetTang().GetClassHierarchy(new string[] { typeof(HelloTask).GetTypeInfo().Assembly.GetName().Name });
             IClassNode streamTask1ClassNode = (IClassNode)ns.GetNode(streamTask1Type.AssemblyQualifiedName);
             IClassNode helloTaskClassNode = (IClassNode)ns.GetNode(helloTaskType.AssemblyQualifiedName);
 
@@ -182,7 +182,7 @@ namespace Org.Apache.REEF.Tang.Tests.ClassHierarchy
         [Fact]
         public void TestGenericClass()
         {
-            IClassHierarchy ns = TangFactory.GetTang().GetClassHierarchy(new string[] { typeof(Timer).Assembly.GetName().Name });
+            IClassHierarchy ns = TangFactory.GetTang().GetClassHierarchy(new string[] { typeof(Timer).GetTypeInfo().Assembly.GetName().Name });
 
             Type t = typeof(Timer);
             IClassNode eventClassNode = (IClassNode)ns.GetNode(t.AssemblyQualifiedName);
@@ -195,7 +195,7 @@ namespace Org.Apache.REEF.Tang.Tests.ClassHierarchy
         [Fact]
         public void TestGenericArgument()
         {
-            IClassHierarchy ns = TangFactory.GetTang().GetClassHierarchy(new string[] { typeof(ClassWithGenericArgument<>).Assembly.GetName().Name });
+            IClassHierarchy ns = TangFactory.GetTang().GetClassHierarchy(new string[] { typeof(ClassWithGenericArgument<>).GetTypeInfo().Assembly.GetName().Name });
 
             Type t = typeof(ClassWithGenericArgument<>);
             IClassNode classNode = (IClassNode)ns.GetNode(t.AssemblyQualifiedName);
