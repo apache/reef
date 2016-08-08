@@ -17,7 +17,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -212,7 +211,7 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
                 var fileName = a[a.Length - 1];
                 Assert.Equal(8, fileName.Length);
 
-                var matchCounter = Regex.Matches("40af4c53", @"[a-zA-Z0-9]").Count;
+                var matchCounter = Regex.Matches(fileName, @"[a-zA-Z0-9]").Count;
                 Assert.Equal(8, matchCounter);
 
                 int count = 0;
