@@ -72,7 +72,7 @@ namespace Org.Apache.REEF.Tang.Formats
                 Type t = ReflectionUtilities.GetTypeByName(name);
                 return t.FullName;
             }
-            catch (ApplicationException e)
+            catch (TangApplicationException e)
             {
                 Org.Apache.REEF.Utilities.Diagnostics.Exceptions.Caught(e, Level.Warning, LOGGER);
                 return name; // if name is not a type, return as it was
@@ -86,7 +86,7 @@ namespace Org.Apache.REEF.Tang.Formats
                 Type t = ReflectionUtilities.GetTypeByName(s);
                 return ReflectionUtilities.GetAssemblyQualifiedName(t);
             }
-            catch (ApplicationException e)
+            catch (TangApplicationException e)
             {
                 Org.Apache.REEF.Utilities.Diagnostics.Exceptions.Caught(e, Level.Warning, LOGGER);
                 return s; // if name is not a type, return as it was
@@ -164,10 +164,10 @@ namespace Org.Apache.REEF.Tang.Formats
         }
 
         public static void AddConfigurationFromFile(IConfigurationBuilder conf, string configFileName)
-        {            
-            using (StreamReader reader = new StreamReader(configFileName))
+        {  
+            using (StreamReader reader = File.OpenText(configFileName))
             {
-                 AddConfiguration(conf, reader);
+                AddConfiguration(conf, reader);
             }
         }
 
@@ -196,7 +196,7 @@ namespace Org.Apache.REEF.Tang.Formats
                 }
                 else
                 {
-                    var e = new ApplicationException("Config data is not in format of KeyValuePair: " + line);
+                    var e = new TangApplicationException("Config data is not in format of KeyValuePair: " + line);
                     Org.Apache.REEF.Utilities.Diagnostics.Exceptions.Throw(e, LOGGER);
                 }  
             }
@@ -206,7 +206,7 @@ namespace Org.Apache.REEF.Tang.Formats
         public static IDictionary<string, string> FromFile(string fileName)
         {
             IDictionary<string, string> property = new Dictionary<string, string>();
-            using (StreamReader sr = new StreamReader(fileName))
+            using (StreamReader sr = File.OpenText(fileName))
             {
                 while (!sr.EndOfStream)
                 {

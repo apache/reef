@@ -101,7 +101,7 @@ namespace Org.Apache.REEF.Tang.Implementations.InjectionPlan
                     }
                     else
                     {
-                        var ex = new ApplicationException("Unexpected node type. Wanted ClassNode or NamedParameterNode.  Got: " + node);
+                        var ex = new TangApplicationException("Unexpected node type. Wanted ClassNode or NamedParameterNode.  Got: " + node);
                         Org.Apache.REEF.Utilities.Diagnostics.Exceptions.Throw(ex, LOGGER);
                     }
                     
@@ -216,7 +216,7 @@ namespace Org.Apache.REEF.Tang.Implementations.InjectionPlan
                 }
                 else
                 {
-                    Org.Apache.REEF.Utilities.Diagnostics.Exceptions.Throw(new ApplicationException("Unknown node type :" + n.ToString()), LOGGER);
+                    Org.Apache.REEF.Utilities.Diagnostics.Exceptions.Throw(new TangApplicationException("Unknown node type :" + n.ToString()), LOGGER);
                 }
 
                 Type t = classHierarchy.ClassForName(typeOfSet);
@@ -252,7 +252,7 @@ namespace Org.Apache.REEF.Tang.Implementations.InjectionPlan
                 }
                 else
                 {
-                    Org.Apache.REEF.Utilities.Diagnostics.Exceptions.Throw(new ApplicationException("Unknown node type :" + n.ToString()), LOGGER);
+                    Org.Apache.REEF.Utilities.Diagnostics.Exceptions.Throw(new TangApplicationException("Unknown node type :" + n.ToString()), LOGGER);
                 }
 
                 Type t = classHierarchy.ClassForName(typeOfList);
@@ -318,7 +318,7 @@ namespace Org.Apache.REEF.Tang.Implementations.InjectionPlan
 
             if (cons == null)
             {
-                Org.Apache.REEF.Utilities.Diagnostics.Exceptions.Throw(new ApplicationException("Failed to look up constructor: " + constructor.ToString()), LOGGER);
+                Org.Apache.REEF.Utilities.Diagnostics.Exceptions.Throw(new TangApplicationException("Failed to look up constructor: " + constructor.ToString()), LOGGER);
             }
             return cons;
         }
@@ -749,7 +749,7 @@ namespace Org.Apache.REEF.Tang.Implementations.InjectionPlan
             }
             if (ret2.Count > 0 && ret3.Count > 0)
             {
-                Org.Apache.REEF.Utilities.Diagnostics.Exceptions.Throw(new ApplicationException("Set contains different types of object"), LOGGER);
+                Org.Apache.REEF.Utilities.Diagnostics.Exceptions.Throw(new TangApplicationException("Set contains different types of object"), LOGGER);
             }
             return ret2;
         }
@@ -813,7 +813,7 @@ namespace Org.Apache.REEF.Tang.Implementations.InjectionPlan
         {
             if (!ReflectionUtilities.IsAssignableFromIgnoreGeneric(typeof(Name<>), t))
             {
-                var ex = new ApplicationException(string.Format(CultureInfo.CurrentCulture, "The parameter {0} is not inherit from Name<>", t));
+                var ex = new TangApplicationException(string.Format(CultureInfo.CurrentCulture, "The parameter {0} is not inherit from Name<>", t));
                 Org.Apache.REEF.Utilities.Diagnostics.Exceptions.Throw(ex, LOGGER);
             }
             return GetInstance(classHierarchy.GetNode(t));

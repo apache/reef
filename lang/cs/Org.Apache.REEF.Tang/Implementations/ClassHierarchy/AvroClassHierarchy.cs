@@ -211,7 +211,7 @@ namespace Org.Apache.REEF.Tang.Implementations.ClassHierarchy
                 }
                 catch (Exception)
                 {
-                    var e = new ApplicationException(string.Format(CultureInfo.CurrentCulture, "Duplicated alias {0} on named parameter {1}.", np.GetAlias(), np.GetFullName()));
+                    var e = new TangApplicationException(string.Format(CultureInfo.CurrentCulture, "Duplicated alias {0} on named parameter {1}.", np.GetAlias(), np.GetFullName()));
                     Utilities.Diagnostics.Exceptions.Throw(e, LOGGER);
                 }
             }
