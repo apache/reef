@@ -129,7 +129,7 @@ namespace Org.Apache.REEF.Tang.Util
         {
             if (iface == null || type == null)
             {
-                var ex = new ApplicationException(string.Format(CultureInfo.CurrentCulture,
+                var ex = new TangApplicationException(string.Format(CultureInfo.CurrentCulture,
                                                              "The type passed in IsGenericTypeof is null: iface : {0} type: {1}. ",
                                                              iface, type));
                 Utilities.Diagnostics.Exceptions.Throw(ex, LOGGER);
@@ -372,7 +372,7 @@ namespace Org.Apache.REEF.Tang.Util
             if (t == null)
             {
                 Utilities.Diagnostics.Exceptions.Throw(
-                    new ApplicationException("Not able to get Type from the name provided: " + name), LOGGER);
+                    new TangApplicationException("Not able to get Type from the name provided: " + name), LOGGER);
             }
 
             return t;
@@ -406,7 +406,7 @@ namespace Org.Apache.REEF.Tang.Util
         {
             if (t == null)
             {
-                Utilities.Diagnostics.Exceptions.Throw(new ApplicationException("The Type passed to GetEnclosingClassShortNames is null"), LOGGER);
+                Utilities.Diagnostics.Exceptions.Throw(new TangApplicationException("The Type passed to GetEnclosingClassShortNames is null"), LOGGER);
             }
             Type[] ts = GetEnclosingClasses(t);
             string[] result = new string[ts.Length];
@@ -428,7 +428,7 @@ namespace Org.Apache.REEF.Tang.Util
         {
             if (fullName == null)
             {
-                Utilities.Diagnostics.Exceptions.Throw(new ApplicationException("The name passed to GetEnclosingClassShortNames is null"), LOGGER);
+                Utilities.Diagnostics.Exceptions.Throw(new TangApplicationException("The name passed to GetEnclosingClassShortNames is null"), LOGGER);
             }
             Type t = ReflectionUtilities.GetTypeByName(fullName);
             return GetEnclosingClassNames(t);

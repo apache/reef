@@ -156,7 +156,7 @@ namespace Org.Apache.REEF.Tang.Implementations.ClassHierarchy
 
                 if (type == null)
                 {
-                    Org.Apache.REEF.Utilities.Diagnostics.Exceptions.Throw(new ApplicationException("Exception"), LOGGER);
+                    Org.Apache.REEF.Utilities.Diagnostics.Exceptions.Throw(new TangApplicationException("Exception"), LOGGER);
                 }
 
                 string typename = ReflectionUtilities.GetAssemblyQualifiedName(type);

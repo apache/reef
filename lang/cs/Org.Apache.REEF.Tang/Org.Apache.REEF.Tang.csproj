@@ -57,6 +57,7 @@ under the License.
     <Compile Include="Exceptions\InjectionException.cs" />
     <Compile Include="Exceptions\NameResolutionException.cs" />
     <Compile Include="Exceptions\ParseException.cs" />
+    <Compile Include="Exceptions\TangApplicationException.cs" />
     <Compile Include="Formats\AvroConfigurationDataContract\AvroConfiguration.cs" />
     <Compile Include="Formats\AvroConfigurationDataContract\ConfigurationEntry.cs" />
     <Compile Include="Formats\AvroConfigurationSerializer.cs" />
@@ -75,22 +76,22 @@ under the License.
     <Compile Include="Implementations\ClassHierarchy\AvroClassHierarchy.cs" />
     <Compile Include="Implementations\ClassHierarchy\AvroClassHierarchySerializer.cs" />
     <Compile Include="Implementations\ClassHierarchy\AvroDataContract\AvroClassNode.cs">
-        <ExcludeFromStyleCop>true</ExcludeFromStyleCop>
+      <ExcludeFromStyleCop>true</ExcludeFromStyleCop>
     </Compile>
     <Compile Include="Implementations\ClassHierarchy\AvroDataContract\AvroConstructorArg.cs">
-        <ExcludeFromStyleCop>true</ExcludeFromStyleCop>
+      <ExcludeFromStyleCop>true</ExcludeFromStyleCop>
     </Compile>
     <Compile Include="Implementations\ClassHierarchy\AvroDataContract\AvroConstructorDef.cs">
-        <ExcludeFromStyleCop>true</ExcludeFromStyleCop>
+      <ExcludeFromStyleCop>true</ExcludeFromStyleCop>
     </Compile>
     <Compile Include="Implementations\ClassHierarchy\AvroDataContract\AvroNamedParameterNode.cs">
-        <ExcludeFromStyleCop>true</ExcludeFromStyleCop>
+      <ExcludeFromStyleCop>true</ExcludeFromStyleCop>
     </Compile>
     <Compile Include="Implementations\ClassHierarchy\AvroDataContract\AvroNode.cs">
-        <ExcludeFromStyleCop>true</ExcludeFromStyleCop>
+      <ExcludeFromStyleCop>true</ExcludeFromStyleCop>
     </Compile>
     <Compile Include="Implementations\ClassHierarchy\AvroDataContract\AvroPackageNode.cs">
-        <ExcludeFromStyleCop>true</ExcludeFromStyleCop>
+      <ExcludeFromStyleCop>true</ExcludeFromStyleCop>
     </Compile>
     <Compile Include="Implementations\ClassHierarchy\ClassHierarchyImpl.cs" />
     <Compile Include="Implementations\ClassHierarchy\ClassNodeImpl.cs" />
@@ -130,10 +131,10 @@ under the License.
     <Compile Include="Interface\ITang.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Protobuf\class_hierarchy.cs">
-        <ExcludeFromStyleCop>true</ExcludeFromStyleCop>
+      <ExcludeFromStyleCop>true</ExcludeFromStyleCop>
     </Compile>
     <Compile Include="Protobuf\injection_plan.cs">
-        <ExcludeFromStyleCop>true</ExcludeFromStyleCop>
+      <ExcludeFromStyleCop>true</ExcludeFromStyleCop>
     </Compile>
     <Compile Include="Protobuf\ProtocolBufferClassHierarchy.cs" />
     <Compile Include="Protobuf\ProtocolBufferInjectionPlan.cs" />

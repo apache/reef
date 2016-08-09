@@ -78,7 +78,7 @@ namespace Org.Apache.REEF.Tang.Implementations.ClassHierarchy
 
                 if (!WriteFile(buffer, fileName))
                 {
-                    var e = new ApplicationException("Error during file operation. Quitting method: " + fileName);
+                    var e = new TangApplicationException("Error during file operation. Quitting method: " + fileName);
                     Utilities.Diagnostics.Exceptions.Throw(e, LOGGER);
                 }
             }
@@ -91,9 +91,12 @@ namespace Org.Apache.REEF.Tang.Implementations.ClassHierarchy
         /// <param name="fileName"></param>
         public void ToTextFile(IClassHierarchy c, string fileName)
         {
-            var fp = new StreamWriter(fileName);
-            fp.WriteLine(ToString(c));
-            fp.Close();
+            using (FileStream fs = File.Open(fileName, FileMode.Create))
+            {
+                var fp = new StreamWriter(fs);
+                fp.WriteLine(ToString(c));
+                fp.Dispose();
+            }
         }
 
         /// <summary>
@@ -139,14 +142,13 @@ namespace Org.Apache.REEF.Tang.Implementations.ClassHierarchy
         {
             string line;
             StringBuilder b = new StringBuilder();
-
-            StreamReader file = new StreamReader(fileName);
-            while ((line = file.ReadLine()) != null)
+            using (StreamReader sr = File.OpenText(fileName))
             {
-                b.Append(line);
+                while ((line = sr.ReadLine()) != null)
+                {
+                    b.Append(line);
+                }
             }
-            file.Close();
-
             return FromString(b.ToString());
         }
 
@@ -398,7 +400,7 @@ namespace Org.Apache.REEF.Tang.Implementations.ClassHierarchy
                     if (!ReadFile(buffer, fileName))
                     {
                         var e =
-                            new ApplicationException("Error during file operation. Quitting method : " + fileName);
+                            new TangApplicationException("Error during file operation. Quitting method : " + fileName);
                         Utilities.Diagnostics.Exceptions.Throw(e, LOGGER);
                     }
 
@@ -419,7 +421,7 @@ namespace Org.Apache.REEF.Tang.Implementations.ClassHierarchy
             catch (SerializationException ex)
             {
                 Utilities.Diagnostics.Exceptions.Caught(ex, Level.Error, LOGGER);
-                var e = new ApplicationException("Cannot deserialize the file: " + fileName, ex);
+                var e = new TangApplicationException("Cannot deserialize the file: " + fileName, ex);
                 Utilities.Diagnostics.Exceptions.Throw(e, LOGGER);
             }
 
@@ -464,7 +466,7 @@ namespace Org.Apache.REEF.Tang.Implementations.ClassHierarchy
             using (MemoryStream stream = new MemoryStream())
             {
                 serializer.Serialize(stream, obj);
-                return stream.GetBuffer();
+                return stream.ToArray();
             }
         }
 

@@ -50,7 +50,7 @@ namespace Org.Apache.REEF.Tang.Tests.ClassHierarchy
             {
                 n = ns.GetNode("System");
             }
-            catch (ApplicationException)
+            catch (TangApplicationException)
             {
             }
             catch (NameResolutionException)
@@ -66,7 +66,7 @@ namespace Org.Apache.REEF.Tang.Tests.ClassHierarchy
                 ns.GetNode("org.apache");
                 msg = "Didn't get expected exception";
             }
-            catch (ApplicationException)
+            catch (TangApplicationException)
             {
             }
             catch (NameResolutionException)
@@ -83,7 +83,7 @@ namespace Org.Apache.REEF.Tang.Tests.ClassHierarchy
             {
                 n = ns.GetNode("System");
             }
-            catch (ApplicationException)
+            catch (TangApplicationException)
             {
             }
             catch (NameResolutionException)
@@ -99,7 +99,7 @@ namespace Org.Apache.REEF.Tang.Tests.ClassHierarchy
                 ns.GetNode("org.apache");
                 msg = "Didn't get expected exception";
             }
-            catch (ApplicationException)
+            catch (TangApplicationException)
             {
             }
             catch (NameResolutionException)

@@ -20,6 +20,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 using Org.Apache.REEF.Utilities.Logging;
+using Org.Apache.REEF.Tang.Exceptions;
 
 namespace Org.Apache.REEF.Tang.Util
 {
@@ -71,7 +72,7 @@ namespace Org.Apache.REEF.Tang.Util
 
             if (t == null)
             {
-                Org.Apache.REEF.Utilities.Diagnostics.Exceptions.Throw(new ApplicationException("Not able to get Type from the name provided: " + name), LOGGER);
+                Org.Apache.REEF.Utilities.Diagnostics.Exceptions.Throw(new TangApplicationException("Not able to get Type from the name provided: " + name), LOGGER);
             }
             return t;
         }

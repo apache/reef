@@ -96,7 +96,7 @@ namespace Org.Apache.REEF.Tang.Formats
 
                 if (!WriteFile(buffer, fileName))
                 {
-                    var e = new ApplicationException("Error during file operation. Quitting method: " + fileName);
+                    var e = new TangApplicationException("Error during file operation. Quitting method: " + fileName);
                     Org.Apache.REEF.Utilities.Diagnostics.Exceptions.Throw(e, LOGGER);
                 }
             }          
@@ -173,7 +173,7 @@ namespace Org.Apache.REEF.Tang.Formats
                 {
                     if (!ReadFile(buffer, fileName))
                     {
-                        var e = new ApplicationException("Error during file operation. Quitting method : " + fileName);
+                        var e = new TangApplicationException("Error during file operation. Quitting method : " + fileName);
                         Org.Apache.REEF.Utilities.Diagnostics.Exceptions.Throw(e, LOGGER);
                     }
 
@@ -192,7 +192,7 @@ namespace Org.Apache.REEF.Tang.Formats
             catch (SerializationException ex)
             {
                 Org.Apache.REEF.Utilities.Diagnostics.Exceptions.Caught(ex, Level.Error, LOGGER);
-                var e = new ApplicationException("Cannot deserialize the file: " + fileName, ex);
+                var e = new TangApplicationException("Cannot deserialize the file: " + fileName, ex);
                 Org.Apache.REEF.Utilities.Diagnostics.Exceptions.Throw(e, LOGGER);
             }
 
@@ -269,7 +269,7 @@ namespace Org.Apache.REEF.Tang.Formats
             using (MemoryStream stream = new MemoryStream())
             {
                 serializer.Serialize(stream, obj);
-                return stream.GetBuffer();
+                return stream.ToArray();
             }
         }
 
