@@ -22,7 +22,7 @@ specific language governing permissions and limitations
 under the License.
 #>
 
-function Get-YARN-Classpath {
+function GetYarnClasspath {
   <#
   .SYNOPSIS
   Returns the classpath setup by YARN.
@@ -33,7 +33,7 @@ function Get-YARN-Classpath {
 }
 
 
-function Submit-YARN-Application {
+function SubmitYarnApplication {
   <#
   .SYNOPSIS
   Runs a given main class from a given JAR file on a YARN cluster.
@@ -70,9 +70,9 @@ function Submit-YARN-Application {
   }
 
   # Assemble the classpath for the job
-  if($env:HADOOP_HOME){
-    $CLASSPATH = (Get-YARN-Classpath) + $Jars -join ";"
-  }else{
+  if ($env:HADOOP_HOME) {
+    $CLASSPATH = (GetYarnClasspath) + $Jars -join ";"
+  } else {
     $CLASSPATH = $Jars -join ";"
   }
 
@@ -84,8 +84,10 @@ function Submit-YARN-Application {
   # Assemble the command to run
   # Note: We need to put the classpath within "", as it contains ";"
   $command = "& `"$env:JAVA_HOME\bin\java.exe`" $JavaOptions -cp `"$CLASSPATH`" $LogParams $Class $Arguments"
+
   if ($VerboseLog) {
     echo $command
   }
+
   Invoke-Expression -Command $command
 }
