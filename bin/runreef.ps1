@@ -47,7 +47,7 @@ param
 Import-Module ((Split-Path -Parent $MyInvocation.MyCommand.Definition) + "\runreef.psm1")
 
 if ((Split-Path -Leaf $MyInvocation.MyCommand.Definition).Equals("runreef.ps1")) {
-  Submit-YARN-Application `
+  SubmitYarnApplication `
     -Jars ($Jars -split ';') `
     -Class $Class `
     -JavaOptions $JavaOptions `
