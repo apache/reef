@@ -144,7 +144,7 @@ namespace Org.Apache.REEF.Tang.Formats
 
         public static IConfiguration GetConfiguration(string configString)
         {
-            byte[] array = Encoding.Default.GetBytes(configString);
+            byte[] array = Encoding.GetEncoding(0).GetBytes(configString);
             return GetConfiguration(array);
         }
 
@@ -157,7 +157,7 @@ namespace Org.Apache.REEF.Tang.Formats
 
         public static void AddConfigurationFromStream(IConfigurationBuilder conf, byte[] configData)
         {
-            using (StreamReader reader = new StreamReader(new MemoryStream(configData), Encoding.Default))
+            using (StreamReader reader = new StreamReader(new MemoryStream(configData), Encoding.GetEncoding(0)))
             {
                  AddConfiguration(conf, reader);
             }
