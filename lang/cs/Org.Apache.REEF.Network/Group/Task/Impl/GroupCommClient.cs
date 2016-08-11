@@ -17,13 +17,17 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using Org.Apache.REEF.Common.Tasks;
 using Org.Apache.REEF.Network.Group.Config;
 using Org.Apache.REEF.Network.Group.Driver.Impl;
 using Org.Apache.REEF.Network.NetworkService;
 using Org.Apache.REEF.Tang.Annotations;
+using Org.Apache.REEF.Tang.Exceptions;
 using Org.Apache.REEF.Tang.Formats;
 using Org.Apache.REEF.Tang.Interface;
+using Org.Apache.REEF.Utilities.Diagnostics;
+using Org.Apache.REEF.Utilities.Logging;
 using Org.Apache.REEF.Wake.Remote.Impl;
 
 namespace Org.Apache.REEF.Network.Group.Task.Impl
@@ -34,6 +38,8 @@ namespace Org.Apache.REEF.Network.Group.Task.Impl
     /// </summary>
     public sealed class GroupCommClient : IGroupCommClient
     {
+        private static readonly Logger Logger = Logger.GetLogger(typeof(GroupCommClient));
+
         private readonly Dictionary<string, ICommunicationGroupClientInternal> _commGroups;
 
         private readonly INetworkService<GeneralGroupCommunicationMessage> _networkService;
@@ -67,9 +73,18 @@ namespace Org.Apache.REEF.Network.Group.Task.Impl
 
             networkService.Register(new StringIdentifier(taskId));
 
-            foreach (var group in _commGroups.Values)
+            try
             {
-               group.WaitingForRegistration();
+                foreach (var group in _commGroups.Values)
+                {
+                    group.WaitingForRegistration();
+                }
+            }
+            catch (SystemException e)
+            {
+                networkService.Unregister();
+                networkService.Dispose();
+                Exceptions.CaughtAndThrow(e, Level.Error, "In GroupCommClient, exception from WaitingForRegistration.", Logger);
             }
         }
 
