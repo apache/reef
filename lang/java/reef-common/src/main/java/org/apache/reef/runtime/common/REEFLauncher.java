@@ -30,6 +30,7 @@ import org.apache.reef.tang.annotations.NamedParameter;
 import org.apache.reef.tang.annotations.Parameter;
 import org.apache.reef.tang.exceptions.BindException;
 import org.apache.reef.tang.exceptions.InjectionException;
+import org.apache.reef.tang.formats.AvroConfigurationSerializer;
 import org.apache.reef.tang.formats.ConfigurationSerializer;
 import org.apache.reef.util.EnvironmentUtils;
 import org.apache.reef.util.REEFVersion;
@@ -47,114 +48,150 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * The main entrance point into any REEF process. It is mostly reading from the command line to instantiate
+ * The main entry point into any REEF process (Driver and Evaluator).
+ * It is mostly reading from the command line to instantiate
  * the runtime clock and calling .run() on it.
  */
 public final class REEFLauncher {
 
   /**
-   * Parameter which enables profiling.
+   * Parameter to enable profiling. By default profiling is disabled.
    */
   @NamedParameter(doc = "If true, profiling will be enabled", short_name = "profiling", default_value = "false")
-  public static final class ProfilingEnabled implements Name<Boolean> {
-  }
+  private static final class ProfilingEnabled implements Name<Boolean> { }
 
   private static final Logger LOG = Logger.getLogger(REEFLauncher.class.getName());
 
-  private static final Configuration LAUNCHER_STATIC_CONFIG = Tang.Factory.getTang().newConfigurationBuilder()
-          .bindSetEntry(Clock.RuntimeStartHandler.class, PIDStoreStartHandler.class)
-          .bindNamedParameter(RemoteConfiguration.ErrorHandler.class, REEFErrorHandler.class)
+  private static final Tang TANG = Tang.Factory.getTang();
+
+  private static final Configuration LAUNCHER_STATIC_CONFIG =
+      TANG.newConfigurationBuilder()
           .bindNamedParameter(RemoteConfiguration.ManagerName.class, "REEF_LAUNCHER")
+          .bindNamedParameter(RemoteConfiguration.ErrorHandler.class, REEFErrorHandler.class)
           .bindNamedParameter(RemoteConfiguration.MessageCodec.class, REEFMessageCodec.class)
+          .bindSetEntry(Clock.RuntimeStartHandler.class, PIDStoreStartHandler.class)
           .build();
 
   static {
     LoggingSetup.setupCommonsLogging();
   }
 
-  private final String configurationPath;
+  /** If true, turn on Wake profiling. */
   private final boolean isProfilingEnabled;
-  private final ConfigurationSerializer configurationSerializer;
+
+  /** REEF version - we need it simply to write it to the log. */
   private final REEFVersion reefVersion;
+
+  /**
+   * Main configuration object of the REEF component we are launching here.
+   * The launcher uses that configuration to instantiate the Clock object,
+   * and then call .run() on it.
+   */
   private final Configuration clockConfig;
 
+  /**
+   * REEFLauncher is instantiated in the main() method below using
+   * Tang configuration file provided as a command line argument.
+   * @param configurationPath Path to the serialized Tang configuration file.
+   * (The file must be in the local file system).
+   * @param enableProfiling If true, turn on profiling in Wake.
+   * @param configurationSerializer Serializer used to read the configuration file.
+   * We currently use Avro to serialize Tang configs.
+   * @param reefVersion An injectable object that contains REEF version.
+   */
   @Inject
-  private REEFLauncher(@Parameter(ClockConfigurationPath.class) final String configurationPath,
-               @Parameter(ProfilingEnabled.class) final boolean enableProfiling,
-               final ConfigurationSerializer configurationSerializer,
-               final REEFVersion reefVersion) {
-    this.configurationPath = configurationPath;
-    this.configurationSerializer = configurationSerializer;
+  private REEFLauncher(
+      @Parameter(ClockConfigurationPath.class) final String configurationPath,
+      @Parameter(ProfilingEnabled.class) final boolean enableProfiling,
+      final ConfigurationSerializer configurationSerializer,
+      final REEFVersion reefVersion) {
+
     this.isProfilingEnabled = enableProfiling;
     this.reefVersion = reefVersion;
+
     this.clockConfig = Configurations.merge(
-            readConfigurationFromDisk(this.configurationPath, this.configurationSerializer),
-            LAUNCHER_STATIC_CONFIG);
+        readConfigurationFromDisk(configurationPath, configurationSerializer),
+        LAUNCHER_STATIC_CONFIG);
   }
 
+  /**
+   * Instantiate REEF Launcher. This method is called from REEFLauncher.main().
+   * @param clockConfigPath Path to the local file that contains serialized configuration
+   * of a REEF component to launch (can be either Driver or Evaluator).
+   * @return An instance of the configured REEFLauncher object.
+   */
   private static REEFLauncher getREEFLauncher(final String clockConfigPath) {
-    final Injector injector;
-    try {
-      final Configuration clockArgConfig = Tang.Factory.getTang().newConfigurationBuilder()
-              .bindNamedParameter(ClockConfigurationPath.class, clockConfigPath).build();
-      injector = Tang.Factory.getTang().newInjector(clockArgConfig);
-    } catch (final BindException e) {
-      throw fatal("Error in parsing the command line", e);
-    }
 
     try {
-      return injector.getInstance(REEFLauncher.class);
+
+      final Configuration clockArgConfig = TANG.newConfigurationBuilder()
+          .bindNamedParameter(ClockConfigurationPath.class, clockConfigPath)
+          .build();
+
+      return TANG.newInjector(clockArgConfig).getInstance(REEFLauncher.class);
+
+    } catch (final BindException e) {
+      throw fatal("Error in parsing the command line", e);
     } catch (final InjectionException e) {
       throw fatal("Unable to run REEFLauncher.", e);
     }
   }
 
-  private static RuntimeException fatal(final String msg, final Throwable t) {
-    LOG.log(Level.SEVERE, msg, t);
-    return new RuntimeException(msg, t);
-  }
-
-  private static RuntimeException fatal(final REEFErrorHandler errorHandler, final String msg, final Throwable t) {
-    errorHandler.onNext(t);
-    LOG.log(Level.SEVERE, msg, t);
-    return new RuntimeException(msg, t);
-  }
-
-  @SuppressWarnings("checkstyle:constructorwithoutparams") // avoids logging the same message twice in fatal()
+  /**
+   * Read configuration from a given file and deserialize it
+   * into Tang configuration object that can be used for injection.
+   * Configuration is currently serialized using Avro.
+   * This method also prints full deserialized configuration into log.
+   * @param configPath Path to the local file that contains serialized configuration
+   * of a REEF component to launch (can be either Driver or Evaluator).
+   * @param serializer An object to deserialize the configuration file.
+   * @return Tang configuration read and deserialized from a given file.
+   */
   private static Configuration readConfigurationFromDisk(
           final String configPath, final ConfigurationSerializer serializer) {
-    LOG.log(Level.FINEST, "Loading configuration file: {0}", configPath);
+
+    LOG.log(Level.FINER, "Loading configuration file: {0}", configPath);
 
     final File evaluatorConfigFile = new File(configPath);
 
     if (!evaluatorConfigFile.exists()) {
-      final String message = "The configuration file " + configPath +
-          "doesn't exist. This points to an issue in the job submission.";
-      throw fatal(message, new FileNotFoundException());
-    } else if (!evaluatorConfigFile.canRead()) {
-      final String message = "The configuration file " + configPath +
-          " exists, but can't be read";
-      throw fatal(message, new IOException());
-    } else {
-      try {
-        return serializer.fromFile(evaluatorConfigFile);
-      } catch (final IOException e) {
-        final String message = "Unable to parse the configuration file " + configPath;
-        throw fatal(message, e);
+      throw fatal(
+          "Configuration file " + configPath + " does not exist. Can be an issue in job submission.",
+          new FileNotFoundException(configPath));
+    }
+
+    if (!evaluatorConfigFile.canRead()) {
+      throw fatal(
+          "Configuration file " + configPath + " exists, but can't be read.",
+          new IOException(configPath));
+    }
+
+    try {
+
+      final Configuration config = serializer.fromFile(evaluatorConfigFile);
+
+      if (LOG.isLoggable(Level.FINEST)) {
+        LOG.log(Level.FINEST, "Configuration file {0} loaded:\n--\n{1}\n--",
+            new Object[] {configPath, new AvroConfigurationSerializer().toString(config, true)});
       }
+
+      return config;
+
+    } catch (final IOException e) {
+      throw fatal("Unable to parse the configuration file: " + configPath, e);
     }
   }
 
   /**
    * Launches a REEF client process (Driver or Evaluator).
-   *
-   * @param args command-line args
+   * @param args Command-line arguments -
+   * must be a single element containing local path to the configuration file.
    */
   @SuppressWarnings("checkstyle:illegalcatch")
   public static void main(final String[] args) {
+
     LOG.log(Level.INFO, "Entering REEFLauncher.main().");
     LOG.log(Level.FINE, "REEFLauncher started with user name [{0}]", System.getProperty("user.name"));
-
     LOG.log(Level.FINE, "REEFLauncher started. Assertions are {0} in this process.",
             EnvironmentUtils.areAssertionsEnabled() ? "ENABLED" : "DISABLED");
 
@@ -168,12 +205,14 @@ public final class REEFLauncher {
     final REEFLauncher launcher = getREEFLauncher(args[0]);
 
     Thread.setDefaultUncaughtExceptionHandler(new REEFUncaughtExceptionHandler(launcher.clockConfig));
-    launcher.logVersion();
+    launcher.reefVersion.logVersion(); // Write REEF version to the log.
 
     try (final Clock clock = launcher.getClockFromConfig()) {
-      LOG.log(Level.FINE, "Clock starting");
+
+      LOG.log(Level.FINE, "Clock: start");
       clock.run();
-      LOG.log(Level.FINE, "Clock exiting");
+      LOG.log(Level.FINE, "Clock: exit normally");
+
     } catch (final Throwable ex) {
       try (final REEFErrorHandler errorHandler = launcher.getErrorHandlerFromConfig()) {
         throw fatal(errorHandler, "Unable to instantiate the clock", ex);
@@ -183,37 +222,38 @@ public final class REEFLauncher {
     }
 
     LOG.log(Level.INFO, "Exiting REEFLauncher.main()");
+
     if (LOG.isLoggable(Level.FINEST)) {
       LOG.log(Level.FINEST, ThreadLogger.getFormattedThreadList("Threads running after REEFLauncher.close():"));
     }
+
     System.exit(0);
+
     if (LOG.isLoggable(Level.FINEST)) {
       LOG.log(Level.FINEST, ThreadLogger.getFormattedThreadList("Threads running after System.exit():"));
     }
   }
 
-  private void logVersion() {
-    this.reefVersion.logVersion();
-  }
-
   /**
-   * A new REEFErrorHandler is instantiated instead of lazy instantiation and saving the instantiated
-   * handler as a field since the ErrorHandler is closeable.
-   * @return A new REEFErrorHandler from clock config
-   * @throws InjectionException
+   * A new REEFErrorHandler is instantiated instead of lazy instantiation
+   * and saving the instantiated handler as a field since the ErrorHandler is closeable.
+   * @return A REEFErrorHandler object instantiated from clock config.
+   * @throws InjectionException configuration error.
    */
   private REEFErrorHandler getErrorHandlerFromConfig() throws InjectionException {
-    return Tang.Factory.getTang().newInjector(this.clockConfig).getInstance(REEFErrorHandler.class);
+    return TANG.newInjector(this.clockConfig).getInstance(REEFErrorHandler.class);
   }
 
   /**
    * A new Clock is instantiated instead of lazy instantiation and saving the instantiated
    * handler as a field since the Clock is closeable.
-   * @return A new Clock from clock config
-   * @throws InjectionException
+   * @return A Clock object instantiated from the configuration.
+   * @throws InjectionException configuration error.
    */
   private Clock getClockFromConfig() throws InjectionException {
-    final Injector clockInjector = Tang.Factory.getTang().newInjector(this.clockConfig);
+
+    final Injector clockInjector = TANG.newInjector(this.clockConfig);
+
     if (this.isProfilingEnabled) {
       final WakeProfiler profiler = new WakeProfiler();
       ProfilingStopHandler.setProfiler(profiler);
@@ -221,5 +261,32 @@ public final class REEFLauncher {
     }
 
     return clockInjector.getInstance(Clock.class);
+  }
+
+  /**
+   * Wrap an exception into RuntimeException with a given message,
+   * and write the same message and exception to the log.
+   * @param msg an error message to log and pass into the RuntimeException.
+   * @param t A Throwable exception to log and wrap.
+   * @return a new Runtime exception wrapping a Throwable.
+   */
+  private static RuntimeException fatal(final String msg, final Throwable t) {
+    LOG.log(Level.SEVERE, msg, t);
+    return new RuntimeException(msg, t);
+  }
+
+  /**
+   * Pass exception into an error handler, then wrap it into RuntimeException
+   * with a given message, and write the same message and exception to the log.
+   * @param errorHandler an error handler that consumes the exception before any further processing.
+   * @param msg an error message to log and pass into the RuntimeException.
+   * @param t A Throwable exception to log, wrap, and handle.
+   * @return a new Runtime exception wrapping a Throwable.
+   */
+  private static RuntimeException fatal(
+      final REEFErrorHandler errorHandler, final String msg, final Throwable t) {
+    LOG.log(Level.SEVERE, msg, t);
+    errorHandler.onNext(t);
+    return new RuntimeException(msg, t);
   }
 }
