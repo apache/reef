@@ -76,8 +76,8 @@ public final class REEFLauncher {
     LoggingSetup.setupCommonsLogging();
   }
 
-  /** If true, turn on Wake profiling. */
-  private final boolean isProfilingEnabled;
+  /** Config parameter to turn on network IO profiling in Wake. */
+  private final boolean isWakeProfilingEnabled;
 
   /** REEF version - we need it simply to write it to the log. */
   private final REEFVersion reefVersion;
@@ -106,7 +106,7 @@ public final class REEFLauncher {
       final ConfigurationSerializer configurationSerializer,
       final REEFVersion reefVersion) {
 
-    this.isProfilingEnabled = enableProfiling;
+    this.isWakeProfilingEnabled = enableProfiling;
     this.reefVersion = reefVersion;
 
     this.clockConfig = Configurations.merge(
@@ -254,7 +254,7 @@ public final class REEFLauncher {
 
     final Injector clockInjector = TANG.newInjector(this.clockConfig);
 
-    if (this.isProfilingEnabled) {
+    if (this.isWakeProfilingEnabled) {
       final WakeProfiler profiler = new WakeProfiler();
       ProfilingStopHandler.setProfiler(profiler);
       clockInjector.bindAspect(profiler);
