@@ -195,9 +195,16 @@ namespace Org.Apache.REEF.Network.Naming
 
             public override void OnNext(TransportEvent<NamingEvent> value)
             {
-                NamingEvent message = value.Data;
-                message.Link = value.Link;
-                _handler.OnNext(message);
+                if (value != null && value.Data != null)
+                { 
+                    NamingEvent message = value.Data;
+                    message.Link = value.Link;
+                    _handler.OnNext(message);
+                }
+                else
+                {
+                    Logger.Log(Level.Warning, "NameServer.OnNext(TransportEvent<NamingEvent> value), message received is null");
+                }
             }
         }
     }
