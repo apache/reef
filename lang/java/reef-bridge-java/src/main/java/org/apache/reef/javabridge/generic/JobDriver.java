@@ -167,7 +167,7 @@ public final class JobDriver {
     this.definedRuntimes = definedRuntimes;
   }
 
-  private void setupBridge(final ClrHandlersInitializer initializer) {
+  private void setupBridge() {
     // Signal to the clr buffered log handler that the driver has started and that
     // we can begin logging
     LOG.log(Level.INFO, "Initializing CLRBufferedLogHandler...");
@@ -196,7 +196,9 @@ public final class JobDriver {
       this.evaluatorRequestorBridge =
           new EvaluatorRequestorBridge(JobDriver.this.evaluatorRequestor, false, loggingScopeFactory,
                   JobDriver.this.definedRuntimes);
-      JobDriver.this.handlerManager = initializer.getClrHandlers(portNumber, evaluatorRequestorBridge);
+      JobDriver.this.handlerManager = new BridgeHandlerManager();
+      NativeInterop.clrSystemSetupBridgeHandlerManager(portNumber,
+          JobDriver.this.handlerManager, evaluatorRequestorBridge);
 
       try (final LoggingScope lp =
                this.loggingScopeFactory.getNewLoggingScope("setupBridge::clrSystemHttpServerHandlerOnNext")) {
@@ -581,11 +583,15 @@ public final class JobDriver {
     @Override
     public void onNext(final StartTime startTime) {
       try (final LoggingScope ls = loggingScopeFactory.driverStart(startTime)) {
+        // CLR bridge setup must be done before other event handlers try to access the CLR bridge
+        // thus we grab a lock on this instance
         synchronized (JobDriver.this) {
-
-          setupBridge(new DriverStartClrHandlersInitializer(startTime));
-          LOG.log(Level.INFO, "Driver Started");
+          setupBridge();
+          LOG.log(Level.INFO, "Finished CLR bridge setup for {0}", startTime);
         }
+
+        NativeInterop.callClrSystemOnStartHandler();
+        LOG.log(Level.INFO, "Driver Started");
       }
     }
   }
@@ -598,13 +604,16 @@ public final class JobDriver {
     @Override
     public void onNext(final DriverRestarted driverRestarted) {
       try (final LoggingScope ls = loggingScopeFactory.driverRestart(driverRestarted.getStartTime())) {
+        // CLR bridge setup must be done before other event handlers try to access the CLR bridge
+        // thus we lock on this instance
         synchronized (JobDriver.this) {
-
           JobDriver.this.isRestarted = true;
-          setupBridge(new DriverRestartClrHandlersInitializer(driverRestarted));
-
-          LOG.log(Level.INFO, "Driver Restarted and CLR bridge set up.");
+          setupBridge();
+          LOG.log(Level.INFO, "Finished CLR bridge setup for {0}", driverRestarted);
         }
+
+        NativeInterop.callClrSystemOnRestartHandler(new DriverRestartedBridge(driverRestarted));
+        LOG.log(Level.INFO, "Driver Restarted");
       }
     }
   }
