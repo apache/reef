@@ -245,37 +245,47 @@ namespace Org.Apache.REEF.Driver.Bridge
             }
         }
 
-        public static BridgeHandlerManager Call_ClrSystemStartHandler_OnStart(
-            DateTime startTime, 
+        /// <summary>
+        /// Invokes event handlers registered to the driver start event.
+        /// </summary>
+        /// <param name="startTime"><see cref="DateTime"/> object that represents when this method was called.</param>
+        public static void Call_ClrSystemStartHandler_OnStart(DateTime startTime)
+        {
+            using (LOGGER.LogFunction("ClrSystemHandlerWrapper::Call_ClrSystemStartHandler_OnStart"))
+            {
+                LOGGER.Log(Level.Info, "*** Start time is " + startTime);
+                _driverBridge.StartHandlersOnNext(startTime);
+            }
+        }
+
+        /// <summary>
+        /// Invokes event handlers registered to the driver restart event.
+        /// </summary>
+        /// <param name="driverRestartedClr2Java">Proxy object to the Java driver restart event object.</param>
+        public static void Call_ClrSystemRestartHandler_OnRestart(IDriverRestartedClr2Java driverRestartedClr2Java)
+        {
+            using (LOGGER.LogFunction("ClrSystemHandlerWrapper::Call_ClrSystemRestartHandler_OnRestart"))
+            {
+                LOGGER.Log(Level.Info, "*** Restart time is " + driverRestartedClr2Java.GetStartTime());
+                _driverBridge.RestartHandlerOnNext(driverRestartedClr2Java);
+            }
+        }
+
+        /// <summary>
+        /// Configure and return a manager object holding all subscriptions given to REEF events on the .NET side.
+        /// </summary>
+        /// <param name="httpServerPort">String representation of the http port of the Java-side driver.</param>
+        /// <param name="evaluatorRequestorClr2Java">Proxy object to the Java evaluator requestor object.</param>
+        /// <returns><see cref="BridgeHandlerManager"/> object that contains .NET handles for each REEF event.</returns>
+        public static BridgeHandlerManager Call_ClrSystem_SetupBridgeHandlerManager(
             string httpServerPort,
             IEvaluatorRequestorClr2Java evaluatorRequestorClr2Java)
         {
             IEvaluatorRequestor evaluatorRequestor = new EvaluatorRequestor(evaluatorRequestorClr2Java);
-            using (LOGGER.LogFunction("ClrSystemHandlerWrapper::Call_ClrSystemStartHandler_OnStart"))
+            using (LOGGER.LogFunction("ClrSystemHandlerWrapper::Call_ClrSystem_SetupBridgeHandlerManager"))
             {
-                LOGGER.Log(Level.Info, "*** Start time is " + startTime);
                 LOGGER.Log(Level.Info, "*** httpServerPort: " + httpServerPort);
-                var handlers = GetHandlers(httpServerPort, evaluatorRequestor);
-                _driverBridge.StartHandlersOnNext(startTime);
-
-                return handlers;
-            }   
-        }
-
-        public static BridgeHandlerManager Call_ClrSystemRestartHandler_OnRestart(
-            string httpServerPort,
-            IEvaluatorRequestorClr2Java evaluatorRequestorClr2Java,
-            IDriverRestartedClr2Java driverRestartedClr2Java)
-        {
-            IEvaluatorRequestor evaluatorRequestor = new EvaluatorRequestor(evaluatorRequestorClr2Java);
-            using (LOGGER.LogFunction("ClrSystemHandlerWrapper::Call_ClrSystemRestartHandler_OnRestart"))
-            {
-                LOGGER.Log(Level.Info, "*** Restart time is " + driverRestartedClr2Java.GetStartTime());
-                LOGGER.Log(Level.Info, "*** httpServerPort: " + httpServerPort);
-                var handlers = GetHandlers(httpServerPort, evaluatorRequestor);
-                _driverBridge.RestartHandlerOnNext(driverRestartedClr2Java);
-
-                return handlers;
+                return GetHandlers(httpServerPort, evaluatorRequestor);
             }
         }
 

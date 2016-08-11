@@ -35,11 +35,7 @@ public final class NativeInterop {
 
   public static native void clrBufferedLog(final int level, final String message);
 
-  public static native void callClrSystemOnStartHandler(
-      final String dateTime,
-      final String httpServerPortNumber,
-      final BridgeHandlerManager bridgeHandlerManager,
-      final EvaluatorRequestorBridge javaEvaluatorRequestorBridge);
+  public static native void callClrSystemOnStartHandler();
 
   public static native void clrSystemAllocatedEvaluatorHandlerOnNext(
       final long handle,
@@ -116,9 +112,6 @@ public final class NativeInterop {
   );
 
   public static native void callClrSystemOnRestartHandler(
-      final String httpServerPortNumber,
-      final BridgeHandlerManager bridgeHandlerManager,
-      final EvaluatorRequestorBridge javaEvaluatorRequestorBridge,
       final DriverRestartedBridge driverRestartedBridge
   );
 
@@ -144,6 +137,12 @@ public final class NativeInterop {
   );
 
   public static native float clrSystemProgressProviderGetProgress(final long handle);
+
+  public static native void clrSystemSetupBridgeHandlerManager(
+      final String httpServerPortNumber,
+      final BridgeHandlerManager bridgeHandlerManager,
+      final EvaluatorRequestorBridge javaEvaluatorRequestorBridge
+  );
 
   /**
    * Empty private constructor to prohibit instantiation of utility class.
