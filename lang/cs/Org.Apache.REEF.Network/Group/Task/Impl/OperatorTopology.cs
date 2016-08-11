@@ -117,18 +117,21 @@ namespace Org.Apache.REEF.Network.Group.Task.Impl
         {
             using (Logger.LogFunction("OperatorTopology::Initialize"))
             {
+                IList<string> idsToWait = new List<string>();
+
                 if (_parent != null)
                 {
-                    WaitForTaskRegistration(_parent.Identifier, _retryCount);
+                    idsToWait.Add(_parent.Identifier);
                 }
 
                 if (_childNodeContainer.Count > 0)
                 {
                     foreach (var child in _childNodeContainer)
                     {
-                        WaitForTaskRegistration(child.Identifier, _retryCount);
+                        idsToWait.Add(child.Identifier);
                     }
                 }
+                WaitForTaskRegistration(idsToWait);
             }
         }
 
@@ -352,21 +355,45 @@ namespace Org.Apache.REEF.Network.Group.Task.Impl
         /// Checks if the identifier is registered with the Name Server.
         /// Throws exception if the operation fails more than the retry count.
         /// </summary>
-        /// <param name="identifier">The identifier to look up</param>
-        /// <param name="retries">The number of times to retry the lookup operation</param>
-        private void WaitForTaskRegistration(string identifier, int retries)
+        /// <param name="identifiers">The identifier to look up</param>
+        private void WaitForTaskRegistration(IList<string> identifiers)
         {
-            for (int i = 0; i < retries; i++)
+            using (Logger.LogFunction("OperatorTopology::WaitForTaskRegistration"))
             {
-                if (_nameClient.Lookup(identifier) != null)
+                IList<string> foundList = new List<string>();
+                try
                 {
-                    return;
+                    for (var i = 0; i < _retryCount; i++)
+                    {
+                        Logger.Log(Level.Info, "OperatorTopology.WaitForTaskRegistration, in retryCount {0}.", i);
+                        foreach (var identifier in identifiers)
+                        {
+                            if (!foundList.Contains(identifier) && _nameClient.Lookup(identifier) != null)
+                            {
+                                foundList.Add(identifier);
+                                Logger.Log(Level.Info, "OperatorTopology.WaitForTaskRegistration, find a dependent id {0} at loop {1}.", identifier, i);
+                            }
+                        }
+
+                        if (foundList.Count == identifiers.Count)
+                        {
+                            Logger.Log(Level.Info, "OperatorTopology.WaitForTaskRegistration, find all dependent ids at loop {0}.", i);
+                            return;
+                        }
+
+                        Thread.Sleep(_sleepTime);
+                    }
+                }
+                catch (Exception e)
+                {
+                    Logger.Log(Level.Error, "Exception in OperatorTopology.WaitForTaskRegistration {0}", e);
+                    throw;
                 }
 
-                Thread.Sleep(_sleepTime);
+                var leftOver = string.Join(",", identifiers.Where(e => !foundList.Contains(e)));
+                Logger.Log(Level.Error, "For node {0}, cannot get registered parent/children: {1}.", _selfId, leftOver);
+                throw new IllegalStateException("Failed to initialize operator topology for node: " + leftOver);
             }
-
-            throw new IllegalStateException("Failed to initialize operator topology for node: " + identifier);
         }
     }
 }
