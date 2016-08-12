@@ -115,10 +115,11 @@ public final class RuntimeClock implements Clock {
    * and supply an event handler to be called at that time.
    * @param offset Number of milliseconds into the future relative to current time.
    * @param handler Event handler to be invoked.
+   * @return Newly scheduled alarm.
    * @throws IllegalStateException if the clock is already closed.
    */
   @Override
-  public void scheduleAlarm(final int offset, final EventHandler<Alarm> handler) {
+  public Time scheduleAlarm(final int offset, final EventHandler<Alarm> handler) {
 
     final Time alarm = new ClientAlarm(this.timer.getCurrent() + offset, handler);
 
@@ -140,8 +141,10 @@ public final class RuntimeClock implements Clock {
       ++this.numClientAlarms;
 
       this.schedule.add(alarm);
-      this.schedule.notifyAll();
+      this.schedule.notify();
     }
+
+    return alarm;
   }
 
   /**
@@ -182,7 +185,7 @@ public final class RuntimeClock implements Clock {
 
       this.schedule.clear();
       this.schedule.add(stopEvent);
-      this.schedule.notifyAll();
+      this.schedule.notify();
     }
 
     LOG.exiting(CLASS_NAME, "stop");
@@ -209,7 +212,7 @@ public final class RuntimeClock implements Clock {
       LOG.log(Level.FINE, "Graceful shutdown scheduled: {0}", stopEvent);
 
       this.schedule.add(stopEvent);
-      this.schedule.notifyAll();
+      this.schedule.notify();
     }
 
     LOG.exiting(CLASS_NAME, "close");
@@ -228,6 +231,19 @@ public final class RuntimeClock implements Clock {
   }
 
   /**
+   * The clock is closed after a call to stop() or close().
+   * A closed clock cannot add new alarms to the schedule, but, in case of the
+   * graceful shutdown, can still invoke previously scheduled ones.
+   * @return true if closed, false otherwise.
+   */
+  @Override
+  public boolean isClosed() {
+    synchronized (this.schedule) {
+      return this.isClosed;
+    }
+  }
+
+  /**
    * Register event handlers for the given event class.
    * @param eventClass Event type to handle. Must be derived from Time.
    * @param handlers One or many event handlers that can process given event type.
@@ -236,6 +252,7 @@ public final class RuntimeClock implements Clock {
   @SuppressWarnings("checkstyle:hiddenfield")
   private <T extends Time> void subscribe(final Class<T> eventClass, final Set<EventHandler<T>> handlers) {
     for (final EventHandler<T> handler : handlers) {
+      LOG.log(Level.FINEST, "Subscribe: event {0} handler {1}", new Object[] {eventClass.getName(), handler});
       this.handlers.subscribe(eventClass, handler);
     }
   }

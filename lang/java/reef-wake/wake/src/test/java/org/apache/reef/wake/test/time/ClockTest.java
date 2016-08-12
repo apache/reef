@@ -24,6 +24,8 @@ import org.apache.reef.tang.exceptions.InjectionException;
 import org.apache.reef.wake.EventHandler;
 import org.apache.reef.wake.impl.LoggingUtils;
 import org.apache.reef.wake.impl.ThreadPoolStage;
+import org.apache.reef.wake.test.time.util.AlarmProducer;
+import org.apache.reef.wake.test.time.util.EventRecorder;
 import org.apache.reef.wake.time.Time;
 import org.apache.reef.wake.time.event.Alarm;
 import org.apache.reef.wake.time.runtime.LogicalTimer;
@@ -33,8 +35,6 @@ import org.apache.reef.wake.time.runtime.Timer;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.CountDownLatch;
@@ -42,12 +42,21 @@ import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 
 /**
- * Tests for Clock.
+ * Tests for RuntimeClock event loop.
  */
 public class ClockTest {
 
   private static final Tang TANG = Tang.Factory.getTang();
 
+  private final Random rand = new Random();
+
+  /**
+   * Create new RuntimeClock object injected with the given timer.
+   *
+   * @param timerClass Timer to use inside the RuntimeClock. Must implement the Timer interface.
+   * @return A new instance of the RuntimeClock, instrumented with the given timer.
+   * @throws InjectionException On configuration error.
+   */
   private static RuntimeClock buildClock(
       final Class<? extends Timer> timerClass) throws InjectionException {
 
@@ -58,19 +67,27 @@ public class ClockTest {
     return TANG.newInjector(clockConfig).getInstance(RuntimeClock.class);
   }
 
+  /**
+   * Create 10 threads to produce 40 alarms at random intervals
+   * and check if all alarms get processed.
+   * @throws Exception ThreadPoolStage can throw anything.
+   */
   @Test
   public void testClock() throws Exception {
 
     LoggingUtils.setLoggingLevel(Level.FINEST);
 
-    final int minEvents = 40;
-    final CountDownLatch eventCountLatch = new CountDownLatch(minEvents);
-
     try (final RuntimeClock clock = buildClock(RealTimer.class)) {
 
       new Thread(clock).start();
 
-      final RandomAlarmProducer alarmProducer = new RandomAlarmProducer(clock, eventCountLatch);
+      final CountDownLatch eventCountLatch = new CountDownLatch(40);
+      final AlarmProducer alarmProducer = new AlarmProducer(clock, eventCountLatch) {
+        @Override
+        public int getOffset() {
+          return randomOffsetUniform(rand, 1, 100);
+        }
+      };
 
       try (ThreadPoolStage<Alarm> stage = new ThreadPoolStage<>(alarmProducer, 10)) {
         stage.onNext(null);
@@ -176,87 +193,101 @@ public class ClockTest {
 
     final int numAlarms = 10;
     final CountDownLatch eventCountLatch = new CountDownLatch(numAlarms);
+    final EventRecorder alarmRecorder = new EventRecorder(eventCountLatch);
 
-    try (final RuntimeClock clock = buildClock(LogicalTimer.class)) {
+    final long[] expected = new long[numAlarms];
+
+    try (final RuntimeClock clock = buildClock(RealTimer.class)) {
 
       new Thread(clock).start();
 
-      final EventRecorder alarmRecorder = new EventRecorder(eventCountLatch);
-
-      final long[] expected = new long[numAlarms];
       for (int i = 0; i < numAlarms; ++i) {
-        clock.scheduleAlarm(i * 100, alarmRecorder);
-        expected[i] = i * 100;
+        final Time event = clock.scheduleAlarm(i * 100, alarmRecorder);
+        expected[i] = event.getTimestamp();
       }
-
-      eventCountLatch.await(10, TimeUnit.SECONDS);
-
-      int i = 0;
-      final long[] actual = new long[numAlarms];
-      for (final long ts : alarmRecorder.getTimestamps()) {
-        actual[i++] = ts;
-      }
-
-      Assert.assertArrayEquals(expected, actual);
     }
+
+    eventCountLatch.await(10, TimeUnit.SECONDS);
+
+    int i = 0;
+    final long[] actual = new long[numAlarms];
+    for (final Time event : alarmRecorder.getEvents()) {
+      actual[i++] = event.getTimestamp();
+    }
+
+    Assert.assertEquals(
+        "Number of alarms does not match the expected count",
+        numAlarms, alarmRecorder.getEventCount());
+
+    Assert.assertArrayEquals("Alarms processed in the wrong order", expected, actual);
   }
 
   /**
-   * An EventHandler that records the events that it sees.
+   * Test graceful shutdown of the event loop.
+   * Schedule two events and close the clock. Make sure that no events occur soon after
+   * closing the alarm and both of them occur at the scheduled time. Check that the clock
+   * is closed after that.
+   * @throws InjectionException Error building a runtime clock object.
+   * @throws InterruptedException Sleep interrupted.
    */
-  private static class EventRecorder implements EventHandler<Alarm> {
+  @Test
+  public void testGracefulClose() throws InjectionException, InterruptedException {
 
-    /**
-     * A synchronized List of the events recorded by this EventRecorder.
-     */
-    private final List<Time> events = Collections.synchronizedList(new ArrayList<Time>());
-    private final List<Long> timestamps = Collections.synchronizedList(new ArrayList<Long>());
+    LoggingUtils.setLoggingLevel(Level.FINEST);
 
-    private final CountDownLatch eventCountLatch;
+    final int numAlarms = 2;
+    final CountDownLatch eventCountLatch = new CountDownLatch(numAlarms);
+    final EventRecorder alarmRecorder = new EventRecorder(eventCountLatch);
 
-    EventRecorder() {
-      this(null);
-    }
+    final RuntimeClock clock = buildClock(RealTimer.class);
+    new Thread(clock).start();
 
-    EventRecorder(final CountDownLatch latch) {
-      eventCountLatch = latch;
-    }
+    clock.scheduleAlarm(100, alarmRecorder);
+    clock.scheduleAlarm(101, alarmRecorder);
+    clock.close();
 
-    public int getEventCount() {
-      return events.size();
-    }
+    Assert.assertFalse("Clock cannot be idle yet", clock.isIdle());
+    Assert.assertTrue("Clock must be in closed state", clock.isClosed());
 
-    public List<Long> getTimestamps() {
-      return timestamps;
-    }
+    Thread.sleep(10);
+    Assert.assertTrue(
+        "No events should occur immediately after the graceful shutdown",
+        alarmRecorder.getEvents().isEmpty());
 
-    @Override
-    public void onNext(final Alarm event) {
-      timestamps.add(event.getTimestamp());
-      events.add(event);
-      if (eventCountLatch != null) {
-        eventCountLatch.countDown();
-      }
-    }
+    Thread.sleep(200);
+    final List<Time> events = alarmRecorder.getEvents();
+    Assert.assertEquals("Expected events on graceful shutdown", events.size(), numAlarms);
+
+    Assert.assertTrue("No client alarms should be scheduled at this time", clock.isIdle());
+    Assert.assertTrue("Clock must be in closed state", clock.isClosed());
   }
 
-  private static class RandomAlarmProducer implements EventHandler<Alarm> {
+  /**
+   * Test forceful shutdown of the event loop. Schedule two events and close the clock.
+   * Make sure that no events occur after that and the clock is in closed and idle state.
+   * @throws InjectionException Error building a runtime clock object.
+   * @throws InterruptedException Sleep interrupted.
+   */
+  @Test
+  public void testForcefulStop() throws InjectionException, InterruptedException {
 
-    private final RuntimeClock clock;
-    private final CountDownLatch eventCountLatch;
-    private final Random rand;
+    LoggingUtils.setLoggingLevel(Level.FINEST);
 
-    RandomAlarmProducer(final RuntimeClock clock, final CountDownLatch latch) {
-      this.clock = clock;
-      this.eventCountLatch = latch;
-      this.rand = new Random();
-    }
+    final int numAlarms = 2;
+    final CountDownLatch eventCountLatch = new CountDownLatch(numAlarms);
+    final EventRecorder alarmRecorder = new EventRecorder(eventCountLatch);
 
-    @Override
-    public void onNext(final Alarm value) {
-      final int duration = rand.nextInt(100) + 1;
-      clock.scheduleAlarm(duration, this);
-      eventCountLatch.countDown();
-    }
+    final RuntimeClock clock = buildClock(RealTimer.class);
+    new Thread(clock).start();
+
+    clock.scheduleAlarm(100, alarmRecorder);
+    clock.scheduleAlarm(101, alarmRecorder);
+    clock.stop();
+
+    Assert.assertTrue("Clock must be idle already", clock.isIdle());
+    Assert.assertTrue("Clock must be in closed state", clock.isClosed());
+
+    Thread.sleep(200);
+    Assert.assertTrue("No events should be in the schedule", alarmRecorder.getEvents().isEmpty());
   }
 }
