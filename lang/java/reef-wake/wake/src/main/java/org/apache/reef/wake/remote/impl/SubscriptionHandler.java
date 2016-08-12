@@ -20,44 +20,41 @@ package org.apache.reef.wake.remote.impl;
 
 /**
  * Subscription of a handler.
- *
- * @param <T> type
- * @deprecated [REEF-1544] Prefer using SubscriptionHandler and the corresponding handlers
- * instead of the Subscription class. Remove class after release 0.16.
+ * @param <T> type type of the token that is used to identify the subscription.
  */
-public class Subscription<T> implements AutoCloseable {
+class SubscriptionHandler<T> implements AutoCloseable {
 
-  private final HandlerContainer<T> container;
+  interface Unsubscriber<T> {
+    void unsubscribe(final T token);
+  }
+
   private final T token;
+  private final Unsubscriber<T> unsubscriber;
 
   /**
    * Constructs a subscription.
-   *
-   * @param token            the token for finding the subscription
-   * @param handlerContainer the container managing handlers
+   * @param token Token for finding the subscription.
+   * @param unsubscriber unsubscribe method of the the container that manages handlers.
    */
-  public Subscription(final T token, final HandlerContainer<T> handlerContainer) {
+  SubscriptionHandler(final T token, final Unsubscriber<T> unsubscriber) {
     this.token = token;
-    this.container = handlerContainer;
+    this.unsubscriber = unsubscriber;
   }
 
   /**
    * Gets the token of this subscription.
-   *
-   * @return the token of this subscription
+   * @return the token of this subscription.
    */
   public T getToken() {
-    return token;
+    return this.token;
   }
 
   /**
-   * Unsubscribes this subscription.
-   *
-   * @throws Exception
+   * Cancels this subscription.
+   * @throws Exception if cannot unsubscribe.
    */
   @Override
   public void close() throws Exception {
-    container.unsubscribe(this);
+    this.unsubscriber.unsubscribe(this.token);
   }
-
 }

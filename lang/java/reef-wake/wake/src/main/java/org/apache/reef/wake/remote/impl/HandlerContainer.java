@@ -33,6 +33,8 @@ import java.util.logging.Logger;
 
 /**
  * Main logic to dispatch messages.
+ * An event handler that receives a remote message with a binary payload,
+ * decodes a message from the blob, and dispatches that message to a proper handler.
  */
 final class HandlerContainer<T> implements EventHandler<RemoteEvent<byte[]>> {
 
@@ -41,10 +43,12 @@ final class HandlerContainer<T> implements EventHandler<RemoteEvent<byte[]>> {
   private final ConcurrentMap<Class<? extends T>,
       EventHandler<RemoteMessage<? extends T>>> msgTypeToHandlerMap = new ConcurrentHashMap<>();
 
-  private final ConcurrentMap<Tuple2<RemoteIdentifier,
-      Class<? extends T>>, EventHandler<? extends T>> tupleToHandlerMap = new ConcurrentHashMap<>();
+  private final ConcurrentMap<Tuple2<RemoteIdentifier, Class<? extends T>>,
+      EventHandler<? extends T>> tupleToHandlerMap = new ConcurrentHashMap<>();
+
   private final Codec<T> codec;
   private final String name;
+
   private Transport transport;
 
   HandlerContainer(final String name, final Codec<T> codec) {
@@ -56,51 +60,66 @@ final class HandlerContainer<T> implements EventHandler<RemoteEvent<byte[]>> {
     this.transport = transport;
   }
 
+  /**
+   * Subscribe for events from a given source and message type.
+   * @param sourceIdentifier An identifier of an event source.
+   * @param messageType Java class of messages to dispatch.
+   * @param theHandler Message handler.
+   * @return A new subscription object that will cancel its subscription on .close()
+   */
   @SuppressWarnings("checkstyle:diamondoperatorforvariabledefinition")
-  public AutoCloseable registerHandler(final RemoteIdentifier sourceIdentifier,
-                                       final Class<? extends T> messageType,
-                                       final EventHandler<? extends T> theHandler) {
-
+  public AutoCloseable registerHandler(
+      final RemoteIdentifier sourceIdentifier,
+      final Class<? extends T> messageType,
+      final EventHandler<? extends T> theHandler) {
 
     final Tuple2<RemoteIdentifier, Class<? extends T>> tuple =
         new Tuple2<RemoteIdentifier, Class<? extends T>>(sourceIdentifier, messageType);
 
-    final EventHandler<? extends T> prevHandler =
-        this.tupleToHandlerMap.putIfAbsent(tuple, theHandler);
+    this.tupleToHandlerMap.put(tuple, theHandler);
 
-    if (prevHandler != null) {
-      this.tupleToHandlerMap.replace(tuple, theHandler);
-    }
+    LOG.log(Level.FINER,
+        "Add handler for tuple: {0},{1}",
+        new Object[] {tuple.getT1(), tuple.getT2().getName()});
 
-    LOG.log(Level.FINER, "{0}", tuple);
-    return new Subscription(tuple, this);
+    return new SubscriptionHandler<>(tuple, this.unsubscribeTuple);
   }
 
+  /**
+   * Subscribe for events of a given message type.
+   * @param messageType Java class of messages to dispatch.
+   * @param theHandler Message handler.
+   * @return A new subscription object that will cancel its subscription on .close()
+   */
   public AutoCloseable registerHandler(
       final Class<? extends T> messageType,
       final EventHandler<RemoteMessage<? extends T>> theHandler) {
 
-    final EventHandler<RemoteMessage<? extends T>> prevHandler =
-        this.msgTypeToHandlerMap.putIfAbsent(messageType, theHandler);
+    this.msgTypeToHandlerMap.put(messageType, theHandler);
 
-    if (prevHandler != null) {
-      this.msgTypeToHandlerMap.replace(messageType, theHandler);
-    }
+    LOG.log(Level.FINER, "Add handler for class: {0}", messageType.getName());
 
-    LOG.log(Level.FINER, "{0}", messageType);
-    return new Subscription(messageType, this);
+    return new SubscriptionHandler<>(messageType, this.unsubscribeClass);
   }
 
+  /**
+   * Specify handler for error messages.
+   * @param theHandler Error handler.
+   * @return A new subscription object that will cancel its subscription on .close()
+   */
   public AutoCloseable registerErrorHandler(final EventHandler<Exception> theHandler) {
     this.transport.registerErrorHandler(theHandler);
-    return new Subscription(new Exception("Token for finding the error handler subscription"), this);
+    return new SubscriptionHandler<>(
+        new Exception("Token for finding the error handler subscription"), this.unsubscribeException);
   }
 
   /**
    * Unsubscribes a handler.
    *
    * @param subscription
-   * @throws org.apache.reef.wake.remote.exception.RemoteRuntimeException if the Subscription type is unknown
+   * @throws org.apache.reef.wake.remote.exception.RemoteRuntimeException if the Subscription type is unknown.
+   * @deprecated [REEF-1544] Prefer using SubscriptionHandler and the corresponding methods
+   * instead of the old Subscription class. Remove method after release 0.16.
    */
   public void unsubscribe(final Subscription<T> subscription) {
     final T token = subscription.getToken();
@@ -116,6 +135,37 @@ final class HandlerContainer<T> implements EventHandler<RemoteEvent<byte[]>> {
           "Unknown subscription type: " + subscription.getClass().getName());
     }
   }
+
+  /** Unsubscribe from messages of a given class. */
+  private final SubscriptionHandler.Unsubscriber<Class<? extends T>>
+      unsubscribeClass = new SubscriptionHandler.Unsubscriber<Class<? extends T>>() {
+        @Override
+        public void unsubscribe(final Class<? extends T> token) {
+          LOG.log(Level.FINER, "Unsubscribe: {0} class {1}", new Object[] {name, token.getName()});
+          msgTypeToHandlerMap.remove(token);
+        }
+      };
+
+  /** Unsubscribe from event from a certain source and message type. */
+  private final SubscriptionHandler.Unsubscriber<Tuple2<RemoteIdentifier, Class<? extends T>>>
+      unsubscribeTuple = new SubscriptionHandler.Unsubscriber<Tuple2<RemoteIdentifier, Class<? extends T>>>() {
+        @Override
+        public void unsubscribe(final Tuple2<RemoteIdentifier, Class<? extends T>> token) {
+          LOG.log(Level.FINER, "Unsubscribe: {0} tuple {1},{2}",
+              new Object[] {name, token.getT1(), token.getT2().getName()});
+          tupleToHandlerMap.remove(token);
+        }
+      };
+
+  /** Unsubscribe from error messages. */
+  private final SubscriptionHandler.Unsubscriber<Exception>
+      unsubscribeException = new SubscriptionHandler.Unsubscriber<Exception>() {
+        @Override
+        public void unsubscribe(final Exception token) {
+          LOG.log(Level.FINER, "Unsubscribe: {0} exception {1}", new Object[] {name, token});
+          transport.registerErrorHandler(null);
+        }
+      };
 
   /**
    * Dispatches a message.
