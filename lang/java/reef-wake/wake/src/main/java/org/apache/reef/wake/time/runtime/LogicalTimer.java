@@ -18,36 +18,101 @@
  */
 package org.apache.reef.wake.time.runtime;
 
+import org.apache.reef.wake.time.Time;
+
 import javax.inject.Inject;
+import java.util.concurrent.atomic.AtomicLong;
 
 /**
- * Logical timer.
+ * Logical timer that is only bound to the timestamps of the events tracked against it.
+ * In such setting, all events occur immediately, i.e. isReady() always return true,
+ * and the duration of the delay to the next event is always 0.
+ * Current time for this timer is always the timestamp of the tracked event that is
+ * the most distant in the future.
  */
 public final class LogicalTimer implements Timer {
 
-  private long current = 0;
+  /**
+   * Current time in milliseconds since the beginning of the epoch (01/01/1970),
+   * according to the timer. For this implementation, always keep the largest seen
+   * timestamp (i.e. track the event that is the most distant into the future).
+   */
+  private final AtomicLong current = new AtomicLong(0);
 
+  /**
+   * Instances of the timer should only be created automatically by Tang.
+   */
   @Inject
-  LogicalTimer() {
+  private LogicalTimer() {
   }
 
+  /**
+   * Get current time in milliseconds since the beginning of the epoch (01/01/1970).
+   * This timer implementation always returns the timestamp of the most distant
+   * future event ever checked against this timer in getDuration() or isReady() methods.
+   * Return 0 if there were no calls yet to getDuration() or isReady().
+   * @return Timestamp of the latest event (in milliseconds since the start of the epoch).
+   */
   @Override
   public long getCurrent() {
-    return this.current;
+    return this.current.get();
   }
 
+  /**
+   * Get the number of milliseconds between current time as tracked by the Timer implementation
+   * and a given event. This implementation always returns 0 and updates current timer's time
+   * to the timestamp of the most distant future event.
+   * @param time Timestamp in milliseconds.
+   * @return Always returns 0.
+   * @deprecated [REEF-1532] Prefer passing Time object instead of the numeric timestamp.
+   * Remove after release 0.16.
+   */
   @Override
   public long getDuration(final long time) {
-    isReady(time);
+    this.isReady(time);
     return 0;
   }
 
+  /**
+   * Get the number of milliseconds between current time as tracked by the Timer implementation
+   * and a given event. This implementation always returns 0 and updates current timer's time
+   * to the timestamp of the most distant future event.
+   * @param time Timestamp object that wraps time in milliseconds.
+   * @return Always returns 0.
+   */
   @Override
-  public boolean isReady(final long time) {
-    if (this.current < time) {
-      this.current = time;
-    }
-    return true;
+  public long getDuration(final Time time) {
+    return this.getDuration(time.getTimestamp());
   }
 
+  /**
+   * Check if the event with a given timestamp has occurred, according to the timer.
+   * This implementation always returns true and updates current timer's time to the timestamp
+   * of the most distant future event.
+   * @param time Timestamp in milliseconds.
+   * @return Always returns true.
+   * @deprecated [REEF-1532] Prefer passing Time object instead of the numeric timestamp.
+   * Remove after release 0.16.
+   */
+  @Override
+  public boolean isReady(final long time) {
+    while (true) {
+      final long thisTs = this.current.get();
+      if (thisTs >= time || this.current.compareAndSet(thisTs, time)) {
+        return true;
+      }
+    }
+  }
+
+  /**
+   * Check if the event with a given timestamp has occurred, according to the timer.
+   * This implementation always returns true and updates current timer's time to the timestamp
+   * of the most distant future event.
+   * @param time Timestamp object that wraps time in milliseconds.
+   * @return Always returns true.
+   */
+  @Override
+  public boolean isReady(final Time time) {
+    return this.isReady(time.getTimestamp());
+  }
 }

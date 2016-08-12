@@ -19,15 +19,59 @@
 package org.apache.reef.wake.time.runtime;
 
 import org.apache.reef.tang.annotations.DefaultImplementation;
+import org.apache.reef.wake.time.Time;
 
 /**
  * An interface for Timer.
+ * Default implementation uses actual system time.
  */
 @DefaultImplementation(RealTimer.class)
 public interface Timer {
+
+  /**
+   * Get current time in milliseconds since the beginning of the epoch (01/01/1970).
+   * Note that this time may not necessarily match the actual system time - e.g. in unit tests.
+   * @return Current system time in milliseconds since the start of the epoch.
+   */
   long getCurrent();
 
+  /**
+   * Get the number of milliseconds between current time as tracked by the Timer implementation
+   * and the given event. Can return a negative number if the event is already in the past.
+   * @param time Timestamp in milliseconds.
+   * @return Difference in milliseconds between the given timestamp and the time tracked by the timer.
+   * The result is a negative number if the timestamp is in the past (according to the timer's time).
+   * @deprecated [REEF-1532] Prefer passing Time object instead of the numeric timestamp.
+   * Remove after release 0.16.
+   */
   long getDuration(final long time);
 
+  /**
+   * Get the number of milliseconds between current time as tracked by the Timer implementation
+   * and the given event. Can return a negative number if the event is already in the past.
+   * @param time Timestamp object that wraps time in milliseconds.
+   * @return Difference in milliseconds between the given timestamp and the time tracked by the timer.
+   * The result is a negative number if the timestamp is in the past (according to the timer's time).
+   */
+  long getDuration(final Time time);
+
+  /**
+   * Check if the event with a given timestamp has occurred, according to the timer.
+   * Return true if the timestamp is equal or less than the timer's time, and false if
+   * it is still in the (timer's) future.
+   * @param time Timestamp in milliseconds.
+   * @return False if the given timestamp is still in the timer's time future.
+   * @deprecated [REEF-1532] Prefer passing Time object instead of the numeric timestamp.
+   * Remove after release 0.16.
+   */
   boolean isReady(final long time);
+
+  /**
+   * Check if the event with a given timestamp has occurred, according to the timer.
+   * Return true if the timestamp is equal or less than the timer's time, and false if
+   * it is still in the (timer's) future.
+   * @param time Timestamp object that wraps time in milliseconds.
+   * @return False if the given timestamp is still in the timer's time future.
+   */
+  boolean isReady(final Time time);
 }

@@ -129,7 +129,7 @@ public class TestHttpConfiguration {
     final ReefEventStateManager reefEventStateManager =
         this.injector.getInstance(ReefEventStateManager.class);
 
-    Assert.assertEquals(reefEventStateManager.getStopTime(), convertTime(st.getTimeStamp()));
+    Assert.assertEquals(reefEventStateManager.getStopTime(), convertTime(st.getTimestamp()));
   }
 
   @Test
@@ -144,7 +144,7 @@ public class TestHttpConfiguration {
 
     final ReefEventStateManager reefEventStateManager =
         this.injector.getInstance(ReefEventStateManager.class);
-    Assert.assertEquals(reefEventStateManager.getStartTime(), convertTime(st.getTimeStamp()));
+    Assert.assertEquals(reefEventStateManager.getStartTime(), convertTime(st.getTimestamp()));
   }
 
   private String convertTime(final long time) {

@@ -76,6 +76,7 @@ public final class REEFLauncher {
     LoggingSetup.setupCommonsLogging();
   }
 
+  /** Config parameter to turn on network IO profiling in Wake. */
   private final boolean isWakeProfilingEnabled;
 
   /** REEF version - we need it simply to write it to the log. */

@@ -22,9 +22,10 @@ import org.apache.reef.wake.EventHandler;
 import org.apache.reef.wake.time.Time;
 
 /**
- * Represents a timer event.
+ * An alarm is a timer event to be invoked at a given time.
+ * Contains a (future) timestamp and the event handler to invoke.
  */
-public abstract class Alarm extends Time {
+public abstract class Alarm extends Time implements Runnable {
 
   private final EventHandler<Alarm> handler;
 
@@ -33,8 +34,11 @@ public abstract class Alarm extends Time {
     this.handler = handler;
   }
 
-  public final void handle() {
+  /**
+   * Invoke the event handler and pass a reference to self as a parameter.
+   */
+  @Override
+  public final void run() {
     this.handler.onNext(this);
   }
-
 }
