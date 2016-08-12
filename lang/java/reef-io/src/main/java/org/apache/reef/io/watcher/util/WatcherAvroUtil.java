@@ -151,26 +151,26 @@ public final class WatcherAvroUtil {
 
   public static AvroRuntimeStart toAvroRuntimeStart(final RuntimeStart runtimeStart) {
     return AvroRuntimeStart.newBuilder()
-        .setTimestamp(runtimeStart.getTimeStamp())
+        .setTimestamp(runtimeStart.getTimestamp())
         .build();
   }
 
   public static AvroStartTime toAvroStartTime(final StartTime startTime) {
     return AvroStartTime.newBuilder()
-        .setTimestamp(startTime.getTimeStamp())
+        .setTimestamp(startTime.getTimestamp())
         .build();
   }
 
   public static AvroStopTime toAvroStopTime(final StopTime stopTime) {
     return AvroStopTime.newBuilder()
-        .setTimestamp(stopTime.getTimeStamp())
+        .setTimestamp(stopTime.getTimestamp())
         .build();
   }
 
   public static AvroRuntimeStop toAvroRuntimeStop(final RuntimeStop runtimeStop) {
     return AvroRuntimeStop.newBuilder()
         .setException(convertThrowableToString(runtimeStop.getException()))
-        .setTimestamp(runtimeStop.getTimeStamp())
+        .setTimestamp(runtimeStop.getTimestamp())
         .build();
   }
 

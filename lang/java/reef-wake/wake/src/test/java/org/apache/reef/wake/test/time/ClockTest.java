@@ -18,15 +18,16 @@
  */
 package org.apache.reef.wake.test.time;
 
-import org.apache.reef.tang.Injector;
-import org.apache.reef.tang.JavaConfigurationBuilder;
+import org.apache.reef.tang.Configuration;
 import org.apache.reef.tang.Tang;
+import org.apache.reef.tang.exceptions.InjectionException;
 import org.apache.reef.wake.EventHandler;
 import org.apache.reef.wake.impl.LoggingUtils;
 import org.apache.reef.wake.impl.ThreadPoolStage;
 import org.apache.reef.wake.time.Time;
 import org.apache.reef.wake.time.event.Alarm;
 import org.apache.reef.wake.time.runtime.LogicalTimer;
+import org.apache.reef.wake.time.runtime.RealTimer;
 import org.apache.reef.wake.time.runtime.RuntimeClock;
 import org.apache.reef.wake.time.runtime.Timer;
 import org.junit.Assert;
@@ -45,57 +46,51 @@ import java.util.logging.Level;
  */
 public class ClockTest {
 
-  private static RuntimeClock buildClock() throws Exception {
-    final JavaConfigurationBuilder builder = Tang.Factory.getTang()
-            .newConfigurationBuilder();
+  private static final Tang TANG = Tang.Factory.getTang();
 
-    final Injector injector = Tang.Factory.getTang()
-            .newInjector(builder.build());
+  private static RuntimeClock buildClock(
+      final Class<? extends Timer> timerClass) throws InjectionException {
 
-    return injector.getInstance(RuntimeClock.class);
-  }
+    final Configuration clockConfig = TANG.newConfigurationBuilder()
+        .bind(Timer.class, timerClass)
+        .build();
 
-  private static RuntimeClock buildLogicalClock() throws Exception {
-    final JavaConfigurationBuilder builder = Tang.Factory.getTang()
-        .newConfigurationBuilder();
-
-    builder.bind(Timer.class, LogicalTimer.class);
-
-    final Injector injector = Tang.Factory.getTang()
-        .newInjector(builder.build());
-    return injector.getInstance(RuntimeClock.class);
+    return TANG.newInjector(clockConfig).getInstance(RuntimeClock.class);
   }
 
   @Test
   public void testClock() throws Exception {
-    LoggingUtils.setLoggingLevel(Level.FINE);
+
+    LoggingUtils.setLoggingLevel(Level.FINEST);
 
     final int minEvents = 40;
     final CountDownLatch eventCountLatch = new CountDownLatch(minEvents);
 
-    final RuntimeClock clock = buildClock();
-    new Thread(clock).start();
-    final RandomAlarmProducer alarmProducer = new RandomAlarmProducer(clock, eventCountLatch);
+    try (final RuntimeClock clock = buildClock(RealTimer.class)) {
 
-    try (ThreadPoolStage<Alarm> stage = new ThreadPoolStage<>(alarmProducer, 10)) {
-      stage.onNext(null);
-      Assert.assertTrue(eventCountLatch.await(10, TimeUnit.SECONDS));
-    } finally {
-      clock.close();
+      new Thread(clock).start();
+
+      final RandomAlarmProducer alarmProducer = new RandomAlarmProducer(clock, eventCountLatch);
+
+      try (ThreadPoolStage<Alarm> stage = new ThreadPoolStage<>(alarmProducer, 10)) {
+        stage.onNext(null);
+        Assert.assertTrue(eventCountLatch.await(10, TimeUnit.SECONDS));
+      }
     }
   }
 
   @Test
   public void testAlarmRegistrationRaceConditions() throws Exception {
-    LoggingUtils.setLoggingLevel(Level.FINE);
 
-    final RuntimeClock clock = buildClock();
-    new Thread(clock).start();
+    LoggingUtils.setLoggingLevel(Level.FINEST);
 
-    final EventRecorder earlierAlarmRecorder = new EventRecorder();
-    final EventRecorder laterAlarmRecorder = new EventRecorder();
+    try (final RuntimeClock clock = buildClock(RealTimer.class)) {
 
-    try {
+      new Thread(clock).start();
+
+      final EventRecorder earlierAlarmRecorder = new EventRecorder();
+      final EventRecorder laterAlarmRecorder = new EventRecorder();
+
       // Schedule an Alarm that's far in the future
       clock.scheduleAlarm(5000, laterAlarmRecorder);
       Thread.sleep(1000);
@@ -117,72 +112,77 @@ public class ClockTest {
 
       // The later Alarm should have fired, since 6000 > 5000 ms have passed:
       Assert.assertEquals(1, laterAlarmRecorder.getEventCount());
-    } finally {
-      clock.close();
     }
   }
 
   @Test
   public void testMultipleCloseCalls() throws Exception {
-    LoggingUtils.setLoggingLevel(Level.FINE);
+
+    LoggingUtils.setLoggingLevel(Level.FINEST);
 
     final int numThreads = 3;
     final CountDownLatch eventCountLatch = new CountDownLatch(numThreads);
 
-    final RuntimeClock clock = buildClock();
-    new Thread(clock).start();
-    final ThreadPoolStage<Alarm> stage = new ThreadPoolStage<>(new EventHandler<Alarm>() {
-      @Override
-      public void onNext(final Alarm value) {
-        clock.close();
-        eventCountLatch.countDown();
-      }
-    }, numThreads);
+    try (final RuntimeClock clock = buildClock(RealTimer.class)) {
 
-    try {
-      for (int i = 0; i < numThreads; ++i) {
-        stage.onNext(null);
+      final EventHandler<Alarm> handler = new EventHandler<Alarm>() {
+        @Override
+        public void onNext(final Alarm value) {
+          clock.close();
+          eventCountLatch.countDown();
+        }
+      };
+
+      new Thread(clock).start();
+
+      try (final ThreadPoolStage<Alarm> stage = new ThreadPoolStage<>(handler, numThreads)) {
+
+        for (int i = 0; i < numThreads; ++i) {
+          stage.onNext(null);
+        }
+
+        Assert.assertTrue(eventCountLatch.await(10, TimeUnit.SECONDS));
       }
-      Assert.assertTrue(eventCountLatch.await(10, TimeUnit.SECONDS));
-    } finally {
-      stage.close();
-      clock.close();
     }
   }
 
   @Test
   public void testSimultaneousAlarms() throws Exception {
-    LoggingUtils.setLoggingLevel(Level.FINE);
+
+    LoggingUtils.setLoggingLevel(Level.FINEST);
 
     final int expectedEvent = 2;
     final CountDownLatch eventCountLatch = new CountDownLatch(expectedEvent);
 
-    final RuntimeClock clock = buildLogicalClock();
-    new Thread(clock).start();
+    try (final RuntimeClock clock = buildClock(LogicalTimer.class)) {
 
-    final EventRecorder alarmRecorder = new EventRecorder(eventCountLatch);
-    try {
+      new Thread(clock).start();
+
+      final EventRecorder alarmRecorder = new EventRecorder(eventCountLatch);
+
       clock.scheduleAlarm(500, alarmRecorder);
       clock.scheduleAlarm(500, alarmRecorder);
+
       eventCountLatch.await(10, TimeUnit.SECONDS);
+
       Assert.assertEquals(expectedEvent, alarmRecorder.getEventCount());
-    } finally {
-      clock.close();
     }
   }
 
   @Test
   public void testAlarmOrder() throws Exception {
-    LoggingUtils.setLoggingLevel(Level.FINE);
+
+    LoggingUtils.setLoggingLevel(Level.FINEST);
 
     final int numAlarms = 10;
     final CountDownLatch eventCountLatch = new CountDownLatch(numAlarms);
 
-    final RuntimeClock clock = buildLogicalClock();
-    new Thread(clock).start();
+    try (final RuntimeClock clock = buildClock(LogicalTimer.class)) {
 
-    final EventRecorder alarmRecorder = new EventRecorder(eventCountLatch);
-    try {
+      new Thread(clock).start();
+
+      final EventRecorder alarmRecorder = new EventRecorder(eventCountLatch);
+
       final long[] expected = new long[numAlarms];
       for (int i = 0; i < numAlarms; ++i) {
         clock.scheduleAlarm(i * 100, alarmRecorder);
@@ -191,15 +191,13 @@ public class ClockTest {
 
       eventCountLatch.await(10, TimeUnit.SECONDS);
 
-      final Long[] actualLong = new Long[numAlarms];
-      alarmRecorder.getTimestamps().toArray(actualLong);
+      int i = 0;
       final long[] actual = new long[numAlarms];
-      for (int i = 0; i < numAlarms; ++i) {
-        actual[i] = actualLong[i];
+      for (final long ts : alarmRecorder.getTimestamps()) {
+        actual[i++] = ts;
       }
+
       Assert.assertArrayEquals(expected, actual);
-    } finally {
-      clock.close();
     }
   }
 
@@ -234,7 +232,7 @@ public class ClockTest {
 
     @Override
     public void onNext(final Alarm event) {
-      timestamps.add(event.getTimeStamp());
+      timestamps.add(event.getTimestamp());
       events.add(event);
       if (eventCountLatch != null) {
         eventCountLatch.countDown();

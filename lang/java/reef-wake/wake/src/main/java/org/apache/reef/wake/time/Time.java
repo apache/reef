@@ -18,53 +18,61 @@
  */
 package org.apache.reef.wake.time;
 
+import java.util.Date;
+
 /**
- * Time object.
+ * An abstract object that has a timestamp.
+ * That allows up to compare and order objects by the time.
  */
 public abstract class Time implements Comparable<Time> {
 
   private final long timestamp;
 
+  /** Cached version of toString() result. */
+  private String timestampStr = null;
+
+  /**
+   * Initialize the internal timestamp. Timestamp remains constant
+   * for the entire lifecycle of the object.
+   * @param timestamp timestamp in milliseconds since the beginning
+   * of the epoch (01/01/1970).
+   */
   public Time(final long timestamp) {
     this.timestamp = timestamp;
   }
 
-  public final long getTimeStamp() {
+  /**
+   * Get timestamp in milliseconds since the beginning of the epoch (01/01/1970).
+   * @return Object's timestamp in milliseconds since the start of the epoch.
+   */
+  public final long getTimestamp() {
     return this.timestamp;
   }
 
   @Override
-  public final String toString() {
-    return this.getClass().getName() + "[" + this.timestamp + "]";
+  public String toString() {
+
+    if (this.timestampStr == null) {
+      this.timestampStr = this.getClass().getName()
+          + ":[" + this.timestamp + '|' + new Date(this.timestamp) + ']';
+    }
+
+    return this.timestampStr;
   }
 
   @Override
-  public final int compareTo(final Time o) {
-    if (this.timestamp < o.timestamp) {
-      return -1;
-    }
-    if (this.timestamp > o.timestamp) {
-      return 1;
-    }
-    if (this.hashCode() < o.hashCode()) {
-      return -1;
-    }
-    if (this.hashCode() > o.hashCode()) {
-      return 1;
-    }
-    return 0;
+  public int compareTo(final Time other) {
+    final int cmp = Long.compare(this.timestamp, other.timestamp);
+    return cmp != 0 ? cmp : Integer.compare(this.hashCode(), other.hashCode());
   }
 
   @Override
-  public final boolean equals(final Object o) {
-    if (o instanceof Time) {
-      return compareTo((Time) o) == 0;
-    }
-    return false;
+  public boolean equals(final Object other) {
+    return other instanceof Time && compareTo((Time) other) == 0;
   }
 
   @Override
-  public final int hashCode() {
+  public int hashCode() {
     return super.hashCode();
   }
 }

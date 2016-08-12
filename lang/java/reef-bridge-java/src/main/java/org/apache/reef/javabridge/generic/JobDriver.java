@@ -618,7 +618,7 @@ public final class JobDriver {
       LOG.log(Level.INFO, "Java DriverRestartCompleted event received at time [{0}]. ",
           driverRestartCompleted.getCompletedTime());
       try (final LoggingScope ls = loggingScopeFactory.driverRestartCompleted(
-          driverRestartCompleted.getCompletedTime().getTimeStamp())) {
+          driverRestartCompleted.getCompletedTime().getTimestamp())) {
         if (JobDriver.this.handlerManager.getDriverRestartCompletedHandler() != 0) {
           LOG.log(Level.INFO, "CLR driver restart handler implemented, now handle it in CLR.");
 
@@ -639,7 +639,7 @@ public final class JobDriver {
     @Override
     public void onNext(final StopTime time) {
       LOG.log(Level.INFO, " StopTime: {0}", new Object[]{time});
-      try (final LoggingScope ls = loggingScopeFactory.driverStop(time.getTimeStamp())) {
+      try (final LoggingScope ls = loggingScopeFactory.driverStop(time.getTimestamp())) {
         for (final ActiveContext context : contexts.values()) {
           context.close();
         }

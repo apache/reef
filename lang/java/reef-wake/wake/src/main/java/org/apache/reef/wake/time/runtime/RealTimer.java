@@ -18,29 +18,51 @@
  */
 package org.apache.reef.wake.time.runtime;
 
+import org.apache.reef.wake.time.Time;
+
 import javax.inject.Inject;
 
 /**
- * A system-time based Timer.
+ * Implementation of the Timer that uses the system clock.
  */
 public final class RealTimer implements Timer {
 
+  /**
+   * Instances of the timer should only be created automatically by Tang.
+   */
   @Inject
-  public RealTimer() {
+  private RealTimer() {
   }
 
+  /**
+   * Get current time in milliseconds since the beginning of the epoch (01/01/1970).
+   * @return Current system time in milliseconds since the start of the epoch.
+   */
   @Override
   public long getCurrent() {
     return System.currentTimeMillis();
   }
 
+  /**
+   * Get the number of milliseconds from current system time to the given event.
+   * Can return a negative number if the event is already in the past.
+   * @param time Timestamp object that wraps time in milliseconds.
+   * @return Difference in milliseconds between the given timestamp and current system time.
+   * The result is a negative number if the timestamp is in the past.
+   */
   @Override
-  public long getDuration(final long time) {
-    return time - getCurrent();
+  public long getDuration(final Time time) {
+    return time.getTimestamp() - getCurrent();
   }
 
+  /**
+   * Check if the event with a given timestamp has occurred. Return true if the timestamp
+   * equals or less than the current system time, and false if it is still in the future.
+   * @param time Timestamp object that wraps time in milliseconds.
+   * @return False if the given timestamp is still in the future.
+   */
   @Override
-  public boolean isReady(final long time) {
+  public boolean isReady(final Time time) {
     return getDuration(time) <= 0;
   }
 }

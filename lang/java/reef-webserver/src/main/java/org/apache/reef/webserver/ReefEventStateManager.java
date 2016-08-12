@@ -101,7 +101,7 @@ public final class ReefEventStateManager {
    */
   public String getStartTime() {
     if (startTime != null) {
-      return convertTime(startTime.getTimeStamp());
+      return convertTime(startTime.getTimestamp());
     }
     return null;
   }
@@ -113,7 +113,7 @@ public final class ReefEventStateManager {
    */
   public String getStopTime() {
     if (stopTime != null) {
-      return convertTime(stopTime.getTimeStamp());
+      return convertTime(stopTime.getTimestamp());
     }
     return null;
   }
