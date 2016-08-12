@@ -43,12 +43,12 @@ public interface Clock extends Runnable, AutoCloseable {
 
   /**
    * Schedule a TimerEvent at the given future offset.
-   *
-   * @param handler to be called
-   * @param offset  into the future
-   * @throws IllegalStateException when the clock has been already closed
+   * @param handler Event handler to be called on alarm.
+   * @param offset Offset into the future in milliseconds.
+   * @return Newly scheduled alarm.
+   * @throws IllegalStateException When the clock has been already closed.
    */
-  void scheduleAlarm(final int offset, final EventHandler<Alarm> handler);
+  Time scheduleAlarm(final int offset, final EventHandler<Alarm> handler);
 
   /**
    * This will stop the clock after all client alarms
@@ -76,6 +76,14 @@ public interface Clock extends Runnable, AutoCloseable {
    * @return true if idle, otherwise false
    */
   boolean isIdle();
+
+  /**
+   * Clock is closed after a call to stop() or close().
+   * A closed clock cannot add new alarms to the schedule, but, in case of the
+   * graceful shutdown, can still invoke previously scheduled ones.
+   * @return true if closed, false otherwise.
+   */
+  boolean isClosed();
 
   /**
    * Bind this to an event handler to statically subscribe to the StartTime Event.
