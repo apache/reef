@@ -223,12 +223,28 @@ public final class AvroConfigurationSerializer implements ConfigurationSerialize
     return theBytes;
   }
 
+  /**
+   * Produce a JSON string that represents given configuration.
+   * @param configuration Tang configuration to convert into a JSON string.
+   * @return A JSON string that corresponds to the given Tang configuration.
+   */
   @Override
   public String toString(final Configuration configuration) {
+    return toString(configuration, false);
+  }
+
+  /**
+   * Produce a JSON string that represents given configuration.
+   * @param configuration Tang configuration to convert into a JSON string.
+   * @param prettyPrint If true, use new lines and spaces to pretty print the JSON string.
+   * If false (by default), output JSON as a single line.
+   * @return A JSON string that corresponds to the given Tang configuration.
+   */
+  public String toString(final Configuration configuration, final boolean prettyPrint) {
     final DatumWriter<AvroConfiguration> configurationWriter = new SpecificDatumWriter<>(AvroConfiguration.class);
     final String result;
     try (final ByteArrayOutputStream out = new ByteArrayOutputStream()) {
-      final JsonEncoder encoder = EncoderFactory.get().jsonEncoder(AvroConfiguration.SCHEMA$, out);
+      final JsonEncoder encoder = EncoderFactory.get().jsonEncoder(AvroConfiguration.SCHEMA$, out, prettyPrint);
       configurationWriter.write(toAvro(configuration), encoder);
       encoder.flush();
       out.flush();
