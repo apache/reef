@@ -141,7 +141,7 @@ public final class RuntimeClock implements Clock {
     synchronized (this.schedule) {
 
       if (this.isClosed) {
-        LOG.log(Level.INFO, "Clock is already closed");
+        LOG.log(Level.FINEST, "Clock has already been closed");
         return;
       }
 
@@ -149,7 +149,7 @@ public final class RuntimeClock implements Clock {
       this.exceptionCausedStop = exception;
 
       final Time stopEvent = new StopTime(this.timer.getCurrent());
-      LOG.log(Level.INFO, "Stop scheduled immediately: {0}", stopEvent);
+      LOG.log(Level.FINE, "Stop scheduled immediately: {0}", stopEvent);
 
       this.schedule.clear();
       this.schedule.add(stopEvent);
@@ -170,14 +170,14 @@ public final class RuntimeClock implements Clock {
     synchronized (this.schedule) {
 
       if (this.isClosed) {
-        LOG.log(Level.INFO, "Clock is already closed");
+        LOG.log(Level.FINEST, "Clock has already been closed");
         return;
       }
 
       this.isClosed = true;
 
       final Time stopEvent = new StopTime(findAcceptableStopTime());
-      LOG.log(Level.INFO, "Graceful shutdown scheduled: {0}", stopEvent);
+      LOG.log(Level.FINE, "Graceful shutdown scheduled: {0}", stopEvent);
 
       this.schedule.add(stopEvent);
       this.schedule.notifyAll();
@@ -274,7 +274,7 @@ public final class RuntimeClock implements Clock {
       LOG.log(Level.FINE, "Initiate start time");
       this.handlers.onNext(new StartTime(this.timer.getCurrent()));
 
-      for (;;) {
+      while (true) {
 
         LOG.log(Level.FINEST, "Enter clock main loop.");
 
@@ -297,7 +297,7 @@ public final class RuntimeClock implements Clock {
             // Wait until the first scheduled time is ready.
             // NOTE: while waiting, another alarm could be scheduled with a shorter duration
             // so the next time I go around the loop I need to revise my duration.
-            for (;;) {
+            while (true) {
               final long waitDuration = this.timer.getDuration(this.schedule.first());
               if (waitDuration <= 0) {
                 break;
@@ -309,7 +309,7 @@ public final class RuntimeClock implements Clock {
             event = this.schedule.pollFirst();
           }
 
-          LOG.log(Level.FINEST, "Process event: {0}", event);
+          LOG.log(Level.FINER, "Process event: {0}", event);
           assert event != null;
 
           if (event instanceof Alarm) {
@@ -322,7 +322,7 @@ public final class RuntimeClock implements Clock {
           }
 
         } catch (final InterruptedException expected) {
-          LOG.log(Level.FINE, "Wait interrupted; continue event loop.");
+          LOG.log(Level.FINEST, "Wait interrupted; continue event loop.");
         }
       }
 

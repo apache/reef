@@ -62,13 +62,46 @@ public final class LogicalTimer implements Timer {
    * Get the number of milliseconds between current time as tracked by the Timer implementation
    * and a given event. This implementation always returns 0 and updates current timer's time
    * to the timestamp of the most distant future event.
+   * @param time Timestamp in milliseconds.
+   * @return Always returns 0.
+   * @deprecated [REEF-1532] Prefer passing Time object instead of the numeric timestamp.
+   * Remove after release 0.16.
+   */
+  @Override
+  public long getDuration(final long time) {
+    this.isReady(time);
+    return 0;
+  }
+
+  /**
+   * Get the number of milliseconds between current time as tracked by the Timer implementation
+   * and a given event. This implementation always returns 0 and updates current timer's time
+   * to the timestamp of the most distant future event.
    * @param time Timestamp object that wraps time in milliseconds.
    * @return Always returns 0.
    */
   @Override
   public long getDuration(final Time time) {
-    this.isReady(time);
-    return 0;
+    return this.getDuration(time.getTimestamp());
+  }
+
+  /**
+   * Check if the event with a given timestamp has occurred, according to the timer.
+   * This implementation always returns true and updates current timer's time to the timestamp
+   * of the most distant future event.
+   * @param time Timestamp in milliseconds.
+   * @return Always returns true.
+   * @deprecated [REEF-1532] Prefer passing Time object instead of the numeric timestamp.
+   * Remove after release 0.16.
+   */
+  @Override
+  public boolean isReady(final long time) {
+    while (true) {
+      final long thisTs = this.current.get();
+      if (thisTs >= time || this.current.compareAndSet(thisTs, time)) {
+        return true;
+      }
+    }
   }
 
   /**
@@ -80,12 +113,6 @@ public final class LogicalTimer implements Timer {
    */
   @Override
   public boolean isReady(final Time time) {
-    for (;;) {
-      final long otherTs = time.getTimestamp();
-      final long thisTs = this.current.get();
-      if (thisTs >= otherTs || this.current.compareAndSet(thisTs, otherTs)) {
-        return true;
-      }
-    }
+    return this.isReady(time.getTimestamp());
   }
 }

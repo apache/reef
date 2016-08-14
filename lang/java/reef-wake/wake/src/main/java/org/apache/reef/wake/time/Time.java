@@ -22,14 +22,11 @@ import java.util.Date;
 
 /**
  * An abstract object that has a timestamp.
- * That allows up to compare and order objects by the time.
+ * That allows us to compare and order objects by the time.
  */
 public abstract class Time implements Comparable<Time> {
 
   private final long timestamp;
-
-  /** Cached version of toString() result. */
-  private String timestampStr = null;
 
   /**
    * Initialize the internal timestamp. Timestamp remains constant
@@ -49,15 +46,20 @@ public abstract class Time implements Comparable<Time> {
     return this.timestamp;
   }
 
+  /**
+   * Get timestamp in milliseconds since the beginning of the epoch (01/01/1970).
+   * @return Object's timestamp in milliseconds since the start of the epoch.
+   * @deprecated [REEF-1532] Prefer using getTimestamp() instead.
+   * Remove after release 0.16.
+   */
+  public final long getTimeStamp() {
+    return this.timestamp;
+  }
+
   @Override
   public String toString() {
-
-    if (this.timestampStr == null) {
-      this.timestampStr = this.getClass().getName()
-          + ":[" + this.timestamp + '|' + new Date(this.timestamp) + ']';
-    }
-
-    return this.timestampStr;
+    return this.getClass().getName()
+        + ":[" + this.timestamp + '|' + new Date(this.timestamp) + ']';
   }
 
   @Override

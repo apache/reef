@@ -38,11 +38,33 @@ public interface Timer {
   /**
    * Get the number of milliseconds between current time as tracked by the Timer implementation
    * and the given event. Can return a negative number if the event is already in the past.
+   * @param time Timestamp in milliseconds.
+   * @return Difference in milliseconds between the given timestamp and the time tracked by the timer.
+   * The result is a negative number if the timestamp is in the past (according to the timer's time).
+   * @deprecated [REEF-1532] Prefer passing Time object instead of the numeric timestamp.
+   * Remove after release 0.16.
+   */
+  long getDuration(final long time);
+
+  /**
+   * Get the number of milliseconds between current time as tracked by the Timer implementation
+   * and the given event. Can return a negative number if the event is already in the past.
    * @param time Timestamp object that wraps time in milliseconds.
    * @return Difference in milliseconds between the given timestamp and the time tracked by the timer.
    * The result is a negative number if the timestamp is in the past (according to the timer's time).
    */
   long getDuration(final Time time);
+
+  /**
+   * Check if the event with a given timestamp has occurred, according to the timer.
+   * Return true if the timestamp is equal or less than the timer's time, and false if
+   * it is still in the (timer's) future.
+   * @param time Timestamp in milliseconds.
+   * @return False if the given timestamp is still in the timer's time future.
+   * @deprecated [REEF-1532] Prefer passing Time object instead of the numeric timestamp.
+   * Remove after release 0.16.
+   */
+  boolean isReady(final long time);
 
   /**
    * Check if the event with a given timestamp has occurred, according to the timer.

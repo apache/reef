@@ -46,6 +46,20 @@ public final class RealTimer implements Timer {
   /**
    * Get the number of milliseconds from current system time to the given event.
    * Can return a negative number if the event is already in the past.
+   * @param time Timestamp in milliseconds.
+   * @return Difference in milliseconds between the given timestamp and current system time.
+   * The result is a negative number if the timestamp is in the past.
+   * @deprecated [REEF-1532] Prefer passing Time object instead of the numeric timestamp.
+   * Remove after release 0.16.
+   */
+  @Override
+  public long getDuration(final long time) {
+    return time - getCurrent();
+  }
+
+  /**
+   * Get the number of milliseconds from current system time to the given event.
+   * Can return a negative number if the event is already in the past.
    * @param time Timestamp object that wraps time in milliseconds.
    * @return Difference in milliseconds between the given timestamp and current system time.
    * The result is a negative number if the timestamp is in the past.
@@ -53,6 +67,19 @@ public final class RealTimer implements Timer {
   @Override
   public long getDuration(final Time time) {
     return time.getTimestamp() - getCurrent();
+  }
+
+  /**
+   * Check if the event with a given timestamp has occurred. Return true if the timestamp
+   * equals or less than the current system time, and false if it is still in the future.
+   * @param time Timestamp in milliseconds.
+   * @return False if the given timestamp is still in the future.
+   * @deprecated [REEF-1532] Prefer passing Time object instead of the numeric timestamp.
+   * Remove after release 0.16.
+   */
+  @Override
+  public boolean isReady(final long time) {
+    return getDuration(time) <= 0;
   }
 
   /**
