@@ -68,6 +68,18 @@ public final class RuntimeClock implements Clock {
   private final InjectionFuture<Set<EventHandler<RuntimeStop>>> runtimeStopHandler;
   private final InjectionFuture<Set<EventHandler<IdleClock>>> idleHandler;
 
+  /**
+   * Timestamp of the last client alarm in the schedule.
+   * We use it to schedule a graceful shutdown event immediately after all client alarms.
+   */
+  private long lastClientAlarm = 0;
+
+  /**
+   * Number of client alarms in the schedule.
+   * We need it to determine whether event loop is idle (i.e. has no client alarms scheduled)
+   */
+  private int numClientAlarms = 0;
+
   /** Set to true when the clock is closed. */
   private boolean isClosed = false;
 
@@ -107,13 +119,27 @@ public final class RuntimeClock implements Clock {
    */
   @Override
   public void scheduleAlarm(final int offset, final EventHandler<Alarm> handler) {
+
+    final Time alarm = new ClientAlarm(this.timer.getCurrent() + offset, handler);
+
+    if (LOG.isLoggable(Level.FINEST)) {
+      LOG.log(Level.FINEST, "Schedule alarm: {0}", alarm);
+    }
+
     synchronized (this.schedule) {
 
       if (this.isClosed) {
         throw new IllegalStateException("Scheduling alarm on a closed clock");
       }
 
-      this.schedule.add(new ClientAlarm(this.timer.getCurrent() + offset, handler));
+      if (alarm.getTimestamp() > this.lastClientAlarm) {
+        this.lastClientAlarm = alarm.getTimestamp();
+      }
+
+      assert this.numClientAlarms >= 0;
+      ++this.numClientAlarms;
+
+      this.schedule.add(alarm);
       this.schedule.notifyAll();
     }
   }
@@ -151,6 +177,9 @@ public final class RuntimeClock implements Clock {
       final Time stopEvent = new StopTime(this.timer.getCurrent());
       LOG.log(Level.FINE, "Stop scheduled immediately: {0}", stopEvent);
 
+      this.numClientAlarms = 0;
+      assert this.numClientAlarms >= 0;
+
       this.schedule.clear();
       this.schedule.add(stopEvent);
       this.schedule.notifyAll();
@@ -176,7 +205,7 @@ public final class RuntimeClock implements Clock {
 
       this.isClosed = true;
 
-      final Time stopEvent = new StopTime(findAcceptableStopTime());
+      final Time stopEvent = new StopTime(Math.max(this.timer.getCurrent(), this.lastClientAlarm + 1));
       LOG.log(Level.FINE, "Graceful shutdown scheduled: {0}", stopEvent);
 
       this.schedule.add(stopEvent);
@@ -187,42 +216,23 @@ public final class RuntimeClock implements Clock {
   }
 
   /**
-   * Finds an acceptable stop time, which is the a time beyond that of any client alarm.
-   * This method is used in close() to schedule the time to gracefully shutdown the clock.
-   * @return An acceptable stop time.
-   */
-  private long findAcceptableStopTime() {
-
-    long time = timer.getCurrent();
-
-    for (final Time t : this.schedule) {
-      if (t instanceof ClientAlarm) {
-        assert time <= t.getTimestamp();
-        time = t.getTimestamp();
-      }
-    }
-
-    return time + 1;
-  }
-
-  /**
    * Check if there are no client alarms scheduled.
    * @return True if there are no client alarms in the schedule, false otherwise.
    */
   @Override
   public boolean isIdle() {
     synchronized (this.schedule) {
-
-      for (final Time t : this.schedule) {
-        if (t instanceof ClientAlarm) {
-          return false;
-        }
-      }
-
-      return true;
+      assert this.numClientAlarms >= 0;
+      return this.numClientAlarms == 0;
     }
   }
 
+  /**
+   * Register event handlers for the given event class.
+   * @param eventClass Event type to handle. Must be derived from Time.
+   * @param handlers One or many event handlers that can process given event type.
+   * @param <T> Event type - must be derived from class Time. (i.e. contain a timestamp).
+   */
   @SuppressWarnings("checkstyle:hiddenfield")
   private <T extends Time> void subscribe(final Class<T> eventClass, final Set<EventHandler<T>> handlers) {
     for (final EventHandler<T> handler : handlers) {
@@ -232,7 +242,6 @@ public final class RuntimeClock implements Clock {
 
   /**
    * Logs the currently running threads.
-   *
    * @param level Log level used to write the entry.
    * @param prefix put before the comma-separated list of threads
    */
@@ -313,9 +322,18 @@ public final class RuntimeClock implements Clock {
           assert event != null;
 
           if (event instanceof Alarm) {
+
+            if (event instanceof ClientAlarm) {
+              --this.numClientAlarms;
+              assert this.numClientAlarms >= 0;
+            }
+
             ((Alarm) event).run();
+
           } else {
+
             this.handlers.onNext(event);
+
             if (event instanceof StopTime) {
               break; // we're done.
             }
