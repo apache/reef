@@ -16,18 +16,33 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.runtime.yarn.driver;
+
+package org.apache.reef.webserver;
 
 import javax.inject.Inject;
 
-final class DefaultTrackingURLProvider implements TrackingURLProvider {
-
+/**
+ * Empty implementation for the HttpServer.
+ */
+public final class DefaultHttpServerImpl implements HttpServer{
   @Inject
-  DefaultTrackingURLProvider() {
+  DefaultHttpServerImpl(){
   }
 
   @Override
-  public String getTrackingUrl() {
-    return "";
+  public void start() throws Exception {
+  }
+
+  @Override
+  public void stop() throws Exception {
+  }
+
+  @Override
+  public int getPort() {
+    return 0;
+  }
+
+  @Override
+  public void addHttpHandler(final HttpHandler httpHandler) {
   }
 }

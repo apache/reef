@@ -16,15 +16,17 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.webserver;
+package org.apache.reef.runtime.yarn.driver;
 
-import org.apache.reef.runtime.yarn.driver.TrackingURLProvider;
 import org.apache.reef.tang.Injector;
 import org.apache.reef.tang.JavaConfigurationBuilder;
 import org.apache.reef.tang.Tang;
 import org.apache.reef.tang.exceptions.BindException;
 import org.apache.reef.tang.exceptions.InjectionException;
 import org.apache.reef.wake.remote.ports.parameters.TcpPortRangeBegin;
+import org.apache.reef.webserver.HttpHandlerConfiguration;
+import org.apache.reef.webserver.HttpServer;
+import org.apache.reef.webserver.HttpServerImpl;
 import org.junit.Assert;
 import org.junit.Test;
 

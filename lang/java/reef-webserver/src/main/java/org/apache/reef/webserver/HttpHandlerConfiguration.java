@@ -18,7 +18,6 @@
  */
 package org.apache.reef.webserver;
 
-import org.apache.reef.runtime.yarn.driver.TrackingURLProvider;
 import org.apache.reef.tang.formats.ConfigurationModule;
 import org.apache.reef.tang.formats.ConfigurationModuleBuilder;
 import org.apache.reef.tang.formats.OptionalParameter;
@@ -38,6 +37,5 @@ public final class HttpHandlerConfiguration extends ConfigurationModuleBuilder {
    */
   public static final ConfigurationModule CONF = new HttpHandlerConfiguration().merge(HttpRuntimeConfiguration.CONF)
       .bindSetEntry(HttpEventHandlers.class, HTTP_HANDLERS)
-      .bindImplementation(TrackingURLProvider.class, HttpTrackingURLProvider.class)
       .build();
 }

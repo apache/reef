@@ -16,9 +16,10 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.webserver;
+package org.apache.reef.runtime.yarn.driver;
 
-import org.apache.reef.runtime.yarn.driver.TrackingURLProvider;
+import org.apache.reef.webserver.DefaultHttpServerImpl;
+import org.apache.reef.webserver.HttpServer;
 
 import javax.inject.Inject;
 import java.net.InetAddress;
@@ -47,7 +48,11 @@ public final class HttpTrackingURLProvider implements TrackingURLProvider {
    */
   @Inject
   public HttpTrackingURLProvider(final HttpServer httpServer) {
-    this.httpServer = httpServer;
+    if(httpServer instanceof DefaultHttpServerImpl){
+      this.httpServer = null;
+    }else {
+      this.httpServer = httpServer;
+    }
   }
 
   /**
@@ -57,6 +62,10 @@ public final class HttpTrackingURLProvider implements TrackingURLProvider {
    */
   @Override
   public String getTrackingUrl() {
+    if(this.httpServer == null){
+      return "";
+    }
+
     try {
       return InetAddress.getLocalHost().getHostAddress() + ":" + httpServer.getPort();
     } catch (final UnknownHostException e) {
