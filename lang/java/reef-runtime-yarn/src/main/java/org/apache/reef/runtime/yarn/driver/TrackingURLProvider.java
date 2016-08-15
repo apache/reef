@@ -23,7 +23,7 @@ import org.apache.reef.tang.annotations.DefaultImplementation;
 /**
  * Implement this interface to set the tracking URL reported to YARN.
  */
-@DefaultImplementation(DefaultTrackingURLProvider.class)
+@DefaultImplementation(HttpTrackingURLProvider.class)
 public interface TrackingURLProvider {
   String getTrackingUrl();
 }
