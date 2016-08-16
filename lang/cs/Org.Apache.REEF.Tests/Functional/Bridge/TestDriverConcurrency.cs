@@ -28,7 +28,7 @@ using Xunit;
 namespace Org.Apache.REEF.Tests.Functional.Bridge
 {
     /// <summary>
-    /// Test class that contains tests related to the concurrency of the .NET driver.
+    /// Test class containing tests related to the concurrency of the .NET driver.
     /// </summary>
     [Collection("FunctionalTests")]
     public sealed class TestDriverConcurrency : ReefFunctionalTest
