@@ -513,9 +513,10 @@ namespace Org.Apache.REEF.Tang.Util
             if (type != null)
             {
                 // HACK: The only way to detect anonymous types right now.
+                CompareInfo myComp = CultureInfo.CurrentCulture.CompareInfo;
                 return CustomAttributeExtensions.IsDefined(type, typeof(CompilerGeneratedAttribute), false)
                        && type.IsGenericType && type.Name.Contains("AnonymousType")
-                       && (type.Name.StartsWith("<>", true, CultureInfo.CurrentCulture) || type.Name.StartsWith("VB$", true, CultureInfo.CurrentCulture))
+                       && (myComp.IsPrefix(type.Name, "<>", CompareOptions.IgnoreCase) || myComp.IsPrefix(type.Name, "VB$", CompareOptions.IgnoreCase))
                        && (type.Attributes & TypeAttributes.NotPublic) == TypeAttributes.NotPublic;
             }
             return false;
