@@ -23,6 +23,7 @@ import org.apache.reef.annotations.audience.DriverSide;
 import org.apache.reef.annotations.audience.Public;
 import org.apache.reef.driver.context.ActiveContext;
 import org.apache.reef.io.naming.Identifiable;
+import org.apache.reef.runtime.common.driver.task.TaskRepresenter;
 
 /**
  * Represents a running Task.
@@ -70,4 +71,10 @@ public interface RunningTask extends Identifiable, AutoCloseable {
    */
   @Override
   void close();
+
+  /**
+   * Gets the representer of task.
+   * @return the representer of task
+   */
+  TaskRepresenter getTaskRepresenter();
 }

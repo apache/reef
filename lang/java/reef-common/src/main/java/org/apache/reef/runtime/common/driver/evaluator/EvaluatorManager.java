@@ -232,12 +232,15 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
                     .setKillEvaluator(EvaluatorRuntimeProtocol.KillEvaluatorProto.newBuilder().build())
                     .build();
             sendEvaluatorControlMessage(evaluatorControlProto);
+            this.stateManager.setClosing();
+          } else {
+            this.stateManager.setKilled();
           }
-        } finally {
+        } catch (Exception e) {
+          LOG.log(Level.WARNING, "Exception occurred when manager sends killing message to task.", e);
           this.stateManager.setKilled();
         }
       }
-
 
       if (!this.isResourceReleased) {
         this.isResourceReleased = true;
@@ -248,20 +251,20 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
             @Override
             public void onNext(final Alarm alarm) {
               EvaluatorManager.this.resourceReleaseHandler.onNext(
-                      ResourceReleaseEventImpl.newBuilder()
-                              .setIdentifier(EvaluatorManager.this.evaluatorId)
-                              .setRuntimeName(EvaluatorManager.this.getEvaluatorDescriptor().getRuntimeName())
-                              .build()
+                  ResourceReleaseEventImpl.newBuilder()
+                      .setIdentifier(EvaluatorManager.this.evaluatorId)
+                      .setRuntimeName(EvaluatorManager.this.getEvaluatorDescriptor().getRuntimeName())
+                      .build()
               );
             }
           });
         } catch (final IllegalStateException e) {
           LOG.log(Level.WARNING, "Force resource release because the client closed the clock.", e);
           EvaluatorManager.this.resourceReleaseHandler.onNext(
-                  ResourceReleaseEventImpl.newBuilder()
-                          .setIdentifier(EvaluatorManager.this.evaluatorId)
-                          .setRuntimeName(EvaluatorManager.this.getEvaluatorDescriptor().getRuntimeName())
-                          .build()
+              ResourceReleaseEventImpl.newBuilder()
+                  .setIdentifier(EvaluatorManager.this.evaluatorId)
+                  .setRuntimeName(EvaluatorManager.this.getEvaluatorDescriptor().getRuntimeName())
+                  .build()
           );
         }
       }
@@ -276,7 +279,21 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
    */
   public boolean isClosed() {
     return this.messageDispatcher.isEmpty() &&
-           this.stateManager.isDoneOrFailedOrKilled();
+        this.stateManager.isDoneOrFailedOrKilled();
+  }
+
+  /**
+   * Return true if the state is CLOSING.
+   */
+  public boolean isClosing() {
+    return this.stateManager.isClosing();
+  }
+
+  /**
+   * Return true if the state is DONE, FAILED, KILLED, or CLOSING.
+   */
+  public boolean isClosedOrClosing() {
+    return isClosed() || isClosing();
   }
 
   /**
@@ -352,35 +369,35 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
         LOG.log(Level.FINE, "Ignoring a heartbeat received for Evaluator {0} which is already in state {1}.",
             new Object[]{this.getId(), this.stateManager});
         return;
-      }
+      } else if (this.stateManager.isAllocatedOrSubmittedOrRunning()) {
+        this.sanityChecker.check(evaluatorId, evaluatorHeartbeatProto.getTimestamp());
+        final String evaluatorRID = evaluatorHeartbeatProtoRemoteMessage.getIdentifier().toString();
 
-      this.sanityChecker.check(evaluatorId, evaluatorHeartbeatProto.getTimestamp());
-      final String evaluatorRID = evaluatorHeartbeatProtoRemoteMessage.getIdentifier().toString();
+        final EvaluatorRestartState evaluatorRestartState = driverRestartManager.getEvaluatorRestartState(evaluatorId);
 
-      final EvaluatorRestartState evaluatorRestartState = driverRestartManager.getEvaluatorRestartState(evaluatorId);
+        /*
+         * First message from a running evaluator. The evaluator can be a new evaluator or be a previous evaluator
+         * from a separate application attempt. In the case of a previous evaluator, if the restart period has not
+         * yet expired, we should register it and trigger context active and task events. If the restart period has
+         * expired, we should return immediately after setting its remote ID in order to close it.
+         */
+        if (this.stateManager.isSubmitted() ||
+            evaluatorRestartState == EvaluatorRestartState.REPORTED ||
+            evaluatorRestartState == EvaluatorRestartState.EXPIRED) {
 
-      /*
-       * First message from a running evaluator. The evaluator can be a new evaluator or be a previous evaluator
-       * from a separate application attempt. In the case of a previous evaluator, if the restart period has not
-       * yet expired, we should register it and trigger context active and task events. If the restart period has
-       * expired, we should return immediately after setting its remote ID in order to close it.
-       */
-      if (this.stateManager.isSubmitted() ||
-          evaluatorRestartState == EvaluatorRestartState.REPORTED ||
-          evaluatorRestartState == EvaluatorRestartState.EXPIRED) {
+          this.evaluatorControlHandler.setRemoteID(evaluatorRID);
 
-        this.evaluatorControlHandler.setRemoteID(evaluatorRID);
+          if (evaluatorRestartState == EvaluatorRestartState.EXPIRED) {
+            // Don't do anything if evaluator has expired. Close it immediately upon exit of this method.
+            return;
+          }
 
-        if (evaluatorRestartState == EvaluatorRestartState.EXPIRED) {
-          // Don't do anything if evaluator has expired. Close it immediately upon exit of this method.
-          return;
-        }
+          this.stateManager.setRunning();
+          LOG.log(Level.FINEST, "Evaluator {0} is running", this.evaluatorId);
 
-        this.stateManager.setRunning();
-        LOG.log(Level.FINEST, "Evaluator {0} is running", this.evaluatorId);
-
-        if (evaluatorRestartState == EvaluatorRestartState.REPORTED) {
-          driverRestartManager.setEvaluatorReregistered(evaluatorId);
+          if (evaluatorRestartState == EvaluatorRestartState.REPORTED) {
+            driverRestartManager.setEvaluatorReregistered(evaluatorId);
+          }
         }
       }
 
@@ -426,8 +443,10 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
     case FAILED:
       this.onEvaluatorFailed(message);
       break;
-    case INIT:
     case KILLED:
+      this.onEvaluatorKilled(message);
+      break;
+    case INIT:
     case RUNNING:
     case SUSPEND:
       break;
@@ -480,6 +499,19 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
       evaluatorException = new EvaluatorException(getId(), new Exception("No exception sent"));
     }
     onEvaluatorException(evaluatorException);
+  }
+
+  /**
+   * Process an evaluator message that indicates that the evaluator completed the unclean shut down request.
+   *
+   * @param message
+   */
+  private synchronized void onEvaluatorKilled(final EvaluatorStatusPOJO message) {
+    assert message.getState() == State.KILLED;
+    assert stateManager.isClosing();
+    LOG.log(Level.WARNING, "Evaluator {0} killed completely.", getId());
+
+    this.stateManager.setKilled();
   }
 
   public void onResourceLaunch(final ResourceLaunchEvent resourceLaunchEvent) {
@@ -570,7 +602,7 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
   public void onResourceStatusMessage(final ResourceStatusEvent resourceStatusEvent) {
     synchronized (this.evaluatorDescriptor) {
       LOG.log(Level.FINEST, "Resource manager state update: {0}", resourceStatusEvent.getState());
-      if (this.stateManager.isDoneOrFailedOrKilled()) {
+      if (!this.stateManager.isAllocatedOrSubmittedOrRunning()) {
         LOG.log(Level.FINE, "Ignoring resource status update for Evaluator {0} which is already in state {1}.",
             new Object[]{this.getId(), this.stateManager});
       } else if (isDoneOrFailedOrKilled(resourceStatusEvent) && this.stateManager.isAllocatedOrSubmittedOrRunning()) {

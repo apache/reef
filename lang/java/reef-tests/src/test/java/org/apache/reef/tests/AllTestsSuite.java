@@ -22,6 +22,7 @@ import org.apache.reef.tests.applications.ApplicationTestSuite;
 import org.apache.reef.tests.close_eval.CloseEvaluatorTest;
 import org.apache.reef.tests.configurationproviders.ConfigurationProviderTest;
 import org.apache.reef.tests.driver.DriverTest;
+import org.apache.reef.tests.evaluatorclose.EvaluatorCloseTest;
 import org.apache.reef.tests.runtimename.RuntimeNameTest;
 import org.apache.reef.tests.evaluatorfailure.EvaluatorFailureTest;
 import org.apache.reef.tests.evaluatorreuse.EvaluatorReuseTest;
@@ -60,6 +61,7 @@ import org.junit.runners.Suite;
     ApplicationTestSuite.class,
     RuntimeNameTest.class,
     WatcherTest.class,
+    EvaluatorCloseTest.class,
     })
 public final class AllTestsSuite {
 }

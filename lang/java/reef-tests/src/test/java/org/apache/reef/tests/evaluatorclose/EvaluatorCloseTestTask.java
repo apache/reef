@@ -16,23 +16,25 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.runtime.common.driver.evaluator;
+package org.apache.reef.tests.evaluatorclose;
 
-import org.apache.reef.annotations.audience.DriverSide;
-import org.apache.reef.annotations.audience.Private;
+import org.apache.reef.task.Task;
+
+import javax.inject.Inject;
 
 /**
- * Various states that the EvaluatorManager could be in. The EvaluatorManager is
- * created when a resource has been allocated by the ResourceManager.
+ * The task for testing the evaluator's state changing during close.
  */
-@DriverSide
-@Private
-enum EvaluatorState {
-  ALLOCATED,  // initial state
-  SUBMITTED,  // client called AllocatedEvaluator.submitTask() and we're waiting for first contact
-  RUNNING,    // first contact received, all communication channels established, Evaluator sent to client.
-  CLOSING,    // evaluator is asked shutdown, but not closed yet.
-  DONE,       // clean shutdown
-  FAILED,     // some failure occurred.
-  KILLED      // unclean shutdown
+final class EvaluatorCloseTestTask implements Task {
+
+  @Inject
+  EvaluatorCloseTestTask() {
+  }
+
+  @Override
+  public byte[] call(final byte[] memento) {
+    while(true) {
+      // Busy loop
+    }
+  }
 }

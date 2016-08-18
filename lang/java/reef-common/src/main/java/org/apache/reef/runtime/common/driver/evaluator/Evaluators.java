@@ -67,7 +67,7 @@ public final class Evaluators implements AutoCloseable {
     }
     for (final EvaluatorManager evaluatorManager : evaluatorsCopy) {
       LOG.log(Level.WARNING, "Unclean shutdown of evaluator {0}", evaluatorManager.getId());
-      if (!evaluatorManager.isClosed()) {
+      if (!evaluatorManager.isClosedOrClosing()) {
         evaluatorManager.close();
       }
     }

@@ -130,6 +130,7 @@ final class EvaluatorRuntime implements EventHandler<EvaluatorControlProto> {
         if (message.hasKillEvaluator()) {
           LOG.log(Level.SEVERE, "Evaluator {0} has been killed by the driver.", this.evaluatorIdentifier);
           this.state = ReefServiceProtos.State.KILLED;
+          this.heartBeatManager.sendEvaluatorStatus(this.getEvaluatorStatus());
           this.clock.close();
         }
       }

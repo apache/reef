@@ -91,7 +91,6 @@ final class EvaluatorFailureDuringAlarmDriver {
     public void onNext(final FailedTask failedTask) {
       LOG.log(Level.SEVERE, "Received FailedTask: {0}", failedTask);
       otherFailuresReceived.set(true);
-
     }
   }
 
