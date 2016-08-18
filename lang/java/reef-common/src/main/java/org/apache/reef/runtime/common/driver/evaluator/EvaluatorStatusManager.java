@@ -52,9 +52,10 @@ final class EvaluatorStatusManager {
       switch(to) {
       case SUBMITTED:
       case DONE:
+      case CLOSING:
       case FAILED:
-      case KILLED:
         return true;
+      case KILLED:
       case RUNNING:
         break;
       default:
@@ -65,10 +66,11 @@ final class EvaluatorStatusManager {
       switch(to) {
       case RUNNING:
       case DONE:
+      case CLOSING:
       case FAILED:
-      case KILLED:
         return true;
       case ALLOCATED:
+      case KILLED:
         break;
       default:
         throw new RuntimeException("Unknown state: " + to);
@@ -77,11 +79,26 @@ final class EvaluatorStatusManager {
     case RUNNING: {
       switch(to) {
       case DONE:
+      case CLOSING:
       case FAILED:
-      case KILLED:
         return true;
       case ALLOCATED:
       case SUBMITTED:
+      case KILLED:
+        break;
+      default:
+        throw new RuntimeException("Unknown state: " + to);
+      }
+    }
+    case CLOSING: {
+      switch(to) {
+      case KILLED:
+      case DONE:
+      case FAILED:
+        return true;
+      case ALLOCATED:
+      case SUBMITTED:
+      case RUNNING:
         break;
       default:
         throw new RuntimeException("Unknown state: " + to);
@@ -111,6 +128,10 @@ final class EvaluatorStatusManager {
 
   synchronized void setSubmitted() {
     this.setState(EvaluatorState.SUBMITTED);
+  }
+
+  synchronized void setClosing() {
+    this.setState(EvaluatorState.CLOSING);
   }
 
   synchronized void setDone() {
@@ -149,6 +170,10 @@ final class EvaluatorStatusManager {
 
   synchronized boolean isFailedOrKilled() {
     return EvaluatorState.FAILED == this.state || EvaluatorState.KILLED == this.state;
+  }
+
+  synchronized boolean isClosing() {
+    return EvaluatorState.CLOSING == this.state;
   }
 
   @Override

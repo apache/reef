@@ -220,4 +220,20 @@ public final class TaskRepresenter {
         new Object[]{this.taskId, this.state, newState});
     this.state = newState;
   }
+
+  /**
+   * Check whether this evaluator is in closing state.
+   * @return whether this evaluator is in closing state.
+   */
+  public boolean evaluatorIsClosing() {
+    return evaluatorManager.isClosing();
+  }
+
+  /**
+   * Check whether this evaluator is in closed state.
+   * @return whether this evaluator is in closed state.
+   */
+  public boolean evaluatorIsClosed() {
+    return evaluatorManager.isClosed();
+  }
 }

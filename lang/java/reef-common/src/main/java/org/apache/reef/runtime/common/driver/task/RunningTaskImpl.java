@@ -137,4 +137,8 @@ public final class RunningTaskImpl implements RunningTask {
   public String toString() {
     return "RunningTask{taskId='" + taskId + "'}";
   }
+
+  public TaskRepresenter getTaskRepresenter() {
+    return taskRepresenter;
+  }
 }
