@@ -18,7 +18,7 @@
  */
 package org.apache.reef.runtime.yarn.driver;
 
-import org.apache.reef.webserver.DefaultHttpServerImpl;
+import org.apache.reef.webserver.NoOpHttpServerImpl;
 import org.apache.reef.webserver.HttpServer;
 
 import javax.inject.Inject;
@@ -48,11 +48,7 @@ public final class HttpTrackingURLProvider implements TrackingURLProvider {
    */
   @Inject
   public HttpTrackingURLProvider(final HttpServer httpServer) {
-    if (httpServer instanceof DefaultHttpServerImpl) {
-      this.httpServer = null;
-    } else {
-      this.httpServer = httpServer;
-    }
+    this.httpServer = httpServer instanceof NoOpHttpServerImpl ? null : httpServer;
   }
 
   /**

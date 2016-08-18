@@ -23,10 +23,11 @@ import javax.inject.Inject;
 
 /**
  * Empty implementation for the HttpServer.
+ * It has no functionality and serves only as an injectable placeholder.
  */
-public final class DefaultHttpServerImpl implements HttpServer {
+public final class NoOpHttpServerImpl implements HttpServer {
   @Inject
-  DefaultHttpServerImpl() {
+  NoOpHttpServerImpl() {
   }
 
   @Override
