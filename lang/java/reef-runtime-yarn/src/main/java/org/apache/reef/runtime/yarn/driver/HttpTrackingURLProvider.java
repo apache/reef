@@ -48,9 +48,9 @@ public final class HttpTrackingURLProvider implements TrackingURLProvider {
    */
   @Inject
   public HttpTrackingURLProvider(final HttpServer httpServer) {
-    if(httpServer instanceof DefaultHttpServerImpl){
+    if(httpServer instanceof DefaultHttpServerImpl) {
       this.httpServer = null;
-    }else {
+    } else {
       this.httpServer = httpServer;
     }
   }
@@ -62,7 +62,7 @@ public final class HttpTrackingURLProvider implements TrackingURLProvider {
    */
   @Override
   public String getTrackingUrl() {
-    if(this.httpServer == null){
+    if(this.httpServer == null) {
       return "";
     }
 

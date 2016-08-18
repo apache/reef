@@ -24,9 +24,9 @@ import javax.inject.Inject;
 /**
  * Empty implementation for the HttpServer.
  */
-public final class DefaultHttpServerImpl implements HttpServer{
+public final class DefaultHttpServerImpl implements HttpServer {
   @Inject
-  DefaultHttpServerImpl(){
+  DefaultHttpServerImpl() {
   }
 
   @Override
