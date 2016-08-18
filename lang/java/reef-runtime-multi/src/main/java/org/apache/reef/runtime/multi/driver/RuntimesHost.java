@@ -40,16 +40,20 @@ import org.apache.reef.tang.formats.AvroConfigurationSerializer;
 import org.apache.reef.wake.EventHandler;
 import org.apache.reef.wake.time.runtime.event.RuntimeStart;
 import org.apache.reef.wake.time.runtime.event.RuntimeStop;
+import org.apache.reef.webserver.HttpServer;
 
 import javax.inject.Inject;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Hosts the actual runtime implementations and delegates invocations to them.
  */
 final class RuntimesHost {
+  private static final Logger LOG = Logger.getLogger(RuntimesHost.class.getName());
   private final AvroMultiRuntimeDefinition runtimeDefinition;
   private final Injector originalInjector;
   private final String defaultRuntimeName;
@@ -127,6 +131,17 @@ final class RuntimesHost {
     runtimeInjector.bindVolatileParameter(
             RuntimeParameters.RuntimeStatusHandler.class,
             runtimeStatusEventHandler);
+    HttpServer httpServer = null;
+    try {
+      httpServer = this.originalInjector.getInstance(HttpServer.class);
+    } catch(InjectionException e) {
+      LOG.log(Level.INFO, "Http Server is not configured for the runtime");
+    }
+
+    if (httpServer != null) {
+      runtimeInjector.bindVolatileInstance(HttpServer.class, httpServer);
+      LOG.log(Level.INFO, "Binding http server for the runtime implementation");
+    }
   }
 
   /**
