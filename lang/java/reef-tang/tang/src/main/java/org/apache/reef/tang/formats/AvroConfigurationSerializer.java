@@ -244,7 +244,8 @@ public final class AvroConfigurationSerializer implements ConfigurationSerialize
     final DatumWriter<AvroConfiguration> configurationWriter = new SpecificDatumWriter<>(AvroConfiguration.class);
     final String result;
     try (final ByteArrayOutputStream out = new ByteArrayOutputStream()) {
-      final JsonEncoder encoder = EncoderFactory.get().jsonEncoder(AvroConfiguration.SCHEMA$, out, prettyPrint);
+      // TODO [REEF-1536] Re-enable pretty printing when Avro 1.7.5 available on all environments:
+      final JsonEncoder encoder = EncoderFactory.get().jsonEncoder(AvroConfiguration.SCHEMA$, out); //, prettyPrint);
       configurationWriter.write(toAvro(configuration), encoder);
       encoder.flush();
       out.flush();
