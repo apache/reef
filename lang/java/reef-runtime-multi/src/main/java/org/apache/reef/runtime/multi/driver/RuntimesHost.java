@@ -134,8 +134,8 @@ final class RuntimesHost {
     HttpServer httpServer = null;
     try {
       httpServer = this.originalInjector.getInstance(HttpServer.class);
-    } catch(InjectionException e) {
-      LOG.log(Level.INFO, "Http Server is not configured for the runtime");
+    } catch (final InjectionException e) {
+      LOG.log(Level.INFO, "Http Server is not configured for the runtime", e);
     }
 
     if (httpServer != null) {
@@ -147,7 +147,7 @@ final class RuntimesHost {
   /**
    * Retrieves requested runtime, if requested name is empty a default runtime will be used.
    * @param requestedRuntimeName the requested runtime name
-   * @return
+   * @return The runtime
    */
   private Runtime getRuntime(final String requestedRuntimeName) {
     String runtimeName = requestedRuntimeName;
