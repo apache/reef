@@ -28,6 +28,7 @@ using Org.Apache.REEF.Network.Group.Operators.Impl;
 using Org.Apache.REEF.Network.NetworkService;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Tang.Exceptions;
+using Org.Apache.REEF.Utilities.Diagnostics;
 using Org.Apache.REEF.Utilities.Logging;
 
 namespace Org.Apache.REEF.Network.Group.Task.Impl
@@ -371,13 +372,13 @@ namespace Org.Apache.REEF.Network.Group.Task.Impl
                             if (!foundList.Contains(identifier) && _nameClient.Lookup(identifier) != null)
                             {
                                 foundList.Add(identifier);
-                                Logger.Log(Level.Info, "OperatorTopology.WaitForTaskRegistration, find a dependent id {0} at loop {1}.", identifier, i);
+                                Logger.Log(Level.Verbose, "OperatorTopology.WaitForTaskRegistration, find a dependent id {0} at loop {1}.", identifier, i);
                             }
                         }
 
                         if (foundList.Count == identifiers.Count)
                         {
-                            Logger.Log(Level.Info, "OperatorTopology.WaitForTaskRegistration, found all dependent ids at loop {0}.", i);
+                            Logger.Log(Level.Info, "OperatorTopology.WaitForTaskRegistration, found all {0} dependent ids at loop {1}.", foundList.Count, i);
                             return;
                         }
 
@@ -386,13 +387,12 @@ namespace Org.Apache.REEF.Network.Group.Task.Impl
                 }
                 catch (Exception e)
                 {
-                    Logger.Log(Level.Error, "Exception in OperatorTopology.WaitForTaskRegistration {0}", e);
-                    throw;
+                    Exceptions.CaughtAndThrow(e, Level.Error, "Exception in OperatorTopology.WaitForTaskRegistration.", Logger);
                 }
 
                 var leftOver = string.Join(",", identifiers.Where(e => !foundList.Contains(e)));
                 Logger.Log(Level.Error, "For node {0}, cannot find registered parent/children: {1}.", _selfId, leftOver);
-                throw new IllegalStateException("Failed to initialize operator topology for node: " + _selfId);
+                Exceptions.Throw(new SystemException("Failed to initialize operator topology for node: " + _selfId), Logger);
             }
         }
     }

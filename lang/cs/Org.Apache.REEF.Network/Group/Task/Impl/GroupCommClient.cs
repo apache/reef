@@ -17,6 +17,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using Org.Apache.REEF.Common.Tasks;
 using Org.Apache.REEF.Network.Group.Config;
 using Org.Apache.REEF.Network.Group.Driver.Impl;
@@ -25,6 +26,7 @@ using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Tang.Exceptions;
 using Org.Apache.REEF.Tang.Formats;
 using Org.Apache.REEF.Tang.Interface;
+using Org.Apache.REEF.Utilities.Diagnostics;
 using Org.Apache.REEF.Utilities.Logging;
 using Org.Apache.REEF.Wake.Remote.Impl;
 
@@ -78,12 +80,11 @@ namespace Org.Apache.REEF.Network.Group.Task.Impl
                     group.WaitingForRegistration();
                 }
             }
-            catch (IllegalStateException e)
+            catch (SystemException e)
             {
-                Logger.Log(Level.Error, "In GroupCommClient, exception from WaitingForRegistration {0}.", e);
                 networkService.Unregister();
                 networkService.Dispose();
-                throw e;
+                Exceptions.CaughtAndThrow(e, Level.Error, "In GroupCommClient, exception from WaitingForRegistration.", Logger);
             }
         }
 
