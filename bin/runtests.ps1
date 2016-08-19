@@ -24,14 +24,18 @@ KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
 #>
+[CmdletBinding(PositionalBinding=$False)]
 param
   (
     # JAR file(s) to add to the classpath.
-    [Parameter(Mandatory=$True, HelpMessage="JAR file(s) to use")]
+    [Parameter(Mandatory=$True, HelpMessage="Semicolon-separated list of JARs to use")]
     [string]$Jars,
 
-    [Parameter(Mandatory=$False, HelpMessage="Options to be passed to java")]
+    [Parameter(Mandatory=$False, HelpMessage="Options to be passed to Java")]
     [string]$JavaOptions,
+
+    [Parameter(HelpMessage="Run unit tests on YARN.")]
+    [switch]$Yarn,
 
     [Parameter(HelpMessage="Turn on detailed logging.")]
     [switch]$VerboseLog,
@@ -43,6 +47,13 @@ param
 Import-Module ((Split-Path -Parent -Resolve $MyInvocation.MyCommand.Definition) + "\runreef.psm1")
 
 if ((Split-Path -Leaf $MyInvocation.MyCommand.Definition).Equals("runtests.ps1")) {
-  $env:REEF_TEST_YARN = "true"
-  Submit-YARN-Application -Jars ($Jars -split ';') -Class org.junit.runner.JUnitCore -JavaOptions $JavaOptions -VerboseLog:$VerboseLog -Arguments $Tests
+
+  $env:REEF_TEST_YARN = $Yarn.IsPresent
+
+  SubmitYarnApplication `
+    -Jars ($Jars -split ';') `
+    -Class org.junit.runner.JUnitCore `
+    -JavaOptions $JavaOptions `
+    -VerboseLog:$VerboseLog.IsPresent `
+    -Arguments $Tests
 }
