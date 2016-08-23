@@ -47,6 +47,7 @@ public final class EvaluatorRequestorImpl implements EvaluatorRequestor {
   /**
    * @param resourceCatalog
    * @param resourceRequestHandler
+   * @param loggingScopeFactory
    */
   @Inject
   public EvaluatorRequestorImpl(final ResourceCatalog resourceCatalog,
@@ -98,7 +99,7 @@ public final class EvaluatorRequestorImpl implements EvaluatorRequestor {
       relaxLocality = false;
     }
 
-    try (LoggingScope ls = loggingScopeFactory.evaluatorSubmit(req.getNumber())) {
+    try (LoggingScope ls = this.loggingScopeFactory.evaluatorSubmit(req.getNumber())) {
       final ResourceRequestEvent request = ResourceRequestEventImpl
           .newBuilder()
           .setResourceCount(req.getNumber())
