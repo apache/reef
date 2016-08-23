@@ -101,6 +101,7 @@ array<byte>^ ManagedByteArrayFromJavaByteArray(
     for (int i = 0; i < len; i++) {
       managedByteArray[i] = bytes[i];
     }
+	env->ReleaseByteArrayElements(javaByteArray, (jbyte*)bytes, JNI_ABORT);
     return managedByteArray;
   }
   return nullptr;
