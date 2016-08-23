@@ -29,8 +29,8 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyCulture("")]
 [assembly: ComVisible(false)]
 [assembly: Guid("58c49df4-8dc0-4f58-9a7e-a341d33e40ee")]
-[assembly: AssemblyVersion("0.15.0.0")]
-[assembly: AssemblyFileVersion("0.15.0.0")]
+[assembly: AssemblyVersion("0.15.1.0")]
+[assembly: AssemblyFileVersion("0.15.1.0")]
 
 // Allow the tests project access to `internal` APIs
 [assembly: InternalsVisibleTo("Org.Apache.REEF.IO.Tests, publickey=" +

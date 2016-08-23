@@ -48,7 +48,7 @@ using namespace System::Security::Permissions;
 // by using the '*' as shown below:
 
 [assembly:AssemblyVersion("0.14.0.0")]
-[assembly:AssemblyFileVersion("0.15.0.0")]
+[assembly:AssemblyFileVersion("0.15.1.0")]
 
 [assembly:ComVisible(false)];
 

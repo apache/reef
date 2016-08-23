@@ -21,7 +21,7 @@
 
 DOXYFILE_ENCODING      = UTF-8
 PROJECT_NAME           = "Apache REEF"
-PROJECT_NUMBER         = 0.15.0
+PROJECT_NUMBER         = 0.15.1
 PROJECT_BRIEF          = "Retainable Evaluator Execution Framework"
 OUTPUT_DIRECTORY       = target
 JAVADOC_AUTOBRIEF      = YES
