@@ -26,8 +26,8 @@ import java.util.Random;
 import java.util.concurrent.CountDownLatch;
 
 /**
- * Helper class to generate alarms at user-specified intervals
- * and count down the barrier on each alarm.
+ * Helper class used in unit tests to generate alarms at user-specified intervals
+ * and count down the barrier on each alarm. It is used in RuntimeClockTest.
  */
 public abstract class AlarmProducer implements EventHandler<Alarm> {
 
@@ -61,12 +61,12 @@ public abstract class AlarmProducer implements EventHandler<Alarm> {
   public abstract int getOffset();
 
   /**
-   * Generate random number uniformly distributed between offsetMin and offsetMax.
+   * Generate random integer uniformly distributed between offsetMin and offsetMax.
    * Helper function to be used in getOffset().
    * @param rand Random number generator, and instance of Random.
    * @param offsetMin Lower bound, must be > 0.
    * @param offsetMax Upper bound, must be > offsetMin.
-   * @return Random number uniformly distributed between offsetMin and offsetMax.
+   * @return Random integer uniformly distributed between offsetMin and offsetMax.
    */
   public static int randomOffsetUniform(final Random rand, final int offsetMin, final int offsetMax) {
     assert offsetMin > 0;

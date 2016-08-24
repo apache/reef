@@ -29,8 +29,10 @@ import java.util.concurrent.CountDownLatch;
 
 /**
  * An EventHandler that records the events that it sees.
+ * Can optionally count down the latch on each alarm it receives.
+ * This is a helper class to be used in unit tests, e.g. RuntimeClockTest.
  */
-public class EventRecorder implements EventHandler<Alarm> {
+public final class EventRecorder implements EventHandler<Alarm> {
 
   /**
    * A synchronized List of the events recorded by this EventRecorder.
@@ -43,18 +45,35 @@ public class EventRecorder implements EventHandler<Alarm> {
     this(null);
   }
 
+  /**
+   * Create a new event recorder.
+   * If latch is not null, count it down on each event received.
+   * @param latch A count down latch. Can be null.
+   */
   public EventRecorder(final CountDownLatch latch) {
     this.eventCountLatch = latch;
   }
 
+  /**
+   * Get the number of events captured so far.
+   * @return A number of events captured.
+   */
   public int getEventCount() {
     return this.events.size();
   }
 
+  /**
+   * Get the list of events captured so far, in the order they were captured.
+   * @return A list of events. It can be empty, but never null.
+   */
   public List<Time> getEvents() {
     return this.events;
   }
 
+  /**
+   * Add a new event to the list.
+   * @param event An event to capture.
+   */
   @Override
   public void onNext(final Alarm event) {
     this.events.add(event);

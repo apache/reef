@@ -44,7 +44,7 @@ import java.util.logging.Level;
 /**
  * Tests for RuntimeClock event loop.
  */
-public class ClockTest {
+public class RuntimeClockTest {
 
   private static final Tang TANG = Tang.Factory.getTang();
 
