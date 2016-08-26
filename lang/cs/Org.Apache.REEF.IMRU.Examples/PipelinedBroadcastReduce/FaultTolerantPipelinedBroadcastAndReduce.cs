@@ -32,21 +32,21 @@ using Org.Apache.REEF.Utilities.Logging;
 namespace Org.Apache.REEF.IMRU.Examples.PipelinedBroadcastReduce
 {
     /// <summary>
-    /// IMRU program that performs broadcast and reduce with fault tolerant
+    /// IMRU program that performs broadcast and reduce with fault tolerance.
     /// </summary>
-    public class PipelinedBroadcastAndReduceFaultTolerant : PipelinedBroadcastAndReduce
+    public class FaultTolerantPipelinedBroadcastAndReduce : PipelinedBroadcastAndReduce
     {
-        private static readonly Logger Logger = Logger.GetLogger(typeof(PipelinedBroadcastAndReduceFaultTolerant));
+        private static readonly Logger Logger = Logger.GetLogger(typeof(FaultTolerantPipelinedBroadcastAndReduce));
 
         [Inject]
-        protected PipelinedBroadcastAndReduceFaultTolerant(IIMRUClient imruClient) : base(imruClient)
+        protected FaultTolerantPipelinedBroadcastAndReduce(IIMRUClient imruClient) : base(imruClient)
         {
         }
         
         /// <summary>
         /// Build a test mapper function configuration
         /// </summary>
-        /// <param name="maxRetryInRecovery"></param>
+        /// <param name="maxRetryInRecovery">Number of retries done if first run failed.</param>
         /// <returns></returns>
         protected override IConfiguration BuildMapperFunctionConfig(int maxRetryInRecovery)
         {
@@ -57,7 +57,7 @@ namespace Org.Apache.REEF.IMRU.Examples.PipelinedBroadcastReduce
 
             var c2 = TangFactory.GetTang().NewConfigurationBuilder()
                 .BindSetEntry<TaskIdsToFail, string>(GenericType<TaskIdsToFail>.Class, "IMRUMap-RandomInputPartition-2-")
-                ////.BindSetEntry<TaskIdsToFail, string>(GenericType<TaskIdsToFail>.Class, "IMRUMap-RandomInputPartition-3-")
+                .BindSetEntry<TaskIdsToFail, string>(GenericType<TaskIdsToFail>.Class, "IMRUMap-RandomInputPartition-3-")
                 .BindIntNamedParam<FailureType>("0")
                 .BindNamedParameter(typeof(MaxRetryNumberInRecovery), maxRetryInRecovery.ToString())
                 .Build();
@@ -70,9 +70,19 @@ namespace Org.Apache.REEF.IMRU.Examples.PipelinedBroadcastReduce
         {
         }
 
-        [NamedParameter(Documentation = "Type of failure to simulate: 0/1 - evaluator/task during task execution, 2/3 - during task initialization")]
+        [NamedParameter(Documentation = "Type of failure to simulate")]
         internal class FailureType : Name<int>
         {
+            internal static readonly int EvaluatorFailureDuringTaskExecution = 0;
+            internal static readonly int TaskFailureDuringTaskExecution = 1;
+            internal static readonly int EvaluatorFailureDuringTaskInitialization = 2;
+            internal static readonly int TaskFailureDuringTaskInitialization = 3;
+
+            internal static bool IsEvaluatorFailure(int failureType)
+            {
+                return failureType == EvaluatorFailureDuringTaskExecution ||
+                       failureType == EvaluatorFailureDuringTaskInitialization;
+            }
         }
 
         /// <summary>
@@ -103,7 +113,8 @@ namespace Org.Apache.REEF.IMRU.Examples.PipelinedBroadcastReduce
                     Logger.Log(Level.Info, "TestSenderMapFunction: taskIdsToFail: {0}", n);
                 }
 
-                if (_failureType == 2 || _failureType == 3)
+                if (_failureType == FailureType.EvaluatorFailureDuringTaskInitialization || 
+                    _failureType == FailureType.TaskFailureDuringTaskInitialization)
                 {
                     SimulateFailure(0);
                 }
@@ -119,14 +130,15 @@ namespace Org.Apache.REEF.IMRU.Examples.PipelinedBroadcastReduce
                 _iterations++;
                 Logger.Log(Level.Info, "Received value {0} in iteration {1}.", mapInput[0], _iterations);
 
-                if (_failureType <= 1)
+                if (_failureType == FailureType.EvaluatorFailureDuringTaskExecution ||
+                    _failureType == FailureType.TaskFailureDuringTaskExecution)
                 {
                     SimulateFailure(10);
                 }
 
                 if (mapInput[0] != _iterations)
                 {
-                    Exceptions.Throw(new Exception("Expected value in mappers different from actual value"), Logger);
+                    Exceptions.Throw(new Exception("Expected value in mappers (" + _iterations + ") different from actual value (" + mapInput[0] + ")"), Logger);
                 }
 
                 return mapInput;
@@ -139,9 +151,9 @@ namespace Org.Apache.REEF.IMRU.Examples.PipelinedBroadcastReduce
                     _taskIdsToFail.FirstOrDefault(e => _taskId.Equals(e + _maxRetryInRecovery)) == null)
                 {
                     Logger.Log(Level.Warning, "Simulating {0} failure for taskId {1}",
-                        _failureType % 2 == 0 ? "evaluator" : "task",
+                        FailureType.IsEvaluatorFailure(_failureType) ? "evaluator" : "task",
                         _taskId);
-                    if (_failureType % 2 == 0)
+                    if (FailureType.IsEvaluatorFailure(_failureType))
                     {
                         // simulate evaluator failure
                         Environment.Exit(1);

@@ -67,7 +67,7 @@ namespace Org.Apache.REEF.IMRU.API
         /// <param name="updateTaskMemory">Update task memory</param>
         /// <param name="mapTaskCores">Number of map task cores</param>
         /// <param name="updateTaskCores">Number of update task cores</param>
-        /// <param name="maxRetryNumberInRecovery">Max retry number in recovery</param>
+        /// <param name="maxRetryNumberInRecovery">Max number of retries done if first run of IMRU job failed</param>
         /// <param name="jobName">Job name</param>
         /// <param name="invokeGC">Whether to call garbage collector after each iteration</param>
         internal IMRUJobDefinition(
@@ -227,7 +227,7 @@ namespace Org.Apache.REEF.IMRU.API
         }
 
         /// <summary>
-        /// Max retry number in fault tolerant
+        /// Max number of retries done if first run of IMRU job failed.
         /// </summary>
         internal int MaxRetryNumberInRecovery
         {

@@ -85,7 +85,6 @@ namespace Org.Apache.REEF.IMRU.Examples.MapperCount
                     .SetUpdateTaskCores(3)
                     .SetJobName("MapperCount")
                     .SetNumberOfMappers(numberofMappers)
-                    .SetMaxRetryNumberInRecovery(0)
                     .Build());
 
             if (results != null)

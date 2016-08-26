@@ -163,7 +163,7 @@ namespace Org.Apache.REEF.Wake.Remote.Impl
                     TcpClient client = await _listener.AcceptTcpClientAsync().ConfigureAwait(false);
                     ProcessClient(client).LogAndIgnoreExceptionIfAny(
                         LOGGER,
-                        "Task Exception observed processing client in StreamingTransportServer.",
+                        "StreamingTransportServer observed Task Exception during client processing.",
                         Level.Warning);
                 }
             }

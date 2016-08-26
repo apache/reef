@@ -91,14 +91,19 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator
             }
         }
 
+        private string MessageFieldAsText(object field)
+        {
+            return field == null ? "null" : "not null";
+        }
+
         public void Handle(EvaluatorControlProto message)
         {
             lock (_heartBeatManager)
             {
-                var msg = " done_evaluator = " + (message.done_evaluator == null ? "null" : "not null")
-                          + " kill_evaluator = " + (message.kill_evaluator == null ? "null" : "not null")
-                          + " stop_evaluator = " + (message.stop_evaluator == null ? "null" : "not null")
-                          + " context_control = " + (message.context_control == null ? "null" : "not null");
+                var msg = " done_evaluator = " + MessageFieldAsText(message.done_evaluator)
+                          + " kill_evaluator = " + MessageFieldAsText(message.kill_evaluator)
+                          + " stop_evaluator = " + MessageFieldAsText(message.stop_evaluator)
+                          + " context_control = " + MessageFieldAsText(message.context_control);
                 Logger.Log(Level.Info, "Handle Evaluator control message: " + msg);
                 if (!message.identifier.Equals(_evaluatorId, StringComparison.OrdinalIgnoreCase))
                 {

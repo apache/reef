@@ -235,9 +235,9 @@ namespace Org.Apache.REEF.IMRU.API
         }
 
         /// <summary>
-        /// Set max retry in fault tolerant
+        /// Set max number of retries done if first run of IMRU job failed.
         /// </summary>
-        /// <param name="maxRetryNumberInRecovery">max retry number in recovery</param>
+        /// <param name="maxRetryNumberInRecovery">Max number of retries</param>
         /// <returns></returns>
         public IMRUJobDefinitionBuilder SetMaxRetryNumberInRecovery(int maxRetryNumberInRecovery)
         {

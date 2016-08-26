@@ -38,22 +38,22 @@ namespace Org.Apache.REEF.IMRU.Tests
         [Fact]
         public void TestValidAddRemoveAllocatedEvaluator()
         {
-            var evalutorManager = CreateTestEvaluators(3, 1);
-            Assert.Equal(3, evalutorManager.NumberOfAllocatedEvaluators);
-            Assert.True(evalutorManager.AreAllEvaluatorsAllocated());
-            Assert.True(evalutorManager.IsMasterEvaluatorId(EvaluatorIdPrefix + 1));
-            Assert.False(evalutorManager.IsMasterEvaluatorId(EvaluatorIdPrefix + 2));
-            Assert.True(evalutorManager.IsAllocatedEvaluator(EvaluatorIdPrefix + 2));
-            Assert.False(evalutorManager.IsMasterEvaluatorFailed());
+            var evaluatorManager = CreateTestEvaluators(3, 1);
+            Assert.Equal(3, evaluatorManager.NumberOfAllocatedEvaluators);
+            Assert.True(evaluatorManager.AreAllEvaluatorsAllocated());
+            Assert.True(evaluatorManager.IsMasterEvaluatorId(EvaluatorIdPrefix + 1));
+            Assert.False(evaluatorManager.IsMasterEvaluatorId(EvaluatorIdPrefix + 2));
+            Assert.True(evaluatorManager.IsAllocatedEvaluator(EvaluatorIdPrefix + 2));
+            Assert.False(evaluatorManager.IsMasterEvaluatorFailed());
 
-            evalutorManager.RecordFailedEvaluator(EvaluatorIdPrefix + 1);
-            Assert.Equal(2, evalutorManager.NumberOfAllocatedEvaluators);
-            Assert.True(evalutorManager.IsMasterEvaluatorFailed());
-            Assert.Equal(0, evalutorManager.NumberofFailedMappers());
+            evaluatorManager.RecordFailedEvaluator(EvaluatorIdPrefix + 1);
+            Assert.Equal(2, evaluatorManager.NumberOfAllocatedEvaluators);
+            Assert.True(evaluatorManager.IsMasterEvaluatorFailed());
+            Assert.Equal(0, evaluatorManager.NumberofFailedMappers());
 
-            evalutorManager.ResetFailedEvaluators();
-            evalutorManager.AddAllocatedEvaluator(CreateMockAllocatedEvaluator(1, EvaluatorManager.MasterBatchId + _masterBatchIdSquenceNumber++));
-            Assert.True(evalutorManager.AreAllEvaluatorsAllocated());
+            evaluatorManager.ResetFailedEvaluators();
+            evaluatorManager.AddAllocatedEvaluator(CreateMockAllocatedEvaluator(1, EvaluatorManager.MasterBatchId + _masterBatchIdSquenceNumber++));
+            Assert.True(evaluatorManager.AreAllEvaluatorsAllocated());
         }
 
         /// <summary>
@@ -62,10 +62,10 @@ namespace Org.Apache.REEF.IMRU.Tests
         [Fact]
         public void TestNoMasterEvaluator()
         {
-            var evalutorManager = CreateEvaluatorManager(3, 1);
-            evalutorManager.AddAllocatedEvaluator(CreateMockAllocatedEvaluator(1, EvaluatorManager.MapperBatchId + _mapperBatchIdSquenceNumber++));
-            evalutorManager.AddAllocatedEvaluator(CreateMockAllocatedEvaluator(2, EvaluatorManager.MapperBatchId + _mapperBatchIdSquenceNumber++));
-            Action add = () => evalutorManager.AddAllocatedEvaluator(CreateMockAllocatedEvaluator(3, EvaluatorManager.MapperBatchId + _mapperBatchIdSquenceNumber++));
+            var evaluatorManager = CreateEvaluatorManager(3, 1);
+            evaluatorManager.AddAllocatedEvaluator(CreateMockAllocatedEvaluator(1, EvaluatorManager.MapperBatchId + _mapperBatchIdSquenceNumber++));
+            evaluatorManager.AddAllocatedEvaluator(CreateMockAllocatedEvaluator(2, EvaluatorManager.MapperBatchId + _mapperBatchIdSquenceNumber++));
+            Action add = () => evaluatorManager.AddAllocatedEvaluator(CreateMockAllocatedEvaluator(3, EvaluatorManager.MapperBatchId + _mapperBatchIdSquenceNumber++));
             Assert.Throws<IMRUSystemException>(add);
         }
 
@@ -75,10 +75,10 @@ namespace Org.Apache.REEF.IMRU.Tests
         [Fact]
         public void TestTwoMasterEvaluator()
         {
-            var evalutorManager = CreateEvaluatorManager(3, 1);
-            evalutorManager.AddAllocatedEvaluator(CreateMockAllocatedEvaluator(1, EvaluatorManager.MasterBatchId + _masterBatchIdSquenceNumber++));
-            evalutorManager.AddAllocatedEvaluator(CreateMockAllocatedEvaluator(2, EvaluatorManager.MapperBatchId + _mapperBatchIdSquenceNumber++));
-            Action add = () => evalutorManager.AddAllocatedEvaluator(CreateMockAllocatedEvaluator(3, EvaluatorManager.MasterBatchId + _masterBatchIdSquenceNumber++));
+            var evaluatorManager = CreateEvaluatorManager(3, 1);
+            evaluatorManager.AddAllocatedEvaluator(CreateMockAllocatedEvaluator(1, EvaluatorManager.MasterBatchId + _masterBatchIdSquenceNumber++));
+            evaluatorManager.AddAllocatedEvaluator(CreateMockAllocatedEvaluator(2, EvaluatorManager.MapperBatchId + _mapperBatchIdSquenceNumber++));
+            Action add = () => evaluatorManager.AddAllocatedEvaluator(CreateMockAllocatedEvaluator(3, EvaluatorManager.MasterBatchId + _masterBatchIdSquenceNumber++));
             Assert.Throws<IMRUSystemException>(add);
         }
 
@@ -88,10 +88,10 @@ namespace Org.Apache.REEF.IMRU.Tests
         [Fact]
         public void TestTooManyEvaluators()
         {
-            var evalutorManager = CreateEvaluatorManager(2, 1);
-            evalutorManager.AddAllocatedEvaluator(CreateMockAllocatedEvaluator(1, EvaluatorManager.MasterBatchId + _masterBatchIdSquenceNumber++));
-            evalutorManager.AddAllocatedEvaluator(CreateMockAllocatedEvaluator(2, EvaluatorManager.MapperBatchId + _mapperBatchIdSquenceNumber++));
-            Action add = () => evalutorManager.AddAllocatedEvaluator(CreateMockAllocatedEvaluator(3, EvaluatorManager.MapperBatchId + _mapperBatchIdSquenceNumber++));
+            var evaluatorManager = CreateEvaluatorManager(2, 1);
+            evaluatorManager.AddAllocatedEvaluator(CreateMockAllocatedEvaluator(1, EvaluatorManager.MasterBatchId + _masterBatchIdSquenceNumber++));
+            evaluatorManager.AddAllocatedEvaluator(CreateMockAllocatedEvaluator(2, EvaluatorManager.MapperBatchId + _mapperBatchIdSquenceNumber++));
+            Action add = () => evaluatorManager.AddAllocatedEvaluator(CreateMockAllocatedEvaluator(3, EvaluatorManager.MapperBatchId + _mapperBatchIdSquenceNumber++));
             Assert.Throws<IMRUSystemException>(add);
         }
 
@@ -113,14 +113,14 @@ namespace Org.Apache.REEF.IMRU.Tests
         [Fact]
         public void TestResetFailedEvaluators()
         {
-            var evalutorManager = CreateTestEvaluators(3, 1);
-            evalutorManager.RecordFailedEvaluator(EvaluatorIdPrefix + 1);
-            evalutorManager.RecordFailedEvaluator(EvaluatorIdPrefix + 2);
-            Assert.Equal(2, evalutorManager.NumberOfMissingEvaluators());
-            evalutorManager.ResetFailedEvaluators();
-            Assert.Equal(0, evalutorManager.NumberofFailedMappers());
-            Assert.False(evalutorManager.IsMasterEvaluatorId(EvaluatorIdPrefix + 1));
-            Assert.False(evalutorManager.IsMasterEvaluatorFailed());
+            var evaluatorManager = CreateTestEvaluators(3, 1);
+            evaluatorManager.RecordFailedEvaluator(EvaluatorIdPrefix + 1);
+            evaluatorManager.RecordFailedEvaluator(EvaluatorIdPrefix + 2);
+            Assert.Equal(2, evaluatorManager.NumberOfMissingEvaluators());
+            evaluatorManager.ResetFailedEvaluators();
+            Assert.Equal(0, evaluatorManager.NumberofFailedMappers());
+            Assert.False(evaluatorManager.IsMasterEvaluatorId(EvaluatorIdPrefix + 1));
+            Assert.False(evaluatorManager.IsMasterEvaluatorFailed());
         }
 
         /// <summary>
@@ -129,10 +129,10 @@ namespace Org.Apache.REEF.IMRU.Tests
         [Fact]
         public void TestReachedMaximumNumberOfEvaluatorFailures()
         {
-            var evalutorManager = CreateTestEvaluators(3, 1);
-            evalutorManager.RecordFailedEvaluator(EvaluatorIdPrefix + 1);
-            evalutorManager.RecordFailedEvaluator(EvaluatorIdPrefix + 2);
-            Assert.True(evalutorManager.ReachedMaximumNumberOfEvaluatorFailures());
+            var evaluatorManager = CreateTestEvaluators(3, 1);
+            evaluatorManager.RecordFailedEvaluator(EvaluatorIdPrefix + 1);
+            evaluatorManager.RecordFailedEvaluator(EvaluatorIdPrefix + 2);
+            Assert.True(evaluatorManager.ExceededMaximumNumberOfEvaluatorFailures());
         }
 
         /// <summary>

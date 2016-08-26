@@ -369,7 +369,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         }
 
         /// <summary>
-        /// Gets error type based on the exception type in IFailedTask 
+        /// Gets error type (encoded as TaskStateEvent) based on the exception type in IFailedTask.
         /// For unknown exceptions or exceptions that doesn't belong to defined IMRU task exceptions
         /// treat then as application error.
         /// </summary>
@@ -417,28 +417,24 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
             // special case for communication error during group communication initialization
             if (exception is TaskClientCodeException)
             {
+                // try extract cause and check whether it is InjectionException for GroupCommClient
+                if (exception.InnerException != null &&
+                    exception.InnerException is InjectionException &&
+                    exception.InnerException.Message.Contains("GroupCommClient"))
                 {
-                    // try extract cause and check whether it is InjectionException for GroupCommClient
-                    if (exception.InnerException != null &&
-                        exception.InnerException is InjectionException &&
-                        exception.InnerException.Message.Contains("GroupCommClient"))
-                    {
-                        Logger.Log(Level.Info, "GetTaskErrorEventByExceptionType:FailedTaskCommunicationError with task id {0}", failedTask.Id);
-                        return TaskStateEvent.FailedTaskCommunicationError;
-                    }
+                    Logger.Log(Level.Info, "GetTaskErrorEventByExceptionType:FailedTaskCommunicationError with task id {0}", failedTask.Id);
+                    return TaskStateEvent.FailedTaskCommunicationError;
                 }
             }
 
             if (exception is AggregateException)
             {
+                // try extract cause and check whether it is InjectionException for GroupCommClient
+                if (exception.InnerException != null &&
+                    exception.InnerException is IOException)
                 {
-                    // try extract cause and check whether it is InjectionException for GroupCommClient
-                    if (exception.InnerException != null &&
-                        exception.InnerException is IOException)
-                    {
-                        Logger.Log(Level.Info, "GetTaskErrorEventByExceptionType:AggregateException-IOException with task id {0}", failedTask.Id);
-                        return TaskStateEvent.FailedTaskCommunicationError;
-                    }
+                    Logger.Log(Level.Info, "GetTaskErrorEventByExceptionType:AggregateException-IOException with task id {0}", failedTask.Id);
+                    return TaskStateEvent.FailedTaskCommunicationError;
                 }
             }
 

@@ -16,8 +16,6 @@
 // under the License.
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using Org.Apache.REEF.Common.Tasks;
 using Org.Apache.REEF.IMRU.API;
 using Org.Apache.REEF.IMRU.Examples.PipelinedBroadcastReduce;
@@ -229,7 +227,7 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
                     else
                     {
                         // simulate task failure
-                        throw new ArgumentNullException();
+                        throw new ArgumentNullException("Simulating task failure");
                     }
                 }
             }

@@ -58,7 +58,7 @@ namespace Org.Apache.REEF.IMRU.Examples
             mapperCountExample.Run(numNodes - 1, filename, fileSystemConfig);
         }
 
-        public static void RunBroadcastReduceTest(IConfiguration tcpPortConfig, bool runOnYarn, int numNodes, bool failtTolerant, string[] args, params string[] runtimeDir)
+        public static void RunBroadcastReduceTest(IConfiguration tcpPortConfig, bool runOnYarn, int numNodes, bool faultTolerant, string[] args, params string[] runtimeDir)
         {
             int chunkSize = 2;
             int dims = 10;
@@ -111,9 +111,9 @@ namespace Org.Apache.REEF.IMRU.Examples
                     .NewInjector(OnREEFIMRURunTimeConfiguration<int[], int[], int[]>.GetYarnIMRUConfiguration(), tcpPortConfig);
             }
 
-            if (failtTolerant)
+            if (faultTolerant)
             {
-                var broadcastReduceFtExample = injector.GetInstance<PipelinedBroadcastAndReduceFaultTolerant>();
+                var broadcastReduceFtExample = injector.GetInstance<FaultTolerantPipelinedBroadcastAndReduce>();
                 broadcastReduceFtExample.Run(numNodes - 1, chunkSize, iterations, dims, mapperMemory, updateTaskMemory, maxRetryNumberInRecovery);
             }
             else

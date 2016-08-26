@@ -119,7 +119,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         /// <summary>
         /// It records the number of retry for the recoveries. 
         /// </summary>
-        private int _numberOfRetriesForFaultTolerant = 0;
+        private int _numberOfRetries;
 
         private const int DefaultMaxNumberOfRetryInRecovery = 3; 
 
@@ -144,7 +144,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
             _perMapperConfigs = perMapperConfigs;
             _totalMappers = dataSet.Count;
             _invokeGC = invokeGC;
-            _maxRetryNumberForFaultTolerant = maxRetryNumberInRecovery != 0 ? maxRetryNumberInRecovery : DefaultMaxNumberOfRetryInRecovery;
+            _maxRetryNumberForFaultTolerant = maxRetryNumberInRecovery > 0 ? maxRetryNumberInRecovery : DefaultMaxNumberOfRetryInRecovery;
 
             _contextManager = new ActiveContextManager(_totalMappers + 1);
             _contextManager.Subscribe(this);
@@ -350,13 +350,13 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         {
             if (_isFirstTry)
             {
-                _groupCommDriver.MasterTaskId = _groupCommDriver.MasterTaskId + "-" + _numberOfRetriesForFaultTolerant;
+                _groupCommDriver.MasterTaskId = _groupCommDriver.MasterTaskId + "-" + _numberOfRetries;
             }
             else
             {
                 _groupCommDriver.MasterTaskId =
                     _groupCommDriver.MasterTaskId.Substring(0, _groupCommDriver.MasterTaskId.Length - 1) +
-                    _numberOfRetriesForFaultTolerant;
+                    _numberOfRetries;
             }
         }
         #endregion submit tasks
@@ -374,7 +374,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         /// <param name="runningTask"></param>
         public void OnNext(IRunningTask runningTask)
         {
-            Logger.Log(Level.Info, "Received IRunningTask {0} from endpoint {1} at SystemState {2} retry # {3}.", runningTask.Id, GetEndPointFromTaskId(runningTask.Id), _systemState.CurrentState, _numberOfRetriesForFaultTolerant);
+            Logger.Log(Level.Info, "Received IRunningTask {0} from endpoint {1} at SystemState {2} retry # {3}.", runningTask.Id, GetEndPointFromTaskId(runningTask.Id), _systemState.CurrentState, _numberOfRetries);
             lock (_lock)
             {
                 using (Logger.LogFunction("IMRUDriver::IRunningTask"))
@@ -418,7 +418,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         /// <param name="completedTask">The link to the completed task</param>
         public void OnNext(ICompletedTask completedTask)
         {
-            Logger.Log(Level.Info, "Received ICompletedTask {0}, with systemState {1} in retry# {2}.", completedTask.Id, _systemState.CurrentState, _numberOfRetriesForFaultTolerant);
+            Logger.Log(Level.Info, "Received ICompletedTask {0}, with systemState {1} in retry# {2}.", completedTask.Id, _systemState.CurrentState, _numberOfRetries);
             lock (_lock)
             {
                 switch (_systemState.CurrentState)
@@ -478,7 +478,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
                    ? GetEndPointFromContext(failedEvaluator.FailedContexts.First())
                    : "unknown_endpoint";
 
-            Logger.Log(Level.Warning, "Received IFailedEvaluator {0} from endpoint {1} with systemState {2} in retry# {3} with Exception: {4}.", failedEvaluator.Id, endpoint, _systemState.CurrentState, _numberOfRetriesForFaultTolerant, failedEvaluator.EvaluatorException);
+            Logger.Log(Level.Warning, "Received IFailedEvaluator {0} from endpoint {1} with systemState {2} in retry# {3} with Exception: {4}.", failedEvaluator.Id, endpoint, _systemState.CurrentState, _numberOfRetries, failedEvaluator.EvaluatorException);
 
             lock (_lock)
             {
@@ -499,7 +499,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
                     switch (_systemState.CurrentState)
                     {
                         case SystemState.WaitingForEvaluator:
-                            if (!_evaluatorManager.ReachedMaximumNumberOfEvaluatorFailures())
+                            if (!_evaluatorManager.ExceededMaximumNumberOfEvaluatorFailures())
                             {
                                 if (isMaster)
                                 {
@@ -607,7 +607,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         /// <param name="failedTask"></param>
         public void OnNext(IFailedTask failedTask)
         {
-            Logger.Log(Level.Warning, "Received IFailedTask with Id: {0} and message: {1} from endpoint {2} with systemState {3} in retry#: {4}.", failedTask.Id, failedTask.Message, GetEndPointFromContext(failedTask.GetActiveContext()), _systemState.CurrentState, _numberOfRetriesForFaultTolerant);
+            Logger.Log(Level.Warning, "Received IFailedTask with Id: {0} and message: {1} from endpoint {2} with systemState {3} in retry#: {4}.", failedTask.Id, failedTask.Message, GetEndPointFromContext(failedTask.GetActiveContext()), _systemState.CurrentState, _numberOfRetries);
             lock (_lock)
             {
                 using (Logger.LogFunction("IMRUDriver::IFailedTask"))
@@ -690,7 +690,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
             return string.Format("{0}-{1}-{2}",
                 IMRUConstants.MapTaskPrefix,
                 _serviceAndContextConfigurationProvider.GetPartitionIdByEvaluatorId(evaluatorId),
-                _numberOfRetriesForFaultTolerant);
+                _numberOfRetries);
         }
 
         /// <summary>
@@ -699,7 +699,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         private void DoneAction()
         {
             ShutDownAllEvaluators();
-            Logger.Log(Level.Info, "DoneAction done in retry {0}!!!", _numberOfRetriesForFaultTolerant);
+            Logger.Log(Level.Info, "DoneAction done in retry {0}!!!", _numberOfRetries);
         }
 
         /// <summary>
@@ -710,7 +710,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
             ShutDownAllEvaluators();
             var msg = string.Format(CultureInfo.InvariantCulture,
                 "The system cannot be recovered after {0} retries. NumberofFailedMappers in the last try is {1}.",
-                _numberOfRetriesForFaultTolerant, _evaluatorManager.NumberofFailedMappers());
+                _numberOfRetries, _evaluatorManager.NumberofFailedMappers());
             Exceptions.Throw(new ApplicationException(msg), Logger);
         }
 
@@ -735,10 +735,10 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         {
             lock (_lock)
             {
-                _numberOfRetriesForFaultTolerant++;
+                _numberOfRetries++;
                 var msg = string.Format(CultureInfo.InvariantCulture,
                     "Start recovery with _numberOfRetryForFaultTolerant {0}, NumberofFailedMappers {1}.",
-                    _numberOfRetriesForFaultTolerant,
+                    _numberOfRetries,
                     _evaluatorManager.NumberofFailedMappers());
                 Logger.Log(Level.Info, msg);
 
@@ -775,7 +775,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         {
             var msg = string.Format(CultureInfo.InvariantCulture,
                 "IsRecoverable: _numberOfRetryForFaultTolerant {0}, NumberofFailedMappers {1}, NumberOfAppErrors {2}, IsMasterEvaluatorFailed {3} AllowedNumberOfEvaluatorFailures {4}, _maxRetryNumberForFaultTolerant {5}.",
-                _numberOfRetriesForFaultTolerant,
+                _numberOfRetries,
                 _evaluatorManager.NumberofFailedMappers(),
                 _taskManager.NumberOfAppErrors(),
                 _evaluatorManager.IsMasterEvaluatorFailed(),
@@ -783,10 +783,10 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
                 _maxRetryNumberForFaultTolerant);
             Logger.Log(Level.Info, msg);
 
-            return !_evaluatorManager.ReachedMaximumNumberOfEvaluatorFailures()
+            return !_evaluatorManager.ExceededMaximumNumberOfEvaluatorFailures()
                 && _taskManager.NumberOfAppErrors() == 0
                 && !_evaluatorManager.IsMasterEvaluatorFailed()
-                && _numberOfRetriesForFaultTolerant < _maxRetryNumberForFaultTolerant;
+                && _numberOfRetries < _maxRetryNumberForFaultTolerant;
         }
 
         /// <summary>

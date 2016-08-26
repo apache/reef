@@ -186,7 +186,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.IMRUTasks
                 else
                 {
                     Logger.Log(Level.Error,
-                       "MapTask is throwing Excetion {0}, messge {1} with cancellation token: {2} and StackTrace {3}.",
+                       "MapTask is throwing Exception {0}, message {1} with cancellation token: {2} and StackTrace {3}.",
                        e.GetType(),
                        e.Message,
                        _cancellationSource.IsCancellationRequested,

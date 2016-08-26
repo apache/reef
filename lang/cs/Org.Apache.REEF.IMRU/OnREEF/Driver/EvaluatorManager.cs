@@ -224,7 +224,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         {
             if (!_failedEvaluatorIds.Contains(evaluatorId))
             {
-                string msg = string.Format("The failed evaluator {0} is not recorded.", evaluatorId);
+                string msg = string.Format("The failed evaluator {0} is not recorded in list of failed evaluators.", evaluatorId);
                 Exceptions.Throw(new IMRUSystemException(msg), Logger);
             }
             _failedEvaluatorIds.Remove(evaluatorId);
@@ -233,7 +233,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         /// <summary>
         /// Checks if the number of failed Evaluators has reached allowed maximum number of evaluator failures 
         /// </summary>
-        internal bool ReachedMaximumNumberOfEvaluatorFailures()
+        internal bool ExceededMaximumNumberOfEvaluatorFailures()
         {
             return _failedEvaluatorIds.Count > AllowedNumberOfEvaluatorFailures;
         }
