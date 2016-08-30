@@ -19,6 +19,7 @@ using System;
 using Org.Apache.REEF.Common.Tasks;
 using Org.Apache.REEF.IMRU.API;
 using Org.Apache.REEF.IMRU.Examples.PipelinedBroadcastReduce;
+using FailureType = Org.Apache.REEF.IMRU.Examples.PipelinedBroadcastReduce.FaultTolerantPipelinedBroadcastAndReduce.FailureType;
 using Org.Apache.REEF.IMRU.OnREEF.Driver;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Tang.Implementations.Tang;
@@ -63,6 +64,10 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
             var runningTaskCount = GetMessageCount(lines, RunningTaskMessage);
             var failedEvaluatorCount = GetMessageCount(lines, FailedEvaluatorMessage);
             var failedTaskCount = GetMessageCount(lines, FailedTaskMessage);
+
+            // there should be one try with each task either completing or disappearing with failed evaluator
+            // no task failures
+            // and on this try all tasks should start successfully
             Assert.Equal(numTasks, completedTaskCount + failedEvaluatorCount);
             Assert.Equal(0, failedTaskCount);
             Assert.Equal(numTasks, runningTaskCount);
@@ -131,13 +136,8 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
                 .Build();
 
             return TangFactory.GetTang().NewConfigurationBuilder(c)
-                .BindIntNamedParam<FailureType>("0")
+                .BindIntNamedParam<FailureType>(FailureType.EvaluatorFailureDuringTaskExecution.ToString())
                 .Build();
-        }
-
-        [NamedParameter]
-        protected class FailureType : Name<int>
-        {
         }
 
         internal sealed class TestUpdateFunction : IUpdateFunction<int[], int[], int[]>
@@ -166,7 +166,7 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
                 _taskId = taskId;
                 _failureType = failureType;
                 Logger.Log(Level.Info, "TestUpdateFunction: TaskId: {0}", _taskId);
-                Logger.Log(Level.Info, "Failure type: {0} failure", _failureType == 0 ? "evaluator" : "task");
+                Logger.Log(Level.Info, "Failure type: {0} failure", FailureType.IsEvaluatorFailure(_failureType) ? "evaluator" : "task");
             }
 
             /// <summary>
@@ -217,9 +217,9 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
                 if (_iterations == 10 && !_taskId.EndsWith("-" + NumberOfRetry))
                 { 
                     Logger.Log(Level.Warning, "Simulating {0} failure for taskId {1}",
-                        _failureType == 0 ? "evaluator" : "task",
+                        FailureType.IsEvaluatorFailure(_failureType) ? "evaluator" : "task",
                         _taskId);
-                    if (_failureType == 0)
+                    if (FailureType.IsEvaluatorFailure(_failureType))
                     {
                         // simulate evaluator failure
                         Environment.Exit(1);

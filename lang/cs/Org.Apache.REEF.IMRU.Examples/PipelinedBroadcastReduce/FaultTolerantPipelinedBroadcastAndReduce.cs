@@ -58,20 +58,20 @@ namespace Org.Apache.REEF.IMRU.Examples.PipelinedBroadcastReduce
             var c2 = TangFactory.GetTang().NewConfigurationBuilder()
                 .BindSetEntry<TaskIdsToFail, string>(GenericType<TaskIdsToFail>.Class, "IMRUMap-RandomInputPartition-2-")
                 .BindSetEntry<TaskIdsToFail, string>(GenericType<TaskIdsToFail>.Class, "IMRUMap-RandomInputPartition-3-")
-                .BindIntNamedParam<FailureType>("0")
+                .BindIntNamedParam<FailureType>(FailureType.EvaluatorFailureDuringTaskExecution.ToString())
                 .BindNamedParameter(typeof(MaxRetryNumberInRecovery), maxRetryInRecovery.ToString())
                 .Build();
 
             return Configurations.Merge(c1, c2);
         }
 
-        [NamedParameter]
-        internal class TaskIdsToFail : Name<ISet<string>>
+        [NamedParameter(Documentation = "Set of task ids which will produce task/evaluator failure")]
+        public class TaskIdsToFail : Name<ISet<string>>
         {
         }
 
         [NamedParameter(Documentation = "Type of failure to simulate")]
-        internal class FailureType : Name<int>
+        public class FailureType : Name<int>
         {
             internal static readonly int EvaluatorFailureDuringTaskExecution = 0;
             internal static readonly int TaskFailureDuringTaskExecution = 1;
@@ -86,9 +86,9 @@ namespace Org.Apache.REEF.IMRU.Examples.PipelinedBroadcastReduce
         }
 
         /// <summary>
-        /// The function is to simulate Evaluator/Task failure
+        /// The function is to simulate Evaluator/Task failure for mapper evaluator
         /// </summary>
-        internal sealed class TestSenderMapFunction : IMapFunction<int[], int[]>
+        public sealed class TestSenderMapFunction : IMapFunction<int[], int[]>
         {
             private int _iterations;
             private readonly string _taskId;
@@ -161,7 +161,7 @@ namespace Org.Apache.REEF.IMRU.Examples.PipelinedBroadcastReduce
                     else
                     {
                         // simulate task failure
-                        throw new ArgumentNullException();
+                        throw new ArgumentNullException("Simulating task failure");
                     }
                 }
             }
