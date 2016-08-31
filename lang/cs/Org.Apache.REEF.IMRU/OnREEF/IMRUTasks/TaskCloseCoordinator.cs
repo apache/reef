@@ -15,12 +15,9 @@
 // specific language governing permissions and limitations
 // under the License.
 
-using System;
 using System.Text;
 using System.Threading;
 using Org.Apache.REEF.Common.Tasks.Events;
-using Org.Apache.REEF.IMRU.OnREEF.Driver;
-using Org.Apache.REEF.IMRU.OnREEF.Parameters;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Utilities.Attributes;
 using Org.Apache.REEF.Utilities.Logging;

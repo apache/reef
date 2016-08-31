@@ -19,7 +19,6 @@ using System;
 using System.IO;
 using System.Net.Sockets;
 using System.Runtime.Remoting;
-using System.Text;
 using System.Threading;
 using Org.Apache.REEF.Common.Tasks;
 using Org.Apache.REEF.Common.Tasks.Events;

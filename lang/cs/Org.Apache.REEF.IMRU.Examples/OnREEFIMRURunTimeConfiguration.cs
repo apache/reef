@@ -16,17 +16,12 @@
 // under the License.
 
 using System.Globalization;
-using System.IO;
 using Org.Apache.REEF.Client.Local;
 using Org.Apache.REEF.Client.Yarn;
-using Org.Apache.REEF.Client.Yarn.RestClient;
 using Org.Apache.REEF.IMRU.OnREEF.Client;
-using Org.Apache.REEF.IO.FileSystem.Hadoop;
 using Org.Apache.REEF.Network;
 using Org.Apache.REEF.Tang.Implementations.Configuration;
-using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Tang.Interface;
-using Org.Apache.REEF.Tang.Util;
 
 namespace Org.Apache.REEF.IMRU.Examples
 {
