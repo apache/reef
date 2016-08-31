@@ -64,7 +64,7 @@ namespace Org.Apache.REEF.Utilities.Logging
             if (TraceListeners.Count == 0)
             {
                 // before customized listener is added, we would need to log to console
-                _traceSource.Listeners.Add(new ConsoleTraceListener());
+                _traceSource.Listeners.Add(new TextWriterTraceListener(Console.Out));
             }
             else
             {
