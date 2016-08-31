@@ -41,6 +41,7 @@ import java.util.logging.Logger;
 @Private
 @DriverSide
 final class DriverRuntimeStopHandler implements EventHandler<RuntimeStop> {
+
   private static final Logger LOG = Logger.getLogger(DriverRuntimeStopHandler.class.getName());
 
   private final DriverStatusManager driverStatusManager;
@@ -50,12 +51,13 @@ final class DriverRuntimeStopHandler implements EventHandler<RuntimeStop> {
   private final boolean preserveEvaluatorsAcrossRestarts;
 
   @Inject
-  DriverRuntimeStopHandler(final DriverStatusManager driverStatusManager,
-                           final ResourceManagerStopHandler resourceManagerStopHandler,
-                           final RemoteManager remoteManager,
-                           final Evaluators evaluators,
-                           @Parameter(ResourceManagerPreserveEvaluators.class)
-                           final boolean preserveEvaluatorsAcrossRestarts) {
+  DriverRuntimeStopHandler(
+      final DriverStatusManager driverStatusManager,
+      final ResourceManagerStopHandler resourceManagerStopHandler,
+      final RemoteManager remoteManager,
+      final Evaluators evaluators,
+      @Parameter(ResourceManagerPreserveEvaluators.class) final boolean preserveEvaluatorsAcrossRestarts) {
+
     this.driverStatusManager = driverStatusManager;
     this.resourceManagerStopHandler = resourceManagerStopHandler;
     this.remoteManager = remoteManager;
@@ -65,25 +67,30 @@ final class DriverRuntimeStopHandler implements EventHandler<RuntimeStop> {
 
   @Override
   public synchronized void onNext(final RuntimeStop runtimeStop) {
+
     LOG.log(Level.FINEST, "RuntimeStop: {0}", runtimeStop);
+
+    final Throwable runtimeException = runtimeStop.getException();
 
     // Shut down evaluators if there are no exceptions, the driver is forcefully
     // shut down by a non-recoverable exception, or restart is not enabled.
-    if (runtimeStop.getException() == null ||
-        runtimeStop.getException() instanceof DriverFatalRuntimeException ||
+    if (runtimeException == null ||
+        runtimeException instanceof DriverFatalRuntimeException ||
         !this.preserveEvaluatorsAcrossRestarts) {
       this.evaluators.close();
     }
 
     this.resourceManagerStopHandler.onNext(runtimeStop);
+
     // Inform the client of the shutdown.
-    final Optional<Throwable> exception = Optional.<Throwable>ofNullable(runtimeStop.getException());
-    this.driverStatusManager.sendJobEndingMessageToClient(exception);
+    this.driverStatusManager.onRuntimeStop(Optional.ofNullable(runtimeException));
+
     // Close the remoteManager.
     try {
       this.remoteManager.close();
       LOG.log(Level.INFO, "Driver shutdown complete");
     } catch (final Exception e) {
+      LOG.log(Level.WARNING, "Error when closing the RemoteManager", e);
       throw new RuntimeException("Unable to close the RemoteManager.", e);
     }
   }

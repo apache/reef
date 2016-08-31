@@ -45,7 +45,6 @@ import org.apache.reef.runtime.yarn.driver.parameters.YarnHeartbeatPeriod;
 import org.apache.reef.tang.InjectionFuture;
 import org.apache.reef.tang.annotations.Parameter;
 import org.apache.reef.util.Optional;
-import org.apache.reef.wake.remote.Encoder;
 import org.apache.reef.wake.remote.impl.ObjectSerializableCodec;
 
 import javax.inject.Inject;
@@ -65,15 +64,12 @@ final class YarnContainerManager
   private static final String RUNTIME_NAME = "YARN";
 
   private final YarnClient yarnClient = YarnClient.createYarnClient();
-
   private final Queue<AMRMClient.ContainerRequest> requestsBeforeSentToRM = new ConcurrentLinkedQueue<>();
-
   private final Queue<AMRMClient.ContainerRequest> requestsAfterSentToRM = new ConcurrentLinkedQueue<>();
-
   private final Map<String, String> nodeIdToRackName = new ConcurrentHashMap<>();
 
   private final YarnConfiguration yarnConf;
-  private final AMRMClientAsync resourceManager;
+  private final AMRMClientAsync<AMRMClient.ContainerRequest> resourceManager;
   private final NMClientAsync nodeManager;
   private final REEFEventHandlers reefEventHandlers;
   private final Containers containers;
@@ -87,19 +83,20 @@ final class YarnContainerManager
   private final InjectionFuture<ProgressProvider> progressProvider;
 
   @Inject
-  YarnContainerManager(
-      final YarnConfiguration yarnConf,
+  private YarnContainerManager(
       @Parameter(YarnHeartbeatPeriod.class) final int yarnRMHeartbeatPeriod,
+      @Parameter(JobSubmissionDirectory.class) final String jobSubmissionDirectory,
+      final YarnConfiguration yarnConf,
       final REEFEventHandlers reefEventHandlers,
       final Containers containers,
       final ApplicationMasterRegistration registration,
       final ContainerRequestCounter containerRequestCounter,
       final DriverStatusManager driverStatusManager,
       final REEFFileNames reefFileNames,
-      @Parameter(JobSubmissionDirectory.class) final String jobSubmissionDirectory,
       final TrackingURLProvider trackingURLProvider,
       final RackNameFormatter rackNameFormatter,
       final InjectionFuture<ProgressProvider> progressProvider) throws IOException {
+
     this.reefEventHandlers = reefEventHandlers;
     this.driverStatusManager = driverStatusManager;
 
@@ -110,43 +107,56 @@ final class YarnContainerManager
     this.trackingURLProvider = trackingURLProvider;
     this.rackNameFormatter = rackNameFormatter;
 
-
     this.yarnClient.init(this.yarnConf);
 
     this.resourceManager = AMRMClientAsync.createAMRMClientAsync(yarnRMHeartbeatPeriod, this);
     this.nodeManager = new NMClientAsyncImpl(this);
+
     this.jobSubmissionDirectory = jobSubmissionDirectory;
     this.reefFileNames = reefFileNames;
     this.progressProvider = progressProvider;
+
     LOG.log(Level.FINEST, "Instantiated YarnContainerManager");
   }
 
-
+  /**
+   * RM Callback: RM reports some completed containers. Update status of each container in the list.
+   * @param completedContainers list of completed containers.
+   */
   @Override
-  public void onContainersCompleted(final List<ContainerStatus> containerStatuses) {
-    for (final ContainerStatus containerStatus : containerStatuses) {
-      onContainerStatus(containerStatus);
+  public void onContainersCompleted(final List<ContainerStatus> completedContainers) {
+    for (final ContainerStatus containerStatus : completedContainers) {
+      this.onContainerStatus(containerStatus);
     }
   }
 
+  /**
+   * RM Callback: RM reports that some containers have been allocated.
+   * @param allocatedContainers list of containers newly allocated by RM.
+   */
   @Override
-  @SuppressWarnings("checkstyle:hiddenfield")
-  public void onContainersAllocated(final List<Container> containers) {
+  public void onContainersAllocated(final List<Container> allocatedContainers) {
 
-    // ID is used for logging only
-    final String id = String.format("%s:%d",
-        Thread.currentThread().getName().replace(' ', '_'), System.currentTimeMillis());
+    String id = null; // ID is used for logging only
 
-    LOG.log(Level.FINE, "TIME: Allocated Containers {0} {1} of {2}",
-        new Object[]{id, containers.size(), this.containerRequestCounter.get()});
+    if (LOG.isLoggable(Level.FINE)) {
 
-    for (final Container container : containers) {
-      handleNewContainer(container);
+      id = String.format("%s:%d", Thread.currentThread().getName().replace(' ', '_'), System.currentTimeMillis());
+
+      LOG.log(Level.FINE, "TIME: Allocated Containers {0} {1} of {2}",
+          new Object[] {id, allocatedContainers.size(), this.containerRequestCounter.get()});
+    }
+
+    for (final Container container : allocatedContainers) {
+      this.handleNewContainer(container);
     }
 
     LOG.log(Level.FINE, "TIME: Processed Containers {0}", id);
   }
 
+  /**
+   * RM Callback: RM requests application shutdown.
+   */
   @Override
   public void onShutdownRequest() {
     this.reefEventHandlers.onRuntimeStatus(RuntimeStatusEventImpl.newBuilder()
@@ -154,14 +164,23 @@ final class YarnContainerManager
     this.driverStatusManager.onError(new Exception("Shutdown requested by YARN."));
   }
 
+  /**
+   * RM Callback: RM reports status change of some nodes.
+   * @param nodeReports list of nodes with changed status.
+   */
   @Override
   public void onNodesUpdated(final List<NodeReport> nodeReports) {
     for (final NodeReport nodeReport : nodeReports) {
       this.nodeIdToRackName.put(nodeReport.getNodeId().toString(), nodeReport.getRackName());
-      onNodeReport(nodeReport);
+      this.onNodeReport(nodeReport);
     }
   }
 
+  /**
+   * RM Callback: Report application progress to RM.
+   * Progress is a floating point number between 0 and 1.
+   * @return a floating point number between 0 and 1.
+   */
   @Override
   public float getProgress() {
     try {
@@ -174,52 +193,81 @@ final class YarnContainerManager
     }
   }
 
+  /**
+   * RM Callback: RM reports an error.
+   * @param throwable An exception thrown from RM.
+   */
   @Override
   public void onError(final Throwable throwable) {
-    onRuntimeError(throwable);
+    this.onRuntimeError(throwable);
   }
 
+  /**
+   * NM Callback: NM accepts the starting container request.
+   * @param containerId ID of a new container being started.
+   * @param stringByteBufferMap a Map between the auxiliary service names and their outputs. Not used.
+   */
   @Override
-  public void onContainerStarted(
-      final ContainerId containerId, final Map<String, ByteBuffer> stringByteBufferMap) {
+  public void onContainerStarted(final ContainerId containerId, final Map<String, ByteBuffer> stringByteBufferMap) {
     final Optional<Container> container = this.containers.getOptional(containerId.toString());
     if (container.isPresent()) {
       this.nodeManager.getContainerStatusAsync(containerId, container.get().getNodeId());
     }
   }
 
+  /**
+   * NM Callback: NM reports container status.
+   * @param containerId ID of a container with the status being reported.
+   * @param containerStatus YARN container status.
+   */
   @Override
-  public void onContainerStatusReceived(
-      final ContainerId containerId, final ContainerStatus containerStatus) {
+  public void onContainerStatusReceived(final ContainerId containerId, final ContainerStatus containerStatus) {
     onContainerStatus(containerStatus);
   }
 
+  /**
+   * NM Callback: NM reports stop of a container.
+   * @param containerId ID of a container stopped.
+   */
   @Override
   public void onContainerStopped(final ContainerId containerId) {
     final boolean hasContainer = this.containers.hasContainer(containerId.toString());
     if (hasContainer) {
-      final ResourceStatusEventImpl.Builder resourceStatusBuilder =
-          ResourceStatusEventImpl.newBuilder().setIdentifier(containerId.toString());
-      resourceStatusBuilder.setState(State.DONE);
-      this.reefEventHandlers.onResourceStatus(resourceStatusBuilder.build());
+      this.reefEventHandlers.onResourceStatus(
+          ResourceStatusEventImpl.newBuilder()
+             .setIdentifier(containerId.toString())
+             .setState(State.DONE)
+             .build());
     }
   }
 
+  /**
+   * NM Callback: NM reports failure on container start.
+   * @param containerId ID of a container that has failed to start.
+   * @param throwable An error that caused container to fail.
+   */
   @Override
-  public void onStartContainerError(
-      final ContainerId containerId, final Throwable throwable) {
-    handleContainerError(containerId, throwable);
+  public void onStartContainerError(final ContainerId containerId, final Throwable throwable) {
+    this.handleContainerError(containerId, throwable);
   }
 
+  /**
+   * NM Callback: NM can not obtain status of the container.
+   * @param containerId ID of a container that failed to report its status.
+   * @param throwable An error that occured when querying status of a container.
+   */
   @Override
-  public void onGetContainerStatusError(
-      final ContainerId containerId, final Throwable throwable) {
-    handleContainerError(containerId, throwable);
+  public void onGetContainerStatusError(final ContainerId containerId, final Throwable throwable) {
+    this.handleContainerError(containerId, throwable);
   }
 
+  /**
+   * NM Callback: NM fails to stop the container.
+   * @param containerId ID of the container that failed to stop.
+   * @param throwable An error that occurred when trying to stop the container.
+   */
   @Override
-  public void onStopContainerError(
-      final ContainerId containerId, final Throwable throwable) {
+  public void onStopContainerError(final ContainerId containerId, final Throwable throwable) {
     handleContainerError(containerId, throwable);
   }
 
@@ -250,11 +298,17 @@ final class YarnContainerManager
     updateRuntimeStatus();
   }
 
+  /**
+   * Start the YARN container manager.
+   * This method is called from DriverRuntimeStartHandler via YARNRuntimeStartHandler.
+   */
   void onStart() {
 
     this.yarnClient.start();
+
     this.resourceManager.init(this.yarnConf);
     this.resourceManager.start();
+
     this.nodeManager.init(this.yarnConf);
     this.nodeManager.start();
 
@@ -268,33 +322,45 @@ final class YarnContainerManager
     }
 
     try {
-      this.registration.setRegistration(this.resourceManager.registerApplicationMaster(
-          "", 0, this.trackingURLProvider.getTrackingUrl()));
-      LOG.log(Level.FINE, "YARN registration: {0}", registration);
+
+      this.registration.setRegistration(
+          this.resourceManager.registerApplicationMaster("", 0, this.trackingURLProvider.getTrackingUrl()));
+
+      LOG.log(Level.FINE, "YARN registration: {0}", this.registration);
+
       final FileSystem fs = FileSystem.get(this.yarnConf);
       final Path outputFileName = new Path(this.jobSubmissionDirectory, this.reefFileNames.getDriverHttpEndpoint());
-      final FSDataOutputStream out = fs.create(outputFileName);
-      out.writeBytes(this.trackingURLProvider.getTrackingUrl() + "\n");
-      out.flush();
-      out.close();
+
+      try (final FSDataOutputStream out = fs.create(outputFileName)) {
+        out.writeBytes(this.trackingURLProvider.getTrackingUrl() + '\n');
+      }
+
     } catch (final YarnException | IOException e) {
       LOG.log(Level.WARNING, "Unable to register application master.", e);
       onRuntimeError(e);
     }
   }
 
+  /**
+   * Shut down YARN container manager.
+   * This method is called from DriverRuntimeStopHandler via YARNRuntimeStopHandler.
+   * @param exception Exception that caused driver to stop. Can be null if there was no error.
+   */
   void onStop(final Throwable exception) {
 
     LOG.log(Level.FINE, "Stop Runtime: RM status {0}", this.resourceManager.getServiceState());
 
     if (this.resourceManager.getServiceState() == Service.STATE.STARTED) {
+
       // invariant: if RM is still running then we declare success.
       try {
+
         this.reefEventHandlers.close();
+
         if (exception == null) {
-          this.resourceManager.unregisterApplicationMaster(
-              FinalApplicationStatus.SUCCEEDED, null, null);
+          this.resourceManager.unregisterApplicationMaster(FinalApplicationStatus.SUCCEEDED, null, null);
         } else {
+
           // Note: We don't allow RM to restart our applications if it's an application level failure.
           // If applications are to be long-running, they should catch Exceptions before the REEF level
           // instead of relying on the RM restart mechanism.
@@ -302,8 +368,8 @@ final class YarnContainerManager
           // to leak to this stage.
           final String failureMsg = String.format("Application failed due to:%n%s%n" +
               "With stack trace:%n%s", exception.getMessage(), ExceptionUtils.getStackTrace(exception));
-          this.resourceManager.unregisterApplicationMaster(
-              FinalApplicationStatus.FAILED, failureMsg, null);
+
+          this.resourceManager.unregisterApplicationMaster(FinalApplicationStatus.FAILED, failureMsg, null);
         }
 
         this.resourceManager.close();
@@ -325,7 +391,9 @@ final class YarnContainerManager
   // HELPER METHODS
 
   private void onNodeReport(final NodeReport nodeReport) {
+
     LOG.log(Level.FINE, "Send node descriptor: {0}", nodeReport);
+
     this.reefEventHandlers.onNodeDescriptor(NodeDescriptorEventImpl.newBuilder()
         .setIdentifier(nodeReport.getNodeId().toString())
         .setHostName(nodeReport.getNodeId().getHost())
@@ -337,19 +405,17 @@ final class YarnContainerManager
 
   private void handleContainerError(final ContainerId containerId, final Throwable throwable) {
 
-    final ResourceStatusEventImpl.Builder resourceStatusBuilder =
-        ResourceStatusEventImpl.newBuilder().setIdentifier(containerId.toString());
-
-    resourceStatusBuilder.setState(State.FAILED);
-    resourceStatusBuilder.setExitCode(1);
-    resourceStatusBuilder.setDiagnostics(throwable.getMessage());
-    this.reefEventHandlers.onResourceStatus(resourceStatusBuilder.build());
+    this.reefEventHandlers.onResourceStatus(ResourceStatusEventImpl.newBuilder()
+        .setIdentifier(containerId.toString())
+        .setState(State.FAILED)
+        .setExitCode(1)
+        .setDiagnostics(throwable.getMessage())
+        .build());
   }
 
   /**
    * Handles container status reports. Calls come from YARN.
-   *
-   * @param value containing the container status
+   * @param value containing the container status.
    */
   private void onContainerStatus(final ContainerStatus value) {
 
@@ -387,7 +453,7 @@ final class YarnContainerManager
         status.setDiagnostics(value.getDiagnostics());
       }
 
-      // The ResourceStatusHandler should close and release the Evaluator for us if the state is a terminal state.
+      // ResourceStatusHandler should close and release the Evaluator for us if the state is a terminal state.
       this.reefEventHandlers.onResourceStatus(status.build());
     }
   }
@@ -397,7 +463,7 @@ final class YarnContainerManager
     synchronized (this) {
       this.containerRequestCounter.incrementBy(containerRequests.length);
       this.requestsBeforeSentToRM.addAll(Arrays.asList(containerRequests));
-      doHomogeneousRequests();
+      this.doHomogeneousRequests();
     }
 
     this.updateRuntimeStatus();
@@ -405,55 +471,59 @@ final class YarnContainerManager
 
   /**
    * Handles new container allocations. Calls come from YARN.
-   *
-   * @param container newly allocated
+   * @param container newly allocated YARN container.
    */
   private void handleNewContainer(final Container container) {
 
     LOG.log(Level.FINE, "allocated container: id[ {0} ]", container.getId());
+
     synchronized (this) {
-      if (matchContainerWithPendingRequest(container)) {
-        final AMRMClient.ContainerRequest matchedRequest = this.requestsAfterSentToRM.peek();
-        this.containerRequestCounter.decrement();
-        this.containers.add(container);
 
-        LOG.log(Level.FINEST, "{0} matched with {1}", new Object[]{container.toString(), matchedRequest.toString()});
-
-        // Due to the bug YARN-314 and the workings of AMRMCClientAsync, when x-priority m-capacity zero-container
-        // request and x-priority n-capacity nonzero-container request are sent together, where m > n, RM ignores
-        // the latter.
-        // Therefore it is necessary avoid sending zero-container request, even it means getting extra containers.
-        // It is okay to send nonzero m-capacity and n-capacity request together since bigger containers
-        // can be matched.
-        // TODO[JIRA REEF-42, REEF-942]: revisit this when implementing locality-strictness
-        // (i.e. a specific rack request can be ignored)
-        if (this.requestsAfterSentToRM.size() > 1) {
-          try {
-            this.resourceManager.removeContainerRequest(matchedRequest);
-          } catch (final Exception e) {
-            LOG.log(Level.WARNING, "Nothing to remove from Async AMRM client's queue, " +
-                "removal attempt failed with exception", e);
-          }
-        }
-
-        this.requestsAfterSentToRM.remove();
-        doHomogeneousRequests();
-
-        LOG.log(Level.FINEST, "Allocated Container: memory = {0}, core number = {1}",
-            new Object[]{container.getResource().getMemory(), container.getResource().getVirtualCores()});
-        this.reefEventHandlers.onResourceAllocation(ResourceEventImpl.newAllocationBuilder()
-            .setIdentifier(container.getId().toString())
-            .setNodeId(container.getNodeId().toString())
-            .setResourceMemory(container.getResource().getMemory())
-            .setVirtualCores(container.getResource().getVirtualCores())
-            .setRackName(rackNameFormatter.getRackName(container))
-            .setRuntimeName(RuntimeIdentifier.RUNTIME_NAME)
-            .build());
-        this.updateRuntimeStatus();
-      } else {
+      if (!matchContainerWithPendingRequest(container)) {
         LOG.log(Level.WARNING, "Got an extra container {0} that doesn't match, releasing...", container.getId());
         this.resourceManager.releaseAssignedContainer(container.getId());
+        return;
       }
+
+      final AMRMClient.ContainerRequest matchedRequest = this.requestsAfterSentToRM.peek();
+
+      this.containerRequestCounter.decrement();
+      this.containers.add(container);
+
+      LOG.log(Level.FINEST, "{0} matched with {1}", new Object[] {container, matchedRequest});
+
+      // Due to the bug YARN-314 and the workings of AMRMCClientAsync, when x-priority m-capacity zero-container
+      // request and x-priority n-capacity nonzero-container request are sent together, where m > n, RM ignores
+      // the latter.
+      // Therefore it is necessary avoid sending zero-container request, even if it means getting extra containers.
+      // It is okay to send nonzero m-capacity and n-capacity request together since bigger containers
+      // can be matched.
+      // TODO[JIRA REEF-42, REEF-942]: revisit this when implementing locality-strictness.
+      // (i.e. a specific rack request can be ignored)
+      if (this.requestsAfterSentToRM.size() > 1) {
+        try {
+          this.resourceManager.removeContainerRequest(matchedRequest);
+        } catch (final Exception e) {
+          LOG.log(Level.WARNING, "Error removing request from Async AMRM client queue: " + matchedRequest, e);
+        }
+      }
+
+      this.requestsAfterSentToRM.remove();
+      this.doHomogeneousRequests();
+
+      LOG.log(Level.FINEST, "Allocated Container: memory = {0}, core number = {1}",
+          new Object[] {container.getResource().getMemory(), container.getResource().getVirtualCores()});
+
+      this.reefEventHandlers.onResourceAllocation(ResourceEventImpl.newAllocationBuilder()
+          .setIdentifier(container.getId().toString())
+          .setNodeId(container.getNodeId().toString())
+          .setResourceMemory(container.getResource().getMemory())
+          .setVirtualCores(container.getResource().getVirtualCores())
+          .setRackName(rackNameFormatter.getRackName(container))
+          .setRuntimeName(RuntimeIdentifier.RUNTIME_NAME)
+          .build());
+
+      this.updateRuntimeStatus();
     }
   }
 
@@ -484,15 +554,19 @@ final class YarnContainerManager
    * up the allocation and in placing containers on other machines.
    */
   private boolean matchContainerWithPendingRequest(final Container container) {
+
     if (this.requestsAfterSentToRM.isEmpty()) {
       return false;
     }
 
     final AMRMClient.ContainerRequest request = this.requestsAfterSentToRM.peek();
+
     final boolean resourceCondition = container.getResource().getMemory() >= request.getCapability().getMemory();
+
     // TODO[JIRA REEF-35]: check vcores once YARN-2380 is resolved
     final boolean nodeCondition = request.getNodes() == null
         || request.getNodes().contains(container.getNodeId().getHost());
+
     final boolean rackCondition = request.getRacks() == null
         || request.getRacks().contains(this.nodeIdToRackName.get(container.getNodeId().toString()));
 
@@ -504,11 +578,10 @@ final class YarnContainerManager
    */
   private void updateRuntimeStatus() {
 
-    final RuntimeStatusEventImpl.Builder builder =
-        RuntimeStatusEventImpl.newBuilder()
-            .setName(RUNTIME_NAME)
-            .setState(State.RUNNING)
-            .setOutstandingContainerRequests(this.containerRequestCounter.get());
+    final RuntimeStatusEventImpl.Builder builder = RuntimeStatusEventImpl.newBuilder()
+        .setName(RUNTIME_NAME)
+        .setState(State.RUNNING)
+        .setOutstandingContainerRequests(this.containerRequestCounter.get());
 
     for (final String allocatedContainerId : this.containers.getContainerIds()) {
       builder.addContainerAllocation(allocatedContainerId);
@@ -522,26 +595,25 @@ final class YarnContainerManager
     // SHUTDOWN YARN
     try {
       this.reefEventHandlers.close();
-      this.resourceManager.unregisterApplicationMaster(
-          FinalApplicationStatus.FAILED, throwable.getMessage(), null);
+      this.resourceManager.unregisterApplicationMaster(FinalApplicationStatus.FAILED, throwable.getMessage(), null);
     } catch (final Exception e) {
       LOG.log(Level.WARNING, "Error shutting down YARN application", e);
     } finally {
       this.resourceManager.stop();
     }
 
-    final RuntimeStatusEventImpl.Builder runtimeStatusBuilder = RuntimeStatusEventImpl.newBuilder()
-        .setState(State.FAILED)
-        .setName(RUNTIME_NAME);
+    final ReefServiceProtos.RuntimeErrorProto runtimeError =
+        ReefServiceProtos.RuntimeErrorProto.newBuilder()
+            .setName(RUNTIME_NAME)
+            .setMessage(throwable.getMessage())
+            .setException(ByteString.copyFrom(new ObjectSerializableCodec<>().encode(throwable)))
+            .build();
 
-    final Encoder<Throwable> codec = new ObjectSerializableCodec<>();
-    runtimeStatusBuilder.setError(ReefServiceProtos.RuntimeErrorProto.newBuilder()
-        .setName(RUNTIME_NAME)
-        .setMessage(throwable.getMessage())
-        .setException(ByteString.copyFrom(codec.encode(throwable)))
-        .build())
-        .build();
-
-    this.reefEventHandlers.onRuntimeStatus(runtimeStatusBuilder.build());
+    this.reefEventHandlers.onRuntimeStatus(
+        RuntimeStatusEventImpl.newBuilder()
+            .setState(State.FAILED)
+            .setName(RUNTIME_NAME)
+            .setError(runtimeError)
+            .build());
   }
 }

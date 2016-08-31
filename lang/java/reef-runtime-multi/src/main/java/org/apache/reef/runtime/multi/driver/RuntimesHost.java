@@ -21,10 +21,6 @@ package org.apache.reef.runtime.multi.driver;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.Validate;
 import org.apache.reef.runtime.common.driver.api.*;
-import org.apache.reef.runtime.common.driver.resourcemanager.NodeDescriptorEvent;
-import org.apache.reef.runtime.common.driver.resourcemanager.ResourceAllocationEvent;
-import org.apache.reef.runtime.common.driver.resourcemanager.ResourceStatusEvent;
-import org.apache.reef.runtime.common.driver.resourcemanager.RuntimeStatusEvent;
 import org.apache.reef.runtime.multi.client.parameters.SerializedRuntimeDefinition;
 import org.apache.reef.runtime.multi.driver.parameters.RuntimeName;
 import org.apache.reef.runtime.multi.utils.MultiRuntimeDefinitionSerializer;
@@ -32,8 +28,8 @@ import org.apache.reef.runtime.multi.utils.avro.AvroMultiRuntimeDefinition;
 import org.apache.reef.runtime.multi.utils.avro.AvroRuntimeDefinition;
 import org.apache.reef.tang.Configuration;
 import org.apache.reef.tang.Injector;
-import org.apache.reef.tang.JavaConfigurationBuilder;
 import org.apache.reef.tang.Tang;
+import org.apache.reef.tang.annotations.Name;
 import org.apache.reef.tang.annotations.Parameter;
 import org.apache.reef.tang.exceptions.InjectionException;
 import org.apache.reef.tang.formats.AvroConfigurationSerializer;
@@ -53,30 +49,36 @@ import java.util.logging.Logger;
  * Hosts the actual runtime implementations and delegates invocations to them.
  */
 final class RuntimesHost {
+
   private static final Logger LOG = Logger.getLogger(RuntimesHost.class.getName());
+
   private final AvroMultiRuntimeDefinition runtimeDefinition;
   private final Injector originalInjector;
   private final String defaultRuntimeName;
-  private final MultiRuntimeDefinitionSerializer  runtimeDefinitionSerializer = new MultiRuntimeDefinitionSerializer();
+
   private Map<String, Runtime> runtimes;
 
   @Inject
-  private RuntimesHost(final Injector injector,
-                       @Parameter(SerializedRuntimeDefinition.class) final String serializedRuntimeDefinition) {
+  private RuntimesHost(
+      final Injector injector,
+      @Parameter(SerializedRuntimeDefinition.class) final String serializedRuntimeDefinition) {
+
     this.originalInjector = injector;
+
     try {
-      this.runtimeDefinition = this.runtimeDefinitionSerializer.fromString(serializedRuntimeDefinition);
-    } catch (IOException e) {
+      this.runtimeDefinition = new MultiRuntimeDefinitionSerializer().fromString(serializedRuntimeDefinition);
+    } catch (final IOException e) {
       throw new RuntimeException("Unable to read runtime configuration.", e);
     }
 
-    this.defaultRuntimeName = runtimeDefinition.getDefaultRuntimeName().toString();
+    this.defaultRuntimeName = this.runtimeDefinition.getDefaultRuntimeName().toString();
   }
 
   /**
    * Initializes the configured runtimes.
    */
   private synchronized void initialize() {
+
     if (this.runtimes != null) {
       return;
     }
@@ -90,57 +92,59 @@ final class RuntimesHost {
         // fork the original injector because of the same reason.
         // We create new injectors and copy form the original injector what we need.
         // rootInjector is an emptyInjector that we copy bindings from the original injector into. Then we fork
-        //it to instantiate the actual runtime.
-        Injector rootInjector = Tang.Factory.getTang().newInjector();
+        // it to instantiate the actual runtime.
+        final Injector rootInjector = Tang.Factory.getTang().newInjector();
         initializeInjector(rootInjector);
-        final JavaConfigurationBuilder cb = Tang.Factory.getTang().newConfigurationBuilder();
-        cb.bindNamedParameter(RuntimeName.class, rd.getRuntimeName().toString());
-        cb.bindImplementation(Runtime.class, RuntimeImpl.class);
 
-        AvroConfigurationSerializer serializer = new AvroConfigurationSerializer();
-        Configuration config = serializer.fromString(rd.getSerializedConfiguration().toString());
-        final Injector runtimeInjector = rootInjector.forkInjector(config, cb.build());
+        final Configuration runtimeConfig =
+            Tang.Factory.getTang().newConfigurationBuilder()
+                .bindNamedParameter(RuntimeName.class, rd.getRuntimeName().toString())
+                .bindImplementation(Runtime.class, RuntimeImpl.class)
+                .build();
+
+        final Configuration config =
+            new AvroConfigurationSerializer().fromString(rd.getSerializedConfiguration().toString());
+
+        final Injector runtimeInjector = rootInjector.forkInjector(config, runtimeConfig);
+
         this.runtimes.put(rd.getRuntimeName().toString(), runtimeInjector.getInstance(Runtime.class));
-      } catch (InjectionException e) {
-        throw new RuntimeException("Unable to initialize runtimes.", e);
-      } catch (IOException e) {
+
+      } catch (final IOException | InjectionException e) {
         throw new RuntimeException("Unable to initialize runtimes.", e);
       }
     }
   }
 
   /**
+   * Copy event handler from current class configuration into runtime injector.
+   * This is a helper method called from initializeInjector() only.
+   * @param runtimeInjector Runtime injector to copy event handler to.
+   * @param param Class that identifies the event handler parameter.
+   * @param <T> Type of the event handler.
+   * @throws InjectionException If configuration error occurs.
+   */
+  private <T extends EventHandler<?>> void copyEventHandler(
+      final Injector runtimeInjector, final Class<? extends Name<T>> param) throws InjectionException {
+    runtimeInjector.bindVolatileParameter(param, this.originalInjector.getNamedInstance(param));
+  }
+
+  /**
    * Initializes injector by copying needed handlers.
    * @param runtimeInjector The injector to initialize
-   * @throws InjectionException
+   * @throws InjectionException on configuration error.
    */
   private void initializeInjector(final Injector runtimeInjector) throws InjectionException {
-    final EventHandler<ResourceStatusEvent> statusEventHandler =
-            this.originalInjector.getNamedInstance(RuntimeParameters.ResourceStatusHandler.class);
-    runtimeInjector.bindVolatileParameter(RuntimeParameters.ResourceStatusHandler.class, statusEventHandler);
-    final EventHandler<NodeDescriptorEvent> nodeDescriptorEventHandler =
-            this.originalInjector.getNamedInstance(RuntimeParameters.NodeDescriptorHandler.class);
-    runtimeInjector.bindVolatileParameter(RuntimeParameters.NodeDescriptorHandler.class, nodeDescriptorEventHandler);
-    final EventHandler<ResourceAllocationEvent> resourceAllocationEventHandler =
-            this.originalInjector.getNamedInstance(RuntimeParameters.ResourceAllocationHandler.class);
-    runtimeInjector.bindVolatileParameter(
-            RuntimeParameters.ResourceAllocationHandler.class,
-            resourceAllocationEventHandler);
-    final EventHandler<RuntimeStatusEvent> runtimeStatusEventHandler =
-            this.originalInjector.getNamedInstance(RuntimeParameters.RuntimeStatusHandler.class);
-    runtimeInjector.bindVolatileParameter(
-            RuntimeParameters.RuntimeStatusHandler.class,
-            runtimeStatusEventHandler);
-    HttpServer httpServer = null;
+
+    copyEventHandler(runtimeInjector, RuntimeParameters.ResourceStatusHandler.class);
+    copyEventHandler(runtimeInjector, RuntimeParameters.NodeDescriptorHandler.class);
+    copyEventHandler(runtimeInjector, RuntimeParameters.ResourceAllocationHandler.class);
+    copyEventHandler(runtimeInjector, RuntimeParameters.RuntimeStatusHandler.class);
+
     try {
-      httpServer = this.originalInjector.getInstance(HttpServer.class);
+      runtimeInjector.bindVolatileInstance(HttpServer.class, this.originalInjector.getInstance(HttpServer.class));
+      LOG.log(Level.INFO, "Binding http server for the runtime implementation");
     } catch (final InjectionException e) {
       LOG.log(Level.INFO, "Http Server is not configured for the runtime", e);
-    }
-
-    if (httpServer != null) {
-      runtimeInjector.bindVolatileInstance(HttpServer.class, httpServer);
-      LOG.log(Level.INFO, "Binding http server for the runtime implementation");
     }
   }
 
@@ -150,39 +154,38 @@ final class RuntimesHost {
    * @return The runtime
    */
   private Runtime getRuntime(final String requestedRuntimeName) {
-    String runtimeName = requestedRuntimeName;
-    if (StringUtils.isBlank(runtimeName)) {
-      runtimeName = this.defaultRuntimeName;
-    }
 
-    Runtime runtime = this.runtimes.get(runtimeName);
+    final String runtimeName =
+        StringUtils.isBlank(requestedRuntimeName) ? this.defaultRuntimeName : requestedRuntimeName;
 
+    final Runtime runtime = this.runtimes.get(runtimeName);
     Validate.notNull(runtime, "Couldn't find runtime for name " + runtimeName);
+
     return runtime;
   }
 
-  void onResourceLaunch(final ResourceLaunchEvent value) {
-    getRuntime(value.getRuntimeName()).onResourceLaunch(value);
+  void onResourceLaunch(final ResourceLaunchEvent event) {
+    getRuntime(event.getRuntimeName()).onResourceLaunch(event);
   }
 
-  void onRuntimeStart(final RuntimeStart value) {
+  void onRuntimeStart(final RuntimeStart event) {
     initialize();
-    for (Runtime runtime : this.runtimes.values()) {
-      runtime.onRuntimeStart(value);
+    for (final Runtime runtime : this.runtimes.values()) {
+      runtime.onRuntimeStart(event);
     }
   }
 
-  void onRuntimeStop(final RuntimeStop value) {
-    for (Runtime runtime : this.runtimes.values()) {
-      runtime.onRuntimeStop(value);
+  void onRuntimeStop(final RuntimeStop event) {
+    for (final Runtime runtime : this.runtimes.values()) {
+      runtime.onRuntimeStop(event);
     }
   }
 
-  void onResourceRelease(final ResourceReleaseEvent value) {
-    getRuntime(value.getRuntimeName()).onResourceRelease(value);
+  void onResourceRelease(final ResourceReleaseEvent event) {
+    getRuntime(event.getRuntimeName()).onResourceRelease(event);
   }
 
-  void onResourceRequest(final ResourceRequestEvent value) {
-    getRuntime(value.getRuntimeName()).onResourceRequest(value);
+  void onResourceRequest(final ResourceRequestEvent event) {
+    getRuntime(event.getRuntimeName()).onResourceRequest(event);
   }
 }
