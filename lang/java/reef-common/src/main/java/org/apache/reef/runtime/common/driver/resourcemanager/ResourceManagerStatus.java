@@ -33,15 +33,16 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Manages the status of the Resource Manager.
+ * Manages the status of the Resource Manager and tracks whether it is idle.
  */
 @DriverSide
 @Private
-public final class ResourceManagerStatus implements EventHandler<RuntimeStatusEvent>,
-    DriverIdlenessSource {
+public final class ResourceManagerStatus implements EventHandler<RuntimeStatusEvent>, DriverIdlenessSource {
+
   private static final Logger LOG = Logger.getLogger(ResourceManagerStatus.class.getName());
 
   private static final String COMPONENT_NAME = "ResourceManager";
+
   private static final IdleMessage IDLE_MESSAGE =
       new IdleMessage(COMPONENT_NAME, "No outstanding requests or allocations", true);
 
@@ -49,15 +50,21 @@ public final class ResourceManagerStatus implements EventHandler<RuntimeStatusEv
   private final DriverStatusManager driverStatusManager;
   private final InjectionFuture<DriverIdleManager> driverIdleManager;
 
-  // Mutable state.
-  private State state =  State.INIT;
+  /** Mutable RM state. */
+  private State state = State.INIT;
+
+  /** Number of container requests pending with the RM, as per latest RuntimeStatusEvent message. */
   private int outstandingContainerRequests = 0;
+
+  /** Number of containers currently allocated, as per latest RuntimeStatusEvent message. */
   private int containerAllocationCount = 0;
 
   @Inject
-  ResourceManagerStatus(final ResourceManagerErrorHandler resourceManagerErrorHandler,
-                        final DriverStatusManager driverStatusManager,
-                        final InjectionFuture<DriverIdleManager> driverIdleManager) {
+  private ResourceManagerStatus(
+      final ResourceManagerErrorHandler resourceManagerErrorHandler,
+      final DriverStatusManager driverStatusManager,
+      final InjectionFuture<DriverIdleManager> driverIdleManager) {
+
     this.resourceManagerErrorHandler = resourceManagerErrorHandler;
     this.driverStatusManager = driverStatusManager;
     this.driverIdleManager = driverIdleManager;
@@ -65,11 +72,15 @@ public final class ResourceManagerStatus implements EventHandler<RuntimeStatusEv
 
   @Override
   public synchronized void onNext(final RuntimeStatusEvent runtimeStatusEvent) {
+
     final State newState = runtimeStatusEvent.getState();
-    LOG.log(Level.FINEST, "Runtime status " + runtimeStatusEvent);
+
+    LOG.log(Level.FINEST, "Runtime status: {0}", runtimeStatusEvent);
+
     this.outstandingContainerRequests = runtimeStatusEvent.getOutstandingContainerRequests().orElse(0);
     this.containerAllocationCount = runtimeStatusEvent.getContainerAllocationList().size();
-    this.setState(runtimeStatusEvent.getState());
+
+    this.setState(newState);
 
     switch (newState) {
     case FAILED:
@@ -98,23 +109,30 @@ public final class ResourceManagerStatus implements EventHandler<RuntimeStatusEv
   }
 
   /**
-   * @return idle, if there are no outstanding requests or allocations. Not idle else.
+   * Driver is idle if, regardless of status, it has no evaluators allocated and no pending container requests.
+   * @return true if the driver can be considered idle, false otherwise.
+   */
+  private synchronized boolean isIdle() {
+    return this.outstandingContainerRequests == 0 && this.containerAllocationCount == 0;
+  }
+
+  /**
+   * Driver is idle if, regardless of status, it has no evaluators allocated and no pending container requests.
+   * @return idle, if there are no outstanding requests or allocations. Not idle otherwise.
    */
   @Override
   public synchronized IdleMessage getIdleStatus() {
+
     if (this.isIdle()) {
       return IDLE_MESSAGE;
-    } else {
-      final String message = new StringBuilder("There are ")
-          .append(this.outstandingContainerRequests)
-          .append(" outstanding container requests and ")
-          .append(this.containerAllocationCount)
-          .append(" allocated containers")
-          .toString();
-      return new IdleMessage(COMPONENT_NAME, message, false);
     }
-  }
 
+    final String message = String.format(
+        "There are %d outstanding container requests and %d allocated containers",
+        this.outstandingContainerRequests, this.containerAllocationCount);
+
+    return new IdleMessage(COMPONENT_NAME, message, false);
+  }
 
   private synchronized void onRMFailure(final RuntimeStatusEvent runtimeStatusEvent) {
     assert runtimeStatusEvent.getState() == State.FAILED;
@@ -134,33 +152,18 @@ public final class ResourceManagerStatus implements EventHandler<RuntimeStatusEv
     }
   }
 
-
-  private synchronized boolean isIdle() {
-    return this.hasNoOutstandingRequests()
-        && this.hasNoContainersAllocated();
-  }
-
-  private synchronized boolean isRunning() {
-    return State.RUNNING.equals(this.state);
-  }
-
   /**
-  *
   * Checks if the ResourceManager can switch from the current state to the target state.
   * See REEF-826 for the state transition matrix.
-  *
-  * @param from current state
-  * @param to   state to switch to
-  *
-  * @return true if the transition is legal; false otherwise
-  *
+  * @param from current state.
+  * @param to state to switch to.
+  * @return true if the transition is legal; false otherwise.
   */
-  private synchronized boolean isLegalStateTransition(final State from,
-                                                      final State to) {
+  private static boolean isLegalStateTransition(final State from, final State to) {
 
     // handle diagonal elements of the transition matrix
-    if (from.equals(to)){
-      LOG.finest("Transition from " + from + " state to the same state.");
+    if (from.equals(to)) {
+      LOG.log(Level.FINEST, "Transition from {0} state to the same state.", from);
       return true;
     }
 
@@ -207,30 +210,15 @@ public final class ResourceManagerStatus implements EventHandler<RuntimeStatusEv
 
     default:
       return false;
-
     }
-
   }
 
   private synchronized void setState(final State newState) {
-
     if (isLegalStateTransition(this.state, newState)) {
       this.state = newState;
     } else {
-      throw new IllegalStateException("Resource manager attempts illegal state transition from "
-                + this.state + " to "
-                + newState);
+      throw new IllegalStateException(
+          "Resource manager attempts illegal state transition from " + this.state + " to " + newState);
     }
-
   }
-
-
-  private synchronized boolean hasNoOutstandingRequests() {
-    return this.outstandingContainerRequests == 0;
-  }
-
-  private synchronized boolean hasNoContainersAllocated() {
-    return this.containerAllocationCount == 0;
-  }
-
 }

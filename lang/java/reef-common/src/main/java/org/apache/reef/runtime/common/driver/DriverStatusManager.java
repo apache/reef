@@ -33,44 +33,53 @@ import java.util.logging.Logger;
 
 /**
  * Manages the Driver's status.
+ * Communicates status changes to the client and shuts down the runtime clock on shutdown.
  */
 public final class DriverStatusManager {
+
   private static final Logger LOG = Logger.getLogger(DriverStatusManager.class.getName());
+  private static final String CLASS_NAME = DriverStatusManager.class.getCanonicalName();
+
   private final Clock clock;
   private final ClientConnection clientConnection;
   private final String jobIdentifier;
   private final ExceptionCodec exceptionCodec;
+
   private DriverStatus driverStatus = DriverStatus.PRE_INIT;
   private Optional<Throwable> shutdownCause = Optional.empty();
   private boolean driverTerminationHasBeenCommunicatedToClient = false;
 
-
   /**
-   * @param clock
-   * @param clientConnection
-   * @param jobIdentifier
-   * @param exceptionCodec
+   * Build a new status manager. This is done automatically by Tang.
+   * @param clock runtime event loop to shut down on completion or error.
+   * @param clientConnection Connection to the job client. Send init, running, and job ending messages.
+   * @param jobIdentifier String job ID.
+   * @param exceptionCodec codec to serialize the exception when sending job ending message to the client.
    */
   @Inject
-  DriverStatusManager(final Clock clock,
-                      final ClientConnection clientConnection,
-                      @Parameter(JobIdentifier.class) final String jobIdentifier,
-                      final ExceptionCodec exceptionCodec) {
-    LOG.entering(DriverStatusManager.class.getCanonicalName(), "<init>");
+  private DriverStatusManager(
+      @Parameter(JobIdentifier.class) final String jobIdentifier,
+      final Clock clock,
+      final ClientConnection clientConnection,
+      final ExceptionCodec exceptionCodec) {
+
+    LOG.entering(CLASS_NAME, "<init>");
+
     this.clock = clock;
     this.clientConnection = clientConnection;
     this.jobIdentifier = jobIdentifier;
     this.exceptionCodec = exceptionCodec;
+
     LOG.log(Level.FINE, "Instantiated 'DriverStatusManager'");
-    LOG.exiting(DriverStatusManager.class.getCanonicalName(), "<init>");
+
+    LOG.exiting(CLASS_NAME, "<init>");
   }
 
   /**
    * Check whether a state transition 'from->to' is legal.
-   *
-   * @param from
-   * @param to
-   * @return
+   * @param from Source state.
+   * @param to Destination state.
+   * @return true if transition is valid, false otherwise.
    */
   private static boolean isLegalTransition(final DriverStatus from, final DriverStatus to) {
     switch (from) {
@@ -108,10 +117,13 @@ public final class DriverStatusManager {
    * Changes the driver status to INIT and sends message to the client about the transition.
    */
   public synchronized void onInit() {
-    LOG.entering(DriverStatusManager.class.getCanonicalName(), "onInit");
+
+    LOG.entering(CLASS_NAME, "onInit");
+
     this.clientConnection.send(this.getInitMessage());
     this.setStatus(DriverStatus.INIT);
-    LOG.exiting(DriverStatusManager.class.getCanonicalName(), "onInit");
+
+    LOG.exiting(CLASS_NAME, "onInit");
   }
 
   /**
@@ -119,22 +131,27 @@ public final class DriverStatusManager {
    * If the driver is in status 'PRE_INIT', this first calls onInit();
    */
   public synchronized void onRunning() {
-    LOG.entering(DriverStatusManager.class.getCanonicalName(), "onRunning");
+
+    LOG.entering(CLASS_NAME, "onRunning");
+
     if (this.driverStatus.equals(DriverStatus.PRE_INIT)) {
       this.onInit();
     }
+
     this.clientConnection.send(this.getRunningMessage());
     this.setStatus(DriverStatus.RUNNING);
-    LOG.exiting(DriverStatusManager.class.getCanonicalName(), "onRunning");
+
+    LOG.exiting(CLASS_NAME, "onRunning");
   }
 
   /**
    * End the Driver with an exception.
-   *
-   * @param exception
+   * @param exception Exception that causes the driver shutdown.
    */
   public synchronized void onError(final Throwable exception) {
-    LOG.entering(DriverStatusManager.class.getCanonicalName(), "onError", new Object[]{exception});
+
+    LOG.entering(CLASS_NAME, "onError", exception);
+
     if (this.isShuttingDownOrFailing()) {
       LOG.log(Level.WARNING, "Received an exception while already in shutdown.", exception);
     } else {
@@ -143,63 +160,78 @@ public final class DriverStatusManager {
       this.clock.stop(exception);
       this.setStatus(DriverStatus.FAILING);
     }
-    LOG.exiting(DriverStatusManager.class.getCanonicalName(), "onError", new Object[]{exception});
+
+    LOG.exiting(CLASS_NAME, "onError", exception);
   }
 
   /**
    * Perform a clean shutdown of the Driver.
    */
-  @SuppressWarnings("checkstyle:constructorwithoutparams") // Exception() here captures the callstack
   public synchronized void onComplete() {
-    LOG.entering(DriverStatusManager.class.getCanonicalName(), "onComplete");
+
+    LOG.entering(CLASS_NAME, "onComplete");
+
     if (this.isShuttingDownOrFailing()) {
-      LOG.log(Level.WARNING, "Ignoring second call to onComplete()");
+      LOG.log(Level.WARNING, "Ignoring second call to onComplete()",
+          new Exception("Dummy exception to get the call stack"));
     } else {
       LOG.log(Level.INFO, "Clean shutdown of the Driver.");
       if (LOG.isLoggable(Level.FINEST)) {
-        LOG.log(Level.FINEST, "Callstack: ", new Exception());
+        LOG.log(Level.FINEST, "Call stack: ",
+            new Exception("Dummy exception to get the call stack"));
       }
       this.clock.close();
       this.setStatus(DriverStatus.SHUTTING_DOWN);
     }
-    LOG.exiting(DriverStatusManager.class.getCanonicalName(), "onComplete");
 
+    LOG.exiting(CLASS_NAME, "onComplete");
+  }
+
+  /**
+   * Sends the final message to the client. This is used by DriverRuntimeStopHandler.onNext().
+   * @param exception Exception that caused the job to end (optional).
+   */
+  public synchronized void onRuntimeStop(final Optional<Throwable> exception) {
+    this.sendJobEndingMessageToClient(exception);
   }
 
   /**
    * Sends the final message to the Driver. This is used by DriverRuntimeStopHandler.onNext().
-   *
-   * @param exception
+   * @param exception Exception that caused the job to end (can be absent).
+   * @deprecated [REEF-1548] Do not use DriverStatusManager as a proxy to the job client.
+   * After release 0.16, make this method private and use it inside onRuntimeStop() method instead.
    */
   public synchronized void sendJobEndingMessageToClient(final Optional<Throwable> exception) {
-    if (this.isNotShuttingDownOrFailing()) {
+
+    if (!this.isShuttingDownOrFailing()) {
       LOG.log(Level.SEVERE, "Sending message in a state different that SHUTTING_DOWN or FAILING. " +
-          "This is likely a illegal call to clock.close() at play. Current state: " + this.driverStatus);
+          "This is likely a illegal call to clock.close() at play. Current state: {0}", this.driverStatus);
     }
+
     if (this.driverTerminationHasBeenCommunicatedToClient) {
       LOG.log(Level.SEVERE, ".sendJobEndingMessageToClient() called twice. Ignoring the second call");
-    } else {
-      // Log the shutdown situation
-      if (this.shutdownCause.isPresent()) {
-        LOG.log(Level.WARNING, "Sending message about an unclean driver shutdown.", this.shutdownCause.get());
-      }
-      if (exception.isPresent()) {
-        LOG.log(Level.WARNING, "There was an exception during clock.close().", exception.get());
-      }
-      if (this.shutdownCause.isPresent() && exception.isPresent()) {
-        LOG.log(Level.WARNING, "The driver is shutdown because of an exception (see above) and there was " +
-            "an exception during clock.close(). Only the first exception will be sent to the client");
-      }
-
-      if (this.shutdownCause.isPresent()) {
-        // Send the earlier exception, if there was one
-        this.clientConnection.send(getJobEndingMessage(this.shutdownCause));
-      } else {
-        // Send the exception passed, if there was one.
-        this.clientConnection.send(getJobEndingMessage(exception));
-      }
-      this.driverTerminationHasBeenCommunicatedToClient = true;
+      return;
     }
+
+    // Log the shutdown situation
+    if (this.shutdownCause.isPresent()) {
+      LOG.log(Level.WARNING, "Sending message about an unclean driver shutdown.", this.shutdownCause.get());
+    }
+
+    if (exception.isPresent()) {
+      LOG.log(Level.WARNING, "There was an exception during clock.close().", exception.get());
+    }
+
+    if (this.shutdownCause.isPresent() && exception.isPresent()) {
+      LOG.log(Level.WARNING, "The driver is shutdown because of an exception (see above) and there was " +
+          "an exception during clock.close(). Only the first exception will be sent to the client");
+    }
+
+    // Send the earlier exception, if there was one. Otherwise, send the exception passed.
+    this.clientConnection.send(getJobEndingMessage(
+        this.shutdownCause.isPresent() ? this.shutdownCause : exception));
+
+    this.driverTerminationHasBeenCommunicatedToClient = true;
   }
 
   public synchronized boolean isShuttingDownOrFailing() {
@@ -207,21 +239,16 @@ public final class DriverStatusManager {
         || DriverStatus.FAILING.equals(this.driverStatus);
   }
 
-  private synchronized boolean isNotShuttingDownOrFailing() {
-    return !isShuttingDownOrFailing();
-  }
-
   /**
-   * Helper method to set the status. This also checks whether the transition from the current status to the new one is
-   * legal.
-   *
-   * @param newStatus
+   * Helper method to set the status.
+   * This also checks whether the transition from the current status to the new one is legal.
+   * @param newStatus Driver status to transition to.
    */
   private synchronized void setStatus(final DriverStatus newStatus) {
     if (isLegalTransition(this.driverStatus, newStatus)) {
       this.driverStatus = newStatus;
     } else {
-      LOG.log(Level.WARNING, "Illegal state transiton: '" + this.driverStatus + "'->'" + newStatus + "'");
+      LOG.log(Level.WARNING, "Illegal state transition: {0} -> {1}", new Object[] {this.driverStatus, newStatus});
     }
   }
 
@@ -229,27 +256,25 @@ public final class DriverStatusManager {
    * @param exception the exception that ended the Driver, if any.
    * @return message to be sent to the client at the end of the job.
    */
-  private synchronized ReefServiceProtos.JobStatusProto getJobEndingMessage(final Optional<Throwable> exception) {
-    final ReefServiceProtos.JobStatusProto message;
+  private ReefServiceProtos.JobStatusProto getJobEndingMessage(final Optional<Throwable> exception) {
     if (exception.isPresent()) {
-      message = ReefServiceProtos.JobStatusProto.newBuilder()
+      return ReefServiceProtos.JobStatusProto.newBuilder()
           .setIdentifier(this.jobIdentifier)
           .setState(ReefServiceProtos.State.FAILED)
           .setException(ByteString.copyFrom(this.exceptionCodec.toBytes(exception.get())))
           .build();
     } else {
-      message = ReefServiceProtos.JobStatusProto.newBuilder()
+      return ReefServiceProtos.JobStatusProto.newBuilder()
           .setIdentifier(this.jobIdentifier)
           .setState(ReefServiceProtos.State.DONE)
           .build();
     }
-    return message;
   }
 
   /**
    * @return The message to be sent through the ClientConnection when in state INIT.
    */
-  private synchronized ReefServiceProtos.JobStatusProto getInitMessage() {
+  private ReefServiceProtos.JobStatusProto getInitMessage() {
     return ReefServiceProtos.JobStatusProto.newBuilder()
         .setIdentifier(this.jobIdentifier)
         .setState(ReefServiceProtos.State.INIT)
@@ -259,7 +284,7 @@ public final class DriverStatusManager {
   /**
    * @return The message to be sent through the ClientConnection when in state RUNNING.
    */
-  private synchronized ReefServiceProtos.JobStatusProto getRunningMessage() {
+  private ReefServiceProtos.JobStatusProto getRunningMessage() {
     return ReefServiceProtos.JobStatusProto.newBuilder()
         .setIdentifier(this.jobIdentifier)
         .setState(ReefServiceProtos.State.RUNNING)

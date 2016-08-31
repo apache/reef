@@ -35,11 +35,14 @@ import java.util.logging.Logger;
 /**
  * The RuntimeStart handler of the Driver.
  * <p>
- * This instantiates the DriverSingletons upon construction. Upon onNext(), it sets the resource manager status and
- * wires up the remote event handler connections to the client and the evaluators.
+ * This instantiates the DriverSingletons upon construction. Upon onNext(),
+ * it sets the resource manager status and wires up the remote event handler
+ * connections to the client and the evaluators.
  */
 final class DriverRuntimeStartHandler implements EventHandler<RuntimeStart> {
+
   private static final Logger LOG = Logger.getLogger(DriverRuntimeStartHandler.class.getName());
+
   private final RemoteManager remoteManager;
   private final EvaluatorResourceManagerErrorHandler evaluatorResourceManagerErrorHandler;
   private final EvaluatorHeartbeatHandler evaluatorHeartbeatHandler;
@@ -57,13 +60,15 @@ final class DriverRuntimeStartHandler implements EventHandler<RuntimeStart> {
    * @param driverStatusManager                  will be set to RUNNING in onNext()
    */
   @Inject
-  DriverRuntimeStartHandler(final DriverSingletons singletons,
-                            final RemoteManager remoteManager,
-                            final EvaluatorResourceManagerErrorHandler evaluatorResourceManagerErrorHandler,
-                            final EvaluatorHeartbeatHandler evaluatorHeartbeatHandler,
-                            final ResourceManagerStatus resourceManagerStatus,
-                            final ResourceManagerStartHandler resourceManagerStartHandler,
-                            final DriverStatusManager driverStatusManager) {
+  private DriverRuntimeStartHandler(
+      final DriverSingletons singletons,
+      final RemoteManager remoteManager,
+      final EvaluatorResourceManagerErrorHandler evaluatorResourceManagerErrorHandler,
+      final EvaluatorHeartbeatHandler evaluatorHeartbeatHandler,
+      final ResourceManagerStatus resourceManagerStatus,
+      final ResourceManagerStartHandler resourceManagerStartHandler,
+      final DriverStatusManager driverStatusManager) {
+
     this.remoteManager = remoteManager;
     this.evaluatorResourceManagerErrorHandler = evaluatorResourceManagerErrorHandler;
     this.evaluatorHeartbeatHandler = evaluatorHeartbeatHandler;
@@ -72,16 +77,34 @@ final class DriverRuntimeStartHandler implements EventHandler<RuntimeStart> {
     this.driverStatusManager = driverStatusManager;
   }
 
+  /**
+   * This method is called on start of the REEF Driver runtime event loop.
+   * It contains startup logic for REEF Driver that is independent from a
+   * runtime framework (e.g. Mesos, YARN, Local, etc).
+   * Platform-specific logic is then handled in ResourceManagerStartHandler.
+   * @param runtimeStart An event that signals start of the Driver runtime.
+   * Contains a timestamp and can be pretty printed.
+   */
   @Override
   public synchronized void onNext(final RuntimeStart runtimeStart) {
+
     LOG.log(Level.FINEST, "RuntimeStart: {0}", runtimeStart);
 
-    this.remoteManager.registerHandler(EvaluatorRuntimeProtocol.EvaluatorHeartbeatProto.class,
-        evaluatorHeartbeatHandler);
-    this.remoteManager.registerHandler(ReefServiceProtos.RuntimeErrorProto.class, evaluatorResourceManagerErrorHandler);
+    // Register for heartbeats and error messages from the Evaluators.
+    this.remoteManager.registerHandler(
+        EvaluatorRuntimeProtocol.EvaluatorHeartbeatProto.class,
+        this.evaluatorHeartbeatHandler);
+
+    this.remoteManager.registerHandler(
+        ReefServiceProtos.RuntimeErrorProto.class,
+        this.evaluatorResourceManagerErrorHandler);
+
     this.resourceManagerStatus.setRunning();
     this.driverStatusManager.onRunning();
+
+    // Forward start event to the runtime-specific handler (e.g. YARN, Local, etc.)
     this.resourceManagerStartHandler.onNext(runtimeStart);
+
     LOG.log(Level.FINEST, "DriverRuntimeStartHandler complete.");
   }
 }
