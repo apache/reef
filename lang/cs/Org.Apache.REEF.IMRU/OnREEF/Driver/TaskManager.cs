@@ -427,19 +427,8 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
                 }
             }
 
-            if (exception is AggregateException)
-            {
-                // try extract cause and check whether it is InjectionException for GroupCommClient
-                if (exception.InnerException != null &&
-                    exception.InnerException is IOException)
-                {
-                    Logger.Log(Level.Info, "GetTaskErrorEventByExceptionType:AggregateException-IOException with task id {0}", failedTask.Id);
-                    return TaskStateEvent.FailedTaskCommunicationError;
-                }
-            }
-
             Logger.Log(Level.Info, "GetTaskErrorEventByExceptionType for un-hanlded exception with task id {0} and exception type {1}", failedTask.Id, exception.GetType());
-            return TaskStateEvent.FailedTaskAppError;
+            return TaskStateEvent.FailedTaskSystemError;
         }
 
         /// <summary>
