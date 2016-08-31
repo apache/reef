@@ -30,7 +30,7 @@ namespace Org.Apache.REEF.Examples.AllHandlers
         [Inject]
         private HelloTraceListener()
         {
-            _listener = new ConsoleTraceListener();
+            _listener = new TextWriterTraceListener(System.Console.Out);
         }
 
         public override void Write(string message)

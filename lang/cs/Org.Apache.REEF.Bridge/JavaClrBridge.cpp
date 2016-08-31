@@ -336,7 +336,7 @@ JNIEXPORT void JNICALL Java_org_apache_reef_javabridge_NativeInterop_clrBuffered
   try {
     if (!JavaClrBridge::LoggerWrapper::initialized) {
       ManagedLog::LOGGER->Log("Initializing CLRBufferedLogHandler in java bridge...");
-      JavaClrBridge::LoggerWrapper::logger->Listeners->Add(gcnew System::Diagnostics::ConsoleTraceListener());
+      JavaClrBridge::LoggerWrapper::logger->Listeners->Add(gcnew System::Diagnostics::TextWriterTraceListener(System::Console::Out));
       JavaClrBridge::LoggerWrapper::initialized = true;
     }
 

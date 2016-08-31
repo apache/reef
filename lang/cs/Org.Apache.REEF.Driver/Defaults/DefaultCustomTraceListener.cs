@@ -15,6 +15,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
+using System;
 using System.Diagnostics;
 using Org.Apache.REEF.Tang.Annotations;
 
@@ -27,7 +28,7 @@ namespace Org.Apache.REEF.Driver.Defaults
         [Inject]
         public DefaultCustomTraceListener()
         {
-            _listener = new ConsoleTraceListener();
+            _listener = new TextWriterTraceListener(Console.Out);
         }
 
         public override void Write(string message)
