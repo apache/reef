@@ -206,11 +206,11 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator
                     const string msg = "RuntimeStopHandler invoked in state RUNNING.";
                     if (runtimeStop.Exception != null)
                     {
-                        OnException(new SystemException(msg, runtimeStop.Exception));
+                        OnException(new ReefRuntimeException(msg, runtimeStop.Exception));
                     }
                     else
                     {
-                        OnException(new SystemException(msg));
+                        OnException(new ReefRuntimeException(msg));
                     }
                 }
                 else

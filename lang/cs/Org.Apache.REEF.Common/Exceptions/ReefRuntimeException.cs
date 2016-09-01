@@ -17,15 +17,16 @@
 
 using System;
 
-namespace Org.Apache.REEF.Tang.Exceptions
+namespace Org.Apache.REEF.Common.Exceptions
 {
-    public sealed class ClassHierarchyException : Exception
+    public class ReefRuntimeException : Exception
     {
-        internal ClassHierarchyException(string msg) : base(msg)
-        {           
+        public ReefRuntimeException(string message)
+            : base(message)
+        {
         }
 
-        internal ClassHierarchyException(string message, Exception innerException)
+        public ReefRuntimeException(string message, Exception innerException)
             : base(message, innerException)
         {
         }

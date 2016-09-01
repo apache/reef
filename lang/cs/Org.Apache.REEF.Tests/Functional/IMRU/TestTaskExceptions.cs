@@ -185,7 +185,7 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
                     }
 
                     Assert.Equal(InnerExceptionMessage, value.AsError().InnerException.Message);
-                    Assert.True(value.AsError().InnerException is System.SystemException);
+                    Assert.True(value.AsError().InnerException is Exception);
                 }
                 Logger.Log(Level.Info, ValidFailedTaskMessage);
                 value.GetActiveContext().Value.Dispose();
@@ -240,7 +240,7 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
                     case TaskManager.TaskGroupCommunicationError:
                         throw new IMRUTaskGroupCommunicationException(_taskExceptionMessage);
                     default:
-                        throw new IMRUTaskSystemException(_taskExceptionMessage, new SystemException(InnerExceptionMessage));
+                        throw new IMRUTaskSystemException(_taskExceptionMessage, new Exception(InnerExceptionMessage));
                 }
             }
         }

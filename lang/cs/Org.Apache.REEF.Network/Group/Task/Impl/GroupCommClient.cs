@@ -80,7 +80,7 @@ namespace Org.Apache.REEF.Network.Group.Task.Impl
                     group.WaitingForRegistration();
                 }
             }
-            catch (SystemException e)
+            catch (Exception e)
             {
                 networkService.Unregister();
                 networkService.Dispose();

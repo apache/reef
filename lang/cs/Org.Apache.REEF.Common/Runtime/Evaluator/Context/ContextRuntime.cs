@@ -22,6 +22,7 @@ using System.Linq;
 using System.Threading;
 using Org.Apache.REEF.Common.Context;
 using Org.Apache.REEF.Common.Events;
+using Org.Apache.REEF.Common.Exceptions;
 using Org.Apache.REEF.Common.Protobuf.ReefProtocol;
 using Org.Apache.REEF.Common.Runtime.Evaluator.Task;
 using Org.Apache.REEF.Common.Services;
@@ -325,7 +326,7 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Context
                 }
                 catch (Exception e)
                 {
-                    throw new SystemException("System error in starting Task.", e);
+                    throw new ReefRuntimeException("System error in starting Task.", e);
                 }
             }
         }
