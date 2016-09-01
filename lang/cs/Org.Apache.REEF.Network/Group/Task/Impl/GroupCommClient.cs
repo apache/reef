@@ -17,7 +17,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Globalization;
 using Org.Apache.REEF.Common.Tasks;
 using Org.Apache.REEF.Network.Group.Config;
 using Org.Apache.REEF.Network.Group.Driver.Impl;
@@ -80,7 +79,7 @@ namespace Org.Apache.REEF.Network.Group.Task.Impl
                     group.WaitingForRegistration();
                 }
             }
-            catch (SystemException e)
+            catch (ReefRuntimeException e)
             {
                 networkService.Unregister();
                 networkService.Dispose();

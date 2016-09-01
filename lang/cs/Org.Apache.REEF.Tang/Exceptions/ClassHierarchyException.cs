@@ -19,7 +19,7 @@ using System;
 
 namespace Org.Apache.REEF.Tang.Exceptions
 {
-    public sealed class ClassHierarchyException : SystemException
+    public sealed class ClassHierarchyException : ReefRuntimeException
     {
         internal ClassHierarchyException(string msg) : base(msg)
         {           

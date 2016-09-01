@@ -16,18 +16,36 @@
 // under the License.
 
 using System;
+using System.Runtime.Serialization;
 
 namespace Org.Apache.REEF.Tang.Exceptions
 {
-    public class BindException : ReefRuntimeException
+    /// <summary>
+    /// A serializable exception that represents a general Reef error.
+    /// </summary>
+    [Serializable]
+    public class ReefRuntimeException : Exception
     {
-        internal BindException(string message)
+        /// <summary>
+        /// Constructor. A serializable exception object that represents a general Reef error.
+        /// </summary>
+        public ReefRuntimeException(string message)
             : base(message)
-        {           
+        {
         }
 
-        internal BindException(string message, Exception innerException)
+        /// <summary>
+        /// Constructor. A serializable exception object that represents a general Reef error and wraps an inner exception
+        /// </summary>
+        /// <param name="message"></param>
+        /// <param name="innerException"></param>
+        public ReefRuntimeException(string message, Exception innerException)
             : base(message, innerException)
+        {
+        }
+
+        public ReefRuntimeException(SerializationInfo info, StreamingContext context)
+            : base(info, context)
         {
         }
     }

@@ -392,7 +392,7 @@ namespace Org.Apache.REEF.Network.Group.Task.Impl
 
                 var leftOver = string.Join(",", identifiers.Where(e => !foundList.Contains(e)));
                 Logger.Log(Level.Error, "For node {0}, cannot find registered parent/children: {1}.", _selfId, leftOver);
-                Exceptions.Throw(new SystemException("Failed to initialize operator topology for node: " + _selfId), Logger);
+                Exceptions.Throw(new ReefRuntimeException("Failed to initialize operator topology for node: " + _selfId), Logger);
             }
         }
     }
