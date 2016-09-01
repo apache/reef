@@ -137,7 +137,7 @@ final class YarnContainerManager
   @Override
   public void onContainersAllocated(final List<Container> allocatedContainers) {
 
-    String id = "NULL_ID"; // ID is used for logging only
+    String id = null; // ID is used for logging only
 
     if (LOG.isLoggable(Level.FINE)) {
 
@@ -203,9 +203,9 @@ final class YarnContainerManager
   }
 
   /**
-   * NM Callback: NM reports start of a container.
-   * @param containerId ID of a newly started container.
-   * @param stringByteBufferMap currently not used.
+   * NM Callback: NM accepts the starting container request.
+   * @param containerId ID of a new container being started.
+   * @param stringByteBufferMap a Map between the auxiliary service names and their outputs. Not used.
    */
   @Override
   public void onContainerStarted(final ContainerId containerId, final Map<String, ByteBuffer> stringByteBufferMap) {
@@ -492,17 +492,16 @@ final class YarnContainerManager
       // Due to the bug YARN-314 and the workings of AMRMCClientAsync, when x-priority m-capacity zero-container
       // request and x-priority n-capacity nonzero-container request are sent together, where m > n, RM ignores
       // the latter.
-      // Therefore it is necessary avoid sending zero-container request, even it means getting extra containers.
+      // Therefore it is necessary avoid sending zero-container request, even if it means getting extra containers.
       // It is okay to send nonzero m-capacity and n-capacity request together since bigger containers
       // can be matched.
-      // TODO[JIRA REEF-42, REEF-942]: revisit this when implementing locality-strictness
+      // TODO [JIRA REEF-42, REEF-942]: revisit this when implementing locality-strictness.
       // (i.e. a specific rack request can be ignored)
       if (this.requestsAfterSentToRM.size() > 1) {
         try {
           this.resourceManager.removeContainerRequest(matchedRequest);
         } catch (final Exception e) {
-          LOG.log(Level.WARNING, "Nothing to remove from Async AMRM client's queue, " +
-              "removal attempt failed with exception", e);
+          LOG.log(Level.WARNING, "Error removing request from Async AMRM client queue: " + matchedRequest, e);
         }
       }
 

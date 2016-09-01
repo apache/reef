@@ -53,7 +53,7 @@ public final class ResourceManagerStatus implements EventHandler<RuntimeStatusEv
   /** Mutable RM state. */
   private State state = State.INIT;
 
-  /** Number of container requests pending with the RM, as per latest RuntimeStatusEvent message. */
+  /** Number of container requests outstanding with the RM, as per latest RuntimeStatusEvent message. */
   private int outstandingContainerRequests = 0;
 
   /** Number of containers currently allocated, as per latest RuntimeStatusEvent message. */

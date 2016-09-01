@@ -137,17 +137,31 @@ final class ContainerManager implements AutoCloseable {
     LOG.log(Level.FINE, "Initialized Container Manager with {0} containers", capacity);
   }
 
-  private static Collection<String> normalize(final Collection<String> rackNames) {
+  /**
+   * Normalize rack names. Make sure that each rack name starts with a path separator /
+   * and does not have a path separator at the end. Also check that no rack names
+   * end with a wildcard *, and raise an exception if such rack name occurs in the input.
+   * @param rackNames Collection of rack names to normalize.
+   * @return Collection of normalized rack names.
+   * @throws IllegalArgumentException if validation of some rack names' fails.
+   */
+  private static Collection<String> normalize(
+      final Collection<String> rackNames) throws IllegalArgumentException {
+
     return normalize(rackNames, true);
   }
 
   /**
-   * Normalize rack names.
+   * Normalize rack names. Make sure that each rack name starts with a path separator /
+   * and does not have a path separator at the end. Also, if end validation is on, check
+   * that rack name does not end with a wildcard *.
    * @param rackNames Collection of rack names to normalize.
    * @param validateEnd If true, throw an exception if the name ends with ANY (*)
    * @return Collection of normalized rack names.
+   * @throws IllegalArgumentException if validation of some rack names' fails.
    */
-  private static Collection<String> normalize(final Collection<String> rackNames, final boolean validateEnd) {
+  private static Collection<String> normalize(
+      final Collection<String> rackNames, final boolean validateEnd) throws IllegalArgumentException {
 
     final List<String> normalizedRackNames = new ArrayList<>(rackNames.size());
 
