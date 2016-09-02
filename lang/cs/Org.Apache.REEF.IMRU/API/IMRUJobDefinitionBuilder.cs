@@ -38,6 +38,7 @@ namespace Org.Apache.REEF.IMRU.API
         private int _updateTaskMemory;
         private int _coresPerMapper;
         private int _updateTaskCores;
+        private int _maxRetryNumberInRecovery;
         private IConfiguration _mapFunctionConfiguration;
         private IConfiguration _mapInputCodecConfiguration;
         private IConfiguration _updateFunctionCodecsConfiguration;
@@ -66,6 +67,7 @@ namespace Org.Apache.REEF.IMRU.API
             _updateTaskMemory = 512;
             _coresPerMapper = 1;
             _updateTaskCores = 1;
+            _maxRetryNumberInRecovery = 0;
             _invokeGC = true;
             _perMapConfigGeneratorConfig = new HashSet<IConfiguration>();
         }
@@ -233,6 +235,17 @@ namespace Org.Apache.REEF.IMRU.API
         }
 
         /// <summary>
+        /// Set max number of retries done if first run of IMRU job failed.
+        /// </summary>
+        /// <param name="maxRetryNumberInRecovery">Max number of retries</param>
+        /// <returns></returns>
+        public IMRUJobDefinitionBuilder SetMaxRetryNumberInRecovery(int maxRetryNumberInRecovery)
+        {
+            _maxRetryNumberInRecovery = maxRetryNumberInRecovery;
+            return this;
+        }
+
+        /// <summary>
         /// Sets Per Map Configuration
         /// </summary>
         /// <param name="perMapperConfig">Mapper configs</param>
@@ -320,6 +333,7 @@ namespace Org.Apache.REEF.IMRU.API
                 _updateTaskMemory,
                 _coresPerMapper,
                 _updateTaskCores,
+                _maxRetryNumberInRecovery,
                 _jobName,
                 _invokeGC);
         }

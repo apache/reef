@@ -19,7 +19,7 @@ using Org.Apache.REEF.Tang.Annotations;
 
 namespace Org.Apache.REEF.Wake.Remote.Parameters
 {
-    [NamedParameter("Number of retries for connecting to endpoint", defaultValue: "20")]
+    [NamedParameter("Number of retries for connecting to endpoint", defaultValue: "200")]
     public sealed class ConnectionRetryCount : Name<int>
     {
     }

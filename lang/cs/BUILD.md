@@ -42,3 +42,18 @@ To build REEF.NET from command line, execute
 To run .NET tests from command line, execute
 
     msbuild .\lang\cs\TestRunner.proj
+
+Continuous Integration
+------------
+
+We use [AppVeyor](https://www.appveyor.com/) to run continuous integration for REEF .NET code (i.e. build and run tests
+for all pull requests and commits to master branch).
+
+It can be convenient to set up AppVeyor for your fork of REEF repository, for example, to reproduce a test failure which
+can't be reproduced locally.
+
+1. Log in to [AppVeyor](https://ci.appveyor.com/) using your GitHub credentials.
+2. Go to [project creation](https://ci.appveyor.com/projects/new) and select reef repository.
+3. Fine-tune configuration as required at Settings tab of repository; you can enable building pushes to your repository
+   when you're investigating something and disable them when you don't need them.
+4. Edit [AppVeyor configuration file](../../appveyor.yml) as required (by default you'll use the same configuration as REEF build).

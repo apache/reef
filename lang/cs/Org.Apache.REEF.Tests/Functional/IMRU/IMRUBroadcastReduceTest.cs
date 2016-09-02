@@ -28,14 +28,31 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
         private static readonly Logger Logger = Logger.GetLogger(typeof(IMRUMapperCountTest));
 
         private static readonly int NumNodes = 4;
+        private static readonly int NumOfRetry = 2;
 
         [Fact]
         [Trait("Description", "Run IMRU broadcast and reduce example as test.")]
         void TestIMRUBroadcastReduceOnLocalRuntime()
         {
             string testFolder = DefaultRuntimeFolder + TestId;
-            TestIMRUBroadcastReduce(false, testFolder);
+            TestIMRUBroadcastReduce(false, false, testFolder);
             ValidateSuccessForLocalRuntime(NumNodes, testFolder: testFolder);
+            CleanUp(testFolder);
+        }
+
+        [Fact]
+        [Trait("Description", "Run IMRU broadcast and reduce example as test.")]
+        void TestIMRUBroadcastReduceWithFTOnLocalRuntime()
+        {
+            string testFolder = DefaultRuntimeFolder + TestId;
+            TestIMRUBroadcastReduce(false, true, testFolder);
+            string[] lines = ReadLogFile(DriverStdout, "driver", testFolder, 240);
+            var completedTaskCount = GetMessageCount(lines, "Received ICompletedTask");
+            var runningTaskCount = GetMessageCount(lines, "Received IRunningTask");
+            var failedEvaluatorCount = GetMessageCount(lines, "Received IFailedEvaluator");
+            var failedTaskCount = GetMessageCount(lines, "Received IFailedTask");
+            Assert.Equal((NumOfRetry + 1) * NumNodes, completedTaskCount + failedEvaluatorCount + failedTaskCount);
+            Assert.Equal((NumOfRetry + 1) * NumNodes, runningTaskCount);
             CleanUp(testFolder);
         }
 
@@ -43,16 +60,18 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
         [Trait("Description", "Run IMRU broadcast and reduce example as test on Yarn.")]
         void TestIMRUBroadcastReduceOnYarn()
         {
-            TestIMRUBroadcastReduce(true);
+            TestIMRUBroadcastReduce(true, false);
         }
 
-        private void TestIMRUBroadcastReduce(bool runOnYarn, params string[] testFolder)
+        private void TestIMRUBroadcastReduce(bool runOnYarn, bool faultTolerant, params string[] testFolder)
         {
             var tcpPortConfig = TcpPortConfigurationModule.ConfigurationModule
                 .Set(TcpPortConfigurationModule.PortRangeStart, "8900")
                 .Set(TcpPortConfigurationModule.PortRangeCount, "1000")
                 .Build();
-            Run.RunBroadcastReduceTest(tcpPortConfig, runOnYarn, NumNodes, new string[0], testFolder);
+
+            string[] args = { "10", "2", "512", "512", "100", NumOfRetry.ToString() };
+            Run.RunBroadcastReduceTest(tcpPortConfig, runOnYarn, NumNodes, faultTolerant, args, testFolder);
         }
     }
 }

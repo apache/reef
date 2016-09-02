@@ -113,14 +113,17 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Task
                 }
                 catch (TaskStartHandlerException e)
                 {
+                    Logger.Log(Level.Info, "TaskRuntime::TaskStartHandlerException");
                     _currentStatus.SetException(e.InnerException);
                 }
                 catch (TaskStopHandlerException e)
                 {
+                    Logger.Log(Level.Info, "TaskRuntime::TaskStopHandlerException");
                     _currentStatus.SetException(e.InnerException);
                 }
                 catch (Exception e)
                 {
+                    Logger.Log(Level.Info, "TaskRuntime::Exception {0}", e.GetType());
                     _currentStatus.SetException(e);
                 }
                 finally

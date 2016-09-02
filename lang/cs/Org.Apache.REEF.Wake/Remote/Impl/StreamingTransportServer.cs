@@ -162,7 +162,9 @@ namespace Org.Apache.REEF.Wake.Remote.Impl
                 {
                     TcpClient client = await _listener.AcceptTcpClientAsync().ConfigureAwait(false);
                     ProcessClient(client).LogAndIgnoreExceptionIfAny(
-                        LOGGER, "Task Exception observed processing client in StreamingTransportServer.", Level.Warning);
+                        LOGGER,
+                        "StreamingTransportServer observed Task Exception during client processing.",
+                        Level.Warning);
                 }
             }
             catch (InvalidOperationException)
@@ -173,6 +175,11 @@ namespace Org.Apache.REEF.Wake.Remote.Impl
             {
                 LOGGER.Log(Level.Info, "StreamingTransportServer has been closed.");
             }
+            catch (Exception e)
+            {
+                LOGGER.Log(Level.Warning, "StreamingTransportServer got exception: {0}.", e.GetType());
+                throw e;
+            }
         }
 
         /// <summary>
@@ -181,24 +188,32 @@ namespace Org.Apache.REEF.Wake.Remote.Impl
         /// <param name="client">The connected client</param>
         private async Task ProcessClient(TcpClient client)
         {
-            // Keep reading messages from client until they disconnect or timeout
             CancellationToken token = _cancellationSource.Token;
-            using (ILink<T> link = new StreamingLink<T>(client, _streamingCodec))
+            try
             {
-                while (!token.IsCancellationRequested)
+                // Keep reading messages from client until they disconnect or timeout
+                using (ILink<T> link = new StreamingLink<T>(client, _streamingCodec))
                 {
-                    T message = await link.ReadAsync(token);
-
-                    if (message == null)
+                    while (!token.IsCancellationRequested)
                     {
-                        break;
-                    }
+                        T message = await link.ReadAsync(token);
 
-                    TransportEvent<T> transportEvent = new TransportEvent<T>(message, link);
-                    _remoteObserver.OnNext(transportEvent);
+                        if (message == null)
+                        {
+                            break;
+                        }
+
+                        TransportEvent<T> transportEvent = new TransportEvent<T>(message, link);
+                        _remoteObserver.OnNext(transportEvent);
+                    }
+                    LOGGER.Log(Level.Error,
+                        "ProcessClient close the Link. IsCancellationRequested: " + token.IsCancellationRequested);
                 }
-                LOGGER.Log(Level.Error,
-                    "ProcessClient close the Link. IsCancellationRequested: " + token.IsCancellationRequested);
+            }
+            catch (Exception e)
+            {
+                LOGGER.Log(Level.Warning, "StreamingTransportServer get exception in ProcessClient: {0}, IsCancellationRequested {1}.", e.GetType(), token.IsCancellationRequested);
+                throw e;
             }
         }
     }

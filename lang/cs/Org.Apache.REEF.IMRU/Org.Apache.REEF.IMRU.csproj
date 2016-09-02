@@ -104,6 +104,7 @@ under the License.
     <Compile Include="OnREEF\Parameters\AllowedFailedEvaluatorsFraction.cs" />
     <Compile Include="OnREEF\Parameters\CoresForUpdateTask.cs" />
     <Compile Include="OnREEF\Parameters\CoresPerMapper.cs" />
+    <Compile Include="OnREEF\Parameters\MaxRetryNumberInRecovery.cs" />
     <Compile Include="OnREEF\Parameters\MemoryForUpdateTask.cs" />
     <Compile Include="OnREEF\Parameters\MemoryPerMapper.cs" />
     <Compile Include="OnREEF\Parameters\SerializedResultHandlerConfiguration.cs" />

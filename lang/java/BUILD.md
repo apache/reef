@@ -77,3 +77,17 @@ Java build incorporates several code quality tools:
 
   Per-project Findbugs reports can be found at `\<project>\target\findbugs\findbugsXml.html`.
 
+Continuous Integration
+------------
+
+We use [Travis CI](https://travis-ci.org/) to run continuous integration for REEF Java code (i.e. build and run tests
+for all pull requests and commits to master branch).
+
+It can be convenient to set up Travis for your fork of REEF repository, for example, to reproduce a test failure which
+can't be reproduced locally.
+
+1. Log in to [Travis CI](https://travis-ci.org/) using your GitHub credentials.
+2. Go to [your profile](https://travis-ci.org/profile/) and switch reef repository to "on".
+3. Fine-tune configuration as required at Settings tab of repository; you can enable building pushes to your repository
+   when you're investigating something and disable them when you don't need them.
+4. Edit [Travis configuration file](../../.travis.yml) as required (by default you'll use the same configuration as REEF build).

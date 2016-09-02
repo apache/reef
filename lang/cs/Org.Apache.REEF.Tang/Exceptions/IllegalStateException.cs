@@ -16,9 +16,11 @@
 // under the License.
 
 using System;
+using System.Runtime.Serialization;
 
 namespace Org.Apache.REEF.Tang.Exceptions
 {
+    [Serializable]
     public sealed class IllegalStateException : Exception
     {
         public IllegalStateException()
@@ -28,6 +30,11 @@ namespace Org.Apache.REEF.Tang.Exceptions
         public IllegalStateException(string msg)
             : base(msg)
         {           
+        }
+
+        public IllegalStateException(SerializationInfo info, StreamingContext context)
+            : base(info, context)
+        {
         }
 
         public IllegalStateException(string message, Exception innerException)
