@@ -198,7 +198,7 @@ public final class DriverStatusManager {
   /**
    * Sends the final message to the Driver. This is used by DriverRuntimeStopHandler.onNext().
    * @param exception Exception that caused the job to end (can be absent).
-   * @deprecated [REEF-1548] Do not use DriverStatusManager as a proxy to the job client.
+   * @deprecated TODO[JIRA REEF-1548] Do not use DriverStatusManager as a proxy to the job client.
    * After release 0.16, make this method private and use it inside onRuntimeStop() method instead.
    */
   public synchronized void sendJobEndingMessageToClient(final Optional<Throwable> exception) {

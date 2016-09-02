@@ -351,13 +351,16 @@ final class YarnContainerManager
     LOG.log(Level.FINE, "Stop Runtime: RM status {0}", this.resourceManager.getServiceState());
 
     if (this.resourceManager.getServiceState() == Service.STATE.STARTED) {
+
       // invariant: if RM is still running then we declare success.
       try {
+
         this.reefEventHandlers.close();
+
         if (exception == null) {
-          this.resourceManager.unregisterApplicationMaster(
-              FinalApplicationStatus.SUCCEEDED, null, null);
+          this.resourceManager.unregisterApplicationMaster(FinalApplicationStatus.SUCCEEDED, null, null);
         } else {
+
           // Note: We don't allow RM to restart our applications if it's an application level failure.
           // If applications are to be long-running, they should catch Exceptions before the REEF level
           // instead of relying on the RM restart mechanism.
@@ -365,8 +368,8 @@ final class YarnContainerManager
           // to leak to this stage.
           final String failureMsg = String.format("Application failed due to:%n%s%n" +
               "With stack trace:%n%s", exception.getMessage(), ExceptionUtils.getStackTrace(exception));
-          this.resourceManager.unregisterApplicationMaster(
-              FinalApplicationStatus.FAILED, failureMsg, null);
+
+          this.resourceManager.unregisterApplicationMaster(FinalApplicationStatus.FAILED, failureMsg, null);
         }
 
         this.resourceManager.close();
@@ -495,7 +498,7 @@ final class YarnContainerManager
       // Therefore it is necessary avoid sending zero-container request, even if it means getting extra containers.
       // It is okay to send nonzero m-capacity and n-capacity request together since bigger containers
       // can be matched.
-      // TODO [JIRA REEF-42, REEF-942]: revisit this when implementing locality-strictness.
+      // TODO[JIRA REEF-42, REEF-942]: revisit this when implementing locality-strictness.
       // (i.e. a specific rack request can be ignored)
       if (this.requestsAfterSentToRM.size() > 1) {
         try {

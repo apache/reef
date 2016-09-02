@@ -117,7 +117,9 @@ public final class ResourceManagerStatus implements EventHandler<RuntimeStatusEv
   }
 
   /**
-   * Driver is idle if, regardless of status, it has no evaluators allocated and no pending container requests.
+   * Driver is idle if, regardless of status, it has no evaluators allocated
+   * and no pending container requests. This method is used in the DriverIdleManager.
+   * If all DriverIdlenessSource components are idle, DriverIdleManager will initiate Driver shutdown.
    * @return idle, if there are no outstanding requests or allocations. Not idle otherwise.
    */
   @Override
