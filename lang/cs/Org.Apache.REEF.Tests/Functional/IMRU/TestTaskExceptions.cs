@@ -17,6 +17,7 @@
 
 using System;
 using System.Globalization;
+using Org.Apache.REEF.Common.Exceptions;
 using Org.Apache.REEF.Common.Tasks;
 using Org.Apache.REEF.Driver;
 using Org.Apache.REEF.Driver.Evaluator;
@@ -185,7 +186,7 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
                     }
 
                     Assert.Equal(InnerExceptionMessage, value.AsError().InnerException.Message);
-                    Assert.True(value.AsError().InnerException is Exception);
+                    Assert.True(value.AsError().InnerException is ReefRuntimeException);
                 }
                 Logger.Log(Level.Info, ValidFailedTaskMessage);
                 value.GetActiveContext().Value.Dispose();
@@ -240,7 +241,7 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
                     case TaskManager.TaskGroupCommunicationError:
                         throw new IMRUTaskGroupCommunicationException(_taskExceptionMessage);
                     default:
-                        throw new IMRUTaskSystemException(_taskExceptionMessage, new Exception(InnerExceptionMessage));
+                        throw new IMRUTaskSystemException(_taskExceptionMessage, new ReefRuntimeException(InnerExceptionMessage));
                 }
             }
         }
