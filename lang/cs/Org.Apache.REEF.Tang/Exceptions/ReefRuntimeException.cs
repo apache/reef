@@ -18,7 +18,7 @@
 using System;
 using System.Runtime.Serialization;
 
-namespace Org.Apache.REEF.Common.Exceptions
+namespace Org.Apache.REEF.Tang.Exceptions
 {
     /// <summary>
     /// A serializable exception that represents a general Reef error.
