@@ -16,6 +16,7 @@
 // under the License.
 
 using Org.Apache.REEF.IMRU.API;
+using Org.Apache.REEF.IMRU.Examples.PipelinedBroadcastReduce;
 using TaskIdsToFail = Org.Apache.REEF.IMRU.Examples.PipelinedBroadcastReduce.FaultTolerantPipelinedBroadcastAndReduce.TaskIdsToFail;
 using FailureType = Org.Apache.REEF.IMRU.Examples.PipelinedBroadcastReduce.FaultTolerantPipelinedBroadcastAndReduce.FailureType;
 using TestSenderMapFunction = Org.Apache.REEF.IMRU.Examples.PipelinedBroadcastReduce.FaultTolerantPipelinedBroadcastAndReduce.TestSenderMapFunction;
@@ -84,6 +85,7 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
                 .BindSetEntry<TaskIdsToFail, string>(GenericType<TaskIdsToFail>.Class, "IMRUMap-RandomInputPartition-3-")
                 .BindIntNamedParam<FailureType>(FailureType.TaskFailureDuringTaskExecution.ToString())
                 .BindNamedParameter(typeof(MaxRetryNumberInRecovery), NumberOfRetry.ToString())
+                .BindNamedParameter(typeof(FaultTolerantPipelinedBroadcastAndReduce.TotalNumberOfAllowedFailures), NumberOfRetry.ToString())
                 .Build();
         }
     }

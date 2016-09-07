@@ -15,7 +15,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-using System;
 using System.Globalization;
 using System.IO;
 using Org.Apache.REEF.IMRU.API;
@@ -33,18 +32,125 @@ namespace Org.Apache.REEF.IMRU.Examples.PipelinedBroadcastReduce
     /// </summary>
     public class PipelinedBroadcastAndReduce
     {
-        private readonly IIMRUClient _imruClient;
+        protected readonly IIMRUClient ImruClient;
 
         [Inject]
         protected PipelinedBroadcastAndReduce(IIMRUClient imruClient)
         {
-            _imruClient = imruClient;
+            ImruClient = imruClient;
         }
 
         /// <summary>
         /// Runs the actual broadcast and reduce job
         /// </summary>
-        public void Run(int numberofMappers, int chunkSize, int numIterations, int dim, int mapperMemory, int updateTaskMemory, int maxRetryNumberInRecovery)
+        internal void Run(int numberofMappers, int chunkSize, int numIterations, int dim, int mapperMemory, int updateTaskMemory)
+        {
+            var results = ImruClient.Submit<int[], int[], int[], Stream>(
+                new IMRUJobDefinitionBuilder()
+                    .SetMapFunctionConfiguration(BuildMapperFunctionConfig())
+                    .SetUpdateFunctionConfiguration(UpdateFunctionConfig(numberofMappers, numIterations, dim))
+                    .SetMapInputCodecConfiguration(MapInputCodecConfiguration())
+                    .SetUpdateFunctionCodecsConfiguration(UpdateFunctionCodecsConfiguration())
+                    .SetReduceFunctionConfiguration(ReduceFunctionConfiguration())
+                    .SetMapInputPipelineDataConverterConfiguration(MapInputDataConverterConfig(chunkSize))
+                    .SetMapOutputPipelineDataConverterConfiguration(MapOutputDataConverterConfig(chunkSize))
+                    .SetPartitionedDatasetConfiguration(PartitionedDatasetConfiguration(numberofMappers))
+                    .SetJobName("BroadcastReduce")
+                    .SetNumberOfMappers(numberofMappers)
+                    .SetMapperMemory(mapperMemory)
+                    .SetUpdateTaskMemory(updateTaskMemory)
+                    .Build());
+        }
+
+        /// <summary>
+        /// Configuration for Partitioned Dataset
+        /// </summary>
+        /// <param name="numberofMappers"></param>
+        /// <returns></returns>
+        protected static IConfiguration PartitionedDatasetConfiguration(int numberofMappers)
+        {
+            return RandomInputDataConfiguration.ConfigurationModule.Set(RandomInputDataConfiguration.NumberOfPartitions,
+                numberofMappers.ToString()).Build();
+        }
+
+        /// <summary>
+        /// Configuration for Reduce Function
+        /// </summary>
+        /// <returns></returns>
+        protected static IConfiguration ReduceFunctionConfiguration()
+        {
+            return IMRUReduceFunctionConfiguration<int[]>.ConfigurationModule
+                .Set(IMRUReduceFunctionConfiguration<int[]>.ReduceFunction,
+                    GenericType<IntArraySumReduceFunction>.Class)
+                .Build();
+        }
+
+        /// <summary>
+        /// Configuration for Update Function
+        /// </summary>
+        /// <returns></returns>
+        protected static IConfiguration UpdateFunctionCodecsConfiguration()
+        {
+            return IMRUCodecConfiguration<int[]>.ConfigurationModule
+                .Set(IMRUCodecConfiguration<int[]>.Codec, GenericType<IntArrayStreamingCodec>.Class)
+                .Build();
+        }
+
+        /// <summary>
+        /// Configuration for Map Input Codec
+        /// </summary>
+        /// <returns></returns>
+        protected static IConfiguration MapInputCodecConfiguration()
+        {
+            return IMRUCodecConfiguration<int[]>.ConfigurationModule
+                .Set(IMRUCodecConfiguration<int[]>.Codec, GenericType<IntArrayStreamingCodec>.Class)
+                .Build();
+        }
+
+        /// <summary>
+        /// Configuration for Map Output Data Converter
+        /// </summary>
+        /// <param name="chunkSize"></param>
+        /// <returns></returns>
+        protected static IConfiguration MapOutputDataConverterConfig(int chunkSize)
+        {
+            var dataConverterConfig2 =
+                TangFactory.GetTang()
+                    .NewConfigurationBuilder(IMRUPipelineDataConverterConfiguration<int[]>.ConfigurationModule
+                        .Set(IMRUPipelineDataConverterConfiguration<int[]>.MapInputPiplelineDataConverter,
+                            GenericType<PipelineIntDataConverter>.Class).Build())
+                    .BindNamedParameter(typeof(BroadcastReduceConfiguration.ChunkSize),
+                        chunkSize.ToString(CultureInfo.InvariantCulture))
+                    .Build();
+            return dataConverterConfig2;
+        }
+
+        /// <summary>
+        /// Configuration for Map Input Data Converter
+        /// </summary>
+        /// <param name="chunkSize"></param>
+        /// <returns></returns>
+        protected static IConfiguration MapInputDataConverterConfig(int chunkSize)
+        {
+            var dataConverterConfig1 =
+                TangFactory.GetTang()
+                    .NewConfigurationBuilder(IMRUPipelineDataConverterConfiguration<int[]>.ConfigurationModule
+                        .Set(IMRUPipelineDataConverterConfiguration<int[]>.MapInputPiplelineDataConverter,
+                            GenericType<PipelineIntDataConverter>.Class).Build())
+                    .BindNamedParameter(typeof(BroadcastReduceConfiguration.ChunkSize),
+                        chunkSize.ToString(CultureInfo.InvariantCulture))
+                    .Build();
+            return dataConverterConfig1;
+        }
+
+        /// <summary>
+        /// Configuration for Update Function
+        /// </summary>
+        /// <param name="numberofMappers"></param>
+        /// <param name="numIterations"></param>
+        /// <param name="dim"></param>
+        /// <returns></returns>
+        protected static IConfiguration UpdateFunctionConfig(int numberofMappers, int numIterations, int dim)
         {
             var updateFunctionConfig =
                 TangFactory.GetTang().NewConfigurationBuilder(IMRUUpdateConfiguration<int[], int[], int[]>.ConfigurationModule
@@ -57,63 +163,19 @@ namespace Org.Apache.REEF.IMRU.Examples.PipelinedBroadcastReduce
                     .BindNamedParameter(typeof(BroadcastReduceConfiguration.NumWorkers),
                         numberofMappers.ToString(CultureInfo.InvariantCulture))
                     .Build();
-
-            var dataConverterConfig1 =
-                TangFactory.GetTang()
-                    .NewConfigurationBuilder(IMRUPipelineDataConverterConfiguration<int[]>.ConfigurationModule
-                        .Set(IMRUPipelineDataConverterConfiguration<int[]>.MapInputPiplelineDataConverter,
-                            GenericType<PipelineIntDataConverter>.Class).Build())
-                    .BindNamedParameter(typeof(BroadcastReduceConfiguration.ChunkSize),
-                        chunkSize.ToString(CultureInfo.InvariantCulture))
-                    .Build();
-
-            var dataConverterConfig2 =
-                TangFactory.GetTang()
-                    .NewConfigurationBuilder(IMRUPipelineDataConverterConfiguration<int[]>.ConfigurationModule
-                        .Set(IMRUPipelineDataConverterConfiguration<int[]>.MapInputPiplelineDataConverter,
-                            GenericType<PipelineIntDataConverter>.Class).Build())
-                    .BindNamedParameter(typeof(BroadcastReduceConfiguration.ChunkSize),
-                        chunkSize.ToString(CultureInfo.InvariantCulture))
-                    .Build();
-
-            var results = _imruClient.Submit<int[], int[], int[], Stream>(
-                new IMRUJobDefinitionBuilder()
-                    .SetMapFunctionConfiguration(BuildMapperFunctionConfig(maxRetryNumberInRecovery))
-                    .SetUpdateFunctionConfiguration(updateFunctionConfig)
-                    .SetMapInputCodecConfiguration(IMRUCodecConfiguration<int[]>.ConfigurationModule
-                        .Set(IMRUCodecConfiguration<int[]>.Codec, GenericType<IntArrayStreamingCodec>.Class)
-                        .Build())
-                    .SetUpdateFunctionCodecsConfiguration(IMRUCodecConfiguration<int[]>.ConfigurationModule
-                        .Set(IMRUCodecConfiguration<int[]>.Codec, GenericType<IntArrayStreamingCodec>.Class)
-                        .Build())
-                    .SetReduceFunctionConfiguration(IMRUReduceFunctionConfiguration<int[]>.ConfigurationModule
-                        .Set(IMRUReduceFunctionConfiguration<int[]>.ReduceFunction,
-                            GenericType<IntArraySumReduceFunction>.Class)
-                        .Build())
-                    .SetMapInputPipelineDataConverterConfiguration(dataConverterConfig1)
-                    .SetMapOutputPipelineDataConverterConfiguration(dataConverterConfig2)
-                    .SetPartitionedDatasetConfiguration(
-                        RandomInputDataConfiguration.ConfigurationModule.Set(RandomInputDataConfiguration.NumberOfPartitions,
-                            numberofMappers.ToString()).Build())
-                    .SetJobName("BroadcastReduce")
-                    .SetNumberOfMappers(numberofMappers)
-                    .SetMapperMemory(mapperMemory)
-                    .SetMaxRetryNumberInRecovery(maxRetryNumberInRecovery)
-                    .SetUpdateTaskMemory(updateTaskMemory)
-                    .Build());
+            return updateFunctionConfig;
         }
 
-        protected virtual IConfiguration BuildMapperFunctionConfig(int maxRetryInRecovery)
+        /// <summary>
+        /// Configuration for Mapper function
+        /// </summary>
+        /// <returns></returns>
+        private static IConfiguration BuildMapperFunctionConfig()
         {
             return IMRUMapConfiguration<int[], int[]>.ConfigurationModule
                 .Set(IMRUMapConfiguration<int[], int[]>.MapFunction,
                     GenericType<BroadcastReceiverReduceSenderMapFunction>.Class)
                 .Build();
-        }
-
-        internal void Run(int v, int chunkSize, int iterations, int dims, int mapperMemory, int updateTaskMemory)
-        {
-            throw new NotImplementedException();
         }
     }
 }

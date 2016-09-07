@@ -65,7 +65,8 @@ namespace Org.Apache.REEF.IMRU.Examples
             int iterations = 100;
             int mapperMemory = 512;
             int updateTaskMemory = 512;
-            int maxRetryNumberInRecovery = 2;         
+            int maxRetryNumberInRecovery = 2;
+            int totalAllowedFailureNumberInRecovery = 2;
 
             if (args.Length > 0)
             {
@@ -97,6 +98,11 @@ namespace Org.Apache.REEF.IMRU.Examples
                 maxRetryNumberInRecovery = Convert.ToInt32(args[5]);
             }
 
+            if (args.Length > 6)
+            {
+                totalAllowedFailureNumberInRecovery = Convert.ToInt32(args[6]);
+            }
+
             IInjector injector;
 
             if (!runOnYarn)
@@ -114,12 +120,12 @@ namespace Org.Apache.REEF.IMRU.Examples
             if (faultTolerant)
             {
                 var broadcastReduceFtExample = injector.GetInstance<FaultTolerantPipelinedBroadcastAndReduce>();
-                broadcastReduceFtExample.Run(numNodes - 1, chunkSize, iterations, dims, mapperMemory, updateTaskMemory, maxRetryNumberInRecovery);
+                broadcastReduceFtExample.Run(numNodes - 1, chunkSize, iterations, dims, mapperMemory, updateTaskMemory, maxRetryNumberInRecovery, totalAllowedFailureNumberInRecovery);
             }
             else
             {
                 var broadcastReduceExample = injector.GetInstance<PipelinedBroadcastAndReduce>();
-                broadcastReduceExample.Run(numNodes - 1, chunkSize, iterations, dims, mapperMemory, updateTaskMemory, maxRetryNumberInRecovery);
+                broadcastReduceExample.Run(numNodes - 1, chunkSize, iterations, dims, mapperMemory, updateTaskMemory);
             }
         }
 

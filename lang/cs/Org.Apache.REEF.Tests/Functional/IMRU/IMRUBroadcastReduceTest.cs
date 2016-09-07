@@ -70,7 +70,7 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
                 .Set(TcpPortConfigurationModule.PortRangeCount, "1000")
                 .Build();
 
-            string[] args = { "10", "2", "512", "512", "100", NumOfRetry.ToString() };
+            string[] args = { "10", "2", "512", "512", "100", NumOfRetry.ToString(), NumOfRetry.ToString() };
             Run.RunBroadcastReduceTest(tcpPortConfig, runOnYarn, NumNodes, faultTolerant, args, testFolder);
         }
     }
