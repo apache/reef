@@ -108,7 +108,6 @@ under the License.
     <Compile Include="Exceptions\JobException.cs" />
     <Compile Include="Exceptions\NonSerializableEvaluatorException.cs" />
     <Compile Include="Exceptions\NonSerializableTaskException.cs" />
-    <Compile Include="Exceptions\ReefRuntimeException.cs" />
     <Compile Include="Files\PathUtilities.cs" />
     <Compile Include="IContextAndTaskSubmittable.cs" />
     <Compile Include="IContextSubmittable.cs" />

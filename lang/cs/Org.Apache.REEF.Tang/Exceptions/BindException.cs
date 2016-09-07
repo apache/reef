@@ -19,7 +19,7 @@ using System;
 
 namespace Org.Apache.REEF.Tang.Exceptions
 {
-    public class BindException : Exception
+    public class BindException : ReefRuntimeException
     {
         internal BindException(string message)
             : base(message)

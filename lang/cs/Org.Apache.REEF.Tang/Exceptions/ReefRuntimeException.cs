@@ -24,7 +24,7 @@ namespace Org.Apache.REEF.Tang.Exceptions
     /// A serializable exception that represents a general Reef error.
     /// </summary>
     [Serializable]
-    public sealed class ReefRuntimeException : Exception
+    public class ReefRuntimeException : Exception
     {
         /// <summary>
         /// Constructor. A serializable exception object that represents a general Reef error.
