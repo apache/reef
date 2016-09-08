@@ -24,6 +24,7 @@ using Org.Apache.REEF.Utilities.Attributes;
 namespace Org.Apache.REEF.Utilities.Diagnostics
 {
     [Private]
+    [Obsolete("TODO[JIRA REEF-1467] This class will be removed")]
     public static class Exceptions
     {
         #region methods
