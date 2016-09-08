@@ -19,7 +19,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
-using Org.Apache.REEF.Common.Exceptions;
 using Org.Apache.REEF.Common.Io;
 using Org.Apache.REEF.Common.Tasks;
 using Org.Apache.REEF.Network.Group.Config;

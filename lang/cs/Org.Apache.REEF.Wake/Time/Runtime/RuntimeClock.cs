@@ -20,6 +20,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using Org.Apache.REEF.Tang.Annotations;
+using Org.Apache.REEF.Tang.Exceptions;
 using Org.Apache.REEF.Tang.Implementations.InjectionPlan;
 using Org.Apache.REEF.Utilities;
 using Org.Apache.REEF.Utilities.Collections;
@@ -168,7 +169,7 @@ namespace Org.Apache.REEF.Wake.Time.Runtime
             }
             catch (Exception e)
             {
-                runtimeException = Optional<Exception>.Of(new WakeRuntimeException("Caught Exception in clock, failing the Evaluator.", e));
+                runtimeException = Optional<Exception>.Of(new ReefRuntimeException("Caught Exception in clock, failing the Evaluator.", e));
             }
 
             var runtimeStop = runtimeException.IsPresent()
