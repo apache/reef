@@ -47,7 +47,10 @@ namespace Org.Apache.REEF.Wake.Remote.Impl
         /// <param name="clientFactory">TcpClient factory</param>
         internal StreamingTransportClient(IPEndPoint remoteEndpoint, IStreamingCodec<T> streamingCodec, ITcpClientConnectionFactory clientFactory)
         {
-            Exceptions.ThrowIfArgumentNull(remoteEndpoint, "remoteEndpoint", Logger);
+            if (remoteEndpoint == null)
+            {
+                Exceptions.Throw(new ArgumentNullException("remoteEndpoint"), Logger);
+            }
 
             _link = new StreamingLink<T>(remoteEndpoint, streamingCodec, clientFactory);
             _cancellationSource = new CancellationTokenSource();
