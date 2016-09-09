@@ -66,7 +66,7 @@ namespace Org.Apache.REEF.IMRU.Examples
             int mapperMemory = 512;
             int updateTaskMemory = 512;
             int maxRetryNumberInRecovery = 2;
-            int totalAllowedFailureNumberInRecovery = 2;
+            int totalNumberOfForcedFailures = 2;
 
             if (args.Length > 0)
             {
@@ -100,7 +100,7 @@ namespace Org.Apache.REEF.IMRU.Examples
 
             if (args.Length > 6)
             {
-                totalAllowedFailureNumberInRecovery = Convert.ToInt32(args[6]);
+                totalNumberOfForcedFailures = Convert.ToInt32(args[6]);
             }
 
             IInjector injector;
@@ -120,7 +120,7 @@ namespace Org.Apache.REEF.IMRU.Examples
             if (faultTolerant)
             {
                 var broadcastReduceFtExample = injector.GetInstance<FaultTolerantPipelinedBroadcastAndReduce>();
-                broadcastReduceFtExample.Run(numNodes - 1, chunkSize, iterations, dims, mapperMemory, updateTaskMemory, maxRetryNumberInRecovery, totalAllowedFailureNumberInRecovery);
+                broadcastReduceFtExample.Run(numNodes - 1, chunkSize, iterations, dims, mapperMemory, updateTaskMemory, maxRetryNumberInRecovery, totalNumberOfForcedFailures);
             }
             else
             {
@@ -133,8 +133,8 @@ namespace Org.Apache.REEF.IMRU.Examples
         /// Run IMRU examples from command line
         /// </summary>
         /// Sample command line:  
-        /// .\Org.Apache.REEF.IMRU.Examples.exe true 500 8900 1000 broadcastandreduce 20000000 1000000 1024 1024 10 2
-        /// .\Org.Apache.REEF.IMRU.Examples.exe true 500 8900 1000 broadcastandreduceft 20000000 1000000 1024 1024 100 2
+        /// .\Org.Apache.REEF.IMRU.Examples.exe true 500 8900 1000 broadcastandreduce 20000000 1000000 1024 1024 10
+        /// .\Org.Apache.REEF.IMRU.Examples.exe true 500 8900 1000 broadcastandreduceft 20000000 1000000 1024 1024 100 5 2
         /// <param name="args"></param>
         private static void Main(string[] args)
         {

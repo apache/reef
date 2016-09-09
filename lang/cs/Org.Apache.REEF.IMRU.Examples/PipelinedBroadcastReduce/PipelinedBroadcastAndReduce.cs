@@ -32,12 +32,12 @@ namespace Org.Apache.REEF.IMRU.Examples.PipelinedBroadcastReduce
     /// </summary>
     public class PipelinedBroadcastAndReduce
     {
-        protected readonly IIMRUClient ImruClient;
+        protected readonly IIMRUClient _imruClient;
 
         [Inject]
         protected PipelinedBroadcastAndReduce(IIMRUClient imruClient)
         {
-            ImruClient = imruClient;
+            _imruClient = imruClient;
         }
 
         /// <summary>
@@ -45,10 +45,16 @@ namespace Org.Apache.REEF.IMRU.Examples.PipelinedBroadcastReduce
         /// </summary>
         internal void Run(int numberofMappers, int chunkSize, int numIterations, int dim, int mapperMemory, int updateTaskMemory)
         {
-            var results = ImruClient.Submit<int[], int[], int[], Stream>(
-                new IMRUJobDefinitionBuilder()
+            var results = _imruClient.Submit<int[], int[], int[], Stream>(
+                BuildJobDefinationBuilder(numberofMappers, chunkSize, numIterations, dim, mapperMemory, updateTaskMemory)
                     .SetMapFunctionConfiguration(BuildMapperFunctionConfig())
-                    .SetUpdateFunctionConfiguration(UpdateFunctionConfig(numberofMappers, numIterations, dim))
+                    .Build());
+        }
+
+        protected IMRUJobDefinitionBuilder BuildJobDefinationBuilder(int numberofMappers, int chunkSize, int numIterations, int dim, int mapperMemory, int updateTaskMemory)
+        {
+            return new IMRUJobDefinitionBuilder()
+                    .SetMapFunctionConfiguration(BuildMapperFunctionConfig())
                     .SetMapInputCodecConfiguration(MapInputCodecConfiguration())
                     .SetUpdateFunctionCodecsConfiguration(UpdateFunctionCodecsConfiguration())
                     .SetReduceFunctionConfiguration(ReduceFunctionConfiguration())
@@ -58,14 +64,12 @@ namespace Org.Apache.REEF.IMRU.Examples.PipelinedBroadcastReduce
                     .SetJobName("BroadcastReduce")
                     .SetNumberOfMappers(numberofMappers)
                     .SetMapperMemory(mapperMemory)
-                    .SetUpdateTaskMemory(updateTaskMemory)
-                    .Build());
+                    .SetUpdateTaskMemory(updateTaskMemory);
         }
 
         /// <summary>
         /// Configuration for Partitioned Dataset
         /// </summary>
-        /// <param name="numberofMappers"></param>
         /// <returns></returns>
         protected static IConfiguration PartitionedDatasetConfiguration(int numberofMappers)
         {

@@ -7,7 +7,7 @@
 // with the License.  You may obtain a copy of the License at
 //
 //   http://www.apache.org/licenses/LICENSE-2.0
-//
+// 
 // Unless required by applicable law or agreed to in writing,
 // software distributed under the License is distributed on an
 // "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -47,23 +47,12 @@ namespace Org.Apache.REEF.IMRU.Examples.PipelinedBroadcastReduce
         /// <summary>
         /// Runs the actual broadcast and reduce job with fault tolerance
         /// </summary>
-        internal void Run(int numberofMappers, int chunkSize, int numIterations, int dim, int mapperMemory, int updateTaskMemory, int maxRetryNumberInRecovery, int totalAllowedFailurNumber)
+        internal void Run(int numberofMappers, int chunkSize, int numIterations, int dim, int mapperMemory, int updateTaskMemory, int maxRetryNumberInRecovery, int totalNumberOfForcedFailures)
         {
-            var results = ImruClient.Submit<int[], int[], int[], Stream>(
-                new IMRUJobDefinitionBuilder()
-                    .SetMapFunctionConfiguration(BuildMapperFunctionConfig(maxRetryNumberInRecovery, totalAllowedFailurNumber))
-                    .SetUpdateFunctionConfiguration(UpdateFunctionConfig(numberofMappers, numIterations, dim))
-                    .SetMapInputCodecConfiguration(MapInputCodecConfiguration())
-                    .SetUpdateFunctionCodecsConfiguration(UpdateFunctionCodecsConfiguration())
-                    .SetReduceFunctionConfiguration(ReduceFunctionConfiguration())
-                    .SetMapInputPipelineDataConverterConfiguration(MapInputDataConverterConfig(chunkSize))
-                    .SetMapOutputPipelineDataConverterConfiguration(MapOutputDataConverterConfig(chunkSize))
-                    .SetPartitionedDatasetConfiguration(PartitionedDatasetConfiguration(numberofMappers))
-                    .SetJobName("BroadcastReduce")
-                    .SetNumberOfMappers(numberofMappers)
-                    .SetMapperMemory(mapperMemory)
+            var results = _imruClient.Submit<int[], int[], int[], Stream>(
+                BuildJobDefinationBuilder(numberofMappers, chunkSize, numIterations, dim, mapperMemory, updateTaskMemory)
+                    .SetMapFunctionConfiguration(BuildMapperFunctionConfig(maxRetryNumberInRecovery, totalNumberOfForcedFailures))
                     .SetMaxRetryNumberInRecovery(maxRetryNumberInRecovery)
-                    .SetUpdateTaskMemory(updateTaskMemory)
                     .Build());
         }
 
@@ -71,9 +60,9 @@ namespace Org.Apache.REEF.IMRU.Examples.PipelinedBroadcastReduce
         /// Build a test mapper function configuration
         /// </summary>
         /// <param name="maxRetryInRecovery">Number of retries done if first run failed.</param>
-        /// <param name="totalAllowedFailures">Number of allowed failure times in recovery.</param>
+        /// <param name="totalNumberOfForcedFailures">Number of allowed failure times in recovery.</param>
         /// <returns></returns>
-        private static IConfiguration BuildMapperFunctionConfig(int maxRetryInRecovery, int totalAllowedFailures)
+        private static IConfiguration BuildMapperFunctionConfig(int maxRetryInRecovery, int totalNumberOfForcedFailures)
         {
             var c1 = IMRUMapConfiguration<int[], int[]>.ConfigurationModule
                 .Set(IMRUMapConfiguration<int[], int[]>.MapFunction,
@@ -85,7 +74,7 @@ namespace Org.Apache.REEF.IMRU.Examples.PipelinedBroadcastReduce
                 .BindSetEntry<TaskIdsToFail, string>(GenericType<TaskIdsToFail>.Class, "IMRUMap-RandomInputPartition-3-")
                 .BindIntNamedParam<FailureType>(FailureType.EvaluatorFailureDuringTaskExecution.ToString())
                 .BindNamedParameter(typeof(MaxRetryNumberInRecovery), maxRetryInRecovery.ToString())
-                .BindNamedParameter(typeof(TotalNumberOfAllowedFailures), totalAllowedFailures.ToString())
+                .BindNamedParameter(typeof(TotalNumberOfForcedFailures), totalNumberOfForcedFailures.ToString())
                 .Build();
 
             return Configurations.Merge(c1, c2);
@@ -112,7 +101,7 @@ namespace Org.Apache.REEF.IMRU.Examples.PipelinedBroadcastReduce
         }
 
         [NamedParameter(Documentation = "Total number of failures in recovery.", DefaultValue = "2")]
-        internal class TotalNumberOfAllowedFailures : Name<int>
+        internal class TotalNumberOfForcedFailures : Name<int>
         {
         }
 
@@ -126,8 +115,8 @@ namespace Org.Apache.REEF.IMRU.Examples.PipelinedBroadcastReduce
             private readonly ISet<string> _taskIdsToFail;
             private readonly int _failureType;
             private readonly int _maxRetryInRecovery;
-            private readonly int _totalNumberOfAllowedFailurs;
-            private readonly int _numberOfRetry = 0;
+            private readonly int _totalNumberOfForcedFailures;
+            private readonly int _retryIndex;
 
             [Inject]
             private TestSenderMapFunction(
@@ -135,23 +124,23 @@ namespace Org.Apache.REEF.IMRU.Examples.PipelinedBroadcastReduce
                 [Parameter(typeof(TaskIdsToFail))] ISet<string> taskIdsToFail,
                 [Parameter(typeof(FailureType))] int failureType,
                 [Parameter(typeof(MaxRetryNumberInRecovery))] int maxRetryNumberInRecovery,
-                [Parameter(typeof(TotalNumberOfAllowedFailures))] int totalNumberOfAllowedFailurs)
+                [Parameter(typeof(TotalNumberOfForcedFailures))] int totalNumberOfForcedFailures)
             {
                 _taskId = taskId;
                 _taskIdsToFail = taskIdsToFail;
                 _failureType = failureType;
                 _maxRetryInRecovery = maxRetryNumberInRecovery;
-                _totalNumberOfAllowedFailurs = totalNumberOfAllowedFailurs;
+                _totalNumberOfForcedFailures = totalNumberOfForcedFailures;
 
                 var taskIdSplit = taskId.Split('-');
-                _numberOfRetry = int.Parse(taskIdSplit[taskIdSplit.Length - 1]);
+                _retryIndex = int.Parse(taskIdSplit[taskIdSplit.Length - 1]);
 
                 Logger.Log(Level.Info,
-                    "TestSenderMapFunction: TaskId: {0}, _maxRetryInRecovery {1}, totalNumberOfAllowedFailurs: {2}, RetryNumber: {3}, Failure type: {4}.",
+                    "TestSenderMapFunction: TaskId: {0}, _maxRetryInRecovery {1}, totalNumberOfForcedFailures: {2}, RetryNumber: {3}, Failure type: {4}.",
                     _taskId,
                     _maxRetryInRecovery,
-                    _totalNumberOfAllowedFailurs,
-                    _numberOfRetry,
+                    _totalNumberOfForcedFailures,
+                    _retryIndex,
                     _failureType);
                 foreach (var n in _taskIdsToFail)
                 {
@@ -197,7 +186,7 @@ namespace Org.Apache.REEF.IMRU.Examples.PipelinedBroadcastReduce
                 if (_iterations == onIteration &&
                     _taskIdsToFail.FirstOrDefault(e => _taskId.StartsWith(e)) != null &&
                     _taskIdsToFail.FirstOrDefault(e => _taskId.Equals(e + _maxRetryInRecovery)) == null &&
-                    _numberOfRetry < _totalNumberOfAllowedFailurs)
+                    _retryIndex < _totalNumberOfForcedFailures)
                 {
                     Logger.Log(Level.Warning,
                         "Simulating {0} failure for taskId {1}",
