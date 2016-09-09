@@ -60,12 +60,13 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
             var failedEvaluatorCount = GetMessageCount(lines, FailedEvaluatorMessage);
             var failedTaskCount = GetMessageCount(lines, FailedTaskMessage);
 
-            // on each try each task should fail or complete
+            // each task should fail or complete
             // there should be no failed evaluators
-            // and on each try all tasks should start successfully
-            Assert.Equal((NumberOfRetry + 1) * numTasks, completedTaskCount + failedTaskCount);
+            // all tasks should start successfully
+            // There is not retry for recovery because of the IMRUTaskException triggered by the failure in map task execution.
+            Assert.Equal(numTasks, completedTaskCount + failedTaskCount);
             Assert.Equal(0, failedEvaluatorCount);
-            Assert.Equal((NumberOfRetry + 1) * numTasks, runningTaskCount);
+            Assert.Equal(numTasks, runningTaskCount);
             CleanUp(testFolder);
         }
 
