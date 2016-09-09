@@ -50,7 +50,7 @@ namespace Org.Apache.REEF.IMRU.Examples.PipelinedBroadcastReduce
         internal void Run(int numberofMappers, int chunkSize, int numIterations, int dim, int mapperMemory, int updateTaskMemory, int maxRetryNumberInRecovery, int totalNumberOfForcedFailures)
         {
             var results = _imruClient.Submit<int[], int[], int[], Stream>(
-                BuildJobDefinationBuilder(numberofMappers, chunkSize, numIterations, dim, mapperMemory, updateTaskMemory)
+                CreateJobDefinationBuilder(numberofMappers, chunkSize, numIterations, dim, mapperMemory, updateTaskMemory)
                     .SetMapFunctionConfiguration(BuildMapperFunctionConfig(maxRetryNumberInRecovery, totalNumberOfForcedFailures))
                     .SetMaxRetryNumberInRecovery(maxRetryNumberInRecovery)
                     .Build());

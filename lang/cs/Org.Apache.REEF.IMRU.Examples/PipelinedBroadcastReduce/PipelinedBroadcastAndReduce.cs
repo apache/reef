@@ -46,15 +46,15 @@ namespace Org.Apache.REEF.IMRU.Examples.PipelinedBroadcastReduce
         internal void Run(int numberofMappers, int chunkSize, int numIterations, int dim, int mapperMemory, int updateTaskMemory)
         {
             var results = _imruClient.Submit<int[], int[], int[], Stream>(
-                BuildJobDefinationBuilder(numberofMappers, chunkSize, numIterations, dim, mapperMemory, updateTaskMemory)
+                CreateJobDefinationBuilder(numberofMappers, chunkSize, numIterations, dim, mapperMemory, updateTaskMemory)
                     .SetMapFunctionConfiguration(BuildMapperFunctionConfig())
                     .Build());
         }
 
-        protected IMRUJobDefinitionBuilder BuildJobDefinationBuilder(int numberofMappers, int chunkSize, int numIterations, int dim, int mapperMemory, int updateTaskMemory)
+        protected IMRUJobDefinitionBuilder CreateJobDefinationBuilder(int numberofMappers, int chunkSize, int numIterations, int dim, int mapperMemory, int updateTaskMemory)
         {
             return new IMRUJobDefinitionBuilder()
-                    .SetMapFunctionConfiguration(BuildMapperFunctionConfig())
+                    .SetUpdateFunctionConfiguration(UpdateFunctionConfig(numberofMappers, numIterations, dim))
                     .SetMapInputCodecConfiguration(MapInputCodecConfiguration())
                     .SetUpdateFunctionCodecsConfiguration(UpdateFunctionCodecsConfiguration())
                     .SetReduceFunctionConfiguration(ReduceFunctionConfiguration())
