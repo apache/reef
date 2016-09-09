@@ -35,55 +35,31 @@ public final class EvaluatorStatusPOJO {
   private final State evaluatorState;
   private final byte[] errorBytes;
 
-
   public EvaluatorStatusPOJO(final ReefServiceProtos.EvaluatorStatusProto proto) {
-
-    evaluatorID = proto.getEvaluatorId();
-    evaluatorIdBytes = proto.getEvaluatorIdBytes().toByteArray();
-    evaluatorState = proto.hasState()? getStateFromProto(proto.getState()) : null;
-    errorBytes = proto.hasError() ? proto.getError().toByteArray() : null;
-
+    this.evaluatorID = proto.getEvaluatorId();
+    this.evaluatorIdBytes = proto.getEvaluatorIdBytes().toByteArray();
+    this.evaluatorState = proto.hasState() ? State.fromProto(proto.getState()) : null;
+    this.errorBytes = proto.hasError() ? proto.getError().toByteArray() : null;
   }
 
   /**
-   * @return true, if an evaluator has thrown an exception and sent it to a driver
+   * @return true, if an evaluator has thrown an exception and sent it to a driver.
    */
   public boolean hasError() {
-    return null != errorBytes;
+    return null != this.errorBytes;
   }
 
   /**
-   * @return serialized exception thrown by an evaluator
+   * @return serialized exception thrown by an evaluator.
    */
-  public byte[] getError(){
-    return errorBytes;
+  public byte[] getError() {
+    return this.errorBytes;
   }
 
   /**
-   * @return current {@link org.apache.reef.runtime.common.driver.evaluator.pojos.State} of a task
+   * @return current state of a task.
    */
-  public State getState(){
-    return evaluatorState;
+  public State getState() {
+    return this.evaluatorState;
   }
-
-  private State getStateFromProto(final org.apache.reef.proto.ReefServiceProtos.State protoState) {
-
-    switch (protoState) {
-    case INIT:
-      return State.INIT;
-    case RUNNING:
-      return State.RUNNING;
-    case DONE:
-      return State.DONE;
-    case SUSPEND:
-      return State.SUSPEND;
-    case FAILED:
-      return State.FAILED;
-    case KILLED:
-      return State.KILLED;
-    default:
-      throw new IllegalStateException("Unknown state " + protoState + " in EvaluatorStatusProto");
-    }
-  }
-
 }

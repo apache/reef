@@ -154,73 +154,15 @@ public final class ResourceManagerStatus implements EventHandler<RuntimeStatusEv
     }
   }
 
-  /**
-  * Checks if the ResourceManager can switch from the current state to the target state.
-  * See REEF-826 for the state transition matrix.
-  * @param from current state.
-  * @param to state to switch to.
-  * @return true if the transition is legal; false otherwise.
-  */
-  private static boolean isLegalStateTransition(final State from, final State to) {
-
-    // handle diagonal elements of the transition matrix
-    if (from.equals(to)) {
-      LOG.log(Level.FINEST, "Transition from {0} state to the same state.", from);
-      return true;
-    }
-
-    // handle non-diagonal elements
-    switch (from) {
-
-    case INIT:
-      switch (to) {
-      case RUNNING:
-      case SUSPEND:
-      case DONE:
-      case FAILED:
-      case KILLED:
-        return true;
-      default:
-        return false;
-      }
-
-    case RUNNING:
-      switch (to) {
-      case SUSPEND:
-      case DONE:
-      case FAILED:
-      case KILLED:
-        return true;
-      default:
-        return false;
-      }
-
-    case SUSPEND:
-      switch (to) {
-      case RUNNING:
-      case FAILED:
-      case KILLED:
-        return true;
-      default:
-        return false;
-      }
-
-    case DONE:
-    case FAILED:
-    case KILLED:
-      return false;
-
-    default:
-      return false;
-    }
-  }
-
-  private synchronized void setState(final State newState) {
-    if (isLegalStateTransition(this.state, newState)) {
-      this.state = newState;
+  private synchronized void setState(final State toState) {
+    if (this.state == toState) {
+      LOG.log(Level.FINE, "Transition from {0} state to the same state.", this.state);
+    } else if (this.state.isLegalTransition(toState)) {
+      LOG.log(Level.FINEST, "State transition: {0} -> {1}", new State[] {this.state, toState});
+      this.state = toState;
     } else {
       throw new IllegalStateException(
-          "Resource manager attempts illegal state transition from " + this.state + " to " + newState);
+          "Resource manager attempts illegal state transition from " + this.state + " to " + toState);
     }
   }
 }

@@ -40,79 +40,57 @@ public final class TaskStatusPOJO {
   private final byte[] result;
   private final List<TaskMessagePOJO> taskMessages = new ArrayList<>();
 
-  public TaskStatusPOJO(final ReefServiceProtos.TaskStatusProto proto, final long sequenceNumber){
+  public TaskStatusPOJO(final ReefServiceProtos.TaskStatusProto proto, final long sequenceNumber) {
 
-    taskId = proto.getTaskId();
-    contextId = proto.getContextId();
-    state = proto.hasState()? getStateFromProto(proto.getState()) : null;
-    result = proto.hasResult() ? proto.getResult().toByteArray() : null;
+    this.taskId = proto.getTaskId();
+    this.contextId = proto.getContextId();
+    this.state = proto.hasState() ? State.fromProto(proto.getState()) : null;
+    this.result = proto.hasResult() ? proto.getResult().toByteArray() : null;
 
     for (final TaskMessageProto taskMessageProto : proto.getTaskMessageList()) {
-      taskMessages.add(new TaskMessagePOJO(taskMessageProto, sequenceNumber));
+      this.taskMessages.add(new TaskMessagePOJO(taskMessageProto, sequenceNumber));
     }
-
   }
 
   /**
-   * @return a list of messages sent by a task
+   * @return a list of messages sent by a task.
    */
-  public List<TaskMessagePOJO> getTaskMessageList(){
-    return taskMessages;
+  public List<TaskMessagePOJO> getTaskMessageList() {
+    return this.taskMessages;
   }
 
   /**
-   * @return true, if a completed task returned a non-null value in the 'return' statement
+   * @return true, if a completed task returned a non-null value in the 'return' statement.
    */
-  public boolean hasResult(){
-    return null != result;
+  public boolean hasResult() {
+    return null != this.result;
   }
 
   /**
-   * @return serialized result that a completed task returned to the Driver
+   * @return serialized result that a completed task returned to the Driver.
    */
-  public byte[] getResult(){
-    return result;
+  public byte[] getResult() {
+    return this.result;
   }
 
   /**
-   * @return the id of a task
+   * @return the id of a task.
    */
-  public String getTaskId(){
-    return taskId;
+  public String getTaskId() {
+    return this.taskId;
   }
 
   /**
-   * @return the id of a context that this task runs within
+   * @return the id of a context that this task runs within.
    */
-  public String getContextId(){
-    return contextId;
+  public String getContextId() {
+    return this.contextId;
   }
 
   /**
-   * @return current {@link org.apache.reef.runtime.common.driver.evaluator.pojos.State} of a task
+   * @return current state of a task.
    */
-  public State getState(){
-    return state;
-  }
-
-  private State getStateFromProto(final org.apache.reef.proto.ReefServiceProtos.State protoState) {
-
-    switch (protoState) {
-    case INIT:
-      return State.INIT;
-    case RUNNING:
-      return State.RUNNING;
-    case DONE:
-      return State.DONE;
-    case SUSPEND:
-      return State.SUSPEND;
-    case FAILED:
-      return State.FAILED;
-    case KILLED:
-      return State.KILLED;
-    default:
-      throw new IllegalStateException("Unknown state " + protoState + " in EvaluatorStatusProto");
-    }
-
+  public State getState() {
+    return this.state;
   }
 }

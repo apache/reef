@@ -33,7 +33,9 @@ import org.apache.reef.runtime.common.driver.resourcemanager.ResourceRecoverEven
 @DriverSide
 @Unstable
 public final class EvaluatorRestartInfo {
+
   private final ResourceRecoverEvent resourceRecoverEvent;
+
   private EvaluatorRestartState evaluatorRestartState;
 
   /**
@@ -44,11 +46,19 @@ public final class EvaluatorRestartInfo {
     return new EvaluatorRestartInfo(resourceRecoverEvent, EvaluatorRestartState.EXPECTED);
   }
 
+  private EvaluatorRestartInfo(
+      final ResourceRecoverEvent resourceRecoverEvent, final EvaluatorRestartState evaluatorRestartState) {
+
+    this.resourceRecoverEvent = resourceRecoverEvent;
+    this.evaluatorRestartState = evaluatorRestartState;
+  }
+
   /**
    * Creates an {@link EvaluatorRestartInfo} object that represents the information of an evaluator that
    * has failed on driver restart.
    */
   public static EvaluatorRestartInfo createFailedEvaluatorInfo(final String evaluatorId) {
+
     final ResourceRecoverEvent resourceRecoverEvent =
         ResourceEventImpl.newRecoveryBuilder().setIdentifier(evaluatorId).build();
 
@@ -61,31 +71,26 @@ public final class EvaluatorRestartInfo {
    * recovered evaluator on restart.
    */
   public ResourceRecoverEvent getResourceRecoverEvent() {
-    return resourceRecoverEvent;
+    return this.resourceRecoverEvent;
   }
 
   /**
    * @return the current process of the restart.
    */
   public EvaluatorRestartState getEvaluatorRestartState() {
-    return evaluatorRestartState;
+    return this.evaluatorRestartState;
   }
 
   /**
    * sets the current process of the restart.
    */
   public boolean setEvaluatorRestartState(final EvaluatorRestartState to) {
-    if (EvaluatorRestartState.isLegalTransition(evaluatorRestartState, to)) {
+
+    if (this.evaluatorRestartState.isLegalTransition(to)) {
       this.evaluatorRestartState = to;
       return true;
     }
 
     return false;
-  }
-
-  private EvaluatorRestartInfo(final ResourceRecoverEvent resourceRecoverEvent,
-                               final EvaluatorRestartState evaluatorRestartState) {
-    this.resourceRecoverEvent = resourceRecoverEvent;
-    this.evaluatorRestartState = evaluatorRestartState;
   }
 }
