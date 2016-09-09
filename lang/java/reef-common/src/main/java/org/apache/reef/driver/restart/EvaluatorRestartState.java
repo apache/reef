@@ -29,6 +29,7 @@ import org.apache.reef.annotations.audience.Private;
 @DriverSide
 @Unstable
 public enum EvaluatorRestartState {
+
   /**
    * The evaluator is not a restarted instance. Not expecting.
    */
@@ -65,32 +66,51 @@ public enum EvaluatorRestartState {
   FAILED;
 
   /**
+   * Check if the transition of {@link EvaluatorRestartState} from one state to another is legal.
+   * @param fromState start state.
+   * @param toState destination state.
    * @return true if the transition of {@link EvaluatorRestartState} is legal.
+   * @deprecated TODO[JIRA REEF-1560] Use non-static method instead. Remove after version 0.16
    */
-  public static boolean isLegalTransition(final EvaluatorRestartState from, final EvaluatorRestartState to) {
-    switch(from) {
+  @Deprecated
+  public static boolean isLegalTransition(
+      final EvaluatorRestartState fromState, final EvaluatorRestartState toState) {
+    return fromState.isLegalTransition(toState);
+  }
+
+  /**
+   * Check if the transition of {@link EvaluatorRestartState} from current state to the given one is legal.
+   * @param toState destination state.
+   * @return true if the transition is legal, false otherwise.
+   */
+  public final boolean isLegalTransition(final EvaluatorRestartState toState) {
+
+    switch(this) {
     case EXPECTED:
-      switch(to) {
+      switch(toState) {
       case EXPIRED:
       case REPORTED:
         return true;
       default:
         return false;
       }
+
     case REPORTED:
-      switch(to) {
+      switch(toState) {
       case REREGISTERED:
         return true;
       default:
         return false;
       }
+
     case REREGISTERED:
-      switch(to) {
+      switch(toState) {
       case PROCESSED:
         return true;
       default:
         return false;
       }
+
     default:
       return false;
     }
@@ -134,5 +154,12 @@ public enum EvaluatorRestartState {
     default:
       return false;
     }
+  }
+
+  /**
+   * @return true if the evaluator has had its recovery heartbeat processed.
+   */
+  public boolean isReregistered() {
+    return this == REREGISTERED;
   }
 }

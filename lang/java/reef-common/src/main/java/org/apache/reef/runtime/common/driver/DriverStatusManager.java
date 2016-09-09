@@ -76,44 +76,6 @@ public final class DriverStatusManager {
   }
 
   /**
-   * Check whether a state transition 'from->to' is legal.
-   * @param from Source state.
-   * @param to Destination state.
-   * @return true if transition is valid, false otherwise.
-   */
-  private static boolean isLegalTransition(final DriverStatus from, final DriverStatus to) {
-    switch (from) {
-    case PRE_INIT:
-      switch (to) {
-      case INIT:
-        return true;
-      default:
-        return false;
-      }
-    case INIT:
-      switch (to) {
-      case RUNNING:
-        return true;
-      default:
-        return false;
-      }
-    case RUNNING:
-      switch (to) {
-      case SHUTTING_DOWN:
-      case FAILING:
-        return true;
-      default:
-        return false;
-      }
-    case FAILING:
-    case SHUTTING_DOWN:
-      return false;
-    default:
-      throw new IllegalStateException("Unknown input state: " + from);
-    }
-  }
-
-  /**
    * Changes the driver status to INIT and sends message to the client about the transition.
    */
   public synchronized void onInit() {
@@ -134,7 +96,7 @@ public final class DriverStatusManager {
 
     LOG.entering(CLASS_NAME, "onRunning");
 
-    if (this.driverStatus.equals(DriverStatus.PRE_INIT)) {
+    if (this.driverStatus == DriverStatus.PRE_INIT) {
       this.onInit();
     }
 
@@ -152,7 +114,7 @@ public final class DriverStatusManager {
 
     LOG.entering(CLASS_NAME, "onError", exception);
 
-    if (this.isShuttingDownOrFailing()) {
+    if (this.isClosing()) {
       LOG.log(Level.WARNING, "Received an exception while already in shutdown.", exception);
     } else {
       LOG.log(Level.WARNING, "Shutting down the Driver with an exception: ", exception);
@@ -171,15 +133,18 @@ public final class DriverStatusManager {
 
     LOG.entering(CLASS_NAME, "onComplete");
 
-    if (this.isShuttingDownOrFailing()) {
+    if (this.isClosing()) {
       LOG.log(Level.WARNING, "Ignoring second call to onComplete()",
           new Exception("Dummy exception to get the call stack"));
     } else {
+
       LOG.log(Level.INFO, "Clean shutdown of the Driver.");
+
       if (LOG.isLoggable(Level.FINEST)) {
         LOG.log(Level.FINEST, "Call stack: ",
             new Exception("Dummy exception to get the call stack"));
       }
+
       this.clock.close();
       this.setStatus(DriverStatus.SHUTTING_DOWN);
     }
@@ -201,9 +166,10 @@ public final class DriverStatusManager {
    * @deprecated TODO[JIRA REEF-1548] Do not use DriverStatusManager as a proxy to the job client.
    * After release 0.16, make this method private and use it inside onRuntimeStop() method instead.
    */
+  @Deprecated
   public synchronized void sendJobEndingMessageToClient(final Optional<Throwable> exception) {
 
-    if (!this.isShuttingDownOrFailing()) {
+    if (!this.isClosing()) {
       LOG.log(Level.SEVERE, "Sending message in a state different that SHUTTING_DOWN or FAILING. " +
           "This is likely a illegal call to clock.close() at play. Current state: {0}", this.driverStatus);
     }
@@ -234,21 +200,34 @@ public final class DriverStatusManager {
     this.driverTerminationHasBeenCommunicatedToClient = true;
   }
 
+  /**
+   * Check if the driver is in process of shutting down (either gracefully or due to an error).
+   * @return true if the driver is shutting down (gracefully or otherwise).
+   * @deprecated TODO[JIRA REEF-1560] Use isClosing() method instead. Remove after version 0.16
+   */
+  @Deprecated
   public synchronized boolean isShuttingDownOrFailing() {
-    return DriverStatus.SHUTTING_DOWN.equals(this.driverStatus)
-        || DriverStatus.FAILING.equals(this.driverStatus);
+    return this.isClosing();
+  }
+
+  /**
+   * Check if the driver is in process of shutting down (either gracefully or due to an error).
+   * @return true if the driver is shutting down (gracefully or otherwise).
+   */
+  public synchronized boolean isClosing() {
+    return this.driverStatus.isClosing();
   }
 
   /**
    * Helper method to set the status.
    * This also checks whether the transition from the current status to the new one is legal.
-   * @param newStatus Driver status to transition to.
+   * @param toStatus Driver status to transition to.
    */
-  private synchronized void setStatus(final DriverStatus newStatus) {
-    if (isLegalTransition(this.driverStatus, newStatus)) {
-      this.driverStatus = newStatus;
+  private synchronized void setStatus(final DriverStatus toStatus) {
+    if (this.driverStatus.isLegalTransition(toStatus)) {
+      this.driverStatus = toStatus;
     } else {
-      LOG.log(Level.WARNING, "Illegal state transition: {0} -> {1}", new Object[] {this.driverStatus, newStatus});
+      LOG.log(Level.WARNING, "Illegal state transition: {0} -> {1}", new Object[] {this.driverStatus, toStatus});
     }
   }
 
