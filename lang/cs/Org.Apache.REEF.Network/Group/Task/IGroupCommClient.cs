@@ -16,6 +16,7 @@
 // under the License.
 
 using System;
+using System.Threading;
 using Org.Apache.REEF.Network.Group.Task.Impl;
 using Org.Apache.REEF.Tang.Annotations;
 
@@ -33,5 +34,7 @@ namespace Org.Apache.REEF.Network.Group.Task
         /// <param name="groupName">The name of the CommunicationGroupClient</param>
         /// <returns>The configured CommunicationGroupClient</returns>
         ICommunicationGroupClient GetCommunicationGroup(string groupName);
+
+        void WaitingForRegistration(CancellationTokenSource cancellationSource = null);
     }
 }

@@ -33,15 +33,15 @@ namespace Org.Apache.REEF.Examples.MachineLearning.KMeans
     {
         private static readonly Logger Logger = Logger.GetLogger(typeof(KMeansMasterTask));
 
-        private int _iteration = 0;
+        private int _iteration;
 
-        private readonly ICommunicationGroupClient _commGroup;
         private readonly IBroadcastSender<Centroids> _dataBroadcastSender;
         private readonly IBroadcastSender<ControlMessage> _controlBroadcastSender;
         private readonly IReduceReceiver<ProcessedResults> _meansReducerReceiver;
         private readonly string _kMeansExecutionDirectory;
         private Centroids _centroids;
         private bool _isInitialIteration;
+        private readonly IGroupCommClient _groupCommClient;
 
         [Inject]
         public KMeansMasterTask(
@@ -55,10 +55,11 @@ namespace Org.Apache.REEF.Examples.MachineLearning.KMeans
                 {
                     throw new ArgumentException("There must be more than 1 Evaluators in total, but the total evaluators number provided is " + totalNumEvaluators);
                 }
-                _commGroup = groupCommClient.GetCommunicationGroup(Constants.KMeansCommunicationGroupName);
-                _dataBroadcastSender = _commGroup.GetBroadcastSender<Centroids>(Constants.CentroidsBroadcastOperatorName);
-                _meansReducerReceiver = _commGroup.GetReduceReceiver<ProcessedResults>(Constants.MeansReduceOperatorName);
-                _controlBroadcastSender = _commGroup.GetBroadcastSender<ControlMessage>(Constants.ControlMessageBroadcastOperatorName);
+                _groupCommClient = groupCommClient;
+                var commGroup = _groupCommClient.GetCommunicationGroup(Constants.KMeansCommunicationGroupName);
+                _dataBroadcastSender = commGroup.GetBroadcastSender<Centroids>(Constants.CentroidsBroadcastOperatorName);
+                _meansReducerReceiver = commGroup.GetReduceReceiver<ProcessedResults>(Constants.MeansReduceOperatorName);
+                _controlBroadcastSender = commGroup.GetBroadcastSender<ControlMessage>(Constants.ControlMessageBroadcastOperatorName);
                 _kMeansExecutionDirectory = executionDirectory;
                 _isInitialIteration = true;
             }
@@ -66,7 +67,8 @@ namespace Org.Apache.REEF.Examples.MachineLearning.KMeans
 
         public byte[] Call(byte[] memento)
         {
-            // TODO: this belongs to dedicated dataloader layer, will refactor once we have that
+            // TODO: this belongs to dedicated data loader layer, will refactor once we have that
+            _groupCommClient.WaitingForRegistration();
             string centroidFile = Path.Combine(_kMeansExecutionDirectory, Constants.CentroidsFile);
             _centroids = new Centroids(DataPartitionCache.ReadDataFile(centroidFile));
 

@@ -140,11 +140,11 @@ namespace Org.Apache.REEF.Network.Group.Operators.Impl
         /// <summary>
         /// Ensure all parent and children nodes in the topology are registered with teh Name Service.
         /// </summary>
-        void IGroupCommOperatorInternal.WaitForRegistration()
+        void IGroupCommOperatorInternal.WaitForRegistration(CancellationTokenSource cancellationSource)
         {
             if (_initialize)
             {
-                _topology.Initialize();
+                _topology.Initialize(cancellationSource);
             }
         }
     }

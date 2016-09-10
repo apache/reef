@@ -17,6 +17,8 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
+using System.Threading;
 using Org.Apache.REEF.Common.Tasks;
 using Org.Apache.REEF.Network.Group.Config;
 using Org.Apache.REEF.Network.Group.Driver.Impl;
@@ -71,18 +73,21 @@ namespace Org.Apache.REEF.Network.Group.Task.Impl
             }
 
             networkService.Register(new StringIdentifier(taskId));
+        }
 
+        public void WaitingForRegistration(CancellationTokenSource cancellationSource = null)
+        {
             try
             {
                 foreach (var group in _commGroups.Values)
                 {
-                    group.WaitingForRegistration();
+                    group.WaitingForRegistration(cancellationSource);
                 }
             }
-            catch (ReefRuntimeException e)
+            catch (SystemException e)
             {
-                networkService.Unregister();
-                networkService.Dispose();
+                _networkService.Unregister();
+                _networkService.Dispose();
                 Exceptions.CaughtAndThrow(e, Level.Error, "In GroupCommClient, exception from WaitingForRegistration.", Logger);
             }
         }
