@@ -57,6 +57,7 @@ namespace Org.Apache.REEF.Examples.MachineLearning.KMeans
 
         public byte[] Call(byte[] memento)
         {
+            _groupCommClient.Initialize();
             while (true)
             {
                 if (_controlBroadcastReceiver.Receive() == ControlMessage.STOP)

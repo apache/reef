@@ -18,6 +18,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Remoting;
 using System.Threading;
 using Org.Apache.REEF.Common.Io;
 using Org.Apache.REEF.Common.Tasks;
@@ -114,7 +115,7 @@ namespace Org.Apache.REEF.Network.Group.Task.Impl
         /// Waits until all Tasks in the CommunicationGroup have registered themselves
         /// with the Name Service.
         /// </summary>
-        public void Initialize()
+        public void Initialize(CancellationTokenSource cancellationSource)
         {
             using (Logger.LogFunction("OperatorTopology::Initialize"))
             {
@@ -132,7 +133,7 @@ namespace Org.Apache.REEF.Network.Group.Task.Impl
                         idsToWait.Add(child.Identifier);
                     }
                 }
-                WaitForTaskRegistration(idsToWait);
+                WaitForTaskRegistration(idsToWait, cancellationSource);
             }
         }
 
@@ -357,42 +358,42 @@ namespace Org.Apache.REEF.Network.Group.Task.Impl
         /// Throws exception if the operation fails more than the retry count.
         /// </summary>
         /// <param name="identifiers">The identifier to look up</param>
-        private void WaitForTaskRegistration(IList<string> identifiers)
+        /// <param name="cancellationSource">The token to cancel the operation</param>
+        private void WaitForTaskRegistration(IList<string> identifiers, CancellationTokenSource cancellationSource)
         {
             using (Logger.LogFunction("OperatorTopology::WaitForTaskRegistration"))
             {
                 IList<string> foundList = new List<string>();
-                try
+                for (var i = 0; i < _retryCount; i++)
                 {
-                    for (var i = 0; i < _retryCount; i++)
+                    if (cancellationSource != null && cancellationSource.Token.IsCancellationRequested)
                     {
-                        Logger.Log(Level.Info, "OperatorTopology.WaitForTaskRegistration, in retryCount {0}.", i);
-                        foreach (var identifier in identifiers)
-                        {
-                            if (!foundList.Contains(identifier) && _nameClient.Lookup(identifier) != null)
-                            {
-                                foundList.Add(identifier);
-                                Logger.Log(Level.Verbose, "OperatorTopology.WaitForTaskRegistration, find a dependent id {0} at loop {1}.", identifier, i);
-                            }
-                        }
-
-                        if (foundList.Count == identifiers.Count)
-                        {
-                            Logger.Log(Level.Info, "OperatorTopology.WaitForTaskRegistration, found all {0} dependent ids at loop {1}.", foundList.Count, i);
-                            return;
-                        }
-
-                        Thread.Sleep(_sleepTime);
+                        Logger.Log(Level.Info, "OperatorTopology.WaitForTaskRegistration is canceled in retryCount {0}.", i);
+                        throw new OperationCanceledException("WaitForTaskRegistration is canceled");
                     }
-                }
-                catch (Exception e)
-                {
-                    Exceptions.CaughtAndThrow(e, Level.Error, "Exception in OperatorTopology.WaitForTaskRegistration.", Logger);
+
+                    Logger.Log(Level.Info, "OperatorTopology.WaitForTaskRegistration, in retryCount {0}.", i);
+                    foreach (var identifier in identifiers)
+                    {
+                        if (!foundList.Contains(identifier) && _nameClient.Lookup(identifier) != null)
+                        {
+                            foundList.Add(identifier);
+                            Logger.Log(Level.Verbose, "OperatorTopology.WaitForTaskRegistration, find a dependent id {0} at loop {1}.", identifier, i);
+                        }
+                    }
+
+                    if (foundList.Count == identifiers.Count)
+                    {
+                        Logger.Log(Level.Info, "OperatorTopology.WaitForTaskRegistration, found all {0} dependent ids at loop {1}.", foundList.Count, i);
+                        return;
+                    }
+
+                    Thread.Sleep(_sleepTime);
                 }
 
                 var leftOver = string.Join(",", identifiers.Where(e => !foundList.Contains(e)));
                 Logger.Log(Level.Error, "For node {0}, cannot find registered parent/children: {1}.", _selfId, leftOver);
-                Exceptions.Throw(new ReefRuntimeException("Failed to initialize operator topology for node: " + _selfId), Logger);
+                Exceptions.Throw(new RemotingException("Failed to find parent/children nodes in operator topology for node: " + _selfId), Logger);
             }
         }
     }

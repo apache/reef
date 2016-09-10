@@ -18,6 +18,7 @@
 using System;
 using System.Collections.Generic;
 using System.Net;
+using System.Threading;
 using Org.Apache.REEF.Common.Io;
 using Org.Apache.REEF.Network.NetworkService.Codec;
 using Org.Apache.REEF.Tang.Annotations;
@@ -42,6 +43,11 @@ namespace Org.Apache.REEF.Network.NetworkService
         private IIdentifier _localIdentifier;
         private IDisposable _messageHandlerDisposable;
         private readonly Dictionary<IIdentifier, IConnection<T>> _connectionMap;
+
+        /// <summary>
+        /// Shows if the object has been disposed.
+        /// </summary>
+        private int _disposed;
 
         /// <summary>
         /// Create a new NetworkService.
@@ -152,10 +158,13 @@ namespace Org.Apache.REEF.Network.NetworkService
         /// </summary>
         public void Dispose()
         {
-            NamingClient.Dispose();
-            _remoteManager.Dispose();
+            if (Interlocked.Exchange(ref _disposed, 1) == 0)
+            {
+                NamingClient.Dispose();
+                _remoteManager.Dispose();
 
-            LOGGER.Log(Level.Verbose, "Disposed of network service");
+                LOGGER.Log(Level.Verbose, "Disposed of network service");
+            }
         }
     }
 }

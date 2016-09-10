@@ -15,6 +15,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
+using System.Threading;
+
 namespace Org.Apache.REEF.Network.Group.Task
 {
     internal interface ICommunicationGroupClientInternal : ICommunicationGroupClient
@@ -22,6 +24,6 @@ namespace Org.Apache.REEF.Network.Group.Task
         /// <summary>
         /// Call each Operator to ensure all the nodes in the topology group has been registered
         /// </summary>
-        void WaitingForRegistration();
+        void WaitingForRegistration(CancellationTokenSource cancellationSource);
     }
 }

@@ -16,6 +16,7 @@
 // under the License.
 
 using System;
+using System.Threading;
 using Org.Apache.REEF.Network.Group.Config;
 using Org.Apache.REEF.Network.Group.Driver.Impl;
 using Org.Apache.REEF.Network.Group.Task;
@@ -108,11 +109,11 @@ namespace Org.Apache.REEF.Network.Group.Operators.Impl
         /// <summary>
         /// Ensure all parent and children nodes in the topology are registered with teh Name Service.
         /// </summary>
-        void IGroupCommOperatorInternal.WaitForRegistration()
+        void IGroupCommOperatorInternal.WaitForRegistration(CancellationTokenSource cancellationSource)
         {
             if (_initialize)
             {
-                _topology.Initialize();
+                _topology.Initialize(cancellationSource);
             }
         }      
     }
