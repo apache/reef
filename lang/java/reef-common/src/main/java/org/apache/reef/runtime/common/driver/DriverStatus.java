@@ -22,9 +22,57 @@ package org.apache.reef.runtime.common.driver;
  * The status of the Driver.
  */
 public enum DriverStatus {
+
   PRE_INIT,
   INIT,
   RUNNING,
   SHUTTING_DOWN,
-  FAILING
+  FAILING;
+
+  /**
+   * Check if the driver is in process of shutting down (either gracefully or due to an error).
+   * @return true if the driver is shutting down (gracefully or otherwise).
+   */
+  public boolean isClosing() {
+    return this == SHUTTING_DOWN || this == FAILING;
+  }
+
+  /**
+   * Check whether a driver state transition from current state to a given one is legal.
+   * @param toStatus Destination state.
+   * @return true if transition is valid, false otherwise.
+   */
+  public boolean isLegalTransition(final DriverStatus toStatus) {
+
+    switch (this) {
+
+    case PRE_INIT:
+      switch (toStatus) {
+      case INIT:
+        return true;
+      default:
+        return false;
+      }
+
+    case INIT:
+      switch (toStatus) {
+      case RUNNING:
+        return true;
+      default:
+        return false;
+      }
+
+    case RUNNING:
+      switch (toStatus) {
+      case SHUTTING_DOWN:
+      case FAILING:
+        return true;
+      default:
+        return false;
+      }
+
+    default:
+      return false;
+    }
+  }
 }

@@ -56,7 +56,7 @@ public final class DriverIdleManager {
 
     final DriverStatusManager driverStatusManagerImpl = this.driverStatusManager.get();
 
-    if (driverStatusManagerImpl.isShuttingDownOrFailing()) {
+    if (driverStatusManagerImpl.isClosing()) {
       LOG.log(IDLE_REASONS_LEVEL, "Ignoring idle call from [{0}] for reason [{1}]",
           new Object[] {reason.getComponentName(), reason.getReason()});
       return;
