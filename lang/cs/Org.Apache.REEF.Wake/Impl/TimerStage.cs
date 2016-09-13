@@ -15,14 +15,19 @@
 // specific language governing permissions and limitations
 // under the License.
 
-using System.Timers;
+using System;
+using System.Threading;
 
 namespace Org.Apache.REEF.Wake.Impl
 {
     /// <summary>Stage that triggers an event handler periodically</summary>
     public sealed class TimerStage : IStage
     {
-        // private readonly ScheduledExecutorService executor;
+        enum TimeValue : long
+        {
+            Max = int.MaxValue
+        }
+
         private readonly Timer _timer;
         private readonly PeriodicEvent _value = new PeriodicEvent();
         private readonly IEventHandler<PeriodicEvent> _handler;
@@ -40,23 +45,42 @@ namespace Org.Apache.REEF.Wake.Impl
         /// <param name="period">a period in milli-seconds</param>
         public TimerStage(IEventHandler<PeriodicEvent> handler, long initialDelay, long period)
         {
+            // Core .NET only supports 32 bit timers.e
+            validate(nameof(initialDelay), initialDelay);
+            validate(nameof(period), period);
+
+        // private readonly ScheduledExecutorService executor;
             _handler = handler;
-            _timer = new Timer(period);
-            _timer.Elapsed += (sender, e) => OnTimedEvent(sender, e, _handler, _value);
-            _timer.Enabled = true;
+            _timer = new Timer(
+                (object state) => { OnTimedEvent(_handler, _value); }, this, (int)initialDelay, (int)period);
         }
 
         /// <summary>
         /// Closes resources
-        /// </summary>
+        /// </summary>x
         public void Dispose()
         {
-            _timer.Stop();
+            _timer.Dispose();
         }
 
-        private static void OnTimedEvent(object source, ElapsedEventArgs e, IEventHandler<PeriodicEvent> handler, PeriodicEvent value)
+        private static void OnTimedEvent(IEventHandler<PeriodicEvent> handler, PeriodicEvent value)
         {
             handler.OnNext(value);
+        }
+
+        /// <summary>
+        /// Validates the input is less than Int32.MaxInt. 
+        /// </summary>
+        /// <param name="name">Parameter name</param>
+        /// <param name="value">Parameter value</param>
+        /// <exception cref="ArgumentException">Input value exceeds Int32.Max</exception>
+        private static void validate(string name, long value)
+        {
+            if (value > (long)TimeValue.Max)
+            {
+                throw new ArgumentException(string.Format(
+                    "Parameter: " + name + " {0} is larger than supported value {1}", value, int.MaxValue));
+            }
         }
     }
 }
