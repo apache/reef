@@ -51,6 +51,7 @@ under the License.
     <Compile Include="RemoteManagerTest.cs" />
     <Compile Include="StreamingRemoteManagerTest.cs" />
     <Compile Include="StreamingTransportTest.cs" />
+    <Compile Include="TimerStageTest.cs" />
     <Compile Include="TimeTest.cs" />
     <Compile Include="TcpConnectionRetryTest.cs" />
     <Compile Include="TransportTest.cs" />
