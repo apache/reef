@@ -71,8 +71,12 @@ public enum DriverStatus {
         return false;
       }
 
-    default:
+    case FAILING:
+    case SHUTTING_DOWN:
       return false;
+
+    default:
+      throw new IllegalStateException("Unknown input state: " + this);
     }
   }
 }

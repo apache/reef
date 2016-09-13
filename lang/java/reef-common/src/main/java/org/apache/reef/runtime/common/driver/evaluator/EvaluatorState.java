@@ -52,7 +52,7 @@ enum EvaluatorState {
 
   /**
    * Check if evaluator is in the initial state (ALLOCATED).
-   * @return true if allocated, false otherwise.
+   * @return true if ALLOCATED, false otherwise.
    */
   public final boolean isAllocated() {
     return this == ALLOCATED;
@@ -60,7 +60,7 @@ enum EvaluatorState {
 
   /**
    * Check if evaluator is in SUBMITTED state.
-   * @return true if submitted, false otherwise.
+   * @return true if SUBMITTED, false otherwise.
    */
   public final boolean isSubmitted() {
     return this == SUBMITTED;
@@ -164,8 +164,13 @@ enum EvaluatorState {
         return false;
       }
 
-    default:
+    case DONE:
+    case FAILED:
+    case KILLED:
       return false;
+
+    default:
+      throw new RuntimeException("Unknown state: " + this);
     }
   }
 }

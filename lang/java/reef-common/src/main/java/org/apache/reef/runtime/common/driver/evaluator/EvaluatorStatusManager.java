@@ -106,6 +106,7 @@ final class EvaluatorStatusManager {
    * @return true if evaluator is available, false if it is closed or in the process of being shut down.
    * @deprecated TODO[JIRA REEF-1560] Use isAvailable() method instead. Remove after version 0.16
    */
+  @Deprecated
   boolean isAllocatedOrSubmittedOrRunning() {
     return this.state.get().isAvailable();
   }
@@ -123,6 +124,7 @@ final class EvaluatorStatusManager {
    * @return true if evaluator completed, false if it is still available or in the process of being shut down.
    * @deprecated TODO[JIRA REEF-1560] Use isCompleted() method instead. Remove after version 0.16
    */
+  @Deprecated
   boolean isDoneOrFailedOrKilled() {
     return this.state.get().isCompleted();
   }
@@ -140,6 +142,7 @@ final class EvaluatorStatusManager {
    * @return true if evaluator is stopped due to an error, true otherwise.
    * @deprecated TODO[JIRA REEF-1560] Use isCompletedAbnormally() method instead. Remove after version 0.16
    */
+  @Deprecated
   boolean isFailedOrKilled() {
     return this.state.get().isCompletedAbnormally();
   }
@@ -167,7 +170,7 @@ final class EvaluatorStatusManager {
    * @throws IllegalStateException if state transition is not valid.
    */
   private void setState(final EvaluatorState toState) {
-    for (;;) {
+    while (true) {
 
       final EvaluatorState fromState = this.state.get();
       if (fromState == toState) {

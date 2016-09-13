@@ -121,7 +121,6 @@ public enum State {
     return this == RUNNING;
   }
 
-
   /**
    * Check if container is available - that is, in one of the states INIT, RUNNING, or SUSPEND.
    * @return true if container is available, false if it is closed or in the process of being shut down.

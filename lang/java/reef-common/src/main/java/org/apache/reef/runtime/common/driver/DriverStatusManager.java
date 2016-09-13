@@ -117,9 +117,7 @@ public final class DriverStatusManager {
     if (this.isClosing()) {
       LOG.log(Level.WARNING, "Received an exception while already in shutdown.", exception);
     } else {
-
       LOG.log(Level.WARNING, "Shutting down the Driver with an exception: ", exception);
-
       this.shutdownCause = Optional.of(exception);
       this.clock.stop(exception);
       this.setStatus(DriverStatus.FAILING);
@@ -168,6 +166,7 @@ public final class DriverStatusManager {
    * @deprecated TODO[JIRA REEF-1548] Do not use DriverStatusManager as a proxy to the job client.
    * After release 0.16, make this method private and use it inside onRuntimeStop() method instead.
    */
+  @Deprecated
   public synchronized void sendJobEndingMessageToClient(final Optional<Throwable> exception) {
 
     if (!this.isClosing()) {
@@ -206,6 +205,7 @@ public final class DriverStatusManager {
    * @return true if the driver is shutting down (gracefully or otherwise).
    * @deprecated TODO[JIRA REEF-1560] Use isClosing() method instead. Remove after version 0.16
    */
+  @Deprecated
   public synchronized boolean isShuttingDownOrFailing() {
     return this.isClosing();
   }

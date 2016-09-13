@@ -72,6 +72,7 @@ public enum EvaluatorRestartState {
    * @return true if the transition of {@link EvaluatorRestartState} is legal.
    * @deprecated TODO[JIRA REEF-1560] Use non-static method instead. Remove after version 0.16
    */
+  @Deprecated
   public static boolean isLegalTransition(
       final EvaluatorRestartState fromState, final EvaluatorRestartState toState) {
     return fromState.isLegalTransition(toState);
