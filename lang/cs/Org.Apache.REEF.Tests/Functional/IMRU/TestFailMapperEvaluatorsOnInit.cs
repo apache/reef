@@ -59,12 +59,12 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
             var failedEvaluatorCount = GetMessageCount(lines, FailedEvaluatorMessage);
             var failedTaskCount = GetMessageCount(lines, FailedTaskMessage);
 
-            // on each try each task should fail or complete or disappear with failed evaluator
-            // In each retry, there are 2 failed evaluators
-            // The running tasks should receive cancellation and return properly. There will be no failed task
-            Assert.Equal((NumberOfRetry + 1) * numTasks, completedTaskCount + failedEvaluatorCount + failedTaskCount);
+            // In each retry, there are 2 failed evaluators.
+            // The running tasks should receive cancellation and return properly. There will be no failed task.
+            // Rest of the tasks should be canceled and send completed task event to the driver. 
             Assert.Equal(NumberOfRetry * 2, failedEvaluatorCount);
             Assert.Equal(0, failedTaskCount);
+            Assert.Equal(((NumberOfRetry + 1) * numTasks) - (NumberOfRetry * 2), completedTaskCount);
             CleanUp(testFolder);
         }
 

@@ -364,38 +364,31 @@ namespace Org.Apache.REEF.Network.Group.Task.Impl
             using (Logger.LogFunction("OperatorTopology::WaitForTaskRegistration"))
             {
                 IList<string> foundList = new List<string>();
-                try
+                for (var i = 0; i < _retryCount; i++)
                 {
-                    for (var i = 0; i < _retryCount; i++)
+                    if (cancellationSource != null && cancellationSource.Token.IsCancellationRequested)
                     {
-                        if (cancellationSource != null && cancellationSource.Token.IsCancellationRequested)
-                        {
-                            Logger.Log(Level.Info, "OperatorTopology.WaitForTaskRegistration is canceled in retryCount {0}.", i);
-                            throw new OperationCanceledException("WaitForTaskRegistration is canceled");
-                        }
-
-                        Logger.Log(Level.Info, "OperatorTopology.WaitForTaskRegistration, in retryCount {0}.", i);
-                        foreach (var identifier in identifiers)
-                        {
-                            if (!foundList.Contains(identifier) && _nameClient.Lookup(identifier) != null)
-                            {
-                                foundList.Add(identifier);
-                                Logger.Log(Level.Verbose, "OperatorTopology.WaitForTaskRegistration, find a dependent id {0} at loop {1}.", identifier, i);
-                            }
-                        }
-
-                        if (foundList.Count == identifiers.Count)
-                        {
-                            Logger.Log(Level.Info, "OperatorTopology.WaitForTaskRegistration, found all {0} dependent ids at loop {1}.", foundList.Count, i);
-                            return;
-                        }
-
-                        Thread.Sleep(_sleepTime);
+                        Logger.Log(Level.Info, "OperatorTopology.WaitForTaskRegistration is canceled in retryCount {0}.", i);
+                        throw new OperationCanceledException("WaitForTaskRegistration is canceled");
                     }
-                }
-                catch (Exception e)
-                {
-                    Exceptions.CaughtAndThrow(e, Level.Error, "Exception in OperatorTopology.WaitForTaskRegistration.", Logger);
+
+                    Logger.Log(Level.Info, "OperatorTopology.WaitForTaskRegistration, in retryCount {0}.", i);
+                    foreach (var identifier in identifiers)
+                    {
+                        if (!foundList.Contains(identifier) && _nameClient.Lookup(identifier) != null)
+                        {
+                            foundList.Add(identifier);
+                            Logger.Log(Level.Verbose, "OperatorTopology.WaitForTaskRegistration, find a dependent id {0} at loop {1}.", identifier, i);
+                        }
+                    }
+
+                    if (foundList.Count == identifiers.Count)
+                    {
+                        Logger.Log(Level.Info, "OperatorTopology.WaitForTaskRegistration, found all {0} dependent ids at loop {1}.", foundList.Count, i);
+                        return;
+                    }
+
+                    Thread.Sleep(_sleepTime);
                 }
 
                 var leftOver = string.Join(",", identifiers.Where(e => !foundList.Contains(e)));

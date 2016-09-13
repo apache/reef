@@ -18,6 +18,7 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Runtime.Remoting;
 using System.Threading;
 using Org.Apache.REEF.Common.Tasks;
 using Org.Apache.REEF.Network.Group.Config;
@@ -84,11 +85,15 @@ namespace Org.Apache.REEF.Network.Group.Task.Impl
                     group.WaitingForRegistration(cancellationSource);
                 }
             }
-            catch (SystemException e)
+            catch (OperationCanceledException)
             {
-                _networkService.Unregister();
-                _networkService.Dispose();
-                Exceptions.CaughtAndThrow(e, Level.Error, "In GroupCommClient, exception from WaitingForRegistration.", Logger);
+                Dispose();
+                throw;
+            }
+            catch (RemotingException)
+            {
+                Dispose();
+                throw;
             }
         }
 
