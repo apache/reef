@@ -15,7 +15,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-using System.Timers;
+using System.Threading;
 
 namespace Org.Apache.REEF.Wake.Impl
 {
@@ -41,9 +41,8 @@ namespace Org.Apache.REEF.Wake.Impl
         public TimerStage(IEventHandler<PeriodicEvent> handler, long initialDelay, long period)
         {
             _handler = handler;
-            _timer = new Timer(period);
-            _timer.Elapsed += (sender, e) => OnTimedEvent(sender, e, _handler, _value);
-            _timer.Enabled = true;
+            _timer = new System.Threading.Timer(
+                (object state) => { OnTimedEvent(_handler, _value); }, this, period, period);
         }
 
         /// <summary>
@@ -51,10 +50,10 @@ namespace Org.Apache.REEF.Wake.Impl
         /// </summary>
         public void Dispose()
         {
-            _timer.Stop();
+            _timer.Dispose();
         }
 
-        private static void OnTimedEvent(object source, ElapsedEventArgs e, IEventHandler<PeriodicEvent> handler, PeriodicEvent value)
+        private static void OnTimedEvent(IEventHandler<PeriodicEvent> handler, PeriodicEvent value)
         {
             handler.OnNext(value);
         }
