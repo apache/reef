@@ -35,6 +35,10 @@ namespace Org.Apache.REEF.Network.Group.Task
         /// <returns>The configured CommunicationGroupClient</returns>
         ICommunicationGroupClient GetCommunicationGroup(string groupName);
 
-        void WaitingForRegistration(CancellationTokenSource cancellationSource = null);
+        /// <summary>
+        /// Initialization for group communications
+        /// </summary>
+        /// <param name="cancellationSource"></param>
+        void Initialize(CancellationTokenSource cancellationSource = null);
     }
 }

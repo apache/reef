@@ -76,7 +76,11 @@ namespace Org.Apache.REEF.Network.Group.Task.Impl
             networkService.Register(new StringIdentifier(taskId));
         }
 
-        public void WaitingForRegistration(CancellationTokenSource cancellationSource = null)
+        /// <summary>
+        /// This is to ensure all the nodes in the groups are registered before starting communications.
+        /// </summary>
+        /// <param name="cancellationSource"></param>
+        public void Initialize(CancellationTokenSource cancellationSource = null)
         {
             try
             {
@@ -85,12 +89,7 @@ namespace Org.Apache.REEF.Network.Group.Task.Impl
                     group.WaitingForRegistration(cancellationSource);
                 }
             }
-            catch (OperationCanceledException)
-            {
-                Dispose();
-                throw;
-            }
-            catch (RemotingException)
+            catch (Exception)
             {
                 Dispose();
                 throw;

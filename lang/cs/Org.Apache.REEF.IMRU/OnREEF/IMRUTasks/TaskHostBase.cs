@@ -90,7 +90,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.IMRUTasks
             Logger.Log(Level.Info, "Entering {0} Call().", TaskHostName);
             try
             {
-                _groupCommunicationsClient.WaitingForRegistration(_cancellationSource);
+                _groupCommunicationsClient.Initialize(_cancellationSource);
                 return TaskBody(memento);
             }
             catch (Exception e)

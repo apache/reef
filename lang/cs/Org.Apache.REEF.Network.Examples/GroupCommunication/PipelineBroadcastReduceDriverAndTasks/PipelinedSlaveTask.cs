@@ -54,7 +54,7 @@ namespace Org.Apache.REEF.Network.Examples.GroupCommunication.PipelineBroadcastR
 
         public byte[] Call(byte[] memento)
         {
-            _groupCommClient.WaitingForRegistration();
+            _groupCommClient.Initialize();
 
             int[] resArr = new int[_arraySize];
 

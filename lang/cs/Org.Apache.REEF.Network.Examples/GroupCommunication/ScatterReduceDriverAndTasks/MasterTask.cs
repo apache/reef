@@ -47,7 +47,7 @@ namespace Org.Apache.REEF.Network.Examples.GroupCommunication.ScatterReduceDrive
 
         public byte[] Call(byte[] memento)
         {
-            _groupCommClient.WaitingForRegistration();
+            _groupCommClient.Initialize();
             List<int> data = Enumerable.Range(1, 100).ToList();
             _scatterSender.Send(data);
 

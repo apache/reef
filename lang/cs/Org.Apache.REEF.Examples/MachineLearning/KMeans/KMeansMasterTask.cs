@@ -68,7 +68,7 @@ namespace Org.Apache.REEF.Examples.MachineLearning.KMeans
         public byte[] Call(byte[] memento)
         {
             // TODO: this belongs to dedicated data loader layer, will refactor once we have that
-            _groupCommClient.WaitingForRegistration();
+            _groupCommClient.Initialize();
             string centroidFile = Path.Combine(_kMeansExecutionDirectory, Constants.CentroidsFile);
             _centroids = new Centroids(DataPartitionCache.ReadDataFile(centroidFile));
 
