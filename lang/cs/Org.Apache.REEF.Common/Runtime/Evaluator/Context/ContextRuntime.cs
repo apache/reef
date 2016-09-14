@@ -325,7 +325,7 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Context
                 }
                 catch (Exception e)
                 {
-                    throw new SystemException("System error in starting Task.", e);
+                    throw new ReefRuntimeException("System error in starting Task.", e);
                 }
             }
         }

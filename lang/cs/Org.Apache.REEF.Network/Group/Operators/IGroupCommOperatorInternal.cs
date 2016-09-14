@@ -15,6 +15,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
+using System.Threading;
+
 namespace Org.Apache.REEF.Network.Group.Operators
 {
     internal interface IGroupCommOperatorInternal
@@ -22,6 +24,6 @@ namespace Org.Apache.REEF.Network.Group.Operators
         /// <summary>
         /// Ensure all parent and children nodes in the topology are registered with teh Name Service.
         /// </summary>
-        void WaitForRegistration();
+        void WaitForRegistration(CancellationTokenSource cancellationSource);
     }
 }

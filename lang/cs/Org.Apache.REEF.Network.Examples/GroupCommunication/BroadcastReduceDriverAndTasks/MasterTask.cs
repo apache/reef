@@ -56,6 +56,7 @@ namespace Org.Apache.REEF.Network.Examples.GroupCommunication.BroadcastReduceDri
 
         public byte[] Call(byte[] memento)
         {
+            _groupCommClient.Initialize();
             Stopwatch broadcastTime = new Stopwatch();
             Stopwatch reduceTime = new Stopwatch();
 

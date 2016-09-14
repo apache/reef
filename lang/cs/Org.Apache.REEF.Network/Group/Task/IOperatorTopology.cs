@@ -35,7 +35,7 @@ namespace Org.Apache.REEF.Network.Group.Task
         /// Waits until all Tasks in the CommunicationGroup have registered themselves
         /// with the Name Service.
         /// </summary>
-        void Initialize();
+        void Initialize(CancellationTokenSource cancellationSource);
 
         /// <summary>
         /// Sends the message to the parent Task.

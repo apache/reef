@@ -57,6 +57,7 @@ under the License.
     <Compile Include="Exceptions\InjectionException.cs" />
     <Compile Include="Exceptions\NameResolutionException.cs" />
     <Compile Include="Exceptions\ParseException.cs" />
+    <Compile Include="Exceptions\ReefRuntimeException.cs" />
     <Compile Include="Exceptions\TangApplicationException.cs" />
     <Compile Include="Formats\AvroConfigurationDataContract\AvroConfiguration.cs" />
     <Compile Include="Formats\AvroConfigurationDataContract\ConfigurationEntry.cs" />

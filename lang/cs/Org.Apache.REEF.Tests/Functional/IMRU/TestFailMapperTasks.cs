@@ -16,6 +16,7 @@
 // under the License.
 
 using Org.Apache.REEF.IMRU.API;
+using Org.Apache.REEF.IMRU.Examples.PipelinedBroadcastReduce;
 using TaskIdsToFail = Org.Apache.REEF.IMRU.Examples.PipelinedBroadcastReduce.FaultTolerantPipelinedBroadcastAndReduce.TaskIdsToFail;
 using FailureType = Org.Apache.REEF.IMRU.Examples.PipelinedBroadcastReduce.FaultTolerantPipelinedBroadcastAndReduce.FailureType;
 using TestSenderMapFunction = Org.Apache.REEF.IMRU.Examples.PipelinedBroadcastReduce.FaultTolerantPipelinedBroadcastAndReduce.TestSenderMapFunction;
@@ -59,12 +60,13 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
             var failedEvaluatorCount = GetMessageCount(lines, FailedEvaluatorMessage);
             var failedTaskCount = GetMessageCount(lines, FailedTaskMessage);
 
-            // on each try each task should fail or complete
-            // there shoould be no failed evaluators
-            // and on each try all tasks should start successfully
-            Assert.Equal((NumberOfRetry + 1) * numTasks, completedTaskCount + failedTaskCount);
+            // each task should fail or complete
+            // there should be no failed evaluators
+            // all tasks should start successfully
+            // No retry is done because IMRUAppTaskException is triggered by the failure in map task execution.
+            Assert.Equal(numTasks, completedTaskCount + failedTaskCount);
             Assert.Equal(0, failedEvaluatorCount);
-            Assert.Equal((NumberOfRetry + 1) * numTasks, runningTaskCount);
+            Assert.Equal(numTasks, runningTaskCount);
             CleanUp(testFolder);
         }
 
@@ -84,6 +86,7 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
                 .BindSetEntry<TaskIdsToFail, string>(GenericType<TaskIdsToFail>.Class, "IMRUMap-RandomInputPartition-3-")
                 .BindIntNamedParam<FailureType>(FailureType.TaskFailureDuringTaskExecution.ToString())
                 .BindNamedParameter(typeof(MaxRetryNumberInRecovery), NumberOfRetry.ToString())
+                .BindNamedParameter(typeof(FaultTolerantPipelinedBroadcastAndReduce.TotalNumberOfForcedFailures), NumberOfRetry.ToString())
                 .Build();
         }
     }

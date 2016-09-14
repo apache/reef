@@ -7,7 +7,7 @@
 // with the License.  You may obtain a copy of the License at
 //
 //   http://www.apache.org/licenses/LICENSE-2.0
-//
+// 
 // Unless required by applicable law or agreed to in writing,
 // software distributed under the License is distributed on an
 // "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -17,6 +17,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using Org.Apache.REEF.Common.Tasks;
 using Org.Apache.REEF.IMRU.API;
@@ -34,21 +35,33 @@ namespace Org.Apache.REEF.IMRU.Examples.PipelinedBroadcastReduce
     /// <summary>
     /// IMRU program that performs broadcast and reduce with fault tolerance.
     /// </summary>
-    public class FaultTolerantPipelinedBroadcastAndReduce : PipelinedBroadcastAndReduce
+    public sealed class FaultTolerantPipelinedBroadcastAndReduce : PipelinedBroadcastAndReduce
     {
         private static readonly Logger Logger = Logger.GetLogger(typeof(FaultTolerantPipelinedBroadcastAndReduce));
 
         [Inject]
-        protected FaultTolerantPipelinedBroadcastAndReduce(IIMRUClient imruClient) : base(imruClient)
+        private FaultTolerantPipelinedBroadcastAndReduce(IIMRUClient imruClient) : base(imruClient)
         {
         }
-        
+
+        /// <summary>
+        /// Runs the actual broadcast and reduce job with fault tolerance
+        /// </summary>
+        internal void Run(int numberofMappers, int chunkSize, int numIterations, int dim, int mapperMemory, int updateTaskMemory, int maxRetryNumberInRecovery, int totalNumberOfForcedFailures)
+        {
+            var results = _imruClient.Submit<int[], int[], int[], Stream>(
+                CreateJobDefinitionBuilder(numberofMappers, chunkSize, numIterations, dim, mapperMemory, updateTaskMemory)
+                    .SetMapFunctionConfiguration(BuildMapperFunctionConfig(maxRetryNumberInRecovery, totalNumberOfForcedFailures))
+                    .SetMaxRetryNumberInRecovery(maxRetryNumberInRecovery)
+                    .Build());
+        }
+
         /// <summary>
         /// Build a test mapper function configuration
         /// </summary>
         /// <param name="maxRetryInRecovery">Number of retries done if first run failed.</param>
-        /// <returns></returns>
-        protected override IConfiguration BuildMapperFunctionConfig(int maxRetryInRecovery)
+        /// <param name="totalNumberOfForcedFailures">Number of forced failure times in recovery.</param>
+        private static IConfiguration BuildMapperFunctionConfig(int maxRetryInRecovery, int totalNumberOfForcedFailures)
         {
             var c1 = IMRUMapConfiguration<int[], int[]>.ConfigurationModule
                 .Set(IMRUMapConfiguration<int[], int[]>.MapFunction,
@@ -60,18 +73,19 @@ namespace Org.Apache.REEF.IMRU.Examples.PipelinedBroadcastReduce
                 .BindSetEntry<TaskIdsToFail, string>(GenericType<TaskIdsToFail>.Class, "IMRUMap-RandomInputPartition-3-")
                 .BindIntNamedParam<FailureType>(FailureType.EvaluatorFailureDuringTaskExecution.ToString())
                 .BindNamedParameter(typeof(MaxRetryNumberInRecovery), maxRetryInRecovery.ToString())
+                .BindNamedParameter(typeof(TotalNumberOfForcedFailures), totalNumberOfForcedFailures.ToString())
                 .Build();
 
             return Configurations.Merge(c1, c2);
         }
 
         [NamedParameter(Documentation = "Set of task ids which will produce task/evaluator failure")]
-        public class TaskIdsToFail : Name<ISet<string>>
+        internal class TaskIdsToFail : Name<ISet<string>>
         {
         }
 
         [NamedParameter(Documentation = "Type of failure to simulate")]
-        public class FailureType : Name<int>
+        internal class FailureType : Name<int>
         {
             internal static readonly int EvaluatorFailureDuringTaskExecution = 0;
             internal static readonly int TaskFailureDuringTaskExecution = 1;
@@ -85,35 +99,54 @@ namespace Org.Apache.REEF.IMRU.Examples.PipelinedBroadcastReduce
             }
         }
 
+        [NamedParameter(Documentation = "Total number of failures in recovery.", DefaultValue = "2")]
+        internal class TotalNumberOfForcedFailures : Name<int>
+        {
+        }
+
         /// <summary>
         /// The function is to simulate Evaluator/Task failure for mapper evaluator
         /// </summary>
-        public sealed class TestSenderMapFunction : IMapFunction<int[], int[]>
+        internal sealed class TestSenderMapFunction : IMapFunction<int[], int[]>
         {
             private int _iterations;
             private readonly string _taskId;
             private readonly ISet<string> _taskIdsToFail;
-            private int _failureType;
+            private readonly int _failureType;
             private readonly int _maxRetryInRecovery;
+            private readonly int _totalNumberOfForcedFailures;
+            private readonly int _retryIndex;
 
             [Inject]
             private TestSenderMapFunction(
                 [Parameter(typeof(TaskConfigurationOptions.Identifier))] string taskId,
                 [Parameter(typeof(TaskIdsToFail))] ISet<string> taskIdsToFail,
                 [Parameter(typeof(FailureType))] int failureType,
-                [Parameter(typeof(MaxRetryNumberInRecovery))] int maxRetryNumberInRecovery)
+                [Parameter(typeof(MaxRetryNumberInRecovery))] int maxRetryNumberInRecovery,
+                [Parameter(typeof(TotalNumberOfForcedFailures))] int totalNumberOfForcedFailures)
             {
                 _taskId = taskId;
                 _taskIdsToFail = taskIdsToFail;
                 _failureType = failureType;
                 _maxRetryInRecovery = maxRetryNumberInRecovery;
-                Logger.Log(Level.Info, "TestSenderMapFunction: TaskId: {0}, _maxRetryInRecovery {1},  Failure type: {2}.", _taskId, _maxRetryInRecovery, _failureType);
+                _totalNumberOfForcedFailures = totalNumberOfForcedFailures;
+
+                var taskIdSplit = taskId.Split('-');
+                _retryIndex = int.Parse(taskIdSplit[taskIdSplit.Length - 1]);
+
+                Logger.Log(Level.Info,
+                    "TestSenderMapFunction: TaskId: {0}, _maxRetryInRecovery {1}, totalNumberOfForcedFailures: {2}, RetryNumber: {3}, Failure type: {4}.",
+                    _taskId,
+                    _maxRetryInRecovery,
+                    _totalNumberOfForcedFailures,
+                    _retryIndex,
+                    _failureType);
                 foreach (var n in _taskIdsToFail)
                 {
                     Logger.Log(Level.Info, "TestSenderMapFunction: taskIdsToFail: {0}", n);
                 }
 
-                if (_failureType == FailureType.EvaluatorFailureDuringTaskInitialization || 
+                if (_failureType == FailureType.EvaluatorFailureDuringTaskInitialization ||
                     _failureType == FailureType.TaskFailureDuringTaskInitialization)
                 {
                     SimulateFailure(0);
@@ -138,7 +171,10 @@ namespace Org.Apache.REEF.IMRU.Examples.PipelinedBroadcastReduce
 
                 if (mapInput[0] != _iterations)
                 {
-                    Exceptions.Throw(new Exception("Expected value in mappers (" + _iterations + ") different from actual value (" + mapInput[0] + ")"), Logger);
+                    Exceptions.Throw(
+                        new Exception("Expected value in mappers (" + _iterations + ") different from actual value (" +
+                                      mapInput[0] + ")"),
+                        Logger);
                 }
 
                 return mapInput;
@@ -148,9 +184,11 @@ namespace Org.Apache.REEF.IMRU.Examples.PipelinedBroadcastReduce
             {
                 if (_iterations == onIteration &&
                     _taskIdsToFail.FirstOrDefault(e => _taskId.StartsWith(e)) != null &&
-                    _taskIdsToFail.FirstOrDefault(e => _taskId.Equals(e + _maxRetryInRecovery)) == null)
+                    _taskIdsToFail.FirstOrDefault(e => _taskId.Equals(e + _maxRetryInRecovery)) == null &&
+                    _retryIndex < _totalNumberOfForcedFailures)
                 {
-                    Logger.Log(Level.Warning, "Simulating {0} failure for taskId {1}",
+                    Logger.Log(Level.Warning,
+                        "Simulating {0} failure for taskId {1}",
                         FailureType.IsEvaluatorFailure(_failureType) ? "evaluator" : "task",
                         _taskId);
                     if (FailureType.IsEvaluatorFailure(_failureType))

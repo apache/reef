@@ -16,6 +16,7 @@
 // under the License.
 
 using Org.Apache.REEF.IMRU.API;
+using Org.Apache.REEF.IMRU.Examples.PipelinedBroadcastReduce;
 using Org.Apache.REEF.IMRU.OnREEF.Parameters;
 using TaskIdsToFail = Org.Apache.REEF.IMRU.Examples.PipelinedBroadcastReduce.FaultTolerantPipelinedBroadcastAndReduce.TaskIdsToFail;
 using FailureType = Org.Apache.REEF.IMRU.Examples.PipelinedBroadcastReduce.FaultTolerantPipelinedBroadcastAndReduce.FailureType;
@@ -34,7 +35,7 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
         /// This test is to throw exceptions in two tasks. In the first try, there is task app failure,
         /// and no retries will be done. 
         /// </summary>
-        [Fact(Skip = "Times out at high timeout for RetryCountWaitingForRegistration; disabling until this parameter is configurable in test.")]
+        [Fact]
         public override void TestFailedMapperOnLocalRuntime()
         {
             int chunkSize = 2;
@@ -58,9 +59,12 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
             var failedEvaluatorCount = GetMessageCount(lines, FailedEvaluatorMessage);
             var failedTaskCount = GetMessageCount(lines, FailedTaskMessage);
 
-            // on each try each task should fail or complete or disappear with failed evaluator
-            // not all tasks will start successfully, so not checking this
-            Assert.Equal((NumberOfRetry + 1) * numTasks, completedTaskCount + failedEvaluatorCount + failedTaskCount);
+            // In each retry, there are 2 failed evaluators.
+            // The running tasks should receive cancellation and return properly. There will be no failed task.
+            // Rest of the tasks should be canceled and send completed task event to the driver. 
+            Assert.Equal(NumberOfRetry * 2, failedEvaluatorCount);
+            Assert.Equal(0, failedTaskCount);
+            Assert.Equal(((NumberOfRetry + 1) * numTasks) - (NumberOfRetry * 2), completedTaskCount);
             CleanUp(testFolder);
         }
 
@@ -80,6 +84,7 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
                 .BindSetEntry<TaskIdsToFail, string>(GenericType<TaskIdsToFail>.Class, "IMRUMap-RandomInputPartition-3-")
                 .BindIntNamedParam<FailureType>(FailureType.EvaluatorFailureDuringTaskInitialization.ToString())
                 .BindNamedParameter(typeof(MaxRetryNumberInRecovery), NumberOfRetry.ToString())
+                .BindNamedParameter(typeof(FaultTolerantPipelinedBroadcastAndReduce.TotalNumberOfForcedFailures), NumberOfRetry.ToString())
                 .Build();
         }
     }

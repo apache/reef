@@ -95,6 +95,7 @@ under the License.
     <Compile Include="OnREEF\IMRUTasks\IMRUTaskSystemException.cs" />
     <Compile Include="OnREEF\IMRUTasks\MapTaskHost.cs" />
     <Compile Include="OnREEF\IMRUTasks\TaskCloseCoordinator.cs" />
+    <Compile Include="OnREEF\IMRUTasks\TaskHostBase.cs" />
     <Compile Include="OnREEF\IMRUTasks\UpdateTaskHost.cs" />
     <Compile Include="OnREEF\MapInputWithControlMessage\MapControlMessage.cs" />
     <Compile Include="OnREEF\MapInputWithControlMessage\MapInputWithControlMessage.cs" />

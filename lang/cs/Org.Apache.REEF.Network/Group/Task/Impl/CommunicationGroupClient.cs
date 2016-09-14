@@ -18,6 +18,7 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+using System.Threading;
 using Org.Apache.REEF.Network.Group.Config;
 using Org.Apache.REEF.Network.Group.Operators;
 using Org.Apache.REEF.Network.Group.Operators.Impl;
@@ -171,12 +172,12 @@ namespace Org.Apache.REEF.Network.Group.Task.Impl
         /// <summary>
         /// Call each Operator to ensure all the nodes in the topology group has been registered
         /// </summary>
-        void ICommunicationGroupClientInternal.WaitingForRegistration()
+        void ICommunicationGroupClientInternal.WaitingForRegistration(CancellationTokenSource cancellationSource)
         {
             foreach (var op in _operators.Values)
             {
                 var method = op.GetType().GetMethod("Org.Apache.REEF.Network.Group.Operators.IGroupCommOperatorInternal.WaitForRegistration", BindingFlags.NonPublic | BindingFlags.Instance);
-                method.Invoke(op, null);
+                method.Invoke(op, new object[] { cancellationSource });
             }
         }
     }
