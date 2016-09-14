@@ -199,7 +199,7 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
       this.allocationNotFired = false;
 
     } else {
-      LOG.log(Level.WARNING, "EvaluatorAllocated event fired more than once.");
+      LOG.log(Level.WARNING, "AllocatedEvaluator event fired more than once.");
     }
   }
 
