@@ -53,7 +53,7 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
         {
             const int chunkSize = 2;
             const int dims = 50;
-            const int iterations = 200;
+            const int iterations = 1000;
             const int mapperMemory = 512;
             const int updateTaskMemory = 512;
             const int numTasks = 4;
@@ -153,7 +153,7 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
         /// </summary>
         internal sealed class TestHandlers : IObserver<IRunningTask>, IObserver<ICompletedTask>, IObserver<IFailedTask>, IObserver<IFailedEvaluator>
         {
-            private readonly ISet<IRunningTask> _runningTasks = new HashSet<IRunningTask>();
+            private readonly IDictionary<string, IRunningTask> _runningTasks = new Dictionary<string, IRunningTask>();
             private readonly object _lock = new object();
 
             [Inject]
@@ -169,12 +169,12 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
                 lock (_lock)
                 {
                     Logger.Log(Level.Info, "Received running task:" + value.Id);
-                    _runningTasks.Add(value);
+                    _runningTasks.Add(value.Id, value);
                     if (_runningTasks.Count == 4)
                     {
                         Logger.Log(Level.Info, "Dispose running task from driver:" + value.Id);
                         value.Dispose(ByteUtilities.StringToByteArrays(TaskManager.CloseTaskByDriver));
-                        _runningTasks.Remove(value);
+                        _runningTasks.Remove(value.Id);
                     }
                 }
             }
@@ -189,6 +189,7 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
                 lock (_lock)
                 {
                     Logger.Log(Level.Info, FailedTaskMessage + value.Id);
+                    _runningTasks.Remove(value.Id);
                     CloseRunningTasks();
                     value.GetActiveContext().Value.Dispose();
                 }
@@ -205,6 +206,7 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
 
             /// <summary>
             /// Log the task id and ICompletedTask
+            /// Remove the task from _runningTasks
             /// Close the rest of the running tasks, then dispose the context
             /// </summary>
             public void OnNext(ICompletedTask value)
@@ -212,6 +214,7 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
                 lock (_lock)
                 {
                     Logger.Log(Level.Info, CompletedTaskMessage + value.Id);
+                    _runningTasks.Remove(value.Id);
                     CloseRunningTasks();
                     value.ActiveContext.Dispose();
                 }
@@ -221,8 +224,8 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
             {
                 foreach (var task in _runningTasks)
                 {
-                    Logger.Log(Level.Info, "Dispose running task from driver:" + task.Id);
-                    task.Dispose(ByteUtilities.StringToByteArrays(TaskManager.CloseTaskByDriver));
+                    Logger.Log(Level.Info, "Dispose running task from driver:" + task.Key);
+                    task.Value.Dispose(ByteUtilities.StringToByteArrays(TaskManager.CloseTaskByDriver));
                 }
                 _runningTasks.Clear();
             }
