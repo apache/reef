@@ -17,18 +17,14 @@
 
 using System;
 using System.Collections.Generic;
-using System.Globalization;
-using System.Runtime.Remoting;
 using System.Threading;
 using Org.Apache.REEF.Common.Tasks;
 using Org.Apache.REEF.Network.Group.Config;
 using Org.Apache.REEF.Network.Group.Driver.Impl;
 using Org.Apache.REEF.Network.NetworkService;
 using Org.Apache.REEF.Tang.Annotations;
-using Org.Apache.REEF.Tang.Exceptions;
 using Org.Apache.REEF.Tang.Formats;
 using Org.Apache.REEF.Tang.Interface;
-using Org.Apache.REEF.Utilities.Diagnostics;
 using Org.Apache.REEF.Utilities.Logging;
 using Org.Apache.REEF.Wake.Remote.Impl;
 
@@ -45,6 +41,11 @@ namespace Org.Apache.REEF.Network.Group.Task.Impl
         private readonly Dictionary<string, ICommunicationGroupClientInternal> _commGroups;
 
         private readonly INetworkService<GeneralGroupCommunicationMessage> _networkService;
+
+        /// <summary>
+        /// Shows if the object has been disposed.
+        /// </summary>
+        private int _disposed;
 
         /// <summary>
         /// Creates a new WritableGroupCommClient and registers the task ID with the Name Server.
@@ -120,8 +121,11 @@ namespace Org.Apache.REEF.Network.Group.Task.Impl
         /// </summary>
         public void Dispose()
         {
-            _networkService.Unregister();
-            _networkService.Dispose();
+            if (Interlocked.Exchange(ref _disposed, 1) == 0)
+            {
+                _networkService.Unregister();
+                _networkService.Dispose();
+            }
         }
     }
 }
