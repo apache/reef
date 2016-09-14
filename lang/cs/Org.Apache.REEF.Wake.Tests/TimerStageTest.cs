@@ -16,43 +16,48 @@
 // under the License
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reactive;
 using System.Threading;
-using System.Threading.Tasks;
-using System.Diagnostics;
-
+using Xunit;
 using Org.Apache.REEF.Wake;
 using Org.Apache.REEF.Wake.Impl;
 using Org.Apache.REEF.Wake.Tests;
-
-using Org.Apache.REEF.Tang.Implementations.Tang;
-using Org.Apache.REEF.Tang.Util;
-using Org.Apache.REEF.Wake.Time;
-using Org.Apache.REEF.Wake.Time.Event;
-using Org.Apache.REEF.Wake.Time.Runtime;
-using Xunit;
 
 namespace Org.Apache.REEF.Wake.Tests
 {
     // Timer stage tests.
     public class TimerStageTest
     {
-        private static long _shutdownTimeout = 1000;
+        private static long _delay = 100;
+        private static long _period = 1000;
+        private static long _bigPeriod = Int64.MaxValue;
 
         [Fact]
-        public void testTimerStage()
+        public void testValidTimerPeriod()
+        {
+            runTest(_delay, _period);
+        }
+
+        [Fact]
+        public void testInvalidTimerPeriod()
+        {
+            Assert.Throws<ArgumentException>(() => runTest(_delay, _bigPeriod));
+        }
+
+        [Fact]
+        public void testInvalidTimerDelay()
+        {
+            Assert.Throws<ArgumentException>(() => runTest(_bigPeriod, _period));
+        }
+
+        void runTest(long delay, long period)
         {
             TimerMonitor monitor = new TimerMonitor();
             int expected = 10;
 
             TestEventHandler handler = new TestEventHandler(monitor, expected);
-            IStage stage = new TimerStage(handler, 100, _shutdownTimeout);
+            IStage stage = new TimerStage(handler, delay, period);
 
             monitor.Mwait();
-
-            // stage.Close();
             Assert.Equal(expected, handler.getCount());
         }
 
@@ -61,20 +66,17 @@ namespace Org.Apache.REEF.Wake.Tests
             private TimerMonitor _monitor;
             private long _expected;
             private long _count;
-            private Stopwatch _stopwatch = new Stopwatch();
 
             public TestEventHandler(TimerMonitor monitor, long expected)
             {
                 _count = 0;
                 _monitor = monitor;
                 _expected = expected;
-                _stopwatch.Start();
             }
 
             public void OnNext(PeriodicEvent e)
             {
                 long count = Interlocked.Increment(ref _count);
-                System.Console.WriteLine(count + " " + e + " scheduled event at " + _stopwatch.ElapsedMilliseconds);
                 if (Interlocked.Read(ref _count) == _expected)
                 {
                     _monitor.Mnotify();
