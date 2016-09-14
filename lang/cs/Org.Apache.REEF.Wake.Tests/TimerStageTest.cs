@@ -29,7 +29,7 @@ namespace Org.Apache.REEF.Wake.Tests
     {
         private static long _delay = 100;
         private static long _period = 1000;
-        private static long _bigPeriod = Int64.MaxValue;
+        private static long _bigPeriod = long.MaxValue;
 
         [Fact]
         public void testValidTimerPeriod()
