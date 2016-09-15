@@ -16,14 +16,23 @@ KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
 -->
-#Mailing List
+# Mailing List
 
+- [REEF User](#reef-user)
 - [REEF Dev](#reef-dev)
 - [Commits](#commits)
 
 **Note:** These email addresses are automated. Just writing "Subscribe" or "Unsubscribe" in both the subject line and the body will suffice and a confirmation email with further instructions will be sent as a reply to your email after some delay.
 
-###<a name="reef-dev"></a>REEF Dev Mailing List
+### <a name="reef-user"></a>REEF User Mailing List
+
+This is the list to ask questions about and discuss issues with using REEF.
+
+- [Subscribe](mailto:user-subscribe@reef.apache.org) (user-subscribe@reef.apache.org)
+- [Unsubscribe](mailto:user-unsubscribe@reef.apache.org) (user-unsubscribe@reef.apache.org)
+- [Archive](http://mail-archives.apache.org/mod_mbox/reef-user/)
+
+### <a name="reef-dev"></a>REEF Dev Mailing List
 
 This gets traffic from both the JIRAs filed on REEF as well as the general development discussions	
 
@@ -31,7 +40,7 @@ This gets traffic from both the JIRAs filed on REEF as well as the general devel
 - [Unsubscribe](mailto:dev-unsubscribe@reef.apache.org) (dev-unsubscribe@reef.apache.org)
 - [Archive](http://mail-archives.apache.org/mod_mbox/reef-dev/)
 
-###<a name="commits"></a>Commits Mailing List
+### <a name="commits"></a>Commits Mailing List
 
 This email list contains gets all commits made to REEF
 
