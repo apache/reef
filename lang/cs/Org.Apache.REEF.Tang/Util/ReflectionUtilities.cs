@@ -124,7 +124,7 @@ namespace Org.Apache.REEF.Tang.Util
         /// <returns>
         ///   <c>true</c> if [is generic typeof] [the specified iface]; otherwise, <c>false</c>.
         /// </returns>
-        /// <exception cref="System.ApplicationException"></exception>
+        /// <exception cref="TangApplicationException">The type passed in IsGenericTypeof is null: iface : + iface + type: + type + .</exception>
         public static bool IsGenericTypeof(Type iface, Type type)
         {
             if (iface == null || type == null)
@@ -351,7 +351,7 @@ namespace Org.Apache.REEF.Tang.Util
         /// </summary>
         /// <param name="name">The name.</param>
         /// <returns></returns>
-        /// <exception cref="System.ApplicationException">Not able to get Type from the name provided:  +  name</exception>
+        /// <exception cref="TangApplicationException">Not able to get Type from the name provided:  +  name</exception>
         public static Type GetTypeByName(string name)
         {
             Type t = null;
@@ -401,7 +401,7 @@ namespace Org.Apache.REEF.Tang.Util
         /// </summary>
         /// <param name="t">The t.</param>
         /// <returns></returns>
-        /// <exception cref="System.ApplicationException">The Type passed to GetEnclosingClassShortNames is null</exception>
+        /// <exception cref="TangApplicationException">The Type passed to GetEnclosingClassShortNames is null</exception>
         public static string[] GetEnclosingClassNames(Type t)
         {
             if (t == null)
@@ -423,7 +423,7 @@ namespace Org.Apache.REEF.Tang.Util
         /// </summary>
         /// <param name="fullName">The full name.</param>
         /// <returns></returns>
-        /// <exception cref="System.ApplicationException">The name passed to GetEnclosingClassShortNames is null</exception>
+        /// <exception cref="TangApplicationException">The name passed to GetEnclosingClassShortNames is null</exception>
         public static string[] GetEnclosingClassNames(string fullName)
         {
             if (fullName == null)
