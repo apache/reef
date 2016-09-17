@@ -30,6 +30,7 @@ using Org.Apache.REEF.Common.Tasks.Events;
 using Org.Apache.REEF.Tang.Exceptions;
 using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Tang.Interface;
+using Org.Apache.REEF.Tang.Util;
 using Org.Apache.REEF.Utilities;
 using Org.Apache.REEF.Utilities.Attributes;
 using Org.Apache.REEF.Utilities.Logging;
@@ -38,7 +39,7 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Context
 {
     internal sealed class ContextRuntime : IDisposable
     {
-        private static readonly Logger LOGGER = Logger.GetLogger(typeof(ContextRuntime));
+        private static readonly Logger Logger = Logger.GetLogger(typeof(ContextRuntime));
 
         /// <summary>
         /// Context-local injector. This contains information that will not be available in child injectors.
@@ -137,6 +138,8 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Context
             _contextInjector = serviceInjector.ForkInjector(contextConfiguration);
             _contextLifeCycle = _contextInjector.GetInstance<ContextLifeCycle>();
             _parentContext = parentContext;
+
+            Logger.Log(Level.Info, "ContextRuntime for context id {0} is created.", _contextLifeCycle.Id);
 
             try
             {
@@ -244,7 +247,7 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Context
                 }
                 catch (Exception e)
                 {
-                    Utilities.Diagnostics.Exceptions.Caught(e, Level.Error, LOGGER);
+                    Utilities.Diagnostics.Exceptions.Caught(e, Level.Error, Logger);
                     var childContextId = GetChildContextId(childContextConfiguration);
 
                     throw new ContextClientCodeException(childContextId, Optional<string>.Of(Id), "Unable to spawn context", e);
@@ -262,7 +265,7 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Context
             }
             catch (InjectionException)
             {
-                LOGGER.Log(Level.Error, "Unable to get Context ID from child ContextConfiguration. Using empty string.");
+                Logger.Log(Level.Error, "Unable to get Context ID from child ContextConfiguration. Using empty string.");
             }
 
             return contextId;
@@ -276,12 +279,12 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Context
         {
             lock (_contextLifeCycle)
             {
-                LOGGER.Log(Level.Info, "ContextRuntime::StartTask(TaskConfiguration) task is present: " + _task.IsPresent());
+                Logger.Log(Level.Info, "ContextRuntime::StartTask(TaskConfiguration) task is present: " + _task.IsPresent());
 
                 if (_task.IsPresent())
                 {
-                    LOGGER.Log(Level.Info, "Task state: " + _task.Value.GetTaskState());
-                    LOGGER.Log(Level.Info, "ContextRuntime::StartTask(TaskConfiguration) task has ended: " + _task.Value.HasEnded());
+                    Logger.Log(Level.Info, "Task state: " + _task.Value.GetTaskState());
+                    Logger.Log(Level.Info, "ContextRuntime::StartTask(TaskConfiguration) task has ended: " + _task.Value.HasEnded());
 
                     if (_task.Value.HasEnded())
                     {
@@ -293,7 +296,7 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Context
                         // note: java code is putting thread id here
                         var e = new InvalidOperationException(
                         string.Format(CultureInfo.InvariantCulture, "Attempting to spawn a child context when an Task with id '{0}' is running", _task.Value.TaskId));
-                        Utilities.Diagnostics.Exceptions.Throw(e, LOGGER);
+                        Utilities.Diagnostics.Exceptions.Throw(e, Logger);
                     }
                 }
 
@@ -303,6 +306,7 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Context
 
                 try
                 {
+                    taskInjector.BindVolatileInstance(GenericType<ContextRuntime>.Class, this);
                     var taskRuntime = taskInjector.GetInstance<TaskRuntime>();
                     _task = Optional<TaskRuntime>.Of(taskRuntime);
                     return taskRuntime.StartTaskOnNewThread();
@@ -316,11 +320,11 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Context
                     }
                     catch (Exception)
                     {
-                        LOGGER.Log(Level.Error, "Unable to get Task ID from TaskConfiguration.");
+                        Logger.Log(Level.Error, "Unable to get Task ID from TaskConfiguration.");
                     }
 
                     var ex = TaskClientCodeException.Create(taskId, Id, "Unable to run the new task", e);
-                    Utilities.Diagnostics.Exceptions.CaughtAndThrow(ex, Level.Error, "Task start error.", LOGGER);
+                    Utilities.Diagnostics.Exceptions.CaughtAndThrow(ex, Level.Error, "Task start error.", Logger);
                     return null;
                 }
                 catch (Exception e)
@@ -341,12 +345,12 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Context
                 _contextState = ContextStatusProto.State.DONE;
                 if (_task.IsPresent())
                 {
-                    LOGGER.Log(Level.Warning, "Shutting down an task because the underlying context is being closed.");
+                    Logger.Log(Level.Warning, "Shutting down an task because the underlying context is being closed.");
                     _task.Value.Close(null);
                 }
                 if (_childContext.IsPresent())
                 {
-                    LOGGER.Log(Level.Warning, "Closing a context because its parent context is being closed.");
+                    Logger.Log(Level.Warning, "Closing a context because its parent context is being closed.");
                     _childContext.Value.Dispose();
                 }
 
@@ -392,7 +396,7 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Context
             {
                 if (!_task.IsPresent())
                 {
-                    LOGGER.Log(Level.Warning, "Received a suspend task while there was no task running. Ignored");
+                    Logger.Log(Level.Warning, "Received a suspend task while there was no task running. Ignored");
                     return;
                 }
                 _task.Value.Suspend(message);
@@ -411,7 +415,7 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Context
             {
                 if (!_task.IsPresent())
                 {
-                    LOGGER.Log(Level.Warning, "Received a close task while there was no task running. Ignored");
+                    Logger.Log(Level.Warning, "Received a close task while there was no task running. Ignored");
                     return;
                 }
                 _task.Value.Close(message);
@@ -430,7 +434,7 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Context
             {
                 if (!_task.IsPresent())
                 {
-                    LOGGER.Log(Level.Warning, "Received an task message while there was no task running. Ignored");
+                    Logger.Log(Level.Warning, "Received an task message while there was no task running. Ignored");
                     return;
                 }
                 _task.Value.Deliver(message);
@@ -480,7 +484,7 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Context
                 }
 
                 // To reset a child context, there should always be a child context already present.
-                Utilities.Diagnostics.Exceptions.Throw(new InvalidOperationException("no child context set"), LOGGER);
+                Utilities.Diagnostics.Exceptions.Throw(new InvalidOperationException("no child context set"), Logger);
             }
         }
 
@@ -532,7 +536,7 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Context
             {
                 if (!_task.IsPresent())
                 {
-                    LOGGER.Log(Level.Warning, "Received a IDriverConnectionMessage while there was no task running. Ignored");
+                    Logger.Log(Level.Warning, "Received a IDriverConnectionMessage while there was no task running. Ignored");
                     return;
                 }
 
@@ -555,7 +559,7 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Context
             if (_childContext.IsPresent())
             {
                 var e = new InvalidOperationException(message);
-                Utilities.Diagnostics.Exceptions.Throw(e, LOGGER);
+                Utilities.Diagnostics.Exceptions.Throw(e, Logger);
             }
         }
     }

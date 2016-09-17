@@ -16,6 +16,7 @@
 // under the License.
 
 using System;
+using Org.Apache.REEF.Common.Runtime.Evaluator.Context;
 using Org.Apache.REEF.Common.Tasks;
 using Org.Apache.REEF.Common.Tasks.Events;
 using Org.Apache.REEF.IMRU.API;
@@ -45,6 +46,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.IMRUTasks
         private readonly IBroadcastSender<MapInputWithControlMessage<TMapInput>> _dataAndControlMessageSender;
         private readonly IUpdateFunction<TMapInput, TMapOutput, TResult> _updateTask;
         private readonly IIMRUResultHandler<TResult> _resultHandler;
+        private readonly ContextRuntime _contextRuntime;
 
         /// <summary>
         /// </summary>
@@ -54,8 +56,10 @@ namespace Org.Apache.REEF.IMRU.OnREEF.IMRUTasks
         /// <param name="taskCloseCoordinator">Task close Coordinator</param>
         /// <param name="invokeGc">Whether to call Garbage Collector after each iteration or not</param>
         /// <param name="taskId">task id</param>
+        /// <param name="contextRuntime">Reference of ContextRuntime id</param>
         [Inject]
         private UpdateTaskHost(
+            ContextRuntime contextRuntime,
             IUpdateFunction<TMapInput, TMapOutput, TResult> updateTask,
             IGroupCommClient groupCommunicationsClient,
             IIMRUResultHandler<TResult> resultHandler,
@@ -66,6 +70,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.IMRUTasks
         {
             Logger.Log(Level.Info, "Entering constructor of UpdateTaskHost for task id {0}", taskId);
             _updateTask = updateTask;
+            _contextRuntime = contextRuntime;
             _dataAndControlMessageSender =
                 _communicationGroupClient.GetBroadcastSender<MapInputWithControlMessage<TMapInput>>(IMRUConstants.BroadcastOperatorName);
             _dataReceiver = _communicationGroupClient.GetReduceReceiver<TMapOutput>(IMRUConstants.ReduceOperatorName);

@@ -482,7 +482,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         /// </summary>
         /// <param name="taskId"></param>
         /// <returns></returns>
-        internal TaskState GetTaskState(string taskId)
+        internal StateMachine.TaskState GetTaskState(string taskId)
         {
             var taskInfo = GetTaskInfo(taskId);
             return taskInfo.TaskState.CurrentState;
@@ -494,7 +494,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         /// </summary>
         /// <param name="taskState"></param>
         /// <returns></returns>
-        internal bool AreAllTasksInState(TaskState taskState)
+        internal bool AreAllTasksInState(StateMachine.TaskState taskState)
         {
             return _tasks.All(t => t.Value.TaskState.CurrentState == taskState);
         }
