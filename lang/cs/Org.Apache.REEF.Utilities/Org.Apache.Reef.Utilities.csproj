@@ -30,9 +30,6 @@ under the License.
   </PropertyGroup>
   <Import Project="$(SolutionDir)\build.props" />
   <ItemGroup>
-    <Reference Include="Microsoft.Hadoop.Avro">
-      <HintPath>$(PackagesDir)\Microsoft.Hadoop.Avro.$(AvroVersion)\lib\net45\Microsoft.Hadoop.Avro.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml" />
@@ -46,12 +43,12 @@ under the License.
     <Compile Include="Attributes\EvaluatorSideAttribute.cs" />
     <Compile Include="Attributes\InteropAttribute.cs" />
     <Compile Include="Attributes\NotThreadSafeAttribute.cs" />
+    <Compile Include="Attributes\TemporaryFixAttribute.cs" />
     <Compile Include="Attributes\PrivateAttribute.cs" />
     <Compile Include="Attributes\TaskSideAttribute.cs" />
     <Compile Include="Attributes\TestingAttribute.cs" />
     <Compile Include="Attributes\ThreadSafeAttribute.cs" />
     <Compile Include="Attributes\UnstableAttribute.cs" />
-    <Compile Include="AvroUtils.cs" />
     <Compile Include="ByteUtilities.cs" />
     <Compile Include="Collections\PriorityQueue.cs" />
     <Compile Include="Collections\ReadOnlySet.cs" />

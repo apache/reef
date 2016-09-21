@@ -30,6 +30,14 @@ under the License.
   </PropertyGroup>
   <Import Project="$(SolutionDir)\build.props" />
   <ItemGroup>
+    <Reference Include="Microsoft.Hadoop.Avro, Version=1.5.6.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Hadoop.Avro.1.5.6\lib\net45\Microsoft.Hadoop.Avro.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Newtonsoft.Json, Version=6.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.6.0.4\lib\net45\Newtonsoft.Json.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Runtime.Serialization" />
@@ -38,6 +46,7 @@ under the License.
     <Compile Include="DriverRestart\HelloRestartDriver.cs" />
     <Compile Include="DriverRestart\HelloRestartTask.cs" />
     <Compile Include="MachineLearning\KMeans\Centroids.cs" />
+    <Compile Include="MachineLearning\KMeans\codecs\AvroUtils.cs" />
     <Compile Include="MachineLearning\KMeans\codecs\CentroidsCodec.cs" />
     <Compile Include="MachineLearning\KMeans\codecs\DataVectorCodec.cs" />
     <Compile Include="MachineLearning\KMeans\codecs\ProcessedResultsCodec.cs" />
@@ -89,6 +98,9 @@ under the License.
       <Project>{cdfb3464-4041-42b1-9271-83af24cd5008}</Project>
       <Name>Org.Apache.REEF.Wake</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />

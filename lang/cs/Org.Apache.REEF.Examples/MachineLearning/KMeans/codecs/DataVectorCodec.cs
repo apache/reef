@@ -17,7 +17,6 @@
 
 using Org.Apache.REEF.Examples.MachineLearning.KMeans.Contracts;
 using Org.Apache.REEF.Tang.Annotations;
-using Org.Apache.REEF.Utilities;
 using Org.Apache.REEF.Wake.Remote;
 
 namespace Org.Apache.REEF.Examples.MachineLearning.KMeans.codecs
