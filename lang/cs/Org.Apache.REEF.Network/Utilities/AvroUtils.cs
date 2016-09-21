@@ -19,9 +19,14 @@ using System.IO;
 using Microsoft.Hadoop.Avro;
 using Org.Apache.REEF.Utilities.Attributes;
 
-namespace Org.Apache.REEF.Utilities
+/// <summary>
+/// This copy of AvroUtils should belong to O.A.R.Utilities
+/// As per the discussion on https://issues.apache.org/jira/browse/REEF-1570
+/// we are in-lining this here temporarily
+/// </summary>
+namespace Org.Apache.REEF.Network.Utilities
 {
-    [Private]
+    [Private, TemporaryFix]
     public static class AvroUtils
     {
         /// <summary>
