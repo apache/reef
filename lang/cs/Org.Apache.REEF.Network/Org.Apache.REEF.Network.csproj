@@ -163,7 +163,6 @@ under the License.
     <Compile Include="Utilities\Utils.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="app.config" />
     <None Include="Org.Apache.REEF.Network.nuspec" />
     <None Include="packages.config" />
   </ItemGroup>
