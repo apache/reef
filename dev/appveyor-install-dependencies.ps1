@@ -29,7 +29,7 @@ if (!(Test-Path $tools))
 Push-Location $tools
 
 $mavenVer = "3.3.3"
-Start-FileDownload "https://archive.apache.org/dist/maven/maven-3/$mavenVer/binaries/apache-maven-$mavenVer-bin.zip" "maven.zip"
+appveyor DownloadFile "https://archive.apache.org/dist/maven/maven-3/$mavenVer/binaries/apache-maven-$mavenVer-bin.zip" -FileName "maven.zip"
 
 # extract
 Invoke-Expression "7z.exe x maven.zip" | Out-Null
@@ -49,7 +49,7 @@ if (!(Test-Path $protocPath))
 }
 Push-Location $protocPath
 
-Start-FileDownload "https://github.com/google/protobuf/releases/download/v$protocVer/protoc-$protocVer-win32.zip" "protoc.zip"
+appveyor DownloadFile "https://github.com/google/protobuf/releases/download/v$protocVer/protoc-$protocVer-win32.zip" -FileName "protoc.zip"
 
 # extract
 Invoke-Expression "7z.exe x protoc.zip" | Out-Null
