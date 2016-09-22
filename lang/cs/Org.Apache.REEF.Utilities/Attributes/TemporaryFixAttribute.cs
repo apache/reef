@@ -15,25 +15,17 @@
 // specific language governing permissions and limitations
 // under the License.
 
-using Org.Apache.REEF.Network.Naming.Contracts;
-using Org.Apache.REEF.Network.Naming.Events;
-using Org.Apache.REEF.Network.Utilities;
-using Org.Apache.REEF.Wake.Remote;
+using System;
 
-namespace Org.Apache.REEF.Network.Naming.Codec
+namespace Org.Apache.REEF.Utilities.Attributes
 {
-    internal sealed class NamingUnregisterRequestCodec : ICodec<NamingUnregisterRequest>
+    /// <summary>
+    /// Attribute target is a temporary fix and will
+    /// be refactored suitably without a deprecation phase.
+    /// </summary>
+    [AttributeUsage(AttributeTargets.All)]
+    public sealed class TemporaryFixAttribute : Attribute
     {
-        public byte[] Encode(NamingUnregisterRequest obj)
-        {
-            AvroNamingUnRegisterRequest request = new AvroNamingUnRegisterRequest { id = obj.Identifier };
-            return AvroUtils.AvroSerialize(request);
-        }
-
-        public NamingUnregisterRequest Decode(byte[] data)
-        {
-            AvroNamingUnRegisterRequest request = AvroUtils.AvroDeserialize<AvroNamingUnRegisterRequest>(data);
-            return new NamingUnregisterRequest(request.id);
-        }
+        // Intentionally empty.
     }
 }
