@@ -17,7 +17,6 @@
 
 using System;
 using Org.Apache.REEF.Common.Tasks;
-using Org.Apache.REEF.Common.Tasks.Events;
 using Org.Apache.REEF.IMRU.API;
 using Org.Apache.REEF.IMRU.OnREEF.Driver;
 using Org.Apache.REEF.IMRU.OnREEF.MapInputWithControlMessage;
@@ -36,7 +35,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.IMRUTasks
     /// <typeparam name="TMapInput">Map input</typeparam>
     /// <typeparam name="TMapOutput">Map output</typeparam>
     [ThreadSafe]
-    internal sealed class MapTaskHost<TMapInput, TMapOutput> : TaskHostBase, ITask, IObserver<ICloseEvent>
+    internal sealed class MapTaskHost<TMapInput, TMapOutput> : TaskHostBase
     {
         private static readonly Logger Logger = Logger.GetLogger(typeof(MapTaskHost<TMapInput, TMapOutput>));
 

@@ -20,6 +20,7 @@ using System.IO;
 using System.Net.Sockets;
 using System.Runtime.Remoting;
 using System.Threading;
+using Org.Apache.REEF.Common.Tasks;
 using Org.Apache.REEF.Common.Tasks.Events;
 using Org.Apache.REEF.IMRU.OnREEF.Driver;
 using Org.Apache.REEF.Network.Group.Task;
@@ -28,7 +29,7 @@ using Org.Apache.REEF.Wake.Remote.Impl;
 
 namespace Org.Apache.REEF.IMRU.OnREEF.IMRUTasks
 {
-    internal abstract class TaskHostBase
+    internal abstract class TaskHostBase : ITask, IObserver<ICloseEvent>
     {
         private static readonly Logger Logger = Logger.GetLogger(typeof(TaskHostBase));
 
