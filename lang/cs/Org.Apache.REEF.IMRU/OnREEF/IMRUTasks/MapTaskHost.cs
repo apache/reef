@@ -16,6 +16,7 @@
 // under the License.
 
 using System;
+using System.Threading;
 using Org.Apache.REEF.Common.Tasks;
 using Org.Apache.REEF.IMRU.API;
 using Org.Apache.REEF.IMRU.OnREEF.Driver;
@@ -112,6 +113,19 @@ namespace Org.Apache.REEF.IMRU.OnREEF.IMRUTasks
         protected override string TaskHostName
         {
             get { return "MapTaskHost"; }
+        }
+
+        public override void Dispose()
+        {
+            if (Interlocked.Exchange(ref _disposed, 1) == 0)
+            {
+                _groupCommunicationsClient.Dispose();
+                var disposableTask = _mapTask as IDisposable;
+                if (disposableTask != null)
+                {
+                    disposableTask.Dispose();
+                }
+            }
         }
     }
 }
