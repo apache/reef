@@ -62,7 +62,7 @@ public class FailDriverTest {
 
   private void failOn(final Class<?> clazz) throws BindException, InjectionException {
     TestUtils.assertLauncherFailure(
-        FailClient.run(clazz,
+        FailClient.runClient(clazz,
             this.testEnvironment.getRuntimeConfiguration(), this.testEnvironment.getTestTimeout()),
         SimulatedDriverFailure.class);
   }
@@ -126,7 +126,7 @@ public class FailDriverTest {
   public void testDriverCompleted() throws BindException, InjectionException {
     final Configuration runtimeConfiguration = this.testEnvironment.getRuntimeConfiguration();
     // FailDriverTest can be replaced with any other class never used in FailDriver
-    final LauncherStatus status = FailClient.run(
+    final LauncherStatus status = FailClient.runClient(
         FailDriverTest.class, runtimeConfiguration, this.testEnvironment.getTestTimeout());
     Assert.assertEquals(LauncherStatus.COMPLETED, status);
   }

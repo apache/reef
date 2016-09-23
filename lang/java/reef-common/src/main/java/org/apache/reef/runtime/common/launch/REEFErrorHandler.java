@@ -59,24 +59,33 @@ public final class REEFErrorHandler implements EventHandler<Throwable>, AutoClos
 
   @Override
   @SuppressWarnings("checkstyle:illegalcatch")
-  public void onNext(final Throwable e) {
-    LOG.log(Level.SEVERE, "Uncaught exception.", e);
-    if (!this.errorHandlerRID.equals(ErrorHandlerRID.NONE)) {
-      final EventHandler<ReefServiceProtos.RuntimeErrorProto> runtimeErrorHandler = this.remoteManager.get()
-          .getHandler(errorHandlerRID, ReefServiceProtos.RuntimeErrorProto.class);
-      final ReefServiceProtos.RuntimeErrorProto message = ReefServiceProtos.RuntimeErrorProto.newBuilder()
-          .setName("reef")
-          .setIdentifier(launchID)
-          .setMessage(e.getMessage())
-          .setException(ByteString.copyFrom(this.exceptionCodec.toBytes(e)))
-          .build();
-      try {
-        runtimeErrorHandler.onNext(message);
-      } catch (final Throwable t) {
-        LOG.log(Level.SEVERE, "Unable to send the error upstream", t);
-      }
-    } else {
+  public void onNext(final Throwable ex) {
+
+    LOG.log(Level.SEVERE, "Uncaught exception.", ex);
+
+    if (this.errorHandlerRID.equals(ErrorHandlerRID.NONE)) {
       LOG.log(Level.SEVERE, "Caught an exception from Wake we cannot send upstream because there is no upstream");
+      return;
+    }
+
+    try {
+
+      final EventHandler<ReefServiceProtos.RuntimeErrorProto> runtimeErrorHandler =
+          this.remoteManager.get().getHandler(this.errorHandlerRID, ReefServiceProtos.RuntimeErrorProto.class);
+
+      final ReefServiceProtos.RuntimeErrorProto message =
+          ReefServiceProtos.RuntimeErrorProto.newBuilder()
+              .setName("reef")
+              .setIdentifier(this.launchID)
+              .setMessage(ex.getMessage())
+              .setException(ByteString.copyFrom(this.exceptionCodec.toBytes(ex)))
+              .build();
+
+      runtimeErrorHandler.onNext(message);
+      LOG.log(Level.INFO, "Successfully sent the error upstream: {0}", ex.toString());
+
+    } catch (final Throwable t) {
+      LOG.log(Level.SEVERE, "Unable to send the error upstream", t);
     }
   }
 
