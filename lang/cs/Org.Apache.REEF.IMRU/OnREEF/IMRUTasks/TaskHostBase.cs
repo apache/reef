@@ -36,12 +36,12 @@ namespace Org.Apache.REEF.IMRU.OnREEF.IMRUTasks
         /// <summary>
         /// Shows if the object has been disposed.
         /// </summary>
-        private int _disposed;
+        protected int _disposed;
 
         /// <summary>
         /// Group Communication client for the task
         /// </summary>
-        private readonly IGroupCommClient _groupCommunicationsClient;
+        protected readonly IGroupCommClient _groupCommunicationsClient;
 
         /// <summary>
         /// Task close Coordinator to handle the work when receiving task close event
@@ -157,7 +157,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.IMRUTasks
         /// <summary>
         /// Dispose function. Dispose IGroupCommunicationsClient.
         /// </summary>
-        public void Dispose()
+        public virtual void Dispose()
         {
             if (Interlocked.Exchange(ref _disposed, 1) == 0)
             {
