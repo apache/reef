@@ -144,7 +144,7 @@ public final class FailDriver {
     if (this.state == DriverState.FAILED) {
       final SimulatedDriverFailure ex = new SimulatedDriverFailure(
           "Simulated Failure at FailDriver :: " + msgClassName);
-      LOG.log(Level.INFO, "Simulated Failure: {0}", ex);
+      LOG.log(Level.INFO, "Simulated Failure:", ex);
       throw ex;
     }
   }
