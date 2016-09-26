@@ -17,6 +17,7 @@
 
 using Org.Apache.REEF.IMRU.API;
 using Org.Apache.REEF.IMRU.Examples.PipelinedBroadcastReduce;
+using Org.Apache.REEF.IMRU.OnREEF.Driver;
 using TaskIdsToFail = Org.Apache.REEF.IMRU.Examples.PipelinedBroadcastReduce.FaultTolerantPipelinedBroadcastAndReduce.TaskIdsToFail;
 using FailureType = Org.Apache.REEF.IMRU.Examples.PipelinedBroadcastReduce.FaultTolerantPipelinedBroadcastAndReduce.FailureType;
 using TestSenderMapFunction = Org.Apache.REEF.IMRU.Examples.PipelinedBroadcastReduce.FaultTolerantPipelinedBroadcastAndReduce.TestSenderMapFunction;
@@ -29,11 +30,11 @@ using Xunit;
 namespace Org.Apache.REEF.Tests.Functional.IMRU
 {
     [Collection("FunctionalTests")]
-    public class TestFailMapperTasks : TestFailMapperEvaluators
+    public sealed class TestFailMapperTasks : TestFailMapperEvaluators
     {
         /// <summary>
-        /// This test is to throw exceptions in two tasks. In the first try, there is task app failure,
-        /// and no retries will be done. 
+        /// This test throws exception in two tasks during task execution stage. 
+        /// This is classified as task app failure, so no retries are done, and job fails.
         /// </summary>
         [Fact]
         public override void TestFailedMapperOnLocalRuntime()
@@ -59,6 +60,7 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
             var runningTaskCount = GetMessageCount(lines, RunningTaskMessage);
             var failedEvaluatorCount = GetMessageCount(lines, FailedEvaluatorMessage);
             var failedTaskCount = GetMessageCount(lines, FailedTaskMessage);
+            var jobFailure = GetMessageCount(lines, IMRUDriver<int[], int[], int[], int[]>.FailActionPrefix);
 
             // each task should fail or complete
             // there should be no failed evaluators
@@ -67,6 +69,9 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
             Assert.Equal(numTasks, completedTaskCount + failedTaskCount);
             Assert.Equal(0, failedEvaluatorCount);
             Assert.Equal(numTasks, runningTaskCount);
+            
+            // job fails
+            Assert.True(jobFailure > 0);
             CleanUp(testFolder);
         }
 

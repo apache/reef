@@ -36,6 +36,7 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
     public class TestFailUpdateEvaluator : IMRUBrodcastReduceTestBase
     {
         private const int NumberOfRetry = 3;
+        protected const string FailActionMessage = "The system cannot be recovered after";
 
         /// <summary>
         /// This test is to fail update evaluator and then try to resubmit. We don't recover from update evaluator failure. 
@@ -64,6 +65,7 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
             var runningTaskCount = GetMessageCount(lines, RunningTaskMessage);
             var failedEvaluatorCount = GetMessageCount(lines, FailedEvaluatorMessage);
             var failedTaskCount = GetMessageCount(lines, FailedTaskMessage);
+            var jobFailure = GetMessageCount(lines, IMRUDriver<int[], int[], int[], int[]>.FailActionPrefix);
 
             // there should be one try with each task either completing or disappearing with failed evaluator
             // no task failures
@@ -71,6 +73,9 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
             Assert.Equal(numTasks, completedTaskCount + failedEvaluatorCount);
             Assert.Equal(0, failedTaskCount);
             Assert.Equal(numTasks, runningTaskCount);
+            
+            // job fails
+            Assert.True(jobFailure > 0);
             CleanUp(testFolder);
         }
 

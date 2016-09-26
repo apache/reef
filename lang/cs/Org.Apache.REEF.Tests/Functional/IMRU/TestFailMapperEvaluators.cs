@@ -38,8 +38,8 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
         protected const int NumberOfRetry = 3;
 
         /// <summary>
-        /// This test is to fail one evaluator and then try to resubmit. In the last retry, 
-        /// there will be no failed evaluator and all tasks will be successfully completed. 
+        /// This test fails two evaluators during task execution stage on each retry except last. 
+        /// Job is retried until success. 
         /// </summary>
         [Fact]
         public virtual void TestFailedMapperOnLocalRuntime()
@@ -65,11 +65,14 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
             var runningTaskCount = GetMessageCount(lines, RunningTaskMessage);
             var failedEvaluatorCount = GetMessageCount(lines, FailedEvaluatorMessage);
             var failedTaskCount = GetMessageCount(lines, FailedTaskMessage);
+            var jobSuccess = GetMessageCount(lines, IMRUDriver<int[], int[], int[], int[]>.DoneActionPrefix);
 
             // on each try each task should fail or complete or disappear with failed evaluator
             // and on each try all tasks should start successfully
             Assert.Equal((NumberOfRetry + 1) * numTasks, completedTaskCount + failedEvaluatorCount + failedTaskCount);
             Assert.Equal((NumberOfRetry + 1) * numTasks, runningTaskCount);
+            // eventually job succeeds
+            Assert.Equal(1, jobSuccess);
             CleanUp(testFolder);
         }
 

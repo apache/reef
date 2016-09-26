@@ -30,11 +30,11 @@ using Xunit;
 namespace Org.Apache.REEF.Tests.Functional.IMRU
 {
     [Collection("FunctionalTests")]
-    public sealed class TestFailMapperEvaluatorsOnInit : TestFailMapperEvaluators
+    public sealed class TestFailMapperEvaluatorsOnDispose : TestFailMapperEvaluators
     {
         /// <summary>
-        /// This test fails two evaluators during task initialize stage on each retry except last. 
-        /// Job is retried until success.
+        /// This test fails two evaluators during task dispose stage. 
+        /// The failures are ignored, because tasks are already completed successfully.
         /// </summary>
         [Fact]
         public override void TestFailedMapperOnLocalRuntime()
@@ -61,12 +61,11 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
             var failedTaskCount = GetMessageCount(lines, FailedTaskMessage);
             var jobSuccess = GetMessageCount(lines, IMRUDriver<int[], int[], int[], int[]>.DoneActionPrefix);
 
-            // In each retry, there are 2 failed evaluators.
-            // There will be no failed task.
-            // Rest of the tasks should be canceled and send completed task event to the driver. 
-            Assert.Equal(NumberOfRetry * 2, failedEvaluatorCount);
+            // In first retry, all tasks are completed and then there are 2 failed evaluators. 
+            // No failed tasks.
+            Assert.Equal(2, failedEvaluatorCount);
             Assert.Equal(0, failedTaskCount);
-            Assert.Equal(((NumberOfRetry + 1) * numTasks) - (NumberOfRetry * 2), completedTaskCount);
+            Assert.Equal(numTasks, completedTaskCount);
 
             // eventually job succeeds
             Assert.Equal(1, jobSuccess);
@@ -83,7 +82,7 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
             return TangFactory.GetTang().NewConfigurationBuilder(c)
                 .BindSetEntry<TaskIdsToFail, string>(GenericType<TaskIdsToFail>.Class, "IMRUMap-RandomInputPartition-2-")
                 .BindSetEntry<TaskIdsToFail, string>(GenericType<TaskIdsToFail>.Class, "IMRUMap-RandomInputPartition-3-")
-                .BindIntNamedParam<FailureType>(FailureType.EvaluatorFailureDuringTaskInitialization.ToString())
+                .BindIntNamedParam<FailureType>(FailureType.EvaluatorFailureDuringTaskDispose.ToString())
                 .BindNamedParameter(typeof(MaxRetryNumberInRecovery), NumberOfRetry.ToString())
                 .BindNamedParameter(typeof(FaultTolerantPipelinedBroadcastAndReduce.TotalNumberOfForcedFailures), NumberOfRetry.ToString())
                 .Build();
