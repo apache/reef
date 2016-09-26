@@ -124,7 +124,10 @@ under the License.
     <Compile Include="Functional\IMRU\IMRUBrodcastReduceTestBase.cs" />
     <Compile Include="Functional\IMRU\IMRUCloseTaskTest.cs" />
     <Compile Include="Functional\IMRU\IMRUMapperCountTest.cs" />
+    <Compile Include="Functional\IMRU\TestFailMapperTasksOnDispose.cs" />
+    <Compile Include="Functional\IMRU\TestFailMapperEvaluatorsOnDispose.cs" />
     <Compile Include="Functional\IMRU\TestFailMapperEvaluatorsOnInit.cs" />
+    <Compile Include="Functional\IMRU\TestFailMapperTasksOnInit.cs" />
     <Compile Include="Functional\IMRU\TestFailUpdateEvaluator.cs" />
     <Compile Include="Functional\IMRU\TestFailMapperTasks.cs" />
     <Compile Include="Functional\IMRU\TestFailMapperEvaluators.cs" />

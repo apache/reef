@@ -17,10 +17,10 @@
 
 using Org.Apache.REEF.IMRU.API;
 using Org.Apache.REEF.IMRU.Examples.PipelinedBroadcastReduce;
-using Org.Apache.REEF.IMRU.OnREEF.Parameters;
 using TaskIdsToFail = Org.Apache.REEF.IMRU.Examples.PipelinedBroadcastReduce.FaultTolerantPipelinedBroadcastAndReduce.TaskIdsToFail;
 using FailureType = Org.Apache.REEF.IMRU.Examples.PipelinedBroadcastReduce.FaultTolerantPipelinedBroadcastAndReduce.FailureType;
 using TestSenderMapFunction = Org.Apache.REEF.IMRU.Examples.PipelinedBroadcastReduce.FaultTolerantPipelinedBroadcastAndReduce.TestSenderMapFunction;
+using Org.Apache.REEF.IMRU.OnREEF.Parameters;
 using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Tang.Util;
@@ -29,11 +29,11 @@ using Xunit;
 namespace Org.Apache.REEF.Tests.Functional.IMRU
 {
     [Collection("FunctionalTests")]
-    public sealed class TestFailMapperEvaluatorsOnInit : TestFailMapperEvaluators
+    public sealed class TestFailMapperTasksOnInit : TestFailMapperEvaluators
     {
         /// <summary>
-        /// This test fails two evaluators during task initialize stage on each retry except last. 
-        /// Job is retried until success.
+        /// This test throws exception in two tasks during task initialization stage. 
+        /// Current exception handling code can't distinguish this from communication failure, so job is retried.
         /// </summary>
         [Fact]
         public override void TestFailedMapperOnLocalRuntime()
@@ -54,17 +54,16 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
                 updateTaskMemory,
                 NumberOfRetry,
                 testFolder);
-            string[] lines = ReadLogFile(DriverStdout, "driver", testFolder, 360);
+            string[] lines = ReadLogFile(DriverStdout, "driver", testFolder, 240);
             var completedTaskCount = GetMessageCount(lines, "Received ICompletedTask");
             var failedEvaluatorCount = GetMessageCount(lines, FailedEvaluatorMessage);
             var failedTaskCount = GetMessageCount(lines, FailedTaskMessage);
             var jobSuccess = GetMessageCount(lines, DoneActionMessage);
 
-            // In each retry, there are 2 failed evaluators.
-            // There will be no failed task.
+            // In each retry, there are 2 failed tasks.
             // Rest of the tasks should be canceled and send completed task event to the driver. 
-            Assert.Equal(NumberOfRetry * 2, failedEvaluatorCount);
-            Assert.Equal(0, failedTaskCount);
+            Assert.Equal(0, failedEvaluatorCount);
+            Assert.Equal(NumberOfRetry * 2, failedTaskCount);
             Assert.Equal(((NumberOfRetry + 1) * numTasks) - (NumberOfRetry * 2), completedTaskCount);
 
             // eventually job succeeds
@@ -72,6 +71,10 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
             CleanUp(testFolder);
         }
 
+        /// <summary>
+        /// Mapper function configuration. Subclass can override it to have its own test function.
+        /// </summary>
+        /// <returns></returns>
         protected override IConfiguration BuildMapperFunctionConfig()
         {
             var c = IMRUMapConfiguration<int[], int[]>.ConfigurationModule
@@ -82,7 +85,7 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
             return TangFactory.GetTang().NewConfigurationBuilder(c)
                 .BindSetEntry<TaskIdsToFail, string>(GenericType<TaskIdsToFail>.Class, "IMRUMap-RandomInputPartition-2-")
                 .BindSetEntry<TaskIdsToFail, string>(GenericType<TaskIdsToFail>.Class, "IMRUMap-RandomInputPartition-3-")
-                .BindIntNamedParam<FailureType>(FailureType.EvaluatorFailureDuringTaskInitialization.ToString())
+                .BindIntNamedParam<FailureType>(FailureType.TaskFailureDuringTaskInitialization.ToString())
                 .BindNamedParameter(typeof(MaxRetryNumberInRecovery), NumberOfRetry.ToString())
                 .BindNamedParameter(typeof(FaultTolerantPipelinedBroadcastAndReduce.TotalNumberOfForcedFailures), NumberOfRetry.ToString())
                 .Build();

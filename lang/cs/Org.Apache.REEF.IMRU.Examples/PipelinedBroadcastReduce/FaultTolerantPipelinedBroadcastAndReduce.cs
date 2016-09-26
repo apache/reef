@@ -87,15 +87,18 @@ namespace Org.Apache.REEF.IMRU.Examples.PipelinedBroadcastReduce
         [NamedParameter(Documentation = "Type of failure to simulate")]
         internal class FailureType : Name<int>
         {
-            internal static readonly int EvaluatorFailureDuringTaskExecution = 0;
-            internal static readonly int TaskFailureDuringTaskExecution = 1;
-            internal static readonly int EvaluatorFailureDuringTaskInitialization = 2;
-            internal static readonly int TaskFailureDuringTaskInitialization = 3;
+            internal const int EvaluatorFailureDuringTaskExecution = 0;
+            internal const int TaskFailureDuringTaskExecution = 1;
+            internal const int EvaluatorFailureDuringTaskInitialization = 2;
+            internal const int TaskFailureDuringTaskInitialization = 3;
+            internal const int EvaluatorFailureDuringTaskDispose = 4;
+            internal const int TaskFailureDuringTaskDispose = 5;
 
             internal static bool IsEvaluatorFailure(int failureType)
             {
                 return failureType == EvaluatorFailureDuringTaskExecution ||
-                       failureType == EvaluatorFailureDuringTaskInitialization;
+                       failureType == EvaluatorFailureDuringTaskInitialization ||
+                       failureType == EvaluatorFailureDuringTaskDispose;
             }
         }
 
@@ -107,7 +110,7 @@ namespace Org.Apache.REEF.IMRU.Examples.PipelinedBroadcastReduce
         /// <summary>
         /// The function is to simulate Evaluator/Task failure for mapper evaluator
         /// </summary>
-        internal sealed class TestSenderMapFunction : IMapFunction<int[], int[]>
+        internal sealed class TestSenderMapFunction : IMapFunction<int[], int[]>, IDisposable
         {
             private int _iterations;
             private readonly string _taskId;
@@ -178,6 +181,15 @@ namespace Org.Apache.REEF.IMRU.Examples.PipelinedBroadcastReduce
                 }
 
                 return mapInput;
+            }
+
+            public void Dispose()
+            {
+                if (_failureType == FailureType.EvaluatorFailureDuringTaskDispose ||
+                    _failureType == FailureType.TaskFailureDuringTaskDispose)
+                {
+                    SimulateFailure(_iterations);
+                }
             }
 
             private void SimulateFailure(int onIteration)
