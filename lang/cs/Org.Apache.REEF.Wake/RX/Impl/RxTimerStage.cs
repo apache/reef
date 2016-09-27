@@ -22,6 +22,7 @@ using Org.Apache.REEF.Wake.Impl;
 namespace Org.Apache.REEF.Wake.RX.Impl
 {
     /// <summary>Timer stage that provides events to the observer periodically</summary>
+    [Obsolete("TODO[JIRA REEF-1617] This class will be removed")]
     public sealed class RxTimerStage : IStage, IStaticObservable
     {
         private readonly Timer _timer;
