@@ -71,6 +71,9 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         private static readonly Logger Logger =
             Logger.GetLogger(typeof(IMRUDriver<TMapInput, TMapOutput, TResult, TPartitionType>));
 
+        internal const string DoneActionPrefix = "DoneAction:";
+        internal const string FailActionPrefix = "FailAction:";
+
         private readonly ConfigurationManager _configurationManager;
         private readonly int _totalMappers;
         private readonly IGroupCommDriver _groupCommDriver;
@@ -699,7 +702,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         private void DoneAction()
         {
             ShutDownAllEvaluators();
-            Logger.Log(Level.Info, "DoneAction done in retry {0}!!!", _numberOfRetries);
+            Logger.Log(Level.Info, "{0} done in retry {1}!!!", DoneActionPrefix, _numberOfRetries);
         }
 
         /// <summary>
@@ -709,8 +712,8 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         {
             ShutDownAllEvaluators();
             var msg = string.Format(CultureInfo.InvariantCulture,
-                "The system cannot be recovered after {0} retries. NumberofFailedMappers in the last try is {1}.",
-                _numberOfRetries, _evaluatorManager.NumberofFailedMappers());
+                "{0} The system cannot be recovered after {1} retries. NumberofFailedMappers in the last try is {2}.",
+                FailActionPrefix, _numberOfRetries, _evaluatorManager.NumberofFailedMappers());
             Exceptions.Throw(new ApplicationException(msg), Logger);
         }
 
