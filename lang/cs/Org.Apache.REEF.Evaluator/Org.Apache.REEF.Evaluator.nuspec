@@ -38,6 +38,8 @@ under the License.
     </dependencies>
   </metadata>
   <files>
+    <file src="..\bin\$Platform$\$Configuration$\Org.Apache.REEF.Evaluator\Org.Apache.REEF.Evaluator.exe" target="lib\net45" />
+    <!-- TODO[REEF-1620]: Remove the below -->
     <file src="..\bin\$Platform$\$Configuration$\Org.Apache.REEF.Evaluator\Org.Apache.REEF.Evaluator.exe" target="tools" />
     <file src="..\bin\$Platform$\$Configuration$\Org.Apache.REEF.Evaluator\NugetExeFix.txt" target="lib\net45" />
   </files>
