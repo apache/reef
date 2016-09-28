@@ -15,7 +15,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-using System;
 using System.Threading.Tasks;
 using Org.Apache.REEF.Client.Common;
 using Org.Apache.REEF.Examples.AllHandlers;
@@ -57,6 +56,7 @@ namespace Org.Apache.REEF.Tests.Functional.Bridge
 
             var uri = driverHttpEndpoint.DriverUrl + "NRT/status?a=1&b=2";
             var strStatus = driverHttpEndpoint.GetUrlResult(uri);
+            Assert.NotNull(strStatus);
             Assert.True(strStatus.Equals("Byte array returned from HelloHttpHandler in CLR!!!\r\n"));
 
             await((JobSubmissionResult)driverHttpEndpoint).TryUntilNoConnection(uri);
