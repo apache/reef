@@ -175,21 +175,22 @@ namespace Org.Apache.REEF.Utilities.Logging
         {
             string exceptionLog;
 
-            if (IsLoggable(level) && exception != null)
+            if (exception != null)
             {
                 exceptionLog = string.Format(
                     CultureInfo.InvariantCulture,
-                    "encountered error [{0}] with mesage [{1}] and stack trace [{2}]",
-                    exception,
-                    exception.Message,
-                    exception.StackTrace);
+                    "\r\nEncountered error [{0}]",
+                    exception);
             }
             else
             {
                 exceptionLog = string.Empty;
             }
-            
-            Log(level, msg + exceptionLog);
+
+            if (IsLoggable(level))
+            {
+                Log(level, msg + exceptionLog);
+            }
         }
 
         public IDisposable LogFunction(string function, params object[] args)
