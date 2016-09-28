@@ -206,11 +206,10 @@ namespace Org.Apache.REEF.IMRU.OnREEF.IMRUTasks
         private void HandleException(Exception originalException, Exception targetException)
         {
             Logger.Log(Level.Error,
-                "Received Exception {0} in {1} with message: {2}. The cancellation token is: {3}.",
-                originalException.GetType(),
+                "Received exception in {0} with cancellation token {1}: [{2}]",
                 TaskHostName,
-                originalException.Message,
-                _cancellationSource.IsCancellationRequested);
+                _cancellationSource.IsCancellationRequested,
+                originalException);
             if (!_cancellationSource.IsCancellationRequested)
             {
                 Logger.Log(Level.Error,
