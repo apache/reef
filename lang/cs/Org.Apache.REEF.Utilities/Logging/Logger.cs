@@ -173,22 +173,22 @@ namespace Org.Apache.REEF.Utilities.Logging
 
         public void Log(Level level, string msg, Exception exception)
         {
-            string exceptionLog;
-
-            if (exception != null)
-            {
-                exceptionLog = string.Format(
-                    CultureInfo.InvariantCulture,
-                    "\r\nEncountered error [{0}]",
-                    exception);
-            }
-            else
-            {
-                exceptionLog = string.Empty;
-            }
-
             if (IsLoggable(level))
             {
+                string exceptionLog;
+
+                if (exception != null)
+                {
+                    exceptionLog = string.Format(
+                        CultureInfo.InvariantCulture,
+                        "\r\nEncountered error [{0}]",
+                        exception);
+                }
+                else
+                {
+                    exceptionLog = string.Empty;
+                }
+
                 Log(level, msg + exceptionLog);
             }
         }
