@@ -29,6 +29,7 @@ under the License.
 
     <properties>
         <rootPath>${basedir}/../../..</rootPath>
+        <protoPath>${rootPath}/lang/common/proto</protoPath>
     </properties>
 
     <artifactId>reef-common</artifactId>
@@ -68,12 +69,12 @@ under the License.
                                 </fail>
                                 <mkdir dir="target/generated-sources/proto"/>
                                 <exec executable="protoc">
-                                    <arg value="--proto_path=src/main/proto/"/>
+                                    <arg value="--proto_path=${protoPath}"/>
                                     <arg value="--java_out=target/generated-sources/proto"/>
-                                    <arg value="src/main/proto/reef_service_protos.proto"/>
-                                    <arg value="src/main/proto/evaluator_runtime.proto"/>
-                                    <arg value="src/main/proto/client_runtime.proto"/>
-                                    <arg value="src/main/proto/reef_protocol.proto"/>
+                                    <arg value="${protoPath}/reef_service_protos.proto"/>
+                                    <arg value="${protoPath}/evaluator_runtime.proto"/>
+                                    <arg value="${protoPath}/client_runtime.proto"/>
+                                    <arg value="${protoPath}/reef_protocol.proto"/>
                                 </exec>
                             </target>
                             <sourceRoot>target/generated-sources/proto</sourceRoot>
