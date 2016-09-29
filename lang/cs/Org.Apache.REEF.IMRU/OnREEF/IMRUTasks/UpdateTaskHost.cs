@@ -98,14 +98,14 @@ namespace Org.Apache.REEF.IMRU.OnREEF.IMRUTasks
                     _dataAndControlMessageSender.Send(message);
                 }
 
-                var input = _dataReceiver.Reduce(_cancellationSource);
-
                 if (_invokeGc)
                 {
                     Logger.Log(Level.Verbose, "Calling Garbage Collector");
                     GC.Collect();
                     GC.WaitForPendingFinalizers();
                 }
+
+                var input = _dataReceiver.Reduce(_cancellationSource);
 
                 try
                 {
