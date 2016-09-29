@@ -30,6 +30,11 @@ under the License.
         <version>0.16.0-SNAPSHOT</version>
     </parent>
 
+    <properties>
+        <rootPath>${basedir}/../../../..</rootPath>
+        <protoPath>${rootPath}/lang/common/proto</protoPath>
+    </properties>
+
     <build>
 
         <resources>
@@ -57,9 +62,9 @@ under the License.
                             <target>
                                 <mkdir dir="target/generated-sources/proto"/>
                                 <exec executable="protoc">
-                                    <arg value="--proto_path=src/main/proto/"/>
+                                    <arg value="--proto_path=${protoPath}"/>
                                     <arg value="--java_out=target/generated-sources/proto"/>
-                                    <arg value="src/main/proto/RemoteProtocol.proto"/>
+                                    <arg value="${protoPath}/RemoteProtocol.proto"/>
                                 </exec>
                                 <exec executable="protoc">
                                     <arg value="--proto_path=src/test/proto/"/>
