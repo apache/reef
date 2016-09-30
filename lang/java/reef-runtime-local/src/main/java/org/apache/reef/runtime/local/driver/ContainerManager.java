@@ -62,6 +62,8 @@ final class ContainerManager implements AutoCloseable {
 
   private static final Collection<String> DEFAULT_RACKS = Collections.singletonList(RackNames.DEFAULT_RACK_NAME);
 
+  private final ThreadGroup containerThreads = new ThreadGroup("LocalContainerManagerThreadGroup");
+
   /**
    * Map from containerID -> Container.
    */
@@ -369,7 +371,7 @@ final class ContainerManager implements AutoCloseable {
 
     final ProcessContainer container = new ProcessContainer(
         this.errorHandlerRID, nodeId, processID, processFolder, megaBytes,
-        numberOfCores, rackName, this.fileNames, this.processObserver);
+        numberOfCores, rackName, this.fileNames, this.processObserver, this.containerThreads);
 
     this.containers.put(container.getContainerID(), container);
     LOG.log(Level.FINE, "Allocated {0}", container.getContainerID());

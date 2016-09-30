@@ -51,10 +51,10 @@ public final class ProcessContainer implements Container {
   private final int numberOfCores;
   private final String rackName;
   private final REEFFileNames fileNames;
-  private final File reefFolder;
   private final File localFolder;
   private final File globalFolder;
   private final RunnableProcessObserver processObserver;
+  private final ThreadGroup threadGroup;
   private Thread theThread;
   private RunnableProcess process;
 
@@ -72,7 +72,9 @@ public final class ProcessContainer implements Container {
                    final int numberOfCores,
                    final String rackName,
                    final REEFFileNames fileNames,
-                   final ReefRunnableProcessObserver processObserver) {
+                   final ReefRunnableProcessObserver processObserver,
+                   final ThreadGroup threadGroup) {
+
     this.errorHandlerRID = errorHandlerRID;
     this.nodeID = nodeID;
     this.containedID = containedID;
@@ -82,11 +84,15 @@ public final class ProcessContainer implements Container {
     this.rackName = rackName;
     this.fileNames = fileNames;
     this.processObserver = processObserver;
-    this.reefFolder = new File(folder, fileNames.getREEFFolderName());
+    this.threadGroup = threadGroup;
+
+    final File reefFolder = new File(folder, fileNames.getREEFFolderName());
+
     this.localFolder = new File(reefFolder, fileNames.getLocalFolderName());
     if (!this.localFolder.exists() && !this.localFolder.mkdirs()) {
       LOG.log(Level.WARNING, "Failed to create [{0}]", this.localFolder.getAbsolutePath());
     }
+
     this.globalFolder = new File(reefFolder, fileNames.getGlobalFolderName());
     if (!this.globalFolder.exists() && !this.globalFolder.mkdirs()) {
       LOG.log(Level.WARNING, "Failed to create [{0}]", this.globalFolder.getAbsolutePath());
@@ -115,10 +121,9 @@ public final class ProcessContainer implements Container {
   }
 
   @Override
-  @SuppressWarnings("checkstyle:hiddenfield")
-  public void addGlobalFiles(final File globalFolder) {
+  public void addGlobalFiles(final File globalFilesFolder) {
     try {
-      final File[] files = globalFolder.listFiles();
+      final File[] files = globalFilesFolder.listFiles();
       if (files != null) {
         copy(Arrays.asList(files), this.globalFolder);
       }
@@ -135,7 +140,7 @@ public final class ProcessContainer implements Container {
         this.processObserver,
         this.fileNames.getEvaluatorStdoutFileName(),
         this.fileNames.getEvaluatorStderrFileName());
-    this.theThread = new Thread(this.process);
+    this.theThread = new Thread(this.threadGroup, this.process, this.containedID);
     this.theThread.start();
   }
 

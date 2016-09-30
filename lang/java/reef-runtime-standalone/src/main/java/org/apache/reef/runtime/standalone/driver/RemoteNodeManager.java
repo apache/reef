@@ -54,7 +54,10 @@ import java.util.logging.Logger;
  * Management module for remote nodes in standalone runtime.
  */
 public final class RemoteNodeManager {
+
   private static final Logger LOG = Logger.getLogger(RemoteNodeManager.class.getName());
+
+  private final ThreadGroup containerThreads = new ThreadGroup("SshContainerManagerThreadGroup");
 
   /**
    * Map from containerID -> SshProcessContainer.
@@ -248,7 +251,8 @@ public final class RemoteNodeManager {
 
     final SshProcessContainer sshProcessContainer = new SshProcessContainer(errorHandlerRID, nodeId, processID,
         processFolder, resourceRequestEvent.getMemorySize().get(), resourceRequestEvent.getVirtualCores().get(),
-        null, this.fileNames, nodeFolder, processObserver);
+        null, this.fileNames, this.nodeFolder, this.processObserver, this.containerThreads);
+
     this.containers.put(processID, sshProcessContainer);
 
     final ResourceAllocationEvent alloc = ResourceEventImpl.newAllocationBuilder()
