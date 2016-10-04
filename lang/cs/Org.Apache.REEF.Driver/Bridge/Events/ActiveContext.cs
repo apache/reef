@@ -40,7 +40,7 @@ namespace Org.Apache.REEF.Driver.Bridge.Events
             _parentId = Optional<string>.OfNullable(clr2Java.GetParentId());
         }
 
-        private IActiveContextClr2Java Clr2Java { get; set; }
+        private IActiveContextClr2Java Clr2Java { get; }
 
         public string Id
         {

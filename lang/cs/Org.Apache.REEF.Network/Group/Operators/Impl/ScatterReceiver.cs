@@ -64,17 +64,17 @@ namespace Org.Apache.REEF.Network.Group.Operators.Impl
         /// <summary>
         /// Returns the name of the reduce operator
         /// </summary>
-        public string OperatorName { get; private set; }
+        public string OperatorName { get; }
 
         /// <summary>
         /// Returns the name of the operator's CommunicationGroup.
         /// </summary>
-        public string GroupName { get; private set; }
+        public string GroupName { get; }
 
         /// <summary>
         /// Returns the operator version.
         /// </summary>
-        public int Version { get; private set; }
+        public int Version { get; }
 
         /// <summary>
         /// Returns the class used to reduce incoming messages sent by ReduceSenders.

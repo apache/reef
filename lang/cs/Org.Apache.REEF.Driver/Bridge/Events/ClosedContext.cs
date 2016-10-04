@@ -42,12 +42,12 @@ namespace Org.Apache.REEF.Driver.Bridge.Events
         /// <summary>
         /// Gets the ID of the closed context.
         /// </summary>
-        public string Id { get; private set; }
+        public string Id { get; }
 
         /// <summary>
         /// Gets the ID of the Evaluator on which the context was closed.
         /// </summary>
-        public string EvaluatorId { get; private set; }
+        public string EvaluatorId { get; }
 
         /// <summary>
         /// Gets the ID of the parent context of the closed context.
@@ -65,7 +65,7 @@ namespace Org.Apache.REEF.Driver.Bridge.Events
         /// Gets the <see cref="IEvaluatorDescriptor"/> of the Evaluator on which
         /// the context was closed.
         /// </summary>
-        public IEvaluatorDescriptor EvaluatorDescriptor { get; private set; }
+        public IEvaluatorDescriptor EvaluatorDescriptor { get; }
 
         /// <summary>
         /// Gest the <see cref="IActiveContext"/> of the parent context of the

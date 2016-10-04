@@ -38,7 +38,7 @@ namespace Org.Apache.REEF.Driver.Bridge.Events
             FailedContextClr2Java = clr2Java;
         }
 
-        private IFailedContextClr2Java FailedContextClr2Java { get; set; }
+        private IFailedContextClr2Java FailedContextClr2Java { get; }
 
         public string Id
         {

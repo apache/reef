@@ -29,7 +29,7 @@ namespace Org.Apache.REEF.Wake.Remote.Impl
         /// <summary>
         /// Number of retries done before exception was thrown
         /// </summary>
-        public int RetriesDone { get; private set; }
+        public int RetriesDone { get; }
 
         /// <summary>
         /// Constructor

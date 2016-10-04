@@ -61,11 +61,11 @@ namespace Org.Apache.REEF.Network.Group.Operators.Impl
             _initialize = initialize;
         }
 
-        public string OperatorName { get; private set; }
+        public string OperatorName { get; }
 
-        public string GroupName { get; private set; }
+        public string GroupName { get; }
 
-        public int Version { get; private set; }
+        public int Version { get; }
 
         /// <summary>
         /// Split up the list of elements evenly and scatter each chunk

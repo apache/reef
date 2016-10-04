@@ -42,7 +42,7 @@ namespace Org.Apache.REEF.Network.Group.Pipelining
         /// <summary>
         /// Codec for actual message T
         /// </summary>
-        public IStreamingCodec<T> BaseCodec { get; private set; }
+        public IStreamingCodec<T> BaseCodec { get; }
 
         /// <summary>
         /// Instantiate the class from the reader.

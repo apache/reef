@@ -39,12 +39,12 @@ namespace Org.Apache.REEF.Common.Metrics.Api
         /// <summary>
         /// Name of the metric.
         /// </summary>
-        public string Name { get; private set; }
+        public string Name { get; }
 
         /// <summary>
         /// Description of the metric.
         /// </summary>
-        public string Description { get; private set; }
+        public string Description { get; }
 
         /// <summary>
         /// Overrides base ToString method.

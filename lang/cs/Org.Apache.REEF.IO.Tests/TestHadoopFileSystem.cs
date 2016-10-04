@@ -158,7 +158,7 @@ namespace Org.Apache.REEF.IO.Tests
 
     class FileSystemTest
     {
-        public IFileSystem FileSystem { get; private set; }
+        public IFileSystem FileSystem { get; }
 
         [Inject]
         private FileSystemTest(IFileSystem fileSystem)

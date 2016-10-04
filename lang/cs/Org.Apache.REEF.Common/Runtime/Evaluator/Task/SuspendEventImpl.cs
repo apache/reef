@@ -31,6 +31,6 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Task
             Message = Optional<byte[]>.OfNullable(bytes);
         }
 
-        public Optional<byte[]> Message { get; private set; }
+        public Optional<byte[]> Message { get; }
     }
 }

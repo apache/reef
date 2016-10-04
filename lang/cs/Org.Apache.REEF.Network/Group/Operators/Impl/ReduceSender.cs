@@ -78,27 +78,27 @@ namespace Org.Apache.REEF.Network.Group.Operators.Impl
         /// <summary>
         /// Returns the name of the reduce operator.
         /// </summary>
-        public string OperatorName { get; private set; }
+        public string OperatorName { get; }
 
         /// <summary>
         /// Returns the name of the operator's CommunicationGroup.
         /// </summary>
-        public string GroupName { get; private set; }
+        public string GroupName { get; }
 
         /// <summary>
         /// Returns the operator version.
         /// </summary>
-        public int Version { get; private set; }
+        public int Version { get; }
 
         /// <summary>
         /// Get reduced data from children, reduce with the data given, then sends reduced data to parent
         /// </summary>
-        public IReduceFunction<T> ReduceFunction { get; private set; }
+        public IReduceFunction<T> ReduceFunction { get; }
 
         /// <summary>
         /// Returns the IPipelineDataConvert used to convert messages to pipeline form and vice-versa
         /// </summary>
-        public IPipelineDataConverter<T> PipelineDataConverter { get; private set; }
+        public IPipelineDataConverter<T> PipelineDataConverter { get; }
 
         /// <summary>
         /// Sends the data to the operator's ReduceReceiver to be aggregated.

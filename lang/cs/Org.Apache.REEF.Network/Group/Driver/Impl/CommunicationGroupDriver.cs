@@ -85,7 +85,7 @@ namespace Org.Apache.REEF.Network.Group.Driver.Impl
         /// <summary>
         /// Returns the list of task ids that belong to this Communication Group
         /// </summary>
-        public IList<string> TaskIds { get; private set; }
+        public IList<string> TaskIds { get; }
 
         /// <summary>
         /// </summary>

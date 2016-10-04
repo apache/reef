@@ -30,6 +30,6 @@ namespace Org.Apache.REEF.Common.Tasks
         /// <summary>
         /// State of Driver connection.
         /// </summary>
-        public DriverConnectionState State { get; private set; }
+        public DriverConnectionState State { get; }
     }
 }
