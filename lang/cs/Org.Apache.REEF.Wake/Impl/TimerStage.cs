@@ -57,7 +57,7 @@ namespace Org.Apache.REEF.Wake.Impl
 
         /// <summary>
         /// Closes resources
-        /// </summary>x
+        /// </summary>
         public void Dispose()
         {
             _timer.Dispose();
