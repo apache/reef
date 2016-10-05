@@ -15,7 +15,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
-using System.Timers;
+using System;
+using System.Threading;
 
 namespace Org.Apache.REEF.Wake.Impl
 {
@@ -36,14 +37,17 @@ namespace Org.Apache.REEF.Wake.Impl
 
         /// <summary>Constructs a timer stage</summary>
         /// <param name="handler">an event handler</param>
-        /// <param name="initialDelay">an initial delay</param>
+        /// <param name="initialDelay">an initial delay</param>d
         /// <param name="period">a period in milli-seconds</param>
         public TimerStage(IEventHandler<PeriodicEvent> handler, long initialDelay, long period)
         {
+            // Core .NET only supports 32 bit timers.
+            validate("initialDelay", initialDelay);
+            validate("initialDelay", period);
+
             _handler = handler;
-            _timer = new Timer(period);
-            _timer.Elapsed += (sender, e) => OnTimedEvent(sender, e, _handler, _value);
-            _timer.Enabled = true;
+            _timer = new System.Threading.Timer(
+                (object state) => { OnTimedEvent(_handler, _value); }, this, (int)initialDelay, (int)period);
         }
 
         /// <summary>
@@ -51,12 +55,27 @@ namespace Org.Apache.REEF.Wake.Impl
         /// </summary>
         public void Dispose()
         {
-            _timer.Stop();
+            _timer.Dispose();
         }
 
-        private static void OnTimedEvent(object source, ElapsedEventArgs e, IEventHandler<PeriodicEvent> handler, PeriodicEvent value)
+        private static void OnTimedEvent(IEventHandler<PeriodicEvent> handler, PeriodicEvent value)
         {
             handler.OnNext(value);
+        }
+
+        /// <summary>
+        /// Validates the input is less than Int32.MaxInt. 
+        /// </summary>
+        /// <param name="name">Parameter name</param>
+        /// <param name="value">Parameter value</param>
+        /// <exception cref="ArgumentException">Input value excess Int32.Max</exception>
+        private void validate(string name, long value)
+        {
+            if (value > int.MaxValue)
+            {
+                throw new ArgumentException(string.Format(
+                    "Parameter: " + name + " {0} is larger supported value {0}", int.MaxValue));
+            }
         }
     }
 }
