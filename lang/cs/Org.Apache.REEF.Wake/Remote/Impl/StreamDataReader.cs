@@ -349,5 +349,19 @@ namespace Org.Apache.REEF.Wake.Remote.Impl
 
             return bytesToRead;
         }
+
+        /// <summary>
+        /// Gets underlying stream. Throws null exception if 
+        /// stream is null or not available
+        /// </summary>
+        /// <returns>The underlying stream</returns>
+        public Stream GetStream()
+        {
+            if (_stream == null)
+            {
+                Exceptions.Throw(new NullReferenceException("Stream is null or not available"), Logger);
+            }
+            return _stream;
+        }
     }
 }

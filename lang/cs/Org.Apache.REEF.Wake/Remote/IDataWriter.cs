@@ -17,6 +17,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -144,5 +145,12 @@ namespace Org.Apache.REEF.Wake.Remote
         /// <param name="token">Cancellation token</param>
         /// <returns>the handler to the task</returns>
         Task WriteAsync(byte[] buffer, int index, int count, CancellationToken token);
+
+        /// <summary>
+        /// Gets underlying stream. Throws null exception if 
+        /// stream is null or not available
+        /// </summary>
+        /// <returns>The underlying stream</returns>
+        Stream GetStream();
     }
 }

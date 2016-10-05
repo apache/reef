@@ -17,6 +17,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -140,5 +141,12 @@ namespace Org.Apache.REEF.Wake.Remote
         /// <returns>Task handler that reads bytes and returns that number of bytes read 
         /// if success, otherwise -1</returns>
         Task<int> ReadAsync(byte[] buffer, int index, int bytesToRead, CancellationToken token);
+
+        /// <summary>
+        /// Gets underlying stream. Throws null exception if 
+        /// stream is null or not available
+        /// </summary>
+        /// <returns>The underlying stream</returns>
+        Stream GetStream();
     }
 }
