@@ -212,7 +212,7 @@ public final class FailDriver {
     public void onNext(final FailedEvaluator eval) {
       LOG.log(Level.WARNING, "Evaluator failed: " + eval.getId(), eval.getEvaluatorException());
       checkMsgOrder(eval);
-      throw new RuntimeException(eval.getEvaluatorException());
+
     }
   }
 
