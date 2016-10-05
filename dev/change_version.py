@@ -43,6 +43,7 @@ import os
 import re
 import sys
 import argparse
+import fastavro as avro
 
 """
 Get list of path for every file in a directory
@@ -250,6 +251,29 @@ def change_project_number_Doxyfile(file, new_version):
 
 
 """
+Change the version in conf files:
+evaluator.conf, evaluatorWithService.conf
+"""
+def change_conf(file, new_version):
+    new_version = new_version.split("-")[0] + ".0"
+    r = re.compile('Version=([0-9.]+)')
+
+    schema = None
+    records = []
+    with open(file, 'rb') as f:
+        reader = avro.reader(f)
+        schema = reader.schema
+        for record in reader:
+            for bind in record['Bindings']:
+                m = r.search(bind['value'])
+                if m:
+                    old_version = m.group(1)
+                    bind['value'] = bind['value'].replace(old_version, new_version)
+            records.append(record)
+    with open(file, 'wb') as f:
+        avro.writer(f, schema, records)
+
+"""
 Change version of every pom.xml, every AssemblyInfo.cs,
 AssemblyInfo.cpp, run.cmd and Resources.xml
 """
@@ -283,6 +307,12 @@ def change_version(reef_home, new_version, pom_only):
 
         change_shaded_jar_name(reef_home + "/lang/cs/Org.Apache.REEF.Client/run.cmd", new_version)
         print reef_home + "/lang/cs/Org.Apache.REEF.Client/run.cmd"
+
+        change_conf(reef_home + "/lang/cs/Org.Apache.REEF.Examples/ConfigFiles/evaluator.conf", new_version)
+        print reef_home + "/lang/cs/Org.Apache.REEF.Examples/ConfigFiles/evaluator.conf"
+
+        change_conf(reef_home + "/lang/cs/Org.Apache.REEF.Examples/ConfigFiles/evaluatorWithService.conf", new_version)
+        print reef_home + "/lang/cs/Org.Apache.REEF.Examples/ConfigFiles/evaluatorWithService.conf"
 
         change_project_number_Doxyfile(reef_home + "/Doxyfile", new_version)
         print reef_home + "/Doxyfile"
