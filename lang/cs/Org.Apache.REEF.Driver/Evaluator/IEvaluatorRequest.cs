@@ -15,8 +15,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-using Org.Apache.REEF.Common.Runtime;
-
 namespace Org.Apache.REEF.Driver.Evaluator
 {
     /// <summary>

@@ -18,7 +18,6 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
-using Org.Apache.REEF.Common.Services;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Utilities.Logging;
 

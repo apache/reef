@@ -16,7 +16,6 @@
 // under the License.
 
 using System.Reflection;
-using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 [assembly: AssemblyTitle("Org.Apache.REEF.Network.Examples.Client")]

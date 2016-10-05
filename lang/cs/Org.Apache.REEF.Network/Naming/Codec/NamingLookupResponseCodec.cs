@@ -20,8 +20,8 @@ using System.Linq;
 using Org.Apache.REEF.Common.Io;
 using Org.Apache.REEF.Network.Naming.Contracts;
 using Org.Apache.REEF.Network.Naming.Events;
-using Org.Apache.REEF.Wake.Remote;
 using Org.Apache.REEF.Network.Utilities;
+using Org.Apache.REEF.Wake.Remote;
 
 namespace Org.Apache.REEF.Network.Naming.Codec
 {

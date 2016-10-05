@@ -14,8 +14,8 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
-using System.IO;
 
+using System.IO;
 using Microsoft.Hadoop.Avro;
 
 namespace Org.Apache.REEF.Driver.Bridge.Avro

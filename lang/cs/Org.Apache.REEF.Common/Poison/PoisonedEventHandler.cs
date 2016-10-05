@@ -15,14 +15,14 @@
 // specific language governing permissions and limitations
 // under the License.
 
-using Org.Apache.REEF.Tang.Annotations;
-using Org.Apache.REEF.Utilities.Attributes;
-using Org.Apache.REEF.Utilities.Logging;
-using Org.Apache.REEF.Wake.Time.Event;
 using System;
 using System.Reactive;
 using System.Runtime.Serialization;
+using Org.Apache.REEF.Tang.Annotations;
+using Org.Apache.REEF.Utilities.Attributes;
+using Org.Apache.REEF.Utilities.Logging;
 using Org.Apache.REEF.Wake.Time;
+using Org.Apache.REEF.Wake.Time.Event;
 
 namespace Org.Apache.REEF.Common.Poison
 {

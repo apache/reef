@@ -20,8 +20,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Org.Apache.REEF.Wake.Remote;
 using Org.Apache.REEF.Tang.Annotations;
+using Org.Apache.REEF.Wake.Remote;
 using Org.Apache.REEF.Wake.StreamingCodec;
 
 namespace Org.Apache.REEF.Network.Group.Driver.Impl

@@ -18,7 +18,6 @@
 using System;
 using Org.Apache.REEF.Driver.Task;
 using Org.Apache.REEF.Tang.Annotations;
-using Org.Apache.REEF.Utilities;
 
 namespace Org.Apache.REEF.Examples.AllHandlers
 {

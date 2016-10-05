@@ -36,7 +36,6 @@ using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Tang.Util;
 using Org.Apache.REEF.Utilities;
 using Xunit;
-using ContextConfiguration = Org.Apache.REEF.Common.Context.ContextConfiguration;
 
 namespace Org.Apache.REEF.Evaluator.Tests
 {

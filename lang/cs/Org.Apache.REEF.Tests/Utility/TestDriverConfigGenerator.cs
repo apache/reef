@@ -17,9 +17,9 @@
 
 using System;
 using System.IO;
-using Org.Apache.REEF.Driver;
 using Org.Apache.REEF.Client.Common;
 using Org.Apache.REEF.Common.Jar;
+using Org.Apache.REEF.Driver;
 using Xunit;
 
 namespace Org.Apache.REEF.Tests.Utility

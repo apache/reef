@@ -20,14 +20,10 @@ using System.IO;
 using System.Linq;
 using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.Blob;
-using Microsoft.WindowsAzure.Storage.RetryPolicies;
 using NSubstitute;
 using Org.Apache.REEF.IO.FileSystem;
 using Org.Apache.REEF.IO.FileSystem.AzureBlob;
-using Org.Apache.REEF.IO.FileSystem.AzureBlob.RetryPolicy;
-using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Tang.Implementations.Tang;
-using Org.Apache.REEF.Tang.Util;
 using Xunit;
 
 namespace Org.Apache.REEF.IO.Tests

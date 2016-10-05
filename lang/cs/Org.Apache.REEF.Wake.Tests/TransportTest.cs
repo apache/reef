@@ -21,11 +21,9 @@ using System.Net;
 using System.Reactive;
 using System.Threading.Tasks;
 using Org.Apache.REEF.Tang.Implementations.Tang;
-using Org.Apache.REEF.Tang.Util;
 using Org.Apache.REEF.Wake.Remote;
 using Org.Apache.REEF.Wake.Remote.Impl;
 using Org.Apache.REEF.Wake.Remote.Parameters;
-using Org.Apache.REEF.Wake.Util;
 using Xunit;
 
 namespace Org.Apache.REEF.Wake.Tests

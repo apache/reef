@@ -19,18 +19,13 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Org.Apache.REEF.Client.API;
-using Org.Apache.REEF.Common.Client.Parameters;
-using Org.Apache.REEF.Common.Evaluator.Parameters;
 using Org.Apache.REEF.Common.Files;
 using Org.Apache.REEF.Common.Jar;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Tang.Formats;
 using Org.Apache.REEF.Tang.Implementations.Configuration;
-using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Utilities.Logging;
-using Org.Apache.REEF.Wake.Remote;
-using Org.Apache.REEF.Wake.Remote.Impl;
 
 namespace Org.Apache.REEF.Client.Common
 {

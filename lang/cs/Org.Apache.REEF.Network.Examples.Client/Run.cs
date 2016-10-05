@@ -16,9 +16,7 @@
 // under the License.
 
 using System;
-using System.Collections.Generic;
 using Org.Apache.REEF.Network.Examples.GroupCommunication;
-using Org.Apache.REEF.Wake.Remote.Parameters;
 
 namespace Org.Apache.REEF.Network.Examples.Client
 {

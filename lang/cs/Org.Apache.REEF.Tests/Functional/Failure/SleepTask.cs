@@ -18,9 +18,9 @@
 using System;
 using System.Threading;
 using Org.Apache.REEF.Common.Tasks;
+using Org.Apache.REEF.Common.Tasks.Events;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Utilities.Logging;
-using Org.Apache.REEF.Common.Tasks.Events;
 
 namespace Org.Apache.REEF.Tests.Functional.Failure
 {

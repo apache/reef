@@ -15,11 +15,9 @@
 // specific language governing permissions and limitations
 // under the License.
 
+using System.Diagnostics;
 using Org.Apache.REEF.IMRU.API;
 using Org.Apache.REEF.IMRU.Examples.PipelinedBroadcastReduce;
-using TaskIdsToFail = Org.Apache.REEF.IMRU.Examples.PipelinedBroadcastReduce.FaultTolerantPipelinedBroadcastAndReduce.TaskIdsToFail;
-using FailureType = Org.Apache.REEF.IMRU.Examples.PipelinedBroadcastReduce.FaultTolerantPipelinedBroadcastAndReduce.FailureType;
-using TestSenderMapFunction = Org.Apache.REEF.IMRU.Examples.PipelinedBroadcastReduce.FaultTolerantPipelinedBroadcastAndReduce.TestSenderMapFunction;
 using Org.Apache.REEF.IMRU.OnREEF.Driver;
 using Org.Apache.REEF.IMRU.OnREEF.Parameters;
 using Org.Apache.REEF.Network;
@@ -28,7 +26,6 @@ using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Tang.Util;
 using Xunit;
-using TraceLevel = System.Diagnostics.TraceLevel;
 
 namespace Org.Apache.REEF.Tests.Functional.IMRU
 {
@@ -134,13 +131,13 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
         {
             var c1 = IMRUMapConfiguration<int[], int[]>.ConfigurationModule
                 .Set(IMRUMapConfiguration<int[], int[]>.MapFunction,
-                    GenericType<TestSenderMapFunction>.Class)                   
+                    GenericType<FaultTolerantPipelinedBroadcastAndReduce.TestSenderMapFunction>.Class)                   
                 .Build();
 
             var c2 = TangFactory.GetTang().NewConfigurationBuilder()
-                .BindSetEntry<TaskIdsToFail, string>(GenericType<TaskIdsToFail>.Class, "IMRUMap-RandomInputPartition-2-")
-                .BindSetEntry<TaskIdsToFail, string>(GenericType<TaskIdsToFail>.Class, "IMRUMap-RandomInputPartition-3-")
-                .BindIntNamedParam<FailureType>(FailureType.EvaluatorFailureDuringTaskExecution.ToString())
+                .BindSetEntry<FaultTolerantPipelinedBroadcastAndReduce.TaskIdsToFail, string>(GenericType<FaultTolerantPipelinedBroadcastAndReduce.TaskIdsToFail>.Class, "IMRUMap-RandomInputPartition-2-")
+                .BindSetEntry<FaultTolerantPipelinedBroadcastAndReduce.TaskIdsToFail, string>(GenericType<FaultTolerantPipelinedBroadcastAndReduce.TaskIdsToFail>.Class, "IMRUMap-RandomInputPartition-3-")
+                .BindIntNamedParam<FaultTolerantPipelinedBroadcastAndReduce.FailureType>(FaultTolerantPipelinedBroadcastAndReduce.FailureType.EvaluatorFailureDuringTaskExecution.ToString())
                 .BindNamedParameter(typeof(MaxRetryNumberInRecovery), NumberOfRetry.ToString())
                 .BindNamedParameter(typeof(FaultTolerantPipelinedBroadcastAndReduce.TotalNumberOfForcedFailures), NumberOfRetry.ToString())
                 .Build();

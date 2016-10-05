@@ -15,7 +15,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-using System;
 using Org.Apache.REEF.Tang.Types;
 
 namespace Org.Apache.REEF.Tang.Implementations.ClassHierarchy
