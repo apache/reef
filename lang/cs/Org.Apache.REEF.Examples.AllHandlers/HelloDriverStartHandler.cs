@@ -16,7 +16,6 @@
 // under the License.
 
 using System;
-
 using Org.Apache.REEF.Driver;
 using Org.Apache.REEF.Driver.Evaluator;
 using Org.Apache.REEF.Tang.Annotations;

@@ -15,10 +15,10 @@
 // specific language governing permissions and limitations
 // under the License.
 
-using Org.Apache.REEF.Utilities.Logging;
-using Xunit;
 using Org.Apache.REEF.Client.API;
 using Org.Apache.REEF.IMRU.Examples;
+using Org.Apache.REEF.Utilities.Logging;
+using Xunit;
 
 namespace Org.Apache.REEF.Tests.Functional.IMRU
 {

@@ -20,7 +20,6 @@ using System.Diagnostics.CodeAnalysis;
 using Org.Apache.REEF.Common.Tasks.Events;
 using Org.Apache.REEF.Tang.Formats;
 using Org.Apache.REEF.Tang.Util;
-using Org.Apache.REEF.Utilities.Logging;
 
 [module: SuppressMessage("StyleCop.CSharp.MaintainabilityRules", "SA1401:FieldsMustBePrivate", Justification = "static readonly field, typical usage in configurations")]
 

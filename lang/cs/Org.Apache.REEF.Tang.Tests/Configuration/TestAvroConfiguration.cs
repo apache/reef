@@ -22,7 +22,6 @@ using Org.Apache.REEF.Tang.Formats;
 using Org.Apache.REEF.Tang.Formats.AvroConfigurationDataContract;
 using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Tang.Interface;
-using Org.Apache.REEF.Tang.Types;
 using Org.Apache.REEF.Tang.Util;
 using Xunit;
 

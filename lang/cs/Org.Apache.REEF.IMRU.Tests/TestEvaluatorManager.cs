@@ -17,9 +17,9 @@
 
 using System;
 using NSubstitute;
-using Xunit;
 using Org.Apache.REEF.Driver.Evaluator;
 using Org.Apache.REEF.IMRU.OnREEF.Driver;
+using Xunit;
 
 namespace Org.Apache.REEF.IMRU.Tests
 {

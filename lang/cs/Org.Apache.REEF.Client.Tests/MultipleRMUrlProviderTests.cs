@@ -15,10 +15,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
-using System;
 using System.Globalization;
 using System.IO;
-using System.Threading.Tasks;
 using Org.Apache.REEF.Client.Yarn.RestClient;
 using Org.Apache.REEF.Client.YARN.RestClient;
 using Org.Apache.REEF.Tang.Exceptions;

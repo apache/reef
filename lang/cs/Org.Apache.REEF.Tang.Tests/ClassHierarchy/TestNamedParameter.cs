@@ -16,7 +16,6 @@
 // under the License.
 
 using Org.Apache.REEF.Tang.Annotations;
-using Org.Apache.REEF.Tang.Formats;
 using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Tang.Protobuf;
 using Org.Apache.REEF.Tang.Types;

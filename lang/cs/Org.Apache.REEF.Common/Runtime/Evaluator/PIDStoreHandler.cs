@@ -15,10 +15,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
-using System;
 using System.Diagnostics;
 using System.IO;
-
 using Org.Apache.REEF.Common.Files;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Utilities.Logging;

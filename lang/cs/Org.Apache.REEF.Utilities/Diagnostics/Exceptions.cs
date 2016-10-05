@@ -17,8 +17,8 @@
 
 using System;
 using System.Runtime.ExceptionServices;
-using Org.Apache.REEF.Utilities.Logging;
 using Org.Apache.REEF.Utilities.Attributes;
+using Org.Apache.REEF.Utilities.Logging;
 
 namespace Org.Apache.REEF.Utilities.Diagnostics
 {

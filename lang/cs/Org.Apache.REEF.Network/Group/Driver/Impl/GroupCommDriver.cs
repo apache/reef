@@ -20,6 +20,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Net;
 using System.Threading;
+using Org.Apache.REEF.Common.Context;
 using Org.Apache.REEF.Common.Io;
 using Org.Apache.REEF.Common.Services;
 using Org.Apache.REEF.Driver.Context;
@@ -32,10 +33,9 @@ using Org.Apache.REEF.Tang.Formats;
 using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Tang.Util;
-using Org.Apache.REEF.Utilities.Logging;
 using Org.Apache.REEF.Utilities.Diagnostics;
+using Org.Apache.REEF.Utilities.Logging;
 using Org.Apache.REEF.Wake.Remote;
-using ContextConfiguration = Org.Apache.REEF.Common.Context.ContextConfiguration;
 
 namespace Org.Apache.REEF.Network.Group.Driver.Impl
 {

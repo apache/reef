@@ -19,7 +19,6 @@ using System;
 using System.IO;
 using Org.Apache.REEF.Client.API;
 using Org.Apache.REEF.Client.Common;
-using Org.Apache.REEF.Utilities.Logging;
 
 namespace Org.Apache.REEF.Client.YARN
 {

@@ -16,9 +16,6 @@
 // under the License.
 
 using System.Collections.Generic;
-using Org.Apache.REEF.Network.Group.Pipelining.Impl;
-using Org.Apache.REEF.Tang.Annotations;
-using Org.Apache.REEF.Tang.Interface;
 
 namespace Org.Apache.REEF.Network.Group.Pipelining
 {

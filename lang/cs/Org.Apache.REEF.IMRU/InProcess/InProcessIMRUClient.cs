@@ -30,7 +30,6 @@ using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Tang.Util;
 using Org.Apache.REEF.Utilities.Diagnostics;
 using Org.Apache.REEF.Utilities.Logging;
-using Org.Apache.REEF.Wake.StreamingCodec;
 
 namespace Org.Apache.REEF.IMRU.InProcess
 {

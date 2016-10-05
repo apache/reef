@@ -26,7 +26,6 @@ using Org.Apache.REEF.Tang.Formats;
 using Org.Apache.REEF.Tang.Implementations.Configuration;
 using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Tang.Interface;
-using Org.Apache.REEF.Utilities;
 using Org.Apache.REEF.Utilities.Logging;
 
 namespace Org.Apache.REEF.Driver.Bridge.Events

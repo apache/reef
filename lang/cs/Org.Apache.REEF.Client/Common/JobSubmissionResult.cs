@@ -15,18 +15,18 @@
 // specific language governing permissions and limitations
 // under the License.
 
-using System.Collections.Generic;
-using Newtonsoft.Json;
-using Org.Apache.REEF.Utilities.Logging;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
 using Org.Apache.REEF.Client.API;
 using Org.Apache.REEF.Client.YARN.RestClient.DataModel;
+using Org.Apache.REEF.Utilities.Logging;
 
 namespace Org.Apache.REEF.Client.Common
 {

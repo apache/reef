@@ -30,7 +30,6 @@ using Org.Apache.REEF.Wake.Remote;
 using Org.Apache.REEF.Wake.Remote.Impl;
 using Org.Apache.REEF.Wake.RX;
 using Org.Apache.REEF.Wake.RX.Impl;
-using Org.Apache.REEF.Wake.Util;
 
 namespace Org.Apache.REEF.Network.Naming
 {

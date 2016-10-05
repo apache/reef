@@ -21,7 +21,6 @@ using System.Threading;
 using Org.Apache.REEF.Common.Tasks;
 using Org.Apache.REEF.Common.Tasks.Events;
 using Org.Apache.REEF.Tang.Annotations;
-using Org.Apache.REEF.Utilities;
 using Org.Apache.REEF.Utilities.Collections;
 
 namespace Org.Apache.REEF.Common.Runtime.Evaluator.Task

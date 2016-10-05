@@ -16,7 +16,6 @@
 // under the License.
 
 using System.Collections.Generic;
-using System.Reactive;
 using System.Threading;
 using Org.Apache.REEF.Network.Group.Config;
 using Org.Apache.REEF.Network.Group.Driver.Impl;

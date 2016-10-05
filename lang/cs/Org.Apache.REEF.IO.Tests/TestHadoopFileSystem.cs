@@ -20,7 +20,6 @@ using System.IO;
 using System.Linq;
 using Org.Apache.REEF.IO.FileSystem;
 using Org.Apache.REEF.IO.FileSystem.Hadoop;
-using Org.Apache.REEF.IO.FileSystem.Hadoop.Parameters;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Tang.Implementations.Tang;
 using Xunit;
