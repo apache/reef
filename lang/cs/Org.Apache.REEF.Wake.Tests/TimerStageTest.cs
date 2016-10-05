@@ -36,7 +36,7 @@ namespace Org.Apache.REEF.Wake.Tests
         }
 
         [Fact]
-        public void testInvalidTimerPeriod()
+        public void TestInvalidTimerPeriod()
         {
             Assert.Throws<ArgumentException>(() => RunTest(_delay, _bigValue));
         }
