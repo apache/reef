@@ -20,29 +20,45 @@ package org.apache.reef.runtime.common.driver.client;
 
 import org.apache.reef.annotations.audience.DriverSide;
 import org.apache.reef.proto.ReefServiceProtos;
+import org.apache.reef.runtime.common.driver.parameters.ClientRemoteIdentifier;
+import org.apache.reef.runtime.common.utils.RemoteManager;
+import org.apache.reef.tang.annotations.Parameter;
+import org.apache.reef.wake.EventHandler;
 
 import javax.inject.Inject;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * A handler for job status messages that just logs them.
+ * Generic interface for job status messages' handler.
  */
 @DriverSide
-public class LoggingJobStatusHandler implements JobStatusHandler {
+final class RemoteClientJobStatusHandler implements JobStatusHandler {
 
-  private static final Logger LOG = Logger.getLogger(LoggingJobStatusHandler.class.getName());
+  private static final Logger LOG = Logger.getLogger(RemoteClientJobStatusHandler.class.getName());
+
+  private final EventHandler<ReefServiceProtos.JobStatusProto> jobStatusHandler;
 
   private ReefServiceProtos.JobStatusProto lastStatus = null;
 
   @Inject
-  LoggingJobStatusHandler() {
+  private RemoteClientJobStatusHandler(
+      final RemoteManager remoteManager,
+      @Parameter(ClientRemoteIdentifier.class) final String clientRID) {
+
+    if (clientRID.equals(ClientRemoteIdentifier.NONE)) {
+      LOG.log(Level.FINE, "Instantiated 'RemoteClientJobStatusHandler' without an actual connection to the client.");
+      this.jobStatusHandler = new LoggingJobStatusHandler();
+    } else {
+      this.jobStatusHandler = remoteManager.getHandler(clientRID, ReefServiceProtos.JobStatusProto.class);
+      LOG.log(Level.FINE, "Instantiated 'RemoteClientJobStatusHandler' for {0}", clientRID);
+    }
   }
 
   @Override
-  public void onNext(final ReefServiceProtos.JobStatusProto jobStatusProto) {
-    this.lastStatus = jobStatusProto;
-    LOG.log(Level.INFO, "In-process JobStatus:\n{0}", jobStatusProto);
+  public void onNext(final ReefServiceProtos.JobStatusProto jobStatus) {
+    this.lastStatus = jobStatus;
+    this.jobStatusHandler.onNext(jobStatus);
   }
 
   /**

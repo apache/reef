@@ -20,38 +20,21 @@ package org.apache.reef.runtime.common.driver.client;
 
 import org.apache.reef.annotations.audience.DriverSide;
 import org.apache.reef.proto.ReefServiceProtos;
-
-import javax.inject.Inject;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.apache.reef.tang.annotations.DefaultImplementation;
+import org.apache.reef.wake.EventHandler;
 
 /**
- * A handler for job status messages that just logs them.
+ * Generic interface for job status messages' handler.
+ * Receive JobStatusProto messages and keep the last message so it can be retrieved via getLastStatus() method.
  */
 @DriverSide
-public class LoggingJobStatusHandler implements JobStatusHandler {
-
-  private static final Logger LOG = Logger.getLogger(LoggingJobStatusHandler.class.getName());
-
-  private ReefServiceProtos.JobStatusProto lastStatus = null;
-
-  @Inject
-  LoggingJobStatusHandler() {
-  }
-
-  @Override
-  public void onNext(final ReefServiceProtos.JobStatusProto jobStatusProto) {
-    this.lastStatus = jobStatusProto;
-    LOG.log(Level.INFO, "In-process JobStatus:\n{0}", jobStatusProto);
-  }
+@DefaultImplementation(RemoteClientJobStatusHandler.class)
+public interface JobStatusHandler extends EventHandler<ReefServiceProtos.JobStatusProto> {
 
   /**
    * Return the last known status of the REEF job.
    * Can return null if the job has not been launched yet.
    * @return Last status of the REEF job.
    */
-  @Override
-  public ReefServiceProtos.JobStatusProto getLastStatus() {
-    return this.lastStatus;
-  }
+  ReefServiceProtos.JobStatusProto getLastStatus();
 }

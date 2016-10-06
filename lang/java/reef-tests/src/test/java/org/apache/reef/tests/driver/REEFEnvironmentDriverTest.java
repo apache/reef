@@ -19,6 +19,7 @@
 package org.apache.reef.tests.driver;
 
 import org.apache.reef.client.DriverConfiguration;
+import org.apache.reef.proto.ReefServiceProtos;
 import org.apache.reef.runtime.common.REEFEnvironment;
 import org.apache.reef.runtime.common.driver.parameters.ClientRemoteIdentifier;
 import org.apache.reef.runtime.local.driver.LocalDriverConfiguration;
@@ -30,13 +31,13 @@ import org.junit.Assert;
 import org.junit.Test;
 
 /**
- * This tests whether the noop driver gets shutdown properly.
+ * This tests whether the noop driver launched in-process gets shutdown properly.
  */
 public final class REEFEnvironmentDriverTest {
 
   private static final Configuration DRIVER_CONFIG = DriverConfiguration.CONF
       .set(DriverConfiguration.GLOBAL_LIBRARIES, EnvironmentUtils.getClassLocation(DriverTestStartHandler.class))
-      .set(DriverConfiguration.DRIVER_IDENTIFIER, "TEST_DriverTest")
+      .set(DriverConfiguration.DRIVER_IDENTIFIER, "TEST_REEFEnvironmentDriverTest")
       .set(DriverConfiguration.ON_DRIVER_STARTED, DriverTestStartHandler.class)
       .build();
 
@@ -45,14 +46,22 @@ public final class REEFEnvironmentDriverTest {
       .set(LocalDriverConfiguration.ROOT_FOLDER, ".")
       .set(LocalDriverConfiguration.JVM_HEAP_SLACK, 0.0)
       .set(LocalDriverConfiguration.CLIENT_REMOTE_IDENTIFIER, ClientRemoteIdentifier.NONE)
-      .set(LocalDriverConfiguration.JOB_IDENTIFIER, "LOCAL_DRIVER_TEST")
+      .set(LocalDriverConfiguration.JOB_IDENTIFIER, "LOCAL_ENV_DRIVER_TEST")
       .set(LocalDriverConfiguration.RUNTIME_NAMES, org.apache.reef.runtime.local.driver.RuntimeIdentifier.RUNTIME_NAME)
       .build();
 
   @Test
   public void testREEFEnvironmentDriver() throws BindException, InjectionException {
+
     try (final REEFEnvironment reef = REEFEnvironment.fromConfiguration(LOCAL_DRIVER_MODULE, DRIVER_CONFIG)) {
+
       reef.run();
+      final ReefServiceProtos.JobStatusProto status = reef.getLastStatus();
+
+      Assert.assertNotNull("REEF job must report its status", status);
+      Assert.assertTrue("REEF job status must contain a state", status.hasState());
+      Assert.assertEquals("Unexpected final job status", ReefServiceProtos.State.DONE, status.getState());
+
     } catch (final Throwable ex) {
       Assert.fail("Local driver execution failed: " + ex);
     }

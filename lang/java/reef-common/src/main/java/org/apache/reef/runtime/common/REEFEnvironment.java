@@ -18,6 +18,8 @@
  */
 package org.apache.reef.runtime.common;
 
+import org.apache.reef.proto.ReefServiceProtos;
+import org.apache.reef.runtime.common.driver.client.JobStatusHandler;
 import org.apache.reef.runtime.common.launch.ProfilingStopHandler;
 import org.apache.reef.runtime.common.launch.REEFErrorHandler;
 import org.apache.reef.tang.Configuration;
@@ -59,6 +61,8 @@ public final class REEFEnvironment implements Runnable, AutoCloseable {
   /** Error handler that processes all uncaught REEF exceptions. */
   private final REEFErrorHandler errorHandler;
 
+  private final JobStatusHandler jobStatusHandler;
+
   /**
    * Create a new REEF environment.
    * @param configurations REEF component (Driver or Evaluator) configuration.
@@ -86,11 +90,12 @@ public final class REEFEnvironment implements Runnable, AutoCloseable {
     injector.getInstance(REEFVersion.class).logVersion();
 
     final REEFErrorHandler errorHandler = injector.getInstance(REEFErrorHandler.class);
+    final JobStatusHandler jobStatusHandler = injector.getInstance(JobStatusHandler.class);
 
     try {
 
       final Clock clock = injector.getInstance(Clock.class);
-      return new REEFEnvironment(clock, errorHandler);
+      return new REEFEnvironment(clock, errorHandler, jobStatusHandler);
 
     } catch (final Throwable ex) {
       LOG.log(Level.SEVERE, "Error while instantiating the clock", ex);
@@ -107,10 +112,15 @@ public final class REEFEnvironment implements Runnable, AutoCloseable {
    * Use .fromConfiguration() method to create new REEF environment.
    * @param clock main event loop.
    * @param errorHandler error handler.
+   * @param jobStatusHandler an object that receives notifications on job status changes
+   * and can be queried for the last received job status.
    */
-  private REEFEnvironment(final Clock clock, final REEFErrorHandler errorHandler) {
+  private REEFEnvironment(
+      final Clock clock, final REEFErrorHandler errorHandler, final JobStatusHandler jobStatusHandler) {
+
     this.clock = clock;
     this.errorHandler = errorHandler;
+    this.jobStatusHandler = jobStatusHandler;
   }
 
   /**
@@ -146,6 +156,7 @@ public final class REEFEnvironment implements Runnable, AutoCloseable {
   /**
    * Launch REEF component (Driver or Evaluator).
    * It is usually called from the static .run() method.
+   * Check the status of the run via .getLastStatus() method.
    */
   @Override
   @SuppressWarnings("checkstyle:illegalcatch") // Catch throwable to feed it to error handler
@@ -159,12 +170,19 @@ public final class REEFEnvironment implements Runnable, AutoCloseable {
 
       LOG.log(Level.FINEST, "Clock: start");
       this.clock.run();
-      LOG.log(Level.FINEST, "Clock: exit normally");
+      LOG.log(Level.FINEST, "Clock: exit normally: {0}", this.getLastStatus());
 
     } catch (final Throwable ex) {
       LOG.log(Level.SEVERE, "Clock: Error in main event loop", ex);
       this.errorHandler.onNext(ex);
-      throw ex;
     }
+  }
+
+  /**
+   * Get the last known status of REEF job. Can return null if job has not started yet.
+   * @return Status of the REEF job launched in this environment.
+   */
+  public ReefServiceProtos.JobStatusProto getLastStatus() {
+    return this.jobStatusHandler.getLastStatus();
   }
 }

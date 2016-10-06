@@ -22,6 +22,7 @@ import org.apache.reef.annotations.audience.ClientSide;
 import org.apache.reef.annotations.audience.Private;
 import org.apache.reef.client.DriverConfiguration;
 import org.apache.reef.client.LauncherStatus;
+import org.apache.reef.proto.ReefServiceProtos;
 import org.apache.reef.runtime.common.REEFEnvironment;
 import org.apache.reef.tang.Configuration;
 import org.apache.reef.tang.Tang;
@@ -81,18 +82,18 @@ public final class FailClient {
    * @param failMsgClass A class that should fail during the test.
    * @param runtimeConfig REEF runtime configuration. Can be e.g. Local or YARN.
    * @param timeOut REEF application timeout - not used yet.
-   * @return launcher status - usually FAIL.
+   * @return Final job status. Final status for tests is usually something
+   * with state = FAILED and exception like SimulatedDriverFailure.
    * @throws InjectionException configuration error.
    */
-  public static LauncherStatus runInProcess(final Class<?> failMsgClass,
+  public static ReefServiceProtos.JobStatusProto runInProcess(final Class<?> failMsgClass,
       final Configuration runtimeConfig, final int timeOut) throws InjectionException {
 
     try (final REEFEnvironment reef =
              REEFEnvironment.fromConfiguration(runtimeConfig, buildDriverConfig(failMsgClass))) {
       reef.run();
+      return reef.getLastStatus();
     }
-
-    return LauncherStatus.FORCE_CLOSED; // TODO[REEF-1596]: Use the actual status, when implemented.
   }
 
   /**
