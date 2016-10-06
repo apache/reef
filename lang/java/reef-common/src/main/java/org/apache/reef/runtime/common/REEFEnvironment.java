@@ -27,7 +27,6 @@ import org.apache.reef.tang.Tang;
 import org.apache.reef.tang.annotations.Name;
 import org.apache.reef.tang.annotations.NamedParameter;
 import org.apache.reef.tang.exceptions.InjectionException;
-import org.apache.reef.tang.formats.AvroConfigurationSerializer;
 import org.apache.reef.util.EnvironmentUtils;
 import org.apache.reef.util.REEFVersion;
 import org.apache.reef.wake.profiler.WakeProfiler;
@@ -73,9 +72,7 @@ public final class REEFEnvironment implements Runnable, AutoCloseable {
     final Configuration config = Configurations.merge(configurations);
 
     if (LOG.isLoggable(Level.FINEST)) {
-      // TODO[REEF-1633] Obtain default serializer from Tang, or use Tang to pretty print.
-      LOG.log(Level.FINEST, "Configuration:\n--\n{0}\n--",
-          new AvroConfigurationSerializer().toString(config, true));
+      LOG.log(Level.FINEST, "Configuration:\n--\n{0}\n--", Configurations.toString(config, true));
     }
 
     final Injector injector = TANG.newInjector(config);

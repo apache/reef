@@ -22,15 +22,11 @@ import org.apache.reef.client.DriverConfiguration;
 import org.apache.reef.client.DriverLauncher;
 import org.apache.reef.runtime.local.client.LocalRuntimeConfiguration;
 import org.apache.reef.runtime.yarn.client.YarnClientConfiguration;
-import org.apache.reef.tang.Configuration;
-import org.apache.reef.tang.Injector;
-import org.apache.reef.tang.JavaConfigurationBuilder;
-import org.apache.reef.tang.Tang;
+import org.apache.reef.tang.*;
 import org.apache.reef.tang.annotations.Name;
 import org.apache.reef.tang.annotations.NamedParameter;
 import org.apache.reef.tang.exceptions.BindException;
 import org.apache.reef.tang.exceptions.InjectionException;
-import org.apache.reef.tang.formats.AvroConfigurationSerializer;
 import org.apache.reef.tang.formats.CommandLine;
 import org.apache.reef.util.EnvironmentUtils;
 
@@ -101,9 +97,10 @@ public final class Launch {
    * @throws InjectionException if configuration commandLineInjector fails.
    */
   private static Configuration getClientConfiguration(
-      final Configuration commandLineConf, final boolean isLocal)
-      throws BindException, InjectionException {
+      final Configuration commandLineConf, final boolean isLocal) throws BindException, InjectionException {
+
     final Configuration runtimeConfiguration;
+
     if (isLocal) {
       LOG.log(Level.FINE, "Running on the local runtime");
       runtimeConfiguration = LocalRuntimeConfiguration.CONF
@@ -113,9 +110,8 @@ public final class Launch {
       LOG.log(Level.FINE, "Running on YARN");
       runtimeConfiguration = YarnClientConfiguration.CONF.build();
     }
-    return Tang.Factory.getTang().newConfigurationBuilder(
-        runtimeConfiguration, cloneCommandLineConfiguration(commandLineConf))
-        .build();
+
+    return Configurations.merge(runtimeConfiguration, cloneCommandLineConfiguration(commandLineConf));
   }
 
   /**
@@ -144,7 +140,7 @@ public final class Launch {
 
       final Configuration runtimeConfig = getClientConfiguration(commandLineConf, isLocal);
       LOG.log(Level.INFO, "TIME: Start Client {0} with timeout {1} sec. Configuration:\n--\n{2}--",
-          new Object[]{jobId, timeout / 1000, new AvroConfigurationSerializer().toString(runtimeConfig)});
+          new Object[] {jobId, timeout / 1000, Configurations.toString(runtimeConfig, true)});
 
       final Configuration driverConfig = DriverConfiguration.CONF
           .set(DriverConfiguration.GLOBAL_LIBRARIES, EnvironmentUtils.getClassLocation(JobDriver.class))
@@ -160,8 +156,8 @@ public final class Launch {
 
       final Configuration submittedConfiguration = Tang.Factory.getTang()
           .newConfigurationBuilder(driverConfig, commandLineConf).build();
-      DriverLauncher.getLauncher(runtimeConfig)
-          .run(submittedConfiguration, timeout);
+
+      DriverLauncher.getLauncher(runtimeConfig).run(submittedConfiguration, timeout);
 
       LOG.log(Level.INFO, "TIME: Stop Client {0}", jobId);
 
