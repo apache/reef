@@ -16,37 +16,37 @@
 // under the License.
 
 using System;
-using Org.Apache.REEF.Common.Metrics.MetricsSystem;
+using Org.Apache.REEF.Common.Metrics.Api;
 using Org.Apache.REEF.Tang.Annotations;
-using Org.Apache.REEF.Utilities.Attributes;
 
-namespace Org.Apache.REEF.Common.Metrics.Api
+namespace Org.Apache.REEF.Common.Metrics.MetricsSystem
 {
     /// <summary>
-    /// Metrics filter interface used to filter metrics at different levels - 
-    /// source and sink names, record, individual tag, individual metric.
+    /// Default metrics filter. Accepts everything.
     /// </summary>
-    [Unstable("0.16", "Contract may change.")]
-    [DefaultImplementation(typeof(DefaultMetricsFilter))]
-    public interface IMetricsFilter
+    internal class DefaultMetricsFilter : IMetricsFilter
     {
-        /// <summary>
-        /// Returns a function indicating whether to accept the name string
-        /// (can be from metric, source, sink, record etc.). Returns True if accepted, 
-        /// false otherwise.
-        /// </summary>
-        Func<string, bool> AcceptsName { get; }
+        [Inject]
+        DefaultMetricsFilter()
+        {
+            AcceptsName = s => true;
+            AcceptsTag = s => true;
+            AcceptsRecord = s => true;
+        }
 
         /// <summary>
-        /// Returns a function indicating whether to accept the tag. Returns True if accepted, 
-        /// false otherwise.
+        /// Accepts any name.
         /// </summary>
-        Func<MetricsTag, bool> AcceptsTag { get; }
+        public Func<string, bool> AcceptsName { get; private set; }
 
         /// <summary>
-        /// Returns a function indicating whether to accept the record. Returns True if accepted, 
-        /// false otherwise.
+        /// Accepts any tag.
         /// </summary>
-        Func<IMetricsRecord, bool> AcceptsRecord { get; }
+        public Func<MetricsTag, bool> AcceptsTag { get; private set; }
+        
+        /// <summary>
+        /// Accepts any record.
+        /// </summary>
+        public Func<IMetricsRecord, bool> AcceptsRecord { get; private set; }
     }
 }

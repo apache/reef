@@ -66,7 +66,8 @@ namespace Org.Apache.REEF.Common.Metrics.Api
         /// before returning. However, if it cannot be done in reasonable time 
         /// it is ok to return to the caller before everything is done. 
         /// </summary>
-        void PublishMetricsNow();
+        /// <param name="all">Whether to also publish metrics that did not change.</param>
+        void PublishMetricsNow(bool all);
 
         /// <summary>
         /// Completely shuts down the metrics system.

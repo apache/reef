@@ -43,6 +43,7 @@ namespace Org.Apache.REEF.Common.Metrics.MutableMetricsLayer
         private readonly string _sourceContext;
         private readonly string _recordName;
         private readonly IMetricsFactory _metricsFactory;
+        private bool _tagsChanged = true;
 
         [Inject]
         private DefaultMetricsSourceImpl(
@@ -114,6 +115,7 @@ namespace Org.Apache.REEF.Common.Metrics.MutableMetricsLayer
         {
             lock (_lock)
             {
+                _tagsChanged = true;
                 _tags[name] = _metricsFactory.CreateTag(new MetricsInfoImpl(name, desc), value);
             }
         }
@@ -164,20 +166,25 @@ namespace Org.Apache.REEF.Common.Metrics.MutableMetricsLayer
             lock (_lock)
             {
                 var rb = collector.CreateRecord(_recordName)
-                    .SetContext(_sourceContext)
-                    .AddTag("TaskOrContextName", _contextOrTaskName)
-                    .AddTag("EvaluatorId", _evaluatorId)
-                    .AddTag("SourceType", "DefaultSource");
+                    .SetContext(_sourceContext);
                 var request = new SnapshotRequest(rb, all);
                 foreach (var entry in _observers)
                 {
                     entry.OnNext(request);
                 }
 
-                foreach (var entry in _tags)
+                if (all || _tagsChanged || !rb.IsEmpty())
                 {
-                    rb.Add(entry.Value);
+                    rb.AddTag("TaskOrContextName", _contextOrTaskName)
+                        .AddTag("EvaluatorId", _evaluatorId)
+                        .AddTag("SourceType", "DefaultSource");
+
+                    foreach (var entry in _tags)
+                    {
+                        rb.Add(entry.Value);
+                    }
                 }
+                _tagsChanged = false;
             }
         }
 
