@@ -21,15 +21,11 @@ package org.apache.reef.examples.suspend;
 import org.apache.reef.client.ClientConfiguration;
 import org.apache.reef.runtime.local.client.LocalRuntimeConfiguration;
 import org.apache.reef.runtime.yarn.client.YarnClientConfiguration;
-import org.apache.reef.tang.Configuration;
-import org.apache.reef.tang.Injector;
-import org.apache.reef.tang.JavaConfigurationBuilder;
-import org.apache.reef.tang.Tang;
+import org.apache.reef.tang.*;
 import org.apache.reef.tang.annotations.Name;
 import org.apache.reef.tang.annotations.NamedParameter;
 import org.apache.reef.tang.exceptions.BindException;
 import org.apache.reef.tang.exceptions.InjectionException;
-import org.apache.reef.tang.formats.AvroConfigurationSerializer;
 import org.apache.reef.tang.formats.CommandLine;
 
 import java.io.IOException;
@@ -117,10 +113,8 @@ public final class Launch {
       runtimeConfiguration = YarnClientConfiguration.CONF.build();
     }
 
-    return Tang.Factory.getTang()
-        .newConfigurationBuilder(runtimeConfiguration, clientConfiguration,
-            cloneCommandLineConfiguration(commandLineConf))
-        .build();
+    return Configurations.merge(
+        runtimeConfiguration, clientConfiguration, cloneCommandLineConfiguration(commandLineConf));
   }
 
   /**
@@ -132,8 +126,7 @@ public final class Launch {
     try {
       final Configuration config = getClientConfiguration(args);
 
-      LOG.log(Level.INFO, "Configuration:\n--\n{0}--",
-          new AvroConfigurationSerializer().toString(config));
+      LOG.log(Level.INFO, "Configuration:\n--\n{0}--", Configurations.toString(config, true));
 
       final Injector injector = Tang.Factory.getTang().newInjector(config);
       final SuspendClient client = injector.getInstance(SuspendClient.class);
