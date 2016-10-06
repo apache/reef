@@ -19,6 +19,7 @@
 package org.apache.reef.runtime.local.driver;
 
 import org.apache.reef.runtime.common.driver.api.*;
+import org.apache.reef.runtime.common.driver.client.JobStatusHandler;
 import org.apache.reef.runtime.common.driver.parameters.ClientRemoteIdentifier;
 import org.apache.reef.runtime.common.driver.parameters.DefinedRuntimes;
 import org.apache.reef.runtime.common.driver.parameters.JobIdentifier;
@@ -30,10 +31,7 @@ import org.apache.reef.runtime.local.LocalClasspathProvider;
 import org.apache.reef.runtime.local.client.parameters.MaxNumberOfEvaluators;
 import org.apache.reef.runtime.local.client.parameters.RackNames;
 import org.apache.reef.runtime.local.client.parameters.RootFolder;
-import org.apache.reef.tang.formats.ConfigurationModule;
-import org.apache.reef.tang.formats.ConfigurationModuleBuilder;
-import org.apache.reef.tang.formats.OptionalParameter;
-import org.apache.reef.tang.formats.RequiredParameter;
+import org.apache.reef.tang.formats.*;
 
 /**
  * ConfigurationModule for the Driver executed in the local resourcemanager. This is meant to eventually replace
@@ -68,6 +66,11 @@ public class LocalDriverConfiguration extends ConfigurationModuleBuilder {
   public static final OptionalParameter<String> CLIENT_REMOTE_IDENTIFIER = new OptionalParameter<>();
 
   /**
+   * Interface to use for communications back to the client.
+   */
+  public static final OptionalImpl<JobStatusHandler> JOB_STATUS_HANDLER = new OptionalImpl<>();
+
+  /**
    * The identifier of the Job submitted.
    */
   public static final RequiredParameter<String> JOB_IDENTIFIER = new RequiredParameter<>();
@@ -78,6 +81,7 @@ public class LocalDriverConfiguration extends ConfigurationModuleBuilder {
       .bindImplementation(ResourceReleaseHandler.class, LocalResourceReleaseHandler.class)
       .bindImplementation(ResourceManagerStartHandler.class, LocalResourceManagerStartHandler.class)
       .bindImplementation(ResourceManagerStopHandler.class, LocalResourceManagerStopHandler.class)
+      .bindImplementation(JobStatusHandler.class, JOB_STATUS_HANDLER)
       .bindNamedParameter(ClientRemoteIdentifier.class, CLIENT_REMOTE_IDENTIFIER)
       .bindNamedParameter(ErrorHandlerRID.class, CLIENT_REMOTE_IDENTIFIER)
       .bindNamedParameter(JobIdentifier.class, JOB_IDENTIFIER)
