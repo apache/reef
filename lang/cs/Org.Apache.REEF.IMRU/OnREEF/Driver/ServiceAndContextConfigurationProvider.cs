@@ -22,6 +22,7 @@ using Org.Apache.REEF.Common.Context;
 using Org.Apache.REEF.Common.Events;
 using Org.Apache.REEF.Common.Services;
 using Org.Apache.REEF.IO.PartitionedData;
+using Org.Apache.REEF.Tang.Implementations.Configuration;
 using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Tang.Util;
 using Org.Apache.REEF.Utilities.Attributes;
@@ -44,18 +45,21 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         private readonly Dictionary<string, string> _partitionIdProvider = new Dictionary<string, string>();
         private readonly Stack<string> _partitionDescriptorIds = new Stack<string>();
         private readonly IPartitionedInputDataSet _dataset;
+        private readonly ConfigurationManager _configurationManager;
 
         /// <summary>
         /// Constructs the object witch maintains partitionDescriptor Ids so that to provide proper data load configuration 
         /// </summary>
-        /// <param name="dataset"></param>
-        internal ServiceAndContextConfigurationProvider(IPartitionedInputDataSet dataset)
+        /// <param name="dataset">partition input dataset</param>
+        /// <param name="configurationManager">Configuration manager that holds configurations for context and tasks</param>
+        internal ServiceAndContextConfigurationProvider(IPartitionedInputDataSet dataset, ConfigurationManager configurationManager)
         {
             _dataset = dataset;
             foreach (var descriptor in _dataset)
             {
                 _partitionDescriptorIds.Push(descriptor.Id);
             }
+            _configurationManager = configurationManager;
         }
 
         /// <summary>
@@ -83,10 +87,15 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         internal ContextAndServiceConfiguration GetContextConfigurationForMasterEvaluatorById(string evaluatorId)
         {
             Logger.Log(Level.Info, "Getting root context and service configuration for master");
+
+            var serviceConf = ServiceConfiguration.ConfigurationModule
+                .Set(ServiceConfiguration.Services, GenericType<TaskStateService>.Class)
+                .Build();
+
             return new ContextAndServiceConfiguration(
                 ContextConfiguration.ConfigurationModule.Set(ContextConfiguration.Identifier,
                     IMRUConstants.MasterContextId).Build(),
-                TangFactory.GetTang().NewConfigurationBuilder().Build());
+                Configurations.Merge(serviceConf, _configurationManager.UpdateTaskStateConfiguration));
         }
 
         /// <summary>
@@ -152,7 +161,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         /// <param name="partitionDescriptor"></param>
         /// <param name="evaluatorId"></param>
         /// <returns></returns>
-        private static ContextAndServiceConfiguration GetDataLoadingContextAndServiceConfiguration(
+        private ContextAndServiceConfiguration GetDataLoadingContextAndServiceConfiguration(
             IPartitionDescriptor partitionDescriptor,
             string evaluatorId)
         {
@@ -166,9 +175,13 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
 
             var serviceConf =
                 TangFactory.GetTang()
-                    .NewConfigurationBuilder(ServiceConfiguration.ConfigurationModule.Build(),
+                    .NewConfigurationBuilder(
+                        ServiceConfiguration.ConfigurationModule
+                        .Set(ServiceConfiguration.Services, GenericType<TaskStateService>.Class)
+                        .Build(),
                         dataLoadingContextConf,
-                        partitionDescriptor.GetPartitionConfiguration())
+                        partitionDescriptor.GetPartitionConfiguration(),
+                        _configurationManager.MapTaskStateConfiguration)
                     .Build();
 
             var contextConf = ContextConfiguration.ConfigurationModule

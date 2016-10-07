@@ -19,6 +19,7 @@ using System.Diagnostics;
 using Org.Apache.REEF.IMRU.API;
 using Org.Apache.REEF.IMRU.Examples.PipelinedBroadcastReduce;
 using Org.Apache.REEF.IMRU.OnREEF.Driver;
+using Org.Apache.REEF.IMRU.OnREEF.IMRUTasks;
 using Org.Apache.REEF.IMRU.OnREEF.Parameters;
 using Org.Apache.REEF.Network;
 using Org.Apache.REEF.Tang.Implementations.Configuration;
@@ -35,8 +36,9 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
         protected const int NumberOfRetry = 3;
 
         /// <summary>
-        /// This test fails two evaluators during task execution stage on each retry except last. 
+        /// This test fails two evaluators during task execution stage on each retry except last.
         /// Job is retried until success. 
+        /// In each retry, when the task is restarted on an existing evaluator, the iteration will continue from the previous task state.
         /// </summary>
         [Fact]
         public virtual void TestFailedMapperOnLocalRuntime()
@@ -124,6 +126,44 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
         }
 
         /// <summary>
+        /// Create IMRU Job Definition with IMRU required configurations
+        /// </summary>
+        /// <param name="numberofMappers"></param>
+        /// <param name="chunkSize"></param>
+        /// <param name="numIterations"></param>
+        /// <param name="dim"></param>
+        /// <param name="mapperMemory"></param>
+        /// <param name="updateTaskMemory"></param>
+        /// <param name="numberOfRetryInRecovery"></param>
+        /// <returns></returns>
+        protected override IMRUJobDefinition CreateIMRUJobDefinitionBuilder(int numberofMappers,
+            int chunkSize,
+            int numIterations,
+            int dim,
+            int mapperMemory,
+            int updateTaskMemory,
+            int numberOfRetryInRecovery)
+        {
+            return new IMRUJobDefinitionBuilder()
+                .SetUpdateTaskStateConfiguration(UpdateTaskStateConfiguration())
+                .SetMapTaskStateConfiguration(MapTaskStateConfiguration())
+                .SetMapFunctionConfiguration(BuildMapperFunctionConfig())
+                .SetUpdateFunctionConfiguration(BuildUpdateFunctionConfiguration(numberofMappers, numIterations, dim))
+                .SetMapInputCodecConfiguration(BuildMapInputCodecConfig())
+                .SetUpdateFunctionCodecsConfiguration(BuildUpdateFunctionCodecsConfig())
+                .SetReduceFunctionConfiguration(BuildReduceFunctionConfig())
+                .SetMapInputPipelineDataConverterConfiguration(BuildDataConverterConfig(chunkSize))
+                .SetMapOutputPipelineDataConverterConfiguration(BuildDataConverterConfig(chunkSize))
+                .SetPartitionedDatasetConfiguration(BuildPartitionedDatasetConfiguration(numberofMappers))
+                .SetJobName(IMRUJobName)
+                .SetNumberOfMappers(numberofMappers)
+                .SetMapperMemory(mapperMemory)
+                .SetUpdateTaskMemory(updateTaskMemory)
+                .SetMaxRetryNumberInRecovery(numberOfRetryInRecovery)
+                .Build();
+        }
+
+        /// <summary>
         /// Mapper function configuration. Subclass can override it to have its own test function.
         /// </summary>
         /// <returns></returns>
@@ -131,29 +171,29 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
         {
             var c1 = IMRUMapConfiguration<int[], int[]>.ConfigurationModule
                 .Set(IMRUMapConfiguration<int[], int[]>.MapFunction,
-                    GenericType<FaultTolerantPipelinedBroadcastAndReduce.TestSenderMapFunction>.Class)                   
+                    GenericType<PipelinedBroadcastAndReduceWithFaultTolerant.SenderMapFunctionFT>.Class)
                 .Build();
 
             var c2 = TangFactory.GetTang().NewConfigurationBuilder()
-                .BindSetEntry<FaultTolerantPipelinedBroadcastAndReduce.TaskIdsToFail, string>(GenericType<FaultTolerantPipelinedBroadcastAndReduce.TaskIdsToFail>.Class, "IMRUMap-RandomInputPartition-2-")
-                .BindSetEntry<FaultTolerantPipelinedBroadcastAndReduce.TaskIdsToFail, string>(GenericType<FaultTolerantPipelinedBroadcastAndReduce.TaskIdsToFail>.Class, "IMRUMap-RandomInputPartition-3-")
-                .BindIntNamedParam<FaultTolerantPipelinedBroadcastAndReduce.FailureType>(FaultTolerantPipelinedBroadcastAndReduce.FailureType.EvaluatorFailureDuringTaskExecution.ToString())
+                .BindSetEntry<PipelinedBroadcastAndReduceWithFaultTolerant.TaskIdsToFail, string>(GenericType<PipelinedBroadcastAndReduceWithFaultTolerant.TaskIdsToFail>.Class, "IMRUMap-RandomInputPartition-2-")
+                .BindSetEntry<PipelinedBroadcastAndReduceWithFaultTolerant.TaskIdsToFail, string>(GenericType<PipelinedBroadcastAndReduceWithFaultTolerant.TaskIdsToFail>.Class, "IMRUMap-RandomInputPartition-3-")
+                .BindIntNamedParam<PipelinedBroadcastAndReduceWithFaultTolerant.FailureType>(PipelinedBroadcastAndReduceWithFaultTolerant.FailureType.EvaluatorFailureDuringTaskExecution.ToString())
                 .BindNamedParameter(typeof(MaxRetryNumberInRecovery), NumberOfRetry.ToString())
-                .BindNamedParameter(typeof(FaultTolerantPipelinedBroadcastAndReduce.TotalNumberOfForcedFailures), NumberOfRetry.ToString())
+                .BindNamedParameter(typeof(PipelinedBroadcastAndReduceWithFaultTolerant.TotalNumberOfForcedFailures), NumberOfRetry.ToString())
                 .Build();
 
             return Configurations.Merge(c1, c2, GetTcpConfiguration());
         }
 
         /// <summary>
-        /// Update function configuration. Subclass can override it to have its own test function.
+        /// Set update function to IMRUUpdateConfiguration configuration module. Return it with TCP configuration.
         /// </summary>
         /// <returns></returns>
-        protected override IConfiguration BuildUpdateFunctionConfig()
+        protected override IConfiguration BuildUpdateFunctionConfigModule()
         {
             var c = IMRUUpdateConfiguration<int[], int[], int[]>.ConfigurationModule
                 .Set(IMRUUpdateConfiguration<int[], int[], int[]>.UpdateFunction,
-                    GenericType<BroadcastSenderReduceReceiverUpdateFunction>.Class)
+                    GenericType<PipelinedBroadcastAndReduceWithFaultTolerant.BroadcastSenderReduceReceiverUpdateFunctionFT>.Class)
                 .Build();
 
             return Configurations.Merge(c, GetTcpConfiguration());
@@ -169,6 +209,30 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
                 .Set(TcpClientConfigurationModule.MaxConnectionRetry, "200")
                 .Set(TcpClientConfigurationModule.SleepTime, "1000")
                 .Build();
+        }
+
+        /// <summary>
+        /// Configuration for Map task state
+        /// </summary>
+        /// <returns></returns>
+        private IConfiguration MapTaskStateConfiguration()
+        {
+            return TangFactory.GetTang()
+                   .NewConfigurationBuilder()
+                   .BindImplementation(GenericType<ITaskState>.Class, GenericType<MapTaskState<int[]>>.Class)
+                   .Build();
+        }
+
+        /// <summary>
+        /// Configuration for Update task state
+        /// </summary>
+        /// <returns></returns>
+        private IConfiguration UpdateTaskStateConfiguration()
+        {
+            return TangFactory.GetTang()
+                   .NewConfigurationBuilder()
+                   .BindImplementation(GenericType<ITaskState>.Class, GenericType<UpdateTaskState<int[], int[]>>.Class)
+                   .Build();
         }
     }
 }

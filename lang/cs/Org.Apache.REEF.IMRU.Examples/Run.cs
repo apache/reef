@@ -119,7 +119,7 @@ namespace Org.Apache.REEF.IMRU.Examples
 
             if (faultTolerant)
             {
-                var broadcastReduceFtExample = injector.GetInstance<FaultTolerantPipelinedBroadcastAndReduce>();
+                var broadcastReduceFtExample = injector.GetInstance<PipelinedBroadcastAndReduceWithFaultTolerant>();
                 broadcastReduceFtExample.Run(numNodes - 1, chunkSize, iterations, dims, mapperMemory, updateTaskMemory, maxRetryNumberInRecovery, totalNumberOfForcedFailures);
             }
             else

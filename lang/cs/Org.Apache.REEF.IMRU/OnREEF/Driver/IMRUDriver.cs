@@ -159,7 +159,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
 
             _systemState = new SystemStateMachine();
             _serviceAndContextConfigurationProvider =
-                new ServiceAndContextConfigurationProvider<TMapInput, TMapOutput, TPartitionType>(dataSet);
+                new ServiceAndContextConfigurationProvider<TMapInput, TMapOutput, TPartitionType>(dataSet, configurationManager);
 
             var msg =
                 string.Format(CultureInfo.InvariantCulture, "map task memory:{0}, update task memory:{1}, map task cores:{2}, update task cores:{3}, maxRetry {4}, allowedFailedEvaluators {5}.",
@@ -793,7 +793,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         }
 
         /// <summary>
-        /// Generates map task configuration given the active context. S
+        /// Generates map task configuration given the active context.
         /// Merge configurations of all the inputs to the MapTaskHost.
         /// </summary>
         /// <param name="activeContext">Active context to which task needs to be submitted</param>

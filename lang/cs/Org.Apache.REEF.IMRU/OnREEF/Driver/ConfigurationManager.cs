@@ -32,6 +32,8 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
     {
         private static readonly Logger Logger = Logger.GetLogger(typeof(ConfigurationManager));
 
+        private readonly IConfiguration _updateTaskStateConfiguration;
+        private readonly IConfiguration _mapTaskStateConfiguration;
         private readonly IConfiguration _mapFunctionConfiguration;
         private readonly IConfiguration _mapInputCodecConfiguration;
         private readonly IConfiguration _updateFunctionCodecsConfiguration;
@@ -44,6 +46,8 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         [Inject]
         private ConfigurationManager(
             AvroConfigurationSerializer configurationSerializer,
+            [Parameter(typeof(SerializedUpdateTaskStateConfiguration))] string updateTaskStateConfig,
+            [Parameter(typeof(SerializedMapTaskStateConfiguration))] string mapTaskStateConfig,
             [Parameter(typeof(SerializedMapConfiguration))] string mapConfig,
             [Parameter(typeof(SerializedReduceConfiguration))] string reduceConfig,
             [Parameter(typeof(SerializedUpdateConfiguration))] string updateConfig,
@@ -53,6 +57,26 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
             [Parameter(typeof(SerializedMapInputPipelineDataConverterConfiguration))] string mapInputPipelineDataConverterConfiguration,
             [Parameter(typeof(SerializedResultHandlerConfiguration))] string resultHandlerConfiguration)
         {
+            try
+            {
+                _updateTaskStateConfiguration = configurationSerializer.FromString(updateTaskStateConfig);
+            }
+            catch (Exception)
+            {
+                Logger.Log(Level.Error, "Unable to deserialize update task state configuration");
+                throw;
+            }
+
+            try
+            {
+                _mapTaskStateConfiguration = configurationSerializer.FromString(mapTaskStateConfig);
+            }
+            catch (Exception)
+            {
+                Logger.Log(Level.Error, "Unable to deserialize map task state configuration");
+                throw;
+            }
+
             try
             {
                 _mapFunctionConfiguration = configurationSerializer.FromString(mapConfig);
@@ -128,6 +152,22 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
             {
                 Exceptions.Throw(e, "Unable to deserialize map input pipeline data converter configuration", Logger);
             }
+        }
+
+        /// <summary>
+        /// Configuration of update task state
+        /// </summary>
+        internal IConfiguration UpdateTaskStateConfiguration
+        {
+            get { return _updateTaskStateConfiguration; }
+        }
+
+        /// <summary>
+        /// Configuration of map task state
+        /// </summary>
+        internal IConfiguration MapTaskStateConfiguration
+        {
+            get { return _mapTaskStateConfiguration; }
         }
 
         /// <summary>
