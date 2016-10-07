@@ -23,6 +23,7 @@ using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Tang.Util;
 using Xunit;
+using TestSenderMapFunction = Org.Apache.REEF.IMRU.Examples.PipelinedBroadcastReduce.PipelinedBroadcastAndReduceWithFaultTolerant.SenderMapFunctionFT;
 
 namespace Org.Apache.REEF.Tests.Functional.IMRU
 {
@@ -74,15 +75,15 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
         {
             var c = IMRUMapConfiguration<int[], int[]>.ConfigurationModule
                 .Set(IMRUMapConfiguration<int[], int[]>.MapFunction,
-                    GenericType<FaultTolerantPipelinedBroadcastAndReduce.TestSenderMapFunction>.Class)                   
+                    GenericType<TestSenderMapFunction>.Class)
                 .Build();
 
             return TangFactory.GetTang().NewConfigurationBuilder(c)
-                .BindSetEntry<FaultTolerantPipelinedBroadcastAndReduce.TaskIdsToFail, string>(GenericType<FaultTolerantPipelinedBroadcastAndReduce.TaskIdsToFail>.Class, "IMRUMap-RandomInputPartition-2-")
-                .BindSetEntry<FaultTolerantPipelinedBroadcastAndReduce.TaskIdsToFail, string>(GenericType<FaultTolerantPipelinedBroadcastAndReduce.TaskIdsToFail>.Class, "IMRUMap-RandomInputPartition-3-")
-                .BindIntNamedParam<FaultTolerantPipelinedBroadcastAndReduce.FailureType>(FaultTolerantPipelinedBroadcastAndReduce.FailureType.EvaluatorFailureDuringTaskInitialization.ToString())
+                .BindSetEntry<PipelinedBroadcastAndReduceWithFaultTolerant.TaskIdsToFail, string>(GenericType<PipelinedBroadcastAndReduceWithFaultTolerant.TaskIdsToFail>.Class, "IMRUMap-RandomInputPartition-2-")
+                .BindSetEntry<PipelinedBroadcastAndReduceWithFaultTolerant.TaskIdsToFail, string>(GenericType<PipelinedBroadcastAndReduceWithFaultTolerant.TaskIdsToFail>.Class, "IMRUMap-RandomInputPartition-3-")
+                .BindIntNamedParam<PipelinedBroadcastAndReduceWithFaultTolerant.FailureType>(PipelinedBroadcastAndReduceWithFaultTolerant.FailureType.EvaluatorFailureDuringTaskInitialization.ToString())
                 .BindNamedParameter(typeof(MaxRetryNumberInRecovery), NumberOfRetry.ToString())
-                .BindNamedParameter(typeof(FaultTolerantPipelinedBroadcastAndReduce.TotalNumberOfForcedFailures), NumberOfRetry.ToString())
+                .BindNamedParameter(typeof(PipelinedBroadcastAndReduceWithFaultTolerant.TotalNumberOfForcedFailures), NumberOfRetry.ToString())
                 .Build();
         }
     }

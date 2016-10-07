@@ -90,9 +90,11 @@ under the License.
     <Compile Include="OnREEF\Driver\StateMachine\TaskStateTransitionException.cs" />
     <Compile Include="OnREEF\Driver\TaskInfo.cs" />
     <Compile Include="OnREEF\Driver\TaskManager.cs" />
+    <Compile Include="OnREEF\Driver\TaskStateService.cs" />
     <Compile Include="OnREEF\IMRUTasks\IMRUTaskAppException.cs" />
     <Compile Include="OnREEF\IMRUTasks\IMRUTaskGroupCommunicationException.cs" />
     <Compile Include="OnREEF\IMRUTasks\IMRUTaskSystemException.cs" />
+    <Compile Include="OnREEF\IMRUTasks\ITaskState.cs" />
     <Compile Include="OnREEF\IMRUTasks\MapTaskHost.cs" />
     <Compile Include="OnREEF\IMRUTasks\TaskCloseCoordinator.cs" />
     <Compile Include="OnREEF\IMRUTasks\TaskHostBase.cs" />
@@ -108,6 +110,7 @@ under the License.
     <Compile Include="OnREEF\Parameters\MaxRetryNumberInRecovery.cs" />
     <Compile Include="OnREEF\Parameters\MemoryForUpdateTask.cs" />
     <Compile Include="OnREEF\Parameters\MemoryPerMapper.cs" />
+    <Compile Include="OnREEF\Parameters\SerializedMapTaskStateConfiguration.cs" />
     <Compile Include="OnREEF\Parameters\SerializedResultHandlerConfiguration.cs" />
     <Compile Include="OnREEF\Parameters\SerializedMapConfiguration.cs" />
     <Compile Include="OnREEF\Parameters\SerializedMapInputCodecConfiguration.cs" />
@@ -116,6 +119,7 @@ under the License.
     <Compile Include="OnREEF\Parameters\SerializedReduceConfiguration.cs" />
     <Compile Include="OnREEF\Parameters\SerializedUpdateConfiguration.cs" />
     <Compile Include="OnREEF\Parameters\SerializedUpdateFunctionCodecsConfiguration.cs" />
+    <Compile Include="OnREEF\Parameters\SerializedUpdateTaskStateConfiguration.cs" />
     <Compile Include="OnREEF\ResultHandler\DefaultResultHandler.cs" />
     <Compile Include="OnREEF\ResultHandler\ResultOutputLocation.cs" />
     <Compile Include="OnREEF\ResultHandler\WriteResultHandler.cs" />

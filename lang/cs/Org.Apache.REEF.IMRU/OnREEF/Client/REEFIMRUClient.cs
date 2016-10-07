@@ -37,6 +37,7 @@ using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Tang.Util;
 using Org.Apache.REEF.Utilities.Diagnostics;
 using Org.Apache.REEF.Utilities.Logging;
+using TraceLevel = System.Diagnostics.TraceLevel;
 
 namespace Org.Apache.REEF.IMRU.OnREEF.Client
 {
@@ -122,6 +123,10 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Client
                 jobDefinition.PartitionedDatasetConfiguration,
                 overallPerMapConfig
             })
+                .BindNamedParameter(typeof(SerializedUpdateTaskStateConfiguration),
+                    _configurationSerializer.ToString(jobDefinition.UpdateTaskStateConfiguration))
+                .BindNamedParameter(typeof(SerializedMapTaskStateConfiguration),
+                    _configurationSerializer.ToString(jobDefinition.MapTaskStateConfiguration))
                 .BindNamedParameter(typeof(SerializedMapConfiguration),
                     _configurationSerializer.ToString(jobDefinition.MapFunctionConfiguration))
                 .BindNamedParameter(typeof(SerializedUpdateConfiguration),

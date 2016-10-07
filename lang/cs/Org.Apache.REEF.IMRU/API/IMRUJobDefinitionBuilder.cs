@@ -39,6 +39,8 @@ namespace Org.Apache.REEF.IMRU.API
         private int _coresPerMapper;
         private int _updateTaskCores;
         private int _maxRetryNumberInRecovery;
+        private IConfiguration _updateTaskStateConfiguration;
+        private IConfiguration _mapTaskStateConfiguration;
         private IConfiguration _mapFunctionConfiguration;
         private IConfiguration _mapInputCodecConfiguration;
         private IConfiguration _updateFunctionCodecsConfiguration;
@@ -59,6 +61,8 @@ namespace Org.Apache.REEF.IMRU.API
         /// </summary>
         public IMRUJobDefinitionBuilder()
         {
+            _updateTaskStateConfiguration = EmptyConfiguration;
+            _mapTaskStateConfiguration = EmptyConfiguration;
             _mapInputPipelineDataConverterConfiguration = EmptyConfiguration;
             _mapOutputPipelineDataConverterConfiguration = EmptyConfiguration;
             _partitionedDatasetConfiguration = EmptyConfiguration;
@@ -80,6 +84,28 @@ namespace Org.Apache.REEF.IMRU.API
         public IMRUJobDefinitionBuilder SetJobName(string name)
         {
             _jobName = name;
+            return this;
+        }
+
+        /// <summary>
+        /// Sets configuration of map task state
+        /// </summary>
+        /// <param name="mapTaskStateConfiguration">Configuration for map task state</param>
+        /// <returns>this</returns>
+        public IMRUJobDefinitionBuilder SetMapTaskStateConfiguration(IConfiguration mapTaskStateConfiguration)
+        {
+            _mapTaskStateConfiguration = mapTaskStateConfiguration;
+            return this;
+        }
+
+        /// <summary>
+        /// Sets configuration of update task state
+        /// </summary>
+        /// <param name="updateTaskStateConfiguration">Configuration for update task state</param>
+        /// <returns>this</returns>
+        public IMRUJobDefinitionBuilder SetUpdateTaskStateConfiguration(IConfiguration updateTaskStateConfiguration)
+        {
+            _updateTaskStateConfiguration = updateTaskStateConfiguration;
             return this;
         }
 
@@ -318,6 +344,8 @@ namespace Org.Apache.REEF.IMRU.API
             }
 
             return new IMRUJobDefinition(
+                _updateTaskStateConfiguration,
+                _mapTaskStateConfiguration,
                 _mapFunctionConfiguration,
                 _mapInputCodecConfiguration,
                 _updateFunctionCodecsConfiguration,

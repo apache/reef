@@ -131,9 +131,9 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
         /// Update function configuration. Add TcpConfiguration to the base configuration.
         /// </summary>
         /// <returns></returns>
-        protected override IConfiguration BuildUpdateFunctionConfig()
+        protected override IConfiguration BuildUpdateFunctionConfigModule()
         {
-            return Configurations.Merge(GetTcpConfiguration(), base.BuildUpdateFunctionConfig());
+            return Configurations.Merge(GetTcpConfiguration(), base.BuildUpdateFunctionConfigModule());
         }
 
         /// <summary>
