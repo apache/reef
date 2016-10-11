@@ -22,7 +22,6 @@ import org.apache.reef.annotations.audience.DriverSide;
 import org.apache.reef.annotations.audience.Private;
 import org.apache.reef.runtime.common.driver.resourcemanager.ResourceAllocationEvent;
 import org.apache.reef.util.Optional;
-import org.apache.reef.util.SingletonAsserter;
 import org.apache.reef.tang.util.MonotonicSet;
 
 import javax.inject.Inject;
@@ -53,7 +52,10 @@ public final class Evaluators implements AutoCloseable {
   @Inject
   Evaluators() {
     LOG.log(Level.FINE, "Instantiated 'Evaluators'");
-    assert SingletonAsserter.assertSingleton(Evaluators.class);
+    // TODO[REEF-1642] Assert singleton per REEFEnvironment
+    // There can be several instances of the class for multiple REEFEnvironments.
+    // It is still a singleton when REEF Driver owns the entire JVM.
+    // assert SingletonAsserter.assertSingleton(Evaluators.class);
   }
 
   /**

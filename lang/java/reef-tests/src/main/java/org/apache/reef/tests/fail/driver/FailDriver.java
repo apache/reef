@@ -106,8 +106,7 @@ public final class FailDriver {
   private void checkMsgOrder(final Object msg) throws SimulatedDriverFailure, DriverSideFailure {
 
     final String msgClassName = msg.getClass().getName();
-    LOG.log(Level.FINE, "At {0} {1}:{2}", new Object[]{
-        this.state, this.expectIdx, msgClassName});
+    LOG.log(Level.FINE, "At {0} {1}:{2}", new Object[] {this.state, this.expectIdx, msgClassName});
 
     if (this.state == DriverState.FAILED) {
       // If already failed, do not do anything
@@ -132,11 +131,11 @@ public final class FailDriver {
 
     if (notFound) {
       LOG.log(Level.SEVERE, "Event out of sequence: {0} {1}:{2}",
-          new Object[]{this.state, this.expectIdx, msgClassName});
+          new Object[] {this.state, this.expectIdx, msgClassName});
       throw new DriverSideFailure("Event out of sequence: " + msgClassName);
     }
 
-    LOG.log(Level.INFO, "{0}: send: {1} got: {2}", new Object[]{
+    LOG.log(Level.INFO, "{0}: send: {1} got: {2}", new Object[] {
         this.state, EVENT_SEQUENCE[this.expectIdx], msgClassName});
 
     ++this.expectIdx;
@@ -161,13 +160,13 @@ public final class FailDriver {
   /**
    * Expected message class.
    */
-  public static final class ExpectedMessage {
+  static final class ExpectedMessage {
 
     private final transient Class<?> msgClass;
     private final transient RequiredFlag requiredFlag;
     private final transient String repr;
 
-    public ExpectedMessage(final Class<?> clazz, final RequiredFlag requiredFlag) {
+    private ExpectedMessage(final Class<?> clazz, final RequiredFlag requiredFlag) {
       this.msgClass = clazz;
       this.requiredFlag = requiredFlag;
       this.repr = this.msgClass.getSimpleName() + ":" + this.requiredFlag;
@@ -181,7 +180,7 @@ public final class FailDriver {
     /**
      * "Required" flag for message class.
      */
-    public enum RequiredFlag {OPTIONAL, REQUIRED}
+    enum RequiredFlag {OPTIONAL, REQUIRED}
   }
 
   final class AllocatedEvaluatorHandler implements EventHandler<AllocatedEvaluator> {
@@ -267,10 +266,9 @@ public final class FailDriver {
 
   final class RunningTaskHandler implements EventHandler<RunningTask> {
     @Override
-    @SuppressWarnings("checkstyle:hiddenfield")
-    public void onNext(final RunningTask task) {
-      checkMsgOrder(task);
-      FailDriver.this.task = task;
+    public void onNext(final RunningTask runningTask) {
+      checkMsgOrder(runningTask);
+      FailDriver.this.task = runningTask;
       switch (state) {
       case INIT:
         state = DriverState.SEND_MSG;
@@ -289,13 +287,12 @@ public final class FailDriver {
 
   final class SuspendedTaskHandler implements EventHandler<SuspendedTask> {
     @Override
-    @SuppressWarnings("checkstyle:hiddenfield")
-    public void onNext(final SuspendedTask task) {
-      checkMsgOrder(task);
+    public void onNext(final SuspendedTask suspendedTask) {
+      checkMsgOrder(suspendedTask);
       state = DriverState.RESUME;
       try {
-        task.getActiveContext().submitTask(TaskConfiguration.CONF
-            .set(TaskConfiguration.IDENTIFIER, task.getId() + "_RESUMED")
+        suspendedTask.getActiveContext().submitTask(TaskConfiguration.CONF
+            .set(TaskConfiguration.IDENTIFIER, suspendedTask.getId() + "_RESUMED")
             .set(TaskConfiguration.TASK, NoopTask.class)
             .set(TaskConfiguration.ON_MESSAGE, NoopTask.DriverMessageHandler.class)
             .set(TaskConfiguration.ON_SUSPEND, NoopTask.TaskSuspendHandler.class)
@@ -324,22 +321,20 @@ public final class FailDriver {
 
   final class FailedTaskHandler implements EventHandler<FailedTask> {
     @Override
-    @SuppressWarnings("checkstyle:hiddenfield")
-    public void onNext(final FailedTask task) {
-      LOG.log(Level.WARNING, "Task failed: " + task.getId(), task.getReason().orElse(null));
-      checkMsgOrder(task);
-      if (task.getActiveContext().isPresent()) {
-        task.getActiveContext().get().close();
+    public void onNext(final FailedTask failedTask) {
+      LOG.log(Level.WARNING, "Task failed: " + failedTask.getId(), failedTask.getReason().orElse(null));
+      checkMsgOrder(failedTask);
+      if (failedTask.getActiveContext().isPresent()) {
+        failedTask.getActiveContext().get().close();
       }
     }
   }
 
   final class CompletedTaskHandler implements EventHandler<CompletedTask> {
     @Override
-    @SuppressWarnings("checkstyle:hiddenfield")
-    public void onNext(final CompletedTask task) {
-      checkMsgOrder(task);
-      task.getActiveContext().close();
+    public void onNext(final CompletedTask completedTask) {
+      checkMsgOrder(completedTask);
+      completedTask.getActiveContext().close();
     }
   }
 
