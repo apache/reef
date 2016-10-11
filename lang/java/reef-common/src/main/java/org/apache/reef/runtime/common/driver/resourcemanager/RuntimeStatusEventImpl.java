@@ -31,6 +31,7 @@ import java.util.List;
  * Use newBuilder to construct an instance.
  */
 public final class RuntimeStatusEventImpl implements RuntimeStatusEvent {
+
   private final String name;
   private final State state;
   private final List<String> containerAllocationList;
@@ -43,6 +44,24 @@ public final class RuntimeStatusEventImpl implements RuntimeStatusEvent {
     this.containerAllocationList = BuilderUtils.notNull(builder.containerAllocationList);
     this.error = Optional.ofNullable(builder.error);
     this.outstandingContainerRequests = Optional.ofNullable(builder.outstandingContainerRequests);
+  }
+
+  @Override
+  public String toString() {
+
+    // Replace with String.join() after migration to Java 1.8
+    final StringBuilder allocatedContainers = new StringBuilder();
+    for (String container : this.containerAllocationList) {
+      if (allocatedContainers.length() > 0) {
+        allocatedContainers.append(',');
+      }
+      allocatedContainers.append(container);
+    }
+
+    return String.format(
+        "RuntimeStatusEventImpl:{name:%s, state:%s, allocated:[%s], outstanding:%d, error:%s}",
+        this.name, this.state, allocatedContainers, this.outstandingContainerRequests.orElse(0),
+        this.error.isPresent());
   }
 
   @Override
