@@ -55,9 +55,9 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
             var masterContextCount = GetMessageCount(lines, "Receiving IActiveContext with context id " + IMRUConstants.MasterContextId);
             var totalContextCount = GetMessageCount(lines, "Receiving IActiveContext with context id");
             var completedTaskCount = GetMessageCount(lines, CompletedTaskMessage);
-            Assert.Equal(1, failedEvaluatorCount);
-            Assert.Equal(numTasks + 1, totalContextCount);
-            Assert.Equal(2, masterContextCount);
+            Assert.True(1 >= failedEvaluatorCount, "failedEvaluatorCount is not expected:" + failedEvaluatorCount);
+            Assert.True(numTasks + 1 == totalContextCount || numTasks == totalContextCount, "totalContextCount is not expected: " + totalContextCount); 
+            Assert.True(2 >= masterContextCount, "masterContextCount is not expected:" + masterContextCount);
             Assert.Equal(numTasks, completedTaskCount);
             CleanUp(testFolder);
         }
