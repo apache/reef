@@ -58,7 +58,7 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
             int updateTaskMemory = 5120;
             int numTasks = 4;
             int numberOfRetryInRecovery = 4;
-            TestBroadCastAndReduce(false, numTasks, chunkSize, dims, iterations, mapperMemory, updateTaskMemory, numberOfRetryInRecovery);
+            TestBroadCastAndReduce(true, numTasks, chunkSize, dims, iterations, mapperMemory, updateTaskMemory, numberOfRetryInRecovery);
         }
 
         /// <summary>

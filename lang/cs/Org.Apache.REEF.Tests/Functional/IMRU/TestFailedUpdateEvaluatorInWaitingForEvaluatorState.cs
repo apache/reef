@@ -25,6 +25,7 @@ using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Tang.Util;
+using Org.Apache.REEF.Utilities.Logging;
 using Xunit;
 
 namespace Org.Apache.REEF.Tests.Functional.IMRU
@@ -37,7 +38,7 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
         /// IMRU fault tolerant driver will re-request a master evaluator when it receives IFailedEvalautor. 
         /// </summary>
         [Fact]
-        public void TestWithHandlersInIMRUDriverOnLocalRuntime()
+        public void TestFailedUpdateEvaluatorAtContextOnLocalRuntime()
         {
             int chunkSize = 2;
             int dims = 10;
@@ -48,7 +49,16 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
             int numberOfRetryInRecovery = 4;
             string testFolder = DefaultRuntimeFolder + TestId;
             TestBroadCastAndReduce(false, numTasks, chunkSize, dims, iterations, mapperMemory, updateTaskMemory, numberOfRetryInRecovery, testFolder);
-            ValidateSuccessForLocalRuntime(numTasks, 0, 1, testFolder);
+
+            string[] lines = ReadLogFile(DriverStdout, "driver", testFolder, 120);
+            var failedEvaluatorCount = GetMessageCount(lines, FailedEvaluatorMessage);
+            var masterContextCount = GetMessageCount(lines, "Receiving IActiveContext with context id " + IMRUConstants.MasterContextId);
+            var totalContextCount = GetMessageCount(lines, "Receiving IActiveContext with context id");
+            var completedTaskCount = GetMessageCount(lines, CompletedTaskMessage);
+            Assert.Equal(1, failedEvaluatorCount);
+            Assert.Equal(numTasks + 1, totalContextCount);
+            Assert.Equal(2, masterContextCount);
+            Assert.Equal(numTasks, completedTaskCount);
             CleanUp(testFolder);
         }
 
@@ -56,7 +66,7 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
         /// This test is for the normal scenarios of IMRUDriver and IMRUTasks on yarn
         /// </summary>
         [Fact(Skip = "Requires Yarn")]
-        public void TestWithHandlersInIMRUDriverOnYarn()
+        public void TestFailedUpdateEvaluatorAtContextOnYarn()
         {
             int chunkSize = 2;
             int dims = 10;
@@ -65,7 +75,7 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
             int updateTaskMemory = 5120;
             int numTasks = 4;
             int numberOfRetryInRecovery = 4;
-            TestBroadCastAndReduce(false, numTasks, chunkSize, dims, iterations, mapperMemory, updateTaskMemory, numberOfRetryInRecovery);
+            TestBroadCastAndReduce(true, numTasks, chunkSize, dims, iterations, mapperMemory, updateTaskMemory, numberOfRetryInRecovery);
         }
 
         /// <summary>
@@ -97,6 +107,8 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
                     GenericType<IMRUDriver<TMapInput, TMapOutput, TResult, TPartitionType>>.Class)
                 .Set(REEF.Driver.DriverConfiguration.OnTaskFailed,
                     GenericType<IMRUDriver<TMapInput, TMapOutput, TResult, TPartitionType>>.Class)
+                .Set(REEF.Driver.DriverConfiguration.OnTaskCompleted, GenericType<MessageLogger>.Class)
+                .Set(REEF.Driver.DriverConfiguration.OnEvaluatorFailed, GenericType<MessageLogger>.Class)
                 .Set(REEF.Driver.DriverConfiguration.CustomTraceLevel, TraceLevel.Info.ToString())
                 .Build();
         }
@@ -126,6 +138,7 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
 
             public void OnNext(IActiveContext activeContext)
             {
+                Logger.Log(Level.Info, "Receiving IActiveContext with context id {0}, Evaluator id : {1}.", activeContext.Id, activeContext.EvaluatorId);
                 if (activeContext.Id.Contains(IMRUConstants.MasterContextId) && _firstTime)
                 {
                     var contextConf = ContextConfiguration.ConfigurationModule
