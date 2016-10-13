@@ -184,7 +184,7 @@ namespace Org.Apache.REEF.Wake.Tests
                 Message = message;
             }
 
-            public string Message { get; set; }
+            public string Message { get; }
 
             public override string ToString()
             {

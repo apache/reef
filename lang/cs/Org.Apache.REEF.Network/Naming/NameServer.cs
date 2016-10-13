@@ -71,7 +71,7 @@ namespace Org.Apache.REEF.Network.Naming
             LocalEndpoint = _server.LocalEndpoint;
         }
 
-        public IPEndPoint LocalEndpoint { get; private set; }
+        public IPEndPoint LocalEndpoint { get; }
 
         /// <summary>
         /// Looks up the IPEndpoints for each string identifier

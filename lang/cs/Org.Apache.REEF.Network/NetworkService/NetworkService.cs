@@ -84,7 +84,7 @@ namespace Org.Apache.REEF.Network.NetworkService
         /// <summary>
         /// Name client for registering ids
         /// </summary>
-        public INameClient NamingClient { get; private set; }
+        public INameClient NamingClient { get; }
 
         /// <summary>
         /// The remote manager of the network service.

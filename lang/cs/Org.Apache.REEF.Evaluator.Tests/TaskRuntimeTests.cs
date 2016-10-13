@@ -426,11 +426,11 @@ namespace Org.Apache.REEF.Evaluator.Tests
 
             public bool SuspendInvoked { get; private set; }
 
-            public CountdownEvent StartEvent { get; private set; }
+            public CountdownEvent StartEvent { get; }
 
-            public CountdownEvent FinishCountdownEvent { get; private set; }
+            public CountdownEvent FinishCountdownEvent { get; }
 
-            public CountdownEvent DisposeCountdownEvent { get; private set; }
+            public CountdownEvent DisposeCountdownEvent { get; }
 
             public void Dispose()
             {
@@ -544,7 +544,7 @@ namespace Org.Apache.REEF.Evaluator.Tests
                 CountdownEvent.Signal();
             }
 
-            public CountdownEvent CountdownEvent { get; private set; }
+            public CountdownEvent CountdownEvent { get; }
         }
     }
 }

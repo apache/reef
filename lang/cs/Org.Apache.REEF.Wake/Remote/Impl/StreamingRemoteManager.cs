@@ -71,12 +71,12 @@ namespace Org.Apache.REEF.Wake.Remote.Impl
         /// <summary>
         /// Gets the RemoteIdentifier for the DefaultRemoteManager
         /// </summary>
-        public IRemoteIdentifier Identifier { get; private set; }
+        public IRemoteIdentifier Identifier { get; }
 
         /// <summary>
         /// Gets the local IPEndPoint for the DefaultRemoteManager
         /// </summary>
-        public IPEndPoint LocalEndpoint { get; private set; }
+        public IPEndPoint LocalEndpoint { get; }
 
         /// <summary>
         /// Returns an IObserver used to send messages to the remote host at

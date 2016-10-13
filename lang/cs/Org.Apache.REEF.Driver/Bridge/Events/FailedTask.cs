@@ -59,7 +59,7 @@ namespace Org.Apache.REEF.Driver.Bridge.Events
 
         public Optional<string> Reason { get; set; }
 
-        public string Id { get; private set; }
+        public string Id { get; }
 
         public string Message { get; set; }
 

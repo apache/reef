@@ -56,7 +56,7 @@ namespace Org.Apache.REEF.Common.Metrics.MutableMetricsLayer
         /// <summary>
         /// Meta-data of the metric.
         /// </summary>
-        public IMetricsInfo Info { get; private set; }
+        public IMetricsInfo Info { get; }
 
         /// <summary>
         /// Sets the changed flag. Called in derived classes when metric values are changed.

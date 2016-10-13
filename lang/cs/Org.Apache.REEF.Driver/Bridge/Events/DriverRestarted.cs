@@ -40,8 +40,8 @@ namespace Org.Apache.REEF.Driver.Bridge.Events
             get { return new HashSet<string>(_expectedEvaluatorIds); }
         }
 
-        public DateTime StartTime { get; private set; }
+        public DateTime StartTime { get; }
 
-        public int ResubmissionAttempts { get; private set; }
+        public int ResubmissionAttempts { get; }
     }
 }

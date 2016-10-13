@@ -60,7 +60,7 @@ namespace Org.Apache.REEF.Driver.Bridge.Events
             NameServerInfo = Clr2Java.GetNameServerInfo();
         }
 
-        public string Id { get; private set; }
+        public string Id { get; }
 
         public string EvaluatorBatchId { get; set; }
 

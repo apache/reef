@@ -70,22 +70,22 @@ namespace Org.Apache.REEF.Network.Group.Operators.Impl
         /// <summary>
         /// Returns the identifier for the Group Communication operator.
         /// </summary>
-        public string OperatorName { get; private set; }
+        public string OperatorName { get; }
 
         /// <summary>
         /// Returns the name of the operator's CommunicationGroup.
         /// </summary>
-        public string GroupName { get; private set; }
+        public string GroupName { get; }
 
         /// <summary>
         /// Returns the operator version.
         /// </summary>
-        public int Version { get; private set; }
+        public int Version { get; }
 
         /// <summary>
         /// Returns the IPipelineDataConvert used to convert messages to pipeline form and vice-versa
         /// </summary>
-        public IPipelineDataConverter<T> PipelineDataConverter { get; private set; }
+        public IPipelineDataConverter<T> PipelineDataConverter { get; }
 
         /// <summary>
         /// Send the data to all BroadcastReceivers.

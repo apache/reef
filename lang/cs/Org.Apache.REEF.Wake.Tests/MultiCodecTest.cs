@@ -53,7 +53,7 @@ namespace Org.Apache.REEF.Wake.Tests
                 Number = number;
             }
 
-            public int Number { get; set; }
+            public int Number { get; }
         }
 
         private class Event2 : BaseEvent
@@ -63,7 +63,7 @@ namespace Org.Apache.REEF.Wake.Tests
                 Name = name;
             }
 
-            public string Name { get; set; }
+            public string Name { get; }
         }
 
         private class Event1Codec : ICodec<Event1>

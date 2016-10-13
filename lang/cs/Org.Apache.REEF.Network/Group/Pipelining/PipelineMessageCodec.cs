@@ -63,6 +63,6 @@ namespace Org.Apache.REEF.Network.Group.Pipelining
         /// <summary>
         /// Codec for actual message T
         /// </summary>
-        public ICodec<T> BaseCodec { get; private set; }
+        public ICodec<T> BaseCodec { get; }
     }
 }

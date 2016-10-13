@@ -76,7 +76,7 @@ namespace Org.Apache.REEF.Network.Group.Task.Impl
         /// <summary>
         /// Returns the Communication Group name
         /// </summary>
-        public string GroupName { get; private set; }
+        public string GroupName { get; }
 
         /// <summary>
         /// Gets the BroadcastSender with the given name and message type.

@@ -48,7 +48,7 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Context
             _contextMessageHandlers = contextMessageHandlers;
         }
 
-        public string Id { get; private set; }
+        public string Id { get; }
 
         public ISet<IContextMessageSource> ContextMessageSources
         {
