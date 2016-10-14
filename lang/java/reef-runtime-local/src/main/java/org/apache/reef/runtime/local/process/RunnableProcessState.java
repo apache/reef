@@ -43,7 +43,6 @@ enum RunnableProcessState {
 
     case INIT:
       switch (toState) {
-      case INIT:
       case RUNNING:
       case ENDED:
         return true;

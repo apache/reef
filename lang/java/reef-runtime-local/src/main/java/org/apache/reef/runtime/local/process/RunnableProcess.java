@@ -185,7 +185,7 @@ public final class RunnableProcess implements Runnable {
 
     } catch (final InterruptedException ex) {
       LOG.log(Level.SEVERE,
-          "Interrupted while waiting for the process \"{0}\" to complete. Exception: {2}",
+          "Interrupted while waiting for the process \"{0}\" to complete. Exception: {1}",
           new Object[] {this.id, ex});
     }
   }
@@ -221,7 +221,7 @@ public final class RunnableProcess implements Runnable {
 
     } catch (final InterruptedException ex) {
       LOG.log(Level.SEVERE,
-          "Interrupted while waiting for the process \"{0}\" to complete. Exception: {2}",
+          "Interrupted while waiting for the process \"{0}\" to complete. Exception: {1}",
           new Object[] {this.id, ex});
     } finally {
       this.stateLock.unlock();
