@@ -48,6 +48,8 @@ under the License.
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="IMRUJobDefinitionBuilderTests.cs" />
+    <Compile Include="JobLifecycleManagerTest.cs" />
     <Compile Include="MapInputWithControlMessageTests.cs" />
     <Compile Include="NaturalSumTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

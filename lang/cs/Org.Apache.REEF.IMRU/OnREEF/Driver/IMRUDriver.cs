@@ -1,4 +1,4 @@
-﻿﻿// Licensed to the Apache Software Foundation (ASF) under one
+﻿// Licensed to the Apache Software Foundation (ASF) under one
 // or more contributor license agreements.  See the NOTICE file
 // distributed with this work for additional information
 // regarding copyright ownership.  The ASF licenses this file
@@ -66,7 +66,8 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         IObserver<IFailedContext>,
         IObserver<IFailedTask>,
         IObserver<IRunningTask>,
-        IObserver<IEnumerable<IActiveContext>>
+        IObserver<IEnumerable<IActiveContext>>,
+        IObserver<IJobCancelled>
     {
         private static readonly Logger Logger =
             Logger.GetLogger(typeof(IMRUDriver<TMapInput, TMapOutput, TResult, TPartitionType>));
@@ -82,6 +83,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         private readonly ISet<IPerMapperConfigGenerator> _perMapperConfigs;
         private readonly bool _invokeGC;
         private readonly ServiceAndContextConfigurationProvider<TMapInput, TMapOutput, TPartitionType> _serviceAndContextConfigurationProvider;
+        private IJobCancelled _cancelEvent;
 
         /// <summary>
         /// The lock for the driver. 
@@ -139,7 +141,8 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
             [Parameter(typeof(MaxRetryNumberInRecovery))] int maxRetryNumberInRecovery,
             [Parameter(typeof(InvokeGC))] bool invokeGC,
             IGroupCommDriver groupCommDriver,
-            INameServer nameServer)
+            INameServer nameServer,
+            IJobLifecycleManager lifecycleManager)
         {
             _configurationManager = configurationManager;
             _groupCommDriver = groupCommDriver;
@@ -161,6 +164,11 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
             _serviceAndContextConfigurationProvider =
                 new ServiceAndContextConfigurationProvider<TMapInput, TMapOutput, TPartitionType>(dataSet, configurationManager);
 
+            if (lifecycleManager != null)
+            {
+                lifecycleManager.Subscribe(this as IObserver<IJobCancelled>);
+            }
+            
             var msg =
                 string.Format(CultureInfo.InvariantCulture, "map task memory:{0}, update task memory:{1}, map task cores:{2}, update task cores:{3}, maxRetry {4}, allowedFailedEvaluators {5}.",
                     memoryPerMapper,
@@ -447,6 +455,9 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
                         _taskManager.RecordCompletedTask(completedTask);
                         TryRecovery();
                         break;
+                    case SystemState.Fail:
+                        FailAction();
+                        break;
                     default:
                         UnexpectedState(completedTask.Id, "ICompletedTask");
                         break;
@@ -559,6 +570,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
                             break;
 
                         case SystemState.Fail:
+                            FailAction();
                             break;
 
                         default:
@@ -641,6 +653,10 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
                             TryRecovery();
                             break;
 
+                        case SystemState.Fail:
+                            FailAction();
+                            break;
+
                         default:
                             UnexpectedState(failedTask.Id, "IFailedTask");
                             break;
@@ -649,6 +665,13 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
             }
         }
         #endregion IFailedTask
+
+        public void OnNext(IJobCancelled value)
+        {
+            _cancelEvent = value;
+            _systemState.MoveNext(SystemStateEvent.NotRecoverable);
+            FailAction();
+        }
 
         public void OnError(Exception error)
         {
@@ -713,10 +736,16 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         private void FailAction()
         {
             ShutDownAllEvaluators();
-            var msg = string.Format(CultureInfo.InvariantCulture,
-                "{0} The system cannot be recovered after {1} retries. NumberofFailedMappers in the last try is {2}, master evaluator failed is {3}.",
-                FailActionPrefix, _numberOfRetries, _evaluatorManager.NumberofFailedMappers(), _evaluatorManager.IsMasterEvaluatorFailed());
-            Exceptions.Throw(new ApplicationException(msg), Logger);
+            
+            var failMessage = _cancelEvent != null
+                    ? string.Format(CultureInfo.InvariantCulture,
+                        "{0} Job cancelled at {1}. cancellation message: {2}",
+                        FailActionPrefix, _cancelEvent.Timestamp.ToString("u"), _cancelEvent.Message)
+                    : string.Format(CultureInfo.InvariantCulture,
+                        "{0} The system cannot be recovered after {1} retries. NumberofFailedMappers in the last try is {2}, master evaluator failed is {3}.",
+                        FailActionPrefix, _numberOfRetries, _evaluatorManager.NumberofFailedMappers(), _evaluatorManager.IsMasterEvaluatorFailed());
+
+            Exceptions.Throw(new ApplicationException(failMessage), Logger);
         }
 
         /// <summary>

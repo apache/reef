@@ -50,6 +50,7 @@ namespace Org.Apache.REEF.IMRU.API
         private IConfiguration _mapInputPipelineDataConverterConfiguration;
         private IConfiguration _partitionedDatasetConfiguration;
         private IConfiguration _resultHandlerConfiguration;
+        private IConfiguration _jobCancellationConfiguration;
         private readonly ISet<IConfiguration> _perMapConfigGeneratorConfig;
         private bool _invokeGC;
 
@@ -74,6 +75,7 @@ namespace Org.Apache.REEF.IMRU.API
             _maxRetryNumberInRecovery = 0;
             _invokeGC = true;
             _perMapConfigGeneratorConfig = new HashSet<IConfiguration>();
+            _jobCancellationConfiguration = null;
         }
 
         /// <summary>
@@ -305,6 +307,17 @@ namespace Org.Apache.REEF.IMRU.API
         }
 
         /// <summary>
+        /// Sets configuration for cancellation signal detection.
+        /// </summary>
+        /// <param name="cancelSignalConfiguration"></param>
+        /// <returns></returns>
+        public IMRUJobDefinitionBuilder SetJobCancellationConfiguration(IConfiguration cancelSignalConfiguration)
+        {
+            _jobCancellationConfiguration = cancelSignalConfiguration;
+            return this;
+        }
+
+        /// <summary>
         /// Instantiate the IMRUJobDefinition.
         /// </summary>
         /// <returns>The IMRUJobDefintion configured.</returns>
@@ -355,6 +368,7 @@ namespace Org.Apache.REEF.IMRU.API
                 _mapInputPipelineDataConverterConfiguration,
                 _partitionedDatasetConfiguration,
                 _resultHandlerConfiguration,
+                _jobCancellationConfiguration,
                 _perMapConfigGeneratorConfig,
                 _numberOfMappers,
                 _memoryPerMapper,

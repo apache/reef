@@ -85,6 +85,16 @@ namespace Org.Apache.REEF.Tang.Implementations.Configuration
         {
         }
 
+        public IConfigurationBuilder AddOptionalConfiguration(IConfiguration conf)
+        {
+            if (conf != null)
+            {
+                AddConfiguration(conf);
+            }
+
+            return this;
+        }
+
         public void AddConfiguration(IConfiguration conf)
         {
             AddConfiguration(conf.GetClassHierarchy(), ((ConfigurationImpl)conf).Builder);
