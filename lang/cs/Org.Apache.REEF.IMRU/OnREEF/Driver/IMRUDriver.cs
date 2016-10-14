@@ -181,7 +181,6 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         {
             //// TODO[REEF-598]: Set a timeout for this request to be satisfied. If it is not within that time, exit the Driver.
             _evaluatorManager.RequestUpdateEvaluator();
-            _evaluatorManager.RequestMapEvaluators(_totalMappers);
         }
         #endregion IDriverStarted
 
@@ -199,7 +198,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         /// <param name="allocatedEvaluator">The allocated evaluator</param>
         public void OnNext(IAllocatedEvaluator allocatedEvaluator)
         {
-            Logger.Log(Level.Info, "AllocatedEvaluator EvaluatorBatchId [{0}], memory [{1}], systemState {2}.", allocatedEvaluator.EvaluatorBatchId, allocatedEvaluator.GetEvaluatorDescriptor().Memory, _systemState.CurrentState);
+            Logger.Log(Level.Info, "AllocatedEvaluator memory [{0}], systemState {1}.", allocatedEvaluator.GetEvaluatorDescriptor().Memory, _systemState.CurrentState);
             lock (_lock)
             {
                 using (Logger.LogFunction("IMRUDriver::IAllocatedEvaluator"))
@@ -207,7 +206,15 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
                     switch (_systemState.CurrentState)
                     {
                         case SystemState.WaitingForEvaluator:
-                            _evaluatorManager.AddAllocatedEvaluator(allocatedEvaluator);
+                            if (!_evaluatorManager.IsMasterEvaluatorAllocated())
+                            {
+                                _evaluatorManager.AddMasterEvaluator(allocatedEvaluator);
+                                _evaluatorManager.RequestMapEvaluators(_totalMappers);
+                            }
+                            else
+                            {
+                                _evaluatorManager.AddAllocatedEvaluator(allocatedEvaluator);
+                            }
                             SubmitContextAndService(allocatedEvaluator);
                             break;
                         case SystemState.Fail:
@@ -232,7 +239,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         private void SubmitContextAndService(IAllocatedEvaluator allocatedEvaluator)
         {
             ContextAndServiceConfiguration configs;
-            if (_evaluatorManager.IsEvaluatorForMaster(allocatedEvaluator))
+            if (_evaluatorManager.IsMasterEvaluatorId(allocatedEvaluator.Id))
             {
                 configs =
                     _serviceAndContextConfigurationProvider
@@ -502,26 +509,21 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
                     switch (_systemState.CurrentState)
                     {
                         case SystemState.WaitingForEvaluator:
-                            if (!_evaluatorManager.ExceededMaximumNumberOfEvaluatorFailures())
+                            if (!_evaluatorManager.ExceededMaximumNumberOfEvaluatorFailures() && !isMaster)
                             {
-                                if (isMaster)
-                                {
-                                    Logger.Log(Level.Info, "Requesting a master Evaluator.");
-                                    _evaluatorManager.RemoveFailedEvaluator(failedEvaluator.Id);
-                                    _evaluatorManager.RequestUpdateEvaluator();
-                                }
-                                else
-                                {
-                                    _serviceAndContextConfigurationProvider.RemoveEvaluatorIdFromPartitionIdProvider(
-                                        failedEvaluator.Id);
-                                    Logger.Log(Level.Info, "Requesting mapper Evaluators.");
-                                    _evaluatorManager.RemoveFailedEvaluator(failedEvaluator.Id);
-                                    _evaluatorManager.RequestMapEvaluators(1);
-                                }
+                                _serviceAndContextConfigurationProvider.RemoveEvaluatorIdFromPartitionIdProvider(
+                                    failedEvaluator.Id);
+                                Logger.Log(Level.Info, "Requesting mapper Evaluators.");
+                                _evaluatorManager.RemoveFailedEvaluator(failedEvaluator.Id);
+                                _evaluatorManager.RequestMapEvaluators(1);
                             }
                             else
                             {
-                                Logger.Log(Level.Error, "The system is not recoverable, change the state to Fail.");
+                                var reason1 = _evaluatorManager.ExceededMaximumNumberOfEvaluatorFailures()
+                                    ? "it exceeded MaximumNumberOfEvaluatorFailures, "
+                                    : "";
+                                var reason2 = isMaster ? "master evaluator failed, " : "";
+                                Logger.Log(Level.Error, "The system is not recoverable because " +  reason1 + reason2 + " changing the system state to Fail.");
                                 _systemState.MoveNext(SystemStateEvent.NotRecoverable);
                                 FailAction();
                             }
@@ -712,8 +714,8 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         {
             ShutDownAllEvaluators();
             var msg = string.Format(CultureInfo.InvariantCulture,
-                "{0} The system cannot be recovered after {1} retries. NumberofFailedMappers in the last try is {2}.",
-                FailActionPrefix, _numberOfRetries, _evaluatorManager.NumberofFailedMappers());
+                "{0} The system cannot be recovered after {1} retries. NumberofFailedMappers in the last try is {2}, master evaluator failed is {3}.",
+                FailActionPrefix, _numberOfRetries, _evaluatorManager.NumberofFailedMappers(), _evaluatorManager.IsMasterEvaluatorFailed());
             Exceptions.Throw(new ApplicationException(msg), Logger);
         }
 
