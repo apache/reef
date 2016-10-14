@@ -84,7 +84,7 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
         /// <summary>
         /// This method overrides base class method to pass IEnumerable<Row> as TPartitionType
         /// </summary>
-        protected new void TestBroadCastAndReduce(bool runOnYarn,
+        protected void TestBroadCastAndReduce(bool runOnYarn,
             int numTasks,
             int chunkSize,
             int dims,

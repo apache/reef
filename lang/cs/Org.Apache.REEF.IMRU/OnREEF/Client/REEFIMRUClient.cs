@@ -121,7 +121,8 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Client
                     .BindImplementation(GenericType<IGroupCommDriver>.Class, GenericType<GroupCommDriver>.Class)
                     .Build(),
                 jobDefinition.PartitionedDatasetConfiguration,
-                overallPerMapConfig
+                overallPerMapConfig,
+                jobDefinition.JobCancelSignalConfiguration
             })
                 .BindNamedParameter(typeof(SerializedUpdateTaskStateConfiguration),
                     _configurationSerializer.ToString(jobDefinition.UpdateTaskStateConfiguration))
