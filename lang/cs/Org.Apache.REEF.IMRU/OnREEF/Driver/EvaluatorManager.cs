@@ -217,7 +217,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         }
 
         /// <summary>
-        /// Remove failed evaluator from the colletion
+        /// Remove failed evaluator from the collection
         /// </summary>
         /// <param name="evaluatorId"></param>
         internal void RemoveFailedEvaluator(string evaluatorId)
@@ -228,6 +228,11 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
                 Exceptions.Throw(new IMRUSystemException(msg), Logger);
             }
             _failedEvaluatorIds.Remove(evaluatorId);
+
+            if (IsMasterEvaluatorId(evaluatorId))
+            {
+                ResetMasterEvaluatorId();
+            }
         }
 
         /// <summary>
