@@ -34,10 +34,6 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
     internal sealed class EvaluatorManager
     {
         private static readonly Logger Logger = Logger.GetLogger(typeof(EvaluatorManager));
-        internal const string MasterBatchId = "MasterBatchId";
-        internal const string MapperBatchId = "MapperBatchId";
-        private int _masterBatchIdSquenceNumber = 0;
-        private int _mapperBatchIdSquenceNumber = 0;
 
         private readonly ISet<string> _allocatedEvaluatorIds = new HashSet<string>();
         private readonly ISet<string> _failedEvaluatorIds = new HashSet<string>();
@@ -82,17 +78,13 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
                     .SetCores(_updateEvaluatorSpecification.Core)
                     .SetMegabytes(_updateEvaluatorSpecification.Megabytes)
                     .SetNumber(1)
-                    .SetEvaluatorBatchId(MasterBatchId + _masterBatchIdSquenceNumber)
                     .Build());
 
             var message = string.Format(CultureInfo.InvariantCulture,
-                "Submitted master evaluator with core [{0}], memory [{1}] and batch id [{2}].",
+                "Submitted master evaluator with core [{0}], memory [{1}].",
                 _updateEvaluatorSpecification.Core,
-                _updateEvaluatorSpecification.Megabytes,
-                MasterBatchId + _masterBatchIdSquenceNumber);
+                _updateEvaluatorSpecification.Megabytes);
             Logger.Log(Level.Info, message);
-
-            _masterBatchIdSquenceNumber++;
         }
 
         /// <summary>
@@ -106,29 +98,24 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
                     .SetMegabytes(_mapperEvaluatorSpecification.Megabytes)
                     .SetNumber(numEvaluators)
                     .SetCores(_mapperEvaluatorSpecification.Core)
-                    .SetEvaluatorBatchId(MapperBatchId + _mapperBatchIdSquenceNumber)
                     .Build());
 
             var message = string.Format(CultureInfo.InvariantCulture,
-                "Submitted [{0}] mapper evaluators with core [{1}], memory [{2}] and batch id [{3}].",
+                "Submitted [{0}] mapper evaluators with core [{1}], memory [{2}].",
                 numEvaluators,
                 _mapperEvaluatorSpecification.Core,
-                _mapperEvaluatorSpecification.Megabytes,
-                MasterBatchId + _mapperBatchIdSquenceNumber);
+                _mapperEvaluatorSpecification.Megabytes);
             Logger.Log(Level.Info, message);
-
-            _mapperBatchIdSquenceNumber++;
         }
 
         /// <summary>
         /// Add an Evaluator id to _allocatedEvaluators.
-        /// If the IAllocatedEvaluator is for master, set master Evaluator id
         /// IMRUSystemException will be thrown in the following cases:
         ///   The Evaluator Id is already in the allocated Evaluator collection
         ///   The added IAllocatedEvaluator is the last one expected, and master Evaluator is still not added yet
         ///   The number of AllocatedEvaluators has reached the total expected Evaluators
         /// </summary>
-        /// <param name="evaluator"></param>
+        /// <param name="evaluator">Evaluator to add</param>
         internal void AddAllocatedEvaluator(IAllocatedEvaluator evaluator)
         {
             if (IsAllocatedEvaluator(evaluator.Id))
@@ -137,17 +124,12 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
                 Exceptions.Throw(new IMRUSystemException(msg), Logger);
             }
 
-            if (IsEvaluatorForMaster(evaluator))
-            {
-                SetMasterEvaluatorId(evaluator.Id);
-            }
-
             if (NumberOfAllocatedEvaluators >= _totalExpectedEvaluators)
             {
                 string msg = string.Format("Trying to add an additional Evaluator {0}, but the total expected Evaluator number {1} has been reached.", evaluator.Id, _totalExpectedEvaluators);
                 Exceptions.Throw(new IMRUSystemException(msg), Logger);
             }
-            
+           
             _allocatedEvaluatorIds.Add(evaluator.Id);
 
             if (_masterEvaluatorId == null && NumberOfAllocatedEvaluators == _totalExpectedEvaluators)
@@ -155,6 +137,16 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
                 string msg = string.Format("Added the last Evaluator {0} but master Evaluator is not added yet.", evaluator.Id);
                 Exceptions.Throw(new IMRUSystemException(msg), Logger);
             }
+        }
+
+        /// <summary>
+        /// Add master evaluator
+        /// </summary>
+        /// <param name="evaluator">Evaluator to add</param>
+        internal void AddMasterEvaluator(IAllocatedEvaluator evaluator)
+        {
+            SetMasterEvaluatorId(evaluator.Id);
+            _allocatedEvaluatorIds.Add(evaluator.Id);
         }
 
         /// <summary>
@@ -217,7 +209,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         }
 
         /// <summary>
-        /// Remove failed evaluator from the colletion
+        /// Remove failed evaluator from the collection
         /// </summary>
         /// <param name="evaluatorId"></param>
         internal void RemoveFailedEvaluator(string evaluatorId)
@@ -292,16 +284,6 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         }
 
         /// <summary>
-        /// Checks if the IAllocatedEvaluator is for master
-        /// </summary>
-        /// <param name="evaluator"></param>
-        /// <returns></returns>
-        internal bool IsEvaluatorForMaster(IAllocatedEvaluator evaluator)
-        {
-            return evaluator.EvaluatorBatchId.StartsWith(MasterBatchId);
-        }
-
-        /// <summary>
         /// Checks if the evaluator id is the master evaluator id
         /// </summary>
         /// <param name="evaluatorId"></param>
@@ -313,6 +295,15 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
                 return _masterEvaluatorId.Equals(evaluatorId);
             }
             return false;
+        }
+
+        /// <summary>
+        /// Returns true if the master evaluator has been allocated otherwise false
+        /// </summary>
+        /// <returns></returns>
+        internal bool IsMasterEvaluatorAllocated()
+        {
+            return _masterEvaluatorId != null;
         }
 
         /// <summary>
