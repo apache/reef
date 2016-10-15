@@ -31,13 +31,13 @@ using Xunit;
 namespace Org.Apache.REEF.Tests.Functional.IMRU
 {
     [Collection("FunctionalTests")]
-    public class TestFailedUpdateEvaluatorOnWaitingForEvaluator : IMRUBrodcastReduceTestBase
+    public class TestFailUpdateEvaluatorOnWaitingForEvaluator : IMRUBrodcastReduceTestBase
     {
         /// <summary>
         /// This test is to fail master evaluator at context start. The system will fail. 
         /// </summary>
         [Fact]
-        public void TestFailedUpdateEvaluatorAtContexStarttOnLocalRuntime()
+        public void TestFailUpdateEvaluatorAtContexStarttOnLocalRuntime()
         {
             int chunkSize = 2;
             int dims = 10;
@@ -59,7 +59,7 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
         /// This test is to fail master evaluator at context start. The system will fail. 
         /// </summary>
         [Fact(Skip = "Requires Yarn")]
-        public void TestFailedUpdateEvaluatorAtContexStarttOnOnYarn()
+        public void TestFailUpdateEvaluatorAtContexStarttOnOnYarn()
         {
             int chunkSize = 2;
             int dims = 10;
@@ -128,7 +128,7 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
             public void OnNext(IActiveContext activeContext)
             {
                 Logger.Log(Level.Info, "Receiving IActiveContext with context id {0}, Evaluator id : {1}.", activeContext.Id, activeContext.EvaluatorId);
-                if (activeContext.Id.Contains(IMRUConstants.MasterContextId))
+                if (activeContext.Id.Equals(IMRUConstants.MasterContextId))
                 {
                     var contextConf = ContextConfiguration.ConfigurationModule
                         .Set(ContextConfiguration.Identifier, "KillEvaluatorContext")
