@@ -77,6 +77,8 @@ public final class DriverIdleManager {
       isIdle &= idleMessage.isIdle();
     }
 
+    LOG.log(IDLE_REASONS_LEVEL, "onPotentiallyIdle: isIdle: " + isIdle);
+
     if (isIdle) {
       LOG.log(Level.INFO, "All components indicated idle. Initiating Driver shutdown.");
       driverStatusManagerImpl.onComplete();
