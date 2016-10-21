@@ -532,9 +532,9 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
                             {
                                 var reason1 = _evaluatorManager.ExceededMaximumNumberOfEvaluatorFailures()
                                     ? "it exceeded MaximumNumberOfEvaluatorFailures, "
-                                    : "";
-                                var reason2 = isMaster ? "master evaluator failed, " : "";
-                                Logger.Log(Level.Error, "The system is not recoverable because " +  reason1 + reason2 + " changing the system state to Fail.");
+                                    : string.Empty;
+                                var reason2 = isMaster ? "master evaluator failed, " : string.Empty;
+                                Logger.Log(Level.Error, "The system is not recoverable because " + reason1 + reason2 + " changing the system state to Fail.");
                                 _systemState.MoveNext(SystemStateEvent.NotRecoverable);
                                 FailAction();
                             }

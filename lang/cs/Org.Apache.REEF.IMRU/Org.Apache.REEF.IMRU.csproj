@@ -77,6 +77,7 @@ under the License.
     <Compile Include="OnREEF\Driver\EvaluatorManager.cs" />
     <Compile Include="OnREEF\Driver\EvaluatorSpecification.cs" />
     <Compile Include="OnREEF\Driver\IJobLifeCycleManager.cs" />
+    <Compile Include="OnREEF\Driver\JobCancelled.cs" />
     <Compile Include="OnREEF\Driver\JobLifeCycleManager.cs" />
     <Compile Include="OnREEF\Driver\MaximumNumberOfEvalutorFailuresExceededException.cs" />
     <Compile Include="OnREEF\Driver\IMRUSystemException.cs" />

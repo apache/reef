@@ -16,16 +16,17 @@
 // under the License.
 
 using System;
+using Org.Apache.REEF.Driver;
 
-namespace Org.Apache.REEF.Driver.Bridge.Events
+namespace Org.Apache.REEF.IMRU.OnREEF.Driver
 {
     /// <summary>
     /// Job cancelled event.
     /// Wraps timestamp and cancellation message.
     /// </summary>
-    public sealed class JobCancelled : IJobCancelled
+    internal sealed class JobCancelled : IJobCancelled
     {
-        public JobCancelled(DateTime timestamp, string message)
+        internal JobCancelled(DateTime timestamp, string message)
         {
             this.Timestamp = timestamp;
             this.Message = message;

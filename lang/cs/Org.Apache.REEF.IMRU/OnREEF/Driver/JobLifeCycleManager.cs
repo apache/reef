@@ -34,7 +34,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
     /// if cancellation signal is detected, the manager creates JobCancelled event and propagates the event to all subscriber.
     /// the manager is used by IMRU driver to enable job cancellation based on job definition.
     /// </summary>
-    public class JobLifeCycleManager :
+    internal sealed class JobLifeCycleManager :
         IDisposable,
         IJobLifecycleManager,
         IObserver<IDriverStarted>
