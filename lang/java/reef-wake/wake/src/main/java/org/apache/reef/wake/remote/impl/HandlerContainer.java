@@ -52,8 +52,12 @@ final class HandlerContainer<T> implements EventHandler<RemoteEvent<byte[]>> {
   private Transport transport;
 
   HandlerContainer(final String name, final Codec<T> codec) {
+
     this.name = name;
     this.codec = codec;
+
+    LOG.log(Level.FINER, "Instantiated HandlerContainer {0} with codec {1}",
+        new String[] {this.name, this.codec.getClass().getCanonicalName()});
   }
 
   void setTransport(final Transport transport) {
@@ -141,7 +145,7 @@ final class HandlerContainer<T> implements EventHandler<RemoteEvent<byte[]>> {
       unsubscribeClass = new SubscriptionHandler.Unsubscriber<Class<? extends T>>() {
         @Override
         public void unsubscribe(final Class<? extends T> token) {
-          LOG.log(Level.FINER, "Unsubscribe: {0} class {1}", new Object[] {name, token.getName()});
+          LOG.log(Level.FINER, "Unsubscribe: {0} class {1}", new Object[] {name, token.getCanonicalName()});
           msgTypeToHandlerMap.remove(token);
         }
       };
@@ -152,7 +156,7 @@ final class HandlerContainer<T> implements EventHandler<RemoteEvent<byte[]>> {
         @Override
         public void unsubscribe(final Tuple2<RemoteIdentifier, Class<? extends T>> token) {
           LOG.log(Level.FINER, "Unsubscribe: {0} tuple {1},{2}",
-              new Object[] {name, token.getT1(), token.getT2().getName()});
+              new Object[] {name, token.getT1(), token.getT2().getCanonicalName()});
           tupleToHandlerMap.remove(token);
         }
       };
@@ -168,41 +172,49 @@ final class HandlerContainer<T> implements EventHandler<RemoteEvent<byte[]>> {
       };
 
   /**
-   * Dispatches a message.
-   *
-   * @param value
+   * Dispatch message received from the remote to proper event handler.
+   * @param value Remote message, encoded as byte[].
    */
-  @SuppressWarnings("checkstyle:diamondoperatorforvariabledefinition")
   @Override
+  @SuppressWarnings("checkstyle:diamondoperatorforvariabledefinition")
   public synchronized void onNext(final RemoteEvent<byte[]> value) {
 
-    LOG.log(Level.FINER, "RemoteManager: {0} value: {1}", new Object[]{this.name, value});
+    LOG.log(Level.FINER, "RemoteManager: {0} value: {1}", new Object[] {this.name, value});
 
     final T decodedEvent = this.codec.decode(value.getEvent());
     final Class<?> clazz = decodedEvent.getClass();
 
+    LOG.log(Level.FINEST, "RemoteManager: {0} decoded event {1} :: {2}",
+        new Object[] {this.name, clazz.getCanonicalName(), decodedEvent});
+
     // check remote identifier and message type
-    final SocketRemoteIdentifier id =
-        new SocketRemoteIdentifier((InetSocketAddress) value.remoteAddress());
+    final SocketRemoteIdentifier id = new SocketRemoteIdentifier((InetSocketAddress)value.remoteAddress());
 
     final Tuple2<RemoteIdentifier, Class<?>> tuple = new Tuple2<RemoteIdentifier, Class<?>>(id, clazz);
 
     final EventHandler<T> tupleHandler = (EventHandler<T>) this.tupleToHandlerMap.get(tuple);
+
     if (tupleHandler != null) {
-      LOG.log(Level.FINER, "Tuple handler: {0}", tuple);
+
+      LOG.log(Level.FINER, "Tuple handler: {0},{1}",
+          new Object[] {tuple.getT1(), tuple.getT2().getCanonicalName()});
+
       tupleHandler.onNext(decodedEvent);
+
     } else {
-      final EventHandler<RemoteMessage<? extends T>> messageHandler =
-          this.msgTypeToHandlerMap.get(clazz);
-      if (messageHandler != null) {
-        LOG.log(Level.FINER, "Message handler: {0}", clazz);
-        messageHandler.onNext(new DefaultRemoteMessage(id, decodedEvent));
-      } else {
+
+      final EventHandler<RemoteMessage<? extends T>> messageHandler = this.msgTypeToHandlerMap.get(clazz);
+
+      if (messageHandler == null) {
         final RuntimeException ex = new RemoteRuntimeException(
-            "Unknown message type in dispatch: " + clazz.getName() + " from " + id);
+            "Unknown message type in dispatch: " + clazz.getCanonicalName() + " from " + id);
         LOG.log(Level.WARNING, "Unknown message type in dispatch.", ex);
         throw ex;
       }
+
+      LOG.log(Level.FINER, "Message handler: {0}", clazz.getCanonicalName());
+
+      messageHandler.onNext(new DefaultRemoteMessage(id, decodedEvent));
     }
   }
 }
