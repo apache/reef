@@ -18,7 +18,6 @@
  */
 package org.apache.reef.wake.remote;
 
-
 import org.apache.reef.tang.annotations.DefaultImplementation;
 import org.apache.reef.wake.EventHandler;
 import org.apache.reef.wake.Stage;
@@ -29,9 +28,6 @@ import org.apache.reef.wake.remote.impl.DefaultRemoteManagerImplementation;
  */
 @DefaultImplementation(DefaultRemoteManagerImplementation.class)
 public interface RemoteManager extends Stage {
-  /**
-   * Constructor that takes a Codec<T>
-   */
 
   /**
    * Returns an event handler that can be used to send messages of type T to the
