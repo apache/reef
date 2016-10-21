@@ -22,11 +22,11 @@ import org.apache.reef.wake.remote.transport.Link;
 
 import java.net.SocketAddress;
 
-
 /**
  * Event sent from a remote node.
  */
 public class TransportEvent {
+
   private final byte[] data;
   private final SocketAddress localAddr;
   private final SocketAddress remoteAddr;
@@ -63,6 +63,13 @@ public class TransportEvent {
       localAddr = null;
       remoteAddr = null;
     }
+  }
+
+  @Override
+  public String toString() {
+    return String.format(
+        "TransportEvent: {local: %s remote: %s size: %d bytes}",
+        this.localAddr, this.remoteAddr, this.data.length);
   }
 
   /**
@@ -102,5 +109,4 @@ public class TransportEvent {
   public SocketAddress getRemoteAddress() {
     return remoteAddr;
   }
-
 }
