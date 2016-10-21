@@ -71,16 +71,18 @@ public final class ResourceManagerStatus implements EventHandler<RuntimeStatusEv
   }
 
   @Override
-  public synchronized void onNext(final RuntimeStatusEvent runtimeStatusEvent) {
+  public void onNext(final RuntimeStatusEvent runtimeStatusEvent) {
 
     final State newState = runtimeStatusEvent.getState();
 
     LOG.log(Level.FINEST, "Runtime status: {0}", runtimeStatusEvent);
 
-    this.outstandingContainerRequests = runtimeStatusEvent.getOutstandingContainerRequests().orElse(0);
-    this.containerAllocationCount = runtimeStatusEvent.getContainerAllocationList().size();
+    synchronized(this) {
+      this.outstandingContainerRequests = runtimeStatusEvent.getOutstandingContainerRequests().orElse(0);
+      this.containerAllocationCount = runtimeStatusEvent.getContainerAllocationList().size();
 
-    this.setState(newState);
+      this.setState(newState);
+    }
 
     switch (newState) {
     case FAILED:
@@ -147,7 +149,7 @@ public final class ResourceManagerStatus implements EventHandler<RuntimeStatusEv
     this.driverStatusManager.onComplete();
   }
 
-  private synchronized void onRMRunning(final RuntimeStatusEvent runtimeStatusEvent) {
+  private void onRMRunning(final RuntimeStatusEvent runtimeStatusEvent) {
     assert runtimeStatusEvent.getState() == State.RUNNING;
     if (this.isIdle()) {
       this.driverIdleManager.get().onPotentiallyIdle(IDLE_MESSAGE);
