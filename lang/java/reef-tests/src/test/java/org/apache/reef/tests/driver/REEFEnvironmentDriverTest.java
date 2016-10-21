@@ -37,18 +37,18 @@ import org.junit.Test;
 public final class REEFEnvironmentDriverTest {
 
   private static final Configuration DRIVER_CONFIG = DriverConfiguration.CONF
-      .set(DriverConfiguration.GLOBAL_LIBRARIES, EnvironmentUtils.getClassLocation(DriverTestStartHandler.class))
       .set(DriverConfiguration.DRIVER_IDENTIFIER, "TEST_REEFEnvironmentDriverTest")
+      .set(DriverConfiguration.GLOBAL_LIBRARIES, EnvironmentUtils.getClassLocation(DriverTestStartHandler.class))
       .set(DriverConfiguration.ON_DRIVER_STARTED, DriverTestStartHandler.class)
       .build();
 
   private static final Configuration LOCAL_DRIVER_MODULE = LocalDriverConfiguration.CONF
-      .set(LocalDriverConfiguration.MAX_NUMBER_OF_EVALUATORS, 1)
-      .set(LocalDriverConfiguration.ROOT_FOLDER, ".")
-      .set(LocalDriverConfiguration.JVM_HEAP_SLACK, 0.0)
+      .set(LocalDriverConfiguration.RUNTIME_NAMES, RuntimeIdentifier.RUNTIME_NAME)
       .set(LocalDriverConfiguration.CLIENT_REMOTE_IDENTIFIER, ClientRemoteIdentifier.NONE)
       .set(LocalDriverConfiguration.JOB_IDENTIFIER, "LOCAL_ENV_DRIVER_TEST")
-      .set(LocalDriverConfiguration.RUNTIME_NAMES, RuntimeIdentifier.RUNTIME_NAME)
+      .set(LocalDriverConfiguration.ROOT_FOLDER, "./REEF_LOCAL_RUNTIME")
+      .set(LocalDriverConfiguration.MAX_NUMBER_OF_EVALUATORS, 1)
+      .set(LocalDriverConfiguration.JVM_HEAP_SLACK, 0.0)
       .build();
 
   @Test

@@ -24,11 +24,13 @@ import org.apache.reef.client.DriverConfiguration;
 import org.apache.reef.client.LauncherStatus;
 import org.apache.reef.proto.ReefServiceProtos;
 import org.apache.reef.runtime.common.REEFEnvironment;
+import org.apache.reef.runtime.common.launch.REEFMessageCodec;
 import org.apache.reef.tang.Configuration;
 import org.apache.reef.tang.Tang;
 import org.apache.reef.tang.exceptions.InjectionException;
 import org.apache.reef.tests.TestDriverLauncher;
 import org.apache.reef.util.EnvironmentUtils;
+import org.apache.reef.wake.remote.RemoteConfiguration;
 
 /**
  * Client for the test REEF job that fails on different stages of execution.
@@ -36,6 +38,8 @@ import org.apache.reef.util.EnvironmentUtils;
 @Private
 @ClientSide
 public final class FailClient {
+
+  private static final Tang TANG = Tang.Factory.getTang();
 
   private static Configuration buildDriverConfig(final Class<?> failMsgClass) {
 
@@ -58,7 +62,7 @@ public final class FailClient {
         .set(DriverConfiguration.ON_TASK_COMPLETED, FailDriver.CompletedTaskHandler.class)
         .build();
 
-    return Tang.Factory.getTang().newConfigurationBuilder(driverConfig)
+    return TANG.newConfigurationBuilder(driverConfig)
         .bindNamedParameter(FailDriver.FailMsgClassName.class, failMsgClass.getName())
         .build();
   }
@@ -89,8 +93,13 @@ public final class FailClient {
   public static ReefServiceProtos.JobStatusProto runInProcess(final Class<?> failMsgClass,
       final Configuration runtimeConfig, final int timeOut) throws InjectionException {
 
-    try (final REEFEnvironment reef =
-             REEFEnvironment.fromConfiguration(runtimeConfig, buildDriverConfig(failMsgClass))) {
+    final Configuration driverConfig =
+        TANG.newConfigurationBuilder(buildDriverConfig(failMsgClass))
+            .bindNamedParameter(RemoteConfiguration.ManagerName.class, "REEF_FAIL_ENV")
+            .bindNamedParameter(RemoteConfiguration.MessageCodec.class, REEFMessageCodec.class)
+            .build();
+
+    try (final REEFEnvironment reef = REEFEnvironment.fromConfiguration(runtimeConfig, driverConfig)) {
       reef.run();
       return reef.getLastStatus();
     }
