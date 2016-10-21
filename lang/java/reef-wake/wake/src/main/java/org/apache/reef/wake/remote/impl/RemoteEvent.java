@@ -29,7 +29,9 @@ public class RemoteEvent<T> {
 
   private final T event;
   private final long seq;
+
   //private static final AtomicLong curSeq = new AtomicLong(0);
+
   private SocketAddress localAddr;
   private SocketAddress remoteAddr;
 
@@ -108,17 +110,8 @@ public class RemoteEvent<T> {
    * @return a string representation of this object
    */
   public String toString() {
-    final StringBuilder builder = new StringBuilder();
-    builder.append("RemoteEvent");
-    builder.append(" localAddr=");
-    builder.append(localAddr);
-    builder.append(" remoteAddr=");
-    builder.append(remoteAddr);
-    builder.append(" seq=");
-    builder.append(seq);
-    builder.append(" event=");
-    builder.append(event);
-    return builder.toString();
+    return String.format(
+        "RemoteEvent localAddr=%s remoteAddr=%s seq=%d event=%s:%s",
+        this.localAddr, this.remoteAddr, this.seq, this.event.getClass().getCanonicalName(), this.event);
   }
-
 }

@@ -21,18 +21,23 @@ package org.apache.reef.wake.remote;
 import org.apache.reef.wake.EventHandler;
 
 import javax.inject.Inject;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * The default RemoteConfiguration.ErrorHandler.
  */
 final class DefaultErrorHandler implements EventHandler<Throwable> {
 
+  private static final Logger LOG = Logger.getLogger(DefaultErrorHandler.class.getName());
+
   @Inject
-  DefaultErrorHandler() {
+  private DefaultErrorHandler() {
   }
 
   @Override
   public void onNext(final Throwable value) {
+    LOG.log(Level.SEVERE, "No error handler in RemoteManager", value);
     throw new RuntimeException("No error handler bound for RemoteManager.", value);
   }
 }
