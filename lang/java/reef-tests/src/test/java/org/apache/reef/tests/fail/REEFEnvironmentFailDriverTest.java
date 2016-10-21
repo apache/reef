@@ -51,12 +51,12 @@ import org.junit.Test;
 public class REEFEnvironmentFailDriverTest {
 
   private static final Configuration LOCAL_DRIVER_MODULE = LocalDriverConfiguration.CONF
-      .set(LocalDriverConfiguration.MAX_NUMBER_OF_EVALUATORS, 1)
-      .set(LocalDriverConfiguration.ROOT_FOLDER, ".")
-      .set(LocalDriverConfiguration.JVM_HEAP_SLACK, 0.0)
+      .set(LocalDriverConfiguration.RUNTIME_NAMES, RuntimeIdentifier.RUNTIME_NAME)
       .set(LocalDriverConfiguration.CLIENT_REMOTE_IDENTIFIER, ClientRemoteIdentifier.NONE)
       .set(LocalDriverConfiguration.JOB_IDENTIFIER, "LOCAL_ENV_FAIL_DRIVER_TEST")
-      .set(LocalDriverConfiguration.RUNTIME_NAMES, RuntimeIdentifier.RUNTIME_NAME)
+      .set(LocalDriverConfiguration.ROOT_FOLDER, "./REEF_LOCAL_RUNTIME")
+      .set(LocalDriverConfiguration.MAX_NUMBER_OF_EVALUATORS, 1)
+      .set(LocalDriverConfiguration.JVM_HEAP_SLACK, 0.0)
       .build();
 
   private static void failOn(final Class<?> clazz) throws BindException, InjectionException {
@@ -88,49 +88,47 @@ public class REEFEnvironmentFailDriverTest {
     failOn(AllocatedEvaluator.class);
   }
 
-  // TODO[REEF-1637] This and subsequent tests: enable when the bug is fixed.
-  // (i.e. in-process Driver can receive heartbeats from Evaluators).
-  // @Test
+  @Test
   public void testFailDriverActiveContext() throws BindException, InjectionException {
     failOn(ActiveContext.class);
   }
 
-  // @Test
+  @Test
   public void testFailDriverRunningTask() throws BindException, InjectionException {
     failOn(RunningTask.class);
   }
 
-  // @Test
+  @Test
   public void testFailDriverTaskMessage() throws BindException, InjectionException {
     failOn(TaskMessage.class);
   }
 
-  // @Test
+  @Test
   public void testFailDriverSuspendedTask() throws BindException, InjectionException {
     failOn(SuspendedTask.class);
   }
 
-  // @Test
+  @Test
   public void testFailDriverCompletedTask() throws BindException, InjectionException {
     failOn(CompletedTask.class);
   }
 
-  // @Test
+  @Test
   public void testFailDriverCompletedEvaluator() throws BindException, InjectionException {
     failOn(CompletedEvaluator.class);
   }
 
-  // @Test
+  @Test
   public void testFailDriverAlarm() throws BindException, InjectionException {
     failOn(Alarm.class);
   }
 
-  // @Test
+  @Test
   public void testFailDriverStop() throws BindException, InjectionException {
     failOn(StopTime.class);
   }
 
-  // @Test
+  @Test
   public void testDriverCompleted() throws BindException, InjectionException {
 
     // REEFEnvironmentFailDriverTest can be replaced with any other class never used in FailDriver
