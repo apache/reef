@@ -122,6 +122,7 @@ enum EvaluatorState {
     case ALLOCATED:
       switch(toState) {
       case SUBMITTED:
+      case RUNNING:
       case CLOSING:
       case DONE:
       case FAILED:
