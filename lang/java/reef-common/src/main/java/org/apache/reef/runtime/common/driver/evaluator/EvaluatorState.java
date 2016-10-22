@@ -122,6 +122,9 @@ enum EvaluatorState {
     case ALLOCATED:
       switch(toState) {
       case SUBMITTED:
+      // direct transition to RUNNING can happen in case of driver restart,
+      // when driver gets heartbeat from evaluator with running task but didn't submit task to it
+      case RUNNING:
       case CLOSING:
       case DONE:
       case FAILED:
