@@ -40,32 +40,32 @@ namespace Org.Apache.REEF.IMRU.API
             _done = done;
         }
 
-        internal bool IsDone
+        public bool IsDone
         {
             get { return _done; }
         }
 
-        internal bool IsNotDone
+        public bool IsNotDone
         {
             get { return !_done; }
         }
 
-        internal bool HasMapInput
+        public bool HasMapInput
         {
             get { return _hasMapInput; }
         }
 
-        internal bool HasResult
+        public bool HasResult
         {
             get { return _hasResult; }
         }
 
-        internal TMapInput MapInput
+        public TMapInput MapInput
         {
             get { return _mapInput; }
         }
 
-        internal TResult Result
+        public TResult Result
         {
             get { return _result; }
         }
