@@ -70,8 +70,8 @@ public final class Evaluators implements AutoCloseable {
       evaluatorsCopy = new ArrayList<>(this.evaluators.values());
     }
     for (final EvaluatorManager evaluatorManager : evaluatorsCopy) {
-      LOG.log(Level.WARNING, "Unclean shutdown of evaluator {0}", evaluatorManager.getId());
       if (!evaluatorManager.isClosedOrClosing()) {
+        LOG.log(Level.WARNING, "Unclean shutdown of evaluator {0}", evaluatorManager.getId());
         evaluatorManager.close();
       }
     }
