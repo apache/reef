@@ -17,14 +17,13 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Timers;
 using Org.Apache.REEF.Driver;
-using Org.Apache.REEF.Driver.Bridge.Events;
 using Org.Apache.REEF.IMRU.API;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Utilities.Logging;
+using Org.Apache.REEF.IMRU.OnREEF.Parameters;
 
 namespace Org.Apache.REEF.IMRU.OnREEF.Driver
 {
@@ -50,7 +49,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         [Inject]
         public JobLifeCycleManager(
             IJobCancelledDetector cancelletionDetector,
-            [Parameter(typeof(JobLifeCycleManager.SleepIntervalParameter))] int sleepIntervalSec)
+            [Parameter(typeof(SleepIntervalParameter))] int sleepIntervalSec)
         {
             this.CancellationDetector = cancelletionDetector;
             this.timerIntervalSec = sleepIntervalSec;
@@ -167,11 +166,6 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
             }
 
             return isCancelled;
-        }
-
-        [NamedParameter("Sleep interval for Job lifecycle manager", "lifecyclesleepintervalSec", "15")]
-        public sealed class SleepIntervalParameter : Name<int>
-        {
         }
 
         private class AnonymousDisposable : IDisposable
