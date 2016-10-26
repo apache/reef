@@ -16,6 +16,7 @@
 // under the License.
 
 using System;
+using System.Linq;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Tang.Implementations.Configuration;
 using Org.Apache.REEF.Tang.Implementations.Tang;
@@ -44,8 +45,44 @@ namespace Org.Apache.REEF.Tang.Tests.Configuration
             Assert.True(msg.Contains(ConfigurationBuilderImpl.DuplicatedEntryForNamedParamater));
         }
 
+        [Fact]
+        public void TestAddOptionalConfiguration_NullIsAllowed()
+        {
+            var builder = TangFactory.GetTang().NewConfigurationBuilder()
+                .BindStringNamedParam<NamedString>("abc");
+
+            builder.AddOptionalConfiguration(null);
+        }
+
+        [Fact]
+        public void TestAddOptionalConfiguration_ValidConfig()
+        {
+            var configurationBuilder = TangFactory.GetTang().NewConfigurationBuilder()
+                .BindStringNamedParam<NamedString>("abc");
+
+            var expectedOptionalValue = "def";
+            var additionalConfiguration = TangFactory.GetTang().NewConfigurationBuilder()
+                .BindStringNamedParam<NamedString2>(expectedOptionalValue)
+                .Build();
+
+            var configuration = configurationBuilder
+                .AddOptionalConfiguration(additionalConfiguration)
+                .Build();
+
+            Assert.NotNull(configuration);
+            var parameters = configuration.GetNamedParameters().ToList();
+            var optionalParameter = parameters.Single(p => p.GetShortName() == "NamedString2");
+            Assert.NotNull(optionalParameter);
+            Assert.Same(expectedOptionalValue, configuration.GetNamedParameter(optionalParameter));
+        }
+
         [NamedParameter(Documentation = "test", ShortName = "NamedString")]
         class NamedString : Name<string>
+        {
+        }
+
+        [NamedParameter(Documentation = "test2", ShortName = "NamedString2")]
+        class NamedString2 : Name<string>
         {
         }
     }
