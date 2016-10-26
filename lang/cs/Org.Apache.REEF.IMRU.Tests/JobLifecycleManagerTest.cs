@@ -18,6 +18,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Threading;
 using Org.Apache.REEF.Driver;
 using Org.Apache.REEF.IMRU.API;
@@ -111,8 +112,14 @@ namespace Org.Apache.REEF.IMRU.Tests
             int signalCheckPeriodSec = 1,
             int waitForEventPeriodSec = 2)
         {
-            var manager = new JobLifeCycleManager(detector, signalCheckPeriodSec);
-            
+            var manager = Activator.CreateInstance(
+                typeof(JobLifeCycleManager),
+                BindingFlags.NonPublic | BindingFlags.Instance,
+                null,
+                new object[] { detector, signalCheckPeriodSec },
+                null,
+                null) as JobLifeCycleManager;
+
             var observers = Enumerable.Range(1, observerCount)
                 .Select(_ => subscribeObserver ? new TestObserver(manager) : new TestObserver(null))
                 .ToList();

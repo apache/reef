@@ -47,7 +47,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         private readonly List<IObserver<IJobCancelled>> _observers = new List<IObserver<IJobCancelled>>();
 
         [Inject]
-        public JobLifeCycleManager(
+        private JobLifeCycleManager(
             IJobCancelledDetector cancelletionDetector,
             [Parameter(typeof(SleepIntervalParameter))] int sleepIntervalSec)
         {
