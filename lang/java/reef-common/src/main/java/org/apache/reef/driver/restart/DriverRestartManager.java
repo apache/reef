@@ -44,15 +44,17 @@ import java.util.logging.Logger;
 @DriverSide
 @Private
 @Unstable
-public final class DriverRestartManager implements DriverIdlenessSource {
+public final class DriverRestartManager implements DriverIdlenessSource, AutoCloseable {
+
   private static final String CLASS_NAME = DriverRestartManager.class.getName();
   private static final Logger LOG = Logger.getLogger(CLASS_NAME);
+
+  private final Timer restartCompletedTimer = new Timer(this.getClass().getSimpleName() + ":Timer");
 
   private final DriverRuntimeRestartManager driverRuntimeRestartManager;
   private final Set<EventHandler<DriverRestartCompleted>> driverRestartCompletedHandlers;
   private final Set<EventHandler<DriverRestartCompleted>> serviceDriverRestartCompletedHandlers;
   private final int driverRestartEvaluatorRecoverySeconds;
-  private final Timer restartCompletedTimer = new Timer();
 
   private RestartEvaluators restartEvaluators;
   private DriverRestartState state = DriverRestartState.NOT_RESTARTED;
@@ -334,5 +336,14 @@ public final class DriverRestartManager implements DriverIdlenessSource {
     final String idleMessage = idleState ? CLASS_NAME + " currently not in the process of restart." :
         CLASS_NAME + " currently in the process of restart.";
     return new IdleMessage(CLASS_NAME, idleMessage, idleState);
+  }
+
+  /**
+   * Close the restart timer.
+   */
+  @Override
+  public void close() {
+    LOG.log(Level.FINER, "Closing restart timer. Final state: {0}", this.state);
+    this.restartCompletedTimer.cancel();
   }
 }
