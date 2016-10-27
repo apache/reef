@@ -185,15 +185,9 @@ public final class REEFLauncher {
 
     LOG.log(Level.INFO, "Exiting REEFLauncher.main()");
 
-    if (LOG.isLoggable(Level.FINEST)) {
-      LOG.log(Level.FINEST, ThreadLogger.getFormattedThreadList("Threads running after REEFLauncher.close():"));
-    }
-
     System.exit(0);
 
-    if (LOG.isLoggable(Level.FINEST)) {
-      LOG.log(Level.FINEST, ThreadLogger.getFormattedThreadList("Threads running after System.exit():"));
-    }
+    ThreadLogger.logThreads(LOG, Level.FINEST, "Threads running after System.exit():");
   }
 
   /**

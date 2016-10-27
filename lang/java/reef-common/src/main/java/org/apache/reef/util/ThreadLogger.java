@@ -22,6 +22,7 @@ import java.lang.management.LockInfo;
 import java.lang.management.MonitorInfo;
 import java.lang.management.ThreadInfo;
 import java.util.Map;
+import java.util.TreeMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -56,7 +57,10 @@ public final class ThreadLogger {
   public static void logThreads(
       final Logger logger, final Level level, final String prefix,
       final String threadPrefix, final String stackElementPrefix) {
-    logger.log(level, getFormattedThreadList(prefix, threadPrefix, stackElementPrefix));
+
+    if (logger.isLoggable(level)) {
+      logger.log(level, getFormattedThreadList(prefix, threadPrefix, stackElementPrefix));
+    }
   }
 
   /**
@@ -69,13 +73,31 @@ public final class ThreadLogger {
    */
   public static String getFormattedThreadList(
       final String prefix, final String threadPrefix, final String stackElementPrefix) {
-    final StringBuilder message = new StringBuilder(prefix);
+
+    // Sort by thread name
+    final TreeMap<String, StackTraceElement[]> threadNames = new TreeMap<>();
     for (final Map.Entry<Thread, StackTraceElement[]> entry : Thread.getAllStackTraces().entrySet()) {
-      message.append(threadPrefix).append("Thread '").append(entry.getKey().getName()).append("':");
-      for (final StackTraceElement element : entry.getValue()) {
-        message.append(stackElementPrefix).append(element.toString());
+
+      final Thread t = entry.getKey();
+      final String tg = t.getThreadGroup() == null ? null : t.getThreadGroup().getName();
+
+      if (!"system".equals(tg)) {
+        threadNames.put(String.format("TG %s THREAD %s :: %s, %s, %s, %s",
+            tg, t.getName(), t.getState(),
+            t.isAlive() ? "Alive" : "NOT alive",
+            t.isInterrupted() ? "Interrupted" : "NOT interrupted",
+            t.isDaemon() ? "Daemon" : "NOT daemon"), entry.getValue());
       }
     }
+
+    final StringBuilder message = new StringBuilder(prefix);
+    for (final Map.Entry<String, StackTraceElement[]> entry : threadNames.entrySet()) {
+      message.append(threadPrefix).append(entry.getKey());
+      for (final StackTraceElement element : entry.getValue()) {
+        message.append(stackElementPrefix).append(element);
+      }
+    }
+
     return message.toString();
   }
 
