@@ -212,7 +212,7 @@ public final class RuntimeClock implements Clock {
     synchronized (this.schedule) {
 
       if (this.isClosed) {
-        LOG.log(Level.FINEST, "Clock has already been closed");
+        LOG.exiting(CLASS_NAME, "close", "Clock has already been closed");
         return;
       }
 
@@ -266,24 +266,6 @@ public final class RuntimeClock implements Clock {
     for (final EventHandler<T> handler : handlers) {
       LOG.log(Level.FINEST, "Subscribe: event {0} handler {1}", new Object[] {eventClass.getName(), handler});
       this.handlers.subscribe(eventClass, handler);
-    }
-  }
-
-  /**
-   * Logs the currently running threads.
-   * @param level Log level used to write the entry.
-   * @param prefix put before the comma-separated list of threads
-   */
-  private static void logThreads(final Level level, final String prefix) {
-
-    if (LOG.isLoggable(level)) {
-
-      final StringBuilder sb = new StringBuilder(prefix);
-      for (final Thread t : Thread.getAllStackTraces().keySet()) {
-        sb.append(t.getName()).append(", ");
-      }
-
-      LOG.log(level, sb.toString());
     }
   }
 
@@ -382,8 +364,6 @@ public final class RuntimeClock implements Clock {
       this.handlers.onNext(new RuntimeStop(this.timer.getCurrent(), e));
 
     } finally {
-
-      logThreads(Level.FINE, "Threads running after exiting the clock main loop: ");
       LOG.log(Level.FINE, "Runtime clock exit");
     }
 

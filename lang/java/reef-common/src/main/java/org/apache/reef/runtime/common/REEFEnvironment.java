@@ -31,6 +31,7 @@ import org.apache.reef.tang.annotations.NamedParameter;
 import org.apache.reef.tang.exceptions.InjectionException;
 import org.apache.reef.util.EnvironmentUtils;
 import org.apache.reef.util.REEFVersion;
+import org.apache.reef.util.ThreadLogger;
 import org.apache.reef.wake.profiler.WakeProfiler;
 import org.apache.reef.wake.time.Clock;
 
@@ -52,6 +53,8 @@ public final class REEFEnvironment implements Runnable, AutoCloseable {
   private static final class ProfilingEnabled implements Name<Boolean> { }
 
   private static final Logger LOG = Logger.getLogger(REEFEnvironment.class.getName());
+
+  private static final String CLASS_NAME = REEFEnvironment.class.getCanonicalName();
 
   private static final Tang TANG = Tang.Factory.getTang();
 
@@ -131,7 +134,7 @@ public final class REEFEnvironment implements Runnable, AutoCloseable {
   @SuppressWarnings("checkstyle:illegalcatch") // Catch throwable to feed it to error handler
   public void close() {
 
-    LOG.log(Level.FINER, "Closing REEF Environment - start");
+    LOG.entering(CLASS_NAME, "close");
 
     try {
       this.clock.close();
@@ -150,7 +153,9 @@ public final class REEFEnvironment implements Runnable, AutoCloseable {
       }
     }
 
-    LOG.log(Level.FINER, "Closing REEF Environment - end");
+    ThreadLogger.logThreads(LOG, Level.FINEST, "Threads running after REEFEnvironment.close():");
+
+    LOG.exiting(CLASS_NAME, "close");
   }
 
   /**
