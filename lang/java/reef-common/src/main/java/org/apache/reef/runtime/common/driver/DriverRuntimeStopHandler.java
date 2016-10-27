@@ -21,6 +21,7 @@ package org.apache.reef.runtime.common.driver;
 import org.apache.reef.annotations.audience.DriverSide;
 import org.apache.reef.annotations.audience.Private;
 import org.apache.reef.driver.parameters.ResourceManagerPreserveEvaluators;
+import org.apache.reef.driver.restart.DriverRestartManager;
 import org.apache.reef.exception.DriverFatalRuntimeException;
 import org.apache.reef.runtime.common.driver.api.ResourceManagerStopHandler;
 import org.apache.reef.runtime.common.driver.evaluator.Evaluators;
@@ -44,6 +45,7 @@ final class DriverRuntimeStopHandler implements EventHandler<RuntimeStop> {
 
   private static final Logger LOG = Logger.getLogger(DriverRuntimeStopHandler.class.getName());
 
+  private final DriverRestartManager driverRestartManager;
   private final DriverStatusManager driverStatusManager;
   private final ResourceManagerStopHandler resourceManagerStopHandler;
   private final RemoteManager remoteManager;
@@ -51,13 +53,15 @@ final class DriverRuntimeStopHandler implements EventHandler<RuntimeStop> {
   private final boolean preserveEvaluatorsAcrossRestarts;
 
   @Inject
-  DriverRuntimeStopHandler(
+  private DriverRuntimeStopHandler(
+      @Parameter(ResourceManagerPreserveEvaluators.class) final boolean preserveEvaluatorsAcrossRestarts,
+      final DriverRestartManager driverRestartManager,
       final DriverStatusManager driverStatusManager,
       final ResourceManagerStopHandler resourceManagerStopHandler,
       final RemoteManager remoteManager,
-      final Evaluators evaluators,
-      @Parameter(ResourceManagerPreserveEvaluators.class) final boolean preserveEvaluatorsAcrossRestarts) {
+      final Evaluators evaluators) {
 
+    this.driverRestartManager = driverRestartManager;
     this.driverStatusManager = driverStatusManager;
     this.resourceManagerStopHandler = resourceManagerStopHandler;
     this.remoteManager = remoteManager;
@@ -93,5 +97,7 @@ final class DriverRuntimeStopHandler implements EventHandler<RuntimeStop> {
       LOG.log(Level.WARNING, "Error when closing the RemoteManager", e);
       throw new RuntimeException("Unable to close the RemoteManager.", e);
     }
+
+    this.driverRestartManager.close();
   }
 }
