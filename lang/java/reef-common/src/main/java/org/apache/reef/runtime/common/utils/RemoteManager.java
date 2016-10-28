@@ -32,6 +32,7 @@ import java.util.logging.Logger;
 public class RemoteManager {
 
   private static final Logger LOG = Logger.getLogger(RemoteManager.class.getName());
+  private static final String CLASS_NAME = RemoteManager.class.getCanonicalName();
 
   private final org.apache.reef.wake.remote.RemoteManager raw;
   private final RemoteIdentifierFactory factory;
@@ -41,7 +42,7 @@ public class RemoteManager {
                        final RemoteIdentifierFactory factory) {
     this.raw = raw;
     this.factory = factory;
-    LOG.log(Level.FINE, "Instantiated 'RemoteManager' with remoteId: {0}", this.getMyIdentifier());
+    LOG.log(Level.FINE, "Instantiated RemoteManager wrapper: {0}", this.raw);
   }
 
   public final org.apache.reef.wake.remote.RemoteManager raw() {
@@ -49,7 +50,9 @@ public class RemoteManager {
   }
 
   public void close() throws Exception {
+    LOG.entering(CLASS_NAME, "close");
     this.raw.close();
+    LOG.exiting(CLASS_NAME, "close");
   }
 
   public <T> EventHandler<T> getHandler(
@@ -71,5 +74,9 @@ public class RemoteManager {
   public String getMyIdentifier() {
     return this.raw.getMyIdentifier().toString();
   }
-}
 
+  @Override
+  public String toString() {
+    return "RemoteManager wrap: " + this.raw;
+  }
+}

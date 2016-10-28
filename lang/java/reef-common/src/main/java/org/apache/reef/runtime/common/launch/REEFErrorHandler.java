@@ -39,6 +39,7 @@ import java.util.logging.Logger;
 public final class REEFErrorHandler implements EventHandler<Throwable>, AutoCloseable {
 
   private static final Logger LOG = Logger.getLogger(REEFErrorHandler.class.getName());
+  private static final String CLASS_NAME = REEFErrorHandler.class.getCanonicalName();
 
   // This class is used as the ErrorHandler in the RemoteManager. Hence, we need an InjectionFuture here.
   private final InjectionFuture<RemoteManager> remoteManager;
@@ -47,10 +48,12 @@ public final class REEFErrorHandler implements EventHandler<Throwable>, AutoClos
   private final ExceptionCodec exceptionCodec;
 
   @Inject
-  REEFErrorHandler(final InjectionFuture<RemoteManager> remoteManager,
-                   @Parameter(ErrorHandlerRID.class) final String errorHandlerRID,
-                   @Parameter(LaunchID.class) final String launchID,
-                   final ExceptionCodec exceptionCodec) {
+  REEFErrorHandler(
+      @Parameter(ErrorHandlerRID.class) final String errorHandlerRID,
+      @Parameter(LaunchID.class) final String launchID,
+      final InjectionFuture<RemoteManager> remoteManager,
+      final ExceptionCodec exceptionCodec) {
+
     this.errorHandlerRID = errorHandlerRID;
     this.remoteManager = remoteManager;
     this.launchID = launchID;
@@ -91,19 +94,22 @@ public final class REEFErrorHandler implements EventHandler<Throwable>, AutoClos
 
   @SuppressWarnings("checkstyle:illegalcatch")
   public void close() {
+
+    LOG.entering(CLASS_NAME, "close");
+
     try {
       this.remoteManager.get().close();
     } catch (final Throwable ex) {
       LOG.log(Level.SEVERE, "Unable to close the remote manager", ex);
     }
+
+    LOG.exiting(CLASS_NAME, "close");
   }
 
   @Override
   public String toString() {
-    return "REEFErrorHandler{" +
-        "remoteManager=" + remoteManager +
-        ", launchID='" + launchID + '\'' +
-        ", errorHandlerRID='" + errorHandlerRID + '\'' +
-        '}';
+    return String.format(
+        "REEFErrorHandler: { remoteManager:{%s}, launchID:%s, errorHandlerRID:%s }",
+        this.remoteManager.get(), this.launchID, this.errorHandlerRID);
   }
 }

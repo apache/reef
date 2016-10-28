@@ -25,10 +25,13 @@ import java.util.concurrent.atomic.AtomicInteger;
  * A default thread factory implementation that names created threads.
  */
 public final class DefaultThreadFactory implements ThreadFactory {
+
   private static final AtomicInteger POOL_NUMBER = new AtomicInteger(1);
+
   private final ThreadGroup group;
   private final AtomicInteger threadNumber = new AtomicInteger(1);
   private final String prefix;
+
   private Thread.UncaughtExceptionHandler uncaughtExceptionHandler;
 
   /**
@@ -37,10 +40,7 @@ public final class DefaultThreadFactory implements ThreadFactory {
    * @param prefix the name prefix of the created thread
    */
   public DefaultThreadFactory(final String prefix) {
-    final SecurityManager s = System.getSecurityManager();
-    this.group = (s != null) ? s.getThreadGroup() : Thread.currentThread().getThreadGroup();
-    this.prefix = prefix + "-pool-" + POOL_NUMBER.getAndIncrement() + "-thread-";
-    this.uncaughtExceptionHandler = null;
+    this(prefix, null);
   }
 
   /**
@@ -52,7 +52,7 @@ public final class DefaultThreadFactory implements ThreadFactory {
   public DefaultThreadFactory(final String prefix, final Thread.UncaughtExceptionHandler uncaughtExceptionHandler) {
     final SecurityManager s = System.getSecurityManager();
     this.group = (s != null) ? s.getThreadGroup() : Thread.currentThread().getThreadGroup();
-    this.prefix = prefix + "-pool-" + POOL_NUMBER.getAndIncrement() + "-thread-";
+    this.prefix = String.format("%s:pool-%02d", prefix, POOL_NUMBER.getAndIncrement());
     this.uncaughtExceptionHandler = uncaughtExceptionHandler;
   }
 
@@ -72,17 +72,22 @@ public final class DefaultThreadFactory implements ThreadFactory {
    */
   @Override
   public Thread newThread(final Runnable r) {
-    final Thread t = new Thread(group, r, prefix + threadNumber.getAndIncrement(), 0);
+
+    final Thread t = new Thread(this.group, r,
+        String.format("%s:thread-%03d", this.prefix, this.threadNumber.getAndIncrement()), 0);
+
     if (t.isDaemon()) {
       t.setDaemon(false);
     }
+
     if (t.getPriority() != Thread.NORM_PRIORITY) {
       t.setPriority(Thread.NORM_PRIORITY);
     }
-    if (uncaughtExceptionHandler != null) {
-      t.setUncaughtExceptionHandler(uncaughtExceptionHandler);
+
+    if (this.uncaughtExceptionHandler != null) {
+      t.setUncaughtExceptionHandler(this.uncaughtExceptionHandler);
     }
+
     return t;
   }
-
 }

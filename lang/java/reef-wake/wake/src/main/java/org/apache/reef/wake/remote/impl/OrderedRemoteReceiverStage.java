@@ -37,14 +37,15 @@ import java.util.logging.Logger;
 public class OrderedRemoteReceiverStage implements EStage<TransportEvent> {
 
   private static final Logger LOG = Logger.getLogger(OrderedRemoteReceiverStage.class.getName());
-  private final long shutdownTimeout = WakeParameters.REMOTE_EXECUTOR_SHUTDOWN_TIMEOUT;
 
-  private final ConcurrentMap<SocketAddress, OrderedEventStream> streamMap;
+  private static final String CLASS_NAME = OrderedRemoteReceiverStage.class.getSimpleName();
+
+  private static final long SHUTDOWN_TIMEOUT = WakeParameters.REMOTE_EXECUTOR_SHUTDOWN_TIMEOUT;
+
   private final ExecutorService pushExecutor;
   private final ExecutorService pullExecutor;
 
   private final ThreadPoolStage<TransportEvent> pushStage;
-  private final ThreadPoolStage<OrderedEventStream> pullStage;
 
   /**
    * Constructs an ordered remote receiver stage.
@@ -54,58 +55,46 @@ public class OrderedRemoteReceiverStage implements EStage<TransportEvent> {
    */
   public OrderedRemoteReceiverStage(
       final EventHandler<RemoteEvent<byte[]>> handler, final EventHandler<Throwable> errorHandler) {
-    this.streamMap = new ConcurrentHashMap<SocketAddress, OrderedEventStream>();
 
-    this.pushExecutor = Executors.newCachedThreadPool(
-        new DefaultThreadFactory(OrderedRemoteReceiverStage.class.getName() + "_Push"));
-    this.pullExecutor = Executors.newCachedThreadPool(
-        new DefaultThreadFactory(OrderedRemoteReceiverStage.class.getName() + "_Pull"));
+    this.pushExecutor = Executors.newCachedThreadPool(new DefaultThreadFactory(CLASS_NAME + ":Push"));
+    this.pullExecutor = Executors.newCachedThreadPool(new DefaultThreadFactory(CLASS_NAME + ":Pull"));
 
-    this.pullStage = new ThreadPoolStage<OrderedEventStream>(
+    final ConcurrentMap<SocketAddress, OrderedEventStream> streamMap = new ConcurrentHashMap<>();
+
+    final ThreadPoolStage<OrderedEventStream> pullStage = new ThreadPoolStage<>(
         new OrderedPullEventHandler(handler), this.pullExecutor, errorHandler);
-    this.pushStage = new ThreadPoolStage<TransportEvent>(
+
+    this.pushStage = new ThreadPoolStage<>(
         new OrderedPushEventHandler(streamMap, pullStage), this.pushExecutor, errorHandler); // for decoupling
   }
 
   @Override
   public void onNext(final TransportEvent value) {
-    LOG.log(Level.FINEST, "{0}", value);
-    pushStage.onNext(value);
+    LOG.log(Level.FINEST, "Push: {0}", value);
+    this.pushStage.onNext(value);
   }
 
   @Override
   public void close() throws Exception {
-    LOG.log(Level.FINE, "close");
+    close("PushExecutor", this.pushExecutor);
+    close("PullExecutor", this.pullExecutor);
+  }
 
-    if (pushExecutor != null) {
-      pushExecutor.shutdown();
-      try {
-        // wait for threads to finish for timeout
-        if (!pushExecutor.awaitTermination(shutdownTimeout, TimeUnit.MILLISECONDS)) {
-          LOG.log(Level.WARNING, "Executor did not terminate in " + shutdownTimeout + "ms.");
-          final List<Runnable> droppedRunnables = pushExecutor.shutdownNow();
-          LOG.log(Level.WARNING, "Executor dropped " + droppedRunnables.size() + " tasks.");
-        }
-      } catch (final InterruptedException e) {
-        LOG.log(Level.WARNING, "Close interrupted");
-        throw new RemoteRuntimeException(e);
+  private static void close(final String name, final ExecutorService executor) {
+    LOG.log(Level.FINE, "Close {0} begin", name);
+    executor.shutdown();
+    try {
+      // wait for threads to finish for timeout
+      if (!executor.awaitTermination(SHUTDOWN_TIMEOUT, TimeUnit.MILLISECONDS)) {
+        LOG.log(Level.WARNING, "{0}: Executor did not terminate in {1} ms.", new Object[] {name, SHUTDOWN_TIMEOUT});
+        final List<Runnable> droppedRunnables = executor.shutdownNow();
+        LOG.log(Level.WARNING, "{0}: Executor dropped {1} tasks.", new Object[] {name, droppedRunnables.size()});
       }
+    } catch (final InterruptedException e) {
+      LOG.log(Level.WARNING, "Close interrupted");
+      throw new RemoteRuntimeException(e);
     }
-
-    if (pullExecutor != null) {
-      pullExecutor.shutdown();
-      try {
-        // wait for threads to finish for timeout
-        if (!pullExecutor.awaitTermination(shutdownTimeout, TimeUnit.MILLISECONDS)) {
-          LOG.log(Level.WARNING, "Executor did not terminate in " + shutdownTimeout + "ms.");
-          final List<Runnable> droppedRunnables = pullExecutor.shutdownNow();
-          LOG.log(Level.WARNING, "Executor dropped " + droppedRunnables.size() + " tasks.");
-        }
-      } catch (final InterruptedException e) {
-        LOG.log(Level.WARNING, "Close interrupted");
-        throw new RemoteRuntimeException(e);
-      }
-    }
+    LOG.log(Level.FINE, "Close {0} end", name);
   }
 }
 

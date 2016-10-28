@@ -55,6 +55,7 @@ public final class ProcessContainer implements Container {
   private final File globalFolder;
   private final RunnableProcessObserver processObserver;
   private final ThreadGroup threadGroup;
+
   private Thread theThread;
   private RunnableProcess process;
 
@@ -134,13 +135,16 @@ public final class ProcessContainer implements Container {
 
   @Override
   public void run(final List<String> commandLine) {
-    this.process = new RunnableProcess(commandLine,
+
+    this.process = new RunnableProcess(
+        commandLine,
         this.containedID,
         this.folder,
         this.processObserver,
         this.fileNames.getEvaluatorStdoutFileName(),
         this.fileNames.getEvaluatorStderrFileName());
-    this.theThread = new Thread(this.threadGroup, this.process, this.containedID);
+
+    this.theThread = new Thread(this.threadGroup, this.process, "ProcessContainer:" + this.containedID);
     this.theThread.start();
   }
 
@@ -189,12 +193,8 @@ public final class ProcessContainer implements Container {
 
   @Override
   public String toString() {
-    return "ProcessContainer{" +
-        "containedID='" + containedID + '\'' +
-        ", nodeID='" + nodeID + '\'' +
-        ", errorHandlerRID='" + errorHandlerRID + '\'' +
-        ", folder=" + folder + '\'' +
-        ", rack=" + rackName +
-        '}';
+    return String.format(
+        "ProcessContainer{containedID=%s, nodeID=%s, errorHandlerRID=%s, folder=%s, rack=%s}",
+        this.containedID, this.nodeID, this.errorHandlerRID, this.folder, this.rackName);
   }
 }

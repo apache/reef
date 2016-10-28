@@ -167,64 +167,75 @@ public final class DefaultRemoteManagerImplementation implements RemoteManager {
   @Override
   public void close() {
 
-    if (this.closed.compareAndSet(false, true)) {
+    LOG.log(Level.FINE, "RemoteManager: {0} Closing remote manager id: {1}",
+        new Object[] {this.name, this.myIdentifier});
 
-      LOG.log(Level.FINE, "RemoteManager: {0} Closing remote manager id: {1}",
-          new Object[] {this.name, this.myIdentifier});
+    if (!this.closed.compareAndSet(false, true)) {
+      LOG.log(Level.FINE, "RemoteManager: {0} already closed", this.name);
+      return;
+    }
 
-      final Runnable closeRunnable = new Runnable() {
-        @Override
-        public void run() {
-          try {
-            LOG.log(Level.FINE, "Closing sender stage {0}", myIdentifier);
-            reSendStage.close();
-            LOG.log(Level.FINE, "Closed the remote sender stage");
-          } catch (final Exception e) {
-            LOG.log(Level.SEVERE, "Unable to close the remote sender stage", e);
-          }
+    final Runnable closeRunnable = new Runnable() {
+      @Override
+      public void run() {
 
-          try {
-            LOG.log(Level.FINE, "Closing transport {0}", myIdentifier);
-            transport.close();
-            LOG.log(Level.FINE, "Closed the transport");
-          } catch (final Exception e) {
-            LOG.log(Level.SEVERE, "Unable to close the transport.", e);
-          }
+        Thread.currentThread().setName(String.format("CLOSE:RemoteManager:%s:%s", name, myIdentifier));
 
-          try {
-            LOG.log(Level.FINE, "Closing receiver stage {0}", myIdentifier);
-            reRecvStage.close();
-            LOG.log(Level.FINE, "Closed the remote receiver stage");
-          } catch (final Exception e) {
-            LOG.log(Level.SEVERE, "Unable to close the remote receiver stage", e);
-          }
-        }
-      };
-
-      final ExecutorService closeExecutor = Executors.newSingleThreadExecutor();
-
-      closeExecutor.submit(closeRunnable);
-      closeExecutor.shutdown();
-
-      if (!closeExecutor.isShutdown()) {
-        LOG.log(Level.SEVERE, "close executor did not shutdown properly.");
-      }
-
-      final long endTime = System.currentTimeMillis() + CLOSE_EXECUTOR_TIMEOUT;
-      while (!closeExecutor.isTerminated()) {
         try {
-          final long waitTime = endTime - System.currentTimeMillis();
-          closeExecutor.awaitTermination(waitTime, TimeUnit.MILLISECONDS);
-        } catch (final InterruptedException e) {
-          LOG.log(Level.FINE, "Interrupted", e);
+          LOG.log(Level.FINE, "Closing sender stage {0}", myIdentifier);
+          reSendStage.close();
+          LOG.log(Level.FINE, "Closed the remote sender stage");
+        } catch (final Exception e) {
+          LOG.log(Level.SEVERE, "Unable to close the remote sender stage", e);
+        }
+
+        try {
+          LOG.log(Level.FINE, "Closing transport {0}", myIdentifier);
+          transport.close();
+          LOG.log(Level.FINE, "Closed the transport");
+        } catch (final Exception e) {
+          LOG.log(Level.SEVERE, "Unable to close the transport.", e);
+        }
+
+        try {
+          LOG.log(Level.FINE, "Closing receiver stage {0}", myIdentifier);
+          reRecvStage.close();
+          LOG.log(Level.FINE, "Closed the remote receiver stage");
+        } catch (final Exception e) {
+          LOG.log(Level.SEVERE, "Unable to close the remote receiver stage", e);
         }
       }
+    };
 
-      if (closeExecutor.isTerminated()) {
-        LOG.log(Level.FINE, "Close executor terminated properly.");
-      } else {
-        LOG.log(Level.SEVERE, "Close executor did not terminate properly.");
+    final ExecutorService closeExecutor = Executors.newSingleThreadExecutor();
+
+    closeExecutor.submit(closeRunnable);
+    closeExecutor.shutdown();
+
+    if (!closeExecutor.isShutdown()) {
+      LOG.log(Level.SEVERE, "close executor did not shutdown properly.");
+    }
+
+    final long endTime = System.currentTimeMillis() + CLOSE_EXECUTOR_TIMEOUT;
+    while (!closeExecutor.isTerminated()) {
+      try {
+        final long waitTime = endTime - System.currentTimeMillis();
+        closeExecutor.awaitTermination(waitTime, TimeUnit.MILLISECONDS);
+      } catch (final InterruptedException e) {
+        LOG.log(Level.FINE, "Interrupted", e);
       }
     }
+
+    if (closeExecutor.isTerminated()) {
+      LOG.log(Level.FINE, "Close executor terminated properly.");
+    } else {
+      LOG.log(Level.SEVERE, "Close executor did not terminate properly.");
+    }
+  }
+
+  @Override
+  public String toString() {
+    return String.format("RemoteManager: { class:%s, name:%s, id:%s }",
+        this.getClass().getCanonicalName(), this.name, this.myIdentifier);
   }
 }
