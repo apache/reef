@@ -59,6 +59,11 @@ namespace Org.Apache.REEF.Tang.Implementations.Configuration
             this.ClassHierarchy = TangFactory.GetTang().GetDefaultClassHierarchy(assemblies, parsers);
             foreach (IConfiguration tc in confs) 
             {
+                if (tc == null)
+                {
+                    throw new ArgumentNullException("One of specified configurations is null");
+                }
+
                 AddConfiguration((ConfigurationImpl)tc);
             }
         }
