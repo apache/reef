@@ -15,8 +15,10 @@
 // specific language governing permissions and limitations
 // under the License.
 
+using System.Reflection;
 using Org.Apache.REEF.IMRU.API;
 using Org.Apache.REEF.Tang.Implementations.Tang;
+using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Tang.Util;
 using Xunit;
 
@@ -27,10 +29,14 @@ namespace Org.Apache.REEF.IMRU.Tests
         [Fact]
         public void JobDefinitionBuilder_CancellationConfigIsOptional()
         {
-            var definition = CreateTestBuilder()
-               .Build();
+            var builder = CreateTestBuilder();
+            var definition = builder.Build();
 
-            Assert.Null(definition.JobCancelSignalConfiguration);
+            var defaultConfig = typeof(IMRUJobDefinitionBuilder)
+                .GetField("EmptyConfiguration", BindingFlags.NonPublic | BindingFlags.Static)
+                .GetValue(builder) as IConfiguration;
+
+            Assert.Same(defaultConfig, definition.JobCancelSignalConfiguration);
         }
 
         [Fact]

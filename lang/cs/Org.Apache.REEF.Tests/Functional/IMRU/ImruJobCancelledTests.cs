@@ -162,7 +162,8 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
                         .BindImplementation(GenericType<IGroupCommDriver>.Class, GenericType<GroupCommDriver>.Class)
                         .Build(),
                     jobDefinition.PartitionedDatasetConfiguration,
-                    overallPerMapConfig
+                    overallPerMapConfig,
+                    jobDefinition.JobCancelSignalConfiguration
                 })
                 .BindNamedParameter(typeof(SerializedUpdateTaskStateConfiguration),
                     _configurationSerializer.ToString(jobDefinition.UpdateTaskStateConfiguration))
@@ -196,7 +197,6 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
                     jobDefinition.MaxRetryNumberInRecovery.ToString(CultureInfo.InvariantCulture))
                 .BindNamedParameter(typeof(InvokeGC),
                     jobDefinition.InvokeGarbageCollectorAfterIteration.ToString(CultureInfo.InvariantCulture))
-                .AddOptionalConfiguration(jobDefinition.JobCancelSignalConfiguration)
                 .Build();
                 
             return driverConfig;

@@ -75,7 +75,7 @@ namespace Org.Apache.REEF.IMRU.API
             _maxRetryNumberInRecovery = 0;
             _invokeGC = true;
             _perMapConfigGeneratorConfig = new HashSet<IConfiguration>();
-            _jobCancellationConfiguration = null;
+            _jobCancellationConfiguration = EmptyConfiguration;
         }
 
         /// <summary>

@@ -122,7 +122,8 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Client
                     .BindImplementation(GenericType<IGroupCommDriver>.Class, GenericType<GroupCommDriver>.Class)
                     .Build(),
                 jobDefinition.PartitionedDatasetConfiguration,
-                overallPerMapConfig
+                overallPerMapConfig,
+                jobDefinition.JobCancelSignalConfiguration
             })
                 .BindNamedParameter(typeof(SerializedUpdateTaskStateConfiguration),
                     _configurationSerializer.ToString(jobDefinition.UpdateTaskStateConfiguration))
@@ -156,7 +157,6 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Client
                     jobDefinition.MaxRetryNumberInRecovery.ToString(CultureInfo.InvariantCulture))
                 .BindNamedParameter(typeof(InvokeGC),
                     jobDefinition.InvokeGarbageCollectorAfterIteration.ToString(CultureInfo.InvariantCulture))
-                .AddOptionalConfiguration(jobDefinition.JobCancelSignalConfiguration)
                 .Build();
 
             // The JobSubmission contains the Driver configuration as well as the files needed on the Driver.

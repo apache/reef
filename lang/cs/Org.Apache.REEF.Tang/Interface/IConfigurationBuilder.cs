@@ -23,7 +23,6 @@ namespace Org.Apache.REEF.Tang.Interface
     public interface IConfigurationBuilder
     {
         void AddConfiguration(IConfiguration c);
-        IConfigurationBuilder AddOptionalConfiguration(IConfiguration c);
         IClassHierarchy GetClassHierarchy();
         IConfiguration Build();
         void Bind(string iface, string impl);
