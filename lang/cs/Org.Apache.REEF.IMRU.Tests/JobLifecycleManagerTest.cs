@@ -30,7 +30,7 @@ namespace Org.Apache.REEF.IMRU.Tests
     public class JobLifecycleManagerTest
     {
         [Fact]
-        public void JobLifeCyclemanger_SendsJobCancelledEvent()
+        public void JobLifeCyclemangerSendsJobCancelledEvent()
         {
             string expectedMessage = "cancelled";
             var observer = JobLifeCycleMangerEventTest(
@@ -41,7 +41,7 @@ namespace Org.Apache.REEF.IMRU.Tests
         }
 
         [Fact]
-        public void JobLifeCyclemanger_SendsJobCancelledEventToMultiplyObservers()
+        public void JobLifeCyclemangerSendsJobCancelledEventToMultiplyObservers()
         {
             string expectedMessage = "cancelled";
             var observers = JobLifeCycleMangerEventTest(
@@ -54,7 +54,7 @@ namespace Org.Apache.REEF.IMRU.Tests
         }
 
         [Fact]
-        public void JobLifeCyclemanger_ChecksDetectorPeriodically()
+        public void JobLifeCyclemangerChecksDetectorPeriodically()
         {
             string expectedMessage = "cancelled";
             int isCancelledCheckCounter = 0;
@@ -70,7 +70,7 @@ namespace Org.Apache.REEF.IMRU.Tests
         }
 
         [Fact]
-        public void JobLifeCyclemanger_NoSignal_DoesNotSendEvent()
+        public void JobLifeCyclemangerNoSignalDoesNotSendEvent()
         {
             var observer = JobLifeCycleMangerEventTest(
                 detector: new DetectorStubStatic(false))
@@ -80,7 +80,7 @@ namespace Org.Apache.REEF.IMRU.Tests
         }
 
         [Fact]
-        public void JobLifeCyclemanger_DetectorNull_DoesNotSendEvent()
+        public void JobLifeCyclemangerDetectorNullDoesNotSendEvent()
         {
             var observer = JobLifeCycleMangerEventTest(
                 detector: null)
@@ -90,7 +90,7 @@ namespace Org.Apache.REEF.IMRU.Tests
         }
 
         [Fact]
-        public void JobLifeCyclemanger_NoObservers_DoesNotCheckForSignal()
+        public void JobLifeCyclemangerNoObserversDoesNotCheckForSignal()
         {
             int isCancelledCheckCounter = 0;
 

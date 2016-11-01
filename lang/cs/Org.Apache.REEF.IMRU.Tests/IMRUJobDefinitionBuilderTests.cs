@@ -27,7 +27,7 @@ namespace Org.Apache.REEF.IMRU.Tests
     public class IMRUJobDefinitionBuilderTests
     {
         [Fact]
-        public void JobDefinitionBuilder_CancellationConfigIsOptional()
+        public void JobDefinitionBuilderCancellationConfigIsOptional()
         {
             var builder = CreateTestBuilder();
             var definition = builder.Build();
@@ -40,7 +40,7 @@ namespace Org.Apache.REEF.IMRU.Tests
         }
 
         [Fact]
-        public void JobDefinitionBuilder_CancellationConfigIsSetToNull()
+        public void JobDefinitionBuilderCancellationConfigIsSetToNull()
         {
             var definition = CreateTestBuilder()
                .SetJobCancellationConfiguration(null)
@@ -50,7 +50,7 @@ namespace Org.Apache.REEF.IMRU.Tests
         }
 
         [Fact]
-        public void JobDefinitionBuilder_SetsJobCancellationConfig()
+        public void JobDefinitionBuilderSetsJobCancellationConfig()
         {
             var cancelSignalConfig = TangFactory.GetTang().NewConfigurationBuilder()
                 .BindImplementation(GenericType<IJobCancelledDetector>.Class,

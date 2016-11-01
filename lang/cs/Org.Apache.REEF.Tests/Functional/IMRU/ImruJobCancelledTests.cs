@@ -51,7 +51,7 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
         /// changes state to Fail and throw exception with "cancelled" message
         /// </summary>
         [Fact]
-        public void ImruDriver_HandlesCancelledEventAfterStart()
+        public void ImruDriverHandlesCancelledEventAfterStart()
         {
             var driver = TangFactory
                     .GetTang()
