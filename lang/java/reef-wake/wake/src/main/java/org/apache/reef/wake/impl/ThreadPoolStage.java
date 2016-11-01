@@ -225,7 +225,7 @@ public final class ThreadPoolStage<T> extends AbstractEStage<T> {
 
       if (!isTerminated) {
         final List<Runnable> droppedRunnables = executor.shutdownNow();
-        LOG.log(Level.WARNING,
+        LOG.log(Level.SEVERE,
             "Closing ThreadPoolStage {0}: Executor did not terminate in {1} ms. Dropping {2} tasks",
             new Object[] {this.name, SHUTDOWN_TIMEOUT, droppedRunnables.size()});
       }

@@ -223,7 +223,7 @@ public final class NettyMessagingTransport implements Transport {
     try {
       this.acceptor.close().sync();
     } catch (final Exception ex) {
-      LOG.log(Level.WARNING, "Error closing the acceptor channel for " + this.localAddress, ex);
+      LOG.log(Level.SEVERE, "Error closing the acceptor channel for " + this.localAddress, ex);
     }
 
     this.clientWorkerGroup.shutdownGracefully().awaitUninterruptibly();
