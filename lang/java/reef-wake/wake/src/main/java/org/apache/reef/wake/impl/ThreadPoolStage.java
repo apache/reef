@@ -40,13 +40,15 @@ import java.util.logging.Logger;
  * @param <T> type
  */
 public final class ThreadPoolStage<T> extends AbstractEStage<T> {
+
   private static final Logger LOG = Logger.getLogger(ThreadPoolStage.class.getName());
 
+  private static final long SHUTDOWN_TIMEOUT = WakeParameters.EXECUTOR_SHUTDOWN_TIMEOUT;
+
   private final EventHandler<T> handler;
+  private final EventHandler<Throwable> errorHandler;
   private final ExecutorService executor;
   private final int numThreads;
-  private final long shutdownTimeout = WakeParameters.EXECUTOR_SHUTDOWN_TIMEOUT;
-  private final EventHandler<Throwable> errorHandler;
 
   /**
    * Constructs a thread-pool stage.
@@ -206,14 +208,29 @@ public final class ThreadPoolStage<T> extends AbstractEStage<T> {
    * Closes resources.
    */
   @Override
-  public void close() throws Exception {
+  public void close() {
+
     if (closed.compareAndSet(false, true) && numThreads > 0) {
+
+      LOG.log(Level.FINEST, "Closing ThreadPoolStage {0}: begin", this.name);
+
       executor.shutdown();
-      if (!executor.awaitTermination(shutdownTimeout, TimeUnit.MILLISECONDS)) {
-        LOG.log(Level.WARNING, "Executor did not terminate in " + shutdownTimeout + "ms.");
-        final List<Runnable> droppedRunnables = executor.shutdownNow();
-        LOG.log(Level.WARNING, "Executor dropped " + droppedRunnables.size() + " tasks.");
+
+      boolean isTerminated = false;
+      try {
+        isTerminated = executor.awaitTermination(SHUTDOWN_TIMEOUT, TimeUnit.MILLISECONDS);
+      } catch (final InterruptedException ex) {
+        LOG.log(Level.WARNING, "Interrupted closing ThreadPoolStage " + this.name, ex);
       }
+
+      if (!isTerminated) {
+        final List<Runnable> droppedRunnables = executor.shutdownNow();
+        LOG.log(Level.WARNING,
+            "Closing ThreadPoolStage {0}: Executor did not terminate in {1} ms. Dropping {2} tasks",
+            new Object[] {this.name, SHUTDOWN_TIMEOUT, droppedRunnables.size()});
+      }
+
+      LOG.log(Level.FINEST, "Closing ThreadPoolStage {0}: end", this.name);
     }
   }
 
