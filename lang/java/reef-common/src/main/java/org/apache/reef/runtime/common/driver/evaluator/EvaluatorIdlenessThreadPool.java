@@ -26,8 +26,10 @@ import org.apache.reef.tang.annotations.Parameter;
 import org.apache.reef.wake.impl.DefaultThreadFactory;
 
 import javax.inject.Inject;
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -36,22 +38,25 @@ import java.util.logging.Logger;
  * of an {@link EvaluatorManager} in order to trigger Evaluator idleness checks.
  */
 @Private
-public final class EvaluatorIdlenessThreadPool {
+public final class EvaluatorIdlenessThreadPool implements AutoCloseable {
+
   private static final Logger LOG = Logger.getLogger(EvaluatorIdlenessThreadPool.class.getName());
 
   private final ExecutorService executor;
   private final long waitInMillis;
 
   @Inject
-  private EvaluatorIdlenessThreadPool(@Parameter(EvaluatorIdlenessThreadPoolSize.class) final int numThreads,
-                                      @Parameter(EvaluatorIdlenessWaitInMilliseconds.class) final long waitInMillis) {
+  private EvaluatorIdlenessThreadPool(
+      @Parameter(EvaluatorIdlenessThreadPoolSize.class) final int numThreads,
+      @Parameter(EvaluatorIdlenessWaitInMilliseconds.class) final long waitInMillis) {
 
     Validate.isTrue(waitInMillis >= 0, "EvaluatorIdlenessWaitInMilliseconds must be configured to be >= 0");
     Validate.isTrue(numThreads > 0, "EvaluatorIdlenessThreadPoolSize must be configured to be > 0");
 
     this.waitInMillis = waitInMillis;
+
     this.executor = Executors.newFixedThreadPool(
-        numThreads, new DefaultThreadFactory(EvaluatorIdlenessThreadPool.class.getName()));
+        numThreads, new DefaultThreadFactory(this.getClass().getSimpleName()));
   }
 
   /**
@@ -60,12 +65,26 @@ public final class EvaluatorIdlenessThreadPool {
    * @param manager the {@link EvaluatorManager}
    */
   void runCheckAsync(final EvaluatorManager manager) {
-    executor.submit(new Runnable() {
+
+    final String evaluatorId = manager.getId();
+    LOG.log(Level.FINEST, "Idle check for Evaluator: {0}", manager);
+
+    this.executor.submit(new Runnable() {
+
       @Override
       public void run() {
+
+        LOG.log(Level.FINEST, "Idle check for Evaluator {0} - begin", evaluatorId);
+
         while (!manager.isClosed()) {
           try {
+
+            LOG.log(Level.FINEST,
+                "Waiting for Evaluator {0} to close: Sleep for {1} ms",
+                new Object[] {evaluatorId, waitInMillis});
+
             Thread.sleep(waitInMillis);
+
           } catch (final InterruptedException e) {
             LOG.log(Level.SEVERE, "Thread interrupted while waiting for Evaluator to finish.");
             throw new RuntimeException(e);
@@ -73,8 +92,40 @@ public final class EvaluatorIdlenessThreadPool {
         }
 
         manager.checkIdlenessSource();
-        LOG.log(Level.FINE, "Evaluator " + manager.getId() + " has finished.");
+
+        LOG.log(Level.FINEST, "Idle check for Evaluator {0} - end", evaluatorId);
+      }
+
+      @Override
+      public String toString() {
+        return "CheckIdle: " + evaluatorId;
       }
     });
+  }
+
+  /**
+   * Shutdown the thread pool of idleness checkers.
+   */
+  @Override
+  public void close() {
+
+    LOG.log(Level.FINE, "EvaluatorIdlenessThreadPool shutdown: begin");
+
+    this.executor.shutdown();
+
+    boolean isTerminated = false;
+    try {
+      isTerminated = this.executor.awaitTermination(this.waitInMillis, TimeUnit.MILLISECONDS);
+    } catch (final InterruptedException ex) {
+      LOG.log(Level.WARNING, "EvaluatorIdlenessThreadPool shutdown: Interrupted", ex);
+    }
+
+    if (isTerminated) {
+      LOG.log(Level.FINE, "EvaluatorIdlenessThreadPool shutdown: Terminated successfully");
+    } else {
+      final List<Runnable> pendingJobs = this.executor.shutdownNow();
+      LOG.log(Level.SEVERE, "EvaluatorIdlenessThreadPool shutdown: {0} jobs after timeout", pendingJobs.size());
+      LOG.log(Level.FINE, "EvaluatorIdlenessThreadPool shutdown: pending jobs: {0}", pendingJobs);
+    }
   }
 }

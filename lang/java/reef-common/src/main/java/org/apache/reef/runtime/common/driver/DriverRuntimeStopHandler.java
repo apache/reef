@@ -24,6 +24,7 @@ import org.apache.reef.driver.parameters.ResourceManagerPreserveEvaluators;
 import org.apache.reef.driver.restart.DriverRestartManager;
 import org.apache.reef.exception.DriverFatalRuntimeException;
 import org.apache.reef.runtime.common.driver.api.ResourceManagerStopHandler;
+import org.apache.reef.runtime.common.driver.evaluator.EvaluatorIdlenessThreadPool;
 import org.apache.reef.runtime.common.driver.evaluator.Evaluators;
 import org.apache.reef.runtime.common.utils.RemoteManager;
 import org.apache.reef.tang.annotations.Parameter;
@@ -50,6 +51,7 @@ final class DriverRuntimeStopHandler implements EventHandler<RuntimeStop> {
   private final ResourceManagerStopHandler resourceManagerStopHandler;
   private final RemoteManager remoteManager;
   private final Evaluators evaluators;
+  private final EvaluatorIdlenessThreadPool idlenessChecker;
   private final boolean preserveEvaluatorsAcrossRestarts;
 
   @Inject
@@ -59,20 +61,22 @@ final class DriverRuntimeStopHandler implements EventHandler<RuntimeStop> {
       final DriverStatusManager driverStatusManager,
       final ResourceManagerStopHandler resourceManagerStopHandler,
       final RemoteManager remoteManager,
-      final Evaluators evaluators) {
+      final Evaluators evaluators,
+      final EvaluatorIdlenessThreadPool idlenessChecker) {
 
     this.driverRestartManager = driverRestartManager;
     this.driverStatusManager = driverStatusManager;
     this.resourceManagerStopHandler = resourceManagerStopHandler;
     this.remoteManager = remoteManager;
     this.evaluators = evaluators;
+    this.idlenessChecker = idlenessChecker;
     this.preserveEvaluatorsAcrossRestarts = preserveEvaluatorsAcrossRestarts;
   }
 
   @Override
   public synchronized void onNext(final RuntimeStop runtimeStop) {
 
-    LOG.log(Level.FINEST, "RuntimeStop: {0}", runtimeStop);
+    LOG.log(Level.FINE, "Driver shutdown: start {0}", runtimeStop);
 
     final Throwable runtimeException = runtimeStop.getException();
 
@@ -81,23 +85,29 @@ final class DriverRuntimeStopHandler implements EventHandler<RuntimeStop> {
     if (runtimeException == null ||
         runtimeException instanceof DriverFatalRuntimeException ||
         !this.preserveEvaluatorsAcrossRestarts) {
+      LOG.log(Level.FINER, "Driver shutdown: close the evaluators");
       this.evaluators.close();
     }
 
     this.resourceManagerStopHandler.onNext(runtimeStop);
 
-    // Inform the client of the shutdown.
+    LOG.log(Level.FINER, "Driver shutdown: notify the client");
     this.driverStatusManager.onRuntimeStop(Optional.ofNullable(runtimeException));
 
-    // Close the remoteManager.
     try {
+      LOG.log(Level.FINER, "Driver shutdown: close the remote manager");
       this.remoteManager.close();
-      LOG.log(Level.INFO, "Driver shutdown complete");
     } catch (final Exception e) {
       LOG.log(Level.WARNING, "Error when closing the RemoteManager", e);
       throw new RuntimeException("Unable to close the RemoteManager.", e);
     }
 
+    LOG.log(Level.FINER, "Driver shutdown: close the restart manager");
     this.driverRestartManager.close();
+
+    LOG.log(Level.FINER, "Driver shutdown: close the idleness checker");
+    this.idlenessChecker.close();
+
+    LOG.log(Level.INFO, "Driver shutdown complete");
   }
 }

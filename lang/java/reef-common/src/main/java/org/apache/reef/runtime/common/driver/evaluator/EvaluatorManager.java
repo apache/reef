@@ -219,6 +219,8 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
   @Override
   public void close() {
 
+    LOG.log(Level.FINER, "Close EvaluatorManager {0} - begin", this.evaluatorId);
+
     synchronized (this.evaluatorDescriptor) {
 
       if (this.stateManager.isAvailable()) {
@@ -275,6 +277,15 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
     }
 
     this.idlenessThreadPool.runCheckAsync(this);
+
+    LOG.log(Level.FINER, "Close EvaluatorManager {0} - end", this.evaluatorId);
+  }
+
+  /**
+   * Close message dispatcher for the evaluator.
+   */
+  public void shutdown() {
+    this.messageDispatcher.close();
   }
 
   /**
@@ -357,7 +368,7 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
         LOG.log(Level.SEVERE, "Exception while handling FailedEvaluator", e);
       } finally {
         this.stateManager.setFailed();
-        close();
+        this.close();
       }
     }
   }

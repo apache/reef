@@ -286,7 +286,7 @@ public final class EvaluatorMessageDispatcher implements AutoCloseable {
   }
 
   @Override
-  public void close() throws Exception {
+  public void close() {
     LOG.log(Level.FINER, "Closing message dispatcher for {0}", this.evaluatorIdentifier);
     // This effectively closes all dispatchers as they share the same stage.
     this.serviceDispatcher.close();
