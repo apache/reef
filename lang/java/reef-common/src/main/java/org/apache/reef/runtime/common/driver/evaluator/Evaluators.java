@@ -65,16 +65,22 @@ public final class Evaluators implements AutoCloseable {
    */
   @Override
   public void close() {
+
+    LOG.log(Level.FINER, "Closing the evaluators - begin");
+
     final List<EvaluatorManager> evaluatorsCopy;
     synchronized (this) {
       evaluatorsCopy = new ArrayList<>(this.evaluators.values());
     }
+
     for (final EvaluatorManager evaluatorManager : evaluatorsCopy) {
       if (!evaluatorManager.isClosedOrClosing()) {
         LOG.log(Level.WARNING, "Unclean shutdown of evaluator {0}", evaluatorManager.getId());
         evaluatorManager.close();
       }
     }
+
+    LOG.log(Level.FINER, "Closing the evaluators - end");
   }
 
   /**
@@ -148,19 +154,28 @@ public final class Evaluators implements AutoCloseable {
    * Moves evaluator from map of active evaluators to set of closed evaluators.
    */
   public synchronized void removeClosedEvaluator(final EvaluatorManager evaluatorManager) {
+
     final String evaluatorId = evaluatorManager.getId();
+
     if (!evaluatorManager.isClosed()) {
       throw new IllegalArgumentException("Trying to remove evaluator " + evaluatorId + " which is not closed yet.");
     }
+
     if (!this.evaluators.containsKey(evaluatorId) && !this.closedEvaluatorIds.contains(evaluatorId)) {
       throw new IllegalArgumentException("Trying to remove unknown evaluator " + evaluatorId + ".");
     }
+
     if (!this.evaluators.containsKey(evaluatorId) && this.closedEvaluatorIds.contains(evaluatorId)) {
-      LOG.log(Level.FINE, "Trying to remove closed evaluator " + evaluatorId + " which has already been removed.");
-    } else {
-      LOG.log(Level.FINE, "Removing closed evaluator " + evaluatorId + ".");
-      this.evaluators.remove(evaluatorId);
-      this.closedEvaluatorIds.add(evaluatorId);
+      LOG.log(Level.FINE, "Trying to remove closed evaluator {0} which has already been removed.", evaluatorId);
+      return;
     }
+
+    LOG.log(Level.FINE, "Removing closed evaluator {0}", evaluatorId);
+
+    evaluatorManager.shutdown();
+    this.evaluators.remove(evaluatorId);
+    this.closedEvaluatorIds.add(evaluatorId);
+
+    LOG.log(Level.FINEST, "Evaluator {0} removed", evaluatorId);
   }
 }

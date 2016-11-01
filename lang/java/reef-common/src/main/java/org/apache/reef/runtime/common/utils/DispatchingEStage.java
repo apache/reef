@@ -119,11 +119,9 @@ public final class DispatchingEStage implements AutoCloseable {
 
   /**
    * Close the internal thread pool.
-   *
-   * @throws Exception forwarded from EStage.close() call.
    */
   @Override
-  public void close() throws Exception {
+  public void close() {
     this.stage.close();
   }
 
