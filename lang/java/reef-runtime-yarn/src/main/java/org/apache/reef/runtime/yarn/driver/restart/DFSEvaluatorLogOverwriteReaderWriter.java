@@ -82,7 +82,7 @@ public final class DFSEvaluatorLogOverwriteReaderWriter implements DFSEvaluatorL
           inputStream = newEntryInputStream;
         }
 
-        IOUtils.copyBytes(inputStream, outputStream, 4096, true);
+        IOUtils.copyBytes(inputStream, outputStream, 4096, false);
       } finally {
         outputStream.hsync();
         if (inputStream != null) {
