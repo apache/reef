@@ -70,6 +70,7 @@ public final class EvaluatorIdlenessThreadPool implements AutoCloseable {
     LOG.log(Level.FINEST, "Idle check for Evaluator: {0}", manager);
 
     this.executor.submit(new Runnable() {
+
       @Override
       public void run() {
 
@@ -93,6 +94,11 @@ public final class EvaluatorIdlenessThreadPool implements AutoCloseable {
         manager.checkIdlenessSource();
 
         LOG.log(Level.FINEST, "Idle check for Evaluator {0} - end", evaluatorId);
+      }
+
+      @Override
+      public String toString() {
+        return "CheckIdle: " + evaluatorId;
       }
     });
   }
@@ -118,7 +124,8 @@ public final class EvaluatorIdlenessThreadPool implements AutoCloseable {
       LOG.log(Level.FINE, "EvaluatorIdlenessThreadPool shutdown: Terminated successfully");
     } else {
       final List<Runnable> pendingJobs = this.executor.shutdownNow();
-      LOG.log(Level.SEVERE, "EvaluatorIdlenessThreadPool shutdown: {0} jobs pending", pendingJobs.size());
+      LOG.log(Level.SEVERE, "EvaluatorIdlenessThreadPool shutdown: {0} jobs after timeout", pendingJobs.size());
+      LOG.log(Level.FINE, "EvaluatorIdlenessThreadPool shutdown: pending jobs: {0}", pendingJobs);
     }
   }
 }

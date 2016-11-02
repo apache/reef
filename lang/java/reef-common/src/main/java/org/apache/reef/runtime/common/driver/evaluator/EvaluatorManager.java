@@ -219,7 +219,7 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
   @Override
   public void close() {
 
-    LOG.log(Level.FINER, "Closing: {0}", this.toString());
+    LOG.log(Level.FINER, "Close EvaluatorManager {0} - begin", this.evaluatorId);
 
     synchronized (this.evaluatorDescriptor) {
 
@@ -278,7 +278,7 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
 
     this.idlenessThreadPool.runCheckAsync(this);
 
-    LOG.log(Level.FINER, "Closed EvaluatorManager {0}", this.evaluatorId);
+    LOG.log(Level.FINER, "Close EvaluatorManager {0} - end", this.evaluatorId);
   }
 
   /**
