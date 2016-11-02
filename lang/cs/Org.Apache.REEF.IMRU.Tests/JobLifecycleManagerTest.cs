@@ -34,7 +34,7 @@ namespace Org.Apache.REEF.IMRU.Tests
         {
             string expectedMessage = "cancelled";
             var observer = JobLifeCycleMangerEventTest(
-                detector: new DetectorStubStatic(true, expectedMessage))
+                detector: new SampleJobCancelledDetector(true, expectedMessage))
                 .FirstOrDefault();
 
             AssertCancelEvent(observer, true, expectedMessage);
@@ -45,7 +45,7 @@ namespace Org.Apache.REEF.IMRU.Tests
         {
             string expectedMessage = "cancelled";
             var observers = JobLifeCycleMangerEventTest(
-                detector: new DetectorStubStatic(true, expectedMessage));
+                detector: new SampleJobCancelledDetector(true, expectedMessage));
 
             foreach (var observer in observers)
             {
@@ -60,7 +60,7 @@ namespace Org.Apache.REEF.IMRU.Tests
             int isCancelledCheckCounter = 0;
 
             var observer = JobLifeCycleMangerEventTest(
-                detector: new DetectorStubStatic(true, expectedMessage, testAction: () => { isCancelledCheckCounter++; }),
+                detector: new SampleJobCancelledDetector(true, expectedMessage, testAction: () => { isCancelledCheckCounter++; }),
                 signalCheckPeriodSec: 1,
                 waitForEventPeriodSec: 6)
                 .FirstOrDefault();
@@ -73,7 +73,7 @@ namespace Org.Apache.REEF.IMRU.Tests
         public void JobLifeCyclemangerNoSignalDoesNotSendEvent()
         {
             var observer = JobLifeCycleMangerEventTest(
-                detector: new DetectorStubStatic(false))
+                detector: new SampleJobCancelledDetector(false))
                 .FirstOrDefault();
 
             AssertCancelEvent(observer, false);
@@ -95,7 +95,7 @@ namespace Org.Apache.REEF.IMRU.Tests
             int isCancelledCheckCounter = 0;
 
             var observer = JobLifeCycleMangerEventTest(
-                detector: new DetectorStubStatic(true, "cancelled", testAction: () => { isCancelledCheckCounter++; }),
+                detector: new SampleJobCancelledDetector(true, "cancelled", testAction: () => { isCancelledCheckCounter++; }),
                 subscribeObserver: false,
                 signalCheckPeriodSec: 1,
                 waitForEventPeriodSec: 6)
@@ -153,28 +153,28 @@ namespace Org.Apache.REEF.IMRU.Tests
         /// <summary>
         /// Test helper class to provide predefined cancel signal for testing
         /// </summary>
-        private class DetectorStubStatic : IJobCancelledDetector 
+        private class SampleJobCancelledDetector : IJobCancelledDetector
         {
-            private bool IsCancelledResponse { get; set; }
-            private string CancellationMessage { get; set; }
-            private Action ActionOnIsCancelledCall { get; set; }
+            private bool _isCancelledResponse;
+            private string _cancellationMessage;
+            private Action _actionOnIsCancelledCall;
 
-            public DetectorStubStatic(bool isCancelledResponse, string expectedMessage = null, Action testAction = null)
+            internal SampleJobCancelledDetector(bool isCancelledResponse, string expectedMessage = null, Action testAction = null)
             {
-                IsCancelledResponse = isCancelledResponse;
-                CancellationMessage = expectedMessage;
-                ActionOnIsCancelledCall = testAction;
+                _isCancelledResponse = isCancelledResponse;
+                _cancellationMessage = expectedMessage;
+                _actionOnIsCancelledCall = testAction;
             }
 
             public bool IsJobCancelled(out string cancellationMessage)
             {
-                if (ActionOnIsCancelledCall != null)
+                if (_actionOnIsCancelledCall != null)
                 {
-                    ActionOnIsCancelledCall();
+                    _actionOnIsCancelledCall();
                 }
 
-                cancellationMessage = CancellationMessage;
-                return IsCancelledResponse;
+                cancellationMessage = this._cancellationMessage;
+                return _isCancelledResponse;
             }
         }
 
@@ -183,9 +183,9 @@ namespace Org.Apache.REEF.IMRU.Tests
         /// </summary>
         private class TestObserver : IObserver<IJobCancelled> 
         {
-            public IJobCancelled LastEvent { get; private set; }
+            internal IJobCancelled LastEvent { get; private set; }
 
-            public TestObserver(IObservable<IJobCancelled> eventSource)
+            internal TestObserver(IObservable<IJobCancelled> eventSource)
             {
                 if (eventSource != null)
                 {

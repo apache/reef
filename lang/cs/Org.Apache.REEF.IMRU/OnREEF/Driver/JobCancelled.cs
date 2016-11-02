@@ -28,8 +28,8 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
     {
         internal JobCancelled(DateTime timestamp, string message)
         {
-            this.Timestamp = timestamp;
-            this.Message = message;
+            Timestamp = timestamp;
+            Message = message;
         }
 
         public DateTime Timestamp { get; private set; }

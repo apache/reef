@@ -24,7 +24,6 @@ using System.Reflection;
 using Org.Apache.REEF.Common.Catalog;
 using Org.Apache.REEF.Driver;
 using Org.Apache.REEF.Driver.Bridge;
-using Org.Apache.REEF.Driver.Bridge.Events;
 using Org.Apache.REEF.Driver.Evaluator;
 using Org.Apache.REEF.IMRU.API;
 using Org.Apache.REEF.IMRU.OnREEF.Driver;
@@ -107,6 +106,11 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
             }
         }
 
+        /// <summary>
+        /// This generates empty driver configuration which can be used to construct instance of the IMRUDriver, 
+        /// but is not functional.
+        /// this is used to unit test specific code path (like JobCancelledEvent in this case)
+        /// </summary>
         private IConfiguration GetDriverConfig<TMapInput, TMapOutput, TResult, TPartitionType>()
         {
             var testConfig = TangFactory.GetTang().NewConfigurationBuilder()
@@ -204,7 +208,7 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
 
         /// <summary>
         /// Simple Type to help with Tang injection when constructing IMRUDriver.
-        /// Cares minimum implmentation to satisfy new driver instance for test scenarios
+        /// Cares minimum implementation to satisfy new driver instance for test scenarios
         /// </summary>
         public class ImruDriverTestType : IPartitionedInputDataSet, IEvaluatorRequestor
         {

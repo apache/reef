@@ -15,9 +15,10 @@
 // specific language governing permissions and limitations
 // under the License.
 
+using Org.Apache.REEF.IMRU.API;
 using Org.Apache.REEF.Tang.Annotations;
 
-namespace Org.Apache.REEF.IMRU.API
+namespace Org.Apache.REEF.IMRU.OnREEF.Driver
 {
     /// <summary>
     /// Default implementation of IJobCancelledDetector. IsJobCancelled returns false always.

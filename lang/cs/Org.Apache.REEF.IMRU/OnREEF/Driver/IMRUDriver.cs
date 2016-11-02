@@ -126,6 +126,11 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         /// </summary>
         private int _numberOfRetries;
 
+        /// <summary>
+        /// manages lifecycle events for driver, like JobCancelled event.
+        /// </summary>
+        private readonly List<IDisposable> _disposableResources = new List<IDisposable>();
+
         private const int DefaultMaxNumberOfRetryInRecovery = 3; 
 
         [Inject]
@@ -166,7 +171,8 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
 
             if (lifecycleManager != null)
             {
-                lifecycleManager.Subscribe(this as IObserver<IJobCancelled>);
+                var handle = lifecycleManager.Subscribe(this as IObserver<IJobCancelled>);
+                _disposableResources.Add(handle);
             }
             
             var msg =
@@ -728,6 +734,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         {
             ShutDownAllEvaluators();
             Logger.Log(Level.Info, "{0} done in retry {1}!!!", DoneActionPrefix, _numberOfRetries);
+            Dispose();
         }
 
         /// <summary>
@@ -745,7 +752,30 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
                         "{0} The system cannot be recovered after {1} retries. NumberofFailedMappers in the last try is {2}, master evaluator failed is {3}.",
                         FailActionPrefix, _numberOfRetries, _evaluatorManager.NumberofFailedMappers(), _evaluatorManager.IsMasterEvaluatorFailed());
 
+            Dispose();
             Exceptions.Throw(new ApplicationException(failMessage), Logger);
+        }
+
+        /// <summary>
+        /// Dispose resources
+        /// </summary>
+        private void Dispose()
+        {
+            lock (_disposableResources)
+            {
+                _disposableResources.ForEach(handle =>
+                {
+                    try
+                    {
+                        handle.Dispose();
+                    }
+                    catch (Exception ex)
+                    {
+                        Logger.Log(Level.Error, "Failed to dispose a resource: {0}", ex);
+                    }
+                });
+                _disposableResources.Clear();
+            }
         }
 
         /// <summary>

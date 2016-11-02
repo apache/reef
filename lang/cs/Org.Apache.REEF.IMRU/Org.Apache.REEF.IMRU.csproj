@@ -58,7 +58,7 @@ under the License.
     <Compile Include="API\IMRUUpdateConfiguration.cs" />
     <Compile Include="API\IUpdateFunction.cs" />
     <Compile Include="API\IPerMapperConfigGenerator.cs" />
-    <Compile Include="API\JobCancellationDetectorAlwaysFalse.cs" />
+    <Compile Include="OnREEF\Driver\JobCancellationDetectorAlwaysFalse.cs" />
     <Compile Include="API\PerMapConfigGeneratorSet.cs" />
     <Compile Include="API\UpdateResult.cs" />
     <Compile Include="InProcess\IMRURunner.cs" />

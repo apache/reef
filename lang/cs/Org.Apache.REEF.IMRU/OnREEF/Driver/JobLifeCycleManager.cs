@@ -30,8 +30,8 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
     /// <summary>
     /// JobLifecycleManager orchestrates job cancellation flow.
     /// If job cancellation detector is configured in job definition, the manager starts a timer and periodically checks for cancellation signal.
-    /// if cancellation signal is detected, the manager creates JobCancelled event and propagates the event to all subscriber.
-    /// the manager is used by IMRU driver to enable job cancellation based on job definition.
+    /// if cancellation signal is detected, the manager creates JobCancelled event and propagates the event to all subscribers.
+    /// the manager is used by IMRU driver to enable job cancellation based on the jobCancellationConfiguration in job definition.
     /// </summary>
     internal sealed class JobLifeCycleManager :
         IDisposable,
@@ -40,10 +40,10 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
     {
         private static readonly Logger Logger = Logger.GetLogger(typeof(JobLifeCycleManager));
 
-        private Timer timer;
-        private int timerIntervalSec = 1000;
-        private IJobCancelledDetector CancellationDetector { get; set; }
-        private object lockDispose = new object();
+        private Timer _timer;
+        private readonly int _timerIntervalSec;
+        private readonly IJobCancelledDetector _cancellationDetector;
+        private readonly object _disposeLock = new object();
         private readonly List<IObserver<IJobCancelled>> _observers = new List<IObserver<IJobCancelled>>();
 
         [Inject]
@@ -51,8 +51,8 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
             IJobCancelledDetector cancelletionDetector,
             [Parameter(typeof(SleepIntervalParameter))] int sleepIntervalSec)
         {
-            this.CancellationDetector = cancelletionDetector;
-            this.timerIntervalSec = sleepIntervalSec;
+            _cancellationDetector = cancelletionDetector;
+            _timerIntervalSec = sleepIntervalSec;
         }
 
         ~JobLifeCycleManager()
@@ -62,21 +62,21 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
 
         public void OnNext(IDriverStarted value)
         {
-            if (this.CancellationDetector == null
-                || this.CancellationDetector is JobCancellationDetectorAlwaysFalse
-                || timerIntervalSec <= 0)
+            if (_cancellationDetector == null
+                || _cancellationDetector is JobCancellationDetectorAlwaysFalse
+                || _timerIntervalSec <= 0)
             {
-                Logger.Log(Level.Info, "Cancellation detector is null or default or timer internval is negative - no need to start Timer for job lifecycle manager. CancellationDetector: {0}, timer interval: {1}", CancellationDetector, timerIntervalSec);
+                Logger.Log(Level.Info, "Cancellation detector is null or default or timer internval is negative - no need to start Timer for job lifecycle manager. _cancellationDetector: {0}, _timer interval: {1}", _cancellationDetector, _timerIntervalSec);
                 return;
             }
 
-            Logger.Log(Level.Info, "OnDriverStart: starting timer to monitor job status. timer interval: {0}, cancellation detector: {1}", timerIntervalSec, CancellationDetector);
+            Logger.Log(Level.Info, "OnDriverStart: starting timer to monitor job status. _timer interval: {0}, cancellation detector: {1}", _timerIntervalSec, _cancellationDetector);
 
             // start timer to monitor cancellation signal
-            timer = new Timer(timerIntervalSec * 1000);
-            timer.Elapsed += OnTimer;
-            timer.AutoReset = true;
-            timer.Start();
+            _timer = new Timer(_timerIntervalSec * 1000);
+            _timer.Elapsed += OnTimer;
+            _timer.AutoReset = true;
+            _timer.Start();
         }
 
         public IDisposable Subscribe(IObserver<IJobCancelled> observer)
@@ -99,15 +99,15 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
 
         public void Dispose()
         {
-            if (this.timer != null)
+            if (_timer != null)
             {
-                lock (lockDispose)
+                lock (_disposeLock)
                 {
-                    if (timer != null)
+                    if (_timer != null)
                     {
-                        timer.Stop();
-                        timer.Dispose();
-                        timer = null;
+                        _timer.Stop();
+                        _timer.Dispose();
+                        _timer = null;
                     }
                 }
             }
@@ -157,7 +157,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
 
             try
             {
-                isCancelled = CancellationDetector != null && CancellationDetector.IsJobCancelled(out cancellationMessage);
+                isCancelled = _cancellationDetector != null && _cancellationDetector.IsJobCancelled(out cancellationMessage);
             }
             catch (Exception ex)
             {
@@ -174,7 +174,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
 
             public AnonymousDisposable(Action disposeAction)
             {
-                this.DisposeAction = disposeAction;
+                DisposeAction = disposeAction;
             }
 
             public void Dispose()
