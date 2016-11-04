@@ -39,7 +39,7 @@ import javax.inject.Inject;
 import java.io.IOException;
 
 /**
- * ConfigurationModule for the FSCheckPointService.
+ * ConfigurationModule for the FSCheckpointService.
  * This can be used to create Evaluator-side configurations of the checkpointing service.
  */
 @DriverSide
@@ -65,11 +65,15 @@ public class FSCheckPointServiceConfiguration extends ConfigurationModuleBuilder
    * Prefix for checkpoint files (optional).
    */
   public static final OptionalParameter<String> PREFIX = new OptionalParameter<>();
+
+
   public static final ConfigurationModule CONF = new FSCheckPointServiceConfiguration()
+
       .bindImplementation(CheckpointService.class, FSCheckpointService.class) // Use the HDFS based checkpoints
       .bindImplementation(CheckpointNamingService.class, RandomNameCNS.class) // Use Random Names for the checkpoints
       .bindImplementation(CheckpointID.class, FSCheckpointID.class)
       .bindConstructor(FileSystem.class, FileSystemConstructor.class)
+
       .bindNamedParameter(FileSystemConstructor.IsLocal.class, IS_LOCAL)
       .bindNamedParameter(FSCheckpointService.PATH.class, PATH)
       .bindNamedParameter(FSCheckpointService.ReplicationFactor.class, REPLICATION_FACTOR)

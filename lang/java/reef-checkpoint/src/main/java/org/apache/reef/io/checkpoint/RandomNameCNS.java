@@ -26,20 +26,31 @@ import org.apache.reef.tang.annotations.Parameter;
 import javax.inject.Inject;
 
 /**
- * Simple naming service that generates a random checkpoint name.
+ * A naming service that generates a random checkpoint name by appending a random alphanumeric string (suffix)
+ * of a given length to a user-supplied prefix string.
  */
 public class RandomNameCNS implements CheckpointNamingService {
 
   private final String prefix;
+  private final int lengthOfRandomSuffix;
 
-  @Inject
+  @Deprecated
   public RandomNameCNS(@Parameter(PREFIX.class) final String prefix) {
     this.prefix = prefix;
+    this.lengthOfRandomSuffix
+            = Integer.parseInt(LengthOfRandomSuffix.class.getAnnotation(NamedParameter.class).default_value());
+  }
+
+  @Inject
+  private RandomNameCNS(@Parameter(PREFIX.class) final String prefix,
+                        @Parameter(LengthOfRandomSuffix.class) final int lengthOfRandomSuffix) {
+    this.prefix = prefix;
+    this.lengthOfRandomSuffix = lengthOfRandomSuffix;
   }
 
   @Override
   public String getNewName() {
-    return this.prefix + RandomStringUtils.randomAlphanumeric(8);
+    return this.prefix + RandomStringUtils.randomAlphanumeric(lengthOfRandomSuffix);
   }
 
   /**
@@ -47,6 +58,13 @@ public class RandomNameCNS implements CheckpointNamingService {
    */
   @NamedParameter(doc = "The prefix used for the random names returned.", default_value = "checkpoint_")
   public static class PREFIX implements Name<String> {
+  }
+
+  /**
+   * Number of alphanumeric characters in the random part of a checkpoint name.
+   */
+  @NamedParameter(doc = "Number of alphanumeric chars in the random part of a checkpoint name.", default_value = "8")
+  public static class LengthOfRandomSuffix implements Name<Integer> {
   }
 
 }
