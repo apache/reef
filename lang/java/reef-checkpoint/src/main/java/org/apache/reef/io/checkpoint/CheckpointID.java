@@ -21,10 +21,9 @@ package org.apache.reef.io.checkpoint;
 import org.apache.hadoop.io.Writable;
 
 /**
- * This class represent the identified (memento) for a checkpoint. It is allowed
- * to contain small amount of metadata about a checkpoint and must provide sufficient
- * information to the corresponding CheckpointService to locate and retrieve the
- * data contained in the checkpoint.
+ * This class represent an identifier of a checkpoint.
+ * The identifier must provide sufficient information to the corresponding CheckpointService to locate and retrieve the
+ * data contained in the checkpoint. The identifier can also contain small amount of metadata about a checkpoint.
  */
 public interface CheckpointID extends Writable {
 

@@ -26,6 +26,7 @@ import javax.inject.Inject;
 
 /**
  * A naming service that simply returns the name it has been initialized with.
+ * Note that the name is always the same.
  */
 public class SimpleNamingService implements CheckpointNamingService {
 
@@ -37,7 +38,7 @@ public class SimpleNamingService implements CheckpointNamingService {
   }
 
   /**
-   * Generate a new checkpoint Name.
+   * Generate a new checkpoint name.
    *
    * @return the checkpoint name
    */
@@ -49,7 +50,7 @@ public class SimpleNamingService implements CheckpointNamingService {
   /**
    * Prefix for checkpoints.
    */
-  @NamedParameter(doc = "Checkpoint prefix.", short_name = "checkpoint_prefix", default_value = "reef")
+  @NamedParameter(doc = "Checkpoint name.", short_name = "checkpoint_name", default_value = "reef")
   public static final class CheckpointName implements Name<String> {
   }
 }

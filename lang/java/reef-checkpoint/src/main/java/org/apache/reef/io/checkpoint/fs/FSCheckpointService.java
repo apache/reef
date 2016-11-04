@@ -39,10 +39,12 @@ import java.nio.channels.WritableByteChannel;
 
 /**
  * A FileSystem based CheckpointService.
+ *
+ * Note that this implementation creates a temporary file first and moves it to final destination at commit time.
  */
 public class FSCheckpointService implements CheckpointService {
 
-  private final Path base;
+  private final Path basePath;
   private final FileSystem fs;
   private final CheckpointNamingService namingPolicy;
   private final short replication;
@@ -53,7 +55,7 @@ public class FSCheckpointService implements CheckpointService {
                       final CheckpointNamingService namingPolicy,
                       @Parameter(ReplicationFactor.class) final short replication) {
     this.fs = fs;
-    this.base = new Path(basePath);
+    this.basePath = new Path(basePath);
     this.namingPolicy = namingPolicy;
     this.replication = replication;
   }
@@ -63,7 +65,7 @@ public class FSCheckpointService implements CheckpointService {
                              final CheckpointNamingService namingPolicy,
                              final short replication) {
     this.fs = fs;
-    this.base = base;
+    this.basePath = base;
     this.namingPolicy = namingPolicy;
     this.replication = replication;
   }
@@ -76,77 +78,95 @@ public class FSCheckpointService implements CheckpointService {
       throws IOException {
 
     final String name = namingPolicy.getNewName();
-
     final Path p = new Path(name);
     if (p.isUriPathAbsolute()) {
-      throw new IOException("Checkpoint cannot be an absolute path");
+      throw new IOException("Checkpoint name cannot be an absolute path.");
     }
-    return createInternal(new Path(base, p));
+
+    return createInternal(new Path(basePath, p));
   }
+
 
   CheckpointWriteChannel createInternal(final Path name) throws IOException {
 
-    //create a temp file, fail if file exists
+   /*  Create a temp file, fail if file exists.
+       The likely reason to do so (I am not the original author) is to check that the file is indeed writable.
+       Checking this directly via a file system call may lead to a time-of-check/time-of-use race condition.
+       See the pull request for REEF-1659 for discussion.
+   */
     return new FSCheckpointWriteChannel(name, fs.create(tmpfile(name), replication));
   }
 
   @Override
   public CheckpointReadChannel open(final CheckpointID id)
       throws IOException, InterruptedException {
+
     if (!(id instanceof FSCheckpointID)) {
       throw new IllegalArgumentException(
-          "Mismatched checkpoint type: " + id.getClass());
+          "Mismatched checkpoint id type. Expected FSCheckpointID, but actually got " + id.getClass());
     }
+
     return new FSCheckpointReadChannel(
         fs.open(((FSCheckpointID) id).getPath()));
   }
 
   @Override
-  public CheckpointID commit(final CheckpointWriteChannel ch) throws IOException,
-      InterruptedException {
+  public CheckpointID commit(final CheckpointWriteChannel ch)
+          throws IOException, InterruptedException {
+
     if (ch.isOpen()) {
       ch.close();
     }
+
     final FSCheckpointWriteChannel hch = (FSCheckpointWriteChannel) ch;
     final Path dst = hch.getDestination();
+
     if (!fs.rename(tmpfile(dst), dst)) {
       // attempt to clean up
       abort(ch);
       throw new IOException("Failed to promote checkpoint" +
           tmpfile(dst) + " -> " + dst);
     }
+
     return new FSCheckpointID(hch.getDestination());
   }
 
   @Override
   public void abort(final CheckpointWriteChannel ch) throws IOException {
+
     if (ch.isOpen()) {
       ch.close();
     }
+
     final FSCheckpointWriteChannel hch = (FSCheckpointWriteChannel) ch;
     final Path tmp = tmpfile(hch.getDestination());
+
     try {
       if (!fs.delete(tmp, false)) {
-        throw new IOException("Failed to delete checkpoint during abort");
+        throw new IOException("Failed to delete a temporary checkpoint file during abort. Path: " + tmp);
       }
     } catch (final FileNotFoundException ignored) {
       // IGNORE
     }
+
   }
 
   @Override
-  public boolean delete(final CheckpointID id) throws IOException,
-      InterruptedException {
+  public boolean delete(final CheckpointID id)
+          throws IOException, InterruptedException {
+
     if (!(id instanceof FSCheckpointID)) {
       throw new IllegalArgumentException(
-          "Mismatched checkpoint type: " + id.getClass());
+              "Mismatched checkpoint id type. Expected FSCheckpointID, but actually got " + id.getClass());
     }
+
     final Path tmp = ((FSCheckpointID) id).getPath();
     try {
       return fs.delete(tmp, false);
     } catch (final FileNotFoundException ignored) {
       // IGNORE
     }
+
     return true;
   }
 
@@ -160,6 +180,7 @@ public class FSCheckpointService implements CheckpointService {
 
   private static class FSCheckpointWriteChannel
       implements CheckpointWriteChannel {
+
     private final Path finalDst;
     private final WritableByteChannel out;
     private boolean isOpen = true;

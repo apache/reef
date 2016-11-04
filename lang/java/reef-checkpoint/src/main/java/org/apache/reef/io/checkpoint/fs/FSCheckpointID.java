@@ -34,8 +34,9 @@ public class FSCheckpointID implements CheckpointID {
 
   private Path path;
 
-  public FSCheckpointID() {
-  }
+  // CheckpointID extends Hadoop Writable interface that enables serialization
+  // Java serialization requires a (potentially empty) public default constructor
+  public FSCheckpointID(){}
 
   public FSCheckpointID(final Path path) {
     this.path = path;
@@ -62,8 +63,8 @@ public class FSCheckpointID implements CheckpointID {
 
   @Override
   public boolean equals(final Object other) {
-    return other instanceof FSCheckpointID
-        && path.equals(((FSCheckpointID) other).path);
+    return (other instanceof FSCheckpointID)
+            && path.equals(((FSCheckpointID) other).path);
   }
 
   @Override

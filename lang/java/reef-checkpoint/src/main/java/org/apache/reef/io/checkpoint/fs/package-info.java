@@ -17,6 +17,6 @@
  * under the License.
  */
 /**
- * FileSystem based checkpoints.
+ * Provides an example implementation of a CheckpointService based on a file system.
  */
 package org.apache.reef.io.checkpoint.fs;
