@@ -23,6 +23,7 @@ import org.apache.reef.util.OSUtils;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -31,6 +32,8 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * A runnable class that encapsulates a process.
@@ -105,7 +108,7 @@ public final class RunnableProcess implements Runnable {
       final String standardErrorFileName) {
 
     this.processObserver = processObserver;
-    this.command = Collections.unmodifiableList(command);
+    this.command = Collections.unmodifiableList(expandEnvironmentVariables(command));
     this.id = id;
     this.folder = folder;
 
@@ -118,6 +121,45 @@ public final class RunnableProcess implements Runnable {
     this.standardErrorFileName = standardErrorFileName;
 
     LOG.log(Level.FINEST, "RunnableProcess ready.");
+  }
+
+  private static final Pattern ENV_REGEX = Pattern.compile("\\{\\{(\\w+)}}");
+
+  /**
+   * Replace {{ENV_VAR}} placeholders with the values of the corresponding environment variables.
+   * @param command An input string with {{ENV_VAR}} placeholders
+   * to be replaced with the values of the corresponding environment variables.
+   * Replace unknown/unset variables with an empty string.
+   * @return A new string with all the placeholders expanded.
+   */
+  public static String expandEnvironmentVariables(final String command) {
+
+    final Matcher match = ENV_REGEX.matcher(command);
+    final StringBuilder res = new StringBuilder(command.length());
+
+    int i = 0;
+    while (match.find()) {
+      final String var = System.getenv(match.group(1));
+      res.append(command.substring(i, match.start())).append(var == null ? "" : var);
+      i = match.end();
+    }
+
+    return res.append(command.substring(i, command.length())).toString();
+  }
+
+  /**
+   * Replace {{ENV_VAR}} placeholders with the values of the corresponding environment variables.
+   * @param command An input list of strings with {{ENV_VAR}} placeholders
+   * to be replaced with the values of the corresponding environment variables.
+   * Replace unknown/unset variables with an empty string.
+   * @return A new list of strings with all the placeholders expanded.
+   */
+  public static List<String> expandEnvironmentVariables(final List<String> command) {
+    final ArrayList<String> res = new ArrayList<>(command.size());
+    for (final String cmd : command) {
+      res.add(expandEnvironmentVariables(cmd));
+    }
+    return res;
   }
 
   /**
@@ -157,9 +199,7 @@ public final class RunnableProcess implements Runnable {
         this.processObserver.onProcessStarted(this.id);
 
       } catch (final IOException ex) {
-        LOG.log(Level.SEVERE,
-            "Unable to spawn process \"{0}\" wth command {1}\n Exception:{2}",
-            new Object[] {this.id, this.command, ex});
+        LOG.log(Level.SEVERE, "Unable to spawn process " + this.id + " with command " + this.command, ex);
       }
 
     } finally {

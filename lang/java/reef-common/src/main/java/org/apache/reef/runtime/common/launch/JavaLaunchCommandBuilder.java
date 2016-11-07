@@ -37,19 +37,22 @@ import java.util.regex.Pattern;
  * Build the launch command for Java REEF processes.
  */
 public final class JavaLaunchCommandBuilder implements LaunchCommandBuilder {
+
   private static final Logger LOG = Logger.getLogger(JavaLaunchCommandBuilder.class.getName());
 
-  private static final String DEFAULT_JAVA_PATH = System.getenv("JAVA_HOME") + "/bin/" + "java";
+  private static final String DEFAULT_JAVA_PATH = "{{JAVA_HOME}}/bin/java";
   private static final String[] DEFAULT_OPTIONS = {"-XX:PermSize=128m", "-XX:MaxPermSize=128m"};
+
+  private final Map<String, JVMOption> options = new HashMap<>();
+  private final List<String> commandPrefixList;
+  private final Class launcherClass;
+
   private String stderrPath = null;
   private String stdoutPath = null;
   private Optional<List<String>> evaluatorConfigurationPaths = Optional.empty();
   private String javaPath = null;
   private String classPath = null;
   private Boolean assertionsEnabled = null;
-  private final Map<String, JVMOption> options = new HashMap<>();
-  private final List<String> commandPrefixList;
-  private final Class launcherClass;
 
   /**
    * Constructor that populates default options, using the default Launcher
