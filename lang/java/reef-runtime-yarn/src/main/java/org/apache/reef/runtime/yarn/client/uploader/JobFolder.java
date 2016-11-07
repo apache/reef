@@ -57,53 +57,57 @@ public final class JobFolder {
   }
 
   /**
-   * Uploads the given file to the DFS.
-   *
-   * @param localFile
+   * Upload given file to the DFS.
+   * @param localFile File on local FS to upload to the (remote) DFS.
    * @return the Path representing the file on the DFS.
-   * @throws IOException
+   * @throws IOException if unable to upload the file or local file cannot be read.
    */
   public Path upload(final File localFile) throws IOException {
+
     if (!localFile.exists()) {
       throw new FileNotFoundException(localFile.getAbsolutePath());
     }
 
     final Path source = new Path(localFile.getAbsolutePath());
     final Path destination = new Path(this.path, localFile.getName());
+
     try {
       this.fileSystem.copyFromLocalFile(source, destination);
-    } catch (final IOException e) {
-      LOG.log(Level.SEVERE, "Unable to upload {0} to {1}", new Object[]{source, destination});
-      throw e;
+    } catch (final IOException ex) {
+      LOG.log(Level.SEVERE, "Unable to upload " + source + " to " + destination, ex);
+      throw ex;
     }
-    LOG.log(Level.FINE, "Uploaded {0} to {1}", new Object[]{source, destination});
+
+    LOG.log(Level.FINE, "Uploaded {0} to {1}", new Object[] {source, destination});
 
     return destination;
   }
 
   /**
    * Shortcut to first upload the file and then form a LocalResource for the YARN submission.
-   *
-   * @param localFile
-   * @return
-   * @throws IOException
+   * @param localFile File on local FS to upload to the (remote) DFS.
+   * @return an instance of a LocalResource on (remote) DFS.
+   * @throws IOException if unable to upload the file or local file cannot be read.
    */
   public LocalResource uploadAsLocalResource(final File localFile, final LocalResourceType type) throws IOException {
-    final Path p = upload(localFile);
-    return getLocalResourceForPath(p, type);
+    final Path remoteFile = upload(localFile);
+    return getLocalResourceForPath(remoteFile, type);
   }
 
   /**
    * Creates a LocalResource instance for the JAR file referenced by the given Path.
    */
   public LocalResource getLocalResourceForPath(final Path jarPath, final LocalResourceType type) throws IOException {
-    final LocalResource localResource = Records.newRecord(LocalResource.class);
+
     final FileStatus status = FileContext.getFileContext(fileSystem.getUri()).getFileStatus(jarPath);
+
+    final LocalResource localResource = Records.newRecord(LocalResource.class);
     localResource.setType(type);
     localResource.setVisibility(LocalResourceVisibility.APPLICATION);
     localResource.setResource(ConverterUtils.getYarnUrlFromPath(status.getPath()));
     localResource.setTimestamp(status.getModificationTime());
     localResource.setSize(status.getLen());
+
     return localResource;
   }
 

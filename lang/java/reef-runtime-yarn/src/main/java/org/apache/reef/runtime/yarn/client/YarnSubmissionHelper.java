@@ -81,14 +81,14 @@ public final class YarnSubmissionHelper implements Closeable{
 
     LOG.log(Level.FINE, "Requesting Application ID from YARN.");
     this.yarnClientApplication = this.yarnClient.createApplication();
-    this.applicationResponse = yarnClientApplication.getNewApplicationResponse();
-    this.applicationSubmissionContext = yarnClientApplication.getApplicationSubmissionContext();
-    this.applicationId = applicationSubmissionContext.getApplicationId();
+    this.applicationResponse = this.yarnClientApplication.getNewApplicationResponse();
+    this.applicationSubmissionContext = this.yarnClientApplication.getApplicationSubmissionContext();
+    this.applicationId = this.applicationSubmissionContext.getApplicationId();
     this.tokenProvider = tokenProvider;
     this.commandPrefixList = commandPrefixList;
     this.launcherClazz = REEFLauncher.class;
     this.configurationFilePaths = Collections.singletonList(this.fileNames.getDriverConfigurationPath());
-    LOG.log(Level.FINEST, "YARN Application ID: {0}", applicationId);
+    LOG.log(Level.INFO, "YARN Application ID: {0}", this.applicationId);
   }
 
   public YarnSubmissionHelper(final YarnConfiguration yarnConfiguration,
