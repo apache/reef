@@ -135,6 +135,7 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
         /// <param name="mapperMemory"></param>
         /// <param name="updateTaskMemory"></param>
         /// <param name="numberOfRetryInRecovery"></param>
+        /// <param name="numberOfChecksBeforeCancellingJob"></param>
         /// <returns></returns>
         protected override IMRUJobDefinition CreateIMRUJobDefinitionBuilder(int numberofMappers,
             int chunkSize,
@@ -142,7 +143,8 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
             int dim,
             int mapperMemory,
             int updateTaskMemory,
-            int numberOfRetryInRecovery)
+            int numberOfRetryInRecovery,
+            int? numberOfChecksBeforeCancellingJob = null)
         {
             return new IMRUJobDefinitionBuilder()
                 .SetUpdateTaskStateConfiguration(UpdateTaskStateConfiguration())

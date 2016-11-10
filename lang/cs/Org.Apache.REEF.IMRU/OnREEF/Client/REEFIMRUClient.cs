@@ -108,7 +108,6 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Client
                     .Set(DriverConfiguration.OnTaskRunning,
                         GenericType<IMRUDriver<TMapInput, TMapOutput, TResult, TPartitionType>>.Class)
                     .Set(DriverConfiguration.CustomTraceLevel, TraceLevel.Info.ToString())
-                    .Set(DriverConfiguration.OnDriverStarted, GenericType<JobLifeCycleManager>.Class)
                     .Build(),
                 TangFactory.GetTang().NewConfigurationBuilder()
                     .BindStringNamedParam<GroupCommConfigurationOptions.DriverId>(driverId)

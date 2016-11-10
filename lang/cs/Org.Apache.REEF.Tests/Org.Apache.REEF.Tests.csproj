@@ -118,13 +118,13 @@ under the License.
     <Compile Include="Functional\FaultTolerant\TestContextStart.cs" />
     <Compile Include="Functional\FaultTolerant\TestResubmitEvaluator.cs" />
     <Compile Include="Functional\FaultTolerant\TestResubmitTask.cs" />
+    <Compile Include="Functional\IMRU\IMRUBroadcastReduceJobCancelledTest.cs" />
     <Compile Include="Functional\IMRU\IMRUBroadcastReduceTest.cs" />
     <Compile Include="Functional\IMRU\IMRUBroadcastReduceWithFilePartitionDataSetTest.cs" />
     <Compile Include="Functional\IMRU\IMRUBroadcastReduceWithLocalFile.cs" />
     <Compile Include="Functional\IMRU\IMRUBrodcastReduceWithoutIMRUClientTest.cs" />
     <Compile Include="Functional\IMRU\IMRUBrodcastReduceTestBase.cs" />
     <Compile Include="Functional\IMRU\IMRUCloseTaskTest.cs" />
-    <Compile Include="Functional\IMRU\ImruJobCancelledTests.cs" />
     <Compile Include="Functional\IMRU\IMRUMapperCountTest.cs" />
     <Compile Include="Functional\IMRU\TestFailUpdateEvaluatorOnWaitingForEvaluator.cs" />
     <Compile Include="Functional\IMRU\TestFailMapperTasksOnDispose.cs" />

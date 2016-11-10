@@ -24,9 +24,10 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
     /// <summary>
     /// interface for job lifecycle manager.
     /// Is used by IMRU driver to sign up for IJobCancelled events.
+    /// 
     /// </summary>
     [DefaultImplementation(typeof(JobLifeCycleManager))]
-    public interface IJobLifecycleManager : IObservable<IJobCancelled>
+    internal interface IJobLifecycleManager : IObservable<IJobCancelled>
     {
     }
 }

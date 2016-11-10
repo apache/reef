@@ -127,7 +127,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         private int _numberOfRetries;
 
         /// <summary>
-        /// manages lifecycle events for driver, like JobCancelled event.
+        /// Manages lifecycle events for driver, like JobCancelled event.
         /// </summary>
         private readonly List<IDisposable> _disposableResources = new List<IDisposable>();
 
@@ -461,9 +461,6 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
                         _taskManager.RecordCompletedTask(completedTask);
                         TryRecovery();
                         break;
-                    case SystemState.Fail:
-                        FailAction();
-                        break;
                     default:
                         UnexpectedState(completedTask.Id, "ICompletedTask");
                         break;
@@ -659,10 +656,6 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
                             TryRecovery();
                             break;
 
-                        case SystemState.Fail:
-                            FailAction();
-                            break;
-
                         default:
                             UnexpectedState(failedTask.Id, "IFailedTask");
                             break;
@@ -674,9 +667,12 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
 
         public void OnNext(IJobCancelled value)
         {
-            _cancelEvent = value;
-            _systemState.MoveNext(SystemStateEvent.NotRecoverable);
-            FailAction();
+            lock (_lock)
+            {
+                _cancelEvent = value;
+                _systemState.MoveNext(SystemStateEvent.NotRecoverable);
+                FailAction();
+            }
         }
 
         public void OnError(Exception error)
@@ -734,7 +730,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         {
             ShutDownAllEvaluators();
             Logger.Log(Level.Info, "{0} done in retry {1}!!!", DoneActionPrefix, _numberOfRetries);
-            Dispose();
+            DisposeResources();
         }
 
         /// <summary>
@@ -752,14 +748,14 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
                         "{0} The system cannot be recovered after {1} retries. NumberofFailedMappers in the last try is {2}, master evaluator failed is {3}.",
                         FailActionPrefix, _numberOfRetries, _evaluatorManager.NumberofFailedMappers(), _evaluatorManager.IsMasterEvaluatorFailed());
 
-            Dispose();
+            DisposeResources();
             Exceptions.Throw(new ApplicationException(failMessage), Logger);
         }
 
         /// <summary>
         /// Dispose resources
         /// </summary>
-        private void Dispose()
+        private void DisposeResources()
         {
             lock (_disposableResources)
             {
@@ -774,6 +770,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
                         Logger.Log(Level.Error, "Failed to dispose a resource: {0}", ex);
                     }
                 });
+
                 _disposableResources.Clear();
             }
         }

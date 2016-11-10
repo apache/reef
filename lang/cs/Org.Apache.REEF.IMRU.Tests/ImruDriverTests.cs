@@ -41,15 +41,12 @@ using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Tang.Util;
 using Xunit;
 
-namespace Org.Apache.REEF.Tests.Functional.IMRU
+namespace Org.Apache.REEF.IMRU.Tests
 {
-    public class ImruJobCancelledTests
+    public class ImruDriverTests
     {
-        /// <summary>
-        /// Verifies that IMRU driver handles cancel signal: 
-        /// changes state to Fail and throw exception with "cancelled" message
-        /// </summary>
         [Fact]
+        [Trait("Description", "Verifies that IMRU driver handles cancel signal: changes state to Fail and throw exception with predefined message.")]
         public void ImruDriverHandlesCancelledEventAfterStart()
         {
             var driver = TangFactory
@@ -151,7 +148,6 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
                         .Set(DriverConfiguration.OnTaskRunning,
                             GenericType<IMRUDriver<TMapInput, TMapOutput, TResult, TPartitionType>>.Class)
                         .Set(DriverConfiguration.CustomTraceLevel, TraceLevel.Info.ToString())
-                        .Set(DriverConfiguration.OnDriverStarted, GenericType<JobLifeCycleManager>.Class)
                         .Build(),
                     TangFactory.GetTang().NewConfigurationBuilder()
                         .BindStringNamedParam<GroupCommConfigurationOptions.DriverId>("driverId")

@@ -38,6 +38,7 @@ namespace Org.Apache.REEF.IMRU.API
         private readonly IConfiguration _mapInputPipelineDataConverterConfiguration;
         private readonly IConfiguration _partitionedDatasetConfiguration;
         private readonly IConfiguration _resultHandlerConfiguration;
+        private readonly IConfiguration _jobCancelSignalConfiguration;
         private readonly int _numberOfMappers;
         private readonly int _memoryPerMapper;
         private readonly int _updateTaskMemory;
@@ -118,7 +119,7 @@ namespace Org.Apache.REEF.IMRU.API
             _perMapConfigGeneratorConfig = perMapConfigGeneratorConfig;
             _invokeGC = invokeGC;
             _resultHandlerConfiguration = resultHandlerConfiguration;
-            this.JobCancelSignalConfiguration = jobCancelSignalConfiguration;
+            _jobCancelSignalConfiguration = jobCancelSignalConfiguration;
         }
 
         /// <summary>
@@ -289,6 +290,9 @@ namespace Org.Apache.REEF.IMRU.API
         /// <summary>
         /// Configuration for job cancellation signal implementation
         /// </summary>
-        internal IConfiguration JobCancelSignalConfiguration { get; private set; }
+        internal IConfiguration JobCancelSignalConfiguration
+        {
+            get { return _jobCancelSignalConfiguration; }
+        }
     }
 }

@@ -35,8 +35,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
     /// </summary>
     internal sealed class JobLifeCycleManager :
         IDisposable,
-        IJobLifecycleManager,
-        IObserver<IDriverStarted>
+        IJobLifecycleManager
     {
         private static readonly Logger Logger = Logger.GetLogger(typeof(JobLifeCycleManager));
 
@@ -53,6 +52,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         {
             _cancellationDetector = cancelletionDetector;
             _timerIntervalSec = sleepIntervalSec;
+            InitTimer();
         }
 
         ~JobLifeCycleManager()
@@ -60,27 +60,38 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
             Dispose();
         }
 
-        public void OnNext(IDriverStarted value)
+        private void InitTimer()
         {
-            if (_cancellationDetector == null
-                || _cancellationDetector is JobCancellationDetectorAlwaysFalse
-                || _timerIntervalSec <= 0)
+            if (_cancellationDetector == null)
             {
-                Logger.Log(Level.Info, "Cancellation detector is null or default or timer internval is negative - no need to start Timer for job lifecycle manager. _cancellationDetector: {0}, _timer interval: {1}", _cancellationDetector, _timerIntervalSec);
+                Logger.Log(Level.Info, "Cancellation detector is null - no need to start Timer for job lifecycle manager");
                 return;
             }
 
-            Logger.Log(Level.Info, "OnDriverStart: starting timer to monitor job status. _timer interval: {0}, cancellation detector: {1}", _timerIntervalSec, _cancellationDetector);
+            if (_cancellationDetector is JobCancellationDetectorAlwaysFalse)
+            {
+                Logger.Log(Level.Info, "Cancellation detector is default - no need to start Timer for job lifecycle manager.");
+                return;
+            }
+
+            if (_timerIntervalSec <= 0)
+            {
+                Logger.Log(Level.Info, "Timer interval ({0}) is not positive - can't start Timer for job lifecycle manager.", _timerIntervalSec);
+                return;
+            }
+    
+            Logger.Log(Level.Info, "initializing timer to monitor job status. _timer interval: {0}, cancellation detector: {1}", _timerIntervalSec, _cancellationDetector);
 
             // start timer to monitor cancellation signal
             _timer = new Timer(_timerIntervalSec * 1000);
             _timer.Elapsed += OnTimer;
             _timer.AutoReset = true;
-            _timer.Start();
         }
 
         public IDisposable Subscribe(IObserver<IJobCancelled> observer)
         {
+            Logger.Log(Level.Info, "Adding subscriber: {0}", observer);
+
             if (observer == null)
             {
                 throw new ArgumentNullException("observer");
@@ -91,6 +102,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
                 if (!_observers.Contains(observer))
                 {
                     _observers.Add(observer);
+                    EnsureTimerStarted();
                 }
             }
 
@@ -123,24 +135,68 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
 
         private void Unsubscribe(IObserver<IJobCancelled> observer)
         {
+            Logger.Log(Level.Info, "Removing subscriber: {0}", observer);
+
             lock (_observers)
             {
                 _observers.Remove(observer);
+                if (!_observers.Any())
+                {
+                    EnsureTimerStopped();
+                }
+            }
+        }
+
+        private void EnsureTimerStarted()
+        {
+            Logger.Log(Level.Info, "Ensure Timer STARTED. Current timer enabled state: {0}", GetTimerEnabledState());
+
+            // _timer can be null if initialization detected it will not work as expected - corresponding logs created
+            // or after dispose, in both case ignore the timer start.
+            if (_timer != null && !_timer.Enabled)
+            {
+                _timer.Start();
+                Logger.Log(Level.Info, "Timer started");
+            }
+        }
+
+        private string GetTimerEnabledState()
+        {
+            return _timer == null ? "timer is null" : _timer.Enabled.ToString();
+        }
+
+        private void EnsureTimerStopped()
+        {
+            Logger.Log(Level.Info, "Ensure Timer STOPPED. Current timer enabled state: {0}", GetTimerEnabledState());
+
+            if (_timer != null)
+            {
+                _timer.Stop();
+                Logger.Log(Level.Info, "Timer stopped");
             }
         }
 
         private void OnTimer(object source, ElapsedEventArgs e)
         {
-            if (!_observers.Any())
+            lock (_observers)
             {
-                Logger.Log(Level.Warning, "There are no observers for cancellation event: skipping cancellation detection");
-                return;
+                if (!_observers.Any())
+                {
+                    Logger.Log(Level.Info,
+                        "There are no observers for cancellation event: skipping cancellation detection");
+                    return;
+                }
             }
 
             string cancellationMessage = null;
             if (IsJobCancelled(out cancellationMessage))
             {
-                Logger.Log(Level.Info, "Detected Job cancellation ({0}): sending JobCancelled event to observers: {1}", cancellationMessage, _observers);
+                Logger.Log(
+                    Level.Info, 
+                    "Detected Job cancellation ({0}): sending JobCancelled event to observers: {1}", 
+                    cancellationMessage, 
+                    ToCsvString(_observers));
+
                 var cancelEvent = new JobCancelled(DateTime.Now, cancellationMessage);
 
                 lock (_observers)
@@ -148,6 +204,16 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
                     _observers.ForEach(o => o.OnNext(cancelEvent));
                 }
             }
+        }
+
+        private static string ToCsvString<T>(IEnumerable<T> list)
+        {
+            if (list == null)
+            {
+                return "null";
+            }
+
+            return string.Join(",", list.Take(10).Select(m => m == null ? "null" : m.ToString()));
         }
 
         private bool IsJobCancelled(out string cancellationMessage)

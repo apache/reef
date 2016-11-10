@@ -30,6 +30,7 @@ namespace Org.Apache.REEF.IMRU.Tests
     public class JobLifecycleManagerTest
     {
         [Fact]
+        [Trait("Description", "Verify that JobCancelled event is sent when cancellation signal is detected.")]
         public void JobLifeCyclemangerSendsJobCancelledEvent()
         {
             string expectedMessage = "cancelled";
@@ -41,6 +42,7 @@ namespace Org.Apache.REEF.IMRU.Tests
         }
 
         [Fact]
+        [Trait("Description", "Verify that JobCancelled Event can be sent to all subscribers in case of multiply observers.")]
         public void JobLifeCyclemangerSendsJobCancelledEventToMultiplyObservers()
         {
             string expectedMessage = "cancelled";
@@ -54,6 +56,7 @@ namespace Org.Apache.REEF.IMRU.Tests
         }
 
         [Fact]
+        [Trait("Description", "Verify that IsCancelled check is performed with specified period.")]
         public void JobLifeCyclemangerChecksDetectorPeriodically()
         {
             string expectedMessage = "cancelled";
@@ -70,6 +73,7 @@ namespace Org.Apache.REEF.IMRU.Tests
         }
 
         [Fact]
+        [Trait("Description", "Verify that JobLifecycle amanger does not sent any cancellation events if signal is not generated.")]
         public void JobLifeCyclemangerNoSignalDoesNotSendEvent()
         {
             var observer = JobLifeCycleMangerEventTest(
@@ -80,6 +84,7 @@ namespace Org.Apache.REEF.IMRU.Tests
         }
 
         [Fact]
+        [Trait("Description", "Verify that no cancellation event is sent if configured detector is null.")]
         public void JobLifeCyclemangerDetectorNullDoesNotSendEvent()
         {
             var observer = JobLifeCycleMangerEventTest(
@@ -90,6 +95,7 @@ namespace Org.Apache.REEF.IMRU.Tests
         }
 
         [Fact]
+        [Trait("Description", "Verify that cancellation checks are not performed if there are no observers.")]
         public void JobLifeCyclemangerNoObserversDoesNotCheckForSignal()
         {
             int isCancelledCheckCounter = 0;
@@ -103,6 +109,35 @@ namespace Org.Apache.REEF.IMRU.Tests
 
             Assert.True(isCancelledCheckCounter == 0, "Expected no checks for cancellation if there are no subscribers. Actual check counter: " + isCancelledCheckCounter);
             AssertCancelEvent(observer, false);
+        }
+
+        [Fact]
+        [Trait("Description", "Verify that manager stops checking for cancellation signal after all observers unsubscribed.")]
+        public void JobLifeCyclemangerChecksStopsCancellationChecksWhenAllObserversUnsubscribed()
+        {
+            int isCancelledCheckCounter = 0;
+
+            const int waitForEventPeriodSec = 6;
+
+            var observer = JobLifeCycleMangerEventTest(
+                detector: new SampleJobCancelledDetector(true, "cancelled", testAction: () => { isCancelledCheckCounter++; }),
+                subscribeObserver: false,
+                signalCheckPeriodSec: 1,
+                waitForEventPeriodSec: waitForEventPeriodSec)
+                .FirstOrDefault();
+
+            Assert.True(isCancelledCheckCounter == 0, "Expected no checks for cancellation if there are no subscribers. Actual check counter: " + isCancelledCheckCounter);
+
+            // subscribe observer - checks should start incrementing
+            observer.Subscribe();
+            Thread.Sleep(waitForEventPeriodSec * 1000);
+            Assert.True(isCancelledCheckCounter > 0, "Expected checks for cancellation after new subscritpion added. Actual check counter: " + isCancelledCheckCounter);
+
+            // unsubscribe and verify that checks for cancellation are not incrementing anymore
+            observer.UnSubscribe();
+            var counterAfterUnsubscribe = isCancelledCheckCounter;
+            Thread.Sleep(waitForEventPeriodSec * 1000);
+            Assert.True(isCancelledCheckCounter == counterAfterUnsubscribe, "Expected no checks for cancellation after all subscribers unsubscribed. Actual check counter: " + isCancelledCheckCounter + " expected Counter to stay at: " + counterAfterUnsubscribe);
         }
 
         private IEnumerable<TestObserver> JobLifeCycleMangerEventTest(
@@ -121,10 +156,8 @@ namespace Org.Apache.REEF.IMRU.Tests
                 null) as JobLifeCycleManager;
 
             var observers = Enumerable.Range(1, observerCount)
-                .Select(_ => subscribeObserver ? new TestObserver(manager) : new TestObserver(null))
+                .Select(_ => new TestObserver(manager, subscribeObserver))
                 .ToList();
-
-            manager.OnNext(NewStartedEvent());
 
             Thread.Sleep(waitForEventPeriodSec * 1000);
 
@@ -184,12 +217,16 @@ namespace Org.Apache.REEF.IMRU.Tests
         private class TestObserver : IObserver<IJobCancelled> 
         {
             internal IJobCancelled LastEvent { get; private set; }
+            internal IObservable<IJobCancelled> source { get; private set; }
 
-            internal TestObserver(IObservable<IJobCancelled> eventSource)
+            internal IDisposable subscription { get; private set; }
+
+            internal TestObserver(IObservable<IJobCancelled> eventSource, bool autoSubscribe)
             {
-                if (eventSource != null)
+                source = eventSource;
+                if (autoSubscribe)
                 {
-                    eventSource.Subscribe(this);
+                    Subscribe();
                 }
             }
 
@@ -204,6 +241,16 @@ namespace Org.Apache.REEF.IMRU.Tests
 
             public void OnCompleted()
             {
+            }
+
+            public void Subscribe()
+            {
+                subscription = source.Subscribe(this);
+            }
+
+            public void UnSubscribe()
+            {
+                subscription.Dispose();
             }
         }
     }
