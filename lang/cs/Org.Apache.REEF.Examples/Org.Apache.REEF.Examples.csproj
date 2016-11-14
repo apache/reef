@@ -46,6 +46,9 @@ under the License.
     <Compile Include="$(SolutionDir)\SharedAssemblyInfo.cs">
       <Link>Properties\SharedAssemblyInfo.cs</Link>
     </Compile>
+    <Compile Include="Checkpointing\CheckpointDriver.cs" />
+    <Compile Include="Checkpointing\CheckpointMainClass.cs" />
+    <Compile Include="Checkpointing\CheckpointTask.cs" />
     <Compile Include="DriverRestart\HelloRestartDriver.cs" />
     <Compile Include="DriverRestart\HelloRestartTask.cs" />
     <Compile Include="MachineLearning\KMeans\Centroids.cs" />
@@ -100,6 +103,14 @@ under the License.
     <ProjectReference Include="$(SolutionDir)\Org.Apache.REEF.Wake\Org.Apache.REEF.Wake.csproj">
       <Project>{cdfb3464-4041-42b1-9271-83af24cd5008}</Project>
       <Name>Org.Apache.REEF.Wake</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Org.Apache.REEF.IO.Checkpoint\Org.Apache.REEF.IO.Checkpoint.csproj">
+      <Project>{627D6D27-96DD-42E5-8AE7-9A2A705B75D4}</Project>
+      <Name>Org.Apache.REEF.IO.Checkpoint</Name>
+    </ProjectReference>
+    <ProjectReference Include="$(SolutionDir)\Org.Apache.REEF.Client\Org.Apache.REEF.Client.csproj">
+      <Project>{5094c35b-4fdb-4322-ac05-45d684501cbf}</Project>
+      <Name>Org.Apache.REEF.Client</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
