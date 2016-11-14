@@ -20,6 +20,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Net;
+using Org.Apache.REEF.Common.Context;
 using Org.Apache.REEF.Common.Io;
 using Org.Apache.REEF.Common.Services;
 using Org.Apache.REEF.Common.Tasks;
@@ -33,7 +34,6 @@ using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Tang.Util;
 using Org.Apache.REEF.Utilities;
-using Org.Apache.REEF.Common.Context;
 
 namespace Org.Apache.REEF.Examples.AllHandlers
 {

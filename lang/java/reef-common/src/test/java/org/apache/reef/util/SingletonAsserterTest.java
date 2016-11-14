@@ -21,17 +21,46 @@ package org.apache.reef.util;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.util.List;
-
 /**
  * Test for SingletonAsserter.
  */
 public final class SingletonAsserterTest {
 
+  private static final class GlobalA { }
+  private static final class GlobalB { }
+
   @Test
-  public void testSingletonAsserter() {
-    Assert.assertTrue(SingletonAsserter.assertSingleton(SingletonAsserterTest.class));
-    Assert.assertTrue(SingletonAsserter.assertSingleton(List.class));
-    Assert.assertFalse(SingletonAsserter.assertSingleton(List.class));
+  public void testSingletonAsserterGlobal() {
+    Assert.assertTrue(SingletonAsserter.assertSingleton(GlobalA.class));
+    Assert.assertTrue(SingletonAsserter.assertSingleton(GlobalB.class));
+    Assert.assertFalse(SingletonAsserter.assertSingleton(GlobalA.class));
+  }
+
+  private static final class LocalA { }
+  private static final class LocalB { }
+
+  @Test
+  public void testSingletonAsserterScoped() {
+    Assert.assertTrue(SingletonAsserter.assertSingleton("A", LocalA.class));
+    Assert.assertTrue(SingletonAsserter.assertSingleton("A", LocalB.class));
+    Assert.assertTrue(SingletonAsserter.assertSingleton("B", LocalA.class));
+    Assert.assertFalse(SingletonAsserter.assertSingleton("A", LocalA.class));
+  }
+
+  private static final class Mixed1 { }
+
+  @Test
+  public void testSingletonAsserterMixed1() {
+    Assert.assertTrue(SingletonAsserter.assertSingleton("A", Mixed1.class));
+    Assert.assertTrue(SingletonAsserter.assertSingleton("B", Mixed1.class));
+    Assert.assertFalse(SingletonAsserter.assertSingleton(Mixed1.class));
+  }
+
+  private static final class Mixed2 { }
+
+  @Test
+  public void testSingletonAsserterMixed2() {
+    Assert.assertTrue(SingletonAsserter.assertSingleton(Mixed2.class));
+    Assert.assertFalse(SingletonAsserter.assertSingleton("A", Mixed2.class));
   }
 }

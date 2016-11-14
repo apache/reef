@@ -20,7 +20,6 @@ using System.Collections.Generic;
 using System.Linq;
 using Org.Apache.REEF.Utilities.Collections;
 using Xunit;
-using Assert = Xunit.Assert;
 
 namespace Org.Apache.REEF.Tests.Utility
 {

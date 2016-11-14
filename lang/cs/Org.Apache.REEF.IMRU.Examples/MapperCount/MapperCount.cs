@@ -15,13 +15,10 @@
 // specific language governing permissions and limitations
 // under the License.
 
-using System;
 using System.IO;
 using System.Linq;
 using Org.Apache.REEF.IMRU.API;
-using Org.Apache.REEF.IMRU.OnREEF.Parameters;
 using Org.Apache.REEF.IMRU.OnREEF.ResultHandler;
-using Org.Apache.REEF.IO.FileSystem.Local;
 using Org.Apache.REEF.IO.PartitionedData.Random;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Tang.Implementations.Tang;

@@ -48,7 +48,7 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
     public abstract class IMRUBrodcastReduceTestBase : ReefFunctionalTest
     {
         protected static readonly Logger Logger = Logger.GetLogger(typeof(IMRUBrodcastReduceTestBase));
-        private const string IMRUJobName = "IMRUBroadcastReduce";
+        protected const string IMRUJobName = "IMRUBroadcastReduce";
 
         protected const string CompletedTaskMessage = "CompletedTaskMessage";
         protected const string RunningTaskMessage = "RunningTaskMessage";
@@ -136,6 +136,10 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
                 jobDefinition.PartitionedDatasetConfiguration,
                 overallPerMapConfig
             })
+                .BindNamedParameter(typeof(SerializedUpdateTaskStateConfiguration),
+                    configurationSerializer.ToString(jobDefinition.UpdateTaskStateConfiguration))
+                .BindNamedParameter(typeof(SerializedMapTaskStateConfiguration),
+                    configurationSerializer.ToString(jobDefinition.MapTaskStateConfiguration))
                 .BindNamedParameter(typeof(SerializedMapConfiguration),
                     configurationSerializer.ToString(jobDefinition.MapFunctionConfiguration))
                 .BindNamedParameter(typeof(SerializedUpdateConfiguration),
@@ -203,7 +207,7 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
         /// <param name="updateTaskMemory"></param>
         /// <param name="numberOfRetryInRecovery"></param>
         /// <returns></returns>
-        protected IMRUJobDefinition CreateIMRUJobDefinitionBuilder(int numberofMappers,
+        protected virtual IMRUJobDefinition CreateIMRUJobDefinitionBuilder(int numberofMappers,
             int chunkSize,
             int numIterations,
             int dim,
@@ -211,19 +215,9 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
             int updateTaskMemory,
             int numberOfRetryInRecovery)
         {
-            var updateFunctionConfig =
-                TangFactory.GetTang().NewConfigurationBuilder(BuildUpdateFunctionConfig())
-                    .BindNamedParameter(typeof(BroadcastReduceConfiguration.NumberOfIterations),
-                        numIterations.ToString(CultureInfo.InvariantCulture))
-                    .BindNamedParameter(typeof(BroadcastReduceConfiguration.Dimensions),
-                        dim.ToString(CultureInfo.InvariantCulture))
-                    .BindNamedParameter(typeof(BroadcastReduceConfiguration.NumWorkers),
-                        numberofMappers.ToString(CultureInfo.InvariantCulture))
-                    .Build();
-
             return new IMRUJobDefinitionBuilder()
                 .SetMapFunctionConfiguration(BuildMapperFunctionConfig())
-                .SetUpdateFunctionConfiguration(updateFunctionConfig)
+                .SetUpdateFunctionConfiguration(BuildUpdateFunctionConfiguration(numberofMappers, numIterations, dim))
                 .SetMapInputCodecConfiguration(BuildMapInputCodecConfig())
                 .SetUpdateFunctionCodecsConfiguration(BuildUpdateFunctionCodecsConfig())
                 .SetReduceFunctionConfiguration(BuildReduceFunctionConfig())
@@ -236,6 +230,27 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
                 .SetUpdateTaskMemory(updateTaskMemory)
                 .SetMaxRetryNumberInRecovery(numberOfRetryInRecovery)
                 .Build();
+        }
+
+        /// <summary>
+        /// Build update function configuration. Subclass can override it.
+        /// </summary>
+        /// <param name="numberofMappers"></param>
+        /// <param name="numIterations"></param>
+        /// <param name="dim"></param>
+        /// <returns></returns>
+        protected virtual IConfiguration BuildUpdateFunctionConfiguration(int numberofMappers, int numIterations, int dim)
+        {
+            var updateFunctionConfig =
+                TangFactory.GetTang().NewConfigurationBuilder(BuildUpdateFunctionConfigModule())
+                    .BindNamedParameter(typeof(BroadcastReduceConfiguration.NumberOfIterations),
+                        numIterations.ToString(CultureInfo.InvariantCulture))
+                    .BindNamedParameter(typeof(BroadcastReduceConfiguration.Dimensions),
+                        dim.ToString(CultureInfo.InvariantCulture))
+                    .BindNamedParameter(typeof(BroadcastReduceConfiguration.NumWorkers),
+                        numberofMappers.ToString(CultureInfo.InvariantCulture))
+                    .Build();
+            return updateFunctionConfig;
         }
 
         /// <summary>
@@ -267,10 +282,10 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
         }
 
         /// <summary>
-        /// Update function configuration. Subclass can override it to have its own test function.
+        /// Set update function to IMRUUpdateConfiguration configuration module. Sub class can override it to set different function.
         /// </summary>
         /// <returns></returns>
-        protected virtual IConfiguration BuildUpdateFunctionConfig()
+        protected virtual IConfiguration BuildUpdateFunctionConfigModule()
         {
             return IMRUUpdateConfiguration<int[], int[], int[]>.ConfigurationModule
                 .Set(IMRUUpdateConfiguration<int[], int[], int[]>.UpdateFunction,

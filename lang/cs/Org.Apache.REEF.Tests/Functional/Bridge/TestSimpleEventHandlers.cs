@@ -15,14 +15,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
-using System;
-using System.IO;
-using System.Linq;
-using Org.Apache.REEF.Driver.Bridge;
 using Org.Apache.REEF.Driver.Defaults;
 using Org.Apache.REEF.Examples.AllHandlers;
-using Org.Apache.REEF.Examples.Tasks.HelloTask;
-using Org.Apache.REEF.Network.Naming;
 using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Tang.Util;

@@ -16,7 +16,6 @@
 // under the License.
 
 using System.Net.Http;
-using System.Text;
 
 namespace Org.Apache.REEF.Client.YARN.RestClient
 {

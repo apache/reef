@@ -21,14 +21,12 @@ using System.Globalization;
 using System.Net;
 using System.Threading;
 using Org.Apache.REEF.Common.Io;
-using Org.Apache.REEF.Examples.Tasks.StreamingTasks;
 using Org.Apache.REEF.Network.Naming;
 using Org.Apache.REEF.Network.Naming.Parameters;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Tang.Util;
-using Org.Apache.REEF.Wake.Remote.Parameters;
 using Xunit;
 
 namespace Org.Apache.REEF.Network.Tests.NamingService

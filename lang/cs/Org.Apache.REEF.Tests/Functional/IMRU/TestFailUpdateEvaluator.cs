@@ -16,10 +16,10 @@
 // under the License.
 
 using System;
+using System.Diagnostics;
 using Org.Apache.REEF.Common.Tasks;
 using Org.Apache.REEF.IMRU.API;
 using Org.Apache.REEF.IMRU.Examples.PipelinedBroadcastReduce;
-using FailureType = Org.Apache.REEF.IMRU.Examples.PipelinedBroadcastReduce.FaultTolerantPipelinedBroadcastAndReduce.FailureType;
 using Org.Apache.REEF.IMRU.OnREEF.Driver;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Tang.Implementations.Tang;
@@ -28,7 +28,6 @@ using Org.Apache.REEF.Tang.Util;
 using Org.Apache.REEF.Utilities.Diagnostics;
 using Org.Apache.REEF.Utilities.Logging;
 using Xunit;
-using TraceLevel = System.Diagnostics.TraceLevel;
 
 namespace Org.Apache.REEF.Tests.Functional.IMRU
 {
@@ -133,7 +132,7 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
         /// Mapper function configuration. Subclass can override it to have its own test function.
         /// </summary>
         /// <returns></returns>
-        protected override IConfiguration BuildUpdateFunctionConfig()
+        protected override IConfiguration BuildUpdateFunctionConfigModule()
         {
             var c = IMRUUpdateConfiguration<int[], int[], int[]>.ConfigurationModule
                 .Set(IMRUUpdateConfiguration<int[], int[], int[]>.UpdateFunction,
@@ -141,7 +140,7 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
                 .Build();
 
             return TangFactory.GetTang().NewConfigurationBuilder(c)
-                .BindIntNamedParam<FailureType>(FailureType.EvaluatorFailureDuringTaskExecution.ToString())
+                .BindIntNamedParam<PipelinedBroadcastAndReduceWithFaultTolerant.FailureType>(PipelinedBroadcastAndReduceWithFaultTolerant.FailureType.EvaluatorFailureDuringTaskExecution.ToString())
                 .Build();
         }
 
@@ -161,7 +160,7 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
                 [Parameter(typeof(BroadcastReduceConfiguration.Dimensions))] int dim,
                 [Parameter(typeof(BroadcastReduceConfiguration.NumWorkers))] int numWorkers,
                 [Parameter(typeof(TaskConfigurationOptions.Identifier))] string taskId,
-                [Parameter(typeof(FailureType))] int failureType)
+                [Parameter(typeof(PipelinedBroadcastAndReduceWithFaultTolerant.FailureType))] int failureType)
             {
                 _maxIters = maxIters;
                 _iterations = 0;
@@ -171,7 +170,7 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
                 _taskId = taskId;
                 _failureType = failureType;
                 Logger.Log(Level.Info, "TestUpdateFunction: TaskId: {0}", _taskId);
-                Logger.Log(Level.Info, "Failure type: {0} failure", FailureType.IsEvaluatorFailure(_failureType) ? "evaluator" : "task");
+                Logger.Log(Level.Info, "Failure type: {0} failure", PipelinedBroadcastAndReduceWithFaultTolerant.FailureType.IsEvaluatorFailure(_failureType) ? "evaluator" : "task");
             }
 
             /// <summary>
@@ -222,9 +221,9 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
                 if (_iterations == 10 && !_taskId.EndsWith("-" + NumberOfRetry))
                 { 
                     Logger.Log(Level.Warning, "Simulating {0} failure for taskId {1}",
-                        FailureType.IsEvaluatorFailure(_failureType) ? "evaluator" : "task",
+                        PipelinedBroadcastAndReduceWithFaultTolerant.FailureType.IsEvaluatorFailure(_failureType) ? "evaluator" : "task",
                         _taskId);
-                    if (FailureType.IsEvaluatorFailure(_failureType))
+                    if (PipelinedBroadcastAndReduceWithFaultTolerant.FailureType.IsEvaluatorFailure(_failureType))
                     {
                         // simulate evaluator failure
                         Environment.Exit(1);

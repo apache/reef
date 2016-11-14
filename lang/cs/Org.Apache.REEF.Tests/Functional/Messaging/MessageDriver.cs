@@ -28,7 +28,6 @@ using Org.Apache.REEF.Tang.Util;
 using Org.Apache.REEF.Utilities;
 using Org.Apache.REEF.Utilities.Diagnostics;
 using Org.Apache.REEF.Utilities.Logging;
-using IRunningTask = Org.Apache.REEF.Driver.Task.IRunningTask;
 
 namespace Org.Apache.REEF.Tests.Functional.Messaging
 {

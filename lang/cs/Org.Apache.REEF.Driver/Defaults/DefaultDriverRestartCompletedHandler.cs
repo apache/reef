@@ -17,7 +17,6 @@
 
 using System;
 using System.Globalization;
-using Org.Apache.REEF.Driver.Context;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Utilities.Logging;
 

@@ -15,7 +15,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Tang.Util;
 
 namespace Org.Apache.REEF.Tang.Types

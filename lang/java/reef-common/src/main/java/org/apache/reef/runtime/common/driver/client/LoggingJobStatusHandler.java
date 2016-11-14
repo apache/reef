@@ -18,8 +18,8 @@
  */
 package org.apache.reef.runtime.common.driver.client;
 
+import org.apache.reef.annotations.audience.DriverSide;
 import org.apache.reef.proto.ReefServiceProtos;
-import org.apache.reef.wake.EventHandler;
 
 import javax.inject.Inject;
 import java.util.logging.Level;
@@ -28,8 +28,12 @@ import java.util.logging.Logger;
 /**
  * A handler for job status messages that just logs them.
  */
-final class LoggingJobStatusHandler implements EventHandler<ReefServiceProtos.JobStatusProto> {
+@DriverSide
+public class LoggingJobStatusHandler implements JobStatusHandler {
+
   private static final Logger LOG = Logger.getLogger(LoggingJobStatusHandler.class.getName());
+
+  private ReefServiceProtos.JobStatusProto lastStatus = null;
 
   @Inject
   LoggingJobStatusHandler() {
@@ -37,6 +41,17 @@ final class LoggingJobStatusHandler implements EventHandler<ReefServiceProtos.Jo
 
   @Override
   public void onNext(final ReefServiceProtos.JobStatusProto jobStatusProto) {
-    LOG.log(Level.INFO, "Received a JobStatus message that can't be sent:\n" + jobStatusProto.toString());
+    this.lastStatus = jobStatusProto;
+    LOG.log(Level.INFO, "In-process JobStatus:\n{0}", jobStatusProto);
+  }
+
+  /**
+   * Return the last known status of the REEF job.
+   * Can return null if the job has not been launched yet.
+   * @return Last status of the REEF job.
+   */
+  @Override
+  public ReefServiceProtos.JobStatusProto getLastStatus() {
+    return this.lastStatus;
   }
 }

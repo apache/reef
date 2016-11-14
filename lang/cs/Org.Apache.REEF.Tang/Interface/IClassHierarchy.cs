@@ -15,8 +15,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-using System;
-using System.Runtime.Remoting.Channels;
 using Org.Apache.REEF.Tang.Types;
 
 namespace Org.Apache.REEF.Tang.Interface

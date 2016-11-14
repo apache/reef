@@ -27,6 +27,7 @@ import org.apache.reef.util.Optional;
  * Use newBuilder to construct an instance.
  */
 public final class ResourceStatusEventImpl implements ResourceStatusEvent {
+
   private final String identifier;
   private final State state;
   private final Optional<String> diagnostics;
@@ -39,6 +40,13 @@ public final class ResourceStatusEventImpl implements ResourceStatusEvent {
     this.diagnostics = Optional.ofNullable(builder.diagnostics);
     this.exitCode = Optional.ofNullable(builder.exitCode);
     this.runtimeName = BuilderUtils.notNull(builder.identifier);
+  }
+
+  @Override
+  public String toString() {
+    return String.format(
+        "ResourceStatusEventImpl:{id:%s, runtime:%s, state:%s, diag:%s, exit:%s}",
+        identifier, runtimeName, state, diagnostics, exitCode);
   }
 
   @Override

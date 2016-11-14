@@ -27,14 +27,10 @@ import org.apache.reef.examples.group.broadcast.parameters.NumberOfReceivers;
 import org.apache.reef.io.network.group.impl.driver.GroupCommService;
 import org.apache.reef.runtime.local.client.LocalRuntimeConfiguration;
 import org.apache.reef.runtime.yarn.client.YarnClientConfiguration;
-import org.apache.reef.tang.Configuration;
-import org.apache.reef.tang.Injector;
-import org.apache.reef.tang.JavaConfigurationBuilder;
-import org.apache.reef.tang.Tang;
+import org.apache.reef.tang.*;
 import org.apache.reef.tang.annotations.Name;
 import org.apache.reef.tang.annotations.NamedParameter;
 import org.apache.reef.tang.exceptions.InjectionException;
-import org.apache.reef.tang.formats.AvroConfigurationSerializer;
 import org.apache.reef.tang.formats.CommandLine;
 import org.apache.reef.util.EnvironmentUtils;
 
@@ -47,6 +43,7 @@ import java.util.logging.Logger;
  */
 @ClientSide
 public final class BroadcastREEF {
+
   private static final Logger LOG = Logger.getLogger(BroadcastREEF.class.getName());
 
   private static final String MAX_NUMBER_OF_EVALUATORS = "20";
@@ -139,7 +136,10 @@ public final class BroadcastREEF {
         .bindNamedParameter(NumberOfReceivers.class, Integer.toString(numberOfReceivers))
         .build();
 
-    LOG.info(new AvroConfigurationSerializer().toString(mergedDriverConfiguration));
+    if (LOG.isLoggable(Level.FINE)) {
+      LOG.log(Level.FINE, "Merged driver configuration:\n{0}",
+          Configurations.toString(mergedDriverConfiguration));
+    }
 
     return DriverLauncher.getLauncher(runtimeConfiguration).run(mergedDriverConfiguration, JOB_TIMEOUT);
   }

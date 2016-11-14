@@ -18,8 +18,6 @@
 using System;
 using System.Runtime.Serialization;
 
-using Org.Apache.REEF.Common.Runtime;
-
 namespace Org.Apache.REEF.Driver.Evaluator
 {
     /// <summary>

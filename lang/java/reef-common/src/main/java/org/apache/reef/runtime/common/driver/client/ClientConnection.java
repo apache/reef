@@ -21,11 +21,8 @@ package org.apache.reef.runtime.common.driver.client;
 import com.google.protobuf.ByteString;
 import org.apache.reef.annotations.audience.DriverSide;
 import org.apache.reef.proto.ReefServiceProtos;
-import org.apache.reef.runtime.common.driver.parameters.ClientRemoteIdentifier;
 import org.apache.reef.runtime.common.driver.parameters.JobIdentifier;
-import org.apache.reef.runtime.common.utils.RemoteManager;
 import org.apache.reef.tang.annotations.Parameter;
-import org.apache.reef.wake.EventHandler;
 
 import javax.inject.Inject;
 import java.util.logging.Level;
@@ -39,22 +36,16 @@ public final class ClientConnection {
 
   private static final Logger LOG = Logger.getLogger(ClientConnection.class.getName());
 
-  private final EventHandler<ReefServiceProtos.JobStatusProto> jobStatusHandler;
+  private final JobStatusHandler jobStatusHandler;
   private final String jobIdentifier;
 
   @Inject
   public ClientConnection(
-      final RemoteManager remoteManager,
-      @Parameter(ClientRemoteIdentifier.class) final String clientRID,
-      @Parameter(JobIdentifier.class) final String jobIdentifier) {
+      @Parameter(JobIdentifier.class) final String jobIdentifier,
+      final JobStatusHandler jobStatusHandler) {
+
     this.jobIdentifier = jobIdentifier;
-    if (clientRID.equals(ClientRemoteIdentifier.NONE)) {
-      LOG.log(Level.FINE, "Instantiated 'ClientConnection' without an actual connection to the client.");
-      this.jobStatusHandler = new LoggingJobStatusHandler();
-    } else {
-      this.jobStatusHandler = remoteManager.getHandler(clientRID, ReefServiceProtos.JobStatusProto.class);
-      LOG.log(Level.FINE, "Instantiated 'ClientConnection'");
-    }
+    this.jobStatusHandler = jobStatusHandler;
   }
 
   /**

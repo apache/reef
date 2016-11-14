@@ -18,12 +18,14 @@
  */
 package org.apache.reef.tests.fail.driver;
 
+import org.apache.reef.annotations.audience.ClientSide;
+import org.apache.reef.annotations.audience.Private;
 import org.apache.reef.client.DriverConfiguration;
 import org.apache.reef.client.LauncherStatus;
+import org.apache.reef.proto.ReefServiceProtos;
+import org.apache.reef.runtime.common.REEFEnvironment;
 import org.apache.reef.tang.Configuration;
-import org.apache.reef.tang.JavaConfigurationBuilder;
 import org.apache.reef.tang.Tang;
-import org.apache.reef.tang.exceptions.BindException;
 import org.apache.reef.tang.exceptions.InjectionException;
 import org.apache.reef.tests.TestDriverLauncher;
 import org.apache.reef.util.EnvironmentUtils;
@@ -31,11 +33,11 @@ import org.apache.reef.util.EnvironmentUtils;
 /**
  * Client for the test REEF job that fails on different stages of execution.
  */
+@Private
+@ClientSide
 public final class FailClient {
 
-  public static LauncherStatus run(final Class<?> failMsgClass,
-                                   final Configuration runtimeConfig,
-                                   final int timeOut) throws BindException, InjectionException {
+  private static Configuration buildDriverConfig(final Class<?> failMsgClass) {
 
     final Configuration driverConfig = DriverConfiguration.CONF
         .set(DriverConfiguration.GLOBAL_LIBRARIES, EnvironmentUtils.getClassLocation(FailDriver.class))
@@ -56,11 +58,42 @@ public final class FailClient {
         .set(DriverConfiguration.ON_TASK_COMPLETED, FailDriver.CompletedTaskHandler.class)
         .build();
 
-    final JavaConfigurationBuilder cb = Tang.Factory.getTang().newConfigurationBuilder();
-    cb.addConfiguration(driverConfig);
-    cb.bindNamedParameter(FailDriver.FailMsgClassName.class, failMsgClass.getName());
+    return Tang.Factory.getTang().newConfigurationBuilder(driverConfig)
+        .bindNamedParameter(FailDriver.FailMsgClassName.class, failMsgClass.getName())
+        .build();
+  }
 
-    return TestDriverLauncher.getLauncher(runtimeConfig).run(cb.build(), timeOut);
+  /**
+   * Run REEF on specified runtime and fail (raise an exception) in a specified class.
+   * @param failMsgClass A class that should fail during the test.
+   * @param runtimeConfig REEF runtime configuration. Can be e.g. Local or YARN.
+   * @param timeOut REEF application timeout.
+   * @return launcher status - usually FAIL.
+   * @throws InjectionException configuration error.
+   */
+  public static LauncherStatus runClient(final Class<?> failMsgClass,
+      final Configuration runtimeConfig, final int timeOut) throws InjectionException {
+
+    return TestDriverLauncher.getLauncher(runtimeConfig).run(buildDriverConfig(failMsgClass), timeOut);
+  }
+
+  /**
+   * Run REEF in-process using specified runtime and fail (raise an exception) in a specified class.
+   * @param failMsgClass A class that should fail during the test.
+   * @param runtimeConfig REEF runtime configuration. Can be e.g. Local or YARN.
+   * @param timeOut REEF application timeout - not used yet.
+   * @return Final job status. Final status for tests is usually something
+   * with state = FAILED and exception like SimulatedDriverFailure.
+   * @throws InjectionException configuration error.
+   */
+  public static ReefServiceProtos.JobStatusProto runInProcess(final Class<?> failMsgClass,
+      final Configuration runtimeConfig, final int timeOut) throws InjectionException {
+
+    try (final REEFEnvironment reef =
+             REEFEnvironment.fromConfiguration(runtimeConfig, buildDriverConfig(failMsgClass))) {
+      reef.run();
+      return reef.getLastStatus();
+    }
   }
 
   /**

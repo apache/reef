@@ -17,6 +17,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -36,7 +37,6 @@ using Org.Apache.REEF.Tang.Util;
 using Org.Apache.REEF.Utilities.Diagnostics;
 using Org.Apache.REEF.Utilities.Logging;
 using Xunit;
-using TraceLevel = System.Diagnostics.TraceLevel;
 
 namespace Org.Apache.REEF.Tests.Functional.IMRU
 {

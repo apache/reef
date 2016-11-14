@@ -15,11 +15,11 @@
 // specific language governing permissions and limitations
 // under the License.
 
+using System.Diagnostics;
 using Org.Apache.REEF.IMRU.OnREEF.Driver;
 using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Tang.Util;
 using Xunit;
-using TraceLevel = System.Diagnostics.TraceLevel;
 
 namespace Org.Apache.REEF.Tests.Functional.IMRU
 {

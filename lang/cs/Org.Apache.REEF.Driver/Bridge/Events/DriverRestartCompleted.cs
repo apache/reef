@@ -17,7 +17,6 @@
 
 using System;
 using Org.Apache.REEF.Driver.Bridge.Clr2java;
-using Org.Apache.REEF.Driver.Defaults;
 
 namespace Org.Apache.REEF.Driver.Bridge.Events
 {

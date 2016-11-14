@@ -18,7 +18,6 @@
 using System;
 using Org.Apache.REEF.Driver;
 using Org.Apache.REEF.Tang.Annotations;
-using Org.Apache.REEF.Wake.Time.Event;
 
 namespace Org.Apache.REEF.Examples.AllHandlers
 {

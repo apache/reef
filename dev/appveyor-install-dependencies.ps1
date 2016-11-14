@@ -25,21 +25,6 @@ if (!(Test-Path $tools))
     New-Item -ItemType Directory -Force -Path $tools | Out-Null
 }
 
-# ========================== maven
-Push-Location $tools
-
-$mavenVer = "3.3.3"
-appveyor DownloadFile "https://archive.apache.org/dist/maven/maven-3/$mavenVer/binaries/apache-maven-$mavenVer-bin.zip" -FileName "maven.zip"
-
-# extract
-Invoke-Expression "7z.exe x maven.zip" | Out-Null
-
-# add maven to environment variables
-$env:Path += ";$tools\apache-maven-$mavenVer\bin"
-$env:M2_HOME = "$tools\apache-maven-$mavenVer"
-
-Pop-Location
-
 # ========================== protoc
 $protocVer = "2.5.0"
 $protocPath = "$tools\protoc-$protocVer"

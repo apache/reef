@@ -16,18 +16,12 @@
 // under the License.
 
 using System;
-
 using Org.Apache.REEF.Driver;
-using Org.Apache.REEF.Driver.Bridge;
 using Org.Apache.REEF.Driver.Defaults;
 using Org.Apache.REEF.Driver.Evaluator;
 using Org.Apache.REEF.Driver.Task;
-using Org.Apache.REEF.Network.Naming;
-using Org.Apache.REEF.Tang.Implementations.Configuration;
-using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Tang.Util;
-using Org.Apache.REEF.Tests.Functional.Messaging;
 using Org.Apache.REEF.Utilities.Logging;
 using Xunit;
 

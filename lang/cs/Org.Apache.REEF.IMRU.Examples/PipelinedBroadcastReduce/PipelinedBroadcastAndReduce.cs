@@ -18,6 +18,7 @@
 using System.Globalization;
 using System.IO;
 using Org.Apache.REEF.IMRU.API;
+using Org.Apache.REEF.IMRU.OnREEF.IMRUTasks;
 using Org.Apache.REEF.IO.PartitionedData.Random;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Tang.Implementations.Tang;
@@ -51,7 +52,7 @@ namespace Org.Apache.REEF.IMRU.Examples.PipelinedBroadcastReduce
                     .Build());
         }
 
-        protected IMRUJobDefinitionBuilder CreateJobDefinitionBuilder(int numberofMappers, int chunkSize, int numIterations, int dim, int mapperMemory, int updateTaskMemory)
+        protected virtual IMRUJobDefinitionBuilder CreateJobDefinitionBuilder(int numberofMappers, int chunkSize, int numIterations, int dim, int mapperMemory, int updateTaskMemory)
         {
             return new IMRUJobDefinitionBuilder()
                     .SetUpdateFunctionConfiguration(UpdateFunctionConfig(numberofMappers, numIterations, dim))
@@ -70,7 +71,7 @@ namespace Org.Apache.REEF.IMRU.Examples.PipelinedBroadcastReduce
         /// <summary>
         /// Configuration for Partitioned Dataset
         /// </summary>
-        protected static IConfiguration PartitionedDatasetConfiguration(int numberofMappers)
+        protected virtual IConfiguration PartitionedDatasetConfiguration(int numberofMappers)
         {
             return RandomInputDataConfiguration.ConfigurationModule.Set(RandomInputDataConfiguration.NumberOfPartitions,
                 numberofMappers.ToString()).Build();
@@ -79,7 +80,7 @@ namespace Org.Apache.REEF.IMRU.Examples.PipelinedBroadcastReduce
         /// <summary>
         /// Configuration for Reduce Function
         /// </summary>
-        protected static IConfiguration ReduceFunctionConfiguration()
+        protected virtual IConfiguration ReduceFunctionConfiguration()
         {
             return IMRUReduceFunctionConfiguration<int[]>.ConfigurationModule
                 .Set(IMRUReduceFunctionConfiguration<int[]>.ReduceFunction,
@@ -90,7 +91,7 @@ namespace Org.Apache.REEF.IMRU.Examples.PipelinedBroadcastReduce
         /// <summary>
         /// Configuration for Update Function
         /// </summary>
-        protected static IConfiguration UpdateFunctionCodecsConfiguration()
+        protected virtual IConfiguration UpdateFunctionCodecsConfiguration()
         {
             return IMRUCodecConfiguration<int[]>.ConfigurationModule
                 .Set(IMRUCodecConfiguration<int[]>.Codec, GenericType<IntArrayStreamingCodec>.Class)
@@ -100,7 +101,7 @@ namespace Org.Apache.REEF.IMRU.Examples.PipelinedBroadcastReduce
         /// <summary>
         /// Configuration for Map Input Codec
         /// </summary>
-        protected static IConfiguration MapInputCodecConfiguration()
+        protected virtual IConfiguration MapInputCodecConfiguration()
         {
             return IMRUCodecConfiguration<int[]>.ConfigurationModule
                 .Set(IMRUCodecConfiguration<int[]>.Codec, GenericType<IntArrayStreamingCodec>.Class)
@@ -110,7 +111,7 @@ namespace Org.Apache.REEF.IMRU.Examples.PipelinedBroadcastReduce
         /// <summary>
         /// Configuration for Map Output Data Converter
         /// </summary>
-        protected static IConfiguration MapOutputDataConverterConfig(int chunkSize)
+        protected virtual IConfiguration MapOutputDataConverterConfig(int chunkSize)
         {
             var dataConverterConfig2 =
                 TangFactory.GetTang()
@@ -126,7 +127,7 @@ namespace Org.Apache.REEF.IMRU.Examples.PipelinedBroadcastReduce
         /// <summary>
         /// Configuration for Map Input Data Converter
         /// </summary>
-        protected static IConfiguration MapInputDataConverterConfig(int chunkSize)
+        protected virtual IConfiguration MapInputDataConverterConfig(int chunkSize)
         {
             var dataConverterConfig1 =
                 TangFactory.GetTang()
@@ -142,12 +143,10 @@ namespace Org.Apache.REEF.IMRU.Examples.PipelinedBroadcastReduce
         /// <summary>
         /// Configuration for Update Function
         /// </summary>
-        protected static IConfiguration UpdateFunctionConfig(int numberofMappers, int numIterations, int dim)
+        protected IConfiguration UpdateFunctionConfig(int numberofMappers, int numIterations, int dim)
         {
             var updateFunctionConfig =
-                TangFactory.GetTang().NewConfigurationBuilder(IMRUUpdateConfiguration<int[], int[], int[]>.ConfigurationModule
-                    .Set(IMRUUpdateConfiguration<int[], int[], int[]>.UpdateFunction,
-                        GenericType<BroadcastSenderReduceReceiverUpdateFunction>.Class).Build())
+                TangFactory.GetTang().NewConfigurationBuilder(BuildUpdateFunctionConfig())
                     .BindNamedParameter(typeof(BroadcastReduceConfiguration.NumberOfIterations),
                         numIterations.ToString(CultureInfo.InvariantCulture))
                     .BindNamedParameter(typeof(BroadcastReduceConfiguration.Dimensions),
@@ -158,10 +157,17 @@ namespace Org.Apache.REEF.IMRU.Examples.PipelinedBroadcastReduce
             return updateFunctionConfig;
         }
 
+        protected virtual IConfiguration BuildUpdateFunctionConfig()
+        {
+            return IMRUUpdateConfiguration<int[], int[], int[]>.ConfigurationModule
+                .Set(IMRUUpdateConfiguration<int[], int[], int[]>.UpdateFunction,
+                    GenericType<BroadcastSenderReduceReceiverUpdateFunction>.Class).Build();
+        }
+
         /// <summary>
         /// Configuration for Mapper function
         /// </summary>
-        private static IConfiguration BuildMapperFunctionConfig()
+        protected virtual IConfiguration BuildMapperFunctionConfig()
         {
             return IMRUMapConfiguration<int[], int[]>.ConfigurationModule
                 .Set(IMRUMapConfiguration<int[], int[]>.MapFunction,

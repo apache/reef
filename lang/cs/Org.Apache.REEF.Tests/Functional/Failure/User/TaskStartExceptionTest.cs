@@ -18,7 +18,6 @@
 using System;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
-using Org.Apache.REEF.Common.Context;
 using Org.Apache.REEF.Common.Tasks;
 using Org.Apache.REEF.Common.Tasks.Events;
 using Org.Apache.REEF.Driver;

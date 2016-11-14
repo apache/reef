@@ -15,7 +15,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-using Org.Apache.REEF.Common.Io;
 using Org.Apache.REEF.Common.Client.Parameters;
 using Org.Apache.REEF.IO.FileSystem.Hadoop.Parameters;
 using Org.Apache.REEF.Tang.Formats;

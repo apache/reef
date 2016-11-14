@@ -20,6 +20,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Net;
 using System.Text;
+using Org.Apache.REEF.Common.Context;
 using Org.Apache.REEF.Common.Tasks;
 using Org.Apache.REEF.Driver;
 using Org.Apache.REEF.Driver.Bridge;
@@ -32,8 +33,6 @@ using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Tang.Util;
 using Org.Apache.REEF.Utilities;
 using Org.Apache.REEF.Utilities.Logging;
-using ContextConfiguration = Org.Apache.REEF.Common.Context.ContextConfiguration;
-using IRunningTask = Org.Apache.REEF.Driver.Task.IRunningTask;
 
 namespace Org.Apache.REEF.Tests.Functional.Bridge
 {

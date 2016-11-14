@@ -20,8 +20,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using Org.Apache.REEF.Tang.Formats;
-using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Utilities.Logging;
 
 namespace Org.Apache.REEF.Driver.Bridge

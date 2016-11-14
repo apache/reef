@@ -21,14 +21,9 @@ package org.apache.reef.examples.group.bgd.utils;
 import org.apache.reef.driver.task.TaskConfiguration;
 import org.apache.reef.driver.task.TaskConfigurationOptions;
 import org.apache.reef.examples.group.bgd.MasterTask;
-import org.apache.reef.tang.Configuration;
-import org.apache.reef.tang.Injector;
-import org.apache.reef.tang.JavaConfigurationBuilder;
-import org.apache.reef.tang.Tang;
+import org.apache.reef.tang.*;
 import org.apache.reef.tang.annotations.Name;
 import org.apache.reef.tang.exceptions.InjectionException;
-import org.apache.reef.tang.formats.AvroConfigurationSerializer;
-import org.apache.reef.tang.formats.ConfigurationSerializer;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -68,10 +63,9 @@ public final class SubConfiguration {
         .set(TaskConfiguration.TASK, MasterTask.class)
         .build();
 
-    final ConfigurationSerializer confSerizalizer = new AvroConfigurationSerializer();
     final Configuration subConf = SubConfiguration.from(conf, TaskConfigurationOptions.Identifier.class);
-    LOG.log(Level.INFO, "OUT: Base conf:\n{0}", confSerizalizer.toString(conf));
-    LOG.log(Level.INFO, "OUT: Sub conf:\n{0}", confSerizalizer.toString(subConf));
+    LOG.log(Level.INFO, "OUT: Base conf:\n{0}", Configurations.toString(conf));
+    LOG.log(Level.INFO, "OUT: Sub conf:\n{0}", Configurations.toString(subConf));
   }
 
   /**

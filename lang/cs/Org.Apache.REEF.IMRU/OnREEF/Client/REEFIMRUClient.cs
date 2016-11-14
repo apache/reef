@@ -17,6 +17,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using Org.Apache.REEF.Client.API;
@@ -122,6 +123,10 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Client
                 jobDefinition.PartitionedDatasetConfiguration,
                 overallPerMapConfig
             })
+                .BindNamedParameter(typeof(SerializedUpdateTaskStateConfiguration),
+                    _configurationSerializer.ToString(jobDefinition.UpdateTaskStateConfiguration))
+                .BindNamedParameter(typeof(SerializedMapTaskStateConfiguration),
+                    _configurationSerializer.ToString(jobDefinition.MapTaskStateConfiguration))
                 .BindNamedParameter(typeof(SerializedMapConfiguration),
                     _configurationSerializer.ToString(jobDefinition.MapFunctionConfiguration))
                 .BindNamedParameter(typeof(SerializedUpdateConfiguration),

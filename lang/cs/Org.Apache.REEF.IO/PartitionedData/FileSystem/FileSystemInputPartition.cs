@@ -17,7 +17,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.IO;
 using Org.Apache.REEF.IO.FileSystem;
 using Org.Apache.REEF.IO.PartitionedData.FileSystem.Parameters;
@@ -26,7 +25,6 @@ using Org.Apache.REEF.IO.TempFileCreation;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Utilities;
 using Org.Apache.REEF.Utilities.Attributes;
-using Org.Apache.REEF.Utilities.Diagnostics;
 using Org.Apache.REEF.Utilities.Logging;
 
 namespace Org.Apache.REEF.IO.PartitionedData.FileSystem

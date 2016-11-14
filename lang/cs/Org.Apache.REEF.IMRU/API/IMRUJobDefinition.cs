@@ -27,6 +27,8 @@ namespace Org.Apache.REEF.IMRU.API
     public sealed class IMRUJobDefinition
     {
         private readonly string _jobName;
+        private readonly IConfiguration _updateTaskStateConfiguration;
+        private readonly IConfiguration _mapTaskStateConfiguration;
         private readonly IConfiguration _mapFunctionConfiguration;
         private readonly IConfiguration _mapInputCodecConfiguration;
         private readonly IConfiguration _updateFunctionCodecsConfiguration;
@@ -48,6 +50,8 @@ namespace Org.Apache.REEF.IMRU.API
         /// <summary>
         /// Constructor
         /// </summary>
+        /// <param name="updateTaskStateConfiguration">Update task state configuration</param>
+        /// <param name="mapTaskStateConfiguration">Map task state configuration</param>
         /// <param name="mapFunctionConfiguration">Map function configuration</param>
         /// <param name="mapInputCodecConfiguration">Map input codec configuration</param>
         /// <param name="updateFunctionCodecsConfiguration">codec configuration for update 
@@ -71,6 +75,8 @@ namespace Org.Apache.REEF.IMRU.API
         /// <param name="jobName">Job name</param>
         /// <param name="invokeGC">Whether to call garbage collector after each iteration</param>
         internal IMRUJobDefinition(
+            IConfiguration updateTaskStateConfiguration,
+            IConfiguration mapTaskStateConfiguration,
             IConfiguration mapFunctionConfiguration,
             IConfiguration mapInputCodecConfiguration,
             IConfiguration updateFunctionCodecsConfiguration,
@@ -90,6 +96,8 @@ namespace Org.Apache.REEF.IMRU.API
             string jobName,
             bool invokeGC)
         {
+            _updateTaskStateConfiguration = updateTaskStateConfiguration;
+            _mapTaskStateConfiguration = mapTaskStateConfiguration;
             _mapFunctionConfiguration = mapFunctionConfiguration;
             _mapInputCodecConfiguration = mapInputCodecConfiguration;
             _updateFunctionCodecsConfiguration = updateFunctionCodecsConfiguration;
@@ -116,6 +124,22 @@ namespace Org.Apache.REEF.IMRU.API
         internal string JobName
         {
             get { return _jobName; }
+        }
+
+        /// <summary>
+        /// Configuration of update task state
+        /// </summary>
+        internal IConfiguration UpdateTaskStateConfiguration
+        {
+            get { return _updateTaskStateConfiguration; }
+        }
+
+        /// <summary>
+        /// Configuration of map task state
+        /// </summary>
+        internal IConfiguration MapTaskStateConfiguration
+        {
+            get { return _mapTaskStateConfiguration; }
         }
 
         /// <summary>

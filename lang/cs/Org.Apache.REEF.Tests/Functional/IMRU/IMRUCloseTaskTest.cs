@@ -17,6 +17,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using Org.Apache.REEF.Driver.Evaluator;
 using Org.Apache.REEF.Driver.Task;
 using Org.Apache.REEF.IMRU.OnREEF.Driver;
@@ -28,7 +29,6 @@ using Org.Apache.REEF.Tang.Util;
 using Org.Apache.REEF.Utilities;
 using Org.Apache.REEF.Utilities.Logging;
 using Xunit;
-using TraceLevel = System.Diagnostics.TraceLevel;
 
 namespace Org.Apache.REEF.Tests.Functional.IMRU
 {
@@ -131,9 +131,9 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
         /// Update function configuration. Add TcpConfiguration to the base configuration.
         /// </summary>
         /// <returns></returns>
-        protected override IConfiguration BuildUpdateFunctionConfig()
+        protected override IConfiguration BuildUpdateFunctionConfigModule()
         {
-            return Configurations.Merge(GetTcpConfiguration(), base.BuildUpdateFunctionConfig());
+            return Configurations.Merge(GetTcpConfiguration(), base.BuildUpdateFunctionConfigModule());
         }
 
         /// <summary>
