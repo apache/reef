@@ -25,6 +25,6 @@ namespace Org.Apache.REEF.Common.Metrics.MetricsSystem
         /// <summary>
         /// Specifies name and description for the context tag.
         /// </summary>
-        public const string Context = "Metrics Context";
+        public static readonly string Context = "Metrics Context";
     }
 }

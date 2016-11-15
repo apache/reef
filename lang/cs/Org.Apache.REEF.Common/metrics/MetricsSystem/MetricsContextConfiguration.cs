@@ -27,7 +27,7 @@ using Org.Apache.REEF.Utilities.Attributes;
 namespace Org.Apache.REEF.Common.Metrics.MetricsSystem
 {
     /// <summary>
-    /// This configuration module defines configuration for <see cref="MetricsSystemContext"/>.
+    /// This configuration module defines configuration for <see cref="MetricsSystemContextStartHandler"/>.
     /// Metrics system configuration via. <see cref="MetricsSystemConfiguration"/> and source 
     /// configuration still needs to be merged with configuration given by this module.
     /// </summary>
@@ -55,9 +55,9 @@ namespace Org.Apache.REEF.Common.Metrics.MetricsSystem
         /// </summary>
         public static ConfigurationModule ConfigurationModule = new MetricsContextConfiguration()
             .BindSetEntry(GenericType<ContextSinkParameters.SinkSetName>.Class, Sink)
-            .BindSetEntry<ContextConfigurationOptions.StartHandlers, MetricsSystemContext, IObserver<IContextStart>>(
+            .BindSetEntry<ContextConfigurationOptions.StartHandlers, MetricsSystemContextStartHandler, IObserver<IContextStart>>(
                 GenericType<ContextConfigurationOptions.StartHandlers>.Class,
-                GenericType<MetricsSystemContext>.Class)
+                GenericType<MetricsSystemContextStartHandler>.Class)
             .BindNamedParameter(GenericType<ContextSourceParameters.SourceName>.Class, SourceName)
             .BindNamedParameter(GenericType<ContextSourceParameters.SourceDesc>.Class, SourceDescription)
             .Build();

@@ -35,7 +35,7 @@ namespace Org.Apache.REEF.Common.Metrics.MetricsSystem.Parameters
         {
         }
 
-        [NamedParameter("Min. time interval in milli-seconds between retries for exp. back-off strategy.",
+        [NamedParameter("Min. time interval in milli-seconds between retries for exponential back-off strategy.",
             defaultValue: "1000")]
         public sealed class MinRetryIntervalInMs : Name<int>
         {

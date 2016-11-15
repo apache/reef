@@ -27,12 +27,12 @@ namespace Org.Apache.REEF.Common.Metrics.MetricsSystem
     /// <summary>
     /// Context start handler for metrics system.
     /// </summary>
-    internal class MetricsSystemContext : IObserver<IContextStart>
+    internal class MetricsSystemContextStartHandler : IObserver<IContextStart>
     {
         private readonly IMetricsSystem _metricsSystem;
 
         [Inject]
-        private MetricsSystemContext(IMetricsSystem metricsSystem,
+        private MetricsSystemContextStartHandler(IMetricsSystem metricsSystem,
             IMetricsSource source,
             [Parameter(typeof(ContextSourceParameters.SourceName))] string sourceName,
             [Parameter(typeof(ContextSourceParameters.SourceDesc))] string sourceDesc,

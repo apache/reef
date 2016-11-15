@@ -33,12 +33,14 @@ using Xunit;
 namespace Org.Apache.REEF.Common.Tests.Metrics
 {
     /// <summary>
-    /// Tests various functionalities of metircs system.
+    /// Tests various functionalities of metrics system.
     /// </summary>
     public class MetricsSystemTests
     {
         /// <summary>
-        /// Tests metrics system functioning with single source and sink.
+        /// Tests metrics system functioning with single source and sink. Metrics are 
+        /// pushed from a single source to single sink via. <see cref="MetricsSystem"/>. At 
+        /// the sink it is then verified that all metrics are recieved correctly.
         /// </summary>
         [Fact]
         public void TestMetricSystemFunctioningSingleSourceSingleSink()
@@ -47,7 +49,9 @@ namespace Org.Apache.REEF.Common.Tests.Metrics
         }
 
         /// <summary>
-        /// Tests metrics system functioning with two sources and sinks.
+        /// Tests metrics system functioning with two sources and sinks. Metrics are 
+        /// pushed from a two sources to two sinks via. <see cref="MetricsSystem"/>. At 
+        /// sinks it is then verified that all metrics are recieved correctly.
         /// </summary>
         [Fact]
         public void TestMetricSystemFunctioningTwoSourceTwoSink()
@@ -56,8 +60,11 @@ namespace Org.Apache.REEF.Common.Tests.Metrics
         }
 
         /// <summary>
-        /// Tests metrics system functioning even when unchanged metrics 
-        /// are recorded.
+        /// Tests metrics system functioning with single source and sink. Metrics are 
+        /// pushed from a single source to single sink via. <see cref="MetricsSystem"/>. At 
+        /// the sink it is then verified that all metrics are recieved correctly. It is also 
+        /// checked that during subsequent pushes from sources to sinks, even unchanged metrics 
+        /// are received at the sinks.
         /// </summary>
         [Fact]
         public void TestGettingUnchangedMetrics()
@@ -120,7 +127,10 @@ namespace Org.Apache.REEF.Common.Tests.Metrics
         }
 
         /// <summary>
-        /// Tests unsubscribing sink in metrics system.
+        /// Tests unsubscribing sink in metrics system. Two sinks are added and 
+        /// metrics system is started. Then one sink is removed and verification is done that 
+        /// received metrics count does not change anymore at that sink which means it has been 
+        /// successfully removed.
         /// </summary>
         [Fact]
         public void TestMetricsSystemUnSubscribeSink()
@@ -163,7 +173,8 @@ namespace Org.Apache.REEF.Common.Tests.Metrics
         }
 
         /// <summary>
-        /// Tests restarting the metrics system.
+        /// Tests restarting the metrics system. Metrics system is started and then stopped. 
+        /// Upon re-starting again, it isi verified that sinks start receiving the metrics again.
         /// </summary>
         [Fact]
         public void TestMetricsSystemRestart()
@@ -201,7 +212,8 @@ namespace Org.Apache.REEF.Common.Tests.Metrics
         }
 
         /// <summary>
-        /// Tests the metrics system shutdown.
+        /// Tests the metrics system shutdown. Metrics system is started and then shut down. 
+        /// It is then verified that no additional records are pushed to the sinks.
         /// </summary>
         [Fact]
         public void TestMetricsSystemShutDown()
@@ -261,7 +273,9 @@ namespace Org.Apache.REEF.Common.Tests.Metrics
 
         /// <summary>
         /// Tests immediate publishing of metrics. The periodic timer in metrics 
-        /// system is set to a very high value.
+        /// system is set to a very high value so that periodic push from source to sinks 
+        /// never happens. It is verified that upoen calling PublishMetricsNow() in 
+        /// <see cref="MetricsSystem"/> sinks receive the metrics.
         /// </summary>
         [Fact]
         public void TestPubishMetricsNow()
@@ -300,10 +314,13 @@ namespace Org.Apache.REEF.Common.Tests.Metrics
         }
 
         /// <summary>
-        /// Tests <see cref="MetricsSystemContext"/>.
+        /// Tests <see cref="MetricsSystemContextStartHandler"/>. Appropriate sink configuration
+        /// is added and injector is used to get the start handler instance. Is is then verified that 
+        /// after calling OnNext function of strat handler where metrics system is started, the sink starts 
+        /// receiving the metrics from the source.
         /// </summary>
         [Fact]
-        public void TestMetricsSystemOnContextStart()
+        public void TestMetricsSystemContextStartHandler()
         {
             const int timer = 100;
             const int waitTime = 2000;
@@ -315,7 +332,7 @@ namespace Org.Apache.REEF.Common.Tests.Metrics
                 GetMetricsSystemConfig(true, timer));
             var injector = TangFactory.GetTang().NewInjector(contextConfig);
             
-            var metricsSystemContext = injector.GetInstance<MetricsSystemContext>();
+            var metricsSystemContext = injector.GetInstance<MetricsSystemContextStartHandler>();
             var sink = injector.GetNamedInstance<ContextSinkParameters.SinkSetName, ISet<IObserver<IMetricsRecord>>>(
                 GenericType<ContextSinkParameters.SinkSetName>.Class).First() as MetricTestUtils.MetricsSinkForTests;
             if (sink == null)
@@ -356,11 +373,15 @@ namespace Org.Apache.REEF.Common.Tests.Metrics
 
         /// <summary>
         /// Tests functioning of metrics system under different 
-        /// sink and source settings.
+        /// sink and source settings. Metrics of different types are pushed from 
+        /// sources to sinks using <see cref="MetricsSystem"/>. At sink it is then 
+        /// verified that all metrics are received correctly. if <see cref="getUnchangedMetrics"/> 
+        /// is set to true we check that even unchanged metrics are received during second push from 
+        /// sources to sinks.
         /// </summary>
         /// <param name="numSources">Number of sources.</param>
         /// <param name="numSinks">Number of sinks.</param>
-        /// <param name="getUnchangedMetrics">Whether to gt even unchanged metrics.</param>
+        /// <param name="getUnchangedMetrics">Whether to get even unchanged metrics.</param>
         private static void TestMetricSystemFunctioning(int numSources, int numSinks, bool getUnchangedMetrics)
         {
             const string sourceName = "default source";
@@ -458,7 +479,7 @@ namespace Org.Apache.REEF.Common.Tests.Metrics
                         if (records != null)
                         {
                             Assert.True(!records[m].Metrics.Any(),
-                                "Record should not haveany metric since their values were unchanged");
+                                "Record should not have any metric since their values were unchanged");
                         }
                     }
                 }

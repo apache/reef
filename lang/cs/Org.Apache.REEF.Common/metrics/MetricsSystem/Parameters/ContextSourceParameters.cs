@@ -24,12 +24,12 @@ namespace Org.Apache.REEF.Common.Metrics.MetricsSystem.Parameters
     /// </summary>
     internal sealed class ContextSourceParameters
     {
-        [NamedParameter("Name of the source in metrics system context", defaultValue: "default-source")]
+        [NamedParameter("Name of the source in metrics system context", defaultValue: "default-sourcename")]
         public sealed class SourceName : Name<string>
         {
         }
 
-        [NamedParameter("Description of the source in metrics system context", defaultValue: "default-desc")]
+        [NamedParameter("Description of the source in metrics system context", defaultValue: "default-sourcedescription")]
         public sealed class SourceDesc : Name<string>
         {
         }

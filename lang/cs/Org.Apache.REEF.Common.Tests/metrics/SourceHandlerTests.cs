@@ -28,7 +28,11 @@ namespace Org.Apache.REEF.Common.Tests.Metrics
     public class SourceHandlerTests
     {
         /// <summary>
-        /// Tests functioning of source handler.
+        /// Tests functioning of source handler. A <see cref="DefaultMetricsSourceImpl"/> instance 
+        /// is passed to the <see cref="MetricsSourceHandler"/>. It is then verified that 
+        /// the metrics created and updated in the source are passed on correctly to the 
+        /// collector once GetMetrics is called. Further, both variants of the function call 
+        /// (get changed metrics only and get even unchanged metrics) are tested.
         /// </summary>
         [Fact]
         public void TestSourceHandler()
