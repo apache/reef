@@ -156,11 +156,11 @@ public final class YarnClasspathProvider implements RuntimeClasspathProvider {
     return this.classPathSuffix;
   }
 
-  private void logEnvVariable() {
+  private static void logEnvVariable() {
     if (LOG.isLoggable(CLASSPATH_LOG_LEVEL)) {
-      Map<String, String> map = System.getenv();
-      for (Map.Entry<String, String> entry : map.entrySet()) {
-        LOG.log(CLASSPATH_LOG_LEVEL, "Environment Variable: Key: " + entry.getKey() + "   Value: " + entry.getValue());
+      for (final Map.Entry<String, String> entry : System.getenv().entrySet()) {
+        LOG.log(CLASSPATH_LOG_LEVEL, "Environment variable: Key: {0}, Value: {1}.",
+            new Object[]{entry.getKey(), entry.getValue()});
       }
     }
   }
