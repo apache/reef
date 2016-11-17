@@ -15,6 +15,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
+using System.Collections.Generic;
 using Org.Apache.REEF.Utilities.Attributes;
 
 namespace Org.Apache.REEF.Common.Metrics.Api
@@ -24,7 +25,7 @@ namespace Org.Apache.REEF.Common.Metrics.Api
     /// the <see cref="IMetricsSource"/> to add and fill in the records.
     /// </summary>
     [Unstable("0.16", "Contract may change.")]
-    public interface IMetricsCollector
+    public interface IMetricsCollector : IEnumerable<IMetricsRecordBuilder>
     {
         /// <summary>
         /// Creates a metric record by name. The exact semantics of what to do if another 
@@ -43,5 +44,11 @@ namespace Org.Apache.REEF.Common.Metrics.Api
         /// <param name="info">Meta-data info of the record.</param>
         /// <returns>Record builder for the record.</returns>
         IMetricsRecordBuilder CreateRecord(IMetricsInfo info);
+
+        /// <summary>
+        /// Creates record from underlying collection of <see cref="IMetricsRecordBuilder"/>
+        /// </summary>
+        /// <returns>Enumerator over records.</returns>
+        IEnumerable<IMetricsRecord> GetRecords();
     }
 }

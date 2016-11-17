@@ -16,12 +16,17 @@
 // under the License.
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using Org.Apache.REEF.Common.Metrics.Api;
+using Org.Apache.REEF.Tang.Annotations;
 using Xunit;
 
 namespace Org.Apache.REEF.Common.Tests.Metrics
 {
+    /// <summary>
+    /// Utility classes useful for testing.
+    /// </summary>
     internal static class MetricTestUtils
     {
         /// <summary>
@@ -104,6 +109,16 @@ namespace Org.Apache.REEF.Common.Tests.Metrics
                 throw new NotImplementedException();
             }
 
+            public IMetricsRecord GetRecord()
+            {
+                throw new NotImplementedException();
+            }
+
+            public bool IsEmpty()
+            {
+                return false;
+            }
+
             public void Validate(string name, long expected)
             {
                 if (!_longMetricVals.ContainsKey(name))
@@ -173,6 +188,114 @@ namespace Org.Apache.REEF.Common.Tests.Metrics
             public IMetricsRecordBuilder CreateRecord(IMetricsInfo info)
             {
                 throw new System.NotImplementedException();
+            }
+
+            public void Clear()
+            {
+                throw new NotImplementedException();
+            }
+
+            public IEnumerable<IMetricsRecord> GetRecords()
+            {
+                throw new NotImplementedException();
+            }
+
+            public IEnumerator<IMetricsRecordBuilder> GetEnumerator()
+            {
+                return (new List<IMetricsRecordBuilder>() { CurrentRecordBuilder }).GetEnumerator();
+            }
+
+            IEnumerator IEnumerable.GetEnumerator()
+            {
+                return GetEnumerator();
+            }
+        }
+
+        /// <summary>
+        /// Metrics visitor implementation.
+        /// </summary>
+        internal sealed class MetricsVisitorForTests : IMetricsVisitor
+        {
+            public long CounterValue { get; private set; }
+
+            public long LongGauge { get; private set; }
+
+            public double DoubleGauge { get; private set; }
+
+            public void Gauge(IMetricsInfo info, long value)
+            {
+                LongGauge = value;
+            }
+
+            public void Gauge(IMetricsInfo info, double value)
+            {
+                DoubleGauge = value;
+            }
+
+            public void Counter(IMetricsInfo info, long value)
+            {
+                CounterValue = value;
+            }
+        }
+
+        /// <summary>
+        /// Metrics sink implementation for tests.
+        /// </summary>
+        internal sealed class MetricsSinkForTests : IObserver<IMetricsRecord>
+        {
+            private readonly IList<IMetricsRecord> _records = new List<IMetricsRecord>();
+            private readonly object _lock = new object();
+            
+            [Inject]
+            public MetricsSinkForTests()
+            {
+                ShutDown = false;
+                Error = false;
+                ConditionToCheck = null;
+            }
+
+            public Action ConditionToCheck { get; set; }
+
+            public bool ShutDown { get; private set; }
+
+            public bool Error { get; private set; }
+
+            public IList<IMetricsRecord> Records
+            {
+                get
+                {
+                    lock (_lock)
+                    {
+                        return new List<IMetricsRecord>(_records);
+                    }
+                }
+            }
+
+            public void OnNext(IMetricsRecord value)
+            {
+                lock (_lock)
+                {
+                    _records.Add(value);
+                    if (ConditionToCheck != null)
+                    {
+                        ConditionToCheck.Invoke();
+                    }
+                }
+            }
+
+            public void OnError(Exception error)
+            {
+                Error = true;
+            }
+
+            public void OnCompleted()
+            {
+                ShutDown = true;
+            }
+
+            public void Clear()
+            {
+                _records.Clear();
             }
         }
     }

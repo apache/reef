@@ -18,6 +18,7 @@
 using System;
 using System.Collections.Generic;
 using Org.Apache.REEF.Common.Metrics.Api;
+using Org.Apache.REEF.Common.Metrics.MutableMetricsLayer.Parameters;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Utilities.Attributes;
 
@@ -43,13 +44,14 @@ namespace Org.Apache.REEF.Common.Metrics.MutableMetricsLayer
         private readonly string _sourceContext;
         private readonly string _recordName;
         private readonly IMetricsFactory _metricsFactory;
+        private bool _tagsChanged = true;
 
         [Inject]
         private DefaultMetricsSourceImpl(
-            [Parameter(typeof(DefaultMetricsSourceParameters.ContextOrTaskName))] string contextOrTaskName,
-            [Parameter(typeof(DefaultMetricsSourceParameters.EvaluatorId))] string evaluatorId,
-            [Parameter(typeof(DefaultMetricsSourceParameters.SourceContext))] string sourceContext,
-            [Parameter(typeof(DefaultMetricsSourceParameters.RecordName))] string recordName,
+            [Parameter(typeof(DefaultSourceContextOrTaskName))] string contextOrTaskName,
+            [Parameter(typeof(DefaultSourceEvaluatorId))] string evaluatorId,
+            [Parameter(typeof(DefaultSourceContext))] string sourceContext,
+            [Parameter(typeof(DefaultSourceRecordName))] string recordName,
             IMetricsFactory metricsFactory)
         {
             _contextOrTaskName = contextOrTaskName;
@@ -114,6 +116,7 @@ namespace Org.Apache.REEF.Common.Metrics.MutableMetricsLayer
         {
             lock (_lock)
             {
+                _tagsChanged = true;
                 _tags[name] = _metricsFactory.CreateTag(new MetricsInfoImpl(name, desc), value);
             }
         }
@@ -130,7 +133,7 @@ namespace Org.Apache.REEF.Common.Metrics.MutableMetricsLayer
                 MetricsTag tag;
                 _tags.TryGetValue(name, out tag);
                 return tag;
-           }         
+            }
         }
 
         /// <summary>
@@ -164,20 +167,25 @@ namespace Org.Apache.REEF.Common.Metrics.MutableMetricsLayer
             lock (_lock)
             {
                 var rb = collector.CreateRecord(_recordName)
-                    .SetContext(_sourceContext)
-                    .AddTag("TaskOrContextName", _contextOrTaskName)
-                    .AddTag("EvaluatorId", _evaluatorId)
-                    .AddTag("SourceType", "DefaultSource");
+                    .SetContext(_sourceContext);
                 var request = new SnapshotRequest(rb, all);
                 foreach (var entry in _observers)
                 {
                     entry.OnNext(request);
                 }
 
-                foreach (var entry in _tags)
+                if (all || _tagsChanged || !rb.IsEmpty())
                 {
-                    rb.Add(entry.Value);
+                    rb.AddTag("TaskOrContextName", _contextOrTaskName)
+                        .AddTag("EvaluatorId", _evaluatorId)
+                        .AddTag("SourceType", "DefaultSource");
+
+                    foreach (var entry in _tags)
+                    {
+                        rb.Add(entry.Value);
+                    }
                 }
+                _tagsChanged = false;
             }
         }
 
@@ -198,7 +206,10 @@ namespace Org.Apache.REEF.Common.Metrics.MutableMetricsLayer
             private readonly IList<IObserver<SnapshotRequest>> _observers;
             private readonly IObserver<SnapshotRequest> _observer;
             private readonly object _lock;
-            public Unsubscriber(IList<IObserver<SnapshotRequest>> observers, IObserver<SnapshotRequest> observer, object lockObject)
+
+            public Unsubscriber(IList<IObserver<SnapshotRequest>> observers,
+                IObserver<SnapshotRequest> observer,
+                object lockObject)
             {
                 _observers = observers;
                 _observer = observer;
