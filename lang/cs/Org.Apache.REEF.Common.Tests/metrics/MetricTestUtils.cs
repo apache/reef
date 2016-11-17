@@ -175,5 +175,32 @@ namespace Org.Apache.REEF.Common.Tests.Metrics
                 throw new System.NotImplementedException();
             }
         }
+
+        /// <summary>
+        /// Metrics visitor implementation.
+        /// </summary>
+        internal sealed class MetricsVisitorForTests : IMetricsVisitor
+        {
+            public long CounterValue { get; private set; }
+
+            public long LongGauge { get; private set; }
+
+            public double DoubleGauge { get; private set; }
+
+            public void Gauge(IMetricsInfo info, long value)
+            {
+                LongGauge = value;
+            }
+
+            public void Gauge(IMetricsInfo info, double value)
+            {
+                DoubleGauge = value;
+            }
+
+            public void Counter(IMetricsInfo info, long value)
+            {
+                CounterValue = value;
+            }
+        }
     }
 }
