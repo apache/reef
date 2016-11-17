@@ -19,21 +19,10 @@ using Org.Apache.REEF.Tang.Annotations;
 
 namespace Org.Apache.REEF.Common.Metrics.MetricsSystem.Parameters
 {
-    /// <summary>
-    /// Parameters of metrics system.
-    /// </summary>
-    internal sealed class MetricsSystemParameters
+    [NamedParameter(
+         "Degree of randomness in milli-seconds to determine sleep interval for pushing metrics to sink with exponential back-off strategy.",
+         defaultValue: "1000")]
+    public sealed class SinkDeltaBackOffInMs : Name<int>
     {
-        [NamedParameter("Periodic Timer after which metrics will be pushed from source to sink queues.",
-            defaultValue: "5000")]
-        public sealed class PeriodicTimerParameter : Name<int>
-        {
-        }
-
-        [NamedParameter("Whether to get all metrics from sources even if they are unchanged.",
-            defaultValue: "false")]
-        public sealed class GetUnchangedMetricsParameter : Name<bool>
-        {
-        }
     }
 }

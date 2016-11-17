@@ -168,9 +168,9 @@ namespace Org.Apache.REEF.Common.Tests.Metrics
                     .NewInjector(
                         TangFactory.GetTang()
                             .NewConfigurationBuilder()
-                            .BindImplementation(GenericType<IMetricsCollector>.Class,
+                            .BindImplementation(GenericType<IMetricsCollectorExtended>.Class,
                                 GenericType<MetricsCollector>.Class).Build())
-                    .GetInstance<IMetricsCollector>();
+                    .GetInstance<IMetricsCollectorExtended>();
 
             collector.CreateRecord(recNames[0])
                 .AddCounter(new MetricsInfoImpl(counterName, counterName), counterValue)

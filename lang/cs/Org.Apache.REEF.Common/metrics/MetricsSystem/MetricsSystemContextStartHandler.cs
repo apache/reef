@@ -34,9 +34,9 @@ namespace Org.Apache.REEF.Common.Metrics.MetricsSystem
         [Inject]
         private MetricsSystemContextStartHandler(IMetricsSystem metricsSystem,
             IMetricsSource source,
-            [Parameter(typeof(ContextSourceParameters.SourceName))] string sourceName,
-            [Parameter(typeof(ContextSourceParameters.SourceDesc))] string sourceDesc,
-            [Parameter(typeof(ContextSinkParameters.SinkSetName))] ISet<IObserver<IMetricsRecord>> sinks)
+            [Parameter(typeof(SourceNameInStartHandler))] string sourceName,
+            [Parameter(typeof(SourceDescriptionInStartHandler))] string sourceDesc,
+            [Parameter(typeof(SinkSetNameInStartHandler))] ISet<IObserver<IMetricsRecord>> sinks)
         {
             _metricsSystem = metricsSystem;
             _metricsSystem.RegisterSource(sourceName, sourceDesc, source);

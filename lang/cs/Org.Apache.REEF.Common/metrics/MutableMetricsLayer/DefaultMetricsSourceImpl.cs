@@ -18,6 +18,7 @@
 using System;
 using System.Collections.Generic;
 using Org.Apache.REEF.Common.Metrics.Api;
+using Org.Apache.REEF.Common.Metrics.MutableMetricsLayer.Parameters;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Utilities.Attributes;
 
@@ -47,10 +48,10 @@ namespace Org.Apache.REEF.Common.Metrics.MutableMetricsLayer
 
         [Inject]
         private DefaultMetricsSourceImpl(
-            [Parameter(typeof(DefaultMetricsSourceParameters.ContextOrTaskName))] string contextOrTaskName,
-            [Parameter(typeof(DefaultMetricsSourceParameters.EvaluatorId))] string evaluatorId,
-            [Parameter(typeof(DefaultMetricsSourceParameters.SourceContext))] string sourceContext,
-            [Parameter(typeof(DefaultMetricsSourceParameters.RecordName))] string recordName,
+            [Parameter(typeof(DefaultSourceContextOrTaskName))] string contextOrTaskName,
+            [Parameter(typeof(DefaultSourceEvaluatorId))] string evaluatorId,
+            [Parameter(typeof(DefaultSourceContext))] string sourceContext,
+            [Parameter(typeof(DefaultSourceRecordName))] string recordName,
             IMetricsFactory metricsFactory)
         {
             _contextOrTaskName = contextOrTaskName;
@@ -132,7 +133,7 @@ namespace Org.Apache.REEF.Common.Metrics.MutableMetricsLayer
                 MetricsTag tag;
                 _tags.TryGetValue(name, out tag);
                 return tag;
-           }         
+            }
         }
 
         /// <summary>
@@ -205,7 +206,10 @@ namespace Org.Apache.REEF.Common.Metrics.MutableMetricsLayer
             private readonly IList<IObserver<SnapshotRequest>> _observers;
             private readonly IObserver<SnapshotRequest> _observer;
             private readonly object _lock;
-            public Unsubscriber(IList<IObserver<SnapshotRequest>> observers, IObserver<SnapshotRequest> observer, object lockObject)
+
+            public Unsubscriber(IList<IObserver<SnapshotRequest>> observers,
+                IObserver<SnapshotRequest> observer,
+                object lockObject)
             {
                 _observers = observers;
                 _observer = observer;

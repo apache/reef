@@ -43,11 +43,11 @@ namespace Org.Apache.REEF.Common.Metrics.MetricsSystem
         /// <param name="deltaBackOff">Degree of randomness in milli seconds in specifying interval before retrying.</param>
         [Inject]
         private SinkHandlerParameters(
-            [Parameter(typeof(SinkParameters.QueueCapacity))] int queueCapacity,
-            [Parameter(typeof(SinkParameters.RetryCount))] int retryCount,
-            [Parameter(typeof(SinkParameters.MinRetryIntervalInMs))] int minRetryInterval,
-            [Parameter(typeof(SinkParameters.MaxRetryIntervalInMs))] int maxRetryInterval,
-            [Parameter(typeof(SinkParameters.DeltaBackOffInMs))] int deltaBackOff)
+            [Parameter(typeof(SinkQueueCapacity))] int queueCapacity,
+            [Parameter(typeof(SinkRetryCount))] int retryCount,
+            [Parameter(typeof(SinkMinRetryIntervalInMs))] int minRetryInterval,
+            [Parameter(typeof(SinkMaxRetryIntervalInMs))] int maxRetryInterval,
+            [Parameter(typeof(SinkDeltaBackOffInMs))] int deltaBackOff)
         {
             QueueCapacity = queueCapacity;
 

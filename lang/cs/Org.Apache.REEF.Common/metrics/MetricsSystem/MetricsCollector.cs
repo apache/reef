@@ -24,11 +24,11 @@ using Org.Apache.REEF.Tang.Annotations;
 namespace Org.Apache.REEF.Common.Metrics.MetricsSystem
 {
     /// <summary>
-    /// Default implementation of the <see cref="IMetricsCollector"/> class. 
+    /// Default implementation of the <see cref="IMetricsCollectorExtended"/> class. 
     /// The class is not thread safe and caller is supposed to maintain the 
     /// safety.
     /// </summary>
-    internal class MetricsCollector : IMetricsCollector
+    internal class MetricsCollector : IMetricsCollectorExtended
     {
         [Inject]
         private MetricsCollector()

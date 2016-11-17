@@ -75,15 +75,15 @@ namespace Org.Apache.REEF.Common.Metrics.MetricsSystem
         /// </summary>
         public static ConfigurationModule ConfigurationModule = new MetricsSystemConfiguration()
             .BindImplementation(GenericType<IMetricsSystem>.Class, GenericType<MetricsSystem>.Class)
-            .BindImplementation(GenericType<IMetricsCollector>.Class, GenericType<MetricsCollector>.Class)
+            .BindImplementation(GenericType<IMetricsCollectorExtended>.Class, GenericType<MetricsCollector>.Class)
             .BindImplementation(GenericType<IMetricsFilter>.Class, SourceFilter)
-            .BindNamedParameter(GenericType<MetricsSystemParameters.PeriodicTimerParameter>.Class, PeriodicTimer)
-            .BindNamedParameter(GenericType<MetricsSystemParameters.GetUnchangedMetricsParameter>.Class, GetUnchangedMetrics)
-            .BindNamedParameter(GenericType<SinkParameters.QueueCapacity>.Class, SinkQueueCapacity)
-            .BindNamedParameter(GenericType<SinkParameters.RetryCount>.Class, SinkRetries)
-            .BindNamedParameter(GenericType<SinkParameters.MinRetryIntervalInMs>.Class, SinkMinRetryIntervalInMs)
-            .BindNamedParameter(GenericType<SinkParameters.MaxRetryIntervalInMs>.Class, SinkMaxRetryIntervalInMs)
-            .BindNamedParameter(GenericType<SinkParameters.DeltaBackOffInMs>.Class, DeltaBackOffInMs)
+            .BindNamedParameter(GenericType<MetricsSystemPeriodicTimer>.Class, PeriodicTimer)
+            .BindNamedParameter(GenericType<MetricsSystemGetUnchangedMetrics>.Class, GetUnchangedMetrics)
+            .BindNamedParameter(GenericType<SinkQueueCapacity>.Class, SinkQueueCapacity)
+            .BindNamedParameter(GenericType<SinkRetryCount>.Class, SinkRetries)
+            .BindNamedParameter(GenericType<SinkMinRetryIntervalInMs>.Class, SinkMinRetryIntervalInMs)
+            .BindNamedParameter(GenericType<SinkMaxRetryIntervalInMs>.Class, SinkMaxRetryIntervalInMs)
+            .BindNamedParameter(GenericType<SinkDeltaBackOffInMs>.Class, DeltaBackOffInMs)
             .Build();
     }
 }

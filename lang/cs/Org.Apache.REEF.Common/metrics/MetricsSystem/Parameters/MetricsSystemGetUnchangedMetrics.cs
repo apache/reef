@@ -15,21 +15,13 @@
 // specific language governing permissions and limitations
 // under the License.
 
-using System;
-using System.Collections.Generic;
-using Org.Apache.REEF.Common.Metrics.Api;
 using Org.Apache.REEF.Tang.Annotations;
 
 namespace Org.Apache.REEF.Common.Metrics.MetricsSystem.Parameters
 {
-    /// <summary>
-    /// Sink parameters in metrics system start context.
-    /// </summary>
-    internal sealed class ContextSinkParameters
+    [NamedParameter("Whether to get all metrics from sources even if they are unchanged.",
+         defaultValue: "false")]
+    public sealed class MetricsSystemGetUnchangedMetrics : Name<bool>
     {
-        [NamedParameter("Set of Sinks via which metrics system should be initialized with")]
-        public sealed class SinkSetName : Name<ISet<IObserver<IMetricsRecord>>>
-        {
-        }
     }
 }

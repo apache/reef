@@ -16,6 +16,7 @@
 // under the License.
 
 using Org.Apache.REEF.Common.Metrics.Api;
+using Org.Apache.REEF.Common.Metrics.MutableMetricsLayer.Parameters;
 using Org.Apache.REEF.Tang.Formats;
 using Org.Apache.REEF.Tang.Util;
 using Org.Apache.REEF.Utilities.Attributes;
@@ -53,10 +54,10 @@ namespace Org.Apache.REEF.Common.Metrics.MutableMetricsLayer
         /// </summary>
         public static ConfigurationModule ConfigurationModule = new DefaultMetricsSourceConfiguration()
             .BindImplementation(GenericType<IMetricsSource>.Class, GenericType<DefaultMetricsSourceImpl>.Class)
-            .BindNamedParameter(GenericType<DefaultMetricsSourceParameters.ContextOrTaskName>.Class, TaskOrContextId)
-            .BindNamedParameter(GenericType<DefaultMetricsSourceParameters.EvaluatorId>.Class, EvaluatorId)
-            .BindNamedParameter(GenericType<DefaultMetricsSourceParameters.SourceContext>.Class, SourceContext)
-            .BindNamedParameter(GenericType<DefaultMetricsSourceParameters.RecordName>.Class, RecordId)
+            .BindNamedParameter(GenericType<DefaultSourceContextOrTaskName>.Class, TaskOrContextId)
+            .BindNamedParameter(GenericType<DefaultSourceEvaluatorId>.Class, EvaluatorId)
+            .BindNamedParameter(GenericType<DefaultSourceContext>.Class, SourceContext)
+            .BindNamedParameter(GenericType<DefaultSourceRecordName>.Class, RecordId)
             .Build();
     }
 }

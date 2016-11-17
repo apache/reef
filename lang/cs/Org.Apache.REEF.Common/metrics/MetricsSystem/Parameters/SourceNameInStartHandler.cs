@@ -19,19 +19,8 @@ using Org.Apache.REEF.Tang.Annotations;
 
 namespace Org.Apache.REEF.Common.Metrics.MetricsSystem.Parameters
 {
-    /// <summary>
-    /// Source parameters in metrics system start context.
-    /// </summary>
-    internal sealed class ContextSourceParameters
+    [NamedParameter("Name of the source in metrics system context start handler", defaultValue: "default-sourcename")]
+    public sealed class SourceNameInStartHandler : Name<string>
     {
-        [NamedParameter("Name of the source in metrics system context", defaultValue: "default-sourcename")]
-        public sealed class SourceName : Name<string>
-        {
-        }
-
-        [NamedParameter("Description of the source in metrics system context", defaultValue: "default-sourcedescription")]
-        public sealed class SourceDesc : Name<string>
-        {
-        }
     }
 }

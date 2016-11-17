@@ -38,11 +38,12 @@ namespace Org.Apache.REEF.Common.Metrics.MetricsSystem
 
         private readonly Dictionary<string, MetricsSourceHandler> _sources =
             new Dictionary<string, MetricsSourceHandler>();
+
         private readonly Dictionary<int, SinkHandler> _sinks = new Dictionary<int, SinkHandler>();
         private readonly SinkHandlerParameters _sinkParameters;
         private int _currentSinkCount = 0;
         private readonly Timer _timer;
-        private readonly IMetricsCollector _metricsCollector;
+        private readonly IMetricsCollectorExtended _metricsCollector;
         private readonly IList<SourceSnapshot> _sourceSnapshots = new List<SourceSnapshot>();
         private bool _shutDown = false;
         private readonly object _lock = new object();
@@ -58,9 +59,9 @@ namespace Org.Apache.REEF.Common.Metrics.MetricsSystem
         /// <param name="sourceFilter">Filter that allows metrics system to skip some particular sources.</param>
         [Inject]
         private MetricsSystem(SinkHandlerParameters sinkParameters,
-            [Parameter(typeof(MetricsSystemParameters.PeriodicTimerParameter))] int periodicTimerInMs,
-            [Parameter(typeof(MetricsSystemParameters.GetUnchangedMetricsParameter))] bool getUnchangedMetrics,
-            IMetricsCollector metricsCollector,
+            [Parameter(typeof(MetricsSystemPeriodicTimer))] int periodicTimerInMs,
+            [Parameter(typeof(MetricsSystemGetUnchangedMetrics))] bool getUnchangedMetrics,
+            IMetricsCollectorExtended metricsCollector,
             IMetricsFilter sourceFilter)
         {
             _sinkParameters = sinkParameters;

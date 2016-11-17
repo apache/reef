@@ -317,11 +317,11 @@ namespace Org.Apache.REEF.Common.Tests.Metrics
         {
             return TangFactory.GetTang()
                 .NewInjector(TangFactory.GetTang().NewConfigurationBuilder()
-                    .BindNamedParameter(typeof(SinkParameters.RetryCount), retryCount.ToString())
-                    .BindNamedParameter(typeof(SinkParameters.DeltaBackOffInMs), deltaBackOff.ToString())
-                    .BindNamedParameter(typeof(SinkParameters.MaxRetryIntervalInMs), maxRetry.ToString())
-                    .BindNamedParameter(typeof(SinkParameters.MinRetryIntervalInMs), minRetry.ToString())
-                    .BindNamedParameter(typeof(SinkParameters.QueueCapacity), queueCapacity.ToString())
+                    .BindNamedParameter(typeof(SinkRetryCount), retryCount.ToString())
+                    .BindNamedParameter(typeof(SinkDeltaBackOffInMs), deltaBackOff.ToString())
+                    .BindNamedParameter(typeof(SinkMaxRetryIntervalInMs), maxRetry.ToString())
+                    .BindNamedParameter(typeof(SinkMinRetryIntervalInMs), minRetry.ToString())
+                    .BindNamedParameter(typeof(SinkQueueCapacity), queueCapacity.ToString())
                     .Build())
                 .GetInstance<SinkHandlerParameters>();
         }

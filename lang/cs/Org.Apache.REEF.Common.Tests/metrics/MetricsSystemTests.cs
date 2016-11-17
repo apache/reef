@@ -331,10 +331,10 @@ namespace Org.Apache.REEF.Common.Tests.Metrics
                     .Build(),
                 GetMetricsSystemConfig(true, timer));
             var injector = TangFactory.GetTang().NewInjector(contextConfig);
-            
+
             var metricsSystemContext = injector.GetInstance<MetricsSystemContextStartHandler>();
-            var sink = injector.GetNamedInstance<ContextSinkParameters.SinkSetName, ISet<IObserver<IMetricsRecord>>>(
-                GenericType<ContextSinkParameters.SinkSetName>.Class).First() as MetricTestUtils.MetricsSinkForTests;
+            var sink = injector.GetNamedInstance<SinkSetNameInStartHandler, ISet<IObserver<IMetricsRecord>>>(
+                GenericType<SinkSetNameInStartHandler>.Class).First() as MetricTestUtils.MetricsSinkForTests;
             if (sink == null)
             {
                 throw new NullReferenceException("Sink cannot be null");
@@ -354,7 +354,7 @@ namespace Org.Apache.REEF.Common.Tests.Metrics
             var source = injector.GetInstance<DefaultMetricsSourceImpl>();
             var counterNames = GenerateNames(1, "default-name", "counter");
             CreateAndUpdateCounters(source, counterNames);
-            
+
             if (!resetEvent.WaitOne(waitTime))
             {
                 Assert.True(false, "Sink should have received some records.");

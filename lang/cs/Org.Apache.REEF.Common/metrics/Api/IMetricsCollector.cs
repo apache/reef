@@ -46,11 +46,6 @@ namespace Org.Apache.REEF.Common.Metrics.Api
         IMetricsRecordBuilder CreateRecord(IMetricsInfo info);
 
         /// <summary>
-        /// Clears up the metrics collector. Removes all record builders and records.
-        /// </summary>
-        void Clear();
-
-        /// <summary>
         /// Creates record from underlying collection of <see cref="IMetricsRecordBuilder"/>
         /// </summary>
         /// <returns>Enumerator over records.</returns>

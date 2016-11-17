@@ -54,12 +54,12 @@ namespace Org.Apache.REEF.Common.Metrics.MetricsSystem
         /// Configuration module for the context.
         /// </summary>
         public static ConfigurationModule ConfigurationModule = new MetricsContextConfiguration()
-            .BindSetEntry(GenericType<ContextSinkParameters.SinkSetName>.Class, Sink)
+            .BindSetEntry(GenericType<SinkSetNameInStartHandler>.Class, Sink)
             .BindSetEntry<ContextConfigurationOptions.StartHandlers, MetricsSystemContextStartHandler, IObserver<IContextStart>>(
                 GenericType<ContextConfigurationOptions.StartHandlers>.Class,
                 GenericType<MetricsSystemContextStartHandler>.Class)
-            .BindNamedParameter(GenericType<ContextSourceParameters.SourceName>.Class, SourceName)
-            .BindNamedParameter(GenericType<ContextSourceParameters.SourceDesc>.Class, SourceDescription)
+            .BindNamedParameter(GenericType<SourceNameInStartHandler>.Class, SourceName)
+            .BindNamedParameter(GenericType<SourceDescriptionInStartHandler>.Class, SourceDescription)
             .Build();
     }
 }
