@@ -51,6 +51,9 @@ under the License.
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="$(SolutionDir)\SharedAssemblyInfo.cs">
+      <Link>Properties\SharedAssemblyInfo.cs</Link>
+    </Compile>
     <Compile Include="Api\AbstractFailure.cs" />
     <Compile Include="Api\IAbstractFailure.cs" />
     <Compile Include="Api\IFailure.cs" />

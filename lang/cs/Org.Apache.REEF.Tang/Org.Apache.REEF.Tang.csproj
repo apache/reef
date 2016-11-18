@@ -45,6 +45,9 @@ under the License.
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="$(SolutionDir)\SharedAssemblyInfo.cs">
+      <Link>Properties\SharedAssemblyInfo.cs</Link>
+    </Compile>
     <Compile Include="Annotations\DefaultImplementation.cs" />
     <Compile Include="Annotations\Inject.cs" />
     <Compile Include="Annotations\Name.cs" />

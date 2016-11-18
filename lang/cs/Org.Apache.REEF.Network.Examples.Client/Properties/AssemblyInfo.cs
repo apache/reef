@@ -20,13 +20,6 @@ using System.Runtime.InteropServices;
 
 [assembly: AssemblyTitle("Org.Apache.REEF.Network.Examples.Client")]
 [assembly: AssemblyDescription("")]
-[assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
 [assembly: AssemblyProduct("Org.Apache.REEF.Network.Examples.Client")]
-[assembly: AssemblyCopyright("Copyright © 2016")]
-[assembly: AssemblyTrademark("")]
-[assembly: AssemblyCulture("")]
-[assembly: ComVisible(false)]
+
 [assembly: Guid("22ae839f-8ae7-46ac-b4bd-6d0d32213d83")]
-[assembly: AssemblyVersion("0.16.0.0")]
-[assembly: AssemblyFileVersion("0.16.0.0")]

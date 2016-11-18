@@ -52,6 +52,9 @@ under the License.
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="$(SolutionDir)\SharedAssemblyInfo.cs">
+      <Link>Properties\SharedAssemblyInfo.cs</Link>
+    </Compile>
     <Compile Include="FileSystemTestUtilities.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TestAzureBlockBlobFileSystem.cs" />

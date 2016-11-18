@@ -21,16 +21,9 @@ using System.Runtime.InteropServices;
 
 [assembly: AssemblyTitle("Org.Apache.REEF.IO")]
 [assembly: AssemblyDescription("IO Library for REEF")]
-[assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("The Apache Software Foundation.")]
 [assembly: AssemblyProduct("Org.Apache.REEF.IO")]
-[assembly: AssemblyCopyright("The Apache Software Foundation")]
-[assembly: AssemblyTrademark("The Apache Software Foundation")]
-[assembly: AssemblyCulture("")]
-[assembly: ComVisible(false)]
+
 [assembly: Guid("58c49df4-8dc0-4f58-9a7e-a341d33e40ee")]
-[assembly: AssemblyVersion("0.16.0.0")]
-[assembly: AssemblyFileVersion("0.16.0.0")]
 
 // Allow the tests project access to `internal` APIs
 [assembly: InternalsVisibleTo("Org.Apache.REEF.IO.Tests, publickey=" +

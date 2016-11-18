@@ -48,6 +48,9 @@ under the License.
     <Reference Include="System.ServiceProcess" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="$(SolutionDir)\SharedAssemblyInfo.cs">
+      <Link>Properties\SharedAssemblyInfo.cs</Link>
+    </Compile>
     <Compile Include="HDInsightYarnClientTests.cs" />
     <Compile Include="JobRequestBuilderTests.cs" />
     <Compile Include="JobResourceUploaderTests.cs" />
@@ -78,11 +81,11 @@ under the License.
       <Project>{79E7F89A-1DFB-45E1-8D43-D71A954AEB98}</Project>
       <Name>Org.Apache.REEF.Utilities</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Org.Apache.REEF.Driver\Org.Apache.REEF.Driver.csproj">
+    <ProjectReference Include="$(SolutionDir)\Org.Apache.REEF.Driver\Org.Apache.REEF.Driver.csproj">
       <Project>{A6BAA2A7-F52F-4329-884E-1BCF711D6805}</Project>
       <Name>Org.Apache.REEF.Driver</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Org.Apache.REEF.Wake\Org.Apache.REEF.Wake.csproj">
+    <ProjectReference Include="$(SolutionDir)\Org.Apache.REEF.Wake\Org.Apache.REEF.Wake.csproj">
       <Project>{cdfb3464-4041-42b1-9271-83af24cd5008}</Project>
       <Name>Org.Apache.REEF.Wake</Name>
     </ProjectReference>

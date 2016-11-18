@@ -35,6 +35,9 @@ under the License.
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="$(SolutionDir)\SharedAssemblyInfo.cs">
+      <Link>Properties\SharedAssemblyInfo.cs</Link>
+    </Compile>
     <Compile Include="AsyncUtils\LoggingHelper.cs" />
     <Compile Include="AsyncUtils\RemoveSynchronizationContextAwaiter.cs" />
     <Compile Include="AsyncUtils\VoidResult.cs" />

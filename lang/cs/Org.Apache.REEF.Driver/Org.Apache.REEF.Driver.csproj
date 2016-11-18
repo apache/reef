@@ -41,6 +41,9 @@ under the License.
     <Reference Include="System.Runtime.Serialization" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="$(SolutionDir)\SharedAssemblyInfo.cs">
+      <Link>Properties\SharedAssemblyInfo.cs</Link>
+    </Compile>
     <Compile Include="Bridge\Avro\DefinedRuntimes.cs" />
     <Compile Include="Bridge\Avro\DefinedRuntimesSerializer.cs" />
     <Compile Include="Bridge\BridgeConfigurationProvider.cs" />

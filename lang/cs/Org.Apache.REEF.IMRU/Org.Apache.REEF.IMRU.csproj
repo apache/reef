@@ -44,6 +44,9 @@ under the License.
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="$(SolutionDir)\SharedAssemblyInfo.cs">
+      <Link>Properties\SharedAssemblyInfo.cs</Link>
+    </Compile>
     <Compile Include="API\IIMRUClient.cs" />
     <Compile Include="API\IIMRUResultHandler.cs" />
     <Compile Include="API\IJobCancelledDetector.cs" />

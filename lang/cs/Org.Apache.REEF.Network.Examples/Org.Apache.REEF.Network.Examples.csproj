@@ -45,6 +45,9 @@ under the License.
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="$(SolutionDir)\SharedAssemblyInfo.cs">
+      <Link>Properties\SharedAssemblyInfo.cs</Link>
+    </Compile>
     <Compile Include="GroupCommunication\BroadcastReduceDriverAndTasks\BroadcastReduceDriver.cs" />
     <Compile Include="GroupCommunication\BroadcastReduceDriverAndTasks\MasterTask.cs" />
     <Compile Include="GroupCommunication\BroadcastReduceDriverAndTasks\SlaveTask.cs" />

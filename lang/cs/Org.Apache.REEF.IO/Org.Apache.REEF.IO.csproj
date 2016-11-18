@@ -70,6 +70,9 @@ under the License.
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="$(SolutionDir)\SharedAssemblyInfo.cs">
+      <Link>Properties\SharedAssemblyInfo.cs</Link>
+    </Compile>
     <Compile Include="FileSystem\AzureBlob\AzureBlockBlobFileSystemConfiguration.cs" />
     <Compile Include="FileSystem\AzureBlob\AzureBlobType.cs" />
     <Compile Include="FileSystem\AzureBlob\AzureBlockBlobFileSystemConfigurationProvider.cs" />
