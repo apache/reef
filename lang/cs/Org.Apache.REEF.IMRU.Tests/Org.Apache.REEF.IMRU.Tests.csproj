@@ -48,6 +48,9 @@ under the License.
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="$(SolutionDir)\SharedAssemblyInfo.cs">
+      <Link>Properties\SharedAssemblyInfo.cs</Link>
+    </Compile>
     <Compile Include="ImruDriverCancelTests.cs" />
     <Compile Include="IMRUJobDefinitionBuilderTests.cs" />
     <Compile Include="JobLifecycleManagerTest.cs" />

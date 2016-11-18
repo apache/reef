@@ -43,6 +43,9 @@ under the License.
     <Reference Include="System.Runtime.Serialization" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="$(SolutionDir)\SharedAssemblyInfo.cs">
+      <Link>Properties\SharedAssemblyInfo.cs</Link>
+    </Compile>
     <Compile Include="DriverRestart\HelloRestartDriver.cs" />
     <Compile Include="DriverRestart\HelloRestartTask.cs" />
     <Compile Include="MachineLearning\KMeans\Centroids.cs" />

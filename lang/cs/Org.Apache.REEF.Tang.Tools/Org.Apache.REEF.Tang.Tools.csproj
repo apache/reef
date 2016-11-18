@@ -37,6 +37,9 @@ under the License.
     <Reference Include="System.Core" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="$(SolutionDir)\SharedAssemblyInfo.cs">
+      <Link>Properties\SharedAssemblyInfo.cs</Link>
+    </Compile>
     <Compile Include="ClassHierarchyBuilder.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
@@ -55,7 +58,7 @@ under the License.
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\App.config">
+    <None Include="$(SolutionDir)\App.config">
       <Link>App.config</Link>
     </None>
   </ItemGroup>

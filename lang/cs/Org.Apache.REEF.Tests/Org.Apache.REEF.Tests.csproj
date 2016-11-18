@@ -73,6 +73,9 @@ under the License.
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="$(SolutionDir)\SharedAssemblyInfo.cs">
+      <Link>Properties\SharedAssemblyInfo.cs</Link>
+    </Compile>
     <Compile Include="Functional\Bridge\HelloSimpleEventHandlers.cs" />
     <Compile Include="Functional\Bridge\Parameters\ShouldThrowSerializableException.cs" />
     <Compile Include="Functional\Bridge\TestBridgeClient.cs" />
@@ -163,7 +166,7 @@ under the License.
     <None Include="$(SolutionDir)\Org.Apache.REEF.Client\run.cmd">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="..\App.config">
+    <None Include="$(SolutionDir)\App.config">
       <Link>App.config</Link>
     </None>
     <None Include="packages.config" />

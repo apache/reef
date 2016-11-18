@@ -20,13 +20,6 @@ using System.Runtime.InteropServices;
 
 [assembly: AssemblyTitle("Org.Apache.REEF.IO.Tests")]
 [assembly: AssemblyDescription("Tests for the IO Library for REEF")]
-[assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("The Apache Software Foundation.")]
 [assembly: AssemblyProduct("Org.Apache.REEF.IO.Tests")]
-[assembly: AssemblyCopyright("The Apache Software Foundation")]
-[assembly: AssemblyTrademark("The Apache Software Foundation")]
-[assembly: AssemblyCulture("")]
-[assembly: ComVisible(false)]
-[assembly: AssemblyVersion("0.16.0.0")]
-[assembly: AssemblyFileVersion("0.16.0.0")]
+
 [assembly: Guid("a22b790a-0432-4395-9949-bf8e3958f061")]

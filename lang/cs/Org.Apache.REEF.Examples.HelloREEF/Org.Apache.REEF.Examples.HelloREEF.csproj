@@ -27,13 +27,16 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="$(SolutionDir)\SharedAssemblyInfo.cs">
+      <Link>Properties\SharedAssemblyInfo.cs</Link>
+    </Compile>
     <Compile Include="HelloDriver.cs" />
     <Compile Include="HelloREEF.cs" />
     <Compile Include="HelloTask.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\App.config">
+    <None Include="$(SolutionDir)\App.config">
       <Link>App.config</Link>
     </None>
     <None Include="packages.config" />
@@ -68,7 +71,7 @@
       <Project>{cdfb3464-4041-42b1-9271-83af24cd5008}</Project>
       <Name>Org.Apache.REEF.Wake</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Org.Apache.REEF.IO\Org.Apache.REEF.IO.csproj">
+    <ProjectReference Include="$(SolutionDir)\Org.Apache.REEF.IO\Org.Apache.REEF.IO.csproj">
       <Project>{DEC0F0A8-DBEF-4EBF-B69C-E2369C15ABF1}</Project>
       <Name>Org.Apache.REEF.IO</Name>
     </ProjectReference>

@@ -18,12 +18,16 @@
 using System.Reflection;
 using System.Runtime.InteropServices;
 
-// General Information about an assembly is controlled through the following 
-// set of attributes. Change these attribute values to modify the information
-// associated with an assembly.
-[assembly: AssemblyTitle("Org.Apache.REEF.Common.Tests")]
-[assembly: AssemblyDescription("")]
-[assembly: AssemblyProduct("Org.Apache.REEF.Common.Tests")]
+[assembly: AssemblyCompany("The Apache Software Foundation.")]
+[assembly: AssemblyTrademark("The Apache Software Foundation")]
+[assembly: AssemblyCopyright("Copyright © 2016 The Apache Software Foundation")]
+[assembly: AssemblyCulture("")]
+[assembly: AssemblyConfiguration("")]
 
-// The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("56634b2e-ff34-4c06-99f4-3c1388093e59")]
+// Setting ComVisible to false makes the types in this assembly not visible 
+// to COM components.  If you need to access a type in this assembly from 
+// COM, set the ComVisible attribute to true on that type.
+[assembly: ComVisible(false)]
+
+[assembly: AssemblyVersion("0.16.0.0")]
+[assembly: AssemblyFileVersion("0.16.0.0")]

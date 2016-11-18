@@ -46,6 +46,9 @@ under the License.
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="$(SolutionDir)\SharedAssemblyInfo.cs">
+      <Link>Properties\SharedAssemblyInfo.cs</Link>
+    </Compile>
     <Compile Include="AllHandlers.cs" />
     <Compile Include="AnotherHelloAllocatedEvaluatorHandler.cs" />
     <Compile Include="HelloActiveContextHandler.cs" />
@@ -109,7 +112,7 @@ under the License.
   <ItemGroup>
     <None Include="packages.config" />
     <None Include="Readme.md" />
-    <None Include="..\App.config">
+    <None Include="$(SolutionDir)\App.config">
       <Link>App.config</Link>
     </None>
   </ItemGroup>

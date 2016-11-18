@@ -44,6 +44,9 @@ under the License.
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="$(SolutionDir)\SharedAssemblyInfo.cs">
+      <Link>Properties\SharedAssemblyInfo.cs</Link>
+    </Compile>
     <Compile Include="ClockTest.cs" />
     <Compile Include="MultiCodecTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

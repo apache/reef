@@ -49,6 +49,9 @@ under the License.
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="$(SolutionDir)\SharedAssemblyInfo.cs">
+      <Link>Properties\SharedAssemblyInfo.cs</Link>
+    </Compile>
     <Compile Include="Group\Config\CodecToStreamingCodecConfiguration.cs" />
     <Compile Include="Group\Config\StreamingCodecConfigurationMinusMessage.cs" />
     <Compile Include="Group\Driver\Impl\GeneralGroupCommunicationMessage.cs" />
