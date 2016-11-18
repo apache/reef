@@ -129,6 +129,14 @@ JNIEnv* RetrieveEnv(JavaVM* jvm) {
   return env;
 }
 
-String^ FormatJavaExceptionMessage(String^ errorMessage, Exception^ exception) {
-  return String::Concat(errorMessage, Environment::NewLine, exception->StackTrace);
+String^ FormatJavaExceptionMessage(String^ errorMessage, Exception^ exception, int recursionDepth) {
+	
+	return (!exception)
+		? String::Concat(errorMessage, "null")
+		: recursionDepth >= 0
+			? String::Concat(errorMessage, Environment::NewLine,
+				exception->Message, Environment::NewLine,
+				exception->StackTrace, Environment::NewLine,
+				FormatJavaExceptionMessage( "Inner Exception: ", exception->InnerException, --recursionDepth))
+			: String::Concat(errorMessage, exception->GetType(), " ...");
 }

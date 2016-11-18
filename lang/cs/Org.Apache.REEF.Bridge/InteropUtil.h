@@ -58,7 +58,9 @@ jbyteArray JavaByteArrayFromManagedByteArray(
 
 JNIEnv* RetrieveEnv(JavaVM* jvm);
 
-String^ FormatJavaExceptionMessage(String^ errorMessage, Exception^ exception);
+const int defaultRecursionDepthForExceptionFormat = 3;
+
+String^ FormatJavaExceptionMessage(String^ errorMessage, Exception^ exception, int recursionDepth = defaultRecursionDepthForExceptionFormat);
 
 void HandleClr2JavaError(
   JNIEnv *env,
