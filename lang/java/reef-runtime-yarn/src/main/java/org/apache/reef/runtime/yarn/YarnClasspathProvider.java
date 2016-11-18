@@ -61,7 +61,7 @@ public final class YarnClasspathProvider implements RuntimeClasspathProvider {
       HADOOP_MAPRED_HOME + "/*",
       HADOOP_MAPRED_HOME + "/lib/*",
       HADOOP_COMMON_HOME + "/etc/hadoop/client/*",
-      HADOOP_HOME + "/etc/hadoop",
+      HADOOP_HOME + "/etc/hadoop/*",
       HADOOP_HOME + "/share/hadoop/common/*",
       HADOOP_HOME + "/share/hadoop/common/lib/*",
       HADOOP_HOME + "/share/hadoop/yarn/*",
