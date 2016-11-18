@@ -129,6 +129,21 @@ JNIEnv* RetrieveEnv(JavaVM* jvm) {
   return env;
 }
 
+
+const int defaultRecursionDepthForExceptionFormat = 3;
+
 String^ FormatJavaExceptionMessage(String^ errorMessage, Exception^ exception) {
-  return String::Concat(errorMessage, Environment::NewLine, exception->StackTrace);
+	return FormatJavaExceptionMessage(errorMessage, exception, defaultRecursionDepthForExceptionFormat);
+}
+
+String^ FormatJavaExceptionMessage(String^ errorMessage, Exception^ exception, int recursionDepth) {
+	
+	return (!exception)
+		? String::Concat(errorMessage, "null")
+		: recursionDepth >= 0
+			? String::Concat(errorMessage, Environment::NewLine,
+				exception->Message, Environment::NewLine,
+				exception->StackTrace, Environment::NewLine,
+				FormatJavaExceptionMessage( "Nested Exception: ", exception->InnerException, --recursionDepth), Environment::NewLine)
+			: String::Concat(errorMessage, exception->GetType(), " ...");
 }
