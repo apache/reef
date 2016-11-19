@@ -58,7 +58,7 @@ namespace Org.Apache.REEF.IMRU.Examples
             mapperCountExample.Run(numNodes - 1, filename, fileSystemConfig);
         }
 
-        public static void RunBroadcastReduceTest(IConfiguration tcpPortConfig, bool runOnYarn, int numNodes, bool faultTolerant, string[] args, params string[] runtimeDir)
+        public static void RunBroadcastReduceTest(IConfiguration tcpPortConfig, bool runOnYarn, int numNodes, bool faultTolerant, bool fixedFailures, string[] args, params string[] runtimeDir)
         {
             int chunkSize = 2;
             int dims = 10;
@@ -67,6 +67,9 @@ namespace Org.Apache.REEF.IMRU.Examples
             int updateTaskMemory = 512;
             int maxRetryNumberInRecovery = 2;
             int totalNumberOfForcedFailures = 2;
+            float failureProbability = 0.1f;
+            int minTimeOutInSec = 30;
+            int expThroughPut = 1;
 
             if (args.Length > 0)
             {
@@ -93,14 +96,34 @@ namespace Org.Apache.REEF.IMRU.Examples
                 iterations = Convert.ToInt32(args[4]);
             }
 
-            if (args.Length > 5)
+            if (fixedFailures)
             {
-                maxRetryNumberInRecovery = Convert.ToInt32(args[5]);
+                if (args.Length > 5)
+                {
+                    maxRetryNumberInRecovery = Convert.ToInt32(args[5]);
+                }
+            
+                if (args.Length > 6)
+                {
+                    totalNumberOfForcedFailures = Convert.ToInt32(args[6]);
+                }
             }
-
-            if (args.Length > 6)
+            else
             {
-                totalNumberOfForcedFailures = Convert.ToInt32(args[6]);
+                if (args.Length > 5)
+                {
+                    failureProbability = (float)Convert.ToDouble(args[5]);
+                }
+
+                if (args.Length > 6)
+                {
+                    minTimeOutInSec = Convert.ToInt32(args[6]);
+                }
+
+                if (args.Length > 7)
+                {
+                    expThroughPut = Convert.ToInt32(args[7]);
+                }
             }
 
             IInjector injector;
@@ -116,16 +139,23 @@ namespace Org.Apache.REEF.IMRU.Examples
                 injector = TangFactory.GetTang()
                     .NewInjector(OnREEFIMRURunTimeConfiguration<int[], int[], int[]>.GetYarnIMRUConfiguration(), tcpPortConfig);
             }
-
-            if (faultTolerant)
+            if (fixedFailures)
             {
-                var broadcastReduceFtExample = injector.GetInstance<PipelinedBroadcastAndReduceWithFaultTolerant>();
-                broadcastReduceFtExample.Run(numNodes - 1, chunkSize, iterations, dims, mapperMemory, updateTaskMemory, maxRetryNumberInRecovery, totalNumberOfForcedFailures);
+                if (faultTolerant)
+                {
+                    var broadcastReduceFtExample = injector.GetInstance<PipelinedBroadcastAndReduceWithFaultTolerant>();
+                    broadcastReduceFtExample.Run(numNodes - 1, chunkSize, iterations, dims, mapperMemory, updateTaskMemory, maxRetryNumberInRecovery, totalNumberOfForcedFailures);
+                }
+                else
+                {
+                    var broadcastReduceExample = injector.GetInstance<PipelinedBroadcastAndReduce>();
+                    broadcastReduceExample.Run(numNodes - 1, chunkSize, iterations, dims, mapperMemory, updateTaskMemory);
+                }
             }
             else
             {
-                var broadcastReduceExample = injector.GetInstance<PipelinedBroadcastAndReduce>();
-                broadcastReduceExample.Run(numNodes - 1, chunkSize, iterations, dims, mapperMemory, updateTaskMemory);
+                var broadcastReduceRandFailureExample = injector.GetInstance<PipelinedBroadcastAndReduceWithRandomFailures>();
+                broadcastReduceRandFailureExample.Run(numNodes - 1, chunkSize, iterations, dims, mapperMemory, updateTaskMemory, maxRetryNumberInRecovery, failureProbability, minTimeOutInSec, expThroughPut);
             }
         }
 
@@ -133,8 +163,9 @@ namespace Org.Apache.REEF.IMRU.Examples
         /// Run IMRU examples from command line
         /// </summary>
         /// Sample command line:  
-        /// .\Org.Apache.REEF.IMRU.Examples.exe true 500 8900 1000 broadcastandreduce 20000000 1000000 1024 1024 10
-        /// .\Org.Apache.REEF.IMRU.Examples.exe true 500 8900 1000 broadcastandreduceft 20000000 1000000 1024 1024 100 5 2
+        /// .\Org.Apache.REEF.IMRU.Examples.exe true 500 8900 1000 BroadcastAndReduce 20000000 1000000 1024 1024 10
+        /// .\Org.Apache.REEF.IMRU.Examples.exe true 500 8900 1000 BroadcastAndReduceFT 20000000 1000000 1024 1024 100 5 2
+        /// .\Org.Apache.REEF.IMRU.Examples.exe true 500 8900 1000 BroadcastAndReduceRndFail 20000000 1000000 1024 1024 100 0.2 30 5
         /// <param name="args"></param>
         private static void Main(string[] args)
         {
@@ -195,14 +226,20 @@ namespace Org.Apache.REEF.IMRU.Examples
 
                 case "broadcastandreduce":
                     Logger.Log(Level.Info, "Running Broadcast and Reduce");
-                    RunBroadcastReduceTest(tcpPortConfig, runOnYarn, numNodes, false, args.Skip(5).ToArray());
-                    Logger.Log(Level.Info, "Done Running Broadcast and Reduce");
+                    RunBroadcastReduceTest(tcpPortConfig, runOnYarn, numNodes, false, true, args.Skip(5).ToArray());
+                    Logger.Log(Level.Info, "Done Submitting Broadcast and Reduce job");
                     return;
 
                 case "broadcastandreduceft":
                     Logger.Log(Level.Info, "Running Broadcast and Reduce FT");
-                    RunBroadcastReduceTest(tcpPortConfig, runOnYarn, numNodes, true, args.Skip(5).ToArray());
-                    Logger.Log(Level.Info, "Done Running Broadcast and Reduce FT");
+                    RunBroadcastReduceTest(tcpPortConfig, runOnYarn, numNodes, true, true, args.Skip(5).ToArray());
+                    Logger.Log(Level.Info, "Done Submitting Broadcast and Reduce FT job");
+                    return;
+
+                case "broadcastandreducerndfail":
+                    Logger.Log(Level.Info, "Running Broadcast and Reduce with random failures");
+                    RunBroadcastReduceTest(tcpPortConfig, runOnYarn, numNodes, true, false, args.Skip(5).ToArray());
+                    Logger.Log(Level.Info, "Done Submitting Broadcast and Reduce with random failures job");
                     return;
 
                 default:

@@ -71,7 +71,7 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
                 .Build();
 
             string[] args = { "10", "2", "512", "512", "100", NumOfRetry.ToString(), NumOfRetry.ToString() };
-            Run.RunBroadcastReduceTest(tcpPortConfig, runOnYarn, NumNodes, faultTolerant, args, testFolder);
+            Run.RunBroadcastReduceTest(tcpPortConfig, runOnYarn, NumNodes, faultTolerant, true, args, testFolder);
         }
     }
 }
