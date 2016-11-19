@@ -73,7 +73,7 @@ namespace Org.Apache.REEF.IMRU.Tests
         }
 
         [Fact]
-        [Trait("Description", "Verify that JobLifecycle amanger does not sent any cancellation events if signal is not generated.")]
+        [Trait("Description", "Verify that JobLifecycle manager does not sent any cancellation events if signal is not generated.")]
         public void JobLifeCyclemangerNoSignalDoesNotSendEvent()
         {
             var observer = JobLifeCycleMangerEventTest(
@@ -113,7 +113,7 @@ namespace Org.Apache.REEF.IMRU.Tests
 
         [Fact]
         [Trait("Description", "Verify that manager stops checking for cancellation signal after all observers unsubscribed.")]
-        public void JobLifeCyclemangerChecksStopsCancellationChecksWhenAllObserversUnsubscribed()
+        public void JobLifeCyclemangerNoCancellationChecksAfterAllObserversUnsubscribed()
         {
             int isCancelledCheckCounter = 0;
 

@@ -43,7 +43,7 @@ using Xunit;
 
 namespace Org.Apache.REEF.IMRU.Tests
 {
-    public class ImruDriverTests
+    public class ImruDriverTestsCancelTests
     {
         [Fact]
         [Trait("Description", "Verifies that IMRU driver handles cancel signal: changes state to Fail and throw exception with predefined message.")]
@@ -51,9 +51,9 @@ namespace Org.Apache.REEF.IMRU.Tests
         {
             var driver = TangFactory
                     .GetTang()
-                    .NewInjector(GetDriverConfig<ImruDriverTestType, ImruDriverTestType, ImruDriverTestType, ImruDriverTestType>())
-                    .GetInstance(typeof(IMRUDriver<ImruDriverTestType, ImruDriverTestType, ImruDriverTestType, ImruDriverTestType>))
-                as IMRUDriver<ImruDriverTestType, ImruDriverTestType, ImruDriverTestType, ImruDriverTestType>;
+                    .NewInjector(GetDriverConfig<TestMapInput, TestMapOutput, TestResult, TestPartitionType>())
+                    .GetInstance(typeof(IMRUDriver<TestMapInput, TestMapOutput, TestResult, TestPartitionType>))
+                as IMRUDriver<TestMapInput, TestMapOutput, TestResult, TestPartitionType>;
 
             IDriverStarted startedEvent = null;
             driver.OnNext(startedEvent);
@@ -111,8 +111,8 @@ namespace Org.Apache.REEF.IMRU.Tests
         private IConfiguration GetDriverConfig<TMapInput, TMapOutput, TResult, TPartitionType>()
         {
             var testConfig = TangFactory.GetTang().NewConfigurationBuilder()
-                .BindImplementation(GenericType<IPartitionedInputDataSet>.Class, GenericType<ImruDriverTestType>.Class)
-                .BindImplementation(GenericType<IEvaluatorRequestor>.Class, GenericType<ImruDriverTestType>.Class)
+                .BindImplementation(GenericType<IPartitionedInputDataSet>.Class, GenericType<TestPartitionedInputDataSet>.Class)
+                .BindImplementation(GenericType<IEvaluatorRequestor>.Class, GenericType<TestEvaluatorRequestor>.Class)
                 .Build();
 
             var jobDefinition = new IMRUJobDefinitionBuilder()
@@ -202,17 +202,82 @@ namespace Org.Apache.REEF.IMRU.Tests
             return driverConfig;
         }
 
+        internal class TestMapInput
+        {
+            [Inject]
+            private TestMapInput()
+            {
+            }
+        }
+
+        internal class TestMapOutput
+        {
+            [Inject]
+            private TestMapOutput()
+            {
+            }
+        }
+
+        internal class TestResult
+        {
+            [Inject]
+            private TestResult()
+            {
+            }
+        }
+
+        internal class TestPartitionType
+        {
+            [Inject]
+            private TestPartitionType()
+            {
+            }
+        }
+
         /// <summary>
         /// Simple Type to help with Tang injection when constructing IMRUDriver.
         /// Cares minimum implementation to satisfy new driver instance for test scenarios
         /// </summary>
-        public class ImruDriverTestType : IPartitionedInputDataSet, IEvaluatorRequestor
+        internal class TestEvaluatorRequestor : IEvaluatorRequestor
+        {
+            public IResourceCatalog ResourceCatalog { get; private set; }
+
+            [Inject]
+            private TestEvaluatorRequestor()
+            {
+            }
+
+            public void Submit(IEvaluatorRequest request)
+            {
+                // for test we don't really submit evaluator request, 
+                // but can't throw exception here as Driver calls this method before cancellation flow can be initiated.
+            }
+
+            public EvaluatorRequestBuilder NewBuilder()
+            {
+                var builder = Activator.CreateInstance(
+                    typeof(EvaluatorRequestBuilder),
+                    nonPublic: true);
+                return builder as EvaluatorRequestBuilder;
+            }
+
+            public EvaluatorRequestBuilder NewBuilder(IEvaluatorRequest request)
+            {
+                return NewBuilder();
+            }
+        }
+
+        /// <summary>
+        /// Simple Type to help with Tang injection when constructing IMRUDriver.
+        /// Cares minimum implementation to satisfy new driver instance for test scenarios
+        /// </summary>
+        internal class TestPartitionedInputDataSet : IPartitionedInputDataSet
         {
             public int Count { get; private set; }
             public string Id { get; private set; }
 
             [Inject]
-            public ImruDriverTestType()
+            private TestPartitionedInputDataSet()
             {
             }
 
@@ -229,25 +294,6 @@ namespace Org.Apache.REEF.IMRU.Tests
             public IPartitionDescriptor GetPartitionDescriptorForId(string partitionId)
             {
                 throw new NotImplementedException();
-            }
-
-            public IResourceCatalog ResourceCatalog { get; private set; }
-            public void Submit(IEvaluatorRequest request)
-            {
-                // nada
-            }
-
-            public EvaluatorRequestBuilder NewBuilder()
-            {
-                var builder = Activator.CreateInstance(
-                    typeof(EvaluatorRequestBuilder), 
-                    nonPublic: true);
-                return builder as EvaluatorRequestBuilder;
-            }
-
-            public EvaluatorRequestBuilder NewBuilder(IEvaluatorRequest request)
-            {
-                return NewBuilder();
             }
         }
     }

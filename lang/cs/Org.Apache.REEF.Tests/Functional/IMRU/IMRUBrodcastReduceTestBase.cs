@@ -421,7 +421,7 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
             }
 
             [NamedParameter("Number of IsCancelled checks before cancelling job", "numberOfChecksBeforeCancelling", "0")]
-            public sealed class NumberOfChecksBeforeCancelling : Name<int>
+            internal sealed class NumberOfChecksBeforeCancelling : Name<int>
             {
             }
         }
