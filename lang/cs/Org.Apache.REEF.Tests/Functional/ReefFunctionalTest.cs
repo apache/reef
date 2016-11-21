@@ -155,7 +155,7 @@ namespace Org.Apache.REEF.Tests.Functional
             CleanUp();
         }
 
-        protected void ValidateSuccessForLocalRuntime(int numberOfContextsToClose, int numberOfTasksToFail = 0, int numberOfEvaluatorsToFail = 0, string testFolder = DefaultRuntimeFolder, int retryCount = 60)
+        protected void ValidateSuccessForLocalRuntime(int? numberOfContextsToClose, int numberOfTasksToFail = 0, int numberOfEvaluatorsToFail = 0, string testFolder = DefaultRuntimeFolder, int retryCount = 60, string expectedCancellationMessage = null)
         {
             const string successIndication = "EXIT: ActiveContextClr2Java::Close";
             const string failedTaskIndication = "Java_org_apache_reef_javabridge_NativeInterop_clrSystemFailedTaskHandlerOnNext";
@@ -166,12 +166,17 @@ namespace Org.Apache.REEF.Tests.Functional
             string[] successIndicators = lines.Where(s => s.Contains(successIndication)).ToArray();
             string[] failedTaskIndicators = lines.Where(s => s.Contains(failedTaskIndication)).ToArray();
             string[] failedEvaluatorIndicators = lines.Where(s => s.Contains(failedEvaluatorIndication)).ToArray();
-            Assert.True(numberOfContextsToClose == successIndicators.Length,
+            Assert.True(!numberOfContextsToClose.HasValue || numberOfContextsToClose == successIndicators.Length,
                 "Expected number of contexts to close (" + numberOfContextsToClose + ") differs from actual number of success indicators (" + successIndicators.Length + ")");
             Assert.True(numberOfTasksToFail == failedTaskIndicators.Length,
                 "Expected number of tasks to fail (" + numberOfTasksToFail + ") differs from actual number of failed task indicators (" + failedTaskIndicators.Length + ")");
             Assert.True(numberOfEvaluatorsToFail == failedEvaluatorIndicators.Length,
                 "Expected number of evaluators to fail (" + numberOfEvaluatorsToFail + ") differs from actual number of failed evaluator indicators (" + failedEvaluatorIndicators.Length + ")");
+
+            if (!string.IsNullOrWhiteSpace(expectedCancellationMessage))
+            {
+                Assert.True(lines.Any(line => line.Contains(expectedCancellationMessage)), "Did not find job cancellation message in log file. Expected message: " + expectedCancellationMessage);
+            }
         }
 
         /// <summary>

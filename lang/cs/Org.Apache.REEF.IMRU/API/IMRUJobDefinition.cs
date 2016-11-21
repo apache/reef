@@ -38,6 +38,7 @@ namespace Org.Apache.REEF.IMRU.API
         private readonly IConfiguration _mapInputPipelineDataConverterConfiguration;
         private readonly IConfiguration _partitionedDatasetConfiguration;
         private readonly IConfiguration _resultHandlerConfiguration;
+        private readonly IConfiguration _jobCancelSignalConfiguration;
         private readonly int _numberOfMappers;
         private readonly int _memoryPerMapper;
         private readonly int _updateTaskMemory;
@@ -74,6 +75,7 @@ namespace Org.Apache.REEF.IMRU.API
         /// <param name="maxRetryNumberInRecovery">Max number of retries done if first run of IMRU job failed</param>
         /// <param name="jobName">Job name</param>
         /// <param name="invokeGC">Whether to call garbage collector after each iteration</param>
+        /// <param name="jobCancelSignalConfiguration">Configuration of job cancellation signal</param>
         internal IMRUJobDefinition(
             IConfiguration updateTaskStateConfiguration,
             IConfiguration mapTaskStateConfiguration,
@@ -86,6 +88,7 @@ namespace Org.Apache.REEF.IMRU.API
             IConfiguration mapInputPipelineDataConverterConfiguration,
             IConfiguration partitionedDatasetConfiguration,
             IConfiguration resultHandlerConfiguration,
+            IConfiguration jobCancelSignalConfiguration,
             ISet<IConfiguration> perMapConfigGeneratorConfig,
             int numberOfMappers,
             int memoryPerMapper,
@@ -116,6 +119,7 @@ namespace Org.Apache.REEF.IMRU.API
             _perMapConfigGeneratorConfig = perMapConfigGeneratorConfig;
             _invokeGC = invokeGC;
             _resultHandlerConfiguration = resultHandlerConfiguration;
+            _jobCancelSignalConfiguration = jobCancelSignalConfiguration;
         }
 
         /// <summary>
@@ -281,6 +285,14 @@ namespace Org.Apache.REEF.IMRU.API
         internal IConfiguration ResultHandlerConfiguration
         {
             get { return _resultHandlerConfiguration; }
+        }
+
+        /// <summary>
+        /// Configuration for job cancellation signal implementation
+        /// </summary>
+        internal IConfiguration JobCancelSignalConfiguration
+        {
+            get { return _jobCancelSignalConfiguration; }
         }
     }
 }

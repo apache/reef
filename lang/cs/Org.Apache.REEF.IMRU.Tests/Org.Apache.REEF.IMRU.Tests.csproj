@@ -48,6 +48,9 @@ under the License.
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ImruDriverTestsCancelTests.cs" />
+    <Compile Include="IMRUJobDefinitionBuilderTests.cs" />
+    <Compile Include="JobLifecycleManagerTest.cs" />
     <Compile Include="MapInputWithControlMessageTests.cs" />
     <Compile Include="NaturalSumTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -90,6 +93,10 @@ under the License.
     <ProjectReference Include="$(SolutionDir)\Org.Apache.REEF.Utilities\Org.Apache.REEF.Utilities.csproj">
       <Project>{79e7f89a-1dfb-45e1-8d43-d71a954aeb98}</Project>
       <Name>Org.Apache.REEF.Utilities</Name>
+    </ProjectReference>
+    <ProjectReference Include="$(SolutionDir)\Org.Apache.REEF.IO\Org.Apache.REEF.IO.csproj">
+      <Project>{dec0f0a8-dbef-4ebf-b69c-e2369c15abf1}</Project>
+      <Name>Org.Apache.REEF.IO</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
