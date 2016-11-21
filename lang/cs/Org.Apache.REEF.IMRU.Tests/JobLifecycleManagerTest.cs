@@ -31,7 +31,7 @@ namespace Org.Apache.REEF.IMRU.Tests
     {
         [Fact]
         [Trait("Description", "Verify that JobCancelled event is sent when cancellation signal is detected.")]
-        public void JobLifeCyclemangerSendsJobCancelledEvent()
+        public void JobLifeCycleMangerSendsJobCancelledEvent()
         {
             string expectedMessage = "cancelled";
             var observer = JobLifeCycleMangerEventTest(
@@ -43,7 +43,7 @@ namespace Org.Apache.REEF.IMRU.Tests
 
         [Fact]
         [Trait("Description", "Verify that JobCancelled Event can be sent to all subscribers in case of multiply observers.")]
-        public void JobLifeCyclemangerSendsJobCancelledEventToMultiplyObservers()
+        public void JobLifeCycleMangerSendsJobCancelledEventToMultiplyObservers()
         {
             string expectedMessage = "cancelled";
             var observers = JobLifeCycleMangerEventTest(
@@ -57,7 +57,7 @@ namespace Org.Apache.REEF.IMRU.Tests
 
         [Fact]
         [Trait("Description", "Verify that IsCancelled check is performed with specified period.")]
-        public void JobLifeCyclemangerChecksDetectorPeriodically()
+        public void JobLifeCycleMangerChecksDetectorPeriodically()
         {
             string expectedMessage = "cancelled";
             int isCancelledCheckCounter = 0;
@@ -74,7 +74,7 @@ namespace Org.Apache.REEF.IMRU.Tests
 
         [Fact]
         [Trait("Description", "Verify that JobLifecycle manager does not sent any cancellation events if signal is not generated.")]
-        public void JobLifeCyclemangerNoSignalDoesNotSendEvent()
+        public void JobLifeCycleMangerNoSignalDoesNotSendEvent()
         {
             var observer = JobLifeCycleMangerEventTest(
                 detector: new SampleJobCancelledDetector(false))
@@ -85,7 +85,7 @@ namespace Org.Apache.REEF.IMRU.Tests
 
         [Fact]
         [Trait("Description", "Verify that no cancellation event is sent if configured detector is null.")]
-        public void JobLifeCyclemangerDetectorNullDoesNotSendEvent()
+        public void JobLifeCycleMangerDetectorNullDoesNotSendEvent()
         {
             var observer = JobLifeCycleMangerEventTest(
                 detector: null)
@@ -96,7 +96,7 @@ namespace Org.Apache.REEF.IMRU.Tests
 
         [Fact]
         [Trait("Description", "Verify that cancellation checks are not performed if there are no observers.")]
-        public void JobLifeCyclemangerNoObserversDoesNotCheckForSignal()
+        public void JobLifeCycleMangerNoObserversDoesNotCheckForSignal()
         {
             int isCancelledCheckCounter = 0;
 
@@ -113,7 +113,7 @@ namespace Org.Apache.REEF.IMRU.Tests
 
         [Fact]
         [Trait("Description", "Verify that manager stops checking for cancellation signal after all observers unsubscribed.")]
-        public void JobLifeCyclemangerNoCancellationChecksAfterAllObserversUnsubscribed()
+        public void JobLifeCycleMangerNoCancellationChecksAfterAllObserversUnsubscribed()
         {
             int isCancelledCheckCounter = 0;
 
