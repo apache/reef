@@ -32,6 +32,7 @@ namespace Org.Apache.REEF.Examples.MachineLearning.KMeans
     public class KMeansMasterTask : ITask
     {
         private static readonly Logger Logger = Logger.GetLogger(typeof(KMeansMasterTask));
+        private const double Eps = 1E-6;
 
         private int _iteration;
 
@@ -73,7 +74,6 @@ namespace Org.Apache.REEF.Examples.MachineLearning.KMeans
             _centroids = new Centroids(DataPartitionCache.ReadDataFile(centroidFile));
 
             float loss = float.MaxValue;
-            float newLoss;
 
             while (true)
             {
@@ -88,23 +88,20 @@ namespace Org.Apache.REEF.Examples.MachineLearning.KMeans
                     ProcessedResults results = _meansReducerReceiver.Reduce();
                     _centroids = new Centroids(results.Means.Select(m => m.Mean).ToList());
                     Logger.Log(Level.Info, "Broadcasting new centroids to all slave nodes: " + _centroids);
-                    newLoss = results.Loss;
+                    float newLoss = results.Loss;
                     Logger.Log(Level.Info, string.Format(CultureInfo.InvariantCulture, "The new loss value {0} at iteration {1} ", newLoss, _iteration));
-                    if (newLoss > loss)
+                    if (newLoss > loss + Eps)
                     {
                         _controlBroadcastSender.Send(ControlMessage.STOP);
                         throw new InvalidOperationException(
                             string.Format(CultureInfo.InvariantCulture, "The new loss {0} is larger than previous loss {1}, while loss function must be monotonically decreasing across iterations", newLoss, loss));
                     }
-                    else if (newLoss.Equals(loss))
+                    if (newLoss > loss - Eps)
                     {
                         Logger.Log(Level.Info, string.Format(CultureInfo.InvariantCulture, "KMeans clustering has converged with a loss value of {0} at iteration {1} ", newLoss, _iteration));
                         break;
                     }
-                    else
-                    {
-                        loss = newLoss;
-                    }
+                    loss = newLoss;
                 }          
                 _controlBroadcastSender.Send(ControlMessage.RECEIVE);
                 _dataBroadcastSender.Send(_centroids); 
