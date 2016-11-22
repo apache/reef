@@ -19,13 +19,8 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
-using Org.Apache.REEF.Common.Io;
-using Org.Apache.REEF.Common.Tasks;
-using Org.Apache.REEF.Driver.Bridge;
 using Org.Apache.REEF.Examples.MachineLearning.KMeans;
 using Org.Apache.REEF.Network.Group.Config;
-using Org.Apache.REEF.Network.Naming;
-using Org.Apache.REEF.Network.NetworkService;
 using Org.Apache.REEF.Tang.Implementations.Configuration;
 using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Tang.Interface;
@@ -41,6 +36,7 @@ namespace Org.Apache.REEF.Tests.Functional.ML.KMeans
         private const int K = 3;
         private const int Partitions = 2;
         private const string DataFileNamePrefix = "KMeansInput-";
+        private const double Eps = 1E-6;
 
         public TestKMeans()
         {
@@ -82,20 +78,17 @@ namespace Org.Apache.REEF.Tests.Functional.ML.KMeans
                 DataVector.WriteToCentroidFile(newCentroids, executionDirectory);
                 centroids = newCentroids;
                 float newLoss = LegacyKMeansTask.ComputeLossFunction(centroids, labeledData);
-                if (newLoss > loss)
+                if (newLoss > loss + Eps)
                 {
                     throw new InvalidOperationException(
                         string.Format(CultureInfo.InvariantCulture, "The new loss {0} is larger than previous loss {1}, while loss function must be monotonically decreasing across iterations", newLoss, loss));
                 }
-                else if (newLoss.Equals(loss))
+                if (newLoss > loss - Eps)
                 {
                     Console.WriteLine(string.Format(CultureInfo.InvariantCulture, "KMeans clustering has converged with a loss value of {0} at iteration {1} ", newLoss, iteration));
                     break;
                 }
-                else
-                {
-                    loss = newLoss;
-                }
+                loss = newLoss;
                 iteration++;
             }
 
