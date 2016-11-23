@@ -49,6 +49,7 @@ under the License.
     <Compile Include="Metrics\DefaultMetricSourceTests.cs" />
     <Compile Include="Metrics\ImmutableMetricImplTests.cs" />
     <Compile Include="Metrics\ImmutableMetricTest.cs" />
+    <Compile Include="Metrics\MetricsCollectorTests.cs" />
     <Compile Include="Metrics\MetricTestUtils.cs" />
     <Compile Include="Metrics\MutableMetricTest.cs" />
     <Compile Include="Metrics\SnapshotRequestTest.cs" />

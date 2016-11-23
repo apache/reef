@@ -16,6 +16,8 @@
 // under the License.
 
 using System.Collections.Generic;
+using Org.Apache.REEF.Common.Metrics.MetricsSystem;
+using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Utilities.Attributes;
 
 namespace Org.Apache.REEF.Common.Metrics.Api
@@ -25,6 +27,7 @@ namespace Org.Apache.REEF.Common.Metrics.Api
     /// with a timestamp.
     /// </summary>
     [Unstable("0.16", "Contract may change.")]
+    [DefaultImplementation(typeof(MetricsRecord))]
     public interface IMetricsRecord
     {
         /// <summary>

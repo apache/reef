@@ -15,6 +15,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
+using Org.Apache.REEF.Common.Metrics.MetricsSystem;
+using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Utilities.Attributes;
 
 namespace Org.Apache.REEF.Common.Metrics.Api
@@ -26,6 +28,7 @@ namespace Org.Apache.REEF.Common.Metrics.Api
     /// so that they can be consumed possibly at some later time also.
     /// </summary>
     [Unstable("0.16", "Contract may change.")]
+    [DefaultImplementation(typeof(MetricsRecordBuilder))]
     public interface IMetricsRecordBuilder
     {
         /// <summary>
@@ -100,5 +103,17 @@ namespace Org.Apache.REEF.Common.Metrics.Api
         /// </summary>
         /// <returns>Parent <see cref="IMetricsCollector"/> object</returns>
         IMetricsCollector EndRecord();
+
+        /// <summary>
+        /// Gives the underlying record.
+        /// </summary>
+        /// <returns>Underlying record.</returns>
+        IMetricsRecord GetRecord();
+
+        /// <summary>
+        /// Checks whether some record or tag has been added.
+        /// </summary>
+        /// <returns>True if none is added, false otherwise.</returns>
+        bool IsEmpty();
     }
 }
