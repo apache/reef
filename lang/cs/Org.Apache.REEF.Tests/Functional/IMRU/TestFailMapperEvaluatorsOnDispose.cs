@@ -54,18 +54,23 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
                 NumberOfRetry,
                 testFolder);
             string[] lines = ReadLogFile(DriverStdout, "driver", testFolder, 360);
-            var completedTaskCount = GetMessageCount(lines, "Received ICompletedTask");
             var failedEvaluatorCount = GetMessageCount(lines, FailedEvaluatorMessage);
             var failedTaskCount = GetMessageCount(lines, FailedTaskMessage);
             var jobSuccess = GetMessageCount(lines, IMRUDriver<int[], int[], int[], int[]>.DoneActionPrefix);
 
-            // In first retry, all tasks are completed and then there are 2 failed evaluators. 
-            // No failed tasks.
-            Assert.Equal(2, failedEvaluatorCount);
-            Assert.Equal(0, failedTaskCount);
-            Assert.Equal(numTasks, completedTaskCount);
+            // In this test one of evaluators fails at task dispose stage. Depending on the timing of the failure,
+            // if it happens after all tasks completed, the job succeeds immediately,
+            // but if it happens before that, this counts as failure and job restarts.
+            // Number of tries done can be detected as number of recoveries done + 1
+            var triesDone = GetMessageCount(lines, "Start recovery") + 1;
 
-            // eventually job succeeds
+            // There should be no failed tasks.
+            // Number of failed evaluators = number of tries done
+            // Can't say anything about the number of completed tasks (depends on timing)
+            Assert.Equal(triesDone, failedEvaluatorCount);
+            Assert.Equal(0, failedTaskCount);
+
+            // but eventually job must succeed
             Assert.Equal(1, jobSuccess);
             CleanUp(testFolder);
         }
@@ -79,7 +84,6 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
 
             return TangFactory.GetTang().NewConfigurationBuilder(c)
                 .BindSetEntry<PipelinedBroadcastAndReduceWithFaultTolerant.TaskIdsToFail, string>(GenericType<PipelinedBroadcastAndReduceWithFaultTolerant.TaskIdsToFail>.Class, "IMRUMap-RandomInputPartition-2-")
-                .BindSetEntry<PipelinedBroadcastAndReduceWithFaultTolerant.TaskIdsToFail, string>(GenericType<PipelinedBroadcastAndReduceWithFaultTolerant.TaskIdsToFail>.Class, "IMRUMap-RandomInputPartition-3-")
                 .BindIntNamedParam<PipelinedBroadcastAndReduceWithFaultTolerant.FailureType>(PipelinedBroadcastAndReduceWithFaultTolerant.FailureType.EvaluatorFailureDuringTaskDispose.ToString())
                 .BindNamedParameter(typeof(MaxRetryNumberInRecovery), NumberOfRetry.ToString())
                 .BindNamedParameter(typeof(PipelinedBroadcastAndReduceWithFaultTolerant.TotalNumberOfForcedFailures), NumberOfRetry.ToString())
