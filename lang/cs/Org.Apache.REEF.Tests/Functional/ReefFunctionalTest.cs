@@ -398,7 +398,7 @@ namespace Org.Apache.REEF.Tests.Functional
             }
         }
 
-        private IConfiguration GetTcpConnectionConfiguration()
+        protected virtual IConfiguration GetTcpConnectionConfiguration()
         {
             return TcpClientConfigurationModule.ConfigurationModule
                 .Set(TcpClientConfigurationModule.MaxConnectionRetry, "150")

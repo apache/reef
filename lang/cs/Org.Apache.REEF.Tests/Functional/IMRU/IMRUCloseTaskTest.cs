@@ -21,6 +21,7 @@ using System.Diagnostics;
 using Org.Apache.REEF.Driver.Evaluator;
 using Org.Apache.REEF.Driver.Task;
 using Org.Apache.REEF.IMRU.OnREEF.Driver;
+using Org.Apache.REEF.Network;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Tang.Util;
@@ -58,7 +59,8 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
             const int numOfRetryInRecovery = 4;
             var testFolder = DefaultRuntimeFolder + TestId;
             TestBroadCastAndReduce(false, numTasks, chunkSize, dims, iterations, mapperMemory, updateTaskMemory, numOfRetryInRecovery, testFolder);
-            string[] lines = ReadLogFile(DriverStdout, "driver", testFolder, 120);
+            string[] lines = ReadLogFile(DriverStdout, "driver", testFolder);
+
             var completedCount = GetMessageCount(lines, CompletedTaskMessage);
             var failedCount = GetMessageCount(lines, FailedTaskMessage);
             Assert.Equal(numTasks, completedCount + failedCount);
@@ -116,6 +118,14 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
                 .Build();
         }
 
+        protected override IConfiguration GetTcpConnectionConfiguration()
+        {
+            return TcpClientConfigurationModule.ConfigurationModule
+                .Set(TcpClientConfigurationModule.MaxConnectionRetry, "5")
+                .Set(TcpClientConfigurationModule.SleepTime, "500")
+                .Build();
+        }
+
         /// <summary>
         /// Test handlers
         /// </summary>
@@ -136,7 +146,7 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
             {
                 lock (_lock)
                 {
-                    Logger.Log(Level.Info, "Received running task:" + value.Id);
+                    Logger.Log(Level.Info, "Received running task:" + value.Id + " from container [" + value.ActiveContext.EvaluatorId + "]");
                     _runningTasks.Add(value.Id, value);
                     if (_runningTasks.Count == 4)
                     {
