@@ -16,6 +16,7 @@
 // under the License.
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using Org.Apache.REEF.Common.Metrics.Api;
 using Xunit;
@@ -104,6 +105,16 @@ namespace Org.Apache.REEF.Common.Tests.Metrics
                 throw new NotImplementedException();
             }
 
+            public IMetricsRecord GetRecord()
+            {
+                throw new NotImplementedException();
+            }
+
+            public bool IsEmpty()
+            {
+                return false;
+            }
+
             public void Validate(string name, long expected)
             {
                 if (!_longMetricVals.ContainsKey(name))
@@ -159,11 +170,8 @@ namespace Org.Apache.REEF.Common.Tests.Metrics
         /// </summary>
         internal sealed class MetricsCollectorTestImpl : IMetricsCollector
         {
-            public RecordBuilderForTests CurrentRecordBuilder
-            {
-                get;
-                private set;
-            }
+            public RecordBuilderForTests CurrentRecordBuilder { get; private set; }
+
             public IMetricsRecordBuilder CreateRecord(string name)
             {
                 CurrentRecordBuilder = new RecordBuilderForTests(name);
@@ -173,6 +181,29 @@ namespace Org.Apache.REEF.Common.Tests.Metrics
             public IMetricsRecordBuilder CreateRecord(IMetricsInfo info)
             {
                 throw new System.NotImplementedException();
+            }
+
+            public void Clear()
+            {
+                throw new NotImplementedException();
+            }
+
+            public IEnumerable<IMetricsRecord> GetRecords()
+            {
+                throw new NotImplementedException();
+            }
+
+            public IEnumerator<IMetricsRecordBuilder> GetEnumerator()
+            {
+                return new List<IMetricsRecordBuilder>
+                {
+                    CurrentRecordBuilder
+                }.GetEnumerator();
+            }
+
+            IEnumerator IEnumerable.GetEnumerator()
+            {
+                return GetEnumerator();
             }
         }
 

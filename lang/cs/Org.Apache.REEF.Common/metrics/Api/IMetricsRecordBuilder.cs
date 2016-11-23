@@ -100,5 +100,17 @@ namespace Org.Apache.REEF.Common.Metrics.Api
         /// </summary>
         /// <returns>Parent <see cref="IMetricsCollector"/> object</returns>
         IMetricsCollector EndRecord();
+
+        /// <summary>
+        /// Gives the underlying record.
+        /// </summary>
+        /// <returns>Underlying record.</returns>
+        IMetricsRecord GetRecord();
+
+        /// <summary>
+        /// Checks whether some record or tag has been added.
+        /// </summary>
+        /// <returns>True if none is added, false otherwise.</returns>
+        bool IsEmpty();
     }
 }

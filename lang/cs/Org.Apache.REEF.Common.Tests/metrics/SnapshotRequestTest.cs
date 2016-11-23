@@ -95,6 +95,16 @@ namespace Org.Apache.REEF.Common.Tests.Metrics
             {
                 throw new System.NotImplementedException();
             }
+
+            public IMetricsRecord GetRecord()
+            {
+                throw new System.NotImplementedException();
+            }
+
+            public bool IsEmpty()
+            {
+                throw new System.NotImplementedException();
+            }
         }
     }
 }
