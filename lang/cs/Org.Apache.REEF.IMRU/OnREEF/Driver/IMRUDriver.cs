@@ -528,7 +528,6 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
                                 _serviceAndContextConfigurationProvider.RemoveEvaluatorIdFromPartitionIdProvider(
                                     failedEvaluator.Id);
                                 Logger.Log(Level.Info, "Requesting mapper Evaluators.");
-                                _evaluatorManager.RemoveFailedEvaluator(failedEvaluator.Id);
                                 _evaluatorManager.RequestMapEvaluators(1);
                             }
                             else

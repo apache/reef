@@ -36,12 +36,14 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         private static readonly Logger Logger = Logger.GetLogger(typeof(EvaluatorManager));
 
         private readonly ISet<string> _allocatedEvaluatorIds = new HashSet<string>();
-        private readonly ISet<string> _failedEvaluatorIds = new HashSet<string>();
 
         private readonly int _totalExpectedEvaluators;
         private readonly int _allowedNumberOfEvaluatorFailures;
         private readonly IEvaluatorRequestor _evaluatorRequestor;
         private string _masterEvaluatorId;
+
+        private int _failedEvaluatorsCount;
+        private bool _masterEvaluatorFailed;
 
         private readonly EvaluatorSpecification _updateEvaluatorSpecification;
         private readonly EvaluatorSpecification _mapperEvaluatorSpecification;
@@ -199,27 +201,11 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         internal void RecordFailedEvaluator(string evaluatorId)
         {
             RemoveAllocatedEvaluator(evaluatorId);
-
-            if (_failedEvaluatorIds.Contains(evaluatorId))
+            if (_masterEvaluatorId != null && _masterEvaluatorId.Equals(evaluatorId))
             {
-                string msg = string.Format("The failed evaluator {0} has been recorded.", evaluatorId);
-                Exceptions.Throw(new IMRUSystemException(msg), Logger);
+                _masterEvaluatorFailed = true;
             }
-            _failedEvaluatorIds.Add(evaluatorId);
-        }
-
-        /// <summary>
-        /// Remove failed evaluator from the collection
-        /// </summary>
-        /// <param name="evaluatorId"></param>
-        internal void RemoveFailedEvaluator(string evaluatorId)
-        {
-            if (!_failedEvaluatorIds.Contains(evaluatorId))
-            {
-                string msg = string.Format("The failed evaluator {0} is not recorded in list of failed evaluators.", evaluatorId);
-                Exceptions.Throw(new IMRUSystemException(msg), Logger);
-            }
-            _failedEvaluatorIds.Remove(evaluatorId);
+            _failedEvaluatorsCount++;
         }
 
         /// <summary>
@@ -227,7 +213,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         /// </summary>
         internal bool ExceededMaximumNumberOfEvaluatorFailures()
         {
-            return _failedEvaluatorIds.Count > AllowedNumberOfEvaluatorFailures;
+            return _failedEvaluatorsCount > AllowedNumberOfEvaluatorFailures;
         }
 
         /// <summary>
@@ -247,7 +233,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
             {
                 ResetMasterEvaluatorId();
             }
-            _failedEvaluatorIds.Clear();
+            _failedEvaluatorsCount = 0;
         }
 
         /// <summary>
@@ -281,6 +267,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
                 Exceptions.Throw(new IMRUSystemException("Master evaluator is already null"), Logger);
             }
             _masterEvaluatorId = null;
+            _masterEvaluatorFailed = false;
         }
 
         /// <summary>
@@ -312,7 +299,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         /// <returns></returns>
         internal bool IsMasterEvaluatorFailed()
         {
-            return _masterEvaluatorId != null && _failedEvaluatorIds.Contains(_masterEvaluatorId);
+            return _masterEvaluatorFailed;
         }
 
         /// <summary>
@@ -323,9 +310,9 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         {
             if (IsMasterEvaluatorFailed())
             {
-                return _failedEvaluatorIds.Count - 1;
+                return _failedEvaluatorsCount - 1;
             }
-            return _failedEvaluatorIds.Count;
+            return _failedEvaluatorsCount;
         }
 
         /// <summary>
