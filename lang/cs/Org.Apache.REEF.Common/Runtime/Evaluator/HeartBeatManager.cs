@@ -55,6 +55,8 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator
 
         private readonly int _maxHeartbeatRetries = 0;
 
+        private const int DriverConnRetryFactor = 60;
+
         private IRemoteIdentifier _remoteId;
 
         private IObserver<REEFMessage> _observer;
@@ -166,17 +168,30 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator
                     _queuedHeartbeats.Enqueue(evaluatorHeartbeatProto);
                     LOGGER.Log(Level.Error, string.Format(CultureInfo.InvariantCulture, "Sending heartbeat to driver experienced #{0} failure. Hearbeat queued as: [{1}]. ", _heartbeatFailures, evaluatorHeartbeatProto), e);
 
-                    if (_heartbeatFailures >= _maxHeartbeatRetries)
+                    if (_driverConnection.Get() is MissingDriverConnection)
                     {
-                        LOGGER.Log(Level.Warning, "Heartbeat communications to driver reached max of {0} failures. Driver is considered dead/unreachable", _heartbeatFailures);
-                        LOGGER.Log(Level.Info, "=========== Entering RECOVERY mode. ===========");
-                        ContextManager.HandleDriverConnectionMessage(new DriverConnectionMessageImpl(DriverConnectionState.Disconnected));
+                        if (_heartbeatFailures >= _maxHeartbeatRetries * DriverConnRetryFactor)
+                        {
+                            Environment.Exit(1);
+                        }
+                    }
+                    else
+                    {
+                        if (_heartbeatFailures >= _maxHeartbeatRetries)
+                        {
+                            LOGGER.Log(Level.Warning,
+                                "Heartbeat communications to driver reached max of {0} failures. Driver is considered dead/unreachable",
+                                _heartbeatFailures);
+                            LOGGER.Log(Level.Info, "=========== Entering RECOVERY mode. ===========");
+                            ContextManager.HandleDriverConnectionMessage(
+                                new DriverConnectionMessageImpl(DriverConnectionState.Disconnected));
 
-                        LOGGER.Log(Level.Info, "instantiate driver reconnect implementation: " + _driverConnection);
-                        _evaluatorSettings.OperationState = EvaluatorOperationState.RECOVERY;
+                            LOGGER.Log(Level.Info, "instantiate driver reconnect implementation: " + _driverConnection);
+                            _evaluatorSettings.OperationState = EvaluatorOperationState.RECOVERY;
 
-                        // clean heartbeat failure
-                        _heartbeatFailures = 0;
+                            // clean heartbeat failure
+                            _heartbeatFailures = 0;
+                        }
                     }
                 }
             }     

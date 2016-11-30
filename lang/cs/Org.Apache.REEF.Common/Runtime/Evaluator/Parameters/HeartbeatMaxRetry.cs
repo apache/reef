@@ -19,7 +19,7 @@ using Org.Apache.REEF.Tang.Annotations;
 
 namespace Org.Apache.REEF.Common.Runtime.Evaluator.Parameters
 {
-    [NamedParameter(Documentation = "Heartbeat Max Retry", ShortName = "HeartbeatMaxRetry", DefaultValue = "3")]
+    [NamedParameter(Documentation = "Heartbeat Max Retry", ShortName = "HeartbeatMaxRetry", DefaultValue = "10")]
     internal sealed class HeartbeatMaxRetry : Name<int>
     {
     }
