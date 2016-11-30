@@ -29,7 +29,6 @@ using Org.Apache.REEF.Common.Tasks;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Tang.Exceptions;
 using Org.Apache.REEF.Tang.Implementations.InjectionPlan;
-using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Utilities;
 using Org.Apache.REEF.Utilities.Attributes;
 using Org.Apache.REEF.Utilities.Logging;
@@ -54,6 +53,8 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator
         private readonly int _heartBeatPeriodInMillSeconds;
 
         private readonly int _maxHeartbeatRetries = 0;
+
+        private readonly int _maxHeartbeatRetriesForNonRecoveryMode = 0;
 
         private IRemoteIdentifier _remoteId;
 
@@ -95,6 +96,7 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator
                 _clock = settings.RuntimeClock;
                 _heartBeatPeriodInMillSeconds = settings.HeartBeatPeriodInMs;
                 _maxHeartbeatRetries = settings.MaxHeartbeatRetries;
+                _maxHeartbeatRetriesForNonRecoveryMode = settings.MaxHeartbeatRetriesForNonRecoveryMode;
                 _driverConnection = driverConnection;
                 MachineStatus.ToString(); // kick start the CPU perf counter
             }
@@ -152,7 +154,7 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator
                 try
                 {
                     _observer.OnNext(payload);
-                    _heartbeatFailures = 0; // reset failure counts if we are having intermidtten (not continuous) failures
+                    _heartbeatFailures = 0; // reset failure counts if we are having intermittent (not continuous) failures
                 }
                 catch (Exception e)
                 {
@@ -166,17 +168,35 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator
                     _queuedHeartbeats.Enqueue(evaluatorHeartbeatProto);
                     LOGGER.Log(Level.Error, string.Format(CultureInfo.InvariantCulture, "Sending heartbeat to driver experienced #{0} failure. Hearbeat queued as: [{1}]. ", _heartbeatFailures, evaluatorHeartbeatProto), e);
 
-                    if (_heartbeatFailures >= _maxHeartbeatRetries)
+                    if (_driverConnection.Get() is MissingDriverConnection)
                     {
-                        LOGGER.Log(Level.Warning, "Heartbeat communications to driver reached max of {0} failures. Driver is considered dead/unreachable", _heartbeatFailures);
-                        LOGGER.Log(Level.Info, "=========== Entering RECOVERY mode. ===========");
-                        ContextManager.HandleDriverConnectionMessage(new DriverConnectionMessageImpl(DriverConnectionState.Disconnected));
+                        if (_heartbeatFailures >= _maxHeartbeatRetriesForNonRecoveryMode)
+                        {
+                            var msg =
+                                string.Format(CultureInfo.InvariantCulture,
+                                    "Have encountered {0} heartbeat failures. Limit of heartbeat sending failures exceeded. Driver reconnect logic is not implemented, failing evaluator.",
+                                    _heartbeatFailures);
+                            LOGGER.Log(Level.Error, msg);
+                            throw new ReefRuntimeException(msg, e);
+                        }
+                    }
+                    else
+                    {
+                        if (_heartbeatFailures >= _maxHeartbeatRetries)
+                        {
+                            LOGGER.Log(Level.Warning,
+                                "Heartbeat communications to driver reached max of {0} failures. Driver is considered dead/unreachable",
+                                _heartbeatFailures);
+                            LOGGER.Log(Level.Info, "Entering RECOVERY mode!!!");
+                            ContextManager.HandleDriverConnectionMessage(
+                                new DriverConnectionMessageImpl(DriverConnectionState.Disconnected));
 
-                        LOGGER.Log(Level.Info, "instantiate driver reconnect implementation: " + _driverConnection);
-                        _evaluatorSettings.OperationState = EvaluatorOperationState.RECOVERY;
+                            LOGGER.Log(Level.Info, "instantiate driver reconnect implementation: " + _driverConnection);
+                            _evaluatorSettings.OperationState = EvaluatorOperationState.RECOVERY;
 
-                        // clean heartbeat failure
-                        _heartbeatFailures = 0;
+                            // clean heartbeat failure
+                            _heartbeatFailures = 0;
+                        }
                     }
                 }
             }     
@@ -284,21 +304,29 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator
                     if (_evaluatorSettings.OperationState == EvaluatorOperationState.RECOVERY)
                     {
                         var driverConnection = _driverConnection.Get();
-
                         try
                         {
                             var driverInformation = driverConnection.GetDriverInformation();
                             if (driverInformation == null)
                             {
-                                LOGGER.Log(Level.Verbose, "In RECOVERY mode, cannot retrieve driver information, will try again later.");
+                                LOGGER.Log(Level.Verbose,
+                                    "In RECOVERY mode, cannot retrieve driver information, will try again later.");
                             }
                             else
                             {
-                                LOGGER.Log(
-                                    Level.Info,
-                                    string.Format(CultureInfo.InvariantCulture, "Detect driver restarted at {0} and is running on endpoint {1} with services {2}. Now trying to re-establish connection", driverInformation.DriverStartTime, driverInformation.DriverRemoteIdentifier, driverInformation.NameServerId));
+                                var msg = string.Format(CultureInfo.InvariantCulture,
+                                        "Detect driver restarted at {0} and is running on endpoint {1} with services {2}. Now trying to re-establish connection",
+                                        driverInformation.DriverStartTime,
+                                        driverInformation.DriverRemoteIdentifier,
+                                        driverInformation.NameServerId);
+                                LOGGER.Log(Level.Info, msg);
                                 Recover(driverInformation);
                             }
+                        }
+                        catch (NotImplementedException)
+                        {
+                            LOGGER.Log(Level.Error, "Reaching EvaluatorOperation RECOVERY mode, however, there is no IDriverConnection implemented for HA.");
+                            throw;
                         }
                         catch (Exception e)
                         {
@@ -329,8 +357,8 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator
 
         private static long CurrentTimeMilliSeconds()
         {
-            // this is an implmenation to get current time milli second counted from Jan 1st, 1970
-            // it is chose as such to be compatible with java implmentation
+            // this is an implementation to get current time in milliseconds counted from Jan 1st, 1970
+            // it is chosen as such to be compatible with Java implementation
             DateTime jan1St1970 = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
             return (long)(DateTime.UtcNow - jan1St1970).TotalMilliseconds;
         }
@@ -367,7 +395,7 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator
                     {
                         if (firstHeartbeatInQueue)
                         {
-                            // first heartbeat is specially construted to include the recovery flag
+                            // first heartbeat is specially constructed to include the recovery flag
                             EvaluatorHeartbeatProto recoveryHeartbeat = ConstructRecoveryHeartBeat(_queuedHeartbeats.Dequeue());
                             LOGGER.Log(Level.Info, "Recovery heartbeat to be sent:" + recoveryHeartbeat);
                             _observer.OnNext(new REEFMessage(recoveryHeartbeat));
@@ -394,7 +422,7 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator
             _evaluatorSettings.OperationState = EvaluatorOperationState.OPERATIONAL;
             ContextManager.HandleDriverConnectionMessage(new DriverConnectionMessageImpl(DriverConnectionState.Reconnected));
 
-            LOGGER.Log(Level.Info, "=========== Exiting RECOVERY mode. ===========");
+            LOGGER.Log(Level.Info, "Exiting RECOVERY mode!!!");
         }
 
         private EvaluatorHeartbeatProto ConstructRecoveryHeartBeat(EvaluatorHeartbeatProto heartbeat)

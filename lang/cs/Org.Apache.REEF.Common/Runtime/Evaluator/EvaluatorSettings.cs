@@ -35,6 +35,7 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator
         private readonly string _evaluatorId;
         private readonly int _heartBeatPeriodInMs;
         private readonly int _maxHeartbeatRetries;
+        private readonly int _maxHeartbeatRetriesForNonrecoveryMode;
         private readonly IClock _clock;
         private readonly IRemoteManager<REEFMessage> _remoteManager;
 
@@ -45,6 +46,7 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator
         /// <param name="evaluatorId"></param>
         /// <param name="heartbeatPeriodInMs"></param>
         /// <param name="maxHeartbeatRetries"></param>
+        /// <param name="maxHeartbeatRetriesForNonRecoveryMode">Max retry number for non HA mode</param>
         /// <param name="clock"></param>
         /// <param name="remoteManagerFactory"></param>
         /// <param name="reefMessageCodec"></param>
@@ -54,10 +56,11 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator
             [Parameter(typeof(EvaluatorIdentifier))] string evaluatorId,
             [Parameter(typeof(EvaluatorHeartbeatPeriodInMs))] int heartbeatPeriodInMs,
             [Parameter(typeof(HeartbeatMaxRetry))] int maxHeartbeatRetries,
+            [Parameter(typeof(HeartbeatMaxRetryForNonRecoveryMode))] int maxHeartbeatRetriesForNonRecoveryMode,
             IClock clock,
             IRemoteManagerFactory remoteManagerFactory,
             REEFMessageCodec reefMessageCodec) :
-            this(applicationId, evaluatorId, heartbeatPeriodInMs, maxHeartbeatRetries, 
+            this(applicationId, evaluatorId, heartbeatPeriodInMs, maxHeartbeatRetries, maxHeartbeatRetriesForNonRecoveryMode,
             clock, remoteManagerFactory, reefMessageCodec, null)
         {
         }
@@ -68,6 +71,7 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator
             [Parameter(typeof(EvaluatorIdentifier))] string evaluatorId,
             [Parameter(typeof(EvaluatorHeartbeatPeriodInMs))] int heartbeatPeriodInMs,
             [Parameter(typeof(HeartbeatMaxRetry))] int maxHeartbeatRetries,
+            [Parameter(typeof(HeartbeatMaxRetryForNonRecoveryMode))] int maxHeartbeatRetriesForNonRecoveryMode,
             IClock clock,
             IRemoteManagerFactory remoteManagerFactory,
             REEFMessageCodec reefMessageCodec,
@@ -77,6 +81,7 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator
             _evaluatorId = evaluatorId;
             _heartBeatPeriodInMs = heartbeatPeriodInMs;
             _maxHeartbeatRetries = maxHeartbeatRetries;
+            _maxHeartbeatRetriesForNonrecoveryMode = maxHeartbeatRetriesForNonRecoveryMode;
             _clock = clock;
 
             _remoteManager = remoteManagerFactory.GetInstance(reefMessageCodec);
@@ -130,6 +135,17 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator
             get
             {
                 return _maxHeartbeatRetries;
+            }
+        }
+
+        /// <summary>
+        /// Return MaxHeartbeatRetriesForNonrecoveryMode from NamedParameter
+        /// </summary>
+        public int MaxHeartbeatRetriesForNonRecoveryMode
+        {
+            get
+            {
+                return _maxHeartbeatRetriesForNonrecoveryMode;
             }
         }
 
