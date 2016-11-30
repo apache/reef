@@ -46,7 +46,7 @@ namespace Org.Apache.REEF.Network.Group.Config
         /// Each Communication group needs to check and wait until all the other nodes in the group are registered to the NameServer
         /// Sleep time is set between each retry. 
         /// </summary>
-        [NamedParameter("sleep time to wait for nodes to be registered", defaultValue: "500")]
+        [NamedParameter("sleep time to wait for nodes to be registered", defaultValue: "2000")]
         internal sealed class SleepTimeWaitingForRegistration : Name<int>
         {
         }
@@ -55,13 +55,11 @@ namespace Org.Apache.REEF.Network.Group.Config
         /// Each Communication group needs to check and wait until all the other nodes in the group are registered to the NameServer
         /// </summary>
         /// <remarks>
-        /// When there are many nodes, e.g over 100, the waiting time might be pretty long. 
-        /// We don't want to set it too low in case some nodes are just slow, if we simply throw an exception, that is not right. 
-        /// We don't want it to try endlessly in case some node is really dead, we should come out with exception. 
-        /// We want it to return as soon as all nodes in the group are registered, So increasing retry count is better than increasing sleep time.
-        /// Current default sleep time is 500ms. Default retry is 500. Total is 250000ms, that is 250s, little bit more than 4 min
+        /// If a node is waiting for others that need to download data, the waiting time could be long. 
+        /// As we can use cancellation token to cancel the waiting for registration, setting this number would be OK
+        /// Current default sleep time is 2000ms. Default retry is 900. Total is 1800s, that is 30 min
         /// </remarks>
-        [NamedParameter("Retry times to wait for nodes to be registered", defaultValue: "500")]
+        [NamedParameter("Retry times to wait for nodes to be registered", defaultValue: "900")]
         internal sealed class RetryCountWaitingForRegistration : Name<int>
         {
         }
