@@ -56,8 +56,8 @@ namespace Org.Apache.REEF.Network.Group.Config
         /// </summary>
         /// <remarks>
         /// If a node is waiting for others that need to download data, the waiting time could be long. 
-        /// As we can use cancellation token to cancel the waiting for registration, setting this number would be OK
-        /// Current default sleep time is 2000ms. Default retry is 900. Total is 1800s, that is 30 min
+        /// As we can use cancellation token to cancel the waiting for registration, setting this number higher should be OK.
+        /// Current default sleep time is 2000ms. Default retry is 900. Total is 1800s, that is 30 min.
         /// </remarks>
         [NamedParameter("Retry times to wait for nodes to be registered", defaultValue: "900")]
         internal sealed class RetryCountWaitingForRegistration : Name<int>
