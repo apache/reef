@@ -15,6 +15,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
+using System.Linq;
 using Org.Apache.REEF.Client.API;
 using Org.Apache.REEF.IMRU.Examples;
 using Org.Apache.REEF.Utilities.Logging;
@@ -25,9 +26,9 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
     [Collection("FunctionalTests")]
     public class IMRUBroadcastReduceTest : ReefFunctionalTest
     {
-        private static readonly Logger Logger = Logger.GetLogger(typeof(IMRUMapperCountTest));
+        private static readonly Logger Logger = Logger.GetLogger(typeof(IMRUBroadcastReduceTest));
 
-        private static readonly int NumNodes = 4;
+        private static readonly int NumNodes = 10;
         private static readonly int NumOfRetry = 2;
 
         [Fact]
@@ -35,7 +36,7 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
         void TestIMRUBroadcastReduceOnLocalRuntime()
         {
             string testFolder = DefaultRuntimeFolder + TestId;
-            TestIMRUBroadcastReduce(false, false, testFolder);
+            TestIMRUBroadcastReduce(false, false, true, testFolder);
             ValidateSuccessForLocalRuntime(NumNodes, testFolder: testFolder);
             CleanUp(testFolder);
         }
@@ -45,7 +46,7 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
         void TestIMRUBroadcastReduceWithFTOnLocalRuntime()
         {
             string testFolder = DefaultRuntimeFolder + TestId;
-            TestIMRUBroadcastReduce(false, true, testFolder);
+            TestIMRUBroadcastReduce(false, true, true, testFolder);
             string[] lines = ReadLogFile(DriverStdout, "driver", testFolder, 240);
             var completedTaskCount = GetMessageCount(lines, "Received ICompletedTask");
             var runningTaskCount = GetMessageCount(lines, "Received IRunningTask");
@@ -56,22 +57,37 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
             CleanUp(testFolder);
         }
 
+        [Fact]
+        [Trait("Description", "Run IMRU broadcast and reduce example with random failures as test.")]
+        void TestImruBroadcastReduceWithRandFailuresOnLocalRuntime()
+        {
+            var testFolder = DefaultRuntimeFolder + TestId;
+            TestIMRUBroadcastReduce(false, true, false, testFolder);
+            var lines = ReadLogFile(DriverStdout, "driver", testFolder, 240);
+            var completedEvaluatorCount = GetMessageCount(lines, "Received CompletedEvaluator");
+            Assert.Equal(NumNodes, completedEvaluatorCount);
+            CleanUp(testFolder);
+        }
+
         [Fact(Skip = "Requires Yarn")]
         [Trait("Description", "Run IMRU broadcast and reduce example as test on Yarn.")]
         void TestIMRUBroadcastReduceOnYarn()
         {
-            TestIMRUBroadcastReduce(true, false);
+            TestIMRUBroadcastReduce(true, false, true);
         }
 
-        private void TestIMRUBroadcastReduce(bool runOnYarn, bool faultTolerant, params string[] testFolder)
+        private void TestIMRUBroadcastReduce(bool runOnYarn, bool faultTolerant, bool fixedFailures, params string[] testFolder)
         {
             var tcpPortConfig = TcpPortConfigurationModule.ConfigurationModule
                 .Set(TcpPortConfigurationModule.PortRangeStart, "8900")
                 .Set(TcpPortConfigurationModule.PortRangeCount, "1000")
                 .Build();
 
-            string[] args = { "10", "2", "512", "512", "100", NumOfRetry.ToString(), NumOfRetry.ToString() };
-            Run.RunBroadcastReduceTest(tcpPortConfig, runOnYarn, NumNodes, faultTolerant, true, args, testFolder);
+            string[] commonArgs = { "10", "2", "512", "512", "100" };
+            var args = fixedFailures
+                ? commonArgs.Concat(new string[] { NumOfRetry.ToString(), NumOfRetry.ToString() }).ToArray()
+                : commonArgs.Concat(new string[] { "0.6", "10" }).ToArray();
+            Run.RunBroadcastReduceTest(tcpPortConfig, runOnYarn, NumNodes, faultTolerant, fixedFailures, args, testFolder);
         }
     }
 }

@@ -110,6 +110,7 @@ namespace Org.Apache.REEF.IMRU.Examples
             }
             else
             {
+                maxRetryNumberInRecovery = iterations;
                 if (args.Length > 5)
                 {
                     failureProbability = (float)Convert.ToDouble(args[5]);
