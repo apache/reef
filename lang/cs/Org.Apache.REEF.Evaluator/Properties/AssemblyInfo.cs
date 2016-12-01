@@ -21,16 +21,9 @@ using System.Runtime.InteropServices;
 
 [assembly: AssemblyTitle("Org.Apache.REEF.Evaluator")]
 [assembly: AssemblyDescription("")]
-[assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
 [assembly: AssemblyProduct("Org.Apache.REEF.Evaluator")]
-[assembly: AssemblyCopyright("Copyright © 2016")]
-[assembly: AssemblyTrademark("")]
-[assembly: AssemblyCulture("")]
-[assembly: ComVisible(false)]
+
 [assembly: Guid("a64dc535-9b1e-41a4-8303-117f8b28c8c0")]
-[assembly: AssemblyVersion("0.16.0.0")]
-[assembly: AssemblyFileVersion("0.16.0.0")]
 
 // Allow the tests access to `internal` APIs
 [assembly: InternalsVisibleTo("Org.Apache.REEF.Tang.Tests, publickey=" +

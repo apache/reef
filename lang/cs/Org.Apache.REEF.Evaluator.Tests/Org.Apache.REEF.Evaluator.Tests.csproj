@@ -50,6 +50,9 @@ under the License.
     <Reference Include="System" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="$(SolutionDir)\SharedAssemblyInfo.cs">
+      <Link>Properties\SharedAssemblyInfo.cs</Link>
+    </Compile>
     <Compile Include="ContextRuntimeTests.cs" />
     <Compile Include="EvaluatorConfigurationsTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -95,7 +98,7 @@ under the License.
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\App.config">
+    <None Include="$(SolutionDir)\App.config">
       <Link>App.config</Link>
     </None>
     <None Include="packages.config" />

@@ -44,8 +44,12 @@ under the License.
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="$(SolutionDir)\SharedAssemblyInfo.cs">
+      <Link>Properties\SharedAssemblyInfo.cs</Link>
+    </Compile>
     <Compile Include="API\IIMRUClient.cs" />
     <Compile Include="API\IIMRUResultHandler.cs" />
+    <Compile Include="API\IJobCancelledDetector.cs" />
     <Compile Include="API\IMapFunction.cs" />
     <Compile Include="API\IMRUCodecConfiguration.cs" />
     <Compile Include="API\IMRUPipelineDataConverterConfiguration.cs" />
@@ -57,6 +61,7 @@ under the License.
     <Compile Include="API\IMRUUpdateConfiguration.cs" />
     <Compile Include="API\IUpdateFunction.cs" />
     <Compile Include="API\IPerMapperConfigGenerator.cs" />
+    <Compile Include="OnREEF\Driver\JobCancellationDetectorAlwaysFalse.cs" />
     <Compile Include="API\PerMapConfigGeneratorSet.cs" />
     <Compile Include="API\UpdateResult.cs" />
     <Compile Include="InProcess\IMRURunner.cs" />
@@ -74,7 +79,9 @@ under the License.
     <Compile Include="OnREEF\Driver\DataLoadingContext.cs" />
     <Compile Include="OnREEF\Driver\EvaluatorManager.cs" />
     <Compile Include="OnREEF\Driver\EvaluatorSpecification.cs" />
-    <Compile Include="OnREEF\Driver\MaximumNumberOfEvalutorFailuresExceededException.cs" />
+    <Compile Include="OnREEF\Driver\IJobLifeCycleManager.cs" />
+    <Compile Include="OnREEF\Driver\JobCancelled.cs" />
+    <Compile Include="OnREEF\Driver\JobLifeCycleManager.cs" />
     <Compile Include="OnREEF\Driver\IMRUSystemException.cs" />
     <Compile Include="OnREEF\Driver\IMRUConstants.cs" />
     <Compile Include="OnREEF\Driver\IMRUDriver.cs" />
@@ -120,6 +127,7 @@ under the License.
     <Compile Include="OnREEF\Parameters\SerializedUpdateConfiguration.cs" />
     <Compile Include="OnREEF\Parameters\SerializedUpdateFunctionCodecsConfiguration.cs" />
     <Compile Include="OnREEF\Parameters\SerializedUpdateTaskStateConfiguration.cs" />
+    <Compile Include="OnREEF\Parameters\SleepIntervalParameter.cs" />
     <Compile Include="OnREEF\ResultHandler\DefaultResultHandler.cs" />
     <Compile Include="OnREEF\ResultHandler\ResultOutputLocation.cs" />
     <Compile Include="OnREEF\ResultHandler\WriteResultHandler.cs" />

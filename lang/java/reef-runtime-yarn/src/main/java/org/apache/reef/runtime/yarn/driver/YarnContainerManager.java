@@ -25,7 +25,6 @@ import org.apache.hadoop.fs.*;
 import org.apache.hadoop.service.Service;
 import org.apache.hadoop.yarn.api.records.*;
 import org.apache.hadoop.yarn.client.api.AMRMClient;
-import org.apache.hadoop.yarn.client.api.YarnClient;
 import org.apache.hadoop.yarn.client.api.async.AMRMClientAsync;
 import org.apache.hadoop.yarn.client.api.async.NMClientAsync;
 import org.apache.hadoop.yarn.client.api.async.impl.NMClientAsyncImpl;
@@ -63,7 +62,6 @@ final class YarnContainerManager
 
   private static final String RUNTIME_NAME = "YARN";
 
-  private final YarnClient yarnClient = YarnClient.createYarnClient();
   private final Queue<AMRMClient.ContainerRequest> requestsBeforeSentToRM = new ConcurrentLinkedQueue<>();
   private final Queue<AMRMClient.ContainerRequest> requestsAfterSentToRM = new ConcurrentLinkedQueue<>();
   private final Map<String, String> nodeIdToRackName = new ConcurrentHashMap<>();
@@ -106,8 +104,6 @@ final class YarnContainerManager
     this.yarnConf = yarnConf;
     this.trackingURLProvider = trackingURLProvider;
     this.rackNameFormatter = rackNameFormatter;
-
-    this.yarnClient.init(this.yarnConf);
 
     this.resourceManager = AMRMClientAsync.createAMRMClientAsync(yarnRMHeartbeatPeriod, this);
     this.nodeManager = new NMClientAsyncImpl(this);
@@ -303,9 +299,6 @@ final class YarnContainerManager
    * This method is called from DriverRuntimeStartHandler via YARNRuntimeStartHandler.
    */
   void onStart() {
-
-    this.yarnClient.start();
-
     this.resourceManager.init(this.yarnConf);
     this.resourceManager.start();
 
@@ -313,16 +306,6 @@ final class YarnContainerManager
     this.nodeManager.start();
 
     try {
-      for (final NodeReport nodeReport : this.yarnClient.getNodeReports(NodeState.RUNNING)) {
-        onNodeReport(nodeReport);
-      }
-    } catch (IOException | YarnException e) {
-      LOG.log(Level.WARNING, "Unable to fetch node reports from YARN.", e);
-      onRuntimeError(e);
-    }
-
-    try {
-
       this.registration.setRegistration(
           this.resourceManager.registerApplicationMaster("", 0, this.trackingURLProvider.getTrackingUrl()));
 
@@ -334,7 +317,6 @@ final class YarnContainerManager
       try (final FSDataOutputStream out = fs.create(outputFileName)) {
         out.writeBytes(this.trackingURLProvider.getTrackingUrl() + '\n');
       }
-
     } catch (final YarnException | IOException e) {
       LOG.log(Level.WARNING, "Unable to register application master.", e);
       onRuntimeError(e);

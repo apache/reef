@@ -1,4 +1,4 @@
-﻿﻿// Licensed to the Apache Software Foundation (ASF) under one
+﻿// Licensed to the Apache Software Foundation (ASF) under one
 // or more contributor license agreements.  See the NOTICE file
 // distributed with this work for additional information
 // regarding copyright ownership.  The ASF licenses this file
@@ -66,7 +66,8 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         IObserver<IFailedContext>,
         IObserver<IFailedTask>,
         IObserver<IRunningTask>,
-        IObserver<IEnumerable<IActiveContext>>
+        IObserver<IEnumerable<IActiveContext>>,
+        IObserver<IJobCancelled>
     {
         private static readonly Logger Logger =
             Logger.GetLogger(typeof(IMRUDriver<TMapInput, TMapOutput, TResult, TPartitionType>));
@@ -82,6 +83,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         private readonly ISet<IPerMapperConfigGenerator> _perMapperConfigs;
         private readonly bool _invokeGC;
         private readonly ServiceAndContextConfigurationProvider<TMapInput, TMapOutput, TPartitionType> _serviceAndContextConfigurationProvider;
+        private IJobCancelled _cancelEvent;
 
         /// <summary>
         /// The lock for the driver. 
@@ -124,6 +126,11 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         /// </summary>
         private int _numberOfRetries;
 
+        /// <summary>
+        /// Manages lifecycle events for driver, like JobCancelled event.
+        /// </summary>
+        private readonly List<IDisposable> _disposableResources = new List<IDisposable>();
+
         private const int DefaultMaxNumberOfRetryInRecovery = 3; 
 
         [Inject]
@@ -139,7 +146,8 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
             [Parameter(typeof(MaxRetryNumberInRecovery))] int maxRetryNumberInRecovery,
             [Parameter(typeof(InvokeGC))] bool invokeGC,
             IGroupCommDriver groupCommDriver,
-            INameServer nameServer)
+            INameServer nameServer,
+            IJobLifecycleManager lifecycleManager)
         {
             _configurationManager = configurationManager;
             _groupCommDriver = groupCommDriver;
@@ -161,6 +169,12 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
             _serviceAndContextConfigurationProvider =
                 new ServiceAndContextConfigurationProvider<TMapInput, TMapOutput, TPartitionType>(dataSet, configurationManager);
 
+            if (lifecycleManager != null)
+            {
+                var handle = lifecycleManager.Subscribe(this as IObserver<IJobCancelled>);
+                _disposableResources.Add(handle);
+            }
+            
             var msg =
                 string.Format(CultureInfo.InvariantCulture, "map task memory:{0}, update task memory:{1}, map task cores:{2}, update task cores:{3}, maxRetry {4}, allowedFailedEvaluators {5}.",
                     memoryPerMapper,
@@ -514,16 +528,15 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
                                 _serviceAndContextConfigurationProvider.RemoveEvaluatorIdFromPartitionIdProvider(
                                     failedEvaluator.Id);
                                 Logger.Log(Level.Info, "Requesting mapper Evaluators.");
-                                _evaluatorManager.RemoveFailedEvaluator(failedEvaluator.Id);
                                 _evaluatorManager.RequestMapEvaluators(1);
                             }
                             else
                             {
                                 var reason1 = _evaluatorManager.ExceededMaximumNumberOfEvaluatorFailures()
                                     ? "it exceeded MaximumNumberOfEvaluatorFailures, "
-                                    : "";
-                                var reason2 = isMaster ? "master evaluator failed, " : "";
-                                Logger.Log(Level.Error, "The system is not recoverable because " +  reason1 + reason2 + " changing the system state to Fail.");
+                                    : string.Empty;
+                                var reason2 = isMaster ? "master evaluator failed, " : string.Empty;
+                                Logger.Log(Level.Error, "The system is not recoverable because " + reason1 + reason2 + " changing the system state to Fail.");
                                 _systemState.MoveNext(SystemStateEvent.NotRecoverable);
                                 FailAction();
                             }
@@ -559,6 +572,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
                             break;
 
                         case SystemState.Fail:
+                            FailAction();
                             break;
 
                         default:
@@ -650,6 +664,16 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         }
         #endregion IFailedTask
 
+        public void OnNext(IJobCancelled value)
+        {
+            lock (_lock)
+            {
+                _cancelEvent = value;
+                _systemState.MoveNext(SystemStateEvent.NotRecoverable);
+                FailAction();
+            }
+        }
+
         public void OnError(Exception error)
         {
         }
@@ -705,6 +729,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         {
             ShutDownAllEvaluators();
             Logger.Log(Level.Info, "{0} done in retry {1}!!!", DoneActionPrefix, _numberOfRetries);
+            DisposeResources();
         }
 
         /// <summary>
@@ -713,10 +738,40 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         private void FailAction()
         {
             ShutDownAllEvaluators();
-            var msg = string.Format(CultureInfo.InvariantCulture,
-                "{0} The system cannot be recovered after {1} retries. NumberofFailedMappers in the last try is {2}, master evaluator failed is {3}.",
-                FailActionPrefix, _numberOfRetries, _evaluatorManager.NumberofFailedMappers(), _evaluatorManager.IsMasterEvaluatorFailed());
-            Exceptions.Throw(new ApplicationException(msg), Logger);
+            
+            var failMessage = _cancelEvent != null
+                    ? string.Format(CultureInfo.InvariantCulture,
+                        "{0} Job cancelled at {1}. cancellation message: {2}",
+                        FailActionPrefix, _cancelEvent.Timestamp.ToString("u"), _cancelEvent.Message)
+                    : string.Format(CultureInfo.InvariantCulture,
+                        "{0} The system cannot be recovered after {1} retries. NumberofFailedMappers in the last try is {2}, master evaluator failed is {3}.",
+                        FailActionPrefix, _numberOfRetries, _evaluatorManager.NumberofFailedMappers(), _evaluatorManager.IsMasterEvaluatorFailed());
+
+            DisposeResources();
+            Exceptions.Throw(new ApplicationException(failMessage), Logger);
+        }
+
+        /// <summary>
+        /// Dispose resources
+        /// </summary>
+        private void DisposeResources()
+        {
+            lock (_disposableResources)
+            {
+                _disposableResources.ForEach(handle =>
+                {
+                    try
+                    {
+                        handle.Dispose();
+                    }
+                    catch (Exception ex)
+                    {
+                        Logger.Log(Level.Error, "Failed to dispose a resource: {0}", ex);
+                    }
+                });
+
+                _disposableResources.Clear();
+            }
         }
 
         /// <summary>

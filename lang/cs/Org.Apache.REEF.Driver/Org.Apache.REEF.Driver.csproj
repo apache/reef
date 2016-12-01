@@ -41,6 +41,9 @@ under the License.
     <Reference Include="System.Runtime.Serialization" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="$(SolutionDir)\SharedAssemblyInfo.cs">
+      <Link>Properties\SharedAssemblyInfo.cs</Link>
+    </Compile>
     <Compile Include="Bridge\Avro\DefinedRuntimes.cs" />
     <Compile Include="Bridge\Avro\DefinedRuntimesSerializer.cs" />
     <Compile Include="Bridge\BridgeConfigurationProvider.cs" />
@@ -139,6 +142,7 @@ under the License.
     <Compile Include="Evaluator\IEvaluatorRequest.cs" />
     <Compile Include="Evaluator\IEvaluatorRequestor.cs" />
     <Compile Include="Evaluator\IFailedEvaluator.cs" />
+    <Compile Include="IJobCancelled.cs" />
     <Compile Include="Task\JavaTaskException.cs" />
     <Compile Include="IDriver.cs" />
     <Compile Include="IDriverRestarted.cs" />

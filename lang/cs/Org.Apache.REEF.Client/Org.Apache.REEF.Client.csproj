@@ -59,6 +59,9 @@ under the License.
     <Reference Include="System.Runtime.Serialization" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="$(SolutionDir)\SharedAssemblyInfo.cs">
+      <Link>Properties\SharedAssemblyInfo.cs</Link>
+    </Compile>
     <Compile Include="API\AppParameters.cs" />
     <Compile Include="API\AppParametersBuilder.cs" />
     <Compile Include="API\ClientFactory.cs" />

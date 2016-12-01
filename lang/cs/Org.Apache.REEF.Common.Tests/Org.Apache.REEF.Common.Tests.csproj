@@ -43,7 +43,11 @@ under the License.
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="$(SolutionDir)\SharedAssemblyInfo.cs">
+      <Link>Properties\SharedAssemblyInfo.cs</Link>
+    </Compile>
     <Compile Include="Metrics\DefaultMetricSourceTests.cs" />
+    <Compile Include="Metrics\ImmutableMetricImplTests.cs" />
     <Compile Include="Metrics\ImmutableMetricTest.cs" />
     <Compile Include="Metrics\MetricTestUtils.cs" />
     <Compile Include="Metrics\MutableMetricTest.cs" />

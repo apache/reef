@@ -27,6 +27,7 @@ import org.apache.reef.util.Optional;
 
 import javax.inject.Inject;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -59,6 +60,7 @@ public final class YarnClasspathProvider implements RuntimeClasspathProvider {
       HADOOP_HDFS_HOME + "/lib/*",
       HADOOP_MAPRED_HOME + "/*",
       HADOOP_MAPRED_HOME + "/lib/*",
+      HADOOP_COMMON_HOME + "/etc/hadoop/client/*",
       HADOOP_HOME + "/etc/hadoop",
       HADOOP_HOME + "/share/hadoop/common/*",
       HADOOP_HOME + "/share/hadoop/common/lib/*",
@@ -74,6 +76,7 @@ public final class YarnClasspathProvider implements RuntimeClasspathProvider {
 
   @Inject
   YarnClasspathProvider(final YarnConfiguration yarnConfiguration) {
+    logEnvVariable();
     boolean needsLegacyClasspath = false;
     // will be set to true below whenever we encounter issues with the YARN Configuration
     final ClassPathBuilder builder = new ClassPathBuilder();
@@ -153,6 +156,14 @@ public final class YarnClasspathProvider implements RuntimeClasspathProvider {
     return this.classPathSuffix;
   }
 
+  private static void logEnvVariable() {
+    if (LOG.isLoggable(CLASSPATH_LOG_LEVEL)) {
+      for (final Map.Entry<String, String> entry : System.getenv().entrySet()) {
+        LOG.log(CLASSPATH_LOG_LEVEL, "Environment variable: Key: {0}, Value: {1}.",
+            new Object[]{entry.getKey(), entry.getValue()});
+      }
+    }
+  }
 
   private void logClasspath() {
     if (LOG.isLoggable(CLASSPATH_LOG_LEVEL)) {

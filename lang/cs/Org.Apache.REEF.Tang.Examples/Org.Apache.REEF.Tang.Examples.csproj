@@ -37,6 +37,9 @@ under the License.
     <Reference Include="System.Core" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="$(SolutionDir)\SharedAssemblyInfo.cs">
+      <Link>Properties\SharedAssemblyInfo.cs</Link>
+    </Compile>
     <Compile Include="AnonymousType.cs" />
     <Compile Include="CheckChild.cs" />
     <Compile Include="DocumentedLocalNamedParameter.cs" />

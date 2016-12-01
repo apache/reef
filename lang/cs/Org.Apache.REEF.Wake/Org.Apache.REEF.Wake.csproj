@@ -44,6 +44,9 @@ under the License.
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="$(SolutionDir)\SharedAssemblyInfo.cs">
+      <Link>Properties\SharedAssemblyInfo.cs</Link>
+    </Compile>
     <Compile Include="AbstractEStage.cs" />
     <Compile Include="Examples\P2p\IEventSource.cs" />
     <Compile Include="Examples\P2p\Pull2Push.cs" />

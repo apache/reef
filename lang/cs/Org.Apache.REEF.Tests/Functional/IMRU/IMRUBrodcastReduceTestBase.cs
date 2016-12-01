@@ -16,6 +16,7 @@
 // under the License.
 
 using System;
+using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -80,6 +81,7 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
         /// <param name="numberOfRetryInRecovery"></param>
         /// <param name="updateTaskMemory"></param>
         /// <param name="testFolder"></param>
+        /// <param name="numberOfChecksBeforeCancellingJob"></param>
         protected void TestBroadCastAndReduce(bool runOnYarn,
             int numTasks,
             int chunkSize,
@@ -88,11 +90,12 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
             int mapperMemory,
             int updateTaskMemory,
             int numberOfRetryInRecovery = 0,
-            string testFolder = DefaultRuntimeFolder)
+            string testFolder = DefaultRuntimeFolder,
+            int? numberOfChecksBeforeCancellingJob = null)
         {
             string runPlatform = runOnYarn ? "yarn" : "local";
             TestRun(DriverConfiguration<int[], int[], int[], Stream>(
-                CreateIMRUJobDefinitionBuilder(numTasks - 1, chunkSize, iterations, dims, mapperMemory, updateTaskMemory, numberOfRetryInRecovery),
+                CreateIMRUJobDefinitionBuilder(numTasks - 1, chunkSize, iterations, dims, mapperMemory, updateTaskMemory, numberOfRetryInRecovery, numberOfChecksBeforeCancellingJob),
                 DriverEventHandlerConfigurations<int[], int[], int[], Stream>()),
                 typeof(BroadcastReduceDriver),
                 numTasks,
@@ -134,7 +137,8 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
                 CreateGroupCommunicationConfiguration<TMapInput, TMapOutput, TResult, TPartitionType>(jobDefinition.NumberOfMappers + 1,
                     driverId),
                 jobDefinition.PartitionedDatasetConfiguration,
-                overallPerMapConfig
+                overallPerMapConfig,
+                jobDefinition.JobCancelSignalConfiguration
             })
                 .BindNamedParameter(typeof(SerializedUpdateTaskStateConfiguration),
                     configurationSerializer.ToString(jobDefinition.UpdateTaskStateConfiguration))
@@ -206,6 +210,7 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
         /// <param name="mapperMemory"></param>
         /// <param name="updateTaskMemory"></param>
         /// <param name="numberOfRetryInRecovery"></param>
+        /// <param name="numberOfChecksBeforeCancellingJob"></param>
         /// <returns></returns>
         protected virtual IMRUJobDefinition CreateIMRUJobDefinitionBuilder(int numberofMappers,
             int chunkSize,
@@ -213,9 +218,10 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
             int dim,
             int mapperMemory,
             int updateTaskMemory,
-            int numberOfRetryInRecovery)
+            int numberOfRetryInRecovery,
+            int? numberOfChecksBeforeCancellingJob = null)
         {
-            return new IMRUJobDefinitionBuilder()
+            var builder = new IMRUJobDefinitionBuilder()
                 .SetMapFunctionConfiguration(BuildMapperFunctionConfig())
                 .SetUpdateFunctionConfiguration(BuildUpdateFunctionConfiguration(numberofMappers, numIterations, dim))
                 .SetMapInputCodecConfiguration(BuildMapInputCodecConfig())
@@ -228,8 +234,20 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
                 .SetNumberOfMappers(numberofMappers)
                 .SetMapperMemory(mapperMemory)
                 .SetUpdateTaskMemory(updateTaskMemory)
-                .SetMaxRetryNumberInRecovery(numberOfRetryInRecovery)
-                .Build();
+                .SetMaxRetryNumberInRecovery(numberOfRetryInRecovery);
+
+            if (numberOfChecksBeforeCancellingJob.HasValue)
+            {
+                var cancelConfig = TangFactory.GetTang().NewConfigurationBuilder()
+                    .BindImplementation(GenericType<IJobCancelledDetector>.Class, GenericType<JobCancellationDetectoBasedOnCheckCount>.Class)
+                    .BindNamedParameter(typeof(JobCancellationDetectoBasedOnCheckCount.NumberOfChecksBeforeCancelling), numberOfChecksBeforeCancellingJob.Value.ToString())
+                    .BindNamedParameter(typeof(SleepIntervalParameter), "1")
+                    .Build();
+
+                builder.SetJobCancellationConfiguration(cancelConfig);
+            }
+
+            return builder.Build();
         }
 
         /// <summary>
@@ -381,6 +399,30 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
             public void OnNext(IRunningTask value)
             {
                 Logger.Log(Level.Info, RunningTaskMessage + " " + value.Id + " " + value.ActiveContext.EvaluatorId);
+            }
+        }
+
+        private sealed class JobCancellationDetectoBasedOnCheckCount : IJobCancelledDetector
+        {
+            private int _checkCount = 0;
+            private int _numberOfChecksBeforeCancelling;
+
+            [Inject]
+            JobCancellationDetectoBasedOnCheckCount([Parameter(typeof(NumberOfChecksBeforeCancelling))] int numberOfChecksBeforeCancelling)
+            {
+                _numberOfChecksBeforeCancelling = numberOfChecksBeforeCancelling;
+            }
+
+            public bool IsJobCancelled(out string cancellationMessage)
+            {
+                _checkCount++;
+                cancellationMessage = "IsCancelled check count: " + _checkCount;
+                return _checkCount > _numberOfChecksBeforeCancelling;
+            }
+
+            [NamedParameter("Number of IsCancelled checks before cancelling job", "numberOfChecksBeforeCancelling", "0")]
+            internal sealed class NumberOfChecksBeforeCancelling : Name<int>
+            {
             }
         }
     }

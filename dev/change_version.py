@@ -118,7 +118,7 @@ def change_constants_cs(file, new_version):
     f.close()
 
 """
-Change version in every AssemblyInfo.cs and AssemblyInfo.cpp
+Change version in SharedAssemblyInfo.cs and AssemblyInfo.cpp
 """
 def change_assembly_info_cs(file, new_version):
     changed_str = ""
@@ -250,7 +250,7 @@ def change_project_number_Doxyfile(file, new_version):
 
 
 """
-Change version of every pom.xml, every AssemblyInfo.cs,
+Change version of every pom.xml, SharedAssemblyInfo.cs,
 AssemblyInfo.cpp, run.cmd and Resources.xml
 """
 def change_version(reef_home, new_version, pom_only):
@@ -265,7 +265,7 @@ def change_version(reef_home, new_version, pom_only):
             if "pom.xml" in fi:
                 print fi
                 change_pom(fi, new_version)
-            if "AssemblyInfo.cs" in fi:
+            if "SharedAssemblyInfo.cs" in fi:
                 print fi
                 change_assembly_info_cs(fi, new_version)
 

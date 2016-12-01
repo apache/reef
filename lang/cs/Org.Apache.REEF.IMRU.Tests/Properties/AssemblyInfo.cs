@@ -20,13 +20,6 @@ using System.Runtime.InteropServices;
 
 [assembly: AssemblyTitle("Org.Apache.REEF.IMRU.Tests")]
 [assembly: AssemblyDescription("Tests for Iterative Map Reduce Update (IMRU) API for REEF")]
-[assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("The Apache Software Foundation.")]
 [assembly: AssemblyProduct("Org.Apache.REEF.IMRU.Tests")]
-[assembly: AssemblyCopyright("The Apache Software Foundation")]
-[assembly: AssemblyTrademark("The Apache Software Foundation")]
-[assembly: AssemblyCulture("")]
-[assembly: ComVisible(false)]
+
 [assembly: Guid("e3c78171-f90c-4737-b673-31d053c16313")]
-[assembly: AssemblyVersion("0.16.0.0")]
-[assembly: AssemblyFileVersion("0.16.0.0")]
