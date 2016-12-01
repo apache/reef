@@ -55,7 +55,7 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator
 
         private readonly int _maxHeartbeatRetries = 0;
 
-        private const int DriverConnRetryFactor = 60;
+        private readonly int _maxHeartbeatRetriesForNonRecoveryMode = 0;
 
         private IRemoteIdentifier _remoteId;
 
@@ -97,6 +97,7 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator
                 _clock = settings.RuntimeClock;
                 _heartBeatPeriodInMillSeconds = settings.HeartBeatPeriodInMs;
                 _maxHeartbeatRetries = settings.MaxHeartbeatRetries;
+                _maxHeartbeatRetriesForNonRecoveryMode = settings.MaxHeartbeatRetriesForNonRecoveryMode;
                 _driverConnection = driverConnection;
                 MachineStatus.ToString(); // kick start the CPU perf counter
             }
@@ -170,9 +171,10 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator
 
                     if (_driverConnection.Get() is MissingDriverConnection)
                     {
-                        if (_heartbeatFailures >= _maxHeartbeatRetries * DriverConnRetryFactor)
+                        if (_heartbeatFailures >= _maxHeartbeatRetriesForNonRecoveryMode)
                         {
-                            Environment.Exit(1);
+                            LOGGER.Log(Level.Error, "Have encountered {0} heartbeat failures. There is no IDriverConnection implemented for HA.", _heartbeatFailures);
+                            throw;
                         }
                     }
                     else
@@ -300,6 +302,12 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator
                     {
                         var driverConnection = _driverConnection.Get();
 
+                        if (driverConnection is MissingDriverConnection)
+                        {
+                            var msg = "Reaching EvaluatorOperation RECOVERY mode, however, there is no IDriverConnection implemented for HA.";
+                            LOGGER.Log(Level.Error, msg);
+                            throw new NotImplementedException(msg);
+                        }
                         try
                         {
                             var driverInformation = driverConnection.GetDriverInformation();

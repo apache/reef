@@ -199,6 +199,7 @@ under the License.
     <Compile Include="Runtime\Evaluator\HeartBeatManager.cs" />
     <Compile Include="Runtime\Evaluator\IHeartBeatManager.cs" />
     <Compile Include="Runtime\Evaluator\Parameters\EvaluatorHeartbeatPeriodInMs.cs" />
+    <Compile Include="Runtime\Evaluator\Parameters\HeartbeatMaxRetryForNonRecoveryMode.cs" />
     <Compile Include="Runtime\Evaluator\Parameters\HeartbeatMaxRetry.cs" />
     <Compile Include="Runtime\Evaluator\PIDStoreHandler.cs" />
     <Compile Include="Runtime\Evaluator\ReefMessageProtoObserver.cs" />
