@@ -21,9 +21,7 @@ using System.Diagnostics;
 using Org.Apache.REEF.Driver.Evaluator;
 using Org.Apache.REEF.Driver.Task;
 using Org.Apache.REEF.IMRU.OnREEF.Driver;
-using Org.Apache.REEF.Network;
 using Org.Apache.REEF.Tang.Annotations;
-using Org.Apache.REEF.Tang.Implementations.Configuration;
 using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Tang.Util;
 using Org.Apache.REEF.Utilities;
@@ -115,36 +113,6 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
                 .Set(REEF.Driver.DriverConfiguration.OnTaskRunning,
                     GenericType<TestHandlers>.Class)
                 .Set(REEF.Driver.DriverConfiguration.CustomTraceLevel, TraceLevel.Info.ToString())
-                .Build();
-        }
-
-        /// <summary>
-        /// Mapper function configuration. Add TcpConfiguration to the base configuration
-        /// </summary>
-        /// <returns></returns>
-        protected override IConfiguration BuildMapperFunctionConfig()
-        {
-            return Configurations.Merge(GetTcpConfiguration(), base.BuildMapperFunctionConfig());
-        }
-
-        /// <summary>
-        /// Update function configuration. Add TcpConfiguration to the base configuration.
-        /// </summary>
-        /// <returns></returns>
-        protected override IConfiguration BuildUpdateFunctionConfigModule()
-        {
-            return Configurations.Merge(GetTcpConfiguration(), base.BuildUpdateFunctionConfigModule());
-        }
-
-        /// <summary>
-        /// Override default setting for retry policy
-        /// </summary>
-        /// <returns></returns>
-        private IConfiguration GetTcpConfiguration()
-        {
-            return TcpClientConfigurationModule.ConfigurationModule
-                .Set(TcpClientConfigurationModule.MaxConnectionRetry, "5")
-                .Set(TcpClientConfigurationModule.SleepTime, "1000")
                 .Build();
         }
 
