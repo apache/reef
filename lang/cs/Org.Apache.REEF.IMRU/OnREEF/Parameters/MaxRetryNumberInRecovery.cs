@@ -22,7 +22,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Parameters
     /// <summary>
     /// Max retry number for the system recovery
     /// </summary>
-    [NamedParameter("Maximum retry number in fault tolerant recovery.", "maxRetryInRecovery", "3")]
+    [NamedParameter("Maximum retry number in fault tolerant recovery.", "maxRetryInRecovery", "10")]
     public sealed class MaxRetryNumberInRecovery : Name<int>
     {
     }

@@ -131,8 +131,6 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         /// </summary>
         private readonly List<IDisposable> _disposableResources = new List<IDisposable>();
 
-        private const int DefaultMaxNumberOfRetryInRecovery = 3; 
-
         [Inject]
         private IMRUDriver(IPartitionedInputDataSet dataSet,
             [Parameter(typeof(PerMapConfigGeneratorSet))] ISet<IPerMapperConfigGenerator> perMapperConfigs,
@@ -155,7 +153,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
             _perMapperConfigs = perMapperConfigs;
             _totalMappers = dataSet.Count;
             _invokeGC = invokeGC;
-            _maxRetryNumberForFaultTolerant = maxRetryNumberInRecovery > 0 ? maxRetryNumberInRecovery : DefaultMaxNumberOfRetryInRecovery;
+            _maxRetryNumberForFaultTolerant = maxRetryNumberInRecovery;
 
             _contextManager = new ActiveContextManager(_totalMappers + 1);
             _contextManager.Subscribe(this);

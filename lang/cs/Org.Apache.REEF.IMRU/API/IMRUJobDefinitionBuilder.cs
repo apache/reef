@@ -72,7 +72,7 @@ namespace Org.Apache.REEF.IMRU.API
             _updateTaskMemory = 512;
             _coresPerMapper = 1;
             _updateTaskCores = 1;
-            _maxRetryNumberInRecovery = 0;
+            _maxRetryNumberInRecovery = 10;
             _invokeGC = true;
             _perMapConfigGeneratorConfig = new HashSet<IConfiguration>();
             _jobCancellationConfiguration = EmptyConfiguration;
