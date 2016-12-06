@@ -62,7 +62,8 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
             // No failed evaluators or tasks.
             Assert.Equal(0, failedEvaluatorCount);
             Assert.Equal(0, failedTaskCount);
-            Assert.Equal(numTasks, completedTaskCount);
+            Assert.True(numTasks >= completedTaskCount);
+            Assert.True(completedTaskCount >= 1);
 
             // eventually job succeeds
             Assert.Equal(1, jobSuccess);

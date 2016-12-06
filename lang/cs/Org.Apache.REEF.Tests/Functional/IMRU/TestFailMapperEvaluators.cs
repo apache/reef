@@ -67,8 +67,10 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
 
             // on each try each task should fail or complete or disappear with failed evaluator
             // and on each try all tasks should start successfully
-            Assert.Equal((NumberOfRetry + 1) * numTasks, completedTaskCount + failedEvaluatorCount + failedTaskCount);
+            Assert.True((NumberOfRetry + 1) * numTasks >= completedTaskCount + failedEvaluatorCount + failedTaskCount);
+            Assert.True(NumberOfRetry * numTasks < completedTaskCount + failedEvaluatorCount + failedTaskCount);
             Assert.Equal((NumberOfRetry + 1) * numTasks, runningTaskCount);
+
             // eventually job succeeds
             Assert.Equal(1, jobSuccess);
             CleanUp(testFolder);
