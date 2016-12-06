@@ -89,6 +89,11 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         private int _numberOfAppErrors = 0;
 
         /// <summary>
+        /// Indicate if master task is completed running properly
+        /// </summary>
+        private bool _masterTaskCompleted = false;
+
+        /// <summary>
         /// Creates a TaskManager with specified total number of tasks and master task id.
         /// Throws IMRUSystemException if numTasks is smaller than or equals to 0 or masterTaskId is null.
         /// </summary>
@@ -300,6 +305,30 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         private void UpdateState(string taskId, TaskStateEvent taskEvent)
         {
             GetTaskInfo(taskId).TaskState.MoveNext(taskEvent);
+        }
+
+        /// <summary>
+        /// This method is called when a running task is completed.
+        /// If it is master task, set _masterTaskCompleted to true
+        /// then calls RecordCompletedTask to remove the task from runningTasks and change task state.
+        /// </summary>
+        /// <param name="completedTask"></param>
+        internal void RecordCompletedRunningTask(ICompletedTask completedTask)
+        {
+            if (completedTask.Id.Equals(_masterTaskId))
+            {
+                _masterTaskCompleted = true;
+            }
+            RecordCompletedTask(completedTask);
+        }
+
+        /// <summary>
+        /// Returns true if master task is completed from running
+        /// </summary>
+        /// <returns></returns>
+        internal bool IsMasterTaskCompleted()
+        {
+            return _masterTaskCompleted;
         }
 
         /// <summary>

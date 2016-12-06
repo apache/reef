@@ -430,7 +430,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         /// <summary>
         /// ICompletedTask handler. It is called when a task is completed. The following action will be taken based on the System State:
         /// Case TasksRunning
-        ///     Updates task state to TaskCompleted
+        ///     Record completed running task which will check if it is master task and updates task state from TaskRunning to TaskCompleted
         ///     If all tasks are completed, sets system state to TasksCompleted and then go to Done action
         /// Case ShuttingDown
         ///     Updates task state to TaskCompleted
@@ -446,7 +446,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
                 switch (_systemState.CurrentState)
                 {
                     case SystemState.TasksRunning:
-                        _taskManager.RecordCompletedTask(completedTask);
+                        _taskManager.RecordCompletedRunningTask(completedTask);
                         if (_taskManager.AreAllTasksCompleted())
                         {
                             _systemState.MoveNext(SystemStateEvent.AllTasksAreCompleted);
@@ -511,6 +511,14 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
                         Logger.Log(Level.Verbose,
                             "All IMRU tasks have been completed. So ignoring the Evaluator {0} failure.",
                             failedEvaluator.Id);
+                        return;
+                    }
+
+                    if (_taskManager != null && _taskManager.IsMasterTaskCompleted())
+                    {
+                        Logger.Log(Level.Info,
+                           "Master task have been completed running. So ignoring the Evaluator {0} failure and execute DoneAction.", failedEvaluator.Id);
+                        DoneAction();
                         return;
                     }
 
@@ -634,6 +642,14 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
                         Logger.Log(Level.Info,
                             "Task with Id: {0} failed but all IMRU tasks are completed. So ignoring.",
                             failedTask.Id);
+                        return;
+                    }
+
+                    if (_taskManager != null && _taskManager.IsMasterTaskCompleted())
+                    {
+                        Logger.Log(Level.Info,
+                           "Master task have been completed. So ignoring the failedTask {0} failure and execute DoneAction.", failedTask.Id);
+                        DoneAction();
                         return;
                     }
 
