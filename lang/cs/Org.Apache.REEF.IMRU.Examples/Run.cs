@@ -65,7 +65,7 @@ namespace Org.Apache.REEF.IMRU.Examples
             int iterations = 100;
             int mapperMemory = 512;
             int updateTaskMemory = 512;
-            int maxRetryNumberInRecovery = 2;
+            int maxRetryNumberInRecovery = 10;
             int totalNumberOfForcedFailures = 2;
 
             if (args.Length > 0)
