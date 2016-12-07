@@ -209,6 +209,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
 
         /// <summary>
         /// This method is called when receiving ICompletedTask event during task running or system shutting down.
+        /// If it is master task and if the master task was running, mark _masterTaskCompleted true
         /// Removes the task from running tasks if it was running
         /// Changes the task state from RunningTask to CompletedTask if the task was running
         /// Change the task stat from TaskWaitingForClose to TaskClosedByDriver if the task was in TaskWaitingForClose state
@@ -216,6 +217,13 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         /// <param name="completedTask"></param>
         internal void RecordCompletedTask(ICompletedTask completedTask)
         {
+            if (completedTask.Id.Equals(_masterTaskId))
+            {
+                if (GetTaskInfo(completedTask.Id).TaskState.CurrentState.Equals(TaskState.TaskRunning))
+                {
+                    _masterTaskCompleted = true;
+                }
+            }
             _runningTasks.Remove(completedTask.Id);
             UpdateState(completedTask.Id, TaskStateEvent.CompletedTask);
         }
@@ -308,21 +316,6 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         }
 
         /// <summary>
-        /// This method is called when a running task is completed.
-        /// If it is master task, set _masterTaskCompleted to true
-        /// then calls RecordCompletedTask to remove the task from runningTasks and change task state.
-        /// </summary>
-        /// <param name="completedTask"></param>
-        internal void RecordCompletedRunningTask(ICompletedTask completedTask)
-        {
-            if (completedTask.Id.Equals(_masterTaskId))
-            {
-                _masterTaskCompleted = true;
-            }
-            RecordCompletedTask(completedTask);
-        }
-
-        /// <summary>
         /// Returns true if master task is completed from running
         /// </summary>
         /// <returns></returns>
@@ -348,6 +341,17 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         internal bool AreAllTasksCompleted()
         {
             return AreAllTasksInState(StateMachine.TaskState.TaskCompleted) && _tasks.Count == _totalExpectedTasks && _runningTasks.Count == 0;
+        }
+
+        /// <summary>
+        /// Either master is completed or all the tasks are completed.
+        /// In fact AreAllTasksCompleted contains IsmasterCOmpleted
+        /// Put it in a separate method so that We can update the logic for job done when needed
+        /// </summary>
+        /// <returns></returns>
+        internal bool IsJobDone()
+        {
+            return IsMasterTaskCompleted() || AreAllTasksCompleted();
         }
 
         /// <summary>
@@ -557,8 +561,8 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
                     }
                     SubmitTask(taskId);
                 }
+            }
         }
-    }
 
         private void SubmitTask(string taskId)
         {

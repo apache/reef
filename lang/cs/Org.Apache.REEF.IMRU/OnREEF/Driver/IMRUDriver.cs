@@ -429,11 +429,14 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         #region ICompletedTask
         /// <summary>
         /// ICompletedTask handler. It is called when a task is completed. The following action will be taken based on the System State:
+        /// SystemState.TasksCompleted:
+        ///     Record, log and then ignore the event
         /// Case TasksRunning
-        ///     Record completed running task which will check if it is master task and updates task state from TaskRunning to TaskCompleted
+        ///     Check if it is master task, then set master task completed    
+        ///     Then record completed running and updates task state from TaskRunning to TaskCompleted
         ///     If all tasks are completed, sets system state to TasksCompleted and then go to Done action
         /// Case ShuttingDown
-        ///     Updates task state to TaskCompleted
+        ///     Record completed running and updates task state to TaskCompleted
         ///     Try to recover
         /// Other cases - not expected 
         /// </summary>
@@ -446,11 +449,11 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
                 switch (_systemState.CurrentState)
                 {
                     case SystemState.TasksRunning:
-                        _taskManager.RecordCompletedRunningTask(completedTask);
-                        if (_taskManager.AreAllTasksCompleted())
+                        _taskManager.RecordCompletedTask(completedTask);
+                        if (_taskManager.IsJobDone())
                         {
                             _systemState.MoveNext(SystemStateEvent.AllTasksAreCompleted);
-                            Logger.Log(Level.Info, "All tasks are completed, systemState {0}", _systemState.CurrentState);
+                            Logger.Log(Level.Info, "Master task is completed, systemState {0}", _systemState.CurrentState);
                             DoneAction();
                         }
                         break;
@@ -459,8 +462,14 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
                         _taskManager.RecordCompletedTask(completedTask);
                         TryRecovery();
                         break;
-                    default:
-                        UnexpectedState(completedTask.Id, "ICompletedTask");
+                    case SystemState.TasksCompleted:
+                        _taskManager.RecordCompletedTask(completedTask);
+                        Logger.Log(Level.Info,
+                            "Received completed task {0} but the system already in TasksCompleted state, ignore it",
+                            completedTask.Id);
+                        break;
+                   default:
+                       UnexpectedState(completedTask.Id, "ICompletedTask");
                         break;
                 }
             }
@@ -470,7 +479,8 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         #region IFailedEvaluator
         /// <summary>
         /// IFailedEvaluator handler. It specifies what to do when an evaluator fails.
-        /// If we get all completed tasks then ignore the failure. Otherwise, take the following actions based on the system state: 
+        /// SystemState.TasksCompleted:
+        ///     Record, log and then ignore the failure. 
         /// Case WaitingForEvaluator
         ///     This happens in the middle of submitting contexts. We just need to remove the failed evaluator 
         ///     from EvaluatorManager and remove associated active context, if any, from ActiveContextManager
@@ -506,28 +516,16 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
             {
                 using (Logger.LogFunction("IMRUDriver::IFailedEvaluator"))
                 {
-                    if (_taskManager != null && _taskManager.AreAllTasksCompleted())
-                    {
-                        Logger.Log(Level.Verbose,
-                            "All IMRU tasks have been completed. So ignoring the Evaluator {0} failure.",
-                            failedEvaluator.Id);
-                        return;
-                    }
-
-                    if (_taskManager != null && _taskManager.IsMasterTaskCompleted())
-                    {
-                        Logger.Log(Level.Info,
-                           "Master task have been completed running. So ignoring the Evaluator {0} failure and execute DoneAction.", failedEvaluator.Id);
-                        DoneAction();
-                        return;
-                    }
-
                     var isMaster = _evaluatorManager.IsMasterEvaluatorId(failedEvaluator.Id);
                     _evaluatorManager.RecordFailedEvaluator(failedEvaluator.Id);
                     _contextManager.RemoveFailedContextInFailedEvaluator(failedEvaluator);
 
                     switch (_systemState.CurrentState)
                     {
+                        case SystemState.TasksCompleted:
+                            _taskManager.RecordTaskFailWhenReceivingFailedEvaluator(failedEvaluator);
+                            Logger.Log(Level.Info, "The Job has been completed. So ignoring the Evaluator {0} failure.", failedEvaluator.Id);
+                            break;
                         case SystemState.WaitingForEvaluator:
                             if (!_evaluatorManager.ExceededMaximumNumberOfEvaluatorFailures() && !isMaster)
                             {
@@ -601,9 +599,9 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         {
             lock (_lock)
             {
-                if (_taskManager.AreAllTasksCompleted())
+                if (_systemState.CurrentState.Equals(SystemState.TasksCompleted))
                 {
-                    Logger.Log(Level.Info, "Context with Id: {0} failed but IMRU tasks are completed. So ignoring.", failedContext.Id);
+                    Logger.Log(Level.Info, "The Job has been completed. So ignoring the Context {0} failure.", failedContext.Id);
                     return;
                 }
 
@@ -615,8 +613,8 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
 
         #region IFailedTask
         /// <summary>
-        /// IFailedTask handler. It specifies what to do when task fails.
-        /// If we get all completed tasks then ignore the failure. Otherwise take the following actions based on the System state:
+        /// SystemState.TasksCompleted:
+        ///     Record, log and then ignore the failure. 
         /// Case SubmittingTasks/TasksRunning
         ///     This is the first failure received
         ///     Changes the system state to ShuttingDown
@@ -637,24 +635,12 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
             {
                 using (Logger.LogFunction("IMRUDriver::IFailedTask"))
                 {
-                    if (_taskManager.AreAllTasksCompleted())
-                    {
-                        Logger.Log(Level.Info,
-                            "Task with Id: {0} failed but all IMRU tasks are completed. So ignoring.",
-                            failedTask.Id);
-                        return;
-                    }
-
-                    if (_taskManager != null && _taskManager.IsMasterTaskCompleted())
-                    {
-                        Logger.Log(Level.Info,
-                           "Master task have been completed. So ignoring the failedTask {0} failure and execute DoneAction.", failedTask.Id);
-                        DoneAction();
-                        return;
-                    }
-
                     switch (_systemState.CurrentState)
                     {
+                        case SystemState.TasksCompleted:
+                            _taskManager.RecordFailedTaskDuringRunningOrSubmissionState(failedTask);
+                            Logger.Log(Level.Info, "The Job has been completed. So ignoring the Task {0} failure.", failedTask.Id);
+                            break;
                         case SystemState.SubmittingTasks:
                         case SystemState.TasksRunning:
                             // When the event FailedNode happens, change the system state to ShuttingDown
@@ -741,6 +727,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         /// </summary>
         private void DoneAction()
         {
+            Logger.Log(Level.Info, "Shutting down Evaluators!!!");
             ShutDownAllEvaluators();
             Logger.Log(Level.Info, "{0} done in retry {1}!!!", DoneActionPrefix, _numberOfRetries);
             DisposeResources();
