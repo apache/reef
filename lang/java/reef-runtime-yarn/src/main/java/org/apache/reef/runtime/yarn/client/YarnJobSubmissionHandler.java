@@ -25,6 +25,7 @@ import org.apache.hadoop.yarn.conf.YarnConfiguration;
 import org.apache.hadoop.yarn.exceptions.YarnException;
 import org.apache.reef.annotations.audience.ClientSide;
 import org.apache.reef.annotations.audience.Private;
+import org.apache.reef.driver.parameters.DriverIsUnmanaged;
 import org.apache.reef.driver.parameters.DriverJobSubmissionDirectory;
 import org.apache.reef.runtime.common.client.DriverConfigurationProvider;
 import org.apache.reef.runtime.common.client.api.JobSubmissionEvent;
@@ -53,32 +54,35 @@ final class YarnJobSubmissionHandler implements JobSubmissionHandler {
 
   private static final Logger LOG = Logger.getLogger(YarnJobSubmissionHandler.class.getName());
 
+  private final String defaultQueueName;
+  private final boolean isUnmanaged;
   private final YarnConfiguration yarnConfiguration;
   private final JobJarMaker jobJarMaker;
   private final REEFFileNames fileNames;
   private final ClasspathProvider classpath;
   private final JobUploader uploader;
-  private final String defaultQueueName;
   private final SecurityTokenProvider tokenProvider;
   private final DriverConfigurationProvider driverConfigurationProvider;
 
   @Inject
   YarnJobSubmissionHandler(
+          @Parameter(JobQueue.class) final String defaultQueueName,
+          @Parameter(DriverIsUnmanaged.class) final boolean isUnmanaged,
           final YarnConfiguration yarnConfiguration,
           final JobJarMaker jobJarMaker,
           final REEFFileNames fileNames,
           final ClasspathProvider classpath,
           final JobUploader uploader,
-          @Parameter(JobQueue.class) final String defaultQueueName,
           final SecurityTokenProvider tokenProvider,
           final DriverConfigurationProvider driverConfigurationProvider) throws IOException {
 
+    this.defaultQueueName = defaultQueueName;
+    this.isUnmanaged = isUnmanaged;
     this.yarnConfiguration = yarnConfiguration;
     this.jobJarMaker = jobJarMaker;
     this.fileNames = fileNames;
     this.classpath = classpath;
     this.uploader = uploader;
-    this.defaultQueueName = defaultQueueName;
     this.tokenProvider = tokenProvider;
     this.driverConfigurationProvider = driverConfigurationProvider;
   }
@@ -92,8 +96,8 @@ final class YarnJobSubmissionHandler implements JobSubmissionHandler {
 
     LOG.log(Level.FINEST, "Submitting job with ID [{0}]", jobSubmissionEvent.getIdentifier());
 
-    try (final YarnSubmissionHelper submissionHelper =
-             new YarnSubmissionHelper(this.yarnConfiguration, this.fileNames, this.classpath, this.tokenProvider)) {
+    try (final YarnSubmissionHelper submissionHelper = new YarnSubmissionHelper(
+        this.yarnConfiguration, this.fileNames, this.classpath, this.tokenProvider, this.isUnmanaged)) {
 
       LOG.log(Level.FINE, "Assembling submission JAR for the Driver.");
       final Optional<String> userBoundJobSubmissionDirectory =

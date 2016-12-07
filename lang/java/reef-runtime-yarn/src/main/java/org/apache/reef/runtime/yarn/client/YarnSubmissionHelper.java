@@ -41,37 +41,38 @@ import java.util.logging.Logger;
 /**
  * Helper code that wraps the YARN Client API for our purposes.
  */
-public final class YarnSubmissionHelper implements Closeable{
+public final class YarnSubmissionHelper implements Closeable {
+
   private static final Logger LOG = Logger.getLogger(YarnSubmissionHelper.class.getName());
 
   private final YarnClient yarnClient;
-  private final YarnClientApplication yarnClientApplication;
   private final GetNewApplicationResponse applicationResponse;
   private final ApplicationSubmissionContext applicationSubmissionContext;
   private final ApplicationId applicationId;
   private final Map<String, LocalResource> resources = new HashMap<>();
-  private final REEFFileNames fileNames;
   private final ClasspathProvider classpath;
   private final SecurityTokenProvider tokenProvider;
   private final List<String> commandPrefixList;
+
   private String driverStdoutFilePath;
   private String driverStderrFilePath;
-  private Class launcherClazz;
+  private Class launcherClazz = REEFLauncher.class;
   private List<String> configurationFilePaths;
 
   public YarnSubmissionHelper(final YarnConfiguration yarnConfiguration,
                               final REEFFileNames fileNames,
                               final ClasspathProvider classpath,
                               final SecurityTokenProvider tokenProvider,
+                              final boolean isUnmanaged,
                               final List<String> commandPrefixList) throws IOException, YarnException {
-    this.fileNames = fileNames;
+
     this.classpath = classpath;
 
     this.driverStdoutFilePath =
-        ApplicationConstants.LOG_DIR_EXPANSION_VAR + "/" + this.fileNames.getDriverStdoutFileName();
+        ApplicationConstants.LOG_DIR_EXPANSION_VAR + "/" + fileNames.getDriverStdoutFileName();
 
     this.driverStderrFilePath =
-        ApplicationConstants.LOG_DIR_EXPANSION_VAR + "/" + this.fileNames.getDriverStderrFileName();
+        ApplicationConstants.LOG_DIR_EXPANSION_VAR + "/" + fileNames.getDriverStderrFileName();
 
     LOG.log(Level.FINE, "Initializing YARN Client");
     this.yarnClient = YarnClient.createYarnClient();
@@ -80,22 +81,23 @@ public final class YarnSubmissionHelper implements Closeable{
     LOG.log(Level.FINE, "Initialized YARN Client");
 
     LOG.log(Level.FINE, "Requesting Application ID from YARN.");
-    this.yarnClientApplication = this.yarnClient.createApplication();
-    this.applicationResponse = this.yarnClientApplication.getNewApplicationResponse();
-    this.applicationSubmissionContext = this.yarnClientApplication.getApplicationSubmissionContext();
+    final YarnClientApplication yarnClientApplication = this.yarnClient.createApplication();
+    this.applicationResponse = yarnClientApplication.getNewApplicationResponse();
+    this.applicationSubmissionContext = yarnClientApplication.getApplicationSubmissionContext();
+    this.applicationSubmissionContext.setUnmanagedAM(isUnmanaged);
     this.applicationId = this.applicationSubmissionContext.getApplicationId();
     this.tokenProvider = tokenProvider;
     this.commandPrefixList = commandPrefixList;
-    this.launcherClazz = REEFLauncher.class;
-    this.configurationFilePaths = Collections.singletonList(this.fileNames.getDriverConfigurationPath());
+    this.configurationFilePaths = Collections.singletonList(fileNames.getDriverConfigurationPath());
     LOG.log(Level.INFO, "YARN Application ID: {0}", this.applicationId);
   }
 
   public YarnSubmissionHelper(final YarnConfiguration yarnConfiguration,
                               final REEFFileNames fileNames,
                               final ClasspathProvider classpath,
-                              final SecurityTokenProvider tokenProvider) throws IOException, YarnException {
-    this(yarnConfiguration, fileNames, classpath, tokenProvider, null);
+                              final SecurityTokenProvider tokenProvider,
+                              final boolean isUnmanaged) throws IOException, YarnException {
+    this(yarnConfiguration, fileNames, classpath, tokenProvider, isUnmanaged, null);
   }
 
   /**
