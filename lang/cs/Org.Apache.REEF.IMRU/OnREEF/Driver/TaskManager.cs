@@ -91,7 +91,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         /// <summary>
         /// Indicate if master task is completed running properly
         /// </summary>
-        private bool _masterTaskCompleted = false;
+        private bool _masterTaskCompletedRunning = false;
 
         /// <summary>
         /// Creates a TaskManager with specified total number of tasks and master task id.
@@ -221,7 +221,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
             {
                 if (GetTaskInfo(completedTask.Id).TaskState.CurrentState.Equals(TaskState.TaskRunning))
                 {
-                    _masterTaskCompleted = true;
+                    _masterTaskCompletedRunning = true;
                 }
             }
             _runningTasks.Remove(completedTask.Id);
@@ -319,9 +319,9 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         /// Returns true if master task is completed from running
         /// </summary>
         /// <returns></returns>
-        internal bool IsMasterTaskCompleted()
+        internal bool IsMasterTaskCompletedRunnig()
         {
-            return _masterTaskCompleted;
+            return _masterTaskCompletedRunning;
         }
 
         /// <summary>
@@ -335,15 +335,6 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         }
 
         /// <summary>
-        /// Checks if all the tasks are completed.
-        /// </summary>
-        /// <returns></returns>
-        internal bool AreAllTasksCompleted()
-        {
-            return AreAllTasksInState(StateMachine.TaskState.TaskCompleted) && _tasks.Count == _totalExpectedTasks && _runningTasks.Count == 0;
-        }
-
-        /// <summary>
         /// Either master is completed or all the tasks are completed.
         /// In fact AreAllTasksCompleted contains IsmasterCOmpleted
         /// Put it in a separate method so that We can update the logic for job done when needed
@@ -351,7 +342,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         /// <returns></returns>
         internal bool IsJobDone()
         {
-            return IsMasterTaskCompleted() || AreAllTasksCompleted();
+            return IsMasterTaskCompletedRunnig();
         }
 
         /// <summary>
