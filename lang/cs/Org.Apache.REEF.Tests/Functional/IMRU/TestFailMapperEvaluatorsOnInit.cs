@@ -64,7 +64,7 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
             // Rest of the tasks should be canceled and send completed task event to the driver. 
             Assert.Equal(NumberOfRetry * 2, failedEvaluatorCount);
             Assert.Equal(0, failedTaskCount);
-            Assert.True(((NumberOfRetry + 1) * numTasks) - failedEvaluatorCount > completedTaskCount);
+            Assert.True(((NumberOfRetry + 1) * numTasks) - failedEvaluatorCount >= completedTaskCount);
             Assert.True((NumberOfRetry * numTasks) - failedEvaluatorCount < completedTaskCount);
 
             // eventually job succeeds

@@ -63,7 +63,7 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
             Assert.Equal(0, failedEvaluatorCount);
             Assert.Equal(0, failedTaskCount);
             Assert.True(numTasks >= completedTaskCount);
-            Assert.True(completedTaskCount > 1);
+            Assert.True(completedTaskCount >= 1);
 
             // eventually job succeeds
             Assert.Equal(1, jobSuccess);

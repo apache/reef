@@ -209,7 +209,8 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
 
         /// <summary>
         /// This method is called when receiving ICompletedTask event during task running or system shutting down.
-        /// If it is master task and if the master task was running, mark _masterTaskCompleted true
+        /// If it is master task and if the master task was running, mark _masterTaskCompletedRunning true. That indicates 
+        /// master task has successfully completed, which means the system has got the result from master task. 
         /// Removes the task from running tasks if it was running
         /// Changes the task state from RunningTask to CompletedTask if the task was running
         /// Change the task stat from TaskWaitingForClose to TaskClosedByDriver if the task was in TaskWaitingForClose state
@@ -335,9 +336,8 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         }
 
         /// <summary>
-        /// Either master is completed or all the tasks are completed.
-        /// In fact AreAllTasksCompleted contains IsmasterCOmpleted
-        /// Put it in a separate method so that We can update the logic for job done when needed
+        /// When master task is completed, that means the system has got the result expected 
+        /// regardless of other mapper tasks returned or not. 
         /// </summary>
         /// <returns></returns>
         internal bool IsJobDone()
