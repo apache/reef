@@ -136,8 +136,9 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Task
                     }
                     catch (Exception e)
                     {
-                        Utilities.Diagnostics.Exceptions.Caught(
-                            e, Level.Error, "Exception in disposing Task but ignoring as Task has already completed.", Logger);
+                        var msg = "Exception during Task Dispose in task Call()";
+                        Logger.Log(Level.Error, msg);
+                        throw new InvalidOperationException(msg, e);
                     }
                 }
             });
@@ -201,11 +202,9 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Task
                 }
                 catch (Exception e)
                 {
-                    Utilities.Diagnostics.Exceptions.CaughtAndThrow(
-                        new InvalidOperationException("Cannot dispose task properly", e),
-                        Level.Error,
-                        "Exception during task dispose.",
-                        Logger);
+                    var msg = "Exception during Task Dispose in task Close()";
+                    Logger.Log(Level.Error, msg);
+                    throw new InvalidOperationException(msg, e);
                 }
             }
         }
