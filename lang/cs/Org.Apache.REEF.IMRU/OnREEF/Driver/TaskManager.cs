@@ -317,10 +317,10 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         }
 
         /// <summary>
-        /// Returns true if master task is completed from running
+        /// Returns true if master task has completed and produced result
         /// </summary>
         /// <returns></returns>
-        internal bool IsMasterTaskCompletedRunnig()
+        internal bool IsMasterTaskCompletedRunning()
         {
             return _masterTaskCompletedRunning;
         }
@@ -342,7 +342,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         /// <returns></returns>
         internal bool IsJobDone()
         {
-            return IsMasterTaskCompletedRunnig();
+            return IsMasterTaskCompletedRunning();
         }
 
         /// <summary>

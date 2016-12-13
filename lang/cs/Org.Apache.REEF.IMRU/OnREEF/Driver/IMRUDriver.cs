@@ -434,7 +434,8 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         ///     Then record completed running and updates task state from TaskRunning to TaskCompleted
         ///     If all tasks are completed, sets system state to TasksCompleted and then go to Done action
         /// Case TasksCompleted:
-        ///     Record, log and then ignore the event        /// Case ShuttingDown
+        ///     Record, log and then ignore the event        
+        /// Case ShuttingDown
         ///     Record completed running and updates task state to TaskCompleted
         ///     Try to recover
         /// Other cases - not expected 
@@ -467,7 +468,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
                         _taskManager.RecordCompletedTask(completedTask);
                         break;
 
-                   default:
+                    default:
                         UnexpectedState(completedTask.Id, "ICompletedTask");
                         break;
                 }
@@ -478,6 +479,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         #region IFailedEvaluator
         /// <summary>
         /// IFailedEvaluator handler. It specifies what to do when an evaluator fails.
+        /// Case WaitingForEvaluator
         ///     This happens in the middle of submitting contexts. We just need to remove the failed evaluator 
         ///     from EvaluatorManager and remove associated active context, if any, from ActiveContextManager
         ///     then checks if the system is recoverable. If yes, request another Evaluator 
@@ -491,7 +493,6 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         ///     Try to recover in case it is the last failure received
         /// Case TasksCompleted:
         ///     Record, log and then ignore the failure. 
-        /// Case WaitingForEvaluator
         /// Case ShuttingDown
         ///     This happens when we have received either FailedEvaluator or FailedTask, some tasks are running some are in closing.
         ///     Removes Evaluator and associated context from EvaluatorManager and ActiveContextManager
@@ -604,18 +605,15 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
                 {
                     switch (_systemState.CurrentState)
                     {
-                        case SystemState.SubmittingTasks:
-                        case SystemState.TasksRunning:
-                            var msg = string.Format("Context with Id: {0} failed with Evaluator id: {1}", failedContext.Id, failedContext.EvaluatorId);
-                            throw new Exception(msg);
-
                         case SystemState.TasksCompleted:
                             Logger.Log(Level.Info, "The Job has been completed. So ignoring the Context {0} failure.", failedContext.Id);
                             break;
-
                         case SystemState.ShuttingDown:
                         case SystemState.Fail:
                             break;
+                        default:
+                            var msg = string.Format(CultureInfo.InvariantCulture, "Context with Id: {0} failed with Evaluator id: {1}", failedContext.Id, failedContext.EvaluatorId);
+                            throw new NotImplementedException(msg);
                     }
                 }
             }
