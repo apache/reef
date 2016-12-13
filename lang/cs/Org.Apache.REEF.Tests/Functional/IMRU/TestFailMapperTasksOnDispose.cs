@@ -59,11 +59,31 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
             var failedTaskCount = GetMessageCount(lines, FailedTaskMessage);
             var jobSuccess = GetMessageCount(lines, IMRUDriver<int[], int[], int[], int[]>.DoneActionPrefix);
 
-            // No failed evaluators or tasks.
-            Assert.Equal(0, failedEvaluatorCount);
-            Assert.Equal(0, failedTaskCount);
-            Assert.True(numTasks >= completedTaskCount);
-            Assert.True(completedTaskCount >= 1);
+            // In this test one of evaluators fails at task dispose stage. Depending on the timing of the failure,
+            // if it happens after all tasks completed, the job succeeds immediately,
+            // but if it happens before that, this counts as failure and job restarts.
+            // Number of tries done can be detected as number of recoveries done + 1
+            var triesDone = GetMessageCount(lines, "Start recovery") + 1;
+
+            // When Task.Dispose throw exception, it will result in failed evaluator. 
+            // But if master task is completed earlier and such an evaluator is disposed and the driver shut down, 
+            // the failed evaluator may not be able to send this IFailedEvluator event back to driver
+            // "WARNING: Evaluator trying to schedule a heartbeat after a completed heartbeat has already been scheduled or sent."
+            Assert.True(triesDone >= failedEvaluatorCount);
+
+            // All the retries should be only triggered by failed evaluator
+            // But not all the failed evaluator trigger retry as if tasks are completed, the job will successful
+            Assert.True(failedEvaluatorCount >= triesDone - 1);
+
+            // Scenarios1: Driver receives FaildEvalautor caused by dispose of a completed task after all the tasks have been competed. 
+            //             FailedEvalautor event will be ignored.
+            // Scenarios2: Driver receives FaildEvalautor caused by dispose of a completed task before all the tasks have been competed.
+            //             Driver will then send close event to rest of the running tasks and entering shutdown then recovery. 
+            //             During this process, some tasks can still complete and some may fail by communication error
+            //             As failed evaluator happens in finally block therefore either ICompletedTask or IFaieldTask event should be sent before it.
+            //             Considering once maser is done, rest of the contexts can be disposed, we have 
+            //             completedTask# + FailedTask# <= numTasks
+            Assert.True(triesDone * numTasks >= completedTaskCount + failedTaskCount);
 
             // eventually job succeeds
             Assert.Equal(1, jobSuccess);
@@ -79,7 +99,6 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
 
             return TangFactory.GetTang().NewConfigurationBuilder(c)
                 .BindSetEntry<PipelinedBroadcastAndReduceWithFaultTolerant.TaskIdsToFail, string>(GenericType<PipelinedBroadcastAndReduceWithFaultTolerant.TaskIdsToFail>.Class, "IMRUMap-RandomInputPartition-2-")
-                .BindSetEntry<PipelinedBroadcastAndReduceWithFaultTolerant.TaskIdsToFail, string>(GenericType<PipelinedBroadcastAndReduceWithFaultTolerant.TaskIdsToFail>.Class, "IMRUMap-RandomInputPartition-3-")
                 .BindIntNamedParam<PipelinedBroadcastAndReduceWithFaultTolerant.FailureType>(PipelinedBroadcastAndReduceWithFaultTolerant.FailureType.TaskFailureDuringTaskDispose.ToString())
                 .BindNamedParameter(typeof(MaxRetryNumberInRecovery), NumberOfRetry.ToString())
                 .BindNamedParameter(typeof(PipelinedBroadcastAndReduceWithFaultTolerant.TotalNumberOfForcedFailures), NumberOfRetry.ToString())
