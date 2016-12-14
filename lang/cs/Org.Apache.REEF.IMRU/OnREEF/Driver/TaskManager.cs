@@ -89,6 +89,16 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         private int _numberOfAppErrors = 0;
 
         /// <summary>
+        /// Total Task closing time span. It is used to calculate the average closing time.
+        /// </summary>
+        private TimeSpan _totalTaskClosingTimeSpan;
+
+        /// <summary>
+        /// Total number of the tasks that is closed by driver and then completed.
+        /// </summary>
+        private int _totalNumberOfClosedTasksByDriver;
+
+        /// <summary>
         /// Indicate if master task is completed running properly
         /// </summary>
         private bool _masterTaskCompletedRunning = false;
@@ -124,9 +134,6 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         ///   trying to add extra tasks
         ///   No Master Task is added in the collection
         /// </summary>
-        /// <param name="taskId"></param>
-        /// <param name="taskConfiguration"></param>
-        /// <param name="activeContext"></param>
         internal void AddTask(string taskId, IConfiguration taskConfiguration, IActiveContext activeContext)
         {
             if (taskId == null)
@@ -177,7 +184,6 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         /// Adds the IRunningTask to the running tasks collection and update the task state to TaskRunning.
         /// Throws IMRUSystemException if running tasks already contains this task or tasks collection doesn't contain this task.
         /// </summary>
-        /// <param name="runningTask"></param>
         internal void RecordRunningTask(IRunningTask runningTask)
         {
             if (_runningTasks.ContainsKey(runningTask.Id))
@@ -215,7 +221,6 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         /// Changes the task state from RunningTask to CompletedTask if the task was running
         /// Change the task stat from TaskWaitingForClose to TaskClosedByDriver if the task was in TaskWaitingForClose state
         /// </summary>
-        /// <param name="completedTask"></param>
         internal void RecordCompletedTask(ICompletedTask completedTask)
         {
             if (completedTask.Id.Equals(_masterTaskId))
@@ -234,7 +239,6 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         /// Removes the task from running tasks if the task was running
         /// Updates the task state to fail based on the error message in the failed task
         /// </summary>
-        /// <param name="failedTask"></param>
         internal void RecordFailedTaskDuringRunningOrSubmissionState(IFailedTask failedTask)
         {
             //// Remove the task from running tasks if it exists there
@@ -248,7 +252,6 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         /// Task could fail by communication error or any other application or system error during this time, as long as it is not 
         /// TaskFailedByEvaluatorFailure, update the task state based on the error received. 
         /// </summary>
-        /// <param name="failedTask"></param>
         internal void RecordFailedTaskDuringSystemShuttingDownState(IFailedTask failedTask)
         {
             Logger.Log(Level.Info, "RecordFailedTaskDuringSystemShuttingDownState, exceptionType: {0}", GetTaskErrorEventByExceptionType(failedTask).ToString());
@@ -269,7 +272,6 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         /// Removes the task from RunningTasks if the task associated with the FailedEvaluator is present and running. 
         /// Sets the task state to TaskFailedByEvaluatorFailure 
         /// </summary>
-        /// <param name="failedEvaluator"></param>
         internal void RecordTaskFailWhenReceivingFailedEvaluator(IFailedEvaluator failedEvaluator)
         {
             if (failedEvaluator.FailedTask.IsPresent())
@@ -301,6 +303,29 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
             }
         }
 
+        /// <summary>
+        /// Waiting for close task has no response in given time
+        /// Driver will kill the evaluator and move the task to TaskFailedByEvaluatorFailure state
+        /// </summary>
+        internal void RecordKillClosingTask(string taskId)
+        {
+            var taskInfo = GetTaskInfo(taskId);
+            if (!taskInfo.TaskState.CurrentState.Equals(TaskState.TaskWaitingForClose))
+            {
+                var msg = string.Format(CultureInfo.InvariantCulture,
+                           "The task [{0}] is in [{1}] state, expecting it is in TaskWaitingForClose state.",
+                           taskId, taskInfo.TaskState.CurrentState);
+                Logger.Log(Level.Error, msg);
+                throw new IMRUSystemException(msg);
+            }
+            UpdateState(taskId, TaskStateEvent.FailedTaskEvaluatorError);
+        }
+
+        /// <summary>
+        /// Find the task that is associated with the given evaluator
+        /// </summary>
+        /// <param name="evaluatorId"></param>
+        /// <returns></returns>
         private string FindTaskAssociatedWithTheEvalutor(string evaluatorId)
         {
             return _tasks.Where(e => e.Value.ActiveContext.EvaluatorId.Equals(evaluatorId)).Select(e => e.Key).FirstOrDefault();
@@ -309,17 +334,46 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         /// <summary>
         /// Updates task state for a given taskId based on the task event
         /// </summary>
-        /// <param name="taskId"></param>
-        /// <param name="taskEvent"></param>
         private void UpdateState(string taskId, TaskStateEvent taskEvent)
         {
-            GetTaskInfo(taskId).TaskState.MoveNext(taskEvent);
+            var taskInfo = GetTaskInfo(taskId);
+            RecordingTime(taskId, taskInfo, taskEvent);
+            taskInfo.TaskState.MoveNext(taskEvent);
+            taskInfo.TimeStateUpdated = DateTime.Now;
+        }
+
+        /// <summary>
+        /// Recording timing from one task state to another
+        /// The method can be extended to record the time for other task states
+        /// The log level should be changed to verb once we complete the testing
+        /// </summary>
+        private void RecordingTime(string taskId, TaskInfo taskInfo, TaskStateEvent taskEvent)
+        {
+            if (taskInfo.TaskState.CurrentState.Equals(TaskState.TaskWaitingForClose) && taskEvent.Equals(TaskStateEvent.CompletedTask))
+            {
+                var timeSpan = DateTime.Now - taskInfo.TimeStateUpdated;
+                _totalNumberOfClosedTasksByDriver++;
+                _totalTaskClosingTimeSpan = _totalTaskClosingTimeSpan.Add(timeSpan);
+                Logger.Log(Level.Info, "RecordClosingTime for task id {0}, closing time: {1}, average closing time: {2}.", taskId, timeSpan.Milliseconds, _totalTaskClosingTimeSpan.Milliseconds/_totalNumberOfClosedTasksByDriver);
+            }
+        }
+
+        /// <summary>
+        /// Get average closing time
+        /// </summary>
+        /// <returns></returns>
+        internal int AverageClosingTime()
+        {
+            if (_totalNumberOfClosedTasksByDriver != 0)
+            {
+                return _totalTaskClosingTimeSpan.Milliseconds/_totalNumberOfClosedTasksByDriver;
+            }
+            return 0;
         }
 
         /// <summary>
         /// Returns true if master task has completed and produced result
         /// </summary>
-        /// <returns></returns>
         internal bool IsMasterTaskCompletedRunning()
         {
             return _masterTaskCompletedRunning;
@@ -328,7 +382,6 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         /// <summary>
         /// Checks if all the tasks are running.
         /// </summary>
-        /// <returns></returns>
         internal bool AreAllTasksRunning()
         {
             return AreAllTasksInState(StateMachine.TaskState.TaskRunning) &&
@@ -339,10 +392,27 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         /// When master task is completed, that means the system has got the result expected 
         /// regardless of other mapper tasks returned or not. 
         /// </summary>
-        /// <returns></returns>
         internal bool IsJobDone()
         {
             return IsMasterTaskCompletedRunning();
+        }
+
+        /// <summary>
+        /// Finds all the tasks that are waiting for close and waiting time is timeout
+        /// </summary>
+        internal IList<KeyValuePair<string, TaskInfo>> TasksTimeoutInState(TaskState state, int timeoutMilliseconds)
+        {
+            return _tasks.Where(t => t.Value.TaskState.CurrentState.Equals(state) && Timeout(t.Value.TimeStateUpdated, timeoutMilliseconds))
+                .ToList();
+        }
+
+        /// <summary>
+        /// Check if the given DateTime has passed the timeoutMilliseconds
+        /// </summary>
+        private static bool Timeout(DateTime time, int timeoutMilliseconds)
+        {
+            TimeSpan span = DateTime.Now - time;
+            return span.Milliseconds > timeoutMilliseconds;
         }
 
         /// <summary>
@@ -371,8 +441,6 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         /// Then move the task state to WaitingTaskToClose
         /// Throw IMRUSystemException if runningTask is null or the running task is already added in the running task collection
         /// </summary>
-        /// <param name="runningTask"></param>
-        /// <param name="closeMessage"></param>
         internal void RecordRunningTaskDuringSystemFailure(IRunningTask runningTask, string closeMessage)
         {
             if (runningTask == null)
@@ -396,8 +464,6 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         /// For unknown exceptions or exceptions that doesn't belong to defined IMRU task exceptions
         /// treat then as application error.
         /// </summary>
-        /// <param name="failedTask"></param>
-        /// <returns></returns>
         private TaskStateEvent GetTaskErrorEventByExceptionType(IFailedTask failedTask)
         {
             var exception = failedTask.AsError();
@@ -457,7 +523,6 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         /// <summary>
         /// Returns the number of application error caused by FailedTask
         /// </summary>
-        /// <returns></returns>
         internal int NumberOfAppErrors()
         {
             return _numberOfAppErrors;
@@ -466,7 +531,6 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         /// <summary>
         /// Checks if all the tasks are in final states
         /// </summary>
-        /// <returns></returns>
         internal bool AreAllTasksInFinalState()
         {
             var notInFinalState = _tasks.Where(t => !t.Value.TaskState.IsFinalState()).Take(5).ToList();
@@ -504,8 +568,6 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         /// <summary>
         /// Gets current state of the task
         /// </summary>
-        /// <param name="taskId"></param>
-        /// <returns></returns>
         internal TaskState GetTaskState(string taskId)
         {
             var taskInfo = GetTaskInfo(taskId);
@@ -516,8 +578,6 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         /// Checks if all the tasks are in the state specified. 
         /// For example, passing TaskState.TaskRunning to check if all the tasks are in TaskRunning state
         /// </summary>
-        /// <param name="taskState"></param>
-        /// <returns></returns>
         internal bool AreAllTasksInState(TaskState taskState)
         {
             return _tasks.All(t => t.Value.TaskState.CurrentState == taskState);
@@ -566,7 +626,6 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         /// <summary>
         /// Checks if master task has been added
         /// </summary>
-        /// <returns></returns>
         private bool MasterTaskExists()
         {
             return _tasks.ContainsKey(_masterTaskId);
@@ -576,8 +635,6 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         /// Gets task Tuple based on the given taskId. 
         /// Throws IMRUSystemException if the task Tuple is not in the task collection.
         /// </summary>
-        /// <param name="taskId"></param>
-        /// <returns></returns>
         private TaskInfo GetTaskInfo(string taskId)
         {
             TaskInfo taskInfo;

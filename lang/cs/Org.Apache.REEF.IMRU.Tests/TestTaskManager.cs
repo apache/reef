@@ -16,6 +16,7 @@
 // under the License.
 
 using System;
+using System.Threading;
 using NSubstitute;
 using Org.Apache.REEF.Driver.Context;
 using Org.Apache.REEF.Driver.Evaluator;
@@ -177,6 +178,22 @@ namespace Org.Apache.REEF.IMRU.Tests
         }
 
         /// <summary>
+        /// Tests AverageClosingTime
+        /// </summary>
+        [Fact]
+        public void TestTasksClosingTime()
+        {
+            var taskManager = TaskManagerWithTasksRunning();
+            taskManager.CloseAllRunningTasks(TaskManager.CloseTaskByDriver);
+            Thread.Sleep(100);
+            taskManager.RecordCompletedTask(CreateMockCompletedTask(MapperTaskIdPrefix + 1));
+            taskManager.RecordCompletedTask(CreateMockCompletedTask(MapperTaskIdPrefix + 2));
+            taskManager.RecordCompletedTask(CreateMockCompletedTask(MasterTaskId));
+
+            Assert.True(taskManager.AverageClosingTime() > 0);
+        }
+
+        /// <summary>
         /// Tests RecordCompletedRunningTask
         /// </summary>
         [Fact]
@@ -211,6 +228,32 @@ namespace Org.Apache.REEF.IMRU.Tests
 
             taskManager.CloseAllRunningTasks(TaskManager.CloseTaskByDriver);
             Assert.True(taskManager.AreAllTasksInState(TaskState.TaskWaitingForClose));
+        }
+
+        /// <summary>
+        /// Tests closing running tasks
+        /// </summary>
+        [Fact]
+        public void TestTasksWaitingForClose()
+        {
+            var taskManager = TaskManagerWithTasksSubmitted();
+
+            taskManager.RecordRunningTask(CreateMockRunningTask(MasterTaskId));
+            taskManager.RecordRunningTask(CreateMockRunningTask(MapperTaskIdPrefix + 1));
+
+            var runningTask2 = CreateMockRunningTask(MapperTaskIdPrefix + 2);
+            taskManager.RecordRunningTaskDuringSystemFailure(runningTask2, TaskManager.CloseTaskByDriver);
+
+            taskManager.CloseAllRunningTasks(TaskManager.CloseTaskByDriver);
+            Thread.Sleep(100);
+            var tasks = taskManager.TasksTimeoutInState(TaskState.TaskWaitingForClose, 50);
+            Assert.Equal(tasks.Count, 3);
+
+            foreach (var t in tasks)
+            {
+                taskManager.RecordKillClosingTask(t.Key);
+            }
+            Assert.True(taskManager.AreAllTasksInState(TaskState.TaskClosedByDriver));
         }
 
         /// <summary>
