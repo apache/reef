@@ -15,6 +15,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
+using System;
 using Org.Apache.REEF.Driver.Context;
 using Org.Apache.REEF.IMRU.OnREEF.Driver.StateMachine;
 using Org.Apache.REEF.Tang.Interface;
@@ -38,6 +39,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
             _taskState = taskState;
             _taskConfiguration = config;
             _activeContext = context;
+            TimeStateUpdated = DateTime.Now;
         }
 
         internal TaskStateMachine TaskState
@@ -54,5 +56,10 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         {
             get { return _activeContext; }
         }
+
+        /// <summary>
+        /// time that the task state is updated
+        /// </summary>
+        internal DateTime TimeStateUpdated { get; set; }
     }
 }

@@ -89,6 +89,16 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         private int _numberOfAppErrors = 0;
 
         /// <summary>
+        /// Total Task closing time span. It is used to calculate the average closing time.
+        /// </summary>
+        private TimeSpan _totalTaskClosingTimeSpan;
+
+        /// <summary>
+        /// Total number of the tasks that is closed by driver and then completed.
+        /// </summary>
+        private int _totalNumberOfClosingTask;
+
+        /// <summary>
         /// Indicate if master task is completed running properly
         /// </summary>
         private bool _masterTaskCompletedRunning = false;
@@ -301,6 +311,24 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
             }
         }
 
+        /// <summary>
+        /// Waiting for close task has no response in given time
+        /// Driver will kill the evaluator and move the task to TaskFailedByEvaluatorFailure state
+        /// </summary>
+        /// <param name="taskId"></param>
+        internal void RecordTaskFailWhenTaskHasNoResponseInWaitingForClose(string taskId)
+        {
+            if (!GetTaskInfo(taskId).TaskState.CurrentState.Equals(TaskState.TaskWaitingForClose))
+            {
+                var msg = string.Format(CultureInfo.InvariantCulture,
+                           "The task [{0}] is not in TaskWaitingForClose state.",
+                           taskId);
+                Logger.Log(Level.Error, msg);
+                throw new IMRUSystemException(msg);
+            }
+            UpdateState(taskId, TaskStateEvent.FailedTaskEvaluatorError);
+        }
+
         private string FindTaskAssociatedWithTheEvalutor(string evaluatorId)
         {
             return _tasks.Where(e => e.Value.ActiveContext.EvaluatorId.Equals(evaluatorId)).Select(e => e.Key).FirstOrDefault();
@@ -313,7 +341,41 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         /// <param name="taskEvent"></param>
         private void UpdateState(string taskId, TaskStateEvent taskEvent)
         {
-            GetTaskInfo(taskId).TaskState.MoveNext(taskEvent);
+            var taskInfo = GetTaskInfo(taskId);
+            RecordingTime(taskInfo, taskEvent);
+            taskInfo.TaskState.MoveNext(taskEvent);
+            taskInfo.TimeStateUpdated = DateTime.Now;
+        }
+
+        /// <summary>
+        /// Recording timing from one task state to another
+        /// The method can be extended to record the time for other task states
+        /// The log level should be changed to verb once we complete the testing
+        /// </summary>
+        /// <param name="taskInfo"></param>
+        /// <param name="taskEvent"></param>
+        private void RecordingTime(TaskInfo taskInfo, TaskStateEvent taskEvent)
+        {
+            if (taskInfo.TaskState.CurrentState.Equals(TaskState.TaskWaitingForClose) && taskEvent.Equals(TaskStateEvent.CompletedTask))
+            {
+                var timeSpan = DateTime.Now - taskInfo.TimeStateUpdated;
+                _totalNumberOfClosingTask++;
+                Logger.Log(Level.Info, "RecordClosingTime. _taskClosingTimeSpan: {0}, _totalNumberOfClosingTask: {1}.", timeSpan.Milliseconds, _totalNumberOfClosingTask);
+                _totalTaskClosingTimeSpan = _totalTaskClosingTimeSpan.Add(timeSpan);
+            }
+        }
+
+        /// <summary>
+        /// Get average closing time
+        /// </summary>
+        /// <returns></returns>
+        internal int AverageClosingTime()
+        {
+            if (_totalNumberOfClosingTask != 0)
+            {
+                return _totalTaskClosingTimeSpan.Milliseconds/_totalNumberOfClosingTask;
+            }
+            return 0;
         }
 
         /// <summary>
@@ -343,6 +405,30 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         internal bool IsJobDone()
         {
             return IsMasterTaskCompletedRunning();
+        }
+
+        /// <summary>
+        /// Finds all the tasks that are waiting for close and waiting time is timeout
+        /// </summary>
+        /// <param name="timeoutMilliseconds"></param>
+        /// <returns></returns>
+        internal IList<KeyValuePair<string, TaskInfo>> TasksWaitingForClose(int timeoutMilliseconds)
+        {
+            return _tasks.Where(t => t.Value.TaskState.CurrentState.Equals(TaskState.TaskWaitingForClose) && Timeout(t.Value.TimeStateUpdated, timeoutMilliseconds))
+                .Select(y => new KeyValuePair<string, TaskInfo>(y.Key, y.Value))
+                .ToList();
+        }
+
+        /// <summary>
+        /// Check if the given DateTime has passed the timeoutMilliseconds
+        /// </summary>
+        /// <param name="time"></param>
+        /// <param name="timeoutMilliseconds"></param>
+        /// <returns></returns>
+        private bool Timeout(DateTime time, int timeoutMilliseconds)
+        {
+            TimeSpan span = DateTime.Now - time;
+            return span.Milliseconds > timeoutMilliseconds;
         }
 
         /// <summary>

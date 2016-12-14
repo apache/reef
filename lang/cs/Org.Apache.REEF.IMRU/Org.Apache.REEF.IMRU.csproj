@@ -128,6 +128,8 @@ under the License.
     <Compile Include="OnREEF\Parameters\SerializedUpdateFunctionCodecsConfiguration.cs" />
     <Compile Include="OnREEF\Parameters\SerializedUpdateTaskStateConfiguration.cs" />
     <Compile Include="OnREEF\Parameters\SleepIntervalParameter.cs" />
+    <Compile Include="OnREEF\Parameters\MinTaskWaitingForCloseTimeout.cs" />
+    <Compile Include="OnREEF\Parameters\TimeoutMonitoringInterval.cs" />
     <Compile Include="OnREEF\ResultHandler\DefaultResultHandler.cs" />
     <Compile Include="OnREEF\ResultHandler\ResultOutputLocation.cs" />
     <Compile Include="OnREEF\ResultHandler\WriteResultHandler.cs" />

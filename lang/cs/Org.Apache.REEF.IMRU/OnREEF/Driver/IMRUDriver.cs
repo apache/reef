@@ -20,6 +20,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Timers;
 using Org.Apache.REEF.Common.Tasks;
 using Org.Apache.REEF.Driver;
 using Org.Apache.REEF.Driver.Context;
@@ -91,6 +92,11 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         private readonly object _lock = new object();
 
         /// <summary>
+        /// Multiply this fact on average closing time to give room for tasks to be closed by itself.
+        /// </summary>
+        private const int TaskWaitingForCloseTimeFactor = 3;
+
+        /// <summary>
         /// Manages Tasks, maintains task states and responsible for task submission for the driver.
         /// </summary>
         private TaskManager _taskManager;
@@ -127,9 +133,30 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         private int _numberOfRetries;
 
         /// <summary>
+        /// Minimum timeout in milliseconds for TaskWaitingForClose
+        /// </summary>
+        private readonly int _minTaskWaitingForCloseTimeout;
+
+        /// <summary>
         /// Manages lifecycle events for driver, like JobCancelled event.
         /// </summary>
         private readonly List<IDisposable> _disposableResources = new List<IDisposable>();
+
+        /// <summary>
+        /// An internal timer that monitors the timeout for driver events
+        /// </summary>
+        private Timer _timeoutMonitorTimer;
+
+        /// <summary>
+        /// Locks for dispose of the timer in driver destructor
+        /// </summary>
+        private readonly object _disposeLock = new object();
+
+        /// <summary>
+        /// Record evaluator ids that are closed after timeout.
+        /// The CompletedTask and failedEvaluator events from those tasks should be ignored to avoid double counted.
+        /// </summary>
+        private readonly IList<string> _evaluatorsForceClosed = new List<string>();
 
         [Inject]
         private IMRUDriver(IPartitionedInputDataSet dataSet,
@@ -142,6 +169,8 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
             [Parameter(typeof(MemoryForUpdateTask))] int memoryForUpdateTask,
             [Parameter(typeof(AllowedFailedEvaluatorsFraction))] double failedEvaluatorsFraction,
             [Parameter(typeof(MaxRetryNumberInRecovery))] int maxRetryNumberInRecovery,
+            [Parameter(typeof(MinTaskWaitingForCloseTimeout))] int minTaskWaitingForCloseTimeout,
+            [Parameter(typeof(TimeoutMonitoringInterval))] int timeoutMonitoringInterval,
             [Parameter(typeof(InvokeGC))] bool invokeGC,
             IGroupCommDriver groupCommDriver,
             INameServer nameServer,
@@ -154,6 +183,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
             _totalMappers = dataSet.Count;
             _invokeGC = invokeGC;
             _maxRetryNumberForFaultTolerant = maxRetryNumberInRecovery;
+            _minTaskWaitingForCloseTimeout = minTaskWaitingForCloseTimeout;
 
             _contextManager = new ActiveContextManager(_totalMappers + 1);
             _contextManager.Subscribe(this);
@@ -172,15 +202,25 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
                 var handle = lifecycleManager.Subscribe(this as IObserver<IJobCancelled>);
                 _disposableResources.Add(handle);
             }
-            
+
+            _timeoutMonitorTimer = new Timer();
+            _timeoutMonitorTimer.Elapsed += TimeoutMonitor;
+            _timeoutMonitorTimer.Interval = timeoutMonitoringInterval;
+            if (timeoutMonitoringInterval > 0)
+            {
+                _timeoutMonitorTimer.Enabled = true;
+            }
+
             var msg =
-                string.Format(CultureInfo.InvariantCulture, "map task memory:{0}, update task memory:{1}, map task cores:{2}, update task cores:{3}, maxRetry {4}, allowedFailedEvaluators {5}.",
+                string.Format(CultureInfo.InvariantCulture, "map task memory: {0}, update task memory: {1}, map task cores: {2}, update task cores: {3}, maxRetry: {4}, allowedFailedEvaluators: {5}, minTaskWaitingForCloseTimeout: {6}, timeoutMonitoringInterval: {7}.",
                     memoryPerMapper,
                     memoryForUpdateTask,
                     coresPerMapper,
                     coresForUpdateTask,
                     _maxRetryNumberForFaultTolerant,
-                    allowedFailedEvaluators);
+                    allowedFailedEvaluators,
+                    minTaskWaitingForCloseTimeout,
+                    timeoutMonitoringInterval);
             Logger.Log(Level.Info, msg);
         }
 
@@ -446,6 +486,11 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
             Logger.Log(Level.Info, "Received ICompletedTask {0}, with systemState {1} in retry# {2}.", completedTask.Id, _systemState.CurrentState, _numberOfRetries);
             lock (_lock)
             {
+                if (_evaluatorsForceClosed.Contains(completedTask.ActiveContext.EvaluatorId))
+                {
+                    Logger.Log(Level.Info, "Completed task {0} was timeout and its evaluator has been closed, ignore, ignoring this event.", completedTask.Id, completedTask.ActiveContext.EvaluatorId);
+                    return;
+                }
                 switch (_systemState.CurrentState)
                 {
                     case SystemState.TasksRunning:
@@ -516,6 +561,12 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
             {
                 using (Logger.LogFunction("IMRUDriver::IFailedEvaluator"))
                 {
+                    if (_evaluatorsForceClosed.Contains(failedEvaluator.Id))
+                    {
+                        Logger.Log(Level.Info, "Completed evaluator {0} was closed after task {1} timeout, ignoring this event.", failedEvaluator.Id, failedEvaluator.FailedTask.IsPresent() ? failedEvaluator.FailedTask.Value.Id : "NoTaskId");
+                        return;
+                    }
+
                     var isMaster = _evaluatorManager.IsMasterEvaluatorId(failedEvaluator.Id);
                     _evaluatorManager.RecordFailedEvaluator(failedEvaluator.Id);
                     _contextManager.RemoveFailedContextInFailedEvaluator(failedEvaluator);
@@ -644,6 +695,11 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
             {
                 using (Logger.LogFunction("IMRUDriver::IFailedTask"))
                 {
+                    if (_evaluatorsForceClosed.Contains(failedTask.GetActiveContext().Value.EvaluatorId))
+                    {
+                        Logger.Log(Level.Info, "Failed task {0} was timeout and its evaluator has been closed, ignoring this event.", failedTask.Id, failedTask.GetActiveContext().Value.EvaluatorId);
+                        return;
+                    }
                     switch (_systemState.CurrentState)
                     {
                         case SystemState.SubmittingTasks:
@@ -673,6 +729,83 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
             }
         }
         #endregion IFailedTask
+
+        private void TimeoutMonitor(object source, ElapsedEventArgs e)
+        {
+            Logger.Log(Level.Info, "Entering TimeoutMonitor at {0}", DateTime.Now);
+            lock (_lock)
+            {
+                switch (_systemState.CurrentState)
+                {
+                    // TODO: Handle time out if ActiveContexts are not received in timeout limit
+                    case SystemState.WaitingForEvaluator:
+                        break;
+
+                    // TODO: Handle time out if RunningTasks are not received in timeout limit
+                    case SystemState.SubmittingTasks:
+                        break;
+
+                    // TODO: Handle time out if CompletedTasks are not received in timeout limit
+                    case SystemState.TasksRunning:
+                        break;
+
+                    // Handle timeout for closing tasks
+                    case SystemState.ShuttingDown:
+                        Logger.Log(Level.Info, "_taskManager.AverageClosingTime {0}, _minTaskWaitingForCloseTimeout: {1}", _taskManager.AverageClosingTime(), _minTaskWaitingForCloseTimeout);
+                        int taskClosingTimeout = Math.Max(_minTaskWaitingForCloseTimeout, _taskManager.AverageClosingTime() * TaskWaitingForCloseTimeFactor);
+                        var waitingTasks = _taskManager.TasksWaitingForClose(taskClosingTimeout);
+
+                        if (waitingTasks.Count > 0)
+                        {
+                            WaitingForCloseTaskNoResponseAction(waitingTasks);
+                        }
+                        break;
+
+                    case SystemState.TasksCompleted:
+                        break;
+
+                    case SystemState.Fail:
+                        break;
+                }
+            }
+        }
+
+        /// <summary>
+        /// For tasks that are in WaitingForCloseState and has no response in specified timeout
+        /// kill the evaluator and set the other states as if we received the FailedEvaluator
+        /// Then try recovery
+        /// </summary>
+        /// <param name="tasks"></param>
+        private void WaitingForCloseTaskNoResponseAction(IList<KeyValuePair<string, TaskInfo>> tasks)
+        {
+            foreach (var t in tasks)
+            {
+                string evaluatorId = t.Value.ActiveContext.EvaluatorId;
+                if (!_evaluatorsForceClosed.Contains(evaluatorId))
+                {
+                    _evaluatorsForceClosed.Add(evaluatorId);
+                    Logger.Log(Level.Info,
+                        "WaitingForCloseTask [{0}] has no response after [{1}]. Kill the evaluator: [{2}] and context: [{3}].",
+                        t.Key,
+                        _minTaskWaitingForCloseTimeout,
+                        evaluatorId,
+                        t.Value.ActiveContext.Id);
+
+                    t.Value.ActiveContext.Dispose();
+                    var isMaster = _evaluatorManager.IsMasterEvaluatorId(evaluatorId);
+                    _evaluatorManager.RecordFailedEvaluator(evaluatorId);
+                    _contextManager.Remove(t.Value.ActiveContext.Id);
+                    _taskManager.RecordTaskFailWhenTaskHasNoResponseInWaitingForClose(t.Key);
+
+                    // Push evaluator id back to PartitionIdProvider if it is not master
+                    if (!isMaster)
+                    {
+                        _serviceAndContextConfigurationProvider.RemoveEvaluatorIdFromPartitionIdProvider(evaluatorId);
+                    }
+                }
+            }
+            TryRecovery();
+        }
 
         public void OnNext(IJobCancelled value)
         {
@@ -1086,6 +1219,25 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
                 return null; 
             } 
             return context.Value.EvaluatorDescriptor.NodeDescriptor.HostName; 
+        }
+
+        /// <summary>
+        /// Ensure the Timer is disposed when the driver object is deleted
+        /// </summary>
+        ~IMRUDriver()
+        {
+            if (_timeoutMonitorTimer != null)
+            {
+                lock (_disposeLock)
+                {
+                    if (_timeoutMonitorTimer != null)
+                    {
+                        _timeoutMonitorTimer.Stop();
+                        _timeoutMonitorTimer.Dispose();
+                        _timeoutMonitorTimer = null;
+                    }
+                }
+            }
         }
     }
 }
