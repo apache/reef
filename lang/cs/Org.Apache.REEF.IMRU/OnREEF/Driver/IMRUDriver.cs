@@ -295,6 +295,10 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
             }
             else
             {
+                if (!_evaluatorManager.IsAllocatedEvaluator(allocatedEvaluator.Id))
+                {
+                    return;
+                }
                 configs = _serviceAndContextConfigurationProvider
                     .GetDataLoadingConfigurationForEvaluatorById(
                         allocatedEvaluator.Id);
