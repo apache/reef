@@ -111,7 +111,6 @@ namespace Org.Apache.REEF.IMRU.OnREEF.IMRUTasks
             }
             finally
             {
-                FinallyBlock();
                 _taskCloseCoordinator.SignalTaskStopped();
             }
             Logger.Log(Level.Info, "{0} returned with cancellation token:{1}.", TaskHostName, _cancellationSource.IsCancellationRequested);
@@ -133,13 +132,6 @@ namespace Org.Apache.REEF.IMRU.OnREEF.IMRUTasks
         /// The body of Call method. Subclass must override it. 
         /// </summary>
         protected abstract byte[] TaskBody(byte[] memento);
-
-        /// <summary>
-        /// The code that needs to be executed no matter exception happens or not in Call() method.  
-        /// </summary>
-        protected virtual void FinallyBlock()
-        {
-        }
 
         /// <summary>
         /// Task host name

@@ -26,6 +26,7 @@ using Org.Apache.REEF.IMRU.API;
 using Org.Apache.REEF.IMRU.Examples.PipelinedBroadcastReduce;
 using Org.Apache.REEF.IMRU.OnREEF.Driver;
 using Org.Apache.REEF.IMRU.OnREEF.Parameters;
+using Org.Apache.REEF.IMRU.OnREEF.ResultHandler;
 using Org.Apache.REEF.IO.PartitionedData.Random;
 using Org.Apache.REEF.Network.Examples.GroupCommunication.BroadcastReduceDriverAndTasks;
 using Org.Apache.REEF.Network.Group.Config;
@@ -230,6 +231,7 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
                 .SetMapInputPipelineDataConverterConfiguration(BuildDataConverterConfig(chunkSize))
                 .SetMapOutputPipelineDataConverterConfiguration(BuildDataConverterConfig(chunkSize))
                 .SetPartitionedDatasetConfiguration(BuildPartitionedDatasetConfiguration(numberofMappers))
+                .SetResultHandlerConfiguration(BuildResultHandlerConfig())
                 .SetJobName(IMRUJobName)
                 .SetNumberOfMappers(numberofMappers)
                 .SetMapperMemory(mapperMemory)
@@ -248,6 +250,17 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
             }
 
             return builder.Build();
+        }
+
+        /// <summary>
+        /// Build default result handler configuration. Subclass can override it.
+        /// </summary>
+        /// <returns></returns>
+        protected virtual IConfiguration BuildResultHandlerConfig()
+        {
+            return TangFactory.GetTang().NewConfigurationBuilder()
+                    .BindImplementation(GenericType<IIMRUResultHandler<int[]>>.Class, GenericType<DefaultResultHandler<int[]>>.Class)
+                    .Build();
         }
 
         /// <summary>

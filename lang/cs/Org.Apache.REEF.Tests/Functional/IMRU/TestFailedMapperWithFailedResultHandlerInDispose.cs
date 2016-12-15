@@ -1,4 +1,4 @@
-﻿﻿// Licensed to the Apache Software Foundation (ASF) under one
+﻿// Licensed to the Apache Software Foundation (ASF) under one
 // or more contributor license agreements.  See the NOTICE file
 // distributed with this work for additional information
 // regarding copyright ownership.  The ASF licenses this file
@@ -30,17 +30,18 @@ using Xunit;
 namespace Org.Apache.REEF.Tests.Functional.IMRU
 {
     [Collection("FunctionalTests")]
-    public class TestFailMapperEvaluators : IMRUBrodcastReduceTestBase
+    public class TestFailedMapperWithFailedResultHandlerInDispose : IMRUBrodcastReduceTestBase
     {
         protected const int NumberOfRetry = 3;
 
         /// <summary>
-        /// This test fails two evaluators during task execution stage on each retry except last.
-        /// Job is retried until success. 
-        /// In each retry, when the task is restarted on an existing evaluator, the iteration will continue from the previous task state.
+        /// This test fails two mappers during the iterations. When driver is to close master task, 
+        /// the ResultHandler in the Update task will throw exception in Dispose.
+        /// This Dispose can be called either when the task is returned from Call() by cancellation token, then TaskRuntime calls Dispose
+        /// or by the finally block in TaskRuntime.Close() method, depending on which one is quicker. 
         /// </summary>
         [Fact]
-        public virtual void TestFailedMapperOnLocalRuntime()
+        public virtual void TestFailedMapperWithFailedResultHandlerInDisposeOnLocalRuntime()
         {
             int chunkSize = 2;
             int dims = 100;
@@ -59,20 +60,28 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
                 NumberOfRetry,
                 testFolder);
             string[] lines = ReadLogFile(DriverStdout, "driver", testFolder, 240);
-            var completedTaskCount = GetMessageCount(lines, CompletedTaskMessage);
             var runningTaskCount = GetMessageCount(lines, RunningTaskMessage);
-            var failedEvaluatorCount = GetMessageCount(lines, FailedEvaluatorMessage);
+
+            // As the driver will shut down as soon as all tasks are in final state. The task state is final either by 
+            // ICompletedTask or IFailedEvaluator. But MessageLogger may not be able to receive the last event 
+            // before driver shut down. 
+            var failedEvaluatorCount = GetMessageCount(lines, "Received IFailedEvaluator");
+            var completedTaskCount = GetMessageCount(lines, "Received ICompletedTask");
+
             var failedTaskCount = GetMessageCount(lines, FailedTaskMessage);
             var jobSuccess = GetMessageCount(lines, IMRUDriver<int[], int[], int[], int[]>.DoneActionPrefix);
 
-            // on each try each task should fail or complete or disappear with failed evaluator
-            // and on each try all tasks should start successfully
-            Assert.True((NumberOfRetry + 1) * numTasks >= completedTaskCount + failedEvaluatorCount + failedTaskCount);
-            Assert.True(NumberOfRetry * numTasks < completedTaskCount + failedEvaluatorCount + failedTaskCount);
-            Assert.Equal((NumberOfRetry + 1) * numTasks, runningTaskCount);
+            // All tasks should start running before fail
+            Assert.Equal(numTasks, runningTaskCount);
 
-            // eventually job succeeds
-            Assert.Equal(1, jobSuccess);
+            // Tasks should fail or complete or disappear with failed evaluator
+            Assert.Equal(numTasks, completedTaskCount + failedEvaluatorCount + failedTaskCount);
+
+            // We have failed two mappers and one update evaluator in the test code
+            Assert.Equal(3, failedEvaluatorCount);
+
+            // eventually job fail because master evaluator fail before the iteration is completed
+            Assert.Equal(0, jobSuccess);
             CleanUp(testFolder);
         }
 
@@ -80,7 +89,7 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
         /// This test is for the normal scenarios of IMRUDriver and IMRUTasks on yarn
         /// </summary>
         [Fact(Skip = "Requires Yarn")]
-        public virtual void TestFailedMapperOnYarn()
+        public virtual void TestFailedMapperWithFailedResultHandlerInDisposOnYarn()
         {
             int chunkSize = 2;
             int dims = 100;
@@ -223,6 +232,17 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
                    .NewConfigurationBuilder()
                    .BindImplementation(GenericType<ITaskState>.Class, GenericType<UpdateTaskState<int[], int[]>>.Class)
                    .Build();
+        }
+
+        /// <summary>
+        /// Bind TestExceptionInResultHandlerDispose as IIMRUResultHandler
+        /// </summary>
+        /// <returns></returns>
+        protected override IConfiguration BuildResultHandlerConfig()
+        {
+            return TangFactory.GetTang().NewConfigurationBuilder()
+                    .BindImplementation(GenericType<IIMRUResultHandler<int[]>>.Class, GenericType<TestExceptionInResultHandlerDispose.ResultHandlerWithException<int[]>>.Class)
+                    .Build();
         }
     }
 }

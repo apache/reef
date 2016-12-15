@@ -40,7 +40,12 @@ namespace Org.Apache.REEF.IMRU.OnREEF.ResultHandler
         private readonly IStreamingCodec<TResult> _resultCodec;
         private readonly IFileSystem _fileSystem;
         private readonly string _remoteFileName;
-        private readonly string _localFilename;
+        private string _localFilename;
+
+        /// <summary>
+        /// Locks for dispose 
+        /// </summary>
+        private readonly object _disposeLock = new object();
 
         [Inject]
         private WriteResultHandler(
@@ -66,13 +71,13 @@ namespace Org.Apache.REEF.IMRU.OnREEF.ResultHandler
             }
 
             WriteOutput(value);
+            UploadResultFile();
         }
 
         /// <summary>
-        /// Handles what to do on completion
-        /// In this case write to remote location
+        /// Upload local file to remote using the FileSystem
         /// </summary>
-        public void Dispose()
+        private void UploadResultFile()
         {
             if (string.IsNullOrWhiteSpace(_remoteFileName))
             {
@@ -84,10 +89,29 @@ namespace Org.Apache.REEF.IMRU.OnREEF.ResultHandler
             if (_fileSystem.Exists(remoteUri))
             {
                 Exceptions.Throw(
-                    new Exception(string.Format("Output Uri: {0} already exists", remoteUri)), Logger);
+                    new Exception(string.Format("Output Uri: {0} already exists", remoteUri)),
+                    Logger);
             }
 
             _fileSystem.CopyFromLocal(_localFilename, remoteUri);
+        }
+
+        /// <summary>
+        /// Delete local file
+        /// </summary>
+        public void Dispose()
+        {
+            if (_localFilename != null)
+            {
+                lock (_disposeLock)
+                {
+                    if (_localFilename != null)
+                    {
+                        File.Delete(_localFilename);
+                        _localFilename = null;
+                    }
+                }
+            }
         }
 
         private string GenerateLocalFilename()
