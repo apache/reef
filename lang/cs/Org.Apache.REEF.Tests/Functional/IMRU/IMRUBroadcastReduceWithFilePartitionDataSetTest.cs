@@ -49,7 +49,9 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
         /// <summary>
         /// Defines the number of data in input data bytes in the test
         /// </summary>
-        protected const int DataCount = 3;
+        private const int DataCount = 3;
+
+        private const string tempFileName = "REEF.TestLocalFileSystem.tmp";
 
         /// <summary>
         /// This test tests DataLoadingContext with FilePartitionDataSet
@@ -79,6 +81,15 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
                 testFolder);
             ValidateSuccessForLocalRuntime(numTasks, 0, 0, testFolder, 100);
             CleanUp(testFolder);
+
+            for (var i = 0; i < numTasks; i++)
+            {
+                var filePath = Path.Combine(Path.GetTempPath(), tempFileName + i);
+                if (File.Exists(filePath))
+                {
+                    File.Delete(filePath);
+                }
+            }
         }
 
         /// <summary>
@@ -140,7 +151,7 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
             PartitionDatasetConfig();
         }
 
-        protected void PartitionDatasetConfig()
+        private void PartitionDatasetConfig()
         {
             int count = 0;
             int numberOfTasks = 4;
@@ -190,7 +201,7 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
         /// It then iterates the data and verifies the data count. 
         /// </summary>
         /// <typeparam name="T"></typeparam>
-        internal sealed class TestSenderMapFunction<T> : IMapFunction<int[], int[]>
+        private sealed class TestSenderMapFunction<T> : IMapFunction<int[], int[]>
         {
             private int _iterations;
 
@@ -277,7 +288,6 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
 
         protected static ConfigurationModule CreateDatasetConfigurationModule(int numberofMappers)
         {
-            const string tempFileName = "REEF.TestLocalFileSystem.tmp";
             string sourceFilePath = Path.Combine(Path.GetTempPath(), tempFileName);
 
             var cm = FileSystemInputPartitionConfiguration<IEnumerable<Row>>.ConfigurationModule;
@@ -295,7 +305,7 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
         /// </summary>
         /// <param name="dataNumber"></param>
         /// <returns></returns>
-        protected static byte[] CreateTestData(int dataNumber)
+        private static byte[] CreateTestData(int dataNumber)
         {
             var bytes = new byte[dataNumber];
             for (int i = 0; i < dataNumber; i++)
@@ -310,13 +320,8 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
         /// </summary>
         /// <param name="filePath"></param>
         /// <param name="bytes"></param>
-        protected static void MakeLocalTestFile(string filePath, byte[] bytes)
+        private static void MakeLocalTestFile(string filePath, byte[] bytes)
         {
-            if (File.Exists(filePath))
-            {
-                File.Delete(filePath);
-            }
-
             using (var s = File.Create(filePath))
             {
                 foreach (var b in bytes)
@@ -329,7 +334,7 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
         /// <summary>
         /// Test DeSerializer
         /// </summary>
-        protected class RowSerializer : IFileDeSerializer<IEnumerable<Row>>
+        private class RowSerializer : IFileDeSerializer<IEnumerable<Row>>
         {
             [Inject]
             private RowSerializer()
