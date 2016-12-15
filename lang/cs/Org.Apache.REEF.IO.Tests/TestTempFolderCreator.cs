@@ -37,6 +37,9 @@ namespace Org.Apache.REEF.IO.Tests
             var f2 = (string)i.GetNamedInstance(typeof(TempFileFolder));
             var f = Path.GetFullPath(f2);
             Assert.True(f1.StartsWith(f));
+
+            // clean up created folders
+            Directory.Delete(f, true);
         }
 
         /// <summary>
@@ -46,7 +49,7 @@ namespace Org.Apache.REEF.IO.Tests
         public void TestTempFileFolerParameter()
         {
             var b = TempFileConfigurationModule.ConfigurationModule
-                .Set(TempFileConfigurationModule.TempFileFolerParameter, @".\test1\abc\")
+                .Set(TempFileConfigurationModule.TempFileFolerParameter, "./test1/abc/")
                 .Build();
             var i = TangFactory.GetTang().NewInjector(b);
             var tempFileCreator = i.GetInstance<ITempFileCreator>();
@@ -54,6 +57,9 @@ namespace Org.Apache.REEF.IO.Tests
             var f2 = (string)i.GetNamedInstance(typeof(TempFileFolder));
             var f = Path.GetFullPath(f2);
             Assert.True(f1.StartsWith(f));
+
+            // clean up created folders
+            Directory.Delete("./test1/", true);
         }
 
         /// <summary>
@@ -63,15 +69,18 @@ namespace Org.Apache.REEF.IO.Tests
         public void TestCreateTempFileFoler()
         {
             var b = TempFileConfigurationModule.ConfigurationModule
-                .Set(TempFileConfigurationModule.TempFileFolerParameter, @"./test1/abc/")
+                .Set(TempFileConfigurationModule.TempFileFolerParameter, @"./test3/abc/")
                 .Build();
             var i = TangFactory.GetTang().NewInjector(b);
             var tempFileCreator = i.GetInstance<ITempFileCreator>();
             var f1 = tempFileCreator.CreateTempDirectory("ddd\\fff");
             var f3 = tempFileCreator.CreateTempDirectory("ddd\\fff", "bbb");
-            var f2 = Path.GetFullPath(@"./test1/abc/" + "ddd\\fff");
+            var f2 = Path.GetFullPath(@"./test3/abc/" + "ddd\\fff");
             Assert.True(f1.StartsWith(f2));
             Assert.True(f3.EndsWith("bbb"));
+
+            // clean up created folders
+            Directory.Delete("./test3/", true);
         }
     }
 }
