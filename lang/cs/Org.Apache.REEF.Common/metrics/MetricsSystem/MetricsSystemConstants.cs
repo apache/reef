@@ -24,7 +24,7 @@ namespace Org.Apache.REEF.Common.Metrics.MetricsSystem
     {
         /// <summary>
         /// Specifies name and description for the context tag. As a example context can 
-        /// be "Evlauator metrics", "ML", etc.
+        /// be "Evaluator metrics", "ML", etc.
         /// </summary>
         public static readonly string Context = "Metrics Context";
     }

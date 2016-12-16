@@ -33,8 +33,9 @@ namespace Org.Apache.REEF.Common.Metrics.MetricsSystem
         private readonly IList<MetricsTag> _tags = new List<MetricsTag>();
         private readonly IMetricsCollector _parentCollector;
         private readonly IMetricsInfo _info;
-        private string _contextValue = null;
-        
+        private string _contextValue;
+        private bool _recordBuilderFinalized;
+
         /// <summary>
         /// Constructor.
         /// </summary>
@@ -54,6 +55,10 @@ namespace Org.Apache.REEF.Common.Metrics.MetricsSystem
         /// <returns>Self reference.</returns>
         public IMetricsRecordBuilder AddTag(string name, string value)
         {
+            if (_recordBuilderFinalized)
+            {
+                throw new MetricsException("Record builder is already finalized. No more tags can be added.");
+            }
             _tags.Add(new MetricsTag(new MetricsInfoImpl(name, name), value));
             return this;
         }
@@ -66,6 +71,10 @@ namespace Org.Apache.REEF.Common.Metrics.MetricsSystem
         /// <returns>Self reference.</returns>
         public IMetricsRecordBuilder AddTag(IMetricsInfo info, string value)
         {
+            if (_recordBuilderFinalized)
+            {
+                throw new MetricsException("Record builder is already finalized. No more tags can be added.");
+            }
             _tags.Add(new MetricsTag(info, value));
             return this;
         }
@@ -78,10 +87,14 @@ namespace Org.Apache.REEF.Common.Metrics.MetricsSystem
         /// <returns>Self reference.</returns>
         public IMetricsRecordBuilder Add(MetricsTag tag)
         {
+            if (_recordBuilderFinalized)
+            {
+                throw new MetricsException("Record builder is already finalized. No more tags can be added.");
+            }
             _tags.Add(tag);
             return this;
         }
-        
+
         /// <summary>
         /// Adds a metric to the record builder. This functions removes duplication in 
         /// case metric has already been created by the caller.
@@ -90,6 +103,10 @@ namespace Org.Apache.REEF.Common.Metrics.MetricsSystem
         /// <returns>Self reference.</returns>
         public IMetricsRecordBuilder Add(IImmutableMetric metric)
         {
+            if (_recordBuilderFinalized)
+            {
+                throw new MetricsException("Record builder is already finalized. No more metrics can be added.");
+            }
             _metrics.Add(metric);
             return this;
         }
@@ -101,6 +118,10 @@ namespace Org.Apache.REEF.Common.Metrics.MetricsSystem
         /// <returns>Self reference.</returns>
         public IMetricsRecordBuilder SetContext(string value)
         {
+            if (_recordBuilderFinalized)
+            {
+                throw new MetricsException("Record builder is already finalized. No more metrics can be added.");
+            }
             _contextValue = value;
             return AddTag(MetricsSystemConstants.Context, value);
         }
@@ -113,6 +134,10 @@ namespace Org.Apache.REEF.Common.Metrics.MetricsSystem
         /// <returns>Self reference.</returns>
         public IMetricsRecordBuilder AddCounter(IMetricsInfo info, long value)
         {
+            if (_recordBuilderFinalized)
+            {
+                throw new MetricsException("Record builder is already finalized. No more metrics can be added.");
+            }
             _metrics.Add(new ImmutableCounter(info, value));
             return this;
         }
@@ -125,6 +150,10 @@ namespace Org.Apache.REEF.Common.Metrics.MetricsSystem
         /// <returns>Self reference.</returns>
         public IMetricsRecordBuilder AddGauge(IMetricsInfo info, long value)
         {
+            if (_recordBuilderFinalized)
+            {
+                throw new MetricsException("Record builder is already finalized. No more metrics can be added.");
+            }
             _metrics.Add(new ImmutableLongGauge(info, value));
             return this;
         }
@@ -137,6 +166,10 @@ namespace Org.Apache.REEF.Common.Metrics.MetricsSystem
         /// <returns>Self reference.</returns>
         public IMetricsRecordBuilder AddGauge(IMetricsInfo info, double value)
         {
+            if (_recordBuilderFinalized)
+            {
+                throw new MetricsException("Record builder is already finalized. No more metrics can be added.");
+            }
             _metrics.Add(new ImmutableDoubleGauge(info, value));
             return this;
         }
@@ -155,6 +188,7 @@ namespace Org.Apache.REEF.Common.Metrics.MetricsSystem
         /// <returns>The parent collector.</returns>
         public IMetricsCollector EndRecord()
         {
+            _recordBuilderFinalized = true;
             return _parentCollector;
         }
 
@@ -167,11 +201,7 @@ namespace Org.Apache.REEF.Common.Metrics.MetricsSystem
             TimeSpan t = DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1));
             long timeStamp = (long)t.TotalSeconds;
 
-            if (_metrics.Count != 0 || _tags.Count != 0)
-            {
-                return new MetricsRecord(_info, timeStamp, _metrics, _tags, _contextValue);
-            }
-            return null;
+            return !IsEmpty() ? new MetricsRecord(_info, timeStamp, _metrics, _tags, _contextValue) : null;
         }
 
         /// <summary>

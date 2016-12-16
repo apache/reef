@@ -16,6 +16,7 @@
 // under the License.
 
 using Org.Apache.REEF.Common.Metrics.Api;
+using Org.Apache.REEF.Tang.Annotations;
 
 namespace Org.Apache.REEF.Common.Metrics.MetricsSystem
 {
@@ -24,7 +25,8 @@ namespace Org.Apache.REEF.Common.Metrics.MetricsSystem
     /// for future use. Makes the class mutable. However, the Clear() function call 
     /// is internal and not visible to external users.
     /// </summary>
-    internal interface IMetricsCollectorExtended : IMetricsCollector
+    [DefaultImplementation(typeof(MetricsCollectorMutable))]
+    internal interface IMetricsCollectorMutable : IMetricsCollector
     {
         /// <summary>
         /// Clears up the metrics collector. Removes all record builders and records.

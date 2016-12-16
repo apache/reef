@@ -15,6 +15,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
+using System;
 using System.Collections.Generic;
 using Org.Apache.REEF.Common.Metrics.Api;
 
@@ -43,22 +44,23 @@ namespace Org.Apache.REEF.Common.Metrics.MetricsSystem
         {
             if (info == null)
             {
-                throw new MetricsException("Record info cannot be null");
+                throw new MetricsException("Record info cannot be null", new ArgumentNullException(nameof(info)));
             }
-            
+
             if (timeStamp < 0)
             {
-                throw new MetricsException("Timestamp cannot be less than zero");
+                throw new MetricsException(string.Empty,
+                    new ArgumentException("Timestamp cannot be less than zero", nameof(timeStamp)));
             }
 
             if (metrics == null)
             {
-                throw new MetricsException("Metrics list is null");
+                throw new MetricsException("Metrics list is null", new ArgumentNullException(nameof(metrics)));
             }
 
             if (tags == null)
             {
-                throw new MetricsException("Tag list is null");
+                throw new MetricsException("Tag list is null", new ArgumentNullException(nameof(tags)));
             }
 
             Name = info.Name;
@@ -73,27 +75,27 @@ namespace Org.Apache.REEF.Common.Metrics.MetricsSystem
         /// Unix time stamp (in seconds) of the record.
         /// </summary>
         public long Timestamp { get; private set; }
-        
+
         /// <summary>
         /// Name of the record.
         /// </summary>
         public string Name { get; private set; }
-        
+
         /// <summary>
         /// Description of the record.
         /// </summary>
         public string Description { get; private set; }
-        
+
         /// <summary>
         /// Context of the record.
         /// </summary>
         public string Context { get; private set; }
-        
+
         /// <summary>
         /// Tags in the record.
         /// </summary>
         public IEnumerable<MetricsTag> Tags { get; private set; }
-        
+
         /// <summary>
         /// Metrics in the record.
         /// </summary>

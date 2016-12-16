@@ -24,19 +24,19 @@ using Org.Apache.REEF.Tang.Annotations;
 namespace Org.Apache.REEF.Common.Metrics.MetricsSystem
 {
     /// <summary>
-    /// Default implementation of the <see cref="IMetricsCollectorExtended"/> class. 
+    /// Default implementation of the <see cref="IMetricsCollectorMutable"/> class. 
     /// It is used to create and maintain collection of records from sources in the 
     /// Metrics System.
     /// </summary>
-    internal class MetricsCollector : IMetricsCollectorExtended
+    internal sealed class MetricsCollectorMutable : IMetricsCollectorMutable
     {
         [Inject]
-        private MetricsCollector()
-        {    
+        private MetricsCollectorMutable()
+        {
         }
 
         private readonly IList<IMetricsRecordBuilder> _recordBuilder = new List<IMetricsRecordBuilder>();
-        
+
         /// <summary>
         /// Creates a new Record builder by name.
         /// </summary>
@@ -69,8 +69,8 @@ namespace Org.Apache.REEF.Common.Metrics.MetricsSystem
         public IEnumerable<IMetricsRecord> GetRecords()
         {
             return
-                _recordBuilder.Select(builder => builder.GetRecord())
-                    .Where(record => record != null).ToArray();
+                _recordBuilder.Where(builder => !builder.IsEmpty())
+                    .Select(builder => builder.GetRecord()).ToArray();
         }
 
         /// <summary>

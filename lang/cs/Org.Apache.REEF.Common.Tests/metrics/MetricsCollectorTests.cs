@@ -27,7 +27,7 @@ using Xunit;
 namespace Org.Apache.REEF.Common.Tests.Metrics
 {
     /// <summary>
-    /// Tests for <see cref="MetricsCollector"/>, <see cref="MetricsRecord"/> 
+    /// Tests for <see cref="MetricsCollectorMutable"/>, <see cref="MetricsRecord"/> 
     /// and <see cref="MetricsRecordBuilder"/>.
     /// </summary>
     public sealed class MetricsCollectorTests
@@ -82,30 +82,31 @@ namespace Org.Apache.REEF.Common.Tests.Metrics
             const string context = "context";
             IList<string> counterName = new List<string>() { "counter1", "counter2" };
             IList<long> counterValue = new List<long>() { 2, 6 };
-            const string doubleGaugeName = "gauge";
+            const string doubleGaugeName = "doublegauge";
             const double doubleGaugeValue = 3.0;
-            const string longGaugeName = "gauge";
+            const string longGaugeName = "longgauge";
             const long longGaugeValue = 4;
             IList<string> tagName = new List<string>() { "tagName1", "tagName2", "tagName3" };
             IList<string> tagValue = new List<string>() { "tagValue1", "tagValue2", "tagValue3" };
-            
+            IList<string> tagDesc = new List<string>() { "tagName1", "tagDesc2", "tagDesc3" };
+
             var collector = new MetricTestUtils.MetricsCollectorTestImpl();
             MetricsRecordBuilder rb = new MetricsRecordBuilder(collector, new MetricsInfoImpl(name, desc));
-            
+
             // Push different metrics via relevant function calls.
             rb.AddCounter(new MetricsInfoImpl(counterName[0], counterName[0]), counterValue[0])
                 .Add(new ImmutableCounter(new MetricsInfoImpl(counterName[1], counterName[1]), counterValue[1]))
                 .AddGauge(new MetricsInfoImpl(longGaugeName, longGaugeName), longGaugeValue)
                 .AddGauge(new MetricsInfoImpl(doubleGaugeName, doubleGaugeName), doubleGaugeValue)
                 .AddTag(tagName[0], tagValue[0])
-                .AddTag(new MetricsInfoImpl(tagName[1], "tagdesc"), tagValue[1])
-                .Add(new MetricsTag(new MetricsInfoImpl(tagName[2], tagName[2]), tagValue[2]))
+                .AddTag(new MetricsInfoImpl(tagName[1], tagDesc[1]), tagValue[1])
+                .Add(new MetricsTag(new MetricsInfoImpl(tagName[2], tagDesc[2]), tagValue[2]))
                 .SetContext(context)
                 .EndRecord();
 
             TimeSpan t = DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1));
             long expectedTimeStamp = (long)t.TotalSeconds;
-            
+
             // Get the created record.
             var record = rb.GetRecord();
             Assert.Equal(name, record.Name);
@@ -114,6 +115,7 @@ namespace Org.Apache.REEF.Common.Tests.Metrics
             Assert.Equal(context, record.Context);
 
             int counter = 0;
+            Assert.Equal(tagName.Count + 1, record.Tags.Count());
 
             // Verify that relevant tags are present.
             foreach (var tag in record.Tags)
@@ -122,16 +124,19 @@ namespace Org.Apache.REEF.Common.Tests.Metrics
                 {
                     Assert.Equal(tagName[counter], tag.Name);
                     Assert.Equal(tagValue[counter], tag.Value);
+                    Assert.Equal(tagDesc[counter], tag.Description);
                 }
                 else
                 {
                     Assert.Equal(MetricsSystemConstants.Context, tag.Name);
+                    Assert.Equal(MetricsSystemConstants.Context, tag.Description);
                     Assert.Equal(context, tag.Value);
                 }
                 counter++;
             }
 
             counter = 0;
+            Assert.Equal(counterName.Count + 2, record.Metrics.Count());
 
             // Verify that relevant counters and gauges are there.
             foreach (var metric in record.Metrics)
@@ -154,7 +159,7 @@ namespace Org.Apache.REEF.Common.Tests.Metrics
                     else
                     {
                         Assert.Equal(doubleGaugeName, metric.Info.Name);
-                        Assert.Equal(doubleGaugeValue, metric.NumericValue);   
+                        Assert.Equal(doubleGaugeValue, metric.NumericValue);
                     }
                 }
                 counter++;
@@ -162,7 +167,7 @@ namespace Org.Apache.REEF.Common.Tests.Metrics
         }
 
         /// <summary>
-        /// Tests various fucntions of <see cref="MetricsCollector"/>. Creates two records 
+        /// Tests various fucntions of <see cref="MetricsCollectorMutable"/>. Creates two records 
         /// using the collector and verify that they are correctly created and returned.
         /// </summary>
         [Fact]
@@ -179,9 +184,9 @@ namespace Org.Apache.REEF.Common.Tests.Metrics
                     .NewInjector(
                         TangFactory.GetTang()
                             .NewConfigurationBuilder()
-                            .BindImplementation(GenericType<IMetricsCollectorExtended>.Class,
-                                GenericType<MetricsCollector>.Class).Build())
-                    .GetInstance<IMetricsCollectorExtended>();
+                            .BindImplementation(GenericType<IMetricsCollectorMutable>.Class,
+                                GenericType<MetricsCollectorMutable>.Class).Build())
+                    .GetInstance<IMetricsCollectorMutable>();
 
             collector.CreateRecord(recNames[0])
                 .AddCounter(new MetricsInfoImpl(counterName, counterName), counterValue)

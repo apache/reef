@@ -138,11 +138,11 @@ under the License.
     <Compile Include="Metrics\Api\MetricType.cs" />
     <Compile Include="Metrics\Api\SnapshotRequest.cs" />
     <Compile Include="Metrics\MetricsSystem\DefaultMetricsFilter.cs" />
-    <Compile Include="Metrics\MetricsSystem\IMetricsCollectorExtended.cs" />
+    <Compile Include="Metrics\MetricsSystem\IMetricsCollectorMutable.cs" />
     <Compile Include="Metrics\MetricsSystem\ImmutableCounter.cs" />
     <Compile Include="Metrics\MetricsSystem\ImmutableDoubleGauge.cs" />
     <Compile Include="Metrics\MetricsSystem\ImmutableLongGauge.cs" />
-    <Compile Include="Metrics\MetricsSystem\MetricsCollector.cs" />
+    <Compile Include="Metrics\MetricsSystem\MetricsCollectorMutable.cs" />
     <Compile Include="Metrics\MetricsSystem\MetricsRecord.cs" />
     <Compile Include="Metrics\MetricsSystem\MetricsRecordBuilder.cs" />
     <Compile Include="Metrics\MetricsSystem\MetricsSystemConstants.cs" />

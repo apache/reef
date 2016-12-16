@@ -24,7 +24,7 @@ namespace Org.Apache.REEF.Common.Metrics.MetricsSystem
     /// <summary>
     /// Default metrics filter. Accepts everything.
     /// </summary>
-    internal class DefaultMetricsFilter : IMetricsFilter
+    internal sealed class DefaultMetricsFilter : IMetricsFilter
     {
         [Inject]
         DefaultMetricsFilter()
@@ -43,7 +43,7 @@ namespace Org.Apache.REEF.Common.Metrics.MetricsSystem
         /// Accepts any tag.
         /// </summary>
         public Func<MetricsTag, bool> AcceptsTag { get; private set; }
-        
+
         /// <summary>
         /// Accepts any record.
         /// </summary>
