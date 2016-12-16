@@ -1,4 +1,4 @@
-﻿﻿// Licensed to the Apache Software Foundation (ASF) under one
+﻿// Licensed to the Apache Software Foundation (ASF) under one
 // or more contributor license agreements.  See the NOTICE file
 // distributed with this work for additional information
 // regarding copyright ownership.  The ASF licenses this file
@@ -17,13 +17,10 @@
 
 using Org.Apache.REEF.Tang.Annotations;
 
-namespace Org.Apache.REEF.IMRU.OnREEF.Parameters
+namespace Org.Apache.REEF.Common.Runtime.Evaluator.Parameters
 {
-    /// <summary>
-    /// Max retry number for the system recovery
-    /// </summary>
-    [NamedParameter("Maximum retry number in fault tolerant recovery.", "maxRetryInRecovery", "10")]
-    public sealed class MaxRetryNumberInRecovery : Name<int>
+    [NamedParameter(Documentation = "Max number of retries for sending heartbeat to driver if driver reconnection logic is not implemented.", ShortName = "HeartbeatMaxRetryForNonRecovery", DefaultValue = "60")]
+    internal sealed class HeartbeatMaxRetryForNonRecoveryMode : Name<int>
     {
     }
 }

@@ -59,7 +59,7 @@ namespace Org.Apache.REEF.IMRU.Examples
                    .Build();
             }
 
-            return Configurations.Merge(runtimeConfig, imruClientConfig, GetTcpConfiguration());
+            return Configurations.Merge(runtimeConfig, imruClientConfig, GetTcpConnectionConfiguration());
         }
 
         /// <summary>
@@ -74,14 +74,14 @@ namespace Org.Apache.REEF.IMRU.Examples
             var runtimeConfig = YARNClientConfiguration.ConfigurationModule
                 .Build();
 
-            return Configurations.Merge(runtimeConfig, imruClientConfig, GetTcpConfiguration());
+            return Configurations.Merge(runtimeConfig, imruClientConfig, GetTcpConnectionConfiguration());
         }
 
-        private static IConfiguration GetTcpConfiguration()
+        private static IConfiguration GetTcpConnectionConfiguration()
         {
             return TcpClientConfigurationModule.ConfigurationModule
-                .Set(TcpClientConfigurationModule.MaxConnectionRetry, "200")
-                .Set(TcpClientConfigurationModule.SleepTime, "1000")
+                .Set(TcpClientConfigurationModule.MaxConnectionRetry, "300")
+                .Set(TcpClientConfigurationModule.SleepTime, "2000")
                 .Build();
         }
     }

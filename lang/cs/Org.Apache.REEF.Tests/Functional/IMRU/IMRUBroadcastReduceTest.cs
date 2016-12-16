@@ -51,7 +51,8 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
             var runningTaskCount = GetMessageCount(lines, "Received IRunningTask");
             var failedEvaluatorCount = GetMessageCount(lines, "Received IFailedEvaluator");
             var failedTaskCount = GetMessageCount(lines, "Received IFailedTask");
-            Assert.Equal((NumOfRetry + 1) * NumNodes, completedTaskCount + failedEvaluatorCount + failedTaskCount);
+            Assert.True((NumOfRetry + 1) * NumNodes >= completedTaskCount + failedEvaluatorCount + failedTaskCount);
+            Assert.True(NumOfRetry * NumNodes < completedTaskCount + failedEvaluatorCount + failedTaskCount);
             Assert.Equal((NumOfRetry + 1) * NumNodes, runningTaskCount);
             CleanUp(testFolder);
         }

@@ -29,6 +29,7 @@ import org.apache.hadoop.yarn.api.records.LocalResource;
 import org.apache.hadoop.yarn.api.records.LocalResourceType;
 import org.apache.hadoop.yarn.conf.YarnConfiguration;
 import org.apache.hadoop.yarn.exceptions.YarnException;
+import org.apache.reef.driver.parameters.DriverIsUnmanaged;
 import org.apache.reef.runtime.common.files.ClasspathProvider;
 import org.apache.reef.runtime.common.files.REEFFileNames;
 import org.apache.reef.runtime.common.files.RuntimeClasspathProvider;
@@ -63,29 +64,33 @@ import java.util.logging.Logger;
 public final class YarnJobSubmissionClient {
 
   private static final Logger LOG = Logger.getLogger(YarnJobSubmissionClient.class.getName());
+
+  private final boolean isUnmanaged;
+  private final List<String> commandPrefixList;
   private final JobUploader uploader;
   private final REEFFileNames fileNames;
   private final YarnConfiguration yarnConfiguration;
   private final ClasspathProvider classpath;
   private final SecurityTokenProvider tokenProvider;
-  private final List<String> commandPrefixList;
   private final YarnSubmissionParametersFileGenerator jobSubmissionParametersGenerator;
 
   @Inject
-  YarnJobSubmissionClient(final JobUploader uploader,
+  YarnJobSubmissionClient(@Parameter(DriverIsUnmanaged.class) final boolean isUnmanaged,
+                          @Parameter(DriverLaunchCommandPrefix.class) final List<String> commandPrefixList,
+                          final JobUploader uploader,
                           final YarnConfiguration yarnConfiguration,
                           final REEFFileNames fileNames,
                           final ClasspathProvider classpath,
-                          @Parameter(DriverLaunchCommandPrefix.class)
-                          final List<String> commandPrefixList,
                           final SecurityTokenProvider tokenProvider,
                           final YarnSubmissionParametersFileGenerator jobSubmissionParametersGenerator) {
+
+    this.isUnmanaged = isUnmanaged;
+    this.commandPrefixList = commandPrefixList;
     this.uploader = uploader;
     this.fileNames = fileNames;
     this.yarnConfiguration = yarnConfiguration;
     this.classpath = classpath;
     this.tokenProvider = tokenProvider;
-    this.commandPrefixList = commandPrefixList;
     this.jobSubmissionParametersGenerator = jobSubmissionParametersGenerator;
   }
 
@@ -109,8 +114,8 @@ public final class YarnJobSubmissionClient {
   private void launch(final YarnClusterSubmissionFromCS yarnSubmission) throws IOException, YarnException {
     // ------------------------------------------------------------------------
     // Get an application ID
-    try (final YarnSubmissionHelper submissionHelper =
-             new YarnSubmissionHelper(yarnConfiguration, fileNames, classpath, tokenProvider, commandPrefixList)) {
+    try (final YarnSubmissionHelper submissionHelper = new YarnSubmissionHelper(
+        yarnConfiguration, fileNames, classpath, tokenProvider, isUnmanaged, commandPrefixList)) {
 
       // ------------------------------------------------------------------------
       // Prepare the JAR

@@ -21,7 +21,6 @@ using Org.Apache.REEF.IMRU.Examples.PipelinedBroadcastReduce;
 using Org.Apache.REEF.IMRU.OnREEF.Driver;
 using Org.Apache.REEF.IMRU.OnREEF.IMRUTasks;
 using Org.Apache.REEF.IMRU.OnREEF.Parameters;
-using Org.Apache.REEF.Network;
 using Org.Apache.REEF.Tang.Implementations.Configuration;
 using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Tang.Interface;
@@ -68,8 +67,10 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
 
             // on each try each task should fail or complete or disappear with failed evaluator
             // and on each try all tasks should start successfully
-            Assert.Equal((NumberOfRetry + 1) * numTasks, completedTaskCount + failedEvaluatorCount + failedTaskCount);
+            Assert.True((NumberOfRetry + 1) * numTasks >= completedTaskCount + failedEvaluatorCount + failedTaskCount);
+            Assert.True(NumberOfRetry * numTasks < completedTaskCount + failedEvaluatorCount + failedTaskCount);
             Assert.Equal((NumberOfRetry + 1) * numTasks, runningTaskCount);
+
             // eventually job succeeds
             Assert.Equal(1, jobSuccess);
             CleanUp(testFolder);
@@ -184,7 +185,7 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
                 .BindNamedParameter(typeof(PipelinedBroadcastAndReduceWithFaultTolerant.TotalNumberOfForcedFailures), NumberOfRetry.ToString())
                 .Build();
 
-            return Configurations.Merge(c1, c2, GetTcpConfiguration());
+            return Configurations.Merge(c1, c2);
         }
 
         /// <summary>
@@ -193,23 +194,9 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
         /// <returns></returns>
         protected override IConfiguration BuildUpdateFunctionConfigModule()
         {
-            var c = IMRUUpdateConfiguration<int[], int[], int[]>.ConfigurationModule
+            return IMRUUpdateConfiguration<int[], int[], int[]>.ConfigurationModule
                 .Set(IMRUUpdateConfiguration<int[], int[], int[]>.UpdateFunction,
                     GenericType<PipelinedBroadcastAndReduceWithFaultTolerant.BroadcastSenderReduceReceiverUpdateFunctionFT>.Class)
-                .Build();
-
-            return Configurations.Merge(c, GetTcpConfiguration());
-        }
-
-        /// <summary>
-        /// Override default setting for retry policy
-        /// </summary>
-        /// <returns></returns>
-        private IConfiguration GetTcpConfiguration()
-        {
-            return TcpClientConfigurationModule.ConfigurationModule
-                .Set(TcpClientConfigurationModule.MaxConnectionRetry, "200")
-                .Set(TcpClientConfigurationModule.SleepTime, "1000")
                 .Build();
         }
 

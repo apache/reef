@@ -28,6 +28,7 @@ using Microsoft.WindowsAzure.Storage.Blob;
 using Org.Apache.REEF.Client.API;
 using Org.Apache.REEF.Client.Local;
 using Org.Apache.REEF.Client.Yarn;
+using Org.Apache.REEF.Network;
 using Org.Apache.REEF.Tang.Implementations.Configuration;
 using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Tang.Interface;
@@ -380,20 +381,29 @@ namespace Org.Apache.REEF.Tests.Functional
             {
                 case Local:
                     var dir = Path.Combine(".", runtimeFolder);
-                    return LocalRuntimeClientConfiguration.ConfigurationModule
+                    var localClientConfig = LocalRuntimeClientConfiguration.ConfigurationModule
                         .Set(LocalRuntimeClientConfiguration.NumberOfEvaluators, numberOfEvaluator.ToString())
                         .Set(LocalRuntimeClientConfiguration.RuntimeFolder, dir)
                         .Build();
+                    return Configurations.Merge(localClientConfig, GetTcpConnectionConfiguration());
                 case YARN:
                     var yarnClientConfig = YARNClientConfiguration.ConfigurationModule.Build();
                     var tcpPortConfig = TcpPortConfigurationModule.ConfigurationModule
                        .Set(TcpPortConfigurationModule.PortRangeStart, PortRangeStart)
                        .Set(TcpPortConfigurationModule.PortRangeCount, PortRangeCount)
                        .Build();
-                    return Configurations.Merge(yarnClientConfig, tcpPortConfig);
+                    return Configurations.Merge(yarnClientConfig, tcpPortConfig, GetTcpConnectionConfiguration());
                 default:
                     throw new Exception("Unknown runtime: " + runOnYarn);
             }
+        }
+
+        protected virtual IConfiguration GetTcpConnectionConfiguration()
+        {
+            return TcpClientConfigurationModule.ConfigurationModule
+                .Set(TcpClientConfigurationModule.MaxConnectionRetry, "150")
+                .Set(TcpClientConfigurationModule.SleepTime, "1000")
+                .Build();
         }
     }
 }

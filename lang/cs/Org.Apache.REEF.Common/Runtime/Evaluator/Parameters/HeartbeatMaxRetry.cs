@@ -19,7 +19,7 @@ using Org.Apache.REEF.Tang.Annotations;
 
 namespace Org.Apache.REEF.Common.Runtime.Evaluator.Parameters
 {
-    [NamedParameter(Documentation = "Heartbeat Max Retry", ShortName = "HeartbeatMaxRetry", DefaultValue = "3")]
+    [NamedParameter(Documentation = "Max number of retries for sending heartbeat to driver before evaluator enters recovery mode to reconnect with driver.", ShortName = "HeartbeatMaxRetry", DefaultValue = "10")]
     internal sealed class HeartbeatMaxRetry : Name<int>
     {
     }

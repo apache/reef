@@ -177,6 +177,25 @@ namespace Org.Apache.REEF.IMRU.Tests
         }
 
         /// <summary>
+        /// Tests RecordCompletedRunningTask
+        /// </summary>
+        [Fact]
+        public void TestIsMasterCompleted()
+        {
+            var taskManager = TaskManagerWithTasksRunning();
+            Assert.True(taskManager.AreAllTasksInState(TaskState.TaskRunning));
+
+            taskManager.RecordCompletedTask(CreateMockCompletedTask(MapperTaskIdPrefix + 1));
+            Assert.False(taskManager.IsMasterTaskCompletedRunning());
+
+            taskManager.RecordCompletedTask(CreateMockCompletedTask(MasterTaskId));
+            Assert.True(taskManager.IsMasterTaskCompletedRunning());
+
+            taskManager.RecordCompletedTask(CreateMockCompletedTask(MapperTaskIdPrefix + 2));
+            Assert.True(taskManager.AreAllTasksInState(TaskState.TaskCompleted));
+        }
+
+        /// <summary>
         /// Tests closing running tasks
         /// </summary>
         [Fact]
