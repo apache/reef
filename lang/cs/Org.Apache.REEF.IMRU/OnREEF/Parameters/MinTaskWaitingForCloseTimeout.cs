@@ -19,7 +19,7 @@ using Org.Apache.REEF.Tang.Annotations;
 
 namespace Org.Apache.REEF.IMRU.OnREEF.Parameters
 {
-    [NamedParameter("Minimum Timeout in milliseconds for TaskWaitingForClose", "TaskWaitingForCloseTimeout", "30000")]
+    [NamedParameter("Minimum timeout after which unresponsive tasks which are supposed to be closed will be killed together with their evaluators.", "TaskWaitingForCloseTimeout", "30000")]
     public sealed class MinTaskWaitingForCloseTimeout : Name<int>
     {
     }

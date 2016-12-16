@@ -19,7 +19,7 @@ using Org.Apache.REEF.Tang.Annotations;
 
 namespace Org.Apache.REEF.IMRU.OnREEF.Parameters
 {
-    [NamedParameter("Interval for timer in milliseconds for TimeoutMonitor", "TimeoutMonitoringInterval", "50000")]
+    [NamedParameter("Interval at which checks for timeout are done, in milliseconds.", "TimeoutMonitoringInterval", "50000")]
     public sealed class TimeoutMonitoringInterval : Name<int>
     {
     }

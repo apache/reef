@@ -246,12 +246,12 @@ namespace Org.Apache.REEF.IMRU.Tests
 
             taskManager.CloseAllRunningTasks(TaskManager.CloseTaskByDriver);
             Thread.Sleep(100);
-            var tasks = taskManager.TasksWaitingForClose(50);
+            var tasks = taskManager.TasksTimeoutInState(TaskState.TaskWaitingForClose, 50);
             Assert.Equal(tasks.Count, 3);
 
             foreach (var t in tasks)
             {
-                taskManager.RecordTaskFailWhenTaskHasNoResponseInWaitingForClose(t.Key);
+                taskManager.RecordKillClosingTask(t.Key);
             }
             Assert.True(taskManager.AreAllTasksInState(TaskState.TaskClosedByDriver));
         }
