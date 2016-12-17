@@ -44,23 +44,23 @@ namespace Org.Apache.REEF.Common.Metrics.MetricsSystem
         {
             if (info == null)
             {
-                throw new MetricsException("Record info cannot be null", new ArgumentNullException(nameof(info)));
+                throw new MetricsException("Record info cannot be null", new ArgumentNullException("info"));
             }
 
             if (timeStamp < 0)
             {
                 throw new MetricsException(string.Empty,
-                    new ArgumentException("Timestamp cannot be less than zero", nameof(timeStamp)));
+                    new ArgumentException("Timestamp cannot be less than zero", "timeStamp"));
             }
 
             if (metrics == null)
             {
-                throw new MetricsException("Metrics list is null", new ArgumentNullException(nameof(metrics)));
+                throw new MetricsException("Metrics list is null", new ArgumentNullException("metrics"));
             }
 
             if (tags == null)
             {
-                throw new MetricsException("Tag list is null", new ArgumentNullException(nameof(tags)));
+                throw new MetricsException("Tag list is null", new ArgumentNullException("tags"));
             }
 
             Name = info.Name;
