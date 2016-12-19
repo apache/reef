@@ -30,7 +30,7 @@ using Xunit;
 namespace Org.Apache.REEF.Tests.Functional.IMRU
 {
     [Collection("FunctionalTests")]
-    public class TestFailedMapperWithFailedResultHandlerInDispose : IMRUBrodcastReduceTestBase
+    public class TestFailMapperEvaluatorsWithFailedResultHandlerOnDispose : IMRUBrodcastReduceTestBase
     {
         protected const int NumberOfRetry = 3;
 

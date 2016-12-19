@@ -17,7 +17,6 @@
 
 using System;
 using System.Diagnostics;
-using System.Runtime.InteropServices;
 using Org.Apache.REEF.IMRU.API;
 using Org.Apache.REEF.IMRU.OnREEF.Driver;
 using Org.Apache.REEF.Tang.Annotations;
@@ -48,7 +47,7 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
 
             string testFolder = DefaultRuntimeFolder + TestId;
             TestBroadCastAndReduce(false, numTasks, chunkSize, dims, iterations, mapperMemory, updateTaskMemory, numberOfRetryInRecovery, testFolder);
-            string[] lines = ReadLogFile(DriverStdout, "driver", testFolder, 360);
+            string[] lines = ReadLogFile(DriverStdout, "driver", testFolder, 120);
             var completedTaskCount = GetMessageCount(lines, "Received ICompletedTask");
             var failedEvaluatorCount = GetMessageCount(lines, FailedEvaluatorMessage);
             var failedTaskCount = GetMessageCount(lines, FailedTaskMessage);
@@ -56,7 +55,7 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
 
             // Master evaluator will fail after master task is completed. Depending on how quick the driver dispose contexts after the master task complete,
             // driver may or may not receive the IFailedEvalautor event. 
-            Assert.True(failedEvaluatorCount == 0 || failedEvaluatorCount == 1);
+            Assert.True(failedEvaluatorCount <= 1);
 
             // Scenario1: Driver receives FailedEvaluator caused by dispose of a completed task after all the tasks have been competed. 
             //            FailedEvaluator event will be ignored.
@@ -91,13 +90,8 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
         }
 
         /// <summary>
-        /// This method defines event handlers for driver. As default, it uses all the handlers defined in IMRUDriver.
+        /// This method defines event handlers for driver. As default, it uses all the handlers defined in IMRUDriver.Logger.Log(Level.Info, "Simulate exception in Resu
         /// </summary>
-        /// <typeparam name="TMapInput"></typeparam>
-        /// <typeparam name="TMapOutput"></typeparam>
-        /// <typeparam name="TResult"></typeparam>
-        /// <typeparam name="TPartitionType"></typeparam>
-        /// <returns></returns>
         protected override IConfiguration DriverEventHandlerConfigurations<TMapInput, TMapOutput, TResult, TPartitionType>()
         {
             return REEF.Driver.DriverConfiguration.ConfigurationModule
@@ -156,7 +150,7 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
             /// </summary>
             public void Dispose()
             {
-                Logger.Log(Level.Info, "Simulate exception in ResultHandlerWithException.Dispose.");
+                Logger.Log(Level.Warning, "Simulate exception in ResultHandlerWithException.Dispose.");
                 throw new Exception("Exception from ResultHandlerWithException.Dispose()");
             }
         }

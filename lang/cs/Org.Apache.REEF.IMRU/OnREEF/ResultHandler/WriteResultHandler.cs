@@ -42,11 +42,6 @@ namespace Org.Apache.REEF.IMRU.OnREEF.ResultHandler
         private readonly string _remoteFileName;
         private string _localFilename;
 
-        /// <summary>
-        /// Locks for dispose 
-        /// </summary>
-        private readonly object _disposeLock = new object();
-
         [Inject]
         private WriteResultHandler(
             IStreamingCodec<TResult> resultCodec,
@@ -103,14 +98,8 @@ namespace Org.Apache.REEF.IMRU.OnREEF.ResultHandler
         {
             if (_localFilename != null)
             {
-                lock (_disposeLock)
-                {
-                    if (_localFilename != null)
-                    {
-                        File.Delete(_localFilename);
-                        _localFilename = null;
-                    }
-                }
+                File.Delete(_localFilename);
+                _localFilename = null;
             }
         }
 
