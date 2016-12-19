@@ -77,8 +77,9 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
             // Tasks should fail or complete or disappear with failed evaluator
             Assert.Equal(numTasks, completedTaskCount + failedEvaluatorCount + failedTaskCount);
 
-            // We have failed two mappers and one update evaluator in the test code
-            Assert.Equal(3, failedEvaluatorCount);
+            // We have failed two mappers and one update evaluator in the test code. As the update evaluator failure 
+            // happens in Dispose(), driver may/may not receive FailedEvaluator before shut down.
+            Assert.True(failedEvaluatorCount <= 3 && failedEvaluatorCount >= 2);
 
             // eventually job fail because master evaluator fail before the iteration is completed
             Assert.Equal(0, jobSuccess);
