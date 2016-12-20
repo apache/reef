@@ -70,6 +70,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.IMRUTasks
                 _communicationGroupClient.GetBroadcastSender<MapInputWithControlMessage<TMapInput>>(IMRUConstants.BroadcastOperatorName);
             _dataReceiver = _communicationGroupClient.GetReduceReceiver<TMapOutput>(IMRUConstants.ReduceOperatorName);
             _resultHandler = resultHandler;
+            Logger.Log(Level.Info, "$$$$_resultHandler." + _resultHandler.GetType().AssemblyQualifiedName);
             Logger.Log(Level.Info, "UpdateTaskHost initialized.");
         }
 
@@ -132,22 +133,6 @@ namespace Org.Apache.REEF.IMRU.OnREEF.IMRUTasks
         }
 
         /// <summary>
-        /// Dispose resultHandler
-        /// </summary>
-        protected override void FinallyBlock()
-        {
-            try
-            {
-                _resultHandler.Dispose();
-            }
-            catch (Exception e)
-            {
-                Logger.Log(Level.Error, "Exception in dispose result handler.", e);
-                //// TODO throw proper exceptions JIRA REEF-1492
-            }
-        }
-
-        /// <summary>
         /// Return UpdateHostName
         /// </summary>
         protected override string TaskHostName
@@ -159,6 +144,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.IMRUTasks
         {
             if (Interlocked.Exchange(ref _disposed, 1) == 0)
             {
+                _resultHandler.Dispose();
                 _groupCommunicationsClient.Dispose();
                 var disposableTask = _updateTask as IDisposable;
                 if (disposableTask != null)
