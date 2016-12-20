@@ -567,7 +567,7 @@ namespace Org.Apache.REEF.Common.Tests.Metrics
             rb.Validate(rateName + "-RunningAvg", samples.Sum() / samples.Length, 1e-10);         
         }
 
-        private static IConfiguration GenerateMetricsSourceConfiguration(string evalId, string taskId, string sourceContext, string recordName)
+        public static IConfiguration GenerateMetricsSourceConfiguration(string evalId, string taskId, string sourceContext, string recordName)
         {
             return
                 DefaultMetricsSourceConfiguration.ConfigurationModule.Set(DefaultMetricsSourceConfiguration.EvaluatorId,
