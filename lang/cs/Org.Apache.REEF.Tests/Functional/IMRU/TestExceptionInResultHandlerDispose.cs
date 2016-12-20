@@ -90,7 +90,7 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
         }
 
         /// <summary>
-        /// This method defines event handlers for driver. As default, it uses all the handlers defined in IMRUDriver.Logger.Log(Level.Info, "Simulate exception in Resu
+        /// This method defines event handlers for driver. As default, it uses all the handlers defined in IMRUDriver.
         /// </summary>
         protected override IConfiguration DriverEventHandlerConfigurations<TMapInput, TMapOutput, TResult, TPartitionType>()
         {
