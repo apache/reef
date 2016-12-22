@@ -17,6 +17,7 @@
 
 using Org.Apache.REEF.Common.Metrics.Api;
 using Org.Apache.REEF.Common.Metrics.MetricsSystem.Parameters;
+using Org.Apache.REEF.Common.Metrics.MutableMetricsLayer;
 using Org.Apache.REEF.Tang.Formats;
 using Org.Apache.REEF.Tang.Util;
 using Org.Apache.REEF.Utilities.Attributes;
@@ -33,7 +34,7 @@ namespace Org.Apache.REEF.Common.Metrics.MetricsSystem
         /// Optional source filter to filter out certain sources.
         /// </summary>
         public static readonly OptionalImpl<IMetricsFilter> SourceFilter = new OptionalImpl<IMetricsFilter>();
- 
+
         /// <summary>
         /// Periodic time after which snapshot will be taken.
         /// </summary>
@@ -72,17 +73,24 @@ namespace Org.Apache.REEF.Common.Metrics.MetricsSystem
         /// <summary>
         /// This configuration module set see<see cref="IMetricsSource"/> as <see cref="DefaultMetricsSourceImpl"/>
         /// </summary>
-        public static ConfigurationModule ConfigurationModule = new MetricsSystemConfiguration()
-            .BindImplementation(GenericType<IMetricsSystem>.Class, GenericType<MetricsSystem>.Class)
-            .BindImplementation(GenericType<IMetricsCollectorMutable>.Class, GenericType<MetricsCollectorMutable>.Class)
-            .BindImplementation(GenericType<IMetricsFilter>.Class, SourceFilter)
-            .BindNamedParameter(GenericType<MetricsSystemPeriodicTimer>.Class, PeriodicTimer)
-            .BindNamedParameter(GenericType<MetricsSystemGetUnchangedMetrics>.Class, GetUnchangedMetrics)
-            .BindNamedParameter(GenericType<SinkQueueCapacity>.Class, SinkQueueCapacity)
-            .BindNamedParameter(GenericType<SinkRetryCount>.Class, SinkRetries)
-            .BindNamedParameter(GenericType<SinkMinRetryIntervalInMs>.Class, SinkMinRetryIntervalInMs)
-            .BindNamedParameter(GenericType<SinkMaxRetryIntervalInMs>.Class, SinkMaxRetryIntervalInMs)
-            .BindNamedParameter(GenericType<SinkDeltaBackOffInMs>.Class, DeltaBackOffInMs)
-            .Build();
+        public static ConfigurationModule ConfigurationModule
+        {
+            get
+            {
+                return new MetricsSystemConfiguration()
+                    .BindImplementation(GenericType<IMetricsSystem>.Class, GenericType<MetricsSystem>.Class)
+                    .BindImplementation(GenericType<IMetricsCollectorMutable>.Class,
+                        GenericType<MetricsCollectorMutable>.Class)
+                    .BindImplementation(GenericType<IMetricsFilter>.Class, SourceFilter)
+                    .BindNamedParameter(GenericType<MetricsSystemPeriodicTimer>.Class, PeriodicTimer)
+                    .BindNamedParameter(GenericType<MetricsSystemGetUnchangedMetrics>.Class, GetUnchangedMetrics)
+                    .BindNamedParameter(GenericType<SinkQueueCapacity>.Class, SinkQueueCapacity)
+                    .BindNamedParameter(GenericType<SinkRetryCount>.Class, SinkRetries)
+                    .BindNamedParameter(GenericType<SinkMinRetryIntervalInMs>.Class, SinkMinRetryIntervalInMs)
+                    .BindNamedParameter(GenericType<SinkMaxRetryIntervalInMs>.Class, SinkMaxRetryIntervalInMs)
+                    .BindNamedParameter(GenericType<SinkDeltaBackOffInMs>.Class, DeltaBackOffInMs)
+                    .Build();
+            }
+        }
     }
 }

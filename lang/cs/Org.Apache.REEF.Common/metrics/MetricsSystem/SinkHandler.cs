@@ -121,7 +121,7 @@ namespace Org.Apache.REEF.Common.Metrics.MetricsSystem
                 throw exception;
             }
 
-            if (_shutDown == true)
+            if (_shutDown)
             {
                 Logger.Log(Level.Info, "Sink handler is already shut down. So aborting the stop");
             }
@@ -221,7 +221,8 @@ namespace Org.Apache.REEF.Common.Metrics.MetricsSystem
             }
             catch (Exception e)
             {
-                Logger.Log(Level.Error, string.Format("Failed to push to sink even after {0} retries.", tryCounter));
+                var msg = "Failed to push to sink even after " + tryCounter + " retries.";
+                Logger.Log(Level.Error, msg);
                 _sink.OnError(e);
                 throw;
             }

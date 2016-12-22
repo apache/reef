@@ -39,7 +39,7 @@ namespace Org.Apache.REEF.Common.Metrics.MetricsSystem
         /// </summary>
         public static readonly OptionalImpl<IObserver<IMetricsRecord>> Sink =
             new OptionalImpl<IObserver<IMetricsRecord>>();
- 
+
         /// <summary>
         /// Name of the source to be added to the metrics system by default.
         /// </summary>
@@ -53,13 +53,19 @@ namespace Org.Apache.REEF.Common.Metrics.MetricsSystem
         /// <summary>
         /// Configuration module for the context.
         /// </summary>
-        public static ConfigurationModule ConfigurationModule = new MetricsContextConfiguration()
-            .BindSetEntry(GenericType<SinkSetNameInStartHandler>.Class, Sink)
-            .BindSetEntry<ContextConfigurationOptions.StartHandlers, MetricsSystemContextStartHandler, IObserver<IContextStart>>(
-                GenericType<ContextConfigurationOptions.StartHandlers>.Class,
-                GenericType<MetricsSystemContextStartHandler>.Class)
-            .BindNamedParameter(GenericType<SourceNameInStartHandler>.Class, SourceName)
-            .BindNamedParameter(GenericType<SourceDescriptionInStartHandler>.Class, SourceDescription)
-            .Build();
+        public static ConfigurationModule ConfigurationModule
+        {
+            get
+            {
+                return new MetricsContextConfiguration()
+                    .BindSetEntry(GenericType<SinkSetNameInStartHandler>.Class, Sink)
+                    .BindSetEntry<ContextConfigurationOptions.StartHandlers, MetricsSystemContextStartHandler, IObserver<IContextStart>>(
+                        GenericType<ContextConfigurationOptions.StartHandlers>.Class,
+                        GenericType<MetricsSystemContextStartHandler>.Class)
+                    .BindNamedParameter(GenericType<SourceNameInStartHandler>.Class, SourceName)
+                    .BindNamedParameter(GenericType<SourceDescriptionInStartHandler>.Class, SourceDescription)
+                    .Build();
+            }
+        }
     }
 }

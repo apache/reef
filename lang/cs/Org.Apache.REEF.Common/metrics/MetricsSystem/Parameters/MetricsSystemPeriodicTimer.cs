@@ -19,7 +19,7 @@ using Org.Apache.REEF.Tang.Annotations;
 
 namespace Org.Apache.REEF.Common.Metrics.MetricsSystem.Parameters
 {
-    [NamedParameter("Periodic Timer after which metrics will be pushed from source to sink queues.",
+    [NamedParameter("Period after which metrics will be pushed from source to sink queues.",
          defaultValue: "5000")]
     public sealed class MetricsSystemPeriodicTimer : Name<int>
     {

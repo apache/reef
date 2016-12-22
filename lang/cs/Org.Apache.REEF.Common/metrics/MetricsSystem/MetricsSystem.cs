@@ -81,20 +81,20 @@ namespace Org.Apache.REEF.Common.Metrics.MetricsSystem
         {
             lock (_lock)
             {
-                if (!_shutDown)
+                if (_shutDown)
                 {
-                    bool isPresent = _sinks.Any(x => x.Value.Sink == observer);
-                    if (!isPresent)
-                    {
-                        _currentSinkCount++;
-                        _sinks[_currentSinkCount] = new SinkHandler(_sinkParameters, observer);
-                        return new SinkDisposableHandler(_sinks, _currentSinkCount, _lock);
-                    }
+                    throw new MetricsException(
+                        "Trying to subscribe metrics record observer while metrics system is shutting down");
+                }
+                var isPresent = _sinks.Any(x => x.Value.Sink == observer);
+                if (isPresent)
+                {
                     throw new MetricsException(
                         "Trying to subscribe already registered metrics record observer.");
                 }
-                throw new MetricsException(
-                    "Trying to subscribe metrics record observer while metrics system is shutting down");
+                _currentSinkCount++;
+                _sinks[_currentSinkCount] = new SinkHandler(_sinkParameters, observer);
+                return new SinkDisposableHandler(_sinks, _currentSinkCount, _lock);
             }
         }
 
@@ -157,13 +157,13 @@ namespace Org.Apache.REEF.Common.Metrics.MetricsSystem
                 if (!_sources.ContainsKey(name))
                 {
                     _sources[name] = new MetricsSourceHandler(name, source);
-                    Logger.Log(Level.Info,
-                        string.Format("Adding source with name: {0} and description: {1}", name, desc));
+                    var msg = "Adding source with name: " + name + " and description: " + desc;
+                    Logger.Log(Level.Info, msg);
                 }
                 else
                 {
-                    Logger.Log(Level.Info,
-                        string.Format("Source with name: {0} already exists. Returning already existing source", name));
+                    var msg = "Source with name: " + name + " already exists. Returning already existing source";
+                    Logger.Log(Level.Info, msg);
                 }
                 return source;
             }
@@ -184,9 +184,8 @@ namespace Org.Apache.REEF.Common.Metrics.MetricsSystem
                 if (!_sources.Remove(name))
                 {
                     string message =
-                        string.Format(
-                            "Unable to unregister source with name: {0}. Either it does not exist or some error happened",
-                            name);
+                        "Unable to unregister source with name" + name +
+                        ". Either it does not exist or some error happened";
                     Logger.Log(Level.Info, message);
                 }
             }
@@ -208,8 +207,8 @@ namespace Org.Apache.REEF.Common.Metrics.MetricsSystem
         /// Asks the system to take a snapshot from the source immediately and push it to 
         /// sink handler.
         /// </summary>
-        /// <param name="all">Whether to also publish metrics that did not change.</param>
-        public void PublishMetricsNow(bool all)
+        /// <param name="publishUnchangedMetrics">Whether to also publish metrics that did not change.</param>
+        public void PublishMetricsNow(bool publishUnchangedMetrics)
         {
             lock (_lock)
             {
@@ -217,7 +216,7 @@ namespace Org.Apache.REEF.Common.Metrics.MetricsSystem
                 {
                     return;
                 }
-                PublishMetrics(all);
+                PublishMetrics(publishUnchangedMetrics);
             }
         }
 
@@ -244,7 +243,7 @@ namespace Org.Apache.REEF.Common.Metrics.MetricsSystem
         /// Function called to take snapshot from sources and put the in the sink queue. 
         /// This method is either called periodically or by user via. <see cref="PublishMetricsNow"/>.
         /// </summary>
-        private void PublishMetrics(bool all)
+        private void PublishMetrics(bool publishUnchangedMetrics)
         {
             lock (_lock)
             {
@@ -256,7 +255,7 @@ namespace Org.Apache.REEF.Common.Metrics.MetricsSystem
                         if (_sourceFilter.AcceptsName(source.Key))
                         {
                             _metricsCollector.Clear();
-                            _sourceSnapshots.Add(source.Value.GetMetrics(_metricsCollector, all));
+                            _sourceSnapshots.Add(source.Value.GetMetrics(_metricsCollector, publishUnchangedMetrics));
                         }
                     }
                     foreach (var sink in _sinks)
@@ -298,7 +297,9 @@ namespace Org.Apache.REEF.Common.Metrics.MetricsSystem
                     }
                     else
                     {
-                        Logger.Log(Level.Warning, "Sink to remove from metrics system is not present");
+                        string msg = "Sink with internal key: " + _key +
+                                     " to be removed from metrics system is not present";
+                        Logger.Log(Level.Warning, msg);
                     }
                 }
             }
