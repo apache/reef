@@ -158,6 +158,7 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
                 .SetMapInputPipelineDataConverterConfiguration(BuildDataConverterConfig(chunkSize))
                 .SetMapOutputPipelineDataConverterConfiguration(BuildDataConverterConfig(chunkSize))
                 .SetPartitionedDatasetConfiguration(BuildPartitionedDatasetConfiguration(numberofMappers))
+                .SetResultHandlerConfiguration(BuildResultHandlerConfig())
                 .SetJobName(IMRUJobName)
                 .SetNumberOfMappers(numberofMappers)
                 .SetMapperMemory(mapperMemory)

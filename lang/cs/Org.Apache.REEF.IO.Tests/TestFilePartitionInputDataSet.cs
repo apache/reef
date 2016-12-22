@@ -35,7 +35,7 @@ namespace Org.Apache.REEF.IO.Tests
     /// <summary>
     /// Tests for Org.Apache.REEF.IO.PartitionedData.FileSystem.
     /// </summary>
-    public class TestFilePartitionInputDataSet
+    public class TestFilePartitionInputDataSet : IDisposable
     {
         private static readonly Logger Logger = Logger.GetLogger(typeof(TestFilePartitionInputDataSet));
 
@@ -266,15 +266,25 @@ namespace Org.Apache.REEF.IO.Tests
                 }
             }
             Assert.Equal(count, 5);
+
+            // clean up created folders
+            Directory.Delete("./test2/", true);
+        }
+
+        public void Dispose()
+        {
+            if (File.Exists(sourceFilePath1))
+            {
+                File.Delete(sourceFilePath1);
+            }
+            if (File.Exists(sourceFilePath2))
+            {
+                File.Delete(sourceFilePath2);
+            }
         }
 
         private void MakeLocalTestFile(string filePath, byte[] bytes)
         {
-            if (File.Exists(filePath))
-            {
-                File.Delete(filePath);
-            }
-
             using (var s = File.Create(filePath))
             {
                 foreach (var b in bytes)

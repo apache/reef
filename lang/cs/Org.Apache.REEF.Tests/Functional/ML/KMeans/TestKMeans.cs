@@ -101,6 +101,14 @@ namespace Org.Apache.REEF.Tests.Functional.ML.KMeans
             {
                 // do not fail if clean up is unsuccessful
             }
+            try
+            {
+                File.Delete(dataFilePath);
+            }
+            catch (Exception)
+            {
+                // do not fail if clean up is unsuccessful
+            }
         }
 
         [Fact]
@@ -117,6 +125,14 @@ namespace Org.Apache.REEF.Tests.Functional.ML.KMeans
             TestRun(DriverConfiguration(dataFilePath), typeof(KMeansDriverHandlers), Partitions + 1, "KMeansDriverHandlers", "local", testFolder);
             ValidateSuccessForLocalRuntime(Partitions + 1, testFolder: testFolder);
             CleanUp(testFolder);
+            try
+            {
+                File.Delete(dataFilePath);
+            }
+            catch (Exception)
+            {
+                // do not fail if clean up is unsuccessful
+            }
         }
 
         [Fact(Skip = "Requires Yarn Single Node")]

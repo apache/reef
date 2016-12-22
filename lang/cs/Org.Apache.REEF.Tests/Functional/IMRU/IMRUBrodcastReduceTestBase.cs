@@ -16,7 +16,6 @@
 // under the License.
 
 using System;
-using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -26,6 +25,7 @@ using Org.Apache.REEF.IMRU.API;
 using Org.Apache.REEF.IMRU.Examples.PipelinedBroadcastReduce;
 using Org.Apache.REEF.IMRU.OnREEF.Driver;
 using Org.Apache.REEF.IMRU.OnREEF.Parameters;
+using Org.Apache.REEF.IMRU.OnREEF.ResultHandler;
 using Org.Apache.REEF.IO.PartitionedData.Random;
 using Org.Apache.REEF.Network.Examples.GroupCommunication.BroadcastReduceDriverAndTasks;
 using Org.Apache.REEF.Network.Group.Config;
@@ -59,11 +59,6 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
         /// <summary>
         /// Abstract method for subclass to override it to provide configurations for driver handlers 
         /// </summary>
-        /// <typeparam name="TMapInput"></typeparam>
-        /// <typeparam name="TMapOutput"></typeparam>
-        /// <typeparam name="TResult"></typeparam>
-        /// <typeparam name="TPartitionType"></typeparam>
-        /// <returns></returns>
         protected abstract IConfiguration DriverEventHandlerConfigurations<TMapInput, TMapOutput, TResult, TPartitionType>();
 
         /// <summary>
@@ -72,16 +67,6 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
         /// then calls TestRun for running the test.
         /// Subclass can override it if they have different parameters for the test
         /// </summary>
-        /// <param name="runOnYarn"></param>
-        /// <param name="numTasks"></param>
-        /// <param name="chunkSize"></param>
-        /// <param name="dims"></param>
-        /// <param name="iterations"></param>
-        /// <param name="mapperMemory"></param>
-        /// <param name="numberOfRetryInRecovery"></param>
-        /// <param name="updateTaskMemory"></param>
-        /// <param name="testFolder"></param>
-        /// <param name="numberOfChecksBeforeCancellingJob"></param>
         protected void TestBroadCastAndReduce(bool runOnYarn,
             int numTasks,
             int chunkSize,
@@ -107,13 +92,6 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
         /// <summary>
         /// Build driver configuration
         /// </summary>
-        /// <typeparam name="TMapInput"></typeparam>
-        /// <typeparam name="TMapOutput"></typeparam>
-        /// <typeparam name="TResult"></typeparam>
-        /// <typeparam name="TPartitionType"></typeparam>
-        /// <param name="jobDefinition"></param>
-        /// <param name="driverHandlerConfig"></param>
-        /// <returns></returns>
         protected IConfiguration DriverConfiguration<TMapInput, TMapOutput, TResult, TPartitionType>(
             IMRUJobDefinition jobDefinition,
             IConfiguration driverHandlerConfig)
@@ -179,13 +157,6 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
         /// <summary>
         /// Create group communication configuration
         /// </summary>
-        /// <typeparam name="TMapInput"></typeparam>
-        /// <typeparam name="TMapOutput"></typeparam>
-        /// <typeparam name="TResult"></typeparam>
-        /// <typeparam name="TPartitionType"></typeparam>
-        /// <param name="numberOfTasks"></param>
-        /// <param name="driverId"></param>
-        /// <returns></returns>
         private IConfiguration CreateGroupCommunicationConfiguration<TMapInput, TMapOutput, TResult, TPartitionType>(
             int numberOfTasks,
             string driverId)
@@ -203,15 +174,6 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
         /// <summary>
         /// Create IMRU Job Definition with IMRU required configurations
         /// </summary>
-        /// <param name="numberofMappers"></param>
-        /// <param name="chunkSize"></param>
-        /// <param name="numIterations"></param>
-        /// <param name="dim"></param>
-        /// <param name="mapperMemory"></param>
-        /// <param name="updateTaskMemory"></param>
-        /// <param name="numberOfRetryInRecovery"></param>
-        /// <param name="numberOfChecksBeforeCancellingJob"></param>
-        /// <returns></returns>
         protected virtual IMRUJobDefinition CreateIMRUJobDefinitionBuilder(int numberofMappers,
             int chunkSize,
             int numIterations,
@@ -230,6 +192,7 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
                 .SetMapInputPipelineDataConverterConfiguration(BuildDataConverterConfig(chunkSize))
                 .SetMapOutputPipelineDataConverterConfiguration(BuildDataConverterConfig(chunkSize))
                 .SetPartitionedDatasetConfiguration(BuildPartitionedDatasetConfiguration(numberofMappers))
+                .SetResultHandlerConfiguration(BuildResultHandlerConfig())
                 .SetJobName(IMRUJobName)
                 .SetNumberOfMappers(numberofMappers)
                 .SetMapperMemory(mapperMemory)
@@ -251,12 +214,18 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
         }
 
         /// <summary>
+        /// Build default result handler configuration. Subclass can override it.
+        /// </summary>
+        protected virtual IConfiguration BuildResultHandlerConfig()
+        {
+            return TangFactory.GetTang().NewConfigurationBuilder()
+                    .BindImplementation(GenericType<IIMRUResultHandler<int[]>>.Class, GenericType<DefaultResultHandler<int[]>>.Class)
+                    .Build();
+        }
+
+        /// <summary>
         /// Build update function configuration. Subclass can override it.
         /// </summary>
-        /// <param name="numberofMappers"></param>
-        /// <param name="numIterations"></param>
-        /// <param name="dim"></param>
-        /// <returns></returns>
         protected virtual IConfiguration BuildUpdateFunctionConfiguration(int numberofMappers, int numIterations, int dim)
         {
             var updateFunctionConfig =
@@ -274,8 +243,6 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
         /// <summary>
         ///  Data Converter Configuration. Subclass can override it to have its own test Data Converter.
         /// </summary>
-        /// <param name="chunkSize"></param>
-        /// <returns></returns>
         protected virtual IConfiguration BuildDataConverterConfig(int chunkSize)
         {
             return TangFactory.GetTang()
@@ -290,7 +257,6 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
         /// <summary>
         /// Mapper function configuration. Subclass can override it to have its own test function.
         /// </summary>
-        /// <returns></returns>
         protected virtual IConfiguration BuildMapperFunctionConfig()
         {
             return IMRUMapConfiguration<int[], int[]>.ConfigurationModule
@@ -302,7 +268,6 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
         /// <summary>
         /// Set update function to IMRUUpdateConfiguration configuration module. Sub class can override it to set different function.
         /// </summary>
-        /// <returns></returns>
         protected virtual IConfiguration BuildUpdateFunctionConfigModule()
         {
             return IMRUUpdateConfiguration<int[], int[], int[]>.ConfigurationModule
@@ -314,8 +279,6 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
         /// <summary>
         /// Partition dataset configuration. Subclass can override it to have its own test dataset config
         /// </summary>
-        /// <param name="numberofMappers"></param>
-        /// <returns></returns>
         protected virtual IConfiguration BuildPartitionedDatasetConfiguration(int numberofMappers)
         {
             return RandomInputDataConfiguration.ConfigurationModule.Set(
@@ -326,7 +289,6 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
         /// <summary>
         /// Map Input Codec configuration. Subclass can override it to have its own test Codec.
         /// </summary>
-        /// <returns></returns>
         protected virtual IConfiguration BuildMapInputCodecConfig()
         {
             return IMRUCodecConfiguration<int[]>.ConfigurationModule
@@ -337,7 +299,6 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
         /// <summary>
         /// Update function Codec configuration. Subclass can override it to have its own test Codec.
         /// </summary>
-        /// <returns></returns>
         protected virtual IConfiguration BuildUpdateFunctionCodecsConfig()
         {
             return IMRUCodecConfiguration<int[]>.ConfigurationModule
@@ -348,7 +309,6 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
         /// <summary>
         /// Reduce function configuration. Subclass can override it to have its own test function.
         /// </summary>
-        /// <returns></returns>
         protected virtual IConfiguration BuildReduceFunctionConfig()
         {
             return IMRUReduceFunctionConfiguration<int[]>.ConfigurationModule
