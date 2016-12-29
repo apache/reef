@@ -66,9 +66,9 @@ namespace Org.Apache.REEF.Wake.Tests
                 IPEndPoint remoteEndpoint = new IPEndPoint(IPAddress.Parse("127.0.0.1"), server.LocalEndpoint.Port);
                 using (var client = new StreamingTransportClient<string>(remoteEndpoint, stringCodec, _tcpClientFactory))
                 {
-                    client.Send("Hello");
-                    client.Send(", ");
-                    client.Send("World!");
+                    client.Send("TestStreamingTransportServer - 1");
+                    client.Send("TestStreamingTransportServer - 2");
+                    client.Send("TestStreamingTransportServer - 3");
 
                     events.Add(queue.Take());
                     events.Add(queue.Take());
@@ -77,9 +77,9 @@ namespace Org.Apache.REEF.Wake.Tests
             }
 
             Assert.Equal(3, events.Count);
-            Assert.Equal(events[0], "Hello");
-            Assert.Equal(events[1], ", ");
-            Assert.Equal(events[2], "World!");
+            Assert.Equal("TestStreamingTransportServer - 1", events[0]);
+            Assert.Equal("TestStreamingTransportServer - 2", events[1]);
+            Assert.Equal("TestStreamingTransportServer - 3", events[2]);
         }
 
         /// <summary>
@@ -113,9 +113,9 @@ namespace Org.Apache.REEF.Wake.Tests
                         stringCodec,
                         _tcpClientFactory))
                 {
-                    client.Send("Hello");
-                    client.Send(", ");
-                    client.Send(" World");
+                    client.Send("TestStreamingTransportSenderStage - 1");
+                    client.Send("TestStreamingTransportSenderStage - 2");
+                    client.Send("TestStreamingTransportSenderStage - 3");
 
                     events.Add(queue.Take());
                     events.Add(queue.Take());
@@ -124,9 +124,9 @@ namespace Org.Apache.REEF.Wake.Tests
             }
 
             Assert.Equal(3, events.Count);
-            Assert.Equal(events[0], "Hello");
-            Assert.Equal(events[1], ", ");
-            Assert.Equal(events[2], " World");
+            Assert.Equal("TestStreamingTransportSenderStage - 1", events[0]);
+            Assert.Equal("TestStreamingTransportSenderStage - 2", events[1]);
+            Assert.Equal("TestStreamingTransportSenderStage - 3", events[2]);
         }
 
         /// <summary>
@@ -153,6 +153,7 @@ namespace Org.Apache.REEF.Wake.Tests
             {
                 server.Run();
 
+                int counter = 0;
                 for (int i = 0; i < numEventsExpected / 3; i++)
                 {
                     Task.Run(() =>
@@ -164,20 +165,32 @@ namespace Org.Apache.REEF.Wake.Tests
                                 stringCodec,
                                 _tcpClientFactory))
                         {
-                            client.Send("Hello");
-                            client.Send(", ");
-                            client.Send("World!");
+                            for (int j = 0; j < 3; j++)
+                            {
+                                client.Send("TestStreamingRaceCondition - " + counter++);
+                            }
                         }
                     });
                 }
 
                 for (int i = 0; i < numEventsExpected; i++)
                 {
-                    events.Add(queue.Take());
+                    string e;
+                    do
+                    {
+                        e = queue.Take();
+                    }
+                    while (e == null);
+
+                    events.Add(e);
                 }
             }
 
             Assert.Equal(numEventsExpected, events.Count);
+            foreach (var e in events)
+            {
+                Assert.True(e.StartsWith("TestStreamingRaceCondition - "), "Unexpected event [" + e + "]");
+            }
         }
 
         private static ITcpPortProvider GetTcpProvider(int portRangeStart, int portRangeEnd)
