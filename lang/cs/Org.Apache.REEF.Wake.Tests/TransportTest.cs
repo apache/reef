@@ -52,9 +52,9 @@ namespace Org.Apache.REEF.Wake.Tests
                 IPEndPoint remoteEndpoint = new IPEndPoint(_localIpAddress, server.LocalEndpoint.Port);
                 using (var client = new TransportClient<string>(remoteEndpoint, codec, _tcpClientFactory))
                 {
-                    client.Send("Hello");
-                    client.Send(", ");
-                    client.Send("World!");
+                    client.Send("TestTransportServer - 1");
+                    client.Send("TestTransportServer - 2");
+                    client.Send("TestTransportServer - 3");
 
                     events.Add(queue.Take());
                     events.Add(queue.Take());
@@ -63,9 +63,9 @@ namespace Org.Apache.REEF.Wake.Tests
             }
 
             Assert.Equal(3, events.Count);
-            Assert.Equal(events[0], "Hello");
-            Assert.Equal(events[1], ", ");
-            Assert.Equal(events[2], "World!");
+            Assert.Equal("TestTransportServer - 1", events[0]);
+            Assert.Equal("TestTransportServer - 2", events[1]);
+            Assert.Equal("TestTransportServer - 3", events[2]);
         }
 
         [Fact]
@@ -86,9 +86,9 @@ namespace Org.Apache.REEF.Wake.Tests
                 IPEndPoint remoteEndpoint = new IPEndPoint(_localIpAddress, server.LocalEndpoint.Port);
                 using (var client = new TransportClient<TestEvent>(remoteEndpoint, codec, _tcpClientFactory))
                 {
-                    client.Send(new TestEvent("Hello"));
-                    client.Send(new TestEvent(", "));
-                    client.Send(new TestEvent("World!"));
+                    client.Send(new TestEvent("TestTransportServerEvent - 1"));
+                    client.Send(new TestEvent("TestTransportServerEvent - 2"));
+                    client.Send(new TestEvent("TestTransportServerEvent - 3"));
 
                     events.Add(queue.Take());
                     events.Add(queue.Take());
@@ -97,9 +97,9 @@ namespace Org.Apache.REEF.Wake.Tests
             }
 
             Assert.Equal(3, events.Count);
-            Assert.Equal(events[0].Message, "Hello");
-            Assert.Equal(events[1].Message, ", ");
-            Assert.Equal(events[2].Message, "World!");
+            Assert.Equal("TestTransportServerEvent - 1", events[0].Message);
+            Assert.Equal("TestTransportServerEvent - 2", events[1].Message);
+            Assert.Equal("TestTransportServerEvent - 3", events[2].Message);
         }
 
         [Fact]
@@ -122,9 +122,9 @@ namespace Org.Apache.REEF.Wake.Tests
                 IPEndPoint remoteEndpoint = new IPEndPoint(_localIpAddress, server.LocalEndpoint.Port);
                 using (var client = new TransportClient<string>(remoteEndpoint, codec, clientHandler, _tcpClientFactory))
                 {
-                    client.Send("Hello");
-                    client.Send(", ");
-                    client.Send(" World");
+                    client.Send("TestTransportSenderStage - 1");
+                    client.Send("TestTransportSenderStage - 2");
+                    client.Send("TestTransportSenderStage - 3");
 
                     events.Add(queue.Take());
                     events.Add(queue.Take());
@@ -133,9 +133,9 @@ namespace Org.Apache.REEF.Wake.Tests
             }
 
             Assert.Equal(3, events.Count);
-            Assert.Equal(events[0], "Hello");
-            Assert.Equal(events[1], ", ");
-            Assert.Equal(events[2], " World");
+            Assert.Equal("TestTransportSenderStage - 1", events[0]);
+            Assert.Equal("TestTransportSenderStage - 2", events[1]);
+            Assert.Equal("TestTransportSenderStage - 3", events[2]);
         }
 
         [Fact]
@@ -154,6 +154,7 @@ namespace Org.Apache.REEF.Wake.Tests
             {
                 server.Run();
 
+                int counter = 0;
                 for (int i = 0; i < numEventsExpected / 3; i++)
                 {
                     Task.Run(() =>
@@ -161,20 +162,32 @@ namespace Org.Apache.REEF.Wake.Tests
                         IPEndPoint remoteEndpoint = new IPEndPoint(_localIpAddress, server.LocalEndpoint.Port);
                         using (var client = new TransportClient<string>(remoteEndpoint, codec, _tcpClientFactory))
                         {
-                            client.Send("Hello");
-                            client.Send(", ");
-                            client.Send("World!");
+                            for (int j = 0; j < 3; j++)
+                            {
+                                client.Send("TestRaceCondition - " + counter++);
+                            }
                         }
                     });
                 }
 
                 for (int i = 0; i < numEventsExpected; i++)
                 {
-                    events.Add(queue.Take());
+                    string e;
+                    do
+                    {
+                        e = queue.Take();
+                    }
+                    while (e == null);
+
+                    events.Add(e);
                 }
             }
 
             Assert.Equal(numEventsExpected, events.Count);
+            foreach (var e in events)
+            {
+                Assert.True(e.StartsWith("TestRaceCondition - "), "Unexpected event [" + e + "]");
+            }
         }
 
         private class TestEvent
@@ -184,7 +197,7 @@ namespace Org.Apache.REEF.Wake.Tests
                 Message = message;
             }
 
-            public string Message { get; set; }
+            public string Message { get; private set; }
 
             public override string ToString()
             {
