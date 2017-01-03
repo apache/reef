@@ -79,10 +79,8 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
             CleanUp(testFolder);
         }
 
-        /// <summary>
-        /// This test is on yarn
-        /// </summary>
-        [Fact(Skip = "Requires Yarn")]
+        [Fact]
+        [Trait("Environment", "Yarn")]
         public override void TestFailedMapperOnYarn()
         {
             int chunkSize = 2;

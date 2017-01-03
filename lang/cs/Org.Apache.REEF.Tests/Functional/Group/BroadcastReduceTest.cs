@@ -42,7 +42,8 @@ namespace Org.Apache.REEF.Tests.Functional.Group
             CleanUp(testFolder);
         }
 
-        [Fact(Skip = "Requires Yarn")]
+        [Fact]
+        [Trait("Environment", "Yarn")]
         public void TestBroadcastAndReduceOnYarn()
         {
             int numTasks = 9;

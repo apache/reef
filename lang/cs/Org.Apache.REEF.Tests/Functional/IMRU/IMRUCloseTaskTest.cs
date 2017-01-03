@@ -71,7 +71,8 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
         /// Same testing for running on YARN
         /// It sends close event for all the running tasks.
         /// </summary>
-        [Fact(Skip = "Requires Yarn")]
+        [Fact]
+        [Trait("Environment", "Yarn")]
         public void TestTaskCloseOnLocalRuntimeOnYarn()
         {
             const int chunkSize = 2;

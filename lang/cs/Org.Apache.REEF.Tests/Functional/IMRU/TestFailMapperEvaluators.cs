@@ -76,10 +76,8 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
             CleanUp(testFolder);
         }
 
-        /// <summary>
-        /// This test is for the normal scenarios of IMRUDriver and IMRUTasks on yarn
-        /// </summary>
-        [Fact(Skip = "Requires Yarn")]
+        [Fact]
+        [Trait("Environment", "Yarn")]
         public virtual void TestFailedMapperOnYarn()
         {
             int chunkSize = 2;
