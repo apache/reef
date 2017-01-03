@@ -58,7 +58,8 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
         /// <summary>
         /// This test is to fail master evaluator at context start. The system will fail. 
         /// </summary>
-        [Fact(Skip = "Requires Yarn")]
+        [Fact]
+        [Trait("Environment", "Yarn")]
         public void TestFailUpdateEvaluatorAtContexStartOnOnYarn()
         {
             int chunkSize = 2;

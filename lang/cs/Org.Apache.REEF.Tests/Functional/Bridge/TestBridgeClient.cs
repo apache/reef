@@ -18,7 +18,6 @@
 using System.Threading.Tasks;
 using Org.Apache.REEF.Client.Common;
 using Org.Apache.REEF.Examples.AllHandlers;
-using Org.Apache.REEF.Utilities.Logging;
 using Xunit;
 
 namespace Org.Apache.REEF.Tests.Functional.Bridge
@@ -26,9 +25,8 @@ namespace Org.Apache.REEF.Tests.Functional.Bridge
     [Collection("FunctionalTests")]
     public class TestBridgeClient : ReefFunctionalTest
     {
-        private static readonly Logger LOGGER = Logger.GetLogger(typeof(TestBridgeClient));
-
-        [Fact(Skip = "Requires Yarn")]
+        [Fact]
+        [Trait("Environment", "Yarn")]
         [Trait("Priority", "1")]
         [Trait("Category", "FunctionalGated")]
         [Trait("Description", "Run CLR Bridge on Yarn")]

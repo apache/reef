@@ -39,7 +39,8 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
             CleanUp(testFolder);
         }
 
-        [Fact(Skip = "Requires Yarn")]
+        [Fact]
+        [Trait("Environment", "Yarn")]
         [Trait("Description", "Run IMRU mapper count example as test on Yarn.")]
         void TestIMRUMapperCountOnYarn()
         {
