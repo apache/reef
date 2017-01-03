@@ -42,6 +42,8 @@ namespace Org.Apache.REEF.Common.Poison
 
         private readonly Random _rand = new Random();
 
+        public int TimeToCrash { get; private set; }
+
         [Inject]
         private PoisonedEventHandler(
             [Parameter(typeof(CrashProbability))] double crashProbability,
@@ -64,18 +66,19 @@ namespace Org.Apache.REEF.Common.Poison
             Logger.Log(Level.Info, "Poisoned handler for {0}", typeof(T).FullName);
             if (_rand.NextDouble() <= _crashProbability)
             {
-                int timeToCrash = _rand.Next(_crashTimeout) + _crashMinDelay;
-                Logger.Log(Level.Info, "Poisoning successful, crashing in {0} msec.", timeToCrash);
+                TimeToCrash = _rand.Next(_crashTimeout) + _crashMinDelay;
+                Logger.Log(Level.Info, "Poisoning successful, crashing in {0} msec.", TimeToCrash);
                 IObserver<Alarm> poisonedAlarm = Observer.Create<Alarm>(
                     x =>
                     {
                         Logger.Log(Level.Verbose, "Alarm firing");
                         throw new PoisonException("Crashed at " + DateTime.Now);
                     });
-                _clock.ScheduleAlarm(timeToCrash, poisonedAlarm);
+                _clock.ScheduleAlarm(TimeToCrash, poisonedAlarm);
             }
             else
             {
+                TimeToCrash = -1;
                 Logger.Log(Level.Info, "No poisoning happens");
             }
         }

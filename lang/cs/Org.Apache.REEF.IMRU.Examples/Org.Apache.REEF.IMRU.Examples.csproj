@@ -49,6 +49,7 @@ under the License.
     <Compile Include="MapperCount\IdentityMapFunction.cs" />
     <Compile Include="IntSumReduceFunction.cs" />
     <Compile Include="MapperCount\MapperCount.cs" />
+    <Compile Include="PipelinedBroadcastReduce\PipelinedBroadcastAndReduceWithRandomFailures.cs" />
     <Compile Include="PipelinedBroadcastReduce\PipelinedBroadcastAndReduceWithFaultTolerant.cs" />
     <Compile Include="PipelinedBroadcastReduce\MapTaskState.cs" />
     <Compile Include="PipelinedBroadcastReduce\UpdateTaskState.cs" />
