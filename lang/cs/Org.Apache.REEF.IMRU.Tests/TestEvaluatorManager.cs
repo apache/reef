@@ -48,6 +48,7 @@ namespace Org.Apache.REEF.IMRU.Tests
             Assert.Equal(2, evaluatorManager.NumberOfAllocatedEvaluators);
             Assert.False(evaluatorManager.IsMasterEvaluatorFailed());
             Assert.Equal(1, evaluatorManager.NumberofFailedMappers());
+            Assert.Equal(1, evaluatorManager.MappersToRequest());
 
             evaluatorManager.ResetFailedEvaluators();
             evaluatorManager.AddAllocatedEvaluator(CreateMockAllocatedEvaluator(2));
