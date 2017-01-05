@@ -939,14 +939,14 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
             {
                 _numberOfRetries++;
                 var msg = string.Format(CultureInfo.InvariantCulture,
-                    "Start recovery with _numberOfRetryForFaultTolerant {0}, NumberofFailedMappers {1}.",
+                    "Start recovery with _numberOfRetryForFaultTolerant {0}, NumberofFailedMappersToRequest {1}.",
                     _numberOfRetries,
-                    _evaluatorManager.NumberofFailedMappers());
+                    _evaluatorManager.MappersToRequest());
                 Logger.Log(Level.Info, msg);
 
                 _systemState.MoveNext(SystemStateEvent.Recover);
 
-                var mappersToRequest = _evaluatorManager.NumberofFailedMappers();
+                var mappersToRequest = _evaluatorManager.MappersToRequest();
                 _evaluatorManager.ResetFailedEvaluators();
 
                 if (mappersToRequest == 0)

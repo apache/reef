@@ -318,6 +318,15 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         }
 
         /// <summary>
+        /// Returns mappers that need to be requested after failure
+        /// </summary>
+        /// <returns></returns>
+        internal int MappersToRequest()
+        {
+            return _totalExpectedEvaluators - _allocatedEvaluatorIds.Count;
+        }
+
+        /// <summary>
         /// Returns number of missing Evaluators
         /// </summary>
         internal int NumberOfMissingEvaluators()
