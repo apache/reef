@@ -45,6 +45,8 @@ namespace Org.Apache.REEF.Tests.Functional.Bridge
         {
             string testRuntimeFolder = DefaultRuntimeFolder + TestId;
             await RunClrBridgeClient(false, testRuntimeFolder);
+            ValidateSuccessForLocalRuntime(2, testFolder: testRuntimeFolder);
+            CleanUp(testRuntimeFolder);
         }
 
         private async Task RunClrBridgeClient(bool runOnYarn, string testRuntimeFolder)
@@ -58,10 +60,6 @@ namespace Org.Apache.REEF.Tests.Functional.Bridge
             Assert.True(strStatus.Equals("Byte array returned from HelloHttpHandler in CLR!!!\r\n"));
 
             await((JobSubmissionResult)driverHttpEndpoint).TryUntilNoConnection(uri);
-
-            ValidateSuccessForLocalRuntime(2, testFolder: testRuntimeFolder);
-
-            CleanUp(testRuntimeFolder);
         }
     }
 }
