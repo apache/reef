@@ -60,9 +60,9 @@ can't be reproduced locally.
 Instructions on Building and Testing REEF .NET from Scratch
 ------------
 
-Here is a step-by-step guide, if the instructions above didn't work out or you prefer to build REEF .NET from Windows Command Prompt/PowerShell.
+Here is a step-by-step guide, if the instructions above didn't work and/or you prefer to build REEF .NET from Windows Command Prompt/PowerShell.
 
-1. Install Java Development Kit 7 or 8. Set `$JAVA_HOME` as an Environment Variable
+1. Install Java Development Kit 7 or 8. Set `JAVA_HOME` as an Environment Variable
     * Go [here](http://www.oracle.com/technetwork/java/javase/downloads) to download and install appropriate JDK
     * Go to System Properties -> Environment Variables -> System Variables -> New...
     * Create a variable called `JAVA_HOME` and set the value to be your jdk installation dir, like C:\Program Files\Java\jdk1.8.0_91
