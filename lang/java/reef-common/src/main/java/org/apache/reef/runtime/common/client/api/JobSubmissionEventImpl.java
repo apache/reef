@@ -58,6 +58,15 @@ public final class JobSubmissionEventImpl implements JobSubmissionEvent {
   }
 
   @Override
+  public String toString() {
+    return String.format(
+        "Job Submission :: user:%s id:%s remote:%s mem:%s queue:%s priority:%s" +
+        " preserve evaluators:%s max submissions:%s global:%s local:%s",
+        this.userName, this.identifier, this.remoteId, this.driverMemory, this.queue, this.priority,
+        this.preserveEvaluators, this.maxApplicationSubmissions, this.globalFileSet, this.localFileSet);
+  }
+
+  @Override
   public String getIdentifier() {
     return identifier;
   }
