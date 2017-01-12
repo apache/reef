@@ -23,8 +23,8 @@ import org.apache.reef.client.DriverLauncher;
 import org.apache.reef.client.LauncherStatus;
 import org.apache.reef.runtime.yarn.client.YarnClientConfiguration;
 import org.apache.reef.tang.Configuration;
-import org.apache.reef.tang.exceptions.BindException;
 import org.apache.reef.tang.exceptions.InjectionException;
+import org.apache.reef.util.EnvironmentUtils;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -43,40 +43,24 @@ public final class HelloREEFYarn {
    */
   private static final int JOB_TIMEOUT = 100000; // 100 sec.
 
-  /**
-   * @return the configuration of the runtime
-   */
-  private static Configuration getRuntimeConfiguration() {
-    return YarnClientConfiguration.CONF.build();
-  }
+  /** The configuration of the runtime. */
+  private static final Configuration RUNTIME_CONF = YarnClientConfiguration.CONF.build();
 
-  /**
-   * @return the configuration of the HelloREEF driver.
-   */
-  private static Configuration getDriverConfiguration() {
-    return DriverConfiguration.CONF
-        .set(DriverConfiguration.GLOBAL_LIBRARIES,
-            HelloREEFYarn.class.getProtectionDomain().getCodeSource().getLocation().getFile())
-        .set(DriverConfiguration.DRIVER_IDENTIFIER, "HelloREEF")
-        .set(DriverConfiguration.ON_DRIVER_STARTED, HelloDriver.StartHandler.class)
-        .set(DriverConfiguration.ON_EVALUATOR_ALLOCATED, HelloDriver.EvaluatorAllocatedHandler.class)
-        .build();
-  }
+  /** The configuration of the HelloREEF driver. */
+  private static final Configuration DRIVER_CONF = DriverConfiguration.CONF
+      .set(DriverConfiguration.DRIVER_IDENTIFIER, "HelloREEF")
+      .set(DriverConfiguration.GLOBAL_LIBRARIES, EnvironmentUtils.getClassLocation(HelloREEFYarn.class))
+      .set(DriverConfiguration.ON_DRIVER_STARTED, HelloDriver.StartHandler.class)
+      .set(DriverConfiguration.ON_EVALUATOR_ALLOCATED, HelloDriver.EvaluatorAllocatedHandler.class)
+      .build();
 
   /**
    * Start Hello REEF job.
-   *
-   * @param args command line parameters.
-   * @throws BindException      configuration error.
+   * @param args command line parameters. Not used.
    * @throws InjectionException configuration error.
    */
-  public static void main(final String[] args) throws BindException, InjectionException {
-    final Configuration runtimeConf = getRuntimeConfiguration();
-    final Configuration driverConf = getDriverConfiguration();
-
-    final LauncherStatus status = DriverLauncher
-        .getLauncher(runtimeConf)
-        .run(driverConf, JOB_TIMEOUT);
+  public static void main(final String[] args) throws InjectionException {
+    final LauncherStatus status = DriverLauncher.getLauncher(RUNTIME_CONF).run(DRIVER_CONF, JOB_TIMEOUT);
     LOG.log(Level.INFO, "REEF job completed: {0}", status);
   }
 
