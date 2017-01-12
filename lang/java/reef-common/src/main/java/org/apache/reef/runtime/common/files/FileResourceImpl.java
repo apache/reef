@@ -50,6 +50,11 @@ public final class FileResourceImpl implements FileResource {
     return path;
   }
 
+  @Override
+  public String toString() {
+    return String.format("FileResource: {%s:%s=%s}", this.name, this.type, this.path);
+  }
+
   public static Builder newBuilder() {
     return new Builder();
   }
