@@ -56,8 +56,13 @@ final class HandlerContainer<T> implements EventHandler<RemoteEvent<byte[]>> {
     this.name = name;
     this.codec = codec;
 
-    LOG.log(Level.FINER, "Instantiated HandlerContainer {0} with codec {1}",
-        new String[] {this.name, this.codec.getClass().getCanonicalName()});
+    LOG.log(Level.FINER, "Instantiated {0}", this);
+  }
+
+  @Override
+  public String toString() {
+    return String.format("HandlerContainer: {name:%s codec:%s}",
+        this.name, this.codec.getClass().getCanonicalName());
   }
 
   void setTransport(final Transport transport) {
