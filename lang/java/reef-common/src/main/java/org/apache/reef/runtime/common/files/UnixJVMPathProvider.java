@@ -30,6 +30,11 @@ public final class UnixJVMPathProvider implements RuntimePathProvider {
 
   @Override
   public String getPath() {
-    return System.getenv("JAVA_HOME") + "/bin/" + "java";
+    return "{{JAVA_HOME}}/bin/java";
+  }
+
+  @Override
+  public String toString() {
+    return getPath();
   }
 }
