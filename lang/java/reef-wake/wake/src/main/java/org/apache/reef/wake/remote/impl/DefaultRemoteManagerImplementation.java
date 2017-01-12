@@ -235,7 +235,6 @@ public final class DefaultRemoteManagerImplementation implements RemoteManager {
 
   @Override
   public String toString() {
-    return String.format("RemoteManager: { class:%s, name:%s, id:%s }",
-        this.getClass().getCanonicalName(), this.name, this.myIdentifier);
+    return String.format("RemoteManager: { id:%s handler:%s }", this.myIdentifier, this.handlerContainer);
   }
 }
