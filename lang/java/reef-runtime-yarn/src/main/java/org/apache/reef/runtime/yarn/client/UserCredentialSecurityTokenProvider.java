@@ -18,9 +18,12 @@
  */
 package org.apache.reef.runtime.yarn.client;
 
+import org.apache.hadoop.io.DataInputBuffer;
 import org.apache.hadoop.io.DataOutputBuffer;
 import org.apache.hadoop.security.Credentials;
 import org.apache.hadoop.security.UserGroupInformation;
+import org.apache.hadoop.security.token.Token;
+import org.apache.hadoop.yarn.security.AMRMTokenIdentifier;
 
 import javax.inject.Inject;
 import java.io.IOException;
@@ -30,29 +33,75 @@ import java.util.logging.Logger;
 /**
  * Reads security token from user credentials.
  */
-final class UserCredentialSecurityTokenProvider implements SecurityTokenProvider {
+public final class UserCredentialSecurityTokenProvider implements SecurityTokenProvider {
 
   private static final Logger LOG = Logger.getLogger(UserCredentialSecurityTokenProvider.class.getName());
 
   @Inject
-  private UserCredentialSecurityTokenProvider(){}
+  private UserCredentialSecurityTokenProvider() { }
 
   @Override
   public byte[] getTokens() {
+
     try {
+
       final UserGroupInformation ugi = UserGroupInformation.getCurrentUser();
       final Credentials credentials = ugi.getCredentials();
+
+      LOG.log(Level.FINEST, "Got {0} tokens for user {1}", new Object[] {credentials.numberOfTokens(), ugi});
+
       if (credentials.numberOfTokens() > 0) {
-        try(final DataOutputBuffer dob = new DataOutputBuffer()) {
+        try (final DataOutputBuffer dob = new DataOutputBuffer()) {
           credentials.writeTokenStorageToStream(dob);
           return dob.getData();
         }
       }
-    } catch (IOException e) {
+    } catch (final IOException e) {
       LOG.log(Level.WARNING, "Could not access tokens in user credentials.", e);
     }
 
     LOG.log(Level.FINE, "No security token found.");
+
     return null;
+  }
+
+  /**
+   * Add serialized token to teh credentials.
+   * @param tokens ByteBuffer containing token.
+   */
+  @Override
+  public void addTokens(final byte[] tokens) {
+
+    try (final DataInputBuffer buf = new DataInputBuffer()) {
+
+      buf.reset(tokens, tokens.length);
+      final Credentials credentials = new Credentials();
+      credentials.readTokenStorageStream(buf);
+
+      final UserGroupInformation ugi = UserGroupInformation.getCurrentUser();
+      ugi.addCredentials(credentials);
+      LOG.log(Level.FINEST, "Added {0} tokens for user {1}", new Object[] {credentials.numberOfTokens(), ugi});
+
+    } catch (final IOException ex) {
+      LOG.log(Level.SEVERE, "Could not access tokens in user credentials.", ex);
+      throw new RuntimeException(ex);
+    }
+  }
+
+  /**
+   * Helper method to serialize a security token.
+   * @param token AM security token.
+   * @return ByteBuffer that contains the token. It is compatible with addTokens() method.
+   */
+  public static byte[] serializeToken(final Token<AMRMTokenIdentifier> token) {
+    try (final DataOutputBuffer dob = new DataOutputBuffer()) {
+      final Credentials credentials = new Credentials();
+      credentials.addToken(token.getService(), token);
+      credentials.writeTokenStorageToStream(dob);
+      return dob.getData();
+    } catch (final IOException ex) {
+      LOG.log(Level.SEVERE, "Could not write credentials to the buffer.", ex);
+      throw new RuntimeException(ex);
+    }
   }
 }
