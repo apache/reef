@@ -104,6 +104,6 @@ final class Containers {
    * @return an Iterable of all the known container Ids.
    */
   synchronized Iterable<String> getContainerIds() {
-    return new ArrayList(this.containers.keySet());
+    return new ArrayList<>(this.containers.keySet());
   }
 }
