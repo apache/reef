@@ -59,4 +59,9 @@ final class ApplicationMasterRegistration {
   synchronized boolean isPresent() {
     return this.registration.isPresent();
   }
+
+  @Override
+  public synchronized String toString() {
+    return this.registration.toString();
+  }
 }
