@@ -33,4 +33,9 @@ public final class HDInsightJVMPathProvider implements RuntimePathProvider {
   public String getPath() {
     return "%JAVA_HOME%/bin/java";
   }
+
+  @Override
+  public String toString() {
+    return getPath();
+  }
 }
