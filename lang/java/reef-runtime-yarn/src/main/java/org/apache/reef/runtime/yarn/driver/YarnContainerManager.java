@@ -62,6 +62,12 @@ final class YarnContainerManager
 
   private static final String RUNTIME_NAME = "YARN";
 
+  /** Default hostname to provide in the Application Master registration. */
+  private static final String AM_REGISTRATION_HOST = "";
+
+  /** Default port number to provide in the Application Master registration. */
+  private static final int AM_REGISTRATION_PORT = -1;
+
   private final Queue<AMRMClient.ContainerRequest> requestsBeforeSentToRM = new ConcurrentLinkedQueue<>();
   private final Queue<AMRMClient.ContainerRequest> requestsAfterSentToRM = new ConcurrentLinkedQueue<>();
   private final Map<String, String> nodeIdToRackName = new ConcurrentHashMap<>();
@@ -183,9 +189,8 @@ final class YarnContainerManager
       return Math.max(Math.min(1, progressProvider.get().getProgress()), 0);
     } catch (final Exception e) {
       // An Exception must be caught and logged here because YARN swallows the Exception and fails the job.
-      LOG.log(Level.WARNING, "An exception occurred in ProgressProvider.getProgress(), with message : " +
-          e.getMessage() + ". Returning 0 as progress.", e);
-      return 0f;
+      LOG.log(Level.WARNING, "Cannot get the application progress. Will return 0.", e);
+      return 0;
     }
   }
 
@@ -312,8 +317,8 @@ final class YarnContainerManager
 
     try {
 
-      this.registration.setRegistration(
-          this.resourceManager.registerApplicationMaster("", -1, this.trackingURLProvider.getTrackingUrl()));
+      this.registration.setRegistration(this.resourceManager.registerApplicationMaster(
+          AM_REGISTRATION_HOST, AM_REGISTRATION_PORT, this.trackingURLProvider.getTrackingUrl()));
 
       LOG.log(Level.FINE, "YARN registration: AM registered: {0}", this.registration);
 
