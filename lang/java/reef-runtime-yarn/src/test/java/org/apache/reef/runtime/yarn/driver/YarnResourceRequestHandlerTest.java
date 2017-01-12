@@ -34,20 +34,24 @@ import org.mockito.Mockito;
  * Tests for YarnResourceRequestHandler.
  */
 public final class YarnResourceRequestHandlerTest {
+
   private final ApplicationMasterRegistration applicationMasterRegistration = new ApplicationMasterRegistration();
   private final MockContainerRequestHandler containerRequestHandler = new MockContainerRequestHandler();
-  private final YarnResourceRequestHandler resourceRequestHandler = new YarnResourceRequestHandler(containerRequestHandler, applicationMasterRegistration);
+
   private final ResourceCatalog resourceCatalog = Mockito.mock(ResourceCatalog.class);
+
+  private final YarnResourceRequestHandler resourceRequestHandler =
+      new YarnResourceRequestHandler(containerRequestHandler, applicationMasterRegistration);
 
   private class MockContainerRequestHandler implements YarnContainerRequestHandler {
     private AMRMClient.ContainerRequest[] requests;
 
     @Override
-    public void onContainerRequest(AMRMClient.ContainerRequest... containerRequests) {
+    public void onContainerRequest(final AMRMClient.ContainerRequest... containerRequests) {
       this.requests = containerRequests;
     }
 
-    public AMRMClient.ContainerRequest[] getRequests() {
+    AMRMClient.ContainerRequest[] getRequests() {
       return requests;
     }
   }
@@ -57,70 +61,75 @@ public final class YarnResourceRequestHandlerTest {
    */
   @Test
   public void testDifferentMemory() throws InjectionException {
-    final LoggingScopeFactory loggingScopeFactory = Tang.Factory.getTang().newInjector().getInstance(LoggingScopeFactory.class);
-    final EvaluatorRequestor evaluatorRequestor = new EvaluatorRequestorImpl(resourceCatalog, resourceRequestHandler, loggingScopeFactory);
+
+    final LoggingScopeFactory loggingScopeFactory =
+        Tang.Factory.getTang().newInjector().getInstance(LoggingScopeFactory.class);
+
+    final EvaluatorRequestor evaluatorRequestor =
+        new EvaluatorRequestorImpl(resourceCatalog, resourceRequestHandler, loggingScopeFactory);
 
     final EvaluatorRequest requestOne = EvaluatorRequest.newBuilder()
         .setNumber(1)
         .setMemory(64)
         .setNumberOfCores(1)
         .build();
+
     final EvaluatorRequest requestTwo = EvaluatorRequest.newBuilder()
         .setNumber(1)
         .setMemory(128)
         .setNumberOfCores(2)
         .build();
 
-      evaluatorRequestor.submit(requestOne);
-      Assert.assertEquals("Request in REEF and YARN form should have the same amount of memory",
-          requestOne.getMegaBytes(),
-          containerRequestHandler.getRequests()[0].getCapability().getMemory()
-      );
+    evaluatorRequestor.submit(requestOne);
+    Assert.assertEquals("Request in REEF and YARN form should have the same amount of memory",
+        requestOne.getMegaBytes(),
+        containerRequestHandler.getRequests()[0].getCapability().getMemory());
 
-      evaluatorRequestor.submit(requestTwo);
-      Assert.assertEquals("Request in REEF and YARN form should have the same amount of memory",
-          requestTwo.getMegaBytes(),
-          containerRequestHandler.getRequests()[0].getCapability().getMemory()
-      );
+    evaluatorRequestor.submit(requestTwo);
+    Assert.assertEquals("Request in REEF and YARN form should have the same amount of memory",
+        requestTwo.getMegaBytes(),
+        containerRequestHandler.getRequests()[0].getCapability().getMemory());
 
-      evaluatorRequestor.submit(requestOne);
-      Assert.assertNotEquals("Request in REEF and YARN form should have the same amount of memory",
-          requestTwo.getMegaBytes(),
-          containerRequestHandler.getRequests()[0].getCapability().getMemory()
-      );
+    evaluatorRequestor.submit(requestOne);
+    Assert.assertNotEquals("Request in REEF and YARN form should have the same amount of memory",
+        requestTwo.getMegaBytes(),
+        containerRequestHandler.getRequests()[0].getCapability().getMemory());
   }
 
   @Test
   public void testEvaluatorCount() throws InjectionException {
-    final LoggingScopeFactory loggingScopeFactory = Tang.Factory.getTang().newInjector().getInstance(LoggingScopeFactory.class);
-    final EvaluatorRequestor evaluatorRequestor = new EvaluatorRequestorImpl(resourceCatalog, resourceRequestHandler, loggingScopeFactory);
+
+    final LoggingScopeFactory loggingScopeFactory =
+        Tang.Factory.getTang().newInjector().getInstance(LoggingScopeFactory.class);
+
+    final EvaluatorRequestor evaluatorRequestor =
+        new EvaluatorRequestorImpl(resourceCatalog, resourceRequestHandler, loggingScopeFactory);
+
     final EvaluatorRequest requestOne = EvaluatorRequest.newBuilder()
         .setNumber(1)
         .setMemory(64)
         .setNumberOfCores(1)
         .build();
+
     final EvaluatorRequest requestTwo = EvaluatorRequest.newBuilder()
         .setNumber(2)
         .setMemory(128)
         .setNumberOfCores(2)
         .build();
 
-      evaluatorRequestor.submit(requestOne);
-      Assert.assertEquals("Request in REEF and YARN form should have the same number of Evaluators",
-          requestOne.getNumber(),
-          containerRequestHandler.getRequests().length
-      );
+    evaluatorRequestor.submit(requestOne);
+    Assert.assertEquals("Request in REEF and YARN form should have the same number of Evaluators",
+        requestOne.getNumber(),
+        containerRequestHandler.getRequests().length);
 
-      evaluatorRequestor.submit(requestTwo);
-      Assert.assertEquals("Request in REEF and YARN form should have the same number of Evaluators",
-          requestTwo.getNumber(),
-          containerRequestHandler.getRequests().length
-      );
+    evaluatorRequestor.submit(requestTwo);
+    Assert.assertEquals("Request in REEF and YARN form should have the same number of Evaluators",
+        requestTwo.getNumber(),
+        containerRequestHandler.getRequests().length);
 
-      evaluatorRequestor.submit(requestTwo);
-      Assert.assertNotEquals("Request in REEF and YARN form should have the same number of Evaluators",
-          requestOne.getNumber(),
-          containerRequestHandler.getRequests().length
-      );
+    evaluatorRequestor.submit(requestTwo);
+    Assert.assertNotEquals("Request in REEF and YARN form should have the same number of Evaluators",
+        requestOne.getNumber(),
+        containerRequestHandler.getRequests().length);
   }
 }
