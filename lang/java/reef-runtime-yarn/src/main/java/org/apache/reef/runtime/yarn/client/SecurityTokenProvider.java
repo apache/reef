@@ -31,4 +31,10 @@ public interface SecurityTokenProvider {
    * @return a ByteBuffer
    */
   byte[] getTokens();
+
+  /**
+   * Add serialized tokens to the credentials.
+   * @param tokens ByteBuffer containing tokens.
+   */
+  void addTokens(final byte[] tokens);
 }
