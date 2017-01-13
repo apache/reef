@@ -27,6 +27,10 @@ import org.apache.reef.wake.EventHandler;
 @RuntimeAuthor
 public interface JobSubmissionHandler extends EventHandler<JobSubmissionEvent>, AutoCloseable {
 
-  @Override
-  void close();
+  /**
+   * Get the RM application ID.
+   * Return null if the application has not been submitted yet, or was submitted unsuccessfully.
+   * @return string application ID or null if no app has been submitted yet.
+   */
+  String getApplicationId();
 }

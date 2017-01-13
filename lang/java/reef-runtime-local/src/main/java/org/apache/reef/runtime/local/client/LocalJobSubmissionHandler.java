@@ -54,6 +54,8 @@ public final class LocalJobSubmissionHandler implements JobSubmissionHandler {
   private final LoggingScopeFactory loggingScopeFactory;
   private final DriverConfigurationProvider driverConfigurationProvider;
 
+  private String applicationId = null;
+
   @Inject
   LocalJobSubmissionHandler(
       final ExecutorService executor,
@@ -108,10 +110,22 @@ public final class LocalJobSubmissionHandler implements JobSubmissionHandler {
         this.configurationSerializer.toFile(driverConfiguration,
             new File(driverFolder, this.fileNames.getDriverConfigurationPath()));
         this.driverLauncher.launch(driverFolder);
+        this.applicationId = t.getIdentifier();
+
       } catch (final Exception e) {
         LOG.log(Level.SEVERE, "Unable to setup driver.", e);
         throw new RuntimeException("Unable to setup driver.", e);
       }
     }
+  }
+
+  /**
+   * Get the RM application ID.
+   * Return null if the application has not been submitted yet, or was submitted unsuccessfully.
+   * @return string application ID or null if no app has been submitted yet.
+   */
+  @Override
+  public String getApplicationId() {
+    return this.applicationId;
   }
 }

@@ -64,6 +64,8 @@ final class YarnJobSubmissionHandler implements JobSubmissionHandler {
   private final SecurityTokenProvider tokenProvider;
   private final DriverConfigurationProvider driverConfigurationProvider;
 
+  private String applicationId = null;
+
   @Inject
   YarnJobSubmissionHandler(
           @Parameter(JobQueue.class) final String defaultQueueName,
@@ -94,7 +96,9 @@ final class YarnJobSubmissionHandler implements JobSubmissionHandler {
   @Override
   public void onNext(final JobSubmissionEvent jobSubmissionEvent) {
 
-    LOG.log(Level.FINEST, "Submitting job with ID [{0}]", jobSubmissionEvent.getIdentifier());
+    final String id = jobSubmissionEvent.getIdentifier();
+    LOG.log(Level.FINEST, "Submitting{0} job: {1}",
+        new Object[] {this.isUnmanaged ? " UNMANAGED AM" : "", jobSubmissionEvent});
 
     try (final YarnSubmissionHelper submissionHelper = new YarnSubmissionHelper(
         this.yarnConfiguration, this.fileNames, this.classpath, this.tokenProvider, this.isUnmanaged)) {
@@ -112,7 +116,7 @@ final class YarnJobSubmissionHandler implements JobSubmissionHandler {
 
       submissionHelper
           .addLocalResource(this.fileNames.getREEFFolderName(), driverJarOnDfs)
-          .setApplicationName(jobSubmissionEvent.getIdentifier())
+          .setApplicationName(id)
           .setDriverMemory(jobSubmissionEvent.getDriverMemory().get())
           .setPriority(getPriority(jobSubmissionEvent))
           .setQueue(getQueue(jobSubmissionEvent))
@@ -120,10 +124,23 @@ final class YarnJobSubmissionHandler implements JobSubmissionHandler {
           .setMaxApplicationAttempts(getMaxApplicationSubmissions(jobSubmissionEvent))
           .submit();
 
-      LOG.log(Level.FINEST, "Submitted job with ID [{0}]", jobSubmissionEvent.getIdentifier());
+      this.applicationId = submissionHelper.getStringApplicationId();
+      LOG.log(Level.FINEST, "Submitted{0} job with ID {1} :: {2}", new String[] {
+          this.isUnmanaged ? " UNMANAGED AM" : "", id, this.applicationId});
+
     } catch (final YarnException | IOException e) {
-      throw new RuntimeException("Unable to submit Driver to YARN.", e);
+      throw new RuntimeException("Unable to submit Driver to YARN: " + id, e);
     }
+  }
+
+  /**
+   * Get the RM application ID.
+   * Return null if the application has not been submitted yet, or was submitted unsuccessfully.
+   * @return string application ID or null if no app has been submitted yet.
+   */
+  @Override
+  public String getApplicationId() {
+    return this.applicationId;
   }
 
   /**

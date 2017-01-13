@@ -59,6 +59,8 @@ final class MesosJobSubmissionHandler implements JobSubmissionHandler {
   private final String rootFolderName;
   private final DriverConfigurationProvider driverConfigurationProvider;
 
+  private String applicationId = null;
+
   @Inject
   MesosJobSubmissionHandler(@Parameter(RootFolder.class) final String rootFolderName,
                             final ConfigurationSerializer configurationSerializer,
@@ -138,8 +140,21 @@ final class MesosJobSubmissionHandler implements JobSubmissionHandler {
               .redirectError(errFile)
               .redirectOutput(outFile)
               .start();
+
+      this.applicationId = jobSubmissionEvent.getIdentifier();
+
     } catch (final IOException e) {
       throw new RuntimeException(e);
     }
+  }
+
+  /**
+   * Get the RM application ID.
+   * Return null if the application has not been submitted yet, or was submitted unsuccessfully.
+   * @return string application ID or null if no app has been submitted yet.
+   */
+  @Override
+  public String getApplicationId() {
+    return this.applicationId;
   }
 }
