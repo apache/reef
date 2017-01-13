@@ -57,6 +57,8 @@ public final class HDInsightJobSubmissionHandler implements JobSubmissionHandler
   private final ClasspathProvider classpath;
   private final DriverConfigurationProvider driverConfigurationProvider;
 
+  private String applicationId;
+
   @Inject
   HDInsightJobSubmissionHandler(final AzureUploader uploader,
                                 final JobJarMaker jobJarMaker,
@@ -83,16 +85,15 @@ public final class HDInsightJobSubmissionHandler implements JobSubmissionHandler
     try {
 
       LOG.log(Level.FINE, "Requesting Application ID from HDInsight.");
-      final ApplicationID applicationID = this.hdInsightInstance.getApplicationID();
+      final String appId = this.hdInsightInstance.getApplicationID().getApplicationId();
 
-      LOG.log(Level.INFO, "Submitting application {0} to YARN.", applicationID.getApplicationId());
+      LOG.log(Level.INFO, "Submitting application {0} to YARN.", appId);
 
       LOG.log(Level.FINE, "Creating a job folder on Azure.");
-      final URI jobFolderURL = this.uploader.createJobFolder(applicationID.getApplicationId());
+      final URI jobFolderURL = this.uploader.createJobFolder(appId);
 
       LOG.log(Level.FINE, "Assembling Configuration for the Driver.");
-      final Configuration driverConfiguration =
-          makeDriverConfiguration(jobSubmissionEvent, applicationID.getApplicationId(), jobFolderURL);
+      final Configuration driverConfiguration = makeDriverConfiguration(jobSubmissionEvent, appId, jobFolderURL);
 
       LOG.log(Level.FINE, "Making Job JAR.");
       final File jobSubmissionJarFile =
@@ -105,7 +106,7 @@ public final class HDInsightJobSubmissionHandler implements JobSubmissionHandler
       final String command = getCommandString(jobSubmissionEvent);
 
       final ApplicationSubmission applicationSubmission = new ApplicationSubmission()
-          .setApplicationId(applicationID.getApplicationId())
+          .setApplicationId(appId)
           .setApplicationName(jobSubmissionEvent.getIdentifier())
           .setResource(getResource(jobSubmissionEvent))
           .setAmContainerSpec(new AmContainerSpec()
@@ -113,13 +114,23 @@ public final class HDInsightJobSubmissionHandler implements JobSubmissionHandler
                   .setCommand(command));
 
       this.hdInsightInstance.submitApplication(applicationSubmission);
-      LOG.log(Level.INFO, "Submitted application to HDInsight. The application id is: {0}",
-          applicationID.getApplicationId());
+      this.applicationId = appId;
+      LOG.log(Level.INFO, "Submitted application to HDInsight. The application id is: {0}", appId);
 
     } catch (final IOException ex) {
       LOG.log(Level.SEVERE, "Error submitting HDInsight request", ex);
       throw new RuntimeException(ex);
     }
+  }
+
+  /**
+   * Get the RM application ID.
+   * Return null if the application has not been submitted yet, or was submitted unsuccessfully.
+   * @return string application ID or null if no app has been submitted yet.
+   */
+  @Override
+  public String getApplicationId() {
+    return this.applicationId;
   }
 
   /**
@@ -159,12 +170,10 @@ public final class HDInsightJobSubmissionHandler implements JobSubmissionHandler
 
   private Configuration makeDriverConfiguration(
       final JobSubmissionEvent jobSubmissionEvent,
-      final String applicationId,
+      final String appId,
       final URI jobFolderURL) throws IOException {
 
-    return this.driverConfigurationProvider.getDriverConfiguration(jobFolderURL,
-                                                            jobSubmissionEvent.getRemoteId(),
-                                                            applicationId,
-                                                            jobSubmissionEvent.getConfiguration());
+    return this.driverConfigurationProvider.getDriverConfiguration(
+        jobFolderURL, jobSubmissionEvent.getRemoteId(), appId, jobSubmissionEvent.getConfiguration());
   }
 }
