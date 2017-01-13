@@ -91,7 +91,7 @@ public final class YarnResourceRequestHandlerTest {
         containerRequestHandler.getRequests()[0].getCapability().getMemory());
 
     evaluatorRequestor.submit(requestOne);
-    Assert.assertNotEquals("Request in REEF and YARN form should have the same amount of memory",
+    Assert.assertNotEquals("Second YARN request should have different amount of memory",
         requestTwo.getMegaBytes(),
         containerRequestHandler.getRequests()[0].getCapability().getMemory());
   }
@@ -128,7 +128,7 @@ public final class YarnResourceRequestHandlerTest {
         containerRequestHandler.getRequests().length);
 
     evaluatorRequestor.submit(requestTwo);
-    Assert.assertNotEquals("Request in REEF and YARN form should have the same number of Evaluators",
+    Assert.assertNotEquals("Second YARN request should have different number of Evaluators",
         requestOne.getNumber(),
         containerRequestHandler.getRequests().length);
   }
