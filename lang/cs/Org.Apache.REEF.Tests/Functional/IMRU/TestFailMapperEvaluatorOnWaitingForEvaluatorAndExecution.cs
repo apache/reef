@@ -65,12 +65,11 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
             // There is a designed EvaluatorFailure in a childContext in the first run. 
             // If this failure happens before all the tasks are submitted, after re-request an Evaluator, in the later tries, 
             // we should always receive 8 running tasks in each try. 
-            // The evaluator failure can also happens after tasks are submitted. This is because as soon as driver gets all the activeContetts, it will start to submit tasks. 
-            // It is possible we get FailedEvalautor before receiving the RunningTask which is on this failed Evaluator. 
-            // for the reason of "Attempting to spawn a child context when an Task with id 'IMRUMap-RandomInputPartition-0-0' is running"
+            // The evaluator can also fail after tasks are submitted. This is because as soon as the driver gets all the active contexts, it will start to submit tasks. 
+            // It is possible the driver gets FailedEvalautor before receiving the RunningTask which is submitted on this failed Evaluator
+            // for the reason of "Attempting to spawn a child context when an Task with id 'xxxxx' is running"
             // In this case, in the first run, we will get only 7 RunningTasks instead of 8. 
             Assert.True((((NumberOfRetry + 1) * numTasks) - 1) <= runningTaskCount);
-            Assert.Equal((NumberOfRetry + 1) * numTasks, runningTaskCount);
 
             // eventually job succeeds
             Assert.Equal(1, jobSuccess);
@@ -134,12 +133,12 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
         /// <summary>
         /// Another context handler that will submit a child context if the active context received is the specified mapper context
         /// </summary>
-        internal sealed class AnotherContextHandler : IObserver<IActiveContext>
+        private sealed class AnotherContextHandler : IObserver<IActiveContext>
         {
             /// <summary>
             /// Make sure we only fail the context once
             /// </summary>
-            private static bool done = false;
+            private static bool done;
 
             [Inject]
             private AnotherContextHandler()
@@ -163,7 +162,7 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
                 {
                     Logger.Log(Level.Info, "Submitting KillEvaluatorContextStartHandler");
 
-                   var contextConf = ContextConfiguration.ConfigurationModule
+                    var contextConf = ContextConfiguration.ConfigurationModule
                         .Set(ContextConfiguration.Identifier, "KillEvaluatorContext")
                         .Build();
 
