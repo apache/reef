@@ -31,7 +31,6 @@ import org.apache.reef.tang.annotations.NamedParameter;
 import org.apache.reef.tang.exceptions.InjectionException;
 import org.apache.reef.util.EnvironmentUtils;
 import org.apache.reef.util.REEFVersion;
-import org.apache.reef.util.ThreadLogger;
 import org.apache.reef.wake.profiler.WakeProfiler;
 import org.apache.reef.wake.time.Clock;
 
@@ -152,8 +151,6 @@ public final class REEFEnvironment implements Runnable, AutoCloseable {
         LOG.log(Level.SEVERE, "Error while closing the error handler", ex);
       }
     }
-
-    ThreadLogger.logThreads(LOG, Level.FINEST, "Threads running after REEFEnvironment.close():");
 
     LOG.exiting(CLASS_NAME, "close");
   }
