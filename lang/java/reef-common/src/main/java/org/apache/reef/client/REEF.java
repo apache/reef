@@ -49,7 +49,8 @@ public interface REEF extends AutoCloseable {
    * The Configuration needs to bind the Driver interface to an actual
    * implementation of that interface for the job at hand.
    *
-   * @param driverConf The driver configuration: including everything it needs to execute.  @see DriverConfiguration
+   * @param driverConf The driver configuration: including everything it needs to execute. @see DriverConfiguration
+   * @return ID of the submitted application.
    */
-  void submit(final Configuration driverConf);
+  String submit(final Configuration driverConf);
 }

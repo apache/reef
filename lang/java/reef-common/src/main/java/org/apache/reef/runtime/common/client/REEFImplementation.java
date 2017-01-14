@@ -39,6 +39,7 @@ import org.apache.reef.util.logging.LoggingScopeFactory;
 
 import javax.inject.Inject;
 import java.util.Set;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -89,12 +90,25 @@ public final class REEFImplementation implements REEF {
 
   @Override
   public void close() {
+
+    LOG.log(Level.FINE, "Close REEF: shutdown jobs");
     this.runningJobs.closeAllJobs();
+
+    LOG.log(Level.FINE, "Close REEF: shutdown client");
     this.clientWireUp.close();
+
+    LOG.log(Level.FINE, "Close REEF: shutdown job submitter");
+    try {
+      this.jobSubmissionHandler.close();
+    } catch (final Exception ex) {
+      LOG.log(Level.WARNING, "Could not shutdown job submitter", ex);
+    }
+
+    LOG.log(Level.FINE, "Close REEF: done");
   }
 
   @Override
-  public void submit(final Configuration driverConf) {
+  public String submit(final Configuration driverConf) {
     try (LoggingScope ls = this.loggingScopeFactory.reefSubmit()) {
       final Configuration driverConfiguration = createDriverConfiguration(driverConf);
       final JobSubmissionEvent submissionMessage;
@@ -113,6 +127,7 @@ public final class REEFImplementation implements REEF {
       }
 
       this.jobSubmissionHandler.onNext(submissionMessage);
+      return this.jobSubmissionHandler.getApplicationId();
     }
   }
 
@@ -137,6 +152,4 @@ public final class REEFImplementation implements REEF {
   @NamedParameter(doc = "The driver remote identifier.")
   public static final class DriverRemoteIdentifier implements Name<String> {
   }
-
-
 }
