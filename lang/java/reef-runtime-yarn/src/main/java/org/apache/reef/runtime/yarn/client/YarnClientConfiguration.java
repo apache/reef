@@ -21,6 +21,7 @@ package org.apache.reef.runtime.yarn.client;
 import org.apache.reef.annotations.audience.ClientSide;
 import org.apache.reef.annotations.audience.Public;
 import org.apache.reef.client.parameters.DriverConfigurationProviders;
+import org.apache.reef.driver.parameters.DriverIsUnmanaged;
 import org.apache.reef.runtime.common.client.CommonRuntimeConfiguration;
 import org.apache.reef.runtime.common.client.DriverConfigurationProvider;
 import org.apache.reef.runtime.common.client.api.JobSubmissionHandler;
@@ -35,19 +36,20 @@ import org.apache.reef.tang.formats.*;
 import org.apache.reef.util.logging.LoggingSetup;
 
 /**
- * A ConfigurationModule for the YARN resourcemanager.
+ * A ConfigurationModule for the YARN resource manager.
  */
 @Public
 @ClientSide
 public class YarnClientConfiguration extends ConfigurationModuleBuilder {
+
   static {
     LoggingSetup.setupCommonsLogging();
   }
 
   public static final OptionalParameter<String> YARN_QUEUE_NAME = new OptionalParameter<>();
   public static final OptionalParameter<Integer> YARN_PRIORITY = new OptionalParameter<>();
-
   public static final OptionalParameter<Double> JVM_HEAP_SLACK = new OptionalParameter<>();
+  public static final OptionalParameter<Boolean> UNMANAGED_DRIVER = new OptionalParameter<>();
 
   /**
    * Configuration provides whose Configuration will be merged into all Driver Configuration.
@@ -63,6 +65,7 @@ public class YarnClientConfiguration extends ConfigurationModuleBuilder {
           .bindNamedParameter(JobQueue.class, YARN_QUEUE_NAME)
           .bindNamedParameter(JobPriority.class, YARN_PRIORITY)
           .bindNamedParameter(JVMHeapSlack.class, JVM_HEAP_SLACK)
+          .bindNamedParameter(DriverIsUnmanaged.class, UNMANAGED_DRIVER)
           .bindImplementation(RuntimeClasspathProvider.class, YarnClasspathProvider.class)
           // Bind external constructors. Taken from  YarnExternalConstructors.registerClientConstructors
           .bindConstructor(org.apache.hadoop.yarn.conf.YarnConfiguration.class, YarnConfigurationConstructor.class)
