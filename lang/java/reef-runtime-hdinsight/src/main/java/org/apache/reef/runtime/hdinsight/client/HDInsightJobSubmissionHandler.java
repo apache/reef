@@ -57,7 +57,7 @@ public final class HDInsightJobSubmissionHandler implements JobSubmissionHandler
   private final ClasspathProvider classpath;
   private final DriverConfigurationProvider driverConfigurationProvider;
 
-  private String applicationId = null;
+  private String applicationId;
 
   @Inject
   HDInsightJobSubmissionHandler(final AzureUploader uploader,

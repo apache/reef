@@ -54,7 +54,7 @@ public final class LocalJobSubmissionHandler implements JobSubmissionHandler {
   private final LoggingScopeFactory loggingScopeFactory;
   private final DriverConfigurationProvider driverConfigurationProvider;
 
-  private String applicationId = null;
+  private String applicationId;
 
   @Inject
   LocalJobSubmissionHandler(

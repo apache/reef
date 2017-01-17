@@ -64,7 +64,7 @@ final class YarnJobSubmissionHandler implements JobSubmissionHandler {
   private final SecurityTokenProvider tokenProvider;
   private final DriverConfigurationProvider driverConfigurationProvider;
 
-  private String applicationId = null;
+  private String applicationId;
 
   @Inject
   YarnJobSubmissionHandler(

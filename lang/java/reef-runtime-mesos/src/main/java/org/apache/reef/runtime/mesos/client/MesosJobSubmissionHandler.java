@@ -59,7 +59,7 @@ final class MesosJobSubmissionHandler implements JobSubmissionHandler {
   private final String rootFolderName;
   private final DriverConfigurationProvider driverConfigurationProvider;
 
-  private String applicationId = null;
+  private String applicationId;
 
   @Inject
   MesosJobSubmissionHandler(@Parameter(RootFolder.class) final String rootFolderName,
