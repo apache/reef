@@ -45,6 +45,7 @@ import org.apache.hadoop.yarn.exceptions.YarnException;
 import org.apache.hadoop.yarn.security.AMRMTokenIdentifier;
 import org.apache.hadoop.yarn.util.Records;
 import org.junit.Assert;
+import org.junit.Assume;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -65,10 +66,9 @@ public final class UnmanagedAmTest implements AMRMClientAsync.CallbackHandler, N
   @Test
   public void testAmShutdown() throws IOException, YarnException {
 
-    final boolean isYarn = Boolean.parseBoolean(System.getenv("REEF_TEST_YARN"));
-    if (!isYarn) {
-      return;
-    }
+    Assume.assumeTrue(
+        "This test requires a YARN Resource Manager to connect to",
+        Boolean.parseBoolean(System.getenv("REEF_TEST_YARN")));
 
     final YarnConfiguration yarnConfig = new YarnConfiguration();
 
