@@ -83,4 +83,4 @@ Here is a step-by-step guide, if the instructions above didn't work and/or you p
 
 4. Git clone the repo to your local machine: `git clone git@github.com:apache/reef.git`
 
-5. To build REEF.NET from command line, execute: `msbuild .\lang\cs\Org.Apache.REEF.sln`. If using Maven directly: `mvn clean install`
+5. To build REEF.NET from command line, execute: `msbuild .\lang\cs\Org.Apache.REEF.sln`
