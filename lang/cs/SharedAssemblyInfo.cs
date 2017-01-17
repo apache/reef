@@ -20,7 +20,7 @@ using System.Runtime.InteropServices;
 
 [assembly: AssemblyCompany("The Apache Software Foundation.")]
 [assembly: AssemblyTrademark("The Apache Software Foundation")]
-[assembly: AssemblyCopyright("Copyright © 2016 The Apache Software Foundation")]
+[assembly: AssemblyCopyright("Copyright © 2017 The Apache Software Foundation")]
 [assembly: AssemblyCulture("")]
 [assembly: AssemblyConfiguration("")]
 

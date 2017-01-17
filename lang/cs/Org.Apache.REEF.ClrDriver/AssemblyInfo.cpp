@@ -31,7 +31,7 @@ using namespace System::Security::Permissions;
 [assembly:AssemblyConfiguration("")]
 [assembly:AssemblyCompany("")]
 [assembly:AssemblyProduct("Org.Apache.REEF.ClrDriver")]
-[assembly:AssemblyCopyright("Copyright © 2016")]
+[assembly:AssemblyCopyright("Copyright © 2017")]
 [assembly:AssemblyTrademark("")]
 [assembly:AssemblyCulture("")]
 
