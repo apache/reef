@@ -20,6 +20,7 @@ using System.IO;
 using System.Net.Sockets;
 using System.Runtime.Remoting;
 using System.Threading;
+using Org.Apache.REEF.Common.Runtime;
 using Org.Apache.REEF.Common.Tasks;
 using Org.Apache.REEF.Common.Tasks.Events;
 using Org.Apache.REEF.IMRU.OnREEF.Driver;
@@ -64,6 +65,11 @@ namespace Org.Apache.REEF.IMRU.OnREEF.IMRUTasks
         protected readonly CancellationTokenSource _cancellationSource;
 
         /// <summary>
+        /// Machine status for log purpose
+        /// </summary>
+        private readonly MachineStatus _machineStatus = new MachineStatus();
+
+        /// <summary>
         /// Task host base class to hold the common stuff of both mapper and update tasks
         /// </summary>
         /// <param name="groupCommunicationsClient">Group Communication Client</param>
@@ -74,6 +80,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.IMRUTasks
             TaskCloseCoordinator taskCloseCoordinator,
             bool invokeGc)
         {
+            Logger.Log(Level.Info, "Entering TaskHostBase constructor with machine status {0}.", _machineStatus.ToString());
             _groupCommunicationsClient = groupCommunicationsClient;
             _communicationGroupClient = groupCommunicationsClient.GetCommunicationGroup(IMRUConstants.CommunicationGroupName);
 
@@ -88,7 +95,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.IMRUTasks
         /// </summary>
         public byte[] Call(byte[] memento)
         {
-            Logger.Log(Level.Info, "Entering {0} Call().", TaskHostName);
+            Logger.Log(Level.Info, "Entering {0} Call() with machine status {1}.", TaskHostName, _machineStatus.ToString());
             try
             {
                 _groupCommunicationsClient.Initialize(_cancellationSource);
@@ -111,6 +118,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.IMRUTasks
             }
             finally
             {
+                Logger.Log(Level.Info, "TaskHostBase::Finally");
                 _taskCloseCoordinator.SignalTaskStopped();
             }
             Logger.Log(Level.Info, "{0} returned with cancellation token:{1}.", TaskHostName, _cancellationSource.IsCancellationRequested);
