@@ -552,11 +552,12 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         {
             try
             {
-                return string.Format("State={0}, taskId={1}, ContextId={2}, evaluatorId={3}, evaluatorHost={4}",
+                return string.Format("State={0}, taskId={1}, ContextId={2}, evaluatorId={3}, TimeInCurrentStateinMs {4}, evaluatorHost={5}",
                     t.Value.TaskState.CurrentState,
                     t.Key,
                     t.Value.ActiveContext.Id,
                     t.Value.ActiveContext.EvaluatorId,
+                    (DateTime.Now - t.Value.TimeStateUpdated).Milliseconds,
                     t.Value.ActiveContext.EvaluatorDescriptor.NodeDescriptor.HostName);
             }
             catch (Exception ex)
