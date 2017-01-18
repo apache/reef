@@ -756,6 +756,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
 
                         if (waitingTasks.Any())
                         {
+                            Logger.Log(Level.Info, "There are {0} tasks that timed out", waitingTasks.Count);
                             WaitingForCloseTaskNoResponseAction(waitingTasks);
                         }
                         break;
