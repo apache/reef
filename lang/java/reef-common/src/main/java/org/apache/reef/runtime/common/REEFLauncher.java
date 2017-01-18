@@ -183,11 +183,9 @@ public final class REEFLauncher {
       throw fatal("Unable to configure and start REEFEnvironment.", ex);
     }
 
+    ThreadLogger.logThreads(LOG, Level.FINEST, "Threads running after REEFEnvironment.close():");
+
     LOG.log(Level.INFO, "Exiting REEFLauncher.main()");
-
-    System.exit(0);
-
-    ThreadLogger.logThreads(LOG, Level.FINEST, "Threads running after System.exit():");
   }
 
   /**
