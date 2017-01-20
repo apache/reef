@@ -128,10 +128,8 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
 
             if (NumberOfAllocatedEvaluators >= _totalExpectedEvaluators)
             {
-                string msg = string.Format("Trying to add an additional evaluator {0}, but the total expected Evaluator number {1} has been reached. Ignoring new evaluator", 
-                    evaluator.Id, _totalExpectedEvaluators);
-                Logger.Log(Level.Warning, msg);
-                return;
+                string msg = string.Format("Trying to add an additional Evaluator {0}, but the total expected Evaluator number {1} has been reached.", evaluator.Id, _totalExpectedEvaluators);
+                Exceptions.Throw(new IMRUSystemException(msg), Logger);
             }
            
             _allocatedEvaluatorIds.Add(evaluator.Id);

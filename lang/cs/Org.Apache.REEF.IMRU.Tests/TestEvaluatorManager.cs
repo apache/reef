@@ -90,10 +90,8 @@ namespace Org.Apache.REEF.IMRU.Tests
             var evaluatorManager = CreateEvaluatorManager(2, 1);
             evaluatorManager.AddMasterEvaluator(CreateMockAllocatedEvaluator(1));
             evaluatorManager.AddAllocatedEvaluator(CreateMockAllocatedEvaluator(2));
-            evaluatorManager.AddAllocatedEvaluator(CreateMockAllocatedEvaluator(3));
-
-            // the last evaluator should be just ignored
-            Assert.False(evaluatorManager.IsAllocatedEvaluator(EvaluatorIdPrefix + "3"));
+            Action add = () => evaluatorManager.AddAllocatedEvaluator(CreateMockAllocatedEvaluator(3));
+            Assert.Throws<IMRUSystemException>(add);
         }
 
         /// <summary>
