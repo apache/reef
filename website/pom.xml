@@ -85,6 +85,7 @@ under the License.
                     <pubScmUrl>scm:svn:https://svn.apache.org/repos/asf/reef/</pubScmUrl>
                     <ignorePathsToDelete>
                         <ignorePathToDelete>apidocs/**</ignorePathToDelete>
+                        <ignorePathToDelete>apidoc_net/**</ignorePathToDelete>
                     </ignorePathsToDelete>
                 </configuration>
             </plugin>
