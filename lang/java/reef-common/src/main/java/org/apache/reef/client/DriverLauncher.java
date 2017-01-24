@@ -24,7 +24,6 @@ import org.apache.reef.annotations.audience.Public;
 import org.apache.reef.tang.Configuration;
 import org.apache.reef.tang.Tang;
 import org.apache.reef.tang.annotations.Unit;
-import org.apache.reef.tang.exceptions.BindException;
 import org.apache.reef.tang.exceptions.InjectionException;
 import org.apache.reef.util.Optional;
 import org.apache.reef.wake.EventHandler;
@@ -48,7 +47,16 @@ import java.util.logging.Logger;
 public final class DriverLauncher {
 
   private static final Logger LOG = Logger.getLogger(DriverLauncher.class.getName());
+
+  private static final Configuration CLIENT_CONFIG = ClientConfiguration.CONF
+      .set(ClientConfiguration.ON_JOB_RUNNING, RunningJobHandler.class)
+      .set(ClientConfiguration.ON_JOB_COMPLETED, CompletedJobHandler.class)
+      .set(ClientConfiguration.ON_JOB_FAILED, FailedJobHandler.class)
+      .set(ClientConfiguration.ON_RUNTIME_ERROR, RuntimeErrorHandler.class)
+      .build();
+
   private final REEF reef;
+
   private LauncherStatus status = LauncherStatus.INIT;
   private RunningJob theJob = null;
 
@@ -62,21 +70,11 @@ public final class DriverLauncher {
    *
    * @param runtimeConfiguration the resourcemanager configuration to be used
    * @return a DriverLauncher based on the given resourcemanager configuration
-   * @throws BindException      on configuration errors
    * @throws InjectionException on configuration errors
    */
-  public static DriverLauncher getLauncher(
-      final Configuration runtimeConfiguration) throws BindException, InjectionException {
-
-    final Configuration clientConfiguration = ClientConfiguration.CONF
-        .set(ClientConfiguration.ON_JOB_RUNNING, RunningJobHandler.class)
-        .set(ClientConfiguration.ON_JOB_COMPLETED, CompletedJobHandler.class)
-        .set(ClientConfiguration.ON_JOB_FAILED, FailedJobHandler.class)
-        .set(ClientConfiguration.ON_RUNTIME_ERROR, RuntimeErrorHandler.class)
-        .build();
-
+  public static DriverLauncher getLauncher(final Configuration runtimeConfiguration) throws InjectionException {
     return Tang.Factory.getTang()
-        .newInjector(runtimeConfiguration, clientConfiguration)
+        .newInjector(runtimeConfiguration, CLIENT_CONFIG)
         .getInstance(DriverLauncher.class);
   }
 
