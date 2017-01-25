@@ -47,13 +47,13 @@ namespace Org.Apache.REEF.Tests.Functional.Failure.User
         /// the Evaluator does an attempt to send a final message to the Driver.
         /// </summary>
         [Fact]
-        public void TestUnhandledTaskExceptionCrashesEvaluator()
+        public void TestUnhandledThreadExceptionCrashesEvaluator()
         {
             var testFolder = DefaultRuntimeFolder + TestId;
-            TestRun(GetDriverConfiguration(), typeof(UnhandledThreadExceptionInTaskTest), 1, "testUnhandledTaskException", "local", testFolder);
+            TestRun(GetDriverConfiguration(), typeof(UnhandledThreadExceptionInTaskTest), 1, "testUnhandledThreadException", "local", testFolder);
             ValidateSuccessForLocalRuntime(0, numberOfEvaluatorsToFail: 2, testFolder: testFolder);
-            ValidateMessageSuccessfullyLoggedForDriver(SerializableSuccessMessage, testFolder, 1);
-            ValidateMessageSuccessfullyLoggedForDriver(NonSerializableSuccessMessage, testFolder, 1);
+            ValidateMessageSuccessfullyLoggedForDriver(SerializableSuccessMessage, testFolder);
+            ValidateMessageSuccessfullyLoggedForDriver(NonSerializableSuccessMessage, testFolder);
             CleanUp(testFolder);
         }
 
