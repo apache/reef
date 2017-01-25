@@ -17,6 +17,7 @@
 
 using System;
 using System.Runtime.Serialization;
+using System.Threading.Tasks;
 using Org.Apache.REEF.Common.Exceptions;
 using Org.Apache.REEF.Common.Tasks;
 using Org.Apache.REEF.Driver;
@@ -29,47 +30,86 @@ using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Tang.Util;
 using Org.Apache.REEF.Tests.Functional.Bridge.Exceptions;
 using Org.Apache.REEF.Tests.Functional.Bridge.Parameters;
-using Org.Apache.REEF.Tests.Functional.Common.Task;
 using Org.Apache.REEF.Utilities.Logging;
 using Xunit;
 
 namespace Org.Apache.REEF.Tests.Functional.Failure.User
 {
     [Collection("FunctionalTests")]
-    public sealed class TaskCallExceptionTest : ReefFunctionalTest
+    public sealed class UnhandledTaskExceptionInTaskTest : ReefFunctionalTest
     {
         private const string FailedTaskMessage = "I have successfully seen all failed tasks.";
         private const string ExpectedExceptionMessage = "Expected exception.";
-        private const int NumFailedTasksExpected = 2;
 
+        /// <summary>
+        /// This test validates that an unhandled Task Exception in a user's Task doesn't crash the Evaluator.
+        /// Instead, the exception is propagated as a regular Task exception.
+        /// </summary>
         [Fact]
-        [Trait("Priority", "1")]
-        [Trait("Category", "FunctionalGated")]
-        [Trait("Description", "Test invocation of FailedTaskHandler. Validates the Task ID of the failure, as well as the Exceptions of the Task failure.")]
-        //// TODO[JIRA REEF-1184]: add timeout 180 sec
-        public void TestFailedTaskEventHandlerOnLocalRuntime()
+        public void TestUnhandledTaskExceptionDoesntCrashEvaluator()
         {
-            string testFolder = DefaultRuntimeFolder + TestId;
-            TestRun(
-                DriverConfiguration.ConfigurationModule
-                    .Set(DriverConfiguration.OnDriverStarted, GenericType<TaskCallExceptionDriver>.Class)
-                    .Set(DriverConfiguration.OnEvaluatorAllocated, GenericType<TaskCallExceptionDriver>.Class)
-                    .Set(DriverConfiguration.OnTaskFailed, GenericType<TaskCallExceptionDriver>.Class)
-                    .Set(DriverConfiguration.OnTaskCompleted, GenericType<TaskCallExceptionDriver>.Class)
-                    .Build(), 
-                typeof(TaskCallExceptionDriver), 1, "failedTaskTest", "local", testFolder);
-
-            ValidateSuccessForLocalRuntime(numberOfContextsToClose: 1, numberOfTasksToFail: NumFailedTasksExpected, testFolder: testFolder);
+            var testFolder = DefaultRuntimeFolder + TestId;
+            TestRun(GetDriverConfiguration(), typeof(UnhandledThreadExceptionInTaskTest), 1, "testUnhandledTaskException", "local", testFolder);
+            ValidateSuccessForLocalRuntime(1, 2, testFolder: testFolder);
             ValidateMessageSuccessfullyLoggedForDriver(FailedTaskMessage, testFolder);
             CleanUp(testFolder);
         }
 
-        private sealed class TaskCallExceptionDriver : IObserver<IDriverStarted>, IObserver<IAllocatedEvaluator>, 
-            IObserver<IFailedTask>, IObserver<ICompletedTask>
+        private static IConfiguration GetDriverConfiguration()
+        {
+            return DriverConfiguration.ConfigurationModule
+                .Set(DriverConfiguration.OnDriverStarted, GenericType<UnhandledTaskExceptionInTaskTestDriver>.Class)
+                .Set(DriverConfiguration.OnEvaluatorFailed, GenericType<UnhandledTaskExceptionInTaskTestDriver>.Class)
+                .Set(DriverConfiguration.OnTaskFailed, GenericType<UnhandledTaskExceptionInTaskTestDriver>.Class)
+                .Set(DriverConfiguration.OnEvaluatorAllocated, GenericType<UnhandledTaskExceptionInTaskTestDriver>.Class)
+                .Set(DriverConfiguration.OnTaskCompleted, GenericType<UnhandledTaskExceptionInTaskTestDriver>.Class)
+                .Build();
+        }
+
+        /// <summary>
+        /// This Task throws an unhandled Exception in a Threading.Tasks.Task that it spins off.
+        /// </summary>
+        private sealed class UnhandledTaskExceptionInTaskTestTask : ITask
+        {
+            private readonly bool _shouldThrowSerializableException;
+
+            [Inject]
+            private UnhandledTaskExceptionInTaskTestTask(
+                [Parameter(typeof(ShouldThrowSerializableException))] bool shouldThrowSerializableException)
+            {
+                _shouldThrowSerializableException = shouldThrowSerializableException;
+            }
+
+            public byte[] Call(byte[] memento)
+            {
+                Task task = Task.Run(() =>
+                {
+                    if (_shouldThrowSerializableException)
+                    {
+                        throw new TestSerializableException(ExpectedExceptionMessage);
+                    }
+                    throw new TestNonSerializableException(ExpectedExceptionMessage);
+                });
+
+                task.Wait();
+                return null;
+            }
+
+            public void Dispose()
+            {
+            }
+        }
+
+        /// <summary>
+        /// This Driver verifies that the unhandled Exception doesn't trigger an Evaluator failure
+        /// but a failed Task instead.
+        /// </summary>
+        private sealed class UnhandledTaskExceptionInTaskTestDriver : IObserver<IDriverStarted>, IObserver<IAllocatedEvaluator>,
+            IObserver<IFailedTask>, IObserver<ICompletedTask>, IObserver<IFailedEvaluator>
         {
             private const string TaskId = "1234567";
 
-            private static readonly Logger Logger = Logger.GetLogger(typeof(TaskCallExceptionDriver));
+            private static readonly Logger Logger = Logger.GetLogger(typeof(UnhandledTaskExceptionInTaskTestDriver));
 
             private readonly IEvaluatorRequestor _requestor;
 
@@ -77,7 +117,7 @@ namespace Org.Apache.REEF.Tests.Functional.Failure.User
             private int _numFailedTasksReceived;
 
             [Inject]
-            private TaskCallExceptionDriver(IEvaluatorRequestor requestor)
+            private UnhandledTaskExceptionInTaskTestDriver(IEvaluatorRequestor requestor)
             {
                 _requestor = requestor;
             }
@@ -92,6 +132,11 @@ namespace Org.Apache.REEF.Tests.Functional.Failure.User
                 value.SubmitTask(GetTaskConfiguration());
             }
 
+            public void OnNext(IFailedEvaluator value)
+            {
+                throw new Exception("Didn't expect a failed Evaluator.");
+            }
+
             public void OnNext(IFailedTask value)
             {
                 _numFailedTasksReceived++;
@@ -101,43 +146,45 @@ namespace Org.Apache.REEF.Tests.Functional.Failure.User
                     throw new Exception("Received Task ID " + value.Id + " instead of the expected Task ID " + TaskId);
                 }
 
-                if (value.Message == null || value.Message != ExpectedExceptionMessage)
+                // since in this test exception is thrown by Threading.Tasks.Task spawned in our Task
+                // the exception is wrapped in AggregateException with "One or more errors occurred." message
+                if (value.Message == null || value.Message != "One or more errors occurred.")
                 {
                     throw new Exception("Exception message not properly propagated. Received message " + value.Message);
                 }
 
                 if (_shouldReceiveSerializableException)
                 {
-                    if (_numFailedTasksReceived == NumFailedTasksExpected)
+                    if (value.AsError() == null || !(value.AsError() is AggregateException))
                     {
-                        Logger.Log(Level.Error, FailedTaskMessage);
+                        throw new Exception("Outer exception should have been an AggregateException. " + value.AsError());
                     }
+                    var inner = value.AsError().InnerException;
 
-                    if (value.AsError() == null || !(value.AsError() is TestSerializableException))
+                    if (inner == null || !(inner is TestSerializableException))
                     {
                         throw new Exception("Exception should have been serialized properly.");
                     }
 
-                    if (value.AsError().Message != ExpectedExceptionMessage)
+                    if (inner.Message != ExpectedExceptionMessage)
                     {
                         throw new Exception("Incorrect Exception message, got message: " + value.AsError().Message);
+                    }
+
+                    if (_numFailedTasksReceived == 2)
+                    {
+                        Logger.Log(Level.Error, FailedTaskMessage);
                     }
 
                     value.GetActiveContext().Value.Dispose();
                 }
                 else
                 {
-                    var taskException = value.AsError();
-                    if (taskException == null)
-                    {
-                        throw new Exception("Expected a non-null task exception.");
-                    }
-
-                    var nonSerializableTaskException = taskException as NonSerializableTaskException;
+                    var nonSerializableTaskException = value.AsError() as NonSerializableTaskException;
                     if (nonSerializableTaskException == null)
                     {
                         throw new Exception(
-                            "Expected a NonSerializableTaskException from Task, instead got Exception of type " + taskException.GetType());
+                            "Expected a NonSerializableTaskException from Task, instead got Exception of type " + value.AsError().GetType());
                     }
 
                     if (!(nonSerializableTaskException.InnerException is SerializationException))
@@ -174,30 +221,10 @@ namespace Org.Apache.REEF.Tests.Functional.Failure.User
 
                 var taskConfig = TaskConfiguration.ConfigurationModule
                     .Set(TaskConfiguration.Identifier, TaskId)
-                    .Set(TaskConfiguration.Task, GenericType<TaskCallExceptionTask>.Class)
+                    .Set(TaskConfiguration.Task, GenericType<UnhandledTaskExceptionInTaskTestTask>.Class)
                     .Build();
 
                 return Configurations.Merge(shouldThrowSerializableConfig, taskConfig);
-            }
-        }
-
-        private sealed class TaskCallExceptionTask : ExceptionTask
-        {
-            [Inject]
-            private TaskCallExceptionTask(
-                [Parameter(typeof(ShouldThrowSerializableException))] bool shouldThrowSerializableException) 
-                : base(GetExceptionToThrow(shouldThrowSerializableException))
-            {
-            }
-
-            private static Exception GetExceptionToThrow(bool shouldThrowSerializableException)
-            {
-                if (shouldThrowSerializableException)
-                {
-                    return new TestSerializableException(ExpectedExceptionMessage);
-                }
-                
-                return new TestNonSerializableException(ExpectedExceptionMessage);
             }
         }
     }
