@@ -285,6 +285,7 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
    * Close message dispatcher for the evaluator.
    */
   public void shutdown() {
+    LOG.log(Level.FINEST, "Shutdown EvaluatorManager: {0}", this.evaluatorId);
     this.messageDispatcher.close();
   }
 

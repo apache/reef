@@ -156,26 +156,25 @@ public final class Evaluators implements AutoCloseable {
   public synchronized void removeClosedEvaluator(final EvaluatorManager evaluatorManager) {
 
     final String evaluatorId = evaluatorManager.getId();
+    LOG.log(Level.FINE, "Removing closed evaluator: {0}", evaluatorId);
 
     if (!evaluatorManager.isClosed()) {
-      throw new IllegalArgumentException("Trying to remove evaluator " + evaluatorId + " which is not closed yet.");
+      throw new IllegalArgumentException("Removing evaluator that has not been closed yet: " + evaluatorId);
     }
 
     if (!this.evaluators.containsKey(evaluatorId) && !this.closedEvaluatorIds.contains(evaluatorId)) {
-      throw new IllegalArgumentException("Trying to remove unknown evaluator " + evaluatorId + ".");
+      throw new IllegalArgumentException("Removing unknown evaluator: " + evaluatorId);
     }
 
     if (!this.evaluators.containsKey(evaluatorId) && this.closedEvaluatorIds.contains(evaluatorId)) {
-      LOG.log(Level.FINE, "Trying to remove closed evaluator {0} which has already been removed.", evaluatorId);
+      LOG.log(Level.FINE, "Removing closed evaluator which has already been removed: {0}", evaluatorId);
       return;
     }
-
-    LOG.log(Level.FINE, "Removing closed evaluator {0}", evaluatorId);
 
     evaluatorManager.shutdown();
     this.evaluators.remove(evaluatorId);
     this.closedEvaluatorIds.add(evaluatorId);
 
-    LOG.log(Level.FINEST, "Evaluator {0} removed", evaluatorId);
+    LOG.log(Level.FINEST, "Closed evaluator removed: {0}", evaluatorId);
   }
 }

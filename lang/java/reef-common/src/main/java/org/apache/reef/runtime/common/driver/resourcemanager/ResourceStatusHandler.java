@@ -61,30 +61,38 @@ public final class ResourceStatusHandler implements EventHandler<ResourceStatusE
    */
   @Override
   public void onNext(final ResourceStatusEvent resourceStatusEvent) {
-    final Optional<EvaluatorManager> evaluatorManager = this.evaluators.get(resourceStatusEvent.getIdentifier());
+
+    final String id = resourceStatusEvent.getIdentifier();
+    final Optional<EvaluatorManager> evaluatorManager = this.evaluators.get(id);
+
+    LOG.log(Level.FINEST, "Evaluator {0} status: {1}",
+        new Object[] {evaluatorManager, resourceStatusEvent.getState()});
+
     if (evaluatorManager.isPresent()) {
-      evaluatorManager.get().onResourceStatusMessage(resourceStatusEvent);
-
-      if (evaluatorManager.get().isClosed()) {
-        this.evaluators.removeClosedEvaluator(evaluatorManager.get());
+      final EvaluatorManager evaluatorManagerImpl = evaluatorManager.get();
+      evaluatorManagerImpl.onResourceStatusMessage(resourceStatusEvent);
+      if (evaluatorManagerImpl.isClosed()) {
+        this.evaluators.removeClosedEvaluator(evaluatorManagerImpl);
       }
+
     } else {
-      if (this.evaluators.wasClosed(resourceStatusEvent.getIdentifier())) {
-        LOG.log(Level.WARNING, "Unexpected resource status from closed evaluator " +
-            resourceStatusEvent.getIdentifier() + " with state " + resourceStatusEvent.getState());
+
+      if (this.evaluators.wasClosed(id)) {
+        LOG.log(Level.WARNING,
+            "Unexpected resource status from closed evaluator {0} with state {1}",
+            new Object[] {id, resourceStatusEvent.getState()});
       }
 
-      if (driverRestartManager.get().getEvaluatorRestartState(resourceStatusEvent.getIdentifier())
-            .isFailedOrExpired()) {
+      if (driverRestartManager.get().getEvaluatorRestartState(id).isFailedOrExpired()) {
+
         final EvaluatorManager previousEvaluatorManager = this.evaluatorManagerFactory
             .getNewEvaluatorManagerForEvaluatorFailedDuringDriverRestart(resourceStatusEvent);
 
         previousEvaluatorManager.onResourceStatusMessage(resourceStatusEvent);
+
       } else {
         throw new RuntimeException(
-            "Unknown resource status from evaluator " + resourceStatusEvent.getIdentifier() +
-                " with state " + resourceStatusEvent.getState()
-        );
+            "Unknown resource status from evaluator " + id + " with state " + resourceStatusEvent.getState());
       }
     }
   }
