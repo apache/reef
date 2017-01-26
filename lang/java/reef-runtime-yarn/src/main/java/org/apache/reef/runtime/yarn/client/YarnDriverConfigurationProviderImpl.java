@@ -18,6 +18,7 @@
  */
 package org.apache.reef.runtime.yarn.client;
 
+import org.apache.reef.annotations.audience.Private;
 import org.apache.reef.runtime.common.client.DriverConfigurationProvider;
 import org.apache.reef.runtime.common.parameters.JVMHeapSlack;
 import org.apache.reef.runtime.yarn.driver.RuntimeIdentifier;
@@ -33,7 +34,9 @@ import static org.apache.reef.runtime.yarn.driver.YarnDriverConfiguration.*;
 /**
  * Default driver configuration provider for yarn runtime.
  */
-final class YarnDriverConfigurationProviderImpl implements DriverConfigurationProvider {
+@Private
+public final class YarnDriverConfigurationProviderImpl implements DriverConfigurationProvider {
+
   private final double jvmSlack;
 
   @Inject
