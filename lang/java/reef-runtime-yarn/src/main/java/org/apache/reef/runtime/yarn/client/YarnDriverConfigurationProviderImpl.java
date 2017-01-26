@@ -33,7 +33,8 @@ import static org.apache.reef.runtime.yarn.driver.YarnDriverConfiguration.*;
 /**
  * Default driver configuration provider for yarn runtime.
  */
-final class YarnDriverConfigurationProviderImpl implements DriverConfigurationProvider {
+public final class YarnDriverConfigurationProviderImpl implements DriverConfigurationProvider {
+
   private final double jvmSlack;
 
   @Inject
