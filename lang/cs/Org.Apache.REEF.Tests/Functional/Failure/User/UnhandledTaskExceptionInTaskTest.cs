@@ -171,12 +171,12 @@ namespace Org.Apache.REEF.Tests.Functional.Failure.User
                         throw new Exception("Incorrect Exception message, got message: " + value.AsError().Message);
                     }
 
-                    value.GetActiveContext().Value.Dispose();
-
                     if (_numFailedTasksReceived == 2)
                     {
                         Logger.Log(Level.Error, FailedTaskMessage);
                     }
+
+                    value.GetActiveContext().Value.Dispose();
                 }
                 else
                 {
