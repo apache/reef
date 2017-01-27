@@ -25,6 +25,7 @@ using Org.Apache.REEF.IMRU.OnREEF.Parameters;
 using Org.Apache.REEF.Network.Group.Operators;
 using Org.Apache.REEF.Network.Group.Task;
 using Org.Apache.REEF.Tang.Annotations;
+using Org.Apache.REEF.Utilities;
 using Org.Apache.REEF.Utilities.Attributes;
 using Org.Apache.REEF.Utilities.Logging;
 
@@ -45,6 +46,11 @@ namespace Org.Apache.REEF.IMRU.OnREEF.IMRUTasks
         private readonly IBroadcastSender<MapInputWithControlMessage<TMapInput>> _dataAndControlMessageSender;
         private readonly IUpdateFunction<TMapInput, TMapOutput, TResult> _updateTask;
         private readonly IIMRUResultHandler<TResult> _resultHandler;
+
+        /// <summary>
+        /// It indicates if the update task has completed and result has been written.
+        /// </summary>
+        private bool _done;
 
         /// <summary>
         /// </summary>
@@ -114,6 +120,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.IMRUTasks
                     if (updateResult.HasResult)
                     {
                         _resultHandler.HandleResult(updateResult.Result);
+                        _done = true;
                     }
                 }
                 catch (Exception e)
@@ -129,6 +136,10 @@ namespace Org.Apache.REEF.IMRU.OnREEF.IMRUTasks
                 _dataAndControlMessageSender.Send(stopMessage);
             }
 
+            if (_done)
+            {
+                return ByteUtilities.StringToByteArrays(TaskManager.UpdateTaskCompleted);
+            }
             return null;
         }
 

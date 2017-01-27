@@ -28,6 +28,7 @@ using Org.Apache.REEF.IMRU.OnREEF.Driver.StateMachine;
 using Org.Apache.REEF.IMRU.OnREEF.IMRUTasks;
 using Org.Apache.REEF.Tang.Exceptions;
 using Org.Apache.REEF.Tang.Interface;
+using Org.Apache.REEF.Utilities;
 using Org.Apache.REEF.Utilities.Attributes;
 using Org.Apache.REEF.Utilities.Diagnostics;
 using Org.Apache.REEF.Utilities.Logging;
@@ -59,6 +60,11 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         /// Error message in Task exception to show the task received close event
         /// </summary>
         internal const string TaskKilledByDriver = "TaskKilledByDriver";
+
+        /// <summary>
+        /// Result sent from UpdateTaskHost with the ICompletedTask message
+        /// </summary>
+        internal const string UpdateTaskCompleted = "UpdateTaskCompleted";
 
         /// <summary>
         /// This Dictionary contains task information. The key is the Id of the Task, the value is TaskInfo which contains
@@ -215,8 +221,9 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
 
         /// <summary>
         /// This method is called when receiving ICompletedTask event during task running or system shutting down.
-        /// If it is master task and if the master task was running, mark _masterTaskCompletedRunning true. That indicates 
-        /// master task has successfully completed, which means the system has got the result from master task. 
+        /// If it is master task, if the master task was running or if the task message indicates the task has been done,
+        /// mark _masterTaskCompletedRunning true. That indicates master task has successfully completed, which means the 
+        /// system has got the result from master task. 
         /// Removes the task from running tasks if it was running
         /// Changes the task state from RunningTask to CompletedTask if the task was running
         /// Change the task stat from TaskWaitingForClose to TaskClosedByDriver if the task was in TaskWaitingForClose state
@@ -225,7 +232,14 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         {
             if (completedTask.Id.Equals(_masterTaskId))
             {
-                if (GetTaskInfo(completedTask.Id).TaskState.CurrentState.Equals(TaskState.TaskRunning))
+                string message = "";
+                if (completedTask.Message != null)
+                {
+                    message = ByteUtilities.ByteArraysToString(completedTask.Message);
+                    Logger.Log(Level.Info, "UpdateTask message {0}", message);
+                }
+
+                if (message.Equals(TaskManager.UpdateTaskCompleted))
                 {
                     _masterTaskCompletedRunning = true;
                 }
