@@ -479,6 +479,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         public void OnNext(ICompletedTask completedTask)
         {
             Logger.Log(Level.Info, "Received ICompletedTask {0}, with systemState {1} in retry# {2}.", completedTask.Id, _systemState.CurrentState, _numberOfRetries);
+            
             lock (_lock)
             {
                 if (_evaluatorsForceClosed.Contains(completedTask.ActiveContext.EvaluatorId))
@@ -501,7 +502,16 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
                     case SystemState.ShuttingDown:
                         // The task might be in running state or waiting for close, record the completed task
                         _taskManager.RecordCompletedTask(completedTask);
-                        TryRecovery();
+                        if (_taskManager.IsJobDone())
+                        {
+                            _systemState.MoveNext(SystemStateEvent.AllTasksAreCompleted);
+                            Logger.Log(Level.Info, "Master task is completed, systemState {0}", _systemState.CurrentState);
+                            DoneAction();
+                        }
+                        else
+                        {
+                            TryRecovery();
+                        }
                         break;
 
                     case SystemState.TasksCompleted:
