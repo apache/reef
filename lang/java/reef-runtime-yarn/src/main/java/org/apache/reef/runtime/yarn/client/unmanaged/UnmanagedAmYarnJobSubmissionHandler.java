@@ -61,7 +61,7 @@ final class UnmanagedAmYarnJobSubmissionHandler implements JobSubmissionHandler 
       this.submissionHelper = new UnmanagedAmYarnSubmissionHelper(yarnConfiguration, tokenProvider);
     } catch (final IOException | YarnException ex) {
       LOG.log(Level.SEVERE, "Cannot create YARN client", ex);
-      throw new RuntimeException(ex);
+      throw new RuntimeException("Cannot create YARN client", ex);
     }
   }
 
@@ -73,23 +73,23 @@ final class UnmanagedAmYarnJobSubmissionHandler implements JobSubmissionHandler 
   @Override
   public void onNext(final JobSubmissionEvent jobSubmissionEvent) {
 
-    final String id = jobSubmissionEvent.getIdentifier();
+    final String jobId = jobSubmissionEvent.getIdentifier();
     LOG.log(Level.FINEST, "Submitting UNMANAGED AM job: {0}", jobSubmissionEvent);
 
     try {
       this.driverFiles.copyGlobalsFrom(jobSubmissionEvent);
 
       this.submissionHelper
-          .setApplicationName(id)
+          .setApplicationName(jobId)
           .setPriority(jobSubmissionEvent.getPriority().orElse(0))
           .setQueue(getQueue(jobSubmissionEvent))
           .submit();
 
       this.applicationId = this.submissionHelper.getStringApplicationId();
-      LOG.log(Level.FINER, "Submitted UNMANAGED AM job with ID {0} :: {1}", new String[] {id, this.applicationId});
+      LOG.log(Level.FINER, "Submitted UNMANAGED AM job with ID {0} :: {1}", new String[] {jobId, this.applicationId});
 
     } catch (final IOException | YarnException ex) {
-      throw new RuntimeException("Unable to submit UNMANAGED Driver to YARN: " + id, ex);
+      throw new RuntimeException("Unable to submit UNMANAGED Driver to YARN: " + jobId, ex);
     }
   }
 
