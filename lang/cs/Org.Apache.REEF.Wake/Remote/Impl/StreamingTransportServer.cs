@@ -177,7 +177,7 @@ namespace Org.Apache.REEF.Wake.Remote.Impl
             catch (Exception e)
             {
                 LOGGER.Log(Level.Warning, "StreamingTransportServer got exception: {0}.", e.GetType());
-                throw e;
+                throw;
             }
         }
 
@@ -212,7 +212,7 @@ namespace Org.Apache.REEF.Wake.Remote.Impl
             catch (Exception e)
             {
                 LOGGER.Log(Level.Warning, "StreamingTransportServer get exception in ProcessClient: {0}, IsCancellationRequested {1}.", e.GetType(), token.IsCancellationRequested);
-                throw e;
+                throw;
             }
         }
     }
