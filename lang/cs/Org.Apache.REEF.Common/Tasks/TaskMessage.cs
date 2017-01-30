@@ -17,7 +17,6 @@
 
 using System;
 using Org.Apache.REEF.Utilities;
-using Org.Apache.REEF.Utilities.Logging;
 
 namespace Org.Apache.REEF.Common.Tasks
 {
@@ -26,19 +25,18 @@ namespace Org.Apache.REEF.Common.Tasks
     /// </summary>
     public class TaskMessage : IMessage
     {
-        private static readonly Logger LOGGER = Logger.GetLogger(typeof(TaskMessage));
-        private readonly string _messageSourcId;
+        private readonly string _messageSourceId;
         private readonly byte[] _bytes;
 
         private TaskMessage(string messageSourceId, byte[] bytes)
         {
-            _messageSourcId = messageSourceId;
+            _messageSourceId = messageSourceId;
             _bytes = bytes;
         }
 
         public string MessageSourceId
         {
-            get { return _messageSourcId; }
+            get { return _messageSourceId; }
         }
 
         public byte[] Message
@@ -56,11 +54,11 @@ namespace Org.Apache.REEF.Common.Tasks
         {
             if (string.IsNullOrEmpty(messageSourceId))
             {
-                Utilities.Diagnostics.Exceptions.Throw(new ArgumentNullException("messageSourceId"), LOGGER);
+                throw new ArgumentNullException("messageSourceId");
             }
             if (message == null)
             {
-                Utilities.Diagnostics.Exceptions.Throw(new ArgumentNullException("message"), LOGGER);
+                throw new ArgumentNullException("message");
             }
             return new TaskMessage(messageSourceId, message);
         }
