@@ -21,6 +21,9 @@ using Org.Apache.REEF.Utilities.Logging;
 
 namespace Org.Apache.REEF.Common.Tasks
 {
+    /// <summary>
+    /// Task-side TaskMessage.
+    /// </summary>
     public class TaskMessage : IMessage
     {
         private static readonly Logger LOGGER = Logger.GetLogger(typeof(TaskMessage));
@@ -41,24 +44,23 @@ namespace Org.Apache.REEF.Common.Tasks
         public byte[] Message
         {
             get { return _bytes; }
-            set { }
         }
 
         /// <summary>
-        ///  From byte[] message to a TaskMessage
+        /// From byte[] message to a TaskMessage
         /// </summary>
-        /// <param name="messageSourceId">messageSourceId The message's sourceID. This will be accessible in the Driver for routing</param>
+        /// <param name="messageSourceId">The message's sourceID. This will be accessible in the Driver for routing</param>
         /// <param name="message">The actual content of the message, serialized into a byte[]</param>
         /// <returns>a new TaskMessage with the given content</returns>
         public static TaskMessage From(string messageSourceId, byte[] message)
         {
             if (string.IsNullOrEmpty(messageSourceId))
             {
-                Org.Apache.REEF.Utilities.Diagnostics.Exceptions.Throw(new ArgumentNullException("messageSourceId"), LOGGER);
+                Utilities.Diagnostics.Exceptions.Throw(new ArgumentNullException("messageSourceId"), LOGGER);
             }
             if (message == null)
             {
-                Org.Apache.REEF.Utilities.Diagnostics.Exceptions.Throw(new ArgumentNullException("bytes"), LOGGER);
+                Utilities.Diagnostics.Exceptions.Throw(new ArgumentNullException("message"), LOGGER);
             }
             return new TaskMessage(messageSourceId, message);
         }

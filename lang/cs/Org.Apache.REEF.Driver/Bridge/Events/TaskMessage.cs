@@ -22,7 +22,7 @@ using Org.Apache.REEF.Driver.Task;
 namespace Org.Apache.REEF.Driver.Bridge.Events
 {
     /// <summary>
-    /// TaskMessage which wraps ITaskMessageClr2Java
+    /// Driver-side TaskMessage which wraps ITaskMessageClr2Java
     /// </summary>
     [DataContract]
     internal sealed class TaskMessage : ITaskMessage
