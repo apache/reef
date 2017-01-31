@@ -55,7 +55,8 @@ final class UnmanagedDriverFiles {
 
     final File reefGlobalPath = new File(this.rootFolderName, this.fileNames.getGlobalFolderPath());
     if (!reefGlobalPath.exists() && !reefGlobalPath.mkdirs()) {
-      LOG.log(Level.WARNING, "Failed to create {0}", reefGlobalPath);
+      LOG.log(Level.WARNING, "Failed to create directory: {0}", reefGlobalPath);
+      throw new RuntimeException("Failed to create directory: " + reefGlobalPath);
     }
 
     reefGlobalPath.deleteOnExit();
