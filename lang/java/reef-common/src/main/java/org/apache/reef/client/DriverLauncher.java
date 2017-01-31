@@ -29,6 +29,8 @@ import org.apache.reef.util.Optional;
 import org.apache.reef.wake.EventHandler;
 
 import javax.inject.Inject;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -36,7 +38,7 @@ import java.util.logging.Logger;
  * A launcher for REEF Drivers.
  * <p>
  * It can be instantiated using a configuration that can create a REEF instance.
- * For example, the local resourcemanager and the YARN resourcemanager can do this.
+ * For example, the local resource manager and the YARN resource manager can do this.
  * <p>
  * See {@link org.apache.reef.examples.hello} package for a demo use case.
  */
@@ -44,11 +46,12 @@ import java.util.logging.Logger;
 @Provided
 @ClientSide
 @Unit
-public final class DriverLauncher {
+public final class DriverLauncher implements AutoCloseable {
 
   private static final Logger LOG = Logger.getLogger(DriverLauncher.class.getName());
 
   private static final Configuration CLIENT_CONFIG = ClientConfiguration.CONF
+      .set(ClientConfiguration.ON_JOB_SUBMITTED, SubmittedJobHandler.class)
       .set(ClientConfiguration.ON_JOB_RUNNING, RunningJobHandler.class)
       .set(ClientConfiguration.ON_JOB_COMPLETED, CompletedJobHandler.class)
       .set(ClientConfiguration.ON_JOB_FAILED, FailedJobHandler.class)
@@ -58,7 +61,9 @@ public final class DriverLauncher {
   private final REEF reef;
 
   private LauncherStatus status = LauncherStatus.INIT;
-  private RunningJob theJob = null;
+
+  private String jobId;
+  private RunningJob theJob;
 
   @Inject
   private DriverLauncher(final REEF reef) {
@@ -81,14 +86,21 @@ public final class DriverLauncher {
   /**
    * Kills the running job.
    */
-  public synchronized void close() {
-    if (this.status.isRunning()) {
-      this.status = LauncherStatus.FORCE_CLOSED;
+  @Override
+  public void close() {
+    synchronized (this) {
+      LOG.log(Level.FINER, "Close launcher: job {0} with status {1}", new Object[] {this.theJob, this.status});
+      if (this.status.isRunning()) {
+        this.status = LauncherStatus.FORCE_CLOSED;
+      }
+      if (null != this.theJob) {
+        this.theJob.close();
+      }
+      this.notify();
     }
-    if (null != this.theJob) {
-      this.theJob.close();
-    }
-    this.notify();
+    LOG.log(Level.FINEST, "Close launcher: shutdown REEF");
+    this.reef.close();
+    LOG.log(Level.FINEST, "Close launcher: done");
   }
 
   /**
@@ -110,68 +122,114 @@ public final class DriverLauncher {
       }
     }
     this.reef.close();
+    return this.getStatus();
+  }
+
+  /**
+   * Submit REEF job asynchronously and do not wait for its completion.
+   *
+   * @param driverConfig configuration of hte driver to submit to the RM.
+   * @return ID of the new application.
+   */
+  public String submit(final Configuration driverConfig, final long waitTime) {
+    this.reef.submit(driverConfig);
+    this.waitForStatus(waitTime, LauncherStatus.SUBMITTED);
+    return this.jobId;
+  }
+
+  /**
+   * Wait for one of the specified statuses of the REEF job.
+   * This method is called after the job is submitted to the RM via submit().
+   * @param waitTime wait time in milliseconds.
+   * @param statuses array of statuses to wait for.
+   * @return the state of the job after the wait.
+   */
+  public LauncherStatus waitForStatus(final long waitTime, final LauncherStatus... statuses) {
+
+    final long endTime = System.currentTimeMillis() + waitTime;
+
+    final HashSet<LauncherStatus> statSet = new HashSet<>(statuses.length * 2);
+    Collections.addAll(statSet, statuses);
+    Collections.addAll(statSet, LauncherStatus.FAILED, LauncherStatus.FORCE_CLOSED);
+
+    LOG.log(Level.FINEST, "Wait for status: {0}", statSet);
+    final LauncherStatus finalStatus;
+
     synchronized (this) {
-      return this.status;
+      while (!statSet.contains(this.status)) {
+        try {
+          final long delay = endTime - System.currentTimeMillis();
+          if (delay <= 0) {
+            break;
+          }
+          LOG.log(Level.FINE, "Wait for {0} milliSeconds", delay);
+          this.wait(delay);
+        } catch (final InterruptedException ex) {
+          LOG.log(Level.FINE, "Interrupted: {0}", ex);
+        }
+      }
+
+      finalStatus = this.status;
     }
+
+    LOG.log(Level.FINEST, "Final status: {0}", finalStatus);
+    return finalStatus;
   }
 
   /**
    * Run a job with a waiting timeout after which it will be killed, if it did not complete yet.
    *
    * @param driverConfig the configuration for the driver. See DriverConfiguration for details.
-   * @param timeOut      timeout on the job.
+   * @param timeOut timeout on the job.
    * @return the state of the job after execution.
    */
   public LauncherStatus run(final Configuration driverConfig, final long timeOut) {
-    final long endTime = System.currentTimeMillis() + timeOut;
+
+    final long startTime = System.currentTimeMillis();
+
     this.reef.submit(driverConfig);
-    synchronized (this) {
-      while (!this.status.isDone()) {
-        try {
-          final long waitTime = endTime - System.currentTimeMillis();
-          if (waitTime <= 0) {
-            break;
-          }
-          LOG.log(Level.FINE, "Wait for {0} milliSeconds", waitTime);
-          this.wait(waitTime);
-        } catch (final InterruptedException ex) {
-          LOG.log(Level.FINE, "Interrupted: {0}", ex);
-        }
-      }
-      if (System.currentTimeMillis() >= endTime) {
-        LOG.log(Level.WARNING, "The Job timed out.");
+    this.waitForStatus(timeOut - System.currentTimeMillis() + startTime, LauncherStatus.COMPLETED);
+
+    if (System.currentTimeMillis() - startTime >= timeOut) {
+      LOG.log(Level.WARNING, "The Job timed out.");
+      synchronized (this) {
         this.status = LauncherStatus.FORCE_CLOSED;
       }
     }
 
     this.reef.close();
-    synchronized (this) {
-      return this.status;
-    }
+    return this.getStatus();
   }
 
   /**
    * @return the current status of the job.
    */
-  public LauncherStatus getStatus() {
-    synchronized (this) {
-      return this.status;
-    }
+  public synchronized LauncherStatus getStatus() {
+    return this.status;
   }
 
-  /**
-   * Update job status and notify the waiting thread.
-   */
-  @SuppressWarnings("checkstyle:hiddenfield")
-  public synchronized void setStatusAndNotify(final LauncherStatus status) {
-    LOG.log(Level.FINEST, "Set status: {0} -> {1}", new Object[]{this.status, status});
-    this.status = status;
+  /** Update job status and notify the waiting thread. */
+  public synchronized void setStatusAndNotify(final LauncherStatus newStatus) {
+    LOG.log(Level.FINEST, "Set status: {0} -> {1}", new Object[] {this.status, newStatus});
+    this.status = newStatus;
     this.notify();
   }
 
   @Override
   public String toString() {
-    return this.status.toString();
+    return String.format("DriverLauncher: { jobId: %s, status: %s }", this.jobId, this.status);
+  }
+
+  /**
+   * Job driver notifies us that the job has been submitted to the Resource Manager.
+   */
+  public final class SubmittedJobHandler implements EventHandler<SubmittedJob> {
+    @Override
+    public void onNext(final SubmittedJob job) {
+      LOG.log(Level.INFO, "REEF job submitted: {0}.", job.getId());
+      jobId = job.getId();
+      setStatusAndNotify(LauncherStatus.SUBMITTED);
+    }
   }
 
   /**
@@ -217,7 +275,7 @@ public final class DriverLauncher {
   public final class RuntimeErrorHandler implements EventHandler<FailedRuntime> {
     @Override
     public void onNext(final FailedRuntime error) {
-      LOG.log(Level.SEVERE, "Received a resourcemanager error", error.getReason());
+      LOG.log(Level.SEVERE, "Received a resource manager error", error.getReason());
       theJob = null;
       setStatusAndNotify(LauncherStatus.failed(error.getReason()));
     }

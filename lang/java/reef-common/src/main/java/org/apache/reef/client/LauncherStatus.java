@@ -26,17 +26,18 @@ import org.apache.reef.util.Optional;
 public final class LauncherStatus {
 
   public static final LauncherStatus INIT = new LauncherStatus(State.INIT);
+  public static final LauncherStatus SUBMITTED = new LauncherStatus(State.SUBMITTED);
   public static final LauncherStatus RUNNING = new LauncherStatus(State.RUNNING);
   public static final LauncherStatus COMPLETED = new LauncherStatus(State.COMPLETED);
   public static final LauncherStatus FORCE_CLOSED = new LauncherStatus(State.FORCE_CLOSED);
   public static final LauncherStatus FAILED = new LauncherStatus(State.FAILED);
+
   private final State state;
   private final Optional<Throwable> error;
 
   private LauncherStatus(final State state) {
     this(state, null);
   }
-
 
   private LauncherStatus(final State state, final Throwable ex) {
     this.state = state;
@@ -120,6 +121,7 @@ public final class LauncherStatus {
    */
   private enum State {
     INIT,
+    SUBMITTED,
     RUNNING,
     COMPLETED,
     FAILED,
