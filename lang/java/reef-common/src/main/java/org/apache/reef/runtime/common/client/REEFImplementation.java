@@ -22,7 +22,9 @@ import org.apache.reef.annotations.Provided;
 import org.apache.reef.annotations.audience.ClientSide;
 import org.apache.reef.annotations.audience.Private;
 import org.apache.reef.client.REEF;
+import org.apache.reef.client.SubmittedJob;
 import org.apache.reef.client.parameters.DriverConfigurationProviders;
+import org.apache.reef.client.parameters.JobSubmittedHandler;
 import org.apache.reef.runtime.common.client.api.JobSubmissionEvent;
 import org.apache.reef.runtime.common.client.api.JobSubmissionHandler;
 import org.apache.reef.runtime.common.launch.parameters.ErrorHandlerRID;
@@ -36,6 +38,7 @@ import org.apache.reef.tang.annotations.Parameter;
 import org.apache.reef.util.REEFVersion;
 import org.apache.reef.util.logging.LoggingScope;
 import org.apache.reef.util.logging.LoggingScopeFactory;
+import org.apache.reef.wake.EventHandler;
 
 import javax.inject.Inject;
 import java.util.Set;
@@ -53,34 +56,37 @@ public final class REEFImplementation implements REEF {
   private static final Logger LOG = Logger.getLogger(REEFImplementation.class.getName());
 
   private final JobSubmissionHandler jobSubmissionHandler;
-  private final RunningJobs runningJobs;
   private final JobSubmissionHelper jobSubmissionHelper;
+  private final EventHandler<SubmittedJob> jobSubmittedHandler;
+  private final RunningJobs runningJobs;
   private final ClientWireUp clientWireUp;
   private final LoggingScopeFactory loggingScopeFactory;
   private final Set<ConfigurationProvider> configurationProviders;
 
   /**
    * @param jobSubmissionHandler
-   * @param runningJobs
    * @param jobSubmissionHelper
    * @param jobStatusMessageHandler is passed only to make sure it is instantiated
+   * @param runningJobs
    * @param clientWireUp
-   * @param reefVersion             provides the current version of REEF.
+   * @param reefVersion provides the current version of REEF.
    * @param configurationProviders
    */
   @Inject
   REEFImplementation(final JobSubmissionHandler jobSubmissionHandler,
-                     final RunningJobs runningJobs,
                      final JobSubmissionHelper jobSubmissionHelper,
                      final JobStatusMessageHandler jobStatusMessageHandler,
+                     final RunningJobs runningJobs,
                      final ClientWireUp clientWireUp,
                      final LoggingScopeFactory loggingScopeFactory,
                      final REEFVersion reefVersion,
+                     @Parameter(JobSubmittedHandler.class) final EventHandler<SubmittedJob> jobSubmittedHandler,
                      @Parameter(DriverConfigurationProviders.class)
                      final Set<ConfigurationProvider> configurationProviders) {
     this.jobSubmissionHandler = jobSubmissionHandler;
-    this.runningJobs = runningJobs;
+    this.jobSubmittedHandler = jobSubmittedHandler;
     this.jobSubmissionHelper = jobSubmissionHelper;
+    this.runningJobs = runningJobs;
     this.clientWireUp = clientWireUp;
     this.configurationProviders = configurationProviders;
     clientWireUp.performWireUp();
@@ -127,6 +133,9 @@ public final class REEFImplementation implements REEF {
       }
 
       this.jobSubmissionHandler.onNext(submissionMessage);
+
+      this.jobSubmittedHandler.onNext(
+          new SubmittedJobImpl(this.jobSubmissionHandler.getApplicationId()));
     }
   }
 

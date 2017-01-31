@@ -39,6 +39,12 @@ public final class ClientConfiguration extends ConfigurationModuleBuilder {
   public static final OptionalImpl<EventHandler<JobMessage>> ON_JOB_MESSAGE = new OptionalImpl<>();
 
   /**
+   * Handler for the event when a REEF job is submitted to the Resource Manager.
+   * Default implementation just writes the new job ID to the log.
+   */
+  public static final OptionalImpl<EventHandler<SubmittedJob>> ON_JOB_SUBMITTED = new OptionalImpl<>();
+
+  /**
    * Handler for the event when a submitted REEF Job is running.
    * Default implementation just writes to the log.
    */
@@ -73,6 +79,7 @@ public final class ClientConfiguration extends ConfigurationModuleBuilder {
 
   public static final ConfigurationModule CONF = new ClientConfiguration()
       .bind(JobMessageHandler.class, ON_JOB_MESSAGE)
+      .bind(JobSubmittedHandler.class, ON_JOB_SUBMITTED)
       .bind(JobRunningHandler.class, ON_JOB_RUNNING)
       .bind(JobCompletedHandler.class, ON_JOB_COMPLETED)
       .bind(JobFailedHandler.class, ON_JOB_FAILED)
