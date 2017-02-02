@@ -239,7 +239,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
                     Logger.Log(Level.Info, "UpdateTask message {0}", message);
                 }
 
-                if (GetTaskInfo(completedTask.Id).TaskState.CurrentState.Equals(TaskState.TaskRunning) || message.Equals(TaskManager.UpdateTaskCompleted))
+                if (message.Equals(TaskManager.UpdateTaskCompleted))
                 {
                     _masterTaskCompletedRunning = true;
                 }

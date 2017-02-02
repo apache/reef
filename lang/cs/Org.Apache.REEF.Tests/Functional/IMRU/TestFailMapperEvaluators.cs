@@ -63,7 +63,6 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
             var runningTaskCount = GetMessageCount(lines, RunningTaskMessage);
             var failedEvaluatorCount = GetMessageCount(lines, FailedEvaluatorMessage);
             var failedTaskCount = GetMessageCount(lines, FailedTaskMessage);
-            var updateTaskCompletedCount = GetMessageCount(lines, TaskManager.UpdateTaskCompleted);
             var jobSuccess = GetMessageCount(lines, IMRUDriver<int[], int[], int[], int[]>.DoneActionPrefix);
 
             // on each try each task should fail or complete or disappear with failed evaluator
@@ -71,7 +70,6 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
             Assert.True((NumberOfRetry + 1) * numTasks >= completedTaskCount + failedEvaluatorCount + failedTaskCount);
             Assert.True(NumberOfRetry * numTasks < completedTaskCount + failedEvaluatorCount + failedTaskCount);
             Assert.Equal((NumberOfRetry + 1) * numTasks, runningTaskCount);
-            Assert.Equal(1, updateTaskCompletedCount);
 
             // eventually job succeeds
             Assert.Equal(1, jobSuccess);
