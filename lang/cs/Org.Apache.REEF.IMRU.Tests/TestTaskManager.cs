@@ -205,7 +205,7 @@ namespace Org.Apache.REEF.IMRU.Tests
             taskManager.RecordCompletedTask(CreateMockCompletedTask(MapperTaskIdPrefix + 1));
             Assert.False(taskManager.IsMasterTaskCompletedRunning());
 
-            taskManager.RecordCompletedTask(CreateMockCompletedTask(MasterTaskId));
+            taskManager.RecordCompletedTask(CreateMockCompletedUpdateTask(MasterTaskId));
             Assert.True(taskManager.IsMasterTaskCompletedRunning());
 
             taskManager.RecordCompletedTask(CreateMockCompletedTask(MapperTaskIdPrefix + 2));
@@ -744,6 +744,18 @@ namespace Org.Apache.REEF.IMRU.Tests
         {
             var completedTask = Substitute.For<ICompletedTask>();
             completedTask.Id.Returns(taskId);
+            return completedTask;
+        }
+
+        /// <summary>
+        /// Creates a mock completed update task with the taskId specified
+        /// </summary>
+        /// <param name="taskId"></param>
+        /// <returns></returns>
+        private static ICompletedTask CreateMockCompletedUpdateTask(string taskId)
+        {
+            var completedTask = CreateMockCompletedTask(taskId);
+            completedTask.Message.Returns(ByteUtilities.StringToByteArrays(TaskManager.UpdateTaskCompleted));
             return completedTask;
         }
 
