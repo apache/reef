@@ -134,7 +134,9 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
         {
             var c = IMRUUpdateConfiguration<int[], int[], int[]>.ConfigurationModule
                 .Set(IMRUUpdateConfiguration<int[], int[], int[]>.UpdateFunction,
-                    GenericType<TestUpdateFunction>.Class)                   
+                    GenericType<TestUpdateFunction>.Class)
+                .Set(IMRUUpdateConfiguration<int[], int[], int[]>.TaskProgressReporter,
+                    GenericType<TestUpdateFunction>.Class)
                 .Build();
 
             return TangFactory.GetTang().NewConfigurationBuilder(c)
@@ -142,7 +144,7 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
                 .Build();
         }
 
-        internal sealed class TestUpdateFunction : IUpdateFunction<int[], int[], int[]>
+        internal sealed class TestUpdateFunction : IUpdateFunction<int[], int[], int[]>, ITaskProgressReporter
         {
             private int _iterations;
             private readonly int _maxIters;
@@ -232,6 +234,19 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
                         throw new ArgumentNullException("Simulating task failure");
                     }
                 }
+            }
+
+            /// <summary>
+            /// Return task progress information
+            /// </summary>
+            /// <returns></returns>
+            public TaskProgress TaskCurrentProgress()
+            {
+                return new TaskProgress
+                {
+                    Iterations = _iterations,
+                    Progress = ((double)_iterations / (double)_maxIters).ToString("F5"),
+                };
             }
         }
     }

@@ -105,7 +105,10 @@ namespace Org.Apache.REEF.IMRU.Examples.PipelinedBroadcastReduce
         {
             return IMRUUpdateConfiguration<int[], int[], int[]>.ConfigurationModule
                 .Set(IMRUUpdateConfiguration<int[], int[], int[]>.UpdateFunction,
-                    GenericType<BroadcastSenderReduceReceiverUpdateFunctionFT>.Class).Build();
+                    GenericType<BroadcastSenderReduceReceiverUpdateFunctionFT>.Class)
+                .Set(IMRUUpdateConfiguration<int[], int[], int[]>.TaskProgressReporter,
+                    GenericType<BroadcastSenderReduceReceiverUpdateFunctionFT>.Class)
+                .Build();
         }
 
         /// <summary>
@@ -282,7 +285,7 @@ namespace Org.Apache.REEF.IMRU.Examples.PipelinedBroadcastReduce
         /// <summary>
         /// The Update function for integer array broadcast and reduce
         /// </summary>
-        internal sealed class BroadcastSenderReduceReceiverUpdateFunctionFT : IUpdateFunction<int[], int[], int[]>
+        internal sealed class BroadcastSenderReduceReceiverUpdateFunctionFT : IUpdateFunction<int[], int[], int[]>, ITaskProgressReporter
         {
             private int _iterations;
             private readonly int _maxIters;
@@ -290,6 +293,7 @@ namespace Org.Apache.REEF.IMRU.Examples.PipelinedBroadcastReduce
             private readonly int[] _intArr;
             private readonly int _workers;
             private readonly UpdateTaskState<int[], int[]> _taskState;
+            private bool _done; 
 
             [Inject]
             private BroadcastSenderReduceReceiverUpdateFunctionFT(
@@ -333,7 +337,9 @@ namespace Org.Apache.REEF.IMRU.Examples.PipelinedBroadcastReduce
                     return UpdateResult<int[], int[]>.AnotherRound(_intArr);
                 }
                 SaveResult(input);
-                return UpdateResult<int[], int[]>.Done(input);
+                var result = UpdateResult<int[], int[]>.Done(input);
+                _done = true;
+                return result;
             }
 
             /// <summary>
@@ -396,6 +402,20 @@ namespace Org.Apache.REEF.IMRU.Examples.PipelinedBroadcastReduce
                 {
                     _intArr[i] = d[i];
                 }
+            }
+
+            /// <summary>
+            /// Return task progress information
+            /// This is an example for the progress. It can be any string like serialized JSon string.
+            /// </summary>
+            /// <returns></returns>
+            public TaskProgress TaskCurrentProgress()
+            {
+                return new TaskProgress
+                {
+                    Iterations = _iterations,
+                    Progress = _done ? "1.00000" : ((double)_iterations / (double)_maxIters).ToString("F5"),
+                };
             }
         }
     }

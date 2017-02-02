@@ -196,6 +196,8 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
             return IMRUUpdateConfiguration<int[], int[], int[]>.ConfigurationModule
                 .Set(IMRUUpdateConfiguration<int[], int[], int[]>.UpdateFunction,
                     GenericType<PipelinedBroadcastAndReduceWithFaultTolerant.BroadcastSenderReduceReceiverUpdateFunctionFT>.Class)
+                .Set(IMRUUpdateConfiguration<int[], int[], int[]>.TaskProgressReporter,
+                    GenericType<PipelinedBroadcastAndReduceWithFaultTolerant.BroadcastSenderReduceReceiverUpdateFunctionFT>.Class)
                 .Build();
         }
 
