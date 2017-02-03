@@ -68,7 +68,8 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         IObserver<IFailedTask>,
         IObserver<IRunningTask>,
         IObserver<IEnumerable<IActiveContext>>,
-        IObserver<IJobCancelled>
+        IObserver<IJobCancelled>,
+        IMetricsProvider
     {
         private static readonly Logger Logger =
             Logger.GetLogger(typeof(IMRUDriver<TMapInput, TMapOutput, TResult, TPartitionType>));
@@ -820,6 +821,20 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
                 _systemState.MoveNext(SystemStateEvent.NotRecoverable);
                 FailAction();
             }
+        }
+
+        /// <summary>
+        /// It is called from MetricsManager to get metrics data
+        /// </summary>
+        /// <returns></returns>
+        //// TODO: more data will be added with REEF-1734
+        public ISet<KeyValuePair<string, string>> GetMetricsData()
+        {
+            return new HashSet<KeyValuePair<string, string>>
+            {
+                new KeyValuePair<string, string>("SystemState", _systemState.CurrentState.ToString()),
+                new KeyValuePair<string, string>("RetryNumber", _numberOfRetries.ToString()),
+            };
         }
 
         public void OnError(Exception error)

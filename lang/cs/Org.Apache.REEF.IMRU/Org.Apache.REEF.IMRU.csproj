@@ -51,6 +51,7 @@ under the License.
     <Compile Include="API\IIMRUResultHandler.cs" />
     <Compile Include="API\IJobCancelledDetector.cs" />
     <Compile Include="API\IMapFunction.cs" />
+    <Compile Include="API\IMetricsProvider.cs" />
     <Compile Include="API\IMRUCodecConfiguration.cs" />
     <Compile Include="API\IMRUPipelineDataConverterConfiguration.cs" />
     <Compile Include="API\IMRUJobDefinition.cs" />
