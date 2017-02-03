@@ -108,7 +108,7 @@ public final class REEFImplementation implements REEF {
   }
 
   @Override
-  public void submit(final Configuration driverConf) {
+  public String submit(final Configuration driverConf) {
     try (LoggingScope ls = this.loggingScopeFactory.reefSubmit()) {
       final Configuration driverConfiguration = createDriverConfiguration(driverConf);
       final JobSubmissionEvent submissionMessage;
@@ -127,6 +127,7 @@ public final class REEFImplementation implements REEF {
       }
 
       this.jobSubmissionHandler.onNext(submissionMessage);
+      return this.jobSubmissionHandler.getApplicationId();
     }
   }
 
