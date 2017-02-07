@@ -40,12 +40,12 @@ import java.util.logging.Logger;
 /**
  * The Client for running HelloREEF on YARN in unmanaged AM mode.
  */
-public final class TestHelloREEFYarnUnmanagedAm {
+public final class TestHelloREEFYarnUnmanagedAM {
 
-  private static final Logger LOG = Logger.getLogger(TestHelloREEFYarnUnmanagedAm.class.getName());
+  private static final Logger LOG = Logger.getLogger(TestHelloREEFYarnUnmanagedAM.class.getName());
 
   private static final String DRIVER_ROOT_PATH = ".";
-  private static final String JAR_PATH = EnvironmentUtils.getClassLocation(TestHelloREEFYarnUnmanagedAm.class);
+  private static final String JAR_PATH = EnvironmentUtils.getClassLocation(TestHelloREEFYarnUnmanagedAM.class);
 
   private static final Configuration RUNTIME_CONFIG = UnmanagedAmYarnClientConfiguration.CONF
       .set(UnmanagedAmYarnClientConfiguration.ROOT_FOLDER, DRIVER_ROOT_PATH)
