@@ -16,7 +16,7 @@
 // under the License.
 
 using System;
-using Org.Apache.REEF.Common.TeleMetry;
+using Org.Apache.REEF.Common.Telemetry;
 using Org.Apache.REEF.Tang.Implementations.Tang;
 using Xunit;
 
@@ -28,7 +28,7 @@ namespace Org.Apache.REEF.Common.Tests.TeleMetry
         public void TestEvaluatorMetrics()
         {
             var metrics = TangFactory.GetTang().NewInjector().GetInstance<IEvaluatorMetrics>();
-            var counters = metrics.MetricsCounters();
+            var counters = metrics.GetMetricsCounters();
 
             counters.TryRegisterCounter("counter1");
             counters.TryRegisterCounter("counter2");
@@ -67,7 +67,7 @@ namespace Org.Apache.REEF.Common.Tests.TeleMetry
         private static ICounters CreateCounters()
         {
             var m = TangFactory.GetTang().NewInjector().GetInstance<IEvaluatorMetrics>();
-            var c = m.MetricsCounters();
+            var c = m.GetMetricsCounters();
             return c;
         }
     }

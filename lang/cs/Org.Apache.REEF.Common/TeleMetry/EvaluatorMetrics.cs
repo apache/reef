@@ -17,7 +17,7 @@
 
 using Org.Apache.REEF.Tang.Annotations;
 
-namespace Org.Apache.REEF.Common.TeleMetry
+namespace Org.Apache.REEF.Common.Telemetry
 {    
     public class EvaluatorMetrics : IEvaluatorMetrics
     {
@@ -33,7 +33,7 @@ namespace Org.Apache.REEF.Common.TeleMetry
         /// Returns counters
         /// </summary>
         /// <returns></returns>
-        public ICounters MetricsCounters()
+        public ICounters GetMetricsCounters()
         {
             return _counters;
         }

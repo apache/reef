@@ -16,11 +16,13 @@
 // under the License.
 
 using System.Collections.Generic;
+using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Utilities.Attributes;
 
-namespace Org.Apache.REEF.Common.TeleMetry
+namespace Org.Apache.REEF.Common.Telemetry
 {
-    [Unstable("0.16 this is to build a simple counters for evaluator metrics.")]
+    [Unstable("0.16", "This is to build a simple counters for evaluator metrics.")]
+    [DefaultImplementation(typeof(Counters))]
     public interface ICounters
     {
         /// <summary>

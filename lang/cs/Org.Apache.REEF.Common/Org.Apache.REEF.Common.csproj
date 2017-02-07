@@ -246,10 +246,10 @@ under the License.
     <Compile Include="Tasks\TaskConfiguration.cs" />
     <Compile Include="Tasks\TaskConfigurationOptions.cs" />
     <Compile Include="Tasks\TaskMessage.cs" />
-    <Compile Include="TeleMetry\Counters.cs" />
-    <Compile Include="TeleMetry\EvaluatorMetrics.cs" />
-    <Compile Include="TeleMetry\ICounters.cs" />
-    <Compile Include="TeleMetry\IEvaluatorMetrics.cs" />
+    <Compile Include="Telemetry\Counters.cs" />
+    <Compile Include="Telemetry\EvaluatorMetrics.cs" />
+    <Compile Include="Telemetry\ICounters.cs" />
+    <Compile Include="Telemetry\IEvaluatorMetrics.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Avro\README.md" />

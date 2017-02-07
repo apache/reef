@@ -22,9 +22,8 @@ using Newtonsoft.Json;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Utilities.Logging;
 
-namespace Org.Apache.REEF.Common.TeleMetry
+namespace Org.Apache.REEF.Common.Telemetry
 {
-    [DataContract]
     public class Counters : ICounters
     {
         private static readonly Logger Logger = Logger.GetLogger(typeof(Counters));
@@ -32,7 +31,6 @@ namespace Org.Apache.REEF.Common.TeleMetry
         /// <summary>
         /// It contains name and count pairs
         /// </summary>
-        [DataMember]
         private readonly IDictionary<string, int> _counters = new Dictionary<string, int>();
 
         /// <summary>
