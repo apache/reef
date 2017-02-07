@@ -17,7 +17,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Runtime.Serialization;
 using Newtonsoft.Json;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Utilities.Logging;

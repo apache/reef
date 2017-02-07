@@ -20,7 +20,7 @@ using Org.Apache.REEF.Common.Telemetry;
 using Org.Apache.REEF.Tang.Implementations.Tang;
 using Xunit;
 
-namespace Org.Apache.REEF.Common.Tests.TeleMetry
+namespace Org.Apache.REEF.Common.Tests.Telemetry
 {
     public class CounterTests
     {
