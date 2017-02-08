@@ -32,10 +32,10 @@ namespace Org.Apache.REEF.Common.Tests.Telemetry
 
             counters.TryRegisterCounter("counter1");
             counters.TryRegisterCounter("counter2");
-            counters.Increament("counter1", 3);
-            counters.Increament("counter1", 1);
-            counters.Increament("counter2", 2);
-            counters.Increament("counter2", 3);
+            counters.Increment("counter1", 3);
+            counters.Increment("counter1", 1);
+            counters.Increment("counter2", 2);
+            counters.Increment("counter2", 3);
 
             var counterStr = metrics.Serialize();
             var d = counters.Deserialize(counterStr);
@@ -52,7 +52,6 @@ namespace Org.Apache.REEF.Common.Tests.Telemetry
         {
             var counters = CreateCounters();
             counters.TryRegisterCounter("counter1");
-
             Assert.False(counters.TryRegisterCounter("counter1"));
         }
 
@@ -60,8 +59,8 @@ namespace Org.Apache.REEF.Common.Tests.Telemetry
         public void TestNoExistCounter()
         {
             var counters = CreateCounters();
-            Action increament = () => counters.Increament("counter1", 2);
-            Assert.Throws<ApplicationException>(increament);
+            Action increment = () => counters.Increment("counter1", 2);
+            Assert.Throws<ApplicationException>(increment);
         }
 
         private static ICounters CreateCounters()

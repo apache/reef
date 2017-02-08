@@ -55,7 +55,7 @@ namespace Org.Apache.REEF.Common.Telemetry
             {
                 if (_counters.ContainsKey(name))
                 {
-                    Logger.Log(Level.Warning, "The counter [{0}]  already exists.", name);
+                    Logger.Log(Level.Warning, "The counter [{0}] already exists.", name);
                     return false;
                 }
                 _counters.Add(name, 0);
@@ -83,7 +83,7 @@ namespace Org.Apache.REEF.Common.Telemetry
         /// </summary>
         /// <param name="name">Name of the counter</param>
         /// <param name="number">number to increase</param>
-        public void Increament(string name, int number)
+        public void Increment(string name, int number)
         {
             lock (_counterLock)
             {

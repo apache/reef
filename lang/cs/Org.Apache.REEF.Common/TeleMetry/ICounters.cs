@@ -27,8 +27,7 @@ namespace Org.Apache.REEF.Common.Telemetry
     {
         /// <summary>
         /// register an new counter with a specified name. 
-        /// If name does not exist, the counter will be added and true will be returned
-        /// Otherwise the counter will be not added and false will be returned. 
+        /// If name does not exist, the counter will be added
         /// </summary>
         /// <param name="name">Name of the counter to be registered.</param>
         /// <returns></returns>
@@ -47,7 +46,7 @@ namespace Org.Apache.REEF.Common.Telemetry
         /// </summary>
         /// <param name="name">Name of the counter</param>
         /// <param name="number">number to increase</param>
-        void Increament(string name, int number);
+        void Increment(string name, int number);
 
         /// <summary>
         /// Serialize the  counter into a string
