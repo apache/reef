@@ -32,7 +32,7 @@ namespace Org.Apache.REEF.Common.Telemetry
         /// <summary>
         /// Returns counters
         /// </summary>
-        /// <returns></returns>
+        /// <returns>Returns counters.</returns>
         public ICounters GetMetricsCounters()
         {
             return _counters;
@@ -41,7 +41,7 @@ namespace Org.Apache.REEF.Common.Telemetry
         /// <summary>
         /// return serialized string of metrics counters data
         /// </summary>
-        /// <returns></returns>
+        /// <returns>Returns serialized string of counters.</returns>
         public string Serialize()
         {
             return _counters.Serialize();

@@ -27,13 +27,13 @@ namespace Org.Apache.REEF.Common.Telemetry
         /// <summary>
         /// Returns metrics counters
         /// </summary>
-        /// <returns></returns>
+        /// <returns>Returns ICounters.</returns>
         ICounters GetMetricsCounters();
 
         /// <summary>
         /// Serialize the metrics data into a string
         /// </summary>
-        /// <returns></returns>
+        /// <returns>Returns serialized string of metrics</returns>
         string Serialize();
     }
 }

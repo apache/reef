@@ -48,7 +48,7 @@ namespace Org.Apache.REEF.Common.Telemetry
         /// Otherwise the counter will be not added and false will be returned. 
         /// </summary>
         /// <param name="name">Counter name</param>
-        /// <returns></returns>
+        /// <returns>Returns a boolean to indicate if the counter is added.</returns>
         public bool TryRegisterCounter(string name)
         {
             lock (_counterLock)
@@ -69,7 +69,7 @@ namespace Org.Apache.REEF.Common.Telemetry
         /// </summary>
         /// <param name="name">Name of the counter</param>
         /// <param name="value">Value of the counter returned</param>
-        /// <returns></returns>
+        /// <returns>Returns a boolean to indicate if the value is found.</returns>
         public bool TryGetValue(string name, out int value)
         {
             lock (_counterLock)
@@ -101,7 +101,7 @@ namespace Org.Apache.REEF.Common.Telemetry
         /// TODO: [REEF-] use an unique number for the counter name mapping to reduce the data transfer over the wire
         /// TODO: [REEF-] use Avro schema if that can make the serialized string more compact
         /// </summary>
-        /// <returns></returns>
+        /// <returns>Returns serialized string of the counters.</returns>
         public string Serialize()
         {
             lock (_counterLock)
@@ -114,7 +114,7 @@ namespace Org.Apache.REEF.Common.Telemetry
         /// Deserialize a serialized counters string
         /// </summary>
         /// <param name="counterStr">Counters in serialized string format</param>
-        /// <returns></returns>
+        /// <returns>Returns deserialized name value pairs of the counters.</returns>
         public IDictionary<string, int> Deserialize(string counterStr)
         {
             return JsonConvert.DeserializeObject<IDictionary<string, int>>(counterStr);

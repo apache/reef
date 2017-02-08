@@ -24,6 +24,9 @@ namespace Org.Apache.REEF.Common.Tests.Telemetry
 {
     public class CounterTests
     {
+        /// <summary>
+        /// Test ICounters and IEvaluatorMetrics API.
+        /// </summary>
         [Fact]
         public void TestEvaluatorMetrics()
         {
@@ -47,6 +50,9 @@ namespace Org.Apache.REEF.Common.Tests.Telemetry
             Assert.Equal(5, c2);
         }
 
+        /// <summary>
+        /// Test TryRegisterCounter with a duplicated counter name
+        /// </summary>
         [Fact]
         public void TestDuplicatedCounters()
         {
@@ -55,6 +61,9 @@ namespace Org.Apache.REEF.Common.Tests.Telemetry
             Assert.False(counters.TryRegisterCounter("counter1"));
         }
 
+        /// <summary>
+        /// Test Increment for a non-registered counter.
+        /// </summary>
         [Fact]
         public void TestNoExistCounter()
         {

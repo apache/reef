@@ -27,10 +27,11 @@ namespace Org.Apache.REEF.Common.Telemetry
     {
         /// <summary>
         /// register an new counter with a specified name. 
-        /// If name does not exist, the counter will be added
+        /// If name does not exist, the counter will be added and true will be returned
+        /// Otherwise the counter will be not added and false will be returned. 
         /// </summary>
         /// <param name="name">Name of the counter to be registered.</param>
-        /// <returns></returns>
+        /// <returns>Returns a boolean to indicate if the counter is added.</returns>
         bool TryRegisterCounter(string name);
 
         /// <summary>
@@ -38,7 +39,7 @@ namespace Org.Apache.REEF.Common.Telemetry
         /// </summary>
         /// <param name="name">Name of the counter</param>
         /// <param name="value">Value of the counter returned</param>
-        /// <returns></returns>
+        /// <returns>Returns a boolean to indicate if the value is found.</returns>
         bool TryGetValue(string name, out int value);
 
         /// <summary>
@@ -51,14 +52,14 @@ namespace Org.Apache.REEF.Common.Telemetry
         /// <summary>
         /// Serialize the  counter into a string
         /// </summary>
-        /// <returns></returns>
+        /// <returns>Returns serialized string of the counters.</returns>
         string Serialize();
 
         /// <summary>
         /// Deserialize counters into name value pairs
         /// </summary>
         /// <param name="counterString">Serialized counters in string format</param>
-        /// <returns></returns>
+        /// <returns>Returns deserialized name value pairs of the counters.</returns>
         IDictionary<string, int> Deserialize(string counterString);
     }
 }
