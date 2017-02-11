@@ -31,16 +31,17 @@ namespace Org.Apache.REEF.Common.Telemetry
         /// Otherwise the counter will be not added and false will be returned. 
         /// </summary>
         /// <param name="name">Name of the counter to be registered.</param>
+        /// <param name="description">Description of the counter to be registered.</param>
         /// <returns>Returns a boolean to indicate if the counter is added.</returns>
-        bool TryRegisterCounter(string name);
+        bool TryRegisterCounter(string name, string description);
 
         /// <summary>
         /// Get counter value for a given counter name
         /// </summary>
         /// <param name="name">Name of the counter</param>
-        /// <param name="value">Value of the counter returned</param>
+        /// <param name="counter">The counter object returned</param>
         /// <returns>Returns a boolean to indicate if the value is found.</returns>
-        bool TryGetValue(string name, out int value);
+        bool TryGetValue(string name, out ICounter counter);
 
         /// <summary>
         /// Increase the counter with the given number
@@ -50,16 +51,15 @@ namespace Org.Apache.REEF.Common.Telemetry
         void Increment(string name, int number);
 
         /// <summary>
+        /// Returns all the counters
+        /// </summary>
+        /// <returns></returns>
+        IEnumerable<ICounter> GetCounters();
+
+        /// <summary>
         /// Serialize the  counter into a string
         /// </summary>
         /// <returns>Returns serialized string of the counters.</returns>
         string Serialize();
-
-        /// <summary>
-        /// Deserialize counters into name value pairs
-        /// </summary>
-        /// <param name="counterString">Serialized counters in string format</param>
-        /// <returns>Returns deserialized name value pairs of the counters.</returns>
-        IDictionary<string, int> Deserialize(string counterString);
     }
 }

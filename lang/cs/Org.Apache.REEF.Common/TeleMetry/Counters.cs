@@ -30,7 +30,7 @@ namespace Org.Apache.REEF.Common.Telemetry
         /// <summary>
         /// It contains name and count pairs
         /// </summary>
-        private readonly IDictionary<string, int> _counters = new Dictionary<string, int>();
+        private readonly IDictionary<string, ICounter> _counters = new Dictionary<string, ICounter>();
 
         /// <summary>
         /// The lock for counters
@@ -42,14 +42,29 @@ namespace Org.Apache.REEF.Common.Telemetry
         {
         }
 
+        public Counters(string serializedCountersString)
+        {
+            var c = JsonConvert.DeserializeObject<IEnumerable<Counter>>(serializedCountersString);
+            foreach (var ct in c)
+            {
+                _counters.Add(ct.Name, ct);
+            }
+        }
+
+        public IEnumerable<ICounter> GetCounters()
+        {
+            return _counters.Values;
+        }
+
         /// <summary>
-        /// register an new counter with a specified name. 
+        /// register a new counter with a specified name. 
         /// If name does not exist, the counter will be added and true will be returned
         /// Otherwise the counter will be not added and false will be returned. 
         /// </summary>
         /// <param name="name">Counter name</param>
+        /// <param name="description">Counter description</param>
         /// <returns>Returns a boolean to indicate if the counter is added.</returns>
-        public bool TryRegisterCounter(string name)
+        public bool TryRegisterCounter(string name, string description)
         {
             lock (_counterLock)
             {
@@ -58,19 +73,19 @@ namespace Org.Apache.REEF.Common.Telemetry
                     Logger.Log(Level.Warning, "The counter [{0}] already exists.", name);
                     return false;
                 }
-                _counters.Add(name, 0);
+                _counters.Add(name, new Counter(name, description));
             }
             return true;
         }
 
         /// <summary>
-        /// Get counter value for a given name
+        /// Get counter for a given name
         /// return false if the counter doesn't exist
         /// </summary>
         /// <param name="name">Name of the counter</param>
         /// <param name="value">Value of the counter returned</param>
         /// <returns>Returns a boolean to indicate if the value is found.</returns>
-        public bool TryGetValue(string name, out int value)
+        public bool TryGetValue(string name, out ICounter value)
         {
             lock (_counterLock)
             {
@@ -85,14 +100,18 @@ namespace Org.Apache.REEF.Common.Telemetry
         /// <param name="number">number to increase</param>
         public void Increment(string name, int number)
         {
-            lock (_counterLock)
+            ICounter counter;
+            if (TryGetValue(name, out counter))
             {
-                if (!_counters.ContainsKey(name))
+                lock (_counterLock)
                 {
-                    Logger.Log(Level.Error, "The counter [{0}]  has not registered.", name);
-                    throw new ApplicationException("Counter has not registered:" + name);
+                    counter.Increment(number);
                 }
-                _counters[name] += number;
+            }
+            else
+            {
+                Logger.Log(Level.Error, "The counter [{0}]  has not registered.", name);
+                throw new ApplicationException("Counter has not registered:" + name);
             }
         }
 
@@ -106,18 +125,8 @@ namespace Org.Apache.REEF.Common.Telemetry
         {
             lock (_counterLock)
             {
-                return JsonConvert.SerializeObject(_counters);
+                return JsonConvert.SerializeObject(_counters.Values);
             }
-        }
-
-        /// <summary>
-        /// Deserialize a serialized counters string
-        /// </summary>
-        /// <param name="counterStr">Counters in serialized string format</param>
-        /// <returns>Returns deserialized name value pairs of the counters.</returns>
-        public IDictionary<string, int> Deserialize(string counterStr)
-        {
-            return JsonConvert.DeserializeObject<IDictionary<string, int>>(counterStr);
         }
     }
 }

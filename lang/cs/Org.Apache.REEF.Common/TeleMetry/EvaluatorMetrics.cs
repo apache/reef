@@ -29,6 +29,11 @@ namespace Org.Apache.REEF.Common.Telemetry
             _counters = counters;
         }
 
+        public EvaluatorMetrics(string serializedMsg)
+        {
+            _counters = new Counters(serializedMsg);
+        }
+
         /// <summary>
         /// Returns counters
         /// </summary>

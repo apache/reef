@@ -16,6 +16,7 @@
 // under the License.
 
 using System;
+using System.Collections.Generic;
 using Org.Apache.REEF.Common.Telemetry;
 using Org.Apache.REEF.Tang.Implementations.Tang;
 using Xunit;
@@ -32,22 +33,24 @@ namespace Org.Apache.REEF.Common.Tests.Telemetry
         {
             var metrics = TangFactory.GetTang().NewInjector().GetInstance<IEvaluatorMetrics>();
             var counters = metrics.GetMetricsCounters();
+            counters.TryRegisterCounter("counter1", "counter1 description");
+            counters.TryRegisterCounter("counter2", "counter2 description");
+            ValidateCounter(counters, "counter1", 0);
+            ValidateCounter(counters, "counter2", 0);
 
-            counters.TryRegisterCounter("counter1");
-            counters.TryRegisterCounter("counter2");
             counters.Increment("counter1", 3);
             counters.Increment("counter1", 1);
             counters.Increment("counter2", 2);
             counters.Increment("counter2", 3);
+            ValidateCounter(counters, "counter1", 4);
+            ValidateCounter(counters, "counter2", 5);
 
             var counterStr = metrics.Serialize();
-            var d = counters.Deserialize(counterStr);
-            int c1;
-            d.TryGetValue("counter1", out c1);
-            Assert.Equal(4, c1);
-            int c2;
-            d.TryGetValue("counter2", out c2);
-            Assert.Equal(5, c2);
+
+            var metrics2 = new EvaluatorMetrics(counterStr);
+            var counters2 = metrics2.GetMetricsCounters();
+            ValidateCounter(counters2, "counter1", 4);
+            ValidateCounter(counters2, "counter2", 5);
         }
 
         /// <summary>
@@ -57,8 +60,8 @@ namespace Org.Apache.REEF.Common.Tests.Telemetry
         public void TestDuplicatedCounters()
         {
             var counters = CreateCounters();
-            counters.TryRegisterCounter("counter1");
-            Assert.False(counters.TryRegisterCounter("counter1"));
+            counters.TryRegisterCounter("counter1", "counter1 description");
+            Assert.False(counters.TryRegisterCounter("counter1", "counter1 description"));
         }
 
         /// <summary>
@@ -70,6 +73,13 @@ namespace Org.Apache.REEF.Common.Tests.Telemetry
             var counters = CreateCounters();
             Action increment = () => counters.Increment("counter1", 2);
             Assert.Throws<ApplicationException>(increment);
+        }
+
+        private static void ValidateCounter(ICounters counters, string name, int expectedValue)
+        {
+            ICounter c1;
+            counters.TryGetValue(name, out c1);
+            Assert.Equal(expectedValue, c1.Value);
         }
 
         private static ICounters CreateCounters()
