@@ -21,12 +21,12 @@ using Org.Apache.REEF.Utilities.Attributes;
 
 namespace Org.Apache.REEF.Common.Telemetry
 {
-    [Unstable("0.16", "This is to build a simple counters for evaluator metrics.")]
+    [Unstable("0.16", "This is to build a collection of counters for evaluator metrics.")]
     [DefaultImplementation(typeof(Counters))]
     public interface ICounters
     {
         /// <summary>
-        /// register an new counter with a specified name. 
+        /// Register a new counter with a specified name.
         /// If name does not exist, the counter will be added and true will be returned
         /// Otherwise the counter will be not added and false will be returned. 
         /// </summary>

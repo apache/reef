@@ -49,7 +49,11 @@ namespace Org.Apache.REEF.Common.Telemetry
         /// <returns>Returns serialized string of counters.</returns>
         public string Serialize()
         {
-            return _counters.Serialize();
+            if (_counters != null)
+            {
+                return _counters.Serialize();
+            }
+            return null;
         }
     }
 }

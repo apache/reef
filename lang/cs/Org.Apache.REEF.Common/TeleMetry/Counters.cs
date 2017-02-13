@@ -57,7 +57,7 @@ namespace Org.Apache.REEF.Common.Telemetry
         }
 
         /// <summary>
-        /// register a new counter with a specified name. 
+        /// Register a new counter with a specified name.
         /// If name does not exist, the counter will be added and true will be returned
         /// Otherwise the counter will be not added and false will be returned. 
         /// </summary>
@@ -125,7 +125,11 @@ namespace Org.Apache.REEF.Common.Telemetry
         {
             lock (_counterLock)
             {
-                return JsonConvert.SerializeObject(_counters.Values);
+                if (_counters.Count > 0)
+                {
+                    return JsonConvert.SerializeObject(_counters.Values);
+                }
+                return null;
             }
         }
     }
