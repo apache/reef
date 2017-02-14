@@ -36,7 +36,7 @@ The Java side of REEF is built using Apache Maven. To build and run tests, execu
 
     mvn clean install
 
-On an ubuntu vm running version 16.10 the build typically takes 25-30 minutes if you include all tests, this particular vm was a Standard F8 vm with 8 cores and 16 GB of memory
+REEF integration tests can take a while (~30 minutes on a modern multi-core machine), it may be faster to run one of the commands below which skips these tests.
 
 To perform build alone without tests in a multithreaded mode, execute
 
@@ -49,7 +49,7 @@ To perform "fast" build, which skips tests and all code quality enforcement tool
 
   * Please follow the following wiki for all running all java builds [Java Build Wiki](https://cwiki.apache.org/confluence/display/REEF/Linux), the REEF unit tests require a number of open files which is greater than the default open file limit on a number of Linux distributions such as Ubuntu 16.04/16.10.  This limit is controlled in the shell by the "ulimit -n" command
 
-  * The builds for REEF have been tested on Ubuntu versions 16.04 and 16.10, Windows 10, Windows Server 2012R2, Windows Server 2016 and Mac OS
+  * The builds for REEF have been tested on Ubuntu v16 , Win10, Win2012, Win2016,OSX
 
 
 Test Instructions
