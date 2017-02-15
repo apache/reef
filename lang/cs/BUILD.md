@@ -24,7 +24,13 @@ Prerequisites
 -------------
 
   * Windows OS.
-  * [Building REEF Java](../java/BUILD.md).
+  * Apache maven
+  * Java version 7 or 8 (http://www.oracle.com/technetwork/java/javase/downloads)
+  * Protoc version 2.5 (https://github.com/google/protobuf/releases/tag/v2.5.0)
+  * Set M2_HOME environment variable to location of maven installation
+  * Set JAVA_HOME environment variable to java installation directory
+  * Set the location of the protoc executable in the windows path
+  * Add %JAVA_HOME%/bin and %M2_HOME%/bin to the windows path as well
   * [Visual Studio](http://www.visualstudio.com) 2015 (preferred) or 2013. Most REEF developers use the free Community Edition.
   * NuGet 2.8.6 or later.
   * xunit.runner.console.2.1.0 package (installing it might require manual restore of NuGet packages).
@@ -77,29 +83,3 @@ modify `test_script` section as follows:
 
 `nuget restore` is necessary to install `xunit.runner.console` package, which by default is installed in `TestRunner.proj`.
 
-Instructions on Building and Testing REEF .NET from Scratch
-------------
-
-Here is a step-by-step guide, if the instructions above didn't work and/or you prefer to build REEF .NET from Windows Command Prompt/PowerShell.
-
-1. Install Java Development Kit 7 or 8. Set `JAVA_HOME` as an Environment Variable
-    * Go [here](http://www.oracle.com/technetwork/java/javase/downloads) to download and install appropriate JDK
-    * Go to System Properties -> Environment Variables -> System Variables -> New...
-    * Create a variable called `JAVA_HOME` and set the value to be your jdk installation dir, like C:\Program Files\Java\jdk1.8.0_91
-    * Update the Environment Variable `Path` by adding `%JAVA_HOME%\bin`
-
-2. Install Maven 3.3.9. Set `M2_HOME` and `M2` as Environment Variables
-    * Go [here](https://archive.apache.org/dist/maven/maven-3/3.3.9/binaries/) to download apache-maven-3.3.9-bin.zip
-    * Unzip it and place it to your desired location
-    * Create an Environment Variable called `M2_HOME` and set the value to be your unzip location, like C:\Program Files\Apache\apache-maven-3.3.9
-    * Create another variable called `M2` and set the value to be `%M2_HOME%\bin`
-    * Update the Environment Variable `Path` by adding `%M2%` and `%M2_HOME%`
-
-3. Install Protocol Buffer 2.5. Add its path as an Environment Variable
-    * Go [here](https://github.com/google/protobuf/releases/tag/v2.5.0) to download protoc-2.5.0-win32.zip
-    * Unzip it and place it to your desired location. Make sure that protoc.exe is in that folder
-    * Update the Environment Variable `Path` by adding the unzip location, like C:\protobuf-2.5.0\src\protoc-2.5.0-win32
-
-4. Git clone the repo to your local machine: `git clone git@github.com:apache/reef.git`
-
-5. To build REEF.NET from command line, execute: `msbuild .\lang\cs\Org.Apache.REEF.sln`
