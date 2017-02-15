@@ -19,11 +19,13 @@ using System;
 using System.Collections.Generic;
 using Newtonsoft.Json;
 using Org.Apache.REEF.Tang.Annotations;
+using Org.Apache.REEF.Utilities.Attributes;
 using Org.Apache.REEF.Utilities.Logging;
 
 namespace Org.Apache.REEF.Common.Telemetry
 {
-    public class Counters : ICounters
+    [Unstable("0.16", "This is to build a collection of counters for evaluator metrics.")]
+    internal sealed class Counters : ICounters
     {
         private static readonly Logger Logger = Logger.GetLogger(typeof(Counters));
 
@@ -42,7 +44,11 @@ namespace Org.Apache.REEF.Common.Telemetry
         {
         }
 
-        public Counters(string serializedCountersString)
+        /// <summary>
+        /// Deserialize a counters serialized string into a Counters object
+        /// </summary>
+        /// <param name="serializedCountersString"></param>
+        internal Counters(string serializedCountersString)
         {
             var c = JsonConvert.DeserializeObject<IEnumerable<Counter>>(serializedCountersString);
             foreach (var ct in c)

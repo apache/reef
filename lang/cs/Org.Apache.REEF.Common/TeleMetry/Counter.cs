@@ -14,11 +14,18 @@
 using System;
 using System.Runtime.Serialization;
 using Newtonsoft.Json;
+using Org.Apache.REEF.Utilities.Attributes;
 
 namespace Org.Apache.REEF.Common.Telemetry
 {
+    /// <summary>
+    /// Counter implementation
+    /// The properties that need to be serialized will be revisited later. We should only serialize minimum data to reduce the network load
+    /// For example, the name can be mapped to a unique number (byte) and description should not be serialized.
+    /// </summary>
+    [Unstable("0.16", "This is a simple counter for evaluator metrics.")]
     [DataContract]
-    public class Counter : ICounter
+    internal sealed class Counter : ICounter
     {
         /// <summary>
         /// Name of the counter.
@@ -45,7 +52,7 @@ namespace Org.Apache.REEF.Common.Telemetry
         /// </summary>
         /// <param name="name"></param>
         /// <param name="description"></param>
-        public Counter(string name, string description)
+        internal Counter(string name, string description)
         {
             _name = name;
             _description = description;
@@ -57,7 +64,7 @@ namespace Org.Apache.REEF.Common.Telemetry
         /// Constructor to create a counter from a serialized counter string
         /// </summary>
         [JsonConstructor]
-        public Counter(string name, string description, long timeStamp, int value)
+        internal Counter(string name, string description, long timeStamp, int value)
         {
             _name = name;
             _description = description;
@@ -90,7 +97,7 @@ namespace Org.Apache.REEF.Common.Telemetry
         }
 
         /// <summary>
-        /// Time that the counter is updated.
+        /// Time that the counter is updated in the form of ticks.
         /// </summary>
         [DataMember]
         public long Timestamp
