@@ -252,6 +252,9 @@ under the License.
     <Compile Include="Telemetry\ICounter.cs" />
     <Compile Include="Telemetry\ICounters.cs" />
     <Compile Include="Telemetry\IEvaluatorMetrics.cs" />
+    <Compile Include="Telemetry\MessageSenderConfigurationModule.cs" />
+    <Compile Include="Telemetry\MetricsMessageSender.cs" />
+    <Compile Include="Telemetry\MetricsService.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Avro\README.md" />
