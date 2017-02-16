@@ -25,13 +25,13 @@ Prerequisites
 
   * Windows OS including Windows 8,10,Server 2012 and Server 2016.
   * Same prerequisites as REEF Java ([Building REEF Java](../java/BUILD.md)), which includes:
-     * [Apache maven] (https://maven.apache.org/download.cgi) 3.3 or newer
-     * Java development kit version 7 or 8 (httpve had successful builds with both openjdk and oracle jdk
+     * [Apache Maven] (https://maven.apache.org/download.cgi) 3.3 or newer
+     * Java development kit version 7 or 8 
      * Protoc version 2.5 (https://github.com/google/protobuf/releases/tag/v2.5.0)
   * Set the following environment variables:
      * Set M2_HOME environment variable to location of maven installation
      * Set JAVA_HOME environment variable to java installation directory
-  * Add the following items to the windows path:
+  * Add the following items to the environment variable path:
      * Add the location of the protoc executable in the windows path
      * Add %JAVA_HOME%/bin and %M2_HOME%/bin to the windows path as well
   * [Visual Studio](http://www.visualstudio.com) 2015 (preferred) or 2013. Most REEF developers use the free Community Edition.
