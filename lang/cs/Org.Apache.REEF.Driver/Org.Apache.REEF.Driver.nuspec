@@ -38,7 +38,7 @@ under the License.
   </metadata>
 
   <files>
-      <file src="..\bin\$Platform$\$Configuration$\Org.Apache.REEF.Driver\Org.Apache.REEF.Driver.dll" target="lib\net45" />
-      <file src="..\bin\$Platform$\$Configuration$\Org.Apache.REEF.Driver\Org.Apache.REEF.Driver.pdb" target="lib\net45" />
+    <file src="..\bin\$Platform$\$Configuration$\Org.Apache.REEF.Driver\Org.Apache.REEF.Driver.dll" target="lib\net45" />
+    <file src="..\bin\$Platform$\$Configuration$\Org.Apache.REEF.Driver\Org.Apache.REEF.Driver.pdb" target="lib\net45" />
   </files>
 </package>

@@ -30,7 +30,7 @@ under the License.
     <tags>REEF IO</tags>
   </metadata>
   <files>
-      <file src="..\bin\$Platform$\$Configuration$\Org.Apache.REEF.IO\Org.Apache.REEF.IO.dll" target="lib\net45" />
-      <file src="..\bin\$Platform$\$Configuration$\Org.Apache.REEF.IO\Org.Apache.REEF.IO.pdb" target="lib\net45" />
+    <file src="..\bin\$Platform$\$Configuration$\Org.Apache.REEF.IO\Org.Apache.REEF.IO.dll" target="lib\net45" />
+    <file src="..\bin\$Platform$\$Configuration$\Org.Apache.REEF.IO\Org.Apache.REEF.IO.pdb" target="lib\net45" />
   </files>
 </package>

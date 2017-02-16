@@ -28,20 +28,20 @@ under the License.
     <description>Iterative Map Reduce Update for REEF.</description>
     <copyright>The Apache Software Foundation</copyright>
     <tags>REEF IMRU</tags>
-        <dependencies>
-          <dependency id="Org.Apache.REEF.Utilities" version="$version$" />
-          <dependency id="Org.Apache.REEF.Tang" version="$version$" />
-          <dependency id="Org.Apache.REEF.Wake" version="$version$" />
-          <dependency id="Org.Apache.REEF.Common" version="$version$" />
-          <dependency id="Org.Apache.REEF.Network" version="$version$" />
-          <dependency id="Org.Apache.REEF.Driver" version="$version$" />
-          <dependency id="Org.Apache.REEF.Examples" version="$version$" />
-          <dependency id="Rx-Core" version="2.2.5" />
-          <dependency id="protobuf-net" version="2.0.0.668" />
-        </dependencies>
+    <dependencies>
+      <dependency id="Org.Apache.REEF.Utilities" version="$version$" />
+      <dependency id="Org.Apache.REEF.Tang" version="$version$" />
+      <dependency id="Org.Apache.REEF.Wake" version="$version$" />
+      <dependency id="Org.Apache.REEF.Common" version="$version$" />
+      <dependency id="Org.Apache.REEF.Network" version="$version$" />
+      <dependency id="Org.Apache.REEF.Driver" version="$version$" />
+      <dependency id="Org.Apache.REEF.Examples" version="$version$" />
+      <dependency id="Rx-Core" version="2.2.5" />
+      <dependency id="protobuf-net" version="2.0.0.668" />
+    </dependencies>
   </metadata>
   <files>
-      <file src="..\bin\$Platform$\$Configuration$\Org.Apache.REEF.IMRU\Org.Apache.REEF.IMRU.dll" target="lib\net45" />
-      <file src="..\bin\$Platform$\$Configuration$\Org.Apache.REEF.IMRU\Org.Apache.REEF.IMRU.pdb" target="lib\net45" />
+    <file src="..\bin\$Platform$\$Configuration$\Org.Apache.REEF.IMRU\Org.Apache.REEF.IMRU.dll" target="lib\net45" />
+    <file src="..\bin\$Platform$\$Configuration$\Org.Apache.REEF.IMRU\Org.Apache.REEF.IMRU.pdb" target="lib\net45" />
   </files>
 </package>

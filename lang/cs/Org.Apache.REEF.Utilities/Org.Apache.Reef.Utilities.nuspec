@@ -34,7 +34,7 @@ under the License.
     </dependencies>
   </metadata>
   <files>
-      <file src="..\bin\$Platform$\$Configuration$\Org.Apache.REEF.Utilities\Org.Apache.REEF.Utilities.dll" target="lib\net45" />
-      <file src="..\bin\$Platform$\$Configuration$\Org.Apache.REEF.Utilities\Org.Apache.REEF.Utilities.pdb" target="lib\net45" />
+    <file src="..\bin\$Platform$\$Configuration$\Org.Apache.REEF.Utilities\Org.Apache.REEF.Utilities.dll" target="lib\net45" />
+    <file src="..\bin\$Platform$\$Configuration$\Org.Apache.REEF.Utilities\Org.Apache.REEF.Utilities.pdb" target="lib\net45" />
   </files>
 </package>

@@ -27,7 +27,7 @@ under the License.
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>Network services for reef</description>
     <copyright>The Apache Software Foundation</copyright>
-     <dependencies>
+    <dependencies>
       <dependency id="Org.Apache.REEF.Tang" version="$version$" />
       <dependency id="Org.Apache.REEF.Wake" version="$version$" />
       <dependency id="Org.Apache.REEF.Utilities" version="$version$" />
@@ -39,7 +39,7 @@ under the License.
     </dependencies>
   </metadata>
   <files>
-      <file src="..\bin\$Platform$\$Configuration$\Org.Apache.REEF.Network\Org.Apache.REEF.Network.dll" target="lib\net45" />
-      <file src="..\bin\$Platform$\$Configuration$\Org.Apache.REEF.Network\Org.Apache.REEF.Network.pdb" target="lib\net45" />
+    <file src="..\bin\$Platform$\$Configuration$\Org.Apache.REEF.Network\Org.Apache.REEF.Network.dll" target="lib\net45" />
+    <file src="..\bin\$Platform$\$Configuration$\Org.Apache.REEF.Network\Org.Apache.REEF.Network.pdb" target="lib\net45" />
   </files>
 </package>
