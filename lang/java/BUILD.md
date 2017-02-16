@@ -28,13 +28,21 @@ Prerequisites
     Make sure that `mvn` is in your `$PATH` and `$M2_HOME` points to its installation.
   * [Protocol Buffers Compiler version 2.5](https://github.com/google/protobuf/releases/tag/v2.5.0).
     Make sure that `protoc` is on your `PATH`.
+  * Supported OSs where code was successfully built:
+       * Windows : Windows 8,10,Server 2012,2016
+       * Linux: Ubuntu versions 16.04 and 16.10
+       * OSX 
 
 Build Instructions
 ------------
 
+The REEF unit tests require a number of open files which is greater than the default open file limit on a number of Linux distributions such as Ubuntu 16.04/16.10.  This limit is controlled in the shell by the "ulimit -n" command
+
 The Java side of REEF is built using Apache Maven. To build and run tests, execute:
 
     mvn clean install
+
+REEF integration tests can take a while (~30 minutes on a modern multi-core machine), it may be faster to run one of the commands below which skips these tests.
 
 To perform build alone without tests in a multithreaded mode, execute
 
@@ -43,6 +51,7 @@ To perform build alone without tests in a multithreaded mode, execute
 To perform "fast" build, which skips tests and all code quality enforcement tools, execute:
 
     mvn clean install -DskipTests -TC1 -P!code-quality
+
 
 Test Instructions
 ------------
