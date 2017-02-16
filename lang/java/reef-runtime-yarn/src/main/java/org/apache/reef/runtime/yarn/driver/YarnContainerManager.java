@@ -80,7 +80,8 @@ final class YarnContainerManager
   private final ApplicationMasterRegistration registration;
   private final ContainerRequestCounter containerRequestCounter;
   private final DriverStatusManager driverStatusManager;
-  private final TrackingURLProvider trackingURLProvider;
+  private final String trackingUrl;
+
   private final String jobSubmissionDirectory;
   private final REEFFileNames reefFileNames;
   private final RackNameFormatter rackNameFormatter;
@@ -108,8 +109,8 @@ final class YarnContainerManager
     this.registration = registration;
     this.containerRequestCounter = containerRequestCounter;
     this.yarnConf = yarnConf;
-    this.trackingURLProvider = trackingURLProvider;
     this.rackNameFormatter = rackNameFormatter;
+    this.trackingUrl = trackingURLProvider.getTrackingUrl();
 
     this.resourceManager = AMRMClientAsync.createAMRMClientAsync(yarnRMHeartbeatPeriod, this);
     this.nodeManager = new NMClientAsyncImpl(this);
@@ -317,8 +318,11 @@ final class YarnContainerManager
 
     try {
 
+      LOG.log(Level.FINE, "YARN registration: register AM at \"{0}:{1}\" tracking URL \"{2}\"",
+          new Object[] {AM_REGISTRATION_HOST, AM_REGISTRATION_PORT, this.trackingUrl});
+
       this.registration.setRegistration(this.resourceManager.registerApplicationMaster(
-          AM_REGISTRATION_HOST, AM_REGISTRATION_PORT, this.trackingURLProvider.getTrackingUrl()));
+          AM_REGISTRATION_HOST, AM_REGISTRATION_PORT, this.trackingUrl));
 
       LOG.log(Level.FINE, "YARN registration: AM registered: {0}", this.registration);
 
@@ -326,8 +330,9 @@ final class YarnContainerManager
       final Path outputFileName = new Path(this.jobSubmissionDirectory, this.reefFileNames.getDriverHttpEndpoint());
 
       try (final FSDataOutputStream out = fs.create(outputFileName)) {
-        out.writeBytes(this.trackingURLProvider.getTrackingUrl() + '\n');
+        out.writeBytes(this.trackingUrl + '\n');
       }
+
     } catch (final YarnException | IOException e) {
       LOG.log(Level.WARNING, "Unable to register application master.", e);
       onRuntimeError(e);
@@ -354,7 +359,7 @@ final class YarnContainerManager
 
         if (exception == null) {
           this.resourceManager.unregisterApplicationMaster(
-              FinalApplicationStatus.SUCCEEDED, "Success!", this.trackingURLProvider.getTrackingUrl());
+              FinalApplicationStatus.SUCCEEDED, "Success!", this.trackingUrl);
         } else {
 
           // Note: We don't allow RM to restart our applications if it's an application level failure.
@@ -366,7 +371,7 @@ final class YarnContainerManager
               "With stack trace:%n%s", exception.getMessage(), ExceptionUtils.getStackTrace(exception));
 
           this.resourceManager.unregisterApplicationMaster(
-              FinalApplicationStatus.FAILED, failureMsg, this.trackingURLProvider.getTrackingUrl());
+              FinalApplicationStatus.FAILED, failureMsg, this.trackingUrl);
         }
 
         this.resourceManager.close();
@@ -595,7 +600,8 @@ final class YarnContainerManager
     // SHUTDOWN YARN
     try {
       this.reefEventHandlers.close();
-      this.resourceManager.unregisterApplicationMaster(FinalApplicationStatus.FAILED, throwable.getMessage(), null);
+      this.resourceManager.unregisterApplicationMaster(
+          FinalApplicationStatus.FAILED, throwable.getMessage(), this.trackingUrl);
     } catch (final Exception e) {
       LOG.log(Level.WARNING, "Error shutting down YARN application", e);
     } finally {

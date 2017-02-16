@@ -35,7 +35,7 @@ under the License.
     </dependencies>
   </metadata>
   <files>
-      <file src="..\bin\$Platform$\$Configuration$\Org.Apache.REEF.Tang\Org.Apache.REEF.Tang.dll" target="lib\net45" />
-      <file src="..\bin\$Platform$\$Configuration$\Org.Apache.REEF.Tang\Org.Apache.REEF.Tang.pdb" target="lib\net45" />
+    <file src="..\bin\$Platform$\$Configuration$\Org.Apache.REEF.Tang\Org.Apache.REEF.Tang.dll" target="lib\net45" />
+    <file src="..\bin\$Platform$\$Configuration$\Org.Apache.REEF.Tang\Org.Apache.REEF.Tang.pdb" target="lib\net45" />
   </files>
 </package>

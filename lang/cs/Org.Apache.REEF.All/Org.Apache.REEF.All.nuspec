@@ -28,7 +28,7 @@ under the License.
     <description>Provide single entry point that references all necessary REEF/WAKE/TANG projects.</description>
     <copyright>The Apache Software Foundation</copyright>
     <tags>Single entry point to reference all Reef/Wake/Tang projects </tags>
-     <dependencies>
+    <dependencies>
       <dependency id="Org.Apache.REEF.Utilities" version="$version$" />
       <dependency id="Org.Apache.REEF.Tang" version="$version$" />
       <dependency id="Org.Apache.REEF.Wake" version="$version$" />
@@ -40,10 +40,10 @@ under the License.
       <dependency id="Org.Apache.REEF.Examples" version="$version$" />
       <dependency id="Org.Apache.REEF.Client" version="$version$" />
       <dependency id="Org.Apache.REEF.IMRU" version="$version$" />
-     </dependencies>
+    </dependencies>
   </metadata>
   <files>
-     <file src="..\bin\$Platform$\$Configuration$\Org.Apache.REEF.All\Org.Apache.REEF.All.dll" target="lib\net45" />
-     <file src="..\bin\$Platform$\$Configuration$\Org.Apache.REEF.All\Org.Apache.REEF.All.pdb" target="lib\net45" />
+    <file src="..\bin\$Platform$\$Configuration$\Org.Apache.REEF.All\Org.Apache.REEF.All.dll" target="lib\net45" />
+    <file src="..\bin\$Platform$\$Configuration$\Org.Apache.REEF.All\Org.Apache.REEF.All.pdb" target="lib\net45" />
   </files>
 </package>
