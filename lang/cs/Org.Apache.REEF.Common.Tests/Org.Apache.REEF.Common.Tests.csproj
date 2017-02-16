@@ -54,6 +54,7 @@ under the License.
     <Compile Include="Metrics\MutableMetricTest.cs" />
     <Compile Include="Metrics\SnapshotRequestTest.cs" />
     <Compile Include="Metrics\TestMetricsTag.cs" />
+    <Compile Include="Telemetry\CounterTests.cs" />
     <Compile Include="TestHttpSerialization.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
