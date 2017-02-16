@@ -31,14 +31,14 @@ under the License.
     <dependencies>
       <dependency id="Microsoft.Hadoop.Avro" version="1.5.6" />
       <dependency id="protobuf-net" version="2.0.0.668" />
-      <dependency id="Rx-Core" version="2.2.5"  />
+      <dependency id="Rx-Core" version="2.2.5" />
       <dependency id="Org.Apache.REEF.Utilities" version="$version$" />
       <dependency id="Org.Apache.REEF.Tang" version="$version$" />
       <dependency id="Org.Apache.REEF.Wake" version="$version$" />
     </dependencies>
   </metadata>
   <files>
-      <file src="..\bin\$Platform$\$Configuration$\Org.Apache.REEF.Common\Org.Apache.REEF.Common.dll" target="lib\net45" />
-      <file src="..\bin\$Platform$\$Configuration$\Org.Apache.REEF.Common\Org.Apache.REEF.Common.pdb" target="lib\net45" />
+    <file src="..\bin\$Platform$\$Configuration$\Org.Apache.REEF.Common\Org.Apache.REEF.Common.dll" target="lib\net45" />
+    <file src="..\bin\$Platform$\$Configuration$\Org.Apache.REEF.Common\Org.Apache.REEF.Common.pdb" target="lib\net45" />
   </files>
 </package>
