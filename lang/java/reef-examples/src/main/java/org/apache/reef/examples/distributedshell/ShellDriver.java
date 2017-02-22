@@ -38,7 +38,7 @@ import java.util.logging.Logger;
 
 /** The Driver code for REEF distributed shell application. */
 @Unit
-public final class ShellDriver {
+final class ShellDriver {
 
   private static final Logger LOG = Logger.getLogger(ShellDriver.class.getName());
 
@@ -63,7 +63,7 @@ public final class ShellDriver {
   }
 
   /** Driver start event: Request the evaluators. */
-  public final class StartHandler implements EventHandler<StartTime> {
+  final class StartHandler implements EventHandler<StartTime> {
     @Override
     public void onNext(final StartTime startTime) {
       requestor.submit(EvaluatorRequest.newBuilder()
@@ -75,7 +75,7 @@ public final class ShellDriver {
   }
 
   /** AllocatedEvaluator event: Submit the distributed shell task. */
-  public final class EvaluatorAllocatedHandler implements EventHandler<AllocatedEvaluator> {
+  final class EvaluatorAllocatedHandler implements EventHandler<AllocatedEvaluator> {
     @Override
     public void onNext(final AllocatedEvaluator allocatedEvaluator) {
 
