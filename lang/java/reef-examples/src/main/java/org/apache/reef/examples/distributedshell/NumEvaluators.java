@@ -23,7 +23,7 @@ import org.apache.reef.tang.annotations.NamedParameter;
 
 /** Command line parameter: Number of evaluators to request. */
 @NamedParameter(doc = "Number of evaluators", short_name = "n", default_value = "1")
-public final class NumEvaluators implements Name<Integer> {
+final class NumEvaluators implements Name<Integer> {
   /** Do not instantiate this class. */
   private NumEvaluators() { }
 }

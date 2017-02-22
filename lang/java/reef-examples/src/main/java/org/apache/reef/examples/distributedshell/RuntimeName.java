@@ -23,7 +23,7 @@ import org.apache.reef.tang.annotations.NamedParameter;
 
 /** Command line parameter: REEF runtime to use. Can be local, yarn, mesos, or hdi. */
 @NamedParameter(doc = "Runtime", short_name = "r", default_value = "local")
-public final class RuntimeName implements Name<String> {
+final class RuntimeName implements Name<String> {
   /** Do not instantiate this class. */
   private RuntimeName() { }
 }
