@@ -20,7 +20,7 @@ under the License.
     <BuildInParallel>false</BuildInParallel>
     <Configuration Condition="'$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition="'$(Platform)' == ''">x64</Platform>
-    <SolutionDir Condition="'$(SolutionDir)' == ''">..</SolutionDir>
+    <SolutionDir Condition="'$(SolutionDir)' == ''">..\</SolutionDir>
     <RestorePackages>true</RestorePackages>
     <ConfigurationType>Application</ConfigurationType>
   </PropertyGroup>
