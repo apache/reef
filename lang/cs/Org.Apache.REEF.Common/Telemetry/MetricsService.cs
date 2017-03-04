@@ -31,7 +31,7 @@ namespace Org.Apache.REEF.Common.Telemetry
     /// Metrics service. It is also a context message handler.
     /// </summary>
     [Unstable("0.16", "This is a simple MetricsService. More functionalities will be added.")]
-    public sealed class MetricsService : IObserver<IContextMessage>
+    internal sealed class MetricsService : IObserver<IContextMessage>
     {
         private static readonly Logger Logger = Logger.GetLogger(typeof(MetricsService));
         private readonly IDictionary<string, ICounter> _counters = new ConcurrentDictionary<string, ICounter>();
@@ -59,6 +59,11 @@ namespace Org.Apache.REEF.Common.Telemetry
                 ICounter c;
                 if (_counters.TryGetValue(counter.Name, out c))
                 {
+                    //// TODO: The following cases need to be considered in determine how to update the counter:
+                    //// if evaluator contains the aggregated values, the value will override existing value
+                    //// if evaluator only keep delta, the value should be added at here. But the value in the evaluator should be reset after message is sent
+                    //// For the counters from multiple evaluators with the same counter name, the value should be aggregated here
+                    //// We also need to consider failure cases.  
                     _counters[counter.Name] = counter;
                 }
                 else

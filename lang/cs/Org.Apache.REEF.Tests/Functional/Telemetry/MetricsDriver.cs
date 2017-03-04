@@ -37,13 +37,11 @@ namespace Org.Apache.REEF.Tests.Functional.Telemetry
     {
         private static readonly Logger Logger = Logger.GetLogger(typeof(MessageDriver));
         private readonly IEvaluatorRequestor _evaluatorRequestor;
-        private readonly MetricsService _metricsService;
 
         [Inject]
-        public MetricsDriver(IEvaluatorRequestor evaluatorRequestor, MetricsService metricsService)
+        public MetricsDriver(IEvaluatorRequestor evaluatorRequestor)
         {
             _evaluatorRequestor = evaluatorRequestor;
-            _metricsService = metricsService;
         }
 
         public void OnNext(IDriverStarted value)
