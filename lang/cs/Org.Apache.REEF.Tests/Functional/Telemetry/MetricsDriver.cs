@@ -24,6 +24,7 @@ using Org.Apache.REEF.Driver;
 using Org.Apache.REEF.Driver.Context;
 using Org.Apache.REEF.Driver.Evaluator;
 using Org.Apache.REEF.Tang.Annotations;
+using Org.Apache.REEF.Tang.Implementations.Configuration;
 using Org.Apache.REEF.Tang.Util;
 using Org.Apache.REEF.Tests.Functional.Messaging;
 using Org.Apache.REEF.Utilities.Logging;
@@ -65,11 +66,14 @@ namespace Org.Apache.REEF.Tests.Functional.Telemetry
             var serviceConfiguration = ServiceConfiguration.ConfigurationModule
                 .Build();
 
-            var contextConfiguration = ContextConfiguration.ConfigurationModule
+            var contextConfiguration1 = ContextConfiguration.ConfigurationModule
                 .Set(ContextConfiguration.Identifier, contextId)
-                .Set(ContextConfiguration.OnSendMessage, GenericType<MetricsMessageSender>.Class)
+                ////.Set(ContextConfiguration.OnSendMessage, GenericType<MetricsMessageSender>.Class)
                 .Build();
 
+            var contextConfiguration2 = MessageSenderConfigurationModule.ConfigurationModule.Build();
+
+            var contextConfiguration = Configurations.Merge(contextConfiguration1, contextConfiguration2);
             value.SubmitContextAndService(contextConfiguration, serviceConfiguration);
         }
 

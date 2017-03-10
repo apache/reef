@@ -59,7 +59,7 @@ namespace Org.Apache.REEF.Common.Telemetry
                 ICounter c;
                 if (_counters.TryGetValue(counter.Name, out c))
                 {
-                    //// TODO: The following cases need to be considered in determine how to update the counter:
+                    //// TODO: [REEF-1748] The following cases need to be considered in determine how to update the counter:
                     //// if evaluator contains the aggregated values, the value will override existing value
                     //// if evaluator only keep delta, the value should be added at here. But the value in the evaluator should be reset after message is sent
                     //// For the counters from multiple evaluators with the same counter name, the value should be aggregated here
@@ -77,12 +77,10 @@ namespace Org.Apache.REEF.Common.Telemetry
 
         public void OnCompleted()
         {
-            throw new NotImplementedException();
         }
 
         public void OnError(Exception error)
         {
-            throw new NotImplementedException();
         }
     }
 }

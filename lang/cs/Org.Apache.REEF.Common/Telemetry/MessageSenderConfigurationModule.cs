@@ -15,24 +15,20 @@
 // specific language governing permissions and limitations
 // under the License.
 
-using System;
 using Org.Apache.REEF.Common.Context;
-using Org.Apache.REEF.Common.Telemetry;
-using Org.Apache.REEF.Driver.Bridge;
 using Org.Apache.REEF.Tang.Formats;
 using Org.Apache.REEF.Tang.Util;
 
-namespace Org.Apache.REEF.Driver
+namespace Org.Apache.REEF.Common.Telemetry
 {
-    public sealed class MetricsServiceConfigurationModule : ConfigurationModuleBuilder
+    /// <summary>
+    /// It provides ConfigurationModule for MessageSender
+    /// </summary>
+    public sealed class MessageSenderConfigurationModule : ConfigurationModuleBuilder
     {
-        /// <summary>
-        /// It provides the configuration for MetricsService
-        /// </summary>
-        public static ConfigurationModule ConfigurationModule = new MetricsServiceConfigurationModule()
-            .BindSetEntry<DriverBridgeConfigurationOptions.ContextMessageHandlers, MetricsService, IObserver<IContextMessage>>(
-                GenericType<DriverBridgeConfigurationOptions.ContextMessageHandlers>.Class,
-                GenericType<MetricsService>.Class)
+        public static ConfigurationModule ConfigurationModule = new MessageSenderConfigurationModule()
+            .BindSetEntry<ContextConfigurationOptions.ContextMessageSources, MetricsMessageSender, IContextMessageSource>(
+                GenericType<ContextConfigurationOptions.ContextMessageSources>.Class, GenericType<MetricsMessageSender>.Class)
             .Build();
     }
 }
