@@ -40,6 +40,7 @@ under the License.
     <BuildPackage>false</BuildPackage>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Microsoft.VisualStudio.QualityTools.UnitTestFramework, Version=10.1.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL" />
     <Reference Include="System" />
     <Reference Include="System.Reactive.Core">
       <HintPath>$(PackagesDir)\Rx-Core.$(RxVersion)\lib\net45\System.Reactive.Core.dll</HintPath>
@@ -52,6 +53,7 @@ under the License.
     <Compile Include="$(SolutionDir)\SharedAssemblyInfo.cs">
       <Link>Properties\SharedAssemblyInfo.cs</Link>
     </Compile>
+    <Compile Include="NamingService\GenericInMemoryCacheTests.cs" />
     <Compile Include="TcpClientConfigurationModuleTests.cs" />
     <Compile Include="BlockingCollectionExtensionTests.cs" />
     <Compile Include="GroupCommunication\GroupCommuDriverTests.cs" />

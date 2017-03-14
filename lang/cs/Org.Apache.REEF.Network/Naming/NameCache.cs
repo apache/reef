@@ -18,9 +18,9 @@
 using System;
 using System.Collections.Specialized;
 using System.Net;
-using System.Runtime.Caching;
 using Org.Apache.REEF.Network.Naming.Parameters;
 using Org.Apache.REEF.Tang.Annotations;
+using Org.Apache.REEF.Network.Utilities;
 
 namespace Org.Apache.REEF.Network.Naming
 {
@@ -29,7 +29,7 @@ namespace Org.Apache.REEF.Network.Naming
     /// </summary>
     internal sealed class NameCache
     {
-        private readonly MemoryCache _cache;
+        private readonly GenericInMemoryCache _cache;
 
         /// <summary>
         /// Duration in milli seconds after which cache entry expires
@@ -50,7 +50,10 @@ namespace Org.Apache.REEF.Network.Naming
                 { "cacheMemoryLimitMegabytes", memoryLimit }
             };
 
-            _cache = new MemoryCache("NameClientCache", config);
+            _cache = new GenericInMemoryCache();
+            _cache.AddOrUpdate("pollingInterval", pollingInterval);
+            _cache.AddOrUpdate("physicalMemoryLimitPercentage", "0");
+            _cache.AddOrUpdate("cacheMemoryLimitMegabytes", memoryLimit);
             _expirationDuration = expirationDuration;
         }
 
@@ -61,7 +64,7 @@ namespace Org.Apache.REEF.Network.Naming
         /// <param name="value">IPEndPoint of remote destination</param>
         internal void Set(string identifier, IPEndPoint value)
         {
-            _cache.Set(identifier, value, DateTimeOffset.Now.AddMilliseconds(_expirationDuration));
+            _cache.AddOrUpdate(identifier, value, Convert.ToInt32(_expirationDuration));
         }
 
         /// <summary>
@@ -89,7 +92,7 @@ namespace Org.Apache.REEF.Network.Naming
         /// </summary>
         internal long PhysicalMemoryLimit
         {
-            get { return _cache.CacheMemoryLimit; }
+            get { return (long)_cache.Get("cacheMemoryLimitMegabytes"); }
         }
 
         /// <summary>
@@ -97,7 +100,7 @@ namespace Org.Apache.REEF.Network.Naming
         /// </summary>
         internal TimeSpan PollingInterval
         {
-            get { return _cache.PollingInterval; }
+            get { return (TimeSpan)_cache.Get("pollingInterval"); }
         }
     }
 }
