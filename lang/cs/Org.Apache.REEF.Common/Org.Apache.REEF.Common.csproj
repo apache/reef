@@ -248,11 +248,15 @@ under the License.
     <Compile Include="Tasks\TaskMessage.cs" />
     <Compile Include="Telemetry\Counter.cs" />
     <Compile Include="Telemetry\Counters.cs" />
+    <Compile Include="Telemetry\CounterSinkThreshold.cs" />
+    <Compile Include="Telemetry\DefaultMetricsSink.cs" />
     <Compile Include="Telemetry\EvaluatorMetrics.cs" />
     <Compile Include="Telemetry\ICounter.cs" />
     <Compile Include="Telemetry\ICounters.cs" />
     <Compile Include="Telemetry\IEvaluatorMetrics.cs" />
+    <Compile Include="Telemetry\IMetricsSink.cs" />
     <Compile Include="Telemetry\MessageSenderConfigurationModule.cs" />
+    <Compile Include="Telemetry\MetricSinks.cs" />
     <Compile Include="Telemetry\MetricsMessageSender.cs" />
     <Compile Include="Telemetry\MetricsService.cs" />
   </ItemGroup>

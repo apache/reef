@@ -34,14 +34,38 @@ namespace Org.Apache.REEF.Common.Telemetry
     internal sealed class MetricsService : IObserver<IContextMessage>
     {
         private static readonly Logger Logger = Logger.GetLogger(typeof(MetricsService));
+
+        /// <summary>
+        /// Registration of counters
+        /// </summary>
         private readonly IDictionary<string, ICounter> _counters = new ConcurrentDictionary<string, ICounter>();
+
+        /// <summary>
+        /// Total increment since last sink for all the counters
+        /// </summary>
+        private readonly IDictionary<string, int> _totalIncrementSinceLastSink = new ConcurrentDictionary<string, int>();
+
+        /// <summary>
+        /// A set of metrics sinks
+        /// </summary>
+        private readonly ISet<IMetricsSink> _metricsSinks;
+
+        /// <summary>
+        /// The threshold that triggers the sinks. 
+        /// Currently only one threshold is defined for all the counters. Later, it can be extended to define a threshold per counter.
+        /// </summary>
+        private readonly int _counterSinkThreshold;
 
         /// <summary>
         /// It can be bound with driver configuration as a context message handler
         /// </summary>
         [Inject]
-        private MetricsService()
+        private MetricsService(
+            [Parameter(typeof(MetricSinks))] ISet<IMetricsSink> metricsSinks,
+            [Parameter(typeof(CounterSinkThreshold))] int counterSinkThreshold)
         {
+            _metricsSinks = metricsSinks;
+            _counterSinkThreshold = counterSinkThreshold;
         }
 
         /// <summary>
@@ -65,13 +89,64 @@ namespace Org.Apache.REEF.Common.Telemetry
                     //// For the counters from multiple evaluators with the same counter name, the value should be aggregated here
                     //// We also need to consider failure cases.  
                     _counters[counter.Name] = counter;
+
+                    if (_totalIncrementSinceLastSink.ContainsKey(counter.Name))
+                    {
+                        _totalIncrementSinceLastSink[counter.Name] += counter.Value - c.Value;
+                    }
+                    else
+                    {
+                        _totalIncrementSinceLastSink.Add(counter.Name, counter.Value - c.Value);
+                    }
                 }
                 else
                 {
                     _counters.Add(counter.Name, counter);
+                    _totalIncrementSinceLastSink.Add(counter.Name, counter.Value);
                 }
 
-                Logger.Log(Level.Verbose, "Counter name: {0}, value: {1}, description: {2}, time: {3}.", counter.Name, counter.Value, counter.Description, new DateTime(counter.Timestamp));
+                Logger.Log(Level.Verbose, "Counter name: {0}, value: {1}, description: {2}, time: {3},  incrementSinceLastSink: {4}.", 
+                    counter.Name, counter.Value, counter.Description, new DateTime(counter.Timestamp), _totalIncrementSinceLastSink[counter.Name]);
+            }
+
+            if (TriggerSink())
+            {
+                SinkCounters();
+                _totalIncrementSinceLastSink.Clear();
+            }
+        }
+
+        /// <summary>
+        /// The condition that triggers the sink. The condition can be modified later.
+        /// </summary>
+        /// <returns></returns>
+        private bool TriggerSink()
+        {
+            return _totalIncrementSinceLastSink.Sum(e => e.Value) > _counterSinkThreshold;
+        }
+
+        /// <summary>
+        /// Preparing data and call Sink 
+        /// </summary>
+        private void SinkCounters()
+        {
+            var set = new HashSet<KeyValuePair<string, string>>();
+            foreach (var c in _counters)
+            {
+                set.Add(new KeyValuePair<string, string>(c.Key, c.Value.Value.ToString()));
+            }
+
+            Sink(set);
+        }
+
+        /// <summary>
+        /// Call each Sink to sink the data in the counters
+        /// </summary>
+        private void Sink(ISet<KeyValuePair<string, string>> set)
+        {
+            foreach (var s in _metricsSinks)
+            {
+                s.Sink(set);
             }
         }
 
