@@ -203,8 +203,6 @@ public final class ThreadPoolStage<T> extends AbstractEStage<T> {
 
   /**
    * Closes resources.
-   *
-   * @throws WakeRuntimeException
    */
   @Override
   public void close() throws WakeRuntimeException {
