@@ -205,7 +205,7 @@ public final class ThreadPoolStage<T> extends AbstractEStage<T> {
    * Closes resources.
    */
   @Override
-  public void close() throws WakeRuntimeException {
+  public void close() {
 
     if (closed.compareAndSet(false, true) && numThreads > 0) {
 
