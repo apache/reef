@@ -230,7 +230,12 @@ public final class ThreadPoolStage<T> extends AbstractEStage<T> {
             new Object[] {this.name, SHUTDOWN_TIMEOUT, droppedRunnables.size()});
       }
 
-      LOG.log(Level.FINEST, "Closing ThreadPoolStage {0}: end", this.name);
+      if (!executor.isTerminated()) {
+        LOG.log(Level.SEVERE, "Closing ThreadPoolStage {0}: Executor failed to be terminated.", this.name);
+      } else {
+        LOG.log(Level.FINEST, "Closing ThreadPoolStage {0}: end", this.name);
+      }
+
     }
   }
 
