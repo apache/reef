@@ -27,10 +27,7 @@ import org.apache.reef.wake.exception.WakeRuntimeException;
 
 import javax.inject.Inject;
 import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -206,9 +203,11 @@ public final class ThreadPoolStage<T> extends AbstractEStage<T> {
 
   /**
    * Closes resources.
+   *
+   * @throws WakeRuntimeException
    */
   @Override
-  public void close() {
+  public void close() throws WakeRuntimeException {
 
     if (closed.compareAndSet(false, true) && numThreads > 0) {
 
@@ -232,6 +231,7 @@ public final class ThreadPoolStage<T> extends AbstractEStage<T> {
 
       if (!executor.isTerminated()) {
         LOG.log(Level.SEVERE, "Closing ThreadPoolStage {0}: Executor failed to terminate.", this.name);
+
       }
 
       LOG.log(Level.FINEST, "Closing ThreadPoolStage {0}: end", this.name);
