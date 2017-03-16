@@ -229,7 +229,6 @@ public final class ThreadPoolStage<T> extends AbstractEStage<T> {
 
       if (!executor.isTerminated()) {
         LOG.log(Level.SEVERE, "Closing ThreadPoolStage {0}: Executor failed to terminate.", this.name);
-
       }
 
       LOG.log(Level.FINEST, "Closing ThreadPoolStage {0}: end", this.name);
