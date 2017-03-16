@@ -28,8 +28,6 @@ import org.apache.reef.wake.impl.ThreadPoolStage;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * Delayed event router that dispatches messages to the proper event handler by type.
@@ -38,8 +36,6 @@ import java.util.logging.Logger;
 @Private
 @DriverSide
 public final class DispatchingEStage implements AutoCloseable {
-
-  private static final Logger LOG = Logger.getLogger(DispatchingEStage.class.getName());
 
   /**
    * A map of event handlers, populated in the register() method.
