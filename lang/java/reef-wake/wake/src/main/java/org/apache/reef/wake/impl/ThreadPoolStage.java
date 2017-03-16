@@ -226,17 +226,24 @@ public final class ThreadPoolStage<T> extends AbstractEStage<T> {
       if (!isTerminated) {
         final List<Runnable> droppedRunnables = executor.shutdownNow();
         LOG.log(Level.SEVERE,
-            "Closing ThreadPoolStage {0}: Executor did not terminate in {1} ms. Dropping {2} tasks",
-            new Object[] {this.name, SHUTDOWN_TIMEOUT, droppedRunnables.size()});
+                "Closing ThreadPoolStage {0}: Executor did not terminate in {1} ms. Dropping {2} tasks",
+                new Object[]{this.name, SHUTDOWN_TIMEOUT, droppedRunnables.size()});
       }
 
       if (!executor.isTerminated()) {
-        LOG.log(Level.SEVERE, "Closing ThreadPoolStage {0}: Executor failed to be terminated.", this.name);
-      } else {
-        LOG.log(Level.FINEST, "Closing ThreadPoolStage {0}: end", this.name);
+        LOG.log(Level.SEVERE, "Closing ThreadPoolStage {0}: Executor failed to terminate.", this.name);
       }
 
+      LOG.log(Level.FINEST, "Closing ThreadPoolStage {0}: end", this.name);
+
     }
+  }
+
+  /**
+   * Returns true if resources are closed.
+   */
+  public boolean isClosed() {
+    return (closed.get() && executor.isTerminated());
   }
 
   /**
