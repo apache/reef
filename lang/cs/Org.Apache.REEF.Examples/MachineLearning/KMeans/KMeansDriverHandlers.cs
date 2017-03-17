@@ -25,6 +25,7 @@ using Org.Apache.REEF.Driver;
 using Org.Apache.REEF.Driver.Bridge;
 using Org.Apache.REEF.Driver.Context;
 using Org.Apache.REEF.Driver.Evaluator;
+using Org.Apache.REEF.Driver.Task;
 using Org.Apache.REEF.Examples.MachineLearning.KMeans.codecs;
 using Org.Apache.REEF.Network.Group.Config;
 using Org.Apache.REEF.Network.Group.Driver;
@@ -45,7 +46,8 @@ namespace Org.Apache.REEF.Examples.MachineLearning.KMeans
     public class KMeansDriverHandlers : 
         IObserver<IAllocatedEvaluator>,
         IObserver<IActiveContext>, 
-        IObserver<IDriverStarted>
+        IObserver<IDriverStarted>,
+        IObserver<ICompletedTask>
     {
         private static readonly Logger _Logger = Logger.GetLogger(typeof(KMeansDriverHandlers));
         private readonly object _lockObj = new object();
@@ -192,12 +194,15 @@ namespace Org.Apache.REEF.Examples.MachineLearning.KMeans
 
         public void OnError(Exception error)
         {
-            throw new NotImplementedException();
         }
 
         public void OnCompleted()
         {
-            throw new NotImplementedException();
+        }
+
+        public void OnNext(ICompletedTask value)
+        {
+            value.ActiveContext.Dispose();
         }
     }
 

@@ -123,7 +123,7 @@ namespace Org.Apache.REEF.Tests.Functional.ML.KMeans
             string dataFilePath = GenerateDataFileAndGetPath();
 
             TestRun(DriverConfiguration(dataFilePath), typeof(KMeansDriverHandlers), Partitions + 1, "KMeansDriverHandlers", "local", testFolder);
-            ValidateSuccessForLocalRuntime(Partitions + 1, testFolder: testFolder);
+            ValidateSuccessForLocalRuntime(Partitions + 1, testFolder: testFolder, retryCount: 120);
             CleanUp(testFolder);
             try
             {
@@ -156,11 +156,12 @@ namespace Org.Apache.REEF.Tests.Functional.ML.KMeans
 
             IConfiguration driverConfig = TangFactory.GetTang().NewConfigurationBuilder(
                 Org.Apache.REEF.Driver.DriverConfiguration.ConfigurationModule
-                    .Set(Org.Apache.REEF.Driver.DriverConfiguration.OnDriverStarted, GenericType<KMeansDriverHandlers>.Class)
-                    .Set(Org.Apache.REEF.Driver.DriverConfiguration.OnEvaluatorAllocated, GenericType<KMeansDriverHandlers>.Class)
-                    .Set(Org.Apache.REEF.Driver.DriverConfiguration.OnContextActive, GenericType<KMeansDriverHandlers>.Class)
-                    .Set(Org.Apache.REEF.Driver.DriverConfiguration.CommandLineArguments, dataFilePath)
-                    .Set(Org.Apache.REEF.Driver.DriverConfiguration.CustomTraceLevel, Level.Info.ToString())
+                    .Set(REEF.Driver.DriverConfiguration.OnDriverStarted, GenericType<KMeansDriverHandlers>.Class)
+                    .Set(REEF.Driver.DriverConfiguration.OnEvaluatorAllocated, GenericType<KMeansDriverHandlers>.Class)
+                    .Set(REEF.Driver.DriverConfiguration.OnContextActive, GenericType<KMeansDriverHandlers>.Class)
+                    .Set(REEF.Driver.DriverConfiguration.OnTaskCompleted, GenericType<KMeansDriverHandlers>.Class)
+                    .Set(REEF.Driver.DriverConfiguration.CommandLineArguments, dataFilePath)
+                    .Set(REEF.Driver.DriverConfiguration.CustomTraceLevel, Level.Info.ToString())
                     .Build())
                 .BindIntNamedParam<NumPartitions>(Partitions.ToString())
                 .Build();
