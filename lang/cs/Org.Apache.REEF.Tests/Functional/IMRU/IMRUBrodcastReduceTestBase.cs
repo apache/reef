@@ -51,10 +51,11 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
         protected static readonly Logger Logger = Logger.GetLogger(typeof(IMRUBrodcastReduceTestBase));
         protected const string IMRUJobName = "IMRUBroadcastReduce";
 
-        protected const string CompletedTaskMessage = "CompletedTaskMessage";
-        protected const string RunningTaskMessage = "RunningTaskMessage";
-        protected const string FailedTaskMessage = "FailedTaskMessage";
-        protected const string FailedEvaluatorMessage = "FailedEvaluatorMessage";
+        protected const string CompletedTaskMessage = IMRUDriver<int[], int[], int[], int[]>.CompletedTaskMessage;
+        protected const string RunningTaskMessage = IMRUDriver<int[], int[], int[], int[]>.RunningTaskMessage;
+        protected const string FailedTaskMessage = IMRUDriver<int[], int[], int[], int[]>.FailedTaskMessage;
+        protected const string FailedEvaluatorMessage = IMRUDriver<int[], int[], int[], int[]>.FailedEvaluatorMessage;
+        protected const string DoneActionMessage = IMRUDriver<int[], int[], int[], int[]>.DoneActionPrefix;
 
         /// <summary>
         /// Abstract method for subclass to override it to provide configurations for driver handlers 

@@ -16,7 +16,6 @@
 // under the License.
 
 using Org.Apache.REEF.IMRU.API;
-using Org.Apache.REEF.IMRU.OnREEF.Driver;
 using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Tang.Util;
@@ -62,7 +61,7 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
             var completedTaskCount = GetMessageCount(lines, "Received ICompletedTask");
 
             var failedTaskCount = GetMessageCount(lines, FailedTaskMessage);
-            var jobSuccess = GetMessageCount(lines, IMRUDriver<int[], int[], int[], int[]>.DoneActionPrefix);
+            var jobSuccess = GetMessageCount(lines, DoneActionMessage);
 
             // All tasks should start running before fail
             Assert.Equal(numTasks, runningTaskCount);

@@ -75,6 +75,10 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
 
         internal const string DoneActionPrefix = "DoneAction:";
         internal const string FailActionPrefix = "FailAction:";
+        internal const string CompletedTaskMessage = "Received ICompletedTask";
+        internal const string RunningTaskMessage = "Received IRunningTask";
+        internal const string FailedTaskMessage = "Received IFailedTask";
+        internal const string FailedEvaluatorMessage = "Received IFailedEvaluator";
 
         private readonly ConfigurationManager _configurationManager;
         private readonly int _totalMappers;
@@ -431,7 +435,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         /// <param name="runningTask"></param>
         public void OnNext(IRunningTask runningTask)
         {
-            Logger.Log(Level.Info, "Received IRunningTask {0} from endpoint {1} at SystemState {2} retry # {3}.", runningTask.Id, GetEndPointFromTaskId(runningTask.Id), _systemState.CurrentState, _numberOfRetries);
+            Logger.Log(Level.Info, "{0} {1} from endpoint {2} at SystemState {3} retry # {4}.", RunningTaskMessage, runningTask.Id, GetEndPointFromTaskId(runningTask.Id), _systemState.CurrentState, _numberOfRetries);
             lock (_lock)
             {
                 using (Logger.LogFunction("IMRUDriver::IRunningTask"))
@@ -478,7 +482,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         /// <param name="completedTask">The link to the completed task</param>
         public void OnNext(ICompletedTask completedTask)
         {
-            Logger.Log(Level.Info, "Received ICompletedTask {0}, with systemState {1} in retry# {2}.", completedTask.Id, _systemState.CurrentState, _numberOfRetries);
+            Logger.Log(Level.Info, "{0} {1}, with systemState {2} in retry# {3}.", CompletedTaskMessage, completedTask.Id, _systemState.CurrentState, _numberOfRetries);
             
             lock (_lock)
             {
@@ -560,7 +564,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
                    ? GetEndPointFromContext(failedEvaluator.FailedContexts.First())
                    : "unknown_endpoint";
 
-            Logger.Log(Level.Warning, "Received IFailedEvaluator {0} from endpoint {1} with systemState {2} in retry# {3} with Exception: {4}.", failedEvaluator.Id, endpoint, _systemState.CurrentState, _numberOfRetries, failedEvaluator.EvaluatorException);
+            Logger.Log(Level.Warning, "{0} {1} from endpoint {2} with systemState {3} in retry# {4} with Exception: {5}.", FailedEvaluatorMessage, failedEvaluator.Id, endpoint, _systemState.CurrentState, _numberOfRetries, failedEvaluator.EvaluatorException);
 
             lock (_lock)
             {
@@ -695,7 +699,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         /// <param name="failedTask"></param>
         public void OnNext(IFailedTask failedTask)
         {
-            Logger.Log(Level.Warning, "Received IFailedTask with Id: {0} and message: {1} from endpoint {2} with systemState {3} in retry#: {4}.", failedTask.Id, failedTask.Message, GetEndPointFromContext(failedTask.GetActiveContext()), _systemState.CurrentState, _numberOfRetries);
+            Logger.Log(Level.Warning, "{0}: {1} and message: {2} from endpoint {3} with systemState {4} in retry#: {5}.", FailedTaskMessage, failedTask.Id, failedTask.Message, GetEndPointFromContext(failedTask.GetActiveContext()), _systemState.CurrentState, _numberOfRetries);
             lock (_lock)
             {
                 using (Logger.LogFunction("IMRUDriver::IFailedTask"))

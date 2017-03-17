@@ -17,7 +17,6 @@
 
 using Org.Apache.REEF.IMRU.API;
 using Org.Apache.REEF.IMRU.Examples.PipelinedBroadcastReduce;
-using Org.Apache.REEF.IMRU.OnREEF.Driver;
 using Org.Apache.REEF.IMRU.OnREEF.Parameters;
 using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Tang.Interface;
@@ -57,7 +56,7 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
             var completedTaskCount = GetMessageCount(lines, "Received ICompletedTask");
             var failedEvaluatorCount = GetMessageCount(lines, FailedEvaluatorMessage);
             var failedTaskCount = GetMessageCount(lines, FailedTaskMessage);
-            var jobSuccess = GetMessageCount(lines, IMRUDriver<int[], int[], int[], int[]>.DoneActionPrefix);
+            var jobSuccess = GetMessageCount(lines, DoneActionMessage);
 
             // In each retry, there are 2 failed evaluators.
             // There will be no failed task.

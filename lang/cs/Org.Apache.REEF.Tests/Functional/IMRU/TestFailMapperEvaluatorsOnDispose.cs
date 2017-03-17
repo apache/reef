@@ -17,7 +17,6 @@
 
 using Org.Apache.REEF.IMRU.API;
 using Org.Apache.REEF.IMRU.Examples.PipelinedBroadcastReduce;
-using Org.Apache.REEF.IMRU.OnREEF.Driver;
 using Org.Apache.REEF.IMRU.OnREEF.Parameters;
 using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Tang.Interface;
@@ -56,7 +55,7 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
             string[] lines = ReadLogFile(DriverStdout, "driver", testFolder, 360);
             var failedEvaluatorCount = GetMessageCount(lines, FailedEvaluatorMessage);
             var failedTaskCount = GetMessageCount(lines, FailedTaskMessage);
-            var jobSuccess = GetMessageCount(lines, IMRUDriver<int[], int[], int[], int[]>.DoneActionPrefix);
+            var jobSuccess = GetMessageCount(lines, DoneActionMessage);
 
             // In this test one of evaluators fails at task dispose stage. Depending on the timing of the failure,
             // if it happens after all tasks completed, the job succeeds immediately,
