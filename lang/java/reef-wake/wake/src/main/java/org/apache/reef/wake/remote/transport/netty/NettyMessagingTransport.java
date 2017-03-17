@@ -53,8 +53,8 @@ import java.net.BindException;
 import java.net.ConnectException;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
+import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -225,7 +225,7 @@ public final class NettyMessagingTransport implements Transport {
     final ChannelGroupFuture serverChannelGroupFuture = this.serverChannelGroup.close();
     final ChannelFuture acceptorFuture = this.acceptor.close();
 
-    final List<Future> eventLoopGroupFutures = new LinkedList<>();
+    final List<Future> eventLoopGroupFutures = new ArrayList<>(3);
     eventLoopGroupFutures.add(this.clientWorkerGroup.shutdownGracefully());
     eventLoopGroupFutures.add(this.serverBossGroup.shutdownGracefully());
     eventLoopGroupFutures.add(this.serverWorkerGroup.shutdownGracefully());
