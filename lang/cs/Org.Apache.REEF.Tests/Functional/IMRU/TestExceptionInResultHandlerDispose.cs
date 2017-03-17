@@ -51,7 +51,7 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
             var completedTaskCount = GetMessageCount(lines, "Received ICompletedTask");
             var failedEvaluatorCount = GetMessageCount(lines, FailedEvaluatorMessage);
             var failedTaskCount = GetMessageCount(lines, FailedTaskMessage);
-            var jobSuccess = GetMessageCount(lines, IMRUDriver<int[], int[], int[], int[]>.DoneActionPrefix);
+            var jobSuccess = GetMessageCount(lines, DoneActionMessage);
 
             // Master evaluator will fail after master task is completed. Depending on how quick the driver dispose contexts after the master task complete,
             // driver may or may not receive the IFailedEvalautor event. 
