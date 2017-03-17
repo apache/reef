@@ -25,10 +25,12 @@ import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.group.ChannelGroup;
+import io.netty.channel.group.ChannelGroupFuture;
 import io.netty.channel.group.DefaultChannelGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
+import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.GlobalEventExecutor;
 import org.apache.reef.tang.annotations.Parameter;
 import org.apache.reef.wake.EStage;
@@ -51,6 +53,7 @@ import java.net.BindException;
 import java.net.ConnectException;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -217,18 +220,27 @@ public final class NettyMessagingTransport implements Transport {
 
     LOG.log(Level.FINE, "Closing netty transport socket address: {0}", this.localAddress);
 
-    this.clientChannelGroup.close().awaitUninterruptibly();
-    this.serverChannelGroup.close().awaitUninterruptibly();
+    final ChannelGroupFuture clientChannelGroupFuture = this.clientChannelGroup.close();
+    final ChannelGroupFuture serverChannelGroupFuture = this.serverChannelGroup.close();
+    final ChannelFuture acceptorFuture = this.acceptor.close();
+
+    final ArrayList<Future> eventLoopGroupFutures = new ArrayList<>(3);
+    eventLoopGroupFutures.add(this.clientWorkerGroup.shutdownGracefully());
+    eventLoopGroupFutures.add(this.serverBossGroup.shutdownGracefully());
+    eventLoopGroupFutures.add(this.serverWorkerGroup.shutdownGracefully());
+
+    clientChannelGroupFuture.awaitUninterruptibly();
+    serverChannelGroupFuture.awaitUninterruptibly();
 
     try {
-      this.acceptor.close().sync();
+      acceptorFuture.sync();
     } catch (final Exception ex) {
       LOG.log(Level.SEVERE, "Error closing the acceptor channel for " + this.localAddress, ex);
     }
 
-    this.clientWorkerGroup.shutdownGracefully().awaitUninterruptibly();
-    this.serverBossGroup.shutdownGracefully().awaitUninterruptibly();
-    this.serverWorkerGroup.shutdownGracefully().awaitUninterruptibly();
+    for (final Future eventLoopGroupFuture : eventLoopGroupFutures) {
+      eventLoopGroupFuture.awaitUninterruptibly();
+    }
 
     LOG.log(Level.FINE, "Closing netty transport socket address: {0} done", this.localAddress);
   }
