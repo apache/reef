@@ -23,7 +23,6 @@ import org.apache.reef.io.network.Connection;
 import org.apache.reef.io.network.Message;
 import org.apache.reef.io.network.NetworkConnectionService;
 import org.apache.reef.io.network.impl.config.NetworkConnectionServiceIdFactory;
-import org.apache.reef.io.network.naming.NameResolver;
 import org.apache.reef.io.network.naming.NameResolverConfiguration;
 import org.apache.reef.io.network.naming.NameServer;
 import org.apache.reef.tang.Configuration;
@@ -51,8 +50,6 @@ public final class NetworkMessagingTestService implements AutoCloseable {
   private final NetworkConnectionService receiverNetworkConnService;
   private final NetworkConnectionService senderNetworkConnService;
   private final NameServer nameServer;
-  private final NameResolver receiverResolver;
-  private final NameResolver senderResolver;
 
   public NetworkMessagingTestService(final String localAddress) throws InjectionException {
     // name server
@@ -67,14 +64,12 @@ public final class NetworkMessagingTestService implements AutoCloseable {
     // network service for receiver
     final Injector injectorReceiver = injector.forkInjector(netConf);
     this.receiverNetworkConnService = injectorReceiver.getInstance(NetworkConnectionService.class);
-    this.receiverResolver = injectorReceiver.getInstance(NameResolver.class);
     this.factory = injectorReceiver.getNamedInstance(NetworkConnectionServiceIdFactory.class);
 
     // network service for sender
     LOG.log(Level.FINEST, "=== Test network connection service sender start");
     final Injector injectorSender = injector.forkInjector(netConf);
     senderNetworkConnService = injectorSender.getInstance(NetworkConnectionService.class);
-    this.senderResolver = injectorSender.getInstance(NameResolver.class);
   }
 
   public <T> void registerTestConnectionFactory(final Identifier connFactoryId,
@@ -101,8 +96,6 @@ public final class NetworkMessagingTestService implements AutoCloseable {
     senderNetworkConnService.close();
     receiverNetworkConnService.close();
     nameServer.close();
-    receiverResolver.close();
-    senderResolver.close();
   }
 
   public static final class MessageHandler<T> implements EventHandler<Message<T>> {
