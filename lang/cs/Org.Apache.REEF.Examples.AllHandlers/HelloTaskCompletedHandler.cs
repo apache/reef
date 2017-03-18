@@ -16,16 +16,27 @@
 // under the License.
 
 using System;
+using System.Collections.Generic;
+using System.Globalization;
+using System.Net;
+using System.Threading;
+using Org.Apache.REEF.Driver.Bridge;
 using Org.Apache.REEF.Driver.Task;
 using Org.Apache.REEF.Tang.Annotations;
+using Org.Apache.REEF.Utilities;
+using Org.Apache.REEF.Utilities.Logging;
 
 namespace Org.Apache.REEF.Examples.AllHandlers
 {
     /// <summary>
     /// A sample implementation of TaskCompletedHandler
     /// </summary>
-    public sealed class HelloTaskCompletedHandler : IObserver<ICompletedTask>
+    public sealed class HelloTaskCompletedHandler : IObserver<ICompletedTask>, IHttpHandler
     {
+        private static readonly Logger Logger = Logger.GetLogger(typeof(HelloTaskCompletedHandler));
+
+        private readonly IList<ICompletedTask> _completedTasks = new List<ICompletedTask>();
+
         [Inject]
         private HelloTaskCompletedHandler()
         {
@@ -38,9 +49,7 @@ namespace Org.Apache.REEF.Examples.AllHandlers
         public void OnNext(ICompletedTask completedTask)
         {
             Console.WriteLine("Received CompletedTask: {0}", completedTask.Id);
-            using (completedTask.ActiveContext)
-            {
-            }
+            _completedTasks.Add(completedTask);
         }
 
         public void OnError(Exception error)
@@ -51,6 +60,36 @@ namespace Org.Apache.REEF.Examples.AllHandlers
         public void OnCompleted()
         {
             throw new NotImplementedException();
+        }
+
+        public string GetSpecification()
+        {
+            return "CMD";
+        }
+
+        /// <summary>
+        /// It gets HTTP request and close the contexts after receiving all the completed tasks
+        /// </summary>
+        /// <param name="requet"></param>
+        /// <param name="resonse"></param>
+        public void OnHttpRequest(ReefHttpRequest requet, ReefHttpResponse resonse)
+        {
+            var msg = string.Format(CultureInfo.CurrentCulture,
+                      "HelloTaskCompletedHandler OnHttpRequest: URL: {0}, QueryString: {1}, inputStream: {2}.",
+                      requet.Url, requet.Querystring, ByteUtilities.ByteArraysToString(requet.InputStream));
+            Logger.Log(Level.Info, msg);
+            resonse.Status = HttpStatusCode.OK;
+            while (_completedTasks.Count != 2)
+            {
+                Thread.Sleep(1000);
+                Logger.Log(Level.Info, "_completedTasks received:" + _completedTasks.Count);
+            }
+            resonse.OutputStream = ByteUtilities.StringToByteArrays("Stopped!!!");
+            foreach (var t in _completedTasks)
+            {
+                t.ActiveContext.Dispose();
+            }
+            _completedTasks.Clear();
         }
     }
 }

@@ -40,7 +40,6 @@ namespace Org.Apache.REEF.Tests.Functional.Bridge
         [Trait("Priority", "1")]
         [Trait("Category", "FunctionalGated")]
         [Trait("Description", "Run CLR Bridge on local runtime")]
-        //// TODO[JIRA REEF-1184]: add timeout 180 sec
         public async Task CanRunClrBridgeExampleOnLocalRuntime()
         {
             string testRuntimeFolder = DefaultRuntimeFolder + TestId;
@@ -54,12 +53,30 @@ namespace Org.Apache.REEF.Tests.Functional.Bridge
             string[] a = { runOnYarn ? "yarn" : "local", testRuntimeFolder };
             IJobSubmissionResult driverHttpEndpoint = AllHandlers.Run(a);
 
-            var uri = driverHttpEndpoint.DriverUrl + "NRT/status?a=1&b=2";
-            var strStatus = driverHttpEndpoint.GetUrlResult(uri);
-            Assert.NotNull(strStatus);
-            Assert.True(strStatus.Equals("Byte array returned from HelloHttpHandler in CLR!!!\r\n"));
+            var driverUrl = driverHttpEndpoint.DriverUrl;
 
-            await((JobSubmissionResult)driverHttpEndpoint).TryUntilNoConnection(uri);
+            int retryCount = 1;
+            while (string.IsNullOrEmpty(driverUrl) && retryCount < 10)
+            {
+                driverUrl = driverHttpEndpoint.DriverUrl;
+                retryCount++;
+            }
+
+            if (driverUrl != null)
+            {
+                var uri = driverUrl + "NRT/status?a=1&b=2";
+                var strStatus = driverHttpEndpoint.GetUrlResult(uri);
+                Assert.NotNull(strStatus);
+                Assert.True(strStatus.Equals("Byte array returned from HelloHttpHandler in CLR!!!\r\n"));
+
+                var uri1 = driverUrl + "CMD/Stop?c=1";
+                var strStatus1 = driverHttpEndpoint.GetUrlResult(uri1);
+
+                Assert.NotNull(strStatus1);
+                Assert.True(strStatus1.Equals("Stopped!!!\r\n"));
+
+                await((JobSubmissionResult)driverHttpEndpoint).TryUntilNoConnection(uri);
+            }
         }
     }
 }
