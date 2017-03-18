@@ -59,6 +59,7 @@ namespace Org.Apache.REEF.Examples.AllHandlers
                 .Set(DriverConfiguration.OnTaskCompleted, GenericType<HelloTaskCompletedHandler>.Class)
                 .Set(DriverConfiguration.OnDriverStarted, GenericType<HelloDriverStartHandler>.Class)
                 .Set(DriverConfiguration.OnHttpEvent, GenericType<HelloHttpHandler>.Class)
+                .Set(DriverConfiguration.OnHttpEvent, GenericType<HelloTaskCompletedHandler>.Class)
                 .Set(DriverConfiguration.OnEvaluatorCompleted, GenericType<HelloCompletedEvaluatorHandler>.Class)
                 .Set(DriverConfiguration.CustomTraceListeners, GenericType<DefaultCustomTraceListener>.Class)
                 .Set(DriverConfiguration.CustomTraceLevel, Level.Info.ToString())
