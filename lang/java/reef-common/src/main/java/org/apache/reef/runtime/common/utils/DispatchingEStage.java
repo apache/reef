@@ -126,6 +126,13 @@ public final class DispatchingEStage implements AutoCloseable {
   }
 
   /**
+   * Returns true if the internal thread pool is closed.
+   */
+  public boolean isThreadPoolClosed() {
+    return this.stage.isClosed();
+  }
+
+  /**
    * Delayed EventHandler.onNext() call.
    * Contains a message object and EventHandler to process it.
    */
