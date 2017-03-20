@@ -290,5 +290,10 @@ public final class EvaluatorMessageDispatcher implements AutoCloseable {
     LOG.log(Level.FINER, "Closing message dispatcher for {0}", this.evaluatorIdentifier);
     // This effectively closes all dispatchers as they share the same stage.
     this.serviceDispatcher.close();
+    if (!this.serviceDispatcher.isThreadPoolClosed()) {
+      LOG.log(Level.SEVERE,
+              "Closing message dispatcher for {0}: ThreadPool for service dispatcher failed to close",
+              this.evaluatorIdentifier);
+    }
   }
 }
