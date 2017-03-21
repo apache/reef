@@ -43,7 +43,7 @@ public class WakeProfiler implements Aspect {
   private final Map<Object, Vertex<?>> vertexObject = new MonotonicHashMap<>();
   private final Map<InjectionFuture<?>, Object> futures = new MonotonicHashMap<>();
   private final Map<Object, Stats> stats = new MonotonicHashMap<>();
-  
+
   @Override
   public Aspect createChildAspect() {
     return this;
