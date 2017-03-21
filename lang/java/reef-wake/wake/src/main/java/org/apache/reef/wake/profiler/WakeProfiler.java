@@ -23,8 +23,6 @@ import net.sf.cglib.proxy.MethodInterceptor;
 import net.sf.cglib.proxy.MethodProxy;
 import org.apache.reef.tang.Aspect;
 import org.apache.reef.tang.InjectionFuture;
-import org.apache.reef.tang.annotations.Name;
-import org.apache.reef.tang.annotations.NamedParameter;
 import org.apache.reef.tang.types.ConstructorDef;
 import org.apache.reef.tang.util.MonotonicHashMap;
 import org.apache.reef.tang.util.ReflectionUtilities;
@@ -45,12 +43,6 @@ public class WakeProfiler implements Aspect {
   private final Map<Object, Vertex<?>> vertexObject = new MonotonicHashMap<>();
   private final Map<InjectionFuture<?>, Object> futures = new MonotonicHashMap<>();
   private final Map<Object, Stats> stats = new MonotonicHashMap<>();
-
-  /**
-   * Parameter to enable Wake network profiling. By default profiling is disabled.
-   */
-  @NamedParameter(doc = "If true, profiling will be enabled", short_name = "profiling", default_value = "false")
-  public static final class ProfilingEnabled implements Name<Boolean> { }
   
   @Override
   public Aspect createChildAspect() {
