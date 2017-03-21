@@ -30,6 +30,7 @@ import org.apache.reef.tang.exceptions.InjectionException;
 import org.apache.reef.util.EnvironmentUtils;
 import org.apache.reef.util.REEFVersion;
 import org.apache.reef.wake.profiler.WakeProfiler;
+import org.apache.reef.wake.profiler.ProfilerState;
 import org.apache.reef.wake.time.Clock;
 
 import java.util.logging.Level;
@@ -74,7 +75,7 @@ public final class REEFEnvironment implements Runnable, AutoCloseable {
 
     final Injector injector = TANG.newInjector(config);
 
-    if (injector.getNamedInstance(WakeProfiler.ProfilingEnabled.class)) {
+    if (ProfilerState.isProfilingEnabled(injector)) {
       final WakeProfiler profiler = new WakeProfiler();
       ProfilingStopHandler.setProfiler(profiler);
       injector.bindAspect(profiler);
