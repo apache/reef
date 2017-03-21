@@ -26,8 +26,6 @@ import org.apache.reef.tang.Configuration;
 import org.apache.reef.tang.Configurations;
 import org.apache.reef.tang.Injector;
 import org.apache.reef.tang.Tang;
-import org.apache.reef.tang.annotations.Name;
-import org.apache.reef.tang.annotations.NamedParameter;
 import org.apache.reef.tang.exceptions.InjectionException;
 import org.apache.reef.util.EnvironmentUtils;
 import org.apache.reef.util.REEFVersion;
@@ -43,13 +41,6 @@ import java.util.logging.Logger;
  * the runtime clock and calling .run() on it.
  */
 public final class REEFEnvironment implements Runnable, AutoCloseable {
-
-  /**
-   * Parameter to enable Wake network profiling. By default profiling is disabled.
-   * TODO[REEF-1629] Move that parameter and related code into Wake package.
-   */
-  @NamedParameter(doc = "If true, profiling will be enabled", short_name = "profiling", default_value = "false")
-  private static final class ProfilingEnabled implements Name<Boolean> { }
 
   private static final Logger LOG = Logger.getLogger(REEFEnvironment.class.getName());
 
@@ -83,7 +74,7 @@ public final class REEFEnvironment implements Runnable, AutoCloseable {
 
     final Injector injector = TANG.newInjector(config);
 
-    if (injector.getNamedInstance(ProfilingEnabled.class)) {
+    if (injector.getNamedInstance(WakeProfiler.ProfilingEnabled.class)) {
       final WakeProfiler profiler = new WakeProfiler();
       ProfilingStopHandler.setProfiler(profiler);
       injector.bindAspect(profiler);
