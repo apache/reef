@@ -50,7 +50,7 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
             TestBroadCastAndReduce(false, numTasks, chunkSize, dims, iterations, mapperMemory, updateTaskMemory, numberOfRetryInRecovery, testFolder);
 
             string[] lines = ReadLogFile(DriverStdout, "driver", testFolder, 120);
-            var jobFailure = GetMessageCount(lines, IMRUDriver<int[], int[], int[], int[]>.FailActionPrefix);
+            var jobFailure = GetMessageCount(lines, FailedActionMessage);
             Assert.True(jobFailure > 0);
             CleanUp(testFolder);
         }
