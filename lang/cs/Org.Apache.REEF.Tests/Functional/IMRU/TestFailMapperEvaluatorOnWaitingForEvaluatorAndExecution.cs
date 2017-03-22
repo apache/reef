@@ -58,9 +58,11 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
 
             // on each try each task should fail or complete or disappear with failed evaluator
             // and on each try all tasks should start successfully
-            // There is an additional failed evaluator in the first time before tasks are submitted
+            // If the first evaluator fails before submitting tasks, there is an additional failed evaluator. 
             Assert.True((NumberOfRetry + 1) * numTasks >= completedTaskCount + failedEvaluatorCount - 1 + failedTaskCount);
-            Assert.True(NumberOfRetry * numTasks < completedTaskCount + failedEvaluatorCount - 1 + failedTaskCount);
+
+            // As the first evalautor might fail after tasks are submitted, then the completed# + failed# should be the same as normal FT scenarios. 
+            Assert.True(NumberOfRetry * numTasks < completedTaskCount + failedEvaluatorCount + failedTaskCount);
 
             // There is a designed EvaluatorFailure in a childContext in the first run. 
             // If this failure happens before all the tasks are submitted, after re-request an Evaluator, in the later tries, 
