@@ -59,7 +59,7 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
                 NumberOfRetry,
                 testFolder);
             string[] lines = ReadLogFile(DriverStdout, "driver", testFolder, 240);
-            var completedTaskCount = GetMessageCount(lines, "Received ICompletedTask");
+            var completedTaskCount = GetMessageCount(lines, CompletedTaskMessage);
             var runningTaskCount = GetMessageCount(lines, RunningTaskMessage);
             var failedEvaluatorCount = GetMessageCount(lines, FailedEvaluatorMessage);
             var failedTaskCount = GetMessageCount(lines, FailedTaskMessage);

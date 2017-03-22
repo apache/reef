@@ -57,8 +57,8 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
             // As the driver will shut down as soon as all tasks are in final state. The task state is final either by 
             // ICompletedTask or IFailedEvaluator. But MessageLogger may not be able to receive the last event 
             // before driver shut down. 
-            var failedEvaluatorCount = GetMessageCount(lines, "Received IFailedEvaluator");
-            var completedTaskCount = GetMessageCount(lines, "Received ICompletedTask");
+            var failedEvaluatorCount = GetMessageCount(lines, FailedEvaluatorMessage);
+            var completedTaskCount = GetMessageCount(lines, CompletedTaskMessage);
 
             var failedTaskCount = GetMessageCount(lines, FailedTaskMessage);
             var jobSuccess = GetMessageCount(lines, DoneActionMessage);

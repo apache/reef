@@ -48,7 +48,7 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
             string testFolder = DefaultRuntimeFolder + TestId;
             TestBroadCastAndReduce(false, numTasks, chunkSize, dims, iterations, mapperMemory, updateTaskMemory, numberOfRetryInRecovery, testFolder);
             string[] lines = ReadLogFile(DriverStdout, "driver", testFolder, 120);
-            var completedTaskCount = GetMessageCount(lines, "Received ICompletedTask");
+            var completedTaskCount = GetMessageCount(lines, CompletedTaskMessage);
             var failedEvaluatorCount = GetMessageCount(lines, FailedEvaluatorMessage);
             var failedTaskCount = GetMessageCount(lines, FailedTaskMessage);
             var jobSuccess = GetMessageCount(lines, DoneActionMessage);
