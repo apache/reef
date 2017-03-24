@@ -39,6 +39,10 @@ public final class RemoteConfiguration {
 
   /**
    * The timeout of connection retrying.
+   * To prevent retrying connections from being rejected by the remote stages,
+   * the retrying_timeout * number_of_retries should be less than the remote_executor_shutdown_timeout.
+   * If not, the remote stage can shutdown the connection retries before it is established,
+   * and can drop a message that should be sent to the remote.
    */
   public static final long REMOTE_CONNECTION_RETRY_TIMEOUT =
       WakeParameters.REMOTE_EXECUTOR_SHUTDOWN_TIMEOUT / (REMOTE_CONNECTION_NUMBER_OF_RETRIES + 1);
