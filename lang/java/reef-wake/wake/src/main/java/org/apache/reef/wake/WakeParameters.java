@@ -30,7 +30,7 @@ public final class WakeParameters {
 
   public static final long EXECUTOR_SHUTDOWN_TIMEOUT = 1000;
 
-  public static final long REMOTE_EXECUTOR_SHUTDOWN_TIMEOUT = 10000;
+  public static final long REMOTE_EXECUTOR_SHUTDOWN_TIMEOUT = 20000;
 
   /**
    * Maximum frame length unit.
