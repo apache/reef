@@ -60,7 +60,7 @@ public final class HelloREEFYarnUnmanagedAM {
    */
   public static void main(final String[] args) throws InjectionException {
 
-    LOG.log(Level.FINE, "Launching Unnmanaged AM: {0}", JAR_PATH);
+    LOG.log(Level.FINE, "Launching Unmanaged AM: {0}", JAR_PATH);
 
     try (final DriverLauncher client = DriverLauncher.getLauncher(RUNTIME_CONFIG)) {
 
@@ -80,8 +80,7 @@ public final class HelloREEFYarnUnmanagedAM {
     }
 
     ThreadLogger.logThreads(LOG, Level.FINEST, "Threads running after DriverLauncher.close():");
-
-    LOG.log(Level.INFO, "Clean exit!");
+    System.exit(0); // TODO[REEF-1715]: Should be able to exit cleanly at the end of main()
   }
 
   /** Empty private constructor to prohibit instantiation of utility class. */
