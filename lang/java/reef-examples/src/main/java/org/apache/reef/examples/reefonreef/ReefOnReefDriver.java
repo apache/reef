@@ -92,7 +92,6 @@ final class ReefOnReefDriver implements EventHandler<StartTime> {
             new Object[] {innerApplicationId, status.getState()});
       }
 
-      ThreadLogger.logThreads(LOG, Level.FINEST, "Threads running after DriverLauncher.close():");
       LOG.log(Level.INFO,
           "REEF-on-REEF host job {0} completed: inner app {1} status {2}",
           new Object[] {this.hostApplicationId, innerApplicationId, client.getStatus()});
@@ -101,5 +100,7 @@ final class ReefOnReefDriver implements EventHandler<StartTime> {
       LOG.log(Level.SEVERE, "REEF-on-REEF configuration error", ex);
       throw new RuntimeException("REEF-on-REEF configuration error", ex);
     }
+
+    ThreadLogger.logThreads(LOG, Level.FINEST, "Threads running after DriverLauncher.close():");
   }
 }
