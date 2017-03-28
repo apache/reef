@@ -25,7 +25,18 @@ under the License.
     <AssemblyName>Org.Apache.REEF.Bridge.JAR</AssemblyName>
     <RestorePackages>true</RestorePackages>
     <BuildPackage>false</BuildPackage>
+    <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
+    <TargetFrameworkProfile />
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <ItemGroup>
+    <None Include="app.config" />
+  </ItemGroup>
   <Import Project="$(SolutionDir)\build.props" />
   <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
   <Import Project="$(MSBuildBinPath)\Microsoft.Common.targets" />
@@ -82,11 +93,9 @@ under the License.
     <Exec Command='call "$(M2_HOME)\bin\mvn.cmd" -TC1 -DskipTests -q clean' Condition="Exists('$(Bridge_JAR)')" WorkingDirectory="$(REEF_Source_Folder)" />
     <Delete Files="$(OutputPath)\$(Bridge_JAR_Name)" />
     <Delete Files="$(OutputPath)\$(Client_JAR_Name)" />
-
   </Target>
   <!--
     Standard Rebuild target: Clean, then build
   -->
-  <Target Name="Rebuild" DependsOnTargets="Clean;Build"/>
-  <Target Name="CheckPrerequisites" DependsOnTargets="Build"/>
+  <Target Name="CheckPrerequisites" DependsOnTargets="Build" />
 </Project>
