@@ -72,7 +72,7 @@ final class ReefOnReefDriver implements EventHandler<StartTime> {
   public void onNext(final StartTime startTime) {
 
     LOG.log(Level.INFO, "Driver started: app {0} :: {1}", new Object[] {this.hostApplicationId, startTime});
-    LOG.log(Level.FINE, "Launching Unnmanaged AM: {0}", JAR_PATH);
+    LOG.log(Level.FINE, "Launching Unmanaged AM: {0}", JAR_PATH);
 
     try (final DriverLauncher client = DriverLauncher.getLauncher(RUNTIME_CONFIG)) {
 
