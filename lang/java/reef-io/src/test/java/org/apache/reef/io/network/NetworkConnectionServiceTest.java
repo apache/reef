@@ -28,6 +28,7 @@ import org.apache.reef.wake.IdentifierFactory;
 import org.apache.reef.wake.remote.Codec;
 import org.apache.reef.wake.remote.address.LocalAddressProvider;
 import org.apache.reef.wake.remote.impl.ObjectSerializableCodec;
+import org.junit.Assume;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestName;
@@ -179,7 +180,11 @@ public class NetworkConnectionServiceTest {
    */
   @Test
   public void testMessagingNetworkConnServiceRate() throws Exception {
+
+    Assume.assumeFalse("Use log level INFO to run benchmarking", LOG.isLoggable(Level.FINEST));
+
     LOG.log(Level.FINEST, name.getMethodName());
+
     final int[] messageSizes = {1, 16, 32, 64, 512, 64 * 1024, 1024 * 1024};
 
     for (final int size : messageSizes) {
@@ -220,7 +225,11 @@ public class NetworkConnectionServiceTest {
    */
   @Test
   public void testMessagingNetworkConnServiceRateDisjoint() throws Exception {
+
+    Assume.assumeFalse("Use log level INFO to run benchmarking", LOG.isLoggable(Level.FINEST));
+
     LOG.log(Level.FINEST, name.getMethodName());
+
     final BlockingQueue<Object> barrier = new LinkedBlockingQueue<>();
 
     final int numThreads = 4;
@@ -277,7 +286,11 @@ public class NetworkConnectionServiceTest {
 
   @Test
   public void testMultithreadedSharedConnMessagingNetworkConnServiceRate() throws Exception {
+
+    Assume.assumeFalse("Use log level INFO to run benchmarking", LOG.isLoggable(Level.FINEST));
+
     LOG.log(Level.FINEST, name.getMethodName());
+
     final int[] messageSizes = {2000}; // {1,16,32,64,512,64*1024,1024*1024};
 
     for (final int size : messageSizes) {
@@ -331,6 +344,9 @@ public class NetworkConnectionServiceTest {
    */
   @Test
   public void testMessagingNetworkConnServiceBatchingRate() throws Exception {
+
+    Assume.assumeFalse("Use log level INFO to run benchmarking", LOG.isLoggable(Level.FINEST));
+
     LOG.log(Level.FINEST, name.getMethodName());
 
     final int batchSize = 1024 * 1024;
