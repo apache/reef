@@ -386,7 +386,7 @@ public class NetworkServiceTest {
 
           final Injector injectorNs2 = injector2.forkInjector();
           injectorNs2.bindVolatileParameter(NetworkServiceParameters.NetworkServiceHandler.class,
-              new MessageHandler<String>(name2, monitor, numMessages));
+              new MessageHandler<String>(name2, monitor, totalNumMessages));
           final NetworkService<String> ns2 = injectorNs2.getInstance(NetworkService.class);
 
           final Injector injectorNs1 = injector2.forkInjector();
