@@ -153,6 +153,26 @@ under the License.
             <artifactId>mockito-core</artifactId>
         </dependency>
         <!-- END OF HADOOP -->
+        <!-- PARQUET -->
+        <dependency>
+            <groupId>org.apache.parquet</groupId>
+            <artifactId>parquet-avro</artifactId>
+            <version>${parquet.version}</version>
+        </dependency>
+        <!-- END OF PARQUET -->
+        <!-- AVRO -->
+        <dependency>
+            <groupId>org.apache.avro</groupId>
+            <artifactId>avro</artifactId>
+            <version>${avro.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.avro</groupId>
+            <artifactId>avro-mapred</artifactId>
+            <version>${avro.version}</version>
+            <classifier>hadoop2</classifier>
+        </dependency>
+        <!-- END OF AVRO -->
     </dependencies>
 
 </project>
