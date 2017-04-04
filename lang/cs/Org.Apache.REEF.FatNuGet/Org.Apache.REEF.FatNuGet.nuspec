@@ -50,6 +50,7 @@ under the License.
     <file src="..\bin\$Platform$\$Configuration$\Org.Apache.REEF.FatNuGet\Org.Apache.REEF.FatNuGet.pdb" target="lib\net45" />
     <file src="..\bin\$Platform$\$Configuration$\Org.Apache.REEF.FatNuGet\Org.Apache.REEF.IMRU.dll" target="lib\net45" />
     <file src="..\bin\$Platform$\$Configuration$\Org.Apache.REEF.FatNuGet\Org.Apache.REEF.IMRU.pdb" target="lib\net45" />
+    <file src="..\bin\$Platform$\$Configuration$\Org.Apache.REEF.FatNuGet\Org.Apache.REEF.IMRU.Examples.exe" target="lib\net45" />
     <file src="..\bin\$Platform$\$Configuration$\Org.Apache.REEF.FatNuGet\Org.Apache.REEF.IO.dll" target="lib\net45" />
     <file src="..\bin\$Platform$\$Configuration$\Org.Apache.REEF.FatNuGet\Org.Apache.REEF.IO.pdb" target="lib\net45" />
     <file src="..\bin\$Platform$\$Configuration$\Org.Apache.REEF.FatNuGet\Org.Apache.REEF.Network.dll" target="lib\net45" />
