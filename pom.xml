@@ -52,6 +52,7 @@ under the License.
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <hadoop.version>2.6.0</hadoop.version>
         <avro.version>1.8.1</avro.version>
+        <parquet.version>1.9.0</parquet.version>
         <jetty.version>6.1.26</jetty.version>
         <jackson.version>1.9.13</jackson.version>
         <protobuf.version>2.5.0</protobuf.version>
@@ -735,6 +736,7 @@ under the License.
         <module>lang/java/reef-examples</module>
         <module>lang/java/reef-examples-clr</module>
         <module>lang/java/reef-examples-hdinsight</module>
+        <module>lang/java/reef-experimental</module>
         <module>lang/java/reef-io</module>
         <module>lang/java/reef-poison</module>
         <module>lang/java/reef-runtime-hdinsight</module>
