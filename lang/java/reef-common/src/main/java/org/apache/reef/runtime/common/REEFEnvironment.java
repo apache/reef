@@ -33,6 +33,7 @@ import org.apache.reef.wake.profiler.WakeProfiler;
 import org.apache.reef.wake.profiler.ProfilerState;
 import org.apache.reef.wake.time.Clock;
 
+import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -64,8 +65,22 @@ public final class REEFEnvironment implements Runnable, AutoCloseable {
    * Main part of the configuration is usually read from config file by REEFLauncher.
    * @throws InjectionException Thrown on configuration error.
    */
-  @SuppressWarnings("checkstyle:illegalcatch") // Catch throwable to feed it to error handler
   public static REEFEnvironment fromConfiguration(final Configuration... configurations) throws InjectionException {
+    return fromConfiguration(null, configurations);
+  }
+
+  /**
+   * Create a new REEF environment.
+   * @param hostUser User credentials to use when registering REEF app with the Resource Manager.
+   * This parameter may be required for Unmanaged AM mode. Can be null.
+   * @param configurations REEF component (Driver or Evaluator) configuration.
+   * If multiple configurations are provided, they will be merged before use.
+   * Main part of the configuration is usually read from config file by REEFLauncher.
+   * @throws InjectionException Thrown on configuration error.
+   */
+  @SuppressWarnings("checkstyle:illegalcatch") // Catch throwable to feed it to error handler
+  public static REEFEnvironment fromConfiguration(
+      final UserCredentials hostUser, final Configuration... configurations) throws InjectionException {
 
     final Configuration config = Configurations.merge(configurations);
 
@@ -85,6 +100,16 @@ public final class REEFEnvironment implements Runnable, AutoCloseable {
 
     final REEFErrorHandler errorHandler = injector.getInstance(REEFErrorHandler.class);
     final JobStatusHandler jobStatusHandler = injector.getInstance(JobStatusHandler.class);
+
+    if (hostUser != null) {
+      try {
+        injector.getInstance(UserCredentials.class).set("reef-proxy", hostUser);
+      } catch (final IOException ex) {
+        final String msg = "Cannot copy user credentials: " + hostUser;
+        LOG.log(Level.SEVERE, msg, ex);
+        throw new RuntimeException(msg, ex);
+      }
+    }
 
     try {
 

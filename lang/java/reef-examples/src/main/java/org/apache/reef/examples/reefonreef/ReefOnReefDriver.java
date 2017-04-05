@@ -85,9 +85,13 @@ final class ReefOnReefDriver implements EventHandler<StartTime> {
           .set(UnmanagedAmYarnDriverConfiguration.JOB_SUBMISSION_DIRECTORY, DRIVER_ROOT_PATH)
           .build();
 
-      try (final REEFEnvironment reef = REEFEnvironment.fromConfiguration(yarnAmConfig, DRIVER_CONFIG)) {
+      try (final REEFEnvironment reef =
+          REEFEnvironment.fromConfiguration(client.getUser(), yarnAmConfig, DRIVER_CONFIG)) {
+
         reef.run();
+
         final ReefServiceProtos.JobStatusProto status = reef.getLastStatus();
+
         LOG.log(Level.INFO, "REEF-on-REEF inner job {0} completed: state {1}",
             new Object[] {innerApplicationId, status.getState()});
       }
