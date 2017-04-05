@@ -34,6 +34,7 @@ import org.apache.reef.runtime.common.files.ClasspathProvider;
 import org.apache.reef.runtime.common.files.JobJarMaker;
 import org.apache.reef.runtime.common.files.REEFFileNames;
 import org.apache.reef.runtime.yarn.client.parameters.JobQueue;
+import org.apache.reef.runtime.yarn.client.unmanaged.YarnProxyUser;
 import org.apache.reef.runtime.yarn.client.uploader.JobFolder;
 import org.apache.reef.runtime.yarn.client.uploader.JobUploader;
 import org.apache.reef.tang.Configuration;
@@ -61,6 +62,7 @@ final class YarnJobSubmissionHandler implements JobSubmissionHandler {
   private final REEFFileNames fileNames;
   private final ClasspathProvider classpath;
   private final JobUploader uploader;
+  private final YarnProxyUser yarnProxyUser;
   private final SecurityTokenProvider tokenProvider;
   private final DriverConfigurationProvider driverConfigurationProvider;
 
@@ -75,6 +77,7 @@ final class YarnJobSubmissionHandler implements JobSubmissionHandler {
           final REEFFileNames fileNames,
           final ClasspathProvider classpath,
           final JobUploader uploader,
+          final YarnProxyUser yarnProxyUser,
           final SecurityTokenProvider tokenProvider,
           final DriverConfigurationProvider driverConfigurationProvider) throws IOException {
 
@@ -85,6 +88,7 @@ final class YarnJobSubmissionHandler implements JobSubmissionHandler {
     this.fileNames = fileNames;
     this.classpath = classpath;
     this.uploader = uploader;
+    this.yarnProxyUser = yarnProxyUser;
     this.tokenProvider = tokenProvider;
     this.driverConfigurationProvider = driverConfigurationProvider;
   }
@@ -100,8 +104,8 @@ final class YarnJobSubmissionHandler implements JobSubmissionHandler {
     LOG.log(Level.FINEST, "Submitting{0} job: {1}",
         new Object[] {this.isUnmanaged ? " UNMANAGED AM" : "", jobSubmissionEvent});
 
-    try (final YarnSubmissionHelper submissionHelper = new YarnSubmissionHelper(
-        this.yarnConfiguration, this.fileNames, this.classpath, this.tokenProvider, this.isUnmanaged)) {
+    try (final YarnSubmissionHelper submissionHelper = new YarnSubmissionHelper(this.yarnConfiguration,
+        this.fileNames, this.classpath, this.yarnProxyUser, this.tokenProvider, this.isUnmanaged)) {
 
       LOG.log(Level.FINE, "Assembling submission JAR for the Driver.");
       final Optional<String> userBoundJobSubmissionDirectory =

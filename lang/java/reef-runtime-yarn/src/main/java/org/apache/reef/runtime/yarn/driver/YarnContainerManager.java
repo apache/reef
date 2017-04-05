@@ -21,6 +21,7 @@ package org.apache.reef.runtime.yarn.driver;
 import com.google.protobuf.ByteString;
 import org.apache.commons.collections.ListUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
+
 import org.apache.hadoop.fs.*;
 import org.apache.hadoop.service.Service;
 import org.apache.hadoop.yarn.api.records.*;
@@ -29,7 +30,9 @@ import org.apache.hadoop.yarn.client.api.async.AMRMClientAsync;
 import org.apache.hadoop.yarn.client.api.async.NMClientAsync;
 import org.apache.hadoop.yarn.client.api.async.impl.NMClientAsyncImpl;
 import org.apache.hadoop.yarn.conf.YarnConfiguration;
-import org.apache.hadoop.yarn.exceptions.YarnException;
+
+import org.apache.reef.annotations.audience.DriverSide;
+import org.apache.reef.annotations.audience.Private;
 import org.apache.reef.driver.ProgressProvider;
 import org.apache.reef.proto.ReefServiceProtos;
 import org.apache.reef.runtime.common.driver.DriverStatusManager;
@@ -39,6 +42,7 @@ import org.apache.reef.runtime.common.driver.resourcemanager.ResourceEventImpl;
 import org.apache.reef.runtime.common.driver.resourcemanager.ResourceStatusEventImpl;
 import org.apache.reef.runtime.common.driver.resourcemanager.RuntimeStatusEventImpl;
 import org.apache.reef.runtime.common.files.REEFFileNames;
+import org.apache.reef.runtime.yarn.client.unmanaged.YarnProxyUser;
 import org.apache.reef.runtime.yarn.driver.parameters.JobSubmissionDirectory;
 import org.apache.reef.runtime.yarn.driver.parameters.YarnHeartbeatPeriod;
 import org.apache.reef.tang.InjectionFuture;
@@ -49,14 +53,16 @@ import org.apache.reef.wake.remote.impl.ObjectSerializableCodec;
 import javax.inject.Inject;
 import java.io.*;
 import java.nio.ByteBuffer;
+import java.security.PrivilegedExceptionAction;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-final class YarnContainerManager
-    implements AMRMClientAsync.CallbackHandler, NMClientAsync.CallbackHandler {
+@Private
+@DriverSide
+final class YarnContainerManager implements AMRMClientAsync.CallbackHandler, NMClientAsync.CallbackHandler {
 
   private static final Logger LOG = Logger.getLogger(YarnContainerManager.class.getName());
 
@@ -74,6 +80,7 @@ final class YarnContainerManager
 
   private final YarnConfiguration yarnConf;
   private final AMRMClientAsync<AMRMClient.ContainerRequest> resourceManager;
+  private final YarnProxyUser yarnProxyUser;
   private final NMClientAsync nodeManager;
   private final REEFEventHandlers reefEventHandlers;
   private final Containers containers;
@@ -92,6 +99,7 @@ final class YarnContainerManager
       @Parameter(YarnHeartbeatPeriod.class) final int yarnRMHeartbeatPeriod,
       @Parameter(JobSubmissionDirectory.class) final String jobSubmissionDirectory,
       final YarnConfiguration yarnConf,
+      final YarnProxyUser yarnProxyUser,
       final REEFEventHandlers reefEventHandlers,
       final Containers containers,
       final ApplicationMasterRegistration registration,
@@ -109,6 +117,7 @@ final class YarnContainerManager
     this.registration = registration;
     this.containerRequestCounter = containerRequestCounter;
     this.yarnConf = yarnConf;
+    this.yarnProxyUser = yarnProxyUser;
     this.rackNameFormatter = rackNameFormatter;
     this.trackingUrl = trackingURLProvider.getTrackingUrl();
 
@@ -119,7 +128,8 @@ final class YarnContainerManager
     this.reefFileNames = reefFileNames;
     this.progressProvider = progressProvider;
 
-    LOG.log(Level.FINEST, "Instantiated YarnContainerManager: {0}", this.registration);
+    LOG.log(Level.FINEST, "Instantiated YarnContainerManager: {0} {1}",
+        new Object[] {this.registration, this.yarnProxyUser});
   }
 
   /**
@@ -308,15 +318,20 @@ final class YarnContainerManager
 
     LOG.log(Level.FINEST, "YARN registration: begin");
 
-    this.resourceManager.init(this.yarnConf);
-    this.resourceManager.start();
-
     this.nodeManager.init(this.yarnConf);
     this.nodeManager.start();
 
-    LOG.log(Level.FINEST, "YARN registration: registered with RM and NM");
-
     try {
+
+      this.yarnProxyUser.doAs(
+          new PrivilegedExceptionAction<Object>() {
+            @Override
+            public Object run() throws Exception {
+              resourceManager.init(yarnConf);
+              resourceManager.start();
+              return null;
+            }
+          });
 
       LOG.log(Level.FINE, "YARN registration: register AM at \"{0}:{1}\" tracking URL \"{2}\"",
           new Object[] {AM_REGISTRATION_HOST, AM_REGISTRATION_PORT, this.trackingUrl});
@@ -333,7 +348,7 @@ final class YarnContainerManager
         out.writeBytes(this.trackingUrl + '\n');
       }
 
-    } catch (final YarnException | IOException e) {
+    } catch (final Exception e) {
       LOG.log(Level.WARNING, "Unable to register application master.", e);
       onRuntimeError(e);
     }
