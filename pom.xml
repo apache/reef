@@ -736,6 +736,7 @@ under the License.
         <module>lang/java/reef-examples</module>
         <module>lang/java/reef-examples-clr</module>
         <module>lang/java/reef-examples-hdinsight</module>
+        <module>lang/java/reef-experimental</module>
         <module>lang/java/reef-io</module>
         <module>lang/java/reef-poison</module>
         <module>lang/java/reef-runtime-hdinsight</module>
