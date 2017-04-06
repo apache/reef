@@ -51,7 +51,7 @@ under the License.
         <bundle.snappy>false</bundle.snappy>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <hadoop.version>2.6.0</hadoop.version>
-        <avro.version>1.7.7</avro.version>
+        <avro.version>1.8.1</avro.version>
         <jetty.version>6.1.26</jetty.version>
         <jackson.version>1.9.13</jackson.version>
         <protobuf.version>2.5.0</protobuf.version>
