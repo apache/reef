@@ -99,7 +99,7 @@ public final class ParquetReader {
   /**
    * Construct an avro reader from parquet file.
    * @return avro reader based on the provided parquet file.
-   * @throws IOException if the parquet file couldn't be accessed.
+   * @throws IOException if the parquet file couldn't be parsed correctly.
    */
   public AvroParquetReader<GenericRecord> getAvroReader() throws IOException {
     return new AvroParquetReader<GenericRecord>(parquetFilePath);
@@ -108,6 +108,7 @@ public final class ParquetReader {
   /**
    * Serialize Avro data to a local file.
    * @param file Local destination file for serialization.
+   * @throws IOException if the parquet file couldn't be parsed correctly.
    */
   public void serializeToDisk(final File file) throws IOException {
     final DatumWriter datumWriter = new GenericDatumWriter<GenericRecord>();
@@ -139,6 +140,7 @@ public final class ParquetReader {
   /**
    * Serialize Avro data to a in-memory ByteBuffer.
    * @return A ByteBuffer that contains avro data.
+   * @throws IOException if the parquet file couldn't be parsed correctly.
    */
   public ByteBuffer serializeToByteBuffer() throws IOException {
     final ByteArrayOutputStream stream = new ByteArrayOutputStream();
