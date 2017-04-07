@@ -51,7 +51,7 @@ import javax.inject.Inject;
  * A reader for Parquet files that can serialize data to local disk and return Avro schema and Avro reader.
  * The intent is not to build a general parquet reader, but to consume data with table-like property.
  */
-public class ParquetReader {
+public final class ParquetReader {
   /**
    * Standard java logger.
    */
@@ -62,20 +62,21 @@ public class ParquetReader {
   @Inject
   public ParquetReader(final Path path) throws IOException {
     parquetFilePath = path;
-    Schema schema = getAvroSchema();
+    final Schema schema = getAvroSchema();
     if (schema.getType() != Schema.Type.RECORD) {
       LOG.log(Level.SEVERE, "ParquetReader only support Avro record type that can be consumed as a table.");
     }
-    for (Schema.Field f : schema.getFields()) {
+    for (final Schema.Field f : schema.getFields()) {
       if (f.schema().getType() == Schema.Type.RECORD) {
         LOG.log(Level.SEVERE, "ParquetReader doesn't support nested record type for its elements.");
       }
     }
   }
-  
+
   /**
    * Retrieve avro schema from parquet file.
    * @return avro schema from parquet file.
+   * @throws IOException if the Avro schema couldn't be parsed from the parquet file.
    */
   public Schema getAvroSchema() throws IOException {
     return getAvroSchema(new Configuration(true), NO_FILTER);
@@ -86,17 +87,19 @@ public class ParquetReader {
    * @param configuration Hadoop configuration.
    * @param filter Filter for Avro metadata.
    * @return avro schema from parquet file.
+   * @throws IOException if the Avro schema couldn't be parsed from the parquet file.
    */
   public Schema getAvroSchema(final Configuration configuration, final MetadataFilter filter) throws IOException {
-    ParquetMetadata footer = ParquetFileReader.readFooter(configuration, parquetFilePath, filter);
-    AvroSchemaConverter converter = new AvroSchemaConverter();
-    MessageType schema = footer.getFileMetaData().getSchema();
+    final ParquetMetadata footer = ParquetFileReader.readFooter(configuration, parquetFilePath, filter);
+    final AvroSchemaConverter converter = new AvroSchemaConverter();
+    final MessageType schema = footer.getFileMetaData().getSchema();
     return converter.convert(schema);
   }
   
   /**
    * Construct an avro reader from parquet file.
    * @return avro reader based on the provided parquet file.
+   * @throws IOException if the parquet file couldn't be accessed.
    */
   public AvroParquetReader<GenericRecord> getAvroReader() throws IOException {
     return new AvroParquetReader<GenericRecord>(parquetFilePath);
@@ -107,17 +110,30 @@ public class ParquetReader {
    * @param file Local destination file for serialization.
    */
   public void serializeToDisk(final File file) throws IOException {
-    DatumWriter datumWriter = new GenericDatumWriter<GenericRecord>();
-    DataFileWriter fileWriter = new DataFileWriter<GenericRecord>(datumWriter);
-    AvroParquetReader<GenericRecord> reader = getAvroReader();
+    final DatumWriter datumWriter = new GenericDatumWriter<GenericRecord>();
+    final DataFileWriter fileWriter = new DataFileWriter<GenericRecord>(datumWriter);
+    final AvroParquetReader<GenericRecord> reader = getAvroReader();
     fileWriter.create(getAvroSchema(), file);
+
     GenericRecord record = reader.read();
     while (record != null) {
       fileWriter.append(record);
       record = reader.read();
     }
-    reader.close();
-    fileWriter.close();
+
+    try {
+      reader.close();
+    } catch (IOException ex){
+      LOG.log(Level.SEVERE, ex.getMessage());
+      throw ex;
+    }
+
+    try {
+      fileWriter.close();
+    } catch (IOException ex){
+      LOG.log(Level.SEVERE, ex.getMessage());
+      throw ex;
+    }
   }
   
   /**
@@ -125,19 +141,27 @@ public class ParquetReader {
    * @return A ByteBuffer that contains avro data.
    */
   public ByteBuffer serializeToByteBuffer() throws IOException {
-    ByteArrayOutputStream stream = new ByteArrayOutputStream();
-    Encoder encoder = EncoderFactory.get().binaryEncoder(stream, null);
-    DatumWriter writer = new GenericDatumWriter<GenericRecord>();
+    final ByteArrayOutputStream stream = new ByteArrayOutputStream();
+    final Encoder encoder = EncoderFactory.get().binaryEncoder(stream, null);
+    final DatumWriter writer = new GenericDatumWriter<GenericRecord>();
     writer.setSchema(getAvroSchema());
-    AvroParquetReader<GenericRecord> reader = getAvroReader();
+    final AvroParquetReader<GenericRecord> reader = getAvroReader();
+
     GenericRecord record = reader.read();
     while (record != null) {
       writer.write(record, encoder);
       record = reader.read();
     }
-    reader.close();
+
+    try {
+      reader.close();
+    } catch (IOException ex){
+      LOG.log(Level.SEVERE, ex.getMessage());
+      throw ex;
+    }
+
     encoder.flush();
-    ByteBuffer buf = ByteBuffer.wrap(stream.toByteArray());
+    final ByteBuffer buf = ByteBuffer.wrap(stream.toByteArray());
     buf.order(ByteOrder.LITTLE_ENDIAN);
     return buf;
   }
