@@ -31,7 +31,7 @@ under the License.
   <Import Project="$(SolutionDir)\build.props" />
   <PropertyGroup>
     <RestorePackages>true</RestorePackages>
-    <BuildPackage>false</BuildPackage>
+    <BuildPackage>true</BuildPackage>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -112,6 +112,7 @@ under the License.
     <None Include="$(SolutionDir)\App.config">
       <Link>App.config</Link>
     </None>
+    <None Include="Org.Apache.REEF.IMRU.Examples.nuspec" />
     <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
