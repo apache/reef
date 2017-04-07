@@ -29,10 +29,6 @@ under the License.
         <relativePath>../../..</relativePath>
     </parent>
 
-    <properties>
-        <rootPath>${basedir}/../../..</rootPath>
-    </properties>
-
     <artifactId>reef-experimental</artifactId>
     <name>REEF Experimental</name>
 
