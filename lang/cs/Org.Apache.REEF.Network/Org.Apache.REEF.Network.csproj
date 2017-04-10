@@ -161,6 +161,7 @@ under the License.
     <Compile Include="TcpClientConfigurationProvider.cs" />
     <Compile Include="Utilities\AvroUtils.cs" />
     <Compile Include="Utilities\BlockingCollectionExtensions.cs" />
+    <Compile Include="Utilities\GenericInMemoryCache.cs" />
     <Compile Include="Utilities\Utils.cs" />
   </ItemGroup>
   <ItemGroup>
