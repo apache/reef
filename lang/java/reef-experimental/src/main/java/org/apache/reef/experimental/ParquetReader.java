@@ -44,6 +44,9 @@ import static org.apache.parquet.format.converter.ParquetMetadataConverter.NO_FI
 import org.apache.parquet.hadoop.ParquetFileReader;
 import org.apache.parquet.hadoop.metadata.ParquetMetadata;
 import org.apache.parquet.schema.MessageType;
+import org.apache.reef.tang.annotations.Name;
+import org.apache.reef.tang.annotations.NamedParameter;
+import org.apache.reef.tang.annotations.Parameter;
 
 import javax.inject.Inject;
 
@@ -59,9 +62,12 @@ public final class ParquetReader {
   
   private Path parquetFilePath;
 
+  @NamedParameter(default_value="", doc="Path to parquet file", short_name="path")
+  class PathString implements Name<String> { }
+
   @Inject
-  public ParquetReader(final Path path) throws IOException {
-    parquetFilePath = path;
+  private ParquetReader(@Parameter(ParquetReader.PathString.class) final String path) throws IOException {
+    parquetFilePath = new Path(new File(path).getAbsolutePath());
     final Schema schema = getAvroSchema();
     if (schema.getType() != Schema.Type.RECORD) {
       LOG.log(Level.SEVERE, "ParquetReader only support Avro record type that can be consumed as a table.");

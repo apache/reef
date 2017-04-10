@@ -24,7 +24,8 @@ import org.apache.avro.generic.GenericRecord;
 import org.apache.avro.hadoop.io.AvroKeyDeserializer;
 import org.apache.avro.io.DatumReader;
 import org.apache.avro.mapred.AvroWrapper;
-import org.apache.hadoop.fs.Path;
+import org.apache.reef.tang.*;
+import org.apache.reef.tang.exceptions.InjectionException;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -33,30 +34,38 @@ import java.io.File;
 import java.io.IOException;
 
 public class ParquetReaderTest {
+
+  private final File file = new File(getClass().getClassLoader().getResource("file.parquet").getFile());
+
   @Test
-  public void testSchema() throws IOException {
-    ClassLoader classLoader = getClass().getClassLoader();
-    File file = new File(classLoader.getResource("file.parquet").getFile());
-    Path parquetPath = new Path(file.getAbsolutePath());
-    ParquetReader reader = new ParquetReader(parquetPath);
-    Schema schema = reader.getAvroSchema();
+  public void testSchema() throws IOException, InjectionException {
+    final JavaConfigurationBuilder builder = Tang.Factory.getTang().newConfigurationBuilder();
+    builder.bindNamedParameter(ParquetReader.PathString.class, file.getAbsolutePath());
+    final Configuration conf = builder.build();
+    final Injector injector = Tang.Factory.getTang().newInjector(conf);
+
+    final ParquetReader reader = injector.getInstance(ParquetReader.class);
+    final Schema schema = reader.getAvroSchema();
+
     Assert.assertEquals("User", schema.getName());
     Assert.assertEquals(Schema.Type.RECORD, schema.getType());
   }
 
   @Test
-  public void testDataEntries() throws IOException {
-    ClassLoader classLoader = getClass().getClassLoader();
-    File file = new File(classLoader.getResource("file.parquet").getFile());
-    Path parquetPath = new Path(file.getAbsolutePath());
-    ParquetReader reader = new ParquetReader(parquetPath);
+  public void testDataEntries() throws IOException, InjectionException {
+    final JavaConfigurationBuilder builder = Tang.Factory.getTang().newConfigurationBuilder();
+    builder.bindNamedParameter(ParquetReader.PathString.class, file.getAbsolutePath());
+    final Configuration conf = builder.build();
+    final Injector injector = Tang.Factory.getTang().newInjector(conf);
 
-    byte[] byteArr = reader.serializeToByteBuffer().array();
-    ByteArrayInputStream inputStream = new ByteArrayInputStream(byteArr);
-    DatumReader datumReader = new GenericDatumReader<GenericRecord>();
+    final ParquetReader reader = injector.getInstance(ParquetReader.class);
+
+    final byte[] byteArr = reader.serializeToByteBuffer().array();
+    final ByteArrayInputStream inputStream = new ByteArrayInputStream(byteArr);
+    final DatumReader datumReader = new GenericDatumReader<GenericRecord>();
     datumReader.setSchema(reader.getAvroSchema());
 
-    AvroKeyDeserializer deserializer
+    final AvroKeyDeserializer deserializer
             = new AvroKeyDeserializer<GenericRecord>(reader.getAvroSchema(), reader.getAvroSchema(), datumReader);
     deserializer.open(inputStream);
 
