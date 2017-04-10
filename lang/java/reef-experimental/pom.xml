@@ -29,6 +29,10 @@ under the License.
         <relativePath>../../..</relativePath>
     </parent>
 
+    <properties>
+        <rootPath>${basedir}/../../..</rootPath>
+    </properties>
+
     <artifactId>reef-experimental</artifactId>
     <name>REEF Experimental</name>
 
@@ -37,6 +41,23 @@ under the License.
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
         </dependency>
+        <!-- REEF -->
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>reef-common</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>reef-runtime-local</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>reef-runtime-standalone</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <!-- END OF REEF -->
         <!-- HADOOP -->
         <dependency>
             <groupId>org.apache.hadoop</groupId>
