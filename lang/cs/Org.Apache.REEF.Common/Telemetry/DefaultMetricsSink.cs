@@ -37,5 +37,9 @@ namespace Org.Apache.REEF.Common.Telemetry
                 Logger.Log(Level.Info, "Metrics - Name:{0}, Value:{1}.", m.Key, m.Value);
             }
         }
+
+        public void Dispose()
+        {
+        }
     }
 }

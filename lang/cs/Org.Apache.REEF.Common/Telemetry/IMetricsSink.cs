@@ -15,6 +15,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
+using System;
 using System.Collections.Generic;
 using Org.Apache.REEF.Tang.Annotations;
 
@@ -25,7 +26,7 @@ namespace Org.Apache.REEF.Common.Telemetry
     /// It is used to output IMRU metrics.
     /// </summary>
     [DefaultImplementation(typeof(DefaultMetricsSink))]
-    public interface IMetricsSink
+    public interface IMetricsSink : IDisposable
     {
         void Sink(ISet<KeyValuePair<string, string>> metrics);
     }

@@ -16,9 +16,9 @@
 // under the License.
 
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Org.Apache.REEF.Common.Context;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Utilities;
@@ -35,15 +35,7 @@ namespace Org.Apache.REEF.Common.Telemetry
     {
         private static readonly Logger Logger = Logger.GetLogger(typeof(MetricsService));
 
-        /// <summary>
-        /// Registration of counters
-        /// </summary>
-        private readonly IDictionary<string, ICounter> _counters = new ConcurrentDictionary<string, ICounter>();
-
-        /// <summary>
-        /// Total increment since last sink for all the counters
-        /// </summary>
-        private readonly IDictionary<string, int> _totalIncrementSinceLastSink = new ConcurrentDictionary<string, int>();
+        private CounterData _counterData;
 
         /// <summary>
         /// A set of metrics sinks
@@ -62,10 +54,12 @@ namespace Org.Apache.REEF.Common.Telemetry
         [Inject]
         private MetricsService(
             [Parameter(typeof(MetricSinks))] ISet<IMetricsSink> metricsSinks,
-            [Parameter(typeof(CounterSinkThreshold))] int counterSinkThreshold)
+            [Parameter(typeof(CounterSinkThreshold))] int counterSinkThreshold,
+            CounterData counterData)
         {
             _metricsSinks = metricsSinks;
             _counterSinkThreshold = counterSinkThreshold;
+            _counterData = counterData;
         }
 
         /// <summary>
@@ -78,65 +72,13 @@ namespace Org.Apache.REEF.Common.Telemetry
             var counters = new EvaluatorMetrics(msgReceived).GetMetricsCounters();
             Logger.Log(Level.Info, "Received {0} counters with context message: {1}.", counters.GetCounters().Count(), msgReceived);
 
-            foreach (var counter in counters.GetCounters())
+            _counterData.Update(counters);
+
+            if (_counterData.TriggerSink(_counterSinkThreshold))
             {
-                ICounter c;
-                if (_counters.TryGetValue(counter.Name, out c))
-                {
-                    //// TODO: [REEF-1748] The following cases need to be considered in determine how to update the counter:
-                    //// if evaluator contains the aggregated values, the value will override existing value
-                    //// if evaluator only keep delta, the value should be added at here. But the value in the evaluator should be reset after message is sent
-                    //// For the counters from multiple evaluators with the same counter name, the value should be aggregated here
-                    //// We also need to consider failure cases.  
-                    _counters[counter.Name] = counter;
-
-                    if (_totalIncrementSinceLastSink.ContainsKey(counter.Name))
-                    {
-                        _totalIncrementSinceLastSink[counter.Name] += counter.Value - c.Value;
-                    }
-                    else
-                    {
-                        _totalIncrementSinceLastSink.Add(counter.Name, counter.Value - c.Value);
-                    }
-                }
-                else
-                {
-                    _counters.Add(counter.Name, counter);
-                    _totalIncrementSinceLastSink.Add(counter.Name, counter.Value);
-                }
-
-                Logger.Log(Level.Verbose, "Counter name: {0}, value: {1}, description: {2}, time: {3},  incrementSinceLastSink: {4}.", 
-                    counter.Name, counter.Value, counter.Description, new DateTime(counter.Timestamp), _totalIncrementSinceLastSink[counter.Name]);
+                Sink(_counterData.DataToSink());
+                _counterData.Reset();
             }
-
-            if (TriggerSink())
-            {
-                SinkCounters();
-                _totalIncrementSinceLastSink.Clear();
-            }
-        }
-
-        /// <summary>
-        /// The condition that triggers the sink. The condition can be modified later.
-        /// </summary>
-        /// <returns></returns>
-        private bool TriggerSink()
-        {
-            return _totalIncrementSinceLastSink.Sum(e => e.Value) > _counterSinkThreshold;
-        }
-
-        /// <summary>
-        /// Preparing data and call Sink 
-        /// </summary>
-        private void SinkCounters()
-        {
-            var set = new HashSet<KeyValuePair<string, string>>();
-            foreach (var c in _counters)
-            {
-                set.Add(new KeyValuePair<string, string>(c.Key, c.Value.Value.ToString()));
-            }
-
-            Sink(set);
         }
 
         /// <summary>
@@ -146,7 +88,18 @@ namespace Org.Apache.REEF.Common.Telemetry
         {
             foreach (var s in _metricsSinks)
             {
-                s.Sink(set);
+                try
+                {
+                    Task.Run(() => s.Sink(set));
+                }
+                catch (Exception e)
+                {
+                    Logger.Log(Level.Error, "Exception happens during the sink.", e);
+                }
+                finally
+                {
+                    s.Dispose();
+                }
             }
         }
 
