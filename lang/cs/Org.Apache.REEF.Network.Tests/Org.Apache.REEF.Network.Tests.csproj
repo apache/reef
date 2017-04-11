@@ -52,6 +52,7 @@ under the License.
     <Compile Include="$(SolutionDir)\SharedAssemblyInfo.cs">
       <Link>Properties\SharedAssemblyInfo.cs</Link>
     </Compile>
+    <Compile Include="GroupCommunication\PipeliningTests.cs" />
     <Compile Include="TcpClientConfigurationModuleTests.cs" />
     <Compile Include="BlockingCollectionExtensionTests.cs" />
     <Compile Include="GroupCommunication\GroupCommuDriverTests.cs" />

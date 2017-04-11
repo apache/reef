@@ -85,6 +85,7 @@ under the License.
     <Compile Include="Group\Operators\Impl\ScatterSender.cs" />
     <Compile Include="Group\Operators\Impl\Sender.cs" />
     <Compile Include="Group\Operators\IOperatorSpec.cs" />
+    <Compile Include="Group\Pipelining\Impl\ArrayPipelineDataConverter.cs" />
     <Compile Include="Group\Pipelining\StreamingPipelineMessageCodec.cs" />
     <Compile Include="Group\Task\ICommunicationGroupClientInternal.cs" />
     <Compile Include="Group\Task\Impl\ChildNodeContainer.cs" />
