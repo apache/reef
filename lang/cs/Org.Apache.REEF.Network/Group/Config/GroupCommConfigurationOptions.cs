@@ -113,5 +113,13 @@ namespace Org.Apache.REEF.Network.Group.Config
         public class Initialize : Name<bool>
         {
         }
+
+        /// <summary>
+        /// The number of elements to place into each message in the pipeline.
+        /// </summary>
+        [NamedParameter("The number of elements to place into each message in the pipeline.", "PipelineMessageSize", "1000000")]
+        internal sealed class PipelineMessageSize : Name<int>
+        {
+        }
     }
 }
