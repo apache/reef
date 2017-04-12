@@ -30,6 +30,10 @@ namespace Org.Apache.REEF.Common.Telemetry
         {
         }
 
+        /// <summary>
+        /// Simple sink for metrics data
+        /// </summary>
+        /// <param name="metrics"></param>
         public void Sink(ISet<KeyValuePair<string, string>> metrics)
         {
             foreach (var m in metrics)

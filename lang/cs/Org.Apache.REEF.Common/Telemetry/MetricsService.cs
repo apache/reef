@@ -35,7 +35,7 @@ namespace Org.Apache.REEF.Common.Telemetry
     {
         private static readonly Logger Logger = Logger.GetLogger(typeof(MetricsService));
 
-        private CounterData _counterData;
+        private CountersData _counterData;
 
         /// <summary>
         /// A set of metrics sinks
@@ -55,7 +55,7 @@ namespace Org.Apache.REEF.Common.Telemetry
         private MetricsService(
             [Parameter(typeof(MetricSinks))] ISet<IMetricsSink> metricsSinks,
             [Parameter(typeof(CounterSinkThreshold))] int counterSinkThreshold,
-            CounterData counterData)
+            CountersData counterData)
         {
             _metricsSinks = metricsSinks;
             _counterSinkThreshold = counterSinkThreshold;
@@ -94,7 +94,7 @@ namespace Org.Apache.REEF.Common.Telemetry
                 }
                 catch (Exception e)
                 {
-                    Logger.Log(Level.Error, "Exception happens during the sink.", e);
+                    Logger.Log(Level.Error, "Exception happens during the sink for Sink {0} with Exception: {1}.", s.GetType().AssemblyQualifiedName, e);
                 }
                 finally
                 {

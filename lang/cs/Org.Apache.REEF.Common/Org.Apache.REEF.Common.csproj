@@ -248,6 +248,7 @@ under the License.
     <Compile Include="Tasks\TaskMessage.cs" />
     <Compile Include="Telemetry\Counter.cs" />
     <Compile Include="Telemetry\CounterData.cs" />
+    <Compile Include="Telemetry\CountersData.cs" />
     <Compile Include="Telemetry\Counters.cs" />
     <Compile Include="Telemetry\CounterSinkThreshold.cs" />
     <Compile Include="Telemetry\DefaultMetricsSink.cs" />
