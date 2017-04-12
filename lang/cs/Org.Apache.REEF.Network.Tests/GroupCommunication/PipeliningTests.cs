@@ -38,8 +38,8 @@ namespace Org.Apache.REEF.Network.Tests.GroupCommunication
         [Fact]
         public void TestFloatArrayPipelineDataConverter()
         {
-            float[] originalArray = { 0.1f, 0.2f, 0.3f, 0.4f, 0.5f };
-            TestArrayPipelineDataConverter(originalArray);
+            float[] testArray = { 0.1f, 0.2f, 0.3f, 0.4f, 0.5f };
+            TestArrayPipelineDataConverter(testArray);
         }
 
         /// <summary>
@@ -48,8 +48,8 @@ namespace Org.Apache.REEF.Network.Tests.GroupCommunication
         [Fact]
         public void TestDoubleArrayPipelineDataConverter()
         {
-            double[] originalArray = { 0.1, 0.2, 0.3, 0.4, 0.5 };
-            TestArrayPipelineDataConverter(originalArray);
+            double[] testArray = { 0.1, 0.2, 0.3, 0.4, 0.5 };
+            TestArrayPipelineDataConverter(testArray);
         }
 
         /// <summary>
@@ -58,8 +58,8 @@ namespace Org.Apache.REEF.Network.Tests.GroupCommunication
         [Fact]
         public void TestIntArrayPipelineDataConverter()
         {
-            int[] originalArray = { 1, 2, 3, 4, 5 };
-            TestArrayPipelineDataConverter(originalArray);
+            int[] testArray = { 1, 2, 3, 4, 5 };
+            TestArrayPipelineDataConverter(testArray);
         }
 
         /// <summary>
@@ -68,8 +68,8 @@ namespace Org.Apache.REEF.Network.Tests.GroupCommunication
         [Fact]
         public void TestLongArrayPipelineDataConverter()
         {
-            long[] originalArray = { 1L, 2L, 3L, 4L, 5L };
-            TestArrayPipelineDataConverter(originalArray);
+            long[] testArray = { 1L, 2L, 3L, 4L, 5L };
+            TestArrayPipelineDataConverter(testArray);
         }
 
         /// <summary>
@@ -78,7 +78,7 @@ namespace Org.Apache.REEF.Network.Tests.GroupCommunication
         [Fact]
         public void TestObjectArrayPipelineDataConverter()
         {
-            object[] originalArray = 
+            object[] testArray = 
             {
                 new { A = 1, B = 2, C = 3 },
                 new { A = 2, B = 3, C = 4 },
@@ -86,7 +86,27 @@ namespace Org.Apache.REEF.Network.Tests.GroupCommunication
                 new { A = 4, B = 5, C = 6 },
                 new { F = 5, G = 6, H = 7 }
             };
-            TestArrayPipelineDataConverter(originalArray);
+            TestArrayPipelineDataConverter(testArray);
+        }
+
+        /// <summary>
+        /// Test the ArrayPipelineConverter with an empty array
+        /// </summary>
+        [Fact]
+        public void TestArrayPipelineDataConverterWithEmptyArray()
+        {
+            object[] testArray = new object[0];
+            TestArrayPipelineDataConverter(testArray);
+        }
+
+        /// <summary>
+        /// Test the ArrayPipelineConverter with a null array
+        /// </summary>
+        [Fact]
+        public void TestArrayPipelineDataConverterWithNullArray()
+        {
+            object[] testArray = null;
+            TestArrayPipelineDataConverter(testArray);
         }
 
         /// <summary>
@@ -96,13 +116,28 @@ namespace Org.Apache.REEF.Network.Tests.GroupCommunication
         /// <param name="originalArray">An array to use in the test</param>
         private static void TestArrayPipelineDataConverter<T>(T[] originalArray) where T : new()
         {
-            const int nMessages = 2;
-
             // Verify that the constructor has the proper restrictions
             AssertPositivePipelinePackageElementsRequired<T[], ArrayPipelineDataConverter<T>>();
 
             // Test the valid case where we break up the array into smaller pieces
-            int pipelineMessageSize = (int)Math.Ceiling(originalArray.Length / (double)nMessages);
+            // First determine how many messages to create from originalArray
+            int pipelineMessageSize;
+            int nMessages;
+            if (originalArray == null)
+            {
+                nMessages = 0;
+                pipelineMessageSize = 1;
+            }
+            else if (originalArray.Length == 0 || originalArray.Length == 1)
+            {
+                nMessages = 1;
+                pipelineMessageSize = 1; // Necessary to instantiate the ArrayPipelineDataConverterConfig
+            }
+            else
+            {
+                nMessages = 2;
+                pipelineMessageSize = (int)Math.Ceiling(originalArray.Length / (double)nMessages);
+            }
 
             // Test that the valid configuration can be injected
             IConfiguration config = GetPipelineDataConverterConfig(pipelineMessageSize);
@@ -127,7 +162,7 @@ namespace Org.Apache.REEF.Network.Tests.GroupCommunication
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <typeparam name="DataConverter"></typeparam>
-        private static void AssertPositivePipelinePackageElementsRequired<T, DataConverter>() 
+        private static void AssertPositivePipelinePackageElementsRequired<T, DataConverter>()
             where DataConverter : class, IPipelineDataConverter<T>
         {
             // Verify that the PipelinePackageElements cannot be zero
@@ -161,6 +196,16 @@ namespace Org.Apache.REEF.Network.Tests.GroupCommunication
         /// <param name="actual"></param>
         private static void AssertArrayEquality<T>(T[] expected, T[] actual)
         {
+            // Two null arrays are considered to be equal
+            // Check to make sure that the arrays are both defined or undefined
+            Assert.True((expected == null) == (actual == null));
+
+            // If the arrays are both null, then don't check any further
+            if (expected == null && actual == null)
+            {
+                return;
+            }
+
             Assert.Equal(expected.Length, actual.Length);
 
             for (int i = 0; i < actual.Length; i++)

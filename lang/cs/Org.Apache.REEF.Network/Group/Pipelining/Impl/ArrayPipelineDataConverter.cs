@@ -51,6 +51,20 @@ namespace Org.Apache.REEF.Network.Group.Pipelining.Impl
         /// <returns>The list of pipelined messages</returns>
         public List<PipelineMessage<T[]>> PipelineMessage(T[] message)
         {
+            // Return null messages as an empty list
+            if (message == null)
+            {
+                return new List<PipelineMessage<T[]>>();
+            }
+            else if (message.Length == 0)
+            {
+                // Special case; 0-length arrays are passed with a message with a zero-length array
+                return new List<PipelineMessage<T[]>>
+                {
+                    new PipelineMessage<T[]>(new T[0], true)
+                };
+            }
+
             int messageCount = ((message.Length - 1) / _pipelineMessageSize) + 1;
             List<PipelineMessage<T[]>> messageList = new List<PipelineMessage<T[]>>(messageCount);
             int offset = 0;
@@ -82,6 +96,7 @@ namespace Org.Apache.REEF.Network.Group.Pipelining.Impl
         /// <returns>The full constructed message</returns>
         public T[] FullMessage(List<PipelineMessage<T[]>> pipelineMessage)
         {
+            // Null data corresponds to an empty list of pipeline messages
             if (pipelineMessage.Count == 0)
             {
                 return null;
@@ -92,9 +107,11 @@ namespace Org.Apache.REEF.Network.Group.Pipelining.Impl
             }
 
             int nElements = pipelineMessage.Sum(v => v.Data.Length);
+            
+            // A zero-length array gets returned as a zero-length array
             if (nElements == 0)
             {
-                return null;
+                return new T[0];
             }
 
             int offset = 0;
