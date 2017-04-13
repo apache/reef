@@ -119,6 +119,9 @@ namespace Org.Apache.REEF.Network.Tests.GroupCommunication
             // Verify that the constructor has the proper restrictions
             AssertPositivePipelinePackageElementsRequired<T[], ArrayPipelineDataConverter<T>>();
 
+            // Verify that the FullMessage method properly handles null and zero-length arrays
+            AssertNullAndZeroLengthArraysHandledByFullMessage<T, ArrayPipelineDataConverter<T>>();
+
             // Test the valid case where we break up the array into smaller pieces
             // First determine how many messages to create from originalArray
             int pipelineMessageSize;
@@ -172,6 +175,59 @@ namespace Org.Apache.REEF.Network.Tests.GroupCommunication
             // Verify that the PipelinePackageElements cannot be less than 0
             var configWithNegativeElements = GetPipelineDataConverterConfig(-2);
             Assert.Throws<InjectionException>(() => TangFactory.GetTang().NewInjector(configWithNegativeElements).GetInstance<DataConverter>());
+        }
+
+        /// <summary>
+        /// Verify that the FullMessage method properly handles null and zero-length arrays
+        /// </summary>
+        /// <typeparam name="T">The type of array the IPipelineDataConverter converts</typeparam>
+        /// <typeparam name="DataConverter">The IPipelineDataConverter implementation</typeparam>
+        private static void AssertNullAndZeroLengthArraysHandledByFullMessage<T, DataConverter>()
+            where T : new()
+            where DataConverter : class, IPipelineDataConverter<T[]>
+        {
+            // Test that the valid configuration can be injected
+            IConfiguration config = GetPipelineDataConverterConfig(1);
+            IPipelineDataConverter<T[]> dataConverter = TangFactory.GetTang().NewInjector(config).GetInstance<ArrayPipelineDataConverter<T>>();
+
+            // Test that a null message returns a null object
+            List<PipelineMessage<T[]>> nullMessage = new List<PipelineMessage<T[]>>
+            {
+                new PipelineMessage<T[]>(null, true)
+            };
+            Assert.Null(dataConverter.FullMessage(nullMessage));
+
+            // Test that many null messages returns a null object
+            List<PipelineMessage<T[]>> manyNullMessages = new List<PipelineMessage<T[]>>
+            {
+                new PipelineMessage<T[]>(null, false),
+                new PipelineMessage<T[]>(null, true)
+            };
+            Assert.Null(dataConverter.FullMessage(manyNullMessages));
+
+            // Test that null messages mixed with non-null returns the non-null object
+            List<PipelineMessage<T[]>> someNullMessages = new List<PipelineMessage<T[]>>
+            {
+                new PipelineMessage<T[]>(null, false),
+                new PipelineMessage<T[]>(new T[2], false),
+                new PipelineMessage<T[]>(null, true)
+            };
+            Assert.Equal(2, dataConverter.FullMessage(someNullMessages).Length);
+
+            // Test that a zero-length message returns a zero-length object
+            List<PipelineMessage<T[]>> zeroLengthMessage = new List<PipelineMessage<T[]>>
+            {
+                new PipelineMessage<T[]>(new T[0], true)
+            };
+            Assert.Equal(0, dataConverter.FullMessage(zeroLengthMessage).Length);
+
+            // Test that many zero-length message return a zero-length object
+            List<PipelineMessage<T[]>> manyZeroLengthMessages = new List<PipelineMessage<T[]>>
+            {
+                new PipelineMessage<T[]>(new T[0], false),
+                new PipelineMessage<T[]>(new T[0], true)
+            };
+            Assert.Equal(0, dataConverter.FullMessage(manyZeroLengthMessages).Length);
         }
 
         /// <summary>
