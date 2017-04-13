@@ -35,7 +35,10 @@ namespace Org.Apache.REEF.Common.Telemetry
     {
         private static readonly Logger Logger = Logger.GetLogger(typeof(MetricsService));
 
-        private CountersData _counterData;
+        /// <summary>
+        /// Contains Counters received in the Metrics service
+        /// </summary>
+        private readonly CounterMap _counterMap;
 
         /// <summary>
         /// A set of metrics sinks
@@ -55,11 +58,11 @@ namespace Org.Apache.REEF.Common.Telemetry
         private MetricsService(
             [Parameter(typeof(MetricSinks))] ISet<IMetricsSink> metricsSinks,
             [Parameter(typeof(CounterSinkThreshold))] int counterSinkThreshold,
-            CountersData counterData)
+            CounterMap counterMap)
         {
             _metricsSinks = metricsSinks;
             _counterSinkThreshold = counterSinkThreshold;
-            _counterData = counterData;
+            _counterMap = counterMap;
         }
 
         /// <summary>
@@ -72,12 +75,12 @@ namespace Org.Apache.REEF.Common.Telemetry
             var counters = new EvaluatorMetrics(msgReceived).GetMetricsCounters();
             Logger.Log(Level.Info, "Received {0} counters with context message: {1}.", counters.GetCounters().Count(), msgReceived);
 
-            _counterData.Update(counters);
+            _counterMap.Update(counters);
 
-            if (_counterData.TriggerSink(_counterSinkThreshold))
+            if (_counterMap.TriggerSink(_counterSinkThreshold))
             {
-                Sink(_counterData.DataToSink());
-                _counterData.Reset();
+                Sink(_counterMap.GetCounterData());
+                _counterMap.Reset();
             }
         }
 

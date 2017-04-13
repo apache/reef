@@ -24,9 +24,9 @@ using Org.Apache.REEF.Utilities.Logging;
 
 namespace Org.Apache.REEF.Common.Telemetry
 {
-    internal sealed class CountersData
+    internal sealed class CounterMap
     {
-        private static readonly Logger Logger = Logger.GetLogger(typeof(CountersData));
+        private static readonly Logger Logger = Logger.GetLogger(typeof(CounterMap));
 
         /// <summary>
         /// Registration of counters
@@ -34,7 +34,7 @@ namespace Org.Apache.REEF.Common.Telemetry
         private readonly IDictionary<string, CounterData> _counters = new ConcurrentDictionary<string, CounterData>();
 
         [Inject]
-        private CountersData()
+        private CounterMap()
         {            
         }
 
@@ -49,15 +49,7 @@ namespace Org.Apache.REEF.Common.Telemetry
                 CounterData counterData;
                 if (_counters.TryGetValue(counter.Name, out counterData))
                 {
-                    counterData.IncrementSinceLastSink = counterData.IncrementSinceLastSink + counter.Value - counterData.CounterValue;
-
-                    //// TODO: [REEF-1748] The following cases need to be considered in determine how to update the counter:
-                    //// if evaluator contains the aggregated values, the value will override existing value
-                    //// if evaluator only keep delta, the value should be added at here. But the value in the evaluator should be reset after message is sent
-                    //// For the counters from multiple evaluators with the same counter name, the value should be aggregated here
-                    //// We also need to consider failure cases.  
-                    //// _counters[counter.Name] = counter;
-                    counterData.CounterObj = counter;
+                    counterData.UpdateCounter(counter);
                 }
                 else
                 {
@@ -84,12 +76,12 @@ namespace Org.Apache.REEF.Common.Telemetry
         /// Convert the counter data into ISet for sink
         /// </summary>
         /// <returns></returns>
-        internal ISet<KeyValuePair<string, string>> DataToSink()
+        internal ISet<KeyValuePair<string, string>> GetCounterData()
         {
             var set = new HashSet<KeyValuePair<string, string>>();
             foreach (var c in _counters)
             {
-                set.Add(new KeyValuePair<string, string>(c.Key, c.Value.CounterValue.ToString()));
+                set.Add(c.Value.GetKeyValuePair());
             }
             return set;
         }

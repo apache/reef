@@ -15,6 +15,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
+using System.Collections.Generic;
+
 namespace Org.Apache.REEF.Common.Telemetry
 {
     /// <summary>
@@ -25,12 +27,12 @@ namespace Org.Apache.REEF.Common.Telemetry
         /// <summary>
         /// Counter object
         /// </summary>
-        internal ICounter CounterObj { get; set; }
+        private ICounter _counter;
 
         /// <summary>
         /// Counter increment value since last sink
         /// </summary>
-        internal int IncrementSinceLastSink { get; set; }
+        internal int IncrementSinceLastSink { get; private set; }
 
         /// <summary>
         /// Constructor for CounterData
@@ -39,7 +41,7 @@ namespace Org.Apache.REEF.Common.Telemetry
         /// <param name="initialValue"></param>
         internal CounterData(ICounter counter, int initialValue)
         {
-            CounterObj = counter;
+            _counter = counter;
             IncrementSinceLastSink = initialValue;
         }
 
@@ -51,12 +53,25 @@ namespace Org.Apache.REEF.Common.Telemetry
             IncrementSinceLastSink = 0;
         }
 
-        /// <summary>
-        /// The value of the counter
-        /// </summary>
-        internal int CounterValue
+        internal void UpdateCounter(ICounter counter)
         {
-            get { return CounterObj.Value; }
+            IncrementSinceLastSink += counter.Value - _counter.Value;
+
+            //// TODO: [REEF-1748] The following cases need to be considered in determine how to update the counter:
+            //// if evaluator contains the aggregated values, the value will override existing value
+            //// if evaluator only keep delta, the value should be added at here. But the value in the evaluator should be reset after message is sent
+            //// For the counters from multiple evaluators with the same counter name, the value should be aggregated here
+            //// We also need to consider failure cases.  
+            _counter = counter;
+        }
+
+        /// <summary>
+        /// Get count name and value as KeyValuePair
+        /// </summary>
+        /// <returns></returns>
+        internal KeyValuePair<string, string> GetKeyValuePair()
+        {
+            return new KeyValuePair<string, string>(_counter.Name, _counter.Value.ToString());
         }
     }
 }
