@@ -96,6 +96,9 @@ namespace Org.Apache.REEF.Network.Group.Pipelining.Impl
         /// <returns>The full constructed message</returns>
         public T[] FullMessage(List<PipelineMessage<T[]>> pipelineMessage)
         {
+            // Filter out messages with null data payloads
+            pipelineMessage = pipelineMessage.Where(message => message.Data != null).ToList();
+
             // Null data corresponds to an empty list of pipeline messages
             if (pipelineMessage.Count == 0)
             {
