@@ -24,17 +24,17 @@ using Org.Apache.REEF.Utilities.Logging;
 
 namespace Org.Apache.REEF.Common.Telemetry
 {
-    internal sealed class CounterMap
+    internal sealed class CountersData
     {
-        private static readonly Logger Logger = Logger.GetLogger(typeof(CounterMap));
+        private static readonly Logger Logger = Logger.GetLogger(typeof(CountersData));
 
         /// <summary>
         /// Registration of counters
         /// </summary>
-        private readonly IDictionary<string, CounterData> _counters = new ConcurrentDictionary<string, CounterData>();
+        private readonly IDictionary<string, CounterData> _counterMap = new ConcurrentDictionary<string, CounterData>();
 
         [Inject]
-        private CounterMap()
+        private CountersData()
         {            
         }
 
@@ -47,17 +47,17 @@ namespace Org.Apache.REEF.Common.Telemetry
             foreach (var counter in counters.GetCounters())
             {
                 CounterData counterData;
-                if (_counters.TryGetValue(counter.Name, out counterData))
+                if (_counterMap.TryGetValue(counter.Name, out counterData))
                 {
                     counterData.UpdateCounter(counter);
                 }
                 else
                 {
-                    _counters.Add(counter.Name, new CounterData(counter, counter.Value));
+                    _counterMap.Add(counter.Name, new CounterData(counter, counter.Value));
                 }
 
                 Logger.Log(Level.Verbose, "Counter name: {0}, value: {1}, description: {2}, time: {3},  incrementSinceLastSink: {4}.",
-                    counter.Name, counter.Value, counter.Description, new DateTime(counter.Timestamp), _counters[counter.Name].IncrementSinceLastSink);
+                    counter.Name, counter.Value, counter.Description, new DateTime(counter.Timestamp), _counterMap[counter.Name].IncrementSinceLastSink);
             }
         }
 
@@ -66,7 +66,7 @@ namespace Org.Apache.REEF.Common.Telemetry
         /// </summary>
         internal void Reset()
         {
-            foreach (var c in _counters.Values)
+            foreach (var c in _counterMap.Values)
             {
                 c.ResetSinceLastSink();
             }
@@ -79,7 +79,7 @@ namespace Org.Apache.REEF.Common.Telemetry
         internal ISet<KeyValuePair<string, string>> GetCounterData()
         {
             var set = new HashSet<KeyValuePair<string, string>>();
-            foreach (var c in _counters)
+            foreach (var c in _counterMap)
             {
                 set.Add(c.Value.GetKeyValuePair());
             }
@@ -92,7 +92,7 @@ namespace Org.Apache.REEF.Common.Telemetry
         /// <returns></returns>
         internal bool TriggerSink(int counterSinkThreshold)
         {
-            return _counters.Values.Sum(e => e.IncrementSinceLastSink) > counterSinkThreshold;
+            return _counterMap.Values.Sum(e => e.IncrementSinceLastSink) > counterSinkThreshold;
         }
     }
 }
