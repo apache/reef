@@ -62,14 +62,14 @@ namespace Org.Apache.REEF.Experimental.Tests
             var jarPath = dir.FullName + @"\java\reef-experimental\target\reef-experimental-0.16.0-SNAPSHOT-jar-with-dependencies.jar";
 
             ITang tang = TangFactory.GetTang();
-            ICsConfigurationBuilder cb = tang.NewConfigurationBuilder(new string[] { "ParquetReader Test" });
-            cb.BindNamedParameter<ParquetPathString, string>(GenericType<ParquetPathString>.Class, parquetPath);
-            cb.BindNamedParameter<AvroPathString, string>(GenericType<AvroPathString>.Class, avroPath);
-            cb.BindNamedParameter<JarPathString, string>(GenericType<JarPathString>.Class, jarPath);
-            IConfiguration conf = cb.Build();
+            IConfiguration conf = tang.NewConfigurationBuilder()
+              .BindNamedParameter<ParquetPathString, string>(GenericType<ParquetPathString>.Class, parquetPath)
+              .BindNamedParameter<AvroPathString, string>(GenericType<AvroPathString>.Class, avroPath)
+              .BindNamedParameter<JarPathString, string>(GenericType<JarPathString>.Class, jarPath)
+              .Build();
             IInjector injector = tang.NewInjector(conf);
 
-            var reader = (ParquetReader.ParquetReader)injector.GetInstance(typeof(ParquetReader.ParquetReader));
+            var reader = injector.GetInstance<ParquetReader.ParquetReader>();
             var i = 0;
             foreach (var obj in reader.read<User>())
             {
