@@ -60,7 +60,7 @@ public final class DriverLauncher implements AutoCloseable {
       .build();
 
   private final REEF reef;
-  private UserCredentials user;
+  private final UserCredentials user;
 
   private LauncherStatus status = LauncherStatus.INIT;
 
