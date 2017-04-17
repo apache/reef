@@ -21,7 +21,6 @@ using Org.Apache.REEF.Experimental.ParquetReader;
 using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Tang.Util;
-using Org.Apache.REEF.IO.TempFileCreation;
 using Xunit;
 
 namespace Org.Apache.REEF.Experimental.Tests
@@ -45,12 +44,6 @@ namespace Org.Apache.REEF.Experimental.Tests
         [Fact]
         public void TestReadParquetFile()
         {
-            // Create a tmp avro file
-            var fb = TempFileConfigurationModule.ConfigurationModule.Build();
-            var fi = TangFactory.GetTang().NewInjector(fb);
-            var tempFileCreator = fi.GetInstance<ITempFileCreator>();
-            var tmpFile = tempFileCreator.GetTempFileName();
-            var avroPath = Path.GetFullPath(tmpFile);
 
             // Identify parquet file and jar path
             var dir = new DirectoryInfo(Directory.GetCurrentDirectory());
@@ -59,25 +52,35 @@ namespace Org.Apache.REEF.Experimental.Tests
                 dir = Directory.GetParent(dir.FullName);
             }
             var parquetPath = dir.FullName + @"\java\reef-experimental\src\test\resources\file.parquet";
-            var jarPath = dir.FullName + @"\java\reef-experimental\target\reef-experimental-0.16.0-SNAPSHOT-jar-with-dependencies.jar";
+            var jarPath = Directory.GetFiles(dir.FullName + @"\java\reef-experimental\target\", "*jar-with-dependencies.jar")[0];
+
+            Assert.True(File.Exists(parquetPath));
+            Assert.True(File.Exists(jarPath));
+
+            System.Diagnostics.Debug.WriteLine("Parquet Path: {0}", parquetPath);
+            System.Diagnostics.Debug.WriteLine("Jar Path: {0}", jarPath);
 
             ITang tang = TangFactory.GetTang();
             IConfiguration conf = tang.NewConfigurationBuilder()
               .BindNamedParameter<ParquetPathString, string>(GenericType<ParquetPathString>.Class, parquetPath)
-              .BindNamedParameter<AvroPathString, string>(GenericType<AvroPathString>.Class, avroPath)
               .BindNamedParameter<JarPathString, string>(GenericType<JarPathString>.Class, jarPath)
               .Build();
             IInjector injector = tang.NewInjector(conf);
 
             var reader = injector.GetInstance<ParquetReader.ParquetReader>();
             var i = 0;
-            foreach (var obj in reader.read<User>())
+            foreach (var obj in reader.Read<User>())
             {
                 Assert.Equal(obj.name, "User_" + i);
                 Assert.Equal(obj.age, i);
                 Assert.Equal(obj.favorite_color, "blue");
+                System.Diagnostics.Debug.WriteLine(
+                    "Object(name: {0}, age: {1}, favorite_color: {2})", 
+                    obj.name, obj.age, obj.favorite_color);
                 i++;
             }
+
+            reader.Dispose();
             Assert.Equal(i, 10);
         }
     }
