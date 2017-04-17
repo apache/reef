@@ -27,7 +27,6 @@ namespace Org.Apache.REEF.Experimental.Tests
 {
     public sealed class TestParquetReader
     {
-
         [DataContract(Name = "User", Namespace = "parquetreader")]
         internal class User
         {
@@ -44,7 +43,6 @@ namespace Org.Apache.REEF.Experimental.Tests
         [Fact]
         public void TestReadParquetFile()
         {
-
             // Identify parquet file and jar path
             var dir = new DirectoryInfo(Directory.GetCurrentDirectory());
             while (!dir.FullName.EndsWith(@"reef\lang"))

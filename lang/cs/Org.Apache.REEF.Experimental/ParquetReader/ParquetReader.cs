@@ -16,6 +16,7 @@
 // under the License.
 
 using System;
+using System.Linq;
 using System.Diagnostics;
 using System.IO;
 using System.Collections.Generic;
@@ -25,7 +26,7 @@ using Org.Apache.REEF.Utilities.Logging;
 
 namespace Org.Apache.REEF.Experimental.ParquetReader
 {
-    sealed public class ParquetReader: IDisposable
+    sealed public class ParquetReader : IDisposable
     {
         private static readonly Logger Logger = Logger.GetLogger(typeof(ParquetReader));
 
@@ -70,8 +71,12 @@ namespace Org.Apache.REEF.Experimental.ParquetReader
             var avroPath = Path.GetTempFileName();
 
             Process proc = new Process();
-            proc.StartInfo.FileName = f.fileName;
-            proc.StartInfo.Arguments = $"-cp {f.jarPath} {f.mainClass} {f.parquetPath} {avroPath}";
+            proc.StartInfo.FileName = f.fileName.ToString();
+            proc.StartInfo.Arguments = 
+                new[] { "-cp", f.jarPath, f.mainClass, f.parquetPath, avroPath }.Aggregate((a, b) => a + ' ' + b);
+
+            Logger.Log(Level.Info, "Running Command: java {0}", proc.StartInfo.Arguments);
+
             proc.Start();
             proc.WaitForExit();
             proc.Dispose();
