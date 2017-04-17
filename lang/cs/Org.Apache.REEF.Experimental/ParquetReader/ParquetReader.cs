@@ -16,9 +16,6 @@
 // under the License.
 
 using System;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Diagnostics;
 using System.IO;
 using System.Collections.Generic;
@@ -28,69 +25,85 @@ using Org.Apache.REEF.Utilities.Logging;
 
 namespace Org.Apache.REEF.Experimental.ParquetReader
 {
-    sealed public class ParquetReader
+    sealed public class ParquetReader: IDisposable
     {
         private static readonly Logger Logger = Logger.GetLogger(typeof(ParquetReader));
 
-        private readonly string _parquetPath;
-        private readonly string _avroPath;
-        private readonly string _jarPath;
+        private bool _disposed = false;
+
+        private FileStream stream = null;
 
         private class JavaProcessFactory
         {
             public string fileName { get; set; }
-            public string parquetPath { get; set; }
-            public string avroPath { get; set; }
-            public string jarPath { get; set; }
             public string mainClass { get; set; }
-            public Process p { get; set; }
+            public string parquetPath { get; set; }
+            public string jarPath { get; set; }
         }
+
+        private JavaProcessFactory f;
 
         /// <summary>
         /// Constructor of ParquetReader for Tang Injection
         /// </summary>
         /// <param name="parquetPath">Path to input parquet file.</param>
-        /// <param name="avroPath">Path to temp avro file.</param>
         /// <param name="jarPath">Path to jar file that contains Java parquet reader.</param>
         [Inject]
         private ParquetReader(
-            [Parameter(typeof(ParquetPathString))] string parquetPath, 
-            [Parameter(typeof(AvroPathString))] string avroPath,
+            [Parameter(typeof(ParquetPathString))] string parquetPath,
             [Parameter(typeof(JarPathString))] string jarPath)
         {
-            _parquetPath = parquetPath;
-            _avroPath = avroPath;
-            _jarPath = jarPath;
+            f = new JavaProcessFactory
+            {
+                fileName = "java",
+                mainClass = "org.apache.reef.experimental.parquet.ParquetReader",
+                parquetPath = parquetPath,
+                jarPath = jarPath
+            };
         }
 
         /// <summary>
         /// Method to read the given parquet files.
         /// </summary>
-        public IEnumerable<T> read<T>()
+        public IEnumerable<T> Read<T>()
         {
-            JavaProcessFactory f = new JavaProcessFactory
-            {
-                fileName = "java",
-                parquetPath = _parquetPath,
-                avroPath = _avroPath,
-                jarPath = _jarPath,
-                mainClass = "org.apache.reef.experimental.parquet.ParquetReader",
-                p = new Process()
-            };
+            var avroPath = Path.GetTempFileName();
 
-            f.p.StartInfo.FileName = f.fileName;
-            f.p.StartInfo.Arguments = $"-cp {f.jarPath} {f.mainClass} {f.parquetPath} {f.avroPath}";
-            f.p.Start();
-            f.p.WaitForExit();
+            Process proc = new Process();
+            proc.StartInfo.FileName = f.fileName;
+            proc.StartInfo.Arguments = $"-cp {f.jarPath} {f.mainClass} {f.parquetPath} {avroPath}";
+            proc.Start();
+            proc.WaitForExit();
+            proc.Dispose();
 
-            Stream stream = new FileStream(_avroPath, FileMode.Open);
-            using (var reader = AvroContainer.CreateReader<T>(stream))
+            stream = new FileStream(avroPath, FileMode.Open);
+            using (var avroReader = AvroContainer.CreateReader<T>(stream))
             {
-                using (var streamReader = new SequentialReader<T>(reader))
+                using (var seqReader = new SequentialReader<T>(avroReader))
                 {
-                    return streamReader.Objects;
+                    return seqReader.Objects;
                 }
             }
+        }
+
+        private void Dispose(bool disposing)
+        {
+            if (!_disposed)
+            {
+                if (disposing)
+                {
+                    stream.Dispose();
+                    stream = null;
+                }
+                f = null;
+                _disposed = true;
+            }
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
         }
     }
 }
