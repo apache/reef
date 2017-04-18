@@ -236,13 +236,6 @@ public final class ThreadPoolStage<T> extends AbstractEStage<T> {
   }
 
   /**
-   * Returns true if resources are closed.
-   */
-  public boolean isClosed() {
-    return closed.get() && executor.isTerminated();
-  }
-
-  /**
    * Gets the queue length of this stage.
    *
    * @return the queue length
