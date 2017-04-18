@@ -263,9 +263,10 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
         try {
           // We need to wait awhile before returning the container to the RM
           // in order to give the EvaluatorRuntime (and Launcher) time to cleanly exit.
-          this.clock.scheduleAlarm(100, new EventHandler<Alarm>() {
+          this.clock.scheduleAlarm(200, new EventHandler<Alarm>() {
             @Override
             public void onNext(final Alarm alarm) {
+              LOG.log(Level.FINER, "Close EvaluatorManager {0} - release to RM", evaluatorId);
               resourceReleaseHandler.onNext(releaseEvent);
               shutdown();
             }
