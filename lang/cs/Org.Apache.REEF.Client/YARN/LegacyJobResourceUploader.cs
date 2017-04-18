@@ -19,6 +19,7 @@ using System;
 using System.IO;
 using System.Threading.Tasks;
 using Org.Apache.REEF.Client.Common;
+using Org.Apache.REEF.Client.YARN.Parameters;
 using Org.Apache.REEF.Client.YARN.RestClient.DataModel;
 using Org.Apache.REEF.Common.Files;
 using Org.Apache.REEF.Tang.Annotations;
