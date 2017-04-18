@@ -110,9 +110,6 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Task
             {
                 _result = Optional<byte[]>.OfNullable(result);
 
-                // This can throw an Exception.
-                _taskLifeCycle.Stop();
-
                 switch (State)
                 {
                     case TaskState.SuspendRequested:
@@ -141,6 +138,24 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Task
             }
         }
 
+        /// <summary>
+        /// Runs the Task Start Handlers
+        /// </summary>
+        /// <exception cref="TaskStartHandlerException">If any of the Task Start Handlers throws an exception</exception>
+        public void RunTaskStartHandlers()
+        {
+            _taskLifeCycle.Start();
+        }
+
+        /// <summary>
+        /// Runs the Task Stop Handlers
+        /// </summary>
+        /// <exception cref="TaskStopHandlerException">If any of the Task Stop Handlers throws an exception</exception>
+        public void RunTaskStopHandlers()
+        {
+            _taskLifeCycle.Stop();
+        }
+
         public void SetRunning()
         {
             lock (_heartBeatManager)
@@ -148,7 +163,6 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Task
                 LOGGER.Log(Level.Verbose, "TaskStatus::SetRunning");
                 if (_state == TaskState.Init)
                 {
-                    _taskLifeCycle.Start();
                     State = TaskState.Running;
                     LOGGER.Log(Level.Verbose, "Sending task Running heartbeat");
                     Heartbeat();
@@ -200,6 +214,15 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Task
         public bool IsNotRunning()
         {
             return _state != TaskState.Running;
+        }
+
+        /// <summary>
+        /// Check whether the task is in state `Running`
+        /// </summary>
+        /// <returns>true, the task is in state `Running`</returns>
+        public bool IsRunning()
+        {
+            return _state == TaskState.Running;
         }
 
         public bool HasEnded()
