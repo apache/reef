@@ -93,54 +93,81 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Task
 
             var taskThread = new Thread(() =>
             {
+                // The result of the task execution.
+                byte[] resultReturnedByTask = null;
+
+                // Whether or not a result shall be returned to the Driver.
+                bool returnResultToDriver = true;
+
+                // Exception thrown during `Dispose`, if any.
+                Exception exceptionThrownByTaskDispose = null;
+
                 try
                 {
+                    // Run the handlers for `TaskStart`
                     Logger.Log(Level.Verbose, "Set running status for task");
+                    _currentStatus.RunTaskStartHandlers();
+
+                    // Update the state
                     _currentStatus.SetRunning();
+
+                    // Call the Task
                     Logger.Log(Level.Verbose, "Calling into user's task.");
-                    var result = _userTask.Call(null);
+                    resultReturnedByTask = _userTask.Call(null);
                     Logger.Log(Level.Info, "Task Call Finished");
-                    _currentStatus.SetResult(result);
 
+                    // Run the handlers for `TaskStop`
+                    _currentStatus.RunTaskStopHandlers();
+
+                    // Log the result
                     const Level resultLogLevel = Level.Verbose;
-
-                    if (Logger.IsLoggable(resultLogLevel) && result != null && result.Length > 0)
+                    if (Logger.IsLoggable(resultLogLevel) && resultReturnedByTask != null && resultReturnedByTask.Length > 0)
                     {
                         Logger.Log(resultLogLevel,
-                            "Task running result:\r\n" + System.Text.Encoding.Default.GetString(result));
+                            "Task running result:\r\n" + System.Text.Encoding.Default.GetString(resultReturnedByTask));
                     }
                 }
                 catch (TaskStartHandlerException e)
                 {
                     Logger.Log(Level.Info, "TaskRuntime::TaskStartHandlerException");
                     _currentStatus.SetException(e.InnerException);
+                    returnResultToDriver = false;
                 }
                 catch (TaskStopHandlerException e)
                 {
                     Logger.Log(Level.Info, "TaskRuntime::TaskStopHandlerException");
                     _currentStatus.SetException(e.InnerException);
+                    returnResultToDriver = false;
                 }
                 catch (Exception e)
                 {
                     Logger.Log(Level.Info, "TaskRuntime::Exception {0}", e.GetType());
                     _currentStatus.SetException(e);
+                    returnResultToDriver = false;
                 }
                 finally
                 {
                     try
                     {
-                        if (_userTask != null)
-                        {
-                            _userTask.Dispose();
-                        }
+                        _userTask.Dispose();
                     }
                     catch (Exception e)
                     {
-                        var msg = "Exception during Task Dispose in task Call()";
-                        Logger.Log(Level.Error, msg);
-                        throw new InvalidOperationException(msg, e);
+                        exceptionThrownByTaskDispose = new InvalidOperationException("Exception during Task Dispose in task Call()", e);
                     }
                 }
+
+                // Inform the driver about the result.
+                if (returnResultToDriver)
+                {   
+                    _currentStatus.SetResult(resultReturnedByTask);
+                }
+
+                // If the ITask.Dispose() method threw an Exception, crash the Evaluator.
+                if (exceptionThrownByTaskDispose != null)
+                {
+                    throw exceptionThrownByTaskDispose;
+                }               
             });
 
             taskThread.Start();
