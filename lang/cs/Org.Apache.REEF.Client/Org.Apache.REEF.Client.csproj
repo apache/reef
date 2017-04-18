@@ -106,6 +106,8 @@ under the License.
     <Compile Include="YARN\HDI\HDInsightUrlProvider.cs" />
     <Compile Include="YARN\HDI\NamedParameters.cs" />
     <Compile Include="YARN\IdentityResourceFileRemoteUrlToClusterUrlConverter.cs" />
+    <Compile Include="YARN\IYarnREEFDotNetAppParamsSerializer.cs" />
+    <Compile Include="YARN\IYarnREEFDotNetJobParamsSerializer.cs" />
     <Compile Include="YARN\IResourceFileRemoteUrlToClusterUrlConverter.cs" />
     <Compile Include="YARN\IYarnCommandLineEnvironment.cs" />
     <Compile Include="YARN\IYarnJobCommandProvider.cs" />
@@ -113,6 +115,8 @@ under the License.
     <Compile Include="YARN\IJobSubmissionDirectoryProvider.cs" />
     <Compile Include="YARN\Parameters\DriverMaxMemoryAllicationPoolSizeMB.cs" />
     <Compile Include="YARN\Parameters\DriverMaxPermSizeMB.cs" />
+    <Compile Include="YARN\Parameters\AdditionalDriverAppConfiguration.cs" />
+    <Compile Include="YARN\Parameters\LauncherClassName.cs" />
     <Compile Include="YARN\Parameters\DriverStderrFilePath.cs" />
     <Compile Include="YARN\Parameters\DriverStdoutFilePath.cs" />
     <Compile Include="YARN\RestClient\HttpClient.cs" />
@@ -176,8 +180,10 @@ under the License.
     <Compile Include="YARN\RestClient\YarnRestAPIException.cs" />
     <Compile Include="YARN\YARNClientConfiguration.cs" />
     <Compile Include="YARN\YarnCommandLineEnvironment.cs" />
+    <Compile Include="YARN\YarnREEFDotNetAppParamSerializer.cs" />
     <Compile Include="YARN\YarnREEFDotNetClient.cs" />
-    <Compile Include="YARN\YarnREEFDotNetParamSerializer.cs" />
+    <Compile Include="YARN\YarnREEFDotNetJobParamSerializer.cs" />
+    <Compile Include="YARN\YarnREEFDotNetParamsSerializer.cs" />
     <Compile Include="YARN\YarnREEFParamSerializer.cs" />
   </ItemGroup>
   <ItemGroup>

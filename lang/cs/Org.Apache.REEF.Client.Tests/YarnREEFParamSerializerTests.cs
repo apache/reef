@@ -61,7 +61,7 @@ namespace Org.Apache.REEF.Client.Tests
 
             var injector = TangFactory.GetTang().NewInjector(tcpConf, driverConf);
 
-            var serializer = injector.GetInstance<YarnREEFDotNetParamSerializer>();
+            var serializer = injector.GetInstance<YarnREEFDotNetAppParamSerializer>();
             var jobRequest = injector.GetInstance<JobRequestBuilder>().Build();
 
             var serializedBytes = serializer.SerializeAppArgsToBytes(
@@ -89,7 +89,7 @@ namespace Org.Apache.REEF.Client.Tests
             var expectedJson = string.Format(formatString, AnyString);
             var injector = TangFactory.GetTang().NewInjector();
 
-            var serializer = injector.GetInstance<YarnREEFDotNetParamSerializer>();
+            var serializer = injector.GetInstance<YarnREEFDotNetJobParamSerializer>();
             var jobRequest = injector.GetInstance<JobRequestBuilder>().SetJobIdentifier(AnyString).Build();
 
             var serializedBytes = serializer.SerializeJobArgsToBytes(jobRequest.JobParameters, AnyString, AnyString);

@@ -24,11 +24,14 @@ using Org.Apache.REEF.Client.API;
 using Org.Apache.REEF.Client.Common;
 using Org.Apache.REEF.Client.Yarn;
 using Org.Apache.REEF.Client.Yarn.RestClient;
+using Org.Apache.REEF.Client.YARN.Parameters;
 using Org.Apache.REEF.Client.YARN.RestClient.DataModel;
 using Org.Apache.REEF.Common.Files;
 using Org.Apache.REEF.Tang.Annotations;
+using Org.Apache.REEF.Tang.Formats;
 using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Tang.Interface;
+using Org.Apache.REEF.Tang.Util;
 using Org.Apache.REEF.Utilities.Attributes;
 using Org.Apache.REEF.Utilities.Logging;
 
@@ -50,7 +53,8 @@ namespace Org.Apache.REEF.Client.YARN
         private readonly IJobResourceUploader _jobResourceUploader;
         private readonly REEFFileNames _fileNames;
         private readonly IJobSubmissionDirectoryProvider _jobSubmissionDirectoryProvider;
-        private readonly YarnREEFDotNetParamSerializer _paramSerializer;
+        private readonly YarnREEFDotNetParamsSerializer _paramsSerializer;
+        private readonly string _additionalConfig;
 
         [Inject]
         private YarnREEFDotNetClient(
@@ -60,7 +64,8 @@ namespace Org.Apache.REEF.Client.YARN
             IJobResourceUploader jobResourceUploader,
             REEFFileNames fileNames,
             IJobSubmissionDirectoryProvider jobSubmissionDirectoryProvider,
-            YarnREEFDotNetParamSerializer paramSerializer)
+            YarnREEFDotNetParamsSerializer paramsSerializer,
+            [Parameter(typeof(AdditionalDriverAppConfiguration))] string additionalConfig)
         {
             _injector = injector;
             _jobSubmissionDirectoryProvider = jobSubmissionDirectoryProvider;
@@ -68,7 +73,8 @@ namespace Org.Apache.REEF.Client.YARN
             _jobResourceUploader = jobResourceUploader;
             _driverFolderPreparationHelper = driverFolderPreparationHelper;
             _yarnRMClient = yarnRMClient;
-            _paramSerializer = paramSerializer;
+            _paramsSerializer = paramsSerializer;
+            _additionalConfig = additionalConfig;
         }
 
         public void Submit(JobRequest jobRequest)
@@ -93,10 +99,16 @@ namespace Org.Apache.REEF.Client.YARN
                 _driverFolderPreparationHelper.PrepareDriverFolder(jobRequest.AppParameters, localDriverFolderPath);
 
                 // prepare configuration
-                var paramInjector = TangFactory.GetTang().NewInjector(jobRequest.DriverConfigurations.ToArray());
+                if (!string.IsNullOrWhiteSpace(_additionalConfig))
+                {
+                    AvroConfigurationSerializer serializer = new AvroConfigurationSerializer();
+                    var config = serializer.FromString(_additionalConfig);
+                    jobRequest.AppParameters.DriverConfigurations.Add(config);
+                }
 
-                _paramSerializer.SerializeAppFile(jobRequest.AppParameters, paramInjector, localDriverFolderPath);
-                _paramSerializer.SerializeJobFile(jobRequest.JobParameters, localDriverFolderPath, jobSubmissionDirectory);
+                var paramInjector = TangFactory.GetTang().NewInjector(jobRequest.DriverConfigurations.ToArray());
+                _paramsSerializer.SerializeAppFile(jobRequest.AppParameters, paramInjector, localDriverFolderPath);
+                _paramsSerializer.SerializeJobFile(jobRequest.JobParameters, localDriverFolderPath, jobSubmissionDirectory);
 
                 var archiveResource =
                     _jobResourceUploader.UploadArchiveResourceAsync(localDriverFolderPath, jobSubmissionDirectory)
@@ -171,6 +183,7 @@ namespace Org.Apache.REEF.Client.YARN
                     .Set(YarnCommandProviderConfiguration.DriverStderrFilePath, jobParameters.StderrFilePath.Value);
             }
 
+            // injector shoudld contain the IYarnJobCommandProvider implementation if other than default should be used
             var yarnJobCommandProvider = _injector.ForkInjector(commandProviderConfigModule.Build())
                 .GetInstance<IYarnJobCommandProvider>();
 
