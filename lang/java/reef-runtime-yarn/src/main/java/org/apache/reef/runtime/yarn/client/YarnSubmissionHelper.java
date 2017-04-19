@@ -283,8 +283,8 @@ public final class YarnSubmissionHelper implements AutoCloseable {
 
     LOG.log(Level.INFO, "Submitting REEF Application to YARN. ID: {0}", this.applicationId);
 
-    if (LOG.isLoggable(Level.FINEST)) {
-      LOG.log(Level.FINEST, "REEF app command: {0}", StringUtils.join(launchCommand, ' '));
+    if (LOG.isLoggable(Level.INFO)) {
+      LOG.log(Level.INFO, "REEF app command: {0}", StringUtils.join(launchCommand, ' '));
     }
 
     this.yarnClient.submitApplication(applicationSubmissionContext);

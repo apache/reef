@@ -84,10 +84,10 @@ public final class YARNResourceLaunchHandler implements ResourceLaunchHandler {
           this.evaluatorSetupHelper.getResources(resourceLaunchEvent);
 
       final List<String> command = getLaunchCommand(resourceLaunchEvent, container.getResource().getMemory());
-      if (LOG.isLoggable(Level.FINEST)) {
-        LOG.log(Level.FINEST,
-            "TIME: Run ResourceLaunchProto {0} command: `{1}` with resources: `{2}`",
-            new Object[]{containerId, StringUtils.join(command, ' '), localResources});
+      if (LOG.isLoggable(Level.INFO)) {
+        LOG.log(Level.INFO,
+            "TIME: Run ResourceLaunchProto {0} command: {1} resources: {2}",
+            new Object[] {containerId, StringUtils.join(command, ' '), localResources});
       }
 
       final byte[] securityTokensBuffer = this.tokenProvider.getTokens();
