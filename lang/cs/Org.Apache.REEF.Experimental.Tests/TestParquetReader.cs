@@ -22,6 +22,7 @@ using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Tang.Util;
 using Xunit;
+using System.Diagnostics;
 
 namespace Org.Apache.REEF.Experimental.Tests
 {
@@ -40,28 +41,51 @@ namespace Org.Apache.REEF.Experimental.Tests
             public string favorite_color { get; set; }
         }
 
+        private sealed class WorkingDir
+        {
+            public DirectoryInfo dir = new DirectoryInfo(Directory.GetCurrentDirectory());
+            public WorkingDir()
+            {
+                while (!dir.FullName.EndsWith(@"reef\lang"))
+                {
+                    dir = Directory.GetParent(dir.FullName);
+                }
+            }
+        }
+
+        DirectoryInfo dir = new WorkingDir().dir;
+
+        [Fact]
+        public void TestEnvironment()
+        {
+            // Make sure test data file.parquet exist
+            Assert.True(File.Exists(dir.FullName + @"\java\reef-experimental\src\test\resources\file.parquet"));
+
+            // Make sure test data jar file exist
+            Assert.True(File.Exists(Directory.GetFiles(dir.FullName + @"\java\reef-experimental\target\", "*jar-with-dependencies.jar")[0]));
+
+            // Make sure all dependencies are in the target\dependency folder
+            Assert.True(Directory.Exists(dir.FullName + @"\java\reef-experimental\target\dependency\"));
+        }
+
         [Fact]
         public void TestReadParquetFile()
         {
-            // Identify parquet file and jar path
-            var dir = new DirectoryInfo(Directory.GetCurrentDirectory());
-            while (!dir.FullName.EndsWith(@"reef\lang"))
-            {
-                dir = Directory.GetParent(dir.FullName);
-            }
+            // Identify parquet file and class path
             var parquetPath = dir.FullName + @"\java\reef-experimental\src\test\resources\file.parquet";
-            var jarPath = Directory.GetFiles(dir.FullName + @"\java\reef-experimental\target\", "*jar-with-dependencies.jar")[0];
+            var classPath =
+                dir.FullName + @"\java\reef-experimental\target\dependency\*;" +
+                Directory.GetFiles(dir.FullName + @"\java\reef-experimental\target\", "*jar-with-dependencies.jar")[0];
 
             Assert.True(File.Exists(parquetPath));
-            Assert.True(File.Exists(jarPath));
 
-            System.Diagnostics.Debug.WriteLine("Parquet Path: {0}", parquetPath);
-            System.Diagnostics.Debug.WriteLine("Jar Path: {0}", jarPath);
+            Debug.WriteLine("Parquet Path: {0}", parquetPath);
+            Debug.WriteLine("Jar Path: {0}", classPath);
 
             ITang tang = TangFactory.GetTang();
             IConfiguration conf = tang.NewConfigurationBuilder()
               .BindNamedParameter<ParquetPathString, string>(GenericType<ParquetPathString>.Class, parquetPath)
-              .BindNamedParameter<JarPathString, string>(GenericType<JarPathString>.Class, jarPath)
+              .BindNamedParameter<JarPathString, string>(GenericType<JarPathString>.Class, classPath)
               .Build();
             IInjector injector = tang.NewInjector(conf);
 
@@ -72,7 +96,7 @@ namespace Org.Apache.REEF.Experimental.Tests
                 Assert.Equal(obj.name, "User_" + i);
                 Assert.Equal(obj.age, i);
                 Assert.Equal(obj.favorite_color, "blue");
-                System.Diagnostics.Debug.WriteLine(
+                Debug.WriteLine(
                     "Object(name: {0}, age: {1}, favorite_color: {2})", 
                     obj.name, obj.age, obj.favorite_color);
                 i++;
