@@ -19,30 +19,51 @@ using System;
 using System.Linq;
 using System.Diagnostics;
 using System.IO;
-using System.Collections.Generic;
 using Microsoft.Hadoop.Avro.Container;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Utilities.Logging;
+using Org.Apache.REEF.Experimental.ParquetReader.Parameters;
 
 namespace Org.Apache.REEF.Experimental.ParquetReader
 {
-    sealed public class ParquetReader : IDisposable
+    /// <summary>
+    /// Constructs a Parquet file reader.
+    /// </summary>
+    public class ParquetReader : IDisposable
     {
         private static readonly Logger Logger = Logger.GetLogger(typeof(ParquetReader));
 
         private bool _disposed = false;
 
-        private FileStream stream = null;
-
-        private class JavaProcessFactory
+        private class JavaProcessConfiguration
         {
-            public string fileName { get; set; }
-            public string mainClass { get; set; }
-            public string parquetPath { get; set; }
-            public string classPath { get; set; }
+            public const string javaExecutable = "java";
+            public const string mainClass = "org.apache.reef.experimental.parquet.ParquetReader";
+            public string ParquetPath { get; set; }
+            public string ClassPath { get; set; }
         }
 
-        private JavaProcessFactory f;
+        private class JavaProcess
+        {
+            public string AvroPath { get; set; }
+            public JavaProcessConfiguration Conf { get; set; }
+            public void Start()
+            {
+                var p = new Process();
+                p.StartInfo.FileName = JavaProcessConfiguration.javaExecutable;
+                p.StartInfo.Arguments =
+                    new[] { "-cp", Conf.ClassPath, JavaProcessConfiguration.mainClass, Conf.ParquetPath, AvroPath }
+                    .Aggregate((a, b) => a + ' ' + b);
+
+                Logger.Log(Level.Info, "Running Command: java {0}", p.StartInfo.Arguments);
+
+                p.Start();
+                p.WaitForExit();
+                p.Dispose();
+            }
+        }
+
+        private readonly JavaProcessConfiguration c;
 
         /// <summary>
         /// Constructor of ParquetReader for Tang Injection
@@ -52,36 +73,36 @@ namespace Org.Apache.REEF.Experimental.ParquetReader
         [Inject]
         private ParquetReader(
             [Parameter(typeof(ParquetPathString))] string parquetPath,
-            [Parameter(typeof(JarPathString))] string classPath)
+            [Parameter(typeof(ClassPathString))] string classPath)
         {
-            f = new JavaProcessFactory
+            if (!File.Exists(parquetPath))
             {
-                fileName = "java",
-                mainClass = "org.apache.reef.experimental.parquet.ParquetReader",
-                parquetPath = parquetPath,
-                classPath = classPath
+                throw new FileNotFoundException("Input parquet file {0} doesn't exist.", parquetPath);
+            }
+            c = new JavaProcessConfiguration
+            {
+                ParquetPath = parquetPath,
+                ClassPath = classPath
             };
         }
 
         /// <summary>
         /// Method to read the given parquet files.
         /// </summary>
+        /// <returns>
+        /// Return a SequentialReader that can iterate data from each avro block.
+        /// </returns>
         public SequentialReader<T> CreateSequentialReader<T>()
         {
-            var avroPath = Path.GetTempFileName();
+            var p = new JavaProcess
+            {
+                AvroPath = Path.GetTempFileName(),
+                Conf = c
+            };
 
-            Process proc = new Process();
-            proc.StartInfo.FileName = f.fileName.ToString();
-            proc.StartInfo.Arguments = 
-                new[] { "-cp", f.classPath, f.mainClass, f.parquetPath, avroPath }.Aggregate((a, b) => a + ' ' + b);
+            p.Start();
 
-            Logger.Log(Level.Info, "Running Command: java {0}", proc.StartInfo.Arguments);
-
-            proc.Start();
-            proc.WaitForExit();
-            proc.Dispose();
-
-            stream = new FileStream(avroPath, FileMode.Open);
+            var stream = new FileStream(p.AvroPath, FileMode.Open);
             using (var avroReader = AvroContainer.CreateReader<T>(stream))
             {
                 return new SequentialReader<T>(avroReader);
@@ -94,10 +115,7 @@ namespace Org.Apache.REEF.Experimental.ParquetReader
             {
                 if (disposing)
                 {
-                    stream.Dispose();
-                    stream = null;
                 }
-                f = null;
                 _disposed = true;
             }
         }

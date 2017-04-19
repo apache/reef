@@ -20,6 +20,7 @@ package org.apache.reef.experimental.parquet;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -182,6 +183,9 @@ public final class ParquetReader {
     } else {
       final String parquetPath = args[0];
       final String avroPath = args[1];
+      if (!new File(parquetPath).exists()) {
+        throw new FileNotFoundException("Could not find input parquet file: " + parquetPath);
+      }
       LOG.log(Level.INFO, "Parquet file path is {0}.", parquetPath);
       LOG.log(Level.INFO, "Avro file path is {0}.", avroPath);
       final ParquetReader reader = new ParquetReader(parquetPath);

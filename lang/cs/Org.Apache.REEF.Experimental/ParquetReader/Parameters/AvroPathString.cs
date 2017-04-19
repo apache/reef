@@ -17,20 +17,10 @@
 
 using Org.Apache.REEF.Tang.Annotations;
 
-namespace Org.Apache.REEF.Experimental.ParquetReader
+namespace Org.Apache.REEF.Experimental.ParquetReader.Parameters
 {
-    [NamedParameter("Path to parquet file", "parquetPath")]
-    public class ParquetPathString : Name<string>
-    {
-    }
-
     [NamedParameter("Path to avro file", "avroPath")]
     public class AvroPathString : Name<string>
-    {
-    }
-
-    [NamedParameter("Path to all jar dependencies", "classPath")]
-    public class JarPathString : Name<string>
     {
     }
 }
