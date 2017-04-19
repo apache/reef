@@ -32,7 +32,7 @@ namespace Org.Apache.REEF.Utilities
             {
                 Console.WriteLine(string.Format(CultureInfo.InvariantCulture, "{0} not set. Please set the environment variable first. Exiting...", env));
                 string msg = string.Format(CultureInfo.InvariantCulture, "No {0} found.", env);
-                Diagnostics.Exceptions.Throw(new InvalidOperationException(msg), msg, LOGGER);
+                throw new InvalidOperationException(msg);
             }
             return envVariable;
         }

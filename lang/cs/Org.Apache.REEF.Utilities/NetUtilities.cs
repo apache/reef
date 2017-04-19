@@ -40,7 +40,7 @@ namespace Org.Apache.REEF.Utilities
             IPAddress.TryParse(driverAddress, out ipAddress);
             if (ipAddress == null)
             {
-                Exceptions.Throw(new FormatException("invalid format for ip: " + ipWithPort), LOGGER);
+                throw new FormatException("invalid format for ip: " + ipWithPort);
             }
 
             return new IPEndPoint(ipAddress, driverCommunicationPort);
