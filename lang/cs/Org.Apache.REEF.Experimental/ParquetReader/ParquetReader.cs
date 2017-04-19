@@ -39,7 +39,7 @@ namespace Org.Apache.REEF.Experimental.ParquetReader
             public string fileName { get; set; }
             public string mainClass { get; set; }
             public string parquetPath { get; set; }
-            public string jarPath { get; set; }
+            public string classPath { get; set; }
         }
 
         private JavaProcessFactory f;
@@ -52,14 +52,14 @@ namespace Org.Apache.REEF.Experimental.ParquetReader
         [Inject]
         private ParquetReader(
             [Parameter(typeof(ParquetPathString))] string parquetPath,
-            [Parameter(typeof(JarPathString))] string jarPath)
+            [Parameter(typeof(JarPathString))] string classPath)
         {
             f = new JavaProcessFactory
             {
                 fileName = "java",
                 mainClass = "org.apache.reef.experimental.parquet.ParquetReader",
                 parquetPath = parquetPath,
-                jarPath = jarPath
+                classPath = classPath
             };
         }
 
@@ -73,7 +73,7 @@ namespace Org.Apache.REEF.Experimental.ParquetReader
             Process proc = new Process();
             proc.StartInfo.FileName = f.fileName.ToString();
             proc.StartInfo.Arguments = 
-                new[] { "-cp", f.jarPath, f.mainClass, f.parquetPath, avroPath }.Aggregate((a, b) => a + ' ' + b);
+                new[] { "-cp", f.classPath, f.mainClass, f.parquetPath, avroPath }.Aggregate((a, b) => a + ' ' + b);
 
             Logger.Log(Level.Info, "Running Command: java {0}", proc.StartInfo.Arguments);
 

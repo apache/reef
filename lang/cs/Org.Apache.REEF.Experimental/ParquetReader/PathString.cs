@@ -29,7 +29,7 @@ namespace Org.Apache.REEF.Experimental.ParquetReader
     {
     }
 
-    [NamedParameter("Path to jar file", "jarPath")]
+    [NamedParameter("Path to all jar dependencies", "classPath")]
     public class JarPathString : Name<string>
     {
     }
