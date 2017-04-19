@@ -89,20 +89,22 @@ namespace Org.Apache.REEF.Experimental.Tests
               .Build();
             IInjector injector = tang.NewInjector(conf);
 
-            var reader = injector.GetInstance<ParquetReader.ParquetReader>();
             var i = 0;
-            foreach (var obj in reader.Read<User>())
+
+            using (var reader = injector.GetInstance<ParquetReader.ParquetReader>())
             {
-                Assert.Equal(obj.name, "User_" + i);
-                Assert.Equal(obj.age, i);
-                Assert.Equal(obj.favorite_color, "blue");
-                Debug.WriteLine(
-                    "Object(name: {0}, age: {1}, favorite_color: {2})", 
-                    obj.name, obj.age, obj.favorite_color);
-                i++;
+                foreach (var obj in reader.CreateSequentialReader<User>().Objects)
+                {
+                    Assert.Equal(obj.name, "User_" + i);
+                    Assert.Equal(obj.age, i);
+                    Assert.Equal(obj.favorite_color, "blue");
+                    Debug.WriteLine(
+                        "Object(name: {0}, age: {1}, favorite_color: {2})",
+                        obj.name, obj.age, obj.favorite_color);
+                    i++;
+                }
             }
 
-            reader.Dispose();
             Assert.Equal(i, 10);
         }
     }

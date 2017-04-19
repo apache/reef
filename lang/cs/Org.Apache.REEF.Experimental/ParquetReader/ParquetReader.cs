@@ -66,7 +66,7 @@ namespace Org.Apache.REEF.Experimental.ParquetReader
         /// <summary>
         /// Method to read the given parquet files.
         /// </summary>
-        public IEnumerable<T> Read<T>()
+        public SequentialReader<T> CreateSequentialReader<T>()
         {
             var avroPath = Path.GetTempFileName();
 
@@ -84,10 +84,7 @@ namespace Org.Apache.REEF.Experimental.ParquetReader
             stream = new FileStream(avroPath, FileMode.Open);
             using (var avroReader = AvroContainer.CreateReader<T>(stream))
             {
-                using (var seqReader = new SequentialReader<T>(avroReader))
-                {
-                    return seqReader.Objects;
-                }
+                return new SequentialReader<T>(avroReader);
             }
         }
 
