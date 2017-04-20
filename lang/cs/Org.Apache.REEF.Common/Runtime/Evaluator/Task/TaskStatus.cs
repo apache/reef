@@ -79,7 +79,7 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Task
                 {
                     string message = string.Format(CultureInfo.InvariantCulture, "Illegal state transition from [{0}] to [{1}]", _state, value);
                     LOGGER.Log(Level.Error, message);
-                    Utilities.Diagnostics.Exceptions.Throw(new InvalidOperationException(message), LOGGER);
+                    throw new InvalidOperationException(message);
                 }
             }
         }
@@ -376,10 +376,8 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Task
                 case TaskState.Killed:
                     return Protobuf.ReefProtocol.State.KILLED;
                 default:
-                    Utilities.Diagnostics.Exceptions.Throw(new InvalidOperationException("Unknown state: " + _state), LOGGER);
-                    break;
+                    throw new InvalidOperationException("Unknown state: " + _state);
             }
-            return Protobuf.ReefProtocol.State.FAILED; // this line should not be reached as default case will throw exception
         }
 
         private ICollection<TaskMessage> GetMessages()

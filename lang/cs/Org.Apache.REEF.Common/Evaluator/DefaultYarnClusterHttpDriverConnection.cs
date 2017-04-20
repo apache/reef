@@ -56,11 +56,7 @@ namespace Org.Apache.REEF.Common.Evaluator
                 }
                 catch (Exception ex)
                 {
-                    Utilities.Diagnostics.Exceptions.Caught(
-                        ex,
-                        Level.Info,
-                        "Unable to reach RM at " + yarnRMWebAppEndpoint,
-                        Logger);
+                    Logger.Log(Level.Info, "Unable to reach RM at " + yarnRMWebAppEndpoint, ex);
                 }
             }
 

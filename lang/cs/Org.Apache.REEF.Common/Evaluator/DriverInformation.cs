@@ -17,7 +17,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -132,17 +131,8 @@ namespace Org.Apache.REEF.Common.Evaluator
                         {
                             var driverInformation = streamReader.ReadToEnd();
                             LOGGER.Log(Level.Verbose, "Http response line: {0}", driverInformation);
-                            AvroDriverInfo info = null;
-                            try
-                            {
-                                info = AvroJsonSerializer<AvroDriverInfo>.FromString(driverInformation);
-                            }
-                            catch (Exception e)
-                            {
-                                Utilities.Diagnostics.Exceptions.CaughtAndThrow(
-                                    e, Level.Error, string.Format(CultureInfo.InvariantCulture, "Cannot read content: {0}.", driverInformation), LOGGER);
-                            }
-
+                            AvroDriverInfo info = AvroJsonSerializer<AvroDriverInfo>.FromString(driverInformation);
+                            
                             if (info == null)
                             {
                                 LOGGER.Log(Level.Info, "Cannot read content: {0}.", driverInformation);

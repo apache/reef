@@ -244,7 +244,7 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Context
                 }
                 catch (Exception e)
                 {
-                    Utilities.Diagnostics.Exceptions.Caught(e, Level.Error, LOGGER);
+                    LOGGER.Log(Level.Error, "Exception while instantiating the childServiceInjector.", e);
                     var childContextId = GetChildContextId(childContextConfiguration);
 
                     throw new ContextClientCodeException(childContextId, Optional<string>.Of(Id), "Unable to spawn context", e);
@@ -291,9 +291,8 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Context
                     else
                     {
                         // note: java code is putting thread id here
-                        var e = new InvalidOperationException(
-                        string.Format(CultureInfo.InvariantCulture, "Attempting to spawn a child context when an Task with id '{0}' is running", _task.Value.TaskId));
-                        Utilities.Diagnostics.Exceptions.Throw(e, LOGGER);
+                        throw new InvalidOperationException(string.Format(CultureInfo.InvariantCulture, 
+                            "Attempting to spawn a child context when an Task with id '{0}' is running", _task.Value.TaskId));
                     }
                 }
 
@@ -319,9 +318,7 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Context
                         LOGGER.Log(Level.Error, "Unable to get Task ID from TaskConfiguration.");
                     }
 
-                    var ex = TaskClientCodeException.Create(taskId, Id, "Unable to run the new task", e);
-                    Utilities.Diagnostics.Exceptions.CaughtAndThrow(ex, Level.Error, "Task start error.", LOGGER);
-                    return null;
+                    throw TaskClientCodeException.Create(taskId, Id, "Unable to run the new task", e);
                 }
                 catch (Exception e)
                 {
@@ -480,7 +477,7 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Context
                 }
 
                 // To reset a child context, there should always be a child context already present.
-                Utilities.Diagnostics.Exceptions.Throw(new InvalidOperationException("no child context set"), LOGGER);
+                throw new InvalidOperationException("no child context set");
             }
         }
 
@@ -554,8 +551,7 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Context
         {
             if (_childContext.IsPresent())
             {
-                var e = new InvalidOperationException(message);
-                Utilities.Diagnostics.Exceptions.Throw(e, LOGGER);
+                throw new InvalidOperationException(message);
             }
         }
     }

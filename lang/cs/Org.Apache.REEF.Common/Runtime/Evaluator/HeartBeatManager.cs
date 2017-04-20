@@ -160,7 +160,8 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator
                 {
                     if (evaluatorHeartbeatProto.task_status == null || evaluatorHeartbeatProto.task_status.state != State.RUNNING)
                     {
-                        Utilities.Diagnostics.Exceptions.Throw(e, "Lost communications to driver when no task is running, recovery NOT supported for such scenario", LOGGER);
+                        LOGGER.Log(Level.Error, "Lost communications to driver when no task is running, recovery NOT supported for such scenario", e);
+                        throw;
                     }
 
                     _heartbeatFailures++;
@@ -296,7 +297,7 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator
                     }
                     catch (Exception e)
                     {
-                        Utilities.Diagnostics.Exceptions.Caught(e, Level.Error, LOGGER);
+                        LOGGER.Log(Level.Error, "Exception while sending heartbeat.", e);
                         EvaluatorRuntime.OnException(e);
                     }
                 }
@@ -337,10 +338,9 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator
                             LOGGER.Log(Level.Error, "Reaching EvaluatorOperation RECOVERY mode, however, there is no IDriverConnection implemented for HA.");
                             throw;
                         }
-                        catch (Exception e)
+                        catch (Exception)
                         {
-                            // we do not want any exception to stop the query for driver status
-                            Utilities.Diagnostics.Exceptions.Caught(e, Level.Warning, LOGGER);
+                            // we do not want any exception to stop the query for driver status                            
                         }
                     }
                 }
@@ -389,7 +389,7 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator
                     }
                     catch (Exception e)
                     {
-                        Org.Apache.REEF.Utilities.Diagnostics.Exceptions.Caught(e, Level.Error, LOGGER);
+                        LOGGER.Log(Level.Error, "Caught and ignored exception", e);
                     }
                 }
             }
@@ -417,12 +417,8 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator
                     }
                     catch (Exception e)
                     {
-                        // we do not handle failures during RECOVERY 
-                        Org.Apache.REEF.Utilities.Diagnostics.Exceptions.CaughtAndThrow(
-                            e,
-                            Level.Error,
-                            string.Format(CultureInfo.InvariantCulture, "Hearbeat attempt failed in RECOVERY mode to Driver {0} , giving up...", _remoteId),
-                            LOGGER);
+                        // we do not handle failures during RECOVERY
+                        throw new Exception(string.Format(CultureInfo.InvariantCulture, "Hearbeat attempt failed in RECOVERY mode to Driver {0} , giving up...", _remoteId), e);
                     }
                     Thread.Sleep(500);
                 }

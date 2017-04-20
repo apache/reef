@@ -31,7 +31,7 @@ namespace Org.Apache.REEF.Common.Catalog.Capabilities
         {
             if (cores <= 0)
             {
-                Org.Apache.REEF.Utilities.Diagnostics.Exceptions.Throw(new ArgumentException("cores cannot be non-positive"), LOGGER);
+                throw new ArgumentException("cores cannot be non-positive");
             }
             _cores = cores;
         }

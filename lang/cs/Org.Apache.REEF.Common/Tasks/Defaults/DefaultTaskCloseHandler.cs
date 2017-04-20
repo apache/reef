@@ -17,7 +17,6 @@
 
 using System;
 using Org.Apache.REEF.Common.Tasks.Events;
-using Org.Apache.REEF.Common.Tasks.Exceptions;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Utilities.Logging;
 
@@ -40,17 +39,17 @@ namespace Org.Apache.REEF.Common.Tasks.Defaults
 
         public void OnCompleted()
         {
-            Utilities.Diagnostics.Exceptions.Throw(new NotImplementedException(), Logger);
+            throw new NotImplementedException();
         }
 
         public void OnError(Exception error)
         {
-            Utilities.Diagnostics.Exceptions.Throw(new NotImplementedException(), Logger);
+            throw new NotImplementedException();
         }
 
         public void OnNext(ICloseEvent value)
         {
-            Utilities.Diagnostics.Exceptions.Throw(new TaskCloseHandlerNotBoundException(ExceptionMessage + value), Logger);
+            throw new NotImplementedException();
         }
     }
 }

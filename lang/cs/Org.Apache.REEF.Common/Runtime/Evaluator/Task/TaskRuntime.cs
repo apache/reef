@@ -187,10 +187,6 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Task
                 OnNext(new CloseEventImpl(message));
                 _currentStatus.SetCloseRequested();
             }
-            catch (Exception e)
-            {
-                Utilities.Diagnostics.Exceptions.CaughtAndThrow(e, Level.Error, "Error during Close.", Logger);
-            }
             finally
             {
                 try
