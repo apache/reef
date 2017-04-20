@@ -18,6 +18,7 @@
 using System.IO;
 using System.Runtime.Serialization;
 using Org.Apache.REEF.Experimental.ParquetReader.Parameters;
+using Org.Apache.REEF.Experimental.ParquetCollection;
 using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Tang.Util;
@@ -93,7 +94,7 @@ namespace Org.Apache.REEF.Experimental.Tests
 
             using (var reader = injector.GetInstance<ParquetReader.ParquetReader>())
             {
-                foreach (var obj in reader.CreateSequentialReader<User>().Objects)
+                foreach (User obj in reader.Read<User>())
                 {
                     Assert.Equal(obj.name, "User_" + i);
                     Assert.Equal(obj.age, i);

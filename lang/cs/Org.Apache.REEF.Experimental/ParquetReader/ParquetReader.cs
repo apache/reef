@@ -19,10 +19,10 @@ using System;
 using System.Linq;
 using System.Diagnostics;
 using System.IO;
-using Microsoft.Hadoop.Avro.Container;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Utilities.Logging;
 using Org.Apache.REEF.Experimental.ParquetReader.Parameters;
+using Org.Apache.REEF.Experimental.ParquetCollection;
 
 namespace Org.Apache.REEF.Experimental.ParquetReader
 {
@@ -90,9 +90,9 @@ namespace Org.Apache.REEF.Experimental.ParquetReader
         /// Method to read the given parquet files.
         /// </summary>
         /// <returns>
-        /// Return a SequentialReader that can iterate data from each avro block.
+        /// Return a ParquetCollection that can iterate data from each avro block.
         /// </returns>
-        public SequentialReader<T> CreateSequentialReader<T>()
+        public ParquetCollection<T> Read<T>()
         {
             var p = new JavaProcess
             {
@@ -102,11 +102,7 @@ namespace Org.Apache.REEF.Experimental.ParquetReader
 
             p.Start();
 
-            var stream = new FileStream(p.AvroPath, FileMode.Open);
-            using (var avroReader = AvroContainer.CreateReader<T>(stream))
-            {
-                return new SequentialReader<T>(avroReader);
-            }
+            return new ParquetCollection<T>(p.AvroPath);
         }
 
         private void Dispose(bool disposing)
@@ -120,6 +116,9 @@ namespace Org.Apache.REEF.Experimental.ParquetReader
             }
         }
 
+        /// <summary>
+        /// Method to dispose this class.
+        /// </summary>
         public void Dispose()
         {
             Dispose(true);
