@@ -39,12 +39,12 @@ namespace Org.Apache.REEF.Experimental.ParquetReader
         {
             public const string javaExecutable = "java";
             public const string mainClass = "org.apache.reef.experimental.parquet.ParquetReader";
-            public string ParquetPath { get; set; }
             public string ClassPath { get; set; }
         }
 
         private class JavaProcess
         {
+            public string ParquetPath { get; set; }
             public string AvroPath { get; set; }
             public JavaProcessConfiguration Conf { get; set; }
             public void Start()
@@ -52,7 +52,7 @@ namespace Org.Apache.REEF.Experimental.ParquetReader
                 var p = new Process();
                 p.StartInfo.FileName = JavaProcessConfiguration.javaExecutable;
                 p.StartInfo.Arguments =
-                    new[] { "-cp", Conf.ClassPath, JavaProcessConfiguration.mainClass, Conf.ParquetPath, AvroPath }
+                    new[] { "-cp", Conf.ClassPath, JavaProcessConfiguration.mainClass, ParquetPath, AvroPath }
                     .Aggregate((a, b) => a + ' ' + b);
 
                 Logger.Log(Level.Info, "Running Command: java {0}", p.StartInfo.Arguments);
@@ -71,17 +71,10 @@ namespace Org.Apache.REEF.Experimental.ParquetReader
         /// <param name="parquetPath">Path to input parquet file.</param>
         /// <param name="jarPath">Path to jar file that contains Java parquet reader.</param>
         [Inject]
-        private ParquetReader(
-            [Parameter(typeof(ParquetPathString))] string parquetPath,
-            [Parameter(typeof(ClassPathString))] string classPath)
+        private ParquetReader([Parameter(typeof(ClassPathString))] string classPath)
         {
-            if (!File.Exists(parquetPath))
-            {
-                throw new FileNotFoundException("Input parquet file {0} doesn't exist.", parquetPath);
-            }
             c = new JavaProcessConfiguration
             {
-                ParquetPath = parquetPath,
                 ClassPath = classPath
             };
         }
@@ -92,10 +85,16 @@ namespace Org.Apache.REEF.Experimental.ParquetReader
         /// <returns>
         /// Return a ParquetCollection that can iterate data from each avro block.
         /// </returns>
-        public ParquetCollection<T> Read<T>()
+        public ParquetCollection<T> Read<T>(string parquetPath)
         {
+            if (!File.Exists(parquetPath))
+            {
+                throw new FileNotFoundException("Input parquet file {0} doesn't exist.", parquetPath);
+            }
+
             var p = new JavaProcess
             {
+                ParquetPath = parquetPath,
                 AvroPath = Path.GetTempFileName(),
                 Conf = c
             };

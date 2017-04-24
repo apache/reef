@@ -51,9 +51,7 @@ under the License.
     </Compile>
     <Compile Include="ParquetReader\ParquetReader.cs" />
     <Compile Include="ParquetReader\ParquetCollection.cs" />
-    <Compile Include="ParquetReader\Parameters\AvroPathString.cs" />
     <Compile Include="ParquetReader\Parameters\ClassPathString.cs" />
-    <Compile Include="ParquetReader\Parameters\ParquetPathString.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

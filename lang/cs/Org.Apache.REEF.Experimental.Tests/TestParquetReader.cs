@@ -18,7 +18,6 @@
 using System.IO;
 using System.Runtime.Serialization;
 using Org.Apache.REEF.Experimental.ParquetReader.Parameters;
-using Org.Apache.REEF.Experimental.ParquetCollection;
 using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Tang.Util;
@@ -85,7 +84,6 @@ namespace Org.Apache.REEF.Experimental.Tests
 
             ITang tang = TangFactory.GetTang();
             IConfiguration conf = tang.NewConfigurationBuilder()
-              .BindNamedParameter<ParquetPathString, string>(GenericType<ParquetPathString>.Class, parquetPath)
               .BindNamedParameter<ClassPathString, string>(GenericType<ClassPathString>.Class, classPath)
               .Build();
             IInjector injector = tang.NewInjector(conf);
@@ -94,15 +92,18 @@ namespace Org.Apache.REEF.Experimental.Tests
 
             using (var reader = injector.GetInstance<ParquetReader.ParquetReader>())
             {
-                foreach (User obj in reader.Read<User>())
+                using (var coll = reader.Read<User>(parquetPath))
                 {
-                    Assert.Equal(obj.name, "User_" + i);
-                    Assert.Equal(obj.age, i);
-                    Assert.Equal(obj.favorite_color, "blue");
-                    Debug.WriteLine(
-                        "Object(name: {0}, age: {1}, favorite_color: {2})",
-                        obj.name, obj.age, obj.favorite_color);
-                    i++;
+                    foreach (User obj in coll)
+                    {
+                        Assert.Equal(obj.name, "User_" + i);
+                        Assert.Equal(obj.age, i);
+                        Assert.Equal(obj.favorite_color, "blue");
+                        Debug.WriteLine(
+                            "Object(name: {0}, age: {1}, favorite_color: {2})",
+                            obj.name, obj.age, obj.favorite_color);
+                        i++;
+                    }
                 }
             }
 

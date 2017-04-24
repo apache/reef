@@ -31,6 +31,7 @@ namespace Org.Apache.REEF.Experimental.ParquetCollection
         private readonly Stream stream;
         private readonly IAvroReader<T> avroReader;
         private readonly SequentialReader<T> seqReader;
+        private readonly string _avroPath;
         private bool _disposed = false;
 
         /// <summary>
@@ -42,6 +43,7 @@ namespace Org.Apache.REEF.Experimental.ParquetCollection
             stream = new FileStream(avroPath, FileMode.Open);
             avroReader = AvroContainer.CreateReader<T>(stream);
             seqReader = new SequentialReader<T>(avroReader);
+            _avroPath = avroPath;
         }
 
         /// <summary>
@@ -52,7 +54,7 @@ namespace Org.Apache.REEF.Experimental.ParquetCollection
         /// </returns>
         public IEnumerator GetEnumerator()
         {
-            return this.GetEnumerator();
+            return seqReader.Objects.GetEnumerator();
         }
 
         /// <summary>
@@ -76,6 +78,7 @@ namespace Org.Apache.REEF.Experimental.ParquetCollection
                     stream.Dispose();
                     avroReader.Dispose();
                     seqReader.Dispose();
+                    File.Delete(_avroPath);
                 }
                 _disposed = true;
             }
