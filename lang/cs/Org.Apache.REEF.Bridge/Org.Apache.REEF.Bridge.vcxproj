@@ -41,6 +41,7 @@ under the License.
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <Keyword>ManagedCProj</Keyword>
     <RootNamespace>Org.Apache.REEF.Bridge</RootNamespace>
+    <WindowsTargetPlatformVersion Condition="'$(VisualStudioVersion)' >= '15.0'">10.0.14393.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <!--
