@@ -21,14 +21,13 @@ package org.apache.reef.util;
 import java.util.Collection;
 
 /**
- * Utilities for collection classes.
+ * Utility functions for arrays and collection classes.
  */
 public final class CollectionUtils {
 
   private CollectionUtils() {
     // avoid instantiation
   }
-
 
   /**
    * Checks if the collection is null or empty.
@@ -50,5 +49,17 @@ public final class CollectionUtils {
     return !isEmpty(parameter);
   }
 
+  private static final Object[] EMPTY_ARRAY = new Object[0];
 
+  /**
+   * Return an empty array if input is null; works as identity function otherwise.
+   * This function is useful in `for` statements if the iterable can be null.
+   * @param array Input array. Can be null.
+   * @param <T> Type of the elements of the array.
+   * @return A reference to the input array if it is not null, an empty array otherwise.
+   */
+  @SuppressWarnings("unchecked")
+  public static <T> T[] nullToEmpty(final T[] array) {
+    return array == null ? (T[])EMPTY_ARRAY : array;
+  }
 }

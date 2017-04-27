@@ -34,87 +34,77 @@ public class JARFileMaker implements AutoCloseable {
 
   private static final Logger LOG = Logger.getLogger(JARFileMaker.class.getName());
 
-  private final FileOutputStream fileOutputStream;
   private final JarOutputStream jarOutputStream;
-  private String relativeStartCanonicalPath = null;
-
-  public JARFileMaker(final File outputFile, final Manifest manifest) throws IOException {
-    this.fileOutputStream = new FileOutputStream(outputFile);
-    this.jarOutputStream = new JarOutputStream(this.fileOutputStream, manifest);
-  }
 
   public JARFileMaker(final File outputFile) throws IOException {
-    this.fileOutputStream = new FileOutputStream(outputFile);
-    this.jarOutputStream = new JarOutputStream(this.fileOutputStream);
+    this(outputFile, null);
+  }
+
+  public JARFileMaker(final File outputFile, final Manifest manifest) throws IOException {
+    LOG.log(Level.FINER, "Output jar: {0}", outputFile);
+    final FileOutputStream outputStream = new FileOutputStream(outputFile);
+    this.jarOutputStream = manifest == null ?
+        new JarOutputStream(outputStream) : new JarOutputStream(outputStream, manifest);
   }
 
   /**
    * Adds a file to the JAR. If inputFile is a folder, it will be added recursively.
-   *
-   * @param inputFile
-   * @throws IOException
+   * @param inputFile file or directory to be added to the jar.
+   * @throws IOException if cannot create a jar.
    */
   public JARFileMaker add(final File inputFile) throws IOException {
+    return this.add(inputFile, null);
+  }
 
-    final String fileNameInJAR = makeRelative(inputFile);
-    if (inputFile.isDirectory()) {
-      final JarEntry entry = new JarEntry(fileNameInJAR);
-      entry.setTime(inputFile.lastModified());
-      this.jarOutputStream.putNextEntry(entry);
-      this.jarOutputStream.closeEntry();
-      final File[] files = inputFile.listFiles();
-      if (files != null) {
-        for (final File nestedFile : files) {
-          add(nestedFile);
-        }
-      }
-      return this;
+  public JARFileMaker addChildren(final File folder) throws IOException {
+    LOG.log(Level.FINEST, "Add children: {0}", folder);
+    for (final File nestedFile : CollectionUtils.nullToEmpty(folder.listFiles())) {
+      this.add(nestedFile);
     }
+    return this;
+  }
+
+  private JARFileMaker add(final File inputFile, final String prefix) throws IOException {
+
+    final String fileNameInJAR = createPathInJar(inputFile, prefix);
+    LOG.log(Level.FINEST, "Add {0} as {1}", new Object[] {inputFile, fileNameInJAR});
 
     final JarEntry entry = new JarEntry(fileNameInJAR);
     entry.setTime(inputFile.lastModified());
     this.jarOutputStream.putNextEntry(entry);
-    try (final BufferedInputStream in = new BufferedInputStream(new FileInputStream(inputFile))) {
-      IOUtils.copy(in, this.jarOutputStream);
-      this.jarOutputStream.closeEntry();
-    } catch (final FileNotFoundException ex) {
-      LOG.log(Level.WARNING, "Skip the file: " + inputFile, ex);
-    }
-    return this;
-  }
 
-  public JARFileMaker addChildren(final File folder) throws IOException {
-    this.relativeStartCanonicalPath = folder.getCanonicalPath();
-    final File[] files = folder.listFiles();
-    if (files != null) {
-      for (final File f : files) {
-        this.add(f);
+    if (inputFile.isDirectory()) {
+      this.jarOutputStream.closeEntry();
+      for (final File nestedFile : CollectionUtils.nullToEmpty(inputFile.listFiles())) {
+        this.add(nestedFile, fileNameInJAR);
+      }
+    } else {
+      try (final BufferedInputStream in = new BufferedInputStream(new FileInputStream(inputFile))) {
+        IOUtils.copy(in, this.jarOutputStream);
+      } catch (final FileNotFoundException ex) {
+        LOG.log(Level.WARNING, "Skip the file: " + inputFile, ex);
+      } finally {
+        this.jarOutputStream.closeEntry();
       }
     }
-    this.relativeStartCanonicalPath = null;
+
     return this;
   }
 
-  private String makeRelative(final File input) throws IOException {
-    final String result;
-    if (this.relativeStartCanonicalPath == null) {
-      result = input.getCanonicalPath();
-    } else {
-      result = input.getCanonicalPath()
-          .replace(this.relativeStartCanonicalPath, "") // Drop the absolute prefix
-          .substring(1);                                // drop the '/' at the beginning
+  private static String createPathInJar(final File inputFile, final String prefix) {
+    final StringBuilder buf = new StringBuilder();
+    if (prefix != null) {
+      buf.append(prefix);
     }
-    if (input.isDirectory()) {
-      return result.replace("\\", "/") + "/";
-    } else {
-      return result.replace("\\", "/");
+    buf.append(inputFile.getName());
+    if (inputFile.isDirectory()) {
+      buf.append('/');
     }
-
+    return buf.toString();
   }
 
   @Override
   public void close() throws IOException {
     this.jarOutputStream.close();
-    this.fileOutputStream.close();
   }
 }
