@@ -18,9 +18,10 @@
 using System;
 using System.Collections.Specialized;
 using System.Net;
-using System.Runtime.Caching;
 using Org.Apache.REEF.Network.Naming.Parameters;
 using Org.Apache.REEF.Tang.Annotations;
+using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Options;
 
 namespace Org.Apache.REEF.Network.Naming
 {
@@ -29,7 +30,8 @@ namespace Org.Apache.REEF.Network.Naming
     /// </summary>
     internal sealed class NameCache
     {
-        private readonly MemoryCache _cache;
+        ////private readonly MemoryCache _cache;
+        private readonly IMemoryCache _cache;
 
         /// <summary>
         /// Duration in milli seconds after which cache entry expires
@@ -43,14 +45,18 @@ namespace Org.Apache.REEF.Network.Naming
             [Parameter(typeof(NameCacheConfiguration.CacheMemoryLimit))] string memoryLimit,
             [Parameter(typeof(NameCacheConfiguration.PollingInterval))] string pollingInterval)
         {
-            var config = new NameValueCollection
+            /*var config = new NameValueCollection
             {
                 { "pollingInterval", pollingInterval },
                 { "physicalMemoryLimitPercentage", "0" },
                 { "cacheMemoryLimitMegabytes", memoryLimit }
-            };
+            };*/
 
-            _cache = new MemoryCache("NameClientCache", config);
+            ////_cache = new MemoryCache("NameClientCache", config);
+            _cache = new MemoryCache(new MemoryCacheOptions());
+            _cache.Set("pollingInterval", pollingInterval);
+            _cache.Set("physicalMemoryLimitPercentage", 0);
+            _cache.Set("cacheMemoryLimitMegabytes", memoryLimit);
             _expirationDuration = expirationDuration;
         }
 
@@ -89,7 +95,7 @@ namespace Org.Apache.REEF.Network.Naming
         /// </summary>
         internal long PhysicalMemoryLimit
         {
-            get { return _cache.CacheMemoryLimit; }
+            get { return (long)_cache.Get("cacheMemoryLimitMegabytes"); }
         }
 
         /// <summary>
@@ -97,7 +103,7 @@ namespace Org.Apache.REEF.Network.Naming
         /// </summary>
         internal TimeSpan PollingInterval
         {
-            get { return _cache.PollingInterval; }
+            get { return (TimeSpan)_cache.Get("pollingInterval"); }
         }
     }
 }
