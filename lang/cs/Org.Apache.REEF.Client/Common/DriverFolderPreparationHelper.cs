@@ -42,7 +42,7 @@ namespace Org.Apache.REEF.Client.Common
         @"    <assemblyBinding xmlns=""urn:schemas-microsoft-com:asm.v1"">" +
         @"      <dependentAssembly>" +
         @"        <assemblyIdentity name=""Newtonsoft.Json"" publicKeyToken=""30ad4fe6b2a6aeed"" culture=""neutral"" />" +
-        @"        <bindingRedirect oldVersion=""0.0.0.0-8.0.0.0"" newVersion=""8.0.0.0"" />" +
+        @"        <bindingRedirect oldVersion=""0.0.0.0-9.0.0.0"" newVersion=""9.0.0.0"" />" +
         @"      </dependentAssembly>" +
         @"      <probing privatePath=""local;global""/>" +
         @"    </assemblyBinding>" +
