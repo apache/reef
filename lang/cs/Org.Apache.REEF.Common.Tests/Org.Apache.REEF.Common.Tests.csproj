@@ -50,9 +50,12 @@ under the License.
     <Compile Include="Metrics\ImmutableMetricImplTests.cs" />
     <Compile Include="Metrics\ImmutableMetricTest.cs" />
     <Compile Include="Metrics\MetricsCollectorTests.cs" />
+    <Compile Include="Metrics\MetricsSystemTests.cs" />
     <Compile Include="Metrics\MetricTestUtils.cs" />
     <Compile Include="Metrics\MutableMetricTest.cs" />
+    <Compile Include="Metrics\SinkHandlerTests.cs" />
     <Compile Include="Metrics\SnapshotRequestTest.cs" />
+    <Compile Include="Metrics\SourceHandlerTests.cs" />
     <Compile Include="Metrics\TestMetricsTag.cs" />
     <Compile Include="Telemetry\CounterTests.cs" />
     <Compile Include="TestHttpSerialization.cs" />

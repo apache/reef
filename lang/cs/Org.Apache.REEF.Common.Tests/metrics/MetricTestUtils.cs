@@ -19,6 +19,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using Org.Apache.REEF.Common.Metrics.Api;
+using Org.Apache.REEF.Tang.Annotations;
 using Xunit;
 
 namespace Org.Apache.REEF.Common.Tests.Metrics
@@ -231,6 +232,67 @@ namespace Org.Apache.REEF.Common.Tests.Metrics
             public void Counter(IMetricsInfo info, long value)
             {
                 CounterValue = value;
+            }
+        }
+
+        /// <summary>
+        /// Metrics sink implementation for tests.
+        /// </summary>
+        internal sealed class MetricsSinkForTests : IObserver<IMetricsRecord>
+        {
+            private readonly IList<IMetricsRecord> _records = new List<IMetricsRecord>();
+            private readonly object _lock = new object();
+
+            [Inject]
+            public MetricsSinkForTests()
+            {
+                ShutDown = false;
+                Error = false;
+                ConditionToCheck = null;
+            }
+
+            public Action ConditionToCheck { get; set; }
+
+            public bool ShutDown { get; private set; }
+
+            public bool Error { get; private set; }
+
+            public IList<IMetricsRecord> Records
+            {
+                get
+                {
+                    lock (_lock)
+                    {
+                        return new List<IMetricsRecord>(_records);
+                    }
+                }
+            }
+
+            public void OnNext(IMetricsRecord value)
+            {
+                lock (_lock)
+                {
+                    _records.Add(value);
+                    if (ConditionToCheck != null)
+                    {
+                        ConditionToCheck.Invoke();
+                    }
+                }
+            }
+
+            public void OnError(Exception error)
+            {
+                Error = true;
+            }
+
+            public void OnCompleted()
+            {
+                ShutDown = true;
+            }
+
+            public void Clear()
+            {
+                _records.Clear();
             }
         }
     }

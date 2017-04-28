@@ -16,10 +16,12 @@
 // under the License.
 
 using System;
+using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Utilities.Attributes;
 
 namespace Org.Apache.REEF.Common.Metrics.Api
 {
+    [DefaultImplementation(typeof(MetricsSystem.MetricsSystem))]
     [Unstable("0.16", "Contract may change.")]
     public interface IMetricsSystem : IObservable<IMetricsRecord>
     {
@@ -66,7 +68,8 @@ namespace Org.Apache.REEF.Common.Metrics.Api
         /// before returning. However, if it cannot be done in reasonable time 
         /// it is ok to return to the caller before everything is done. 
         /// </summary>
-        void PublishMetricsNow();
+        /// <param name="publishUnchangedMetrics">Whether to also publish metrics that did not change.</param>
+        void PublishMetricsNow(bool publishUnchangedMetrics);
 
         /// <summary>
         /// Completely shuts down the metrics system.
