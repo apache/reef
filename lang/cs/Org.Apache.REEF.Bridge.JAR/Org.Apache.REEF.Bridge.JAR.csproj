@@ -18,8 +18,7 @@ under the License.
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="12.0">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
-    <!--Set configuration parameters usually set in the Solution. This is needed for build.props to work.-->
-    <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..</SolutionDir>
+    <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
     <RootNamespace>Org.Apache.REEF.Bridge.JAR</RootNamespace>
     <ProjectGuid>{62905C7C-1A7E-4923-B78D-1BF42D7FAD40}</ProjectGuid>
     <AssemblyName>Org.Apache.REEF.Bridge.JAR</AssemblyName>
