@@ -25,7 +25,9 @@ The main paper on REEF is:
 
 Please cite this paper when you mention REEF.
 
-Powered by:
+---
+
+#### Powered by REEF:
 
 **[Pado: A Data Processing Engine for Harnessing Transient Resources in Datacenters](http://dl.acm.org/citation.cfm?id=3064181)**, Youngseok Yang et al. *In Proceedings of the Twelfth European Conference on Computer Systems (EuroSys '17)*. [`[pdf]`](http://dl.acm.org/ft_gateway.cfm?id=3064181&ftid=1866295&dwn=1&CFID=756086935&CFTOKEN=10517259)[`[bib]`](http://dl.acm.org/downformats.cfm?id=3064181&parent_id=3064176&expformat=bibtex&CFID=756086935&CFTOKEN=10517259)
 
