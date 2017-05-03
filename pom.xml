@@ -275,7 +275,7 @@ under the License.
                             <exclude>.gitignore</exclude>
                             <exclude>.git/**</exclude>
                             <!-- Intellij idea project files -->
-                            <exclude>lang/java/.idea/**</exclude>
+                            <exclude>**/.idea/**</exclude>
                             <exclude>**/*.iml</exclude>
                             <exclude>**/target/**</exclude>
                             <!-- ReadMe files -->
@@ -751,6 +751,7 @@ under the License.
         <module>lang/java/reef-webserver</module>
         <module>lang/java/reef-utils-hadoop</module>
         <module>lang/java/reef-utils</module>
+        <module>lang/scala/reef-examples-scala</module>
         <module>website</module>
     </modules>
 
