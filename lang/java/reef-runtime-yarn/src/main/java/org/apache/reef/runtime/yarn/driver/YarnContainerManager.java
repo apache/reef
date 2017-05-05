@@ -338,10 +338,10 @@ final class YarnContainerManager implements AMRMClientAsync.CallbackHandler, NMC
           });
 
       LOG.log(Level.FINE, "YARN registration: register AM at \"{0}:{1}\" tracking URL \"{2}\"",
-          new Object[] {addressProvider.getLocalAddress(), AM_REGISTRATION_PORT, this.trackingUrl});
+          new Object[] {this.addressProvider.getLocalAddress(), AM_REGISTRATION_PORT, this.trackingUrl});
 
       this.registration.setRegistration(this.resourceManager.registerApplicationMaster(
-          addressProvider.getLocalAddress(), AM_REGISTRATION_PORT, this.trackingUrl));
+          this.addressProvider.getLocalAddress(), AM_REGISTRATION_PORT, this.trackingUrl));
 
       LOG.log(Level.FINE, "YARN registration: AM registered: {0}", this.registration);
 
