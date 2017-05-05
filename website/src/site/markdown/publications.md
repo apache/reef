@@ -25,7 +25,11 @@ The main paper on REEF is:
 
 Please cite this paper when you mention REEF.
 
-Other publications:
+---
+
+#### Powered by REEF:
+
+**[Pado: A Data Processing Engine for Harnessing Transient Resources in Datacenters](http://dl.acm.org/citation.cfm?id=3064181)**, Youngseok Yang et al. *In Proceedings of the Twelfth European Conference on Computer Systems (EuroSys '17)*. [`[pdf]`](http://dl.acm.org/ft_gateway.cfm?id=3064181&ftid=1866295&dwn=1&CFID=756086935&CFTOKEN=10517259)[`[bib]`](http://dl.acm.org/downformats.cfm?id=3064181&parent_id=3064176&expformat=bibtex&CFID=756086935&CFTOKEN=10517259)
 
 **Salmon: Towards Production-Grade, Platform-Independent Distributed ML**, Mikhail Bilenko et al. *ICML Machine Learning Systems workshop, 2016*. [`[pdf]`](papers/2016-ICML-LearningSys-Salmon.pdf)[`[bib]`](bib/salmon.bib)
 

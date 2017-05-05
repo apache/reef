@@ -79,9 +79,9 @@ namespace Org.Apache.REEF.Evaluator.Tests
             var task = injector.GetInstance<TestTask>();
             task.FinishCountdownEvent.Wait();
             task.DisposeCountdownEvent.Wait();
+            taskThread.Join();
             Assert.Equal(taskRuntime.GetTaskState(), TaskState.Done);
             Assert.True(taskRuntime.HasEnded());
-            taskThread.Join();
         }
 
         /// <summary>
