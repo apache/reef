@@ -69,7 +69,7 @@ public class JARFileMaker implements AutoCloseable {
 
   private JARFileMaker add(final File inputFile, final String prefix) throws IOException {
 
-    final String fileNameInJAR = internalJarPath(inputFile, prefix);
+    final String fileNameInJAR = createPathInJar(inputFile, prefix);
     LOG.log(Level.FINEST, "Add {0} as {1}", new Object[] {inputFile, fileNameInJAR});
 
     final JarEntry entry = new JarEntry(fileNameInJAR);
@@ -97,7 +97,7 @@ public class JARFileMaker implements AutoCloseable {
     return this;
   }
 
-  private static String internalJarPath(final File inputFile, final String prefix) {
+  private static String createPathInJar(final File inputFile, final String prefix) {
     final StringBuilder buf = new StringBuilder();
     if (prefix != null) {
       buf.append(prefix);
