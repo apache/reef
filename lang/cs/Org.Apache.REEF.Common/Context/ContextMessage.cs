@@ -52,11 +52,11 @@ namespace Org.Apache.REEF.Common.Context
         {
             if (string.IsNullOrEmpty(messageSourceId))
             {
-                Org.Apache.REEF.Utilities.Diagnostics.Exceptions.Throw(new ArgumentNullException("messageSourceId"), LOGGER);
+                throw new ArgumentNullException("messageSourceId");
             }
             if (bytes == null)
             {
-                Org.Apache.REEF.Utilities.Diagnostics.Exceptions.Throw(new ArgumentNullException("bytes"), LOGGER);
+                throw new ArgumentNullException("bytes");
             }
             return new ContextMessage(messageSourceId, bytes);
         }

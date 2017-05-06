@@ -149,7 +149,7 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator
                         {
                             Utilities.Diagnostics.Exceptions.Caught(e, Level.Error, Logger);
                             OnException(e);
-                            Utilities.Diagnostics.Exceptions.Throw(new InvalidOperationException(e.ToString(), e), Logger);
+                            throw new InvalidOperationException(e.ToString(), e);
                         }
                     }
                     if (message.kill_evaluator != null)
@@ -185,8 +185,7 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator
                     _pidStoreHelper.WritePID();
                     if (_state != State.INIT)
                     {
-                        var e = new InvalidOperationException("State should be init.");
-                        Utilities.Diagnostics.Exceptions.Throw(e, Logger);
+                        throw new InvalidOperationException("State should be init.");
                     }
                     _state = State.RUNNING;
                     _contextManager.Start();

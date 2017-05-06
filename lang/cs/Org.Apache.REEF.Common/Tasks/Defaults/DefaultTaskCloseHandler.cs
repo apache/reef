@@ -40,17 +40,17 @@ namespace Org.Apache.REEF.Common.Tasks.Defaults
 
         public void OnCompleted()
         {
-            Utilities.Diagnostics.Exceptions.Throw(new NotImplementedException(), Logger);
+            throw new NotImplementedException();
         }
 
         public void OnError(Exception error)
         {
-            Utilities.Diagnostics.Exceptions.Throw(new NotImplementedException(), Logger);
+            throw new NotImplementedException();
         }
 
         public void OnNext(ICloseEvent value)
         {
-            Utilities.Diagnostics.Exceptions.Throw(new TaskCloseHandlerNotBoundException(ExceptionMessage + value), Logger);
+            throw new NotImplementedException();
         }
     }
 }

@@ -291,9 +291,8 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Context
                     else
                     {
                         // note: java code is putting thread id here
-                        var e = new InvalidOperationException(
-                        string.Format(CultureInfo.InvariantCulture, "Attempting to spawn a child context when an Task with id '{0}' is running", _task.Value.TaskId));
-                        Utilities.Diagnostics.Exceptions.Throw(e, LOGGER);
+                        throw new InvalidOperationException(
+                            string.Format(CultureInfo.InvariantCulture, "Attempting to spawn a child context when an Task with id '{0}' is running", _task.Value.TaskId));
                     }
                 }
 
@@ -480,7 +479,7 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Context
                 }
 
                 // To reset a child context, there should always be a child context already present.
-                Utilities.Diagnostics.Exceptions.Throw(new InvalidOperationException("no child context set"), LOGGER);
+                throw new InvalidOperationException("no child context set");
             }
         }
 
@@ -554,8 +553,7 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Context
         {
             if (_childContext.IsPresent())
             {
-                var e = new InvalidOperationException(message);
-                Utilities.Diagnostics.Exceptions.Throw(e, LOGGER);
+                throw new InvalidOperationException(message);
             }
         }
     }
