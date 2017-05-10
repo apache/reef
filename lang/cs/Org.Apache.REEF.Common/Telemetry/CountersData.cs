@@ -24,6 +24,11 @@ using Org.Apache.REEF.Utilities.Logging;
 
 namespace Org.Apache.REEF.Common.Telemetry
 {
+    /// <summary>
+    /// This class maintains a collection of the data for all the counters for metrics service. 
+    /// When new counter data is received, the data in the collection will be updated.
+    /// After the data is processed, the increment since last process will be reset.
+    /// </summary>
     internal sealed class CountersData
     {
         private static readonly Logger Logger = Logger.GetLogger(typeof(CountersData));
