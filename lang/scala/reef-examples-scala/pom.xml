@@ -60,51 +60,17 @@ under the License.
             <version>${project.version}</version>
         </dependency>
         <!-- End of REEF -->
-
-        <!-- Spark -->
-        <dependency>
-            <groupId>org.apache.spark</groupId>
-            <artifactId>spark-core_2.11</artifactId>
-            <version>2.1.0</version>
-            <scope>provided</scope>
-        </dependency>
-        <!-- End of Spark -->
-
         <dependency>
             <groupId>com.jsuereth</groupId>
             <artifactId>scala-arm_2.11</artifactId>
             <version>2.0</version>
         </dependency>
-
     </dependencies>
 
 
     <build>
- 
         <sourceDirectory>src/main/scala</sourceDirectory>
-
         <plugins>
-
-            <plugin>
-                <groupId>net.alchim31.maven</groupId>
-                <artifactId>scala-maven-plugin</artifactId>
-                <version>3.2.1</version>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>compile</goal>
-                            <goal>testCompile</goal>
-                        </goals>
-                    </execution>
-                </executions>
-                <configuration>
-                    <args>
-                        <!-- work-around for https://issues.scala-lang.org/browse/SI-8358 -->
-                        <arg>-nobootcp</arg>
-                    </args>
-                </configuration>
-            </plugin>
-
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
@@ -134,10 +100,7 @@ under the License.
                     </filters>
                 </configuration>
             </plugin>
-
         </plugins>
-
     </build>
 
 </project>
-
