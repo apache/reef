@@ -1,7 +1,0 @@
-project/target/
-project/project/
-target/
-.*
-*.log
-REEF_LOCAL_RUNTIME/
-PID.txt
