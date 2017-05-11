@@ -60,13 +60,19 @@ under the License.
             <version>${project.version}</version>
         </dependency>
         <!-- End of REEF -->
+        <!-- Spark -->
+        <dependency>
+            <groupId>org.apache.spark</groupId>
+            <artifactId>spark-core_2.11</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <!-- End of Spark -->
         <dependency>
             <groupId>com.jsuereth</groupId>
             <artifactId>scala-arm_2.11</artifactId>
             <version>2.0</version>
         </dependency>
     </dependencies>
-
 
     <build>
         <sourceDirectory>src/main/scala</sourceDirectory>
