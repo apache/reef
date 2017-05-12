@@ -24,6 +24,7 @@ namespace Org.Apache.REEF.Common.Telemetry
     /// <summary>
     /// This default IMetricsSink is just an example of IMetricsSink
     /// Here the data is logged in Sink() method
+    /// It is more useful in test
     /// </summary>
     internal sealed class DefaultMetricsSink : IMetricsSink
     {
@@ -46,6 +47,9 @@ namespace Org.Apache.REEF.Common.Telemetry
             }
         }
 
+        /// <summary>
+        /// This is intentionally empty as we don't have any resource to release in the implementation.
+        /// </summary>
         public void Dispose()
         {
         }
