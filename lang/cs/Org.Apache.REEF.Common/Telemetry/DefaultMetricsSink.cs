@@ -21,7 +21,11 @@ using Org.Apache.REEF.Utilities.Logging;
 
 namespace Org.Apache.REEF.Common.Telemetry
 {
-    public sealed class DefaultMetricsSink : IMetricsSink
+    /// <summary>
+    /// This default IMetricsSink is just an example of IMetricsSink
+    /// Here the data is logged in Sink() method
+    /// </summary>
+    internal sealed class DefaultMetricsSink : IMetricsSink
     {
         private static readonly Logger Logger = Logger.GetLogger(typeof(DefaultMetricsSink));
 
