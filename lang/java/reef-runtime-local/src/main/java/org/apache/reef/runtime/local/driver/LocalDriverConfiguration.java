@@ -23,6 +23,7 @@ import org.apache.reef.runtime.common.driver.client.JobStatusHandler;
 import org.apache.reef.runtime.common.driver.parameters.ClientRemoteIdentifier;
 import org.apache.reef.runtime.common.driver.parameters.DefinedRuntimes;
 import org.apache.reef.runtime.common.driver.parameters.JobIdentifier;
+import org.apache.reef.runtime.common.evaluator.parameters.LocalThreadMode;
 import org.apache.reef.runtime.common.files.RuntimeClasspathProvider;
 import org.apache.reef.runtime.common.launch.parameters.ErrorHandlerRID;
 import org.apache.reef.runtime.common.launch.parameters.LaunchID;
@@ -71,6 +72,11 @@ public class LocalDriverConfiguration extends ConfigurationModuleBuilder {
   public static final OptionalImpl<JobStatusHandler> JOB_STATUS_HANDLER = new OptionalImpl<>();
 
   /**
+   * Whether the local driver executes on thread mode or not.
+   */
+  public static final OptionalParameter<String> IS_LOCAL_THREAD_MODE = new OptionalParameter<>();
+
+  /**
    * The identifier of the Job submitted.
    */
   public static final RequiredParameter<String> JOB_IDENTIFIER = new RequiredParameter<>();
@@ -89,6 +95,7 @@ public class LocalDriverConfiguration extends ConfigurationModuleBuilder {
       .bindNamedParameter(MaxNumberOfEvaluators.class, MAX_NUMBER_OF_EVALUATORS)
       .bindNamedParameter(RootFolder.class, ROOT_FOLDER)
       .bindNamedParameter(JVMHeapSlack.class, JVM_HEAP_SLACK)
+      .bindNamedParameter(LocalThreadMode.class, IS_LOCAL_THREAD_MODE)
       .bindSetEntry(RackNames.class, RACK_NAMES)
       .bindImplementation(RuntimeClasspathProvider.class, LocalClasspathProvider.class)
       .bindSetEntry(DefinedRuntimes.class, RUNTIME_NAMES)
