@@ -1,4 +1,4 @@
-﻿// Licensed to the Apache Software Foundation (ASF) under one
+// Licensed to the Apache Software Foundation (ASF) under one
 // or more contributor license agreements.  See the NOTICE file
 // distributed with this work for additional information
 // regarding copyright ownership.  The ASF licenses this file
@@ -15,21 +15,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-using Microsoft.Practices.EnterpriseLibrary.TransientFaultHandling;
-using Org.Apache.REEF.Tang.Annotations;
-using Org.Apache.REEF.Wake.Remote.Impl;
+using System.Runtime.CompilerServices;
 
-namespace Org.Apache.REEF.Wake.Remote
-{
-    /// <summary>
-    /// Interface for the retry logic to connect to remote endpoint
-    /// </summary>
-    [DefaultImplementation(typeof(RemoteConnectionRetryHandler))]
-    public interface IConnectionRetryHandler
-    {
-        /// <summary>
-        /// Retry policy for the tcp connection
-        /// </summary>
-        RetryPolicy Policy { get; }
-    }
-}
+[assembly: InternalsVisibleToAttribute("Org.Apache.REEF.Wake.Tests")]
