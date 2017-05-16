@@ -286,8 +286,8 @@ under the License.
                             <exclude>REEF_LOCAL_RUNTIME/**</exclude>
                             <exclude>REEF_MESOS_RUNTIME/**</exclude>
                             <exclude>REEF_STANDALONE_RUNTIME/**</exclude>
-                            <!-- JVM error logs, especially troublesome on CI servers -->
-                            <exclude>**/hs_err_*.log</exclude>
+                            <!-- Error logs -->
+                            <exclude>**/*.log</exclude>
                             <!-- The Visual Studio and Nuget build files -->
                             <exclude>**/*.sln*</exclude>
                             <exclude>**/*.vcxproj*</exclude>
