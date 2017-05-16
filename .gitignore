@@ -41,11 +41,12 @@ atlassian-ide-plugin.xml
 tmp
 *~
 \#*
+*.log
+*.sw[op]
 #
 # ----------------------------------------------------------------------
 # Unknown Files. Please clean up over time
 # ----------------------------------------------------------------------
 ml-data
 tang.conf
-*.sw[op]
 profile-*.json
