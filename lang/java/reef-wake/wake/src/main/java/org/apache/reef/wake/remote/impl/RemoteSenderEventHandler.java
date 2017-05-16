@@ -40,10 +40,11 @@ class RemoteSenderEventHandler<T> implements EventHandler<RemoteEvent<T>> {
 
   private static final Logger LOG = Logger.getLogger(RemoteSenderEventHandler.class.getName());
 
+  private final BlockingQueue<RemoteEvent<T>> queue = new LinkedBlockingQueue<>();
+  private final AtomicReference<Link<byte[]>> linkRef = new AtomicReference<>();
+
   private final RemoteEventEncoder<T> encoder;
   private final Transport transport;
-  private final BlockingQueue<RemoteEvent<T>> queue;
-  private final AtomicReference<Link<byte[]>> linkRef;
   private final ExecutorService executor;
 
   /**
@@ -57,12 +58,15 @@ class RemoteSenderEventHandler<T> implements EventHandler<RemoteEvent<T>> {
     this.encoder = new RemoteEventEncoder<>(encoder);
     this.transport = transport;
     this.executor = executor;
-    this.linkRef = new AtomicReference<>();
-    this.queue = new LinkedBlockingQueue<>();
+  }
+
+  @Override
+  public String toString() {
+    return String.format("RemoteSenderEventHandler: { transport: %s encoder: %s}", this.transport, this.encoder);
   }
 
   void setLink(final Link<byte[]> link) {
-    LOG.log(Level.FINEST, "thread {0} link {1}", new Object[]{Thread.currentThread(), link});
+    LOG.log(Level.FINEST, "thread {0} set link {1}", new Object[] {Thread.currentThread(), link});
     linkRef.compareAndSet(null, link);
     consumeQueue();
   }
@@ -71,12 +75,12 @@ class RemoteSenderEventHandler<T> implements EventHandler<RemoteEvent<T>> {
     try {
       RemoteEvent<T> event;
       while ((event = queue.poll(0, TimeUnit.MICROSECONDS)) != null) {
-        LOG.log(Level.FINEST, "{0}", event);
+        LOG.log(Level.FINEST, "Event: {0}", event);
         linkRef.get().write(encoder.encode(event));
       }
-    } catch (final InterruptedException e) {
-      e.printStackTrace();
-      throw new RemoteRuntimeException(e);
+    } catch (final InterruptedException ex) {
+      LOG.log(Level.SEVERE, "Interrupted", ex);
+      throw new RemoteRuntimeException(ex);
     }
   }
 
@@ -89,6 +93,9 @@ class RemoteSenderEventHandler<T> implements EventHandler<RemoteEvent<T>> {
   @Override
   public void onNext(final RemoteEvent<T> value) {
     try {
+
+      LOG.log(Level.FINEST, "Link: {0} event: {1}", new Object[] {linkRef, value});
+
       if (linkRef.get() == null) {
         queue.add(value);
 
@@ -101,36 +108,30 @@ class RemoteSenderEventHandler<T> implements EventHandler<RemoteEvent<T>> {
 
         final ConnectFutureTask<Link<byte[]>> cf = new ConnectFutureTask<>(
             new ConnectCallable(transport, value.localAddress(), value.remoteAddress()),
-            new ConnectEventHandler<T>(this));
+            new ConnectEventHandler<>(this));
         executor.submit(cf);
+
       } else {
         // encode and write bytes
         // consumeQueue();
-
-        if (LOG.isLoggable(Level.FINEST)) {
-          LOG.log(Level.FINEST, "Send an event from " + linkRef.get().getLocalAddress() + " to " +
-              linkRef.get().getRemoteAddress() + " value " + value);
-        }
+        LOG.log(Level.FINEST, "Send: {0} event: {1}", new Object[] {linkRef, value});
         linkRef.get().write(encoder.encode(value));
       }
-    } catch (final RemoteRuntimeException ex2) {
-      ex2.printStackTrace();
-      throw ex2;
+
+    } catch (final RemoteRuntimeException ex) {
+      LOG.log(Level.SEVERE, "Remote Exception", ex);
+      throw ex;
     }
   }
-
-
 }
 
 class ConnectCallable implements Callable<Link<byte[]>> {
 
   private final Transport transport;
-  private final SocketAddress localAddress;
   private final SocketAddress remoteAddress;
 
   ConnectCallable(final Transport transport, final SocketAddress localAddress, final SocketAddress remoteAddress) {
     this.transport = transport;
-    this.localAddress = localAddress;
     this.remoteAddress = remoteAddress;
   }
 
@@ -144,6 +145,8 @@ class ConnectCallable implements Callable<Link<byte[]>> {
 
 class ConnectEventHandler<T> implements EventHandler<ConnectFutureTask<Link<byte[]>>> {
 
+  private static final Logger LOG = Logger.getLogger(ConnectEventHandler.class.getName());
+
   private final RemoteSenderEventHandler<T> handler;
 
   ConnectEventHandler(final RemoteSenderEventHandler<T> handler) {
@@ -154,10 +157,9 @@ class ConnectEventHandler<T> implements EventHandler<ConnectFutureTask<Link<byte
   public void onNext(final ConnectFutureTask<Link<byte[]>> value) {
     try {
       handler.setLink(value.get());
-    } catch (InterruptedException | ExecutionException e) {
-      e.printStackTrace();
-      throw new RemoteRuntimeException(e);
+    } catch (final InterruptedException | ExecutionException ex) {
+      LOG.log(Level.SEVERE, "Execution Exception", ex);
+      throw new RemoteRuntimeException(ex);
     }
   }
-
 }
