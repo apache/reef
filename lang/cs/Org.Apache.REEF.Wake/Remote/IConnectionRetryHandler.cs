@@ -15,10 +15,10 @@
 // specific language governing permissions and limitations
 // under the License.
 
-#if NOT_DOTNET_BUILD
-using Microsoft.Practices.TransientFaultHandling;
-#else
+#if DOTNET_BUILD
 using Microsoft.Practices.EnterpriseLibrary.TransientFaultHandling;
+#else
+using Microsoft.Practices.TransientFaultHandling;
 #endif
 
 using Org.Apache.REEF.Tang.Annotations;

@@ -43,7 +43,6 @@ under the License.
     <WarningLevel>4</WarningLevel>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <WarningsNotAsErrors>612,618</WarningsNotAsErrors>
-    <DefineConstants>NOT_DOTNET_BUILD</DefineConstants>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x64' ">
     <BuildPackage>true</BuildPackage>
@@ -55,7 +54,6 @@ under the License.
     <WarningLevel>4</WarningLevel>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <WarningsNotAsErrors>612,618</WarningsNotAsErrors>
-    <DefineConstants>NOT_DOTNET_BUILD</DefineConstants>
   </PropertyGroup>
 
   <!-- REEF NuGet properties -->

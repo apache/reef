@@ -24,9 +24,9 @@ under the License.
     <PackageReference Include="System.Reactive.Core" Version="$(RxVersion)" />
     <PackageReference Include="System.Reactive.Interfaces" Version="$(RxVersion)" />
   </ItemGroup>
+  <Import Project="..\xunit.DotNet.props" />
   <ItemGroup>
     <ProjectReference Include="..\Org.Apache.REEF.Tang\Org.Apache.Reef.Tang.DotNet.csproj" />
     <ProjectReference Include="..\Org.Apache.REEF.Wake\Org.Apache.Reef.Wake.DotNet.csproj" />
   </ItemGroup>
-  <Import Project="..\xunit.DotNet.targets" />
 </Project>

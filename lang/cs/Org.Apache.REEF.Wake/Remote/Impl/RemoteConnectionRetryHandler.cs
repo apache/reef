@@ -16,10 +16,10 @@
 // under the License.
 
 using System;
-#if NOT_DOTNET_BUILD
-using Microsoft.Practices.TransientFaultHandling;
-#else
+#if DOTNET_BUILD
 using Microsoft.Practices.EnterpriseLibrary.TransientFaultHandling;
+#else
+using Microsoft.Practices.TransientFaultHandling;
 #endif
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Utilities.Logging;

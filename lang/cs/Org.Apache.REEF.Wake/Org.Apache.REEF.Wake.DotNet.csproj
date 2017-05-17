@@ -17,8 +17,8 @@ under the License.
 -->
   <PropertyGroup>
     <AssemblyName>Org.Apache.REEF.Wake</AssemblyName>
-    <Description>Wake is an event driven framework</Description>
-    <PackageTags>wake event driven</PackageTags>
+    <Description>Wake is an event-driven framework</Description>
+    <PackageTags>wake event-driven</PackageTags>
     <TargetFrameworks>net46;net451</TargetFrameworks>
   </PropertyGroup>
   <Import Project="..\build.DotNet.props" />
