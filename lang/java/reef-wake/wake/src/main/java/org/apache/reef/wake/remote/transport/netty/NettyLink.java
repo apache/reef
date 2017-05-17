@@ -39,7 +39,9 @@ import java.util.logging.Logger;
 public class NettyLink<T> implements Link<T> {
 
   public static final int INT_SIZE = Integer.SIZE / Byte.SIZE;
+
   private static final Logger LOG = Logger.getLogger(NettyLink.class.getName());
+
   private final Channel channel;
   private final Encoder<? super T> encoder;
   private final LinkListener<? super T> listener;
@@ -61,13 +63,11 @@ public class NettyLink<T> implements Link<T> {
    * @param encoder  the encoder
    * @param listener the link listener
    */
-  public NettyLink(final Channel channel,
-                   final Encoder<? super T> encoder, final LinkListener<? super T> listener) {
+  public NettyLink(final Channel channel, final Encoder<? super T> encoder, final LinkListener<? super T> listener) {
     this.channel = channel;
     this.encoder = encoder;
     this.listener = listener;
   }
-
 
   /**
    * Writes the message to this link.
@@ -76,14 +76,10 @@ public class NettyLink<T> implements Link<T> {
    */
   @Override
   public void write(final T message) {
-    LOG.log(Level.FINEST, "write {0} {1}", new Object[]{channel, message});
-    final byte[] allData = encoder.encode(message);
-    // byte[] -> ByteBuf
+    LOG.log(Level.FINEST, "write {0} :: {1}", new Object[] {channel, message});
+    final ChannelFuture future = channel.writeAndFlush(Unpooled.wrappedBuffer(encoder.encode(message)));
     if (listener !=  null) {
-      channel.writeAndFlush(Unpooled.wrappedBuffer(allData))
-          .addListener(new NettyChannelFutureListener<>(message, listener));
-    } else {
-      channel.writeAndFlush(Unpooled.wrappedBuffer(allData));
+      future.addListener(new NettyChannelFutureListener<>(message, listener));
     }
   }
 
@@ -109,7 +105,7 @@ public class NettyLink<T> implements Link<T> {
 
   @Override
   public String toString() {
-    return "localAddr: " + getLocalAddress() + " remoteAddr: " + getRemoteAddress();
+    return "NettyLink: " + channel; // Channel has good .toString() implementation
   }
 }
 
