@@ -19,6 +19,7 @@ under the License.
     <AssemblyName>Org.Apache.REEF.Wake.Tests</AssemblyName>
     <TargetFrameworks>net46;net451</TargetFrameworks>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net46|x64'" />
   <Import Project="..\build.DotNet.props" />
   <ItemGroup>
     <PackageReference Include="System.Reactive.Core" Version="$(RxVersion)" />

@@ -16,22 +16,28 @@ specific language governing permissions and limitations
 under the License.
 -->
   <PropertyGroup>
-    <AssemblyName>Org.Apache.REEF.Wake</AssemblyName>
-    <Description>Wake is an event-driven framework</Description>
-    <PackageTags>wake event-driven</PackageTags>
+    <AssemblyName>Org.Apache.REEF.Tang.Tests</AssemblyName>
     <TargetFrameworks>net46;net451</TargetFrameworks>
   </PropertyGroup>
   <Import Project="..\build.DotNet.props" />
   <ItemGroup>
+    <PackageReference Include="Newtonsoft.Json" Version="$(NewtonsoftJsonVersion)" />
+    <PackageReference Include="protobuf-net" Version="$(ProtobufVersion)" />
+    <PackageReference Include="Microsoft.Hadoop.Avro" Version="$(AvroVersion)" />
     <Reference Include="System" />
     <Reference Include="System.Core" />
-    <Reference Include="System.Xml" />
-    <PackageReference Include="protobuf-net" Version="$(ProtobufVersion)" />
-    <PackageReference Include="EnterpriseLibrary.TransientFaultHandling.Core" Version="$(TransientFaultHandlingVersion)" />
-    <PackageReference Include="System.Reactive.Interfaces" Version="$(RxVersion)" />
+  </ItemGroup>
+  <Import Project="..\xunit.DotNet.props" />
+  <ItemGroup>
+      <None Include="simpleConstructorJavaProto.bin">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Org.Apache.REEF.Common\Org.Apache.Reef.Common.DotNet.csproj" />
+    <ProjectReference Include="..\Org.Apache.REEF.Examples\Org.Apache.Reef.Examples.DotNet.csproj" />
+    <ProjectReference Include="..\Org.Apache.REEF.Tang.Examples\Org.Apache.Reef.Tang.Examples.DotNet.csproj" />
     <ProjectReference Include="..\Org.Apache.REEF.Tang\Org.Apache.Reef.Tang.DotNet.csproj" />
-    <ProjectReference Include="..\Org.Apache.REEF.Utilities\Org.Apache.Reef.Utilities.DotNet.csproj" />
+    <ProjectReference Include="..\Org.Apache.REEF.Wake\Org.Apache.Reef.Wake.DotNet.csproj" />
   </ItemGroup>
 </Project>

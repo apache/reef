@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 <!--
 Licensed to the Apache Software Foundation (ASF) under one
 or more contributor license agreements.  See the NOTICE file
@@ -16,22 +16,17 @@ specific language governing permissions and limitations
 under the License.
 -->
   <PropertyGroup>
-    <AssemblyName>Org.Apache.REEF.Wake</AssemblyName>
-    <Description>Wake is an event-driven framework</Description>
-    <PackageTags>wake event-driven</PackageTags>
+    <AssemblyName>Org.Apache.REEF.Tang.Tools</AssemblyName>
+    <Description>Tools for Tang</Description>
+    <PackageTags>Apache REEF Tang dependency injection</PackageTags>
+    <OutputType>Exe</OutputType>
     <TargetFrameworks>net46;net451</TargetFrameworks>
   </PropertyGroup>
   <Import Project="..\build.DotNet.props" />
   <ItemGroup>
-    <Reference Include="System" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Xml" />
-    <PackageReference Include="protobuf-net" Version="$(ProtobufVersion)" />
-    <PackageReference Include="EnterpriseLibrary.TransientFaultHandling.Core" Version="$(TransientFaultHandlingVersion)" />
-    <PackageReference Include="System.Reactive.Interfaces" Version="$(RxVersion)" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\Org.Apache.REEF.Tang\Org.Apache.Reef.Tang.DotNet.csproj" />
-    <ProjectReference Include="..\Org.Apache.REEF.Utilities\Org.Apache.Reef.Utilities.DotNet.csproj" />
+    <ProjectReference Include="..\Org.Apache.REEF.Tang\Org.Apache.REEF.Tang.DotNet.csproj" />
+    <ProjectReference Include="..\Org.Apache.REEF.Common\Org.Apache.REEF.Common.DotNet.csproj" />
+    <ProjectReference Include="..\Org.Apache.REEF.Examples\Org.Apache.REEF.Examples.DotNet.csproj" />
   </ItemGroup>
 </Project>
+
