@@ -273,6 +273,12 @@ public final class YarnJobSubmissionClient {
       LOG.log(Level.FINE, "Did not find security token");
     }
 
+    if (!yarnSubmission.getFileSystemUrl().equalsIgnoreCase("NULL")) {
+      LOG.log(Level.INFO, "getFileSystemUrl:" + yarnSubmission.getFileSystemUrl());
+    } else{
+      LOG.log(Level.INFO, "FileSystemUrl is null");
+    }
+
     final List<String> launchCommandPrefix = new ArrayList<String>() {{
           add(new REEFFileNames().getDriverLauncherExeFile().toString());
       }};

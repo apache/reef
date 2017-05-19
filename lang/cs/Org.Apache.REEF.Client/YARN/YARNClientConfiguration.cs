@@ -33,6 +33,7 @@ namespace Org.Apache.REEF.Client.Yarn
         public static readonly OptionalParameter<string> JobSubmissionFolderPrefix = new OptionalParameter<string>();
         public static readonly OptionalParameter<string> SecurityTokenKind = new OptionalParameter<string>();
         public static readonly OptionalParameter<string> SecurityTokenService = new OptionalParameter<string>();
+        public static readonly OptionalParameter<string> FileSystemUrl = new OptionalParameter<string>();
         public static readonly OptionalImpl<IYarnRestClientCredential> YarnRestClientCredential = new OptionalImpl<IYarnRestClientCredential>();
 
         public static ConfigurationModule ConfigurationModule = new YARNClientConfiguration()
@@ -41,6 +42,7 @@ namespace Org.Apache.REEF.Client.Yarn
             .BindNamedParameter(GenericType<JobSubmissionDirectoryPrefixParameter>.Class, JobSubmissionFolderPrefix)
             .BindNamedParameter(GenericType<SecurityTokenKindParameter>.Class, SecurityTokenKind)
             .BindNamedParameter(GenericType<SecurityTokenServiceParameter>.Class, SecurityTokenService)
+            .BindNamedParameter(GenericType<FileSystemUrl>.Class, FileSystemUrl)
             .Build();
 
         [Unstable("This is temporary configuration until REEF-70 is completed when ConfigurationModule" +
@@ -51,6 +53,7 @@ namespace Org.Apache.REEF.Client.Yarn
             .BindNamedParameter(GenericType<JobSubmissionDirectoryPrefixParameter>.Class, JobSubmissionFolderPrefix)
             .BindNamedParameter(GenericType<SecurityTokenKindParameter>.Class, SecurityTokenKind)
             .BindNamedParameter(GenericType<SecurityTokenServiceParameter>.Class, SecurityTokenService)
+            .BindNamedParameter(GenericType<FileSystemUrl>.Class, FileSystemUrl)
             .Build();
     }
 }

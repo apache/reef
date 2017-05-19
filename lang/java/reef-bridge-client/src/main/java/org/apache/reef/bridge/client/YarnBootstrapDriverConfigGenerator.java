@@ -34,6 +34,7 @@ import org.apache.reef.runtime.common.files.REEFFileNames;
 import org.apache.reef.runtime.yarn.driver.RuntimeIdentifier;
 import org.apache.reef.runtime.yarn.driver.YarnDriverConfiguration;
 import org.apache.reef.runtime.yarn.driver.YarnDriverRestartConfiguration;
+import org.apache.reef.runtime.yarn.driver.parameters.FileSystemUrl;
 import org.apache.reef.runtime.yarn.driver.parameters.JobSubmissionDirectoryPrefix;
 import org.apache.reef.tang.*;
 import org.apache.reef.tang.formats.ConfigurationSerializer;
@@ -109,6 +110,8 @@ final class YarnBootstrapDriverConfigGenerator {
         .bindNamedParameter(TcpPortRangeTryCount.class, Integer.toString(appSubmissionParams.getTcpTryCount()))
         .bindNamedParameter(JobSubmissionDirectoryPrefix.class,
             yarnJobSubmissionParams.getJobSubmissionDirectoryPrefix().toString())
+        .bindNamedParameter(FileSystemUrl.class,
+            yarnJobSubmissionParams.getFileSystemUrl().toString())
         .build();
 
     final Configuration driverConfiguration = Configurations.merge(

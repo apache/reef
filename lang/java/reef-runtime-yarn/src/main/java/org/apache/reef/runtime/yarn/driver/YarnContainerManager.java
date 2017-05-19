@@ -43,6 +43,7 @@ import org.apache.reef.runtime.common.driver.resourcemanager.ResourceStatusEvent
 import org.apache.reef.runtime.common.driver.resourcemanager.RuntimeStatusEventImpl;
 import org.apache.reef.runtime.common.files.REEFFileNames;
 import org.apache.reef.runtime.yarn.client.unmanaged.YarnProxyUser;
+import org.apache.reef.runtime.yarn.driver.parameters.FileSystemUrl;
 import org.apache.reef.runtime.yarn.driver.parameters.JobSubmissionDirectory;
 import org.apache.reef.runtime.yarn.driver.parameters.YarnHeartbeatPeriod;
 import org.apache.reef.tang.InjectionFuture;
@@ -89,6 +90,7 @@ final class YarnContainerManager implements AMRMClientAsync.CallbackHandler, NMC
   private final String amRegistrationHost;
 
   private final String jobSubmissionDirectory;
+  private final String fileSystemUrl;
   private final REEFFileNames reefFileNames;
   private final RackNameFormatter rackNameFormatter;
   private final InjectionFuture<ProgressProvider> progressProvider;
@@ -97,6 +99,7 @@ final class YarnContainerManager implements AMRMClientAsync.CallbackHandler, NMC
   private YarnContainerManager(
       @Parameter(YarnHeartbeatPeriod.class) final int yarnRMHeartbeatPeriod,
       @Parameter(JobSubmissionDirectory.class) final String jobSubmissionDirectory,
+      @Parameter(FileSystemUrl.class) final String fileSystemUrl,
       final YarnConfiguration yarnConf,
       final YarnProxyUser yarnProxyUser,
       final REEFEventHandlers reefEventHandlers,
@@ -127,11 +130,14 @@ final class YarnContainerManager implements AMRMClientAsync.CallbackHandler, NMC
     this.nodeManager = new NMClientAsyncImpl(this);
 
     this.jobSubmissionDirectory = jobSubmissionDirectory;
+    this.fileSystemUrl = fileSystemUrl;
     this.reefFileNames = reefFileNames;
     this.progressProvider = progressProvider;
 
-    LOG.log(Level.FINEST, "Instantiated YarnContainerManager: {0} {1}",
-        new Object[] {this.registration, this.yarnProxyUser});
+    LOG.log(Level.INFO, "Instantiated YarnContainerManager: {0} {1}, trackingUrl: {2}, fileSystemUrl: {3}, " +
+        "jobSubmissionDirectory: {4}.",
+        new Object[] {this.registration, this.yarnProxyUser, this.trackingUrl, this.fileSystemUrl,
+            this.jobSubmissionDirectory});
   }
 
   /**
