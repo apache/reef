@@ -37,6 +37,7 @@ under the License.
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -59,6 +60,7 @@ under the License.
     <Compile Include="API\IMRUReduceFunctionConfiguration.cs" />
     <Compile Include="API\IMRUPerMapperConfigGeneratorConfiguration.cs" />
     <Compile Include="API\IMRUUpdateConfiguration.cs" />
+    <Compile Include="API\ITaskProgressReporter.cs" />
     <Compile Include="API\IUpdateFunction.cs" />
     <Compile Include="API\IPerMapperConfigGenerator.cs" />
     <Compile Include="OnREEF\Driver\JobCancellationDetectorAlwaysFalse.cs" />
@@ -98,6 +100,7 @@ under the License.
     <Compile Include="OnREEF\Driver\TaskInfo.cs" />
     <Compile Include="OnREEF\Driver\TaskManager.cs" />
     <Compile Include="OnREEF\Driver\TaskStateService.cs" />
+    <Compile Include="OnREEF\IMRUTasks\DefaultTaskProgreeReporter.cs" />
     <Compile Include="OnREEF\IMRUTasks\IMRUTaskAppException.cs" />
     <Compile Include="OnREEF\IMRUTasks\IMRUTaskGroupCommunicationException.cs" />
     <Compile Include="OnREEF\IMRUTasks\IMRUTaskSystemException.cs" />
@@ -110,6 +113,7 @@ under the License.
     <Compile Include="OnREEF\MapInputWithControlMessage\MapInputWithControlMessage.cs" />
     <Compile Include="OnREEF\MapInputWithControlMessage\MapInputWithControlMessageCodec.cs" />
     <Compile Include="OnREEF\MapInputWithControlMessage\MapInputwithControlMessagePipelineDataConverter.cs" />
+    <Compile Include="API\TaskProgress.cs" />
     <Compile Include="OnREEF\Parameters\InvokeGC .cs" />
     <Compile Include="OnREEF\Parameters\AllowedFailedEvaluatorsFraction.cs" />
     <Compile Include="OnREEF\Parameters\CoresForUpdateTask.cs" />

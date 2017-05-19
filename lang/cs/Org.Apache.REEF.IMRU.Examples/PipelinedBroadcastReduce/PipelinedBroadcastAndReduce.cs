@@ -161,7 +161,10 @@ namespace Org.Apache.REEF.IMRU.Examples.PipelinedBroadcastReduce
         {
             return IMRUUpdateConfiguration<int[], int[], int[]>.ConfigurationModule
                 .Set(IMRUUpdateConfiguration<int[], int[], int[]>.UpdateFunction,
-                    GenericType<BroadcastSenderReduceReceiverUpdateFunction>.Class).Build();
+                    GenericType<BroadcastSenderReduceReceiverUpdateFunction>.Class)
+                .Set(IMRUUpdateConfiguration<int[], int[], int[]>.TaskProgressReporter,
+                    GenericType<BroadcastSenderReduceReceiverUpdateFunction>.Class)
+                .Build();
         }
 
         /// <summary>

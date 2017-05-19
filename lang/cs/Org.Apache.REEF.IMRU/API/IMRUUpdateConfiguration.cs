@@ -35,11 +35,18 @@ namespace Org.Apache.REEF.IMRU.API
             new RequiredImpl<IUpdateFunction<TMapInput, TMapOutput, TResult>>();
 
         /// <summary>
+        /// The task progress reporter to use.
+        /// </summary>
+        public static readonly OptionalImpl<ITaskProgressReporter> TaskProgressReporter =
+            new OptionalImpl<ITaskProgressReporter>();
+
+        /// <summary>
         /// Configuration module
         /// </summary>
         public static ConfigurationModule ConfigurationModule =
             new IMRUUpdateConfiguration<TMapInput, TMapOutput, TResult>()
                 .BindImplementation(GenericType<IUpdateFunction<TMapInput, TMapOutput, TResult>>.Class, UpdateFunction)
+                .BindImplementation(GenericType<ITaskProgressReporter>.Class, TaskProgressReporter)
                 .Build();
     }
 }

@@ -26,7 +26,7 @@ namespace Org.Apache.REEF.IMRU.Examples.PipelinedBroadcastReduce
     /// <summary>
     /// The Update function for integer array broadcast and reduce
     /// </summary>
-    internal sealed class BroadcastSenderReduceReceiverUpdateFunction : IUpdateFunction<int[], int[], int[]>
+    internal sealed class BroadcastSenderReduceReceiverUpdateFunction : IUpdateFunction<int[], int[], int[]>, ITaskProgressReporter
     {
         private static readonly Logger Logger = Logger.GetLogger(typeof(BroadcastSenderReduceReceiverUpdateFunction));
 
@@ -90,6 +90,20 @@ namespace Org.Apache.REEF.IMRU.Examples.PipelinedBroadcastReduce
             }
 
             return UpdateResult<int[], int[]>.AnotherRound(_intArr);
+        }
+
+        /// <summary>
+        /// Return task progress information
+        /// This is an example for the progress. It can be any string like serialized JSon string.
+        /// </summary>
+        /// <returns></returns>
+        public TaskProgress TaskCurrentProgress()
+        {
+            return new TaskProgress
+            {
+                Iterations = _iterations,
+                Progress = ((double)_iterations / (double)_maxIters).ToString("F5"),
+            };
         }
     }
 }
