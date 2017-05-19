@@ -19,10 +19,7 @@
 package org.apache.reef.tang;
 
 import org.apache.reef.tang.exceptions.BindException;
-import org.apache.reef.tang.types.ClassNode;
-import org.apache.reef.tang.types.ConstructorArg;
-import org.apache.reef.tang.types.NamedParameterNode;
-import org.apache.reef.tang.types.Node;
+import org.apache.reef.tang.types.*;
 
 import java.util.List;
 import java.util.Set;
@@ -129,7 +126,8 @@ public interface ConfigurationBuilder {
 
   /**
    * Bind classes to each other, based on their full class names; alternatively,
-   * bound a NamedParameter configuration option to a configuration value.
+   * bound a NamedParameter configuration option to a configuration value. You can
+   * not bind a NamedObject using this method.
    *
    * @param <T> a type
    * @param iface The full name of the interface that should resolve to impl,
@@ -147,6 +145,17 @@ public interface ConfigurationBuilder {
       throws BindException;
 
   /**
+   * Bind a NamedNodeObject to an interface / NamedParameter.
+   *
+   * @param iface The interface / NamedParameter to be bound
+   * @param impl  The NamedNodeObject implementation to be bound
+   * @throws BindException
+   * @see bind(String, String) for a more complete description.
+   *
+   */
+  <T> void bind(String iface, NamedObjectElement<T> impl) throws BindException;
+
+  /**
    * Bind classes to each other, based on their full class names; alternatively,
    * bound a NamedParameter configuration option to a configuration value.
    * <p>
@@ -160,6 +169,26 @@ public interface ConfigurationBuilder {
    * See {@link #bind(String, String) bind(String,String)} for a more complete description.
    */
   void bind(Node iface, Node impl) throws BindException;
+
+  /**
+   +   * Bind a NamedNodeObject to an interface / NamedParameter.
+   +   * @param iface The interface / NamedParameter to be bound
+   +   * @param impl The NamedNodeObject implementation to be bound
+   +   * @throws BindException
+   +   * @see bind(String, String) for a more complete description.
+   +   */
+  void bind(Node iface, NamedObjectElement impl) throws BindException;
+
+  /**
+   * Extension methods for bind() for supporting NamedObjects.
+   */
+  void bind(String iface, String impl, NamedObjectElement namedObjectElement) throws BindException;
+
+  void bind(Node iface, Node impl, NamedObjectElement namedObjectElement) throws BindException;
+
+  <T> void bind(String iface, NamedObjectElement<T> impl, NamedObjectElement namedObjectElement) throws BindException;
+
+  void bind(Node iface, NamedObjectElement impl, NamedObjectElement namedObjectElement) throws BindException;
 
   /**
    * Register an ExternalConstructor implementation with Tang.
@@ -236,9 +265,33 @@ public interface ConfigurationBuilder {
   <T> void bindSetEntry(NamedParameterNode<Set<T>> iface, String impl)
       throws BindException;
 
+  <T> void bindSetEntry(NamedParameterNode<Set<T>> iface, NamedObjectElement<? extends T> impl)
+      throws BindException;
+
   void bindSetEntry(String iface, String impl) throws BindException;
 
   void bindSetEntry(String iface, Node impl) throws BindException;
+
+  void bindSetEntry(String iface, NamedObjectElement impl) throws BindException;
+
+  /**
+   * Extension methods for bindSetEntry() for supporting NamedObjects.
+   */
+  <T> void bindSetEntry(NamedParameterNode<Set<T>> iface, Node impl, NamedObjectElement namedObjectElement)
+      throws BindException;
+
+  <T> void bindSetEntry(NamedParameterNode<Set<T>> iface, String impl, NamedObjectElement namedObjectElement)
+      throws BindException;
+
+  <T> void bindSetEntry(NamedParameterNode<Set<T>> iface, NamedObjectElement<? extends T> impl,
+                        NamedObjectElement namedObjectElement) throws BindException;
+
+  <T> void bindSetEntry(String iface, String impl, NamedObjectElement namedObjectElement) throws BindException;
+
+  <T> void bindSetEntry(String iface, Node impl, NamedObjectElement namedObjectElement) throws BindException;
+
+  <T> void bindSetEntry(String iface, NamedObjectElement impl, NamedObjectElement namedObjectElement)
+      throws BindException;
 
   /**
    * Bind an list of implementations(Class or String) to an given NamedParameter.
@@ -248,7 +301,8 @@ public interface ConfigurationBuilder {
    * Since ordering of the list is important, list binding cannot be repeated or
    * merged unlike set binding. If the elements of the list are Classes, the objects
    * created by the Classes will be injected. If the elements are Strings, the values
-   * will be injected directly to a given list parameter.
+   * will be injected directly to a given list parameter. If the elements are NamedObjects,
+   * independently configured named objects will be injected to a list.
    *
    * @param <T> a type
    * @param iface    The list named parameter to be instantiated
@@ -259,4 +313,12 @@ public interface ConfigurationBuilder {
 
   void bindList(String iface, List implList) throws BindException;
 
+  /**
+   * Extension methods for bindList() for supporting NamedObjects.
+   */
+
+  <T> void bindList(NamedParameterNode<List<T>> iface, List implList,
+                    NamedObjectElement namedObjectElement) throws BindException;
+
+  <T> void bindList(String iface, List implList, NamedObjectElement namedObjectElement) throws BindException;
 }

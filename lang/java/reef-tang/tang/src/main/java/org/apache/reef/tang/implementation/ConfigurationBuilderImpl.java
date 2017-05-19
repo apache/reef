@@ -23,28 +23,33 @@ import org.apache.reef.tang.exceptions.BindException;
 import org.apache.reef.tang.exceptions.NameResolutionException;
 import org.apache.reef.tang.exceptions.ParseException;
 import org.apache.reef.tang.implementation.java.ClassHierarchyImpl;
+import org.apache.reef.tang.implementation.types.NamedObjectElementImpl;
 import org.apache.reef.tang.types.*;
 import org.apache.reef.tang.util.MonotonicMultiMap;
 import org.apache.reef.tang.util.TracingMonotonicMap;
 import org.apache.reef.tang.util.TracingMonotonicTreeMap;
 
 import java.net.URL;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Set;
 
 public class ConfigurationBuilderImpl implements ConfigurationBuilder {
   public static final String IMPORT = "import";
   public static final String INIT = "<init>";
-  protected final TracingMonotonicMap<ClassNode<?>, ClassNode<?>> boundImpls = new TracingMonotonicTreeMap<>();
+  protected final Map<NamedObjectElement, TracingMonotonicMap<ClassNode<?>, Boundable>> boundImpls =
+      new TracingMonotonicTreeMap<>();
   protected final TracingMonotonicMap<ClassNode<?>, ClassNode<? extends ExternalConstructor<?>>> boundConstructors =
       new TracingMonotonicTreeMap<>();
-  protected final Map<NamedParameterNode<?>, String> namedParameters = new TracingMonotonicTreeMap<>();
-  protected final Map<ClassNode<?>, ConstructorDef<?>> legacyConstructors = new TracingMonotonicTreeMap<>();
-  protected final MonotonicMultiMap<NamedParameterNode<Set<?>>, Object> boundSetEntries = new MonotonicMultiMap<>();
-  protected final TracingMonotonicMap<NamedParameterNode<List<?>>, List<Object>> boundLists =
+  protected final Map<NamedObjectElement, Map<NamedParameterNode<?>, Object>> namedParameters =
       new TracingMonotonicTreeMap<>();
+  protected final Map<ClassNode<?>, ConstructorDef<?>> legacyConstructors = new TracingMonotonicTreeMap<>();
+  protected final Map<NamedObjectElement, MonotonicMultiMap<NamedParameterNode<Set<?>>, Object>> boundSetEntries =
+      new TracingMonotonicTreeMap();
+  protected final Map<NamedObjectElement, TracingMonotonicMap<NamedParameterNode<List<?>>, List<Object>>> boundLists =
+      new TracingMonotonicTreeMap<>();
+  protected final NamedObjectElement nullNamedObjectElement = new NamedObjectElementImpl<>(null, null, null, true);
+  // Set for managing namedObjectElements
+  protected final Set<NamedObjectElement> namedObjectElements = new HashSet<>(Arrays.asList(nullNamedObjectElement));
   // TODO: None of these should be public! - Move to configurationBuilder. Have
   // that wrap itself
   // in a sane Configuration interface...
@@ -107,8 +112,11 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
       }
     }
 
-    for (final ClassNode<?> cn : builder.boundImpls.keySet()) {
-      bind(cn.getFullName(), builder.boundImpls.get(cn).getFullName());
+    for (final NamedObjectElement<?> nno : builder.boundImpls.keySet()) {
+      final TracingMonotonicMap<ClassNode<?>, Boundable> map = builder.boundImpls.get(nno);
+      for (final Entry<ClassNode<?>, Boundable> entry : map.entrySet()) {
+        bindImplementation(entry.getKey(), entry.getValue(), nno);
+      }
     }
     for (final ClassNode<?> cn : builder.boundConstructors.keySet()) {
       bind(cn.getFullName(), builder.boundConstructors.get(cn).getFullName());
@@ -116,28 +124,53 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
     // The namedParameters set contains the strings that can be used to
     // instantiate new
     // named parameter instances. Create new ones where we can.
-    for (final NamedParameterNode<?> np : builder.namedParameters.keySet()) {
-      bind(np.getFullName(), builder.namedParameters.get(np));
+    for (final NamedObjectElement<?> nno : builder.namedParameters.keySet()) {
+      final Map<NamedParameterNode<?>, Object> map = builder.namedParameters.get(nno);
+      for (final Entry<NamedParameterNode<?>, Object> entry : map.entrySet()) {
+        bindParameter(entry.getKey(), entry.getValue(), nno);
+      }
     }
     for (final ClassNode<?> cn : builder.legacyConstructors.keySet()) {
       registerLegacyConstructor(cn, builder.legacyConstructors.get(cn)
           .getArgs());
     }
-    for (final Entry<NamedParameterNode<Set<?>>, Object> e : builder.boundSetEntries) {
-      final String name = ((NamedParameterNode<Set<T>>) (NamedParameterNode<?>) e.getKey()).getFullName();
-      if (e.getValue() instanceof Node) {
-        bindSetEntry(name, (Node) e.getValue());
-      } else if (e.getValue() instanceof String) {
-        bindSetEntry(name, (String) e.getValue());
-      } else {
-        throw new IllegalStateException("The value of the named parameter node in boundSetEntries"
-                + " is neither String nor Node. The actual type is  " + e.getValue().getClass());
+    for (final NamedObjectElement<?> nno : builder.boundSetEntries.keySet()) {
+      final MonotonicMultiMap<NamedParameterNode<Set<?>>, Object> multiMap = builder.boundSetEntries.get(nno);
+      for (final Entry<NamedParameterNode<Set<?>>, Object> e : multiMap) {
+        final String name = ((NamedParameterNode<Set<T>>) (NamedParameterNode<?>) e.getKey()).getFullName();
+        if (e.getValue() instanceof Node) {
+          bindSetEntry(name, (Node) e.getValue(), nno);
+        } else if (e.getValue() instanceof String) {
+          bindSetEntry(name, (String) e.getValue(), nno);
+        } else if (e.getValue() instanceof NamedObjectElement) {
+          bindSetEntry(name, (NamedObjectElement) e.getValue(), nno);
+        } else {
+          throw new IllegalStateException("The value of the named parameter node in boundSetEntries"
+              + " is neither String, Node nor NamedObjectElement. The actual type is  " + e.getValue().getClass());
+        }
       }
     }
     // The boundLists set contains bound lists with their target NamedParameters
-    for (final NamedParameterNode<List<?>> np : builder.boundLists.keySet()) {
-      bindList(np.getFullName(), builder.boundLists.get(np));
+    for (final NamedObjectElement<?> nno : builder.boundLists.keySet()) {
+      final TracingMonotonicMap<NamedParameterNode<List<?>>, List<Object>> map = builder.boundLists.get(nno);
+      for (final Entry<NamedParameterNode<List<?>>, List<Object>> entry : map.entrySet()) {
+        bindList(entry.getKey().getFullName(), entry.getValue());
+      }
     }
+  }
+
+  private void addNamedObjectElement(final NamedObjectElement noe) throws BindException {
+    if (noe.isNull()) {
+      return;
+    }
+    // Check if there already exists another noe with same name
+    for(final NamedObjectElement existingNoe: namedObjectElements) {
+      if (existingNoe.getName().equals(noe.getName())
+          && !existingNoe.getImplementationClass().equals(noe.getImplementationClass())) {
+        throw new IllegalArgumentException("Attempt to configure two different NamedObjects with same name!");
+      }
+    }
+    namedObjectElements.add(noe);
   }
 
   @Override
@@ -173,23 +206,45 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
   }
 
   @Override
-  public <T> void bind(final String key, final String value) throws BindException {
+  public void bind(final String key, final String value, final NamedObjectElement namedObjectElement)
+      throws BindException {
     final Node n = namespace.getNode(key);
     if (n instanceof NamedParameterNode) {
-      bindParameter((NamedParameterNode<?>) n, value);
+      bindParameter((NamedParameterNode<?>) n, value, namedObjectElement);
     } else if (n instanceof ClassNode) {
       final Node m = namespace.getNode(value);
-      bind((ClassNode<?>) n, (ClassNode<?>) m);
+      bind((ClassNode<?>) n, (ClassNode<?>) m, namedObjectElement);
     } else {
       throw new IllegalStateException("getNode() returned " + n +
           " which is neither a ClassNode nor a NamedParameterNode");
     }
   }
 
+  @Override
+  public void bind(final String key, final String value) throws BindException {
+    bind(key, value, nullNamedObjectElement);
+  }
+
+  @Override
+  public <T> void bind(final String key, final NamedObjectElement<T> impl, final NamedObjectElement namedObjectElement)
+      throws BindException {
+    final Node n = namespace.getNode(key);
+    if (n instanceof NamedParameterNode) {
+      bindParameter((NamedParameterNode<?>) n, impl, namedObjectElement);
+    } else if (n instanceof ClassNode) {
+      bindImplementation((ClassNode<?>) n, impl, namedObjectElement);
+    }
+  }
+
+  @Override
+  public <T> void bind(final String key, final NamedObjectElement<T> impl) throws BindException {
+    bind(key, impl, nullNamedObjectElement);
+  }
+
   @SuppressWarnings({"unchecked", "rawtypes"})
-  public void bind(final Node key, final Node value) throws BindException {
+  public void bind(final Node key, final Node value, final NamedObjectElement namedObjectElement) throws BindException {
     if (key instanceof NamedParameterNode) {
-      bindParameter((NamedParameterNode<?>) key, value.getFullName());
+      bindParameter((NamedParameterNode<?>) key, value.getFullName(), namedObjectElement);
     } else if (key instanceof ClassNode) {
       final ClassNode<?> k = (ClassNode<?>) key;
       if (value instanceof ClassNode) {
@@ -197,52 +252,146 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
         if (val.isExternalConstructor() && !k.isExternalConstructor()) {
           bindConstructor(k, (ClassNode) val);
         } else {
-          bindImplementation(k, (ClassNode) val);
+          bindImplementation(k, (ClassNode) val, namedObjectElement);
         }
       }
     }
   }
 
-  public <T> void bindImplementation(final ClassNode<T> n, final ClassNode<? extends T> m)
+  @SuppressWarnings({"unchecked", "rawtypes"})
+  @Override
+  public void bind(final Node key, final Node value) throws BindException {
+    bind(key, value, nullNamedObjectElement);
+  }
+
+  @SuppressWarnings({"unchecked", "rawtypes"})
+  @Override
+  public void bind(final Node key, final NamedObjectElement impl, final NamedObjectElement namedObjectElement)
       throws BindException {
-    if (namespace.isImplementation(n, m)) {
-      boundImpls.put(n, m);
-    } else {
-      throw new IllegalArgumentException("Class" + m + " does not extend " + n);
+    if (key instanceof NamedParameterNode) {
+      bindParameter((NamedParameterNode<?>) key, impl, namedObjectElement);
+    } else if (key instanceof ClassNode) {
+      bindImplementation((ClassNode<?>) key, impl, namedObjectElement);
     }
   }
 
   @SuppressWarnings({"unchecked", "rawtypes"})
-  public <T> void bindParameter(final NamedParameterNode<T> name, final String value)
+  @Override
+  public void bind(final Node key, final NamedObjectElement impl) throws BindException {
+    bind(key, impl, nullNamedObjectElement);
+  }
+
+  public <T> void bindImplementation(final ClassNode<T> n, final Object unknown,
+                                     final NamedObjectElement namedObjectElement) throws BindException {
+    if (unknown instanceof ClassNode) {
+      final ClassNode<? extends T> m = (ClassNode) unknown;
+      if (namespace.isImplementation(n, m)) {
+        final TracingMonotonicMap<ClassNode<?>, Boundable> map;
+        if (!boundImpls.containsKey(namedObjectElement)) {
+          map = new TracingMonotonicTreeMap<>();
+          boundImpls.put(namedObjectElement, map);
+        } else {
+          map = boundImpls.get(namedObjectElement);
+        }
+        map.put(n, m);
+      } else {
+        throw new IllegalArgumentException("Class" + m + " does not extend " + n);
+      }
+    } else if (unknown instanceof NamedObjectElement) {
+      final NamedObjectElement<? extends T> impl = (NamedObjectElement) unknown;
+      final ClassNode<? extends T> implType = impl.getTypeNode();
+      if (namespace.isImplementation(n, implType)) {
+        final TracingMonotonicMap<ClassNode<?>, Boundable> map;
+        if (!boundImpls.containsKey(namedObjectElement)) {
+          map = new TracingMonotonicTreeMap<>();
+          boundImpls.put(namedObjectElement, map);
+        } else {
+          map = boundImpls.get(namedObjectElement);
+        }
+        map.put(n, impl);
+        addNamedObjectElement(impl);
+      } else {
+        throw new IllegalArgumentException("Class" + implType + " does not extend " + n + "in NamedObject" +
+            impl.getName());
+      }
+    } else {
+      throw new IllegalArgumentException("Internal error: Tang tried to bind unsupported type to an interface");
+    }
+    if (!namedObjectElement.isNull()){
+      addNamedObjectElement(namedObjectElement);
+    }
+  }
+
+  @SuppressWarnings({"unchecked", "rawtypes"})
+  public <T> void bindParameter(final NamedParameterNode name, final Object unknown,
+                                final NamedObjectElement namedObjectElement)
       throws BindException {
     /* Parse and discard value; this is just for type checking */
-    if (namespace instanceof JavaClassHierarchy) {
-      ((JavaClassHierarchy) namespace).parse(name, value);
-    }
-    if (name.isSet()) {
-      bindSetEntry((NamedParameterNode) name, value);
+    if (unknown instanceof String) {
+      final String value = (String) unknown;
+      if (namespace instanceof JavaClassHierarchy) {
+        ((JavaClassHierarchy) namespace).parse(name, value);
+      }
+      if (name.isSet()) {
+        bindSetEntry((NamedParameterNode) name, value, namedObjectElement);
+      } else {
+        final Map<NamedParameterNode<?>, Object> map;
+        if (!namedParameters.containsKey(namedObjectElement)) {
+          map = new TracingMonotonicTreeMap<>();
+          namedParameters.put(namedObjectElement, map);
+        } else {
+          map = namedParameters.get(namedObjectElement);
+        }
+        map.put(name, value);
+      }
+    } else if (unknown instanceof NamedObjectElement) {
+      final NamedObjectElement<? extends T> impl = (NamedObjectElement) unknown;
+      if (name.isSet()) {
+        bindSetEntry((NamedParameterNode<Set<T>>) name, impl, namedObjectElement);
+      } else {
+        Map<NamedParameterNode<?>, Object> map;
+        if (!namedParameters.containsKey(namedObjectElement)) {
+          map = new TracingMonotonicTreeMap<>();
+          namedParameters.put(namedObjectElement, map);
+        } else {
+          map = namedParameters.get(namedObjectElement);
+        }
+        map.put(name, impl);
+        addNamedObjectElement(impl);
+      }
     } else {
-      namedParameters.put(name, value);
+      throw new BindException("Internal Error: Try to bind unknown type to a named parameter!");
+    }
+    if (!namedObjectElement.isNull()){
+      addNamedObjectElement(namedObjectElement);
     }
   }
 
   @SuppressWarnings("unchecked")
   @Override
-  public void bindSetEntry(final String iface, final String impl)
+  public <T> void bindSetEntry(final String iface, final String impl, final NamedObjectElement namedObjectElement)
       throws BindException {
-    boundSetEntries.put((NamedParameterNode<Set<?>>) namespace.getNode(iface), impl);
+    bindSetEntry((NamedParameterNode<Set<T>>) namespace.getNode(iface), impl, namedObjectElement);
   }
 
   @SuppressWarnings("unchecked")
   @Override
-  public void bindSetEntry(final String iface, final Node impl)
+  public <T> void bindSetEntry(final String iface, final Node impl, final NamedObjectElement namedObjectElement)
       throws BindException {
-    boundSetEntries.put((NamedParameterNode<Set<?>>) namespace.getNode(iface), impl);
+    bindSetEntry((NamedParameterNode<Set<T>>) namespace.getNode(iface), impl, namedObjectElement);
   }
 
   @SuppressWarnings("unchecked")
   @Override
-  public <T> void bindSetEntry(final NamedParameterNode<Set<T>> iface, final String impl)
+  public <T> void bindSetEntry(final String iface, final NamedObjectElement impl,
+                           final NamedObjectElement namedObjectElement)
+      throws BindException {
+    bindSetEntry((NamedParameterNode<Set<T>>) namespace.getNode(iface), impl, namedObjectElement);
+  }
+  @SuppressWarnings("unchecked")
+  @Override
+  public <T> void bindSetEntry(final NamedParameterNode<Set<T>> iface, final String impl,
+                               final NamedObjectElement namedObjectElement)
       throws BindException {
     if (namespace instanceof ClassHierarchyImpl) {
       final JavaClassHierarchy javanamespace = (ClassHierarchyImpl) namespace;
@@ -252,19 +401,85 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
         throw new IllegalStateException("Could not parse " + impl + " which was passed to " + iface, e);
       }
     }
-    boundSetEntries.put((NamedParameterNode<Set<?>>) (NamedParameterNode<?>) iface, impl);
+    final MonotonicMultiMap<NamedParameterNode<Set<?>>, Object> map;
+    if (!boundSetEntries.containsKey(namedObjectElement)) {
+      map = new MonotonicMultiMap<>();
+      boundSetEntries.put(namedObjectElement, map);
+    } else {
+      map = boundSetEntries.get(namedObjectElement);
+    }
+    map.put((NamedParameterNode<Set<?>>) (NamedParameterNode<?>) iface, impl);
   }
 
   @SuppressWarnings("unchecked")
   @Override
-  public <T> void bindSetEntry(final NamedParameterNode<Set<T>> iface, final Node impl)
+  public <T> void bindSetEntry(final NamedParameterNode<Set<T>> iface, final Node impl,
+                               final NamedObjectElement namedObjectElement)
       throws BindException {
-    boundSetEntries.put((NamedParameterNode<Set<?>>) (NamedParameterNode<?>) iface, impl);
+    final MonotonicMultiMap<NamedParameterNode<Set<?>>, Object> map;
+    if (!boundSetEntries.containsKey(namedObjectElement)) {
+      map = new MonotonicMultiMap<>();
+      boundSetEntries.put(namedObjectElement, map);
+    } else {
+      map = boundSetEntries.get(namedObjectElement);
+    }
+    map.put((NamedParameterNode<Set<?>>) (NamedParameterNode<?>) iface, impl);
+  }
+
+  @Override
+  public <T> void bindSetEntry(final NamedParameterNode<Set<T>> iface,
+                               final NamedObjectElement<? extends T> impl, final NamedObjectElement namedObjectElement)
+      throws BindException {
+    final MonotonicMultiMap<NamedParameterNode<Set<?>>, Object> map;
+    if (!boundSetEntries.containsKey(namedObjectElement)) {
+      map = new MonotonicMultiMap<>();
+      boundSetEntries.put(namedObjectElement, map);
+    } else {
+      map = boundSetEntries.get(namedObjectElement);
+    }
+    map.put((NamedParameterNode<Set<?>>) (NamedParameterNode<?>) iface, impl);
+    addNamedObjectElement(impl);
   }
 
   @SuppressWarnings("unchecked")
   @Override
-  public <T> void bindList(final NamedParameterNode<List<T>> iface, final List implList) {
+  public void bindSetEntry(final String iface, final String impl) throws BindException {
+    bindSetEntry(iface, impl, nullNamedObjectElement);
+  }
+
+  @SuppressWarnings("unchecked")
+  @Override
+  public void bindSetEntry(final String iface, final Node impl) throws BindException {
+    bindSetEntry(iface, impl, nullNamedObjectElement);
+  }
+
+  @SuppressWarnings("unchecked")
+  @Override
+  public void bindSetEntry(final String iface, final NamedObjectElement impl) throws BindException {
+    bindSetEntry(iface, impl, nullNamedObjectElement);
+  }
+
+  public <T> void bindSetEntry(final NamedParameterNode<Set<T>> iface, final String impl) throws BindException {
+    bindSetEntry(iface, impl, nullNamedObjectElement);
+  }
+
+  @SuppressWarnings("unchecked")
+  @Override
+  public <T> void bindSetEntry(final NamedParameterNode<Set<T>> iface, final Node impl) throws BindException {
+    bindSetEntry(iface, impl, nullNamedObjectElement);
+  }
+
+  @SuppressWarnings("unchecked")
+  @Override
+  public <T> void bindSetEntry(final NamedParameterNode<Set<T>> iface, final NamedObjectElement<? extends T> impl)
+      throws BindException {
+    bindSetEntry(iface, impl, nullNamedObjectElement);
+  }
+
+  @SuppressWarnings("unchecked")
+  @Override
+  public <T> void bindList(final NamedParameterNode<List<T>> iface, final List implList,
+                           final NamedObjectElement namedObjectElement) throws BindException {
     // Check parsability of list items
     for (final Object item : implList) {
       if (item instanceof String) {
@@ -275,28 +490,38 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
         } catch (final ParseException e) {
           throw new IllegalStateException("Could not parse " + item + " which was passed to " + iface, e);
         }
+      } else if (item instanceof NamedObjectElement) {
+        addNamedObjectElement((NamedObjectElement) item);
       }
     }
-    boundLists.put((NamedParameterNode<List<?>>) (NamedParameterNode<?>) iface, implList);
+    final TracingMonotonicMap<NamedParameterNode<List<?>>, List<Object>> map;
+    if (!boundLists.containsKey(namedObjectElement)) {
+      map = new TracingMonotonicTreeMap<>();
+      boundLists.put(namedObjectElement, map);
+    } else {
+      map = boundLists.get(namedObjectElement);
+    }
+    map.put((NamedParameterNode<List<?>>) (NamedParameterNode<?>) iface, implList);
   }
 
   @SuppressWarnings("unchecked")
   @Override
-  public void bindList(final String iface, final List implList) {
-    final NamedParameterNode<List<?>> ifaceNode = (NamedParameterNode<List<?>>) namespace.getNode(iface);
+  public <T> void bindList(final String iface, final List implList, final NamedObjectElement namedObjectElement)
+      throws BindException {
     // Check parsability of list items
-    for (final Object item : implList) {
-      if (item instanceof String) {
-        final JavaClassHierarchy javanamespace = (ClassHierarchyImpl) namespace;
-        try {
-          // Just for parsability checking.
-          javanamespace.parse(ifaceNode, (String) item);
-        } catch (final ParseException e) {
-          throw new IllegalStateException("Could not parse " + item + " which was passed to " + iface, e);
-        }
-      }
-    }
-    boundLists.put(ifaceNode, implList);
+    bindList((NamedParameterNode<List<T>>) namespace.getNode(iface), implList, namedObjectElement);
+  }
+
+  @SuppressWarnings("unchecked")
+  @Override
+  public <T> void bindList(final NamedParameterNode<List<T>> iface, final List implList) throws BindException {
+    bindList(iface, implList, nullNamedObjectElement);
+  }
+
+  @SuppressWarnings("unchecked")
+  @Override
+  public void bindList(final String iface, final List implList) throws BindException {
+    bindList(iface, implList, nullNamedObjectElement);
   }
 
   @Override

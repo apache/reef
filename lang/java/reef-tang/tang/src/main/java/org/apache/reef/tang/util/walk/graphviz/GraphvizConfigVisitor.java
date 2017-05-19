@@ -19,10 +19,7 @@
 package org.apache.reef.tang.util.walk.graphviz;
 
 import org.apache.reef.tang.Configuration;
-import org.apache.reef.tang.types.ClassNode;
-import org.apache.reef.tang.types.NamedParameterNode;
-import org.apache.reef.tang.types.Node;
-import org.apache.reef.tang.types.PackageNode;
+import org.apache.reef.tang.types.*;
 import org.apache.reef.tang.util.walk.AbstractClassHierarchyNodeVisitor;
 import org.apache.reef.tang.util.walk.EdgeVisitor;
 import org.apache.reef.tang.util.walk.Walk;
@@ -136,7 +133,7 @@ public final class GraphvizConfigVisitor
 //            .append(config.isSingleton(node) ? ", style=filled" : "")
         .append("];\n");
 
-    final ClassNode<?> boundImplNode = config.getBoundImplementation(node);
+    final Boundable boundImplNode = (Boundable) config.getBoundImplementation(node);
     if (boundImplNode != null) {
       this.graphStr
           .append("  ")

@@ -18,9 +18,7 @@
  */
 package org.apache.reef.tang;
 
-import org.apache.reef.tang.types.ClassNode;
-import org.apache.reef.tang.types.ConstructorDef;
-import org.apache.reef.tang.types.NamedParameterNode;
+import org.apache.reef.tang.types.*;
 
 import java.util.List;
 import java.util.Set;
@@ -73,34 +71,45 @@ public interface Configuration {
   ConfigurationBuilder newBuilder();
 
   /**
-   * Return the value of the given named parameter as an unparsed string.
+   * Return the value of the given named parameter and named node object as an unparsed string.
    * <p>
    * If nothing was explicitly bound, this method returns null (it does not
    * return default values).
    *
    * @param np A NamedParameter object from this Configuration's class hierarchy.
-   * @return The validated string that this parameter is bound to, or null.
+   * @param noe A NamedObjectElement which np belongs to
+   * @return The validated string (could be either a primitive value or class name)
+   * or a NamedObjectElement that this NamedParameter is bound to.
+   * If nothing is bound to this NamedParameter, then it returns null.
    * @see #getClassHierarchy()
    */
-  String getNamedParameter(NamedParameterNode<?> np);
+  Object getNamedParameter(NamedParameterNode<?> np, NamedObjectElement noe);
+
+  Object getNamedParameter(NamedParameterNode<?> np);
 
   /**
-   * Obtain the set of class hierarchy nodes or strings that were bound to a given NamedParameterNode.
+   * Obtain the set of class hierarchy nodes or strings that were bound to a given NamedParameterNode
+   * and NamedNodeObject.
    * If nothing was explicitly bound, the set will be empty (it will not reflect any default values).
    *
    * @param np A NamedParameterNode from this Configuration's class hierarchy.
+   * @param noe A NamedObjectElement which np belongs to
    * @return A set of ClassHierarchy Node objects or a set of strings, depending on
    * whether the NamedParameterNode refers to an interface or configuration options, respectively.
    * @see #getClassHierarchy()
    */
+  Set<Object> getBoundSet(NamedParameterNode<Set<?>> np, NamedObjectElement noe);
+
   Set<Object> getBoundSet(NamedParameterNode<Set<?>> np);
 
   /**
-   * Get the list bound to a given NamedParameterNode. The list will be empty if nothing was bound.
+   * Get the list bound to a given NamedParameterNode and NamedNodeObject. The list will be empty if nothing was bound.
    *
    * @param np Target NamedParameter
    * @return A list bound to np
    */
+  List<Object> getBoundList(NamedParameterNode<List<?>> np, NamedObjectElement noe);
+
   List<Object> getBoundList(NamedParameterNode<List<?>> np);
 
   /**
@@ -115,11 +124,12 @@ public interface Configuration {
   /**
    * Returns the bound implementation.
    *
-   * @param <T> a type
    * @param cn a class node
    * @return the implementation that cn has been explicitly bound to, or null.  Defaults are not returned.
    */
-  <T> ClassNode<T> getBoundImplementation(ClassNode<T> cn);
+  Boundable getBoundImplementation(ClassNode cn, NamedObjectElement noe);
+
+  Boundable getBoundImplementation(ClassNode cn);
 
   /**
    * Return the LegacyConstructor that has been bound to this Class.
@@ -139,6 +149,8 @@ public interface Configuration {
    * @return the set of all interfaces (or super-classes) that have been explicitly
    * bound to an implementation sub-class.
    */
+  Set<ClassNode<?>> getBoundImplementations(NamedObjectElement noe);
+
   Set<ClassNode<?>> getBoundImplementations();
 
   /**
@@ -149,6 +161,8 @@ public interface Configuration {
   /**
    * @return the set of all the named parameters that have been explicitly bound to something.
    */
+  Set<NamedParameterNode<?>> getNamedParameters(NamedObjectElement noe);
+
   Set<NamedParameterNode<?>> getNamedParameters();
 
   /**
@@ -166,11 +180,18 @@ public interface Configuration {
   /**
    * @return the set of all NamedParameterNodes explicitly bound to sets.
    */
+  Set<NamedParameterNode<Set<?>>> getBoundSets(NamedObjectElement noe);
+
   Set<NamedParameterNode<Set<?>>> getBoundSets();
 
   /**
    * @return the set of all NamedParameterNodes explicitly bound to lists.
    */
+  Set<NamedParameterNode<List<?>>> getBoundLists(NamedObjectElement noe);
+
   Set<NamedParameterNode<List<?>>> getBoundLists();
 
+  <T> NamedObjectElement<T> getNamedObjectElement(NamedObject<T> no);
+
+  Set<NamedObjectElement> getNamedObjectElements();
 }
