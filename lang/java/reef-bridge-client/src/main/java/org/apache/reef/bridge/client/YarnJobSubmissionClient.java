@@ -40,6 +40,7 @@ import org.apache.reef.runtime.yarn.client.YarnSubmissionHelper;
 import org.apache.reef.runtime.yarn.client.unmanaged.YarnProxyUser;
 import org.apache.reef.runtime.yarn.client.uploader.JobFolder;
 import org.apache.reef.runtime.yarn.client.uploader.JobUploader;
+import org.apache.reef.runtime.yarn.driver.parameters.FileSystemUrl;
 import org.apache.reef.runtime.yarn.driver.parameters.JobSubmissionDirectoryPrefix;
 import org.apache.reef.runtime.yarn.util.YarnConfigurationConstructor;
 import org.apache.reef.tang.Configuration;
@@ -271,6 +272,12 @@ public final class YarnJobSubmissionClient {
       writeSecurityTokenToUserCredential(yarnSubmission);
     } else{
       LOG.log(Level.FINE, "Did not find security token");
+    }
+
+    if (!yarnSubmission.getFileSystemUrl().equalsIgnoreCase(FileSystemUrl.DEFAULT_VALUE)) {
+      LOG.log(Level.INFO, "getFileSystemUrl: {0}", yarnSubmission.getFileSystemUrl());
+    } else {
+      LOG.log(Level.INFO, "FileSystemUrl is not set");
     }
 
     final List<String> launchCommandPrefix = new ArrayList<String>() {{
