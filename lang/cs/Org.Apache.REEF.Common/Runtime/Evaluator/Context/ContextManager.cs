@@ -72,7 +72,7 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Context
                     }
                     catch (TaskClientCodeException e)
                     {
-                        Utilities.Diagnostics.Exceptions.Caught(e, Level.Error, "Exception when trying to start a task.", LOGGER);
+                        LOGGER.Log(Level.Error, "Exception when trying to start a task.", e);
                         HandleTaskInitializationException(e);
                     }
                 }
@@ -101,10 +101,7 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Context
                 byte[] message = controlMessage.task_message;
                 if (controlMessage.add_context != null && controlMessage.remove_context != null)
                 {
-                    Utilities.Diagnostics.Exceptions.Throw(
-                        new InvalidOperationException(
-                            "Received a message with both add and remove context. This is unsupported."),
-                        LOGGER);
+                    throw new InvalidOperationException("Received a message with both add and remove context. This is unsupported.");
                 }
                 if (controlMessage.add_context != null)
                 {
@@ -181,20 +178,14 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Context
                     }
                     else
                     {
-                        var e = new InvalidOperationException(
-                            string.Format(CultureInfo.InvariantCulture,
-                                "Sent message to unknown context {0}",
-                                contextMessageProto.context_id));
-                        Utilities.Diagnostics.Exceptions.Throw(e, LOGGER);
+                        throw new InvalidOperationException(string.Format(CultureInfo.InvariantCulture,
+                            "Sent message to unknown context {0}", contextMessageProto.context_id));
                     }
                 }
                 else
                 {
-                    InvalidOperationException e = new InvalidOperationException(
-                        string.Format(CultureInfo.InvariantCulture,
-                            "Unknown task control message: {0}",
-                            controlMessage));
-                    Utilities.Diagnostics.Exceptions.Throw(e, LOGGER);
+                    throw new InvalidOperationException(string.Format(CultureInfo.InvariantCulture, 
+                        "Unknown task control message: {0}", controlMessage));
                 }
             }
             catch (TaskClientCodeException e)
@@ -319,10 +310,9 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Context
                 var currentTopContext = _topContext;
                 if (!currentTopContext.Id.Equals(addContextProto.parent_context_id, StringComparison.OrdinalIgnoreCase))
                 {
-                    var e = new InvalidOperationException(string.Format(CultureInfo.InvariantCulture, "Trying to instantiate a child context on context with id '{0}' while the current top context id is {1}",
+                    throw new InvalidOperationException(string.Format(CultureInfo.InvariantCulture, "Trying to instantiate a child context on context with id '{0}' while the current top context id is {1}",
                         addContextProto.parent_context_id,
                         currentTopContext.Id));
-                    Utilities.Diagnostics.Exceptions.Throw(e, LOGGER);
                 }
 
                 var contextConfiguration = _serializer.FromString(addContextProto.context_configuration);
@@ -352,8 +342,7 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Context
                 string currentTopContextId = _topContext.Id;
                 if (!contextId.Equals(_topContext.Id, StringComparison.OrdinalIgnoreCase))
                 {
-                    var e = new InvalidOperationException(string.Format(CultureInfo.InvariantCulture, "Trying to close context with id '{0}' while the top context id is {1}", contextId, currentTopContextId));
-                    Utilities.Diagnostics.Exceptions.Throw(e, LOGGER);
+                    throw new InvalidOperationException(string.Format(CultureInfo.InvariantCulture, "Trying to close context with id '{0}' while the top context id is {1}", contextId, currentTopContextId));
                 }
                 var hasParentContext = _topContext.ParentContext.IsPresent();
                 _topContext.Dispose();
@@ -383,9 +372,8 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Context
                 string expectedContextId = startTaskProto.context_id;
                 if (!expectedContextId.Equals(currentActiveContext.Id, StringComparison.OrdinalIgnoreCase))
                 {
-                    var e = new InvalidOperationException(
-                        string.Format(CultureInfo.InvariantCulture, "Task expected context '{0}' but the active context has Id '{1}'", expectedContextId, currentActiveContext.Id));
-                    Utilities.Diagnostics.Exceptions.Throw(e, LOGGER);
+                    throw new InvalidOperationException(
+                       string.Format(CultureInfo.InvariantCulture, "Task expected context '{0}' but the active context has Id '{1}'", expectedContextId, currentActiveContext.Id));
                 }
                 
                 var configuration = _serializer.FromString(startTaskProto.configuration);

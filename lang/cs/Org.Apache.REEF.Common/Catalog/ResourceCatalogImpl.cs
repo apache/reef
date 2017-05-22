@@ -71,7 +71,7 @@ namespace Org.Apache.REEF.Common.Catalog
             IPAddress.TryParse(node.host_name, out ipAddress);
             if (ipAddress == null)
             {
-                Org.Apache.REEF.Utilities.Diagnostics.Exceptions.Throw(new ArgumentException("cannot parse host ipaddress: " + node.host_name), LOGGER);
+                throw new ArgumentException("cannot parse host ipaddress: " + node.host_name);
             }
             IPEndPoint ipEndPoint = new IPEndPoint(ipAddress, node.port);
             RAM ram = new RAM(node.memory_size);

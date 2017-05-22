@@ -33,7 +33,7 @@ namespace Org.Apache.REEF.Common.Tasks.Defaults
 
         public void Handle(IDriverMessage message)
         {
-            Utilities.Diagnostics.Exceptions.Throw(new InvalidOperationException("No DriverMessage handler bound. Message received" + message), Logger);
+            throw new InvalidOperationException("No DriverMessage handler bound. Message received " + message);
         }
     }
 }

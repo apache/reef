@@ -123,7 +123,7 @@ namespace Org.Apache.REEF.Common.Runtime
                 catch (Exception e)
                 {
                     _checkStatus = false; // It only takes one exception to switch the checking off for good.
-                    Org.Apache.REEF.Utilities.Diagnostics.Exceptions.Caught(e, Level.Warning, "Cannot obtain machine status due to error", Logger.GetLogger(typeof(MachineStatus)));
+                    Logger.GetLogger(typeof(MachineStatus)).Log(Level.Warning, "Cannot obtain machine status due to error", e);
 
                     // we do not want to crash the evaluator just because we cannot get the information.
                     info = "Cannot obtain machine status due to error " + e.Message;

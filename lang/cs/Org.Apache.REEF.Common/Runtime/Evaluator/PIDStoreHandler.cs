@@ -68,7 +68,7 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator
                     }
                     catch (IOException e)
                     {
-                        Utilities.Diagnostics.Exceptions.Caught(e, Level.Error, Logger);
+                        Logger.Log(Level.Error, "Unable to write PID to file {0}", path, e);
                     }
                 }
             }

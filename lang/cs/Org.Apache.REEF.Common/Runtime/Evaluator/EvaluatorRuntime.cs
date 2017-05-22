@@ -147,9 +147,9 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator
                         }
                         catch (Exception e)
                         {
-                            Utilities.Diagnostics.Exceptions.Caught(e, Level.Error, Logger);
+                            Logger.Log(Level.Error, "Exception while handling task control message", e);
                             OnException(e);
-                            Utilities.Diagnostics.Exceptions.Throw(new InvalidOperationException(e.ToString(), e), Logger);
+                            throw new InvalidOperationException(e.ToString(), e);
                         }
                     }
                     if (message.kill_evaluator != null)
@@ -185,8 +185,7 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator
                     _pidStoreHelper.WritePID();
                     if (_state != State.INIT)
                     {
-                        var e = new InvalidOperationException("State should be init.");
-                        Utilities.Diagnostics.Exceptions.Throw(e, Logger);
+                        throw new InvalidOperationException("State should be init.");
                     }
                     _state = State.RUNNING;
                     _contextManager.Start();
@@ -194,12 +193,12 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator
                 }
                 catch (ContextException e)
                 {
-                    Utilities.Diagnostics.Exceptions.Caught(e, Level.Error, Logger);
+                    Logger.Log(Level.Error, "Exception during RuntimeStart", e);
                     OnException(e.InnerException);
                 }
                 catch (Exception e)
                 {
-                    Utilities.Diagnostics.Exceptions.Caught(e, Level.Error, Logger);
+                    Logger.Log(Level.Error, "Exception during RuntimeStart", e);
                     OnException(e);
                 }
             }
@@ -234,11 +233,7 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator
                     catch (Exception e)
                     {
                         successfulExit = false;
-                        Utilities.Diagnostics.Exceptions.CaughtAndThrow(
-                            new InvalidOperationException("Cannot stop evaluator properly", e),
-                            Level.Error,
-                            "Exception during shut down.",
-                            Logger);
+                        throw new InvalidOperationException("Cannot stop evaluator properly", e);
                     }
                     finally
                     {
