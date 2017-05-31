@@ -49,6 +49,7 @@ namespace Org.Apache.REEF.Common.Files
         private const string CLR_DRIVER_CONFIGURATION_NAME = "clrdriver.conf";
         private const string CLR_BRIDGE_CONFIGURATION_NAME = "clrBridge.config";
         private const string DRIVER_HTTP_ENDPOINT_FILE_NAME = "DriverHttpEndpoint.txt";
+        private const string DRIVER_JAVA_BRIDGE_ENDPOINT_FILE_NAME = "DriverJavaBridgeEndpoint.txt";
         private const string BRIDGE_EXE_NAME = "Org.Apache.REEF.Bridge.exe";
         private const string BRIDGE_EXE_CONFIG_NAME = "Org.Apache.REEF.Bridge.exe.config";
         private const string SECURITY_TOKEN_IDENTIFIER_FILE = "SecurityTokenId";
@@ -329,6 +330,15 @@ namespace Org.Apache.REEF.Common.Files
         public string DriverHttpEndpoint 
         { 
             get { return DRIVER_HTTP_ENDPOINT_FILE_NAME; } 
+        }
+
+        /// <summary>
+        /// The filename of the file that contains the driver name server address and port.
+        /// </summary>
+        /// <returns>File name that contains the dfs path for the DriverNameServerEndpoint</returns>
+        public string GetDriverJavaBridgeEndpoint()
+        { 
+            return DRIVER_JAVA_BRIDGE_ENDPOINT_FILE_NAME;
         }
 
         private static readonly string GLOBAL_FOLDER_PATH = Path.Combine(REEF_BASE_FOLDER, GLOBAL_FOLDER);
