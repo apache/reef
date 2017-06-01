@@ -46,6 +46,7 @@ under the License.
     <TransientFaultHandlingVersion>1.0.0</TransientFaultHandlingVersion>
     <RxVersion>3.0.0</RxVersion>
     <NSubstituteVersion>2.0.3</NSubstituteVersion>
+    <WindowsAzureStorageVersion>8.1.3</WindowsAzureStorageVersion>
   </PropertyGroup>
 
 </Project>

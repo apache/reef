@@ -27,6 +27,14 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Org.Apache.REEF.Tang.Tests.
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Org.Apache.REEF.Tang.Tools.DotNet", "Org.Apache.REEF.Tang.Tools\Org.Apache.REEF.Tang.Tools.DotNet.csproj", "{558927C3-045B-405D-A978-9E89D50BB51A}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Org.Apache.REEF.IO.DotNet", "Org.Apache.REEF.IO\Org.Apache.REEF.IO.DotNet.csproj", "{E68A8740-AEA1-423E-B32B-E873F787CF60}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Org.Apache.REEF.IO.Tests.DotNet", "Org.Apache.REEF.IO.Tests\Org.Apache.REEF.IO.Tests.DotNet.csproj", "{2C11BA8F-9F2D-4A94-B9E1-6F7CC2F99A96}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Org.Apache.REEF.Evaluator.DotNet", "Org.Apache.REEF.Evaluator\Org.Apache.REEF.Evaluator.DotNet.csproj", "{74A9ED6D-EE76-4DFF-A921-F6D761C2CB7A}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Org.Apache.REEF.Driver.DotNet", "Org.Apache.REEF.Driver\Org.Apache.REEF.Driver.DotNet.csproj", "{4AFF480F-006F-4229-8565-DB8F0E5F0C1D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -81,6 +89,22 @@ Global
 		{558927C3-045B-405D-A978-9E89D50BB51A}.Debug|x64.Build.0 = Debug|x64
 		{558927C3-045B-405D-A978-9E89D50BB51A}.Release|x64.ActiveCfg = Release|x64
 		{558927C3-045B-405D-A978-9E89D50BB51A}.Release|x64.Build.0 = Release|x64
+		{E68A8740-AEA1-423E-B32B-E873F787CF60}.Debug|x64.ActiveCfg = Debug|x64
+		{E68A8740-AEA1-423E-B32B-E873F787CF60}.Debug|x64.Build.0 = Debug|x64
+		{E68A8740-AEA1-423E-B32B-E873F787CF60}.Release|x64.ActiveCfg = Release|x64
+		{E68A8740-AEA1-423E-B32B-E873F787CF60}.Release|x64.Build.0 = Release|x64
+		{2C11BA8F-9F2D-4A94-B9E1-6F7CC2F99A96}.Debug|x64.ActiveCfg = Debug|x64
+		{2C11BA8F-9F2D-4A94-B9E1-6F7CC2F99A96}.Debug|x64.Build.0 = Debug|x64
+		{2C11BA8F-9F2D-4A94-B9E1-6F7CC2F99A96}.Release|x64.ActiveCfg = Release|x64
+		{2C11BA8F-9F2D-4A94-B9E1-6F7CC2F99A96}.Release|x64.Build.0 = Release|x64
+		{74A9ED6D-EE76-4DFF-A921-F6D761C2CB7A}.Debug|x64.ActiveCfg = Debug|x64
+		{74A9ED6D-EE76-4DFF-A921-F6D761C2CB7A}.Debug|x64.Build.0 = Debug|x64
+		{74A9ED6D-EE76-4DFF-A921-F6D761C2CB7A}.Release|x64.ActiveCfg = Release|x64
+		{74A9ED6D-EE76-4DFF-A921-F6D761C2CB7A}.Release|x64.Build.0 = Release|x64
+		{4AFF480F-006F-4229-8565-DB8F0E5F0C1D}.Debug|x64.ActiveCfg = Debug|x64
+		{4AFF480F-006F-4229-8565-DB8F0E5F0C1D}.Debug|x64.Build.0 = Debug|x64
+		{4AFF480F-006F-4229-8565-DB8F0E5F0C1D}.Release|x64.ActiveCfg = Release|x64
+		{4AFF480F-006F-4229-8565-DB8F0E5F0C1D}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
