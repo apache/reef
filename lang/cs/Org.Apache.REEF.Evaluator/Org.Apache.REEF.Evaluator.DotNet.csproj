@@ -18,26 +18,23 @@ specific language governing permissions and limitations
 under the License.
 -->
   <PropertyGroup>
-    <AssemblyName>Org.Apache.REEF.Common</AssemblyName>
-    <Description>Reef Common Infrastructure</Description>
-    <PackageTags>Reef Common Infrastructure</PackageTags>
+    <AssemblyName>Org.Apache.REEF.Evaluator</AssemblyName>
+    <Description>Evaluator for REEF.NET</Description>
+    <PackageTags>Reef Evaluator</PackageTags>
     <TargetFrameworks>net46;net451</TargetFrameworks>
   </PropertyGroup>
   <Import Project="..\build.DotNet.props" />
   <ItemGroup>
-    <PackageReference Include="Newtonsoft.Json" Version="$(NewtonsoftJsonVersion)" />
     <PackageReference Include="protobuf-net" Version="$(ProtobufVersion)" />
-    <PackageReference Include="Microsoft.Hadoop.Avro" Version="$(AvroVersion)" />
-    <PackageReference Include="System.Reactive.Core" Version="$(RxVersion)" />
-    <PackageReference Include="System.Reactive.Interfaces" Version="$(RxVersion)" />
     <Reference Include="System" />
     <Reference Include="System.Core" />
-    <Reference Include="System.Runtime.Serialization" />
-    <Reference Include="System.Xml" />
+    <Reference Include="System.Configuration" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Org.Apache.REEF.Tang\Org.Apache.Reef.Tang.DotNet.csproj" />
     <ProjectReference Include="..\Org.Apache.REEF.Utilities\Org.Apache.Reef.Utilities.DotNet.csproj" />
+    <ProjectReference Include="..\Org.Apache.REEF.Common\Org.Apache.Reef.Common.DotNet.csproj" />
+    <ProjectReference Include="..\Org.Apache.REEF.Driver\Org.Apache.Reef.Driver.DotNet.csproj" />
     <ProjectReference Include="..\Org.Apache.REEF.Wake\Org.Apache.Reef.Wake.DotNet.csproj" />
   </ItemGroup>
 </Project>

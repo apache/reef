@@ -7,9 +7,7 @@ regarding copyright ownership.  The ASF licenses this file
 to you under the Apache License, Version 2.0 (the
 "License"); you may not use this file except in compliance
 with the License.  You may obtain a copy of the License at
-
 http://www.apache.org/licenses/LICENSE-2.0
-
 Unless required by applicable law or agreed to in writing,
 software distributed under the License is distributed on an
 "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -18,27 +16,27 @@ specific language governing permissions and limitations
 under the License.
 -->
   <PropertyGroup>
-    <AssemblyName>Org.Apache.REEF.Common</AssemblyName>
-    <Description>Reef Common Infrastructure</Description>
-    <PackageTags>Reef Common Infrastructure</PackageTags>
+    <AssemblyName>Org.Apache.REEF.IO.Tests</AssemblyName>
     <TargetFrameworks>net46;net451</TargetFrameworks>
   </PropertyGroup>
   <Import Project="..\build.DotNet.props" />
   <ItemGroup>
-    <PackageReference Include="Newtonsoft.Json" Version="$(NewtonsoftJsonVersion)" />
-    <PackageReference Include="protobuf-net" Version="$(ProtobufVersion)" />
-    <PackageReference Include="Microsoft.Hadoop.Avro" Version="$(AvroVersion)" />
-    <PackageReference Include="System.Reactive.Core" Version="$(RxVersion)" />
-    <PackageReference Include="System.Reactive.Interfaces" Version="$(RxVersion)" />
+    <PackageReference Include="NSubstitute" Version="$(NSubstituteVersion)" />
+    <PackageReference Include="WindowsAzure.Storage" Version="$(WindowsAzureStorageVersion)" />
     <Reference Include="System" />
     <Reference Include="System.Core" />
-    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
   </ItemGroup>
+  <Import Project="..\xunit.DotNet.props" />
   <ItemGroup>
+    <ProjectReference Include="..\Org.Apache.REEF.Common\Org.Apache.Reef.Common.DotNet.csproj" />
+    <ProjectReference Include="..\Org.Apache.REEF.IO\Org.Apache.Reef.IO.DotNet.csproj" />
     <ProjectReference Include="..\Org.Apache.REEF.Tang\Org.Apache.Reef.Tang.DotNet.csproj" />
     <ProjectReference Include="..\Org.Apache.REEF.Utilities\Org.Apache.Reef.Utilities.DotNet.csproj" />
     <ProjectReference Include="..\Org.Apache.REEF.Wake\Org.Apache.Reef.Wake.DotNet.csproj" />
   </ItemGroup>
 </Project>
-
