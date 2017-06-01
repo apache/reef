@@ -67,7 +67,11 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
             Assert.Equal(numTasks, runningTaskCount);
 
             // Tasks should fail or complete or disappear with failed evaluator
-            Assert.Equal(numTasks, completedTaskCount + failedEvaluatorCount + failedTaskCount);
+            // However, as TaskRuntime Inform the driver about the result before throw exception caused by the dispose in 
+            // the result handler, that may end up two events from the update task/evaluator, one is CompletedTask, 
+            // the other is FailedEvaluator
+            int total = completedTaskCount + failedEvaluatorCount + failedTaskCount;
+            Assert.True(numTasks == total || numTasks == total - 1);
 
             // We have failed two mappers and one update evaluator in the test code. As the update evaluator failure 
             // happens in Dispose(), driver may/may not receive FailedEvaluator before shut down.
