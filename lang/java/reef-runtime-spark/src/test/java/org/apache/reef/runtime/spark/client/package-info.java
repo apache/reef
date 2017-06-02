@@ -16,11 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.runtime.spark;
-
 /**
- * Contains unit tests for reef spark driver.
+ * An YARN implementation of REEF that uses Spark slaves for execution.
  */
-public class ReefSparkRuntimeDriverTest {
-
-}
+package org.apache.reef.runtime.spark.client;

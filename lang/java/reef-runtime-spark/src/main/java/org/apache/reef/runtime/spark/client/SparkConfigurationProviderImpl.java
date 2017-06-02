@@ -20,7 +20,7 @@ package org.apache.reef.runtime.spark.client;
 
 import org.apache.reef.runtime.common.client.DriverConfigurationProvider;
 import org.apache.reef.runtime.common.parameters.JVMHeapSlack;
-import org.apache.reef.runtime.spark.client.parameters.MasterIp;
+import org.apache.reef.runtime.spark.client.parameters.SparkIp;
 import org.apache.reef.runtime.spark.driver.SparkDriverConfiguration;
 import org.apache.reef.runtime.spark.driver.RuntimeIdentifier;
 import org.apache.reef.tang.Configuration;
@@ -39,7 +39,7 @@ final class SparkDriverConfigurationProviderImpl implements DriverConfigurationP
   private final double jvmSlack;
 
   @Inject
-  SparkDriverConfigurationProviderImpl(@Parameter(MasterIp.class) final String masterIp,
+  SparkDriverConfigurationProviderImpl(@Parameter(SparkIp.class) final String masterIp,
                                               @Parameter(JVMHeapSlack.class) final double jvmSlack) {
     this.masterIp = masterIp;
     this.jvmSlack = jvmSlack;

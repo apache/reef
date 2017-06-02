@@ -16,11 +16,11 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.runtime.mesos.driver;
+package org.apache.reef.runtime.spark.driver;
 
-import org.apache.reef.runtime.mesos.util.EvaluatorControl;
-import org.apache.reef.runtime.mesos.util.EvaluatorLaunch;
-import org.apache.reef.runtime.mesos.util.EvaluatorRelease;
+import org.apache.reef.runtime.spark.util.EvaluatorControl;
+import org.apache.reef.runtime.spark.util.EvaluatorLaunch;
+import org.apache.reef.runtime.spark.util.EvaluatorRelease;
 import org.apache.reef.wake.EventHandler;
 
 import javax.inject.Inject;
