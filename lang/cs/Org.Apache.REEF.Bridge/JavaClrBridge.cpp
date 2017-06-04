@@ -133,24 +133,6 @@ JNIEXPORT void JNICALL Java_org_apache_reef_javabridge_NativeInterop_loadClrAsse
 
 /*
  * Class:     org_apache_reef_javabridge_NativeInterop
- * Method:    callClrSystemOnStartHandler
- * Signature: ()V
- */
-JNIEXPORT void JNICALL Java_org_apache_reef_javabridge_NativeInterop_callClrSystemOnStartHandler
-(JNIEnv * env, jclass jclassx) {
-  try {
-    ManagedLog::LOGGER->Log("+Java_org_apache_reef_javabridge_NativeInterop_callClrSystemOnStartHandler");
-    DateTime dt = DateTime::Now;
-    ClrSystemHandlerWrapper::Call_ClrSystemStartHandler_OnStart(dt);
-  }
-  catch (System::Exception^ ex) {
-    // we cannot get error back to java here since we don't have an object to call back (although we ideally should...)
-    ManagedLog::LOGGER->LogError("Exceptions in Java_org_apache_reef_javabridge_NativeInterop_callClrSystemOnStartHandler", ex);
-  }
-}
-
-/*
- * Class:     org_apache_reef_javabridge_NativeInterop
  * Method:    clrSystemAllocatedEvaluatorHandlerOnNext
  * Signature: (JLorg/apache/reef/javabridge/AllocatedEvaluatorBridge;Lorg/apache/reef/javabridge/InteropLogger;)V
  */
@@ -596,9 +578,6 @@ static JNINativeMethod methods[] = {
   { "loadClrAssembly", "(Ljava/lang/String;)V", (void*)&Java_org_apache_reef_javabridge_NativeInterop_loadClrAssembly },
 
   { "clrBufferedLog", "(ILjava/lang/String;)V", (void*)&Java_org_apache_reef_javabridge_NativeInterop_clrBufferedLog },
-
-  { "callClrSystemOnStartHandler", "()V",
-  (void*)&Java_org_apache_reef_javabridge_NativeInterop_callClrSystemOnStartHandler },
 
   { "clrSystemAllocatedEvaluatorHandlerOnNext", "(JLorg/apache/reef/javabridge/AllocatedEvaluatorBridge;Lorg/apache/reef/javabridge/InteropLogger;)V",
   (void*)&Java_org_apache_reef_javabridge_NativeInterop_clrSystemAllocatedEvaluatorHandlerOnNext },

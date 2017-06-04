@@ -35,8 +35,6 @@ public final class NativeInterop {
 
   public static native void clrBufferedLog(final int level, final String message);
 
-  public static native void callClrSystemOnStartHandler();
-
   public static native void clrSystemAllocatedEvaluatorHandlerOnNext(
       final long handle,
       final AllocatedEvaluatorBridge javaEvaluatorBridge,

@@ -32,8 +32,6 @@ using Org.Apache.REEF.Common.Evaluator.Parameters;
 using Org.Apache.REEF.Driver.Bridge.Clr2java;
 using Org.Apache.REEF.Driver.Bridge.Events;
 using Org.Apache.REEF.Driver.Defaults;
-using Org.Apache.REEF.Tang.Implementations.InjectionPlan;
-using Org.Apache.REEF.Tang.Implementations.Tang;
 
 namespace Org.Apache.REEF.Driver.Bridge
 {
