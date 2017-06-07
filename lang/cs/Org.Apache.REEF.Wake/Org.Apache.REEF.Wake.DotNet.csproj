@@ -31,7 +31,7 @@ under the License.
     <PackageReference Include="System.Reactive.Interfaces" Version="$(RxVersion)" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Org.Apache.REEF.Tang\Org.Apache.Reef.Tang.DotNet.csproj" />
-    <ProjectReference Include="..\Org.Apache.REEF.Utilities\Org.Apache.Reef.Utilities.DotNet.csproj" />
+    <ProjectReference Include="..\Org.Apache.REEF.Tang\Org.Apache.REEF.Tang.DotNet.csproj" />
+    <ProjectReference Include="..\Org.Apache.REEF.Utilities\Org.Apache.REEF.Utilities.DotNet.csproj" />
   </ItemGroup>
 </Project>

@@ -34,10 +34,10 @@ under the License.
     </None>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Org.Apache.REEF.Common\Org.Apache.Reef.Common.DotNet.csproj" />
-    <ProjectReference Include="..\Org.Apache.REEF.Examples\Org.Apache.Reef.Examples.DotNet.csproj" />
-    <ProjectReference Include="..\Org.Apache.REEF.Tang.Examples\Org.Apache.Reef.Tang.Examples.DotNet.csproj" />
-    <ProjectReference Include="..\Org.Apache.REEF.Tang\Org.Apache.Reef.Tang.DotNet.csproj" />
-    <ProjectReference Include="..\Org.Apache.REEF.Wake\Org.Apache.Reef.Wake.DotNet.csproj" />
+    <ProjectReference Include="..\Org.Apache.REEF.Common\Org.Apache.REEF.Common.DotNet.csproj" />
+    <ProjectReference Include="..\Org.Apache.REEF.Examples\Org.Apache.REEF.Examples.DotNet.csproj" />
+    <ProjectReference Include="..\Org.Apache.REEF.Tang.Examples\Org.Apache.REEF.Tang.Examples.DotNet.csproj" />
+    <ProjectReference Include="..\Org.Apache.REEF.Tang\Org.Apache.REEF.Tang.DotNet.csproj" />
+    <ProjectReference Include="..\Org.Apache.REEF.Wake\Org.Apache.REEF.Wake.DotNet.csproj" />
   </ItemGroup>
 </Project>

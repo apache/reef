@@ -26,7 +26,7 @@ under the License.
   </ItemGroup>
   <Import Project="..\xunit.DotNet.props" />
   <ItemGroup>
-    <ProjectReference Include="..\Org.Apache.REEF.Tang\Org.Apache.Reef.Tang.DotNet.csproj" />
-    <ProjectReference Include="..\Org.Apache.REEF.Wake\Org.Apache.Reef.Wake.DotNet.csproj" />
+    <ProjectReference Include="..\Org.Apache.REEF.Tang\Org.Apache.REEF.Tang.DotNet.csproj" />
+    <ProjectReference Include="..\Org.Apache.REEF.Wake\Org.Apache.REEF.Wake.DotNet.csproj" />
   </ItemGroup>
 </Project>
