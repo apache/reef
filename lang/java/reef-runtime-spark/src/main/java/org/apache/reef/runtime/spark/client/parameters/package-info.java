@@ -17,6 +17,6 @@
  * under the License.
  */
 /**
- * Client-side parameters for Spark job submission.
+ * Client-side parameters for Mesos job submission.
  */
 package org.apache.reef.runtime.spark.client.parameters;

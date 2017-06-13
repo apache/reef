@@ -28,7 +28,7 @@ public final class RuntimeIdentifier {
   /**
    * Same value is defined on the C# side in the Org.Apache.REEF.Common.Runtime.RuntimeName.
    */
-  public static final String RUNTIME_NAME = "Spark";
+  public static final String RUNTIME_NAME = "Mesos";
 
   private RuntimeIdentifier() { }
 }

@@ -28,12 +28,12 @@ import org.apache.reef.wake.remote.RemoteMessage;
 import javax.inject.Inject;
 
 /**
- * Handles evaluator launch requests via sparkRemoteManager from sparkResourceLaunchHandler.
+ * Handles evaluator launch requests via SparkRemoteManager from SparkResourceLaunchHandler.
  */
 @EvaluatorSide
 @Private
 final class EvaluatorControlHandler implements EventHandler<RemoteMessage<EvaluatorControl>> {
-  // EvaluatorLaunchHandler is registered in sparkExecutor. Hence, we need an InjectionFuture here.
+  // EvaluatorLaunchHandler is registered in MesosExecutor. Hence, we need an InjectionFuture here.
   private final InjectionFuture<REEFExecutor> sparkExecutor;
 
   @Inject

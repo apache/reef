@@ -22,8 +22,8 @@ import org.apache.reef.tang.annotations.Name;
 import org.apache.reef.tang.annotations.NamedParameter;
 
 /**
- * Spark Executor's id.
+ * Mesos Executor's id.
  */
-@NamedParameter(doc = "The Executor's id", short_name = "spark_executor_id")
+@NamedParameter(doc = "The Executor's id", short_name = "mesos_executor_id")
 public final class SparkExecutorId implements Name<String> {
 }

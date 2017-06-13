@@ -19,4 +19,4 @@
 /**
  * Driver-side parameters for Mesos job submission.
  */
-package org.apache.reef.runtime.mesos.driver.parameters;
+package org.apache.reef.runtime.spark.driver.parameters;

@@ -38,6 +38,6 @@ public final class SparkErrorHandler implements EventHandler<Throwable> {
 
   @Override
   public void onNext(final Throwable e) {
-    LOG.log(Level.SEVERE, "MesosRemoteManager Error", e);
+    LOG.log(Level.SEVERE, "SparkRemoteManager Error", e);
   }
 }

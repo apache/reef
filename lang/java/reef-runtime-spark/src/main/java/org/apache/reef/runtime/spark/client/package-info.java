@@ -17,6 +17,6 @@
  * under the License.
  */
 /**
- * Client-side event handlers for Spark resourcemanager.
+ * Client-side event handlers for Mesos resourcemanager.
  */
 package org.apache.reef.runtime.spark.client;

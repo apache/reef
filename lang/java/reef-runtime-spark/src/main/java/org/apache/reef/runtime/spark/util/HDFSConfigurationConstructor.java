@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.runtime.mesos.util;
+package org.apache.reef.runtime.spark.util;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.reef.tang.ExternalConstructor;

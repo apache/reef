@@ -22,8 +22,8 @@ import org.apache.reef.tang.annotations.Name;
 import org.apache.reef.tang.annotations.NamedParameter;
 
 /**
- * The port number of Spark Slave.
+ * The port number of Mesos Slave.
  */
-@NamedParameter(doc = "The port number of Spark Slave", default_value="5051")
+@NamedParameter(doc = "The port number of Mesos Slave", default_value="5051")
 public final class SparkSlavePort implements Name<Integer> {
 }

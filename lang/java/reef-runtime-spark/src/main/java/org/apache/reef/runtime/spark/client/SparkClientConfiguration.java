@@ -35,14 +35,14 @@ import org.apache.reef.tang.formats.OptionalParameter;
 import org.apache.reef.tang.formats.RequiredParameter;
 
 /**
- * A ConfigurationModule for the Spark resource manager.
+ * A ConfigurationModule for the Mesos resource manager.
  */
 @Public
 @ClientSide
 public class SparkClientConfiguration extends ConfigurationModuleBuilder {
   /**
    * The folder in which the sub-folders for REEF drivers, one per job, will be created.
-   * If none is given, a folder "REEF_Spark_RUNTIME" will be created in the local directory.
+   * If none is given, a folder "REEF_SPARK_RUNTIME" will be created in the local directory.
    */
   public static final OptionalParameter<String> ROOT_FOLDER = new OptionalParameter<>();
 

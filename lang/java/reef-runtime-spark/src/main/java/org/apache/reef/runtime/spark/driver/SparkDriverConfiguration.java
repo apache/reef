@@ -58,7 +58,7 @@ public final class SparkDriverConfiguration extends ConfigurationModuleBuilder {
   public static final OptionalParameter<Long> EVALUATOR_TIMEOUT = new OptionalParameter<>();
 
   /**
-   * The ip address of Spark Master.
+   * The ip address of Mesos Master.
    */
   public static final RequiredParameter<String> SPARK_MASTER_IP = new RequiredParameter<>();
 
@@ -67,7 +67,7 @@ public final class SparkDriverConfiguration extends ConfigurationModuleBuilder {
    */
   public static final RequiredParameter<String> RUNTIME_NAMES = new RequiredParameter<>();
   /**
-   * The port number of Spark Slave.
+   * The port number of Mesos Slave.
    */
   public static final OptionalParameter<Integer> SPARK_SLAVE_PORT = new OptionalParameter<>();
 
@@ -82,7 +82,7 @@ public final class SparkDriverConfiguration extends ConfigurationModuleBuilder {
   public static final OptionalParameter<Double> JVM_HEAP_SLACK = new OptionalParameter<>();
 
   /**
-   * Capacity for running Spark Scheduler Driver.
+   * Capacity for running Mesos Scheduler Driver.
    */
   public static final RequiredParameter<Integer> SCHEDULER_DRIVER_CAPACITY = new RequiredParameter<>();
 

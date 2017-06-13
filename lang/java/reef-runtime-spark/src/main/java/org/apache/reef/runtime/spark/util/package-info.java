@@ -19,4 +19,4 @@
 /**
  * Utility for Mesos runtime.
  */
-package org.apache.reef.runtime.mesos.util;
+package org.apache.reef.runtime.spark.util;

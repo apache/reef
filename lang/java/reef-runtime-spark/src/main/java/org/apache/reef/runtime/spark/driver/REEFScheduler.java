@@ -19,7 +19,7 @@
 package org.apache.reef.runtime.spark.driver;
 
 import com.google.protobuf.ByteString;
-import org.apache.spark.MesosSchedulerDriver;
+import org.apache.mesos.MesosSchedulerDriver;
 import org.apache.reef.proto.ReefServiceProtos;
 import org.apache.reef.runtime.common.driver.api.ResourceReleaseEvent;
 import org.apache.reef.runtime.common.driver.api.ResourceRequestEvent;
@@ -34,13 +34,13 @@ import org.apache.reef.runtime.common.driver.resourcemanager.ResourceStatusEvent
 import org.apache.reef.runtime.common.driver.resourcemanager.RuntimeStatusEventImpl;
 import org.apache.reef.runtime.common.files.ClasspathProvider;
 import org.apache.reef.runtime.common.files.REEFFileNames;
-import org.apache.reef.runtime.spark.driver.parameters.MesosMasterIp;
-import org.apache.reef.runtime.spark.driver.parameters.MesosSlavePort;
+import org.apache.reef.runtime.spark.driver.parameters.SparkMasterIp;
+import org.apache.reef.runtime.spark.driver.parameters.SparkSlavePort;
 import org.apache.reef.runtime.spark.driver.parameters.JobSubmissionDirectoryPrefix;
 import org.apache.reef.runtime.spark.evaluator.REEFExecutor;
 import org.apache.reef.runtime.spark.util.EvaluatorControl;
 import org.apache.reef.runtime.spark.util.EvaluatorRelease;
-import org.apache.reef.runtime.spark.util.MesosRemoteManager;
+import org.apache.reef.runtime.spark.util.SparkRemoteManager;
 import org.apache.reef.tang.annotations.Parameter;
 import org.apache.reef.wake.EStage;
 import org.apache.reef.wake.EventHandler;
@@ -52,20 +52,20 @@ import org.apache.commons.compress.utils.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
-import org.apache.spark.Protos;
-import org.apache.spark.Protos.CommandInfo;
-import org.apache.spark.Protos.CommandInfo.URI;
-import org.apache.spark.Protos.ExecutorID;
-import org.apache.spark.Protos.ExecutorInfo;
-import org.apache.spark.Protos.Filters;
-import org.apache.spark.Protos.Offer;
-import org.apache.spark.Protos.Resource;
-import org.apache.spark.Protos.TaskID;
-import org.apache.spark.Protos.TaskInfo;
-import org.apache.spark.Protos.Value;
-import org.apache.spark.Protos.Value.Type;
-import org.apache.spark.Scheduler;
-import org.apache.spark.SchedulerDriver;
+import org.apache.mesos.Protos;
+import org.apache.mesos.Protos.CommandInfo;
+import org.apache.mesos.Protos.CommandInfo.URI;
+import org.apache.mesos.Protos.ExecutorID;
+import org.apache.mesos.Protos.ExecutorInfo;
+import org.apache.mesos.Protos.Filters;
+import org.apache.mesos.Protos.Offer;
+import org.apache.mesos.Protos.Resource;
+import org.apache.mesos.Protos.TaskID;
+import org.apache.mesos.Protos.TaskInfo;
+import org.apache.mesos.Protos.Value;
+import org.apache.mesos.Protos.Value.Type;
+import org.apache.mesos.Scheduler;
+import org.apache.mesos.SchedulerDriver;
 
 import javax.inject.Inject;
 import java.io.BufferedInputStream;
@@ -93,7 +93,7 @@ import java.util.zip.GZIPOutputStream;
 final class REEFScheduler implements Scheduler {
   private static final Logger LOG = Logger.getLogger(REEFScheduler.class.getName());
   private static final String REEF_TAR = "reef.tar.gz";
-  private static final String RUNTIME_NAME = "Spark";
+  private static final String RUNTIME_NAME = "MESOS";
   private static final String REEF_JOB_NAME_PREFIX = "reef-job-";
 
   private final String reefTarUri;
@@ -101,10 +101,10 @@ final class REEFScheduler implements Scheduler {
   private final ClasspathProvider classpath;
 
   private final REEFEventHandlers reefEventHandlers;
-  private final MesosRemoteManager sparkRemoteManager;
+  private final SparkRemoteManager sparkRemoteManager;
 
-  private final SchedulerDriver sparkMaster;
-  private int sparkSlavePort;
+  private final SchedulerDriver mesosMaster;
+  private int mesosSlavePort;
   private final String jobSubmissionDirectoryPrefix;
   private final EStage<SchedulerDriver> schedulerDriverEStage;
   private final Map<String, Offer> offers = new ConcurrentHashMap<>();
@@ -116,14 +116,14 @@ final class REEFScheduler implements Scheduler {
 
   @Inject
   REEFScheduler(final REEFEventHandlers reefEventHandlers,
-                final MesosRemoteManager sparkRemoteManager,
+                final SparkRemoteManager sparkRemoteManager,
                 final REEFExecutors executors,
                 final REEFFileNames fileNames,
                 final EStage<SchedulerDriver> schedulerDriverEStage,
                 final ClasspathProvider classpath,
                 @Parameter(JobIdentifier.class) final String jobIdentifier,
-                @Parameter(MesosMasterIp.class) final String masterIp,
-                @Parameter(MesosSlavePort.class) final int slavePort,
+                @Parameter(SparkMasterIp.class) final String masterIp,
+                @Parameter(SparkSlavePort.class) final int slavePort,
                 @Parameter(JobSubmissionDirectoryPrefix.class) final String jobSubmissionDirectoryPrefix) {
     this.sparkRemoteManager = sparkRemoteManager;
     this.reefEventHandlers = reefEventHandlers;
@@ -138,8 +138,8 @@ final class REEFScheduler implements Scheduler {
         .setUser("")
         .setName(REEF_JOB_NAME_PREFIX + jobIdentifier)
         .build();
-    this.sparkMaster = new MesosSchedulerDriver(this, frameworkInfo, masterIp);
-    this.sparkSlavePort = slavePort;
+    this.mesosMaster = new MesosSchedulerDriver(this, frameworkInfo, masterIp);
+    this.mesosSlavePort = slavePort;
   }
 
   @Override
@@ -167,7 +167,7 @@ final class REEFScheduler implements Scheduler {
         nodeDescriptorEvents.put(offer.getSlaveId().getValue(), NodeDescriptorEventImpl.newBuilder()
                 .setIdentifier(offer.getSlaveId().getValue())
                 .setHostName(offer.getHostname())
-                .setPort(this.sparkSlavePort)
+                .setPort(this.mesosSlavePort)
                 .setMemorySize(getMemory(offer)));
       } else {
         final NodeDescriptorEventImpl.Builder builder = nodeDescriptorEvents.get(offer.getSlaveId().getValue());
@@ -281,11 +281,11 @@ final class REEFScheduler implements Scheduler {
   // HELPER METHODS
 
   public void onStart() {
-    this.schedulerDriverEStage.onNext(this.sparkMaster);
+    this.schedulerDriverEStage.onNext(this.mesosMaster);
   }
 
   public void onStop() {
-    this.sparkMaster.stop();
+    this.mesosMaster.stop();
     try {
       this.schedulerDriverEStage.close();
     } catch (final Exception e) {
@@ -365,9 +365,9 @@ final class REEFScheduler implements Scheduler {
         }
 
         final Filters filters = Filters.newBuilder().setRefuseSeconds(0).build();
-        sparkMaster.launchTasks(Collections.singleton(offer.getId()), tasksToLaunch, filters);
+        mesosMaster.launchTasks(Collections.singleton(offer.getId()), tasksToLaunch, filters);
       } else {
-        sparkMaster.declineOffer(offer.getId());
+        mesosMaster.declineOffer(offer.getId());
       }
     }
 
@@ -417,7 +417,7 @@ final class REEFScheduler implements Scheduler {
   }
 
   private void onRuntimeError(final Throwable throwable) {
-    this.sparkMaster.stop();
+    this.mesosMaster.stop();
     try {
       this.schedulerDriverEStage.close();
     } catch (final Exception e) {
@@ -465,7 +465,7 @@ final class REEFScheduler implements Scheduler {
     final String defaultJavaPath = System.getenv("JAVA_HOME") + "/bin/" +  "java";
     final String classPath = "-classpath " + StringUtils.join(this.classpath.getEvaluatorClasspath(), ":");
     final String logging = "-Djava.util.logging.config.class=org.apache.reef.util.logging.Config";
-    final String sparkExecutorId = "-spark_executor_id " + executorID;
+    final String mesosExecutorId = "-mesos_executor_id " + executorID;
 
     return new StringBuilder()
         .append(defaultJavaPath + " ")
@@ -475,7 +475,7 @@ final class REEFScheduler implements Scheduler {
         .append(classPath + " ")
         .append(logging + " ")
         .append(REEFExecutor.class.getName() + " ")
-        .append(sparkExecutorId + " ")
+        .append(mesosExecutorId + " ")
         .toString();
   }
 

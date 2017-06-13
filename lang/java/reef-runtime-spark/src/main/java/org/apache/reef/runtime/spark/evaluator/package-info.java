@@ -17,6 +17,6 @@
  * under the License.
  */
 /**
- * Evaluator-side event handlers for Spark resourcemanager.
+ * Evaluator-side event handlers for Mesos resourcemanager.
  */
 package org.apache.reef.runtime.spark.evaluator;

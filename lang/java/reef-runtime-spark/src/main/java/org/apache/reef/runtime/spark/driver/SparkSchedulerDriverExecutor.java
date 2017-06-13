@@ -18,8 +18,8 @@
  */
 package org.apache.reef.runtime.spark.driver;
 
-//import org.apache.spark.Protos;
-//import org.apache.spark.SchedulerDriver;
+import org.apache.mesos.Protos;
+import org.apache.mesos.SchedulerDriver;
 import org.apache.reef.wake.EventHandler;
 
 import javax.inject.Inject;
@@ -27,7 +27,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Handler for Spark SchedulerDriver.
+ * Handler for Mesos SchedulerDriver.
  */
 public class SparkSchedulerDriverExecutor implements EventHandler<SchedulerDriver> {
   private static final Logger LOG = Logger.getLogger(SparkSchedulerDriverExecutor.class.getName());
@@ -38,8 +38,8 @@ public class SparkSchedulerDriverExecutor implements EventHandler<SchedulerDrive
 
   @Override
   public void onNext(final SchedulerDriver schedulerDriver) {
-    LOG.log(Level.INFO, "SparkMaster(SchedulerDriver) starting");
+    LOG.log(Level.INFO, "MesosMaster(SchedulerDriver) starting");
     final Protos.Status status = schedulerDriver.run();
-    LOG.log(Level.INFO, "SparkMaster(SchedulerDriver) ended with status {0}", status);
+    LOG.log(Level.INFO, "MesosMaster(SchedulerDriver) ended with status {0}", status);
   }
 }

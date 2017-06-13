@@ -37,14 +37,6 @@ import org.apache.hadoop.fs.Path;
 import org.apache.spark.Executor;
 import org.apache.spark.ExecutorDriver;
 import org.apache.spark.SparkExecutorDriver;
-import org.apache.spark.Protos.ExecutorInfo;
-import org.apache.spark.Protos.FrameworkInfo;
-import org.apache.spark.Protos.SlaveInfo;
-import org.apache.spark.Protos.Status;
-import org.apache.spark.Protos.TaskID;
-import org.apache.spark.Protos.TaskInfo;
-import org.apache.spark.Protos.TaskState;
-import org.apache.spark.Protos.TaskStatus;
 
 import javax.inject.Inject;
 import java.io.File;
@@ -66,7 +58,7 @@ public final class REEFExecutor implements Executor {
   private final SparkRemoteManager sparkRemoteManager;
   private final ExecutorService executorService;
   private final REEFFileNames fileNames;
-  private final String sparkExecutorId;
+  private final String mesosExecutorId;
 
   private Process evaluatorProcess;
   private Integer evaluatorProcessExitValue;
@@ -75,13 +67,13 @@ public final class REEFExecutor implements Executor {
   REEFExecutor(final EvaluatorControlHandler evaluatorControlHandler,
                final SparkRemoteManager sparkRemoteManager,
                final REEFFileNames fileNames,
-               @Parameter(SparkExecutorId.class) final String sparkExecutorId) {
+               @Parameter(SparkExecutorId.class) final String mesosExecutorId) {
     this.sparkRemoteManager = sparkRemoteManager;
     this.sparkRemoteManager.registerHandler(EvaluatorControl.class, evaluatorControlHandler);
     this.sparkExecutorDriver = new SparkExecutorDriver(this);
     this.executorService = Executors.newCachedThreadPool();
     this.fileNames = fileNames;
-    this.sparkExecutorId = sparkExecutorId;
+    this.mesosExecutorId = mesosExecutorId;
   }
 
   @Override
@@ -109,7 +101,7 @@ public final class REEFExecutor implements Executor {
   @Override
   public void launchTask(final ExecutorDriver driver, final TaskInfo task) {
     driver.sendStatusUpdate(TaskStatus.newBuilder()
-        .setTaskId(TaskID.newBuilder().setValue(this.sparkExecutorId).build())
+        .setTaskId(TaskID.newBuilder().setValue(this.mesosExecutorId).build())
         .setState(TaskState.TASK_STARTING)
         .setSlaveId(task.getSlaveId())
         .setMessage(this.sparkRemoteManager.getMyIdentifier())
@@ -144,8 +136,8 @@ public final class REEFExecutor implements Executor {
     this.executorService.submit(new Thread() {
       public void run() {
         final Status status;
-        status = sparkExecutorDriver.run();
-        LOG.log(Level.INFO, "SparkExecutorDriver ended with status {0}", status);
+        status = mesosExecutorDriver.run();
+        LOG.log(Level.INFO, "MesosExecutorDriver ended with status {0}", status);
       }
     });
   }
@@ -156,15 +148,15 @@ public final class REEFExecutor implements Executor {
       this.evaluatorProcess.destroy();
       sparkExecutorDriver.sendStatusUpdate(TaskStatus.newBuilder()
           .setTaskId(TaskID.newBuilder()
-              .setValue(sparkExecutorId)
+              .setValue(mesosExecutorId)
               .build())
           .setState(TaskState.TASK_FINISHED)
           .setMessage("Evaluator Process exited with status " + String.valueOf(evaluatorProcessExitValue))
           .build());
     } else {
-      sparkExecutorDriver.sendStatusUpdate(TaskStatus.newBuilder()
+      mesosExecutorDriver.sendStatusUpdate(TaskStatus.newBuilder()
           .setTaskId(TaskID.newBuilder()
-              .setValue(sparkExecutorId)
+              .setValue(mesosExecutorId)
               .build())
           .setState(TaskState.TASK_FINISHED)
           .setData(ByteString.copyFromUtf8("eval_not_run"))
@@ -173,7 +165,7 @@ public final class REEFExecutor implements Executor {
           .build());
     }
 
-    // Shutdown Spark Executor
+    // Shutdown Mesos Executor
     this.executorService.shutdown();
     this.sparkExecutorDriver.stop();
   }
@@ -185,26 +177,26 @@ public final class REEFExecutor implements Executor {
     }
     sparkExecutorDriver.sendStatusUpdate(TaskStatus.newBuilder()
         .setTaskId(TaskID.newBuilder()
-            .setValue(sparkExecutorId)
+            .setValue(mesosExecutorId)
             .build())
         .setState(TaskState.TASK_FAILED)
         .setMessage("Evaluator Process exited with status " + String.valueOf(evaluatorProcessExitValue))
         .build());
 
-    // Shutdown Spark Executor
+    // Shutdown Mesos Executor
     this.executorService.shutdown();
     this.sparkExecutorDriver.stop();
   }
 
   public void onEvaluatorRelease(final EvaluatorRelease evaluatorRelease) {
     LOG.log(Level.INFO, "Release!!!! {0}", evaluatorRelease.toString());
-    assert evaluatorRelease.getIdentifier().toString().equals(this.sparkExecutorId);
+    assert evaluatorRelease.getIdentifier().toString().equals(this.mesosExecutorId);
     this.onStop();
   }
 
   public void onEvaluatorLaunch(final EvaluatorLaunch evaluatorLaunch) {
     LOG.log(Level.INFO, "Launch!!!! {0}", evaluatorLaunch.toString());
-    assert evaluatorLaunch.getIdentifier().toString().equals(this.sparkExecutorId);
+    assert evaluatorLaunch.getIdentifier().toString().equals(this.mesosExecutorId);
     final ExecutorService evaluatorLaunchExecutorService = Executors.newSingleThreadExecutor();
     evaluatorLaunchExecutorService.submit(new Thread() {
       public void run() {
@@ -212,7 +204,7 @@ public final class REEFExecutor implements Executor {
           final List<String> command = Arrays.asList(evaluatorLaunch.getCommand().toString().split(" "));
           LOG.log(Level.INFO, "Command!!!! {0}", command);
           final FileSystem fileSystem = FileSystem.get(new Configuration());
-          final Path hdfsFolder = new Path(fileSystem.getUri() + "/" + sparkExecutorId);
+          final Path hdfsFolder = new Path(fileSystem.getUri() + "/" + mesosExecutorId);
           final File localFolder = new File(fileNames.getREEFFolderName(), fileNames.getLocalFolderName());
 
           FileUtil.copy(fileSystem, hdfsFolder, localFolder, true, new Configuration());

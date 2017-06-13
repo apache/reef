@@ -17,6 +17,6 @@
  * under the License.
  */
 /**
- * Evaluator-side parameters for Spark job.
+ * Evaluator-side parameters for Mesos job.
  */
 package org.apache.reef.runtime.spark.evaluator.parameters;

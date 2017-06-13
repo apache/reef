@@ -22,8 +22,8 @@ import org.apache.reef.tang.annotations.Name;
 import org.apache.reef.tang.annotations.NamedParameter;
 
 /**
- * The ip address of Spark Master.
+ * The ip address of Mesos Master.
  */
-@NamedParameter(doc = "The ip address of Spark Master")
+@NamedParameter(doc = "The ip address of Mesos Master")
 public final class SparkMasterIp implements Name<String> {
 }

@@ -17,6 +17,6 @@
  * under the License.
  */
 /**
- * Driver-side event handlers for Spark resourcemanager.
+ * Driver-side event handlers for Mesos resourcemanager.
  */
 package org.apache.reef.runtime.spark.driver;

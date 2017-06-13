@@ -25,5 +25,5 @@ import org.apache.reef.tang.annotations.NamedParameter;
  * The ip address of Spark Master.
  */
 @NamedParameter(doc = "The ip address of Spark Master", short_name = "master_ip")
-public final class SparkIp implements Name<String> {
+public final class MasterIp implements Name<String> {
 }
