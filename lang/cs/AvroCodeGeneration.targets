@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+-->
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <UsingTask TaskName="AvscToCSharp" TaskFactory="CodeTaskFactory" AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.v4.0.dll">
+    <ParameterGroup>
+      <ProjectDirectory ParameterType="System.String" Required="true" />
+      <SourceFileString ParameterType="System.String" Required="true" />
+      <AvroMessageDirectory ParameterType="System.String" Required="true" />
+      <AvroBinaryDirectory ParameterType="System.String" Required="true" />
+    </ParameterGroup>
+    <Task>
+      <Using Namespace="System" />
+      <Using Namespace="System.IO" />
+      <Using Namespace="System.Diagnostics" />
+      <Code Type="Fragment" Language="cs"><![CDATA[
+        // Overall strategy: Copy the executuables and libraries need
+        // to run the MS Avro code generator to a binary directory
+        // in the packages directory, and then run code generation for
+        // every message defined in the Messages directory.
+
+        // Create a temporary working directory.
+        String tempDir = Path.GetFullPath(Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString()));
+        Directory.CreateDirectory(tempDir);
+        String[] sourceFiles = SourceFileString.Split(new char[]{';'});
+
+        // Get the full path where the avro avsc files are located.
+        String messageDirectory = Path.GetFullPath(AvroMessageDirectory);
+
+        // Add the avro tools directory to the path.
+        String path = Environment.GetEnvironmentVariable("path");
+        path = Path.GetFullPath(AvroBinaryDirectory) + ";" + path;
+        Environment.SetEnvironmentVariable("path", path);
+
+        String copyright = String.Join(Environment.NewLine,
+          "// Licensed to the Apache Software Foundation (ASF) under one",
+          "// or more contributor license agreements.  See the NOTICE file",
+          "// distributed with this work for additional information",
+          "// regarding copyright ownership.  The ASF licenses this file",
+          "// to you under the Apache License, Version 2.0 (the",
+          "// \"License\"); you may not use this file except in compliance",
+          "// with the License.  You may obtain a copy of the License at",
+          "//",
+          "//   http://www.apache.org/licenses/LICENSE-2.0",
+          "//",
+          "// Unless required by applicable law or agreed to in writing,",
+          "// software distributed under the License is distributed on an",
+          "// \"AS IS\" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY",
+          "// KIND, either express or implied.  See the License for the",
+          "// specific language governing permissions and limitations",
+          "// under the License.");
+
+        // Setup the conversion process.
+        ProcessStartInfo rProcInfo = new ProcessStartInfo()
+        {
+            RedirectStandardOutput = true,
+            RedirectStandardError = true,
+            UseShellExecute = false,
+            FileName = "Microsoft.Avro.Tools.exe"
+        };
+
+        // Log the commands to a file.
+        using (StreamWriter logWriter = new StreamWriter(Path.Combine(tempDir, "avroout.log")))
+        {
+          logWriter.WriteLine(Environment.GetEnvironmentVariable("path"));
+          foreach (String file in sourceFiles)
+          {
+            if (file.Contains("Message"))
+            {
+              // Build the name of the source avsc file from the destiname CS file and avro message path.
+              String avroSourceName = Path.Combine(messageDirectory, (Path.GetFileName(file)).Replace(".cs", ".avsc"));
+              rProcInfo.Arguments = String.Format(" CodeGen /I:{0} /O:{1}", avroSourceName, tempDir);
+              logWriter.Write(rProcInfo.FileName);
+              logWriter.WriteLine(rProcInfo.Arguments);
+
+              StringBuilder stdOutBuilder = new StringBuilder();
+              StringBuilder stdErrBuilder = new StringBuilder();
+
+              // Start the conversion process
+              using (Process rProc = Process.Start(rProcInfo))
+              {
+                  stdOutBuilder.Append(rProc.StandardOutput.ReadToEnd());
+                  stdErrBuilder.Append(rProc.StandardError.ReadToEnd());
+                  rProc.WaitForExit();
+              }
+              logWriter.WriteLine(stdOutBuilder.ToString());
+              logWriter.WriteLine(stdErrBuilder.ToString());
+
+              using (StreamReader tmpReader = new StreamReader(Path.Combine(tempDir, Path.GetFileName(file))))
+              {
+                String source = tmpReader.ReadToEnd();
+                using (StreamWriter destWriter = new StreamWriter(Path.GetFullPath(file)))
+                {
+                  destWriter.WriteLine(copyright);
+                  destWriter.Write(source);
+                }
+              }
+            }
+          }
+        }
+      ]]></Code>
+    </Task>
+  </UsingTask>
+  <Target Name="SetupAvroCodeGen" DependsOnTargets="RestorePackages">
+    <Message Text="Copying Avro code generation files to $(AvroBinaryDirectory)..." />
+    <Copy SourceFiles="$(AvroLibraryDirectory)" DestinationFolder="$(AvroBinaryDirectory)" />
+    <Copy SourceFiles="$(AvroToolsDirectory)" DestinationFolder="$(AvroBinaryDirectory)" />
+    <Copy SourceFiles="$(NewtonsoftDirectory)" DestinationFolder="$(AvroBinaryDirectory)" />
+  </Target>
+  <Target Name="CodeGeneration" DependsOnTargets="SetupAvroCodeGen" BeforeTargets="CoreCompile">
+    <Message Text="Generating C# classes from Avro avsc files @(Compile)..." />
+    <AvscToCSharp ProjectDirectory="$(ProjectDir)" SourceFileString="@(Compile)" AvroMessageDirectory="$(AvroMessageDirectory)" AvroBinaryDirectory="$(AvroBinaryDirectory)" />
+  </Target>
+</Project>
