@@ -29,7 +29,7 @@ namespace Org.Apache.REEF.Experimental.ParquetReader
     /// <summary>
     /// Constructs a Parquet file reader.
     /// </summary>
-    public class ParquetReader : IDisposable
+    sealed public class ParquetReader : IDisposable
     {
         private static readonly Logger Logger = Logger.GetLogger(typeof(ParquetReader));
 
@@ -47,7 +47,7 @@ namespace Org.Apache.REEF.Experimental.ParquetReader
             public string ParquetPath { get; set; }
             public string AvroPath { get; set; }
             public JavaProcessConfiguration Conf { get; set; }
-            public void Start()
+            public void StartAndWait()
             {
                 var p = new Process();
                 p.StartInfo.FileName = JavaProcessConfiguration.javaExecutable;
@@ -99,7 +99,7 @@ namespace Org.Apache.REEF.Experimental.ParquetReader
                 Conf = c
             };
 
-            p.Start();
+            p.StartAndWait();
 
             return new ParquetCollection<T>(p.AvroPath);
         }

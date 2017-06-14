@@ -21,13 +21,17 @@ using Microsoft.Hadoop.Avro.Container;
 using System.Collections;
 using System.Collections.Generic;
 
+using Org.Apache.REEF.Utilities.Logging;
+
 namespace Org.Apache.REEF.Experimental.ParquetCollection
 {
     /// <summary>
     /// Represents a data collection of type T from parquet file.
     /// </summary>
-    public class ParquetCollection<T> : IEnumerable<T>, IDisposable
+    sealed public class ParquetCollection<T> : IEnumerable<T>, IDisposable
     {
+        private static readonly Logger Logger = Logger.GetLogger(typeof(ParquetCollection<T>));
+
         private readonly Stream stream;
         private readonly IAvroReader<T> avroReader;
         private readonly SequentialReader<T> seqReader;
@@ -40,10 +44,18 @@ namespace Org.Apache.REEF.Experimental.ParquetCollection
         /// <param name="avroPath">Path to input avro file.</param>
         public ParquetCollection(string avroPath)
         {
-            stream = new FileStream(avroPath, FileMode.Open);
-            avroReader = AvroContainer.CreateReader<T>(stream);
-            seqReader = new SequentialReader<T>(avroReader);
-            _avroPath = avroPath;
+            try
+            {
+                stream = new FileStream(avroPath, FileMode.Open);
+                avroReader = AvroContainer.CreateReader<T>(stream);
+                seqReader = new SequentialReader<T>(avroReader);
+                _avroPath = avroPath;
+            }
+            catch (System.Exception ex)
+            {
+                Logger.Log(Level.Error, ex.Message);
+                throw ex;
+            }
         }
 
         /// <summary>
@@ -68,7 +80,7 @@ namespace Org.Apache.REEF.Experimental.ParquetCollection
             return seqReader.Objects.GetEnumerator();
         }
 
-        protected virtual void Dispose(bool disposing)
+        private void Dispose(bool disposing)
         {
             if (!_disposed)
             {

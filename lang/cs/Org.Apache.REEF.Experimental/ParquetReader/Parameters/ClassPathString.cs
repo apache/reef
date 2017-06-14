@@ -20,7 +20,7 @@ using Org.Apache.REEF.Tang.Annotations;
 namespace Org.Apache.REEF.Experimental.ParquetReader.Parameters
 {
     [NamedParameter("Path to all jar dependencies", "classPath")]
-    public class ClassPathString : Name<string>
+    sealed public class ClassPathString : Name<string>
     {
     }
 }
