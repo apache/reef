@@ -28,10 +28,8 @@ namespace Org.Apache.REEF.Experimental.ParquetCollection
     /// <summary>
     /// Represents a data collection of type T from parquet file.
     /// </summary>
-    sealed public class ParquetCollection<T> : IEnumerable<T>, IDisposable
+    public sealed class ParquetCollection<T> : IEnumerable<T>, IDisposable
     {
-        private static readonly Logger Logger = Logger.GetLogger(typeof(ParquetCollection<T>));
-
         private readonly Stream stream;
         private readonly IAvroReader<T> avroReader;
         private readonly SequentialReader<T> seqReader;
@@ -42,20 +40,48 @@ namespace Org.Apache.REEF.Experimental.ParquetCollection
         /// Constructor of ParquetCollection
         /// </summary>
         /// <param name="avroPath">Path to input avro file.</param>
+        /// <exception cref="ArgumentException">Thrown when avroPath is not valid.</exception>
+        /// <exception cref="FileNotFoundException">Thrown when no file in avroPath.</exception>  
+        /// <exception cref="IOException">Thrown when IO is not valid.</exception>
+        /// <exception cref="ArgumentNullException">Thrown when stream or avroReader is null.</exception>
         public ParquetCollection(string avroPath)
         {
             try
             {
                 stream = new FileStream(avroPath, FileMode.Open);
-                avroReader = AvroContainer.CreateReader<T>(stream);
-                seqReader = new SequentialReader<T>(avroReader);
-                _avroPath = avroPath;
             }
-            catch (System.Exception ex)
+            catch (ArgumentException ex)
             {
-                Logger.Log(Level.Error, ex.Message);
-                throw ex;
+                throw new ArgumentException(ex.Message);
             }
+            catch (FileNotFoundException ex)
+            {
+                throw new FileNotFoundException(ex.Message);
+            }
+            catch (IOException ex)
+            {
+                throw new IOException(ex.Message);
+            }
+            
+            try
+            {
+                avroReader = AvroContainer.CreateReader<T>(stream);
+            }
+            catch (ArgumentNullException ex)
+            {
+                throw new ArgumentNullException(ex.Message);
+            }
+
+            try
+            {
+                seqReader = new SequentialReader<T>(avroReader);
+            }
+            catch (ArgumentNullException ex)
+            {
+                throw new ArgumentNullException(ex.Message);
+            }
+
+            _avroPath = avroPath;
         }
 
         /// <summary>

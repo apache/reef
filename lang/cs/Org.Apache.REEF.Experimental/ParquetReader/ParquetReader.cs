@@ -44,9 +44,24 @@ namespace Org.Apache.REEF.Experimental.ParquetReader
 
         private class JavaProcess
         {
+            /// <summary>
+            /// Path of target Parquet file.
+            /// </summary>
             public string ParquetPath { get; set; }
+
+            /// <summary>
+            /// Path of target Avro Schema.
+            /// </summary>
             public string AvroPath { get; set; }
+
+            /// <summary>
+            /// Configuration for the Java process.
+            /// </summary>
             public JavaProcessConfiguration Conf { get; set; }
+
+            /// <summary>
+            /// This assembles the Java process command, starts the process and waits until it finishes.
+            /// </summary>
             public void StartAndWait()
             {
                 var p = new Process();
