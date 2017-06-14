@@ -28,10 +28,12 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Default remote identifier factory that creates a specific remote identifier
- * from a string representation
+ * from a string representation.
  * <p>
  * A string representation is broken into two parts type and type-specific details separated by "://"
  * A remote identifier implementation should implement a constructor that accepts a string.
@@ -39,7 +41,9 @@ import java.util.Map;
  */
 public class DefaultIdentifierFactory implements IdentifierFactory {
 
-  // map between type and remote identifier class
+  private static final Logger LOG = Logger.getLogger(DefaultIdentifierFactory.class.getName());
+
+  /** Map between type and remote identifier class. */
   private final Map<String, Class<? extends Identifier>> typeToClazzMap;
 
   /**
@@ -60,6 +64,8 @@ public class DefaultIdentifierFactory implements IdentifierFactory {
     this.typeToClazzMap = typeToClazzMap;
   }
 
+  private static final Class<?>[] CONSTRUCTOR_ARG_TYPES = {String.class};
+
   /**
    * Creates a new remote identifier instance.
    *
@@ -69,24 +75,28 @@ public class DefaultIdentifierFactory implements IdentifierFactory {
    */
   @Override
   public Identifier getNewInstance(final String str) {
+
     final int index = str.indexOf("://");
     if (index < 0) {
-      throw new RemoteRuntimeException("Invalid name " + str);
+      throw new RemoteRuntimeException("Invalid remote identifier name: " + str);
     }
+
     final String type = str.substring(0, index);
     final Class<? extends Identifier> clazz = typeToClazzMap.get(type);
-    final Class<?>[] argTypes = {String.class};
-    final Constructor<? extends Identifier> constructor;
+
     try {
-      constructor = clazz.getDeclaredConstructor(argTypes);
-      final Object[] args = new Object[1];
-      args[0] = str.substring(index + 3);
-      return constructor.newInstance(args);
-    } catch (NoSuchMethodException | SecurityException | InstantiationException | IllegalAccessException |
-             IllegalArgumentException | InvocationTargetException e) {
-      e.printStackTrace();
+
+      final Constructor<? extends Identifier> constructor = clazz.getDeclaredConstructor(CONSTRUCTOR_ARG_TYPES);
+      final Object[] args = new Object[] {str.substring(index + 3)};
+
+      final Identifier instance = constructor.newInstance(args);
+      LOG.log(Level.FINER, "Created new identifier: {0} for {1}", new Object[] {instance, str});
+      return instance;
+
+    } catch (final NoSuchMethodException | SecurityException | InstantiationException
+        | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
+      LOG.log(Level.SEVERE, "Cannot create new identifier for: " + str, e);
       throw new RemoteRuntimeException(e);
     }
   }
-
 }

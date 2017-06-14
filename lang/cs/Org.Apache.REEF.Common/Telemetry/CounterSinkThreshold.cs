@@ -15,26 +15,12 @@
 // specific language governing permissions and limitations
 // under the License.
 
-#if DOTNET_BUILD
-using Microsoft.Practices.EnterpriseLibrary.TransientFaultHandling;
-#else
-using Microsoft.Practices.TransientFaultHandling;
-#endif
-
 using Org.Apache.REEF.Tang.Annotations;
-using Org.Apache.REEF.Wake.Remote.Impl;
 
-namespace Org.Apache.REEF.Wake.Remote
+namespace Org.Apache.REEF.Common.Telemetry
 {
-    /// <summary>
-    /// Interface for the retry logic to connect to remote endpoint
-    /// </summary>
-    [DefaultImplementation(typeof(RemoteConnectionRetryHandler))]
-    public interface IConnectionRetryHandler
+    [NamedParameter(Documentation = "Threshold to trigger the sink.", ShortName = "CounterSinkThreshold", DefaultValue = "1")]
+    public class CounterSinkThreshold : Name<int>
     {
-        /// <summary>
-        /// Retry policy for the tcp connection
-        /// </summary>
-        RetryPolicy Policy { get; }
     }
 }

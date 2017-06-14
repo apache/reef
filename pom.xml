@@ -51,6 +51,7 @@ under the License.
         <bundle.snappy>false</bundle.snappy>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <hadoop.version>2.6.0</hadoop.version>
+        <spark.version>2.1.0</spark.version>
         <avro.version>1.8.1</avro.version>
         <parquet.version>1.9.0</parquet.version>
         <jetty.version>6.1.26</jetty.version>
@@ -275,7 +276,7 @@ under the License.
                             <exclude>.gitignore</exclude>
                             <exclude>.git/**</exclude>
                             <!-- Intellij idea project files -->
-                            <exclude>lang/java/.idea/**</exclude>
+                            <exclude>**/.idea/**</exclude>
                             <exclude>**/*.iml</exclude>
                             <exclude>**/target/**</exclude>
                             <!-- ReadMe files -->
@@ -285,8 +286,8 @@ under the License.
                             <exclude>REEF_LOCAL_RUNTIME/**</exclude>
                             <exclude>REEF_MESOS_RUNTIME/**</exclude>
                             <exclude>REEF_STANDALONE_RUNTIME/**</exclude>
-                            <!-- JVM error logs, especially troublesome on CI servers -->
-                            <exclude>**/hs_err_*.log</exclude>
+                            <!-- Error logs -->
+                            <exclude>**/*.log</exclude>
                             <!-- The Visual Studio and Nuget build files -->
                             <exclude>**/*.sln*</exclude>
                             <exclude>**/*.vcxproj*</exclude>
@@ -400,6 +401,25 @@ under the License.
                         <excludes>
                             <exclude>*/target/generated-sources/*</exclude>
                         </excludes>
+                    </configuration>
+                </plugin>
+                <plugin>
+                    <groupId>net.alchim31.maven</groupId>
+                    <artifactId>scala-maven-plugin</artifactId>
+                    <version>3.2.1</version>
+                    <executions>
+                        <execution>
+                            <goals>
+                                <goal>compile</goal>
+                                <goal>testCompile</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                    <configuration>
+                        <args>
+                            <!-- work-around for https://issues.scala-lang.org/browse/SI-8358 -->
+                            <arg>-nobootcp</arg>
+                        </args>
                     </configuration>
                 </plugin>
             </plugins>
@@ -611,6 +631,15 @@ under the License.
             </dependency>
             <!-- END OF HADOOP -->
 
+            <!-- Spark -->
+            <dependency>
+                <groupId>org.apache.spark</groupId>
+                <artifactId>spark-core_2.11</artifactId>
+                <version>${spark.version}</version>
+                <scope>provided</scope>
+            </dependency>
+            <!-- End of Spark -->
+
             <!-- Apache Commons -->
             <dependency>
                 <groupId>commons-cli</groupId>
@@ -751,6 +780,7 @@ under the License.
         <module>lang/java/reef-webserver</module>
         <module>lang/java/reef-utils-hadoop</module>
         <module>lang/java/reef-utils</module>
+        <module>lang/scala/reef-examples-scala</module>
         <module>website</module>
     </modules>
 

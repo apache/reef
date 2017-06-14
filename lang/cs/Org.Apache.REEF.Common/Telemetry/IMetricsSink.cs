@@ -15,26 +15,19 @@
 // specific language governing permissions and limitations
 // under the License.
 
-#if DOTNET_BUILD
-using Microsoft.Practices.EnterpriseLibrary.TransientFaultHandling;
-#else
-using Microsoft.Practices.TransientFaultHandling;
-#endif
-
+using System;
+using System.Collections.Generic;
 using Org.Apache.REEF.Tang.Annotations;
-using Org.Apache.REEF.Wake.Remote.Impl;
 
-namespace Org.Apache.REEF.Wake.Remote
+namespace Org.Apache.REEF.Common.Telemetry
 {
     /// <summary>
-    /// Interface for the retry logic to connect to remote endpoint
+    /// Interface for metrics sink.
+    /// It is used to output IMRU metrics.
     /// </summary>
-    [DefaultImplementation(typeof(RemoteConnectionRetryHandler))]
-    public interface IConnectionRetryHandler
+    [DefaultImplementation(typeof(DefaultMetricsSink))]
+    public interface IMetricsSink : IDisposable
     {
-        /// <summary>
-        /// Retry policy for the tcp connection
-        /// </summary>
-        RetryPolicy Policy { get; }
+        void Sink(ISet<KeyValuePair<string, string>> metrics);
     }
 }

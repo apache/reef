@@ -1,4 +1,4 @@
-﻿// Licensed to the Apache Software Foundation (ASF) under one
+// Licensed to the Apache Software Foundation (ASF) under one
 // or more contributor license agreements.  See the NOTICE file
 // distributed with this work for additional information
 // regarding copyright ownership.  The ASF licenses this file
@@ -15,26 +15,11 @@
 // specific language governing permissions and limitations
 // under the License.
 
-#if DOTNET_BUILD
-using Microsoft.Practices.EnterpriseLibrary.TransientFaultHandling;
-#else
-using Microsoft.Practices.TransientFaultHandling;
-#endif
+using System.Runtime.CompilerServices;
 
-using Org.Apache.REEF.Tang.Annotations;
-using Org.Apache.REEF.Wake.Remote.Impl;
-
-namespace Org.Apache.REEF.Wake.Remote
-{
-    /// <summary>
-    /// Interface for the retry logic to connect to remote endpoint
-    /// </summary>
-    [DefaultImplementation(typeof(RemoteConnectionRetryHandler))]
-    public interface IConnectionRetryHandler
-    {
-        /// <summary>
-        /// Retry policy for the tcp connection
-        /// </summary>
-        RetryPolicy Policy { get; }
-    }
-}
+// Allow the tests access to `internal` APIs
+[assembly: InternalsVisibleTo("Org.Apache.REEF.IO.Tests")]
+[assembly: InternalsVisibleTo("Org.Apache.REEF.IO.TestClient")]
+[assembly: InternalsVisibleTo("Org.Apache.REEF.Client.Tests")]
+[assembly: InternalsVisibleTo("Org.Apache.REEF.Tests")]
+[assembly: InternalsVisibleTo("DynamicProxyGenAssembly2")]

@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project>
 <!--
 Licensed to the Apache Software Foundation (ASF) under one
 or more contributor license agreements.  See the NOTICE file
@@ -15,14 +15,15 @@ KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
 -->
-  <PropertyGroup>
-    <AssemblyName>Org.Apache.REEF.Utilities</AssemblyName>
-    <Description>Common utilities such as logging shared across REEF/Wake/Tang</Description>
-    <PackageTags>Apache REEF REEF/Wake/Tang common utilities</PackageTags>
-    <TargetFrameworks>netstandard2.0;net46;net451</TargetFrameworks>
-  </PropertyGroup>
-  <Import Project="..\build.DotNet.props" />
-  <ItemGroup>
-      <PackageReference Include="Newtonsoft.Json" Version="$(NewtonsoftJsonVersion)" />
-  </ItemGroup>
+<ItemGroup>
+    <PackageReference Include="xunit" Version="2.2.0"/>
+    <PackageReference Include="xunit.abstractions" Version="2.0.1"/>
+    <PackageReference Include="xunit.assert" Version="2.2.0"/>
+    <PackageReference Include="xunit.core" Version="2.2.0"/>
+    <PackageReference Include="xunit.extensibility.core" Version="2.2.0"/>
+    <PackageReference Include="xunit.extensibility.execution" Version="2.2.0"/>
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.2.0"/>
+</ItemGroup>
+
 </Project>
+
