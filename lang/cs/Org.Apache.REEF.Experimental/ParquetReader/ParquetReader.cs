@@ -29,7 +29,7 @@ namespace Org.Apache.REEF.Experimental.ParquetReader
     /// <summary>
     /// Constructs a Parquet file reader.
     /// </summary>
-    sealed public class ParquetReader : IDisposable
+    public sealed class ParquetReader : IDisposable
     {
         private static readonly Logger Logger = Logger.GetLogger(typeof(ParquetReader));
 
@@ -100,7 +100,8 @@ namespace Org.Apache.REEF.Experimental.ParquetReader
         /// <returns>
         /// Return a ParquetCollection that can iterate data from each avro block.
         /// </returns>
-        public ParquetCollection<T> Read<T>(string parquetPath)
+        /// <exception cref="FileNotFoundException">Thrown when no file in parquet path.</exception>
+        internal ParquetCollection<T> Read<T>(string parquetPath)
         {
             if (!File.Exists(parquetPath))
             {
