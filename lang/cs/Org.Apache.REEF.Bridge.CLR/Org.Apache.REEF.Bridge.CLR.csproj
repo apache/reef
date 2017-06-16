@@ -15,7 +15,7 @@ KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
 -->
-<Project ToolsVersion="12.0" DefaultTargets="CodeGeneration;Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
     <ProjectGuid>{E19FF4F8-AB45-4631-8017-E18D94D882DD}</ProjectGuid>
@@ -186,13 +186,13 @@ under the License.
       ]]></Code>
     </Task>
   </UsingTask>
-  <Target Name="SetupAvroCodeGen">
+  <Target Name="SetupAvroCodeGen" DependsOnTargets="RestorePackages">
     <Message Text="Copying Avro code generation files to $(AvroBinaryDirectory)..." />
     <Copy SourceFiles="$(AvroLibraryDirectory)" DestinationFolder="$(AvroBinaryDirectory)" />
     <Copy SourceFiles="$(AvroToolsDirectory)" DestinationFolder="$(AvroBinaryDirectory)" />
     <Copy SourceFiles="$(NewtonsoftDirectory)" DestinationFolder="$(AvroBinaryDirectory)" />
   </Target>
-  <Target Name="CodeGeneration" DependsOnTargets="SetupAvroCodeGen" BeforeTargets="Build">
+  <Target Name="CodeGeneration" DependsOnTargets="SetupAvroCodeGen" BeforeTargets="CoreCompile">
     <Message Text="Generating C# classes from Avro avsc files @(Compile)..." />
     <AvscToCSharp ProjectDirectory="$(ProjectDir)" SourceFileString="@(Compile)" AvroMessageDirectory="$(AvroMessageDirectory)" AvroBinaryDirectory="$(AvroBinaryDirectory)" />
   </Target>
