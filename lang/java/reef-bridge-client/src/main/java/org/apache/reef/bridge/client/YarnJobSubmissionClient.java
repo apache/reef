@@ -37,6 +37,7 @@ import org.apache.reef.runtime.common.launch.parameters.DriverLaunchCommandPrefi
 import org.apache.reef.runtime.yarn.YarnClasspathProvider;
 import org.apache.reef.runtime.yarn.client.SecurityTokenProvider;
 import org.apache.reef.runtime.yarn.client.YarnSubmissionHelper;
+import org.apache.reef.runtime.yarn.client.unmanaged.YarnProxyUser;
 import org.apache.reef.runtime.yarn.client.uploader.JobFolder;
 import org.apache.reef.runtime.yarn.client.uploader.JobUploader;
 import org.apache.reef.runtime.yarn.driver.parameters.JobSubmissionDirectoryPrefix;
@@ -71,6 +72,7 @@ public final class YarnJobSubmissionClient {
   private final REEFFileNames fileNames;
   private final YarnConfiguration yarnConfiguration;
   private final ClasspathProvider classpath;
+  private final YarnProxyUser yarnProxyUser;
   private final SecurityTokenProvider tokenProvider;
   private final YarnSubmissionParametersFileGenerator jobSubmissionParametersGenerator;
 
@@ -81,6 +83,7 @@ public final class YarnJobSubmissionClient {
                           final YarnConfiguration yarnConfiguration,
                           final REEFFileNames fileNames,
                           final ClasspathProvider classpath,
+                          final YarnProxyUser yarnProxyUser,
                           final SecurityTokenProvider tokenProvider,
                           final YarnSubmissionParametersFileGenerator jobSubmissionParametersGenerator) {
 
@@ -90,6 +93,7 @@ public final class YarnJobSubmissionClient {
     this.fileNames = fileNames;
     this.yarnConfiguration = yarnConfiguration;
     this.classpath = classpath;
+    this.yarnProxyUser = yarnProxyUser;
     this.tokenProvider = tokenProvider;
     this.jobSubmissionParametersGenerator = jobSubmissionParametersGenerator;
   }
@@ -115,7 +119,8 @@ public final class YarnJobSubmissionClient {
     // ------------------------------------------------------------------------
     // Get an application ID
     try (final YarnSubmissionHelper submissionHelper = new YarnSubmissionHelper(
-        yarnConfiguration, fileNames, classpath, tokenProvider, isUnmanaged, commandPrefixList)) {
+        this.yarnConfiguration, this.fileNames, this.classpath, this.yarnProxyUser,
+        this.tokenProvider, this.isUnmanaged, this.commandPrefixList)) {
 
       // ------------------------------------------------------------------------
       // Prepare the JAR

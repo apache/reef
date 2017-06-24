@@ -24,8 +24,14 @@ using Org.Apache.REEF.Tang.Util;
 
 namespace Org.Apache.REEF.Driver
 {
+    /// <summary>
+    /// Configuration module for MetricsService.
+    /// </summary>
     public sealed class MetricsServiceConfigurationModule : ConfigurationModuleBuilder
     {
+        public static readonly OptionalImpl<IMetricsSink> OnMetricsSink = new OptionalImpl<IMetricsSink>();
+        public static readonly OptionalParameter<int> CounterSinkThreshold = new OptionalParameter<int>();
+
         /// <summary>
         /// It provides the configuration for MetricsService
         /// </summary>
@@ -33,6 +39,8 @@ namespace Org.Apache.REEF.Driver
             .BindSetEntry<DriverBridgeConfigurationOptions.ContextMessageHandlers, MetricsService, IObserver<IContextMessage>>(
                 GenericType<DriverBridgeConfigurationOptions.ContextMessageHandlers>.Class,
                 GenericType<MetricsService>.Class)
+            .BindSetEntry(GenericType<MetricSinks>.Class, OnMetricsSink)
+            .BindNamedParameter(GenericType<CounterSinkThreshold>.Class, CounterSinkThreshold)
             .Build();
     }
 }

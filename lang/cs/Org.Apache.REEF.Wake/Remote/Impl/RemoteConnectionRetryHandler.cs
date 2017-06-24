@@ -16,7 +16,11 @@
 // under the License.
 
 using System;
+#if DOTNET_BUILD
+using Microsoft.Practices.EnterpriseLibrary.TransientFaultHandling;
+#else
 using Microsoft.Practices.TransientFaultHandling;
+#endif
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Utilities.Logging;
 using Org.Apache.REEF.Wake.Remote.Parameters;

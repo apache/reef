@@ -40,8 +40,8 @@ namespace Org.Apache.REEF.Tests.Functional.Failure
 
         public byte[] Call(byte[] memento)
         {
-            Logger.Log(Level.Info, Prefix + "Will sleep for 2 seconds (expecting to be poisoned faster).");
-            Thread.Sleep(2000);
+            Logger.Log(Level.Info, Prefix + "Will sleep for 4 seconds (expecting to be poisoned faster).");
+            Thread.Sleep(4000);
             Logger.Log(Level.Info, Prefix + "Task sleep finished successfully.");
             return null;
         }

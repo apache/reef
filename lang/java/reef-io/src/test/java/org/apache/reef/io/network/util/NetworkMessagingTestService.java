@@ -23,7 +23,6 @@ import org.apache.reef.io.network.Connection;
 import org.apache.reef.io.network.Message;
 import org.apache.reef.io.network.NetworkConnectionService;
 import org.apache.reef.io.network.impl.config.NetworkConnectionServiceIdFactory;
-import org.apache.reef.io.network.naming.NameResolver;
 import org.apache.reef.io.network.naming.NameResolverConfiguration;
 import org.apache.reef.io.network.naming.NameServer;
 import org.apache.reef.tang.Configuration;
@@ -35,6 +34,7 @@ import org.apache.reef.wake.Identifier;
 import org.apache.reef.wake.IdentifierFactory;
 import org.apache.reef.wake.remote.Codec;
 import org.apache.reef.wake.remote.transport.LinkListener;
+import org.junit.Assert;
 
 import java.net.SocketAddress;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -51,8 +51,6 @@ public final class NetworkMessagingTestService implements AutoCloseable {
   private final NetworkConnectionService receiverNetworkConnService;
   private final NetworkConnectionService senderNetworkConnService;
   private final NameServer nameServer;
-  private final NameResolver receiverResolver;
-  private final NameResolver senderResolver;
 
   public NetworkMessagingTestService(final String localAddress) throws InjectionException {
     // name server
@@ -67,14 +65,12 @@ public final class NetworkMessagingTestService implements AutoCloseable {
     // network service for receiver
     final Injector injectorReceiver = injector.forkInjector(netConf);
     this.receiverNetworkConnService = injectorReceiver.getInstance(NetworkConnectionService.class);
-    this.receiverResolver = injectorReceiver.getInstance(NameResolver.class);
     this.factory = injectorReceiver.getNamedInstance(NetworkConnectionServiceIdFactory.class);
 
     // network service for sender
     LOG.log(Level.FINEST, "=== Test network connection service sender start");
     final Injector injectorSender = injector.forkInjector(netConf);
     senderNetworkConnService = injectorSender.getInstance(NetworkConnectionService.class);
-    this.senderResolver = injectorSender.getInstance(NameResolver.class);
   }
 
   public <T> void registerTestConnectionFactory(final Identifier connFactoryId,
@@ -101,16 +97,15 @@ public final class NetworkMessagingTestService implements AutoCloseable {
     senderNetworkConnService.close();
     receiverNetworkConnService.close();
     nameServer.close();
-    receiverResolver.close();
-    senderResolver.close();
   }
 
   public static final class MessageHandler<T> implements EventHandler<Message<T>> {
+
     private final int expected;
     private final Monitor monitor;
     private final Identifier expectedSrcId;
     private final Identifier expectedDestId;
-    private AtomicInteger count = new AtomicInteger(0);
+    private final AtomicInteger count = new AtomicInteger(0);
 
     public MessageHandler(final Monitor monitor,
                           final int expected,
@@ -124,20 +119,15 @@ public final class NetworkMessagingTestService implements AutoCloseable {
 
     @Override
     public void onNext(final Message<T> value) {
-      count.incrementAndGet();
-      LOG.log(Level.FINE, "Count: {0}", count.get());
-      LOG.log(Level.FINE,
-          "OUT: {0} received {1} from {2} to {3}",
-          new Object[]{value, value.getSrcId(), value.getDestId()});
 
-      for (final T obj : value.getData()) {
-        LOG.log(Level.FINE, "OUT: data: {0}", obj);
-      }
+      final int currentCount = count.incrementAndGet();
+      LOG.log(Level.FINER, "Message {0}/{1} :: {2}", new Object[] {currentCount, expected, value});
 
-      assert value.getSrcId().equals(expectedSrcId);
-      assert value.getDestId().equals(expectedDestId);
+      Assert.assertEquals(expectedSrcId, value.getSrcId());
+      Assert.assertEquals(expectedDestId, value.getDestId());
+      Assert.assertTrue(currentCount <= expected);
 
-      if (count.get() == expected) {
+      if (currentCount >= expected) {
         monitor.mnotify();
       }
     }
@@ -146,11 +136,11 @@ public final class NetworkMessagingTestService implements AutoCloseable {
   public static final class TestListener<T> implements LinkListener<Message<T>> {
     @Override
     public void onSuccess(final Message<T> message) {
-      LOG.log(Level.FINE, "success: " + message);
+      LOG.log(Level.FINER, "Success: message {0}", message);
     }
     @Override
     public void onException(final Throwable cause, final SocketAddress remoteAddress, final Message<T> message) {
-      LOG.log(Level.WARNING, "exception: " + cause + message);
+      LOG.log(Level.WARNING, "Exception: message " + message, cause);
       throw new RuntimeException(cause);
     }
   }

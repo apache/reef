@@ -21,6 +21,7 @@ package org.apache.reef.client;
 import org.apache.reef.annotations.Provided;
 import org.apache.reef.annotations.audience.ClientSide;
 import org.apache.reef.annotations.audience.Public;
+import org.apache.reef.runtime.common.UserCredentials;
 import org.apache.reef.tang.Configuration;
 import org.apache.reef.tang.Tang;
 import org.apache.reef.tang.annotations.Unit;
@@ -59,6 +60,7 @@ public final class DriverLauncher implements AutoCloseable {
       .build();
 
   private final REEF reef;
+  private final UserCredentials user;
 
   private LauncherStatus status = LauncherStatus.INIT;
 
@@ -66,8 +68,13 @@ public final class DriverLauncher implements AutoCloseable {
   private RunningJob theJob;
 
   @Inject
-  private DriverLauncher(final REEF reef) {
+  private DriverLauncher(final REEF reef, final UserCredentials user) {
     this.reef = reef;
+    this.user = user;
+  }
+
+  public UserCredentials getUser() {
+    return this.user;
   }
 
   /**

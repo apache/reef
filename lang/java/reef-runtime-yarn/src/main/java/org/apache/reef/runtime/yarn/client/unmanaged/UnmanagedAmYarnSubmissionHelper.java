@@ -18,6 +18,7 @@
  */
 package org.apache.reef.runtime.yarn.client.unmanaged;
 
+import org.apache.hadoop.security.UserGroupInformation;
 import org.apache.hadoop.security.token.Token;
 import org.apache.hadoop.yarn.api.records.*;
 import org.apache.hadoop.yarn.client.api.YarnClient;
@@ -42,14 +43,18 @@ final class UnmanagedAmYarnSubmissionHelper implements AutoCloseable {
   private static final Logger LOG = Logger.getLogger(UnmanagedAmYarnSubmissionHelper.class.getName());
 
   private final SecurityTokenProvider tokenProvider;
+  private final YarnProxyUser yarnProxyUser;
   private final YarnClient yarnClient;
   private final ApplicationSubmissionContext applicationSubmissionContext;
   private final ApplicationId applicationId;
 
-  UnmanagedAmYarnSubmissionHelper(final YarnConfiguration yarnConfiguration,
+  UnmanagedAmYarnSubmissionHelper(
+      final YarnConfiguration yarnConfiguration,
+      final YarnProxyUser yarnProxyUser,
       final SecurityTokenProvider tokenProvider) throws IOException, YarnException {
 
     this.tokenProvider = tokenProvider;
+    this.yarnProxyUser = yarnProxyUser;
 
     LOG.log(Level.FINE, "Initializing YARN Client");
     this.yarnClient = YarnClient.createYarnClient();
@@ -116,6 +121,7 @@ final class UnmanagedAmYarnSubmissionHelper implements AutoCloseable {
     this.yarnClient.submitApplication(this.applicationSubmissionContext);
 
     final Token<AMRMTokenIdentifier> token = this.yarnClient.getAMRMToken(this.applicationId);
+    this.yarnProxyUser.set("reef-uam-proxy", UserGroupInformation.getCurrentUser(), token);
     this.tokenProvider.addTokens(UserCredentialSecurityTokenProvider.serializeToken(token));
   }
 

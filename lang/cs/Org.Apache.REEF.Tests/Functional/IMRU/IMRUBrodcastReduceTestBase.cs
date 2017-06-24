@@ -56,6 +56,7 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
         protected const string FailedTaskMessage = IMRUDriver<int[], int[], int[], int[]>.FailedTaskMessage;
         protected const string FailedEvaluatorMessage = IMRUDriver<int[], int[], int[], int[]>.FailedEvaluatorMessage;
         protected const string DoneActionMessage = IMRUDriver<int[], int[], int[], int[]>.DoneActionPrefix;
+        protected const string FailedActionMessage = IMRUDriver<int[], int[], int[], int[]>.FailActionPrefix;
 
         /// <summary>
         /// Abstract method for subclass to override it to provide configurations for driver handlers 

@@ -157,10 +157,7 @@ namespace Org.Apache.REEF.Utilities.Runtime.Yarn
                     }
                     catch (UriFormatException e)
                     {
-                        Exceptions.Caught(e,
-                            Level.Warning,
-                            "Unable to format " + rmWebAppAddressNodeText + " to URI",
-                            Logger);
+                        Logger.Log(Level.Warning, "Unable to format " + rmWebAppAddressNodeText + " to URI. Ignoring.", e);
                     }
                 }
 

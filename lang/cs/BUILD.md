@@ -43,6 +43,8 @@ Prerequisites
 Instructions
 ------------
 
+***For Building projects:***
+
 To build and run tests in Visual Studio on local machine:
 
 1. Open solution `.\lang\cs\Org.Apache.REEF.sln`
@@ -60,6 +62,47 @@ To run .NET tests on local machine from command line, execute
     msbuild .\lang\cs\TestRunner.proj
 
 `TestRunner.proj` already has a filter set up to exclude Yarn tests.
+
+***For Building DotNet projects:***
+
+We are in the process of converting the C# support to use dotnet core as well as support for Visual Studio 2017. As a result 
+there are <projectname>.DotNet.csproj files that sit beside the existing csproj files. To build the dotnet projects, you will need 
+the .NET Core SDK installed on your machine as well as Visual Studio 2017. 
+
+**Note:** Building in Visual Studio 2017 is not yet supported. You will need to build at the command line using the .NET Core SDK tools (dotnet). However Visual Studio 2017 does support opening the DotNet solution. .NET Core applications are supported on both Windows and Linux, the projects will only build fully on Windows since they do target the .net45 framework. 
+
+The .NET Core SDK tools are located here:
+
+[https://github.com/dotnet/cli](https://github.com/dotnet/cli)
+
+Scroll down the page to access the latest builds of .NET Core SDK, download the Windows X64 installer. 
+
+At the time of writing the current version used is 2.0.0-preview1-005825. Any version that is equal or newer should also work.
+
+To build from Visual Studio 2017:
+
+This is not currently supported and you will need to build from the command line however VS2017 can be used to view the solution. 
+
+To open the project in VS2017, open the solution `.\lang\cs\Org.Apache.REEF.DotNet.sln`.
+
+To build from the command line, in the `reef\lang\cs` path, type the following:
+
+    dotnet clean Org.Apache.REEF.DotNet.sln
+    dotnet restore Org.Apache.REEF.DotNet.sln
+    dotnet build Org.Apache.REEF.DotNet.sln
+
+ * `clean` will clean any previously built binary
+ * `restore` restores nuget dependencies
+ * `build` builds the solution
+
+To build nuget packages, type the following:
+
+ * `dotnet pack Org.Apache.REEF.DotNet.sln`
+
+This will build nuget packages for each project.
+
+Projects will build out to `reef\bin\<AssemblyName>` and will contain all the platforms that the project supports. Each project 
+is in various stages as they are transitioning to dotnet core 2.0 - therefore they may only build .net45 and .net46 assemblies.
 
 Continuous Integration
 ----------------------

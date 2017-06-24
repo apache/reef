@@ -15,6 +15,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
+using Org.Apache.REEF.Common.Telemetry;
 using Org.Apache.REEF.Driver;
 using Org.Apache.REEF.Tang.Implementations.Configuration;
 using Org.Apache.REEF.Tang.Interface;
@@ -51,7 +52,10 @@ namespace Org.Apache.REEF.Tests.Functional.Telemetry
                 .Set(DriverConfiguration.CustomTraceLevel, Level.Info.ToString())
                 .Build();
 
-            var c2 = MetricsServiceConfigurationModule.ConfigurationModule.Build();
+            var c2 = MetricsServiceConfigurationModule.ConfigurationModule
+                .Set(MetricsServiceConfigurationModule.OnMetricsSink, GenericType<DefaultMetricsSink>.Class)
+                .Set(MetricsServiceConfigurationModule.CounterSinkThreshold, "5")
+                .Build();
 
             return Configurations.Merge(c1, c2);
         }

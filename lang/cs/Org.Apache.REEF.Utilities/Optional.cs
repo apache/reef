@@ -60,7 +60,7 @@ namespace Org.Apache.REEF.Utilities
         {
             if (value == null)
             {
-                Diagnostics.Exceptions.Throw(new ArgumentNullException("value", "Passed a null value. Use OfNullable() instead"), Logger.GetLogger(typeof(Optional<T>))); 
+                throw new ArgumentNullException("value", "Passed a null value. Use OfNullable() instead"); 
             }
             return new Optional<T>(value);
         }

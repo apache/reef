@@ -88,4 +88,20 @@ public abstract class AbstractEStage<T> implements EStage<T> {
     outMeter.mark(1);
   }
 
+  /**
+   * Check if the stage can still accept messages.
+   * @return true if the stage is closed, false otherwise.
+   */
+  public boolean isClosed() {
+    return closed.get();
+  }
+
+  /**
+   * Get human readable representation of the class (used for logging).
+   * @return A string that contains stage name.
+   */
+  @Override
+  public String toString() {
+    return String.format("Stage:%s:%s", this.getClass().getCanonicalName(), name);
+  }
 }

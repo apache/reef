@@ -16,9 +16,9 @@
 // under the License.
 
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Org.Apache.REEF.Common.Context;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Utilities;
@@ -34,14 +34,35 @@ namespace Org.Apache.REEF.Common.Telemetry
     internal sealed class MetricsService : IObserver<IContextMessage>
     {
         private static readonly Logger Logger = Logger.GetLogger(typeof(MetricsService));
-        private readonly IDictionary<string, ICounter> _counters = new ConcurrentDictionary<string, ICounter>();
+
+        /// <summary>
+        /// Contains Counters received in the Metrics service
+        /// </summary>
+        private readonly CountersData _countersData;
+
+        /// <summary>
+        /// A set of metrics sinks
+        /// </summary>
+        private readonly ISet<IMetricsSink> _metricsSinks;
+
+        /// <summary>
+        /// The threshold that triggers the sinks. 
+        /// Currently only one threshold is defined for all the counters. Later, it can be extended to define a threshold per counter.
+        /// </summary>
+        private readonly int _counterSinkThreshold;
 
         /// <summary>
         /// It can be bound with driver configuration as a context message handler
         /// </summary>
         [Inject]
-        private MetricsService()
+        private MetricsService(
+            [Parameter(typeof(MetricSinks))] ISet<IMetricsSink> metricsSinks,
+            [Parameter(typeof(CounterSinkThreshold))] int counterSinkThreshold,
+            CountersData countersData)
         {
+            _metricsSinks = metricsSinks;
+            _counterSinkThreshold = counterSinkThreshold;
+            _countersData = countersData;
         }
 
         /// <summary>
@@ -54,24 +75,34 @@ namespace Org.Apache.REEF.Common.Telemetry
             var counters = new EvaluatorMetrics(msgReceived).GetMetricsCounters();
             Logger.Log(Level.Info, "Received {0} counters with context message: {1}.", counters.GetCounters().Count(), msgReceived);
 
-            foreach (var counter in counters.GetCounters())
-            {
-                ICounter c;
-                if (_counters.TryGetValue(counter.Name, out c))
-                {
-                    //// TODO: [REEF-1748] The following cases need to be considered in determine how to update the counter:
-                    //// if evaluator contains the aggregated values, the value will override existing value
-                    //// if evaluator only keep delta, the value should be added at here. But the value in the evaluator should be reset after message is sent
-                    //// For the counters from multiple evaluators with the same counter name, the value should be aggregated here
-                    //// We also need to consider failure cases.  
-                    _counters[counter.Name] = counter;
-                }
-                else
-                {
-                    _counters.Add(counter.Name, counter);
-                }
+            _countersData.Update(counters);
 
-                Logger.Log(Level.Verbose, "Counter name: {0}, value: {1}, description: {2}, time: {3}.", counter.Name, counter.Value, counter.Description, new DateTime(counter.Timestamp));
+            if (_countersData.TriggerSink(_counterSinkThreshold))
+            {
+                Sink(_countersData.GetCounterData());
+                _countersData.Reset();
+            }
+        }
+
+        /// <summary>
+        /// Call each Sink to sink the data in the counters
+        /// </summary>
+        private void Sink(ISet<KeyValuePair<string, string>> set)
+        {
+            foreach (var s in _metricsSinks)
+            {
+                try
+                {
+                    Task.Run(() => s.Sink(set));
+                }
+                catch (Exception e)
+                {
+                    Logger.Log(Level.Error, "Exception happens during the sink for Sink {0} with Exception: {1}.", s.GetType().AssemblyQualifiedName, e);
+                }
+                finally
+                {
+                    s.Dispose();
+                }
             }
         }
 

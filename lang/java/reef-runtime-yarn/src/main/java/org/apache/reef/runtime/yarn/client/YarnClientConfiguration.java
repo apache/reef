@@ -22,6 +22,7 @@ import org.apache.reef.annotations.audience.ClientSide;
 import org.apache.reef.annotations.audience.Public;
 import org.apache.reef.client.parameters.DriverConfigurationProviders;
 import org.apache.reef.driver.parameters.DriverIsUnmanaged;
+import org.apache.reef.runtime.common.UserCredentials;
 import org.apache.reef.runtime.common.client.CommonRuntimeConfiguration;
 import org.apache.reef.runtime.common.client.DriverConfigurationProvider;
 import org.apache.reef.runtime.common.client.api.JobSubmissionHandler;
@@ -30,6 +31,7 @@ import org.apache.reef.runtime.common.parameters.JVMHeapSlack;
 import org.apache.reef.runtime.yarn.YarnClasspathProvider;
 import org.apache.reef.runtime.yarn.client.parameters.JobPriority;
 import org.apache.reef.runtime.yarn.client.parameters.JobQueue;
+import org.apache.reef.runtime.yarn.client.unmanaged.YarnProxyUser;
 import org.apache.reef.runtime.yarn.util.YarnConfigurationConstructor;
 import org.apache.reef.tang.ConfigurationProvider;
 import org.apache.reef.tang.formats.*;
@@ -58,15 +60,16 @@ public class YarnClientConfiguration extends ConfigurationModuleBuilder {
 
   public static final ConfigurationModule CONF = new YarnClientConfiguration()
           .merge(CommonRuntimeConfiguration.CONF)
-          // Bind YARN
+          // Bind YARN-specific classes
           .bindImplementation(JobSubmissionHandler.class, YarnJobSubmissionHandler.class)
           .bindImplementation(DriverConfigurationProvider.class, YarnDriverConfigurationProviderImpl.class)
+          .bindImplementation(RuntimeClasspathProvider.class, YarnClasspathProvider.class)
+          .bindImplementation(UserCredentials.class, YarnProxyUser.class)
           // Bind the parameters given by the user
           .bindNamedParameter(JobQueue.class, YARN_QUEUE_NAME)
           .bindNamedParameter(JobPriority.class, YARN_PRIORITY)
           .bindNamedParameter(JVMHeapSlack.class, JVM_HEAP_SLACK)
           .bindNamedParameter(DriverIsUnmanaged.class, UNMANAGED_DRIVER)
-          .bindImplementation(RuntimeClasspathProvider.class, YarnClasspathProvider.class)
           // Bind external constructors. Taken from  YarnExternalConstructors.registerClientConstructors
           .bindConstructor(org.apache.hadoop.yarn.conf.YarnConfiguration.class, YarnConfigurationConstructor.class)
           .bindSetEntry(DriverConfigurationProviders.class, DRIVER_CONFIGURATION_PROVIDERS)

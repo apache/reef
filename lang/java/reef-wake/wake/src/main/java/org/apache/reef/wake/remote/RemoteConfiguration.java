@@ -22,6 +22,7 @@ import org.apache.reef.tang.annotations.Name;
 import org.apache.reef.tang.annotations.NamedParameter;
 import org.apache.reef.wake.EStage;
 import org.apache.reef.wake.EventHandler;
+import org.apache.reef.wake.WakeParameters;
 import org.apache.reef.wake.remote.impl.DefaultTransportEStage;
 import org.apache.reef.wake.remote.impl.ObjectSerializableCodec;
 import org.apache.reef.wake.remote.impl.TransportEvent;
@@ -30,6 +31,25 @@ import org.apache.reef.wake.remote.impl.TransportEvent;
  * Configuration options and helper methods for Wake remoting.
  */
 public final class RemoteConfiguration {
+
+  /**
+   * The number of tries to reconnect the remote connection.
+   */
+  public static final long REMOTE_CONNECTION_NUMBER_OF_RETRIES = 3;
+
+  /**
+   * The timeout of connection retrying.
+   * To prevent retrying connections from being rejected by the remote stages,
+   * the retrying_timeout * number_of_retries should be less than the remote_executor_shutdown_timeout.
+   * If not, the remote stage can shutdown the connection retries before it is established,
+   * and can drop a message that should be sent to the remote.
+   */
+  public static final long REMOTE_CONNECTION_RETRY_TIMEOUT =
+      WakeParameters.REMOTE_EXECUTOR_SHUTDOWN_TIMEOUT / (REMOTE_CONNECTION_NUMBER_OF_RETRIES + 1);
+
+  private RemoteConfiguration() {
+    // empty
+  }
 
   /**
    * The name of the remote manager.
@@ -84,7 +104,7 @@ public final class RemoteConfiguration {
   /**
    * The number of tries.
    */
-  @NamedParameter(doc = "The number of tries.", default_value = "3")
+  @NamedParameter(doc = "The number of tries.", default_value = "" + REMOTE_CONNECTION_NUMBER_OF_RETRIES)
   public static final class NumberOfTries implements Name<Integer> {
     // Intentionally empty    
   }
@@ -92,7 +112,7 @@ public final class RemoteConfiguration {
   /**
    * The timeout of connection retrying.
    */
-  @NamedParameter(doc = "The timeout of connection retrying.", default_value = "10000")
+  @NamedParameter(doc = "The timeout of connection retrying.", default_value = "" + REMOTE_CONNECTION_RETRY_TIMEOUT)
   public static final class RetryTimeout implements Name<Integer> {
     // Intentionally empty       
   }
