@@ -31,7 +31,7 @@ under the License.
     <AvroMessageDirectory>..\..\common\bridge\avro</AvroMessageDirectory>
     <AvroLibraryDirectory>..\packages\Microsoft.Avro.Core.0.1.0\lib\net451\Microsoft.Avro.Core.dll</AvroLibraryDirectory>
     <AvroToolsDirectory>..\packages\Microsoft.Avro.Tools.0.1.0\lib\net451\Microsoft.Avro.Tools.exe</AvroToolsDirectory>
-    <NewtonsoftDirectory>..\packages\Newtonsoft.Json.10.0.2\lib\net45\Newtonsoft.Json.dll</NewtonsoftDirectory>
+    <NewtonsoftDirectory>..\packages\Newtonsoft.Json.10.0.3\lib\net45\Newtonsoft.Json.dll</NewtonsoftDirectory>
   </PropertyGroup>
   <Import Project="$(SolutionDir)\build.props" />
   <ItemGroup>
@@ -91,11 +91,35 @@ under the License.
   <Import Project="$(PackagesDir)\StyleCop.MSBuild.$(StyleCopVersion)\build\StyleCop.MSBuild.Targets" Condition="Exists('$(PackagesDir)\StyleCop.MSBuild.$(StyleCopVersion)\build\StyleCop.MSBuild.Targets')" />
   <UsingTask TaskName="DownloadAvroTools" TaskFactory="CodeTaskFactory" AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.v4.0.dll">
     <ParameterGroup>
+      <AvroBinaryDirectory ParameterType="System.String" Required="true" />
     </ParameterGroup>
     <Task>
       <Using Namespace="System" />
+      <Using Namespace="System.IO" />
+      <Using Namespace="System.Net" />
+      <Using Namespace="Microsoft.Build.Framework" />
+      <Using Namespace="Microsoft.Build.Utilities" />
       <Code Type="Fragment" Language="cs"><![CDATA[
-        // Download the .NET Core compatible versions of Avro Tools.
+        // Download the .NET Core Avro tools
+        /*
+        try
+        {
+          string outputDirectory = Path.GetFullPath(AvroBinaryDirectory);
+          if (!Directory.Exists(outputDirectory))
+          {
+            Directory.CreateDirectory(outputDirectory);
+          }
+          Log.LogMessage("Downloading latest Newtonsoft.Json...");
+          WebClient webClient = new WebClient();
+          webClient.DownloadFile("https://dist.nuget.org/win-x86-commandline/latest/nuget.exe", Path.Combine(outputDirectory,"NewtonsoftJson.zip"));
+
+          return true;
+        }
+        catch (Exception ex) {
+          Log.LogErrorFromException(ex);
+          return false;
+        }
+        */
       ]]></Code>
     </Task>
   </UsingTask>
@@ -195,7 +219,7 @@ under the License.
   </UsingTask>
   <Target Name="InstallAvroTools" DependsOnTargets="RestorePackages">
     <Message Text="Installing Avro tools..." />
-    <DownloadAvroTools />
+    <DownloadAvroTools AvroBinaryDirectory="$(AvroBinaryDirectory)" />
   </Target>
   <Target Name="SetupAvroCodeGen" DependsOnTargets="InstallAvroTools">
     <Message Text="Copying Avro code generation files to $(AvroBinaryDirectory)..." />
