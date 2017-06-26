@@ -27,7 +27,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Handler for Mesos SchedulerDriver.
+ * Handler for Spark SchedulerDriver.
  */
 public class SparkSchedulerDriverExecutor implements EventHandler<SchedulerDriver> {
   private static final Logger LOG = Logger.getLogger(SparkSchedulerDriverExecutor.class.getName());
@@ -38,8 +38,8 @@ public class SparkSchedulerDriverExecutor implements EventHandler<SchedulerDrive
 
   @Override
   public void onNext(final SchedulerDriver schedulerDriver) {
-    LOG.log(Level.INFO, "MesosMaster(SchedulerDriver) starting");
+    LOG.log(Level.INFO, "SparkMaster(SchedulerDriver) starting");
     final Protos.Status status = schedulerDriver.run();
-    LOG.log(Level.INFO, "MesosMaster(SchedulerDriver) ended with status {0}", status);
+    LOG.log(Level.INFO, "SparkMaster(SchedulerDriver) ended with status {0}", status);
   }
 }

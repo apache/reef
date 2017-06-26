@@ -19,7 +19,6 @@
 package org.apache.reef.runtime.spark.driver;
 
 import com.google.protobuf.ByteString;
-import org.apache.mesos.MesosSchedulerDriver;
 import org.apache.reef.proto.ReefServiceProtos;
 import org.apache.reef.runtime.common.driver.api.ResourceReleaseEvent;
 import org.apache.reef.runtime.common.driver.api.ResourceRequestEvent;
@@ -52,20 +51,6 @@ import org.apache.commons.compress.utils.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
-import org.apache.mesos.Protos;
-import org.apache.mesos.Protos.CommandInfo;
-import org.apache.mesos.Protos.CommandInfo.URI;
-import org.apache.mesos.Protos.ExecutorID;
-import org.apache.mesos.Protos.ExecutorInfo;
-import org.apache.mesos.Protos.Filters;
-import org.apache.mesos.Protos.Offer;
-import org.apache.mesos.Protos.Resource;
-import org.apache.mesos.Protos.TaskID;
-import org.apache.mesos.Protos.TaskInfo;
-import org.apache.mesos.Protos.Value;
-import org.apache.mesos.Protos.Value.Type;
-import org.apache.mesos.Scheduler;
-import org.apache.mesos.SchedulerDriver;
 
 import javax.inject.Inject;
 import java.io.BufferedInputStream;
@@ -88,9 +73,9 @@ import java.util.logging.Logger;
 import java.util.zip.GZIPOutputStream;
 
 /**
- * MesosScheduler that interacts with MesosMaster and MesosExecutors.
+ * SparkScheduler that interacts with SparkMaster and SparkExecutors.
  */
-final class REEFScheduler implements Scheduler {
+final class REEFScheduler implements TaskScheduler {
   private static final Logger LOG = Logger.getLogger(REEFScheduler.class.getName());
   private static final String REEF_TAR = "reef.tar.gz";
   private static final String RUNTIME_NAME = "MESOS";
