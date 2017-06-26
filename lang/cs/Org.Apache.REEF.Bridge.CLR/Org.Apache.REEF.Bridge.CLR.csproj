@@ -89,40 +89,6 @@ under the License.
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
   <Import Project="$(PackagesDir)\StyleCop.MSBuild.$(StyleCopVersion)\build\StyleCop.MSBuild.Targets" Condition="Exists('$(PackagesDir)\StyleCop.MSBuild.$(StyleCopVersion)\build\StyleCop.MSBuild.Targets')" />
-  <UsingTask TaskName="DownloadAvroTools" TaskFactory="CodeTaskFactory" AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.v4.0.dll">
-    <ParameterGroup>
-      <AvroBinaryDirectory ParameterType="System.String" Required="true" />
-    </ParameterGroup>
-    <Task>
-      <Using Namespace="System" />
-      <Using Namespace="System.IO" />
-      <Using Namespace="System.Net" />
-      <Using Namespace="Microsoft.Build.Framework" />
-      <Using Namespace="Microsoft.Build.Utilities" />
-      <Code Type="Fragment" Language="cs"><![CDATA[
-        // Download the .NET Core Avro tools
-        /*
-        try
-        {
-          string outputDirectory = Path.GetFullPath(AvroBinaryDirectory);
-          if (!Directory.Exists(outputDirectory))
-          {
-            Directory.CreateDirectory(outputDirectory);
-          }
-          Log.LogMessage("Downloading latest Newtonsoft.Json...");
-          WebClient webClient = new WebClient();
-          webClient.DownloadFile("https://dist.nuget.org/win-x86-commandline/latest/nuget.exe", Path.Combine(outputDirectory,"NewtonsoftJson.zip"));
-
-          return true;
-        }
-        catch (Exception ex) {
-          Log.LogErrorFromException(ex);
-          return false;
-        }
-        */
-      ]]></Code>
-    </Task>
-  </UsingTask>
   <UsingTask TaskName="AvscToCSharp" TaskFactory="CodeTaskFactory" AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.v4.0.dll">
     <ParameterGroup>
       <ProjectDirectory ParameterType="System.String" Required="true" />
@@ -135,6 +101,11 @@ under the License.
       <Using Namespace="System.IO" />
       <Using Namespace="System.Diagnostics" />
       <Code Type="Fragment" Language="cs"><![CDATA[
+        // Overall strategy: Copy the executuables and libraries need
+        // to run the MS Avro code generator to a binary directory
+        // in the packages directory, and then run code generation for
+        // every message defined in the Messages directory.
+
         // Create a temporary working directory.
         String tempDir = Path.GetFullPath(Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString()));
         Directory.CreateDirectory(tempDir);
@@ -217,11 +188,7 @@ under the License.
       ]]></Code>
     </Task>
   </UsingTask>
-  <Target Name="InstallAvroTools" DependsOnTargets="RestorePackages">
-    <Message Text="Installing Avro tools..." />
-    <DownloadAvroTools AvroBinaryDirectory="$(AvroBinaryDirectory)" />
-  </Target>
-  <Target Name="SetupAvroCodeGen" DependsOnTargets="InstallAvroTools">
+  <Target Name="SetupAvroCodeGen" DependsOnTargets="RestorePackages">
     <Message Text="Copying Avro code generation files to $(AvroBinaryDirectory)..." />
     <Copy SourceFiles="$(AvroLibraryDirectory)" DestinationFolder="$(AvroBinaryDirectory)" />
     <Copy SourceFiles="$(AvroToolsDirectory)" DestinationFolder="$(AvroBinaryDirectory)" />
