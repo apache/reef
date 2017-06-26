@@ -187,7 +187,7 @@ public final class REEFLauncher {
 
     LOG.log(Level.INFO, "Exiting REEFLauncher.main()");
 
-    System.exit(0);
+    System.exit(0); // TODO[REEF-1715]: Should be able to exit cleanly at the end of main()
   }
 
   /**

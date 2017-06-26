@@ -57,8 +57,8 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
             // As the driver will shut down as soon as all tasks are in final state. The task state is final either by 
             // ICompletedTask or IFailedEvaluator. But MessageLogger may not be able to receive the last event 
             // before driver shut down. 
-            var failedEvaluatorCount = GetMessageCount(lines, "Received IFailedEvaluator");
-            var completedTaskCount = GetMessageCount(lines, "Received ICompletedTask");
+            var failedEvaluatorCount = GetMessageCount(lines, FailedEvaluatorMessage);
+            var completedTaskCount = GetMessageCount(lines, CompletedTaskMessage);
 
             var failedTaskCount = GetMessageCount(lines, FailedTaskMessage);
             var jobSuccess = GetMessageCount(lines, DoneActionMessage);
@@ -67,13 +67,25 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
             Assert.Equal(numTasks, runningTaskCount);
 
             // Tasks should fail or complete or disappear with failed evaluator
-            Assert.Equal(numTasks, completedTaskCount + failedEvaluatorCount + failedTaskCount);
-
+            // However, if the updateTask is completed before receiving Close event from the driver, 
+            // TaskRuntime informs the driver about the result before throwing exception caused by the dispose in 
+            // the result handler, that may end up two events from the update task/evaluator, one is CompletedTask, 
+            // the other is FailedEvaluator
+            var total = completedTaskCount + failedEvaluatorCount + failedTaskCount;
+            var faildMsg = string.Format(
+                "Expected total events: {0}, actual number of events {1}, completedTaskCount: {2}, failedEvaluatorCount: {3}, failedTaskCount: {4}.",
+                numTasks,
+                total,
+                completedTaskCount,
+                failedEvaluatorCount,
+                failedTaskCount);
+            Assert.True(numTasks == total || numTasks == total - 1, faildMsg);
+                
             // We have failed two mappers and one update evaluator in the test code. As the update evaluator failure 
             // happens in Dispose(), driver may/may not receive FailedEvaluator before shut down.
-            Assert.True(failedEvaluatorCount <= 3 && failedEvaluatorCount >= 2);
+            Assert.True(failedEvaluatorCount <= 3 && failedEvaluatorCount >= 2, "failedEvaluatorCount is " + failedEvaluatorCount);
 
-            // eventually job fail because master evaluator fail before the iteration is completed
+            // eventually job fails because master evaluator fails before the iteration is completed
             Assert.Equal(0, jobSuccess);
             CleanUp(testFolder);
         }

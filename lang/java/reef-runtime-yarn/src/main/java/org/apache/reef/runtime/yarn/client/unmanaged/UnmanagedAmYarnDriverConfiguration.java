@@ -24,6 +24,7 @@ import org.apache.reef.annotations.audience.Public;
 import org.apache.reef.driver.parameters.DriverIsUnmanaged;
 import org.apache.reef.io.TempFileCreator;
 import org.apache.reef.io.WorkingDirectoryTempFileCreator;
+import org.apache.reef.runtime.common.UserCredentials;
 import org.apache.reef.runtime.common.driver.api.*;
 import org.apache.reef.runtime.common.driver.parameters.ClientRemoteIdentifier;
 import org.apache.reef.runtime.common.driver.parameters.DefinedRuntimes;
@@ -85,6 +86,7 @@ public final class UnmanagedAmYarnDriverConfiguration extends ConfigurationModul
           .bindNamedParameter(JVMHeapSlack.class, JVM_HEAP_SLACK)
           .bindImplementation(RackNameFormatter.class, RACK_NAME_FORMATTER)
           .bindImplementation(RuntimeClasspathProvider.class, YarnClasspathProvider.class)
+          .bindImplementation(UserCredentials.class, YarnProxyUser.class)
           .bindNamedParameter(DefinedRuntimes.class, RuntimeIdentifier.RUNTIME_NAME)
           .build();
 

@@ -52,13 +52,14 @@ final class UnmanagedAmYarnJobSubmissionHandler implements JobSubmissionHandler 
       @Parameter(JobQueue.class) final String defaultQueueName,
       final UnmanagedDriverFiles driverFiles,
       final YarnConfiguration yarnConfiguration,
+      final YarnProxyUser yarnProxyUser,
       final SecurityTokenProvider tokenProvider) throws IOException {
 
     this.defaultQueueName = defaultQueueName;
     this.driverFiles = driverFiles;
 
     try {
-      this.submissionHelper = new UnmanagedAmYarnSubmissionHelper(yarnConfiguration, tokenProvider);
+      this.submissionHelper = new UnmanagedAmYarnSubmissionHelper(yarnConfiguration, yarnProxyUser, tokenProvider);
     } catch (final IOException | YarnException ex) {
       LOG.log(Level.SEVERE, "Cannot create YARN client", ex);
       throw new RuntimeException("Cannot create YARN client", ex);

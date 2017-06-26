@@ -23,7 +23,7 @@ under the License.
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Org.Apache.REEF.IMRU.Examples</RootNamespace>
     <AssemblyName>Org.Apache.REEF.IMRU.Examples</AssemblyName>
-    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..</SolutionDir>
     <UseVSHostingProcess>false</UseVSHostingProcess>
@@ -31,7 +31,7 @@ under the License.
   <Import Project="$(SolutionDir)\build.props" />
   <PropertyGroup>
     <RestorePackages>true</RestorePackages>
-    <BuildPackage>false</BuildPackage>
+    <BuildPackage>true</BuildPackage>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -112,6 +112,7 @@ under the License.
     <None Include="$(SolutionDir)\App.config">
       <Link>App.config</Link>
     </None>
+    <None Include="Org.Apache.REEF.IMRU.Examples.nuspec" />
     <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

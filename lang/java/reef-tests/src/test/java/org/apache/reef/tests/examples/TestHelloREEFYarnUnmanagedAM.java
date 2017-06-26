@@ -69,7 +69,7 @@ public final class TestHelloREEFYarnUnmanagedAM {
         "This test requires a YARN Resource Manager to connect to",
         Boolean.parseBoolean(System.getenv("REEF_TEST_YARN")));
 
-    LOG.log(Level.FINE, "Launching Unnmanaged AM: {0}", JAR_PATH);
+    LOG.log(Level.FINE, "Launching Unmanaged AM: {0}", JAR_PATH);
 
     try (final DriverLauncher client = DriverLauncher.getLauncher(RUNTIME_CONFIG)) {
 

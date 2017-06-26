@@ -15,7 +15,12 @@
 // specific language governing permissions and limitations
 // under the License.
 
+#if DOTNET_BUILD
+using Microsoft.Practices.EnterpriseLibrary.TransientFaultHandling;
+#else
 using Microsoft.Practices.TransientFaultHandling;
+#endif
+
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Wake.Remote.Impl;
 

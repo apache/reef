@@ -38,6 +38,8 @@ import org.apache.reef.wake.Identifier;
 import org.apache.reef.wake.IdentifierFactory;
 import org.apache.reef.wake.remote.address.LocalAddressProvider;
 import org.apache.reef.wake.remote.transport.netty.MessagingTransportFactory;
+import org.junit.Assert;
+import org.junit.Assume;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestName;
@@ -147,6 +149,9 @@ public class NetworkServiceTest {
    */
   @Test
   public void testMessagingNetworkServiceRate() throws Exception {
+
+    Assume.assumeFalse("Use log level INFO to run benchmarking", LOG.isLoggable(Level.FINEST));
+
     LOG.log(Level.FINEST, name.getMethodName());
 
     final IdentifierFactory factory = new StringIdentifierFactory();
@@ -233,6 +238,9 @@ public class NetworkServiceTest {
    */
   @Test
   public void testMessagingNetworkServiceRateDisjoint() throws Exception {
+
+    Assume.assumeFalse("Use log level INFO to run benchmarking", LOG.isLoggable(Level.FINEST));
+
     LOG.log(Level.FINEST, name.getMethodName());
 
     final IdentifierFactory factory = new StringIdentifierFactory();
@@ -342,6 +350,9 @@ public class NetworkServiceTest {
 
   @Test
   public void testMultithreadedSharedConnMessagingNetworkServiceRate() throws Exception {
+
+    Assume.assumeFalse("Use log level INFO to run benchmarking", LOG.isLoggable(Level.FINEST));
+
     LOG.log(Level.FINEST, name.getMethodName());
 
     final IdentifierFactory factory = new StringIdentifierFactory();
@@ -386,7 +397,7 @@ public class NetworkServiceTest {
 
           final Injector injectorNs2 = injector2.forkInjector();
           injectorNs2.bindVolatileParameter(NetworkServiceParameters.NetworkServiceHandler.class,
-              new MessageHandler<String>(name2, monitor, numMessages));
+              new MessageHandler<String>(name2, monitor, totalNumMessages));
           final NetworkService<String> ns2 = injectorNs2.getInstance(NetworkService.class);
 
           final Injector injectorNs1 = injector2.forkInjector();
@@ -444,6 +455,9 @@ public class NetworkServiceTest {
    */
   @Test
   public void testMessagingNetworkServiceBatchingRate() throws Exception {
+
+    Assume.assumeFalse("Use log level INFO to run benchmarking", LOG.isLoggable(Level.FINEST));
+
     LOG.log(Level.FINEST, name.getMethodName());
 
     final IdentifierFactory factory = new StringIdentifierFactory();
@@ -535,7 +549,7 @@ public class NetworkServiceTest {
     private final String name;
     private final int expected;
     private final Monitor monitor;
-    private AtomicInteger count = new AtomicInteger(0);
+    private final AtomicInteger count = new AtomicInteger(0);
 
     MessageHandler(final String name, final Monitor monitor, final int expected) {
       this.name = name;
@@ -546,17 +560,13 @@ public class NetworkServiceTest {
     @Override
     public void onNext(final Message<T> value) {
 
-      count.incrementAndGet();
+      final int currentCount = count.incrementAndGet();
 
-      LOG.log(Level.FINEST,
-          "OUT: {0} received {1} from {2} to {3}",
-          new Object[]{name, value.getData(), value.getSrcId(), value.getDestId()});
+      LOG.log(Level.FINER, "{0} Message {1}/{2} :: {3}", new Object[] {name, currentCount, expected, value});
 
-      for (final T obj : value.getData()) {
-        LOG.log(Level.FINEST, "OUT: data: {0}", obj);
-      }
+      Assert.assertTrue(currentCount <= expected);
 
-      if (count.get() == expected) {
+      if (currentCount >= expected) {
         monitor.mnotify();
       }
     }

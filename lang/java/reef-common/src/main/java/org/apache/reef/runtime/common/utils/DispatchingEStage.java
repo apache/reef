@@ -28,6 +28,8 @@ import org.apache.reef.wake.impl.ThreadPoolStage;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Delayed event router that dispatches messages to the proper event handler by type.
@@ -36,6 +38,8 @@ import java.util.Set;
 @Private
 @DriverSide
 public final class DispatchingEStage implements AutoCloseable {
+
+  private static final Logger LOG = Logger.getLogger(DispatchingEStage.class.getName());
 
   /**
    * A map of event handlers, populated in the register() method.
@@ -98,7 +102,7 @@ public final class DispatchingEStage implements AutoCloseable {
 
   /**
    * Dispatch a new message by type.
-   *
+   * If the stage is already closed, log a warning and ignore the message.
    * @param type    Type of event handler - must match the register() call.
    * @param message A message to process. Must be a subclass of T.
    * @param <T>     Message type that event handler supports.
@@ -106,8 +110,13 @@ public final class DispatchingEStage implements AutoCloseable {
    */
   @SuppressWarnings("unchecked")
   public <T, U extends T> void onNext(final Class<T> type, final U message) {
-    final EventHandler<T> handler = (EventHandler<T>) this.handlers.get(type);
-    this.stage.onNext(new DelayedOnNext(handler, message));
+    if (this.isClosed()) {
+      LOG.log(Level.WARNING, "Dispatcher {0} already closed: ignoring message {1}: {2}",
+          new Object[] {this.stage, type.getCanonicalName(), message});
+    } else {
+      final EventHandler<T> handler = (EventHandler<T>) this.handlers.get(type);
+      this.stage.onNext(new DelayedOnNext(handler, message));
+    }
   }
 
   /**
@@ -118,11 +127,20 @@ public final class DispatchingEStage implements AutoCloseable {
   }
 
   /**
-   * Close the internal thread pool.
+   * Close the stage adn stop accepting new messages.
+   * Closes the internal thread pool.
    */
   @Override
   public void close() {
     this.stage.close();
+  }
+
+  /**
+   * Check if the stage can still accept messages.
+   * @return true if the stage can no longer accept messages, false otherwise.
+   */
+  public boolean isClosed() {
+    return this.stage.isClosed();
   }
 
   /**

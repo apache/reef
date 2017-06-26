@@ -72,7 +72,7 @@ final class ReefOnReefDriver implements EventHandler<StartTime> {
   public void onNext(final StartTime startTime) {
 
     LOG.log(Level.INFO, "Driver started: app {0} :: {1}", new Object[] {this.hostApplicationId, startTime});
-    LOG.log(Level.FINE, "Launching Unnmanaged AM: {0}", JAR_PATH);
+    LOG.log(Level.FINE, "Launching Unmanaged AM: {0}", JAR_PATH);
 
     try (final DriverLauncher client = DriverLauncher.getLauncher(RUNTIME_CONFIG)) {
 
@@ -85,14 +85,17 @@ final class ReefOnReefDriver implements EventHandler<StartTime> {
           .set(UnmanagedAmYarnDriverConfiguration.JOB_SUBMISSION_DIRECTORY, DRIVER_ROOT_PATH)
           .build();
 
-      try (final REEFEnvironment reef = REEFEnvironment.fromConfiguration(yarnAmConfig, DRIVER_CONFIG)) {
+      try (final REEFEnvironment reef =
+          REEFEnvironment.fromConfiguration(client.getUser(), yarnAmConfig, DRIVER_CONFIG)) {
+
         reef.run();
+
         final ReefServiceProtos.JobStatusProto status = reef.getLastStatus();
+
         LOG.log(Level.INFO, "REEF-on-REEF inner job {0} completed: state {1}",
             new Object[] {innerApplicationId, status.getState()});
       }
 
-      ThreadLogger.logThreads(LOG, Level.FINEST, "Threads running after DriverLauncher.close():");
       LOG.log(Level.INFO,
           "REEF-on-REEF host job {0} completed: inner app {1} status {2}",
           new Object[] {this.hostApplicationId, innerApplicationId, client.getStatus()});
@@ -101,5 +104,7 @@ final class ReefOnReefDriver implements EventHandler<StartTime> {
       LOG.log(Level.SEVERE, "REEF-on-REEF configuration error", ex);
       throw new RuntimeException("REEF-on-REEF configuration error", ex);
     }
+
+    ThreadLogger.logThreads(LOG, Level.FINEST, "Threads running after DriverLauncher.close():");
   }
 }

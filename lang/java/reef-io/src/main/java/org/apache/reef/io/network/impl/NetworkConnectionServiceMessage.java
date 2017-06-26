@@ -101,15 +101,7 @@ final class NetworkConnectionServiceMessage<T> implements Message<T> {
    * @return a string representation of this object
    */
   public String toString() {
-    final StringBuilder builder = new StringBuilder();
-    builder.append("NSMessage");
-    builder.append(" remoteID=");
-    builder.append(destId);
-    builder.append(" message=[| ");
-    for (final T message : messages) {
-      builder.append(message).append(" |");
-    }
-    builder.append("]");
-    return builder.toString();
+    return String.format("%s[%s -> %s]: size %d",
+        this.getClass().getSimpleName(), this.srcId, this.destId, this.messages.size());
   }
 }

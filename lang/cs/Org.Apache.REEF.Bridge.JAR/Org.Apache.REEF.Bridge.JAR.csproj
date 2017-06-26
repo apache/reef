@@ -25,6 +25,7 @@ under the License.
     <AssemblyName>Org.Apache.REEF.Bridge.JAR</AssemblyName>
     <RestorePackages>true</RestorePackages>
     <BuildPackage>false</BuildPackage>
+    <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
   </PropertyGroup>
   <Import Project="$(SolutionDir)\build.props" />
   <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />

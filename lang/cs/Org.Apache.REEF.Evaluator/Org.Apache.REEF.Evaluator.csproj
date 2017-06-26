@@ -23,7 +23,7 @@ under the License.
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Org.Apache.REEF.Evaluator</RootNamespace>
     <AssemblyName>Org.Apache.REEF.Evaluator</AssemblyName>
-    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <RestorePackages>true</RestorePackages>
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..</SolutionDir>
