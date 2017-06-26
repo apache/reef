@@ -89,6 +89,16 @@ under the License.
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
   <Import Project="$(PackagesDir)\StyleCop.MSBuild.$(StyleCopVersion)\build\StyleCop.MSBuild.Targets" Condition="Exists('$(PackagesDir)\StyleCop.MSBuild.$(StyleCopVersion)\build\StyleCop.MSBuild.Targets')" />
+  <UsingTask TaskName="DownloadAvroTools" TaskFactory="CodeTaskFactory" AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.v4.0.dll">
+    <ParameterGroup>
+    </ParameterGroup>
+    <Task>
+      <Using Namespace="System" />
+      <Code Type="Fragment" Language="cs"><![CDATA[
+        // Download the .NET Core compatible versions of Avro Tools.
+      ]]></Code>
+    </Task>
+  </UsingTask>
   <UsingTask TaskName="AvscToCSharp" TaskFactory="CodeTaskFactory" AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.v4.0.dll">
     <ParameterGroup>
       <ProjectDirectory ParameterType="System.String" Required="true" />
@@ -183,7 +193,11 @@ under the License.
       ]]></Code>
     </Task>
   </UsingTask>
-  <Target Name="SetupAvroCodeGen" DependsOnTargets="RestorePackages">
+  <Target Name="InstallAvroTools" DependsOnTargets="RestorePackages">
+    <Message Text="Installing Avro tools..." />
+    <DownloadAvroTools />
+  </Target>
+  <Target Name="SetupAvroCodeGen" DependsOnTargets="InstallAvroTools">
     <Message Text="Copying Avro code generation files to $(AvroBinaryDirectory)..." />
     <Copy SourceFiles="$(AvroLibraryDirectory)" DestinationFolder="$(AvroBinaryDirectory)" />
     <Copy SourceFiles="$(AvroToolsDirectory)" DestinationFolder="$(AvroBinaryDirectory)" />
