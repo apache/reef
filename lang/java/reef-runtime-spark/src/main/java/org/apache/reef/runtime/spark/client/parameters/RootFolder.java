@@ -24,6 +24,6 @@ import org.apache.reef.tang.annotations.NamedParameter;
 /**
  * The root folder where logs etc. will be stored.
  */
-@NamedParameter(doc = "The root folder where logs etc. will be stored.", default_value = "REEF_MESOS_RUNTIME")
+@NamedParameter(doc = "The root folder where logs etc. will be stored.", default_value = "REEF_SPARK_RUNTIME")
 public final class RootFolder implements Name<String> {
 }
