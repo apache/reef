@@ -38,11 +38,11 @@ namespace Org.Apache.REEF.Common.Api
         {
             if (string.IsNullOrEmpty(id))
             {
-                Org.Apache.REEF.Utilities.Diagnostics.Exceptions.Throw(new ArgumentException("id"), LOGGER);
+                throw new ArgumentException("id");
             }
             if (string.IsNullOrEmpty(message))
             {
-                Org.Apache.REEF.Utilities.Diagnostics.Exceptions.Throw(new ArgumentException("message"), LOGGER);
+                throw new ArgumentException("message");
             }
             Id = id;
             Message = message;
@@ -72,7 +72,7 @@ namespace Org.Apache.REEF.Common.Api
         {
             if (string.IsNullOrEmpty(id))
             {
-                Org.Apache.REEF.Utilities.Diagnostics.Exceptions.Throw(new ArgumentException("id"), LOGGER);
+                throw new ArgumentException("id");
             }
             Id = id;
             Message = cause.Message;

@@ -160,7 +160,7 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator
                 {
                     if (evaluatorHeartbeatProto.task_status == null || evaluatorHeartbeatProto.task_status.state != State.RUNNING)
                     {
-                        Utilities.Diagnostics.Exceptions.Throw(e, "Lost communications to driver when no task is running, recovery NOT supported for such scenario", LOGGER);
+                        throw new Exception("Lost communications to driver when no task is running, recovery NOT supported for such scenario", e);
                     }
 
                     _heartbeatFailures++;
