@@ -16,14 +16,21 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.runtime.spark.driver.parameters;
+package org.apache.reef.runtime.spark;
+import javax.inject.Inject
+import java.util.logging.Level
+import java.util.logging.Logger
 
-import org.apache.reef.tang.annotations.Name;
-import org.apache.reef.tang.annotations.NamedParameter;
+import org.apache.reef.task.Task
 
 /**
- * The port number of Mesos Slave.
+ * Override a reef task
  */
-@NamedParameter(doc = "The port number of Mesos Slave", default_value="5051")
-public final class SparkSlavePort implements Name<Integer> {
+final class ReefOnSparkTask @Inject() extends Task {
+    ReefOnSparkTask.LOG.log(Level.FINE, "Instantiated ReefOnSparkTask")
+
+        public Array[Byte] call(bytes: Array[Byte]) {
+            ReefOnSparkTask.LOG.log(Level.INFO, "Hello Spark!");
+            return null;
+        }
 }
