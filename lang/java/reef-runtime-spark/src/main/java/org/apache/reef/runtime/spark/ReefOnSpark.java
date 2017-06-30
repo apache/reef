@@ -16,15 +16,18 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import java.util.logging.{Level, Logger}
+package org.apache.reef.runtime.spark;
 
-import org.apache.reef.client.{DriverConfiguration, DriverLauncher}
-import org.apache.reef.runtime.common.REEFEnvironment
-import org.apache.reef.runtime.yarn.client.unmanaged.UnmanagedAmYarnClientConfiguration
-import org.apache.reef.runtime.yarn.client.unmanaged.UnmanagedAmYarnDriverConfiguration
-import org.apache.reef.util.EnvironmentUtils
-import org.apache.spark.{SparkConf, SparkContext}
-import resource._
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import org.apache.reef.client.DriverConfiguration;
+import org.apache.reef.client.DriverLauncher;
+import org.apache.reef.runtime.common.REEFEnvironment;
+import org.apache.reef.runtime.yarn.client.unmanaged.UnmanagedAmYarnClientConfiguration;
+import org.apache.reef.runtime.yarn.client.unmanaged.UnmanagedAmYarnDriverConfiguration;
+import org.apache.reef.util.EnvironmentUtils;
+import org.apache.spark.SparkConf;
+import org.apache.spark.SparkContext;
 
 // Run:
 // ..\spark\bin\spark-submit.cmd
@@ -32,50 +35,51 @@ import resource._
 //     --class org.apache.reef.examples.hellospark.ReefOnSpark
 //     .\target\reef-examples-spark-0.16.0-SNAPSHOT-shaded.jar
 
-public class ReefOnSpark {
+public final class ReefOnSpark {
 
-    private Logger = Logger.getLogger(this.getClass.getName)
+  private Logger LOG = Logger.getLogger(this.getClass.getName);
 
-    private String rootFolder = "."
+  private String rootFolder = ".";
 
-    private UnmanagedAmYarnClientConfiguration runtimeConfig = UnmanagedAmYarnClientConfiguration.CONF
-        .set(UnmanagedAmYarnClientConfiguration.ROOT_FOLDER, rootFolder)
-        .build
+  private UnmanagedAmYarnClientConfiguration runtimeConfig = UnmanagedAmYarnClientConfiguration.CONF
+    .set(UnmanagedAmYarnClientConfiguration.ROOT_FOLDER, rootFolder)
+    .build();
 
+  public void process(String[] args) {
 
-    public void doWork(args: Array[String]) {
-        LOG.setLevel(Level.FINEST)
+    LOG.setLevel(Level.FINEST);
 
-        SparkConf conf = new SparkConf().setAppName("ReefOnSpark:host")
-        SparkContext sc = new SparkContext(conf)
+    SparkConf conf = new SparkConf().setAppName("ReefOnSpark:host");
+    SparkContext sc = new SparkContext(conf);
 
-        try (client <- managed(DriverLauncher.getLauncher(runtimeConfig))) {
+    try (DriverLauncher.getLauncher(runtimeConfig)) {
 
-        val jarPath = EnvironmentUtils.getClassLocation(classOf[ReefOnSparkDriver])
+      String jarPath = EnvironmentUtils.getClassLocation(ReefOnSparkDriver.class);
 
-        val driverConfig = DriverConfiguration.CONF
+      DriverConfiguration driverConfig = DriverConfiguration.CONF
         .set(DriverConfiguration.DRIVER_IDENTIFIER, "ReefOnSpark:hello")
         .set(DriverConfiguration.GLOBAL_LIBRARIES, jarPath)
         .set(DriverConfiguration.ON_DRIVER_STARTED, classOf[ReefOnSparkDriver#StartHandler])
         .set(DriverConfiguration.ON_EVALUATOR_ALLOCATED, classOf[ReefOnSparkDriver#EvaluatorAllocatedHandler])
-        .build
+        .build();
 
-        val appId = client.submit(driverConfig, 120000)
+      Integer appId = client.submit(driverConfig, 120000);
 
-        LOG.log(Level.INFO, "Job submitted: {0} to {1}", Array[AnyRef](appId, jarPath))
+      //LOG.log(Level.INFO, "Job submitted: {0} to {1}", Array[AnyRef](appId, jarPath));
 
-        val yarnAmConfig = UnmanagedAmYarnDriverConfiguration.CONF
+
+      UnmanagedAmYarnDriverConfiguration yarnAmConfig = UnmanagedAmYarnDriverConfiguration.CONF
         .set(UnmanagedAmYarnDriverConfiguration.JOB_IDENTIFIER, appId)
         .set(UnmanagedAmYarnDriverConfiguration.JOB_SUBMISSION_DIRECTORY, rootFolder)
-        .build
+        .build();
 
-        try (reef <- managed(REEFEnvironment.fromConfiguration(client.getUser, yarnAmConfig, driverConfig))) {
-        reef.run()
-        val status = reef.getLastStatus
-        LOG.log(Level.INFO, "REEF job {0} completed: state {1}", Array[AnyRef](appId, status.getState))
-        }
-        }
+      try (reef <- managed(REEFEnvironment.fromConfiguration(client.getUser, yarnAmConfig, driverConfig))) {
+        reef.run();
+        //val status = reef.getLastStatus;
+        //LOG.log(Level.INFO, "REEF job {0} completed: state {1}", Array[AnyRef](appId, status.getState))
+      }
+    }
 
-        sc.stop()
-        }
-        }
+    sc.stop();
+  }
+}

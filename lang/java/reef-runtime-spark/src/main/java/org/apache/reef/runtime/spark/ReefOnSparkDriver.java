@@ -16,53 +16,52 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.examples.hellospark
+package org.apache.reef.runtime.spark;
 
-import org.apache.reef.driver.evaluator.AllocatedEvaluator
-import org.apache.reef.driver.evaluator.EvaluatorRequestor
-import org.apache.reef.driver.task.TaskConfiguration
-import org.apache.reef.tang.Configuration
-import org.apache.reef.tang.annotations.Unit
-import org.apache.reef.wake.EventHandler
-import org.apache.reef.wake.time.event.StartTime
-
-import javax.inject.Inject
-import java.util.logging.Level
-import java.util.logging.Logger
+import org.apache.reef.driver.evaluator.AllocatedEvaluator;
+import org.apache.reef.driver.evaluator.EvaluatorRequestor;
+import org.apache.reef.driver.task.TaskConfiguration;
+import org.apache.reef.tang.Configuration;
+import org.apache.reef.tang.annotations.Unit;
+import org.apache.reef.wake.EventHandler;
+import org.apache.reef.wake.time.event.StartTime;
+import javax.inject.Inject;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 
 @Unit
-final class ReefOnSparkDriver @Inject private(val requestor: EvaluatorRequestor) {
+final class ReefOnSparkDriver  {
 
-    ReefOnSparkDriver.LOG.log(Level.FINE, "Instantiated ReefOnSparkDriver");
+    //@Inject
+    //private(val requestor: EvaluatorRequestor)
+  private Logger LOG = Logger.getLogger(ReefOnSparkDriver.getClass().getName());
 
-    final class StartHandler extends EventHandler[StartTime] {
+  LOG.log(Level.FINE, "Instantiated ReefOnSparkDriver");
 
-        public void onNext(startTime: StartTime) {
-            ReefOnSparkDriver.LOG.log(Level.INFO, "Start ReefOnSparkDriver: {0}", startTime)
+  final class StartHandler extends EventHandler[StartTime] {
 
-            requestor.newRequest
-            .setNumber(1)
-            .setMemory(64)
-            .setNumberOfCores(1)
-            .submit()
-            ReefOnSparkDriver.LOG.log(Level.INFO, "Requested Evaluator.")
-        }
+    public void onNext(StartTime startTime) {
+      ReefOnSparkDriver.LOG.log(Level.INFO, "Start ReefOnSparkDriver: {0}", startTime);
+      requestor.newRequest
+        .setNumber(1)
+        .setMemory(64)
+        .setNumberOfCores(1)
+        .submit();
+      ReefOnSparkDriver.LOG.log(Level.INFO, "Requested Evaluator.");
     }
+  }
 
 
+  final class EvaluatorAllocatedHandler extends EventHandler[AllocatedEvaluator] {
 
-    final class EvaluatorAllocatedHandler extends EventHandler[AllocatedEvaluator] {
-
-        public void onNext(allocatedEvaluator: AllocatedEvaluator) {
-            ReefOnSparkDriver.LOG.log(Level.INFO,"Submitting ReefOnSparkTask task to AllocatedEvaluator: {0}", allocatedEvaluator)
-
-            private Configuration taskConfiguration = TaskConfiguration.CONF
-                .set(TaskConfiguration.IDENTIFIER, "ReefOnSparkTask")
-                .set(TaskConfiguration.TASK, classOf[ReefOnSparkTask])
-                .build
-
-            allocatedEvaluator.submitTask(taskConfiguration)
-        }
+          public void onNext(AllocatedEvaluator allocatedEvaluator) {
+      LOG.log(Level.INFO,"Submitting ReefOnSparkTask task to AllocatedEvaluator: {0}", allocatedEvaluator);
+      Configuration taskConfiguration = TaskConfiguration.CONF
+        .set(TaskConfiguration.IDENTIFIER, "ReefOnSparkTask")
+        .set(TaskConfiguration.TASK, classOf[ReefOnSparkTask])
+        .build();
+      allocatedEvaluator.submitTask(taskConfiguration);
     }
+  }
 }

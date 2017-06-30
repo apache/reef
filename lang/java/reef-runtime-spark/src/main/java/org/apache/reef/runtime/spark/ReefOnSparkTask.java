@@ -16,21 +16,24 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.runtime.spark;
+package org.apache.reef.examples.hellospark
+
 import javax.inject.Inject
 import java.util.logging.Level
 import java.util.logging.Logger
 
 import org.apache.reef.task.Task
 
-/**
- * Override a reef task
- */
-final class ReefOnSparkTask @Inject() extends Task {
-    ReefOnSparkTask.LOG.log(Level.FINE, "Instantiated ReefOnSparkTask")
+object ReefOnSparkTask {
+  private val LOG: Logger = Logger.getLogger(classOf[ReefOnSparkTask].getName)
+}
 
-        public Array[Byte] call(bytes: Array[Byte]) {
-            ReefOnSparkTask.LOG.log(Level.INFO, "Hello Spark!");
-            return null;
-        }
+final class ReefOnSparkTask @Inject() extends Task {
+
+  ReefOnSparkTask.LOG.log(Level.FINE, "Instantiated ReefOnSparkTask")
+
+  override def call(bytes: Array[Byte]): Array[Byte] = {
+    ReefOnSparkTask.LOG.log(Level.INFO, "Hello Spark!")
+    null
+  }
 }
