@@ -54,7 +54,6 @@ under the License.
       <Link>Properties\SharedAssemblyInfo.cs</Link>
     </Compile>
     <Compile Include="Message\Acknowledgement.cs" />
-    <Compile Include="Message\Header.cs" />
     <Compile Include="Message\Protocol.cs" />
     <Compile Include="Message\SystemOnStart.cs" />
   </ItemGroup>
