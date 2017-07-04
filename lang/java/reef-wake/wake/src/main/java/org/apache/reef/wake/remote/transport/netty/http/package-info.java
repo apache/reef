@@ -16,20 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.wake.remote.transport.netty;
-
-import io.netty.channel.ChannelInboundHandlerAdapter;
-
-
 /**
- * Factory that creates a Netty channel handler.
+ * Wake's remote transportation by HTTP.
  */
-public interface NettyChannelHandlerFactory {
-
-  /**
-   * Creates a channel inbound handler.
-   *
-   * @return a channel inbound handler adapter
-   */
-  ChannelInboundHandlerAdapter createChannelInboundHandler();
-}
+package org.apache.reef.wake.remote.transport.netty.http;
