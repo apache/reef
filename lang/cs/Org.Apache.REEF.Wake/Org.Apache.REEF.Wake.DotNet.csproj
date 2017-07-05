@@ -28,7 +28,7 @@ under the License.
     <Reference Include="System.Xml" />
     <PackageReference Include="protobuf-net" Version="$(ProtobufVersion)" />
     <PackageReference Include="EnterpriseLibrary.TransientFaultHandling.Core" Version="$(TransientFaultHandlingVersion)" />
-    <PackageReference Include="System.Reactive.Interfaces" Version="$(RxVersion)" />
+    <PackageReference Include="System.Reactive.Interfaces" Version="$(SystemReactiveVersion)" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Org.Apache.REEF.Tang\Org.Apache.REEF.Tang.DotNet.csproj" />
