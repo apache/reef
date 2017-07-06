@@ -21,12 +21,15 @@ package org.apache.reef.runtime.spark;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.apache.reef.client.DriverConfiguration;
+import org.apache.reef.tang.exceptions.InjectionException;
+import org.apache.reef.proto.ReefServiceProtos;
 import org.apache.reef.client.DriverLauncher;
 import org.apache.reef.runtime.common.REEFEnvironment;
 import org.apache.reef.runtime.yarn.client.unmanaged.UnmanagedAmYarnClientConfiguration;
 import org.apache.reef.runtime.yarn.client.unmanaged.UnmanagedAmYarnDriverConfiguration;
 import org.apache.reef.util.EnvironmentUtils;
 import org.apache.spark.SparkConf;
+import org.apache.reef.tang.Configuration;
 import org.apache.spark.SparkContext;
 
 // Run:
@@ -37,49 +40,40 @@ import org.apache.spark.SparkContext;
 
 public final class ReefOnSpark {
 
-  private Logger LOG = Logger.getLogger(this.getClass.getName);
+  private Logger LOG = Logger.getLogger(ReefOnSpark.class.getName());
 
-  private String rootFolder = ".";
+  private static final String rootFolder = ".";
 
-  private UnmanagedAmYarnClientConfiguration runtimeConfig = UnmanagedAmYarnClientConfiguration.CONF
-    .set(UnmanagedAmYarnClientConfiguration.ROOT_FOLDER, rootFolder)
-    .build();
-
-  public void process(String[] args) {
+  private static final Configuration runtimeConfig = UnmanagedAmYarnClientConfiguration.CONF
+          .set(UnmanagedAmYarnClientConfiguration.ROOT_FOLDER, rootFolder)
+          .build();
+  public void process(String[] args) throws InjectionException {
 
     LOG.setLevel(Level.FINEST);
 
     SparkConf conf = new SparkConf().setAppName("ReefOnSpark:host");
     SparkContext sc = new SparkContext(conf);
 
-    try (DriverLauncher.getLauncher(runtimeConfig)) {
-
-      String jarPath = EnvironmentUtils.getClassLocation(ReefOnSparkDriver.class);
-
-      DriverConfiguration driverConfig = DriverConfiguration.CONF
+    try (final DriverLauncher client = DriverLauncher.getLauncher(runtimeConfig)) {
+      String jarPath = EnvironmentUtils.getClassLocation(ReefOnSpark.class);
+      Configuration driverConfig = DriverConfiguration.CONF
         .set(DriverConfiguration.DRIVER_IDENTIFIER, "ReefOnSpark:hello")
         .set(DriverConfiguration.GLOBAL_LIBRARIES, jarPath)
-        .set(DriverConfiguration.ON_DRIVER_STARTED, classOf[ReefOnSparkDriver#StartHandler])
-        .set(DriverConfiguration.ON_EVALUATOR_ALLOCATED, classOf[ReefOnSparkDriver#EvaluatorAllocatedHandler])
+        .set(DriverConfiguration.ON_DRIVER_STARTED, ReefOnSparkDriver.StartHandler.class)
+        .set(DriverConfiguration.ON_EVALUATOR_ALLOCATED, ReefOnSparkDriver.EvaluatorAllocatedHandler.class)
         .build();
-
-      Integer appId = client.submit(driverConfig, 120000);
-
+      final String appId = client.submit(driverConfig, 120000);
       //LOG.log(Level.INFO, "Job submitted: {0} to {1}", Array[AnyRef](appId, jarPath));
-
-
-      UnmanagedAmYarnDriverConfiguration yarnAmConfig = UnmanagedAmYarnDriverConfiguration.CONF
+      final Configuration yarnAmConfig = UnmanagedAmYarnDriverConfiguration.CONF
         .set(UnmanagedAmYarnDriverConfiguration.JOB_IDENTIFIER, appId)
         .set(UnmanagedAmYarnDriverConfiguration.JOB_SUBMISSION_DIRECTORY, rootFolder)
         .build();
-
-      try (reef <- managed(REEFEnvironment.fromConfiguration(client.getUser, yarnAmConfig, driverConfig))) {
+      try (REEFEnvironment reef=REEFEnvironment.fromConfiguration(client.getUser(), yarnAmConfig, driverConfig)) {
         reef.run();
-        //val status = reef.getLastStatus;
-        //LOG.log(Level.INFO, "REEF job {0} completed: state {1}", Array[AnyRef](appId, status.getState))
+        final ReefServiceProtos.JobStatusProto status = reef.getLastStatus();
+        LOG.log(Level.INFO, "REEF job {0} completed: state {1}", new Object[] {appId, status.getState()});
       }
     }
-
     sc.stop();
   }
 }

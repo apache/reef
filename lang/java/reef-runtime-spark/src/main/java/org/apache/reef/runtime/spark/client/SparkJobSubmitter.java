@@ -43,21 +43,14 @@ public class SparkJobSubmitter {
     }
 
     public void submitJobHelper(String[] arguments) throws Exception {
-        final String javaHome = "/Library/Java/JavaVirtualMachines/jdk1.8.0_72.jdk/Contents/Home";
-        final String sparkHome = "/Users/mparsian/spark-2.1.0";
-        final String appResource = "/Users/mparsian/zmp/github/data-algorithms-book/dist/data_algorithms_book.jar";
-        final String mainClass = "org.dataalgorithms.bonus.friendrecommendation.spark.SparkFriendRecommendation";
+        final String javaHome = arguments[0];
+        final String sparkHome = arguments[1];
+        final String appResource = arguments[2];
+        final String mainClass = arguments[3];
         //
-        // parameters passed to the  SparkFriendRecommendation
+        // parameters passed to the  actual spark job to be run
         final String[] appArgs = new String[]{
-                //"--arg",
-                "3",
-
-                //"--arg",
-                "/friends/input",
-
-                //"--arg",
-                "/friends/output"
+                "stubbedvaluefornow"
         };
         //
         //

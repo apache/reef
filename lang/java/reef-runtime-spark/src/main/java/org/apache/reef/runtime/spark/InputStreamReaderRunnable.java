@@ -24,6 +24,7 @@ package org.apache.reef.runtime.spark;
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
 //
 import org.apache.log4j.Logger;
 //
@@ -45,9 +46,9 @@ public class InputStreamReaderRunnable implements Runnable {
     private BufferedReader reader = null;
 
 
-    public InputStreamReaderRunnable(InputStream is, String name) {
+    public InputStreamReaderRunnable(InputStream is, String name) throws UnsupportedEncodingException {
         this.name = name;
-        this.reader = new BufferedReader(new InputStreamReader(is));
+        this.reader = new BufferedReader(new InputStreamReader(is,"UTF-8"));
         LOG.info("InputStreamReaderRunnable:  name=" + name);
     }
 
