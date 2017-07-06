@@ -1,4 +1,4 @@
-/*
+﻿/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -21,19 +21,19 @@
    * Identify the next message in the Java/C# bridge protocol.
    */
   {
-    "namespace":"org.apache.reef.wake.avro.message",
+    "namespace":"org.apache.reef.wake.test.avro.message",
     "type":"record",
-    "name":"Header",
+    "name":"AvroTestMessage",
     "doc":"Identifies the following message in a given protocol.",
     "fields":[
       {
-        "name":"sequence",
-        "doc":"Sequence number of message.",
-        "type":"long"
+        "name":"number",
+        "doc":"Integer test field.",
+        "type":"int"
       },
       {
-        "name":"className",
-        "doc":"The name of the message class.",
+        "name":"data",
+        "doc":"String test field.",
         "type":"string"
       }
     ]

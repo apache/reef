@@ -65,6 +65,7 @@ under the License.
         <jsr305.version>3.0.1</jsr305.version>
         <kryo.version>3.0.3</kryo.version>
         <kryo-serializers.version>0.37</kryo-serializers.version>
+        <fast-classpath-scanner.version>2.4.5</fast-classpath-scanner.version>
         <rootPath>${user.dir}</rootPath>
     </properties>
 

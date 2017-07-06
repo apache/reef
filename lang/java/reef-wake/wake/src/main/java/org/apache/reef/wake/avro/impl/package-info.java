@@ -16,26 +16,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-[
-  /*
-   * Identify the next message in the Java/C# bridge protocol.
-   */
-  {
-    "namespace":"org.apache.reef.wake.avro.message",
-    "type":"record",
-    "name":"Header",
-    "doc":"Identifies the following message in a given protocol.",
-    "fields":[
-      {
-        "name":"sequence",
-        "doc":"Sequence number of message.",
-        "type":"long"
-      },
-      {
-        "name":"className",
-        "doc":"The name of the message class.",
-        "type":"string"
-      }
-    ]
-  }
-]
+
+/**
+ * Implementations of serializer and derserializer interfaces.
+ */
+package org.apache.reef.wake.avro.impl;
