@@ -15,12 +15,17 @@ KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
 -->
+<!-- AVRO CODE GERNATION TARGETS FOR MSBUILD -->
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <UsingTask TaskName="AvscToCSharp" TaskFactory="CodeTaskFactory" AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.v4.0.dll">
     <ParameterGroup>
+      <!-- The directory where the project is located. This is typically $(ProjectDir) -->
       <ProjectDirectory ParameterType="System.String" Required="true" />
-      <SourceFileString ParameterType="System.String" Required="true" />
-      <AvroMessageDirectory ParameterType="System.String" Required="true" />
+      <!-- This is the list of C# target files to be generaterd. This is typically @(Compile) -->
+      <SourceFileList ParameterType="System.String" Required="true" />
+      <!-- The directory where the .avsc schema files are located. -->
+      <AvroSchemaDirectory ParameterType="System.String" Required="true" />
+      <!-- The where Avro schema generator and dependent libraries are located. -->
       <AvroBinaryDirectory ParameterType="System.String" Required="true" />
     </ParameterGroup>
     <Task>
@@ -28,7 +33,7 @@ under the License.
       <Using Namespace="System.IO" />
       <Using Namespace="System.Diagnostics" />
       <Code Type="Fragment" Language="cs"><![CDATA[
-        // Overall strategy: Copy the executuables and libraries need
+        // Overall strategy: Copy the executuables and libraries needed
         // to run the MS Avro code generator to a binary directory
         // in the packages directory, and then run code generation for
         // every message defined in the Messages directory.
@@ -36,10 +41,10 @@ under the License.
         // Create a temporary working directory.
         String tempDir = Path.GetFullPath(Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString()));
         Directory.CreateDirectory(tempDir);
-        String[] sourceFiles = SourceFileString.Split(new char[]{';'});
+        String[] sourceFiles = SourceFileList.Split(new char[]{';'});
 
         // Get the full path where the avro avsc files are located.
-        String messageDirectory = Path.GetFullPath(AvroMessageDirectory);
+        String messageDirectory = Path.GetFullPath(AvroSchemaDirectory);
 
         // Add the avro tools directory to the path.
         String path = Environment.GetEnvironmentVariable("path");
@@ -74,6 +79,7 @@ under the License.
         };
 
         // Log the commands to a file.
+        bool conversionError = false;
         using (StreamWriter logWriter = new StreamWriter(Path.Combine(tempDir, "avroout.log")))
         {
           logWriter.WriteLine(Environment.GetEnvironmentVariable("path"));
@@ -96,6 +102,10 @@ under the License.
                   stdOutBuilder.Append(rProc.StandardOutput.ReadToEnd());
                   stdErrBuilder.Append(rProc.StandardError.ReadToEnd());
                   rProc.WaitForExit();
+                  if (rProc.ExitCode != 0)
+                  {
+                    conversionError = true;
+                  }
               }
               logWriter.WriteLine(stdOutBuilder.ToString());
               logWriter.WriteLine(stdErrBuilder.ToString());
@@ -112,6 +122,10 @@ under the License.
             }
           }
         }
+        if (!conversionError)
+        {
+          Directory.Delete(tempDir, recursive : true);
+        }
       ]]></Code>
     </Task>
   </UsingTask>
@@ -123,6 +137,6 @@ under the License.
   </Target>
   <Target Name="CodeGeneration" DependsOnTargets="SetupAvroCodeGen" BeforeTargets="CoreCompile">
     <Message Text="Generating C# classes from Avro avsc files @(Compile)..." />
-    <AvscToCSharp ProjectDirectory="$(ProjectDir)" SourceFileString="@(Compile)" AvroMessageDirectory="$(AvroMessageDirectory)" AvroBinaryDirectory="$(AvroBinaryDirectory)" />
+    <AvscToCSharp ProjectDirectory="$(ProjectDir)" SourceFileList="@(Compile)" AvroSchemaDirectory="$(AvroSchemaDirectory)" AvroBinaryDirectory="$(AvroBinaryDirectory)" />
   </Target>
 </Project>

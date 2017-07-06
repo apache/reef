@@ -28,7 +28,7 @@ namespace org.apache.reef.bridge.message
     [DataContract(Namespace = "org.apache.reef.bridge.message")]
     public partial class Header
     {
-        private const string JsonSchema = @"{""type"":""record"",""name"":""org.apache.reef.bridge.message.Header"",""doc"":""Identifies the following message in the Java/C# bridge protocol."",""fields"":[{""name"":""identifier"",""doc"":""Identifier of the next message to be read."",""type"":""long""},{""name"":""className"",""doc"":""The name of the message class with org.apache.reef.bridge.message. removed."",""type"":""string""}]}";
+        private const string JsonSchema = @"{""type"":""record"",""name"":""org.apache.reef.bridge.message.Header"",""doc"":""Identifies the following message in the Java/C# bridge protocol."",""fields"":[{""name"":""identifier"",""doc"":""Identifier of the next message to be read."",""type"":""long""},{""name"":""className"",""doc"":""The fully qualified name of the message class."",""type"":""string""}]}";
 
         /// <summary>
         /// Gets the schema.

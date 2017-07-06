@@ -33,7 +33,7 @@
       },
       {
         "name":"className",
-        "doc":"The name of the message class with org.apache.reef.bridge.message. removed.",
+        "doc":"The fully qualified name of the message class.",
         "type":"string"
       }
     ]
