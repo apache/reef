@@ -59,7 +59,6 @@ under the License.
     <Compile Include="Message\SystemOnStart.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="app.config" />
     <None Include="Message\README.md" />
     <None Include="packages.config" />
   </ItemGroup>
