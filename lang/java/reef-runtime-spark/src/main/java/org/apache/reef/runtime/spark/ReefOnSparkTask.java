@@ -22,11 +22,11 @@ import java.util.logging.Logger;
 import org.apache.reef.task.Task;
 
 class ReefOnSparkTask implements Task {
-  private Logger LOG = Logger.getLogger(ReefOnSparkTask.class.getName());
+  private Logger logger = Logger.getLogger(ReefOnSparkTask.class.getName());
   //LOG.log(Level.FINE, "Instantiated ReefOnSparkTask");
 
-  public byte[] call(byte[] bytes) {
-    LOG.log(Level.INFO, "Hello Spark!");
+  public byte[] call(final byte[] bytes) {
+    logger.log(Level.INFO, "Hello Spark!");
     return null;
   }
 }

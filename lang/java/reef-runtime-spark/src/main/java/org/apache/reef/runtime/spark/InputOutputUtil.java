@@ -22,75 +22,79 @@ package org.apache.reef.runtime.spark;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.BufferedReader;
+import java.util.logging.Logger;
+
 import org.apache.hadoop.fs.FSDataInputStream;
 import org.apache.hadoop.util.LineReader;
 
 /**
  * This class provides convenient methods for accessing
  * some Input/Output methods.
- *
- *
  */
-public class InputOutputUtil {
+final class InputOutputUtil{
+  private static Logger logger=Logger.getLogger(InputOutputUtil.class.getName());
 
-    public static void close(LineReader reader) {
-        if (reader == null) {
-            return;
-        }
-        //
-        try {
-            reader.close();
-        }
-        catch (Exception ignore) {
-        }
+  public static void close(final LineReader reader){
+    if (reader==null) {
+      return;
     }
+    //
+    try {
+      reader.close();
+    } catch (Exception ignore) {
+      logger.info("InputOutputUtil::close LineReader in catch block with message="+ignore.getMessage());
+    }
+  }
 
-    public static void close(OutputStream stream) {
-        if (stream == null) {
-            return;
-        }
-        //
-        try {
-            stream.close();
-        }
-        catch (Exception ignore) {
-        }
+  public static void close(final OutputStream stream){
+    if (stream==null) {
+      return;
     }
+    //
+    try {
+      stream.close();
+    } catch (Exception ignore) {
+      logger.info("InputOutputUtil::in stream catch block with message="+ignore.getMessage());
+    }
+  }
 
-    public static void close(InputStream stream) {
-        if (stream == null) {
-            return;
-        }
-        //
-        try {
-            stream.close();
-        }
-        catch (Exception ignore) {
-        }
+  public static void close(final InputStream stream){
+    if (stream==null) {
+      return;
     }
+    //
+    try {
+      stream.close();
+    } catch (Exception ignore) {
+      logger.info("InputOutputUtil::in stream catch block with message="+ignore.getMessage());
+    }
+  }
 
-    public static void close(FSDataInputStream stream) {
-        if (stream == null) {
-            return;
-        }
-        //
-        try {
-            stream.close();
-        }
-        catch (Exception ignore) {
-        }
+  public static void close(final FSDataInputStream stream){
+    if (stream==null) {
+      return;
     }
+    //
+    try {
+      stream.close();
+    } catch (Exception ignore) {
+      logger.info("InputOutputUtil::close in catch block with message="+ignore.getMessage());
+    }
+  }
 
-    public static void close(BufferedReader reader) {
-        if (reader == null) {
-            return;
-        }
-        //
-        try {
-            reader.close();
-        }
-        catch (Exception ignore) {
-        }
+  public static void close(final BufferedReader reader){
+    if (reader==null) {
+      return;
     }
+    //
+    try {
+      reader.close();
+    } catch (Exception ignore) {
+      logger.info("InputOutputUtil::close reader in catch block with message="+ignore.getMessage());
+    }
+  }
+
+  private InputOutputUtil(){
+  }
 
 }

@@ -25,35 +25,36 @@ import org.apache.reef.tang.Configuration;
 import org.apache.reef.tang.annotations.Unit;
 import org.apache.reef.wake.EventHandler;
 import org.apache.reef.wake.time.event.StartTime;
+
 import javax.inject.Inject;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 
 @Unit
-final class ReefOnSparkDriver  {
-    @Inject
-    private EvaluatorRequestor requestor;
-    private Logger LOG = Logger.getLogger(ReefOnSparkDriver.class.getName());
+final class ReefOnSparkDriver {
+  @Inject
+  private EvaluatorRequestor requestor;
+  private Logger logger = Logger.getLogger(ReefOnSparkDriver.class.getName());
   //LOG.log(Level.FINE, "Instantiated ReefOnSparkDriver");
 
-  final class StartHandler implements EventHandler<StartTime> {
+  final class StartHandler implements EventHandler <StartTime> {
 
-    public void onNext(StartTime startTime) {
-      LOG.log(Level.INFO, "Start ReefOnSparkDriver: {0}", startTime);
+    public void onNext(final StartTime startTime) {
+      logger.log(Level.INFO, "Start ReefOnSparkDriver: {0}", startTime);
       requestor.newRequest().setNumber(1).setMemory(64).setNumberOfCores(1).submit();
-      LOG.log(Level.INFO, "Requested Evaluator.");
+      logger.log(Level.INFO, "Requested Evaluator.");
     }
   }
 
 
-  final class EvaluatorAllocatedHandler implements EventHandler<AllocatedEvaluator> {
-        public void onNext(AllocatedEvaluator allocatedEvaluator) {
-            LOG.log(Level.INFO,"Submitting ReefOnSparkTask task to AllocatedEvaluator: {0}", allocatedEvaluator);
-            Configuration taskConfiguration = TaskConfiguration.CONF.set(TaskConfiguration.IDENTIFIER, "ReefOnSparkTask")
-                    .set(TaskConfiguration.TASK, ReefOnSparkTask.class)
-                    .build();
-            allocatedEvaluator.submitTask(taskConfiguration);
-        }
+  final class EvaluatorAllocatedHandler implements EventHandler <AllocatedEvaluator> {
+    public void onNext(final AllocatedEvaluator allocatedEvaluator) {
+      logger.log(Level.INFO, "Submitting ReefOnSparkTask task to AllocatedEvaluator: {0}", allocatedEvaluator);
+      Configuration taskConfiguration = TaskConfiguration.CONF.set(TaskConfiguration.IDENTIFIER, "ReefOnSparkTask")
+          .set(TaskConfiguration.TASK, ReefOnSparkTask.class)
+          .build();
+      allocatedEvaluator.submitTask(taskConfiguration);
+    }
   }
 }
