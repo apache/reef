@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.runtime.spark;
+package org.apache.reef.runtime.spark.job;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
