@@ -28,7 +28,7 @@ under the License.
       <!-- The where Avro schema generator and dependent libraries are located. -->
       <AvroBinaryDirectory ParameterType="System.String" Required="true" />
     </ParameterGroup>
-    <Task>     
+    <Task>
       <Using Namespace="System" />
       <Using Namespace="System.IO" />
       <Using Namespace="System.Diagnostics" />
@@ -85,7 +85,7 @@ under the License.
           logWriter.WriteLine(Environment.GetEnvironmentVariable("path"));
           foreach (String file in sourceFiles)
           {
-            if (file.Contains("Message"))
+            if (file.Contains(@"Message\"))
             {
               // Build the name of the source avsc file from the destiname CS file and avro message path.
               String avroSourceName = Path.Combine(messageDirectory, (Path.GetFileName(file)).Replace(".cs", ".avsc"));
@@ -131,9 +131,9 @@ under the License.
   </UsingTask>
   <Target Name="SetupAvroCodeGen" DependsOnTargets="RestorePackages">
     <Message Text="Copying Avro code generation files to $(AvroBinaryDirectory)..." />
-    <Copy SourceFiles="$(AvroLibraryDirectory)" DestinationFolder="$(AvroBinaryDirectory)" />
-    <Copy SourceFiles="$(AvroToolsDirectory)" DestinationFolder="$(AvroBinaryDirectory)" />
-    <Copy SourceFiles="$(NewtonsoftDirectory)" DestinationFolder="$(AvroBinaryDirectory)" />
+    <Copy SourceFiles="$(AvroTools)" DestinationFolder="$(AvroBinaryDirectory)" />
+    <Copy SourceFiles="$(AvroLibrary)" DestinationFolder="$(AvroBinaryDirectory)" />
+    <Copy SourceFiles="$(NewtonsoftLibrary)" DestinationFolder="$(AvroBinaryDirectory)" />
   </Target>
   <Target Name="CodeGeneration" DependsOnTargets="SetupAvroCodeGen" BeforeTargets="CoreCompile">
     <Message Text="Generating C# classes from Avro avsc files @(Compile)..." />

@@ -29,9 +29,9 @@ under the License.
     <RestorePackages>true</RestorePackages>
     <AvroBinaryDirectory>..\packages\AvroBin</AvroBinaryDirectory>
     <AvroSchemaDirectory>..\..\common\bridge\avro</AvroSchemaDirectory>
-    <AvroLibraryDirectory>..\packages\Microsoft.Avro.Core.0.1.0\lib\net451\Microsoft.Avro.Core.dll</AvroLibraryDirectory>
-    <AvroToolsDirectory>..\packages\Microsoft.Avro.Tools.0.1.0\lib\net451\Microsoft.Avro.Tools.exe</AvroToolsDirectory>
-    <NewtonsoftDirectory>..\packages\Newtonsoft.Json.10.0.3\lib\net45\Newtonsoft.Json.dll</NewtonsoftDirectory>
+    <AvroTools>..\packages\Microsoft.Avro.Tools.0.1.0\lib\net451\Microsoft.Avro.Tools.exe</AvroTools>
+    <AvroLibrary>..\packages\Microsoft.Avro.Core.0.1.0\lib\net451\Microsoft.Avro.Core.dll</AvroLibrary>
+    <NewtonsoftLibrary>..\packages\Newtonsoft.Json.10.0.3\lib\net45\Newtonsoft.Json.dll</NewtonsoftLibrary>
   </PropertyGroup>
   <Import Project="$(SolutionDir)\build.props" />
   <ItemGroup>
