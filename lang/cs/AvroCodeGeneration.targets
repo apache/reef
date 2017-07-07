@@ -28,7 +28,7 @@ under the License.
       <!-- The where Avro schema generator and dependent libraries are located. -->
       <AvroBinaryDirectory ParameterType="System.String" Required="true" />
     </ParameterGroup>
-    <Task>
+    <Task>     
       <Using Namespace="System" />
       <Using Namespace="System.IO" />
       <Using Namespace="System.Diagnostics" />
