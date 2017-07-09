@@ -132,6 +132,70 @@ namespace Org.Apache.REEF.Client.Tests
         }
 
         [Fact]
+        public async Task TestGetApplications()
+        {
+            var ctx = new TestContext();
+            var urlProvider = ctx.UrlProviderFake;
+            var restReqExecutor = ctx.RestRequestExecutorFake;
+            var anyUri = Enumerable.Repeat(new Uri("anyscheme://anypath"), 1);
+            
+            urlProvider.GetUrlAsync().Returns(Task.FromResult(anyUri));
+            var anyApplications = new Applications();
+            
+            var anyApplication1 = new Application
+            {
+                AllocatedMB = 100,
+                AmHostHttpAddress = "http://anyhttpaddress",
+                AmContainerLogs = "SomeLogs",
+                ApplicationType = "AnyYarnApplicationType",
+                State = State.FINISHED,
+                Name = "AnyApplicationName",
+                RunningContainers = 0
+            };
+
+            var anyApplication2 = new Application
+            {
+                AllocatedMB = 100,
+                AmHostHttpAddress = "http://anyhttpaddress",
+                AmContainerLogs = "SomeLogs",
+                ApplicationType = "AnyYarnApplicationType",
+                State = State.FINISHED,
+                Name = "AnyApplicationName",
+                RunningContainers = 0
+            };
+
+            anyApplications.App.Add(anyApplication1);
+            anyApplications.App.Add(anyApplication2);
+
+            restReqExecutor.ExecuteAsync<Applications>(
+                Arg.Is<RestRequest>(
+                    req =>
+                        req.Resource == "ws/v1/cluster/apps/" 
+                        && req.RootElement == Applications.RootElement
+                        && req.Method == Method.GET),
+                anyUri.First(),
+                CancellationToken.None).Returns(Task.FromResult(anyApplications));
+
+            var yarnClient = ctx.GetClient();
+            Applications actualApplications = await yarnClient.GetApplicationsAsync();
+            
+            Assert.NotEqual(actualApplications.App, null);
+            Assert.Equal(actualApplications.App.Count, 2);
+
+            int matchCount = 0;
+            foreach (var anyApplication in actualApplications.App)
+            {
+                if (anyApplication == anyApplication1 || anyApplication == anyApplication2)
+                {
+                    ++matchCount;
+                }
+            }
+
+            Assert.Equal(actualApplications.App.Count, matchCount);
+            var unused = urlProvider.Received(1).GetUrlAsync();
+        }
+
+        [Fact]
         public async Task TestGetApplicationFinalStatus()
         {
             var ctx = new TestContext();

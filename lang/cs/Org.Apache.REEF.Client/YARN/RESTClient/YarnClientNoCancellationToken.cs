@@ -42,6 +42,12 @@ namespace Org.Apache.REEF.Client.Yarn.RestClient
             return await GetApplicationAsync(appId, CancellationToken.None);
         }
 
+        public async Task<Applications> GetApplicationsAsync()
+        {
+            await new RemoveSynchronizationContextAwaiter();
+            return await GetApplicationsAsync(CancellationToken.None);
+        }
+
         public async Task<NewApplication> CreateNewApplicationAsync()
         {
             await new RemoveSynchronizationContextAwaiter();

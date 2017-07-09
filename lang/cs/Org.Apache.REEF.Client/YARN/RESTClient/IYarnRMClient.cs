@@ -34,8 +34,12 @@ namespace Org.Apache.REEF.Client.Yarn.RestClient
         Task<ClusterMetrics> GetClusterMetricsAsync(CancellationToken cancellationToken);
 
         Task<Application> GetApplicationAsync(string appId);
-
+        
         Task<Application> GetApplicationAsync(string appId, CancellationToken cancellationToken);
+
+        Task<Applications> GetApplicationsAsync();
+
+        Task<Applications> GetApplicationsAsync(CancellationToken cancellationToken);
 
         Task<NewApplication> CreateNewApplicationAsync();
 
