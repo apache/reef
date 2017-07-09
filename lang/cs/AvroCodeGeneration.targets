@@ -140,3 +140,5 @@ under the License.
     <AvscToCSharp ProjectDirectory="$(ProjectDir)" SourceFileList="@(Compile)" AvroSchemaDirectory="$(AvroSchemaDirectory)" AvroBinaryDirectory="$(AvroBinaryDirectory)" />
   </Target>
 </Project>
+
+
