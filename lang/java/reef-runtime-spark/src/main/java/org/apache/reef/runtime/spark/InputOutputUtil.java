@@ -23,7 +23,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.BufferedReader;
 import java.util.logging.Logger;
-
 import org.apache.hadoop.fs.FSDataInputStream;
 import org.apache.hadoop.util.LineReader;
 
@@ -35,10 +34,9 @@ final class InputOutputUtil{
   private static Logger logger=Logger.getLogger(InputOutputUtil.class.getName());
 
   public static void close(final LineReader reader){
-    if (reader==null) {
+    if (reader == null) {
       return;
     }
-    //
     try {
       reader.close();
     } catch (Exception ignore) {
@@ -47,10 +45,9 @@ final class InputOutputUtil{
   }
 
   public static void close(final OutputStream stream){
-    if (stream==null) {
+    if (stream == null) {
       return;
     }
-    //
     try {
       stream.close();
     } catch (Exception ignore) {
@@ -59,10 +56,9 @@ final class InputOutputUtil{
   }
 
   public static void close(final InputStream stream){
-    if (stream==null) {
+    if (stream ==  null) {
       return;
     }
-    //
     try {
       stream.close();
     } catch (Exception ignore) {
@@ -71,10 +67,9 @@ final class InputOutputUtil{
   }
 
   public static void close(final FSDataInputStream stream){
-    if (stream==null) {
+    if (stream == null) {
       return;
     }
-    //
     try {
       stream.close();
     } catch (Exception ignore) {
@@ -83,10 +78,9 @@ final class InputOutputUtil{
   }
 
   public static void close(final BufferedReader reader){
-    if (reader==null) {
+    if (reader == null) {
       return;
     }
-    //
     try {
       reader.close();
     } catch (Exception ignore) {
@@ -96,5 +90,4 @@ final class InputOutputUtil{
 
   private InputOutputUtil(){
   }
-
 }

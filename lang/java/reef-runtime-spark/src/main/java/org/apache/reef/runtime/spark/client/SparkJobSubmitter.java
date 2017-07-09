@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.runtime.spark.client;
+package org.apache.reef.runtime.spark.job;
 
 import org.apache.log4j.Logger;
 import org.apache.spark.launcher.SparkLauncher;
