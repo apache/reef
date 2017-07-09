@@ -16,6 +16,7 @@
 // under the License.
 
 using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -199,6 +200,17 @@ namespace Org.Apache.REEF.Client.Local
         {
             await Task.Delay(0);
             return FinalState.SUCCEEDED;
+        }
+
+        /// <summary>
+        /// Returns all the application reports running in the cluster
+        /// </summary>
+        /// <returns></returns>
+        [Unstable("0.16", "Working in progress for rest API id returned")]
+        public async Task<List<IApplicationReport>> GetApplicationReports()
+        {
+            await Task.Delay(0);
+            throw new NotImplementedException();
         }
 
         /// <summary>

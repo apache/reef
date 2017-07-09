@@ -91,6 +91,18 @@ namespace Org.Apache.REEF.Client.Yarn.RestClient
                 await GenerateUrlAndExecuteRequestAsync<Application>(request, cancellationToken);
         }
 
+        public async Task<Applications> GetApplicationsAsync(CancellationToken cancellationToken)
+        {
+            await new RemoveSynchronizationContextAwaiter();
+
+            var request = _requestFactory.CreateRestRequest(Applications.Resource,
+                Method.GET,
+                Applications.RootElement);
+
+            return
+                await GenerateUrlAndExecuteRequestAsync<Applications>(request, cancellationToken);
+        }
+
         public async Task<NewApplication> CreateNewApplicationAsync(CancellationToken cancellationToken)
         {
             await new RemoveSynchronizationContextAwaiter();

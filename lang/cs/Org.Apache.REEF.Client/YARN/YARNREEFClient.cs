@@ -16,6 +16,7 @@
 // under the License.
 
 using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -103,6 +104,40 @@ namespace Org.Apache.REEF.Client.Yarn
             Logger.Log(Level.Verbose, msg);
 
             return application.FinalStatus;
+        }
+
+        /// <summary>
+        /// Returns all the application reports running in the cluster.
+        /// GetApplicationAsync call is very expensive as it is trying 
+        /// fetch information about all the applications in the cluster.
+        /// </summary>
+        /// <returns></returns>
+        public async Task<List<IApplicationReport>> GetApplicationReports()
+        {
+            var appReports = new List<IApplicationReport>();
+            try
+            {
+                var applications = await _yarnClient.GetApplicationsAsync();
+
+                foreach (var application in applications.App)
+                {
+                    appReports.Add(new ApplicationReport(application.Id, application.Name, application.TrackingUrl, 
+                                                         application.StartedTime, application.FinishedTime, 
+                                                         application.RunningContainers, application.FinalStatus));
+
+                    var msg = string.Format("application status {0}, Progress: {1}, trackingUri: {2}, " +
+                                            "Name: {3}, ApplicationId: {4}, State {5}.",
+                                             application.FinalStatus, application.Progress, application.TrackingUI, 
+                                             application.Name, application.Id, application.State);
+                    Logger.Log(Level.Verbose, msg);
+                }
+                return appReports;
+            }
+            catch (Exception ex)
+            {
+                Logger.Log(Level.Error, "GetApplications" + " exception " + ex.Message + "\n" + ex.StackTrace);
+                throw;
+            }
         }
 
         private void Launch(JobRequest jobRequest, string driverFolderPath)
