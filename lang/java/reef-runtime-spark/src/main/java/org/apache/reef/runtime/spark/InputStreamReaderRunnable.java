@@ -17,11 +17,9 @@
  * under the License.
  */
 package org.apache.reef.runtime.spark;
-import java.io.BufferedReader;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.UnsupportedEncodingException;
+import java.io.*;
 //
+import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 /**
  * The InputStreamReaderRunnable class captures
@@ -51,10 +49,14 @@ public class InputStreamReaderRunnable implements Runnable {
         LOG.info(line);
         line = reader.readLine();
       }
-    } catch (Exception e) {
-      LOG.error("run() failed. for name=" + name, e);
+    } catch (IOException ioe) {
+      LOG.log(Level.WARN, "InputStreamReaderRunnable: caught an IOException with stacktrace {0}", ioe);
     } finally {
-      InputOutputUtil.close(reader);
+      try {
+        reader.close();
+      }catch (IOException ioe) {
+        LOG.log(Level.WARN, "InputStreamReaderRunnable: caught an IOException with stacktrace {0}", ioe);
+      }
     }
   }
 }
