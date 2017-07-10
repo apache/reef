@@ -35,9 +35,11 @@ namespace Org.Apache.REEF.Client.Yarn
         public static readonly OptionalParameter<string> SecurityTokenService = new OptionalParameter<string>();
         public static readonly OptionalImpl<IYarnRestClientCredential> YarnRestClientCredential = new OptionalImpl<IYarnRestClientCredential>();
 
-        // URL for store. For Hadoop file system, it is set in fs.defaultFS as default by YARN environment. Client doesn't need to 
-        // specify it. For Data Lake, Yarn applications are required to set the complete path by themselves
-        // e.g. adl://reefadl.azuredatalakestore.net
+        /// <summary>
+        /// URL for store. For Hadoop file system, it is set in fs.defaultFS as default by YARN environment. Client doesn't need to 
+        /// specify it. For Data Lake, Yarn applications are required to set the complete path by themselves
+        /// e.g. adl://reefadl.azuredatalakestore.net
+        /// </summary>
         public static readonly OptionalParameter<string> FileSystemUrl = new OptionalParameter<string>();
 
         public static ConfigurationModule ConfigurationModule = new YARNClientConfiguration()
