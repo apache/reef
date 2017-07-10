@@ -19,8 +19,9 @@ using Org.Apache.REEF.Tang.Annotations;
 
 namespace Org.Apache.REEF.Client.YARN.Parameters
 {
-    [NamedParameter("FileSystem URL.", defaultValue: "NULL")]
+    [NamedParameter("FileSystem URL.", defaultValue: DefaultValue)]
     public sealed class FileSystemUrl : Name<string>
     {
+        public const string DefaultValue = "NULL";
     }
 }

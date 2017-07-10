@@ -22,8 +22,16 @@ import org.apache.reef.tang.annotations.Name;
 import org.apache.reef.tang.annotations.NamedParameter;
 
 /**
- * The job submission directory.
+ * The file system URL.
+ * For Hadoop file system, it is set in fs.defaultFS as default by YARN environment.
+ * For Data Lake, for example, Yarn applications are required to set the complete path by themselves.
+ * Example is adl://reefadl.azuredatalakestore.net.
  */
-@NamedParameter(doc = "The File System URL.")
+@NamedParameter(doc = "The File System URL.", default_value = "NULL")
 public final class FileSystemUrl implements Name<String> {
+
+  private FileSystemUrl() {
+  }
+
+  public static final String DEFAULT_VALUE = "NULL";
 }
