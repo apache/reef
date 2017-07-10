@@ -54,6 +54,7 @@ public final class TestAvroJobSubmissionParametersSerializationFromCS {
             "\"jobSubmissionFolder\":" + STRING_REP_QUOTED +
           "}," +
           "\"dfsJobSubmissionFolder\":\"" + STRING_REP + "\"," +
+          "\"fileSystemUrl\":\"" + STRING_REP + "\"," +
           "\"jobSubmissionDirectoryPrefix\":" + STRING_REP_QUOTED +
       "}";
 
@@ -345,6 +346,7 @@ public final class TestAvroJobSubmissionParametersSerializationFromCS {
     assert sharedJobSubmissionParams.getJobId().toString().equals(STRING_REP);
     assert sharedJobSubmissionParams.getJobSubmissionFolder().toString().equals(STRING_REP);
     assert jobSubmissionParameters.getDfsJobSubmissionFolder().toString().equals(STRING_REP);
+    assert jobSubmissionParameters.getFileSystemUrl().toString().equals(STRING_REP);
     assert jobSubmissionParameters.getJobSubmissionDirectoryPrefix().toString().equals(STRING_REP);
   }
 

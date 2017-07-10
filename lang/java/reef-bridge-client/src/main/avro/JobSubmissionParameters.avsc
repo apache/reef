@@ -46,6 +46,7 @@
       "fields": [
         { "name": "sharedJobSubmissionParameters", "type": "AvroJobSubmissionParameters" },
         { "name": "dfsJobSubmissionFolder", "type": "string", "default": "NULL" },
+        { "name": "fileSystemUrl", "type": "string", "default": "NULL" },
         { "name": "jobSubmissionDirectoryPrefix", "type": "string" }
       ]
   },

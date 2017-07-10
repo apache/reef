@@ -19,6 +19,7 @@ using System.IO;
 using Org.Apache.REEF.Client.API;
 using Org.Apache.REEF.Client.Avro;
 using Org.Apache.REEF.Client.Avro.YARN;
+using Org.Apache.REEF.Client.YARN.Parameters;
 using Org.Apache.REEF.Common.Avro;
 using Org.Apache.REEF.Common.Files;
 using Org.Apache.REEF.Driver.Bridge;
@@ -34,11 +35,14 @@ namespace Org.Apache.REEF.Client.YARN
     internal sealed class YarnREEFDotNetParamSerializer
     {
         private readonly REEFFileNames _fileNames;
+        private readonly string _fileSystemUrl;
 
         [Inject]
-        private YarnREEFDotNetParamSerializer(REEFFileNames fileNames)
+        private YarnREEFDotNetParamSerializer(REEFFileNames fileNames,
+            [Parameter(typeof(FileSystemUrl))] string fileSystemUrl)
         {
             _fileNames = fileNames;
+            _fileSystemUrl = fileSystemUrl;
         }
 
         /// <summary>
@@ -104,6 +108,7 @@ namespace Org.Apache.REEF.Client.YARN
             {
                 jobSubmissionDirectoryPrefix = jobSubmissionDirectory,
                 dfsJobSubmissionFolder = jobSubmissionDirectory,
+                fileSystemUrl = _fileSystemUrl,
                 sharedJobSubmissionParameters = avroJobSubmissionParameters
             };
 
