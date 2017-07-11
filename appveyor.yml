@@ -39,6 +39,9 @@ build_script:
 test_script:
   - cmd: msbuild .\lang\cs\TestRunner.proj /p:Configuration="Debug" /p:Platform="x64"
 
+after_build:
+  - ps: .\bin\AnalyzeClrCompatibility.ps1
+
 notifications:
   - provider: Email
     on_build_success: false
