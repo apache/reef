@@ -55,7 +55,7 @@ namespace Org.Apache.REEF.Client.Common
         /// This method returns the url of http server running inside the driver.
         /// e.g. http://hostname:port/
         /// </summary>
-        string DriverUrl { get; }
+        string TrackingUrl { get; }
 
         /// <summary>
         /// Get Yarn application id.

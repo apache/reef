@@ -108,8 +108,12 @@ namespace Org.Apache.REEF.Client.Yarn
 
         /// <summary>
         /// Returns all the application reports running in the cluster.
-        /// GetApplicationAsync call is very expensive as it is trying 
+        /// GetApplicationReports call is very expensive as it is trying 
         /// fetch information about all the applications in the cluster.
+        /// 
+        /// If this method is called right after submitting a new app then
+        /// that new app might not immidietly result in this list until 
+        /// some number of retries. 
         /// </summary>
         /// <returns></returns>
         public async Task<List<IApplicationReport>> GetApplicationReports()
