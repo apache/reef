@@ -94,5 +94,19 @@ namespace Org.Apache.REEF.Client.YARN.RestClient.DataModel
 
         [JsonProperty("vcoreSeconds")]
         public long VcoreSeconds { get; set; }
+
+        public override string ToString()
+        {
+            return string.Format("Id: {0}, User: {1}, Name: {2}, ApplicationType: {3}, " +
+                                 "Queue: {4}, State: {5}, FinalStatus: {6}, Progress: {7}, " +
+                                 "ClusterId: {8}, StartedTime: {9}, FinishedTime: {10}, " +
+                                 "ElapsedTime: {11}, AmContainerLogs: {12}, AmHostHttpAddress: {13}, " +
+                                 "AllocatedMB: {14}, AllocatedVCores: {15}, RunningContainers: {16}, " +
+                                 "MemorySeconds: {17}, VcoreSeconds: {18}, TrackingUI: {19}, " +
+                                 "TrackingUrl: {20}, Diagnostics: {21} ", Id, User, Name, ApplicationType, 
+                                 Queue, State, FinalStatus, Progress, ClusterId, StartedTime, FinishedTime,
+                                 ElapsedTime, AmContainerLogs, AmHostHttpAddress, AllocatedMB, AllocatedVCores, 
+                                 RunningContainers, MemorySeconds, VcoreSeconds, TrackingUI, TrackingUrl, Diagnostics);
+        }
     }
 }

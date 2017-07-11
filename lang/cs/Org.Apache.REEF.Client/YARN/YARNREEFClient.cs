@@ -99,8 +99,15 @@ namespace Org.Apache.REEF.Client.Yarn
         {
             var application = await _yarnClient.GetApplicationAsync(appId);
 
-            var msg = string.Format("application status {0}, Progress: {1}, trackingUri: {2}, Name: {3}, ApplicationId: {4}, State {5}.",
-                application.FinalStatus, application.Progress, application.TrackingUI, application.Name, application.Id, application.State);
+            var msg =
+                string.Format(
+                    "application status {0}, Progress: {1}, trackingUri: {2}, Name: {3}, ApplicationId: {4}, State {5}.",
+                    application.FinalStatus,
+                    application.Progress,
+                    application.TrackingUI,
+                    application.Name,
+                    application.Id,
+                    application.State);
             Logger.Log(Level.Verbose, msg);
 
             return application.FinalStatus;
@@ -119,29 +126,23 @@ namespace Org.Apache.REEF.Client.Yarn
         public async Task<List<IApplicationReport>> GetApplicationReports()
         {
             var appReports = new List<IApplicationReport>();
-            try
-            {
-                var applications = await _yarnClient.GetApplicationsAsync();
+            var applications = await _yarnClient.GetApplicationsAsync();
 
-                foreach (var application in applications.App)
-                {
-                    appReports.Add(new ApplicationReport(application.Id, application.Name, application.TrackingUrl, 
-                                                         application.StartedTime, application.FinishedTime, 
-                                                         application.RunningContainers, application.FinalStatus));
-
-                    var msg = string.Format("application status {0}, Progress: {1}, trackingUri: {2}, " +
-                                            "Name: {3}, ApplicationId: {4}, State {5}.",
-                                             application.FinalStatus, application.Progress, application.TrackingUI, 
-                                             application.Name, application.Id, application.State);
-                    Logger.Log(Level.Verbose, msg);
-                }
-                return appReports;
-            }
-            catch (Exception ex)
+            foreach (var application in applications.App)
             {
-                Logger.Log(Level.Error, "GetApplications" + " exception " + ex.Message + "\n" + ex.StackTrace);
-                throw;
+                appReports.Add(new ApplicationReport(application.Id,
+                    application.Name,
+                    application.TrackingUrl,
+                    application.StartedTime,
+                    application.FinishedTime,
+                    application.RunningContainers,
+                    application.FinalStatus));
+
+                Logger.Log(Level.Verbose,
+                    "Application report {0}",
+                    application);
             }
+            return appReports;
         }
 
         private void Launch(JobRequest jobRequest, string driverFolderPath)

@@ -163,10 +163,8 @@ namespace Org.Apache.REEF.Client.Tests
                 Name = "AnyApplicationName",
                 RunningContainers = 0
             };
-            
-            anyApplications.App = new List<Application>();
-            anyApplications.App.Add(anyApplication1);
-            anyApplications.App.Add(anyApplication2);
+
+            anyApplications.App = new List<Application> { anyApplication1, anyApplication2 };
 
             restReqExecutor.ExecuteAsync<Applications>(
                 Arg.Is<RestRequest>(
