@@ -79,6 +79,11 @@ namespace Org.Apache.REEF.Client.Yarn.RestClient
                     GenerateUrlAndExecuteRequestAsync<ClusterMetrics>(request, cancellationToken);
         }
 
+        /// <summary>
+        /// This API returns information about all the applications maintained
+        /// by YARN RM in the cluster by invoking REST API.
+        /// </summary>
+        /// <returns>list of applications</returns>
         public async Task<Application> GetApplicationAsync(string appId, CancellationToken cancellationToken)
         {
             await new RemoveSynchronizationContextAwaiter();
@@ -91,6 +96,13 @@ namespace Org.Apache.REEF.Client.Yarn.RestClient
                 await GenerateUrlAndExecuteRequestAsync<Application>(request, cancellationToken);
         }
 
+        /// <summary>
+        /// This API returns information about all the applications maintained
+        /// by YARN RM in the cluster by invoking REST API. This API also allow cooperative
+        /// cancellation in multi-threading scenarios.
+        /// </summary>
+        /// <param name="cancellationToken"></param>
+        /// <returns>list of applications</returns>
         public async Task<Applications> GetApplicationsAsync(CancellationToken cancellationToken)
         {
             await new RemoveSynchronizationContextAwaiter();
