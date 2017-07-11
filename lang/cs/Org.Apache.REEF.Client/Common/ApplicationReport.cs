@@ -19,22 +19,30 @@ using Org.Apache.REEF.Client.YARN.RestClient.DataModel;
 
 namespace Org.Apache.REEF.Client.Common
 {
-    public sealed class ApplicationReport : IApplicationReport
+    /// <summary>
+    /// This class represents application information mainated by Yarn RM.
+    /// This class is modeled on Org.Apache.REEF.Client.YARN.RestClient.DataModel.Application. 
+    /// Documentation on the class Org.Apache.REEF.Client.YARN.RestClient.DataModel.Application
+    /// can be found here.
+    /// <a href="http://hadoop.apache.org/docs/r2.6.0/hadoop-yarn/hadoop-yarn-site/WebServicesIntro.html">
+    /// Hadoop RM REST API</a> documentation.
+    /// </summary>
+    internal sealed class ApplicationReport : IApplicationReport
     {
-        public string AppName { get; }
-        public long StartedTime { get; }
-        public long FinishedTime { get; }
-        public int RunningContainers { get; }
-        public string DriverUrl { get; }
-        public string AppId { get; }
-        public FinalState FinalState { get; }
+        public string AppName { get; private set; }
+        public long StartedTime { get; private set; }
+        public long FinishedTime { get; private set; }
+        public int RunningContainers { get; private set; }
+        public string TrackingUrl { get; private set; }
+        public string AppId { get; private set; }
+        public FinalState FinalState { get; private set; }
 
-        internal ApplicationReport(string appId, string appName, string driverUrl, 
+        internal ApplicationReport(string appId, string appName, string trackingUrl, 
             long startedTime, long finishedTime, int runningContainers, FinalState finalState)
         {
             AppId = appId;
             AppName = appName;
-            DriverUrl = driverUrl;
+            TrackingUrl = trackingUrl;
             FinalState = finalState;
             StartedTime = startedTime;
             FinishedTime = finishedTime;
