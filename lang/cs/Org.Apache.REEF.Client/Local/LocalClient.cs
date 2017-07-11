@@ -206,6 +206,7 @@ namespace Org.Apache.REEF.Client.Local
         /// Returns all the application reports running in the cluster
         /// </summary>
         /// <returns></returns>
+        /// TODO: REEF-1824
         [Unstable("0.16", "Working in progress for rest API id returned")]
         public async Task<List<IApplicationReport>> GetApplicationReports()
         {

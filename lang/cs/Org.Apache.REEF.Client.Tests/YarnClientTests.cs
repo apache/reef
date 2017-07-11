@@ -171,7 +171,7 @@ namespace Org.Apache.REEF.Client.Tests
             restReqExecutor.ExecuteAsync<Applications>(
                 Arg.Is<RestRequest>(
                     req =>
-                        req.Resource == "ws/v1/cluster/apps/" 
+                        req.Resource == "ws/v1/cluster/apps" 
                         && req.RootElement == Applications.RootElement
                         && req.Method == Method.GET),
                 anyUri.First(),

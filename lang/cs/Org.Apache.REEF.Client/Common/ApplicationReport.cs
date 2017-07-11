@@ -19,6 +19,14 @@ using Org.Apache.REEF.Client.YARN.RestClient.DataModel;
 
 namespace Org.Apache.REEF.Client.Common
 {
+    /// <summary>
+    /// This class represents application information mainated by Yarn RM.
+    /// This class is modeled on Org.Apache.REEF.Client.YARN.RestClient.DataModel.Application. 
+    /// Documentation on the class Org.Apache.REEF.Client.YARN.RestClient.DataModel.Application
+    /// can be found here.
+    /// <a href="http://hadoop.apache.org/docs/r2.6.0/hadoop-yarn/hadoop-yarn-site/WebServicesIntro.html">
+    /// Hadoop RM REST API</a> documentation.
+    /// </summary>
     public sealed class ApplicationReport : IApplicationReport
     {
         public string AppName { get; }
