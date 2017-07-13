@@ -50,7 +50,7 @@ namespace Org.Apache.REEF.IO.TestClient
         {
             bool result = false;
 
-            var localFile = MakeLocalBanaryFile();
+            var localFile = MakeLocalBinaryFile();
             Logger.Log(Level.Info, string.Format(CultureInfo.CurrentCulture, "localFile {0}: ", localFile));
 
             var localFileDownloaded = localFile + ".2";
@@ -109,7 +109,7 @@ namespace Org.Apache.REEF.IO.TestClient
             return true;
         }
 
-        private string MakeLocalBanaryFile()
+        private string MakeLocalBinaryFile()
         {
             var result = Path.GetTempFileName();
             WriteFileTest(result);
