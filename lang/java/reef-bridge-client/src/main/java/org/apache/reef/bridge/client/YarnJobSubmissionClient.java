@@ -277,7 +277,7 @@ public final class YarnJobSubmissionClient {
     if (!yarnSubmission.getFileSystemUrl().equalsIgnoreCase(FileSystemUrl.DEFAULT_VALUE)) {
       LOG.log(Level.INFO, "getFileSystemUrl: {0}", yarnSubmission.getFileSystemUrl());
     } else {
-      LOG.log(Level.INFO, "FileSystemUrl is not set");
+      LOG.log(Level.INFO, "FileSystemUrl is not set, use default from the environment.");
     }
 
     final List<String> launchCommandPrefix = new ArrayList<String>() {{
@@ -288,6 +288,7 @@ public final class YarnJobSubmissionClient {
         .bindImplementation(RuntimeClasspathProvider.class, YarnClasspathProvider.class)
         .bindConstructor(org.apache.hadoop.yarn.conf.YarnConfiguration.class, YarnConfigurationConstructor.class)
         .bindNamedParameter(JobSubmissionDirectoryPrefix.class, yarnSubmission.getJobSubmissionDirectoryPrefix())
+        .bindNamedParameter(FileSystemUrl.class, yarnSubmission.getFileSystemUrl())
         .bindList(DriverLaunchCommandPrefix.class, launchCommandPrefix)
         .build();
     final YarnJobSubmissionClient client = Tang.Factory.getTang().newInjector(yarnJobSubmissionClientConfig)
