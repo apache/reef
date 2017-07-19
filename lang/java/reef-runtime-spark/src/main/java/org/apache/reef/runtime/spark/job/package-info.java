@@ -17,6 +17,6 @@
  * under the License.
  */
 /**
- * Utility for Mesos runtime.
+ * Spark job package.
  */
-package org.apache.reef.runtime.spark.util;
+package org.apache.reef.runtime.spark.job;

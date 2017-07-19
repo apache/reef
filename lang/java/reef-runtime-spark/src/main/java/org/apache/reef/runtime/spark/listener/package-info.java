@@ -16,28 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.runtime.spark.util;
-
-import org.apache.reef.wake.EventHandler;
-
-import javax.inject.Inject;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 /**
- * ErrorHandler for SparkRemoteManager.
- * TODO[JIRA REEF-103]: Replace this class once Tang's namespace feature is enabled
+ * Spark custom listener package.
  */
-public final class SparkErrorHandler implements EventHandler<Throwable> {
-
-  private static final Logger LOG = Logger.getLogger(SparkErrorHandler.class.getName());
-
-  @Inject
-  SparkErrorHandler() {
-  }
-
-  @Override
-  public void onNext(final Throwable e) {
-    LOG.log(Level.SEVERE, "SparkRemoteManager Error", e);
-  }
-}
+package org.apache.reef.runtime.spark.listener;
