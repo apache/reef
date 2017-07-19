@@ -131,9 +131,9 @@ under the License.
   </UsingTask>
   <Target Name="SetupAvroCodeGen" DependsOnTargets="RestorePackages">
     <Message Text="Copying Avro code generation files to $(AvroBinaryDirectory)..." />
-    <Copy SourceFiles="$(AvroTools)" DestinationFolder="$(AvroBinaryDirectory)" />
-    <Copy SourceFiles="$(AvroLibrary)" DestinationFolder="$(AvroBinaryDirectory)" />
-    <Copy SourceFiles="$(NewtonsoftLibrary)" DestinationFolder="$(AvroBinaryDirectory)" />
+    <Copy SourceFiles="$(AvroTools)" DestinationFolder="$(AvroBinaryDirectory)" SkipUnchangedFiles="true" />
+    <Copy SourceFiles="$(AvroLibrary)" DestinationFolder="$(AvroBinaryDirectory)" SkipUnchangedFiles="true" />
+    <Copy SourceFiles="$(NewtonsoftLibrary)" DestinationFolder="$(AvroBinaryDirectory)" SkipUnchangedFiles="true" />
   </Target>
   <Target Name="CodeGeneration" DependsOnTargets="SetupAvroCodeGen" BeforeTargets="CoreCompile">
     <Message Text="Generating C# classes from Avro avsc files @(Compile)..." />
