@@ -53,6 +53,19 @@ public final class ReefOnSpark {
       .set(UnmanagedAmYarnClientConfiguration.ROOT_FOLDER, ROOTFOLDER)
       .build();
 
+
+  /**
+   * @return the configuration of the HelloREEF driver.
+   */
+  public static Configuration getDriverConfiguration() {
+    return DriverConfiguration.CONF
+        .set(DriverConfiguration.GLOBAL_LIBRARIES, EnvironmentUtils.getClassLocation(ReefOnSparkDriver.class))
+        .set(DriverConfiguration.DRIVER_IDENTIFIER, "HelloREEF")
+        .set(DriverConfiguration.ON_DRIVER_STARTED, ReefOnSparkDriver.StartHandler.class)
+        .set(DriverConfiguration.ON_EVALUATOR_ALLOCATED, ReefOnSparkDriver.EvaluatorAllocatedHandler.class)
+        .build();
+  }
+
   public void process(final String[] args) throws InjectionException {
 
     logger.setLevel(Level.FINEST);
@@ -60,7 +73,7 @@ public final class ReefOnSpark {
     SparkConf conf = new SparkConf().setAppName("ReefOnSpark:host");
     SparkContext sc = new SparkContext(conf);
 
-    try (final DriverLauncher client = DriverLauncher.getLauncher(RUNTIME_CONFIG)) {
+    try (final DriverLauncher client = DriverLauncher.getLauncher(getDriverConfiguration())) {
       String jarPath = EnvironmentUtils.getClassLocation(ReefOnSpark.class);
       Configuration driverConfig = DriverConfiguration.CONF
           .set(DriverConfiguration.DRIVER_IDENTIFIER, "ReefOnSpark:hello")
