@@ -31,21 +31,19 @@ namespace Org.Apache.REEF.Wake.Tests
     /// <summary>
     /// Observer to receive and verify test message contents.
     /// </summary>
-    internal sealed class TestMessageObserver : IObserver<MessageInstance<AvroTestMessage>>
+    internal sealed class TestMessageObserver : IObserver<IMessageInstance<AvroTestMessage>>
     {
-        int number;
-        string data;
+        private readonly IMessageInstance<AvroTestMessage> messageInstance;
 
-        public TestMessageObserver(int number, string data)
+        public TestMessageObserver(long seq, AvroTestMessage msg)
         {
-            this.number = number;
-            this.data = data;
+            messageInstance = new MessageInstance<AvroTestMessage>(seq, msg);
         }
 
-        public void OnNext(MessageInstance<AvroTestMessage> instance)
+        public void OnNext(IMessageInstance<AvroTestMessage> otherMessageInstance)
         {
-            Assert.Equal(instance.message.number, this.number);
-            Assert.Equal(instance.message.data, this.data);
+            Assert.Equal(messageInstance.Message.number, otherMessageInstance.Message.number);
+            Assert.Equal(messageInstance.Message.data, otherMessageInstance.Message.data);
         }
 
         public void OnError(Exception error)
@@ -59,8 +57,7 @@ namespace Org.Apache.REEF.Wake.Tests
         }
     }
 
-    [Collection("FunctionalTests")]
-    public class TestProtocolSerializer
+    public sealed class TestProtocolSerializer
     {
         /// <summary>
         /// Setup two way communication between two remote managers through the loopback
@@ -87,22 +84,23 @@ namespace Org.Apache.REEF.Wake.Tests
             {
                 // Register observers for remote manager 1 and remote manager 2
                 var remoteEndpoint = new IPEndPoint(listeningAddress, 0);
-                var observer1 = Observer.Create<byte[]>(queue1.Add);
-                var observer2 = Observer.Create<byte[]>(queue2.Add);
-                remoteManager1.RegisterObserver(remoteEndpoint, observer1);
-                remoteManager2.RegisterObserver(remoteEndpoint, observer2);
+                remoteManager1.RegisterObserver(remoteEndpoint, Observer.Create<byte[]>(queue1.Add));
+                remoteManager2.RegisterObserver(remoteEndpoint, Observer.Create<byte[]>(queue2.Add));
+
+                var msg1 = new AvroTestMessage(numbers[0], strings[0]);
+                var msg2 = new AvroTestMessage(numbers[1], strings[1]);
 
                 // Remote manager 1 sends avro message to remote manager 2
                 var remoteObserver1 = remoteManager1.GetRemoteObserver(remoteManager2.LocalEndpoint);
-                remoteObserver1.OnNext(serializer.Write(new AvroTestMessage(numbers[0], strings[0]), 1));
+                remoteObserver1.OnNext(serializer.Write(msg1, 1));
 
                 // Remote manager 2 sends avro message to remote manager 1
                 var remoteObserver2 = remoteManager2.GetRemoteObserver(remoteManager1.LocalEndpoint);
-                remoteObserver2.OnNext(serializer.Write(new AvroTestMessage(numbers[1], strings[1]), 2));
+                remoteObserver2.OnNext(serializer.Write(msg2, 2));
 
                 // Verify the messages are properly received.
-                serializer.Read(queue1.Take(), new TestMessageObserver(numbers[1], strings[1]));
-                serializer.Read(queue2.Take(), new TestMessageObserver(numbers[0], strings[0]));
+                serializer.Read(queue1.Take(), new TestMessageObserver(2, msg2));
+                serializer.Read(queue2.Take(), new TestMessageObserver(1, msg1));
             }
         }
     }
