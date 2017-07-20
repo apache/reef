@@ -21,7 +21,7 @@ under the License.
     <ProjectGuid>{E19FF4F8-AB45-4631-8017-E18D94D882DD}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Org.Apache.REEF.Bridge</RootNamespace>
+    <RootNamespace>Org.Apache.REEF.Bridge.CLR</RootNamespace>
     <AssemblyName>Org.Apache.REEF.Bridge.CLR</AssemblyName>
     <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
@@ -59,6 +59,7 @@ under the License.
   </ItemGroup>
   <ItemGroup>
     <None Include="Message\README.md" />
+    <None Include="Org.Apache.REEF.Bridge.CLR.nuspec" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
