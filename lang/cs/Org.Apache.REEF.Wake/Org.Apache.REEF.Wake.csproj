@@ -42,7 +42,7 @@ under the License.
       <HintPath>$(PackagesDir)\TransientFaultHandling.Core.5.1.1209.1\lib\NET4\Microsoft.Practices.TransientFaultHandling.Core.dll</HintPath>
     </Reference>
     <Reference Include="protobuf-net">
-      <HintPath>$(PackagesDir)\protobuf-net.$(ProtobufVersion)\lib\net40\protobuf-net.dll</HintPath>
+      <HintPath>$(PackagesDir)\protobuf-net.$(ProtobufVersion)\lib\net451\protobuf-net.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
