@@ -18,18 +18,12 @@
 namespace Org.Apache.REEF.Wake.Avro
 {
     /// <summary>
-    /// Wrapper class to bind a specific instance of a message with the associated sequence number.
+    /// An interface to a readonly pair of (message, sequence number).
     /// </summary>
     /// <typeparam name="T">Message payload</typeparam>
-    public class MessageInstance<T> : IMessageInstance<T>
+    public interface IMessageInstance<out T>
     {
-        public long Sequence { get; }
-        public T Message { get; }
-
-        public MessageInstance(long sequence, T message)
-        {
-            Sequence = sequence;
-            Message = message;
-        }
+        long Sequence { get; }
+        T Message { get; }
     }
 }
