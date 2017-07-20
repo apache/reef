@@ -194,7 +194,7 @@ namespace Org.Apache.REEF.Client.Local
         /// Return current Job status
         /// </summary>
         /// <returns></returns>
-        /// TODO: REEF-889
+        /// TODO: [REEF-889]
         [Unstable("0.14", "Working in progress for rest API status returned")]
         public async Task<FinalState> GetJobFinalStatus(string appId)
         {
@@ -206,8 +206,7 @@ namespace Org.Apache.REEF.Client.Local
         /// Returns all the application reports running in the cluster
         /// </summary>
         /// <returns></returns>
-        /// TODO: REEF-1824: Implement GetApplicationReports to return the 
-        /// status of the applications.
+        /// TODO: [REEF-1824]: Implement GetApplicationReports to return the status of the applications.
         [Unstable("0.16", "Working in progress for rest API id returned")]
         public async Task<List<IApplicationReport>> GetApplicationReports()
         {

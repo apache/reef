@@ -103,10 +103,29 @@ namespace Org.Apache.REEF.Client.YARN.RestClient.DataModel
                                  "ElapsedTime: {11}, AmContainerLogs: {12}, AmHostHttpAddress: {13}, " +
                                  "AllocatedMB: {14}, AllocatedVCores: {15}, RunningContainers: {16}, " +
                                  "MemorySeconds: {17}, VcoreSeconds: {18}, TrackingUI: {19}, " +
-                                 "TrackingUrl: {20}, Diagnostics: {21} ", Id, User, Name, ApplicationType, 
-                                 Queue, State, FinalStatus, Progress, ClusterId, StartedTime, FinishedTime,
-                                 ElapsedTime, AmContainerLogs, AmHostHttpAddress, AllocatedMB, AllocatedVCores, 
-                                 RunningContainers, MemorySeconds, VcoreSeconds, TrackingUI, TrackingUrl, Diagnostics);
+                                 "TrackingUrl: {20}, Diagnostics: {21} ",
+                Id,
+                User,
+                Name,
+                ApplicationType,
+                Queue,
+                State,
+                FinalStatus,
+                Progress,
+                ClusterId,
+                StartedTime,
+                FinishedTime,
+                ElapsedTime,
+                AmContainerLogs,
+                AmHostHttpAddress,
+                AllocatedMB,
+                AllocatedVCores,
+                RunningContainers,
+                MemorySeconds,
+                VcoreSeconds,
+                TrackingUI,
+                TrackingUrl,
+                Diagnostics);
         }
     }
 }

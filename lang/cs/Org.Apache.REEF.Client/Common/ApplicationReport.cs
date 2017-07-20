@@ -20,7 +20,7 @@ using Org.Apache.REEF.Client.YARN.RestClient.DataModel;
 namespace Org.Apache.REEF.Client.Common
 {
     /// <summary>
-    /// This class represents application information mainated by Yarn RM.
+    /// This class represents application information mainated by YARN RM.
     /// This class is modeled on Org.Apache.REEF.Client.YARN.RestClient.DataModel.Application. 
     /// Documentation on the class Org.Apache.REEF.Client.YARN.RestClient.DataModel.Application
     /// can be found here.
@@ -47,6 +47,19 @@ namespace Org.Apache.REEF.Client.Common
             StartedTime = startedTime;
             FinishedTime = finishedTime;
             RunningContainers = runningContainers;
+        }
+
+        public override string ToString()
+        {
+            return string.Format("AppName: {0} StartedTime: {1}	FinishedTime: {2}	" +
+                                 "RunningContainers: {3} TrackingUrl: {4} AppId: {5} FinalState: {6}",
+                AppName,
+                StartedTime,
+                FinishedTime,
+                RunningContainers,
+                TrackingUrl,
+                AppId,
+                FinalState);
         }
     }
 }

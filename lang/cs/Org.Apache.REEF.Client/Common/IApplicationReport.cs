@@ -21,7 +21,7 @@ using Org.Apache.REEF.Utilities.Attributes;
 namespace Org.Apache.REEF.Client.Common
 {
     /// <summary>
-    /// This interface represents application information mainated by Yarn RM.
+    /// This interface represents application information mainated by YARN RM.
     /// This interface is modeled on Org.Apache.REEF.Client.YARN.RestClient.DataModel.Application. 
     /// Documentation on the class Org.Apache.REEF.Client.YARN.RestClient.DataModel.Application
     /// can be found here.
@@ -32,22 +32,22 @@ namespace Org.Apache.REEF.Client.Common
     public interface IApplicationReport
     {
         /// <summary>
-        /// Get Yarn application name.
+        /// Get YARN application name.
         /// </summary>
         string AppName { get; }
         
         /// <summary>
-        /// Get Yarn application start time.
+        /// Get YARN application start time.
         /// </summary>
         long StartedTime { get; }
 
         /// <summary>
-        /// Get Yarn application finish time.
+        /// Get YARN application finish time.
         /// </summary>
         long FinishedTime { get; }
 
         /// <summary>
-        /// Get Yarn application number of running containers.
+        /// Get YARN application number of running containers.
         /// </summary>
         int RunningContainers { get; }
 
@@ -58,7 +58,7 @@ namespace Org.Apache.REEF.Client.Common
         string TrackingUrl { get; }
 
         /// <summary>
-        /// Get Yarn application id.
+        /// Get YARN application id.
         /// </summary>
         string AppId { get; }
 

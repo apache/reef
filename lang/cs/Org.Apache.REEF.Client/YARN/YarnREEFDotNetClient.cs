@@ -150,8 +150,7 @@ namespace Org.Apache.REEF.Client.YARN
         /// Returns all the application reports running in the cluster
         /// </summary>
         /// <returns></returns>
-        /// TODO: REEF-1825: Implement GetApplicationReports to return the 
-        /// status of the applications.
+        /// TODO: [REEF-1825]: Implement GetApplicationReports to return the status of the applications.
         public async Task<List<IApplicationReport>> GetApplicationReports()
         {
             await Task.Delay(0);
