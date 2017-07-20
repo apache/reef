@@ -84,6 +84,10 @@ under the License.
       <Project>{cdfb3464-4041-42b1-9271-83af24cd5008}</Project>
       <Name>Org.Apache.REEF.Wake</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Org.Apache.REEF.Bridge.CLR\Org.Apache.REEF.Bridge.CLR.csproj">
+      <Project>{e19ff4f8-ab45-4631-8017-e18d94d882dd}</Project>
+      <Name>Org.Apache.REEF.Bridge.CLR</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Org.Apache.REEF.IMRU.Examples\Org.Apache.REEF.IMRU.Examples.csproj">
       <Project>{6dc3b04e-2b99-4fda-bd23-2c7864f4c477}</Project>
       <Name>Org.Apache.REEF.IMRU.Examples</Name>
