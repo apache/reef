@@ -18,8 +18,8 @@
 using System;
 using System.IO;
 using System.Net.Sockets;
-using System.Runtime.Remoting;
 using System.Threading;
+using Org.Apache.REEF.Common.Exceptions;
 using Org.Apache.REEF.Common.Runtime;
 using Org.Apache.REEF.Common.Tasks;
 using Org.Apache.REEF.Common.Tasks.Events;
@@ -128,7 +128,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.IMRUTasks
         private static bool IsCommunicationException(Exception e)
         {
             if (e is OperationCanceledException || e is IOException || e is TcpClientConnectionException ||
-                e is RemotingException || e is SocketException ||
+                e is RecoverableNetworkException || e is SocketException ||
                 (e is AggregateException && e.InnerException != null && e.InnerException is IOException))
             {
                 return true;

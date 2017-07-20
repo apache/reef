@@ -18,8 +18,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.Remoting;
 using System.Threading;
+using Org.Apache.REEF.Common.Exceptions;
 using Org.Apache.REEF.Common.Io;
 using Org.Apache.REEF.Common.Tasks;
 using Org.Apache.REEF.Network.Group.Config;
@@ -393,7 +393,7 @@ namespace Org.Apache.REEF.Network.Group.Task.Impl
 
                 var leftOver = string.Join(",", identifiers.Where(e => !foundList.Contains(e)));
                 Logger.Log(Level.Error, "For node {0}, cannot find registered parent/children: {1}.", _selfId, leftOver);
-                Exceptions.Throw(new RemotingException("Failed to find parent/children nodes in operator topology for node: " + _selfId), Logger);
+                Exceptions.Throw(new RecoverableNetworkException("Failed to find parent/children nodes in operator topology for node: " + _selfId), Logger);
             }
         }
     }
