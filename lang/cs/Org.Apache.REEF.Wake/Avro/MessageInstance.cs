@@ -23,8 +23,8 @@ namespace Org.Apache.REEF.Wake.Avro
     /// <typeparam name="T">Message payload</typeparam>
     public class MessageInstance<T> : IMessageInstance<T>
     {
-        public long Sequence { get; }
-        public T Message { get; }
+        public long Sequence { get; private set; }
+        public T Message { get; private set; }
 
         public MessageInstance(long sequence, T message)
         {
