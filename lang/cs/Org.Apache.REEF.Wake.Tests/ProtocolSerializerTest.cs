@@ -31,17 +31,19 @@ namespace Org.Apache.REEF.Wake.Tests
     /// <summary>
     /// Observer to receive and verify test message contents.
     /// </summary>
-    internal sealed class TestMessageObserver
-        : MessageInstance<AvroTestMessage>, IObserver<IMessageInstance<AvroTestMessage>>
+    internal sealed class TestMessageObserver : IObserver<IMessageInstance<AvroTestMessage>>
     {
-        public TestMessageObserver(long seq, AvroTestMessage msg) : base(seq, msg)
+        private readonly IMessageInstance<AvroTestMessage> messageInstance;
+
+        public TestMessageObserver(long seq, AvroTestMessage msg)
         {
+            messageInstance = new MessageInstance<AvroTestMessage>(seq, msg);
         }
 
-        public void OnNext(IMessageInstance<AvroTestMessage> instance)
+        public void OnNext(IMessageInstance<AvroTestMessage> otherMessageInstance)
         {
-            Assert.Equal(Message.number, instance.Message.number);
-            Assert.Equal(Message.data, instance.Message.data);
+            Assert.Equal(messageInstance.Message.number, otherMessageInstance.Message.number);
+            Assert.Equal(messageInstance.Message.data, otherMessageInstance.Message.data);
         }
 
         public void OnError(Exception error)
@@ -55,8 +57,7 @@ namespace Org.Apache.REEF.Wake.Tests
         }
     }
 
-    [Collection("FunctionalTests")]
-    public class TestProtocolSerializer
+    public sealed class TestProtocolSerializer
     {
         /// <summary>
         /// Setup two way communication between two remote managers through the loopback

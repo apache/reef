@@ -21,7 +21,7 @@ namespace Org.Apache.REEF.Wake.Avro
     /// Wrapper class to bind a specific instance of a message with the associated sequence number.
     /// </summary>
     /// <typeparam name="T">Message payload type.</typeparam>
-    public class MessageInstance<T> : IMessageInstance<T>
+    public sealed class MessageInstance<T> : IMessageInstance<T>
     {
         /// <summary>
         /// Get the sequence number of a message.
