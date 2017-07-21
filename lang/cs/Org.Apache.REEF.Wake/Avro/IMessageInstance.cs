@@ -20,10 +20,17 @@ namespace Org.Apache.REEF.Wake.Avro
     /// <summary>
     /// An interface to a readonly pair of (message, sequence number).
     /// </summary>
-    /// <typeparam name="T">Message payload</typeparam>
+    /// <typeparam name="T">Message payload type.</typeparam>
     public interface IMessageInstance<out T>
     {
+        /// <summary>
+        /// Get the sequence number of a message.
+        /// </summary>
         long Sequence { get; }
+
+        /// <summary>
+        /// Return the data payload of message instance.
+        /// </summary>
         T Message { get; }
     }
 }
