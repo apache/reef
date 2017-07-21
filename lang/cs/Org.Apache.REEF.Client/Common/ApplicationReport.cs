@@ -32,13 +32,13 @@ namespace Org.Apache.REEF.Client.Common
         public string AppName { get; private set; }
         public long StartedTime { get; private set; }
         public long FinishedTime { get; private set; }
-        public int RunningContainers { get; private set; }
+        public int NumberOfRunningEvaluators { get; private set; }
         public string TrackingUrl { get; private set; }
         public string AppId { get; private set; }
         public FinalState FinalState { get; private set; }
 
         internal ApplicationReport(string appId, string appName, string trackingUrl, 
-            long startedTime, long finishedTime, int runningContainers, FinalState finalState)
+            long startedTime, long finishedTime, int numberOfRunningEvaluators, FinalState finalState)
         {
             AppId = appId;
             AppName = appName;
@@ -46,17 +46,17 @@ namespace Org.Apache.REEF.Client.Common
             FinalState = finalState;
             StartedTime = startedTime;
             FinishedTime = finishedTime;
-            RunningContainers = runningContainers;
+            NumberOfRunningEvaluators = numberOfRunningEvaluators;
         }
 
         public override string ToString()
         {
             return string.Format("AppName: {0} StartedTime: {1}	FinishedTime: {2}	" +
-                                 "RunningContainers: {3} TrackingUrl: {4} AppId: {5} FinalState: {6}",
+                                 "NumberOfRunningEvaluators: {3} TrackingUrl: {4} AppId: {5} FinalState: {6}",
                 AppName,
                 StartedTime,
                 FinishedTime,
-                RunningContainers,
+                NumberOfRunningEvaluators,
                 TrackingUrl,
                 AppId,
                 FinalState);

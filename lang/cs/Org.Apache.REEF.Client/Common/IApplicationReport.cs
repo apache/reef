@@ -49,7 +49,7 @@ namespace Org.Apache.REEF.Client.Common
         /// <summary>
         /// Get YARN application number of running containers.
         /// </summary>
-        int RunningContainers { get; }
+        int NumberOfRunningEvaluators { get; }
 
         /// <summary>
         /// This method returns the url of http server running inside the driver.
