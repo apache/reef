@@ -80,11 +80,8 @@ public class ProtocolSerializerTest {
     remoteManager1.registerHandler(byte[].class, new ByteMessageObserver(queue1));
     remoteManager2.registerHandler(byte[].class, new ByteMessageObserver(queue2));
 
-    final RemoteIdentifier remoteIdentifier1 = remoteManager1.getMyIdentifier();
-    final RemoteIdentifier remoteIdentifier2 = remoteManager2.getMyIdentifier();
-
-    final EventHandler<byte[]> sender1 = remoteManager1.getHandler(remoteIdentifier2, byte[].class);
-    final EventHandler<byte[]> sender2 = remoteManager2.getHandler(remoteIdentifier1, byte[].class);
+    final EventHandler<byte[]> sender1 = remoteManager1.getHandler(remoteManager2.getMyIdentifier(), byte[].class);
+    final EventHandler<byte[]> sender2 = remoteManager2.getHandler(remoteManager1.getMyIdentifier(), byte[].class);
 
     final ProtocolSerializer serializer = new ProtocolSerializer("org.apache.reef.wake.test.avro.message");
 
@@ -97,11 +94,11 @@ public class ProtocolSerializerTest {
     serializer.read(queue1.take(), avroObserver1);
     serializer.read(queue2.take(), avroObserver2);
 
-    assertEquals(numbers[0], avroObserver2.number);
-    assertEquals(strings[0], avroObserver2.data);
+    assertEquals(numbers[0], avroObserver2.getNumber());
+    assertEquals(strings[0], avroObserver2.getDataString());
 
-    assertEquals(numbers[1], avroObserver1.number);
-    assertEquals(strings[1], avroObserver1.data);
+    assertEquals(numbers[1], avroObserver1.getNumber());
+    assertEquals(strings[1], avroObserver1.getDataString());
   }
 
   /**
@@ -158,8 +155,16 @@ public class ProtocolSerializerTest {
    * Processes messages from the network remote manager.
    */
   public final class AvroMessageObserver extends MultiObserverImpl<AvroMessageObserver> {
-    public int number;
-    public String data;
+    private int number;
+    private String dataString;
+
+    int getNumber() {
+      return number;
+    }
+
+    String getDataString() {
+      return dataString;
+    }
 
     public void onError(final Exception error) {
       LOG.log(Level.SEVERE, "OnError: ", error.getMessage());
@@ -176,7 +181,7 @@ public class ProtocolSerializerTest {
      */
     public void onNext(final long identifier, final AvroTestMessage message) {
       number = message.getNumber();
-      data = message.getData().toString();
+      dataString = message.getData().toString();
     }
   }
 }

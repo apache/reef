@@ -62,7 +62,8 @@ public abstract class MultiObserverImpl<TSubCls> implements MultiObserver {
    * @param event A reference to an object which is an event not handled by TSubCls.
    */
   public void unimplemented(final long identifier, final Object event) {
-    LOG.log(Level.INFO, "Unimplemented event: [" + Long.toString(identifier) +"]" + event.getClass().getName());
+    LOG.log(Level.INFO, "Unimplemented event: [" + Long.toString(identifier) +"]"
+                        + event.getClass().getName());
   }
 
   /**
@@ -72,7 +73,9 @@ public abstract class MultiObserverImpl<TSubCls> implements MultiObserver {
    * @param <TEvent> The type of the event being processed.
    */
   @Override
-  public <TEvent> void onNext(final long identifier, final TEvent event) throws IllegalAccessException, InvocationTargetException {
+  public <TEvent> void onNext(final long identifier, final TEvent event)
+    throws IllegalAccessException, InvocationTargetException {
+
     if (!initialized) {
       initialize();
       initialized = true;

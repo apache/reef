@@ -19,21 +19,18 @@ package org.apache.reef.wake.avro;
 
 import org.apache.avro.io.*;
 import org.apache.avro.specific.SpecificDatumReader;
-import org.apache.avro.specific.SpecificDatumWriter;
 import org.apache.avro.specific.SpecificRecord;
 import org.apache.avro.specific.SpecificRecordBase;
 import org.apache.reef.wake.MultiObserver;
 import org.apache.reef.wake.avro.message.Header;
 
 import java.io.ByteArrayInputStream;
-import java.io.IOException;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
-import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import io.github.lukehutch.fastclasspathscanner.FastClasspathScanner;
@@ -49,8 +46,8 @@ import io.github.lukehutch.fastclasspathscanner.scanner.ScanResult;
 public final class ProtocolSerializer {
   private static final Logger LOG = Logger.getLogger(ProtocolSerializer.class.getName());
   // Maps for mapping message class names to serializer and deserializer classes.
-  private final Map<String, MessageSerializer> nameToSerializerMap = new HashMap<>();
-  private final Map<String, MessageDeserializer> nameToDeserializerMap = new HashMap<>();
+  private final Map<String, IMessageSerializer> nameToSerializerMap = new HashMap<>();
+  private final Map<String, IMessageDeserializer> nameToDeserializerMap = new HashMap<>();
 
   /**
    * Finds all of the messages in the specified packaged and calls register.
@@ -68,10 +65,9 @@ public final class ProtocolSerializer {
 
     try {
       // Register all of the messages in the specified package.
-      Method register;
       for (final Class<?> cls : messageClasses) {
         System.out.println("Class = " + cls.getClass());
-        register = ProtocolSerializer.class.getMethod("register", cls.getClass());
+        Method register = ProtocolSerializer.class.getMethod("register", cls.getClass());
         register.invoke(this, cls);
       }
     } catch (final Exception e) {
@@ -86,44 +82,8 @@ public final class ProtocolSerializer {
    */
   public <TMessage> void register(final Class<TMessage> msgMetaClass) {
     LOG.log(Level.INFO, "Registering message: {0}", msgMetaClass.getSimpleName());
-
-    // Instantiate an anonymous instance of the message serializer for this message type.
-    final MessageSerializer messageSerializer = new GenericMessageSerializer<TMessage>(msgMetaClass) {
-
-      public void serialize(final ByteArrayOutputStream outputStream,
-                            final SpecificRecord message, final long sequence) throws IOException {
-        // Binary encoder for both the header and message.
-        final BinaryEncoder encoder = EncoderFactory.get().binaryEncoder(outputStream, null);
-
-        // Writers for header and message.
-        final DatumWriter<Header> headerWriter = new SpecificDatumWriter<>(Header.class);
-        final DatumWriter<TMessage> messageWriter = new SpecificDatumWriter<>(msgMetaClass);
-
-        // Write the header and the message.
-        headerWriter.write(new Header(sequence, msgMetaClass.getSimpleName()), encoder);
-        messageWriter.write((TMessage)message, encoder);
-        encoder.flush();
-      }
-
-    };
-    nameToSerializerMap.put(msgMetaClass.getSimpleName(), messageSerializer);
-
-    // Instantiate an anonymous instance of the message deserializer for this message type.
-    final MessageDeserializer messageDeserializer = new GenericMessageDeserializer<TMessage>(msgMetaClass) {
-
-      public void deserialize(final BinaryDecoder decoder, final MultiObserver observer,
-                              final long sequence) throws Exception {
-        final SpecificDatumReader<TMessage> messageReader = new SpecificDatumReader<>(msgMetaClass);
-        final TMessage message = messageReader.read(null, decoder);
-        if (message != null) {
-          observer.onNext(sequence, message);
-        } else {
-          throw new RuntimeException("Failed to deserialize message [" + msgMetaClass.getSimpleName() + "]");
-        }
-      }
-
-    };
-    nameToDeserializerMap.put(msgMetaClass.getSimpleName(), messageDeserializer);
+    nameToSerializerMap.put(msgMetaClass.getSimpleName(), SerializationFactory.createSerializer(msgMetaClass));
+    nameToDeserializerMap.put(msgMetaClass.getSimpleName(), SerializationFactory.createDeserializer(msgMetaClass));
   }
 
   /**
@@ -136,7 +96,7 @@ public final class ProtocolSerializer {
       final String name = message.getClass().getSimpleName();
       LOG.log(Level.FINE, "Serializing message: {0}", name);
 
-      final MessageSerializer serializer = nameToSerializerMap.get(name);
+      final IMessageSerializer serializer = nameToSerializerMap.get(name);
       if (serializer != null) {
         serializer.serialize(outputStream, message, sequence);
       }
@@ -164,7 +124,7 @@ public final class ProtocolSerializer {
       LOG.log(Level.FINE, "Deserializing Avro message: {0}", header.getClassName());
 
       // Get the appropriate deserializer and deserialize the message.
-      final MessageDeserializer deserializer = nameToDeserializerMap.get(header.getClassName().toString());
+      final IMessageDeserializer deserializer = nameToDeserializerMap.get(header.getClassName().toString());
       if (deserializer != null) {
         deserializer.deserialize(decoder, observer, header.getSequence());
       } else {
