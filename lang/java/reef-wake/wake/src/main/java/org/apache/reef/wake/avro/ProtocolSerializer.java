@@ -66,9 +66,7 @@ public final class ProtocolSerializer {
     try {
       // Register all of the messages in the specified package.
       for (final Class<?> cls : messageClasses) {
-        System.out.println("Class = " + cls.getClass());
-        Method register = ProtocolSerializer.class.getMethod("register", cls.getClass());
-        register.invoke(this, cls);
+        this.register(cls);
       }
     } catch (final Exception e) {
       throw new RuntimeException("Message registration failed", e);
