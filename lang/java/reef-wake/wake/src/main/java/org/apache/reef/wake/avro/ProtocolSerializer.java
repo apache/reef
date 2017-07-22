@@ -27,7 +27,6 @@ import org.apache.reef.wake.avro.message.Header;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
-import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
