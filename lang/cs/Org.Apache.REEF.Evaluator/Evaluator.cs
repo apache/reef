@@ -34,6 +34,7 @@ using Org.Apache.REEF.Utilities.Logging;
 using Org.Apache.REEF.Wake.Time;
 using Org.Apache.REEF.Wake.Time.Parameters;
 using Org.Apache.REEF.Wake.Time.Runtime.Event;
+using System.Reflection;
 
 namespace Org.Apache.REEF.Evaluator
 {
@@ -141,7 +142,7 @@ namespace Org.Apache.REEF.Evaluator
 
             AvroConfigurationSerializer serializer = new AvroConfigurationSerializer();
             var classHierarchy = TangFactory.GetTang()
-                .GetClassHierarchy(new string[] { typeof(ApplicationIdentifier).Assembly.GetName().Name });
+                .GetClassHierarchy(new string[] { typeof(ApplicationIdentifier).GetTypeInfo().Assembly.GetName().Name });
             var evaluatorConfiguration = serializer.FromFile(evaluatorConfigFile, classHierarchy);
 
             logger.Log(Level.Info, 
