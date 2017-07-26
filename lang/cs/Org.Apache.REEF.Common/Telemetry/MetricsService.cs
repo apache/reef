@@ -31,7 +31,7 @@ namespace Org.Apache.REEF.Common.Telemetry
     /// Metrics service. It is also a context message handler.
     /// </summary>
     [Unstable("0.16", "This is a simple MetricsService. More functionalities will be added.")]
-    internal sealed class MetricsService : IObserver<IContextMessage>
+    internal sealed class MetricsService : IObserver<IContextMessage>, IObserver<IDriverMetrics>
     {
         private static readonly Logger Logger = Logger.GetLogger(typeof(MetricsService));
 
@@ -47,7 +47,8 @@ namespace Org.Apache.REEF.Common.Telemetry
 
         /// <summary>
         /// The threshold that triggers the sinks. 
-        /// Currently only one threshold is defined for all the counters. Later, it can be extended to define a threshold per counter.
+        /// Currently only one threshold is defined for all the counters.
+        /// Later, it can be extended to define a threshold per counter.
         /// </summary>
         private readonly int _counterSinkThreshold;
 
@@ -73,7 +74,9 @@ namespace Org.Apache.REEF.Common.Telemetry
         {
             var msgReceived = ByteUtilities.ByteArraysToString(contextMessage.Message);
             var counters = new EvaluatorMetrics(msgReceived).GetMetricsCounters();
-            Logger.Log(Level.Info, "Received {0} counters with context message: {1}.", counters.GetCounters().Count(), msgReceived);
+
+            Logger.Log(Level.Verbose, "Received {0} counters with context message: {1}.",
+                counters.GetCounters().Count(), msgReceived);
 
             _countersData.Update(counters);
 
@@ -87,17 +90,17 @@ namespace Org.Apache.REEF.Common.Telemetry
         /// <summary>
         /// Call each Sink to sink the data in the counters
         /// </summary>
-        private void Sink(ISet<KeyValuePair<string, string>> set)
+        private void Sink(IEnumerable<KeyValuePair<string, string>> metrics)
         {
             foreach (var s in _metricsSinks)
             {
                 try
                 {
-                    Task.Run(() => s.Sink(set));
+                    Task.Run(() => s.Sink(metrics));
                 }
                 catch (Exception e)
                 {
-                    Logger.Log(Level.Error, "Exception happens during the sink for Sink {0} with Exception: {1}.", s.GetType().AssemblyQualifiedName, e);
+                    Logger.Log(Level.Error, "Exception in Sink " + s.GetType().AssemblyQualifiedName, e);
                 }
                 finally
                 {
@@ -108,10 +111,27 @@ namespace Org.Apache.REEF.Common.Telemetry
 
         public void OnCompleted()
         {
+            Logger.Log(Level.Info, "Completed");
         }
 
         public void OnError(Exception error)
         {
+            Logger.Log(Level.Error, "MetricService error", error);
+        }
+
+        /// <summary>
+        /// Observer of IDriverMetrics.
+        /// When Driver metrics data is changed, this method will be called.
+        /// It calls Sink to store/log the metrics data.
+        /// </summary>
+        /// <param name="driverMetrics">driver metrics data.</param>
+        public void OnNext(IDriverMetrics driverMetrics)
+        {
+            Sink(new Dictionary<string, string>()
+            {
+                { "SystemState", driverMetrics.SystemState },
+                { "TimeUpdated", driverMetrics.TimeUpdated.ToLongTimeString() }
+            });
         }
     }
 }

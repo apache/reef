@@ -5,9 +5,9 @@
 // to you under the Apache License, Version 2.0 (the
 // "License"); you may not use this file except in compliance
 // with the License.  You may obtain a copy of the License at
-//
+// 
 //   http://www.apache.org/licenses/LICENSE-2.0
-//
+// 
 // Unless required by applicable law or agreed to in writing,
 // software distributed under the License is distributed on an
 // "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -16,18 +16,23 @@
 // under the License.
 
 using System;
-using System.Collections.Generic;
 using Org.Apache.REEF.Tang.Annotations;
+using Org.Apache.REEF.Utilities.Attributes;
 
 namespace Org.Apache.REEF.Common.Telemetry
 {
-    /// <summary>
-    /// Interface for metrics sink.
-    /// It is used to output IMRU metrics.
-    /// </summary>
-    [DefaultImplementation(typeof(DefaultMetricsSink))]
-    public interface IMetricsSink : IDisposable
+    [Unstable("0.16", "This is to build a simple metrics with system state only. More metrics will be added in future.")]
+    [DefaultImplementation(typeof(DriverMetrics))]
+    public interface IDriverMetrics
     {
-        void Sink(IEnumerable<KeyValuePair<string, string>> metrics);
+        /// <summary>
+        /// System state
+        /// </summary>
+        string SystemState { get; }
+
+        /// <summary>
+        /// DateTime that the system state is updated
+        /// </summary>
+        DateTime TimeUpdated { get; }
     }
 }
