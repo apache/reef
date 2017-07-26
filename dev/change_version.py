@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 # Licensed to the Apache Software Foundation (ASF) under one
 # or more contributor license agreements.  See the NOTICE file
 # distributed with this work for additional information
@@ -302,6 +303,24 @@ def change_project_number_Doxyfile(file, new_version):
     f.write(changed_str)
     f.close()
 
+def change_project_number_readme(file, new_version):
+    changed_str = ""
+
+    markers = ["<Reference", "<HintPath>"]
+    #                             0   .  15etc
+    version_regex = re.compile(r'[0-9]\.[0-9]+\.[0-9]+')
+
+    f = open(file, 'r')
+    for line in f:
+        if any(marker in line for marker in markers):
+            changed_str += version_regex.sub(new_version, line, count=1)
+        else:
+            changed_str += line
+    f.close()
+
+    f = open(file, 'w')
+    f.write(changed_str)
+    f.close()
 
 """
 Change version of every pom.xml, SharedAssemblyInfo.cs,
@@ -346,6 +365,10 @@ def change_version(reef_home, new_version, pom_only):
 
         change_reef_on_spark_scala(reef_home + "/lang/scala/reef-examples-scala/src/main/scala/org/apache/reef/examples/hellospark/ReefOnSpark.scala", new_version)
         print reef_home + "/lang/scala/reef-examples-scala/src/main/scala/org/apache/reef/examples/hellospark/ReefOnSpark.scala"
+        
+        helloreef_readme = "/lang/cs/Org.Apache.REEF.Examples.HelloREEF/Readme.md"
+        change_project_number_readme(reef_home + helloreef_readme, new_version)
+        print reef_home + helloreef_readme
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Script for changing REEF version in all files that use it")
