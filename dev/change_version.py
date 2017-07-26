@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 # Licensed to the Apache Software Foundation (ASF) under one
 # or more contributor license agreements.  See the NOTICE file
 # distributed with this work for additional information
@@ -19,7 +20,7 @@
 This script changes versions in every pom.xml and relevant files.
 
 (How to run)
-python change_version <reef_home> <reef_version_for_pom.xml> -s <true or false>  (optional) -p 
+python change_version <reef_home> <reef_version_for_pom.xml> -s <true or false>  (optional) -p
 
 -s option changes value of 'IsSnapshot' in lang/cs/build.props.
 If you use the option "-s false", bulid.props changes as,
@@ -82,7 +83,7 @@ def change_pom(file, new_version):
 
     while True:
         line = f.readline()
-        if not line: 
+        if not line:
             break
         changed_str += line
     f.close()
@@ -123,7 +124,7 @@ Change version in SharedAssemblyInfo.cs and AssemblyInfo.cpp
 def change_assembly_info_cs(file, new_version):
     changed_str = ""
     new_version = new_version.split("-")[0] + ".0"
-    
+
     f = open(file, 'r')
     r = re.compile('"(.*?)"')
 
@@ -146,7 +147,7 @@ def change_assembly_info_cs(file, new_version):
     f.close()
 
 """
-Change Version in lang/cs/build.DotNet.props 
+Change Version in lang/cs/build.DotNet.props
 """
 def change_dotnet_props_cs(file, new_version):
     changed_str = ""
@@ -302,6 +303,24 @@ def change_project_number_Doxyfile(file, new_version):
     f.write(changed_str)
     f.close()
 
+def change_project_number_readme(file, new_version):
+    changed_str = ""
+
+    markers = ["<Reference", "<HintPath>"]
+    #                             0   .  15etc
+    version_regex = re.compile(r'[0-9]\.[0-9]+\.[0-9]+')
+
+    f = open(file, 'r')
+    for line in f:
+        if any(marker in line for marker in markers):
+            changed_str += version_regex.sub(new_version, line, count=1)
+        else:
+            changed_str += line
+    f.close()
+
+    f = open(file, 'w')
+    f.write(changed_str)
+    f.close()
 
 """
 Change version of every pom.xml, SharedAssemblyInfo.cs,
@@ -347,6 +366,10 @@ def change_version(reef_home, new_version, pom_only):
         change_reef_on_spark_scala(reef_home + "/lang/scala/reef-examples-scala/src/main/scala/org/apache/reef/examples/hellospark/ReefOnSpark.scala", new_version)
         print reef_home + "/lang/scala/reef-examples-scala/src/main/scala/org/apache/reef/examples/hellospark/ReefOnSpark.scala"
 
+        helloreef_readme = "/lang/cs/Org.Apache.REEF.Examples.HelloREEF/Readme.md"
+        change_project_number_readme(reef_home + helloreef_readme, new_version)
+        print reef_home + helloreef_readme
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Script for changing REEF version in all files that use it")
     parser.add_argument("reef_home", type=str, help="REEF home")
@@ -354,7 +377,7 @@ if __name__ == "__main__":
     parser.add_argument("-s", "--isSnapshot", type=str, metavar="<true or false>", help="Change 'IsSnapshot' to true or false", required=True)
     parser.add_argument("-p", "--pomonly", help="Change only poms", action="store_true")
     args = parser.parse_args()
-    
+
     reef_home = os.path.abspath(args.reef_home)
     reef_version = args.reef_version
     is_snapshot = args.isSnapshot
