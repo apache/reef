@@ -253,9 +253,13 @@ under the License.
     <Compile Include="Telemetry\Counters.cs" />
     <Compile Include="Telemetry\CounterSinkThreshold.cs" />
     <Compile Include="Telemetry\DefaultMetricsSink.cs" />
+    <Compile Include="Telemetry\DriverMetrics.cs" />
+    <Compile Include="Telemetry\DriverMetricsObserverConfigurationModule.cs" />
+    <Compile Include="Telemetry\DriverMetricsObservers.cs" />
     <Compile Include="Telemetry\EvaluatorMetrics.cs" />
     <Compile Include="Telemetry\ICounter.cs" />
     <Compile Include="Telemetry\ICounters.cs" />
+    <Compile Include="Telemetry\IDriverMetrics.cs" />
     <Compile Include="Telemetry\IEvaluatorMetrics.cs" />
     <Compile Include="Telemetry\IMetricsSink.cs" />
     <Compile Include="Telemetry\MessageSenderConfigurationModule.cs" />

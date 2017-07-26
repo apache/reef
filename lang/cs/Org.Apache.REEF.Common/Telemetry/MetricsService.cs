@@ -31,7 +31,7 @@ namespace Org.Apache.REEF.Common.Telemetry
     /// Metrics service. It is also a context message handler.
     /// </summary>
     [Unstable("0.16", "This is a simple MetricsService. More functionalities will be added.")]
-    internal sealed class MetricsService : IObserver<IContextMessage>
+    internal sealed class MetricsService : IObserver<IContextMessage>, IObserver<IDriverMetrics>
     {
         private static readonly Logger Logger = Logger.GetLogger(typeof(MetricsService));
 
@@ -112,6 +112,19 @@ namespace Org.Apache.REEF.Common.Telemetry
 
         public void OnError(Exception error)
         {
+        }
+
+        /// <summary>
+        /// Observer of IDriverMetrics.
+        /// When Driver metrics data is changed, this method will be called
+        /// </summary>
+        /// <param name="value"></param>
+        public void OnNext(IDriverMetrics value)
+        {
+            var set = new HashSet<KeyValuePair<string, string>>();
+            set.Add(new KeyValuePair<string, string>("SystemState", value.SystemState));
+            set.Add(new KeyValuePair<string, string>("TimeUpdated", value.TimeUpdated.ToLongTimeString()));
+            Sink(set);
         }
     }
 }

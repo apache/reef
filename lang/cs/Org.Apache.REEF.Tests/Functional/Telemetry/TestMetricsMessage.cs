@@ -40,6 +40,10 @@ namespace Org.Apache.REEF.Tests.Functional.Telemetry
             string[] lines = ReadLogFile(DriverStdout, "driver", testFolder, 240);
             var receivedCounterMessage = GetMessageCount(lines, "Received 2 counters with context message:");
             Assert.True(receivedCounterMessage > 1);
+
+            var systemtates = GetMessageCount(lines, "TestSystemState");
+            Assert.Equal(4, systemtates);
+
             CleanUp(testFolder);
         }
 
@@ -49,6 +53,7 @@ namespace Org.Apache.REEF.Tests.Functional.Telemetry
                 .Set(DriverConfiguration.OnDriverStarted, GenericType<MetricsDriver>.Class)
                 .Set(DriverConfiguration.OnEvaluatorAllocated, GenericType<MetricsDriver>.Class)
                 .Set(DriverConfiguration.OnContextActive, GenericType<MetricsDriver>.Class)
+                .Set(DriverConfiguration.OnTaskCompleted, GenericType<MetricsDriver>.Class)
                 .Set(DriverConfiguration.CustomTraceLevel, Level.Info.ToString())
                 .Build();
 
@@ -57,7 +62,9 @@ namespace Org.Apache.REEF.Tests.Functional.Telemetry
                 .Set(MetricsServiceConfigurationModule.CounterSinkThreshold, "5")
                 .Build();
 
-            return Configurations.Merge(c1, c2);
+            var c3 = DriverMetricsObserverConfigurationModule.ConfigurationModule.Build();
+
+            return Configurations.Merge(c1, c2, c3);
         }
     }
 }
