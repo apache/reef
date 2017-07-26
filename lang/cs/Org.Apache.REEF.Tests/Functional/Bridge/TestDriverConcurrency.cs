@@ -49,7 +49,7 @@ namespace Org.Apache.REEF.Tests.Functional.Bridge
                 "TestStartHandlerAndEvalAllocatedHandlerOnLocalRuntime",
                 "local",
                 testFolder);
-            ValidateSuccessForLocalRuntime(0, testFolder: testFolder);
+            ValidateSuccessForLocalRuntime(0, testFolder: testFolder, retryCount: 90);
             CleanUp(testFolder);
         }
 
