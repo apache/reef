@@ -85,6 +85,7 @@ under the License.
     <Compile Include="OnREEF\Driver\IMRUSystemException.cs" />
     <Compile Include="OnREEF\Driver\IMRUConstants.cs" />
     <Compile Include="OnREEF\Driver\IMRUDriver.cs" />
+    <Compile Include="OnREEF\Driver\PartitionDescriptorContextIdBundle.cs" />
     <Compile Include="OnREEF\Driver\ServiceAndContextConfigurationProvider.cs" />
     <Compile Include="OnREEF\Driver\StateMachine\TaskStateMachine.cs" />
     <Compile Include="OnREEF\Driver\StateMachine\StateTransition.cs" />
