@@ -18,6 +18,7 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
 using Org.Apache.REEF.Common.Context;
 using Org.Apache.REEF.Common.Events;
 using Org.Apache.REEF.Common.Services;
@@ -55,7 +56,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         internal ServiceAndContextConfigurationProvider(IPartitionedInputDataSet dataset, ConfigurationManager configurationManager)
         {
             _dataset = dataset;
-            foreach (var descriptor in _dataset)
+            foreach (var descriptor in _dataset.Reverse())
             {
                 _partitionDescriptorIds.Push(descriptor.Id);
             }
@@ -144,7 +145,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
             {
                 IPartitionDescriptor partitionDescriptor =
                     _dataset.GetPartitionDescriptorForId(_partitionIdProvider[evaluatorId]);
-                return GetDataLoadingContextAndServiceConfiguration(partitionDescriptor, evaluatorId);
+                return GetDataLoadingContextAndServiceConfiguration(partitionDescriptor);
             }
             catch (Exception e)
             {
@@ -159,11 +160,9 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         /// Creates service and data loading context configuration for given evaluator id
         /// </summary>
         /// <param name="partitionDescriptor"></param>
-        /// <param name="evaluatorId"></param>
         /// <returns></returns>
         private ContextAndServiceConfiguration GetDataLoadingContextAndServiceConfiguration(
-            IPartitionDescriptor partitionDescriptor,
-            string evaluatorId)
+            IPartitionDescriptor partitionDescriptor)
         {
             var dataLoadingContextConf =
                 TangFactory.GetTang()
@@ -185,7 +184,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
                     .Build();
 
             var contextConf = ContextConfiguration.ConfigurationModule
-                .Set(ContextConfiguration.Identifier, string.Format("DataLoading-{0}", evaluatorId))
+                .Set(ContextConfiguration.Identifier, string.Format("DataLoadingContext-{0}", partitionDescriptor.Id))
                 .Build();
             return new ContextAndServiceConfiguration(contextConf, serviceConf);
         }
