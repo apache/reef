@@ -51,25 +51,17 @@ namespace Org.Apache.REEF.Tests.Functional.Telemetry
         private readonly ISet<IObserver<IDriverMetrics>> _driverMetricsObservers;
 
         /// <summary>
-        /// Hold data of driver metrics
-        /// </summary>
-        private readonly IDriverMetrics _driverMetrics;
-
-        /// <summary>
         /// This driver inject DriverMetricsObservers and IDriverMetrics.
         /// It keeps updating the driver metrics when receiving events. 
         /// </summary>
         /// <param name="evaluatorRequestor"></param>
         /// <param name="driverMetricsObservers"></param>
-        /// <param name="driverMetrics"></param>
         [Inject]
         public MetricsDriver(IEvaluatorRequestor evaluatorRequestor,
-            [Parameter(typeof(DriverMetricsObservers))] ISet<IObserver<IDriverMetrics>> driverMetricsObservers,
-            IDriverMetrics driverMetrics)
+            [Parameter(typeof(DriverMetricsObservers))] ISet<IObserver<IDriverMetrics>> driverMetricsObservers)
         {
             _evaluatorRequestor = evaluatorRequestor;
             _driverMetricsObservers = driverMetricsObservers;
-            _driverMetrics = driverMetrics;
         }
 
         public void OnNext(IDriverStarted value)
@@ -142,12 +134,11 @@ namespace Org.Apache.REEF.Tests.Functional.Telemetry
         /// </summary>
         private void UpdateMetrics(TestSystemState systemState)
         {
-            _driverMetrics.SystemState = systemState.ToString();
-            _driverMetrics.TimeUpdated = DateTime.Now;
+            var driverMetrics = new DriverMetrics(systemState.ToString(), DateTime.Now);
 
             foreach (var metricsObserver in _driverMetricsObservers)
             {
-                metricsObserver.OnNext(_driverMetrics);
+                metricsObserver.OnNext(driverMetrics);
             }
         }
     }

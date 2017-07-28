@@ -16,7 +16,6 @@
 // under the License.
 
 using System;
-using Org.Apache.REEF.Tang.Annotations;
 
 namespace Org.Apache.REEF.Common.Telemetry
 {
@@ -25,15 +24,16 @@ namespace Org.Apache.REEF.Common.Telemetry
     /// It contains system state for now.
     /// It can be extended later to include more driver metrics data.
     /// </summary>
-    internal sealed class DriverMetrics : IDriverMetrics
+    public sealed class DriverMetrics : IDriverMetrics
     {
-        [Inject]
-        private DriverMetrics()
+        public DriverMetrics(string systemState, DateTime timeUpdated)
         {
+            SystemState = systemState;
+            TimeUpdated = timeUpdated;
         }
 
-        public string SystemState { get; set; }
+        public string SystemState { get; }
 
-        public DateTime TimeUpdated { get; set; }
+        public DateTime TimeUpdated { get; }
     }
 }

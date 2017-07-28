@@ -17,22 +17,22 @@
 
 using System;
 using Org.Apache.REEF.Tang.Annotations;
+using Org.Apache.REEF.Utilities.Attributes;
 
 namespace Org.Apache.REEF.Common.Telemetry
 {
+    [Unstable("0.16", "This is to build a simple metrics with system state only. More metrics will be added in future.")]
     [DefaultImplementation(typeof(DriverMetrics))]
     public interface IDriverMetrics
     {
         /// <summary>
         /// System state
-        /// It can be defined and updated by drivers.
         /// </summary>
-        string SystemState { get; set; }
+        string SystemState { get; }
 
         /// <summary>
         /// DateTime that the system state is updated
-        /// It is updated when the system state is changed
         /// </summary>
-        DateTime TimeUpdated { get; set; }
+        DateTime TimeUpdated { get; }
     }
 }
