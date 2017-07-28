@@ -32,8 +32,8 @@ namespace Org.Apache.REEF.Common.Telemetry
             TimeUpdated = timeUpdated;
         }
 
-        public string SystemState { get; }
+        public string SystemState { get; private set; }
 
-        public DateTime TimeUpdated { get; }
+        public DateTime TimeUpdated { get; private set; }
     }
 }
