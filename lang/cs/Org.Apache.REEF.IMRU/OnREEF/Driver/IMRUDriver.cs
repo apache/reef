@@ -392,7 +392,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
                         : GetMapperTaskIdByEvaluatorId(activeContext.EvaluatorId);
                     commGroup.AddTask(taskId);
                     taskIdAndContextMapping.Add(taskId, activeContext);
-                    Logger.Log(Level.Info, "Adding {0} with associated context: {1} to group.", taskId, activeContext.Id);
+                    Logger.Log(Level.Info, "Adding {0} with associated context: {1} to communication group: {2}.", taskId, activeContext.Id, IMRUConstants.CommunicationGroupName);
                 }
 
                 foreach (var mapping in taskIdAndContextMapping)

@@ -18,7 +18,6 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
 using Org.Apache.REEF.Common.Context;
 using Org.Apache.REEF.Common.Events;
 using Org.Apache.REEF.Common.Services;
@@ -43,22 +42,41 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
     {
         private static readonly Logger Logger = Logger.GetLogger(typeof(ServiceAndContextConfigurationProvider<TMapInput, TMapOutput, TPartitionType>));
 
-        private readonly Dictionary<string, string> _partitionIdProvider = new Dictionary<string, string>();
-        private readonly Stack<string> _partitionDescriptorIds = new Stack<string>();
+        /// <summary>
+        /// Mapping between Evaluator id and assigned partition descriptor/context ids
+        /// </summary>
+        private readonly Dictionary<string, PartitionDescriptorContextIdBundle> _partitionContextIdProvider = new Dictionary<string, PartitionDescriptorContextIdBundle>();
+
+        /// <summary>
+        /// Available partition descriptor and context ids stack
+        /// </summary>
+        private readonly Stack<PartitionDescriptorContextIdBundle> _avilablePartitionDescriptorContextIds = new Stack<PartitionDescriptorContextIdBundle>();
+
+        /// <summary>
+        /// Input partition data set
+        /// </summary>
         private readonly IPartitionedInputDataSet _dataset;
+
+        /// <summary>_configurationManager
+        /// Configuration manager that provides configurations
+        /// </summary>
         private readonly ConfigurationManager _configurationManager;
 
         /// <summary>
-        /// Constructs the object witch maintains partitionDescriptor Ids so that to provide proper data load configuration 
+        /// Constructs the object which maintains partitionDescriptor Ids so that to provide proper data load configuration
+        /// It also maintain the partitionDescriptor id and context id mapping to ensure same context id alway assign the same data partition
+        /// This is to ensure if the tasks are added to the typology based on the sequence of context id, the result is deterministic. 
         /// </summary>
         /// <param name="dataset">partition input dataset</param>
         /// <param name="configurationManager">Configuration manager that holds configurations for context and tasks</param>
         internal ServiceAndContextConfigurationProvider(IPartitionedInputDataSet dataset, ConfigurationManager configurationManager)
         {
             _dataset = dataset;
-            foreach (var descriptor in _dataset.Reverse())
+            int contextSequenceNumber = 0;
+            foreach (var descriptor in _dataset)
             {
-                _partitionDescriptorIds.Push(descriptor.Id);
+                var contextId = string.Format("DataLoadingContext-{0}", contextSequenceNumber++);
+                _avilablePartitionDescriptorContextIds.Push(new PartitionDescriptorContextIdBundle(descriptor.Id, contextId));
             }
             _configurationManager = configurationManager;
         }
@@ -71,13 +89,13 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         /// <returns>Whether failed evaluator is master or not</returns>
         internal void RemoveEvaluatorIdFromPartitionIdProvider(string evaluatorId)
         {
-            if (!_partitionIdProvider.ContainsKey(evaluatorId))
+            if (!_partitionContextIdProvider.ContainsKey(evaluatorId))
             {
                 var msg = string.Format(CultureInfo.InvariantCulture, "Partition descriptor for Failed evaluator:{0} not present", evaluatorId);
                 Exceptions.Throw(new Exception(msg), Logger);
             }
-            _partitionDescriptorIds.Push(_partitionIdProvider[evaluatorId]);
-            _partitionIdProvider.Remove(evaluatorId);
+            _avilablePartitionDescriptorContextIds.Push(_partitionContextIdProvider[evaluatorId]);
+            _partitionContextIdProvider.Remove(evaluatorId);
         }
 
         /// <summary>
@@ -106,13 +124,13 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         /// <returns></returns>
         internal string GetPartitionIdByEvaluatorId(string evaluatorId)
         {
-            if (!_partitionIdProvider.ContainsKey(evaluatorId))
+            if (!_partitionContextIdProvider.ContainsKey(evaluatorId))
             {
                 var msg = string.Format(CultureInfo.InvariantCulture, "Partition descriptor for evaluator:{0} is not present in the mapping", evaluatorId);
                 Exceptions.Throw(new IMRUSystemException(msg), Logger);
             }
 
-            return _partitionIdProvider[evaluatorId];
+            return _partitionContextIdProvider[evaluatorId].PartitionDescriptorId;
         }
 
         /// <summary>
@@ -120,15 +138,15 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         /// evaluator or new configuration
         /// </summary>
         /// <param name="evaluatorId"></param>
-        /// <returns></returns>
+        /// <returns>Configuration for context and service</returns>
         internal ContextAndServiceConfiguration GetDataLoadingConfigurationForEvaluatorById(string evaluatorId)
         {
-            if (_partitionDescriptorIds.Count == 0)
+            if (_avilablePartitionDescriptorContextIds.Count == 0)
             {
                 Exceptions.Throw(new IMRUSystemException("No more data configuration can be provided"), Logger);
             }
 
-            if (_partitionIdProvider.ContainsKey(evaluatorId))
+            if (_partitionContextIdProvider.ContainsKey(evaluatorId))
             {
                 var msg =
                     string.Format(
@@ -139,30 +157,32 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
             }
 
             Logger.Log(Level.Info, "Getting a new data loading configuration");
-            _partitionIdProvider[evaluatorId] = _partitionDescriptorIds.Pop();
+            _partitionContextIdProvider[evaluatorId] = _avilablePartitionDescriptorContextIds.Pop();
 
             try
             {
+                var partitionIdContextId = _partitionContextIdProvider[evaluatorId];
                 IPartitionDescriptor partitionDescriptor =
-                    _dataset.GetPartitionDescriptorForId(_partitionIdProvider[evaluatorId]);
-                return GetDataLoadingContextAndServiceConfiguration(partitionDescriptor);
+                    _dataset.GetPartitionDescriptorForId(partitionIdContextId.PartitionDescriptorId);
+                return GetDataLoadingContextAndServiceConfiguration(partitionDescriptor, partitionIdContextId.ContextId);
             }
             catch (Exception e)
             {
                 var msg = string.Format(CultureInfo.InvariantCulture, "Error while trying to access partition descriptor:{0} from dataset",
-                    _partitionIdProvider[evaluatorId]);
+                    _partitionContextIdProvider[evaluatorId]);
                 Exceptions.Throw(e, msg, Logger);
                 return null;
             }
         }
 
         /// <summary>
-        /// Creates service and data loading context configuration for given evaluator id
+        /// Creates service and data loading context configuration for given context id and partition descriptor
         /// </summary>
         /// <param name="partitionDescriptor"></param>
-        /// <returns></returns>
+        /// <param name="contextId"></param>
+        /// <returns>Configuration for context and service</returns>
         private ContextAndServiceConfiguration GetDataLoadingContextAndServiceConfiguration(
-            IPartitionDescriptor partitionDescriptor)
+            IPartitionDescriptor partitionDescriptor, string contextId)
         {
             var dataLoadingContextConf =
                 TangFactory.GetTang()
@@ -184,7 +204,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
                     .Build();
 
             var contextConf = ContextConfiguration.ConfigurationModule
-                .Set(ContextConfiguration.Identifier, string.Format("DataLoadingContext-{0}", partitionDescriptor.Id))
+                .Set(ContextConfiguration.Identifier, contextId)
                 .Build();
             return new ContextAndServiceConfiguration(contextConf, serviceConf);
         }
