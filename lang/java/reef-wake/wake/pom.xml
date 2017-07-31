@@ -174,7 +174,7 @@ under the License.
         <dependency>
             <groupId>io.github.lukehutch</groupId>
             <artifactId>fast-classpath-scanner</artifactId>
-            <version>LATEST</version>
+            <version>${fast-classpath-scanner.version}</version>
         </dependency>
     </dependencies>
 

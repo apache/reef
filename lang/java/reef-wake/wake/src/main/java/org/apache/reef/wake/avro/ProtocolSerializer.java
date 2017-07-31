@@ -47,6 +47,7 @@ public final class ProtocolSerializer {
   // Maps for mapping message class names to serializer and deserializer classes.
   private final Map<String, IMessageSerializer> nameToSerializerMap = new HashMap<>();
   private final Map<String, IMessageDeserializer> nameToDeserializerMap = new HashMap<>();
+  private final SpecificDatumReader<Header> headerReader = new SpecificDatumReader<>(Header.class);
 
   /**
    * Finds all of the messages in the specified packaged and calls register.
@@ -116,7 +117,6 @@ public final class ProtocolSerializer {
       final BinaryDecoder decoder = DecoderFactory.get().binaryDecoder(inputStream, null);
 
       // Read the header message.
-      final SpecificDatumReader<Header> headerReader = new SpecificDatumReader<>(Header.class);
       final Header header = headerReader.read(null, decoder);
       LOG.log(Level.FINE, "Deserializing Avro message: {0}", header.getClassName());
 

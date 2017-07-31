@@ -60,8 +60,9 @@ public abstract class MultiObserverImpl<TSubCls> implements MultiObserver {
    * Called when an event is received that does not have an onNext method definition
    * in TSubCls. Override in TSubClas to handle the error.
    * @param event A reference to an object which is an event not handled by TSubCls.
+   * @param <TEvent> The type of the event being processed.
    */
-  public void unimplemented(final long identifier, final Object event) {
+  private <TEvent> void unimplemented(final long identifier, final TEvent event) {
     LOG.log(Level.INFO, "Unimplemented event: [" + Long.toString(identifier) +"]"
                         + event.getClass().getName());
   }

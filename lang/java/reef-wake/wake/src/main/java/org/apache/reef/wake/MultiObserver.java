@@ -25,7 +25,11 @@ import java.lang.reflect.InvocationTargetException;
  * defining the methods to handle those events.
  */
 public interface MultiObserver {
+  /**
+   * Generic event onNext method in the base interface which maps the call to a concrete
+   * event onNext method in TSubCls if one exists otherwise unimplemented is invoked.
+   * @param event An event of type TEvent which will be sent to TSubCls as appropriate.
+   * @param <TEvent> The type of the event being processed.
+   */
   <TEvent> void onNext(long identifier, TEvent event) throws IllegalAccessException, InvocationTargetException;
-  void onError(Exception error);
-  void onCompleted();
 }
