@@ -33,7 +33,7 @@ namespace Org.Apache.REEF.Client.YARN.RestClient
         private HttpClient(IYarnRestClientCredential yarnRestClientCredential)
         {
             _httpClient = new System.Net.Http.HttpClient(
-                new HttpClientRetryHandler(new WebRequestHandler { Credentials = yarnRestClientCredential.Credentials }),
+                new HttpClientRetryHandler(new HttpClientHandler { Credentials = yarnRestClientCredential.Credentials }),
                 disposeHandler: false);
         }
 
