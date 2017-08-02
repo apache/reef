@@ -24,6 +24,10 @@ namespace Org.Apache.REEF.Common.Runtime
 {
     public class MachineStatus
     {
+#if DOTNET_BUILD
+        private const string NotSupportedValue = "<UNSUPPORTED>";
+        private const string NotSupportedMessage = "Machine Status is not supported on this OS";
+#else
         private static readonly PerformanceCounter CpuCounter;
 
         private static readonly PerformanceCounter RamCounter;
@@ -60,12 +64,17 @@ namespace Org.Apache.REEF.Common.Runtime
                 InstanceName = processName
             };
         }
+#endif
 
         public static string CurrentNodeCpuUsage
         {
             get
             {
+#if DOTNET_BUILD
+                return NotSupportedValue + "%";
+#else
                 return CpuCounter.NextValue() + "%";
+#endif
             }
         }
 
@@ -73,7 +82,11 @@ namespace Org.Apache.REEF.Common.Runtime
         {
             get
             {
-                return RamCounter.NextValue() + "MB";
+#if DOTNET_BUILD
+                return NotSupportedValue + "MB";
+#else
+                return RamCounter.NextValue() + "MB"; 
+#endif
             }
         }
 
@@ -81,7 +94,11 @@ namespace Org.Apache.REEF.Common.Runtime
         {
             get
             {
+#if DOTNET_BUILD
+                return NotSupportedValue + "MB";
+#else
                 return ((float)Process.WorkingSet64 / 1000000.0).ToString(CultureInfo.InvariantCulture) + "MB";
+#endif
             }
         }
 
@@ -89,7 +106,11 @@ namespace Org.Apache.REEF.Common.Runtime
         {
             get
             {
+#if DOTNET_BUILD
+                return NotSupportedValue + "MB";          
+#else
                 return ((float)Process.PeakWorkingSet64 / 1000000.0).ToString(CultureInfo.InvariantCulture) + "MB";
+#endif
             }
         }
 
@@ -98,12 +119,19 @@ namespace Org.Apache.REEF.Common.Runtime
         {
             get
             {
+#if DOTNET_BUILD
+                return NotSupportedValue + "MB";
+#else
                 return ((float)ProcessCpuCounter.RawValue / 1000000.0) + "%";
+#endif
             }
         }
 
         public override string ToString()
         {
+#if DOTNET_BUILD
+            return NotSupportedMessage;
+#else
             string info = "No machine status information retrieved. Could be due to lack of admin right to get the info.";
             if (_checkStatus)
             {
@@ -131,6 +159,7 @@ namespace Org.Apache.REEF.Common.Runtime
             }
             
             return info;
+#endif
         }
     }
 }
