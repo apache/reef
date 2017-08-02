@@ -73,7 +73,7 @@ namespace Org.Apache.REEF.Network.Examples.Client
                 .BindStringNamedParam<GroupCommConfigurationOptions.DriverId>(driverId)
                 .BindStringNamedParam<GroupCommConfigurationOptions.MasterTaskId>(masterTaskId)
                 .BindStringNamedParam<GroupCommConfigurationOptions.GroupName>(groupName)
-                .BindIntNamedParam<GroupCommConfigurationOptions.FanOut>(fanOut.ToString(CultureInfo.InvariantCulture).ToString(CultureInfo.InvariantCulture))
+                .BindIntNamedParam<GroupCommConfigurationOptions.FanOut>(fanOut.ToString(CultureInfo.InvariantCulture))
                 .BindIntNamedParam<GroupCommConfigurationOptions.NumberOfTasks>(numTasks.ToString(CultureInfo.InvariantCulture))
                 .Build();
 
