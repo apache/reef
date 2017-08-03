@@ -20,10 +20,10 @@ package org.apache.reef.wake.test.avro;
 
 import org.apache.reef.tang.Injector;
 import org.apache.reef.tang.Tang;
+import org.apache.reef.tang.exceptions.InjectionException;
 import org.apache.reef.wake.EventHandler;
 import org.apache.reef.wake.avro.ProtocolSerializer;
 import org.apache.reef.wake.impl.LoggingEventHandler;
-import org.apache.reef.wake.impl.LoggingUtils;
 import org.apache.reef.wake.impl.MultiObserverImpl;
 import org.apache.reef.wake.remote.*;
 import org.apache.reef.wake.remote.address.LocalAddressProvider;
@@ -37,7 +37,6 @@ import org.junit.rules.TestName;
 
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import static org.junit.Assert.assertEquals;
@@ -46,12 +45,8 @@ import static org.junit.Assert.assertEquals;
  *  Verify the protocol serializer can serialize and deserialize messages
  *  exchanged between two remote manager classes.
  */
-public class ProtocolSerializerTest {
+public final class ProtocolSerializerTest {
   private static final Logger LOG = Logger.getLogger(ProtocolSerializer.class.getName());
-  private static final String LOG_PREFIX = "TEST ";
-
-  public ProtocolSerializerTest() {
-  }
 
   @Rule
   public final TestName name = new TestName();
@@ -62,9 +57,6 @@ public class ProtocolSerializerTest {
    */
   @Test
   public void testProtocolSerializerTest() throws Exception {
-    System.out.println(LOG_PREFIX + name.getMethodName());
-    LoggingUtils.setLoggingLevel(Level.INFO);
-
     final int[] numbers = {12, 25};
     final String[] strings = {"The first string", "The second string"};
 
@@ -107,28 +99,21 @@ public class ProtocolSerializerTest {
    * @return A RemoteManager instance listing on the local IP address
    *         with a unique port number.
    */
-  private RemoteManager getTestRemoteManager(final String identifier) {
-    RemoteManager remoteManager = null;
-    try {
-      final int port = 0;
-      final boolean order = true;
-      final int retries = 3;
-      final int timeOut = 10000;
+  private RemoteManager getTestRemoteManager(final String identifier) throws InjectionException {
+    final int port = 0;
+    final boolean order = true;
+    final int retries = 3;
+    final int timeOut = 10000;
 
-      final Injector injector = Tang.Factory.getTang().newInjector();
-      final LocalAddressProvider localAddressProvider = injector.getInstance(LocalAddressProvider.class);
-      final TcpPortProvider tcpPortProvider = injector.getInstance(TcpPortProvider.class);
-      final RemoteManagerFactory remoteManagerFactory = injector.getInstance(RemoteManagerFactory.class);
+    final Injector injector = Tang.Factory.getTang().newInjector();
+    final LocalAddressProvider localAddressProvider = injector.getInstance(LocalAddressProvider.class);
+    final TcpPortProvider tcpPortProvider = injector.getInstance(TcpPortProvider.class);
+    final RemoteManagerFactory remoteManagerFactory = injector.getInstance(RemoteManagerFactory.class);
 
-      remoteManager = remoteManagerFactory.getInstance(
-        identifier, localAddressProvider.getLocalAddress(), port, new ByteCodec(),
-        new LoggingEventHandler<Throwable>(), order, retries, timeOut,
-        localAddressProvider, tcpPortProvider);
-
-    } catch (final Exception e) {
-      LOG.log(Level.SEVERE, "Initialization failed: ", e);
-    }
-    return remoteManager;
+    return remoteManagerFactory.getInstance(
+    identifier, localAddressProvider.getLocalAddress(), port, new ByteCodec(),
+      new LoggingEventHandler<Throwable>(), order, retries, timeOut,
+      localAddressProvider, tcpPortProvider);
   }
 
   private final class ByteMessageObserver implements EventHandler<RemoteMessage<byte[]>> {
@@ -161,6 +146,7 @@ public class ProtocolSerializerTest {
     int getNumber() {
       return number;
     }
+
     String getDataString() {
       return dataString;
     }

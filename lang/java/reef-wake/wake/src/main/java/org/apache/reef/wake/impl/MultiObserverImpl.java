@@ -48,7 +48,7 @@ public abstract class MultiObserverImpl<TSubCls> implements MultiObserver {
       if (method.getName().equals("onNext") && method.getDeclaringClass().equals(this.getClass())) {
         // This is an onNext method defined in TSubCls
         final Class<?>[] types = method.getParameterTypes();
-        if (types.length == 2 && types[0].getSimpleName().equals("long")) {
+        if (types.length == 2 && types[0].equals(Long.TYPE)) {
           methodMap.put(types[1].getName(), method);
         }
       }
@@ -62,7 +62,8 @@ public abstract class MultiObserverImpl<TSubCls> implements MultiObserver {
    * @param <TEvent> The type of the event being processed.
    */
   private <TEvent> void unimplemented(final long identifier, final TEvent event) {
-    LOG.log(Level.INFO, "Unimplemented event: [" + identifier +"]" + event.getClass().getName());
+    LOG.log(Level.INFO, "Unimplemented event: [{0}]: {1}",
+        new String[]{String.valueOf(identifier), event.getClass().getName()});
   }
 
   /**
