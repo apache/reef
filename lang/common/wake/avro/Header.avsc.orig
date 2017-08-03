@@ -1,4 +1,8 @@
+<<<<<<< HEAD
+﻿/*
+=======
 /*
+>>>>>>> 5f285f0dd... [REEF-1819] Add Avro message protocol serializer to Java Side.
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
