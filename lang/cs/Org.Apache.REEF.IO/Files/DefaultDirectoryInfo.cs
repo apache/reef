@@ -180,7 +180,8 @@ namespace Org.Apache.REEF.IO.Files
         /// </summary>
         public void Create(DirectorySecurity directorySecurity)
         {
-            _directoryInfo.Create(directorySecurity);
+            _directoryInfo.Create();
+            _directoryInfo.SetAccessControl(directorySecurity);
         }
 
         /// <summary>
@@ -196,7 +197,9 @@ namespace Org.Apache.REEF.IO.Files
         /// </summary>
         public IDirectoryInfo CreateSubdirectory(string path, DirectorySecurity directorySecurity)
         {
-            return FromDirectoryInfo(_directoryInfo.CreateSubdirectory(path, directorySecurity));
+            var directoryInfo = CreateSubdirectory(path);
+            directoryInfo.SetAccessControl(directorySecurity);
+            return directoryInfo;
         }
 
         /// <summary>
