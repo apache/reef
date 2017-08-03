@@ -202,6 +202,17 @@ namespace Org.Apache.REEF.Client.Local
         }
 
         /// <summary>
+        /// Kills the job application and return Job status
+        /// </summary>
+        /// <param name="appId"></param>
+        /// <returns></returns>
+        public async Task<FinalState> KillJobApplication(string appId)
+        {
+            await Task.Delay(0);
+            return FinalState.SUCCEEDED;
+        }
+
+        /// <summary>
         /// Creates the temporary directory to hold the job submission.
         /// </summary>
         /// <returns></returns>

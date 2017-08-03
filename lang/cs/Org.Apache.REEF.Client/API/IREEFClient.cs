@@ -50,5 +50,13 @@ namespace Org.Apache.REEF.Client.API
         /// <returns></returns>
         [Unstable("0.14", "Working in progress for rest API status returned")]
         Task<FinalState> GetJobFinalStatus(string appId);
+
+        /// <summary>
+        /// Kills the job application and return Job status
+        /// </summary>
+        /// <param name="appId"></param>
+        /// <returns></returns>
+        [Unstable("0.16", "Working in progress for rest API status returned")]
+        Task<FinalState> KillJobApplication(string appId);
     }
 }

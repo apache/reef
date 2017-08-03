@@ -105,6 +105,17 @@ namespace Org.Apache.REEF.Client.Yarn
             return application.FinalStatus;
         }
 
+        /// <summary>
+        /// Kills the job application and return Job status
+        /// </summary>
+        /// <param name="appId"></param>
+        /// <returns>FinalState of the application</returns>
+        public async Task<FinalState> KillJobApplication(string appId)
+        {
+             _yarnClient.KillApplicationAsync(appId);
+            return await GetJobFinalStatus(appId);
+        }
+
         private void Launch(JobRequest jobRequest, string driverFolderPath)
         {
             _driverFolderPreparationHelper.PrepareDriverFolder(jobRequest.AppParameters, driverFolderPath);

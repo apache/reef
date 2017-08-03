@@ -53,5 +53,15 @@ namespace Org.Apache.REEF.Client.Yarn.RestClient
             await new RemoveSynchronizationContextAwaiter();
             return await SubmitApplicationAsync(submitApplicationRequest, CancellationToken.None);
         }
+
+        /// <summary>
+        /// Kills the application asynchronous.
+        /// </summary>
+        /// <param name="appId">The application identifier.</param>
+        public async void KillApplicationAsync(string appId)
+        {
+            await new RemoveSynchronizationContextAwaiter();
+            KillApplicationAsync(appId, CancellationToken.None);
+        }
     }
 }

@@ -126,6 +126,35 @@ namespace Org.Apache.REEF.Client.Yarn.RestClient
             return await GetApplicationAsync(submitApplication.ApplicationId, cancellationToken);
         }
 
+        /// <summary>
+        /// Kills the application asynchronous.
+        /// </summary>
+        /// <param name="appId">The application identifier.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <exception cref="System.NotImplementedException"></exception>
+        public async void KillApplicationAsync(string appId, CancellationToken cancellationToken)
+        {
+            var killApplication = new KillApplication();
+            killApplication.State = State.KILLED;
+
+            var restParm = KillApplication.Resource + appId;
+            await new RemoveSynchronizationContextAwaiter();
+            var request = _requestFactory.CreateRestRequest(
+                restParm,
+                Method.PUT,
+                rootElement: null,
+                body: killApplication);
+
+            var response = await GenerateUrlAndExecuteRequestAsync(request, cancellationToken);
+
+            if (response.StatusCode != HttpStatusCode.Accepted)
+            {
+                throw new YarnRestAPIException(
+                    string.Format("Kill Application failed with HTTP STATUS {0}",
+                        response.StatusCode));
+            }
+        }
+
         private async Task<T> GenerateUrlAndExecuteRequestAsync<T>(RestRequest request,
             CancellationToken cancellationToken)
         {
