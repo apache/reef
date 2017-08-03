@@ -110,10 +110,10 @@ public class ProtocolSerializerTest {
   private RemoteManager getTestRemoteManager(final String identifier) {
     RemoteManager remoteManager = null;
     try {
-      int port = 0;
-      boolean order = true;
-      int retries = 3;
-      int timeOut = 10000;
+      final int port = 0;
+      final boolean order = true;
+      final int retries = 3;
+      final int timeOut = 10000;
 
       final Injector injector = Tang.Factory.getTang().newInjector();
       final LocalAddressProvider localAddressProvider = injector.getInstance(LocalAddressProvider.class);
@@ -126,14 +126,13 @@ public class ProtocolSerializerTest {
         localAddressProvider, tcpPortProvider);
 
     } catch (final Exception e) {
-      e.printStackTrace();
-      LOG.log(Level.SEVERE, "Initialization failed: " + e.getMessage());
+      LOG.log(Level.SEVERE, "Initialization failed: ", e);
     }
     return remoteManager;
   }
 
   private final class ByteMessageObserver implements EventHandler<RemoteMessage<byte[]>> {
-    private BlockingQueue<byte[]> queue;
+    private final BlockingQueue<byte[]> queue;
 
     /**
      * @param queue Queue where incoming messages will be stored.
@@ -158,20 +157,12 @@ public class ProtocolSerializerTest {
     private int number;
     private String dataString;
 
+    // Accessors
     int getNumber() {
       return number;
     }
-
     String getDataString() {
       return dataString;
-    }
-
-    public void onError(final Exception error) {
-      LOG.log(Level.SEVERE, "OnError: ", error.getMessage());
-    }
-
-    public void onCompleted() {
-      LOG.log(Level.INFO, "OnCompleted");
     }
 
     /**

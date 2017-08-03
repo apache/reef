@@ -36,20 +36,19 @@ import java.util.logging.Logger;
 public abstract class MultiObserverImpl<TSubCls> implements MultiObserver {
   private static final Logger LOG = Logger.getLogger(MultiObserverImpl.class.getName());
   private final Map<String, Method> methodMap = new HashMap<>();
-  private boolean initialized = false;
 
   /**
    * Use reflection to discover all of the event processing methods in TSubCls
    * and setup a means to direct calls from the generic event onNext method defined
    * in the MultiObserver interface to specific concrete event onNext methods.
    */
-  private void initialize() {
+  public MultiObserverImpl() {
     // Iterate across the methods and build a hash map of class names to reflection methods.
     for (final Method method : this.getClass().getMethods()) {
       if (method.getName().equals("onNext") && method.getDeclaringClass().equals(this.getClass())) {
         // This is an onNext method defined in TSubCls
         final Class<?>[] types = method.getParameterTypes();
-        if (types.length == 2 && types[0].getSimpleName() == "long") {
+        if (types.length == 2 && types[0].getSimpleName().equals("long")) {
           methodMap.put(types[1].getName(), method);
         }
       }
@@ -63,8 +62,7 @@ public abstract class MultiObserverImpl<TSubCls> implements MultiObserver {
    * @param <TEvent> The type of the event being processed.
    */
   private <TEvent> void unimplemented(final long identifier, final TEvent event) {
-    LOG.log(Level.INFO, "Unimplemented event: [" + Long.toString(identifier) +"]"
-                        + event.getClass().getName());
+    LOG.log(Level.INFO, "Unimplemented event: [" + identifier +"]" + event.getClass().getName());
   }
 
   /**
@@ -77,13 +75,8 @@ public abstract class MultiObserverImpl<TSubCls> implements MultiObserver {
   public <TEvent> void onNext(final long identifier, final TEvent event)
     throws IllegalAccessException, InvocationTargetException {
 
-    if (!initialized) {
-      initialize();
-      initialized = true;
-    }
-
     // Get the reflection method for this call.
-    Method onNext = methodMap.get(event.getClass().getName());
+    final Method onNext = methodMap.get(event.getClass().getName());
     if (onNext != null) {
       // Process the event.
       onNext.invoke((TSubCls) this, identifier, event);
