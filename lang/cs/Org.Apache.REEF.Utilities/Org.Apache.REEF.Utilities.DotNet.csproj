@@ -19,7 +19,7 @@ under the License.
     <AssemblyName>Org.Apache.REEF.Utilities</AssemblyName>
     <Description>Common utilities such as logging shared across REEF/Wake/Tang</Description>
     <PackageTags>Apache REEF REEF/Wake/Tang common utilities</PackageTags>
-    <TargetFrameworks>netstandard2.0;net46;net451</TargetFrameworks>
+    <TargetFrameworks>netstandard2.0;netcoreapp2.0;net46;net451</TargetFrameworks>
   </PropertyGroup>
   <Import Project="..\build.DotNet.props" />
   <ItemGroup>
