@@ -17,7 +17,7 @@ under the License.
 -->
   <PropertyGroup>
     <AssemblyName>Org.Apache.REEF.Wake.Tests</AssemblyName>
-    <TargetFrameworks>net46;net451</TargetFrameworks>
+    <TargetFrameworks>netstandard2.0;netcoreapp2.0;net46;net451</TargetFrameworks>
   </PropertyGroup>
   <Import Project="..\build.DotNet.props" />
   <ItemGroup>

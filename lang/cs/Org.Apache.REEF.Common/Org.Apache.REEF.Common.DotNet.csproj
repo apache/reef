@@ -21,7 +21,7 @@ under the License.
     <AssemblyName>Org.Apache.REEF.Common</AssemblyName>
     <Description>REEF Common Infrastructure</Description>
     <PackageTags>REEF Common Infrastructure</PackageTags>
-    <TargetFrameworks>net46;net451</TargetFrameworks>
+    <TargetFrameworks>netstandard2.0;netcoreapp2.0;net46;net451</TargetFrameworks>
   </PropertyGroup>
   <Import Project="..\build.DotNet.props" />
   <ItemGroup>
