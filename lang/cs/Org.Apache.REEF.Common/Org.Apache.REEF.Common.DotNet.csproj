@@ -27,7 +27,7 @@ under the License.
   <ItemGroup>
     <PackageReference Include="Newtonsoft.Json" Version="$(NewtonsoftJsonVersion)" />
     <PackageReference Include="protobuf-net" Version="$(ProtobufVersion)" />
-    <PackageReference Include="Microsoft.Hadoop.Avro" Version="$(AvroVersion)" />
+    <PackageReference Include="Microsoft.Avro.Core" Version="$(AvroVersion)" />
     <PackageReference Include="System.Reactive.Core" Version="$(SystemReactiveVersion)" />
     <PackageReference Include="System.Reactive.Interfaces" Version="$(SystemReactiveVersion)" />
     <Reference Include="System" />
