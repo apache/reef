@@ -26,7 +26,7 @@ under the License.
   <Import Project="..\build.DotNet.props" />
   <ItemGroup>
     <PackageReference Include="protobuf-net" Version="$(ProtobufVersion)" />
-    <PackageReference Include="Microsoft.Hadoop.Avro" Version="$(AvroVersion)" />
+    <PackageReference Include="Microsoft.Avro.Core" Version="$(AvroVersion)" />
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Runtime.Serialization" />
