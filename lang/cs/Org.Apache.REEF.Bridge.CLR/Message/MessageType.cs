@@ -37,5 +37,11 @@ namespace org.apache.reef.bridge.message
         [EnumMember]
         SystemOnStart,
 
+        /// <summary>
+        /// The Acknowledgement symbol.
+        /// </summary>
+        [EnumMember]
+        Acknowledgement,
+
     }
 }

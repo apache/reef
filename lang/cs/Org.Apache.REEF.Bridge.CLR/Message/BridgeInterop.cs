@@ -28,7 +28,7 @@ namespace org.apache.reef.bridge.message
     [DataContract(Namespace = "org.apache.reef.bridge.message")]
     public partial class BridgeInterop
     {
-        private const string JsonSchema = @"{""type"":""record"",""name"":""org.apache.reef.bridge.message.BridgeInterop"",""doc"":""The BridgeInterop message is the container for all Java/CLR interop messages."",""fields"":[{""name"":""messageType"",""doc"":""The type of the bridge Java/CLR interop message contained in the wrapper message."",""type"":{""type"":""enum"",""name"":""org.apache.reef.bridge.message.MessageType"",""symbols"":[""SetupBridge"",""SystemOnStart""]}},{""name"":""setupBridge"",""type"":{""type"":""record"",""name"":""org.apache.reef.bridge.message.SetupBridge"",""fields"":[{""name"":""label"",""type"":""string""}]}},{""name"":""systemOnStart"",""type"":{""type"":""record"",""name"":""org.apache.reef.bridge.message.SystemOnStart"",""fields"":[{""name"":""dateTime"",""doc"":""Date time in seconds as a long since January 1, 1970"",""type"":""long""}]}}]}";
+        private const string JsonSchema = @"{""type"":""record"",""name"":""org.apache.reef.bridge.message.BridgeInterop"",""doc"":""Container message for all Java/CLR bridge messages in the protocol."",""fields"":[{""name"":""sequence"",""doc"":""The unique squence identifier of the message in the protocol stream."",""type"":""long""},{""name"":""messageType"",""doc"":""The type of the bridge Java/CLR interop message."",""type"":{""type"":""enum"",""name"":""org.apache.reef.bridge.message.MessageType"",""doc"":""An enumeration of all possible Java/C# bridge protocol messages."",""symbols"":[""SetupBridge"",""SystemOnStart"",""Acknowledgement""]}},{""name"":""message"",""doc"":""A union which contains the actual message."",""type"":[{""type"":""record"",""name"":""org.apache.reef.bridge.message.SetupBridge"",""doc"":""Notify the C# bridge of the http port of the Java bridge webserver."",""fields"":[{""name"":""httpServerPortNumber"",""doc"":""The Java bridge http server port number."",""type"":""int""}]},{""type"":""record"",""name"":""org.apache.reef.bridge.message.SystemOnStart"",""doc"":""Notify the C# bridge the system is now running."",""fields"":[{""name"":""dateTime"",""doc"":""Date time in seconds as a long since January 1, 1970"",""type"":""long""}]},{""type"":""record"",""name"":""org.apache.reef.bridge.message.Acknowledgement"",""doc"":""The Acknowledgement message is sent to the Java bridge to acknowledge receipt and processing of a specific message."",""fields"":[{""name"":""messageIdentifier"",""doc"":""The message identifier of the message that was successfully processed."",""type"":""long""}]},{""type"":""array"",""items"":""bytes""}]}]}";
 
         /// <summary>
         /// Gets the schema.
@@ -42,22 +42,23 @@ namespace org.apache.reef.bridge.message
         }
       
         /// <summary>
+        /// Gets or sets the sequence field.
+        /// </summary>
+        [DataMember]
+        public long sequence { get; set; }
+              
+        /// <summary>
         /// Gets or sets the messageType field.
         /// </summary>
         [DataMember]
         public org.apache.reef.bridge.message.MessageType messageType { get; set; }
               
         /// <summary>
-        /// Gets or sets the setupBridge field.
+        /// Gets or sets the message field.
         /// </summary>
         [DataMember]
-        public org.apache.reef.bridge.message.SetupBridge setupBridge { get; set; }
-              
-        /// <summary>
-        /// Gets or sets the systemOnStart field.
-        /// </summary>
-        [DataMember]
-        public org.apache.reef.bridge.message.SystemOnStart systemOnStart { get; set; }
+        [AvroUnion(typeof(org.apache.reef.bridge.message.SetupBridge), typeof(org.apache.reef.bridge.message.SystemOnStart), typeof(org.apache.reef.bridge.message.Acknowledgement), typeof(List<byte[]>))]
+        public object message { get; set; }
                 
         /// <summary>
         /// Initializes a new instance of the <see cref="BridgeInterop"/> class.
@@ -69,14 +70,14 @@ namespace org.apache.reef.bridge.message
         /// <summary>
         /// Initializes a new instance of the <see cref="BridgeInterop"/> class.
         /// </summary>
+        /// <param name="sequence">The sequence.</param>
         /// <param name="messageType">The messageType.</param>
-        /// <param name="setupBridge">The setupBridge.</param>
-        /// <param name="systemOnStart">The systemOnStart.</param>
-        public BridgeInterop(org.apache.reef.bridge.message.MessageType messageType, org.apache.reef.bridge.message.SetupBridge setupBridge, org.apache.reef.bridge.message.SystemOnStart systemOnStart)
+        /// <param name="message">The message.</param>
+        public BridgeInterop(long sequence, org.apache.reef.bridge.message.MessageType messageType, object message)
         {
+            this.sequence = sequence;
             this.messageType = messageType;
-            this.setupBridge = setupBridge;
-            this.systemOnStart = systemOnStart;
+            this.message = message;
         }
     }
 }

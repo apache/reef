@@ -18,20 +18,57 @@
  */
 [
   /*
-   * Identify the next message in the Java/C# bridge protocol.
+   * Message protocol for the Java/C# bridge communications.
    */
+  { "type": "record", "name": "SetupBridge", "namespace": "org.apache.reef.bridge.message",
+    "doc": "Notify the C# bridge of the http port of the Java bridge webserver.",
+    "fields":
+    [
+      { "name": "httpServerPortNumber", "type": "int", "doc": "The Java bridge http server port number." }
+    ]
+  },
+  { "type": "record", "name": "SystemOnStart", "namespace": "org.apache.reef.bridge.message",
+    "doc": "Notify the C# bridge the system is now running.",
+    "fields":
+    [
+      { "name": "dateTime", "type": "long", "doc": "Date time in seconds as a long since January 1, 1970" }
+    ]
+  },
+  { "type":"record", "name":"Acknowledgement", "namespace":"org.apache.reef.bridge.message",
+    "doc":"The Acknowledgement message is sent to the Java bridge to acknowledge receipt and processing of a specific message.",
+    "fields":[
+      {
+        "name":"messageIdentifier",
+        "type":"long",
+        "doc":"The message identifier of the message that was successfully processed."
+      }
+    ]
+  },
   { "type": "record", "name":"BridgeInterop", "namespace": "org.apache.reef.bridge.message",
-    "doc": "The BridgeInterop message is the container for all Java/CLR interop messages.",
+    "doc": "Container message for all Java/CLR bridge messages in the protocol.",
     "fields": [
+      { "name": "sequence", "type": "long", "doc": "The unique squence identifier of the message in the protocol stream." },
       { "name": "messageType", "type":
-        { "type": "enum", "name": "MessageType", "symbols": ["SetupBridge","SystemOnStart"]},
-        "doc": "The type of the bridge Java/CLR interop message contained in the wrapper message." },
-      { "name": "setupBridge", "type": { "type": "record", "name": "SetupBridge",
-        "namespace": "org.apache.reef.bridge.message",
-        "fields": [ { "name": "label", "type": "string" }]}},
-      { "name": "systemOnStart", "type": { "type": "record", "name": "SystemOnStart",
-        "namespace": "org.apache.reef.bridge.message",
-        "fields": [ { "name": "dateTime", "type": "long", "doc": "Date time in seconds as a long since January 1, 1970" }]}}
+        { "type": "enum", "name": "MessageType",
+          "doc": "An enumeration of all possible Java/C# bridge protocol messages.",
+          "symbols":
+          [
+            "SetupBridge",
+            "SystemOnStart",
+            "Acknowledgement"
+          ]
+        },
+         "doc": "The type of the bridge Java/CLR interop message." },
+      { "name": "message",
+        "doc": "A union which contains the actual message.",
+        "type":
+        [
+          "SetupBridge",
+          "SystemOnStart",
+          "Acknowledgement",
+          { "type": "array", "items": "bytes"}
+        ]
+      }
     ]
   }
 ]

@@ -75,6 +75,7 @@ under the License.
             RedirectStandardOutput = true,
             RedirectStandardError = true,
             UseShellExecute = false,
+            CreateNoWindow = true,
             FileName = "Microsoft.Avro.Tools.exe"
         };
 
@@ -82,7 +83,6 @@ under the License.
         bool conversionError = false;
         using (StreamWriter logWriter = new StreamWriter(Path.Combine(tempDir, "avroout.log")))
         {
-          //logWriter.WriteLine(Environment.GetEnvironmentVariable("path"));
           foreach (string file in sourceFiles)
           {
             if (file.Contains(@"Message\"))
