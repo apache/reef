@@ -16,7 +16,7 @@ specific language governing permissions and limitations
 under the License.
 -->
   <PropertyGroup>
-    <Version>0.16.0</Version>
+    <Version>0.17.0</Version>
     <Authors>Apache Software Foundation</Authors>
     <Owners>The Apache REEF project</Owners>
     <Product>Apache REEF</Product>

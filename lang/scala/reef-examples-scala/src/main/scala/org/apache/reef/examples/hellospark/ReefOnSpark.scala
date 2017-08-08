@@ -32,7 +32,7 @@ import resource._
 // ..\spark\bin\spark-submit.cmd
 //     --master yarn --deploy-mode cluster
 //     --class org.apache.reef.examples.hellospark.ReefOnSpark
-//     .\target\reef-examples-spark-0.16.0-SNAPSHOT-shaded.jar
+//     .\target\reef-examples-spark-0.17.0-SNAPSHOT-shaded.jar
 
 object ReefOnSpark {
 
