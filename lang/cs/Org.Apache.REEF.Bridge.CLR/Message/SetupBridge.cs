@@ -23,12 +23,12 @@ namespace org.apache.reef.bridge.message
     using Microsoft.Hadoop.Avro;
 
     /// <summary>
-    /// Used to serialize and deserialize Avro record org.apache.reef.bridge.message.SystemOnStart.
+    /// Used to serialize and deserialize Avro record org.apache.reef.bridge.message.SetupBridge.
     /// </summary>
     [DataContract(Namespace = "org.apache.reef.bridge.message")]
-    public partial class SystemOnStart
+    public partial class SetupBridge
     {
-        private const string JsonSchema = @"{""type"":""record"",""name"":""org.apache.reef.bridge.message.SystemOnStart"",""doc"":""Notify the C# bridge the system is now running."",""fields"":[{""name"":""dateTime"",""doc"":""Date time in seconds as a long since January 1, 1970"",""type"":""long""}]}";
+        private const string JsonSchema = @"{""type"":""record"",""name"":""org.apache.reef.bridge.message.SetupBridge"",""doc"":""Notify the C# bridge of the http port of the Java bridge webserver."",""fields"":[{""name"":""httpServerPortNumber"",""doc"":""The Java bridge http server port number."",""type"":""int""}]}";
 
         /// <summary>
         /// Gets the schema.
@@ -42,25 +42,25 @@ namespace org.apache.reef.bridge.message
         }
       
         /// <summary>
-        /// Gets or sets the dateTime field.
+        /// Gets or sets the httpServerPortNumber field.
         /// </summary>
         [DataMember]
-        public long dateTime { get; set; }
+        public int httpServerPortNumber { get; set; }
                 
         /// <summary>
-        /// Initializes a new instance of the <see cref="SystemOnStart"/> class.
+        /// Initializes a new instance of the <see cref="SetupBridge"/> class.
         /// </summary>
-        public SystemOnStart()
+        public SetupBridge()
         {
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="SystemOnStart"/> class.
+        /// Initializes a new instance of the <see cref="SetupBridge"/> class.
         /// </summary>
-        /// <param name="dateTime">The dateTime.</param>
-        public SystemOnStart(long dateTime)
+        /// <param name="httpServerPortNumber">The httpServerPortNumber.</param>
+        public SetupBridge(int httpServerPortNumber)
         {
-            this.dateTime = dateTime;
+            this.httpServerPortNumber = httpServerPortNumber;
         }
     }
 }
