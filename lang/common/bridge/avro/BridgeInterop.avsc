@@ -1,0 +1,37 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+[
+  /*
+   * Identify the next message in the Java/C# bridge protocol.
+   */
+  { "type": "record", "name":"BridgeInterop", "namespace": "org.apache.reef.bridge.message",
+    "doc": "The BridgeInterop message is the container for all Java/CLR interop messages.",
+    "fields": [
+      { "name": "messageType", "type":
+        { "type": "enum", "name": "MessageType", "symbols": ["SetupBridge","SystemOnStart"]},
+        "doc": "The type of the bridge Java/CLR interop message contained in the wrapper message." },
+      { "name": "setupBridge", "type": { "type": "record", "name": "SetupBridge",
+        "namespace": "org.apache.reef.bridge.message",
+        "fields": [ { "name": "label", "type": "string" }]}},
+      { "name": "systemOnStart", "type": { "type": "record", "name": "SystemOnStart",
+        "namespace": "org.apache.reef.bridge.message",
+        "fields": [ { "name": "dateTime", "type": "long", "doc": "Date time in seconds as a long since January 1, 1970" }]}}
+    ]
+  }
+]

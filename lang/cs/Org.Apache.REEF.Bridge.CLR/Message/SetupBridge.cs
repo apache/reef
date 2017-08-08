@@ -23,12 +23,12 @@ namespace org.apache.reef.bridge.message
     using Microsoft.Hadoop.Avro;
 
     /// <summary>
-    /// Used to serialize and deserialize Avro record org.apache.reef.bridge.message.SystemOnStart.
+    /// Used to serialize and deserialize Avro record org.apache.reef.bridge.message.SetupBridge.
     /// </summary>
     [DataContract(Namespace = "org.apache.reef.bridge.message")]
-    public partial class SystemOnStart
+    public partial class SetupBridge
     {
-        private const string JsonSchema = @"{""type"":""record"",""name"":""org.apache.reef.bridge.message.SystemOnStart"",""fields"":[{""name"":""dateTime"",""doc"":""Date time in seconds as a long since January 1, 1970"",""type"":""long""}]}";
+        private const string JsonSchema = @"{""type"":""record"",""name"":""org.apache.reef.bridge.message.SetupBridge"",""fields"":[{""name"":""label"",""type"":""string""}]}";
 
         /// <summary>
         /// Gets the schema.
@@ -42,25 +42,25 @@ namespace org.apache.reef.bridge.message
         }
       
         /// <summary>
-        /// Gets or sets the dateTime field.
+        /// Gets or sets the label field.
         /// </summary>
         [DataMember]
-        public long dateTime { get; set; }
+        public string label { get; set; }
                 
         /// <summary>
-        /// Initializes a new instance of the <see cref="SystemOnStart"/> class.
+        /// Initializes a new instance of the <see cref="SetupBridge"/> class.
         /// </summary>
-        public SystemOnStart()
+        public SetupBridge()
         {
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="SystemOnStart"/> class.
+        /// Initializes a new instance of the <see cref="SetupBridge"/> class.
         /// </summary>
-        /// <param name="dateTime">The dateTime.</param>
-        public SystemOnStart(long dateTime)
+        /// <param name="label">The label.</param>
+        public SetupBridge(string label)
         {
-            this.dateTime = dateTime;
+            this.label = label;
         }
     }
 }
