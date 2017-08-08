@@ -48,6 +48,10 @@ jstring JavaStringFromManagedString(
   JNIEnv *env,
   String^ managedString);
 
+jobject JavaArrayListFromManagedList(
+    JNIEnv *env,
+    System::Collections::Generic::List<String^>^ managedNodeNames);
+
 array<byte>^ ManagedByteArrayFromJavaByteArray(
   JNIEnv *env,
   jbyteArray javaByteArray);

@@ -16,6 +16,8 @@
 // under the License.
 
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.Serialization;
 
 namespace Org.Apache.REEF.Driver.Evaluator
@@ -27,37 +29,43 @@ namespace Org.Apache.REEF.Driver.Evaluator
     internal class EvaluatorRequest : IEvaluatorRequest
     {
         internal EvaluatorRequest()
-            : this(0, 0, 1, string.Empty, Guid.NewGuid().ToString("N"), string.Empty)
+            : this(0, 0, 1, string.Empty, Guid.NewGuid().ToString("N"), string.Empty, Enumerable.Empty<string>().ToList(), true)
         {
         }
 
         internal EvaluatorRequest(int number, int megaBytes)
-            : this(number, megaBytes, 1, string.Empty, Guid.NewGuid().ToString("N"), string.Empty)
+            : this(number, megaBytes, 1, string.Empty, Guid.NewGuid().ToString("N"), string.Empty, Enumerable.Empty<string>().ToList(), true)
         {
         }
 
         internal EvaluatorRequest(int number, int megaBytes, int core)
-            : this(number, megaBytes, core, string.Empty, Guid.NewGuid().ToString("N"), string.Empty)
+            : this(number, megaBytes, core, string.Empty, Guid.NewGuid().ToString("N"), string.Empty, Enumerable.Empty<string>().ToList(), true)
         {
         }
 
         internal EvaluatorRequest(int number, int megaBytes, string rack)
-            : this(number, megaBytes, 1, rack, Guid.NewGuid().ToString("N"), string.Empty)
+            : this(number, megaBytes, 1, rack, Guid.NewGuid().ToString("N"), string.Empty, Enumerable.Empty<string>().ToList(), true)
         {
         }
 
         internal EvaluatorRequest(int number, int megaBytes, int core, string rack)
-            : this(number, megaBytes, core, rack, Guid.NewGuid().ToString("N"), string.Empty)
+            : this(number, megaBytes, core, rack, Guid.NewGuid().ToString("N"), string.Empty, Enumerable.Empty<string>().ToList(), true)
         {
         }
 
-        internal EvaluatorRequest(int number, int megaBytes, int core, string rack, string evaluatorBatchId)
-            : this(number, megaBytes, core, rack, evaluatorBatchId, string.Empty)
+        internal EvaluatorRequest(int number, int megaBytes, int core, string rack, string evaluatorBatchId, List<string> nodeNames)
+            : this(number, megaBytes, core, rack, evaluatorBatchId, string.Empty, nodeNames, true)
 
         {
         }
 
-        internal EvaluatorRequest(int number, int megaBytes, int core, string rack, string evaluatorBatchId, string runtimeName)
+        internal EvaluatorRequest(int number, int megaBytes, int core, string rack, string evaluatorBatchId, List<string> nodeNames, bool relaxLocality)
+           : this(number, megaBytes, core, rack, evaluatorBatchId, string.Empty, nodeNames, relaxLocality)
+
+        {
+        }
+
+        internal EvaluatorRequest(int number, int megaBytes, int core, string rack, string evaluatorBatchId, string runtimeName, List<string> nodeNames, bool relaxLocality)
         {
             Number = number;
             MemoryMegaBytes = megaBytes;
@@ -65,6 +73,8 @@ namespace Org.Apache.REEF.Driver.Evaluator
             Rack = rack;
             EvaluatorBatchId = evaluatorBatchId;
             RuntimeName = runtimeName;
+            NodeNames = nodeNames;
+            RelaxLocality = relaxLocality;
         }
 
         [DataMember]
@@ -84,6 +94,12 @@ namespace Org.Apache.REEF.Driver.Evaluator
 
         [DataMember]
         public string RuntimeName { get; private set; }
+
+        [DataMember]
+        public List<string> NodeNames { get; private set; }
+
+        [DataMember]
+        public bool RelaxLocality { get; private set; }
 
         internal static EvaluatorRequestBuilder NewBuilder()
         {

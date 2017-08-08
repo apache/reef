@@ -70,6 +70,21 @@ jstring JavaStringFromManagedString(
   return env->NewString((const jchar*)wch, managedString->Length);
 }
 
+jobject JavaArrayListFromManagedList(
+    JNIEnv *env,
+    System::Collections::Generic::List<String^>^ managedNodeNames) {
+
+    jclass arrayListClazz = (*env).FindClass("java/util/ArrayList");
+    jobject arrayListObj = (*env).NewObject(arrayListClazz, (*env).GetMethodID(arrayListClazz, "<init>", "()V"));
+
+    for each (String^ nodeName in managedNodeNames)
+    {
+        jstring nodeNamestr = JavaStringFromManagedString(env, nodeName);
+        (*env).CallBooleanMethod(arrayListObj, (*env).GetMethodID(arrayListClazz, "add", "(Ljava/lang/Object;)Z"), nodeNamestr);
+    }
+    return arrayListObj;
+}
+
 void HandleClr2JavaError(
   JNIEnv *env,
   String^ errorMessage,

@@ -16,6 +16,8 @@
 // under the License.
 
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using Org.Apache.REEF.Common.Runtime;
 
 namespace Org.Apache.REEF.Driver.Evaluator
@@ -25,6 +27,8 @@ namespace Org.Apache.REEF.Driver.Evaluator
         private string _evaluatorBatchId;
         private string _rackName;
         private string _runtimeName;
+        private List<string> _nodeNames;
+        private bool _relaxLocality;
 
         internal EvaluatorRequestBuilder(IEvaluatorRequest request)
         {
@@ -34,6 +38,8 @@ namespace Org.Apache.REEF.Driver.Evaluator
             _evaluatorBatchId = request.EvaluatorBatchId;
             _rackName = request.Rack;
             _runtimeName = request.RuntimeName;
+            _nodeNames = request.NodeNames;
+            _relaxLocality = request.RelaxLocality;
         }
 
         internal EvaluatorRequestBuilder()
@@ -44,6 +50,8 @@ namespace Org.Apache.REEF.Driver.Evaluator
             _rackName = string.Empty;
             _evaluatorBatchId = Guid.NewGuid().ToString("N");
             _runtimeName = string.Empty;
+            _nodeNames = Enumerable.Empty<string>().ToList();
+            _relaxLocality = true;
         }
 
         public int Number { get; private set; }
@@ -95,6 +103,17 @@ namespace Org.Apache.REEF.Driver.Evaluator
         }
 
         /// <summary>
+        /// Set the node names to do the request for.
+        /// </summary>
+        /// <param name="nodeNames"></param>
+        /// <returns>this</returns>
+        public EvaluatorRequestBuilder SetNodeNames(List<string> nodeNames)
+        {
+            _nodeNames = nodeNames;
+            return this;
+        }
+
+        /// <summary>
         /// Sets the batch ID for requested evaluators in the same request. The batch of Evaluators requested in the 
         /// same request will have the same Evaluator Batch ID.
         /// </summary>
@@ -117,12 +136,23 @@ namespace Org.Apache.REEF.Driver.Evaluator
         }
 
         /// <summary>
+        /// Set the relax locality to do the request for.
+        /// </summary>
+        /// <param name="relaxLocality"></param>
+        /// <returns>this</returns>
+        public EvaluatorRequestBuilder SetRelaxLocality(bool relaxLocality)
+        {
+            _relaxLocality = relaxLocality;
+            return this;
+        }
+
+        /// <summary>
         /// Build the EvaluatorRequest.
         /// </summary>
         /// <returns></returns>
         public IEvaluatorRequest Build()
         {
-            return new EvaluatorRequest(Number, MegaBytes, VirtualCore, rack: _rackName, evaluatorBatchId: _evaluatorBatchId, runtimeName: _runtimeName);
+            return new EvaluatorRequest(Number, MegaBytes, VirtualCore, rack: _rackName, evaluatorBatchId: _evaluatorBatchId, runtimeName: _runtimeName, nodeNames: _nodeNames, relaxLocality: _relaxLocality);
         }
     }
 }
