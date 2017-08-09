@@ -16,6 +16,7 @@
 // under the License.
 
 using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -193,12 +194,24 @@ namespace Org.Apache.REEF.Client.Local
         /// Return current Job status
         /// </summary>
         /// <returns></returns>
-        /// TODO: REEF-889
+        /// TODO: [REEF-889]
         [Unstable("0.14", "Working in progress for rest API status returned")]
         public async Task<FinalState> GetJobFinalStatus(string appId)
         {
             await Task.Delay(0);
             return FinalState.SUCCEEDED;
+        }
+
+        /// <summary>
+        /// Returns all the application reports running in the cluster
+        /// </summary>
+        /// <returns></returns>
+        /// TODO: [REEF-1824]: Implement GetApplicationReports to return the status of the applications.
+        [Unstable("0.16", "Working in progress for rest API id returned")]
+        public async Task<List<IApplicationReport>> GetApplicationReports()
+        {
+            await Task.Delay(0);
+            throw new NotImplementedException();
         }
 
         /// <summary>

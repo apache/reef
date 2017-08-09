@@ -80,10 +80,12 @@ under the License.
     <Compile Include="Avro\YARN\AvroYarnAppSubmissionParameters.cs" />
     <Compile Include="Avro\YARN\AvroYarnJobSubmissionParameters.cs" />
     <Compile Include="Avro\YARN\AvroYarnClusterJobSubmissionParameters.cs" />
+    <Compile Include="Common\ApplicationReport.cs" />
     <Compile Include="Common\DotNetFile.cs" />
     <Compile Include="Common\ClientConstants.cs" />
     <Compile Include="Common\DriverFolderPreparationHelper.cs" />
     <Compile Include="Common\EnvironmentDriverConfigurationProviders.cs" />
+    <Compile Include="Common\IApplicationReport.cs" />
     <Compile Include="Common\IFile.cs" />
     <Compile Include="Common\IResourceArchiveFileGenerator.cs" />
     <Compile Include="Common\FileSets.cs" />

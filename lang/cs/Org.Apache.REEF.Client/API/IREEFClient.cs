@@ -15,6 +15,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Org.Apache.REEF.Client.Common;
 using Org.Apache.REEF.Client.YARN.RestClient.DataModel;
@@ -50,5 +51,12 @@ namespace Org.Apache.REEF.Client.API
         /// <returns></returns>
         [Unstable("0.14", "Working in progress for rest API status returned")]
         Task<FinalState> GetJobFinalStatus(string appId);
+
+        /// <summary>
+        /// Returns all the application reports running in the cluster
+        /// </summary>
+        /// <returns></returns>
+        [Unstable("0.16", "Working in progress for rest API id returned")]
+        Task<List<IApplicationReport>> GetApplicationReports();
     }
 }
