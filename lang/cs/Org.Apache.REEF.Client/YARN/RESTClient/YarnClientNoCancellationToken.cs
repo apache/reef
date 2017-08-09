@@ -24,30 +24,55 @@ namespace Org.Apache.REEF.Client.Yarn.RestClient
 {
     internal sealed partial class YarnClient
     {
+        /// <summary>
+        /// Get Cluster Info without cancellation token.
+        /// </summary>
         public async Task<ClusterInfo> GetClusterInfoAsync()
         {
             await new RemoveSynchronizationContextAwaiter();
             return await GetClusterInfoAsync(CancellationToken.None);
         }
 
+        /// <summary>
+        /// Get Cluster Metrics without cancellation token.
+        /// </summary>
         public async Task<ClusterMetrics> GetClusterMetricsAsync()
         {
             await new RemoveSynchronizationContextAwaiter();
             return await GetClusterMetricsAsync(CancellationToken.None);
         }
 
+        /// <summary>
+        /// Get Application without cancellation token.
+        /// </summary>
         public async Task<Application> GetApplicationAsync(string appId)
         {
             await new RemoveSynchronizationContextAwaiter();
             return await GetApplicationAsync(appId, CancellationToken.None);
         }
 
+        /// <summary>
+        /// Get Applications without cancellation token.
+        /// </summary>
+        public async Task<Applications> GetApplicationsAsync()
+        {
+            await new RemoveSynchronizationContextAwaiter();
+            return await GetApplicationsAsync(CancellationToken.None);
+        }
+
+        /// <summary>
+        /// Create a new Application without cancellation token.
+        /// </summary>
         public async Task<NewApplication> CreateNewApplicationAsync()
         {
             await new RemoveSynchronizationContextAwaiter();
             return await CreateNewApplicationAsync(CancellationToken.None);
         }
 
+        /// <summary>
+        /// Submit Application without cancellation token.
+        /// </summary>
+        /// <param name="submitApplicationRequest"></param>
         public async Task<Application> SubmitApplicationAsync(SubmitApplication submitApplicationRequest)
         {
             await new RemoveSynchronizationContextAwaiter();

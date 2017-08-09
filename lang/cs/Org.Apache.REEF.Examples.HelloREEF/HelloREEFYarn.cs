@@ -22,6 +22,7 @@ using System.Threading;
 using Org.Apache.REEF.Client.API;
 using Org.Apache.REEF.Client.Common;
 using Org.Apache.REEF.Client.Yarn;
+using Org.Apache.REEF.Client.YARN;
 using Org.Apache.REEF.Client.YARN.RestClient.DataModel;
 using Org.Apache.REEF.Driver;
 using Org.Apache.REEF.Tang.Annotations;
@@ -46,7 +47,7 @@ namespace Org.Apache.REEF.Examples.HelloREEF
         private const string SecurityTokenId = "SecurityTokenId";
         private const string SecurityTokenPwd = "SecurityTokenPwd";
 
-        private readonly IREEFClient _reefClient;
+        private readonly IYarnREEFClient _reefClient;
         private readonly JobRequestBuilder _jobRequestBuilder;
 
         private static readonly Logger Logger = Logger.GetLogger(typeof(HelloREEFYarn));
@@ -57,7 +58,7 @@ namespace Org.Apache.REEF.Examples.HelloREEF
         private readonly IList<string> _nodeNames;
 
         [Inject]
-        private HelloREEFYarn(IREEFClient reefClient, 
+        private HelloREEFYarn(IYarnREEFClient reefClient, 
             JobRequestBuilder jobRequestBuilder,
             [Parameter(typeof(NodeNames))] ISet<string> nodeNames)
         {
@@ -94,8 +95,23 @@ namespace Org.Apache.REEF.Examples.HelloREEF
                 .Build();
 
             var result = _reefClient.SubmitAndGetJobStatus(helloJobRequest);
+
+            LogApplicationReport();
             var state = PullFinalJobStatus(result);
             Logger.Log(Level.Info, "Application state : {0}.", state);
+        }
+
+        /// <summary>
+        /// Get application report and log.
+        /// </summary>
+        private void LogApplicationReport()
+        {
+            Logger.Log(Level.Info, "Getting Application report...");
+            var apps = _reefClient.GetApplicationReports().Result;
+            foreach (var r in apps)
+            {
+                Logger.Log(Level.Info, "Application report -- AppId {0}: {1}.", r.Key, r.Value.ToString());
+            }
         }
 
         /// <summary>
