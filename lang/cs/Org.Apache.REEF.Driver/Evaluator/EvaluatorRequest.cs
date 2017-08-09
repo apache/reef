@@ -53,13 +53,13 @@ namespace Org.Apache.REEF.Driver.Evaluator
         {
         }
 
-        internal EvaluatorRequest(int number, int megaBytes, int core, string rack, string evaluatorBatchId, List<string> nodeNames)
+        internal EvaluatorRequest(int number, int megaBytes, int core, string rack, string evaluatorBatchId, ICollection<string> nodeNames)
             : this(number, megaBytes, core, rack, evaluatorBatchId, string.Empty, nodeNames, true)
 
         {
         }
 
-        internal EvaluatorRequest(int number, int megaBytes, int core, string rack, string evaluatorBatchId, List<string> nodeNames, bool relaxLocality)
+        internal EvaluatorRequest(int number, int megaBytes, int core, string rack, string evaluatorBatchId, ICollection<string> nodeNames, bool relaxLocality)
            : this(number, megaBytes, core, rack, evaluatorBatchId, string.Empty, nodeNames, relaxLocality)
 
         {
