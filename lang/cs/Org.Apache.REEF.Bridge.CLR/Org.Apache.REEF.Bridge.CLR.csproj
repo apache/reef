@@ -54,7 +54,10 @@ under the License.
       <Link>Properties\SharedAssemblyInfo.cs</Link>
     </Compile>
     <Compile Include="Message\Acknowledgement.cs" />
+    <Compile Include="Message\BridgeInterop.cs" />
+    <Compile Include="Message\MessageType.cs" />
     <Compile Include="Message\Protocol.cs" />
+    <Compile Include="Message\SetupBridge.cs" />
     <Compile Include="Message\SystemOnStart.cs" />
   </ItemGroup>
   <ItemGroup>
