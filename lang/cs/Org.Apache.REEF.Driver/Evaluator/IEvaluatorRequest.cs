@@ -15,6 +15,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
+using System.Collections.Generic;
+
 namespace Org.Apache.REEF.Driver.Evaluator
 {
     /// <summary>
@@ -43,14 +45,33 @@ namespace Org.Apache.REEF.Driver.Evaluator
         string Rack { get; }
 
         /// <summary>
+        /// The desired node names for the Evaluator to be allocated on.
+        /// </summary>
+        ICollection<string> NodeNames { get; }
+
+        /// <summary>
         /// The batch ID for requested evaluators. Evaluators requested in the same batch
         /// will have the same Batch ID.
         /// </summary>
         string EvaluatorBatchId { get; }
 
         /// <summary>
-        /// The name of the runtime to allocate teh evaluator on
+        /// The name of the runtime to allocate the evaluator on
         /// </summary>
         string RuntimeName { get; }
+
+        /// <summary>
+        /// For a request at a network hierarchy level, set whether locality can be relaxed to that level and beyond.
+        /// If the flag is off on a rack-level ResourceRequest, containers at that request's priority
+        /// will not be assigned to nodes on that request's rack unless requests specifically for
+        /// those nodes have also been submitted.
+        /// If the flag is off on an ANY-level ResourceRequest, containers at that request's priority
+        /// will only be assigned on racks for which specific requests have also been submitted.
+        /// For example, to request a container strictly on a specific node, the corresponding rack-level
+        /// and any-level requests should have locality relaxation set to false. Similarly,
+        /// to request a container strictly on a specific rack,
+        /// the corresponding any-level request should have locality relaxation set to false.
+        /// </summary>
+        bool RelaxLocality { get; }
     }
 }

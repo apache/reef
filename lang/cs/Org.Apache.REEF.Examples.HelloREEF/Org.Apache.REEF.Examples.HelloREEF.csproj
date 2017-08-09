@@ -31,9 +31,12 @@
       <Link>Properties\SharedAssemblyInfo.cs</Link>
     </Compile>
     <Compile Include="HelloDriver.cs" />
+    <Compile Include="HelloDriverYarn.cs" />
     <Compile Include="HelloREEF.cs" />
+    <Compile Include="HelloREEFYarn.cs" />
     <Compile Include="HelloTask.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Run.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="$(SolutionDir)\App.config">
