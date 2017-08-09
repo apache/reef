@@ -27,7 +27,7 @@ namespace Org.Apache.REEF.Driver.Evaluator
         private string _evaluatorBatchId;
         private string _rackName;
         private string _runtimeName;
-        private IList<string> _nodeNames;
+        private ICollection<string> _nodeNames;
         private bool _relaxLocality;
 
         internal EvaluatorRequestBuilder(IEvaluatorRequest request)
@@ -107,9 +107,20 @@ namespace Org.Apache.REEF.Driver.Evaluator
         /// </summary>
         /// <param name="nodeNames"></param>
         /// <returns>this</returns>
-        public EvaluatorRequestBuilder SetNodeNames(IList<string> nodeNames)
+        public EvaluatorRequestBuilder AddNodeNames(ICollection<string> nodeNames)
         {
             _nodeNames = nodeNames;
+            return this;
+        }
+
+        /// <summary>
+        /// Set a desired node name for evaluator to be allocated
+        /// </summary>
+        /// <param name="nodeName"></param>
+        /// <returns></returns>
+        public EvaluatorRequestBuilder AddNodeName(string nodeName)
+        {
+            _nodeNames.Add(nodeName);
             return this;
         }
 

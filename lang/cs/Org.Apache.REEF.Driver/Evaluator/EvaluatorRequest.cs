@@ -65,7 +65,7 @@ namespace Org.Apache.REEF.Driver.Evaluator
         {
         }
 
-        internal EvaluatorRequest(int number, int megaBytes, int core, string rack, string evaluatorBatchId, string runtimeName, IList<string> nodeNames, bool relaxLocality)
+        internal EvaluatorRequest(int number, int megaBytes, int core, string rack, string evaluatorBatchId, string runtimeName, ICollection<string> nodeNames, bool relaxLocality)
         {
             Number = number;
             MemoryMegaBytes = megaBytes;
@@ -96,7 +96,7 @@ namespace Org.Apache.REEF.Driver.Evaluator
         public string RuntimeName { get; private set; }
 
         [DataMember]
-        public IList<string> NodeNames { get; private set; }
+        public ICollection<string> NodeNames { get; private set; }
 
         [DataMember]
         public bool RelaxLocality { get; private set; }

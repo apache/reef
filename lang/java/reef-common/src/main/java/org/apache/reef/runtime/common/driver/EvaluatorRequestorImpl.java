@@ -29,6 +29,7 @@ import org.apache.reef.util.logging.LoggingScope;
 import org.apache.reef.util.logging.LoggingScopeFactory;
 
 import javax.inject.Inject;
+import java.util.Arrays;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -60,11 +61,10 @@ public final class EvaluatorRequestorImpl implements EvaluatorRequestor {
 
   @Override
   public synchronized void submit(final EvaluatorRequest req) {
-    LOG.log(Level.FINEST, "Got an EvaluatorRequest: number: {0}, memory = {1}, cores = {2}.",
-        new Object[] {req.getNumber(), req.getMegaBytes(), req.getNumberOfCores()});
-
-    for (String nodeName : req.getNodeNames()) {
-      LOG.log(Level.FINEST, "Node name: " + nodeName);
+    if (LOG.isLoggable(Level.FINEST)) {
+      LOG.log(Level.FINEST, "Got an EvaluatorRequest: number: {0}, memory = {1}, cores = {2}.",
+          new Object[] {req.getNumber(), req.getMegaBytes(), req.getNumberOfCores()});
+      LOG.log(Level.FINEST, "Node names: " + Arrays.toString(req.getNodeNames().toArray()));
     }
 
     if (req.getMegaBytes() <= 0) {

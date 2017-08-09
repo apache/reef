@@ -72,7 +72,7 @@ jstring JavaStringFromManagedString(
 
 jobject JavaArrayListFromManagedList(
     JNIEnv *env,
-    System::Collections::Generic::IList<String^>^ managedNodeNames) {
+    System::Collections::Generic::ICollection<String^>^ managedNodeNames) {
 
     jclass arrayListClazz = (*env).FindClass("java/util/ArrayList");
     jobject arrayListObj = (*env).NewObject(arrayListClazz, (*env).GetMethodID(arrayListClazz, "<init>", "()V"));

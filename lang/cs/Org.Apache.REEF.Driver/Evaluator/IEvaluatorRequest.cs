@@ -47,7 +47,7 @@ namespace Org.Apache.REEF.Driver.Evaluator
         /// <summary>
         /// The desired node names for the Evaluator to be allocated on.
         /// </summary>
-        IList<string> NodeNames { get; }
+        ICollection<string> NodeNames { get; }
 
         /// <summary>
         /// The batch ID for requested evaluators. Evaluators requested in the same batch

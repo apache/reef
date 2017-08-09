@@ -95,7 +95,7 @@ namespace Org.Apache.REEF.Examples.HelloREEF
             if (_nodeNames != null && _nodeNames.Count > 0)
             {
                 _evaluatorRequestor.Submit(_evaluatorRequestor.NewBuilder()
-                    .SetNodeNames(_nodeNames)
+                    .AddNodeNames(_nodeNames)
                     .SetMegabytes(64)
                     .SetNumber(_nodeNames.Count)
                     .SetRelaxLocality(_relaxLocality)

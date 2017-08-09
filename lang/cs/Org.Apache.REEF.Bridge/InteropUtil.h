@@ -50,7 +50,7 @@ jstring JavaStringFromManagedString(
 
 jobject JavaArrayListFromManagedList(
     JNIEnv *env,
-    System::Collections::Generic::IList<String^>^ managedNodeNames);
+    System::Collections::Generic::ICollection<String^>^ managedNodeNames);
 
 array<byte>^ ManagedByteArrayFromJavaByteArray(
   JNIEnv *env,
