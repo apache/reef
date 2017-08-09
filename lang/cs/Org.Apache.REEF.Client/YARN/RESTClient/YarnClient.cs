@@ -91,6 +91,25 @@ namespace Org.Apache.REEF.Client.Yarn.RestClient
                 await GenerateUrlAndExecuteRequestAsync<Application>(request, cancellationToken);
         }
 
+        /// <summary>
+        /// This API returns information about all the applications maintained
+        /// by YARN RM in the cluster by invoking REST API. This API also allow cooperative
+        /// cancellation in multi-threading scenarios.
+        /// </summary>
+        /// <param name="cancellationToken">cancellation token</param>
+        /// <returns>list of applications</returns>
+        public async Task<Applications> GetApplicationsAsync(CancellationToken cancellationToken)
+        {
+            await new RemoveSynchronizationContextAwaiter();
+
+            var request = _requestFactory.CreateRestRequest(Applications.Resource,
+                Method.GET,
+                Applications.RootElement);
+
+            return
+                await GenerateUrlAndExecuteRequestAsync<Applications>(request, cancellationToken);
+        }
+
         public async Task<NewApplication> CreateNewApplicationAsync(CancellationToken cancellationToken)
         {
             await new RemoveSynchronizationContextAwaiter();

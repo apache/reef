@@ -40,7 +40,7 @@ namespace Org.Apache.REEF.Client.YARN
     /// deprecated by final client.
     /// </summary>
     [Unstable("For security token support we still need to use YARNREEFClient until (REEF-875)")]
-    public sealed class YarnREEFDotNetClient : IREEFClient
+    public sealed class YarnREEFDotNetClient : IYarnREEFClient
     {
         private const string REEFApplicationType = @"REEF";
         private static readonly Logger Log = Logger.GetLogger(typeof(YarnREEFDotNetClient));
@@ -144,6 +144,17 @@ namespace Org.Apache.REEF.Client.YARN
         {
             var application = await _yarnRMClient.GetApplicationAsync(appId).ConfigureAwait(false);
             return application.FinalStatus;
+        }
+
+        /// <summary>
+        /// Returns all the application reports running in the cluster
+        /// </summary>
+        /// <returns></returns>
+        /// TODO: [REEF-1825]: Implement GetApplicationReports to return the status of the applications.
+        public async Task<IList<IApplicationReport>> GetApplicationReports()
+        {
+            await Task.Delay(0);
+            throw new NotImplementedException();
         }
 
         private SubmitApplication CreateApplicationSubmissionRequest(
