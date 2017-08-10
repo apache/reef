@@ -16,21 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-[
-  /*
-   * First message from the Java bridge to the CLR bridge.
-   */
-  {
-    "namespace":"org.apache.reef.bridge.message",
-    "type":"record",
-    "name":"SystemOnStart",
-    "doc":"The SystemOnStart message is sent to the CLR bridge from the Java bridge when the round trip communication path has been established.",
-    "fields":[
-      {
-        "name":"dateTime",
-        "type":"long",
-        "doc":"Date time in seconds as a long since January 1, 1970"
-      }
-    ]
-  }
-]
+/**
+ * Tests for org.apache.reef.wake.avro package.
+ */
+package org.apache.reef.wake.test.avro;

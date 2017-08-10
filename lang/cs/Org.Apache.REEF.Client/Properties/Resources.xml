@@ -80,20 +80,20 @@ This file is used to embed JAR files to client dll
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="ClientJarFullName" xml:space="preserve">
-    <value>reef-bridge-client-0.16.0-SNAPSHOT-shaded.jar</value>
+    <value>reef-bridge-client-0.17.0-SNAPSHOT-shaded.jar</value>
   </data>
   <data name="DriverJarFullName" xml:space="preserve">
-    <value>reef-bridge-java-0.16.0-SNAPSHOT-shaded.jar</value>
+    <value>reef-bridge-java-0.17.0-SNAPSHOT-shaded.jar</value>
   </data>
   <data name="ClrDriverFullName" xml:space="preserve">
     <value>Org.Apache.REEF.ClrDriver.exe</value>
   </data>
   <assembly alias="System.Windows.Forms" name="System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
   <data name="reef_bridge_client" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>E:\src\reef\lang\cs\bin\x64\Debug\Org.Apache.REEF.Bridge.JAR\reef-bridge-client-0.16.0-SNAPSHOT-shaded.jar;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    <value>E:\src\reef\lang\cs\bin\x64\Debug\Org.Apache.REEF.Bridge.JAR\reef-bridge-client-0.17.0-SNAPSHOT-shaded.jar;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
   <data name="reef_bridge_driver" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>E:\src\reef\lang\cs\bin\x64\Debug\Org.Apache.REEF.Bridge.JAR\reef-bridge-java-0.16.0-SNAPSHOT-shaded.jar;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    <value>E:\src\reef\lang\cs\bin\x64\Debug\Org.Apache.REEF.Bridge.JAR\reef-bridge-java-0.17.0-SNAPSHOT-shaded.jar;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
   <data name="reef_clrdriver" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>E:\src\reef\lang\cs\bin\x64\Debug\Org.Apache.REEF.ClrDriver\Org.Apache.REEF.ClrDriver.exe;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>

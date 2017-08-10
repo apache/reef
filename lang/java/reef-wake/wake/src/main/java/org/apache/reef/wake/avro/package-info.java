@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -16,26 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-[
-  /*
-   * Identify the next message in the Java/C# bridge protocol.
-   */
-  {
-    "namespace":"org.apache.reef.bridge.message",
-    "type":"record",
-    "name":"Header",
-    "doc":"Identifies the following message in the Java/C# bridge protocol.",
-    "fields":[
-      {
-        "name":"identifier",
-        "doc":"Identifier of the next message to be read.",
-        "type":"long"
-      },
-      {
-        "name":"className",
-        "doc":"The fully qualified name of the message class.",
-        "type":"string"
-      }
-    ]
-  }
-]
+/**
+ * Wake avro serialization classes.
+ */
+package org.apache.reef.wake.avro;

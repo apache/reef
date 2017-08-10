@@ -16,6 +16,8 @@
 // under the License.
 
 using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -32,7 +34,7 @@ using Org.Apache.REEF.Utilities.Logging;
 
 namespace Org.Apache.REEF.Client.Yarn
 {
-    internal sealed class YarnREEFClient : IREEFClient
+    internal sealed class YarnREEFClient : IYarnREEFClient
     {
         /// <summary>
         /// The class name that contains the Java counterpart for this client.
@@ -98,11 +100,48 @@ namespace Org.Apache.REEF.Client.Yarn
         {
             var application = await _yarnClient.GetApplicationAsync(appId);
 
-            var msg = string.Format("application status {0}, Progress: {1}, trackingUri: {2}, Name: {3}, ApplicationId: {4}, State {5}.",
-                application.FinalStatus, application.Progress, application.TrackingUI, application.Name, application.Id, application.State);
-            Logger.Log(Level.Verbose, msg);
+            Logger.Log(Level.Verbose,
+               "application status {0}, Progress: {1}, uri: {2}, Name: {3}, ApplicationId: {4}, State {5}.",
+               application.FinalStatus,
+               application.Progress,
+               application.TrackingUI,
+               application.Name,
+               application.Id,
+               application.State);
 
             return application.FinalStatus;
+        }
+
+        /// <summary>
+        /// Returns all the application reports running in the cluster.
+        /// GetApplicationReports call is very expensive as it is trying 
+        /// fetch information about all the applications in the cluster.
+        /// 
+        /// If this method is called right after submitting a new app then
+        /// that new app might not immediately result in this list until 
+        /// some number of retries. 
+        /// </summary>
+        /// <returns></returns>
+        public async Task<IReadOnlyDictionary<string, IApplicationReport>> GetApplicationReports()
+        {
+            var appReports = new Dictionary<string, IApplicationReport>();
+            var applications = await _yarnClient.GetApplicationsAsync();
+
+            foreach (var application in applications.App)
+            {
+                appReports.Add(application.Id, new ApplicationReport(application.Id,
+                    application.Name,
+                    application.TrackingUrl,
+                    application.StartedTime,
+                    application.FinishedTime,
+                    application.RunningContainers,
+                    application.FinalStatus));
+
+                Logger.Log(Level.Verbose,
+                    "Application report {0}: {1}",
+                    application.Id, application);
+            }
+            return new ReadOnlyDictionary<string, IApplicationReport>(appReports);
         }
 
         private void Launch(JobRequest jobRequest, string driverFolderPath)

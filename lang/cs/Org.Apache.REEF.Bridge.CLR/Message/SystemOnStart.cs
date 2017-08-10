@@ -28,7 +28,7 @@ namespace org.apache.reef.bridge.message
     [DataContract(Namespace = "org.apache.reef.bridge.message")]
     public partial class SystemOnStart
     {
-        private const string JsonSchema = @"{""type"":""record"",""name"":""org.apache.reef.bridge.message.SystemOnStart"",""doc"":""The SystemOnStart message is sent to the CLR bridge from the Java bridge when the round trip communication path has been established."",""fields"":[{""name"":""dateTime"",""doc"":""Date time in seconds as a long since January 1, 1970"",""type"":""long""}]}";
+        private const string JsonSchema = @"{""type"":""record"",""name"":""org.apache.reef.bridge.message.SystemOnStart"",""doc"":""Notify the C# bridge the system is now running."",""fields"":[{""name"":""dateTime"",""doc"":""Date time in seconds as a long since January 1, 1970"",""type"":""long""}]}";
 
         /// <summary>
         /// Gets the schema.

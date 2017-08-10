@@ -18,6 +18,7 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
 using System.Runtime.Serialization;
 using Org.Apache.REEF.Common.Catalog;
 using Org.Apache.REEF.Common.Evaluator;
@@ -64,7 +65,8 @@ namespace Org.Apache.REEF.Driver.Bridge.Events
 
         public void Submit(IEvaluatorRequest request)
         {
-            LOGGER.Log(Level.Info, "Submitting request for {0} evaluators and {1} MB memory and  {2} core to rack {3} and runtime {4}.", request.Number, request.MemoryMegaBytes, request.VirtualCore, request.Rack, request.RuntimeName);
+            LOGGER.Log(Level.Info, "Submitting request for {0} evaluators and {1} MB memory and  {2} core to rack {3} runtime {4}, nodeNames to schedule {5} and RelaxLocality is {6}.",
+                request.Number, request.MemoryMegaBytes, request.VirtualCore, request.Rack, request.RuntimeName, string.Join(",", request.NodeNames.ToArray()), request.RelaxLocality);
             lock (Evaluators)
             {
                 for (var i = 0; i < request.Number; i++)

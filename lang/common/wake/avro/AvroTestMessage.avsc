@@ -1,4 +1,4 @@
-/*
+﻿/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -18,18 +18,23 @@
  */
 [
   /*
-   * Acknowledgement that a specific message was received and processed.
+   * Identify the next message in the Java/C# bridge protocol.
    */
   {
-    "namespace":"org.apache.reef.bridge.message",
+    "namespace":"org.apache.reef.wake.test.avro.message",
     "type":"record",
-    "name":"Acknowledgement",
-    "doc":"The Acknowledgement message is sent to the Java bridge to acknowledge receipt and processing of a specific message.",
+    "name":"AvroTestMessage",
+    "doc":"Identifies the following message in a given protocol.",
     "fields":[
       {
-        "name":"messageIdentifier",
-        "type":"long",
-        "doc":"The message identifier of the message that was successfully processed."
+        "name":"number",
+        "doc":"Integer test field.",
+        "type":"int"
+      },
+      {
+        "name":"data",
+        "doc":"String test field.",
+        "type":"string"
       }
     ]
   }

@@ -43,6 +43,7 @@ namespace Org.Apache.REEF.Client.Yarn
         public static readonly OptionalParameter<string> FileSystemUrl = new OptionalParameter<string>();
 
         public static ConfigurationModule ConfigurationModule = new YARNClientConfiguration()
+            .BindImplementation(GenericType<IYarnREEFClient>.Class, GenericType<YarnREEFClient>.Class)
             .BindImplementation(GenericType<IREEFClient>.Class, GenericType<YarnREEFClient>.Class)
             .BindImplementation(GenericType<IYarnRestClientCredential>.Class, YarnRestClientCredential)
             .BindNamedParameter(GenericType<JobSubmissionDirectoryPrefixParameter>.Class, JobSubmissionFolderPrefix)

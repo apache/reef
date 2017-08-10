@@ -15,6 +15,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
+using System;
 using Org.Apache.REEF.Tang.Annotations;
 
 namespace Org.Apache.REEF.Network.Naming.Parameters
@@ -26,12 +27,19 @@ namespace Org.Apache.REEF.Network.Naming.Parameters
         {
         }
 
-        [NamedParameter("Maximum cache memory in MB", "cachememorylimit", "20")]
+        [NamedParameter("Frequency to check for cache expirations", "expirationscanfrequency", "00:20:00")]
+        public class ExpirationScanFrequency : Name<string>
+        {
+        }
+
+        [Obsolete("TODO[JIRA REEF-1856] This parameter will be removed.")]
+        [NamedParameter("Maximum cache memory in MB", "cachememorylimit")]
         public class CacheMemoryLimit : Name<string>
         {
         }
 
-        [NamedParameter("Polling interval for checking cache memory", "cachepollinginterval", "00:20:00")]
+        [Obsolete("TODO[JIRA REEF-1856] This parameter will be removed.")]
+        [NamedParameter("Polling interval for checking cache memory", "cachepollinginterval")]
         public class PollingInterval : Name<string>
         {
         }
