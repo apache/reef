@@ -137,7 +137,7 @@ namespace Org.Apache.REEF.Client.Yarn
                     application.RunningContainers,
                     application.FinalStatus));
 
-                Logger.Log(Level.Info,
+                Logger.Log(Level.Verbose,
                     "Application report {0}: {1}",
                     application.Id, application);
             }
@@ -158,7 +158,7 @@ namespace Org.Apache.REEF.Client.Yarn
                 jobRequest.JavaLogLevel, JavaClassName, submissionJobArgsFilePath, submissionAppArgsFilePath)
                 .GetAwaiter()
                 .GetResult();
-            Logger.Log(Level.Verbose, "Submitted the Driver for execution." + jobRequest.JobIdentifier);
+            Logger.Log(Level.Info, "Submitted the Driver for execution." + jobRequest.JobIdentifier);
         }
 
         /// <summary>

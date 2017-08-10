@@ -52,7 +52,7 @@ namespace Org.Apache.REEF.Client.YARN
         public int NumberOfRunningEvaluators { get; private set; }
 
         /// <summary>
-        /// Driver uri
+        /// Driver url
         /// </summary>
         public Uri TrackingUrl { get; private set; }
 
