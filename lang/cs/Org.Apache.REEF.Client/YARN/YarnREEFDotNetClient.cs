@@ -157,6 +157,16 @@ namespace Org.Apache.REEF.Client.YARN
             throw new NotImplementedException();
         }
 
+        /// <summary>
+        /// Kills the application with specified application id.
+        /// </summary>
+        /// <param name="appId"></param>
+        /// <returns>Returns true if the application is killed otherwise returns false.</returns>
+        public async Task<bool> KillApplication(string appId)
+        {
+            return await _yarnRMClient.KillApplicationAsync(appId);
+        }
+
         private SubmitApplication CreateApplicationSubmissionRequest(
            JobParameters jobParameters,
            string appId,

@@ -18,6 +18,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Org.Apache.REEF.Client.API;
+using Org.Apache.REEF.Client.YARN.RestClient.DataModel;
 using Org.Apache.REEF.Utilities.Attributes;
 
 namespace Org.Apache.REEF.Client.YARN
@@ -33,5 +34,13 @@ namespace Org.Apache.REEF.Client.YARN
         /// <returns></returns>
         [Unstable("0.17", "Working in progress for rest API id returned")]
         Task<IReadOnlyDictionary<string, IApplicationReport>> GetApplicationReports();
+
+        /// <summary>
+        /// Kills the application with specified application id.
+        /// </summary>
+        /// <param name="appId">Application id to kill.</param>
+        /// <returns>Returns true if the application is killed otherwise return false.</returns>
+        [Unstable("0.17", "Working in progress for rest API status returned")]
+        Task<bool> KillApplication(string appId);
     }
 }

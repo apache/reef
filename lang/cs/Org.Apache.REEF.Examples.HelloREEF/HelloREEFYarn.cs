@@ -95,14 +95,17 @@ namespace Org.Apache.REEF.Examples.HelloREEF
                 .Build();
 
             var result = _reefClient.SubmitAndGetJobStatus(helloJobRequest);
-
             LogApplicationReport();
+
+            //// This is an example to Kill Job Application
+            //// KillApplication(result.AppId);
+
             var state = PullFinalJobStatus(result);
-            Logger.Log(Level.Info, "Application state : {0}.", state);
+            Logger.Log(Level.Info, "Application final state : {0}.", state);
         }
 
         /// <summary>
-        /// Get application report and log.
+        /// Sample code to get application report and log.
         /// </summary>
         private void LogApplicationReport()
         {
@@ -115,7 +118,25 @@ namespace Org.Apache.REEF.Examples.HelloREEF
         }
 
         /// <summary>
-        /// This is to pull job final status until the Job is done
+        /// Sample code to kill Job Application.
+        /// </summary>
+        /// <param name="appId">Application id to kill</param>
+        private void KillApplication(string appId)
+        {
+            if (_reefClient.KillApplication(appId).Result)
+            {
+                Logger.Log(Level.Info, "Application {0} is killed successfully.", appId);
+            }
+            else
+            {
+                Logger.Log(Level.Info, 
+                    "Failed to kill application {0}, possible reasons are application id is invalid or application has completed.", 
+                    appId);
+            }
+        }
+
+        /// <summary>
+        /// Sample code to pull job final status until the Job is done
         /// </summary>
         /// <param name="jobSubmitionResult"></param>
         /// <returns></returns>

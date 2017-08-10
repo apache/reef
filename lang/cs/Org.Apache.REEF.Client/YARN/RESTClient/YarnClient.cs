@@ -17,6 +17,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Globalization;
 using System.Net;
 using System.Threading;
@@ -143,6 +144,48 @@ namespace Org.Apache.REEF.Client.Yarn.RestClient
             }
 
             return await GetApplicationAsync(submitApplication.ApplicationId, cancellationToken);
+        }
+
+        /// <summary>
+        /// Kills the application asynchronous.
+        /// </summary>
+        /// <param name="appId">The application identifier.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>Returns true if the application is killed otherwise returns false.</returns>
+        /// <exception cref="YarnRestAPIException"></exception>
+        public async Task<bool> KillApplicationAsync(string appId, CancellationToken cancellationToken)
+        {
+            try
+            {
+                var killApplication = new KillApplication()
+                {
+                    State = State.KILLED
+                };
+
+                var restParm = KillApplication.Resource + appId + KillApplication.StateTag;
+                await new RemoveSynchronizationContextAwaiter();
+                var request = _requestFactory.CreateRestRequest(
+                    restParm,
+                    Method.PUT,
+                    rootElement: null,
+                    body: killApplication);
+
+                var response = await GenerateUrlAndExecuteRequestAsync(request, cancellationToken);
+                Logger.Log(Level.Info, "StatusCode from response {0}", response.StatusCode);
+
+                if (response.StatusCode != HttpStatusCode.Accepted)
+                {
+                    throw new YarnRestAPIException(
+                        string.Format("Kill Application failed with HTTP STATUS {0}",
+                            response.StatusCode));
+                }
+                return true;
+            }
+            catch (AggregateException e)
+            {
+                Logger.Log(Level.Error, "YarnClient:KillApplicationAsync got exception for application id {0}, {1}", appId, e);
+                return false;
+            }
         }
 
         private async Task<T> GenerateUrlAndExecuteRequestAsync<T>(RestRequest request,

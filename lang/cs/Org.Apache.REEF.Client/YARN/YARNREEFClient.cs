@@ -144,6 +144,16 @@ namespace Org.Apache.REEF.Client.Yarn
             return new ReadOnlyDictionary<string, IApplicationReport>(appReports);
         }
 
+        /// <summary>
+        /// Kills the application with specified application id.
+        /// </summary>
+        /// <param name="appId">Application id to kill.</param>
+        /// <returns>Returns true if the application is killed otherwise returns false.</returns>
+        public async Task<bool> KillApplication(string appId)
+        {
+            return await _yarnClient.KillApplicationAsync(appId);
+        }
+
         private void Launch(JobRequest jobRequest, string driverFolderPath)
         {
             _driverFolderPreparationHelper.PrepareDriverFolder(jobRequest.AppParameters, driverFolderPath);
