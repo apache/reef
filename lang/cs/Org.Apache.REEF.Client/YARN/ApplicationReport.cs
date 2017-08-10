@@ -15,7 +15,9 @@
 // specific language governing permissions and limitations
 // under the License.
 
+using System;
 using Org.Apache.REEF.Client.YARN.RestClient.DataModel;
+using Org.Apache.REEF.Utilities.Logging;
 
 namespace Org.Apache.REEF.Client.YARN
 {
@@ -50,9 +52,9 @@ namespace Org.Apache.REEF.Client.YARN
         public int NumberOfRunningEvaluators { get; private set; }
 
         /// <summary>
-        /// Driver url
+        /// Driver uri
         /// </summary>
-        public string Url { get; private set; }
+        public Uri TrackingUrl { get; private set; }
 
         /// <summary>
         /// Application id
@@ -67,12 +69,12 @@ namespace Org.Apache.REEF.Client.YARN
         /// <summary>
         /// Application report constructor
         /// </summary>
-        internal ApplicationReport(string appId, string appName, string url, 
+        internal ApplicationReport(string appId, string appName, string trackingUrl, 
             long startedTime, long finishedTime, int numberOfRunningEvaluators, FinalState finalState)
         {
             AppId = appId;
             AppName = appName;
-            Url = url;
+            TrackingUrl = trackingUrl == null ? null : new Uri(trackingUrl);
             FinalState = finalState;
             StartedTime = startedTime;
             FinishedTime = finishedTime;
@@ -86,12 +88,12 @@ namespace Org.Apache.REEF.Client.YARN
         public override string ToString()
         {
             return string.Format("AppName: {0} StartedTime: {1}, FinishedTime: {2}," +
-                                 "NumberOfRunningEvaluators: {3}, Url: {4}, AppId: {5}, FinalState: {6}",
+                                    "NumberOfRunningEvaluators: {3}, TrackingUrl: {4}, AppId: {5}, FinalState: {6}",
                 AppName,
                 StartedTime,
                 FinishedTime,
                 NumberOfRunningEvaluators,
-                Url,
+                TrackingUrl,
                 AppId,
                 FinalState);
         }

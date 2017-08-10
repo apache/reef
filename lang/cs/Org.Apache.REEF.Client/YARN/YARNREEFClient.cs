@@ -17,6 +17,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -121,14 +122,14 @@ namespace Org.Apache.REEF.Client.Yarn
         /// some number of retries. 
         /// </summary>
         /// <returns></returns>
-        public async Task<IList<IApplicationReport>> GetApplicationReports()
+        public async Task<IReadOnlyDictionary<string, IApplicationReport>> GetApplicationReports()
         {
-            var appReports = new List<IApplicationReport>();
+            var appReports = new Dictionary<string, IApplicationReport>();
             var applications = await _yarnClient.GetApplicationsAsync();
 
             foreach (var application in applications.App)
             {
-                appReports.Add(new ApplicationReport(application.Id,
+                appReports.Add(application.Id, new ApplicationReport(application.Id,
                     application.Name,
                     application.TrackingUrl,
                     application.StartedTime,
@@ -136,11 +137,11 @@ namespace Org.Apache.REEF.Client.Yarn
                     application.RunningContainers,
                     application.FinalStatus));
 
-                Logger.Log(Level.Verbose,
-                    "Application report {0}",
-                    application);
+                Logger.Log(Level.Info,
+                    "Application report {0}: {1}",
+                    application.Id, application);
             }
-            return appReports;
+            return new ReadOnlyDictionary<string, IApplicationReport>(appReports);
         }
 
         private void Launch(JobRequest jobRequest, string driverFolderPath)
@@ -157,7 +158,7 @@ namespace Org.Apache.REEF.Client.Yarn
                 jobRequest.JavaLogLevel, JavaClassName, submissionJobArgsFilePath, submissionAppArgsFilePath)
                 .GetAwaiter()
                 .GetResult();
-            Logger.Log(Level.Info, "Submitted the Driver for execution." + jobRequest.JobIdentifier);
+            Logger.Log(Level.Verbose, "Submitted the Driver for execution." + jobRequest.JobIdentifier);
         }
 
         /// <summary>

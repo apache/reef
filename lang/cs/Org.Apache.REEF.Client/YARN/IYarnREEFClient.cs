@@ -32,6 +32,6 @@ namespace Org.Apache.REEF.Client.YARN
         /// </summary>
         /// <returns></returns>
         [Unstable("0.17", "Working in progress for rest API id returned")]
-        Task<IList<IApplicationReport>> GetApplicationReports();
+        Task<IReadOnlyDictionary<string, IApplicationReport>> GetApplicationReports();
     }
 }

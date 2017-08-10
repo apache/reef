@@ -15,6 +15,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
+using System;
 using Org.Apache.REEF.Client.YARN.RestClient.DataModel;
 using Org.Apache.REEF.Utilities.Attributes;
 
@@ -55,7 +56,7 @@ namespace Org.Apache.REEF.Client.YARN
         /// This method returns the url of http server running inside the driver.
         /// e.g. http://hostname:port/
         /// </summary>
-        string Url { get; }
+        Uri TrackingUrl { get; }
 
         /// <summary>
         /// Get YARN application id.

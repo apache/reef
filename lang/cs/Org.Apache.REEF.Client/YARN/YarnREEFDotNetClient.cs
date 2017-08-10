@@ -151,7 +151,7 @@ namespace Org.Apache.REEF.Client.YARN
         /// </summary>
         /// <returns></returns>
         /// TODO: [REEF-1825]: Implement GetApplicationReports to return the status of the applications.
-        public async Task<IList<IApplicationReport>> GetApplicationReports()
+        public async Task<IReadOnlyDictionary<string, IApplicationReport>> GetApplicationReports()
         {
             await Task.Delay(0);
             throw new NotImplementedException();

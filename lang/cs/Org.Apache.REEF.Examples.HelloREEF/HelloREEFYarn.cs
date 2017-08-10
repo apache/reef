@@ -96,7 +96,7 @@ namespace Org.Apache.REEF.Examples.HelloREEF
 
             var result = _reefClient.SubmitAndGetJobStatus(helloJobRequest);
 
-            CheckApplicationReport();
+            LogApplicationReport();
             var state = PullFinalJobStatus(result);
             Logger.Log(Level.Info, "Application state : {0}.", state);
         }
@@ -104,13 +104,13 @@ namespace Org.Apache.REEF.Examples.HelloREEF
         /// <summary>
         /// Get application report and log.
         /// </summary>
-        private void CheckApplicationReport()
+        private void LogApplicationReport()
         {
             Logger.Log(Level.Info, "Getting Application report...");
             var apps = _reefClient.GetApplicationReports().Result;
             foreach (var r in apps)
             {
-                Logger.Log(Level.Info, "Application report : {0}.", r.ToString());
+                Logger.Log(Level.Info, "Application report -- AppId {0}: {1}.", r.Key, r.Value.ToString());
             }
         }
 
