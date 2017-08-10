@@ -62,5 +62,18 @@ namespace Org.Apache.REEF.Client.Yarn.RestClient
         Task<Application> SubmitApplicationAsync(
             SubmitApplication submitApplicationRequest,
             CancellationToken cancellationToken);
+
+        /// <summary>
+        /// Kills the application asynchronous.
+        /// </summary>
+        /// <param name="appId">The application identifier.</param>
+        void KillApplicationAsync(string appId);
+
+        /// <summary>
+        /// Kills the application asynchronous.
+        /// </summary>
+        /// <param name="appId">The application identifier.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        void KillApplicationAsync(string appId, CancellationToken cancellationToken);
     }
 }

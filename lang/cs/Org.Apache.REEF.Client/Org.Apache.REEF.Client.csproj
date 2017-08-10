@@ -119,6 +119,7 @@ under the License.
     <Compile Include="YARN\Parameters\DriverStderrFilePath.cs" />
     <Compile Include="YARN\Parameters\DriverStdoutFilePath.cs" />
     <Compile Include="YARN\Parameters\FileSystemUrl.cs" />
+    <Compile Include="YARN\RestClient\DataModel\KillApplication.cs" />
     <Compile Include="YARN\RestClient\HttpClient.cs" />
     <Compile Include="YARN\RestClient\IDeserializer.cs" />
     <Compile Include="YARN\RestClient\IHttpClient.cs" />

@@ -95,7 +95,6 @@ namespace Org.Apache.REEF.Examples.HelloREEF
                 .Build();
 
             var result = _reefClient.SubmitAndGetJobStatus(helloJobRequest);
-
             LogApplicationReport();
             var state = PullFinalJobStatus(result);
             Logger.Log(Level.Info, "Application state : {0}.", state);
@@ -112,6 +111,17 @@ namespace Org.Apache.REEF.Examples.HelloREEF
             {
                 Logger.Log(Level.Info, "Application report -- AppId {0}: {1}.", r.Key, r.Value.ToString());
             }
+        }
+
+        /// <summary>
+        /// Kill Job Application.
+        /// </summary>
+        /// <param name="appId"></param>
+        private void KillJobApplication(string appId)
+        {
+            Logger.Log(Level.Info, "killing Application {0} ...", appId);
+            var state = _reefClient.KillJobApplication(appId);
+            Logger.Log(Level.Info, "Application killed with state: ", state);
         }
 
         /// <summary>

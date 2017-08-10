@@ -144,6 +144,17 @@ namespace Org.Apache.REEF.Client.Yarn
             return new ReadOnlyDictionary<string, IApplicationReport>(appReports);
         }
 
+        /// <summary>
+        /// Kills the job application and returns Job status
+        /// </summary>
+        /// <param name="appId"></param>
+        /// <returns>FinalState of the application</returns>
+        public async Task<FinalState> KillJobApplication(string appId)
+        {
+            _yarnClient.KillApplicationAsync(appId);
+            return await GetJobFinalStatus(appId);
+        }
+
         private void Launch(JobRequest jobRequest, string driverFolderPath)
         {
             _driverFolderPreparationHelper.PrepareDriverFolder(jobRequest.AppParameters, driverFolderPath);

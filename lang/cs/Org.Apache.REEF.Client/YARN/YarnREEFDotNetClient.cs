@@ -157,6 +157,17 @@ namespace Org.Apache.REEF.Client.YARN
             throw new NotImplementedException();
         }
 
+        /// <summary>
+        /// Kills the job application and return Job status
+        /// </summary>
+        /// <param name="appId"></param>
+        /// <returns>FinalState of the application</returns>
+        public async Task<FinalState> KillJobApplication(string appId)
+        {
+            _yarnRMClient.KillApplicationAsync(appId);
+            return await GetJobFinalStatus(appId);
+        }
+
         private SubmitApplication CreateApplicationSubmissionRequest(
            JobParameters jobParameters,
            string appId,
