@@ -24,29 +24,68 @@ import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
 import io.netty.handler.codec.LengthFieldPrepender;
 import io.netty.handler.codec.bytes.ByteArrayDecoder;
 import io.netty.handler.codec.bytes.ByteArrayEncoder;
+import io.netty.handler.codec.http.*;
+import io.netty.handler.ssl.SslContext;
 
 /**
  * Netty channel initializer for Transport.
  */
 class NettyChannelInitializer extends ChannelInitializer<SocketChannel> {
+
+  private static final int HANDLER_NETTY = 100;
+  private static final int HANDLER_HTTP_SERVER = 101;
+  private static final int HANDLER_HTTP_CLIENT = 102;
+
   /**
    * the buffer size of the frame decoder.
    */
   public static final int MAXFRAMELENGTH = 10 * 1024 * 1024;
   private final NettyChannelHandlerFactory handlerFactory;
+  private final SslContext sslContext;
+  private final int type;
 
-  NettyChannelInitializer(final NettyChannelHandlerFactory handlerFactory) {
+  NettyChannelInitializer(
+      final NettyChannelHandlerFactory handlerFactory,
+      final SslContext sslContext,
+      final int type) {
     this.handlerFactory = handlerFactory;
+    this.sslContext = sslContext;
+    this.type = type;
   }
 
   @Override
   protected void initChannel(final SocketChannel ch) throws Exception {
-    ch.pipeline()
-        .addLast("frameDecoder", new LengthFieldBasedFrameDecoder(MAXFRAMELENGTH, 0, 4, 0, 4))
-        .addLast("bytesDecoder", new ByteArrayDecoder())
-        .addLast("frameEncoder", new LengthFieldPrepender(4))
-        .addLast("bytesEncoder", new ByteArrayEncoder())
-        .addLast("chunker", new ChunkedReadWriteHandler())
-        .addLast("handler", handlerFactory.createChannelInboundHandler());
+    switch (this.type) {
+    case HANDLER_NETTY:
+      ch.pipeline()
+          .addLast("frameDecoder", new LengthFieldBasedFrameDecoder(MAXFRAMELENGTH, 0, 4, 0, 4))
+          .addLast("bytesDecoder", new ByteArrayDecoder())
+          .addLast("frameEncoder", new LengthFieldPrepender(4))
+          .addLast("bytesEncoder", new ByteArrayEncoder())
+          .addLast("chunker", new ChunkedReadWriteHandler())
+          .addLast("handler", handlerFactory.createChannelInboundHandler());
+      break;
+    case HANDLER_HTTP_SERVER:
+      if (sslContext != null) {
+        ch.pipeline().addLast(sslContext.newHandler(ch.alloc()));
+      }
+      ch.pipeline()
+          .addLast("codec", new HttpServerCodec())
+          .addLast("requestDecoder", new HttpRequestDecoder())
+          .addLast("responseEncoder", new HttpResponseEncoder())
+          .addLast("handler", handlerFactory.createChannelInboundHandler());
+      break;
+    case HANDLER_HTTP_CLIENT:
+      if (sslContext != null) {
+        ch.pipeline().addLast(sslContext.newHandler(ch.alloc()));
+      }
+      ch.pipeline()
+          .addLast("codec", new HttpClientCodec())
+          .addLast("decompressor", new HttpContentDecompressor())
+          .addLast("handler", handlerFactory.createChannelInboundHandler());
+      break;
+    default:
+      throw new IllegalArgumentException("Invalid type of channel");
+    }
   }
 }

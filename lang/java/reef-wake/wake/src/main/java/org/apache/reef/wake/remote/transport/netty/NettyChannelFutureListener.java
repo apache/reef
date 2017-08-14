@@ -24,20 +24,20 @@ import org.apache.reef.wake.remote.transport.LinkListener;
 
 class NettyChannelFutureListener<T> implements ChannelFutureListener {
 
-    private final T message;
-    private LinkListener<T> listener;
+  private final T message;
+  private LinkListener<T> listener;
 
-    NettyChannelFutureListener(final T message, final LinkListener<T> listener) {
-        this.message = message;
-        this.listener = listener;
-    }
+  NettyChannelFutureListener(final T message, final LinkListener<T> listener) {
+    this.message = message;
+    this.listener = listener;
+  }
 
-    @Override
-    public void operationComplete(final ChannelFuture channelFuture) throws Exception {
-        if (channelFuture.isSuccess()) {
-            listener.onSuccess(message);
-        } else {
-            listener.onException(channelFuture.cause(), channelFuture.channel().remoteAddress(), message);
-        }
+  @Override
+  public void operationComplete(final ChannelFuture channelFuture) throws Exception {
+    if (channelFuture.isSuccess()) {
+      listener.onSuccess(message);
+    } else {
+      listener.onException(channelFuture.cause(), channelFuture.channel().remoteAddress(), message);
     }
+  }
 }
