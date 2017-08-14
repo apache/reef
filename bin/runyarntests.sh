@@ -22,6 +22,6 @@ export REEF_TEST_YARN=true
 DEPENDENCY_JAR=`echo $REEF_HOME/lang/java/reef-tests/target/reef-tests-*-test-jar-with-dependencies.jar`
 CLASSPATH=`yarn classpath`
 
-CMD="java -cp $YARN_CONF_DIR:$DEPENDENCY_JAR:$CLASSPATH org.junit.runner.JUnitCore org.apache.reef.tests.AllTestsSuite $*" 
+CMD="java -cp $YARN_CONF_DIR:$DEPENDENCY_JAR:$CLASSPATH org.junit.runner.JUnitCore ${*:-org.apache.reef.tests.AllTestsSuite}"
 echo $CMD
 $CMD
