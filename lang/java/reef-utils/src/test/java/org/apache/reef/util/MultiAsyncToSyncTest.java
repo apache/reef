@@ -46,7 +46,7 @@ final class AsynchronousIncrementer implements Callable<Integer> {
    * @param sleepTimeMillis How long to work.
    * @param blocker The MultiAsyncToSync object which is holding the blocked client.
    */
-  AsynchronousIncrementer(final Integer input, final long identifier,
+  AsynchronousIncrementer(final int input, final long identifier,
                                  final int sleepTimeMillis, final MultiAsyncToSync blocker) {
     this.sleepTimeMillis = sleepTimeMillis;
     this.input = input;
@@ -97,7 +97,7 @@ final class SynchronousApi {
    * @param input An integer object whose value is to be incremented by one.
    * @return The input parameter incremented by one or zero for a timeout.
    */
-  public Integer apiCall(final Integer input) throws InterruptedException {
+  public int apiCall(final int input) throws InterruptedException {
     // Create a future to run the asynchronous processing.
     final long identifier = idCounter.getAndIncrement();
     final FutureTask<Integer> task =
@@ -112,7 +112,7 @@ final class SynchronousApi {
       // Timeout occurred before the asynchronous processing completed.
       return 0;
     }
-    Integer result = 0;
+    int result = 0;
     try {
       LOG.log(Level.INFO, "Call getting task result...");
       result = task.get();
@@ -158,9 +158,9 @@ public final class MultiAsyncToSyncTest {
     // Parameters that do not force a timeout.
     final int incrementerSleepTimeSeconds = 2;
     final long timeoutPeriodSeconds = 4;
-    final Integer input = 1;
+    final int input = 1;
 
-    Integer result = 0;
+    int result = 0;
     try {
       SynchronousApi apiObject = new SynchronousApi(incrementerSleepTimeSeconds, timeoutPeriodSeconds);
       result = apiObject.apiCall(input);
@@ -168,7 +168,7 @@ public final class MultiAsyncToSyncTest {
     } catch (Exception e) {
       LOG.log(Level.SEVERE, "Unexpected exception during test", e);
     }
-    Assert.assertTrue("Value incremented by one", result.equals(input + 1));
+    Assert.assertTrue("Value incremented by one", result == (input + 1));
   }
 
   /**
@@ -181,9 +181,9 @@ public final class MultiAsyncToSyncTest {
     // Parameters that do not force a timeout.
     final int incrementerSleepTimeSeconds = 4;
     final long timeoutPeriodSeconds = 2;
-    final Integer input = 1;
+    final int input = 1;
 
-    Integer result = 0;
+    int result = 0;
     try {
       SynchronousApi apiObject = new SynchronousApi(incrementerSleepTimeSeconds, timeoutPeriodSeconds);
       result = apiObject.apiCall(input);
@@ -197,7 +197,7 @@ public final class MultiAsyncToSyncTest {
     } catch (Exception e) {
       LOG.log(Level.SEVERE, "Unexpected exception during test", e);
     }
-    Assert.assertTrue("Timeout occurred", result.equals(0));
+    Assert.assertTrue("Timeout occurred", result == 0);
   }
 
   /**
@@ -210,18 +210,18 @@ public final class MultiAsyncToSyncTest {
     // Parameters that do not force a timeout.
     final int incrementerSleepTimeSeconds = 2;
     final long timeoutPeriodSeconds = 4;
-    final Integer input = 1;
+    final int input = 1;
     final ExecutorService executor = Executors.newFixedThreadPool(2);
 
-    Integer result1 = 0;
-    Integer result2 = 0;
+    int result1 = 0;
+    int result2 = 0;
     try {
       final String functionName = "apiCall";
       final SynchronousApi apiObject = new SynchronousApi(incrementerSleepTimeSeconds, timeoutPeriodSeconds);
       final FutureTask<Integer> task1 = new FutureTask<>(
-          new AsynchronousCaller<Integer, Integer, SynchronousApi>(apiObject, input, functionName));
+          new MethodCallable<Integer, Integer, SynchronousApi>(apiObject, input, functionName));
       final FutureTask<Integer> task2 = new FutureTask<>(
-          new AsynchronousCaller<Integer, Integer, SynchronousApi>(apiObject, input + 1, functionName));
+          new MethodCallable<Integer, Integer, SynchronousApi>(apiObject, input + 1, functionName));
 
       // Execute API calls concurrently.
       executor.execute(task1);
@@ -235,8 +235,8 @@ public final class MultiAsyncToSyncTest {
       LOG.log(Level.SEVERE, "Unexpected exception checking results...");
     }
 
-    Assert.assertTrue("Input incremented by one", result1.equals(input + 1));
-    Assert.assertTrue("Input incremented by one", result2.equals(input + 2));
+    Assert.assertTrue("Input incremented by one", result1 == (input + 1));
+    Assert.assertTrue("Input incremented by one", result2 == (input + 2));
   }
 }
 

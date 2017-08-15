@@ -29,18 +29,17 @@ import java.util.concurrent.Callable;
  * @param <TInput> The class type of the method input parameter.
  * @param <TClass> The class type of the class on which the method resides.
  */
-public final class AsynchronousCaller<
-      TReturn extends Object, TInput extends Object, TClass extends Object> implements Callable<TReturn> {
-  private TClass obj;
-  private TInput input;
-  private Method method;
+public final class MethodCallable<TReturn, TInput, TClass> implements Callable<TReturn> {
+  private final TClass obj;
+  private final TInput input;
+  private final Method method;
 
   /**
    * @param obj An instance of type TClass on which the method will be invoked..
-   * @param input Parameter input value for the method invokcation.
+   * @param input Parameter input value for the method invocation.
    * @param function A string which contains the name of the method to be invoked.
    */
-  public AsynchronousCaller(final TClass obj, final TInput input, final String function) throws NoSuchMethodException {
+  public MethodCallable(final TClass obj, final TInput input, final String function) throws NoSuchMethodException {
     this.obj = obj;
     this.input = input;
     Class[] args =  new Class[]{input.getClass()};
@@ -54,6 +53,4 @@ public final class AsynchronousCaller<
   public TReturn call() throws InvocationTargetException, IllegalAccessException {
     return (TReturn)method.invoke(obj, input);
   }
-
-  private AsynchronousCaller() {}
 }
