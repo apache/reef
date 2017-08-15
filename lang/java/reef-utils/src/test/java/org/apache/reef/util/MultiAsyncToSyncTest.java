@@ -99,7 +99,7 @@ final class SynchronousApi {
    * @throws InterruptedException Thread was interrupted by another thread.
    * @throws ExecutionException An exception was thrown an internal processing function.
    */
-  public int apiCall(final int input) throws InterruptedException, ExecutionException {
+  public int apiCall(final Integer input) throws InterruptedException, ExecutionException {
     // Create a future to run the asynchronous processing.
     final long identifier = idCounter.getAndIncrement();
     final FutureTask<Integer> task =
@@ -220,7 +220,7 @@ public final class MultiAsyncToSyncTest {
       final FutureTask<Integer> task1 =
           new FutureTask<>(new MethodCallable<Integer>(apiObject, function, input));
       final FutureTask<Integer> task2
-          = new FutureTask<>( new MethodCallable<Integer>(apiObject, function, input + 1));
+          = new FutureTask<>(new MethodCallable<Integer>(apiObject, function, input + 1));
 
       // Execute API calls concurrently.
       executor.execute(task1);
