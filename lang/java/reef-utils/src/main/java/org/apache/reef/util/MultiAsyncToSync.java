@@ -19,6 +19,7 @@ package org.apache.reef.util;
 
 import org.apache.reef.util.Exception.InvalidBlockedCallerIdentifierException;
 
+import java.text.MessageFormat;
 import java.util.ArrayDeque;
 import java.util.HashMap;
 import java.util.concurrent.TimeUnit;
@@ -95,7 +96,7 @@ public final class MultiAsyncToSync {
       final SimpleCondition call = sleeperMap.remove(identifier);
       if (call == null) {
         throw new InvalidBlockedCallerIdentifierException(
-            String.format("Unknown sleeper identifier [{0}]", identifier));
+            MessageFormat.format("Unknown sleeper identifier [{0}]", identifier));
       } else {
         // Signal the sleeper and recycle the call object.
         LOG.log(Level.FINER, "Waking caller sleeping on identifier [{0}]", identifier);
