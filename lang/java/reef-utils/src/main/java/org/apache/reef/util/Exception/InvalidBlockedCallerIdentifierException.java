@@ -16,8 +16,33 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-/**
- * Wake exceptions.
- */
-package org.apache.reef.wake.exception;
 
+package org.apache.reef.util.Exception;
+
+/**
+ * Generated when the identifier passed to MultiAsyncToSync.release is
+ * invalid.
+ */
+public class InvalidBlockedCallerIdentifierException extends Exception {
+
+  /**
+   * See java.lang.Exception.
+   */
+  public InvalidBlockedCallerIdentifierException() {
+    super();
+  }
+
+  /**
+   * See java.lang.Exception.
+   */
+  public InvalidBlockedCallerIdentifierException(final String message) {
+    super(message);
+  }
+
+  /**
+   * See java.lang.Exception.
+   */
+  public InvalidBlockedCallerIdentifierException(final String message, final Throwable cause) {
+    super(message, cause);
+  }
+}

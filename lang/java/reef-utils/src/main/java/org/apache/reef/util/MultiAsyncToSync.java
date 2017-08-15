@@ -17,6 +17,8 @@
  */
 package org.apache.reef.util;
 
+import org.apache.reef.util.Exception.InvalidBlockedCallerIdentifierException;
+
 import java.util.ArrayDeque;
 import java.util.HashMap;
 import java.util.concurrent.TimeUnit;
@@ -26,7 +28,7 @@ import java.util.logging.Logger;
 /**
  * Assists a class in presenting a synchronous interface that is implemented
  * via asynchronous interfaces and events. When a method call is received
- * by the interface, parameter values captured and asynchronous processing
+ * by the interface, parameter values are captured and asynchronous processing
  * started, the caller is put to sleep by calling block() with the internal
  * interface caller identifier. After all of the asynchronous processing
  * is complete the caller is released with a call to release().
@@ -34,14 +36,14 @@ import java.util.logging.Logger;
 public final class MultiAsyncToSync {
   private static final Logger LOG = Logger.getLogger(MultiAsyncToSync.class.getName());
 
-  private final ArrayDeque<ConditionVariable> freeQueue = new ArrayDeque<>();
-  private final HashMap<Long, ConditionVariable> sleeperMap = new HashMap<>();
+  private final ArrayDeque<SimpleCondition> freeQueue = new ArrayDeque<>();
+  private final HashMap<Long, SimpleCondition> sleeperMap = new HashMap<>();
   private final long timeoutPeriod;
   private final TimeUnit timeoutUnits;
 
   /**
    * Initialize a multiple asynchronous to synchronous object with a specified timeout value.
-   * @param timeoutPeriod The length of time in units geven by the the timeoutUnits
+   * @param timeoutPeriod The length of time in units given by the the timeoutUnits
    *                      parameter before the condition automatically times out.
    * @param timeoutUnits The unit of time for the timeoutPeriod parameter.
    */
@@ -53,21 +55,22 @@ public final class MultiAsyncToSync {
   /**
    * Put the caller to sleep on a specific release identifier.
    * @param identifier The identifier required to awake the caller via the release() method.
-   * @return
+   * @return A boolean value that indicates whether or not a timeout occurred.
+   * @throws InterruptedException The thread was interrupted while waiting on a condition.
    */
-  public boolean block(final long identifier) {
-    ConditionVariable call;
+  public boolean block(final long identifier) throws InterruptedException {
+    final SimpleCondition call;
     synchronized (this) {
       // Get an condition variable to block the calling thread.
       if (sleeperMap.containsKey(identifier)) {
         // This should never happen as message identifiers are unique.
-        LOG.log(Level.SEVERE, "Duplicate identifier in RPC map");
+        throw new RuntimeException("Duplicate identifier in RPC map");
       }
       if (freeQueue.isEmpty()) {
-        freeQueue.addLast(new ConditionVariable(timeoutPeriod, timeoutUnits));
+        freeQueue.addLast(new SimpleCondition(timeoutPeriod, timeoutUnits));
       }
       call = freeQueue.getFirst();
-      sleeperMap.put(identifier, call);
+      sleeperMap.put(identifier, freeQueue.getFirst());
     }
 
     LOG.log(Level.INFO, "Putting caller to sleep on identifier [{0}]", identifier);
@@ -75,10 +78,9 @@ public final class MultiAsyncToSync {
     boolean timeoutOccurred = call.waitForSignal();
     if (timeoutOccurred) {
       synchronized (this) {
-        call = sleeperMap.remove(identifier);
-        freeQueue.addLast(call);
+        freeQueue.addLast(sleeperMap.remove(identifier));
       }
-      LOG.log(Level.INFO, "Caller sleeping on identifier [{0}] timed out", identifier);
+      LOG.log(Level.FINER, "Caller sleeping on identifier [{0}] timed out", identifier);
     }
     return timeoutOccurred;
   }
@@ -87,16 +89,16 @@ public final class MultiAsyncToSync {
    * Wake the caller sleeping on the specific identifier.
    * @param identifier The message identifier of the caller who should be released.
    */
-  public void release(final long identifier) {
-    ConditionVariable call;
+  public void release(final long identifier) throws InterruptedException, InvalidBlockedCallerIdentifierException {
     synchronized (this) {
       // Get the associated call object.
-      call = sleeperMap.remove(identifier);
+      final SimpleCondition call = sleeperMap.remove(identifier);
       if (call == null) {
-        LOG.log(Level.SEVERE, "Unknown message identifier [{0}]", identifier);
+        throw new InvalidBlockedCallerIdentifierException(
+            String.format("Unknown sleeper identifier [{0}]", identifier));
       } else {
         // Signal the sleeper and recycle the call object.
-        LOG.log(Level.INFO, "Waking caller sleeping on identifier [{0}]", identifier);
+        LOG.log(Level.FINER, "Waking caller sleeping on identifier [{0}]", identifier);
         call.signalWaitComplete();
         freeQueue.addLast(call);
       }

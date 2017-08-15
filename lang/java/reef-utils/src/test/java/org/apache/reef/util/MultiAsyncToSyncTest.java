@@ -18,6 +18,7 @@
  */
 package org.apache.reef.util;
 
+import org.apache.reef.util.Exception.InvalidBlockedCallerIdentifierException;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -32,7 +33,7 @@ import static java.util.concurrent.TimeUnit.SECONDS;
  * Performs an asynchronous increment of an Integer.
  */
 final class AsynchronousIncrementer implements Callable<Integer> {
-  private static final Logger LOG = Logger.getLogger(MultiAsyncToSync.class.getName());
+  private static final Logger LOG = Logger.getLogger(AsynchronousIncrementer.class.getName());
   private final int sleepTimeMillis;
   private final int input;
   private final long identifier;
@@ -40,7 +41,7 @@ final class AsynchronousIncrementer implements Callable<Integer> {
 
   /**
    * Instantiate an incrementer with specific job parameters.
-   * @param input The input parmeter for the work.
+   * @param input The input parameter for the work.
    * @param identifier The identifier of the caller to wake on completion.
    * @param sleepTimeMillis How long to work.
    * @param blocker The MultiAsyncToSync object which is holding the blocked client.
@@ -54,7 +55,7 @@ final class AsynchronousIncrementer implements Callable<Integer> {
   }
 
   /**
-   * Sleep and then ncrement the input value by one.
+   * Sleep and then increment the input value by one.
    * @return The input value of the operation incremented by one.
    * @throws Exception
    */
@@ -68,7 +69,7 @@ final class AsynchronousIncrementer implements Callable<Integer> {
 }
 
 /**
- * Use the MultiAyncToSync class to implement a synchronous API
+ * Use the MultiAsyncToSync class to implement a synchronous API
  * that uses asynchronous processing internally.
  */
 final class SynchronousApi {
@@ -77,7 +78,7 @@ final class SynchronousApi {
   private final MultiAsyncToSync blocker;
   private final ExecutorService executor;
   private final ConcurrentLinkedQueue<FutureTask<Integer>> taskQueue = new ConcurrentLinkedQueue<>();
-  private AtomicLong idCounter = new AtomicLong(0);
+  private final AtomicLong idCounter = new AtomicLong(0);
 
   /**
    * Parameterize the object as to length of processing time and call timeout.
@@ -92,11 +93,11 @@ final class SynchronousApi {
   }
 
   /**
-   * The one API call in our interface.
-   * @param input
+   * Asynchronously increment the input parameter.
+   * @param input An integer object whose value is to be incremented by one.
    * @return The input parameter incremented by one or zero for a timeout.
    */
-  public Integer apiCall(final Integer input) {
+  public Integer apiCall(final Integer input) throws InterruptedException {
     // Create a future to run the asynchronous processing.
     final long identifier = idCounter.getAndIncrement();
     final FutureTask<Integer> task =
@@ -124,13 +125,19 @@ final class SynchronousApi {
   /**
    * Insure all test tasks have completed.
    */
-  public void complete() {
+  public void complete() throws ExecutionException {
     try {
-      for (FutureTask<Integer> task : taskQueue) {
+      for (final FutureTask<Integer> task : taskQueue) {
         task.get();
       }
+    } catch (ExecutionException ee) {
+      if (ee.getCause() instanceof InvalidBlockedCallerIdentifierException) {
+        throw ee;
+      } else {
+        LOG.log(Level.INFO, "Caught exception waiting for completion...", ee);
+      }
     } catch (Exception e) {
-      LOG.log(Level.INFO, "Caught exception waiting for completion...");
+      LOG.log(Level.INFO, "Caught exception waiting for completion...", e);
     }
   }
 }
@@ -153,11 +160,15 @@ public final class MultiAsyncToSyncTest {
     final long timeoutPeriodSeconds = 4;
     final Integer input = 1;
 
-    SynchronousApi apiObject = new SynchronousApi(incrementerSleepTimeSeconds, timeoutPeriodSeconds);
-    final Integer result = apiObject.apiCall(input);
-    apiObject.complete();
-
-    Assert.assertTrue(result.equals(input + 1));
+    Integer result = 0;
+    try {
+      SynchronousApi apiObject = new SynchronousApi(incrementerSleepTimeSeconds, timeoutPeriodSeconds);
+      result = apiObject.apiCall(input);
+      apiObject.complete();
+    } catch (Exception e) {
+      LOG.log(Level.SEVERE, "Unexpected exception during test", e);
+    }
+    Assert.assertTrue("Value incremented by one", result.equals(input + 1));
   }
 
   /**
@@ -172,38 +183,21 @@ public final class MultiAsyncToSyncTest {
     final long timeoutPeriodSeconds = 2;
     final Integer input = 1;
 
-    SynchronousApi apiObject = new SynchronousApi(incrementerSleepTimeSeconds, timeoutPeriodSeconds);
-    final Integer result = apiObject.apiCall(input);
-    apiObject.complete();
-
-    Assert.assertTrue(result.equals(0));
-  }
-
-  /**
-   * Used to make multiple asynchronous calls to the synchronous API.
-   */
-  final class AsynchronousCaller implements Callable<Boolean> {
-    private final SynchronousApi apiObject;
-    private final Integer input;
-
-    /**
-     * @param apiObject The synchronous api to be calle.
-     * @param input Input value for the api call.
-     */
-    AsynchronousCaller(final SynchronousApi apiObject, final Integer input) {
-      this.apiObject = apiObject;
-      this.input = input;
+    Integer result = 0;
+    try {
+      SynchronousApi apiObject = new SynchronousApi(incrementerSleepTimeSeconds, timeoutPeriodSeconds);
+      result = apiObject.apiCall(input);
+      apiObject.complete();
+    } catch (ExecutionException ee) {
+      if (ee.getCause() instanceof InvalidBlockedCallerIdentifierException) {
+        LOG.log(Level.INFO, "Caught expected exception during test");
+      } else {
+        LOG.log(Level.SEVERE, "Unexpected exception during test", ee);
+      }
+    } catch (Exception e) {
+      LOG.log(Level.SEVERE, "Unexpected exception during test", e);
     }
-
-    /**
-     * @return A Boolean object that indicates whether
-     *         or not the processing was successful.
-     * @throws Exception
-     */
-    public Boolean call() throws Exception {
-      final Integer result = apiObject.apiCall(input);
-      return result.equals(input + 1);
-    }
+    Assert.assertTrue("Timeout occurred", result.equals(0));
   }
 
   /**
@@ -219,22 +213,30 @@ public final class MultiAsyncToSyncTest {
     final Integer input = 1;
     final ExecutorService executor = Executors.newFixedThreadPool(2);
 
-    SynchronousApi apiObject = new SynchronousApi(incrementerSleepTimeSeconds, timeoutPeriodSeconds);
-    FutureTask<Boolean> task1 = new FutureTask<>(new AsynchronousCaller(apiObject, input));
-    FutureTask<Boolean> task2 = new FutureTask<>(new AsynchronousCaller(apiObject, input + 1));
-
-    // Execute API calls concurrently.
-    executor.execute(task1);
-    executor.execute(task2);
-
+    Integer result1 = 0;
+    Integer result2 = 0;
     try {
-      Assert.assertTrue(task1.get());
-      Assert.assertTrue(task2.get());
+      final String functionName = "apiCall";
+      final SynchronousApi apiObject = new SynchronousApi(incrementerSleepTimeSeconds, timeoutPeriodSeconds);
+      final FutureTask<Integer> task1 = new FutureTask<>(
+          new AsynchronousCaller<Integer, Integer, SynchronousApi>(apiObject, input, functionName));
+      final FutureTask<Integer> task2 = new FutureTask<>(
+          new AsynchronousCaller<Integer, Integer, SynchronousApi>(apiObject, input + 1, functionName));
+
+      // Execute API calls concurrently.
+      executor.execute(task1);
+      executor.execute(task2);
+
+      result1 = task1.get();
+      result2 = task2.get();
+
+      apiObject.complete();
     } catch (Exception e) {
       LOG.log(Level.SEVERE, "Unexpected exception checking results...");
     }
 
-    apiObject.complete();
+    Assert.assertTrue("Input incremented by one", result1.equals(input + 1));
+    Assert.assertTrue("Input incremented by one", result2.equals(input + 2));
   }
 }
 

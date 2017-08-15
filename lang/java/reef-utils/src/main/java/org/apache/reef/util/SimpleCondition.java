@@ -21,8 +21,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
 
@@ -30,33 +28,27 @@ import static java.util.concurrent.TimeUnit.SECONDS;
  * Manages Java lock and condition objects to create a simplified
  * condition variable interface.
  */
-public final class ConditionVariable {
-  private static final Logger LOG = Logger.getLogger(Condition.class.getName());
-
-  private final Lock lock;
-  private final Condition condition;
+public final class SimpleCondition {
+  private final Lock lock = new ReentrantLock();
+  private final Condition condition = lock.newCondition();
   private final long timeoutPeriod;
   private final TimeUnit timeoutUnits;
+  private static long defaultTimoeout = 10;
 
   /**
-   * Default constructor which initializes timout period to 10 seconds.
+   * Default constructor which initializes timeout period to 10 seconds.
    */
-  public ConditionVariable() {
-    this.lock = new ReentrantLock();
-    this.condition = lock.newCondition();
-    this.timeoutPeriod = 10;
-    this.timeoutUnits = SECONDS;
+  public SimpleCondition() {
+    this(defaultTimoeout, SECONDS);
   }
 
   /**
    * Initialize condition variable with user specified timeout.
-   * @param timeoutPeriod The length of time in units geven by the the timeoutUnits
+   * @param timeoutPeriod The length of time in units given by the the timeoutUnits
    *                      parameter before the condition automatically times out.
    * @param timeoutUnits The unit of time for the timeoutPeriod parameter.
    */
-  public ConditionVariable(final long timeoutPeriod, final TimeUnit timeoutUnits) {
-    this.lock = new ReentrantLock();
-    this.condition = lock.newCondition();
+  public SimpleCondition(final long timeoutPeriod, final TimeUnit timeoutUnits) {
     this.timeoutPeriod = timeoutPeriod;
     this.timeoutUnits = timeoutUnits;
   }
@@ -64,16 +56,14 @@ public final class ConditionVariable {
   /**
    * Blocks the caller until signalWaitComplete() is called or a timeout occurs.
    * @return A boolean value that indicates whether or not a timeout occurred.
+   * @throws InterruptedException Thread was interrupted by another thread while
+   * waiting for the signal.
    */
-  public boolean waitForSignal() {
-    boolean timeoutOccurred = false;
+  public boolean waitForSignal() throws InterruptedException {
+    boolean timeoutOccurred;
     lock.lock();
     try {
       timeoutOccurred = !condition.await(timeoutPeriod, timeoutUnits);
-    } catch(InterruptedException e) {
-      LOG.log(Level.INFO, "Thread interrupted waiting for signal");
-    } catch (Exception e) {
-      LOG.log(Level.SEVERE, "Caught unexpected exception waiting for signal", e);
     } finally {
       lock.unlock();
     }
@@ -87,8 +77,6 @@ public final class ConditionVariable {
     lock.lock();
     try {
       condition.signal();
-    } catch (Exception e) {
-      LOG.log(Level.SEVERE, "Caught unexpected exception signaling condition", e);
     } finally {
       lock.unlock();
     }
