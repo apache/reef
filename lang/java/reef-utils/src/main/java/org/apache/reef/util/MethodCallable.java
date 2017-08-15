@@ -26,30 +26,38 @@ import java.util.concurrent.Callable;
  * Generic class which provides a simple mechanism to call a single method
  * on a concrete class.
  * @param <TReturn> The class type of the method return value.
- * @param <TInput> The class type of the method input parameter.
- * @param <TClass> The class type of the class on which the method resides.
  */
-public final class MethodCallable<TReturn, TInput, TClass> implements Callable<TReturn> {
-  private final TClass obj;
-  private final TInput input;
+public final class MethodCallable<TReturn> implements Callable<TReturn> {
+  private final Object obj;
+  private final Object input;
   private final Method method;
 
   /**
-   * @param obj An instance of type TClass on which the method will be invoked..
-   * @param input Parameter input value for the method invocation.
+   * @param obj An subclass of object on which the method will be invoked.
+   * @param input Parameter input values for the method invocation.
    * @param function A string which contains the name of the method to be invoked.
    */
-  public MethodCallable(final TClass obj, final TInput input, final String function) throws NoSuchMethodException {
+  public MethodCallable(final Object obj, final String function,
+                        final Object... input) throws NoSuchMethodException {
     this.obj = obj;
     this.input = input;
-    Class[] args =  new Class[]{input.getClass()};
-    this.method = obj.getClass().getDeclaredMethod(function, args);
+
+    // Get the argument types.
+    Class[] inputClass =  new Class[input.length];
+    for (int idx = 0; idx < input.length; ++idx) {
+      inputClass[idx] = input[idx].getClass();
+    }
+
+    this.method = obj.getClass().getDeclaredMethod(function, inputClass);
   }
 
   /**
    * @return A object of class type TReturn.
-   * @throws Exception Which occurred when the target function was called
+   * @throws InvocationTargetException The function specified in the constructor threw
+   *         an exception.
+   * @throws IllegalAccessException Method is not accessible in calling context.
    */
+  @SuppressWarnings("unchecked")
   public TReturn call() throws InvocationTargetException, IllegalAccessException {
     return (TReturn)method.invoke(obj, input);
   }

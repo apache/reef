@@ -19,7 +19,6 @@ package org.apache.reef.util;
 
 import org.apache.reef.util.Exception.InvalidBlockedCallerIdentifierException;
 
-import java.text.MessageFormat;
 import java.util.ArrayDeque;
 import java.util.HashMap;
 import java.util.concurrent.TimeUnit;
@@ -61,7 +60,7 @@ public final class MultiAsyncToSync {
    */
   public boolean block(final long identifier) throws InterruptedException {
     final SimpleCondition call;
-    synchronized (this) {
+    synchronized (sleeperMap) {
       // Get an condition variable to block the calling thread.
       if (sleeperMap.containsKey(identifier)) {
         // This should never happen as message identifiers are unique.
@@ -78,7 +77,7 @@ public final class MultiAsyncToSync {
     // Put the call to sleep until the ack comes back.
     boolean timeoutOccurred = call.waitForSignal();
     if (timeoutOccurred) {
-      synchronized (this) {
+      synchronized (sleeperMap) {
         freeQueue.addLast(sleeperMap.remove(identifier));
       }
       LOG.log(Level.FINER, "Caller sleeping on identifier [{0}] timed out", identifier);
@@ -91,18 +90,17 @@ public final class MultiAsyncToSync {
    * @param identifier The message identifier of the caller who should be released.
    */
   public void release(final long identifier) throws InterruptedException, InvalidBlockedCallerIdentifierException {
-    synchronized (this) {
+    synchronized (sleeperMap) {
       // Get the associated call object.
       final SimpleCondition call = sleeperMap.remove(identifier);
       if (call == null) {
         throw new InvalidBlockedCallerIdentifierException(
-            MessageFormat.format("Unknown sleeper identifier [{0}]", identifier));
-      } else {
-        // Signal the sleeper and recycle the call object.
-        LOG.log(Level.FINER, "Waking caller sleeping on identifier [{0}]", identifier);
-        call.signalWaitComplete();
-        freeQueue.addLast(call);
+            String.format("Unknown sleeper identifier [%d]", identifier));
       }
+      // Signal the sleeper and recycle the call object.
+      LOG.log(Level.FINER, "Waking caller sleeping on identifier [{0}]", identifier);
+      call.signalWaitComplete();
+      freeQueue.addLast(call);
     }
   }
 }

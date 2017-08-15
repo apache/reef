@@ -22,8 +22,6 @@ import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-import static java.util.concurrent.TimeUnit.SECONDS;
-
 /**
  * Manages Java lock and condition objects to create a simplified
  * condition variable interface.
@@ -39,7 +37,7 @@ public final class SimpleCondition {
    * Default constructor which initializes timeout period to 10 seconds.
    */
   public SimpleCondition() {
-    this(defaultTimoeout, SECONDS);
+    this(defaultTimoeout, TimeUnit.SECONDS);
   }
 
   /**

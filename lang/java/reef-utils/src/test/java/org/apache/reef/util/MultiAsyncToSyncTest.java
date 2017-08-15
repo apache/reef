@@ -96,12 +96,14 @@ final class SynchronousApi {
    * Asynchronously increment the input parameter.
    * @param input An integer object whose value is to be incremented by one.
    * @return The input parameter incremented by one or zero for a timeout.
+   * @throws InterruptedException Thread was interrupted by another thread.
+   * @throws ExecutionException An exception was thrown an internal processing function.
    */
-  public int apiCall(final int input) throws InterruptedException {
+  public int apiCall(final int input) throws InterruptedException, ExecutionException {
     // Create a future to run the asynchronous processing.
     final long identifier = idCounter.getAndIncrement();
     final FutureTask<Integer> task =
-        new FutureTask(new AsynchronousIncrementer(input, identifier, incrementerSleepTimeMillis, blocker));
+        new FutureTask<>(new AsynchronousIncrementer(input, identifier, incrementerSleepTimeMillis, blocker));
     taskQueue.add(task);
 
     LOG.log(Level.INFO, "Running the incrementer...");
@@ -112,13 +114,9 @@ final class SynchronousApi {
       // Timeout occurred before the asynchronous processing completed.
       return 0;
     }
-    int result = 0;
-    try {
-      LOG.log(Level.INFO, "Call getting task result...");
-      result = task.get();
-    } catch (Exception e) {
-      result = -1;
-    }
+    int result = -1;
+    LOG.log(Level.INFO, "Call getting task result...");
+    result = task.get();
     return result;
   }
 
@@ -204,7 +202,7 @@ public final class MultiAsyncToSyncTest {
    * Verify no interaction occurs when multiple calls are in flight.
    */
   @Test
-  public void testMulitpleCalls() {
+  public void testMultipleCalls() {
     LOG.log(Level.INFO, "Starting...");
 
     // Parameters that do not force a timeout.
@@ -216,12 +214,13 @@ public final class MultiAsyncToSyncTest {
     int result1 = 0;
     int result2 = 0;
     try {
-      final String functionName = "apiCall";
-      final SynchronousApi apiObject = new SynchronousApi(incrementerSleepTimeSeconds, timeoutPeriodSeconds);
-      final FutureTask<Integer> task1 = new FutureTask<>(
-          new MethodCallable<Integer, Integer, SynchronousApi>(apiObject, input, functionName));
-      final FutureTask<Integer> task2 = new FutureTask<>(
-          new MethodCallable<Integer, Integer, SynchronousApi>(apiObject, input + 1, functionName));
+      final String function = "apiCall";
+      final SynchronousApi apiObject =
+          new SynchronousApi(incrementerSleepTimeSeconds, timeoutPeriodSeconds);
+      final FutureTask<Integer> task1 =
+          new FutureTask<>(new MethodCallable<Integer>(apiObject, function, input));
+      final FutureTask<Integer> task2
+          = new FutureTask<>( new MethodCallable<Integer>(apiObject, function, input + 1));
 
       // Execute API calls concurrently.
       executor.execute(task1);
@@ -232,7 +231,7 @@ public final class MultiAsyncToSyncTest {
 
       apiObject.complete();
     } catch (Exception e) {
-      LOG.log(Level.SEVERE, "Unexpected exception checking results...");
+      LOG.log(Level.SEVERE, "Unexpected exception checking results...", e);
     }
 
     Assert.assertTrue("Input incremented by one", result1 == (input + 1));
