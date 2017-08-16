@@ -29,7 +29,7 @@ import java.util.concurrent.Callable;
  */
 public final class MethodCallable<TReturn> implements Callable<TReturn> {
   private final Object obj;
-  private final Object input;
+  private final Object[] input;
   private final Method method;
 
   /**
