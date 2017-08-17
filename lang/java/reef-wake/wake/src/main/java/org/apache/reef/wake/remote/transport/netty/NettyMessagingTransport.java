@@ -60,6 +60,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import static org.apache.reef.wake.remote.RemoteConfiguration.PROTOCOL_HTTP;
+import static org.apache.reef.wake.remote.RemoteConfiguration.PROTOCOL_NETTY;
+
 /**
  * Messaging transport implementation with Netty and Http.
  */
@@ -77,9 +80,6 @@ public final class NettyMessagingTransport implements Transport {
   private static final int SERVER_BOSS_NUM_THREADS = 3;
   private static final int SERVER_WORKER_NUM_THREADS = 20;
   private static final int CLIENT_WORKER_NUM_THREADS = 10;
-
-  private static final int PROTOCOL_NETTY = 100;
-  private static final int PROTOCOL_HTTP = 101;
 
   private static final int HANDLER_NETTY = 100;
   private static final int HANDLER_HTTP_SERVER = 101;
@@ -120,6 +120,7 @@ public final class NettyMessagingTransport implements Transport {
    * @param numberOfTries the number of tries of connection
    * @param retryTimeout  the timeout of reconnection
    * @param tcpPortProvider  gives an iterator that produces random tcp ports in a range
+   * @param protocolType  the protocol to use for transport
    */
   @Inject
   private NettyMessagingTransport(
@@ -130,10 +131,8 @@ public final class NettyMessagingTransport implements Transport {
       @Parameter(RemoteConfiguration.NumberOfTries.class) final int numberOfTries,
       @Parameter(RemoteConfiguration.RetryTimeout.class) final int retryTimeout,
       final TcpPortProvider tcpPortProvider,
-      final LocalAddressProvider localAddressProvider) {
-     /* TEMPORARY VALUE, NEED TO BE INSERTED INTO PARAMETER */
-     /* AFTER TRANSPORTFACTORY IMPLEMENTATION CHANGED */
-    final int protocolType = PROTOCOL_NETTY;
+      final LocalAddressProvider localAddressProvider,
+      @Parameter(RemoteConfiguration.Protocol.class) final int protocolType) {
 
     int p = port;
     if (p < 0) {

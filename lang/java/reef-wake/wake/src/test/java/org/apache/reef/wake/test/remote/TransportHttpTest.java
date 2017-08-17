@@ -31,7 +31,7 @@ import org.apache.reef.wake.remote.impl.TransportEvent;
 import org.apache.reef.wake.remote.transport.Link;
 import org.apache.reef.wake.remote.transport.Transport;
 import org.apache.reef.wake.remote.transport.TransportFactory;
-import org.apache.reef.wake.remote.transport.netty.http.HttpMessagingTransportFactory;
+import org.apache.reef.wake.remote.transport.netty.MessagingTransportFactory;
 import org.apache.reef.wake.remote.transport.netty.LoggingLinkListener;
 import org.apache.reef.wake.test.util.Monitor;
 import org.apache.reef.wake.test.util.TimeoutHandler;
@@ -55,7 +55,7 @@ public class TransportHttpTest {
   public TransportHttpTest() throws InjectionException {
     final Injector injector = Tang.Factory.getTang().newInjector();
     this.localAddressProvider = injector.getInstance(LocalAddressProvider.class);
-    this.tpFactory = injector.getInstance(HttpMessagingTransportFactory.class);
+    this.tpFactory = injector.getInstance(MessagingTransportFactory.class);
   }
 
   private static final String LOG_PREFIX = "TEST ";
@@ -77,7 +77,7 @@ public class TransportHttpTest {
     // Codec<String>
     final ReceiverStage<String> stage =
         new ReceiverStage<>(new ObjectSerializableCodec<String>(), monitor, expected);
-    final Transport transport = tpFactory.newInstance(hostAddress, 0, stage, stage, 1, 10000);
+    final Transport transport = tpFactory.newInstance(hostAddress, 0, stage, stage, 1, 10000, 101);
     final int port = transport.getListeningPort();
 
     // sending side
@@ -109,7 +109,7 @@ public class TransportHttpTest {
     // Codec<TestEvent>
     final ReceiverStage<TestEvent> stage =
         new ReceiverStage<>(new ObjectSerializableCodec<TestEvent>(), monitor, expected);
-    final Transport transport = tpFactory.newInstance(hostAddress, 0, stage, stage, 1, 10000);
+    final Transport transport = tpFactory.newInstance(hostAddress, 0, stage, stage, 1, 10000, 101);
     final int port = transport.getListeningPort();
 
     // sending side

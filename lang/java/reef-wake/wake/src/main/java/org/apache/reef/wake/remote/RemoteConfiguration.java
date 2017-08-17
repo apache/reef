@@ -47,6 +47,13 @@ public final class RemoteConfiguration {
   public static final long REMOTE_CONNECTION_RETRY_TIMEOUT =
       WakeParameters.REMOTE_EXECUTOR_SHUTDOWN_TIMEOUT / (REMOTE_CONNECTION_NUMBER_OF_RETRIES + 1);
 
+
+  /**
+   *  Unique protocol numbers for choosing protocols.
+   */
+  public static final int PROTOCOL_NETTY = 100;
+  public static final int PROTOCOL_HTTP = 101;
+
   private RemoteConfiguration() {
     // empty
   }
@@ -130,6 +137,14 @@ public final class RemoteConfiguration {
    */
   @NamedParameter(doc = "Server stage for messaging transport.", default_class = DefaultTransportEStage.class)
   public static final class RemoteServerStage implements Name<EStage<TransportEvent>> {
+    // Intentionally empty
+  }
+
+  /**
+   * Option for use http.
+   */
+  @NamedParameter(doc = "Option for use http.", default_value = "" + PROTOCOL_NETTY)
+  public static final class Protocol implements Name<Integer> {
     // Intentionally empty
   }
 }

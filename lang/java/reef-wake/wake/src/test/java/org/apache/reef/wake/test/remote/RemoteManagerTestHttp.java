@@ -33,7 +33,7 @@ import org.apache.reef.wake.remote.impl.MultiCodec;
 import org.apache.reef.wake.remote.impl.ObjectSerializableCodec;
 import org.apache.reef.wake.remote.ports.TcpPortProvider;
 import org.apache.reef.wake.remote.transport.TransportFactory;
-import org.apache.reef.wake.remote.transport.netty.http.HttpMessagingTransportFactory;
+import org.apache.reef.wake.remote.transport.netty.MessagingTransportFactory;
 import org.apache.reef.wake.test.util.Monitor;
 import org.apache.reef.wake.test.util.TimeoutHandler;
 import org.junit.Assert;
@@ -62,7 +62,8 @@ public class RemoteManagerTestHttp {
 
   public RemoteManagerTestHttp() throws InjectionException {
     final JavaConfigurationBuilder builder = Tang.Factory.getTang().newConfigurationBuilder();
-    builder.bindImplementation(TransportFactory.class, HttpMessagingTransportFactory.class);
+    builder.bindImplementation(TransportFactory.class, MessagingTransportFactory.class);
+    builder.bindNamedParameter(RemoteConfiguration.Protocol.class, "101");
     final Injector injector = Tang.Factory.getTang().newInjector(builder.build());
     this.localAddressProvider = injector.getInstance(LocalAddressProvider.class);
     this.remoteManagerFactory = injector.getInstance(RemoteManagerFactory.class);

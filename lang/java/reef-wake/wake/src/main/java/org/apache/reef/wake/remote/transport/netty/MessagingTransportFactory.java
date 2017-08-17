@@ -104,6 +104,33 @@ public final class MessagingTransportFactory implements TransportFactory {
   /**
    * Creates a transport.
    *
+   * @param hostAddress   a host address
+   * @param port          a listening port
+   * @param clientStage   a client stage
+   * @param serverStage   a server stage
+   * @param numberOfTries a number of tries
+   * @param retryTimeout  a timeout for retry
+   */
+  @Override
+  public Transport newInstance(final String hostAddress,
+                               final int port,
+                               final EStage<TransportEvent> clientStage,
+                               final EStage<TransportEvent> serverStage,
+                               final int numberOfTries,
+                               final int retryTimeout,
+                               final int protocol) {
+    try {
+      TcpPortProvider tcpPortProvider = Tang.Factory.getTang().newInjector().getInstance(TcpPortProvider.class);
+      return newInstance(hostAddress, port, clientStage,
+          serverStage, numberOfTries, retryTimeout, tcpPortProvider);
+    } catch (final InjectionException e) {
+      throw new RuntimeException(e);
+    }
+  }
+
+  /**
+   * Creates a transport.
+   *
    * @param hostAddress     a host address
    * @param port            a listening port
    * @param clientStage     a client stage
@@ -121,6 +148,32 @@ public final class MessagingTransportFactory implements TransportFactory {
                                final int retryTimeout,
                                final TcpPortProvider tcpPortProvider) {
 
+    return newInstance(hostAddress, port, clientStage,
+        serverStage, numberOfTries, retryTimeout, tcpPortProvider, RemoteConfiguration.PROTOCOL_NETTY);
+  }
+
+  /**
+   * Creates a transport.
+   *
+   * @param hostAddress     a host address
+   * @param port            a listening port
+   * @param clientStage     a client stage
+   * @param serverStage     a server stage
+   * @param numberOfTries   a number of tries
+   * @param retryTimeout    a timeout for retry
+   * @param tcpPortProvider a provider for TCP port
+   * @param protocol        a protocol to use
+   */
+  @Override
+  public Transport newInstance(final String hostAddress,
+                               final int port,
+                               final EStage<TransportEvent> clientStage,
+                               final EStage<TransportEvent> serverStage,
+                               final int numberOfTries,
+                               final int retryTimeout,
+                               final TcpPortProvider tcpPortProvider,
+                               final int protocol) {
+
     final Injector injector = Tang.Factory.getTang().newInjector();
     injector.bindVolatileParameter(RemoteConfiguration.HostAddress.class, hostAddress);
     injector.bindVolatileParameter(RemoteConfiguration.Port.class, port);
@@ -129,6 +182,7 @@ public final class MessagingTransportFactory implements TransportFactory {
     injector.bindVolatileParameter(RemoteConfiguration.NumberOfTries.class, numberOfTries);
     injector.bindVolatileParameter(RemoteConfiguration.RetryTimeout.class, retryTimeout);
     injector.bindVolatileInstance(TcpPortProvider.class, tcpPortProvider);
+    injector.bindVolatileParameter(RemoteConfiguration.Protocol.class, protocol);
     try {
       return injector.getInstance(NettyMessagingTransport.class);
     } catch (final InjectionException e) {
