@@ -40,17 +40,20 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
     [NotThreadSafe]
     internal sealed class ServiceAndContextConfigurationProvider<TMapInput, TMapOutput, TPartitionType>
     {
-        private static readonly Logger Logger = Logger.GetLogger(typeof(ServiceAndContextConfigurationProvider<TMapInput, TMapOutput, TPartitionType>));
+        private static readonly Logger Logger 
+            = Logger.GetLogger(typeof(ServiceAndContextConfigurationProvider<TMapInput, TMapOutput, TPartitionType>));
 
         /// <summary>
         /// Mapping between Evaluator id and assigned partition descriptor/context ids
         /// </summary>
-        private readonly Dictionary<string, PartitionDescriptorContextIdBundle> _partitionContextIdProvider = new Dictionary<string, PartitionDescriptorContextIdBundle>();
+        private readonly Dictionary<string, PartitionDescriptorContextIdBundle> _partitionContextIdProvider 
+            = new Dictionary<string, PartitionDescriptorContextIdBundle>();
 
         /// <summary>
         /// Available partition descriptor and context ids stack
         /// </summary>
-        private readonly Stack<PartitionDescriptorContextIdBundle> _avilablePartitionDescriptorContextIds = new Stack<PartitionDescriptorContextIdBundle>();
+        private readonly Stack<PartitionDescriptorContextIdBundle> _availablePartitionDescriptorContextIds
+            = new Stack<PartitionDescriptorContextIdBundle>();
 
         /// <summary>
         /// Input partition data set
@@ -76,7 +79,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
             foreach (var descriptor in _dataset)
             {
                 var contextId = string.Format("DataLoadingContext-{0}", contextSequenceNumber++);
-                _avilablePartitionDescriptorContextIds.Push(new PartitionDescriptorContextIdBundle(descriptor.Id, contextId));
+                _availablePartitionDescriptorContextIds.Push(new PartitionDescriptorContextIdBundle(descriptor.Id, contextId));
             }
             _configurationManager = configurationManager;
         }
@@ -91,10 +94,11 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         {
             if (!_partitionContextIdProvider.ContainsKey(evaluatorId))
             {
-                var msg = string.Format(CultureInfo.InvariantCulture, "Partition descriptor for Failed evaluator:{0} not present", evaluatorId);
+                var msg = string.Format(CultureInfo.InvariantCulture, 
+                    "Partition descriptor for Failed evaluator:{0} not present", evaluatorId);
                 Exceptions.Throw(new Exception(msg), Logger);
             }
-            _avilablePartitionDescriptorContextIds.Push(_partitionContextIdProvider[evaluatorId]);
+            _availablePartitionDescriptorContextIds.Push(_partitionContextIdProvider[evaluatorId]);
             _partitionContextIdProvider.Remove(evaluatorId);
         }
 
@@ -124,13 +128,16 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         /// <returns></returns>
         internal string GetPartitionIdByEvaluatorId(string evaluatorId)
         {
-            if (!_partitionContextIdProvider.ContainsKey(evaluatorId))
-            {
-                var msg = string.Format(CultureInfo.InvariantCulture, "Partition descriptor for evaluator:{0} is not present in the mapping", evaluatorId);
-                Exceptions.Throw(new IMRUSystemException(msg), Logger);
-            }
+            PartitionDescriptorContextIdBundle partitionDescriptorContextId;
+            _partitionContextIdProvider.TryGetValue(evaluatorId, out partitionDescriptorContextId);
 
-            return _partitionContextIdProvider[evaluatorId].PartitionDescriptorId;
+            if (partitionDescriptorContextId == null)
+            {
+                var msg = string.Format(CultureInfo.InvariantCulture, 
+                    "Partition descriptor for evaluator:{0} is not present in the mapping", evaluatorId);
+                throw new IMRUSystemException(msg);
+            }
+            return partitionDescriptorContextId.PartitionDescriptorId;
         }
 
         /// <summary>
@@ -141,23 +148,24 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         /// <returns>Configuration for context and service</returns>
         internal ContextAndServiceConfiguration GetDataLoadingConfigurationForEvaluatorById(string evaluatorId)
         {
-            if (_avilablePartitionDescriptorContextIds.Count == 0)
+            try
             {
-                Exceptions.Throw(new IMRUSystemException("No more data configuration can be provided"), Logger);
+                Logger.Log(Level.Info, "Getting a new data loading configuration");
+                _partitionContextIdProvider.Add(evaluatorId, _availablePartitionDescriptorContextIds.Pop());
             }
-
-            if (_partitionContextIdProvider.ContainsKey(evaluatorId))
+            catch (InvalidOperationException e)
+            {
+                throw new IMRUSystemException("No more data configuration can be provided", e);
+            }
+            catch (ArgumentException e)
             {
                 var msg =
                     string.Format(
                         CultureInfo.InvariantCulture,
                         "Evaluator Id:{0} already present in configuration cache, they have to be unique",
                         evaluatorId);
-                Exceptions.Throw(new IMRUSystemException(msg), Logger);
+                throw new IMRUSystemException(msg, e);
             }
-
-            Logger.Log(Level.Info, "Getting a new data loading configuration");
-            _partitionContextIdProvider[evaluatorId] = _avilablePartitionDescriptorContextIds.Pop();
 
             try
             {
@@ -168,7 +176,8 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
             }
             catch (Exception e)
             {
-                var msg = string.Format(CultureInfo.InvariantCulture, "Error while trying to access partition descriptor:{0} from dataset",
+                var msg = string.Format(CultureInfo.InvariantCulture, 
+                    "Error while trying to access partition descriptor:{0} from dataset",
                     _partitionContextIdProvider[evaluatorId]);
                 Exceptions.Throw(e, msg, Logger);
                 return null;
