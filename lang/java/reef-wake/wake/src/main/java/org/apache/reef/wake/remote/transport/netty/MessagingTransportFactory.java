@@ -93,7 +93,7 @@ public final class MessagingTransportFactory implements TransportFactory {
                                final int numberOfTries,
                                final int retryTimeout) {
     try {
-      TcpPortProvider tcpPortProvider = Tang.Factory.getTang().newInjector().getInstance(TcpPortProvider.class);
+      final TcpPortProvider tcpPortProvider = Tang.Factory.getTang().newInjector().getInstance(TcpPortProvider.class);
       return newInstance(hostAddress, port, clientStage,
               serverStage, numberOfTries, retryTimeout, tcpPortProvider);
     } catch (final InjectionException e) {
@@ -120,7 +120,7 @@ public final class MessagingTransportFactory implements TransportFactory {
                                final int retryTimeout,
                                final int protocol) {
     try {
-      TcpPortProvider tcpPortProvider = Tang.Factory.getTang().newInjector().getInstance(TcpPortProvider.class);
+      final TcpPortProvider tcpPortProvider = Tang.Factory.getTang().newInjector().getInstance(TcpPortProvider.class);
       return newInstance(hostAddress, port, clientStage,
           serverStage, numberOfTries, retryTimeout, tcpPortProvider);
     } catch (final InjectionException e) {

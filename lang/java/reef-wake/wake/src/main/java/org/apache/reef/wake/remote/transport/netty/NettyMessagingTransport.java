@@ -104,7 +104,7 @@ public final class NettyMessagingTransport implements Transport {
   private final AbstractNettyEventListener clientEventListener;
   private final AbstractNettyEventListener serverEventListener;
 
-  private final boolean ssl = System.getProperty("ssl") != null;
+  private final boolean ssl;
   private final URI uri;
 
   private final int numberOfTries;
@@ -143,6 +143,9 @@ public final class NettyMessagingTransport implements Transport {
 
     final SslContext sslContextClient;
     final SslContext sslContextServer;
+
+    ssl = System.getProperty("ssl") != null;
+
     if(protocolType == PROTOCOL_HTTP) {
       if (ssl) {
         try {

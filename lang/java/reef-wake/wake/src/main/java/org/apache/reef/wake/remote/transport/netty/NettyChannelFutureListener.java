@@ -22,7 +22,7 @@ import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import org.apache.reef.wake.remote.transport.LinkListener;
 
-class NettyChannelFutureListener<T> implements ChannelFutureListener {
+public final class NettyChannelFutureListener<T> implements ChannelFutureListener {
 
   private final T message;
   private LinkListener<T> listener;

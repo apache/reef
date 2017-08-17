@@ -41,7 +41,15 @@ class NettyChannelInitializer extends ChannelInitializer<SocketChannel> {
    */
   public static final int MAXFRAMELENGTH = 10 * 1024 * 1024;
   private final NettyChannelHandlerFactory handlerFactory;
+
+  /**
+   * sslContext contains ssl context of the machine. used only for HTTP.
+   */
   private final SslContext sslContext;
+
+  /**
+   * Type of channel whether it is netty or http client or http server.
+   */
   private final int type;
 
   NettyChannelInitializer(
