@@ -17,7 +17,7 @@
  */
 package org.apache.reef.util;
 
-import org.apache.reef.util.Exception.InvalidBlockedCallerIdentifierException;
+import org.apache.reef.util.exception.InvalidBlockedCallerIdentifierException;
 
 import java.util.ArrayDeque;
 import java.util.HashMap;
@@ -63,8 +63,7 @@ public final class MultiAsyncToSync {
     synchronized (sleeperMap) {
       // Get an condition variable to block the calling thread.
       if (sleeperMap.containsKey(identifier)) {
-        // This should never happen as message identifiers are unique.
-        throw new RuntimeException("Duplicate identifier in RPC map");
+        throw new RuntimeException(String.format("Duplicate identifier [%d] in sleeper map", identifier));
       }
       if (freeQueue.isEmpty()) {
         freeQueue.addLast(new SimpleCondition(timeoutPeriod, timeoutUnits));
@@ -75,7 +74,7 @@ public final class MultiAsyncToSync {
 
     LOG.log(Level.INFO, "Putting caller to sleep on identifier [{0}]", identifier);
     // Put the call to sleep until the ack comes back.
-    boolean timeoutOccurred = call.waitForSignal();
+    final boolean timeoutOccurred = call.waitForSignal();
     if (timeoutOccurred) {
       synchronized (sleeperMap) {
         freeQueue.addLast(sleeperMap.remove(identifier));
@@ -93,9 +92,8 @@ public final class MultiAsyncToSync {
     synchronized (sleeperMap) {
       // Get the associated call object.
       final SimpleCondition call = sleeperMap.remove(identifier);
-      if (call == null) {
-        throw new InvalidBlockedCallerIdentifierException(
-            String.format("Unknown sleeper identifier [%d]", identifier));
+      if (null == call) {
+        throw new InvalidBlockedCallerIdentifierException(identifier);
       }
       // Signal the sleeper and recycle the call object.
       LOG.log(Level.FINER, "Waking caller sleeping on identifier [{0}]", identifier);

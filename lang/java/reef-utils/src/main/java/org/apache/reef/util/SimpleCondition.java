@@ -31,13 +31,13 @@ public final class SimpleCondition {
   private final Condition condition = lock.newCondition();
   private final long timeoutPeriod;
   private final TimeUnit timeoutUnits;
-  private static long defaultTimoeout = 10;
+  private static long DEFAULT_TIMEOUT = 10;
 
   /**
    * Default constructor which initializes timeout period to 10 seconds.
    */
   public SimpleCondition() {
-    this(defaultTimoeout, TimeUnit.SECONDS);
+    this(DEFAULT_TIMEOUT, TimeUnit.SECONDS);
   }
 
   /**

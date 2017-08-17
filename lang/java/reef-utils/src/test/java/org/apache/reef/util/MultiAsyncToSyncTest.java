@@ -18,10 +18,11 @@
  */
 package org.apache.reef.util;
 
-import org.apache.reef.util.Exception.InvalidBlockedCallerIdentifierException;
+import org.apache.reef.util.exception.InvalidBlockedCallerIdentifierException;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.logging.Level;
@@ -150,7 +151,7 @@ public final class MultiAsyncToSyncTest {
    * Verify calculations successfully complete when no timeout occurs.
    */
   @Test
-  public void testNoTimeout() {
+  public void testNoTimeout() throws InterruptedException, ExecutionException {
     LOG.log(Level.INFO, "Starting...");
 
     // Parameters that do not force a timeout.
@@ -159,13 +160,9 @@ public final class MultiAsyncToSyncTest {
     final int input = 1;
 
     int result = 0;
-    try {
-      SynchronousApi apiObject = new SynchronousApi(incrementerSleepTimeSeconds, timeoutPeriodSeconds);
-      result = apiObject.apiCall(input);
-      apiObject.complete();
-    } catch (Exception e) {
-      LOG.log(Level.SEVERE, "Unexpected exception during test", e);
-    }
+    SynchronousApi apiObject = new SynchronousApi(incrementerSleepTimeSeconds, timeoutPeriodSeconds);
+    result = apiObject.apiCall(input);
+    apiObject.complete();
     Assert.assertTrue("Value incremented by one", result == (input + 1));
   }
 
@@ -173,7 +170,8 @@ public final class MultiAsyncToSyncTest {
    * Verify an error is returned when a timeout occurs.
    */
   @Test
-  public void testTimeout() {
+  public void testTimeout() throws
+      InvalidBlockedCallerIdentifierException, InterruptedException, ExecutionException {
     LOG.log(Level.INFO, "Starting...");
 
     // Parameters that do not force a timeout.
@@ -182,19 +180,9 @@ public final class MultiAsyncToSyncTest {
     final int input = 1;
 
     int result = 0;
-    try {
-      SynchronousApi apiObject = new SynchronousApi(incrementerSleepTimeSeconds, timeoutPeriodSeconds);
-      result = apiObject.apiCall(input);
-      apiObject.complete();
-    } catch (ExecutionException ee) {
-      if (ee.getCause() instanceof InvalidBlockedCallerIdentifierException) {
-        LOG.log(Level.INFO, "Caught expected exception during test");
-      } else {
-        LOG.log(Level.SEVERE, "Unexpected exception during test", ee);
-      }
-    } catch (Exception e) {
-      LOG.log(Level.SEVERE, "Unexpected exception during test", e);
-    }
+    SynchronousApi apiObject = new SynchronousApi(incrementerSleepTimeSeconds, timeoutPeriodSeconds);
+    result = apiObject.apiCall(input);
+    apiObject.complete();
     Assert.assertTrue("Timeout occurred", result == 0);
   }
 
@@ -202,37 +190,33 @@ public final class MultiAsyncToSyncTest {
    * Verify no interaction occurs when multiple calls are in flight.
    */
   @Test
-  public void testMultipleCalls() {
+  public void testMultipleCalls() throws InterruptedException,
+    ExecutionException, InvocationTargetException, IllegalAccessException, NoSuchMethodException {
+
     LOG.log(Level.INFO, "Starting...");
 
     // Parameters that do not force a timeout.
     final int incrementerSleepTimeSeconds = 2;
     final long timeoutPeriodSeconds = 4;
+    final SynchronousApi apiObject =
+        new SynchronousApi(incrementerSleepTimeSeconds, timeoutPeriodSeconds);
+
+    final String function = "apiCall";
     final int input = 1;
+    final FutureTask<Integer> task1 =
+        new FutureTask<>(new MethodCallable<Integer>(apiObject, function, input));
+    final FutureTask<Integer> task2
+        = new FutureTask<>(new MethodCallable<Integer>(apiObject, function, input + 1));
+
+    // Execute API calls concurrently.
     final ExecutorService executor = Executors.newFixedThreadPool(2);
+    executor.execute(task1);
+    executor.execute(task2);
 
-    int result1 = 0;
-    int result2 = 0;
-    try {
-      final String function = "apiCall";
-      final SynchronousApi apiObject =
-          new SynchronousApi(incrementerSleepTimeSeconds, timeoutPeriodSeconds);
-      final FutureTask<Integer> task1 =
-          new FutureTask<>(new MethodCallable<Integer>(apiObject, function, input));
-      final FutureTask<Integer> task2
-          = new FutureTask<>(new MethodCallable<Integer>(apiObject, function, input + 1));
+    final int result1 = task1.get();
+    final int result2 = task2.get();
 
-      // Execute API calls concurrently.
-      executor.execute(task1);
-      executor.execute(task2);
-
-      result1 = task1.get();
-      result2 = task2.get();
-
-      apiObject.complete();
-    } catch (Exception e) {
-      LOG.log(Level.SEVERE, "Unexpected exception checking results...", e);
-    }
+    apiObject.complete();
 
     Assert.assertTrue("Input incremented by one", result1 == (input + 1));
     Assert.assertTrue("Input incremented by one", result2 == (input + 2));

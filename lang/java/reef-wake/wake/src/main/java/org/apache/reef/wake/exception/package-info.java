@@ -17,6 +17,6 @@
  * under the License.
  */
 /**
- * Public interfaces and factories for Wake's core API.
+ * Wake exceptions.
  */
-package org.apache.reef.wake;
+package org.apache.reef.wake.exception;
