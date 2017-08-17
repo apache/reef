@@ -130,7 +130,7 @@ final class SynchronousApi {
         task.get();
       }
     } catch (ExecutionException ee) {
-      if (ee.getCause() instanceof InvalidBlockedCallerIdentifierException) {
+      if (!(ee.getCause() instanceof InvalidBlockedCallerIdentifierException)) {
         throw ee;
       } else {
         LOG.log(Level.INFO, "Caught exception waiting for completion...", ee);
