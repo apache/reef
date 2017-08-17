@@ -99,12 +99,12 @@ public class NettyLink<T> implements Link<T> {
 
     if (this.uri != null) {
       try {
-        FullHttpRequest request = new DefaultFullHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.POST, uri.getRawPath());
+        final FullHttpRequest request = new DefaultFullHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.POST, uri.getRawPath());
         request.headers().set(HttpHeaders.Names.HOST, uri.getHost());
         request.headers().set(HttpHeaders.Names.CONNECTION, HttpHeaders.Values.KEEP_ALIVE);
         request.headers().set(HttpHeaders.Names.ACCEPT_ENCODING, HttpHeaders.Values.GZIP);
         request.headers().set(HttpHeaders.Names.CONTENT_TYPE, "application/wake-transport");
-        ByteBuf buf = Unpooled.copiedBuffer(encoder.encode(message));
+        final ByteBuf buf = Unpooled.copiedBuffer(encoder.encode(message));
         request.headers().set(HttpHeaders.Names.CONTENT_LENGTH, buf.readableBytes());
         request.content().clear().writeBytes(buf);
         final ChannelFuture future = channel.writeAndFlush(request);
@@ -112,7 +112,7 @@ public class NettyLink<T> implements Link<T> {
         if (listener !=  null) {
           future.addListener(new NettyChannelFutureListener<>(message, listener));
         }
-      } catch (InterruptedException ex) {
+      } catch (final InterruptedException ex) {
         LOG.log(Level.SEVERE, "Cannot send request to " + uri.getHost(), ex);
       }
     } else {

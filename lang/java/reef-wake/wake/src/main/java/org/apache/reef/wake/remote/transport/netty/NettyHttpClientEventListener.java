@@ -50,11 +50,10 @@ final class NettyHttpClientEventListener extends AbstractNettyEventListener {
   @Override
   public void channelRead(final ChannelHandlerContext ctx, final Object msg) {
     if (msg instanceof HttpResponse) {
-      System.out.println("CLIENT : IT IS HTTP RESPONSE");
+      LOG.log(Level.FINEST, "HttpResponse Received: {0}", msg);
     } else if (msg instanceof HttpContent) {
-      System.out.println("CLIENT : It is HttpContent");
-      HttpContent httpContent = (HttpContent) msg;
-      ByteBuf content = httpContent.content();
+      final HttpContent httpContent = (HttpContent) msg;
+      final ByteBuf content = httpContent.content();
       if (content.isReadable()) {
         buf.append("CONTENT: ");
         buf.append(content.toString(CharsetUtil.UTF_8));
@@ -63,7 +62,7 @@ final class NettyHttpClientEventListener extends AbstractNettyEventListener {
 
       if (msg instanceof LastHttpContent) {
         final Channel channel = ctx.channel();
-        byte[] message = new byte[content.readableBytes()];
+        final byte[] message = new byte[content.readableBytes()];
         content.readBytes(message);
         if (LOG.isLoggable(Level.FINEST)) {
           LOG.log(Level.FINEST, "MessageEvent: local: {0} remote: {1} :: {2}", new Object[]{
@@ -84,7 +83,6 @@ final class NettyHttpClientEventListener extends AbstractNettyEventListener {
   @Override
   public void channelActive(final ChannelHandlerContext ctx) {
     // noop
-    LOG.log(Level.FINEST, "{0}", ctx);
   }
 
   @Override

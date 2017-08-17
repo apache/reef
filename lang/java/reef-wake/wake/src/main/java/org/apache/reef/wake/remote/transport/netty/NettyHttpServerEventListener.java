@@ -70,17 +70,17 @@ final class NettyHttpServerEventListener extends AbstractNettyEventListener {
 
   @Override
   public void channelRead(final ChannelHandlerContext ctx, final Object msg) {
-    final HttpHeaders headers;
-    final HttpRequest request;
     if(msg instanceof HttpRequest) {
       LOG.log(Level.FINEST, "HttpRequest received");
-      request = (HttpRequest) msg;
+
+      final HttpRequest request = (HttpRequest) msg;
+      final HttpHeaders headers = request.headers();
       this.httpRequest = request;
-      headers = request.headers();
+
       if (!headers.isEmpty()) {
-        for (Map.Entry<String, String> h: headers) {
-          CharSequence key = h.getKey();
-          CharSequence value = h.getValue();
+        for (final Map.Entry<String, String> h: headers) {
+          final CharSequence key = h.getKey();
+          final CharSequence value = h.getValue();
           buf.append("HEADER: ").append(key).append(" = ").append(value).append("\r\n");
         }
         buf.append("\r\n");
@@ -88,8 +88,8 @@ final class NettyHttpServerEventListener extends AbstractNettyEventListener {
       appendDecoderResult(buf, request);
     } else if (msg instanceof HttpContent) {
       LOG.log(Level.FINEST, "HttpContent received");
-      HttpContent httpContent = (HttpContent) msg;
-      ByteBuf content = httpContent.content();
+      final HttpContent httpContent = (HttpContent) msg;
+      final ByteBuf content = httpContent.content();
       if (content.isReadable()) {
         buf.append("CONTENT: ");
         buf.append(content.toString(CharsetUtil.UTF_8));
@@ -99,7 +99,7 @@ final class NettyHttpServerEventListener extends AbstractNettyEventListener {
 
       if (msg instanceof LastHttpContent) {
         buf.append("END OF CONTENT\r\n");
-        LastHttpContent trailer = (LastHttpContent) msg;
+        final LastHttpContent trailer = (LastHttpContent) msg;
         if (!trailer.trailingHeaders().isEmpty()) {
           buf.append("\r\n");
           for (CharSequence name: trailer.trailingHeaders().names()) {
@@ -112,7 +112,7 @@ final class NettyHttpServerEventListener extends AbstractNettyEventListener {
         }
 
         final Channel channel = ctx.channel();
-        byte[] message = new byte[content.readableBytes()];
+        final byte[] message = new byte[content.readableBytes()];
         content.readBytes(message);
         if (LOG.isLoggable(Level.FINEST)) {
           LOG.log(Level.FINEST, "MessageEvent: local: {0} remote: {1} :: {2}", new Object[]{
@@ -131,7 +131,7 @@ final class NettyHttpServerEventListener extends AbstractNettyEventListener {
   }
 
   private static void appendDecoderResult(final StringBuilder buf, final HttpObject o) {
-    DecoderResult result = o.getDecoderResult();
+    final DecoderResult result = o.getDecoderResult();
     if (result.isSuccess()) {
       return;
     }
