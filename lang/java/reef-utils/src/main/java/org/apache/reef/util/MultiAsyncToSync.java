@@ -59,25 +59,27 @@ public final class MultiAsyncToSync {
    * @throws InterruptedException The thread was interrupted while waiting on a condition.
    */
   public boolean block(final long identifier) throws InterruptedException {
-    final SimpleCondition call;
+    SimpleCondition call;
     synchronized (sleeperMap) {
       // Get an condition variable to block the calling thread.
-      if (sleeperMap.containsKey(identifier)) {
-        throw new RuntimeException(String.format("Duplicate identifier [%d] in sleeper map", identifier));
-      }
       if (freeQueue.isEmpty()) {
         freeQueue.addLast(new SimpleCondition(timeoutPeriod, timeoutUnits));
       }
       call = freeQueue.getFirst();
-      sleeperMap.put(identifier, freeQueue.getFirst());
+      if (sleeperMap.put(identifier, call) != null) {
+        throw new RuntimeException(String.format("Duplicate identifier [%d] in sleeper map", identifier));
+      }
     }
 
-    LOG.log(Level.INFO, "Putting caller to sleep on identifier [{0}]", identifier);
+    LOG.log(Level.FINER, "Putting caller to sleep on identifier [{0}]", identifier);
     // Put the call to sleep until the ack comes back.
     final boolean timeoutOccurred = call.waitForSignal();
     if (timeoutOccurred) {
       synchronized (sleeperMap) {
-        freeQueue.addLast(sleeperMap.remove(identifier));
+        call = sleeperMap.remove(identifier);
+        if (null != call) {
+          freeQueue.addLast(call);
+        }
       }
       LOG.log(Level.FINER, "Caller sleeping on identifier [{0}] timed out", identifier);
     }

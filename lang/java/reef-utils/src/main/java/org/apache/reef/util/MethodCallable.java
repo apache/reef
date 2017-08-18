@@ -43,7 +43,7 @@ public final class MethodCallable<TReturn> implements Callable<TReturn> {
     this.input = input;
 
     // Get the argument types.
-    Class[] inputClass =  new Class[input.length];
+    Class[] inputClass = new Class[input.length];
     for (int idx = 0; idx < input.length; ++idx) {
       inputClass[idx] = input[idx].getClass();
     }
