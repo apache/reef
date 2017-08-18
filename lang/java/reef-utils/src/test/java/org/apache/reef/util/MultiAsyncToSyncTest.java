@@ -104,7 +104,7 @@ final class SynchronousApi implements AutoCloseable {
    * @throws InterruptedException Thread was interrupted by another thread.
    * @throws ExecutionException An exception was thrown an internal processing function.
    */
-  public int apiCall(final Integer input) throws InterruptedException, ExecutionException {
+  public int apiCall(final Integer input) throws InterruptedException, ExecutionException, InvalidBlockedCallerIdentifierException {
     // Create a future to run the asynchronous processing.
     final long identifier = idCounter.getAndIncrement();
     final FutureTask<Integer> task =
@@ -156,7 +156,7 @@ public final class MultiAsyncToSyncTest {
    * Verify calculations successfully complete when no timeout occurs.
    */
   @Test
-  public void testNoTimeout() throws InterruptedException, ExecutionException {
+  public void testNoTimeout() throws InterruptedException, ExecutionException, InvalidBlockedCallerIdentifierException {
     LOG.log(Level.INFO, "Starting...");
 
     // Parameters that do not force a timeout.

@@ -56,14 +56,14 @@ public final class ComplexCondition {
   }
 
   public void postop() {
-    lock.unlock()
+    lock.unlock();
   }
 
   public boolean waitOp() throws InterruptedException {
     return !condition.await(timeoutPeriod, timeoutUnits);
   }
 
-  public void signaOp() {
+  public void signalOp() {
     condition.signal();
   }
 }

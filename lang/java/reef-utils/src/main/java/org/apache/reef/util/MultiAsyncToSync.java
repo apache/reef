@@ -36,8 +36,8 @@ import java.util.logging.Logger;
 public final class MultiAsyncToSync {
   private static final Logger LOG = Logger.getLogger(MultiAsyncToSync.class.getName());
 
-  private final ArrayDeque<SimpleCondition> freeQueue = new ArrayDeque<>();
-  private final HashMap<Long, SimpleCondition> sleeperMap = new HashMap<>();
+  private final ArrayDeque<ComplexCondition> freeQueue = new ArrayDeque<>();
+  private final HashMap<Long, ComplexCondition> sleeperMap = new HashMap<>();
   private final long timeoutPeriod;
   private final TimeUnit timeoutUnits;
 
@@ -58,30 +58,27 @@ public final class MultiAsyncToSync {
    * @return A boolean value that indicates whether or not a timeout occurred.
    * @throws InterruptedException The thread was interrupted while waiting on a condition.
    */
-  public boolean block(final long identifier) throws InterruptedException {
-    SimpleCondition call;
-    synchronized (sleeperMap) {
-      // Get an condition variable to block the calling thread.
-      if (freeQueue.isEmpty()) {
-        freeQueue.addLast(new SimpleCondition(timeoutPeriod, timeoutUnits));
-      }
-      call = freeQueue.getFirst();
-      if (sleeperMap.put(identifier, call) != null) {
-        throw new RuntimeException(String.format("Duplicate identifier [%d] in sleeper map", identifier));
-      }
-    }
+  public boolean block(final long identifier) throws InterruptedException, InvalidBlockedCallerIdentifierException {
 
-    LOG.log(Level.FINER, "Putting caller to sleep on identifier [{0}]", identifier);
-    // Put the call to sleep until the ack comes back.
-    final boolean timeoutOccurred = call.waitForSignal();
-    if (timeoutOccurred) {
-      synchronized (sleeperMap) {
-        call = sleeperMap.remove(identifier);
-        if (null != call) {
-          freeQueue.addLast(call);
-        }
+    // Reuse or allocate a condition for the call.
+    ComplexCondition call = allocate();
+
+    final boolean timeoutOccurred;
+    call.preop();
+    try {
+      addSleeper(identifier, call);
+
+      // Put the call to sleep until the ack comes back.
+      LOG.log(Level.FINER, "Putting caller to sleep on identifier [{0}]", identifier);
+      timeoutOccurred = call.waitOp();
+
+      if (timeoutOccurred) {
+        LOG.log(Level.FINER, "Caller sleeping on identifier [{0}] timed out", identifier);
+        removeSleeper(identifier);
+        recycle(call);
       }
-      LOG.log(Level.FINER, "Caller sleeping on identifier [{0}] timed out", identifier);
+    } finally {
+      call.postop();
     }
     return timeoutOccurred;
   }
@@ -91,16 +88,64 @@ public final class MultiAsyncToSync {
    * @param identifier The message identifier of the caller who should be released.
    */
   public void release(final long identifier) throws InterruptedException, InvalidBlockedCallerIdentifierException {
+    ComplexCondition call = getSleeper(identifier);
+    call.preop();
+    try {
+      removeSleeper(identifier);
+      LOG.log(Level.FINER, "Waking caller sleeping on identifier [{0}]", identifier);
+      call.signalOp();
+    } finally {
+      call.postop();
+      recycle(call);
+    }
+  }
+
+  private ComplexCondition allocate() {
+    final ComplexCondition call;
+    synchronized (freeQueue) {
+      if (!freeQueue.isEmpty()) {
+        call = freeQueue.getFirst();
+      } else {
+        call = new ComplexCondition(timeoutPeriod, timeoutUnits);
+      }
+    }
+    return call;
+  }
+
+  private void recycle(final ComplexCondition call) {
+    if (null != call) {
+      synchronized (freeQueue) {
+        freeQueue.addLast(call);
+      }
+    }
+  }
+
+  private void addSleeper(final long identifier, final ComplexCondition call) {
     synchronized (sleeperMap) {
-      // Get the associated call object.
-      final SimpleCondition call = sleeperMap.remove(identifier);
+      if (sleeperMap.put(identifier, call) != null) {
+        throw new RuntimeException(String.format("Duplicate identifier [%d] in sleeper map", identifier));
+      }
+    }
+  }
+
+  private ComplexCondition getSleeper(final long identifier) throws InvalidBlockedCallerIdentifierException {
+    final ComplexCondition call;
+    synchronized (sleeperMap) {
+      call = sleeperMap.get(identifier);
       if (null == call) {
         throw new InvalidBlockedCallerIdentifierException(identifier);
       }
-      // Signal the sleeper and recycle the call object.
-      LOG.log(Level.FINER, "Waking caller sleeping on identifier [{0}]", identifier);
-      call.signalWaitComplete();
-      freeQueue.addLast(call);
+    }
+    return call;
+  }
+
+  private void removeSleeper(final long identifier) throws InvalidBlockedCallerIdentifierException {
+    final ComplexCondition call;
+    synchronized (sleeperMap) {
+      call = sleeperMap.remove(identifier);
+      if (null == call) {
+        throw new InvalidBlockedCallerIdentifierException(identifier);
+      }
     }
   }
 }
