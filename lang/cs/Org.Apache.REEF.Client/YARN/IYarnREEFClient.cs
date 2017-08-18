@@ -36,9 +36,10 @@ namespace Org.Apache.REEF.Client.YARN
         Task<IReadOnlyDictionary<string, IApplicationReport>> GetApplicationReports();
 
         /// <summary>
-        /// Kills the job application and return Job status
+        /// Kills the job application and returns Job status
+        /// If Application Id is invalid or application has been completed, exception will be thrown.
         /// </summary>
-        /// <param name="appId"></param>
+        /// <param name="appId">Application id to kill.</param>
         /// <returns></returns>
         [Unstable("0.17", "Working in progress for rest API status returned")]
         Task<FinalState> KillJobApplication(string appId);

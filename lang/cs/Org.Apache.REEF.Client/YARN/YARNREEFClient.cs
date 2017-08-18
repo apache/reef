@@ -146,6 +146,7 @@ namespace Org.Apache.REEF.Client.Yarn
 
         /// <summary>
         /// Kills the job application and returns Job status
+        /// If Application Id is invalid or application has been completed, exception will be thrown.
         /// </summary>
         /// <param name="appId"></param>
         /// <returns>FinalState of the application</returns>
