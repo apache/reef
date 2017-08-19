@@ -18,14 +18,17 @@
  */
 package org.apache.reef.util;
 
-import org.apache.reef.util.exception.InvalidBlockedCallerIdentifierException;
+import org.apache.reef.util.exception.InvalidIdentifierException;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.lang.AutoCloseable;
-import java.lang.reflect.InvocationTargetException;
-import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.FutureTask;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -97,14 +100,31 @@ final class SynchronousApi implements AutoCloseable {
     this.executor = Executors.newFixedThreadPool(2);
   }
 
+  private class AsyncInitiator implements Callable<Boolean> {
+    private final FutureTask<Integer> task;
+    private final ExecutorService executor;
+
+    AsyncInitiator(final FutureTask<Integer> task, final ExecutorService executor) {
+      this.task = task;
+      this.executor = executor;
+    }
+
+    public Boolean call() {
+      executor.execute(task);
+      return true;
+    }
+  }
+
   /**
    * Asynchronously increment the input parameter.
    * @param input An integer object whose value is to be incremented by one.
    * @return The input parameter incremented by one or zero for a timeout.
    * @throws InterruptedException Thread was interrupted by another thread.
    * @throws ExecutionException An exception was thrown an internal processing function.
+   * @throws InvalidIdentifierException The call identifier is invalid.
+   * @throws Exception The asynchronous processing generated an exception.
    */
-  public int apiCall(final Integer input) throws InterruptedException, ExecutionException, InvalidBlockedCallerIdentifierException {
+  public int apiCall(final Integer input) throws Exception {
     // Create a future to run the asynchronous processing.
     final long identifier = idCounter.getAndIncrement();
     final FutureTask<Integer> task =
@@ -112,9 +132,7 @@ final class SynchronousApi implements AutoCloseable {
     taskQueue.add(task);
 
     LOG.log(Level.INFO, "Running the incrementer...");
-    // Start the task and block the caller until it completes.
-    executor.execute(task);
-    if (blocker.block(identifier)) {
+    if (blocker.block(identifier, new AsyncInitiator(task, executor))) {
       LOG.log(Level.INFO, "Call timed out...");
       // Timeout occurred before the asynchronous processing completed.
       return 0;
@@ -127,16 +145,17 @@ final class SynchronousApi implements AutoCloseable {
 
   /**
    * Ensure all test tasks have completed.
+   * @throws ExecutionException Asynchronous processing generated an exception.
    */
   public void close() throws ExecutionException {
     for (final FutureTask<Integer> task : taskQueue) {
       try {
-          task.get();
+        task.get();
       } catch (ExecutionException ee) {
         // When asynchronous processing completes after the call to MultiAsyncToSync.block() times
-        // out, the call to MultiAsyncToSync.release() will throw this an InvalidBlockedCallerIdentifierException
+        // out, the call to MultiAsyncToSync.release() will throw this an InvalidIdentifierException
         // and it is expected; otherwise, we flag the error.
-        if (!(expectTimeout && ee.getCause() instanceof InvalidBlockedCallerIdentifierException)) {
+        if (!(expectTimeout && ee.getCause() instanceof InvalidIdentifierException)) {
           LOG.log(Level.INFO, "Caught exception waiting for completion...", ee);
         }
       } catch (Exception e) {
@@ -156,7 +175,7 @@ public final class MultiAsyncToSyncTest {
    * Verify calculations successfully complete when no timeout occurs.
    */
   @Test
-  public void testNoTimeout() throws InterruptedException, ExecutionException, InvalidBlockedCallerIdentifierException {
+  public void testNoTimeout() throws Exception {
     LOG.log(Level.INFO, "Starting...");
 
     // Parameters that do not force a timeout.
@@ -175,8 +194,7 @@ public final class MultiAsyncToSyncTest {
    * Verify an error is returned when a timeout occurs.
    */
   @Test
-  public void testTimeout() throws
-      InvalidBlockedCallerIdentifierException, InterruptedException, ExecutionException {
+  public void testTimeout() throws Exception {
     LOG.log(Level.INFO, "Starting...");
 
     // Parameters that force a timeout.
@@ -195,8 +213,7 @@ public final class MultiAsyncToSyncTest {
    * Verify no interaction occurs when multiple calls are in flight.
    */
   @Test
-  public void testMultipleCalls() throws InterruptedException,
-    ExecutionException, InvocationTargetException, IllegalAccessException, NoSuchMethodException {
+  public void testMultipleCalls() throws Exception {
 
     LOG.log(Level.INFO, "Starting...");
 

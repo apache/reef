@@ -41,7 +41,19 @@ public final class ComplexCondition {
   }
 
   /**
-   * Initialize condition variable with user specified timeout.
+   * Wrap a lock and associated condition together into a single atomic condition
+   * variable that can be used synchronize waiters and signalers.
+   * Typical usage:
+   * {@code
+   *   cv.takeLock();
+   *   try {
+   *     // access shared objects.
+   *     cv.waitForSignal(); // or cv.signalCondition()
+   *     // access shared objects.
+   *   } finally {
+   *     cv.releaseLock();
+   *   }
+   * }
    * @param timeoutPeriod The length of time in units given by the the timeoutUnits
    *                      parameter before the condition automatically times out.
    * @param timeoutUnits The unit of time for the timeoutPeriod parameter.
@@ -51,19 +63,41 @@ public final class ComplexCondition {
     this.timeoutUnits = timeoutUnits;
   }
 
-  public void preop() {
+  /**
+   * Declare a threads intention to either wait or signal the condition. Any work
+   * with objects that are shared between the waiter and signaler should only be
+   * accessed after calling {@code preop()} and before calling {@code waitForSignal()} or
+   * {@code signalCondition()}.
+   */
+  public void takeLock() {
     lock.lock();
   }
 
-  public void postop() {
+  /**
+   * Declare a threads intention release the condition after a call to wait or signal.
+   * Any work with objects that are shared between the waiter and signaler should only
+   * be access after {@code waitForSignal()} or {@code signalCondition()} and before
+   * calling {@code releaseLock()}.
+   */
+  public void releaseLock() {
     lock.unlock();
   }
 
-  public boolean waitOp() throws InterruptedException {
+  /**
+   * Wait for a signal on the condition. Must call {@code takeLock()} first
+   * and {@code releaseLock()} afterwards.
+   * @return A boolean value that indicates whether or not a timeout occurred.
+   * @throws InterruptedException The calling thread was interrupted by another thread.
+   */
+  public boolean waitForSignal() throws InterruptedException {
     return !condition.await(timeoutPeriod, timeoutUnits);
   }
 
-  public void signalOp() {
+  /**
+   * Signal the sleeper on the condition. Must have called {@code takeLock()} first
+   * and {@code releaseLock()} afterwards.
+   */
+  public void signalCondition() {
     condition.signal();
   }
 }

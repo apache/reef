@@ -22,12 +22,12 @@ package org.apache.reef.util.exception;
  * Generated when the identifier passed to MultiAsyncToSync.release is
  * invalid.
  */
-public final class InvalidBlockedCallerIdentifierException extends Exception {
+public final class InvalidIdentifierException extends Exception {
   final long identifier;
   /**:
    * See java.lang.Exception.
    */
-  public InvalidBlockedCallerIdentifierException(final long identifier) {
+  public InvalidIdentifierException(final long identifier) {
     super("Unknown blocked caller identifier");
     this.identifier = identifier;
   }
