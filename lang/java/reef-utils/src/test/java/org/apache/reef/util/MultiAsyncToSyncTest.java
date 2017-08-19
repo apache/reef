@@ -139,8 +139,7 @@ final class SynchronousApi implements AutoCloseable {
     }
     int result = -1;
     LOG.log(Level.INFO, "Call getting task result...");
-    result = task.get();
-    return result;
+    return task.get();
   }
 
   /**
@@ -151,14 +150,14 @@ final class SynchronousApi implements AutoCloseable {
     for (final FutureTask<Integer> task : taskQueue) {
       try {
         task.get();
-      } catch (ExecutionException ee) {
+      } catch (final ExecutionException ee) {
         // When asynchronous processing completes after the call to MultiAsyncToSync.block() times
         // out, the call to MultiAsyncToSync.release() will throw this an InvalidIdentifierException
         // and it is expected; otherwise, we flag the error.
         if (!(expectTimeout && ee.getCause() instanceof InvalidIdentifierException)) {
           LOG.log(Level.INFO, "Caught exception waiting for completion...", ee);
         }
-      } catch (Exception e) {
+      } catch (final Exception e) {
         LOG.log(Level.INFO, "Caught exception waiting for completion...", e);
       }
     }
@@ -186,7 +185,7 @@ public final class MultiAsyncToSyncTest {
     try (final SynchronousApi apiObject =
            new SynchronousApi(incrementerSleepTimeSeconds, timeoutPeriodSeconds, false)) {
       final int result = apiObject.apiCall(input);
-      Assert.assertTrue("Value incremented by one", result == (input + 1));
+      Assert.assertEquals("Value incremented by one", input + 1, result);
     }
   }
 
@@ -205,7 +204,7 @@ public final class MultiAsyncToSyncTest {
     try (final SynchronousApi apiObject =
            new SynchronousApi(incrementerSleepTimeSeconds, timeoutPeriodSeconds, true)) {
       final int result = apiObject.apiCall(input);
-      Assert.assertTrue("Timeout occurred", result == 0);
+      Assert.assertEquals("Timeout occurred", result, 0);
     }
   }
 
@@ -238,8 +237,40 @@ public final class MultiAsyncToSyncTest {
       final int result1 = task1.get();
       final int result2 = task2.get();
 
-      Assert.assertTrue("Input incremented by one", result1 == (input + 1));
-      Assert.assertTrue("Input incremented by one", result2 == (input + 2));
+      Assert.assertEquals("Input must be incremented by one", input + 1, result1);
+      Assert.assertEquals("Input must be incremented by one", input + 2, result2);
+    }
+  }
+
+  /**
+   * Verify no race conditions occurs when multiple calls are in flight.
+   */
+  @Test
+  public void testRaceConditions() throws Exception {
+
+    LOG.log(Level.INFO, "Starting...");
+
+    // Parameters that do not force a timeout.
+    final int incrementerSleepTimeSeconds = 1;
+    final long timeoutPeriodSeconds = 10;
+    final String function = "apiCall";
+
+    final int nTasks = 100;
+    final FutureTask[] tasks = new FutureTask[nTasks];
+    final ExecutorService executor = Executors.newFixedThreadPool(10);
+
+    try (final SynchronousApi apiObject =
+           new SynchronousApi(incrementerSleepTimeSeconds, timeoutPeriodSeconds, false)) {
+
+      for (int idx = 0; idx < nTasks; ++idx) {
+        tasks[idx] = new FutureTask<>(new MethodCallable<Integer>(apiObject, function, idx));
+        executor.execute(tasks[idx]);
+      }
+
+      for (int idx = 0; idx < nTasks; ++idx) {
+        final int result = (int)tasks[idx].get();
+        Assert.assertEquals("Input must be incremented by one", idx + 1, result);
+      }
     }
   }
 }

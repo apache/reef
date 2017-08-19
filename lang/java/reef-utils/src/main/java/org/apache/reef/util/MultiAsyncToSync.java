@@ -69,7 +69,7 @@ public final class MultiAsyncToSync {
   public boolean block(final long identifier,
                        final Callable<Boolean> asyncProcessor) throws Exception {
     boolean timeoutOccurred = false;
-    ComplexCondition call = allocate();
+    final ComplexCondition call = allocate();
     call.takeLock();
     try {
       addSleeper(identifier, call);
@@ -98,8 +98,8 @@ public final class MultiAsyncToSync {
    */
   public void release(final long identifier)
         throws InterruptedException, InvalidIdentifierException {
-    ComplexCondition call = getSleeper(identifier);
 
+    final ComplexCondition call = getSleeper(identifier);
     call.takeLock();
     try {
       removeSleeper(identifier);
