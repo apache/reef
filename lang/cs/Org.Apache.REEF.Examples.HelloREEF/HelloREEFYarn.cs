@@ -23,6 +23,7 @@ using System.Threading;
 using Org.Apache.REEF.Client.API;
 using Org.Apache.REEF.Client.Common;
 using Org.Apache.REEF.Client.Yarn;
+using Org.Apache.REEF.Client.Yarn.RestClient;
 using Org.Apache.REEF.Client.YARN;
 using Org.Apache.REEF.Client.YARN.RestClient.DataModel;
 using Org.Apache.REEF.Driver;
@@ -99,9 +100,7 @@ namespace Org.Apache.REEF.Examples.HelloREEF
             LogApplicationReport();
 
             //// This is to test Kill Job Application
-            //// KillJobApplication(result.AppId);
-
-            LogApplicationReport(result.AppId);
+            KillJobApplication(result.AppId);
 
             var state = PullFinalJobStatus(result);
             Logger.Log(Level.Info, "Application final state : {0}.", state);
@@ -121,36 +120,13 @@ namespace Org.Apache.REEF.Examples.HelloREEF
         }
 
         /// <summary>
-        /// Get application report and log for given appId
-        /// </summary>
-        private void LogApplicationReport(string appId)
-        {
-            Logger.Log(Level.Info, "Getting Application report...");
-            var apps = _reefClient.GetApplicationReports().Result;
-            Logger.Log(Level.Info, "Got Application report: {0}", apps.Count);
-            IApplicationReport report;
-            apps.TryGetValue(appId, out report);
-            if (report != null)
-            {
-                Logger.Log(Level.Info, "Application report -- AppId {0}: {1}.", appId, report.ToString());
-            }
-        }
-
-        /// <summary>
         /// Kill Job Application.
         /// </summary>
         /// <param name="appId">Application id to kill</param>
         private void KillJobApplication(string appId)
         {
-            try
-            {
-                var state = _reefClient.KillJobApplication(appId);
-                Logger.Log(Level.Info, "Application killed with state: ", state);
-            }
-            catch (Exception e)
-            {
-                Logger.Log(Level.Error, "Fail to kill Application with exception:", e);
-            }
+            var state = _reefClient.KillJobApplication(appId);
+            Logger.Log(Level.Info, "Application killed with state: ", state);
         }
 
         /// <summary>

@@ -37,10 +37,11 @@ namespace Org.Apache.REEF.Client.YARN
 
         /// <summary>
         /// Kills the job application and returns Job status
-        /// If Application Id is invalid or application has been completed, exception will be thrown.
+        /// If application id is invalid, or application has been completed throw InvalidOperationException.
+        /// If rest request is not accepted, throw YarnRestAPIException.
         /// </summary>
         /// <param name="appId">Application id to kill.</param>
-        /// <returns></returns>
+        /// <returns>It returns the Job Final State.</returns>
         [Unstable("0.17", "Working in progress for rest API status returned")]
         Task<FinalState> KillJobApplication(string appId);
     }

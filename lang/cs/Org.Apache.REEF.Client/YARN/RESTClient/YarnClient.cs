@@ -17,6 +17,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Globalization;
 using System.Net;
 using System.Threading;
@@ -147,6 +148,8 @@ namespace Org.Apache.REEF.Client.Yarn.RestClient
 
         /// <summary>
         /// Kills the application asynchronous.
+        /// If application id is invalid, or application has been completed throw InvalidOperationException.
+        /// If rest request is not accepted, throw YarnRestAPIException.
         /// </summary>
         /// <param name="appId">The application identifier.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
@@ -177,10 +180,10 @@ namespace Org.Apache.REEF.Client.Yarn.RestClient
                             response.StatusCode));
                 }
             }
-            catch (Exception e)
+            catch (AggregateException e)
             {
-                Logger.Log(Level.Error, "YarnClient:KillApplicationAsync got exception", e);
-                throw e;
+                Logger.Log(Level.Error, "YarnClient:KillApplicationAsync got exception for application id {0}, {1}", appId, e);
+                throw new InvalidOperationException("Fail to Kill the application.", e);
             }
         }
 
