@@ -27,7 +27,7 @@ namespace Org.Apache.REEF.Tests.Functional.Telemetry
 {
     [Collection("FunctionalTests")]
     public class TestMetricsMessage : ReefFunctionalTest
-    {
+    {    
         [Fact]
         [Trait("Priority", "1")]
         [Trait("Category", "FunctionalGated")]
@@ -41,15 +41,15 @@ namespace Org.Apache.REEF.Tests.Functional.Telemetry
             var receivedCounterMessage = GetMessageCount(lines, "Received 2 counters with context message:");
             Assert.True(receivedCounterMessage > 1);
 
-            var systemtates = GetMessageCount(lines, "TestSystemState");
-            Assert.Equal(4, systemtates);
+            var systemstates = GetMessageCount(lines, MetricsDriver.EventPrefix);
+            Assert.Equal(4, systemstates);
 
             CleanUp(testFolder);
         }
 
         private static IConfiguration DriverConfigurations()
         {
-            var c1 = DriverConfiguration.ConfigurationModule
+            var driverBasicConfig = DriverConfiguration.ConfigurationModule
                 .Set(DriverConfiguration.OnDriverStarted, GenericType<MetricsDriver>.Class)
                 .Set(DriverConfiguration.OnEvaluatorAllocated, GenericType<MetricsDriver>.Class)
                 .Set(DriverConfiguration.OnContextActive, GenericType<MetricsDriver>.Class)
@@ -57,14 +57,14 @@ namespace Org.Apache.REEF.Tests.Functional.Telemetry
                 .Set(DriverConfiguration.CustomTraceLevel, Level.Info.ToString())
                 .Build();
 
-            var c2 = MetricsServiceConfigurationModule.ConfigurationModule
+            var metricServiceConfig = MetricsServiceConfigurationModule.ConfigurationModule
                 .Set(MetricsServiceConfigurationModule.OnMetricsSink, GenericType<DefaultMetricsSink>.Class)
                 .Set(MetricsServiceConfigurationModule.CounterSinkThreshold, "5")
                 .Build();
 
-            var c3 = DriverMetricsObserverConfigurationModule.ConfigurationModule.Build();
+            var driverMetricConfig = DriverMetricsObserverConfigurationModule.ConfigurationModule.Build();
 
-            return Configurations.Merge(c1, c2, c3);
+            return Configurations.Merge(driverBasicConfig, metricServiceConfig, driverMetricConfig);
         }
     }
 }

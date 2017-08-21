@@ -44,6 +44,7 @@ namespace Org.Apache.REEF.Tests.Functional.Telemetry
     {
         private static readonly Logger Logger = Logger.GetLogger(typeof(MessageDriver));
         private readonly IEvaluatorRequestor _evaluatorRequestor;
+        internal const string EventPrefix = "TestState";
 
         /// <summary>
         /// a set of driver metrics observers.
@@ -66,7 +67,7 @@ namespace Org.Apache.REEF.Tests.Functional.Telemetry
 
         public void OnNext(IDriverStarted value)
         {
-            UpdateMetrics(TestSystemState.TestSystemStateDriverStartedReceived);
+            UpdateMetrics(TestSystemState.DriverStarted);
 
             var request =
                 _evaluatorRequestor.NewBuilder()
@@ -82,7 +83,7 @@ namespace Org.Apache.REEF.Tests.Functional.Telemetry
         public void OnNext(IAllocatedEvaluator value)
         {
             Logger.Log(Level.Info, "Received IAllocatedEvaluator");
-            UpdateMetrics(TestSystemState.TestSystemStateAllocatedEvaluatorReceived);
+            UpdateMetrics(TestSystemState.EvaluatorAllocated);
 
             const string contextId = "ContextID";
             var serviceConfiguration = ServiceConfiguration.ConfigurationModule
@@ -101,7 +102,7 @@ namespace Org.Apache.REEF.Tests.Functional.Telemetry
         public void OnNext(IActiveContext activeContext)
         {
             Logger.Log(Level.Info, "Received IActiveContext");
-            UpdateMetrics(TestSystemState.TestSystemStateActiveContextReceived);
+            UpdateMetrics(TestSystemState.ActiveContextReceived);
 
             const string taskId = "TaskID";
             var taskConfiguration = TaskConfiguration.ConfigurationModule
@@ -114,7 +115,7 @@ namespace Org.Apache.REEF.Tests.Functional.Telemetry
         public void OnNext(ICompletedTask value)
         {
             Logger.Log(Level.Info, "Received ICompletedTask");
-            UpdateMetrics(TestSystemState.TestSystemStateCompletedTaskReceived);
+            UpdateMetrics(TestSystemState.TaskCompleted);
 
             value.ActiveContext.Dispose();
         }
@@ -134,7 +135,7 @@ namespace Org.Apache.REEF.Tests.Functional.Telemetry
         /// </summary>
         private void UpdateMetrics(TestSystemState systemState)
         {
-            var driverMetrics = new DriverMetrics(systemState.ToString(), DateTime.Now);
+            var driverMetrics = new DriverMetrics(EventPrefix + systemState.ToString(), DateTime.Now);
 
             foreach (var metricsObserver in _driverMetricsObservers)
             {
@@ -145,9 +146,9 @@ namespace Org.Apache.REEF.Tests.Functional.Telemetry
 
     internal enum TestSystemState
     {
-        TestSystemStateDriverStartedReceived,
-        TestSystemStateAllocatedEvaluatorReceived,
-        TestSystemStateActiveContextReceived,
-        TestSystemStateCompletedTaskReceived
+        DriverStarted,
+        EvaluatorAllocated,
+        ActiveContextReceived,
+        TaskCompleted
     }
 }

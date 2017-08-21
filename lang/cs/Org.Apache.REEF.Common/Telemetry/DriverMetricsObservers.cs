@@ -17,6 +17,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Xml.Schema;
 using Org.Apache.REEF.Tang.Annotations;
 
 namespace Org.Apache.REEF.Common.Telemetry
@@ -24,7 +25,7 @@ namespace Org.Apache.REEF.Common.Telemetry
     /// <summary>
     /// Named parameter for a set of driver metrics observers
     /// </summary>
-    [NamedParameter]
+    [NamedParameter(documentation: "Observers for Driver Metrics", shortName: "DriverMetricsObservers")]
     public class DriverMetricsObservers : Name<ISet<IObserver<IDriverMetrics>>>
     {
     }
