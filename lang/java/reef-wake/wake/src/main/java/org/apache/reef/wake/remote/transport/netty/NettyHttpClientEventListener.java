@@ -39,7 +39,7 @@ import java.util.logging.Logger;
 final class NettyHttpClientEventListener extends AbstractNettyEventListener {
 
   private static final Logger LOG = Logger.getLogger(NettyHttpClientEventListener.class.getName());
-  private StringBuilder buf = new StringBuilder();
+  private final StringBuilder buf = new StringBuilder();
 
   NettyHttpClientEventListener(
       final ConcurrentMap<SocketAddress, LinkReference> addrToLinkRefMap,
@@ -50,14 +50,14 @@ final class NettyHttpClientEventListener extends AbstractNettyEventListener {
   @Override
   public void channelRead(final ChannelHandlerContext ctx, final Object msg) {
     if (msg instanceof HttpResponse) {
-      LOG.log(Level.FINEST, "HttpResponse Received: {0}", msg);
+      if(LOG.isLoggable(Level.FINEST)) {
+        LOG.log(Level.FINEST, "HttpResponse Received: {0}", msg);
+      }
     } else if (msg instanceof HttpContent) {
       final HttpContent httpContent = (HttpContent) msg;
       final ByteBuf content = httpContent.content();
-      if (content.isReadable()) {
-        buf.append("CONTENT: ");
-        buf.append(content.toString(CharsetUtil.UTF_8));
-        buf.append("\r\n");
+      if (content.isReadable() && LOG.isLoggable(Level.FINEST)) {
+        buf.append("CONTENT: ").append(content.toString(CharsetUtil.UTF_8)).append("\r\n");
       }
 
       if (msg instanceof LastHttpContent) {

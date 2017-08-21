@@ -51,8 +51,8 @@ public final class RemoteConfiguration {
   /**
    *  Unique protocol numbers for choosing protocols.
    */
-  public static final int PROTOCOL_NETTY = 100;
-  public static final int PROTOCOL_HTTP = 101;
+  public static final String PROTOCOL_NETTY = "__PROTOCOL_NETTY__";
+  public static final String PROTOCOL_HTTP = "__PROTOCOL_HTTP__";
 
   private RemoteConfiguration() {
     // empty
@@ -143,8 +143,8 @@ public final class RemoteConfiguration {
   /**
    * Option for use http.
    */
-  @NamedParameter(doc = "Option for use http.", default_value = "" + PROTOCOL_NETTY)
-  public static final class Protocol implements Name<Integer> {
+  @NamedParameter(doc = "Option for use http.", default_value = PROTOCOL_NETTY)
+  public static final class Protocol implements Name<String> {
     // Intentionally empty
   }
 }

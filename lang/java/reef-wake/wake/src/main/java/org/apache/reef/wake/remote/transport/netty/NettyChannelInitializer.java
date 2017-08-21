@@ -32,9 +32,10 @@ import io.netty.handler.ssl.SslContext;
  */
 class NettyChannelInitializer extends ChannelInitializer<SocketChannel> {
 
-  private static final int HANDLER_NETTY = 100;
-  private static final int HANDLER_HTTP_SERVER = 101;
-  private static final int HANDLER_HTTP_CLIENT = 102;
+  /* Types for initiating channel */
+  public enum ChannelType {
+    NETTY, HTTP_SERVER, HTTP_CLIENT
+  }
 
   /**
    * the buffer size of the frame decoder.
@@ -50,12 +51,12 @@ class NettyChannelInitializer extends ChannelInitializer<SocketChannel> {
   /**
    * Type of channel whether it is netty or http client or http server.
    */
-  private final int type;
+  private final ChannelType type;
 
   NettyChannelInitializer(
       final NettyChannelHandlerFactory handlerFactory,
       final SslContext sslContext,
-      final int type) {
+      final ChannelType type) {
     this.handlerFactory = handlerFactory;
     this.sslContext = sslContext;
     this.type = type;
@@ -64,7 +65,7 @@ class NettyChannelInitializer extends ChannelInitializer<SocketChannel> {
   @Override
   protected void initChannel(final SocketChannel ch) throws Exception {
     switch (this.type) {
-    case HANDLER_NETTY:
+    case NETTY:
       ch.pipeline()
           .addLast("frameDecoder", new LengthFieldBasedFrameDecoder(MAXFRAMELENGTH, 0, 4, 0, 4))
           .addLast("bytesDecoder", new ByteArrayDecoder())
@@ -73,7 +74,7 @@ class NettyChannelInitializer extends ChannelInitializer<SocketChannel> {
           .addLast("chunker", new ChunkedReadWriteHandler())
           .addLast("handler", handlerFactory.createChannelInboundHandler());
       break;
-    case HANDLER_HTTP_SERVER:
+    case HTTP_SERVER:
       if (sslContext != null) {
         ch.pipeline().addLast(sslContext.newHandler(ch.alloc()));
       }
@@ -83,7 +84,7 @@ class NettyChannelInitializer extends ChannelInitializer<SocketChannel> {
           .addLast("responseEncoder", new HttpResponseEncoder())
           .addLast("handler", handlerFactory.createChannelInboundHandler());
       break;
-    case HANDLER_HTTP_CLIENT:
+    case HTTP_CLIENT:
       if (sslContext != null) {
         ch.pipeline().addLast(sslContext.newHandler(ch.alloc()));
       }

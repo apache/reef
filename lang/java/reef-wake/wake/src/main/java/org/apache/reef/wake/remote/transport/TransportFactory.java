@@ -40,10 +40,10 @@ public interface TransportFactory {
    * @param exHandler     an exception handler
    * @return transport
    */
-  Transport newInstance(final int port,
-                        final EventHandler<TransportEvent> clientHandler,
-                        final EventHandler<TransportEvent> serverHandler,
-                        final EventHandler<Exception> exHandler);
+  Transport newInstance(int port,
+                        EventHandler<TransportEvent> clientHandler,
+                        EventHandler<TransportEvent> serverHandler,
+                        EventHandler<Exception> exHandler);
 
   /**
    * Creates a transport.
@@ -56,8 +56,7 @@ public interface TransportFactory {
    * @param retryTimeout    retry timeout
    * @return transport
    */
-  Transport newInstance(final String hostAddress,
-                        final int port,
+  Transport newInstance(final String hostAddress, int port,
                         final EStage<TransportEvent> clientStage,
                         final EStage<TransportEvent> serverStage,
                         final int numberOfTries,
@@ -75,13 +74,12 @@ public interface TransportFactory {
    * @param protocol        protocol to use
    * @return transport
    */
-  Transport newInstance(final String hostAddress,
-                        final int port,
+  Transport newInstance(final String hostAddress, int port,
                         final EStage<TransportEvent> clientStage,
                         final EStage<TransportEvent> serverStage,
                         final int numberOfTries,
                         final int retryTimeout,
-                        final int protocol);
+                        final String protocol);
 
   /**
    * Creates a transport.
@@ -96,7 +94,7 @@ public interface TransportFactory {
    * @return transport
    */
   Transport newInstance(final String hostAddress,
-                        final int port,
+                        int port,
                         final EStage<TransportEvent> clientStage,
                         final EStage<TransportEvent> serverStage,
                         final int numberOfTries,
@@ -117,13 +115,13 @@ public interface TransportFactory {
    * @return transport
    */
   Transport newInstance(final String hostAddress,
-                        final int port,
+                        int port,
                         final EStage<TransportEvent> clientStage,
                         final EStage<TransportEvent> serverStage,
                         final int numberOfTries,
                         final int retryTimeout,
                         final TcpPortProvider tcpPortProvider,
-                        final int protocol);
+                        final String protocol);
 
 
 }

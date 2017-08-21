@@ -127,18 +127,16 @@ final class NettyHttpServerEventListener extends AbstractNettyEventListener {
     } else {
       LOG.log(Level.SEVERE, "Unknown type of message received: {0}", msg);
     }
-    LOG.log(Level.FINEST, buf.toString());
+    if(LOG.isLoggable(Level.FINEST)) {
+      LOG.log(Level.FINEST, "Message received {0}", buf);
+    }
   }
 
   private static void appendDecoderResult(final StringBuilder buf, final HttpObject o) {
     final DecoderResult result = o.getDecoderResult();
-    if (result.isSuccess()) {
-      return;
+    if (!result.isSuccess()) {
+      buf.append(".. WITH DECODER FAILURE: ").append(result.cause()).append("\r\n");
     }
-
-    buf.append(".. WITH DECODER FAILURE: ");
-    buf.append(result.cause());
-    buf.append("\r\n");
   }
 
 

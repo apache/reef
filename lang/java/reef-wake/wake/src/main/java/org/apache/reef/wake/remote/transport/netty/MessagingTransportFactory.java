@@ -39,6 +39,7 @@ import javax.inject.Inject;
 public final class MessagingTransportFactory implements TransportFactory {
 
   private final String localAddress;
+  private static final Tang TANG = Tang.Factory.getTang();
 
   @Inject
   private MessagingTransportFactory(final LocalAddressProvider localAddressProvider) {
@@ -59,7 +60,7 @@ public final class MessagingTransportFactory implements TransportFactory {
                                final EventHandler<TransportEvent> serverHandler,
                                final EventHandler<Exception> exHandler) {
 
-    final Injector injector = Tang.Factory.getTang().newInjector();
+    final Injector injector = TANG.newInjector();
     injector.bindVolatileParameter(RemoteConfiguration.HostAddress.class, this.localAddress);
     injector.bindVolatileParameter(RemoteConfiguration.Port.class, port);
     injector.bindVolatileParameter(RemoteConfiguration.RemoteClientStage.class, new SyncStage<>(clientHandler));
@@ -93,7 +94,7 @@ public final class MessagingTransportFactory implements TransportFactory {
                                final int numberOfTries,
                                final int retryTimeout) {
     try {
-      final TcpPortProvider tcpPortProvider = Tang.Factory.getTang().newInjector().getInstance(TcpPortProvider.class);
+      final TcpPortProvider tcpPortProvider = TANG.newInjector().getInstance(TcpPortProvider.class);
       return newInstance(hostAddress, port, clientStage,
               serverStage, numberOfTries, retryTimeout, tcpPortProvider);
     } catch (final InjectionException e) {
@@ -118,9 +119,9 @@ public final class MessagingTransportFactory implements TransportFactory {
                                final EStage<TransportEvent> serverStage,
                                final int numberOfTries,
                                final int retryTimeout,
-                               final int protocol) {
+                               final String protocol) {
     try {
-      final TcpPortProvider tcpPortProvider = Tang.Factory.getTang().newInjector().getInstance(TcpPortProvider.class);
+      final TcpPortProvider tcpPortProvider = TANG.newInjector().getInstance(TcpPortProvider.class);
       return newInstance(hostAddress, port, clientStage,
           serverStage, numberOfTries, retryTimeout, tcpPortProvider);
     } catch (final InjectionException e) {
@@ -172,9 +173,9 @@ public final class MessagingTransportFactory implements TransportFactory {
                                final int numberOfTries,
                                final int retryTimeout,
                                final TcpPortProvider tcpPortProvider,
-                               final int protocol) {
+                               final String protocol) {
 
-    final Injector injector = Tang.Factory.getTang().newInjector();
+    final Injector injector = TANG.newInjector();
     injector.bindVolatileParameter(RemoteConfiguration.HostAddress.class, hostAddress);
     injector.bindVolatileParameter(RemoteConfiguration.Port.class, port);
     injector.bindVolatileParameter(RemoteConfiguration.RemoteClientStage.class, clientStage);

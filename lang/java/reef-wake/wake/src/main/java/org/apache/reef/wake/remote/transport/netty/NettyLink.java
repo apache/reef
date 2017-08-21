@@ -100,16 +100,17 @@ public class NettyLink<T> implements Link<T> {
     if (this.uri != null) {
       try {
         final FullHttpRequest request = new DefaultFullHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.POST, uri.getRawPath());
-        request.headers().set(HttpHeaders.Names.HOST, uri.getHost());
-        request.headers().set(HttpHeaders.Names.CONNECTION, HttpHeaders.Values.KEEP_ALIVE);
-        request.headers().set(HttpHeaders.Names.ACCEPT_ENCODING, HttpHeaders.Values.GZIP);
-        request.headers().set(HttpHeaders.Names.CONTENT_TYPE, "application/wake-transport");
         final ByteBuf buf = Unpooled.copiedBuffer(encoder.encode(message));
-        request.headers().set(HttpHeaders.Names.CONTENT_LENGTH, buf.readableBytes());
+        request.headers()
+            .set(HttpHeaders.Names.HOST, uri.getHost())
+            .set(HttpHeaders.Names.CONNECTION, HttpHeaders.Values.KEEP_ALIVE)
+            .set(HttpHeaders.Names.ACCEPT_ENCODING, HttpHeaders.Values.GZIP)
+            .set(HttpHeaders.Names.CONTENT_TYPE, "application/wake-transport")
+            .set(HttpHeaders.Names.CONTENT_LENGTH, buf.readableBytes());
         request.content().clear().writeBytes(buf);
         final ChannelFuture future = channel.writeAndFlush(request);
         future.sync();
-        if (listener !=  null) {
+        if (listener != null) {
           future.addListener(new NettyChannelFutureListener<>(message, listener));
         }
       } catch (final InterruptedException ex) {
@@ -117,7 +118,7 @@ public class NettyLink<T> implements Link<T> {
       }
     } else {
       final ChannelFuture future = channel.writeAndFlush(Unpooled.wrappedBuffer(encoder.encode(message)));
-      if (listener !=  null) {
+      if (listener != null) {
         future.addListener(new NettyChannelFutureListener<>(message, listener));
       }
     }
