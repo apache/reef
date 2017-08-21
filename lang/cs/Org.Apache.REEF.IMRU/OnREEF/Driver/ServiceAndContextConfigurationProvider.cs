@@ -67,7 +67,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
 
         /// <summary>
         /// Constructs the object which maintains partitionDescriptor Ids so that to provide proper data load configuration
-        /// It also maintain the partitionDescriptor id and context id mapping to ensure same context id alway assign the same data partition
+        /// It also maintains the partitionDescriptor id and context id mapping to ensure same context id alway assign the same data partition
         /// This is to ensure if the tasks are added to the typology based on the sequence of context id, the result is deterministic. 
         /// </summary>
         /// <param name="dataset">partition input dataset</param>
@@ -92,14 +92,19 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         /// <returns>Whether failed evaluator is master or not</returns>
         internal void RemoveEvaluatorIdFromPartitionIdProvider(string evaluatorId)
         {
-            if (!_partitionContextIdProvider.ContainsKey(evaluatorId))
+            PartitionDescriptorContextIdBundle partitionDescriptor;
+            if (_partitionContextIdProvider.TryGetValue(evaluatorId, out partitionDescriptor))
             {
-                var msg = string.Format(CultureInfo.InvariantCulture, 
-                    "Partition descriptor for Failed evaluator:{0} not present", evaluatorId);
-                Exceptions.Throw(new Exception(msg), Logger);
+                _availablePartitionDescriptorContextIds.Push(partitionDescriptor);
+                _partitionContextIdProvider.Remove(evaluatorId);
             }
-            _availablePartitionDescriptorContextIds.Push(_partitionContextIdProvider[evaluatorId]);
-            _partitionContextIdProvider.Remove(evaluatorId);
+            else
+            {
+                var msg = string.Format(CultureInfo.InvariantCulture,
+                    "Partition descriptor for Failed evaluator:{0} not present",
+                    evaluatorId);
+                throw new Exception(msg);
+            }
         }
 
         /// <summary>
