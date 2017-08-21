@@ -58,56 +58,59 @@ public final class MultiAsyncToSync {
   /**
    * Put the caller to sleep on a specific release identifier.
    * @param identifier The identifier required to awake the caller via the {@code release()} method.
-   * @param asyncProcessor A callable object that initiates the asynchronous processing associated
-   *                       with the call. This will occur inside the condition lock to prevent
-   *                       the processing from generating the signal before the calling thread blocks.
-   * @return A boolean value that indicates whether or not a timeout occurred.
+   * @param asyncProcessor A callable object which returns {@code Boolean} that initiates the asynchronous
+   *                       processing associated with the call. This will occur inside the condition lock
+   *                       to prevent the processing from generating the signal before the calling thread
+   *                       blocks. {@code asyncProcessor.call()} should return true on success.
+   * @return A boolean value that indicates whether or not a timeout or error occurred.
    * @throws InterruptedException The thread was interrupted while waiting on a condition.
    * @throws InvalidIdentifierException The identifier parameter is invalid.
    * @throws Exception The callable object referenced by the asyncProcessor parameter threw an exception.
    */
-  public boolean block(final long identifier,
-                       final Callable<Boolean> asyncProcessor) throws Exception {
-    boolean timeoutOccurred = false;
+  public boolean block(final long identifier, final Callable<Boolean> asyncProcessor) throws Exception {
+    boolean error;
     final ComplexCondition call = allocate();
     call.takeLock();
     try {
+      // Add the call identifier to the sleeper map so release() can identify this instantiation.
       addSleeper(identifier, call);
-      if (asyncProcessor.call()) {
-        // Put the call to sleep until the ack comes back.
+      // Invoke the caller's asynchronous processing while holding the lock
+      // so a wakeup cannot occur before the caller sleeps.
+      error = !asyncProcessor.call();
+      if (!error) {
+        // Put the caller to sleep until the ack comes back. Note: we atomically
+        // give up the look as the caller sleeps and atomically reacquire the
+        // the lock as we wake up.
         LOG.log(Level.FINER, "Putting caller to sleep on identifier [{0}]", identifier);
-        timeoutOccurred = call.waitForSignal();
-
-        if (timeoutOccurred) {
-          LOG.log(Level.FINER, "Caller sleeping on identifier [{0}] timed out", identifier);
-          removeSleeper(identifier);
-          recycle(call);
+        error = call.waitForSignal();
+        if (error) {
+          LOG.log(Level.SEVERE, "Call timed out on identifier [{0}]", identifier);
         }
       } else {
-        removeSleeper(identifier);
+        LOG.log(Level.SEVERE, "Error starting caller's asynchronous processing on identifier [{0}]", identifier);
       }
     } finally {
+      // Whether or not the call completed successfully, always remove
+      // the call from the sleeper map, release the lock and cleanup.
+      removeSleeper(identifier);
       call.releaseLock();
+      recycle(call);
     }
-    return timeoutOccurred;
+    return error;
   }
 
   /**
    * Wake the caller sleeping on the specific identifier.
    * @param identifier The message identifier of the caller who should be released.
    */
-  public void release(final long identifier)
-        throws InterruptedException, InvalidIdentifierException {
-
+  public void release(final long identifier) throws InterruptedException, InvalidIdentifierException {
     final ComplexCondition call = getSleeper(identifier);
     call.takeLock();
     try {
-      removeSleeper(identifier);
       LOG.log(Level.FINER, "Waking caller sleeping on identifier [{0}]", identifier);
       call.signalCondition();
     } finally {
       call.releaseLock();
-      recycle(call);
     }
   }
 
@@ -116,11 +119,8 @@ public final class MultiAsyncToSync {
    * @return A complex condition object.
    */
   private ComplexCondition allocate() {
-    ComplexCondition call = freeQueue.poll();
-    if (null == call) {
-      call = new ComplexCondition(timeoutPeriod, timeoutUnits);
-    }
-    return call;
+    final ComplexCondition call = freeQueue.poll();
+    return call != null ? call : new ComplexCondition(timeoutPeriod, timeoutUnits);
   }
 
   /**
@@ -128,9 +128,7 @@ public final class MultiAsyncToSync {
    * @param call The complex condition to be recycled.
    */
   private void recycle(final ComplexCondition call) {
-    if (null != call) {
-      freeQueue.add(call);
-    }
+    freeQueue.add(call);
   }
 
   /**

@@ -100,6 +100,9 @@ final class SynchronousApi implements AutoCloseable {
     this.executor = Executors.newFixedThreadPool(2);
   }
 
+  /**
+   * Initiates asynchronous processing inside the condition lock.
+   */
   private class AsyncInitiator implements Callable<Boolean> {
     private final FutureTask<Integer> task;
     private final ExecutorService executor;
@@ -137,7 +140,6 @@ final class SynchronousApi implements AutoCloseable {
       // Timeout occurred before the asynchronous processing completed.
       return 0;
     }
-    int result = -1;
     LOG.log(Level.INFO, "Call getting task result...");
     return task.get();
   }
@@ -150,13 +152,6 @@ final class SynchronousApi implements AutoCloseable {
     for (final FutureTask<Integer> task : taskQueue) {
       try {
         task.get();
-      } catch (final ExecutionException ee) {
-        // When asynchronous processing completes after the call to MultiAsyncToSync.block() times
-        // out, the call to MultiAsyncToSync.release() will throw this an InvalidIdentifierException
-        // and it is expected; otherwise, we flag the error.
-        if (!(expectTimeout && ee.getCause() instanceof InvalidIdentifierException)) {
-          LOG.log(Level.INFO, "Caught exception waiting for completion...", ee);
-        }
       } catch (final Exception e) {
         LOG.log(Level.INFO, "Caught exception waiting for completion...", e);
       }
