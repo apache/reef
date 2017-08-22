@@ -84,7 +84,6 @@ final class SynchronousApi implements AutoCloseable {
   private final ExecutorService executor;
   private final ConcurrentLinkedQueue<FutureTask<Integer>> taskQueue = new ConcurrentLinkedQueue<>();
   private final AtomicLong idCounter = new AtomicLong(0);
-  private final boolean expectTimeout;
 
   /**
    * Parameterize the object as to length of processing time and call timeout.
@@ -93,11 +92,10 @@ final class SynchronousApi implements AutoCloseable {
    * @param timeoutPeriodSeconds The length of time before the call will timeout.
    */
   SynchronousApi(final int incrementerSleepTimeSeconds,
-                 final long timeoutPeriodSeconds, final boolean expectTimeout) {
-    this.expectTimeout = expectTimeout;
+                 final long timeoutPeriodSeconds, final int numberOfThreads) {
     this.incrementerSleepTimeMillis = 1000 * incrementerSleepTimeSeconds;
     this.blocker = new MultiAsyncToSync(timeoutPeriodSeconds, SECONDS);
-    this.executor = Executors.newFixedThreadPool(2);
+    this.executor = Executors.newFixedThreadPool(numberOfThreads);
   }
 
   /**
@@ -178,7 +176,7 @@ public final class MultiAsyncToSyncTest {
     final int input = 1;
 
     try (final SynchronousApi apiObject =
-           new SynchronousApi(incrementerSleepTimeSeconds, timeoutPeriodSeconds, false)) {
+           new SynchronousApi(incrementerSleepTimeSeconds, timeoutPeriodSeconds, 2)) {
       final int result = apiObject.apiCall(input);
       Assert.assertEquals("Value incremented by one", input + 1, result);
     }
@@ -197,7 +195,7 @@ public final class MultiAsyncToSyncTest {
     final int input = 1;
 
     try (final SynchronousApi apiObject =
-           new SynchronousApi(incrementerSleepTimeSeconds, timeoutPeriodSeconds, true)) {
+           new SynchronousApi(incrementerSleepTimeSeconds, timeoutPeriodSeconds, 2)) {
       final int result = apiObject.apiCall(input);
       Assert.assertEquals("Timeout occurred", result, 0);
     }
@@ -216,7 +214,7 @@ public final class MultiAsyncToSyncTest {
     final long timeoutPeriodSeconds = 4;
 
     try (final SynchronousApi apiObject =
-           new SynchronousApi(incrementerSleepTimeSeconds, timeoutPeriodSeconds, false)) {
+           new SynchronousApi(incrementerSleepTimeSeconds, timeoutPeriodSeconds, 2)) {
       final String function = "apiCall";
       final int input = 1;
       final FutureTask<Integer> task1 =
@@ -255,7 +253,7 @@ public final class MultiAsyncToSyncTest {
     final ExecutorService executor = Executors.newFixedThreadPool(10);
 
     try (final SynchronousApi apiObject =
-           new SynchronousApi(incrementerSleepTimeSeconds, timeoutPeriodSeconds, false)) {
+           new SynchronousApi(incrementerSleepTimeSeconds, timeoutPeriodSeconds, 10)) {
 
       for (int idx = 0; idx < nTasks; ++idx) {
         tasks[idx] = new FutureTask<>(new MethodCallable<Integer>(apiObject, function, idx));

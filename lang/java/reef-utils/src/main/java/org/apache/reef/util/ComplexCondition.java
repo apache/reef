@@ -45,13 +45,13 @@ public final class ComplexCondition {
    * variable that can be used synchronize waiters and signalers.
    * Typical usage:
    * {@code
-   *   cv.takeLock();
+   *   cv.lock();
    *   try {
    *     // access shared objects.
-   *     cv.waitForSignal(); // or cv.signalCondition()
+   *     cv.await(); // or cv.signal()
    *     // access shared objects.
    *   } finally {
-   *     cv.releaseLock();
+   *     cv.unlock();
    *   }
    * }
    * @param timeoutPeriod The length of time in units given by the the timeoutUnits
@@ -66,8 +66,8 @@ public final class ComplexCondition {
   /**
    * Declare a threads intention to either wait or signal the condition. Any work
    * with objects that are shared between the waiter and signaler should only be
-   * accessed after calling {@code preop()} and before calling {@code waitForSignal()} or
-   * {@code signalCondition()}.
+   * accessed after calling {@code preop()} and before calling {@code await()} or
+   * {@code signal()}.
    */
   public void lock() {
     lockVar.lock();
@@ -76,28 +76,28 @@ public final class ComplexCondition {
   /**
    * Declare a threads intention release the condition after a call to wait or signal.
    * Any work with objects that are shared between the waiter and signaler should only
-   * be access after {@code waitForSignal()} or {@code signalCondition()} and before
-   * calling {@code releaseLock()}.
+   * be access after {@code await()} or {@code signal()} and before
+   * calling {@code unlock()}.
    */
   public void unlock() {
     lockVar.unlock();
   }
 
   /**
-   * Wait for a signal on the condition. Must call {@code takeLock()} first
-   * and {@code releaseLock()} afterwards.
+   * Wait for a signal on the condition. Must call {@code lock()} first
+   * and {@code unlock()} afterwards.
    * @return A boolean value that indicates whether or not a timeout occurred.
    * @throws InterruptedException The calling thread was interrupted by another thread.
    */
-  public boolean waitForSignal() throws InterruptedException {
+  public boolean await() throws InterruptedException {
     return !conditionVar.await(timeoutPeriod, timeoutUnits);
   }
 
   /**
-   * Signal the sleeper on the condition. Must have called {@code takeLock()} first
-   * and {@code releaseLock()} afterwards.
+   * Signal the sleeper on the condition. Must have called {@code lock()} first
+   * and {@code unlock()} afterwards.
    */
-  public void signalCondition() {
+  public void signal() {
     conditionVar.signal();
   }
 }

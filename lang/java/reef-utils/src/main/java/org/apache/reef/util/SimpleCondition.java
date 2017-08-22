@@ -17,6 +17,7 @@
  */
 package org.apache.reef.util;
 
+import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
@@ -27,8 +28,8 @@ import java.util.concurrent.locks.ReentrantLock;
  * condition variable interface.
  */
 public final class SimpleCondition {
-  private final Lock lock = new ReentrantLock();
-  private final Condition condition = lock.newCondition();
+  private final Lock lockVar = new ReentrantLock();
+  private final Condition conditionVar = lockVar.newCondition();
   private final long timeoutPeriod;
   private final TimeUnit timeoutUnits;
   private static final long DEFAULT_TIMEOUT = 10;
@@ -52,31 +53,55 @@ public final class SimpleCondition {
   }
 
   /**
-   * Blocks the caller until signalWaitComplete() is called or a timeout occurs.
+   * Blocks the caller until {@code signal()} is called or a timeout occurs.
+   * Logical structure:
+   * {@code
+   *   cv.lock();
+   *   try {
+   *     doTry();
+   *     cv.await(); // or cv.signal()
+   *   } finally {
+   *     doFinally();
+   *     cv.unlock();
+   *   }
+   * }
+   * @param doTry A {@code Callable<TTry>} object that is called after the internal
+   *              condition lock is taken but before waiting on the condition occurs.
+   * @param doFinally A {@code Callable<TFinally>} object that is called after the wakeup
+   *                  on the condition occurs but before giving up the condition lock occurs.
    * @return A boolean value that indicates whether or not a timeout occurred.
    * @throws InterruptedException Thread was interrupted by another thread while
    * waiting for the signal.
+   * @param <TTry>
+   * @param <TFinally>
+   * @throws Exception
    */
-  public boolean waitForSignal() throws InterruptedException {
-    boolean timeoutOccurred;
-    lock.lock();
+  public <TTry, TFinally> boolean await(Callable<TTry> doTry, Callable<TFinally> doFinally) throws Exception {
+    final boolean timeoutOccurred;
+    lockVar.lock();
     try {
-      timeoutOccurred = !condition.await(timeoutPeriod, timeoutUnits);
+      if (null != doTry) {
+        doTry.call();
+      }
+      timeoutOccurred = !conditionVar.await(timeoutPeriod, timeoutUnits);
     } finally {
-      lock.unlock();
+      if (null != doFinally) {
+        doFinally.call();
+      }
+      lockVar.unlock();
     }
     return timeoutOccurred;
   }
 
   /**
-   * Wakes the thread sleeping in waitForSignal().
+   * Wakes the thread sleeping in await().
    */
-  public void signalWaitComplete() {
-    lock.lock();
+  public void signal() {
+    lockVar.lock();
     try {
-      condition.signal();
+      conditionVar.signal();
     } finally {
-      lock.unlock();
+      lockVar.unlock();
     }
   }
 }

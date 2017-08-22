@@ -82,7 +82,7 @@ public final class MultiAsyncToSync {
         // give up the look as the caller sleeps and atomically reacquire the
         // the lock as we wake up.
         LOG.log(Level.FINER, "Putting caller to sleep on identifier [{0}]", identifier);
-        errorOccurred = call.waitForSignal();
+        errorOccurred = call.await();
         if (errorOccurred) {
           LOG.log(Level.SEVERE, "Call timed out on identifier [{0}]", identifier);
         }
@@ -93,8 +93,8 @@ public final class MultiAsyncToSync {
       // Whether or not the call completed successfully, always remove
       // the call from the sleeper map, release the lock and cleanup.
       removeSleeper(identifier);
-      call.unlock();
       recycle(call);
+      call.unlock();
     }
     return errorOccurred;
   }
@@ -108,7 +108,7 @@ public final class MultiAsyncToSync {
     call.lock();
     try {
       LOG.log(Level.FINER, "Waking caller sleeping on identifier [{0}]", identifier);
-      call.signalCondition();
+      call.signal();
     } finally {
       call.unlock();
     }
