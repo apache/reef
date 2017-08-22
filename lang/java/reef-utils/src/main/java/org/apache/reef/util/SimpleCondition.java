@@ -75,7 +75,8 @@ public final class SimpleCondition {
    * @return A boolean value that indicates whether or not a timeout occurred.
    * @throws InterruptedException Thread was interrupted by another thread while
    * waiting for the signal.
-   * @throws Exception The callers
+   * @throws Exception The callers (@code doTry} or {@code doFinally} future task
+   *                   threw an exception.
    */
   public <TTry, TFinally> boolean await(final FutureTask<TTry> doTry,
                                         final FutureTask<TFinally> doFinally) throws Exception {
@@ -105,7 +106,7 @@ public final class SimpleCondition {
   }
 
   /**
-   * Wakes the thread sleeping in await().
+   * Wakes the thread sleeping in (@code await()}.
    */
   public void signal() {
     lockVar.lock();
