@@ -68,7 +68,7 @@ public final class MultiAsyncToSync {
    * @throws Exception The callable object referenced by the asyncProcessor parameter threw an exception.
    */
   public boolean block(final long identifier, final Callable<Boolean> asyncProcessor) throws Exception {
-    boolean error;
+    boolean errorOccurred;
     final ComplexCondition call = allocate();
     call.takeLock();
     try {
@@ -76,14 +76,14 @@ public final class MultiAsyncToSync {
       addSleeper(identifier, call);
       // Invoke the caller's asynchronous processing while holding the lock
       // so a wakeup cannot occur before the caller sleeps.
-      error = !asyncProcessor.call();
-      if (!error) {
+      errorOccurred = !asyncProcessor.call();
+      if (!errorOccurred) {
         // Put the caller to sleep until the ack comes back. Note: we atomically
         // give up the look as the caller sleeps and atomically reacquire the
         // the lock as we wake up.
         LOG.log(Level.FINER, "Putting caller to sleep on identifier [{0}]", identifier);
-        error = call.waitForSignal();
-        if (error) {
+        errorOccurred = call.waitForSignal();
+        if (errorOccurred) {
           LOG.log(Level.SEVERE, "Call timed out on identifier [{0}]", identifier);
         }
       } else {
@@ -96,7 +96,7 @@ public final class MultiAsyncToSync {
       call.releaseLock();
       recycle(call);
     }
-    return error;
+    return errorOccurred;
   }
 
   /**
