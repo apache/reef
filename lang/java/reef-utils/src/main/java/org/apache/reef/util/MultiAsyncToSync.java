@@ -73,8 +73,8 @@ public final class MultiAsyncToSync {
   public <TAsync> boolean block(final long identifier, final FutureTask<TAsync> asyncProcessor) throws Exception {
     final boolean timeoutOccurred;
     final ComplexCondition call = allocate();
-    call.lock();
     try {
+      call.lock();
       // Add the call identifier to the sleeper map so release() can identify this instantiation.
       addSleeper(identifier, call);
       // Invoke the caller's asynchronous processing while holding the lock

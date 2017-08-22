@@ -77,7 +77,8 @@ public final class SimpleCondition {
    * waiting for the signal.
    * @throws Exception The callers
    */
-  public <TTry, TFinally> boolean await(FutureTask<TTry> doTry, FutureTask<TFinally> doFinally) throws Exception {
+  public <TTry, TFinally> boolean await(final FutureTask<TTry> doTry,
+                                        final FutureTask<TFinally> doFinally) throws Exception {
     final boolean timeoutOccurred;
     lockVar.lock();
     try {
@@ -92,7 +93,11 @@ public final class SimpleCondition {
     } finally {
       if (null != doFinally) {
         // Whether or not a timeout occurred, call the user's cleanup code.
-        doFinally.run();
+        try {
+          doFinally.run();
+        } finally {
+          lockVar.unlock();
+        }
       }
       lockVar.unlock();
     }
