@@ -33,7 +33,7 @@ import java.util.logging.Logger;
  * Generic functionality for the Netty event listener.
  * This is a base class for client and server versions.
  */
-public abstract class AbstractNettyEventListener implements NettyEventListener {
+abstract class AbstractNettyEventListener implements NettyEventListener {
 
   protected static final Logger LOG = Logger.getLogger(AbstractNettyEventListener.class.getName());
 
@@ -41,9 +41,9 @@ public abstract class AbstractNettyEventListener implements NettyEventListener {
   protected final EStage<TransportEvent> stage;
   protected EventHandler<Exception> exceptionHandler;
 
-  public AbstractNettyEventListener(
-          final ConcurrentMap<SocketAddress, LinkReference> addrToLinkRefMap,
-          final EStage<TransportEvent> stage) {
+  AbstractNettyEventListener(
+      final ConcurrentMap<SocketAddress, LinkReference> addrToLinkRefMap,
+      final EStage<TransportEvent> stage) {
     this.addrToLinkRefMap = addrToLinkRefMap;
     this.stage = stage;
   }

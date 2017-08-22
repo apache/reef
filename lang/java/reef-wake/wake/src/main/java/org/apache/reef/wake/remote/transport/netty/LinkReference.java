@@ -26,27 +26,27 @@ import java.util.concurrent.atomic.AtomicInteger;
  * A reference for a link.
  * When channel became active, LinkReference is created and mapped with remote address.
  */
-public final class LinkReference {
+final class LinkReference {
 
   private final AtomicInteger connectInProgress = new AtomicInteger(0);
   private Link<?> link;
 
-  public LinkReference() {
+  LinkReference() {
   }
 
-  public LinkReference(final Link<?> link) {
+  LinkReference(final Link<?> link) {
     this.link = link;
   }
 
-  public synchronized Link<?> getLink() {
+  synchronized Link<?> getLink() {
     return this.link;
   }
 
-  public synchronized void setLink(final Link<?> link) {
+  synchronized void setLink(final Link<?> link) {
     this.link = link;
   }
 
-  public AtomicInteger getConnectInProgress() {
+  AtomicInteger getConnectInProgress() {
     return this.connectInProgress;
   }
 }

@@ -24,7 +24,7 @@ import io.netty.channel.ChannelInboundHandlerAdapter;
 /**
  * Factory that creates a Netty channel handler.
  */
-public interface NettyChannelHandlerFactory {
+interface NettyChannelHandlerFactory {
 
   /**
    * Creates a channel inbound handler.

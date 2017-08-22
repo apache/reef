@@ -23,7 +23,7 @@ import io.netty.channel.ChannelHandlerContext;
 /**
  * Netty event listener.
  */
-public interface NettyEventListener {
+interface NettyEventListener {
 
   /**
    * Handles the message.
