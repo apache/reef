@@ -70,7 +70,7 @@ public final class MultiAsyncToSync {
   public boolean block(final long identifier, final Callable<Boolean> asyncProcessor) throws Exception {
     boolean errorOccurred;
     final ComplexCondition call = allocate();
-    call.takeLock();
+    call.lock();
     try {
       // Add the call identifier to the sleeper map so release() can identify this instantiation.
       addSleeper(identifier, call);
@@ -93,7 +93,7 @@ public final class MultiAsyncToSync {
       // Whether or not the call completed successfully, always remove
       // the call from the sleeper map, release the lock and cleanup.
       removeSleeper(identifier);
-      call.releaseLock();
+      call.unlock();
       recycle(call);
     }
     return errorOccurred;
@@ -105,12 +105,12 @@ public final class MultiAsyncToSync {
    */
   public void release(final long identifier) throws InterruptedException, InvalidIdentifierException {
     final ComplexCondition call = getSleeper(identifier);
-    call.takeLock();
+    call.lock();
     try {
       LOG.log(Level.FINER, "Waking caller sleeping on identifier [{0}]", identifier);
       call.signalCondition();
     } finally {
-      call.releaseLock();
+      call.unlock();
     }
   }
 

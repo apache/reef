@@ -27,8 +27,8 @@ import java.util.concurrent.locks.ReentrantLock;
  * condition variable interface.
  */
 public final class ComplexCondition {
-  private final Lock lock = new ReentrantLock();
-  private final Condition condition = lock.newCondition();
+  private final Lock lockVar = new ReentrantLock();
+  private final Condition conditionVar = lockVar.newCondition();
   private final long timeoutPeriod;
   private final TimeUnit timeoutUnits;
   private static final long DEFAULT_TIMEOUT = 10;
@@ -69,8 +69,8 @@ public final class ComplexCondition {
    * accessed after calling {@code preop()} and before calling {@code waitForSignal()} or
    * {@code signalCondition()}.
    */
-  public void takeLock() {
-    lock.lock();
+  public void lock() {
+    lockVar.lock();
   }
 
   /**
@@ -79,8 +79,8 @@ public final class ComplexCondition {
    * be access after {@code waitForSignal()} or {@code signalCondition()} and before
    * calling {@code releaseLock()}.
    */
-  public void releaseLock() {
-    lock.unlock();
+  public void unlock() {
+    lockVar.unlock();
   }
 
   /**
@@ -90,7 +90,7 @@ public final class ComplexCondition {
    * @throws InterruptedException The calling thread was interrupted by another thread.
    */
   public boolean waitForSignal() throws InterruptedException {
-    return !condition.await(timeoutPeriod, timeoutUnits);
+    return !conditionVar.await(timeoutPeriod, timeoutUnits);
   }
 
   /**
@@ -98,6 +98,6 @@ public final class ComplexCondition {
    * and {@code releaseLock()} afterwards.
    */
   public void signalCondition() {
-    condition.signal();
+    conditionVar.signal();
   }
 }
