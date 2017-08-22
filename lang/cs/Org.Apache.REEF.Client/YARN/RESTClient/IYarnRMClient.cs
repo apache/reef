@@ -65,19 +65,17 @@ namespace Org.Apache.REEF.Client.Yarn.RestClient
 
         /// <summary>
         /// Kills the application asynchronous.
-        /// If application id is invalid, or application has been completed throw InvalidOperationException.
-        /// If rest request is not accepted, throw YarnRestAPIException.
         /// </summary>
         /// <param name="appId">The application identifier.</param>
-        void KillApplicationAsync(string appId);
+        /// <returns>Returns true if the application is killed otherwise return false.</returns>
+        Task<bool> KillApplicationAsync(string appId);
 
         /// <summary>
         /// Kills the application asynchronous.
-        /// If application id is invalid, or application has been completed throw InvalidOperationException.
-        /// If rest request is not accepted, throw YarnRestAPIException.
         /// </summary>
         /// <param name="appId">The application identifier.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
-        void KillApplicationAsync(string appId, CancellationToken cancellationToken);
+        /// <returns>Returns true if the application is killed otherwise returns false.</returns>
+        Task<bool> KillApplicationAsync(string appId, CancellationToken cancellationToken);
     }
 }

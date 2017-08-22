@@ -15,7 +15,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -23,7 +22,6 @@ using System.Threading;
 using Org.Apache.REEF.Client.API;
 using Org.Apache.REEF.Client.Common;
 using Org.Apache.REEF.Client.Yarn;
-using Org.Apache.REEF.Client.Yarn.RestClient;
 using Org.Apache.REEF.Client.YARN;
 using Org.Apache.REEF.Client.YARN.RestClient.DataModel;
 using Org.Apache.REEF.Driver;
@@ -99,15 +97,15 @@ namespace Org.Apache.REEF.Examples.HelloREEF
             var result = _reefClient.SubmitAndGetJobStatus(helloJobRequest);
             LogApplicationReport();
 
-            //// This is to test Kill Job Application
-            KillJobApplication(result.AppId);
+            //// This is an example to Kill Job Application
+            //// KillJobApplication(result.AppId);
 
             var state = PullFinalJobStatus(result);
             Logger.Log(Level.Info, "Application final state : {0}.", state);
         }
 
         /// <summary>
-        /// Get application report and log.
+        /// Sample code to get application report and log.
         /// </summary>
         private void LogApplicationReport()
         {
@@ -120,17 +118,25 @@ namespace Org.Apache.REEF.Examples.HelloREEF
         }
 
         /// <summary>
-        /// Kill Job Application.
+        /// Sample code to kill Job Application.
         /// </summary>
         /// <param name="appId">Application id to kill</param>
         private void KillJobApplication(string appId)
         {
-            var state = _reefClient.KillJobApplication(appId);
-            Logger.Log(Level.Info, "Application killed with state: ", state);
+            if (_reefClient.KillJobApplication(appId))
+            {
+                Logger.Log(Level.Info, "Application {0} is killed successfully.", appId);
+            }
+            else
+            {
+                Logger.Log(Level.Info, 
+                    "Failed to kill application {0}, possible reasons are application id is invalid or application has completed.", 
+                    appId);
+            }
         }
 
         /// <summary>
-        /// This is to pull job final status until the Job is done
+        /// Sample code to pull job final status until the Job is done
         /// </summary>
         /// <param name="jobSubmitionResult"></param>
         /// <returns></returns>

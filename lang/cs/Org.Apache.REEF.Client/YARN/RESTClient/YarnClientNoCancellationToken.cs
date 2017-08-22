@@ -83,10 +83,11 @@ namespace Org.Apache.REEF.Client.Yarn.RestClient
         /// Kills the application asynchronous.
         /// </summary>
         /// <param name="appId">The application identifier.</param>
-        public async void KillApplicationAsync(string appId)
+        /// <returns>Returns true if the application is killed otherwise returns false.</returns>
+        public async Task<bool> KillApplicationAsync(string appId)
         {
             await new RemoveSynchronizationContextAwaiter();
-            KillApplicationAsync(appId, CancellationToken.None);
+            return KillApplicationAsync(appId, CancellationToken.None).Result;
         }
     }
 }

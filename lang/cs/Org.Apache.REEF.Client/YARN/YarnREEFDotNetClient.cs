@@ -158,14 +158,13 @@ namespace Org.Apache.REEF.Client.YARN
         }
 
         /// <summary>
-        /// Kills the job application and return Job status
+        /// Kills the job application.
         /// </summary>
         /// <param name="appId"></param>
-        /// <returns>FinalState of the application</returns>
-        public async Task<FinalState> KillJobApplication(string appId)
+        /// <returns>Returns true if the application is killed otherwise returns false.</returns>
+        public bool KillJobApplication(string appId)
         {
-            _yarnRMClient.KillApplicationAsync(appId);
-            return await GetJobFinalStatus(appId);
+            return _yarnRMClient.KillApplicationAsync(appId).Result;
         }
 
         private SubmitApplication CreateApplicationSubmissionRequest(

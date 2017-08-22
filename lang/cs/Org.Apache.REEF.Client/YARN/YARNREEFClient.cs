@@ -145,16 +145,13 @@ namespace Org.Apache.REEF.Client.Yarn
         }
 
         /// <summary>
-        /// Kills the job application and returns Job status
-        /// If application id is invalid, or application has been completed throw InvalidOperationException.
-        /// If rest request is not accepted, throw YarnRestAPIException.
+        /// Kills the job application.
         /// </summary>
-        /// <param name="appId">application id to kill</param>
-        /// <returns>FinalState of the application</returns>
-        public async Task<FinalState> KillJobApplication(string appId)
+        /// <param name="appId">Application id to kill.</param>
+        /// <returns>Returns true if the application is killed otherwise returns false.</returns>
+        public bool KillJobApplication(string appId)
         {
-            _yarnClient.KillApplicationAsync(appId);
-            return await GetJobFinalStatus(appId);
+            return _yarnClient.KillApplicationAsync(appId).Result;
         }
 
         private void Launch(JobRequest jobRequest, string driverFolderPath)
