@@ -49,10 +49,11 @@ public final class RemoteConfiguration {
 
 
   /**
-   *  Unique protocol numbers for choosing protocols.
+   *  Unique protocol String for choosing protocols.
    */
   public static final String PROTOCOL_NETTY = "__PROTOCOL_NETTY__";
   public static final String PROTOCOL_HTTP = "__PROTOCOL_HTTP__";
+  public static final String PROTOCOL_HTTPS = "__PROTOCOL_HTTPS__";
 
   private RemoteConfiguration() {
     // empty

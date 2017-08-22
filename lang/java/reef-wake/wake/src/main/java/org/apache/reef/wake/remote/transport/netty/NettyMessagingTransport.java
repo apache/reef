@@ -61,6 +61,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import static org.apache.reef.wake.remote.RemoteConfiguration.PROTOCOL_HTTP;
+import static org.apache.reef.wake.remote.RemoteConfiguration.PROTOCOL_HTTPS;
 import static org.apache.reef.wake.remote.RemoteConfiguration.PROTOCOL_NETTY;
 import static org.apache.reef.wake.remote.transport.netty.NettyChannelInitializer.ChannelType;
 
@@ -143,12 +144,13 @@ public final class NettyMessagingTransport implements Transport {
 
     supportsSSL = System.getProperty("ssl") != null;
 
-    if (protocolType.equals(PROTOCOL_HTTP)) {
+    if (protocolType.equals(PROTOCOL_HTTPS)) {
       if (supportsSSL) {
         try {
           final SelfSignedCertificate ssc = new SelfSignedCertificate();
           sslContextClient = SslContext.newServerContext(ssc.certificate(), ssc.privateKey());
           sslContextServer = SslContext.newClientContext();
+          this.uri = URI.create("https://"  + hostAddress);
           LOG.log(Level.FINE, "SSL context created");
         } catch (final Exception ex) {
           final RuntimeException transportException =
@@ -157,15 +159,18 @@ public final class NettyMessagingTransport implements Transport {
           throw transportException;
         }
       } else {
-        LOG.log(Level.FINE, "System property 'ssl' is not set");
-        sslContextClient = null;
-        sslContextServer = null;
+        LOG.log(Level.SEVERE, "Could not find support for SSL");
+        throw new TransportRuntimeException("Could not find support for SSL");
       }
-      this.uri = URI.create((supportsSSL ? "https://" : "http://") + hostAddress);
-    } else {
+
+    } else { // for HTTP and default Netty
       sslContextClient = null;
       sslContextServer = null;
-      this.uri = null;
+      if (protocolType.equals(PROTOCOL_HTTP)) {
+        this.uri = URI.create("http://" + hostAddress);
+      } else {
+        this.uri = null;
+      }
     }
 
     this.numberOfTries = numberOfTries;
