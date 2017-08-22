@@ -99,7 +99,8 @@ public class NettyLink<T> implements Link<T> {
 
     if (this.uri != null) {
       try {
-        final FullHttpRequest request = new DefaultFullHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.POST, uri.getRawPath());
+        final FullHttpRequest request =
+            new DefaultFullHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.POST, uri.getRawPath());
         final ByteBuf buf = Unpooled.copiedBuffer(encoder.encode(message));
         request.headers()
             .set(HttpHeaders.Names.HOST, uri.getHost())

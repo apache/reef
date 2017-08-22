@@ -22,6 +22,9 @@ import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import org.apache.reef.wake.remote.transport.LinkListener;
 
+/**
+ * Future Listener used in NettyLink.
+ */
 public final class NettyChannelFutureListener<T> implements ChannelFutureListener {
 
   private final T message;
