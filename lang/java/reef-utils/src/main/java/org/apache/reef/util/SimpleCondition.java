@@ -69,11 +69,11 @@ public final class SimpleCondition {
    *              condition lock is taken but before waiting on the condition occurs.
    * @param doFinally A {@code Callable<TFinally>} object that is called after the wakeup
    *                  on the condition occurs but before giving up the condition lock occurs.
+   * @param <TTry>
+   * @param <TFinally>
    * @return A boolean value that indicates whether or not a timeout occurred.
    * @throws InterruptedException Thread was interrupted by another thread while
    * waiting for the signal.
-   * @param <TTry>
-   * @param <TFinally>
    * @throws Exception
    */
   public <TTry, TFinally> boolean await(Callable<TTry> doTry, Callable<TFinally> doFinally) throws Exception {

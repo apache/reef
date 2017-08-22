@@ -58,17 +58,17 @@ public final class MultiAsyncToSync {
   /**
    * Put the caller to sleep on a specific release identifier.
    * @param identifier The identifier required to awake the caller via the {@code release()} method.
-   * @param asyncProcessor A callable object which returns {@code Boolean} that initiates the asynchronous
+   * @param asyncProcessor A callable object which returns {@code TAsync} that initiates the asynchronous
    *                       processing associated with the call. This will occur inside the condition lock
-   *                       to prevent the processing from generating the signal before the calling thread
-   *                       blocks. {@code asyncProcessor.call()} should return true on success.
+   *                       to prevent the processing from generating the signal before the calling thread blocks.
+   * @param <TAsync> The return type of the {@code asyncProcessor};
    * @return A boolean value that indicates whether or not a timeout or error occurred.
    * @throws InterruptedException The thread was interrupted while waiting on a condition.
    * @throws InvalidIdentifierException The identifier parameter is invalid.
    * @throws Exception The callable object referenced by the asyncProcessor parameter threw an exception.
    */
-  public boolean block(final long identifier, final Callable<Boolean> asyncProcessor) throws Exception {
-    boolean errorOccurred;
+  public <TAsync> boolean block(final long identifier, final Callable<TAsync> asyncProcessor) throws Exception {
+    final boolean timeoutOccurred;
     final ComplexCondition call = allocate();
     call.lock();
     try {
@@ -76,18 +76,14 @@ public final class MultiAsyncToSync {
       addSleeper(identifier, call);
       // Invoke the caller's asynchronous processing while holding the lock
       // so a wakeup cannot occur before the caller sleeps.
-      errorOccurred = !asyncProcessor.call();
-      if (!errorOccurred) {
-        // Put the caller to sleep until the ack comes back. Note: we atomically
-        // give up the look as the caller sleeps and atomically reacquire the
-        // the lock as we wake up.
-        LOG.log(Level.FINER, "Putting caller to sleep on identifier [{0}]", identifier);
-        errorOccurred = call.await();
-        if (errorOccurred) {
-          LOG.log(Level.SEVERE, "Call timed out on identifier [{0}]", identifier);
-        }
-      } else {
-        LOG.log(Level.SEVERE, "Error starting caller's asynchronous processing on identifier [{0}]", identifier);
+      asyncProcessor.call();
+      // Put the caller to sleep until the ack comes back. Note: we atomically
+      // give up the look as the caller sleeps and atomically reacquire the
+      // the lock as we wake up.
+      LOG.log(Level.FINER, "Putting caller to sleep on identifier [{0}]", identifier);
+      timeoutOccurred = call.await();
+      if (timeoutOccurred) {
+        LOG.log(Level.SEVERE, "Call timed out on identifier [{0}]", identifier);
       }
     } finally {
       // Whether or not the call completed successfully, always remove
@@ -96,7 +92,7 @@ public final class MultiAsyncToSync {
       recycle(call);
       call.unlock();
     }
-    return errorOccurred;
+    return timeoutOccurred;
   }
 
   /**
