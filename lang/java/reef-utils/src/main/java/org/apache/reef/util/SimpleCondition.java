@@ -17,7 +17,7 @@
  */
 package org.apache.reef.util;
 
-import java.util.concurrent.Callable;
+import java.util.concurrent.FutureTask;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
@@ -58,35 +58,41 @@ public final class SimpleCondition {
    * {@code
    *   cv.lock();
    *   try {
-   *     doTry();
+   *     doTry.run();
    *     cv.await(); // or cv.signal()
    *   } finally {
-   *     doFinally();
+   *     doFinally.run();
    *     cv.unlock();
    *   }
    * }
-   * @param doTry A {@code Callable<TTry>} object that is called after the internal
+   * @param doTry A {@code FutureTask<TTry>} object that is run after the internal
    *              condition lock is taken but before waiting on the condition occurs.
-   * @param doFinally A {@code Callable<TFinally>} object that is called after the wakeup
-   *                  on the condition occurs but before giving up the condition lock occurs.
-   * @param <TTry>
-   * @param <TFinally>
+   * @param doFinally A {@code FutureTask<TFinally>} object that is run after the wakeup
+   *                  on the condition occurs but before giving up the condition lock
+   *                  is released.
+   * @param <TTry> The return type of the {@code doTry} future task.
+   * @param <TFinally> The return type of the {@code doFinally} future task.
    * @return A boolean value that indicates whether or not a timeout occurred.
    * @throws InterruptedException Thread was interrupted by another thread while
    * waiting for the signal.
-   * @throws Exception
+   * @throws Exception The callers
    */
-  public <TTry, TFinally> boolean await(Callable<TTry> doTry, Callable<TFinally> doFinally) throws Exception {
+  public <TTry, TFinally> boolean await(FutureTask<TTry> doTry, FutureTask<TFinally> doFinally) throws Exception {
     final boolean timeoutOccurred;
     lockVar.lock();
     try {
       if (null != doTry) {
-        doTry.call();
+        // Invoke the caller's asynchronous processing while holding the lock
+        // so a wakeup cannot occur before the caller sleeps.
+        doTry.run();
       }
+      // Put the caller asleep on the condition until a signal is received
+      // or a timeout occurs.
       timeoutOccurred = !conditionVar.await(timeoutPeriod, timeoutUnits);
     } finally {
       if (null != doFinally) {
-        doFinally.call();
+        // Whether or not a timeout occurred, call the user's cleanup code.
+        doFinally.run();
       }
       lockVar.unlock();
     }

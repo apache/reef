@@ -133,7 +133,7 @@ final class SynchronousApi implements AutoCloseable {
     taskQueue.add(task);
 
     LOG.log(Level.INFO, "Running the incrementer...");
-    if (blocker.block(identifier, new AsyncInitiator(task, executor))) {
+    if (blocker.block(identifier, new FutureTask<>(new AsyncInitiator(task, executor)))) {
       LOG.log(Level.INFO, "Call timed out...");
       // Timeout occurred before the asynchronous processing completed.
       return 0;

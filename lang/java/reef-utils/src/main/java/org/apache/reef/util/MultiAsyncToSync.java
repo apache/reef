@@ -19,9 +19,9 @@ package org.apache.reef.util;
 
 import org.apache.reef.util.exception.InvalidIdentifierException;
 
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.Callable;
+import java.util.concurrent.FutureTask;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -58,16 +58,19 @@ public final class MultiAsyncToSync {
   /**
    * Put the caller to sleep on a specific release identifier.
    * @param identifier The identifier required to awake the caller via the {@code release()} method.
-   * @param asyncProcessor A callable object which returns {@code TAsync} that initiates the asynchronous
+   * @param asyncProcessor A {@code FutureTask} object which returns {@code TAsync} that initiates the asynchronous
    *                       processing associated with the call. This will occur inside the condition lock
    *                       to prevent the processing from generating the signal before the calling thread blocks.
+   *                       Error conditions should be handled by throwing an exception which the caller
+   *                       will catch.
    * @param <TAsync> The return type of the {@code asyncProcessor};
    * @return A boolean value that indicates whether or not a timeout or error occurred.
    * @throws InterruptedException The thread was interrupted while waiting on a condition.
    * @throws InvalidIdentifierException The identifier parameter is invalid.
-   * @throws Exception The callable object referenced by the asyncProcessor parameter threw an exception.
+   * @throws Exception The future task object referenced by the {@code asyncProcessor}
+   *                   parameter threw an exception.
    */
-  public <TAsync> boolean block(final long identifier, final Callable<TAsync> asyncProcessor) throws Exception {
+  public <TAsync> boolean block(final long identifier, final FutureTask<TAsync> asyncProcessor) throws Exception {
     final boolean timeoutOccurred;
     final ComplexCondition call = allocate();
     call.lock();
@@ -76,7 +79,7 @@ public final class MultiAsyncToSync {
       addSleeper(identifier, call);
       // Invoke the caller's asynchronous processing while holding the lock
       // so a wakeup cannot occur before the caller sleeps.
-      asyncProcessor.call();
+      asyncProcessor.run();
       // Put the caller to sleep until the ack comes back. Note: we atomically
       // give up the look as the caller sleeps and atomically reacquire the
       // the lock as we wake up.
