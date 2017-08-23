@@ -48,7 +48,10 @@ enum EvaluatorState {
   FAILED,
 
   /** Unclean shutdown. */
-  KILLED;
+  KILLED,
+
+  /** Preemption. */
+  PREEMPTED;
 
   /**
    * Check if evaluator is in the initial state (ALLOCATED).
@@ -91,11 +94,11 @@ enum EvaluatorState {
   }
 
   /**
-   * Check if the evaluator is stopped. That is, in one of the DONE, FAILED, or KILLED states.
+   * Check if the evaluator is stopped. That is, in one of the DONE, FAILED, PREEMPTED or KILLED states.
    * @return true if evaluator completed, false if it is still available or in the process of being shut down.
    */
   public final boolean isCompleted() {
-    return this == DONE || this == FAILED || this == KILLED;
+    return this == DONE || this == FAILED || this == KILLED || this == PREEMPTED;
   }
 
   /**
@@ -128,6 +131,7 @@ enum EvaluatorState {
       case CLOSING:
       case DONE:
       case FAILED:
+      case PREEMPTED:
       case KILLED:
         return true;
       default:
@@ -140,6 +144,7 @@ enum EvaluatorState {
       case CLOSING:
       case DONE:
       case FAILED:
+      case PREEMPTED:
       case KILLED:
         return true;
       default:
@@ -151,6 +156,7 @@ enum EvaluatorState {
       case CLOSING:
       case DONE:
       case FAILED:
+      case PREEMPTED:
       case KILLED:
         return true;
       default:
@@ -161,6 +167,7 @@ enum EvaluatorState {
       switch(toState) {
       case DONE:
       case FAILED:
+      case PREEMPTED:
       case KILLED:
         return true;
       default:
@@ -169,6 +176,7 @@ enum EvaluatorState {
 
     case DONE:
     case FAILED:
+    case PREEMPTED:
     case KILLED:
       return false;
 

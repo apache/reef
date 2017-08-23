@@ -453,11 +453,18 @@ final class YarnContainerManager implements AMRMClientAsync.CallbackHandler, NMC
       case COMPLETE:
         LOG.log(Level.FINE, "Container completed: status {0}", value.getExitStatus());
         switch (value.getExitStatus()) {
-        case 0:
+        case ContainerExitStatus.SUCCESS:
           status.setState(State.DONE);
           break;
-        case 143:
+        case ContainerExitStatus.KILLED_BY_RESOURCEMANAGER:
+        case ContainerExitStatus.KILLED_EXCEEDED_PMEM:
+        case ContainerExitStatus.KILLED_EXCEEDED_VMEM:
+        case ContainerExitStatus.KILLED_AFTER_APP_COMPLETION:
+        case ContainerExitStatus.KILLED_BY_APPMASTER:
           status.setState(State.KILLED);
+          break;
+        case ContainerExitStatus.PREEMPTED:
+          status.setState(State.PREEMPTED);
           break;
         default:
           status.setState(State.FAILED);

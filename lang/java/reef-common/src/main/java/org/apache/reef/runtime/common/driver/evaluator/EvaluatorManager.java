@@ -24,6 +24,7 @@ import org.apache.reef.driver.evaluator.FailedEvaluator;
 import org.apache.reef.driver.parameters.EvaluatorConfigurationProviders;
 import org.apache.reef.driver.restart.DriverRestartManager;
 import org.apache.reef.driver.restart.EvaluatorRestartState;
+import org.apache.reef.exception.EvaluatorPreemptedException;
 import org.apache.reef.exception.NonSerializableException;
 import org.apache.reef.runtime.common.driver.api.*;
 import org.apache.reef.runtime.common.driver.evaluator.pojos.ContextStatusPOJO;
@@ -293,7 +294,7 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
   }
 
   /**
-   * Return true if the state is DONE, FAILED, or KILLED,
+   * Return true if the state is DONE, FAILED, PREEMPTED or KILLED,
    * <em>and</em> there are no messages queued or in processing.
    */
   public boolean isClosed() {
@@ -322,7 +323,7 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
   }
 
   /**
-   * EvaluatorException will trigger is FailedEvaluator and state transition to FAILED.
+   * EvaluatorException will trigger a FailedEvaluator or a PreemptedEvaluator and state transition to FAILED.
    *
    * @param exception on the EvaluatorRuntime
    */
@@ -364,10 +365,16 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
             exception, failedContextList, failedTaskOptional, this.evaluatorId);
 
         if (driverRestartManager.getEvaluatorRestartState(evaluatorId).isFailedOrExpired()) {
+          // In case of Driver restart, treat preemption the same as failure.
           this.messageDispatcher.onDriverRestartEvaluatorFailed(failedEvaluator);
+        } else if (exception instanceof EvaluatorPreemptedException) {
+          // Invoke preemption handler(s)
+          this.messageDispatcher.onEvaluatorPreempted(new PreemptedEvaluatorImpl(exception, failedContextList,
+              failedTaskOptional, this.evaluatorId));
         } else {
           this.messageDispatcher.onEvaluatorFailed(failedEvaluator);
         }
+
       } catch (final Exception e) {
         LOG.log(Level.SEVERE, "Exception while handling FailedEvaluator", e);
       } finally {
@@ -680,6 +687,8 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
         if (resourceStatusEvent.getState() == State.KILLED) {
           this.onEvaluatorException(
               new EvaluatorKilledByResourceManagerException(this.evaluatorId, messageBuilder.toString()));
+        } else if (resourceStatusEvent.getState() == State.PREEMPTED) {
+          this.onEvaluatorException(new EvaluatorPreemptedException(this.evaluatorId, messageBuilder.toString()));
         } else {
           this.onEvaluatorException(new EvaluatorException(this.evaluatorId, messageBuilder.toString()));
         }

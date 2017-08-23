@@ -29,6 +29,7 @@ import org.apache.reef.driver.context.FailedContext;
 import org.apache.reef.driver.evaluator.AllocatedEvaluator;
 import org.apache.reef.driver.evaluator.CompletedEvaluator;
 import org.apache.reef.driver.evaluator.FailedEvaluator;
+import org.apache.reef.driver.evaluator.PreemptedEvaluator;
 import org.apache.reef.driver.parameters.*;
 import org.apache.reef.driver.task.*;
 import org.apache.reef.runtime.common.driver.DriverRuntimeConfiguration;
@@ -111,6 +112,11 @@ public final class DriverConfiguration extends ConfigurationModuleBuilder {
    * Event handler for failed evaluators. Defaults to job failure if not bound.
    */
   public static final OptionalImpl<EventHandler<FailedEvaluator>> ON_EVALUATOR_FAILED = new OptionalImpl<>();
+
+  /**
+   * Event handler for preempted evaluators. Defaults to ON_EVALUATOR_FAILED if not bound.
+   */
+  public static final OptionalImpl<EventHandler<PreemptedEvaluator>> ON_EVALUATOR_PREEMPTED = new OptionalImpl<>();
 
   // ***** TASK HANDLER BINDINGS:
 
@@ -230,6 +236,7 @@ public final class DriverConfiguration extends ConfigurationModuleBuilder {
       .bindSetEntry(EvaluatorAllocatedHandlers.class, ON_EVALUATOR_ALLOCATED)
       .bindSetEntry(EvaluatorCompletedHandlers.class, ON_EVALUATOR_COMPLETED)
       .bindSetEntry(EvaluatorFailedHandlers.class, ON_EVALUATOR_FAILED)
+      .bindSetEntry(EvaluatorPreemptedHandlers.class, ON_EVALUATOR_PREEMPTED)
 
           // Task handlers
       .bindSetEntry(TaskRunningHandlers.class, ON_TASK_RUNNING)

@@ -35,6 +35,7 @@ public enum State {
   SUSPEND,
   DONE,
   FAILED,
+  PREEMPTED,
   KILLED;
 
   /**
@@ -54,6 +55,8 @@ public enum State {
       return DONE;
     case FAILED:
       return FAILED;
+    case PREEMPTED:
+      return PREEMPTED;
     case KILLED:
       return KILLED;
     default:
@@ -81,6 +84,7 @@ public enum State {
       case SUSPEND:
       case DONE:
       case FAILED:
+      case PREEMPTED:
       case KILLED:
         return true;
       default:
@@ -92,6 +96,7 @@ public enum State {
       case SUSPEND:
       case DONE:
       case FAILED:
+      case PREEMPTED:
       case KILLED:
         return true;
       default:
@@ -102,6 +107,7 @@ public enum State {
       switch (toState) {
       case RUNNING:
       case FAILED:
+      case PREEMPTED:
       case KILLED:
         return true;
       default:
@@ -130,11 +136,11 @@ public enum State {
   }
 
   /**
-   * Check if the container is stopped. That is, in one of the DONE, FAILED, or KILLED states.
+   * Check if the container is stopped. That is, in one of the DONE, FAILED, PREEMPTED or KILLED states.
    * @return true if the container is completed, false if it is still available or suspended.
    */
   public final boolean isCompleted() {
-    return this == DONE || this == FAILED || this == KILLED;
+    return this == DONE || this == FAILED || this == PREEMPTED || this == KILLED;
   }
 
   /**

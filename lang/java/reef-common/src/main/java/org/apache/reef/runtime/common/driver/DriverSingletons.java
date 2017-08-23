@@ -27,6 +27,7 @@ import org.apache.reef.driver.context.FailedContext;
 import org.apache.reef.driver.evaluator.AllocatedEvaluator;
 import org.apache.reef.driver.evaluator.CompletedEvaluator;
 import org.apache.reef.driver.evaluator.FailedEvaluator;
+import org.apache.reef.driver.evaluator.PreemptedEvaluator;
 import org.apache.reef.driver.parameters.*;
 import org.apache.reef.driver.task.*;
 import org.apache.reef.proto.ClientRuntimeProtocol;
@@ -61,6 +62,8 @@ final class DriverSingletons {
       @Parameter(EvaluatorAllocatedHandlers.class)
       final Set<EventHandler<AllocatedEvaluator>> evaluatorAllocatedEventHandlers,
       @Parameter(EvaluatorFailedHandlers.class) final Set<EventHandler<FailedEvaluator>> evaluatorFailedHandlers,
+      @Parameter(EvaluatorPreemptedHandlers.class)
+      final Set<EventHandler<PreemptedEvaluator>> evaluatorPreemptedHandlers,
       @Parameter(EvaluatorCompletedHandlers.class)
       final Set<EventHandler<CompletedEvaluator>> evaluatorCompletedHandlers,
 
@@ -87,6 +90,8 @@ final class DriverSingletons {
       final Set<EventHandler<FailedEvaluator>> serviceEvaluatorFailedHandlers,
       @Parameter(ServiceEvaluatorCompletedHandlers.class)
       final Set<EventHandler<CompletedEvaluator>> serviceEvaluatorCompletedHandlers,
+      @Parameter(ServiceEvaluatorPreemptedHandlers.class)
+      final Set<EventHandler<PreemptedEvaluator>> serviceEvaluatorPreemptedHandlers,
 
       // Client event handler
       @Parameter(DriverRuntimeConfigurationOptions.JobControlHandler.class)
