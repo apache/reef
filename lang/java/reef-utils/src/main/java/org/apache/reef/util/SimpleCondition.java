@@ -100,7 +100,6 @@ public final class SimpleCondition {
           lockVar.unlock();
         }
       }
-      lockVar.unlock();
     }
     return timeoutOccurred;
   }
