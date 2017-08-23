@@ -103,7 +103,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
                 var msg = string.Format(CultureInfo.InvariantCulture,
                     "Partition descriptor for Failed evaluator:{0} not present",
                     evaluatorId);
-                throw new Exception(msg);
+                throw new IMRUSystemException(msg);
             }
         }
 
