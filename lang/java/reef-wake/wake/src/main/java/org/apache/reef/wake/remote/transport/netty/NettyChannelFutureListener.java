@@ -28,7 +28,7 @@ import org.apache.reef.wake.remote.transport.LinkListener;
 public final class NettyChannelFutureListener<T> implements ChannelFutureListener {
 
   private final T message;
-  private LinkListener<T> listener;
+  private final LinkListener<T> listener;
 
   NettyChannelFutureListener(final T message, final LinkListener<T> listener) {
     this.message = message;

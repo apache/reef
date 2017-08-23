@@ -196,7 +196,7 @@ public final class NettyMessagingTransport implements Transport {
         .channel(NioSocketChannel.class)
         .handler(new NettyChannelInitializer(new NettyDefaultChannelHandlerFactory("client",
             this.clientChannelGroup, this.clientEventListener), sslContextClient,
-                protocolType.equals(PROTOCOL_TCP) ? ChannelType.NETTY : ChannelType.HTTP_CLIENT))
+                protocolType.equals(PROTOCOL_TCP) ? ChannelType.TCP : ChannelType.HTTP_CLIENT))
         .option(ChannelOption.SO_REUSEADDR, true)
         .option(ChannelOption.SO_KEEPALIVE, true);
 
@@ -205,7 +205,7 @@ public final class NettyMessagingTransport implements Transport {
         .channel(NioServerSocketChannel.class)
         .childHandler(new NettyChannelInitializer(new NettyDefaultChannelHandlerFactory("server",
             this.serverChannelGroup, this.serverEventListener), sslContextServer,
-                protocolType.equals(PROTOCOL_TCP) ? ChannelType.NETTY : ChannelType.HTTP_SERVER))
+                protocolType.equals(PROTOCOL_TCP) ? ChannelType.TCP : ChannelType.HTTP_SERVER))
         .option(ChannelOption.SO_BACKLOG, 128)
         .option(ChannelOption.SO_REUSEADDR, true)
         .childOption(ChannelOption.SO_KEEPALIVE, true);

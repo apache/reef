@@ -60,13 +60,11 @@ public class TransportHttpTest {
     this.tpFactory = injector.getInstance(MessagingTransportFactory.class);
   }
 
-  private static final String LOG_PREFIX = "TEST ";
   @Rule
   public TestName name = new TestName();
 
   @Test
   public void testHttpTransportString() throws Exception {
-    System.out.println(LOG_PREFIX + name.getMethodName());
     LoggingUtils.setLoggingLevel(Level.INFO);
 
     final Monitor monitor = new Monitor();
@@ -99,7 +97,6 @@ public class TransportHttpTest {
 
   @Test
   public void testHttpTransportTestEvent() throws Exception {
-    System.out.println(LOG_PREFIX + name.getMethodName());
     LoggingUtils.setLoggingLevel(Level.INFO);
 
     final Monitor monitor = new Monitor();

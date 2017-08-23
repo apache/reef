@@ -81,7 +81,8 @@ public interface TransportFactory {
    * @param protocol        protocol to use
    * @return transport
    */
-  Transport newInstance(final String hostAddress, int port,
+  Transport newInstance(final String hostAddress,
+                        final int port,
                         final EStage<TransportEvent> clientStage,
                         final EStage<TransportEvent> serverStage,
                         final int numberOfTries,
@@ -122,7 +123,7 @@ public interface TransportFactory {
    * @return transport
    */
   Transport newInstance(final String hostAddress,
-                        int port,
+                        final int port,
                         final EStage<TransportEvent> clientStage,
                         final EStage<TransportEvent> serverStage,
                         final int numberOfTries,

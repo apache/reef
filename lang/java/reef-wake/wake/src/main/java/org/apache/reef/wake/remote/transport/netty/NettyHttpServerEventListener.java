@@ -78,7 +78,7 @@ final class NettyHttpServerEventListener extends AbstractNettyEventListener {
       this.httpRequest = request;
 
       if (!headers.isEmpty()) {
-        for (final Map.Entry<String, String> h: headers) {
+        for (final Map.Entry<String, String> h : headers) {
           final CharSequence key = h.getKey();
           final CharSequence value = h.getValue();
           buf.append("HEADER: ").append(key).append(" = ").append(value).append("\r\n");
@@ -109,6 +109,7 @@ final class NettyHttpServerEventListener extends AbstractNettyEventListener {
             }
           }
           buf.append("\r\n");
+          buf.setLength(0); // clearing the buffer
         }
 
         final Channel channel = ctx.channel();

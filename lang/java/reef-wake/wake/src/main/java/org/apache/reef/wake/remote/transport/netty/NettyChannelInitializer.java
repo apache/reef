@@ -34,7 +34,7 @@ class NettyChannelInitializer extends ChannelInitializer<SocketChannel> {
 
   /* Types for initiating channel */
   public enum ChannelType {
-    NETTY, HTTP_SERVER, HTTP_CLIENT
+    TCP, HTTP_SERVER, HTTP_CLIENT
   }
 
   /**
@@ -65,7 +65,7 @@ class NettyChannelInitializer extends ChannelInitializer<SocketChannel> {
   @Override
   protected void initChannel(final SocketChannel ch) throws Exception {
     switch (this.type) {
-    case NETTY:
+    case TCP:
       ch.pipeline()
           .addLast("frameDecoder", new LengthFieldBasedFrameDecoder(MAXFRAMELENGTH, 0, 4, 0, 4))
           .addLast("bytesDecoder", new ByteArrayDecoder())

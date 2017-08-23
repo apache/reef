@@ -34,7 +34,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * A Netty event listener for server.
+ * A Netty event listener for client.
  */
 final class NettyHttpClientEventListener extends AbstractNettyEventListener {
 
@@ -56,7 +56,7 @@ final class NettyHttpClientEventListener extends AbstractNettyEventListener {
     } else if (msg instanceof HttpContent) {
       final HttpContent httpContent = (HttpContent) msg;
       final ByteBuf content = httpContent.content();
-      if (content.isReadable() && LOG.isLoggable(Level.FINEST)) {
+      if (LOG.isLoggable(Level.FINEST) && content.isReadable()) {
         buf.append("CONTENT: ").append(content.toString(CharsetUtil.UTF_8)).append("\r\n");
       }
 
@@ -67,6 +67,7 @@ final class NettyHttpClientEventListener extends AbstractNettyEventListener {
         if (LOG.isLoggable(Level.FINEST)) {
           LOG.log(Level.FINEST, "MessageEvent: local: {0} remote: {1} :: {2}", new Object[]{
                   channel.localAddress(), channel.remoteAddress(), buf});
+          buf.setLength(0); // clearing the buffer
         }
 
         if (message.length > 0) {
