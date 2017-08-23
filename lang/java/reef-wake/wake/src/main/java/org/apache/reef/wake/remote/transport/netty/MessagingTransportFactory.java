@@ -119,11 +119,11 @@ public final class MessagingTransportFactory implements TransportFactory {
                                final EStage<TransportEvent> serverStage,
                                final int numberOfTries,
                                final int retryTimeout,
-                               final String protocol) {
+                               final ProtocolTypes protocol) {
     try {
       final TcpPortProvider tcpPortProvider = TANG.newInjector().getInstance(TcpPortProvider.class);
       return newInstance(hostAddress, port, clientStage,
-          serverStage, numberOfTries, retryTimeout, tcpPortProvider);
+          serverStage, numberOfTries, retryTimeout, tcpPortProvider, protocol);
     } catch (final InjectionException e) {
       throw new RuntimeException(e);
     }
@@ -150,7 +150,7 @@ public final class MessagingTransportFactory implements TransportFactory {
                                final TcpPortProvider tcpPortProvider) {
 
     return newInstance(hostAddress, port, clientStage,
-        serverStage, numberOfTries, retryTimeout, tcpPortProvider, RemoteConfiguration.PROTOCOL_NETTY);
+        serverStage, numberOfTries, retryTimeout, tcpPortProvider, ProtocolTypes.TCP);
   }
 
   /**
@@ -173,7 +173,7 @@ public final class MessagingTransportFactory implements TransportFactory {
                                final int numberOfTries,
                                final int retryTimeout,
                                final TcpPortProvider tcpPortProvider,
-                               final String protocol) {
+                               final ProtocolTypes protocol) {
 
     final Injector injector = TANG.newInjector();
     injector.bindVolatileParameter(RemoteConfiguration.HostAddress.class, hostAddress);
@@ -183,7 +183,7 @@ public final class MessagingTransportFactory implements TransportFactory {
     injector.bindVolatileParameter(RemoteConfiguration.NumberOfTries.class, numberOfTries);
     injector.bindVolatileParameter(RemoteConfiguration.RetryTimeout.class, retryTimeout);
     injector.bindVolatileInstance(TcpPortProvider.class, tcpPortProvider);
-    injector.bindVolatileParameter(RemoteConfiguration.Protocol.class, protocol);
+    injector.bindVolatileParameter(RemoteConfiguration.Protocol.class, protocol.name());
     try {
       return injector.getInstance(NettyMessagingTransport.class);
     } catch (final InjectionException e) {

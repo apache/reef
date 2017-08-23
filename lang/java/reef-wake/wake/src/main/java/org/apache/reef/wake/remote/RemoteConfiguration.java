@@ -26,6 +26,7 @@ import org.apache.reef.wake.WakeParameters;
 import org.apache.reef.wake.remote.impl.DefaultTransportEStage;
 import org.apache.reef.wake.remote.impl.ObjectSerializableCodec;
 import org.apache.reef.wake.remote.impl.TransportEvent;
+import org.apache.reef.wake.remote.transport.TransportFactory.ProtocolTypes;
 
 /**
  * Configuration options and helper methods for Wake remoting.
@@ -51,9 +52,9 @@ public final class RemoteConfiguration {
   /**
    *  Unique protocol String for choosing protocols.
    */
-  public static final String PROTOCOL_NETTY = "__PROTOCOL_NETTY__";
-  public static final String PROTOCOL_HTTP = "__PROTOCOL_HTTP__";
-  public static final String PROTOCOL_HTTPS = "__PROTOCOL_HTTPS__";
+  public static final String PROTOCOL_TCP = ProtocolTypes.TCP.name();
+  public static final String PROTOCOL_HTTP = ProtocolTypes.HTTP.name();
+  public static final String PROTOCOL_HTTPS = ProtocolTypes.HTTPS.name();
 
   private RemoteConfiguration() {
     // empty
@@ -143,8 +144,9 @@ public final class RemoteConfiguration {
 
   /**
    * Option for use http.
+   * Default value must be ProtocolTypes.TCP.name().
    */
-  @NamedParameter(doc = "Option for use http.", default_value = PROTOCOL_NETTY)
+  @NamedParameter(doc = "Option for use http.", default_value = "TCP")
   public static final class Protocol implements Name<String> {
     // Intentionally empty
   }

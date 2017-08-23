@@ -62,7 +62,7 @@ import java.util.logging.Logger;
 
 import static org.apache.reef.wake.remote.RemoteConfiguration.PROTOCOL_HTTP;
 import static org.apache.reef.wake.remote.RemoteConfiguration.PROTOCOL_HTTPS;
-import static org.apache.reef.wake.remote.RemoteConfiguration.PROTOCOL_NETTY;
+import static org.apache.reef.wake.remote.RemoteConfiguration.PROTOCOL_TCP;
 import static org.apache.reef.wake.remote.transport.netty.NettyChannelInitializer.ChannelType;
 
 /**
@@ -175,7 +175,7 @@ public final class NettyMessagingTransport implements Transport {
 
     this.numberOfTries = numberOfTries;
     this.retryTimeout = retryTimeout;
-    if (protocolType.equals(PROTOCOL_NETTY)) {
+    if (protocolType.equals(PROTOCOL_TCP)) {
       this.clientEventListener = new NettyClientEventListener(this.addrToLinkRefMap, clientStage);
       this.serverEventListener = new NettyServerEventListener(this.addrToLinkRefMap, serverStage);
     } else {
@@ -196,7 +196,7 @@ public final class NettyMessagingTransport implements Transport {
         .channel(NioSocketChannel.class)
         .handler(new NettyChannelInitializer(new NettyDefaultChannelHandlerFactory("client",
             this.clientChannelGroup, this.clientEventListener), sslContextClient,
-                protocolType.equals(PROTOCOL_NETTY) ? ChannelType.NETTY : ChannelType.HTTP_CLIENT))
+                protocolType.equals(PROTOCOL_TCP) ? ChannelType.NETTY : ChannelType.HTTP_CLIENT))
         .option(ChannelOption.SO_REUSEADDR, true)
         .option(ChannelOption.SO_KEEPALIVE, true);
 
@@ -205,7 +205,7 @@ public final class NettyMessagingTransport implements Transport {
         .channel(NioServerSocketChannel.class)
         .childHandler(new NettyChannelInitializer(new NettyDefaultChannelHandlerFactory("server",
             this.serverChannelGroup, this.serverEventListener), sslContextServer,
-                protocolType.equals(PROTOCOL_NETTY) ? ChannelType.NETTY : ChannelType.HTTP_SERVER))
+                protocolType.equals(PROTOCOL_TCP) ? ChannelType.NETTY : ChannelType.HTTP_SERVER))
         .option(ChannelOption.SO_BACKLOG, 128)
         .option(ChannelOption.SO_REUSEADDR, true)
         .childOption(ChannelOption.SO_KEEPALIVE, true);

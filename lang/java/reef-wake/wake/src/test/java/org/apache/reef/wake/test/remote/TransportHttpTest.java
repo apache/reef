@@ -44,7 +44,7 @@ import java.net.InetSocketAddress;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 
-import static org.apache.reef.wake.remote.RemoteConfiguration.PROTOCOL_HTTP;
+import static org.apache.reef.wake.remote.transport.TransportFactory.ProtocolTypes;
 
 
 /**
@@ -79,7 +79,7 @@ public class TransportHttpTest {
     // Codec<String>
     final ReceiverStage<String> stage =
         new ReceiverStage<>(new ObjectSerializableCodec<String>(), monitor, expected);
-    final Transport transport = tpFactory.newInstance(hostAddress, 0, stage, stage, 1, 10000, PROTOCOL_HTTP);
+    final Transport transport = tpFactory.newInstance(hostAddress, 0, stage, stage, 1, 10000, ProtocolTypes.HTTP);
     final int port = transport.getListeningPort();
 
     // sending side
@@ -114,7 +114,7 @@ public class TransportHttpTest {
 
     try (
         final Transport transport =
-            tpFactory.newInstance(hostAddress, 0, stage, stage, 1, 10000, PROTOCOL_HTTP)
+            tpFactory.newInstance(hostAddress, 0, stage, stage, 1, 10000, ProtocolTypes.HTTP)
     ) {
       final int port = transport.getListeningPort();
 
