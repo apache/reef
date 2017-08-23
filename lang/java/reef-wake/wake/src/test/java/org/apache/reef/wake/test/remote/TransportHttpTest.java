@@ -87,8 +87,8 @@ public class TransportHttpTest {
         new InetSocketAddress(hostAddress, port),
         new ObjectSerializableCodec<String>(),
         new LoggingLinkListener<String>());
-    link.write(new String("hello1"));
-    link.write(new String("hello2"));
+    link.write("hello1");
+    link.write("hello2");
 
     monitor.mwait();
     transport.close();
@@ -111,20 +111,24 @@ public class TransportHttpTest {
     // Codec<TestEvent>
     final ReceiverStage<TestEvent> stage =
         new ReceiverStage<>(new ObjectSerializableCodec<TestEvent>(), monitor, expected);
-    final Transport transport = tpFactory.newInstance(hostAddress, 0, stage, stage, 1, 10000, PROTOCOL_HTTP);
-    final int port = transport.getListeningPort();
 
-    // sending side
-    final Link<TestEvent> link = transport.open(
-        new InetSocketAddress(hostAddress, port),
-        new ObjectSerializableCodec<TestEvent>(),
-        new LoggingLinkListener<TestEvent>());
-    link.write(new TestEvent("hello1", 0.0));
-    link.write(new TestEvent("hello2", 1.0));
+    try (
+        final Transport transport =
+            tpFactory.newInstance(hostAddress, 0, stage, stage, 1, 10000, PROTOCOL_HTTP)
+    ) {
+      final int port = transport.getListeningPort();
 
-    monitor.mwait();
-    transport.close();
-    timer.close();
+      // sending side
+      final Link<TestEvent> link = transport.open(
+          new InetSocketAddress(hostAddress, port),
+          new ObjectSerializableCodec<TestEvent>(),
+          new LoggingLinkListener<TestEvent>());
+      link.write(new TestEvent("hello1", 0.0));
+      link.write(new TestEvent("hello2", 1.0));
+
+      monitor.mwait();
+      timer.close();
+    }
 
     Assert.assertEquals(expected, stage.getCount());
   }
@@ -134,7 +138,7 @@ public class TransportHttpTest {
     private final Codec<T> codec;
     private final Monitor monitor;
     private final int expected;
-    private AtomicInteger count = new AtomicInteger(0);
+    private final AtomicInteger count = new AtomicInteger(0);
 
     ReceiverStage(final Codec<T> codec, final Monitor monitor, final int expected) {
       this.codec = codec;
