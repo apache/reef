@@ -33,6 +33,8 @@ import java.util.logging.Level;
  */
 final class NettyServerEventListener extends AbstractNettyEventListener {
 
+  private NettyLinkFactory linkFactory = new NettyDefaultLinkFactory();
+
   NettyServerEventListener(
       final ConcurrentMap<SocketAddress, LinkReference> addrToLinkRefMap,
       final EStage<TransportEvent> stage) {
@@ -49,7 +51,7 @@ final class NettyServerEventListener extends AbstractNettyEventListener {
     }
 
     this.addrToLinkRefMap.putIfAbsent(
-        channel.remoteAddress(), new LinkReference(new NettyLink<>(
+        channel.remoteAddress(), new LinkReference(linkFactory.newInstance(
             channel, new ByteCodec(), new LoggingLinkListener<byte[]>())));
 
     LOG.log(Level.FINER, "Add connected channel ref: {0}", this.addrToLinkRefMap.get(channel.remoteAddress()));
@@ -58,7 +60,7 @@ final class NettyServerEventListener extends AbstractNettyEventListener {
 
   @Override
   protected TransportEvent getTransportEvent(final byte[] message, final Channel channel) {
-    return new TransportEvent(message, new NettyLink<>(channel, new ByteEncoder()));
+    return new TransportEvent(message, linkFactory.newInstance(channel, new ByteEncoder()));
   }
 
   @Override

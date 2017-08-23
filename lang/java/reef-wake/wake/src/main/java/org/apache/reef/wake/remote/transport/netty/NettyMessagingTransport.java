@@ -362,7 +362,9 @@ public final class NettyMessagingTransport implements Transport {
         connectFuture = this.clientBootstrap.connect(remoteAddr);
         connectFuture.syncUninterruptibly();
 
-        link = new NettyLink<>(connectFuture.channel(), encoder, listener, this.uri);
+        final NettyLinkFactory linkFactory = new NettyDefaultLinkFactory<>(uri);
+
+        link = linkFactory.newInstance(connectFuture.channel(), encoder, listener);
         linkRef.setLink(link);
 
         synchronized (flag) {
