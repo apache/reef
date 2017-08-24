@@ -22,13 +22,8 @@ import org.apache.reef.util.exception.InvalidIdentifierException;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicLong;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.FutureTask;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -67,7 +62,7 @@ final class AsynchronousIncrementer implements Callable<Integer> {
   public Integer call() throws Exception {
     LOG.log(Level.INFO, "Sleeping...");
     Thread.sleep(sleepTimeMillis);
-    LOG.log(Level.INFO, "Releasing caller...");
+    LOG.log(Level.INFO, "Releasing caller on identifier [{0}]...", identifier);
     blocker.release(identifier);
     return input + 1;
   }
@@ -132,7 +127,7 @@ final class SynchronousApi implements AutoCloseable {
         new FutureTask<>(new AsynchronousIncrementer(input, identifier, incrementerSleepTimeMillis, blocker));
     taskQueue.add(task);
 
-    LOG.log(Level.INFO, "Running the incrementer...");
+    LOG.log(Level.INFO, "Running the incrementer on identifier [{0}]...", identifier);
     if (blocker.block(identifier, new FutureTask<>(new AsyncInitiator(task, executor)))) {
       LOG.log(Level.INFO, "Call timed out...");
       // Timeout occurred before the asynchronous processing completed.
@@ -146,7 +141,7 @@ final class SynchronousApi implements AutoCloseable {
    * Ensure all test tasks have completed.
    * @throws ExecutionException Asynchronous processing generated an exception.
    */
-  public void close() throws ExecutionException {
+  public void close() throws ExecutionException, InterruptedException {
     for (final FutureTask<Integer> task : taskQueue) {
       try {
         task.get();
@@ -154,6 +149,7 @@ final class SynchronousApi implements AutoCloseable {
         LOG.log(Level.INFO, "Caught exception waiting for completion...", e);
       }
     }
+    executor.shutdownNow();
   }
 }
 
@@ -232,6 +228,8 @@ public final class MultiAsyncToSyncTest {
 
       Assert.assertEquals("Input must be incremented by one", input + 1, result1);
       Assert.assertEquals("Input must be incremented by one", input + 2, result2);
+
+      executor.shutdownNow();
     }
   }
 
@@ -265,6 +263,37 @@ public final class MultiAsyncToSyncTest {
         Assert.assertEquals("Input must be incremented by one", idx + 1, result);
       }
     }
+    executor.shutdownNow();
+  }
+
+  /**
+   * Verify calling block and release on same thread generates an exception.
+   */
+  @Test
+  public void testCallOnSameThread() throws Exception {
+    LOG.log(Level.INFO, "Starting...");
+
+    final long timeoutPeriodSeconds = 2;
+    final long identifier = 78;
+    boolean result = false;
+
+    try {
+      final MultiAsyncToSync asyncToSync = new MultiAsyncToSync(timeoutPeriodSeconds, TimeUnit.SECONDS);
+      FutureTask<Object> syncProc = new FutureTask<Object>(new Callable<Object>() {
+        public Object call() throws InterruptedException, InvalidIdentifierException {
+          asyncToSync.release(identifier);
+          return null;
+        }
+      });
+      asyncToSync.block(identifier, syncProc);
+      syncProc.get();
+    } catch (ExecutionException ee) {
+      if (ee.getCause() instanceof RuntimeException) {
+        LOG.log(Level.INFO, "Caught expected runtime exception...", ee);
+        result = true;
+      }
+    }
+    Assert.assertTrue("Expected runtime exception", result);
   }
 }
 

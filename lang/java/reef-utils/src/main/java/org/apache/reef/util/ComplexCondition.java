@@ -19,7 +19,6 @@ package org.apache.reef.util;
 
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Condition;
-import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 /**
@@ -27,7 +26,7 @@ import java.util.concurrent.locks.ReentrantLock;
  * condition variable interface.
  */
 public final class ComplexCondition {
-  private final Lock lockVar = new ReentrantLock();
+  private final ReentrantLock lockVar = new ReentrantLock();
   private final Condition conditionVar = lockVar.newCondition();
   private final long timeoutPeriod;
   private final TimeUnit timeoutUnits;
@@ -99,5 +98,9 @@ public final class ComplexCondition {
    */
   public void signal() {
     conditionVar.signal();
+  }
+
+  public boolean isHeldByCurrentThread() {
+    return lockVar.isHeldByCurrentThread();
   }
 }

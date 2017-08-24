@@ -62,7 +62,8 @@ public final class MultiAsyncToSync {
    *                       processing associated with the call. This will occur inside the condition lock
    *                       to prevent the processing from generating the signal before the calling thread blocks.
    *                       Error conditions should be handled by throwing an exception which the caller
-   *                       will catch.
+   *                       will catch. The caller can retrieve the results of the processing by calling
+   *                       {@code asyndProcessor.get()}.
    * @param <TAsync> The return type of the {@code asyncProcessor};
    * @return A boolean value that indicates whether or not a timeout or error occurred.
    * @throws InterruptedException The thread was interrupted while waiting on a condition.
@@ -73,6 +74,9 @@ public final class MultiAsyncToSync {
   public <TAsync> boolean block(final long identifier, final FutureTask<TAsync> asyncProcessor) throws Exception {
     final boolean timeoutOccurred;
     final ComplexCondition call = allocate();
+    if (call.isHeldByCurrentThread()) {
+      throw new RuntimeException("release() must not be called on same thread as block() to prevent deadlock");
+    }
     try {
       call.lock();
       // Add the call identifier to the sleeper map so release() can identify this instantiation.
@@ -104,8 +108,11 @@ public final class MultiAsyncToSync {
    */
   public void release(final long identifier) throws InterruptedException, InvalidIdentifierException {
     final ComplexCondition call = getSleeper(identifier);
-    call.lock();
+    if (call.isHeldByCurrentThread()) {
+      throw new RuntimeException("release() must not be called on same thread as block() to prevent deadlock");
+    }
     try {
+      call.lock();
       LOG.log(Level.FINER, "Waking caller sleeping on identifier [{0}]", identifier);
       call.signal();
     } finally {

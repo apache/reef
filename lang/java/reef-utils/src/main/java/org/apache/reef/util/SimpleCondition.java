@@ -20,15 +20,17 @@ package org.apache.reef.util;
 import java.util.concurrent.FutureTask;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Condition;
-import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Manages Java lock and condition objects to create a simplified
  * condition variable interface.
  */
 public final class SimpleCondition {
-  private final Lock lockVar = new ReentrantLock();
+  private static final Logger LOG = Logger.getLogger(SimpleCondition.class.getName());
+  private final ReentrantLock lockVar = new ReentrantLock();
   private final Condition conditionVar = lockVar.newCondition();
   private final long timeoutPeriod;
   private final TimeUnit timeoutUnits;
@@ -90,7 +92,9 @@ public final class SimpleCondition {
       }
       // Put the caller asleep on the condition until a signal is received
       // or a timeout occurs.
+      LOG.log(Level.FINER, "Putting caller to sleep...");
       timeoutOccurred = !conditionVar.await(timeoutPeriod, timeoutUnits);
+      LOG.log(Level.FINER, "Caller waking up...");
     } finally {
       if (null != doFinally) {
         // Whether or not a timeout occurred, call the user's cleanup code.
@@ -112,6 +116,9 @@ public final class SimpleCondition {
   public void signal() {
     lockVar.lock();
     try {
+      if (lockVar.isHeldByCurrentThread()) {
+        throw new RuntimeException("signal() must not be called on same thread as await()");
+      }
       conditionVar.signal();
     } finally {
       lockVar.unlock();
