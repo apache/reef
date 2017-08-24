@@ -23,22 +23,28 @@ import org.apache.reef.wake.remote.Encoder;
 import org.apache.reef.wake.remote.transport.Link;
 import org.apache.reef.wake.remote.transport.LinkListener;
 
-/**
- * Factory that creates a NettyLink.
- */
-public final class NettyDefaultLinkFactory<T> implements NettyLinkFactory {
+import java.net.URI;
 
-  NettyDefaultLinkFactory() {}
+/**
+ * Factory that creates a NettyHttpLink.
+ */
+public final class NettyHttpLinkFactory<T> implements NettyLinkFactory {
+
+  private final URI uri;
+
+  NettyHttpLinkFactory(final URI uri){
+    this.uri = uri;
+  }
 
   @Override
   public Link newInstance(final Channel channel, final Encoder encoder) {
-    return new NettyLink<T>(channel, encoder);
+    return new NettyHttpLink<T>(channel, encoder, uri);
   }
 
   @Override
   public Link newInstance(final Channel channel,
                           final Encoder encoder,
                           final LinkListener listener) {
-    return new NettyLink<T>(channel, encoder, listener);
+    return new NettyHttpLink<T>(channel, encoder, listener, uri);
   }
 }

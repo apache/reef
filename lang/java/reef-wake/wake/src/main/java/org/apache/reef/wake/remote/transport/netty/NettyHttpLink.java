@@ -38,7 +38,7 @@ import java.util.logging.Logger;
  * If you set a {@code LinkListener<T>}, it keeps message until writeAndFlush operation completes
  * and notifies whether the sent message transferred successfully through the listener.
  */
-public class NettyHttpLink<T> implements Link<T> {
+public final class NettyHttpLink<T> implements Link<T> {
 
   public static final int INT_SIZE = Integer.SIZE / Byte.SIZE;
 
@@ -131,6 +131,8 @@ public class NettyHttpLink<T> implements Link<T> {
 
   @Override
   public String toString() {
-    return "NettyLink: " + channel; // Channel has good .toString() implementation
+    return new StringBuilder()
+            .append("NettyLink: ")
+            .append(channel).toString(); // Channel has good .toString() implementation
   }
 }

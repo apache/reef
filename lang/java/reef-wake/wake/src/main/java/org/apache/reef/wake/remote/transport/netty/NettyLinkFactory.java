@@ -44,6 +44,6 @@ public interface NettyLinkFactory<T> {
    * @param listener the listener
    */
   Link<T> newInstance(final Channel channel,
-                           final Encoder<? super T> encoder,
-                           final LinkListener<? super T> listener);
+                      final Encoder<? super T> encoder,
+                      final LinkListener<? super T> listener);
 }

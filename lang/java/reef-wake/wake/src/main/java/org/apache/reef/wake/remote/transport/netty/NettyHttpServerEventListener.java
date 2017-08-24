@@ -50,7 +50,7 @@ final class NettyHttpServerEventListener extends AbstractNettyEventListener {
       final URI uri) {
     super(addrToLinkRefMap, stage);
     this.uri = uri;
-    this.linkFactory = new NettyDefaultLinkFactory<>(uri);
+    this.linkFactory = new NettyHttpLinkFactory<>(uri);
   }
 
 
