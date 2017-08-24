@@ -31,7 +31,6 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.ssl.SslContext;
-import io.netty.handler.ssl.util.SelfSignedCertificate;
 import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.GlobalEventExecutor;
 import org.apache.reef.tang.annotations.Parameter;
@@ -61,7 +60,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import static org.apache.reef.wake.remote.RemoteConfiguration.PROTOCOL_HTTP;
-import static org.apache.reef.wake.remote.RemoteConfiguration.PROTOCOL_HTTPS;
 import static org.apache.reef.wake.remote.RemoteConfiguration.PROTOCOL_TCP;
 import static org.apache.reef.wake.remote.transport.netty.NettyChannelInitializer.ChannelType;
 
@@ -102,7 +100,6 @@ public final class NettyMessagingTransport implements Transport {
   private final AbstractNettyEventListener clientEventListener;
   private final AbstractNettyEventListener serverEventListener;
 
-  private final boolean supportsSSL;
   private final URI uri;
 
   private final int numberOfTries;
@@ -142,35 +139,15 @@ public final class NettyMessagingTransport implements Transport {
     final SslContext sslContextClient;
     final SslContext sslContextServer;
 
-    supportsSSL = System.getProperty("ssl") != null;
+    //TODO[JIRA REEF-1871] Implement HTTPS with sslContext.
 
-    if (protocolType.equals(PROTOCOL_HTTPS)) {
-      if (supportsSSL) {
-        try {
-          final SelfSignedCertificate ssc = new SelfSignedCertificate();
-          sslContextClient = SslContext.newServerContext(ssc.certificate(), ssc.privateKey());
-          sslContextServer = SslContext.newClientContext();
-          this.uri = URI.create("https://"  + hostAddress);
-          LOG.log(Level.FINE, "SSL context created");
-        } catch (final Exception ex) {
-          final RuntimeException transportException =
-              new TransportRuntimeException("Could not create SSL Context", ex);
-          LOG.log(Level.SEVERE, "Could not create SSL Context", ex);
-          throw transportException;
-        }
-      } else {
-        LOG.log(Level.SEVERE, "Could not find support for SSL");
-        throw new TransportRuntimeException("Could not find support for SSL");
-      }
-
-    } else { // for HTTP and default Netty
-      sslContextClient = null;
-      sslContextServer = null;
-      if (protocolType.equals(PROTOCOL_HTTP)) {
-        this.uri = URI.create("http://" + hostAddress);
-      } else {
-        this.uri = null;
-      }
+    // for HTTP and default Netty
+    sslContextClient = null;
+    sslContextServer = null;
+    if (protocolType.equals(PROTOCOL_HTTP)) {
+      this.uri = URI.create("http://" + hostAddress);
+    } else {
+      this.uri = null;
     }
 
     this.numberOfTries = numberOfTries;

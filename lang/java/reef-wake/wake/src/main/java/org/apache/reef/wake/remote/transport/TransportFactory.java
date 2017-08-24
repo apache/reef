@@ -35,7 +35,7 @@ public interface TransportFactory {
    * Types of protocol used in Transport.
    */
   enum ProtocolTypes {
-    TCP, HTTP, HTTPS
+    TCP, HTTP
   }
 
   /**

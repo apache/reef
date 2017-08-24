@@ -54,7 +54,7 @@ public final class RemoteConfiguration {
    */
   public static final String PROTOCOL_TCP = ProtocolTypes.TCP.name();
   public static final String PROTOCOL_HTTP = ProtocolTypes.HTTP.name();
-  public static final String PROTOCOL_HTTPS = ProtocolTypes.HTTPS.name();
+  //TODO[JIRA REEF-1871] Implement HTTPS as protocol
 
   private RemoteConfiguration() {
     // empty
