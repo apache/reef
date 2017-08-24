@@ -98,7 +98,7 @@ namespace Org.Apache.REEF.Examples.HelloREEF
             LogApplicationReport();
 
             //// This is an example to Kill Job Application
-            //// KillJobApplication(result.AppId);
+            //// KillApplication(result.AppId);
 
             var state = PullFinalJobStatus(result);
             Logger.Log(Level.Info, "Application final state : {0}.", state);
@@ -121,9 +121,9 @@ namespace Org.Apache.REEF.Examples.HelloREEF
         /// Sample code to kill Job Application.
         /// </summary>
         /// <param name="appId">Application id to kill</param>
-        private void KillJobApplication(string appId)
+        private void KillApplication(string appId)
         {
-            if (_reefClient.KillJobApplication(appId))
+            if (_reefClient.KillApplication(appId).Result)
             {
                 Logger.Log(Level.Info, "Application {0} is killed successfully.", appId);
             }

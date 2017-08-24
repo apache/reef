@@ -157,8 +157,10 @@ namespace Org.Apache.REEF.Client.Yarn.RestClient
         {
             try
             {
-                var killApplication = new KillApplication();
-                killApplication.State = State.KILLED;
+                var killApplication = new KillApplication()
+                {
+                    State = State.KILLED
+                };
 
                 var restParm = KillApplication.Resource + appId + KillApplication.StateTag;
                 await new RemoveSynchronizationContextAwaiter();
