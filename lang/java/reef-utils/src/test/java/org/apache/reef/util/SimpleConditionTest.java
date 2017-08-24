@@ -24,6 +24,9 @@ import java.util.concurrent.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+/**
+ * Verify functionality of simple condition objects.
+ */
 public class SimpleConditionTest {
   private static final Logger LOG = Logger.getLogger(SimpleConditionTest.class.getName());
 

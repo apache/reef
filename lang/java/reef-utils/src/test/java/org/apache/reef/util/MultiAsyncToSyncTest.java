@@ -279,7 +279,7 @@ public final class MultiAsyncToSyncTest {
 
     try {
       final MultiAsyncToSync asyncToSync = new MultiAsyncToSync(timeoutPeriodSeconds, TimeUnit.SECONDS);
-      FutureTask<Object> syncProc = new FutureTask<Object>(new Callable<Object>() {
+      FutureTask<Object> syncProc = new FutureTask<>(new Callable<Object>() {
         public Object call() throws InterruptedException, InvalidIdentifierException {
           asyncToSync.release(identifier);
           return null;
