@@ -100,6 +100,11 @@ public final class ComplexCondition {
     conditionVar.signal();
   }
 
+  /**
+   * Check if the internal lock is currently held by the calling thread.
+   * @return A boolean value that indicates if the internal lock is currently
+   * held by the calling thread.
+   */
   public boolean isHeldByCurrentThread() {
     return lockVar.isHeldByCurrentThread();
   }

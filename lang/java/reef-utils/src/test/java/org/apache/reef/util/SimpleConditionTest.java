@@ -27,17 +27,24 @@ import java.util.logging.Logger;
 public class SimpleConditionTest {
   private static final Logger LOG = Logger.getLogger(SimpleConditionTest.class.getName());
 
+  /**
+   * Verify proper operation when not timeout occurs.
+   * @throws Exception An unexpected exception occurred.
+   */
   @Test
   public void testNoTimeout() throws Exception {
     LOG.log(Level.INFO, "Starting...");
+
     final ExecutorService executor = Executors.newCachedThreadPool();
     final SimpleCondition condition = new SimpleCondition();
 
-    FutureTask<Integer> doTry = new FutureTask<>(new Callable<Integer>() {
+    FutureTask<FutureTask<Integer>> doTry = new FutureTask<>(new Callable<FutureTask<Integer>>() {
       @Override
-      public Integer call() throws Exception {
+      public FutureTask<Integer> call() throws Exception {
         LOG.log(Level.INFO, "doTry executing...");
-        Callable<Integer> callable = new Callable<Integer>() {
+
+        // Spawn a future which can be passed back to the caller.
+        FutureTask<Integer> task = new FutureTask<>(new Callable<Integer>() {
           @Override
           public Integer call() throws Exception {
             LOG.log(Level.INFO, "doTry sleeping...");
@@ -47,9 +54,10 @@ public class SimpleConditionTest {
             LOG.log(Level.INFO, "doTry condition is signaled...");
             return 5;
           }
-        };
-        executor.submit(callable);
-        return 5;
+        });
+        executor.submit(task);
+
+        return task;
       }
     });
 
@@ -62,8 +70,8 @@ public class SimpleConditionTest {
 
     condition.await(doTry, doFinally);
     Thread.sleep(3000);
-    Assert.assertEquals("No exceptions", doTry.get(), doFinally.get());
+    Assert.assertEquals("No exceptions", doTry.get().get(), doFinally.get());
 
-    executor.shutdown();
+    executor.shutdownNow();
   }
 }

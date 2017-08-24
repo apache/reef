@@ -83,8 +83,11 @@ public final class SimpleCondition {
   public <TTry, TFinally> boolean await(final FutureTask<TTry> doTry,
                                         final FutureTask<TFinally> doFinally) throws Exception {
     final boolean timeoutOccurred;
-    lockVar.lock();
+    if (lockVar.isHeldByCurrentThread()) {
+      throw new RuntimeException("signal() must not be called on same thread as await()");
+    }
     try {
+      lockVar.lock();
       if (null != doTry) {
         // Invoke the caller's asynchronous processing while holding the lock
         // so a wakeup cannot occur before the caller sleeps.
@@ -97,8 +100,8 @@ public final class SimpleCondition {
       LOG.log(Level.FINER, "Caller waking up...");
     } finally {
       if (null != doFinally) {
-        // Whether or not a timeout occurred, call the user's cleanup code.
         try {
+          // Whether or not a timeout occurred, call the user's cleanup code.
           doFinally.run();
         } finally {
           lockVar.unlock();
@@ -114,11 +117,12 @@ public final class SimpleCondition {
    * Wakes the thread sleeping in (@code await()}.
    */
   public void signal() {
-    lockVar.lock();
+    if (lockVar.isHeldByCurrentThread()) {
+      throw new RuntimeException("signal() must not be called on same thread as await()");
+    }
     try {
-      if (lockVar.isHeldByCurrentThread()) {
-        throw new RuntimeException("signal() must not be called on same thread as await()");
-      }
+      lockVar.lock();
+      LOG.log(Level.INFO, "Signalling sleeper...");
       conditionVar.signal();
     } finally {
       lockVar.unlock();
