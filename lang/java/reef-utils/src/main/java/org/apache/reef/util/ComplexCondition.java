@@ -41,16 +41,29 @@ public final class ComplexCondition {
 
   /**
    * Wrap a lock and associated condition together into a single atomic condition
-   * variable that can be used synchronize waiters and signalers.
-   * Typical usage:
+   * variable that can be used synchronize waiters and signalers. Signal must
+   * come from a different thread than the sleeper thread.
+   * Typical usage for the sleeper:
    * {@code
-   *   cv.lock();
    *   try {
-   *     // access shared objects.
-   *     cv.await(); // or cv.signal()
-   *     // access shared objects.
+   *     cv.lock();
+   *     // Access shared objects.
+   *     cv.await(); // lock is atomically given up sleeping and reacquired on wakeup.
+   *     // Access shared objects.
    *   } finally {
+   *     // Cleanup.
    *     cv.unlock();
+   *   }
+   * }
+   * Typical usage for the signaler:
+   * {@code
+   *   try {
+   *     cv.lock();
+   *     // Access shared objects.
+   *     cv.signal();
+   *     // Access shared objects.
+   *   } finally {
+   *     cv.unlock()
    *   }
    * }
    * @param timeoutPeriod The length of time in units given by the the timeoutUnits
