@@ -96,9 +96,12 @@ public final class MultiAsyncToSync {
     } finally {
       // Whether or not the call completed successfully, always remove
       // the call from the sleeper map, release the lock and cleanup.
-      removeSleeper(identifier);
-      recycle(call);
-      call.unlock();
+      try {
+        removeSleeper(identifier);
+        recycle(call);
+      } finally {
+        call.unlock();;
+      }
     }
     return timeoutOccurred;
   }
