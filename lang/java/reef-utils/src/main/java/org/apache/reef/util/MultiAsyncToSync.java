@@ -71,7 +71,8 @@ public final class MultiAsyncToSync {
    * @throws Exception The future task object referenced by the {@code asyncProcessor}
    *                   parameter threw an exception.
    */
-  public <TAsync> boolean block(final long identifier, final FutureTask<TAsync> asyncProcessor) throws Exception {
+  public <TAsync> boolean block(final long identifier, final FutureTask<TAsync> asyncProcessor)
+        throws InterruptedException, InvalidIdentifierException, Exception {
     final boolean timeoutOccurred;
     final ComplexCondition call = allocate();
     if (call.isHeldByCurrentThread()) {
@@ -88,7 +89,7 @@ public final class MultiAsyncToSync {
       // give up the look as the caller sleeps and atomically reacquire the
       // the lock as we wake up.
       LOG.log(Level.FINER, "Putting caller to sleep on identifier [{0}]", identifier);
-      timeoutOccurred = call.await();
+      timeoutOccurred = !call.await();
       if (timeoutOccurred) {
         LOG.log(Level.SEVERE, "Call timed out on identifier [{0}]", identifier);
       }

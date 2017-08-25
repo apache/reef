@@ -34,13 +34,13 @@ public final class SimpleCondition {
   private final Condition conditionVar = lockVar.newCondition();
   private final long timeoutPeriod;
   private final TimeUnit timeoutUnits;
-  private static final long DEFAULT_TIMEOUT = 10;
+  private boolean isSignal = false;
 
   /**
    * Default constructor which initializes timeout period to 10 seconds.
    */
   public SimpleCondition() {
-    this(DEFAULT_TIMEOUT, TimeUnit.SECONDS);
+    this(Long.MAX_VALUE, TimeUnit.DAYS);
   }
 
   /**
@@ -74,7 +74,8 @@ public final class SimpleCondition {
    *                  is released.
    * @param <TTry> The return type of the {@code doTry} future task.
    * @param <TFinally> The return type of the {@code doFinally} future task.
-   * @return A boolean value that indicates whether or not a timeout occurred.
+   * @return A boolean value that indicates whether or not a signal was received. False
+   * indicates that a timeout occurred before a signal was received.
    * @throws InterruptedException Thread was interrupted by another thread while
    * waiting for the signal.
    * @throws Exception The callers (@code doTry} or {@code doFinally} future task
@@ -82,7 +83,7 @@ public final class SimpleCondition {
    */
   public <TTry, TFinally> boolean await(final FutureTask<TTry> doTry,
                                         final FutureTask<TFinally> doFinally) throws Exception {
-    final boolean timeoutOccurred;
+    boolean noTimeout = true;
     if (lockVar.isHeldByCurrentThread()) {
       throw new RuntimeException("signal() must not be called on same thread as await()");
     }
@@ -94,11 +95,14 @@ public final class SimpleCondition {
         doTry.run();
       }
       // Put the caller asleep on the condition until a signal is received
-      // or a timeout occurs.
+      // or a timeout occurs. Ignore spurious wake ups.
       LOG.log(Level.FINER, "Putting caller to sleep...");
-      timeoutOccurred = !conditionVar.await(timeoutPeriod, timeoutUnits);
+      while (!isSignal && noTimeout) {
+        noTimeout = conditionVar.await(timeoutPeriod, timeoutUnits);
+      }
       LOG.log(Level.FINER, "Caller waking up...");
     } finally {
+      isSignal = false;
       if (null != doFinally) {
         try {
           // Whether or not a timeout occurred, call the user's cleanup code.
@@ -110,7 +114,7 @@ public final class SimpleCondition {
         lockVar.unlock();
       }
     }
-    return timeoutOccurred;
+    return noTimeout;
   }
 
   /**
@@ -123,6 +127,7 @@ public final class SimpleCondition {
     try {
       lockVar.lock();
       LOG.log(Level.INFO, "Signalling sleeper...");
+      isSignal = true;
       conditionVar.signal();
     } finally {
       lockVar.unlock();

@@ -30,13 +30,13 @@ public final class ComplexCondition {
   private final Condition conditionVar = lockVar.newCondition();
   private final long timeoutPeriod;
   private final TimeUnit timeoutUnits;
-  private static final long DEFAULT_TIMEOUT = 10;
+  private boolean isSignal = false;
 
   /**
-   * Default constructor which initializes timeout period to 10 seconds.
+   * Default constructor which with infinite timeout period.
    */
   public ComplexCondition() {
-    this(DEFAULT_TIMEOUT, TimeUnit.SECONDS);
+    this(Long.MAX_VALUE, TimeUnit.DAYS);
   }
 
   /**
@@ -98,11 +98,21 @@ public final class ComplexCondition {
   /**
    * Wait for a signal on the condition. Must call {@code lock()} first
    * and {@code unlock()} afterwards.
-   * @return A boolean value that indicates whether or not a timeout occurred.
+   * @return A boolean value that indicates whether or not a signal was received. False
+   * indicates a timeout occurred before a signal was received.
    * @throws InterruptedException The calling thread was interrupted by another thread.
    */
   public boolean await() throws InterruptedException {
-    return !conditionVar.await(timeoutPeriod, timeoutUnits);
+    boolean noTimeout = true;
+    // Use a loop and a boolean to avoid spurious time outs.
+    try {
+      while (!isSignal && noTimeout) {
+        noTimeout = conditionVar.await(timeoutPeriod, timeoutUnits);
+      }
+    } finally {
+      isSignal = false;
+    }
+    return noTimeout;
   }
 
   /**
@@ -110,6 +120,7 @@ public final class ComplexCondition {
    * and {@code unlock()} afterwards.
    */
   public void signal() {
+    isSignal = true;
     conditionVar.signal();
   }
 
