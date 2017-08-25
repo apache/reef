@@ -100,7 +100,7 @@ public final class MultiAsyncToSync {
         removeSleeper(identifier);
         recycle(call);
       } finally {
-        call.unlock();;
+        call.unlock();
       }
     }
     return timeoutOccurred;
