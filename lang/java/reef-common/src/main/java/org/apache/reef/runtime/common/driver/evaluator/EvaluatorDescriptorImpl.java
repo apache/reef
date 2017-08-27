@@ -24,6 +24,10 @@ import org.apache.reef.driver.catalog.NodeDescriptor;
 import org.apache.reef.driver.evaluator.EvaluatorDescriptor;
 import org.apache.reef.driver.evaluator.EvaluatorProcess;
 
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * A simple all-data implementation of EvaluatorDescriptor.
  */
@@ -36,17 +40,28 @@ final class EvaluatorDescriptorImpl implements EvaluatorDescriptor {
   private final int numberOfCores;
   private EvaluatorProcess process;
   private final String runtimeName;
+  private final Map<String, String> nodeLabels;
 
   EvaluatorDescriptorImpl(final NodeDescriptor nodeDescriptor,
                           final int megaBytes,
                           final int numberOfCores,
                           final EvaluatorProcess process,
                           final String runtimeName) {
+    this(nodeDescriptor, megaBytes, numberOfCores, process, runtimeName, new HashMap<String, String>());
+  }
+
+  EvaluatorDescriptorImpl(final NodeDescriptor nodeDescriptor,
+                          final int megaBytes,
+                          final int numberOfCores,
+                          final EvaluatorProcess process,
+                          final String runtimeName,
+                          final Map<String, String> nodeLabels) {
     this.nodeDescriptor = nodeDescriptor;
     this.megaBytes = megaBytes;
     this.numberOfCores = numberOfCores;
     this.process = process;
     this.runtimeName = runtimeName;
+    this.nodeLabels = nodeLabels;
   }
 
   @Override
@@ -79,5 +94,9 @@ final class EvaluatorDescriptorImpl implements EvaluatorDescriptor {
   @Override
   public String getRuntimeName() {
     return this.runtimeName;
+  }
+
+  public Map<String, String> getNodeLabels() {
+    return Collections.unmodifiableMap(this.nodeLabels);
   }
 }

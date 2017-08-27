@@ -34,6 +34,7 @@ import java.util.logging.Logger;
 @Private
 public final class YarnUtilities {
   public static final String REEF_YARN_APPLICATION_ID_ENV_VAR = "REEF_YARN_APPLICATION_ID";
+  public static final String REEF_YARN_NODE_LABEL_ID = "REEF_YARN_NODE_LABEL_ID";
   private static final Logger LOG = Logger.getLogger(YarnUtilities.class.getName());
 
   /**

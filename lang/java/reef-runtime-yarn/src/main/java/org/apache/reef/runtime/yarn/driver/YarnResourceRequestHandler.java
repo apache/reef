@@ -26,6 +26,7 @@ import org.apache.reef.annotations.audience.DriverSide;
 import org.apache.reef.annotations.audience.Private;
 import org.apache.reef.runtime.common.driver.api.ResourceRequestEvent;
 import org.apache.reef.runtime.common.driver.api.ResourceRequestHandler;
+import org.apache.reef.runtime.yarn.util.YarnUtilities;
 
 import javax.inject.Inject;
 import java.util.logging.Level;
@@ -64,13 +65,21 @@ public final class YarnResourceRequestHandler implements ResourceRequestHandler 
     final Priority pri = getPriority(resourceRequestEvent);
     final Resource resource = getResource(resourceRequestEvent);
     final boolean relaxLocality = resourceRequestEvent.getRelaxLocality().orElse(true);
+    final String nodeLabelExpression = resourceRequestEvent.getNodeLabels().get(YarnUtilities.REEF_YARN_NODE_LABEL_ID);
 
     final AMRMClient.ContainerRequest[] containerRequests =
         new AMRMClient.ContainerRequest[resourceRequestEvent.getResourceCount()];
 
+
     for (int i = 0; i < resourceRequestEvent.getResourceCount(); i++) {
-      containerRequests[i] = new AMRMClient.ContainerRequest(resource, nodes, racks, pri, relaxLocality);
+      if (nodeLabelExpression == null) {
+        containerRequests[i] = new AMRMClient.ContainerRequest(resource, nodes, racks, pri, relaxLocality);
+      } else {
+        containerRequests[i] = new AMRMClient.ContainerRequest(resource, nodes, racks, pri, relaxLocality,
+            nodeLabelExpression);
+      }
     }
+
     this.yarnContainerRequestHandler.onContainerRequest(containerRequests);
   }
 

@@ -23,6 +23,8 @@ import org.apache.reef.util.Optional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
 
 /**
  * Default POJO implementation of ResourceRequestEvent.
@@ -37,6 +39,7 @@ public final class ResourceRequestEventImpl implements ResourceRequestEvent {
   private final Optional<Integer> virtualCores;
   private final Optional<Boolean> relaxLocality;
   private final String runtimeName;
+  private final Map<String, String> nodeLabels;
 
   private ResourceRequestEventImpl(final Builder builder) {
     this.resourceCount = BuilderUtils.notNull(builder.resourceCount);
@@ -47,6 +50,12 @@ public final class ResourceRequestEventImpl implements ResourceRequestEvent {
     this.virtualCores = Optional.ofNullable(builder.virtualCores);
     this.relaxLocality = Optional.ofNullable(builder.relaxLocality);
     this.runtimeName = builder.runtimeName == null ? "" : builder.runtimeName;
+    this.nodeLabels = builder.nodeLabels == null ? new HashMap<String, String>() : builder.nodeLabels;
+  }
+
+  @Override
+  public Map<String, String> getNodeLabels() {
+    return nodeLabels;
   }
 
   @Override
@@ -105,6 +114,7 @@ public final class ResourceRequestEventImpl implements ResourceRequestEvent {
     private Integer virtualCores;
     private Boolean relaxLocality;
     private String runtimeName;
+    private Map<String, String> nodeLabels;
 
     /**
      * Create a builder from an existing ResourceRequestEvent.
@@ -118,6 +128,15 @@ public final class ResourceRequestEventImpl implements ResourceRequestEvent {
       this.virtualCores = resourceRequestEvent.getVirtualCores().orElse(null);
       this.relaxLocality = resourceRequestEvent.getRelaxLocality().orElse(null);
       this.runtimeName = resourceRequestEvent.getRuntimeName();
+      this.nodeLabels = resourceRequestEvent.getNodeLabels();
+      return this;
+    }
+
+    /**
+     * set node labels.
+     */
+    public Builder setNodeLabels(final Map<String, String> nodeLabels) {
+      this.nodeLabels = nodeLabels;
       return this;
     }
 

@@ -26,11 +26,13 @@ import org.apache.hadoop.fs.*;
 import org.apache.hadoop.service.Service;
 import org.apache.hadoop.yarn.api.records.*;
 import org.apache.hadoop.yarn.client.api.AMRMClient;
+import org.apache.hadoop.yarn.client.api.YarnClient;
 import org.apache.hadoop.yarn.client.api.async.AMRMClientAsync;
 import org.apache.hadoop.yarn.client.api.async.NMClientAsync;
 import org.apache.hadoop.yarn.client.api.async.impl.NMClientAsyncImpl;
 import org.apache.hadoop.yarn.conf.YarnConfiguration;
 
+import org.apache.hadoop.yarn.exceptions.YarnException;
 import org.apache.reef.annotations.audience.DriverSide;
 import org.apache.reef.annotations.audience.Private;
 import org.apache.reef.driver.ProgressProvider;
@@ -45,6 +47,7 @@ import org.apache.reef.runtime.common.files.REEFFileNames;
 import org.apache.reef.runtime.yarn.client.unmanaged.YarnProxyUser;
 import org.apache.reef.runtime.yarn.driver.parameters.JobSubmissionDirectory;
 import org.apache.reef.runtime.yarn.driver.parameters.YarnHeartbeatPeriod;
+import org.apache.reef.runtime.yarn.util.YarnUtilities;
 import org.apache.reef.tang.InjectionFuture;
 import org.apache.reef.tang.annotations.Parameter;
 import org.apache.reef.util.Optional;
@@ -535,6 +538,31 @@ final class YarnContainerManager implements AMRMClientAsync.CallbackHandler, NMC
       LOG.log(Level.FINEST, "Allocated Container: memory = {0}, core number = {1}",
           new Object[] {container.getResource().getMemory(), container.getResource().getVirtualCores()});
 
+      // TODO[JIRA REEF-1866]: update this part when YARN supports a method to retrieve
+      // the node label expression of a container.
+      YarnClient client = YarnClient.createYarnClient();
+      client.init(new YarnConfiguration());
+      client.start();
+
+      Set<String> nodeLabelExpressionsFromNode;
+
+      try {
+        nodeLabelExpressionsFromNode = client.getNodeToLabels().get(container.getNodeId());
+      } catch (final YarnException | IOException e) {
+        LOG.log(Level.WARNING, "Error getting labels for node: " + container.getNodeId(), e);
+        nodeLabelExpressionsFromNode = null;
+      }
+
+      client.stop();
+
+      Map<String, String> nodeLabelExpressions = new HashMap<>();
+
+      if (nodeLabelExpressionsFromNode != null) {
+        for (String nodeLabelExpression: nodeLabelExpressionsFromNode) {
+          nodeLabelExpressions.put(YarnUtilities.REEF_YARN_NODE_LABEL_ID, nodeLabelExpression);
+        }
+      }
+
       this.reefEventHandlers.onResourceAllocation(ResourceEventImpl.newAllocationBuilder()
           .setIdentifier(container.getId().toString())
           .setNodeId(container.getNodeId().toString())
@@ -542,6 +570,7 @@ final class YarnContainerManager implements AMRMClientAsync.CallbackHandler, NMC
           .setVirtualCores(container.getResource().getVirtualCores())
           .setRackName(rackNameFormatter.getRackName(container))
           .setRuntimeName(RuntimeIdentifier.RUNTIME_NAME)
+          .setNodeLabels(nodeLabelExpressions)
           .build());
 
       this.updateRuntimeStatus();
