@@ -396,6 +396,7 @@ final class REEFScheduler implements Scheduler {
         .setResourceMemory(resourceRequestProto.getMemorySize().get())
         .setVirtualCores(resourceRequestProto.getVirtualCores().get())
         .setRuntimeName(RuntimeIdentifier.RUNTIME_NAME)
+        .setNodeLabels(resourceRequestProto.getNodeLabels())
         .build();
     reefEventHandlers.onResourceAllocation(alloc);
 
@@ -439,8 +440,23 @@ final class REEFScheduler implements Scheduler {
   }
 
   private boolean satisfySlaveConstraint(final ResourceRequestEvent resourceRequestEvent, final Offer offer) {
-    return resourceRequestEvent.getNodeNameList().size() == 0 ||
-        resourceRequestEvent.getNodeNameList().contains(offer.getSlaveId().getValue());
+    boolean satisfyNodeLabels = true;
+
+    // If the ResourceRequestEvent is labeled, check if the Offer also has the label.
+    if (!resourceRequestEvent.getNodeLabels().isEmpty()) {
+      boolean satisfyNodeLabel;
+      for (Map.Entry<String, String> entry : resourceRequestEvent.getNodeLabels().entrySet()) {
+        satisfyNodeLabel = false;
+        for (Protos.Attribute attr : offer.getAttributesList()) {
+          if (attr.getName().equals(entry.getKey()) && attr.getText().getValue().equals(entry.getValue())) {
+            satisfyNodeLabel = true;
+          }
+        }
+        satisfyNodeLabels = satisfyNodeLabels && satisfyNodeLabel;
+      }
+    }
+    return satisfyNodeLabels && (resourceRequestEvent.getNodeNameList().size() == 0 ||
+        resourceRequestEvent.getNodeNameList().contains(offer.getSlaveId().getValue()));
   }
 
   private int getMemory(final Offer offer) {

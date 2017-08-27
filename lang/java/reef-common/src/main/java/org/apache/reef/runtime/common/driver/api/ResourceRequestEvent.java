@@ -24,6 +24,7 @@ import org.apache.reef.tang.annotations.DefaultImplementation;
 import org.apache.reef.util.Optional;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * Event from Driver Process to Driver Runtime.
@@ -33,6 +34,11 @@ import java.util.List;
 @DriverSide
 @DefaultImplementation(ResourceRequestEventImpl.class)
 public interface ResourceRequestEvent {
+
+  /**
+   * @return The node labels.
+   */
+  Map<String, String> getNodeLabels();
 
   /**
    * @return The number of resources requested

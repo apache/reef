@@ -21,6 +21,8 @@ package org.apache.reef.runtime.common.driver.resourcemanager;
 import org.apache.reef.util.BuilderUtils;
 import org.apache.reef.util.Optional;
 
+import java.util.Map;
+
 /**
  * Default POJO implementation of ResourceAllocationEvent and ResourceRecoverEvent.
  * Use newAllocationBuilder to construct an instance for ResourceAllocationEvent and
@@ -33,6 +35,7 @@ public final class ResourceEventImpl implements ResourceAllocationEvent, Resourc
   private final Optional<Integer> virtualCores;
   private final Optional<String> rackName;
   private final String runtimeName;
+  private final Map<String, String> nodeLabels;
 
 
   private ResourceEventImpl(final Builder builder) {
@@ -42,6 +45,7 @@ public final class ResourceEventImpl implements ResourceAllocationEvent, Resourc
     this.virtualCores = Optional.ofNullable(builder.virtualCores);
     this.rackName = Optional.ofNullable(builder.rackName);
     this.runtimeName = BuilderUtils.notNull(builder.runtimeName);
+    this.nodeLabels = builder.nodeLabels;
   }
 
   @Override
@@ -74,6 +78,11 @@ public final class ResourceEventImpl implements ResourceAllocationEvent, Resourc
     return runtimeName;
   }
 
+  @Override
+  public Map<String, String> getNodeLabels() {
+    return nodeLabels;
+  }
+
   public static Builder newAllocationBuilder() {
     return new Builder(false);
   }
@@ -94,6 +103,7 @@ public final class ResourceEventImpl implements ResourceAllocationEvent, Resourc
     private Integer virtualCores;
     private String rackName;
     private String runtimeName;
+    private Map<String, String> nodeLabels;
 
     private Builder(final boolean recovery){
       this.recovery = recovery;
@@ -146,6 +156,16 @@ public final class ResourceEventImpl implements ResourceAllocationEvent, Resourc
       this.runtimeName = runtimeName;
       return this;
     }
+
+    /**
+     * @see ResourceAllocationEvent#getNodeLabels()
+     * @param nodeLabels
+     */
+    public Builder setNodeLabels(final Map<String, String> nodeLabels) {
+      this.nodeLabels = nodeLabels;
+      return this;
+    }
+
 
     @Override
     public ResourceEventImpl build() {

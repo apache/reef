@@ -109,6 +109,7 @@ public final class EvaluatorRequestorImpl implements EvaluatorRequestor {
           .addRackNames(req.getRackNames())
           .setRelaxLocality(relaxLocality)
           .setRuntimeName(req.getRuntimeName())
+          .setNodeLabels(req.getNodeLabels())
           .build();
       this.resourceRequestHandler.onNext(request);
     }

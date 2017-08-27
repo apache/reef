@@ -162,6 +162,11 @@ public class TestAvroSerializerForHttp {
     public String getRuntimeName() {
       return "Local";
     }
+
+    @Override
+    public Map<String, String> getNodeLabels() {
+      return new HashMap<>();
+    }
   }
 
   static class NodeDescriptorMock implements NodeDescriptor {

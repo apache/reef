@@ -20,6 +20,8 @@ package org.apache.reef.driver.evaluator;
 
 import org.apache.reef.driver.catalog.NodeDescriptor;
 
+import java.util.Map;
+
 /**
  * Metadata about an Evaluator.
  */
@@ -49,4 +51,9 @@ public interface EvaluatorDescriptor {
    * @return name of the runtime that was used to allocate this Evaluator
    */
   String getRuntimeName();
+
+  /**
+   * @return node labels on this Evaluator
+   */
+  Map<String, String> getNodeLabels();
 }
