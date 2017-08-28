@@ -30,7 +30,7 @@ public final class ComplexCondition {
   private final Condition conditionVar = lockVar.newCondition();
   private final long timeoutPeriod;
   private final TimeUnit timeoutUnits;
-  private boolean isSignal = false;
+  private volatile boolean isSignal = false;
 
   /**
    * Default constructor which with infinite timeout period.

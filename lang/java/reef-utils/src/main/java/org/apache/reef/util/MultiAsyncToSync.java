@@ -68,11 +68,9 @@ public final class MultiAsyncToSync {
    * @return A boolean value that indicates whether or not a timeout or error occurred.
    * @throws InterruptedException The thread was interrupted while waiting on a condition.
    * @throws InvalidIdentifierException The identifier parameter is invalid.
-   * @throws Exception The future task object referenced by the {@code asyncProcessor}
-   *                   parameter threw an exception.
    */
   public <TAsync> boolean block(final long identifier, final FutureTask<TAsync> asyncProcessor)
-        throws InterruptedException, InvalidIdentifierException, Exception {
+        throws InterruptedException, InvalidIdentifierException {
     final boolean timeoutOccurred;
     final ComplexCondition call = allocate();
     if (call.isHeldByCurrentThread()) {
