@@ -34,7 +34,7 @@ public final class SimpleCondition {
   private final Condition conditionVar = lockVar.newCondition();
   private final long timeoutPeriod;
   private final TimeUnit timeoutUnits;
-  private boolean isSignal = false;
+  private volatile boolean isSignal = false;
 
   /**
    * Default constructor which initializes timeout period to 10 seconds.
