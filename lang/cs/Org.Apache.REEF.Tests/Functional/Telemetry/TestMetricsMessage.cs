@@ -27,7 +27,7 @@ namespace Org.Apache.REEF.Tests.Functional.Telemetry
 {
     [Collection("FunctionalTests")]
     public class TestMetricsMessage : ReefFunctionalTest
-    {    
+    {
         [Fact]
         [Trait("Priority", "1")]
         [Trait("Category", "FunctionalGated")]
@@ -41,8 +41,8 @@ namespace Org.Apache.REEF.Tests.Functional.Telemetry
             var receivedCounterMessage = GetMessageCount(lines, "Received 2 counters with context message:");
             Assert.True(receivedCounterMessage > 1);
 
-            var systemstates = GetMessageCount(lines, MetricsDriver.EventPrefix);
-            Assert.Equal(4, systemstates);
+            var messageCount = GetMessageCount(lines, MetricsDriver.EventPrefix);
+            Assert.Equal(4, messageCount);
 
             CleanUp(testFolder);
         }

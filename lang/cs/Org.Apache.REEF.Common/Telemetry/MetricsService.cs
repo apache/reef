@@ -87,7 +87,7 @@ namespace Org.Apache.REEF.Common.Telemetry
         /// <summary>
         /// Call each Sink to sink the data in the counters
         /// </summary>
-        private void Sink(ISet<KeyValuePair<string, string>> set)
+        private void Sink(IList<KeyValuePair<string, string>> set)
         {
             foreach (var s in _metricsSinks)
             {
@@ -121,10 +121,10 @@ namespace Org.Apache.REEF.Common.Telemetry
         /// <param name="value"></param>
         public void OnNext(IDriverMetrics value)
         {
-            var set = new HashSet<KeyValuePair<string, string>>();
-            set.Add(new KeyValuePair<string, string>("SystemState", value.SystemState));
-            set.Add(new KeyValuePair<string, string>("TimeUpdated", value.TimeUpdated.ToLongTimeString()));
-            Sink(set);
+            var list = new List<KeyValuePair<string, string>>();
+            list.Add(new KeyValuePair<string, string>("SystemState", value.SystemState));
+            list.Add(new KeyValuePair<string, string>("TimeUpdated", value.TimeUpdated.ToLongTimeString()));
+            Sink(list);
         }
     }
 }

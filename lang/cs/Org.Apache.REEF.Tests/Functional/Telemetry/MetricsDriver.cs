@@ -135,7 +135,7 @@ namespace Org.Apache.REEF.Tests.Functional.Telemetry
         /// </summary>
         private void UpdateMetrics(TestSystemState systemState)
         {
-            var driverMetrics = new DriverMetrics(EventPrefix + systemState.ToString(), DateTime.Now);
+            var driverMetrics = new DriverMetrics(EventPrefix + systemState, DateTime.Now);
 
             foreach (var metricsObserver in _driverMetricsObservers)
             {

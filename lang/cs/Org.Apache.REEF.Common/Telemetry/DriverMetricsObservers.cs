@@ -17,7 +17,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Xml.Schema;
 using Org.Apache.REEF.Tang.Annotations;
 
 namespace Org.Apache.REEF.Common.Telemetry
