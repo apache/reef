@@ -16,11 +16,11 @@
 // under the License.
 
 using System;
-using System.Collections.Specialized;
 using System.Net;
-using System.Runtime.Caching;
+using Microsoft.Extensions.Caching.Memory;
 using Org.Apache.REEF.Network.Naming.Parameters;
 using Org.Apache.REEF.Tang.Annotations;
+using Org.Apache.REEF.Utilities.Logging;
 
 namespace Org.Apache.REEF.Network.Naming
 {
@@ -29,7 +29,8 @@ namespace Org.Apache.REEF.Network.Naming
     /// </summary>
     internal sealed class NameCache
     {
-        private readonly MemoryCache _cache;
+        private static readonly Logger Logger = Logger.GetLogger(typeof(NameCache));
+        private readonly IMemoryCache _cache;
 
         /// <summary>
         /// Duration in milli seconds after which cache entry expires
@@ -38,19 +39,35 @@ namespace Org.Apache.REEF.Network.Naming
         private readonly double _expirationDuration;
 
         [Inject]
+        [Obsolete("TODO[JIRA REEF-1856] This constructor will be removed")]
         private NameCache(
             [Parameter(typeof(NameCacheConfiguration.CacheEntryExpiryTime))] double expirationDuration,
             [Parameter(typeof(NameCacheConfiguration.CacheMemoryLimit))] string memoryLimit,
             [Parameter(typeof(NameCacheConfiguration.PollingInterval))] string pollingInterval)
         {
-            var config = new NameValueCollection
+            Logger.Log(Level.Warning, "Received a parameter \"PollingInterval\" which will be interpreted as ExpirationScanFrequency.");
+            Logger.Log(Level.Warning, "Received a parameter \"CacheMemoryLimit\" which will be ignored.");
+
+            var cacheConfig = new MemoryCacheOptions
             {
-                { "pollingInterval", pollingInterval },
-                { "physicalMemoryLimitPercentage", "0" },
-                { "cacheMemoryLimitMegabytes", memoryLimit }
+                ExpirationScanFrequency = TimeSpan.Parse(pollingInterval)
             };
 
-            _cache = new MemoryCache("NameClientCache", config);
+            _cache = new MemoryCache(cacheConfig);
+            _expirationDuration = expirationDuration;
+        }
+
+        [Inject]
+        private NameCache(
+            [Parameter(typeof(NameCacheConfiguration.CacheEntryExpiryTime))] double expirationDuration,
+            [Parameter(typeof(NameCacheConfiguration.ExpirationScanFrequency))] string expirationScanFrequency)
+        {
+            var cacheConfig = new MemoryCacheOptions
+            {
+                ExpirationScanFrequency = TimeSpan.Parse(expirationScanFrequency)
+            };
+
+            _cache = new MemoryCache(cacheConfig);
             _expirationDuration = expirationDuration;
         }
 
@@ -82,22 +99,6 @@ namespace Org.Apache.REEF.Network.Naming
         internal void RemoveEntry(string identifier)
         {
             _cache.Remove(identifier);
-        }
-
-        /// <summary>
-        /// returns physical memory of the cache in MB
-        /// </summary>
-        internal long PhysicalMemoryLimit
-        {
-            get { return _cache.CacheMemoryLimit; }
-        }
-
-        /// <summary>
-        /// returns the interval after which Cache checks its memory usage
-        /// </summary>
-        internal TimeSpan PollingInterval
-        {
-            get { return _cache.PollingInterval; }
         }
     }
 }

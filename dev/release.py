@@ -74,7 +74,7 @@ def get_mail_text(reef_version, rc_num):
     md5 = open(file_name + ".md5").read().split(" ")[0]
     return_str += "MD5: " + md5 + "\n"
     
-    sha = open(file_name + ".sha512.txt").read().split(" ")[0]
+    sha = open(file_name + ".sha512").read().split(" ")[0]
     return_str += "SHA: " + sha + "\n"
 
     return_str += "\nRelease artifacts are signed with a key found in the KEYS file available here:\n"
@@ -138,7 +138,7 @@ if __name__ == "__main__":
 
             md5_file = open(file_name + ".md5", "w")
             md5_file.write(md5 + " *" + file_name + "\n")
-            sha_file = open(file_name + ".sha512.txt", "w")
+            sha_file = open(file_name + ".sha512", "w")
             sha_file.write(sha + " *" + file_name + "\n")
             md5_file.close()
             sha_file.close()

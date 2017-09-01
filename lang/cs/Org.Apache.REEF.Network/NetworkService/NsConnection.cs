@@ -20,7 +20,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using System.Net.Sockets;
-using System.Runtime.Remoting;
+using Org.Apache.REEF.Common.Exceptions;
 using Org.Apache.REEF.Common.Io;
 using Org.Apache.REEF.Tang.Exceptions;
 using Org.Apache.REEF.Utilities.Logging;
@@ -77,7 +77,7 @@ namespace Org.Apache.REEF.Network.NetworkService
             IPEndPoint destAddr = _nameClient.CacheLookup(_destId.ToString());
             if (destAddr == null)
             {
-                throw new RemotingException("Cannot register Identifier with NameService");
+                throw new RecoverableNetworkException("Cannot register Identifier with NameService");
             }
 
             try

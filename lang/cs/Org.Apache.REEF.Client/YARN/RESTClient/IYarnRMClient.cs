@@ -37,6 +37,22 @@ namespace Org.Apache.REEF.Client.Yarn.RestClient
 
         Task<Application> GetApplicationAsync(string appId, CancellationToken cancellationToken);
 
+        /// <summary>
+        /// This API returns information about all the applications maintained
+        /// by YARN RM in the cluster by invoking REST API.
+        /// </summary>
+        /// <returns></returns>
+        Task<Applications> GetApplicationsAsync();
+
+        /// <summary>
+        /// This API returns information about all the applications maintained
+        /// by YARN RM in the cluster by invoking REST API. This API also allow cooperative
+        /// cancellation in multi-threading scenarios.
+        /// </summary>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
+        Task<Applications> GetApplicationsAsync(CancellationToken cancellationToken);
+
         Task<NewApplication> CreateNewApplicationAsync();
 
         Task<NewApplication> CreateNewApplicationAsync(CancellationToken cancellationToken);
@@ -46,5 +62,20 @@ namespace Org.Apache.REEF.Client.Yarn.RestClient
         Task<Application> SubmitApplicationAsync(
             SubmitApplication submitApplicationRequest,
             CancellationToken cancellationToken);
+
+        /// <summary>
+        /// Kills the application asynchronous.
+        /// </summary>
+        /// <param name="appId">The application identifier.</param>
+        /// <returns>Returns true if the application is killed otherwise return false.</returns>
+        Task<bool> KillApplicationAsync(string appId);
+
+        /// <summary>
+        /// Kills the application asynchronous.
+        /// </summary>
+        /// <param name="appId">The application identifier.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>Returns true if the application is killed otherwise returns false.</returns>
+        Task<bool> KillApplicationAsync(string appId, CancellationToken cancellationToken);
     }
 }

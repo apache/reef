@@ -21,8 +21,8 @@ under the License.
   </PropertyGroup>
   <Import Project="..\build.DotNet.props" />
   <ItemGroup>
-    <PackageReference Include="System.Reactive.Core" Version="$(RxVersion)" />
-    <PackageReference Include="System.Reactive.Interfaces" Version="$(RxVersion)" />
+    <PackageReference Include="System.Reactive.Core" Version="$(SystemReactiveVersion)" />
+    <PackageReference Include="System.Reactive.Interfaces" Version="$(SystemReactiveVersion)" />
     <Reference Include="System" />
   </ItemGroup>
   <Import Project="..\xunit.DotNet.props" />

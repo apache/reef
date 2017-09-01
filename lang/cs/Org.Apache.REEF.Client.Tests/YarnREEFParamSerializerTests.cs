@@ -83,10 +83,11 @@ namespace Org.Apache.REEF.Client.Tests
                 "\"jobSubmissionFolder\":\"{0}\"" +
                 "}}," +
                 "\"dfsJobSubmissionFolder\":\"{0}\"," +
+                "\"fileSystemUrl\":\"{1}\"," +
                 "\"jobSubmissionDirectoryPrefix\":\"{0}\"" +
                 "}}";
 
-            var expectedJson = string.Format(formatString, AnyString);
+            var expectedJson = string.Format(formatString, AnyString, "NULL");
             var injector = TangFactory.GetTang().NewInjector();
 
             var serializer = injector.GetInstance<YarnREEFDotNetParamSerializer>();
@@ -151,6 +152,7 @@ namespace Org.Apache.REEF.Client.Tests
                 "\"jobSubmissionFolder\":\"{0}\"" +
                 "}}," +
                 "\"dfsJobSubmissionFolder\":\"NULL\"," +
+                "\"fileSystemUrl\":\"{0}\"," +
                 "\"jobSubmissionDirectoryPrefix\":\"{0}\"" +
                 "}}," +
                 "\"securityTokenKind\":\"{0}\"," +
@@ -164,6 +166,7 @@ namespace Org.Apache.REEF.Client.Tests
             var conf = YARNClientConfiguration.ConfigurationModule
                 .Set(YARNClientConfiguration.SecurityTokenKind, AnyString)
                 .Set(YARNClientConfiguration.SecurityTokenService, AnyString)
+                .Set(YARNClientConfiguration.FileSystemUrl, AnyString)
                 .Set(YARNClientConfiguration.JobSubmissionFolderPrefix, AnyString)
                 .Build();
 

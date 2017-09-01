@@ -38,6 +38,7 @@ namespace Org.Apache.REEF.Client.YARN
         private readonly REEFFileNames _fileNames;
         private readonly string _securityTokenKind;
         private readonly string _securityTokenService;
+        private readonly string _fileSystemUrl;
         private readonly string _jobSubmissionPrefix;
 
         [Inject]
@@ -45,11 +46,13 @@ namespace Org.Apache.REEF.Client.YARN
             REEFFileNames fileNames,
             [Parameter(typeof(SecurityTokenKindParameter))] string securityTokenKind,
             [Parameter(typeof(SecurityTokenServiceParameter))] string securityTokenService,
+            [Parameter(typeof(FileSystemUrl))] string fileSystemUrl,
             [Parameter(typeof(JobSubmissionDirectoryPrefixParameter))] string jobSubmissionPrefix)
         {
             _fileNames = fileNames;
             _jobSubmissionPrefix = jobSubmissionPrefix;
             _securityTokenKind = securityTokenKind;
+            _fileSystemUrl = fileSystemUrl;
             _securityTokenService = securityTokenService;
         }
 
@@ -113,15 +116,16 @@ namespace Org.Apache.REEF.Client.YARN
 
             var avroYarnJobSubmissionParameters = new AvroYarnJobSubmissionParameters
             {
-                jobSubmissionDirectoryPrefix = _jobSubmissionPrefix,
-                sharedJobSubmissionParameters = avroJobSubmissionParameters
+                sharedJobSubmissionParameters = avroJobSubmissionParameters,
+                fileSystemUrl = _fileSystemUrl,
+                jobSubmissionDirectoryPrefix = _jobSubmissionPrefix
             };
 
             var avroYarnClusterJobSubmissionParameters = new AvroYarnClusterJobSubmissionParameters
             {
+                yarnJobSubmissionParameters = avroYarnJobSubmissionParameters,
                 securityTokenKind = _securityTokenKind,
                 securityTokenService = _securityTokenService,
-                yarnJobSubmissionParameters = avroYarnJobSubmissionParameters,
                 driverMemory = jobParameters.DriverMemoryInMB,
                 maxApplicationSubmissions = jobParameters.MaxApplicationSubmissions,
                 driverStdoutFilePath = string.IsNullOrWhiteSpace(jobParameters.StdoutFilePath.Value) ?

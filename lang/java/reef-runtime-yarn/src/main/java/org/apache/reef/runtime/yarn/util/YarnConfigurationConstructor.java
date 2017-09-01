@@ -19,20 +19,35 @@
 package org.apache.reef.runtime.yarn.util;
 
 import org.apache.hadoop.yarn.conf.YarnConfiguration;
+import org.apache.reef.runtime.yarn.driver.parameters.FileSystemUrl;
 import org.apache.reef.tang.ExternalConstructor;
+import org.apache.reef.tang.annotations.Parameter;
 
 import javax.inject.Inject;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * An external constructor that creates YarnConfiguration instances.
  */
 public final class YarnConfigurationConstructor implements ExternalConstructor<YarnConfiguration> {
+
+  private static final Logger LOG = Logger.getLogger(YarnConfigurationConstructor.class.getName());
+
+  private final String fileSystemUrl;
+
   @Inject
-  YarnConfigurationConstructor() {
+  YarnConfigurationConstructor(@Parameter(FileSystemUrl.class) final String fileSystemUrl) {
+    this.fileSystemUrl = fileSystemUrl;
   }
 
   @Override
   public YarnConfiguration newInstance() {
-    return new YarnConfiguration();
+    YarnConfiguration yarnConfiguration = new YarnConfiguration();
+    if (!fileSystemUrl.equals(FileSystemUrl.DEFAULT_VALUE)) {
+      yarnConfiguration.set("fs.defaultFS", fileSystemUrl);
+      LOG.log(Level.INFO, "Set fileSystemUrl in YarnConfigurationConstructor: {0}", fileSystemUrl);
+    }
+    return yarnConfiguration;
   }
 }

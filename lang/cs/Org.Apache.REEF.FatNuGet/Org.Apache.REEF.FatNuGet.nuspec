@@ -37,6 +37,7 @@ under the License.
   </metadata>
   <files>
     <file src="..\bin\$Platform$\$Configuration$\Org.Apache.REEF.FatNuGet\NugetExeFix.txt" target="lib\net45" />
+    <file src="..\bin\$Platform$\$Configuration$\Org.Apache.REEF.FatNuGet\Org.Apache.REEF.Bridge.CLR.dll" target="lib\net45" />
     <file src="..\bin\$Platform$\$Configuration$\Org.Apache.REEF.FatNuGet\Org.Apache.REEF.Client.dll" target="lib\net45" />
     <file src="..\bin\$Platform$\$Configuration$\Org.Apache.REEF.FatNuGet\Org.Apache.REEF.Client.pdb" target="lib\net45" />
     <file src="..\bin\$Platform$\$Configuration$\Org.Apache.REEF.FatNuGet\Org.Apache.REEF.Common.dll" target="lib\net45" />

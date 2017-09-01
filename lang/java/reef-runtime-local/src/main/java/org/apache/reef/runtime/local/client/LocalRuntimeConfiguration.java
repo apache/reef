@@ -23,6 +23,7 @@ import org.apache.reef.runtime.common.client.CommonRuntimeConfiguration;
 import org.apache.reef.runtime.common.client.DriverConfigurationProvider;
 import org.apache.reef.runtime.common.client.api.JobSubmissionHandler;
 import org.apache.reef.runtime.common.driver.parameters.DefinedRuntimes;
+import org.apache.reef.runtime.common.evaluator.parameters.LocalThreadMode;
 import org.apache.reef.runtime.common.files.RuntimeClasspathProvider;
 import org.apache.reef.runtime.common.parameters.JVMHeapSlack;
 import org.apache.reef.runtime.local.LocalClasspathProvider;
@@ -72,6 +73,11 @@ public class LocalRuntimeConfiguration extends ConfigurationModuleBuilder {
   public static final OptionalParameter<String> RACK_NAMES = new OptionalParameter<>();
 
   /**
+   * Whether the local runtime executes on thread mode or not.
+   */
+  public static final OptionalParameter<String> IS_LOCAL_THREAD_MODE = new OptionalParameter<>();
+
+  /**
    * The ConfigurationModule for the local resourcemanager.
    */
   public static final ConfigurationModule CONF = new LocalRuntimeConfiguration()
@@ -85,6 +91,7 @@ public class LocalRuntimeConfiguration extends ConfigurationModuleBuilder {
       .bindNamedParameter(MaxNumberOfEvaluators.class, MAX_NUMBER_OF_EVALUATORS)
       .bindNamedParameter(RootFolder.class, RUNTIME_ROOT_FOLDER)
       .bindNamedParameter(JVMHeapSlack.class, JVM_HEAP_SLACK)
+      .bindNamedParameter(LocalThreadMode.class, IS_LOCAL_THREAD_MODE)
       .bindSetEntry(DriverConfigurationProviders.class, DRIVER_CONFIGURATION_PROVIDERS)
       .bindSetEntry(RackNames.class, RACK_NAMES)
       .bindSetEntry(DefinedRuntimes.class, RuntimeIdentifier.RUNTIME_NAME)

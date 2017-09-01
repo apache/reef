@@ -29,6 +29,7 @@ import org.apache.reef.util.logging.LoggingScope;
 import org.apache.reef.util.logging.LoggingScopeFactory;
 
 import javax.inject.Inject;
+import java.util.Arrays;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -60,8 +61,11 @@ public final class EvaluatorRequestorImpl implements EvaluatorRequestor {
 
   @Override
   public synchronized void submit(final EvaluatorRequest req) {
-    LOG.log(Level.FINEST, "Got an EvaluatorRequest: number: {0}, memory = {1}, cores = {2}.",
-        new Object[] {req.getNumber(), req.getMegaBytes(), req.getNumberOfCores()});
+    if (LOG.isLoggable(Level.FINEST)) {
+      LOG.log(Level.FINEST, "Got an EvaluatorRequest: number: {0}, memory = {1}, cores = {2}.",
+          new Object[] {req.getNumber(), req.getMegaBytes(), req.getNumberOfCores()});
+      LOG.log(Level.FINEST, "Node names: " + Arrays.toString(req.getNodeNames().toArray()));
+    }
 
     if (req.getMegaBytes() <= 0) {
       throw new IllegalArgumentException("Given an unsupported memory size: " + req.getMegaBytes());
@@ -82,21 +86,17 @@ public final class EvaluatorRequestorImpl implements EvaluatorRequestor {
       throw new IllegalArgumentException("Runtime name cannot be null");
     }
     // for backwards compatibility, we will always set the relax locality flag
-    // to true unless the user configured racks, in which case we will check for
-    // the ANY modifier (*), if not there, then we won't relax the locality
-    boolean relaxLocality = true;
+    // to true unless the user has set it to false in the request, in which case
+    // we will check for the ANY modifier (*), if there, then we relax the
+    // locality regardless of the value set in the request.
+    boolean relaxLocality = req.getRelaxLocality();
     if (!req.getRackNames().isEmpty()) {
       for (final String rackName : req.getRackNames()) {
         if (Constants.ANY_RACK.equals(rackName)) {
           relaxLocality = true;
           break;
         }
-        relaxLocality = false;
       }
-    }
-    // if the user specified any node, then we assume they do not want to relax locality
-    if (!req.getNodeNames().isEmpty()) {
-      relaxLocality = false;
     }
 
     try (LoggingScope ls = this.loggingScopeFactory.evaluatorSubmit(req.getNumber())) {

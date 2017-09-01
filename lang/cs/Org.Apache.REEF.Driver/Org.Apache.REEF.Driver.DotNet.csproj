@@ -21,12 +21,12 @@ under the License.
     <AssemblyName>Org.Apache.REEF.Driver</AssemblyName>
     <Description>Driver for REEF.NET</Description>
     <PackageTags>REEF Driver</PackageTags>
-    <TargetFrameworks>net46;net451</TargetFrameworks>
+    <TargetFrameworks>netstandard2.0;netcoreapp2.0;net46;net451</TargetFrameworks>
   </PropertyGroup>
   <Import Project="..\build.DotNet.props" />
   <ItemGroup>
     <PackageReference Include="protobuf-net" Version="$(ProtobufVersion)" />
-    <PackageReference Include="Microsoft.Hadoop.Avro" Version="$(AvroVersion)" />
+    <PackageReference Include="Microsoft.Avro.Core" Version="$(AvroVersion)" />
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Runtime.Serialization" />

@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+-->
+<!-- AVRO CODE GERNATION TARGETS FOR MSBUILD -->
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <UsingTask TaskName="AvscToCSharp" TaskFactory="CodeTaskFactory" AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.v4.0.dll">
+    <ParameterGroup>
+      <!-- The directory where the project is located. This is typically $(ProjectDir) -->
+      <ProjectDirectory ParameterType="System.String" Required="true" />
+      <!-- This is the list of C# target files to be generaterd. This is typically @(Compile) -->
+      <SourceFileList ParameterType="System.String" Required="true" />
+      <!-- The directory where the .avsc schema files are located. -->
+      <AvroSchemaDirectory ParameterType="System.String" Required="true" />
+      <!-- The where Avro schema generator and dependent libraries are located. -->
+      <AvroBinaryDirectory ParameterType="System.String" Required="true" />
+    </ParameterGroup>
+    <Task>
+      <Using Namespace="System" />
+      <Using Namespace="System.IO" />
+      <Using Namespace="System.Diagnostics" />
+      <Code Type="Fragment" Language="cs"><![CDATA[
+        // Overall strategy: Copy the executuables and libraries needed
+        // to run the MS Avro code generator to a binary directory
+        // in the packages directory, and then run code generation for
+        // every message defined in the Messages directory.
+
+        // Create a temporary working directory.
+        string tempDir = Path.GetFullPath(Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString()));
+        Directory.CreateDirectory(tempDir);
+        string[] sourceFiles = SourceFileList.Split(new char[]{';'});
+
+        // Get the full path where the avro avsc files are located.
+        string messageDirectory = Path.GetFullPath(AvroSchemaDirectory);
+
+        // Add the avro tools directory to the path.
+        string path = Environment.GetEnvironmentVariable("path");
+        path = Path.GetFullPath(AvroBinaryDirectory) + ";" + path;
+        Environment.SetEnvironmentVariable("path", path);
+
+        string copyright = string.Join(Environment.NewLine,
+          "// Licensed to the Apache Software Foundation (ASF) under one",
+          "// or more contributor license agreements.  See the NOTICE file",
+          "// distributed with this work for additional information",
+          "// regarding copyright ownership.  The ASF licenses this file",
+          "// to you under the Apache License, Version 2.0 (the",
+          "// \"License\"); you may not use this file except in compliance",
+          "// with the License.  You may obtain a copy of the License at",
+          "//",
+          "//   http://www.apache.org/licenses/LICENSE-2.0",
+          "//",
+          "// Unless required by applicable law or agreed to in writing,",
+          "// software distributed under the License is distributed on an",
+          "// \"AS IS\" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY",
+          "// KIND, either express or implied.  See the License for the",
+          "// specific language governing permissions and limitations",
+          "// under the License.");
+
+        // Setup the conversion process.
+        ProcessStartInfo rProcInfo = new ProcessStartInfo()
+        {
+            RedirectStandardOutput = true,
+            RedirectStandardError = true,
+            UseShellExecute = false,
+            CreateNoWindow = true,
+            FileName = "Microsoft.Avro.Tools.exe"
+        };
+
+        // Log the commands to a file.
+        bool conversionError = false;
+        using (StreamWriter logWriter = new StreamWriter(Path.Combine(tempDir, "avroout.log")))
+        {
+          foreach (string file in sourceFiles)
+          {
+            if (file.Contains(@"Message\"))
+            {
+              // Build the name of the source avsc file from the destiname CS file and avro message path.
+              string avroSourceName = Path.Combine(messageDirectory, (Path.GetFileName(file)).Replace(".cs", ".avsc"));
+              rProcInfo.Arguments = String.Format(" CodeGen /I:{0} /O:{1}", avroSourceName, tempDir);
+              logWriter.Write(rProcInfo.FileName);
+              logWriter.WriteLine(rProcInfo.Arguments);
+
+              // Check for for a matching file in the avsc directory.
+              // This may not be the case when a single avsc file
+              // defines multiple types.
+              if (File.Exists(avroSourceName))
+              {
+                StringBuilder stdOutBuilder = new StringBuilder();
+                StringBuilder stdErrBuilder = new StringBuilder();
+
+                // Start the conversion process
+                using (Process rProc = Process.Start(rProcInfo))
+                {
+                    stdOutBuilder.Append(rProc.StandardOutput.ReadToEnd());
+                    stdErrBuilder.Append(rProc.StandardError.ReadToEnd());
+                    rProc.WaitForExit();
+                    if (rProc.ExitCode != 0)
+                    {
+                      conversionError = true;
+                    }
+                }
+                logWriter.WriteLine(stdOutBuilder.ToString());
+                logWriter.WriteLine(stdErrBuilder.ToString());
+
+                if (!conversionError)
+                {
+                  // Get all of the generated C# files and copy to destination with copyright.
+                  var genFiles = Directory.EnumerateFiles(tempDir, "*.cs");
+                  foreach (string genFile in genFiles)
+                  {
+                    logWriter.WriteLine("Processing file {0}", genFile);
+                    using (StreamReader tmpReader = new StreamReader(genFile))
+                    {
+                      using (StreamWriter destWriter =
+                        new StreamWriter(Path.Combine(Path.GetDirectoryName(file), Path.GetFileName(genFile))))
+                      {
+                        destWriter.WriteLine(copyright);
+                        destWriter.Write(tmpReader.ReadToEnd());
+                      }
+                    }
+                    File.Delete(genFile);
+                  }
+                }
+              }
+            }
+          }
+        }
+        if (!conversionError)
+        {
+          Directory.Delete(tempDir, recursive : true);
+        }
+      ]]></Code>
+    </Task>
+  </UsingTask>
+  <Target Name="SetupAvroCodeGen" DependsOnTargets="RestorePackages">
+    <Message Text="Copying Avro code generation files to $(AvroBinaryDirectory)..." />
+    <Copy SourceFiles="$(AvroTools)" DestinationFolder="$(AvroBinaryDirectory)" SkipUnchangedFiles="true" />
+    <Copy SourceFiles="$(AvroLibrary)" DestinationFolder="$(AvroBinaryDirectory)" SkipUnchangedFiles="true" />
+    <Copy SourceFiles="$(NewtonsoftLibrary)" DestinationFolder="$(AvroBinaryDirectory)" SkipUnchangedFiles="true" />
+  </Target>
+  <Target Name="CodeGeneration" DependsOnTargets="SetupAvroCodeGen" BeforeTargets="CoreCompile">
+    <Message Text="Generating C# classes from Avro avsc files @(Compile)..." />
+    <AvscToCSharp ProjectDirectory="$(ProjectDir)" SourceFileList="@(Compile)" AvroSchemaDirectory="$(AvroSchemaDirectory)" AvroBinaryDirectory="$(AvroBinaryDirectory)" />
+  </Target>
+</Project>
