@@ -25,7 +25,6 @@ import io.netty.handler.codec.LengthFieldPrepender;
 import io.netty.handler.codec.bytes.ByteArrayDecoder;
 import io.netty.handler.codec.bytes.ByteArrayEncoder;
 import io.netty.handler.codec.http.*;
-import io.netty.handler.ssl.SslContext;
 
 /**
  * Netty channel initializer for Transport.
@@ -44,21 +43,14 @@ class NettyChannelInitializer extends ChannelInitializer<SocketChannel> {
   private final NettyChannelHandlerFactory handlerFactory;
 
   /**
-   * sslContext contains ssl context of the machine. used only for HTTP.
-   */
-  private final SslContext sslContext;
-
-  /**
    * Type of channel whether it is netty or http client or http server.
    */
   private final ChannelType type;
 
   NettyChannelInitializer(
       final NettyChannelHandlerFactory handlerFactory,
-      final SslContext sslContext,
       final ChannelType type) {
     this.handlerFactory = handlerFactory;
-    this.sslContext = sslContext;
     this.type = type;
   }
 
@@ -75,9 +67,6 @@ class NettyChannelInitializer extends ChannelInitializer<SocketChannel> {
           .addLast("handler", handlerFactory.createChannelInboundHandler());
       break;
     case HTTP_SERVER:
-      if (sslContext != null) {
-        ch.pipeline().addLast(sslContext.newHandler(ch.alloc()));
-      }
       ch.pipeline()
           .addLast("codec", new HttpServerCodec())
           .addLast("requestDecoder", new HttpRequestDecoder())
@@ -85,9 +74,6 @@ class NettyChannelInitializer extends ChannelInitializer<SocketChannel> {
           .addLast("handler", handlerFactory.createChannelInboundHandler());
       break;
     case HTTP_CLIENT:
-      if (sslContext != null) {
-        ch.pipeline().addLast(sslContext.newHandler(ch.alloc()));
-      }
       ch.pipeline()
           .addLast("codec", new HttpClientCodec())
           .addLast("decompressor", new HttpContentDecompressor())

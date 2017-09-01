@@ -30,7 +30,6 @@ import io.netty.channel.group.DefaultChannelGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
-import io.netty.handler.ssl.SslContext;
 import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.GlobalEventExecutor;
 import org.apache.reef.tang.annotations.Parameter;
@@ -136,14 +135,9 @@ public final class NettyMessagingTransport implements Transport {
 
     final String host = UNKNOWN_HOST_NAME.equals(hostAddress) ? localAddressProvider.getLocalAddress() : hostAddress;
 
-    final SslContext sslContextClient;
-    final SslContext sslContextServer;
-
     //TODO[JIRA REEF-1871] Implement HTTPS with sslContext.
 
     // for HTTP and default Netty
-    sslContextClient = null;
-    sslContextServer = null;
     if (protocolType.equals(PROTOCOL_HTTP)) {
       this.uri = URI.create("http://" + hostAddress);
     } else {
@@ -172,7 +166,7 @@ public final class NettyMessagingTransport implements Transport {
     this.clientBootstrap.group(this.clientWorkerGroup)
         .channel(NioSocketChannel.class)
         .handler(new NettyChannelInitializer(new NettyDefaultChannelHandlerFactory("client",
-            this.clientChannelGroup, this.clientEventListener), sslContextClient,
+            this.clientChannelGroup, this.clientEventListener),
                 protocolType.equals(PROTOCOL_TCP) ? ChannelType.TCP : ChannelType.HTTP_CLIENT))
         .option(ChannelOption.SO_REUSEADDR, true)
         .option(ChannelOption.SO_KEEPALIVE, true);
@@ -181,7 +175,7 @@ public final class NettyMessagingTransport implements Transport {
     this.serverBootstrap.group(this.serverBossGroup, this.serverWorkerGroup)
         .channel(NioServerSocketChannel.class)
         .childHandler(new NettyChannelInitializer(new NettyDefaultChannelHandlerFactory("server",
-            this.serverChannelGroup, this.serverEventListener), sslContextServer,
+            this.serverChannelGroup, this.serverEventListener),
                 protocolType.equals(PROTOCOL_TCP) ? ChannelType.TCP : ChannelType.HTTP_SERVER))
         .option(ChannelOption.SO_BACKLOG, 128)
         .option(ChannelOption.SO_REUSEADDR, true)
