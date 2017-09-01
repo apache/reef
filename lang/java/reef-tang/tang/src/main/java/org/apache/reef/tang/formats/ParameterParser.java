@@ -24,6 +24,8 @@ import org.apache.reef.tang.util.MonotonicTreeMap;
 import org.apache.reef.tang.util.ReflectionUtilities;
 
 import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.util.Collections;
 import java.util.HashSet;
@@ -87,6 +89,9 @@ public class ParameterParser {
   }
 
   public <T> T parse(final Class<T> c, final String s) {
+    if (c.isEnum()) {
+      return parseEnum(c, s);
+    }
     final Class<?> d = ReflectionUtilities.boxClass(c);
     for (final Type e : ReflectionUtilities.classAndAncestors(d)) {
       final String name = ReflectionUtilities.getFullName(e);
@@ -100,6 +105,20 @@ public class ParameterParser {
       }
     }
     return parse(ReflectionUtilities.getFullName(d), s);
+  }
+
+  @SuppressWarnings("unchecked")
+  private <T> T parseEnum(final Class<T> c, final String s) {
+    try {
+      final Method valueOf = c.getMethod("valueOf", String.class);
+      return (T) valueOf.invoke(null, s);
+    } catch (final NoSuchMethodException e) {
+      throw new RuntimeException("Static .valueOf(String) method not found at " + c, e);
+    } catch (final InvocationTargetException e) {
+      throw new RuntimeException("Cannot invoke .valueOf(String) method of " + c, e);
+    } catch (final IllegalAccessException e) {
+      throw new RuntimeException("Cannot create instance of " + c + " - is it public?", e);
+    }
   }
 
   @SuppressWarnings("unchecked")
