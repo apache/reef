@@ -119,7 +119,7 @@ public final class MessagingTransportFactory implements TransportFactory {
                                final EStage<TransportEvent> serverStage,
                                final int numberOfTries,
                                final int retryTimeout,
-                               final ProtocolTypes protocol) {
+                               final ProtocolType protocol) {
     try {
       final TcpPortProvider tcpPortProvider = TANG.newInjector().getInstance(TcpPortProvider.class);
       return newInstance(hostAddress, port, clientStage,
@@ -150,7 +150,7 @@ public final class MessagingTransportFactory implements TransportFactory {
                                final TcpPortProvider tcpPortProvider) {
 
     return newInstance(hostAddress, port, clientStage,
-        serverStage, numberOfTries, retryTimeout, tcpPortProvider, ProtocolTypes.TCP);
+        serverStage, numberOfTries, retryTimeout, tcpPortProvider, ProtocolType.TCP);
   }
 
   /**
@@ -173,7 +173,7 @@ public final class MessagingTransportFactory implements TransportFactory {
                                final int numberOfTries,
                                final int retryTimeout,
                                final TcpPortProvider tcpPortProvider,
-                               final ProtocolTypes protocol) {
+                               final ProtocolType protocol) {
 
     final Injector injector = TANG.newInjector();
     injector.bindVolatileParameter(RemoteConfiguration.HostAddress.class, hostAddress);
@@ -183,7 +183,7 @@ public final class MessagingTransportFactory implements TransportFactory {
     injector.bindVolatileParameter(RemoteConfiguration.NumberOfTries.class, numberOfTries);
     injector.bindVolatileParameter(RemoteConfiguration.RetryTimeout.class, retryTimeout);
     injector.bindVolatileInstance(TcpPortProvider.class, tcpPortProvider);
-    injector.bindVolatileParameter(RemoteConfiguration.Protocol.class, protocol.name());
+    injector.bindVolatileParameter(RemoteConfiguration.Protocol.class, protocol);
     try {
       return injector.getInstance(NettyMessagingTransport.class);
     } catch (final InjectionException e) {

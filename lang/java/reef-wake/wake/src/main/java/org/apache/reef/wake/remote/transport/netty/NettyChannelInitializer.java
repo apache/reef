@@ -25,16 +25,13 @@ import io.netty.handler.codec.LengthFieldPrepender;
 import io.netty.handler.codec.bytes.ByteArrayDecoder;
 import io.netty.handler.codec.bytes.ByteArrayEncoder;
 import io.netty.handler.codec.http.*;
+import org.apache.reef.wake.remote.transport.TransportFactory.ProtocolType;
+
 
 /**
  * Netty channel initializer for Transport.
  */
 class NettyChannelInitializer extends ChannelInitializer<SocketChannel> {
-
-  /* Types for initiating channel */
-  public enum ChannelType {
-    TCP, HTTP_SERVER, HTTP_CLIENT
-  }
 
   /**
    * the buffer size of the frame decoder.
@@ -43,20 +40,29 @@ class NettyChannelInitializer extends ChannelInitializer<SocketChannel> {
   private final NettyChannelHandlerFactory handlerFactory;
 
   /**
-   * Type of channel whether it is netty or http client or http server.
+   * Type of protocol channel use.
    */
-  private final ChannelType type;
+  private final ProtocolType protocolType;
+  private final boolean isServer;
 
   NettyChannelInitializer(
       final NettyChannelHandlerFactory handlerFactory,
-      final ChannelType type) {
+      final ProtocolType protocol) {
+    this(handlerFactory, protocol, false);
+  }
+
+  NettyChannelInitializer(
+      final NettyChannelHandlerFactory handlerFactory,
+      final ProtocolType protocol,
+      final boolean isServer) {
     this.handlerFactory = handlerFactory;
-    this.type = type;
+    this.protocolType = protocol;
+    this.isServer = isServer;
   }
 
   @Override
   protected void initChannel(final SocketChannel ch) throws Exception {
-    switch (this.type) {
+    switch (this.protocolType) {
     case TCP:
       ch.pipeline()
           .addLast("frameDecoder", new LengthFieldBasedFrameDecoder(MAXFRAMELENGTH, 0, 4, 0, 4))
@@ -66,18 +72,19 @@ class NettyChannelInitializer extends ChannelInitializer<SocketChannel> {
           .addLast("chunker", new ChunkedReadWriteHandler())
           .addLast("handler", handlerFactory.createChannelInboundHandler());
       break;
-    case HTTP_SERVER:
-      ch.pipeline()
-          .addLast("codec", new HttpServerCodec())
-          .addLast("requestDecoder", new HttpRequestDecoder())
-          .addLast("responseEncoder", new HttpResponseEncoder())
-          .addLast("handler", handlerFactory.createChannelInboundHandler());
-      break;
-    case HTTP_CLIENT:
-      ch.pipeline()
-          .addLast("codec", new HttpClientCodec())
-          .addLast("decompressor", new HttpContentDecompressor())
-          .addLast("handler", handlerFactory.createChannelInboundHandler());
+    case HTTP:
+      if(isServer) {
+        ch.pipeline()
+            .addLast("codec", new HttpServerCodec())
+            .addLast("requestDecoder", new HttpRequestDecoder())
+            .addLast("responseEncoder", new HttpResponseEncoder())
+            .addLast("handler", handlerFactory.createChannelInboundHandler());
+      } else {
+        ch.pipeline()
+            .addLast("codec", new HttpClientCodec())
+            .addLast("decompressor", new HttpContentDecompressor())
+            .addLast("handler", handlerFactory.createChannelInboundHandler());
+      }
       break;
     default:
       throw new IllegalArgumentException("Invalid type of channel");

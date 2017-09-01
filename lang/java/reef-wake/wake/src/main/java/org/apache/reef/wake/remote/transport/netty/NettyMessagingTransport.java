@@ -45,6 +45,7 @@ import org.apache.reef.wake.remote.ports.TcpPortProvider;
 import org.apache.reef.wake.remote.transport.Link;
 import org.apache.reef.wake.remote.transport.LinkListener;
 import org.apache.reef.wake.remote.transport.Transport;
+import org.apache.reef.wake.remote.transport.TransportFactory.ProtocolType;
 import org.apache.reef.wake.remote.transport.exception.TransportRuntimeException;
 
 import javax.inject.Inject;
@@ -57,10 +58,6 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import static org.apache.reef.wake.remote.RemoteConfiguration.PROTOCOL_HTTP;
-import static org.apache.reef.wake.remote.RemoteConfiguration.PROTOCOL_TCP;
-import static org.apache.reef.wake.remote.transport.netty.NettyChannelInitializer.ChannelType;
 
 /**
  * Messaging transport implementation with Netty and Http.
@@ -126,7 +123,7 @@ public final class NettyMessagingTransport implements Transport {
       @Parameter(RemoteConfiguration.RetryTimeout.class) final int retryTimeout,
       final TcpPortProvider tcpPortProvider,
       final LocalAddressProvider localAddressProvider,
-      @Parameter(RemoteConfiguration.Protocol.class) final String protocolType) {
+      @Parameter(RemoteConfiguration.Protocol.class) final ProtocolType protocolType) {
 
     int p = port;
     if (p < 0) {
@@ -138,7 +135,7 @@ public final class NettyMessagingTransport implements Transport {
     //TODO[JIRA REEF-1871] Implement HTTPS with sslContext.
 
     // for HTTP and default Netty
-    if (protocolType.equals(PROTOCOL_HTTP)) {
+    if (protocolType == ProtocolType.HTTP) {
       this.uri = URI.create("http://" + hostAddress);
     } else {
       this.uri = null;
@@ -146,7 +143,7 @@ public final class NettyMessagingTransport implements Transport {
 
     this.numberOfTries = numberOfTries;
     this.retryTimeout = retryTimeout;
-    if (protocolType.equals(PROTOCOL_TCP)) {
+    if (protocolType == ProtocolType.TCP) {
       this.clientEventListener = new NettyClientEventListener(this.addrToLinkRefMap, clientStage);
       this.serverEventListener = new NettyServerEventListener(this.addrToLinkRefMap, serverStage);
     } else {
@@ -166,8 +163,7 @@ public final class NettyMessagingTransport implements Transport {
     this.clientBootstrap.group(this.clientWorkerGroup)
         .channel(NioSocketChannel.class)
         .handler(new NettyChannelInitializer(new NettyDefaultChannelHandlerFactory("client",
-            this.clientChannelGroup, this.clientEventListener),
-                protocolType.equals(PROTOCOL_TCP) ? ChannelType.TCP : ChannelType.HTTP_CLIENT))
+            this.clientChannelGroup, this.clientEventListener), protocolType))
         .option(ChannelOption.SO_REUSEADDR, true)
         .option(ChannelOption.SO_KEEPALIVE, true);
 
@@ -175,8 +171,7 @@ public final class NettyMessagingTransport implements Transport {
     this.serverBootstrap.group(this.serverBossGroup, this.serverWorkerGroup)
         .channel(NioServerSocketChannel.class)
         .childHandler(new NettyChannelInitializer(new NettyDefaultChannelHandlerFactory("server",
-            this.serverChannelGroup, this.serverEventListener),
-                protocolType.equals(PROTOCOL_TCP) ? ChannelType.TCP : ChannelType.HTTP_SERVER))
+            this.serverChannelGroup, this.serverEventListener), protocolType, true))
         .option(ChannelOption.SO_BACKLOG, 128)
         .option(ChannelOption.SO_REUSEADDR, true)
         .childOption(ChannelOption.SO_KEEPALIVE, true);
