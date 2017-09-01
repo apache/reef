@@ -320,7 +320,7 @@ public final class NettyMessagingTransport implements Transport {
         }
         break;
       } catch (final Exception e) {
-        if (e.getClass().getSimpleName().compareTo("ConnectException") == 0) {
+        if (e.getClass().getSimpleName().compareTo("AnnotatedConnectException") == 0) {
           LOG.log(Level.WARNING, "Connection refused. Retry {0} of {1}",
               new Object[]{i + 1, this.numberOfTries});
           synchronized (flag) {
