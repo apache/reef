@@ -15,21 +15,16 @@
 // specific language governing permissions and limitations
 // under the License.
 
+using System.Collections.Generic;
 using Org.Apache.REEF.Tang.Annotations;
 
 namespace Org.Apache.REEF.Client.YARN.Parameters
 {
-    [System.Obsolete("TODO[JIRA REEF-1887] Deprecated. Remove in REEF 0.18.")]
-    [NamedParameter("Security token kind.", defaultValue: DefaultTokenKind)]
-    public sealed class SecurityTokenKindParameter : Name<string>
+    /// <summary>
+    /// Named parameter that contains a set of serialized tokens.
+    /// </summary>
+    [NamedParameter("Serialized SurityToken Info", "SecurityTokenStrings")]
+    public class SecurityTokenStrings : Name<ISet<string>>
     {
-        public const string DefaultTokenKind = "NULL";
-    }
-
-    [System.Obsolete("TODO[JIRA REEF-1887] Deprecated. Remove in REEF 0.18.")]
-    [NamedParameter("Security token service name.", defaultValue: DefaultService)]
-    public sealed class SecurityTokenServiceParameter : Name<string>
-    {
-        public const string DefaultService = "NULL";
     }
 }

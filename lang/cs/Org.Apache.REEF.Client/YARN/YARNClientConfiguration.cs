@@ -34,6 +34,7 @@ namespace Org.Apache.REEF.Client.Yarn
         public static readonly OptionalParameter<string> SecurityTokenKind = new OptionalParameter<string>();
         public static readonly OptionalParameter<string> SecurityTokenService = new OptionalParameter<string>();
         public static readonly OptionalImpl<IYarnRestClientCredential> YarnRestClientCredential = new OptionalImpl<IYarnRestClientCredential>();
+        public static readonly OptionalParameter<string> SecurityTokenStr = new OptionalParameter<string>();
 
         /// <summary>
         /// URL for store. For Hadoop file system, it is set in fs.defaultFS as default by YARN environment. Client doesn't need to 
@@ -49,6 +50,7 @@ namespace Org.Apache.REEF.Client.Yarn
             .BindNamedParameter(GenericType<JobSubmissionDirectoryPrefixParameter>.Class, JobSubmissionFolderPrefix)
             .BindNamedParameter(GenericType<SecurityTokenKindParameter>.Class, SecurityTokenKind)
             .BindNamedParameter(GenericType<SecurityTokenServiceParameter>.Class, SecurityTokenService)
+            .BindSetEntry(GenericType<SecurityTokenStrings>.Class, SecurityTokenStr)
             .BindNamedParameter(GenericType<FileSystemUrl>.Class, FileSystemUrl)
             .Build();
 
@@ -61,6 +63,7 @@ namespace Org.Apache.REEF.Client.Yarn
             .BindNamedParameter(GenericType<SecurityTokenKindParameter>.Class, SecurityTokenKind)
             .BindNamedParameter(GenericType<SecurityTokenServiceParameter>.Class, SecurityTokenService)
             .BindNamedParameter(GenericType<FileSystemUrl>.Class, FileSystemUrl)
+            .BindSetEntry(GenericType<SecurityTokenStrings>.Class, SecurityTokenStr)
             .Build();
     }
 }
