@@ -61,7 +61,7 @@ public final class EvaluatorManagerFactory {
 
     if (nodeDescriptor == null) {
       final String nodeId = resourceEvent.getNodeId();
-      LOG.log(Level.WARNING, "Node {} is not in our catalog, adding it", nodeId);
+      LOG.log(Level.WARNING, "Node {0} is not in our catalog, adding it", nodeId);
       final String[] hostNameAndPort = nodeId.split(":");
       Validate.isTrue(hostNameAndPort.length == 2);
       final NodeDescriptorEvent nodeDescriptorEvent = NodeDescriptorEventImpl.newBuilder().setIdentifier(nodeId)
