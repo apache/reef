@@ -147,9 +147,9 @@ public class ChunkedReadWriteHandler extends ChunkedWriteHandler {
    */
   private byte[] sizeAsByteArr(final int size) {
     final byte[] ret = new byte[INT_SIZE];
-    final ByteBuf intBuffer = Unpooled.wrappedBuffer(ret);
+    final ByteBuf intBuffer = Unpooled.wrappedBuffer(ret).order(Unpooled.LITTLE_ENDIAN);
     intBuffer.clear();
-    intBuffer.writeIntLE(size);
+    intBuffer.writeInt(size);
     intBuffer.release();
     return ret;
   }
@@ -170,8 +170,8 @@ public class ChunkedReadWriteHandler extends ChunkedWriteHandler {
       return 0;
     }
 
-    final ByteBuf intBuffer = Unpooled.wrappedBuffer(data, offset, INT_SIZE);
-    final int ret = intBuffer.readIntLE();
+    final ByteBuf intBuffer = Unpooled.wrappedBuffer(data, offset, INT_SIZE).order(Unpooled.LITTLE_ENDIAN);
+    final int ret = intBuffer.readInt();
     intBuffer.release();
 
     return ret;

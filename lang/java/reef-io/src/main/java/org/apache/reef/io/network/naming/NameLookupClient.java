@@ -49,6 +49,7 @@ import javax.inject.Inject;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Callable;
@@ -206,7 +207,8 @@ public final class NameLookupClient implements Stage, NamingLookup {
         }
       }
 
-      final List<NameAssignment> list = resp.getNameAssignments();
+      final List<NameAssignment> list = resp == null ? Collections.<NameAssignment>emptyList()
+          : resp.getNameAssignments();
       if (list.isEmpty()) {
         throw new NamingException("Cannot find " + id + " from the name server");
       } else {
