@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <!--
 Licensed to the Apache Software Foundation (ASF) under one
 or more contributor license agreements.  See the NOTICE file
@@ -83,6 +83,7 @@ under the License.
     <Compile Include="Functional\Bridge\TestContextStack.cs" />
     <Compile Include="Functional\Bridge\TestDriverConcurrency.cs" />
     <Compile Include="Functional\Bridge\TestFailedEvaluatorEventHandler.cs" />
+    <Compile Include="Functional\Bridge\TestSecurityToken.cs" />
     <Compile Include="Functional\Common\Task\ExceptionTask.cs" />
     <Compile Include="Functional\Common\Task\NullTask.cs" />
     <Compile Include="Functional\Failure\User\ContextStopExceptionTest.cs" />
@@ -235,6 +236,10 @@ under the License.
     <ProjectReference Include="$(SolutionDir)\Org.Apache.REEF.IO\Org.Apache.REEF.IO.csproj">
       <Project>{dec0f0a8-dbef-4ebf-b69c-e2369c15abf1}</Project>
       <Name>Org.Apache.REEF.IO</Name>
+    </ProjectReference>
+    <ProjectReference Include="$(SolutionDir)\Org.Apache.REEF.Examples.HelloREEF\Org.Apache.REEF.Examples.HelloREEF.csproj">
+      <Project>{0ff8cee9-b0b6-4a14-9a52-44441be048fe}</Project>
+      <Name>Org.Apache.REEF.Examples.HelloREEF</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

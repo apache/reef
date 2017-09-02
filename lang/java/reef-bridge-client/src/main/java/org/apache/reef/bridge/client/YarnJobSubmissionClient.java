@@ -52,8 +52,6 @@ import org.apache.reef.util.JARFileMaker;
 import javax.inject.Inject;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
@@ -170,15 +168,55 @@ public final class YarnJobSubmissionClient {
   private static void writeSecurityTokenToUserCredential(
       final YarnClusterSubmissionFromCS yarnSubmission) throws IOException {
     final UserGroupInformation currentUser = UserGroupInformation.getCurrentUser();
-    final REEFFileNames fileNames = new REEFFileNames();
-    final String securityTokenIdentifierFile = fileNames.getSecurityTokenIdentifierFile();
-    final String securityTokenPasswordFile = fileNames.getSecurityTokenPasswordFile();
-    final Text tokenKind = new Text(yarnSubmission.getTokenKind());
-    final Text tokenService = new Text(yarnSubmission.getTokenService());
-    byte[] identifier = Files.readAllBytes(Paths.get(securityTokenIdentifierFile));
-    byte[] password = Files.readAllBytes(Paths.get(securityTokenPasswordFile));
-    Token token = new Token(identifier, password, tokenKind, tokenService);
-    currentUser.addToken(token);
+    logToken(Level.INFO, "Before adding client tokens,", currentUser);
+
+    final List<TokenInfo> tokens = SecurityTokenReader.readTokens(yarnSubmission);
+    for (final TokenInfo token : tokens) {
+      addToken(currentUser,
+          token.getKey(),
+          token.getPassword(),
+          new Text(token.getKind()),
+          new Text(token.getService()));
+    }
+
+    // Log info for debug purpose for now until it is stable then we can change the log level to FINE.
+    logToken(Level.INFO, "After adding client tokens,", currentUser);
+  }
+
+  /**
+   * Add a token to the UserGroupInformation.
+   *
+   * @param user - UserGroupInformation object.
+   * @param identifier - identifier of the token to be added.
+   * @param password - password of the token to be added.
+   * @param tokenKind - kind of the token to be added.
+   * @param tokenService - service of the token to be added.
+   */
+  private static void addToken(final UserGroupInformation user,
+                       final byte[] identifier,
+                       final byte[] password,
+                       final Text tokenKind,
+                       final Text tokenService) {
+    LOG.log(Level.FINE, "addToken for {0}.", tokenKind);
+    final Token token = new Token(identifier, password, tokenKind, tokenService);
+    user.addToken(token);
+  }
+
+  /**
+   * Log all the tokens in the container for thr user.
+   *
+   * @param logLevel - the log level.
+   * @param msgPrefix - msg prefix for log.
+   * @param user - the UserGroupInformation object.
+   */
+  private static void logToken(final Level logLevel, final String msgPrefix, final UserGroupInformation user) {
+    if (LOG.isLoggable(logLevel)) {
+      LOG.log(logLevel, "{0} number of tokens: [{1}].",
+          new Object[] {msgPrefix, user.getCredentials().numberOfTokens()});
+      for (final org.apache.hadoop.security.token.Token t : user.getCredentials().getAllTokens()) {
+        LOG.log(logLevel, "Token service: {0}, token kind: {1}.", new Object[] {t.getService(), t.getKind()});
+      }
+    }
   }
 
   /**

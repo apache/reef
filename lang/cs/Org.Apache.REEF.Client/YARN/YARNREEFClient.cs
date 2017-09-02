@@ -158,6 +158,8 @@ namespace Org.Apache.REEF.Client.Yarn
         {
             _driverFolderPreparationHelper.PrepareDriverFolder(jobRequest.AppParameters, driverFolderPath);
 
+            _paramSerializer.WriteSecurityTokens();
+
             // TODO: Remove this when we have a generalized way to pass config to java
             var paramInjector = TangFactory.GetTang().NewInjector(jobRequest.DriverConfigurations.ToArray());
             var submissionJobArgsFilePath = _paramSerializer.SerializeJobFile(jobRequest.JobParameters, paramInjector, driverFolderPath);

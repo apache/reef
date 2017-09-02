@@ -26,6 +26,7 @@ using Org.Apache.REEF.Common.Files;
 using Org.Apache.REEF.Driver.Bridge;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Tang.Interface;
+using Org.Apache.REEF.Utilities.Logging;
 using Org.Apache.REEF.Wake.Remote.Parameters;
 
 namespace Org.Apache.REEF.Client.YARN
@@ -35,21 +36,58 @@ namespace Org.Apache.REEF.Client.YARN
     /// </summary>
     internal sealed class YarnREEFParamSerializer
     {
+        private static readonly Logger Logger = Logger.GetLogger(typeof(YarnREEFParamSerializer));
+
         private readonly REEFFileNames _fileNames;
+
+        /// <summary>
+        /// Security token kind name. Used for single token case. 
+        /// It will be deprecated as the information has been included in securityTokenWriter.
+        /// </summary>
         private readonly string _securityTokenKind;
+
+        /// <summary>
+        /// Security token service name. Used for single token case. 
+        /// It will be deprecated as the information has been included in securityTokenWriter.
+        /// </summary>
         private readonly string _securityTokenService;
+
+        /// <summary>
+        /// File system URL
+        /// </summary>
         private readonly string _fileSystemUrl;
+
+        /// <summary>
+        /// Job submission folder relative path
+        /// </summary>
         private readonly string _jobSubmissionPrefix;
 
+        /// <summary>
+        /// Security token writer that parses and writes token information.
+        /// It can process multiple tokens.
+        /// </summary>
+        private readonly SecurityTokenWriter _securityTokenWriter;
+
+        /// <summary>
+        /// Serialize parameters and tokens for Java client.
+        /// </summary>
+        /// <param name="fileNames">REEF file name class which contains file names.</param>
+        /// <param name="securityTokenWriter">SecurityTokenWriter which writes security token info.</param>
+        /// <param name="securityTokenKind">Security token kind name.</param>
+        /// <param name="securityTokenService">Security token service name.</param>
+        /// <param name="fileSystemUrl">File system URL.</param>
+        /// <param name="jobSubmissionPrefix">Job submission folder. e.g: fileSystemUrl/jobSubmissionPrefix/</param>
         [Inject]
         private YarnREEFParamSerializer(
             REEFFileNames fileNames,
+            SecurityTokenWriter securityTokenWriter,
             [Parameter(typeof(SecurityTokenKindParameter))] string securityTokenKind,
             [Parameter(typeof(SecurityTokenServiceParameter))] string securityTokenService,
             [Parameter(typeof(FileSystemUrl))] string fileSystemUrl,
             [Parameter(typeof(JobSubmissionDirectoryPrefixParameter))] string jobSubmissionPrefix)
         {
             _fileNames = fileNames;
+            _securityTokenWriter = securityTokenWriter;
             _jobSubmissionPrefix = jobSubmissionPrefix;
             _securityTokenKind = securityTokenKind;
             _fileSystemUrl = fileSystemUrl;
@@ -124,8 +162,10 @@ namespace Org.Apache.REEF.Client.YARN
             var avroYarnClusterJobSubmissionParameters = new AvroYarnClusterJobSubmissionParameters
             {
                 yarnJobSubmissionParameters = avroYarnJobSubmissionParameters,
-                securityTokenKind = _securityTokenKind,
-                securityTokenService = _securityTokenService,
+                securityTokenKind = _securityTokenKind.Equals(SecurityTokenWriter.DefaultTokenKind) ?
+                    _securityTokenWriter.TokenKinds : _securityTokenKind,
+                securityTokenService = _securityTokenService.Equals(SecurityTokenWriter.DefaultService) ?
+                    _securityTokenWriter.TokenServices : _securityTokenService,
                 driverMemory = jobParameters.DriverMemoryInMB,
                 maxApplicationSubmissions = jobParameters.MaxApplicationSubmissions,
                 driverStdoutFilePath = string.IsNullOrWhiteSpace(jobParameters.StdoutFilePath.Value) ?
@@ -135,6 +175,14 @@ namespace Org.Apache.REEF.Client.YARN
             };
 
             return AvroJsonSerializer<AvroYarnClusterJobSubmissionParameters>.ToBytes(avroYarnClusterJobSubmissionParameters);
+        }
+
+        /// <summary>
+        /// Write Token info.
+        /// </summary>
+        internal void WriteSecurityTokens()
+        {
+            _securityTokenWriter.WriterTokenInfo();
         }
     }
 }

@@ -15,17 +15,16 @@
 // specific language governing permissions and limitations
 // under the License.
 
+using System.Collections.Generic;
 using Org.Apache.REEF.Tang.Annotations;
 
 namespace Org.Apache.REEF.Client.YARN.Parameters
 {
-    [NamedParameter("Security token kind.", defaultValue: SecurityTokenWriter.DefaultTokenKind)]
-    public sealed class SecurityTokenKindParameter : Name<string>
-    {
-    }
-
-    [NamedParameter("Security token service name.", defaultValue: SecurityTokenWriter.DefaultService)]
-    public sealed class SecurityTokenServiceParameter : Name<string>
+    /// <summary>
+    /// Named parameter that contains a set of serialized tokens.
+    /// </summary>
+    [NamedParameter("Serialized SurityToken Info", "SecurityTokenStrings")]
+    public class SecurityTokenStrings : Name<ISet<string>>
     {
     }
 }

@@ -119,6 +119,7 @@ under the License.
     <Compile Include="YARN\Parameters\DriverStderrFilePath.cs" />
     <Compile Include="YARN\Parameters\DriverStdoutFilePath.cs" />
     <Compile Include="YARN\Parameters\FileSystemUrl.cs" />
+    <Compile Include="YARN\Parameters\SecurityTokenStrings.cs" />
     <Compile Include="YARN\RestClient\DataModel\KillApplication.cs" />
     <Compile Include="YARN\RestClient\HttpClient.cs" />
     <Compile Include="YARN\RestClient\IDeserializer.cs" />
@@ -136,6 +137,8 @@ under the License.
     <Compile Include="YARN\RestClient\RestRequest.cs" />
     <Compile Include="YARN\RestClient\RestResponse.cs" />
     <Compile Include="YARN\RestClient\HttpClientRetryHandler.cs" />
+    <Compile Include="YARN\SecurityTokenWriter.cs" />
+    <Compile Include="YARN\SecurityTokenInfo.cs" />
     <Compile Include="YARN\WindowsYarnJobCommandProvider.cs" />
     <Compile Include="YARN\JobResource.cs" />
     <Compile Include="YARN\JobSubmissionDirectoryProvider.cs" />
