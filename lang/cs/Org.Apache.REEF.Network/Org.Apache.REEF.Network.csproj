@@ -78,6 +78,13 @@ under the License.
     <Compile Include="$(SolutionDir)\SharedAssemblyInfo.cs">
       <Link>Properties\SharedAssemblyInfo.cs</Link>
     </Compile>
+    <Compile Include="Elastic\Driver\ITaskSetManager.cs" />
+    <Compile Include="Elastic\Driver\IElasticTaskSetSubscription.cs" />
+    <Compile Include="Elastic\Driver\IElasticTaskSetService.cs" />
+    <Compile Include="Elastic\Failures\IFailureStateMachine.cs" />
+    <Compile Include="Elastic\Failures\IFailureState.cs" />
+    <Compile Include="Elastic\Failures\IFailureEvent.cs" />
+    <Compile Include="Elastic\Failures\IFailureResponse.cs" />
     <Compile Include="Group\Config\CodecToStreamingCodecConfiguration.cs" />
     <Compile Include="Group\Config\StreamingCodecConfigurationMinusMessage.cs" />
     <Compile Include="Group\Driver\Impl\GeneralGroupCommunicationMessage.cs" />
