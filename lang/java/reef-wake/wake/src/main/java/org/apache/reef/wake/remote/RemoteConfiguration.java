@@ -26,7 +26,7 @@ import org.apache.reef.wake.WakeParameters;
 import org.apache.reef.wake.remote.impl.DefaultTransportEStage;
 import org.apache.reef.wake.remote.impl.ObjectSerializableCodec;
 import org.apache.reef.wake.remote.impl.TransportEvent;
-import org.apache.reef.wake.remote.transport.TransportFactory.ProtocolTypes;
+import org.apache.reef.wake.remote.transport.TransportFactory.ProtocolType;
 
 /**
  * Configuration options and helper methods for Wake remoting.
@@ -47,14 +47,6 @@ public final class RemoteConfiguration {
    */
   public static final long REMOTE_CONNECTION_RETRY_TIMEOUT =
       WakeParameters.REMOTE_EXECUTOR_SHUTDOWN_TIMEOUT / (REMOTE_CONNECTION_NUMBER_OF_RETRIES + 1);
-
-
-  /**
-   *  Unique protocol String for choosing protocols.
-   */
-  public static final String PROTOCOL_TCP = ProtocolTypes.TCP.name();
-  public static final String PROTOCOL_HTTP = ProtocolTypes.HTTP.name();
-  //TODO[JIRA REEF-1871] Implement HTTPS as protocol
 
   private RemoteConfiguration() {
     // empty
@@ -144,10 +136,10 @@ public final class RemoteConfiguration {
 
   /**
    * Option for use http.
-   * Default value must be ProtocolTypes.TCP.name().
+   * Default value must be ProtocolType.TCP.name().
    */
   @NamedParameter(doc = "Option for use http.", default_value = "TCP")
-  public static final class Protocol implements Name<String> {
+  public static final class Protocol implements Name<ProtocolType> {
     // Intentionally empty
   }
 }

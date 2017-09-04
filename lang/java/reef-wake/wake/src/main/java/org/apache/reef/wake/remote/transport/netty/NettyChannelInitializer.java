@@ -25,17 +25,13 @@ import io.netty.handler.codec.LengthFieldPrepender;
 import io.netty.handler.codec.bytes.ByteArrayDecoder;
 import io.netty.handler.codec.bytes.ByteArrayEncoder;
 import io.netty.handler.codec.http.*;
-import io.netty.handler.ssl.SslContext;
+import org.apache.reef.wake.remote.transport.TransportFactory.ProtocolType;
+
 
 /**
  * Netty channel initializer for Transport.
  */
 class NettyChannelInitializer extends ChannelInitializer<SocketChannel> {
-
-  /* Types for initiating channel */
-  public enum ChannelType {
-    TCP, HTTP_SERVER, HTTP_CLIENT
-  }
 
   /**
    * the buffer size of the frame decoder.
@@ -44,27 +40,29 @@ class NettyChannelInitializer extends ChannelInitializer<SocketChannel> {
   private final NettyChannelHandlerFactory handlerFactory;
 
   /**
-   * sslContext contains ssl context of the machine. used only for HTTP.
+   * Type of protocol channel use.
    */
-  private final SslContext sslContext;
-
-  /**
-   * Type of channel whether it is netty or http client or http server.
-   */
-  private final ChannelType type;
+  private final ProtocolType protocolType;
+  private final boolean isServer;
 
   NettyChannelInitializer(
       final NettyChannelHandlerFactory handlerFactory,
-      final SslContext sslContext,
-      final ChannelType type) {
+      final ProtocolType protocol) {
+    this(handlerFactory, protocol, false);
+  }
+
+  NettyChannelInitializer(
+      final NettyChannelHandlerFactory handlerFactory,
+      final ProtocolType protocol,
+      final boolean isServer) {
     this.handlerFactory = handlerFactory;
-    this.sslContext = sslContext;
-    this.type = type;
+    this.protocolType = protocol;
+    this.isServer = isServer;
   }
 
   @Override
   protected void initChannel(final SocketChannel ch) throws Exception {
-    switch (this.type) {
+    switch (this.protocolType) {
     case TCP:
       ch.pipeline()
           .addLast("frameDecoder", new LengthFieldBasedFrameDecoder(MAXFRAMELENGTH, 0, 4, 0, 4))
@@ -74,24 +72,19 @@ class NettyChannelInitializer extends ChannelInitializer<SocketChannel> {
           .addLast("chunker", new ChunkedReadWriteHandler())
           .addLast("handler", handlerFactory.createChannelInboundHandler());
       break;
-    case HTTP_SERVER:
-      if (sslContext != null) {
-        ch.pipeline().addLast(sslContext.newHandler(ch.alloc()));
+    case HTTP:
+      if(isServer) {
+        ch.pipeline()
+            .addLast("codec", new HttpServerCodec())
+            .addLast("requestDecoder", new HttpRequestDecoder())
+            .addLast("responseEncoder", new HttpResponseEncoder())
+            .addLast("handler", handlerFactory.createChannelInboundHandler());
+      } else {
+        ch.pipeline()
+            .addLast("codec", new HttpClientCodec())
+            .addLast("decompressor", new HttpContentDecompressor())
+            .addLast("handler", handlerFactory.createChannelInboundHandler());
       }
-      ch.pipeline()
-          .addLast("codec", new HttpServerCodec())
-          .addLast("requestDecoder", new HttpRequestDecoder())
-          .addLast("responseEncoder", new HttpResponseEncoder())
-          .addLast("handler", handlerFactory.createChannelInboundHandler());
-      break;
-    case HTTP_CLIENT:
-      if (sslContext != null) {
-        ch.pipeline().addLast(sslContext.newHandler(ch.alloc()));
-      }
-      ch.pipeline()
-          .addLast("codec", new HttpClientCodec())
-          .addLast("decompressor", new HttpContentDecompressor())
-          .addLast("handler", handlerFactory.createChannelInboundHandler());
       break;
     default:
       throw new IllegalArgumentException("Invalid type of channel");

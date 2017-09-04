@@ -34,7 +34,7 @@ public interface TransportFactory {
   /**
    * Types of protocol used in Transport.
    */
-  enum ProtocolTypes {
+  enum ProtocolType {
     TCP, HTTP
   }
 
@@ -87,7 +87,7 @@ public interface TransportFactory {
                         final EStage<TransportEvent> serverStage,
                         final int numberOfTries,
                         final int retryTimeout,
-                        final ProtocolTypes protocol);
+                        final ProtocolType protocol);
 
   /**
    * Creates a transport.
@@ -129,7 +129,7 @@ public interface TransportFactory {
                         final int numberOfTries,
                         final int retryTimeout,
                         final TcpPortProvider tcpPortProvider,
-                        final ProtocolTypes protocol);
+                        final ProtocolType protocol);
 
 
 }
