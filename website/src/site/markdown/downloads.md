@@ -22,7 +22,8 @@ under the License.
 
 Choose a release version:
 <select id="selectRelease" onchange="setReleaseLink()">
-    <option value="0.15.0" selected="selected">0.15.0</option>
+    <option value="0.16.0" selected="selected">0.16.0</option>
+    <option value="0.15.0">0.15.0</option>
     <option value="0.14.0">0.14.0</option>
     <option value="0.13.0-incubating">0.13.0-incubating</option>
     <option value="0.12.0-incubating">0.12.0-incubating</option>
@@ -33,31 +34,31 @@ Choose a release version:
 <ul id="listRelease">
     <li>
         Download directly:
-        <a id="directLink" href="http://www.apache.org/dist/reef/0.15.0/apache-reef-0.15.0.tar.gz">
-            apache-reef-0.15.0.tar.gz
+        <a id="directLink" href="http://www.apache.org/dist/reef/0.16.0/apache-reef-0.16.0.tar.gz">
+            apache-reef-0.16.0.tar.gz
         </a>
     </li>
     <li>
         Download from mirror:
-        <a id="mirrorLink" href="http://www.apache.org/dyn/closer.cgi/reef/0.15.0">
+        <a id="mirrorLink" href="http://www.apache.org/dyn/closer.cgi/reef/0.16.0">
         Closest Apache Mirror</a>
     </li>
     <li>
         Verification:
-        <a id="verificationLink" href="http://www.apache.org/dist/reef/0.15.0/">
+        <a id="verificationLink" href="http://www.apache.org/dist/reef/0.16.0/">
             Signatures and checksums
         </a>
         <br />
-        SHA512: <span id="sha512Text">3805103aa3d59cd23ef1edc204f8beb4cfdc92e13e4257b980463c2176301e399dd6f6c3eb9e447e94cbf407b5bfd6ec7007bcf1a87599414a2429a17ef82a75</span>
+        SHA512: <span id="sha512Text">d62c58df1f4ba962a51d81579d27321f75dad98c3c3def9bc8fb24ebf1e27978029d7ddedf26bf4ee9434cb8e6d0e4f6e1a9a4d240d03daccd9ef66bdc403f1b</span>
     </li>
     <li>
-        <a id="releaseNotesLink" href="https://issues.apache.org/jira/secure/ReleaseNote.jspa?projectId=12315820&amp;version=12334912">Release notes</a>
+        <a id="releaseNotesLink" href="https://issues.apache.org/jira/secure/ReleaseNote.jspa?projectId=12315820&amp;version=12335833">Release notes</a>
     </li>
     <li>
-        <a id="javaApiLink" href="apidocs/0.15.0/index.html">Java API</a>
+        <a id="javaApiLink" href="apidocs/0.16.0/index.html">Java API</a>
     </li>
     <li>
-        <span id="dotnetApiLink"><a href="apidoc_net/0.15.0/index.html">.NET API</a></span>
+        <span id="dotnetApiLink"><a href="apidoc_net/0.16.0/index.html">.NET API</a></span>
     </li>
 </ul>
 

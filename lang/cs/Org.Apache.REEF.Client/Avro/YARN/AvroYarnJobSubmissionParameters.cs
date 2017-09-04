@@ -28,7 +28,7 @@ namespace Org.Apache.REEF.Client.Avro.YARN
     [DataContract(Namespace = "org.apache.reef.reef.bridge.client.avro")]
     public sealed class AvroYarnJobSubmissionParameters
     {
-        private const string JsonSchema = @"{""type"":""record"",""name"":""org.apache.reef.reef.bridge.client.avro.AvroYarnJobSubmissionParameters"",""doc"":""General cross-language submission parameters to the YARN runtime"",""fields"":[{""name"":""sharedJobSubmissionParameters"",""type"":{""type"":""record"",""name"":""org.apache.reef.reef.bridge.client.avro.AvroJobSubmissionParameters"",""doc"":""General cross-language job submission parameters shared by all runtimes"",""fields"":[{""name"":""jobId"",""type"":""string""},{""name"":""jobSubmissionFolder"",""type"":""string""}]}},{""name"":""dfsJobSubmissionFolder"",""type"":""string""},{""name"":""jobSubmissionDirectoryPrefix"",""type"":""string""}]}";
+        private const string JsonSchema = @"{""type"":""record"",""name"":""org.apache.reef.reef.bridge.client.avro.AvroYarnJobSubmissionParameters"",""doc"":""General cross-language submission parameters to the YARN runtime"",""fields"":[{""name"":""sharedJobSubmissionParameters"",""type"":{""type"":""record"",""name"":""org.apache.reef.reef.bridge.client.avro.AvroJobSubmissionParameters"",""doc"":""General cross-language job submission parameters shared by all runtimes"",""fields"":[{""name"":""jobId"",""type"":""string""},{""name"":""jobSubmissionFolder"",""type"":""string""}]}},{""name"":""dfsJobSubmissionFolder"",""type"":""string""},{""name"":""fileSystemUrl"",""type"":""string""},{""name"":""jobSubmissionDirectoryPrefix"",""type"":""string""}]}";
 
         /// <summary>
         /// Gets the schema.
@@ -60,6 +60,12 @@ namespace Org.Apache.REEF.Client.Avro.YARN
         public string jobSubmissionDirectoryPrefix { get; set; }
 
         /// <summary>
+        /// Gets or sets file system url
+        /// </summary>
+        [DataMember]
+        public string fileSystemUrl { get; set; }
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="AvroYarnJobSubmissionParameters"/> class.
         /// </summary>
         public AvroYarnJobSubmissionParameters()
@@ -73,10 +79,12 @@ namespace Org.Apache.REEF.Client.Avro.YARN
         /// <param name="sharedJobSubmissionParameters">The sharedJobSubmissionParameters.</param>
         /// <param name="dfsJobSubmissionFolder">The dfsJobSubmissionFolder.</param>
         /// <param name="jobSubmissionDirectoryPrefix">The jobSubmissionDirectoryPrefix.</param>
-        public AvroYarnJobSubmissionParameters(AvroJobSubmissionParameters sharedJobSubmissionParameters, string dfsJobSubmissionFolder, string jobSubmissionDirectoryPrefix)
+        /// <param name="fileSystemUrl">The file system URL prefix.</param>
+        public AvroYarnJobSubmissionParameters(AvroJobSubmissionParameters sharedJobSubmissionParameters, string dfsJobSubmissionFolder, string fileSystemUrl, string jobSubmissionDirectoryPrefix)
         {
             this.sharedJobSubmissionParameters = sharedJobSubmissionParameters;
             this.dfsJobSubmissionFolder = dfsJobSubmissionFolder;
+            this.fileSystemUrl = fileSystemUrl;
             this.jobSubmissionDirectoryPrefix = jobSubmissionDirectoryPrefix;
         }
     }

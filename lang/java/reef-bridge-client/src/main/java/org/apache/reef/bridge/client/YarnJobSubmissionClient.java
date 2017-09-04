@@ -40,6 +40,7 @@ import org.apache.reef.runtime.yarn.client.YarnSubmissionHelper;
 import org.apache.reef.runtime.yarn.client.unmanaged.YarnProxyUser;
 import org.apache.reef.runtime.yarn.client.uploader.JobFolder;
 import org.apache.reef.runtime.yarn.client.uploader.JobUploader;
+import org.apache.reef.runtime.yarn.driver.parameters.FileSystemUrl;
 import org.apache.reef.runtime.yarn.driver.parameters.JobSubmissionDirectoryPrefix;
 import org.apache.reef.runtime.yarn.util.YarnConfigurationConstructor;
 import org.apache.reef.tang.Configuration;
@@ -273,6 +274,12 @@ public final class YarnJobSubmissionClient {
       LOG.log(Level.FINE, "Did not find security token");
     }
 
+    if (!yarnSubmission.getFileSystemUrl().equalsIgnoreCase(FileSystemUrl.DEFAULT_VALUE)) {
+      LOG.log(Level.INFO, "getFileSystemUrl: {0}", yarnSubmission.getFileSystemUrl());
+    } else {
+      LOG.log(Level.INFO, "FileSystemUrl is not set, use default from the environment.");
+    }
+
     final List<String> launchCommandPrefix = new ArrayList<String>() {{
           add(new REEFFileNames().getDriverLauncherExeFile().toString());
       }};
@@ -281,6 +288,7 @@ public final class YarnJobSubmissionClient {
         .bindImplementation(RuntimeClasspathProvider.class, YarnClasspathProvider.class)
         .bindConstructor(org.apache.hadoop.yarn.conf.YarnConfiguration.class, YarnConfigurationConstructor.class)
         .bindNamedParameter(JobSubmissionDirectoryPrefix.class, yarnSubmission.getJobSubmissionDirectoryPrefix())
+        .bindNamedParameter(FileSystemUrl.class, yarnSubmission.getFileSystemUrl())
         .bindList(DriverLaunchCommandPrefix.class, launchCommandPrefix)
         .build();
     final YarnJobSubmissionClient client = Tang.Factory.getTang().newInjector(yarnJobSubmissionClientConfig)

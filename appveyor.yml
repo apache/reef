@@ -23,7 +23,7 @@ os:
  - Visual Studio 2017
 
 platform: x64
-configuration: Debug
+configuration: Release
 
 cache:
   - .\lang\cs\packages
@@ -34,10 +34,13 @@ install:
   - ps: .\dev\appveyor-install-dependencies.ps1
 
 build_script:
-  - cmd: msbuild .\lang\cs\Org.Apache.REEF.sln /p:Configuration="Debug" /p:Platform="x64" /m
+  - cmd: msbuild .\lang\cs\Org.Apache.REEF.sln /p:Configuration="Release" /p:Platform="x64" /m
 
 test_script:
-  - cmd: msbuild .\lang\cs\TestRunner.proj /p:Configuration="Debug" /p:Platform="x64"
+  - cmd: msbuild .\lang\cs\TestRunner.proj /p:Configuration="Release" /p:Platform="x64"
+
+after_build:
+  - ps: .\bin\AnalyzeClrCompatibility.ps1
 
 notifications:
   - provider: Email

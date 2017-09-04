@@ -18,6 +18,7 @@
  */
 
 var releaseSha512 = {
+    "0.16.0": "d62c58df1f4ba962a51d81579d27321f75dad98c3c3def9bc8fb24ebf1e27978029d7ddedf26bf4ee9434cb8e6d0e4f6e1a9a4d240d03daccd9ef66bdc403f1b",
     "0.15.0": "3805103aa3d59cd23ef1edc204f8beb4cfdc92e13e4257b980463c2176301e399dd6f6c3eb9e447e94cbf407b5bfd6ec7007bcf1a87599414a2429a17ef82a75",
     "0.14.0": "8216aa9cf936a533288943245da9aab46b0df2361bcf56f757b7feff54143249dcd5bb5401498d4ecf402bfcaaf662ebbf8085322764593c055cb01d98be440a",
     "0.10.0-incubating": "53844174f701a4c0c99964260c7abb4f8ef9d93aa6b8bdddbca37082e0f5754db5b00e2ae1fdd7732735159df8205a82e7a4dde2ef5abf2ca3e5d7dc43eb62fb",
@@ -27,6 +28,7 @@ var releaseSha512 = {
 };
 
 var releaseNotes = {
+    "0.16.0": "https://issues.apache.org/jira/secure/ReleaseNote.jspa?projectId=12315820&version=12335833",
     "0.15.0": "https://issues.apache.org/jira/secure/ReleaseNote.jspa?projectId=12315820&version=12334912",
     "0.14.0": "https://issues.apache.org/jira/secure/ReleaseNote.jspa?projectId=12315820&version=12333768",
     "0.10.0-incubating": "https://issues.apache.org/jira/secure/ReleaseNote.jspa?projectId=12315820&version=12329065",

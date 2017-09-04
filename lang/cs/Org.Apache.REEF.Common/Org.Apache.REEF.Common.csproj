@@ -37,16 +37,16 @@ under the License.
       <HintPath>$(PackagesDir)\Newtonsoft.Json.$(NewtonsoftJsonVersion)\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="protobuf-net">
-      <HintPath>$(PackagesDir)\protobuf-net.$(ProtobufVersion)\lib\net40\protobuf-net.dll</HintPath>
-    </Reference>
-    <Reference Include="System.Reactive.Core">
-      <HintPath>$(PackagesDir)\Rx-Core.$(RxVersion)\lib\net45\System.Reactive.Core.dll</HintPath>
-    </Reference>
-    <Reference Include="System.Reactive.Interfaces">
-      <HintPath>$(PackagesDir)\Rx-Interfaces.$(RxVersion)\lib\net45\System.Reactive.Interfaces.dll</HintPath>
+      <HintPath>$(PackagesDir)\protobuf-net.$(ProtobufVersion)\lib\net451\protobuf-net.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Reactive.Core">
+      <HintPath>$(PackagesDir)\System.Reactive.Core.$(SystemReactiveVersion)\lib\net45\System.Reactive.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Reactive.Interfaces">
+      <HintPath>$(PackagesDir)\System.Reactive.Interfaces.$(SystemReactiveVersion)\lib\net45\System.Reactive.Interfaces.dll</HintPath>
+    </Reference>
     <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.Xml" />
   </ItemGroup>
@@ -109,6 +109,7 @@ under the License.
     <Compile Include="Events\IContextStart.cs" />
     <Compile Include="Events\IContextStop.cs" />
     <Compile Include="Exceptions\JobException.cs" />
+    <Compile Include="Exceptions\RecoverableNetworkException.cs" />
     <Compile Include="Exceptions\NonSerializableEvaluatorException.cs" />
     <Compile Include="Exceptions\NonSerializableTaskException.cs" />
     <Compile Include="Files\PathUtilities.cs" />

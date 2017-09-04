@@ -54,6 +54,7 @@ final class YarnClusterSubmissionFromCS {
   private final String tokenKind;
   private final String tokenService;
   private final String jobSubmissionDirectoryPrefix;
+  private final String fileSystemUrl;
   private final String yarnDriverStdoutFilePath;
   private final String yarnDriverStderrFilePath;
 
@@ -83,6 +84,7 @@ final class YarnClusterSubmissionFromCS {
     this.queue = DEFAULT_QUEUE;
     this.tokenKind = yarnClusterJobSubmissionParameters.getSecurityTokenKind().toString();
     this.tokenService = yarnClusterJobSubmissionParameters.getSecurityTokenService().toString();
+    this.fileSystemUrl = yarnJobSubmissionParameters.getFileSystemUrl().toString();
     this.jobSubmissionDirectoryPrefix = yarnJobSubmissionParameters.getJobSubmissionDirectoryPrefix().toString();
     this.yarnDriverStdoutFilePath = yarnClusterJobSubmissionParameters.getDriverStdoutFilePath().toString();
     this.yarnDriverStderrFilePath = yarnClusterJobSubmissionParameters.getDriverStderrFilePath().toString();
@@ -96,6 +98,7 @@ final class YarnClusterSubmissionFromCS {
     Validate.notEmpty(queue, "The queue is null or empty");
     Validate.notEmpty(tokenKind, "Token kind should be either NULL or some custom non empty value");
     Validate.notEmpty(tokenService, "Token service should be either NULL or some custom non empty value");
+    Validate.notEmpty(fileSystemUrl, "File system Url should be either NULL or some custom non empty value");
     Validate.notEmpty(jobSubmissionDirectoryPrefix, "Job submission directory prefix should not be empty");
     Validate.notEmpty(yarnDriverStdoutFilePath, "Driver stdout file path should not be empty");
     Validate.notEmpty(yarnDriverStderrFilePath, "Driver stderr file path should not be empty");
@@ -116,6 +119,7 @@ final class YarnClusterSubmissionFromCS {
         ", queue='" + queue + '\'' +
         ", tokenKind='" + tokenKind + '\'' +
         ", tokenService='" + tokenService + '\'' +
+        ", fileSystemUrl='" + fileSystemUrl + '\'' +
         ", jobSubmissionDirectoryPrefix='" + jobSubmissionDirectoryPrefix + '\'' +
         '}';
   }
@@ -167,6 +171,13 @@ final class YarnClusterSubmissionFromCS {
    */
   String getTokenService() {
     return tokenService;
+  }
+
+  /**
+   * @return The file system url
+   */
+  String getFileSystemUrl() {
+    return fileSystemUrl;
   }
 
   /**

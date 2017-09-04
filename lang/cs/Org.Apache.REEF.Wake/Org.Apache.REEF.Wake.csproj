@@ -27,20 +27,34 @@ under the License.
     <FileAlignment>512</FileAlignment>
     <RestorePackages>true</RestorePackages>
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..</SolutionDir>
+    <AvroBinaryDirectory>..\packages\AvroBin</AvroBinaryDirectory>
+    <AvroSchemaDirectory>..\..\common\wake\avro</AvroSchemaDirectory>
+    <AvroTools>..\packages\Microsoft.Avro.Tools.0.1.0\lib\net451\Microsoft.Avro.Tools.exe</AvroTools>
+    <AvroLibrary>..\packages\Microsoft.Avro.Core.0.1.0\lib\net451\Microsoft.Avro.Core.dll</AvroLibrary>
+    <NewtonsoftLibrary>..\packages\Newtonsoft.Json.10.0.3\lib\net45\Newtonsoft.Json.dll</NewtonsoftLibrary>
   </PropertyGroup>
   <Import Project="$(SolutionDir)\build.props" />
   <ItemGroup>
+    <Reference Include="Microsoft.Hadoop.Avro">
+      <HintPath>$(PackagesDir)\Microsoft.Hadoop.Avro.$(AvroVersion)\lib\net45\Microsoft.Hadoop.Avro.dll</HintPath>
+    </Reference>
     <Reference Include="Microsoft.Practices.TransientFaultHandling.Core, Version=5.1.1209.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>$(PackagesDir)\TransientFaultHandling.Core.5.1.1209.1\lib\NET4\Microsoft.Practices.TransientFaultHandling.Core.dll</HintPath>
     </Reference>
     <Reference Include="protobuf-net">
-      <HintPath>$(PackagesDir)\protobuf-net.$(ProtobufVersion)\lib\net40\protobuf-net.dll</HintPath>
+      <HintPath>$(PackagesDir)\protobuf-net.$(ProtobufVersion)\lib\net451\protobuf-net.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
-    <Reference Include="System.Reactive.Interfaces">
-      <HintPath>$(PackagesDir)\Rx-Interfaces.$(RxVersion)\lib\net45\System.Reactive.Interfaces.dll</HintPath>
+    <Reference Include="System.Data" />
+    <Reference Include="System.Reactive.Core">
+      <HintPath>$(PackagesDir)\System.Reactive.Core.$(SystemReactiveVersion)\lib\net45\System.Reactive.Core.dll</HintPath>
+      <Private>True</Private>
     </Reference>
+    <Reference Include="System.Reactive.Interfaces">
+      <HintPath>$(PackagesDir)\System.Reactive.Interfaces.$(SystemReactiveVersion)\lib\net45\System.Reactive.Interfaces.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
@@ -48,6 +62,11 @@ under the License.
       <Link>Properties\SharedAssemblyInfo.cs</Link>
     </Compile>
     <Compile Include="AbstractEStage.cs" />
+    <Compile Include="Avro\IMessageInstance.cs" />
+    <Compile Include="Avro\MessageInstance.cs" />
+    <Compile Include="Avro\Message\Header.cs" />
+    <Compile Include="Avro\ProtocolSerializer.cs" />
+    <Compile Include="Avro\SeializationException.cs" />
     <Compile Include="Examples\P2p\IEventSource.cs" />
     <Compile Include="Examples\P2p\Pull2Push.cs" />
     <Compile Include="IEStage.cs" />
@@ -201,5 +220,6 @@ under the License.
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
+  <Import Project="$(SolutionDir)\AvroCodeGeneration.Targets" Condition="Exists('$(SolutionDir)\AvroCodeGeneration.Targets')" />
   <Import Project="$(PackagesDir)\StyleCop.MSBuild.$(StyleCopVersion)\build\StyleCop.MSBuild.Targets" Condition="Exists('$(PackagesDir)\StyleCop.MSBuild.$(StyleCopVersion)\build\StyleCop.MSBuild.Targets')" />
 </Project>

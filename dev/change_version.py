@@ -146,6 +146,60 @@ def change_assembly_info_cs(file, new_version):
     f.close()
 
 """
+Change Version in lang/cs/build.DotNet.props 
+"""
+def change_dotnet_props_cs(file, new_version):
+    changed_str = ""
+    new_version = new_version
+    if "SNAPSHOT" in new_version:
+      new_version = new_version.split("-")[0]
+
+    f = open(file, 'r')
+    r = re.compile('<Version>(.*?)</Version>')
+
+    while True:
+        line = f.readline()
+        if not line:
+            break
+        if "<Version>" in line and "</Version>" in line:
+            m = r.search(line)
+            old_version = m.group(1)
+            changed_str += line.replace(old_version, new_version)
+        else:
+            changed_str += line
+    f.close()
+
+    f = open(file, 'w')
+    f.write(changed_str)
+    f.close()
+
+"""
+Change ReefOnSpark.scala in lang/scala/reef-examples-scala/.../hellospark/ReefOnSpark.scala
+"""
+def change_reef_on_spark_scala(file, new_version):
+    changed_str = ""
+
+    f = open(file, 'r')
+
+    while True:
+        line = f.readline()
+        if not line:
+            break
+        if "reef-examples-spark" in line and "-shaded.jar":
+            r = re.compile("//.*reef-examples-spark-(.*?)-shaded\.jar")
+            m = r.search(line)
+            old_version = m.group(1)
+            changed_str += line.replace(old_version, new_version)
+        else:
+            changed_str += line
+    f.close()
+
+    f = open(file, 'w')
+    f.write(changed_str)
+    f.close()
+
+
+"""
 Read 'IsSnapshot' from lang/cs/build.props
 """
 def read_is_snapshot(file):
@@ -286,6 +340,12 @@ def change_version(reef_home, new_version, pom_only):
 
         change_project_number_Doxyfile(reef_home + "/Doxyfile", new_version)
         print reef_home + "/Doxyfile"
+
+        change_dotnet_props_cs(reef_home + "/lang/cs/build.DotNet.props", new_version)
+        print reef_home + "/lang/cs/build.DotNet.props"
+
+        change_reef_on_spark_scala(reef_home + "/lang/scala/reef-examples-scala/src/main/scala/org/apache/reef/examples/hellospark/ReefOnSpark.scala", new_version)
+        print reef_home + "/lang/scala/reef-examples-scala/src/main/scala/org/apache/reef/examples/hellospark/ReefOnSpark.scala"
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Script for changing REEF version in all files that use it")

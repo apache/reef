@@ -87,7 +87,6 @@ final class YarnContainerManager implements AMRMClientAsync.CallbackHandler, NMC
   private final DriverStatusManager driverStatusManager;
   private final String trackingUrl;
   private final String amRegistrationHost;
-
   private final String jobSubmissionDirectory;
   private final REEFFileNames reefFileNames;
   private final RackNameFormatter rackNameFormatter;
@@ -130,8 +129,8 @@ final class YarnContainerManager implements AMRMClientAsync.CallbackHandler, NMC
     this.reefFileNames = reefFileNames;
     this.progressProvider = progressProvider;
 
-    LOG.log(Level.FINEST, "Instantiated YarnContainerManager: {0} {1}",
-        new Object[] {this.registration, this.yarnProxyUser});
+    LOG.log(Level.INFO, "Instantiated YarnContainerManager: {0} {1}, trackingUrl: {3}, jobSubmissionDirectory: {4}.",
+        new Object[] {this.registration, this.yarnProxyUser, this.trackingUrl, this.jobSubmissionDirectory});
   }
 
   /**
