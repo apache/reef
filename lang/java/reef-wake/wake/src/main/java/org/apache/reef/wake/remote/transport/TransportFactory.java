@@ -78,26 +78,6 @@ public interface TransportFactory {
    * @param serverStage     a transport server-side stage
    * @param numberOfTries   the number of retries for connection
    * @param retryTimeout    retry timeout
-   * @param protocol        protocol to use
-   * @return transport
-   */
-  Transport newInstance(final String hostAddress,
-                        final int port,
-                        final EStage<TransportEvent> clientStage,
-                        final EStage<TransportEvent> serverStage,
-                        final int numberOfTries,
-                        final int retryTimeout,
-                        final ProtocolType protocol);
-
-  /**
-   * Creates a transport.
-   *
-   * @param hostAddress     a host address
-   * @param port            a listening port
-   * @param clientStage     a transport client-side stage
-   * @param serverStage     a transport server-side stage
-   * @param numberOfTries   the number of retries for connection
-   * @param retryTimeout    retry timeout
    * @param tcpPortProvider tcpPortProvider
    * @return transport
    */
@@ -108,28 +88,6 @@ public interface TransportFactory {
                         final int numberOfTries,
                         final int retryTimeout,
                         final TcpPortProvider tcpPortProvider);
-
-  /**
-   * Creates a transport.
-   *
-   * @param hostAddress     a host address
-   * @param port            a listening port
-   * @param clientStage     a transport client-side stage
-   * @param serverStage     a transport server-side stage
-   * @param numberOfTries   the number of retries for connection
-   * @param retryTimeout    retry timeout
-   * @param tcpPortProvider tcpPortProvider
-   * @param protocol        protocol to use
-   * @return transport
-   */
-  Transport newInstance(final String hostAddress,
-                        final int port,
-                        final EStage<TransportEvent> clientStage,
-                        final EStage<TransportEvent> serverStage,
-                        final int numberOfTries,
-                        final int retryTimeout,
-                        final TcpPortProvider tcpPortProvider,
-                        final ProtocolType protocol);
 
 
 }
