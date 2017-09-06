@@ -18,40 +18,19 @@
  */
 package org.apache.reef.driver.evaluator;
 
-import org.apache.reef.driver.catalog.NodeDescriptor;
+import org.apache.reef.annotations.Provided;
+import org.apache.reef.annotations.audience.DriverSide;
+import org.apache.reef.annotations.audience.Public;
 
 /**
- * Metadata about an Evaluator.
+ * Scheduling constraint builder.
  */
-public interface EvaluatorDescriptor {
-
+@Public
+@DriverSide
+@Provided
+public interface SchedulingConstraintBuilder {
   /**
-   * @return the NodeDescriptor of the node where this Evaluator is running.
+   * @return the set of scheduling constraints to be passed to the EvaluatorRequestor.
    */
-  NodeDescriptor getNodeDescriptor();
-
-  /**
-   * @return the process to be run on the Evaluator.
-   */
-  EvaluatorProcess getProcess();
-
-  /**
-   * @return the amount of memory allocated to this Evaluator.
-   */
-  int getMemory();
-
-  /**
-   * @return the number of virtual core allocated to this Evaluator.
-   */
-  int getNumberOfCores();
-
-  /**
-   * @return name of the runtime that was used to allocate this Evaluator
-   */
-  String getRuntimeName();
-
-  /**
-   * @return scheduling constraint on this Evaluator
-   */
-  SchedulingConstraint getSchedulingConstraint();
+  SchedulingConstraint build();
 }

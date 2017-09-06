@@ -23,10 +23,7 @@ import org.apache.reef.annotations.audience.Private;
 import org.apache.reef.driver.catalog.NodeDescriptor;
 import org.apache.reef.driver.evaluator.EvaluatorDescriptor;
 import org.apache.reef.driver.evaluator.EvaluatorProcess;
-
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
+import org.apache.reef.driver.evaluator.SchedulingConstraint;
 
 /**
  * A simple all-data implementation of EvaluatorDescriptor.
@@ -40,14 +37,14 @@ final class EvaluatorDescriptorImpl implements EvaluatorDescriptor {
   private final int numberOfCores;
   private EvaluatorProcess process;
   private final String runtimeName;
-  private final Map<String, String> nodeLabels;
+  private final SchedulingConstraint schedulingConstraint;
 
   EvaluatorDescriptorImpl(final NodeDescriptor nodeDescriptor,
                           final int megaBytes,
                           final int numberOfCores,
                           final EvaluatorProcess process,
                           final String runtimeName) {
-    this(nodeDescriptor, megaBytes, numberOfCores, process, runtimeName, new HashMap<String, String>());
+    this(nodeDescriptor, megaBytes, numberOfCores, process, runtimeName, null);
   }
 
   EvaluatorDescriptorImpl(final NodeDescriptor nodeDescriptor,
@@ -55,13 +52,13 @@ final class EvaluatorDescriptorImpl implements EvaluatorDescriptor {
                           final int numberOfCores,
                           final EvaluatorProcess process,
                           final String runtimeName,
-                          final Map<String, String> nodeLabels) {
+                          final SchedulingConstraint schedulingConstraint) {
     this.nodeDescriptor = nodeDescriptor;
     this.megaBytes = megaBytes;
     this.numberOfCores = numberOfCores;
     this.process = process;
     this.runtimeName = runtimeName;
-    this.nodeLabels = nodeLabels;
+    this.schedulingConstraint = schedulingConstraint;
   }
 
   @Override
@@ -96,7 +93,8 @@ final class EvaluatorDescriptorImpl implements EvaluatorDescriptor {
     return this.runtimeName;
   }
 
-  public Map<String, String> getNodeLabels() {
-    return Collections.unmodifiableMap(this.nodeLabels);
+  @Override
+  public SchedulingConstraint getSchedulingConstraint() {
+    return this.schedulingConstraint;
   }
 }

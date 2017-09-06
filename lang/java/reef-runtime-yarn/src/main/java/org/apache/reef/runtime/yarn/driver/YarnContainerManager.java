@@ -45,9 +45,9 @@ import org.apache.reef.runtime.common.driver.resourcemanager.ResourceStatusEvent
 import org.apache.reef.runtime.common.driver.resourcemanager.RuntimeStatusEventImpl;
 import org.apache.reef.runtime.common.files.REEFFileNames;
 import org.apache.reef.runtime.yarn.client.unmanaged.YarnProxyUser;
+import org.apache.reef.runtime.yarn.driver.evaluator.YarnSchedulingConstraint;
 import org.apache.reef.runtime.yarn.driver.parameters.JobSubmissionDirectory;
 import org.apache.reef.runtime.yarn.driver.parameters.YarnHeartbeatPeriod;
-import org.apache.reef.runtime.yarn.util.YarnUtilities;
 import org.apache.reef.tang.InjectionFuture;
 import org.apache.reef.tang.annotations.Parameter;
 import org.apache.reef.util.Optional;
@@ -540,28 +540,27 @@ final class YarnContainerManager implements AMRMClientAsync.CallbackHandler, NMC
 
       // TODO[JIRA REEF-1866]: update this part when YARN supports a method to retrieve
       // the node label expression of a container.
-      YarnClient client = YarnClient.createYarnClient();
+      final YarnClient client = YarnClient.createYarnClient();
       client.init(new YarnConfiguration());
       client.start();
 
-      Set<String> nodeLabelExpressionsFromNode;
+      String nodeLabelExpressionsFromNode = null;
 
       try {
-        nodeLabelExpressionsFromNode = client.getNodeToLabels().get(container.getNodeId());
+        if (client.getNodeToLabels().get(container.getNodeId()) != null) {
+          for (final String nodeLabelExpression: client.getNodeToLabels().get(container.getNodeId())) {
+            nodeLabelExpressionsFromNode = nodeLabelExpression;
+          }
+        }
       } catch (final YarnException | IOException e) {
-        LOG.log(Level.WARNING, "Error getting labels for node: " + container.getNodeId(), e);
+        LOG.log(Level.WARNING, "Error getting label.", e);
         nodeLabelExpressionsFromNode = null;
       }
 
       client.stop();
 
-      Map<String, String> nodeLabelExpressions = new HashMap<>();
-
-      if (nodeLabelExpressionsFromNode != null) {
-        for (String nodeLabelExpression: nodeLabelExpressionsFromNode) {
-          nodeLabelExpressions.put(YarnUtilities.REEF_YARN_NODE_LABEL_ID, nodeLabelExpression);
-        }
-      }
+      final YarnSchedulingConstraint yarnSchedulingConstraint =
+          new YarnSchedulingConstraint(nodeLabelExpressionsFromNode);
 
       this.reefEventHandlers.onResourceAllocation(ResourceEventImpl.newAllocationBuilder()
           .setIdentifier(container.getId().toString())
@@ -570,7 +569,7 @@ final class YarnContainerManager implements AMRMClientAsync.CallbackHandler, NMC
           .setVirtualCores(container.getResource().getVirtualCores())
           .setRackName(rackNameFormatter.getRackName(container))
           .setRuntimeName(RuntimeIdentifier.RUNTIME_NAME)
-          .setNodeLabels(nodeLabelExpressions)
+          .setSchedulingConstraint(yarnSchedulingConstraint)
           .build());
 
       this.updateRuntimeStatus();
@@ -656,7 +655,7 @@ final class YarnContainerManager implements AMRMClientAsync.CallbackHandler, NMC
     final ReefServiceProtos.RuntimeErrorProto runtimeError =
         ReefServiceProtos.RuntimeErrorProto.newBuilder()
             .setName(RUNTIME_NAME)
-            .setMessage(throwable.getMessage())
+            .setMessage(throwable.getMessage() == null ? "NULL_MESSAGE" : throwable.getMessage())
             .setException(ByteString.copyFrom(new ObjectSerializableCodec<>().encode(throwable)))
             .build();
 

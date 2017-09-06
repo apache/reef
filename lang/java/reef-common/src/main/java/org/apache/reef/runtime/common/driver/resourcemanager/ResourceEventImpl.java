@@ -18,10 +18,9 @@
  */
 package org.apache.reef.runtime.common.driver.resourcemanager;
 
+import org.apache.reef.driver.evaluator.SchedulingConstraint;
 import org.apache.reef.util.BuilderUtils;
 import org.apache.reef.util.Optional;
-
-import java.util.Map;
 
 /**
  * Default POJO implementation of ResourceAllocationEvent and ResourceRecoverEvent.
@@ -35,7 +34,7 @@ public final class ResourceEventImpl implements ResourceAllocationEvent, Resourc
   private final Optional<Integer> virtualCores;
   private final Optional<String> rackName;
   private final String runtimeName;
-  private final Map<String, String> nodeLabels;
+  private final Optional<SchedulingConstraint> schedulingConstraint;
 
 
   private ResourceEventImpl(final Builder builder) {
@@ -45,7 +44,7 @@ public final class ResourceEventImpl implements ResourceAllocationEvent, Resourc
     this.virtualCores = Optional.ofNullable(builder.virtualCores);
     this.rackName = Optional.ofNullable(builder.rackName);
     this.runtimeName = BuilderUtils.notNull(builder.runtimeName);
-    this.nodeLabels = builder.nodeLabels;
+    this.schedulingConstraint = Optional.ofNullable(builder.schedulingConstraint);
   }
 
   @Override
@@ -79,8 +78,8 @@ public final class ResourceEventImpl implements ResourceAllocationEvent, Resourc
   }
 
   @Override
-  public Map<String, String> getNodeLabels() {
-    return nodeLabels;
+  public Optional<SchedulingConstraint> getSchedulingConstraint() {
+    return schedulingConstraint;
   }
 
   public static Builder newAllocationBuilder() {
@@ -103,7 +102,7 @@ public final class ResourceEventImpl implements ResourceAllocationEvent, Resourc
     private Integer virtualCores;
     private String rackName;
     private String runtimeName;
-    private Map<String, String> nodeLabels;
+    private SchedulingConstraint schedulingConstraint;
 
     private Builder(final boolean recovery){
       this.recovery = recovery;
@@ -158,11 +157,11 @@ public final class ResourceEventImpl implements ResourceAllocationEvent, Resourc
     }
 
     /**
-     * @see ResourceAllocationEvent#getNodeLabels()
-     * @param nodeLabels
+     * @see ResourceAllocationEvent#getSchedulingConstraint()
+     * @param schedulingConstraint
      */
-    public Builder setNodeLabels(final Map<String, String> nodeLabels) {
-      this.nodeLabels = nodeLabels;
+    public Builder setSchedulingConstraint(final SchedulingConstraint schedulingConstraint) {
+      this.schedulingConstraint = schedulingConstraint;
       return this;
     }
 

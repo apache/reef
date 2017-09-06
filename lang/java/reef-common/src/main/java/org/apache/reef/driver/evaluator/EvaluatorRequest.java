@@ -25,8 +25,6 @@ import org.apache.reef.annotations.audience.Public;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
-import java.util.HashMap;
 
 /**
  * A request for one ore more Evaluators.
@@ -43,14 +41,14 @@ public final class EvaluatorRequest {
   private final List<String> rackNames;
   private final String runtimeName;
   private final boolean relaxLocality;
-  private final Map<String, String> nodeLabels;
+  private final SchedulingConstraint schedulingConstraint;
 
   EvaluatorRequest(final int number,
                    final int megaBytes,
                    final int cores,
                    final List<String> nodeNames,
                    final List<String> rackNames) {
-    this(number, megaBytes, cores, nodeNames, rackNames, "", new HashMap<String, String>(), true);
+    this(number, megaBytes, cores, nodeNames, rackNames, "", null, true);
   }
 
   EvaluatorRequest(final int number,
@@ -59,7 +57,7 @@ public final class EvaluatorRequest {
                    final List<String> nodeNames,
                    final List<String> rackNames,
                    final String runtimeName) {
-    this(number, megaBytes, cores, nodeNames, rackNames, runtimeName, new HashMap<String, String>(), true);
+    this(number, megaBytes, cores, nodeNames, rackNames, runtimeName, null, true);
   }
 
   EvaluatorRequest(final int number,
@@ -68,7 +66,7 @@ public final class EvaluatorRequest {
                    final List<String> nodeNames,
                    final List<String> rackNames,
                    final String runtimeName,
-                   final Map<String, String> nodeLabels,
+                   final SchedulingConstraint schedulingConstraint,
                    final boolean relaxLocality) {
     this.number = number;
     this.megaBytes = megaBytes;
@@ -77,7 +75,7 @@ public final class EvaluatorRequest {
     this.rackNames = rackNames;
     this.runtimeName = runtimeName;
     this.relaxLocality = relaxLocality;
-    this.nodeLabels = nodeLabels;
+    this.schedulingConstraint = schedulingConstraint;
   }
 
   /**
@@ -100,12 +98,12 @@ public final class EvaluatorRequest {
   }
 
   /**
-   * Access the node labels requested.
+   * Access the scheduling constraint requested.
    *
-   * @return the node labels requested.
+   * @return the scheduling constraint requested.
    */
-  public Map<String, String> getNodeLabels() {
-    return this.nodeLabels;
+  public SchedulingConstraint getSchedulingConstraint() {
+    return this.schedulingConstraint;
   }
 
   /**
@@ -184,7 +182,7 @@ public final class EvaluatorRequest {
     private final List<String> rackNames = new ArrayList<>();
     private String runtimeName = "";
     private boolean relaxLocality = true; //if not set, default to true
-    private Map<String, String> nodeLabels = new HashMap<>();
+    private SchedulingConstraint schedulingConstraint = null;
 
     @Private
     public Builder() {
@@ -202,9 +200,7 @@ public final class EvaluatorRequest {
       setNumberOfCores(request.getNumberOfCores());
       setRuntimeName(request.getRuntimeName());
       setRelaxLocality(request.getRelaxLocality());
-      for (Map.Entry<String, String> elem : request.getNodeLabels().entrySet()) {
-        setNodeLabel(elem.getKey(), elem.getValue());
-      }
+      setSchedulingConstraint(request.getSchedulingConstraint());
       for (final String nodeName : request.getNodeNames()) {
         addNodeName(nodeName);
       }
@@ -214,8 +210,8 @@ public final class EvaluatorRequest {
     }
 
     @SuppressWarnings("checkstyle:hiddenfield")
-    public T setNodeLabel(final String key, final String value) {
-      nodeLabels.put(key, value);
+    public T setSchedulingConstraint(final SchedulingConstraint schedulingConstraint) {
+      this.schedulingConstraint = schedulingConstraint;
       return (T) this;
     }
 
@@ -328,7 +324,7 @@ public final class EvaluatorRequest {
     @Override
     public EvaluatorRequest build() {
       return new EvaluatorRequest(this.n, this.megaBytes, this.cores,
-          this.nodeNames, this.rackNames, this.runtimeName, this.nodeLabels, this.relaxLocality);
+          this.nodeNames, this.rackNames, this.runtimeName, this.schedulingConstraint, this.relaxLocality);
     }
   }
 }

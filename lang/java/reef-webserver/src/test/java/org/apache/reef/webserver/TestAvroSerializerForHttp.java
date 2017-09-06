@@ -24,6 +24,7 @@ import org.apache.reef.driver.evaluator.CLRProcessFactory;
 import org.apache.reef.driver.evaluator.EvaluatorDescriptor;
 import org.apache.reef.driver.evaluator.EvaluatorProcess;
 import org.apache.reef.driver.evaluator.EvaluatorProcessFactory;
+import org.apache.reef.driver.evaluator.SchedulingConstraint;
 import org.apache.reef.tang.Tang;
 import org.apache.reef.tang.exceptions.InjectionException;
 import org.apache.reef.tang.formats.ConfigurationModule;
@@ -164,8 +165,8 @@ public class TestAvroSerializerForHttp {
     }
 
     @Override
-    public Map<String, String> getNodeLabels() {
-      return new HashMap<>();
+    public SchedulingConstraint getSchedulingConstraint() {
+      return null;
     }
   }
 

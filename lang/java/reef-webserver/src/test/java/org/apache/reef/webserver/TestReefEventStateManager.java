@@ -24,6 +24,7 @@ import org.apache.reef.driver.evaluator.CLRProcessFactory;
 import org.apache.reef.driver.evaluator.EvaluatorDescriptor;
 import org.apache.reef.driver.evaluator.EvaluatorProcess;
 import org.apache.reef.driver.evaluator.EvaluatorProcessFactory;
+import org.apache.reef.driver.evaluator.SchedulingConstraint;
 import org.apache.reef.runtime.common.driver.parameters.JobIdentifier;
 import org.apache.reef.runtime.common.launch.REEFMessageCodec;
 import org.apache.reef.tang.Configuration;
@@ -37,7 +38,6 @@ import org.junit.Test;
 
 import javax.inject.Inject;
 import java.net.InetSocketAddress;
-import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -131,8 +131,8 @@ final class MockEvaluatorDescriptor implements EvaluatorDescriptor {
   }
 
   @Override
-  public Map<String, String> getNodeLabels() {
-    return new HashMap<>();
+  public SchedulingConstraint getSchedulingConstraint() {
+    return null;
   }
 }
 

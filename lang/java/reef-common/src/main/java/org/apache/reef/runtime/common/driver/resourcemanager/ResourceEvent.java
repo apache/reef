@@ -20,9 +20,8 @@ package org.apache.reef.runtime.common.driver.resourcemanager;
 
 import org.apache.reef.annotations.audience.DriverSide;
 import org.apache.reef.annotations.audience.Private;
+import org.apache.reef.driver.evaluator.SchedulingConstraint;
 import org.apache.reef.util.Optional;
-
-import java.util.Map;
 
 /**
  * An interface capturing the characteristics of a resource event.
@@ -62,9 +61,7 @@ public interface ResourceEvent {
   String getRuntimeName();
 
   /**
-   * @return Node labels of the resource.
-   * In YARN, key is a static constant string and value is the node label.
-   * In Mesos, these are required Attributes.
+   * @return Scheduling constraint of the resource.
    */
-  Map<String, String> getNodeLabels();
+  Optional<SchedulingConstraint> getSchedulingConstraint();
 }

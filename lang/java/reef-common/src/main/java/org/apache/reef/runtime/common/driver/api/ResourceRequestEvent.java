@@ -20,11 +20,11 @@ package org.apache.reef.runtime.common.driver.api;
 
 import org.apache.reef.annotations.audience.DriverSide;
 import org.apache.reef.annotations.audience.RuntimeAuthor;
+import org.apache.reef.driver.evaluator.SchedulingConstraint;
 import org.apache.reef.tang.annotations.DefaultImplementation;
 import org.apache.reef.util.Optional;
 
 import java.util.List;
-import java.util.Map;
 
 /**
  * Event from Driver Process to Driver Runtime.
@@ -36,9 +36,9 @@ import java.util.Map;
 public interface ResourceRequestEvent {
 
   /**
-   * @return The node labels.
+   * @return The scheduling constraint.
    */
-  Map<String, String> getNodeLabels();
+  Optional<SchedulingConstraint> getSchedulingConstraint();
 
   /**
    * @return The number of resources requested

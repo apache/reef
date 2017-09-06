@@ -16,7 +16,34 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+package org.apache.reef.runtime.yarn.driver.evaluator;
+
+import org.apache.reef.driver.evaluator.SchedulingConstraint;
+import org.apache.reef.driver.evaluator.SchedulingConstraintBuilder;
+
+import javax.inject.Inject;
+
 /**
- * Test for the evaluator request with node label.
+ * YARN scheduling constraint builder for evaluator requests.
  */
-package org.apache.reef.tests.yarnnodelabel;
+public final class YarnSchedulingConstraintBuilder implements SchedulingConstraintBuilder{
+
+  private String nodeLabelExpression;
+
+  @Inject
+  YarnSchedulingConstraintBuilder() {
+  }
+
+  /**
+   * Require the allocated Evaluators to be on nodes with the given label.
+   */
+  public SchedulingConstraintBuilder requireNodeLabel(final String nodeLabel) {
+    this.nodeLabelExpression = nodeLabel;
+    return this;
+  }
+
+  @Override
+  public SchedulingConstraint build() {
+    return new YarnSchedulingConstraint(nodeLabelExpression);
+  }
+}

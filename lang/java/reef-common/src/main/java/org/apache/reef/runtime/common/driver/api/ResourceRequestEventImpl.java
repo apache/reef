@@ -18,13 +18,12 @@
  */
 package org.apache.reef.runtime.common.driver.api;
 
+import org.apache.reef.driver.evaluator.SchedulingConstraint;
 import org.apache.reef.util.BuilderUtils;
 import org.apache.reef.util.Optional;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.HashMap;
 
 /**
  * Default POJO implementation of ResourceRequestEvent.
@@ -39,7 +38,7 @@ public final class ResourceRequestEventImpl implements ResourceRequestEvent {
   private final Optional<Integer> virtualCores;
   private final Optional<Boolean> relaxLocality;
   private final String runtimeName;
-  private final Map<String, String> nodeLabels;
+  private final Optional<SchedulingConstraint> schedulingConstraint;
 
   private ResourceRequestEventImpl(final Builder builder) {
     this.resourceCount = BuilderUtils.notNull(builder.resourceCount);
@@ -50,12 +49,12 @@ public final class ResourceRequestEventImpl implements ResourceRequestEvent {
     this.virtualCores = Optional.ofNullable(builder.virtualCores);
     this.relaxLocality = Optional.ofNullable(builder.relaxLocality);
     this.runtimeName = builder.runtimeName == null ? "" : builder.runtimeName;
-    this.nodeLabels = builder.nodeLabels == null ? new HashMap<String, String>() : builder.nodeLabels;
+    this.schedulingConstraint = Optional.ofNullable(builder.schedulingConstraint);
   }
 
   @Override
-  public Map<String, String> getNodeLabels() {
-    return nodeLabels;
+  public Optional<SchedulingConstraint> getSchedulingConstraint() {
+    return schedulingConstraint;
   }
 
   @Override
@@ -114,7 +113,7 @@ public final class ResourceRequestEventImpl implements ResourceRequestEvent {
     private Integer virtualCores;
     private Boolean relaxLocality;
     private String runtimeName;
-    private Map<String, String> nodeLabels;
+    private SchedulingConstraint schedulingConstraint;
 
     /**
      * Create a builder from an existing ResourceRequestEvent.
@@ -128,15 +127,15 @@ public final class ResourceRequestEventImpl implements ResourceRequestEvent {
       this.virtualCores = resourceRequestEvent.getVirtualCores().orElse(null);
       this.relaxLocality = resourceRequestEvent.getRelaxLocality().orElse(null);
       this.runtimeName = resourceRequestEvent.getRuntimeName();
-      this.nodeLabels = resourceRequestEvent.getNodeLabels();
+      this.schedulingConstraint = resourceRequestEvent.getSchedulingConstraint().orElse(null);
       return this;
     }
 
     /**
-     * set node labels.
+     * Set scheduling constraint.
      */
-    public Builder setNodeLabels(final Map<String, String> nodeLabels) {
-      this.nodeLabels = nodeLabels;
+    public Builder setSchedulingConstraint(final SchedulingConstraint schedulingConstraint) {
+      this.schedulingConstraint = schedulingConstraint;
       return this;
     }
 

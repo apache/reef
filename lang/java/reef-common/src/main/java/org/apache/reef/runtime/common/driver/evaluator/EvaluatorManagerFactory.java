@@ -75,7 +75,7 @@ public final class EvaluatorManagerFactory {
     final EvaluatorDescriptorImpl evaluatorDescriptor = new EvaluatorDescriptorImpl(nodeDescriptor,
         resourceEvent.getResourceMemory(), resourceEvent.getVirtualCores().get(),
         processFactory.newEvaluatorProcess(), resourceEvent.getRuntimeName(),
-        resourceEvent.getNodeLabels());
+        resourceEvent.getSchedulingConstraint().get());
 
     LOG.log(Level.FINEST, "Resource allocation: new evaluator id[{0}]", resourceEvent.getIdentifier());
     final EvaluatorManager evaluatorManager =

@@ -16,14 +16,18 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.tests.yarnnodelabel;
+package org.apache.reef.tests.yarnschedulingconstraint;
+
 
 import org.apache.reef.driver.evaluator.AllocatedEvaluator;
 import org.apache.reef.driver.evaluator.EvaluatorRequest;
 import org.apache.reef.driver.evaluator.EvaluatorRequestor;
+import org.apache.reef.driver.evaluator.SchedulingConstraint;
+import org.apache.reef.driver.evaluator.SchedulingConstraintBuilder;
 import org.apache.reef.driver.task.TaskConfiguration;
 import org.apache.reef.examples.hello.HelloTask;
-import org.apache.reef.runtime.yarn.util.YarnUtilities;
+import org.apache.reef.runtime.yarn.driver.evaluator.YarnSchedulingConstraint;
+import org.apache.reef.runtime.yarn.driver.evaluator.YarnSchedulingConstraintBuilder;
 import org.apache.reef.tang.Configuration;
 import org.apache.reef.tang.annotations.Unit;
 import org.apache.reef.wake.EventHandler;
@@ -35,18 +39,21 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 @Unit
-final class NodeLabelTestDriver {
-  private static final Logger LOG = Logger.getLogger(NodeLabelTestDriver.class.getName());
+final class SchedulingConstraintTestDriver {
+  private static final Logger LOG = Logger.getLogger(SchedulingConstraintTestDriver.class.getName());
 
   private final EvaluatorRequestor evaluatorRequestor;
+  private final SchedulingConstraintBuilder schedulingConstraintBuilder;
 
   private final String nodeLabelExpression = "mylabel";
   private int labeledContainerCount;
   private int defaultContainerCount;
 
   @Inject
-  NodeLabelTestDriver(final EvaluatorRequestor evaluatorRequestor) {
+  SchedulingConstraintTestDriver(final EvaluatorRequestor evaluatorRequestor,
+                                 final SchedulingConstraintBuilder schedulingConstraintBuilder) {
     this.evaluatorRequestor = evaluatorRequestor;
+    this.schedulingConstraintBuilder = schedulingConstraintBuilder;
     this.labeledContainerCount = 0;
     this.defaultContainerCount = 0;
   }
@@ -54,14 +61,25 @@ final class NodeLabelTestDriver {
   final class StartHandler implements EventHandler<StartTime> {
     @Override
     public void onNext(final StartTime startTime) {
+
+      final YarnSchedulingConstraintBuilder yarnSchedulingConstraintBuilder;
+      if (schedulingConstraintBuilder instanceof YarnSchedulingConstraintBuilder) {
+        yarnSchedulingConstraintBuilder = (YarnSchedulingConstraintBuilder) schedulingConstraintBuilder;
+      } else {
+        throw new RuntimeException("SchedulingConstraintBuilder is not properly injected!");
+      }
+
       final EvaluatorRequest reqToMylabel = EvaluatorRequest.newBuilder()
           .setNumber(1)
           .setMemory(64)
           .setNumberOfCores(1)
-          .setNodeLabel(YarnUtilities.REEF_YARN_NODE_LABEL_ID, NodeLabelTestDriver.this.nodeLabelExpression)
+          .setSchedulingConstraint(yarnSchedulingConstraintBuilder
+              .requireNodeLabel(nodeLabelExpression)
+              .build())
           .build();
-      LOG.log(Level.INFO, "Requested Evaluator with node label: {0}", reqToMylabel.getNodeLabels());
-      NodeLabelTestDriver.this.evaluatorRequestor.submit(reqToMylabel);
+      LOG.log(Level.INFO, "Requested Evaluator with node label: {0}",
+          SchedulingConstraintTestDriver.this.nodeLabelExpression);
+      SchedulingConstraintTestDriver.this.evaluatorRequestor.submit(reqToMylabel);
 
       final EvaluatorRequest reqToDefault = EvaluatorRequest.newBuilder()
           .setNumber(1)
@@ -69,7 +87,7 @@ final class NodeLabelTestDriver {
           .setNumberOfCores(1)
           .build();
       LOG.log(Level.INFO, "Requested Evaluator without node label");
-      NodeLabelTestDriver.this.evaluatorRequestor.submit(reqToDefault);
+      SchedulingConstraintTestDriver.this.evaluatorRequestor.submit(reqToDefault);
     }
   }
 
@@ -78,17 +96,25 @@ final class NodeLabelTestDriver {
     public void onNext(final AllocatedEvaluator allocatedEvaluator) {
       LOG.log(Level.INFO, "Evaluator Allocated: {0}", allocatedEvaluator);
 
-      final String nodeLabelExpressionFromEvaluator =
-          allocatedEvaluator.getEvaluatorDescriptor().getNodeLabels().get(YarnUtilities.REEF_YARN_NODE_LABEL_ID);
+      final String nodeLabelExpressionFromEvaluator;
+      final SchedulingConstraint schedulingConstraint =
+          allocatedEvaluator.getEvaluatorDescriptor().getSchedulingConstraint();
+
+      if (schedulingConstraint != null && schedulingConstraint instanceof YarnSchedulingConstraint) {
+        nodeLabelExpressionFromEvaluator = (String) schedulingConstraint.get();
+      } else {
+        nodeLabelExpressionFromEvaluator = null;
+      }
+
       LOG.log(Level.INFO, "Node Labels on this node: {0}", nodeLabelExpressionFromEvaluator);
 
       if (nodeLabelExpressionFromEvaluator == null) {
-        NodeLabelTestDriver.this.defaultContainerCount++;
+        SchedulingConstraintTestDriver.this.defaultContainerCount++;
       } else if (nodeLabelExpressionFromEvaluator.equals("mylabel")) {
-        NodeLabelTestDriver.this.labeledContainerCount++;
+        SchedulingConstraintTestDriver.this.labeledContainerCount++;
       }
 
-      LOG.log(Level.INFO, "Submitting Dummy REEF task to AllocatedEvaluator: {0}", allocatedEvaluator);
+      LOG.log(Level.INFO, "Submitting HelloREEF task to AllocatedEvaluator: {0}", allocatedEvaluator);
 
       final Configuration taskConfiguration = TaskConfiguration.CONF
           .set(TaskConfiguration.TASK, HelloTask.class)
@@ -106,17 +132,17 @@ final class NodeLabelTestDriver {
     @Override
     public void onNext(final StopTime stopTime) {
       LOG.log(Level.INFO, "# of total default containers: {0}",
-          NodeLabelTestDriver.this.defaultContainerCount);
-      if (NodeLabelTestDriver.this.defaultContainerCount != 1) {
+          SchedulingConstraintTestDriver.this.defaultContainerCount);
+      if (SchedulingConstraintTestDriver.this.defaultContainerCount != 1) {
         throw new RuntimeException("Asked for one default container, but got " +
-            NodeLabelTestDriver.this.defaultContainerCount + "default container.");
+            SchedulingConstraintTestDriver.this.defaultContainerCount + " default container.");
       }
 
       LOG.log(Level.INFO, "# of total labeled containers: {0}",
-          NodeLabelTestDriver.this.labeledContainerCount);
-      if (NodeLabelTestDriver.this.labeledContainerCount != 1) {
+          SchedulingConstraintTestDriver.this.labeledContainerCount);
+      if (SchedulingConstraintTestDriver.this.labeledContainerCount != 1) {
         throw new RuntimeException("Asked for one labeled container, but got " +
-            NodeLabelTestDriver.this.labeledContainerCount + "labeled container.");
+            SchedulingConstraintTestDriver.this.labeledContainerCount + " labeled container.");
       }
     }
   }

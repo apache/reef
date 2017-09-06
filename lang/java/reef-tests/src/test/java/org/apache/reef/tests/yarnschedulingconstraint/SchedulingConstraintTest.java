@@ -16,29 +16,36 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.tests.yarnnodelabel;
+package org.apache.reef.tests.yarnschedulingconstraint;
 
 import org.apache.reef.client.DriverConfiguration;
 import org.apache.reef.client.DriverLauncher;
 import org.apache.reef.client.LauncherStatus;
+import org.apache.reef.runtime.yarn.client.YarnDriverConfiguration;
 import org.apache.reef.tang.Configuration;
+import org.apache.reef.tang.Tang;
 import org.apache.reef.tang.exceptions.BindException;
 import org.apache.reef.tang.exceptions.InjectionException;
 import org.apache.reef.tests.TestEnvironment;
 import org.apache.reef.tests.TestEnvironmentFactory;
 import org.apache.reef.util.EnvironmentUtils;
-import org.junit.*;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.Assume;
+import org.junit.Assert;
+
 
 /**
  * Tests whether Evaluator allocations requested with a given node label are fulfilled.
  * Before running this test, configure you YARN cluster to use two partition, "default" and "mylabel".
  * Refer to https://issues.apache.org/jira/browse/REEF-1750.
  *
- * Application manager starts on the default partition. Then the NodeLabelTestDriver submits an EvaluatorRequest
- * labeled with "mylabel" and one without label. The test passes if there comes one evaluator from "mylabel" node,
- * and another from "default" node.
+ * Application manager starts on the default partition. Then the SchedulingConstraintTestDriver submits
+ * an EvaluatorRequest labeled with "mylabel" and one without label. The test passes if there comes
+ * one evaluator from "mylabel" node, and another from "default" node.
  */
-public class NodeLabelTest {
+public class SchedulingConstraintTest {
   private final TestEnvironment testEnvironment = TestEnvironmentFactory.getNewTestEnvironment();
 
   @Before
@@ -51,29 +58,34 @@ public class NodeLabelTest {
     this.testEnvironment.tearDown();
   }
 
-  private LauncherStatus runNodeLabelTest() throws BindException, InjectionException {
+  private LauncherStatus runSchedulingConstraint() throws BindException, InjectionException {
     final Configuration runtimeConfiguration = this.testEnvironment.getRuntimeConfiguration();
 
     final Configuration driverConfiguration = DriverConfiguration.CONF
-        .set(DriverConfiguration.GLOBAL_LIBRARIES, EnvironmentUtils.getClassLocation(NodeLabelTestDriver.class))
-        .set(DriverConfiguration.DRIVER_IDENTIFIER, "TEST_REEFYarnNodeLabelTest")
-        .set(DriverConfiguration.ON_DRIVER_STARTED, NodeLabelTestDriver.StartHandler.class)
-        .set(DriverConfiguration.ON_EVALUATOR_ALLOCATED, NodeLabelTestDriver.EvaluatorAllocatedHandler.class)
-        .set(DriverConfiguration.ON_DRIVER_STOP, NodeLabelTestDriver.StopHandler.class)
+        .set(DriverConfiguration.GLOBAL_LIBRARIES,
+            EnvironmentUtils.getClassLocation(SchedulingConstraintTestDriver.class))
+        .set(DriverConfiguration.DRIVER_IDENTIFIER, "TEST_REEFYarnSchedulingConstraintTest")
+        .set(DriverConfiguration.ON_DRIVER_STARTED, SchedulingConstraintTestDriver.StartHandler.class)
+        .set(DriverConfiguration.ON_EVALUATOR_ALLOCATED,
+            SchedulingConstraintTestDriver.EvaluatorAllocatedHandler.class)
+        .set(DriverConfiguration.ON_DRIVER_STOP, SchedulingConstraintTestDriver.StopHandler.class)
         .build();
 
+    final Configuration mergedDriverConfiguration = Tang.Factory.getTang()
+        .newConfigurationBuilder(driverConfiguration, YarnDriverConfiguration.CONF.build()).build();
+
     final LauncherStatus state = DriverLauncher.getLauncher(runtimeConfiguration)
-        .run(driverConfiguration, this.testEnvironment.getTestTimeout());
+        .run(mergedDriverConfiguration, this.testEnvironment.getTestTimeout());
     return state;
   }
 
 
   @Test
-  public void testNodeLabel() throws BindException, InjectionException {
+  public void testSchedulingConstraint() throws BindException, InjectionException {
     Assume.assumeTrue("This test requires a YARN Resource Manager to connect to",
         Boolean.parseBoolean(System.getenv("REEF_TEST_YARN")));
 
-    final LauncherStatus state = runNodeLabelTest();
+    final LauncherStatus state = runSchedulingConstraint();
     Assert.assertTrue("Job state after execution: " + state, state.isSuccess());
   }
 }
