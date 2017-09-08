@@ -37,6 +37,7 @@ import org.junit.Test;
 
 import javax.inject.Inject;
 import java.net.InetSocketAddress;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -127,6 +128,11 @@ final class MockEvaluatorDescriptor implements EvaluatorDescriptor {
   @Override
   public String getRuntimeName() {
     return "Local";
+  }
+
+  @Override
+  public Map<String, String> getNodeLabels() {
+    return new HashMap<>();
   }
 }
 
