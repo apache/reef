@@ -38,7 +38,7 @@ under the License.
     <DefineConstants>DOTNET_BUILD</DefineConstants>
     <OutputPath>..\bin\$(AssemblyName)</OutputPath>
     <AvroVersion>0.1.0</AvroVersion>
-    <NewtonsoftJsonVersion>10.0.1</NewtonsoftJsonVersion>
+    <NewtonsoftJsonVersion>10.0.3</NewtonsoftJsonVersion>
     <NSubstituteVersion>1.8.2.0</NSubstituteVersion>
     <ProtobufVersion>2.1.0</ProtobufVersion>
     <SystemReactiveVersion>3.1.1</SystemReactiveVersion>
