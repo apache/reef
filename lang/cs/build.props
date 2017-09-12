@@ -68,7 +68,7 @@ under the License.
   <!-- Package versions -->
   <PropertyGroup>
     <AvroVersion>1.5.6</AvroVersion>
-    <NewtonsoftJsonVersion>8.0.3</NewtonsoftJsonVersion>
+    <NewtonsoftJsonVersion>10.0.3</NewtonsoftJsonVersion>
     <ProtobufVersion>2.1.0</ProtobufVersion>
     <SystemReactiveVersion>3.1.1</SystemReactiveVersion>
     <StyleCopVersion>4.7.49.1</StyleCopVersion>
