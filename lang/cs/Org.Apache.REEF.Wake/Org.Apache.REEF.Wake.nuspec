@@ -29,7 +29,7 @@ under the License.
     <copyright>The Apache Software Foundation</copyright>
     <tags>wake event driven</tags>
     <dependencies>
-      <dependency id="protobuf-net" version="2.0.0.668" />
+      <dependency id="protobuf-net" version="2.1.0" />
       <dependency id="Rx-Core" version="2.2.5" />
       <dependency id="TransientFaultHandling.Core" version="5.1.1209.1" />
       <dependency id="Org.Apache.REEF.Utilities" version="$version$" />
