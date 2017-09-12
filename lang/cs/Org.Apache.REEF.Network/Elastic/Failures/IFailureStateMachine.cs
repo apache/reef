@@ -16,6 +16,7 @@
 // under the License.
 
 using System;
+using Org.Apache.REEF.Utilities.Attributes;
 
 namespace Org.Apache.REEF.Network.Elastic.Failures
 {
