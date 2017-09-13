@@ -81,13 +81,12 @@ namespace Org.Apache.REEF.IO.Tests
             return task.Result;
         }
 
-        private String DownloadText(CloudBlockBlob blob)
+        private string DownloadText(CloudBlockBlob blob)
         {
             var task = blob.DownloadTextAsync();
             task.Wait();
             return task.Result;
         }
-
 
         [Fact(Skip = "Fill in credentials before running test")]
         public void TestDeleteE2E()

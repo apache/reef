@@ -34,6 +34,7 @@ under the License.
   </PropertyGroup>
 
   <PropertyGroup>
+    <Platforms>x64</Platforms>
     <PlatformTarget>x64</PlatformTarget>
     <DefineConstants>DOTNET_BUILD</DefineConstants>
     <OutputPath>..\bin\$(AssemblyName)</OutputPath>
