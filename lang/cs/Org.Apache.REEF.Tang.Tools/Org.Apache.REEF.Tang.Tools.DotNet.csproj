@@ -20,9 +20,8 @@ under the License.
     <Description>Tools for Tang</Description>
     <PackageTags>Apache REEF Tang dependency injection</PackageTags>
     <OutputType>Exe</OutputType>
-    <TargetFrameworks>net46;net451</TargetFrameworks>
   </PropertyGroup>
-  <Import Project="..\build.DotNet.props" />
+  <Import Project="..\build.DotNetApp.props" />
   <ItemGroup>
     <ProjectReference Include="..\Org.Apache.REEF.Tang\Org.Apache.REEF.Tang.DotNet.csproj" />
     <ProjectReference Include="..\Org.Apache.REEF.Common\Org.Apache.REEF.Common.DotNet.csproj" />

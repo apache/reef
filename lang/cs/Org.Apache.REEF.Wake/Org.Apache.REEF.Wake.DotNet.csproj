@@ -19,16 +19,17 @@ under the License.
     <AssemblyName>Org.Apache.REEF.Wake</AssemblyName>
     <Description>Wake is an event-driven framework</Description>
     <PackageTags>wake event-driven</PackageTags>
-    <TargetFrameworks>netstandard2.0;netcoreapp2.0;net46;net451</TargetFrameworks>
   </PropertyGroup>
-  <Import Project="..\build.DotNet.props" />
+  <Import Project="..\build.DotNetLibrary.props" />
   <ItemGroup>
+    <PackageReference Include="protobuf-net" Version="$(ProtobufVersion)" />
+    <PackageReference Include="EnterpriseLibrary.TransientFaultHandling.Core" Version="$(TransientFaultHandlingVersion)" NoWarn="NU1603" />
+    <PackageReference Include="System.Reactive.Interfaces" Version="$(SystemReactiveVersion)" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(TargetFramework)' == 'net451' Or '$(TargetFramework)' == 'net46'">
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml" />
-    <PackageReference Include="protobuf-net" Version="$(ProtobufVersion)" />
-    <PackageReference Include="EnterpriseLibrary.TransientFaultHandling.Core" Version="$(TransientFaultHandlingVersion)" />
-    <PackageReference Include="System.Reactive.Interfaces" Version="$(SystemReactiveVersion)" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Org.Apache.REEF.Tang\Org.Apache.REEF.Tang.DotNet.csproj" />

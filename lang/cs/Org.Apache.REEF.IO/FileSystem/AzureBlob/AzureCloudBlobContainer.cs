@@ -33,7 +33,7 @@ namespace Org.Apache.REEF.IO.FileSystem.AzureBlob
 
         public void DeleteIfExists()
         {
-            _container.DeleteIfExists();
+            _container.DeleteIfExistsAsync().Wait();
         }
 
         public ICloudBlobDirectory GetDirectoryReference(string directoryName)
