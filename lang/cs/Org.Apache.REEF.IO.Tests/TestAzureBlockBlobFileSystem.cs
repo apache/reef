@@ -114,7 +114,7 @@ namespace Org.Apache.REEF.IO.Tests
             testContext.TestCloudBlobContainer.Received(1).GetDirectoryReference("directory");
             testContext.TestCloudBlobDirectory.Received(1).GetDirectoryReference("directory");
             testContext.TestCloudBlobDirectory.Received(1).ListBlobs(true);
-            testContext.TestCloudBlob.Received(5).DeleteIfExists();
+            testContext.TestCloudBlob.Received(5).DeleteIfExistsAsync().Wait();
         }
 
         [Fact]

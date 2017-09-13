@@ -52,7 +52,9 @@ namespace Org.Apache.REEF.IO.FileSystem.AzureBlob
 
         public ICloudBlob GetBlobReferenceFromServer(Uri blobUri)
         {
-            return _client.GetBlobReferenceFromServer(blobUri);
+            var task = _client.GetBlobReferenceFromServerAsync(blobUri);
+            task.Wait();
+            return task.Result;
         }
 
         public ICloudBlobContainer GetContainerReference(string containerName)
@@ -69,8 +71,10 @@ namespace Org.Apache.REEF.IO.FileSystem.AzureBlob
             int? maxResults, BlobContinuationToken continuationToken, BlobRequestOptions blobRequestOptions,
             OperationContext operationContext)
         {
-            return _client.ListBlobsSegmented(prefix, useFlatListing, blobListingDetails, maxResults, continuationToken,
-                blobRequestOptions, operationContext);
+            var task = _client.ListBlobsSegmentedAsync(prefix, useFlatListing, blobListingDetails, maxResults,  continuationToken, 
+                                                        blobRequestOptions, operationContext);
+            task.Wait();
+            return task.Result;
         }
     }
 }

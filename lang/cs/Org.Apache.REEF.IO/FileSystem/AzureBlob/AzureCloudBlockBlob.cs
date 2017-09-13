@@ -61,41 +61,45 @@ namespace Org.Apache.REEF.IO.FileSystem.AzureBlob
 
         public bool Exists()
         {
-            return _blob.Exists();
+            var task = _blob.ExistsAsync();
+            task.Wait();
+            return task.Result;
         }
 
         public void Delete()
         {
-            _blob.Delete();
+            _blob.DeleteAsync().Wait();
         }
 
         public void DeleteIfExists()
         {
-            _blob.DeleteIfExists();
+            _blob.DeleteIfExistsAsync().Wait();
         }
 
         public string StartCopy(Uri source)
         {
-            return _blob.StartCopy(source);
+            var task = _blob.StartCopyAsync(source);
+            task.Wait();
+            return task.Result;
         }
 
         public void DownloadToFile(string path, FileMode mode)
         {
-            _blob.DownloadToFile(path, mode);
+            _blob.DownloadToFileAsync(path, mode).Wait();
         }
 
         public void UploadFromFile(string path, FileMode mode)
         {
             #if DOTNET_BUILD
-                _blob.UploadFromFile(path);
+                _blob.UploadFromFileAsync(path).Wait();
             #else
-                _blob.UploadFromFile(path, mode);
+                _blob.UploadFromFileAsync(path, mode).Wait();
             #endif
         }
 
         public void FetchAttributes()
         {
-            _blob.FetchAttributes();
+            _blob.FetchAttributesAsync().Wait();
         }
     }
 }
