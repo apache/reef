@@ -72,7 +72,7 @@ namespace Org.Apache.REEF.Network.Elastic.Failures
         /// Remove data point(s) from the Failure Machine as a result of a runtime failure.
         /// </summary>
         /// <param name="points">How many data point to remove</param>
-        /// <returns>The failure state resulting from the removal of the data points</returns>
+        /// <returns>A failure event resulting from the removal of the data points</returns>
         IFailureState RemoveDataPoints(int points);
 
         /// <summary>

@@ -16,33 +16,23 @@
 // under the License.
 
 using Org.Apache.REEF.Utilities.Attributes;
-using System;
 
-namespace Org.Apache.REEF.Network.Elastic.Failures
+namespace Org.Apache.REEF.Network.Elastic.Driver
 {
     /// <summary>
-    /// Interface wrapping an event rised by a transition to a new failure
-    /// state. The event speicifies which action have to be executed in response
-    /// to the change in the failure state.
+    /// Payload of Driver messages.
     /// </summary>
     [Unstable("0.16", "API may change")]
-    public interface IFailureEvent
+    public interface IDriverMessagePayload
     {
         /// <summary>
-        /// The event / action rised by the transition to the new failure state.
-        /// It is assumed that the result encodes the magnituted of the action, 
-        /// e.g., smaller number, less demanding action.
+        /// The type of payload
         /// </summary>
-        int FailureEvent { get; }
+        DriverMessageType MessageType { get; }
 
         /// <summary>
-        /// The Task id where the failur occurred
+        /// Utility method to serialize the payload for communication
         /// </summary>
-        string TaskId { get; }
-
-        /// <summary>
-        /// The Operator id where the failure occurred
-        /// </summary>
-        int OperatorId { get; }
+        byte[] Serialize();
     }
 }

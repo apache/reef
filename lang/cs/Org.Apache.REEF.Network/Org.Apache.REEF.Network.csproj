@@ -78,6 +78,11 @@ under the License.
     <Compile Include="$(SolutionDir)\SharedAssemblyInfo.cs">
       <Link>Properties\SharedAssemblyInfo.cs</Link>
     </Compile>
+    <Compile Include="Elastic\Utils.cs" />
+    <Compile Include="Elastic\Config\OperatorsParameters.cs" />
+    <Compile Include="Elastic\Driver\IDriverMessagePayload.cs" />
+    <Compile Include="Elastic\Driver\IDriverMessage.cs" />
+    <Compile Include="Elastic\Driver\DriverMessageType.cs" />
     <Compile Include="Elastic\Driver\ITaskSetManager.cs" />
     <Compile Include="Elastic\Driver\IElasticTaskSetSubscription.cs" />
     <Compile Include="Elastic\Driver\IElasticTaskSetService.cs" />
@@ -85,6 +90,10 @@ under the License.
     <Compile Include="Elastic\Failures\IFailureState.cs" />
     <Compile Include="Elastic\Failures\IFailureEvent.cs" />
     <Compile Include="Elastic\Failures\IFailureResponse.cs" />
+    <Compile Include="Elastic\Failures\CheckpointLevel.cs" />
+    <Compile Include="Elastic\Operators\Logical\Impl\ElasticOperator.cs" />
+    <Compile Include="Elastic\Topology\Logical\TopologyType.cs" />
+    <Compile Include="Elastic\Topology\Logical\ITopology.cs" />
     <Compile Include="Group\Config\CodecToStreamingCodecConfiguration.cs" />
     <Compile Include="Group\Config\StreamingCodecConfigurationMinusMessage.cs" />
     <Compile Include="Group\Driver\Impl\GeneralGroupCommunicationMessage.cs" />
