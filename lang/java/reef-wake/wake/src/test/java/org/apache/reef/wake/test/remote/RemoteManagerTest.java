@@ -19,6 +19,7 @@
 package org.apache.reef.wake.test.remote;
 
 import org.apache.reef.tang.Injector;
+import org.apache.reef.tang.JavaConfigurationBuilder;
 import org.apache.reef.tang.Tang;
 import org.apache.reef.tang.exceptions.InjectionException;
 import org.apache.reef.wake.EventHandler;
@@ -31,6 +32,8 @@ import org.apache.reef.wake.remote.impl.DefaultRemoteIdentifierFactoryImplementa
 import org.apache.reef.wake.remote.impl.MultiCodec;
 import org.apache.reef.wake.remote.impl.ObjectSerializableCodec;
 import org.apache.reef.wake.remote.ports.TcpPortProvider;
+import org.apache.reef.wake.remote.transport.TransportFactory;
+import org.apache.reef.wake.remote.transport.netty.MessagingTransportFactory;
 import org.apache.reef.wake.test.util.Monitor;
 import org.apache.reef.wake.test.util.TimeoutHandler;
 import org.junit.Assert;
@@ -55,12 +58,19 @@ import java.util.logging.Level;
 public class RemoteManagerTest {
 
   private final LocalAddressProvider localAddressProvider;
-  private final RemoteManagerFactory remoteManagerFactory;
+  private final RemoteManagerFactory remoteManagerFactoryTcp;
+  private final RemoteManagerFactory remoteManagerFactoryHttp;
 
   public RemoteManagerTest() throws InjectionException {
-    final Injector injector = Tang.Factory.getTang().newInjector();
+    final Tang tang = Tang.Factory.getTang();
+    final Injector injector = tang.newInjector();
     this.localAddressProvider = injector.getInstance(LocalAddressProvider.class);
-    this.remoteManagerFactory = injector.getInstance(RemoteManagerFactory.class);
+    this.remoteManagerFactoryTcp = injector.getInstance(RemoteManagerFactory.class);
+
+    final JavaConfigurationBuilder builder = Tang.Factory.getTang().newConfigurationBuilder();
+    builder.bindImplementation(TransportFactory.class, MessagingTransportFactory.class);
+    builder.bindNamedParameter(RemoteConfiguration.Protocol.class, "HTTP");
+    this.remoteManagerFactoryHttp = tang.newInjector(builder.build()).getInstance(RemoteManagerFactory.class);
   }
 
   @Rule
@@ -70,6 +80,65 @@ public class RemoteManagerTest {
 
   @Test
   public void testRemoteManagerTest() throws Exception {
+    remoteManagerTest(remoteManagerFactoryTcp);
+  }
+
+  @Test
+  public void testRemoteManagerConnectionRetryTest() throws Exception {
+    remoteManagerConnectionRetryTest(remoteManagerFactoryTcp);
+  }
+
+  @Test
+  public void testRemoteManagerConnectionRetryWithMultipleSenderTest() throws Exception {
+    remoteManagerConnectionRetryWithMultipleSenderTest(remoteManagerFactoryTcp);
+  }
+
+  @Test
+  public void testRemoteManagerOrderingGuaranteeTest() throws Exception {
+    remoteManagerOrderingGuaranteeTest(remoteManagerFactoryTcp);
+  }
+
+  @Test
+  public void testRemoteManagerPBufTest() throws Exception {
+    remoteManagerPBufTest(remoteManagerFactoryTcp);
+  }
+
+  @Test
+  public void testRemoteManagerExceptionTest() {
+    remoteManagerExceptionTest(remoteManagerFactoryTcp);
+  }
+
+  @Test
+  public void testHttpRemoteManagerTest() throws Exception {
+    remoteManagerTest(remoteManagerFactoryHttp);
+  }
+
+  @Test
+  public void testHttpRemoteManagerConnectionRetryTest() throws Exception {
+    remoteManagerConnectionRetryTest(remoteManagerFactoryHttp);
+  }
+
+  @Test
+  public void testHttpRemoteManagerConnectionRetryWithMultipleSenderTest() throws Exception {
+    remoteManagerConnectionRetryWithMultipleSenderTest(remoteManagerFactoryHttp);
+  }
+
+  @Test
+  public void testHttpRemoteManagerOrderingGuaranteeTest() throws Exception {
+    remoteManagerOrderingGuaranteeTest(remoteManagerFactoryHttp);
+  }
+
+  @Test
+  public void testHttpRemoteManagerPBufTest() throws Exception {
+    remoteManagerPBufTest(remoteManagerFactoryHttp);
+  }
+
+  @Test
+  public void testHttpRemoteManagerExceptionTest() {
+    remoteManagerExceptionTest(remoteManagerFactoryHttp);
+  }
+
+  private void remoteManagerTest(final RemoteManagerFactory remoteManagerFactory) throws Exception {
     System.out.println(LOG_PREFIX + name.getMethodName());
     LoggingUtils.setLoggingLevel(Level.INFO);
 
@@ -85,7 +154,7 @@ public class RemoteManagerTest {
 
     final String hostAddress = localAddressProvider.getLocalAddress();
 
-    final RemoteManager rm = this.remoteManagerFactory.getInstance(
+    final RemoteManager rm = remoteManagerFactory.getInstance(
         "name", hostAddress, 0, codec, new LoggingEventHandler<Throwable>(), false, 3, 10000,
         localAddressProvider, Tang.Factory.getTang().newInjector().getInstance(TcpPortProvider.class));
 
@@ -114,17 +183,18 @@ public class RemoteManagerTest {
     timer.close();
   }
 
-  @Test
-  public void testRemoteManagerConnectionRetryTest() throws Exception {
+  private void remoteManagerConnectionRetryTest(final RemoteManagerFactory remoteManagerFactory) throws Exception {
     final ExecutorService smExecutor = Executors.newFixedThreadPool(1);
     final ExecutorService rmExecutor = Executors.newFixedThreadPool(1);
 
-    final RemoteManager sendingManager = getTestRemoteManager("sender", 9020, 3, 2000);
+    final RemoteManager sendingManager =
+        getTestRemoteManager(remoteManagerFactory, "sender", 9020, 3, 2000);
 
     final Future<Integer> smFuture = smExecutor.submit(new SendingRemoteManagerThread(sendingManager, 9010, 20000));
     Thread.sleep(1000);
 
-    final RemoteManager receivingManager = getTestRemoteManager("receiver", 9010, 1, 2000);
+    final RemoteManager receivingManager =
+        getTestRemoteManager(remoteManagerFactory, "receiver", 9010, 1, 2000);
     final Future<Integer> rmFuture = rmExecutor.submit(new ReceivingRemoteManagerThread(receivingManager, 20000, 1, 2));
 
     final int smCnt = smFuture.get();
@@ -137,14 +207,15 @@ public class RemoteManagerTest {
     Assert.assertEquals(2, rmCnt);
   }
 
-  @Test
-  public void testRemoteManagerConnectionRetryWithMultipleSenderTest() throws Exception {
+  private void remoteManagerConnectionRetryWithMultipleSenderTest(
+      final RemoteManagerFactory remoteManagerFactory) throws Exception {
     final int numOfSenderThreads = 5;
     final ExecutorService smExecutor = Executors.newFixedThreadPool(numOfSenderThreads);
     final ExecutorService rmExecutor = Executors.newFixedThreadPool(1);
     final ArrayList<Future<Integer>> smFutures = new ArrayList<>(numOfSenderThreads);
 
-    final RemoteManager sendingManager = getTestRemoteManager("sender", 9030, 3, 5000);
+    final RemoteManager sendingManager =
+        getTestRemoteManager(remoteManagerFactory, "sender", 9030, 3, 5000);
 
     for (int i = 0; i < numOfSenderThreads; i++) {
       smFutures.add(smExecutor.submit(new SendingRemoteManagerThread(sendingManager, 9010, 20000)));
@@ -152,7 +223,8 @@ public class RemoteManagerTest {
 
     Thread.sleep(2000);
 
-    final RemoteManager receivingManager = getTestRemoteManager("receiver", 9010, 1, 2000);
+    final RemoteManager receivingManager =
+        getTestRemoteManager(remoteManagerFactory, "receiver", 9010, 1, 2000);
     final Future<Integer> receivingFuture =
         rmExecutor.submit(new ReceivingRemoteManagerThread(receivingManager, 20000, numOfSenderThreads, 2));
 
@@ -171,8 +243,7 @@ public class RemoteManagerTest {
     Assert.assertEquals(2 * numOfSenderThreads, rmCnt);
   }
 
-  @Test
-  public void testRemoteManagerOrderingGuaranteeTest() throws Exception {
+  private void remoteManagerOrderingGuaranteeTest(final RemoteManagerFactory remoteManagerFactory) throws Exception {
     System.out.println(LOG_PREFIX + name.getMethodName());
     LoggingUtils.setLoggingLevel(Level.INFO);
 
@@ -188,7 +259,7 @@ public class RemoteManagerTest {
 
     final String hostAddress = localAddressProvider.getLocalAddress();
 
-    final RemoteManager rm = this.remoteManagerFactory.getInstance(
+    final RemoteManager rm = remoteManagerFactory.getInstance(
         "name", hostAddress, 0, codec, new LoggingEventHandler<Throwable>(), true, 3, 10000,
         localAddressProvider, Tang.Factory.getTang().newInjector().getInstance(TcpPortProvider.class));
 
@@ -217,8 +288,7 @@ public class RemoteManagerTest {
     timer.close();
   }
 
-  @Test
-  public void testRemoteManagerPBufTest() throws Exception {
+  private void remoteManagerPBufTest(final RemoteManagerFactory remoteManagerFactory)  throws Exception {
     System.out.println(LOG_PREFIX + name.getMethodName());
     LoggingUtils.setLoggingLevel(Level.INFO);
 
@@ -231,7 +301,7 @@ public class RemoteManagerTest {
 
     final String hostAddress = localAddressProvider.getLocalAddress();
 
-    final RemoteManager rm = this.remoteManagerFactory.getInstance(
+    final RemoteManager rm = remoteManagerFactory.getInstance(
         "name", hostAddress, 0, codec, new LoggingEventHandler<Throwable>(), false, 3, 10000,
         localAddressProvider, Tang.Factory.getTang().newInjector().getInstance(TcpPortProvider.class));
 
@@ -253,8 +323,7 @@ public class RemoteManagerTest {
     timer.close();
   }
 
-  @Test
-  public void testRemoteManagerExceptionTest() {
+  private void remoteManagerExceptionTest(final RemoteManagerFactory remoteManagerFactory) {
     System.out.println(LOG_PREFIX + name.getMethodName());
     LoggingUtils.setLoggingLevel(Level.INFO);
 
@@ -285,7 +354,8 @@ public class RemoteManagerTest {
     }
   }
 
-  private RemoteManager getTestRemoteManager(final String rmName, final int localPort,
+  private RemoteManager getTestRemoteManager(final RemoteManagerFactory remoteManagerFactory,
+                                             final String rmName, final int localPort,
                                              final int retry, final int retryTimeout) {
     final Map<Class<?>, Codec<?>> clazzToCodecMap = new HashMap<>();
     clazzToCodecMap.put(StartEvent.class, new ObjectSerializableCodec<StartEvent>());
