@@ -1,9 +1,9 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26403.7
+VisualStudioVersion = 15.0.26730.12
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Org.Apache.Reef.Utilities.DotNet", "Org.Apache.REEF.Utilities\Org.Apache.Reef.Utilities.DotNet.csproj", "{FE4CEA75-2F26-4C97-B256-375AA698B4A9}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Org.Apache.REEF.Utilities.DotNet", "Org.Apache.REEF.Utilities\Org.Apache.REEF.Utilities.DotNet.csproj", "{FE4CEA75-2F26-4C97-B256-375AA698B4A9}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Org.Apache.REEF.Tang.DotNet", "Org.Apache.REEF.Tang\Org.Apache.REEF.Tang.DotNet.csproj", "{16E1218C-9A3C-49E2-A939-C29944BBB72E}"
 EndProject

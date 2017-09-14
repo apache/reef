@@ -147,7 +147,7 @@ namespace Org.Apache.REEF.IO.FileSystem.AzureBlob
 
             foreach (var blob in directory.ListBlobs(true).OfType<ICloudBlob>())
             {
-                blob.DeleteIfExists();
+                blob.DeleteIfExistsAsync().Wait();
             }
         }
 
