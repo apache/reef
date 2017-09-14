@@ -18,6 +18,7 @@
 using System;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.Blob;
 using NSubstitute;
@@ -114,7 +115,7 @@ namespace Org.Apache.REEF.IO.Tests
             testContext.TestCloudBlobContainer.Received(1).GetDirectoryReference("directory");
             testContext.TestCloudBlobDirectory.Received(1).GetDirectoryReference("directory");
             testContext.TestCloudBlobDirectory.Received(1).ListBlobs(true);
-            testContext.TestCloudBlob.Received(5).DeleteIfExistsAsync().Wait();
+            testContext.TestCloudBlob.Received(5).DeleteIfExistsAsync();
         }
 
         [Fact]
