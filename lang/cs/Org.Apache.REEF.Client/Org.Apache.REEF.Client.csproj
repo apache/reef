@@ -137,6 +137,7 @@ under the License.
     <Compile Include="YARN\RestClient\RestRequest.cs" />
     <Compile Include="YARN\RestClient\RestResponse.cs" />
     <Compile Include="YARN\RestClient\HttpClientRetryHandler.cs" />
+    <Compile Include="YARN\SecurityToken.cs" />
     <Compile Include="YARN\SecurityTokenWriter.cs" />
     <Compile Include="YARN\SecurityTokenInfo.cs" />
     <Compile Include="YARN\WindowsYarnJobCommandProvider.cs" />
