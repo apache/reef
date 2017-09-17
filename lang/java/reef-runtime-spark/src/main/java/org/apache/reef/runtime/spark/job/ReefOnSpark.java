@@ -60,7 +60,7 @@ public final class ReefOnSpark {
   public static Configuration getDriverConfiguration() {
     return DriverConfiguration.CONF
         .set(DriverConfiguration.GLOBAL_LIBRARIES, EnvironmentUtils.getClassLocation(ReefOnSparkDriver.class))
-        .set(DriverConfiguration.DRIVER_IDENTIFIER, "HelloREEF")
+        .set(DriverConfiguration.DRIVER_IDENTIFIER, "HelloREEFRunningOnSpark")
         .set(DriverConfiguration.ON_DRIVER_STARTED, ReefOnSparkDriver.StartHandler.class)
         .set(DriverConfiguration.ON_EVALUATOR_ALLOCATED, ReefOnSparkDriver.EvaluatorAllocatedHandler.class)
         .build();
