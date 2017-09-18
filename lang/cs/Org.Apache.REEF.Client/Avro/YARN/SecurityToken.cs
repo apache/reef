@@ -15,7 +15,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-namespace Org.Apache.REEF.Client.YARN
+namespace Org.Apache.REEF.Client.Avro.YARN
 {
     using System.Runtime.Serialization;
 

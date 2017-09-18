@@ -132,12 +132,24 @@ under the License.
                 <artifactId>avro-maven-plugin</artifactId>
                 <executions>
                     <execution>
+                        <id>generate-local</id>
                         <phase>generate-sources</phase>
                         <goals>
                             <goal>schema</goal>
                         </goals>
                         <configuration>
                             <sourceDirectory>${project.basedir}/src/main/avro/</sourceDirectory>
+                            <outputDirectory>${project.basedir}/target/generated-sources/avro/</outputDirectory>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>generate-token-info</id>
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>schema</goal>
+                        </goals>
+                        <configuration>
+                            <sourceDirectory>${rootPath}/lang/common/token/avro/</sourceDirectory>
                             <outputDirectory>${project.basedir}/target/generated-sources/avro/</outputDirectory>
                         </configuration>
                     </execution>

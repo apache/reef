@@ -19,13 +19,15 @@ using Org.Apache.REEF.Tang.Annotations;
 
 namespace Org.Apache.REEF.Client.YARN.Parameters
 {
-    [NamedParameter("Security token kind.", defaultValue: SecurityTokenWriter.DefaultTokenKind)]
+    [NamedParameter("Security token kind.", defaultValue: DefaultTokenKind)]
     public sealed class SecurityTokenKindParameter : Name<string>
     {
+        internal const string DefaultTokenKind = "NULL";
     }
 
-    [NamedParameter("Security token service name.", defaultValue: SecurityTokenWriter.DefaultService)]
+    [NamedParameter("Security token service name.", defaultValue: DefaultService)]
     public sealed class SecurityTokenServiceParameter : Name<string>
     {
+        internal const string DefaultService = "NULL";
     }
 }

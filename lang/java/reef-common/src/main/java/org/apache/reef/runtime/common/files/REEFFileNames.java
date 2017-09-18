@@ -51,6 +51,7 @@ public final class REEFFileNames {
   private static final String BRIDGE_EXE_NAME = "Org.Apache.REEF.Bridge.exe";
   private static final String SECURITY_TOKEN_IDENTIFIER_FILE = "SecurityTokenId";
   private static final String SECURITY_TOKEN_PASSWORD_FILE = "SecurityTokenPwd";
+  private static final String SECURITY_TOKENS_FILE = "SecurityTokens.json";
   private static final String YARN_BOOTSTRAP_APP_PARAM_FILE = "yarn-app-parameters.json";
   private static final String YARN_BOOTSTRAP_JOB_PARAM_FILE = "yarn-job-parameters.json";
 
@@ -222,6 +223,7 @@ public final class REEFFileNames {
 
   /**
    * @return File name that contains the security token identifier
+   * @deprecated - use getSecurityTokensFile()
    */
   public String getSecurityTokenIdentifierFile() {
     return SECURITY_TOKEN_IDENTIFIER_FILE;
@@ -229,9 +231,17 @@ public final class REEFFileNames {
 
   /**
    * @return File name that contains the security token password
+   * @deprecated - use getSecurityTokensFile()
    */
   public String getSecurityTokenPasswordFile() {
     return SECURITY_TOKEN_PASSWORD_FILE;
+  }
+
+  /**
+   * @return Name of the file that contains security tokens and passwords.
+   */
+  public String getSecurityTokensFile() {
+    return SECURITY_TOKENS_FILE;
   }
 
   /**

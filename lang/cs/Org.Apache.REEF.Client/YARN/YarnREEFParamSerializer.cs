@@ -161,11 +161,11 @@ namespace Org.Apache.REEF.Client.YARN
 
             var avroYarnClusterJobSubmissionParameters = new AvroYarnClusterJobSubmissionParameters
             {
+                //// securityTokenKind and securityTokenService will be deprecated 
+                securityTokenKind = _securityTokenKind,
+                securityTokenService = _securityTokenService,
+
                 yarnJobSubmissionParameters = avroYarnJobSubmissionParameters,
-                securityTokenKind = _securityTokenKind.Equals(SecurityTokenWriter.DefaultTokenKind) ?
-                    _securityTokenWriter.TokenKinds : _securityTokenKind,
-                securityTokenService = _securityTokenService.Equals(SecurityTokenWriter.DefaultService) ?
-                    _securityTokenWriter.TokenServices : _securityTokenService,
                 driverMemory = jobParameters.DriverMemoryInMB,
                 maxApplicationSubmissions = jobParameters.MaxApplicationSubmissions,
                 driverStdoutFilePath = string.IsNullOrWhiteSpace(jobParameters.StdoutFilePath.Value) ?
@@ -182,7 +182,7 @@ namespace Org.Apache.REEF.Client.YARN
         /// </summary>
         internal void WriteSecurityTokens()
         {
-            _securityTokenWriter.WriterTokenInfo();
+            _securityTokenWriter.WriteTokensToFile();
         }
     }
 }

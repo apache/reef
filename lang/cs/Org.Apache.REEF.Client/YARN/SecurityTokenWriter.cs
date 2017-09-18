@@ -23,109 +23,54 @@ using Newtonsoft.Json;
 using Org.Apache.REEF.Client.YARN.Parameters;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Utilities.Logging;
+using Microsoft.Hadoop.Avro;
+using Org.Apache.REEF.Client.Avro.YARN;
 
 namespace Org.Apache.REEF.Client.YARN
 {
     /// <summary>
-    /// Helper class for Security token.
+    /// Serialize a set of security tokens into a file.
     /// </summary>
     internal class SecurityTokenWriter
     {
         private static readonly Logger Logger = Logger.GetLogger(typeof(SecurityTokenWriter));
 
-        private const string SecurityTokenIdFile = "SecurityTokenId";
-        private const string SecurityTokenPwdFile = "SecurityTokenPwd";
+        private const string SecurityTokenFile = "SecurityTokens.json";
 
-        private readonly IList<byte[]> _keys = new List<byte[]>();
-        private readonly IList<string> _pwds = new List<string>();
-
-        internal const string DefaultTokenKind = "NULL";
-        internal const string DefaultService = "NULL";
+        private readonly IAvroSerializer<SecurityToken> _avroSerializer = AvroSerializer.Create<SecurityToken>();
+        private readonly List<SecurityToken> _tokens;
 
         /// <summary>
         /// Injectable constructor that accepts a set of serialized tokens.
-        /// Each serialized token string in the set is a serialized SecurityTokenInfo with JsonConvert 
+        /// Each serialized token string in the set is a serialized SecurityTokenInfo by JsonConvert 
         /// </summary>
         /// <param name="serializedTokenStrings"></param>
         [Inject]
         private SecurityTokenWriter([Parameter(typeof(SecurityTokenStrings))] ISet<string> serializedTokenStrings)
         {
-            ParseTokens(serializedTokenStrings);
+            _tokens = serializedTokenStrings.Select(serializedToken =>
+            {
+                var token = JsonConvert.DeserializeObject<SecurityTokenInfo>(serializedToken);
+                return new SecurityToken(token.TokenKind, token.TokenService,
+                    token.SerializedKeyInfoBytes, Encoding.ASCII.GetBytes(token.TokenPassword));
+            }).ToList();
         }
 
-        internal string TokenKinds { get; private set; }
-
-        internal string TokenServices { get; private set; }
-
-        internal void WriterTokenInfo()
+        /// <summary>
+        /// Write SecurityTokens to SecurityTokenFile using IAvroSerializer.
+        /// </summary>
+        public void WriteTokensToFile()
         {
-            if (_keys.Count > 0)
+            if (_tokens != null && _tokens.Count > 0)
             {
-                WriteTokens();
-                WritePasswords();
-            }
-        }
-
-        private void ParseTokens(IEnumerable<string> serializedTokenStrings)
-        {
-            //// If the security token is not set through SecurityTokenStrings, set default to TokenKinds
-            //// so that YarnREEFParamSerializer knows it should be got from SecurityTokenKindParameter
-            //// Same as TokenServices.
-            if (!serializedTokenStrings.Any())
-            {
-                TokenKinds = DefaultTokenKind;
-                TokenServices = DefaultService;
-            }
-            else
-            {
-                var tokenKinds = new StringBuilder();
-                var tokenServices = new StringBuilder();
-
-                foreach (var s in serializedTokenStrings)
+                Logger.Log(Level.Verbose, "Write {0} tokens to file.", _tokens.Count);
+                using (var stream = File.OpenWrite(SecurityTokenFile))
                 {
-                    var token = JsonConvert.DeserializeObject<SecurityTokenInfo>(s);
-                    _keys.Add(token.SerializedKeyInfoBytes);
-                    _pwds.Add(token.TokenPassword);
-
-                    if (tokenKinds.ToString().Length >= 3)
+                    foreach (var token in _tokens)
                     {
-                        tokenKinds.Append(":");
+                        Logger.Log(Level.Verbose, "Write token {0} to file.", token.kind);
+                        _avroSerializer.Serialize(stream, token);
                     }
-                    tokenKinds.Append(token.TokenKind);
-                    tokenKinds.Append(",");
-                    tokenKinds.Append(token.SerializedKeyInfoBytes.Length);
-
-                    if (tokenServices.ToString().Length > 0)
-                    {
-                        tokenServices.Append(":");
-                    }
-                    tokenServices.Append(token.TokenService);
-                }
-
-                TokenKinds = tokenKinds.ToString();
-                TokenServices = tokenServices.ToString();
-            }
-        }
-
-        private void WriteTokens()
-        {
-            using (var writer = new BinaryWriter(File.Open(SecurityTokenIdFile, FileMode.Create)))
-            {
-                foreach (var t in _keys)
-                {
-                    Logger.Log(Level.Info, "Original securityKey length: {0}", t.Length);
-                    writer.Write(t);
-                }
-            }
-        }
-
-        private void WritePasswords()
-        {
-            using (var writer = new StreamWriter(File.Open(SecurityTokenPwdFile, FileMode.Create)))
-            {
-                foreach (var p in _pwds)
-                {
-                    writer.WriteLine(p);
                 }
             }
         }
