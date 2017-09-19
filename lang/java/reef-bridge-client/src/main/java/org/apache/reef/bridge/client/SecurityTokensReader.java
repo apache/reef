@@ -18,7 +18,8 @@
  */
 package org.apache.reef.bridge.client;
 
-import org.apache.avro.file.DataFileReader;
+import org.apache.avro.io.BinaryDecoder;
+import org.apache.avro.io.DecoderFactory;
 import org.apache.avro.io.DatumReader;
 import org.apache.avro.specific.SpecificDatumReader;
 import org.apache.hadoop.io.Text;
@@ -29,6 +30,7 @@ import org.apache.reef.runtime.common.files.REEFFileNames;
 
 import javax.inject.Inject;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -56,19 +58,19 @@ final class SecurityTokensReader {
    * @throws IOException if there are errors in reading the tokens' file.
    */
   void addTokensFromFile(final UserGroupInformation ugi) throws IOException {
-
     LOG.log(Level.FINE, "Reading security tokens from file: {0}", this.securityTokensFile);
 
-    try (final DataFileReader<SecurityToken> tokensFileReader =
-        new DataFileReader<>(this.securityTokensFile, this.tokenDatumReader)) {
+    try (final FileInputStream stream = new FileInputStream(securityTokensFile)) {
+      final BinaryDecoder decoder = new DecoderFactory().binaryDecoder(stream, null);
 
-      for (final SecurityToken token : tokensFileReader) {
+      while (!decoder.isEnd()) {
+        final SecurityToken token = tokenDatumReader.read(null, decoder);
 
         final Token<TokenIdentifier> yarnToken = new Token<>(
-            token.getKey().array(),
-            token.getPassword().array(),
-            new Text(token.getKind().toString()),
-            new Text(token.getService().toString()));
+                token.getKey().array(),
+                token.getPassword().array(),
+                new Text(token.getKind().toString()),
+                new Text(token.getService().toString()));
 
         LOG.log(Level.FINE, "addToken for {0}", yarnToken.getKind());
 
