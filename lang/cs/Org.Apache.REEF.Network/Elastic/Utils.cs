@@ -24,7 +24,7 @@ namespace Org.Apache.REEF.Network.Elastic
     /// Utility class.
     /// </summary>
     [Unstable("0.16", "Class may change or be removed")]
-    public static class Utils
+    internal static class Utils
     {
         /// <summary>
         /// Builds a task identifier out of a subscription(s) and an id.

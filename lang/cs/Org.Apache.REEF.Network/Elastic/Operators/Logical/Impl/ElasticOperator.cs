@@ -30,6 +30,7 @@ using System.Collections.Generic;
 using Org.Apache.REEF.Tang.Implementations.Configuration;
 using Org.Apache.REEF.Network.Elastic.Topology.Logical;
 using Org.Apache.REEF.Utilities.Attributes;
+using Org.Apache.REEF.Network.Elastic.Config.OperatorsParameters;
 
 namespace Org.Apache.REEF.Network.Elastic.Operators.Logical.Impl
 {
@@ -333,8 +334,8 @@ namespace Org.Apache.REEF.Network.Elastic.Operators.Logical.Impl
             PhysicalOperatorConfiguration(ref operatorBuilder);
 
             IConfiguration operatorConf = operatorBuilder
-                .BindNamedParameter<OperatorsParameters.OperatorId, int>(
-                    GenericType<OperatorsParameters.OperatorId>.Class,
+                .BindNamedParameter<OperatorId, int>(
+                    GenericType<OperatorId>.Class,
                     _id.ToString(CultureInfo.InvariantCulture))
                 .Build();
 
@@ -365,8 +366,8 @@ namespace Org.Apache.REEF.Network.Elastic.Operators.Logical.Impl
             {
                 var genericTypes = operatorType.GenericTypeArguments;
                 var msgType = genericTypes[0];
-                confBuilder.BindNamedParameter<OperatorsParameters.MessageType, string>(
-                    GenericType<OperatorsParameters.MessageType>.Class, msgType.AssemblyQualifiedName);
+                confBuilder.BindNamedParameter<MessageType, string>(
+                    GenericType<MessageType>.Class, msgType.AssemblyQualifiedName);
             }
         }
 

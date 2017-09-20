@@ -57,14 +57,14 @@ namespace Org.Apache.REEF.Network.Elastic.Driver
         /// </summary>
         /// <param name="evaluator">The evaluator the context will run on</param>
         /// <returns>A new unique context id</returns>
-        int GetNextTaskContextId(IAllocatedEvaluator evaluator = null);
+        string GetNextTaskContextId(IAllocatedEvaluator evaluator);
 
         /// <summary>
         /// Method used to generate unique task ids.
         /// </summary>
         /// <param name="context">The context the task will run on</param>
         /// <returns>A new task id</returns>
-        int GetNextTaskId(IActiveContext context = null);
+        string GetNextTaskId(IActiveContext context);
 
         /// <summary>
         /// Finalizes the Task Set.

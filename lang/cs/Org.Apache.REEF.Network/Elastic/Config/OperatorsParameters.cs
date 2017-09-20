@@ -18,29 +18,29 @@
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Utilities.Attributes;
 
-namespace Org.Apache.REEF.Network.Elastic.Config
+namespace Org.Apache.REEF.Network.Elastic.Config.OperatorsParameters
 {
-    [Unstable("0.16", "Parameters may change")]
-    public class OperatorsParameters
+    [Unstable("0.16", "Parameter may change")]
+    [NamedParameter("Operator Name")]
+    public sealed class OperatorType : Name<string>
     {
-        [NamedParameter("Operator Name")]
-        public class OperatorType : Name<string>
-        {
-        }
+    }
 
-        [NamedParameter("Type of the message")]
-        public class MessageType : Name<string>
-        {
-        }
+    [Unstable("0.16", "Parameter may change")]
+    [NamedParameter("Type of the message")]
+    public sealed class MessageType : Name<string>
+    {
+    }
 
-        [NamedParameter("Operator Id")]
-        public class OperatorId : Name<int>
-        {
-        }
+    [Unstable("0.16", "Parameter may change")]
+    [NamedParameter("Operator Id")]
+    public sealed class OperatorId : Name<int>
+    {
+    }
 
-        [NamedParameter("Number of iterations")]
-        public class NumIterations : Name<int>
-        {
-        }
+    [Unstable("0.16", "Parameter may change")]
+    [NamedParameter("Number of iterations")]
+    public sealed class NumIterations : Name<int>
+    {
     }
 }

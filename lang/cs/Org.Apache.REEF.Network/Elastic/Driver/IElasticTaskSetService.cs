@@ -15,6 +15,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
+using Org.Apache.REEF.Driver.Context;
 using Org.Apache.REEF.Network.Elastic.Failures;
 using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Utilities.Attributes;
@@ -50,6 +51,13 @@ namespace Org.Apache.REEF.Network.Elastic.Driver
         /// </summary>
         /// <param name="subscriptionName">The name of the subscription</param>
         void RemoveTaskSetSubscription(string subscriptionName);
+
+        /// <summary>
+        /// Get the subscriptions from the context.
+        /// </summary>
+        /// <param name="activeContext">An activeContext</param>
+        /// <returns>The Subscription of the context</returns>
+        string GetContextSubscriptions(IActiveContext activeContext);
 
         /// <summary>
         /// Generate the service configuration object.
