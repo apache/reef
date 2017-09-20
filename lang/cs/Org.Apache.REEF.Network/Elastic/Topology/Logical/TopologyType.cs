@@ -17,6 +17,9 @@
 
 namespace Org.Apache.REEF.Network.Elastic.Topology.Logical
 {
+    /// <summary>
+    /// Defines the supported types of topologies 
+    /// </summary>
     public enum TopologyType
     {
         Flat = 0,
