@@ -161,7 +161,7 @@ namespace Org.Apache.REEF.Client.YARN
 
             var avroYarnClusterJobSubmissionParameters = new AvroYarnClusterJobSubmissionParameters
             {
-                //// securityTokenKind and securityTokenService will be deprecated 
+                //// TODO: [JIRA REEF-1887] Deprecated. Will remove.
                 securityTokenKind = _securityTokenKind,
                 securityTokenService = _securityTokenService,
 

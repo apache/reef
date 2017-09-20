@@ -15,6 +15,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
+using System;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using Org.Apache.REEF.Tang.Annotations;
@@ -298,7 +299,7 @@ namespace Org.Apache.REEF.Common.Files
         /// The filename for security token identifier
         /// </summary>
         /// <returns>filename which contains raw bytes of security token identifier</returns>
-        /// TODO: [JIRA REEF-1887] Will remove.
+        [Obsolete("TODO[JIRA REEF-1887] Use GetSecurityTokenFileName() for consolidated token id and password information.")]
         [Unstable("0.13", "Security token should be handled by .NET only REEF client in the future")]
         public string GetSecurityTokenIdentifierFileName()
         {
@@ -309,7 +310,7 @@ namespace Org.Apache.REEF.Common.Files
         /// The filename for security token password
         /// </summary>
         /// <returns>filename which contains raw bytes of security token password</returns>
-        /// TODO: [JIRA REEF-1887] Will remove.
+        [Obsolete("TODO[JIRA REEF-1887] Use GetSecurityTokenFileName() for consolidated token id and password information.")]
         [Unstable("0.13", "Security token should be handled by .NET only REEF client in the future")]
         public string GetSecurityTokenPasswordFileName()
         {
@@ -318,9 +319,9 @@ namespace Org.Apache.REEF.Common.Files
 
         /// <summary>
         /// File name for security token information.
-        /// It supersedes GetSecurityTokenPasswordFileName() and GetSecurityTokenIdentifierFileName().
+        /// TODO[JIRA REEF-1887] It supersedes GetSecurityTokenPasswordFileName() and GetSecurityTokenIdentifierFileName().
         /// </summary>
-        /// <returns></returns>
+        /// <returns>Returns security token file name.</returns>
         public string GetSecurityTokenFileName()
         {
             return SECURITY_TOKEN_FILE;

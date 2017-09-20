@@ -15,6 +15,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
@@ -51,7 +52,7 @@ namespace Org.Apache.REEF.Tests.Functional.Bridge
 
         private const string Identifier1 = "TrustedApplicationTokenIdentifier";
         private const string Identifier2 = "TrustedApplicationTokenIdentifier2";
-        private const string TokenKey1 = "TrustedApplication001";
+        private const string TokenKey1 = "TrustedApplication007";
         private const string TokenKey2 = "TrustedApplication002";
         private const string Password1 = "none";
         private const string Password2 = "none";
@@ -75,7 +76,8 @@ namespace Org.Apache.REEF.Tests.Functional.Bridge
         [Trait("Environment", "Yarn")]
         [Trait("Priority", "1")]
         [Trait("Description", "Run CLR Test on Yarn")]
-        public void TestSecurityTokenBackword()
+        [Obsolete("TODO[JIRA REEF-1887] Remove it after deprecated methods are removed.")]
+        public void TestSecurityTokenBackwardCompatibility()
         {
             TestRun(GetRuntimeConfigurationBackwardComp());
         }
@@ -178,7 +180,7 @@ namespace Org.Apache.REEF.Tests.Functional.Bridge
         /// Get runtime configuration and token with old approach
         /// </summary>
         /// <returns>Return runtime configuration for old approach.</returns>
-        /// TODO: [JIRA REEF-1887] Will remove after the old approach is removed. 
+        [Obsolete("TODO[JIRA REEF-1887] Remove it after deprecated methods are removed.")]
         private static IConfiguration GetRuntimeConfigurationBackwardComp()
         {
             var reefFileNames = TangFactory.GetTang().NewInjector().GetInstance<REEFFileNames>();

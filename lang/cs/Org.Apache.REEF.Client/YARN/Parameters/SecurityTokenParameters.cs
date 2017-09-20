@@ -23,13 +23,13 @@ namespace Org.Apache.REEF.Client.YARN.Parameters
     [NamedParameter("Security token kind.", defaultValue: DefaultTokenKind)]
     public sealed class SecurityTokenKindParameter : Name<string>
     {
-        internal const string DefaultTokenKind = "NULL";
+        public const string DefaultTokenKind = "NULL";
     }
 
     //// TODO: [JIRA REEF-1887] Deprecated. Will remove.
     [NamedParameter("Security token service name.", defaultValue: DefaultService)]
     public sealed class SecurityTokenServiceParameter : Name<string>
     {
-        internal const string DefaultService = "NULL";
+        public const string DefaultService = "NULL";
     }
 }
