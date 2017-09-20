@@ -52,7 +52,7 @@ namespace Org.Apache.REEF.Tests.Functional.Bridge
 
         private const string Identifier1 = "TrustedApplicationTokenIdentifier";
         private const string Identifier2 = "TrustedApplicationTokenIdentifier2";
-        private const string TokenKey1 = "TrustedApplication007";
+        private const string TokenKey1 = "TrustedApplication001";
         private const string TokenKey2 = "TrustedApplication002";
         private const string Password1 = "none";
         private const string Password2 = "none";
