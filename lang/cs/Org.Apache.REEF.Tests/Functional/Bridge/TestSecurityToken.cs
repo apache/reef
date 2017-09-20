@@ -17,13 +17,15 @@
 
 using System.Collections.Generic;
 using System.IO;
+using System.Text;
 using System.Threading;
 using Newtonsoft.Json;
 using Org.Apache.REEF.Client.API;
+using Org.Apache.REEF.Client.Avro.YARN;
 using Org.Apache.REEF.Client.Common;
 using Org.Apache.REEF.Client.Yarn;
-using Org.Apache.REEF.Client.YARN;
 using Org.Apache.REEF.Client.YARN.RestClient.DataModel;
+using Org.Apache.REEF.Common.Files;
 using Org.Apache.REEF.Driver;
 using Org.Apache.REEF.Examples.HelloREEF;
 using Org.Apache.REEF.Tang.Implementations.Configuration;
@@ -93,10 +95,10 @@ namespace Org.Apache.REEF.Tests.Functional.Bridge
         /// <summary>
         /// Test run for the runtime in the given injector.
         /// </summary>
-        /// <param name="condig">runtime configuration.</param>
-        private void TestRun(IConfiguration condig)
+        /// <param name="config">runtime configuration.</param>
+        private void TestRun(IConfiguration config)
         {
-            IInjector injector = TangFactory.GetTang().NewInjector(condig);
+            IInjector injector = TangFactory.GetTang().NewInjector(config);
 
             var reefClient = injector.GetInstance<IREEFClient>();
             var jobRequestBuilder = injector.GetInstance<JobRequestBuilder>();
@@ -105,6 +107,7 @@ namespace Org.Apache.REEF.Tests.Functional.Bridge
                 .AddDriverConfiguration(GetDriverConfig())
                 .AddGlobalAssemblyForType(typeof(HelloDriver))
                 .SetJobIdentifier("MyTestJob")
+                .SetJavaLogLevel(JavaLoggingSetting.Verbose)
                 .Build();
 
             var result = reefClient.SubmitAndGetJobStatus(jobSubmission);
@@ -116,7 +119,7 @@ namespace Org.Apache.REEF.Tests.Functional.Bridge
         /// <summary>
         /// Use HelloDriver in the test
         /// </summary>
-        /// <returns></returns>
+        /// <returns>Return driver configuration.</returns>
         private IConfiguration GetDriverConfig()
         {
             return DriverConfiguration.ConfigurationModule
@@ -129,7 +132,7 @@ namespace Org.Apache.REEF.Tests.Functional.Bridge
         /// Pull job final status until the Job is done
         /// </summary>
         /// <param name="jobSubmitionResult"></param>
-        /// <returns></returns>
+        /// <returns>Return final state of the job.</returns>
         private FinalState PullFinalJobStatus(IJobSubmissionResult jobSubmitionResult)
         {
             int n = 0;
@@ -146,7 +149,7 @@ namespace Org.Apache.REEF.Tests.Functional.Bridge
         /// Get runtime configuration.
         /// Bind tokens to YarnClientCnfiguration.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>Return runtime configuration for multiple tokens.</returns>
         private static IConfiguration GetRuntimeConfigurationForMultipleTokens()
         {
             var yarnClientConfigModule = YARNClientConfiguration.ConfigurationModule;
@@ -162,7 +165,7 @@ namespace Org.Apache.REEF.Tests.Functional.Bridge
         /// Get runtime configuration.
         /// Bind token to YarnClientCnfiguration.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>Return runtime configuration for single token.</returns>
         private static IConfiguration GetRuntimeConfigurationForSingleToken()
         {
             var yarnClientConfigModule = YARNClientConfiguration.ConfigurationModule
@@ -174,16 +177,19 @@ namespace Org.Apache.REEF.Tests.Functional.Bridge
         /// <summary>
         /// Get runtime configuration and token with old approach
         /// </summary>
-        /// <returns></returns>
+        /// <returns>Return runtime configuration for old approach.</returns>
+        /// TODO: [JIRA REEF-1887] Will remove after the old approach is removed. 
         private static IConfiguration GetRuntimeConfigurationBackwardComp()
         {
+            var reefFileNames = TangFactory.GetTang().NewInjector().GetInstance<REEFFileNames>();
+
             var c = YARNClientConfiguration.ConfigurationModule
                 .Set(YARNClientConfiguration.SecurityTokenKind, Identifier1)
                 .Set(YARNClientConfiguration.SecurityTokenService, Identifier1)
                 .Build();
 
-            File.WriteAllText("SecurityTokenId", TokenKey1);
-            File.WriteAllText("SecurityTokenPwd", Password1);
+            File.WriteAllText(reefFileNames.GetSecurityTokenIdentifierFileName(), TokenKey1);
+            File.WriteAllText(reefFileNames.GetSecurityTokenPasswordFileName(), Password1);
 
             return Configurations.Merge(c, TcpPortConfig());
         }
@@ -199,32 +205,32 @@ namespace Org.Apache.REEF.Tests.Functional.Bridge
 
         internal static IList<string> CreateTestTokens()
         {
-            SecurityTokenInfo t1 = new SecurityTokenInfo(
+            var t1 = new SecurityToken(
                 Identifier1,
                 Identifier1,
                 ByteUtilities.StringToByteArrays(TokenKey1),
-                Password1);
+                Encoding.ASCII.GetBytes(Password1));
 
-            SecurityTokenInfo t2 = new SecurityTokenInfo(
+            var t2 = new SecurityToken(
                 Identifier2,
                 Identifier2,
                 ByteUtilities.StringToByteArrays(TokenKey2),
-                Password2);
+                Encoding.ASCII.GetBytes(Password2));
 
-            IList<string> serializedTokens = new List<string>();
-            serializedTokens.Add(JsonConvert.SerializeObject(t1));
-            serializedTokens.Add(JsonConvert.SerializeObject(t2));
-
-            return serializedTokens;
+            return new List<string>()
+            {
+                JsonConvert.SerializeObject(t1),
+                JsonConvert.SerializeObject(t2)
+            };
         }
 
         internal static string CreateTestToken()
         {
-            SecurityTokenInfo t1 = new SecurityTokenInfo(
+            var t1 = new SecurityToken(
                 Identifier1,
                 Identifier1,
                 ByteUtilities.StringToByteArrays(TokenKey1),
-                Password1);
+                Encoding.ASCII.GetBytes(Password1));
 
             return JsonConvert.SerializeObject(t1);
         }

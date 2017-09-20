@@ -44,6 +44,7 @@ import org.apache.reef.runtime.yarn.driver.parameters.FileSystemUrl;
 import org.apache.reef.runtime.yarn.driver.parameters.JobSubmissionDirectoryPrefix;
 import org.apache.reef.runtime.yarn.util.YarnConfigurationConstructor;
 import org.apache.reef.tang.Configuration;
+import org.apache.reef.tang.Injector;
 import org.apache.reef.tang.Tang;
 import org.apache.reef.tang.annotations.Parameter;
 import org.apache.reef.tang.exceptions.InjectionException;
@@ -77,6 +78,7 @@ public final class YarnJobSubmissionClient {
   private final SecurityTokenProvider tokenProvider;
   private final YarnSubmissionParametersFileGenerator jobSubmissionParametersGenerator;
   private final SecurityTokensReader securityTokensReader;
+  private static final String DEFAULT_TOKEN_KIND = "NULL";
 
   @Inject
   YarnJobSubmissionClient(@Parameter(DriverIsUnmanaged.class) final boolean isUnmanaged,
@@ -171,16 +173,16 @@ public final class YarnJobSubmissionClient {
   }
 
   private static void writeSecurityTokenToUserCredential(
-      final YarnClusterSubmissionFromCS yarnSubmission) throws IOException {
+      final YarnClusterSubmissionFromCS yarnSubmission,
+      final REEFFileNames fileNames) throws IOException {
     final UserGroupInformation currentUser = UserGroupInformation.getCurrentUser();
-    final REEFFileNames fileNames = new REEFFileNames();
     final String securityTokenIdentifierFile = fileNames.getSecurityTokenIdentifierFile();
     final String securityTokenPasswordFile = fileNames.getSecurityTokenPasswordFile();
     final Text tokenKind = new Text(yarnSubmission.getTokenKind());
     final Text tokenService = new Text(yarnSubmission.getTokenService());
     byte[] identifier = Files.readAllBytes(Paths.get(securityTokenIdentifierFile));
     byte[] password = Files.readAllBytes(Paths.get(securityTokenPasswordFile));
-    Token token = new Token(identifier, password, tokenKind, tokenService);
+    final Token token = new Token(identifier, password, tokenKind, tokenService);
     currentUser.addToken(token);
   }
 
@@ -300,8 +302,10 @@ public final class YarnJobSubmissionClient {
       LOG.log(Level.INFO, "FileSystemUrl is not set, use default from the environment.");
     }
 
+    final Injector injector = Tang.Factory.getTang().newInjector();
+
     final List<String> launchCommandPrefix = new ArrayList<String>() {{
-          add(new REEFFileNames().getDriverLauncherExeFile().toString());
+          add(injector.getInstance(REEFFileNames.class).getDriverLauncherExeFile().toString());
       }};
 
     final Configuration yarnJobSubmissionClientConfig = Tang.Factory.getTang().newConfigurationBuilder()
@@ -315,14 +319,14 @@ public final class YarnJobSubmissionClient {
     final YarnJobSubmissionClient client = Tang.Factory.getTang().newInjector(yarnJobSubmissionClientConfig)
         .getInstance(YarnJobSubmissionClient.class);
 
-    File f = new File(new REEFFileNames().getSecurityTokensFile());
-    if(f.exists()) {
+    final File f = new File(injector.getInstance(REEFFileNames.class).getSecurityTokensFile());
+    if (f.exists()) {
       LOG.log(Level.INFO, "Writing security tokens to user credential");
       client.addTokensToCurrentUser();
-    } else if (!yarnSubmission.getTokenKind().equalsIgnoreCase("NULL")) {
+    } else if (!yarnSubmission.getTokenKind().equalsIgnoreCase(DEFAULT_TOKEN_KIND)) {
       // To support backward compatibility
       LOG.log(Level.INFO, "Writing security token to user credential");
-      writeSecurityTokenToUserCredential(yarnSubmission);
+      writeSecurityTokenToUserCredential(yarnSubmission, injector.getInstance(REEFFileNames.class));
     } else {
       LOG.log(Level.FINE, "Did not find security token");
     }

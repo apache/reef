@@ -224,6 +224,7 @@ public final class REEFFileNames {
   /**
    * @return File name that contains the security token identifier
    * @deprecated - use getSecurityTokensFile()
+   * TODO[JIRA REEF-1887]: Remove this method.
    */
   public String getSecurityTokenIdentifierFile() {
     return SECURITY_TOKEN_IDENTIFIER_FILE;
@@ -232,6 +233,7 @@ public final class REEFFileNames {
   /**
    * @return File name that contains the security token password
    * @deprecated - use getSecurityTokensFile()
+   * TODO[JIRA REEF-1887]: Remove this method.
    */
   public String getSecurityTokenPasswordFile() {
     return SECURITY_TOKEN_PASSWORD_FILE;
@@ -239,6 +241,7 @@ public final class REEFFileNames {
 
   /**
    * @return Name of the file that contains security tokens and passwords.
+   * This call supersedes getSecurityTokenIdentifierFile() and getSecurityTokenPasswordFile().
    */
   public String getSecurityTokensFile() {
     return SECURITY_TOKENS_FILE;

@@ -18,13 +18,14 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
 using Newtonsoft.Json;
 using Org.Apache.REEF.Client.YARN.Parameters;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Utilities.Logging;
 using Microsoft.Hadoop.Avro;
+using Microsoft.Hadoop.Avro.Container;
 using Org.Apache.REEF.Client.Avro.YARN;
+using Org.Apache.REEF.Common.Files;
 
 namespace Org.Apache.REEF.Client.YARN
 {
@@ -35,36 +36,39 @@ namespace Org.Apache.REEF.Client.YARN
     {
         private static readonly Logger Logger = Logger.GetLogger(typeof(SecurityTokenWriter));
 
-        private const string SecurityTokenFile = "SecurityTokens.json";
-
         private readonly IAvroSerializer<SecurityToken> _avroSerializer = AvroSerializer.Create<SecurityToken>();
         private readonly List<SecurityToken> _tokens;
 
+        private readonly REEFFileNames _reefFileNames;
+
         /// <summary>
         /// Injectable constructor that accepts a set of serialized tokens.
-        /// Each serialized token string in the set is a serialized SecurityTokenInfo by JsonConvert 
+        /// Each serialized token string in the set is a serialized SecurityToken by JsonConvert 
         /// </summary>
-        /// <param name="serializedTokenStrings"></param>
+        /// <param name="serializedTokenStrings">Serialized token strings</param>
+        /// <param name="reefFileNames">REEF file name</param>
         [Inject]
-        private SecurityTokenWriter([Parameter(typeof(SecurityTokenStrings))] ISet<string> serializedTokenStrings)
+        private SecurityTokenWriter([Parameter(typeof(SecurityTokenStrings))] ISet<string> serializedTokenStrings,
+            REEFFileNames reefFileNames)
         {
+            _reefFileNames = reefFileNames;
             _tokens = serializedTokenStrings.Select(serializedToken =>
             {
-                var token = JsonConvert.DeserializeObject<SecurityTokenInfo>(serializedToken);
-                return new SecurityToken(token.TokenKind, token.TokenService,
-                    token.SerializedKeyInfoBytes, Encoding.ASCII.GetBytes(token.TokenPassword));
+                var token = JsonConvert.DeserializeObject<SecurityToken>(serializedToken);
+                return new SecurityToken(token.kind, token.service,
+                    token.key, token.password);
             }).ToList();
         }
 
         /// <summary>
-        /// Write SecurityTokens to SecurityTokenFile using IAvroSerializer.
+        /// Write SecurityToken objects to SecurityTokenFile using IAvroSerializer.
         /// </summary>
         public void WriteTokensToFile()
         {
             if (_tokens != null && _tokens.Count > 0)
             {
                 Logger.Log(Level.Verbose, "Write {0} tokens to file.", _tokens.Count);
-                using (var stream = File.OpenWrite(SecurityTokenFile))
+                using (var stream = File.OpenWrite(_reefFileNames.GetSecurityTokenFileName()))
                 {
                     foreach (var token in _tokens)
                     {
