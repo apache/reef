@@ -76,7 +76,7 @@ namespace Org.Apache.REEF.Tests.Functional.Bridge
         [Trait("Environment", "Yarn")]
         [Trait("Priority", "1")]
         [Trait("Description", "Run CLR Test on Yarn")]
-        [Obsolete("TODO[JIRA REEF-1887] Remove it after deprecated methods are removed.")]
+        [Obsolete("TODO[JIRA REEF-1887] Remove in REEF 0.18.")]
         public void TestSecurityTokenBackwardCompatibility()
         {
             TestRun(GetRuntimeConfigurationBackwardComp());
@@ -180,7 +180,7 @@ namespace Org.Apache.REEF.Tests.Functional.Bridge
         /// Get runtime configuration and token with old approach
         /// </summary>
         /// <returns>Return runtime configuration for old approach.</returns>
-        [Obsolete("TODO[JIRA REEF-1887] Remove it after deprecated methods are removed.")]
+        [Obsolete("TODO[JIRA REEF-1887] Remove in REEF 0.18.")]
         private static IConfiguration GetRuntimeConfigurationBackwardComp()
         {
             var reefFileNames = TangFactory.GetTang().NewInjector().GetInstance<REEFFileNames>();

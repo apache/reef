@@ -161,7 +161,7 @@ namespace Org.Apache.REEF.Client.YARN
 
             var avroYarnClusterJobSubmissionParameters = new AvroYarnClusterJobSubmissionParameters
             {
-                //// TODO: [JIRA REEF-1887] Deprecated. Will remove.
+                //// TODO: [JIRA REEF-1887] Deprecated. Remove in REEF 0.18..
                 securityTokenKind = _securityTokenKind,
                 securityTokenService = _securityTokenService,
 
