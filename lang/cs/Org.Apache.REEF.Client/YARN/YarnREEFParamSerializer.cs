@@ -15,6 +15,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
+using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using Org.Apache.REEF.Client.API;
 using Org.Apache.REEF.Client.Avro;
@@ -127,6 +129,7 @@ namespace Org.Apache.REEF.Client.YARN
                 securityTokenKind = _securityTokenKind,
                 securityTokenService = _securityTokenService,
                 driverMemory = jobParameters.DriverMemoryInMB,
+                envMap = jobParameters.JobSubmissionEnvMap,
                 maxApplicationSubmissions = jobParameters.MaxApplicationSubmissions,
                 driverStdoutFilePath = string.IsNullOrWhiteSpace(jobParameters.StdoutFilePath.Value) ?
                     _fileNames.GetDefaultYarnDriverStdoutFilePath() : jobParameters.StdoutFilePath.Value,

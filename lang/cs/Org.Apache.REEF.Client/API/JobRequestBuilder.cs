@@ -148,6 +148,18 @@ namespace Org.Apache.REEF.Client.API
         }
 
         /// <summary>
+        /// Adds a job submission environment variable.
+        /// </summary>
+        /// <param name="key">key of the environment variable.</param>
+        /// <param name="value">Value of the environment variable.</param>
+        /// <returns></returns>
+        public JobRequestBuilder AddJobSubmissionEnvVariable(string key, string value)
+        {
+            _jobParametersBuilder.AddJobSubmissionEnvVariable(key, value);
+            return this;
+        }
+
+        /// <summary>
         /// Sets the maximum amount of times a job can be submitted.
         /// </summary>
         public JobRequestBuilder SetMaxApplicationSubmissions(int maxAppSubmissions)

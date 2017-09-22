@@ -91,6 +91,8 @@ namespace Org.Apache.REEF.Examples.HelloREEF
                 .AddDriverConfiguration(driverConfig.Build())
                 .AddGlobalAssemblyForType(typeof(HelloDriverYarn))
                 .SetJobIdentifier("HelloREEF")
+                .AddJobSubmissionEnvVariable("key1", "value1")
+                .AddJobSubmissionEnvVariable("key2", "value2")
                 .SetJavaLogLevel(JavaLoggingSetting.Verbose)
                 .Build();
 
@@ -176,7 +178,7 @@ namespace Org.Apache.REEF.Examples.HelloREEF
 
         /// <summary>
         /// HelloREEF example running on YARN
-        /// Usage: Org.Apache.REEF.Examples.HelloREEF SecurityTokenId SecurityTokenPw [portRangerStart] [portRangeCount] [nodeName1] [nodeName2]...
+        /// Usage: Org.Apache.REEF.Examples.HelloREEF TrustedApplicaitonLLQ SecurityTokenPw [portRangerStart] [portRangeCount] [nodeName1] [nodeName2]...
         /// </summary>
         /// <param name="args"></param>
         public static void MainYarn(string[] args)

@@ -28,6 +28,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Represents a job submission from the CS code.
@@ -57,6 +59,7 @@ final class YarnClusterSubmissionFromCS {
   private final String fileSystemUrl;
   private final String yarnDriverStdoutFilePath;
   private final String yarnDriverStderrFilePath;
+  private final Map<String, String> envMap = new HashMap<>();
 
   private final AvroYarnAppSubmissionParameters yarnAppSubmissionParameters;
   private final AvroYarnJobSubmissionParameters yarnJobSubmissionParameters;
@@ -88,6 +91,13 @@ final class YarnClusterSubmissionFromCS {
     this.jobSubmissionDirectoryPrefix = yarnJobSubmissionParameters.getJobSubmissionDirectoryPrefix().toString();
     this.yarnDriverStdoutFilePath = yarnClusterJobSubmissionParameters.getDriverStdoutFilePath().toString();
     this.yarnDriverStderrFilePath = yarnClusterJobSubmissionParameters.getDriverStderrFilePath().toString();
+
+    if (yarnClusterJobSubmissionParameters.getEnvMap() != null) {
+      for (Map.Entry<java.lang.CharSequence, java.lang.CharSequence> pair :
+          yarnClusterJobSubmissionParameters.getEnvMap().entrySet()) {
+        this.envMap.put(pair.getKey().toString(), pair.getValue().toString());
+      }
+    }
 
     Validate.notEmpty(jobId, "The job id is null or empty");
     Validate.isTrue(driverMemory > 0, "The amount of driver memory given is <= 0.");
@@ -121,7 +131,16 @@ final class YarnClusterSubmissionFromCS {
         ", tokenService='" + tokenService + '\'' +
         ", fileSystemUrl='" + fileSystemUrl + '\'' +
         ", jobSubmissionDirectoryPrefix='" + jobSubmissionDirectoryPrefix + '\'' +
+        envMapString() +
         '}';
+  }
+
+  private String envMapString() {
+    final StringBuilder sb = new StringBuilder();
+    for (final Map.Entry<String, String> entry : envMap.entrySet()) {
+      sb.append(", Key:" + entry.getKey() + ", value:" + entry.getValue());
+    }
+    return sb.toString();
   }
 
   /**
@@ -178,6 +197,13 @@ final class YarnClusterSubmissionFromCS {
    */
   String getFileSystemUrl() {
     return fileSystemUrl;
+  }
+
+  /**
+   * @return The environment map.
+   */
+  Map<String, String> getEnvMap() {
+    return envMap;
   }
 
   /**

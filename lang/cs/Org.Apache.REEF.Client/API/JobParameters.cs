@@ -15,6 +15,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
+using System;
+using System.Collections.Generic;
 using Org.Apache.REEF.Utilities;
 using Org.Apache.REEF.Utilities.Logging;
 
@@ -30,6 +32,7 @@ namespace Org.Apache.REEF.Client.API
         private readonly string _jobIdentifier;
         private readonly int _maxApplicationSubmissions;
         private readonly int _driverMemory;
+        private IDictionary<string, string> _jobSubmissionEnvMap;
         private readonly Optional<string> _stdoutFilePath;
         private readonly Optional<string> _stderrFilePath;
         private readonly JavaLoggingSetting _logSetting;
@@ -38,6 +41,7 @@ namespace Org.Apache.REEF.Client.API
             string jobIdentifier, 
             int maxApplicationSubmissions, 
             int driverMemory,
+            IDictionary<string, string> jobSubmissionEnvMap, 
             string stdoutFilePath,
             string stderrFilePath,
             JavaLoggingSetting logSetting)
@@ -45,7 +49,8 @@ namespace Org.Apache.REEF.Client.API
             _jobIdentifier = jobIdentifier;
             _maxApplicationSubmissions = maxApplicationSubmissions;
             _driverMemory = driverMemory;
-            
+            _jobSubmissionEnvMap = jobSubmissionEnvMap;
+
             _stdoutFilePath = string.IsNullOrWhiteSpace(stdoutFilePath) ? 
                 Optional<string>.Empty() : Optional<string>.Of(stdoutFilePath);
 
@@ -78,6 +83,14 @@ namespace Org.Apache.REEF.Client.API
         public int DriverMemoryInMB
         {
             get { return _driverMemory; }
+        }
+
+        /// <summary>
+        /// The job submission environment variable map.
+        /// </summary>
+        public IDictionary<string, string> JobSubmissionEnvMap
+        {
+            get { return _jobSubmissionEnvMap; }
         }
 
         /// <summary>
