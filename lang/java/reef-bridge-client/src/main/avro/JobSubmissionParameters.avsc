@@ -60,6 +60,7 @@
         { "name": "securityTokenKind", "type": "string", "default": "NULL" },
         { "name": "securityTokenService", "type": "string", "default": "NULL" },
         { "name": "driverMemory", "type": "int" },
+        {"name": "environmentVariablesMap", "type": {"type": "map", "values": "string"}},
         { "name": "maxApplicationSubmissions", "type": "int" },
         { "name": "driverStdoutFilePath", "type": "string" },
         { "name": "driverStderrFilePath", "type": "string" }

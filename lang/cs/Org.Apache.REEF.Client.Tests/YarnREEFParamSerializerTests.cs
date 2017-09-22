@@ -159,6 +159,7 @@ namespace Org.Apache.REEF.Client.Tests
                 "\"securityTokenService\":\"{0}\"," +
                 "\"maxApplicationSubmissions\":{1}," +
                 "\"driverMemory\":{1}," +
+                "\"envMap\":{{\"key1\":\"{0}\",\"key2\":\"{0}\"}}," +
                 "\"driverStdoutFilePath\":\"{0}\"," +
                 "\"driverStderrFilePath\":\"{0}\"" +
                 "}}";
@@ -178,15 +179,17 @@ namespace Org.Apache.REEF.Client.Tests
                 .SetJobIdentifier(AnyString)
                 .SetMaxApplicationSubmissions(AnyInt)
                 .SetDriverMemory(AnyInt)
+                .SetJobSubmissionEnvironmentVariable("key1", AnyString)
+                .SetJobSubmissionEnvironmentVariable("key2", AnyString)
                 .SetDriverStderrFilePath(AnyString)
                 .SetDriverStdoutFilePath(AnyString)
                 .Build();
 
             var serializedBytes = serializer.SerializeJobArgsToBytes(jobRequest.JobParameters, AnyString);
-            var expectedString = Encoding.UTF8.GetString(serializedBytes);
-            var jsonObject = JObject.Parse(expectedString);
+            var actualString = Encoding.UTF8.GetString(serializedBytes);
+            var actualJsonObject = JObject.Parse(actualString);
             var expectedJsonObject = JObject.Parse(expectedJson);
-            Assert.True(JToken.DeepEquals(jsonObject, expectedJsonObject));
+            Assert.True(JToken.DeepEquals(actualJsonObject, expectedJsonObject));
         }
 
         private sealed class DriverStartHandler : IObserver<IDriverStarted>
