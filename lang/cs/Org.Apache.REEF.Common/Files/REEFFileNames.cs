@@ -15,6 +15,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
+using System;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using Org.Apache.REEF.Tang.Annotations;
@@ -53,6 +54,7 @@ namespace Org.Apache.REEF.Common.Files
         private const string BRIDGE_EXE_CONFIG_NAME = "Org.Apache.REEF.Bridge.exe.config";
         private const string SECURITY_TOKEN_IDENTIFIER_FILE = "SecurityTokenId";
         private const string SECURITY_TOKEN_PASSWORD_FILE = "SecurityTokenPwd";
+        private const string SECURITY_TOKEN_FILE = "SecurityTokens.json";
         private const string APP_SUBMISSION_PARAMETERS_FILE = "app-submission-params.json";
         private const string JOB_SUBMISSION_PARAMETERS_FILE = "job-submission-params.json";
         private const string YARN_DEFAULT_DRIVER_OUT_VAR = "<LOG_DIR>";
@@ -297,6 +299,7 @@ namespace Org.Apache.REEF.Common.Files
         /// The filename for security token identifier
         /// </summary>
         /// <returns>filename which contains raw bytes of security token identifier</returns>
+        [Obsolete("TODO[JIRA REEF-1887] Use GetSecurityTokenFileName() for consolidated token id and password information. Remove in REEF 0.18.")]
         [Unstable("0.13", "Security token should be handled by .NET only REEF client in the future")]
         public string GetSecurityTokenIdentifierFileName()
         {
@@ -307,10 +310,22 @@ namespace Org.Apache.REEF.Common.Files
         /// The filename for security token password
         /// </summary>
         /// <returns>filename which contains raw bytes of security token password</returns>
+        [Obsolete("TODO[JIRA REEF-1887] Use GetSecurityTokenFileName() for consolidated token id and password information. Remove in REEF 0.18.")]
         [Unstable("0.13", "Security token should be handled by .NET only REEF client in the future")]
         public string GetSecurityTokenPasswordFileName()
         {
             return SECURITY_TOKEN_PASSWORD_FILE;
+        }
+
+        /// <summary>
+        /// File name for security token information.
+        /// TODO[JIRA REEF-1887] It supersedes GetSecurityTokenPasswordFileName() and GetSecurityTokenIdentifierFileName().
+        /// Remove this comment line when REEF-1887 is done.
+        /// </summary>
+        /// <returns>Returns security token file name.</returns>
+        public string GetSecurityTokenFileName()
+        {
+            return SECURITY_TOKEN_FILE;
         }
 
         /// <summary>
