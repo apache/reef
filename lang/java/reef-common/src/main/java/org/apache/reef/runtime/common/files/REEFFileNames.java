@@ -49,16 +49,25 @@ public final class REEFFileNames {
   private static final String EVALUATOR_STDOUT = "evaluator.stdout";
   private static final String DRIVER_HTTP_ENDPOINT_FILE_NAME = "DriverHttpEndpoint.txt";
   private static final String BRIDGE_EXE_NAME = "Org.Apache.REEF.Bridge.exe";
-  private static final String SECURITY_TOKEN_IDENTIFIER_FILE = "SecurityTokenId";
-  private static final String SECURITY_TOKEN_PASSWORD_FILE = "SecurityTokenPwd";
   private static final String SECURITY_TOKENS_FILE = "SecurityTokens.json";
   private static final String YARN_BOOTSTRAP_APP_PARAM_FILE = "yarn-app-parameters.json";
   private static final String YARN_BOOTSTRAP_JOB_PARAM_FILE = "yarn-job-parameters.json";
 
+  /**
+   * @deprecated TODO[JIRA REEF-1887] Use getSecurityTokensFile() instead. Remove in REEF 0.18.
+   */
+  @Deprecated
+  private static final String SECURITY_TOKEN_IDENTIFIER_FILE = "SecurityTokenId";
+
+  /**
+   * @deprecated TODO[JIRA REEF-1887] Use getSecurityTokensFile() instead. Remove in REEF 0.18.
+   */
+  @Deprecated
+  private static final String SECURITY_TOKEN_PASSWORD_FILE = "SecurityTokenPwd";
+
   @Inject
   public REEFFileNames() {
   }
-
 
   /**
    * @return the filename of the CPP DLL for the bridge.
@@ -223,8 +232,7 @@ public final class REEFFileNames {
 
   /**
    * @return File name that contains the security token identifier
-   * @deprecated - use getSecurityTokensFile()
-   * TODO[JIRA REEF-1887]: Remove this method in REEF 0.18.
+   * @deprecated TODO[JIRA REEF-1887] Use getSecurityTokensFile() instead. Remove in REEF 0.18.
    */
   public String getSecurityTokenIdentifierFile() {
     return SECURITY_TOKEN_IDENTIFIER_FILE;
@@ -232,8 +240,7 @@ public final class REEFFileNames {
 
   /**
    * @return File name that contains the security token password
-   * @deprecated - use getSecurityTokensFile()
-   * TODO[JIRA REEF-1887]: Remove this method in REEF 0.18.
+   * @deprecated TODO[JIRA REEF-1887] Use getSecurityTokensFile() instead. Remove in REEF 0.18.
    */
   public String getSecurityTokenPasswordFile() {
     return SECURITY_TOKEN_PASSWORD_FILE;
@@ -241,7 +248,8 @@ public final class REEFFileNames {
 
   /**
    * @return Name of the file that contains security tokens and passwords.
-   * This call supersedes getSecurityTokenIdentifierFile() and getSecurityTokenPasswordFile().
+   * TODO[JIRA REEF-1887] This call supersedes getSecurityTokenIdentifierFile()
+   * and getSecurityTokenPasswordFile(). Remove this comment line in REEF 0.18.
    */
   public String getSecurityTokensFile() {
     return SECURITY_TOKENS_FILE;

@@ -23,7 +23,6 @@ using Org.Apache.REEF.Client.YARN.Parameters;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Utilities.Logging;
 using Microsoft.Hadoop.Avro;
-using Microsoft.Hadoop.Avro.Container;
 using Org.Apache.REEF.Client.Avro.YARN;
 using Org.Apache.REEF.Common.Files;
 
@@ -39,24 +38,23 @@ namespace Org.Apache.REEF.Client.YARN
         private readonly IAvroSerializer<SecurityToken> _avroSerializer = AvroSerializer.Create<SecurityToken>();
         private readonly List<SecurityToken> _tokens;
 
-        private readonly REEFFileNames _reefFileNames;
+        private readonly string _securityTokensFile;
 
         /// <summary>
         /// Injectable constructor that accepts a set of serialized tokens.
         /// Each serialized token string in the set is a serialized SecurityToken by JsonConvert 
         /// </summary>
         /// <param name="serializedTokenStrings">Serialized token strings</param>
-        /// <param name="reefFileNames">REEF file name</param>
+        /// <param name="reefFileNames">REEF file name constants</param>
         [Inject]
-        private SecurityTokenWriter([Parameter(typeof(SecurityTokenStrings))] ISet<string> serializedTokenStrings,
-            REEFFileNames reefFileNames)
+        private SecurityTokenWriter(REEFFileNames reefFileNames,
+            [Parameter(typeof(SecurityTokenStrings))] ISet<string> serializedTokenStrings)
         {
-            _reefFileNames = reefFileNames;
+            _securityTokensFile = reefFileNames.GetSecurityTokenFileName();
             _tokens = serializedTokenStrings.Select(serializedToken =>
             {
                 var token = JsonConvert.DeserializeObject<SecurityToken>(serializedToken);
-                return new SecurityToken(token.kind, token.service,
-                    token.key, token.password);
+                return new SecurityToken(token.kind, token.service, token.key, token.password);
             }).ToList();
         }
 
@@ -65,10 +63,11 @@ namespace Org.Apache.REEF.Client.YARN
         /// </summary>
         public void WriteTokensToFile()
         {
-            if (_tokens != null && _tokens.Count > 0)
+            Logger.Log(Level.Verbose, "Write {0} tokens to file: {1}.", _tokens.Count, _securityTokensFile);
+
+            if (_tokens.Count > 0)
             {
-                Logger.Log(Level.Verbose, "Write {0} tokens to file.", _tokens.Count);
-                using (var stream = File.OpenWrite(_reefFileNames.GetSecurityTokenFileName()))
+                using (var stream = File.OpenWrite(_securityTokensFile))
                 {
                     foreach (var token in _tokens)
                     {

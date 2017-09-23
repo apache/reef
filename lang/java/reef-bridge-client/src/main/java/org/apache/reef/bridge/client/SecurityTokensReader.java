@@ -45,6 +45,7 @@ final class SecurityTokensReader {
   private static final Logger LOG = Logger.getLogger(SecurityTokensReader.class.getName());
 
   private final DatumReader<SecurityToken> tokenDatumReader = new SpecificDatumReader<>(SecurityToken.class);
+  private final DecoderFactory decoderFactory = new DecoderFactory();
   private final File securityTokensFile;
 
   @Inject
@@ -61,16 +62,16 @@ final class SecurityTokensReader {
     LOG.log(Level.FINE, "Reading security tokens from file: {0}", this.securityTokensFile);
 
     try (final FileInputStream stream = new FileInputStream(securityTokensFile)) {
-      final BinaryDecoder decoder = new DecoderFactory().binaryDecoder(stream, null);
+      final BinaryDecoder decoder = decoderFactory.binaryDecoder(stream, null);
 
       while (!decoder.isEnd()) {
         final SecurityToken token = tokenDatumReader.read(null, decoder);
 
         final Token<TokenIdentifier> yarnToken = new Token<>(
-                token.getKey().array(),
-                token.getPassword().array(),
-                new Text(token.getKind().toString()),
-                new Text(token.getService().toString()));
+            token.getKey().array(),
+            token.getPassword().array(),
+            new Text(token.getKind().toString()),
+            new Text(token.getService().toString()));
 
         LOG.log(Level.FINE, "addToken for {0}", yarnToken.getKind());
 

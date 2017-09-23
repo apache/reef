@@ -18,8 +18,11 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading;
+using Newtonsoft.Json;
 using Org.Apache.REEF.Client.API;
+using Org.Apache.REEF.Client.Avro.YARN;
 using Org.Apache.REEF.Client.Common;
 using Org.Apache.REEF.Client.Yarn;
 using Org.Apache.REEF.Client.YARN;
@@ -30,6 +33,7 @@ using Org.Apache.REEF.Tang.Implementations.Configuration;
 using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Tang.Util;
+using Org.Apache.REEF.Utilities;
 using Org.Apache.REEF.Utilities.Logging;
 
 namespace Org.Apache.REEF.Examples.HelloREEF
@@ -158,20 +162,22 @@ namespace Org.Apache.REEF.Examples.HelloREEF
         /// <returns></returns>
         private static IConfiguration GetRuntimeConfiguration(string[] args)
         {
-            var c = YARNClientConfiguration.ConfigurationModule
-                .Set(YARNClientConfiguration.SecurityTokenKind, TrustedApplicationTokenIdentifier)
-                .Set(YARNClientConfiguration.SecurityTokenService, TrustedApplicationTokenIdentifier)
+            var token = new SecurityToken(
+                TrustedApplicationTokenIdentifier,
+                TrustedApplicationTokenIdentifier,
+                ByteUtilities.StringToByteArrays(args[0]),
+                Encoding.ASCII.GetBytes(args[1]));
+
+            var clientConfig = YARNClientConfiguration.ConfigurationModule
+                .Set(YARNClientConfiguration.SecurityTokenStr, JsonConvert.SerializeObject(token))
                 .Build();
 
-            File.WriteAllText(SecurityTokenId, args[0]);
-            File.WriteAllText(SecurityTokenPwd, args[1]);
-
-            IConfiguration tcpPortConfig = TcpPortConfigurationModule.ConfigurationModule
+            var tcpPortConfig = TcpPortConfigurationModule.ConfigurationModule
                 .Set(TcpPortConfigurationModule.PortRangeStart, args.Length > 2 ? args[2] : DefaultPortRangeStart)
                 .Set(TcpPortConfigurationModule.PortRangeCount, args.Length > 3 ? args[3] : DefaultPortRangeCount)
                 .Build();
 
-            return Configurations.Merge(c, tcpPortConfig);
+            return Configurations.Merge(clientConfig, tcpPortConfig);
         }
 
         /// <summary>
