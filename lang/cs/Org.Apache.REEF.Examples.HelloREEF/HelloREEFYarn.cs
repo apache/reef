@@ -91,8 +91,8 @@ namespace Org.Apache.REEF.Examples.HelloREEF
                 .AddDriverConfiguration(driverConfig.Build())
                 .AddGlobalAssemblyForType(typeof(HelloDriverYarn))
                 .SetJobIdentifier("HelloREEF")
-                .AddJobSubmissionEnvVariable("key1", "value1")
-                .AddJobSubmissionEnvVariable("key2", "value2")
+                .AddJobSubmissionEnvVariable(Environment.PATH.ToString(), "value1")
+                .AddJobSubmissionEnvVariable("UserDefineKey", "value2")
                 .SetJavaLogLevel(JavaLoggingSetting.Verbose)
                 .Build();
 
