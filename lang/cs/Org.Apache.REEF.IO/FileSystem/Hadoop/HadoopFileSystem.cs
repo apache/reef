@@ -69,16 +69,8 @@ namespace Org.Apache.REEF.IO.FileSystem.Hadoop
             }
 
             Uri uri;
-            try
-            {
-                uri = new Uri(path);
-                Logger.Log(Level.Info, string.Format(CultureInfo.CurrentCulture, "Uri {0} created in CreateUriForPath.", uri.AbsolutePath));
-            }
-            catch (UriFormatException)
-            {
-                uri = new Uri(_uriPrefix + path);
-                Logger.Log(Level.Info, string.Format(CultureInfo.CurrentCulture, "Uri {0} created in CreateUriForPath with prefix added.", uri.AbsolutePath));
-            }
+            uri = new Uri(path);
+            Logger.Log(Level.Info, string.Format(CultureInfo.CurrentCulture, "Uri {0} created in CreateUriForPath.", uri));
 
             return uri;
         }
@@ -118,7 +110,7 @@ namespace Org.Apache.REEF.IO.FileSystem.Hadoop
         public void Delete(Uri fileUri)
         {
             // Delete the file via the hdfs command line.
-            _commandRunner.Run("dfs -rm " + fileUri.AbsolutePath);
+            _commandRunner.Run("dfs -rm " + fileUri);
         }
 
         public bool Exists(Uri fileUri)
@@ -126,38 +118,38 @@ namespace Org.Apache.REEF.IO.FileSystem.Hadoop
             // This determines the existence of a file based on the 'ls' command. 
             // Ideally, we'd use the 'test' command's return value, but we did not find a way to access that.
             return
-                _commandRunner.Run("dfs -ls " + fileUri.AbsolutePath).StdErr
+                _commandRunner.Run("dfs -ls " + fileUri).StdErr
                     .All(line => !NoSuchFileOrDirectoryRegEx.IsMatch(line));
         }
 
         public void Copy(Uri sourceUri, Uri destinationUri)
         {
-            _commandRunner.Run("dfs -cp " + sourceUri.AbsolutePath + " " + destinationUri.AbsolutePath);
+            _commandRunner.Run("dfs -cp " + sourceUri + " " + destinationUri);
         }
 
         public void CopyToLocal(Uri remoteFileUri, string localName)
         {
-            _commandRunner.Run("dfs -get " + remoteFileUri.AbsolutePath + " " + localName);
+            _commandRunner.Run("dfs -get " + remoteFileUri + " " + localName);
         }
 
         public void CopyFromLocal(string localFileName, Uri remoteFileUri)
         {
-            _commandRunner.Run("dfs -put " + localFileName + " " + remoteFileUri.AbsolutePath);
+            _commandRunner.Run("dfs -put " + localFileName + " " + remoteFileUri);
         }
 
         public void CreateDirectory(Uri directoryUri)
         {
-            _commandRunner.Run("dfs -mkdir " + directoryUri.AbsolutePath);
+            _commandRunner.Run("dfs -mkdir " + directoryUri);
         }
 
         public void DeleteDirectory(Uri directoryUri)
         {
-            _commandRunner.Run("dfs -rmdir " + directoryUri.AbsolutePath);
+            _commandRunner.Run("dfs -rmdir " + directoryUri);
         }
 
         public IEnumerable<Uri> GetChildren(Uri directoryUri)
         {
-            return _commandRunner.Run("dfs -ls " + directoryUri.AbsolutePath)
+            return _commandRunner.Run("dfs -ls " + directoryUri)
                 .StdOut.Where(line => !LsFirstLineRegex.IsMatch(line))
                 .Select(line => line.Split())
                 .Select(x => new Uri(x[x.Length - 1]));
