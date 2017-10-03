@@ -311,16 +311,16 @@ namespace Org.Apache.REEF.Tests.Functional
             CloudStorageAccount storageAccount = CloudStorageAccount.Parse(GetStorageConnectionString());
             CloudBlobClient blobClient = storageAccount.CreateCloudBlobClient();
             CloudBlobContainer container = blobClient.GetContainerReference(DateTime.Now.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture));   
-            container.CreateIfNotExists();
+            container.CreateIfNotExistsAsync().Wait();
 
             CloudBlockBlob blob = container.GetBlockBlobReference(Path.Combine(TestId, "driverStdOut"));
             FileStream fs = new FileStream(driverStdout, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
-            blob.UploadFromStream(fs);
+            blob.UploadFromStreamAsync(fs).Wait();
             fs.Close();
 
             blob = container.GetBlockBlobReference(Path.Combine(TestId, "driverStdErr"));
             fs = new FileStream(driverStderr, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
-            blob.UploadFromStream(fs);
+            blob.UploadFromStreamAsync(fs).Wait();
             fs.Close();
         }
 

@@ -35,6 +35,34 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Org.Apache.REEF.Evaluator.D
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Org.Apache.REEF.Driver.DotNet", "Org.Apache.REEF.Driver\Org.Apache.REEF.Driver.DotNet.csproj", "{4AFF480F-006F-4229-8565-DB8F0E5F0C1D}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Org.Apache.REEF.Bridge.CLR.DotNet", "Org.Apache.REEF.Bridge.CLR\Org.Apache.REEF.Bridge.CLR.DotNet.csproj", "{604FF656-9A64-4516-9742-7A7FA963C985}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Org.Apache.REEF.Client.DotNet", "Org.Apache.REEF.Client\Org.Apache.REEF.Client.DotNet.csproj", "{A23F679F-233A-41A1-9964-61A0576E5D93}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Org.Apache.REEF.Client.Tests.DotNet", "Org.Apache.REEF.Client.Tests\Org.Apache.REEF.Client.Tests.DotNet.csproj", "{C3F0F0F8-0001-44C3-998F-89992361FA43}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Org.Apache.REEF.Common.Tests.DotNet", "Org.Apache.REEF.Common.Tests\Org.Apache.REEF.Common.Tests.DotNet.csproj", "{EB9E67A8-0D79-4355-8699-724FF8F40D39}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Org.Apache.REEF.Examples.HelloREEF.DotNet", "Org.Apache.REEF.Examples.HelloREEF\Org.Apache.REEF.Examples.HelloREEF.DotNet.csproj", "{D5E2987D-234B-4EAB-85FA-BB377FE63C42}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Org.Apache.REEF.IMRU.DotNet", "Org.Apache.REEF.IMRU\Org.Apache.REEF.IMRU.DotNet.csproj", "{80036B79-DAF4-4EDD-854E-1ADCBEBEB803}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Org.Apache.REEF.IMRU.Examples.DotNet", "Org.Apache.REEF.IMRU.Examples\Org.Apache.REEF.IMRU.Examples.DotNet.csproj", "{880CF3D8-B8A8-4350-A067-50A589563848}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Org.Apache.REEF.IMRU.Tests.DotNet", "Org.Apache.REEF.IMRU.Tests\Org.Apache.REEF.IMRU.Tests.DotNet.csproj", "{CF4985C6-A06B-4F20-B5C3-489889170DB7}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Org.Apache.REEF.Evaluator.Tests.DotNet", "Org.Apache.REEF.Evaluator.Tests\Org.Apache.REEF.Evaluator.Tests.DotNet.csproj", "{F98C05F8-584B-4BA1-ABC1-74C04B03932D}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Org.Apache.REEF.Examples.AllHandlers.DotNet", "Org.Apache.REEF.Examples.AllHandlers\Org.Apache.REEF.Examples.AllHandlers.DotNet.csproj", "{704D00D3-9B85-46E5-BA68-7DE9CC484AA8}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Org.Apache.REEF.Examples.DriverRestart.DotNet", "Org.Apache.REEF.Examples.DriverRestart\Org.Apache.REEF.Examples.DriverRestart.DotNet.csproj", "{8E4F8CA1-26FF-4877-8446-0312F1CBDB85}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Org.Apache.REEF.IO.TestClient.DotNet", "Org.Apache.REEF.IO.TestClient\Org.Apache.REEF.IO.TestClient.DotNet.csproj", "{D9F9E9BA-DCFF-44CB-81E8-91E5FF5BADBA}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Org.Apache.REEF.Network.Examples.Client.DotNet", "Org.Apache.REEF.Network.Examples.Client\Org.Apache.REEF.Network.Examples.Client.DotNet.csproj", "{C22416C6-AF4C-47C6-BBE1-EF23D981AA44}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Org.Apache.REEF.Tests.DotNet", "Org.Apache.REEF.Tests\Org.Apache.REEF.Tests.DotNet.csproj", "{C80B4A96-BAAD-4526-921C-FB5DADBC135E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -105,6 +133,62 @@ Global
 		{4AFF480F-006F-4229-8565-DB8F0E5F0C1D}.Debug|x64.Build.0 = Debug|x64
 		{4AFF480F-006F-4229-8565-DB8F0E5F0C1D}.Release|x64.ActiveCfg = Release|x64
 		{4AFF480F-006F-4229-8565-DB8F0E5F0C1D}.Release|x64.Build.0 = Release|x64
+		{604FF656-9A64-4516-9742-7A7FA963C985}.Debug|x64.ActiveCfg = Debug|x64
+		{604FF656-9A64-4516-9742-7A7FA963C985}.Debug|x64.Build.0 = Debug|x64
+		{604FF656-9A64-4516-9742-7A7FA963C985}.Release|x64.ActiveCfg = Release|x64
+		{604FF656-9A64-4516-9742-7A7FA963C985}.Release|x64.Build.0 = Release|x64
+		{A23F679F-233A-41A1-9964-61A0576E5D93}.Debug|x64.ActiveCfg = Debug|x64
+		{A23F679F-233A-41A1-9964-61A0576E5D93}.Debug|x64.Build.0 = Debug|x64
+		{A23F679F-233A-41A1-9964-61A0576E5D93}.Release|x64.ActiveCfg = Release|x64
+		{A23F679F-233A-41A1-9964-61A0576E5D93}.Release|x64.Build.0 = Release|x64
+		{C3F0F0F8-0001-44C3-998F-89992361FA43}.Debug|x64.ActiveCfg = Debug|x64
+		{C3F0F0F8-0001-44C3-998F-89992361FA43}.Debug|x64.Build.0 = Debug|x64
+		{C3F0F0F8-0001-44C3-998F-89992361FA43}.Release|x64.ActiveCfg = Release|x64
+		{C3F0F0F8-0001-44C3-998F-89992361FA43}.Release|x64.Build.0 = Release|x64
+		{EB9E67A8-0D79-4355-8699-724FF8F40D39}.Debug|x64.ActiveCfg = Debug|x64
+		{EB9E67A8-0D79-4355-8699-724FF8F40D39}.Debug|x64.Build.0 = Debug|x64
+		{EB9E67A8-0D79-4355-8699-724FF8F40D39}.Release|x64.ActiveCfg = Release|x64
+		{EB9E67A8-0D79-4355-8699-724FF8F40D39}.Release|x64.Build.0 = Release|x64
+		{D5E2987D-234B-4EAB-85FA-BB377FE63C42}.Debug|x64.ActiveCfg = Debug|x64
+		{D5E2987D-234B-4EAB-85FA-BB377FE63C42}.Debug|x64.Build.0 = Debug|x64
+		{D5E2987D-234B-4EAB-85FA-BB377FE63C42}.Release|x64.ActiveCfg = Release|x64
+		{D5E2987D-234B-4EAB-85FA-BB377FE63C42}.Release|x64.Build.0 = Release|x64
+		{80036B79-DAF4-4EDD-854E-1ADCBEBEB803}.Debug|x64.ActiveCfg = Debug|x64
+		{80036B79-DAF4-4EDD-854E-1ADCBEBEB803}.Debug|x64.Build.0 = Debug|x64
+		{80036B79-DAF4-4EDD-854E-1ADCBEBEB803}.Release|x64.ActiveCfg = Release|x64
+		{80036B79-DAF4-4EDD-854E-1ADCBEBEB803}.Release|x64.Build.0 = Release|x64
+		{880CF3D8-B8A8-4350-A067-50A589563848}.Debug|x64.ActiveCfg = Debug|x64
+		{880CF3D8-B8A8-4350-A067-50A589563848}.Debug|x64.Build.0 = Debug|x64
+		{880CF3D8-B8A8-4350-A067-50A589563848}.Release|x64.ActiveCfg = Release|x64
+		{880CF3D8-B8A8-4350-A067-50A589563848}.Release|x64.Build.0 = Release|x64
+		{CF4985C6-A06B-4F20-B5C3-489889170DB7}.Debug|x64.ActiveCfg = Debug|x64
+		{CF4985C6-A06B-4F20-B5C3-489889170DB7}.Debug|x64.Build.0 = Debug|x64
+		{CF4985C6-A06B-4F20-B5C3-489889170DB7}.Release|x64.ActiveCfg = Release|x64
+		{CF4985C6-A06B-4F20-B5C3-489889170DB7}.Release|x64.Build.0 = Release|x64
+		{F98C05F8-584B-4BA1-ABC1-74C04B03932D}.Debug|x64.ActiveCfg = Debug|x64
+		{F98C05F8-584B-4BA1-ABC1-74C04B03932D}.Debug|x64.Build.0 = Debug|x64
+		{F98C05F8-584B-4BA1-ABC1-74C04B03932D}.Release|x64.ActiveCfg = Release|x64
+		{F98C05F8-584B-4BA1-ABC1-74C04B03932D}.Release|x64.Build.0 = Release|x64
+		{704D00D3-9B85-46E5-BA68-7DE9CC484AA8}.Debug|x64.ActiveCfg = Debug|x64
+		{704D00D3-9B85-46E5-BA68-7DE9CC484AA8}.Debug|x64.Build.0 = Debug|x64
+		{704D00D3-9B85-46E5-BA68-7DE9CC484AA8}.Release|x64.ActiveCfg = Release|x64
+		{704D00D3-9B85-46E5-BA68-7DE9CC484AA8}.Release|x64.Build.0 = Release|x64
+		{8E4F8CA1-26FF-4877-8446-0312F1CBDB85}.Debug|x64.ActiveCfg = Debug|x64
+		{8E4F8CA1-26FF-4877-8446-0312F1CBDB85}.Debug|x64.Build.0 = Debug|x64
+		{8E4F8CA1-26FF-4877-8446-0312F1CBDB85}.Release|x64.ActiveCfg = Release|x64
+		{8E4F8CA1-26FF-4877-8446-0312F1CBDB85}.Release|x64.Build.0 = Release|x64
+		{D9F9E9BA-DCFF-44CB-81E8-91E5FF5BADBA}.Debug|x64.ActiveCfg = Debug|x64
+		{D9F9E9BA-DCFF-44CB-81E8-91E5FF5BADBA}.Debug|x64.Build.0 = Debug|x64
+		{D9F9E9BA-DCFF-44CB-81E8-91E5FF5BADBA}.Release|x64.ActiveCfg = Release|x64
+		{D9F9E9BA-DCFF-44CB-81E8-91E5FF5BADBA}.Release|x64.Build.0 = Release|x64
+		{C22416C6-AF4C-47C6-BBE1-EF23D981AA44}.Debug|x64.ActiveCfg = Debug|x64
+		{C22416C6-AF4C-47C6-BBE1-EF23D981AA44}.Debug|x64.Build.0 = Debug|x64
+		{C22416C6-AF4C-47C6-BBE1-EF23D981AA44}.Release|x64.ActiveCfg = Release|x64
+		{C22416C6-AF4C-47C6-BBE1-EF23D981AA44}.Release|x64.Build.0 = Release|x64
+		{C80B4A96-BAAD-4526-921C-FB5DADBC135E}.Debug|x64.ActiveCfg = Debug|x64
+		{C80B4A96-BAAD-4526-921C-FB5DADBC135E}.Debug|x64.Build.0 = Debug|x64
+		{C80B4A96-BAAD-4526-921C-FB5DADBC135E}.Release|x64.ActiveCfg = Release|x64
+		{C80B4A96-BAAD-4526-921C-FB5DADBC135E}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

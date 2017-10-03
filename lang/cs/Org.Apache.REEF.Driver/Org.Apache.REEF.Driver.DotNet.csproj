@@ -27,6 +27,7 @@ under the License.
     <PackageReference Include="protobuf-net" Version="$(ProtobufVersion)" />
     <PackageReference Include="Microsoft.Avro.Core" Version="$(AvroVersion)" />
   </ItemGroup>
+  <!-- TODO[JIRA REEF-1888] This item group will not be needed when only .netcore is targeted. -->
   <ItemGroup Condition="'$(TargetFramework)' == 'net451' Or '$(TargetGramework)' == 'net46'">
     <Reference Include="System" />
     <Reference Include="System.Core" />

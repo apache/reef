@@ -1,5 +1,5 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-<!--
+  <!--
 Licensed to the Apache Software Foundation (ASF) under one
 or more contributor license agreements.  See the NOTICE file
 distributed with this work for additional information
@@ -18,12 +18,16 @@ under the License.
   <PropertyGroup>
     <AssemblyName>Org.Apache.REEF.Evaluator.Tests</AssemblyName>
   </PropertyGroup>
-  <Import Project="..\build.DotNetApp.props" />
+  <Import Project="..\build.DotNetTest.props" />
   <ItemGroup>
     <PackageReference Include="NSubstitute" Version="$(NSubstituteVersion)" />
     <PackageReference Include="protobuf-net" Version="$(ProtobufVersion)" />
+  </ItemGroup>
+  <!-- TODO[JIRA REEF-1888] This item group will not be needed when only .netcore is targeted. -->
+  <ItemGroup Condition="'$(TargetFramework)' == 'net451' Or '$(TargetFramework)' == 'net46'">
     <Reference Include="System" />
   </ItemGroup>
+  <Import Project="..\xunit.DotNet.props" />
   <ItemGroup>
     <ProjectReference Include="..\Org.Apache.REEF.Common\Org.Apache.REEF.Common.DotNet.csproj" />
     <ProjectReference Include="..\Org.Apache.REEF.Examples\Org.Apache.REEF.Examples.DotNet.csproj" />
@@ -34,5 +38,4 @@ under the License.
     <ProjectReference Include="..\Org.Apache.REEF.Network\Org.Apache.REEF.Network.DotNet.csproj" />
     <ProjectReference Include="..\Org.Apache.REEF.Wake\Org.Apache.REEF.Wake.DotNet.csproj" />
   </ItemGroup>
-  <Import Project="..\xunit.DotNet.targets" />
 </Project>
