@@ -18,9 +18,9 @@ specific language governing permissions and limitations
 under the License.
 -->
   <PropertyGroup>
-    <AssemblyName>Org.Apache.REEF.Driver</AssemblyName>
-    <Description>Driver for REEF.NET</Description>
-    <PackageTags>REEF Driver</PackageTags>
+    <AssemblyName>Org.Apache.REEF.FatNuGet</AssemblyName>
+    <Description>Provide single package which contains all necessary REEF/WAKE/TANG projects./Description>
+    <PackageTags>Single package which contains all Reef/Wake/Tang projects</PackageTags>
   </PropertyGroup>
   <Import Project="..\build.DotNetLibrary.props" />
   <ItemGroup>
@@ -31,13 +31,21 @@ under the License.
   <ItemGroup Condition="'$(TargetFramework)' == 'net451' Or '$(TargetGramework)' == 'net46'">
     <Reference Include="System" />
     <Reference Include="System.Core" />
-    <Reference Include="System.Runtime.Serialization" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Org.Apache.REEF.Client\Org.Apache.REEF.Client.DotNet.csproj" />
+    <ProjectReference Include="..\Org.Apache.REEF.Common\Org.Apache.REEF.Common.DotNet.csproj" />
+    <ProjectReference Include="..\Org.Apache.REEF.Driver\Org.Apache.REEF.Driver.DotNet.csproj" />
+    <ProjectReference Include="..\Org.Apache.REEF.Evaluator\Org.Apache.REEF.Evaluator.DotNet.csproj" />
+    <ProjectReference Include="..\Org.Apache.REEF.Examples\Org.Apache.REEF.Examples.DotNet.csproj" />
+    <ProjectReference Include="..\Org.Apache.REEF.IMRU\Org.Apache.REEF.IMRU.DotNet.csproj" />
+    <ProjectReference Include="..\Org.Apache.REEF.IO\Org.Apache.REEF.IO.DotNet.csproj" />
+    <ProjectReference Include="..\Org.Apache.REEF.Network\Org.Apache.REEF.Network.DotNet.csproj" />
     <ProjectReference Include="..\Org.Apache.REEF.Tang\Org.Apache.REEF.Tang.DotNet.csproj" />
     <ProjectReference Include="..\Org.Apache.REEF.Utilities\Org.Apache.REEF.Utilities.DotNet.csproj" />
-    <ProjectReference Include="..\Org.Apache.REEF.Common\Org.Apache.REEF.Common.DotNet.csproj" />
     <ProjectReference Include="..\Org.Apache.REEF.Wake\Org.Apache.REEF.Wake.DotNet.csproj" />
+    <ProjectReference Include="..\Org.Apache.REEF.Bridge.CLR\Org.Apache.REEF.Bridge.CLR.DotNet.csproj" />
+    <ProjectReference Include="..\Org.Apache.REEF.IMRU.Examples\Org.Apache.REEF.IMRU.Examples.DotNet.csproj" />
   </ItemGroup>
 </Project>
 

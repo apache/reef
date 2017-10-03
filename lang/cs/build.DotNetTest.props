@@ -17,19 +17,8 @@ under the License.
 -->
 
 <Import Project="build.DotNet.props"/>
-
-<!-- Settings for Linux platforms -->
-<PropertyGroup Condition="'$(OS)' != 'Windows_NT'">
-  <TargetFrameworks>netcoreapp2.0</TargetFrameworks>
-  <OutputType>Exe</OutputType>
-  <RuntimeIdentifiers>linux-x64</RuntimeIdentifiers>
-</PropertyGroup>
-
-<!-- Settings for Windows platforms -->
-<PropertyGroup Condition="'$(OS)' == 'Windows_NT'">
+<PropertyGroup>
   <TargetFrameworks>netcoreapp2.0;net46;net451</TargetFrameworks>
-  <OutputType>Exe</OutputType>
-  <!-- REEF-1888: win7-x64 is needed for .net46 and .net451. Target a newer version of windows once net46 and 451 are removed" -->
-  <RuntimeIdentifiers>win7-x64</RuntimeIdentifiers>
+  <TargetFrameworks Condition="'$(OS)' != 'Windows_NT'">netcoreapp2.0</TargetFrameworks>
 </PropertyGroup>
 </Project>
