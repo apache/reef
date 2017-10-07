@@ -27,7 +27,7 @@ under the License.
     <PackageReference Include="Newtonsoft.Json" Version="$(NewtonsoftJsonVersion)" />
     <PackageReference Include="NSubstitute" Version="$(NSubstituteVersion)" />
   </ItemGroup>
-  <!-- TODO: REEF-1888 Remove Conditional, will no longer be needed -->
+  <!-- TODO[JIRA REEF-1888] This item group will not be needed when only .netcore is targeted. -->
   <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp2.0'">
     <PackageReference Include="System.ServiceProcess.ServiceController" Version="4.4.0" />
   </ItemGroup>

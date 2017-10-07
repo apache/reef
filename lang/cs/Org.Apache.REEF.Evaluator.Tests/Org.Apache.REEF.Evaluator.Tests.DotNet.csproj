@@ -23,7 +23,7 @@ under the License.
     <PackageReference Include="NSubstitute" Version="$(NSubstituteVersion)" />
     <PackageReference Include="protobuf-net" Version="$(ProtobufVersion)" />
   </ItemGroup>
-  <!-- TODO: REEF-1888 Remove ItemGroup when removing net451 and net46 targets -->
+  <!-- TODO[JIRA REEF-1888] This item group will not be needed when only .netcore is targeted. -->
   <ItemGroup Condition="'$(TargetFramework)' == 'net451' Or '$(TargetFramework)' == 'net46'">
     <Reference Include="System" />
   </ItemGroup>
