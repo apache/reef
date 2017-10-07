@@ -1,0 +1,62 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+<!--
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+
+http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+-->
+  <PropertyGroup>
+    <AssemblyName>Org.Apache.REEF.Bridge</AssemblyName>
+    <Description>Avro bridge for REEF.NET</Description>
+    <PackageTags>REEF Bridge</PackageTags>
+  </PropertyGroup>
+  <Import Project="..\build.DotNetLibrary.props" />
+  <PropertyGroup>
+    <AvroBinaryDirectory>..\packages\AvroBin</AvroBinaryDirectory>
+    <AvroSchemaDirectory>..\..\common\bridge\avro</AvroSchemaDirectory>
+    <AvroTools>..\packages\microsoft.avro.tools\$(AvroVersion)\lib\net451\Microsoft.Avro.Tools.exe</AvroTools>
+    <AvroLibrary>..\packages\microsoft.avro.core\$(AvroVersion)\lib\net451\Microsoft.Avro.Core.dll</AvroLibrary>
+    <NewtonsoftLibrary>..\packages\newtonsoft.json\$(NewtonsoftJsonVersion)\lib\net45\Newtonsoft.Json.dll</NewtonsoftLibrary>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Avro.Core" Version="$(AvroVersion)" />
+    <PackageReference Include="Microsoft.Avro.Tools" Version="$(AvroVersion)" />
+    <PackageReference Include="Newtonsoft.Json" Version="$(NewtonsoftJsonVersion)" />
+  </ItemGroup>
+  <!-- TODO[JIRA REEF-1888] This item group will not be needed when only .netcore is targeted. -->
+  <ItemGroup Condition="'$(TargetFramework)' == 'net451' Or '$(TargetGramework)' == 'net46'">
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.IO.Compression.FileSystem" />
+    <Reference Include="System.Numerics" />
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.Xml" />
+    <Reference Include="System.Xml.Linq" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Org.Apache.REEF.Common\Org.Apache.REEF.Common.DotNet.csproj" />
+    <ProjectReference Include="..\Org.Apache.REEF.Tang\Org.Apache.REEF.Tang.DotNet.csproj" />
+    <ProjectReference Include="..\Org.Apache.REEF.Utilities\Org.Apache.REEF.Utilities.DotNet.csproj" />
+    <ProjectReference Include="..\Org.Apache.REEF.Wake\Org.Apache.REEF.Wake.DotNet.csproj" />
+    <ProjectReference Include="..\Org.Apache.REEF.IO\Org.Apache.REEF.IO.DotNet.csproj" />
+</ItemGroup>
+
+  <!-- REEF-1893, custom task needs to be moved into a binary, note to remove DependsOnTargets="RestorePackages" in AvroCodeGeneration.targets
+  <Import Project="$(SolutionDir)\AvroCodeGeneration.targets" Condition="Exists('$(SolutionDir)\AvroCodeGeneration.targets')" />
+  -->
+</Project>

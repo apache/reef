@@ -36,8 +36,9 @@ under the License.
   <PropertyGroup>
     <Platforms>x64</Platforms>
     <PlatformTarget>x64</PlatformTarget>
+    <NoWarn>NU1701;NU1603</NoWarn>
     <DefineConstants>DOTNET_BUILD</DefineConstants>
-    <OutputPath>..\bin\$(AssemblyName)</OutputPath>
+    <OutputPath>..\bin\.netcore\$(Configruation)\$(AssemblyName)</OutputPath>
     <AvroVersion>0.1.0</AvroVersion>
     <NewtonsoftJsonVersion>10.0.3</NewtonsoftJsonVersion>
     <NSubstituteVersion>1.8.2.0</NSubstituteVersion>

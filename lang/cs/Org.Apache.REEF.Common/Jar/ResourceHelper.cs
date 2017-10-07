@@ -60,7 +60,7 @@ namespace Org.Apache.REEF.Common.Jar
         public ResourceHelper(Assembly assembly)
         {
             var names = assembly.GetManifestResourceNames();
-            if (null == names[0])
+            if (names == null || names.Length == 0 || null == names[0])
             {
                 throw new ApplicationException("Could not retrieve Assembly Manifest Resource names");
             }
