@@ -24,8 +24,6 @@ package org.apache.reef.examples.data.loading;
 import org.apache.hadoop.mapred.TextInputFormat;
 import org.apache.reef.annotations.audience.ClientSide;
 import org.apache.reef.client.DriverConfiguration;
-import org.apache.reef.client.DriverLauncher;
-import org.apache.reef.client.LauncherStatus;
 import org.apache.reef.driver.evaluator.EvaluatorRequest;
 import org.apache.reef.runtime.spark.job.SparkDataLoadingRequestBuilder;
 import org.apache.reef.runtime.local.client.LocalRuntimeConfiguration;
@@ -40,9 +38,7 @@ import org.apache.reef.tang.exceptions.BindException;
 import org.apache.reef.tang.exceptions.InjectionException;
 import org.apache.reef.tang.formats.CommandLine;
 import org.apache.reef.util.EnvironmentUtils;
-import org.apache.spark.sql.SparkSession;
-import org.apache.spark.sql.Dataset;
-import org.apache.spark.sql.Row;
+import org.apache.reef.runtime.spark.job.SparkRunner;
 
 import java.io.IOException;
 import java.util.logging.Level;
@@ -87,10 +83,8 @@ public final class DataLoadingREEFOnSpark {
     final Injector injector = tang.newInjector(cb.build());
 
     final boolean isLocal = injector.getNamedInstance(DataLoadingREEFOnSpark.Local.class);
-    final int jobTimeout = injector.getNamedInstance(DataLoadingREEFOnSpark.TimeOut.class) * 60 * 1000;
 
 
-    final String inputDir = injector.getNamedInstance(DataLoadingREEFOnSpark.InputDir.class);
 
     final Configuration runtimeConfiguration;
     if (isLocal) {
@@ -117,7 +111,6 @@ public final class DataLoadingREEFOnSpark {
     final Configuration dataLoadConfiguration = new SparkDataLoadingRequestBuilder()
         .setInputFormatClass(TextInputFormat.class)
         .setInputPath(inputPath)
-        .setNumberOfDesiredSplits(NUM_SPLITS)
         .addComputeRequest(computeRequest)
         .addDataRequest(dataRequest)
         .setDriverConfigurationModule(DriverConfiguration.CONF
@@ -128,9 +121,9 @@ public final class DataLoadingREEFOnSpark {
         .build();
 
     //this is the key, we call into the spark runtime to run this.
-    new SparkRunner().run(runtimeConfiguration,dataLoadConfiguration,inputPath,NUM_SPLITS);
+    new SparkRunner().run(runtimeConfiguration, dataLoadConfiguration, inputPath, NUM_SPLITS);
 
-    LOG.log(Level.INFO, "REEF job completed: {0}", state);
+    //LOG.log(Level.INFO, "REEF job completed: {0}", state);
   }
 
   /**
