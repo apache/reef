@@ -30,7 +30,10 @@ import java.util.List;
 import java.util.Set;
 
 public class ConfigurationImpl implements Configuration {
-  private final ConfigurationBuilderImpl builder;
+
+  private ConfigurationBuilderImpl builder=null;
+
+  public ConfigurationImpl(){}
 
   protected ConfigurationImpl(final ConfigurationBuilderImpl builder) {
     this.builder = builder;
