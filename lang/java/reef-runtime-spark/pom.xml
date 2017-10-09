@@ -41,6 +41,7 @@ under the License.
             <version>${project.version}</version>
         </dependency>
         <dependency>
+<<<<<<< HEAD
             <groupId>${project.groupId}</groupId>
             <artifactId>reef-io</artifactId>
             <version>${project.version}</version>
@@ -56,6 +57,8 @@ under the License.
             <version>${project.version}</version>
         </dependency>
         <dependency>
+=======
+>>>>>>> 1dfc24f8635d9d69887a427d32d96246320d2f06
             <groupId>org.apache.spark</groupId>
             <artifactId>spark-sql_2.10</artifactId>
             <version>2.1.0</version>
