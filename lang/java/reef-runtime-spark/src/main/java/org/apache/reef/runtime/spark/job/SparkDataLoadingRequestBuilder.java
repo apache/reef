@@ -25,12 +25,9 @@ import org.apache.reef.client.DriverConfiguration;
 import org.apache.reef.driver.evaluator.EvaluatorRequest;
 import org.apache.reef.io.data.loading.api.DataLoader;
 import org.apache.reef.io.data.loading.api.DataLoadingService;
-import org.apache.reef.io.data.loading.api.DistributedDataSet;
 import org.apache.reef.io.data.loading.api.EvaluatorToPartitionStrategy;
-import org.apache.reef.io.data.loading.impl.DistributedDataSetPartitionSerializer;
 import org.apache.reef.io.data.loading.impl.AvroEvaluatorRequestSerializer;
 import org.apache.reef.io.data.loading.impl.SingleDataCenterEvaluatorToPartitionStrategy;
-import org.apache.reef.io.data.loading.impl.DistributedDataSetPartition;
 import org.apache.reef.io.data.loading.impl.InputFormatLoadingService;
 import org.apache.reef.io.data.loading.impl.JobConfExternalConstructor;
 import org.apache.reef.io.data.loading.impl.MultiDataCenterEvaluatorToPartitionStrategy;
@@ -42,7 +39,6 @@ import org.apache.reef.tang.annotations.NamedParameter;
 import org.apache.reef.tang.exceptions.BindException;
 import org.apache.reef.tang.formats.ConfigurationModule;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -69,17 +65,6 @@ public final class SparkDataLoadingRequestBuilder
    * default, is set to true.
    */
   private boolean singleDataCenterStrategy = true;
-  /**
-   * Distributed dataset that can contain many distributed partitions.
-   */
-  private DistributedDataSet distributedDataSet;
-
-
-  /**
-   * The input path of the data to be loaded.
-   */
-  private String inputPath;
-
 
 
   /**
@@ -231,12 +216,6 @@ public final class SparkDataLoadingRequestBuilder
     jcb.bindNamedParameter(LoadDataIntoMemory.class, Boolean.toString(this.inMemory))
         .bindNamedParameter(JobConfExternalConstructor.InputFormatClass.class, inputFormatClass);
 
-    final Iterator<DistributedDataSetPartition> partitions = this.distributedDataSet.iterator();
-    while (partitions.hasNext()) {
-      jcb.bindSetEntry(
-          DistributedDataSetPartitionSerializer.DistributedDataSetPartitions.class,
-          DistributedDataSetPartitionSerializer.serialize(partitions.next()));
-    }
 
     // we do this check for backwards compatibility, if the user defined it
     // wants to use the single data center loading strategy, we bind that implementation.

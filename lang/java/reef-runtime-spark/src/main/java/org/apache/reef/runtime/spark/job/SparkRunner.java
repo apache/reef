@@ -21,13 +21,18 @@ package org.apache.reef.runtime.spark.job;
 
 import org.apache.reef.client.DriverLauncher;
 import org.apache.reef.tang.Configuration;
-import org.apache.spark.rdd.RDD;
+import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.sql.SparkSession;
+import org.apache.spark.api.java.JavaSparkContext;
+import org.apache.spark.api.java.function.FlatMapFunction;
+import java.util.Iterator;
+
 
 /**
  * Responsible for running the REEF task inside the spark execution environment.
  */
 public class SparkRunner {
+
 
   /**
    * Given an input dataframe run a map function over
@@ -43,13 +48,23 @@ public class SparkRunner {
   public void run(final Configuration runtimeConfiguration,
                   final Configuration dataLoadConfiguration,
                   final String inputPath, final int numPartitions) {
-    RDD<String> lines;
+    JavaRDD<String> lines;
     SparkSession sparkSession=null;
-    sparkSession = SparkSession.builder().master("local").appName("ReefOnSpark").getOrCreate();
+    SparkSession spark = SparkSession.builder().getOrCreate();
+    JavaSparkContext sc = new JavaSparkContext(spark.sparkContext());
     if (inputPath!=null && !inputPath.isEmpty()){
-      lines = sparkSession.sparkContext().textFile(inputPath, numPartitions);
-      lines.map(status->DriverLauncher.getLauncher(runtimeConfiguration).run(dataLoadConfiguration));
+      lines = sc.textFile(inputPath, numPartitions);
+      //lines.map(status->DriverLauncher.getLauncher(runtimeConfiguration).run(dataLoadConfiguration));
+
+      JavaRDD<String> words = lines.flatMap(new FlatMapFunction<String, String>() {
+            @Override
+            public Iterator<String> call(final String s) throws Exception {
+              DriverLauncher.getLauncher(runtimeConfiguration).run(dataLoadConfiguration);
+              return null;
+            }
+          });
     }
   }
 }
+
 
