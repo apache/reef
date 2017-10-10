@@ -25,6 +25,7 @@ using Org.Apache.REEF.Driver.Defaults;
 using Org.Apache.REEF.Driver.Evaluator;
 using Org.Apache.REEF.Driver.Task;
 using Org.Apache.REEF.Tang.Annotations;
+using Org.Apache.REEF.Utilities.Attributes;
 
 [module: SuppressMessage("StyleCop.CSharp.MaintainabilityRules", "SA1402:FileMayOnlyContainASingleClass", Justification = "allow name parameter class to be embedded")]
 
@@ -35,8 +36,8 @@ namespace Org.Apache.REEF.Driver.Bridge
     /// </summary>
     public sealed class DriverBridgeConfigurationOptions
     {
-        // Level.Verbose (since enum is not suppoted for TANG, we use a string here)
-        private const string _verboseLevel = "Verbose";
+        // Level.Verbose (since enum is not supported for TANG, we use a string here)
+        private const string _infoLevel = "Info";
 
         [NamedParameter(documentation: "The start point for application logic. Event fired after the Driver is done initializing.")]
         public class DriverStartedHandlers : Name<ISet<IObserver<IDriverStarted>>>
@@ -148,12 +149,13 @@ namespace Org.Apache.REEF.Driver.Bridge
         {
         }
 
-        [NamedParameter("Additional trace listners supplied by client", "TraceListeners", null, defaultClasses: new[] { typeof(DefaultCustomTraceListener) })]
+        [NamedParameter("Additional trace listeners supplied by client", "TraceListeners", null, defaultClasses: new[] { typeof(DefaultCustomTraceListener) })]
         public class TraceListenersSet : Name<ISet<TraceListener>>
         {
         }
 
-        [NamedParameter("Custom Trace Level", "TraceLevel", defaultValue: _verboseLevel)]
+        [Breaking("The change is introduced in 0.17")]
+        [NamedParameter("Custom Trace Level", "TraceLevel", defaultValue: _infoLevel)]
         public class TraceLevel : Name<string>
         {
         }
