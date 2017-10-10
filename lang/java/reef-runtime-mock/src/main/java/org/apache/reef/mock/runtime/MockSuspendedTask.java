@@ -7,7 +7,7 @@
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
  *
- *   http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -16,29 +16,35 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.driver.evaluator;
 
-import org.apache.reef.annotations.Provided;
-import org.apache.reef.annotations.audience.DriverSide;
-import org.apache.reef.annotations.audience.Public;
+package org.apache.reef.mock.runtime;
+
+import org.apache.reef.driver.context.ActiveContext;
+import org.apache.reef.driver.task.SuspendedTask;
 
 /**
- * Interface through which Evaluators can be requested.
+ * mock suspended task.
  */
-@Public
-@DriverSide
-@Provided
-public interface EvaluatorRequestor {
+public class MockSuspendedTask implements SuspendedTask {
 
-  /**
-   * Submit the request for new evaluator.
-   * The response will surface in the AllocatedEvaluator message handler.
-   */
-  void submit(final EvaluatorRequest req);
+  private final MockRunningTask task;
 
-  /**
-   * Get a new Builder for the evaluator with fluid interface.
-   * @return Builder for the evaluator
-   */
-  EvaluatorRequest.Builder newRequest();
+  public MockSuspendedTask(final MockRunningTask task) {
+    this.task = task;
+  }
+
+  @Override
+  public ActiveContext getActiveContext() {
+    return this.task.getActiveContext();
+  }
+
+  @Override
+  public byte[] get() {
+    return new byte[0];
+  }
+
+  @Override
+  public String getId() {
+    return this.task.getId();
+  }
 }
