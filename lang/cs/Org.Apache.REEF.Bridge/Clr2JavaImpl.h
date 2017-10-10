@@ -56,10 +56,10 @@ namespace Org {
                         public ref class AllocatedEvaluatorClr2Java : public IAllocatedEvaluatorClr2Java {
                             jobject  _jobjectAllocatedEvaluator = NULL;
                             JavaVM* _jvm;
-                            jstring _jstringId = NULL;
-                            jstring _jstringNameServerInfo = NULL;
+							String^ _evaluatorId;
+							String^ _nameServerInfo;
                         public:
-                            AllocatedEvaluatorClr2Java(JNIEnv *env, jobject jallocatedEvaluator);
+                            AllocatedEvaluatorClr2Java(JNIEnv *env, jobject jallocatedEvaluator, jstring nameServerInfo, jstring evaluatorId);
                             ~AllocatedEvaluatorClr2Java();
                             !AllocatedEvaluatorClr2Java();
                             virtual void SubmitContextAndTask(String^ evaluatorConfigStr, String^ contextConfigStr, String^ taskConfigStr);

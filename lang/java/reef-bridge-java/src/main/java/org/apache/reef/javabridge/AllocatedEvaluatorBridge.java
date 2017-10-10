@@ -24,6 +24,9 @@ import org.apache.reef.io.naming.Identifiable;
 import org.apache.reef.runtime.common.driver.evaluator.AllocatedEvaluatorImpl;
 import org.apache.reef.driver.evaluator.AllocatedEvaluator;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -61,6 +64,11 @@ public final class AllocatedEvaluatorBridge extends NativeBridge implements Iden
   public void submitContextAndTaskString(final String evaluatorConfigurationString,
                                          final String contextConfigurationString,
                                          final String taskConfigurationString) {
+
+    final DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+    LOG.log(Level.FINE, "AllocatedEvaluatorBridge:submitContextAndTaskString for evaluator id: {0}, time: {1}.",
+        new Object[] {evaluatorId, dateFormat.format(new Date())});
+
     if (evaluatorConfigurationString.isEmpty()) {
       throw new RuntimeException("empty evaluatorConfigurationString provided.");
     }

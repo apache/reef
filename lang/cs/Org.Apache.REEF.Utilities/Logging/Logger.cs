@@ -145,7 +145,7 @@ namespace Org.Apache.REEF.Utilities.Logging
         /// <summary>
         /// Log the message with the specified Log Level.
         ///
-        /// If addtional arguments are passed, the message will be treated as
+        /// If additional arguments are passed, the message will be treated as
         /// a format string.  The format string and the additional arguments 
         /// will be formatted according to string.Format()
         /// </summary>
@@ -161,7 +161,7 @@ namespace Org.Apache.REEF.Utilities.Logging
                     DateTime.Now.ToString("o", CultureInfo.InvariantCulture) 
                     + " " 
                     + System.Threading.Thread.CurrentThread.ManagedThreadId.ToString("D4", CultureInfo.InvariantCulture) 
-                    + Environment.NewLine + LogLevel[(int)level] + ": " 
+                    + " : " + LogLevel[(int)level] + ": " 
                     + msg;
 
                 _traceSource.TraceEvent(
