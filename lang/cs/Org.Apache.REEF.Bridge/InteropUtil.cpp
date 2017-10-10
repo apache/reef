@@ -135,13 +135,16 @@ jbyteArray JavaByteArrayFromManagedByteArray(
   return NULL;
 }
 
+thread_local JNIEnv *t_env = NULL;
 JNIEnv* RetrieveEnv(JavaVM* jvm) {
-  JNIEnv *env;
-  if (jvm->AttachCurrentThread((void **) &env, NULL) != 0) {
-    ManagedLog::LOGGER->Log("cannot attach jni env to current jvm thread.");
-    throw;
+  if (NULL == t_env)
+  {
+	if (jvm->AttachCurrentThread((void **)&t_env, NULL) != 0) {
+		ManagedLog::LOGGER->Log("cannot attach jni env to current jvm thread.");
+		throw;
+	}
   }
-  return env;
+  return t_env;
 }
 
 String^ FormatJavaExceptionMessage(String^ errorMessage, Exception^ exception, int recursionDepth) {

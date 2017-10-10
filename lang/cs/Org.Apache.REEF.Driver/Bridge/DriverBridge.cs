@@ -19,6 +19,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
+using System.Linq;
 using Org.Apache.REEF.Common.Context;
 using Org.Apache.REEF.Common.Evaluator;
 using Org.Apache.REEF.Common.Evaluator.DriverConnectionConfigurationProviders;
@@ -32,6 +33,8 @@ using Org.Apache.REEF.Common.Evaluator.Parameters;
 using Org.Apache.REEF.Driver.Bridge.Clr2java;
 using Org.Apache.REEF.Driver.Bridge.Events;
 using Org.Apache.REEF.Driver.Defaults;
+using Org.Apache.REEF.Tang.Formats;
+using Org.Apache.REEF.Tang.Implementations.Configuration;
 using Org.Apache.REEF.Tang.Implementations.InjectionPlan;
 using Org.Apache.REEF.Tang.Implementations.Tang;
 
@@ -117,7 +120,7 @@ namespace Org.Apache.REEF.Driver.Bridge
 
         private readonly HttpServerHandler _httpServerHandler;
 
-        private readonly ISet<IConfigurationProvider> _configurationProviders;
+        private readonly string _configurationProviderString;
 
         private readonly IProgressProvider _progressProvider;
 
@@ -148,7 +151,8 @@ namespace Org.Apache.REEF.Driver.Bridge
             IDriverReconnConfigProvider driverReconnConfigProvider,
             IDriverConnection driverConnection,
             HttpServerHandler httpServerHandler,
-            IProgressProvider progressProvider)
+            IProgressProvider progressProvider,
+            AvroConfigurationSerializer serializer)
         {
             foreach (TraceListener listener in traceListeners)
             {
@@ -188,10 +192,10 @@ namespace Org.Apache.REEF.Driver.Bridge
             _driverRestartFailedEvaluatorHandlers = driverRestartFailedEvaluatorHandlers;
             _httpServerHandler = httpServerHandler;
 
-            _configurationProviders = new HashSet<IConfigurationProvider>(configurationProviders) { driverReconnConfigProvider };
+            var configurationProviderSet = new HashSet<IConfigurationProvider>(configurationProviders) { driverReconnConfigProvider };
+            _configurationProviderString = serializer.ToString(Configurations.Merge(configurationProviderSet.Select(x => x.GetConfiguration()).ToArray()));
+            _progressProvider = progressProvider;            
 
-            _progressProvider = progressProvider;
-            
             _allocatedEvaluatorSubscriber = new ClrSystemHandler<IAllocatedEvaluator>();
             _completedEvaluatorSubscriber = new ClrSystemHandler<ICompletedEvaluator>();
             _taskMessageSubscriber = new ClrSystemHandler<ITaskMessage>();
@@ -384,9 +388,12 @@ namespace Org.Apache.REEF.Driver.Bridge
             }
         }
 
-        internal ISet<IConfigurationProvider> ConfigurationProviders 
-        { 
-            get { return _configurationProviders; } 
+        /// <summary>
+        /// Serialized configuration string for configurations from configuration providers.
+        /// </summary>
+        internal string ConfigurationStringForProviders
+        {
+            get { return _configurationProviderString; }
         }
     }
 }

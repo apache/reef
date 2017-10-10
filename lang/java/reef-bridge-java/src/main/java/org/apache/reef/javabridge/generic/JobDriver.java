@@ -53,7 +53,10 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.*;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -109,7 +112,7 @@ public final class JobDriver {
   /**
    * Map from context ID to running evaluator context.
    */
-  private final Map<String, ActiveContext> contexts = new HashMap<>();
+  private final ConcurrentHashMap<String, ActiveContext> contexts = new ConcurrentHashMap<>();
 
   private final REEFFileNames reefFileNames;
   private final LocalAddressProvider localAddressProvider;
@@ -118,13 +121,14 @@ public final class JobDriver {
    */
   private final LoggingScopeFactory loggingScopeFactory;
   private final Set<String> definedRuntimes;
+  private final DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
 
   private BridgeHandlerManager handlerManager = null;
   private boolean isRestarted = false;
   // We are holding on to following on bridge side.
   // Need to add references here so that GC does not collect them.
-  private final HashMap<String, AllocatedEvaluatorBridge> allocatedEvaluatorBridges =
-      new HashMap<>();
+  private final ConcurrentHashMap<String, AllocatedEvaluatorBridge> allocatedEvaluatorBridges =
+      new ConcurrentHashMap<>();
   private EvaluatorRequestorBridge evaluatorRequestorBridge;
 
 
@@ -230,41 +234,40 @@ public final class JobDriver {
   }
 
   private void submitEvaluator(final AllocatedEvaluator eval, final EvaluatorProcess process) {
-    synchronized (JobDriver.this) {
-      eval.setProcess(process);
-      LOG.log(Level.INFO, "Allocated Evaluator: {0}, total running running {1}",
-          new Object[]{eval.getId(), JobDriver.this.contexts.size()});
-      if (JobDriver.this.handlerManager.getAllocatedEvaluatorHandler() == 0) {
-        throw new RuntimeException("Allocated Evaluator Handler not initialized by CLR.");
-      }
-      final AllocatedEvaluatorBridge allocatedEvaluatorBridge =
-          this.allocatedEvaluatorBridgeFactory.getAllocatedEvaluatorBridge(eval, this.nameServerInfo);
-      allocatedEvaluatorBridges.put(allocatedEvaluatorBridge.getId(), allocatedEvaluatorBridge);
-      NativeInterop.clrSystemAllocatedEvaluatorHandlerOnNext(
-          JobDriver.this.handlerManager.getAllocatedEvaluatorHandler(), allocatedEvaluatorBridge, this.interopLogger);
+    eval.setProcess(process);
+    LOG.log(Level.FINE, "Allocated Evaluator: {0}, total running running {1}.",
+        new Object[]{eval.getId(), JobDriver.this.contexts.size()});
+    final long handler = JobDriver.this.handlerManager.getAllocatedEvaluatorHandler();
+    if (0 == handler) {
+      throw new RuntimeException("Allocated Evaluator Handler not initialized by CLR.");
     }
+    final AllocatedEvaluatorBridge allocatedEvaluatorBridge =
+        this.allocatedEvaluatorBridgeFactory.getAllocatedEvaluatorBridge(eval, this.nameServerInfo);
+    allocatedEvaluatorBridges.putIfAbsent(allocatedEvaluatorBridge.getId(), allocatedEvaluatorBridge);
+    NativeInterop.clrSystemAllocatedEvaluatorHandlerOnNext(
+        handler, allocatedEvaluatorBridge, this.interopLogger, this.nameServerInfo, eval.getId());
+    LOG.log(Level.FINE, "End of JobDriver.Allocated Evaluator: {0}, time: {1}",
+        new Object[] {eval.getId(), dateFormat.format(new Date())});
   }
 
   private void handleFailedEvaluator(final FailedEvaluator eval, final boolean isRestartFailed) {
     try (final LoggingScope ls = loggingScopeFactory.evaluatorFailed(eval.getId())) {
-      synchronized (JobDriver.this) {
-        LOG.log(Level.SEVERE, "FailedEvaluator", eval);
-        for (final FailedContext failedContext : eval.getFailedContextList()) {
-          final String failedContextId = failedContext.getId();
-          LOG.log(Level.INFO, "removing context " + failedContextId + " from job driver contexts.");
-          JobDriver.this.contexts.remove(failedContextId);
-        }
-        String message = "Evaluator " + eval.getId() + " failed with message: "
-            + eval.getEvaluatorException().getMessage();
-        JobDriver.this.jobMessageObserver.sendMessageToClient(message.getBytes(StandardCharsets.UTF_8));
+      LOG.log(Level.SEVERE, "FailedEvaluator", eval);
+      for (final FailedContext failedContext : eval.getFailedContextList()) {
+        final String failedContextId = failedContext.getId();
+        LOG.log(Level.INFO, "removing context " + failedContextId + " from job driver contexts.");
+        JobDriver.this.contexts.remove(failedContextId);
+      }
+      final String message = "Evaluator " + eval.getId() + " failed with message: "
+          + eval.getEvaluatorException().getMessage();
+      JobDriver.this.jobMessageObserver.sendMessageToClient(message.getBytes(StandardCharsets.UTF_8));
 
-        if (isRestartFailed) {
-          evaluatorFailedHandlerWaitForCLRBridgeSetup(
-              JobDriver.this.handlerManager.getDriverRestartFailedEvaluatorHandler(), eval, isRestartFailed);
-        } else {
-          evaluatorFailedHandlerWaitForCLRBridgeSetup(JobDriver.this.handlerManager.getFailedEvaluatorHandler(),
-              eval, isRestartFailed);
-        }
+      if (isRestartFailed) {
+        evaluatorFailedHandlerWaitForCLRBridgeSetup(
+            JobDriver.this.handlerManager.getDriverRestartFailedEvaluatorHandler(), eval, isRestartFailed);
+      } else {
+        evaluatorFailedHandlerWaitForCLRBridgeSetup(JobDriver.this.handlerManager.getFailedEvaluatorHandler(),
+            eval, isRestartFailed);
       }
     }
   }
@@ -347,10 +350,8 @@ public final class JobDriver {
     @Override
     public void onNext(final AllocatedEvaluator allocatedEvaluator) {
       try (final LoggingScope ls = loggingScopeFactory.evaluatorAllocated(allocatedEvaluator.getId())) {
-        synchronized (JobDriver.this) {
-          LOG.log(Level.INFO, "AllocatedEvaluatorHandler.OnNext");
-          JobDriver.this.submitEvaluator(allocatedEvaluator, clrProcessFactory.newEvaluatorProcess());
-        }
+        LOG.log(Level.INFO, "AllocatedEvaluatorHandler.OnNext");
+        JobDriver.this.submitEvaluator(allocatedEvaluator, clrProcessFactory.newEvaluatorProcess());
       }
     }
   }
@@ -362,12 +363,10 @@ public final class JobDriver {
     @Override
     public void onNext(final ActiveContext context) {
       try (final LoggingScope ls = loggingScopeFactory.activeContextReceived(context.getId())) {
-        synchronized (JobDriver.this) {
-          LOG.log(Level.INFO, "ActiveContextHandler: Context available: {0}",
-              new Object[]{context.getId()});
-          JobDriver.this.contexts.put(context.getId(), context);
-          JobDriver.this.submit(context);
-        }
+        LOG.log(Level.INFO, "ActiveContextHandler: Context available: {0}",
+            new Object[]{context.getId()});
+        JobDriver.this.contexts.put(context.getId(), context);
+        JobDriver.this.submit(context);
       }
     }
   }
@@ -733,9 +732,7 @@ public final class JobDriver {
           NativeInterop.clrSystemClosedContextHandlerOnNext(JobDriver.this.handlerManager.getClosedContextHandler(),
               closedContextBridge);
         }
-        synchronized (JobDriver.this) {
-          JobDriver.this.contexts.remove(context.getId());
-        }
+        JobDriver.this.contexts.remove(context.getId());
       }
     }
   }
@@ -757,9 +754,7 @@ public final class JobDriver {
           NativeInterop.clrSystemFailedContextHandlerOnNext(JobDriver.this.handlerManager.getFailedContextHandler(),
               failedContextBridge);
         }
-        synchronized (JobDriver.this) {
-          JobDriver.this.contexts.remove(context.getId());
-        }
+        JobDriver.this.contexts.remove(context.getId());
         final Optional<byte[]> err = context.getData();
         if (err.isPresent()) {
           JobDriver.this.jobMessageObserver.sendMessageToClient(err.get());

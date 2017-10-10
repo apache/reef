@@ -87,22 +87,39 @@ namespace Org.Apache.REEF.Common.Tasks
         [SuppressMessage("Microsoft.Security", "CA2104:Do not declare read only mutable reference types", Justification = "not applicable")]
         public static readonly OptionalParameter<string> Memento = new OptionalParameter<string>();
 
+        private static ConfigurationModule taskConfig;
+
+        private static readonly object ConfigLock = new object();
+
         public static ConfigurationModule ConfigurationModule
         {
             get
             {
-                return new TaskConfiguration()
-                    .BindImplementation(GenericType<ITask>.Class, Task)
-                    .BindSetEntry(GenericType<TaskConfigurationOptions.TaskMessageSources>.Class, OnSendMessage)
-                    .BindImplementation(GenericType<IDriverMessageHandler>.Class, OnMessage)
-                    .BindImplementation(GenericType<IDriverConnectionMessageHandler>.Class, OnDriverConnectionChanged)
-                    .BindNamedParameter(GenericType<TaskConfigurationOptions.Identifier>.Class, Identifier)
-                    .BindNamedParameter(GenericType<TaskConfigurationOptions.Memento>.Class, Memento)
-                    .BindNamedParameter(GenericType<TaskConfigurationOptions.CloseHandler>.Class, OnClose)
-                    .BindNamedParameter(GenericType<TaskConfigurationOptions.SuspendHandler>.Class, OnSuspend)
-                    .BindSetEntry(GenericType<TaskConfigurationOptions.StartHandlers>.Class, OnTaskStart)
-                    .BindSetEntry(GenericType<TaskConfigurationOptions.StopHandlers>.Class, OnTaskStop)
-                    .Build();
+                if (taskConfig == null)
+                {
+                    lock (ConfigLock)
+                    {
+                        if (taskConfig == null)
+                        {
+                            taskConfig = new TaskConfiguration()
+                                .BindImplementation(GenericType<ITask>.Class, Task)
+                                .BindSetEntry(GenericType<TaskConfigurationOptions.TaskMessageSources>.Class,
+                                    OnSendMessage)
+                                .BindImplementation(GenericType<IDriverMessageHandler>.Class, OnMessage)
+                                .BindImplementation(GenericType<IDriverConnectionMessageHandler>.Class,
+                                    OnDriverConnectionChanged)
+                                .BindNamedParameter(GenericType<TaskConfigurationOptions.Identifier>.Class, Identifier)
+                                .BindNamedParameter(GenericType<TaskConfigurationOptions.Memento>.Class, Memento)
+                                .BindNamedParameter(GenericType<TaskConfigurationOptions.CloseHandler>.Class, OnClose)
+                                .BindNamedParameter(GenericType<TaskConfigurationOptions.SuspendHandler>.Class,
+                                    OnSuspend)
+                                .BindSetEntry(GenericType<TaskConfigurationOptions.StartHandlers>.Class, OnTaskStart)
+                                .BindSetEntry(GenericType<TaskConfigurationOptions.StopHandlers>.Class, OnTaskStop)
+                                .Build();
+                        }
+                    }
+                }
+                return taskConfig;
             }
         }
     }
