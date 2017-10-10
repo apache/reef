@@ -7,7 +7,7 @@
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
  *
- *   http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -16,29 +16,29 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.driver.evaluator;
 
-import org.apache.reef.annotations.Provided;
-import org.apache.reef.annotations.audience.DriverSide;
-import org.apache.reef.annotations.audience.Public;
+package org.apache.reef.mock.request;
+
+import org.apache.reef.annotations.Unstable;
+import org.apache.reef.annotations.audience.Private;
+import org.apache.reef.mock.ProcessRequest;
 
 /**
- * Interface through which Evaluators can be requested.
+ * internal process request API.
+ * @param <S> successful event
+ * @param <F> failure event
  */
-@Public
-@DriverSide
-@Provided
-public interface EvaluatorRequestor {
+@Unstable
+@Private
+public interface ProcessRequestInternal<S, F> extends ProcessRequest {
 
   /**
-   * Submit the request for new evaluator.
-   * The response will surface in the AllocatedEvaluator message handler.
+   * @return the outcome of a successful processing of this request
    */
-  void submit(final EvaluatorRequest req);
+  S getSuccessEvent();
 
   /**
-   * Get a new Builder for the evaluator with fluid interface.
-   * @return Builder for the evaluator
+   * @return the outcome of an unsuccessful processing of this request
    */
-  EvaluatorRequest.Builder newRequest();
+  F getFailureEvent();
 }
