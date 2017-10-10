@@ -41,13 +41,14 @@ public final class EvaluatorRequest {
   private final List<String> rackNames;
   private final String runtimeName;
   private final boolean relaxLocality;
+  private final SchedulingConstraint schedulingConstraint;
 
   EvaluatorRequest(final int number,
                    final int megaBytes,
                    final int cores,
                    final List<String> nodeNames,
                    final List<String> rackNames) {
-    this(number, megaBytes, cores, nodeNames, rackNames, "");
+    this(number, megaBytes, cores, nodeNames, rackNames, "", null, true);
   }
 
   EvaluatorRequest(final int number,
@@ -56,9 +57,8 @@ public final class EvaluatorRequest {
                    final List<String> nodeNames,
                    final List<String> rackNames,
                    final String runtimeName) {
-    this(number, megaBytes, cores, nodeNames, rackNames, runtimeName, true);
+    this(number, megaBytes, cores, nodeNames, rackNames, runtimeName, null, true);
   }
-
 
   EvaluatorRequest(final int number,
                    final int megaBytes,
@@ -66,6 +66,7 @@ public final class EvaluatorRequest {
                    final List<String> nodeNames,
                    final List<String> rackNames,
                    final String runtimeName,
+                   final SchedulingConstraint schedulingConstraint,
                    final boolean relaxLocality) {
     this.number = number;
     this.megaBytes = megaBytes;
@@ -74,6 +75,7 @@ public final class EvaluatorRequest {
     this.rackNames = rackNames;
     this.runtimeName = runtimeName;
     this.relaxLocality = relaxLocality;
+    this.schedulingConstraint = schedulingConstraint;
   }
 
   /**
@@ -93,6 +95,15 @@ public final class EvaluatorRequest {
    */
   public static Builder newBuilder(final EvaluatorRequest request) {
     return new Builder(request);
+  }
+
+  /**
+   * Access the scheduling constraint requested.
+   *
+   * @return the scheduling constraint requested.
+   */
+  public SchedulingConstraint getSchedulingConstraint() {
+    return this.schedulingConstraint;
   }
 
   /**
@@ -171,6 +182,7 @@ public final class EvaluatorRequest {
     private final List<String> rackNames = new ArrayList<>();
     private String runtimeName = "";
     private boolean relaxLocality = true; //if not set, default to true
+    private SchedulingConstraint schedulingConstraint = null;
 
     @Private
     public Builder() {
@@ -188,12 +200,19 @@ public final class EvaluatorRequest {
       setNumberOfCores(request.getNumberOfCores());
       setRuntimeName(request.getRuntimeName());
       setRelaxLocality(request.getRelaxLocality());
+      setSchedulingConstraint(request.getSchedulingConstraint());
       for (final String nodeName : request.getNodeNames()) {
         addNodeName(nodeName);
       }
       for (final String rackName : request.getRackNames()) {
         addRackName(rackName);
       }
+    }
+
+    @SuppressWarnings("checkstyle:hiddenfield")
+    public T setSchedulingConstraint(final SchedulingConstraint schedulingConstraint) {
+      this.schedulingConstraint = schedulingConstraint;
+      return (T) this;
     }
 
     /**
@@ -304,8 +323,8 @@ public final class EvaluatorRequest {
      */
     @Override
     public EvaluatorRequest build() {
-      return new EvaluatorRequest(this.n, this.megaBytes, this.cores, this.nodeNames,
-                                  this.rackNames, this.runtimeName, this.relaxLocality);
+      return new EvaluatorRequest(this.n, this.megaBytes, this.cores,
+          this.nodeNames, this.rackNames, this.runtimeName, this.schedulingConstraint, this.relaxLocality);
     }
   }
 }

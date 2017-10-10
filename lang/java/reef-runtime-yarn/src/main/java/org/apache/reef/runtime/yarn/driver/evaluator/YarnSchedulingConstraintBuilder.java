@@ -16,42 +16,34 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.driver.evaluator;
+package org.apache.reef.runtime.yarn.driver.evaluator;
 
-import org.apache.reef.driver.catalog.NodeDescriptor;
+import org.apache.reef.driver.evaluator.SchedulingConstraint;
+import org.apache.reef.driver.evaluator.SchedulingConstraintBuilder;
+
+import javax.inject.Inject;
 
 /**
- * Metadata about an Evaluator.
+ * YARN scheduling constraint builder for evaluator requests.
  */
-public interface EvaluatorDescriptor {
+public final class YarnSchedulingConstraintBuilder implements SchedulingConstraintBuilder{
+
+  private String nodeLabelExpression;
+
+  @Inject
+  YarnSchedulingConstraintBuilder() {
+  }
 
   /**
-   * @return the NodeDescriptor of the node where this Evaluator is running.
+   * Require the allocated Evaluators to be on nodes with the given label.
    */
-  NodeDescriptor getNodeDescriptor();
+  public SchedulingConstraintBuilder requireNodeLabel(final String nodeLabel) {
+    this.nodeLabelExpression = nodeLabel;
+    return this;
+  }
 
-  /**
-   * @return the process to be run on the Evaluator.
-   */
-  EvaluatorProcess getProcess();
-
-  /**
-   * @return the amount of memory allocated to this Evaluator.
-   */
-  int getMemory();
-
-  /**
-   * @return the number of virtual core allocated to this Evaluator.
-   */
-  int getNumberOfCores();
-
-  /**
-   * @return name of the runtime that was used to allocate this Evaluator
-   */
-  String getRuntimeName();
-
-  /**
-   * @return scheduling constraint on this Evaluator
-   */
-  SchedulingConstraint getSchedulingConstraint();
+  @Override
+  public SchedulingConstraint build() {
+    return new YarnSchedulingConstraint(nodeLabelExpression);
+  }
 }

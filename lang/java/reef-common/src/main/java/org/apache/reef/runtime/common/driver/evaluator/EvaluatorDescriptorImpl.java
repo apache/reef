@@ -23,6 +23,7 @@ import org.apache.reef.annotations.audience.Private;
 import org.apache.reef.driver.catalog.NodeDescriptor;
 import org.apache.reef.driver.evaluator.EvaluatorDescriptor;
 import org.apache.reef.driver.evaluator.EvaluatorProcess;
+import org.apache.reef.driver.evaluator.SchedulingConstraint;
 
 /**
  * A simple all-data implementation of EvaluatorDescriptor.
@@ -36,17 +37,28 @@ final class EvaluatorDescriptorImpl implements EvaluatorDescriptor {
   private final int numberOfCores;
   private EvaluatorProcess process;
   private final String runtimeName;
+  private final SchedulingConstraint schedulingConstraint;
 
   EvaluatorDescriptorImpl(final NodeDescriptor nodeDescriptor,
                           final int megaBytes,
                           final int numberOfCores,
                           final EvaluatorProcess process,
                           final String runtimeName) {
+    this(nodeDescriptor, megaBytes, numberOfCores, process, runtimeName, null);
+  }
+
+  EvaluatorDescriptorImpl(final NodeDescriptor nodeDescriptor,
+                          final int megaBytes,
+                          final int numberOfCores,
+                          final EvaluatorProcess process,
+                          final String runtimeName,
+                          final SchedulingConstraint schedulingConstraint) {
     this.nodeDescriptor = nodeDescriptor;
     this.megaBytes = megaBytes;
     this.numberOfCores = numberOfCores;
     this.process = process;
     this.runtimeName = runtimeName;
+    this.schedulingConstraint = schedulingConstraint;
   }
 
   @Override
@@ -79,5 +91,10 @@ final class EvaluatorDescriptorImpl implements EvaluatorDescriptor {
   @Override
   public String getRuntimeName() {
     return this.runtimeName;
+  }
+
+  @Override
+  public SchedulingConstraint getSchedulingConstraint() {
+    return this.schedulingConstraint;
   }
 }

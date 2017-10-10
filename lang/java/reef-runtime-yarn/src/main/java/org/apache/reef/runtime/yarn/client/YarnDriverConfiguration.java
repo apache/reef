@@ -20,6 +20,8 @@ package org.apache.reef.runtime.yarn.client;
 
 import org.apache.reef.annotations.audience.ClientSide;
 import org.apache.reef.annotations.audience.Public;
+import org.apache.reef.driver.evaluator.SchedulingConstraintBuilder;
+import org.apache.reef.runtime.yarn.driver.evaluator.YarnSchedulingConstraintBuilder;
 import org.apache.reef.runtime.yarn.driver.parameters.JobSubmissionDirectoryPrefix;
 import org.apache.reef.runtime.yarn.client.parameters.JobQueue;
 import org.apache.reef.tang.formats.ConfigurationModule;
@@ -49,5 +51,6 @@ public final class YarnDriverConfiguration extends ConfigurationModuleBuilder {
   public static final ConfigurationModule CONF = new YarnDriverConfiguration()
       .bindNamedParameter(JobQueue.class, QUEUE)
       .bindNamedParameter(JobSubmissionDirectoryPrefix.class, JOB_SUBMISSION_DIRECTORY_PREFIX)
+      .bindImplementation(SchedulingConstraintBuilder.class, YarnSchedulingConstraintBuilder.class)
       .build();
 }

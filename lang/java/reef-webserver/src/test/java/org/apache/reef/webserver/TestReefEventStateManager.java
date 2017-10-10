@@ -24,6 +24,7 @@ import org.apache.reef.driver.evaluator.CLRProcessFactory;
 import org.apache.reef.driver.evaluator.EvaluatorDescriptor;
 import org.apache.reef.driver.evaluator.EvaluatorProcess;
 import org.apache.reef.driver.evaluator.EvaluatorProcessFactory;
+import org.apache.reef.driver.evaluator.SchedulingConstraint;
 import org.apache.reef.runtime.common.driver.parameters.JobIdentifier;
 import org.apache.reef.runtime.common.launch.REEFMessageCodec;
 import org.apache.reef.tang.Configuration;
@@ -127,6 +128,11 @@ final class MockEvaluatorDescriptor implements EvaluatorDescriptor {
   @Override
   public String getRuntimeName() {
     return "Local";
+  }
+
+  @Override
+  public SchedulingConstraint getSchedulingConstraint() {
+    return null;
   }
 }
 

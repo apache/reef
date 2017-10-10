@@ -18,6 +18,7 @@
  */
 package org.apache.reef.runtime.common.driver.resourcemanager;
 
+import org.apache.reef.driver.evaluator.SchedulingConstraint;
 import org.apache.reef.util.BuilderUtils;
 import org.apache.reef.util.Optional;
 
@@ -33,6 +34,7 @@ public final class ResourceEventImpl implements ResourceAllocationEvent, Resourc
   private final Optional<Integer> virtualCores;
   private final Optional<String> rackName;
   private final String runtimeName;
+  private final Optional<SchedulingConstraint> schedulingConstraint;
 
 
   private ResourceEventImpl(final Builder builder) {
@@ -42,6 +44,7 @@ public final class ResourceEventImpl implements ResourceAllocationEvent, Resourc
     this.virtualCores = Optional.ofNullable(builder.virtualCores);
     this.rackName = Optional.ofNullable(builder.rackName);
     this.runtimeName = BuilderUtils.notNull(builder.runtimeName);
+    this.schedulingConstraint = Optional.ofNullable(builder.schedulingConstraint);
   }
 
   @Override
@@ -74,6 +77,11 @@ public final class ResourceEventImpl implements ResourceAllocationEvent, Resourc
     return runtimeName;
   }
 
+  @Override
+  public Optional<SchedulingConstraint> getSchedulingConstraint() {
+    return schedulingConstraint;
+  }
+
   public static Builder newAllocationBuilder() {
     return new Builder(false);
   }
@@ -94,6 +102,7 @@ public final class ResourceEventImpl implements ResourceAllocationEvent, Resourc
     private Integer virtualCores;
     private String rackName;
     private String runtimeName;
+    private SchedulingConstraint schedulingConstraint;
 
     private Builder(final boolean recovery){
       this.recovery = recovery;
@@ -146,6 +155,16 @@ public final class ResourceEventImpl implements ResourceAllocationEvent, Resourc
       this.runtimeName = runtimeName;
       return this;
     }
+
+    /**
+     * @see ResourceAllocationEvent#getSchedulingConstraint()
+     * @param schedulingConstraint
+     */
+    public Builder setSchedulingConstraint(final SchedulingConstraint schedulingConstraint) {
+      this.schedulingConstraint = schedulingConstraint;
+      return this;
+    }
+
 
     @Override
     public ResourceEventImpl build() {

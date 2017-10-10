@@ -20,6 +20,7 @@ package org.apache.reef.runtime.common.driver.resourcemanager;
 
 import org.apache.reef.annotations.audience.DriverSide;
 import org.apache.reef.annotations.audience.Private;
+import org.apache.reef.driver.evaluator.SchedulingConstraint;
 import org.apache.reef.util.Optional;
 
 /**
@@ -58,4 +59,9 @@ public interface ResourceEvent {
    * @return Runtime name of the resource
    */
   String getRuntimeName();
+
+  /**
+   * @return Scheduling constraint of the resource.
+   */
+  Optional<SchedulingConstraint> getSchedulingConstraint();
 }
