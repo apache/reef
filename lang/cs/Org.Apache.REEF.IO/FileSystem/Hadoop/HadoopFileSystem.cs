@@ -111,7 +111,6 @@ namespace Org.Apache.REEF.IO.FileSystem.Hadoop
         {
             // Delete the file via the hdfs command line.
             _commandRunner.Run("dfs -rm " + fileUri);
-
         }
 
         public bool Exists(Uri fileUri)
@@ -150,10 +149,7 @@ namespace Org.Apache.REEF.IO.FileSystem.Hadoop
 
         public IEnumerable<Uri> GetChildren(Uri directoryUri)
         {
-            CommandResult commandResult;
-            commandResult = _commandRunner.Run("dfs -ls " + directoryUri);
-
-            return commandResult
+            return _commandRunner.Run("dfs -ls " + directoryUri)
                 .StdOut.Where(line => !LsFirstLineRegex.IsMatch(line))
                 .Select(line => line.Split())
                 .Select(x => new Uri(x[x.Length - 1]));
