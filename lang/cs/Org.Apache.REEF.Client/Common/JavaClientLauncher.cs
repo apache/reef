@@ -24,7 +24,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using Org.Apache.REEF.Client.API.Exceptions;
 using Org.Apache.REEF.Tang.Annotations;
-using Org.Apache.REEF.Utilities.Diagnostics;
 using Org.Apache.REEF.Utilities.Logging;
 
 namespace Org.Apache.REEF.Client.Common
@@ -136,14 +135,12 @@ namespace Org.Apache.REEF.Client.Common
             if (string.IsNullOrWhiteSpace(javaHomePath))
             {
                 // TODO: Attempt to find java via the registry.
-                Exceptions.Throw(
-                    new JavaNotFoundException("JAVA_HOME isn't set. Please install Java and make set JAVA_HOME"), Logger);
+                throw new JavaNotFoundException("JAVA_HOME isn't set. Please install Java and make set JAVA_HOME");
             }
 
             if (!Directory.Exists(javaHomePath))
             {
-                Exceptions.Throw(
-                    new JavaNotFoundException("JAVA_HOME references a folder that doesn't exist.", javaHomePath), Logger);
+                throw new JavaNotFoundException("JAVA_HOME references a folder that doesn't exist.", javaHomePath);
             }
 
             var javaBinPath = Path.Combine(javaHomePath, "bin");
@@ -157,10 +154,8 @@ namespace Org.Apache.REEF.Client.Common
             var javaPath = Path.Combine(javaBinPath, "java.exe");
             if (!File.Exists(javaPath))
             {
-                Exceptions.Throw(
-                    new JavaNotFoundException(
-                        "Could not find java.exe on this machine. Is Java installed and JAVA_HOME set?", javaPath),
-                    Logger);
+                throw new JavaNotFoundException(
+                    "Could not find java.exe on this machine. Is Java installed and JAVA_HOME set?", javaPath);
             }
             return javaPath;
         }
@@ -179,8 +174,8 @@ namespace Org.Apache.REEF.Client.Common
 
             if (files.Count == 0)
             {
-                Exceptions.Throw(new ClasspathException(
-                    "Unable to assemble classpath. Make sure the REEF JAR is in the current working directory."), Logger);
+                throw new ClasspathException(
+                    "Unable to assemble classpath. Make sure the REEF JAR is in the current working directory.");
             }
 
             var classpathEntries = new List<string>(_additionalClasspathEntries).Concat(files);

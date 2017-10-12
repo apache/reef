@@ -20,7 +20,6 @@ using System.IO;
 using System.IO.Compression;
 using Org.Apache.REEF.Common.Files;
 using Org.Apache.REEF.Tang.Annotations;
-using Org.Apache.REEF.Utilities.Diagnostics;
 using Org.Apache.REEF.Utilities.Logging;
 
 namespace Org.Apache.REEF.Client.Common
@@ -45,12 +44,12 @@ namespace Org.Apache.REEF.Client.Common
             string reefFolder = Path.Combine(folderPath, _reefFileNames.GetReefFolderName());
             if (!Directory.Exists(reefFolder))
             {
-                Exceptions.Throw(new DirectoryNotFoundException("Cannot find directory " + reefFolder), Log);
+                throw new DirectoryNotFoundException("Cannot find directory " + reefFolder);
             }
 
             if (File.Exists(archivePath))
             {
-                Exceptions.Throw(new InvalidOperationException("Archive file already exists " + archivePath), Log);
+                throw new InvalidOperationException("Archive file already exists " + archivePath);
             }
 
             ZipFile.CreateFromDirectory(reefFolder, archivePath);

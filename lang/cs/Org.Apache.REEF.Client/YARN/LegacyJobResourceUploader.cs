@@ -22,7 +22,6 @@ using Org.Apache.REEF.Client.Common;
 using Org.Apache.REEF.Client.YARN.RestClient.DataModel;
 using Org.Apache.REEF.Common.Files;
 using Org.Apache.REEF.Tang.Annotations;
-using Org.Apache.REEF.Utilities.Diagnostics;
 using Org.Apache.REEF.Utilities.Logging;
 
 namespace Org.Apache.REEF.Client.Yarn
@@ -83,9 +82,7 @@ namespace Org.Apache.REEF.Client.Yarn
         {
             if (!_file.Exists(filePath))
             {
-                Exceptions.Throw(
-                    new FileNotFoundException("Could not find resource file " + filePath),
-                    Log);
+                throw new FileNotFoundException("Could not find resource file " + filePath);
             }
 
             var detailsOutputPath = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString("N"));
@@ -116,9 +113,7 @@ namespace Org.Apache.REEF.Client.Yarn
         {
             if (!_file.Exists(resourceDetailsOutputPath))
             {
-                Exceptions.Throw(
-                    new FileNotFoundException("Could not find resource details file " + resourceDetailsOutputPath),
-                    Log);
+                throw new FileNotFoundException("Could not find resource details file " + resourceDetailsOutputPath);
             }
 
             // Single line file, easier to deal with sync read
