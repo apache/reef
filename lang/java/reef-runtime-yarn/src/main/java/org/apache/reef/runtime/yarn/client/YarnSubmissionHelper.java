@@ -37,7 +37,10 @@ import org.apache.reef.runtime.yarn.client.unmanaged.YarnProxyUser;
 import org.apache.reef.runtime.yarn.util.YarnTypes;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -136,12 +139,11 @@ public final class YarnSubmissionHelper implements AutoCloseable {
   }
 
   /**
-   * Set the amount of memory to be allocated to the Driver.
-   * @param megabytes
+   * Set the resources for the Driver.
    * @return
    */
-  public YarnSubmissionHelper setDriverMemory(final int megabytes) {
-    applicationSubmissionContext.setResource(Resource.newInstance(getMemory(megabytes), 1));
+  public YarnSubmissionHelper setDriverResources(final int memoryinMegabytes, final int numberOfCores) {
+    applicationSubmissionContext.setResource(Resource.newInstance(getMemory(memoryinMegabytes), numberOfCores));
     return this;
   }
 

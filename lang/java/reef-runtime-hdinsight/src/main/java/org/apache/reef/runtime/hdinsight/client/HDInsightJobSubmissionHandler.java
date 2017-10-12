@@ -141,7 +141,7 @@ public final class HDInsightJobSubmissionHandler implements JobSubmissionHandler
 
     return new Resource()
         .setMemory(jobSubmissionEvent.getDriverMemory().get())
-        .setvCores(1);
+        .setvCores(jobSubmissionEvent.getDriverCPUCores().get());
   }
 
   /**
