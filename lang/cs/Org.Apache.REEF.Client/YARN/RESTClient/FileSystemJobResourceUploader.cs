@@ -24,7 +24,6 @@ using Org.Apache.REEF.Client.YARN.RestClient.DataModel;
 using Org.Apache.REEF.Common.Files;
 using Org.Apache.REEF.IO.FileSystem;
 using Org.Apache.REEF.Tang.Annotations;
-using Org.Apache.REEF.Utilities.Diagnostics;
 using Org.Apache.REEF.Utilities.Logging;
 
 namespace Org.Apache.REEF.Client.YARN.RestClient
@@ -85,9 +84,7 @@ namespace Org.Apache.REEF.Client.YARN.RestClient
         {
             if (!_file.Exists(filePath))
             {
-                Exceptions.Throw(
-                    new FileNotFoundException("Could not find resource file " + filePath),
-                    Log);
+                throw new FileNotFoundException("Could not find resource file " + filePath);
             }
 
             var destinationPath = driverUploadPath + Path.GetFileName(filePath);
