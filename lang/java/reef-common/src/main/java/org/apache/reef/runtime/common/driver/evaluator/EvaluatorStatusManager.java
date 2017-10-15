@@ -120,7 +120,7 @@ final class EvaluatorStatusManager {
   }
 
   /**
-   * Check if the evaluator is stopped. That is, in one of the DONE, FAILED, or KILLED states.
+   * Check if the evaluator is stopped. That is, in one of the DONE, FAILED or KILLED states.
    * @return true if evaluator completed, false if it is still available or in the process of being shut down.
    * @deprecated TODO[JIRA REEF-1560] Use isCompleted() method instead. Remove after version 0.16
    */
@@ -130,7 +130,7 @@ final class EvaluatorStatusManager {
   }
 
   /**
-   * Check if the evaluator is stopped. That is, in one of the DONE, FAILED, or KILLED states.
+   * Check if the evaluator is stopped. That is, in one of the DONE, FAILED, PREEMPTED or KILLED states.
    * @return true if evaluator completed, false if it is still available or in the process of being shut down.
    */
   boolean isCompleted() {

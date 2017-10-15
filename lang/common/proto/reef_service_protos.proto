@@ -32,6 +32,7 @@ enum State {
     SUSPEND = 3;
     FAILED = 4;
     KILLED = 5;
+    PREEMPTED = 6;
 }
 
 message RuntimeErrorProto {

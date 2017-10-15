@@ -25,6 +25,7 @@ import org.apache.reef.driver.context.FailedContext;
 import org.apache.reef.driver.evaluator.AllocatedEvaluator;
 import org.apache.reef.driver.evaluator.CompletedEvaluator;
 import org.apache.reef.driver.evaluator.FailedEvaluator;
+import org.apache.reef.driver.evaluator.PreemptedEvaluator;
 import org.apache.reef.driver.parameters.*;
 import org.apache.reef.driver.task.*;
 import org.apache.reef.runtime.common.driver.DriverExceptionHandler;
@@ -101,6 +102,8 @@ public final class EvaluatorMessageDispatcher implements AutoCloseable {
       @Parameter(EvaluatorAllocatedHandlers.class)
       final Set<EventHandler<AllocatedEvaluator>> evaluatorAllocatedHandlers,
       @Parameter(EvaluatorFailedHandlers.class) final Set<EventHandler<FailedEvaluator>> evaluatorFailedHandlers,
+      @Parameter(EvaluatorPreemptedHandlers.class)
+      final Set<EventHandler<PreemptedEvaluator>> evaluatorPreemptedHandlers,
       @Parameter(EvaluatorCompletedHandlers.class)
       final Set<EventHandler<CompletedEvaluator>> evaluatorCompletedHandlers,
       // Service-provided Evaluator event handlers
@@ -108,6 +111,8 @@ public final class EvaluatorMessageDispatcher implements AutoCloseable {
       final Set<EventHandler<AllocatedEvaluator>> serviceEvaluatorAllocatedEventHandlers,
       @Parameter(ServiceEvaluatorFailedHandlers.class)
       final Set<EventHandler<FailedEvaluator>> serviceEvaluatorFailedHandlers,
+      @Parameter(ServiceEvaluatorPreemptedHandlers.class)
+      final Set<EventHandler<PreemptedEvaluator>> serviceEvaluatorPreemptedHandlers,
       @Parameter(ServiceEvaluatorCompletedHandlers.class)
       final Set<EventHandler<CompletedEvaluator>> serviceEvaluatorCompletedHandlers,
 
@@ -173,6 +178,7 @@ public final class EvaluatorMessageDispatcher implements AutoCloseable {
 
     // Service Evaluator event handlers
     this.serviceDispatcher.register(FailedEvaluator.class, serviceEvaluatorFailedHandlers);
+    this.serviceDispatcher.register(PreemptedEvaluator.class, serviceEvaluatorPreemptedHandlers);
     this.serviceDispatcher.register(CompletedEvaluator.class, serviceEvaluatorCompletedHandlers);
     this.serviceDispatcher.register(AllocatedEvaluator.class, serviceEvaluatorAllocatedEventHandlers);
 
@@ -208,6 +214,13 @@ public final class EvaluatorMessageDispatcher implements AutoCloseable {
     }
     this.applicationDispatcher.register(FailedEvaluator.class, evaluatorFailedCallbackHandlers);
 
+    final Set<EventHandler<PreemptedEvaluator>> evaluatorPreemptedCallbackHandlers = new HashSet<>();
+    for (final EventHandler<PreemptedEvaluator> evaluatorPreemptedHandler : evaluatorPreemptedHandlers) {
+      evaluatorPreemptedCallbackHandlers.add(
+          idlenessCallbackEventHandlerFactory.createIdlenessCallbackWrapperHandler(evaluatorPreemptedHandler));
+    }
+    this.applicationDispatcher.register(PreemptedEvaluator.class, evaluatorPreemptedCallbackHandlers);
+
     LOG.log(Level.FINE, "Instantiated 'EvaluatorMessageDispatcher'");
   }
 
@@ -217,6 +230,10 @@ public final class EvaluatorMessageDispatcher implements AutoCloseable {
 
   public void onEvaluatorFailed(final FailedEvaluator failedEvaluator) {
     this.dispatch(FailedEvaluator.class, failedEvaluator);
+  }
+
+  public void onEvaluatorPreempted(final PreemptedEvaluator preemptedEvaluator) {
+    this.dispatch(PreemptedEvaluator.class, preemptedEvaluator);
   }
 
   public void onEvaluatorCompleted(final CompletedEvaluator completedEvaluator) {
