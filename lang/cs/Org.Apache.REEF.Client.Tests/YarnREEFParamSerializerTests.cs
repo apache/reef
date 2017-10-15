@@ -179,8 +179,8 @@ namespace Org.Apache.REEF.Client.Tests
                 .SetJobIdentifier(AnyString)
                 .SetMaxApplicationSubmissions(AnyInt)
                 .SetDriverMemory(AnyInt)
-                .AddJobSubmissionEnvVariable("key1", AnyString)
-                .AddJobSubmissionEnvVariable("key2", AnyString)
+                .SetJobSubmissionEnvironmentVariable("key1", AnyString)
+                .SetJobSubmissionEnvironmentVariable("key2", AnyString)
                 .SetDriverStderrFilePath(AnyString)
                 .SetDriverStdoutFilePath(AnyString)
                 .Build();

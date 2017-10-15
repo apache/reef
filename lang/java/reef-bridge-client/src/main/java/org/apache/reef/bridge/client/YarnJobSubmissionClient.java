@@ -161,7 +161,7 @@ public final class YarnJobSubmissionClient {
           .setConfigurationFilePaths(confFiles)
           .setDriverStdoutPath(yarnSubmission.getYarnDriverStdoutFilePath())
           .setDriverStderrPath(yarnSubmission.getYarnDriverStderrFilePath())
-          .setJobSubmissionEnvMap(yarnSubmission.getEnvMap())
+          .setJobSubmissionEnvMap(yarnSubmission.getEnvironmentVariablesMap())
           .submit();
       writeDriverHttpEndPoint(yarnSubmission.getDriverFolder(),
           submissionHelper.getStringApplicationId(), jobFolderOnDFS.getPath());

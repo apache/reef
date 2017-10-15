@@ -183,7 +183,7 @@ public final class TestAvroJobSubmissionParametersSerializationFromCS {
     assert yarnClusterSubmissionFromCS.getTokenService().equals(NULL_REP);
     assert yarnClusterSubmissionFromCS.getYarnDriverStderrFilePath().equals(STRING_REP);
     assert yarnClusterSubmissionFromCS.getYarnDriverStdoutFilePath().equals(STRING_REP);
-    assert yarnClusterSubmissionFromCS.getEnvMap().get("key").equals(STRING_REP);
+    assert yarnClusterSubmissionFromCS.getEnvironmentVariablesMap().get("key").equals(STRING_REP);
     verifyYarnJobSubmissionParams(yarnClusterSubmissionFromCS.getYarnJobSubmissionParameters(),
         yarnClusterSubmissionFromCS.getYarnAppSubmissionParameters());
   }

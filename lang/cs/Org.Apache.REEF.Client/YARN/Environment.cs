@@ -19,6 +19,8 @@ namespace Org.Apache.REEF.Client.YARN
 {
     /// <summary>
     /// Default environment map keys from YARN.
+    /// <a href="http://hadoop.apache.org/docs/r2.6.0/hadoop-yarn/hadoop-yarn-site/WebServicesIntro.html">
+    /// Hadoop RM REST API</a> documentation.
     /// </summary>
     public enum Environment
     {

@@ -90,7 +90,7 @@ namespace Org.Apache.REEF.Client.API
         /// </summary>
         public IDictionary<string, string> JobSubmissionEnvMap
         {
-            get { return _jobSubmissionEnvMap; }
+            get { return new Dictionary<string, string>(_jobSubmissionEnvMap); }
         }
 
         /// <summary>

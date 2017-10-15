@@ -92,13 +92,13 @@ namespace Org.Apache.REEF.Client.API
         }
 
         /// <summary>
-        /// Adds job submission environment variable.
+        /// Set job submission environment variable.
         /// If the variable is already in the map, override it. 
         /// </summary>
         /// <param name="key"></param>
         /// <param name="value"></param>
         /// <returns></returns>
-        public JobParametersBuilder AddJobSubmissionEnvVariable(string key, string value)
+        public JobParametersBuilder SetJobSubmissionEnvironmentVariable(string key, string value)
         {
             _jobSubmissionMap[key] = value;
             return this;

@@ -59,7 +59,7 @@ final class YarnClusterSubmissionFromCS {
   private final String fileSystemUrl;
   private final String yarnDriverStdoutFilePath;
   private final String yarnDriverStderrFilePath;
-  private final Map<String, String> envMap = new HashMap<>();
+  private final Map<String, String> environmentVariablesMap = new HashMap<>();
 
   private final AvroYarnAppSubmissionParameters yarnAppSubmissionParameters;
   private final AvroYarnJobSubmissionParameters yarnJobSubmissionParameters;
@@ -92,10 +92,10 @@ final class YarnClusterSubmissionFromCS {
     this.yarnDriverStdoutFilePath = yarnClusterJobSubmissionParameters.getDriverStdoutFilePath().toString();
     this.yarnDriverStderrFilePath = yarnClusterJobSubmissionParameters.getDriverStderrFilePath().toString();
 
-    if (yarnClusterJobSubmissionParameters.getEnvMap() != null) {
+    if (yarnClusterJobSubmissionParameters.getEnvironmentVariablesMap() != null) {
       for (Map.Entry<java.lang.CharSequence, java.lang.CharSequence> pair :
-          yarnClusterJobSubmissionParameters.getEnvMap().entrySet()) {
-        this.envMap.put(pair.getKey().toString(), pair.getValue().toString());
+          yarnClusterJobSubmissionParameters.getEnvironmentVariablesMap().entrySet()) {
+        this.environmentVariablesMap.put(pair.getKey().toString(), pair.getValue().toString());
       }
     }
 
@@ -137,7 +137,7 @@ final class YarnClusterSubmissionFromCS {
 
   private String envMapString() {
     final StringBuilder sb = new StringBuilder();
-    for (final Map.Entry<String, String> entry : envMap.entrySet()) {
+    for (final Map.Entry<String, String> entry : environmentVariablesMap.entrySet()) {
       sb.append(", Key:" + entry.getKey() + ", value:" + entry.getValue());
     }
     return sb.toString();
@@ -202,8 +202,8 @@ final class YarnClusterSubmissionFromCS {
   /**
    * @return The environment map.
    */
-  Map<String, String> getEnvMap() {
-    return envMap;
+  Map<String, String> getEnvironmentVariablesMap() {
+    return new HashMap<>(environmentVariablesMap);
   }
 
   /**

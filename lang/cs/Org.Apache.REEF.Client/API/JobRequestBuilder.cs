@@ -148,14 +148,14 @@ namespace Org.Apache.REEF.Client.API
         }
 
         /// <summary>
-        /// Adds a job submission environment variable.
+        /// Set a job submission environment variable.
         /// </summary>
         /// <param name="key">key of the environment variable.</param>
         /// <param name="value">Value of the environment variable.</param>
         /// <returns></returns>
-        public JobRequestBuilder AddJobSubmissionEnvVariable(string key, string value)
+        public JobRequestBuilder SetJobSubmissionEnvironmentVariable(string key, string value)
         {
-            _jobParametersBuilder.AddJobSubmissionEnvVariable(key, value);
+            _jobParametersBuilder.SetJobSubmissionEnvironmentVariable(key, value);
             return this;
         }
 
