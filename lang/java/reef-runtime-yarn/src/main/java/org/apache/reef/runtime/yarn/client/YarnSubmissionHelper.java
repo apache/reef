@@ -139,8 +139,12 @@ public final class YarnSubmissionHelper implements AutoCloseable {
   }
 
   /**
-   * Set the resources for the Driver.
-   * @return
+   * Set the resources (memory and number of cores) for the Driver.
+   *
+   * @param memoryinMegabytes memory to be allocated for the Driver, in MegaBytes.
+   * @param numberOfCores Number of cores to allocate for the Driver.
+   *
+   * @return this.
    */
   public YarnSubmissionHelper setDriverResources(final int memoryinMegabytes, final int numberOfCores) {
     applicationSubmissionContext.setResource(Resource.newInstance(getMemory(memoryinMegabytes), numberOfCores));
