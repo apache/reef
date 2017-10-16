@@ -7,7 +7,7 @@
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
  *
- *   http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -16,29 +16,30 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.driver.evaluator;
 
-import org.apache.reef.annotations.Provided;
-import org.apache.reef.annotations.audience.DriverSide;
-import org.apache.reef.annotations.audience.Public;
+package org.apache.reef.mock.runtime;
+
+import org.apache.reef.tang.Configuration;
+import org.apache.reef.tang.Injector;
+import org.apache.reef.tang.Tang;
+import org.apache.reef.tang.annotations.Name;
+import org.apache.reef.tang.exceptions.InjectionException;
 
 /**
- * Interface through which Evaluators can be requested.
+ * mock utilities.
  */
-@Public
-@DriverSide
-@Provided
-public interface EvaluatorRequestor {
+public final class MockUtils {
 
-  /**
-   * Submit the request for new evaluator.
-   * The response will surface in the AllocatedEvaluator message handler.
-   */
-  void submit(final EvaluatorRequest req);
+  private MockUtils() {
 
-  /**
-   * Get a new Builder for the evaluator with fluid interface.
-   * @return Builder for the evaluator
-   */
-  EvaluatorRequest.Builder newRequest();
+  }
+
+  public static <U, T extends Name<U>> U getValue(final Configuration configuration, final Class<T> name) {
+    try {
+      final Injector injector = Tang.Factory.getTang().newInjector(configuration);
+      return injector.getNamedInstance(name);
+    } catch (InjectionException e) {
+      throw new IllegalStateException(e);
+    }
+  }
 }

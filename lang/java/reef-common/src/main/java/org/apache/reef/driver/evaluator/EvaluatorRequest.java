@@ -307,5 +307,12 @@ public final class EvaluatorRequest {
       return new EvaluatorRequest(this.n, this.megaBytes, this.cores, this.nodeNames,
                                   this.rackNames, this.runtimeName, this.relaxLocality);
     }
+
+    /**
+     * Short-circuit submission method for subclass implementations.
+     */
+    public void submit() {
+      throw new UnsupportedOperationException();
+    }
   }
 }
