@@ -65,7 +65,7 @@ public final class TestAvroJobSubmissionParametersSerializationFromCS {
           "\"securityTokenService\":\"" + NULL_REP + "\"," +
           "\"maxApplicationSubmissions\":" + NUMBER_REP + "," +
           "\"driverMemory\":" + NUMBER_REP + "," +
-          "\"envMap\":" +
+          "\"environmentVariablesMap\":" +
           "{" +
             "\"key\":" + STRING_REP_QUOTED +
           "}," +
