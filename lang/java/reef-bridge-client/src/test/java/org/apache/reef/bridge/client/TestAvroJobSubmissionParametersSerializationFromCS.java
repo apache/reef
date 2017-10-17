@@ -65,6 +65,10 @@ public final class TestAvroJobSubmissionParametersSerializationFromCS {
           "\"securityTokenService\":\"" + NULL_REP + "\"," +
           "\"maxApplicationSubmissions\":" + NUMBER_REP + "," +
           "\"driverMemory\":" + NUMBER_REP + "," +
+          "\"environmentVariablesMap\":" +
+          "{" +
+            "\"key\":" + STRING_REP_QUOTED +
+          "}," +
           "\"driverStdoutFilePath\":" + STRING_REP_QUOTED + "," +
           "\"driverStderrFilePath\":" + STRING_REP_QUOTED +
       "}";
@@ -179,7 +183,7 @@ public final class TestAvroJobSubmissionParametersSerializationFromCS {
     assert yarnClusterSubmissionFromCS.getTokenService().equals(NULL_REP);
     assert yarnClusterSubmissionFromCS.getYarnDriverStderrFilePath().equals(STRING_REP);
     assert yarnClusterSubmissionFromCS.getYarnDriverStdoutFilePath().equals(STRING_REP);
-
+    assert yarnClusterSubmissionFromCS.getEnvironmentVariablesMap().get("key").equals(STRING_REP);
     verifyYarnJobSubmissionParams(yarnClusterSubmissionFromCS.getYarnJobSubmissionParameters(),
         yarnClusterSubmissionFromCS.getYarnAppSubmissionParameters());
   }

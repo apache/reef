@@ -63,6 +63,7 @@ public final class YarnSubmissionHelper implements AutoCloseable {
   private String driverStderrFilePath;
   private Class launcherClazz = REEFLauncher.class;
   private List<String> configurationFilePaths;
+  private final Map<String, String> environmentVariablesMap = new HashMap<>();
 
   public YarnSubmissionHelper(final YarnConfiguration yarnConfiguration,
                               final REEFFileNames fileNames,
@@ -241,6 +242,29 @@ public final class YarnSubmissionHelper implements AutoCloseable {
   }
 
   /**
+   * Sets environment variable map.
+   * @param map
+   * @return
+   */
+  public YarnSubmissionHelper setJobSubmissionEnvMap(final Map<String, String> map) {
+    for (final Map.Entry<String, String> entry : map.entrySet()) {
+      environmentVariablesMap.put(entry.getKey(), entry.getValue());
+    }
+    return this;
+  }
+
+  /**
+   * Adds a job submission environment variable.
+   * @param key
+   * @param value
+   * @return
+   */
+  public YarnSubmissionHelper setJobSubmissionEnvVariable(final String key, final String value) {
+    environmentVariablesMap.put(key, value);
+    return this;
+  }
+
+  /**
    * Sets the Driver stdout file path.
    * @param driverStdoutPath
    * @return
@@ -278,7 +302,7 @@ public final class YarnSubmissionHelper implements AutoCloseable {
     }
 
     final ContainerLaunchContext containerLaunchContext = YarnTypes.getContainerLaunchContext(
-        launchCommand, this.resources, tokenProvider.getTokens());
+        launchCommand, this.resources, tokenProvider.getTokens(), environmentVariablesMap);
     this.applicationSubmissionContext.setAMContainerSpec(containerLaunchContext);
 
     LOG.log(Level.INFO, "Submitting REEF Application to YARN. ID: {0}, driver core: {1}",
