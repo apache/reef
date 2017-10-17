@@ -40,7 +40,9 @@ public final class NativeInterop {
   public static native void clrSystemAllocatedEvaluatorHandlerOnNext(
       final long handle,
       final AllocatedEvaluatorBridge javaEvaluatorBridge,
-      final InteropLogger interopLogger
+      final InteropLogger interopLogger,
+      final String nameServerInfo,
+      final String evaluatorId
   );
 
   public static native void clrSystemActiveContextHandlerOnNext(
