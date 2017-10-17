@@ -131,6 +131,8 @@ public class MockConfiguration extends ConfigurationModuleBuilder {
   public static final ConfigurationModule CONF = new MockConfiguration()
       .bindImplementation(EvaluatorRequestor.class, MockEvaluatorRequestor.class) // requesting evaluators
       .bindImplementation(MockRuntime.class, MockRuntimeDriver.class)
+      .bindImplementation(MockFailure.class, MockRuntimeDriver.class)
+      .bindImplementation(Clock.class, MockClock.class)
 
       // client handlers
 
