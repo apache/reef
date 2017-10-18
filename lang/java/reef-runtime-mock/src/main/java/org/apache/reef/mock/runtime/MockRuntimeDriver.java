@@ -368,6 +368,9 @@ public final class MockRuntimeDriver implements MockRuntime {
       throw new IllegalStateException("closing context that is not on the top of the stack");
     }
     contexts.remove(context.getMockActiveContext());
+    if (contexts.size() == 0) {
+      add(new CloseEvaluator(this.allocatedEvaluatorMap.get(context.getEvaluatorId())));
+    }
   }
 
   private void validateAndCreate(final MockRunningTask task) {
