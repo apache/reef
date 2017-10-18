@@ -19,7 +19,6 @@ package org.apache.reef.util;
 
 import org.apache.reef.util.exception.InvalidIdentifierException;
 
-import javax.inject.Inject;
 import java.util.concurrent.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -51,7 +50,6 @@ public final class MultiAsyncToSync {
    *                      parameter before the condition automatically times out.
    * @param timeoutUnits The unit of time for the timeoutPeriod parameter.
    */
-  @Inject
   public MultiAsyncToSync(final long timeoutPeriod, final TimeUnit timeoutUnits) {
     this(timeoutPeriod, timeoutUnits, null);
   }
