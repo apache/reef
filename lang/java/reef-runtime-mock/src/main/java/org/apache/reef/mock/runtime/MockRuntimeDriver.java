@@ -20,6 +20,7 @@
 package org.apache.reef.mock.runtime;
 
 import org.apache.reef.driver.context.ActiveContext;
+import org.apache.reef.driver.context.ClosedContext;
 import org.apache.reef.driver.context.ContextMessage;
 import org.apache.reef.driver.context.FailedContext;
 import org.apache.reef.driver.evaluator.AllocatedEvaluator;
@@ -303,7 +304,11 @@ public final class MockRuntimeDriver implements MockRuntime {
       post(this.contextFailedHandlers, request.getFailureEvent());
       break;
     case CLOSE_CONTEXT:
-      validateAndClose(((CloseContext)request).getSuccessEvent());
+      final MockClosedContext context = ((CloseContext)request).getSuccessEvent();
+      validateAndClose(context);
+      if (context.getParentContext() == null) {
+        add(new CloseEvaluator(context.getMockActiveContext().getEvaluator()));
+      }
       post(this.contextFailedHandlers, request.getFailureEvent());
       break;
     case CREATE_TASK:
@@ -368,9 +373,6 @@ public final class MockRuntimeDriver implements MockRuntime {
       throw new IllegalStateException("closing context that is not on the top of the stack");
     }
     contexts.remove(context.getMockActiveContext());
-    if (contexts.size() == 0) {
-      add(new CloseEvaluator(this.allocatedEvaluatorMap.get(context.getEvaluatorId())));
-    }
   }
 
   private void validateAndCreate(final MockRunningTask task) {
