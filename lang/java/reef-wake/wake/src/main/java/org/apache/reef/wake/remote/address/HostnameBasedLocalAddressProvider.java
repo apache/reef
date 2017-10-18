@@ -31,7 +31,9 @@ import java.util.logging.Logger;
  * A LocalAddressProvider that uses <code>Inet4Address.getLocalHost().getHostAddress()</code>.
  */
 public final class HostnameBasedLocalAddressProvider implements LocalAddressProvider {
+
   private static final Logger LOG = Logger.getLogger(HostnameBasedLocalAddressProvider.class.getName());
+
   private String cached = null;
 
   /**
@@ -62,5 +64,10 @@ public final class HostnameBasedLocalAddressProvider implements LocalAddressProv
     return Tang.Factory.getTang().newConfigurationBuilder()
         .bind(LocalAddressProvider.class, HostnameBasedLocalAddressProvider.class)
         .build();
+  }
+
+  @Override
+  public String toString() {
+    return "HostnameBasedLocalAddressProvider:" + this.getLocalAddress();
   }
 }
