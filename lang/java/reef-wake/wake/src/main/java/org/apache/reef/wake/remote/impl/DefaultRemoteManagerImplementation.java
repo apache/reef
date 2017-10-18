@@ -117,7 +117,7 @@ public final class DefaultRemoteManagerImplementation implements RemoteManager {
 
     if (LOG.isLoggable(Level.FINE)) {
       LOG.log(Level.FINE, "RemoteManager: {0} destinationIdentifier: {1} messageType: {2}",
-          new Object[] {this.name, destinationIdentifier, messageType.getName()});
+          new Object[] {this.name, destinationIdentifier, messageType.getCanonicalName()});
     }
 
     return new ProxyEventHandler<>(this.myIdentifier, destinationIdentifier,
@@ -130,12 +130,11 @@ public final class DefaultRemoteManagerImplementation implements RemoteManager {
    */
   @Override
   public <T, U extends T> AutoCloseable registerHandler(
-      final RemoteIdentifier sourceIdentifier,
-      final Class<U> messageType, final EventHandler<T> theHandler) {
+      final RemoteIdentifier sourceIdentifier, final Class<U> messageType, final EventHandler<T> theHandler) {
 
     if (LOG.isLoggable(Level.FINE)) {
-      LOG.log(Level.FINE, "RemoteManager: {0} remoteid: {1} messageType: {2} handler: {3}",
-          new Object[] {this.name, sourceIdentifier, messageType.getName(), theHandler.getClass().getName()});
+      LOG.log(Level.FINE, "RemoteManager: {0} remoteId: {1} messageType: {2} handler: {3}", new Object[] {
+          this.name, sourceIdentifier, messageType.getCanonicalName(), theHandler.getClass().getCanonicalName()});
     }
 
     return this.handlerContainer.registerHandler(sourceIdentifier, messageType, theHandler);
@@ -149,8 +148,8 @@ public final class DefaultRemoteManagerImplementation implements RemoteManager {
       final Class<U> messageType, final EventHandler<RemoteMessage<T>> theHandler) {
 
     if (LOG.isLoggable(Level.FINE)) {
-      LOG.log(Level.FINE, "RemoteManager: {0} messageType: {1} handler: {2}",
-          new Object[] {this.name, messageType.getName(), theHandler.getClass().getName()});
+      LOG.log(Level.FINE, "RemoteManager: {0} messageType: {1} handler: {2}", new Object[] {
+          this.name, messageType.getCanonicalName(), theHandler.getClass().getCanonicalName()});
     }
 
     return this.handlerContainer.registerHandler(messageType, theHandler);
@@ -235,6 +234,6 @@ public final class DefaultRemoteManagerImplementation implements RemoteManager {
 
   @Override
   public String toString() {
-    return String.format("RemoteManager: { id:%s handler:%s }", this.myIdentifier, this.handlerContainer);
+    return String.format("RemoteManager: { id: %s handler: %s }", this.myIdentifier, this.handlerContainer);
   }
 }
