@@ -20,7 +20,6 @@
 package org.apache.reef.mock.runtime;
 
 import org.apache.reef.driver.context.ActiveContext;
-import org.apache.reef.driver.context.ClosedContext;
 import org.apache.reef.driver.context.ContextMessage;
 import org.apache.reef.driver.context.FailedContext;
 import org.apache.reef.driver.evaluator.AllocatedEvaluator;

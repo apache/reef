@@ -31,7 +31,6 @@ import org.apache.reef.driver.task.*;
 import org.apache.reef.tang.annotations.Unit;
 import org.apache.reef.task.Task;
 import org.apache.reef.wake.EventHandler;
-import org.apache.reef.wake.time.Clock;
 import org.apache.reef.wake.time.event.StartTime;
 import org.apache.reef.wake.time.event.StopTime;
 
@@ -50,8 +49,6 @@ public class MockApplication {
 
   private final EvaluatorRequestor evaluatorRequestor;
 
-  private final Clock clock;
-
   private final Map<String, Map<String, ActiveContext>> evaluatorId2ContextId2ContextMap = new HashMap<>();
 
   private final Map<String, AllocatedEvaluator> evaluatorMap = new HashMap<>();
@@ -69,9 +66,8 @@ public class MockApplication {
   private boolean running = false;
 
   @Inject
-  MockApplication(final EvaluatorRequestor evaluatorRequestor, final Clock clock) {
+  MockApplication(final EvaluatorRequestor evaluatorRequestor) {
     this.evaluatorRequestor = evaluatorRequestor;
-    this.clock = clock;
   }
 
   ActiveContext getContext(final AllocatedEvaluator evaluator, final String identifier) {
