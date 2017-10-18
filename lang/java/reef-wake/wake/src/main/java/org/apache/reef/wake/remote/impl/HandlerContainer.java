@@ -89,7 +89,7 @@ final class HandlerContainer<T> implements EventHandler<RemoteEvent<byte[]>> {
 
     LOG.log(Level.FINER,
         "Add handler for tuple: {0},{1}",
-        new Object[] {tuple.getT1(), tuple.getT2().getName()});
+        new Object[] {tuple.getT1(), tuple.getT2().getCanonicalName()});
 
     return new SubscriptionHandler<>(tuple, this.unsubscribeTuple);
   }
@@ -106,7 +106,7 @@ final class HandlerContainer<T> implements EventHandler<RemoteEvent<byte[]>> {
 
     this.msgTypeToHandlerMap.put(messageType, theHandler);
 
-    LOG.log(Level.FINER, "Add handler for class: {0}", messageType.getName());
+    LOG.log(Level.FINER, "Add handler for class: {0}", messageType.getCanonicalName());
 
     return new SubscriptionHandler<>(messageType, this.unsubscribeClass);
   }
@@ -141,7 +141,7 @@ final class HandlerContainer<T> implements EventHandler<RemoteEvent<byte[]>> {
       this.msgTypeToHandlerMap.remove(token);
     } else {
       throw new RemoteRuntimeException(
-          "Unknown subscription type: " + subscription.getClass().getName());
+          "Unknown subscription type: " + subscription.getClass().getCanonicalName());
     }
   }
 
