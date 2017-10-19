@@ -62,4 +62,13 @@ class DefaultRemoteMessage<T> implements RemoteMessage<T> {
     return message;
   }
 
+  /**
+   * Get a human-readable representation of the object.
+   * @return a human-readable string.
+   */
+  @Override
+  public String toString() {
+    return String.format("DefaultRemoteMessage: { id: %s type: %s message: %s }",
+        this.id, this.message.getClass().getCanonicalName(), this.message);
+  }
 }
