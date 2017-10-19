@@ -18,19 +18,18 @@
  */
 package org.apache.reef.wake.test.avro;
 
+import org.apache.reef.tang.Configuration;
 import org.apache.reef.tang.Injector;
 import org.apache.reef.tang.Tang;
 import org.apache.reef.tang.exceptions.InjectionException;
 import org.apache.reef.wake.EventHandler;
 import org.apache.reef.wake.avro.ProtocolSerializer;
-import org.apache.reef.wake.impl.LoggingEventHandler;
+import org.apache.reef.wake.avro.ProtocolSerializerNamespace;
 import org.apache.reef.wake.impl.MultiObserverImpl;
 import org.apache.reef.wake.remote.*;
-import org.apache.reef.wake.remote.address.LocalAddressProvider;
-import org.apache.reef.wake.remote.impl.ByteCodec;
-import org.apache.reef.wake.remote.ports.TcpPortProvider;
 import org.apache.reef.wake.test.avro.message.AvroTestMessage;
 
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestName;
@@ -46,17 +45,37 @@ import static org.junit.Assert.assertEquals;
  *  exchanged between two remote manager classes.
  */
 public final class ProtocolSerializerTest {
-  private static final Logger LOG = Logger.getLogger(ProtocolSerializer.class.getName());
+
+  private static final Logger LOG = Logger.getLogger(ProtocolSerializerTest.class.getName());
 
   @Rule
   public final TestName name = new TestName();
+
+  private RemoteManagerFactory remoteManagerFactory;
+  private ProtocolSerializer serializer;
+
+  @Before
+  public void setup() throws InjectionException {
+
+    final Tang tang = Tang.Factory.getTang();
+
+    final Configuration config = tang.newConfigurationBuilder()
+        .bindNamedParameter(ProtocolSerializerNamespace.class, "org.apache.reef.wake.test.avro.message")
+        .build();
+
+    final Injector injector = tang.newInjector(config);
+
+    remoteManagerFactory = injector.getInstance(RemoteManagerFactory.class);
+    serializer = injector.getInstance(ProtocolSerializer.class);
+  }
 
   /**
    * Verify Avro message can be serialized and deserialized
    * between two remote managers.
    */
   @Test
-  public void testProtocolSerializerTest() throws Exception {
+  public void testProtocolSerializerTest() throws InterruptedException {
+
     final int[] numbers = {12, 25};
     final String[] strings = {"The first string", "The second string"};
 
@@ -65,8 +84,8 @@ public final class ProtocolSerializerTest {
     final BlockingQueue<byte[]> queue2 = new LinkedBlockingQueue<>();
 
     // Remote managers for sending and receiving byte messages.
-    final RemoteManager remoteManager1 = getTestRemoteManager("RemoteManagerOne");
-    final RemoteManager remoteManager2 = getTestRemoteManager("RemoteManagerTwo");
+    final RemoteManager remoteManager1 = remoteManagerFactory.getInstance("RemoteManagerOne");
+    final RemoteManager remoteManager2 = remoteManagerFactory.getInstance("RemoteManagerTwo");
 
     // Register message handlers for byte level messages.
     remoteManager1.registerHandler(byte[].class, new ByteMessageObserver(queue1));
@@ -74,8 +93,6 @@ public final class ProtocolSerializerTest {
 
     final EventHandler<byte[]> sender1 = remoteManager1.getHandler(remoteManager2.getMyIdentifier(), byte[].class);
     final EventHandler<byte[]> sender2 = remoteManager2.getHandler(remoteManager1.getMyIdentifier(), byte[].class);
-
-    final ProtocolSerializer serializer = new ProtocolSerializer("org.apache.reef.wake.test.avro.message");
 
     sender1.onNext(serializer.write(new AvroTestMessage(numbers[0], strings[0]), 1));
     sender2.onNext(serializer.write(new AvroTestMessage(numbers[1], strings[1]), 2));
@@ -93,30 +110,8 @@ public final class ProtocolSerializerTest {
     assertEquals(strings[1], avroObserver1.getDataString());
   }
 
-  /**
-   * Build a remote manager on the local IP address with an unused port.
-   * @param identifier The identifier of the remote manager.
-   * @return A RemoteManager instance listing on the local IP address
-   *         with a unique port number.
-   */
-  private RemoteManager getTestRemoteManager(final String identifier) throws InjectionException {
-    final int port = 0;
-    final boolean order = true;
-    final int retries = 3;
-    final int timeOut = 10000;
-
-    final Injector injector = Tang.Factory.getTang().newInjector();
-    final LocalAddressProvider localAddressProvider = injector.getInstance(LocalAddressProvider.class);
-    final TcpPortProvider tcpPortProvider = injector.getInstance(TcpPortProvider.class);
-    final RemoteManagerFactory remoteManagerFactory = injector.getInstance(RemoteManagerFactory.class);
-
-    return remoteManagerFactory.getInstance(
-    identifier, localAddressProvider.getLocalAddress(), port, new ByteCodec(),
-      new LoggingEventHandler<Throwable>(), order, retries, timeOut,
-      localAddressProvider, tcpPortProvider);
-  }
-
   private final class ByteMessageObserver implements EventHandler<RemoteMessage<byte[]>> {
+
     private final BlockingQueue<byte[]> queue;
 
     /**
@@ -138,7 +133,8 @@ public final class ProtocolSerializerTest {
   /**
    * Processes messages from the network remote manager.
    */
-  public final class AvroMessageObserver extends MultiObserverImpl<AvroMessageObserver> {
+  public final class AvroMessageObserver extends MultiObserverImpl {
+
     private int number;
     private String dataString;
 
