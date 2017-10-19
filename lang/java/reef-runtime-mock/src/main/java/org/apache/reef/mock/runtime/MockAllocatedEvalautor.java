@@ -123,7 +123,11 @@ public final class MockAllocatedEvalautor implements AllocatedEvaluator {
         Optional.of(this.rootContext),
         contextID);
     final MockRunningTask mockTask = new MockRunningTask(this.mockRuntimeDriver, taskID, mockContext);
-    this.mockRuntimeDriver.add(new CreateContextAndTask(mockContext, mockTask));
+    this.mockRuntimeDriver.add(
+        new CreateContextAndTask(
+            mockContext,
+            mockTask,
+            this.mockRuntimeDriver.getTaskReturnValueProvider()));
   }
 
   @Override

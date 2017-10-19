@@ -21,10 +21,10 @@ package org.apache.reef.mock.request;
 
 import org.apache.reef.driver.task.CompletedTask;
 import org.apache.reef.driver.task.FailedTask;
+import org.apache.reef.mock.MockTaskReturnValueProvider;
 import org.apache.reef.mock.ProcessRequest;
 import org.apache.reef.mock.runtime.MockCompletedTask;
 import org.apache.reef.mock.runtime.MockRunningTask;
-import org.apache.reef.util.Optional;
 
 /**
  * close task process request.
@@ -33,10 +33,13 @@ public class CompleteTask implements ProcessRequestInternal<CompletedTask, Faile
 
   private final MockRunningTask task;
 
-  private Optional<byte[]> returnValue = Optional.empty();
+  private final MockTaskReturnValueProvider returnValueProvider;
 
-  public CompleteTask(final MockRunningTask task) {
+  public CompleteTask(
+      final MockRunningTask task,
+      final MockTaskReturnValueProvider returnValueProvider) {
     this.task = task;
+    this.returnValueProvider = returnValueProvider;
   }
 
   public MockRunningTask getTask() {
@@ -48,13 +51,9 @@ public class CompleteTask implements ProcessRequestInternal<CompletedTask, Faile
     return Type.COMPLETE_TASK;
   }
 
-  public void setReturnValue(final byte[] value) {
-    this.returnValue = Optional.of(value);
-  }
-
   @Override
   public CompletedTask getSuccessEvent() {
-    return new MockCompletedTask(this.task, this.returnValue);
+    return new MockCompletedTask(this.task, this.returnValueProvider.getReturnValue(task));
   }
 
   @Override

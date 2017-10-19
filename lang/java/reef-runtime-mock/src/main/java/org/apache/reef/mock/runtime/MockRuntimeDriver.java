@@ -30,6 +30,7 @@ import org.apache.reef.driver.task.*;
 import org.apache.reef.io.Tuple;
 import org.apache.reef.mock.MockClock;
 import org.apache.reef.mock.MockRuntime;
+import org.apache.reef.mock.MockTaskReturnValueProvider;
 import org.apache.reef.mock.ProcessRequest;
 import org.apache.reef.mock.request.*;
 import org.apache.reef.tang.InjectionFuture;
@@ -86,9 +87,12 @@ public final class MockRuntimeDriver implements MockRuntime {
 
   private final Map<String, MockRunningTask> runningTasks = new HashMap<>();
 
+  private final MockTaskReturnValueProvider taskReturnValueProvider;
+
   @Inject
   MockRuntimeDriver(
       final InjectionFuture<MockClock> clock,
+      final MockTaskReturnValueProvider taskReturnValueProvider,
       @Parameter(DriverStartHandler.class) final Set<EventHandler<StartTime>> driverStartHandlers,
       @Parameter(Clock.StopHandler.class) final Set<EventHandler<StopTime>> driverStopHandlers,
       @Parameter(EvaluatorAllocatedHandlers.class) final Set<EventHandler<AllocatedEvaluator>>
@@ -106,6 +110,7 @@ public final class MockRuntimeDriver implements MockRuntime {
       @Parameter(ContextMessageHandlers.class) final Set<EventHandler<ContextMessage>> contextMessageHandlers,
       @Parameter(ContextFailedHandlers.class) final Set<EventHandler<FailedContext>> contextFailedHandlers) {
     this.clock = clock;
+    this.taskReturnValueProvider = taskReturnValueProvider;
     this.driverStartHandlers = driverStartHandlers;
     this.driverStopHandlers = driverStopHandlers;
     this.allocatedEvaluatorHandlers = allocatedEvaluatorHandlers;
@@ -339,6 +344,9 @@ public final class MockRuntimeDriver implements MockRuntime {
     }
   }
 
+  MockTaskReturnValueProvider getTaskReturnValueProvider() {
+    return this.taskReturnValueProvider;
+  }
   /**
    * Used by mock REEF entities (e.g., AllocatedEvaluator, RunningTask) to inject
    * process requests from initiated actions e.g., RunningTask.close().

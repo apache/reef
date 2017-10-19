@@ -21,6 +21,7 @@ package org.apache.reef.mock.request;
 
 import org.apache.reef.driver.task.CompletedTask;
 import org.apache.reef.driver.task.FailedTask;
+import org.apache.reef.mock.MockTaskReturnValueProvider;
 import org.apache.reef.mock.ProcessRequest;
 import org.apache.reef.mock.runtime.MockCompletedTask;
 import org.apache.reef.mock.runtime.MockRunningTask;
@@ -33,11 +34,13 @@ public class CloseTask implements ProcessRequestInternal<CompletedTask, FailedTa
 
   private final MockRunningTask task;
 
-  private final Optional<byte[]> returnValue;
+  private final MockTaskReturnValueProvider taskReturnValueProvider;
 
-  public CloseTask(final MockRunningTask task, final Optional<byte[]> returnValue) {
+  public CloseTask(
+      final MockRunningTask task,
+      final MockTaskReturnValueProvider taskReturnValueProvider) {
     this.task = task;
-    this.returnValue = returnValue;
+    this.taskReturnValueProvider = taskReturnValueProvider;
   }
 
   public MockRunningTask getTask() {
@@ -51,7 +54,7 @@ public class CloseTask implements ProcessRequestInternal<CompletedTask, FailedTa
 
   @Override
   public MockCompletedTask getSuccessEvent() {
-    return new MockCompletedTask(this.task, this.returnValue);
+    return new MockCompletedTask(this.task, this.taskReturnValueProvider.getReturnValue(task));
   }
 
   @Override

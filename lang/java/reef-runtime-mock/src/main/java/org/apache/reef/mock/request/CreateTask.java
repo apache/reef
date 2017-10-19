@@ -22,6 +22,7 @@ package org.apache.reef.mock.request;
 import org.apache.reef.driver.task.FailedTask;
 import org.apache.reef.driver.task.RunningTask;
 import org.apache.reef.mock.AutoCompletable;
+import org.apache.reef.mock.MockTaskReturnValueProvider;
 import org.apache.reef.mock.ProcessRequest;
 import org.apache.reef.mock.runtime.MockRunningTask;
 import org.apache.reef.util.Optional;
@@ -35,10 +36,15 @@ public class CreateTask implements
 
   private final MockRunningTask task;
 
+  private final MockTaskReturnValueProvider returnValueProvider;
+
   private boolean autoComplete = true;
 
-  public CreateTask(final MockRunningTask task) {
+  public CreateTask(
+      final MockRunningTask task,
+      final MockTaskReturnValueProvider returnValueProvider) {
     this.task = task;
+    this.returnValueProvider = returnValueProvider;
   }
 
   @Override
@@ -53,7 +59,7 @@ public class CreateTask implements
 
   @Override
   public ProcessRequest getCompletionProcessRequest() {
-    return new CompleteTask(this.task);
+    return new CompleteTask(this.task, this.returnValueProvider);
   }
 
   @Override

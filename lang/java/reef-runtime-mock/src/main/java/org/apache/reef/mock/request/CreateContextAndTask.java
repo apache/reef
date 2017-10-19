@@ -23,6 +23,7 @@ import org.apache.reef.driver.context.ActiveContext;
 import org.apache.reef.driver.task.FailedTask;
 import org.apache.reef.io.Tuple;
 import org.apache.reef.mock.AutoCompletable;
+import org.apache.reef.mock.MockTaskReturnValueProvider;
 import org.apache.reef.mock.ProcessRequest;
 import org.apache.reef.mock.runtime.MockActiveContext;
 import org.apache.reef.mock.runtime.MockFailedContext;
@@ -40,13 +41,17 @@ public class CreateContextAndTask implements
 
   private final MockRunningTask task;
 
+  private final MockTaskReturnValueProvider taskReturnValueProvider;
+
   private boolean autoComplete = true;
 
   public CreateContextAndTask(
       final MockActiveContext context,
-      final MockRunningTask task) {
+      final MockRunningTask task,
+      final MockTaskReturnValueProvider taskReturnValueProvider) {
     this.context = context;
     this.task = task;
+    this.taskReturnValueProvider = taskReturnValueProvider;
   }
 
   @Override
@@ -84,6 +89,6 @@ public class CreateContextAndTask implements
 
   @Override
   public ProcessRequest getCompletionProcessRequest() {
-    return new CompleteTask(this.task);
+    return new CompleteTask(this.task, this.taskReturnValueProvider);
   }
 }

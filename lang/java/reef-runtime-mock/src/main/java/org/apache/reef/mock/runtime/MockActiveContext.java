@@ -85,7 +85,7 @@ public final class MockActiveContext implements ActiveContext {
   public void submitTask(final Configuration taskConf) {
     final String taskID = MockUtils.getValue(taskConf, TaskConfigurationOptions.Identifier.class);
     final MockRunningTask task = new MockRunningTask(this.mockRuntimeDriver, taskID, this);
-    this.mockRuntimeDriver.add(new CreateTask(task));
+    this.mockRuntimeDriver.add(new CreateTask(task, this.mockRuntimeDriver.getTaskReturnValueProvider()));
   }
 
   @Override

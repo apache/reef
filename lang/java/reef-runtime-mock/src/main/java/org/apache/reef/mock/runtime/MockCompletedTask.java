@@ -21,7 +21,6 @@ package org.apache.reef.mock.runtime;
 
 import org.apache.reef.driver.context.ActiveContext;
 import org.apache.reef.driver.task.CompletedTask;
-import org.apache.reef.util.Optional;
 
 /**
  * mock completed task.
@@ -30,9 +29,9 @@ public class MockCompletedTask implements CompletedTask {
 
   private final MockRunningTask task;
 
-  private final Optional<byte[]> returnValue;
+  private final byte[] returnValue;
 
-  public MockCompletedTask(final MockRunningTask task, final Optional<byte[]> returnValue) {
+  public MockCompletedTask(final MockRunningTask task, final byte[] returnValue) {
     this.task = task;
     this.returnValue = returnValue;
   }
@@ -49,6 +48,6 @@ public class MockCompletedTask implements CompletedTask {
 
   @Override
   public byte[] get() {
-    return this.returnValue.isPresent() ? this.returnValue.get() : new byte[0];
+    return this.returnValue;
   }
 }

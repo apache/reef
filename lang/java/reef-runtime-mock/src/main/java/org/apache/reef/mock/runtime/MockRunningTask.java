@@ -73,12 +73,12 @@ public class MockRunningTask implements RunningTask {
 
   @Override
   public void close(final byte[] message) {
-    this.mockRuntimeDriver.add(new CloseTask(this, Optional.of(message)));
+    this.mockRuntimeDriver.add(new CloseTask(this, this.mockRuntimeDriver.getTaskReturnValueProvider()));
   }
 
   @Override
   public void close() {
-    this.mockRuntimeDriver.add(new CloseTask(this, Optional.<byte[]>empty()));
+    this.mockRuntimeDriver.add(new CloseTask(this, this.mockRuntimeDriver.getTaskReturnValueProvider()));
   }
 
   @Override

@@ -128,14 +128,19 @@ public class MockConfiguration extends ConfigurationModuleBuilder {
    */
   public static final OptionalImpl<JobMessageObserver> ON_JOB_MESSAGE = new OptionalImpl<>();
 
+  /**
+   *  An implementation of a task return value provider.
+   */
+  public static final OptionalImpl<MockTaskReturnValueProvider> TASK_RETURN_VALUE_PROVIDER = new OptionalImpl<>();
+
   public static final ConfigurationModule CONF = new MockConfiguration()
       .bindImplementation(EvaluatorRequestor.class, MockEvaluatorRequestor.class) // requesting evaluators
       .bindImplementation(MockRuntime.class, MockRuntimeDriver.class)
       .bindImplementation(MockFailure.class, MockRuntimeDriver.class)
       .bindImplementation(Clock.class, MockClock.class)
+      .bindImplementation(MockTaskReturnValueProvider.class, TASK_RETURN_VALUE_PROVIDER)
 
       // client handlers
-
       .bindImplementation(JobMessageObserver.class, ON_JOB_MESSAGE) // sending message to job client
 
       // Driver start/stop handlers
