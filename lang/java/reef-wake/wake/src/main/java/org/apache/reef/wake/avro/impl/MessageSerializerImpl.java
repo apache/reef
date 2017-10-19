@@ -23,6 +23,7 @@ import org.apache.avro.io.EncoderFactory;
 import org.apache.avro.specific.SpecificDatumWriter;
 import org.apache.avro.specific.SpecificRecord;
 import org.apache.reef.wake.avro.IMessageSerializer;
+import org.apache.reef.wake.avro.ProtocolSerializer;
 import org.apache.reef.wake.avro.message.Header;
 
 import java.io.ByteArrayOutputStream;
@@ -43,7 +44,7 @@ public class MessageSerializerImpl<TMessage> implements IMessageSerializer {
    * @param msgMetaClass The reflection class for the message.
    */
   public MessageSerializerImpl(final Class<TMessage> msgMetaClass) {
-    this.msgMetaClassName = msgMetaClass.getSimpleName();
+    this.msgMetaClassName = ProtocolSerializer.getClassId(msgMetaClass);
     this.messageWriter = new SpecificDatumWriter<>(msgMetaClass);
   }
 
