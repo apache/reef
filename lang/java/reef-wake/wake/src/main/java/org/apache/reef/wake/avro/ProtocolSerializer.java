@@ -113,7 +113,7 @@ public final class ProtocolSerializer {
     final String classId = getClassId(message.getClass());
     try (final ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
 
-      LOG.log(Level.INFO, "Serializing message: {0}", classId);
+      LOG.log(Level.FINEST, "Serializing message: {0}", classId);
 
       final IMessageSerializer serializer = this.nameToSerializerMap.get(classId);
       if (serializer != null) {
@@ -143,7 +143,7 @@ public final class ProtocolSerializer {
       // Read the header message.
       final Header header = this.headerReader.read(null, decoder);
       final String classId = header.getClassName().toString();
-      LOG.log(Level.INFO, "Deserializing Avro message: {0}", classId);
+      LOG.log(Level.FINEST, "Deserializing Avro message: {0}", classId);
 
       // Get the appropriate deserializer and deserialize the message.
       final IMessageDeserializer deserializer = this.nameToDeserializerMap.get(classId);
