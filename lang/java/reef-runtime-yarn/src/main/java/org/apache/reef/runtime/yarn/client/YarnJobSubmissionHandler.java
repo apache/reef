@@ -121,7 +121,7 @@ final class YarnJobSubmissionHandler implements JobSubmissionHandler {
       submissionHelper
           .addLocalResource(this.fileNames.getREEFFolderName(), driverJarOnDfs)
           .setApplicationName(id)
-          .setDriverMemory(jobSubmissionEvent.getDriverMemory().get())
+          .setDriverResources(jobSubmissionEvent.getDriverMemory().get(), jobSubmissionEvent.getDriverCPUCores().get())
           .setPriority(getPriority(jobSubmissionEvent))
           .setQueue(getQueue(jobSubmissionEvent))
           .setPreserveEvaluators(getPreserveEvaluators(jobSubmissionEvent))

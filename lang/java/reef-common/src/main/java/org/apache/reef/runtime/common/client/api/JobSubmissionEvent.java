@@ -70,6 +70,11 @@ public interface JobSubmissionEvent {
   Optional<Integer> getDriverMemory();
 
   /**
+   * @return The number of CPU cores to be allocated for the Driver
+   */
+  Optional<Integer> getDriverCPUCores();
+
+  /**
    * @return Priority to be given to the Job
    */
   Optional<Integer> getPriority();
