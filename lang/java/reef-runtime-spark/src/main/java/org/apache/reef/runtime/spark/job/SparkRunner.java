@@ -21,17 +21,20 @@ package org.apache.reef.runtime.spark.job;
 
 import org.apache.reef.client.DriverLauncher;
 import org.apache.reef.tang.Configuration;
+import org.apache.spark.SparkConf;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.sql.SparkSession;
 import org.apache.spark.api.java.JavaSparkContext;
 import org.apache.spark.api.java.function.FlatMapFunction;
+
+import java.io.Serializable;
 import java.util.Iterator;
 
 
 /**
  * Responsible for running the REEF task inside the spark execution environment.
  */
-public class SparkRunner {
+public class SparkRunner implements Serializable {
 
 
   /**
@@ -50,7 +53,8 @@ public class SparkRunner {
                   final String inputPath, final int numPartitions) {
     JavaRDD<String> lines;
     SparkSession sparkSession=null;
-    SparkSession spark = SparkSession.builder().getOrCreate();
+    SparkConf conf = new SparkConf().setMaster("local[2]").setAppName("LineCounter");
+    SparkSession spark = SparkSession.builder().config(conf).getOrCreate();
     JavaSparkContext sc = new JavaSparkContext(spark.sparkContext());
     if (inputPath!=null && !inputPath.isEmpty()){
       lines = sc.textFile(inputPath, numPartitions);

@@ -233,9 +233,9 @@ public final class SparkDataLoadingRequestBuilder
   /**
    * Set the desired number of splits.
    */
-  @NamedParameter(short_name = "num_splits", default_value = NumberOfDesiredSplits.DEFAULT_DESIRED_SPLITS)
+  @NamedParameter(short_name = "num_spark_splits", default_value = NumberOfDesiredSplits.DEFAULT_SPARK_DESIRED_SPLITS)
   public static final class NumberOfDesiredSplits implements Name<Integer> {
-    static final String DEFAULT_DESIRED_SPLITS = "0";
+    static final String DEFAULT_SPARK_DESIRED_SPLITS = "0";
   }
 
   /**
