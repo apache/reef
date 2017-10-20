@@ -18,6 +18,23 @@
  *
  */
 /**
- * mock runtime API.
+ * Mock runtime API.
+ *
+ * Mock runtime is meant to mimic the semantics of the REEF runtime and
+ * allow:
+ *  1. Applications to driver the forward progress of processing REEF events.
+ *     See {@link org.apache.reef.mock.MockRuntime} API
+ *  2. Control the advancement of the Clock and Alarm callbacks.
+ *     See {@link org.apache.reef.mock.MockClock}
+ *  3. Inject failures into the REEF applications.
+ *     See {@link org.apache.reef.mock.MockFailure}
+ *
+ * Use {@link org.apache.reef.mock.MockConfiguration} to bind your REEF
+ * driver application event handlers.
+ *
+ * Use {@link org.apache.reef.mock.MockRuntime#start()} to trigger the
+ * driver start event and {@link org.apache.reef.mock.MockRuntime#stop()}}
+ * or {@link org.apache.reef.mock.MockClock#close()} to trigger the driver
+ * stop event.
  */
 package org.apache.reef.mock;

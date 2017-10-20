@@ -19,6 +19,7 @@
 
 package org.apache.reef.mock.request;
 
+import org.apache.reef.annotations.audience.Private;
 import org.apache.reef.mock.ProcessRequest;
 
 /**
@@ -26,9 +27,16 @@ import org.apache.reef.mock.ProcessRequest;
  * @param <S> successful event
  * @param <F> failure event
  */
+@Private
 public interface ProcessRequestInternal<S, F> extends ProcessRequest {
 
+  /**
+   * @return the outcome of a successful processing of this request
+   */
   S getSuccessEvent();
 
+  /**
+   * @return the outcome of an unsuccessful processing of this request
+   */
   F getFailureEvent();
 }

@@ -19,6 +19,7 @@
 
 package org.apache.reef.mock;
 
+import org.apache.reef.annotations.audience.Private;
 import org.apache.reef.wake.EventHandler;
 import org.apache.reef.wake.time.Clock;
 import org.apache.reef.wake.time.Time;
@@ -33,7 +34,8 @@ import java.util.List;
 /**
  * The MockClock can be used to drive alarms set by the client application.
  */
-public class MockClock implements Clock {
+@Private
+public final class MockClock implements Clock {
 
   private final MockRuntime runtime;
 
@@ -41,11 +43,17 @@ public class MockClock implements Clock {
 
   private long currentTime = 0;
 
+  private boolean closed = false;
+
   @Inject
   MockClock(final MockRuntime runtime) {
     this.runtime = runtime;
   }
 
+  /**
+   * Advances the clock by the offset amount.
+   * @param offset amount to advance clock
+   */
   public void advanceClock(final int offset) {
     this.currentTime += offset;
     final Iterator<Alarm> iter = this.alarmList.iterator();
@@ -58,6 +66,9 @@ public class MockClock implements Clock {
     }
   }
 
+  /**
+   * @return the current mock clock time
+   */
   public long getCurrentTime() {
     return this.currentTime;
   }
@@ -71,7 +82,10 @@ public class MockClock implements Clock {
 
   @Override
   public void close() {
-    this.runtime.stop();
+    if (!closed) {
+      this.runtime.stop();
+      this.closed = true;
+    }
   }
 
   @Override
@@ -91,7 +105,7 @@ public class MockClock implements Clock {
 
   @Override
   public boolean isClosed() {
-    return false;
+    return this.closed;
   }
 
   @Override

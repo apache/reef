@@ -33,7 +33,7 @@ import org.apache.reef.util.Optional;
 /**
  * create context and task process request.
  */
-public class CreateContextAndTask implements
+public final class CreateContextAndTask implements
     ProcessRequestInternal<Tuple<MockActiveContext, MockRunningTask>, Tuple<MockFailedContext, FailedTask>>,
     AutoCompletable {
 

@@ -30,7 +30,7 @@ import org.apache.reef.util.Optional;
 /**
  * create task process request.
  */
-public class CreateTask implements
+public final class CreateTask implements
     ProcessRequestInternal<RunningTask, FailedTask>,
     AutoCompletable {
 
