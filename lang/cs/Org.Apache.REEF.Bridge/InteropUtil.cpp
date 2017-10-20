@@ -135,7 +135,7 @@ jbyteArray JavaByteArrayFromManagedByteArray(
   return NULL;
 }
 
-thread_local JNIEnv *t_env = NULL;
+__declspec(thread) JNIEnv *t_env = NULL;
 JNIEnv* RetrieveEnv(JavaVM* jvm) {
   if (NULL == t_env)
   {
