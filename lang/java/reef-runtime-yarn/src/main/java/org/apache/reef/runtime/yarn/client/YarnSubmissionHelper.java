@@ -37,7 +37,10 @@ import org.apache.reef.runtime.yarn.client.unmanaged.YarnProxyUser;
 import org.apache.reef.runtime.yarn.util.YarnTypes;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -63,6 +66,7 @@ public final class YarnSubmissionHelper implements AutoCloseable {
   private String driverStderrFilePath;
   private Class launcherClazz = REEFLauncher.class;
   private List<String> configurationFilePaths;
+  private final Map<String, String> environmentVariablesMap = new HashMap<>();
 
   public YarnSubmissionHelper(final YarnConfiguration yarnConfiguration,
                               final REEFFileNames fileNames,
@@ -136,12 +140,15 @@ public final class YarnSubmissionHelper implements AutoCloseable {
   }
 
   /**
-   * Set the amount of memory to be allocated to the Driver.
-   * @param megabytes
-   * @return
+   * Set the resources (memory and number of cores) for the Driver.
+   *
+   * @param memoryinMegabytes memory to be allocated for the Driver, in MegaBytes.
+   * @param numberOfCores Number of cores to allocate for the Driver.
+   *
+   * @return this.
    */
-  public YarnSubmissionHelper setDriverMemory(final int megabytes) {
-    applicationSubmissionContext.setResource(Resource.newInstance(getMemory(megabytes), 1));
+  public YarnSubmissionHelper setDriverResources(final int memoryinMegabytes, final int numberOfCores) {
+    applicationSubmissionContext.setResource(Resource.newInstance(getMemory(memoryinMegabytes), numberOfCores));
     return this;
   }
 
@@ -241,6 +248,29 @@ public final class YarnSubmissionHelper implements AutoCloseable {
   }
 
   /**
+   * Sets environment variable map.
+   * @param map
+   * @return
+   */
+  public YarnSubmissionHelper setJobSubmissionEnvMap(final Map<String, String> map) {
+    for (final Map.Entry<String, String> entry : map.entrySet()) {
+      environmentVariablesMap.put(entry.getKey(), entry.getValue());
+    }
+    return this;
+  }
+
+  /**
+   * Adds a job submission environment variable.
+   * @param key
+   * @param value
+   * @return
+   */
+  public YarnSubmissionHelper setJobSubmissionEnvVariable(final String key, final String value) {
+    environmentVariablesMap.put(key, value);
+    return this;
+  }
+
+  /**
    * Sets the Driver stdout file path.
    * @param driverStdoutPath
    * @return
@@ -278,10 +308,11 @@ public final class YarnSubmissionHelper implements AutoCloseable {
     }
 
     final ContainerLaunchContext containerLaunchContext = YarnTypes.getContainerLaunchContext(
-        launchCommand, this.resources, tokenProvider.getTokens());
+        launchCommand, this.resources, tokenProvider.getTokens(), environmentVariablesMap);
     this.applicationSubmissionContext.setAMContainerSpec(containerLaunchContext);
 
-    LOG.log(Level.INFO, "Submitting REEF Application to YARN. ID: {0}", this.applicationId);
+    LOG.log(Level.INFO, "Submitting REEF Application to YARN. ID: {0}, driver core: {1}",
+        new Object[] {this.applicationId, this.applicationSubmissionContext.getResource().getVirtualCores()});
 
     if (LOG.isLoggable(Level.INFO)) {
       LOG.log(Level.INFO, "REEF app command: {0}", StringUtils.join(launchCommand, ' '));

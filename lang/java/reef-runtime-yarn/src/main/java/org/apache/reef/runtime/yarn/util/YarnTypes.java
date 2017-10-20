@@ -51,12 +51,23 @@ public final class YarnTypes {
       final List<String> commands,
       final Map<String, LocalResource> localResources,
       final byte[] securityTokenBuffer) {
-    return getContainerLaunchContext(commands, localResources, securityTokenBuffer, null);
+    return getContainerLaunchContext(commands, localResources, securityTokenBuffer,
+        new HashMap<String, String>(), null);
   }
 
   /**
-   * Gets a LaunchContext and sets the environment variable
-   * {@link YarnUtilities#REEF_YARN_APPLICATION_ID_ENV_VAR} for REEF Evaluators.
+   * @return a ContainerLaunchContext with the given commands, LocalResources and environment map.
+   */
+  public static ContainerLaunchContext getContainerLaunchContext(
+      final List<String> commands,
+      final Map<String, LocalResource> localResources,
+      final byte[] securityTokenBuffer,
+      final Map<String, String> envMap) {
+    return getContainerLaunchContext(commands, localResources, securityTokenBuffer, envMap, null);
+  }
+
+  /**
+   * Gets a LaunchContext and sets the environment variable.
    * @return a ContainerLaunchContext with the given commands and LocalResources.
    */
   public static ContainerLaunchContext getContainerLaunchContext(
@@ -64,14 +75,31 @@ public final class YarnTypes {
       final Map<String, LocalResource> localResources,
       final byte[] securityTokenBuffer,
       final ApplicationId applicationId) {
+    return getContainerLaunchContext(commands, localResources, securityTokenBuffer,
+        new HashMap<String, String>(), null);
+  }
+
+  /**
+   * Gets a LaunchContext and sets the environment variable
+   * {@link YarnUtilities#REEF_YARN_APPLICATION_ID_ENV_VAR} for REEF Evaluators.
+   * @return a ContainerLaunchContext with the given commands, LocalResources and environment map.
+   */
+  public static ContainerLaunchContext getContainerLaunchContext(
+      final List<String> commands,
+      final Map<String, LocalResource> localResources,
+      final byte[] securityTokenBuffer,
+      final Map<String, String> envMap,
+      final ApplicationId applicationId) {
     final ContainerLaunchContext context = Records.newRecord(ContainerLaunchContext.class);
     context.setLocalResources(localResources);
     context.setCommands(commands);
-    final Map<String, String> envMap = new HashMap<>();
     if (applicationId != null) {
       envMap.put(YarnUtilities.REEF_YARN_APPLICATION_ID_ENV_VAR, applicationId.toString());
     }
 
+    for (final Map.Entry entry : envMap.entrySet()) {
+      LOG.log(Level.FINE, "Key : {0}, Value : {1}", new Object[] {entry.getKey(), entry.getValue()});
+    }
     context.setEnvironment(envMap);
     if (securityTokenBuffer != null) {
       context.setTokens(ByteBuffer.wrap(securityTokenBuffer));

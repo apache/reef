@@ -15,6 +15,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
+using System.Collections.Generic;
 using Org.Apache.REEF.Utilities.Logging;
 
 namespace Org.Apache.REEF.Client.API
@@ -29,6 +30,7 @@ namespace Org.Apache.REEF.Client.API
         private int _driverMemory = 512;
         private string _stdoutFilePath = null;
         private string _stderrFilePath = null;
+        private readonly IDictionary<string, string> _jobSubmissionMap = new Dictionary<string, string>();
         private JavaLoggingSetting _javaLogLevel = JavaLoggingSetting.Info;
 
         private JobParametersBuilder()
@@ -53,6 +55,7 @@ namespace Org.Apache.REEF.Client.API
                 _jobIdentifier, 
                 _maxApplicationSubmissions, 
                 _driverMemory,
+                _jobSubmissionMap,
                 _stdoutFilePath,
                 _stderrFilePath,
                 _javaLogLevel);
@@ -87,6 +90,19 @@ namespace Org.Apache.REEF.Client.API
             _driverMemory = driverMemoryInMb;
             return this;
         }
+
+        /// <summary>
+        /// Set job submission environment variable.
+        /// If the variable is already in the map, override it. 
+        /// </summary>
+        /// <param name="key"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public JobParametersBuilder SetJobSubmissionEnvironmentVariable(string key, string value)
+        {
+            _jobSubmissionMap[key] = value;
+            return this;
+        }        
 
         /// <summary>
         /// Sets the file path to the stdout file for the driver.

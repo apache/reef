@@ -17,6 +17,7 @@
 
 using System;
 using System.Diagnostics.CodeAnalysis;
+using System.Net.NetworkInformation;
 using Org.Apache.REEF.Common.Events;
 using Org.Apache.REEF.Common.Tasks;
 using Org.Apache.REEF.Common.Tasks.Events;
@@ -73,19 +74,37 @@ namespace Org.Apache.REEF.Common.Context
         [SuppressMessage("Microsoft.Security", "CA2104:Do not declare read only mutable reference types", Justification = "not applicable")]
         public static readonly OptionalImpl<IContextMessageHandler> OnMessage = new OptionalImpl<IContextMessageHandler>();
 
+        private static ConfigurationModule contextConfig;
+
+        private static readonly object ConfigLock = new object();
+
         public static ConfigurationModule ConfigurationModule
         {
             get
             {
-                return new ContextConfiguration()
-                    .BindNamedParameter(GenericType<ContextConfigurationOptions.ContextIdentifier>.Class, Identifier)
-                    .BindSetEntry(GenericType<ContextConfigurationOptions.StartHandlers>.Class, OnContextStart)
-                    .BindSetEntry(GenericType<ContextConfigurationOptions.StopHandlers>.Class, OnContextStop)
-                    .BindSetEntry(GenericType<ContextConfigurationOptions.ContextMessageSources>.Class, OnSendMessage)
-                    .BindSetEntry(GenericType<ContextConfigurationOptions.ContextMessageHandlers>.Class, OnMessage)
-                    .BindSetEntry(GenericType<TaskConfigurationOptions.StartHandlers>.Class, OnTaskStart)
-                    .BindSetEntry(GenericType<TaskConfigurationOptions.StopHandlers>.Class, OnTaskStop)
-                    .Build();
+                if (contextConfig == null)
+                {
+                    lock (ConfigLock)
+                    {
+                        if (contextConfig == null)
+                        {
+                            contextConfig = new ContextConfiguration()
+                                .BindNamedParameter(GenericType<ContextConfigurationOptions.ContextIdentifier>.Class,
+                                    Identifier)
+                                .BindSetEntry(GenericType<ContextConfigurationOptions.StartHandlers>.Class,
+                                    OnContextStart)
+                                .BindSetEntry(GenericType<ContextConfigurationOptions.StopHandlers>.Class, OnContextStop)
+                                .BindSetEntry(GenericType<ContextConfigurationOptions.ContextMessageSources>.Class,
+                                    OnSendMessage)
+                                .BindSetEntry(GenericType<ContextConfigurationOptions.ContextMessageHandlers>.Class,
+                                    OnMessage)
+                                .BindSetEntry(GenericType<TaskConfigurationOptions.StartHandlers>.Class, OnTaskStart)
+                                .BindSetEntry(GenericType<TaskConfigurationOptions.StopHandlers>.Class, OnTaskStop)
+                                .Build();
+                        }
+                    }
+                }
+                return contextConfig;
             }
         }
     }

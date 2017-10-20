@@ -40,11 +40,11 @@ namespace Org.Apache.REEF.Driver.Bridge
 
         public static void Call_ClrSystemAllocatedEvaluatorHandler_OnNext(ulong handle, IAllocatedEvaluatorClr2Java clr2Java)
         {
-            using (LOGGER.LogFunction("ClrSystemHandlerWrapper::Call_ClrSystemAllocatedEvaluatorHandler_OnNext"))
+            using (LOGGER.LogFunction("ClrSystemHandlerWrapper::Call_ClrSystemAllocatedEvaluatorHandler_OnNext", clr2Java.GetId()))
             {
                 GCHandle gc = GCHandle.FromIntPtr((IntPtr)handle);
                 ClrSystemHandler<IAllocatedEvaluator> obj = (ClrSystemHandler<IAllocatedEvaluator>)gc.Target;
-                obj.OnNext(new AllocatedEvaluator(clr2Java, _driverBridge.ConfigurationProviders));
+                obj.OnNext(new AllocatedEvaluator(clr2Java, _driverBridge.ConfigurationStringForProviders));
             }       
         }
 

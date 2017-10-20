@@ -18,11 +18,12 @@ under the License.
   <PropertyGroup>
     <AssemblyName>Org.Apache.REEF.IO.Tests</AssemblyName>
   </PropertyGroup>
-  <Import Project="..\build.DotNetApp.props" />
+  <Import Project="..\build.DotNetTest.props" />
   <ItemGroup>
     <PackageReference Include="NSubstitute" Version="$(NSubstituteVersion)" />
     <PackageReference Include="WindowsAzure.Storage" Version="$(WindowsAzureStorageVersion)" />
   </ItemGroup>
+  <!-- TODO[JIRA REEF-1888] This item group will not be needed when only .netcore is targeted. -->
   <ItemGroup Condition="'$(TargetFramework)' == 'net451' Or '$(TargetFramework)' == 'net46'">
     <Reference Include="System" />
     <Reference Include="System.Core" />
