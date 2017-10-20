@@ -35,13 +35,21 @@ public final class MockEvaluatorRequestor implements EvaluatorRequestor {
 
   private final InjectionFuture<MockRuntimeDriver> mockRuntimeDriver;
 
+  private final InjectionFuture<MockClock> clock;
+
   @Inject
-  MockEvaluatorRequestor(final InjectionFuture<MockRuntimeDriver> mockRuntimeDriver) {
+  MockEvaluatorRequestor(
+      final InjectionFuture<MockClock> clock,
+      final InjectionFuture<MockRuntimeDriver> mockRuntimeDriver) {
+    this.clock = clock;
     this.mockRuntimeDriver = mockRuntimeDriver;
   }
 
   @Override
   public void submit(final EvaluatorRequest req) {
+    if (this.clock.get().isClosed()) {
+      throw new IllegalStateException("clock closed");
+    }
     final NodeDescriptor nodeDescriptor = new MockNodeDescriptor();
     final MockEvaluatorDescriptor evaluatorDescriptor = new MockEvaluatorDescriptor(nodeDescriptor);
     for (int i = 0; i < req.getNumber(); i++) {
@@ -53,6 +61,9 @@ public final class MockEvaluatorRequestor implements EvaluatorRequestor {
 
   @Override
   public Builder newRequest() {
+    if (this.clock.get().isClosed()) {
+      throw new IllegalStateException("clock closed");
+    }
     return new Builder();
   }
 
@@ -61,7 +72,7 @@ public final class MockEvaluatorRequestor implements EvaluatorRequestor {
    * {@link EvaluatorRequest.Builder} extended with a new submit method.
    * {@link EvaluatorRequest}s are built using this builder.
    */
-  public final class Builder extends EvaluatorRequest.Builder<Builder> {
+  private final class Builder extends EvaluatorRequest.Builder<Builder> {
     @Override
     public void submit() {
       MockEvaluatorRequestor.this.submit(this.build());

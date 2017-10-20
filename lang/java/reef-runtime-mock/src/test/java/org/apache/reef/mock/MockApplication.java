@@ -31,6 +31,8 @@ import org.apache.reef.driver.task.*;
 import org.apache.reef.tang.annotations.Unit;
 import org.apache.reef.task.Task;
 import org.apache.reef.wake.EventHandler;
+import org.apache.reef.wake.time.Clock;
+import org.apache.reef.wake.time.event.Alarm;
 import org.apache.reef.wake.time.event.StartTime;
 import org.apache.reef.wake.time.event.StopTime;
 
@@ -46,6 +48,8 @@ import java.util.logging.Logger;
 public class MockApplication {
 
   private static final Logger LOG = Logger.getLogger(MockApplication.class.getName());
+
+  private final Clock clock;
 
   private final EvaluatorRequestor evaluatorRequestor;
 
@@ -66,7 +70,8 @@ public class MockApplication {
   private boolean running = false;
 
   @Inject
-  MockApplication(final EvaluatorRequestor evaluatorRequestor) {
+  MockApplication(final Clock clock, final EvaluatorRequestor evaluatorRequestor) {
+    this.clock = clock;
     this.evaluatorRequestor = evaluatorRequestor;
   }
 
@@ -130,6 +135,12 @@ public class MockApplication {
   final class StartHandler implements EventHandler<StartTime> {
     @Override
     public void onNext(final StartTime startTime) {
+      clock.scheduleAlarm(Integer.MAX_VALUE, new EventHandler<Alarm>() {
+        @Override
+        public void onNext(final Alarm value) {
+          throw new RuntimeException("should not happen");
+        }
+      });
       running = true;
     }
   }

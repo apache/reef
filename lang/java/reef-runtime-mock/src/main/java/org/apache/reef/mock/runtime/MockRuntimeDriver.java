@@ -28,7 +28,6 @@ import org.apache.reef.driver.evaluator.FailedEvaluator;
 import org.apache.reef.driver.parameters.*;
 import org.apache.reef.driver.task.*;
 import org.apache.reef.io.Tuple;
-import org.apache.reef.mock.MockClock;
 import org.apache.reef.mock.MockRuntime;
 import org.apache.reef.mock.MockTaskReturnValueProvider;
 import org.apache.reef.mock.ProcessRequest;
@@ -129,11 +128,17 @@ public final class MockRuntimeDriver implements MockRuntime {
 
   @Override
   public Collection<AllocatedEvaluator> getCurrentAllocatedEvaluators() {
+    if (this.clock.get().isClosed()) {
+      throw new IllegalStateException("clock is closed");
+    }
     return new ArrayList<AllocatedEvaluator>(this.allocatedEvaluatorMap.values());
   }
 
   @Override
   public void fail(final AllocatedEvaluator evaluator) {
+    if (this.clock.get().isClosed()) {
+      throw new IllegalStateException("clock is closed");
+    }
     if (this.allocatedEvaluatorMap.containsKey(evaluator.getId())) {
       FailedTask failedTask =  null;
       if (this.runningTasks.containsKey(evaluator.getId())) {
@@ -162,6 +167,9 @@ public final class MockRuntimeDriver implements MockRuntime {
 
   @Override
   public Collection<ActiveContext> getCurrentActiveContexts() {
+    if (this.clock.get().isClosed()) {
+      throw new IllegalStateException("clock is closed");
+    }
     final List<ActiveContext> currentActiveContexts = new ArrayList<>();
     for (final List<MockActiveContext> contexts : this.allocatedContextsMap.values()) {
       currentActiveContexts.addAll(contexts);
@@ -171,6 +179,9 @@ public final class MockRuntimeDriver implements MockRuntime {
 
   @Override
   public void fail(final ActiveContext context) {
+    if (this.clock.get().isClosed()) {
+      throw new IllegalStateException("clock is closed");
+    }
     final MockAllocatedEvalautor evaluator = ((MockActiveContext) context).getEvaluator();
     post(this.contextFailedHandlers, new MockFailedContext((MockActiveContext) context));
     if (!((MockActiveContext) context).getParentContext().isPresent()) {
@@ -183,11 +194,17 @@ public final class MockRuntimeDriver implements MockRuntime {
 
   @Override
   public Collection<RunningTask> getCurrentRunningTasks() {
+    if (this.clock.get().isClosed()) {
+      throw new IllegalStateException("clock is closed");
+    }
     return new ArrayList<RunningTask>(this.runningTasks.values());
   }
 
   @Override
   public void fail(final RunningTask task) {
+    if (this.clock.get().isClosed()) {
+      throw new IllegalStateException("clock is closed");
+    }
     final String evaluatorID = task.getActiveContext().getEvaluatorId();
     if (this.runningTasks.containsKey(evaluatorID) &&
         this.runningTasks.get(evaluatorID).equals(task)) {
@@ -230,6 +247,9 @@ public final class MockRuntimeDriver implements MockRuntime {
 
   @Override
   public void succeed(final ProcessRequest pr) {
+    if (this.clock.get().isClosed()) {
+      throw new IllegalStateException("clock is closed");
+    }
     final ProcessRequestInternal request = (ProcessRequestInternal) pr;
     switch (request.getType()) {
     case ALLOCATE_EVALUATOR:
@@ -289,11 +309,16 @@ public final class MockRuntimeDriver implements MockRuntime {
 
     if (request.doAutoComplete()) {
       add(request.getCompletionProcessRequest());
+    } else if (!this.clock.get().isClosed() && isIdle()) {
+      this.clock.get().close();
     }
   }
 
   @Override
   public void fail(final ProcessRequest pr) {
+    if (this.clock.get().isClosed()) {
+      throw new IllegalStateException("clock is closed");
+    }
     final ProcessRequestInternal request = (ProcessRequestInternal) pr;
     switch (request.getType()) {
     case ALLOCATE_EVALUATOR:
@@ -342,6 +367,10 @@ public final class MockRuntimeDriver implements MockRuntime {
     default:
       throw new IllegalStateException("unknown type");
     }
+
+    if (!this.clock.get().isClosed() && isIdle()) {
+      this.clock.get().close();
+    }
   }
 
   MockTaskReturnValueProvider getTaskReturnValueProvider() {
@@ -354,6 +383,12 @@ public final class MockRuntimeDriver implements MockRuntime {
    */
   void add(final ProcessRequest request) {
     this.processRequestQueue.add(request);
+  }
+
+  private boolean isIdle() {
+    return this.clock.get().isIdle() &&
+        this.processRequestQueue.isEmpty() &&
+        this.allocatedEvaluatorMap.isEmpty();
   }
 
   private <T> void post(final Set<EventHandler<T>> handlers, final Object event) {

@@ -24,6 +24,7 @@ import org.apache.reef.driver.evaluator.AllocatedEvaluator;
 import org.apache.reef.driver.task.RunningTask;
 import org.apache.reef.mock.request.ProcessRequestInternal;
 import org.apache.reef.mock.runtime.MockAllocatedEvalautor;
+import org.apache.reef.mock.runtime.MockClock;
 import org.apache.reef.tang.Configuration;
 import org.apache.reef.tang.Injector;
 import org.apache.reef.tang.Tang;

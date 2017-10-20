@@ -29,6 +29,7 @@ import org.apache.reef.driver.evaluator.EvaluatorRequestor;
 import org.apache.reef.driver.evaluator.FailedEvaluator;
 import org.apache.reef.driver.parameters.*;
 import org.apache.reef.driver.task.*;
+import org.apache.reef.mock.runtime.MockClock;
 import org.apache.reef.mock.runtime.MockEvaluatorRequestor;
 import org.apache.reef.mock.runtime.MockRuntimeDriver;
 import org.apache.reef.tang.formats.ConfigurationModule;
