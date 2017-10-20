@@ -31,6 +31,7 @@ import org.apache.reef.tang.types.NamedParameterNode;
 import org.apache.reef.tang.types.Node;
 import org.apache.reef.tang.util.ReflectionUtilities;
 
+import java.io.Serializable;
 import java.lang.reflect.Type;
 import java.net.URL;
 import java.util.ArrayList;
@@ -38,7 +39,7 @@ import java.util.List;
 import java.util.Set;
 
 public class JavaConfigurationBuilderImpl extends ConfigurationBuilderImpl
-    implements JavaConfigurationBuilder {
+    implements JavaConfigurationBuilder, Serializable {
 
   public JavaConfigurationBuilderImpl(final URL[] jars,
                                       final Configuration[] confs,
@@ -236,7 +237,7 @@ public class JavaConfigurationBuilderImpl extends ConfigurationBuilderImpl
     return this;
   }
 
-  private class JavaConfigurationImpl extends ConfigurationImpl {
+  static class JavaConfigurationImpl extends ConfigurationImpl implements Serializable {
     JavaConfigurationImpl(final JavaConfigurationBuilderImpl builder) {
       super(builder);
     }
