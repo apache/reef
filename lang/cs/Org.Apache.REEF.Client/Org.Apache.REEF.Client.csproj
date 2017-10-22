@@ -69,6 +69,11 @@ under the License.
     <Compile Include="API\Exceptions\ClasspathException.cs" />
     <Compile Include="API\Exceptions\JavaNotFoundException.cs" />
     <Compile Include="API\IREEFClient.cs" />
+    <Compile Include="API\Testing\AbstractAssert.cs" />
+    <Compile Include="API\Testing\Assert.cs" />
+    <Compile Include="API\Testing\AssertResult.cs" />
+    <Compile Include="API\Testing\ITestResult.cs" />
+    <Compile Include="API\Testing\ITestRunner.cs" />
     <Compile Include="API\JobParameters.cs" />
     <Compile Include="API\JobParametersBuilder.cs" />
     <Compile Include="API\JobRequest.cs" />
@@ -101,7 +106,13 @@ under the License.
     <Compile Include="Local\LocalRuntimeClientConfiguration.cs" />
     <Compile Include="Local\Parameters\LocalRuntimeDirectory.cs" />
     <Compile Include="Local\Parameters\NumberOfEvaluators.cs" />
+    <Compile Include="Local\TestRunner\FileWritingAssert\FileWritingAssert.cs" />
+    <Compile Include="Local\TestRunner\FileWritingAssert\FileWritingAssertConfiguration.cs" />
+    <Compile Include="Local\TestRunner\FileWritingAssert\Parameters.cs" />
+    <Compile Include="Local\TestRunner\FileWritingAssert\TestResult.cs" />
+    <Compile Include="Local\TestRunner\LocalTestRunner.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="API\Testing\TestRunnerFactory.cs" />
     <Compile Include="YARN\ApplicationReport.cs" />
     <Compile Include="YARN\Environment.cs" />
     <Compile Include="YARN\HDI\HDInsightClientConfiguration.cs" />
