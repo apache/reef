@@ -57,6 +57,7 @@ under the License.
     <Compile Include="LegacyJobResourceUploaderTests.cs" />
     <Compile Include="MultipleRMUrlProviderTests.cs" />
     <Compile Include="RestClientTests.cs" />
+    <Compile Include="TestFileWritingAssert.cs" />
     <Compile Include="WindowsHadoopEmulatorYarnClientTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="YarnClientTests.cs" />
@@ -88,6 +89,10 @@ under the License.
     <ProjectReference Include="$(SolutionDir)\Org.Apache.REEF.Wake\Org.Apache.REEF.Wake.csproj">
       <Project>{cdfb3464-4041-42b1-9271-83af24cd5008}</Project>
       <Name>Org.Apache.REEF.Wake</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Org.Apache.REEF.Common\Org.Apache.REEF.Common.csproj">
+      <Project>{545A0582-4105-44CE-B99C-B1379514A630}</Project>
+      <Name>Org.Apache.REEF.Common</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

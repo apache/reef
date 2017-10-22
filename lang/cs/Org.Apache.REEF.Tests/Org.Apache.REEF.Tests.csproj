@@ -165,6 +165,7 @@ under the License.
     <Compile Include="Functional\Telemetry\MetricsDriver.cs" />
     <Compile Include="Functional\Telemetry\MetricsTask.cs" />
     <Compile Include="Functional\Telemetry\TestMetricsMessage.cs" />
+    <Compile Include="Functional\TestFramework\TestTestFramework.cs" />
     <Compile Include="Performance\TestHelloREEF\TestHelloDriver.cs" />
     <Compile Include="Performance\TestHelloREEF\TestHelloREEFClient.cs" />
     <Compile Include="Performance\TestHelloREEF\TestHelloTask.cs" />
@@ -248,7 +249,9 @@ under the License.
   <ItemGroup>
     <Service Include="{82A7F48D-3B50-4B1E-B82E-3ADA8210C358}" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <None Include="Functional\TestFramework\README.md" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
   <Import Project="$(PackagesDir)\StyleCop.MSBuild.$(StyleCopVersion)\build\StyleCop.MSBuild.Targets" Condition="Exists('$(PackagesDir)\StyleCop.MSBuild.$(StyleCopVersion)\build\StyleCop.MSBuild.Targets')" />
