@@ -107,7 +107,7 @@ public final class BasicMockTests {
     assertEquals("complete task request", ProcessRequest.Type.COMPLETE_TASK,
         completedTask.getType());
     this.mockRuntime.succeed(completedTask);
-    assertEquals("no running tasks", 0,this.mockApplication.getRunningTasks().size());
+    assertEquals("no running tasks", 0, this.mockApplication.getRunningTasks().size());
 
     // create a sub-context
     this.mockApplication.submitContext(rootContext, "child");
@@ -185,14 +185,14 @@ public final class BasicMockTests {
 
     // fail task
     this.mockRuntime.fail(task);
-    assertEquals("task failed", 1,this.mockApplication.getFailedTasks().size());
+    assertEquals("task failed", 1, this.mockApplication.getFailedTasks().size());
 
     // fail child context
     this.mockRuntime.fail(childContext);
     assertTrue("child context failed",
         this.mockApplication.getFailedContext().iterator().next().getId().equals(childContext.getId()));
     // evaluator should still be up
-    assertEquals("check evaluator", 0,this.mockApplication.getFailedEvaluators().size());
+    assertEquals("check evaluator", 0, this.mockApplication.getFailedEvaluators().size());
 
     // fail evaluator
     this.mockRuntime.fail(evaluator);
