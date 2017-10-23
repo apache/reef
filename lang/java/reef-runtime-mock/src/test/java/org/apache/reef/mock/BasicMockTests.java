@@ -31,6 +31,7 @@ import org.apache.reef.tang.Tang;
 import org.junit.Before;
 import org.junit.Test;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 /**
@@ -76,8 +77,8 @@ public final class BasicMockTests {
     this.mockApplication.requestEvaluators(1);
     assertTrue("check for process event", this.mockRuntime.hasProcessRequest());
     final ProcessRequest allocateEvaluatorRequest = this.mockRuntime.getNextProcessRequest();
-    assertTrue("allocate evalautor request",
-        allocateEvaluatorRequest.getType() == ProcessRequest.Type.ALLOCATE_EVALUATOR);
+    assertEquals("allocate evalautor request", ProcessRequest.Type.ALLOCATE_EVALUATOR,
+        allocateEvaluatorRequest.getType());
     final AllocatedEvaluator evaluator =
         ((ProcessRequestInternal<AllocatedEvaluator, Object>)allocateEvaluatorRequest)
             .getSuccessEvent();
@@ -93,8 +94,8 @@ public final class BasicMockTests {
     this.mockApplication.submitTask(rootContext, "test-task");
     assertTrue("create task queued", this.mockRuntime.hasProcessRequest());
     final ProcessRequest createTaskRequest = this.mockRuntime.getNextProcessRequest();
-    assertTrue("create task request",
-        createTaskRequest.getType() == ProcessRequest.Type.CREATE_TASK);
+    assertEquals("create task request", ProcessRequest.Type.CREATE_TASK,
+        createTaskRequest.getType());
     final RunningTask task = (RunningTask) ((ProcessRequestInternal)createTaskRequest).getSuccessEvent();
     this.mockRuntime.succeed(createTaskRequest);
     assertTrue("task running", this.mockApplication.getRunningTasks().contains(task));
@@ -103,18 +104,18 @@ public final class BasicMockTests {
     assertTrue("check for request", this.mockRuntime.hasProcessRequest());
     final ProcessRequestInternal completedTask =
         (ProcessRequestInternal) this.mockRuntime.getNextProcessRequest();
-    assertTrue("complete task request",
-        completedTask.getType() == ProcessRequest.Type.COMPLETE_TASK);
+    assertEquals("complete task request", ProcessRequest.Type.COMPLETE_TASK,
+        completedTask.getType());
     this.mockRuntime.succeed(completedTask);
-    assertTrue("no running tasks", this.mockApplication.getRunningTasks().size() == 0);
+    assertEquals("no running tasks", 0,this.mockApplication.getRunningTasks().size());
 
     // create a sub-context
     this.mockApplication.submitContext(rootContext, "child");
     assertTrue("check for request", this.mockRuntime.hasProcessRequest());
     final ProcessRequestInternal createContextRequest =
         (ProcessRequestInternal) this.mockRuntime.getNextProcessRequest();
-    assertTrue("create context request",
-        createContextRequest.getType() == ProcessRequest.Type.CREATE_CONTEXT);
+    assertEquals("create context request", ProcessRequest.Type.CREATE_CONTEXT,
+        createContextRequest.getType());
     this.mockRuntime.succeed(createContextRequest);
     final ActiveContext context = this.mockApplication.getContext(evaluator, "child");
     assertTrue("child context", context.getParentId().get().equals(rootContext.getId()));
@@ -128,8 +129,8 @@ public final class BasicMockTests {
     assertTrue("check for process event", this.mockRuntime.hasProcessRequest());
     ProcessRequest allocateEvaluatorRequest = this.mockRuntime.getNextProcessRequest();
     this.mockRuntime.fail(allocateEvaluatorRequest);
-    assertTrue("evaluator allocation failed",
-        this.mockApplication.getFailedEvaluators().size() == 1);
+    assertEquals("evaluator allocation failed", 1,
+        this.mockApplication.getFailedEvaluators().size());
 
     this.mockApplication.requestEvaluators(1);
     allocateEvaluatorRequest = this.mockRuntime.getNextProcessRequest();
@@ -144,10 +145,10 @@ public final class BasicMockTests {
     this.mockApplication.submitTask(rootContext, "test-task");
     assertTrue("create task queued", this.mockRuntime.hasProcessRequest());
     final ProcessRequest createTaskRequest = this.mockRuntime.getNextProcessRequest();
-    assertTrue("create task request",
-        createTaskRequest.getType() == ProcessRequest.Type.CREATE_TASK);
+    assertEquals("create task request", ProcessRequest.Type.CREATE_TASK,
+        createTaskRequest.getType());
     this.mockRuntime.fail(createTaskRequest);
-    assertTrue("task running", this.mockApplication.getFailedTasks().size() == 1);
+    assertEquals("task running", 1, this.mockApplication.getFailedTasks().size());
 
     // create a sub-context
     this.mockApplication.submitContext(rootContext, "child");
@@ -155,7 +156,7 @@ public final class BasicMockTests {
     final ProcessRequestInternal createContextRequest =
         (ProcessRequestInternal) this.mockRuntime.getNextProcessRequest();
     this.mockRuntime.fail(createContextRequest);
-    assertTrue("child context", this.mockApplication.getFailedContext().size() == 1);
+    assertEquals("child context", 1, this.mockApplication.getFailedContext().size());
   }
 
   @Test
@@ -184,21 +185,21 @@ public final class BasicMockTests {
 
     // fail task
     this.mockRuntime.fail(task);
-    assertTrue("task failed", this.mockApplication.getFailedTasks().size() == 1);
+    assertEquals("task failed", 1,this.mockApplication.getFailedTasks().size());
 
     // fail child context
     this.mockRuntime.fail(childContext);
     assertTrue("child context failed",
         this.mockApplication.getFailedContext().iterator().next().getId().equals(childContext.getId()));
     // evaluator should still be up
-    assertTrue("check evaluator", this.mockApplication.getFailedEvaluators().size() == 0);
+    assertEquals("check evaluator", 0,this.mockApplication.getFailedEvaluators().size());
 
     // fail evaluator
     this.mockRuntime.fail(evaluator);
-    assertTrue("evaluator failed", this.mockApplication.getFailedEvaluators().size() == 1);
+    assertEquals("evaluator failed", 1, this.mockApplication.getFailedEvaluators().size());
 
     // both contexts should be failed
-    assertTrue("root and child contexts failed",
-        this.mockApplication.getFailedContext().size() == 2);
+    assertEquals("root and child contexts failed", 2,
+        this.mockApplication.getFailedContext().size());
   }
 }

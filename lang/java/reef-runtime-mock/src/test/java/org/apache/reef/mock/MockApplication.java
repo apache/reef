@@ -80,23 +80,23 @@ public class MockApplication {
   }
 
   Collection<RunningTask> getRunningTasks() {
-    return this.evaluatorIdRunningTaskMap.values();
+    return Collections.unmodifiableCollection(this.evaluatorIdRunningTaskMap.values());
   }
 
   Collection<AllocatedEvaluator> getAllocatedEvaluators() {
-    return this.evaluatorMap.values();
+    return Collections.unmodifiableCollection(this.evaluatorMap.values());
   }
 
   Collection<FailedEvaluator> getFailedEvaluators() {
-    return this.failedEvaluatorMap.values();
+    return Collections.unmodifiableCollection(this.failedEvaluatorMap.values());
   }
 
   Collection<FailedTask> getFailedTasks() {
-    return this.failedTaskSet;
+    return Collections.unmodifiableCollection(this.failedTaskSet);
   }
 
   Collection<FailedContext> getFailedContext() {
-    return this.failedContextSet;
+    return Collections.unmodifiableCollection(this.failedContextSet);
   }
 
   void requestEvaluators(final int numEvaluators) {
@@ -200,7 +200,9 @@ public class MockApplication {
         evaluatorId2ContextId2ContextMap.put(context.getEvaluatorId(), new HashMap<String, ActiveContext>());
       }
       if (evaluatorId2ContextId2ContextMap.get(context.getEvaluatorId()).containsKey(context.getId())) {
-        throw new IllegalStateException("Context already exists on evaluator with same identifier");
+        throw new IllegalStateException(
+                String.format("Context %s on evaluator %s already exists on evaluator with " +
+                        "same identifier", context.getId(), context.getEvaluatorId()));
       }
       evaluatorId2ContextId2ContextMap.get(context.getEvaluatorId()).put(context.getId(), context);
     }
