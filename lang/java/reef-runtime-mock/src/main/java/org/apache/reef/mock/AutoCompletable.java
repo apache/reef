@@ -7,7 +7,7 @@
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
  *
- *   http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -16,29 +16,30 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.driver.evaluator;
 
-import org.apache.reef.annotations.Provided;
-import org.apache.reef.annotations.audience.DriverSide;
-import org.apache.reef.annotations.audience.Public;
+package org.apache.reef.mock;
+
+import org.apache.reef.annotations.Unstable;
 
 /**
- * Interface through which Evaluators can be requested.
+ * Indicates that a process request should auto complete.
  */
-@Public
-@DriverSide
-@Provided
-public interface EvaluatorRequestor {
+@Unstable
+public interface AutoCompletable {
 
   /**
-   * Submit the request for new evaluator.
-   * The response will surface in the AllocatedEvaluator message handler.
+   * @return true if should auto complete
    */
-  void submit(final EvaluatorRequest req);
+  boolean doAutoComplete();
 
   /**
-   * Get a new Builder for the evaluator with fluid interface.
-   * @return Builder for the evaluator
+   * Set auto complete.
+   * @param value to set
    */
-  EvaluatorRequest.Builder newRequest();
+  void setAutoComplete(final boolean value);
+
+  /**
+   * @return auto complete process request
+   */
+  ProcessRequest getCompletionProcessRequest();
 }
