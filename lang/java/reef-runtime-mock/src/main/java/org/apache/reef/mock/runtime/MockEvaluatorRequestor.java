@@ -19,6 +19,8 @@
 
 package org.apache.reef.mock.runtime;
 
+import org.apache.reef.annotations.Unstable;
+import org.apache.reef.annotations.audience.Private;
 import org.apache.reef.driver.catalog.NodeDescriptor;
 import org.apache.reef.driver.evaluator.EvaluatorRequest;
 import org.apache.reef.driver.evaluator.EvaluatorRequestor;
@@ -31,6 +33,8 @@ import java.util.UUID;
 /**
  * mock evaluator requestor.
  */
+@Unstable
+@Private
 public final class MockEvaluatorRequestor implements EvaluatorRequestor {
 
   private final InjectionFuture<MockRuntimeDriver> mockRuntimeDriver;

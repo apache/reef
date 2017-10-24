@@ -27,7 +27,7 @@ import javax.inject.Inject;
 /**
  * A default task return value provider.
  */
-public class DefaultTaskReturnValueProvider implements MockTaskReturnValueProvider {
+final class DefaultTaskReturnValueProvider implements MockTaskReturnValueProvider {
 
   @Inject
   DefaultTaskReturnValueProvider() {

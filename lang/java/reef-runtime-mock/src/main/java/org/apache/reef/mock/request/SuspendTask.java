@@ -19,6 +19,8 @@
 
 package org.apache.reef.mock.request;
 
+import org.apache.reef.annotations.Unstable;
+import org.apache.reef.annotations.audience.Private;
 import org.apache.reef.driver.task.FailedTask;
 import org.apache.reef.driver.task.SuspendedTask;
 import org.apache.reef.mock.ProcessRequest;
@@ -29,7 +31,9 @@ import org.apache.reef.util.Optional;
 /**
  * suspend task process request.
  */
-public class SuspendTask implements ProcessRequestInternal<SuspendedTask, FailedTask> {
+@Unstable
+@Private
+public final class SuspendTask implements ProcessRequestInternal<SuspendedTask, FailedTask> {
 
   private final MockRunningTask task;
 

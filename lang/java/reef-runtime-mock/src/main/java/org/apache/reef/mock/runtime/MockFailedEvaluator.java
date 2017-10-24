@@ -18,6 +18,8 @@
  */
 package org.apache.reef.mock.runtime;
 
+import org.apache.reef.annotations.Unstable;
+import org.apache.reef.annotations.audience.Private;
 import org.apache.reef.driver.context.FailedContext;
 import org.apache.reef.driver.evaluator.FailedEvaluator;
 import org.apache.reef.driver.task.FailedTask;
@@ -30,7 +32,9 @@ import java.util.List;
 /**
  * mock failed evaluator.
  */
-public class MockFailedEvaluator implements FailedEvaluator {
+@Unstable
+@Private
+public final class MockFailedEvaluator implements FailedEvaluator {
 
   private final String evaluatorID;
 

@@ -20,6 +20,7 @@
 
 package org.apache.reef.mock.runtime;
 
+import org.apache.reef.annotations.Unstable;
 import org.apache.reef.annotations.audience.Private;
 import org.apache.reef.mock.MockRuntime;
 import org.apache.reef.tang.InjectionFuture;
@@ -37,6 +38,7 @@ import java.util.List;
 /**
  * The MockClock can be used to drive alarms set by the client application.
  */
+@Unstable
 @Private
 public final class MockClock implements Clock {
 

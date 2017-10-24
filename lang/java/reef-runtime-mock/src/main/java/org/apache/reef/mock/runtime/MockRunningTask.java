@@ -19,6 +19,8 @@
 
 package org.apache.reef.mock.runtime;
 
+import org.apache.reef.annotations.Unstable;
+import org.apache.reef.annotations.audience.Private;
 import org.apache.reef.driver.context.ActiveContext;
 import org.apache.reef.driver.task.RunningTask;
 import org.apache.reef.mock.request.CloseTask;
@@ -30,7 +32,9 @@ import org.apache.reef.util.Optional;
 /**
  * mock running task.
  */
-public class MockRunningTask implements RunningTask {
+@Unstable
+@Private
+public final class MockRunningTask implements RunningTask {
 
   private final MockRuntimeDriver mockRuntimeDriver;
 

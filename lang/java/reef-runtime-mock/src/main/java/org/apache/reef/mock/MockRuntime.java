@@ -19,12 +19,15 @@
 
 package org.apache.reef.mock;
 
+import org.apache.reef.annotations.Unstable;
+
 /**
  * Mock API used to drive the evaluation of ProcessRequest
  * events, which are triggered by the Application driver.
  * Clients used this to determine whether a particular ProcessRequest
  * event should succeed or fail.
  */
+@Unstable
 public interface MockRuntime extends MockFailure {
 
   /**

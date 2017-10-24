@@ -19,6 +19,8 @@
 
 package org.apache.reef.mock.request;
 
+import org.apache.reef.annotations.Unstable;
+import org.apache.reef.annotations.audience.Private;
 import org.apache.reef.driver.evaluator.CompletedEvaluator;
 import org.apache.reef.driver.evaluator.FailedEvaluator;
 import org.apache.reef.mock.ProcessRequest;
@@ -28,6 +30,8 @@ import org.apache.reef.mock.runtime.MockFailedEvaluator;
 /**
  * close evaluator request.
  */
+@Unstable
+@Private
 public final class CloseEvaluator implements ProcessRequestInternal<CompletedEvaluator, FailedEvaluator> {
 
   private final MockAllocatedEvalautor evaluator;

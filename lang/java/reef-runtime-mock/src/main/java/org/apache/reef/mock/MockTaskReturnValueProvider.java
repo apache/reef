@@ -20,6 +20,7 @@
 
 package org.apache.reef.mock;
 
+import org.apache.reef.annotations.Unstable;
 import org.apache.reef.driver.task.CompletedTask;
 import org.apache.reef.mock.runtime.MockRunningTask;
 import org.apache.reef.tang.annotations.DefaultImplementation;
@@ -30,6 +31,7 @@ import org.apache.reef.tang.annotations.DefaultImplementation;
  * task execution. This return value will be returned by
  * the {@link CompletedTask#get()}} method.
  */
+@Unstable
 @DefaultImplementation(DefaultTaskReturnValueProvider.class)
 public interface MockTaskReturnValueProvider {
 

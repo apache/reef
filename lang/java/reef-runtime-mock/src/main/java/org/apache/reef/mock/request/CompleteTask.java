@@ -19,6 +19,8 @@
 
 package org.apache.reef.mock.request;
 
+import org.apache.reef.annotations.Unstable;
+import org.apache.reef.annotations.audience.Private;
 import org.apache.reef.driver.task.CompletedTask;
 import org.apache.reef.driver.task.FailedTask;
 import org.apache.reef.mock.MockTaskReturnValueProvider;
@@ -29,7 +31,9 @@ import org.apache.reef.mock.runtime.MockRunningTask;
 /**
  * close task process request.
  */
-public class CompleteTask implements ProcessRequestInternal<CompletedTask, FailedTask> {
+@Unstable
+@Private
+public final class CompleteTask implements ProcessRequestInternal<CompletedTask, FailedTask> {
 
   private final MockRunningTask task;
 

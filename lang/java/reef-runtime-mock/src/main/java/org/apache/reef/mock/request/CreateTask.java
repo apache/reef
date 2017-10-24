@@ -19,6 +19,8 @@
 
 package org.apache.reef.mock.request;
 
+import org.apache.reef.annotations.Unstable;
+import org.apache.reef.annotations.audience.Private;
 import org.apache.reef.driver.task.FailedTask;
 import org.apache.reef.driver.task.RunningTask;
 import org.apache.reef.mock.AutoCompletable;
@@ -30,6 +32,8 @@ import org.apache.reef.util.Optional;
 /**
  * create task process request.
  */
+@Unstable
+@Private
 public final class CreateTask implements
     ProcessRequestInternal<RunningTask, FailedTask>,
     AutoCompletable {

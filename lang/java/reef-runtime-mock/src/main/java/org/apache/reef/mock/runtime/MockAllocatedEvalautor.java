@@ -19,6 +19,8 @@
 
 package org.apache.reef.mock.runtime;
 
+import org.apache.reef.annotations.Unstable;
+import org.apache.reef.annotations.audience.Private;
 import org.apache.reef.driver.evaluator.AllocatedEvaluator;
 import org.apache.reef.driver.evaluator.EvaluatorDescriptor;
 import org.apache.reef.driver.evaluator.EvaluatorProcess;
@@ -34,6 +36,8 @@ import java.io.File;
 /**
  * mock allocated evaluator.
  */
+@Unstable
+@Private
 public final class MockAllocatedEvalautor implements AllocatedEvaluator {
   public static final String ROOT_CONTEXT_IDENTIFIER_PREFIX = "ROOT.CONTEXT.";
 

@@ -19,6 +19,8 @@
 
 package org.apache.reef.mock.runtime;
 
+import org.apache.reef.annotations.Unstable;
+import org.apache.reef.annotations.audience.Private;
 import org.apache.reef.driver.context.ActiveContext;
 import org.apache.reef.driver.context.FailedContext;
 import org.apache.reef.driver.evaluator.EvaluatorDescriptor;
@@ -27,7 +29,9 @@ import org.apache.reef.util.Optional;
 /**
  * mock failed context.
  */
-public class MockFailedContext implements FailedContext {
+@Unstable
+@Private
+public final class MockFailedContext implements FailedContext {
 
   private final MockActiveContext context;
 

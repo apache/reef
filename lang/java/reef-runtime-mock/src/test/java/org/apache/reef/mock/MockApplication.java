@@ -45,7 +45,7 @@ import java.util.logging.Logger;
  * mock application.
  */
 @Unit
-public class MockApplication {
+final class MockApplication {
 
   private static final Logger LOG = Logger.getLogger(MockApplication.class.getName());
 

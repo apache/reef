@@ -19,6 +19,8 @@
 
 package org.apache.reef.mock.runtime;
 
+import org.apache.reef.annotations.Unstable;
+import org.apache.reef.annotations.audience.Private;
 import org.apache.reef.driver.catalog.NodeDescriptor;
 import org.apache.reef.driver.catalog.RackDescriptor;
 
@@ -29,7 +31,9 @@ import java.util.List;
 /**
  * mock node descriptor.
  */
-public class MockNodeDescriptor implements NodeDescriptor {
+@Unstable
+@Private
+public final class MockNodeDescriptor implements NodeDescriptor {
   @Override
   public InetSocketAddress getInetSocketAddress() {
     throw new UnsupportedOperationException();

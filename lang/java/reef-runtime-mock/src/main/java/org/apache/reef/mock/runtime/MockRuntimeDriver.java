@@ -19,6 +19,8 @@
 
 package org.apache.reef.mock.runtime;
 
+import org.apache.reef.annotations.Unstable;
+import org.apache.reef.annotations.audience.Private;
 import org.apache.reef.driver.context.ActiveContext;
 import org.apache.reef.driver.context.ContextMessage;
 import org.apache.reef.driver.context.FailedContext;
@@ -46,6 +48,8 @@ import java.util.*;
 /**
  * mock runtime driver.
  */
+@Unstable
+@Private
 public final class MockRuntimeDriver implements MockRuntime {
 
   private final InjectionFuture<MockClock> clock;

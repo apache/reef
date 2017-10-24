@@ -19,13 +19,17 @@
 
 package org.apache.reef.mock.request;
 
+import org.apache.reef.annotations.Unstable;
+import org.apache.reef.annotations.audience.Private;
 import org.apache.reef.driver.task.RunningTask;
 import org.apache.reef.mock.ProcessRequest;
 
 /**
  * send message from driver to task process request.
  */
-public class SendMessageDriverToTask implements
+@Unstable
+@Private
+public final class SendMessageDriverToTask implements
     ProcessRequestInternal<Object, Object> {
 
   private RunningTask task;

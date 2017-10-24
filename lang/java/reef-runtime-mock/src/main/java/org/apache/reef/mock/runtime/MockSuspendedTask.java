@@ -19,13 +19,17 @@
 
 package org.apache.reef.mock.runtime;
 
+import org.apache.reef.annotations.Unstable;
+import org.apache.reef.annotations.audience.Private;
 import org.apache.reef.driver.context.ActiveContext;
 import org.apache.reef.driver.task.SuspendedTask;
 
 /**
  * mock suspended task.
  */
-public class MockSuspendedTask implements SuspendedTask {
+@Unstable
+@Private
+public final class MockSuspendedTask implements SuspendedTask {
 
   private final MockRunningTask task;
 

@@ -19,6 +19,7 @@
  */
 package org.apache.reef.mock;
 
+import org.apache.reef.annotations.Unstable;
 import org.apache.reef.driver.context.ActiveContext;
 import org.apache.reef.driver.evaluator.AllocatedEvaluator;
 import org.apache.reef.driver.task.RunningTask;
@@ -28,6 +29,7 @@ import java.util.Collection;
 /**
  * Used to fail running REEF entities i.e., Evaluators, Contexts, Tasks.
  */
+@Unstable
 public interface MockFailure {
 
   /**

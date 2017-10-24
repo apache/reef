@@ -19,13 +19,17 @@
 
 package org.apache.reef.mock.runtime;
 
+import org.apache.reef.annotations.Unstable;
+import org.apache.reef.annotations.audience.Private;
 import org.apache.reef.driver.context.ActiveContext;
 import org.apache.reef.driver.task.CompletedTask;
 
 /**
  * mock completed task.
  */
-public class MockCompletedTask implements CompletedTask {
+@Unstable
+@Private
+public final class MockCompletedTask implements CompletedTask {
 
   private final MockRunningTask task;
 

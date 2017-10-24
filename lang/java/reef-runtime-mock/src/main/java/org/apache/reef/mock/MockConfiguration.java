@@ -18,6 +18,7 @@
  */
 package org.apache.reef.mock;
 
+import org.apache.reef.annotations.Unstable;
 import org.apache.reef.driver.client.JobMessageObserver;
 import org.apache.reef.driver.context.ActiveContext;
 import org.apache.reef.driver.context.ClosedContext;
@@ -44,6 +45,7 @@ import org.apache.reef.wake.time.event.StopTime;
 /**
  * Configure a mock runtime.
  */
+@Unstable
 public class MockConfiguration extends ConfigurationModuleBuilder {
 
   /**

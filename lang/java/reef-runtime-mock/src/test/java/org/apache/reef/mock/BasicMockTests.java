@@ -37,7 +37,7 @@ import static org.junit.Assert.assertTrue;
 /**
  * basic mock tests.
  */
-public final class BasicMockTests {
+final class BasicMockTests {
 
   private MockApplication mockApplication;
 

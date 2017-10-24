@@ -19,6 +19,8 @@
 
 package org.apache.reef.mock.request;
 
+import org.apache.reef.annotations.Unstable;
+import org.apache.reef.annotations.audience.Private;
 import org.apache.reef.driver.context.ActiveContext;
 import org.apache.reef.driver.task.FailedTask;
 import org.apache.reef.io.Tuple;
@@ -33,6 +35,8 @@ import org.apache.reef.util.Optional;
 /**
  * create context and task process request.
  */
+@Unstable
+@Private
 public final class CreateContextAndTask implements
     ProcessRequestInternal<Tuple<MockActiveContext, MockRunningTask>, Tuple<MockFailedContext, FailedTask>>,
     AutoCompletable {

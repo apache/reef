@@ -19,6 +19,8 @@
 
 package org.apache.reef.mock.runtime;
 
+import org.apache.reef.annotations.Unstable;
+import org.apache.reef.annotations.audience.Private;
 import org.apache.reef.tang.Configuration;
 import org.apache.reef.tang.Injector;
 import org.apache.reef.tang.Tang;
@@ -28,10 +30,11 @@ import org.apache.reef.tang.exceptions.InjectionException;
 /**
  * mock utilities.
  */
-public final class MockUtils {
+@Unstable
+@Private
+final class MockUtils {
 
   private MockUtils() {
-
   }
 
   public static <U, T extends Name<U>> U getValue(final Configuration configuration, final Class<T> name) {

@@ -19,9 +19,12 @@
 
 package org.apache.reef.mock;
 
+import org.apache.reef.annotations.Unstable;
+
 /**
  * Indicates that a process request should auto complete.
  */
+@Unstable
 public interface AutoCompletable {
 
   /**

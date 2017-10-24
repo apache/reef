@@ -19,6 +19,8 @@
 
 package org.apache.reef.mock;
 
+import org.apache.reef.annotations.Unstable;
+
 /**
  * A ProcessRequest refers to an outstanding event that is
  * waiting to be processed by the REEF mock runtime. Clients
@@ -29,6 +31,7 @@ package org.apache.reef.mock;
  * 3. dropping the processing request (i.e., loosing it)
  * These decisions are conveyed through the {MockRuntime} API.
  */
+@Unstable
 public interface ProcessRequest extends AutoCompletable {
   /**
    * process request type.

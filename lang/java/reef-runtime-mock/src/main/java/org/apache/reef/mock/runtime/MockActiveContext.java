@@ -19,6 +19,8 @@
 
 package org.apache.reef.mock.runtime;
 
+import org.apache.reef.annotations.Unstable;
+import org.apache.reef.annotations.audience.Private;
 import org.apache.reef.driver.context.ActiveContext;
 import org.apache.reef.driver.evaluator.EvaluatorDescriptor;
 import org.apache.reef.driver.task.TaskConfigurationOptions;
@@ -33,6 +35,8 @@ import org.apache.reef.util.Optional;
 /**
  * mock active context.
  */
+@Unstable
+@Private
 public final class MockActiveContext implements ActiveContext {
 
   private final MockRuntimeDriver mockRuntimeDriver;

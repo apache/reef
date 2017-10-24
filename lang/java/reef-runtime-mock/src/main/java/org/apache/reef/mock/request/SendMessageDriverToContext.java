@@ -19,13 +19,17 @@
 
 package org.apache.reef.mock.request;
 
+import org.apache.reef.annotations.Unstable;
+import org.apache.reef.annotations.audience.Private;
 import org.apache.reef.driver.context.ActiveContext;
 import org.apache.reef.mock.ProcessRequest;
 
 /**
  * send message from driver to context process request.
  */
-public class SendMessageDriverToContext implements
+@Unstable
+@Private
+public final class SendMessageDriverToContext implements
     ProcessRequestInternal<Object, Object> {
 
   private final ActiveContext context;
