@@ -168,7 +168,7 @@ namespace Org.Apache.REEF.Client.YARN
 
                 yarnJobSubmissionParameters = avroYarnJobSubmissionParameters,
                 driverMemory = jobParameters.DriverMemoryInMB,
-                envMap = jobParameters.JobSubmissionEnvMap,
+                environmentVariablesMap = jobParameters.JobSubmissionEnvMap,
                 maxApplicationSubmissions = jobParameters.MaxApplicationSubmissions,
                 driverStdoutFilePath = string.IsNullOrWhiteSpace(jobParameters.StdoutFilePath.Value) ?
                     _fileNames.GetDefaultYarnDriverStdoutFilePath() : jobParameters.StdoutFilePath.Value,

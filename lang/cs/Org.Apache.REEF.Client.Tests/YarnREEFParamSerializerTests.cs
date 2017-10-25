@@ -159,7 +159,7 @@ namespace Org.Apache.REEF.Client.Tests
                 "\"securityTokenService\":\"{0}\"," +
                 "\"maxApplicationSubmissions\":{1}," +
                 "\"driverMemory\":{1}," +
-                "\"envMap\":{{\"key1\":\"{0}\",\"key2\":\"{0}\"}}," +
+                "\"environmentVariablesMap\":{{\"key1\":\"{0}\",\"key2\":\"{0}\"}}," +
                 "\"driverStdoutFilePath\":\"{0}\"," +
                 "\"driverStderrFilePath\":\"{0}\"" +
                 "}}";
