@@ -103,8 +103,8 @@ namespace Org.Apache.REEF.Tests.Functional.FaultTolerant
             private static readonly Logger Logger = Logger.GetLogger(typeof(ResubmitEvaluatorDriver));
 
             private readonly IEvaluatorRequestor _requestor;
-            private int _taskNumber = 1;
-            private int _contextNumber = 1;
+            private int _taskNumber;
+            private int _contextNumber;
             private string _failedContextId;
             private string _failedTaskId = TaskId + "1";
             private readonly ISet<ICompletedTask> _completedTasks = new HashSet<ICompletedTask>();
@@ -126,21 +126,19 @@ namespace Org.Apache.REEF.Tests.Functional.FaultTolerant
                 Logger.Log(Level.Info, "AllocatedEvaluator: " + value.Id);
                 value.SubmitContext(
                     ContextConfiguration.ConfigurationModule
-                        .Set(ContextConfiguration.Identifier, ContextId + _contextNumber)
+                        .Set(ContextConfiguration.Identifier, ContextId + Interlocked.Increment(ref _contextNumber))
                         .Build());
-                Interlocked.Increment(ref _contextNumber);
             }
 
             public void OnNext(IActiveContext value)
             {
                 Logger.Log(Level.Info, "ActiveContext: " + value.Id);
                 value.SubmitTask(TaskConfiguration.ConfigurationModule
-                    .Set(TaskConfiguration.Identifier, TaskId + _taskNumber)
+                    .Set(TaskConfiguration.Identifier, TaskId + Interlocked.Increment(ref _taskNumber))
                     .Set(TaskConfiguration.Task, GenericType<FailEvaluatorTask>.Class)
                     .Set(TaskConfiguration.OnMessage, GenericType<FailEvaluatorTask>.Class)
                     .Set(TaskConfiguration.OnClose, GenericType<FailEvaluatorTask>.Class)
                     .Build());
-                Interlocked.Increment(ref _taskNumber);
             }
 
             public void OnNext(IRunningTask value)
