@@ -49,4 +49,9 @@ final class LinkReference {
   AtomicInteger getConnectInProgress() {
     return this.connectInProgress;
   }
+
+  @Override
+  public String toString() {
+    return "LinkReference: { " + this.link + " }"; // NettyLink has a good .toString() implementation
+  }
 }

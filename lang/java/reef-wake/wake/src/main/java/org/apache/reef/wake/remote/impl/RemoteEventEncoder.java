@@ -61,4 +61,8 @@ public class RemoteEventEncoder<T> implements Encoder<RemoteEvent<T>> {
     return builder.build().toByteArray();
   }
 
+  @Override
+  public String toString() {
+    return "RemoteEventEncoder:" + this.encoder;
+  }
 }
