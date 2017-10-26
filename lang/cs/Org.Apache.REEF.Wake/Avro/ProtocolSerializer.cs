@@ -22,6 +22,7 @@ using System.Reflection;
 using Microsoft.Hadoop.Avro;
 using Org.Apache.REEF.Utilities.Logging;
 using org.apache.reef.wake.avro.message;
+using Org.Apache.REEF.Tang.Annotations;
 
 namespace Org.Apache.REEF.Wake.Avro
 {
@@ -34,7 +35,17 @@ namespace Org.Apache.REEF.Wake.Avro
     /// </summary>
     public sealed class ProtocolSerializer
     {
-        private static readonly Logger Logr = Logger.GetLogger(typeof(ProtocolSerializer));
+        [NamedParameter("Name of the assembly that contains serializable classes.")]
+        public class AssemblyName : Name<string>
+        {
+        }
+
+        [NamedParameter("Package name to search for serializabe classes.")]
+        public class MessageNamespace : Name<string>
+        {
+        }
+
+        private static readonly Logger Log = Logger.GetLogger(typeof(ProtocolSerializer));
 
         /// <summary>
         /// Delegate for message serializer.
@@ -50,16 +61,14 @@ namespace Org.Apache.REEF.Wake.Avro
         /// <summary>
         /// Map from message type (a string with the message class name) to serializer.
         /// </summary>
-        private readonly SortedDictionary<string, Serialize>
-            serializeMap = new SortedDictionary<string, Serialize>();
+        private readonly IDictionary<string, Serialize> _serializeMap = new Dictionary<string, Serialize>();
 
         /// <summary>
         /// Map from message type (a string with the message class name) to deserializer.
         /// </summary>
-        private readonly SortedDictionary<string, Deserialize>
-            deserializeMap = new SortedDictionary<string, Deserialize>();
+        private readonly IDictionary<string, Deserialize> _deserializeMap = new Dictionary<string, Deserialize>();
 
-        private readonly IAvroSerializer<Header> headerSerializer = AvroSerializer.Create<Header>();
+        private readonly IAvroSerializer<Header> _headerSerializer = AvroSerializer.Create<Header>();
 
         /// <summary>
         /// Non-generic reflection record for the Register() method of this class. A constant.
@@ -68,23 +77,33 @@ namespace Org.Apache.REEF.Wake.Avro
             typeof(ProtocolSerializer).GetMethod("Register", BindingFlags.Instance | BindingFlags.NonPublic);
 
         /// <summary>
-        /// Register all of the protocol messages using reflection.
+        /// Construct an initialized protocol serializer.
         /// </summary>
-        /// <param name="assembly">The Assembly object which contains the namespace of the message classes.</param>
+        /// <param name="assemblyName">The full name of the assembly
+        /// which contains the namespace of the message classes.</param>
         /// <param name="messageNamespace">A string which contains the namespace the protocol messages.</param>
-        public ProtocolSerializer(Assembly assembly, string messageNamespace)
+        [Inject]
+        public ProtocolSerializer(
+            [Parameter(typeof(AssemblyName))] string assemblyName,
+            [Parameter(typeof(MessageNamespace))] string messageNamespace)
         {
-            Logr.Log(Level.Verbose, "Retrieving types for assembly: {0}", assembly.FullName);
+            Log.Log(Level.Info, "Retrieving types for assembly: {0}", assemblyName);
+            Assembly assembly = Assembly.Load(assemblyName);
 
-            var types = new List<Type>(assembly.GetTypes()) { typeof(Header) };
-            foreach (Type type in types)
+            CreateProtocolObject(typeof(Header));
+            foreach (Type type in assembly.GetTypes())
             {
                 if (type.FullName.StartsWith(messageNamespace))
                 {
-                    MethodInfo genericInfo = RegisterMethodInfo.MakeGenericMethod(new[] { type });
-                    genericInfo.Invoke(this, null);
+                    CreateProtocolObject(type);
                 }
             }
+        }
+
+        private void CreateProtocolObject(Type type)
+        {
+            MethodInfo genericInfo = RegisterMethodInfo.MakeGenericMethod(new[] { type });
+            genericInfo.Invoke(this, null);
         }
 
         /// <summary>
@@ -93,15 +112,15 @@ namespace Org.Apache.REEF.Wake.Avro
         /// <typeparam name="TMessage">The class type of the message being registered.</typeparam>
         internal void Register<TMessage>()
         {
-            Logr.Log(Level.Info, "Registering message type: {0} {1}",
-                typeof(TMessage).FullName, typeof(TMessage).Name);
+            string name = typeof(TMessage).FullName;
+            Log.Log(Level.Info, "Registering message type: {0}", name);
 
             IAvroSerializer<TMessage> messageSerializer = AvroSerializer.Create<TMessage>();
             Serialize serialize = (MemoryStream stream, object message) =>
             {
                 messageSerializer.Serialize(stream, (TMessage)message);
             };
-            serializeMap.Add(typeof(TMessage).Name, serialize);
+            _serializeMap.Add(name, serialize);
 
             Deserialize deserialize = (MemoryStream stream, object observer, long sequence) =>
             {
@@ -109,14 +128,16 @@ namespace Org.Apache.REEF.Wake.Avro
                 var msgObserver = observer as IObserver<IMessageInstance<TMessage>>;
                 if (msgObserver != null)
                 {
+                    Log.Log(Level.Verbose, "Invoking message observer {0} with message {1}", msgObserver, message);
                     msgObserver.OnNext(new MessageInstance<TMessage>(sequence, message));
                 }
                 else
                 {
-                    Logr.Log(Level.Warning, "Unhandled message received: {0}", message);
+                    Log.Log(Level.Warning, "Unhandled message received: {0}", message);
                 }
             };
-            deserializeMap.Add(typeof(TMessage).Name, deserialize);
+
+            _deserializeMap.Add(name, deserialize);
         }
 
         /// <summary>
@@ -128,17 +149,17 @@ namespace Org.Apache.REEF.Wake.Avro
         /// <returns>A byte array containing the serialized header and message.</returns>
         public byte[] Write(object message, long sequence) 
         {
-            string name = message.GetType().Name;
-            Logr.Log(Level.Info, "Serializing message: {0}", name);
+            string name = message.GetType().FullName;
+            Log.Log(Level.Verbose, "Serializing message: {0}", name);
             try
             { 
                 using (MemoryStream stream = new MemoryStream())
                 {
                     Header header = new Header(sequence, name);
-                    headerSerializer.Serialize(stream, header);
+                    _headerSerializer.Serialize(stream, header);
 
                     Serialize serialize;
-                    if (serializeMap.TryGetValue(name, out serialize))
+                    if (_serializeMap.TryGetValue(name, out serialize))
                     {
                         serialize(stream, message);
                     }
@@ -152,7 +173,7 @@ namespace Org.Apache.REEF.Wake.Avro
             }
             catch (Exception e)
             {
-                Logr.Log(Level.Error, "Failure writing message.", e);
+                Log.Log(Level.Error, "Failure writing message.", e);
                 throw e;
             }
         }
@@ -163,15 +184,16 @@ namespace Org.Apache.REEF.Wake.Avro
         /// <param name="data">Byte array containing a header message and message to be deserialized.</param>
         /// <param name="observer">An object which implements the IObserver<>
         /// interface for the message being deserialized.</param>
-        public void Read<T>(byte[] data, IObserver<IMessageInstance<T>> observer)
+        public void Read(byte[] data, object observer)
         {
             try
             {
                 using (MemoryStream stream = new MemoryStream(data))
                 {
-                    Header head = headerSerializer.Deserialize(stream);
+                    Header head = _headerSerializer.Deserialize(stream);
+                    Log.Log(Level.Verbose, "Message header {0}", head);
                     Deserialize deserialize;
-                    if (deserializeMap.TryGetValue(head.className, out deserialize))
+                    if (_deserializeMap.TryGetValue(head.className, out deserialize))
                     {
                         deserialize(stream, observer, head.sequence);
                     }
@@ -184,7 +206,7 @@ namespace Org.Apache.REEF.Wake.Avro
             }
             catch (Exception e)
             {
-                Logr.Log(Level.Error, "Failure reading message.", e);
+                Log.Log(Level.Error, "Failure reading message.", e);
                 throw e;
             }
         }
