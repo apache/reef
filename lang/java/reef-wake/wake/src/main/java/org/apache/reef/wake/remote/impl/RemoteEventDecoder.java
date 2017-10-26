@@ -59,4 +59,8 @@ public class RemoteEventDecoder<T> implements Decoder<RemoteEvent<T>> {
     }
   }
 
+  @Override
+  public String toString() {
+    return String.format("RemoteEventDecoder: { decoder: %s }", this.decoder);
+  }
 }

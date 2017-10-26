@@ -31,6 +31,8 @@ import java.net.InetAddress;
  */
 public final class LoopbackLocalAddressProvider implements LocalAddressProvider {
 
+  private final String address = InetAddress.getLoopbackAddress().getHostAddress();
+
   @Inject
   private LoopbackLocalAddressProvider() {
   }
@@ -38,7 +40,7 @@ public final class LoopbackLocalAddressProvider implements LocalAddressProvider 
   @Override
   public String getLocalAddress() {
     // Use the loopback address.
-    return InetAddress.getLoopbackAddress().getHostAddress();
+    return this.address;
   }
 
   @Override
@@ -47,5 +49,10 @@ public final class LoopbackLocalAddressProvider implements LocalAddressProvider 
         .bind(LocalAddressProvider.class, LoopbackLocalAddressProvider.class)
         .bindNamedParameter(RemoteConfiguration.HostAddress.class, getLocalAddress())
         .build();
+  }
+
+  @Override
+  public String toString() {
+    return "LoopbackLocalAddressProvider:" + address;
   }
 }

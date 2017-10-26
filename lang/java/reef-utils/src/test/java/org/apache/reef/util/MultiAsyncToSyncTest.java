@@ -27,13 +27,13 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import static java.util.concurrent.TimeUnit.SECONDS;
-
 /**
  * Performs an asynchronous increment of an Integer.
  */
 final class AsynchronousIncrementer implements Callable<Integer> {
+
   private static final Logger LOG = Logger.getLogger(AsynchronousIncrementer.class.getName());
+
   private final int sleepTimeMillis;
   private final int input;
   private final long identifier;
@@ -57,9 +57,9 @@ final class AsynchronousIncrementer implements Callable<Integer> {
   /**
    * Sleep and then increment the input value by one.
    * @return The input value of the operation incremented by one.
-   * @throws Exception
    */
-  public Integer call() throws Exception {
+  @Override
+  public Integer call() throws InterruptedException, InvalidIdentifierException {
     LOG.log(Level.INFO, "Sleeping...");
     Thread.sleep(sleepTimeMillis);
     LOG.log(Level.INFO, "Releasing caller on identifier [{0}]...", identifier);
@@ -89,7 +89,7 @@ final class SynchronousApi implements AutoCloseable {
   SynchronousApi(final int incrementerSleepTimeSeconds,
                  final long timeoutPeriodSeconds, final int numberOfThreads) {
     this.incrementerSleepTimeMillis = 1000 * incrementerSleepTimeSeconds;
-    this.blocker = new MultiAsyncToSync(timeoutPeriodSeconds, SECONDS);
+    this.blocker = new MultiAsyncToSync(timeoutPeriodSeconds, TimeUnit.SECONDS);
     this.executor = Executors.newFixedThreadPool(numberOfThreads);
   }
 
@@ -105,6 +105,7 @@ final class SynchronousApi implements AutoCloseable {
       this.executor = executor;
     }
 
+    @Override
     public Boolean call() {
       executor.execute(task);
       return true;
@@ -118,9 +119,8 @@ final class SynchronousApi implements AutoCloseable {
    * @throws InterruptedException Thread was interrupted by another thread.
    * @throws ExecutionException An exception was thrown an internal processing function.
    * @throws InvalidIdentifierException The call identifier is invalid.
-   * @throws Exception The asynchronous processing generated an exception.
    */
-  public int apiCall(final Integer input) throws Exception {
+  public int apiCall(final Integer input) throws InterruptedException, InvalidIdentifierException, ExecutionException {
     // Create a future to run the asynchronous processing.
     final long identifier = idCounter.getAndIncrement();
     final FutureTask<Integer> task =
@@ -139,13 +139,12 @@ final class SynchronousApi implements AutoCloseable {
 
   /**
    * Ensure all test tasks have completed.
-   * @throws ExecutionException Asynchronous processing generated an exception.
    */
-  public void close() throws ExecutionException, InterruptedException {
+  public void close() throws InterruptedException {
     for (final FutureTask<Integer> task : taskQueue) {
       try {
         task.get();
-      } catch (final Exception e) {
+      } catch (final ExecutionException e) {
         LOG.log(Level.INFO, "Caught exception waiting for completion...", e);
       }
     }
@@ -163,7 +162,7 @@ public final class MultiAsyncToSyncTest {
    * Verify calculations successfully complete when no timeout occurs.
    */
   @Test
-  public void testNoTimeout() throws Exception {
+  public void testNoTimeout() throws InterruptedException, InvalidIdentifierException, ExecutionException {
     LOG.log(Level.INFO, "Starting...");
 
     // Parameters that do not force a timeout.
@@ -182,7 +181,7 @@ public final class MultiAsyncToSyncTest {
    * Verify an error is returned when a timeout occurs.
    */
   @Test
-  public void testTimeout() throws Exception {
+  public void testTimeout()  throws InterruptedException, InvalidIdentifierException, ExecutionException {
     LOG.log(Level.INFO, "Starting...");
 
     // Parameters that force a timeout.
@@ -201,7 +200,8 @@ public final class MultiAsyncToSyncTest {
    * Verify no interaction occurs when multiple calls are in flight.
    */
   @Test
-  public void testMultipleCalls() throws Exception {
+  public void testMultipleCalls()
+      throws InterruptedException, InvalidIdentifierException, ExecutionException, NoSuchMethodException {
 
     LOG.log(Level.INFO, "Starting...");
 
@@ -237,7 +237,8 @@ public final class MultiAsyncToSyncTest {
    * Verify no race conditions occurs when multiple calls are in flight.
    */
   @Test
-  public void testRaceConditions() throws Exception {
+  public void testRaceConditions()
+      throws InterruptedException, InvalidIdentifierException, ExecutionException, NoSuchMethodException {
 
     LOG.log(Level.INFO, "Starting...");
 
@@ -269,31 +270,24 @@ public final class MultiAsyncToSyncTest {
   /**
    * Verify calling block and release on same thread generates an exception.
    */
-  @Test
-  public void testCallOnSameThread() throws Exception {
+  @Test(expected = ExecutionException.class)
+  public void testCallOnSameThread()  throws InterruptedException, InvalidIdentifierException, ExecutionException {
+
     LOG.log(Level.INFO, "Starting...");
 
-    final long timeoutPeriodSeconds = 2;
     final long identifier = 78;
-    boolean result = false;
-
-    try {
-      final MultiAsyncToSync asyncToSync = new MultiAsyncToSync(timeoutPeriodSeconds, TimeUnit.SECONDS);
-      FutureTask<Object> syncProc = new FutureTask<>(new Callable<Object>() {
-        public Object call() throws InterruptedException, InvalidIdentifierException {
-          asyncToSync.release(identifier);
-          return null;
-        }
-      });
-      asyncToSync.block(identifier, syncProc);
-      syncProc.get();
-    } catch (ExecutionException ee) {
-      if (ee.getCause() instanceof RuntimeException) {
-        LOG.log(Level.INFO, "Caught expected runtime exception...", ee);
-        result = true;
+    final MultiAsyncToSync asyncToSync = new MultiAsyncToSync(2, TimeUnit.SECONDS);
+    final FutureTask<Object> syncProc = new FutureTask<>(new Callable<Object>() {
+      @Override
+      public Object call() throws InterruptedException, InvalidIdentifierException {
+        asyncToSync.release(identifier);
+        return null;
       }
-    }
-    Assert.assertTrue("Expected runtime exception", result);
+    });
+
+    asyncToSync.block(identifier, syncProc);
+    syncProc.get(); // must throw ExecutionException
+
+    Assert.fail("syncProc.get() must throw");
   }
 }
-

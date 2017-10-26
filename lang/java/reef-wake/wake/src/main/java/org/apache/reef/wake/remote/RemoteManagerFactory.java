@@ -62,6 +62,19 @@ public interface RemoteManagerFactory {
                                 final EventHandler<Throwable> errorHandler);
 
   /**
+   * @param name                 the name of the returned RemoteManager to instantiate.
+   * @param hostAddress          the address the returned RemoteManager binds to.
+   * @param listeningPort        the port on which the returned RemoteManager listens.
+   * @param codec                the codec to use to decode the messages sent to / by this RemoteManager.
+   * @param <T>                  the message type sent / received by the returned RemoteManager.
+   * @return a new instance of RemoteManager with all parameters but the given one injected via Tang.
+   */
+  <T> RemoteManager getInstance(final String name,
+                                final String hostAddress,
+                                final int listeningPort,
+                                final Codec<T> codec);
+
+  /**
    * The old constructor of DefaultRemoteManagerImplementation. Avoid if you can.
    *
    * @param name              the name of the returned RemoteManager to instantiate.

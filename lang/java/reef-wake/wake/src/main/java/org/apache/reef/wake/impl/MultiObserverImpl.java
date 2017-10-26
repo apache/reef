@@ -31,10 +31,11 @@ import java.util.logging.Logger;
 /**
  * The MultiObserverImpl class uses reflection to discover which onNext()
  * event processing methods are defined and then map events to them.
- * @param <TSubCls> The subclass derived from MultiObserverImpl.
  */
-public abstract class MultiObserverImpl<TSubCls> implements MultiObserver {
+public abstract class MultiObserverImpl implements MultiObserver {
+
   private static final Logger LOG = Logger.getLogger(MultiObserverImpl.class.getName());
+
   private final Map<String, Method> methodMap = new HashMap<>();
 
   /**
@@ -62,8 +63,8 @@ public abstract class MultiObserverImpl<TSubCls> implements MultiObserver {
    * @param <TEvent> The type of the event being processed.
    */
   private <TEvent> void unimplemented(final long identifier, final TEvent event) {
-    LOG.log(Level.INFO, "Unimplemented event: [{0}]: {1}",
-        new String[]{String.valueOf(identifier), event.getClass().getName()});
+    LOG.log(Level.SEVERE, "Unimplemented event: [{0}]: {1}", new Object[] {identifier, event});
+    throw new RuntimeException("Event not supported: " + event);
   }
 
   /**
@@ -74,13 +75,13 @@ public abstract class MultiObserverImpl<TSubCls> implements MultiObserver {
    */
   @Override
   public <TEvent> void onNext(final long identifier, final TEvent event)
-    throws IllegalAccessException, InvocationTargetException {
+      throws IllegalAccessException, InvocationTargetException {
 
     // Get the reflection method for this call.
     final Method onNext = methodMap.get(event.getClass().getName());
     if (onNext != null) {
       // Process the event.
-      onNext.invoke((TSubCls) this, identifier, event);
+      onNext.invoke(this, identifier, event);
     } else {
       // Log the unprocessed event.
       unimplemented(identifier, event);

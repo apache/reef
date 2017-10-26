@@ -21,7 +21,6 @@ package org.apache.reef.driver.evaluator;
 import org.apache.reef.annotations.Provided;
 import org.apache.reef.annotations.audience.DriverSide;
 import org.apache.reef.annotations.audience.Public;
-import org.apache.reef.runtime.common.driver.EvaluatorRequestorImpl;
 
 /**
  * Interface through which Evaluators can be requested.
@@ -41,5 +40,5 @@ public interface EvaluatorRequestor {
    * Get a new Builder for the evaluator with fluid interface.
    * @return Builder for the evaluator
    */
-  EvaluatorRequestorImpl.Builder newRequest();
+  EvaluatorRequest.Builder newRequest();
 }
