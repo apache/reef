@@ -78,7 +78,7 @@ public final class DataLoadingREEFOnSpark {
         .registerShortNameOfClass(DataLoadingREEFOnSpark.InputDir.class)
         .processCommandLine(args);
 
-    String inputPath="wasb://somefile";
+    String inputPath="file:///Users/skanjila/code/opensource/reef/pom.xml";
 
     final Injector injector = tang.newInjector(cb.build());
 

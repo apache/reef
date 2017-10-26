@@ -29,6 +29,8 @@ import org.apache.spark.api.java.function.FlatMapFunction;
 
 import java.io.Serializable;
 import java.util.Iterator;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 
 /**
@@ -36,6 +38,7 @@ import java.util.Iterator;
  */
 public class SparkRunner implements Serializable {
 
+  private static final Logger LOG = Logger.getLogger(SparkRunner.class.getName());
 
   /**
    * Given an input dataframe run a map function over
@@ -58,8 +61,7 @@ public class SparkRunner implements Serializable {
     JavaSparkContext sc = new JavaSparkContext(spark.sparkContext());
     if (inputPath!=null && !inputPath.isEmpty()){
       lines = sc.textFile(inputPath, numPartitions);
-      //lines.map(status->DriverLauncher.getLauncher(runtimeConfiguration).run(dataLoadConfiguration));
-
+      LOG.log(Level.FINEST, "SparkRunner::run the count of lines="+lines.count());
       JavaRDD<String> words = lines.flatMap(new FlatMapFunction<String, String>() {
             @Override
             public Iterator<String> call(final String s) throws Exception {
