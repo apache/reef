@@ -25,6 +25,7 @@ using Org.Apache.REEF.Wake.Remote.Impl;
 using Org.Apache.REEF.Tang.Implementations.Tang;
 using org.apache.reef.wake.tests.message;
 using Xunit;
+using Org.Apache.REEF.Tang.Interface;
 
 namespace Org.Apache.REEF.Wake.Tests
 {
@@ -33,32 +34,36 @@ namespace Org.Apache.REEF.Wake.Tests
     /// </summary>
     internal sealed class TestMessageObserver : IObserver<IMessageInstance<AvroTestMessage>>
     {
-        private readonly IMessageInstance<AvroTestMessage> messageInstance;
+        private readonly IMessageInstance<AvroTestMessage> _messageInstance;
 
         public TestMessageObserver(long seq, AvroTestMessage msg)
         {
-            messageInstance = new MessageInstance<AvroTestMessage>(seq, msg);
+            _messageInstance = new MessageInstance<AvroTestMessage>(seq, msg);
         }
 
         public void OnNext(IMessageInstance<AvroTestMessage> otherMessageInstance)
         {
-            Assert.Equal(messageInstance.Message.number, otherMessageInstance.Message.number);
-            Assert.Equal(messageInstance.Message.data, otherMessageInstance.Message.data);
+            Assert.Equal(_messageInstance.Message.number, otherMessageInstance.Message.number);
+            Assert.Equal(_messageInstance.Message.data, otherMessageInstance.Message.data);
         }
 
         public void OnError(Exception error)
         {
-            throw new NotImplementedException();
+            throw new NotImplementedException("This method should never be called");
         }
 
         public void OnCompleted()
         {
-            throw new NotImplementedException();
+            throw new NotImplementedException("This method should never be called");
         }
     }
 
     public sealed class TestProtocolSerializer
     {
+        private static readonly ITang Tang = TangFactory.GetTang();
+        private static readonly IPAddress ListeningAddress = IPAddress.Parse("127.0.0.1");
+        private static readonly ByteCodec Codec = new ByteCodec();
+
         /// <summary>
         /// Setup two way communication between two remote managers through the loopback
         /// network and verify that Avro messages are properly serialized and deserialzied
@@ -72,18 +77,23 @@ namespace Org.Apache.REEF.Wake.Tests
             int[] numbers = { 12, 25 };
             string[] strings = { "The first string", "The second string" };
 
-            IPAddress listeningAddress = IPAddress.Parse("127.0.0.1");
             BlockingCollection<byte[]> queue1 = new BlockingCollection<byte[]>();
             BlockingCollection<byte[]> queue2 = new BlockingCollection<byte[]>();
 
-            ProtocolSerializer serializer = new ProtocolSerializer(this.GetType().Assembly, "org.apache.reef.wake.tests.message");
-            IRemoteManagerFactory _remoteManagerFactory = TangFactory.GetTang().NewInjector().GetInstance<IRemoteManagerFactory>();
+            IConfiguration config = Tang.NewConfigurationBuilder()
+                .BindStringNamedParam<ProtocolSerializer.AssemblyName>(this.GetType().Assembly.FullName)
+                .BindStringNamedParam<ProtocolSerializer.MessageNamespace>("org.apache.reef.wake.tests.message")
+                .Build();
 
-            using (var remoteManager1 = _remoteManagerFactory.GetInstance(listeningAddress, new ByteCodec()))
-            using (var remoteManager2 = _remoteManagerFactory.GetInstance(listeningAddress, new ByteCodec()))
+            var injector = Tang.NewInjector(config);
+            var remoteManagerFactory = injector.GetInstance<IRemoteManagerFactory>();
+            var serializer = injector.GetInstance<ProtocolSerializer>();
+
+            using (var remoteManager1 = remoteManagerFactory.GetInstance(ListeningAddress, Codec))
+            using (var remoteManager2 = remoteManagerFactory.GetInstance(ListeningAddress, Codec))
             {
                 // Register observers for remote manager 1 and remote manager 2
-                var remoteEndpoint = new IPEndPoint(listeningAddress, 0);
+                var remoteEndpoint = new IPEndPoint(ListeningAddress, 0);
                 remoteManager1.RegisterObserver(remoteEndpoint, Observer.Create<byte[]>(queue1.Add));
                 remoteManager2.RegisterObserver(remoteEndpoint, Observer.Create<byte[]>(queue2.Add));
 
