@@ -63,6 +63,6 @@ public class RemoteEventEncoder<T> implements Encoder<RemoteEvent<T>> {
 
   @Override
   public String toString() {
-    return "RemoteEventEncoder:" + this.encoder;
+    return String.format("RemoteEventEncoder: { encoder: %s }", this.encoder);
   }
 }

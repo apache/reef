@@ -52,6 +52,6 @@ final class LinkReference {
 
   @Override
   public String toString() {
-    return "LinkReference: { " + this.link + " }"; // NettyLink has a good .toString() implementation
+    return String.format("LinkReference: { link: %s }", this.link); // NettyLink has a good .toString() implementation
   }
 }

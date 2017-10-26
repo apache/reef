@@ -371,6 +371,6 @@ public final class NettyMessagingTransport implements Transport {
 
   @Override
   public String toString() {
-    return "NettyMessagingTransport:" + this.localAddress;
+    return String.format("NettyMessagingTransport: { address: %s }", this.localAddress);
   }
 }
