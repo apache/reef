@@ -23,12 +23,12 @@ namespace org.apache.reef.bridge.message
     using Microsoft.Hadoop.Avro;
 
     /// <summary>
-    /// Used to serialize and deserialize Avro record org.apache.reef.bridge.message.Protocol.
+    /// Used to serialize and deserialize Avro record org.apache.reef.bridge.message.BridgeProtocol.
     /// </summary>
     [DataContract(Namespace = "org.apache.reef.bridge.message")]
-    public partial class Protocol
+    public partial class BridgeProtocol
     {
-        private const string JsonSchema = @"{""type"":""record"",""name"":""org.apache.reef.bridge.message.Protocol"",""doc"":""Negotiate Java/C# bridge protocol messages."",""fields"":[{""name"":""offset"",""doc"":""The index offset of the message identifiers."",""type"":""int""}]}";
+        private const string JsonSchema = @"{""type"":""record"",""name"":""org.apache.reef.bridge.message.BridgeProtocol"",""doc"":""Negotiate Java/C# bridge protocol messages."",""fields"":[{""name"":""offset"",""doc"":""The index offset of the message identifiers."",""type"":""int""}]}";
 
         /// <summary>
         /// Gets the schema.
@@ -48,17 +48,17 @@ namespace org.apache.reef.bridge.message
         public int offset { get; set; }
                 
         /// <summary>
-        /// Initializes a new instance of the <see cref="Protocol"/> class.
+        /// Initializes a new instance of the <see cref="BridgeProtocol"/> class.
         /// </summary>
-        public Protocol()
+        public BridgeProtocol()
         {
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="Protocol"/> class.
+        /// Initializes a new instance of the <see cref="BridgeProtocol"/> class.
         /// </summary>
         /// <param name="offset">The offset.</param>
-        public Protocol(int offset)
+        public BridgeProtocol(int offset)
         {
             this.offset = offset;
         }
