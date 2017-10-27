@@ -17,6 +17,6 @@
  * under the License.
  */
 /**
- * An YARN implementation of REEF that uses Spark slaves for execution.
+ * An YARN implementation of REEF that uses Yarn for execution.
  */
 package org.apache.reef.runtime.spark;
