@@ -78,7 +78,8 @@ public final class DataLoadingREEFOnSpark {
         .registerShortNameOfClass(DataLoadingREEFOnSpark.InputDir.class)
         .processCommandLine(args);
 
-    String inputPath="file:///Users/skanjila/code/opensource/reef/pom.xml";
+    // TODO[REEF-1791] remove hardcoding and figure out where to put these files
+    String inputPath="file:///"+System.getenv("REEF_HOME") +"/pom.xml";
 
     final Injector injector = tang.newInjector(cb.build());
 
