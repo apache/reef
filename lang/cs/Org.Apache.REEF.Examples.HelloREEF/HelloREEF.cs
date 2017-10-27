@@ -26,6 +26,7 @@ using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Tang.Util;
+using Org.Apache.REEF.Utilities.Logging;
 
 namespace Org.Apache.REEF.Examples.HelloREEF
 {
@@ -64,6 +65,7 @@ namespace Org.Apache.REEF.Examples.HelloREEF
                 .AddDriverConfiguration(helloDriverConfiguration)
                 .AddGlobalAssemblyForType(typeof(HelloDriver))
                 .SetJobIdentifier("HelloREEF")
+                .SetJavaLogLevel(JavaLoggingSetting.Verbose)
                 .Build();
 
             _reefClient.Submit(helloJobRequest);
