@@ -31,7 +31,7 @@ namespace Org.Apache.REEF.Common.Telemetry
     /// Metrics service. It is also a context message handler.
     /// </summary>
     [Unstable("0.16", "This is a simple MetricsService. More functionalities will be added.")]
-    internal sealed class MetricsService : IObserver<IContextMessage>
+    internal sealed class MetricsService : IObserver<IContextMessage>, IObserver<IDriverMetrics>
     {
         private static readonly Logger Logger = Logger.GetLogger(typeof(MetricsService));
 
@@ -87,13 +87,13 @@ namespace Org.Apache.REEF.Common.Telemetry
         /// <summary>
         /// Call each Sink to sink the data in the counters
         /// </summary>
-        private void Sink(ISet<KeyValuePair<string, string>> set)
+        private void Sink(IEnumerable<KeyValuePair<string, string>> metrics)
         {
             foreach (var s in _metricsSinks)
             {
                 try
                 {
-                    Task.Run(() => s.Sink(set));
+                    Task.Run(() => s.Sink(metrics));
                 }
                 catch (Exception e)
                 {
@@ -112,6 +112,23 @@ namespace Org.Apache.REEF.Common.Telemetry
 
         public void OnError(Exception error)
         {
+        }
+
+        /// <summary>
+        /// Observer of IDriverMetrics.
+        /// When Driver metrics data is changed, this method will be called.
+        /// It calls Sink to store/log the metrics data.
+        /// </summary>
+        /// <param name="driverMetrics">driver metrics data.</param>
+        public void OnNext(IDriverMetrics driverMetrics)
+        {
+            var list = new List<KeyValuePair<string, string>>()
+            {
+                { new KeyValuePair<string, string>("SystemState", driverMetrics.SystemState) },
+                { new KeyValuePair<string, string>("TimeUpdated", driverMetrics.TimeUpdated.ToLongTimeString()) }
+            };
+
+            Sink(list);
         }
     }
 }

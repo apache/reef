@@ -81,14 +81,9 @@ namespace Org.Apache.REEF.Common.Telemetry
         /// Convert the counter data into ISet for sink
         /// </summary>
         /// <returns></returns>
-        internal ISet<KeyValuePair<string, string>> GetCounterData()
+        internal IEnumerable<KeyValuePair<string, string>> GetCounterData()
         {
-            var set = new HashSet<KeyValuePair<string, string>>();
-            foreach (var c in _counterMap)
-            {
-                set.Add(c.Value.GetKeyValuePair());
-            }
-            return set;
+            return _counterMap.Select(counter => counter.Value.GetKeyValuePair());
         }
 
         /// <summary>
