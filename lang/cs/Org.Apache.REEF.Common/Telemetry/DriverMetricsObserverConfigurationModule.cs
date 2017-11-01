@@ -24,7 +24,7 @@ namespace Org.Apache.REEF.Common.Telemetry
     /// <summary>
     /// It provides ConfigurationModule for DriverMetrics observers
     /// </summary>
-    public class DriverMetricsObserverConfigurationModule : ConfigurationModuleBuilder
+    public sealed class DriverMetricsObserverConfigurationModule : ConfigurationModuleBuilder
     {
         /// <summary>
         /// Observer of driver metrics
@@ -37,7 +37,7 @@ namespace Org.Apache.REEF.Common.Telemetry
         /// MetricsService is added as an observer.
         /// User can set more observers with this configuration module.
         /// </summary>
-        public static ConfigurationModule ConfigurationModule = new DriverMetricsObserverConfigurationModule()
+        public readonly static ConfigurationModule ConfigurationModule = new DriverMetricsObserverConfigurationModule()
             .BindSetEntry(GenericType<DriverMetricsObservers>.Class, OnDriverMetrics)
             .BindSetEntry<DriverMetricsObservers, MetricsService, IObserver<IDriverMetrics>>(GenericType<DriverMetricsObservers>.Class, GenericType<MetricsService>.Class)
             .Build();

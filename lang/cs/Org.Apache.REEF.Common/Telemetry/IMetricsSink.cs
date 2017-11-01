@@ -28,6 +28,6 @@ namespace Org.Apache.REEF.Common.Telemetry
     [DefaultImplementation(typeof(DefaultMetricsSink))]
     public interface IMetricsSink : IDisposable
     {
-        void Sink(IList<KeyValuePair<string, string>> metrics);
+        void Sink(IEnumerable<KeyValuePair<string, string>> metrics);
     }
 }

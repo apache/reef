@@ -87,7 +87,7 @@ namespace Org.Apache.REEF.Common.Telemetry
         /// <summary>
         /// Call each Sink to sink the data in the counters
         /// </summary>
-        private void Sink(IList<KeyValuePair<string, string>> set)
+        private void Sink(IEnumerable<KeyValuePair<string, string>> set)
         {
             foreach (var s in _metricsSinks)
             {
@@ -116,14 +116,18 @@ namespace Org.Apache.REEF.Common.Telemetry
 
         /// <summary>
         /// Observer of IDriverMetrics.
-        /// When Driver metrics data is changed, this method will be called
+        /// When Driver metrics data is changed, this method will be called.
+        /// It calls Sink to store/log the metrics data.
         /// </summary>
-        /// <param name="value"></param>
-        public void OnNext(IDriverMetrics value)
+        /// <param name="driverMetrics">driver metrics data.</param>
+        public void OnNext(IDriverMetrics driverMetrics)
         {
-            var list = new List<KeyValuePair<string, string>>();
-            list.Add(new KeyValuePair<string, string>("SystemState", value.SystemState));
-            list.Add(new KeyValuePair<string, string>("TimeUpdated", value.TimeUpdated.ToLongTimeString()));
+            var list = new List<KeyValuePair<string, string>>()
+            {
+                { new KeyValuePair<string, string>("SystemState", driverMetrics.SystemState) },
+                { new KeyValuePair<string, string>("TimeUpdated", driverMetrics.TimeUpdated.ToLongTimeString()) }
+            };
+
             Sink(list);
         }
     }
