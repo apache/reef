@@ -92,7 +92,7 @@ Continuous Integration
 ------------
 
 We use [Travis CI](https://travis-ci.org/) to run continuous integration for REEF Java code (i.e. build and run tests
-for all pull requests and commits to master branch).
+for all pull requests and commits to master branch). Our current setup runs 2 builds for each commit: Oracle JDK 8 and OpenJDK 7; REEF can run on Oracle JDK 7 but it has been dropped from Travis build images.
 
 It can be convenient to set up Travis for your fork of REEF repository, for example, to reproduce a test failure which
 can't be reproduced locally.
