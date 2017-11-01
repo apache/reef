@@ -23,8 +23,10 @@ import org.apache.reef.client.DriverServiceConfiguration;
 import org.apache.reef.client.DriverRestartConfiguration;
 import org.apache.reef.io.network.naming.NameServerConfiguration;
 import org.apache.reef.javabridge.generic.JobDriver;
+import org.apache.reef.runtime.common.driver.client.JobStatusHandler;
 import org.apache.reef.tang.Configuration;
 import org.apache.reef.tang.Configurations;
+import org.apache.reef.tang.Tang;
 import org.apache.reef.webserver.HttpHandlerConfiguration;
 import org.apache.reef.webserver.HttpServerReefEventHandler;
 import org.apache.reef.webserver.ReefEventStateManager;
@@ -33,6 +35,8 @@ import org.apache.reef.webserver.ReefEventStateManager;
  * Constant Configuration instances used by the bridge.
  */
 public final class Constants {
+
+  private static final Tang TANG = Tang.Factory.getTang();
 
   /**
    * Contains all bindings of event handlers to the bridge.
@@ -60,6 +64,8 @@ public final class Constants {
   public static final Configuration HTTP_SERVER_CONFIGURATION = Configurations.merge(
       HttpHandlerConfiguration.CONF
           .set(HttpHandlerConfiguration.HTTP_HANDLERS, HttpServerReefEventHandler.class)
+          // Add the http status handler.
+          .set(HttpHandlerConfiguration.HTTP_HANDLERS, DriverStatusHTTPHandler.class)
           .build(),
       DriverServiceConfiguration.CONF
           .set(DriverServiceConfiguration.ON_EVALUATOR_ALLOCATED,
@@ -76,6 +82,10 @@ public final class Constants {
               ReefEventStateManager.DriverRestartActiveContextStateHandler.class)
           .set(DriverRestartConfiguration.ON_DRIVER_RESTART_TASK_RUNNING,
               ReefEventStateManager.DriverRestartTaskRunningStateHandler.class)
+          .build(),
+      // Bind the HTTP handler for job status
+      TANG.newConfigurationBuilder()
+          .bindImplementation(JobStatusHandler.class, DriverStatusHTTPHandler.class)
           .build()
   );
 
