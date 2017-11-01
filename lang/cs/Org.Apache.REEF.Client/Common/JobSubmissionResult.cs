@@ -63,7 +63,7 @@ namespace Org.Apache.REEF.Client.Common
         /// <summary>
         /// Returns http end point of the web server running in the driver
         /// </summary>
-        public string DriverUrl 
+        public string DriverUrl
         {
             get { return _driverUrl; }
         }
@@ -96,6 +96,36 @@ namespace Org.Apache.REEF.Client.Common
             return task.Result;
         }
 
+        public void WaitForDriverToFinish()
+        {
+            DriverStatus status = FetchDriverStatus();
+            
+            while (status.IsActive())
+            {
+                try
+                {
+                    status = FetchDriverStatus();
+                }
+                catch (System.Net.WebException)
+                {
+                    // If we no longer can reach the Driver, it must have exited.
+                    status = DriverStatus.UNKNOWN_EXITED;
+                }
+            }
+        }
+
+        private DriverStatus FetchDriverStatus()
+        {
+            string statusUrl = DriverUrl + "driverstatus/v1";
+            HttpWebRequest request = (HttpWebRequest)WebRequest.Create(statusUrl);
+            using (StreamReader reader = new StreamReader(request.GetResponse().GetResponseStream()))
+            {
+                string statusString = reader.ReadToEnd();
+                LOGGER.Log(Level.Verbose, "Status received: " + statusString);
+                return (DriverStatus)Enum.Parse(typeof(DriverStatus), statusString);
+            }
+        }
+
         protected abstract string GetDriverUrl(string filepath);
 
         enum UrlResultKind
@@ -116,7 +146,7 @@ namespace Org.Apache.REEF.Client.Common
                 var rmList = new List<string>();
                 var rmUri = sr.ReadLine();
                 while (rmUri != null)
-                {                    
+                {
                     rmList.Add(rmUri);
                     rmUri = sr.ReadLine();
                 }
@@ -134,12 +164,12 @@ namespace Org.Apache.REEF.Client.Common
             LOGGER.Log(Level.Warning, "CallUrl result " + result.Item2);
             return result.Item2;
         }
-        
+
         internal async Task<string> GetAppIdTrackingUrl(string url)
         {
             var result = await TryGetUri(url);
-            if (HasCommandFailed(result) ||  
-                result.Item2 == null)                
+            if (HasCommandFailed(result) ||
+                result.Item2 == null)
             {
                 return null;
             }

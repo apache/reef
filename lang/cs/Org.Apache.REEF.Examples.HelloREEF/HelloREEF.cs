@@ -27,6 +27,7 @@ using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Tang.Util;
 using Org.Apache.REEF.Utilities.Logging;
+using Org.Apache.REEF.Client.Common;
 
 namespace Org.Apache.REEF.Examples.HelloREEF
 {
@@ -68,7 +69,10 @@ namespace Org.Apache.REEF.Examples.HelloREEF
                 .SetJavaLogLevel(JavaLoggingSetting.Verbose)
                 .Build();
 
-            _reefClient.Submit(helloJobRequest);
+            IJobSubmissionResult jobSubmissionResult = _reefClient.SubmitAndGetJobStatus(helloJobRequest);
+
+            // Wait for the Driver to complete.
+            jobSubmissionResult.WaitForDriverToFinish();
         }
 
         /// <summary>
