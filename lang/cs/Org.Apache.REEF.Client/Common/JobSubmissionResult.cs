@@ -122,7 +122,7 @@ namespace Org.Apache.REEF.Client.Common
             {
                 string statusString = reader.ReadToEnd();
                 LOGGER.Log(Level.Verbose, "Status received: " + statusString);
-                return (DriverStatus)Enum.Parse(typeof(DriverStatus), statusString);
+                return DriverStatusMethods.Parse(statusString);
             }
         }
 

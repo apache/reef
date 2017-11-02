@@ -82,5 +82,15 @@ namespace Org.Apache.REEF.Client.API
         {
             return !IsActive(status);
         }
+
+        /// <summary>
+        /// Parses a string representation of a DriverStatus.
+        /// </summary>
+        /// <param name="statusString">The string to parse.</param>
+        /// <returns>The DriverStatus represented in the string.</returns>
+        public static DriverStatus Parse(string statusString)
+        {
+            return (DriverStatus)System.Enum.Parse(typeof(DriverStatus), statusString);
+        }
     }
 }

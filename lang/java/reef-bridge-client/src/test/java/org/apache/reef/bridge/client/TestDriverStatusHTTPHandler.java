@@ -24,7 +24,6 @@ import org.junit.Test;
 
 import java.util.logging.Logger;
 
-
 /**
  * Tests for {@link DriverStatusHTTPHandler}.
  */
@@ -36,7 +35,7 @@ public final class TestDriverStatusHTTPHandler {
   /**
    * An array of all statuses to test.
    */
-  private final ReefServiceProtos.JobStatusProto[] allStatuses = new ReefServiceProtos.JobStatusProto[]{
+  private final ReefServiceProtos.JobStatusProto[] allStatuses = new ReefServiceProtos.JobStatusProto[] {
       ReefServiceProtos.JobStatusProto.newBuilder()
           .setIdentifier(TEST_DRIVER_ID)
           .setState(ReefServiceProtos.State.INIT).build(),
@@ -110,9 +109,7 @@ public final class TestDriverStatusHTTPHandler {
 
     @Override
     public synchronized void run() {
-      synchronized (this) {
-        result = handler.waitAndGetMessage();
-      }
+      result = handler.waitAndGetMessage();
     }
 
     public synchronized String getResult() {

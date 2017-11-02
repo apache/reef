@@ -53,8 +53,7 @@ final class DriverStatusHTTPHandler implements HttpHandler, JobStatusHandler {
   private ReefServiceProtos.JobStatusProto lastStatus = null;
 
   @Inject
-  DriverStatusHTTPHandler() {
-
+  DriverStatusHTTPHandler(){
   }
 
   @Override
@@ -63,18 +62,10 @@ final class DriverStatusHTTPHandler implements HttpHandler, JobStatusHandler {
   }
 
   @Override
-  public void setUriSpecification(final String s) {
-    this.uriSpecification = s;
+  public void setUriSpecification(final String newUriSpecification) {
+    this.uriSpecification = newUriSpecification;
   }
 
-  /**
-   * A hanging HTTP request with the status of the Driver.
-   *
-   * @param parsedHttpRequest
-   * @param response
-   * @throws IOException
-   * @throws ServletException
-   */
   @Override
   public void onHttpRequest(final ParsedHttpRequest parsedHttpRequest, final HttpServletResponse response)
       throws IOException, ServletException {
@@ -85,7 +76,7 @@ final class DriverStatusHTTPHandler implements HttpHandler, JobStatusHandler {
 
   @Override
   public void onNext(final ReefServiceProtos.JobStatusProto value) {
-    LOG.log(Level.INFO, "Received status: " + value.getState().name());
+    LOG.log(Level.INFO, "Received status: {0}", value.getState().name());
     // Record the status received and notify the thread to send an answer.
     synchronized (this) {
       this.statusMessagesToSend.add(value);
@@ -99,6 +90,7 @@ final class DriverStatusHTTPHandler implements HttpHandler, JobStatusHandler {
     return this.lastStatus;
   }
 
+  @Override
   public String toString() {
     return "DriverStatusHTTPHandler{uriSpec=" + getUriSpecification() + "}";
   }
@@ -114,7 +106,7 @@ final class DriverStatusHTTPHandler implements HttpHandler, JobStatusHandler {
       while (this.statusMessagesToSend.isEmpty()) {
         try {
           this.wait();
-        } catch (InterruptedException e) {
+        } catch (final InterruptedException e) {
           LOG.log(Level.FINE, "Interrupted. Ignoring.");
         }
       }
@@ -128,8 +120,8 @@ final class DriverStatusHTTPHandler implements HttpHandler, JobStatusHandler {
    * Generates a string to be sent to the client based on a
    * {@link org.apache.reef.proto.ReefServiceProtos.JobStatusProto}.
    *
-   * @param status
-   * @return
+   * @param status the status to be converted to String.
+   * @return the string to be sent back to the HTTP client.
    */
   static String getMessageForStatus(final ReefServiceProtos.JobStatusProto status) {
     return status.getState().name();
