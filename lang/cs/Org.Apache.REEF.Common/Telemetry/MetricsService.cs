@@ -75,7 +75,7 @@ namespace Org.Apache.REEF.Common.Telemetry
             var msgReceived = ByteUtilities.ByteArraysToString(contextMessage.Message);
             var counters = new EvaluatorMetrics(msgReceived).GetMetricsCounters();
 
-            Logger.Log(Level.Verbose, "Received {0} counters with context message: {1}.",
+            Logger.Log(Level.Info, "Received {0} counters with context message: {1}.",
                 counters.GetCounters().Count(), msgReceived);
 
             _countersData.Update(counters);
