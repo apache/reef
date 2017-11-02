@@ -84,7 +84,7 @@ public final class TestDriverStatusHTTPHandler {
    * Test the wait and notify for correctness.
    */
   @Test
-  public void testAsyncCalls() {
+  public void testAsyncCalls() throws InterruptedException {
     final DriverStatusHTTPHandler tester = new DriverStatusHTTPHandler();
 
     final WaitingRunnable waiter = new WaitingRunnable(tester);
@@ -95,6 +95,7 @@ public final class TestDriverStatusHTTPHandler {
       Assert.assertTrue(waitingThread.isAlive());
       Assert.assertNull(waiter.getResult());
       tester.onNext(status);
+      waitingThread.join();
       Assert.assertEquals(DriverStatusHTTPHandler.getMessageForStatus(status), waiter.getResult());
     }
   }
