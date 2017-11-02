@@ -121,7 +121,7 @@ namespace Org.Apache.REEF.Client.Common
             using (StreamReader reader = new StreamReader(request.GetResponse().GetResponseStream()))
             {
                 string statusString = reader.ReadToEnd();
-                LOGGER.Log(Level.Verbose, "Status received: " + statusString);
+                LOGGER.Log(Level.Verbose, "Status received: {0}", statusString);
                 return DriverStatusMethods.Parse(statusString);
             }
         }
