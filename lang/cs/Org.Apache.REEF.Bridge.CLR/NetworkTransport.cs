@@ -96,7 +96,7 @@ namespace Org.Apache.REEF.Bridge
         /// <returns>IP address and port of the Java bridge.</returns>
         private IPEndPoint GetJavaBridgeEndpoint()
         {
-            using (FileStream stream = File.Open(_fileNames.GetDriverJavaBridgeEndpoint(), FileMode.Open))
+            using (FileStream stream = File.Open(_fileNames.DriverJavaBridgeEndpointFileName, FileMode.Open))
             {
                 using (StreamReader reader = new StreamReader(stream))
                 {
