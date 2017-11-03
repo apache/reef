@@ -53,12 +53,12 @@ under the License.
     <Compile Include="$(SolutionDir)\SharedAssemblyInfo.cs">
       <Link>Properties\SharedAssemblyInfo.cs</Link>
     </Compile>
+    <Compile Include="LocalObserver.cs" />
     <Compile Include="Message\Acknowledgement.cs" />
-    <Compile Include="Message\BridgeInterop.cs" />
-    <Compile Include="Message\MessageType.cs" />
-    <Compile Include="Message\Protocol.cs" />
+    <Compile Include="Message\BridgeProtocol.cs" />
     <Compile Include="Message\SetupBridge.cs" />
     <Compile Include="Message\SystemOnStart.cs" />
+    <Compile Include="NetworkTransport.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Message\README.md" />
