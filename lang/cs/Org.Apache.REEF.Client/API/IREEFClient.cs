@@ -35,6 +35,12 @@ namespace Org.Apache.REEF.Client.API
         void Submit(JobRequest jobRequest);
 
         /// <summary>
+        /// Instantiate a new JobRequestBuilder.
+        /// </summary>
+        /// <returns>A new JobRequestBuilder</returns>
+        JobRequestBuilder NewJobRequestBuilder();
+
+        /// <summary>
         /// Submit the job described in jobRequest to the cluster.
         /// Expect IJobSubmissionResult returned after the call.
         /// </summary>
