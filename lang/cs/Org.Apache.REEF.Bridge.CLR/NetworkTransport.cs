@@ -30,7 +30,7 @@ using Org.Apache.REEF.Wake.Remote.Impl;
 namespace Org.Apache.REEF.Bridge
 {
     /// <summary>
-    /// The CLR Bridge Network class agregates a RemoteManager and
+    /// The CLR Bridge Network class aggregates a RemoteManager and
     /// Protocol Serializer to provide a simple send/receive interface
     /// between the CLR and Java bridges.
     /// </summary>
@@ -38,7 +38,7 @@ namespace Org.Apache.REEF.Bridge
     {
         private static readonly Logger Logger = Logger.GetLogger(typeof(NetworkTransport));
 
-        private readonly BlockingCollection<byte[]> queue = new BlockingCollection<byte[]>();
+        private readonly BlockingCollection<byte[]> _queue = new BlockingCollection<byte[]>();
 
         private readonly ProtocolSerializer _serializer;
         private readonly IRemoteManager<byte[]> _remoteManager;
@@ -52,8 +52,11 @@ namespace Org.Apache.REEF.Bridge
         /// a local IP address on an open port.</param>
         /// <param name="serializer">Serializer/deserializer of the bridge messages.</param>
         /// <param name="localObserver">Handler of the incoming bridge messages.</param>
+        /// <param name="remoteManagerFactory">RemoteManager factory.
+        /// We need a new instance of the RM to communicate with the Java side of the bridge.</param>
+        /// <param name="filenames">Collection of global constants for file paths and such.</param>
         [Inject]
-        public NetworkTransport(
+        private NetworkTransport(
             ILocalAddressProvider localAddressProvider,
             ProtocolSerializer serializer,
             LocalObserver localObserver,

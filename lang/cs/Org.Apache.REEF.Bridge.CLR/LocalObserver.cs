@@ -45,14 +45,11 @@ namespace Org.Apache.REEF.Bridge
         private readonly ProtocolSerializer _serializer;
         private readonly IInjectionFuture<object> _fMessageObserver;
 
-        /// <summary>
-        /// Injection constructor.
-        /// </summary>
         /// <param name="serializer">The protocol serializer instance to be used.</param>
         /// <param name="fMessageObserver">An injection future with message observer to be
         /// called to process Avro messages from the Java bridge.</param>
         [Inject]
-        public LocalObserver(
+        private LocalObserver(
             ProtocolSerializer serializer,
             [Parameter(typeof(MessageObserver))] IInjectionFuture<object> fMessageObserver)
         {
@@ -63,7 +60,7 @@ namespace Org.Apache.REEF.Bridge
         /// <summary>
         /// Called by the remote manager to process messages received from the java bridge.
         /// </summary>
-        /// <param name="message">A byte buffer containing a serialied message.</param>
+        /// <param name="message">A byte buffer containing a serialzied message.</param>
         public void OnNext(IRemoteMessage<byte[]> message)
         {
             Logger.Log(Level.Verbose, "Message received: {0}", message.Identifier);
@@ -78,11 +75,11 @@ namespace Org.Apache.REEF.Bridge
         /// <param name="error">The exception generated in the transport layer.</param>
         public void OnError(Exception error)
         {
-            Logger.Log(Level.Error, "Error: ", error);
+            Logger.Log(Level.Error, "Error in the transport layer", error);
         }
 
         /// <summary>
-        /// Notification that no nore message prpocessing is required.
+        /// Notification that no more message processing is required.
         /// </summary>
         public void OnCompleted()
         {
