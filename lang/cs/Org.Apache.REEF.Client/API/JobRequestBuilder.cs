@@ -34,14 +34,9 @@ namespace Org.Apache.REEF.Client.API
         }
 
         [Inject]
-        private JobRequestBuilder([Parameter(typeof(DriverConfigurationProviders))] ISet<IConfigurationProvider> configurationProviders)
+        internal JobRequestBuilder([Parameter(typeof(DriverConfigurationProviders))] ISet<IConfigurationProvider> configurationProviders)
         {
             AddDriverConfigurationProviders(configurationProviders);
-        }
-
-        public static JobRequestBuilder NewBuilder()
-        {
-            return new JobRequestBuilder();
         }
 
         /// <summary>

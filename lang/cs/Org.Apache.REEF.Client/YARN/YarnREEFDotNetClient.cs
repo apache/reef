@@ -51,6 +51,7 @@ namespace Org.Apache.REEF.Client.YARN
         private readonly REEFFileNames _fileNames;
         private readonly IJobSubmissionDirectoryProvider _jobSubmissionDirectoryProvider;
         private readonly YarnREEFDotNetParamSerializer _paramSerializer;
+        private readonly JobRequestBuilderFactory _jobRequestBuilderFactory;
 
         [Inject]
         private YarnREEFDotNetClient(
@@ -60,7 +61,8 @@ namespace Org.Apache.REEF.Client.YARN
             IJobResourceUploader jobResourceUploader,
             REEFFileNames fileNames,
             IJobSubmissionDirectoryProvider jobSubmissionDirectoryProvider,
-            YarnREEFDotNetParamSerializer paramSerializer)
+            YarnREEFDotNetParamSerializer paramSerializer,
+            JobRequestBuilderFactory jobRequestBuilderFactory)
         {
             _injector = injector;
             _jobSubmissionDirectoryProvider = jobSubmissionDirectoryProvider;
@@ -69,6 +71,7 @@ namespace Org.Apache.REEF.Client.YARN
             _driverFolderPreparationHelper = driverFolderPreparationHelper;
             _yarnRMClient = yarnRMClient;
             _paramSerializer = paramSerializer;
+            _jobRequestBuilderFactory = jobRequestBuilderFactory;
         }
 
         public void Submit(JobRequest jobRequest)
@@ -133,6 +136,11 @@ namespace Org.Apache.REEF.Client.YARN
                     Directory.Delete(localDriverFolderPath, recursive: true);
                 }
             }
+        }
+
+        public JobRequestBuilder NewJobRequestBuilder()
+        {
+            return _jobRequestBuilderFactory.NewInstance();
         }
 
         public IJobSubmissionResult SubmitAndGetJobStatus(JobRequest jobRequest)

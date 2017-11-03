@@ -47,6 +47,7 @@ namespace Org.Apache.REEF.Client.Yarn
         private readonly REEFFileNames _fileNames;
         private readonly IYarnRMClient _yarnClient;
         private readonly YarnREEFParamSerializer _paramSerializer;
+        private readonly JobRequestBuilderFactory _jobRequestBuilderFactory;
 
         [Inject]
         internal YarnREEFClient(IJavaClientLauncher javaClientLauncher,
@@ -54,7 +55,8 @@ namespace Org.Apache.REEF.Client.Yarn
             REEFFileNames fileNames,
             YarnCommandLineEnvironment yarn,
             IYarnRMClient yarnClient,
-            YarnREEFParamSerializer paramSerializer)
+            YarnREEFParamSerializer paramSerializer,
+            JobRequestBuilderFactory jobRequestBuilderFactory)
         {
             _javaClientLauncher = javaClientLauncher;
             _javaClientLauncher.AddToClassPath(yarn.GetYarnClasspathList());
@@ -62,6 +64,7 @@ namespace Org.Apache.REEF.Client.Yarn
             _fileNames = fileNames;
             _yarnClient = yarnClient;
             _paramSerializer = paramSerializer;
+            _jobRequestBuilderFactory = jobRequestBuilderFactory;
         }
 
         public void Submit(JobRequest jobRequest)
@@ -71,6 +74,11 @@ namespace Org.Apache.REEF.Client.Yarn
             Logger.Log(Level.Verbose, "Preparing driver folder in " + driverFolderPath);
 
             Launch(jobRequest, driverFolderPath);
+        }
+
+        public JobRequestBuilder NewJobRequestBuilder()
+        {
+            return _jobRequestBuilderFactory.NewInstance();
         }
 
         public IJobSubmissionResult SubmitAndGetJobStatus(JobRequest jobRequest)

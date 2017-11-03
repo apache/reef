@@ -41,13 +41,11 @@ namespace Org.Apache.REEF.Examples.HelloREEF
         private const string YARNRest = "yarnrest";
         private const string HDInsight = "hdi";
         private readonly IREEFClient _reefClient;
-        private readonly JobRequestBuilder _jobRequestBuilder;
 
         [Inject]
-        private HelloREEF(IREEFClient reefClient, JobRequestBuilder jobRequestBuilder)
+        private HelloREEF(IREEFClient reefClient)
         {
             _reefClient = reefClient;
-            _jobRequestBuilder = jobRequestBuilder;
         }
 
         /// <summary>
@@ -62,7 +60,7 @@ namespace Org.Apache.REEF.Examples.HelloREEF
                 .Build();
 
             // The JobSubmission contains the Driver configuration as well as the files needed on the Driver.
-            var helloJobRequest = _jobRequestBuilder
+            var helloJobRequest = _reefClient.NewJobRequestBuilder()
                 .AddDriverConfiguration(helloDriverConfiguration)
                 .AddGlobalAssemblyForType(typeof(HelloDriver))
                 .SetJobIdentifier("HelloREEF")

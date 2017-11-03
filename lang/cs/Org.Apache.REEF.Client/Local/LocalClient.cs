@@ -63,19 +63,22 @@ namespace Org.Apache.REEF.Client.Local
         private readonly string _runtimeFolder;
         private readonly REEFFileNames _fileNames;
         private readonly IConfiguration _localConfigurationOnDriver;
+        private readonly JobRequestBuilderFactory _jobRequestBuilderFactory;
 
         [Inject]
         private LocalClient(DriverFolderPreparationHelper driverFolderPreparationHelper,
             [Parameter(typeof(LocalRuntimeDirectory))] string runtimeFolder,
             [Parameter(typeof(NumberOfEvaluators))] int maxNumberOfConcurrentEvaluators,
             IJavaClientLauncher javaClientLauncher,
-            REEFFileNames fileNames)
+            REEFFileNames fileNames,
+            JobRequestBuilderFactory jobRequestBuilderFactory)
         {
             _driverFolderPreparationHelper = driverFolderPreparationHelper;
             _runtimeFolder = runtimeFolder;
             _maxNumberOfConcurrentEvaluators = maxNumberOfConcurrentEvaluators;
             _javaClientLauncher = javaClientLauncher;
             _fileNames = fileNames;
+            _jobRequestBuilderFactory = jobRequestBuilderFactory;
             _localConfigurationOnDriver = TangFactory.GetTang().NewConfigurationBuilder().BindImplementation(GenericType<ILocalAddressProvider>.Class, GenericType<LoopbackLocalAddressProvider>.Class).Build();
         }
 
@@ -86,13 +89,15 @@ namespace Org.Apache.REEF.Client.Local
         /// <param name="numberOfEvaluators"></param>
         /// <param name="javaClientLauncher"></param>
         /// <param name="fileNames"></param>
+        /// <param name="jobRequestBuilderFactory">The helper used to instantiate JobRequestBuilder instances.</param>
         [Inject]
         private LocalClient(
             DriverFolderPreparationHelper driverFolderPreparationHelper,
             [Parameter(typeof(NumberOfEvaluators))] int numberOfEvaluators,
             IJavaClientLauncher javaClientLauncher,
-            REEFFileNames fileNames)
-            : this(driverFolderPreparationHelper, Path.GetTempPath(), numberOfEvaluators, javaClientLauncher, fileNames)
+            REEFFileNames fileNames,
+            JobRequestBuilderFactory jobRequestBuilderFactory)
+            : this(driverFolderPreparationHelper, Path.GetTempPath(), numberOfEvaluators, javaClientLauncher, fileNames, jobRequestBuilderFactory)
         {
             // Intentionally left blank.
         }
@@ -169,6 +174,11 @@ namespace Org.Apache.REEF.Client.Local
             _javaClientLauncher.LaunchAsync(jobRequest.JavaLogLevel, JavaClassName, submissionJobArgsFilePath, submissionAppArgsFilePath)
                 .GetAwaiter().GetResult();
             Logger.Log(Level.Info, "Submitted the Driver for execution.");
+        }
+
+        public JobRequestBuilder NewJobRequestBuilder()
+        {
+            return _jobRequestBuilderFactory.NewInstance();
         }
 
         public IJobSubmissionResult SubmitAndGetJobStatus(JobRequest jobRequest)
