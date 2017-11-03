@@ -72,7 +72,6 @@ namespace Org.Apache.REEF.Tests.Performance.TestHelloREEF
         /// e.g. TestDriver.exe TrustedApplication001 none 2000 
         /// </summary>
         /// <param name="args"></param>
-        [Fact]
         [Trait("Environment", "Yarn")]
         [Trait("Priority", "1")]
         [Trait("Description", "Run CLR Test on Yarn")]
