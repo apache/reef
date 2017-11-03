@@ -39,7 +39,7 @@ namespace Org.Apache.REEF.Tests.Performance.TestHelloREEF
     /// <summary>
     /// Test Hello REEF for scalability
     /// </summary>
-    [Collection("PerformanceTests")]
+    [Collection("FunctionalTests")]
     public class TestHelloREEFClient : ReefFunctionalTest
     {
         private static readonly Logger Logger = Logger.GetLogger(typeof(TestHelloREEFClient));
@@ -68,15 +68,16 @@ namespace Org.Apache.REEF.Tests.Performance.TestHelloREEF
 
         /// <summary>
         /// Test HelloREEF on YARN. 
-        /// The parameter are provided on command line arguments: token password numberOfContainers
+        /// The test can be modified to pass parameters through command line arguments: token password numberOfContainers
         /// e.g. TestDriver.exe TrustedApplication001 none 2000 
         /// </summary>
-        /// <param name="args"></param>
+        [Fact]
         [Trait("Environment", "Yarn")]
         [Trait("Priority", "1")]
         [Trait("Description", "Run CLR Test on Yarn")]
-        public void TestHelloREEFOnYarn(string[] args)
+        public void TestHelloREEFOnYarn()
         {
+            string[] args = { "TrustedApplication001", "none", "2000" };
             TestRun(GetRuntimeConfigurationForYarn(args), 10240);
         }
 
