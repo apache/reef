@@ -45,5 +45,12 @@ namespace Org.Apache.REEF.Client.Common
         /// Get Yarn application id after Job is submited
         /// </summary>
         string AppId { get; }
+
+        /// <summary>
+        /// Waits for the Driver to complete.
+        /// </summary>
+        /// <exception cref="System.Net.WebException">If the Driver cannot be reached.</exception>
+        [Unstable("0.17", "Uses the HTTP server in the Java Driver. Might not work if that cannot be reached.")]
+        void WaitForDriverToFinish();
     }
 }
