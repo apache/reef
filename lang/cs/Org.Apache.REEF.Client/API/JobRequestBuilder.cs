@@ -18,23 +18,32 @@
 using System;
 using System.Collections.Generic;
 using Org.Apache.REEF.Common.Client.Parameters;
+using Org.Apache.REEF.Client.Common;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Utilities.Logging;
+using System.IO;
+using System.Linq;
+using Org.Apache.REEF.Utilities;
 
 namespace Org.Apache.REEF.Client.API
 {
     public sealed class JobRequestBuilder
     {
+        private static readonly Logger Logger = Logger.GetLogger(typeof(JobRequestBuilder));
         private readonly AppParametersBuilder _appParametersBuilder = AppParametersBuilder.NewBuilder();
         private readonly JobParametersBuilder _jobParametersBuilder = JobParametersBuilder.NewBuilder();
+        private const string DLLFileNameExtension = ".dll";
+        private const string EXEFileNameExtension = ".exe";
+        private bool _assembliesAdded = false;
 
         private JobRequestBuilder()
         {
         }
 
         [Inject]
-        internal JobRequestBuilder([Parameter(typeof(DriverConfigurationProviders))] ISet<IConfigurationProvider> configurationProviders)
+        internal JobRequestBuilder(
+            [Parameter(typeof(DriverConfigurationProviders))] ISet<IConfigurationProvider> configurationProviders)
         {
             AddDriverConfigurationProviders(configurationProviders);
         }
@@ -44,6 +53,13 @@ namespace Org.Apache.REEF.Client.API
         /// </summary>
         public JobRequest Build()
         {
+            // If no assemblies have been added, default to those in the working directory
+            if (!_assembliesAdded)
+            {
+                Logger.Log(Level.Warning, "No assemlies added to the job; Adding assemblies from the current working directory.");
+                AddGlobalAssembliesInDirectory(Directory.GetCurrentDirectory());
+            }
+
             return new JobRequest(_jobParametersBuilder.Build(), _appParametersBuilder.Build());
         }
 
@@ -52,6 +68,7 @@ namespace Org.Apache.REEF.Client.API
         /// </summary>
         public JobRequestBuilder AddGlobalFile(string fileName)
         {
+            ThrowIfFileDoesnotExist(fileName, "Global File");
             _appParametersBuilder.AddGlobalFile(fileName);
             return this;
         }
@@ -61,6 +78,7 @@ namespace Org.Apache.REEF.Client.API
         /// </summary>
         public JobRequestBuilder AddLocalFile(string fileName)
         {
+            ThrowIfFileDoesnotExist(fileName, "Local File");
             _appParametersBuilder.AddLocalFile(fileName);
             return this;
         }
@@ -72,8 +90,42 @@ namespace Org.Apache.REEF.Client.API
         /// <returns></returns>
         public JobRequestBuilder AddGlobalAssembly(string fileName)
         {
+            ThrowIfFileDoesnotExist(fileName, "Global Assembly");
             _appParametersBuilder.AddGlobalAssembly(fileName);
+            _assembliesAdded = true;
             return this;
+        }
+
+        /// <summary>
+        /// Add all the assemblies in a directory of type EXE, DLL, or with the Client-JarFile Prefix to the global path
+        /// </summary>
+        /// <param name="globalAssemblyDirectory">The directory to search for assemblies</param>
+        public JobRequestBuilder AddGlobalAssembliesInDirectory(string globalAssemblyDirectory)
+        {
+            if (Directory.Exists(globalAssemblyDirectory))
+            {
+                // For input paths that are directories, extract only files of a predetermined type
+                foreach (var assembly in Directory.GetFiles(globalAssemblyDirectory).Where(IsAssemblyToCopy))
+                {
+                    AddGlobalAssembly(assembly);
+                }
+            }
+            else
+            {
+                // Throw if a path input was not a file or a directory
+                throw new FileNotFoundException(string.Format("Global Assembly Directory not Found: {0}", globalAssemblyDirectory));
+            }
+            return this;
+        }
+
+        /// <summary>
+        /// Add any assemblies of type EXE, DLL, or with the Client-JarFile Prefix to the global path
+        /// found in the same directory as the executing assembly's directory
+        /// </summary>
+        public JobRequestBuilder AddGlobalAssembliesInDirectoryOfExecutingAssembly()
+        {
+            var directory = ClientUtilities.GetPathToExecutingAssembly();
+            return AddGlobalAssembliesInDirectory(directory);
         }
 
         /// <summary>
@@ -83,7 +135,9 @@ namespace Org.Apache.REEF.Client.API
         /// <returns></returns>
         public JobRequestBuilder AddLocalAssembly(string fileName)
         {
+            ThrowIfFileDoesnotExist(fileName, "Local Assembly");
             _appParametersBuilder.AddLocalAssembly(fileName);
+            _assembliesAdded = true;
             return this;
         }
 
@@ -203,6 +257,32 @@ namespace Org.Apache.REEF.Client.API
         {
             _jobParametersBuilder.SetJavaLogLevel(javaLogLevel);
             return this;
+        }
+
+        /// <summary>
+        /// Returns true, if the given file path references a DLL or EXE or JAR.
+        /// </summary>
+        /// <param name="filePath"></param>
+        /// <returns></returns>
+        private static bool IsAssemblyToCopy(string filePath)
+        {
+            var fileName = Path.GetFileName(filePath);
+            if (string.IsNullOrWhiteSpace(fileName))
+            {
+                return false;
+            }
+            var lowerCasePath = fileName.ToLower();
+            return lowerCasePath.EndsWith(DLLFileNameExtension) ||
+                   lowerCasePath.EndsWith(EXEFileNameExtension) ||
+                   lowerCasePath.StartsWith(ClientConstants.ClientJarFilePrefix);
+        }
+
+        private static void ThrowIfFileDoesnotExist(string path, string fileDescription)
+        {
+            if (!File.Exists(path))
+            {
+                throw new FileNotFoundException(string.Format("{0} not Found: {1}", fileDescription, path));
+            }
         }
     }
 }

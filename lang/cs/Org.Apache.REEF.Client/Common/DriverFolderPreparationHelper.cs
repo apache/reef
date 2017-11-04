@@ -87,9 +87,6 @@ namespace Org.Apache.REEF.Client.Common
             // Create the driver configuration
             CreateDriverConfiguration(appParameters, driverFolderPath);
 
-            // Add the REEF assemblies
-            AddAssemblies();
-
             // Initiate the final copy
             _fileSets.CopyToDriverFolder(driverFolderPath);
 
@@ -148,34 +145,6 @@ namespace Org.Apache.REEF.Client.Common
             // generate .config file for Evaluator executable
             File.WriteAllText(Path.Combine(driverFolderPath, _fileNames.GetGlobalFolderPath(), EvaluatorExecutable), 
                 DefaultDriverConfigurationFileContents);
-        }
-
-        /// <summary>
-        /// Adds all Assemlies to the Global folder in the Driver.
-        /// </summary>
-        private void AddAssemblies()
-        {
-            // TODO: Be more precise, e.g. copy the JAR only to the driver.
-            var assemblies = Directory.GetFiles(@".\").Where(IsAssemblyToCopy);
-            _fileSets.AddToGlobalFiles(assemblies);
-        }
-
-        /// <summary>
-        /// Returns true, if the given file path references a DLL or EXE or JAR.
-        /// </summary>
-        /// <param name="filePath"></param>
-        /// <returns></returns>
-        private static bool IsAssemblyToCopy(string filePath)
-        {
-            var fileName = Path.GetFileName(filePath);
-            if (string.IsNullOrWhiteSpace(fileName))
-            {
-                return false;
-            }
-            var lowerCasePath = fileName.ToLower();
-            return lowerCasePath.EndsWith(DLLFileNameExtension) ||
-                   lowerCasePath.EndsWith(EXEFileNameExtension) ||
-                   lowerCasePath.StartsWith(ClientConstants.ClientJarFilePrefix);
         }
     }
 }
