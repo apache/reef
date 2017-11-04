@@ -54,6 +54,7 @@ under the License.
     <Compile Include="Attributes\ThreadSafeAttribute.cs" />
     <Compile Include="Attributes\UnstableAttribute.cs" />
     <Compile Include="ByteUtilities.cs" />
+    <Compile Include="ClientUtilities.cs" />
     <Compile Include="Collections\PriorityQueue.cs" />
     <Compile Include="Collections\ReadOnlySet.cs" />
     <Compile Include="Diagnostics\DiagnosticsMessages.cs" />

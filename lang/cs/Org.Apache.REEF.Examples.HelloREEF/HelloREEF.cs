@@ -17,6 +17,7 @@
 
 using System;
 using Org.Apache.REEF.Client.API;
+using Org.Apache.REEF.Client.Common;
 using Org.Apache.REEF.Client.Local;
 using Org.Apache.REEF.Client.Yarn;
 using Org.Apache.REEF.Client.YARN.HDI;
@@ -27,7 +28,6 @@ using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Tang.Util;
 using Org.Apache.REEF.Utilities.Logging;
-using Org.Apache.REEF.Client.Common;
 
 namespace Org.Apache.REEF.Examples.HelloREEF
 {
@@ -64,6 +64,7 @@ namespace Org.Apache.REEF.Examples.HelloREEF
             var helloJobRequest = _reefClient.NewJobRequestBuilder()
                 .AddDriverConfiguration(helloDriverConfiguration)
                 .AddGlobalAssemblyForType(typeof(HelloDriver))
+                .AddGlobalAssembliesInDirectoryOfExecutingAssembly()
                 .SetJobIdentifier("HelloREEF")
                 .SetJavaLogLevel(JavaLoggingSetting.Verbose)
                 .Build();
@@ -110,7 +111,13 @@ namespace Org.Apache.REEF.Examples.HelloREEF
 
         public static void MainSimple(string[] args)
         {
-            TangFactory.GetTang().NewInjector(GetRuntimeConfiguration(args.Length > 0 ? args[0] : Local)).GetInstance<HelloREEF>().Run();
+            var runtime = args.Length > 0 ? args[0] : Local;
+
+            // Execute the HelloREEF, with these parameters injected
+            TangFactory.GetTang()
+                .NewInjector(GetRuntimeConfiguration(runtime))
+                .GetInstance<HelloREEF>()
+                .Run();
         }
     }
 }
