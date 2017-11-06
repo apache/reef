@@ -18,8 +18,14 @@
  */
 package org.apache.reef.bridge.client;
 
+import org.apache.reef.bridge.client.Parameters.HTTPStatusAlarmInterval;
+import org.apache.reef.bridge.client.Parameters.HTTPStatusNumberOfRetries;
 import org.apache.reef.proto.ReefServiceProtos;
 import org.apache.reef.runtime.common.driver.client.JobStatusHandler;
+import org.apache.reef.tang.annotations.Parameter;
+import org.apache.reef.wake.EventHandler;
+import org.apache.reef.wake.time.Clock;
+import org.apache.reef.wake.time.event.Alarm;
 import org.apache.reef.webserver.HttpHandler;
 import org.apache.reef.webserver.ParsedHttpRequest;
 
@@ -52,8 +58,49 @@ final class DriverStatusHTTPHandler implements HttpHandler, JobStatusHandler {
    */
   private ReefServiceProtos.JobStatusProto lastStatus = null;
 
+  /**
+   * The clock is used to schedule a check whether the handler has been called.
+   */
+  private final Clock clock;
+
+  /**
+   * The maximum number of times the AlarmHandler will be scheduled.
+   */
+  private final int maxNumberOfRetries;
+
+  /**
+   * The interval between alarms.
+   */
+  private final int alarmInterval;
+
+  /**
+   * The current retry.
+   */
+  private int retry = 0;
+
+  /**
+   * The alarm handler to keep the Clock alive until the status has been requested once.
+   */
+  private final EventHandler<Alarm> alarmHandler = new EventHandler<Alarm>() {
+    @Override
+    public void onNext(final Alarm value) {
+      scheduleAlarm();
+    }
+  };
+
+  /**
+   * Whether or not this handler was called at least once via HTTP.
+   */
+  private boolean wasCalledViaHTTP = false;
+
   @Inject
-  DriverStatusHTTPHandler(){
+  DriverStatusHTTPHandler(final Clock clock,
+                          @Parameter(HTTPStatusNumberOfRetries.class) final int maxNumberOfRetries,
+                          @Parameter(HTTPStatusAlarmInterval.class) final int alarmInterval) {
+    this.clock = clock;
+    this.maxNumberOfRetries = maxNumberOfRetries;
+    this.alarmInterval = alarmInterval;
+    scheduleAlarm();
   }
 
   @Override
@@ -71,6 +118,7 @@ final class DriverStatusHTTPHandler implements HttpHandler, JobStatusHandler {
       throws IOException, ServletException {
     try (final PrintWriter writer = response.getWriter()) {
       writer.write(waitAndGetMessage());
+      this.wasCalledViaHTTP = true;
     }
   }
 
@@ -125,5 +173,25 @@ final class DriverStatusHTTPHandler implements HttpHandler, JobStatusHandler {
    */
   static String getMessageForStatus(final ReefServiceProtos.JobStatusProto status) {
     return status.getState().name();
+  }
+
+  /**
+   * Schedules an alarm, if needed.
+   * <p>
+   * The alarm will prevent the Clock from going idle. This gives the .NET Client time to make a call to this HTTP
+   * handler.
+   */
+  private void scheduleAlarm() {
+    if (wasCalledViaHTTP || retry >= maxNumberOfRetries) {
+      // No alarm necessary anymore.
+      LOG.log(Level.INFO,
+          "Not scheduling additional alarms after {0} out of max {1} retries. The HTTP handles was called: ",
+          new Object[] {retry, maxNumberOfRetries, wasCalledViaHTTP});
+      return;
+    }
+
+    // Scheduling an alarm will prevent the clock from going idle.
+    ++retry;
+    clock.scheduleAlarm(alarmInterval, alarmHandler);
   }
 }

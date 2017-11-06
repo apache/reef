@@ -19,6 +19,8 @@
 package org.apache.reef.bridge.client;
 
 import org.apache.reef.proto.ReefServiceProtos;
+import org.apache.reef.tang.Tang;
+import org.apache.reef.tang.exceptions.InjectionException;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -71,8 +73,8 @@ public final class TestDriverStatusHTTPHandler {
    * {@link org.apache.reef.runtime.common.driver.client.JobStatusHandler}.
    */
   @Test
-  public void testLastStatus() {
-    final DriverStatusHTTPHandler tester = new DriverStatusHTTPHandler();
+  public void testLastStatus() throws InjectionException {
+    final DriverStatusHTTPHandler tester = getInstance();
 
     for (final ReefServiceProtos.JobStatusProto status : allStatuses) {
       tester.onNext(status);
@@ -84,8 +86,8 @@ public final class TestDriverStatusHTTPHandler {
    * Test the wait and notify for correctness.
    */
   @Test
-  public void testAsyncCalls() throws InterruptedException {
-    final DriverStatusHTTPHandler tester = new DriverStatusHTTPHandler();
+  public void testAsyncCalls() throws InterruptedException, InjectionException {
+    final DriverStatusHTTPHandler tester = getInstance();
 
     final WaitingRunnable waiter = new WaitingRunnable(tester);
 
@@ -98,6 +100,10 @@ public final class TestDriverStatusHTTPHandler {
       waitingThread.join();
       Assert.assertEquals(DriverStatusHTTPHandler.getMessageForStatus(status), waiter.getResult());
     }
+  }
+
+  private static DriverStatusHTTPHandler getInstance() throws InjectionException {
+    return Tang.Factory.getTang().newInjector().getInstance(DriverStatusHTTPHandler.class);
   }
 
   private final class WaitingRunnable implements Runnable {
