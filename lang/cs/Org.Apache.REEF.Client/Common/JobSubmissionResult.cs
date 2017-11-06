@@ -23,10 +23,17 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading;
 using System.Threading.Tasks;
+#if DOTNET_BUILD
+using Microsoft.Practices.EnterpriseLibrary.TransientFaultHandling;
+#else
+using Microsoft.Practices.TransientFaultHandling;
+#endif
 using Newtonsoft.Json;
 using Org.Apache.REEF.Client.API;
+using Org.Apache.REEF.Client.YARN.RestClient;
 using Org.Apache.REEF.Client.YARN.RestClient.DataModel;
 using Org.Apache.REEF.Utilities.Logging;
+using HttpClient = System.Net.Http.HttpClient;
 
 namespace Org.Apache.REEF.Client.Common
 {
@@ -98,7 +105,13 @@ namespace Org.Apache.REEF.Client.Common
 
         public void WaitForDriverToFinish()
         {
-            DriverStatus status = FetchDriverStatus();
+            DriverStatus status = FetchFirstDriverStatus();
+
+            if (DriverStatus.UNKNOWN == status)
+            {
+                // We were unable to connect to the Driver at least once.
+                throw new WebException("Unable to connect to the Driver.");
+            }
             
             while (status.IsActive())
             {
@@ -106,7 +119,7 @@ namespace Org.Apache.REEF.Client.Common
                 {
                     status = FetchDriverStatus();
                 }
-                catch (System.Net.WebException)
+                catch (WebException)
                 {
                     // If we no longer can reach the Driver, it must have exited.
                     status = DriverStatus.UNKNOWN_EXITED;
@@ -124,6 +137,18 @@ namespace Org.Apache.REEF.Client.Common
                 LOGGER.Log(Level.Verbose, "Status received: {0}", statusString);
                 return DriverStatusMethods.Parse(statusString);
             }
+        }
+
+        /// <summary>
+        /// Fetches the Driver Status for the 1st time.
+        /// </summary>
+        /// <returns>The obtained Driver Status or DriverStatus.UNKNOWN, if the Driver was never reached.</returns>
+        private DriverStatus FetchFirstDriverStatus()
+        {
+            var policy = new RetryPolicy<AllErrorsTransientStrategy>(10, TimeSpan.FromMilliseconds(200));
+            DriverStatus result = DriverStatus.UNKNOWN;
+            policy.ExecuteAction(() => result = FetchDriverStatus());
+            return result;
         }
 
         protected abstract string GetDriverUrl(string filepath);

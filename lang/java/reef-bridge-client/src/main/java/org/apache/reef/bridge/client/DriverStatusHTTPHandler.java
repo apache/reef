@@ -20,6 +20,9 @@ package org.apache.reef.bridge.client;
 
 import org.apache.reef.proto.ReefServiceProtos;
 import org.apache.reef.runtime.common.driver.client.JobStatusHandler;
+import org.apache.reef.wake.EventHandler;
+import org.apache.reef.wake.time.Clock;
+import org.apache.reef.wake.time.event.Alarm;
 import org.apache.reef.webserver.HttpHandler;
 import org.apache.reef.webserver.ParsedHttpRequest;
 
@@ -52,8 +55,35 @@ final class DriverStatusHTTPHandler implements HttpHandler, JobStatusHandler {
    */
   private ReefServiceProtos.JobStatusProto lastStatus = null;
 
+  /**
+   * The clock is used to schedule a check whether the handler has been called.
+   */
+  private final Clock clock;
+
+  /**
+   * The maximum number of times the AlarmHandler will be scheduled.
+   */
+  private static final int MAX_RETRIES = 10;
+
+  /**
+   * The interval between alarms.
+   */
+  private static final int ALARM_INTERVAL = 200; //ms
+
+  /**
+   * The current retry.
+   */
+  private int retry = 0;
+
+  /**
+   * Whether or not this handler was called at least once via HTTP.
+   */
+  private boolean wasCalledViaHTTP = false;
+
   @Inject
-  DriverStatusHTTPHandler(){
+  DriverStatusHTTPHandler(final Clock clock) {
+    this.clock = clock;
+    scheduleAlarm();
   }
 
   @Override
@@ -71,6 +101,7 @@ final class DriverStatusHTTPHandler implements HttpHandler, JobStatusHandler {
       throws IOException, ServletException {
     try (final PrintWriter writer = response.getWriter()) {
       writer.write(waitAndGetMessage());
+      this.wasCalledViaHTTP = true;
     }
   }
 
@@ -125,5 +156,26 @@ final class DriverStatusHTTPHandler implements HttpHandler, JobStatusHandler {
    */
   static String getMessageForStatus(final ReefServiceProtos.JobStatusProto status) {
     return status.getState().name();
+  }
+
+  /**
+   * Schedules an alarm, if needed.
+   * <p>
+   * The alarm will prevent the Clock from going idle. This gives the .NET Client time to make a call to this HTTP
+   * handler.
+   */
+  private void scheduleAlarm() {
+    if (this.wasCalledViaHTTP || retry >= MAX_RETRIES) {
+      return; // No alarm necessary anymore.
+    }else{
+      // Scheduling an alarm will prevent the clock from going idle.
+      retry += 1;
+      clock.scheduleAlarm(ALARM_INTERVAL, new EventHandler<Alarm>() {
+        @Override
+        public void onNext(final Alarm value) {
+          scheduleAlarm();
+        }
+      });
+    }
   }
 }
