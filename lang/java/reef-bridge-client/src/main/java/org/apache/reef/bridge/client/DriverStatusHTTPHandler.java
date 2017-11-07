@@ -18,8 +18,11 @@
  */
 package org.apache.reef.bridge.client;
 
+import org.apache.reef.bridge.client.Parameters.HTTPStatusAlarmInterval;
+import org.apache.reef.bridge.client.Parameters.HTTPStatusNumberOfRetries;
 import org.apache.reef.proto.ReefServiceProtos;
 import org.apache.reef.runtime.common.driver.client.JobStatusHandler;
+import org.apache.reef.tang.annotations.Parameter;
 import org.apache.reef.wake.EventHandler;
 import org.apache.reef.wake.time.Clock;
 import org.apache.reef.wake.time.event.Alarm;
@@ -63,12 +66,12 @@ final class DriverStatusHTTPHandler implements HttpHandler, JobStatusHandler {
   /**
    * The maximum number of times the AlarmHandler will be scheduled.
    */
-  private static final int MAX_RETRIES = 10;
+  private final int maxNumberOfRetries;
 
   /**
    * The interval between alarms.
    */
-  private static final int ALARM_INTERVAL = 200; //ms
+  private final int alarmInterval;
 
   /**
    * The current retry.
@@ -81,8 +84,12 @@ final class DriverStatusHTTPHandler implements HttpHandler, JobStatusHandler {
   private boolean wasCalledViaHTTP = false;
 
   @Inject
-  DriverStatusHTTPHandler(final Clock clock) {
+  DriverStatusHTTPHandler(final Clock clock,
+                          @Parameter(HTTPStatusNumberOfRetries.class) final int maxNumberOfRetries,
+                          @Parameter(HTTPStatusAlarmInterval.class) final int alarmInterval) {
     this.clock = clock;
+    this.maxNumberOfRetries = maxNumberOfRetries;
+    this.alarmInterval = alarmInterval;
     scheduleAlarm();
   }
 
@@ -165,17 +172,21 @@ final class DriverStatusHTTPHandler implements HttpHandler, JobStatusHandler {
    * handler.
    */
   private void scheduleAlarm() {
-    if (this.wasCalledViaHTTP || retry >= MAX_RETRIES) {
-      return; // No alarm necessary anymore.
-    }else{
-      // Scheduling an alarm will prevent the clock from going idle.
-      retry += 1;
-      clock.scheduleAlarm(ALARM_INTERVAL, new EventHandler<Alarm>() {
+    if (wasCalledViaHTTP || retry >= maxNumberOfRetries) {
+      // No alarm necessary anymore.
+      LOG.log(Level.INFO,
+          "Not scheduling additional alarms after {0} out of max {1} retries. The HTTP handles was called: ",
+          new Object[]{retry, maxNumberOfRetries, wasCalledViaHTTP});
+      return;
+    }
+
+    // Scheduling an alarm will prevent the clock from going idle.
+    ++retry;
+    clock.scheduleAlarm(alarmInterval, new EventHandler<Alarm>() {
         @Override
         public void onNext(final Alarm value) {
           scheduleAlarm();
         }
       });
-    }
   }
 }
