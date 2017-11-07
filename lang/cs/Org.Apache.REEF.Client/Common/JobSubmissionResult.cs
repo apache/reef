@@ -158,10 +158,9 @@ namespace Org.Apache.REEF.Client.Common
         /// <returns>The obtained Driver Status or DriverStatus.UNKNOWN, if the Driver was never reached.</returns>
         private DriverStatus FetchFirstDriverStatus()
         {
-            var policy = new RetryPolicy<AllErrorsTransientStrategy>(_numberOfRetries, TimeSpan.FromMilliseconds(_retryInterval));
-            DriverStatus result = DriverStatus.UNKNOWN;
-            policy.ExecuteAction(() => result = FetchDriverStatus());
-            return result;
+            var timeOut = TimeSpan.FromMilliseconds(_retryInterval);
+            var policy = new RetryPolicy<AllErrorsTransientStrategy>(_numberOfRetries, timeOut);
+            return policy.ExecuteAction<DriverStatus>(FetchDriverStatus);
         }
 
         protected abstract string GetDriverUrl(string filepath);
