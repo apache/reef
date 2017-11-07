@@ -55,7 +55,17 @@ namespace Org.Apache.REEF.Client.Common
         private readonly HttpClient _client;
         private readonly IREEFClient _reefClient;
 
-        internal JobSubmissionResult(IREEFClient reefClient, string filePath)
+        /// <summary>
+        /// Number of retries when connecting to the Driver's HTTP endpoint.
+        /// </summary>
+        private readonly int _numberOfRetries;
+
+        /// <summary>
+        /// Retry interval in ms when connecting to the Driver's HTTP endpoint.
+        /// </summary>
+        private readonly int _retryInterval;
+
+        internal JobSubmissionResult(IREEFClient reefClient, string filePath, int numberOfRetries, int retryInterval)
         {
             _reefClient = reefClient;
             _client = new HttpClient
@@ -65,6 +75,9 @@ namespace Org.Apache.REEF.Client.Common
             _client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue(AppJson));
 
             _driverUrl = GetDriverUrl(filePath);
+
+            _numberOfRetries = numberOfRetries;
+            _retryInterval = retryInterval;
         }
 
         /// <summary>
@@ -145,7 +158,7 @@ namespace Org.Apache.REEF.Client.Common
         /// <returns>The obtained Driver Status or DriverStatus.UNKNOWN, if the Driver was never reached.</returns>
         private DriverStatus FetchFirstDriverStatus()
         {
-            var policy = new RetryPolicy<AllErrorsTransientStrategy>(10, TimeSpan.FromMilliseconds(200));
+            var policy = new RetryPolicy<AllErrorsTransientStrategy>(_numberOfRetries, TimeSpan.FromMilliseconds(_retryInterval));
             DriverStatus result = DriverStatus.UNKNOWN;
             policy.ExecuteAction(() => result = FetchDriverStatus());
             return result;

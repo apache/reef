@@ -74,6 +74,7 @@ under the License.
     <Compile Include="API\JobRequest.cs" />
     <Compile Include="API\JobRequestBuilder.cs" />
     <Compile Include="API\JobRequestBuilderFactory.cs" />
+    <Compile Include="API\Parameters.cs" />
     <Compile Include="API\TcpPortConfigurationModule.cs" />
     <Compile Include="Avro\AvroAppSubmissionParameters.cs" />
     <Compile Include="Avro\AvroJobSubmissionParameters.cs" />

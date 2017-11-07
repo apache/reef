@@ -31,6 +31,8 @@ using Org.Apache.REEF.Common.Files;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Utilities.Logging;
+using Org.Apache.REEF.Client.API.Parameters;
+using Org.Apache.REEF.Client.Local.Parameters;
 
 namespace Org.Apache.REEF.Client.Yarn
 {
@@ -49,6 +51,16 @@ namespace Org.Apache.REEF.Client.Yarn
         private readonly YarnREEFParamSerializer _paramSerializer;
         private readonly JobRequestBuilderFactory _jobRequestBuilderFactory;
 
+        /// <summary>
+        /// Number of retries when connecting to the Driver's HTTP endpoint.
+        /// </summary>
+        private readonly int _numberOfRetries;
+
+        /// <summary>
+        /// Retry interval in ms when connecting to the Driver's HTTP endpoint.
+        /// </summary>
+        private readonly int _retryInterval;
+
         [Inject]
         internal YarnREEFClient(IJavaClientLauncher javaClientLauncher,
             DriverFolderPreparationHelper driverFolderPreparationHelper,
@@ -56,7 +68,9 @@ namespace Org.Apache.REEF.Client.Yarn
             YarnCommandLineEnvironment yarn,
             IYarnRMClient yarnClient,
             YarnREEFParamSerializer paramSerializer,
-            JobRequestBuilderFactory jobRequestBuilderFactory)
+            JobRequestBuilderFactory jobRequestBuilderFactory,
+            [Parameter(typeof(DriverHTTPConnectionRetryInterval))]int retryInterval,
+            [Parameter(typeof(DriverHTTPConnectionAttempts))] int numberOfRetries)
         {
             _javaClientLauncher = javaClientLauncher;
             _javaClientLauncher.AddToClassPath(yarn.GetYarnClasspathList());
@@ -65,6 +79,8 @@ namespace Org.Apache.REEF.Client.Yarn
             _yarnClient = yarnClient;
             _paramSerializer = paramSerializer;
             _jobRequestBuilderFactory = jobRequestBuilderFactory;
+            _retryInterval = retryInterval;
+            _numberOfRetries = numberOfRetries;
         }
 
         public void Submit(JobRequest jobRequest)
@@ -90,7 +106,8 @@ namespace Org.Apache.REEF.Client.Yarn
             Launch(jobRequest, driverFolderPath);
 
             var pointerFileName = Path.Combine(driverFolderPath, _fileNames.DriverHttpEndpoint);
-            var jobSubmitionResultImpl = new YarnJobSubmissionResult(this, pointerFileName);
+            var jobSubmitionResultImpl = new YarnJobSubmissionResult(this, 
+                pointerFileName, _numberOfRetries, _retryInterval);
 
             var msg = string.Format(CultureInfo.CurrentCulture,
                 "Submitted the Driver for execution. Returned driverUrl is: {0}, appId is {1}.",

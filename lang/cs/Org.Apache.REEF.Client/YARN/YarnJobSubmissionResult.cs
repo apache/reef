@@ -24,8 +24,11 @@ namespace Org.Apache.REEF.Client.YARN
 {
     internal class YarnJobSubmissionResult : JobSubmissionResult
     {
-        internal YarnJobSubmissionResult(IREEFClient reefClient, string filePath) 
-            : base(reefClient, filePath)
+        internal YarnJobSubmissionResult(IREEFClient reefClient, 
+            string filePath,
+            int numberOfRetries,
+            int retryInterval) 
+            : base(reefClient, filePath, numberOfRetries, retryInterval)
         {
         }
 
