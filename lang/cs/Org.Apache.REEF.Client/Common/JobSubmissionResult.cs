@@ -63,7 +63,7 @@ namespace Org.Apache.REEF.Client.Common
         /// <summary>
         /// Retry interval in ms when connecting to the Driver's HTTP endpoint.
         /// </summary>
-        private readonly int _retryInterval;
+        private readonly TimeSpan _retryInterval;
 
         internal JobSubmissionResult(IREEFClient reefClient, string filePath, int numberOfRetries, int retryInterval)
         {
@@ -77,7 +77,7 @@ namespace Org.Apache.REEF.Client.Common
             _driverUrl = GetDriverUrl(filePath);
 
             _numberOfRetries = numberOfRetries;
-            _retryInterval = retryInterval;
+            _retryInterval = TimeSpan.FromMilliseconds(retryInterval);
         }
 
         /// <summary>
@@ -158,8 +158,7 @@ namespace Org.Apache.REEF.Client.Common
         /// <returns>The obtained Driver Status or DriverStatus.UNKNOWN, if the Driver was never reached.</returns>
         private DriverStatus FetchFirstDriverStatus()
         {
-            var timeOut = TimeSpan.FromMilliseconds(_retryInterval);
-            var policy = new RetryPolicy<AllErrorsTransientStrategy>(_numberOfRetries, timeOut);
+            var policy = new RetryPolicy<AllErrorsTransientStrategy>(_numberOfRetries, _retryInterval);
             return policy.ExecuteAction<DriverStatus>(FetchDriverStatus);
         }
 

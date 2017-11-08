@@ -79,6 +79,16 @@ final class DriverStatusHTTPHandler implements HttpHandler, JobStatusHandler {
   private int retry = 0;
 
   /**
+   * The alarm handler to keep the Clock alive until the status has been requested once.
+   */
+  private final EventHandler<Alarm> alarmHandler = new EventHandler<Alarm>() {
+    @Override
+    public void onNext(final Alarm value) {
+      scheduleAlarm();
+    }
+  };
+
+  /**
    * Whether or not this handler was called at least once via HTTP.
    */
   private boolean wasCalledViaHTTP = false;
@@ -176,17 +186,12 @@ final class DriverStatusHTTPHandler implements HttpHandler, JobStatusHandler {
       // No alarm necessary anymore.
       LOG.log(Level.INFO,
           "Not scheduling additional alarms after {0} out of max {1} retries. The HTTP handles was called: ",
-          new Object[]{retry, maxNumberOfRetries, wasCalledViaHTTP});
+          new Object[] {retry, maxNumberOfRetries, wasCalledViaHTTP});
       return;
     }
 
     // Scheduling an alarm will prevent the clock from going idle.
     ++retry;
-    clock.scheduleAlarm(alarmInterval, new EventHandler<Alarm>() {
-        @Override
-        public void onNext(final Alarm value) {
-          scheduleAlarm();
-        }
-      });
+    clock.scheduleAlarm(alarmInterval, alarmHandler);
   }
 }

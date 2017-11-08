@@ -27,7 +27,7 @@ import org.apache.reef.tang.annotations.NamedParameter;
 @NamedParameter(default_value = "10", doc = "Number of times the HTTPStatusHandler will advance its alarm.")
 public final class HTTPStatusNumberOfRetries implements Name<Integer> {
 
-  private HTTPStatusNumberOfRetries(){
+  private HTTPStatusNumberOfRetries() {
     // Intentionally empty.
   }
 }
