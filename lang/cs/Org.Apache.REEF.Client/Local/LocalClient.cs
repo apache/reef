@@ -37,6 +37,7 @@ using Org.Apache.REEF.Utilities.Logging;
 using Org.Apache.REEF.Wake.Remote;
 using Org.Apache.REEF.Wake.Remote.Impl;
 using Org.Apache.REEF.Wake.Remote.Parameters;
+using Org.Apache.REEF.Client.API.Parameters;
 
 namespace Org.Apache.REEF.Client.Local
 {
@@ -64,10 +65,22 @@ namespace Org.Apache.REEF.Client.Local
         private readonly IConfiguration _localConfigurationOnDriver;
         private readonly JobRequestBuilderFactory _jobRequestBuilderFactory;
 
+        /// <summary>
+        /// Number of retries when connecting to the Driver's HTTP endpoint.
+        /// </summary>
+        private readonly int _numberOfRetries;
+
+        /// <summary>
+        /// Retry interval in ms when connecting to the Driver's HTTP endpoint.
+        /// </summary>
+        private readonly int _retryInterval;
+
         [Inject]
         private LocalClient(DriverFolderPreparationHelper driverFolderPreparationHelper,
             [Parameter(typeof(LocalRuntimeDirectory))] string runtimeFolder,
             [Parameter(typeof(NumberOfEvaluators))] int maxNumberOfConcurrentEvaluators,
+            [Parameter(typeof(DriverHTTPConnectionRetryInterval))]int retryInterval,
+            [Parameter(typeof(DriverHTTPConnectionAttempts))] int numberOfRetries,
             IJavaClientLauncher javaClientLauncher,
             REEFFileNames fileNames,
             JobRequestBuilderFactory jobRequestBuilderFactory)
@@ -75,6 +88,8 @@ namespace Org.Apache.REEF.Client.Local
             _driverFolderPreparationHelper = driverFolderPreparationHelper;
             _runtimeFolder = runtimeFolder;
             _maxNumberOfConcurrentEvaluators = maxNumberOfConcurrentEvaluators;
+            _retryInterval = retryInterval;
+            _numberOfRetries = numberOfRetries;
             _javaClientLauncher = javaClientLauncher;
             _fileNames = fileNames;
             _jobRequestBuilderFactory = jobRequestBuilderFactory;
@@ -95,11 +110,13 @@ namespace Org.Apache.REEF.Client.Local
         private LocalClient(
             DriverFolderPreparationHelper driverFolderPreparationHelper,
             [Parameter(typeof(NumberOfEvaluators))] int numberOfEvaluators,
+            [Parameter(typeof(DriverHTTPConnectionRetryInterval))]int retryInterval,
+            [Parameter(typeof(DriverHTTPConnectionAttempts))] int numberOfRetries,
             IJavaClientLauncher javaClientLauncher,
             REEFFileNames fileNames,
             JobRequestBuilderFactory jobRequestBuilderFactory)
             : this(driverFolderPreparationHelper, Path.GetTempPath(),
-                numberOfEvaluators, javaClientLauncher, fileNames, jobRequestBuilderFactory)
+                numberOfEvaluators, retryInterval, numberOfRetries, javaClientLauncher, fileNames, jobRequestBuilderFactory)
         {
             // Intentionally left blank.
         }
@@ -193,7 +210,7 @@ namespace Org.Apache.REEF.Client.Local
                 .LogAndIgnoreExceptionIfAny(Logger, "Java launcher failed");
 
             var fileName = Path.Combine(driverFolder, _fileNames.DriverHttpEndpoint);
-            JobSubmissionResult result = new LocalJobSubmissionResult(this, fileName);
+            JobSubmissionResult result = new LocalJobSubmissionResult(this, fileName, _numberOfRetries, _retryInterval);
 
             var msg = string.Format(CultureInfo.CurrentCulture,
                 "Submitted the Driver for execution. Returned driverUrl is: {0}.", result.DriverUrl);

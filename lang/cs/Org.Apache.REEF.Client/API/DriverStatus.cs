@@ -23,6 +23,11 @@ namespace Org.Apache.REEF.Client.API
     internal enum DriverStatus
     {
         /// <summary>
+        /// Represents the fact that the Driver status hasn't been received yet.
+        /// </summary>
+        UNKNOWN,
+
+        /// <summary>
         /// Driver is initializing.
         /// </summary>
         INIT,

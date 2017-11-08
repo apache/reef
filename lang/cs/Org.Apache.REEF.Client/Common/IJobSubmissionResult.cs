@@ -49,7 +49,7 @@ namespace Org.Apache.REEF.Client.Common
         /// <summary>
         /// Waits for the Driver to complete.
         /// </summary>
-        /// <exception cref="System.Net.WebException">If the Driver cannot be reached.</exception>
+        /// <exception cref="System.Net.WebException">If the Driver could be reached at least once.</exception>
         [Unstable("0.17", "Uses the HTTP server in the Java Driver. Might not work if that cannot be reached.")]
         void WaitForDriverToFinish();
     }

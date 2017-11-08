@@ -34,8 +34,11 @@ namespace Org.Apache.REEF.Client.Local
 
         private const string UriTemplate = @"http://{0}/";
 
-        internal LocalJobSubmissionResult(IREEFClient reefClient, string filePath) 
-            : base(reefClient, filePath)
+        internal LocalJobSubmissionResult(IREEFClient reefClient, 
+            string filePath, 
+            int numberOfRetries, 
+            int retryInterval) 
+            : base(reefClient, filePath, numberOfRetries, retryInterval)
         {
         }
 
