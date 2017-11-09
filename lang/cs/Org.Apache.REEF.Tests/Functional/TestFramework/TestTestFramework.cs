@@ -16,7 +16,6 @@
 // under the License.
 
 using System;
-using System.Threading;
 using Org.Apache.REEF.Driver;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Tang.Interface;
@@ -93,12 +92,12 @@ namespace Org.Apache.REEF.Tests.Functional.TestFramework
     /// </summary>
     internal sealed class TestFailingStartHandler : IObserver<IDriverStarted>
     {
-        private readonly Client.API.Testing.Assert _assert;
+        private readonly Client.API.Testing.IAssert _assert;
 
         private const string FailedAssertMessage = "This test should never pass.";
 
         [Inject]
-        private TestFailingStartHandler(Client.API.Testing.Assert assert, IEvaluatorRequestor evaluatorRequestor)
+        private TestFailingStartHandler(Client.API.Testing.IAssert assert, IEvaluatorRequestor evaluatorRequestor)
         {
             _assert = assert;
         }
@@ -132,10 +131,10 @@ namespace Org.Apache.REEF.Tests.Functional.TestFramework
     /// </summary>
     internal sealed class TestPassingStartHandler : IObserver<IDriverStarted>
     {
-        private readonly Client.API.Testing.Assert _assert;
+        private readonly Client.API.Testing.IAssert _assert;
 
         [Inject]
-        private TestPassingStartHandler(Client.API.Testing.Assert assert)
+        private TestPassingStartHandler(Client.API.Testing.IAssert assert)
         {
             _assert = assert;
         }

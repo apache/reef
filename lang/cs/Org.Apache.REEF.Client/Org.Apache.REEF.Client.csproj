@@ -70,7 +70,7 @@ under the License.
     <Compile Include="API\Exceptions\JavaNotFoundException.cs" />
     <Compile Include="API\IREEFClient.cs" />
     <Compile Include="API\Testing\AbstractAssert.cs" />
-    <Compile Include="API\Testing\Assert.cs" />
+    <Compile Include="API\Testing\IAssert.cs" />
     <Compile Include="API\Testing\AssertResult.cs" />
     <Compile Include="API\Testing\ITestResult.cs" />
     <Compile Include="API\Testing\ITestRunner.cs" />

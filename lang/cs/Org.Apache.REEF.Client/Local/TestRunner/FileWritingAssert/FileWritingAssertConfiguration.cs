@@ -36,7 +36,7 @@ namespace Org.Apache.REEF.Client.Local.TestRunner.FileWritingAssert
             get
             {
                 return new FileWritingAssertConfiguration()
-                    .BindImplementation(GenericType<Assert>.Class, GenericType<FileWritingAssert>.Class)
+                    .BindImplementation(GenericType<IAssert>.Class, GenericType<FileWritingAssert>.Class)
                     .BindNamedParameter(GenericType<Parameters.AssertFilePath>.Class, FilePath)
                     .Build();
             }

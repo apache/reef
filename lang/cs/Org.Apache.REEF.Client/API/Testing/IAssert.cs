@@ -23,7 +23,7 @@ namespace Org.Apache.REEF.Client.API.Testing
     /// Assert methods to be used in tests of REEF and REEF applications.
     /// </summary>
     [Unstable("0.17", "Work in progress towards a new test infrastructure. See REEF-1271.")]
-    public interface Assert
+    public interface IAssert
     {
         /// <summary>
         /// Assert that a boolean condition is true.

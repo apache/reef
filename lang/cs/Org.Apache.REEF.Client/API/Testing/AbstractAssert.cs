@@ -21,7 +21,7 @@ namespace Org.Apache.REEF.Client.API.Testing
     /// <summary>
     /// Helper class to ease the implementation of additional Assert classes.
     /// </summary>
-    internal abstract class AbstractAssert : Assert
+    internal abstract class AbstractAssert : IAssert
     {
         public abstract void True(string message, bool condition);
         
