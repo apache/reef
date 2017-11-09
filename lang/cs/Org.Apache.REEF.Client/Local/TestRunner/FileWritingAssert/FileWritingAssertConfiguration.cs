@@ -31,15 +31,9 @@ namespace Org.Apache.REEF.Client.Local.TestRunner.FileWritingAssert
         /// </summary>
         public static readonly OptionalParameter<string> FilePath = new OptionalParameter<string>();
 
-        public static ConfigurationModule ConfigurationModule
-        {
-            get
-            {
-                return new FileWritingAssertConfiguration()
-                    .BindImplementation(GenericType<IAssert>.Class, GenericType<FileWritingAssert>.Class)
-                    .BindNamedParameter(GenericType<Parameters.AssertFilePath>.Class, FilePath)
-                    .Build();
-            }
-        }
+        public static ConfigurationModule ConfigurationModule = new FileWritingAssertConfiguration()
+            .BindImplementation(GenericType<IAssert>.Class, GenericType<FileWritingAssert>.Class)
+            .BindNamedParameter(GenericType<Parameters.AssertFilePath>.Class, FilePath)
+            .Build();
     }
 }

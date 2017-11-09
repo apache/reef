@@ -32,7 +32,7 @@ namespace Org.Apache.REEF.Client.API.Testing
     public sealed class TestRunnerFactory
     {
         // See `org.apache.reef.tests.TestEnvironmentFactory` in Java.
-        private const string TEST_ON_YARN_ENVIRONMENT_VARIABLE = "REEF_TEST_YARN";
+        private const string TestOnYARNEnvironmentVariable = "REEF_TEST_YARN";
 
         /// <summary>
         /// Instantiates a TestRunner based on the environment variables.
@@ -44,10 +44,7 @@ namespace Org.Apache.REEF.Client.API.Testing
             {
                 throw new NotImplementedException("Running tests on YARN is not supported yet.");
             }
-            else
-            {
-                return LocalTestRunner.GetLocalTestRunner();
-            }
+            return LocalTestRunner.GetLocalTestRunner();
         }
 
         /// <summary>
@@ -56,7 +53,8 @@ namespace Org.Apache.REEF.Client.API.Testing
         /// <returns>True, if the tests are supposed to run on YARN.</returns>
         private static bool RunOnYarn()
         {
-            return !string.IsNullOrEmpty(Environment.GetEnvironmentVariable(TEST_ON_YARN_ENVIRONMENT_VARIABLE));
+            return bool.TryParse(Environment.GetEnvironmentVariable(TestOnYARNEnvironmentVariable),
+                       out bool runOnYARN) && runOnYARN;
         }      
     }
 }

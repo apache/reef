@@ -105,12 +105,12 @@ namespace Org.Apache.REEF.Tests.Functional.TestFramework
         public void OnNext(IDriverStarted value)
         {
             // Fail the test case.
-            _assert.True(FailedAssertMessage, false);
+            _assert.True(false, FailedAssertMessage);
         }
 
         public void OnError(Exception error)
         {
-            _assert.True("Call to OnError() received.", false);
+            _assert.True(false, "Call to OnError() received.");
         }
 
         public void OnCompleted()
@@ -141,12 +141,12 @@ namespace Org.Apache.REEF.Tests.Functional.TestFramework
 
         public void OnNext(IDriverStarted value)
         {
-            _assert.True("This test should always pass.", true);
+            _assert.True(true, "This test should always pass.");
         }
 
         public void OnError(Exception error)
         {
-            _assert.True("Call to OnError() received.", false);
+            _assert.True(false, "Call to OnError() received.");
         }
 
         public void OnCompleted()

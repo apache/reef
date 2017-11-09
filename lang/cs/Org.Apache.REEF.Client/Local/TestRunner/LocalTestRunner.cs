@@ -34,17 +34,17 @@ namespace Org.Apache.REEF.Client.Local.TestRunner
     internal sealed class LocalTestRunner : ITestRunner
     {
         private static readonly Logger LOG = Logger.GetLogger(typeof(LocalTestRunner));
-        private IREEFClient Client { get; }
+        private readonly IREEFClient _client;
 
         [Inject]
         private LocalTestRunner(IREEFClient client)
         {
-            Client = client;
+            _client = client;
         }
 
         public JobRequestBuilder NewJobRequestBuilder()
         {
-            return Client.NewJobRequestBuilder();
+            return _client.NewJobRequestBuilder();
         }
 
         public ITestResult RunTest(JobRequestBuilder jobRequestBuilder)
@@ -59,14 +59,12 @@ namespace Org.Apache.REEF.Client.Local.TestRunner
             LOG.Log(Level.Info, "Submitting job `{0}` for execution. Assert log in `{1}`",
                 jobRequest.JobIdentifier,
                 assertFileName);
-            IJobSubmissionResult jobStatus = Client.SubmitAndGetJobStatus(jobRequest);
+            IJobSubmissionResult jobStatus = _client.SubmitAndGetJobStatus(jobRequest);
 
             if (null == jobStatus)
             {
-                TestResult result = new TestResult();
-                result.RecordAssertResult(
-                    "JobStatus returned by the Client was null. The points to an environment setup problem.", false);
-                return result;
+                return TestResult.Fail(
+                    "JobStatus returned by the Client was null. The points to an environment setup problem.");
             }
 
             LOG.Log(Level.Verbose, "Waiting for job `{0}` to complete.", jobRequest.JobIdentifier);
@@ -78,40 +76,19 @@ namespace Org.Apache.REEF.Client.Local.TestRunner
 
         private static TestResult ReadTestResult(string assertFilePath)
         {
-            if (File.Exists(assertFilePath))
+            if (!File.Exists(assertFilePath))
             {
-                try
-                {
-                    string textFromDisk = File.ReadAllText(assertFilePath);
-                    if (string.IsNullOrWhiteSpace(textFromDisk))
-                    {
-                        TestResult result = new TestResult();
-                        result.RecordAssertResult(string.Format("The assert file `{0}` was empty", assertFilePath), false);
-                        return result;
-                    }
-                    else
-                    {
-                        TestResult result = TestResult.FromJson(textFromDisk);
-                        if (result == null)
-                        {
-                            result = new TestResult();
-                            result.RecordAssertResult(string.Format("Results read from `{0}` where null.", assertFilePath), false);
-                        }
-                        return result;
-                    }
-                }
-                catch (Exception exception)
-                {
-                    var result = new TestResult();
-                    result.RecordAssertResult("Could not parse test results: " + exception, false);
-                    return result;
-                }
+                return TestResult.Fail("Test Results file {0} does not exist.", assertFilePath);
             }
-            else
+
+            try
             {
-                var result = new TestResult();
-                result.RecordAssertResult("Test Results file could not be read.", false);
-                return result;
+                return TestResult.FromJson(File.ReadAllText(assertFilePath))
+                    ?? TestResult.Fail("Results read from `{0}` where null.", assertFilePath);
+            }
+            catch (Exception exception)
+            {
+                return TestResult.Fail("Could not parse test results: {0}", exception);
             }
         }
 

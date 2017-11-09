@@ -23,11 +23,16 @@ namespace Org.Apache.REEF.Client.API.Testing
     /// </summary>
     internal abstract class AbstractAssert : IAssert
     {
-        public abstract void True(string message, bool condition);
+        public abstract void True(bool condition, string format, params object[] args);
         
-        public void False(string message, bool condition)
+        public void False(bool condition, string format, params object[] args)
         {
-            True(message, !condition);
+            True(!condition, format);
+        }
+
+        public void Fail(string format, params object[] args)
+        {
+            True(false, format, args);
         }
     }
 }

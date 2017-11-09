@@ -32,18 +32,32 @@ namespace Org.Apache.REEF.Client.Tests
             Assert.Equal(0, x.NumberOfPassedAsserts);
             Assert.Equal(0, x.NumberOfFailedAsserts);
 
-            x.RecordAssertResult("Something went right", true);
+            x.Add(true, "Something went right");
             Assert.Equal(1, x.NumberOfPassedAsserts);
             Assert.Equal(0, x.NumberOfFailedAsserts);
             Assert.True(x.AllTestsSucceeded);
 
-            x.RecordAssertResult("Something else went right", true);
+            x.IsTrue("Something else went right");
             Assert.Equal(2, x.NumberOfPassedAsserts);
             Assert.Equal(0, x.NumberOfFailedAsserts);
             Assert.True(x.AllTestsSucceeded);
 
-            x.RecordAssertResult("Something went wrong", false);
+            x.Add(false, "Something went wrong");
             Assert.Equal(2, x.NumberOfPassedAsserts);
+            Assert.Equal(1, x.NumberOfFailedAsserts);
+            Assert.False(x.AllTestsSucceeded);
+
+            x.IsFalse("Something else went wrong");
+            Assert.Equal(2, x.NumberOfPassedAsserts);
+            Assert.Equal(2, x.NumberOfFailedAsserts);
+            Assert.False(x.AllTestsSucceeded);
+        }
+        
+        [Fact]
+        public void TestTestResultFail()
+        {
+            var x = TestResult.Fail("OMG! It failed!");
+            Assert.Equal(0, x.NumberOfPassedAsserts);
             Assert.Equal(1, x.NumberOfFailedAsserts);
             Assert.False(x.AllTestsSucceeded);
         }
@@ -52,9 +66,9 @@ namespace Org.Apache.REEF.Client.Tests
         public void TestTestResultSerialization()
         {
             TestResult before = new TestResult();
-            before.RecordAssertResult("Something went right", true);
-            before.RecordAssertResult("Something else went right", true);
-            before.RecordAssertResult("Something went wrong", false);
+            before.Add(true, "Something went right");
+            before.Add(true, "Something else went right");
+            before.Add(false, "Something went wrong");
 
             TestResult after = TestResult.FromJson(before.ToJson());
 

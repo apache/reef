@@ -28,15 +28,24 @@ namespace Org.Apache.REEF.Client.API.Testing
         /// <summary>
         /// Assert that a boolean condition is true.
         /// </summary>
-        /// <param name="message">The error message for the test if condition is false.</param>
         /// <param name="condition">The condition. True indicates a passed test, false otherwise.</param>
-        void True(string message, bool condition);
+        /// <param name="format">The error message for the test if condition is false.</param>
+        /// <param name="args">Arguments to `format`.</param>
+        void True(bool condition, string format, params object[] args);
 
         /// <summary>
         /// Assert that a boolean condition is false.
         /// </summary>
-        /// <param name="message">The error message for the test if condition is true.</param>
         /// <param name="condition">The condition. False indicates a passed test, true otherwise.</param>
-        void False(string message, bool condition);
+        /// <param name="format">The error message for the test if condition is true.</param>
+        /// <param name="args">Arguments to `format`.</param>
+        void False(bool condition, string format, params object[] args);
+
+        /// <summary>
+        /// Record a failed test.
+        /// </summary>
+        /// <param name="format">The message for the failed test.</param>
+        /// <param name="args">Arguments to `format`.</param>
+        void Fail(string format, params object[] args);
     }
 }

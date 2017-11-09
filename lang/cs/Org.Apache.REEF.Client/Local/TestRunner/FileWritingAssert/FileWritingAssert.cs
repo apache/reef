@@ -15,7 +15,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-using System;
 using System.IO;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Client.API.Testing;
@@ -34,23 +33,10 @@ namespace Org.Apache.REEF.Client.Local.TestRunner.FileWritingAssert
             _filePath = filePath;
         }
 
-        public override void True(string message, bool condition)
+        public override void True(bool condition, string format, params object[] args)
         {
-            _testResult.RecordAssertResult(message, condition);
+            _testResult.Add(condition, format, args);
             WriteAssertsFile();
-        }
-
-        internal TestResult TestResult
-        {
-            get
-            {
-                return _testResult;
-            }
-        }
-
-        internal static TestResult ReadTestResultsFromFile(string fileName)
-        {
-            return TestResult.FromJson(fileName);
         }
 
         private void WriteAssertsFile()
