@@ -34,9 +34,9 @@ Prerequisites
   * Add the following items to the environment variable `PATH`:
      * Add the location of the `protoc.exe` executable in the windows path
      * Add `%JAVA_HOME%/bin` and `%M2_HOME%/bin` to the windows path as well
-  * [Visual Studio](http://www.visualstudio.com) 2015 (preferred) or 2013. Most REEF developers use the free Community
+  * [Visual Studio](http://www.visualstudio.com) 2017 V. 15.4.3 or newer. Most REEF developers use the free Community
     Edition.
-  * NuGet 2.8.6 or later. (Included in VS 2015)
+  * NuGet 4.0.0 or later. (Included in VS 2017)
   * xunit.runner.console.2.1.0 package (installing it might require manual restore of NuGet packages).
 
 
