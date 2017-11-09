@@ -64,7 +64,7 @@ namespace Org.Apache.REEF.Client.Local.TestRunner
             if (null == jobStatus)
             {
                 return TestResult.Fail(
-                    "JobStatus returned by the Client was null. The points to an environment setup problem.");
+                    "JobStatus returned by the Client was null. This points to an environment setup problem.");
             }
 
             LOG.Log(Level.Verbose, "Waiting for job `{0}` to complete.", jobRequest.JobIdentifier);
