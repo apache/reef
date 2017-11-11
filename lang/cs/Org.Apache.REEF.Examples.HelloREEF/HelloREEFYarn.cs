@@ -61,7 +61,7 @@ namespace Org.Apache.REEF.Examples.HelloREEF
         private readonly IList<string> _nodeNames;
 
         [Inject]
-        private HelloREEFYarn(IYarnREEFClient reefClient, 
+        private HelloREEFYarn(IYarnREEFClient reefClient,
             JobRequestBuilder jobRequestBuilder,
             [Parameter(typeof(NodeNames))] ISet<string> nodeNames)
         {
@@ -78,7 +78,8 @@ namespace Org.Apache.REEF.Examples.HelloREEF
             // The driver configuration contains all the needed handler bindings
             var helloDriverConfiguration = DriverConfiguration.ConfigurationModule
                 .Set(DriverConfiguration.OnEvaluatorAllocated, GenericType<HelloDriverYarn>.Class)
-                .Set(DriverConfiguration.OnDriverStarted, GenericType<HelloDriverYarn>.Class)              
+                .Set(DriverConfiguration.OnDriverStarted, GenericType<HelloDriverYarn>.Class)
+                .Set(DriverConfiguration.CustomTraceLevel, Level.Verbose.ToString())
                 .Build();
 
             var driverConfig = TangFactory.GetTang()
@@ -88,7 +89,7 @@ namespace Org.Apache.REEF.Examples.HelloREEF
             {
                 driverConfig.BindSetEntry<NodeNames, string>(GenericType<NodeNames>.Class, n);
             }
-            
+
             // The JobSubmission contains the Driver configuration as well as the files needed on the Driver.
             var helloJobRequest = _jobRequestBuilder
                 .AddDriverConfiguration(driverConfig.Build())
@@ -133,8 +134,8 @@ namespace Org.Apache.REEF.Examples.HelloREEF
             }
             else
             {
-                Logger.Log(Level.Info, 
-                    "Failed to kill application {0}, possible reasons are application id is invalid or application has completed.", 
+                Logger.Log(Level.Info,
+                    "Failed to kill application {0}, possible reasons are application id is invalid or application has completed.",
                     appId);
             }
         }
