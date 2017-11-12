@@ -100,7 +100,7 @@ final class ClassPathBuilder {
    */
   void addAllToSuffix(final String... entries) {
     for (final String classPathEntry : entries) {
-      this.addToPrefix(classPathEntry);
+      this.addToSuffix(classPathEntry);
     }
   }
 
