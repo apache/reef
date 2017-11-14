@@ -57,6 +57,7 @@ namespace Org.Apache.REEF.Examples.HelloREEF
             var helloDriverConfiguration = DriverConfiguration.ConfigurationModule
                 .Set(DriverConfiguration.OnEvaluatorAllocated, GenericType<HelloDriver>.Class)
                 .Set(DriverConfiguration.OnDriverStarted, GenericType<HelloDriver>.Class)
+                .Set(DriverConfiguration.CustomTraceLevel, Level.Verbose.ToString())
                 .Build();
 
             // The JobSubmission contains the Driver configuration as well as the files needed on the Driver.
@@ -91,7 +92,7 @@ namespace Org.Apache.REEF.Examples.HelloREEF
                     return YARNClientConfiguration.ConfigurationModuleYARNRest.Build();
                 case HDInsight:
                     // To run against HDInsight please replace placeholders below, with actual values for
-                    // connection string, container name (available at Azure portal) and HDInsight 
+                    // connection string, container name (available at Azure portal) and HDInsight
                     // credentials (username and password)
                     const string connectionString = "ConnString";
                     const string continerName = "foo";
