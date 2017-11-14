@@ -53,8 +53,10 @@ namespace Org.Apache.REEF.Client.API.Testing
         /// <returns>True, if the tests are supposed to run on YARN.</returns>
         private static bool RunOnYarn()
         {
-            return bool.TryParse(Environment.GetEnvironmentVariable(TestOnYARNEnvironmentVariable),
-                       out bool runOnYARN) && runOnYARN;
+            bool runOnYARN;
+            return bool.TryParse(
+                Environment.GetEnvironmentVariable(TestOnYARNEnvironmentVariable),
+                out runOnYARN) && runOnYARN;
         }
     }
 }
