@@ -33,9 +33,9 @@ namespace Org.Apache.REEF.Client.API.Testing
             IsTrue = isTrue;
         }
 
-        public string Message { get; }
+        public string Message { get; private set; }
 
-        public bool IsTrue { get; }
+        public bool IsTrue { get; private set; }
 
         public bool IsFalse
         {
