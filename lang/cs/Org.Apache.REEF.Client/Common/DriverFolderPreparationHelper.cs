@@ -56,6 +56,12 @@ namespace Org.Apache.REEF.Client.Common
         private readonly FileSets _fileSets;
         private readonly ISet<IConfigurationProvider> _driverConfigurationProviders;
 
+        /// <summary>
+        /// The folder in which we search for the client jar.
+        /// In the manner of JavaClientLauncher.cs.
+        /// </summary>
+        private const string JarFolder = "./";
+
         [Inject]
         internal DriverFolderPreparationHelper(
             REEFFileNames fileNames,
@@ -83,6 +89,11 @@ namespace Org.Apache.REEF.Client.Common
 
             // Add the appParameters into that folder structure
             _fileSets.AddJobFiles(appParameters);
+
+            // Add the reef-bridge-client jar to the global files in the manner of JavaClientLauncher.cs.
+            _fileSets.AddToLocalFiles(Directory.GetFiles(JarFolder)
+                .Where(file => (!string.IsNullOrWhiteSpace(file)))
+                .Where(jarFile => Path.GetFileName(jarFile).ToLower().StartsWith(ClientConstants.ClientJarFilePrefix)));
 
             // Create the driver configuration
             CreateDriverConfiguration(appParameters, driverFolderPath);
