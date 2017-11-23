@@ -19,6 +19,7 @@
 package org.apache.reef.wake.remote.transport.netty;
 
 import io.netty.channel.ChannelInitializer;
+import io.netty.channel.ChannelPipeline;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
 import io.netty.handler.codec.LengthFieldPrepender;
@@ -37,6 +38,7 @@ class NettyChannelInitializer extends ChannelInitializer<SocketChannel> {
    * the buffer size of the frame decoder.
    */
   public static final int MAXFRAMELENGTH = 10 * 1024 * 1024;
+  private static final int MAX_HTTP_MESSAGE_LENGTH = 10 * 1024 * 1024;
   private final NettyChannelHandlerFactory handlerFactory;
 
   /**
@@ -62,32 +64,32 @@ class NettyChannelInitializer extends ChannelInitializer<SocketChannel> {
 
   @Override
   protected void initChannel(final SocketChannel ch) throws Exception {
+    final ChannelPipeline pipeline = ch.pipeline();
     switch (this.protocolType) {
     case TCP:
-      ch.pipeline()
+      pipeline
           .addLast("frameDecoder", new LengthFieldBasedFrameDecoder(MAXFRAMELENGTH, 0, 4, 0, 4))
           .addLast("bytesDecoder", new ByteArrayDecoder())
           .addLast("frameEncoder", new LengthFieldPrepender(4))
           .addLast("bytesEncoder", new ByteArrayEncoder())
-          .addLast("chunker", new ChunkedReadWriteHandler())
-          .addLast("handler", handlerFactory.createChannelInboundHandler());
+          .addLast("chunker", new ChunkedReadWriteHandler());
       break;
     case HTTP:
       if(isServer) {
-        ch.pipeline()
+        pipeline
             .addLast("codec", new HttpServerCodec())
             .addLast("requestDecoder", new HttpRequestDecoder())
-            .addLast("responseEncoder", new HttpResponseEncoder())
-            .addLast("handler", handlerFactory.createChannelInboundHandler());
+            .addLast("responseEncoder", new HttpResponseEncoder());
       } else {
-        ch.pipeline()
-            .addLast("codec", new HttpClientCodec())
-            .addLast("decompressor", new HttpContentDecompressor())
-            .addLast("handler", handlerFactory.createChannelInboundHandler());
+        pipeline
+            .addLast("codec", new HttpClientCodec());
       }
+      pipeline.addLast("aggregator", new HttpObjectAggregator(MAX_HTTP_MESSAGE_LENGTH));
       break;
     default:
       throw new IllegalArgumentException("Invalid type of channel");
     }
+    // every channel's pipeline have a same inbound handler.
+    pipeline.addLast("handler", handlerFactory.createChannelInboundHandler());
   }
 }

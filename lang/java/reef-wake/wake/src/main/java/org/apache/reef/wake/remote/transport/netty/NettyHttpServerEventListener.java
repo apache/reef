@@ -39,7 +39,6 @@ import java.util.logging.Level;
  */
 final class NettyHttpServerEventListener extends AbstractNettyEventListener {
 
-  private HttpRequest httpRequest;
   private final StringBuilder buf = new StringBuilder();
   private final URI uri;
   private final NettyLinkFactory linkFactory;
@@ -72,40 +71,36 @@ final class NettyHttpServerEventListener extends AbstractNettyEventListener {
 
   @Override
   public void channelRead(final ChannelHandlerContext ctx, final Object msg) {
-    if(msg instanceof HttpRequest) {
+    if(msg instanceof FullHttpRequest) {
       LOG.log(Level.FINEST, "HttpRequest received");
 
-      final HttpRequest request = (HttpRequest) msg;
+      final FullHttpRequest request = (FullHttpRequest) msg;
       final HttpHeaders headers = request.headers();
-      this.httpRequest = request;
+      final ByteBuf content = request.content();
 
-      if (!headers.isEmpty()) {
-        for (final Map.Entry<String, String> h : headers) {
-          final CharSequence key = h.getKey();
-          final CharSequence value = h.getValue();
-          buf.append("HEADER: ").append(key).append(" = ").append(value).append("\r\n");
-        }
-        buf.append("\r\n");
-      }
-      appendDecoderResult(buf, request);
-    } else if (msg instanceof HttpContent) {
-      LOG.log(Level.FINEST, "HttpContent received");
-      final HttpContent httpContent = (HttpContent) msg;
-      final ByteBuf content = httpContent.content();
-      if (content.isReadable()) {
-        buf.append("CONTENT: ");
-        buf.append(content.toString(CharsetUtil.UTF_8));
-        buf.append("\r\n");
-        appendDecoderResult(buf, this.httpRequest);
-      }
-
-      if (msg instanceof LastHttpContent) {
-        buf.append("END OF CONTENT\r\n");
-        final LastHttpContent trailer = (LastHttpContent) msg;
-        if (!trailer.trailingHeaders().isEmpty()) {
+      if (LOG.isLoggable(Level.FINEST)) {
+        // log header to trailing header contents.
+        if (!headers.isEmpty()) {
+          for (final Map.Entry<String, String> h : headers) {
+            final CharSequence key = h.getKey();
+            final CharSequence value = h.getValue();
+            buf.append("HEADER: ").append(key).append(" = ").append(value).append("\r\n");
+          }
           buf.append("\r\n");
-          for (CharSequence name: trailer.trailingHeaders().names()) {
-            for (CharSequence value: trailer.trailingHeaders().getAll(name)) {
+        }
+        appendDecoderResult(buf, request);
+        if (content.isReadable()) {
+          buf.append("CONTENT: ");
+          buf.append(content.toString(CharsetUtil.UTF_8));
+          buf.append("\r\n");
+          appendDecoderResult(buf, request);
+        }
+
+        buf.append("END OF CONTENT\r\n");
+        if (!request.trailingHeaders().isEmpty()) {
+          buf.append("\r\n");
+          for (CharSequence name : request.trailingHeaders().names()) {
+            for (CharSequence value : request.trailingHeaders().getAll(name)) {
               buf.append("TRAILING HEADER: ");
               buf.append(name).append(" = ").append(value).append("\r\n");
             }
@@ -113,19 +108,19 @@ final class NettyHttpServerEventListener extends AbstractNettyEventListener {
           buf.append("\r\n");
           buf.setLength(0); // clearing the buffer
         }
+      }
 
-        final Channel channel = ctx.channel();
-        final byte[] message = new byte[content.readableBytes()];
-        content.readBytes(message);
-        if (LOG.isLoggable(Level.FINEST)) {
-          LOG.log(Level.FINEST, "MessageEvent: local: {0} remote: {1} :: {2}", new Object[]{
-                  channel.localAddress(), channel.remoteAddress(), content});
-        }
+      final Channel channel = ctx.channel();
+      final byte[] message = new byte[content.readableBytes()];
+      content.readBytes(message);
+      if (LOG.isLoggable(Level.FINEST)) {
+        LOG.log(Level.FINEST, "MessageEvent: local: {0} remote: {1} :: {2}", new Object[]{
+                channel.localAddress(), channel.remoteAddress(), content});
+      }
 
-        if (message.length > 0) {
-          // send to the dispatch stage
-          this.stage.onNext(this.getTransportEvent(message, channel));
-        }
+      if (message.length > 0) {
+        // send to the dispatch stage
+        this.stage.onNext(this.getTransportEvent(message, channel));
       }
     } else {
       LOG.log(Level.SEVERE, "Unknown type of message received: {0}", msg);

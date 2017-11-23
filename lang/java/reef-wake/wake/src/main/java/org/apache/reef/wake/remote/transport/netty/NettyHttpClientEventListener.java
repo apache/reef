@@ -21,9 +21,8 @@ package org.apache.reef.wake.remote.transport.netty;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
+import io.netty.handler.codec.http.FullHttpResponse;
 import io.netty.handler.codec.http.HttpContent;
-import io.netty.handler.codec.http.HttpResponse;
-import io.netty.handler.codec.http.LastHttpContent;
 import io.netty.util.CharsetUtil;
 import org.apache.reef.wake.EStage;
 import org.apache.reef.wake.remote.impl.TransportEvent;
@@ -49,31 +48,26 @@ final class NettyHttpClientEventListener extends AbstractNettyEventListener {
 
   @Override
   public void channelRead(final ChannelHandlerContext ctx, final Object msg) {
-    if (msg instanceof HttpResponse) {
+    if (msg instanceof FullHttpResponse) {
       if(LOG.isLoggable(Level.FINEST)) {
         LOG.log(Level.FINEST, "HttpResponse Received: {0}", msg);
       }
-    } else if (msg instanceof HttpContent) {
       final HttpContent httpContent = (HttpContent) msg;
       final ByteBuf content = httpContent.content();
-      if (LOG.isLoggable(Level.FINEST) && content.isReadable()) {
+      final Channel channel = ctx.channel();
+      final byte[] message = new byte[content.readableBytes()];
+
+      content.readBytes(message);
+      if (LOG.isLoggable(Level.FINEST)) {
         buf.append("CONTENT: ").append(content.toString(CharsetUtil.UTF_8)).append("\r\n");
+        LOG.log(Level.FINEST, "MessageEvent: local: {0} remote: {1} :: {2}", new Object[]{
+            channel.localAddress(), channel.remoteAddress(), buf});
+        buf.setLength(0); // clearing the buffer
       }
 
-      if (msg instanceof LastHttpContent) {
-        final Channel channel = ctx.channel();
-        final byte[] message = new byte[content.readableBytes()];
-        content.readBytes(message);
-        if (LOG.isLoggable(Level.FINEST)) {
-          LOG.log(Level.FINEST, "MessageEvent: local: {0} remote: {1} :: {2}", new Object[]{
-                  channel.localAddress(), channel.remoteAddress(), buf});
-          buf.setLength(0); // clearing the buffer
-        }
-
-        if (message.length > 0) {
-          // send to the dispatch stage
-          this.stage.onNext(this.getTransportEvent(message, channel));
-        }
+      if (message.length > 0) {
+        // send to the dispatch stage
+        this.stage.onNext(this.getTransportEvent(message, channel));
       }
     } else {
       LOG.log(Level.SEVERE, "Unknown type of message received: {0}", msg);
