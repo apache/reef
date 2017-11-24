@@ -25,6 +25,7 @@ import io.netty.handler.codec.http.FullHttpResponse;
 import io.netty.handler.codec.http.HttpContent;
 import io.netty.util.CharsetUtil;
 import org.apache.reef.wake.EStage;
+import org.apache.reef.wake.remote.exception.RemoteRuntimeException;
 import org.apache.reef.wake.remote.impl.TransportEvent;
 
 import java.net.SocketAddress;
@@ -38,7 +39,6 @@ import java.util.logging.Logger;
 final class NettyHttpClientEventListener extends AbstractNettyEventListener {
 
   private static final Logger LOG = Logger.getLogger(NettyHttpClientEventListener.class.getName());
-  private final StringBuilder buf = new StringBuilder();
 
   NettyHttpClientEventListener(
       final ConcurrentMap<SocketAddress, LinkReference> addrToLinkRefMap,
@@ -56,6 +56,7 @@ final class NettyHttpClientEventListener extends AbstractNettyEventListener {
       final ByteBuf content = httpContent.content();
       final Channel channel = ctx.channel();
       final byte[] message = new byte[content.readableBytes()];
+      final StringBuilder buf = new StringBuilder();
 
       content.readBytes(message);
       if (LOG.isLoggable(Level.FINEST)) {
@@ -71,8 +72,8 @@ final class NettyHttpClientEventListener extends AbstractNettyEventListener {
       }
     } else {
       LOG.log(Level.SEVERE, "Unknown type of message received: {0}", msg);
+      throw new RemoteRuntimeException("Unknown type of message received " + msg);
     }
-
   }
 
   @Override

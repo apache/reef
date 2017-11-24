@@ -75,21 +75,14 @@ class NettyChannelInitializer extends ChannelInitializer<SocketChannel> {
           .addLast("chunker", new ChunkedReadWriteHandler());
       break;
     case HTTP:
-      if(isServer) {
-        pipeline
-            .addLast("codec", new HttpServerCodec())
-            .addLast("requestDecoder", new HttpRequestDecoder())
-            .addLast("responseEncoder", new HttpResponseEncoder());
-      } else {
-        pipeline
-            .addLast("codec", new HttpClientCodec());
-      }
-      pipeline.addLast("aggregator", new HttpObjectAggregator(MAX_HTTP_MESSAGE_LENGTH));
+      pipeline
+          .addLast("codec", isServer ? new HttpServerCodec() : new HttpClientCodec())
+          .addLast("aggregator", new HttpObjectAggregator(MAX_HTTP_MESSAGE_LENGTH));
       break;
     default:
       throw new IllegalArgumentException("Invalid type of channel");
     }
-    // every channel's pipeline have a same inbound handler.
+    // every channel pipeline has the same inbound handler.
     pipeline.addLast("handler", handlerFactory.createChannelInboundHandler());
   }
 }
