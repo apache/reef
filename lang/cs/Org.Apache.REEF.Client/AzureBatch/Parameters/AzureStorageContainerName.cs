@@ -15,17 +15,12 @@
 // specific language governing permissions and limitations
 // under the License.
 
-namespace Org.Apache.REEF.Examples.HelloREEF
+using Org.Apache.REEF.Tang.Annotations;
+
+namespace Org.Apache.REEF.Client.AzureBatch.Parameters
 {
-    public sealed class Run
+    [NamedParameter(Documentation = "The Azure Storage Container Name")]
+    public sealed class AzureStorageContainerName : Name<string>
     {
-        /// <summary>
-        /// Program that runs hello reef
-        /// </summary>
-        /// <param name="args"></param>
-        public static void Main(string[] args)
-        {
-            HelloREEF.MainSimple(args);
-        }
     }
 }

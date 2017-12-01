@@ -5,9 +5,9 @@
 // to you under the Apache License, Version 2.0 (the
 // "License"); you may not use this file except in compliance
 // with the License.  You may obtain a copy of the License at
-//
+// 
 //   http://www.apache.org/licenses/LICENSE-2.0
-//
+// 
 // Unless required by applicable law or agreed to in writing,
 // software distributed under the License is distributed on an
 // "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -15,36 +15,21 @@
 // specific language governing permissions and limitations
 // under the License.
 
-namespace Org.Apache.REEF.Common.Runtime
+using Org.Apache.REEF.Tang.Annotations;
+
+namespace Org.Apache.REEF.Client.AzureBatch.Util
 {
     /// <summary>
-    /// This enum reflects runtime name values as they defined on teh Java side.
+    /// Build the launch command for Java REEF processes for Azure Batch.
     /// </summary>
-    public enum RuntimeName
+    [DefaultImplementation(typeof(WindowsCommandBuilder))]
+    internal interface ICommandBuilder
     {
         /// <summary>
-        /// Same value as org.apache.reef.runtime.local.driver.RuntimeIdentifier.RUNTIME_NAME
+        /// Assembles the command to execute the Driver.
         /// </summary>
-        Local,
-
-        /// <summary>
-        /// Same value as org.apache.reef.runtime.yarn.driver.RuntimeIdentifier.RUNTIME_NAME
-        /// </summary>
-        Yarn,
-
-        /// <summary>
-        /// Same value as org.apache.reef.runtime.mesos.driver.RuntimeIdentifier.RUNTIME_NAME
-        /// </summary>
-        Mesos,
-
-        /// <summary>
-        /// Same value as org.apache.reef.runtime.mesos.driver.RuntimeIdentifier.RUNTIME_NAME
-        /// </summary>
-        AzBatch,
-
-        /// <summary>
-        /// Default value for the enum
-        /// </summary>
-        Default
+        /// <param name="driverMemory">The memory in megabytes used by driver.</param>
+        /// <returns>The command string.</returns>
+        string BuildDriverCommand(int driverMemory);
     }
 }
