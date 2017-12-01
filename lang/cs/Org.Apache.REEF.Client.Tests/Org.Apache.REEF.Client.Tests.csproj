@@ -51,6 +51,7 @@ under the License.
     <Compile Include="$(SolutionDir)\SharedAssemblyInfo.cs">
       <Link>Properties\SharedAssemblyInfo.cs</Link>
     </Compile>
+    <Compile Include="AzureBatchCommandBuilderTests.cs" />
     <Compile Include="HDInsightYarnClientTests.cs" />
     <Compile Include="JobRequestBuilderTests.cs" />
     <Compile Include="JobResourceUploaderTests.cs" />
@@ -96,6 +97,7 @@ under the License.
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <None Include="app.config" />
     <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

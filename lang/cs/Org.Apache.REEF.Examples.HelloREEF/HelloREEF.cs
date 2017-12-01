@@ -16,7 +16,9 @@
 // under the License.
 
 using System;
+using System.Globalization;
 using Org.Apache.REEF.Client.API;
+using Org.Apache.REEF.Client.AzureBatch;
 using Org.Apache.REEF.Client.Common;
 using Org.Apache.REEF.Client.Local;
 using Org.Apache.REEF.Client.Yarn;
@@ -40,6 +42,7 @@ namespace Org.Apache.REEF.Examples.HelloREEF
         private const string YARN = "yarn";
         private const string YARNRest = "yarnrest";
         private const string HDInsight = "hdi";
+        private const string AzureBatch = "azurebatch";
         private readonly IREEFClient _reefClient;
 
         [Inject]
@@ -60,19 +63,29 @@ namespace Org.Apache.REEF.Examples.HelloREEF
                 .Set(DriverConfiguration.CustomTraceLevel, Level.Verbose.ToString())
                 .Build();
 
+            string applicationId = GetApplicationId();
+
             // The JobSubmission contains the Driver configuration as well as the files needed on the Driver.
             var helloJobRequest = _reefClient.NewJobRequestBuilder()
                 .AddDriverConfiguration(helloDriverConfiguration)
                 .AddGlobalAssemblyForType(typeof(HelloDriver))
                 .AddGlobalAssembliesInDirectoryOfExecutingAssembly()
-                .SetJobIdentifier("HelloREEF")
+                .SetJobIdentifier(applicationId)
                 .SetJavaLogLevel(JavaLoggingSetting.Verbose)
                 .Build();
 
             IJobSubmissionResult jobSubmissionResult = _reefClient.SubmitAndGetJobStatus(helloJobRequest);
 
             // Wait for the Driver to complete.
-            jobSubmissionResult.WaitForDriverToFinish();
+            if (jobSubmissionResult != null)
+            {
+                jobSubmissionResult.WaitForDriverToFinish();
+            }
+        }
+
+        private string GetApplicationId()
+        {
+            return "HelloWorldJob-" + DateTime.Now.ToString("ddd-MMM-d-HH-mm-ss-yyyy", CultureInfo.CreateSpecificCulture("en-US"));
         }
 
         /// <summary>
@@ -104,6 +117,17 @@ namespace Org.Apache.REEF.Examples.HelloREEF
                         .Set(HDInsightClientConfiguration.JobSubmissionDirectoryPrefix, string.Format(@"/{0}/tmp", continerName))
                         .Set(AzureBlockBlobFileSystemConfiguration.ConnectionString, connectionString)
                         .Build();
+                case AzureBatch:
+                    return AzureBatchRuntimeClientConfiguration.ConfigurationModule
+                        .Set(AzureBatchRuntimeClientConfiguration.AzureBatchAccountKey, @"##########################################")
+                        .Set(AzureBatchRuntimeClientConfiguration.AzureBatchAccountName, @"######")
+                        .Set(AzureBatchRuntimeClientConfiguration.AzureBatchAccountUri, @"######################")
+                        .Set(AzureBatchRuntimeClientConfiguration.AzureBatchPoolId, @"######")
+                        .Set(AzureBatchRuntimeClientConfiguration.AzureStorageAccountKey, "@##########################################")
+                        .Set(AzureBatchRuntimeClientConfiguration.AzureStorageAccountName, @"############")
+                        .Set(AzureBatchRuntimeClientConfiguration.AzureStorageContainerName, @"###########")
+                        .Build();
+
                 default:
                     throw new Exception("Unknown runtime: " + name);
             }
