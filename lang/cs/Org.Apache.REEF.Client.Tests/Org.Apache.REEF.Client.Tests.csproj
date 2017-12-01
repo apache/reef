@@ -51,6 +51,7 @@ under the License.
     <Compile Include="$(SolutionDir)\SharedAssemblyInfo.cs">
       <Link>Properties\SharedAssemblyInfo.cs</Link>
     </Compile>
+    <Compile Include="AzureBatchCommandBuilderTests.cs" />
     <Compile Include="HDInsightYarnClientTests.cs" />
     <Compile Include="JobRequestBuilderTests.cs" />
     <Compile Include="JobResourceUploaderTests.cs" />
