@@ -72,15 +72,22 @@ final class NettyHttpServerEventListener extends AbstractNettyEventListener {
   @Override
   public void channelRead(final ChannelHandlerContext ctx, final Object msg) {
     if(msg instanceof FullHttpRequest) {
-      LOG.log(Level.FINEST, "HttpRequest received");
-
       final FullHttpRequest request = (FullHttpRequest) msg;
       final HttpHeaders headers = request.headers();
-      final ByteBuf content = request.content();
-      final StringBuilder buf = new StringBuilder();
+      final ByteBuf byteBuf = request.content();
+      final Channel channel = ctx.channel();
+      final byte[] content;
+
+      if (byteBuf.hasArray()) {
+        content = byteBuf.array();
+      } else {
+        content = new byte[byteBuf.readableBytes()];
+        byteBuf.readBytes(content);
+      }
 
       if (LOG.isLoggable(Level.FINEST)) {
         // log header to trailing header contents.
+        final StringBuilder buf = new StringBuilder();
         if (!headers.isEmpty()) {
           for (final Map.Entry<String, String> h : headers) {
             final CharSequence key = h.getKey();
@@ -90,9 +97,9 @@ final class NettyHttpServerEventListener extends AbstractNettyEventListener {
           buf.append("\r\n");
         }
         appendDecoderResult(buf, request);
-        if (content.isReadable()) {
+        if (byteBuf.isReadable()) {
           buf.append("CONTENT: ");
-          buf.append(content.toString(CharsetUtil.UTF_8));
+          buf.append(byteBuf.toString(CharsetUtil.UTF_8));
           buf.append("\r\n");
           appendDecoderResult(buf, request);
         }
@@ -107,21 +114,15 @@ final class NettyHttpServerEventListener extends AbstractNettyEventListener {
             }
           }
           buf.append("\r\n");
-          buf.setLength(0); // clearing the buffer
         }
-      }
-
-      final Channel channel = ctx.channel();
-      final byte[] message = new byte[content.readableBytes()];
-      content.readBytes(message);
-      if (LOG.isLoggable(Level.FINEST)) {
+        LOG.log(Level.FINEST, "Received Message:\n{0}", buf.toString());
         LOG.log(Level.FINEST, "MessageEvent: local: {0} remote: {1} :: {2}", new Object[]{
-                channel.localAddress(), channel.remoteAddress(), content});
+                channel.localAddress(), channel.remoteAddress(), byteBuf});
       }
 
-      if (message.length > 0) {
+      if (content.length > 0) {
         // send to the dispatch stage
-        this.stage.onNext(this.getTransportEvent(message, channel));
+        this.stage.onNext(this.getTransportEvent(content, channel));
       }
     } else {
       LOG.log(Level.SEVERE, "Unknown type of message received: {0}", msg);

@@ -53,22 +53,27 @@ final class NettyHttpClientEventListener extends AbstractNettyEventListener {
         LOG.log(Level.FINEST, "HttpResponse Received: {0}", msg);
       }
       final HttpContent httpContent = (HttpContent) msg;
-      final ByteBuf content = httpContent.content();
+      final ByteBuf byteBuf = httpContent.content();
       final Channel channel = ctx.channel();
-      final byte[] message = new byte[content.readableBytes()];
-      final StringBuilder buf = new StringBuilder();
+      final byte[] content;
 
-      content.readBytes(message);
-      if (LOG.isLoggable(Level.FINEST)) {
-        buf.append("CONTENT: ").append(content.toString(CharsetUtil.UTF_8)).append("\r\n");
-        LOG.log(Level.FINEST, "MessageEvent: local: {0} remote: {1} :: {2}", new Object[]{
-            channel.localAddress(), channel.remoteAddress(), buf});
-        buf.setLength(0); // clearing the buffer
+      if (byteBuf.hasArray()) {
+        content = byteBuf.array();
+      } else {
+        content = new byte[byteBuf.readableBytes()];
+        byteBuf.readBytes(content);
       }
 
-      if (message.length > 0) {
+      if (LOG.isLoggable(Level.FINEST)) {
+        final StringBuilder buf = new StringBuilder();
+        buf.append("CONTENT: ").append(byteBuf.toString(CharsetUtil.UTF_8)).append("\r\n");
+        LOG.log(Level.FINEST, "MessageEvent: local: {0} remote: {1} :: {2}", new Object[]{
+            channel.localAddress(), channel.remoteAddress(), buf});
+      }
+
+      if (content.length > 0) {
         // send to the dispatch stage
-        this.stage.onNext(this.getTransportEvent(message, channel));
+        this.stage.onNext(this.getTransportEvent(content, channel));
       }
     } else {
       LOG.log(Level.SEVERE, "Unknown type of message received: {0}", msg);
