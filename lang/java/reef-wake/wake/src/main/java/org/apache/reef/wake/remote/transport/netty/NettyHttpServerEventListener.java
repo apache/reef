@@ -120,10 +120,8 @@ final class NettyHttpServerEventListener extends AbstractNettyEventListener {
                 channel.localAddress(), channel.remoteAddress(), byteBuf});
       }
 
-      if (content.length > 0) {
-        // send to the dispatch stage
-        this.stage.onNext(this.getTransportEvent(content, channel));
-      }
+      // send to the dispatch stage
+      this.stage.onNext(this.getTransportEvent(content, channel));
     } else {
       LOG.log(Level.SEVERE, "Unknown type of message received: {0}", msg);
       throw new RemoteRuntimeException("Unknown type of message received " + msg);
