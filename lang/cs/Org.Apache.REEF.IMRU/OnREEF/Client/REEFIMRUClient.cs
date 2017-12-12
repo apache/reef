@@ -162,6 +162,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Client
             var imruJobSubmission = _jobRequestBuilder
                 .AddDriverConfiguration(imruDriverConfiguration)
                 .AddGlobalAssemblyForType(typeof(IMRUDriver<TMapInput, TMapOutput, TResult, TPartitionType>))
+                .AddGlobalAssembliesInDirectoryOfExecutingAssembly()
                 .SetJobIdentifier(jobDefinition.JobName)
                 .SetDriverMemory(5000)
                 .Build();
