@@ -67,6 +67,7 @@ under the License.
   <ItemGroup>
     <None Include="$(SolutionDir)\App.config">
       <Link>App.config</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Org.Apache.REEF.Evaluator.nuspec" />
     <None Include="packages.config" />
