@@ -33,6 +33,11 @@ under the License.
     <DefaultItemExcludes>$(DefaultItemExcludes);**/AssemblyInfo.cs;packages.config;*.nuspec</DefaultItemExcludes>
   </PropertyGroup>
 
+  <!-- Allow for C# 7.2 language constructs -->
+  <PropertyGroup>
+    <LangVersion>7.2</LangVersion>
+  </PropertyGroup>
+  
   <PropertyGroup>
     <Platforms>x64</Platforms>
     <PlatformTarget>x64</PlatformTarget>
