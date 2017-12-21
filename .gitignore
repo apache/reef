@@ -29,6 +29,7 @@ atlassian-ide-plugin.xml
 *.VC.db
 *.vcxproj.user
 .vs
+.vscode
 #
 # ----------------------------------------------------------------------
 # OS Files
