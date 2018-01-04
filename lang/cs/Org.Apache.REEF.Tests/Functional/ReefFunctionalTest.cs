@@ -236,7 +236,7 @@ namespace Org.Apache.REEF.Tests.Functional
                 }
                 else if (numberOfOccurrences == 0)
                 {
-                    Assert.True(0 == successIndicators.Count(),
+                    Assert.True(successIndicators.Count() == 0,
                         "Message \"" + message + "\" not expected to occur but occurs " + successIndicators.Count() + " times");
                 }
                 else

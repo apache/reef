@@ -122,7 +122,7 @@ namespace Org.Apache.REEF.IO.FileSystem.Hadoop
             {
                 var processName = string.Format("HDFS_Attempt_{0}_of_{1}", attemptNumber, _numberOfRetries);
                 var result = RunAttempt(processStartInfo, _timeOutInMilliSeconds, processName);
-                if (null != result)
+                if (result != null)
                 {
                     LogCommandOutput(result);
                     return result;
@@ -153,7 +153,7 @@ namespace Org.Apache.REEF.IO.FileSystem.Hadoop
         {
             var hadoopHomeFromEnv = Environment.GetEnvironmentVariable(HadoopHomeEnvironmentVariableName);
             Logger.Log(Level.Verbose, "{0} evaluated to {1}.", HadoopHomeEnvironmentVariableName, hadoopHomeFromEnv);
-            if (null == hadoopHomeFromEnv)
+            if (hadoopHomeFromEnv == null)
             {
                 throw new Exception(HadoopHomeEnvironmentVariableName +
                                     " not set and no path to the hadoop installation provided.");

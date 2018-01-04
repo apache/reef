@@ -125,7 +125,7 @@ namespace Org.Apache.REEF.Tang.Implementations.InjectionPlan
                     Org.Apache.REEF.Utilities.Diagnostics.Exceptions.Throw(new InjectionException("Could not get class for " + key), LOGGER); 
                 }
             }
-            else if (plan.GetNode() is IClassNode && null != GetCachedInstance((IClassNode)plan.GetNode()))
+            else if (plan.GetNode() is IClassNode && GetCachedInstance((IClassNode)plan.GetNode()) != null)
             {
                 return GetCachedInstance((IClassNode)plan.GetNode());
             }
@@ -512,7 +512,7 @@ namespace Org.Apache.REEF.Tang.Implementations.InjectionPlan
             {
                 List<InjectionPlan> constructors = new List<InjectionPlan>();
                 List<IConstructorDef> constructorList = new List<IConstructorDef>();
-                if (null != this.configuration.GetLegacyConstructor(thisCN))
+                if (this.configuration.GetLegacyConstructor(thisCN) != null)
                 {
                     constructorList.Add(this.configuration.GetLegacyConstructor(thisCN));
                 }

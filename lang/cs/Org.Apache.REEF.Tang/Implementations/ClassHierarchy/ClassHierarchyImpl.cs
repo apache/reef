@@ -287,7 +287,7 @@ namespace Org.Apache.REEF.Tang.Implementations.ClassHierarchy
             {
                 IDictionary<string, string> mapping = null;
                 _aliasLookupTable.TryGetValue(np.GetAliasLanguage().ToString(), out mapping);
-                if (null == mapping)
+                if (mapping == null)
                 {
                     mapping = new Dictionary<string, string>();
                     _aliasLookupTable.Add(np.GetAliasLanguage().ToString(), mapping);

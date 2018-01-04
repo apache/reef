@@ -324,34 +324,34 @@ namespace Org.Apache.REEF.IMRU.API
         /// <exception cref="NullReferenceException">If any of the required parameters is not set.</exception>
         public IMRUJobDefinition Build()
         {
-            if (null == _jobName)
+            if (_jobName == null)
             {
                 Exceptions.Throw(new NullReferenceException("Job name cannot be null"),
                     Logger);
             }
 
-            if (null == _mapFunctionConfiguration)
+            if (_mapFunctionConfiguration == null)
             {
                 Exceptions.Throw(new NullReferenceException("Map function configuration cannot be null"), Logger);
             }
 
-            if (null == _mapInputCodecConfiguration)
+            if (_mapInputCodecConfiguration == null)
             {
                 Exceptions.Throw(new NullReferenceException("Map input codec configuration cannot be null"), Logger);
             }
 
-            if (null == _updateFunctionCodecsConfiguration)
+            if (_updateFunctionCodecsConfiguration == null)
             {
                 Exceptions.Throw(new NullReferenceException("Update function codecs configuration cannot be null"),
                     Logger);
             }
 
-            if (null == _reduceFunctionConfiguration)
+            if (_reduceFunctionConfiguration == null)
             {
                 Exceptions.Throw(new NullReferenceException("Reduce function configuration cannot be null"), Logger);
             }
 
-            if (null == _updateFunctionConfiguration)
+            if (_updateFunctionConfiguration == null)
             {
                 Exceptions.Throw(new NullReferenceException("Update function configuration cannot be null"), Logger);
             }

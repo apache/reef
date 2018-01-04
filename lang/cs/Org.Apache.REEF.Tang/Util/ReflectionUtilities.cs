@@ -304,7 +304,7 @@ namespace Org.Apache.REEF.Tang.Util
         /// <returns></returns>
         public static Type EnsureInterfaceType(Type interf)
         {
-            if (interf != null && interf.IsGenericType && null == interf.FullName)
+            if (interf != null && interf.IsGenericType && interf.FullName == null)
             {
                 return interf.GetGenericTypeDefinition(); // this is to test if this line is ever reached
             }

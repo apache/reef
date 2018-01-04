@@ -61,7 +61,7 @@ namespace Org.Apache.REEF.Client.Local.TestRunner
                 assertFileName);
             IJobSubmissionResult jobStatus = _client.SubmitAndGetJobStatus(jobRequest);
 
-            if (null == jobStatus)
+            if (jobStatus == null)
             {
                 return TestResult.Fail(
                     "JobStatus returned by the Client was null. This points to an environment setup problem.");
