@@ -103,7 +103,6 @@ public final class NettyHttpLink<T> implements Link<T> {
       if (listener != null) {
         future.addListener(new NettyChannelFutureListener<>(message, listener));
       }
-      future.sync();
     } catch (final InterruptedException ex) {
       LOG.log(Level.SEVERE, "Cannot send request to " + uri.getHost(), ex);
     }
