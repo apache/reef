@@ -88,23 +88,19 @@ public final class NettyHttpLink<T> implements Link<T> {
   @Override
   public void write(final T message) {
     LOG.log(Level.FINEST, "write {0} :: {1}", new Object[] {channel, message});
-    try {
-      final FullHttpRequest request =
-          new DefaultFullHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.POST, uri.getRawPath());
-      final ByteBuf buf = Unpooled.wrappedBuffer(encoder.encode(message));
-      request.headers()
-          .set(HttpHeaders.Names.HOST, uri.getHost())
-          .set(HttpHeaders.Names.CONNECTION, HttpHeaders.Values.KEEP_ALIVE)
-          .set(HttpHeaders.Names.ACCEPT_ENCODING, HttpHeaders.Values.GZIP)
-          .set(HttpHeaders.Names.CONTENT_TYPE, "application/wake-transport")
-          .set(HttpHeaders.Names.CONTENT_LENGTH, buf.readableBytes());
-      request.content().clear().writeBytes(buf);
-      final ChannelFuture future = channel.writeAndFlush(request);
-      if (listener != null) {
-        future.addListener(new NettyChannelFutureListener<>(message, listener));
-      }
-    } catch (final InterruptedException ex) {
-      LOG.log(Level.SEVERE, "Cannot send request to " + uri.getHost(), ex);
+    final FullHttpRequest request =
+        new DefaultFullHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.POST, uri.getRawPath());
+    final ByteBuf buf = Unpooled.wrappedBuffer(encoder.encode(message));
+    request.headers()
+        .set(HttpHeaders.Names.HOST, uri.getHost())
+        .set(HttpHeaders.Names.CONNECTION, HttpHeaders.Values.KEEP_ALIVE)
+        .set(HttpHeaders.Names.ACCEPT_ENCODING, HttpHeaders.Values.GZIP)
+        .set(HttpHeaders.Names.CONTENT_TYPE, "application/wake-transport")
+        .set(HttpHeaders.Names.CONTENT_LENGTH, buf.readableBytes());
+    request.content().clear().writeBytes(buf);
+    final ChannelFuture future = channel.writeAndFlush(request);
+    if (listener != null) {
+      future.addListener(new NettyChannelFutureListener<>(message, listener));
     }
   }
 
