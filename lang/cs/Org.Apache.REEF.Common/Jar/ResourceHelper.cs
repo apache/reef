@@ -60,12 +60,12 @@ namespace Org.Apache.REEF.Common.Jar
         public ResourceHelper(Assembly assembly)
         {
             var names = assembly.GetManifestResourceNames();
-            if (names == null || names.Length == 0 || null == names[0])
+            if (names == null || names.Length == 0 || names[0] == null)
             {
                 throw new ApplicationException("Could not retrieve Assembly Manifest Resource names");
             }
             var manifestResources = assembly.GetManifestResourceStream(names[0]);
-            if (null == manifestResources)
+            if (manifestResources == null)
             {
                 throw new ApplicationException("Could not retrieve Assembly Manifest Resource stream");
             }
@@ -81,7 +81,7 @@ namespace Org.Apache.REEF.Common.Jar
         internal T GetResource<T>(string resourceName)
         {
             var resource = _resourceSet.GetObject(resourceName);
-            if (null == resource)
+            if (resource == null)
             {
                 throw new ApplicationException(string.Format(CouldNotRetrieveResource, resourceName));
             }

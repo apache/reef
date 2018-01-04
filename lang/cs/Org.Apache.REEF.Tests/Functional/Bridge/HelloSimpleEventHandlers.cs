@@ -310,7 +310,7 @@ namespace Org.Apache.REEF.Tests.Functional.Bridge
         {
             Logger.Log(Level.Info, "SubmitNextTask with evaluator id: " + activeContext.EvaluatorId);
             IConfiguration finalConfiguration = GetNextTaskConfiguration();
-            if (null != finalConfiguration)
+            if (finalConfiguration != null)
             {
                 Logger.Log(Level.Info, "Executing task id " + _taskContext.CurrentTaskId());
                 Logger.Log(Level.Info, string.Format(CultureInfo.InvariantCulture, "Submitting Task {0}", _taskContext.CurrentTaskId()));

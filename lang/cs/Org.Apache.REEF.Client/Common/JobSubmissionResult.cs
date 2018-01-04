@@ -364,7 +364,7 @@ namespace Org.Apache.REEF.Client.Common
                     _driverUrl = values[TrackingUrlKey].ToString();
                     LOGGER.Log(Level.Info, "trackingUrl[" + _driverUrl + "]");
 
-                    if (0 == string.Compare(_driverUrl, UnAssigned))
+                    if (string.Compare(_driverUrl, UnAssigned) == 0)
                     {
                         resultKind = UrlResultKind.UrlNotAssignedYet;
                     }
