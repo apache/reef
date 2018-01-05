@@ -45,11 +45,7 @@ namespace Org.Apache.REEF.Common.Files
         /// <returns></returns>
         public static bool AreNormalizedEquals(string path1, string path2)
         {
-            if (null == path1 || null == path2)
-            {
-                return false;
-            }
-            return NormalizePath(path1).Equals(NormalizePath(path2));
+            return path1 != null && path2 != null && NormalizePath(path1).Equals(NormalizePath(path2));
         }
     }
 }

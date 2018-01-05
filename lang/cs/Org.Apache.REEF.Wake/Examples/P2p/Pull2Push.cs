@@ -71,11 +71,11 @@ namespace Org.Apache.REEF.Wake.Examples.P2p
             {
                 // Grab the next available message source, if any
                 IEventSource<T> nextSource = _sources.Dequeue();
-                if (null != nextSource)
+                if (nextSource != null)
                 {
                     // Grab the next message from that source, if any
                     T message = nextSource.GetNext();
-                    if (null != message)
+                    if (message != null)
                     {
                         // Add the source to the end of the queue again.
                         _sources.Enqueue(nextSource);

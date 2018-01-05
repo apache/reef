@@ -40,7 +40,7 @@ namespace Org.Apache.REEF.Tang.Implementations.ClassHierarchy
         public static INode CreateClassNode(INode parent, Type clazz)
         {
             // var namedParameter = clazz.GetCustomAttribute<NamedParameterAttribute>();
-            var unit = null != clazz.GetCustomAttribute<UnitAttribute>();
+            var unit = clazz.GetCustomAttribute<UnitAttribute>() != null;
             string simpleName = ReflectionUtilities.GetName(clazz);
             string fullName = ReflectionUtilities.GetAssemblyQualifiedName(clazz);
 
@@ -64,7 +64,7 @@ namespace Org.Apache.REEF.Tang.Implementations.ClassHierarchy
 
             foreach (ConstructorInfo c in clazz.GetConstructors(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance))  
             {
-                var constructorAnnotatedInjectable = null != c.GetCustomAttribute<InjectAttribute>();
+                var constructorAnnotatedInjectable = c.GetCustomAttribute<InjectAttribute>() != null;
 
                 bool constructorInjectable = constructorAnnotatedInjectable;
 
@@ -91,7 +91,7 @@ namespace Org.Apache.REEF.Tang.Implementations.ClassHierarchy
 
             string defaultImplementation = null;
             DefaultImplementationAttribute defaultImpl = clazz.GetCustomAttribute<DefaultImplementationAttribute>();
-            if (null != defaultImpl)
+            if (defaultImpl != null)
             {
                 Type defaultImplementationClazz = defaultImpl.Value;
 
