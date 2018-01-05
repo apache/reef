@@ -87,7 +87,9 @@ public final class NettyHttpLink<T> implements Link<T> {
    */
   @Override
   public void write(final T message) {
-    LOG.log(Level.FINEST, "write {0} :: {1}", new Object[] {channel, message});
+    if (LOG.isLoggable(Level.FINEST)) {
+      LOG.log(Level.FINEST, "write {0} :: {1}", new Object[] {channel, message});
+    }
     final FullHttpRequest request =
         new DefaultFullHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.POST, uri.getRawPath());
     final ByteBuf buf = Unpooled.wrappedBuffer(encoder.encode(message));
