@@ -285,12 +285,12 @@ namespace Org.Apache.REEF.Tang.Implementations.ClassHierarchy
 
             if (!string.IsNullOrEmpty(np.GetAlias()))
             {
-                IDictionary<string, string> mapping = null;
-                _aliasLookupTable.TryGetValue(np.GetAliasLanguage().ToString(), out mapping);
-                if (mapping == null)
+                var aliasLanguage = np.GetAliasLanguage().ToString();
+                IDictionary<string, string> mapping;
+                if (!_aliasLookupTable.TryGetValue(aliasLanguage, out mapping))
                 {
                     mapping = new Dictionary<string, string>();
-                    _aliasLookupTable.Add(np.GetAliasLanguage().ToString(), mapping);
+                    _aliasLookupTable.Add(aliasLanguage, mapping);
                 }
                 try
                 {
