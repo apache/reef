@@ -19,14 +19,15 @@
 package org.apache.reef.runtime.spark.job;
 
 
-import org.apache.reef.client.DriverLauncher;
+
+
+import org.apache.reef.runtime.common.REEFEnvironment;
 import org.apache.reef.tang.Configuration;
 import org.apache.spark.SparkConf;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.sql.SparkSession;
 import org.apache.spark.api.java.JavaSparkContext;
 import org.apache.spark.api.java.function.FlatMapFunction;
-
 import java.io.Serializable;
 import java.util.Iterator;
 import java.util.logging.Level;
@@ -38,6 +39,7 @@ import java.util.logging.Logger;
  */
 public class SparkRunner implements Serializable {
 
+  /** A handle to the logger. **/
   private static final Logger LOG = Logger.getLogger(SparkRunner.class.getName());
 
   /**
@@ -46,29 +48,34 @@ public class SparkRunner implements Serializable {
    * We use a map function which contains a lambda to run
    * the DataLoader over all the spark partitions.  This means
    * that the spark containers will manage the reef tasks being underneath.
-   * @param runtimeConfiguration a handle to the runtime that we're using (yarn or local)
+   *
    * @param dataLoadConfiguration a handle to the configuration associated with the dataload process
-   * @param inputPath the directory where the file is located.
-   * @param numPartitions the number of partitions to use
+   * @param inputPath             the directory where the file is located.
+   * @param numPartitions         the number of partitions to use
    */
-  public void run(final Configuration runtimeConfiguration,
-                  final Configuration dataLoadConfiguration,
+  public void run(final Configuration dataLoadConfiguration,
                   final String inputPath, final int numPartitions) {
     JavaRDD<String> lines;
-    SparkSession sparkSession=null;
+    SparkSession sparkSession = null;
     SparkConf conf = new SparkConf().setMaster("local[2]").setAppName("LineCounter");
     SparkSession spark = SparkSession.builder().config(conf).getOrCreate();
     JavaSparkContext sc = new JavaSparkContext(spark.sparkContext());
-    if (inputPath!=null && !inputPath.isEmpty()){
+    if (inputPath != null && !inputPath.isEmpty()) {
       lines = sc.textFile(inputPath, numPartitions);
-      LOG.log(Level.FINEST, "SparkRunner::run the count of lines="+lines.count());
+
+      LOG.log(Level.FINEST, "SparkRunner::run the count of lines=" + lines.count());
       JavaRDD<String> words = lines.flatMap(new FlatMapFunction<String, String>() {
-            @Override
-            public Iterator<String> call(final String s) throws Exception {
-              DriverLauncher.getLauncher(runtimeConfiguration).run(dataLoadConfiguration);
-              return null;
-            }
-          });
+        @Override
+        public Iterator<String> call(final String s) throws Exception {
+          try (final REEFEnvironment reef = REEFEnvironment.fromConfiguration(dataLoadConfiguration)) {
+            reef.run();
+          } catch (final Exception ex) {
+            //throw fatal("Unable to configure and start REEFEnvironment.", ex);
+            LOG.log(Level.FINEST, "SparkRunner::caught an exception with trace=" + ex.getMessage());
+          }
+          return null;
+        }
+      });
     }
   }
 }

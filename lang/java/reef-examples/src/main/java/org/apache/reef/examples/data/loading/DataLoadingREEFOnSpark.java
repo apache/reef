@@ -22,14 +22,10 @@ package org.apache.reef.examples.data.loading;
  * Client for the data loading spark demo app.
  */
 import org.apache.hadoop.mapred.TextInputFormat;
-import org.apache.reef.annotations.audience.ClientSide;
 import org.apache.reef.client.DriverConfiguration;
 import org.apache.reef.driver.evaluator.EvaluatorRequest;
 import org.apache.reef.runtime.spark.job.SparkDataLoadingRequestBuilder;
-import org.apache.reef.runtime.local.client.LocalRuntimeConfiguration;
-import org.apache.reef.runtime.yarn.client.YarnClientConfiguration;
 import org.apache.reef.tang.Configuration;
-import org.apache.reef.tang.Injector;
 import org.apache.reef.tang.JavaConfigurationBuilder;
 import org.apache.reef.tang.Tang;
 import org.apache.reef.tang.annotations.Name;
@@ -39,9 +35,8 @@ import org.apache.reef.tang.exceptions.InjectionException;
 import org.apache.reef.tang.formats.CommandLine;
 import org.apache.reef.util.EnvironmentUtils;
 import org.apache.reef.runtime.spark.job.SparkRunner;
-
+import org.apache.reef.annotations.audience.ClientSide;
 import java.io.IOException;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -81,22 +76,9 @@ public final class DataLoadingREEFOnSpark {
     // TODO[REEF-1791] remove hardcoding and figure out where to put these files
     String inputPath="file:///"+System.getenv("REEF_HOME") +"/pom.xml";
 
-    final Injector injector = tang.newInjector(cb.build());
+    //final Injector injector = tang.newInjector(cb.build());
 
-    final boolean isLocal = injector.getNamedInstance(DataLoadingREEFOnSpark.Local.class);
-
-
-
-    final Configuration runtimeConfiguration;
-    if (isLocal) {
-      LOG.log(Level.INFO, "Running Data Loading reef on spark demo on the local runtime");
-      runtimeConfiguration = LocalRuntimeConfiguration.CONF
-          .set(LocalRuntimeConfiguration.MAX_NUMBER_OF_EVALUATORS, MAX_NUMBER_OF_EVALUATORS)
-          .build();
-    } else {
-      LOG.log(Level.INFO, "Running Data Loading reef on spark demo on YARN");
-      runtimeConfiguration = YarnClientConfiguration.CONF.build();
-    }
+    //final boolean isLocal = injector.getNamedInstance(DataLoadingREEFOnSpark.Local.class);
 
     final EvaluatorRequest computeRequest = EvaluatorRequest.newBuilder()
         .setNumber(NUM_COMPUTE_EVALUATORS)
@@ -122,7 +104,7 @@ public final class DataLoadingREEFOnSpark {
         .build();
 
     //this is the key, we call into the spark runtime to run this.
-    new SparkRunner().run(runtimeConfiguration, dataLoadConfiguration, inputPath, NUM_SPLITS);
+    new SparkRunner().run(dataLoadConfiguration, inputPath, NUM_SPLITS);
 
     //LOG.log(Level.INFO, "REEF job completed: {0}", state);
   }
