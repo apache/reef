@@ -34,6 +34,7 @@ namespace Org.Apache.REEF.IO.Tests
     /// </summary>
     public sealed class TestAzureBlockBlobFileSystemE2E : IDisposable
     {
+        private const string skipMessage = "Fill in credentials before running test"; // Use null to run tests
         private const string HelloFile = "hello";
         private IFileSystem _fileSystem;
         private CloudBlobContainer _container;
@@ -88,7 +89,20 @@ namespace Org.Apache.REEF.IO.Tests
             return task.Result;
         }
 
-        [Fact(Skip = "Fill in credentials before running test")]
+        [Fact(Skip = skipMessage)]
+        public void TestOpenE2E()
+        {
+            string text = "hello";
+            var blob = _container.GetBlockBlobReference(HelloFile);
+            UploadFromString(blob, text);
+            Assert.True(CheckBlobExists(blob));
+            var stream = _fileSystem.Open(PathToFile(HelloFile));
+            StreamReader reader = new StreamReader(stream);
+            string streamText = reader.ReadToEnd();
+            Assert.Equal(text, streamText);
+        }
+
+        [Fact(Skip = skipMessage)]
         public void TestDeleteE2E()
         {
             var blob = _container.GetBlockBlobReference(HelloFile);
@@ -98,7 +112,7 @@ namespace Org.Apache.REEF.IO.Tests
             Assert.False(CheckBlobExists(blob));
         }
 
-        [Fact(Skip = "Fill in credentials before running test")]
+        [Fact(Skip = skipMessage)]
         public void TestExistsE2E()
         {
             var helloFilePath = PathToFile(HelloFile);
@@ -109,7 +123,7 @@ namespace Org.Apache.REEF.IO.Tests
             Assert.False(_fileSystem.Exists(helloFilePath));
         }
 
-        [Fact(Skip = "Fill in credentials before running test")]
+        [Fact(Skip = skipMessage)]
         public void TestCopyE2E()
         {
             const string srcFileName = "src";
@@ -129,7 +143,7 @@ namespace Org.Apache.REEF.IO.Tests
             Assert.Equal(DownloadText(_container.GetBlockBlobReference(srcFileName)), DownloadText(_container.GetBlockBlobReference(destFileName)));
         }
 
-        [Fact(Skip = "Fill in credentials before running test")]
+        [Fact(Skip = skipMessage)]
         public void TestCopyToLocalE2E()
         {
             var helloFilePath = PathToFile(HelloFile);
@@ -149,7 +163,7 @@ namespace Org.Apache.REEF.IO.Tests
             }
         }
 
-        [Fact(Skip = "Fill in credentials before running test")]
+        [Fact(Skip = skipMessage)]
         public void TestCopyFromLocalE2E()
         {
             var helloFilePath = PathToFile(HelloFile);
@@ -181,14 +195,14 @@ namespace Org.Apache.REEF.IO.Tests
             }
         }
 
-        [Fact(Skip = "Fill in credentials before running test")]
+        [Fact(Skip = skipMessage)]
         public void TestDeleteDirectoryAtContainerE2E()
         {
             _fileSystem.DeleteDirectory(_container.Uri);
             Assert.False(CheckContainerExists(_container));
         }
 
-        [Fact(Skip = "Fill in credentials before running test")]
+        [Fact(Skip = skipMessage)]
         public void TestDeleteDirectoryFirstLevelE2E()
         {
             const string directory = "dir";
@@ -213,7 +227,7 @@ namespace Org.Apache.REEF.IO.Tests
             Assert.True(CheckContainerExists(_container));
         }
 
-        [Fact(Skip = "Fill in credentials before running test")]
+        [Fact(Skip = skipMessage)]
         public void TestDeleteDirectorySecondLevelE2E()
         {
             const string directory1 = "dir1";
