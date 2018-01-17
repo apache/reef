@@ -45,9 +45,11 @@ namespace Org.Apache.REEF.IO.Tests
         }
 
         [Fact]
-        public void TestOpenNotSupported()
+        public void TestOpen()
         {
-            Assert.Throws<NotSupportedException>(() => new TestContext().GetAzureFileSystem().Open(FakeUri));
+            var testContext = new TestContext();
+            testContext.GetAzureFileSystem().Open(new Uri(FakeUri, "container/file"));
+            testContext.TestCloudBlockBlob.Received(1).Open();
         }
 
         [Fact]

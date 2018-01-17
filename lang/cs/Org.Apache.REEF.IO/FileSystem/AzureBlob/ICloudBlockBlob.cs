@@ -46,6 +46,13 @@ namespace Org.Apache.REEF.IO.FileSystem.AzureBlob
         CopyState CopyState { get; }
 
         /// <summary>
+        /// Opens a stream to the blob content.
+        /// </summary>
+        /// <returns>System.IO.Stream object.</returns>
+        /// <exception cref="StorageException">If blob does not exist</exception>
+        Stream Open();
+
+        /// <summary>
         /// Makes a round trip to the server to test if the blob exists.
         /// </summary>
         /// <returns>True if exists. False otherwise.</returns>
