@@ -34,6 +34,7 @@ namespace Org.Apache.REEF.IO.Tests
     /// </summary>
     public sealed class TestAzureBlockBlobFileSystemE2E : IDisposable
     {
+        private const string SkipMessage = "Fill in credentials before running test"; // Use null to run tests
         private const string HelloFile = "hello";
         private IFileSystem _fileSystem;
         private CloudBlobContainer _container;
@@ -41,14 +42,14 @@ namespace Org.Apache.REEF.IO.Tests
         public TestAzureBlockBlobFileSystemE2E()
         {
             // Fill in before running test!
-            const string connectionString = "DefaultEndpointsProtocol=http;AccountName=myAccount;AccountKey=myKey;";
+            const string ConnectionString = "DefaultEndpointsProtocol=http;AccountName=myAccount;AccountKey=myKey;";
             var defaultContainerName = "reef-test-container-" + Guid.NewGuid();
             var conf = AzureBlockBlobFileSystemConfiguration.ConfigurationModule
-                .Set(AzureBlockBlobFileSystemConfiguration.ConnectionString, connectionString)
+                .Set(AzureBlockBlobFileSystemConfiguration.ConnectionString, ConnectionString)
                 .Build();
 
             _fileSystem = TangFactory.GetTang().NewInjector(conf).GetInstance<AzureBlockBlobFileSystem>();
-            _container = CloudStorageAccount.Parse(connectionString).CreateCloudBlobClient().GetContainerReference(defaultContainerName);
+            _container = CloudStorageAccount.Parse(ConnectionString).CreateCloudBlobClient().GetContainerReference(defaultContainerName);
             _container.CreateIfNotExistsAsync().Wait();
         }
 
@@ -88,7 +89,40 @@ namespace Org.Apache.REEF.IO.Tests
             return task.Result;
         }
 
-        [Fact(Skip = "Fill in credentials before running test")]
+        [Fact(Skip = SkipMessage)]
+        public void TestOpenE2E()
+        {
+            const string Text = "hello";
+            var blob = _container.GetBlockBlobReference(HelloFile);
+            UploadFromString(blob, Text);
+            Assert.True(CheckBlobExists(blob));
+            using (var reader = new StreamReader(_fileSystem.Open(PathToFile(HelloFile))))
+            {
+                string streamText = reader.ReadToEnd();
+                Assert.Equal(Text, streamText);
+            }
+        }
+
+        [Fact(Skip = SkipMessage)]
+        public void TestCreateE2E()
+        {
+            const string Text = "Hello Azure Blob";
+            var blob = _container.GetBlockBlobReference(HelloFile);
+            Assert.False(CheckBlobExists(blob));
+            using (var streamWriter = new StreamWriter(_fileSystem.Create(PathToFile(HelloFile))))
+            {
+                streamWriter.Write(Text);
+            }
+            blob = _container.GetBlockBlobReference(HelloFile);
+            Assert.True(CheckBlobExists(blob));
+            using (var reader = new StreamReader(blob.OpenRead()))
+            {
+                string streamText = reader.ReadToEnd();
+                Assert.Equal(Text, streamText);
+            }
+        }
+
+        [Fact(Skip = SkipMessage)]
         public void TestDeleteE2E()
         {
             var blob = _container.GetBlockBlobReference(HelloFile);
@@ -98,7 +132,7 @@ namespace Org.Apache.REEF.IO.Tests
             Assert.False(CheckBlobExists(blob));
         }
 
-        [Fact(Skip = "Fill in credentials before running test")]
+        [Fact(Skip = SkipMessage)]
         public void TestExistsE2E()
         {
             var helloFilePath = PathToFile(HelloFile);
@@ -109,39 +143,39 @@ namespace Org.Apache.REEF.IO.Tests
             Assert.False(_fileSystem.Exists(helloFilePath));
         }
 
-        [Fact(Skip = "Fill in credentials before running test")]
+        [Fact(Skip = SkipMessage)]
         public void TestCopyE2E()
         {
-            const string srcFileName = "src";
-            const string destFileName = "dest";
-            var srcFilePath = PathToFile(srcFileName);
-            var destFilePath = PathToFile(destFileName);
-            ICloudBlob srcBlob = _container.GetBlockBlobReference(srcFileName);
+            const string SrcFileName = "src";
+            const string DestFileName = "dest";
+            var srcFilePath = PathToFile(SrcFileName);
+            var destFilePath = PathToFile(DestFileName);
+            ICloudBlob srcBlob = _container.GetBlockBlobReference(SrcFileName);
             UploadFromString(srcBlob, "hello");
             Assert.True(CheckBlobExists(srcBlob));
-            ICloudBlob destBlob = _container.GetBlockBlobReference(destFileName);
+            ICloudBlob destBlob = _container.GetBlockBlobReference(DestFileName);
             Assert.False(CheckBlobExists(destBlob));
             _fileSystem.Copy(srcFilePath, destFilePath);
-            destBlob = GetBlobReferenceFromServer(_container, destFileName);
+            destBlob = GetBlobReferenceFromServer(_container, DestFileName);
             Assert.True(CheckBlobExists(destBlob));
-            srcBlob = GetBlobReferenceFromServer(_container, srcFileName);
+            srcBlob = GetBlobReferenceFromServer(_container, SrcFileName);
             Assert.True(CheckBlobExists(srcBlob));
-            Assert.Equal(DownloadText(_container.GetBlockBlobReference(srcFileName)), DownloadText(_container.GetBlockBlobReference(destFileName)));
+            Assert.Equal(DownloadText(_container.GetBlockBlobReference(SrcFileName)), DownloadText(_container.GetBlockBlobReference(DestFileName)));
         }
 
-        [Fact(Skip = "Fill in credentials before running test")]
+        [Fact(Skip = SkipMessage)]
         public void TestCopyToLocalE2E()
         {
             var helloFilePath = PathToFile(HelloFile);
             var blob = _container.GetBlockBlobReference(HelloFile);
             var tempFilePath = GetTempFilePath();
-            const string text = "hello";
+            const string Text = "hello";
             try
             {
-                UploadFromString(blob, text);
+                UploadFromString(blob, Text);
                 _fileSystem.CopyToLocal(helloFilePath, tempFilePath);
                 Assert.True(File.Exists(tempFilePath));
-                Assert.Equal(text, File.ReadAllText(tempFilePath));
+                Assert.Equal(Text, File.ReadAllText(tempFilePath));
             }
             finally
             {
@@ -149,17 +183,17 @@ namespace Org.Apache.REEF.IO.Tests
             }
         }
 
-        [Fact(Skip = "Fill in credentials before running test")]
+        [Fact(Skip = SkipMessage)]
         public void TestCopyFromLocalE2E()
         {
             var helloFilePath = PathToFile(HelloFile);
             ICloudBlob blob = _container.GetBlockBlobReference(HelloFile);
             Assert.False(CheckBlobExists(blob));
             var tempFilePath = GetTempFilePath();
-            const string text = "hello";
+            const string Text = "hello";
             try
             {
-                File.WriteAllText(tempFilePath, text);
+                File.WriteAllText(tempFilePath, Text);
                 _fileSystem.CopyFromLocal(tempFilePath, helloFilePath);
                 blob = GetBlobReferenceFromServer(_container, HelloFile);
                 Assert.True(CheckBlobExists(blob));
@@ -171,7 +205,7 @@ namespace Org.Apache.REEF.IO.Tests
                     using (var sr = new StreamReader(stream))
                     {
                         var matchingText = sr.ReadToEnd();
-                        Assert.Equal(text, matchingText);
+                        Assert.Equal(Text, matchingText);
                     }
                 }
             }
@@ -181,29 +215,29 @@ namespace Org.Apache.REEF.IO.Tests
             }
         }
 
-        [Fact(Skip = "Fill in credentials before running test")]
+        [Fact(Skip = SkipMessage)]
         public void TestDeleteDirectoryAtContainerE2E()
         {
             _fileSystem.DeleteDirectory(_container.Uri);
             Assert.False(CheckContainerExists(_container));
         }
 
-        [Fact(Skip = "Fill in credentials before running test")]
+        [Fact(Skip = SkipMessage)]
         public void TestDeleteDirectoryFirstLevelE2E()
         {
-            const string directory = "dir";
+            const string Directory = "dir";
             var blockBlobs = new List<CloudBlockBlob>(); 
 
             for (var i = 0; i < 3; i++)
             {
-                var filePath = directory + '/' + i;
+                var filePath = Directory + '/' + i;
                 var blockBlob = _container.GetBlockBlobReference(filePath);
                 UploadFromString(blockBlob, "hello");
                 Assert.True(CheckBlobExists(blockBlob));
                 blockBlobs.Add(blockBlob);
             }
 
-            _fileSystem.DeleteDirectory(PathToFile(directory));
+            _fileSystem.DeleteDirectory(PathToFile(Directory));
 
             foreach (var blockBlob in blockBlobs)
             {
@@ -213,18 +247,18 @@ namespace Org.Apache.REEF.IO.Tests
             Assert.True(CheckContainerExists(_container));
         }
 
-        [Fact(Skip = "Fill in credentials before running test")]
+        [Fact(Skip = SkipMessage)]
         public void TestDeleteDirectorySecondLevelE2E()
         {
-            const string directory1 = "dir1";
-            const string directory2 = "dir2";
+            const string Directory1 = "dir1";
+            const string Directory2 = "dir2";
             var blockBlobs1 = new List<CloudBlockBlob>();
             var blockBlobs2 = new List<CloudBlockBlob>();
 
             for (var i = 0; i < 3; i++)
             {
-                var filePath1 = directory1 + '/' + i;
-                var filePath2 = directory1 + '/' + directory2 + '/' + i;
+                var filePath1 = Directory1 + '/' + i;
+                var filePath2 = Directory1 + '/' + Directory2 + '/' + i;
                 var blockBlob1 = _container.GetBlockBlobReference(filePath1);
                 var blockBlob2 = _container.GetBlockBlobReference(filePath2);
                 UploadFromString(blockBlob1, "hello");
@@ -235,7 +269,7 @@ namespace Org.Apache.REEF.IO.Tests
                 blockBlobs2.Add(blockBlob2);
             }
 
-            _fileSystem.DeleteDirectory(PathToFile(directory1 + '/' + directory2));
+            _fileSystem.DeleteDirectory(PathToFile(Directory1 + '/' + Directory2));
 
             foreach (var blockBlob in blockBlobs2)
             {

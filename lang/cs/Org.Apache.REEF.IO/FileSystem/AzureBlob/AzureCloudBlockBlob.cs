@@ -59,6 +59,16 @@ namespace Org.Apache.REEF.IO.FileSystem.AzureBlob
             _blob = new CloudBlockBlob(uri, credentials);
         }
 
+        public Stream Open()
+        {
+            return _blob.OpenRead();
+        }
+
+        public Stream Create()
+        {
+            return _blob.OpenWrite();
+        }
+
         public bool Exists()
         {
             var task = _blob.ExistsAsync();
