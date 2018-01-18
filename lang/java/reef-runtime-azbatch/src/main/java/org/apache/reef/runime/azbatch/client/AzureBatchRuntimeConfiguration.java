@@ -16,21 +16,21 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.runime.azbatch;
+package org.apache.reef.runime.azbatch.client;
 
 import org.apache.reef.annotations.audience.Public;
-import org.apache.reef.runime.azbatch.client.AzureBatchDriverConfigurationProvider;
-import org.apache.reef.runime.azbatch.client.AzureBatchJobSubmissionHandler;
 import org.apache.reef.runime.azbatch.parameters.AzureBatchAccountKey;
 import org.apache.reef.runime.azbatch.parameters.AzureBatchAccountName;
 import org.apache.reef.runime.azbatch.parameters.AzureBatchAccountUri;
 import org.apache.reef.runime.azbatch.parameters.AzureBatchPoolId;
-import org.apache.reef.runtime.common.client.CommonRuntimeConfiguration;
-import org.apache.reef.runtime.common.client.DriverConfigurationProvider;
-import org.apache.reef.runtime.common.client.api.JobSubmissionHandler;
+import org.apache.reef.tang.Configuration;
+import org.apache.reef.tang.formats.AvroConfigurationSerializer;
 import org.apache.reef.tang.formats.ConfigurationModule;
 import org.apache.reef.tang.formats.ConfigurationModuleBuilder;
 import org.apache.reef.tang.formats.RequiredParameter;
+
+import java.io.File;
+import java.io.IOException;
 
 /**
  * Configuration Module for the Azure Batch runtime.
@@ -59,16 +59,58 @@ public class AzureBatchRuntimeConfiguration extends ConfigurationModuleBuilder {
   public static final RequiredParameter<String> AZURE_BATCH_POOL_ID = new RequiredParameter<>();
 
   /**
+   * The environment variable that holds the path to the default configuration file.
+   */
+  public static final String AZBATCH_CONFIGURATION_FILE_ENVIRONMENT_VARIABLE = "REEF_AZBATCH_CONF";
+
+  /**
    * The ConfigurationModule for the local resourcemanager.
    */
   public static final ConfigurationModule CONF = new AzureBatchRuntimeConfiguration()
-      .merge(CommonRuntimeConfiguration.CONF)
+      .merge(AzureBatchRuntimeConfigurationStatic.CONF)
       .bindNamedParameter(AzureBatchAccountUri.class, AZURE_BATCH_ACCOUNT_URI)
       .bindNamedParameter(AzureBatchAccountName.class, AZURE_BATCH_ACCOUNT_NAME)
       .bindNamedParameter(AzureBatchAccountKey.class, AZURE_BATCH_ACCOUNT_KEY)
       .bindNamedParameter(AzureBatchPoolId.class, AZURE_BATCH_POOL_ID)
-      // Bind the Azure Batch runtime
-      .bindImplementation(JobSubmissionHandler.class, AzureBatchJobSubmissionHandler.class)
-      .bindImplementation(DriverConfigurationProvider.class, AzureBatchDriverConfigurationProvider.class)
       .build();
+
+  /**
+   * Returns an Azure Batch runtime configuration from the credentials stored in the given file.
+   *
+   * @param file
+   * @return an Azure Batch runtime configuration from the credentials stored in the given file.
+   * @throws IOException if the file can't be read
+   */
+  public static Configuration fromTextFile(final File file) throws IOException {
+    return new AvroConfigurationSerializer().fromTextFile(file);
+  }
+
+  /**
+   * @return the RuntimeConfiguration that is stored in a file refered to
+   * by the environment variable AZBATCH_CONFIGURATION_FILE_ENVIRONMENT_VARIABLE.
+   * @throws IOException
+   * @see AZBATCH_CONFIGURATION_FILE_ENVIRONMENT_VARIABLE
+   */
+  public static Configuration fromEnvironment() throws IOException {
+
+    final String configurationPath =
+        System.getenv(AZBATCH_CONFIGURATION_FILE_ENVIRONMENT_VARIABLE);
+
+    if (null == configurationPath) {
+      throw new IOException("Environment Variable " +
+          AZBATCH_CONFIGURATION_FILE_ENVIRONMENT_VARIABLE +
+          " not set.");
+    }
+
+    final File configurationFile = new File(configurationPath);
+    if (!configurationFile.canRead()) {
+      throw new IOException("Environment Variable " +
+          AZBATCH_CONFIGURATION_FILE_ENVIRONMENT_VARIABLE +
+          " points to a file " + configurationFile.getAbsolutePath() +
+          " which can't be read."
+      );
+    }
+
+    return fromTextFile(configurationFile);
+  }
 }

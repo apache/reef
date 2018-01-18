@@ -37,7 +37,7 @@ import java.net.URI;
  * Configuration provider for the Azure Batch runtime.
  */
 @Private
-public final class AzureBatchDriverConfigurationProvider implements DriverConfigurationProvider {
+public final class AzureBatchDriverConfigurationProviderImpl implements DriverConfigurationProvider {
 
 
   @Override
@@ -46,6 +46,8 @@ public final class AzureBatchDriverConfigurationProvider implements DriverConfig
                                               final String jobId,
                                               final Configuration applicationConfiguration) {
     final Configuration result = Configurations.merge(makeDriverRuntimeConfiguration(), applicationConfiguration);
+
+    // TODO: TASK 120499
     throw new NotImplementedException();
   }
 
