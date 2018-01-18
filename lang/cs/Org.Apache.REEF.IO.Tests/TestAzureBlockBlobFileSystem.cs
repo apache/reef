@@ -36,18 +36,24 @@ namespace Org.Apache.REEF.IO.Tests
     /// </summary>
     public sealed class TestAzureBlockBlobFileSystem
     {
-        private readonly static Uri FakeUri = new Uri("http://fake.com");
+        private static readonly Uri FakeUri = new Uri("http://fake.com");
 
         [Fact]
-        public void TestCreateNotSupported()
+        public void TestCreate()
         {
-            Assert.Throws<NotSupportedException>(() => new TestContext().GetAzureFileSystem().Create(FakeUri));
+            var testContext = new TestContext();
+            Stream stream = testContext.GetAzureFileSystem().Create(new Uri(FakeUri, "container/file"));
+            testContext.TestCloudBlockBlob.Received(1).Create();
+            Assert.Equal(testContext.TestCreateStream, stream);
         }
 
         [Fact]
-        public void TestOpenNotSupported()
+        public void TestOpen()
         {
-            Assert.Throws<NotSupportedException>(() => new TestContext().GetAzureFileSystem().Open(FakeUri));
+            var testContext = new TestContext();
+            Stream stream = testContext.GetAzureFileSystem().Open(new Uri(FakeUri, "container/file"));
+            testContext.TestCloudBlockBlob.Received(1).Open();
+            Assert.Equal(testContext.TestOpenStream, stream);
         }
 
         [Fact]
@@ -133,6 +139,8 @@ namespace Org.Apache.REEF.IO.Tests
             public readonly ICloudBlockBlob TestCloudBlockBlob = Substitute.For<ICloudBlockBlob>();
             public readonly ICloudBlobContainer TestCloudBlobContainer = Substitute.For<ICloudBlobContainer>();
             public readonly ICloudBlobDirectory TestCloudBlobDirectory = Substitute.For<ICloudBlobDirectory>();
+            public readonly Stream TestOpenStream = Substitute.For<Stream>();
+            public readonly Stream TestCreateStream = Substitute.For<Stream>();
 
             public IFileSystem GetAzureFileSystem()
             {
@@ -144,6 +152,8 @@ namespace Org.Apache.REEF.IO.Tests
                 injector.BindVolatileInstance(TestCloudBlobClient);
                 var fs = injector.GetInstance<AzureBlockBlobFileSystem>();
                 TestCloudBlobClient.BaseUri.ReturnsForAnyArgs(FakeUri);
+                TestCloudBlockBlob.Open().Returns(TestOpenStream);
+                TestCloudBlockBlob.Create().Returns(TestCreateStream);
                 TestCloudBlobClient.GetBlockBlobReference(FakeUri).ReturnsForAnyArgs(TestCloudBlockBlob);
                 TestCloudBlobClient.GetContainerReference("container").ReturnsForAnyArgs(TestCloudBlobContainer);
                 TestCloudBlobContainer.GetDirectoryReference("directory").ReturnsForAnyArgs(TestCloudBlobDirectory);
