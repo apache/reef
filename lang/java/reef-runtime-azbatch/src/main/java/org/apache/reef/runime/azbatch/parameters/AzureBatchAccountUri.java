@@ -16,12 +16,14 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
 package org.apache.reef.runime.azbatch.parameters;
 
 import org.apache.reef.tang.annotations.NamedParameter;
 import org.apache.reef.tang.annotations.Name;
 
+/**
+ * The Azure Batch account URI.
+ */
 @NamedParameter(doc = "The Azure Batch Account URL")
 public class AzureBatchAccountUri implements Name<String> {
 }

@@ -16,14 +16,28 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.runime.azbatch.parameters;
+package org.apache.reef.runime.azbatch.driver;
 
-import org.apache.reef.tang.annotations.Name;
-import org.apache.reef.tang.annotations.NamedParameter;
+import org.apache.reef.runtime.common.driver.api.ResourceManagerStopHandler;
+import org.apache.reef.wake.time.runtime.event.RuntimeStop;
+
+import javax.inject.Inject;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
- * The Azure Batch pool id.
+ * Handler of RuntimeStop for the Azure Batch Runtime.
  */
-@NamedParameter(doc = "The Azure Batch Pool Id")
-public class AzureBatchPoolId implements Name<String> {
+public class AzureBatchRuntimeStopHandler implements ResourceManagerStopHandler {
+
+  private static final Logger LOG = Logger.getLogger(AzureBatchRuntimeStopHandler.class.getName());
+
+  @Inject
+  AzureBatchRuntimeStopHandler() {
+  }
+
+  @Override
+  public void onNext(final RuntimeStop runtimeStop) {
+    LOG.log(Level.FINE, "Azure batch runtime has been stopped...");
+  }
 }

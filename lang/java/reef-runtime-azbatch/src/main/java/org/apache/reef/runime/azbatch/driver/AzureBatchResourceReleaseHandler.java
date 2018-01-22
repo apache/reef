@@ -23,11 +23,18 @@ import org.apache.reef.annotations.audience.Private;
 import org.apache.reef.runtime.common.driver.api.ResourceReleaseEvent;
 import org.apache.reef.runtime.common.driver.api.ResourceReleaseHandler;
 
+import javax.inject.Inject;
+
 /**
  * A {@link ResourceReleaseHandler} for Azure Batch.
  */
 @Private
 public class AzureBatchResourceReleaseHandler implements ResourceReleaseHandler {
+
+  @Inject
+  AzureBatchResourceReleaseHandler() {
+  }
+
   @Override
   public void onNext(final ResourceReleaseEvent value) {
     throw new NotImplementedException();

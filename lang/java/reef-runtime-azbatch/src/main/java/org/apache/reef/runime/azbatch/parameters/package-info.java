@@ -16,14 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.runime.azbatch.parameters;
-
-import org.apache.reef.tang.annotations.Name;
-import org.apache.reef.tang.annotations.NamedParameter;
-
 /**
- * The Azure Batch pool id.
+ * Client for the REEF runtime for Azure Batch.
  */
-@NamedParameter(doc = "The Azure Batch Pool Id")
-public class AzureBatchPoolId implements Name<String> {
-}
+package org.apache.reef.runime.azbatch.parameters;
