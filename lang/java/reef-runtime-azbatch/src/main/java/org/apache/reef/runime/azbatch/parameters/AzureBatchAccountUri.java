@@ -24,6 +24,6 @@ import org.apache.reef.tang.annotations.Name;
 /**
  * The Azure Batch account URI.
  */
-@NamedParameter(doc = "The Azure Batch Account URL")
+@NamedParameter(doc = "The Azure Batch Account URI")
 public class AzureBatchAccountUri implements Name<String> {
 }

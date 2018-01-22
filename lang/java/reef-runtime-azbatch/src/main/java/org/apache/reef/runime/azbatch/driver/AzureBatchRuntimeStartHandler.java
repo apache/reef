@@ -40,5 +40,4 @@ public class AzureBatchRuntimeStartHandler implements ResourceManagerStartHandle
   public void onNext(final RuntimeStart runtimeStart) {
     LOG.log(Level.FINE, "Azure batch runtime has been started...");
   }
-
 }

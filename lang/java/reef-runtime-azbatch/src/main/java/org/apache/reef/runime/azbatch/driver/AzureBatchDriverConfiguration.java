@@ -60,7 +60,6 @@ public class AzureBatchDriverConfiguration extends ConfigurationModuleBuilder {
    */
   public static final OptionalParameter<Double> JVM_HEAP_SLACK = new OptionalParameter<>();
 
-
   public static final ConfigurationModule CONF = new AzureBatchDriverConfiguration()
       .bindImplementation(ResourceLaunchHandler.class, AzureBatchResourceLaunchHandler.class)
       .bindImplementation(ResourceReleaseHandler.class, AzureBatchResourceReleaseHandler.class)
