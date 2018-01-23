@@ -23,11 +23,18 @@ import org.apache.reef.annotations.audience.Private;
 import org.apache.reef.runtime.common.driver.api.ResourceRequestEvent;
 import org.apache.reef.runtime.common.driver.api.ResourceRequestHandler;
 
+import javax.inject.Inject;
+
 /**
  * A {@link ResourceRequestHandler} for Azure Batch.
  */
 @Private
 public class AzureBatchResourceRequestHandler implements ResourceRequestHandler {
+
+  @Inject
+  AzureBatchResourceRequestHandler() {
+  }
+
   @Override
   public void onNext(final ResourceRequestEvent value) {
     throw new NotImplementedException();

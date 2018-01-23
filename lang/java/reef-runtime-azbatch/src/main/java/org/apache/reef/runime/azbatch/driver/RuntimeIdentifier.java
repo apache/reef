@@ -16,14 +16,20 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.runime.azbatch.parameters;
+package org.apache.reef.runime.azbatch.driver;
 
-import org.apache.reef.tang.annotations.Name;
-import org.apache.reef.tang.annotations.NamedParameter;
+import org.apache.reef.annotations.audience.Private;
 
 /**
- * The Azure Batch pool id.
+ * Runtime Identifier Implementation.
  */
-@NamedParameter(doc = "The Azure Batch Pool Id")
-public class AzureBatchPoolId implements Name<String> {
+@Private
+public final class RuntimeIdentifier {
+  /**
+   * Same value is defined on the C# side in the Org.Apache.REEF.Common.Runtime.RuntimeName.
+   */
+  public static final String RUNTIME_NAME = "AzBatch";
+
+  private RuntimeIdentifier() {
+  }
 }

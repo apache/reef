@@ -23,11 +23,18 @@ import org.apache.reef.annotations.audience.Private;
 import org.apache.reef.runtime.common.driver.api.ResourceLaunchEvent;
 import org.apache.reef.runtime.common.driver.api.ResourceLaunchHandler;
 
+import javax.inject.Inject;
+
 /**
  * A {@link ResourceLaunchHandler} for Azure Batch.
  */
 @Private
 public final class AzureBatchResourceLaunchHandler implements ResourceLaunchHandler {
+
+  @Inject
+  AzureBatchResourceLaunchHandler() {
+  }
+
   @Override
   public void onNext(final ResourceLaunchEvent value) {
     throw new NotImplementedException();

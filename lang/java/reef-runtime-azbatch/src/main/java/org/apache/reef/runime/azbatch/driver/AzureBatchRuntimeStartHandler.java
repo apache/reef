@@ -16,14 +16,28 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.runime.azbatch.parameters;
+package org.apache.reef.runime.azbatch.driver;
 
-import org.apache.reef.tang.annotations.Name;
-import org.apache.reef.tang.annotations.NamedParameter;
+import org.apache.reef.runtime.common.driver.api.ResourceManagerStartHandler;
+import org.apache.reef.wake.time.runtime.event.RuntimeStart;
+
+import javax.inject.Inject;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
- * The Azure Batch pool id.
+ * Handler of RuntimeStart for the Azure Batch Runtime.
  */
-@NamedParameter(doc = "The Azure Batch Pool Id")
-public class AzureBatchPoolId implements Name<String> {
+public class AzureBatchRuntimeStartHandler implements ResourceManagerStartHandler {
+
+  private static final Logger LOG = Logger.getLogger(AzureBatchRuntimeStartHandler.class.getName());
+
+  @Inject
+  AzureBatchRuntimeStartHandler() {
+  }
+
+  @Override
+  public void onNext(final RuntimeStart runtimeStart) {
+    LOG.log(Level.FINE, "Azure batch runtime has been started...");
+  }
 }

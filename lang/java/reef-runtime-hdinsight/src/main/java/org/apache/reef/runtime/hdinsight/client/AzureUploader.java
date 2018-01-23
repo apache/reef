@@ -46,10 +46,12 @@ import java.util.logging.Logger;
 
 /**
  * Helper class to upload the job JAR to Azure block storage.
+ * TODO: Task 122136: Investigate using Azure Batch application packages instead Storage to submit REEF application JAR to Batch.
+ * TODO: If we cannot use Azure Batch application packages, then this needs to be refactored into a re-usable component.
  */
 @ClientSide
 @Private
-final class AzureUploader {
+public final class AzureUploader {
 
   private static final Logger LOG = Logger.getLogger(AzureUploader.class.getName());
 
@@ -129,7 +131,8 @@ final class AzureUploader {
           .setVisibility(LocalResource.VISIBILITY_APPLICATION)
           .setSize(blobProperties.getLength())
           .setTimestamp(blobProperties.getLastModified().getTime())
-          .setResource(getFileSystemURL(jobJarBlob).toString());
+          .setResource(getFileSystemURL(jobJarBlob).toString())
+          .setUrl(jobJarBlob.getUri().toString());
 
     } catch (final URISyntaxException | StorageException e) {
       throw new IOException(e);

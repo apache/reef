@@ -18,19 +18,15 @@
  */
 package org.apache.reef.runime.azbatch.client;
 
-import org.apache.commons.lang.NotImplementedException;
 import org.apache.reef.annotations.audience.Private;
-import org.apache.reef.runime.azbatch.driver.AzureBatchResourceLaunchHandler;
-import org.apache.reef.runime.azbatch.driver.AzureBatchResourceReleaseHandler;
-import org.apache.reef.runime.azbatch.driver.AzureBatchResourceRequestHandler;
+import org.apache.reef.runime.azbatch.driver.*;
 import org.apache.reef.runtime.common.client.DriverConfigurationProvider;
-import org.apache.reef.runtime.common.driver.api.ResourceLaunchHandler;
-import org.apache.reef.runtime.common.driver.api.ResourceReleaseHandler;
-import org.apache.reef.runtime.common.driver.api.ResourceRequestHandler;
+import org.apache.reef.runtime.common.parameters.JVMHeapSlack;
 import org.apache.reef.tang.Configuration;
 import org.apache.reef.tang.Configurations;
-import org.apache.reef.tang.Tang;
+import org.apache.reef.tang.annotations.Parameter;
 
+import javax.inject.Inject;
 import java.net.URI;
 
 /**
@@ -39,23 +35,24 @@ import java.net.URI;
 @Private
 public final class AzureBatchDriverConfigurationProviderImpl implements DriverConfigurationProvider {
 
+  private final double jvmSlack;
+
+  @Inject
+  AzureBatchDriverConfigurationProviderImpl(@Parameter(JVMHeapSlack.class) final double jvmSlack) {
+    this.jvmSlack = jvmSlack;
+  }
 
   @Override
   public Configuration getDriverConfiguration(final URI jobFolder,
                                               final String clientRemoteId,
                                               final String jobId,
                                               final Configuration applicationConfiguration) {
-    final Configuration result = Configurations.merge(makeDriverRuntimeConfiguration(), applicationConfiguration);
-
-    // TODO: TASK 120499
-    throw new NotImplementedException();
-  }
-
-  private Configuration makeDriverRuntimeConfiguration() {
-    return Tang.Factory.getTang().newConfigurationBuilder()
-        .bindImplementation(ResourceRequestHandler.class, AzureBatchResourceRequestHandler.class)
-        .bindImplementation(ResourceLaunchHandler.class, AzureBatchResourceLaunchHandler.class)
-        .bindImplementation(ResourceReleaseHandler.class, AzureBatchResourceReleaseHandler.class)
-        .build();
+    return Configurations.merge(AzureBatchDriverConfiguration.CONF
+            .set(AzureBatchDriverConfiguration.JOB_IDENTIFIER, jobId)
+            .set(AzureBatchDriverConfiguration.CLIENT_REMOTE_IDENTIFIER, clientRemoteId)
+            .set(AzureBatchDriverConfiguration.JVM_HEAP_SLACK, this.jvmSlack)
+            .set(AzureBatchDriverConfiguration.RUNTIME_NAME, RuntimeIdentifier.RUNTIME_NAME)
+            .build(),
+        applicationConfiguration);
   }
 }
