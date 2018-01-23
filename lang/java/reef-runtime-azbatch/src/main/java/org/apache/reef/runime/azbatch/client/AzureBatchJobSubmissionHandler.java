@@ -18,6 +18,7 @@
  */
 package org.apache.reef.runime.azbatch.client;
 
+import com.microsoft.azure.batch.protocol.models.BatchErrorException;
 import org.apache.commons.lang.StringUtils;
 import org.apache.reef.annotations.audience.Private;
 import org.apache.reef.runime.azbatch.parameters.AzureBatchAccountKey;
@@ -142,6 +143,9 @@ public final class AzureBatchJobSubmissionHandler implements JobSubmissionHandle
     } catch (final IOException ex) {
       LOG.log(Level.SEVERE, "Error submitting Azure Batch request", ex);
       throw new RuntimeException(ex);
+    } catch (final BatchErrorException ex) {
+      LOG.log(Level.SEVERE, "An error occurred while calling Azure Batch", ex);
+      throw ex;
     }
   }
 
