@@ -17,13 +17,13 @@
 
 using Org.Apache.REEF.Tang.Annotations;
 
-namespace Org.Apache.REEF.IO.FileSystem.Hadoop.Parameters
+namespace Org.Apache.REEF.IO.FileSystem.AzureDataLake.Parameters
 {
     /// <summary>
-    /// The timeout (in milliseconds) for HDFS commands. Defaults to 300000 (5 minutes).
+    /// The account FQDN to be used to connect to the data lake store
     /// </summary>
-    [NamedParameter("The timeout (in milliseconds) for HDFS commands.", defaultValue: "300000")]
-    internal sealed class CommandTimeOut : Name<int>
+    [NamedParameter("The account FQDN to be used to connect to the data lake store")]
+    internal sealed class DataLakeStorageAccountName : Name<string>
     {
     }
 }
