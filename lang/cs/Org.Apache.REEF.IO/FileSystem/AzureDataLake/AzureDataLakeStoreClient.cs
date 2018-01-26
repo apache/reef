@@ -15,15 +15,30 @@
 // specific language governing permissions and limitations
 // under the License.
 
+using Microsoft.Azure.DataLake.Store;
+using Org.Apache.REEF.IO.FileSystem.AzureDataLake.Parameters;
 using Org.Apache.REEF.Tang.Annotations;
 
-namespace Org.Apache.REEF.IO.FileSystem.Hadoop.Parameters
+namespace Org.Apache.REEF.IO.FileSystem.AzureDataLake
 {
     /// <summary>
-    /// The timeout (in milliseconds) for HDFS commands. Defaults to 300000 (5 minutes).
+    /// A proxy class for AdlsClient, mainly in order to fake for unit testing.
     /// </summary>
-    [NamedParameter("The timeout (in milliseconds) for HDFS commands.", defaultValue: "300000")]
-    internal sealed class CommandTimeOut : Name<int>
+    internal sealed class AzureDataLakeStoreClient : IDataLakeStoreClient
     {
+        private readonly AdlsClient _adlsClient;
+
+        [Inject]
+        private AzureDataLakeStoreClient([Parameter(typeof(DataLakeStorageAccountName))] string adlsAccountName, IAdlsCredentials adlsCredentials)
+        {
+            _adlsClient = AdlsClient.CreateClient(adlsAccountName, adlsCredentials.Credentials);
+        }
+
+        public AdlsClient GetAdlsClient()
+        {
+            return _adlsClient;
+        }
+
+        public string AccountFQDN => _adlsClient.AccountFQDN;
     }
 }

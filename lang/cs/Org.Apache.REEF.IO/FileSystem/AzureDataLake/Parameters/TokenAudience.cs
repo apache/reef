@@ -17,13 +17,16 @@
 
 using Org.Apache.REEF.Tang.Annotations;
 
-namespace Org.Apache.REEF.IO.FileSystem.Hadoop.Parameters
+namespace Org.Apache.REEF.IO.FileSystem.AzureDataLake.Parameters
 {
     /// <summary>
-    /// The timeout (in milliseconds) for HDFS commands. Defaults to 300000 (5 minutes).
+    /// The ADL TokenAudience Uri to be used to authenticate with Data Lake Store
     /// </summary>
-    [NamedParameter("The timeout (in milliseconds) for HDFS commands.", defaultValue: "300000")]
-    internal sealed class CommandTimeOut : Name<int>
+    [NamedParameter("The ADL TokenAudience Uri to be used to authenticate with Data Lake Store", defaultValue: "https://datalake.azure.net/")]
+    internal sealed class TokenAudience : Name<string>
     {
+        private TokenAudience()
+        {
+        }
     }
 }

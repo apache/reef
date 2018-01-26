@@ -17,13 +17,16 @@
 
 using Org.Apache.REEF.Tang.Annotations;
 
-namespace Org.Apache.REEF.IO.FileSystem.Hadoop.Parameters
+namespace Org.Apache.REEF.IO.FileSystem.AzureDataLake.Parameters
 {
     /// <summary>
-    /// The timeout (in milliseconds) for HDFS commands. Defaults to 300000 (5 minutes).
+    /// The Tenant to be used to authenticate with Azure
     /// </summary>
-    [NamedParameter("The timeout (in milliseconds) for HDFS commands.", defaultValue: "300000")]
-    internal sealed class CommandTimeOut : Name<int>
+    [NamedParameter("The Tenant to be used to authenticate with Azure")]
+    internal sealed class Tenant : Name<string>
     {
+        private Tenant()
+        {
+        }
     }
 }

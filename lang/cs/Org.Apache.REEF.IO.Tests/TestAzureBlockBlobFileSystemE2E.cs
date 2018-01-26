@@ -168,8 +168,9 @@ namespace Org.Apache.REEF.IO.Tests
         {
             var helloFilePath = PathToFile(HelloFile);
             var blob = _container.GetBlockBlobReference(HelloFile);
-            var tempFilePath = GetTempFilePath();
+            var tempFilePath = Path.GetTempFileName();
             const string Text = "hello";
+            
             try
             {
                 UploadFromString(blob, Text);
@@ -189,7 +190,7 @@ namespace Org.Apache.REEF.IO.Tests
             var helloFilePath = PathToFile(HelloFile);
             ICloudBlob blob = _container.GetBlockBlobReference(HelloFile);
             Assert.False(CheckBlobExists(blob));
-            var tempFilePath = GetTempFilePath();
+            var tempFilePath = Path.GetTempFileName();
             const string Text = "hello";
             try
             {
@@ -282,11 +283,6 @@ namespace Org.Apache.REEF.IO.Tests
             }
 
             Assert.True(CheckContainerExists(_container));
-        }
-
-        private static string GetTempFilePath()
-        {
-            return Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
         }
 
         private static void UploadFromString(ICloudBlob blob, string str)
