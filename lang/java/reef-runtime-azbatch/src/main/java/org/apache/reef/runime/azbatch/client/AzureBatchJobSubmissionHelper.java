@@ -21,9 +21,9 @@ package org.apache.reef.runime.azbatch.client;
 import com.microsoft.azure.batch.BatchClient;
 import com.microsoft.azure.batch.auth.BatchSharedKeyCredentials;
 import com.microsoft.azure.batch.protocol.models.*;
-import org.apache.reef.runtime.hdinsight.client.yarnrest.LocalResource;
 
 import java.io.IOException;
+import java.net.URI;
 import java.util.Collections;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -55,7 +55,7 @@ public class AzureBatchJobSubmissionHelper implements AutoCloseable {
     this.applicationId = applicationId;
   }
 
-  public void submit(final LocalResource uploadedFile, final String command) throws BatchErrorException, IOException {
+  public void submit(final URI jobJarSasUri, final String command) throws BatchErrorException, IOException {
 
     BatchSharedKeyCredentials cred = new BatchSharedKeyCredentials(
         this.azureBatchAccountUri, this.azureBatchAccountName, this.azureBatchAccountKey);
@@ -65,7 +65,7 @@ public class AzureBatchJobSubmissionHelper implements AutoCloseable {
     poolInfo.withPoolId(this.azureBatchPoolId);
 
     ResourceFile jarResourceFile = new ResourceFile()
-        .withBlobSource(uploadedFile.getUrl())
+        .withBlobSource(jobJarSasUri.toString())
         .withFilePath("local.jar");
 
     JobManagerTask jobManagerTask = new JobManagerTask()

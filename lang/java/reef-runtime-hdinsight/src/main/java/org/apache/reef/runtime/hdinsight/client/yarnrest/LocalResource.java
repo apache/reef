@@ -47,8 +47,6 @@ public final class LocalResource {
   private long size;
   private long timestamp;
 
-  private String url;
-
   @JsonProperty(Constants.RESOURCE)
   public String getResource() {
     return this.resource;
@@ -56,15 +54,6 @@ public final class LocalResource {
 
   public LocalResource setResource(final String resource) {
     this.resource = resource;
-    return this;
-  }
-
-  public String getUrl() {
-    return this.url;
-  }
-
-  public LocalResource setUrl(final String url) {
-    this.url = url;
     return this;
   }
 

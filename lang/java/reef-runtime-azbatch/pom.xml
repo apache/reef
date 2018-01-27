@@ -43,9 +43,8 @@ under the License.
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>reef-runtime-hdinsight</artifactId>
-            <version>${project.version}</version>
+            <groupId>com.microsoft.windowsazure.storage</groupId>
+            <artifactId>microsoft-windowsazure-storage-sdk</artifactId>
         </dependency>
         <dependency>
             <groupId>junit</groupId>

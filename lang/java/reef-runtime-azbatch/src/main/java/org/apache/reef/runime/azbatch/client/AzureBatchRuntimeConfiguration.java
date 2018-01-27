@@ -20,9 +20,6 @@ package org.apache.reef.runime.azbatch.client;
 
 import org.apache.reef.annotations.audience.Public;
 import org.apache.reef.runime.azbatch.parameters.*;
-import org.apache.reef.runtime.hdinsight.parameters.AzureStorageAccountContainerName;
-import org.apache.reef.runtime.hdinsight.parameters.AzureStorageAccountKey;
-import org.apache.reef.runtime.hdinsight.parameters.AzureStorageAccountName;
 import org.apache.reef.tang.Configuration;
 import org.apache.reef.tang.formats.AvroConfigurationSerializer;
 
@@ -90,7 +87,7 @@ public class AzureBatchRuntimeConfiguration extends ConfigurationModuleBuilder {
       .bindNamedParameter(AzureBatchPoolId.class, AZURE_BATCH_POOL_ID)
       .bindNamedParameter(AzureStorageAccountName.class, AZURE_STORAGE_ACCOUNT_NAME)
       .bindNamedParameter(AzureStorageAccountKey.class, AZURE_STORAGE_ACCOUNT_KEY)
-      .bindNamedParameter(AzureStorageAccountContainerName.class, AZURE_STORAGE_CONTAINER_NAME)
+      .bindNamedParameter(AzureStorageContainerName.class, AZURE_STORAGE_CONTAINER_NAME)
       .build();
 
   /**

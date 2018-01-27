@@ -46,6 +46,7 @@ public final class JavaLaunchCommandBuilder implements LaunchCommandBuilder {
   private final Map<String, JVMOption> options = new HashMap<>();
   private final List<String> commandPrefixList;
   private final Class launcherClass;
+  private final char classpathSeparator;
 
   private String stderrPath = null;
   private String stdoutPath = null;
@@ -59,27 +60,39 @@ public final class JavaLaunchCommandBuilder implements LaunchCommandBuilder {
    * class {@link REEFLauncher}.
    */
   public JavaLaunchCommandBuilder() {
-    this(REEFLauncher.class, null);
+    this(REEFLauncher.class, null, File.pathSeparatorChar);
   }
 
   /**
-   * Constructor that uses the default Launcher class, {@link REEFLauncher}.
+   * Constructor that uses the default Launcher class, {@link REEFLauncher}, and default classpath separator.
    * @param commandPrefixList
    */
   public JavaLaunchCommandBuilder(final List<String> commandPrefixList) {
-    this(REEFLauncher.class, commandPrefixList);
+    this(REEFLauncher.class, commandPrefixList, File.pathSeparatorChar);
+  }
+
+  /**
+   * Constructor that uses the specified Launcher class and command prefix list.
+   * @param commandPrefixList
+   */
+  public JavaLaunchCommandBuilder(final Class launcherClass, final List<String> commandPrefixList) {
+    this(launcherClass, commandPrefixList, File.pathSeparatorChar);
   }
 
   /**
    * Constructor that populates prefix and uses a custom Launcher class.
    */
-  public JavaLaunchCommandBuilder(final Class launcherClass, final List<String> commandPrefixList) {
+  public JavaLaunchCommandBuilder(
+      final Class launcherClass,
+      final List<String> commandPrefixList,
+      final char classpathSeparator) {
     for (final String defaultOption : DEFAULT_OPTIONS) {
       addOption(defaultOption);
     }
 
     this.launcherClass = launcherClass;
     this.commandPrefixList = commandPrefixList;
+    this.classpathSeparator = classpathSeparator;
   }
 
   @Override
@@ -175,7 +188,7 @@ public final class JavaLaunchCommandBuilder implements LaunchCommandBuilder {
   }
 
   public JavaLaunchCommandBuilder setClassPath(final Collection<String> classPathElements) {
-    this.classPath = StringUtils.join(classPathElements, File.pathSeparatorChar);
+    this.classPath = StringUtils.join(classPathElements, this.classpathSeparator);
     return this;
   }
 

@@ -19,6 +19,8 @@
 package org.apache.reef.runime.azbatch.client;
 
 import org.apache.reef.runime.azbatch.AzureBatchClasspathProvider;
+import org.apache.reef.runime.azbatch.util.CommandBuilder;
+import org.apache.reef.runime.azbatch.util.LinuxCommandBuilder;
 import org.apache.reef.runtime.common.client.CommonRuntimeConfiguration;
 import org.apache.reef.runtime.common.client.DriverConfigurationProvider;
 import org.apache.reef.runtime.common.client.api.JobSubmissionHandler;
@@ -40,5 +42,6 @@ public class AzureBatchRuntimeConfigurationStatic extends ConfigurationModuleBui
       .bindImplementation(JobSubmissionHandler.class, AzureBatchJobSubmissionHandler.class)
       .bindImplementation(DriverConfigurationProvider.class, AzureBatchDriverConfigurationProviderImpl.class)
       .bindImplementation(RuntimeClasspathProvider.class, AzureBatchClasspathProvider.class)
+      .bindImplementation(CommandBuilder.class, LinuxCommandBuilder.class)
       .build();
 }
