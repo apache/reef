@@ -28,6 +28,7 @@ import org.apache.reef.annotations.audience.Private;
 import org.apache.reef.runime.azbatch.parameters.AzureBatchAccountKey;
 import org.apache.reef.runime.azbatch.parameters.AzureBatchAccountName;
 import org.apache.reef.runime.azbatch.parameters.AzureBatchAccountUri;
+import org.apache.reef.runime.azbatch.util.AzureStorageUtil;
 import org.apache.reef.runtime.common.driver.api.ResourceLaunchEvent;
 import org.apache.reef.runtime.common.driver.api.ResourceRequestEvent;
 import org.apache.reef.runtime.common.driver.api.RuntimeParameters;
@@ -36,8 +37,6 @@ import org.apache.reef.runtime.common.driver.resourcemanager.NodeDescriptorEvent
 import org.apache.reef.runtime.common.driver.resourcemanager.ResourceAllocationEvent;
 import org.apache.reef.runtime.common.driver.resourcemanager.ResourceEventImpl;
 import org.apache.reef.runtime.common.files.REEFFileNames;
-import org.apache.reef.runtime.hdinsight.client.AzureUploader;
-import org.apache.reef.runtime.hdinsight.client.yarnrest.LocalResource;
 import org.apache.reef.tang.annotations.Parameter;
 import org.apache.reef.tang.exceptions.BindException;
 import org.apache.reef.tang.formats.ConfigurationSerializer;
@@ -47,6 +46,7 @@ import org.apache.reef.wake.remote.address.LocalAddressProvider;
 import javax.inject.Inject;
 import java.io.File;
 import java.io.IOException;
+import java.net.URI;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -68,7 +68,7 @@ public final class AzureBatchResourceManager {
   private final String azureBatchAccountName;
   private final String azureBatchAccountKey;
   private final String jobId;
-  private final AzureUploader azureUploader;
+  private final AzureStorageUtil azureStorageUtil;
   private final String taskId;
   private final String AZ_BATCH_JOB_ID_ENV = "AZ_BATCH_JOB_ID";
 
@@ -81,7 +81,7 @@ public final class AzureBatchResourceManager {
       final LocalAddressProvider localAddressProvider,
       final REEFFileNames fileNames,
       final ConfigurationSerializer configurationSerializer,
-      final AzureUploader azureUploader,
+      final AzureStorageUtil azureStorageUtil,
       @Parameter(AzureBatchAccountUri.class) final String azureBatchAccountUri,
       @Parameter(AzureBatchAccountName.class) final String azureBatchAccountName,
       @Parameter(AzureBatchAccountKey.class) final String azureBatchAccountKey) {
@@ -90,12 +90,12 @@ public final class AzureBatchResourceManager {
     this.localAddress = localAddressProvider.getLocalAddress();
     this.fileNames = fileNames;
     this.configurationSerializer = configurationSerializer;
-    this.azureUploader = azureUploader;
+    this.azureStorageUtil = azureStorageUtil;
     this.azureBatchAccountKey = azureBatchAccountKey;
     this.azureBatchAccountName = azureBatchAccountName;
     this.azureBatchAccountUri = azureBatchAccountUri;
     this.jobId = System.getenv(AZ_BATCH_JOB_ID_ENV);
-    this.taskId = "EvaluatorJob-"
+    this.taskId = "EvaluatorTask-"
         + this.azureBatchAccountName + "-"
         + (new Date()).toString()
         .replace(' ', '-')
@@ -160,15 +160,19 @@ public final class AzureBatchResourceManager {
         this.azureBatchAccountUri, this.azureBatchAccountName, this.azureBatchAccountKey);
     BatchClient client = BatchClient.open(cred);
 
-    final LocalResource uploadedConfFile = this.azureUploader.uploadFile(evaluatorConf);
+    final String folderName = this.fileNames.getAzbatchJobFolderPath() + this.jobId;
+    LOG.log(Level.FINE, "Creating a job folder on Azure at: {0}.", folderName);
+    URI jobFolderURL = this.azureStorageUtil.createFolder(folderName);
+
+    final URI uploadedConfFileUri = this.azureStorageUtil.uploadFile(jobFolderURL, evaluatorConf);
     final ResourceFile confSourceFile = new ResourceFile()
-        .withBlobSource(uploadedConfFile.getUrl())
+        .withBlobSource(uploadedConfFileUri.toString())
         .withFilePath(evaluatorConf.getPath());
 
     final File localJar = new File("local.jar");
-    final LocalResource jarFile = this.azureUploader.uploadFile(localJar);
+    final URI jarFileUri = this.azureStorageUtil.uploadFile(jobFolderURL, localJar);
     final ResourceFile jarSourceFile = new ResourceFile()
-        .withBlobSource(jarFile.getUrl())
+        .withBlobSource(jarFileUri.toString())
         .withFilePath(localJar.getPath());
 
     List<ResourceFile> resources = new ArrayList<>();

@@ -19,10 +19,7 @@
 package org.apache.reef.runime.azbatch.driver;
 
 import org.apache.reef.runime.azbatch.AzureBatchClasspathProvider;
-import org.apache.reef.runime.azbatch.parameters.AzureBatchAccountKey;
-import org.apache.reef.runime.azbatch.parameters.AzureBatchAccountName;
-import org.apache.reef.runime.azbatch.parameters.AzureBatchAccountUri;
-import org.apache.reef.runime.azbatch.parameters.AzureBatchPoolId;
+import org.apache.reef.runime.azbatch.parameters.*;
 import org.apache.reef.runtime.common.driver.api.*;
 import org.apache.reef.runtime.common.driver.parameters.ClientRemoteIdentifier;
 import org.apache.reef.runtime.common.driver.parameters.DefinedRuntimes;
@@ -32,9 +29,6 @@ import org.apache.reef.runtime.common.files.RuntimeClasspathProvider;
 import org.apache.reef.runtime.common.launch.parameters.ErrorHandlerRID;
 import org.apache.reef.runtime.common.launch.parameters.LaunchID;
 import org.apache.reef.runtime.common.parameters.JVMHeapSlack;
-import org.apache.reef.runtime.hdinsight.parameters.AzureStorageAccountContainerName;
-import org.apache.reef.runtime.hdinsight.parameters.AzureStorageAccountKey;
-import org.apache.reef.runtime.hdinsight.parameters.AzureStorageAccountName;
 import org.apache.reef.tang.formats.ConfigurationModule;
 import org.apache.reef.tang.formats.ConfigurationModuleBuilder;
 import org.apache.reef.tang.formats.OptionalParameter;
@@ -119,7 +113,7 @@ public class AzureBatchDriverConfiguration extends ConfigurationModuleBuilder {
       .bindNamedParameter(AzureBatchPoolId.class, AZURE_BATCH_POOL_ID)
       .bindNamedParameter(AzureStorageAccountName.class, AZURE_STORAGE_ACCOUNT_NAME)
       .bindNamedParameter(AzureStorageAccountKey.class, AZURE_STORAGE_ACCOUNT_KEY)
-      .bindNamedParameter(AzureStorageAccountContainerName.class, AZURE_STORAGE_CONTAINER_NAME)
+      .bindNamedParameter(AzureStorageContainerName.class, AZURE_STORAGE_CONTAINER_NAME)
 
       // Bind the fields bound in AbstractDriverRuntimeConfiguration
       .bindNamedParameter(JobIdentifier.class, JOB_IDENTIFIER)
