@@ -19,6 +19,10 @@
 package org.apache.reef.runime.azbatch.driver;
 
 import org.apache.reef.runime.azbatch.AzureBatchClasspathProvider;
+import org.apache.reef.runime.azbatch.parameters.AzureBatchAccountKey;
+import org.apache.reef.runime.azbatch.parameters.AzureBatchAccountName;
+import org.apache.reef.runime.azbatch.parameters.AzureBatchAccountUri;
+import org.apache.reef.runime.azbatch.parameters.AzureBatchPoolId;
 import org.apache.reef.runtime.common.driver.api.*;
 import org.apache.reef.runtime.common.driver.parameters.ClientRemoteIdentifier;
 import org.apache.reef.runtime.common.driver.parameters.DefinedRuntimes;
@@ -28,7 +32,13 @@ import org.apache.reef.runtime.common.files.RuntimeClasspathProvider;
 import org.apache.reef.runtime.common.launch.parameters.ErrorHandlerRID;
 import org.apache.reef.runtime.common.launch.parameters.LaunchID;
 import org.apache.reef.runtime.common.parameters.JVMHeapSlack;
-import org.apache.reef.tang.formats.*;
+import org.apache.reef.runtime.hdinsight.parameters.AzureStorageAccountContainerName;
+import org.apache.reef.runtime.hdinsight.parameters.AzureStorageAccountKey;
+import org.apache.reef.runtime.hdinsight.parameters.AzureStorageAccountName;
+import org.apache.reef.tang.formats.ConfigurationModule;
+import org.apache.reef.tang.formats.ConfigurationModuleBuilder;
+import org.apache.reef.tang.formats.OptionalParameter;
+import org.apache.reef.tang.formats.RequiredParameter;
 
 /**
  * ConfigurationModule to create YARN Driver configurations.
@@ -56,6 +66,41 @@ public class AzureBatchDriverConfiguration extends ConfigurationModuleBuilder {
   public static final OptionalParameter<String> CLIENT_REMOTE_IDENTIFIER = new OptionalParameter<>();
 
   /**
+   * The Azure Batch account URI to be used by REEF.
+   */
+  public static final RequiredParameter<String> AZURE_BATCH_ACCOUNT_URI = new RequiredParameter<>();
+
+  /**
+   * The Azure Batch account name to be used by REEF.
+   */
+  public static final RequiredParameter<String> AZURE_BATCH_ACCOUNT_NAME = new RequiredParameter<>();
+
+  /**
+   * The Azure Batch account key.
+   */
+  public static final RequiredParameter<String> AZURE_BATCH_ACCOUNT_KEY = new RequiredParameter<>();
+
+  /**
+   * The Azure Batch Pool ID.
+   */
+  public static final RequiredParameter<String> AZURE_BATCH_POOL_ID = new RequiredParameter<>();
+
+  /**
+   * The name of the Azure Storage account.
+   */
+  public static final RequiredParameter<String> AZURE_STORAGE_ACCOUNT_NAME = new RequiredParameter<>();
+
+  /**
+   * The key of the Azure Storage account.
+   */
+  public static final RequiredParameter<String> AZURE_STORAGE_ACCOUNT_KEY = new RequiredParameter<>();
+
+  /**
+   * The name of the Azure Storage account container.
+   */
+  public static final RequiredParameter<String> AZURE_STORAGE_CONTAINER_NAME = new RequiredParameter<>();
+
+  /**
    * The fraction of the container memory NOT to use for the Java Heap.
    */
   public static final OptionalParameter<Double> JVM_HEAP_SLACK = new OptionalParameter<>();
@@ -64,8 +109,17 @@ public class AzureBatchDriverConfiguration extends ConfigurationModuleBuilder {
       .bindImplementation(ResourceLaunchHandler.class, AzureBatchResourceLaunchHandler.class)
       .bindImplementation(ResourceReleaseHandler.class, AzureBatchResourceReleaseHandler.class)
       .bindImplementation(ResourceRequestHandler.class, AzureBatchResourceRequestHandler.class)
-      .bindImplementation(ResourceManagerStartHandler.class, AzureBatchRuntimeStartHandler.class)
-      .bindImplementation(ResourceManagerStopHandler.class, AzureBatchRuntimeStopHandler.class)
+      .bindImplementation(ResourceManagerStartHandler.class, AzureBatchResourceManagerStartHandler.class)
+      .bindImplementation(ResourceManagerStopHandler.class, AzureBatchResourceManagerStopHandler.class)
+
+      // Bind Azure Batch Configuration Parameters
+      .bindNamedParameter(AzureBatchAccountUri.class, AZURE_BATCH_ACCOUNT_URI)
+      .bindNamedParameter(AzureBatchAccountName.class, AZURE_BATCH_ACCOUNT_NAME)
+      .bindNamedParameter(AzureBatchAccountKey.class, AZURE_BATCH_ACCOUNT_KEY)
+      .bindNamedParameter(AzureBatchPoolId.class, AZURE_BATCH_POOL_ID)
+      .bindNamedParameter(AzureStorageAccountName.class, AZURE_STORAGE_ACCOUNT_NAME)
+      .bindNamedParameter(AzureStorageAccountKey.class, AZURE_STORAGE_ACCOUNT_KEY)
+      .bindNamedParameter(AzureStorageAccountContainerName.class, AZURE_STORAGE_CONTAINER_NAME)
 
       // Bind the fields bound in AbstractDriverRuntimeConfiguration
       .bindNamedParameter(JobIdentifier.class, JOB_IDENTIFIER)

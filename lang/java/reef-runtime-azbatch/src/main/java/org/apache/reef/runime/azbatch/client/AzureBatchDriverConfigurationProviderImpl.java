@@ -19,7 +19,8 @@
 package org.apache.reef.runime.azbatch.client;
 
 import org.apache.reef.annotations.audience.Private;
-import org.apache.reef.runime.azbatch.driver.*;
+import org.apache.reef.runime.azbatch.driver.AzureBatchDriverConfiguration;
+import org.apache.reef.runime.azbatch.driver.RuntimeIdentifier;
 import org.apache.reef.runtime.common.client.DriverConfigurationProvider;
 import org.apache.reef.runtime.common.parameters.JVMHeapSlack;
 import org.apache.reef.tang.Configuration;
@@ -52,6 +53,17 @@ public final class AzureBatchDriverConfigurationProviderImpl implements DriverCo
             .set(AzureBatchDriverConfiguration.CLIENT_REMOTE_IDENTIFIER, clientRemoteId)
             .set(AzureBatchDriverConfiguration.JVM_HEAP_SLACK, this.jvmSlack)
             .set(AzureBatchDriverConfiguration.RUNTIME_NAME, RuntimeIdentifier.RUNTIME_NAME)
+            /// TODO: Make then configurable from client side driver code
+            /// This should be set in HelloReef example DriverConfiguration.
+            /// There is Injection Exception when setting this up in DriverConfiguration
+            /// or expose AzureBatchDriverConfiguration to client. Fix it.
+            .set(AzureBatchDriverConfiguration.AZURE_BATCH_ACCOUNT_URI, "")
+            .set(AzureBatchDriverConfiguration.AZURE_BATCH_ACCOUNT_NAME, "")
+            .set(AzureBatchDriverConfiguration.AZURE_BATCH_ACCOUNT_KEY, "")
+            .set(AzureBatchDriverConfiguration.AZURE_BATCH_POOL_ID, "")
+            .set(AzureBatchDriverConfiguration.AZURE_STORAGE_ACCOUNT_NAME, "")
+            .set(AzureBatchDriverConfiguration.AZURE_STORAGE_ACCOUNT_KEY, "")
+            .set(AzureBatchDriverConfiguration.AZURE_STORAGE_CONTAINER_NAME, "")
             .build(),
         applicationConfiguration);
   }

@@ -18,12 +18,13 @@
  */
 package org.apache.reef.runime.azbatch.driver;
 
-import org.apache.commons.lang.NotImplementedException;
 import org.apache.reef.annotations.audience.Private;
 import org.apache.reef.runtime.common.driver.api.ResourceLaunchEvent;
 import org.apache.reef.runtime.common.driver.api.ResourceLaunchHandler;
 
 import javax.inject.Inject;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * A {@link ResourceLaunchHandler} for Azure Batch.
@@ -31,12 +32,17 @@ import javax.inject.Inject;
 @Private
 public final class AzureBatchResourceLaunchHandler implements ResourceLaunchHandler {
 
+  private static final Logger LOG = Logger.getLogger(AzureBatchResourceLaunchHandler.class.getName());
+  private final AzureBatchResourceManager azureBatchResourceManager;
+
   @Inject
-  AzureBatchResourceLaunchHandler() {
+  AzureBatchResourceLaunchHandler(final AzureBatchResourceManager azureBatchResourceManager) {
+    this.azureBatchResourceManager = azureBatchResourceManager;
   }
 
   @Override
-  public void onNext(final ResourceLaunchEvent value) {
-    throw new NotImplementedException();
+  public void onNext(final ResourceLaunchEvent resourceLaunchEvent) {
+    LOG.log(Level.FINEST, "Got ResourceLaunchEvent in AzureBatchResourceLaunchHandler");
+    this.azureBatchResourceManager.onResourceLaunched(resourceLaunchEvent);
   }
 }

@@ -18,12 +18,13 @@
  */
 package org.apache.reef.runime.azbatch.driver;
 
-import org.apache.commons.lang.NotImplementedException;
 import org.apache.reef.annotations.audience.Private;
 import org.apache.reef.runtime.common.driver.api.ResourceRequestEvent;
 import org.apache.reef.runtime.common.driver.api.ResourceRequestHandler;
 
 import javax.inject.Inject;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * A {@link ResourceRequestHandler} for Azure Batch.
@@ -31,12 +32,18 @@ import javax.inject.Inject;
 @Private
 public class AzureBatchResourceRequestHandler implements ResourceRequestHandler {
 
+  private static final Logger LOG = Logger.getLogger(AzureBatchResourceLaunchHandler.class.getName());
+  private final AzureBatchResourceManager azureBatchResourceManager;
+
   @Inject
-  AzureBatchResourceRequestHandler() {
+  AzureBatchResourceRequestHandler(final AzureBatchResourceManager azureBatchResourceManager) {
+    this.azureBatchResourceManager = azureBatchResourceManager;
   }
 
   @Override
-  public void onNext(final ResourceRequestEvent value) {
-    throw new NotImplementedException();
+  public void onNext(final ResourceRequestEvent resourceRequestEvent) {
+    LOG.log(Level.FINEST, "Got ResourceRequestEvent in AzureBatchResourceRequestHandler: memory = {0}, cores = {1}.",
+        new Object[]{resourceRequestEvent.getMemorySize(), resourceRequestEvent.getVirtualCores()});
+    this.azureBatchResourceManager.onResourceRequested(resourceRequestEvent);
   }
 }
