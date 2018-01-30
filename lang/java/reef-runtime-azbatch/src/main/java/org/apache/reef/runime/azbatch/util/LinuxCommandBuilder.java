@@ -18,6 +18,7 @@
  */
 package org.apache.reef.runime.azbatch.util;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.reef.runtime.common.REEFLauncher;
 import org.apache.reef.runtime.common.files.ClasspathProvider;
 import org.apache.reef.runtime.common.files.REEFFileNames;
@@ -42,7 +43,12 @@ public class LinuxCommandBuilder extends AbstractCommandBuilder {
   LinuxCommandBuilder(
       final ClasspathProvider classpathProvider,
       final REEFFileNames reefFileNames) {
-    super(LAUNCHER_CLASS, COMMAND_LIST_PREFIX, CLASSPATH_SEPARATOR_CHAR, OS_COMMAND_FORMAT,
+    super(LAUNCHER_CLASS, COMMAND_LIST_PREFIX, OS_COMMAND_FORMAT,
         classpathProvider, reefFileNames);
+  }
+
+  @Override
+  protected String getDriverClasspath() {
+    return StringUtils.join(super.classpathProvider.getDriverClasspath(), CLASSPATH_SEPARATOR_CHAR);
   }
 }

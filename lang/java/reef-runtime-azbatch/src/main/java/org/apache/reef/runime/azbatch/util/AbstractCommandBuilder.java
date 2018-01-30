@@ -37,7 +37,6 @@ public abstract class AbstractCommandBuilder implements CommandBuilder {
 
   private final Class launcherClass;
   private final List<String> commandListPrefix;
-  private final char classpathSeparatorChar;
   private final String osCommandFormat;
 
   protected final ClasspathProvider classpathProvider;
@@ -46,13 +45,11 @@ public abstract class AbstractCommandBuilder implements CommandBuilder {
   AbstractCommandBuilder(
       final Class launcherClass,
       final List<String> commandListPrefix,
-      final char classpathSeparatorChar,
       final String osCommandFormat,
       final ClasspathProvider classpathProvider,
       final REEFFileNames reefFileNames) {
     this.launcherClass = launcherClass;
     this.commandListPrefix = commandListPrefix;
-    this.classpathSeparatorChar = classpathSeparatorChar;
     this.osCommandFormat = osCommandFormat;
 
     this.classpathProvider = classpathProvider;
@@ -72,13 +69,19 @@ public abstract class AbstractCommandBuilder implements CommandBuilder {
   private List<String> getCommandList(
       final JobSubmissionEvent jobSubmissionEvent) {
 
-    return new JavaLaunchCommandBuilder(this.launcherClass, this.commandListPrefix, this.classpathSeparatorChar)
+    return new JavaLaunchCommandBuilder(this.launcherClass, this.commandListPrefix)
         .setJavaPath("java")
         .setConfigurationFilePaths(Collections.singletonList(this.reefFileNames.getDriverConfigurationPath()))
-        .setClassPath(this.classpathProvider.getDriverClasspath())
+        .setClassPath(getDriverClasspath())
         .setMemory(jobSubmissionEvent.getDriverMemory().get())
         .setStandardOut(STD_OUT_FILE)
         .setStandardErr(STD_ERR_FILE)
         .build();
   }
+
+  /**
+   * Returns the driver classpath string which is compatible with the intricacies of the OS.
+   * @return classpath parameter string.
+   */
+  protected abstract String getDriverClasspath();
 }

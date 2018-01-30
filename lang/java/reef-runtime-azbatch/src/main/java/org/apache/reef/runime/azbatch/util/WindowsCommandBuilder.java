@@ -18,25 +18,42 @@
  */
 package org.apache.reef.runime.azbatch.util;
 
-import org.apache.commons.lang.NotImplementedException;
-import org.apache.reef.runtime.common.client.api.JobSubmissionEvent;
+import org.apache.commons.lang.StringUtils;
+import org.apache.reef.runtime.common.REEFLauncher;
+import org.apache.reef.runtime.common.files.ClasspathProvider;
+import org.apache.reef.runtime.common.files.REEFFileNames;
 
+import javax.inject.Inject;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
 /**
  * Build the launch command for Java REEF processes for Azure Batch Windows pools.
  */
-public class WindowsCommandBuilder implements CommandBuilder {
+public class WindowsCommandBuilder extends AbstractCommandBuilder {
 
+  private static final Class LAUNCHER_CLASS = REEFLauncher.class;
+  private static final List<String> COMMAND_LIST_PREFIX = Collections.unmodifiableList(
+      Arrays.asList(
+          "Add-Type -AssemblyName System.IO.Compression.FileSystem; ",
+          "[System.IO.Compression.ZipFile]::ExtractToDirectory(\\\"$env:AZ_BATCH_TASK_WORKING_DIR\\local.jar\\\", " +
+              "\\\"$env:AZ_BATCH_TASK_WORKING_DIR\\reef\\\"); ")
+  );
   private static final char CLASSPATH_SEPARATOR_CHAR = ';';
+  private static final String OS_COMMAND_FORMAT = "powershell.exe /c \"%s\";";
 
-  private static final List<String> COMMAND_LIST_PREFIX = Collections.emptyList();
-
-  private static final String BATCH_COMMAND_LINE_FORMAT = "cmd /c \"%s\"";
+  @Inject
+  WindowsCommandBuilder(
+      final ClasspathProvider classpathProvider,
+      final REEFFileNames reefFileNames) {
+    super(LAUNCHER_CLASS, COMMAND_LIST_PREFIX, OS_COMMAND_FORMAT,
+        classpathProvider, reefFileNames);
+  }
 
   @Override
-  public String build(final JobSubmissionEvent jobSubmissionEvent) {
-    throw new NotImplementedException();
+  protected String getDriverClasspath() {
+    return String.format("'%s'", StringUtils.join(
+        super.classpathProvider.getDriverClasspath(), CLASSPATH_SEPARATOR_CHAR));
   }
 }
