@@ -155,7 +155,6 @@ public final class AzureBatchResourceManager {
   }
 
   private void launchBatchTaskWithConf(final File evaluatorConf, final List<String> command) throws IOException {
-    // TODO: Reuse Job Id to submit the task and avoid using JobManagerTask
     BatchSharedKeyCredentials cred = new BatchSharedKeyCredentials(
         this.azureBatchAccountUri, this.azureBatchAccountName, this.azureBatchAccountKey);
     BatchClient client = BatchClient.open(cred);
