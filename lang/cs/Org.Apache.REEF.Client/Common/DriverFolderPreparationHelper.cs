@@ -48,7 +48,7 @@ namespace Org.Apache.REEF.Client.Common
         @"    </assemblyBinding>" +
         @"  </runtime>" +
         @"</configuration>";
-        private const string EvaluatorExecutable = "Org.Apache.REEF.Evaluator.exe.config";
+        private const string EvaluatorExecutableConfig = "Org.Apache.REEF.Evaluator.exe.config";
 
         private static readonly Logger Logger = Logger.GetLogger(typeof(DriverFolderPreparationHelper));
         private readonly AvroConfigurationSerializer _configurationSerializer;
@@ -154,8 +154,16 @@ namespace Org.Apache.REEF.Client.Common
             File.WriteAllText(Path.Combine(driverFolderPath, _fileNames.GetBridgeExeConfigPath()), config);
 
             // generate .config file for Evaluator executable
-            File.WriteAllText(Path.Combine(driverFolderPath, _fileNames.GetGlobalFolderPath(), EvaluatorExecutable), 
-                DefaultDriverConfigurationFileContents);
+            var userDefinedEvaluatorConfigFileName = Path.Combine(JarFolder, EvaluatorExecutableConfig);
+            var evaluatorConfigFilName = Path.Combine(driverFolderPath, _fileNames.GetGlobalFolderPath(), EvaluatorExecutableConfig);
+            string evaluatorAppConfigString = DefaultDriverConfigurationFileContents;
+
+            if (File.Exists(userDefinedEvaluatorConfigFileName))
+            {
+                evaluatorAppConfigString = File.ReadAllText(userDefinedEvaluatorConfigFileName);
+            }
+            Logger.Log(Level.Verbose, "Create EvaluatorConfigFile {0} with config {1}.", evaluatorConfigFilName, evaluatorAppConfigString);
+            File.WriteAllText(evaluatorConfigFilName, evaluatorAppConfigString);
         }
     }
 }
