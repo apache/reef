@@ -69,7 +69,7 @@ public final class AzureBatchResourceManager {
   private final AzureStorageUtil azureStorageUtil;
   private final REEFEventHandlers reefEventHandlers;
   private final String taskId;
-  private final String azBatchJobId = "AZ_BATCH_JOB_ID";
+  private static final String AZ_BATCH_JOB_ID_ENV = "AZ_BATCH_JOB_ID";
 
   @Inject
   AzureBatchResourceManager(
@@ -89,7 +89,7 @@ public final class AzureBatchResourceManager {
     this.azureBatchAccountKey = azureBatchAccountKey;
     this.azureBatchAccountName = azureBatchAccountName;
     this.azureBatchAccountUri = azureBatchAccountUri;
-    this.jobId = System.getenv(azBatchJobId);
+    this.jobId = System.getenv(AZ_BATCH_JOB_ID_ENV);
     this.taskId = "EvaluatorTask-"
         + this.azureBatchAccountName + "-"
         + (new Date()).toString()

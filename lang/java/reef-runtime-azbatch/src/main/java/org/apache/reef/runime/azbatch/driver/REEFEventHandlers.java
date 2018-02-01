@@ -32,7 +32,6 @@ import javax.inject.Inject;
 /**
  * Helper that represents the REEF layer to the Azure Batch runtime.
  */
-// This is a great place to add a thread boundary, should that need arise.
 @Private
 public final class REEFEventHandlers implements AutoCloseable {
   private final EventHandler<ResourceAllocationEvent> resourceAllocationHandler;
