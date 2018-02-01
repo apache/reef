@@ -59,8 +59,6 @@ import java.util.logging.Logger;
 public final class AzureBatchResourceManager {
 
   private static final Logger LOG = Logger.getLogger(AzureBatchResourceManager.class.getName());
-  private final EventHandler<ResourceAllocationEvent> resourceAllocationHandler;
-  private final EventHandler<NodeDescriptorEvent> nodeDescriptorHandler;
   private String localAddress;
   private final REEFFileNames fileNames;
   private final ConfigurationSerializer configurationSerializer;
@@ -69,26 +67,23 @@ public final class AzureBatchResourceManager {
   private final String azureBatchAccountKey;
   private final String jobId;
   private final AzureStorageUtil azureStorageUtil;
+  private final REEFEventHandlers reefEventHandlers;
   private final String taskId;
-  private final String AZ_BATCH_JOB_ID_ENV = "AZ_BATCH_JOB_ID";
+  private static final String AZ_BATCH_JOB_ID_ENV = "AZ_BATCH_JOB_ID";
 
   @Inject
   AzureBatchResourceManager(
-      @Parameter(RuntimeParameters.ResourceAllocationHandler.class)
-      final EventHandler<ResourceAllocationEvent> resourceAllocationHandler,
-      @Parameter(RuntimeParameters.NodeDescriptorHandler.class)
-      final EventHandler<NodeDescriptorEvent> nodeDescriptorHandler,
       final LocalAddressProvider localAddressProvider,
       final REEFFileNames fileNames,
+      final REEFEventHandlers reefEventHandlers,
       final ConfigurationSerializer configurationSerializer,
       final AzureStorageUtil azureStorageUtil,
       @Parameter(AzureBatchAccountUri.class) final String azureBatchAccountUri,
       @Parameter(AzureBatchAccountName.class) final String azureBatchAccountName,
       @Parameter(AzureBatchAccountKey.class) final String azureBatchAccountKey) {
-    this.resourceAllocationHandler = resourceAllocationHandler;
-    this.nodeDescriptorHandler = nodeDescriptorHandler;
     this.localAddress = localAddressProvider.getLocalAddress();
     this.fileNames = fileNames;
+    this.reefEventHandlers = reefEventHandlers;
     this.configurationSerializer = configurationSerializer;
     this.azureStorageUtil = azureStorageUtil;
     this.azureBatchAccountKey = azureBatchAccountKey;
@@ -108,14 +103,14 @@ public final class AzureBatchResourceManager {
     final int memorySize = resourceRequestEvent.getMemorySize().get();
 
     // TODO: Investigate nodeDescriptorHandler usage and remove below dummy node descriptor.
-    this.nodeDescriptorHandler.onNext(NodeDescriptorEventImpl.newBuilder()
+    this.reefEventHandlers.onNodeDescriptor(NodeDescriptorEventImpl.newBuilder()
         .setIdentifier(id)
         .setHostName(this.localAddress)
         .setPort(1234)
         .setMemorySize(memorySize)
         .build());
 
-    this.resourceAllocationHandler.onNext(ResourceEventImpl.newAllocationBuilder()
+    this.reefEventHandlers.onResourceAllocation(ResourceEventImpl.newAllocationBuilder()
         .setIdentifier(id)
         .setNodeId(id)
         .setResourceMemory(memorySize)
