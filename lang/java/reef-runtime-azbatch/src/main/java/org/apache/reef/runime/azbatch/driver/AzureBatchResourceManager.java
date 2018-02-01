@@ -73,10 +73,6 @@ public final class AzureBatchResourceManager {
 
   @Inject
   AzureBatchResourceManager(
-      @Parameter(RuntimeParameters.ResourceAllocationHandler.class)
-      final EventHandler<ResourceAllocationEvent> resourceAllocationHandler,
-      @Parameter(RuntimeParameters.NodeDescriptorHandler.class)
-      final EventHandler<NodeDescriptorEvent> nodeDescriptorHandler,
       final LocalAddressProvider localAddressProvider,
       final REEFFileNames fileNames,
       final REEFEventHandlers reefEventHandlers,
