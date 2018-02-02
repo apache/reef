@@ -57,6 +57,7 @@ public final class HelloDriver {
   public final class StartHandler implements EventHandler<StartTime> {
     @Override
     public void onNext(final StartTime startTime) {
+      LOG.log(Level.INFO, "HelloDriver has been started. Requesting an evaluator.");
       HelloDriver.this.requestor.newRequest()
           .setNumber(1)
           .setMemory(64)

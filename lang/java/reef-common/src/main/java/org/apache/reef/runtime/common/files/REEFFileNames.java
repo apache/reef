@@ -52,6 +52,7 @@ public final class REEFFileNames {
   private static final String SECURITY_TOKENS_FILE = "SecurityTokens.json";
   private static final String YARN_BOOTSTRAP_APP_PARAM_FILE = "yarn-app-parameters.json";
   private static final String YARN_BOOTSTRAP_JOB_PARAM_FILE = "yarn-job-parameters.json";
+  private static final String AZBATCH_JOB_FOLDER_PATH = "apps/reef/jobs/";
 
   /**
    * @deprecated TODO[JIRA REEF-1887] Use getSecurityTokensFile() instead. Remove in REEF 0.18.
@@ -285,5 +286,12 @@ public final class REEFFileNames {
    */
   public String getYarnBootstrapJobParamFilePath() {
     return getYarnBootstrapJobParamFile();
+  }
+
+  /**
+   * @return Path to the Storage folder where Azure Batch runtime will put the application package.
+   */
+  public String getAzbatchJobFolderPath() {
+    return AZBATCH_JOB_FOLDER_PATH;
   }
 }
