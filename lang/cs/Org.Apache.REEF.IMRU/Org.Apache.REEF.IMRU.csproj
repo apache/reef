@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <!--
 Licensed to the Apache Software Foundation (ASF) under one
 or more contributor license agreements.  See the NOTICE file
@@ -47,6 +47,7 @@ under the License.
     <Compile Include="$(SolutionDir)\SharedAssemblyInfo.cs">
       <Link>Properties\SharedAssemblyInfo.cs</Link>
     </Compile>
+    <Compile Include="API\IIMRUCheckpointHandler.cs" />
     <Compile Include="API\IIMRUClient.cs" />
     <Compile Include="API\IIMRUResultHandler.cs" />
     <Compile Include="API\IJobCancelledDetector.cs" />
@@ -61,6 +62,9 @@ under the License.
     <Compile Include="API\IMRUUpdateConfiguration.cs" />
     <Compile Include="API\IUpdateFunction.cs" />
     <Compile Include="API\IPerMapperConfigGenerator.cs" />
+    <Compile Include="OnREEF\CheckpointHandler\CheckpointConfigurationModule.cs" />
+    <Compile Include="OnREEF\CheckpointHandler\CheckpointFilePath.cs" />
+    <Compile Include="OnREEF\CheckpointHandler\IMRUCheckpointHandler.cs" />
     <Compile Include="OnREEF\Driver\JobCancellationDetectorAlwaysFalse.cs" />
     <Compile Include="API\PerMapConfigGeneratorSet.cs" />
     <Compile Include="API\UpdateResult.cs" />
@@ -118,6 +122,7 @@ under the License.
     <Compile Include="OnREEF\Parameters\MaxRetryNumberInRecovery.cs" />
     <Compile Include="OnREEF\Parameters\MemoryForUpdateTask.cs" />
     <Compile Include="OnREEF\Parameters\MemoryPerMapper.cs" />
+    <Compile Include="OnREEF\Parameters\SerializedCheckpointConfiguration.cs" />
     <Compile Include="OnREEF\Parameters\SerializedMapTaskStateConfiguration.cs" />
     <Compile Include="OnREEF\Parameters\SerializedResultHandlerConfiguration.cs" />
     <Compile Include="OnREEF\Parameters\SerializedMapConfiguration.cs" />

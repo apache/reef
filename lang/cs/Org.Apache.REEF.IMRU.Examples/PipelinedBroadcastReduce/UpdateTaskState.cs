@@ -15,6 +15,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
+using System.Runtime.Serialization;
+using Newtonsoft.Json;
 using Org.Apache.REEF.IMRU.OnREEF.IMRUTasks;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Utilities.Logging;
@@ -26,25 +28,37 @@ namespace Org.Apache.REEF.IMRU.Examples.PipelinedBroadcastReduce
     /// </summary>
     /// <typeparam name="TMapInput"></typeparam>
     /// <typeparam name="TResult"></typeparam>
+    [DataContract]
     internal sealed class UpdateTaskState<TMapInput, TResult> : ITaskState
     {
         private static readonly Logger Logger = Logger.GetLogger(typeof(UpdateTaskState<TMapInput, TResult>));
 
+        [DataMember]
         internal TMapInput Input { get; set; }
 
+        [DataMember]
         internal TResult Result { get; set; }
 
         /// <summary>
         /// Keep the current iteration number
         /// </summary>
-        internal int Iterations { get;  set; }
+        [DataMember]
+        internal int Iterations { get; set; }
 
         /// <summary>
         /// Simple constructor for UpdateTaskState
         /// </summary>
         [Inject]
+        [JsonConstructor]
         private UpdateTaskState()
         {
+        }
+
+        internal void Update(UpdateTaskState<TMapInput, TResult> taskState)
+        {
+            Input = taskState.Input;
+            Result = taskState.Result;
+            Iterations = taskState.Iterations;
         }
     }
 }

@@ -1,4 +1,4 @@
-﻿﻿// Licensed to the Apache Software Foundation (ASF) under one
+﻿// Licensed to the Apache Software Foundation (ASF) under one
 // or more contributor license agreements.  See the NOTICE file
 // distributed with this work for additional information
 // regarding copyright ownership.  The ASF licenses this file
@@ -16,8 +16,10 @@
 // under the License.
 
 using System.Diagnostics;
+using System.IO;
 using Org.Apache.REEF.IMRU.API;
 using Org.Apache.REEF.IMRU.Examples.PipelinedBroadcastReduce;
+using Org.Apache.REEF.IMRU.OnREEF.CheckpointHandler;
 using Org.Apache.REEF.IMRU.OnREEF.Driver;
 using Org.Apache.REEF.IMRU.OnREEF.IMRUTasks;
 using Org.Apache.REEF.IMRU.OnREEF.Parameters;
@@ -153,6 +155,7 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
                 .SetMapOutputPipelineDataConverterConfiguration(BuildDataConverterConfig(chunkSize))
                 .SetPartitionedDatasetConfiguration(BuildPartitionedDatasetConfiguration(numberofMappers))
                 .SetResultHandlerConfiguration(BuildResultHandlerConfig())
+                .SetCheckpointConfiguration(BuildCheckpointConfig())
                 .SetJobName(IMRUJobName)
                 .SetNumberOfMappers(numberofMappers)
                 .SetMapperMemory(mapperMemory)
@@ -192,6 +195,19 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
             return IMRUUpdateConfiguration<int[], int[], int[]>.ConfigurationModule
                 .Set(IMRUUpdateConfiguration<int[], int[], int[]>.UpdateFunction,
                     GenericType<PipelinedBroadcastAndReduceWithFaultTolerant.BroadcastSenderReduceReceiverUpdateFunctionFT>.Class)
+                .Build();
+        }
+
+        /// <summary>
+        /// Build checkpoint configuration.
+        /// </summary>
+        protected override IConfiguration BuildCheckpointConfig()
+        {
+            var filePath = Path.Combine(Path.GetTempPath(), System.Guid.NewGuid() + "state.txt");
+
+            return CheckpointConfigurationModule.ConfigurationModule
+                .Set(CheckpointConfigurationModule.CheckpointFile, filePath)
+                .Set(CheckpointConfigurationModule.TaskStateCodec, GenericType<UpdateTaskStateCodec>.Class)
                 .Build();
         }
 

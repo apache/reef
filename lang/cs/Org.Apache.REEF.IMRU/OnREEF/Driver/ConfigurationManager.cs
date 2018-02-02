@@ -42,6 +42,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         private readonly IConfiguration _mapOutputPipelineDataConverterConfiguration;
         private readonly IConfiguration _mapInputPipelineDataConverterConfiguration;
         private readonly IConfiguration _resultHandlerConfiguration;
+        private readonly IConfiguration _checkpointConfiguration;
 
         [Inject]
         private ConfigurationManager(
@@ -55,7 +56,8 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
             [Parameter(typeof(SerializedUpdateFunctionCodecsConfiguration))] string updateFunctionCodecsConfig,
             [Parameter(typeof(SerializedMapOutputPipelineDataConverterConfiguration))] string mapOutputPipelineDataConverterConfiguration,
             [Parameter(typeof(SerializedMapInputPipelineDataConverterConfiguration))] string mapInputPipelineDataConverterConfiguration,
-            [Parameter(typeof(SerializedResultHandlerConfiguration))] string resultHandlerConfiguration)
+            [Parameter(typeof(SerializedResultHandlerConfiguration))] string resultHandlerConfiguration,
+            [Parameter(typeof(SerializedCheckpointConfiguration))] string checkpointConfiguration)
         {
             try
             {
@@ -152,6 +154,16 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
             {
                 Exceptions.Throw(e, "Unable to deserialize map input pipeline data converter configuration", Logger);
             }
+
+            try
+            {
+                _checkpointConfiguration =
+                    configurationSerializer.FromString(checkpointConfiguration);
+            }
+            catch (Exception e)
+            {
+                Exceptions.Throw(e, "Unable to deserialize checkpoint configuration", Logger);
+            }
         }
 
         /// <summary>
@@ -233,6 +245,14 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         internal IConfiguration ResultHandlerConfiguration
         {
             get { return _resultHandlerConfiguration; }
+        }
+
+        /// <summary>
+        /// Configuration of checkpoint
+        /// </summary>
+        internal IConfiguration CheckpointConfiguration
+        {
+            get { return _checkpointConfiguration; }
         }
     }
 }

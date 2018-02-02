@@ -20,8 +20,10 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using Newtonsoft.Json;
 using Org.Apache.REEF.Common.Tasks;
 using Org.Apache.REEF.IMRU.API;
+using Org.Apache.REEF.IMRU.OnREEF.CheckpointHandler;
 using Org.Apache.REEF.IMRU.OnREEF.IMRUTasks;
 using Org.Apache.REEF.IMRU.OnREEF.Parameters;
 using Org.Apache.REEF.Tang.Annotations;
@@ -30,6 +32,7 @@ using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Tang.Util;
 using Org.Apache.REEF.Utilities.Logging;
+using Org.Apache.REEF.Wake.Remote;
 
 namespace Org.Apache.REEF.IMRU.Examples.PipelinedBroadcastReduce
 {
@@ -69,6 +72,8 @@ namespace Org.Apache.REEF.IMRU.Examples.PipelinedBroadcastReduce
                     .SetMapInputPipelineDataConverterConfiguration(MapInputDataConverterConfig(chunkSize))
                     .SetMapOutputPipelineDataConverterConfiguration(MapOutputDataConverterConfig(chunkSize))
                     .SetPartitionedDatasetConfiguration(PartitionedDatasetConfiguration(numberofMappers))
+                    .SetResultHandlerConfiguration(BuildResultHandlerConfig())
+                    .SetCheckpointConfiguration(BuildCheckpointConfig())
                     .SetJobName("BroadcastReduce")
                     .SetNumberOfMappers(numberofMappers)
                     .SetMapperMemory(mapperMemory)
@@ -106,6 +111,19 @@ namespace Org.Apache.REEF.IMRU.Examples.PipelinedBroadcastReduce
             return IMRUUpdateConfiguration<int[], int[], int[]>.ConfigurationModule
                 .Set(IMRUUpdateConfiguration<int[], int[], int[]>.UpdateFunction,
                     GenericType<BroadcastSenderReduceReceiverUpdateFunctionFT>.Class).Build();
+        }
+
+        /// <summary>
+        /// Build checkpoint configuration. Subclass can override it.
+        /// </summary>
+        protected override IConfiguration BuildCheckpointConfig()
+        {
+            var filePath = Path.Combine(Path.GetTempPath(), Guid.NewGuid() + "state.txt");
+
+            return CheckpointConfigurationModule.ConfigurationModule
+                .Set(CheckpointConfigurationModule.CheckpointFile, filePath)
+                .Set(CheckpointConfigurationModule.TaskStateCodec, GenericType<UpdateTaskStateCodec>.Class)
+                .Build();
         }
 
         /// <summary>
@@ -290,12 +308,17 @@ namespace Org.Apache.REEF.IMRU.Examples.PipelinedBroadcastReduce
             private readonly int[] _intArr;
             private readonly int _workers;
             private readonly UpdateTaskState<int[], int[]> _taskState;
+            private readonly IIMRUCheckpointHandler _stateHandler;
+            private readonly ICodec<ITaskState> _stateCodec;
 
             [Inject]
             private BroadcastSenderReduceReceiverUpdateFunctionFT(
                 [Parameter(typeof(BroadcastReduceConfiguration.NumberOfIterations))] int maxIters,
                 [Parameter(typeof(BroadcastReduceConfiguration.Dimensions))] int dim,
                 [Parameter(typeof(BroadcastReduceConfiguration.NumWorkers))] int numWorkers,
+                [Parameter(typeof(TaskConfigurationOptions.Identifier))] string taskId,
+                IIMRUCheckpointHandler stateHandler,
+                ICodec<ITaskState> stateCodec,
                 ITaskState taskState)
             {
                 _maxIters = maxIters;
@@ -304,6 +327,16 @@ namespace Org.Apache.REEF.IMRU.Examples.PipelinedBroadcastReduce
                 _intArr = new int[_dim];
                 _workers = numWorkers;
                 _taskState = (UpdateTaskState<int[], int[]>)taskState;
+
+                _stateHandler = stateHandler;
+                _stateCodec = stateCodec;
+
+                int retryNumber;
+                int.TryParse(taskId[taskId.Length - 1].ToString(), out retryNumber);
+                if (retryNumber == 0)
+                {
+                    stateHandler.Reset();
+                }
             }
 
             /// <summary>
@@ -343,6 +376,8 @@ namespace Org.Apache.REEF.IMRU.Examples.PipelinedBroadcastReduce
             /// <returns>Map input</returns>
             UpdateResult<int[], int[]> IUpdateFunction<int[], int[], int[]>.Initialize()
             {
+                RestoreState();
+
                 if (_taskState.Result != null)
                 {
                     Restore(_taskState.Result);
@@ -372,7 +407,7 @@ namespace Org.Apache.REEF.IMRU.Examples.PipelinedBroadcastReduce
             {
                 _taskState.Iterations = _iterations;
                 _taskState.Input = value;
-                Logger.Log(Level.Info, "State saved: {0}", _taskState.Input[0]);
+                PersistState();
             }
 
             /// <summary>
@@ -383,7 +418,7 @@ namespace Org.Apache.REEF.IMRU.Examples.PipelinedBroadcastReduce
             {
                 _taskState.Iterations = _iterations;
                 _taskState.Result = value;
-                Logger.Log(Level.Info, "Result saved: {0}", _taskState.Result[0]);
+                PersistState();
             }
 
             /// <summary>
@@ -395,6 +430,29 @@ namespace Org.Apache.REEF.IMRU.Examples.PipelinedBroadcastReduce
                 for (int i = 0; i < _dim; i++)
                 {
                     _intArr[i] = d[i];
+                }
+            }
+
+            private void PersistState()
+            {
+                Logger.Log(Level.Info, "$$$$$$$$$$$ State to save: {0}", _taskState.Input[0]);
+                Logger.Log(Level.Info, "$$$$$$$$$$$ SaveState:currentState: {0}", JsonConvert.SerializeObject(_taskState));
+
+                _stateHandler.Persistent(_taskState, _stateCodec);
+            }
+
+            private void RestoreState()
+            {
+                var obj = (UpdateTaskState<int[], int[]>)_stateHandler.Restore(_stateCodec);
+
+                if (obj != null)
+                {
+                    Logger.Log(Level.Info,
+                        "$$$$$$$$$$$ restoreState:DeserializeObject: input: {0}, iteration: {1}, result: {2}.",
+                        obj.Input == null ? string.Empty : string.Join(",", obj.Input),
+                        obj.Iterations,
+                        obj.Result == null ? string.Empty : string.Join(",", obj.Result));
+                    _taskState.Update(obj);
                 }
             }
         }
