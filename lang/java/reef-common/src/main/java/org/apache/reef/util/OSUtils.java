@@ -18,7 +18,10 @@
  */
 package org.apache.reef.util;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.lang.management.ManagementFactory;
 import java.nio.charset.StandardCharsets;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -27,6 +30,7 @@ import java.util.logging.Logger;
  * OS utils.
  */
 public final class OSUtils {
+
   private static final Logger LOG = Logger.getLogger(OSUtils.class.getName());
 
   private OSUtils() {
@@ -75,34 +79,37 @@ public final class OSUtils {
     if (isUnix()) {
       try {
         final Process process = new ProcessBuilder()
-            .command("bash", "-c", "echo $PPID")
+            .command("/bin/sh", "-c", "echo $PPID")
             .start();
+        final int exitCode = process.waitFor();
+        if (exitCode != 0) {
+          LOG.log(Level.SEVERE, "Unable to determine PID. Exit code = {0}", exitCode);
+          final StringBuilder errorMsg = new StringBuilder();
+          try (final BufferedReader reader = new BufferedReader(
+              new InputStreamReader(process.getErrorStream(), StandardCharsets.UTF_8))) {
+            for (int i = 0; i < 10 && reader.ready(); ++i) { // Read the first 10 lines from stderr
+              errorMsg.append(reader.readLine()).append('\n');
+            }
+          }
+          LOG.log(Level.SEVERE, "Error:\n{0}", errorMsg);
+          return -1;
+        }
         final byte[] returnBytes = new byte[128];
         if (process.getInputStream().read(returnBytes) == -1) {
           LOG.log(Level.FINE, "No data read because end of stream was reached");
         }
-        final Long result = Long.valueOf(new String(returnBytes, StandardCharsets.UTF_8).trim());
         process.destroy();
-        return result;
-      } catch (final Exception e) {
+        return Long.parseLong(new String(returnBytes, StandardCharsets.UTF_8).trim());
+      } catch (final IOException | InterruptedException e) {
         LOG.log(Level.SEVERE, "Unable to determine PID", e);
         return -1;
       }
     } else if (isWindows()) {
+      final String name = ManagementFactory.getRuntimeMXBean().getName();
       try {
-        final Process process = new ProcessBuilder()
-            .command("powershell.exe", "-NoProfile", "-Command",
-                "wmic process where processid=$pid get parentprocessid")
-            .start();
-        final byte[] returnBytes = new byte[128];
-        if (process.getInputStream().read(returnBytes) == -1) {
-          LOG.log(Level.FINE, "No data read because end of stream was reached");
-        }
-        final Long result = Long.valueOf(new String(returnBytes, StandardCharsets.UTF_8).split("\n")[1].trim());
-        process.destroy();
-        return result;
-      } catch (final Exception e) {
-        LOG.log(Level.SEVERE, "Unable to determine PID", e);
+        return Long.parseLong(name.split("@")[0]);
+      } catch (final NumberFormatException e) {
+        LOG.log(Level.SEVERE, "Unable to parse PID from string " + name, e);
         return -1;
       }
     } else {
@@ -147,5 +154,4 @@ public final class OSUtils {
       return "$" + variableName;
     }
   }
-
 }
