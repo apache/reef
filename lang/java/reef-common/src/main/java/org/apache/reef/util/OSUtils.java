@@ -77,6 +77,7 @@ public final class OSUtils {
         final Process process = new ProcessBuilder()
             .command("bash", "-c", "echo $PPID")
             .start();
+        process.waitFor();
         final byte[] returnBytes = new byte[128];
         if (process.getInputStream().read(returnBytes) == -1) {
           LOG.log(Level.FINE, "No data read because end of stream was reached");
@@ -94,6 +95,7 @@ public final class OSUtils {
             .command("powershell.exe", "-NoProfile", "-Command",
                 "wmic process where processid=$pid get parentprocessid")
             .start();
+        process.waitFor();
         final byte[] returnBytes = new byte[128];
         if (process.getInputStream().read(returnBytes) == -1) {
           LOG.log(Level.FINE, "No data read because end of stream was reached");
