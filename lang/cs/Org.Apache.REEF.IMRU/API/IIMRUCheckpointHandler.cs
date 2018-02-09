@@ -43,6 +43,16 @@ namespace Org.Apache.REEF.IMRU.API
         ITaskState Restore(ICodec<ITaskState> codec);
 
         /// <summary>
+        /// Set a mark to indicate the result has been handled.
+        /// </summary>
+        void SetResult();
+
+        /// <summary>
+        /// Check if the result has been handled.
+        /// </summary>
+        bool GetResult();
+
+        /// <summary>
         /// Reset persistent state
         /// </summary>
         void Reset();

@@ -36,6 +36,10 @@ namespace Org.Apache.REEF.IMRU.OnREEF.CheckpointHandler
         private readonly IFileSystem _fileSystem;
         private readonly Uri _checkpointFileUrl;
         private readonly string _localFile;
+        private readonly Uri _resultFileUrl;
+        private readonly string _resultLocalFile;
+        private readonly string _checkpointFilePath;
+        private const string Done = "done";
 
         /// <summary>
         /// It is for storing and retrieving checkpoint data.
@@ -48,9 +52,16 @@ namespace Org.Apache.REEF.IMRU.OnREEF.CheckpointHandler
             IFileSystem fileSystem)
         {
             _fileSystem = fileSystem;
-            _checkpointFileUrl = _fileSystem.CreateUriForPath(checkpointFilePath);
+            _checkpointFilePath = checkpointFilePath;
             _localFile = "local" + Guid.NewGuid();
-            Logger.Log(Level.Info, "############ state file path: {0}, localFile: {1}", checkpointFilePath, _localFile);
+            _resultLocalFile = "local" + Guid.NewGuid();
+
+            if (!string.IsNullOrEmpty(_checkpointFilePath))
+            {
+                _checkpointFileUrl = _fileSystem.CreateUriForPath(checkpointFilePath);
+                _resultFileUrl = _fileSystem.CreateUriForPath(checkpointFilePath + "result");
+            }
+            Logger.Log(Level.Info, "State file path: {0}, localFile: {1}", checkpointFilePath, _localFile);
         }
 
         /// <summary>
@@ -63,12 +74,15 @@ namespace Org.Apache.REEF.IMRU.OnREEF.CheckpointHandler
             var data = codec.Encode(taskState);
             File.WriteAllBytes(_localFile, data);
 
-            if (_fileSystem.Exists(_checkpointFileUrl))
+            if (!string.IsNullOrEmpty(_checkpointFilePath))
             {
-                _fileSystem.Delete(_checkpointFileUrl);
-            }
+                if (_fileSystem.Exists(_checkpointFileUrl))
+                {
+                    _fileSystem.Delete(_checkpointFileUrl);
+                }
 
-            _fileSystem.CopyFromLocal(_localFile, _checkpointFileUrl);
+                _fileSystem.CopyFromLocal(_localFile, _checkpointFileUrl);
+            }
         }
 
         /// <summary>
@@ -78,7 +92,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.CheckpointHandler
         /// <returns></returns>
         public ITaskState Restore(ICodec<ITaskState> codec)
         {
-            if (_fileSystem.Exists(_checkpointFileUrl))
+            if (!string.IsNullOrEmpty(_checkpointFilePath) && _fileSystem.Exists(_checkpointFileUrl))
             {
                 _fileSystem.CopyToLocal(_checkpointFileUrl, _localFile);
                 var currentState = File.ReadAllBytes(_localFile);
@@ -87,14 +101,41 @@ namespace Org.Apache.REEF.IMRU.OnREEF.CheckpointHandler
             return null;
         }
 
+        public void SetResult()
+        {
+            Logger.Log(Level.Info, "SetResult to file {0}", _resultFileUrl);
+
+            if (!string.IsNullOrEmpty(_checkpointFilePath) && !_fileSystem.Exists(_resultFileUrl))
+            {
+                File.WriteAllText(_resultLocalFile, Done);
+                _fileSystem.CopyFromLocal(_resultLocalFile, _resultFileUrl);
+            }
+        }
+
+        public bool GetResult()
+        {
+            if (!string.IsNullOrEmpty(_checkpointFilePath) && _fileSystem.Exists(_resultFileUrl))
+            {
+                _fileSystem.CopyToLocal(_resultFileUrl, _resultLocalFile);
+                var result = File.ReadAllText(_resultLocalFile);
+                Logger.Log(Level.Info, "GetResult: {0}", result);
+                return Done.Equals(result);
+            }
+            return false;
+        }
+
         /// <summary>
         /// Delete checkpoint file if it exists. It should be only called once at begining of task initialization.  
         /// </summary>
         public void Reset()
         {
-            if (_fileSystem.Exists(_checkpointFileUrl))
+            if (!string.IsNullOrEmpty(_checkpointFilePath) && _fileSystem.Exists(_checkpointFileUrl))
             {
                 _fileSystem.Delete(_checkpointFileUrl);
+            }
+            if (!string.IsNullOrEmpty(_checkpointFilePath) && _fileSystem.Exists(_resultFileUrl))
+            {
+                _fileSystem.Delete(_resultFileUrl);
             }
         }
     }
