@@ -25,8 +25,5 @@ namespace Org.Apache.REEF.IO.FileSystem.AzureDataLake.Parameters
     [NamedParameter("The Application ID to be used to authenticate with Azure")]
     internal sealed class ClientId : Name<string>
     {
-        private ClientId()
-        {
-        }
     }
 }

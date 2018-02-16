@@ -25,8 +25,5 @@ namespace Org.Apache.REEF.IO.FileSystem.AzureDataLake.Parameters
     [NamedParameter("The Tenant to be used to authenticate with Azure")]
     internal sealed class Tenant : Name<string>
     {
-        private Tenant()
-        {
-        }
     }
 }

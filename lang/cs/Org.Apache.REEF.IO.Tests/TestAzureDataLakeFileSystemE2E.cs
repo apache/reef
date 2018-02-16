@@ -50,7 +50,7 @@ namespace Org.Apache.REEF.IO.Tests
             const string AdlsAccountName = "#####.azuredatalakestore.net";
             const string Tenant = "microsoft.onmicrosoft.com";
             const string TokenAudience = @"https://datalake.azure.net/";
-            const string ClientId = "#############################";
+            const string ClientId = "c2897d56-5eef-4030-8b7a-46b5c0acd05c";
             const string SecretKey = "##########";
 
             _defaultFolderName = "reef-test-folder-" + Guid.NewGuid();

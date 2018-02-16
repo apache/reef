@@ -25,8 +25,5 @@ namespace Org.Apache.REEF.IO.FileSystem.AzureDataLake.Parameters
     [NamedParameter("The ADL TokenAudience Uri to be used to authenticate with Data Lake Store", defaultValue: "https://datalake.azure.net/")]
     internal sealed class TokenAudience : Name<string>
     {
-        private TokenAudience()
-        {
-        }
     }
 }

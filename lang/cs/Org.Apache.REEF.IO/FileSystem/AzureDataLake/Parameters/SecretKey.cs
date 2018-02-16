@@ -25,8 +25,5 @@ namespace Org.Apache.REEF.IO.FileSystem.AzureDataLake.Parameters
     [NamedParameter("The Client Secret to be used to authenticate with Azure")]
     internal sealed class SecretKey : Name<string>
     {
-        private SecretKey()
-        {
-        }
     }
 }

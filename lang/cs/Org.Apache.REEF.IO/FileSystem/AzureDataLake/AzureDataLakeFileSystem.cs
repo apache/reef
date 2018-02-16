@@ -109,19 +109,20 @@ namespace Org.Apache.REEF.IO.FileSystem.AzureDataLake
         /// Copies the remote file to a local file.
         /// </summary>
         /// <exception cref="IOException">If copy process encounters any exceptions</exception>
-        public void CopyToLocal(Uri remoteFileUri, string localName)
+        public void CopyToLocal(Uri remoteFileUri, string localFileName)
         {
+            TransferStatus status;
             try
             {
-                TransferStatus status = _adlsClient.BulkDownload(remoteFileUri.AbsolutePath, localName); // throws KeyNotFoundException
-                if (status.EntriesFailed.Count != 0)
-                {
-                    throw new IOException($"{status.EntriesFailed.Count} entries did not get transferred correctly");
-                }
+                status = _adlsClient.BulkDownload(remoteFileUri.AbsolutePath, localFileName); // throws KeyNotFoundException
             }
             catch (Exception ex)
             {
-                throw new IOException($"Error copying {remoteFileUri} to {localName}", ex);
+                throw new IOException($"Error in bulk download from {remoteFileUri} to {localFileName}", ex);
+            }
+            if (status.EntriesFailed.Count != 0)
+            {
+                throw new IOException($"{status.EntriesFailed.Count} entries did not get transferred correctly");
             }
         }
 
@@ -131,17 +132,18 @@ namespace Org.Apache.REEF.IO.FileSystem.AzureDataLake
         /// <exception cref="IOException">If copy process encounters any exception</exception>
         public void CopyFromLocal(string localFileName, Uri remoteFileUri)
         {
+            TransferStatus status;
             try
             {
-                TransferStatus status = _adlsClient.BulkUpload(localFileName, remoteFileUri.AbsolutePath);
-                if (status.EntriesFailed.Count != 0)
-                {
-                    throw new IOException($"{status.EntriesFailed.Count} entries did not get transferred correctly");
-                }
+                status = status = _adlsClient.BulkUpload(localFileName, remoteFileUri.AbsolutePath);
             }
             catch (Exception ex)
             {
-                throw new IOException($"Error copying {localFileName} to {remoteFileUri}", ex);
+                throw new IOException($"Error in bulk upload from {localFileName} to {remoteFileUri}", ex);
+            }
+            if (status.EntriesFailed.Count != 0)
+            {
+                throw new IOException($"{status.EntriesFailed.Count} entries did not get transferred correctly");
             }
         }
 
@@ -184,7 +186,7 @@ namespace Org.Apache.REEF.IO.FileSystem.AzureDataLake
                 throw new IOException($"Cannot find directory specified by {directoryUri}");
             }
 
-            return _adlsClient.EnumerateDirectory(directoryUri.AbsolutePath).Select(entry => new Uri($"{GetUriPrefix()}{entry.FullName}"));
+            return _adlsClient.EnumerateDirectory(directoryUri.AbsolutePath).Select(entry => CreateUriForPath(entry.FullName));
         }
 
         /// <summary>
