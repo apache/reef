@@ -15,15 +15,14 @@
 // specific language governing permissions and limitations
 // under the License.
 
+using Microsoft.Rest;
 using Org.Apache.REEF.Tang.Annotations;
 
-namespace Org.Apache.REEF.IO.FileSystem.Hadoop.Parameters
+namespace Org.Apache.REEF.IO.FileSystem.AzureDataLake
 {
-    /// <summary>
-    /// The timeout (in milliseconds) for HDFS commands. Defaults to 300000 (5 minutes).
-    /// </summary>
-    [NamedParameter("The timeout (in milliseconds) for HDFS commands.", defaultValue: "300000")]
-    internal sealed class CommandTimeOut : Name<int>
+    [DefaultImplementation(typeof(SecretKeyAdlsCredentials))]
+    internal interface IAdlsCredentials
     {
+        ServiceClientCredentials Credentials { get; }
     }
 }
