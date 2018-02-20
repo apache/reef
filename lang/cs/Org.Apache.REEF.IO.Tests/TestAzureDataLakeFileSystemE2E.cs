@@ -44,14 +44,16 @@ namespace Org.Apache.REEF.IO.Tests
 
         public TestAzureDataLakeFileSystemE2E()
         {
-            // Service principal / appplication authentication with client secret / key
-            // Use the client ID of an existing AAD "Web App" application.
+            // Service principal / application authentication with client secret / key
+            // Use the application ID of an existing AAD "Web App" application as the ClientId and
+            // use its authentication key as the SecretKey
+            // https://docs.microsoft.com/en-us/azure/azure-resource-manager/resource-group-create-service-principal-portal#get-application-id-and-authentication-key
             // Fill in before running test!
             const string AdlsAccountName = "#####.azuredatalakestore.net";
             const string Tenant = "microsoft.onmicrosoft.com";
             const string TokenAudience = @"https://datalake.azure.net/";
-            const string ClientId = "c2897d56-5eef-4030-8b7a-46b5c0acd05c";
-            const string SecretKey = "##########";
+            const string ClientId = "########-####-####-####-############"; // e.g. "c2897d56-5eef-4030-8b7a-46b5c0acd05c"
+            const string SecretKey = "##########"; // e.g. "SecretKey1234!"
 
             _defaultFolderName = "reef-test-folder-" + Guid.NewGuid();
 
