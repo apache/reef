@@ -107,12 +107,12 @@ public final class MockAllocatedEvalautor implements AllocatedEvaluator {
   @Override
   public void submitContext(final Configuration contextConfiguration) {
     final String rootContextID = MockUtils.getValue(contextConfiguration, ContextIdentifier.class);
-    final MockActiveContext context = new MockActiveContext(
+    this.rootContext = new MockActiveContext(
         this.mockRuntimeDriver,
         this,
         Optional.<MockActiveContext>empty(),
         rootContextID);
-    this.mockRuntimeDriver.add(new CreateContext(context));
+    this.mockRuntimeDriver.add(new CreateContext(this.rootContext));
   }
 
   @Override
