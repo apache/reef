@@ -27,6 +27,7 @@ import org.apache.reef.driver.evaluator.EvaluatorProcess;
 import org.apache.reef.driver.task.TaskConfigurationOptions;
 import org.apache.reef.evaluator.context.parameters.ContextIdentifier;
 import org.apache.reef.mock.driver.request.CloseEvaluator;
+import org.apache.reef.mock.driver.request.CreateContext;
 import org.apache.reef.mock.driver.request.CreateContextAndTask;
 import org.apache.reef.tang.Configuration;
 import org.apache.reef.util.Optional;
@@ -47,7 +48,7 @@ public final class MockAllocatedEvalautor implements AllocatedEvaluator {
 
   private final EvaluatorDescriptor evaluatorDescriptor;
 
-  private final MockActiveContext rootContext;
+  private MockActiveContext rootContext;
 
   private boolean closed = false;
 
@@ -105,14 +106,21 @@ public final class MockAllocatedEvalautor implements AllocatedEvaluator {
 
   @Override
   public void submitContext(final Configuration contextConfiguration) {
-    this.rootContext.submitContext(contextConfiguration);
+    final String rootContextID = MockUtils.getValue(contextConfiguration, ContextIdentifier.class);
+    final MockActiveContext context = new MockActiveContext(
+        this.mockRuntimeDriver,
+        this,
+        Optional.<MockActiveContext>empty(),
+        rootContextID);
+    this.mockRuntimeDriver.add(new CreateContext(context));
   }
 
   @Override
   public void submitContextAndService(
       final Configuration contextConfiguration,
       final Configuration serviceConfiguration) {
-    this.rootContext.submitContextAndService(contextConfiguration, serviceConfiguration);
+    submitContext(contextConfiguration);
+    // ignore services
   }
 
   @Override
@@ -121,15 +129,15 @@ public final class MockAllocatedEvalautor implements AllocatedEvaluator {
       final Configuration taskConfiguration) {
     final String contextID = MockUtils.getValue(contextConfiguration, ContextIdentifier.class);
     final String taskID = MockUtils.getValue(taskConfiguration, TaskConfigurationOptions.Identifier.class);
-    final MockActiveContext mockContext = new MockActiveContext(
+    this.rootContext = new MockActiveContext(
         this.mockRuntimeDriver,
         this,
-        Optional.of(this.rootContext),
+        Optional.<MockActiveContext>empty(),
         contextID);
-    final MockRunningTask mockTask = new MockRunningTask(this.mockRuntimeDriver, taskID, mockContext);
+    final MockRunningTask mockTask = new MockRunningTask(this.mockRuntimeDriver, taskID, this.rootContext);
     this.mockRuntimeDriver.add(
         new CreateContextAndTask(
-            mockContext,
+            this.rootContext,
             mockTask,
             this.mockRuntimeDriver.getTaskReturnValueProvider()));
   }
