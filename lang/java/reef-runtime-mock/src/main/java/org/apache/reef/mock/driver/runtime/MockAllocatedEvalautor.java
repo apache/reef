@@ -48,7 +48,7 @@ public final class MockAllocatedEvalautor implements AllocatedEvaluator {
 
   private final EvaluatorDescriptor evaluatorDescriptor;
 
-  private MockActiveContext rootContext;
+  private MockActiveContext rootContext = null;
 
   private boolean closed = false;
 
@@ -59,11 +59,6 @@ public final class MockAllocatedEvalautor implements AllocatedEvaluator {
     this.mockRuntimeDriver = mockRuntimeDriver;
     this.identifier = identifier;
     this.evaluatorDescriptor = evaluatorDescriptor;
-    this.rootContext = new MockActiveContext(
-        mockRuntimeDriver,
-        this,
-        Optional.<MockActiveContext>empty(),
-        ROOT_CONTEXT_IDENTIFIER_PREFIX + identifier);
   }
 
   public MockActiveContext getRootContext() {
@@ -101,11 +96,28 @@ public final class MockAllocatedEvalautor implements AllocatedEvaluator {
 
   @Override
   public void submitTask(final Configuration taskConfiguration) {
-    this.rootContext.submitTask(taskConfiguration);
+    if (this.rootContext != null) {
+      throw new IllegalStateException("Root context already created");
+    }
+    this.rootContext = new MockActiveContext(
+        mockRuntimeDriver,
+        this,
+        Optional.<MockActiveContext>empty(),
+        ROOT_CONTEXT_IDENTIFIER_PREFIX + identifier);
+    final String taskID = MockUtils.getValue(taskConfiguration, TaskConfigurationOptions.Identifier.class);
+    final MockRunningTask mockTask = new MockRunningTask(this.mockRuntimeDriver, taskID, this.rootContext);
+    this.mockRuntimeDriver.add(
+        new CreateContextAndTask(
+            this.rootContext,
+            mockTask,
+            this.mockRuntimeDriver.getTaskReturnValueProvider()));
   }
 
   @Override
   public void submitContext(final Configuration contextConfiguration) {
+    if (this.rootContext != null) {
+      throw new IllegalStateException("Root context already created");
+    }
     final String rootContextID = MockUtils.getValue(contextConfiguration, ContextIdentifier.class);
     this.rootContext = new MockActiveContext(
         this.mockRuntimeDriver,
@@ -127,6 +139,9 @@ public final class MockAllocatedEvalautor implements AllocatedEvaluator {
   public void submitContextAndTask(
       final Configuration contextConfiguration,
       final Configuration taskConfiguration) {
+    if (this.rootContext != null) {
+      throw new IllegalStateException("Root context already created");
+    }
     final String contextID = MockUtils.getValue(contextConfiguration, ContextIdentifier.class);
     final String taskID = MockUtils.getValue(taskConfiguration, TaskConfigurationOptions.Identifier.class);
     this.rootContext = new MockActiveContext(
