@@ -17,6 +17,7 @@
 
 using System;
 using System.IO;
+using System.Linq;
 using Org.Apache.REEF.IMRU.API;
 using Org.Apache.REEF.IMRU.OnREEF.IMRUTasks;
 using Org.Apache.REEF.IO.FileSystem;
@@ -34,12 +35,12 @@ namespace Org.Apache.REEF.IMRU.OnREEF.CheckpointHandler
         private static readonly Logger Logger = Logger.GetLogger(typeof(IMRUCheckpointHandler));
 
         private readonly IFileSystem _fileSystem;
-        private readonly Uri _checkpointFileUrl;
-        private readonly string _localFile;
-        private readonly Uri _resultFileUrl;
-        private readonly string _resultLocalFile;
         private readonly string _checkpointFilePath;
-        private const string Done = "done";
+        private const string StateDir = "StateDir";
+        private const string StateFile = "StateFile";
+        private const string FlagFile = "FlagFile";
+        public const string StateFileExt = ".bin";
+        public const string FlagFileExt = ".txt";
 
         /// <summary>
         /// It is for storing and retrieving checkpoint data.
@@ -53,15 +54,8 @@ namespace Org.Apache.REEF.IMRU.OnREEF.CheckpointHandler
         {
             _fileSystem = fileSystem;
             _checkpointFilePath = checkpointFilePath;
-            _localFile = "local" + Guid.NewGuid();
-            _resultLocalFile = "local" + Guid.NewGuid();
 
-            if (!string.IsNullOrEmpty(_checkpointFilePath))
-            {
-                _checkpointFileUrl = _fileSystem.CreateUriForPath(checkpointFilePath);
-                _resultFileUrl = _fileSystem.CreateUriForPath(checkpointFilePath + "result");
-            }
-            Logger.Log(Level.Info, "State file path: {0}, localFile: {1}", checkpointFilePath, _localFile);
+            Logger.Log(Level.Info, "State file path: {0}", checkpointFilePath);
         }
 
         /// <summary>
@@ -71,18 +65,26 @@ namespace Org.Apache.REEF.IMRU.OnREEF.CheckpointHandler
         /// <param name="codec"></param>
         public void Persistent(ITaskState taskState, ICodec<ITaskState> codec)
         {
+            var localStateFile = Path.GetTempPath() + Guid.NewGuid().ToString("N").Substring(0, 4);
+            var localFlagfile = Path.GetTempPath() + Guid.NewGuid().ToString("N").Substring(0, 4);
+
+            string tick = DateTime.Now.Ticks.ToString();
+            string stateFileDir = Path.Combine(_checkpointFilePath, StateDir + tick);
+            string remoteStateFileName = Path.Combine(stateFileDir, StateFile + tick + StateFileExt);
+            string remoteFlagFileName = Path.Combine(stateFileDir, FlagFile + tick + FlagFileExt);
+
+            var stateFileUri = _fileSystem.CreateUriForPath(remoteStateFileName);
+            var flagFileUri = _fileSystem.CreateUriForPath(remoteFlagFileName);
+
             var data = codec.Encode(taskState);
-            File.WriteAllBytes(_localFile, data);
+            File.WriteAllBytes(localStateFile, data);
+            File.WriteAllText(localFlagfile, remoteStateFileName);
 
-            if (!string.IsNullOrEmpty(_checkpointFilePath))
-            {
-                if (_fileSystem.Exists(_checkpointFileUrl))
-                {
-                    _fileSystem.Delete(_checkpointFileUrl);
-                }
+            _fileSystem.CopyFromLocal(localStateFile, stateFileUri);
+            _fileSystem.CopyFromLocal(localFlagfile, flagFileUri);
 
-                _fileSystem.CopyFromLocal(_localFile, _checkpointFileUrl);
-            }
+            File.Delete(localStateFile);
+            File.Delete(localFlagfile);
         }
 
         /// <summary>
@@ -92,51 +94,35 @@ namespace Org.Apache.REEF.IMRU.OnREEF.CheckpointHandler
         /// <returns></returns>
         public ITaskState Restore(ICodec<ITaskState> codec)
         {
-            if (!string.IsNullOrEmpty(_checkpointFilePath) && _fileSystem.Exists(_checkpointFileUrl))
+            if (!string.IsNullOrEmpty(_checkpointFilePath))
             {
-                _fileSystem.CopyToLocal(_checkpointFileUrl, _localFile);
-                var currentState = File.ReadAllBytes(_localFile);
-                return codec.Decode(currentState);
+                var files = _fileSystem.GetChildren(_fileSystem.CreateUriForPath(_checkpointFilePath));
+                if (files != null)
+                {
+                    var flagFiles = files.Where(f => f.AbsolutePath.Contains(FlagFile));
+                    var uris = flagFiles.OrderByDescending(ff => _fileSystem.GetFileStatus(ff).ModificationTime);
+
+                    Uri latestFlagFile = uris.FirstOrDefault();
+                    if (latestFlagFile != null)
+                    {
+                        var localLatestFlagfile = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString("N").Substring(0, 4));
+                        var localLatestStatefile = Path.Combine(Path.GetTempPath() + Guid.NewGuid().ToString("N").Substring(0, 4));
+
+                        _fileSystem.CopyToLocal(latestFlagFile, localLatestFlagfile);
+                        string latestStateFile = File.ReadAllText(localLatestFlagfile);
+                        Logger.Log(Level.Info, "latestStateFile -- : {0}", latestStateFile);
+                        var latestStateFileUri = _fileSystem.CreateUriForPath(latestStateFile);
+                        _fileSystem.CopyToLocal(latestStateFileUri, localLatestStatefile);
+                        var currentState = File.ReadAllBytes(localLatestStatefile);
+
+                        File.Delete(localLatestFlagfile);
+                        File.Delete(localLatestStatefile);
+
+                        return codec.Decode(currentState);
+                    }
+                }
             }
             return null;
-        }
-
-        public void SetResult()
-        {
-            Logger.Log(Level.Info, "SetResult to file {0}", _resultFileUrl);
-
-            if (!string.IsNullOrEmpty(_checkpointFilePath) && !_fileSystem.Exists(_resultFileUrl))
-            {
-                File.WriteAllText(_resultLocalFile, Done);
-                _fileSystem.CopyFromLocal(_resultLocalFile, _resultFileUrl);
-            }
-        }
-
-        public bool GetResult()
-        {
-            if (!string.IsNullOrEmpty(_checkpointFilePath) && _fileSystem.Exists(_resultFileUrl))
-            {
-                _fileSystem.CopyToLocal(_resultFileUrl, _resultLocalFile);
-                var result = File.ReadAllText(_resultLocalFile);
-                Logger.Log(Level.Info, "GetResult: {0}", result);
-                return Done.Equals(result);
-            }
-            return false;
-        }
-
-        /// <summary>
-        /// Delete checkpoint file if it exists. It should be only called once at begining of task initialization.  
-        /// </summary>
-        public void Reset()
-        {
-            if (!string.IsNullOrEmpty(_checkpointFilePath) && _fileSystem.Exists(_checkpointFileUrl))
-            {
-                _fileSystem.Delete(_checkpointFileUrl);
-            }
-            if (!string.IsNullOrEmpty(_checkpointFilePath) && _fileSystem.Exists(_resultFileUrl))
-            {
-                _fileSystem.Delete(_resultFileUrl);
-            }
         }
     }
 }

@@ -333,10 +333,6 @@ namespace Org.Apache.REEF.IMRU.Examples.PipelinedBroadcastReduce
 
                 int retryNumber;
                 int.TryParse(taskId[taskId.Length - 1].ToString(), out retryNumber);
-                if (retryNumber == 0)
-                {
-                    stateHandler.Reset();
-                }
             }
 
             /// <summary>

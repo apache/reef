@@ -46,7 +46,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.IMRUTasks
         private readonly IBroadcastSender<MapInputWithControlMessage<TMapInput>> _dataAndControlMessageSender;
         private readonly IUpdateFunction<TMapInput, TMapOutput, TResult> _updateTask;
         private readonly IIMRUResultHandler<TResult> _resultHandler;
-        private readonly IIMRUCheckpointHandler _checkpointHandler;
+        private readonly IIMRUCheckpointResultHandler _checkpointResultHandler;
 
         /// <summary>
         /// It indicates if the update task has completed and result has been written.
@@ -58,7 +58,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.IMRUTasks
         /// <param name="updateTask">The UpdateTask hosted in this REEF Task.</param>
         /// <param name="groupCommunicationsClient">Used to setup the communications.</param>
         /// <param name="resultHandler">Result handler</param>
-        /// <param name="checkpointHandler">Checkpoint handler</param>
+        /// <param name="checkpointResultHandler">Checkpoint handler</param>
         /// <param name="taskCloseCoordinator">Task close Coordinator</param>
         /// <param name="invokeGc">Whether to call Garbage Collector after each iteration or not</param>
         /// <param name="taskId">task id</param>
@@ -69,7 +69,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.IMRUTasks
             IIMRUResultHandler<TResult> resultHandler,
             TaskCloseCoordinator taskCloseCoordinator,
             [Parameter(typeof(InvokeGC))] bool invokeGc,
-            IIMRUCheckpointHandler checkpointHandler,
+            IIMRUCheckpointResultHandler checkpointResultHandler,
             [Parameter(typeof(TaskConfigurationOptions.Identifier))] string taskId) :
             base(groupCommunicationsClient, taskCloseCoordinator, invokeGc)
         {
@@ -79,7 +79,14 @@ namespace Org.Apache.REEF.IMRU.OnREEF.IMRUTasks
                 _communicationGroupClient.GetBroadcastSender<MapInputWithControlMessage<TMapInput>>(IMRUConstants.BroadcastOperatorName);
             _dataReceiver = _communicationGroupClient.GetReduceReceiver<TMapOutput>(IMRUConstants.ReduceOperatorName);
             _resultHandler = resultHandler;
-            _checkpointHandler = checkpointHandler;
+            _checkpointResultHandler = checkpointResultHandler;
+
+            var taskIdSplit = taskId.Split('-');
+            var retryIndex = int.Parse(taskIdSplit[taskIdSplit.Length - 1]);
+            if (retryIndex == 0)
+            {
+                _checkpointResultHandler.Clear();
+            }
             Logger.Log(Level.Info, "$$$$_resultHandler." + _resultHandler.GetType().AssemblyQualifiedName);
             Logger.Log(Level.Info, "UpdateTaskHost initialized.");
         }
@@ -102,10 +109,10 @@ namespace Org.Apache.REEF.IMRU.OnREEF.IMRUTasks
 
             if (updateResult.HasResult)
             {
-                if (!_checkpointHandler.GetResult())
+                if (!_checkpointResultHandler.GetResult())
                 {
                     _resultHandler.HandleResult(updateResult.Result);
-                    _checkpointHandler.SetResult();
+                    _checkpointResultHandler.SetResult();
                 }
                 _done = true;
             }
@@ -135,7 +142,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.IMRUTasks
                         {
                             _resultHandler.HandleResult(updateResult.Result);
                             _done = true;
-                            _checkpointHandler.SetResult();
+                            _checkpointResultHandler.SetResult();
                         }
                     }
                     catch (Exception e)

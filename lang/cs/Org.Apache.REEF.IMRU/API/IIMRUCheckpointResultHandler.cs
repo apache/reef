@@ -5,9 +5,9 @@
 // to you under the Apache License, Version 2.0 (the
 // "License"); you may not use this file except in compliance
 // with the License.  You may obtain a copy of the License at
-// 
+//
 //   http://www.apache.org/licenses/LICENSE-2.0
-// 
+//
 // Unless required by applicable law or agreed to in writing,
 // software distributed under the License is distributed on an
 // "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -16,30 +16,29 @@
 // under the License.
 
 using Org.Apache.REEF.IMRU.OnREEF.CheckpointHandler;
-using Org.Apache.REEF.IMRU.OnREEF.IMRUTasks;
 using Org.Apache.REEF.Tang.Annotations;
-using Org.Apache.REEF.Wake.Remote;
 
 namespace Org.Apache.REEF.IMRU.API
 {
     /// <summary>
-    /// It is responsible for save and restore ITaskState object with the given ICodec
+    /// Internal interface that defineds methods for checkpoint.
     /// </summary>
-    [DefaultImplementation(typeof(IMRUCheckpointHandler))]
-    public interface IIMRUCheckpointHandler
+    [DefaultImplementation(typeof(IMRUCheckpointResultHandler))]
+    internal interface IIMRUCheckpointResultHandler
     {
         /// <summary>
-        /// Persistent ITaskState object with the given ICodec.
+        /// Set a flag to indicate the result has been handled.
         /// </summary>
-        /// <param name="taskState"></param>
-        /// <param name="codec"></param>
-        void Persistent(ITaskState taskState, ICodec<ITaskState> codec);
+        void SetResult();
 
         /// <summary>
-        /// Restore the data and decode it with the given ICodec.
+        /// Check if the result flag has been set.
         /// </summary>
-        /// <param name="codec"></param>
-        /// <returns></returns>
-        ITaskState Restore(ICodec<ITaskState> codec);
+        bool GetResult();
+
+        /// <summary>
+        /// Clear state files
+        /// </summary>
+        void Clear();
     }
 }

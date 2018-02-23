@@ -17,6 +17,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using Org.Apache.REEF.Tang.Annotations;
@@ -92,11 +93,13 @@ namespace Org.Apache.REEF.IO.FileSystem.Local
 
         public void CopyToLocal(Uri remoteFileUri, string localName)
         {
+            EnsureDirectoryExists(localName);
             File.Copy(remoteFileUri.LocalPath, localName);
         }
 
         public void CopyFromLocal(string localFileName, Uri remoteFileUri)
         {
+            EnsureDirectoryExists(remoteFileUri.LocalPath);
             File.Copy(localFileName, remoteFileUri.LocalPath);
         }
 
@@ -113,8 +116,25 @@ namespace Org.Apache.REEF.IO.FileSystem.Local
         public IEnumerable<Uri> GetChildren(Uri directoryUri)
         {
             var localPath = Path.GetFullPath(directoryUri.LocalPath);
-            return Directory.GetFileSystemEntries(localPath)
-                .Select(entry => new Uri(Path.Combine(localPath, entry)));
+            try
+            {
+                return Directory.GetFileSystemEntries(localPath, "*", SearchOption.AllDirectories)
+                    .Select(entry => new Uri(Path.Combine(localPath, entry)));
+            }
+            catch (DirectoryNotFoundException)
+            {
+                return new Collection<Uri>();
+            }
+        }
+
+        private static void EnsureDirectoryExists(string filePath)
+        {
+            var parts = filePath.Split('\\');
+            var directory = filePath.Substring(0, filePath.Length - parts[parts.Length - 1].Length);
+            if (!Directory.Exists(directory))
+            {
+                Directory.CreateDirectory(directory);
+            }
         }
     }
 }

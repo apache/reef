@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <!--
 Licensed to the Apache Software Foundation (ASF) under one
 or more contributor license agreements.  See the NOTICE file
@@ -35,8 +35,12 @@ under the License.
     <RestorePackages>true</RestorePackages>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>$(PackagesDir)\Newtonsoft.Json.$(NewtonsoftJsonVersion)\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -59,6 +63,7 @@ under the License.
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="MapperCountTest.cs" />
     <Compile Include="TestActiveContextManager.cs" />
+    <Compile Include="TestCheckpointHandler.cs" />
     <Compile Include="TestEvaluatorManager.cs" />
     <Compile Include="TestSystemStates.cs" />
     <Compile Include="TestTaskManager.cs" />

@@ -92,6 +92,53 @@ namespace Org.Apache.REEF.IO.Tests
         }
 
         [Fact]
+        public void TestCopyFromLocalToNewFolder()
+        {
+            var fs = GetFileSystem();
+            var sourceFilePath = Path.Combine(Path.GetTempPath(), TempFileName);
+            MakeLocalTestFile(sourceFilePath);
+
+            var destinationFilePath = Path.Combine(Path.GetTempPath(), "test" + Guid.NewGuid().ToString("N"), TempFileName + ".copy");
+            if (File.Exists(destinationFilePath))
+            {
+                File.Delete(destinationFilePath);
+            }
+
+            var destinationUri = new Uri(destinationFilePath);
+            fs.CopyFromLocal(sourceFilePath, destinationUri);
+            TestRemoteFile(fs, destinationUri);
+
+            fs.Delete(destinationUri);
+            Assert.False(fs.Exists(destinationUri));
+
+            File.Delete(sourceFilePath);
+            Assert.False(File.Exists(sourceFilePath));
+        }
+
+        [Fact]
+        public void TestCopyToLocalNewFolder()
+        {
+            var fs = GetFileSystem();
+            var sourceFilePath = Path.Combine(Path.GetTempPath(), TempFileName);
+            var sourceUri = new Uri(sourceFilePath);
+            var destinationFilePath = Path.Combine(Path.GetTempPath(), "Test" + Guid.NewGuid().ToString("N").Substring(0, 4), TempFileName + ".copy");
+            if (File.Exists(destinationFilePath))
+            {
+                File.Delete(destinationFilePath);
+            }
+
+            MakeRemoteTestFile(fs, sourceUri);
+            fs.CopyToLocal(sourceUri, destinationFilePath);
+            TestLocalFile(destinationFilePath);
+
+            fs.Delete(sourceUri);
+            Assert.False(fs.Exists(sourceUri));
+
+            File.Delete(destinationFilePath);
+            Assert.False(File.Exists(destinationFilePath));
+        }
+
+        [Fact]
         public void TestCopyToLocal()
         {
             var fs = GetFileSystem();
@@ -154,6 +201,27 @@ namespace Org.Apache.REEF.IO.Tests
             Assert.Equal(1, fileUris.Count);
             Assert.Equal(fileUri, fileUris[0]);
             fs.Delete(fileUri);
+            fs.DeleteDirectory(directoryUri);
+        }
+
+        [Fact]
+        public void TestGetChildrenFromNewFolder()
+        {
+            var fs = GetFileSystem();
+            var path = new Uri(Path.Combine(Path.GetTempPath(), "Test" + Guid.NewGuid().ToString("N").Substring(0, 4)));
+            var children = fs.GetChildren(path);
+            Assert.Equal(0, children.Count());
+        }
+
+        [Fact]
+        public void TestGetChildrenFromEmptyFolder()
+        {
+            var fs = GetFileSystem();
+            var directoryUri = new Uri(Path.Combine(Path.Combine(Path.GetTempPath(), "Test" + Guid.NewGuid().ToString("N").Substring(0, 4))));
+            fs.CreateDirectory(directoryUri);
+            var fileUris = fs.GetChildren(directoryUri).ToList();
+
+            Assert.Equal(0, fileUris.Count);
             fs.DeleteDirectory(directoryUri);
         }
 

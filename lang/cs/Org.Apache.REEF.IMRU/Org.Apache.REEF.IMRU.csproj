@@ -48,6 +48,7 @@ under the License.
       <Link>Properties\SharedAssemblyInfo.cs</Link>
     </Compile>
     <Compile Include="API\IIMRUCheckpointHandler.cs" />
+    <Compile Include="API\IIMRUCheckpointResultHandler.cs" />
     <Compile Include="API\IIMRUClient.cs" />
     <Compile Include="API\IIMRUResultHandler.cs" />
     <Compile Include="API\IJobCancelledDetector.cs" />
@@ -65,6 +66,7 @@ under the License.
     <Compile Include="OnREEF\CheckpointHandler\CheckpointConfigurationModule.cs" />
     <Compile Include="OnREEF\CheckpointHandler\CheckpointFilePath.cs" />
     <Compile Include="OnREEF\CheckpointHandler\IMRUCheckpointHandler.cs" />
+    <Compile Include="OnREEF\CheckpointHandler\IMRUCheckpointResultHandler.cs" />
     <Compile Include="OnREEF\Driver\JobCancellationDetectorAlwaysFalse.cs" />
     <Compile Include="API\PerMapConfigGeneratorSet.cs" />
     <Compile Include="API\UpdateResult.cs" />
