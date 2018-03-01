@@ -74,6 +74,7 @@ under the License.
                                     <arg value="${protoPath}/reef_service_protos.proto"/>
                                     <arg value="${protoPath}/evaluator_runtime.proto"/>
                                     <arg value="${protoPath}/client_runtime.proto"/>
+                                    <arg value="${protoPath}/evaluator_shim.proto"/>
                                     <arg value="${protoPath}/reef_protocol.proto"/>
                                 </exec>
                             </target>

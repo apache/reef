@@ -753,6 +753,13 @@ under the License.
                 <artifactId>mesos</artifactId>
                 <version>0.25.0</version>
             </dependency>
+
+            <!-- Microsoft Azure Batch APIs -->
+            <dependency>
+                <groupId>com.microsoft.azure</groupId>
+                <artifactId>azure-batch</artifactId>
+                <version>3.0.0</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -770,6 +777,7 @@ under the License.
         <module>lang/java/reef-experimental</module>
         <module>lang/java/reef-io</module>
         <module>lang/java/reef-poison</module>
+        <module>lang/java/reef-runtime-azbatch</module>
         <module>lang/java/reef-runtime-hdinsight</module>
         <module>lang/java/reef-runtime-local</module>
         <module>lang/java/reef-runtime-yarn</module>
