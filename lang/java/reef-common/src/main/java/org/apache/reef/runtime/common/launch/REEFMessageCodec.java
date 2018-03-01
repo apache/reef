@@ -27,6 +27,7 @@ import org.apache.reef.annotations.audience.EvaluatorSide;
 import org.apache.reef.annotations.audience.Private;
 import org.apache.reef.proto.ClientRuntimeProtocol;
 import org.apache.reef.proto.EvaluatorRuntimeProtocol;
+import org.apache.reef.proto.EvaluatorShimProtocol;
 import org.apache.reef.proto.REEFProtocol;
 import org.apache.reef.proto.ReefServiceProtos;
 import org.apache.reef.wake.remote.Codec;
@@ -62,6 +63,10 @@ public final class REEFMessageCodec implements Codec<GeneratedMessage> {
         return message.getEvaluatorControl();
       } else if (message.hasEvaluatorHeartBeat()) {
         return message.getEvaluatorHeartBeat();
+      } else if (message.hasEvaluatorShimCommand()) {
+        return message.getEvaluatorShimCommand();
+      } else if (message.hasEvaluatorShimStatus()) {
+        return message.getEvaluatorShimStatus();
       }
       throw new RuntimeException("Unable to decode a message: " + message.toString());
     } catch (final InvalidProtocolBufferException e) {
@@ -83,6 +88,10 @@ public final class REEFMessageCodec implements Codec<GeneratedMessage> {
       message.setEvaluatorControl((EvaluatorRuntimeProtocol.EvaluatorControlProto) msg);
     } else if (msg instanceof EvaluatorRuntimeProtocol.EvaluatorHeartbeatProto) {
       message.setEvaluatorHeartBeat((EvaluatorRuntimeProtocol.EvaluatorHeartbeatProto) msg);
+    } else if (msg instanceof EvaluatorShimProtocol.EvaluatorShimControlProto) {
+      message.setEvaluatorShimCommand((EvaluatorShimProtocol.EvaluatorShimControlProto) msg);
+    } else if (msg instanceof EvaluatorShimProtocol.EvaluatorShimStatusProto) {
+      message.setEvaluatorShimStatus((EvaluatorShimProtocol.EvaluatorShimStatusProto) msg);
     } else {
       throw new RuntimeException("Unable to serialize: " + msg);
     }

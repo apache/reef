@@ -18,6 +18,7 @@
  */
 package org.apache.reef.runtime.common.files;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.reef.annotations.audience.ClientSide;
 import org.apache.reef.annotations.audience.Private;
 import org.apache.reef.annotations.audience.RuntimeAuthor;
@@ -32,6 +33,8 @@ import javax.inject.Inject;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -56,6 +59,15 @@ public final class JobJarMaker {
     this.configurationSerializer = configurationSerializer;
     this.fileNames = fileNames;
     this.deleteTempFilesOnExit = deleteTempFilesOnExit;
+  }
+
+  /**
+   * Provider builder class for building JAR files.
+   *
+   * @return JarBuilder instance.
+   */
+  public JarBuilder newBuilder() {
+    return new JarBuilder();
   }
 
   public static void copy(final Iterable<FileResource> files, final File destinationFolder) {
@@ -96,42 +108,87 @@ public final class JobJarMaker {
       final JobSubmissionEvent jobSubmissionEvent,
       final Configuration driverConfiguration) throws IOException {
 
-    // Copy all files to a local job submission folder
-    final File jobSubmissionFolder = makejobSubmissionFolder();
-    LOG.log(Level.FINE, "Staging submission in {0}", jobSubmissionFolder);
-
-    final File localFolder = new File(jobSubmissionFolder, this.fileNames.getLocalFolderName());
-    final File globalFolder = new File(jobSubmissionFolder, this.fileNames.getGlobalFolderName());
-
-    copy(jobSubmissionEvent.getGlobalFileSet(), globalFolder);
-    copy(jobSubmissionEvent.getLocalFileSet(), localFolder);
-
-    // Store the Driver Configuration in the JAR file.
-    this.configurationSerializer.toFile(
-        driverConfiguration, new File(localFolder, this.fileNames.getDriverConfigurationName()));
-
-    // Create a JAR File for the submission
-    final File jarFile = File.createTempFile(this.fileNames.getJobFolderPrefix(), this.fileNames.getJarFileSuffix());
-
-    LOG.log(Level.FINE, "Creating job submission jar file: {0}", jarFile);
-    new JARFileMaker(jarFile).addChildren(jobSubmissionFolder).close();
-
-    if (this.deleteTempFilesOnExit) {
-      LOG.log(Level.FINE,
-          "Deleting the temporary job folder [{0}] and marking the jar file [{1}] for deletion after the JVM exits.",
-          new Object[]{jobSubmissionFolder.getAbsolutePath(), jarFile.getAbsolutePath()});
-      if (!jobSubmissionFolder.delete()) {
-        LOG.log(Level.WARNING, "Failed to delete [{0}]", jobSubmissionFolder.getAbsolutePath());
-      }
-      jarFile.deleteOnExit();
-    } else {
-      LOG.log(Level.FINE, "Keeping the temporary job folder [{0}] and jar file [{1}] available after job submission.",
-          new Object[]{jobSubmissionFolder.getAbsolutePath(), jarFile.getAbsolutePath()});
-    }
-    return jarFile;
+    return new JarBuilder()
+        .withConfiguration(driverConfiguration)
+        .addGlobalFileSet(jobSubmissionEvent.getGlobalFileSet())
+        .addLocalFileSet(jobSubmissionEvent.getLocalFileSet())
+        .withConfigurationFileName(this.fileNames.getDriverConfigurationName())
+        .build();
   }
 
-  private File makejobSubmissionFolder() throws IOException {
+  private File makeJobSubmissionFolder() throws IOException {
     return Files.createTempDirectory(this.fileNames.getJobFolderPrefix()).toFile();
+  }
+
+  /**
+   * Builder class for building JAR files.
+   */
+  public final class JarBuilder {
+
+    private final Set<FileResource> localFiles = new HashSet<>();
+    private final Set<FileResource> globalFiles = new HashSet<>();
+    private Configuration configuration = null;
+    private String configurationFilename = null;
+
+    private JarBuilder() {}
+
+    public JarBuilder addLocalFileSet(final Set<FileResource> localFileResources) {
+      this.localFiles.addAll(localFileResources);
+      return this;
+    }
+
+    public JarBuilder addGlobalFileSet(final Set<FileResource> globalFileResources) {
+      this.globalFiles.addAll(globalFileResources);
+      return this;
+    }
+
+    public JarBuilder withConfiguration(final Configuration withConfiguration) {
+      this.configuration = withConfiguration;
+      return this;
+    }
+
+    public JarBuilder withConfigurationFileName(final String withConfigurationFilename) {
+      this.configurationFilename = withConfigurationFilename;
+      return this;
+    }
+
+    public File build() throws IOException {
+      // Copy all files to a local job submission folder
+      final File jobSubmissionFolder = makeJobSubmissionFolder();
+      LOG.log(Level.FINE, "Staging submission in {0}", jobSubmissionFolder);
+
+      final File localFolder = new File(jobSubmissionFolder, JobJarMaker.this.fileNames.getLocalFolderName());
+      final File globalFolder = new File(jobSubmissionFolder, JobJarMaker.this.fileNames.getGlobalFolderName());
+
+      JobJarMaker.copy(this.globalFiles, globalFolder);
+      JobJarMaker.copy(this.localFiles, localFolder);
+
+      // Store the Configuration in the JAR file.
+      if (configuration != null && StringUtils.isNotBlank(this.configurationFilename)) {
+        JobJarMaker.this.configurationSerializer
+            .toFile(configuration, new File(localFolder, this.configurationFilename));
+      }
+
+      // Create a JAR File for the submission
+      final File jarFile = File.createTempFile(JobJarMaker.this.fileNames.getJobFolderPrefix(),
+          JobJarMaker.this.fileNames.getJarFileSuffix());
+
+      LOG.log(Level.FINE, "Creating job submission jar file: {0}", jarFile);
+      new JARFileMaker(jarFile).addChildren(jobSubmissionFolder).close();
+
+      if (JobJarMaker.this.deleteTempFilesOnExit) {
+        LOG.log(Level.FINE,
+            "Deleting the temporary job folder [{0}] and marking the jar file [{1}] for deletion after the JVM exits.",
+            new Object[]{jobSubmissionFolder.getAbsolutePath(), jarFile.getAbsolutePath()});
+        if (!jobSubmissionFolder.delete()) {
+          LOG.log(Level.WARNING, "Failed to delete [{0}]", jobSubmissionFolder.getAbsolutePath());
+        }
+        jarFile.deleteOnExit();
+      } else {
+        LOG.log(Level.FINE, "Keeping the temporary job folder [{0}] and jar file [{1}] available after job submission.",
+            new Object[]{jobSubmissionFolder.getAbsolutePath(), jarFile.getAbsolutePath()});
+      }
+      return jarFile;
+    }
   }
 }

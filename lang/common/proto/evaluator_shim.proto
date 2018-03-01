@@ -17,36 +17,30 @@
  * under the License.
  */
 
-import "client_runtime.proto";
-
-import "evaluator_runtime.proto";
-
-import "reef_service_protos.proto";
-
-import "evaluator_shim.proto";
-
-
 option java_package = "org.apache.reef.proto";
-
+option java_outer_classname = "EvaluatorShimProtocol";
 option java_generic_services = true;
-
 option java_generate_equals_and_hash = true;
 
-option java_outer_classname = "REEFProtocol";
+enum EvaluatorShimStatus {
+    UNKNOWN = 1;
+    ONLINE  = 2;
+}
 
-message REEFMessage {
-    // Field 1 removed
+enum EvaluatorShimCommand {
+    LAUNCH_EVALUATOR = 1;
+    TERMINATE        = 2;
+}
 
-    // Messages defined in client_runtime.proto
-    optional JobControlProto jobControl = 2;
-    // Messages defined in reef_service_protos.proto
-    optional RuntimeErrorProto runtimeError = 3;
-    optional JobStatusProto jobStatus = 4;
-    // Messages from evaluator_runtime.proto
-    optional EvaluatorControlProto evaluatorControl = 5;
-    optional EvaluatorHeartbeatProto evaluatorHeartBeat = 6;
-    optional EvaluatorShimControlProto evaluatorShimCommand = 7;
+message EvaluatorShimControlProto {
+    required EvaluatorShimCommand command     = 1;
+    optional string evaluatorConfigString     = 2;
+    optional string evaluatorLaunchCommand    = 3;
+    optional string evaluatorFileResourcesUrl = 4;
+}
 
-    // Messages from evaluator_shim.proto
-    optional EvaluatorShimStatusProto evaluatorShimStatus = 8;
+message EvaluatorShimStatusProto {
+    required EvaluatorShimStatus status = 1;
+    required string remoteIdentifier    = 2;
+    required string containerId         = 3;
 }
