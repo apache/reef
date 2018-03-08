@@ -69,16 +69,8 @@ namespace Org.Apache.REEF.IO.FileSystem.Hadoop
             }
 
             Uri uri;
-            try
-            {
-                uri = new Uri(path);
-                Logger.Log(Level.Info, string.Format(CultureInfo.CurrentCulture, "Uri {0} created in CreateUriForPath.", uri.OriginalString));
-            }
-            catch (UriFormatException)
-            {
-                uri = new Uri(_uriPrefix + path);
-                Logger.Log(Level.Info, string.Format(CultureInfo.CurrentCulture, "Uri {0} created in CreateUriForPath with prefix added.", uri.OriginalString));
-            }
+            uri = new Uri(path);
+            Logger.Log(Level.Info, string.Format(CultureInfo.CurrentCulture, "Uri {0} created in CreateUriForPath.", uri));
 
             return uri;
         }
