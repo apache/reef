@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project>
 <!--
 Licensed to the Apache Software Foundation (ASF) under one
 or more contributor license agreements.  See the NOTICE file
@@ -19,7 +19,6 @@ under the License.
     <AssemblyName>Org.Apache.REEF.Tang.Tools</AssemblyName>
     <Description>Tools for Tang</Description>
     <PackageTags>Apache REEF Tang dependency injection</PackageTags>
-    <OutputType>Exe</OutputType>
   </PropertyGroup>
   <Import Project="..\build.DotNetApp.props" />
   <ItemGroup>
@@ -27,5 +26,6 @@ under the License.
     <ProjectReference Include="..\Org.Apache.REEF.Common\Org.Apache.REEF.Common.DotNet.csproj" />
     <ProjectReference Include="..\Org.Apache.REEF.Examples\Org.Apache.REEF.Examples.DotNet.csproj" />
   </ItemGroup>
+  <Import Project="..\build.DotNet.targets"/>
 </Project>
 

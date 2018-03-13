@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project>
   <!--
 Licensed to the Apache Software Foundation (ASF) under one
 or more contributor license agreements.  See the NOTICE file
@@ -32,12 +32,11 @@ under the License.
     <PackageReference Include="System.ServiceProcess.ServiceController" Version="4.4.0" />
   </ItemGroup>
   <!-- TODO: REEF-1888 Remove ItemGroup when removing net451 and net46 targets -->
-  <ItemGroup Condition="'$(TargetFramework)' == 'net451' Or '$(TargetFramework)' == 'net46'">
+  <ItemGroup Condition="'$(TargetFramework)' == 'net452' Or '$(TargetFramework)' == 'net46'">
     <Reference Include="System" />
     <Reference Include="System.Net.Http" />
     <Reference Include="System.ServiceProcess" />
   </ItemGroup>
-  <Import Project="..\xunit.DotNet.props" />
   <ItemGroup>
     <ProjectReference Include="..\Org.Apache.REEF.Client\Org.Apache.REEF.Client.DotNet.csproj" />
     <ProjectReference Include="..\Org.Apache.REEF.IO\Org.Apache.REEF.IO.DotNet.csproj" />
@@ -46,4 +45,5 @@ under the License.
     <ProjectReference Include="..\Org.Apache.REEF.Driver\Org.Apache.REEF.Driver.DotNet.csproj" />
     <ProjectReference Include="..\Org.Apache.REEF.Wake\Org.Apache.REEF.Wake.DotNet.csproj" />
   </ItemGroup>
+  <Import Project="..\build.DotNetTest.targets" />
 </Project>

@@ -24,7 +24,7 @@ namespace Org.Apache.REEF.Common.Runtime
 {
     public class MachineStatus
     {
-#if DOTNET_BUILD
+#if REEF_DOTNET_BUILD
         private const string NotSupportedValue = "<UNSUPPORTED>";
         private const string NotSupportedMessage = "Machine Status is not supported on this OS";
 #else
@@ -70,7 +70,7 @@ namespace Org.Apache.REEF.Common.Runtime
         {
             get
             {
-#if DOTNET_BUILD
+#if REEF_DOTNET_BUILD
                 return NotSupportedValue + "%";
 #else
                 return CpuCounter.NextValue() + "%";
@@ -82,7 +82,7 @@ namespace Org.Apache.REEF.Common.Runtime
         {
             get
             {
-#if DOTNET_BUILD
+#if REEF_DOTNET_BUILD
                 return NotSupportedValue + "MB";
 #else
                 return RamCounter.NextValue() + "MB"; 
@@ -94,7 +94,7 @@ namespace Org.Apache.REEF.Common.Runtime
         {
             get
             {
-#if DOTNET_BUILD
+#if REEF_DOTNET_BUILD
                 return NotSupportedValue + "MB";
 #else
                 return ((float)Process.WorkingSet64 / 1000000.0).ToString(CultureInfo.InvariantCulture) + "MB";
@@ -106,7 +106,7 @@ namespace Org.Apache.REEF.Common.Runtime
         {
             get
             {
-#if DOTNET_BUILD
+#if REEF_DOTNET_BUILD
                 return NotSupportedValue + "MB";          
 #else
                 return ((float)Process.PeakWorkingSet64 / 1000000.0).ToString(CultureInfo.InvariantCulture) + "MB";
@@ -119,7 +119,7 @@ namespace Org.Apache.REEF.Common.Runtime
         {
             get
             {
-#if DOTNET_BUILD
+#if REEF_DOTNET_BUILD
                 return NotSupportedValue + "MB";
 #else
                 return ((float)ProcessCpuCounter.RawValue / 1000000.0) + "%";
@@ -129,7 +129,7 @@ namespace Org.Apache.REEF.Common.Runtime
 
         public override string ToString()
         {
-#if DOTNET_BUILD
+#if REEF_DOTNET_BUILD
             return NotSupportedMessage;
 #else
             string info = "No machine status information retrieved. Could be due to lack of admin right to get the info.";

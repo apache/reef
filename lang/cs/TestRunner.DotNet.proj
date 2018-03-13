@@ -1,4 +1,4 @@
-<Project>
+<?xml version="1.0" encoding="utf-8"?>
 <!--
 Licensed to the Apache Software Foundation (ASF) under one
 or more contributor license agreements.  See the NOTICE file
@@ -15,24 +15,22 @@ KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
 -->
-  <Import Project="Sdk.props" Sdk="Microsoft.NET.Sdk" />
-  <Import Project="build.Common.DotNet.props" />
-
-  <!-- Allow for C# 7.2 language constructs -->
-  <PropertyGroup>
-    <LangVersion>7.2</LangVersion>
+<Project DefaultTargets="Test" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project=".\build.DotNet.props" />
+  <ItemGroup>
+    <ProjectReferences Include="*\*.Tests.DotNet.csproj" />
+  </ItemGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == '' ">
+    <Configuration>Debug</Configuration>
   </PropertyGroup>
-
-  <PropertyGroup>
-    <AvroVersion>0.1.0</AvroVersion>
-    <MicrosoftDataLakeStoreVersion>1.1.3</MicrosoftDataLakeStoreVersion>
-    <NewtonsoftJsonVersion>10.0.3</NewtonsoftJsonVersion>
-    <NSubstituteVersion>1.8.2.0</NSubstituteVersion>
-    <ProtobufVersion>2.1.0</ProtobufVersion>
-    <SystemReactiveVersion>3.1.1</SystemReactiveVersion>
-    <StyleCopVersion>5.0.0</StyleCopVersion>
-    <TransientFaultHandlingVersion>1.0.0</TransientFaultHandlingVersion>
-    <NSubstituteVersion>2.0.3</NSubstituteVersion>
-    <WindowsAzureStorageVersion>8.1.3</WindowsAzureStorageVersion>
+  <PropertyGroup Condition=" '$(Platform)' == '' ">
+    <Platform>x64</Platform>
   </PropertyGroup>
+  <PropertyGroup Condition=" '$(TargetFramework)' == '' ">
+    <TargetFramework>net452</TargetFramework>
+  </PropertyGroup>
+  <Target Name="Test">
+    <MSBuild Projects="@(ProjectReferences)"
+             Targets="Test" Properties="Configuration=$(Configuration);Platform=$(Platform);TargetFramework=$(TargetFramework)" StopOnFirstFailure="false" />
+  </Target>
 </Project>

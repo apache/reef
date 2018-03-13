@@ -1,4 +1,4 @@
-<Project>
+<?xml version="1.0" encoding="utf-8"?>
 <!--
 Licensed to the Apache Software Foundation (ASF) under one
 or more contributor license agreements.  See the NOTICE file
@@ -15,19 +15,7 @@ KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
 -->
-
-<Import Project="build.DotNet.props"/>
-
-<!-- Settings for Linux platform -->
-<PropertyGroup Condition="'$(OS)' != 'Windows_NT'">
-  <TargetFrameworks>netstandard2.0</TargetFrameworks>
-</PropertyGroup>
-
-<!-- Settings for Windows platform -->
-<PropertyGroup Condition="'$(OS)' == 'Windows_NT'">
-  <TargetFrameworks>net452</TargetFrameworks>
-  <!-- If EnableDotNetBuild is true, override the target frameworks to include dot net core -->
-  <TargetFrameworks Condition="'$(EnableDotNetBuild)' == 'true'">net452;netstandard2.0</TargetFrameworks>
-</PropertyGroup>
-
+<Project>
+  <Import Project="Sdk.targets" Sdk="Microsoft.NET.Sdk" />
 </Project>
+
