@@ -1,0 +1,67 @@
+<Project>
+<!--
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+-->
+
+  <PropertyGroup>
+    <Version>0.17.0</Version>
+    <Authors>Apache Software Foundation</Authors>
+    <Owners>The Apache REEF project</Owners>
+    <Product>Apache REEF</Product>
+    <ProductId>$(AssemblyName)</ProductId>
+    <AssemblyVersion>$(Version)</AssemblyVersion>
+    <FileVersion>$(Version)</FileVersion>
+    <NeutralLanguage>en</NeutralLanguage>
+    <Copyright>The Apache Software Foundation</Copyright>
+    <PackageLicenseUrl>https://www.apache.org/licenses/LICENSE-2.0</PackageLicenseUrl>
+    <PackageProjectUrl>https://reef.apache.org</PackageProjectUrl>
+    <PackageIconUrl>https://reef.apache.org/ApacheREEF_logo_no_margin_small.png</PackageIconUrl>
+    <RepositoryUrl>https://github.com/apache/reef.git</RepositoryUrl>
+    <PackageReleaseNotes>Contact the Apache REEF development alias dev@reef.apache.org for questions or issues.</PackageReleaseNotes>
+    <DefaultItemExcludes>$(DefaultItemExcludes);**/AssemblyInfo.cs;**/Resources.xml;packages.config;*.nuspec</DefaultItemExcludes>
+    <IsSnapshot>true</IsSnapshot>
+    <SnapshotNumber>01</SnapshotNumber>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <Platforms>x64</Platforms>
+    <PlatformTarget>x64</PlatformTarget>
+    <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">$(MSBuildThisFileDirectory)\</SolutionDir>
+    <BinDir Condition="$(BinDir) == '' Or $(BinDir) == '*Undefined*'">$(SolutionDir)bin\.netcore\</BinDir>
+    <PackagesDir Condition="$(PackagesDir) == '' Or $(PackagesDir) == '*Undefined*'">$(SolutionDir)\packages\</PackagesDir>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <DefineConstants>$(DefineConstants);REEF_DOTNET_BUILD</DefineConstants>
+    <NoWarn>NU1701;NU1603</NoWarn>
+    <OutputPath>$(BinDir)$(Configuration)\$(AssemblyName)\</OutputPath>
+  </PropertyGroup>
+
+  <!-- For linux builds, always enable the dot net build -->
+  <PropertyGroup Condition="'$(OS)' != 'Windows_NT'">
+    <EnableDotNetBuild>true</EnableDotNetBuild>
+  </PropertyGroup>
+
+  <!-- For window builds, we are defaulting the dot net build to false until dot net core is fully supported -->
+  <PropertyGroup Condition="'$(OS)' == 'Windows_NT'">
+    <EnableDotNetBuild>false</EnableDotNetBuild>
+  </PropertyGroup>
+
+    <!-- Locations -->
+  <PropertyGroup>
+    <!--The root directory of the REEF source tree. -->
+    <REEF_Source_Folder>$([System.IO.Path]::GetFullPath($(MSBuildProjectDirectory)\..\..\..))</REEF_Source_Folder>
+  </PropertyGroup>
+
+</Project>

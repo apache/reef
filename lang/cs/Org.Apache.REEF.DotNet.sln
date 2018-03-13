@@ -1,8 +1,15 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26730.12
+VisualStudioVersion = 15.0.27130.2027
 MinimumVisualStudioVersion = 10.0.40219.1
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Org.Apache.REEF.Bridge.DotNet", "Org.Apache.REEF.Bridge\Org.Apache.REEF.Bridge.DotNet.vcxproj", "{6C7325D1-EBB6-4642-B34F-B66F46152230}"
+	ProjectSection(ProjectDependencies) = postProject
+		{448A0D5F-A8DE-4CAA-8224-0A9A63A9392E} = {448A0D5F-A8DE-4CAA-8224-0A9A63A9392E}
+	EndProjectSection
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Org.Apache.REEF.Bridge.JAR.DotNet", "Org.Apache.REEF.Bridge.JAR\Org.Apache.REEF.Bridge.JAR.DotNet.csproj", "{448A0D5F-A8DE-4CAA-8224-0A9A63A9392E}"
+EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Org.Apache.REEF.Utilities.DotNet", "Org.Apache.REEF.Utilities\Org.Apache.REEF.Utilities.DotNet.csproj", "{FE4CEA75-2F26-4C97-B256-375AA698B4A9}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Org.Apache.REEF.Tang.DotNet", "Org.Apache.REEF.Tang\Org.Apache.REEF.Tang.DotNet.csproj", "{16E1218C-9A3C-49E2-A939-C29944BBB72E}"
@@ -35,9 +42,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Org.Apache.REEF.Evaluator.D
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Org.Apache.REEF.Driver.DotNet", "Org.Apache.REEF.Driver\Org.Apache.REEF.Driver.DotNet.csproj", "{4AFF480F-006F-4229-8565-DB8F0E5F0C1D}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Org.Apache.REEF.Bridge.CLR.DotNet", "Org.Apache.REEF.Bridge.CLR\Org.Apache.REEF.Bridge.CLR.DotNet.csproj", "{604FF656-9A64-4516-9742-7A7FA963C985}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Org.Apache.REEF.Client.DotNet", "Org.Apache.REEF.Client\Org.Apache.REEF.Client.DotNet.csproj", "{A23F679F-233A-41A1-9964-61A0576E5D93}"
+	ProjectSection(ProjectDependencies) = postProject
+		{6C7325D1-EBB6-4642-B34F-B66F46152230} = {6C7325D1-EBB6-4642-B34F-B66F46152230}
+	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Org.Apache.REEF.Client.Tests.DotNet", "Org.Apache.REEF.Client.Tests\Org.Apache.REEF.Client.Tests.DotNet.csproj", "{C3F0F0F8-0001-44C3-998F-89992361FA43}"
 EndProject
@@ -69,6 +77,14 @@ Global
 		Release|x64 = Release|x64
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{6C7325D1-EBB6-4642-B34F-B66F46152230}.Debug|x64.ActiveCfg = Debug|x64
+		{6C7325D1-EBB6-4642-B34F-B66F46152230}.Debug|x64.Build.0 = Debug|x64
+		{6C7325D1-EBB6-4642-B34F-B66F46152230}.Release|x64.ActiveCfg = Release|x64
+		{6C7325D1-EBB6-4642-B34F-B66F46152230}.Release|x64.Build.0 = Release|x64
+		{448A0D5F-A8DE-4CAA-8224-0A9A63A9392E}.Debug|x64.ActiveCfg = Debug|x64
+		{448A0D5F-A8DE-4CAA-8224-0A9A63A9392E}.Debug|x64.Build.0 = Debug|x64
+		{448A0D5F-A8DE-4CAA-8224-0A9A63A9392E}.Release|x64.ActiveCfg = Release|x64
+		{448A0D5F-A8DE-4CAA-8224-0A9A63A9392E}.Release|x64.Build.0 = Release|x64
 		{FE4CEA75-2F26-4C97-B256-375AA698B4A9}.Debug|x64.ActiveCfg = Debug|x64
 		{FE4CEA75-2F26-4C97-B256-375AA698B4A9}.Debug|x64.Build.0 = Debug|x64
 		{FE4CEA75-2F26-4C97-B256-375AA698B4A9}.Release|x64.ActiveCfg = Release|x64
@@ -133,10 +149,6 @@ Global
 		{4AFF480F-006F-4229-8565-DB8F0E5F0C1D}.Debug|x64.Build.0 = Debug|x64
 		{4AFF480F-006F-4229-8565-DB8F0E5F0C1D}.Release|x64.ActiveCfg = Release|x64
 		{4AFF480F-006F-4229-8565-DB8F0E5F0C1D}.Release|x64.Build.0 = Release|x64
-		{604FF656-9A64-4516-9742-7A7FA963C985}.Debug|x64.ActiveCfg = Debug|x64
-		{604FF656-9A64-4516-9742-7A7FA963C985}.Debug|x64.Build.0 = Debug|x64
-		{604FF656-9A64-4516-9742-7A7FA963C985}.Release|x64.ActiveCfg = Release|x64
-		{604FF656-9A64-4516-9742-7A7FA963C985}.Release|x64.Build.0 = Release|x64
 		{A23F679F-233A-41A1-9964-61A0576E5D93}.Debug|x64.ActiveCfg = Debug|x64
 		{A23F679F-233A-41A1-9964-61A0576E5D93}.Debug|x64.Build.0 = Debug|x64
 		{A23F679F-233A-41A1-9964-61A0576E5D93}.Release|x64.ActiveCfg = Release|x64
@@ -192,5 +204,8 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {7BAAE3F9-A5D6-4949-9357-849CAA006F96}
 	EndGlobalSection
 EndGlobal

@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project>
 <!--
 Licensed to the Apache Software Foundation (ASF) under one
 or more contributor license agreements.  See the NOTICE file
@@ -23,9 +23,9 @@ under the License.
     <PackageReference Include="System.Reactive.Core" Version="$(SystemReactiveVersion)" />
     <PackageReference Include="System.Reactive.Interfaces" Version="$(SystemReactiveVersion)" />
   </ItemGroup>
-  <Import Project="..\xunit.DotNet.props" />
   <ItemGroup>
     <ProjectReference Include="..\Org.Apache.REEF.Tang\Org.Apache.REEF.Tang.DotNet.csproj" />
     <ProjectReference Include="..\Org.Apache.REEF.Wake\Org.Apache.REEF.Wake.DotNet.csproj" />
   </ItemGroup>
+  <Import Project="..\build.DotNetTest.targets" />
 </Project>

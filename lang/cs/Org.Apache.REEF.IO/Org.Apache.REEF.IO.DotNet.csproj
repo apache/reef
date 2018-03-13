@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project>
 <!--
 Licensed to the Apache Software Foundation (ASF) under one
 or more contributor license agreements.  See the NOTICE file
@@ -21,13 +21,19 @@ under the License.
     <AssemblyName>Org.Apache.REEF.IO</AssemblyName>
     <Description>I/O library for Apache REEF</Description>
     <PackageTags> Apache REEF IO</PackageTags>
+    <DefineConstants>REEF_DOTNET_BUILD</DefineConstants>
   </PropertyGroup>
   <Import Project="..\build.DotNetLibrary.props" />
   <ItemGroup>
+    <PackageReference Include="Microsoft.Azure.DataLake.Store" Version="$(MicrosoftDataLakeStoreVersion)" />
     <PackageReference Include="Microsoft.Azure.KeyVault.Core" Version="2.0.4" />
+    <PackageReference Include="Microsoft.Azure.Management.DataLake.Store" Version="2.2.1" />
     <PackageReference Include="Microsoft.Data.Edm" Version="5.8.2" />
     <PackageReference Include="Microsoft.Data.OData" Version="5.8.2" />
     <PackageReference Include="Microsoft.Data.Services.Client" Version="5.8.2" />
+    <PackageReference Include="Microsoft.Rest.ClientRuntime" Version="2.3.10" />
+    <PackageReference Include="Microsoft.Rest.ClientRuntime.Azure" Version="3.3.7" />
+    <PackageReference Include="Microsoft.Rest.ClientRuntime.Azure.Authentication" Version="2.3.1" />
     <PackageReference Include="System.Spatial" Version="5.8.2" />
     <PackageReference Include="WindowsAzure.Storage" Version="$(WindowsAzureStorageVersion)" />
     <PackageReference Include="Newtonsoft.Json" Version="$(NewtonsoftJsonVersion)" />
@@ -35,9 +41,11 @@ under the License.
   <!-- TODO[JIRA REEF-1888] Remove the conditional, but keep the item group -->
   <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
     <PackageReference Include="System.IO.FileSystem.AccessControl" Version="4.4.0" />
+    <PackageReference Include="System.Net.NameResolution" Version="4.3.0" />
+    <PackageReference Include="System.Net.Sockets" Version="4.3.0" />
   </ItemGroup>
   <!-- TODO[JIRA REEF-1888] This item group will not be needed when only .netcore is targeted. -->
-  <ItemGroup Condition="'$(TargetFramework)' == 'net451' Or '$(TargetFramework)' == 'net46'">
+  <ItemGroup Condition="'$(TargetFramework)' == 'net452' Or '$(TargetFramework)' == 'net46'">
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -51,4 +59,5 @@ under the License.
     <ProjectReference Include="..\Org.Apache.REEF.Utilities\Org.Apache.REEF.Utilities.DotNet.csproj" />
     <ProjectReference Include="..\Org.Apache.REEF.Common\Org.Apache.REEF.Common.DotNet.csproj" />
   </ItemGroup>
+  <Import Project="..\build.DotNet.targets" />
 </Project>
