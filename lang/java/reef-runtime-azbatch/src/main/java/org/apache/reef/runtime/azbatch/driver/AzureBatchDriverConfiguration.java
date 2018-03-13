@@ -20,13 +20,15 @@ package org.apache.reef.runtime.azbatch.driver;
 
 import org.apache.reef.runtime.azbatch.AzureBatchClasspathProvider;
 import org.apache.reef.runtime.azbatch.AzureBatchJVMPathProvider;
-import org.apache.reef.runtime.azbatch.parameters.AzureBatchAccountKey;
 import org.apache.reef.runtime.azbatch.parameters.AzureBatchAccountName;
 import org.apache.reef.runtime.azbatch.parameters.AzureBatchAccountUri;
 import org.apache.reef.runtime.azbatch.parameters.AzureBatchPoolId;
-import org.apache.reef.runtime.azbatch.parameters.AzureStorageAccountKey;
 import org.apache.reef.runtime.azbatch.parameters.AzureStorageAccountName;
 import org.apache.reef.runtime.azbatch.parameters.AzureStorageContainerName;
+import org.apache.reef.runtime.azbatch.util.batch.IAzureBatchCredentialProvider;
+import org.apache.reef.runtime.azbatch.util.batch.TokenBatchCredentialProvider;
+import org.apache.reef.runtime.azbatch.util.storage.ICloudBlobClientProvider;
+import org.apache.reef.runtime.azbatch.util.storage.SharedAccessSignatureCloudBlobClientProvider;
 import org.apache.reef.runtime.common.driver.api.*;
 import org.apache.reef.runtime.common.driver.parameters.ClientRemoteIdentifier;
 import org.apache.reef.runtime.common.driver.parameters.DefinedRuntimes;
@@ -78,11 +80,6 @@ public class AzureBatchDriverConfiguration extends ConfigurationModuleBuilder {
   public static final RequiredParameter<String> AZURE_BATCH_ACCOUNT_NAME = new RequiredParameter<>();
 
   /**
-   * The Azure Batch account key.
-   */
-  public static final RequiredParameter<String> AZURE_BATCH_ACCOUNT_KEY = new RequiredParameter<>();
-
-  /**
    * The Azure Batch Pool ID.
    */
   public static final RequiredParameter<String> AZURE_BATCH_POOL_ID = new RequiredParameter<>();
@@ -91,11 +88,6 @@ public class AzureBatchDriverConfiguration extends ConfigurationModuleBuilder {
    * The name of the Azure Storage account.
    */
   public static final RequiredParameter<String> AZURE_STORAGE_ACCOUNT_NAME = new RequiredParameter<>();
-
-  /**
-   * The key of the Azure Storage account.
-   */
-  public static final RequiredParameter<String> AZURE_STORAGE_ACCOUNT_KEY = new RequiredParameter<>();
 
   /**
    * The name of the Azure Storage account container.
@@ -108,6 +100,8 @@ public class AzureBatchDriverConfiguration extends ConfigurationModuleBuilder {
   public static final OptionalParameter<Double> JVM_HEAP_SLACK = new OptionalParameter<>();
 
   public static final ConfigurationModule CONF = new AzureBatchDriverConfiguration()
+      .bindImplementation(IAzureBatchCredentialProvider.class, TokenBatchCredentialProvider.class)
+      .bindImplementation(ICloudBlobClientProvider.class, SharedAccessSignatureCloudBlobClientProvider.class)
       .bindImplementation(ResourceLaunchHandler.class, AzureBatchResourceLaunchHandler.class)
       .bindImplementation(ResourceReleaseHandler.class, AzureBatchResourceReleaseHandler.class)
       .bindImplementation(ResourceRequestHandler.class, AzureBatchResourceRequestHandler.class)
@@ -117,10 +111,8 @@ public class AzureBatchDriverConfiguration extends ConfigurationModuleBuilder {
       // Bind Azure Batch Configuration Parameters
       .bindNamedParameter(AzureBatchAccountUri.class, AZURE_BATCH_ACCOUNT_URI)
       .bindNamedParameter(AzureBatchAccountName.class, AZURE_BATCH_ACCOUNT_NAME)
-      .bindNamedParameter(AzureBatchAccountKey.class, AZURE_BATCH_ACCOUNT_KEY)
       .bindNamedParameter(AzureBatchPoolId.class, AZURE_BATCH_POOL_ID)
       .bindNamedParameter(AzureStorageAccountName.class, AZURE_STORAGE_ACCOUNT_NAME)
-      .bindNamedParameter(AzureStorageAccountKey.class, AZURE_STORAGE_ACCOUNT_KEY)
       .bindNamedParameter(AzureStorageContainerName.class, AZURE_STORAGE_CONTAINER_NAME)
 
       // Bind the fields bound in AbstractDriverRuntimeConfiguration

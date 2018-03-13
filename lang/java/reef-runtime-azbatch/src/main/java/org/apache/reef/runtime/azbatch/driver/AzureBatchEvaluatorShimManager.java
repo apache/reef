@@ -25,9 +25,9 @@ import org.apache.reef.annotations.audience.Private;
 import org.apache.reef.driver.catalog.NodeDescriptor;
 import org.apache.reef.proto.EvaluatorShimProtocol;
 import org.apache.reef.runtime.azbatch.util.AzureBatchFileNames;
-import org.apache.reef.runtime.azbatch.util.AzureBatchHelper;
-import org.apache.reef.runtime.azbatch.util.AzureStorageUtil;
-import org.apache.reef.runtime.azbatch.util.CommandBuilder;
+import org.apache.reef.runtime.azbatch.util.batch.AzureBatchHelper;
+import org.apache.reef.runtime.azbatch.util.storage.AzureStorageClient;
+import org.apache.reef.runtime.azbatch.util.command.CommandBuilder;
 import org.apache.reef.runtime.azbatch.util.RemoteIdentifierParser;
 import org.apache.reef.runtime.azbatch.util.TaskStatusMapper;
 import org.apache.reef.runtime.common.driver.api.ResourceLaunchEvent;
@@ -91,7 +91,7 @@ public final class AzureBatchEvaluatorShimManager
 
   private final AutoCloseable evaluatorShimCommandChannel;
 
-  private final AzureStorageUtil azureStorageUtil;
+  private final AzureStorageClient azureStorageClient;
   private final REEFFileNames reefFileNames;
   private final AzureBatchFileNames azureBatchFileNames;
   private final RemoteManager remoteManager;
@@ -106,7 +106,7 @@ public final class AzureBatchEvaluatorShimManager
 
   @Inject
   AzureBatchEvaluatorShimManager(
-      final AzureStorageUtil azureStorageUtil,
+      final AzureStorageClient azureStorageClient,
       final REEFFileNames reefFileNames,
       final AzureBatchFileNames azureBatchFileNames,
       final RemoteManager remoteManager,
@@ -117,7 +117,7 @@ public final class AzureBatchEvaluatorShimManager
       final JobJarMaker jobJarMaker,
       final AzureBatchEvaluatorShimConfigurationProvider evaluatorShimConfigurationProvider,
       final ConfigurationSerializer configurationSerializer) {
-    this.azureStorageUtil = azureStorageUtil;
+    this.azureStorageClient = azureStorageClient;
     this.reefFileNames = reefFileNames;
     this.azureBatchFileNames = azureBatchFileNames;
     this.remoteManager = remoteManager;
@@ -435,7 +435,7 @@ public final class AzureBatchEvaluatorShimManager
     final String folderName = this.azureBatchFileNames.getStorageJobFolder(this.azureBatchHelper.getAzureBatchJobId());
     LOG.log(Level.FINE, "Uploading {0} to {1}.", new Object[]{jarFile.getAbsolutePath(), folderName});
 
-    return this.azureStorageUtil.uploadFile(folderName, jarFile);
+    return this.azureStorageClient.uploadFile(folderName, jarFile);
   }
 
   private String getResourceRemoteId(final String resourceId) {

@@ -18,8 +18,8 @@
  */
 package org.apache.reef.runtime.azbatch;
 
-import org.apache.reef.runtime.azbatch.util.LinuxCommandBuilder;
-import org.apache.reef.runtime.azbatch.util.WindowsCommandBuilder;
+import org.apache.reef.runtime.azbatch.util.command.LinuxCommandBuilder;
+import org.apache.reef.runtime.azbatch.util.command.WindowsCommandBuilder;
 import org.apache.reef.runtime.common.client.api.JobSubmissionEvent;
 import org.apache.reef.runtime.common.files.REEFFileNames;
 import org.apache.reef.runtime.common.files.RuntimeClasspathProvider;

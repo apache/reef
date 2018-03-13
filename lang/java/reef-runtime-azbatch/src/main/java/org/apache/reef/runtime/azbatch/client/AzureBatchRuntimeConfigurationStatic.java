@@ -21,6 +21,10 @@ package org.apache.reef.runtime.azbatch.client;
 import org.apache.reef.annotations.audience.Private;
 import org.apache.reef.runtime.azbatch.AzureBatchClasspathProvider;
 import org.apache.reef.runtime.azbatch.AzureBatchJVMPathProvider;
+import org.apache.reef.runtime.azbatch.util.batch.IAzureBatchCredentialProvider;
+import org.apache.reef.runtime.azbatch.util.batch.SharedKeyBatchCredentialProvider;
+import org.apache.reef.runtime.azbatch.util.storage.ICloudBlobClientProvider;
+import org.apache.reef.runtime.azbatch.util.storage.StorageKeyCloudBlobProvider;
 import org.apache.reef.runtime.common.client.CommonRuntimeConfiguration;
 import org.apache.reef.runtime.common.client.DriverConfigurationProvider;
 import org.apache.reef.runtime.common.client.api.JobSubmissionHandler;
@@ -41,6 +45,8 @@ public class AzureBatchRuntimeConfigurationStatic extends ConfigurationModuleBui
   public static final ConfigurationModuleBuilder CONF = new AzureBatchRuntimeConfigurationStatic()
       .merge(CommonRuntimeConfiguration.CONF)
       .bindImplementation(JobSubmissionHandler.class, AzureBatchJobSubmissionHandler.class)
+      .bindImplementation(IAzureBatchCredentialProvider.class, SharedKeyBatchCredentialProvider.class)
+      .bindImplementation(ICloudBlobClientProvider.class, StorageKeyCloudBlobProvider.class)
       .bindImplementation(DriverConfigurationProvider.class, AzureBatchDriverConfigurationProviderImpl.class)
       .bindImplementation(RuntimeClasspathProvider.class, AzureBatchClasspathProvider.class)
       .bindImplementation(RuntimePathProvider.class, AzureBatchJVMPathProvider.class);

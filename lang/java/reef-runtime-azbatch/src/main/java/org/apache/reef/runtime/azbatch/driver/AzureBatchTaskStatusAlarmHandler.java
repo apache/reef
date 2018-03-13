@@ -23,7 +23,7 @@ import com.microsoft.azure.batch.protocol.models.TaskState;
 import org.apache.reef.annotations.audience.DriverSide;
 import org.apache.reef.annotations.audience.Private;
 import org.apache.reef.runtime.azbatch.parameters.AzureBatchTaskStatusCheckPeriod;
-import org.apache.reef.runtime.azbatch.util.AzureBatchHelper;
+import org.apache.reef.runtime.azbatch.util.batch.AzureBatchHelper;
 import org.apache.reef.runtime.common.driver.evaluator.EvaluatorManager;
 import org.apache.reef.runtime.common.driver.evaluator.Evaluators;
 import org.apache.reef.tang.InjectionFuture;
