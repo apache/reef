@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+-->
+<Project InitialTargets="ExtractPOMVersion" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <!--
+       ########################################################################
+         Extract the REEF Version from the POM file 
+       ######################################################################## 
+  -->
+  <!--A Task that extracts the version from the pom in a given folder.-->
+  <UsingTask
+    TaskName="GetMavenProjectVersion"
+    TaskFactory="CodeTaskFactory"
+    AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.v4.0.dll" >
+    <ParameterGroup>
+      <SnapshotNumber/>
+      <ProjectFolder Required="true"/>
+      <Version Output="true"/>
+      <NugetVersion Output="true"/>
+    </ParameterGroup>
+    <Task>
+      <Reference Include="System.Xml"/>
+      <Reference Include="System.Xml.Linq"/>
+      <Using Namespace="System"/>
+      <Using Namespace="System.IO"/>
+      <Using Namespace="System.Linq"/>
+      <Using Namespace="System.Xml.Linq"/>
+      <Code Type="Fragment" Language="cs">
+        <![CDATA[
+          Version = XDocument.Load(Path.Combine(ProjectFolder, "pom.xml")).Descendants()
+            .Where(x => x.Name.ToString().Contains("version"))
+            .FirstOrDefault().Value;
+          var snapshotNumberAsString = ($(SnapshotNumber) >= 0 && $(SnapshotNumber) <=9) ? "0" + $(SnapshotNumber) : $(SnapshotNumber).ToString();
+          NugetVersion = $(IsSnapshot) ? Version + "-" + snapshotNumberAsString : Version.Replace("-SNAPSHOT","");
+        ]]>
+      </Code>
+    </Task>
+  </UsingTask>
+  <!--
+    A Target that extract the REEF version from the pom and makes it available as REEF_Version
+  -->
+  <Target Name="ExtractPOMVersion">
+    <Message Text="MSBuildProjectName is $(MSBuildProjectName)" />
+    <Message Text="MSBuildProjectDirectory is $(MSBuildProjectDirectory)" />
+    <Message Text="SnapshotNumber is $(SnapshotNumber)" />
+    <Message Text="The root directory of the source tree is $(REEF_Source_Folder)" />
+    <GetMavenProjectVersion SnapshotNumber="$(SnapshotNumber)" ProjectFolder="$(REEF_Source_Folder)">
+      <Output PropertyName="REEF_Version" TaskParameter="Version"/>
+      <Output PropertyName="REEF_NugetVersion" TaskParameter="NugetVersion"/>
+    </GetMavenProjectVersion>
+    <Message Text="Extracted the following version from the POM: $(REEF_Version)"/>
+  </Target>
+  <PropertyGroup>
+    <BuildDotTargetsIsImported>true</BuildDotTargetsIsImported>
+  </PropertyGroup>
+</Project>
+
+

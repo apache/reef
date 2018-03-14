@@ -61,12 +61,24 @@ namespace Org.Apache.REEF.IO.FileSystem.AzureBlob
 
         public Stream Open()
         {
-            return _blob.OpenRead();
+            #if REEF_DOTNET_BUILD
+                var task = _blob.OpenReadAsync();
+                task.Wait();
+                return task.Result;
+            #else
+                return _blob.OpenRead();
+            #endif
         }
 
         public Stream Create()
         {
-            return _blob.OpenWrite();
+            #if REEF_DOTNET_BUILD
+                var task = _blob.OpenWriteAsync();
+                task.Wait();
+                return task.Result;
+            #else
+                return _blob.OpenWrite();
+            #endif
         }
 
         public bool Exists()
@@ -100,7 +112,7 @@ namespace Org.Apache.REEF.IO.FileSystem.AzureBlob
 
         public void UploadFromFile(string path, FileMode mode)
         {
-            #if DOTNET_BUILD
+            #if REEF_DOTNET_BUILD
                 _blob.UploadFromFileAsync(path).Wait();
             #else
                 _blob.UploadFromFileAsync(path, mode).Wait();

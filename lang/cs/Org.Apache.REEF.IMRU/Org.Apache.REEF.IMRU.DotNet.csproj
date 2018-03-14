@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project>
   <!--
 Licensed to the Apache Software Foundation (ASF) under one
 or more contributor license agreements.  See the NOTICE file
@@ -22,15 +22,9 @@ under the License.
     <Description>IMRU for REEF.NET</Description>
     <PackageTags>REEF IMRU</PackageTags>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|AnyCPU'">
-    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|AnyCPU'">
-    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
-  </PropertyGroup>
   <Import Project="..\build.DotNetLibrary.props" />
   <!-- TODO[JIRA REEF-1888] This item group will not be needed when only .netcore is targeted. -->
-  <ItemGroup Condition="'$(TargetFramework)' == 'net451' Or '$(TargetFramework)' == 'net46'">
+  <ItemGroup Condition="'$(TargetFramework)' == 'net452' Or '$(TargetFramework)' == 'net46'">
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -42,7 +36,6 @@ under the License.
   <ItemGroup>
     <ProjectReference Include="..\Org.Apache.REEF.Common\Org.Apache.REEF.Common.DotNet.csproj" />
     <ProjectReference Include="..\Org.Apache.REEF.Driver\Org.Apache.REEF.Driver.DotNet.csproj" />
-    <ProjectReference Include="..\Org.Apache.REEF.Evaluator\Org.Apache.REEF.Evaluator.DotNet.csproj" />
     <ProjectReference Include="..\Org.Apache.REEF.Network\Org.Apache.REEF.Network.DotNet.csproj" />
     <ProjectReference Include="..\Org.Apache.REEF.Tang\Org.Apache.REEF.Tang.DotNet.csproj" />
     <ProjectReference Include="..\Org.Apache.REEF.Utilities\Org.Apache.REEF.Utilities.DotNet.csproj" />
@@ -50,4 +43,5 @@ under the License.
     <ProjectReference Include="..\Org.Apache.REEF.IO\Org.Apache.REEF.IO.DotNet.csproj" />
     <ProjectReference Include="..\Org.Apache.REEF.Client\Org.Apache.REEF.Client.DotNet.csproj" />
   </ItemGroup>
+  <Import Project="..\build.DotNet.targets" />
 </Project>

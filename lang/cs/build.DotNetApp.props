@@ -27,9 +27,18 @@ under the License.
 
 <!-- Settings for Windows platforms -->
 <PropertyGroup Condition="'$(OS)' == 'Windows_NT'">
-  <TargetFrameworks>netcoreapp2.0;net46;net451</TargetFrameworks>
+  <TargetFrameworks>net452</TargetFrameworks>
+  <!-- If EnableDotNetBuild is true, override the target frameworks to include dot net core -->
+  <TargetFrameworks Condition="'$(EnableDotNetBuild)' == 'true'">net452;netcoreapp2.0</TargetFrameworks>
   <OutputType>Exe</OutputType>
   <!-- REEF-1888: win7-x64 is needed for .net46 and .net451. Target a newer version of windows once net46 and 451 are removed" -->
   <RuntimeIdentifiers>win7-x64</RuntimeIdentifiers>
 </PropertyGroup>
+
+<ItemGroup>
+    <None Include="$(SolutionDir)App.config">
+      <Link>App.config</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+</ItemGroup>
 </Project>

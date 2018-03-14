@@ -15,7 +15,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-#if DOTNET_BUILD
+#if REEF_DOTNET_BUILD
 using Microsoft.Practices.EnterpriseLibrary.TransientFaultHandling;
 #else
 using Microsoft.Practices.TransientFaultHandling;

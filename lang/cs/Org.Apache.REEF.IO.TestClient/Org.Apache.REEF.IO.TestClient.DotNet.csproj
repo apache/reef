@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk" >
+<Project>
   <!--
 Licensed to the Apache Software Foundation (ASF) under one
 or more contributor license agreements.  See the NOTICE file
@@ -24,7 +24,7 @@ under the License.
   </PropertyGroup>
   <Import Project="..\build.DotNetApp.props" />
   <!-- TODO[JIRA REEF-1888] This item group will not be needed when only .netcore is targeted. -->
-  <ItemGroup Condition="'$(TargetFramework)' == 'net451' Or '$(TargetFramework)' == 'net46'">
+  <ItemGroup Condition="'$(TargetFramework)' == 'net452' Or '$(TargetFramework)' == 'net46'">
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -34,7 +34,6 @@ under the License.
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Org.Apache.REEF.Bridge.CLR\Org.Apache.REEF.Bridge.CLR.DotNet.csproj" />
     <ProjectReference Include="..\Org.Apache.REEF.Client\Org.Apache.REEF.Client.DotNet.csproj" />
     <ProjectReference Include="..\Org.Apache.REEF.Common\Org.Apache.REEF.Common.DotNet.csproj" />
     <ProjectReference Include="..\Org.Apache.REEF.Driver\Org.Apache.REEF.Driver.DotNet.csproj" />
@@ -46,4 +45,6 @@ under the License.
     <ProjectReference Include="..\Org.Apache.REEF.Wake\Org.Apache.REEF.Wake.DotNet.csproj" />
     <ProjectReference Include="..\Org.Apache.REEF.IO\Org.Apache.REEF.IO.DotNet.csproj" />
   </ItemGroup>
+
+  <Import Project="..\build.DotNet.targets"/>
 </Project>
