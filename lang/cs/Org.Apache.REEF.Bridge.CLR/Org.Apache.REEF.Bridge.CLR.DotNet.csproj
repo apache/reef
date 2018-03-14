@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project>
 <!--
 Licensed to the Apache Software Foundation (ASF) under one
 or more contributor license agreements.  See the NOTICE file
@@ -59,4 +59,5 @@ under the License.
   <!-- REEF-1893, custom task needs to be moved into a binary, note to remove DependsOnTargets="RestorePackages" in AvroCodeGeneration.targets
   <Import Project="$(SolutionDir)\AvroCodeGeneration.targets" Condition="Exists('$(SolutionDir)\AvroCodeGeneration.targets')" />
   -->
+  <Import Project="..\build.DotNet.targets" />
 </Project>

@@ -55,7 +55,7 @@ under the License.
 
   <!-- For window builds, we are defaulting the dot net build to false until dot net core is fully supported -->
   <PropertyGroup Condition="'$(OS)' == 'Windows_NT'">
-    <EnableDotNetBuild>true</EnableDotNetBuild>
+    <EnableDotNetBuild>false</EnableDotNetBuild>
   </PropertyGroup>
 
     <!-- Locations -->
