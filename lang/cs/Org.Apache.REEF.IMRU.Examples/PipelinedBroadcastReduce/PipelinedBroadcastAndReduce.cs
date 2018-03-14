@@ -31,7 +31,7 @@ namespace Org.Apache.REEF.IMRU.Examples.PipelinedBroadcastReduce
     /// <summary>
     /// IMRU program that performs broadcast and reduce
     /// </summary>
-    public class PipelinedBroadcastAndReduce
+    internal class PipelinedBroadcastAndReduce
     {
         protected readonly IIMRUClient _imruClient;
 

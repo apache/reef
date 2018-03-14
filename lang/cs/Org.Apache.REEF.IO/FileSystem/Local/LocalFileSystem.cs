@@ -129,8 +129,7 @@ namespace Org.Apache.REEF.IO.FileSystem.Local
 
         private static void EnsureDirectoryExists(string filePath)
         {
-            var parts = filePath.Split('\\');
-            var directory = filePath.Substring(0, filePath.Length - parts[parts.Length - 1].Length);
+            var directory = Path.GetDirectoryName(filePath);
             if (!Directory.Exists(directory))
             {
                 Directory.CreateDirectory(directory);

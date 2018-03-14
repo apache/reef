@@ -155,15 +155,8 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
                 Exceptions.Throw(e, "Unable to deserialize map input pipeline data converter configuration", Logger);
             }
 
-            try
-            {
-                _checkpointConfiguration =
-                    configurationSerializer.FromString(checkpointConfiguration);
-            }
-            catch (Exception e)
-            {
-                Exceptions.Throw(e, "Unable to deserialize checkpoint configuration", Logger);
-            }
+            _checkpointConfiguration =
+                configurationSerializer.FromString(checkpointConfiguration);
         }
 
         /// <summary>

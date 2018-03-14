@@ -26,6 +26,7 @@ using Org.Apache.REEF.IMRU.API;
 using Org.Apache.REEF.IMRU.OnREEF.CheckpointHandler;
 using Org.Apache.REEF.IMRU.OnREEF.IMRUTasks;
 using Org.Apache.REEF.IMRU.OnREEF.Parameters;
+using Org.Apache.REEF.IO.TempFileCreation;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Tang.Implementations.Configuration;
 using Org.Apache.REEF.Tang.Implementations.Tang;
@@ -39,7 +40,7 @@ namespace Org.Apache.REEF.IMRU.Examples.PipelinedBroadcastReduce
     /// <summary>
     /// IMRU program that performs broadcast and reduce with fault tolerance.
     /// </summary>
-    public sealed class PipelinedBroadcastAndReduceWithFaultTolerant : PipelinedBroadcastAndReduce
+    internal sealed class PipelinedBroadcastAndReduceWithFaultTolerant : PipelinedBroadcastAndReduce
     {
         private static readonly Logger Logger = Logger.GetLogger(typeof(PipelinedBroadcastAndReduceWithFaultTolerant));
 
@@ -118,11 +119,11 @@ namespace Org.Apache.REEF.IMRU.Examples.PipelinedBroadcastReduce
         /// </summary>
         protected override IConfiguration BuildCheckpointConfig()
         {
-            var filePath = Path.Combine(Path.GetTempPath(), Guid.NewGuid() + "state.txt");
+            var filePath = TangFactory.GetTang().NewInjector().GetInstance<ITempFileCreator>().CreateTempDirectory("statefiles", string.Empty);
 
-            return CheckpointConfigurationModule.ConfigurationModule
-                .Set(CheckpointConfigurationModule.CheckpointFile, filePath)
-                .Set(CheckpointConfigurationModule.TaskStateCodec, GenericType<UpdateTaskStateCodec>.Class)
+            return CheckpointConfigurationBuilder.ConfigurationModule
+                .Set(CheckpointConfigurationBuilder.CheckpointFilePath, filePath)
+                .Set(CheckpointConfigurationBuilder.TaskStateCodec, GenericType<UpdateTaskStateCodec>.Class)
                 .Build();
         }
 
@@ -309,7 +310,6 @@ namespace Org.Apache.REEF.IMRU.Examples.PipelinedBroadcastReduce
             private readonly int _workers;
             private readonly UpdateTaskState<int[], int[]> _taskState;
             private readonly IIMRUCheckpointHandler _stateHandler;
-            private readonly ICodec<ITaskState> _stateCodec;
 
             [Inject]
             private BroadcastSenderReduceReceiverUpdateFunctionFT(
@@ -318,7 +318,6 @@ namespace Org.Apache.REEF.IMRU.Examples.PipelinedBroadcastReduce
                 [Parameter(typeof(BroadcastReduceConfiguration.NumWorkers))] int numWorkers,
                 [Parameter(typeof(TaskConfigurationOptions.Identifier))] string taskId,
                 IIMRUCheckpointHandler stateHandler,
-                ICodec<ITaskState> stateCodec,
                 ITaskState taskState)
             {
                 _maxIters = maxIters;
@@ -329,7 +328,6 @@ namespace Org.Apache.REEF.IMRU.Examples.PipelinedBroadcastReduce
                 _taskState = (UpdateTaskState<int[], int[]>)taskState;
 
                 _stateHandler = stateHandler;
-                _stateCodec = stateCodec;
 
                 int retryNumber;
                 int.TryParse(taskId[taskId.Length - 1].ToString(), out retryNumber);
@@ -431,23 +429,22 @@ namespace Org.Apache.REEF.IMRU.Examples.PipelinedBroadcastReduce
 
             private void PersistState()
             {
-                Logger.Log(Level.Info, "$$$$$$$$$$$ State to save: {0}", _taskState.Input[0]);
-                Logger.Log(Level.Info, "$$$$$$$$$$$ SaveState:currentState: {0}", JsonConvert.SerializeObject(_taskState));
-
-                _stateHandler.Persistent(_taskState, _stateCodec);
+                Logger.Log(Level.Info, "SaveState:currentState: {0}", JsonConvert.SerializeObject(_taskState));
+                _stateHandler.Persist(_taskState);
             }
 
             private void RestoreState()
             {
-                var obj = (UpdateTaskState<int[], int[]>)_stateHandler.Restore(_stateCodec);
+                var obj = (UpdateTaskState<int[], int[]>)_stateHandler.Restore();
 
                 if (obj != null)
                 {
                     Logger.Log(Level.Info,
-                        "$$$$$$$$$$$ restoreState:DeserializeObject: input: {0}, iteration: {1}, result: {2}.",
+                        "RestoreState:DeserializeObject: input: {0}, iteration: {1}, result: {2}.",
                         obj.Input == null ? string.Empty : string.Join(",", obj.Input),
                         obj.Iterations,
                         obj.Result == null ? string.Empty : string.Join(",", obj.Result));
+
                     _taskState.Update(obj);
                 }
             }

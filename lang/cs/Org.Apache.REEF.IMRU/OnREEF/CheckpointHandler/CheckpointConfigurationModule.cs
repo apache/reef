@@ -17,20 +17,33 @@
 
 using Org.Apache.REEF.IMRU.API;
 using Org.Apache.REEF.IMRU.OnREEF.IMRUTasks;
+using Org.Apache.REEF.IMRU.OnREEF.Parameters;
 using Org.Apache.REEF.Tang.Formats;
 using Org.Apache.REEF.Tang.Util;
 using Org.Apache.REEF.Wake.Remote;
 
 namespace Org.Apache.REEF.IMRU.OnREEF.CheckpointHandler
 {
-    public sealed class CheckpointConfigurationModule : ConfigurationModuleBuilder
+    /// <summary>
+    /// Configuration module builder for checkpoint handler
+    /// </summary>
+    public sealed class CheckpointConfigurationBuilder : ConfigurationModuleBuilder
     {
-        public static readonly RequiredParameter<string> CheckpointFile = new RequiredParameter<string>();
+        /// <summary>
+        /// The check point sttate file path. In cluster, should be a path in remote storage.
+        /// </summary>
+        public static readonly RequiredParameter<string> CheckpointFilePath = new RequiredParameter<string>();
 
+        /// <summary>
+        /// Codec that is to encode and decode state object.
+        /// </summary>
         public static readonly RequiredImpl<ICodec<ITaskState>> TaskStateCodec = new RequiredImpl<ICodec<ITaskState>>();
 
-        public static readonly ConfigurationModule ConfigurationModule = new CheckpointConfigurationModule()
-            .BindNamedParameter(GenericType<CheckpointFilePath>.Class, CheckpointFile)
+        /// <summary>
+        /// Configuration module for checkpoint handler.
+        /// </summary>
+        public static readonly ConfigurationModule ConfigurationModule = new CheckpointConfigurationBuilder()
+            .BindNamedParameter(GenericType<CheckpointFilePath>.Class, CheckpointFilePath)
             .BindImplementation(GenericType<IIMRUCheckpointHandler>.Class, GenericType<IMRUCheckpointHandler>.Class)
             .BindImplementation(GenericType<ICodec<ITaskState>>.Class, TaskStateCodec)
             .Build();

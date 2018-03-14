@@ -19,6 +19,7 @@ using System;
 using System.IO;
 using System.Linq;
 using Org.Apache.REEF.IMRU.API;
+using Org.Apache.REEF.IMRU.OnREEF.Parameters;
 using Org.Apache.REEF.IO.FileSystem;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Utilities.Logging;
@@ -58,13 +59,13 @@ namespace Org.Apache.REEF.IMRU.OnREEF.CheckpointHandler
                 string resultFile = Path.Combine(_checkpointFilePath, RresultDir, RresultFile);
                 _resultFileUrl = _fileSystem.CreateUriForPath(resultFile);
             }
-            Logger.Log(Level.Info, "############ state file path: {0}", checkpointFilePath);
+            Logger.Log(Level.Info, "State file path: {0}", checkpointFilePath);
         }
 
         /// <summary>
         /// Set flag to show result is already written.
         /// </summary>
-        public void SetResult()
+        public void MarkResulHandled()
         {
             if (!string.IsNullOrEmpty(_checkpointFilePath) && !_fileSystem.Exists(_resultFileUrl))
             {
@@ -79,7 +80,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.CheckpointHandler
         /// Retrieve the result flag.
         /// </summary>
         /// <returns></returns>
-        public bool GetResult()
+        public bool IsResultHandled()
         {
             if (!string.IsNullOrEmpty(_checkpointFilePath) && _fileSystem.Exists(_resultFileUrl))
             {

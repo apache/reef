@@ -64,7 +64,6 @@ under the License.
     <Compile Include="API\IUpdateFunction.cs" />
     <Compile Include="API\IPerMapperConfigGenerator.cs" />
     <Compile Include="OnREEF\CheckpointHandler\CheckpointConfigurationModule.cs" />
-    <Compile Include="OnREEF\CheckpointHandler\CheckpointFilePath.cs" />
     <Compile Include="OnREEF\CheckpointHandler\IMRUCheckpointHandler.cs" />
     <Compile Include="OnREEF\CheckpointHandler\IMRUCheckpointResultHandler.cs" />
     <Compile Include="OnREEF\Driver\JobCancellationDetectorAlwaysFalse.cs" />
@@ -117,6 +116,7 @@ under the License.
     <Compile Include="OnREEF\MapInputWithControlMessage\MapInputWithControlMessage.cs" />
     <Compile Include="OnREEF\MapInputWithControlMessage\MapInputWithControlMessageCodec.cs" />
     <Compile Include="OnREEF\MapInputWithControlMessage\MapInputwithControlMessagePipelineDataConverter.cs" />
+    <Compile Include="OnREEF\Parameters\CheckpointFilePath.cs" />
     <Compile Include="OnREEF\Parameters\InvokeGC .cs" />
     <Compile Include="OnREEF\Parameters\AllowedFailedEvaluatorsFraction.cs" />
     <Compile Include="OnREEF\Parameters\CoresForUpdateTask.cs" />

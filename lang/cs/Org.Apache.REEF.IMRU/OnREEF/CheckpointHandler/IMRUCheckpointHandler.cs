@@ -16,12 +16,16 @@
 // under the License.
 
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Org.Apache.REEF.IMRU.API;
 using Org.Apache.REEF.IMRU.OnREEF.IMRUTasks;
+using Org.Apache.REEF.IMRU.OnREEF.Parameters;
 using Org.Apache.REEF.IO.FileSystem;
+using Org.Apache.REEF.IO.TempFileCreation;
 using Org.Apache.REEF.Tang.Annotations;
+using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Utilities.Logging;
 using Org.Apache.REEF.Wake.Remote;
 
@@ -30,12 +34,14 @@ namespace Org.Apache.REEF.IMRU.OnREEF.CheckpointHandler
     /// <summary>
     /// Default implementation of IIMRUCheckpointHandler
     /// </summary>
-    public class IMRUCheckpointHandler : IIMRUCheckpointHandler
+    public sealed class IMRUCheckpointHandler : IIMRUCheckpointHandler
     {
         private static readonly Logger Logger = Logger.GetLogger(typeof(IMRUCheckpointHandler));
 
         private readonly IFileSystem _fileSystem;
+        private readonly ICodec<ITaskState> _stateCodec;
         private readonly string _checkpointFilePath;
+        private readonly Uri _checkpointFileUri;
         private const string StateDir = "StateDir";
         private const string StateFile = "StateFile";
         private const string FlagFile = "FlagFile";
@@ -47,14 +53,17 @@ namespace Org.Apache.REEF.IMRU.OnREEF.CheckpointHandler
         /// </summary>
         /// <param name="checkpointFilePath">The file path where the checkpoint data will be stored.</param>
         /// <param name="fileSystem">File system to load/upload checkpoint data</param>
+        /// <param name="stateCodec">Codec that is used for decoding and encoding for State object.</param>
         [Inject]
         private IMRUCheckpointHandler(
             [Parameter(typeof(CheckpointFilePath))] string checkpointFilePath,
+            ICodec<ITaskState> stateCodec,
             IFileSystem fileSystem)
         {
             _fileSystem = fileSystem;
+            _stateCodec = stateCodec;
             _checkpointFilePath = checkpointFilePath;
-
+            _checkpointFileUri = _fileSystem.CreateUriForPath(_checkpointFilePath);
             Logger.Log(Level.Info, "State file path: {0}", checkpointFilePath);
         }
 
@@ -62,11 +71,10 @@ namespace Org.Apache.REEF.IMRU.OnREEF.CheckpointHandler
         /// Save serialized checkpoint data to remote checkpoint file.
         /// </summary>
         /// <param name="taskState"></param>
-        /// <param name="codec"></param>
-        public void Persistent(ITaskState taskState, ICodec<ITaskState> codec)
+        public void Persist(ITaskState taskState)
         {
-            var localStateFile = Path.GetTempPath() + Guid.NewGuid().ToString("N").Substring(0, 4);
-            var localFlagfile = Path.GetTempPath() + Guid.NewGuid().ToString("N").Substring(0, 4);
+            var localStateFile = TangFactory.GetTang().NewInjector().GetInstance<ITempFileCreator>().GetTempFileName("statefile", string.Empty);
+            var localFlagfile = TangFactory.GetTang().NewInjector().GetInstance<ITempFileCreator>().GetTempFileName("flagfile", string.Empty);
 
             string tick = DateTime.Now.Ticks.ToString();
             string stateFileDir = Path.Combine(_checkpointFilePath, StateDir + tick);
@@ -76,7 +84,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.CheckpointHandler
             var stateFileUri = _fileSystem.CreateUriForPath(remoteStateFileName);
             var flagFileUri = _fileSystem.CreateUriForPath(remoteFlagFileName);
 
-            var data = codec.Encode(taskState);
+            var data = _stateCodec.Encode(taskState);
             File.WriteAllBytes(localStateFile, data);
             File.WriteAllText(localFlagfile, remoteStateFileName);
 
@@ -90,36 +98,52 @@ namespace Org.Apache.REEF.IMRU.OnREEF.CheckpointHandler
         /// <summary>
         /// Read checkpoint data and deserialize it into ITaskState object.
         /// </summary>
-        /// <param name="codec"></param>
         /// <returns></returns>
-        public ITaskState Restore(ICodec<ITaskState> codec)
+        public ITaskState Restore()
         {
             if (!string.IsNullOrEmpty(_checkpointFilePath))
             {
-                var files = _fileSystem.GetChildren(_fileSystem.CreateUriForPath(_checkpointFilePath));
+                var files = _fileSystem.GetChildren(_checkpointFileUri);
                 if (files != null)
                 {
                     var flagFiles = files.Where(f => f.AbsolutePath.Contains(FlagFile));
-                    var uris = flagFiles.OrderByDescending(ff => _fileSystem.GetFileStatus(ff).ModificationTime);
+                    var uris = flagFiles.OrderByDescending(ff => _fileSystem.GetFileStatus(ff).ModificationTime).ToList();
 
-                    Uri latestFlagFile = uris.FirstOrDefault();
-                    if (latestFlagFile != null)
-                    {
-                        var localLatestFlagfile = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString("N").Substring(0, 4));
-                        var localLatestStatefile = Path.Combine(Path.GetTempPath() + Guid.NewGuid().ToString("N").Substring(0, 4));
+                    return Restore(uris);
+                }
+            }
+            return null;
+        }
 
-                        _fileSystem.CopyToLocal(latestFlagFile, localLatestFlagfile);
-                        string latestStateFile = File.ReadAllText(localLatestFlagfile);
-                        Logger.Log(Level.Info, "latestStateFile -- : {0}", latestStateFile);
-                        var latestStateFileUri = _fileSystem.CreateUriForPath(latestStateFile);
-                        _fileSystem.CopyToLocal(latestStateFileUri, localLatestStatefile);
-                        var currentState = File.ReadAllBytes(localLatestStatefile);
+        private ITaskState Restore(IList<Uri> uris)
+        {
+            Uri latestFlagFile = uris.FirstOrDefault();
+            if (latestFlagFile != null)
+            {
+                var localLatestStatefile = TangFactory.GetTang().NewInjector().GetInstance<ITempFileCreator>().GetTempFileName("statefile", string.Empty);
+                var localLatestFlagfile = TangFactory.GetTang().NewInjector().GetInstance<ITempFileCreator>().GetTempFileName("flagfile", string.Empty);
 
-                        File.Delete(localLatestFlagfile);
-                        File.Delete(localLatestStatefile);
+                _fileSystem.CopyToLocal(latestFlagFile, localLatestFlagfile);
 
-                        return codec.Decode(currentState);
-                    }
+                try
+                {
+                    string latestStateFile = File.ReadAllText(localLatestFlagfile);
+                    Logger.Log(Level.Info, "latestStateFile -- : {0}", latestStateFile);
+                    var latestStateFileUri = _fileSystem.CreateUriForPath(latestStateFile);
+                    _fileSystem.CopyToLocal(latestStateFileUri, localLatestStatefile);
+                    var currentState = File.ReadAllBytes(localLatestStatefile);
+                    return _stateCodec.Decode(currentState);
+                }
+                catch (Exception e)
+                {
+                    Logger.Log(Level.Info, "Exception in restoring from state file. Possible file corruption {0}", e);
+                    uris.RemoveAt(0);
+                    return Restore(uris);
+                }
+                finally
+                {
+                    File.Delete(localLatestFlagfile);
+                    File.Delete(localLatestStatefile);
                 }
             }
             return null;

@@ -23,7 +23,7 @@ using Org.Apache.REEF.Wake.Remote;
 namespace Org.Apache.REEF.IMRU.API
 {
     /// <summary>
-    /// It is responsible for save and restore ITaskState object with the given ICodec
+    /// It is responsible for save and restore ITaskState object.
     /// </summary>
     [DefaultImplementation(typeof(IMRUCheckpointHandler))]
     public interface IIMRUCheckpointHandler
@@ -32,14 +32,12 @@ namespace Org.Apache.REEF.IMRU.API
         /// Persistent ITaskState object with the given ICodec.
         /// </summary>
         /// <param name="taskState"></param>
-        /// <param name="codec"></param>
-        void Persistent(ITaskState taskState, ICodec<ITaskState> codec);
+        void Persist(ITaskState taskState);
 
         /// <summary>
         /// Restore the data and decode it with the given ICodec.
         /// </summary>
-        /// <param name="codec"></param>
         /// <returns></returns>
-        ITaskState Restore(ICodec<ITaskState> codec);
+        ITaskState Restore();
     }
 }

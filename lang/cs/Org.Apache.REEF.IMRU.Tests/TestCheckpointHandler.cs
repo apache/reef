@@ -17,11 +17,14 @@
 
 using System;
 using System.IO;
+using System.Linq;
 using System.Runtime.Serialization;
 using Newtonsoft.Json;
 using Org.Apache.REEF.IMRU.API;
 using Org.Apache.REEF.IMRU.OnREEF.CheckpointHandler;
 using Org.Apache.REEF.IMRU.OnREEF.IMRUTasks;
+using Org.Apache.REEF.IO.FileSystem;
+using Org.Apache.REEF.IO.TempFileCreation;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Tang.Interface;
@@ -34,41 +37,86 @@ namespace Org.Apache.REEF.IMRU.Tests
 {
     public class TestCheckpointHandler
     {
+        /// <summary>
+        /// Test persist and restore.
+        /// </summary>
         [Fact]
         public void TestPersistent()
         {
             var injector = TangFactory.GetTang().NewInjector(BuildCheckpointConfig());
             var checkpointHandler = injector.GetInstance<IIMRUCheckpointHandler>();
             var checkpointResultHandler = injector.GetInstance<API.IIMRUCheckpointResultHandler>();
-            var codec = injector.GetInstance<ICodec<ITaskState>>();
 
             // Test to clean a non existing folder
             checkpointResultHandler.Clear();
 
             var taskState = (TestTaskState)TangFactory.GetTang().NewInjector(TaskStateConfiguration()).GetInstance<ITaskState>();
             taskState.Iterations = 5;
-            checkpointHandler.Persistent(taskState, codec);
+            checkpointHandler.Persist(taskState);
             taskState.Iterations = 10;
-            checkpointHandler.Persistent(taskState, codec);
+            checkpointHandler.Persist(taskState);
 
-            var state = checkpointHandler.Restore(codec);
+            var state = checkpointHandler.Restore();
             var testTaskState = (TestTaskState)state;
             Assert.Equal(testTaskState.Iterations, 10);
 
-            checkpointResultHandler.SetResult();
-            var r = checkpointResultHandler.GetResult();
+            checkpointResultHandler.MarkResulHandled();
+            var r = checkpointResultHandler.IsResultHandled();
             Assert.True(r);
 
             checkpointResultHandler.Clear();
         }
 
+        /// <summary>
+        /// Test last state file corrupted during the restore.
+        /// </summary>
+        [Fact]
+        public void TestLastFileCorrupted()
+        {
+            var filePath = TangFactory.GetTang().NewInjector().GetInstance<ITempFileCreator>().CreateTempDirectory("statefiles", string.Empty);
+
+            var config = CheckpointConfigurationBuilder.ConfigurationModule
+                .Set(CheckpointConfigurationBuilder.CheckpointFilePath, filePath)
+                .Set(CheckpointConfigurationBuilder.TaskStateCodec, GenericType<TestTaskStateCodec>.Class)
+                .Build();
+
+            var injector = TangFactory.GetTang().NewInjector(config);
+            var checkpointHandler = injector.GetInstance<IIMRUCheckpointHandler>();
+            var checkpointResultHandler = injector.GetInstance<API.IIMRUCheckpointResultHandler>();
+            var fileSystem = injector.GetInstance<IFileSystem>();
+
+            // Test to clean a non existing folder
+            checkpointResultHandler.Clear();
+
+            // Write two state files
+            var taskState = (TestTaskState)TangFactory.GetTang().NewInjector(TaskStateConfiguration()).GetInstance<ITaskState>();
+            taskState.Iterations = 5;
+            checkpointHandler.Persist(taskState);
+            taskState.Iterations = 10;
+            checkpointHandler.Persist(taskState);
+
+            // Delete the last state file
+            var files = fileSystem.GetChildren(fileSystem.CreateUriForPath(filePath));
+            var flagFiles = files.Where(f => f.AbsolutePath.Contains("FlagFile"));
+            var uris = flagFiles.OrderByDescending(ff => fileSystem.GetFileStatus(ff).ModificationTime).ToList();
+            Uri latestFlagFile = uris.FirstOrDefault();
+            var localLatestFlagfile = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString("N").Substring(0, 4));
+            fileSystem.CopyToLocal(latestFlagFile, localLatestFlagfile);
+            string latestStateFile = File.ReadAllText(localLatestFlagfile);
+            fileSystem.Delete(fileSystem.CreateUriForPath(latestStateFile));
+
+            var state = checkpointHandler.Restore();
+            var testTaskState = (TestTaskState)state;
+            Assert.Equal(testTaskState.Iterations, 5);
+        }
+
         protected IConfiguration BuildCheckpointConfig()
         {
-            var filePath = Path.Combine(Path.GetTempPath(), "teststatepath" + Guid.NewGuid().ToString("N").Substring(0, 4));
+            var filePath = TangFactory.GetTang().NewInjector().GetInstance<ITempFileCreator>().CreateTempDirectory("statefiles", string.Empty);
 
-            return CheckpointConfigurationModule.ConfigurationModule
-                .Set(CheckpointConfigurationModule.CheckpointFile, filePath)
-                .Set(CheckpointConfigurationModule.TaskStateCodec, GenericType<TestTaskStateCodec>.Class)
+            return CheckpointConfigurationBuilder.ConfigurationModule
+                .Set(CheckpointConfigurationBuilder.CheckpointFilePath, filePath)
+                .Set(CheckpointConfigurationBuilder.TaskStateCodec, GenericType<TestTaskStateCodec>.Class)
                 .Build();
         }
 

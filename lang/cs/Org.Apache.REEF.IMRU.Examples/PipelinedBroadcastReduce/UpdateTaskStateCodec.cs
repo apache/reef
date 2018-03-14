@@ -23,19 +23,32 @@ using Org.Apache.REEF.Wake.Remote;
 
 namespace Org.Apache.REEF.IMRU.Examples.PipelinedBroadcastReduce
 {
-    public class UpdateTaskStateCodec : ICodec<ITaskState>
+    /// <summary>
+    /// Codec for Update State
+    /// </summary>
+    internal sealed class UpdateTaskStateCodec : ICodec<ITaskState>
     {
         [Inject]
-        UpdateTaskStateCodec()
+        private UpdateTaskStateCodec()
         {
         }
 
+        /// <summary>
+        /// Deserialize bytes into ITaskState object.
+        /// </summary>
+        /// <param name="data"></param>
+        /// <returns></returns>
         public ITaskState Decode(byte[] data)
         {
             var str = ByteUtilities.ByteArraysToString(data);
             return JsonConvert.DeserializeObject<UpdateTaskState<int[], int[]>>(str);
         }
 
+        /// <summary>
+        /// Serialize ITaskState in to bytes.
+        /// </summary>
+        /// <param name="taskState"></param>
+        /// <returns></returns>
         public byte[] Encode(ITaskState taskState)
         {
             var state = JsonConvert.SerializeObject(taskState);

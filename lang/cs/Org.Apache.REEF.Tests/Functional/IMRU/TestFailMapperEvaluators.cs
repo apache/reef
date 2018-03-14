@@ -23,6 +23,7 @@ using Org.Apache.REEF.IMRU.OnREEF.CheckpointHandler;
 using Org.Apache.REEF.IMRU.OnREEF.Driver;
 using Org.Apache.REEF.IMRU.OnREEF.IMRUTasks;
 using Org.Apache.REEF.IMRU.OnREEF.Parameters;
+using Org.Apache.REEF.IO.TempFileCreation;
 using Org.Apache.REEF.Tang.Implementations.Configuration;
 using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Tang.Interface;
@@ -203,11 +204,11 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
         /// </summary>
         protected override IConfiguration BuildCheckpointConfig()
         {
-            var filePath = Path.Combine(Path.GetTempPath(), System.Guid.NewGuid() + "state.txt");
+            var filePath = TangFactory.GetTang().NewInjector().GetInstance<ITempFileCreator>().CreateTempDirectory("statefiles", string.Empty);
 
-            return CheckpointConfigurationModule.ConfigurationModule
-                .Set(CheckpointConfigurationModule.CheckpointFile, filePath)
-                .Set(CheckpointConfigurationModule.TaskStateCodec, GenericType<UpdateTaskStateCodec>.Class)
+            return CheckpointConfigurationBuilder.ConfigurationModule
+                .Set(CheckpointConfigurationBuilder.CheckpointFilePath, filePath)
+                .Set(CheckpointConfigurationBuilder.TaskStateCodec, GenericType<UpdateTaskStateCodec>.Class)
                 .Build();
         }
 

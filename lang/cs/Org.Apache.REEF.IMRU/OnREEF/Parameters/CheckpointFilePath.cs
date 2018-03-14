@@ -17,10 +17,10 @@
 
 using Org.Apache.REEF.Tang.Annotations;
 
-namespace Org.Apache.REEF.IMRU.OnREEF.CheckpointHandler
+namespace Org.Apache.REEF.IMRU.OnREEF.Parameters
 {
     [NamedParameter("Checkpoint file name", "CheckpointFilePath", "")]
-    public class CheckpointFilePath : Name<string>
+    public sealed class CheckpointFilePath : Name<string>
     {
     }
 }

@@ -87,7 +87,6 @@ namespace Org.Apache.REEF.IMRU.OnREEF.IMRUTasks
             {
                 _checkpointResultHandler.Clear();
             }
-            Logger.Log(Level.Info, "$$$$_resultHandler." + _resultHandler.GetType().AssemblyQualifiedName);
             Logger.Log(Level.Info, "UpdateTaskHost initialized.");
         }
 
@@ -109,10 +108,10 @@ namespace Org.Apache.REEF.IMRU.OnREEF.IMRUTasks
 
             if (updateResult.HasResult)
             {
-                if (!_checkpointResultHandler.GetResult())
+                if (!_checkpointResultHandler.IsResultHandled())
                 {
                     _resultHandler.HandleResult(updateResult.Result);
-                    _checkpointResultHandler.SetResult();
+                    _checkpointResultHandler.MarkResulHandled();
                 }
                 _done = true;
             }
@@ -142,7 +141,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.IMRUTasks
                         {
                             _resultHandler.HandleResult(updateResult.Result);
                             _done = true;
-                            _checkpointResultHandler.SetResult();
+                            _checkpointResultHandler.MarkResulHandled();
                         }
                     }
                     catch (Exception e)

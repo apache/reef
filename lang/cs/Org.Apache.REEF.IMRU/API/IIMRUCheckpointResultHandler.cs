@@ -29,12 +29,12 @@ namespace Org.Apache.REEF.IMRU.API
         /// <summary>
         /// Set a flag to indicate the result has been handled.
         /// </summary>
-        void SetResult();
+        void MarkResulHandled();
 
         /// <summary>
         /// Check if the result flag has been set.
         /// </summary>
-        bool GetResult();
+        bool IsResultHandled();
 
         /// <summary>
         /// Clear state files
