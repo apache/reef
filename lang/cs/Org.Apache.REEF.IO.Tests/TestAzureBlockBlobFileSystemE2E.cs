@@ -34,7 +34,7 @@ namespace Org.Apache.REEF.IO.Tests
     /// </summary>
     public sealed class TestAzureBlockBlobFileSystemE2E : IDisposable
     {
-        private const string SkipMessage = "Fill in credentials before running test"; // Use null to run tests
+        private const string SkipMessage = null; // "Fill in credentials before running test"; // Use null to run tests
         private const string HelloFile = "hello";
         private IFileSystem _fileSystem;
         private CloudBlobContainer _container;
@@ -42,7 +42,7 @@ namespace Org.Apache.REEF.IO.Tests
         public TestAzureBlockBlobFileSystemE2E()
         {
             // Fill in before running test!
-            const string ConnectionString = "DefaultEndpointsProtocol=http;AccountName=myAccount;AccountKey=myKey;";
+            const string ConnectionString = "DefaultEndpointsProtocol=https;AccountName=tyclintwscratchstg;AccountKey=D4ZNhX7fzii3bCf3NMMbz11kE/M50x4XGNliZIqKXm0VZzdNukFKzga39EBouBv1lE3HU0kCun/myXawmB43kQ==;EndpointSuffix=core.windows.net";
             var defaultContainerName = "reef-test-container-" + Guid.NewGuid();
             var conf = AzureBlockBlobFileSystemConfiguration.ConfigurationModule
                 .Set(AzureBlockBlobFileSystemConfiguration.ConnectionString, ConnectionString)
@@ -169,6 +169,8 @@ namespace Org.Apache.REEF.IO.Tests
             var helloFilePath = PathToFile(HelloFile);
             var blob = _container.GetBlockBlobReference(HelloFile);
             var tempFilePath = Path.GetTempFileName();
+            File.Delete(tempFilePath);
+
             const string Text = "hello";
             
             try
