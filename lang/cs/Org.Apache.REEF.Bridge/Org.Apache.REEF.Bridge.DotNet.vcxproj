@@ -40,7 +40,7 @@ under the License.
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <Keyword>ManagedCProj</Keyword>
     <RootNamespace>Org.Apache.REEF.Bridge</RootNamespace>
-    <WindowsTargetPlatformVersion Condition="'$(MSBuildAssemblyVersion)' >= '15.0'">10.0.15063.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion Condition="'$(MSBuildAssemblyVersion)' &gt;= '15.0'">10.0.15063.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <!--
@@ -202,4 +202,8 @@ under the License.
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
+  
+  <!-- Adds an empty pack target so that this project is skipped when packing. -->
+  <Target Name="Pack">
+  </Target>
 </Project>
