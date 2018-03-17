@@ -21,5 +21,8 @@ under the License.
 <PropertyGroup>
   <TargetFrameworks>net452</TargetFrameworks>
   <TargetFrameworks Condition="'$(OS)' != 'Windows_NT'">netcoreapp2.0</TargetFrameworks>
+
+  <!-- Set this attribute to prevent test projects from being packaged -->
+  <IsTestProject>true</IsTestProject>
 </PropertyGroup>
 </Project>

@@ -22,6 +22,7 @@ under the License.
   </PropertyGroup>
   <Import Project="..\build.DotNet.props" />
   <PropertyGroup>
+    <IsPackable>false</IsPackable>
     <OutputPath>$(BinDir)$(Configuration)\Org.Apache.REEF.Bridge.JAR\</OutputPath>
   </PropertyGroup>
   <Import Project="..\build.DotNet.targets" />

@@ -54,8 +54,7 @@ under the License.
     <ProjectReference Include="..\Org.Apache.REEF.Utilities\Org.Apache.REEF.Utilities.DotNet.csproj" />
     <ProjectReference Include="..\Org.Apache.REEF.Wake\Org.Apache.REEF.Wake.DotNet.csproj" />
     <ProjectReference Include="..\Org.Apache.REEF.IO\Org.Apache.REEF.IO.DotNet.csproj" />
-</ItemGroup>
-
+  </ItemGroup>
   <!-- REEF-1893, custom task needs to be moved into a binary, note to remove DependsOnTargets="RestorePackages" in AvroCodeGeneration.targets
   <Import Project="$(SolutionDir)\AvroCodeGeneration.targets" Condition="Exists('$(SolutionDir)\AvroCodeGeneration.targets')" />
   -->
