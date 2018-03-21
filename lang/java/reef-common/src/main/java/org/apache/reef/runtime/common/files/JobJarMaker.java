@@ -61,6 +61,11 @@ public final class JobJarMaker {
     this.deleteTempFilesOnExit = deleteTempFilesOnExit;
   }
 
+  /**
+   * Provider builder class for building JAR files.
+   *
+   * @return JarBuilder instance.
+   */
   public JarBuilder newBuilder() {
     return new JarBuilder();
   }
@@ -111,7 +116,7 @@ public final class JobJarMaker {
         .build();
   }
 
-  private File makejobSubmissionFolder() throws IOException {
+  private File makeJobSubmissionFolder() throws IOException {
     return Files.createTempDirectory(this.fileNames.getJobFolderPrefix()).toFile();
   }
 
@@ -149,7 +154,7 @@ public final class JobJarMaker {
 
     public File build() throws IOException {
       // Copy all files to a local job submission folder
-      final File jobSubmissionFolder = makejobSubmissionFolder();
+      final File jobSubmissionFolder = makeJobSubmissionFolder();
       LOG.log(Level.FINE, "Staging submission in {0}", jobSubmissionFolder);
 
       final File localFolder = new File(jobSubmissionFolder, JobJarMaker.this.fileNames.getLocalFolderName());

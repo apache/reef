@@ -72,11 +72,11 @@ public final class HelloReefAzBatch {
    */
   public static void main(final String[] args) throws InjectionException, IOException {
 
-    Configuration partialConfiguration = getEnvironmentConfiguration();
+    final Configuration partialConfiguration = getEnvironmentConfiguration();
     final Injector injector = Tang.Factory.getTang().newInjector(partialConfiguration);
     final AzureBatchRuntimeConfigurationProvider runtimeConfigurationProvider =
         injector.getInstance(AzureBatchRuntimeConfigurationProvider.class);
-    Configuration driverConfiguration = getDriverConfiguration();
+    final Configuration driverConfiguration = getDriverConfiguration();
 
     try (final REEF reef = Tang.Factory.getTang().newInjector(
         runtimeConfigurationProvider.getAzureBatchRuntimeConfiguration()).getInstance(REEF.class)) {

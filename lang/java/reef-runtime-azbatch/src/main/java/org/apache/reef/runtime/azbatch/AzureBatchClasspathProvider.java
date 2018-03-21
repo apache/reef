@@ -27,13 +27,13 @@ import java.util.List;
 /**
  * Access to the classpath according to the REEF file system standard.
  */
-public class AzureBatchClasspathProvider implements RuntimeClasspathProvider {
+public final class AzureBatchClasspathProvider implements RuntimeClasspathProvider {
 
   private final List<String> classPathPrefix;
   private final List<String> classPathSuffix;
 
   @Inject
-  AzureBatchClasspathProvider() {
+  private AzureBatchClasspathProvider() {
     this.classPathPrefix = new ArrayList<>();
     this.classPathSuffix = new ArrayList<>();
   }

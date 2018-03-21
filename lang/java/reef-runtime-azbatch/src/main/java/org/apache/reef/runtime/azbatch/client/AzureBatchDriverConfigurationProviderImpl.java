@@ -51,7 +51,7 @@ public final class AzureBatchDriverConfigurationProviderImpl implements DriverCo
   private final CommandBuilder commandBuilder;
 
   @Inject
-  AzureBatchDriverConfigurationProviderImpl(
+  private AzureBatchDriverConfigurationProviderImpl(
       @Parameter(JVMHeapSlack.class) final double jvmSlack,
       @Parameter(AzureBatchAccountUri.class) final String azureBatchAccountUri,
       @Parameter(AzureBatchAccountName.class) final String azureBatchAccountName,
