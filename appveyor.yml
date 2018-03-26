@@ -32,10 +32,11 @@ install:
   - ps: .\dev\appveyor-install-dependencies.ps1
 
 build_script:
-  - cmd: msbuild .\lang\cs\Org.Apache.REEF.sln /p:Configuration="Release" /p:Platform="x64" /m
+  - cmd: msbuild .\lang\cs\Org.Apache.REEF.DotNet.sln /p:Configuration="Release" /p:Platform="x64" /t:Restore
+  - cmd: msbuild .\lang\cs\Org.Apache.REEF.DotNet.sln /p:Configuration="Release" /p:Platform="x64" /m
 
 test_script:
-  - cmd: msbuild .\lang\cs\TestRunner.proj /p:Configuration="Release" /p:Platform="x64"
+  - cmd: msbuild .\lang\cs\TestRunner.DotNet.proj /p:Configuration="Release" /p:Platform="x64"
 
 after_build:
   - ps: .\bin\AnalyzeClrCompatibility.ps1
