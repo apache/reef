@@ -23,6 +23,9 @@ under the License.
     <PackageTags>Single package which contains all Reef/Wake/Tang projects</PackageTags>
   </PropertyGroup>
   <Import Project="..\build.DotNetLibrary.props" />
+  <PropertyGroup>
+    <NuspecFile>$(MSBuildThisFileDirectory)$(MSBuildProjectName).nuspec</NuspecFile>
+  </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="protobuf-net" Version="$(ProtobufVersion)" />
     <PackageReference Include="Microsoft.Avro.Core" Version="$(AvroVersion)" />
@@ -36,20 +39,35 @@ under the License.
     <!-- Project Reference conditionals allow for targeting specific projects based upon the target framework. -->
   <ItemGroup Condition="'$(TargetFramework)' == 'net452'">
     <!-- Evaluator as a .netcoreapp can not be linked by a .netstandard library, therefore this is only linked for net45 -->
-    <ProjectReference Include="..\Org.Apache.REEF.Evaluator\Org.Apache.REEF.Evaluator.DotNet.csproj" />
+    <ProjectReference Include="..\Org.Apache.REEF.Evaluator\Org.Apache.REEF.Evaluator.DotNet.csproj" PrivateAssets="All"/>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Org.Apache.REEF.Client\Org.Apache.REEF.Client.DotNet.csproj" />
-    <ProjectReference Include="..\Org.Apache.REEF.Common\Org.Apache.REEF.Common.DotNet.csproj" />
-    <ProjectReference Include="..\Org.Apache.REEF.Driver\Org.Apache.REEF.Driver.DotNet.csproj" />
-    <ProjectReference Include="..\Org.Apache.REEF.Examples\Org.Apache.REEF.Examples.DotNet.csproj" />
-    <ProjectReference Include="..\Org.Apache.REEF.IMRU\Org.Apache.REEF.IMRU.DotNet.csproj" />
-    <ProjectReference Include="..\Org.Apache.REEF.IO\Org.Apache.REEF.IO.DotNet.csproj" />
-    <ProjectReference Include="..\Org.Apache.REEF.Network\Org.Apache.REEF.Network.DotNet.csproj" />
-    <ProjectReference Include="..\Org.Apache.REEF.Tang\Org.Apache.REEF.Tang.DotNet.csproj" />
-    <ProjectReference Include="..\Org.Apache.REEF.Utilities\Org.Apache.REEF.Utilities.DotNet.csproj" />
-    <ProjectReference Include="..\Org.Apache.REEF.Wake\Org.Apache.REEF.Wake.DotNet.csproj" />
-    <ProjectReference Include="..\Org.Apache.REEF.IMRU.Examples\Org.Apache.REEF.IMRU.Examples.DotNet.csproj" />
+    <ProjectReference Include="..\Org.Apache.REEF.Client\Org.Apache.REEF.Client.DotNet.csproj" PrivateAssets="All"/>
+    <ProjectReference Include="..\Org.Apache.REEF.Common\Org.Apache.REEF.Common.DotNet.csproj" PrivateAssets="All"/>
+    <ProjectReference Include="..\Org.Apache.REEF.Driver\Org.Apache.REEF.Driver.DotNet.csproj" PrivateAssets="All"/>
+    <ProjectReference Include="..\Org.Apache.REEF.Examples\Org.Apache.REEF.Examples.DotNet.csproj" PrivateAssets="All"/>
+    <ProjectReference Include="..\Org.Apache.REEF.IMRU\Org.Apache.REEF.IMRU.DotNet.csproj" PrivateAssets="All"/>
+    <ProjectReference Include="..\Org.Apache.REEF.IO\Org.Apache.REEF.IO.DotNet.csproj" PrivateAssets="All"/>
+    <ProjectReference Include="..\Org.Apache.REEF.Network\Org.Apache.REEF.Network.DotNet.csproj" PrivateAssets="All"/>
+    <ProjectReference Include="..\Org.Apache.REEF.Tang\Org.Apache.REEF.Tang.DotNet.csproj" PrivateAssets="All"/>
+    <ProjectReference Include="..\Org.Apache.REEF.Utilities\Org.Apache.REEF.Utilities.DotNet.csproj" PrivateAssets="All"/>
+    <ProjectReference Include="..\Org.Apache.REEF.Wake\Org.Apache.REEF.Wake.DotNet.csproj" PrivateAssets="All"/>
+    <ProjectReference Include="..\Org.Apache.REEF.IMRU.Examples\Org.Apache.REEF.IMRU.Examples.DotNet.csproj" PrivateAssets="All"/>
   </ItemGroup>
   <Import Project="..\build.DotNet.targets" />
+
+  <!-- Setup the nuget properties. The following uri has a great example on setting this up:
+  https://github.com/dasMulli/nuget-include-p2p-example/tree/master/LibA
+  -->
+  <Target Name="SetNuspecProperties" BeforeTargets="GenerateNuspec">
+    <PropertyGroup>
+      <NuspecProperties>$(NuspecProperties);id=$(AssemblyName)</NuspecProperties>
+      <NuspecProperties>$(NuspecProperties);config=$(Configuration)</NuspecProperties>
+      <NuspecProperties>$(NuspecProperties);version=$(PackageVersion)</NuspecProperties>
+      <NuspecProperties>$(NuspecProperties);description=$(Description)</NuspecProperties>
+      <NuspecProperties>$(NuspecProperties);authors=$(Authors)</NuspecProperties>
+      <NuspecProperties>$(NuspecProperties);BinDir=$(BinDir)</NuspecProperties>
+      <NuspecProperties>$(NuspecProperties);Configuration=$(Configuration)</NuspecProperties>
+    </PropertyGroup>
+  </Target>
 </Project>
