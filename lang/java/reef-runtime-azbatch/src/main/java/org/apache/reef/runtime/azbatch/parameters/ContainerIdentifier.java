@@ -25,5 +25,5 @@ import org.apache.reef.tang.annotations.NamedParameter;
  * The container identifier for the evaluator shim.
  */
 @NamedParameter(doc = "The container identifier.")
-public class ContainerIdentifier implements Name<String> {
+public final class ContainerIdentifier implements Name<String> {
 }

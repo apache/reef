@@ -25,5 +25,5 @@ import org.apache.reef.tang.annotations.NamedParameter;
  * Whether or not the Azure Batch VMs are Windows based.
  */
 @NamedParameter(doc = "Whether or not the Azure Batch VMs are Windows based.")
-public class IsWindows implements Name<Boolean> {
+public final class IsWindows implements Name<Boolean> {
 }

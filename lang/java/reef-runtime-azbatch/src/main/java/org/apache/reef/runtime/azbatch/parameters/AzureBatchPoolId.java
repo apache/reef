@@ -25,5 +25,5 @@ import org.apache.reef.tang.annotations.NamedParameter;
  * The Azure Batch pool ID.
  */
 @NamedParameter(doc = "The Azure Batch pool ID.")
-public class AzureBatchPoolId implements Name<String> {
+public final class AzureBatchPoolId implements Name<String> {
 }

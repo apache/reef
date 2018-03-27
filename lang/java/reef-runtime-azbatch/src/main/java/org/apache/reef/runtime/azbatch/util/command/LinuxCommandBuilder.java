@@ -19,6 +19,7 @@
 package org.apache.reef.runtime.azbatch.util.command;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.reef.annotations.audience.Private;
 import org.apache.reef.runtime.azbatch.evaluator.EvaluatorShimLauncher;
 import org.apache.reef.runtime.azbatch.util.AzureBatchFileNames;
 import org.apache.reef.runtime.common.REEFLauncher;
@@ -34,6 +35,7 @@ import java.util.List;
 /**
  * Build the launch command for Java REEF processes for Azure Batch Linux pools.
  */
+@Private
 public class LinuxCommandBuilder extends AbstractCommandBuilder {
 
   private static final Class LAUNCHER_CLASS = REEFLauncher.class;

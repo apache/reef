@@ -110,8 +110,8 @@ public final class JobJarMaker {
 
     return new JarBuilder()
         .withConfiguration(driverConfiguration)
-        .withGlobalFileSet(jobSubmissionEvent.getGlobalFileSet())
-        .withLocalFileSet(jobSubmissionEvent.getLocalFileSet())
+        .addGlobalFileSet(jobSubmissionEvent.getGlobalFileSet())
+        .addLocalFileSet(jobSubmissionEvent.getLocalFileSet())
         .withConfigurationFileName(this.fileNames.getDriverConfigurationName())
         .build();
   }
@@ -125,20 +125,20 @@ public final class JobJarMaker {
    */
   public final class JarBuilder {
 
-    private Set<FileResource> localFiles = new HashSet<>();
-    private Set<FileResource> globalFiles = new HashSet<>();
+    private final Set<FileResource> localFiles = new HashSet<>();
+    private final Set<FileResource> globalFiles = new HashSet<>();
     private Configuration configuration = null;
     private String configurationFilename = null;
 
     private JarBuilder() {}
 
-    public JarBuilder withLocalFileSet(final Set<FileResource> withLocalFiles) {
-      this.localFiles = withLocalFiles;
+    public JarBuilder addLocalFileSet(final Set<FileResource> localFileResources) {
+      this.localFiles.addAll(localFileResources);
       return this;
     }
 
-    public JarBuilder withGlobalFileSet(final Set<FileResource> withGlobalFiles) {
-      this.globalFiles = withGlobalFiles;
+    public JarBuilder addGlobalFileSet(final Set<FileResource> globalFileResources) {
+      this.globalFiles.addAll(globalFileResources);
       return this;
     }
 

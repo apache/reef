@@ -33,7 +33,7 @@ import org.apache.reef.wake.remote.RemoteConfiguration;
  */
 @Private
 @EvaluatorSide
-public class EvaluatorShimConfiguration extends ConfigurationModuleBuilder {
+public final class EvaluatorShimConfiguration extends ConfigurationModuleBuilder {
 
   /**
    * @see org.apache.reef.runtime.common.evaluator.parameters.DriverRemoteIdentifier

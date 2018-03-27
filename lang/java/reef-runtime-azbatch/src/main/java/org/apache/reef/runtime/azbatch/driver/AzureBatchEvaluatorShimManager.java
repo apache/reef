@@ -347,7 +347,7 @@ public final class AzureBatchEvaluatorShimManager
       }
 
       File jarFile = this.jobJarMaker.newBuilder()
-          .withGlobalFileSet(globalFiles)
+          .addGlobalFileSet(globalFiles)
           .build();
 
       return uploadFile(jarFile);
@@ -428,7 +428,7 @@ public final class AzureBatchEvaluatorShimManager
   }
 
   private File writeFileResourcesJarFile(final Set<FileResource> fileResourceSet) throws IOException {
-    return this.jobJarMaker.newBuilder().withLocalFileSet(fileResourceSet).build();
+    return this.jobJarMaker.newBuilder().addLocalFileSet(fileResourceSet).build();
   }
 
   private URI uploadFile(final File jarFile) throws IOException {

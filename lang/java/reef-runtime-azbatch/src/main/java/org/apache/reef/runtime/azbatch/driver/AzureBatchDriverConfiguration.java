@@ -18,13 +18,11 @@
  */
 package org.apache.reef.runtime.azbatch.driver;
 
+import org.apache.reef.annotations.audience.ClientSide;
+import org.apache.reef.annotations.audience.Public;
 import org.apache.reef.runtime.azbatch.AzureBatchClasspathProvider;
 import org.apache.reef.runtime.azbatch.AzureBatchJVMPathProvider;
-import org.apache.reef.runtime.azbatch.parameters.AzureBatchAccountName;
-import org.apache.reef.runtime.azbatch.parameters.AzureBatchAccountUri;
-import org.apache.reef.runtime.azbatch.parameters.AzureBatchPoolId;
-import org.apache.reef.runtime.azbatch.parameters.AzureStorageAccountName;
-import org.apache.reef.runtime.azbatch.parameters.AzureStorageContainerName;
+import org.apache.reef.runtime.azbatch.parameters.*;
 import org.apache.reef.runtime.azbatch.util.batch.IAzureBatchCredentialProvider;
 import org.apache.reef.runtime.azbatch.util.batch.TokenBatchCredentialProvider;
 import org.apache.reef.runtime.azbatch.util.storage.ICloudBlobClientProvider;
@@ -47,7 +45,9 @@ import org.apache.reef.tang.formats.RequiredParameter;
 /**
  * ConfigurationModule to create Azure Batch Driver configurations.
  */
-public class AzureBatchDriverConfiguration extends ConfigurationModuleBuilder {
+@Public
+@ClientSide
+public final class AzureBatchDriverConfiguration extends ConfigurationModuleBuilder {
 
   /**
    * @see JobIdentifier

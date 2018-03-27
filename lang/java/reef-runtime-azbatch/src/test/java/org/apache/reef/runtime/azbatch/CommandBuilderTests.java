@@ -21,7 +21,6 @@ package org.apache.reef.runtime.azbatch;
 import org.apache.reef.runtime.azbatch.util.command.LinuxCommandBuilder;
 import org.apache.reef.runtime.azbatch.util.command.WindowsCommandBuilder;
 import org.apache.reef.runtime.common.client.api.JobSubmissionEvent;
-import org.apache.reef.runtime.common.files.REEFFileNames;
 import org.apache.reef.runtime.common.files.RuntimeClasspathProvider;
 import org.apache.reef.tang.Injector;
 import org.apache.reef.tang.Tang;
@@ -33,15 +32,15 @@ import org.junit.Test;
 
 import java.util.Arrays;
 
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 /**
  * Unit tests for the CommandBuilder functions.
  */
-public class CommandBuilderTests {
+public final class CommandBuilderTests {
 
   private Injector injector;
-  private REEFFileNames filenames;
   private LinuxCommandBuilder linuxCommandBuilder;
   private WindowsCommandBuilder windowsCommandBuilder;
 
@@ -49,7 +48,6 @@ public class CommandBuilderTests {
   @Before
   public void setUp() throws InjectionException {
     this.injector = Tang.Factory.getTang().newInjector();
-    this.filenames = this.injector.getInstance(REEFFileNames.class);
     RuntimeClasspathProvider classpathProvider = mock(RuntimeClasspathProvider.class);
     when(classpathProvider.getDriverClasspathPrefix()).thenReturn(Arrays.asList("c:\\driverpath1", "c:\\driverpath2"));
     when(classpathProvider.getEvaluatorClasspathPrefix())
@@ -64,7 +62,7 @@ public class CommandBuilderTests {
   }
 
   @Test
-  public void linuxCommandBuilderDriverTest() throws InjectionException {
+  public void linuxCommandBuilderDriverTest() {
     JobSubmissionEvent event = mock(JobSubmissionEvent.class);
 
     Optional<Integer> memory = Optional.of(100);
@@ -80,7 +78,7 @@ public class CommandBuilderTests {
   }
 
   @Test
-  public void windowsCommandBuilderDriverTest() throws InjectionException {
+  public void windowsCommandBuilderDriverTest() {
     JobSubmissionEvent event = mock(JobSubmissionEvent.class);
 
     Optional<Integer> memory = Optional.of(100);
@@ -97,7 +95,7 @@ public class CommandBuilderTests {
   }
 
   @Test
-  public void linuxCommandBuilderShimEvaluatorTest() throws InjectionException {
+  public void linuxCommandBuilderShimEvaluatorTest() {
     String actual = this.linuxCommandBuilder.buildEvaluatorShimCommand(1, "conf");
     String expected = "/bin/sh -c \"unzip local.jar -d 'reef/'; {{JAVA_HOME}}/bin/java -Xmx1m " +
         "-XX:PermSize=128m -XX:MaxPermSize=128m -ea " +
@@ -107,7 +105,7 @@ public class CommandBuilderTests {
   }
 
   @Test
-  public void windowsCommandBuilderShimEvaluatorTest() throws InjectionException {
+  public void windowsCommandBuilderShimEvaluatorTest() {
     String actual = this.windowsCommandBuilder.buildEvaluatorShimCommand(1, "conf");
     String expected = "powershell.exe /c \"Add-Type -AssemblyName System.IO.Compression.FileSystem;  " +
         "[System.IO.Compression.ZipFile]::ExtractToDirectory(\\\"$env:AZ_BATCH_TASK_WORKING_DIR\\local.jar\\\", " +

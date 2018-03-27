@@ -39,7 +39,7 @@ import java.util.logging.Logger;
 /**
  * Cloud Blob client provider that uses Azure Storage Shared Access Signature authorization.
  */
-public class SharedAccessSignatureCloudBlobClientProvider implements ICloudBlobClientProvider {
+public final class SharedAccessSignatureCloudBlobClientProvider implements ICloudBlobClientProvider {
 
   private static final Logger LOG = Logger.getLogger(AzureStorageClient.class.getName());
 

@@ -20,6 +20,7 @@ package org.apache.reef.runtime.azbatch.util.batch;
 
 import com.microsoft.azure.batch.auth.BatchCredentials;
 import com.microsoft.azure.batch.auth.BatchSharedKeyCredentials;
+import org.apache.reef.annotations.audience.Private;
 import org.apache.reef.runtime.azbatch.parameters.AzureBatchAccountKey;
 import org.apache.reef.runtime.azbatch.parameters.AzureBatchAccountName;
 import org.apache.reef.runtime.azbatch.parameters.AzureBatchAccountUri;
@@ -31,14 +32,15 @@ import javax.inject.Inject;
  * An implementation of {@link IAzureBatchCredentialProvider} which returns {@link BatchSharedKeyCredentials}
  * for Azure Batch account.
  */
-public class SharedKeyBatchCredentialProvider implements IAzureBatchCredentialProvider {
+@Private
+public final class SharedKeyBatchCredentialProvider implements IAzureBatchCredentialProvider {
 
   private final String azureBatchAccountUri;
   private final String azureBatchAccountName;
   private final String azureBatchAccountKey;
 
   @Inject
-  SharedKeyBatchCredentialProvider(@Parameter(AzureBatchAccountUri.class) final String azureBatchAccountUri,
+  private SharedKeyBatchCredentialProvider(@Parameter(AzureBatchAccountUri.class) final String azureBatchAccountUri,
                                    @Parameter(AzureBatchAccountName.class) final String azureBatchAccountName,
                                    @Parameter(AzureBatchAccountKey.class) final String azureBatchAccountKey) {
     this.azureBatchAccountUri = azureBatchAccountUri;

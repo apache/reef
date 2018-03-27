@@ -39,7 +39,7 @@ import java.util.logging.Logger;
 /**
  * A helper class for Azure Batch.
  */
-public class AzureBatchHelper {
+public final class AzureBatchHelper {
 
   private static final Logger LOG = Logger.getLogger(AzureBatchJobSubmissionHandler.class.getName());
 

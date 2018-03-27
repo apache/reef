@@ -18,6 +18,7 @@
  */
 package org.apache.reef.runtime.azbatch;
 
+import org.apache.reef.annotations.audience.Private;
 import org.apache.reef.runtime.common.files.RuntimePathProvider;
 
 import javax.inject.Inject;
@@ -25,6 +26,7 @@ import javax.inject.Inject;
 /**
  * Supplies the java binary's path for Azure Batch.
  */
+@Private
 public final class AzureBatchJVMPathProvider implements RuntimePathProvider {
 
   @Inject

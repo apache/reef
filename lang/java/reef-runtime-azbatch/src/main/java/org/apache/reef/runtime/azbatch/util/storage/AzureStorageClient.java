@@ -20,6 +20,7 @@ package org.apache.reef.runtime.azbatch.util.storage;
 
 import com.microsoft.windowsazure.storage.StorageException;
 import com.microsoft.windowsazure.storage.blob.*;
+import org.apache.reef.annotations.audience.Private;
 import org.apache.reef.runtime.azbatch.parameters.AzureStorageBlobSASTokenValidityHours;
 import org.apache.reef.runtime.azbatch.parameters.AzureStorageContainerName;
 import org.apache.reef.tang.annotations.Parameter;
@@ -41,7 +42,8 @@ import java.util.logging.Logger;
  * Azure storage utility to upload Driver and Evaluator jars to blob storage
  * and generate SAS URIs.
  */
-public class AzureStorageClient {
+@Private
+public final class AzureStorageClient {
   private static final Logger LOG = Logger.getLogger(AzureStorageClient.class.getName());
 
   private final ICloudBlobClientProvider cloudBlobClientProvider;

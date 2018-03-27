@@ -25,5 +25,5 @@ import org.apache.reef.tang.annotations.NamedParameter;
  * The Azure Blob Shared Access Signature token validity in hours.
  */
 @NamedParameter(doc = "The Azure Blob Shared Access Signature token validity in hours.", default_values = "1")
-public class AzureStorageBlobSASTokenValidityHours implements Name<Integer> {
+public final class AzureStorageBlobSASTokenValidityHours implements Name<Integer> {
 }

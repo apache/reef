@@ -25,5 +25,5 @@ import org.apache.reef.tang.annotations.NamedParameter;
  * Evaluator shim config file path parameter.
  */
 @NamedParameter(doc = "The path to the configuration file for the evaluator shim.")
-public class EvaluatorShimConfigFilePath implements Name<String> {
+public final class EvaluatorShimConfigFilePath implements Name<String> {
 }

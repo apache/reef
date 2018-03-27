@@ -32,7 +32,7 @@ import java.io.IOException;
  * Configuration Module for the Azure Batch runtime.
  */
 @Public
-public class AzureBatchRuntimeConfiguration extends ConfigurationModuleBuilder {
+public final class AzureBatchRuntimeConfiguration extends ConfigurationModuleBuilder {
 
   /**
    * The Azure Batch account URI.

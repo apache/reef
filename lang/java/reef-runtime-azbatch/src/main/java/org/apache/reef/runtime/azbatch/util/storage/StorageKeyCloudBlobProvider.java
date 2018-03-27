@@ -23,6 +23,7 @@ import com.microsoft.windowsazure.storage.StorageException;
 import com.microsoft.windowsazure.storage.blob.CloudBlob;
 import com.microsoft.windowsazure.storage.blob.CloudBlobClient;
 import com.microsoft.windowsazure.storage.blob.SharedAccessBlobPolicy;
+import org.apache.reef.annotations.audience.Private;
 import org.apache.reef.runtime.azbatch.parameters.AzureStorageAccountKey;
 import org.apache.reef.runtime.azbatch.parameters.AzureStorageAccountName;
 import org.apache.reef.tang.annotations.Parameter;
@@ -36,7 +37,8 @@ import java.security.InvalidKeyException;
 /**
  * Cloud Blob client provider that uses Azure Storage Shared Key authorization.
  */
-public class StorageKeyCloudBlobProvider implements ICloudBlobClientProvider {
+@Private
+public final class StorageKeyCloudBlobProvider implements ICloudBlobClientProvider {
 
   private static final String AZURE_STORAGE_CONNECTION_STRING_FORMAT =
       "DefaultEndpointsProtocol=https;AccountName=%s;AccountKey=%s";

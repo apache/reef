@@ -80,7 +80,7 @@ public final class AzureBatchFileNames {
   }
 
   /**
-   * @return
+   * @return The name of the evaluator configuration file.
    */
   public String getEvaluatorShimConfigurationName() {
     return EVALUATOR_SHIM_CONFIGURATION_NAME;
