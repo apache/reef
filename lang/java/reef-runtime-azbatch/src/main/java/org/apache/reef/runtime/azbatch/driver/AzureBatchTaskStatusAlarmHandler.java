@@ -115,8 +115,10 @@ final class AzureBatchTaskStatusAlarmHandler implements EventHandler<Alarm> {
       }
     }
 
-    if (this.isAlarmEnabled()) {
-      this.scheduleAlarm();
+    synchronized (this) {
+      if (this.isAlarmEnabled()) {
+        this.scheduleAlarm();
+      }
     }
   }
 
@@ -140,7 +142,7 @@ final class AzureBatchTaskStatusAlarmHandler implements EventHandler<Alarm> {
     this.isAlarmEnabled = false;
   }
 
-  private synchronized boolean isAlarmEnabled() {
+  private boolean isAlarmEnabled() {
     return this.isAlarmEnabled;
   }
 
