@@ -21,11 +21,9 @@ under the License.
     <AssemblyName>Org.Apache.REEF.FatNuGet</AssemblyName>
     <Description>Provide single package which contains all necessary REEF/WAKE/TANG projects.</Description>
     <PackageTags>Single package which contains all Reef/Wake/Tang projects</PackageTags>
+    <TargetsForTfmSpecificBuildOutput>$(TargetsForTfmSpecificBuildOutput);CopyProjectReferencesToPackage</TargetsForTfmSpecificBuildOutput>
   </PropertyGroup>
   <Import Project="..\build.DotNetLibrary.props" />
-  <PropertyGroup>
-    <NuspecFile>$(MSBuildThisFileDirectory)$(MSBuildProjectName).nuspec</NuspecFile>
-  </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="protobuf-net" Version="$(ProtobufVersion)" />
     <PackageReference Include="Microsoft.Avro.Core" Version="$(AvroVersion)" />
@@ -55,19 +53,9 @@ under the License.
     <ProjectReference Include="..\Org.Apache.REEF.IMRU.Examples\Org.Apache.REEF.IMRU.Examples.DotNet.csproj" PrivateAssets="All"/>
   </ItemGroup>
   <Import Project="..\build.DotNet.targets" />
-
-  <!-- Setup the nuget properties. The following uri has a great example on setting this up:
-  https://github.com/dasMulli/nuget-include-p2p-example/tree/master/LibA
-  -->
-  <Target Name="SetNuspecProperties" BeforeTargets="GenerateNuspec">
-    <PropertyGroup>
-      <NuspecProperties>$(NuspecProperties);id=$(AssemblyName)</NuspecProperties>
-      <NuspecProperties>$(NuspecProperties);config=$(Configuration)</NuspecProperties>
-      <NuspecProperties>$(NuspecProperties);version=$(PackageVersion)</NuspecProperties>
-      <NuspecProperties>$(NuspecProperties);description=$(Description)</NuspecProperties>
-      <NuspecProperties>$(NuspecProperties);authors=$(Authors)</NuspecProperties>
-      <NuspecProperties>$(NuspecProperties);BinDir=$(BinDir)</NuspecProperties>
-      <NuspecProperties>$(NuspecProperties);Configuration=$(Configuration)</NuspecProperties>
-    </PropertyGroup>
+  <Target Name="CopyProjectReferencesToPackage" DependsOnTargets="ResolveProjectReferences">
+    <ItemGroup>
+      <BuildOutputInPackage Include="@(_ResolvedProjectReferencePaths)" />
+    </ItemGroup>
   </Target>
 </Project>
