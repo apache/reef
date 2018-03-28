@@ -22,7 +22,7 @@ under the License.
     <Description>IMRU Examples for REEF.NET</Description>
     <PackageTags>REEF Examples IMRU</PackageTags>
   </PropertyGroup>
-  <Import Project="..\build.DotNetLibrary.props" />
+  <Import Project="..\build.DotNetApp.props" />
   <!-- TODO[JIRA REEF-1888] This item group will not be needed when only .netcore is targeted. -->
   <ItemGroup Condition="'$(TargetFramework)' == 'net452' Or '$(TargetFramework)' == 'net46'">
     <Reference Include="System" />
