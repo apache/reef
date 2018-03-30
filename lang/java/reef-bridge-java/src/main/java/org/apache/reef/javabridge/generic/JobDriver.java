@@ -590,6 +590,7 @@ public final class JobDriver {
         }
 
         NativeInterop.callClrSystemOnStartHandler();
+        JavaToCppInterop.initializeInterop();
         LOG.log(Level.INFO, "Driver Started");
       }
     }

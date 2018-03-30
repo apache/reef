@@ -78,7 +78,7 @@ under the License.
   <!--
        ########################################################################
          ReWrite client resx to point to correct version of jars
-       ######################################################################## 
+       ########################################################################
   -->
   <!--A Task that extracts the version from the pom in a given folder.-->
   <UsingTask TaskName="UpdateClientResources" TaskFactory="CodeTaskFactory" AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.v4.0.dll">
@@ -106,9 +106,10 @@ under the License.
 
       var srcDir = @"lang\cs\Org.Apache.REEF.Client\Properties";
       var binDir = @"lang\cs\bin\.netcore";
-      var resxInputPath  = Path.Combine(ProjectFolder, srcDir, "Resources.DotNet.xml");      
+      var resxInputPath  = Path.Combine(ProjectFolder, srcDir, "Resources.DotNet.xml");
       var resourceDir = Path.Combine(ProjectFolder, binDir, DebugOrRelease, "Org.Apache.REEF.Bridge.JAR", "net452");
       var clrDriverDir = Path.Combine(ProjectFolder, binDir, DebugOrRelease, "Org.Apache.REEF.Bridge");
+      var interopDllDir = Path.Combine(ProjectFolder, binDir, DebugOrRelease, "Org.Apache.REEF.Bridge.Interop");
       var byteArrayType = ";System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089";
       var jarRest = reefVersion + "-shaded.jar" + byteArrayType;
 
@@ -117,10 +118,12 @@ under the License.
       dllResources.Add("reef_bridge_driver", resourceDir + @"\reef-bridge-java-" + jarRest);
       dllResources.Add("evaluator", resourceDir + "Org.Apache.REEF.Evaluator.exe" + byteArrayType);
       dllResources.Add("reef_clrdriver", clrDriverDir + @"\Org.Apache.REEF.Bridge.exe" + byteArrayType);
+      dllResources.Add("reef_bridge_interop", interopDllDir + @"\Org.Apache.REEF.Bridge.Interop.dll" + byteArrayType);
       dllResources.Add("ClientJarFullName", "reef-bridge-client-" + reefVersion + "-shaded.jar");
       dllResources.Add("DriverJarFullName", "reef-bridge-java-" + reefVersion + "-shaded.jar");
       dllResources.Add("ClrDriverFullName", "Org.Apache.REEF.Bridge.exe");
-      
+      dllResources.Add("BridgeInteropDllFullName", "Org.Apache.REEF.Bridge.Interop.dll");
+
       XElement root = XElement.Load(resxInputPath);
       var resources = root.Descendants().Where(x => x.Name.LocalName == "data").ToList();
       foreach (var resource in resources)

@@ -53,6 +53,7 @@ namespace Org.Apache.REEF.Common.Files
         private const string DRIVER_JAVA_BRIDGE_ENDPOINT_FILE_NAME = "DriverJavaBridgeEndpoint.txt";
         private const string BRIDGE_EXE_NAME = "Org.Apache.REEF.Bridge.exe";
         private const string BRIDGE_EXE_CONFIG_NAME = "Org.Apache.REEF.Bridge.exe.config";
+        private const string BRIDGE_INTEROP_LIB_NAME = "Org.Apache.REEF.Bridge.Interop.dll";
         private const string SECURITY_TOKEN_IDENTIFIER_FILE = "SecurityTokenId";
         private const string SECURITY_TOKEN_PASSWORD_FILE = "SecurityTokenPwd";
         private const string SECURITY_TOKEN_FILE = "SecurityTokens.json";
@@ -248,6 +249,15 @@ namespace Org.Apache.REEF.Common.Files
         public string GetBridgeExeConfigPath()
         {
             return Path.Combine(REEF_BASE_FOLDER, BRIDGE_EXE_CONFIG_NAME);
+        }
+        
+        /// <summary>
+        /// The path of the bridge interop library.
+        /// </summary>
+        /// <returns>path of the driver interop library.</returns>
+        public string GetBridgeInteropLibPath()
+        {
+            return Path.Combine(REEF_BASE_FOLDER, BRIDGE_INTEROP_LIB_NAME);
         }
 
         /// <summary>

@@ -195,6 +195,9 @@ under the License.
       <LinkLibraryDependencies>false</LinkLibraryDependencies>
       <UseLibraryDependencyInputs>false</UseLibraryDependencyInputs>
     </ProjectReference>
+    <ProjectReference Include="..\Org.Apache.REEF.Bridge.Interop\Org.Apache.REEF.Bridge.Interop.DotNet.vcxproj">
+      <Project>{715e4448-8938-4aba-be1e-cb407e79d76b}</Project>
+    </ProjectReference>
     <ProjectReference Include="..\Org.Apache.REEF.Driver\Org.Apache.REEF.Driver.DotNet.csproj">
       <Project>{a6baa2a7-f52f-4329-884e-1bcf711d6805}</Project>
     </ProjectReference>
@@ -202,7 +205,6 @@ under the License.
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
-  
   <!-- Adds an empty pack target so that this project is skipped when packing. -->
   <Target Name="Pack">
   </Target>
