@@ -30,6 +30,7 @@ using namespace System::Collections::Generic;
 using namespace System::Runtime::InteropServices;
 using namespace System::Reflection;
 using namespace Org::Apache::REEF::Driver::Bridge::Clr2java;
+using namespace Org::Apache::REEF::Driver::Bridge;
 
 ref class ManagedLog {
   internal:

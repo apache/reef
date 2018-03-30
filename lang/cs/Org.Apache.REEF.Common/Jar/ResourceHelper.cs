@@ -33,6 +33,7 @@ namespace Org.Apache.REEF.Common.Jar
         public const string ClientJarFullName = "ClientJarFullName";
         public const string DriverJarFullName = "DriverJarFullName";
         public const string ClrDriverFullName = "ClrDriverFullName";
+        public const string BridgeInteropDllFullName = "BridgeInteropDllFullName";
 
         // We embed certain binaries in client dll.
         // Following items in tuples refer to resource names in Org.Apache.REEF.Client.dll
@@ -47,6 +48,7 @@ namespace Org.Apache.REEF.Common.Jar
             { ClientJarFullName, "reef_bridge_client" },
             { DriverJarFullName, "reef_bridge_driver" },
             { ClrDriverFullName, "reef_clrdriver" },
+            { BridgeInteropDllFullName, "reef_bridge_interop" },
         };
 
         private const string CouldNotRetrieveResource = "Could not retrieve resource '{0}'";

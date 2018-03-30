@@ -139,6 +139,10 @@ namespace Org.Apache.REEF.Client.Common
                 {
                     fileName = Path.Combine(driverFolderPath, _fileNames.GetBridgeExePath());
                 }
+                if (ResourceHelper.BridgeInteropDllFullName == fileResources.Key)
+                {
+                    fileName = Path.Combine(driverFolderPath, _fileNames.GetBridgeInteropLibPath());
+                }
                 if (!File.Exists(fileName))
                 {
                     File.WriteAllBytes(fileName, resourceHelper.GetBytes(fileResources.Value));
