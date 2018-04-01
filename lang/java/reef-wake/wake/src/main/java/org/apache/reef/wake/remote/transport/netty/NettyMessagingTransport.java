@@ -138,7 +138,7 @@ public final class NettyMessagingTransport implements Transport {
     if (protocolType == ProtocolType.HTTP) {
       try{
         this.uri = URI.create("http://" + host);
-      } catch (IllegalArgumentException e){
+      } catch (final IllegalArgumentException e){
         throw new RemoteRuntimeException("Invalid host address: " + host, e);
       }
     } else {
