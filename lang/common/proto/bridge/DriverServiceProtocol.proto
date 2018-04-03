@@ -1,0 +1,156 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+
+syntax = "proto3";
+
+option java_generic_services = true;
+option java_multiple_files = true;
+option java_package = "org.apache.reef.bridge.proto";
+option java_outer_classname = "DriverBridgeProtocol";
+option csharp_namespace = "Org.Apache.REEF.Bridge.Proto";
+
+package driverbridge;
+
+import "DriverCommonProtocol.proto";
+
+// The java driver service definition.
+service DriverService {
+  // Driver client registration
+  rpc RegisterDriverClient (DriverClientRegistration) returns (Void) {}
+
+  // Request for resources
+  rpc RequestResources (ResourceRequest) returns (Void) {}
+
+  // Request system shutdown
+  rpc Shutdown (ShutdownRequest) returns (Void) {}
+
+  // Request for setting an alarm
+  rpc SetAlarm (AlarmRequest) returns (Void) {}
+
+  // Request operation on an allocated evaluator
+  rpc AllocatedEvaluatorOp (AllocatedEvaluatorRequest) returns (Void) {}
+
+  // Request operation on an active context
+  rpc ActiveContextOp (ActiveContextRequest) returns (Void) {}
+
+  // Request operation on a running task
+  rpc RunningTaskOp (RunningTaskRequest) returns (Void) {}
+}
+
+message DriverClientRegistration {
+  // The client's host
+  string host = 1;
+
+  // The client's server port
+  int32 port = 2;
+}
+
+// The request message containing resource request.
+message ResourceRequest {
+  repeated string node_name_list = 1;
+
+  repeated string rack_name_list = 2;
+
+  int32 resource_count = 3;
+
+  int32 memory_size = 4;
+
+  int32 priority = 5;
+
+  int32 cores = 6;
+
+  bool relax_locality = 7;
+
+  string runtime_name = 8;
+}
+
+// Request for an alarm to be set
+message AlarmRequest {
+  // used to uniquely identify the alarm
+  string alarm_id = 1;
+
+  // timeout in milliseconds
+  int32 timeout_ms = 2;
+}
+
+message ShutdownRequest {
+
+}
+
+message AllocatedEvaluatorRequest {
+  // The evaluator used to submit
+  string evaluator_id = 1;
+
+  bool close_evaluator = 2;
+
+  repeated string add_files = 3;
+
+  repeated string add_libraries = 4;
+
+  message EvaluatorProcessRequest {
+      int32 memory_mb = 1;
+
+      string configuration_file_name = 2;
+
+      string standard_out = 3;
+
+      string standard_err = 4;
+
+      repeated string options = 5;
+  }
+  EvaluatorProcessRequest set_process = 5;
+
+  // Context request
+  message SubmitContextRequest {
+    string configuration = 1;
+  }
+  SubmitContextRequest context_request = 6;
+
+  // Task request
+  message SubmitTaskRequest {
+    string configuration = 1;
+  }
+  SubmitTaskRequest task_request = 7;
+}
+
+message ActiveContextRequest {
+  string context_id = 1;
+
+  bool close_context = 2;
+
+  bytes message = 3;
+
+  message SubmitContextRequest {
+    string configuration = 1;
+  }
+  SubmitContextRequest context_request = 4;
+
+  message SubmitTaskRequest {
+    string configuration = 1;
+  }
+  SubmitTaskRequest task_request = 5;
+}
+
+message RunningTaskRequest {
+  string task_id = 1;
+
+  bool close_task = 2;
+
+  bytes message = 3;
+}

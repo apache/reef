@@ -769,6 +769,7 @@ under the License.
         <module>lang/java/reef-applications</module>
         <module>lang/java/reef-bridge-client</module>
         <module>lang/java/reef-bridge-java</module>
+        <module>lang/java/reef-bridge-proto-java</module>
         <module>lang/java/reef-checkpoint</module>
         <module>lang/java/reef-common</module>
         <module>lang/java/reef-examples</module>
