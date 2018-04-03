@@ -16,22 +16,29 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.wake.remote.ports.parameters;
 
-import org.apache.reef.tang.annotations.Name;
-import org.apache.reef.tang.annotations.NamedParameter;
+syntax = "proto3";
 
-/**
- * Max number tries for port numbers.
- */
-@NamedParameter(doc = "Max number tries for port numbers",
-    short_name = "tcp_port_range_try_count", default_value = TcpPortRangeTryCount.DEFAULT_VALUE)
-public final class TcpPortRangeTryCount implements Name<Integer> {
-  public static final String DEFAULT_VALUE = "1000";
+// option java_generic_services = true;
+option java_multiple_files = true;
+option java_package = "org.apache.reef.bridge.proto";
+option csharp_namespace = "Org.Apache.REEF.Bridge.Proto";
 
-  /**
-   * Empty private constructor to prohibit instantiation of utility class.
-   */
-  private TcpPortRangeTryCount() {
-  }
+package driverbridge;
+
+// Void message type
+message Void {}
+
+message ExceptionInfo {
+    // Exception name/type
+    string name = 1;
+
+    // Exception message
+    string message = 2;
+
+    // Stack trace
+    repeated string stack_trace = 3;
+
+    // Data associated with exception
+    bytes data = 4;
 }

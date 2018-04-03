@@ -16,22 +16,28 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.wake.remote.ports.parameters;
 
-import org.apache.reef.tang.annotations.Name;
-import org.apache.reef.tang.annotations.NamedParameter;
+package org.apache.reef.bridge.examples;
 
+import org.apache.reef.runtime.common.files.RuntimePathProvider;
+
+import javax.inject.Inject;
 /**
- * Max number tries for port numbers.
+ * Supplies the java binary's path for HDInsight.
  */
-@NamedParameter(doc = "Max number tries for port numbers",
-    short_name = "tcp_port_range_try_count", default_value = TcpPortRangeTryCount.DEFAULT_VALUE)
-public final class TcpPortRangeTryCount implements Name<Integer> {
-  public static final String DEFAULT_VALUE = "1000";
+public final class WindowsRuntimePathProvider implements RuntimePathProvider {
 
-  /**
-   * Empty private constructor to prohibit instantiation of utility class.
-   */
-  private TcpPortRangeTryCount() {
+  @Inject
+  public WindowsRuntimePathProvider() {
+  }
+
+  @Override
+  public String getPath() {
+    return "java";
+  }
+
+  @Override
+  public String toString() {
+    return getPath();
   }
 }

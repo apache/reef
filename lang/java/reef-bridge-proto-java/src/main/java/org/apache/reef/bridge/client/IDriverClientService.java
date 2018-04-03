@@ -16,22 +16,30 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.wake.remote.ports.parameters;
 
-import org.apache.reef.tang.annotations.Name;
-import org.apache.reef.tang.annotations.NamedParameter;
+package org.apache.reef.bridge.client;
+
+import org.apache.reef.bridge.client.grpc.DriverClientService;
+import org.apache.reef.tang.annotations.DefaultImplementation;
+
+import java.io.IOException;
 
 /**
- * Max number tries for port numbers.
+ * Interface that driver client services implement.
  */
-@NamedParameter(doc = "Max number tries for port numbers",
-    short_name = "tcp_port_range_try_count", default_value = TcpPortRangeTryCount.DEFAULT_VALUE)
-public final class TcpPortRangeTryCount implements Name<Integer> {
-  public static final String DEFAULT_VALUE = "1000";
+@DefaultImplementation(DriverClientService.class)
+public interface IDriverClientService {
 
   /**
-   * Empty private constructor to prohibit instantiation of utility class.
+   * Start the DriverClient service.
+   * @throws IOException when unable to start service
    */
-  private TcpPortRangeTryCount() {
-  }
+  void start() throws IOException;
+
+
+  /**
+   * Wait for termination of driver client service.
+   */
+  void awaitTermination() throws InterruptedException;
+
 }

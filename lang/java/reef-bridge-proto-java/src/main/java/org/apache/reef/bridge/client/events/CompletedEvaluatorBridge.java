@@ -16,22 +16,24 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.wake.remote.ports.parameters;
 
-import org.apache.reef.tang.annotations.Name;
-import org.apache.reef.tang.annotations.NamedParameter;
+package org.apache.reef.bridge.client.events;
+
+import org.apache.reef.driver.evaluator.CompletedEvaluator;
 
 /**
- * Max number tries for port numbers.
+ * Completed Evaluator bridge.
  */
-@NamedParameter(doc = "Max number tries for port numbers",
-    short_name = "tcp_port_range_try_count", default_value = TcpPortRangeTryCount.DEFAULT_VALUE)
-public final class TcpPortRangeTryCount implements Name<Integer> {
-  public static final String DEFAULT_VALUE = "1000";
+public final class CompletedEvaluatorBridge implements CompletedEvaluator {
 
-  /**
-   * Empty private constructor to prohibit instantiation of utility class.
-   */
-  private TcpPortRangeTryCount() {
+  private final String id;
+
+  public CompletedEvaluatorBridge(final String id) {
+    this.id = id;
+  }
+
+  @Override
+  public String getId() {
+    return this.id;
   }
 }

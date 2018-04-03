@@ -16,22 +16,21 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.wake.remote.ports.parameters;
 
-import org.apache.reef.tang.annotations.Name;
-import org.apache.reef.tang.annotations.NamedParameter;
+package org.apache.reef.bridge.service;
+
+import org.apache.reef.annotations.audience.Private;
 
 /**
- * Max number tries for port numbers.
+ * Runtime names supported by the bridge.
  */
-@NamedParameter(doc = "Max number tries for port numbers",
-    short_name = "tcp_port_range_try_count", default_value = TcpPortRangeTryCount.DEFAULT_VALUE)
-public final class TcpPortRangeTryCount implements Name<Integer> {
-  public static final String DEFAULT_VALUE = "1000";
+@Private
+public final class RuntimeNames {
+  public static final String LOCAL = "local";
 
-  /**
-   * Empty private constructor to prohibit instantiation of utility class.
-   */
-  private TcpPortRangeTryCount() {
-  }
+  public static final String YARN = "yarn";
+
+  public static final String AZBATCH = "azbatch";
+
+  private RuntimeNames() {}
 }
