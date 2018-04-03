@@ -37,6 +37,7 @@ namespace Org.Apache.REEF.IO.Tests
         private const string SkipMessage = "Fill in credentials before running test"; // Use null to run tests
         private const string HelloFile = "hello";
         private IFileSystem _fileSystem;
+        private CloudBlobClient _client;
         private CloudBlobContainer _container;
 
         public TestAzureBlockBlobFileSystemE2E()
@@ -49,15 +50,16 @@ namespace Org.Apache.REEF.IO.Tests
                 .Build();
 
             _fileSystem = TangFactory.GetTang().NewInjector(conf).GetInstance<AzureBlockBlobFileSystem>();
-            _container = CloudStorageAccount.Parse(ConnectionString).CreateCloudBlobClient().GetContainerReference(defaultContainerName);
-            _container.CreateIfNotExistsAsync().Wait();
+            _client = CloudStorageAccount.Parse(ConnectionString).CreateCloudBlobClient();
+            _container = _client.GetContainerReference(defaultContainerName);
+            _container.CreateIfNotExists();
         }
 
         public void Dispose()
         {
             if (_container != null)
             {
-                _container.DeleteIfExistsAsync().Wait();
+                _container.DeleteIfExists();
             }
         }
 
@@ -106,20 +108,22 @@ namespace Org.Apache.REEF.IO.Tests
         [Fact(Skip = SkipMessage)]
         public void TestCreateE2E()
         {
+            var container = _client.GetContainerReference("create-reef-test-container-" + Guid.NewGuid());
             const string Text = "Hello Azure Blob";
-            var blob = _container.GetBlockBlobReference(HelloFile);
+            var blob = container.GetBlockBlobReference(HelloFile);
             Assert.False(CheckBlobExists(blob));
-            using (var streamWriter = new StreamWriter(_fileSystem.Create(PathToFile(HelloFile))))
+            using (var streamWriter = new StreamWriter(_fileSystem.Create(PathToFile(HelloFile, container.Name))))
             {
                 streamWriter.Write(Text);
             }
-            blob = _container.GetBlockBlobReference(HelloFile);
+            blob = container.GetBlockBlobReference(HelloFile);
             Assert.True(CheckBlobExists(blob));
             using (var reader = new StreamReader(blob.OpenRead()))
             {
                 string streamText = reader.ReadToEnd();
                 Assert.Equal(Text, streamText);
             }
+            container.DeleteIfExists();
         }
 
         [Fact(Skip = SkipMessage)]
@@ -139,7 +143,7 @@ namespace Org.Apache.REEF.IO.Tests
             var blob = _container.GetBlockBlobReference(HelloFile);
             UploadFromString(blob, "hello");
             Assert.True(_fileSystem.Exists(helloFilePath));
-            blob.DeleteIfExistsAsync().Wait();
+            blob.DeleteIfExists();
             Assert.False(_fileSystem.Exists(helloFilePath));
         }
 
@@ -148,19 +152,21 @@ namespace Org.Apache.REEF.IO.Tests
         {
             const string SrcFileName = "src";
             const string DestFileName = "dest";
+            var destContainer = _client.GetContainerReference("dest-reef-test-container-" + Guid.NewGuid());
             var srcFilePath = PathToFile(SrcFileName);
-            var destFilePath = PathToFile(DestFileName);
+            var destFilePath = PathToFile(DestFileName, destContainer.Name);
             ICloudBlob srcBlob = _container.GetBlockBlobReference(SrcFileName);
             UploadFromString(srcBlob, "hello");
             Assert.True(CheckBlobExists(srcBlob));
-            ICloudBlob destBlob = _container.GetBlockBlobReference(DestFileName);
+            ICloudBlob destBlob = destContainer.GetBlockBlobReference(DestFileName);
             Assert.False(CheckBlobExists(destBlob));
             _fileSystem.Copy(srcFilePath, destFilePath);
-            destBlob = GetBlobReferenceFromServer(_container, DestFileName);
+            destBlob = GetBlobReferenceFromServer(destContainer, DestFileName);
             Assert.True(CheckBlobExists(destBlob));
             srcBlob = GetBlobReferenceFromServer(_container, SrcFileName);
             Assert.True(CheckBlobExists(srcBlob));
-            Assert.Equal(DownloadText(_container.GetBlockBlobReference(SrcFileName)), DownloadText(_container.GetBlockBlobReference(DestFileName)));
+            Assert.Equal(DownloadText(_container.GetBlockBlobReference(SrcFileName)), DownloadText(destContainer.GetBlockBlobReference(DestFileName)));
+            destContainer.DeleteIfExists();
         }
 
         [Fact(Skip = SkipMessage)]
@@ -169,6 +175,7 @@ namespace Org.Apache.REEF.IO.Tests
             var helloFilePath = PathToFile(HelloFile);
             var blob = _container.GetBlockBlobReference(HelloFile);
             var tempFilePath = Path.GetTempFileName();
+            File.Delete(tempFilePath); // Delete the file as CopyToLocal will create it
             const string Text = "hello";
             
             try
@@ -187,8 +194,9 @@ namespace Org.Apache.REEF.IO.Tests
         [Fact(Skip = SkipMessage)]
         public void TestCopyFromLocalE2E()
         {
-            var helloFilePath = PathToFile(HelloFile);
-            ICloudBlob blob = _container.GetBlockBlobReference(HelloFile);
+            var container = _client.GetContainerReference("copy-reef-test-container-" + Guid.NewGuid());
+            var helloFilePath = PathToFile(HelloFile, container.Name);
+            ICloudBlob blob = container.GetBlockBlobReference(HelloFile);
             Assert.False(CheckBlobExists(blob));
             var tempFilePath = Path.GetTempFileName();
             const string Text = "hello";
@@ -196,7 +204,7 @@ namespace Org.Apache.REEF.IO.Tests
             {
                 File.WriteAllText(tempFilePath, Text);
                 _fileSystem.CopyFromLocal(tempFilePath, helloFilePath);
-                blob = GetBlobReferenceFromServer(_container, HelloFile);
+                blob = GetBlobReferenceFromServer(container, HelloFile);
                 Assert.True(CheckBlobExists(blob));
                 using (var stream = new MemoryStream())
                 {
@@ -214,6 +222,7 @@ namespace Org.Apache.REEF.IO.Tests
             {
                 File.Delete(tempFilePath);
             }
+            container.DeleteIfExists();
         }
 
         [Fact(Skip = SkipMessage)]
@@ -227,8 +236,7 @@ namespace Org.Apache.REEF.IO.Tests
         public void TestDeleteDirectoryFirstLevelE2E()
         {
             const string Directory = "dir";
-            var blockBlobs = new List<CloudBlockBlob>(); 
-
+            var blockBlobs = new List<CloudBlockBlob>();
             for (var i = 0; i < 3; i++)
             {
                 var filePath = Directory + '/' + i;
@@ -255,7 +263,6 @@ namespace Org.Apache.REEF.IO.Tests
             const string Directory2 = "dir2";
             var blockBlobs1 = new List<CloudBlockBlob>();
             var blockBlobs2 = new List<CloudBlockBlob>();
-
             for (var i = 0; i < 3; i++)
             {
                 var filePath1 = Directory1 + '/' + i;
@@ -291,9 +298,10 @@ namespace Org.Apache.REEF.IO.Tests
             blob.UploadFromByteArrayAsync(byteArray, 0, byteArray.Length).Wait();
         }
 
-        private Uri PathToFile(string filePath)
+        private Uri PathToFile(string filePath, string containerName = null)
         {
-            return _fileSystem.CreateUriForPath(_container.Name + '/' + filePath);
+            containerName = containerName ?? _container.Name;
+            return _fileSystem.CreateUriForPath(containerName + '/' + filePath);
         }
     }
 }

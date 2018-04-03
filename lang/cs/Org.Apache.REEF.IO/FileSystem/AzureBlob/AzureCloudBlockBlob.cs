@@ -95,7 +95,7 @@ namespace Org.Apache.REEF.IO.FileSystem.AzureBlob
 
         public void DeleteIfExists()
         {
-            _blob.DeleteIfExistsAsync().Wait();
+            _blob.DeleteIfExists();
         }
 
         public string StartCopy(Uri source)

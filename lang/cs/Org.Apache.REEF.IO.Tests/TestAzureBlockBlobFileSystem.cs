@@ -121,7 +121,7 @@ namespace Org.Apache.REEF.IO.Tests
             testContext.TestCloudBlobContainer.Received(1).GetDirectoryReference("directory");
             testContext.TestCloudBlobDirectory.Received(1).GetDirectoryReference("directory");
             testContext.TestCloudBlobDirectory.Received(1).ListBlobs(true);
-            testContext.TestCloudBlob.Received(5).DeleteIfExistsAsync();
+            testContext.TestCloudBlob.Received(5).DeleteIfExists();
         }
 
         [Fact]
@@ -154,6 +154,7 @@ namespace Org.Apache.REEF.IO.Tests
                 TestCloudBlobClient.BaseUri.ReturnsForAnyArgs(FakeUri);
                 TestCloudBlockBlob.Open().Returns(TestOpenStream);
                 TestCloudBlockBlob.Create().Returns(TestCreateStream);
+                TestCloudBlockBlob.Blob.ReturnsForAnyArgs(new CloudBlockBlob(new Uri("https://stg.blob.core.windows.net/container/file")));
                 TestCloudBlobClient.GetBlockBlobReference(FakeUri).ReturnsForAnyArgs(TestCloudBlockBlob);
                 TestCloudBlobClient.GetContainerReference("container").ReturnsForAnyArgs(TestCloudBlobContainer);
                 TestCloudBlobContainer.GetDirectoryReference("directory").ReturnsForAnyArgs(TestCloudBlobDirectory);
