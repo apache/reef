@@ -16,22 +16,24 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.wake.remote.ports.parameters;
+package org.apache.reef.bridge.examples.hello;
 
-import org.apache.reef.tang.annotations.Name;
-import org.apache.reef.tang.annotations.NamedParameter;
+import org.apache.reef.task.Task;
+
+import javax.inject.Inject;
 
 /**
- * Max number tries for port numbers.
+ * A 'hello REEF' Task.
  */
-@NamedParameter(doc = "Max number tries for port numbers",
-    short_name = "tcp_port_range_try_count", default_value = TcpPortRangeTryCount.DEFAULT_VALUE)
-public final class TcpPortRangeTryCount implements Name<Integer> {
-  public static final String DEFAULT_VALUE = "1000";
+public final class HelloTask implements Task {
 
-  /**
-   * Empty private constructor to prohibit instantiation of utility class.
-   */
-  private TcpPortRangeTryCount() {
+  @Inject
+  private HelloTask() {
+  }
+
+  @Override
+  public byte[] call(final byte[] memento) {
+    System.out.println("Hello, REEF!");
+    return null;
   }
 }

@@ -16,22 +16,15 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.wake.remote.ports.parameters;
 
-import org.apache.reef.tang.annotations.Name;
-import org.apache.reef.tang.annotations.NamedParameter;
+package org.apache.reef.bridge.client;
+
+import org.apache.reef.tang.annotations.DefaultImplementation;
+import org.apache.reef.wake.EventHandler;
 
 /**
- * Max number tries for port numbers.
+ * Alarm dispatch handler.
  */
-@NamedParameter(doc = "Max number tries for port numbers",
-    short_name = "tcp_port_range_try_count", default_value = TcpPortRangeTryCount.DEFAULT_VALUE)
-public final class TcpPortRangeTryCount implements Name<Integer> {
-  public static final String DEFAULT_VALUE = "1000";
-
-  /**
-   * Empty private constructor to prohibit instantiation of utility class.
-   */
-  private TcpPortRangeTryCount() {
-  }
+@DefaultImplementation(DriverClientClock.class)
+public interface IAlarmDispatchHandler extends EventHandler<String> {
 }

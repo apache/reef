@@ -16,22 +16,15 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.wake.remote.ports.parameters;
+
+package org.apache.reef.bridge.client.parameters;
 
 import org.apache.reef.tang.annotations.Name;
 import org.apache.reef.tang.annotations.NamedParameter;
 
 /**
- * Max number tries for port numbers.
+ * Driver client dispatcher thread count.
  */
-@NamedParameter(doc = "Max number tries for port numbers",
-    short_name = "tcp_port_range_try_count", default_value = TcpPortRangeTryCount.DEFAULT_VALUE)
-public final class TcpPortRangeTryCount implements Name<Integer> {
-  public static final String DEFAULT_VALUE = "1000";
-
-  /**
-   * Empty private constructor to prohibit instantiation of utility class.
-   */
-  private TcpPortRangeTryCount() {
-  }
+@NamedParameter(doc = "Number of dispatch threads", default_value = "1")
+public class DriverClientDispatchThreadCount implements Name<Integer> {
 }
