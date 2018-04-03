@@ -23,6 +23,12 @@ namespace Org.Apache.REEF.IO.FileSystem.AzureBlob
     internal interface ICloudBlobContainer
     {
         /// <summary>
+        /// Creates the <see cref="ICloudBlobContainer"/> if it does not exist already.
+        /// </summary>
+        /// <returns>Whether a new container was created or not</returns>
+        bool CreateIfNotExists();
+
+        /// <summary>
         /// Deletes the <see cref="ICloudBlobContainer"/> if it exists.
         /// Does a round trip to the Blob Server.
         /// </summary>
