@@ -298,6 +298,7 @@ under the License.
                             <exclude>**/*.sdf*</exclude>
                             <exclude>**/*.snk</exclude>
                             <exclude>**/*.opendb</exclude>
+                            <exclude>**/*.resx</exclude>
                             <!-- The below are auto generated during the .Net build -->
                             <exclude>**/bin/**</exclude>
                             <exclude>**/obj/**</exclude>

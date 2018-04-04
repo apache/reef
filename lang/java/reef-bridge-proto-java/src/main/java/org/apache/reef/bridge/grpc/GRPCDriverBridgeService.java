@@ -38,6 +38,8 @@ import org.apache.reef.driver.context.ContextMessage;
 import org.apache.reef.driver.context.FailedContext;
 import org.apache.reef.driver.evaluator.*;
 import org.apache.reef.driver.task.*;
+import org.apache.reef.runtime.common.driver.context.EvaluatorContext;
+import org.apache.reef.runtime.common.driver.evaluator.AllocatedEvaluatorImpl;
 import org.apache.reef.tang.annotations.Parameter;
 import org.apache.reef.util.OSUtils;
 import org.apache.reef.wake.EventHandler;
@@ -520,56 +522,73 @@ public final class GRPCDriverBridgeService implements IDriverBridgeService {
     public void allocatedEvaluatorOp(
         final AllocatedEvaluatorRequest request,
         final StreamObserver<Void> responseObserver) {
-      synchronized (GRPCDriverBridgeService.this) {
-        if (!GRPCDriverBridgeService.this.allocatedEvaluatorMap.containsKey(request.getEvaluatorId())) {
+      try {
+        if (request.getEvaluatorConfiguration() == null) {
           responseObserver.onError(
-              new IllegalArgumentException("Unknown allocated evaluator " + request.getEvaluatorId()));
+              new IllegalArgumentException("Evaluator configuration required"));
+        } else if (request.getContextConfiguration() == null && request.getTaskConfiguration() == null) {
+          responseObserver.onError(
+              new IllegalArgumentException("Context and/or Task configuration required"));
         } else {
-          final AllocatedEvaluator evaluator =
-              GRPCDriverBridgeService.this.allocatedEvaluatorMap.get(request.getEvaluatorId());
-          if (request.getCloseEvaluator()) {
-            evaluator.close();
-          } else {
-            if (request.getAddFilesCount() > 0) {
-              for (final String file : request.getAddFilesList()) {
-                evaluator.addFile(new File(file));
-              }
+          synchronized (GRPCDriverBridgeService.this) {
+            if (!GRPCDriverBridgeService.this.allocatedEvaluatorMap.containsKey(request.getEvaluatorId())) {
+              responseObserver.onError(
+                  new IllegalArgumentException("Unknown allocated evaluator " + request.getEvaluatorId()));
             }
-            if (request.getAddLibrariesCount() > 0) {
-              for (final String library : request.getAddLibrariesList()) {
-                evaluator.addLibrary(new File(library));
-              }
-            }
-            if (request.getSetProcess() != null) {
-              final AllocatedEvaluatorRequest.EvaluatorProcessRequest processRequest =
-                  request.getSetProcess();
-              switch (evaluator.getEvaluatorDescriptor().getProcess().getType()) {
-              case JVM:
-                setJVMProcess(evaluator, processRequest);
-                break;
-              case CLR:
-                setCLRProcess(evaluator, processRequest);
-                break;
-              default:
-                throw new RuntimeException("Unknown evaluator process type");
-              }
-            }
-            if (request.getContextRequest() != null && request.getTaskRequest() != null) {
-              // submit context and task
-              /*
-              ((AllocatedEvaluatorImpl)evaluator).submitContextAndTask(
-                  request.getContextRequest().getConfiguration(),
-                  request.getTaskRequest().getConfiguration());
-                  */
-            } else if (request.getContextRequest() != null) {
-              // submit context
-            } else if (request.getTaskRequest() != null) {
-              // submit task
+            final AllocatedEvaluator evaluator =
+                GRPCDriverBridgeService.this.allocatedEvaluatorMap.get(request.getEvaluatorId());
+            if (request.getCloseEvaluator()) {
+              evaluator.close();
             } else {
-              // LOOK INTO
+              if (request.getAddFilesCount() > 0) {
+                for (final String file : request.getAddFilesList()) {
+                  evaluator.addFile(new File(file));
+                }
+              }
+              if (request.getAddLibrariesCount() > 0) {
+                for (final String library : request.getAddLibrariesList()) {
+                  evaluator.addLibrary(new File(library));
+                }
+              }
+              if (request.getSetProcess() != null) {
+                final AllocatedEvaluatorRequest.EvaluatorProcessRequest processRequest =
+                    request.getSetProcess();
+                switch (evaluator.getEvaluatorDescriptor().getProcess().getType()) {
+                case JVM:
+                  setJVMProcess(evaluator, processRequest);
+                  break;
+                case CLR:
+                  setCLRProcess(evaluator, processRequest);
+                  break;
+                default:
+                  throw new RuntimeException("Unknown evaluator process type");
+                }
+              }
+              if (request.getContextConfiguration() != null && request.getTaskConfiguration() != null) {
+                // submit context and task
+                ((AllocatedEvaluatorImpl) evaluator).submitContextAndTask(
+                    request.getEvaluatorConfiguration(),
+                    request.getContextConfiguration(),
+                    request.getTaskConfiguration());
+              } else if (request.getContextConfiguration() != null) {
+                // submit context
+                ((AllocatedEvaluatorImpl) evaluator).submitContext(
+                    request.getEvaluatorConfiguration(),
+                    request.getContextConfiguration());
+              } else if (request.getTaskConfiguration() != null) {
+                // submit task
+                ((AllocatedEvaluatorImpl) evaluator).submitTask(
+                    request.getEvaluatorConfiguration(),
+                    request.getTaskConfiguration());
+              } else {
+                throw new RuntimeException("Missing check for required evaluator configurations");
+              }
+              responseObserver.onNext(Void.newBuilder().build());
             }
           }
         }
+      } finally {
+        responseObserver.onCompleted();
       }
     }
 
@@ -577,12 +596,48 @@ public final class GRPCDriverBridgeService implements IDriverBridgeService {
     public void activeContextOp(
         final ActiveContextRequest request,
         final StreamObserver<Void> responseObserver) {
+      synchronized (GRPCDriverBridgeService.this) {
+        if (!GRPCDriverBridgeService.this.activeContextMap.containsKey(request.getContextId())) {
+          responseObserver.onError(
+              new IllegalArgumentException("Context does not exist with id " + request.getContextId()));
+        } else if (request.getNewContextRequest() != null && request.getNewTaskRequest() != null) {
+          responseObserver.onError(
+              new IllegalArgumentException("Context request can only contain one of a context or task configuration"));
+
+        }
+        final ActiveContext context = GRPCDriverBridgeService.this.activeContextMap.get(request.getContextId());
+        if (request.getCloseContext()) {
+          context.close();
+        } else if (request.getMessage() != null) {
+          context.sendMessage(request.getMessage().toByteArray());
+        } else if (request.getConfigurationCase() == ActiveContextRequest.ConfigurationCase.NEW_CONTEXT_REQUEST) {
+          ((EvaluatorContext) context).submitContext(request.getNewContextRequest());
+        } else if (request.getConfigurationCase() == ActiveContextRequest.ConfigurationCase.NEW_TASK_REQUEST) {
+          ((EvaluatorContext) context).submitTask(request.getNewTaskRequest());
+        }
+      }
     }
 
     @Override
     public void runningTaskOp(
         final RunningTaskRequest request,
         final StreamObserver<Void> responseObserver) {
+      synchronized (GRPCDriverBridgeService.this) {
+        if (!GRPCDriverBridgeService.this.runningTaskMap.containsKey(request.getTaskId())) {
+          responseObserver.onError(
+              new IllegalArgumentException("Task does not exist with id " + request.getTaskId()));
+        }
+        final RunningTask task = GRPCDriverBridgeService.this.runningTaskMap.get(request.getTaskId());
+        if (request.getCloseTask()) {
+          if (request.getMessage() != null) {
+            task.close(request.getMessage().toByteArray());
+          } else {
+            task.close();
+          }
+        } else if (request.getMessage() != null) {
+          task.send(request.getMessage().toByteArray());
+        }
+      }
     }
 
     private void setCLRProcess(

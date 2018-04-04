@@ -103,30 +103,27 @@ message AllocatedEvaluatorRequest {
 
   repeated string add_libraries = 4;
 
+  // Evaluator configuration
+  string evaluator_configuration = 5;
+
+  // Context configuration
+  string context_configuration = 6;
+
+  // Task configuration
+  string task_configuration = 7;
+
   message EvaluatorProcessRequest {
-      int32 memory_mb = 1;
+    int32 memory_mb = 1;
 
-      string configuration_file_name = 2;
+    string configuration_file_name = 2;
 
-      string standard_out = 3;
+    string standard_out = 3;
 
-      string standard_err = 4;
+    string standard_err = 4;
 
-      repeated string options = 5;
+    repeated string options = 5;
   }
-  EvaluatorProcessRequest set_process = 5;
-
-  // Context request
-  message SubmitContextRequest {
-    string configuration = 1;
-  }
-  SubmitContextRequest context_request = 6;
-
-  // Task request
-  message SubmitTaskRequest {
-    string configuration = 1;
-  }
-  SubmitTaskRequest task_request = 7;
+  EvaluatorProcessRequest set_process = 8;
 }
 
 message ActiveContextRequest {
@@ -136,15 +133,11 @@ message ActiveContextRequest {
 
   bytes message = 3;
 
-  message SubmitContextRequest {
-    string configuration = 1;
-  }
-  SubmitContextRequest context_request = 4;
+  oneof configuration {
+    string new_context_request = 4;
 
-  message SubmitTaskRequest {
-    string configuration = 1;
+    string new_task_request = 5;
   }
-  SubmitTaskRequest task_request = 5;
 }
 
 message RunningTaskRequest {
