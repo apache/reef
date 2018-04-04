@@ -227,7 +227,7 @@ int Get_CreateJavaVM_Function(JNI_CreateJavaVM_FN& fn_JNI_CreateJavaVM)
 	// Try all possible dll paths
 	HMODULE jvm_dll = NULL;
 	for (int i = 0; i < JVM_DLL_PATHS_SIZE; i++) {
-		swprintf(jvmDllPath, maxPathBufSize, L"%s%s", javaHomePath, JVM_DLL_PATHS[i]);
+		swprintf(jvmDllPath, maxPathBufSize, L"%ls%ls", javaHomePath, JVM_DLL_PATHS[i]);
 
 		jvm_dll = LoadLibrary(jvmDllPath);
 		if (jvm_dll == NULL) {
