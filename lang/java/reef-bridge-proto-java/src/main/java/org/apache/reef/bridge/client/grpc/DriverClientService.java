@@ -17,15 +17,32 @@
  * under the License.
  */
 
-package org.apache.reef.bridge.parameters;
+package org.apache.reef.bridge.client.grpc;
 
-import org.apache.reef.tang.annotations.Name;
-import org.apache.reef.tang.annotations.NamedParameter;
+import org.apache.reef.bridge.client.DriverClientDispatcher;
+import org.apache.reef.bridge.client.IDriverClientService;
+import org.apache.reef.bridge.proto.DriverClientGrpc;
+
+import javax.inject.Inject;
 
 /**
- * What command to use when starting bridge process.
+ * The driver client service that accepts incoming messages and
+ * dispatches appropriate objects to the application.
  */
-@NamedParameter(doc = "The command to launch bridge driver process",
-    short_name = "command")
-public final class BridgeDriverProcessCommand implements Name<String> {
+public final class DriverClientService
+    extends DriverClientGrpc.DriverClientImplBase
+    implements IDriverClientService {
+
+  private final DriverClientDispatcher clientDriverDispatcher;
+
+  @Inject
+  private DriverClientService(
+      final DriverClientDispatcher clientDriverDispatcher) {
+    this.clientDriverDispatcher = clientDriverDispatcher;
+  }
+
+  @Override
+  public void start() {
+
+  }
 }

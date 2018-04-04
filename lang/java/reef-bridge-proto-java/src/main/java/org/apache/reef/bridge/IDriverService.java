@@ -30,9 +30,9 @@ import org.apache.reef.wake.time.event.StartTime;
 import org.apache.reef.wake.time.event.StopTime;
 
 /**
- * Interface implemented by DriverBridge Service.
+ * Interface implemented by a Driver Service.
  */
-public interface IDriverBridgeService {
+public interface IDriverService {
 
   /**
    * Handle start time event.

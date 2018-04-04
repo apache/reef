@@ -40,15 +40,15 @@ import java.util.logging.Logger;
  * handoff with the DotNet side.
  */
 @Unit
-public final class DriverBridgeServiceHandlers {
+public final class DriverServiceHandlers {
 
-  private static final Logger LOG = Logger.getLogger(DriverBridgeServiceHandlers.class.getName());
+  private static final Logger LOG = Logger.getLogger(DriverServiceHandlers.class.getName());
 
-  private final IDriverBridgeService driverBridgeService;
+  private final IDriverService driverBridgeService;
 
   @Inject
-  private DriverBridgeServiceHandlers(
-      final IDriverBridgeService driverBridgeService) {
+  private DriverServiceHandlers(
+      final IDriverService driverBridgeService) {
     this.driverBridgeService = driverBridgeService;
   }
 
@@ -59,7 +59,7 @@ public final class DriverBridgeServiceHandlers {
     @Override
     public void onNext(final StartTime startTime) {
       LOG.log(Level.INFO, "JavaBridge: Start Driver");
-      DriverBridgeServiceHandlers.this.driverBridgeService.startHandler(startTime);
+      DriverServiceHandlers.this.driverBridgeService.startHandler(startTime);
     }
   }
 
@@ -70,7 +70,7 @@ public final class DriverBridgeServiceHandlers {
     @Override
     public void onNext(final StopTime stopTime) {
       LOG.log(Level.INFO, "JavaBridge: Stop Driver");
-      DriverBridgeServiceHandlers.this.driverBridgeService.stopHandler(stopTime);
+      DriverServiceHandlers.this.driverBridgeService.stopHandler(stopTime);
     }
   }
 
@@ -82,7 +82,7 @@ public final class DriverBridgeServiceHandlers {
     @Override
     public void onNext(final AllocatedEvaluator eval) {
       LOG.log(Level.INFO, "JavaBridge: Allocated Evaluator {0}", eval.getId());
-      DriverBridgeServiceHandlers.this.driverBridgeService.allocatedEvaluatorHandler(eval);
+      DriverServiceHandlers.this.driverBridgeService.allocatedEvaluatorHandler(eval);
     }
   }
 
@@ -90,7 +90,7 @@ public final class DriverBridgeServiceHandlers {
     @Override
     public void onNext(final CompletedEvaluator eval) {
       LOG.log(Level.INFO, "JavaBridge: Completed Evaluator {0}", eval.getId());
-      DriverBridgeServiceHandlers.this.driverBridgeService.completedEvaluatorHandler(eval);
+      DriverServiceHandlers.this.driverBridgeService.completedEvaluatorHandler(eval);
     }
   }
 
@@ -98,7 +98,7 @@ public final class DriverBridgeServiceHandlers {
     @Override
     public void onNext(final FailedEvaluator eval) {
       LOG.log(Level.INFO, "JavaBridge: Failed Evaluator {0}", eval.getId());
-      DriverBridgeServiceHandlers.this.driverBridgeService.failedEvaluatorHandler(eval);
+      DriverServiceHandlers.this.driverBridgeService.failedEvaluatorHandler(eval);
     }
   }
 
@@ -109,7 +109,7 @@ public final class DriverBridgeServiceHandlers {
     @Override
     public void onNext(final ActiveContext context) {
       LOG.log(Level.INFO, "JavaBridge: Active Context {0}", context.getId());
-      DriverBridgeServiceHandlers.this.driverBridgeService.activeContextHandler(context);
+      DriverServiceHandlers.this.driverBridgeService.activeContextHandler(context);
     }
   }
 
@@ -120,7 +120,7 @@ public final class DriverBridgeServiceHandlers {
     @Override
     public void onNext(final ClosedContext context) {
       LOG.log(Level.INFO, "JavaBridge: Closed Context {0}", context.getId());
-      DriverBridgeServiceHandlers.this.driverBridgeService.closedContextHandler(context);
+      DriverServiceHandlers.this.driverBridgeService.closedContextHandler(context);
     }
   }
 
@@ -131,7 +131,7 @@ public final class DriverBridgeServiceHandlers {
     @Override
     public void onNext(final ContextMessage message) {
       LOG.log(Level.INFO, "JavaBridge: Context Message id {0}", message.getId());
-      DriverBridgeServiceHandlers.this.driverBridgeService.contextMessageHandler(message);
+      DriverServiceHandlers.this.driverBridgeService.contextMessageHandler(message);
     }
   }
 
@@ -142,7 +142,7 @@ public final class DriverBridgeServiceHandlers {
     @Override
     public void onNext(final FailedContext context) {
       LOG.log(Level.INFO, "JavaBridge: Context Failed {0}", context.getId());
-      DriverBridgeServiceHandlers.this.driverBridgeService.failedContextHandler(context);
+      DriverServiceHandlers.this.driverBridgeService.failedContextHandler(context);
     }
   }
 
@@ -153,7 +153,7 @@ public final class DriverBridgeServiceHandlers {
     @Override
     public void onNext(final RunningTask task) {
       LOG.log(Level.INFO, "JavaBridge: Running Task {0}", task.getId());
-      DriverBridgeServiceHandlers.this.driverBridgeService.runningTaskHandler(task);
+      DriverServiceHandlers.this.driverBridgeService.runningTaskHandler(task);
     }
   }
 
@@ -164,7 +164,7 @@ public final class DriverBridgeServiceHandlers {
     @Override
     public void onNext(final FailedTask task) {
       LOG.log(Level.INFO, "JavaBridge: Failed Task {0}", task.getId());
-      DriverBridgeServiceHandlers.this.driverBridgeService.failedTaskHandler(task);
+      DriverServiceHandlers.this.driverBridgeService.failedTaskHandler(task);
     }
   }
 
@@ -175,7 +175,7 @@ public final class DriverBridgeServiceHandlers {
     @Override
     public void onNext(final CompletedTask task) {
       LOG.log(Level.INFO, "JavaBridge: Completed Task {0}", task.getId());
-      DriverBridgeServiceHandlers.this.driverBridgeService.completedTaskHandler(task);
+      DriverServiceHandlers.this.driverBridgeService.completedTaskHandler(task);
     }
   }
 
@@ -186,7 +186,7 @@ public final class DriverBridgeServiceHandlers {
     @Override
     public void onNext(final SuspendedTask task) {
       LOG.log(Level.INFO, "JavaBridge: Suspended Task {0}", task.getId());
-      DriverBridgeServiceHandlers.this.driverBridgeService.suspendedTaskHandler(task);
+      DriverServiceHandlers.this.driverBridgeService.suspendedTaskHandler(task);
     }
   }
 
@@ -197,7 +197,7 @@ public final class DriverBridgeServiceHandlers {
     @Override
     public void onNext(final TaskMessage message) {
       LOG.log(Level.INFO, "JavaBridge: Message from Task {0}", message.getId());
-      DriverBridgeServiceHandlers.this.driverBridgeService.taskMessageHandler(message);
+      DriverServiceHandlers.this.driverBridgeService.taskMessageHandler(message);
     }
   }
 
@@ -208,7 +208,7 @@ public final class DriverBridgeServiceHandlers {
     @Override
     public void onNext(final byte[] message) {
       LOG.log(Level.INFO, "JavaBridge: Message from Client");
-      DriverBridgeServiceHandlers.this.driverBridgeService.clientMessageHandler(message);
+      DriverServiceHandlers.this.driverBridgeService.clientMessageHandler(message);
     }
   }
 
@@ -219,7 +219,7 @@ public final class DriverBridgeServiceHandlers {
     @Override
     public void onNext(final Void value) {
       LOG.log(Level.INFO, "JavaBridge: Close event from Client");
-      DriverBridgeServiceHandlers.this.driverBridgeService.clientCloseHandler();
+      DriverServiceHandlers.this.driverBridgeService.clientCloseHandler();
     }
   }
 
@@ -230,7 +230,7 @@ public final class DriverBridgeServiceHandlers {
     @Override
     public void onNext(final byte[] message) {
       LOG.log(Level.INFO, "JavaBridge: Close event with messages from Client");
-      DriverBridgeServiceHandlers.this.driverBridgeService.clientCloseWithMessageHandler(message);
+      DriverServiceHandlers.this.driverBridgeService.clientCloseWithMessageHandler(message);
     }
   }
 }

@@ -24,8 +24,8 @@ import io.grpc.ManagedChannelBuilder;
 import io.grpc.Server;
 import io.grpc.ServerBuilder;
 import io.grpc.stub.StreamObserver;
-import org.apache.reef.bridge.IDriverBridgeService;
-import org.apache.reef.bridge.parameters.BridgeDriverProcessCommand;
+import org.apache.reef.bridge.IDriverService;
+import org.apache.reef.bridge.parameters.DriverClientProcessCommand;
 import org.apache.reef.bridge.proto.*;
 import org.apache.reef.bridge.proto.Void;
 import org.apache.reef.driver.context.ActiveContext;
@@ -56,8 +56,8 @@ import java.util.logging.Logger;
 /**
  * GRPC DriverBridgeService that interacts with higher-level languages.
  */
-public final class GRPCDriverBridgeService implements IDriverBridgeService {
-  private static final Logger LOG = Logger.getLogger(GRPCDriverBridgeService.class.getName());
+public final class GRPCDriverService implements IDriverService {
+  private static final Logger LOG = Logger.getLogger(GRPCDriverService.class.getName());
 
   private Server server;
 
@@ -84,13 +84,13 @@ public final class GRPCDriverBridgeService implements IDriverBridgeService {
   private final Map<String, RunningTask> runningTaskMap = new HashMap<>();
 
   @Inject
-  private GRPCDriverBridgeService(
+  private GRPCDriverService(
       final Clock clock,
       final EvaluatorRequestor evaluatorRequestor,
       final JVMProcessFactory jvmProcessFactory,
       final CLRProcessFactory clrProcessFactory,
       final TcpPortProvider tcpPortProvider,
-      @Parameter(BridgeDriverProcessCommand.class) final String driverProcessCommand) {
+      @Parameter(DriverClientProcessCommand.class) final String driverProcessCommand) {
     this.clock = clock;
     this.jvmProcessFactory = jvmProcessFactory;
     this.clrProcessFactory = clrProcessFactory;
@@ -414,9 +414,9 @@ public final class GRPCDriverBridgeService implements IDriverBridgeService {
           .forAddress(request.getHost(), request.getPort())
           .usePlaintext(true)
           .build();
-      synchronized (GRPCDriverBridgeService.this) {
-        GRPCDriverBridgeService.this.clientStub = DriverClientGrpc.newBlockingStub(channel);
-        GRPCDriverBridgeService.this.notifyAll();
+      synchronized (GRPCDriverService.this) {
+        GRPCDriverService.this.clientStub = DriverClientGrpc.newBlockingStub(channel);
+        GRPCDriverService.this.notifyAll();
       }
       responseObserver.onNext(Void.newBuilder().build());
       responseObserver.onCompleted();
@@ -426,8 +426,8 @@ public final class GRPCDriverBridgeService implements IDriverBridgeService {
     public void requestResources(
         final ResourceRequest request,
         final StreamObserver<Void> responseObserver) {
-      synchronized (GRPCDriverBridgeService.this) {
-        EvaluatorRequest.Builder requestBuilder = GRPCDriverBridgeService.this.evaluatorRequestor.newRequest();
+      synchronized (GRPCDriverService.this) {
+        EvaluatorRequest.Builder requestBuilder = GRPCDriverService.this.evaluatorRequestor.newRequest();
         requestBuilder.setNumber(request.getResourceCount());
         requestBuilder.setNumberOfCores(request.getCores());
         requestBuilder.setMemory(request.getMemorySize());
@@ -441,7 +441,7 @@ public final class GRPCDriverBridgeService implements IDriverBridgeService {
             requestBuilder.addRackName(rackName);
           }
         }
-        GRPCDriverBridgeService.this.evaluatorRequestor.submit(requestBuilder.build());
+        GRPCDriverService.this.evaluatorRequestor.submit(requestBuilder.build());
       }
       responseObserver.onNext(Void.newBuilder().build());
       responseObserver.onCompleted();
@@ -451,8 +451,8 @@ public final class GRPCDriverBridgeService implements IDriverBridgeService {
     public void shutdown(
         final ShutdownRequest request,
         final StreamObserver<Void> responseObserver) {
-      synchronized (GRPCDriverBridgeService.this) {
-        GRPCDriverBridgeService.this.clock.stop();
+      synchronized (GRPCDriverService.this) {
+        GRPCDriverService.this.clock.stop();
       }
       responseObserver.onNext(Void.newBuilder().build());
       responseObserver.onCompleted();
@@ -462,12 +462,12 @@ public final class GRPCDriverBridgeService implements IDriverBridgeService {
     public void setAlarm(
         final AlarmRequest request,
         final StreamObserver<Void> responseObserver) {
-      synchronized (GRPCDriverBridgeService.this) {
-        GRPCDriverBridgeService.this.clock.scheduleAlarm(request.getTimeoutMs(), new EventHandler<Alarm>() {
+      synchronized (GRPCDriverService.this) {
+        GRPCDriverService.this.clock.scheduleAlarm(request.getTimeoutMs(), new EventHandler<Alarm>() {
           @Override
           public void onNext(final Alarm value) {
-            synchronized (GRPCDriverBridgeService.this) {
-              GRPCDriverBridgeService.this.clientStub.alarmTrigger(
+            synchronized (GRPCDriverService.this) {
+              GRPCDriverService.this.clientStub.alarmTrigger(
                   AlarmTriggerInfo.newBuilder().setAlarmId(request.getAlarmId()).build());
             }
           }
@@ -487,13 +487,13 @@ public final class GRPCDriverBridgeService implements IDriverBridgeService {
           responseObserver.onError(
               new IllegalArgumentException("Context and/or Task configuration required"));
         } else {
-          synchronized (GRPCDriverBridgeService.this) {
-            if (!GRPCDriverBridgeService.this.allocatedEvaluatorMap.containsKey(request.getEvaluatorId())) {
+          synchronized (GRPCDriverService.this) {
+            if (!GRPCDriverService.this.allocatedEvaluatorMap.containsKey(request.getEvaluatorId())) {
               responseObserver.onError(
                   new IllegalArgumentException("Unknown allocated evaluator " + request.getEvaluatorId()));
             }
             final AllocatedEvaluator evaluator =
-                GRPCDriverBridgeService.this.allocatedEvaluatorMap.get(request.getEvaluatorId());
+                GRPCDriverService.this.allocatedEvaluatorMap.get(request.getEvaluatorId());
             if (request.getCloseEvaluator()) {
               evaluator.close();
             } else {
@@ -553,8 +553,8 @@ public final class GRPCDriverBridgeService implements IDriverBridgeService {
     public void activeContextOp(
         final ActiveContextRequest request,
         final StreamObserver<Void> responseObserver) {
-      synchronized (GRPCDriverBridgeService.this) {
-        if (!GRPCDriverBridgeService.this.activeContextMap.containsKey(request.getContextId())) {
+      synchronized (GRPCDriverService.this) {
+        if (!GRPCDriverService.this.activeContextMap.containsKey(request.getContextId())) {
           responseObserver.onError(
               new IllegalArgumentException("Context does not exist with id " + request.getContextId()));
         } else if (request.getNewContextRequest() != null && request.getNewTaskRequest() != null) {
@@ -562,7 +562,7 @@ public final class GRPCDriverBridgeService implements IDriverBridgeService {
               new IllegalArgumentException("Context request can only contain one of a context or task configuration"));
 
         }
-        final ActiveContext context = GRPCDriverBridgeService.this.activeContextMap.get(request.getContextId());
+        final ActiveContext context = GRPCDriverService.this.activeContextMap.get(request.getContextId());
         if (request.getOperationCase() == ActiveContextRequest.OperationCase.CLOSE_CONTEXT) {
           if (request.getCloseContext()) {
             context.close();
@@ -587,12 +587,12 @@ public final class GRPCDriverBridgeService implements IDriverBridgeService {
     public void runningTaskOp(
         final RunningTaskRequest request,
         final StreamObserver<Void> responseObserver) {
-      synchronized (GRPCDriverBridgeService.this) {
-        if (!GRPCDriverBridgeService.this.runningTaskMap.containsKey(request.getTaskId())) {
+      synchronized (GRPCDriverService.this) {
+        if (!GRPCDriverService.this.runningTaskMap.containsKey(request.getTaskId())) {
           responseObserver.onError(
               new IllegalArgumentException("Task does not exist with id " + request.getTaskId()));
         }
-        final RunningTask task = GRPCDriverBridgeService.this.runningTaskMap.get(request.getTaskId());
+        final RunningTask task = GRPCDriverService.this.runningTaskMap.get(request.getTaskId());
         if (request.getCloseTask()) {
           if (request.getMessage() != null) {
             task.close(request.getMessage().toByteArray());
@@ -608,7 +608,7 @@ public final class GRPCDriverBridgeService implements IDriverBridgeService {
     private void setCLRProcess(
         final AllocatedEvaluator evaluator,
         final AllocatedEvaluatorRequest.EvaluatorProcessRequest processRequest) {
-      final CLRProcess process = GRPCDriverBridgeService.this.clrProcessFactory.newEvaluatorProcess();
+      final CLRProcess process = GRPCDriverService.this.clrProcessFactory.newEvaluatorProcess();
       if (processRequest.getMemoryMb() > 0) {
         process.setMemory(processRequest.getMemoryMb());
       }
@@ -627,7 +627,7 @@ public final class GRPCDriverBridgeService implements IDriverBridgeService {
     private void setJVMProcess(
         final AllocatedEvaluator evaluator,
         final AllocatedEvaluatorRequest.EvaluatorProcessRequest processRequest) {
-      final JVMProcess process = GRPCDriverBridgeService.this.jvmProcessFactory.newEvaluatorProcess();
+      final JVMProcess process = GRPCDriverService.this.jvmProcessFactory.newEvaluatorProcess();
       if (processRequest.getMemoryMb() > 0) {
         process.setMemory(processRequest.getMemoryMb());
       }

@@ -16,19 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
-package org.apache.reef.bridge.parameters;
-
-import org.apache.reef.bridge.HandlerLabels;
-import org.apache.reef.tang.annotations.Name;
-import org.apache.reef.tang.annotations.NamedParameter;
-
 /**
- * Command line parameter = true to run locally, or false to run on YARN.
+ * Java bridge client driver.
  */
-@NamedParameter(doc = "The handlers that should be configured. " +
-    HandlerLabels.HANDLER_LABEL_DESCRIPTION,
-    short_name = "handlers", default_value = "start")
-public final class BridgeClientHandlers implements Name<String> {
-}
-
+package org.apache.reef.bridge.client;

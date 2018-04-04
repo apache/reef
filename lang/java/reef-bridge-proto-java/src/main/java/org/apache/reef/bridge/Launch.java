@@ -19,9 +19,9 @@
 package org.apache.reef.bridge;
 
 import com.google.common.collect.Lists;
-import org.apache.reef.bridge.grpc.GRPCDriverBridgeService;
-import org.apache.reef.bridge.parameters.BridgeClientHandlers;
-import org.apache.reef.bridge.parameters.BridgeDriverProcessCommand;
+import org.apache.reef.bridge.grpc.GRPCDriverService;
+import org.apache.reef.bridge.parameters.DriverClientHandlers;
+import org.apache.reef.bridge.parameters.DriverClientProcessCommand;
 import org.apache.reef.bridge.parameters.BridgeJobId;
 import org.apache.reef.bridge.parameters.BridgeRuntime;
 import org.apache.reef.client.DriverConfiguration;
@@ -73,10 +73,10 @@ public final class Launch {
       throws BindException, IOException {
     final JavaConfigurationBuilder confBuilder = Tang.Factory.getTang().newConfigurationBuilder();
     final CommandLine cl = new CommandLine(confBuilder);
-    cl.registerShortNameOfClass(BridgeClientHandlers.class);
+    cl.registerShortNameOfClass(DriverClientHandlers.class);
     cl.registerShortNameOfClass(BridgeRuntime.class);
     cl.registerShortNameOfClass(BridgeJobId.class);
-    cl.registerShortNameOfClass(BridgeDriverProcessCommand.class);
+    cl.registerShortNameOfClass(DriverClientProcessCommand.class);
     cl.registerShortNameOfClass(TcpPortRangeBegin.class);
     cl.registerShortNameOfClass(TcpPortRangeCount.class);
     cl.registerShortNameOfClass(TcpPortRangeTryCount.class);
@@ -121,76 +121,76 @@ public final class Launch {
       final Set<String> handlerLabelSet) {
 
     final ConfigurationModule driverBridgeConfigModule = DriverConfiguration.CONF
-        .set(DriverConfiguration.GLOBAL_LIBRARIES, EnvironmentUtils.getClassLocation(GRPCDriverBridgeService.class))
+        .set(DriverConfiguration.GLOBAL_LIBRARIES, EnvironmentUtils.getClassLocation(GRPCDriverService.class))
         .set(DriverConfiguration.DRIVER_IDENTIFIER, jobId);
     if (!handlerLabelSet.contains(HandlerLabels.START)) {
       throw new IllegalArgumentException("Start handler required");
     } else {
       driverBridgeConfigModule.set(DriverConfiguration.ON_DRIVER_STARTED,
-          DriverBridgeServiceHandlers.StartHandler.class);
+          DriverServiceHandlers.StartHandler.class);
       /* Stop handler not required, but set it for bridge shutdown */
       driverBridgeConfigModule.set(DriverConfiguration.ON_DRIVER_STOP,
-          DriverBridgeServiceHandlers.StopHandler.class);
+          DriverServiceHandlers.StopHandler.class);
     }
     if (handlerLabelSet.contains(HandlerLabels.ALLOCATED_EVAL)) {
       driverBridgeConfigModule.set(DriverConfiguration.ON_EVALUATOR_ALLOCATED,
-          DriverBridgeServiceHandlers.AllocatedEvaluatorHandler.class);
+          DriverServiceHandlers.AllocatedEvaluatorHandler.class);
     }
     if (handlerLabelSet.contains(HandlerLabels.COMPLETE_EVAL)) {
       driverBridgeConfigModule.set(DriverConfiguration.ON_EVALUATOR_COMPLETED,
-          DriverBridgeServiceHandlers.CompletedEvaluatorHandler.class);
+          DriverServiceHandlers.CompletedEvaluatorHandler.class);
     }
     if (handlerLabelSet.contains(HandlerLabels.FAILED_EVAL)) {
       driverBridgeConfigModule.set(DriverConfiguration.ON_EVALUATOR_FAILED,
-          DriverBridgeServiceHandlers.FailedEvaluatorHandler.class);
+          DriverServiceHandlers.FailedEvaluatorHandler.class);
     }
     if (handlerLabelSet.contains(HandlerLabels.ACTIVE_CXT)) {
       driverBridgeConfigModule.set(DriverConfiguration.ON_CONTEXT_ACTIVE,
-          DriverBridgeServiceHandlers.ActiveContextHandler.class);
+          DriverServiceHandlers.ActiveContextHandler.class);
     }
     if (handlerLabelSet.contains(HandlerLabels.CLOSED_CXT)) {
       driverBridgeConfigModule.set(DriverConfiguration.ON_CONTEXT_CLOSED,
-          DriverBridgeServiceHandlers.ClosedContextHandler.class);
+          DriverServiceHandlers.ClosedContextHandler.class);
     }
     if (handlerLabelSet.contains(HandlerLabels.FAILED_CXT)) {
       driverBridgeConfigModule.set(DriverConfiguration.ON_CONTEXT_FAILED,
-          DriverBridgeServiceHandlers.ContextFailedHandler.class);
+          DriverServiceHandlers.ContextFailedHandler.class);
     }
     if (handlerLabelSet.contains(HandlerLabels.MESSAGE_CXT)) {
       driverBridgeConfigModule.set(DriverConfiguration.ON_CONTEXT_MESSAGE,
-          DriverBridgeServiceHandlers.ContextMessageHandler.class);
+          DriverServiceHandlers.ContextMessageHandler.class);
     }
     if (handlerLabelSet.contains(HandlerLabels.RUNNING_TASK)) {
       driverBridgeConfigModule.set(DriverConfiguration.ON_TASK_RUNNING,
-          DriverBridgeServiceHandlers.RunningTaskHandler.class);
+          DriverServiceHandlers.RunningTaskHandler.class);
     }
     if (handlerLabelSet.contains(HandlerLabels.COMPLETED_TASK)) {
       driverBridgeConfigModule.set(DriverConfiguration.ON_TASK_COMPLETED,
-          DriverBridgeServiceHandlers.CompletedTaskHandler.class);
+          DriverServiceHandlers.CompletedTaskHandler.class);
     }
     if (handlerLabelSet.contains(HandlerLabels.FAILED_TASK)) {
       driverBridgeConfigModule.set(DriverConfiguration.ON_TASK_FAILED,
-          DriverBridgeServiceHandlers.FailedTaskHandler.class);
+          DriverServiceHandlers.FailedTaskHandler.class);
     }
     if (handlerLabelSet.contains(HandlerLabels.TASK_MESSAGE)) {
       driverBridgeConfigModule.set(DriverConfiguration.ON_TASK_MESSAGE,
-          DriverBridgeServiceHandlers.TaskMessageHandler.class);
+          DriverServiceHandlers.TaskMessageHandler.class);
     }
     if (handlerLabelSet.contains(HandlerLabels.SUSPENDED_TASK)) {
       driverBridgeConfigModule.set(DriverConfiguration.ON_TASK_SUSPENDED,
-          DriverBridgeServiceHandlers.SuspendedTaskHandler.class);
+          DriverServiceHandlers.SuspendedTaskHandler.class);
     }
     if (handlerLabelSet.contains(HandlerLabels.CLIENT_MESSAGE)) {
       driverBridgeConfigModule.set(DriverConfiguration.ON_CLIENT_MESSAGE,
-          DriverBridgeServiceHandlers.ClientMessageHandler.class);
+          DriverServiceHandlers.ClientMessageHandler.class);
     }
     if (handlerLabelSet.contains(HandlerLabels.CLIENT_CLOSE)) {
       driverBridgeConfigModule.set(DriverConfiguration.ON_CLIENT_CLOSED,
-          DriverBridgeServiceHandlers.ClientCloseHandler.class);
+          DriverServiceHandlers.ClientCloseHandler.class);
     }
     if (handlerLabelSet.contains(HandlerLabels.CLIENT_CLOSE_WITH_MESSAGE)) {
       driverBridgeConfigModule.set(DriverConfiguration.ON_CLIENT_CLOSED_MESSAGE,
-          DriverBridgeServiceHandlers.ClientCloseWithMessageHandler.class);
+          DriverServiceHandlers.ClientCloseWithMessageHandler.class);
     }
     return driverBridgeConfigModule.build();
   }
@@ -208,7 +208,7 @@ public final class Launch {
         return;
       }
       final Injector injector = Tang.Factory.getTang().newInjector(commandLineConf);
-      final String handlerLabels = injector.getNamedInstance(BridgeClientHandlers.class);
+      final String handlerLabels = injector.getNamedInstance(DriverClientHandlers.class);
       final Set<String> handlerLabelSet =
           new HashSet<>(Lists.newArrayList(handlerLabels.split(HandlerLabels.HANDLER_LABEL_SEPERATOR)));
       final String runtime = injector.getNamedInstance(BridgeRuntime.class);
