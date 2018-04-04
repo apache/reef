@@ -26,12 +26,8 @@ import io.grpc.ServerBuilder;
 import io.grpc.stub.StreamObserver;
 import org.apache.reef.bridge.IDriverBridgeService;
 import org.apache.reef.bridge.parameters.BridgeDriverProcessCommand;
-import org.apache.reef.bridge.parameters.DriverServicePortRangeCount;
-import org.apache.reef.bridge.parameters.DriverServiceStartPort;
 import org.apache.reef.bridge.proto.*;
 import org.apache.reef.bridge.proto.Void;
-import org.apache.reef.driver.catalog.NodeDescriptor;
-import org.apache.reef.driver.catalog.RackDescriptor;
 import org.apache.reef.driver.context.ActiveContext;
 import org.apache.reef.driver.context.ClosedContext;
 import org.apache.reef.driver.context.ContextMessage;
@@ -43,6 +39,7 @@ import org.apache.reef.runtime.common.driver.evaluator.AllocatedEvaluatorImpl;
 import org.apache.reef.tang.annotations.Parameter;
 import org.apache.reef.util.OSUtils;
 import org.apache.reef.wake.EventHandler;
+import org.apache.reef.wake.remote.ports.TcpPortProvider;
 import org.apache.reef.wake.time.Clock;
 import org.apache.reef.wake.time.event.Alarm;
 import org.apache.reef.wake.time.event.StartTime;
@@ -76,11 +73,9 @@ public final class GRPCDriverBridgeService implements IDriverBridgeService {
 
   private final CLRProcessFactory clrProcessFactory;
 
+  private final TcpPortProvider tcpPortProvider;
+
   private final String driverProcessCommand;
-
-  private final Integer startPort;
-
-  private final Integer portRangeCount;
 
   private final Map<String, AllocatedEvaluator> allocatedEvaluatorMap = new HashMap<>();
 
@@ -94,45 +89,35 @@ public final class GRPCDriverBridgeService implements IDriverBridgeService {
       final EvaluatorRequestor evaluatorRequestor,
       final JVMProcessFactory jvmProcessFactory,
       final CLRProcessFactory clrProcessFactory,
-      @Parameter(BridgeDriverProcessCommand.class) final String driverProcessCommand,
-      @Parameter(DriverServiceStartPort.class) final Integer startPort,
-      @Parameter(DriverServicePortRangeCount.class) final Integer portRangeCount) {
+      final TcpPortProvider tcpPortProvider,
+      @Parameter(BridgeDriverProcessCommand.class) final String driverProcessCommand) {
     this.clock = clock;
     this.jvmProcessFactory = jvmProcessFactory;
     this.clrProcessFactory = clrProcessFactory;
     this.evaluatorRequestor = evaluatorRequestor;
     this.driverProcessCommand = driverProcessCommand;
-    this.startPort = startPort;
-    this.portRangeCount = portRangeCount;
+    this.tcpPortProvider = tcpPortProvider;
   }
 
   private void start() throws IOException {
-    assert portRangeCount > 0;
-    /* The port on which the server should run */
-    int port = this.startPort;
-    int count = this.portRangeCount;
-    while (count > 0) {
+    for (final Integer port : this.tcpPortProvider) {
       try {
         this.server = ServerBuilder.forPort(port)
             .addService(new DriverBridgeServiceImpl())
             .build()
             .start();
         LOG.info("Server started, listening on " + port);
-        count = 0; // break out
       } catch (IOException e) {
-        if (portRangeCount == 1) {
-          LOG.log(Level.SEVERE, "Unable to bind to a port in range [{0} - {1}]",
-              new Object[]{startPort, startPort + portRangeCount});
-          throw e;
-        }
-      } finally {
-        port++;
-        count--;
+        LOG.log(Level.WARNING, "Unable to bind to port [{0}]", port);
       }
     }
-    final String cmd = this.driverProcessCommand + " -server-port=" + this.server.getPort();
-    final String cmdOs = OSUtils.isWindows() ? "cmd.exe /c " + cmd : cmd;
-    this.driverProcess = Runtime.getRuntime().exec(cmdOs);
+    if (this.server == null || this.server.isTerminated()) {
+      throw new IOException("Unable to start gRPC server");
+    } else {
+      final String cmd = this.driverProcessCommand + " -server-port=" + this.server.getPort();
+      final String cmdOs = OSUtils.isWindows() ? "cmd.exe /c " + cmd : cmd;
+      this.driverProcess = Runtime.getRuntime().exec(cmdOs);
+    }
   }
 
   private void stop() {
@@ -153,10 +138,6 @@ public final class GRPCDriverBridgeService implements IDriverBridgeService {
     if (server != null) {
       server.awaitTermination();
     }
-  }
-
-  private void registerDriverProcess(final int port) {
-
   }
 
   /**
@@ -184,7 +165,6 @@ public final class GRPCDriverBridgeService implements IDriverBridgeService {
           .setCores(descriptor.getNumberOfCores())
           .setMemory(descriptor.getMemory())
           .setProcess(toEvaluatorProcessInfo(descriptor.getProcess()))
-          .setNodeDescriptor(toNodeDescriptorInfo(descriptor.getNodeDescriptor()))
           .setRuntimeName(descriptor.getRuntimeName())
           .build();
     }
@@ -207,29 +187,6 @@ public final class GRPCDriverBridgeService implements IDriverBridgeService {
         break;
       default:
         builder.setEvaluatorType(EvaluatorProcessInfo.EvaluatorType.UNDECIDED);
-      }
-      return builder.build();
-    }
-  }
-
-  public NodeDescriptorInfo toNodeDescriptorInfo(final NodeDescriptor descriptor) {
-    if (descriptor == null) {
-      return null;
-    } else {
-      return NodeDescriptorInfo.newBuilder()
-          .setInetSocketAddress(descriptor.getInetSocketAddress().toString())
-          .setRackDescriptor(toRackDescriptorInfo(descriptor.getRackDescriptor()))
-          .build();
-    }
-  }
-
-  public RackDescriptorInfo toRackDescriptorInfo(final RackDescriptor descriptor) {
-    if (descriptor == null) {
-      return null;
-    } else {
-      final RackDescriptorInfo.Builder builder = RackDescriptorInfo.newBuilder();
-      for (final NodeDescriptor node : descriptor.getNodes()) {
-        builder.addNodes(toNodeDescriptorInfo(node));
       }
       return builder.build();
     }
@@ -606,13 +563,21 @@ public final class GRPCDriverBridgeService implements IDriverBridgeService {
 
         }
         final ActiveContext context = GRPCDriverBridgeService.this.activeContextMap.get(request.getContextId());
-        if (request.getCloseContext()) {
-          context.close();
-        } else if (request.getMessage() != null) {
-          context.sendMessage(request.getMessage().toByteArray());
-        } else if (request.getConfigurationCase() == ActiveContextRequest.ConfigurationCase.NEW_CONTEXT_REQUEST) {
+        if (request.getOperationCase() == ActiveContextRequest.OperationCase.CLOSE_CONTEXT) {
+          if (request.getCloseContext()) {
+            context.close();
+          } else {
+            responseObserver.onError(new IllegalArgumentException("Close context operation not set to true"));
+          }
+        } else if (request.getOperationCase() == ActiveContextRequest.OperationCase.MESSAGE) {
+          if (request.getMessage() != null) {
+            context.sendMessage(request.getMessage().toByteArray());
+          } else {
+            responseObserver.onError(new IllegalArgumentException("Empty message on operation send message"));
+          }
+        } else if (request.getOperationCase() == ActiveContextRequest.OperationCase.NEW_CONTEXT_REQUEST) {
           ((EvaluatorContext) context).submitContext(request.getNewContextRequest());
-        } else if (request.getConfigurationCase() == ActiveContextRequest.ConfigurationCase.NEW_TASK_REQUEST) {
+        } else if (request.getOperationCase() == ActiveContextRequest.OperationCase.NEW_TASK_REQUEST) {
           ((EvaluatorContext) context).submitTask(request.getNewTaskRequest());
         }
       }

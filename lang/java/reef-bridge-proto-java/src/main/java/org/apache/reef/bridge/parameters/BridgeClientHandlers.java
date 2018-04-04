@@ -16,15 +16,19 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
 package org.apache.reef.bridge.parameters;
 
+import org.apache.reef.bridge.HandlerLabels;
 import org.apache.reef.tang.annotations.Name;
 import org.apache.reef.tang.annotations.NamedParameter;
 
 /**
- * The port range count.
+ * Command line parameter = true to run locally, or false to run on YARN.
  */
-@NamedParameter(doc = "Driver service port range count from start port",
-    short_name = "port-range-count", default_value = "100")
-public final class DriverServicePortRangeCount implements Name<Integer> {
+@NamedParameter(doc = "The handlers that should be configured. " +
+    HandlerLabels.HANDLER_LABEL_DESCRIPTION,
+    short_name = "handlers", default_value = "start")
+public final class BridgeClientHandlers implements Name<String> {
 }
+

@@ -16,15 +16,15 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
 package org.apache.reef.bridge.parameters;
 
 import org.apache.reef.tang.annotations.Name;
 import org.apache.reef.tang.annotations.NamedParameter;
 
 /**
- * The starting port.
+ * Command line parameter = Numeric ID for the job.
  */
-@NamedParameter(doc = "Driver Service Starting Port",
-    short_name = "start-port", default_value = "50001")
-public final class DriverServiceStartPort implements Name<Integer> {
+@NamedParameter(doc = "Numeric ID for the job", short_name = "id", default_value = "-1")
+public final class BridgeJobId implements Name<Integer> {
 }

@@ -20,21 +20,23 @@ package org.apache.reef.bridge;
 
 import com.google.common.collect.Lists;
 import org.apache.reef.bridge.grpc.GRPCDriverBridgeService;
+import org.apache.reef.bridge.parameters.BridgeClientHandlers;
 import org.apache.reef.bridge.parameters.BridgeDriverProcessCommand;
-import org.apache.reef.bridge.parameters.DriverServicePortRangeCount;
-import org.apache.reef.bridge.parameters.DriverServiceStartPort;
+import org.apache.reef.bridge.parameters.BridgeJobId;
+import org.apache.reef.bridge.parameters.BridgeRuntime;
 import org.apache.reef.client.DriverConfiguration;
 import org.apache.reef.client.DriverLauncher;
 import org.apache.reef.runtime.local.client.LocalRuntimeConfiguration;
 import org.apache.reef.runtime.yarn.client.YarnClientConfiguration;
 import org.apache.reef.tang.*;
-import org.apache.reef.tang.annotations.Name;
-import org.apache.reef.tang.annotations.NamedParameter;
 import org.apache.reef.tang.exceptions.BindException;
 import org.apache.reef.tang.exceptions.InjectionException;
 import org.apache.reef.tang.formats.CommandLine;
 import org.apache.reef.tang.formats.ConfigurationModule;
 import org.apache.reef.util.EnvironmentUtils;
+import org.apache.reef.wake.remote.ports.parameters.TcpPortRangeBegin;
+import org.apache.reef.wake.remote.ports.parameters.TcpPortRangeCount;
+import org.apache.reef.wake.remote.ports.parameters.TcpPortRangeTryCount;
 
 import java.io.IOException;
 import java.util.HashSet;
@@ -43,83 +45,9 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Pool of Evaluators example - main class.
+ * Bridge client - main class.
  */
 public final class Launch {
-  /**
-   * List of supported runtimes.
-   */
-  private static final class Runtimes {
-    private static final String LOCAL = "local";
-
-    private static final String YARN = "yarn";
-
-    private static final String AZBATCH = "azbatch";
-  }
-
-  /**
-   * List of handlers that can be registered by clients.
-   */
-  private static final class HandlerLabels {
-    private static final String START = "start";
-
-    private static final String STOP = "stop";
-
-    private static final String ALLOCATED_EVAL = "allocated-evaluator";
-
-    private static final String COMPLETE_EVAL = "complete-evaluator";
-
-    private static final String FAILED_EVAL = "failed-evaluator";
-
-    private static final String ACTIVE_CXT = "active-context";
-
-    private static final String CLOSED_CXT = "closed-context";
-
-    private static final String MESSAGE_CXT = "context-message";
-
-    private static final String FAILED_CXT = "failed-context";
-
-    private static final String RUNNING_TASK = "running-task";
-
-    private static final String FAILED_TASK = "failed-task";
-
-    private static final String COMPLETED_TASK = "completed-task";
-
-    private static final String SUSPENDED_TASK = "suspended-task";
-
-    private static final String TASK_MESSAGE = "task-message";
-
-    private static final String CLIENT_MESSAGE = "client-message";
-
-    private static final String CLIENT_CLOSE = "client-close";
-
-    private static final String CLIENT_CLOSE_WITH_MESSAGE = "client-close-with-message";
-  }
-
-  private static final String HANDLER_LABEL_SEPERATOR = ";";
-
-  private static final String HANDLER_LABEL_DESCRIPTION = "Handler Event Labels: \n" +
-      "> " + HandlerLabels.START + "\n" +
-      "> " + HandlerLabels.STOP + "\n" +
-      "> " + HandlerLabels.ALLOCATED_EVAL + "\n" +
-      "> " + HandlerLabels.COMPLETE_EVAL + "\n" +
-      "> " + HandlerLabels.FAILED_EVAL + "\n" +
-      "> " + HandlerLabels.ACTIVE_CXT + "\n" +
-      "> " + HandlerLabels.CLOSED_CXT + "\n" +
-      "> " + HandlerLabels.MESSAGE_CXT + "\n" +
-      "> " + HandlerLabels.FAILED_CXT + "\n" +
-      "> " + HandlerLabels.RUNNING_TASK + "\n" +
-      "> " + HandlerLabels.FAILED_TASK + "\n" +
-      "> " + HandlerLabels.COMPLETED_TASK + "\n" +
-      "> " + HandlerLabels.SUSPENDED_TASK + "\n" +
-      "> " + HandlerLabels.TASK_MESSAGE + "\n" +
-      "> " + HandlerLabels.CLIENT_MESSAGE + "\n" +
-      "> " + HandlerLabels.CLIENT_CLOSE + "\n" +
-      "> " + HandlerLabels.CLIENT_CLOSE_WITH_MESSAGE + "\n" +
-      "Specify a list of handler event labels seperated by '" +
-      HANDLER_LABEL_SEPERATOR + "'\n" +
-      "e.g., \"" + HandlerLabels.START + HANDLER_LABEL_SEPERATOR + HandlerLabels.STOP +
-      "\" registers for the stop and start handlers, but none other.";
 
   /**
    * Standard Java logger.
@@ -145,12 +73,13 @@ public final class Launch {
       throws BindException, IOException {
     final JavaConfigurationBuilder confBuilder = Tang.Factory.getTang().newConfigurationBuilder();
     final CommandLine cl = new CommandLine(confBuilder);
-    cl.registerShortNameOfClass(Handlers.class);
-    cl.registerShortNameOfClass(Runtime.class);
-    cl.registerShortNameOfClass(JobId.class);
+    cl.registerShortNameOfClass(BridgeClientHandlers.class);
+    cl.registerShortNameOfClass(BridgeRuntime.class);
+    cl.registerShortNameOfClass(BridgeJobId.class);
     cl.registerShortNameOfClass(BridgeDriverProcessCommand.class);
-    cl.registerShortNameOfClass(DriverServiceStartPort.class);
-    cl.registerShortNameOfClass(DriverServicePortRangeCount.class);
+    cl.registerShortNameOfClass(TcpPortRangeBegin.class);
+    cl.registerShortNameOfClass(TcpPortRangeCount.class);
+    cl.registerShortNameOfClass(TcpPortRangeTryCount.class);
     if (cl.processCommandLine(args) != null) {
       return confBuilder.build();
     } else {
@@ -169,15 +98,15 @@ public final class Launch {
    */
   private static Configuration getClientConfiguration(
       final Configuration commandLineConf, final String runtime)
-      throws BindException, InjectionException {
+      throws BindException {
 
     final Configuration runtimeConfiguration;
 
-    if (Runtimes.LOCAL.equals(runtime)) {
+    if (RuntimeNames.LOCAL.equals(runtime)) {
       LOG.log(Level.FINE, "JavaBridge: Running on the local runtime");
       runtimeConfiguration = LocalRuntimeConfiguration.CONF
           .build();
-    } else if (Runtimes.YARN.equals(runtime)){
+    } else if (RuntimeNames.YARN.equals(runtime)){
       LOG.log(Level.FINE, "JavaBridge: Running on YARN");
       runtimeConfiguration = YarnClientConfiguration.CONF.build();
     } else {
@@ -279,11 +208,11 @@ public final class Launch {
         return;
       }
       final Injector injector = Tang.Factory.getTang().newInjector(commandLineConf);
-      final String handlerLabels = injector.getNamedInstance(Handlers.class);
+      final String handlerLabels = injector.getNamedInstance(BridgeClientHandlers.class);
       final Set<String> handlerLabelSet =
-          new HashSet<>(Lists.newArrayList(handlerLabels.split(HANDLER_LABEL_SEPERATOR)));
-      final String runtime = injector.getNamedInstance(Runtime.class);
-      final int jobNum = injector.getNamedInstance(JobId.class);
+          new HashSet<>(Lists.newArrayList(handlerLabels.split(HandlerLabels.HANDLER_LABEL_SEPERATOR)));
+      final String runtime = injector.getNamedInstance(BridgeRuntime.class);
+      final int jobNum = injector.getNamedInstance(BridgeJobId.class);
       final String jobId = String.format("bridge.%d",
           jobNum < 0 ? System.currentTimeMillis() : jobNum);
 
@@ -299,28 +228,5 @@ public final class Launch {
     } catch (final BindException | InjectionException | IOException ex) {
       LOG.log(Level.SEVERE, "Job configuration error", ex);
     }
-  }
-
-  /**
-   * Command line parameter = true to run locally, or false to run on YARN.
-   */
-  @NamedParameter(doc = "The handlers that should be configured. " + HANDLER_LABEL_DESCRIPTION,
-      short_name = "handlers", default_value = "start")
-  public static final class Handlers implements Name<String> {
-  }
-
-  /**
-   * Command line parameter = true to run locally, or false to run on YARN.
-   */
-  @NamedParameter(doc = "The runtime to use: local, yarn, azbatch",
-      short_name = "runtime", default_value = "local")
-  public static final class Runtime implements Name<String> {
-  }
-
-  /**
-   * Command line parameter = Numeric ID for the job.
-   */
-  @NamedParameter(doc = "Numeric ID for the job", short_name = "id", default_value = "-1")
-  public static final class JobId implements Name<Integer> {
   }
 }

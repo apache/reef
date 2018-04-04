@@ -129,13 +129,17 @@ message AllocatedEvaluatorRequest {
 message ActiveContextRequest {
   string context_id = 1;
 
-  bool close_context = 2;
+  oneof operation {
+    // close the context
+    bool close_context = 2;
 
-  bytes message = 3;
+    // send message to the context
+    bytes message = 3;
 
-  oneof configuration {
+    // create a child context
     string new_context_request = 4;
 
+    // launch a task
     string new_task_request = 5;
   }
 }
@@ -143,7 +147,9 @@ message ActiveContextRequest {
 message RunningTaskRequest {
   string task_id = 1;
 
+  // close the task
   bool close_task = 2;
 
+  // send task a message
   bytes message = 3;
 }
