@@ -17,19 +17,17 @@
  * under the License.
  */
 
-package org.apache.reef.bridge.client;
+package org.apache.reef.bridge.client.parameters;
 
-import java.io.IOException;
+import org.apache.reef.tang.annotations.Name;
+import org.apache.reef.tang.annotations.NamedParameter;
+import org.apache.reef.wake.EventHandler;
+
+import java.util.Set;
 
 /**
- * Interface that driver client services implement.
+ * Handler for alarm dispatch.
  */
-public interface IDriverClientService {
-
-  /**
-   * Start the DriverClient service.
-   * @throws IOException when unable to start service
-   */
-  void start() throws IOException;
-
+@NamedParameter(doc = "Alarm dispatch handler")
+public final class AlarmDispatchHandler implements Name<Set<EventHandler<String>>> {
 }

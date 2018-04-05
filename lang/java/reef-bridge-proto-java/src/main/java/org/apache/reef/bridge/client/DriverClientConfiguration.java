@@ -35,7 +35,6 @@ import org.apache.reef.tang.formats.ConfigurationModuleBuilder;
 import org.apache.reef.tang.formats.OptionalImpl;
 import org.apache.reef.tang.formats.RequiredImpl;
 import org.apache.reef.wake.EventHandler;
-import org.apache.reef.wake.time.Clock;
 import org.apache.reef.wake.time.event.StartTime;
 import org.apache.reef.wake.time.event.StopTime;
 
@@ -147,8 +146,6 @@ public final class DriverClientConfiguration extends ConfigurationModuleBuilder 
    * ConfigurationModule to fill out to get a legal Driver Configuration.
    */
   public static final ConfigurationModule CONF = new DriverClientConfiguration()
-      .bindImplementation(Clock.class, DriverClientClock.class)
-
       .bindNamedParameter(DriverClientDispatchThreadCount.class, CLIENT_DRIVER_DISPATCH_THREAD_COUNT)
 
       // Driver start/stop handlers

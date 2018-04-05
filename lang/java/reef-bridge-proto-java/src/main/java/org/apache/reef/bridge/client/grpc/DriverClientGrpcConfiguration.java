@@ -17,19 +17,24 @@
  * under the License.
  */
 
-package org.apache.reef.bridge.client;
+package org.apache.reef.bridge.client.grpc;
 
-import java.io.IOException;
+import org.apache.reef.bridge.client.DriverClientRuntimeConfiguration;
+import org.apache.reef.bridge.client.grpc.parameters.DriverServicePort;
+import org.apache.reef.tang.formats.ConfigurationModule;
+import org.apache.reef.tang.formats.ConfigurationModuleBuilder;
+import org.apache.reef.tang.formats.RequiredParameter;
 
 /**
- * Interface that driver client services implement.
+ * Configuration module for Grpc runtime.
  */
-public interface IDriverClientService {
+public final class DriverClientGrpcConfiguration extends ConfigurationModuleBuilder {
 
-  /**
-   * Start the DriverClient service.
-   * @throws IOException when unable to start service
-   */
-  void start() throws IOException;
+  public static final RequiredParameter<Integer> DRIVER_SERVICE_PORT = new RequiredParameter<>();
+
+  public static final ConfigurationModule CONF = new DriverClientGrpcConfiguration()
+      .merge(DriverClientRuntimeConfiguration.CONF)
+      .bindNamedParameter(DriverServicePort.class, DRIVER_SERVICE_PORT)
+      .build();
 
 }

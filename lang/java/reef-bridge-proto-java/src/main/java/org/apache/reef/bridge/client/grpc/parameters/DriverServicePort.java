@@ -16,20 +16,14 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+package org.apache.reef.bridge.client.grpc.parameters;
 
-package org.apache.reef.bridge.client;
-
-import java.io.IOException;
+import org.apache.reef.tang.annotations.Name;
+import org.apache.reef.tang.annotations.NamedParameter;
 
 /**
- * Interface that driver client services implement.
+ * gRPC driver service port.
  */
-public interface IDriverClientService {
-
-  /**
-   * Start the DriverClient service.
-   * @throws IOException when unable to start service
-   */
-  void start() throws IOException;
-
+@NamedParameter(doc = "Driver Service Grpc port")
+public final class DriverServicePort implements Name<Integer> {
 }

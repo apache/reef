@@ -20,6 +20,7 @@
 package org.apache.reef.bridge.client;
 
 import org.apache.reef.annotations.audience.Private;
+import org.apache.reef.bridge.client.parameters.AlarmDispatchHandler;
 import org.apache.reef.bridge.client.parameters.DriverClientDispatchThreadCount;
 import org.apache.reef.bridge.client.parameters.ClientDriverStopHandler;
 import org.apache.reef.driver.context.ActiveContext;
@@ -66,11 +67,18 @@ public final class DriverClientDispatcher {
    */
   private final DispatchingEStage clientMessageDispatcher;
 
+  /**
+   * The alarm dispatcher.
+   */
+  private final DispatchingEStage alarmDispatcher;
+
   @Inject
   private DriverClientDispatcher(
       final DriverClientExceptionHandler driverExceptionHandler,
       @Parameter(DriverClientDispatchThreadCount.class)
       final Integer numberOfThreads,
+      @Parameter(AlarmDispatchHandler.class)
+      final Set<EventHandler<String>> alarmHandlers,
       // Application-provided start and stop handlers
       @Parameter(DriverStartHandler.class)
       final Set<EventHandler<StartTime>> startHandlers,
@@ -143,6 +151,10 @@ public final class DriverClientDispatcher {
 
     this.clientMessageDispatcher = new DispatchingEStage(this.applicationDispatcher);
     this.clientMessageDispatcher.register(byte[].class, clientMessageHandlers);
+
+    // Alarm event handlers
+    this.alarmDispatcher = new DispatchingEStage(this.applicationDispatcher);
+    this.alarmDispatcher.register(String.class, alarmHandlers);
   }
 
   public void dispatch(final StartTime startTime) {
@@ -211,5 +223,9 @@ public final class DriverClientDispatcher {
 
   public void clientMessageDispatch(final byte[] message) {
     this.clientMessageDispatcher.onNext(byte[].class, message);
+  }
+
+  public void dispatchAlarm(final String alarmId) {
+    this.alarmDispatcher.onNext(String.class, alarmId);
   }
 }

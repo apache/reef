@@ -157,7 +157,7 @@ public final class GRPCDriverService implements IDriverService {
     return false;
   }
 
-  public EvaluatorDescriptorInfo toEvaluatorDescriptorInfo(final EvaluatorDescriptor descriptor) {
+  private EvaluatorDescriptorInfo toEvaluatorDescriptorInfo(final EvaluatorDescriptor descriptor) {
     if (descriptor == null) {
       return null;
     } else {
@@ -170,7 +170,7 @@ public final class GRPCDriverService implements IDriverService {
     }
   }
 
-  public EvaluatorProcessInfo toEvaluatorProcessInfo(final EvaluatorProcess process) {
+  private EvaluatorProcessInfo toEvaluatorProcessInfo(final EvaluatorProcess process) {
     if (process == null) {
       return null;
     } else {

@@ -16,20 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
-package org.apache.reef.bridge.client;
-
-import java.io.IOException;
-
 /**
- * Interface that driver client services implement.
+ * gRPC specific parameters.
  */
-public interface IDriverClientService {
-
-  /**
-   * Start the DriverClient service.
-   * @throws IOException when unable to start service
-   */
-  void start() throws IOException;
-
-}
+package org.apache.reef.bridge.client.grpc.parameters;
