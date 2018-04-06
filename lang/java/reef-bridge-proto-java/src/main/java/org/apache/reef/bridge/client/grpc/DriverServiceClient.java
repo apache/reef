@@ -24,6 +24,7 @@ import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import org.apache.reef.annotations.audience.Private;
 import org.apache.reef.bridge.client.IDriverServiceClient;
+import org.apache.reef.bridge.client.JVMClientProcess;
 import org.apache.reef.bridge.client.grpc.parameters.DriverServicePort;
 import org.apache.reef.bridge.proto.*;
 import org.apache.reef.driver.evaluator.EvaluatorRequest;
@@ -34,6 +35,8 @@ import org.apache.reef.tang.formats.ConfigurationSerializer;
 import org.apache.reef.util.Optional;
 
 import javax.inject.Inject;
+import java.io.File;
+import java.util.List;
 
 /**
  * The client that exposes methods for communicating back to the
@@ -99,7 +102,7 @@ public final class DriverServiceClient implements IDriverServiceClient {
   }
 
   @Override
-  public void onEvalautorClose(final String evalautorId) {
+  public void onEvaluatorClose(final String evalautorId) {
     this.serviceStub.allocatedEvaluatorOp(
         AllocatedEvaluatorRequest.newBuilder()
             .setEvaluatorId(evalautorId)
@@ -110,16 +113,43 @@ public final class DriverServiceClient implements IDriverServiceClient {
   @Override
   public void onEvaluatorSubmit(
       final String evaluatorId,
-      final Configuration contextConfiguration,
-      final Optional<Configuration> taskConfiguration) {
-    this.serviceStub.allocatedEvaluatorOp(
-        AllocatedEvaluatorRequest.newBuilder()
-            .setEvaluatorId(evaluatorId)
-            .setEvaluatorConfiguration(this.configurationSerializer.toString(EMPTY_CONF))
-            .setContextConfiguration(this.configurationSerializer.toString(contextConfiguration))
-            .setTaskConfiguration(taskConfiguration.isPresent() ?
-                this.configurationSerializer.toString(taskConfiguration.get()) : null)
-            .build());
+      final Optional<Configuration> contextConfiguration,
+      final Optional<Configuration> taskConfiguration,
+      final Optional<JVMClientProcess> evaluatorProcess,
+      final Optional<List<File>> addFileList,
+      final Optional<List<File>> addLibraryList) {
+    final AllocatedEvaluatorRequest.Builder builder =
+        AllocatedEvaluatorRequest.newBuilder().setEvaluatorId(evaluatorId);
+    if (addFileList.isPresent()) {
+      for (final File file : addFileList.get()) {
+        builder.addAddFiles(file.getAbsolutePath());
+      }
+    }
+    if (addLibraryList.isPresent()) {
+      for (final File file : addLibraryList.get()) {
+        builder.addAddLibraries(file.getAbsolutePath());
+      }
+    }
+    if (evaluatorProcess.isPresent()) {
+      final JVMClientProcess rawEP = evaluatorProcess.get();
+      builder.setSetProcess(
+          AllocatedEvaluatorRequest.EvaluatorProcessRequest.newBuilder()
+              .setConfigurationFileName(rawEP.getConfigurationFileName())
+              .setMemoryMb(rawEP.getMemory())
+              .setStandardOut(rawEP.getStandardOut())
+              .setStandardErr(rawEP.getStandardErr())
+              .addAllOptions(rawEP.getOptions())
+              .build());
+    }
+    if (contextConfiguration.isPresent()) {
+      builder.setContextConfiguration(
+          this.configurationSerializer.toString(contextConfiguration.get()));
+    }
+    if (taskConfiguration.isPresent()) {
+      builder.setTaskConfiguration(
+          this.configurationSerializer.toString(taskConfiguration.get()));
+    }
+    this.serviceStub.allocatedEvaluatorOp(builder.build());
   }
 
   // Context Operations

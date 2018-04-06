@@ -23,6 +23,9 @@ import org.apache.reef.driver.evaluator.EvaluatorRequest;
 import org.apache.reef.tang.Configuration;
 import org.apache.reef.util.Optional;
 
+import java.io.File;
+import java.util.List;
+
 /**
  * Forwards application requests to driver server.
  */
@@ -50,18 +53,24 @@ public interface IDriverServiceClient {
    * Close evaluator.
    * @param evalautorId to close
    */
-  void onEvalautorClose(final String evalautorId);
+  void onEvaluatorClose(final String evalautorId);
 
   /**
    * Submit context and/or task.
    * @param evaluatorId to submit against
    * @param contextConfiguration context configuration
    * @param taskConfiguration task configuration
+   * @param evaluatorProcess evaluator process
+   * @param addFileList to include
+   * @param addLibraryList to include
    */
   void onEvaluatorSubmit(
       final String evaluatorId,
-      final Configuration contextConfiguration,
-      final Optional<Configuration> taskConfiguration);
+      final Optional<Configuration> contextConfiguration,
+      final Optional<Configuration> taskConfiguration,
+      final Optional<JVMClientProcess> evaluatorProcess,
+      final Optional<List<File>> addFileList,
+      final Optional<List<File>> addLibraryList);
 
   // Context Operations
 

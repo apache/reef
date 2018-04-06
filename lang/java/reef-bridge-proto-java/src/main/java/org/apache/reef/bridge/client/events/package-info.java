@@ -17,6 +17,6 @@
  * under the License.
  */
 /**
- * REEF events specific to gRPC.
+ * REEF event stubs.
  */
-package org.apache.reef.bridge.client.grpc.events;
+package org.apache.reef.bridge.client.events;
