@@ -164,31 +164,8 @@ public final class GRPCDriverService implements IDriverService {
       return EvaluatorDescriptorInfo.newBuilder()
           .setCores(descriptor.getNumberOfCores())
           .setMemory(descriptor.getMemory())
-          .setProcess(toEvaluatorProcessInfo(descriptor.getProcess()))
           .setRuntimeName(descriptor.getRuntimeName())
           .build();
-    }
-  }
-
-  private EvaluatorProcessInfo toEvaluatorProcessInfo(final EvaluatorProcess process) {
-    if (process == null) {
-      return null;
-    } else {
-      final EvaluatorProcessInfo.Builder builder = EvaluatorProcessInfo.newBuilder();
-      for (final String commandLine : process.getCommandLine()) {
-        builder.addCommandLine(commandLine);
-      }
-      switch (process.getType()) {
-      case JVM:
-        builder.setEvaluatorType(EvaluatorProcessInfo.EvaluatorType.JVM);
-        break;
-      case CLR:
-        builder.setEvaluatorType(EvaluatorProcessInfo.EvaluatorType.CLR);
-        break;
-      default:
-        builder.setEvaluatorType(EvaluatorProcessInfo.EvaluatorType.UNDECIDED);
-      }
-      return builder.build();
     }
   }
 

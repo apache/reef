@@ -87,36 +87,28 @@ message AlarmTriggerInfo {
   string alarm_id = 1;
 }
 
-message EvaluatorProcessInfo {
-  repeated string command_line = 1;
-
-  enum EvaluatorType {
-    JVM = 0;
-    CLR = 1;
-    UNDECIDED = 2;
-  }
-  EvaluatorType evaluator_type = 2;
-
-  bool is_option_set = 3;
-}
-
 message EvaluatorDescriptorInfo {
-  EvaluatorProcessInfo process = 1;
-
   // the amount of memory allocated
-  int32 memory = 2;
+  int32 memory = 1;
 
   // the number of virtual cores allocated
-  int32 cores = 3;
+  int32 cores = 2;
 
   // name of the runtime
-  string runtime_name = 4;
+  string runtime_name = 3;
 }
 
 message EvaluatorInfo {
   string evaluator_id = 1;
 
-  EvaluatorDescriptorInfo descriptor_info = 2;
+  message FailureInfo {
+     string message = 1;
+     repeated string failedContexts = 2;
+     string failedTaskId = 3;
+  }
+  FailureInfo failure = 2;
+
+  EvaluatorDescriptorInfo descriptor_info = 3;
 }
 
 message ContextInfo {
@@ -125,6 +117,9 @@ message ContextInfo {
   string evaluator_id = 2;
 
   string parent_id = 3;
+
+  // Optional exception information
+  ExceptionInfo exception = 5;
 }
 
 message ContextMessageInfo {
@@ -141,6 +136,10 @@ message TaskInfo {
   string task_id = 1;
 
   string context_id = 2;
+
+  bytes result = 3;
+
+  ExceptionInfo exception = 5;
 }
 
 message TaskMessageInfo {

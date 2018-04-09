@@ -25,7 +25,6 @@ import org.apache.reef.driver.evaluator.AllocatedEvaluator;
 import org.apache.reef.driver.evaluator.EvaluatorDescriptor;
 import org.apache.reef.driver.evaluator.EvaluatorProcess;
 import org.apache.reef.tang.Configuration;
-import org.apache.reef.tang.formats.ConfigurationSerializer;
 import org.apache.reef.util.Optional;
 
 import java.io.File;
@@ -36,7 +35,7 @@ import java.util.List;
  * Allocated Evaluator Stub.
  */
 @Private
-public final class AllocatedEvaluatorStub implements AllocatedEvaluator {
+public final class AllocatedEvaluatorBridge implements AllocatedEvaluator {
 
   private final String evaluatorId;
 
@@ -44,23 +43,19 @@ public final class AllocatedEvaluatorStub implements AllocatedEvaluator {
 
   private final IDriverServiceClient driverServiceClient;
 
-  private final ConfigurationSerializer configurationSerializer;
-
   private final List<File> addFileList = new ArrayList<>();
 
   private final List<File> addLibraryList = new ArrayList<>();
 
   private JVMClientProcess evaluatorProcess = null;
 
-  public AllocatedEvaluatorStub(
+  public AllocatedEvaluatorBridge(
       final String evaluatorId,
       final EvaluatorDescriptor evaluatorDescriptor,
-      final IDriverServiceClient driverServiceClient,
-      final ConfigurationSerializer configurationSerializer) {
+      final IDriverServiceClient driverServiceClient) {
     this.evaluatorId = evaluatorId;
     this.evaluatorDescriptor = evaluatorDescriptor;
     this.driverServiceClient = driverServiceClient;
-    this.configurationSerializer = configurationSerializer;
   }
 
   @Override

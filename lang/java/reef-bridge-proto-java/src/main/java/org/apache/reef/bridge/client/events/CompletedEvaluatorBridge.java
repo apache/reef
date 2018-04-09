@@ -17,28 +17,23 @@
  * under the License.
  */
 
-syntax = "proto3";
+package org.apache.reef.bridge.client.events;
 
-option java_generic_services = true;
-option java_multiple_files = true;
-option java_package = "org.apache.reef.bridge.proto";
-option csharp_namespace = "Org.Apache.REEF.Bridge.Proto";
+import org.apache.reef.driver.evaluator.CompletedEvaluator;
 
-package driverbridge;
+/**
+ * Completed Evaluator bridge.
+ */
+public final class CompletedEvaluatorBridge implements CompletedEvaluator {
 
-// Void message type
-message Void {}
+  private final String id;
 
-message ExceptionInfo {
-    // Exception name/type
-    string name = 1;
+  public CompletedEvaluatorBridge(final String id) {
+    this.id = id;
+  }
 
-    // Exception message
-    string message = 2;
-
-    // Stack trace
-    repeated string stack_trace = 3;
-
-    // Data associated with exception
-    bytes data = 4;
+  @Override
+  public String getId() {
+    return this.id;
+  }
 }

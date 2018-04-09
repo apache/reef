@@ -20,6 +20,8 @@
 package org.apache.reef.bridge.client.grpc;
 
 import org.apache.reef.bridge.client.DriverClientRuntimeConfiguration;
+import org.apache.reef.bridge.client.IDriverClientService;
+import org.apache.reef.bridge.client.IDriverServiceClient;
 import org.apache.reef.bridge.client.grpc.parameters.DriverServicePort;
 import org.apache.reef.tang.formats.ConfigurationModule;
 import org.apache.reef.tang.formats.ConfigurationModuleBuilder;
@@ -34,6 +36,8 @@ public final class DriverClientGrpcConfiguration extends ConfigurationModuleBuil
 
   public static final ConfigurationModule CONF = new DriverClientGrpcConfiguration()
       .merge(DriverClientRuntimeConfiguration.CONF)
+      .bindImplementation(IDriverClientService.class, DriverClientService.class)
+      .bindImplementation(IDriverServiceClient.class, DriverServiceClient.class)
       .bindNamedParameter(DriverServicePort.class, DRIVER_SERVICE_PORT)
       .build();
 
