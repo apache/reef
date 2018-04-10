@@ -112,7 +112,7 @@ namespace Org.Apache.REEF.IO.FileSystem.AzureBlob
 
         public void UploadFromFile(string path, FileMode mode)
         {
-            _blob.UploadFromFile(path);
+            _blob.UploadFromFileAsync(path).Wait();
         }
 
         public void FetchAttributes()
