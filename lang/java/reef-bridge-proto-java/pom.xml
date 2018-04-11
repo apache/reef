@@ -78,9 +78,10 @@ under the License.
         </dependency>
         <dependency>
             <groupId>io.grpc</groupId>
-            <artifactId>grpc-netty</artifactId>
+            <artifactId>grpc-all</artifactId>
             <version>${grpc.version}</version>
         </dependency>
+        <!--
         <dependency>
             <groupId>io.grpc</groupId>
             <artifactId>grpc-protobuf</artifactId>
@@ -97,6 +98,7 @@ under the License.
             <version>${grpc.version}</version>
             <scope>test</scope>
         </dependency>
+        -->
         <!-- netty version used by grpc -->
         <dependency>
             <groupId>io.netty</groupId>
@@ -120,74 +122,37 @@ under the License.
             </extension>
         </extensions>
 
-            <plugins>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-checkstyle-plugin</artifactId>
-                    <configuration>
-                        <configLocation>lang/java/reef-common/src/main/resources/checkstyle-strict.xml</configLocation>
-                    </configuration>
-                </plugin>
-
-                <plugin>
-                    <groupId>org.xolstice.maven.plugins</groupId>
-                    <artifactId>protobuf-maven-plugin</artifactId>
-                    <version>0.5.0</version>
-                    <configuration>
-                        <protocArtifact>com.google.protobuf:protoc:${protobuf.version}:exe:${os.detected.classifier}</protocArtifact>
-                        <pluginId>grpc-java</pluginId>
-                        <pluginArtifact>io.grpc:protoc-gen-grpc-java:${grpc.version}:exe:${os.detected.classifier}</pluginArtifact>
-                        <protoSourceRoot>${protobuf.input.directory}</protoSourceRoot>
-                        <outputDirectory>${protobuf.output.directory}</outputDirectory>
-                    </configuration>
-                    <executions>
-                        <execution>
-                            <phase>generate-sources</phase>
-                            <goals>
-                                <goal>compile</goal>
-                                <goal>compile-custom</goal>
-                            </goals>
-                        </execution>
-                    </executions>
-                </plugin>
-                <!-- compile proto buffer files using copied protoc binary -->
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-antrun-plugin</artifactId>
-                    <version>${maven-antrun-plugin.version}</version>
-                    <executions>
-                        <execution>
-                            <id>exec-protoc</id>
-                            <phase>generate-sources</phase>
-                            <configuration>
-                                <target>
-                                    <property name="protoc.filename" value="protoc-${protobuf.version}-${os.detected.classifier}.exe"/>
-                                    <property name="protoc.filepath" value="${project.build.directory}/${protoc.filename}"/>
-                                    <chmod file="${protoc.filepath}" perm="ugo+rx"/>
-                                    <mkdir dir="${protobuf.output.directory}" />
-                                    <path id="protobuf.input.filepaths.path">
-                                        <fileset dir="${protobuf.input.directory}">
-                                            <include name="**/*.proto"/>
-                                        </fileset>
-                                    </path>
-                                    <pathconvert pathsep=" " property="protobuf.input.filepaths" refid="protobuf.input.filepaths.path"/>
-                                    <exec executable="${protoc.filepath}" failonerror="true">
-                                        <arg value="--proto_path=${protoPath}"/>
-                                        <arg value="--java_out"/>
-                                        <arg value="${protobuf.output.directory}"/>
-                                        <arg value="${protoPath}/DriverCommonProtocol.proto"/>
-                                        <arg value="${protoPath}/DriverClientProtocol.proto"/>
-                                        <arg value="${protoPath}/DriverServiceProtocol.proto"/>
-                                    </exec>
-                                </target>
-                            </configuration>
-                            <goals>
-                                <goal>run</goal>
-                            </goals>
-                        </execution>
-                    </executions>
-                </plugin>
-                <!-- add generated grpc classes into the package -->
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-checkstyle-plugin</artifactId>
+                <configuration>
+                    <configLocation>lang/java/reef-common/src/main/resources/checkstyle-strict.xml</configLocation>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.xolstice.maven.plugins</groupId>
+                <artifactId>protobuf-maven-plugin</artifactId>
+                <version>0.5.1</version>
+                <configuration>
+                    <protocArtifact>com.google.protobuf:protoc:${protobuf.version}:exe:${os.detected.classifier}</protocArtifact>
+                    <pluginId>grpc-java</pluginId>
+                    <pluginArtifact>io.grpc:protoc-gen-grpc-java:${grpc.version}:exe:${os.detected.classifier}</pluginArtifact>
+                    <protoSourceRoot>${protobuf.input.directory}</protoSourceRoot>
+                    <outputDirectory>${protobuf.output.directory}</outputDirectory>
+                    <clearOutputDirectory>false</clearOutputDirectory>
+                </configuration>
+                <executions>
+                    <execution>
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>compile</goal>
+                            <goal>compile-custom</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <!-- add generated grpc classes into the package -->
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>build-helper-maven-plugin</artifactId>
@@ -229,7 +194,7 @@ under the License.
                     </execution>
                 </executions>
             </plugin>
-                <plugin>
+            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
                 <version>${maven-shade-plugin.version}</version>
@@ -250,24 +215,24 @@ under the License.
                     </execution>
                 </executions>
             </plugin>
-                <plugin>
-                    <artifactId>maven-assembly-plugin</artifactId>
-                    <version>${maven.assembly}</version>
-                    <configuration>
-                        <descriptorRefs>
-                            <descriptorRef>jar-with-dependencies</descriptorRef>
-                        </descriptorRefs>
-                    </configuration>
-                    <executions>
-                        <execution>
-                            <id>make-assembly</id> <!-- this is used for inheritance merges -->
-                            <phase>package</phase> <!-- bind to the packaging phase -->
-                            <goals>
-                                <goal>single</goal>
-                            </goals>
-                        </execution>
-                    </executions>
-                </plugin>
+            <plugin>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <version>${maven.assembly}</version>
+                <configuration>
+                    <descriptorRefs>
+                        <descriptorRef>jar-with-dependencies</descriptorRef>
+                    </descriptorRefs>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>make-assembly</id> <!-- this is used for inheritance merges -->
+                        <phase>package</phase> <!-- bind to the packaging phase -->
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
@@ -276,7 +241,7 @@ under the License.
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>findbugs-maven-plugin</artifactId>
                 <configuration>
-                     <skip>true</skip>
+                    <skip>true</skip>
                 </configuration>
             </plugin>
         </plugins>

@@ -27,6 +27,7 @@ import org.apache.reef.wake.time.runtime.Timer;
 import org.apache.reef.wake.time.runtime.event.ClientAlarm;
 
 import javax.inject.Inject;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -34,7 +35,9 @@ import java.util.UUID;
 /**
  * The bridge driver client clock.
  */
-public final class DriverClientClock implements Clock, EventHandler<String> {
+public final class DriverClientClock implements Clock, IAlarmDispatchHandler {
+
+  private final IDriverClientService driverClientService;
 
   private final IDriverServiceClient driverServiceClient;
 
@@ -45,8 +48,12 @@ public final class DriverClientClock implements Clock, EventHandler<String> {
   private boolean closed = false;
 
   @Inject
-  private DriverClientClock(final Timer timer, final IDriverServiceClient driverServiceClient) {
+  private DriverClientClock(
+      final Timer timer,
+      final IDriverClientService driverClientService,
+      final IDriverServiceClient driverServiceClient) {
     this.timer = timer;
+    this.driverClientService = driverClientService;
     this.driverServiceClient = driverServiceClient;
   }
 
@@ -61,6 +68,11 @@ public final class DriverClientClock implements Clock, EventHandler<String> {
 
   @Override
   public void close() {
+    stop();
+  }
+
+  @Override
+  public void stop() {
     if (!closed) {
       this.closed = true;
       this.driverServiceClient.onShutdown();
@@ -68,13 +80,11 @@ public final class DriverClientClock implements Clock, EventHandler<String> {
   }
 
   @Override
-  public void stop() {
-    close();
-  }
-
-  @Override
   public void stop(final Throwable exception) {
-
+    if (!closed) {
+      this.closed = true;
+      this.driverServiceClient.onShutdown(exception);
+    }
   }
 
   @Override
@@ -89,7 +99,12 @@ public final class DriverClientClock implements Clock, EventHandler<String> {
 
   @Override
   public void run() {
-
+    try {
+      this.driverClientService.start();
+      this.driverClientService.awaitTermination();
+    } catch (IOException | InterruptedException e) {
+      throw new RuntimeException(e);
+    }
   }
 
   /**

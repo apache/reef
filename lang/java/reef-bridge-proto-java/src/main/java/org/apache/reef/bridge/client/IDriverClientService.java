@@ -19,11 +19,15 @@
 
 package org.apache.reef.bridge.client;
 
+import org.apache.reef.bridge.client.grpc.DriverClientService;
+import org.apache.reef.tang.annotations.DefaultImplementation;
+
 import java.io.IOException;
 
 /**
  * Interface that driver client services implement.
  */
+@DefaultImplementation(DriverClientService.class)
 public interface IDriverClientService {
 
   /**
@@ -31,5 +35,11 @@ public interface IDriverClientService {
    * @throws IOException when unable to start service
    */
   void start() throws IOException;
+
+
+  /**
+   * Wait for termination of driver client service.
+   */
+  void awaitTermination() throws InterruptedException;
 
 }

@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.bridge.grpc;
+package org.apache.reef.bridge.service.grpc;
 
 import com.google.protobuf.ByteString;
 import io.grpc.ManagedChannel;
@@ -24,8 +24,9 @@ import io.grpc.ManagedChannelBuilder;
 import io.grpc.Server;
 import io.grpc.ServerBuilder;
 import io.grpc.stub.StreamObserver;
-import org.apache.reef.bridge.IDriverService;
-import org.apache.reef.bridge.parameters.DriverClientProcessCommand;
+import org.apache.reef.bridge.service.DriverClientException;
+import org.apache.reef.bridge.service.IDriverService;
+import org.apache.reef.bridge.service.parameters.DriverClientCommand;
 import org.apache.reef.bridge.proto.*;
 import org.apache.reef.bridge.proto.Void;
 import org.apache.reef.driver.context.ActiveContext;
@@ -75,7 +76,7 @@ public final class GRPCDriverService implements IDriverService {
 
   private final TcpPortProvider tcpPortProvider;
 
-  private final String driverProcessCommand;
+  private final String driverClientCommand;
 
   private final Map<String, AllocatedEvaluator> allocatedEvaluatorMap = new HashMap<>();
 
@@ -90,12 +91,12 @@ public final class GRPCDriverService implements IDriverService {
       final JVMProcessFactory jvmProcessFactory,
       final CLRProcessFactory clrProcessFactory,
       final TcpPortProvider tcpPortProvider,
-      @Parameter(DriverClientProcessCommand.class) final String driverProcessCommand) {
+      @Parameter(DriverClientCommand.class) final String driverClientCommand) {
     this.clock = clock;
     this.jvmProcessFactory = jvmProcessFactory;
     this.clrProcessFactory = clrProcessFactory;
     this.evaluatorRequestor = evaluatorRequestor;
-    this.driverProcessCommand = driverProcessCommand;
+    this.driverClientCommand = driverClientCommand;
     this.tcpPortProvider = tcpPortProvider;
   }
 
@@ -114,7 +115,7 @@ public final class GRPCDriverService implements IDriverService {
     if (this.server == null || this.server.isTerminated()) {
       throw new IOException("Unable to start gRPC server");
     } else {
-      final String cmd = this.driverProcessCommand + " -server-port=" + this.server.getPort();
+      final String cmd = this.driverClientCommand + " -server-port=" + this.server.getPort();
       final String cmdOs = OSUtils.isWindows() ? "cmd.exe /c " + cmd : cmd;
       this.driverProcess = Runtime.getRuntime().exec(cmdOs);
     }
@@ -395,7 +396,6 @@ public final class GRPCDriverService implements IDriverService {
         GRPCDriverService.this.clientStub = DriverClientGrpc.newBlockingStub(channel);
         GRPCDriverService.this.notifyAll();
       }
-      responseObserver.onNext(Void.newBuilder().build());
       responseObserver.onCompleted();
     }
 
@@ -420,7 +420,6 @@ public final class GRPCDriverService implements IDriverService {
         }
         GRPCDriverService.this.evaluatorRequestor.submit(requestBuilder.build());
       }
-      responseObserver.onNext(Void.newBuilder().build());
       responseObserver.onCompleted();
     }
 
@@ -429,9 +428,13 @@ public final class GRPCDriverService implements IDriverService {
         final ShutdownRequest request,
         final StreamObserver<Void> responseObserver) {
       synchronized (GRPCDriverService.this) {
-        GRPCDriverService.this.clock.stop();
+        if (request.getException() != null) {
+          GRPCDriverService.this.clock.stop(
+              new DriverClientException(request.getException().getMessage()));
+        } else {
+          GRPCDriverService.this.clock.stop();
+        }
       }
-      responseObserver.onNext(Void.newBuilder().build());
       responseObserver.onCompleted();
     }
 
@@ -517,7 +520,6 @@ public final class GRPCDriverService implements IDriverService {
               } else {
                 throw new RuntimeException("Missing check for required evaluator configurations");
               }
-              responseObserver.onNext(Void.newBuilder().build());
             }
           }
         }

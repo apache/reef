@@ -16,21 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
-package org.apache.reef.bridge;
-
-import org.apache.reef.annotations.audience.Private;
-
 /**
- * Runtime names supported by the bridge.
+ * Driver bridge service parameters.
  */
-@Private
-public final class RuntimeNames {
-  public static final String LOCAL = "local";
-
-  public static final String YARN = "yarn";
-
-  public static final String AZBATCH = "azbatch";
-
-  private RuntimeNames() {}
-}
+package org.apache.reef.bridge.service.parameters;

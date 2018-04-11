@@ -19,8 +19,10 @@
 
 package org.apache.reef.bridge.client;
 
+import org.apache.reef.bridge.client.grpc.DriverServiceClient;
 import org.apache.reef.driver.evaluator.EvaluatorRequest;
 import org.apache.reef.tang.Configuration;
+import org.apache.reef.tang.annotations.DefaultImplementation;
 import org.apache.reef.util.Optional;
 
 import java.io.File;
@@ -29,12 +31,19 @@ import java.util.List;
 /**
  * Forwards application requests to driver server.
  */
+@DefaultImplementation(DriverServiceClient.class)
 public interface IDriverServiceClient {
 
   /**
    * Initiate shutdown.
    */
   void onShutdown();
+
+  /**
+   * Initiate shutdown with error.
+   * @param ex exception error
+   */
+  void onShutdown(final Throwable ex);
 
   /**
    * Set alarm.

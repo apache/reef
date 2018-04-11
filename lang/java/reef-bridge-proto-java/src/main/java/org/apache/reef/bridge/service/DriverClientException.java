@@ -17,18 +17,14 @@
  * under the License.
  */
 
-package org.apache.reef.bridge.parameters;
-
-import org.apache.reef.bridge.HandlerLabels;
-import org.apache.reef.tang.annotations.Name;
-import org.apache.reef.tang.annotations.NamedParameter;
+package org.apache.reef.bridge.service;
 
 /**
- * Command line parameter = true to run locally, or false to run on YARN.
+ * An exception thrown by the driver client.
  */
-@NamedParameter(doc = "The handlers that should be configured. " +
-    HandlerLabels.HANDLER_LABEL_DESCRIPTION,
-    short_name = "handlers", default_value = "start")
-public final class DriverClientHandlers implements Name<String> {
-}
+public final class DriverClientException extends Exception {
 
+  public DriverClientException(final String message) {
+    super(message);
+  }
+}

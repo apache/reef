@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.bridge;
+package org.apache.reef.bridge.service;
 
 import org.apache.reef.driver.context.ActiveContext;
 import org.apache.reef.driver.context.ClosedContext;
@@ -37,7 +37,7 @@ import java.util.logging.Logger;
 
 /**
  * Contains Java side event handlers that perform
- * handoff with the DotNet side.
+ * hand-off with the driver client side.
  */
 @Unit
 public final class DriverServiceHandlers {

@@ -16,18 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
-package org.apache.reef.bridge.client.parameters;
-
-import org.apache.reef.tang.annotations.Name;
-import org.apache.reef.tang.annotations.NamedParameter;
-import org.apache.reef.wake.EventHandler;
-
-import java.util.Set;
-
 /**
- * Handler for alarm dispatch.
+ * Java bridge examples.
  */
-@NamedParameter(doc = "Alarm dispatch handler")
-public final class AlarmDispatchHandler implements Name<Set<EventHandler<String>>> {
-}
+package org.apache.reef.bridge.examples;

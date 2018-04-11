@@ -16,7 +16,21 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
+package org.apache.reef.bridge.service;
+
+import org.apache.reef.annotations.audience.Private;
+
 /**
- * The Java-side of the CLR/Java bridge interop via gRPC/Protocol Buffers.
+ * Runtime names supported by the bridge.
  */
-package org.apache.reef.bridge;
+@Private
+public final class RuntimeNames {
+  public static final String LOCAL = "local";
+
+  public static final String YARN = "yarn";
+
+  public static final String AZBATCH = "azbatch";
+
+  private RuntimeNames() {}
+}

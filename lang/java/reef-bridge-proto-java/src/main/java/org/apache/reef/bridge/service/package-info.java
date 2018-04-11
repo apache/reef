@@ -16,15 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
-package org.apache.reef.bridge.parameters;
-
-import org.apache.reef.tang.annotations.Name;
-import org.apache.reef.tang.annotations.NamedParameter;
-
 /**
- * Command line parameter = Numeric ID for the job.
+ * The Java-side of the CLR/Java bridge interop via gRPC/Protocol Buffers.
  */
-@NamedParameter(doc = "Numeric ID for the job", short_name = "id", default_value = "-1")
-public final class BridgeJobId implements Name<Integer> {
-}
+package org.apache.reef.bridge.service;

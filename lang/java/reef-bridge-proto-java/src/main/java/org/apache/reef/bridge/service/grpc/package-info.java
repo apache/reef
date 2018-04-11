@@ -16,16 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
-package org.apache.reef.bridge.parameters;
-
-import org.apache.reef.tang.annotations.Name;
-import org.apache.reef.tang.annotations.NamedParameter;
-
 /**
- * Command line parameter = true to run locally, or false to run on YARN.
+ * GRPC implementation for driver bridge service.
  */
-@NamedParameter(doc = "The runtime to use: local, yarn, azbatch",
-    short_name = "runtime", default_value = "local")
-public final class BridgeRuntime implements Name<String> {
-}
+package org.apache.reef.bridge.service.grpc;

@@ -27,6 +27,7 @@ import org.apache.reef.driver.context.ContextMessage;
 import org.apache.reef.driver.context.FailedContext;
 import org.apache.reef.driver.evaluator.AllocatedEvaluator;
 import org.apache.reef.driver.evaluator.CompletedEvaluator;
+import org.apache.reef.driver.evaluator.EvaluatorRequestor;
 import org.apache.reef.driver.evaluator.FailedEvaluator;
 import org.apache.reef.driver.parameters.*;
 import org.apache.reef.driver.task.*;
@@ -35,6 +36,7 @@ import org.apache.reef.tang.formats.ConfigurationModuleBuilder;
 import org.apache.reef.tang.formats.OptionalImpl;
 import org.apache.reef.tang.formats.RequiredImpl;
 import org.apache.reef.wake.EventHandler;
+import org.apache.reef.wake.time.Clock;
 import org.apache.reef.wake.time.event.StartTime;
 import org.apache.reef.wake.time.event.StopTime;
 
@@ -143,9 +145,30 @@ public final class DriverClientConfiguration extends ConfigurationModuleBuilder 
   public static final OptionalImpl<Integer> CLIENT_DRIVER_DISPATCH_THREAD_COUNT = new OptionalImpl<>();
 
   /**
+   * Alarm dispatch handler.
+   */
+  public static final OptionalImpl<IAlarmDispatchHandler> ALARM_DISPATCH_HANDLER = new OptionalImpl<>();
+
+  /**
+   * Default to gRPC Driver Client Service.
+   */
+  public static final OptionalImpl<IDriverClientService> DRIVER_CLIENT_SERVICE = new OptionalImpl<>();
+
+  /**
+   * Default to gRPC Driver Service Client.
+   */
+  public static final OptionalImpl<IDriverServiceClient> DRIVER_SERVICE_CLIENT = new OptionalImpl<>();
+
+  /**
    * ConfigurationModule to fill out to get a legal Driver Configuration.
    */
   public static final ConfigurationModule CONF = new DriverClientConfiguration()
+      .bindImplementation(Clock.class, DriverClientClock.class)
+      .bindImplementation(EvaluatorRequestor.class, DriverClientEvaluatorRequestor.class)
+      .bindImplementation(IAlarmDispatchHandler.class, ALARM_DISPATCH_HANDLER)
+      .bindImplementation(IDriverClientService.class, DRIVER_CLIENT_SERVICE)
+      .bindImplementation(IDriverServiceClient.class, DRIVER_SERVICE_CLIENT)
+
       .bindNamedParameter(DriverClientDispatchThreadCount.class, CLIENT_DRIVER_DISPATCH_THREAD_COUNT)
 
       // Driver start/stop handlers

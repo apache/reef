@@ -16,33 +16,30 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+package org.apache.reef.bridge.service;
 
-package org.apache.reef.bridge.client;
-
-import org.apache.reef.bridge.client.parameters.AlarmDispatchHandler;
-import org.apache.reef.driver.evaluator.EvaluatorRequestor;
+import org.apache.reef.annotations.audience.Private;
+import org.apache.reef.bridge.service.parameters.DriverClientCommand;
+import org.apache.reef.client.DriverConfiguration;
 import org.apache.reef.tang.formats.ConfigurationModule;
 import org.apache.reef.tang.formats.ConfigurationModuleBuilder;
 import org.apache.reef.tang.formats.RequiredImpl;
-import org.apache.reef.wake.EventHandler;
-import org.apache.reef.wake.time.Clock;
+import org.apache.reef.tang.formats.RequiredParameter;
 
 /**
- * The Driver Client Runtime configuration for runtime (e.g., gRPC)
- * specific parameters.
+ * Binds all driver bridge service handlers to the driver.
  */
-public final class DriverClientRuntimeConfiguration extends ConfigurationModuleBuilder {
+@Private
+public final class DriverServiceConfiguration extends ConfigurationModuleBuilder {
 
-  /**
-   * The alarm dispatch handler.
-   */
-  public static final RequiredImpl<EventHandler<String>> ALARM_DISPATCH_HANDLER = new RequiredImpl<>();
+  public static final RequiredImpl<IDriverService> DRIVER_SERVICE_IMPL = new RequiredImpl<>();
 
-  public static final ConfigurationModule CONF = new DriverClientRuntimeConfiguration()
-      .bindImplementation(Clock.class, DriverClientClock.class)
-      .bindImplementation(EvaluatorRequestor.class, DriverClientEvaluatorRequestor.class)
-      .bindSetEntry(AlarmDispatchHandler.class, ALARM_DISPATCH_HANDLER)
+  public static final RequiredParameter<String> DRIVER_CLIENT_COMMAND = new RequiredParameter<>();
 
-      .build()
-      .set(ALARM_DISPATCH_HANDLER, DriverClientClock.class);
+  /** Configuration module that binds all driver handlers. */
+  public static final ConfigurationModule CONF = new DriverServiceConfiguration()
+      .merge(DriverConfiguration.CONF)
+      .bindImplementation(IDriverService.class, DRIVER_SERVICE_IMPL)
+      .bindNamedParameter(DriverClientCommand.class, DRIVER_CLIENT_COMMAND)
+      .build();
 }

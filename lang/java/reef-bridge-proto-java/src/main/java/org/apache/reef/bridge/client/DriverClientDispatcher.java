@@ -19,8 +19,8 @@
 
 package org.apache.reef.bridge.client;
 
+import com.google.common.collect.Sets;
 import org.apache.reef.annotations.audience.Private;
-import org.apache.reef.bridge.client.parameters.AlarmDispatchHandler;
 import org.apache.reef.bridge.client.parameters.DriverClientDispatchThreadCount;
 import org.apache.reef.bridge.client.parameters.ClientDriverStopHandler;
 import org.apache.reef.driver.context.ActiveContext;
@@ -75,10 +75,9 @@ public final class DriverClientDispatcher {
   @Inject
   private DriverClientDispatcher(
       final DriverClientExceptionHandler driverExceptionHandler,
+      final IAlarmDispatchHandler alarmDispatchHandler,
       @Parameter(DriverClientDispatchThreadCount.class)
       final Integer numberOfThreads,
-      @Parameter(AlarmDispatchHandler.class)
-      final Set<EventHandler<String>> alarmHandlers,
       // Application-provided start and stop handlers
       @Parameter(DriverStartHandler.class)
       final Set<EventHandler<StartTime>> startHandlers,
@@ -154,7 +153,8 @@ public final class DriverClientDispatcher {
 
     // Alarm event handlers
     this.alarmDispatcher = new DispatchingEStage(this.applicationDispatcher);
-    this.alarmDispatcher.register(String.class, alarmHandlers);
+    this.alarmDispatcher.register(String.class,
+        Sets.newHashSet((EventHandler<String>)alarmDispatchHandler));
   }
 
   public void dispatch(final StartTime startTime) {

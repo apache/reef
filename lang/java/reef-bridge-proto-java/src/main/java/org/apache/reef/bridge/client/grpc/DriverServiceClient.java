@@ -79,6 +79,16 @@ public final class DriverServiceClient implements IDriverServiceClient {
   }
 
   @Override
+  public void onShutdown(final Throwable ex) {
+    this.serviceStub.shutdown(ShutdownRequest.newBuilder()
+        .setException(ExceptionInfo.newBuilder()
+            .setName(ex.getCause() != null ? ex.getCause().toString() : ex.toString())
+            .setMessage(ex.getMessage())
+            .build())
+        .build());
+  }
+
+  @Override
   public void onSetAlarm(final String alarmId, final int timeoutMS) {
     this.serviceStub.setAlarm(
         AlarmRequest.newBuilder()

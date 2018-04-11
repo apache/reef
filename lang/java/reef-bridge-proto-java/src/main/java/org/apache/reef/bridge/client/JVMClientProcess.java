@@ -43,7 +43,6 @@ public final class JVMClientProcess implements EvaluatorProcess {
   private final List<String> optionList = new ArrayList<>();
 
   JVMClientProcess() {
-
   }
 
   @Override

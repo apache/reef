@@ -16,7 +16,24 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+package org.apache.reef.bridge.examples;
+
+import org.apache.reef.task.Task;
+
+import javax.inject.Inject;
+
 /**
- * Driver bridge service parameters.
+ * A 'hello REEF' Task.
  */
-package org.apache.reef.bridge.parameters;
+public final class HelloTask implements Task {
+
+  @Inject
+  private HelloTask() {
+  }
+
+  @Override
+  public byte[] call(final byte[] memento) {
+    System.out.println("Hello, REEF!");
+    return null;
+  }
+}

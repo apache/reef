@@ -16,7 +16,16 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
+package org.apache.reef.bridge.service.parameters;
+
+import org.apache.reef.tang.annotations.Name;
+import org.apache.reef.tang.annotations.NamedParameter;
+
 /**
- * GRPC implementation for driver bridge service.
+ * What command to use when starting bridge process.
  */
-package org.apache.reef.bridge.grpc;
+@NamedParameter(doc = "The command to launch bridge driver process",
+    short_name = "driver-client-command")
+public final class DriverClientCommand implements Name<String> {
+}

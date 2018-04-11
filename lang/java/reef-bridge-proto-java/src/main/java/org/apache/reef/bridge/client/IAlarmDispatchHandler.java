@@ -17,15 +17,14 @@
  * under the License.
  */
 
-package org.apache.reef.bridge.parameters;
+package org.apache.reef.bridge.client;
 
-import org.apache.reef.tang.annotations.Name;
-import org.apache.reef.tang.annotations.NamedParameter;
+import org.apache.reef.tang.annotations.DefaultImplementation;
+import org.apache.reef.wake.EventHandler;
 
 /**
- * What command to use when starting bridge process.
+ * Alarm dispatch handler.
  */
-@NamedParameter(doc = "The command to launch bridge driver process",
-    short_name = "driver-client-command")
-public final class DriverClientProcessCommand implements Name<String> {
+@DefaultImplementation(DriverClientClock.class)
+public interface IAlarmDispatchHandler extends EventHandler<String> {
 }

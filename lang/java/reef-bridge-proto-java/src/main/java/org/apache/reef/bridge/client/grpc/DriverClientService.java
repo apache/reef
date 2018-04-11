@@ -104,6 +104,13 @@ public final class DriverClientService extends DriverClientGrpc.DriverClientImpl
   }
 
   @Override
+  public void awaitTermination() throws InterruptedException {
+    if (this.server != null) {
+      this.server.awaitTermination();
+    }
+  }
+
+  @Override
   public void startHandler(final StartTimeInfo request, final StreamObserver<Void> responseObserver) {
     try {
       final StartTime startTime = new StartTime(request.getStartTime());
