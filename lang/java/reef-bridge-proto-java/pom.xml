@@ -130,14 +130,39 @@ under the License.
                     <configLocation>lang/java/reef-common/src/main/resources/checkstyle-strict.xml</configLocation>
                 </configuration>
             </plugin>
+            <!-- Unfortunately, we need to run this plugin twice (seperately) to generate gRPC service definitions
+                 and protocol buffer message definitions. Combining them in one call has a bug in <clearOutputDirectory>
+                 which we do only on the first run.
+            -->
+            <!-- Generate gRPC definitions -->
             <plugin>
                 <groupId>org.xolstice.maven.plugins</groupId>
                 <artifactId>protobuf-maven-plugin</artifactId>
                 <version>0.5.1</version>
                 <configuration>
-                    <protocArtifact>com.google.protobuf:protoc:${protobuf.version}:exe:${os.detected.classifier}</protocArtifact>
                     <pluginId>grpc-java</pluginId>
                     <pluginArtifact>io.grpc:protoc-gen-grpc-java:${grpc.version}:exe:${os.detected.classifier}</pluginArtifact>
+                    <protoSourceRoot>${protobuf.input.directory}</protoSourceRoot>
+                    <outputDirectory>${protobuf.output.directory}</outputDirectory>
+                    <clearOutputDirectory>true</clearOutputDirectory>
+                </configuration>
+                <executions>
+                    <execution>
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>compile-custom</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <!-- Generate protocol buffer message definitions -->
+            <plugin>
+                <groupId>org.xolstice.maven.plugins</groupId>
+                <artifactId>protobuf-maven-plugin</artifactId>
+                <version>0.5.1</version>
+                <configuration>
+                    <pluginId>grpc-java</pluginId>
+                    <protocArtifact>com.google.protobuf:protoc:${protobuf.version}:exe:${os.detected.classifier}</protocArtifact>
                     <protoSourceRoot>${protobuf.input.directory}</protoSourceRoot>
                     <outputDirectory>${protobuf.output.directory}</outputDirectory>
                     <clearOutputDirectory>false</clearOutputDirectory>
@@ -147,7 +172,6 @@ under the License.
                         <phase>generate-sources</phase>
                         <goals>
                             <goal>compile</goal>
-                            <goal>compile-custom</goal>
                         </goals>
                     </execution>
                 </executions>

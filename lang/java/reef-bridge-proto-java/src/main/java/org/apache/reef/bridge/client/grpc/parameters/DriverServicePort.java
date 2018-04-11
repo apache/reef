@@ -24,6 +24,6 @@ import org.apache.reef.tang.annotations.NamedParameter;
 /**
  * gRPC driver service port.
  */
-@NamedParameter(doc = "Driver Service Grpc port")
+@NamedParameter(doc = "Driver Service Grpc port", short_name = "driver-service-port")
 public final class DriverServicePort implements Name<Integer> {
 }

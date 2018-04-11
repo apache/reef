@@ -20,6 +20,7 @@ package org.apache.reef.bridge.service;
 
 import com.google.common.collect.Lists;
 import org.apache.commons.lang.StringUtils;
+import org.apache.reef.bridge.client.JavaDriverClientLauncher;
 import org.apache.reef.bridge.client.parameters.ClientDriverStopHandler;
 import org.apache.reef.bridge.service.grpc.GRPCDriverService;
 import org.apache.reef.bridge.service.parameters.*;
@@ -27,7 +28,6 @@ import org.apache.reef.client.DriverConfiguration;
 import org.apache.reef.client.DriverLauncher;
 import org.apache.reef.client.LauncherStatus;
 import org.apache.reef.driver.parameters.*;
-import org.apache.reef.runtime.common.REEFLauncher;
 import org.apache.reef.runtime.common.files.ClasspathProvider;
 import org.apache.reef.runtime.common.files.REEFFileNames;
 import org.apache.reef.runtime.common.launch.JavaLaunchCommandBuilder;
@@ -58,7 +58,7 @@ import java.util.logging.Logger;
 /**
  * Bridge client - main class.
  */
-public final class Launch {
+public final class Launcher {
 
   public static final String ARG_SEPERATOR = ";";
 
@@ -130,12 +130,12 @@ public final class Launch {
   /**
    * Standard Java logger.
    */
-  private static final Logger LOG = Logger.getLogger(Launch.class.getName());
+  private static final Logger LOG = Logger.getLogger(Launcher.class.getName());
 
   /**
    * This class should not be instantiated.
    */
-  private Launch() {
+  private Launcher() {
     throw new RuntimeException("Do not instantiate this class!");
   }
 
@@ -286,83 +286,84 @@ public final class Launch {
       final List<String> fileDependencies,
       final List<String> libraryDependencies) throws InjectionException, IOException {
 
-    final Injector injector = Tang.Factory.getTang().newInjector(driverClientConfiguration);
+    final Injector runtimeInjector = Tang.Factory.getTang().newInjector(runtimeConfiguration);
+    final Injector driverClientInjector = Tang.Factory.getTang().newInjector(driverClientConfiguration);
 
     final Set<String> handlers = new HashSet<>();
-    if (injector.isParameterSet(DriverStartHandler.class)) {
+    if (driverClientInjector.isParameterSet(DriverStartHandler.class)) {
       handlers.add(HandlerLabels.START);
     }
-    if (injector.isParameterSet(ClientDriverStopHandler.class)) {
+    if (driverClientInjector.isParameterSet(ClientDriverStopHandler.class)) {
       handlers.add(HandlerLabels.STOP);
     }
-    if (injector.isParameterSet(EvaluatorAllocatedHandlers.class)) {
+    if (driverClientInjector.isParameterSet(EvaluatorAllocatedHandlers.class)) {
       handlers.add(HandlerLabels.ALLOCATED_EVAL);
     }
-    if (injector.isParameterSet(EvaluatorCompletedHandlers.class)) {
+    if (driverClientInjector.isParameterSet(EvaluatorCompletedHandlers.class)) {
       handlers.add(HandlerLabels.COMPLETE_EVAL);
     }
-    if (injector.isParameterSet(EvaluatorFailedHandlers.class)) {
+    if (driverClientInjector.isParameterSet(EvaluatorFailedHandlers.class)) {
       handlers.add(HandlerLabels.FAILED_EVAL);
     }
-    if (injector.isParameterSet(TaskRunningHandlers.class)) {
+    if (driverClientInjector.isParameterSet(TaskRunningHandlers.class)) {
       handlers.add(HandlerLabels.RUNNING_TASK);
     }
-    if (injector.isParameterSet(TaskFailedHandlers.class)) {
+    if (driverClientInjector.isParameterSet(TaskFailedHandlers.class)) {
       handlers.add(HandlerLabels.FAILED_TASK);
     }
-    if (injector.isParameterSet(TaskMessageHandlers.class)) {
+    if (driverClientInjector.isParameterSet(TaskMessageHandlers.class)) {
       handlers.add(HandlerLabels.TASK_MESSAGE);
     }
-    if (injector.isParameterSet(TaskCompletedHandlers.class)) {
+    if (driverClientInjector.isParameterSet(TaskCompletedHandlers.class)) {
       handlers.add(HandlerLabels.COMPLETED_TASK);
     }
-    if (injector.isParameterSet(TaskSuspendedHandlers.class)) {
+    if (driverClientInjector.isParameterSet(TaskSuspendedHandlers.class)) {
       handlers.add(HandlerLabels.SUSPENDED_TASK);
     }
-    if (injector.isParameterSet(ContextActiveHandlers.class)) {
+    if (driverClientInjector.isParameterSet(ContextActiveHandlers.class)) {
       handlers.add(HandlerLabels.ACTIVE_CXT);
     }
-    if (injector.isParameterSet(ContextClosedHandlers.class)) {
+    if (driverClientInjector.isParameterSet(ContextClosedHandlers.class)) {
       handlers.add(HandlerLabels.CLOSED_CXT);
     }
-    if (injector.isParameterSet(ContextMessageHandlers.class)) {
+    if (driverClientInjector.isParameterSet(ContextMessageHandlers.class)) {
       handlers.add(HandlerLabels.MESSAGE_CXT);
     }
-    if (injector.isParameterSet(ContextFailedHandlers.class)) {
+    if (driverClientInjector.isParameterSet(ContextFailedHandlers.class)) {
       handlers.add(HandlerLabels.FAILED_CXT);
     }
-    if (injector.isParameterSet(ClientMessageHandlers.class)) {
+    if (driverClientInjector.isParameterSet(ClientMessageHandlers.class)) {
       handlers.add(HandlerLabels.CLIENT_MESSAGE);
     }
-    if (injector.isParameterSet(ClientCloseHandlers.class)) {
+    if (driverClientInjector.isParameterSet(ClientCloseHandlers.class)) {
       handlers.add(HandlerLabels.CLIENT_CLOSE);
     }
-    if (injector.isParameterSet(ClientCloseWithMessageHandlers.class)) {
+    if (driverClientInjector.isParameterSet(ClientCloseWithMessageHandlers.class)) {
       handlers.add(HandlerLabels.CLIENT_CLOSE_WITH_MESSAGE);
     }
-    final ConfigurationModule driverConf = getDriverConfiguration(jobId, handlers, fileDependencies);
+    final ConfigurationSerializer configurationSerializer =
+        driverClientInjector.getInstance(ConfigurationSerializer.class);
+    final File driverClientConfigurationFile = new File("driverclient.conf");
+    configurationSerializer.toFile(driverClientConfiguration, driverClientConfigurationFile);
 
-    final File driverClientConfFile = new File("driverclient.conf");
-    final ConfigurationSerializer configurationSerializer = injector.getInstance(ConfigurationSerializer.class);
-    configurationSerializer.toFile(driverClientConfiguration, driverClientConfFile);
-    driverConf.set(DriverConfiguration.LOCAL_FILES, driverClientConfFile.getAbsolutePath());
-
+    final ConfigurationModule driverServiceConf = getDriverConfiguration(jobId, handlers, fileDependencies);
+    driverServiceConf.set(DriverConfiguration.LOCAL_FILES, driverClientConfigurationFile.getAbsolutePath());
     for (final String library : libraryDependencies) {
-      driverConf.set(DriverConfiguration.GLOBAL_LIBRARIES, library);
+      driverServiceConf.set(DriverConfiguration.GLOBAL_LIBRARIES, library);
     }
 
-    final Injector runtimeInjector = Tang.Factory.getTang().newInjector(runtimeConfiguration);
     final REEFFileNames fileNames = runtimeInjector.getInstance(REEFFileNames.class);
     final ClasspathProvider classpath = runtimeInjector.getInstance(ClasspathProvider.class);
     // SET EXEC COMMAND
-    final List<String> launchCommand = new JavaLaunchCommandBuilder(REEFLauncher.class, null)
-        .setConfigurationFilePaths(Collections.singletonList(fileNames.getLocalFolderPath() + "/driverclient.conf"))
+    final List<String> launchCommand = new JavaLaunchCommandBuilder(JavaDriverClientLauncher.class, null)
+        .setConfigurationFilePaths(Collections.singletonList(fileNames.getLocalFolderPath() + "/" +
+            driverClientConfigurationFile.getName()))
         .setClassPath(classpath.getDriverClasspath())
         .build();
     final String cmd = StringUtils.join(launchCommand, ' ');
     LOG.log(Level.INFO, "LAUNCH COMMAND: " + cmd);
-    driverConf.set(DriverServiceConfiguration.DRIVER_CLIENT_COMMAND, cmd);
-    return DriverLauncher.getLauncher(runtimeConfiguration).run(driverConf.build());
+    driverServiceConf.set(DriverServiceConfiguration.DRIVER_CLIENT_COMMAND, cmd);
+    return DriverLauncher.getLauncher(runtimeConfiguration).run(driverServiceConf.build());
   }
 
   /**
@@ -403,7 +404,7 @@ public final class Launch {
     }
   }
 
-  // Named Parameters that are specific to this Launcher.
+  // Named Parameters that are specific to this JavaDriverClientLauncher.
 
   /**
    * Command line parameter = true to run locally, or false to run on YARN.

@@ -115,7 +115,7 @@ public final class GRPCDriverService implements IDriverService {
     if (this.server == null || this.server.isTerminated()) {
       throw new IOException("Unable to start gRPC server");
     } else {
-      final String cmd = this.driverClientCommand + " -server-port=" + this.server.getPort();
+      final String cmd = this.driverClientCommand + " " + this.server.getPort();
       final String cmdOs = OSUtils.isWindows() ? "cmd.exe /c " + cmd : cmd;
       this.driverProcess = Runtime.getRuntime().exec(cmdOs);
     }

@@ -20,7 +20,7 @@ package org.apache.reef.bridge.examples;
 
 import com.google.common.collect.Lists;
 import org.apache.reef.bridge.client.DriverClientConfiguration;
-import org.apache.reef.bridge.service.Launch;
+import org.apache.reef.bridge.service.Launcher;
 import org.apache.reef.client.LauncherStatus;
 import org.apache.reef.runtime.local.client.LocalRuntimeConfiguration;
 import org.apache.reef.tang.Configuration;
@@ -66,7 +66,7 @@ public final class HelloREEF {
   public static void main(final String[] args) throws InjectionException, IOException {
 
     final LauncherStatus status =
-        Launch.submit("HelloREEF", RUNTIME_CONFIG, DRIVER_CONFIG, Lists.<String>newArrayList(), libs);
+        Launcher.submit("HelloREEF", RUNTIME_CONFIG, DRIVER_CONFIG, Lists.<String>newArrayList(), libs);
 
     LOG.log(Level.INFO, "REEF job completed: {0}", status);
 
