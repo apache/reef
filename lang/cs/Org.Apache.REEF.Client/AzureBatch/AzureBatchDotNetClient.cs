@@ -15,18 +15,18 @@
 // specific language governing permissions and limitations
 // under the License.
 
-using Org.Apache.REEF.Client.API;
-using Org.Apache.REEF.Client.Common;
-using Org.Apache.REEF.Client.YARN.RestClient.DataModel;
 using System;
 using System.Threading.Tasks;
-using Org.Apache.REEF.Utilities.Logging;
-using Org.Apache.REEF.Common.Files;
-using Org.Apache.REEF.Tang.Interface;
-using Org.Apache.REEF.Tang.Annotations;
+using Org.Apache.REEF.Client.API;
 using Org.Apache.REEF.Client.AzureBatch.Storage;
 using Org.Apache.REEF.Client.AzureBatch;
 using Org.Apache.REEF.Client.AzureBatch.Util;
+using Org.Apache.REEF.Client.Common;
+using Org.Apache.REEF.Client.YARN.RestClient.DataModel;
+using Org.Apache.REEF.Common.Files;
+using Org.Apache.REEF.Tang.Annotations;
+using Org.Apache.REEF.Tang.Interface;
+using Org.Apache.REEF.Utilities.Logging;
 
 namespace Org.Apache.REEF.Client.DotNet.AzureBatch
 {

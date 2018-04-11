@@ -123,7 +123,7 @@ namespace Org.Apache.REEF.Examples.HelloREEF
                         .Set(AzureBatchRuntimeClientConfiguration.AzureBatchAccountName, @"######")
                         .Set(AzureBatchRuntimeClientConfiguration.AzureBatchAccountUri, @"######################")
                         .Set(AzureBatchRuntimeClientConfiguration.AzureBatchPoolId, @"######")
-                        .Set(AzureBatchRuntimeClientConfiguration.AzureStorageAccountKey, "@##########################################")
+                        .Set(AzureBatchRuntimeClientConfiguration.AzureStorageAccountKey, @"##########################################")
                         .Set(AzureBatchRuntimeClientConfiguration.AzureStorageAccountName, @"############")
                         .Set(AzureBatchRuntimeClientConfiguration.AzureStorageContainerName, @"###########")
                         .Build();

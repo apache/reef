@@ -261,7 +261,6 @@ under the License.
     <Compile Include="YARN\YarnREEFParamSerializer.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="app.config" />
     <None Include="Avro\README.md" />
     <None Include="Org.Apache.REEF.Client.nuspec" />
     <None Include="packages.config" />
