@@ -31,6 +31,9 @@ import "DriverCommonProtocol.proto";
 
 // The java driver service definition.
 service DriverClient {
+  // Inquire if idle
+  rpc IdlenessCheckHandler (Void) returns (IdleStatus) {}
+
   // Request for resources
   rpc StartHandler (StartTimeInfo) returns (Void) {}
 
@@ -71,6 +74,12 @@ service DriverClient {
   rpc ClientCloseHandler (Void) returns (Void) {}
 
   rpc ClientCloseWithMessageHandler (ClientMessageInfo) returns (Void) {}
+}
+
+// IdleStatus response to idleness inquiry
+message IdleStatus {
+  bool is_idle = 1;
+  string reason = 2;
 }
 
 // The request message containing resource request.

@@ -24,19 +24,21 @@ import io.grpc.ServerBuilder;
 import io.grpc.stub.StreamObserver;
 import org.apache.reef.bridge.client.DriverClientDispatcher;
 import org.apache.reef.bridge.client.IDriverClientService;
+import org.apache.reef.bridge.client.JVMClientProcess;
 import org.apache.reef.bridge.client.events.*;
 import org.apache.reef.bridge.proto.*;
 import org.apache.reef.bridge.proto.Void;
+import org.apache.reef.bridge.service.DriverClientException;
 import org.apache.reef.driver.context.ActiveContext;
 import org.apache.reef.driver.context.FailedContext;
 import org.apache.reef.driver.evaluator.EvaluatorDescriptor;
-import org.apache.reef.driver.evaluator.JVMProcess;
-import org.apache.reef.driver.evaluator.JVMProcessFactory;
 import org.apache.reef.driver.task.FailedTask;
 import org.apache.reef.exception.EvaluatorException;
 import org.apache.reef.runtime.common.driver.evaluator.EvaluatorDescriptorImpl;
+import org.apache.reef.tang.InjectionFuture;
 import org.apache.reef.util.Optional;
 import org.apache.reef.wake.remote.ports.TcpPortProvider;
+import org.apache.reef.wake.time.Clock;
 import org.apache.reef.wake.time.event.StartTime;
 import org.apache.reef.wake.time.event.StopTime;
 
@@ -60,13 +62,13 @@ public final class DriverClientService extends DriverClientGrpc.DriverClientImpl
 
   private Server server;
 
-  private final DriverServiceClient driverServiceClient;
+  private final InjectionFuture<Clock> clock;
 
-  private final JVMProcessFactory clientProcessFactory;
+  private final DriverServiceClient driverServiceClient;
 
   private final TcpPortProvider tcpPortProvider;
 
-  private final DriverClientDispatcher clientDriverDispatcher;
+  private final InjectionFuture<DriverClientDispatcher> clientDriverDispatcher;
 
   private final Map<String, AllocatedEvaluatorBridge> evaluatorBridgeMap = new HashMap<>();
 
@@ -75,12 +77,12 @@ public final class DriverClientService extends DriverClientGrpc.DriverClientImpl
   @Inject
   private DriverClientService(
       final DriverServiceClient driverServiceClient,
-      final JVMProcessFactory clientProcessFactory,
       final TcpPortProvider tcpPortProvider,
-      final DriverClientDispatcher clientDriverDispatcher) {
+      final InjectionFuture<Clock> clock,
+      final InjectionFuture<DriverClientDispatcher> clientDriverDispatcher) {
     this.driverServiceClient = driverServiceClient;
-    this.clientProcessFactory = clientProcessFactory;
     this.tcpPortProvider = tcpPortProvider;
+    this.clock = clock;
     this.clientDriverDispatcher = clientDriverDispatcher;
   }
 
@@ -93,6 +95,7 @@ public final class DriverClientService extends DriverClientGrpc.DriverClientImpl
             .build()
             .start();
         LOG.info("Driver Client Server started, listening on " + port);
+        break;
       } catch (IOException e) {
         LOG.log(Level.WARNING, "Unable to bind to port [{0}]", port);
       }
@@ -111,11 +114,25 @@ public final class DriverClientService extends DriverClientGrpc.DriverClientImpl
   }
 
   @Override
+  public void idlenessCheckHandler(final Void request, final StreamObserver<IdleStatus> responseObserver) {
+    responseObserver.onNext(IdleStatus.newBuilder()
+        .setReason("DriverClient checking idleness")
+        .setIsIdle(
+            !this.clock.get().isIdle() &&
+                this.activeContextBridgeMap.isEmpty() &&
+                this.evaluatorBridgeMap.isEmpty())
+        .build());
+    responseObserver.onCompleted();
+  }
+
+  @Override
   public void startHandler(final StartTimeInfo request, final StreamObserver<Void> responseObserver) {
     try {
+      LOG.log(Level.INFO, "StartHandler at time {0}", request.getStartTime());
       final StartTime startTime = new StartTime(request.getStartTime());
-      this.clientDriverDispatcher.dispatch(startTime);
+      this.clientDriverDispatcher.get().dispatch(startTime);
     } finally {
+      responseObserver.onNext(null);
       responseObserver.onCompleted();
     }
   }
@@ -123,9 +140,11 @@ public final class DriverClientService extends DriverClientGrpc.DriverClientImpl
   @Override
   public void stopHandler(final StopTimeInfo request, final StreamObserver<Void> responseObserver) {
     try {
+      LOG.log(Level.INFO, "StopHandler at time {0}", request.getStopTime());
       final StopTime stopTime = new StopTime(request.getStopTime());
-      this.clientDriverDispatcher.dispatch(stopTime);
+      this.clientDriverDispatcher.get().dispatch(stopTime);
     } finally {
+      responseObserver.onNext(null);
       responseObserver.onCompleted();
     }
   }
@@ -133,8 +152,10 @@ public final class DriverClientService extends DriverClientGrpc.DriverClientImpl
   @Override
   public void alarmTrigger(final AlarmTriggerInfo request, final StreamObserver<Void> responseObserver) {
     try {
-      this.clientDriverDispatcher.dispatchAlarm(request.getAlarmId());
+      LOG.log(Level.INFO, "Alarm Trigger id {0}", request.getAlarmId());
+      this.clientDriverDispatcher.get().dispatchAlarm(request.getAlarmId());
     } finally {
+      responseObserver.onNext(null);
       responseObserver.onCompleted();
     }
   }
@@ -142,13 +163,15 @@ public final class DriverClientService extends DriverClientGrpc.DriverClientImpl
   @Override
   public void allocatedEvaluatorHandler(final EvaluatorInfo request, final StreamObserver<Void> responseObserver) {
     try {
+      LOG.log(Level.INFO, "Allocated evaluator id {0}", request.getEvaluatorId());
       final AllocatedEvaluatorBridge eval = new AllocatedEvaluatorBridge(
           request.getEvaluatorId(),
           toEvaluatorDescriptor(request.getDescriptorInfo()),
           this.driverServiceClient);
       this.evaluatorBridgeMap.put(eval.getId(), eval);
-      this.clientDriverDispatcher.dispatch(eval);
+      this.clientDriverDispatcher.get().dispatch(eval);
     } finally {
+      responseObserver.onNext(null);
       responseObserver.onCompleted();
     }
   }
@@ -156,9 +179,11 @@ public final class DriverClientService extends DriverClientGrpc.DriverClientImpl
   @Override
   public void completedEvaluatorHandler(final EvaluatorInfo request, final StreamObserver<Void> responseObserver) {
     try {
+      LOG.log(Level.INFO, "Completed Evaluator id {0}", request.getEvaluatorId());
       this.evaluatorBridgeMap.remove(request.getEvaluatorId());
-      this.clientDriverDispatcher.dispatch(new CompletedEvaluatorBridge(request.getEvaluatorId()));
+      this.clientDriverDispatcher.get().dispatch(new CompletedEvaluatorBridge(request.getEvaluatorId()));
     } finally {
+      responseObserver.onNext(null);
       responseObserver.onCompleted();
     }
   }
@@ -166,6 +191,7 @@ public final class DriverClientService extends DriverClientGrpc.DriverClientImpl
   @Override
   public void failedEvaluatorHandler(final EvaluatorInfo request, final StreamObserver<Void> responseObserver) {
     try {
+      LOG.log(Level.INFO, "Failed Evaluator id {0}", request.getEvaluatorId());
       final AllocatedEvaluatorBridge eval = this.evaluatorBridgeMap.remove(request.getEvaluatorId());
       List<FailedContext> failedContextList = new ArrayList<>();
       if (request.getFailure().getFailedContextsList() != null) {
@@ -185,7 +211,7 @@ public final class DriverClientService extends DriverClientGrpc.DriverClientImpl
           this.activeContextBridgeMap.remove(failedContextId);
         }
       }
-      this.clientDriverDispatcher.dispatch(
+      this.clientDriverDispatcher.get().dispatch(
           new FailedEvaluatorBridge(
               eval.getId(),
               new EvaluatorException(request.getEvaluatorId(), request.getFailure().getMessage()),
@@ -200,6 +226,7 @@ public final class DriverClientService extends DriverClientGrpc.DriverClientImpl
                       Optional.<ActiveContext>empty())) :
                   Optional.<FailedTask>empty()));
     } finally {
+      responseObserver.onNext(null);
       responseObserver.onCompleted();
     }
   }
@@ -207,6 +234,7 @@ public final class DriverClientService extends DriverClientGrpc.DriverClientImpl
   @Override
   public void activeContextHandler(final ContextInfo request, final StreamObserver<Void> responseObserver) {
     try {
+      LOG.log(Level.INFO, "Active context id {0}", request.getContextId());
       final AllocatedEvaluatorBridge eval = this.evaluatorBridgeMap.get(request.getEvaluatorId());
       final ActiveContextBridge context = new ActiveContextBridge(
           this.driverServiceClient,
@@ -215,8 +243,9 @@ public final class DriverClientService extends DriverClientGrpc.DriverClientImpl
           eval.getId(),
           eval.getEvaluatorDescriptor());
       this.activeContextBridgeMap.put(context.getId(), context);
-      this.clientDriverDispatcher.dispatch(context);
+      this.clientDriverDispatcher.get().dispatch(context);
     } finally {
+      responseObserver.onNext(null);
       responseObserver.onCompleted();
     }
   }
@@ -224,25 +253,29 @@ public final class DriverClientService extends DriverClientGrpc.DriverClientImpl
   @Override
   public void closedContextHandler(final ContextInfo request, final StreamObserver<Void> responseObserver) {
     if (this.activeContextBridgeMap.containsKey(request.getContextId())) {
+      LOG.log(Level.INFO, "Closed context id {0}", request.getContextId());
       try {
         final ActiveContextBridge context = this.activeContextBridgeMap.remove(request.getContextId());
-        this.clientDriverDispatcher.dispatch(
+        this.clientDriverDispatcher.get().dispatch(
             new ClosedContextBridge(
                 context.getId(),
                 context.getEvaluatorId(),
                 this.activeContextBridgeMap.get(request.getParentId()),
                 context.getEvaluatorDescriptor()));
       } finally {
+        responseObserver.onNext(null);
         responseObserver.onCompleted();
       }
     } else {
-      responseObserver.onCompleted();
+      responseObserver.onError(
+          new DriverClientException("Unknown context id " + request.getContextId() + " in close"));
     }
   }
 
   @Override
   public void failedContextHandler(final ContextInfo request, final StreamObserver<Void> responseObserver) {
     if (this.activeContextBridgeMap.containsKey(request.getContextId())) {
+      LOG.log(Level.INFO, "Failed context id {0}", request.getContextId());
       try {
         final ActiveContextBridge context = this.activeContextBridgeMap.remove(request.getContextId());
         final Optional<ActiveContext> parent = context.getParentId().isPresent() ?
@@ -250,7 +283,7 @@ public final class DriverClientService extends DriverClientGrpc.DriverClientImpl
             Optional.<ActiveContext>empty();
         final Optional<byte[]> data = request.getException().getData() != null ?
             Optional.of(request.getException().getData().toByteArray()) : Optional.<byte[]>empty();
-        this.clientDriverDispatcher.dispatch(
+        this.clientDriverDispatcher.get().dispatch(
             new FailedContextBridge(
                 context.getId(),
                 context.getEvaluatorId(),
@@ -259,55 +292,63 @@ public final class DriverClientService extends DriverClientGrpc.DriverClientImpl
                 parent,
                 data));
       } finally {
+        responseObserver.onNext(null);
         responseObserver.onCompleted();
       }
     } else {
-      responseObserver.onCompleted();
+      responseObserver.onError(
+          new DriverClientException("Unknown context id " + request.getContextId() + " in close"));
     }
   }
 
   @Override
   public void contextMessageHandler(final ContextMessageInfo request, final StreamObserver<Void> responseObserver) {
     if (this.activeContextBridgeMap.containsKey(request.getContextId())) {
+      LOG.log(Level.INFO, "Message context id {0}", request.getContextId());
       try {
-        this.clientDriverDispatcher.dispatch(
+        this.clientDriverDispatcher.get().dispatch(
             new ContextMessageBridge(
                 request.getContextId(),
                 request.getMessageSourceId(),
                 request.getSequenceNumber(),
                 request.getPayload().toByteArray()));
       } finally {
+        responseObserver.onNext(null);
         responseObserver.onCompleted();
       }
     } else {
-      responseObserver.onCompleted();
+      responseObserver.onError(
+          new DriverClientException("Unknown context id " + request.getContextId() + " in close"));
     }
   }
 
   @Override
   public void runningTaskHandler(final TaskInfo request, final StreamObserver<Void> responseObserver) {
     if (this.activeContextBridgeMap.containsKey(request.getContextId())) {
+      LOG.log(Level.INFO, "Running task id {0}", request.getTaskId());
       try {
         final ActiveContextBridge context = this.activeContextBridgeMap.get(request.getContextId());
-        this.clientDriverDispatcher.dispatch(
+        this.clientDriverDispatcher.get().dispatch(
             new RunningTaskBridge(this.driverServiceClient, request.getTaskId(), context));
       } finally {
         responseObserver.onCompleted();
       }
     } else {
-      responseObserver.onError(new IllegalArgumentException("Unknown context id: " + request.getContextId()));
+      responseObserver.onError(
+          new DriverClientException("Unknown context id: " + request.getContextId()));
     }
   }
 
   @Override
   public void failedTaskHandler(final TaskInfo request, final StreamObserver<Void> responseObserver) {
     try {
+      LOG.log(Level.INFO, "Failed task id {0}", request.getTaskId());
       final Optional<ActiveContext> context = this.activeContextBridgeMap.containsKey(request.getContextId()) ?
           Optional.<ActiveContext>of(this.activeContextBridgeMap.get(request.getContextId())) :
           Optional.<ActiveContext>empty();
       final Optional<byte[]> data = request.getException().getData() != null ?
           Optional.of(request.getException().getData().toByteArray()) : Optional.<byte[]>empty();
-      this.clientDriverDispatcher.dispatch(
+      this.clientDriverDispatcher.get().dispatch(
           new FailedTask(
               request.getTaskId(),
               request.getException().getMessage(),
@@ -316,6 +357,7 @@ public final class DriverClientService extends DriverClientGrpc.DriverClientImpl
               data,
               context));
     } finally {
+      responseObserver.onNext(null);
       responseObserver.onCompleted();
     }
   }
@@ -323,31 +365,35 @@ public final class DriverClientService extends DriverClientGrpc.DriverClientImpl
   @Override
   public void completedTaskHandler(final TaskInfo request, final StreamObserver<Void> responseObserver) {
     if (this.activeContextBridgeMap.containsKey(request.getContextId())) {
+      LOG.log(Level.INFO, "Completed task id {0}", request.getTaskId());
       try {
         final ActiveContextBridge context = this.activeContextBridgeMap.get(request.getContextId());
-        this.clientDriverDispatcher.dispatch(
+        this.clientDriverDispatcher.get().dispatch(
             new CompletedTaskBridge(
                 request.getTaskId(),
                 context,
                 request.getResult() != null ? request.getResult().toByteArray() : null));
       } finally {
+        responseObserver.onNext(null);
         responseObserver.onCompleted();
       }
     } else {
-      responseObserver.onError(new IllegalArgumentException("Unknown context id: " + request.getContextId()));
+      responseObserver.onError(
+          new DriverClientException("Unknown context id: " + request.getContextId()));
     }
   }
 
   @Override
   public void suspendedTaskHandler(final TaskInfo request, final StreamObserver<Void> responseObserver) {
-    super.suspendedTaskHandler(request, responseObserver);
+    responseObserver.onError(new DriverClientException("Not supported"));
   }
 
   @Override
   public void taskMessageHandler(final TaskMessageInfo request, final StreamObserver<Void> responseObserver) {
     if (this.activeContextBridgeMap.containsKey(request.getContextId())) {
+      LOG.log(Level.INFO, "Message task id {0}", request.getTaskId());
       try {
-        this.clientDriverDispatcher.dispatch(
+        this.clientDriverDispatcher.get().dispatch(
             new TaskMessageBridge(
                 request.getTaskId(),
                 request.getContextId(),
@@ -355,27 +401,33 @@ public final class DriverClientService extends DriverClientGrpc.DriverClientImpl
                 request.getSequenceNumber(),
                 request.getPayload().toByteArray()));
       } finally {
+        responseObserver.onNext(null);
         responseObserver.onCompleted();
       }
     } else {
-      responseObserver.onError(new IllegalArgumentException("Unknown context id: " + request.getContextId()));
+      responseObserver.onError(
+          new DriverClientException("Unknown context id: " + request.getContextId()));
     }
   }
 
   @Override
   public void clientMessageHandler(final ClientMessageInfo request, final StreamObserver<Void> responseObserver) {
+    LOG.log(Level.INFO, "Client message");
     try {
-      this.clientDriverDispatcher.clientMessageDispatch(request.getPayload().toByteArray());
+      this.clientDriverDispatcher.get().clientMessageDispatch(request.getPayload().toByteArray());
     } finally {
+      responseObserver.onNext(null);
       responseObserver.onCompleted();
     }
   }
 
   @Override
   public void clientCloseHandler(final Void request, final StreamObserver<Void> responseObserver) {
+    LOG.log(Level.INFO, "Client close");
     try {
-      this.clientDriverDispatcher.clientCloseDispatch();
+      this.clientDriverDispatcher.get().clientCloseDispatch();
     } finally {
+      responseObserver.onNext(null);
       responseObserver.onCompleted();
     }
   }
@@ -384,9 +436,11 @@ public final class DriverClientService extends DriverClientGrpc.DriverClientImpl
   public void clientCloseWithMessageHandler(
       final ClientMessageInfo request,
       final StreamObserver<Void> responseObserver) {
+    LOG.log(Level.INFO, "Client close with message");
     try {
-      this.clientDriverDispatcher.clientCloseWithMessageDispatch(request.getPayload().toByteArray());
+      this.clientDriverDispatcher.get().clientCloseWithMessageDispatch(request.getPayload().toByteArray());
     } finally {
+      responseObserver.onNext(null);
       responseObserver.onCompleted();
     }
   }
@@ -394,8 +448,11 @@ public final class DriverClientService extends DriverClientGrpc.DriverClientImpl
   // Helper methods
 
   private EvaluatorDescriptor toEvaluatorDescriptor(final EvaluatorDescriptorInfo info) {
-    final JVMProcess process = clientProcessFactory.newEvaluatorProcess();
     return new EvaluatorDescriptorImpl(
-        null, info.getMemory(), info.getCores(), process, info.getRuntimeName());
+        null,
+        info.getMemory(),
+        info.getCores(),
+        new JVMClientProcess(),
+        info.getRuntimeName());
   }
 }

@@ -31,11 +31,15 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * The bridge driver client clock.
  */
 public final class DriverClientClock implements Clock, IAlarmDispatchHandler {
+
+  private static final Logger LOG = Logger.getLogger(DriverClientClock.class.getName());
 
   private final IDriverClientService driverClientService;
 
@@ -89,7 +93,7 @@ public final class DriverClientClock implements Clock, IAlarmDispatchHandler {
 
   @Override
   public boolean isIdle() {
-    return this.closed;
+    return this.closed && this.alarmMap.isEmpty();
   }
 
   @Override
@@ -113,6 +117,11 @@ public final class DriverClientClock implements Clock, IAlarmDispatchHandler {
    */
   @Override
   public void onNext(final String alarmId) {
-
+    if (this.alarmMap.containsKey(alarmId)) {
+      final ClientAlarm clientAlarm = this.alarmMap.remove(alarmId);
+      clientAlarm.run();
+    } else {
+      LOG.log(Level.SEVERE, "Unknown alarm id {0}", alarmId);
+    }
   }
 }

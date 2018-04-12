@@ -21,6 +21,7 @@ package org.apache.reef.bridge.service;
 import org.apache.reef.annotations.audience.Private;
 import org.apache.reef.bridge.service.parameters.DriverClientCommand;
 import org.apache.reef.client.DriverConfiguration;
+import org.apache.reef.driver.parameters.DriverIdleSources;
 import org.apache.reef.tang.formats.ConfigurationModule;
 import org.apache.reef.tang.formats.ConfigurationModuleBuilder;
 import org.apache.reef.tang.formats.RequiredImpl;
@@ -41,5 +42,6 @@ public final class DriverServiceConfiguration extends ConfigurationModuleBuilder
       .merge(DriverConfiguration.CONF)
       .bindImplementation(IDriverService.class, DRIVER_SERVICE_IMPL)
       .bindNamedParameter(DriverClientCommand.class, DRIVER_CLIENT_COMMAND)
+      .bindSetEntry(DriverIdleSources.class, IDriverService.class)
       .build();
 }

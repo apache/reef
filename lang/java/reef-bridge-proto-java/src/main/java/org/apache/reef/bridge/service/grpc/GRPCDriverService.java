@@ -37,6 +37,7 @@ import org.apache.reef.driver.evaluator.*;
 import org.apache.reef.driver.task.*;
 import org.apache.reef.runtime.common.driver.context.EvaluatorContext;
 import org.apache.reef.runtime.common.driver.evaluator.AllocatedEvaluatorImpl;
+import org.apache.reef.runtime.common.driver.idle.IdleMessage;
 import org.apache.reef.tang.annotations.Parameter;
 import org.apache.reef.util.OSUtils;
 import org.apache.reef.wake.EventHandler;
@@ -84,6 +85,8 @@ public final class GRPCDriverService implements IDriverService {
 
   private final Map<String, RunningTask> runningTaskMap = new HashMap<>();
 
+  private boolean stopped = false;
+
   @Inject
   private GRPCDriverService(
       final Clock clock,
@@ -108,6 +111,7 @@ public final class GRPCDriverService implements IDriverService {
             .build()
             .start();
         LOG.info("Server started, listening on " + port);
+        break;
       } catch (IOException e) {
         LOG.log(Level.WARNING, "Unable to bind to port [{0}]", port);
       }
@@ -116,19 +120,36 @@ public final class GRPCDriverService implements IDriverService {
       throw new IOException("Unable to start gRPC server");
     } else {
       final String cmd = this.driverClientCommand + " " + this.server.getPort();
-      final String cmdOs = OSUtils.isWindows() ? "cmd.exe /c " + cmd : cmd;
-      this.driverProcess = Runtime.getRuntime().exec(cmdOs);
+      final String cmdOs = OSUtils.isWindows() ? "cmd.exe /c \"" + cmd + "\"" : cmd;
+      final String cmdStd = cmdOs + " 1> driverclient.stdout 2> driverclient.stderr";
+      LOG.log(Level.INFO, "OS cmd: {0}", cmdStd);
+      this.driverProcess = Runtime.getRuntime().exec(cmdStd);
     }
   }
 
   private void stop() {
-    if (server != null) {
-      this.server.shutdown();
-      this.server = null;
-    }
-    if (this.driverProcess != null) {
-      this.driverProcess.destroy();
-      this.driverProcess = null;
+    stop(null);
+  }
+
+  private void stop(final Throwable t) {
+    if (!stopped) {
+      try {
+        if (server != null) {
+          this.server.shutdown();
+          this.server = null;
+        }
+        if (this.driverProcess != null) {
+          this.driverProcess.destroy();
+          this.driverProcess = null;
+        }
+        if (t != null) {
+          clock.stop(t);
+        } else {
+          clock.stop();
+        }
+      } finally {
+        stopped = true;
+      }
     }
   }
 
@@ -171,17 +192,28 @@ public final class GRPCDriverService implements IDriverService {
   }
 
   @Override
+  public IdleMessage getIdleStatus() {
+    final IdleStatus idleStatus = this.clientStub.idlenessCheckHandler(null);
+    return new IdleMessage(
+        "Java Bridge DriverService",
+        idleStatus.getReason(),
+        idleStatus.getIsIdle());
+  }
+
+  @Override
   public void startHandler(final StartTime startTime) {
     try {
       start();
       synchronized (this) {
         // wait for driver client process to register
         while (this.clientStub == null && driverProcessIsAlive()) {
-          this.wait();
+          this.wait(1000); // a second
         }
         if (this.clientStub != null) {
           this.clientStub.startHandler(
               StartTimeInfo.newBuilder().setStartTime(startTime.getTimestamp()).build());
+        } else {
+          stop(new IllegalStateException("Unable to start driver client"));
         }
       }
     } catch (IOException | InterruptedException e) {
@@ -194,8 +226,10 @@ public final class GRPCDriverService implements IDriverService {
   public void stopHandler(final StopTime stopTime) {
     synchronized (this) {
       try {
-        this.clientStub.stopHandler(
-            StopTimeInfo.newBuilder().setStopTime(stopTime.getTimestamp()).build());
+        if (clientStub != null) {
+          this.clientStub.stopHandler(
+              StopTimeInfo.newBuilder().setStopTime(stopTime.getTimestamp()).build());
+        }
       } finally {
         stop();
       }
@@ -388,70 +422,87 @@ public final class GRPCDriverService implements IDriverService {
     public void registerDriverClient(
         final DriverClientRegistration request,
         final StreamObserver<Void> responseObserver) {
-      final ManagedChannel channel = ManagedChannelBuilder
-          .forAddress(request.getHost(), request.getPort())
-          .usePlaintext(true)
-          .build();
-      synchronized (GRPCDriverService.this) {
-        GRPCDriverService.this.clientStub = DriverClientGrpc.newBlockingStub(channel);
-        GRPCDriverService.this.notifyAll();
+      try {
+        final ManagedChannel channel = ManagedChannelBuilder
+            .forAddress(request.getHost(), request.getPort())
+            .usePlaintext(true)
+            .build();
+        synchronized (GRPCDriverService.this) {
+          GRPCDriverService.this.clientStub = DriverClientGrpc.newBlockingStub(channel);
+          GRPCDriverService.this.notifyAll();
+        }
+      } finally {
+        responseObserver.onNext(null);
+        responseObserver.onCompleted();
       }
-      responseObserver.onCompleted();
     }
 
     @Override
     public void requestResources(
         final ResourceRequest request,
         final StreamObserver<Void> responseObserver) {
-      synchronized (GRPCDriverService.this) {
-        EvaluatorRequest.Builder requestBuilder = GRPCDriverService.this.evaluatorRequestor.newRequest();
-        requestBuilder.setNumber(request.getResourceCount());
-        requestBuilder.setNumberOfCores(request.getCores());
-        requestBuilder.setMemory(request.getMemorySize());
-        requestBuilder.setRelaxLocality(request.getRelaxLocality());
-        requestBuilder.setRuntimeName(request.getRuntimeName());
-        if (request.getNodeNameListCount() > 0) {
-          requestBuilder.addNodeNames(request.getNodeNameListList());
-        }
-        if (request.getRackNameListCount() > 0) {
-          for (final String rackName : request.getRackNameListList()) {
-            requestBuilder.addRackName(rackName);
+      try {
+        synchronized (GRPCDriverService.this) {
+          EvaluatorRequest.Builder requestBuilder = GRPCDriverService.this.evaluatorRequestor.newRequest();
+          requestBuilder.setNumber(request.getResourceCount());
+          requestBuilder.setNumberOfCores(request.getCores());
+          requestBuilder.setMemory(request.getMemorySize());
+          requestBuilder.setRelaxLocality(request.getRelaxLocality());
+          requestBuilder.setRuntimeName(request.getRuntimeName());
+          if (request.getNodeNameListCount() > 0) {
+            requestBuilder.addNodeNames(request.getNodeNameListList());
           }
+          if (request.getRackNameListCount() > 0) {
+            for (final String rackName : request.getRackNameListList()) {
+              requestBuilder.addRackName(rackName);
+            }
+          }
+          GRPCDriverService.this.evaluatorRequestor.submit(requestBuilder.build());
         }
-        GRPCDriverService.this.evaluatorRequestor.submit(requestBuilder.build());
+      } finally {
+        responseObserver.onNext(null);
+        responseObserver.onCompleted();
       }
-      responseObserver.onCompleted();
     }
 
     @Override
     public void shutdown(
         final ShutdownRequest request,
         final StreamObserver<Void> responseObserver) {
-      synchronized (GRPCDriverService.this) {
-        if (request.getException() != null) {
-          GRPCDriverService.this.clock.stop(
-              new DriverClientException(request.getException().getMessage()));
-        } else {
-          GRPCDriverService.this.clock.stop();
+      try {
+        synchronized (GRPCDriverService.this) {
+          if (request.getException() != null) {
+            GRPCDriverService.this.clock.stop(
+                new DriverClientException(request.getException().getMessage()));
+          } else {
+            GRPCDriverService.this.clock.stop();
+          }
         }
+      } finally {
+        responseObserver.onNext(null);
+        responseObserver.onCompleted();
       }
-      responseObserver.onCompleted();
     }
 
     @Override
     public void setAlarm(
         final AlarmRequest request,
         final StreamObserver<Void> responseObserver) {
-      synchronized (GRPCDriverService.this) {
-        GRPCDriverService.this.clock.scheduleAlarm(request.getTimeoutMs(), new EventHandler<Alarm>() {
-          @Override
-          public void onNext(final Alarm value) {
-            synchronized (GRPCDriverService.this) {
-              GRPCDriverService.this.clientStub.alarmTrigger(
-                  AlarmTriggerInfo.newBuilder().setAlarmId(request.getAlarmId()).build());
+      try {
+        synchronized (GRPCDriverService.this) {
+          GRPCDriverService.this.clock.scheduleAlarm(request.getTimeoutMs(), new EventHandler<Alarm>() {
+            @Override
+            public void onNext(final Alarm value) {
+              synchronized (GRPCDriverService.this) {
+                GRPCDriverService.this.clientStub.alarmTrigger(
+                    AlarmTriggerInfo.newBuilder().setAlarmId(request.getAlarmId()).build());
+              }
             }
-          }
-        });
+          });
+        }
+      } finally {
+        responseObserver.onNext(null);
+        responseObserver.onCompleted();
       }
     }
 
@@ -524,6 +575,7 @@ public final class GRPCDriverService implements IDriverService {
           }
         }
       } finally {
+        responseObserver.onNext(null);
         responseObserver.onCompleted();
       }
     }
@@ -544,20 +596,40 @@ public final class GRPCDriverService implements IDriverService {
         final ActiveContext context = GRPCDriverService.this.activeContextMap.get(request.getContextId());
         if (request.getOperationCase() == ActiveContextRequest.OperationCase.CLOSE_CONTEXT) {
           if (request.getCloseContext()) {
-            context.close();
+            try {
+              context.close();
+            } finally {
+              responseObserver.onNext(null);
+              responseObserver.onCompleted();
+            }
           } else {
             responseObserver.onError(new IllegalArgumentException("Close context operation not set to true"));
           }
         } else if (request.getOperationCase() == ActiveContextRequest.OperationCase.MESSAGE) {
           if (request.getMessage() != null) {
-            context.sendMessage(request.getMessage().toByteArray());
+            try {
+              context.sendMessage(request.getMessage().toByteArray());
+            } finally {
+              responseObserver.onNext(null);
+              responseObserver.onCompleted();
+            }
           } else {
             responseObserver.onError(new IllegalArgumentException("Empty message on operation send message"));
           }
         } else if (request.getOperationCase() == ActiveContextRequest.OperationCase.NEW_CONTEXT_REQUEST) {
-          ((EvaluatorContext) context).submitContext(request.getNewContextRequest());
+          try {
+            ((EvaluatorContext) context).submitContext(request.getNewContextRequest());
+          } finally {
+            responseObserver.onNext(null);
+            responseObserver.onCompleted();
+          }
         } else if (request.getOperationCase() == ActiveContextRequest.OperationCase.NEW_TASK_REQUEST) {
-          ((EvaluatorContext) context).submitTask(request.getNewTaskRequest());
+          try {
+            ((EvaluatorContext) context).submitTask(request.getNewTaskRequest());
+          } finally {
+            responseObserver.onNext(null);
+            responseObserver.onCompleted();
+          }
         }
       }
     }
@@ -571,15 +643,20 @@ public final class GRPCDriverService implements IDriverService {
           responseObserver.onError(
               new IllegalArgumentException("Task does not exist with id " + request.getTaskId()));
         }
-        final RunningTask task = GRPCDriverService.this.runningTaskMap.get(request.getTaskId());
-        if (request.getCloseTask()) {
-          if (request.getMessage() != null) {
-            task.close(request.getMessage().toByteArray());
-          } else {
-            task.close();
+        try {
+          final RunningTask task = GRPCDriverService.this.runningTaskMap.get(request.getTaskId());
+          if (request.getCloseTask()) {
+            if (request.getMessage() != null) {
+              task.close(request.getMessage().toByteArray());
+            } else {
+              task.close();
+            }
+          } else if (request.getMessage() != null) {
+            task.send(request.getMessage().toByteArray());
           }
-        } else if (request.getMessage() != null) {
-          task.send(request.getMessage().toByteArray());
+        } finally {
+          responseObserver.onNext(null);
+          responseObserver.onCompleted();
         }
       }
     }

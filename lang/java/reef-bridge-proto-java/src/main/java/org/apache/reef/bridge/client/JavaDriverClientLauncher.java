@@ -20,7 +20,7 @@
 package org.apache.reef.bridge.client;
 
 import org.apache.reef.bridge.client.grpc.DriverClientGrpcConfiguration;
-import org.apache.reef.runtime.common.REEFEnvironment;
+import org.apache.reef.bridge.client.grpc.parameters.DriverServicePort;
 import org.apache.reef.runtime.common.REEFLauncher;
 import org.apache.reef.runtime.common.evaluator.PIDStoreStartHandler;
 import org.apache.reef.runtime.common.launch.REEFErrorHandler;
@@ -29,6 +29,7 @@ import org.apache.reef.runtime.common.launch.REEFUncaughtExceptionHandler;
 import org.apache.reef.runtime.common.launch.parameters.ClockConfigurationPath;
 import org.apache.reef.tang.Configuration;
 import org.apache.reef.tang.Configurations;
+import org.apache.reef.tang.Injector;
 import org.apache.reef.tang.Tang;
 import org.apache.reef.tang.annotations.Parameter;
 import org.apache.reef.tang.exceptions.BindException;
@@ -70,8 +71,6 @@ public final class JavaDriverClientLauncher {
 
   /**
    * Main configuration object of the REEF component we are launching here.
-   * REEFEnvironment uses that configuration to instantiate the Clock object,
-   * and then call .run() on it.
    */
   private final Configuration envConfig;
 
@@ -85,17 +84,22 @@ public final class JavaDriverClientLauncher {
    */
   @Inject
   private JavaDriverClientLauncher(
+      @Parameter(DriverServicePort.class) final Integer driverServicePort,
       @Parameter(ClockConfigurationPath.class) final String configurationPath,
       final ConfigurationSerializer configurationSerializer) {
 
-    this.envConfig = Configurations.merge(LAUNCHER_STATIC_CONFIG,
+    this.envConfig = Configurations.merge(
+        LAUNCHER_STATIC_CONFIG,
+        DriverClientGrpcConfiguration.CONF
+            .set(DriverClientGrpcConfiguration.DRIVER_SERVICE_PORT, driverServicePort)
+            .build(),
         readConfigurationFromDisk(configurationPath, configurationSerializer));
   }
 
   /**
-   * Instantiate REEF Launcher. This method is called from REEFLauncher.main().
+   * Instantiate REEF DriverServiceLauncher. This method is called from REEFLauncher.main().
    * @param clockConfigPath Path to the local file that contains serialized configuration
-   * of a REEF component to launch (can be either Driver or Evaluator).
+   *                        for the driver client.
    * @return An instance of the configured REEFLauncher object.
    */
   private static JavaDriverClientLauncher getLauncher(final String clockConfigPath, final int driverServicePort) {
@@ -103,6 +107,7 @@ public final class JavaDriverClientLauncher {
     try {
 
       final Configuration clockArgConfig = Configurations.merge(
+          LAUNCHER_STATIC_CONFIG,
           DriverClientGrpcConfiguration.CONF
               .set(DriverClientGrpcConfiguration.DRIVER_SERVICE_PORT, driverServicePort)
               .build(),
@@ -184,14 +189,14 @@ public final class JavaDriverClientLauncher {
     final JavaDriverClientLauncher launcher = getLauncher(args[0], Integer.parseInt(args[1]));
 
     Thread.setDefaultUncaughtExceptionHandler(new REEFUncaughtExceptionHandler(launcher.envConfig));
-
-    try (final REEFEnvironment reef = REEFEnvironment.fromConfiguration(launcher.envConfig)) {
+    final Injector injector = Tang.Factory.getTang().newInjector(launcher.envConfig);
+    try (final Clock reef = injector.getInstance(Clock.class)) {
       reef.run();
     } catch (final Throwable ex) {
-      throw fatal("Unable to configure and start REEFEnvironment.", ex);
+      throw fatal("Unable to configure and start Clock.", ex);
     }
 
-    ThreadLogger.logThreads(LOG, Level.FINEST, "Threads running after REEFEnvironment.close():");
+    ThreadLogger.logThreads(LOG, Level.FINEST, "Threads running after Clock.close():");
 
     LOG.log(Level.INFO, "Exiting REEFLauncher.main()");
 

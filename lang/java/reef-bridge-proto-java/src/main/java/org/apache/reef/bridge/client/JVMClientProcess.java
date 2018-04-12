@@ -19,6 +19,7 @@
 
 package org.apache.reef.bridge.client;
 
+import org.apache.reef.annotations.audience.Private;
 import org.apache.reef.driver.evaluator.EvaluatorProcess;
 import org.apache.reef.driver.evaluator.EvaluatorType;
 
@@ -28,6 +29,7 @@ import java.util.List;
 /**
  * Stub class for Evaluator Process on driver client.
  */
+@Private
 public final class JVMClientProcess implements EvaluatorProcess {
 
   private boolean optionSet = false;
@@ -42,7 +44,7 @@ public final class JVMClientProcess implements EvaluatorProcess {
 
   private final List<String> optionList = new ArrayList<>();
 
-  JVMClientProcess() {
+  public JVMClientProcess() {
   }
 
   @Override

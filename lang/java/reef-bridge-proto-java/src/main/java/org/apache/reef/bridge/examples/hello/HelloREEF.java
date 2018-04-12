@@ -16,14 +16,18 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.bridge.examples;
+package org.apache.reef.bridge.examples.hello;
 
 import com.google.common.collect.Lists;
 import org.apache.reef.bridge.client.DriverClientConfiguration;
-import org.apache.reef.bridge.service.Launcher;
+import org.apache.reef.bridge.examples.WindowsRuntimePathProvider;
+import org.apache.reef.bridge.service.DriverServiceLauncher;
 import org.apache.reef.client.LauncherStatus;
+import org.apache.reef.runtime.common.files.RuntimePathProvider;
 import org.apache.reef.runtime.local.client.LocalRuntimeConfiguration;
 import org.apache.reef.tang.Configuration;
+import org.apache.reef.tang.Configurations;
+import org.apache.reef.tang.Tang;
 import org.apache.reef.tang.exceptions.InjectionException;
 import org.apache.reef.util.EnvironmentUtils;
 import org.apache.reef.util.ThreadLogger;
@@ -40,15 +44,15 @@ public final class HelloREEF {
 
   private static final Logger LOG = Logger.getLogger(HelloREEF.class.getName());
 
-  /** Number of milliseconds to wait for the job to complete. */
-  private static final int JOB_TIMEOUT = 10000; // 10 sec.
-
-
   /** Configuration of the runtime. */
   private static final Configuration RUNTIME_CONFIG =
-      LocalRuntimeConfiguration.CONF
-          .set(LocalRuntimeConfiguration.MAX_NUMBER_OF_EVALUATORS, 2)
-          .build();
+      Configurations.merge(
+          Tang.Factory.getTang().newConfigurationBuilder()
+              .bind(RuntimePathProvider.class, WindowsRuntimePathProvider.class)
+              .build(),
+          LocalRuntimeConfiguration.CONF
+              .set(LocalRuntimeConfiguration.MAX_NUMBER_OF_EVALUATORS, 2)
+              .build());
 
   /** Configuration of the HelloREEF driver. */
   private static final Configuration DRIVER_CONFIG =
@@ -66,7 +70,7 @@ public final class HelloREEF {
   public static void main(final String[] args) throws InjectionException, IOException {
 
     final LauncherStatus status =
-        Launcher.submit("HelloREEF", RUNTIME_CONFIG, DRIVER_CONFIG, Lists.<String>newArrayList(), libs);
+        DriverServiceLauncher.submit("HelloREEF", RUNTIME_CONFIG, DRIVER_CONFIG, Lists.<String>newArrayList(), libs);
 
     LOG.log(Level.INFO, "REEF job completed: {0}", status);
 

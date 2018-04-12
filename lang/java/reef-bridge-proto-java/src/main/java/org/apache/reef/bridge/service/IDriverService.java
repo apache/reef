@@ -26,13 +26,14 @@ import org.apache.reef.driver.evaluator.AllocatedEvaluator;
 import org.apache.reef.driver.evaluator.CompletedEvaluator;
 import org.apache.reef.driver.evaluator.FailedEvaluator;
 import org.apache.reef.driver.task.*;
+import org.apache.reef.runtime.common.driver.idle.DriverIdlenessSource;
 import org.apache.reef.wake.time.event.StartTime;
 import org.apache.reef.wake.time.event.StopTime;
 
 /**
  * Interface implemented by a Driver Service.
  */
-public interface IDriverService {
+public interface IDriverService extends DriverIdlenessSource {
 
   /**
    * Handle start time event.

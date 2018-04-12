@@ -16,18 +16,24 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+package org.apache.reef.bridge.examples.hello;
 
-package org.apache.reef.bridge.client;
+import org.apache.reef.task.Task;
 
-import org.apache.reef.driver.evaluator.EvaluatorProcessFactory;
+import javax.inject.Inject;
 
 /**
- * EvaluatorProcess Factory for the driver client.
+ * A 'hello REEF' Task.
  */
-public final class JVMClientProcessFactory implements EvaluatorProcessFactory<JVMClientProcess> {
+public final class HelloTask implements Task {
+
+  @Inject
+  private HelloTask() {
+  }
 
   @Override
-  public JVMClientProcess newEvaluatorProcess() {
-    return new JVMClientProcess();
+  public byte[] call(final byte[] memento) {
+    System.out.println("Hello, REEF!");
+    return null;
   }
 }
