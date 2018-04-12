@@ -161,6 +161,7 @@ public final class DriverServiceLauncher {
     cl.registerShortNameOfClass(TcpPortRangeCount.class);
     cl.registerShortNameOfClass(TcpPortRangeTryCount.class);
     cl.registerShortNameOfClass(DriverClientFileDependencies.class);
+    cl.registerShortNameOfClass(DriverClientLibraryDependencies.class);
     if (cl.processCommandLine(args) != null) {
       return confBuilder.build();
     } else {
@@ -345,35 +346,39 @@ public final class DriverServiceLauncher {
     final ConfigurationSerializer configurationSerializer =
         driverClientInjector.getInstance(ConfigurationSerializer.class);
     final File driverClientConfigurationFile = new File("driverclient.conf");
-    configurationSerializer.toFile(driverClientConfiguration, driverClientConfigurationFile);
-
-    ConfigurationModule driverServiceConfigurationModule =
-        getDriverServiceConfigurationModule(jobId, handlers, fileDependencies);
-    driverServiceConfigurationModule = driverServiceConfigurationModule
-        .set(DriverConfiguration.LOCAL_FILES, driverClientConfigurationFile.getAbsolutePath());
-    for (final String library : libraryDependencies) {
+    try {
+      configurationSerializer.toFile(driverClientConfiguration, driverClientConfigurationFile);
+      ConfigurationModule driverServiceConfigurationModule =
+          getDriverServiceConfigurationModule(jobId, handlers, fileDependencies);
       driverServiceConfigurationModule = driverServiceConfigurationModule
-          .set(DriverConfiguration.GLOBAL_LIBRARIES, library);
-    }
+          .set(DriverConfiguration.LOCAL_FILES, driverClientConfigurationFile.getAbsolutePath());
+      for (final String library : libraryDependencies) {
+        driverServiceConfigurationModule = driverServiceConfigurationModule
+            .set(DriverConfiguration.GLOBAL_LIBRARIES, library);
+      }
 
-    final REEFFileNames fileNames = runtimeInjector.getInstance(REEFFileNames.class);
-    final ClasspathProvider classpathProvider = runtimeInjector.getInstance(ClasspathProvider.class);
-    final RuntimePathProvider runtimePathProvider = runtimeInjector.getInstance(RuntimePathProvider.class);
-    // SET EXEC COMMAND
-    final List<String> launchCommand = new JavaLaunchCommandBuilder(JavaDriverClientLauncher.class, null)
-        .setConfigurationFilePaths(
-            Collections.singletonList("./" + fileNames.getLocalFolderPath() + "/" +
-                driverClientConfigurationFile.getName()))
-        .setJavaPath(runtimePathProvider.getPath())
-        .setClassPath(classpathProvider.getEvaluatorClasspath())
-        .build();
-    final String cmd = StringUtils.join(launchCommand, ' ');
-    LOG.log(Level.INFO, "LAUNCH COMMAND: " + cmd);
-    final Configuration driverServiceConfiguration =
-        driverServiceConfigurationModule
-            .set(DriverServiceConfiguration.DRIVER_CLIENT_COMMAND, cmd)
-            .build();
-    return DriverLauncher.getLauncher(runtimeConfiguration).run(driverServiceConfiguration);
+      final REEFFileNames fileNames = runtimeInjector.getInstance(REEFFileNames.class);
+      final ClasspathProvider classpathProvider = runtimeInjector.getInstance(ClasspathProvider.class);
+      final RuntimePathProvider runtimePathProvider = runtimeInjector.getInstance(RuntimePathProvider.class);
+      // SET EXEC COMMAND
+      final List<String> launchCommand = new JavaLaunchCommandBuilder(JavaDriverClientLauncher.class, null)
+          .setConfigurationFilePaths(
+              Collections.singletonList("./" + fileNames.getLocalFolderPath() + "/" +
+                  driverClientConfigurationFile.getName()))
+          .setJavaPath(runtimePathProvider.getPath())
+          .setClassPath(classpathProvider.getEvaluatorClasspath())
+          .build();
+      final String cmd = StringUtils.join(launchCommand, ' ');
+      final Configuration driverServiceConfiguration =
+          driverServiceConfigurationModule
+              .set(DriverServiceConfiguration.DRIVER_CLIENT_COMMAND, cmd)
+              .build();
+      return DriverLauncher.getLauncher(runtimeConfiguration).run(driverServiceConfiguration);
+    } finally {
+      if (driverClientConfigurationFile.exists()) {
+        driverClientConfigurationFile.delete();
+      }
+    }
   }
 
   /**
@@ -429,8 +434,16 @@ public final class DriverServiceLauncher {
    * Driver client file dependencies.
    */
   @NamedParameter(doc = "list of file dependencies for driver client separated by '" + ARG_SEPERATOR + "'",
-      short_name = "driver-client-files", default_value = "")
+      short_name = "files", default_value = "")
   public final class DriverClientFileDependencies implements Name<String> {
+  }
+
+  /**
+   * Driver client file dependencies.
+   */
+  @NamedParameter(doc = "list of library dependencies for driver client separated by '" + ARG_SEPERATOR + "'",
+      short_name = "library", default_value = "")
+  public final class DriverClientLibraryDependencies implements Name<String> {
   }
 
   /**

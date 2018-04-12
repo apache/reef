@@ -122,7 +122,6 @@ public final class GRPCDriverService implements IDriverService {
       final String cmd = this.driverClientCommand + " " + this.server.getPort();
       final String cmdOs = OSUtils.isWindows() ? "cmd.exe /c \"" + cmd + "\"" : cmd;
       final String cmdStd = cmdOs + " 1> driverclient.stdout 2> driverclient.stderr";
-      LOG.log(Level.INFO, "OS cmd: {0}", cmdStd);
       this.driverProcess = Runtime.getRuntime().exec(cmdStd);
     }
   }

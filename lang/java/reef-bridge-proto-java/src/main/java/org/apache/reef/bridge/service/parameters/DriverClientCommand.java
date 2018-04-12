@@ -26,6 +26,6 @@ import org.apache.reef.tang.annotations.NamedParameter;
  * What command to use when starting bridge process.
  */
 @NamedParameter(doc = "The command to launch bridge driver process",
-    short_name = "driver-client-command")
+    short_name = "command")
 public final class DriverClientCommand implements Name<String> {
 }
