@@ -18,42 +18,39 @@
  */
 package org.apache.reef.bridge.service;
 
-import com.google.common.collect.Lists;
+import com.google.protobuf.util.JsonFormat;
 import org.apache.commons.lang.StringUtils;
 import org.apache.reef.bridge.client.JavaDriverClientLauncher;
-import org.apache.reef.bridge.client.grpc.parameters.DriverServicePort;
-import org.apache.reef.bridge.client.parameters.ClientDriverStopHandler;
+import org.apache.reef.bridge.examples.WindowsRuntimePathProvider;
+import org.apache.reef.bridge.proto.ClientProtocol;
 import org.apache.reef.bridge.service.grpc.GRPCDriverService;
-import org.apache.reef.bridge.service.parameters.*;
 import org.apache.reef.client.DriverConfiguration;
 import org.apache.reef.client.DriverLauncher;
 import org.apache.reef.client.LauncherStatus;
-import org.apache.reef.driver.parameters.*;
+import org.apache.reef.client.parameters.DriverConfigurationProviders;
+import org.apache.reef.io.TcpPortConfigurationProvider;
 import org.apache.reef.runtime.common.files.ClasspathProvider;
 import org.apache.reef.runtime.common.files.REEFFileNames;
 import org.apache.reef.runtime.common.files.RuntimePathProvider;
+import org.apache.reef.runtime.common.files.UnixJVMPathProvider;
 import org.apache.reef.runtime.common.launch.JavaLaunchCommandBuilder;
 import org.apache.reef.runtime.local.client.LocalRuntimeConfiguration;
 import org.apache.reef.runtime.yarn.client.YarnClientConfiguration;
 import org.apache.reef.tang.*;
-import org.apache.reef.tang.annotations.Name;
-import org.apache.reef.tang.annotations.NamedParameter;
 import org.apache.reef.tang.exceptions.BindException;
 import org.apache.reef.tang.exceptions.InjectionException;
-import org.apache.reef.tang.formats.CommandLine;
 import org.apache.reef.tang.formats.ConfigurationModule;
 import org.apache.reef.tang.formats.ConfigurationSerializer;
 import org.apache.reef.util.EnvironmentUtils;
+import org.apache.reef.util.OSUtils;
 import org.apache.reef.wake.remote.ports.parameters.TcpPortRangeBegin;
 import org.apache.reef.wake.remote.ports.parameters.TcpPortRangeCount;
-import org.apache.reef.wake.remote.ports.parameters.TcpPortRangeTryCount;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -61,73 +58,6 @@ import java.util.logging.Logger;
  * Driver Service Launcher - main class.
  */
 public final class DriverServiceLauncher {
-
-  public static final String ARG_SEPERATOR = ";";
-
-  /**
-   * Handler labels.
-   */
-  public final class HandlerLabels {
-
-    public static final String START = "start";
-
-    public static final String STOP = "stop";
-
-    public static final String ALLOCATED_EVAL = "allocated-evaluator";
-
-    public static final String COMPLETE_EVAL = "complete-evaluator";
-
-    public static final String FAILED_EVAL = "failed-evaluator";
-
-    public static final String ACTIVE_CXT = "active-context";
-
-    public static final String CLOSED_CXT = "closed-context";
-
-    public static final String MESSAGE_CXT = "context-message";
-
-    public static final String FAILED_CXT = "failed-context";
-
-    public static final String RUNNING_TASK = "running-task";
-
-    public static final String FAILED_TASK = "failed-task";
-
-    public static final String COMPLETED_TASK = "completed-task";
-
-    public static final String SUSPENDED_TASK = "suspended-task";
-
-    public static final String TASK_MESSAGE = "task-message";
-
-    public static final String CLIENT_MESSAGE = "client-message";
-
-    public static final String CLIENT_CLOSE = "client-close";
-
-    public static final String CLIENT_CLOSE_WITH_MESSAGE = "client-close-with-message";
-
-    public static final String HANDLER_LABEL_DESCRIPTION = "Handler Event Labels: \n" +
-        "> " + START + "\n" +
-        "> " + STOP + "\n" +
-        "> " + ALLOCATED_EVAL + "\n" +
-        "> " + COMPLETE_EVAL + "\n" +
-        "> " + FAILED_EVAL + "\n" +
-        "> " + ACTIVE_CXT + "\n" +
-        "> " + CLOSED_CXT + "\n" +
-        "> " + MESSAGE_CXT + "\n" +
-        "> " + FAILED_CXT + "\n" +
-        "> " + RUNNING_TASK + "\n" +
-        "> " + FAILED_TASK + "\n" +
-        "> " + COMPLETED_TASK + "\n" +
-        "> " + SUSPENDED_TASK + "\n" +
-        "> " + TASK_MESSAGE + "\n" +
-        "> " + CLIENT_MESSAGE + "\n" +
-        "> " + CLIENT_CLOSE + "\n" +
-        "> " + CLIENT_CLOSE_WITH_MESSAGE + "\n" +
-        "Specify a list of handler event labels seperated by '" +
-        ARG_SEPERATOR + "'\n" +
-        "e.g., \"" + START + ARG_SEPERATOR + STOP +
-        "\" registers for the stop and start handlers, but none other.";
-
-    private HandlerLabels() {}
-  }
 
   /**
    * Standard Java logger.
@@ -142,225 +72,205 @@ public final class DriverServiceLauncher {
   }
 
   /**
-   * Parse the command line arguments.
-   *
-   * @param args command line arguments, as passed to main()
-   * @return Configuration object.
-   * @throws BindException configuration error.
-   * @throws IOException   error reading the configuration.
-   */
-  private static Configuration parseCommandLine(final String[] args)
-      throws BindException, IOException {
-    final JavaConfigurationBuilder confBuilder = Tang.Factory.getTang().newConfigurationBuilder();
-    final CommandLine cl = new CommandLine(confBuilder);
-    cl.registerShortNameOfClass(DriverClientHandlers.class);
-    cl.registerShortNameOfClass(BridgeRuntime.class);
-    cl.registerShortNameOfClass(BridgeJobId.class);
-    cl.registerShortNameOfClass(DriverClientCommand.class);
-    cl.registerShortNameOfClass(TcpPortRangeBegin.class);
-    cl.registerShortNameOfClass(TcpPortRangeCount.class);
-    cl.registerShortNameOfClass(TcpPortRangeTryCount.class);
-    cl.registerShortNameOfClass(DriverClientFileDependencies.class);
-    cl.registerShortNameOfClass(DriverClientLibraryDependencies.class);
-    if (cl.processCommandLine(args) != null) {
-      return confBuilder.build();
-    } else {
-      return null;
-    }
-  }
-
-  /**
    * Parse command line arguments and create TANG configuration ready to be submitted to REEF.
    *
-   * @param commandLineConf Parsed command line arguments, as passed into main().
-   * @param runtime Which runtime to configure: local, yarn, azbatch
+   * @param driverClientConfigurationProto containing which runtime to configure: local, yarn, azbatch
    * @return (immutable) TANG Configuration object.
    * @throws BindException      if configuration commandLineInjector fails.
    * @throws InjectionException if configuration commandLineInjector fails.
    */
-  private static Configuration getClientConfiguration(
-      final Configuration commandLineConf, final String runtime)
+  private static Configuration getRuntimeConfiguration(
+      final ClientProtocol.DriverClientConfiguration driverClientConfigurationProto)
       throws BindException {
-
-    final Configuration runtimeConfiguration;
-
-    if (RuntimeNames.LOCAL.equals(runtime)) {
-      LOG.log(Level.FINE, "JavaBridge: Running on the local runtime");
-      runtimeConfiguration = LocalRuntimeConfiguration.CONF
-          .build();
-    } else if (RuntimeNames.YARN.equals(runtime)){
-      LOG.log(Level.FINE, "JavaBridge: Running on YARN");
-      runtimeConfiguration = YarnClientConfiguration.CONF.build();
-    } else {
-      throw new IllegalArgumentException("Unsupported runtime " + runtime);
+    switch (driverClientConfigurationProto.getRuntimeCase()) {
+    case LOCAL_RUNTIME:
+      return getLocalRuntimeConfiguration(driverClientConfigurationProto);
+    case YARN_RUNTIME:
+      return getYarnRuntimeConfiguration(driverClientConfigurationProto);
+    default:
+      throw new IllegalArgumentException("Unsupported runtime " + driverClientConfigurationProto.getRuntimeCase());
     }
-
-    return Configurations.merge(runtimeConfiguration, commandLineConf);
   }
 
-  private static ConfigurationModule getDriverServiceConfigurationModule(
-      final String jobId,
-      final Set<String> handlerLabelSet,
-      final List<String> fileDependencyList) {
+  private static Configuration getLocalRuntimeConfiguration(
+      final ClientProtocol.DriverClientConfiguration driverClientConfigurationProto)
+      throws BindException {
+    LOG.log(Level.FINE, "JavaBridge: Running on the local runtime");
+    return LocalRuntimeConfiguration.CONF
+        .build();
+  }
 
+  private static Configuration getYarnRuntimeConfiguration(
+      final ClientProtocol.DriverClientConfiguration driverClientConfigurationProto)
+      throws BindException {
+    LOG.log(Level.FINE, "JavaBridge: Running on YARN");
+    return YarnClientConfiguration.CONF.build();
+  }
+
+  private static Configuration getDriverServiceConfiguration(
+      final ClientProtocol.DriverClientConfiguration driverClientConfigurationProto) {
+    // Set required parameters
     ConfigurationModule driverServiceConfigurationModule = DriverServiceConfiguration.CONF
         .set(DriverServiceConfiguration.DRIVER_SERVICE_IMPL, GRPCDriverService.class)
-        .set(DriverConfiguration.LOCAL_LIBRARIES, EnvironmentUtils.getClassLocation(GRPCDriverService.class))
-        .set(DriverConfiguration.DRIVER_IDENTIFIER, jobId);
-    for (final String file : fileDependencyList) {
-      driverServiceConfigurationModule.set(DriverConfiguration.LOCAL_FILES, file);
+        .set(DriverServiceConfiguration.DRIVER_CLIENT_COMMAND,
+            driverClientConfigurationProto.getDriverClientLaunchCommand())
+        .set(DriverConfiguration.DRIVER_IDENTIFIER, driverClientConfigurationProto.getJobid());
+
+    // Set file dependencies
+    final List<String> localLibraries = new ArrayList<>();
+    localLibraries.add(EnvironmentUtils.getClassLocation(GRPCDriverService.class));
+    if (driverClientConfigurationProto.getLocalLibrariesCount() > 0) {
+      localLibraries.addAll(driverClientConfigurationProto.getLocalLibrariesList());
     }
-    if (!handlerLabelSet.contains(HandlerLabels.START)) {
+    driverServiceConfigurationModule = driverServiceConfigurationModule
+        .setMultiple(DriverConfiguration.LOCAL_LIBRARIES, localLibraries);
+    if (driverClientConfigurationProto.getGlobalLibrariesCount() > 0) {
+      driverServiceConfigurationModule = driverServiceConfigurationModule
+          .setMultiple(DriverConfiguration.GLOBAL_LIBRARIES,
+              driverClientConfigurationProto.getGlobalLibrariesList());
+    }
+    if (driverClientConfigurationProto.getLocalFilesCount() > 0) {
+      driverServiceConfigurationModule = driverServiceConfigurationModule
+          .setMultiple(DriverConfiguration.LOCAL_FILES,
+              driverClientConfigurationProto.getLocalFilesList());
+    }
+    if (driverClientConfigurationProto.getGlobalFilesCount() > 0) {
+      driverServiceConfigurationModule = driverServiceConfigurationModule
+          .setMultiple(DriverConfiguration.GLOBAL_FILES,
+              driverClientConfigurationProto.getGlobalFilesList());
+    }
+    // Setup driver resources
+    if (driverClientConfigurationProto.getCpuCores() > 0) {
+      driverServiceConfigurationModule = driverServiceConfigurationModule
+          .set(DriverConfiguration.DRIVER_CPU_CORES, driverClientConfigurationProto.getCpuCores());
+    }
+    if (driverClientConfigurationProto.getMemoryMb() > 0) {
+      driverServiceConfigurationModule = driverServiceConfigurationModule
+          .set(DriverConfiguration.DRIVER_MEMORY, driverClientConfigurationProto.getMemoryMb());
+    }
+
+    // Setup handlers
+    final Set<ClientProtocol.DriverClientConfiguration.Handlers> handlerLabelSet = new HashSet<>();
+    handlerLabelSet.addAll(driverClientConfigurationProto.getHandlerList());
+    if (!handlerLabelSet.contains(ClientProtocol.DriverClientConfiguration.Handlers.START.START)) {
       throw new IllegalArgumentException("Start handler required");
     } else {
       driverServiceConfigurationModule = driverServiceConfigurationModule
           .set(DriverConfiguration.ON_DRIVER_STARTED, DriverServiceHandlers.StartHandler.class)
           .set(DriverConfiguration.ON_DRIVER_STOP, DriverServiceHandlers.StopHandler.class);
     }
-    if (handlerLabelSet.contains(HandlerLabels.ALLOCATED_EVAL)) {
+    if (handlerLabelSet.contains(ClientProtocol.DriverClientConfiguration.Handlers.EVALUATOR_ALLOCATED)) {
       driverServiceConfigurationModule = driverServiceConfigurationModule
           .set(DriverConfiguration.ON_EVALUATOR_ALLOCATED, DriverServiceHandlers.AllocatedEvaluatorHandler.class);
     }
-    if (handlerLabelSet.contains(HandlerLabels.COMPLETE_EVAL)) {
+    if (handlerLabelSet.contains(ClientProtocol.DriverClientConfiguration.Handlers.EVALUATOR_COMPLETED)) {
       driverServiceConfigurationModule = driverServiceConfigurationModule
           .set(DriverConfiguration.ON_EVALUATOR_COMPLETED, DriverServiceHandlers.CompletedEvaluatorHandler.class);
     }
-    if (handlerLabelSet.contains(HandlerLabels.FAILED_EVAL)) {
+    if (handlerLabelSet.contains(ClientProtocol.DriverClientConfiguration.Handlers.EVALUATOR_FAILED)) {
       driverServiceConfigurationModule = driverServiceConfigurationModule
           .set(DriverConfiguration.ON_EVALUATOR_FAILED, DriverServiceHandlers.FailedEvaluatorHandler.class);
     }
-    if (handlerLabelSet.contains(HandlerLabels.ACTIVE_CXT)) {
+    if (handlerLabelSet.contains(ClientProtocol.DriverClientConfiguration.Handlers.CONTEXT_ACTIVE)) {
       driverServiceConfigurationModule = driverServiceConfigurationModule
           .set(DriverConfiguration.ON_CONTEXT_ACTIVE, DriverServiceHandlers.ActiveContextHandler.class);
     }
-    if (handlerLabelSet.contains(HandlerLabels.CLOSED_CXT)) {
+    if (handlerLabelSet.contains(ClientProtocol.DriverClientConfiguration.Handlers.CONTEXT_CLOSED)) {
       driverServiceConfigurationModule = driverServiceConfigurationModule
           .set(DriverConfiguration.ON_CONTEXT_CLOSED, DriverServiceHandlers.ClosedContextHandler.class);
     }
-    if (handlerLabelSet.contains(HandlerLabels.FAILED_CXT)) {
+    if (handlerLabelSet.contains(ClientProtocol.DriverClientConfiguration.Handlers.CONTEXT_FAILED)) {
       driverServiceConfigurationModule = driverServiceConfigurationModule
           .set(DriverConfiguration.ON_CONTEXT_FAILED, DriverServiceHandlers.ContextFailedHandler.class);
     }
-    if (handlerLabelSet.contains(HandlerLabels.MESSAGE_CXT)) {
+    if (handlerLabelSet.contains(ClientProtocol.DriverClientConfiguration.Handlers.CONTEXT_MESSAGE)) {
       driverServiceConfigurationModule = driverServiceConfigurationModule
           .set(DriverConfiguration.ON_CONTEXT_MESSAGE, DriverServiceHandlers.ContextMessageHandler.class);
     }
-    if (handlerLabelSet.contains(HandlerLabels.RUNNING_TASK)) {
+    if (handlerLabelSet.contains(ClientProtocol.DriverClientConfiguration.Handlers.TASK_RUNNING)) {
       driverServiceConfigurationModule = driverServiceConfigurationModule
           .set(DriverConfiguration.ON_TASK_RUNNING, DriverServiceHandlers.RunningTaskHandler.class);
     }
-    if (handlerLabelSet.contains(HandlerLabels.COMPLETED_TASK)) {
+    if (handlerLabelSet.contains(ClientProtocol.DriverClientConfiguration.Handlers.TASK_COMPLETED)) {
       driverServiceConfigurationModule = driverServiceConfigurationModule
           .set(DriverConfiguration.ON_TASK_COMPLETED, DriverServiceHandlers.CompletedTaskHandler.class);
     }
-    if (handlerLabelSet.contains(HandlerLabels.FAILED_TASK)) {
+    if (handlerLabelSet.contains(ClientProtocol.DriverClientConfiguration.Handlers.TASK_FAILED)) {
       driverServiceConfigurationModule = driverServiceConfigurationModule
           .set(DriverConfiguration.ON_TASK_FAILED, DriverServiceHandlers.FailedTaskHandler.class);
     }
-    if (handlerLabelSet.contains(HandlerLabels.TASK_MESSAGE)) {
+    if (handlerLabelSet.contains(ClientProtocol.DriverClientConfiguration.Handlers.TASK_MESSAGE)) {
       driverServiceConfigurationModule = driverServiceConfigurationModule
           .set(DriverConfiguration.ON_TASK_MESSAGE, DriverServiceHandlers.TaskMessageHandler.class);
     }
-    if (handlerLabelSet.contains(HandlerLabels.SUSPENDED_TASK)) {
-      driverServiceConfigurationModule = driverServiceConfigurationModule
-          .set(DriverConfiguration.ON_TASK_SUSPENDED, DriverServiceHandlers.SuspendedTaskHandler.class);
-    }
-    if (handlerLabelSet.contains(HandlerLabels.CLIENT_MESSAGE)) {
+    if (handlerLabelSet.contains(ClientProtocol.DriverClientConfiguration.Handlers.CLIENT_MESSAGE)) {
       driverServiceConfigurationModule = driverServiceConfigurationModule
           .set(DriverConfiguration.ON_CLIENT_MESSAGE, DriverServiceHandlers.ClientMessageHandler.class);
     }
-    if (handlerLabelSet.contains(HandlerLabels.CLIENT_CLOSE)) {
+    if (handlerLabelSet.contains(ClientProtocol.DriverClientConfiguration.Handlers.CLIENT_CLOSE)) {
       driverServiceConfigurationModule = driverServiceConfigurationModule
           .set(DriverConfiguration.ON_CLIENT_CLOSED, DriverServiceHandlers.ClientCloseHandler.class);
     }
-    if (handlerLabelSet.contains(HandlerLabels.CLIENT_CLOSE_WITH_MESSAGE)) {
+    if (handlerLabelSet.contains(ClientProtocol.DriverClientConfiguration.Handlers.CLIENT_CLOSE_WITH_MESSAGE)) {
       driverServiceConfigurationModule = driverServiceConfigurationModule
           .set(DriverConfiguration.ON_CLIENT_CLOSED_MESSAGE, DriverServiceHandlers.ClientCloseWithMessageHandler.class);
     }
-    return driverServiceConfigurationModule;
+
+    return setTcpPortRange(driverClientConfigurationProto, driverServiceConfigurationModule.build());
+  }
+
+  private static Configuration setTcpPortRange(
+      final ClientProtocol.DriverClientConfiguration driverClientConfigurationProto,
+      final Configuration driverServiceConfiguration) {
+    JavaConfigurationBuilder configurationModuleBuilder =
+        Tang.Factory.getTang().newConfigurationBuilder(driverServiceConfiguration)
+            .bindSetEntry(DriverConfigurationProviders.class, TcpPortConfigurationProvider.class);
+    // Setup TCP constraints
+    if (driverClientConfigurationProto.getTcpPortRangeBegin() > 0) {
+      configurationModuleBuilder = configurationModuleBuilder
+          .bindNamedParameter(TcpPortRangeBegin.class,
+              Integer.toString(driverClientConfigurationProto.getTcpPortRangeBegin()));
+    }
+    if (driverClientConfigurationProto.getTcpPortRangeCount() > 0) {
+      configurationModuleBuilder = configurationModuleBuilder
+          .bindNamedParameter(TcpPortRangeCount.class,
+              Integer.toString(driverClientConfigurationProto.getTcpPortRangeCount()));
+    }
+    if (driverClientConfigurationProto.getTcpPortRangeTryCount() > 0) {
+      configurationModuleBuilder = configurationModuleBuilder
+          .bindNamedParameter(TcpPortRangeCount.class,
+              Integer.toString(driverClientConfigurationProto.getTcpPortRangeTryCount()));
+    }
+    return configurationModuleBuilder.build();
   }
 
   public static LauncherStatus submit(
-      final String jobId,
-      final Configuration runtimeConfiguration,
-      final Configuration driverClientConfiguration,
-      final List<String> fileDependencies,
-      final List<String> libraryDependencies) throws InjectionException, IOException {
-
-    final Injector runtimeInjector = Tang.Factory.getTang().newInjector(runtimeConfiguration);
-    final Injector driverClientInjector = Tang.Factory.getTang().newInjector(driverClientConfiguration);
-    driverClientInjector.bindVolatileParameter(DriverServicePort.class, 0);
-
-    final Set<String> handlers = new HashSet<>();
-    if (driverClientInjector.isParameterSet(DriverStartHandler.class)) {
-      handlers.add(HandlerLabels.START);
-    }
-    if (driverClientInjector.isParameterSet(ClientDriverStopHandler.class)) {
-      handlers.add(HandlerLabels.STOP);
-    }
-    if (driverClientInjector.isParameterSet(EvaluatorAllocatedHandlers.class)) {
-      handlers.add(HandlerLabels.ALLOCATED_EVAL);
-    }
-    if (driverClientInjector.isParameterSet(EvaluatorCompletedHandlers.class)) {
-      handlers.add(HandlerLabels.COMPLETE_EVAL);
-    }
-    if (driverClientInjector.isParameterSet(EvaluatorFailedHandlers.class)) {
-      handlers.add(HandlerLabels.FAILED_EVAL);
-    }
-    if (driverClientInjector.isParameterSet(TaskRunningHandlers.class)) {
-      handlers.add(HandlerLabels.RUNNING_TASK);
-    }
-    if (driverClientInjector.isParameterSet(TaskFailedHandlers.class)) {
-      handlers.add(HandlerLabels.FAILED_TASK);
-    }
-    if (driverClientInjector.isParameterSet(TaskMessageHandlers.class)) {
-      handlers.add(HandlerLabels.TASK_MESSAGE);
-    }
-    if (driverClientInjector.isParameterSet(TaskCompletedHandlers.class)) {
-      handlers.add(HandlerLabels.COMPLETED_TASK);
-    }
-    if (driverClientInjector.isParameterSet(TaskSuspendedHandlers.class)) {
-      handlers.add(HandlerLabels.SUSPENDED_TASK);
-    }
-    if (driverClientInjector.isParameterSet(ContextActiveHandlers.class)) {
-      handlers.add(HandlerLabels.ACTIVE_CXT);
-    }
-    if (driverClientInjector.isParameterSet(ContextClosedHandlers.class)) {
-      handlers.add(HandlerLabels.CLOSED_CXT);
-    }
-    if (driverClientInjector.isParameterSet(ContextMessageHandlers.class)) {
-      handlers.add(HandlerLabels.MESSAGE_CXT);
-    }
-    if (driverClientInjector.isParameterSet(ContextFailedHandlers.class)) {
-      handlers.add(HandlerLabels.FAILED_CXT);
-    }
-    if (driverClientInjector.isParameterSet(ClientMessageHandlers.class)) {
-      handlers.add(HandlerLabels.CLIENT_MESSAGE);
-    }
-    if (driverClientInjector.isParameterSet(ClientCloseHandlers.class)) {
-      handlers.add(HandlerLabels.CLIENT_CLOSE);
-    }
-    if (driverClientInjector.isParameterSet(ClientCloseWithMessageHandlers.class)) {
-      handlers.add(HandlerLabels.CLIENT_CLOSE_WITH_MESSAGE);
-    }
-    final ConfigurationSerializer configurationSerializer =
-        driverClientInjector.getInstance(ConfigurationSerializer.class);
+      final ClientProtocol.DriverClientConfiguration driverClientConfigurationProto,
+      final Configuration driverClientConfiguration)
+      throws InjectionException, IOException {
+    ClientProtocol.DriverClientConfiguration.Builder builder =
+        ClientProtocol.DriverClientConfiguration.newBuilder(driverClientConfigurationProto);
     final File driverClientConfigurationFile = new File("driverclient.conf");
     try {
+      // Write driver client configuration to a file
+      final Injector driverClientInjector = Tang.Factory.getTang().newInjector(driverClientConfiguration);
+      final ConfigurationSerializer configurationSerializer =
+          driverClientInjector.getInstance(ConfigurationSerializer.class);
       configurationSerializer.toFile(driverClientConfiguration, driverClientConfigurationFile);
-      ConfigurationModule driverServiceConfigurationModule =
-          getDriverServiceConfigurationModule(jobId, handlers, fileDependencies);
-      driverServiceConfigurationModule = driverServiceConfigurationModule
-          .set(DriverConfiguration.LOCAL_FILES, driverClientConfigurationFile.getAbsolutePath());
-      for (final String library : libraryDependencies) {
-        driverServiceConfigurationModule = driverServiceConfigurationModule
-            .set(DriverConfiguration.GLOBAL_LIBRARIES, library);
-      }
 
+      // Get runtime injector and piece together the launch command based on its classpath info
+      final Configuration runtimeConfiguration = getRuntimeConfiguration(driverClientConfigurationProto);
+      // Resolve OS Runtime Path Provider
+      final Configuration runtimeOSConfiguration = Configurations.merge(
+          Tang.Factory.getTang().newConfigurationBuilder()
+              .bind(RuntimePathProvider.class,
+                  OSUtils.isWindows() ? WindowsRuntimePathProvider.class : UnixJVMPathProvider.class)
+              .build(),
+          runtimeConfiguration);
+      final Injector runtimeInjector = Tang.Factory.getTang().newInjector(runtimeOSConfiguration);
       final REEFFileNames fileNames = runtimeInjector.getInstance(REEFFileNames.class);
       final ClasspathProvider classpathProvider = runtimeInjector.getInstance(ClasspathProvider.class);
       final RuntimePathProvider runtimePathProvider = runtimeInjector.getInstance(RuntimePathProvider.class);
-      // SET EXEC COMMAND
       final List<String> launchCommand = new JavaLaunchCommandBuilder(JavaDriverClientLauncher.class, null)
           .setConfigurationFilePaths(
               Collections.singletonList("./" + fileNames.getLocalFolderPath() + "/" +
@@ -369,15 +279,16 @@ public final class DriverServiceLauncher {
           .setClassPath(classpathProvider.getEvaluatorClasspath())
           .build();
       final String cmd = StringUtils.join(launchCommand, ' ');
-      final Configuration driverServiceConfiguration =
-          driverServiceConfigurationModule
-              .set(DriverServiceConfiguration.DRIVER_CLIENT_COMMAND, cmd)
-              .build();
-      return DriverLauncher.getLauncher(runtimeConfiguration).run(driverServiceConfiguration);
+      builder.setDriverClientLaunchCommand(cmd);
+      builder.addLocalFiles(driverClientConfigurationFile.getAbsolutePath());
+
+
+
+      // Configure driver service and launch the job
+      final Configuration driverServiceConfiguration = getDriverServiceConfiguration(builder.build());
+      return DriverLauncher.getLauncher(runtimeOSConfiguration).run(driverServiceConfiguration);
     } finally {
-      if (driverClientConfigurationFile.exists()) {
-        driverClientConfigurationFile.delete();
-      }
+      driverClientConfigurationFile.delete();
     }
   }
 
@@ -387,78 +298,31 @@ public final class DriverServiceLauncher {
    * @param args command line parameters.
    */
   public static void main(final String[] args) {
-
     try {
-      final Configuration commandLineConf = parseCommandLine(args);
-      if (commandLineConf == null) {
-        return;
+      if (args.length != 1) {
+        LOG.log(Level.SEVERE, DriverServiceLauncher.class.getName() +
+            " accepts single argument referencing a file that contains a client protocol buffer driver configuration");
       }
-      final Injector injector = Tang.Factory.getTang().newInjector(commandLineConf);
-      final String handlerLabels = injector.getNamedInstance(DriverClientHandlers.class);
-      final Set<String> handlerLabelSet =
-          new HashSet<>(Lists.newArrayList(handlerLabels.split(ARG_SEPERATOR)));
-      final String runtime = injector.getNamedInstance(BridgeRuntime.class);
-      final int jobNum = injector.getNamedInstance(BridgeJobId.class);
-      final String jobId = String.format("bridge.%d",
-          jobNum < 0 ? System.currentTimeMillis() : jobNum);
-      final String fileDependencies = injector.getNamedInstance(DriverClientFileDependencies.class);
-      final List<String> fileDependencyList = Lists.newArrayList(fileDependencies.split(ARG_SEPERATOR));
+      final String content;
+      try {
+        content = new String(Files.readAllBytes(Paths.get(args[0])));
+      } catch (IOException e) {
+        throw new RuntimeException(e);
+      }
+      final ClientProtocol.DriverClientConfiguration.Builder driverClientConfigurationProtoBuilder =
+          ClientProtocol.DriverClientConfiguration.newBuilder();
+      JsonFormat.parser()
+          .usingTypeRegistry(JsonFormat.TypeRegistry.getEmptyTypeRegistry())
+          .merge(content, driverClientConfigurationProtoBuilder);
+      final ClientProtocol.DriverClientConfiguration driverClientConfigurationProto =
+          driverClientConfigurationProtoBuilder.build();
 
-      final Configuration runtimeConfig = getClientConfiguration(commandLineConf, runtime);
-      final Configuration driverBridgeConfig =
-          getDriverServiceConfigurationModule(jobId, handlerLabelSet, fileDependencyList).build();
-      final Configuration submittedConfiguration = Tang.Factory.getTang()
-          .newConfigurationBuilder(driverBridgeConfig, commandLineConf).build();
-
-      DriverLauncher.getLauncher(runtimeConfig).run(submittedConfiguration);
-
-      LOG.log(Level.INFO, "JavaBridge: Stop Client {0}", jobId);
-
+      final Configuration runtimeConfig = getRuntimeConfiguration(driverClientConfigurationProto);
+      final Configuration driverConfig = getDriverServiceConfiguration(driverClientConfigurationProto);
+      DriverLauncher.getLauncher(runtimeConfig).run(driverConfig);
+      LOG.log(Level.INFO, "JavaBridge: Stop Client {0}", driverClientConfigurationProto.getJobid());
     } catch (final BindException | InjectionException | IOException ex) {
       LOG.log(Level.SEVERE, "Job configuration error", ex);
     }
-  }
-
-  // Named Parameters that are specific to this JavaDriverClientLauncher.
-
-  /**
-   * Command line parameter = true to run locally, or false to run on YARN.
-   */
-  @NamedParameter(doc = "The handlers that should be configured. " +
-      HandlerLabels.HANDLER_LABEL_DESCRIPTION,
-      short_name = "handlers", default_value = "start")
-  public final class DriverClientHandlers implements Name<String> {
-  }
-
-  /**
-   * Driver client file dependencies.
-   */
-  @NamedParameter(doc = "list of file dependencies for driver client separated by '" + ARG_SEPERATOR + "'",
-      short_name = "files", default_value = "")
-  public final class DriverClientFileDependencies implements Name<String> {
-  }
-
-  /**
-   * Driver client file dependencies.
-   */
-  @NamedParameter(doc = "list of library dependencies for driver client separated by '" + ARG_SEPERATOR + "'",
-      short_name = "library", default_value = "")
-  public final class DriverClientLibraryDependencies implements Name<String> {
-  }
-
-  /**
-   * Command line parameter = true to run locally, or false to run on YARN.
-   */
-  @NamedParameter(doc = "The runtime to use: local, yarn, azbatch",
-      short_name = "runtime", default_value = "local")
-  public final class BridgeRuntime implements Name<String> {
-  }
-
-  /**
-   * Command line parameter = Numeric ID for the job.
-   */
-  @NamedParameter(doc = "Numeric ID for the job",
-      short_name = "id", default_value = "-1")
-  public final class BridgeJobId implements Name<Integer> {
   }
 }

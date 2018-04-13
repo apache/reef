@@ -81,24 +81,6 @@ under the License.
             <artifactId>grpc-all</artifactId>
             <version>${grpc.version}</version>
         </dependency>
-        <!--
-        <dependency>
-            <groupId>io.grpc</groupId>
-            <artifactId>grpc-protobuf</artifactId>
-            <version>${grpc.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>io.grpc</groupId>
-            <artifactId>grpc-stub</artifactId>
-            <version>${grpc.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>io.grpc</groupId>
-            <artifactId>grpc-testing</artifactId>
-            <version>${grpc.version}</version>
-            <scope>test</scope>
-        </dependency>
-        -->
         <!-- netty version used by grpc -->
         <dependency>
             <groupId>io.netty</groupId>

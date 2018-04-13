@@ -18,22 +18,16 @@
  */
 package org.apache.reef.bridge.examples.hello;
 
-import com.google.common.collect.Lists;
 import org.apache.reef.bridge.client.DriverClientConfiguration;
-import org.apache.reef.bridge.examples.WindowsRuntimePathProvider;
+import org.apache.reef.bridge.proto.ClientProtocol;
 import org.apache.reef.bridge.service.DriverServiceLauncher;
 import org.apache.reef.client.LauncherStatus;
-import org.apache.reef.runtime.common.files.RuntimePathProvider;
-import org.apache.reef.runtime.local.client.LocalRuntimeConfiguration;
 import org.apache.reef.tang.Configuration;
-import org.apache.reef.tang.Configurations;
-import org.apache.reef.tang.Tang;
 import org.apache.reef.tang.exceptions.InjectionException;
 import org.apache.reef.util.EnvironmentUtils;
 import org.apache.reef.util.ThreadLogger;
 
 import java.io.IOException;
-import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -44,23 +38,12 @@ public final class HelloREEF {
 
   private static final Logger LOG = Logger.getLogger(HelloREEF.class.getName());
 
-  /** Configuration of the runtime. */
-  private static final Configuration RUNTIME_CONFIG =
-      Configurations.merge(
-          Tang.Factory.getTang().newConfigurationBuilder()
-              .bind(RuntimePathProvider.class, WindowsRuntimePathProvider.class)
-              .build(),
-          LocalRuntimeConfiguration.CONF
-              .set(LocalRuntimeConfiguration.MAX_NUMBER_OF_EVALUATORS, 2)
-              .build());
-
   /** Configuration of the HelloREEF driver. */
   private static final Configuration DRIVER_CONFIG =
       DriverClientConfiguration.CONF
           .set(DriverClientConfiguration.ON_DRIVER_STARTED, HelloDriver.StartHandler.class)
           .set(DriverClientConfiguration.ON_EVALUATOR_ALLOCATED, HelloDriver.EvaluatorAllocatedHandler.class)
           .build();
-  private static List<String> libs = Lists.newArrayList(EnvironmentUtils.getClassLocation(HelloDriver.class));
 
   /**
    * Start Hello REEF job with local runtime.
@@ -69,8 +52,18 @@ public final class HelloREEF {
    */
   public static void main(final String[] args) throws InjectionException, IOException {
 
+    final ClientProtocol.DriverClientConfiguration.Builder builder =
+        ClientProtocol.DriverClientConfiguration.newBuilder();
+    builder.setJobid("HelloREEF");
+    builder.setLocalRuntime(ClientProtocol.LocalRuntimeParameters.newBuilder()
+        .setMaxNumberOfEvaluators(1)
+        .build());
+    builder.addHandler(ClientProtocol.DriverClientConfiguration.Handlers.START);
+    builder.addHandler(ClientProtocol.DriverClientConfiguration.Handlers.EVALUATOR_ALLOCATED);
+    builder.addGlobalLibraries(EnvironmentUtils.getClassLocation(HelloDriver.class));
+
     final LauncherStatus status =
-        DriverServiceLauncher.submit("HelloREEF", RUNTIME_CONFIG, DRIVER_CONFIG, Lists.<String>newArrayList(), libs);
+        DriverServiceLauncher.submit(builder.build(), DRIVER_CONFIG);
 
     LOG.log(Level.INFO, "REEF job completed: {0}", status);
 
