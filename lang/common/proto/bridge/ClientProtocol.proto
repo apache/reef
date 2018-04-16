@@ -1,0 +1,108 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+
+syntax = "proto3";
+
+// option java_generic_services = true;
+// option java_multiple_files = true;
+option java_package = "org.apache.reef.bridge.proto";
+option java_outer_classname = "ClientProtocol";
+option csharp_namespace = "Org.Apache.REEF.Bridge.Proto";
+
+package driverbridge;
+
+message LocalRuntimeParameters {
+  uint32 max_number_of_evaluators = 1;
+  string runtime_root_folder = 2;
+  string jvm_heap_slack = 3;
+  repeated string rack_names = 4;
+}
+
+message YarnRuntimeParameters {
+  string queue = 1;
+  string job_submission_directory_prefix = 2;
+}
+
+message AzureBatchRuntimeParameters {
+
+}
+
+message MesosRuntimeParameters {
+
+}
+
+message DriverClientConfiguration {
+  string jobid = 1;
+
+  // driver machine resources
+  uint32 cpu_cores = 2;
+  uint32 memory_mb = 3;
+
+  // the runtime on which to launch
+  oneof runtime {
+    LocalRuntimeParameters local_runtime = 4;
+    YarnRuntimeParameters yarn_runtime = 5;
+    AzureBatchRuntimeParameters azbatch_runtime = 6;
+    MesosRuntimeParameters mesos_runtime = 7;
+  }
+
+  // The command to launch the driver client
+  string driver_client_launch_command = 10;
+
+  enum Handlers {
+    // control events
+    START = 0;
+    STOP = 1;
+
+    // evaluator events
+    EVALUATOR_ALLOCATED = 5;
+    EVALUATOR_COMPLETED = 6;
+    EVALUATOR_FAILED = 7;
+
+    // context events
+    CONTEXT_ACTIVE = 10;
+    CONTEXT_CLOSED = 11;
+    CONTEXT_FAILED = 12;
+    CONTEXT_MESSAGE = 13;
+
+    // task events
+    TASK_RUNNING = 15;
+    TASK_FAILED = 16;
+    TASK_COMPLETED = 17;
+    TASK_MESSAGE = 18;
+
+    // client events
+    CLIENT_MESSAGE = 20;
+    CLIENT_CLOSE = 21;
+    CLIENT_CLOSE_WITH_MESSAGE = 22;
+  }
+  repeated Handlers handler = 11;
+
+  // TCP port range
+  uint32 tcp_port_range_begin = 15;
+  uint32 tcp_port_range_count = 16;
+  uint32 tcp_port_range_try_count = 17;
+
+  // file dependencies
+  repeated string global_files = 20;
+  repeated string local_files = 21;
+  repeated string global_libraries = 22;
+  repeated string local_libraries = 23;
+
+}
