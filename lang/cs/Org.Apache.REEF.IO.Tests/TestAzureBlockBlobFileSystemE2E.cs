@@ -59,7 +59,7 @@ namespace Org.Apache.REEF.IO.Tests
         {
             if (_container != null)
             {
-                _container.DeleteIfExists();
+                _container.DeleteIfExistsAsync().Wait();
             }
         }
 
@@ -123,7 +123,7 @@ namespace Org.Apache.REEF.IO.Tests
                 string streamText = reader.ReadToEnd();
                 Assert.Equal(Text, streamText);
             }
-            container.DeleteIfExists();
+            container.DeleteIfExistsAsync().Wait();
         }
 
         [Fact(Skip = SkipMessage)]
@@ -143,7 +143,7 @@ namespace Org.Apache.REEF.IO.Tests
             var blob = _container.GetBlockBlobReference(HelloFile);
             UploadFromString(blob, "hello");
             Assert.True(_fileSystem.Exists(helloFilePath));
-            blob.DeleteIfExists();
+            blob.DeleteIfExistsAsync().Wait();
             Assert.False(_fileSystem.Exists(helloFilePath));
         }
 
@@ -166,7 +166,7 @@ namespace Org.Apache.REEF.IO.Tests
             srcBlob = GetBlobReferenceFromServer(_container, SrcFileName);
             Assert.True(CheckBlobExists(srcBlob));
             Assert.Equal(DownloadText(_container.GetBlockBlobReference(SrcFileName)), DownloadText(destContainer.GetBlockBlobReference(DestFileName)));
-            destContainer.DeleteIfExists();
+            destContainer.DeleteIfExistsAsync().Wait();
         }
 
         [Fact(Skip = SkipMessage)]
@@ -222,7 +222,7 @@ namespace Org.Apache.REEF.IO.Tests
             {
                 File.Delete(tempFilePath);
             }
-            container.DeleteIfExists();
+            container.DeleteIfExistsAsync().Wait();
         }
 
         [Fact(Skip = SkipMessage)]
