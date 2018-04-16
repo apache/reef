@@ -108,7 +108,7 @@ public final class JavaLaunchCommandBuilder implements LaunchCommandBuilder {
 
         if (classPath != null && !classPath.isEmpty()) {
           add("-classpath");
-          add(classPath);
+          add("\"" + classPath + "\"");
         }
 
         propagateProperties(this, true, "proc_reef");

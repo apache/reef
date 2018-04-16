@@ -29,7 +29,7 @@ import org.apache.reef.driver.evaluator.EvaluatorProcess;
  */
 @Private
 @DriverSide
-final class EvaluatorDescriptorImpl implements EvaluatorDescriptor {
+public final class EvaluatorDescriptorImpl implements EvaluatorDescriptor {
 
   private final NodeDescriptor nodeDescriptor;
   private final int megaBytes;
@@ -37,7 +37,7 @@ final class EvaluatorDescriptorImpl implements EvaluatorDescriptor {
   private EvaluatorProcess process;
   private final String runtimeName;
 
-  EvaluatorDescriptorImpl(final NodeDescriptor nodeDescriptor,
+  public EvaluatorDescriptorImpl(final NodeDescriptor nodeDescriptor,
                           final int megaBytes,
                           final int numberOfCores,
                           final EvaluatorProcess process,
