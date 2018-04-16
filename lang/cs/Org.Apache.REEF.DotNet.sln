@@ -74,7 +74,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Org.Apache.REEF.Tests.DotNe
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Org.Apache.REEF.FatNuGet.DotNet", "Org.Apache.REEF.FatNuGet\Org.Apache.REEF.FatNuGet.DotNet.csproj", "{F7D5EAB5-65F8-45B5-9318-60EC311E08C6}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}}") = "Org.Apache.REEF.Bridge.CLR.DotNet", "Org.Apache.REEF.Bridge.CLR\Org.Apache.REEF.Bridge.CLR.DotNet.csproj", "{81575917-C673-4E6F-9CF1-0DD35FC5E717}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Org.Apache.REEF.Bridge.CLR.DotNet", "Org.Apache.REEF.Bridge.CLR\Org.Apache.REEF.Bridge.CLR.DotNet.csproj", "{81575917-C673-4E6F-9CF1-0DD35FC5E717}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Org.Apache.REEF.Bridge.Client.DotNet", "Org.Apache.REEF.Bridge.Client\Org.Apache.REEF.Bridge.Client.DotNet.csproj", "{77BE3864-C183-4E56-8E9E-FEBFC429FA85}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -214,6 +216,10 @@ Global
 		{81575917-C673-4E6F-9CF1-0DD35FC5E717}.Debug|x64.Build.0 = Debug|x64
 		{81575917-C673-4E6F-9CF1-0DD35FC5E717}.Release|x64.ActiveCfg = Release|x64
 		{81575917-C673-4E6F-9CF1-0DD35FC5E717}.Release|x64.Build.0 = Release|x64
+		{77BE3864-C183-4E56-8E9E-FEBFC429FA85}.Debug|x64.ActiveCfg = Debug|x64
+		{77BE3864-C183-4E56-8E9E-FEBFC429FA85}.Debug|x64.Build.0 = Debug|x64
+		{77BE3864-C183-4E56-8E9E-FEBFC429FA85}.Release|x64.ActiveCfg = Release|x64
+		{77BE3864-C183-4E56-8E9E-FEBFC429FA85}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

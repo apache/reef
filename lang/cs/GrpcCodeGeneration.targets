@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+-->
+<!-- AVRO CODE GERNATION TARGETS FOR MSBUILD -->
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <UsingTask TaskName="GrpcToCSharp" TaskFactory="CodeTaskFactory" AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.v4.0.dll">
+    <ParameterGroup>
+      <!-- The directory where the project is located. This is typically $(ProjectDir) -->
+      <OutputDirectory ParameterType="System.String" Required="true" />
+      <!-- This is the list of C# target files to be generaterd. This is typically @(Compile) -->
+      <SourceFileList ParameterType="System.String" Required="true" />
+      <!-- The directory where the .avsc schema files are located. -->
+      <GrpcSchemaDirectory ParameterType="System.String" Required="true" />
+      <!-- The where gRPC schema generator and dependent libraries are located. -->
+      <GrpcBinaryDirectory ParameterType="System.String" Required="true" />
+    </ParameterGroup>
+    <Task>
+      <Using Namespace="System" />
+      <Using Namespace="System.IO" />
+      <Using Namespace="System.Diagnostics" />
+      <Code Type="Fragment" Language="cs"><![CDATA[
+          // Create a temporary working directory for the log file.
+          string tempDir = Path.GetFullPath(Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString()));
+          Directory.CreateDirectory(tempDir);
+
+          // Get the full path to the directory where the gRPC .proto files are located.
+          string grpcSrcFileDirectory = Path.GetFullPath(GrpcSchemaDirectory);
+          string grpcToolsDirectory = Path.GetFullPath(GrpcBinaryDirectory);
+          string grpcOutputDirectory = Path.GetFullPath(OutputDirectory);
+          string grpcPluginName = Path.Combine(GrpcBinaryDirectory, "grpc_csharp_plugin.exe");
+
+          // Get the list of names of .proto files
+          string[] sourceFiles = SourceFileList.Split(new char[]{';'});
+
+          // Setup the conversion process.
+          ProcessStartInfo rProcInfo = new ProcessStartInfo()
+          {
+              RedirectStandardOutput = true,
+              RedirectStandardError = true,
+              UseShellExecute = false,
+              CreateNoWindow = true,
+              FileName = Path.Combine(grpcToolsDirectory ,"protoc.exe")
+          };
+
+          bool conversionError = false;
+          using (StreamWriter logWriter = new StreamWriter(Path.Combine(tempDir, "GrpcCodeGeneration.log")))
+          {
+              foreach (string fileName in sourceFiles)
+              {
+                  logWriter.WriteLine("Processing file: {0}", fileName);
+
+                  string fullFileName = Path.Combine(grpcSrcFileDirectory, fileName);
+                  rProcInfo.Arguments = " -I" + grpcSrcFileDirectory + " --csharp_out " + grpcOutputDirectory
+                      + " " + fullFileName + " --grpc_out " + grpcOutputDirectory
+                      + " --plugin=protoc-gen-grpc=" + grpcPluginName;
+                  logWriter.WriteLine("Command: {0}", rProcInfo.Arguments);
+
+                  if (File.Exists(fullFileName))
+                  {
+                      StringBuilder stdOutBuilder = new StringBuilder();
+                      StringBuilder stdErrBuilder = new StringBuilder();
+
+                      // Start the conversion process
+                      using (Process rProc = Process.Start(rProcInfo))
+                      {
+                           stdOutBuilder.Append(rProc.StandardOutput.ReadToEnd());
+                           stdErrBuilder.Append(rProc.StandardError.ReadToEnd());
+                           rProc.WaitForExit();
+                           if (rProc.ExitCode != 0)
+                           {
+                               conversionError = true;
+                           }
+                       }
+                       logWriter.WriteLine(stdOutBuilder.ToString());
+                       logWriter.WriteLine(stdErrBuilder.ToString());
+                   }
+              }
+          }
+      ]]></Code>
+    </Task>
+  </UsingTask>
+</Project>
