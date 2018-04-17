@@ -26,10 +26,13 @@ under the License.
   <ItemGroup>
     <PackageReference Include="Grpc" Version="1.11.0-pre2" />
     <PackageReference Include="Grpc.Tools" Version="1.11.0-pre2" />
+    <PackageReference Include="Google.Protobuf" Version="3.5.0.0" />
   </ItemGroup>
   <PropertyGroup>
     <GrpcSchemaDirectory>..\..\common\proto\bridge</GrpcSchemaDirectory>
-    <GrpcToolsDirectory>$(SolutionDir)\packages\grpc.tools\1.11.0-pre2\tools\windows_x64</GrpcToolsDirectory>
+    <GrpcToolsDirectory>$(PackagesDir)\grpc.tools\1.11.0-pre2\tools\windows_x64</GrpcToolsDirectory>
+    <GrpcToolsDirectory>$(PackagesDir)\grpc.tools\1.11.0-pre2\tools\windows_x64</GrpcToolsDirectory>
+    <GrpcLibraryDirectory>$(PackagesDir)\grpc.core\1.11.0-pre2\lib\net45</GrpcLibraryDirectory>
   </PropertyGroup>
   <!-- TODO[JIRA REEF-1888] This item group will not be needed when only .netcore is targeted. -->
   <ItemGroup Condition="'$(TargetFramework)' == 'net452' Or '$(TargetFramework)' == 'net46'">
@@ -38,6 +41,13 @@ under the License.
     <Reference Include="System.Configuration" />
   </ItemGroup>
   <ItemGroup>
+    <Reference Include="Grpc.Core">
+      <HintPath>$(GRrpcLibraryDirectory)\Grpc.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="Google.Protobuf, Version=3.5.0.0, Culture=neutral, PublicKeyToken=a7d26565bac4d604, processorArchitecture=MSIL">
+      <HintPath>$(PackagesDir)\Google.Protobuf.3.5.0\lib\net45\Google.Protobuf.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <ProjectReference Include="..\Org.Apache.REEF.Tang\Org.Apache.REEF.Tang.DotNet.csproj" />
     <ProjectReference Include="..\Org.Apache.REEF.Utilities\Org.Apache.REEF.Utilities.DotNet.csproj" />
     <ProjectReference Include="..\Org.Apache.REEF.Common\Org.Apache.REEF.Common.DotNet.csproj" />
