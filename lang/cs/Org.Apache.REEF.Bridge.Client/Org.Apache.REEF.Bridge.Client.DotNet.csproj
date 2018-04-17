@@ -31,10 +31,6 @@ under the License.
     <GrpcSchemaDirectory>..\..\common\proto\bridge</GrpcSchemaDirectory>
     <GrpcToolsDirectory>$(SolutionDir)\packages\grpc.tools\1.11.0-pre2\tools\windows_x64</GrpcToolsDirectory>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net452|x64'">
-    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
-    <WarningsAsErrors />
-  </PropertyGroup>
   <!-- TODO[JIRA REEF-1888] This item group will not be needed when only .netcore is targeted. -->
   <ItemGroup Condition="'$(TargetFramework)' == 'net452' Or '$(TargetFramework)' == 'net46'">
     <Reference Include="System" />
