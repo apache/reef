@@ -46,6 +46,25 @@ under the License.
           // Get the list of names of .proto files
           string[] sourceFiles = SourceFileList.Split(new char[]{';'});
 
+          string copyright = string.Join(Environment.NewLine,
+            "// Licensed to the Apache Software Foundation (ASF) under one",
+            "// or more contributor license agreements.  See the NOTICE file",
+            "// distributed with this work for additional information",
+            "// regarding copyright ownership.  The ASF licenses this file",
+            "// to you under the Apache License, Version 2.0 (the",
+            "// \"License\"); you may not use this file except in compliance",
+            "// with the License.  You may obtain a copy of the License at",
+            "//",
+            "//   http://www.apache.org/licenses/LICENSE-2.0",
+            "//",
+            "// Unless required by applicable law or agreed to in writing,",
+            "// software distributed under the License is distributed on an",
+            "// \"AS IS\" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY",
+            "// KIND, either express or implied.  See the License for the",
+            "// specific language governing permissions and limitations",
+            "// under the License.");
+
+
           // Setup the conversion process.
           ProcessStartInfo rProcInfo = new ProcessStartInfo()
           {
@@ -59,13 +78,13 @@ under the License.
           bool conversionError = false;
           using (StreamWriter logWriter = new StreamWriter(Path.Combine(tempDir, "GrpcCodeGeneration.log")))
           {
-              foreach (string fileName in sourceFiles)
+              foreach (string file in sourceFiles)
               {
-                  logWriter.WriteLine("Processing file: {0}", fileName);
+                  logWriter.WriteLine("Processing file: {0}", file);
 
-                  string fullFileName = Path.Combine(grpcSrcFileDirectory, fileName);
-                  rProcInfo.Arguments = " -I" + grpcSrcFileDirectory + " --csharp_out " + grpcOutputDirectory
-                      + " " + fullFileName + " --grpc_out " + grpcOutputDirectory
+                  string fullFileName = Path.Combine(grpcSrcFileDirectory, file);
+                  rProcInfo.Arguments = " -I" + grpcSrcFileDirectory + " --csharp_out " + tempDir
+                      + " " + fullFileName + " --grpc_out " + tempDir
                       + " --plugin=protoc-gen-grpc=" + grpcPluginName;
                   logWriter.WriteLine("Command: {0}", rProcInfo.Arguments);
 
@@ -77,18 +96,41 @@ under the License.
                       // Start the conversion process
                       using (Process rProc = Process.Start(rProcInfo))
                       {
-                           stdOutBuilder.Append(rProc.StandardOutput.ReadToEnd());
-                           stdErrBuilder.Append(rProc.StandardError.ReadToEnd());
-                           rProc.WaitForExit();
-                           if (rProc.ExitCode != 0)
-                           {
-                               conversionError = true;
-                           }
-                       }
-                       logWriter.WriteLine(stdOutBuilder.ToString());
-                       logWriter.WriteLine(stdErrBuilder.ToString());
-                   }
+                          stdOutBuilder.Append(rProc.StandardOutput.ReadToEnd());
+                          stdErrBuilder.Append(rProc.StandardError.ReadToEnd());
+                          rProc.WaitForExit();
+                          if (rProc.ExitCode != 0)
+                          {
+                              conversionError = true;
+                          }
+                      }
+                      logWriter.WriteLine(stdOutBuilder.ToString());
+                      logWriter.WriteLine(stdErrBuilder.ToString());
+                  }
+                  if (!conversionError)
+                  {
+                      // Get all of the generated C# files and copy to destination with copyright.
+                      var genFiles = Directory.EnumerateFiles(tempDir, "*.cs");
+                      foreach (string genFile in genFiles)
+                      {
+                          logWriter.WriteLine("Processing file {0}", genFile);
+                          using (StreamReader tmpReader = new StreamReader(genFile))
+                          {
+                              using (StreamWriter destWriter =
+                                  new StreamWriter(Path.Combine(grpcOutputDirectory, Path.GetFileName(genFile))))
+                             {
+                                 destWriter.WriteLine(copyright);
+                                 destWriter.Write(tmpReader.ReadToEnd());
+                             }
+                          }
+                          File.Delete(genFile);
+                      }
+                  }
               }
+          }
+          if (!conversionError)
+          {
+              //Directory.Delete(tempDir, recursive : true);
           }
       ]]></Code>
     </Task>
