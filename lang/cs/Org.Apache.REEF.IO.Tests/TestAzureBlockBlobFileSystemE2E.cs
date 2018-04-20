@@ -115,7 +115,9 @@ namespace Org.Apache.REEF.IO.Tests
             }
             blob = _container.GetBlockBlobReference(HelloFile);
             Assert.True(CheckBlobExists(blob));
-            using (var reader = new StreamReader(blob.OpenRead()))
+            var readTask = blob.OpenReadAsync();
+            readTask.Wait();
+            using (var reader = new StreamReader(readTask.Result))
             {
                 string streamText = reader.ReadToEnd();
                 Assert.Equal(Text, streamText);

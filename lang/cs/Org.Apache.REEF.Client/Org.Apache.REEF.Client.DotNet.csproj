@@ -37,31 +37,16 @@ under the License.
     <PackageReference Include="Microsoft.Avro.Core" Version="$(AvroVersion)" />
     <PackageReference Include="System.Reactive.Interfaces" Version="$(SystemReactiveVersion)" />
     <PackageReference Include="EnterpriseLibrary.TransientFaultHandling.Core" Version="$(TransientFaultHandlingVersion)" />
-  </ItemGroup>
-  <!-- TODO[JIRA REEF-1888] Remove the conditional, but keep the item group -->
-  <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp2.0'">
     <PackageReference Include="System.Net.NameResolution" Version="4.3.0" />
-  </ItemGroup>
-  <!-- TODO[JIRA REEF-1888] This item group will not be needed when only .netcore is targeted. -->
-  <ItemGroup Condition="'$(TargetFramework)' == 'net452' Or '$(TargetFramework)' == 'net46'">
-    <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.IO.Compression" />
-    <Reference Include="System.IO.Compression.FileSystem" />
-    <Reference Include="System.Net.Http" />
-    <Reference Include="System.Net.Http.WebRequest" />
-    <Reference Include="System.Xml" />
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Runtime.Serialization" />
+    <PackageReference Include="System.Diagnostics.DiagnosticSource" Version="4.3.0" />
   </ItemGroup>
 
   <!-- Project Reference conditionals allow for targeting specific projects based upon the target framework. -->
-  <ItemGroup Condition="'$(TargetFramework)' == 'net452'">
+  <ItemGroup Condition="'$(TargetFramework)' == 'net461'">
     <ProjectReference Include="..\Org.Apache.REEF.Bridge\Org.Apache.REEF.Bridge.DotNet.vcxproj" PrivateAssets="All" />
   </ItemGroup>
   <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
-    <ProjectReference Include="..\Org.Apache.REEF.Bridge.CLR\Org.Apache.REEF.Bridge.CLR.DotNet.csproj" PrivateAssets="All"/>
+    <ProjectReference Include="..\Org.Apache.REEF.Bridge.CLR\Org.Apache.REEF.Bridge.CLR.DotNet.csproj" PrivateAssets="All" />
   </ItemGroup>
 
   <ItemGroup>
@@ -107,7 +92,7 @@ under the License.
       var srcDir = @"lang\cs\Org.Apache.REEF.Client\Properties";
       var binDir = @"lang\cs\bin\.netcore";
       var resxInputPath  = Path.Combine(ProjectFolder, srcDir, "Resources.DotNet.xml");      
-      var resourceDir = Path.Combine(ProjectFolder, binDir, DebugOrRelease, "Org.Apache.REEF.Bridge.JAR", "net452");
+      var resourceDir = Path.Combine(ProjectFolder, binDir, DebugOrRelease, "Org.Apache.REEF.Bridge.JAR", "net461");
       var clrDriverDir = Path.Combine(ProjectFolder, binDir, DebugOrRelease, "Org.Apache.REEF.Bridge");
       var byteArrayType = ";System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089";
       var jarRest = reefVersion + "-shaded.jar" + byteArrayType;

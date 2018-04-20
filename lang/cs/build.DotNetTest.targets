@@ -18,7 +18,7 @@ under the License.
 
 <Import Project="build.DotNet.targets"/>
 <Target Name="Test">
-  <Exec Command="$(PackagesDir)\xunit.runner.console\2.1.0\tools\xunit.console.exe $(OutputPath)\$(AssemblyName).dll -notrait Environment=Yarn -html $(OutputPath)\xunit_report.html"
+  <Exec Command="$(PackagesDir)\xunit.runner.console\2.2.0\tools\xunit.console.exe $(OutputPath)\$(AssemblyName).dll -notrait Environment=Yarn -html $(OutputPath)\xunit_report.html"
     IgnoreStandardErrorWarningFormat="true"/>
 </Target>
 
