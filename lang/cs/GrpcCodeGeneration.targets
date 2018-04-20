@@ -16,7 +16,7 @@ specific language governing permissions and limitations
 under the License.
 -->
 <!-- GRPC CODE GENERATION TARGETS FOR MSBUILD -->
-<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project>
   <UsingTask TaskName="GrpcToCSharp" TaskFactory="CodeTaskFactory" AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.v4.0.dll">
     <ParameterGroup>
       <!-- The directory where the project is located. This is typically $(ProjectDir) -->
@@ -32,6 +32,8 @@ under the License.
       <Using Namespace="System" />
       <Using Namespace="System.IO" />
       <Using Namespace="System.Diagnostics" />
+      <Using Namespace="System.Threading" />
+      <Using Namespace="System.Threading.Tasks" />
       <Code Type="Fragment" Language="cs"><![CDATA[
           // Create a temporary working directory for the log file.
           string tempDir = Path.GetFullPath(Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString()));
@@ -96,15 +98,29 @@ under the License.
                       // Start the conversion process
                       using (Process rProc = Process.Start(rProcInfo))
                       {
-                          stdOutBuilder.Append(rProc.StandardOutput.ReadToEnd());
-                          stdErrBuilder.Append(rProc.StandardError.ReadToEnd());
+                          // Read the standard out and error on separate threads
+                          // simultaneously to avoid deadlock when rProc fills one
+                          // of the buffers and waits for this process to read it.
+                          // Use fully qualified namespace to avoid conflict
+                          // with Task class defined in visual studio.
+                          var stdOutTask = System.Threading.Tasks.Task.Run(
+                              () => stdOutBuilder.Append(rProc.StandardOutput.ReadToEnd()));
+                          var stdErrTask = System.Threading.Tasks.Task.Run(
+                              () => stdErrBuilder.Append(rProc.StandardError.ReadToEnd()));
+
                           rProc.WaitForExit();
                           if (rProc.ExitCode != 0)
                           {
                               conversionError = true;
                           }
+
+                          // Wait for std out and error readers.
+                          stdOutTask.Wait();
+                          stdErrTask.Wait();
                       }
+                      logWriter.WriteLine("[StdOut]:");
                       logWriter.WriteLine(stdOutBuilder.ToString());
+                      logWriter.WriteLine("[StdErr]:");
                       logWriter.WriteLine(stdErrBuilder.ToString());
                   }
                   if (!conversionError)
