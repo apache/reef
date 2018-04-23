@@ -34,6 +34,7 @@ under the License.
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="Azure.Batch" Version="8.0.0" />
     <PackageReference Include="Microsoft.Avro.Core" Version="$(AvroVersion)" />
     <PackageReference Include="System.Reactive.Interfaces" Version="$(SystemReactiveVersion)" />
     <PackageReference Include="EnterpriseLibrary.TransientFaultHandling.Core" Version="$(TransientFaultHandlingVersion)" />
