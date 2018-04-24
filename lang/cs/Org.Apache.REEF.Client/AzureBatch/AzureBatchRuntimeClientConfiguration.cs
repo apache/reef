@@ -60,17 +60,16 @@ namespace Org.Apache.REEF.Client.AzureBatch
 
         public static IConfiguration FromEnvironment()
         {
-            string configurationPath =
-            Environment.GetEnvironmentVariable(AzBatchConfigurationFileEnvironmentVariable);
+            string configurationPath = Environment.GetEnvironmentVariable(AzBatchConfigurationFileEnvironmentVariable);
 
             if (configurationPath == null)
             {
-                throw new Exception(@"Environment Variable {AzureBatchClientConfiguration.AzBatchConfigurationFileEnvironmentVariable} not set");
+                throw new ArgumentException(@"Environment Variable {AzureBatchClientConfiguration.AzBatchConfigurationFileEnvironmentVariable} not set");
             }
 
             if (!File.Exists(configurationPath))
             {
-                throw new Exception(@"File located by Environment Variable {AzureBatchClientConfiguration.AzBatchConfigurationFileEnvironmentVariable} cannot be read.");
+                throw new ArgumentException(@"File located by Environment Variable {AzureBatchClientConfiguration.AzBatchConfigurationFileEnvironmentVariable} cannot be read.");
             }
 
             return FromTextFile(configurationPath);

@@ -29,8 +29,8 @@ namespace Org.Apache.REEF.Client.AzureBatch.Storage
     internal sealed class AzureStorageClient
     {
         private static readonly Logger LOGGER = Logger.GetLogger(typeof(AzureStorageClient));
-        private static readonly string StorageConnectionStringFormat = "DefaultEndpointsProtocol=https;AccountName={0};AccountKey={1}";
-        private static readonly int SASTokenValidityMinutes = 60;
+        private const string StorageConnectionStringFormat = "DefaultEndpointsProtocol=https;AccountName={0};AccountKey={1}";
+        private const int SASTokenValidityMinutes = 60;
 
         private readonly string _storageAccountName;
         private readonly string _storageAccountKey;

@@ -77,10 +77,7 @@ namespace Org.Apache.REEF.Examples.HelloREEF
             IJobSubmissionResult jobSubmissionResult = _reefClient.SubmitAndGetJobStatus(helloJobRequest);
 
             // Wait for the Driver to complete.
-            if (jobSubmissionResult != null)
-            {
-                jobSubmissionResult.WaitForDriverToFinish();
-            }
+            jobSubmissionResult?.WaitForDriverToFinish();
         }
 
         private string GetApplicationId()

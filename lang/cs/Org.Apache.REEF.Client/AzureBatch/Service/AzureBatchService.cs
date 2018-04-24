@@ -31,13 +31,14 @@ namespace Org.Apache.REEF.Client.DotNet.AzureBatch
     public sealed class AzureBatchService : IDisposable
     {
         private static readonly Logger LOGGER = Logger.GetLogger(typeof(AzureBatchService));
-        private static readonly string AzureStorageContainerSasToken = "AZURE_STORAGE_CONTAINER_SAS_TOKEN_ENV";
+        private static readonly TimeSpan RetryDeltaBackOff = TimeSpan.FromSeconds(5);
+        private const string AzureStorageContainerSasToken = "AZURE_STORAGE_CONTAINER_SAS_TOKEN_ENV";
+        private const int MaxRetries = 3;
 
         public BatchSharedKeyCredential Credentials { get; private set; }
         public string PoolId { get; private set; }
 
         private BatchClient Client { get; set; }
-        private readonly IRetryPolicy retryPolicy;
         private bool disposed;
 
         [Inject]
@@ -51,10 +52,8 @@ namespace Org.Apache.REEF.Client.DotNet.AzureBatch
 
             this.Client = BatchClient.Open(credentials);
             this.Credentials = credentials;
-            this.retryPolicy = new ExponentialRetry(TimeSpan.FromSeconds(5), 3);
             this.PoolId = azureBatchPoolId;
-
-            this.Client.CustomBehaviors.Add(new RetryPolicyProvider(this.retryPolicy));
+            this.Client.CustomBehaviors.Add(new RetryPolicyProvider(new ExponentialRetry(RetryDeltaBackOff, MaxRetries)));
         }
 
         /// <summary>
@@ -93,36 +92,30 @@ namespace Org.Apache.REEF.Client.DotNet.AzureBatch
 
         public void CreateJob(string jobId, Uri resourceFile, string commandLine, string storageContainerSAS)
         {
-            EnvironmentSetting environmentSetting = new EnvironmentSetting(AzureStorageContainerSasToken, storageContainerSAS);
-
-            // This setting will signal Batch to generate an access token and pass it to the Job Manager Task (aka the Driver)
-            // as an environment variable.
-            // See https://docs.microsoft.com/en-us/dotnet/api/microsoft.azure.batch.cloudtask.authenticationtokensettings
-            // for more info.
-            AuthenticationTokenSettings authenticationTokenSettings = new AuthenticationTokenSettings();
-            authenticationTokenSettings.Access = AccessScope.Job;
-
             CloudJob unboundJob = this.Client.JobOperations.CreateJob();
             unboundJob.Id = jobId;
-
-            PoolInformation poolInformation = new PoolInformation();
-            poolInformation.PoolId = this.PoolId;
-            unboundJob.PoolInformation = poolInformation;
-
-            JobManagerTask jobManager = new JobManagerTask()
+            unboundJob.PoolInformation = new PoolInformation() { PoolId = this.PoolId };
+            unboundJob.JobManagerTask = new JobManagerTask()
             {
-                CommandLine = commandLine,
                 Id = jobId,
-                ResourceFiles = resourceFile != null ?
-                    new List<ResourceFile>() { new ResourceFile(resourceFile.AbsoluteUri, AzureBatchFileNames.GetTaskJarFileName()) } :
-                    new List<ResourceFile>()
+                CommandLine = commandLine,
+                RunExclusive = false,
+
+                ResourceFiles = resourceFile != null
+                    ? new List<ResourceFile>() { new ResourceFile(resourceFile.AbsoluteUri, AzureBatchFileNames.GetTaskJarFileName()) }
+                    : new List<ResourceFile>(),
+
+                EnvironmentSettings = new List<EnvironmentSetting> { new EnvironmentSetting(AzureStorageContainerSasToken, storageContainerSAS) },
+
+                // This setting will signal Batch to generate an access token and pass it
+                // to the Job Manager Task (aka the Driver) as an environment variable.
+                // For more info, see
+                // https://docs.microsoft.com/en-us/dotnet/api/microsoft.azure.batch.cloudtask.authenticationtokensettings
+                AuthenticationTokenSettings = new AuthenticationTokenSettings() { Access = AccessScope.Job }
             };
 
-            jobManager.RunExclusive = false;
-            jobManager.EnvironmentSettings = new List<EnvironmentSetting> { environmentSetting };
-            jobManager.AuthenticationTokenSettings = authenticationTokenSettings;
-            unboundJob.JobManagerTask = jobManager;
             unboundJob.Commit();
+
             LOGGER.Log(Level.Info, "Submitted job {0}, commandLine {1} ", jobId, commandLine);
         }
 

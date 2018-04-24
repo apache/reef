@@ -35,7 +35,7 @@ namespace Org.Apache.REEF.Client.DotNet.AzureBatch
         private static readonly Logger LOGGER = Logger.GetLogger(typeof(AzureBatchDotNetClient));
 
         /// Maximum number of characters allowed in Azure Batch job name. This limit is imposed by Azure Batch.
-        private static readonly int AzureBatchMaxCharsJobName = 64;
+        private const int AzureBatchMaxCharsJobName = 64;
 
         private readonly IInjector _injector;
         private readonly DriverFolderPreparationHelper _driverFolderPreparationHelper;
