@@ -70,7 +70,7 @@ namespace Org.Apache.REEF.Client.AzureBatch.Storage
             string sas = blob.GetSharedAccessSignature(CreateSASPolicy());
             string uri = blob.Uri.AbsoluteUri;
             Uri uploadedFile = new Uri(uri + sas);
-            LOGGER.Log(Level.Info, "Uploaded {0} jar file to {1}", new string[] { filePath, uploadedFile.ToString() });
+            LOGGER.Log(Level.Info, "Uploaded {0} jar file to {1}", filePath, uploadedFile);
             return uploadedFile;
         }
 
