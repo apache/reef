@@ -23,6 +23,8 @@ import "evaluator_runtime.proto";
 
 import "reef_service_protos.proto";
 
+import "evaluator_shim.proto";
+
 
 option java_package = "org.apache.reef.proto";
 
@@ -43,4 +45,8 @@ message REEFMessage {
     // Messages from evaluator_runtime.proto
     optional EvaluatorControlProto evaluatorControl = 5;
     optional EvaluatorHeartbeatProto evaluatorHeartBeat = 6;
+    optional EvaluatorShimControlProto evaluatorShimCommand = 7;
+
+    // Messages from evaluator_shim.proto
+    optional EvaluatorShimStatusProto evaluatorShimStatus = 8;
 }

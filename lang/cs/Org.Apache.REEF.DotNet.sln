@@ -5,6 +5,7 @@ VisualStudioVersion = 15.0.27130.2027
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Org.Apache.REEF.Bridge.DotNet", "Org.Apache.REEF.Bridge\Org.Apache.REEF.Bridge.DotNet.vcxproj", "{6C7325D1-EBB6-4642-B34F-B66F46152230}"
 	ProjectSection(ProjectDependencies) = postProject
+		{4AFF480F-006F-4229-8565-DB8F0E5F0C1D} = {4AFF480F-006F-4229-8565-DB8F0E5F0C1D}
 		{448A0D5F-A8DE-4CAA-8224-0A9A63A9392E} = {448A0D5F-A8DE-4CAA-8224-0A9A63A9392E}
 	EndProjectSection
 EndProject
@@ -70,6 +71,10 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Org.Apache.REEF.Network.Examples.Client.DotNet", "Org.Apache.REEF.Network.Examples.Client\Org.Apache.REEF.Network.Examples.Client.DotNet.csproj", "{C22416C6-AF4C-47C6-BBE1-EF23D981AA44}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Org.Apache.REEF.Tests.DotNet", "Org.Apache.REEF.Tests\Org.Apache.REEF.Tests.DotNet.csproj", "{C80B4A96-BAAD-4526-921C-FB5DADBC135E}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Org.Apache.REEF.FatNuGet.DotNet", "Org.Apache.REEF.FatNuGet\Org.Apache.REEF.FatNuGet.DotNet.csproj", "{F7D5EAB5-65F8-45B5-9318-60EC311E08C6}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}}") = "Org.Apache.REEF.Bridge.CLR.DotNet", "Org.Apache.REEF.Bridge.CLR\Org.Apache.REEF.Bridge.CLR.DotNet.csproj", "{81575917-C673-4E6F-9CF1-0DD35FC5E717}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -201,6 +206,14 @@ Global
 		{C80B4A96-BAAD-4526-921C-FB5DADBC135E}.Debug|x64.Build.0 = Debug|x64
 		{C80B4A96-BAAD-4526-921C-FB5DADBC135E}.Release|x64.ActiveCfg = Release|x64
 		{C80B4A96-BAAD-4526-921C-FB5DADBC135E}.Release|x64.Build.0 = Release|x64
+		{F7D5EAB5-65F8-45B5-9318-60EC311E08C6}.Debug|x64.ActiveCfg = Debug|x64
+		{F7D5EAB5-65F8-45B5-9318-60EC311E08C6}.Debug|x64.Build.0 = Debug|x64
+		{F7D5EAB5-65F8-45B5-9318-60EC311E08C6}.Release|x64.ActiveCfg = Release|x64
+		{F7D5EAB5-65F8-45B5-9318-60EC311E08C6}.Release|x64.Build.0 = Release|x64
+		{81575917-C673-4E6F-9CF1-0DD35FC5E717}.Debug|x64.ActiveCfg = Debug|x64
+		{81575917-C673-4E6F-9CF1-0DD35FC5E717}.Debug|x64.Build.0 = Debug|x64
+		{81575917-C673-4E6F-9CF1-0DD35FC5E717}.Release|x64.ActiveCfg = Release|x64
+		{81575917-C673-4E6F-9CF1-0DD35FC5E717}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

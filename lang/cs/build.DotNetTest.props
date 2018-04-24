@@ -19,7 +19,18 @@ under the License.
 <Import Project="build.DotNet.props"/>
 <Import Project="xunit.DotNet.props"/>
 <PropertyGroup>
-  <TargetFrameworks>net452</TargetFrameworks>
+  <TargetFrameworks>net461</TargetFrameworks>
+
+  <!-- If EnableDotNetBuild is true, override the target frameworks to include dot net core -->
+  <TargetFrameworks Condition="'$(EnableDotNetBuild)' == 'true'">netcoreapp2.0;net461</TargetFrameworks>
+
+  <!-- If on Linux, override the target frameworks to netcoreapp2.0 -->
   <TargetFrameworks Condition="'$(OS)' != 'Windows_NT'">netcoreapp2.0</TargetFrameworks>
+
+  <!-- This is required to copy all referenced assemblies to the bin folder -->
+  <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+
+  <!-- Set this attribute to prevent test projects from being packaged -->
+  <IsTestProject>true</IsTestProject>
 </PropertyGroup>
 </Project>

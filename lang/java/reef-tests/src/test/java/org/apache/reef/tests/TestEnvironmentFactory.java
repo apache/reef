@@ -37,8 +37,9 @@ public final class TestEnvironmentFactory {
   public static TestEnvironment getNewTestEnvironment() {
     final boolean isYarn = Boolean.parseBoolean(System.getenv("REEF_TEST_YARN"));
     final boolean isMesos = Boolean.parseBoolean(System.getenv("REEF_TEST_MESOS"));
+    final boolean isAzBatch = Boolean.parseBoolean(System.getenv("REEF_TEST_AZBATCH"));
 
-    if (isYarn && isMesos) {
+    if (isYarn ? (isMesos || isAzBatch) : (isMesos && isAzBatch)) {
       throw new RuntimeException("Cannot test on two runtimes at once");
     } else if (isYarn) {
       LOG.log(Level.INFO, "Running tests on YARN");
@@ -46,6 +47,9 @@ public final class TestEnvironmentFactory {
     } else if (isMesos) {
       LOG.log(Level.INFO, "Running tests on Mesos");
       return new MesosTestEnvironment();
+    } else if (isAzBatch) {
+      LOG.log(Level.INFO, "Running tests on Azure Batch");
+      return new AzureBatchTestEnvironment();
     } else {
       LOG.log(Level.INFO, "Running tests on Local");
       return new LocalTestEnvironment();

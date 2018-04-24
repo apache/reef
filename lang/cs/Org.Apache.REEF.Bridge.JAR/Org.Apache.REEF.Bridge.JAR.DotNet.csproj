@@ -18,10 +18,11 @@ under the License.
   <PropertyGroup>
     <AssemblyName>Org.Apache.REEF.Bridge.JAR</AssemblyName>
     <Description>Helper project that builds the Bridge JAR </Description>
-    <TargetFramework>net452</TargetFramework>
+    <TargetFramework>net461</TargetFramework>
   </PropertyGroup>
   <Import Project="..\build.DotNet.props" />
   <PropertyGroup>
+    <IsPackable>false</IsPackable>
     <OutputPath>$(BinDir)$(Configuration)\Org.Apache.REEF.Bridge.JAR\</OutputPath>
   </PropertyGroup>
   <Import Project="..\build.DotNet.targets" />

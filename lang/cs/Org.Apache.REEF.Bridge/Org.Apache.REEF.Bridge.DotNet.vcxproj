@@ -23,6 +23,10 @@ under the License.
     <Platform Condition="'$(Platform)' == ''">x64</Platform>
     <SolutionDir Condition="'$(SolutionDir)' == ''">..</SolutionDir>
     <ConfigurationType>Application</ConfigurationType>
+
+    <!-- Added for when the .net core build is enabled. This prevents assemblies for the bridge
+         to be copied to the bin folder. -->
+    <ImplicitlyExpandNETStandardFacades>false</ImplicitlyExpandNETStandardFacades>
   </PropertyGroup>
   <Import Project="..\build.Common.DotNet.props" />
   <ItemGroup Label="ProjectConfigurations">
@@ -37,10 +41,10 @@ under the License.
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{6C7325D1-EBB6-4642-B34F-B66F46152230}</ProjectGuid>
-    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <Keyword>ManagedCProj</Keyword>
     <RootNamespace>Org.Apache.REEF.Bridge</RootNamespace>
-    <WindowsTargetPlatformVersion Condition="'$(MSBuildAssemblyVersion)' >= '15.0'">10.0.15063.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion Condition="'$(MSBuildAssemblyVersion)' &gt;= '15.0'">10.0.15063.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <!--
@@ -108,7 +112,8 @@ under the License.
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <AdditionalIncludeDirectories>..\..\java\reef-bridge-java\target\classes;$(JAVA_HOME)\include;$(JAVA_HOME)\include\win32;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
-      <AdditionalUsingDirectories>$(BinDir)$(Configuration)\Org.Apache.REEF.Driver\net452</AdditionalUsingDirectories>
+      <AdditionalUsingDirectories Condition="'$(EnableDotNetBuild)' == 'False'">$(AdditionalUsingDirectories);$(BinDir)$(Configuration)\Org.Apache.REEF.Driver\net461</AdditionalUsingDirectories>
+      <AdditionalUsingDirectories Condition="'$(EnableDotNetBuild)' == 'True'">$(AdditionalUsingDirectories);$(BinDir)$(Configuration)\Org.Apache.REEF.Driver\netstandard2.0</AdditionalUsingDirectories>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -123,7 +128,9 @@ under the License.
       <PreprocessorDefinitions>WIN32;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <AdditionalIncludeDirectories>..\..\java\reef-bridge-java\target\classes;$(JAVA_HOME)\include;$(JAVA_HOME)\include\win32;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <AdditionalUsingDirectories>$(BinDir)$(Configuration)\Org.Apache.REEF.Driver\net452</AdditionalUsingDirectories>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <AdditionalUsingDirectories Condition="'$(EnableDotNetBuild)' == 'False'">$(AdditionalUsingDirectories);$(BinDir)$(Configuration)\Org.Apache.REEF.Driver\net461</AdditionalUsingDirectories>
+      <AdditionalUsingDirectories Condition="'$(EnableDotNetBuild)' == 'True'">$(AdditionalUsingDirectories);$(BinDir)$(Configuration)\Org.Apache.REEF.Driver\netstandard2.0</AdditionalUsingDirectories>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -202,4 +209,8 @@ under the License.
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
+  
+  <!-- Adds an empty pack target so that this project is skipped when packing. -->
+  <Target Name="Pack">
+  </Target>
 </Project>

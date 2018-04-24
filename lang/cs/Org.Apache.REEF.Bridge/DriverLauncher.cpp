@@ -25,12 +25,13 @@ typedef jint(JNICALL *JNI_CreateJavaVM_FN)(JavaVM **pvm, void **penv, void *args
 LPCTSTR JAVA_HOME = L"JAVA_HOME";
 
 // Where should we try to load jvm dll from?
-// Try server version first. Path relative to $(JAVA_HOME)
-LPCTSTR JVM_DLL1 = L"\\jre\\bin\\server\\jvm.dll";
-
-// If we could not find server jvm, Try client version.
-// Path relative to $(JAVA_HOME)
-LPCTSTR JVM_DLL2 = L"\\jre\\bin\\client\\jvm.dll";
+// Try these paths relative to $(JAVA_HOME).
+LPCTSTR const JVM_DLL_PATHS[] = {
+    L"\\jre\\bin\\server\\jvm.dll",
+    L"\\jre\\bin\\client\\jvm.dll",
+    L"\\bin\\server\\jvm.dll",
+    L"\\bin\\client\\jvm.dll" };
+int JVM_DLL_PATHS_SIZE = sizeof(JVM_DLL_PATHS) / sizeof(LPCTSTR);
 
 // Name of the function that creates a java VM
 const char* JNI_CreateJavaVM_Func_Name = "JNI_CreateJavaVM";
@@ -214,26 +215,32 @@ JavaVMOption* GetJavaOptions(char *argv[], int& optionCount, int firstOptionOrdi
 
 int Get_CreateJavaVM_Function(JNI_CreateJavaVM_FN& fn_JNI_CreateJavaVM)
 {
-    wchar_t jvmDllPath1[maxPathBufSize];
-    wchar_t jvmDllPath2[maxPathBufSize];
-    DWORD rc = GetEnvironmentVariable(JAVA_HOME, jvmDllPath1, maxPathBufSize);
+    wchar_t javaHomePath[maxPathBufSize];
+    wchar_t jvmDllPath[maxPathBufSize];
+
+    DWORD rc = GetEnvironmentVariable(JAVA_HOME, javaHomePath, maxPathBufSize);
     if (0 == rc) {
         wprintf(L"Could not GetEnvironmentVariable %ls\n", JAVA_HOME);
         return ErrGetEnvironmentVariable;
     }
 
-    wcscat_s(jvmDllPath1, maxPathBufSize, JVM_DLL1);
+    // Try all possible dll paths
+    HMODULE jvm_dll = NULL;
+    for (int i = 0; i < JVM_DLL_PATHS_SIZE; i++) {
+        swprintf(jvmDllPath, maxPathBufSize, L"%ls%ls", javaHomePath, JVM_DLL_PATHS[i]);
 
-    HMODULE jvm_dll = LoadLibrary(jvmDllPath1);
-    if (jvm_dll == NULL) {
-        wprintf(L"Could not load dll %ls\n", jvmDllPath1);
-        GetEnvironmentVariable(JAVA_HOME, jvmDllPath2, maxPathBufSize);
-        wcscat_s(jvmDllPath2, maxPathBufSize, JVM_DLL2);
-        jvm_dll = LoadLibrary(jvmDllPath2);
+        jvm_dll = LoadLibrary(jvmDllPath);
         if (jvm_dll == NULL) {
-            wprintf(L"Could not load dll %ls\n", jvmDllPath2);
-            return ErrLoadLibraryJVM;
+            wprintf(L"Could not load dll %ls\n", jvmDllPath);
         }
+        else
+        {
+            break;
+        }
+    }
+
+    if (jvm_dll == NULL) {
+        return ErrLoadLibraryJVM;
     }
 
     fn_JNI_CreateJavaVM = (JNI_CreateJavaVM_FN)GetProcAddress(jvm_dll, JNI_CreateJavaVM_Func_Name);
@@ -279,7 +286,7 @@ int CreateJVM(JNIEnv*& env, JavaVM*& jvm, JavaVMOption* options, int optionCount
 //
 int CallMainMethodOfEntryClass(
     JNIEnv* env,
-    char*	argv[],
+    char*   argv[],
     int     firstArgOrdinal,
     int     argCount)
 {
