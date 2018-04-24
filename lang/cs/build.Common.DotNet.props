@@ -17,7 +17,11 @@ under the License.
 -->
 
   <PropertyGroup>
-    <Version>0.17.0</Version>
+    <SnapshotNumber>01</SnapshotNumber>
+    <IsSnapshot>true</IsSnapshot>
+    <VersionPrefix>0.17.0</VersionPrefix>
+    <VersionSuffix Condition="'$(IsSnapshot)' == true">SNAPSHOT-$(SnapshotNumber)</VersionSuffix>
+
     <Authors>Apache Software Foundation</Authors>
     <Owners>The Apache REEF project</Owners>
     <Product>Apache REEF</Product>
@@ -32,8 +36,6 @@ under the License.
     <RepositoryUrl>https://github.com/apache/reef.git</RepositoryUrl>
     <PackageReleaseNotes>Contact the Apache REEF development alias dev@reef.apache.org for questions or issues.</PackageReleaseNotes>
     <DefaultItemExcludes>$(DefaultItemExcludes);**/AssemblyInfo.cs;**/Resources.xml;packages.config;*.nuspec</DefaultItemExcludes>
-    <IsSnapshot>true</IsSnapshot>
-    <SnapshotNumber>01</SnapshotNumber>
   </PropertyGroup>
 
   <PropertyGroup>
