@@ -29,6 +29,7 @@ namespace Org.Apache.REEF.Driver.Evaluator
         private string _runtimeName;
         private ICollection<string> _nodeNames;
         private bool _relaxLocality;
+        private string _nodeLabelExpression;
 
         internal EvaluatorRequestBuilder(IEvaluatorRequest request)
         {
@@ -40,6 +41,7 @@ namespace Org.Apache.REEF.Driver.Evaluator
             _runtimeName = request.RuntimeName;
             _nodeNames = request.NodeNames;
             _relaxLocality = request.RelaxLocality;
+            _nodeLabelExpression = request.NodeLabelExpression;
         }
 
         internal EvaluatorRequestBuilder()
@@ -52,6 +54,7 @@ namespace Org.Apache.REEF.Driver.Evaluator
             _runtimeName = string.Empty;
             _nodeNames = Enumerable.Empty<string>().ToList();
             _relaxLocality = true;
+            _nodeLabelExpression = string.Empty;
         }
 
         public int Number { get; private set; }
@@ -158,12 +161,23 @@ namespace Org.Apache.REEF.Driver.Evaluator
         }
 
         /// <summary>
+        /// Set the node label expression.
+        /// </summary>
+        /// <param name="nodeLabelExpression">describing a desired node type.</param>
+        /// <returns></returns>
+        public EvaluatorRequestBuilder SetNodeLabelExpression(string nodeLabelExpression)
+        {
+            _nodeLabelExpression = nodeLabelExpression;
+            return this;
+        }
+
+        /// <summary>
         /// Build the EvaluatorRequest.
         /// </summary>
         /// <returns></returns>
         public IEvaluatorRequest Build()
         {
-            return new EvaluatorRequest(Number, MegaBytes, VirtualCore, rack: _rackName, evaluatorBatchId: _evaluatorBatchId, runtimeName: _runtimeName, nodeNames: _nodeNames, relaxLocality: _relaxLocality);
+            return new EvaluatorRequest(Number, MegaBytes, VirtualCore, rack: _rackName, evaluatorBatchId: _evaluatorBatchId, runtimeName: _runtimeName, nodeNames: _nodeNames, relaxLocality: _relaxLocality, nodeLabelExpression: _nodeLabelExpression);
         }
     }
 }
