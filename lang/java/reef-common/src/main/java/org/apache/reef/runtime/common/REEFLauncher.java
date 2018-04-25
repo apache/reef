@@ -71,6 +71,11 @@ public final class REEFLauncher {
    */
   private final Configuration envConfig;
 
+
+  public Configuration getEnvConfig(){
+    return envConfig;
+  }
+
   /**
    * REEFLauncher is instantiated in the main() method below using
    * Tang configuration file provided as a command line argument.

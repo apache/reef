@@ -22,7 +22,7 @@
 # ./run.sh org.apache.reef.examples.hello.HelloREEF
 
 # RUNTIME
-SELF_JAR=`echo $REEF_HOME/lang/java/reef-examples/target/reef-examples-*-shaded.jar`
+SELF_JAR=`echo $REEF_HOME/lang/java/reef-examples/target/reef-examples-0.17.0-SNAPSHOT.jar`
 
 LOGGING_CONFIG='-Djava.util.logging.config.class=org.apache.reef.util.logging.Config'
 
