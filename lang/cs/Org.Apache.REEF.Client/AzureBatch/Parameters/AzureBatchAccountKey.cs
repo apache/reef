@@ -14,18 +14,12 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
+using Org.Apache.REEF.Tang.Annotations;
 
-namespace Org.Apache.REEF.Examples.HelloREEF
+namespace Org.Apache.REEF.Client.AzureBatch.Parameters
 {
-    public sealed class Run
+    [NamedParameter(Documentation = "The Azure Batch Account Key")]
+    public sealed class AzureBatchAccountKey : Name<string>
     {
-        /// <summary>
-        /// Program that runs hello reef
-        /// </summary>
-        /// <param name="args"></param>
-        public static void Main(string[] args)
-        {
-            HelloREEF.MainSimple(args);
-        }
     }
 }

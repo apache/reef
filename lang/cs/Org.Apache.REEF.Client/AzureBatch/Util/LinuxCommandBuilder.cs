@@ -15,17 +15,30 @@
 // specific language governing permissions and limitations
 // under the License.
 
-namespace Org.Apache.REEF.Examples.HelloREEF
+using System;
+using Org.Apache.REEF.Common.Files;
+using Org.Apache.REEF.Tang.Annotations;
+
+namespace Org.Apache.REEF.Client.AzureBatch.Util
 {
-    public sealed class Run
+    internal sealed class LinuxCommandBuilder : AbstractCommandBuilder
     {
-        /// <summary>
-        /// Program that runs hello reef
-        /// </summary>
-        /// <param name="args"></param>
-        public static void Main(string[] args)
+        private static readonly string CommandPrefix =
+            "unzip " + AzureBatchFileNames.GetTaskJarFileName() + " -d 'reef/'" + ";";
+        private const string ClassPathSeparator = ":";
+        private const string OsCommandFormat = "/bin/sh c \"{0}\"";
+
+        [Inject]
+        private LinuxCommandBuilder(
+            REEFFileNames fileNames,
+            AzureBatchFileNames azureBatchFileNames) : base(fileNames, azureBatchFileNames,
+                CommandPrefix, OsCommandFormat)
         {
-            HelloREEF.MainSimple(args);
+        }
+
+        protected override string GetDriverClasspath()
+        {
+            throw new NotImplementedException();
         }
     }
 }
