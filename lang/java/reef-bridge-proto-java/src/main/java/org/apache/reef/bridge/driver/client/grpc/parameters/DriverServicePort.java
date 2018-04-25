@@ -16,7 +16,14 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+package org.apache.reef.bridge.driver.client.grpc.parameters;
+
+import org.apache.reef.tang.annotations.Name;
+import org.apache.reef.tang.annotations.NamedParameter;
+
 /**
- * Client bridge.
+ * gRPC driver service port.
  */
-package org.apache.reef.bridge.client;
+@NamedParameter(doc = "Driver Service Grpc port", short_name = "driver-service-port")
+public final class DriverServicePort implements Name<Integer> {
+}

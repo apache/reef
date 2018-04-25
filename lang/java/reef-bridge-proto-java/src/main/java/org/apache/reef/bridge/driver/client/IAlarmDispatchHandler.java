@@ -16,7 +16,15 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
+package org.apache.reef.bridge.driver.client;
+
+import org.apache.reef.tang.annotations.DefaultImplementation;
+import org.apache.reef.wake.EventHandler;
+
 /**
- * Client bridge.
+ * Alarm dispatch handler.
  */
-package org.apache.reef.bridge.client;
+@DefaultImplementation(DriverClientClock.class)
+public interface IAlarmDispatchHandler extends EventHandler<String> {
+}

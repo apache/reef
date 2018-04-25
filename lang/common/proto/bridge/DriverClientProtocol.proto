@@ -74,6 +74,33 @@ service DriverClient {
   rpc ClientCloseHandler (Void) returns (Void) {}
 
   rpc ClientCloseWithMessageHandler (ClientMessageInfo) returns (Void) {}
+
+  // Driver Restart Handlers
+  rpc DriverRestartHandler (DriverRestartInfo) returns (Void) {}
+
+  rpc DriverRestartActiveContextHandler (ContextInfo) returns (Void) {}
+
+  rpc DriverRestartRunningTaskHandler (TaskInfo) returns (Void) {}
+
+  rpc DriverRestartCompletedHandler (DriverRestartCompletedInfo) returns (Void) {}
+
+  rpc DriverRestartFailedEvaluatorHandler (EvaluatorInfo) returns (Void) {}
+}
+
+// Driver restart information
+message DriverRestartInfo {
+  uint32 resubmission_attempts = 1;
+
+  StartTimeInfo start_time = 2;
+
+  repeated string expected_evaluator_ids = 3;
+}
+
+// Driver restart completed information
+message DriverRestartCompletedInfo {
+  StopTimeInfo completion_time = 1;
+
+  bool is_timed_out = 2;
 }
 
 // IdleStatus response to idleness inquiry
@@ -127,6 +154,9 @@ message ContextInfo {
 
   string parent_id = 3;
 
+  // Carry this with us for driver restart
+  EvaluatorDescriptorInfo evaluator_descriptor_info = 4;
+
   // Optional exception information
   ExceptionInfo exception = 5;
 }
@@ -142,13 +172,19 @@ message ContextMessageInfo {
 }
 
 message TaskInfo {
+  // Task identifier.
   string task_id = 1;
 
-  string context_id = 2;
+  // Task result.
+  bytes result = 2;
 
-  bytes result = 3;
+  /* Carry entire context info since client may not have received it
+   * when submitting task against allocated evalautor.
+   */
+  ContextInfo context = 5;
 
-  ExceptionInfo exception = 5;
+  // Possible exception encountered in task execution.
+  ExceptionInfo exception = 10;
 }
 
 message TaskMessageInfo {

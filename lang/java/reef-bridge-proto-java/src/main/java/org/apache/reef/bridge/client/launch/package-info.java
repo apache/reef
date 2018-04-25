@@ -17,6 +17,6 @@
  * under the License.
  */
 /**
- * Client bridge.
+ * Client bridge runtime specific launchers.
  */
-package org.apache.reef.bridge.client;
+package org.apache.reef.bridge.client.launch;

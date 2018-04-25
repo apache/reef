@@ -19,4 +19,4 @@
 /**
  * Client bridge.
  */
-package org.apache.reef.bridge.client;
+package org.apache.reef.bridge.client.runtime;

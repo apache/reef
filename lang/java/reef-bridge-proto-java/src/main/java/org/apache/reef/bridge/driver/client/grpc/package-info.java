@@ -17,6 +17,6 @@
  * under the License.
  */
 /**
- * Client bridge.
+ * gRPC specific implementations of the driver client bridge.
  */
-package org.apache.reef.bridge.client;
+package org.apache.reef.bridge.driver.client.grpc;

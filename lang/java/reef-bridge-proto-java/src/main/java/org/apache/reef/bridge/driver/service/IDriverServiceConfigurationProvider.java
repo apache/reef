@@ -16,7 +16,16 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
+package org.apache.reef.bridge.driver.service;
+
+import org.apache.reef.bridge.client.IDriverBridgeConfigurationProvider;
+import org.apache.reef.bridge.driver.service.grpc.GRPCDriverServiceConfigurationProvider;
+import org.apache.reef.tang.annotations.DefaultImplementation;
+
 /**
- * Client bridge.
+ * Configuration provider for the driver service.
  */
-package org.apache.reef.bridge.client;
+@DefaultImplementation(GRPCDriverServiceConfigurationProvider.class)
+public interface IDriverServiceConfigurationProvider extends IDriverBridgeConfigurationProvider {
+}

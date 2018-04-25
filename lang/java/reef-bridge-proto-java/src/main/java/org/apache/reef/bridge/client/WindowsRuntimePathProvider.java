@@ -16,7 +16,28 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-/**
- * Client bridge.
- */
+
 package org.apache.reef.bridge.client;
+
+import org.apache.reef.runtime.common.files.RuntimePathProvider;
+
+import javax.inject.Inject;
+/**
+ * Supplies the java binary's path for HDInsight.
+ */
+public final class WindowsRuntimePathProvider implements RuntimePathProvider {
+
+  @Inject
+  public WindowsRuntimePathProvider() {
+  }
+
+  @Override
+  public String getPath() {
+    return "java";
+  }
+
+  @Override
+  public String toString() {
+    return getPath();
+  }
+}
