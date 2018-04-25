@@ -25,10 +25,15 @@ import org.apache.reef.annotations.audience.Interop;
 import org.apache.reef.reef.bridge.client.avro.AvroAzureBatchJobSubmissionParameters;
 import org.apache.reef.runtime.azbatch.client.AzureBatchRuntimeConfiguration;
 import org.apache.reef.runtime.azbatch.client.AzureBatchRuntimeConfigurationCreator;
-import org.apache.reef.runtime.common.REEFLauncher;
+import org.apache.reef.runtime.common.REEFEnvironment;
+import org.apache.reef.runtime.common.evaluator.PIDStoreStartHandler;
+import org.apache.reef.runtime.common.launch.REEFErrorHandler;
+import org.apache.reef.runtime.common.launch.REEFMessageCodec;
 import org.apache.reef.tang.Configuration;
 import org.apache.reef.tang.Tang;
 import org.apache.reef.tang.exceptions.InjectionException;
+import org.apache.reef.wake.remote.RemoteConfiguration;
+import org.apache.reef.wake.time.Clock;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -66,21 +71,24 @@ public final class AzureBatchBootstrapREEFLauncher {
       throw fatal(message, new IllegalArgumentException(message));
     }
 
-    try {
+    final File partialConfigFile = new File(args[0]);
+    final AzureBatchBootstrapDriverConfigGenerator azureBatchBootstrapDriverConfigGenerator =
+        Tang.Factory.getTang().newInjector(generateConfigurationFromJobSubmissionParameters(partialConfigFile))
+            .getInstance(AzureBatchBootstrapDriverConfigGenerator.class);
 
-      final File partialConfigFile = new File(args[0]);
-      final AzureBatchBootstrapDriverConfigGenerator azureBatchBootstrapDriverConfigGenerator =
-          Tang.Factory.getTang().newInjector(generateConfigurationFromJobSubmissionParameters(partialConfigFile))
-              .getInstance(AzureBatchBootstrapDriverConfigGenerator.class);
-      REEFLauncher.main(new String[]{
-          azureBatchBootstrapDriverConfigGenerator.writeDriverConfigurationFileFromParams(args[0])
-      });
-    } catch (final Exception exception) {
-      if (!(exception instanceof RuntimeException)) {
-        throw fatal("Failed to initialize configurations.", exception);
-      }
+    final Configuration launcherConfig =
+        Tang.Factory.getTang().newConfigurationBuilder()
+            .bindNamedParameter(RemoteConfiguration.ManagerName.class, "AzureBatchBootstrapREEFLauncher")
+            .bindNamedParameter(RemoteConfiguration.ErrorHandler.class, REEFErrorHandler.class)
+            .bindNamedParameter(RemoteConfiguration.MessageCodec.class, REEFMessageCodec.class)
+            .bindSetEntry(Clock.RuntimeStartHandler.class, PIDStoreStartHandler.class)
+            .build();
 
-      throw exception;
+    try (final REEFEnvironment reef = REEFEnvironment.fromConfiguration(
+        azureBatchBootstrapDriverConfigGenerator.getDriverConfigurationFromParams(args[0]), launcherConfig)) {
+      reef.run();
+    } catch (final InjectionException ex) {
+      throw fatal("Unable to configure and start REEFEnvironment.", ex);
     }
   }
 

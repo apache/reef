@@ -105,7 +105,6 @@ namespace Org.Apache.REEF.Client.Common
 
             // Add the reef-bridge-client jar to the global files in the manner of JavaClientLauncher.cs.
             _fileSets.AddToGlobalFiles(Directory.GetFiles(JarFolder)
-                .Where(file => !string.IsNullOrWhiteSpace(file))
                 .Where(jarFile => Path.GetFileName(jarFile).ToLower().StartsWith(ClientConstants.ClientJarFilePrefix)));
 
             InternalPrepareDriverFolder(appParameters, driverFolderPath);

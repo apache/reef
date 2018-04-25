@@ -24,9 +24,7 @@ import org.apache.avro.specific.SpecificDatumReader;
 import org.apache.reef.reef.bridge.client.avro.AvroAzureBatchJobSubmissionParameters;
 import org.apache.reef.runtime.common.client.DriverConfigurationProvider;
 import org.apache.reef.runtime.common.driver.parameters.ClientRemoteIdentifier;
-import org.apache.reef.runtime.common.files.REEFFileNames;
 import org.apache.reef.tang.Configuration;
-import org.apache.reef.tang.formats.ConfigurationSerializer;
 
 import javax.inject.Inject;
 import java.io.File;
@@ -43,20 +41,14 @@ import java.util.logging.Logger;
 final class AzureBatchBootstrapDriverConfigGenerator {
   private static final Logger LOG = Logger.getLogger(AzureBatchBootstrapDriverConfigGenerator.class.getName());
 
-  private final REEFFileNames reefFileNames;
-  private final ConfigurationSerializer configurationSerializer;
   private final DriverConfigurationProvider driverConfigurationProvider;
 
   @Inject
-  private AzureBatchBootstrapDriverConfigGenerator(final REEFFileNames reefFileNames,
-                                                   final DriverConfigurationProvider driverConfigurationProvider,
-                                                   final ConfigurationSerializer configurationSerializer) {
-    this.configurationSerializer = configurationSerializer;
-    this.reefFileNames = reefFileNames;
+  private AzureBatchBootstrapDriverConfigGenerator(final DriverConfigurationProvider driverConfigurationProvider) {
     this.driverConfigurationProvider = driverConfigurationProvider;
   }
 
-  public String writeDriverConfigurationFileFromParams(final String bootstrapJobArgsLocation)
+  public Configuration getDriverConfigurationFromParams(final String bootstrapJobArgsLocation)
       throws IOException {
 
     File bootstrapJobArgsFile = new File(bootstrapJobArgsLocation).getCanonicalFile();
@@ -68,16 +60,10 @@ final class AzureBatchBootstrapDriverConfigGenerator {
     File jobFolder = new File(azureBatchBootstrapJobArgs
         .getSharedJobSubmissionParameters().getJobSubmissionFolder().toString());
 
-    LOG.log(Level.INFO, "jobFolder {0} jobId {1}.", new String[]{jobFolder.toURI().toString(), jobId});
+    LOG.log(Level.INFO, "jobFolder {0} jobId {1}.", new Object[]{jobFolder.toURI(), jobId});
 
-    final Configuration driverConfiguration = driverConfigurationProvider.getDriverConfiguration(
+    return driverConfigurationProvider.getDriverConfiguration(
         jobFolder.toURI(), ClientRemoteIdentifier.NONE, jobId, Constants.DRIVER_CONFIGURATION_WITH_HTTP_AND_NAMESERVER);
-
-    final String driverConfigPath = reefFileNames.getDriverConfigurationPath();
-
-    this.configurationSerializer.toFile(driverConfiguration, new File(driverConfigPath));
-
-    return driverConfigPath;
   }
 
   private AvroAzureBatchJobSubmissionParameters readAzureBatchJobSubmissionParametersFromFile(final File file)

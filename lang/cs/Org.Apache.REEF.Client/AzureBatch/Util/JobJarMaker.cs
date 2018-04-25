@@ -51,15 +51,17 @@ namespace Org.Apache.REEF.Client.AzureBatch.Util
             _resourceArchiveFileGenerator = resourceArchiveFileGenerator;
             _driverFolderPreparationHelper = driverFolderPreparationHelper;
             _fileNames = fileNames;
-            _avroAzureBatchJobSubmissionParameters = new AvroAzureBatchJobSubmissionParameters();
-            _avroAzureBatchJobSubmissionParameters.AzureBatchAccountKey = azureBatchAccountKey;
-            _avroAzureBatchJobSubmissionParameters.AzureBatchAccountName = azureBatchAccountName;
-            _avroAzureBatchJobSubmissionParameters.AzureBatchAccountUri = azureBatchAccountUri;
-            _avroAzureBatchJobSubmissionParameters.AzureBatchPoolId = azureBatchPoolId;
-            _avroAzureBatchJobSubmissionParameters.AzureStorageAccountKey = azureStorageAccountKey;
-            _avroAzureBatchJobSubmissionParameters.AzureStorageAccountName = azureStorageAccountName;
-            _avroAzureBatchJobSubmissionParameters.AzureStorageContainerName = azureStorageContainerName;
-            _avroAzureBatchJobSubmissionParameters.AzureBatchIsWindows = true;
+            _avroAzureBatchJobSubmissionParameters = new AvroAzureBatchJobSubmissionParameters
+            {
+                AzureBatchAccountKey = azureBatchAccountKey,
+                AzureBatchAccountName = azureBatchAccountName,
+                AzureBatchAccountUri = azureBatchAccountUri,
+                AzureBatchPoolId = azureBatchPoolId,
+                AzureStorageAccountKey = azureStorageAccountKey,
+                AzureStorageAccountName = azureStorageAccountName,
+                AzureStorageContainerName = azureStorageContainerName,
+                AzureBatchIsWindows = true
+            };
         }
 
         /// <summary>
@@ -70,13 +72,12 @@ namespace Org.Apache.REEF.Client.AzureBatch.Util
         /// <returns>A string path to file.</returns>
         public string CreateJobSubmissionJAR(JobRequest jobRequest, string azureBatchjobId)
         {
-            var bootstrapJobArgs = new AvroJobSubmissionParameters
+            _avroAzureBatchJobSubmissionParameters.sharedJobSubmissionParameters = new AvroJobSubmissionParameters
             {
                 jobId = jobRequest.JobIdentifier,
                 //// This is dummy in Azure Batch, as it does not use jobSubmissionFolder in Azure Batch.
                 jobSubmissionFolder = Path.PathSeparator.ToString()
-            };
-            _avroAzureBatchJobSubmissionParameters.sharedJobSubmissionParameters = bootstrapJobArgs;
+            }; ;
             string localDriverFolderPath = CreateDriverFolder(azureBatchjobId);
             _driverFolderPreparationHelper.PrepareDriverFolderWithGlobalBridgeJar(jobRequest.AppParameters, localDriverFolderPath);
             SerializeJobFile(localDriverFolderPath, _avroAzureBatchJobSubmissionParameters);
@@ -93,13 +94,8 @@ namespace Org.Apache.REEF.Client.AzureBatch.Util
         {
             var serializedArgs = AvroJsonSerializer<AvroAzureBatchJobSubmissionParameters>.ToBytes(jobParameters);
 
-            var submissionJobArgsFilePath = Path.Combine(
-                new string[]
-                {
-                    localDriverFolderPath,
-                    _fileNames.GetReefFolderName(),
-                    _fileNames.GetJobSubmissionParametersFile()
-                });
+            var submissionJobArgsFilePath = Path.Combine(localDriverFolderPath,
+                    _fileNames.GetReefFolderName(), _fileNames.GetJobSubmissionParametersFile());
 
             using (var jobArgsFileStream = new FileStream(submissionJobArgsFilePath, FileMode.CreateNew))
             {
