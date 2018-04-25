@@ -562,8 +562,13 @@ final class YarnContainerManager implements AMRMClientAsync.CallbackHandler, NMC
   }
 
   private boolean isSameKindOfRequest(final AMRMClient.ContainerRequest r1, final AMRMClient.ContainerRequest r2) {
+    final boolean nodeLabelExpressionIsEqual = r1.getNodeLabelExpression() == null ?
+        r2.getNodeLabelExpression() == null :
+        r2.getNodeLabelExpression() == null ?
+            false : r1.getNodeLabelExpression().compareTo(r2.getNodeLabelExpression()) == 0;
     return r1.getPriority().compareTo(r2.getPriority()) == 0
         && r1.getCapability().compareTo(r2.getCapability()) == 0
+        && nodeLabelExpressionIsEqual
         && r1.getRelaxLocality() == r2.getRelaxLocality()
         && ListUtils.isEqualList(r1.getNodes(), r2.getNodes())
         && ListUtils.isEqualList(r1.getRacks(), r2.getRacks());

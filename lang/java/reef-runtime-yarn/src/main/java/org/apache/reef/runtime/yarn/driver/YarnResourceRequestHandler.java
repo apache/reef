@@ -18,6 +18,7 @@
  */
 package org.apache.reef.runtime.yarn.driver;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.hadoop.yarn.api.records.Priority;
 import org.apache.hadoop.yarn.api.records.Resource;
 import org.apache.hadoop.yarn.client.api.AMRMClient;
@@ -64,12 +65,15 @@ public final class YarnResourceRequestHandler implements ResourceRequestHandler 
     final Priority pri = getPriority(resourceRequestEvent);
     final Resource resource = getResource(resourceRequestEvent);
     final boolean relaxLocality = resourceRequestEvent.getRelaxLocality().orElse(true);
+    final String nodeLabelExpression = resourceRequestEvent.getNodeLabelExpression().orElse("");
 
     final AMRMClient.ContainerRequest[] containerRequests =
         new AMRMClient.ContainerRequest[resourceRequestEvent.getResourceCount()];
 
     for (int i = 0; i < resourceRequestEvent.getResourceCount(); i++) {
-      containerRequests[i] = new AMRMClient.ContainerRequest(resource, nodes, racks, pri, relaxLocality);
+      containerRequests[i] =
+          new AMRMClient.ContainerRequest(resource, nodes, racks, pri, relaxLocality,
+              StringUtils.isEmpty(nodeLabelExpression) ? null : nodeLabelExpression);
     }
     this.yarnContainerRequestHandler.onContainerRequest(containerRequests);
   }
