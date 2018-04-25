@@ -73,6 +73,11 @@ public interface ResourceRequestEvent {
   Optional<Boolean> getRelaxLocality();
 
   /**
+   * @return label expression that can further describe the desired resources.
+   */
+  Optional<String> getNodeLabelExpression();
+
+  /**
    * @return The runtime name
    */
   String getRuntimeName();
