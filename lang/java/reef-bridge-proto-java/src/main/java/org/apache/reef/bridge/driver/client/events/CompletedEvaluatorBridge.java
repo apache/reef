@@ -16,7 +16,24 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
+package org.apache.reef.bridge.driver.client.events;
+
+import org.apache.reef.driver.evaluator.CompletedEvaluator;
+
 /**
- * Client bridge.
+ * Completed Evaluator bridge.
  */
-package org.apache.reef.bridge.client;
+public final class CompletedEvaluatorBridge implements CompletedEvaluator {
+
+  private final String id;
+
+  public CompletedEvaluatorBridge(final String id) {
+    this.id = id;
+  }
+
+  @Override
+  public String getId() {
+    return this.id;
+  }
+}

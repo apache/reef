@@ -17,6 +17,6 @@
  * under the License.
  */
 /**
- * Client bridge.
+ * REEF event stubs.
  */
-package org.apache.reef.bridge.client;
+package org.apache.reef.bridge.driver.client.events;

@@ -16,7 +16,28 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
+package org.apache.reef.bridge.driver.client;
+
+import org.apache.reef.wake.EventHandler;
+
+import javax.inject.Inject;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 /**
- * Client bridge.
+ * Driver client exception handler.
  */
-package org.apache.reef.bridge.client;
+public final class DriverClientExceptionHandler implements EventHandler<Throwable> {
+  private static final Logger LOG = Logger.getLogger(DriverClientExceptionHandler.class.getName());
+
+  @Inject
+  private DriverClientExceptionHandler() {
+    LOG.log(Level.FINE, "Instantiated 'DriverExceptionHandler'");
+  }
+
+
+  @Override
+  public void onNext(final Throwable throwable) {
+  }
+}

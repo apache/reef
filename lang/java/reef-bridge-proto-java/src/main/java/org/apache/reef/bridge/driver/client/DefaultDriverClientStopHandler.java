@@ -16,7 +16,28 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
+package org.apache.reef.bridge.driver.client;
+
+import org.apache.reef.wake.EventHandler;
+import org.apache.reef.wake.time.event.StopTime;
+
+import javax.inject.Inject;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 /**
- * Client bridge.
+ * Default java client driver stop handler.
  */
-package org.apache.reef.bridge.client;
+public final class DefaultDriverClientStopHandler implements EventHandler<StopTime> {
+
+  private static final Logger LOG = Logger.getLogger(DefaultDriverClientStopHandler.class.getName());
+
+  @Inject
+  private DefaultDriverClientStopHandler() {}
+
+  @Override
+  public void onNext(final StopTime value) {
+    LOG.log(Level.FINEST, "Stop time {0}", value);
+  }
+}

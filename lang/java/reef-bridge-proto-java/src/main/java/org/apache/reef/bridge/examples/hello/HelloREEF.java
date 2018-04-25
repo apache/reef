@@ -18,10 +18,9 @@
  */
 package org.apache.reef.bridge.examples.hello;
 
-import org.apache.reef.bridge.client.DriverClientConfiguration;
+import org.apache.reef.bridge.driver.client.DriverClientConfiguration;
 import org.apache.reef.bridge.proto.ClientProtocol;
-import org.apache.reef.bridge.service.DriverServiceLauncher;
-import org.apache.reef.client.LauncherStatus;
+import org.apache.reef.bridge.client.DriverServiceLauncher;
 import org.apache.reef.tang.Configuration;
 import org.apache.reef.tang.exceptions.InjectionException;
 import org.apache.reef.util.EnvironmentUtils;
@@ -43,6 +42,8 @@ public final class HelloREEF {
       DriverClientConfiguration.CONF
           .set(DriverClientConfiguration.ON_DRIVER_STARTED, HelloDriver.StartHandler.class)
           .set(DriverClientConfiguration.ON_EVALUATOR_ALLOCATED, HelloDriver.EvaluatorAllocatedHandler.class)
+          .set(DriverClientConfiguration.ON_TASK_COMPLETED, HelloDriver.CompletedTaskHandler.class)
+          .set(DriverClientConfiguration.ON_TASK_FAILED, HelloDriver.FailedTaskHandler.class)
           .build();
 
   /**
@@ -58,15 +59,10 @@ public final class HelloREEF {
     builder.setLocalRuntime(ClientProtocol.LocalRuntimeParameters.newBuilder()
         .setMaxNumberOfEvaluators(1)
         .build());
-    builder.addHandler(ClientProtocol.DriverClientConfiguration.Handlers.START);
-    builder.addHandler(ClientProtocol.DriverClientConfiguration.Handlers.EVALUATOR_ALLOCATED);
     builder.addGlobalLibraries(EnvironmentUtils.getClassLocation(HelloDriver.class));
 
-    final LauncherStatus status =
-        DriverServiceLauncher.submit(builder.build(), DRIVER_CONFIG);
-
-    LOG.log(Level.INFO, "REEF job completed: {0}", status);
-
+    DriverServiceLauncher.submit(builder.build(), DRIVER_CONFIG);
+    LOG.log(Level.INFO, "REEF job completed");
     ThreadLogger.logThreads(LOG, Level.FINE, "Threads running at the end of HelloREEF:");
   }
 

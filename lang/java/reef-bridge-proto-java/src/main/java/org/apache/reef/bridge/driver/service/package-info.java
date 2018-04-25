@@ -17,6 +17,6 @@
  * under the License.
  */
 /**
- * Client bridge.
+ * The Java-side of the CLR/Java bridge interop via gRPC/Protocol Buffers.
  */
-package org.apache.reef.bridge.client;
+package org.apache.reef.bridge.driver.service;

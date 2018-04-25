@@ -16,7 +16,17 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-/**
- * Client bridge.
- */
+
 package org.apache.reef.bridge.client;
+
+import org.apache.reef.bridge.proto.ClientProtocol;
+import org.apache.reef.tang.Configuration;
+
+/**
+ * Driver bridge configuration provider.
+ */
+public interface IDriverBridgeConfigurationProvider {
+
+  Configuration getConfiguration(final ClientProtocol.DriverClientConfiguration driverConfiguration);
+
+}

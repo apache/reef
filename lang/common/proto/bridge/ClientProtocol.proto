@@ -19,8 +19,6 @@
 
 syntax = "proto3";
 
-// option java_generic_services = true;
-// option java_multiple_files = true;
 option java_package = "org.apache.reef.bridge.proto";
 option java_outer_classname = "ClientProtocol";
 option csharp_namespace = "Org.Apache.REEF.Bridge.Proto";
@@ -30,13 +28,15 @@ package driverbridge;
 message LocalRuntimeParameters {
   uint32 max_number_of_evaluators = 1;
   string runtime_root_folder = 2;
-  string jvm_heap_slack = 3;
+  float jvm_heap_slack = 3;
   repeated string rack_names = 4;
 }
 
 message YarnRuntimeParameters {
   string queue = 1;
-  string job_submission_directory_prefix = 2;
+  string job_submission_directory = 2;
+  string filesystem_url = 3;
+  bytes security_token = 4;
 }
 
 message AzureBatchRuntimeParameters {
@@ -65,34 +65,11 @@ message DriverClientConfiguration {
   // The command to launch the driver client
   string driver_client_launch_command = 10;
 
-  enum Handlers {
-    // control events
-    START = 0;
-    STOP = 1;
+  // Enable driver restart?
+  bool driver_restart_enable = 11;
 
-    // evaluator events
-    EVALUATOR_ALLOCATED = 5;
-    EVALUATOR_COMPLETED = 6;
-    EVALUATOR_FAILED = 7;
-
-    // context events
-    CONTEXT_ACTIVE = 10;
-    CONTEXT_CLOSED = 11;
-    CONTEXT_FAILED = 12;
-    CONTEXT_MESSAGE = 13;
-
-    // task events
-    TASK_RUNNING = 15;
-    TASK_FAILED = 16;
-    TASK_COMPLETED = 17;
-    TASK_MESSAGE = 18;
-
-    // client events
-    CLIENT_MESSAGE = 20;
-    CLIENT_CLOSE = 21;
-    CLIENT_CLOSE_WITH_MESSAGE = 22;
-  }
-  repeated Handlers handler = 11;
+  // Driver restart evaluator recovery seconds (optional)
+  uint32 driver_restart_evaluator_recovery_seconds = 12;
 
   // TCP port range
   uint32 tcp_port_range_begin = 15;

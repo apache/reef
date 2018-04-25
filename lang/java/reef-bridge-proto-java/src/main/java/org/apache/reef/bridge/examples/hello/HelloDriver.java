@@ -20,6 +20,8 @@ package org.apache.reef.bridge.examples.hello;
 
 import org.apache.reef.driver.evaluator.AllocatedEvaluator;
 import org.apache.reef.driver.evaluator.EvaluatorRequestor;
+import org.apache.reef.driver.task.CompletedTask;
+import org.apache.reef.driver.task.FailedTask;
 import org.apache.reef.driver.task.TaskConfiguration;
 import org.apache.reef.tang.Configuration;
 import org.apache.reef.tang.annotations.Unit;
@@ -78,6 +80,28 @@ public final class HelloDriver {
           .set(TaskConfiguration.TASK, HelloTask.class)
           .build();
       allocatedEvaluator.submitTask(taskConfiguration);
+    }
+  }
+
+  /**
+   * bla bla.
+   */
+  public final class CompletedTaskHandler implements EventHandler<CompletedTask> {
+    @Override
+    public void onNext(final CompletedTask value) {
+      LOG.log(Level.INFO, "Completed task {0}", value.getId());
+      value.getActiveContext().close();
+    }
+  }
+
+  /**
+   * bla bla.
+   */
+  public final class FailedTaskHandler implements EventHandler<FailedTask> {
+    @Override
+    public void onNext(final FailedTask value) {
+      LOG.log(Level.INFO, "Failed task {0}", value.getId());
+      value.getActiveContext().get().close();
     }
   }
 }

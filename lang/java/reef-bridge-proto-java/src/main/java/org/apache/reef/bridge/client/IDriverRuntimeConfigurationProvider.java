@@ -16,7 +16,15 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-/**
- * Client bridge.
- */
+
 package org.apache.reef.bridge.client;
+
+import org.apache.reef.bridge.client.runtime.LocalDriverRuntimeConfigurationProvider;
+import org.apache.reef.tang.annotations.DefaultImplementation;
+
+/**
+ * Configuration provider for the runtime.
+ */
+@DefaultImplementation(LocalDriverRuntimeConfigurationProvider.class)
+public interface IDriverRuntimeConfigurationProvider extends IDriverBridgeConfigurationProvider {
+}

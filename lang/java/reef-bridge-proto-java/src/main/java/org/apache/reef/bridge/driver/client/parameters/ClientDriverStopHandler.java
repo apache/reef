@@ -16,7 +16,21 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
+package org.apache.reef.bridge.driver.client.parameters;
+
+import org.apache.reef.bridge.driver.client.DefaultDriverClientStopHandler;
+import org.apache.reef.tang.annotations.Name;
+import org.apache.reef.tang.annotations.NamedParameter;
+import org.apache.reef.wake.EventHandler;
+import org.apache.reef.wake.time.event.StopTime;
+
+import java.util.Set;
+
 /**
- * Client bridge.
+ * Client driver stop handler.
  */
-package org.apache.reef.bridge.client;
+@NamedParameter(doc ="Java driver client stop handler",
+    default_class = DefaultDriverClientStopHandler.class)
+public final class ClientDriverStopHandler implements Name<Set<EventHandler<StopTime>>> {
+}

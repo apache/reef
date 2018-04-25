@@ -17,6 +17,6 @@
  * under the License.
  */
 /**
- * Client bridge.
+ * Java bridge client driver.
  */
-package org.apache.reef.bridge.client;
+package org.apache.reef.bridge.driver.client;

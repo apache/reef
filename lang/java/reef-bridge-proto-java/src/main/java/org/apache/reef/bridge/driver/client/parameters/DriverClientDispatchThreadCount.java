@@ -16,7 +16,15 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
+package org.apache.reef.bridge.driver.client.parameters;
+
+import org.apache.reef.tang.annotations.Name;
+import org.apache.reef.tang.annotations.NamedParameter;
+
 /**
- * Client bridge.
+ * Driver client dispatcher thread count.
  */
-package org.apache.reef.bridge.client;
+@NamedParameter(doc = "Number of dispatch threads", default_value = "1")
+public class DriverClientDispatchThreadCount implements Name<Integer> {
+}
