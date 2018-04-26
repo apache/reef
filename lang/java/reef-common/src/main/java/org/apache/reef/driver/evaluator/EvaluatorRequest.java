@@ -41,6 +41,7 @@ public final class EvaluatorRequest {
   private final List<String> rackNames;
   private final String runtimeName;
   private final boolean relaxLocality;
+  private final String nodeLabelExpression;
 
   EvaluatorRequest(final int number,
                    final int megaBytes,
@@ -56,7 +57,7 @@ public final class EvaluatorRequest {
                    final List<String> nodeNames,
                    final List<String> rackNames,
                    final String runtimeName) {
-    this(number, megaBytes, cores, nodeNames, rackNames, runtimeName, true);
+    this(number, megaBytes, cores, nodeNames, rackNames, runtimeName, true, null);
   }
 
 
@@ -66,7 +67,8 @@ public final class EvaluatorRequest {
                    final List<String> nodeNames,
                    final List<String> rackNames,
                    final String runtimeName,
-                   final boolean relaxLocality) {
+                   final boolean relaxLocality,
+                   final String nodeLabelExpression) {
     this.number = number;
     this.megaBytes = megaBytes;
     this.cores = cores;
@@ -74,6 +76,7 @@ public final class EvaluatorRequest {
     this.rackNames = rackNames;
     this.runtimeName = runtimeName;
     this.relaxLocality = relaxLocality;
+    this.nodeLabelExpression = nodeLabelExpression;
   }
 
   /**
@@ -158,6 +161,13 @@ public final class EvaluatorRequest {
     return relaxLocality;
   }
 
+  /**
+   * Node label expression.
+   * @return string expression
+   */
+  public String getNodeLabelExpression() {
+    return nodeLabelExpression;
+  }
 
   /**
    * {@link EvaluatorRequest}s are build using this Builder.
@@ -171,6 +181,7 @@ public final class EvaluatorRequest {
     private final List<String> rackNames = new ArrayList<>();
     private String runtimeName = "";
     private boolean relaxLocality = true; //if not set, default to true
+    private String nodeLabelExpression = null;
 
     @Private
     public Builder() {
@@ -194,6 +205,7 @@ public final class EvaluatorRequest {
       for (final String rackName : request.getRackNames()) {
         addRackName(rackName);
       }
+      setNodeLabelExpression(request.getNodeLabelExpression());
     }
 
     /**
@@ -300,12 +312,23 @@ public final class EvaluatorRequest {
     }
 
     /**
+     * A string expression that describes the node type being requested.
+     * @param nodeLabelExpr describing node type
+     * @return this Builder.
+     */
+    public T setNodeLabelExpression(final String nodeLabelExpr) {
+      this.nodeLabelExpression = nodeLabelExpr;
+      return (T) this;
+    }
+
+    /**
      * Builds the {@link EvaluatorRequest}.
      */
     @Override
     public EvaluatorRequest build() {
       return new EvaluatorRequest(this.n, this.megaBytes, this.cores, this.nodeNames,
-                                  this.rackNames, this.runtimeName, this.relaxLocality);
+          this.rackNames, this.runtimeName, this.relaxLocality,
+          this.nodeLabelExpression);
     }
 
     /**

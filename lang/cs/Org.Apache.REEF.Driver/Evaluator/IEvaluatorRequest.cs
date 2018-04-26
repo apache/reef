@@ -73,5 +73,11 @@ namespace Org.Apache.REEF.Driver.Evaluator
         /// the corresponding any-level request should have locality relaxation set to false.
         /// </summary>
         bool RelaxLocality { get; }
+
+        /// <summary>
+        /// For specifying a node label expression that can be used by the resource manager
+        /// to aquire certain container types.
+        /// </summary>
+        string NodeLabelExpression { get; }
     }
 }
