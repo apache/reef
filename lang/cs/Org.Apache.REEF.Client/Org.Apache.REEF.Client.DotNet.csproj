@@ -26,7 +26,7 @@ under the License.
   </PropertyGroup>
   <Import Project="..\build.DotNetLibrary.props" />
   <PropertyGroup>
-    <TempResxFile Condition="$(TempResxFile) == ''">Resources.DotNet.resx</TempResxFile>
+    <TempResxFile Condition="$(TempResxFile) == ''">$(OutputPath)\$(TargetFramework)\Resources.DotNet.resx</TempResxFile>
   </PropertyGroup>
   <ItemGroup>
     <EmbeddedResource Include="$(TempResxFile)">
@@ -153,12 +153,8 @@ under the License.
     </ItemGroup>
     <Copy SourceFiles="@(MySourceFiles)" DestinationFiles="@(MySourceFiles->'$(TargetDir)%(Filename)%(Extension)')" />
   </Target>
-  <!--
-  <Target Name="AfterBuild">
+  <Target Name="RemovingTempResx" AfterTargets="AfterBuild">
+    <Message Text="Removing temporary resx file" Importance="high"/>
     <Delete Files="$(TempResxFile)" />
-    <RemoveDir Directories="$(BaseIntermediateOutputPath)" />
   </Target>
-  <Target Name="BeforeBuild" DependsOnTargets="RewriteClientResources">
-  </Target>
-  -->
 </Project>

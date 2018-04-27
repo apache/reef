@@ -29,13 +29,18 @@ under the License.
     <PackageReference Include="Microsoft.Avro.Core" Version="$(AvroVersion)" />
   </ItemGroup>
 
-    <!-- Project Reference conditionals allow for targeting specific projects based upon the target framework. -->
-  <ItemGroup Condition="'$(TargetFramework)' == 'net461'">
-    <!-- Evaluator as a .netcoreapp can not be linked by a .netstandard library, therefore this is only linked for net461 -->
-    <ProjectReference Include="..\Org.Apache.REEF.Evaluator\Org.Apache.REEF.Evaluator.DotNet.csproj" PrivateAssets="All"/>
-    <!-- IMRU Examples as a .netcoreapp can not be linked by a .netstandard library, therefore this is only linked for net461 -->
-    <ProjectReference Include="..\Org.Apache.REEF.IMRU.Examples\Org.Apache.REEF.IMRU.Examples.DotNet.csproj" PrivateAssets="All"/>
+  <ItemGroup>
+    <Content Include="$(BinDir)\$(Configuration)\Org.Apache.REEF.Evaluator\net461\Org.Apache.REEF.Evaluator.exe">
+      <Pack>true</Pack>
+      <PackagePath>lib\netstandard2.0</PackagePath>
+    </Content>
+
+    <Content Include="$(BinDir)\$(Configuration)\Org.Apache.REEF.IMRU.Examples\net461\Org.Apache.REEF.IMRU.Examples.exe">
+      <Pack>true</Pack>
+      <PackagePath>lib\netstandard2.0</PackagePath>
+    </Content>
   </ItemGroup>
+
   <ItemGroup>
     <ProjectReference Include="..\Org.Apache.REEF.Client\Org.Apache.REEF.Client.DotNet.csproj" PrivateAssets="All"/>
     <ProjectReference Include="..\Org.Apache.REEF.Common\Org.Apache.REEF.Common.DotNet.csproj" PrivateAssets="All"/>

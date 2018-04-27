@@ -78,7 +78,7 @@ namespace Org.Apache.REEF.Client.AzureBatch.Storage
         {
             CloudBlobClient cloudBlobClient = CloudStorageAccount.Parse(this._storageConnectionString).CreateCloudBlobClient();
             CloudBlobContainer cloudBlobContainer = cloudBlobClient.GetContainerReference(this._storageContainerName);
-            cloudBlobContainer.CreateIfNotExists();
+            cloudBlobContainer.CreateIfNotExistsAsync().Wait();
             return cloudBlobContainer.GetSharedAccessSignature(CreateSASPolicy());
         }
 
