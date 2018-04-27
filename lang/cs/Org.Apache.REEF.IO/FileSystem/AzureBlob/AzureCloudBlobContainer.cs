@@ -33,7 +33,9 @@ namespace Org.Apache.REEF.IO.FileSystem.AzureBlob
 
         public bool CreateIfNotExists()
         {
-            return _container.CreateIfNotExists();
+            var task = _container.CreateIfNotExistsAsync();
+            task.Wait();
+            return task.Result;
         }
 
         public void DeleteIfExists()

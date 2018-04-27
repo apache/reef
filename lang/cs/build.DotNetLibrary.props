@@ -18,12 +18,6 @@ under the License.
 
 <Import Project="build.DotNet.props"/>
 <PropertyGroup>
-  <TargetFrameworks>net461</TargetFrameworks>
-
-  <!-- If EnableDotNetBuild is true, override the target frameworks to include dot net core -->
-  <TargetFrameworks Condition="'$(EnableDotNetBuild)' == 'true'">netstandard2.0</TargetFrameworks>
-
-  <!-- If on Linux, override the target frameworks to netcoreapp2.0 -->
-  <TargetFrameworks Condition="'$(OS)' != 'Windows_NT'">netcoreapp2.0</TargetFrameworks>
+  <TargetFrameworks>netstandard2.0</TargetFrameworks>
 </PropertyGroup>
 </Project>
