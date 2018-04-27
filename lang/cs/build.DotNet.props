@@ -27,12 +27,11 @@ under the License.
     <AvroVersion>0.1.0</AvroVersion>
     <MicrosoftDataLakeStoreVersion>1.1.3</MicrosoftDataLakeStoreVersion>
     <NewtonsoftJsonVersion>10.0.3</NewtonsoftJsonVersion>
-    <NSubstituteVersion>1.8.2.0</NSubstituteVersion>
     <ProtobufVersion>2.1.0</ProtobufVersion>
     <SystemReactiveVersion>3.1.1</SystemReactiveVersion>
     <StyleCopVersion>5.0.0</StyleCopVersion>
     <TransientFaultHandlingVersion>1.0.0</TransientFaultHandlingVersion>
-    <NSubstituteVersion>2.0.3</NSubstituteVersion>
+    <NSubstituteVersion>3.1.0</NSubstituteVersion>
     <WindowsAzureStorageVersion>8.1.3</WindowsAzureStorageVersion>
   </PropertyGroup>
 </Project>

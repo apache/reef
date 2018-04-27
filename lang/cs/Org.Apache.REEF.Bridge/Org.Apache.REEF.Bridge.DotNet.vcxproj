@@ -23,7 +23,6 @@ under the License.
     <Platform Condition="'$(Platform)' == ''">x64</Platform>
     <SolutionDir Condition="'$(SolutionDir)' == ''">..</SolutionDir>
     <ConfigurationType>Application</ConfigurationType>
-
     <!-- Added for when the .net core build is enabled. This prevents assemblies for the bridge
          to be copied to the bin folder. -->
     <ImplicitlyExpandNETStandardFacades>false</ImplicitlyExpandNETStandardFacades>
@@ -112,8 +111,9 @@ under the License.
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <AdditionalIncludeDirectories>..\..\java\reef-bridge-java\target\classes;$(JAVA_HOME)\include;$(JAVA_HOME)\include\win32;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
-      <AdditionalUsingDirectories Condition="'$(EnableDotNetBuild)' == 'False'">$(AdditionalUsingDirectories);$(BinDir)$(Configuration)\Org.Apache.REEF.Driver\net461</AdditionalUsingDirectories>
-      <AdditionalUsingDirectories Condition="'$(EnableDotNetBuild)' == 'True'">$(AdditionalUsingDirectories);$(BinDir)$(Configuration)\Org.Apache.REEF.Driver\netstandard2.0</AdditionalUsingDirectories>
+      <AdditionalUsingDirectories>$(BinDir)$(Configuration)\Org.Apache.REEF.Driver\netstandard2.0;C:\Program Files\dotnet\sdk\2.1.4\Microsoft\Microsoft.NET.Build.Extensions\net461\lib;$(AdditionalUsingDirectories)</AdditionalUsingDirectories>
+      <!-- Disable C4691 about missing references. This is benign as the warning reports using a default implementation. -->
+      <DisableSpecificWarnings>4691;%(DisableSpecificWarnings)</DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -129,8 +129,9 @@ under the License.
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <AdditionalIncludeDirectories>..\..\java\reef-bridge-java\target\classes;$(JAVA_HOME)\include;$(JAVA_HOME)\include\win32;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
-      <AdditionalUsingDirectories Condition="'$(EnableDotNetBuild)' == 'False'">$(AdditionalUsingDirectories);$(BinDir)$(Configuration)\Org.Apache.REEF.Driver\net461</AdditionalUsingDirectories>
-      <AdditionalUsingDirectories Condition="'$(EnableDotNetBuild)' == 'True'">$(AdditionalUsingDirectories);$(BinDir)$(Configuration)\Org.Apache.REEF.Driver\netstandard2.0</AdditionalUsingDirectories>
+      <AdditionalUsingDirectories>$(BinDir)$(Configuration)\Org.Apache.REEF.Driver\netstandard2.0;$(AdditionalUsingDirectories)</AdditionalUsingDirectories>
+      <!-- Disable C4691 about missing references. This is benign as the warning reports using a default implementation. -->
+      <DisableSpecificWarnings>4691;%(DisableSpecificWarnings)</DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -209,7 +210,6 @@ under the License.
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
-  
   <!-- Adds an empty pack target so that this project is skipped when packing. -->
   <Target Name="Pack">
   </Target>
