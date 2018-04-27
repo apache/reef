@@ -40,7 +40,7 @@ public final class MockDriverRestartContext {
 
   private final StartTime startTime;
 
-  private final List<MockAllocatedEvaluator> allocatedEvalautors;
+  private final List<MockAllocatedEvaluator> allocatedEvaluators;
 
   private final List<MockActiveContext> activeContexts;
 
@@ -51,12 +51,12 @@ public final class MockDriverRestartContext {
   public MockDriverRestartContext(
       final int restartAttemps,
       final StartTime startTime,
-      final List<MockAllocatedEvaluator> allocatedEvalautors,
+      final List<MockAllocatedEvaluator> allocatedEvaluators,
       final List<MockActiveContext> activeContexts,
       final List<MockRunningTask> runningTasks) {
     this.restartAttemps = restartAttemps;
     this.startTime = startTime;
-    this.allocatedEvalautors = allocatedEvalautors;
+    this.allocatedEvaluators = allocatedEvaluators;
     this.activeContexts = activeContexts;
     this.runningTasks = runningTasks;
     this.failedEvaluators = new ArrayList<>();
@@ -69,8 +69,8 @@ public final class MockDriverRestartContext {
    */
   public DriverRestarted getDriverRestarted() {
     final Set<String> expectedEvaluatorIds = new HashSet<>();
-    for (final MockAllocatedEvaluator allocatedEvalautor : this.allocatedEvalautors) {
-      expectedEvaluatorIds.add(allocatedEvalautor.getId());
+    for (final MockAllocatedEvaluator allocatedEvaluator : this.allocatedEvaluators) {
+      expectedEvaluatorIds.add(allocatedEvaluator.getId());
     }
     return new DriverRestarted() {
       @Override
@@ -147,24 +147,23 @@ public final class MockDriverRestartContext {
    * Fail an evaluator; automatically cleans up state i.e., running tasks and contexts
    * pertaining to the evaluator, and adds the evaluator to {@link this#getFailedEvaluators()}, which
    * can be passed to the {@link org.apache.reef.driver.parameters.DriverRestartFailedEvaluatorHandlers}.
-   * @param evalautor to fail
+   * @param evaluator to fail
    */
-  public void failEvaluator(final MockAllocatedEvaluator evalautor) {
-    if (this.allocatedEvalautors.contains(evalautor)) {
-      this.failedEvaluators.add(new MockFailedEvaluator(evalautor.getId()));
+  public void failEvaluator(final MockAllocatedEvaluator evaluator) {
+    if (this.allocatedEvaluators.remove(evaluator)) {
+      this.failedEvaluators.add(new MockFailedEvaluator(evaluator.getId()));
       // cleanup
-      this.allocatedEvalautors.remove(evalautor);
       final Iterator<MockRunningTask> taskIter = this.runningTasks.iterator();
       while (taskIter.hasNext()) {
         final MockRunningTask task = taskIter.next();
-        if (task.evaluatorID().equals(evalautor.getId())) {
+        if (task.evaluatorID().equals(evaluator.getId())) {
           taskIter.remove();
         }
       }
       final Iterator<MockActiveContext> contextIter = this.activeContexts.iterator();
       while (contextIter.hasNext()) {
         final MockActiveContext context = contextIter.next();
-        if (context.getEvaluatorId().equals(evalautor.getId())) {
+        if (context.getEvaluatorId().equals(evaluator.getId())) {
           contextIter.remove();
         }
       }

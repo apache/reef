@@ -171,34 +171,26 @@ public final class MockRuntimeDriver implements MockRuntime {
     if (this.clock.get().isClosed()) {
       throw new IllegalStateException("clock is closed");
     }
-    if (this.allocatedEvaluatorMap.containsKey(evaluator.getId())) {
-      try {
-        FailedTask failedTask = null;
-        if (this.runningTasks.containsKey(evaluator.getId())) {
-          final RunningTask task = this.runningTasks.remove(evaluator.getId());
-          failedTask = new FailedTask(
-              task.getId(),
-              "mock",
-              Optional.<String>empty(),
-              Optional.<Throwable>empty(),
-              Optional.<byte[]>empty(),
-              Optional.<ActiveContext>of(task.getActiveContext()));
-        }
-        final List<FailedContext> failedContexts = new ArrayList<>();
-        for (final MockActiveContext context : this.allocatedContextsMap.get(evaluator.getId())) {
-          failedContexts.add(new MockFailedContext(context));
-        }
-        this.allocatedContextsMap.remove(evaluator.getId());
-
-        post(this.failedEvaluatorHandlers, new MockFailedEvaluator(
-            evaluator.getId(), failedContexts,
-            failedTask == null ? Optional.<FailedTask>empty() : Optional.of(failedTask)));
-      } finally {
-        this.allocatedEvaluatorMap.remove(evaluator.getId());
-      }
-    } else {
+    if (this.allocatedEvaluatorMap.remove(evaluator.getId()) == null) {
       throw new IllegalStateException("unknown evaluator " + evaluator);
     }
+    FailedTask failedTask = null;
+    if (this.runningTasks.containsKey(evaluator.getId())) {
+      final RunningTask task = this.runningTasks.remove(evaluator.getId());
+      failedTask = new FailedTask(
+          task.getId(),
+          "mock",
+          Optional.<String>empty(),
+          Optional.<Throwable>empty(),
+          Optional.<byte[]>empty(),
+          Optional.<ActiveContext>of(task.getActiveContext()));
+    }
+    final List<FailedContext> failedContexts = new ArrayList<>();
+    for (final MockActiveContext context : this.allocatedContextsMap.get(evaluator.getId())) {
+      failedContexts.add(new MockFailedContext(context));
+    }
+    post(this.failedEvaluatorHandlers, new MockFailedEvaluator(
+        evaluator.getId(), failedContexts, Optional.ofNullable(failedTask)));
   }
 
   @Override
@@ -301,9 +293,9 @@ public final class MockRuntimeDriver implements MockRuntime {
     return new MockDriverRestartContext(
         attempt,
         startTime,
-        new ArrayList(this.allocatedEvaluatorMap.values()),
+        new ArrayList<>(this.allocatedEvaluatorMap.values()),
         activeContexts,
-        new ArrayList(this.runningTasks.values()));
+        new ArrayList<>(this.runningTasks.values()));
   }
 
   @Override
@@ -328,9 +320,9 @@ public final class MockRuntimeDriver implements MockRuntime {
     final ProcessRequestInternal request = (ProcessRequestInternal) pr;
     switch (request.getType()) {
     case ALLOCATE_EVALUATOR:
-      final MockAllocatedEvaluator allocatedEvalautor = ((AllocateEvaluator)request).getSuccessEvent();
-      validateAndCreate(allocatedEvalautor);
-      post(this.allocatedEvaluatorHandlers, allocatedEvalautor);
+      final MockAllocatedEvaluator allocatedEvaluator = ((AllocateEvaluator)request).getSuccessEvent();
+      validateAndCreate(allocatedEvaluator);
+      post(this.allocatedEvaluatorHandlers, allocatedEvaluator);
       break;
     case CLOSE_EVALUATOR:
       final CompletedEvaluator closedEvaluator = ((CloseEvaluator)request).getSuccessEvent();
