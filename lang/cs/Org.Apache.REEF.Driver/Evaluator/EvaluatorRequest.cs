@@ -75,7 +75,7 @@ namespace Org.Apache.REEF.Driver.Evaluator
             RuntimeName = runtimeName;
             NodeNames = nodeNames;
             RelaxLocality = relaxLocality;
-            NodeLabelExpression = NodeLabelExpression;
+            NodeLabelExpression = nodeLabelExpression;
         }
 
         [DataMember]
