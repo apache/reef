@@ -92,6 +92,10 @@ public final class AzureBatchBootstrapREEFLauncher {
     } catch (final InjectionException ex) {
       throw fatal("Unable to configure and start REEFEnvironment.", ex);
     }
+
+    LOG.log(Level.INFO, "Exiting BootstrapLauncher.main()");
+
+    System.exit(0); // TODO[REEF-1715]: Should be able to exit cleanly at the end of main()
   }
 
   private static Configuration generateConfigurationFromJobSubmissionParameters(final File params) throws IOException {
