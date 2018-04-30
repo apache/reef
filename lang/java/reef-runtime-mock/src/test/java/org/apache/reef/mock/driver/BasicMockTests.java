@@ -77,7 +77,7 @@ final class BasicMockTests {
     this.mockApplication.requestEvaluators(1);
     assertTrue("check for process event", this.mockRuntime.hasProcessRequest());
     final ProcessRequest allocateEvaluatorRequest = this.mockRuntime.getNextProcessRequest();
-    assertEquals("allocate evalautor request", ProcessRequest.Type.ALLOCATE_EVALUATOR,
+    assertEquals("allocate evaluator request", ProcessRequest.Type.ALLOCATE_EVALUATOR,
         allocateEvaluatorRequest.getType());
     final AllocatedEvaluator evaluator =
         ((ProcessRequestInternal<AllocatedEvaluator, Object>)allocateEvaluatorRequest)

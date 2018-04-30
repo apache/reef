@@ -49,11 +49,11 @@ public final class MockActiveContext implements ActiveContext {
 
   MockActiveContext(
       final MockRuntimeDriver mockRuntimeDriver,
-      final MockAllocatedEvaluator evalautor,
+      final MockAllocatedEvaluator evaluator,
       final Optional<MockActiveContext> parentContext,
       final String contextID) {
     this.mockRuntimeDriver = mockRuntimeDriver;
-    this.evaluator = evalautor;
+    this.evaluator = evaluator;
     this.parentContext = parentContext;
     this.contextID = contextID;
   }

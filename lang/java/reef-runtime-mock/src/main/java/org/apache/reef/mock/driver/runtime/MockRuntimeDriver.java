@@ -505,18 +505,18 @@ public final class MockRuntimeDriver implements MockRuntime {
     this.runningTasks.remove(task.getActiveContext().getEvaluatorId());
   }
 
-  private void validateAndCreate(final MockAllocatedEvaluator evalutor) {
-    if (this.allocatedEvaluatorMap.containsKey(evalutor.getId())) {
-      throw new IllegalStateException("evaluator id " + evalutor.getId() + " already exists");
+  private void validateAndCreate(final MockAllocatedEvaluator evaluator) {
+    if (this.allocatedEvaluatorMap.containsKey(evaluator.getId())) {
+      throw new IllegalStateException("evaluator id " + evaluator.getId() + " already exists");
     }
-    this.allocatedEvaluatorMap.put(evalutor.getId(), evalutor);
-    this.allocatedContextsMap.put(evalutor.getId(), new ArrayList<MockActiveContext>());
+    this.allocatedEvaluatorMap.put(evaluator.getId(), evaluator);
+    this.allocatedContextsMap.put(evaluator.getId(), new ArrayList<MockActiveContext>());
   }
 
-  private void validateAndClose(final CompletedEvaluator evalautor) {
-    if (!this.allocatedEvaluatorMap.containsKey(evalautor.getId())) {
-      throw new IllegalStateException("unknown evaluator id " + evalautor.getId());
+  private void validateAndClose(final CompletedEvaluator evaluator) {
+    if (!this.allocatedEvaluatorMap.containsKey(evaluator.getId())) {
+      throw new IllegalStateException("unknown evaluator id " + evaluator.getId());
     }
-    this.allocatedEvaluatorMap.remove(evalautor.getId());
+    this.allocatedEvaluatorMap.remove(evaluator.getId());
   }
 }
