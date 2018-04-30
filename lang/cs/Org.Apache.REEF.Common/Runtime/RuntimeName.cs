@@ -38,6 +38,11 @@ namespace Org.Apache.REEF.Common.Runtime
         Mesos,
 
         /// <summary>
+        /// Same value as org.apache.reef.runtime.mesos.driver.RuntimeIdentifier.RUNTIME_NAME
+        /// </summary>
+        AzBatch,
+
+        /// <summary>
         /// Default value for the enum
         /// </summary>
         Default

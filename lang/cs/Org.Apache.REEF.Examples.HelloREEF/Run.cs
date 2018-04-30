@@ -25,14 +25,7 @@ namespace Org.Apache.REEF.Examples.HelloREEF
         /// <param name="args"></param>
         public static void Main(string[] args)
         {
-            if (args.Length < 2)
-            {
-                HelloREEF.MainSimple(args);
-            }
-            else
-            {
-                HelloREEFYarn.MainYarn(args);
-            }
+            HelloREEF.MainSimple(args);
         }
     }
 }

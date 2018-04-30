@@ -118,7 +118,9 @@ namespace Org.Apache.REEF.IO.Tests
             }
             blob = container.GetBlockBlobReference(HelloFile);
             Assert.True(CheckBlobExists(blob));
-            using (var reader = new StreamReader(blob.OpenRead()))
+            var readTask = blob.OpenReadAsync();
+            readTask.Wait();
+            using (var reader = new StreamReader(readTask.Result))
             {
                 string streamText = reader.ReadToEnd();
                 Assert.Equal(Text, streamText);
@@ -176,6 +178,7 @@ namespace Org.Apache.REEF.IO.Tests
             var blob = _container.GetBlockBlobReference(HelloFile);
             var tempFilePath = Path.GetTempFileName();
             File.Delete(tempFilePath); // Delete the file as CopyToLocal will create it
+            
             const string Text = "hello";
             
             try

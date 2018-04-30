@@ -23,16 +23,6 @@ under the License.
     <PackageTags>REEF IO TestClient</PackageTags>
   </PropertyGroup>
   <Import Project="..\build.DotNetApp.props" />
-  <!-- TODO[JIRA REEF-1888] This item group will not be needed when only .netcore is targeted. -->
-  <ItemGroup Condition="'$(TargetFramework)' == 'net452' Or '$(TargetFramework)' == 'net46'">
-    <Reference Include="System" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Xml" />
-  </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Org.Apache.REEF.Client\Org.Apache.REEF.Client.DotNet.csproj" />
     <ProjectReference Include="..\Org.Apache.REEF.Common\Org.Apache.REEF.Common.DotNet.csproj" />

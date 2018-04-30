@@ -30,12 +30,6 @@ under the License.
     <PackageReference Include="System.Reactive.Interfaces" Version="$(SystemReactiveVersion)" />
     <PackageReference Include="System.Spatial" Version="5.8.2" />
   </ItemGroup>
-  <!-- TODO[JIRA REEF-1888] This item group will not be needed when only .netcore is targeted. -->
-  <ItemGroup Condition="'$(TargetFramework)' == 'net452' Or '$(TargetFramework)' == 'net46'">
-    <Reference Include="System" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Data" />
-  </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Org.Apache.REEF.Common\Org.Apache.REEF.Common.DotNet.csproj" />
     <ProjectReference Include="..\Org.Apache.REEF.Driver\Org.Apache.REEF.Driver.DotNet.csproj" />

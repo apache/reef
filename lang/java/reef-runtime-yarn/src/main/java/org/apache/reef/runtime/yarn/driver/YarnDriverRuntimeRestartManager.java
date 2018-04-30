@@ -156,7 +156,7 @@ public final class YarnDriverRuntimeRestartManager implements DriverRuntimeResta
   /**
    * Used by {@link org.apache.reef.driver.restart.DriverRestartManager}.
    * Gets the list of previous containers from the resource manager,
-   * compares that list to the YarnDriverRuntimeRestartManager's own list based on the evalutor preserver,
+   * compares that list to the YarnDriverRuntimeRestartManager's own list based on the evaluator preserver,
    * and determine which evaluators are alive and which have failed during restart.
    * @return a map of Evaluator ID to {@link EvaluatorRestartInfo} for evaluators that have either failed or survived
    * driver restart.

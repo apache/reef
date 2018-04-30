@@ -69,7 +69,8 @@ public final class EvaluatorRequestorBridge extends NativeBridge {
                      final boolean relaxLocality,
                      final String rack,
                      final String runtimeName,
-                     final ArrayList<String> nodeNames) {
+                     final ArrayList<String> nodeNames,
+                     final String nodeLabelExpression) {
     if (this.isBlocked) {
       throw new RuntimeException("Cannot request additional Evaluator, this is probably because " +
           "the Driver has crashed and restarted, and cannot ask for new container due to YARN-2433.");
@@ -89,6 +90,7 @@ public final class EvaluatorRequestorBridge extends NativeBridge {
           .setRuntimeName(runtimeName)
           .setRelaxLocality(relaxLocality)
           .addNodeNames(nodeNames)
+          .setNodeLabelExpression(nodeLabelExpression)
           .build();
 
       LOG.log(Level.FINE, "submitting evaluator request {0}", request);

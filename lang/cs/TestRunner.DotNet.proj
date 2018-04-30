@@ -27,7 +27,7 @@ under the License.
     <Platform>x64</Platform>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(TargetFramework)' == '' ">
-    <TargetFramework>net452</TargetFramework>
+    <TargetFramework>net461</TargetFramework>
   </PropertyGroup>
   <Target Name="Test">
     <MSBuild Projects="@(ProjectReferences)"

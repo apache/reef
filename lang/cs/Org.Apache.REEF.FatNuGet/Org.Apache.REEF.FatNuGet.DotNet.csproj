@@ -28,17 +28,19 @@ under the License.
     <PackageReference Include="protobuf-net" Version="$(ProtobufVersion)" />
     <PackageReference Include="Microsoft.Avro.Core" Version="$(AvroVersion)" />
   </ItemGroup>
-  <!-- TODO[JIRA REEF-1888] This item group will not be needed when only .netcore is targeted. -->
-  <ItemGroup Condition="'$(TargetFramework)' == 'net452' Or '$(TargetGramework)' == 'net46'">
-    <Reference Include="System" />
-    <Reference Include="System.Core" />
+
+  <ItemGroup>
+    <Content Include="$(BinDir)\$(Configuration)\Org.Apache.REEF.Evaluator\net461\Org.Apache.REEF.Evaluator.exe">
+      <Pack>true</Pack>
+      <PackagePath>lib\netstandard2.0</PackagePath>
+    </Content>
+
+    <Content Include="$(BinDir)\$(Configuration)\Org.Apache.REEF.IMRU.Examples\net461\Org.Apache.REEF.IMRU.Examples.exe">
+      <Pack>true</Pack>
+      <PackagePath>lib\netstandard2.0</PackagePath>
+    </Content>
   </ItemGroup>
 
-    <!-- Project Reference conditionals allow for targeting specific projects based upon the target framework. -->
-  <ItemGroup Condition="'$(TargetFramework)' == 'net452'">
-    <!-- Evaluator as a .netcoreapp can not be linked by a .netstandard library, therefore this is only linked for net45 -->
-    <ProjectReference Include="..\Org.Apache.REEF.Evaluator\Org.Apache.REEF.Evaluator.DotNet.csproj" PrivateAssets="All"/>
-  </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Org.Apache.REEF.Client\Org.Apache.REEF.Client.DotNet.csproj" PrivateAssets="All"/>
     <ProjectReference Include="..\Org.Apache.REEF.Common\Org.Apache.REEF.Common.DotNet.csproj" PrivateAssets="All"/>
@@ -50,7 +52,6 @@ under the License.
     <ProjectReference Include="..\Org.Apache.REEF.Tang\Org.Apache.REEF.Tang.DotNet.csproj" PrivateAssets="All"/>
     <ProjectReference Include="..\Org.Apache.REEF.Utilities\Org.Apache.REEF.Utilities.DotNet.csproj" PrivateAssets="All"/>
     <ProjectReference Include="..\Org.Apache.REEF.Wake\Org.Apache.REEF.Wake.DotNet.csproj" PrivateAssets="All"/>
-    <ProjectReference Include="..\Org.Apache.REEF.IMRU.Examples\Org.Apache.REEF.IMRU.Examples.DotNet.csproj" PrivateAssets="All"/>
   </ItemGroup>
   <Import Project="..\build.DotNet.targets" />
   <Target Name="CopyProjectReferencesToPackage" DependsOnTargets="ResolveProjectReferences">

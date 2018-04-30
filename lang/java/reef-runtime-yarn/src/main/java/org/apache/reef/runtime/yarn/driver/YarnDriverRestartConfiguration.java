@@ -40,7 +40,7 @@ import org.apache.reef.tang.formats.OptionalImpl;
 @Unstable
 public final class YarnDriverRestartConfiguration extends ConfigurationModuleBuilder {
   /**
-   * The Evaluator Preserver implementation used for YARN. Defaults to DFSEvalutorPreserver.
+   * The Evaluator Preserver implementation used for YARN. Defaults to DFSEvaluatorPreserver.
    */
   public static final OptionalImpl<EvaluatorPreserver> EVALUATOR_PRESERVER = new OptionalImpl<>();
 
