@@ -144,6 +144,8 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Client
                     _configurationSerializer.ToString(jobDefinition.ReduceFunctionConfiguration))
                 .BindNamedParameter(typeof(SerializedResultHandlerConfiguration),
                     _configurationSerializer.ToString(jobDefinition.ResultHandlerConfiguration))
+                .BindNamedParameter(typeof(SerializedCheckpointConfiguration),
+                    _configurationSerializer.ToString(jobDefinition.CheckpointConfiguration))
                 .BindNamedParameter(typeof(MemoryPerMapper),
                     jobDefinition.MapperMemory.ToString(CultureInfo.InvariantCulture))
                 .BindNamedParameter(typeof(MemoryForUpdateTask),

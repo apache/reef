@@ -1054,6 +1054,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
                         .Build(),
                         _configurationManager.UpdateFunctionConfiguration,
                         _configurationManager.ResultHandlerConfiguration,
+                        _configurationManager.CheckpointConfiguration,
                         GetGroupCommConfiguration())
                     .BindNamedParameter<InvokeGC, bool>(GenericType<InvokeGC>.Class, _invokeGC.ToString())
                     .Build();

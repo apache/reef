@@ -18,7 +18,7 @@
 using System.Globalization;
 using System.IO;
 using Org.Apache.REEF.IMRU.API;
-using Org.Apache.REEF.IMRU.OnREEF.IMRUTasks;
+using Org.Apache.REEF.IMRU.OnREEF.ResultHandler;
 using Org.Apache.REEF.IO.PartitionedData.Random;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Tang.Implementations.Tang;
@@ -31,7 +31,7 @@ namespace Org.Apache.REEF.IMRU.Examples.PipelinedBroadcastReduce
     /// <summary>
     /// IMRU program that performs broadcast and reduce
     /// </summary>
-    public class PipelinedBroadcastAndReduce
+    internal class PipelinedBroadcastAndReduce
     {
         protected readonly IIMRUClient _imruClient;
 
@@ -62,6 +62,8 @@ namespace Org.Apache.REEF.IMRU.Examples.PipelinedBroadcastReduce
                     .SetMapInputPipelineDataConverterConfiguration(MapInputDataConverterConfig(chunkSize))
                     .SetMapOutputPipelineDataConverterConfiguration(MapOutputDataConverterConfig(chunkSize))
                     .SetPartitionedDatasetConfiguration(PartitionedDatasetConfiguration(numberofMappers))
+                    .SetResultHandlerConfiguration(BuildResultHandlerConfig())
+                    .SetCheckpointConfiguration(BuildCheckpointConfig())
                     .SetJobName("BroadcastReduce")
                     .SetNumberOfMappers(numberofMappers)
                     .SetMapperMemory(mapperMemory)
@@ -172,6 +174,25 @@ namespace Org.Apache.REEF.IMRU.Examples.PipelinedBroadcastReduce
             return IMRUMapConfiguration<int[], int[]>.ConfigurationModule
                 .Set(IMRUMapConfiguration<int[], int[]>.MapFunction,
                     GenericType<BroadcastReceiverReduceSenderMapFunction>.Class)
+                .Build();
+        }
+
+        /// <summary>
+        /// Build checkpoint configuration. Subclass can override it.
+        /// </summary>
+        protected virtual IConfiguration BuildCheckpointConfig()
+        {
+            return TangFactory.GetTang().NewConfigurationBuilder()
+                .Build();
+        }
+
+        /// <summary>
+        /// Build default result handler configuration. Subclass can override it.
+        /// </summary>
+        protected virtual IConfiguration BuildResultHandlerConfig()
+        {
+            return TangFactory.GetTang().NewConfigurationBuilder()
+                .BindImplementation(GenericType<IIMRUResultHandler<int[]>>.Class, GenericType<WriteResultHandler<int[]>>.Class)
                 .Build();
         }
     }

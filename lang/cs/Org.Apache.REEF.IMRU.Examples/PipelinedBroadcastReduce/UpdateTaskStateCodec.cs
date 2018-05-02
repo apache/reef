@@ -5,9 +5,9 @@
 // to you under the Apache License, Version 2.0 (the
 // "License"); you may not use this file except in compliance
 // with the License.  You may obtain a copy of the License at
-// 
+//
 //   http://www.apache.org/licenses/LICENSE-2.0
-// 
+//
 // Unless required by applicable law or agreed to in writing,
 // software distributed under the License is distributed on an
 // "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -15,50 +15,44 @@
 // specific language governing permissions and limitations
 // under the License.
 
-using System.Runtime.Serialization;
 using Newtonsoft.Json;
 using Org.Apache.REEF.IMRU.OnREEF.IMRUTasks;
 using Org.Apache.REEF.Tang.Annotations;
-using Org.Apache.REEF.Utilities.Logging;
+using Org.Apache.REEF.Utilities;
+using Org.Apache.REEF.Wake.Remote;
 
 namespace Org.Apache.REEF.IMRU.Examples.PipelinedBroadcastReduce
 {
     /// <summary>
-    /// Sample implementation of ITaskState that holds update task state 
+    /// Codec for Update State
     /// </summary>
-    /// <typeparam name="TMapInput"></typeparam>
-    /// <typeparam name="TResult"></typeparam>
-    [DataContract]
-    internal sealed class UpdateTaskState<TMapInput, TResult> : ITaskState
+    internal sealed class UpdateTaskStateCodec : ICodec<ITaskState>
     {
-        private static readonly Logger Logger = Logger.GetLogger(typeof(UpdateTaskState<TMapInput, TResult>));
-
-        [DataMember]
-        internal TMapInput Input { get; set; }
-
-        [DataMember]
-        internal TResult Result { get; set; }
-
-        /// <summary>
-        /// Keep the current iteration number
-        /// </summary>
-        [DataMember]
-        internal int Iterations { get; set; }
-
-        /// <summary>
-        /// Simple constructor for UpdateTaskState
-        /// </summary>
         [Inject]
-        [JsonConstructor]
-        private UpdateTaskState()
+        private UpdateTaskStateCodec()
         {
         }
 
-        internal void Update(UpdateTaskState<TMapInput, TResult> taskState)
+        /// <summary>
+        /// Deserialize bytes into ITaskState object.
+        /// </summary>
+        /// <param name="data"></param>
+        /// <returns></returns>
+        public ITaskState Decode(byte[] data)
         {
-            Input = taskState.Input;
-            Result = taskState.Result;
-            Iterations = taskState.Iterations;
+            var str = ByteUtilities.ByteArraysToString(data);
+            return JsonConvert.DeserializeObject<UpdateTaskState<int[], int[]>>(str);
+        }
+
+        /// <summary>
+        /// Serialize ITaskState in to bytes.
+        /// </summary>
+        /// <param name="taskState"></param>
+        /// <returns></returns>
+        public byte[] Encode(ITaskState taskState)
+        {
+            var state = JsonConvert.SerializeObject(taskState);
+            return ByteUtilities.StringToByteArrays(state);
         }
     }
 }

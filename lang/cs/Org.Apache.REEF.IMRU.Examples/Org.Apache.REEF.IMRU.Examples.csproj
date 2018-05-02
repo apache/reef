@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <!--
 Licensed to the Apache Software Foundation (ASF) under one
 or more contributor license agreements.  See the NOTICE file
@@ -34,8 +34,12 @@ under the License.
     <BuildPackage>true</BuildPackage>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>$(PackagesDir)\Newtonsoft.Json.$(NewtonsoftJsonVersion)\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -52,6 +56,7 @@ under the License.
     <Compile Include="PipelinedBroadcastReduce\PipelinedBroadcastAndReduceWithFaultTolerant.cs" />
     <Compile Include="PipelinedBroadcastReduce\MapTaskState.cs" />
     <Compile Include="PipelinedBroadcastReduce\UpdateTaskState.cs" />
+    <Compile Include="PipelinedBroadcastReduce\UpdateTaskStateCodec.cs" />
     <Compile Include="SingleIterUpdateFunction.cs" />
     <Compile Include="NaturalSum\NaturalSum.cs" />
     <Compile Include="NaturalSum\NaturalSumMapFunction.cs" />
@@ -113,7 +118,9 @@ under the License.
       <Link>App.config</Link>
     </None>
     <None Include="Org.Apache.REEF.IMRU.Examples.nuspec" />
-    <None Include="packages.config" />
+    <None Include="packages.config">
+      <SubType>Designer</SubType>
+    </None>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />

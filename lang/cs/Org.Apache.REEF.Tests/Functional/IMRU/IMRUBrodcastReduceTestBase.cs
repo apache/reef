@@ -140,6 +140,8 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
                     configurationSerializer.ToString(jobDefinition.ReduceFunctionConfiguration))
                 .BindNamedParameter(typeof(SerializedResultHandlerConfiguration),
                     configurationSerializer.ToString(jobDefinition.ResultHandlerConfiguration))
+                .BindNamedParameter(typeof(SerializedCheckpointConfiguration),
+                    configurationSerializer.ToString(jobDefinition.CheckpointConfiguration))
                 .BindNamedParameter(typeof(MemoryPerMapper),
                     jobDefinition.MapperMemory.ToString(CultureInfo.InvariantCulture))
                 .BindNamedParameter(typeof(MemoryForUpdateTask),
@@ -195,6 +197,7 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
                 .SetMapOutputPipelineDataConverterConfiguration(BuildDataConverterConfig(chunkSize))
                 .SetPartitionedDatasetConfiguration(BuildPartitionedDatasetConfiguration(numberofMappers))
                 .SetResultHandlerConfiguration(BuildResultHandlerConfig())
+                .SetCheckpointConfiguration(BuildCheckpointConfig())
                 .SetJobName(IMRUJobName)
                 .SetNumberOfMappers(numberofMappers)
                 .SetMapperMemory(mapperMemory)
@@ -223,6 +226,15 @@ namespace Org.Apache.REEF.Tests.Functional.IMRU
             return TangFactory.GetTang().NewConfigurationBuilder()
                     .BindImplementation(GenericType<IIMRUResultHandler<int[]>>.Class, GenericType<DefaultResultHandler<int[]>>.Class)
                     .Build();
+        }
+
+        /// <summary>
+        /// Build checkpoint configuration. Subclass can override it.
+        /// </summary>
+        protected virtual IConfiguration BuildCheckpointConfig()
+        {
+            return TangFactory.GetTang().NewConfigurationBuilder()
+                .Build();
         }
 
         /// <summary>

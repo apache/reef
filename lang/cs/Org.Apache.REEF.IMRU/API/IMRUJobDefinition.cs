@@ -38,6 +38,7 @@ namespace Org.Apache.REEF.IMRU.API
         private readonly IConfiguration _mapInputPipelineDataConverterConfiguration;
         private readonly IConfiguration _partitionedDatasetConfiguration;
         private readonly IConfiguration _resultHandlerConfiguration;
+        private readonly IConfiguration _checkpointConfiguration;
         private readonly IConfiguration _jobCancelSignalConfiguration;
         private readonly int _numberOfMappers;
         private readonly int _memoryPerMapper;
@@ -66,6 +67,7 @@ namespace Org.Apache.REEF.IMRU.API
         /// <param name="partitionedDatasetConfiguration">Configuration of partitioned 
         /// dataset</param>
         /// <param name="resultHandlerConfiguration">Configuration of result handler</param>
+        /// <param name="checkpointConfiguration">Configuration of checkpoint</param>
         /// <param name="perMapConfigGeneratorConfig">Per mapper configuration</param>
         /// <param name="numberOfMappers">Number of mappers</param>
         /// <param name="memoryPerMapper">Per Mapper memory.</param>
@@ -88,6 +90,7 @@ namespace Org.Apache.REEF.IMRU.API
             IConfiguration mapInputPipelineDataConverterConfiguration,
             IConfiguration partitionedDatasetConfiguration,
             IConfiguration resultHandlerConfiguration,
+            IConfiguration checkpointConfiguration,
             IConfiguration jobCancelSignalConfiguration,
             ISet<IConfiguration> perMapConfigGeneratorConfig,
             int numberOfMappers,
@@ -119,6 +122,7 @@ namespace Org.Apache.REEF.IMRU.API
             _perMapConfigGeneratorConfig = perMapConfigGeneratorConfig;
             _invokeGC = invokeGC;
             _resultHandlerConfiguration = resultHandlerConfiguration;
+            _checkpointConfiguration = checkpointConfiguration;
             _jobCancelSignalConfiguration = jobCancelSignalConfiguration;
         }
 
@@ -285,6 +289,15 @@ namespace Org.Apache.REEF.IMRU.API
         internal IConfiguration ResultHandlerConfiguration
         {
             get { return _resultHandlerConfiguration; }
+        }
+
+        /// <summary>
+        /// Configuration of the checkpoint
+        /// </summary>
+        /// <returns></returns>
+        internal IConfiguration CheckpointConfiguration
+        {
+            get { return _checkpointConfiguration; }
         }
 
         /// <summary>

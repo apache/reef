@@ -46,6 +46,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.IMRUTasks
         private readonly IBroadcastSender<MapInputWithControlMessage<TMapInput>> _dataAndControlMessageSender;
         private readonly IUpdateFunction<TMapInput, TMapOutput, TResult> _updateTask;
         private readonly IIMRUResultHandler<TResult> _resultHandler;
+        private readonly IIMRUCheckpointResultHandler _checkpointResultHandler;
 
         /// <summary>
         /// It indicates if the update task has completed and result has been written.
@@ -57,6 +58,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.IMRUTasks
         /// <param name="updateTask">The UpdateTask hosted in this REEF Task.</param>
         /// <param name="groupCommunicationsClient">Used to setup the communications.</param>
         /// <param name="resultHandler">Result handler</param>
+        /// <param name="checkpointResultHandler">Checkpoint handler</param>
         /// <param name="taskCloseCoordinator">Task close Coordinator</param>
         /// <param name="invokeGc">Whether to call Garbage Collector after each iteration or not</param>
         /// <param name="taskId">task id</param>
@@ -67,6 +69,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.IMRUTasks
             IIMRUResultHandler<TResult> resultHandler,
             TaskCloseCoordinator taskCloseCoordinator,
             [Parameter(typeof(InvokeGC))] bool invokeGc,
+            IIMRUCheckpointResultHandler checkpointResultHandler,
             [Parameter(typeof(TaskConfigurationOptions.Identifier))] string taskId) :
             base(groupCommunicationsClient, taskCloseCoordinator, invokeGc)
         {
@@ -76,7 +79,14 @@ namespace Org.Apache.REEF.IMRU.OnREEF.IMRUTasks
                 _communicationGroupClient.GetBroadcastSender<MapInputWithControlMessage<TMapInput>>(IMRUConstants.BroadcastOperatorName);
             _dataReceiver = _communicationGroupClient.GetReduceReceiver<TMapOutput>(IMRUConstants.ReduceOperatorName);
             _resultHandler = resultHandler;
-            Logger.Log(Level.Info, "$$$$_resultHandler." + _resultHandler.GetType().AssemblyQualifiedName);
+            _checkpointResultHandler = checkpointResultHandler;
+
+            var taskIdSplit = taskId.Split('-');
+            var retryIndex = int.Parse(taskIdSplit[taskIdSplit.Length - 1]);
+            if (retryIndex == 0)
+            {
+                _checkpointResultHandler.Clear();
+            }
             Logger.Log(Level.Info, "UpdateTaskHost initialized.");
         }
 
@@ -96,36 +106,48 @@ namespace Org.Apache.REEF.IMRU.OnREEF.IMRUTasks
                 HandleTaskAppException(e);
             }
 
-            while (!_cancellationSource.IsCancellationRequested && updateResult.HasMapInput)
+            if (updateResult.HasResult)
             {
-                using (
-                    var message = new MapInputWithControlMessage<TMapInput>(updateResult.MapInput,
-                        MapControlMessage.AnotherRound))
+                if (!_checkpointResultHandler.IsResultHandled())
                 {
-                    _dataAndControlMessageSender.Send(message);
+                    _resultHandler.HandleResult(updateResult.Result);
+                    _checkpointResultHandler.MarkResulHandled();
                 }
-
-                if (_invokeGc)
+                _done = true;
+            }
+            else
+            {
+                while (!_cancellationSource.IsCancellationRequested && updateResult.HasMapInput)
                 {
-                    Logger.Log(Level.Verbose, "Calling Garbage Collector");
-                    GC.Collect();
-                    GC.WaitForPendingFinalizers();
-                }
-
-                var input = _dataReceiver.Reduce(_cancellationSource);
-
-                try
-                {
-                    updateResult = _updateTask.Update(input);
-                    if (updateResult.HasResult)
+                    using (
+                        var message = new MapInputWithControlMessage<TMapInput>(updateResult.MapInput,
+                            MapControlMessage.AnotherRound))
                     {
-                        _resultHandler.HandleResult(updateResult.Result);
-                        _done = true;
+                        _dataAndControlMessageSender.Send(message);
                     }
-                }
-                catch (Exception e)
-                {
-                    HandleTaskAppException(e);
+
+                    if (_invokeGc)
+                    {
+                        Logger.Log(Level.Verbose, "Calling Garbage Collector");
+                        GC.Collect();
+                        GC.WaitForPendingFinalizers();
+                    }
+                    var input = _dataReceiver.Reduce(_cancellationSource);
+                    try
+                    {
+                        updateResult = _updateTask.Update(input);
+
+                        if (updateResult.HasResult)
+                        {
+                            _resultHandler.HandleResult(updateResult.Result);
+                            _done = true;
+                            _checkpointResultHandler.MarkResulHandled();
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        HandleTaskAppException(e);
+                    }
                 }
             }
 
