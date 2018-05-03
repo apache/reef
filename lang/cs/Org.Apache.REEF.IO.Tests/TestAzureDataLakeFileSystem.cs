@@ -195,11 +195,20 @@ namespace Org.Apache.REEF.IO.Tests
         }
 
         [Fact]
-        public void TestCreateUriForPath()
+        public void TestCreateUriForPathNoPrefix()
         {
             string dirStructure = FakeFileUri.AbsolutePath;
             Uri createdUri = _fs.CreateUriForPath(dirStructure);
             Assert.Equal(createdUri, new Uri($"adl://{_context.AdlAccountName}{dirStructure}"));
+        }
+
+        [Fact]
+        public void TestCreateUriForPathWithPrefix()
+        {
+            string dirStructure = FakeFileUri.AbsolutePath;
+            string uriString = $"adl://{_context.AdlAccountName}{dirStructure}";
+            Uri createdUri = _fs.CreateUriForPath(uriString);
+            Assert.Equal(createdUri, new Uri(uriString));
         }
 
         [Fact]

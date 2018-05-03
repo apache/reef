@@ -124,10 +124,17 @@ namespace Org.Apache.REEF.IO.Tests
         }
 
         [Fact]
-        public void TestCreateUriForPath()
+        public void TestCreateUriForPathNoPrefix()
         {
             var testContext = new TestContext();
             Assert.Equal(FakeUri, testContext.GetAzureFileSystem().CreateUriForPath(FakeUri.LocalPath));
+        }
+
+        [Fact]
+        public void TestCreateUriForPathWithPrefix()
+        {
+            var testContext = new TestContext();
+            Assert.Equal(FakeUri, testContext.GetAzureFileSystem().CreateUriForPath(FakeUri.AbsoluteUri));
         }
 
         private sealed class TestContext

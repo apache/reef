@@ -55,7 +55,7 @@ namespace Org.Apache.REEF.IO.FileSystem.Hadoop
         /// <summary>
         /// Create Uri from a given file name
         /// If the path already contains prefix, use it directly and verify the prefix after it is created.
-        /// Otherwise add the prefix in fron of the relative path.
+        /// Otherwise add the prefix in front of the relative path.
         /// If path is null or the prefix doesn't match the prefix in the FileSystem, throw ArgumentException
         /// </summary>
         /// <param name="path"></param>
@@ -67,11 +67,8 @@ namespace Org.Apache.REEF.IO.FileSystem.Hadoop
             {
                 throw new ArgumentException("null path passed in CreateUriForPath");
             }
-
-            Uri uri;
-            uri = new Uri(path);
+            var uri = path.StartsWith(_uriPrefix) ? new Uri(path) : new Uri(_uriPrefix + '/' + path.Trim('/'));
             Logger.Log(Level.Info, string.Format(CultureInfo.CurrentCulture, "Uri {0} created in CreateUriForPath.", uri));
-
             return uri;
         }
 

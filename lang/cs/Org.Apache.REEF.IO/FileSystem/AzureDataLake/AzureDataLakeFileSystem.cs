@@ -201,7 +201,8 @@ namespace Org.Apache.REEF.IO.FileSystem.AzureDataLake
             {
                 throw new ArgumentNullException(nameof(path), "Specified path is null");
             }
-            return new Uri($"{GetUriPrefix()}/{path.TrimStart('/')}");
+            var uriPrefix = GetUriPrefix();
+            return path.StartsWith(uriPrefix) ? new Uri(path) : new Uri(uriPrefix + '/' + path.Trim('/'));
         }
 
         /// <summary>

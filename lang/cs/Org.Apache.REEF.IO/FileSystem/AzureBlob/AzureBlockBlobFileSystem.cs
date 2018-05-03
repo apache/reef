@@ -191,7 +191,12 @@ namespace Org.Apache.REEF.IO.FileSystem.AzureBlob
         /// <returns>The URI to the remote file</returns>
         public Uri CreateUriForPath(string path)
         {
-            return new Uri(_client.BaseUri.AbsoluteUri.TrimEnd('/') + '/' + path.Trim('/'));
+            if (path == null)
+            {
+                throw new ArgumentNullException(nameof(path), "Specified path is null");
+            }
+            var uriPrefix = GetUriPrefix();
+            return path.StartsWith(uriPrefix) ? new Uri(path) : new Uri(uriPrefix + '/' + path.Trim('/'));
         }
 
         /// <summary>
@@ -215,6 +220,11 @@ namespace Org.Apache.REEF.IO.FileSystem.AzureBlob
             }
 
             return new FileStatus(lastModifiedTime.Value.DateTime, blobReference.Properties.Length);
+        }
+
+        private string GetUriPrefix()
+        {
+            return _client.BaseUri.AbsoluteUri.TrimEnd('/');
         }
     }
 }

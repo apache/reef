@@ -18,6 +18,7 @@
 using System;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 using Org.Apache.REEF.IO.FileSystem;
 using Org.Apache.REEF.IO.FileSystem.Hadoop;
 using Org.Apache.REEF.Tang.Annotations;
@@ -140,6 +141,20 @@ namespace Org.Apache.REEF.IO.Tests
         {
             // Create() is not supported by HadoopFileSystem. Create a local file and use CopyFromLocal instead.
             Assert.Throws<NotImplementedException>(() => _fileSystem.Create(GetTempUri()));
+        }
+
+        [Fact(Skip = "These tests need to be run in an environment with HDFS installed.")]
+        public void CreateUriForPathNoPrefix()
+        {
+            var uri = _fileSystem.CreateUriForPath("/tmp/TestHadoop");
+            Assert.True(new Regex("hdfs://[a-z]+:\\d+/tmp/TestHadoop").Match(uri.AbsoluteUri).Success);
+        }
+
+        [Fact(Skip = "These tests need to be run in an environment with HDFS installed.")]
+        public void CreateUriForPathWithPrefix()
+        {
+            var uriString = "hdfs://localhost:9000/tmp/TestHadoop";
+            Assert.Equal(uriString, _fileSystem.CreateUriForPath(uriString).AbsoluteUri);
         }
 
         /// <summary>
