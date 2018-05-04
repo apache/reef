@@ -163,6 +163,7 @@ public final class DriverClientService extends DriverClientGrpc.DriverClientImpl
     } finally {
       responseObserver.onNext(null);
       responseObserver.onCompleted();
+      this.server.shutdown();
     }
   }
 

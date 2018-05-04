@@ -24,14 +24,19 @@ import org.apache.reef.bridge.driver.service.IDriverServiceConfigurationProvider
 import org.apache.reef.bridge.client.IDriverServiceRuntimeLauncher;
 import org.apache.reef.bridge.proto.ClientProtocol;
 import org.apache.reef.client.DriverLauncher;
+import org.apache.reef.client.LauncherStatus;
 import org.apache.reef.tang.exceptions.InjectionException;
 
 import javax.inject.Inject;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Yarn driver service launcher.
  */
 public final class YarnDriverServiceRuntimeLauncher implements IDriverServiceRuntimeLauncher {
+
+  private static final Logger LOG = Logger.getLogger(YarnDriverServiceRuntimeLauncher.class.getName());
 
   private final IDriverRuntimeConfigurationProvider driverRuntimeConfigurationProvider;
 
@@ -48,9 +53,14 @@ public final class YarnDriverServiceRuntimeLauncher implements IDriverServiceRun
   @Override
   public void launch(final ClientProtocol.DriverClientConfiguration driverClientConfiguration) {
     try {
-      DriverLauncher.getLauncher(
+      final LauncherStatus status = DriverLauncher.getLauncher(
           driverRuntimeConfigurationProvider.getConfiguration(driverClientConfiguration))
-          .run(driverServiceConfigurationProvider.getConfiguration(driverClientConfiguration));
+          .run(driverServiceConfigurationProvider.getDriverServiceConfiguration(driverClientConfiguration));
+      LOG.log(Level.INFO, "Job complete status: " + status.toString());
+      if (status.getError().isPresent()) {
+        LOG.log(Level.SEVERE, status.getError().get().getMessage());
+        status.getError().get().printStackTrace();
+      }
     } catch (InjectionException e) {
       throw new RuntimeException(e);
     }

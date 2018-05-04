@@ -34,13 +34,37 @@ message LocalRuntimeParameters {
 
 message YarnRuntimeParameters {
   string queue = 1;
-  string job_submission_directory = 2;
-  string filesystem_url = 3;
-  bytes security_token = 4;
+  uint32 priority = 2;
+  bool unmanged_driver = 3;
+
+  // providers
+  string filesystem_url = 5;
+  string job_submission_directory_prefix = 6;
 }
 
 message AzureBatchRuntimeParameters {
+  // Azure Batch Account Information
+  string azure_batch_account_name = 1;
 
+  string azure_batch_account_key = 2;
+
+  string azure_batch_account_uri = 3;
+
+  string azure_batch_pool_id = 4;
+
+  // Azure Storage Account Information
+  string azure_storage_account_name = 10;
+
+  string azure_storage_account_key = 11;
+
+  string azure_storage_container_name = 12;
+
+  // General information
+  enum OS {
+    WINDOWS = 0;
+    LINUX = 1;
+  }
+  OS operating_system = 20;
 }
 
 message MesosRuntimeParameters {
@@ -54,12 +78,14 @@ message DriverClientConfiguration {
   uint32 cpu_cores = 2;
   uint32 memory_mb = 3;
 
+  string driver_job_submission_directory = 4;
+
   // the runtime on which to launch
   oneof runtime {
-    LocalRuntimeParameters local_runtime = 4;
-    YarnRuntimeParameters yarn_runtime = 5;
-    AzureBatchRuntimeParameters azbatch_runtime = 6;
-    MesosRuntimeParameters mesos_runtime = 7;
+    LocalRuntimeParameters local_runtime = 5;
+    YarnRuntimeParameters yarn_runtime = 6;
+    AzureBatchRuntimeParameters azbatch_runtime = 7;
+    MesosRuntimeParameters mesos_runtime = 8;
   }
 
   // The command to launch the driver client
@@ -82,4 +108,6 @@ message DriverClientConfiguration {
   repeated string global_libraries = 22;
   repeated string local_libraries = 23;
 
+  // enable http driver
+  bool enable_http_driver = 25;
 }

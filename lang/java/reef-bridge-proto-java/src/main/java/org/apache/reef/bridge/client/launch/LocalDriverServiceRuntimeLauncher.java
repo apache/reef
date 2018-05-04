@@ -47,9 +47,8 @@ public final class LocalDriverServiceRuntimeLauncher implements IDriverServiceRu
   @Override
   public void launch(final ClientProtocol.DriverClientConfiguration driverClientConfiguration) {
     try {
-      DriverLauncher.getLauncher(
-          driverRuntimeConfigurationProvider.getConfiguration(driverClientConfiguration))
-          .run(driverServiceConfigurationProvider.getConfiguration(driverClientConfiguration));
+      DriverLauncher.getLauncher(driverRuntimeConfigurationProvider.getConfiguration(driverClientConfiguration))
+          .run(driverServiceConfigurationProvider.getDriverServiceConfiguration(driverClientConfiguration));
     } catch (InjectionException e) {
       throw new RuntimeException(e);
     }

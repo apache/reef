@@ -16,19 +16,18 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+package org.apache.reef.bridge.driver.service.parameters;
 
-package org.apache.reef.bridge.driver.service;
-
-import org.apache.reef.bridge.driver.service.grpc.GRPCDriverServiceConfigurationProvider;
-import org.apache.reef.bridge.proto.ClientProtocol;
-import org.apache.reef.tang.Configuration;
-import org.apache.reef.tang.annotations.DefaultImplementation;
+import org.apache.reef.tang.annotations.Name;
+import org.apache.reef.tang.annotations.NamedParameter;
 
 /**
- * Configuration provider for the driver service.
+ * The interval between alarms in DriverStatusHTTPHandler.
  */
-@DefaultImplementation(GRPCDriverServiceConfigurationProvider.class)
-public interface IDriverServiceConfigurationProvider {
+@NamedParameter(default_value = "200", doc = "The interval between alarms in DriverStatusHTTPHandler.")
+public final class HTTPStatusAlarmInterval implements Name<Integer> {
 
-  Configuration getDriverServiceConfiguration(final ClientProtocol.DriverClientConfiguration driverClientConfiguration);
+  private HTTPStatusAlarmInterval() {
+    //intentionally empty
+  }
 }
