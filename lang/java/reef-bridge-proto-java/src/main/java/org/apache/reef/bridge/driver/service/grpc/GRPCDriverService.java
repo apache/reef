@@ -52,6 +52,7 @@ import org.apache.reef.wake.time.event.StopTime;
 import javax.inject.Inject;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
@@ -130,11 +131,12 @@ public final class GRPCDriverService implements IDriverService {
     } else {
       final String cmd = this.driverClientCommand + " " + this.server.getPort();
       final String cmdOs = OSUtils.isWindows() ? "cmd.exe /c \"" + cmd + "\"" : cmd;
-      final String cmdStd = cmdOs + " 1> driverclient.stdout 2> driverclient.stderr";
-      this.driverProcess = Runtime.getRuntime().exec(cmdStd);
+      LOG.log(Level.INFO, "CMD: " + cmdOs);
+      this.driverProcess = Runtime.getRuntime().exec(cmdOs);
       synchronized (this) {
         // wait for driver client process to register
         while (this.clientStub == null && driverProcessIsAlive()) {
+          LOG.log(Level.INFO, "waiting for driver process to register");
           this.wait(1000); // a second
         }
       }
@@ -159,6 +161,7 @@ public final class GRPCDriverService implements IDriverService {
   }
 
   private void stop(final Throwable t) {
+    LOG.log(Level.INFO, "STOP: gRPC Driver Service", t);
     if (!stopped) {
       try {
         if (t != null) {
@@ -172,14 +175,36 @@ public final class GRPCDriverService implements IDriverService {
           this.server = null;
         }
         if (this.driverProcess != null) {
-          LOG.log(Level.INFO, "Shutdown driver process");
+          LOG.log(Level.INFO, "shutdown driver process");
+          dump();
           this.driverProcess.destroy();
           this.driverProcess = null;
         }
       } finally {
+        LOG.log(Level.INFO, "COMPLETED STOP: gRPC Driver Service");
         stopped = true;
       }
     }
+  }
+
+  private void dump() {
+    if (!driverProcessIsAlive()) {
+      LOG.log(Level.INFO, "Exit code: " + this.driverProcess.exitValue());
+    }
+    LOG.log(Level.INFO, "capturing driver process stderr");
+    StringBuffer errBuffer = new StringBuffer();
+    InputStream errStream = this.driverProcess.getErrorStream();
+    try {
+      int nextChar;
+      errBuffer.append("\n==============================================\n");
+      while ((nextChar = errStream.read()) != -1) {
+        errBuffer.append((char) nextChar);
+      }
+      errBuffer.append("\n==============================================\n");
+    } catch (IOException e) {
+      LOG.log(Level.WARNING, "Error while capturing output stream: " + e.getMessage());
+    }
+    LOG.log(Level.INFO, errBuffer.toString());
   }
 
   /**

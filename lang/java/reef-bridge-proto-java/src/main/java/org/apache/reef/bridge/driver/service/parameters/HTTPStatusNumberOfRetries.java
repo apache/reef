@@ -16,19 +16,18 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+package org.apache.reef.bridge.driver.service.parameters;
 
-package org.apache.reef.bridge.driver.service;
-
-import org.apache.reef.bridge.driver.service.grpc.GRPCDriverServiceConfigurationProvider;
-import org.apache.reef.bridge.proto.ClientProtocol;
-import org.apache.reef.tang.Configuration;
-import org.apache.reef.tang.annotations.DefaultImplementation;
+import org.apache.reef.tang.annotations.Name;
+import org.apache.reef.tang.annotations.NamedParameter;
 
 /**
- * Configuration provider for the driver service.
+ * Number of times the HTTPStatusHandler will advance its alarm.
  */
-@DefaultImplementation(GRPCDriverServiceConfigurationProvider.class)
-public interface IDriverServiceConfigurationProvider {
+@NamedParameter(default_value = "10", doc = "Number of times the HTTPStatusHandler will advance its alarm.")
+public final class HTTPStatusNumberOfRetries implements Name<Integer> {
 
-  Configuration getDriverServiceConfiguration(final ClientProtocol.DriverClientConfiguration driverClientConfiguration);
+  private HTTPStatusNumberOfRetries() {
+    // Intentionally empty.
+  }
 }

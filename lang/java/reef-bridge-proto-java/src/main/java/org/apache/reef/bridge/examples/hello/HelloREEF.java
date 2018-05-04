@@ -56,8 +56,8 @@ public final class HelloREEF {
     final ClientProtocol.DriverClientConfiguration.Builder builder =
         ClientProtocol.DriverClientConfiguration.newBuilder();
     builder.setJobid("HelloREEF");
-    builder.setLocalRuntime(ClientProtocol.LocalRuntimeParameters.newBuilder()
-        .setMaxNumberOfEvaluators(1)
+    builder.setEnableHttpDriver(false);
+    builder.setAzbatchRuntime(ClientProtocol.AzureBatchRuntimeParameters.newBuilder()
         .build());
     builder.addGlobalLibraries(EnvironmentUtils.getClassLocation(HelloDriver.class));
 

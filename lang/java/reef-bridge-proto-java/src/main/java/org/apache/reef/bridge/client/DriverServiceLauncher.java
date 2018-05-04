@@ -20,10 +20,10 @@ package org.apache.reef.bridge.client;
 
 import com.google.protobuf.util.JsonFormat;
 import org.apache.commons.lang.StringUtils;
-import org.apache.reef.bridge.client.launch.LocalDriverServiceRuntimeLauncher;
-import org.apache.reef.bridge.client.launch.YarnDriverServiceRuntimeLauncher;
-import org.apache.reef.bridge.client.runtime.LocalDriverRuntimeConfigurationProvider;
-import org.apache.reef.bridge.client.runtime.YarnDriverRuntimeConfigurationProvider;
+import org.apache.reef.bridge.driver.launch.IDriverLauncher;
+import org.apache.reef.bridge.driver.launch.azbatch.AzureBatchLauncher;
+import org.apache.reef.bridge.driver.launch.local.LocalLauncher;
+import org.apache.reef.bridge.driver.launch.yarn.YarnLauncher;
 import org.apache.reef.bridge.driver.service.IDriverServiceConfigurationProvider;
 import org.apache.reef.bridge.driver.service.grpc.GRPCDriverServiceConfigurationProvider;
 import org.apache.reef.bridge.driver.client.JavaDriverClientLauncher;
@@ -87,11 +87,14 @@ public final class DriverServiceLauncher {
           driverClientConfigurationProto.getRuntimeCase() ==
               ClientProtocol.DriverClientConfiguration.RuntimeCase.YARN_RUNTIME ?
               Tang.Factory.getTang().newConfigurationBuilder()
+                  .bind(RuntimePathProvider.class, WindowsRuntimePathProvider.class)
                   .bind(RuntimeClasspathProvider.class, YarnClasspathProvider.class)
+                  .bindConstructor(org.apache.hadoop.yarn.conf.YarnConfiguration.class,
+                      YarnConfigurationConstructor.class)
                   .build() :
               Tang.Factory.getTang().newConfigurationBuilder()
-                  .bind(RuntimePathProvider.class,
-                      OSUtils.isWindows() ? WindowsRuntimePathProvider.class : UnixJVMPathProvider.class)
+                  .bind(RuntimePathProvider.class, OSUtils.isWindows() ?
+                      WindowsRuntimePathProvider.class : UnixJVMPathProvider.class)
                   .bind(RuntimeClasspathProvider.class, LocalClasspathProvider.class)
                   .build();
       final Injector runtimeInjector = Tang.Factory.getTang().newInjector(runtimeOSConfiguration);
@@ -124,30 +127,34 @@ public final class DriverServiceLauncher {
     }
   }
 
-  private static IDriverServiceRuntimeLauncher getLocalDriverServiceLauncher() throws InjectionException {
+  private static IDriverLauncher getLocalDriverServiceLauncher() throws InjectionException {
     final Configuration localJobSubmissionClientConfig = Tang.Factory.getTang().newConfigurationBuilder()
-        .bindImplementation(IDriverRuntimeConfigurationProvider.class,
-            LocalDriverRuntimeConfigurationProvider.class)
+        .bindImplementation(IDriverLauncher.class, LocalLauncher.class)
         .bindImplementation(IDriverServiceConfigurationProvider.class,
             GRPCDriverServiceConfigurationProvider.class)
-        .bindImplementation(RuntimeClasspathProvider.class, LocalClasspathProvider.class)
         .build();
     return Tang.Factory.getTang()
-        .newInjector(localJobSubmissionClientConfig).getInstance(LocalDriverServiceRuntimeLauncher.class);
+        .newInjector(localJobSubmissionClientConfig).getInstance(LocalLauncher.class);
   }
 
 
-  private static IDriverServiceRuntimeLauncher getYarnDriverServiceLauncher() throws InjectionException {
+  private static IDriverLauncher getYarnDriverServiceLauncher() throws InjectionException {
     final Configuration yarnJobSubmissionClientConfig = Tang.Factory.getTang().newConfigurationBuilder()
-        .bindImplementation(IDriverRuntimeConfigurationProvider.class,
-            YarnDriverRuntimeConfigurationProvider.class)
+        .bindImplementation(IDriverLauncher.class, YarnLauncher.class)
         .bindImplementation(IDriverServiceConfigurationProvider.class,
             GRPCDriverServiceConfigurationProvider.class)
-        .bindImplementation(RuntimeClasspathProvider.class, YarnClasspathProvider.class)
-        .bindConstructor(org.apache.hadoop.yarn.conf.YarnConfiguration.class, YarnConfigurationConstructor.class)
         .build();
     return Tang.Factory.getTang()
-        .newInjector(yarnJobSubmissionClientConfig).getInstance(YarnDriverServiceRuntimeLauncher.class);
+        .newInjector(yarnJobSubmissionClientConfig).getInstance(YarnLauncher.class);
+  }
+
+  private static IDriverLauncher getAzureBatchDriverServiceLauncher() throws  InjectionException {
+    final Configuration azbatchJobSubmissionClientConfig = Tang.Factory.getTang().newConfigurationBuilder()
+        .bindImplementation(IDriverLauncher.class, AzureBatchLauncher.class)
+        .bindImplementation(IDriverServiceConfigurationProvider.class,
+            GRPCDriverServiceConfigurationProvider.class)
+        .build();
+    return Tang.Factory.getTang().newInjector(azbatchJobSubmissionClientConfig).getInstance(AzureBatchLauncher.class);
   }
 
   /**
@@ -176,12 +183,16 @@ public final class DriverServiceLauncher {
           driverClientConfigurationProtoBuilder.build();
       switch (driverClientConfigurationProto.getRuntimeCase()) {
       case YARN_RUNTIME:
-        final IDriverServiceRuntimeLauncher yarnDriverServiceLauncher = getYarnDriverServiceLauncher();
+        final IDriverLauncher yarnDriverServiceLauncher = getYarnDriverServiceLauncher();
         yarnDriverServiceLauncher.launch(driverClientConfigurationProto);
         break;
       case LOCAL_RUNTIME:
-        final IDriverServiceRuntimeLauncher localDriverServiceLauncher = getLocalDriverServiceLauncher();
+        final IDriverLauncher localDriverServiceLauncher = getLocalDriverServiceLauncher();
         localDriverServiceLauncher.launch(driverClientConfigurationProto);
+        break;
+      case AZBATCH_RUNTIME:
+        final IDriverLauncher azureBatchDriverServiceLauncher = getAzureBatchDriverServiceLauncher();
+        azureBatchDriverServiceLauncher.launch(driverClientConfigurationProto);
         break;
       default:
       }
