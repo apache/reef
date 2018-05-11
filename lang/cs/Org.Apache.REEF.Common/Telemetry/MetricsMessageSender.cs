@@ -15,6 +15,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
+using System.Linq;
 using Org.Apache.REEF.Common.Context;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Utilities;
@@ -26,7 +27,6 @@ namespace Org.Apache.REEF.Common.Telemetry
     /// <summary>
     /// This class implements IContextMessageSource that is responsible to send context message
     /// </summary>
-    [Unstable("0.16", "The metrics API is in development.")]
     internal sealed class MetricsMessageSender : IContextMessageSource
     {
         private static readonly Logger Logger = Logger.GetLogger(typeof(MetricsMessageSender));
@@ -58,7 +58,9 @@ namespace Org.Apache.REEF.Common.Telemetry
         {
             get
             {
+                Logger.Log(Level.Info, "Getting context msg for eval metrics.");
                 var s = _evaluatorMetrics.Serialize();
+                _evaluatorMetrics.GetMetricsData().Reset();
                 if (s != null)
                 {
                     return Optional<ContextMessage>.Of(

@@ -16,23 +16,11 @@
 // under the License.
 
 using Org.Apache.REEF.Tang.Annotations;
-using Org.Apache.REEF.Utilities.Attributes;
 
 namespace Org.Apache.REEF.Common.Telemetry
 {
-    [DefaultImplementation(typeof(EvaluatorMetrics))]
-    public interface IEvaluatorMetrics
+    [NamedParameter(Documentation = "Threshold to trigger the sink.", ShortName = "MetricSinkThreshold", DefaultValue = "1")]
+    public class MetricSinkThreshold : Name<int>
     {
-        /// <summary>
-        /// Returns the evaluator metrics.
-        /// </summary>
-        /// <returns>Returns ICounters.</returns>
-        MetricsData GetMetricsData();
-
-        /// <summary>
-        /// Serializes the metrics data into a string.
-        /// </summary>
-        /// <returns>Returns serialized string of metrics</returns>
-        string Serialize();
     }
 }

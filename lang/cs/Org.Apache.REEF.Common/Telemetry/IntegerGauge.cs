@@ -15,24 +15,34 @@
 // specific language governing permissions and limitations
 // under the License.
 
-using Org.Apache.REEF.Tang.Annotations;
+using System;
+using System.Runtime.Serialization;
+using Newtonsoft.Json;
 using Org.Apache.REEF.Utilities.Attributes;
 
 namespace Org.Apache.REEF.Common.Telemetry
 {
-    [DefaultImplementation(typeof(EvaluatorMetrics))]
-    public interface IEvaluatorMetrics
+    class IntegerGauge : MetricBase<int>
     {
-        /// <summary>
-        /// Returns the evaluator metrics.
-        /// </summary>
-        /// <returns>Returns ICounters.</returns>
-        MetricsData GetMetricsData();
+        public override bool IsImmutable
+        {
+            get { return true; }
+        }
 
-        /// <summary>
-        /// Serializes the metrics data into a string.
-        /// </summary>
-        /// <returns>Returns serialized string of metrics</returns>
-        string Serialize();
+        public IntegerGauge(string name, string description)
+            : base(name, description)
+        {
+        }
+
+        [JsonConstructor]
+        internal IntegerGauge(string name, string description, long timeStamp, int value)
+            : base(name, description, timeStamp, value)
+        {
+        }
+
+        public override IMetric CreateInstanceWithNewValue(object val)
+        {
+            return new IntegerGauge(Name, Description, DateTime.Now.Ticks, (int)val);
+        }
     }
 }

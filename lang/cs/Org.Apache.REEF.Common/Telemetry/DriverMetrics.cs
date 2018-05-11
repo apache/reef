@@ -20,20 +20,20 @@ using System;
 namespace Org.Apache.REEF.Common.Telemetry
 {
     /// <summary>
-    /// A simple driver metrics.
-    /// It contains system state for now.
-    /// It can be extended later to include more driver metrics data.
+    /// A simple driver metrics implementation that contains the system state.
     /// </summary>
     public sealed class DriverMetrics : IDriverMetrics
     {
-        public DriverMetrics(string systemState, DateTime timeUpdated)
+        private string _stateMetricName = "DriverState";
+
+        public IMetric SystemState
         {
-            SystemState = systemState;
-            TimeUpdated = timeUpdated;
+            get;
         }
 
-        public string SystemState { get; private set; }
-
-        public DateTime TimeUpdated { get; private set; }
+        public DriverMetrics(string systemState, DateTime timeUpdated)
+        {
+            SystemState = new DriverSystemState(_stateMetricName, "driver state.", timeUpdated.Ticks, systemState);
+        }
     }
 }

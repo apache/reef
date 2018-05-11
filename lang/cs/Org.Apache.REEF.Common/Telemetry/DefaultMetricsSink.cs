@@ -22,9 +22,8 @@ using Org.Apache.REEF.Utilities.Logging;
 namespace Org.Apache.REEF.Common.Telemetry
 {
     /// <summary>
-    /// This default IMetricsSink is just an example of IMetricsSink
-    /// Here the data is logged in Sink() method
-    /// It is more useful in test
+    /// This default IMetricsSink is a simple implementation of IMetricsSink
+    /// that logs the metrics on sink.
     /// </summary>
     internal sealed class DefaultMetricsSink : IMetricsSink
     {
@@ -38,12 +37,12 @@ namespace Org.Apache.REEF.Common.Telemetry
         /// <summary>
         /// Simple sink for metrics data
         /// </summary>
-        /// <param name="metrics">A collection of metrics data in Key value pair format.</param>
-        public void Sink(IEnumerable<KeyValuePair<string, string>> metrics)
+        /// <param name="metrics">A collection of metrics.</param>
+        public void Sink(IEnumerable<IMetric> metrics)
         {
             foreach (var m in metrics)
             {
-                Logger.Log(Level.Info, "Metrics - Name:{0}, Value:{1}.", m.Key, m.Value);
+                Logger.Log(Level.Info, "Metrics - Name:{0}, Value:{1}.", m.Name, m.ValueUntyped);
             }
         }
 

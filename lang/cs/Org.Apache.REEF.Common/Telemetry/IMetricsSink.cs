@@ -23,11 +23,10 @@ namespace Org.Apache.REEF.Common.Telemetry
 {
     /// <summary>
     /// Interface for metrics sink.
-    /// It is used to output IMRU metrics.
     /// </summary>
     [DefaultImplementation(typeof(DefaultMetricsSink))]
     public interface IMetricsSink : IDisposable
     {
-        void Sink(IEnumerable<KeyValuePair<string, string>> metrics);
+        void Sink(IEnumerable<IMetric> metrics);
     }
 }

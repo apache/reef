@@ -15,24 +15,39 @@
 // specific language governing permissions and limitations
 // under the License.
 
+using System.Collections.Generic;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Utilities.Attributes;
 
 namespace Org.Apache.REEF.Common.Telemetry
 {
-    [DefaultImplementation(typeof(EvaluatorMetrics))]
-    public interface IEvaluatorMetrics
+    public interface IMetrics
     {
         /// <summary>
-        /// Returns the evaluator metrics.
+        /// Register a new metric.
         /// </summary>
-        /// <returns>Returns ICounters.</returns>
-        MetricsData GetMetricsData();
+        /// <param name="metric">The metric to be registered.</param>
+        /// <returns>Returns a boolean to indicate if the metric has been added.</returns>
+        bool TryRegisterMetric(IMetric metric);
 
         /// <summary>
-        /// Serializes the metrics data into a string.
+        /// Get metric value given the metric name.
         /// </summary>
-        /// <returns>Returns serialized string of metrics</returns>
+        /// <param name="name">Name of the metric</param>
+        /// <param name="metric">The metric object returned</param>
+        /// <returns>Returns a boolean to indicate if the value is found.</returns>
+        bool TryGetValue(string name, out IMetric metric);
+
+        /// <summary>
+        /// Returns all the metrics.
+        /// </summary>
+        /// <returns></returns>
+        IEnumerable<MetricData> GetMetrics();
+
+        /// <summary>
+        /// Serialize the metrics into strings
+        /// </summary>
+        /// <returns>Returns serialized string of the metrics.</returns>
         string Serialize();
     }
 }

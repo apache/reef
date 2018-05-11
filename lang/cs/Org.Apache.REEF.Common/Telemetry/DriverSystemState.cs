@@ -5,9 +5,9 @@
 // to you under the Apache License, Version 2.0 (the
 // "License"); you may not use this file except in compliance
 // with the License.  You may obtain a copy of the License at
-//
+// 
 //   http://www.apache.org/licenses/LICENSE-2.0
-//
+// 
 // Unless required by applicable law or agreed to in writing,
 // software distributed under the License is distributed on an
 // "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -15,12 +15,30 @@
 // specific language governing permissions and limitations
 // under the License.
 
-using Org.Apache.REEF.Tang.Annotations;
+using System;
 
 namespace Org.Apache.REEF.Common.Telemetry
 {
-    [NamedParameter(Documentation = "Threshold to trigger the sink.", ShortName = "CounterSinkThreshold", DefaultValue = "1")]
-    public class CounterSinkThreshold : Name<int>
+    class DriverSystemState : MetricBase<string>
     {
+        public override bool IsImmutable
+        {
+            get { return false; }
+        }
+
+        public DriverSystemState(string name, string description)
+            : base(name, description)
+        {
+        }
+
+        internal DriverSystemState(string name, string description, long timeStamp, string value)
+            : base(name, description, timeStamp, value)
+        {
+        }
+
+        public override IMetric CreateInstanceWithNewValue(object val)
+        {
+            return new DriverSystemState(Name, Description, DateTime.Now.Ticks, (string)val);
+        }
     }
 }

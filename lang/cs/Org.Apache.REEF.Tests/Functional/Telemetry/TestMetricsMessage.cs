@@ -38,7 +38,7 @@ namespace Org.Apache.REEF.Tests.Functional.Telemetry
             TestRun(DriverConfigurations(), typeof(MetricsDriver), 1, "sendMessages", "local", testFolder);
             ValidateSuccessForLocalRuntime(1, testFolder: testFolder);
             string[] lines = ReadLogFile(DriverStdout, "driver", testFolder, 240);
-            var receivedCounterMessage = GetMessageCount(lines, "Received 2 counters with context message:");
+            var receivedCounterMessage = GetMessageCount(lines, "Received 2 metrics with context message:");
             Assert.True(receivedCounterMessage > 1);
 
             var messageCount = GetMessageCount(lines, MetricsDriver.EventPrefix);
@@ -59,7 +59,7 @@ namespace Org.Apache.REEF.Tests.Functional.Telemetry
 
             var metricServiceConfig = MetricsServiceConfigurationModule.ConfigurationModule
                 .Set(MetricsServiceConfigurationModule.OnMetricsSink, GenericType<DefaultMetricsSink>.Class)
-                .Set(MetricsServiceConfigurationModule.CounterSinkThreshold, "5")
+                .Set(MetricsServiceConfigurationModule.MetricSinkThreshold, "5")
                 .Build();
 
             var driverMetricConfig = DriverMetricsObserverConfigurationModule.ConfigurationModule.Build();

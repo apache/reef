@@ -20,15 +20,17 @@ using Org.Apache.REEF.Utilities.Attributes;
 
 namespace Org.Apache.REEF.Common.Telemetry
 {
-    [Unstable("0.16", "This is to build a simple metrics with counters only. More metrics will be added in future.")]
+    /// <summary>
+    /// An evaluator metrics implementation that maintains a collection of metrics.
+    /// </summary>
     internal sealed class EvaluatorMetrics : IEvaluatorMetrics
     {
-        private readonly Counters _counters;
+        private readonly MetricsData _metrics;
 
         [Inject]
-        private EvaluatorMetrics(Counters counters)
+        private EvaluatorMetrics(MetricsData metrics)
         {
-            _counters = counters;
+            _metrics = metrics;
         }
 
         /// <summary>
@@ -37,27 +39,27 @@ namespace Org.Apache.REEF.Common.Telemetry
         /// <param name="serializedMsg"></param>
         internal EvaluatorMetrics(string serializedMsg)
         {
-            _counters = new Counters(serializedMsg);
+            _metrics = new MetricsData(serializedMsg);
         }
 
         /// <summary>
-        /// Returns counters
+        /// Returns metrics
         /// </summary>
-        /// <returns>Returns counters.</returns>
-        public ICounters GetMetricsCounters()
+        /// <returns>Returns metrics.</returns>
+        public MetricsData GetMetricsData()
         {
-            return _counters;
+            return _metrics;
         }
 
         /// <summary>
-        /// return serialized string of metrics counters data
+        /// return serialized string of metrics metrics data
         /// </summary>
-        /// <returns>Returns serialized string of counters.</returns>
+        /// <returns>Returns serialized string of metrics.</returns>
         public string Serialize()
         {
-            if (_counters != null)
+            if (_metrics != null)
             {
-                return _counters.Serialize();
+                return _metrics.Serialize();
             }
             return null;
         }

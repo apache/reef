@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <!--
 Licensed to the Apache Software Foundation (ASF) under one
 or more contributor license agreements.  See the NOTICE file
@@ -54,7 +54,7 @@ under the License.
     <Compile Include="Metrics\MutableMetricTest.cs" />
     <Compile Include="Metrics\SnapshotRequestTest.cs" />
     <Compile Include="Metrics\TestMetricsTag.cs" />
-    <Compile Include="Telemetry\CounterTests.cs" />
+    <Compile Include="Telemetry\MetricTests.cs" />
     <Compile Include="TestHttpSerialization.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
