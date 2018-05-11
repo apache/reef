@@ -17,6 +17,6 @@
  * under the License.
  */
 /**
- * GRPC implementation for driver bridge service.
+ * Local driver bridge service launcher.
  */
 package org.apache.reef.bridge.driver.launch.local;
