@@ -1,13 +1,15 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<!--
+﻿<Project>
+  <!--
 Licensed to the Apache Software Foundation (ASF) under one
 or more contributor license agreements.  See the NOTICE file
 distributed with this work for additional information
 regarding copyright ownership.  The ASF licenses this file
-to you under the Apache License, Version 2.0 (the
+to you under the Apache License, Version 2.0 (thee
 "License"); you may not use this file except in compliance
 with the License.  You may obtain a copy of the License at
+
 http://www.apache.org/licenses/LICENSE-2.0
+
 Unless required by applicable law or agreed to in writing,
 software distributed under the License is distributed on an
 "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -15,325 +17,50 @@ KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
 -->
-<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
-    <ProjectGuid>{5094C35B-4FDB-4322-AC05-45D684501CBF}</ProjectGuid>
-    <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Org.Apache.REEF.Client</RootNamespace>
     <AssemblyName>Org.Apache.REEF.Client</AssemblyName>
-    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
-    <FileAlignment>512</FileAlignment>
-    <RestorePackages>true</RestorePackages>
-    <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..</SolutionDir>
+    <Description>Client for REEF.NET</Description>
+    <PackageTags>REEF Client</PackageTags>
+    <!-- Disable default embedded resources as we override this in the project -->
+    <EnableDefaultEmbeddedResourceItems>False</EnableDefaultEmbeddedResourceItems>
   </PropertyGroup>
+  <Import Project="..\build.Library.props" />
   <PropertyGroup>
-    <StartupObject />
+    <TempResxFile Condition="$(TempResxFile) == ''">$(OutputPath)\$(TargetFramework)\Resources.resx</TempResxFile>
   </PropertyGroup>
-  <Import Project="$(SolutionDir)\build.props" />
-  <PropertyGroup>
-    <TempResxFile Condition="$(TempResxFile) == ''">$(SolutionDir)bin\$(PlatformTarget)\$(Configuration)\$(AssemblyName)\Resources.resx</TempResxFile>
-    <UseVSHostingProcess>false</UseVSHostingProcess>
-  </PropertyGroup>
-  <ItemGroup>
-    <Reference Include="Microsoft.Azure.Batch, Version=8.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <HintPath>..\packages\Azure.Batch.8.0.1\lib\net452\Microsoft.Azure.Batch.dll</HintPath>
-    </Reference>
-    <Reference Include="Microsoft.Azure.KeyVault.Core, Version=1.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.Azure.KeyVault.Core.1.0.0\lib\net40\Microsoft.Azure.KeyVault.Core.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="Microsoft.CSharp" />
-    <Reference Include="Microsoft.Data.Edm, Version=5.8.1.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.Data.Edm.5.8.2\lib\net40\Microsoft.Data.Edm.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="Microsoft.Data.OData, Version=5.8.1.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.Data.OData.5.8.2\lib\net40\Microsoft.Data.OData.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="Microsoft.Data.Services.Client, Version=5.8.1.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.Data.Services.Client.5.8.2\lib\net40\Microsoft.Data.Services.Client.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="Microsoft.Practices.TransientFaultHandling.Core, Version=5.1.1209.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <HintPath>$(PackagesDir)\TransientFaultHandling.Core.5.1.1209.1\lib\NET4\Microsoft.Practices.TransientFaultHandling.Core.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="Microsoft.Rest.ClientRuntime, Version=2.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.Rest.ClientRuntime.2.3.10\lib\net452\Microsoft.Rest.ClientRuntime.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="Microsoft.Rest.ClientRuntime.Azure, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.Rest.ClientRuntime.Azure.3.3.10\lib\net452\Microsoft.Rest.ClientRuntime.Azure.dll</HintPath>
-    </Reference>
-    <Reference Include="Microsoft.WindowsAzure.Storage, Version=8.1.3.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <HintPath>..\packages\WindowsAzure.Storage.8.1.3\lib\net45\Microsoft.WindowsAzure.Storage.dll</HintPath>
-    </Reference>
-    <Reference Include="Newtonsoft.Json">
-      <HintPath>$(PackagesDir)\Newtonsoft.Json.$(NewtonsoftJsonVersion)\lib\net45\Newtonsoft.Json.dll</HintPath>
-    </Reference>
-    <Reference Include="Microsoft.Hadoop.Avro">
-      <HintPath>$(PackagesDir)\Microsoft.Hadoop.Avro.$(AvroVersion)\lib\net45\Microsoft.Hadoop.Avro.dll</HintPath>
-    </Reference>
-    <Reference Include="System" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.IO.Compression" />
-    <Reference Include="System.IO.Compression.FileSystem" />
-    <Reference Include="System.Net.Http" />
-    <Reference Include="System.Net.Http.WebRequest" />
-    <Reference Include="System.Spatial, Version=5.8.1.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <HintPath>..\packages\System.Spatial.5.8.2\lib\net40\System.Spatial.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="System.Xml" />
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Runtime.Serialization" />
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Include="$(SolutionDir)\SharedAssemblyInfo.cs">
-      <Link>Properties\SharedAssemblyInfo.cs</Link>
-    </Compile>
-    <Compile Include="API\AppParameters.cs" />
-    <Compile Include="API\AppParametersBuilder.cs" />
-    <Compile Include="API\ClientFactory.cs" />
-    <Compile Include="API\DriverStatus.cs" />
-    <Compile Include="API\Exceptions\ClasspathException.cs" />
-    <Compile Include="API\Exceptions\JavaNotFoundException.cs" />
-    <Compile Include="API\IREEFClient.cs" />
-    <Compile Include="API\Testing\AbstractAssert.cs" />
-    <Compile Include="API\Testing\IAssert.cs" />
-    <Compile Include="API\Testing\AssertResult.cs" />
-    <Compile Include="API\Testing\ITestResult.cs" />
-    <Compile Include="API\Testing\ITestRunner.cs" />
-    <Compile Include="API\JobParameters.cs" />
-    <Compile Include="API\JobParametersBuilder.cs" />
-    <Compile Include="API\JobRequest.cs" />
-    <Compile Include="API\JobRequestBuilder.cs" />
-    <Compile Include="API\JobRequestBuilderFactory.cs" />
-    <Compile Include="API\Parameters.cs" />
-    <Compile Include="API\TcpPortConfigurationModule.cs" />
-    <Compile Include="Avro\AvroAppSubmissionParameters.cs" />
-    <Compile Include="Avro\AvroJobSubmissionParameters.cs" />
-    <Compile Include="Avro\AzureBatch\AvroAzureBatchJobSubmissionParameters.cs" />
-    <Compile Include="Avro\Local\AvroLocalAppSubmissionParameters.cs" />
-    <Compile Include="Avro\Local\AvroLocalJobSubmissionParameters.cs" />
-    <Compile Include="Avro\YARN\AvroYarnAppSubmissionParameters.cs" />
-    <Compile Include="Avro\YARN\AvroYarnJobSubmissionParameters.cs" />
-    <Compile Include="Avro\YARN\AvroYarnClusterJobSubmissionParameters.cs" />
-    <Compile Include="AzureBatch\AzureBatchRuntimeClientConfiguration.cs" />
-    <Compile Include="AzureBatch\Util\AzureBatchCommandProviderConfiguration.cs" />
-    <Compile Include="AzureBatch\AzureBatchDotNetClient.cs" />
-    <Compile Include="AzureBatch\Storage\AzureStorageClient.cs" />
-    <Compile Include="AzureBatch\Service\AzureBatchService.cs" />
-    <Compile Include="AzureBatch\Util\AzureBatchFileNames.cs" />
-    <Compile Include="AzureBatch\Util\ICommandBuilder.cs" />
-    <Compile Include="AzureBatch\Parameters\AzureBatchAccountKey.cs" />
-    <Compile Include="AzureBatch\Parameters\AzureBatchAccountName.cs" />
-    <Compile Include="AzureBatch\Parameters\AzureBatchAccountUri.cs" />
-    <Compile Include="AzureBatch\Parameters\AzureBatchPoolId.cs" />
-    <Compile Include="AzureBatch\Parameters\AzureStorageAccountKey.cs" />
-    <Compile Include="AzureBatch\Parameters\AzureStorageAccountName.cs" />
-    <Compile Include="AzureBatch\Parameters\AzureStorageContainerName.cs" />
-    <Compile Include="AzureBatch\Parameters\DriverStderrFilePath.cs" />
-    <Compile Include="AzureBatch\Parameters\DriverStdoutFilePath.cs" />
-    <Compile Include="AzureBatch\Parameters\EnableDebugLogging.cs" />
-    <Compile Include="AzureBatch\Parameters\IsWindows.cs" />
-    <Compile Include="AzureBatch\Util\AbstractCommandBuilder.cs" />
-    <Compile Include="AzureBatch\Util\JobJarMaker.cs" />
-    <Compile Include="AzureBatch\Util\LinuxCommandBuilder.cs" />
-    <Compile Include="AzureBatch\Util\WindowsCommandBuilder.cs" />
-    <Compile Include="Common\DotNetFile.cs" />
-    <Compile Include="Common\ClientConstants.cs" />
-    <Compile Include="Common\DriverFolderPreparationHelper.cs" />
-    <Compile Include="Common\EnvironmentDriverConfigurationProviders.cs" />
-    <Compile Include="Common\IFile.cs" />
-    <Compile Include="Common\IResourceArchiveFileGenerator.cs" />
-    <Compile Include="Common\FileSets.cs" />
-    <Compile Include="Common\IJavaClientLauncher.cs" />
-    <Compile Include="Common\IJobSubmissionResult.cs" />
-    <Compile Include="Common\JobSubmissionResult.cs" />
-    <Compile Include="Common\JavaClientLauncher.cs" />
-    <Compile Include="Common\ResourceArchiveFileGenerator.cs" />
-    <Compile Include="Local\LocalClient.cs" />
-    <Compile Include="Local\LocalDriverConfigurationProvider.cs" />
-    <Compile Include="Local\LocalJobSubmissionResult.cs" />
-    <Compile Include="Local\LocalRuntimeClientConfiguration.cs" />
-    <Compile Include="Local\Parameters\LocalRuntimeDirectory.cs" />
-    <Compile Include="Local\Parameters\NumberOfEvaluators.cs" />
-    <Compile Include="Local\TestRunner\FileWritingAssert\FileWritingAssert.cs" />
-    <Compile Include="Local\TestRunner\FileWritingAssert\FileWritingAssertConfiguration.cs" />
-    <Compile Include="Local\TestRunner\FileWritingAssert\Parameters.cs" />
-    <Compile Include="Local\TestRunner\FileWritingAssert\TestResult.cs" />
-    <Compile Include="Local\TestRunner\LocalTestRunner.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="API\Testing\TestRunnerFactory.cs" />
-    <Compile Include="YARN\ApplicationReport.cs" />
-    <Compile Include="YARN\Environment.cs" />
-    <Compile Include="YARN\HDI\HDInsightClientConfiguration.cs" />
-    <Compile Include="YARN\HDI\HDInsightCommandLineEnvironment.cs" />
-    <Compile Include="YARN\HDI\HDInsightCredential.cs" />
-    <Compile Include="YARN\HDI\HDInsightResourceFileRemoteUrlToClusterUrlConverter.cs" />
-    <Compile Include="YARN\HDI\HDInsightUrlProvider.cs" />
-    <Compile Include="YARN\HDI\NamedParameters.cs" />
-    <Compile Include="YARN\IApplicationReport.cs" />
-    <Compile Include="YARN\IdentityResourceFileRemoteUrlToClusterUrlConverter.cs" />
-    <Compile Include="YARN\IResourceFileRemoteUrlToClusterUrlConverter.cs" />
-    <Compile Include="YARN\IYarnCommandLineEnvironment.cs" />
-    <Compile Include="YARN\IYarnJobCommandProvider.cs" />
-    <Compile Include="YARN\IJobResourceUploader.cs" />
-    <Compile Include="YARN\IJobSubmissionDirectoryProvider.cs" />
-    <Compile Include="YARN\IYarnREEFClient.cs" />
-    <Compile Include="YARN\Parameters\DriverMaxMemoryAllicationPoolSizeMB.cs" />
-    <Compile Include="YARN\Parameters\DriverMaxPermSizeMB.cs" />
-    <Compile Include="YARN\Parameters\DriverStderrFilePath.cs" />
-    <Compile Include="YARN\Parameters\DriverStdoutFilePath.cs" />
-    <Compile Include="YARN\Parameters\FileSystemUrl.cs" />
-    <Compile Include="YARN\Parameters\SecurityTokenStrings.cs" />
-    <Compile Include="YARN\RestClient\DataModel\KillApplication.cs" />
-    <Compile Include="YARN\RestClient\HttpClient.cs" />
-    <Compile Include="YARN\RestClient\IDeserializer.cs" />
-    <Compile Include="YARN\RestClient\IHttpClient.cs" />
-    <Compile Include="YARN\RestClient\IRequestFactory.cs" />
-    <Compile Include="YARN\RestClient\IRestClient.cs" />
-    <Compile Include="YARN\RestClient\ISerializer.cs" />
-    <Compile Include="YARN\RestClient\IYarnRestClientCredential.cs" />
-    <Compile Include="YARN\RestClient\Method.cs" />
-    <Compile Include="YARN\RestClient\NullYarnRestClientCredential.cs" />
-    <Compile Include="YARN\RestClient\RequestFactory.cs" />
-    <Compile Include="YARN\RestClient\RestClient.cs" />
-    <Compile Include="YARN\RestClient\RestJsonDeserializer.cs" />
-    <Compile Include="YARN\RestClient\RestJsonSerializer.cs" />
-    <Compile Include="YARN\RestClient\RestRequest.cs" />
-    <Compile Include="YARN\RestClient\RestResponse.cs" />
-    <Compile Include="YARN\RestClient\HttpClientRetryHandler.cs" />
-    <Compile Include="Avro\YARN\SecurityToken.cs" />
-    <Compile Include="YARN\SecurityTokenWriter.cs" />
-    <Compile Include="YARN\WindowsYarnJobCommandProvider.cs" />
-    <Compile Include="YARN\JobResource.cs" />
-    <Compile Include="YARN\JobSubmissionDirectoryProvider.cs" />
-    <Compile Include="YARN\LegacyJobResourceUploader.cs" />
-    <Compile Include="YARN\Parameters\EnableDebugLogging.cs" />
-    <Compile Include="YARN\Parameters\JobSubmissionDirectoryPrefixParameter.cs" />
-    <Compile Include="YARN\Parameters\SecurityTokenParameters.cs" />
-    <Compile Include="YARN\RestClient\DataModel\Acls.cs" />
-    <Compile Include="YARN\RestClient\DataModel\AmContainerSpec.cs" />
-    <Compile Include="YARN\RestClient\DataModel\ApplicationFinalState.cs" />
-    <Compile Include="YARN\RestClient\DataModel\ApplicationTag.cs" />
-    <Compile Include="YARN\RestClient\DataModel\ClusterHaState.cs" />
-    <Compile Include="YARN\RestClient\DataModel\ClusterState.cs" />
-    <Compile Include="YARN\RestClient\DataModel\Commands.cs" />
-    <Compile Include="YARN\RestClient\DataModel\Credentials.cs" />
-    <Compile Include="YARN\RestClient\DataModel\Environment.cs" />
-    <Compile Include="YARN\RestClient\DataModel\KeyValuePair.cs" />
-    <Compile Include="YARN\RestClient\DataModel\LocalResources.cs" />
-    <Compile Include="YARN\RestClient\DataModel\Secrets.cs" />
-    <Compile Include="YARN\RestClient\DataModel\ServiceData.cs" />
-    <Compile Include="YARN\RestClient\DataModel\SubmitApplication.cs" />
-    <Compile Include="YARN\RestClient\DataModel\Tokens.cs" />
-    <Compile Include="YARN\RestClient\IRestRequestExecutor.cs" />
-    <Compile Include="YARN\RestClient\IUrlProvider.cs" />
-    <Compile Include="YARN\RestClient\FileSystemJobResourceUploader.cs" />
-    <Compile Include="YARN\RestClient\MultipleRMUrlProvider.cs" />
-    <Compile Include="YARN\YarnCommandProviderConfiguration.cs" />
-    <Compile Include="YARN\YarnJobSubmissionResult.cs" />
-    <Compile Include="YARN\YARNREEFClient.cs" />
-    <Compile Include="YARN\RestClient\RestRequestExecutor.cs" />
-    <Compile Include="YARN\RestClient\IYarnRMClient.cs" />
-    <Compile Include="YARN\RestClient\DataModel\Application.cs" />
-    <Compile Include="YARN\RestClient\DataModel\Applications.cs" />
-    <Compile Include="YARN\RestClient\DataModel\ApplicationState.cs" />
-    <Compile Include="YARN\RestClient\DataModel\ClusterInfo.cs" />
-    <Compile Include="YARN\RestClient\DataModel\ClusterMetrics.cs" />
-    <Compile Include="YARN\RestClient\DataModel\Error.cs" />
-    <Compile Include="YARN\RestClient\DataModel\Resouce.cs" />
-    <Compile Include="YARN\RestClient\DataModel\NewApplication.cs" />
-    <Compile Include="YARN\RestClient\YarnClient.cs" />
-    <Compile Include="YARN\RestClient\YarnClientNoCancellationToken.cs" />
-    <Compile Include="YARN\RestClient\YarnConfigurationUrlProvider.cs" />
-    <Compile Include="YARN\RestClient\YarnRestAPIException.cs" />
-    <Compile Include="YARN\YARNClientConfiguration.cs" />
-    <Compile Include="YARN\YarnCommandLineEnvironment.cs" />
-    <Compile Include="YARN\YarnREEFDotNetClient.cs" />
-    <Compile Include="YARN\YarnREEFDotNetParamSerializer.cs" />
-    <Compile Include="YARN\YarnREEFParamSerializer.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Avro\README.md" />
-    <None Include="Org.Apache.REEF.Client.nuspec" />
-    <None Include="packages.config" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="$(SolutionDir)\Org.Apache.REEF.Utilities\Org.Apache.REEF.Utilities.csproj">
-      <Project>{79e7f89a-1dfb-45e1-8d43-d71a954aeb98}</Project>
-      <Name>Org.Apache.REEF.Utilities</Name>
-    </ProjectReference>
-    <ProjectReference Include="$(SolutionDir)\Org.Apache.REEF.Tang\Org.Apache.REEF.Tang.csproj">
-      <Project>{97dbb573-3994-417a-9f69-ffa25f00d2a6}</Project>
-      <Name>Org.Apache.REEF.Tang</Name>
-    </ProjectReference>
-    <ProjectReference Include="$(SolutionDir)\Org.Apache.REEF.Common\Org.Apache.REEF.Common.csproj">
-      <Project>{545a0582-4105-44ce-b99c-b1379514a630}</Project>
-      <Name>Org.Apache.REEF.Common</Name>
-    </ProjectReference>
-    <ProjectReference Include="$(SolutionDir)\Org.Apache.REEF.Driver\Org.Apache.REEF.Driver.csproj">
-      <Project>{a6baa2a7-f52f-4329-884e-1bcf711d6805}</Project>
-      <Name>Org.Apache.REEF.Driver</Name>
-    </ProjectReference>
-    <ProjectReference Include="$(SolutionDir)\Org.Apache.REEF.Network\Org.Apache.REEF.Network.csproj">
-      <Project>{883ce800-6a6a-4e0a-b7fe-c054f4f2c1dc}</Project>
-      <Name>Org.Apache.REEF.Network</Name>
-    </ProjectReference>
-    <ProjectReference Include="$(SolutionDir)\Org.Apache.REEF.Wake\Org.Apache.REEF.Wake.csproj">
-      <Project>{cdfb3464-4041-42b1-9271-83af24cd5008}</Project>
-      <Name>Org.Apache.REEF.Wake</Name>
-    </ProjectReference>
-    <ProjectReference Include="$(SolutionDir)\Org.Apache.REEF.Bridge\Org.Apache.REEF.Bridge.vcxproj">
-      <Project>{4e69d40a-26d6-4d4a-b96d-729946c07fe1}</Project>
-      <Name>Org.Apache.REEF.Bridge</Name>
-      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
-      <CopyLocalSatelliteAssemblies>false</CopyLocalSatelliteAssemblies>
-      <LinkLibraryDependencies>false</LinkLibraryDependencies>
-      <UseLibraryDependencyInputs>false</UseLibraryDependencyInputs>
-    </ProjectReference>
-    <ProjectReference Include="$(SolutionDir)\Org.Apache.REEF.Evaluator\Org.Apache.REEF.Evaluator.csproj">
-      <Project>{1b983182-9c30-464c-948d-f87eb93a8240}</Project>
-      <Name>Org.Apache.REEF.Evaluator</Name>
-    </ProjectReference>
-    <ProjectReference Include="$(SolutionDir)\Org.Apache.REEF.Examples\Org.Apache.REEF.Examples.csproj">
-      <Project>{75503f90-7b82-4762-9997-94b5c68f15db}</Project>
-      <Name>Org.Apache.REEF.Examples</Name>
-    </ProjectReference>
-    <ProjectReference Include="$(SolutionDir)\Org.Apache.REEF.IO\Org.Apache.REEF.IO.csproj">
-      <Project>{DEC0F0A8-DBEF-4EBF-B69C-E2369C15ABF1}</Project>
-      <Name>Org.Apache.REEF.IO</Name>
-    </ProjectReference>
-  </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="$(TempResxFile)">
       <Generator>ResXFileCodeGenerator</Generator>
-      <Visible>false</Visible>
     </EmbeddedResource>
   </ItemGroup>
-  <ItemGroup />
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
-  <Import Project="$(PackagesDir)\StyleCop.MSBuild.$(StyleCopVersion)\build\StyleCop.MSBuild.Targets" Condition="Exists('$(PackagesDir)\StyleCop.MSBuild.$(StyleCopVersion)\build\StyleCop.MSBuild.Targets')" />
-  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
-    <PropertyGroup>
-      <ErrorText>This project references NuGet package(s) that are missing on this computer. Enable NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
-    </PropertyGroup>
-    <Error Condition="!Exists('$(SolutionDir)\.nuget\NuGet.targets')" Text="$([System.String]::Format('$(ErrorText)', '$(SolutionDir)\.nuget\NuGet.targets'))" />
-  </Target>
-  <!--begin jar reference-->
-  <PropertyGroup>
-    <BeforeBuildDependsOn>
-      $(BeforeBuildDependsOn);
-      RewriteClientResources;
-    </BeforeBuildDependsOn>
-  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Azure.Batch" Version="8.0.0" />
+    <PackageReference Include="Microsoft.Avro.Core" Version="$(AvroVersion)" />
+    <PackageReference Include="System.Reactive.Interfaces" Version="$(SystemReactiveVersion)" />
+    <PackageReference Include="EnterpriseLibrary.TransientFaultHandling.Core" Version="$(TransientFaultHandlingVersion)" />
+    <PackageReference Include="System.Net.NameResolution" Version="4.3.0" />
+    <PackageReference Include="System.Diagnostics.DiagnosticSource" Version="4.3.0" />
+  </ItemGroup>
+
+  <!-- Project Reference conditionals allow for targeting specific projects based upon the target framework. -->
+  <ItemGroup Condition="'$(TargetFramework)' == 'net461'">
+    <ProjectReference Include="..\Org.Apache.REEF.Bridge\Org.Apache.REEF.Bridge.vcxproj" PrivateAssets="All" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
+    <ProjectReference Include="..\Org.Apache.REEF.Bridge.CLR\Org.Apache.REEF.Bridge.CLR.csproj" PrivateAssets="All" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Org.Apache.REEF.Utilities\Org.Apache.REEF.Utilities.csproj" />
+    <ProjectReference Include="..\Org.Apache.REEF.Tang\Org.Apache.REEF.Tang.csproj" />
+    <ProjectReference Include="..\Org.Apache.REEF.Common\Org.Apache.REEF.Common.csproj" />
+    <ProjectReference Include="..\Org.Apache.REEF.Driver\Org.Apache.REEF.Driver.csproj" />
+    <ProjectReference Include="..\Org.Apache.REEF.Network\Org.Apache.REEF.Network.csproj" />
+    <ProjectReference Include="..\Org.Apache.REEF.Wake\Org.Apache.REEF.Wake.csproj" />
+    <ProjectReference Include="..\Org.Apache.REEF.Examples\Org.Apache.REEF.Examples.csproj" />
+    <ProjectReference Include="..\Org.Apache.REEF.IO\Org.Apache.REEF.IO.csproj" />
+  </ItemGroup>
+  <Import Project="..\build.targets" />
   <!--
        ########################################################################
          ReWrite client resx to point to correct version of jars
@@ -355,7 +82,8 @@ under the License.
       <Using Namespace="System.Xml" />
       <Using Namespace="System.Linq" />
       <Using Namespace="System.Xml.Linq" />
-      <Code Type="Fragment" Language="cs"><![CDATA[
+      <Code Type="Fragment" Language="cs">
+        <![CDATA[
       var Version = XDocument.Load(Path.Combine(ProjectFolder, "pom.xml")).Descendants()
         .Where(x => x.Name.ToString().Contains("version"))
         .FirstOrDefault().Value;
@@ -363,9 +91,9 @@ under the License.
       var reefVersion = Version;
 
       var srcDir = @"lang\cs\Org.Apache.REEF.Client\Properties";
-      var binDir = @"lang\cs\bin\x64";
+      var binDir = @"lang\cs\bin\.netcore";
       var resxInputPath  = Path.Combine(ProjectFolder, srcDir, "Resources.xml");      
-      var resourceDir = Path.Combine(ProjectFolder, binDir, DebugOrRelease, "Org.Apache.REEF.Bridge.JAR");
+      var resourceDir = Path.Combine(ProjectFolder, binDir, DebugOrRelease, "Org.Apache.REEF.Bridge.JAR", "net461");
       var clrDriverDir = Path.Combine(ProjectFolder, binDir, DebugOrRelease, "Org.Apache.REEF.Bridge");
       var byteArrayType = ";System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089";
       var jarRest = reefVersion + "-shaded.jar" + byteArrayType;
@@ -406,27 +134,27 @@ under the License.
       {
           root.WriteTo(wr);
       }
-        ]]></Code>
+        ]]>
+      </Code>
     </Task>
   </UsingTask>
   <!--
       A Target that reWrites client resx to point to correct version of jars
     -->
-  <Target Name="CopyJarFiles">
-    <MSBuild Targets="Build" BuildInParallel="$(BuildInParallel)" Properties="Chip=$(Chip);Lang=$(Lang)" Projects="@(ProjectFile)" />
-    <ItemGroup>
-      <MySourceFiles Include="$(Bindir)\**\Org.Apache.REEF.Bridge.JAR\*.jar" />
-    </ItemGroup>
-    <Copy SourceFiles="@(MySourceFiles)" DestinationFiles="@(MySourceFiles->'$(TargetDir)%(Filename)%(Extension)')" />
-  </Target>
-  <Target Name="RewriteClientResources" DependsOnTargets="CopyJarFiles">
+  <Target Name="RewriteClientResources" BeforeTargets="BeforeBuild">
+    <Message Text="Generating temporary resx file" Importance="high" />
     <UpdateClientResources ProjectFolder="$(REEF_Source_Folder)" DebugOrRelease="$(Configuration)" resxOutputPath="$(TempResxFile)">
     </UpdateClientResources>
   </Target>
-  <Target Name="AfterBuild">
-    <Delete Files="$(TempResxFile)" />
-    <RemoveDir Directories="$(BaseIntermediateOutputPath)" />
+  <Target Name="CopyJarFiles" BeforeTargets="RewriteClientResources">
+    <MSBuild Targets="Build" BuildInParallel="$(BuildInParallel)" Properties="Chip=$(Chip);Lang=$(Lang)" Projects="@(ProjectFile)" />
+    <ItemGroup>
+      <MySourceFiles Include="$(BinDir)$(Configuration)\Org.Apache.REEF.Bridge.JAR\$(TargetFramework)\*.jar" />
+    </ItemGroup>
+    <Copy SourceFiles="@(MySourceFiles)" DestinationFiles="@(MySourceFiles->'$(TargetDir)%(Filename)%(Extension)')" />
   </Target>
-  <Target Name="BeforeBuild" DependsOnTargets="$(BeforeBuildDependsOn);RewriteClientResources">
+  <Target Name="RemovingTempResx" AfterTargets="AfterBuild">
+    <Message Text="Removing temporary resx file" Importance="high"/>
+    <Delete Files="$(TempResxFile)" />
   </Target>
 </Project>
