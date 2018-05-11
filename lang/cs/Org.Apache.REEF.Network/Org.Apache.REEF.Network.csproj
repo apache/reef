@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<Project>
 <!--
 Licensed to the Apache Software Foundation (ASF) under one
 or more contributor license agreements.  See the NOTICE file
@@ -7,7 +7,9 @@ regarding copyright ownership.  The ASF licenses this file
 to you under the Apache License, Version 2.0 (the
 "License"); you may not use this file except in compliance
 with the License.  You may obtain a copy of the License at
+
 http://www.apache.org/licenses/LICENSE-2.0
+
 Unless required by applicable law or agreed to in writing,
 software distributed under the License is distributed on an
 "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -15,215 +17,26 @@ KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
 -->
-<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
-    <ProjectGuid>{883CE800-6A6A-4E0A-B7FE-C054F4F2C1DC}</ProjectGuid>
-    <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Org.Apache.REEF.Network</RootNamespace>
     <AssemblyName>Org.Apache.REEF.Network</AssemblyName>
-    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
-    <FileAlignment>512</FileAlignment>
-    <RestorePackages>true</RestorePackages>
-    <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..</SolutionDir>
+    <Description>Network services for REEF</Description>
+    <PackageTags>REEF Network services</PackageTags>
   </PropertyGroup>
-  <Import Project="$(SolutionDir)\build.props" />
+  <Import Project="..\build.Library.props" />
   <ItemGroup>
-    <Reference Include="Microsoft.Extensions.Caching.Abstractions, Version=1.1.2.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.Extensions.Caching.Abstractions.1.1.2\lib\netstandard1.0\Microsoft.Extensions.Caching.Abstractions.dll</HintPath>
-    </Reference>
-    <Reference Include="Microsoft.Extensions.Caching.Memory, Version=1.1.2.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.Extensions.Caching.Memory.1.1.2\lib\net451\Microsoft.Extensions.Caching.Memory.dll</HintPath>
-    </Reference>
-    <Reference Include="Microsoft.Extensions.DependencyInjection.Abstractions, Version=1.1.1.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.Extensions.DependencyInjection.Abstractions.1.1.1\lib\netstandard1.0\Microsoft.Extensions.DependencyInjection.Abstractions.dll</HintPath>
-    </Reference>
-    <Reference Include="Microsoft.Extensions.Options, Version=1.1.2.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.Extensions.Options.1.1.2\lib\netstandard1.0\Microsoft.Extensions.Options.dll</HintPath>
-    </Reference>
-    <Reference Include="Microsoft.Extensions.Primitives, Version=1.1.1.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.Extensions.Primitives.1.1.1\lib\netstandard1.0\Microsoft.Extensions.Primitives.dll</HintPath>
-    </Reference>
-    <Reference Include="Microsoft.Hadoop.Avro">
-      <HintPath>$(PackagesDir)\Microsoft.Hadoop.Avro.$(AvroVersion)\lib\net45\Microsoft.Hadoop.Avro.dll</HintPath>
-    </Reference>
-    <Reference Include="protobuf-net">
-      <HintPath>$(PackagesDir)\protobuf-net.$(ProtobufVersion)\lib\net451\protobuf-net.dll</HintPath>
-    </Reference>
-    <Reference Include="System" />
-    <Reference Include="System.ComponentModel.Composition" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.IO.Compression" />
-    <Reference Include="System.Net.Http" />
-    <Reference Include="System.Numerics" />
-    <Reference Include="System.Reactive.Core">
-      <HintPath>$(PackagesDir)\System.Reactive.Core.$(SystemReactiveVersion)\lib\net45\System.Reactive.Core.dll</HintPath>
-    </Reference>
-    <Reference Include="System.Reactive.Interfaces">
-      <HintPath>$(PackagesDir)\System.Reactive.Interfaces.$(SystemReactiveVersion)\lib\net45\System.Reactive.Interfaces.dll</HintPath>
-    </Reference>
-    <Reference Include="System.Runtime.Caching" />
-    <Reference Include="System.Runtime.CompilerServices.Unsafe, Version=4.0.2.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
-      <HintPath>..\packages\System.Runtime.CompilerServices.Unsafe.4.3.0\lib\netstandard1.0\System.Runtime.CompilerServices.Unsafe.dll</HintPath>
-    </Reference>
-    <Reference Include="System.Runtime.InteropServices.RuntimeInformation, Version=4.0.1.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
-      <HintPath>..\packages\System.Runtime.InteropServices.RuntimeInformation.4.3.0\lib\net45\System.Runtime.InteropServices.RuntimeInformation.dll</HintPath>
-    </Reference>
-    <Reference Include="System.Runtime.Serialization" />
-    <Reference Include="System.Xml" />
-    <Reference Include="System.Xml.Linq" />
+    <PackageReference Include="protobuf-net" Version="$(ProtobufVersion)" />
+    <PackageReference Include="Microsoft.Avro.Core" Version="$(AvroVersion)" />
+    <PackageReference Include="System.Reactive.Core" Version="$(SystemReactiveVersion)" />
+    <PackageReference Include="System.Reactive.Interfaces" Version="$(SystemReactiveVersion)" />
+    <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="1.1.2" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="$(SolutionDir)\SharedAssemblyInfo.cs">
-      <Link>Properties\SharedAssemblyInfo.cs</Link>
-    </Compile>
-    <Compile Include="Elastic\Driver\ITaskSetManager.cs" />
-    <Compile Include="Elastic\Driver\IElasticTaskSetSubscription.cs" />
-    <Compile Include="Elastic\Driver\IElasticTaskSetService.cs" />
-    <Compile Include="Elastic\Failures\IFailureStateMachine.cs" />
-    <Compile Include="Elastic\Failures\IFailureState.cs" />
-    <Compile Include="Elastic\Failures\IFailureEvent.cs" />
-    <Compile Include="Elastic\Failures\IFailureResponse.cs" />
-    <Compile Include="Group\Config\CodecToStreamingCodecConfiguration.cs" />
-    <Compile Include="Group\Config\StreamingCodecConfigurationMinusMessage.cs" />
-    <Compile Include="Group\Driver\Impl\GeneralGroupCommunicationMessage.cs" />
-    <Compile Include="Group\Config\CodecConfiguration.cs" />
-    <Compile Include="Group\Config\GroupCommConfigurationOptions.cs" />
-    <Compile Include="Group\Config\PipelineDataConverterConfiguration.cs" />
-    <Compile Include="Group\Config\ReduceFunctionConfiguration.cs" />
-    <Compile Include="Group\Config\StreamingCodecConfiguration.cs" />
-    <Compile Include="Group\Driver\ICommunicationGroupDriver.cs" />
-    <Compile Include="Group\Driver\IGroupCommDriver.cs" />
-    <Compile Include="Group\Driver\Impl\CommunicationGroupDriver.cs" />
-    <Compile Include="Group\Driver\Impl\GroupCommunicationMessage.cs" />
-    <Compile Include="Group\Driver\Impl\GroupCommunicationMessageStreamingCodec.cs" />
-    <Compile Include="Group\Driver\Impl\MessageType.cs" />
-    <Compile Include="Group\Driver\Impl\GroupCommDriver.cs" />
-    <Compile Include="Group\Driver\Impl\TaskStarter.cs" />
-    <Compile Include="Group\Operators\IBroadcastReceiver.cs" />
-    <Compile Include="Group\Operators\IBroadcastSender.cs" />
-    <Compile Include="Group\Operators\IGroupCommOperator.cs" />
-    <Compile Include="Group\Operators\IGroupCommOperatorInternal.cs" />
-    <Compile Include="Group\Operators\Impl\BroadcastOperatorSpec.cs" />
-    <Compile Include="Group\Operators\Impl\BroadcastReceiver.cs" />
-    <Compile Include="Group\Operators\Impl\BroadcastSender.cs" />
-    <Compile Include="Group\Operators\Impl\PipelinedReduceFunction.cs" />
-    <Compile Include="Group\Operators\Impl\ReduceFunction.cs" />
-    <Compile Include="Group\Operators\Impl\ReduceOperatorSpec.cs" />
-    <Compile Include="Group\Operators\Impl\ReduceReceiver.cs" />
-    <Compile Include="Group\Operators\Impl\ReduceSender.cs" />
-    <Compile Include="Group\Operators\Impl\ScatterOperatorSpec.cs" />
-    <Compile Include="Group\Operators\Impl\ScatterReceiver.cs" />
-    <Compile Include="Group\Operators\Impl\ScatterSender.cs" />
-    <Compile Include="Group\Operators\Impl\Sender.cs" />
-    <Compile Include="Group\Operators\IOperatorSpec.cs" />
-    <Compile Include="Group\Pipelining\Impl\ArrayPipelineDataConverter.cs" />
-    <Compile Include="Group\Pipelining\StreamingPipelineMessageCodec.cs" />
-    <Compile Include="Group\Task\ICommunicationGroupClientInternal.cs" />
-    <Compile Include="Group\Task\Impl\ChildNodeContainer.cs" />
-    <Compile Include="Group\Task\Impl\NodeMessageObserver.cs" />
-    <Compile Include="Group\Task\Impl\NodeObserverIdentifier.cs" />
-    <Compile Include="Group\Task\Impl\TaskMessageObserver.cs" />
-    <Compile Include="Group\Task\IOperatorTopology.cs" />
-    <Compile Include="Group\Operators\IReduceFunction.cs" />
-    <Compile Include="Group\Operators\IReduceReceiver.cs" />
-    <Compile Include="Group\Operators\IReduceSender.cs" />
-    <Compile Include="Group\Operators\IScatterReceiver.cs" />
-    <Compile Include="Group\Operators\IScatterSender.cs" />
-    <Compile Include="Group\Pipelining\Impl\DefaultPipelineDataConverter.cs" />
-    <Compile Include="Group\Pipelining\IPipelineDataConverter.cs" />
-    <Compile Include="Group\Pipelining\PipelineMessage.cs" />
-    <Compile Include="Group\Pipelining\PipelineMessageCodec.cs" />
-    <Compile Include="Group\Task\ICommunicationGroupClient.cs" />
-    <Compile Include="Group\Task\IGroupCommClient.cs" />
-    <Compile Include="Group\Task\Impl\CommunicationGroupClient.cs" />
-    <Compile Include="Group\Task\Impl\GroupCommClient.cs" />
-    <Compile Include="Group\Task\Impl\GroupCommNetworkObserver.cs" />
-    <Compile Include="Group\Task\Impl\NodeStruct.cs" />
-    <Compile Include="Group\Task\Impl\OperatorTopology.cs" />
-    <Compile Include="Group\Topology\FlatTopology.cs" />
-    <Compile Include="Group\Topology\ITopology.cs" />
-    <Compile Include="Group\Topology\TaskNode.cs" />
-    <Compile Include="Group\Topology\TopologyTypes.cs" />
-    <Compile Include="Group\Topology\TreeTopology.cs" />
-    <Compile Include="Naming\Codec\NamingLookupRequestCodec.cs" />
-    <Compile Include="Naming\Codec\NamingLookupResponseCodec.cs" />
-    <Compile Include="Naming\Codec\NamingRegisterRequestCodec.cs" />
-    <Compile Include="Naming\Codec\NamingRegisterResponseCodec.cs" />
-    <Compile Include="Naming\Codec\NamingUnregisterRequestCodec.cs" />
-    <Compile Include="Naming\Contracts\AvroNamingAssignment.cs" />
-    <Compile Include="Naming\Contracts\AvroNamingLookupRequest.cs" />
-    <Compile Include="Naming\Contracts\AvroNamingLookupResponse.cs" />
-    <Compile Include="Naming\Contracts\AvroNamingRegisterRequest.cs" />
-    <Compile Include="Naming\Contracts\AvroNamingUnRegisterRequest.cs" />
-    <Compile Include="Naming\Events\NamingEvent.cs" />
-    <Compile Include="Naming\Events\NamingGetAllRequest.cs" />
-    <Compile Include="Naming\Events\NamingGetAllResponse.cs" />
-    <Compile Include="Naming\Events\NamingLookupRequest.cs" />
-    <Compile Include="Naming\Events\NamingLookupResponse.cs" />
-    <Compile Include="Naming\Events\NamingRegisterRequest.cs" />
-    <Compile Include="Naming\Events\NamingRegisterResponse.cs" />
-    <Compile Include="Naming\Events\NamingUnregisterRequest.cs" />
-    <Compile Include="Naming\Events\NamingUnregisterResponse.cs" />
-    <Compile Include="Naming\INameServer.cs" />
-    <Compile Include="Naming\NameCache.cs" />
-    <Compile Include="Naming\Parameters\NameCacheConfiguration.cs" />
-    <Compile Include="Naming\NameClient.cs" />
-    <Compile Include="Naming\NameLookupClient.cs" />
-    <Compile Include="Naming\NameRegisterClient.cs" />
-    <Compile Include="Naming\NameServer.cs" />
-    <Compile Include="Naming\Observers\NamingGetAllRequestObserver.cs" />
-    <Compile Include="Naming\Observers\NamingLookupRequestObserver.cs" />
-    <Compile Include="Naming\Observers\NamingRegisterRequestObserver.cs" />
-    <Compile Include="Naming\Observers\NamingUnregisterRequestObserver.cs" />
-    <Compile Include="NetworkService\Codec\ControlMessageCodec.cs" />
-    <Compile Include="NetworkService\Codec\NsMessageCodec.cs" />
-    <Compile Include="NetworkService\Codec\NsMessageProto.cs" />
-    <Compile Include="NetworkService\Codec\NsMessageStreamingCodec.cs" />
-    <Compile Include="NetworkService\Codec\StreamingCodecFunctionCache.cs" />
-    <Compile Include="NetworkService\ControlMessage.cs" />
-    <Compile Include="NetworkService\IConnection.cs" />
-    <Compile Include="NetworkService\INetworkService.cs" />
-    <Compile Include="NetworkService\NetworkService.cs" />
-    <Compile Include="NetworkService\NetworkServiceOptions.cs" />
-    <Compile Include="NetworkService\NsConnection.cs" />
-    <Compile Include="NetworkService\NsMessage.cs" />
-    <Compile Include="NetworkService\StreamingNetworkService.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="TcpClientConfigurationModule.cs" />
-    <Compile Include="TcpClientConfigurationProvider.cs" />
-    <Compile Include="Utilities\AvroUtils.cs" />
-    <Compile Include="Utilities\BlockingCollectionExtensions.cs" />
-    <Compile Include="Utilities\Utils.cs" />
+    <ProjectReference Include="..\Org.Apache.REEF.Tang\Org.Apache.REEF.Tang.csproj" />
+    <ProjectReference Include="..\Org.Apache.REEF.Utilities\Org.Apache.REEF.Utilities.csproj" />
+    <ProjectReference Include="..\Org.Apache.REEF.Common\Org.Apache.REEF.Common.csproj" />
+    <ProjectReference Include="..\Org.Apache.REEF.Driver\Org.Apache.REEF.Driver.csproj" />
+    <ProjectReference Include="..\Org.Apache.REEF.Wake\Org.Apache.REEF.Wake.csproj" />
   </ItemGroup>
-  <ItemGroup>
-    <None Include="Org.Apache.REEF.Network.nuspec" />
-    <None Include="packages.config" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="$(SolutionDir)\Org.Apache.REEF.Tang\Org.Apache.REEF.Tang.csproj">
-      <Project>{97dbb573-3994-417a-9f69-ffa25f00d2a6}</Project>
-      <Name>Org.Apache.REEF.Tang</Name>
-    </ProjectReference>
-    <ProjectReference Include="$(SolutionDir)\Org.Apache.REEF.Utilities\Org.Apache.REEF.Utilities.csproj">
-      <Project>{79e7f89a-1dfb-45e1-8d43-d71a954aeb98}</Project>
-      <Name>Org.Apache.REEF.Utilities</Name>
-    </ProjectReference>
-    <ProjectReference Include="$(SolutionDir)\Org.Apache.REEF.Common\Org.Apache.REEF.Common.csproj">
-      <Project>{545a0582-4105-44ce-b99c-b1379514a630}</Project>
-      <Name>Org.Apache.REEF.Common</Name>
-    </ProjectReference>
-    <ProjectReference Include="$(SolutionDir)\Org.Apache.REEF.Driver\Org.Apache.REEF.Driver.csproj">
-      <Project>{a6baa2a7-f52f-4329-884e-1bcf711d6805}</Project>
-      <Name>Org.Apache.REEF.Driver</Name>
-    </ProjectReference>
-    <ProjectReference Include="$(SolutionDir)\Org.Apache.REEF.Wake\Org.Apache.REEF.Wake.csproj">
-      <Project>{cdfb3464-4041-42b1-9271-83af24cd5008}</Project>
-      <Name>Org.Apache.REEF.Wake</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
-  <Import Project="$(PackagesDir)\StyleCop.MSBuild.$(StyleCopVersion)\build\StyleCop.MSBuild.Targets" Condition="Exists('$(PackagesDir)\StyleCop.MSBuild.$(StyleCopVersion)\build\StyleCop.MSBuild.Targets')" />
+  <Import Project="..\build.targets"/>
 </Project>
+

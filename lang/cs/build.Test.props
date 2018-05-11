@@ -16,10 +16,21 @@ specific language governing permissions and limitations
 under the License.
 -->
 
-<Import Project="build.DotNet.targets"/>
-<Target Name="Test">
-  <Exec Command="$(PackagesDir)\xunit.runner.console\2.2.0\tools\xunit.console.exe $(OutputPath)\$(AssemblyName).dll -notrait Environment=Yarn -html $(OutputPath)\xunit_report.html"
-    IgnoreStandardErrorWarningFormat="true"/>
-</Target>
+<Import Project="build.props"/>
+<Import Project="xunit.props"/>
+<PropertyGroup>
+  <TargetFrameworks>net461</TargetFrameworks>
 
+  <!-- If EnableDotNetBuild is true, override the target frameworks to include dot net core -->
+  <TargetFrameworks Condition="'$(EnableDotNetBuild)' == 'true'">netcoreapp2.0;net461</TargetFrameworks>
+
+  <!-- If on Linux, override the target frameworks to netcoreapp2.0 -->
+  <TargetFrameworks Condition="'$(OS)' != 'Windows_NT'">netcoreapp2.0</TargetFrameworks>
+
+  <!-- This is required to copy all referenced assemblies to the bin folder -->
+  <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+
+  <!-- Set this attribute to prevent test projects from being packaged -->
+  <IsTestProject>true</IsTestProject>
+</PropertyGroup>
 </Project>

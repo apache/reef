@@ -16,6 +16,7 @@ specific language governing permissions and limitations
 under the License.
 -->
 <Project DefaultTargets="Test" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project=".\build.props" />
   <ItemGroup>
     <ProjectReferences Include="*\*.Tests.csproj" />
   </ItemGroup>
@@ -25,8 +26,11 @@ under the License.
   <PropertyGroup Condition=" '$(Platform)' == '' ">
     <Platform>x64</Platform>
   </PropertyGroup>
+  <PropertyGroup Condition=" '$(TargetFramework)' == '' ">
+    <TargetFramework>net461</TargetFramework>
+  </PropertyGroup>
   <Target Name="Test">
     <MSBuild Projects="@(ProjectReferences)"
-             Targets="Test" Properties="Configuration=$(Configuration);Platform=$(Platform)" StopOnFirstFailure="false" />
+             Targets="Test" Properties="Configuration=$(Configuration);Platform=$(Platform);TargetFramework=$(TargetFramework)" StopOnFirstFailure="false" />
   </Target>
 </Project>
