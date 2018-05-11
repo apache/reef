@@ -17,6 +17,6 @@
  * under the License.
  */
 /**
- * GRPC implementation for driver bridge service.
+ * Azure Batch driver bridge service launcher.
  */
 package org.apache.reef.bridge.driver.launch.azbatch;

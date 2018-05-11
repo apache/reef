@@ -132,7 +132,7 @@ public final class GRPCDriverService implements IDriverService {
       final String cmd = this.driverClientCommand + " " + this.server.getPort();
       final String cmdOs = OSUtils.isWindows() ? "cmd.exe /c \"" + cmd + "\"" : cmd;
       LOG.log(Level.INFO, "CMD: " + cmdOs);
-      this.driverProcess = Runtime.getRuntime().exec(cmdOs);
+      this.driverProcess = Runtime.getRuntime().exec(cmdOs, null, new File(System.getProperty("user.dir")));
       synchronized (this) {
         // wait for driver client process to register
         while (this.clientStub == null && driverProcessIsAlive()) {
@@ -192,19 +192,25 @@ public final class GRPCDriverService implements IDriverService {
       LOG.log(Level.INFO, "Exit code: " + this.driverProcess.exitValue());
     }
     LOG.log(Level.INFO, "capturing driver process stderr");
-    StringBuffer errBuffer = new StringBuffer();
-    InputStream errStream = this.driverProcess.getErrorStream();
+    StringBuffer outputBuffer = new StringBuffer();
     try {
       int nextChar;
-      errBuffer.append("\n==============================================\n");
+      final InputStream errStream = this.driverProcess.getErrorStream();
+      outputBuffer.append("\nSTDERR =======================================\n");
       while ((nextChar = errStream.read()) != -1) {
-        errBuffer.append((char) nextChar);
+        outputBuffer.append((char) nextChar);
       }
-      errBuffer.append("\n==============================================\n");
+      outputBuffer.append("\n==============================================\n");
+      final InputStream outStream = this.driverProcess.getInputStream();
+      outputBuffer.append("\nSTDOUT =======================================\n");
+      while ((nextChar = outStream.read()) != -1) {
+        outputBuffer.append((char) nextChar);
+      }
+      outputBuffer.append("\n==============================================\n");
     } catch (IOException e) {
       LOG.log(Level.WARNING, "Error while capturing output stream: " + e.getMessage());
     }
-    LOG.log(Level.INFO, errBuffer.toString());
+    LOG.log(Level.INFO, outputBuffer.toString());
   }
 
   /**
@@ -616,6 +622,7 @@ public final class GRPCDriverService implements IDriverService {
           GRPCDriverService.this.clientStub = DriverClientGrpc.newFutureStub(channel);
           GRPCDriverService.this.notifyAll();
         }
+        LOG.log(Level.INFO, "Driver has registered on port " + request.getPort());
       } finally {
         responseObserver.onNext(null);
         responseObserver.onCompleted();

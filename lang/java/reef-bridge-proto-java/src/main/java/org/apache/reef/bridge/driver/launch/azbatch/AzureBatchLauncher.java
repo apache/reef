@@ -19,21 +19,16 @@
 package org.apache.reef.bridge.driver.launch.azbatch;
 
 import org.apache.reef.bridge.driver.launch.IDriverLauncher;
+import org.apache.reef.bridge.driver.service.IDriverServiceConfigurationProvider;
 import org.apache.reef.bridge.proto.ClientProtocol;
+import org.apache.reef.client.REEF;
 import org.apache.reef.runtime.azbatch.client.AzureBatchRuntimeConfiguration;
 import org.apache.reef.runtime.azbatch.client.AzureBatchRuntimeConfigurationCreator;
-import org.apache.reef.runtime.common.REEFEnvironment;
-import org.apache.reef.runtime.common.evaluator.PIDStoreStartHandler;
-import org.apache.reef.runtime.common.launch.REEFErrorHandler;
-import org.apache.reef.runtime.common.launch.REEFMessageCodec;
 import org.apache.reef.tang.Configuration;
 import org.apache.reef.tang.Tang;
 import org.apache.reef.tang.exceptions.InjectionException;
-import org.apache.reef.wake.remote.RemoteConfiguration;
-import org.apache.reef.wake.time.Clock;
 
 import javax.inject.Inject;
-import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -47,35 +42,21 @@ public final class AzureBatchLauncher implements IDriverLauncher {
   private static final Logger LOG = Logger.getLogger(AzureBatchLauncher.class.getName());
   private static final Tang TANG = Tang.Factory.getTang();
 
+  private final IDriverServiceConfigurationProvider driverServiceConfigurationProvider;
+
   @Inject
-  private AzureBatchLauncher() {
+  private AzureBatchLauncher(final IDriverServiceConfigurationProvider driverServiceConfigurationProvider) {
+    this.driverServiceConfigurationProvider = driverServiceConfigurationProvider;
   }
 
   public void launch(final ClientProtocol.DriverClientConfiguration driverClientConfiguration) {
-    try {
-      final AzureBatchDriverConfigurationProvider azureBatchDriverConfigurationProvider =
-          TANG.newInjector(generateConfigurationFromJobSubmissionParameters(driverClientConfiguration))
-              .getInstance(AzureBatchDriverConfigurationProvider.class);
-
-      final Configuration launcherConfig =
-          TANG.newConfigurationBuilder()
-              .bindNamedParameter(RemoteConfiguration.ManagerName.class, "AzureBatchLauncher")
-              .bindNamedParameter(RemoteConfiguration.ErrorHandler.class, REEFErrorHandler.class)
-              .bindNamedParameter(RemoteConfiguration.MessageCodec.class, REEFMessageCodec.class)
-              .bindSetEntry(Clock.RuntimeStartHandler.class, PIDStoreStartHandler.class)
-              .build();
-
-      try (final REEFEnvironment reef = REEFEnvironment.fromConfiguration(
-          azureBatchDriverConfigurationProvider.getDriverConfigurationFromParams(driverClientConfiguration),
-          launcherConfig)) {
-        reef.run();
-      } catch (final InjectionException ex) {
-        throw fatal("Unable to configure and start REEFEnvironment.", ex);
-      }
-    } catch (InjectionException | IOException e) {
-      throw fatal("Unable to configure and start REEFEnvironment.", e);
+    try (final REEF reef = TANG.newInjector(
+        generateConfigurationFromJobSubmissionParameters(driverClientConfiguration)).getInstance(REEF.class)) {
+      LOG.log(Level.INFO, "Submitting job");
+      reef.submit(driverServiceConfigurationProvider.getDriverServiceConfiguration(driverClientConfiguration));
+    } catch (InjectionException e) {
+      fatal("unable to launch", e);
     }
-
     LOG.log(Level.INFO, "Exiting BootstrapLauncher.main()");
 
     System.exit(0); // TODO[REEF-1715]: Should be able to exit cleanly at the end of main()
@@ -84,8 +65,8 @@ public final class AzureBatchLauncher implements IDriverLauncher {
   private static Configuration generateConfigurationFromJobSubmissionParameters(
       final ClientProtocol.DriverClientConfiguration driverClientConfiguration) {
     return AzureBatchRuntimeConfigurationCreator.getOrCreateAzureBatchRuntimeConfiguration(
-        driverClientConfiguration.getAzbatchRuntime().getOperatingSystem() ==
-                ClientProtocol.AzureBatchRuntimeParameters.OS.WINDOWS)
+        driverClientConfiguration.getOperatingSystem() ==
+            ClientProtocol.DriverClientConfiguration.OS.WINDOWS)
         .set(AzureBatchRuntimeConfiguration.AZURE_BATCH_ACCOUNT_NAME,
             driverClientConfiguration.getAzbatchRuntime().getAzureBatchAccountName())
         .set(AzureBatchRuntimeConfiguration.AZURE_BATCH_ACCOUNT_KEY,

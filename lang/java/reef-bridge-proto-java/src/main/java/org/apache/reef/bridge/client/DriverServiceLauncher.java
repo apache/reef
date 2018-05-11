@@ -28,6 +28,7 @@ import org.apache.reef.bridge.driver.service.IDriverServiceConfigurationProvider
 import org.apache.reef.bridge.driver.service.grpc.GRPCDriverServiceConfigurationProvider;
 import org.apache.reef.bridge.driver.client.JavaDriverClientLauncher;
 import org.apache.reef.bridge.proto.ClientProtocol;
+import org.apache.reef.runtime.azbatch.AzureBatchClasspathProvider;
 import org.apache.reef.runtime.common.files.*;
 import org.apache.reef.runtime.common.launch.JavaLaunchCommandBuilder;
 import org.apache.reef.runtime.local.LocalClasspathProvider;
@@ -39,7 +40,6 @@ import org.apache.reef.tang.Tang;
 import org.apache.reef.tang.exceptions.BindException;
 import org.apache.reef.tang.exceptions.InjectionException;
 import org.apache.reef.tang.formats.ConfigurationSerializer;
-import org.apache.reef.util.OSUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -61,6 +61,8 @@ public final class DriverServiceLauncher {
    */
   private static final Logger LOG = Logger.getLogger(DriverServiceLauncher.class.getName());
 
+  private static final Tang TANG = Tang.Factory.getTang();
+
   /**
    * This class should not be instantiated.
    */
@@ -74,7 +76,7 @@ public final class DriverServiceLauncher {
       throws InjectionException, IOException {
     ClientProtocol.DriverClientConfiguration.Builder builder =
         ClientProtocol.DriverClientConfiguration.newBuilder(driverClientConfigurationProto);
-    final File driverClientConfigurationFile = new File("driverclient.conf");
+    final File driverClientConfigurationFile = File.createTempFile("driverclient", ".conf");
     try {
       // Write driver client configuration to a file
       final Injector driverClientInjector = Tang.Factory.getTang().newInjector(driverClientConfiguration);
@@ -82,48 +84,58 @@ public final class DriverServiceLauncher {
           driverClientInjector.getInstance(ConfigurationSerializer.class);
       configurationSerializer.toFile(driverClientConfiguration, driverClientConfigurationFile);
 
-      // Resolve OS Runtime Path Provider.
-      final Configuration runtimeOSConfiguration =
-          driverClientConfigurationProto.getRuntimeCase() ==
-              ClientProtocol.DriverClientConfiguration.RuntimeCase.YARN_RUNTIME ?
-              Tang.Factory.getTang().newConfigurationBuilder()
-                  .bind(RuntimePathProvider.class, WindowsRuntimePathProvider.class)
-                  .bind(RuntimeClasspathProvider.class, YarnClasspathProvider.class)
-                  .bindConstructor(org.apache.hadoop.yarn.conf.YarnConfiguration.class,
-                      YarnConfigurationConstructor.class)
-                  .build() :
-              Tang.Factory.getTang().newConfigurationBuilder()
-                  .bind(RuntimePathProvider.class, OSUtils.isWindows() ?
-                      WindowsRuntimePathProvider.class : UnixJVMPathProvider.class)
-                  .bind(RuntimeClasspathProvider.class, LocalClasspathProvider.class)
-                  .build();
-      final Injector runtimeInjector = Tang.Factory.getTang().newInjector(runtimeOSConfiguration);
+      // Resolve Runtime ClassPath Provider.
+      final Configuration runtimeClassPathProvider;
+      switch (driverClientConfigurationProto.getRuntimeCase()) {
+      case YARN_RUNTIME:
+        runtimeClassPathProvider = TANG.newConfigurationBuilder()
+            .bind(RuntimeClasspathProvider.class, YarnClasspathProvider.class)
+            .bindConstructor(org.apache.hadoop.yarn.conf.YarnConfiguration.class,
+                YarnConfigurationConstructor.class)
+            .build();
+        break;
+      case LOCAL_RUNTIME:
+        runtimeClassPathProvider = TANG.newConfigurationBuilder()
+            .bind(RuntimeClasspathProvider.class, LocalClasspathProvider.class)
+            .build();
+        break;
+      case AZBATCH_RUNTIME:
+        runtimeClassPathProvider = TANG.newConfigurationBuilder()
+            .bind(RuntimeClasspathProvider.class, AzureBatchClasspathProvider.class)
+            .build();
+        break;
+      default:
+        throw new RuntimeException("unknown runtime " + driverClientConfigurationProto.getRuntimeCase());
+      }
+      final Injector runtimeInjector = TANG.newInjector(runtimeClassPathProvider);
       final REEFFileNames fileNames = runtimeInjector.getInstance(REEFFileNames.class);
       final ClasspathProvider classpathProvider = runtimeInjector.getInstance(ClasspathProvider.class);
-      final RuntimePathProvider runtimePathProvider = runtimeInjector.getInstance(RuntimePathProvider.class);
       final List<String> launchCommand = new JavaLaunchCommandBuilder(JavaDriverClientLauncher.class, null)
           .setConfigurationFilePaths(
               Collections.singletonList("./" + fileNames.getLocalFolderPath() + "/" +
                   driverClientConfigurationFile.getName()))
-          .setJavaPath(runtimePathProvider.getPath())
-          .setClassPath(classpathProvider.getEvaluatorClasspath())
+          .setJavaPath("java")
+          .setClassPath(driverClientConfigurationProto.getOperatingSystem() ==
+              ClientProtocol.DriverClientConfiguration.OS.WINDOWS ?
+              StringUtils.join(classpathProvider.getDriverClasspath(), ";") :
+                  StringUtils.join(classpathProvider.getDriverClasspath(), ":"))
           .build();
       final String cmd = StringUtils.join(launchCommand, ' ');
       builder.setDriverClientLaunchCommand(cmd);
       builder.addLocalFiles(driverClientConfigurationFile.getAbsolutePath());
 
       // call main()
-      final File driverClientConfFile = new File("driverclient.json");
+      final File driverClientConfFile = File.createTempFile("driverclient", ".json");
       try {
         try (PrintWriter out = new PrintWriter(driverClientConfFile)) {
           out.println(JsonFormat.printer().print(builder.build()));
         }
         main(new String[]{driverClientConfFile.getAbsolutePath()});
       } finally {
-        driverClientConfFile.delete();
+        driverClientConfFile.deleteOnExit();
       }
     } finally {
-      driverClientConfigurationFile.delete();
+      driverClientConfigurationFile.deleteOnExit();
     }
   }
 

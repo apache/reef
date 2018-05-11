@@ -127,7 +127,7 @@ public final class DriverClientService extends DriverClientGrpc.DriverClientImpl
       LOG.log(Level.INFO, "possibly idle. waiting for some action.");
       this.isIdle = true;
       try {
-        Thread.sleep(5000);
+        Thread.sleep(120000); // a couple of minutes
       } catch (InterruptedException e) {
         LOG.log(Level.WARNING, e.getMessage());
       }

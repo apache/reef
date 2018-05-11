@@ -58,13 +58,6 @@ message AzureBatchRuntimeParameters {
   string azure_storage_account_key = 11;
 
   string azure_storage_container_name = 12;
-
-  // General information
-  enum OS {
-    WINDOWS = 0;
-    LINUX = 1;
-  }
-  OS operating_system = 20;
 }
 
 message MesosRuntimeParameters {
@@ -110,4 +103,11 @@ message DriverClientConfiguration {
 
   // enable http driver
   bool enable_http_driver = 25;
+
+  // General information
+  enum OS {
+    WINDOWS = 0;
+    LINUX = 1;
+  }
+  OS operating_system = 30;
 }
