@@ -57,14 +57,14 @@ namespace Org.Apache.REEF.Network.Elastic.Driver
         /// </summary>
         /// <param name="evaluator">The evaluator the context will run on</param>
         /// <returns>A new unique context id</returns>
-        int GetNextTaskContextId(IAllocatedEvaluator evaluator = null);
+        string GetNextTaskContextId(IAllocatedEvaluator evaluator);
 
         /// <summary>
         /// Method used to generate unique task ids.
         /// </summary>
         /// <param name="context">The context the task will run on</param>
         /// <returns>A new task id</returns>
-        int GetNextTaskId(IActiveContext context = null);
+        string GetNextTaskId(IActiveContext context);
 
         /// <summary>
         /// Finalizes the Task Set.
@@ -114,6 +114,12 @@ namespace Org.Apache.REEF.Network.Elastic.Driver
         bool Done();
 
         /// <summary>
+        /// Used to react of a failure of a task.
+        /// </summary>
+        /// <param name="evaluator">The failed task</param>
+        void OnTaskFailure(IFailedTask info);
+
+        /// <summary>
         /// Used to react of a failure event occurred on an evaluator.
         /// </summary>
         /// <param name="evaluator">The failed evaluator</param>
@@ -122,6 +128,7 @@ namespace Org.Apache.REEF.Network.Elastic.Driver
         /// <summary>
         /// Contains the logic to trigger when the execution fails.
         /// </summary>
-        void OnFail();
+        /// <param name="taskId">The id of the task triggering the fail</param>
+        void OnFail(string taskId);
     }
 }

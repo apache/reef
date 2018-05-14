@@ -16,7 +16,9 @@
 // under the License.
 
 using Org.Apache.REEF.Driver.Task;
+using Org.Apache.REEF.Network.Elastic.Driver;
 using Org.Apache.REEF.Utilities.Attributes;
+using System.Collections.Generic;
 
 namespace Org.Apache.REEF.Network.Elastic.Failures
 {
@@ -29,16 +31,21 @@ namespace Org.Apache.REEF.Network.Elastic.Failures
     {
         /// <summary>
         /// Used to react on a failure occurred on a task.
+        /// It gets a failed task as input and in response it produces zero or more failure events
         /// </summary>
-        /// <param name="info">The failed task</param>
-        /// <returns>The failure state after the notification of the failed task</returns>
-        IFailureState OnTaskFailure(IFailedTask task);
+        /// <param name="task">The failed task</param>
+        /// <param name="failureEvents">A list of events encoding the type of action to be triggered</param>
+        /// <returns>Zero or more events for triggering failure mitigation mechanisms</returns>
+        void OnTaskFailure(IFailedTask task, ref List<IFailureEvent> failureEvents);
 
         /// <summary>
         /// When a new failure state is rised, this method is used to dispatch
         /// such event to the proper failure mitigation logic.
+        /// It gets a failure event as input and produces zero or more failure response messages for tasks
         /// </summary>
-        /// <param name="event">Notification specifiying the updated failure state</param>
-        void EventDispatcher(IFailureEvent @event);
+        /// <param name="event">The failure event to react upon</param>
+        /// <param name="failureResponses">A list of messages containing the recovery instructions for the tasks still alive</param>
+        /// <returns>Zero or more messages for the tasks</returns>
+        void EventDispatcher(IFailureEvent @event, ref List<IDriverMessage> failureResponses);
     }
 }
