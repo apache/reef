@@ -19,6 +19,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
 using Microsoft.Azure.DataLake.Store;
 using Microsoft.Azure.DataLake.Store.FileTransfer;
 using Org.Apache.REEF.Tang.Annotations;
@@ -122,7 +123,12 @@ namespace Org.Apache.REEF.IO.FileSystem.AzureDataLake
             }
             if (status.EntriesFailed.Count != 0)
             {
-                throw new IOException($"{status.EntriesFailed.Count} entries did not get transferred correctly");
+                var failedEntriesMsg = new StringBuilder();
+                foreach (var entry in status.EntriesFailed)
+                {
+                    failedEntriesMsg.Append($"Entry {entry.EntryName} failed with error message {entry.Errors}. ");
+                }
+                throw new IOException($"{status.EntriesFailed.Count} entries failed to download. {failedEntriesMsg.ToString()}");
             }
         }
 
@@ -135,7 +141,7 @@ namespace Org.Apache.REEF.IO.FileSystem.AzureDataLake
             TransferStatus status;
             try
             {
-                status = status = _adlsClient.BulkUpload(localFileName, remoteFileUri.AbsolutePath);
+                status = _adlsClient.BulkUpload(localFileName, remoteFileUri.AbsolutePath);
             }
             catch (Exception ex)
             {
@@ -143,7 +149,12 @@ namespace Org.Apache.REEF.IO.FileSystem.AzureDataLake
             }
             if (status.EntriesFailed.Count != 0)
             {
-                throw new IOException($"{status.EntriesFailed.Count} entries did not get transferred correctly");
+                var failedEntriesMsg = new StringBuilder();
+                foreach (var entry in status.EntriesFailed)
+                {
+                    failedEntriesMsg.Append($"Entry {entry.EntryName} failed with error message {entry.Errors}. ");
+                }
+                throw new IOException($"{status.EntriesFailed.Count} entries failed to upload. {failedEntriesMsg.ToString()}");
             }
         }
 
