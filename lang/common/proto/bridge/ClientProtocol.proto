@@ -87,8 +87,11 @@ message DriverClientConfiguration {
   // Enable driver restart?
   bool driver_restart_enable = 11;
 
-  // Driver restart evaluator recovery seconds (optional)
+  // Driver restart evaluator recovery seconds (default=3 mins)
   uint32 driver_restart_evaluator_recovery_seconds = 12;
+
+  // Fail the driver if there is an evaluator log error (default=false)
+  bool fail_driver_on_evaluator_log_error = 13;
 
   // TCP port range
   uint32 tcp_port_range_begin = 15;

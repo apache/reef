@@ -21,7 +21,6 @@ package org.apache.reef.bridge.driver.service.grpc;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.reef.bridge.driver.service.DriverServiceConfiguration;
-import org.apache.reef.bridge.driver.service.DriverServiceHandlers;
 import org.apache.reef.bridge.driver.service.IDriverServiceConfigurationProvider;
 import org.apache.reef.bridge.proto.ClientProtocol;
 import org.apache.reef.client.DriverConfiguration;
@@ -98,7 +97,7 @@ public final class GRPCDriverServiceConfigurationProvider implements IDriverServ
 
   private Configuration getDriverConfiguration(
       final ClientProtocol.DriverClientConfiguration driverConfiguration) {
-    ConfigurationModule driverServiceConfigurationModule = DriverServiceConfiguration.STATIC_DRIVER_CONF_MODULE
+    ConfigurationModule driverServiceConfigurationModule = DriverServiceConfiguration.BASE_DRIVER_CONF
         .set(DriverConfiguration.DRIVER_IDENTIFIER, driverConfiguration.getJobid());
 
     // Set file dependencies
@@ -145,17 +144,9 @@ public final class GRPCDriverServiceConfigurationProvider implements IDriverServ
 
   private Configuration getDriverRestartConfiguration(
       final ClientProtocol.DriverClientConfiguration driverConfiguration) {
-    ConfigurationModule restartConfModule = DriverRestartConfiguration.CONF
-        .set(DriverRestartConfiguration.ON_DRIVER_RESTARTED,
-            DriverServiceHandlers.DriverRestartHandler.class)
-        .set(DriverRestartConfiguration.ON_DRIVER_RESTART_CONTEXT_ACTIVE,
-            DriverServiceHandlers.DriverRestartActiveContextHandler.class)
-        .set(DriverRestartConfiguration.ON_DRIVER_RESTART_TASK_RUNNING,
-            DriverServiceHandlers.DriverRestartRunningTaskHandler.class)
-        .set(DriverRestartConfiguration.ON_DRIVER_RESTART_COMPLETED,
-            DriverServiceHandlers.DriverRestartCompletedHandler.class)
-        .set(DriverRestartConfiguration.ON_DRIVER_RESTART_EVALUATOR_FAILED,
-            DriverServiceHandlers.DriverRestartFailedEvaluatorHandler.class);
+    ConfigurationModule restartConfModule = DriverServiceConfiguration.RESTART_DRIVER_CONF_MODULE
+        .set(DriverRestartConfiguration.FAIL_DRIVER_ON_EVALUATOR_LOG_ERROR,
+            driverConfiguration.getFailDriverOnEvaluatorLogError());
     return driverConfiguration.getDriverRestartEvaluatorRecoverySeconds() > 0 ?
         restartConfModule
             .set(DriverRestartConfiguration.DRIVER_RESTART_EVALUATOR_RECOVERY_SECONDS,

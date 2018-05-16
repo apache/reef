@@ -54,7 +54,7 @@ public final class DriverServiceConfiguration extends ConfigurationModuleBuilder
       .build();
 
 
-  public static final ConfigurationModule STATIC_DRIVER_CONF_MODULE = DriverConfiguration.CONF
+  public static final ConfigurationModule BASE_DRIVER_CONF = DriverConfiguration.CONF
       .set(DriverConfiguration.ON_DRIVER_STARTED, DriverServiceHandlers.StartHandler.class)
       .set(DriverConfiguration.ON_DRIVER_STOP, DriverServiceHandlers.StopHandler.class)
       .set(DriverConfiguration.ON_EVALUATOR_ALLOCATED, DriverServiceHandlers.AllocatedEvaluatorHandler.class)
@@ -71,6 +71,19 @@ public final class DriverServiceConfiguration extends ConfigurationModuleBuilder
       .set(DriverConfiguration.ON_CLIENT_MESSAGE, DriverServiceHandlers.ClientMessageHandler.class)
       .set(DriverConfiguration.ON_CLIENT_CLOSED, DriverServiceHandlers.ClientCloseHandler.class)
       .set(DriverConfiguration.ON_CLIENT_CLOSED_MESSAGE, DriverServiceHandlers.ClientCloseWithMessageHandler.class);
+
+  public static final ConfigurationModule RESTART_DRIVER_CONF_MODULE = DriverRestartConfiguration.CONF
+      .set(DriverRestartConfiguration.ON_DRIVER_RESTARTED,
+          DriverServiceHandlers.DriverRestartHandler.class)
+      .set(DriverRestartConfiguration.ON_DRIVER_RESTART_COMPLETED,
+          DriverServiceHandlers.DriverRestartCompletedHandler.class)
+      .set(DriverRestartConfiguration.ON_DRIVER_RESTART_TASK_RUNNING,
+          DriverServiceHandlers.DriverRestartRunningTaskHandler.class)
+      .set(DriverRestartConfiguration.ON_DRIVER_RESTART_EVALUATOR_FAILED,
+          DriverServiceHandlers.DriverRestartFailedEvaluatorHandler.class)
+      .set(DriverRestartConfiguration.ON_DRIVER_RESTART_CONTEXT_ACTIVE,
+          DriverServiceHandlers.DriverRestartActiveContextHandler.class);
+
 
   /**
    * The HTTP Server configuration assumed by the bridge.
