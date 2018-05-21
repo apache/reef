@@ -19,6 +19,7 @@
 package org.apache.reef.bridge.driver.launch;
 
 import org.apache.reef.bridge.proto.ClientProtocol;
+import org.apache.reef.client.LauncherStatus;
 
 /**
  * All driver launchers implement this method.
@@ -29,5 +30,5 @@ public interface IDriverLauncher {
    * Launch the driver with the dynamic {@link ClientProtocol.DriverClientConfiguration}.
    * @param driverClientConfiguration dynamic driver configuration parameters
    */
-  void launch(final ClientProtocol.DriverClientConfiguration driverClientConfiguration);
+  LauncherStatus launch(final ClientProtocol.DriverClientConfiguration driverClientConfiguration);
 }

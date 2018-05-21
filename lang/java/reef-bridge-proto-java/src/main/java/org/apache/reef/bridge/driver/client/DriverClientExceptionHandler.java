@@ -20,6 +20,7 @@
 package org.apache.reef.bridge.driver.client;
 
 import org.apache.reef.wake.EventHandler;
+import org.apache.reef.wake.time.Clock;
 
 import javax.inject.Inject;
 import java.util.logging.Level;
@@ -31,13 +32,18 @@ import java.util.logging.Logger;
 public final class DriverClientExceptionHandler implements EventHandler<Throwable> {
   private static final Logger LOG = Logger.getLogger(DriverClientExceptionHandler.class.getName());
 
+  private final Clock clock;
+
   @Inject
-  private DriverClientExceptionHandler() {
+  private DriverClientExceptionHandler(final Clock clock) {
     LOG.log(Level.FINE, "Instantiated 'DriverExceptionHandler'");
+    this.clock = clock;
   }
 
 
   @Override
   public void onNext(final Throwable throwable) {
+    LOG.log(Level.SEVERE, throwable.toString());
+    this.clock.stop(throwable);
   }
 }

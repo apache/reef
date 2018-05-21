@@ -16,37 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
-package org.apache.reef.bridge.driver.client;
-
-import org.apache.reef.bridge.driver.client.grpc.DriverClientService;
-import org.apache.reef.tang.annotations.DefaultImplementation;
-
-import java.io.IOException;
-
 /**
- * Interface that driver client services implement.
+ * Utilities for Driver-side failures.
  */
-@DefaultImplementation(DriverClientService.class)
-public interface IDriverClientService {
-
-  /**
-   * Start the DriverClient service.
-   * @throws IOException when unable to start service
-   */
-  void start() throws IOException;
-
-
-  /**
-   * Notify that the count number of evaluators have been
-   * requested by the application.
-   * @param count of the number of evaluators
-   */
-  void notifyEvaluatorRequest(final int count);
-
-  /**
-   * Wait for termination of driver client service.
-   */
-  void awaitTermination() throws InterruptedException;
-
-}
+package org.apache.reef.tests.fail.util;

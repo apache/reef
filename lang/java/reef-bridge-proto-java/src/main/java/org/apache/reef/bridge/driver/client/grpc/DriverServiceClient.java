@@ -27,10 +27,11 @@ import org.apache.reef.bridge.driver.client.IDriverServiceClient;
 import org.apache.reef.bridge.driver.client.JVMClientProcess;
 import org.apache.reef.bridge.driver.client.grpc.parameters.DriverServicePort;
 import org.apache.reef.bridge.proto.*;
+import org.apache.reef.bridge.proto.Void;
 import org.apache.reef.driver.context.ContextConfiguration;
 import org.apache.reef.driver.evaluator.EvaluatorRequest;
+import org.apache.reef.runtime.common.utils.ExceptionCodec;
 import org.apache.reef.tang.Configuration;
-import org.apache.reef.tang.InjectionFuture;
 import org.apache.reef.tang.annotations.Parameter;
 import org.apache.reef.tang.formats.ConfigurationSerializer;
 import org.apache.reef.util.Optional;
@@ -38,6 +39,10 @@ import org.apache.reef.util.Optional;
 import javax.inject.Inject;
 import java.io.File;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 /**
  * The client that exposes methods for communicating back to the
@@ -46,7 +51,7 @@ import java.util.List;
 @Private
 public final class DriverServiceClient implements IDriverServiceClient {
 
-  private final InjectionFuture<DriverClientService> driverClientService;
+  private final ExceptionCodec exceptionCodec;
 
   private final ConfigurationSerializer configurationSerializer;
 
@@ -54,11 +59,11 @@ public final class DriverServiceClient implements IDriverServiceClient {
 
   @Inject
   private DriverServiceClient(
-      final InjectionFuture<DriverClientService> driverClientService,
       final ConfigurationSerializer configurationSerializer,
+      final ExceptionCodec exceptionCodec,
       @Parameter(DriverServicePort.class) final Integer driverServicePort) {
-    this.driverClientService = driverClientService;
     this.configurationSerializer = configurationSerializer;
+    this.exceptionCodec = exceptionCodec;
     final ManagedChannel channel = ManagedChannelBuilder
         .forAddress("localhost", driverServicePort)
         .usePlaintext(true)
@@ -75,6 +80,23 @@ public final class DriverServiceClient implements IDriverServiceClient {
   }
 
   @Override
+  public void onInitializationException(final Throwable ex) {
+    final Future<Void> callComplete = this.serviceStub.registerDriverClient(
+        DriverClientRegistration.newBuilder()
+            .setException(ExceptionInfo.newBuilder()
+                .setName(ex.getCause() != null ? ex.getCause().toString() : ex.toString())
+                .setMessage(ex.getMessage() == null ? ex.toString() : ex.getMessage())
+                .setData(ByteString.copyFrom(exceptionCodec.toBytes(ex)))
+                .build())
+            .build());
+    try {
+      callComplete.get(5, TimeUnit.SECONDS);
+    } catch (ExecutionException | TimeoutException | InterruptedException e) {
+      throw new RuntimeException(e);
+    }
+  }
+
+  @Override
   public void onShutdown() {
     this.serviceStub.shutdown(ShutdownRequest.newBuilder().build());
   }
@@ -84,14 +106,14 @@ public final class DriverServiceClient implements IDriverServiceClient {
     this.serviceStub.shutdown(ShutdownRequest.newBuilder()
         .setException(ExceptionInfo.newBuilder()
             .setName(ex.getCause() != null ? ex.getCause().toString() : ex.toString())
-            .setMessage(ex.getMessage())
+            .setMessage(ex.getMessage() == null ? ex.toString() : ex.getMessage())
+            .setData(ByteString.copyFrom(exceptionCodec.toBytes(ex)))
             .build())
         .build());
   }
 
   @Override
   public void onSetAlarm(final String alarmId, final int timeoutMS) {
-    this.driverClientService.get().setNotIdle();
     this.serviceStub.setAlarm(
         AlarmRequest.newBuilder()
             .setAlarmId(alarmId)
@@ -101,7 +123,6 @@ public final class DriverServiceClient implements IDriverServiceClient {
 
   @Override
   public void onEvaluatorRequest(final EvaluatorRequest evaluatorRequest) {
-    this.driverClientService.get().setNotIdle();
     this.serviceStub.requestResources(
         ResourceRequest.newBuilder()
             .setCores(evaluatorRequest.getNumberOfCores())
@@ -215,18 +236,38 @@ public final class DriverServiceClient implements IDriverServiceClient {
 
   @Override
   public void onTaskClose(final String taskId, final Optional<byte[]> message) {
-    this.serviceStub.runningTaskOp(RunningTaskRequest.newBuilder()
-        .setTaskId(taskId)
-        .setCloseTask(true)
-        .setMessage(message.isPresent() ? ByteString.copyFrom(message.get()) : null)
-        .build());
+    this.serviceStub.runningTaskOp(message.isPresent() ?
+        RunningTaskRequest.newBuilder()
+            .setTaskId(taskId)
+            .setOperation(RunningTaskRequest.Operation.CLOSE)
+            .setMessage(ByteString.copyFrom(message.get()))
+            .build() :
+        RunningTaskRequest.newBuilder()
+            .setTaskId(taskId)
+            .setOperation(RunningTaskRequest.Operation.CLOSE)
+            .build());
   }
 
   @Override
   public void onTaskMessage(final String taskId, final byte[] message) {
     this.serviceStub.runningTaskOp(RunningTaskRequest.newBuilder()
         .setTaskId(taskId)
+        .setOperation(RunningTaskRequest.Operation.SEND_MESSAGE)
         .setMessage(ByteString.copyFrom(message))
         .build());
+  }
+
+  @Override
+  public void onSuspendTask(final String taskId, final Optional<byte[]> message) {
+    this.serviceStub.runningTaskOp(message.isPresent() ?
+        RunningTaskRequest.newBuilder()
+            .setTaskId(taskId)
+            .setOperation(RunningTaskRequest.Operation.SUSPEND)
+            .setMessage(ByteString.copyFrom(message.get()))
+            .build() :
+        RunningTaskRequest.newBuilder()
+            .setTaskId(taskId)
+            .setOperation(RunningTaskRequest.Operation.SUSPEND)
+            .build());
   }
 }

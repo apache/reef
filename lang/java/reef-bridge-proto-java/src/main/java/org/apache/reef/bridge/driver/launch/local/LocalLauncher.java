@@ -23,6 +23,7 @@ import org.apache.reef.bridge.driver.launch.IDriverLauncher;
 import org.apache.reef.bridge.driver.service.IDriverServiceConfigurationProvider;
 import org.apache.reef.bridge.proto.ClientProtocol;
 import org.apache.reef.client.DriverLauncher;
+import org.apache.reef.client.LauncherStatus;
 import org.apache.reef.runtime.local.client.LocalRuntimeConfiguration;
 import org.apache.reef.tang.exceptions.InjectionException;
 import org.apache.reef.tang.formats.ConfigurationModule;
@@ -45,7 +46,7 @@ public final class LocalLauncher implements IDriverLauncher {
     this.driverServiceConfigurationProvider = driverServiceConfigurationProvider;
   }
 
-  public void launch(final ClientProtocol.DriverClientConfiguration driverClientConfiguration) {
+  public LauncherStatus launch(final ClientProtocol.DriverClientConfiguration driverClientConfiguration) {
     ConfigurationModule localRuntimeCM = LocalRuntimeConfiguration.CONF;
     if (driverClientConfiguration.getLocalRuntime().getMaxNumberOfEvaluators() > 0) {
       localRuntimeCM = localRuntimeCM.set(LocalRuntimeConfiguration.MAX_NUMBER_OF_EVALUATORS,
@@ -64,7 +65,7 @@ public final class LocalLauncher implements IDriverLauncher {
           driverClientConfiguration.getDriverJobSubmissionDirectory());
     }
     try {
-      DriverLauncher
+      return DriverLauncher
           .getLauncher(localRuntimeCM.build())
           .run(driverServiceConfigurationProvider.getDriverServiceConfiguration(driverClientConfiguration));
     } catch (InjectionException e) {

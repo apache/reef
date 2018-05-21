@@ -37,7 +37,7 @@ service DriverClient {
   // Request for resources
   rpc StartHandler (StartTimeInfo) returns (Void) {}
 
-  rpc StopHandler (StopTimeInfo) returns (Void) {}
+  rpc StopHandler (StopTimeInfo) returns (ExceptionInfo) {}
 
   rpc AlarmTrigger (AlarmTriggerInfo) returns (Void) {}
 

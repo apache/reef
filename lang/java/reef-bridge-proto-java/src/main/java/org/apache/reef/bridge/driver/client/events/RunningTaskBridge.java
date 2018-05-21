@@ -60,12 +60,12 @@ public final class RunningTaskBridge implements RunningTask {
 
   @Override
   public void suspend(final byte[] message) {
-    throw new UnsupportedOperationException("Suspend task not supported");
+    this.driverServiceClient.onSuspendTask(this.taskId, Optional.of(message));
   }
 
   @Override
   public void suspend() {
-    throw new UnsupportedOperationException("Suspend task not supported");
+    this.driverServiceClient.onSuspendTask(this.taskId, Optional.<byte[]>empty());
   }
 
   @Override

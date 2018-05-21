@@ -190,10 +190,24 @@ public final class JavaDriverClientLauncher {
 
     Thread.setDefaultUncaughtExceptionHandler(new REEFUncaughtExceptionHandler(launcher.envConfig));
     final Injector injector = Tang.Factory.getTang().newInjector(launcher.envConfig);
-    try (final Clock reef = injector.getInstance(Clock.class)) {
-      reef.run();
-    } catch (final Throwable ex) {
-      throw fatal("Unable to configure and start Clock.", ex);
+    try {
+      final IDriverServiceClient driverServiceClient = injector.getInstance(IDriverServiceClient.class);
+      try (final Clock reef = injector.getInstance(Clock.class)) {
+        reef.run();
+      } catch (final InjectionException ex) {
+        LOG.log(Level.SEVERE, "Unable to configure driver client.");
+        driverServiceClient.onInitializationException(ex.getCause() != null ? ex.getCause() : ex);
+      } catch (final Throwable t) {
+        if (t.getCause() != null && t.getCause() instanceof InjectionException) {
+          LOG.log(Level.SEVERE, "Unable to configure driver client.");
+          final InjectionException ex = (InjectionException) t.getCause();
+          driverServiceClient.onInitializationException(ex.getCause() != null ? ex.getCause() : ex);
+        } else {
+          throw fatal("Unable run clock.", t);
+        }
+      }
+    } catch (InjectionException e) {
+      throw fatal("Unable initialize driver service client.", e);
     }
 
     ThreadLogger.logThreads(LOG, Level.FINEST, "Threads running after Clock.close():");

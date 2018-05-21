@@ -281,6 +281,7 @@ public final class FailDriver {
         throw new DriverSideFailure("Unexpected state: " + state);
       }
       // After a delay, send message or suspend the task:
+      LOG.log(Level.INFO, "Schedule alarm on state {0}", state.name());
       clock.scheduleAlarm(MSG_DELAY, new AlarmHandler());
     }
   }

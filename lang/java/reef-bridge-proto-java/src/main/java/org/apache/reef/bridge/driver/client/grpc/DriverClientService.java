@@ -20,6 +20,7 @@
 package org.apache.reef.bridge.driver.client.grpc;
 
 import com.google.common.collect.Lists;
+import com.google.protobuf.ByteString;
 import io.grpc.Server;
 import io.grpc.ServerBuilder;
 import io.grpc.Status;
@@ -39,6 +40,7 @@ import org.apache.reef.driver.restart.DriverRestarted;
 import org.apache.reef.driver.task.FailedTask;
 import org.apache.reef.exception.EvaluatorException;
 import org.apache.reef.runtime.common.driver.evaluator.EvaluatorDescriptorImpl;
+import org.apache.reef.runtime.common.utils.ExceptionCodec;
 import org.apache.reef.tang.InjectionFuture;
 import org.apache.reef.util.Optional;
 import org.apache.reef.wake.remote.ports.TcpPortProvider;
@@ -64,7 +66,11 @@ public final class DriverClientService extends DriverClientGrpc.DriverClientImpl
 
   private Server server;
 
+  private final Object lock = new Object();
+
   private final InjectionFuture<Clock> clock;
+
+  private final ExceptionCodec exceptionCodec;
 
   private final DriverServiceClient driverServiceClient;
 
@@ -76,22 +82,28 @@ public final class DriverClientService extends DriverClientGrpc.DriverClientImpl
 
   private final Map<String, ActiveContextBridge> activeContextBridgeMap = new HashMap<>();
 
-  private boolean isIdle = false;
+  private int outstandingEvaluatorCount = 0;
 
   @Inject
   private DriverClientService(
+      final ExceptionCodec exceptionCodec,
       final DriverServiceClient driverServiceClient,
       final TcpPortProvider tcpPortProvider,
       final InjectionFuture<Clock> clock,
       final InjectionFuture<DriverClientDispatcher> clientDriverDispatcher) {
+    this.exceptionCodec = exceptionCodec;
     this.driverServiceClient = driverServiceClient;
     this.tcpPortProvider = tcpPortProvider;
     this.clock = clock;
     this.clientDriverDispatcher = clientDriverDispatcher;
   }
 
-  void setNotIdle() {
-    this.isIdle = false;
+  @Override
+  public void notifyEvaluatorRequest(final int count) {
+    synchronized (this.lock) {
+      this.outstandingEvaluatorCount += count;
+      this.lock.notify();
+    }
   }
 
   @Override
@@ -123,21 +135,19 @@ public final class DriverClientService extends DriverClientGrpc.DriverClientImpl
 
   @Override
   public void idlenessCheckHandler(final Void request, final StreamObserver<IdleStatus> responseObserver) {
-    if (clock.get().isIdle() && this.evaluatorBridgeMap.isEmpty()) {
+    if (isIdle()) {
       LOG.log(Level.INFO, "possibly idle. waiting for some action.");
-      this.isIdle = true;
       try {
-        Thread.sleep(120000); // a couple of minutes
+        synchronized (this.lock) {
+          this.lock.wait(1000); // wait a second
+        }
       } catch (InterruptedException e) {
         LOG.log(Level.WARNING, e.getMessage());
       }
-    } else {
-      LOG.log(Level.INFO, "not idle");
-      this.isIdle = false;
     }
     responseObserver.onNext(IdleStatus.newBuilder()
         .setReason("DriverClient checking idleness")
-        .setIsIdle(this.isIdle)
+        .setIsIdle(this.isIdle())
         .build());
     responseObserver.onCompleted();
   }
@@ -155,13 +165,22 @@ public final class DriverClientService extends DriverClientGrpc.DriverClientImpl
   }
 
   @Override
-  public void stopHandler(final StopTimeInfo request, final StreamObserver<Void> responseObserver) {
+  public void stopHandler(final StopTimeInfo request, final StreamObserver<ExceptionInfo> responseObserver) {
     try {
       LOG.log(Level.INFO, "StopHandler at time {0}", request.getStopTime());
       final StopTime stopTime = new StopTime(request.getStopTime());
-      this.clientDriverDispatcher.get().dispatch(stopTime);
+      final Throwable error = this.clientDriverDispatcher.get().dispatch(stopTime);
+      if (error != null) {
+        responseObserver.onNext(
+            ExceptionInfo.newBuilder()
+                .setName(error.getCause() != null ? error.getCause().toString() : error.toString())
+                .setMessage(error.getMessage() == null ? error.toString() : error.getMessage())
+                .setData(ByteString.copyFrom(exceptionCodec.toBytes(error)))
+                .build());
+      } else {
+        responseObserver.onNext(ExceptionInfo.newBuilder().setNoError(true).build());
+      }
     } finally {
-      responseObserver.onNext(null);
       responseObserver.onCompleted();
       this.server.shutdown();
     }
@@ -181,7 +200,9 @@ public final class DriverClientService extends DriverClientGrpc.DriverClientImpl
   @Override
   public void allocatedEvaluatorHandler(final EvaluatorInfo request, final StreamObserver<Void> responseObserver) {
     try {
-      this.isIdle = false;
+      synchronized (this.lock) {
+        this.outstandingEvaluatorCount--;
+      }
       LOG.log(Level.INFO, "Allocated evaluator id {0}", request.getEvaluatorId());
       final AllocatedEvaluatorBridge eval = new AllocatedEvaluatorBridge(
           request.getEvaluatorId(),
@@ -210,6 +231,15 @@ public final class DriverClientService extends DriverClientGrpc.DriverClientImpl
   @Override
   public void failedEvaluatorHandler(final EvaluatorInfo request, final StreamObserver<Void> responseObserver) {
     try {
+      if (!this.evaluatorBridgeMap.containsKey(request.getEvaluatorId())) {
+        LOG.log(Level.INFO, "Failed evalautor that we were not allocated");
+        synchronized (this.lock) {
+          if (this.outstandingEvaluatorCount > 0) {
+            this.outstandingEvaluatorCount--;
+          }
+        }
+        return;
+      }
       LOG.log(Level.INFO, "Failed Evaluator id {0}", request.getEvaluatorId());
       final AllocatedEvaluatorBridge eval = this.evaluatorBridgeMap.remove(request.getEvaluatorId());
       List<FailedContext> failedContextList = new ArrayList<>();
@@ -224,7 +254,7 @@ public final class DriverClientService extends DriverClientGrpc.DriverClientImpl
               context.getParentId().isPresent() ?
                   Optional.<ActiveContext>of(this.activeContextBridgeMap.get(context.getParentId().get())) :
                   Optional.<ActiveContext>empty(),
-              Optional.<byte[]>empty()));
+              Optional.<Throwable>empty()));
         }
         for (final String failedContextId : request.getFailure().getFailedContextsList()) {
           this.activeContextBridgeMap.remove(failedContextId);
@@ -253,7 +283,6 @@ public final class DriverClientService extends DriverClientGrpc.DriverClientImpl
   @Override
   public void activeContextHandler(final ContextInfo request, final StreamObserver<Void> responseObserver) {
     try {
-      this.isIdle = false;
       LOG.log(Level.INFO, "Active context id {0}", request.getContextId());
       final AllocatedEvaluatorBridge eval = this.evaluatorBridgeMap.get(request.getEvaluatorId());
       final ActiveContextBridge context = new ActiveContextBridge(
@@ -302,8 +331,9 @@ public final class DriverClientService extends DriverClientGrpc.DriverClientImpl
         final Optional<ActiveContext> parent = context.getParentId().isPresent() ?
             Optional.<ActiveContext>of(this.activeContextBridgeMap.get(context.getParentId().get())) :
             Optional.<ActiveContext>empty();
-        final Optional<byte[]> data = request.getException().getData() != null ?
-            Optional.of(request.getException().getData().toByteArray()) : Optional.<byte[]>empty();
+        final Optional<Throwable> reason = !request.getException().getData().isEmpty()  ?
+            this.exceptionCodec.fromBytes(request.getException().getData().toByteArray()) :
+            Optional.<Throwable>empty();
         this.clientDriverDispatcher.get().dispatch(
             new FailedContextBridge(
                 context.getId(),
@@ -311,7 +341,7 @@ public final class DriverClientService extends DriverClientGrpc.DriverClientImpl
                 request.getException().getMessage(),
                 context.getEvaluatorDescriptor(),
                 parent,
-                data));
+                reason));
       } finally {
         responseObserver.onNext(null);
         responseObserver.onCompleted();
@@ -374,15 +404,15 @@ public final class DriverClientService extends DriverClientGrpc.DriverClientImpl
           this.activeContextBridgeMap.containsKey(request.getContext().getContextId()) ?
               Optional.<ActiveContext>of(this.activeContextBridgeMap.get(request.getContext().getContextId())) :
               Optional.<ActiveContext>empty();
-      final Optional<byte[]> data = request.getException().getData() != null ?
-          Optional.of(request.getException().getData().toByteArray()) : Optional.<byte[]>empty();
       this.clientDriverDispatcher.get().dispatch(
           new FailedTask(
               request.getTaskId(),
               request.getException().getMessage(),
               Optional.of(request.getException().getName()),
-              Optional.<Throwable>of(new EvaluatorException(request.getException().getMessage())),
-              data,
+              request.getException().getData().isEmpty() ?
+                  Optional.<Throwable>of(new EvaluatorException(request.getException().getMessage())) :
+                  this.exceptionCodec.fromBytes(request.getException().getData().toByteArray()),
+              Optional.<byte[]>empty(),
               context));
     } finally {
       responseObserver.onNext(null);
@@ -403,7 +433,8 @@ public final class DriverClientService extends DriverClientGrpc.DriverClientImpl
           new CompletedTaskBridge(
               request.getTaskId(),
               context,
-              request.getResult() != null ? request.getResult().toByteArray() : null));
+              request.getResult() != null && !request.getResult().isEmpty() ?
+                  request.getResult().toByteArray() : null));
     } finally {
       responseObserver.onNext(null);
       responseObserver.onCompleted();
@@ -412,7 +443,23 @@ public final class DriverClientService extends DriverClientGrpc.DriverClientImpl
 
   @Override
   public void suspendedTaskHandler(final TaskInfo request, final StreamObserver<Void> responseObserver) {
-    responseObserver.onError(Status.INTERNAL.withDescription("Not supported").asRuntimeException());
+    final ContextInfo contextInfo = request.getContext();
+    if (!this.activeContextBridgeMap.containsKey(contextInfo.getContextId())) {
+      this.activeContextBridgeMap.put(contextInfo.getContextId(), toActiveContext(contextInfo));
+    }
+    LOG.log(Level.INFO, "Suspended task id {0}", request.getTaskId());
+    try {
+      final ActiveContextBridge context = this.activeContextBridgeMap.get(request.getContext().getContextId());
+      this.clientDriverDispatcher.get().dispatch(
+          new SuspendedTaskBridge(
+              request.getTaskId(),
+              context,
+              request.getResult() != null && !request.getResult().isEmpty() ?
+                  request.getResult().toByteArray() : null));
+    } finally {
+      responseObserver.onNext(null);
+      responseObserver.onCompleted();
+    }
   }
 
   @Override
@@ -589,6 +636,16 @@ public final class DriverClientService extends DriverClientGrpc.DriverClientImpl
   }
 
   // Helper methods
+  private boolean isIdle() {
+    LOG.log(Level.INFO, "Clock idle {0}, outstanding evaluators {1}, current evaluators {2}",
+        new Object[] {
+        this.clock.get().isIdle(),
+            this.outstandingEvaluatorCount,
+            this.evaluatorBridgeMap.isEmpty()});
+    return clock.get().isIdle() &&
+        this.outstandingEvaluatorCount == 0 &&
+        this.evaluatorBridgeMap.isEmpty();
+  }
 
   private EvaluatorDescriptor toEvaluatorDescriptor(final EvaluatorDescriptorInfo info) {
     return new EvaluatorDescriptorImpl(

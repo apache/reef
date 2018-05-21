@@ -50,6 +50,11 @@ import java.util.Set;
 public final class DriverClientDispatcher {
 
   /**
+   * Exception handler.
+   */
+  private final DriverClientExceptionHandler exceptionHandler;
+
+  /**
    * Dispatcher used for application provided event handlers.
    */
   private final DispatchingEStage applicationDispatcher;
@@ -78,6 +83,12 @@ public final class DriverClientDispatcher {
    * Driver restart dispatcher.
    */
   private final DispatchingEStage driverRestartDispatcher;
+
+
+  /**
+   * Synchronous set of stop handlers.
+   */
+  private final Set<EventHandler<StopTime>> stopHandlers;
 
   @Inject
   private DriverClientDispatcher(
@@ -124,12 +135,12 @@ public final class DriverClientDispatcher {
       final Set<EventHandler<byte[]>> clientCloseWithMessageHandlers,
       @Parameter(ClientMessageHandlers.class)
       final Set<EventHandler<byte[]>> clientMessageHandlers) {
-
+    this.exceptionHandler = driverExceptionHandler;
     this.applicationDispatcher = new DispatchingEStage(
         driverExceptionHandler, numberOfThreads, "ClientDriverDispatcher");
     // Application start and stop handlers
     this.applicationDispatcher.register(StartTime.class, startHandlers);
-    this.applicationDispatcher.register(StopTime.class, stopHandlers);
+    this.stopHandlers = stopHandlers; // must be called synchronously
     // Application Context event handlers
     this.applicationDispatcher.register(ActiveContext.class, contextActiveHandlers);
     this.applicationDispatcher.register(ClosedContext.class, contextClosedHandlers);
@@ -276,8 +287,22 @@ public final class DriverClientDispatcher {
     this.applicationDispatcher.onNext(StartTime.class, startTime);
   }
 
-  public void dispatch(final StopTime stopTime) {
-    this.applicationDispatcher.onNext(StopTime.class, stopTime);
+  /**
+   * We must implement this synchronously in order to catch exceptions and
+   * forward them back via the bridge before the server shuts down, after
+   * this method returns.
+   * @param stopTime stop time
+   */
+  @SuppressWarnings("checkstyle:illegalCatch")
+  public Throwable dispatch(final StopTime stopTime) {
+    try {
+      for (final EventHandler<StopTime> handler : stopHandlers) {
+        handler.onNext(stopTime);
+      }
+      return null;
+    } catch (Throwable t) {
+      return t;
+    }
   }
 
   public void dispatch(final ActiveContext context) {

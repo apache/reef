@@ -30,15 +30,18 @@ package driverbridge;
 message Void {}
 
 message ExceptionInfo {
+    // no error present if true
+    bool no_error = 1;
+
     // Exception name/type
-    string name = 1;
+    string name = 2;
 
     // Exception message
-    string message = 2;
+    string message = 3;
 
     // Stack trace
-    repeated string stack_trace = 3;
+    repeated string stack_trace = 4;
 
     // Data associated with exception
-    bytes data = 4;
+    bytes data = 5;
 }
