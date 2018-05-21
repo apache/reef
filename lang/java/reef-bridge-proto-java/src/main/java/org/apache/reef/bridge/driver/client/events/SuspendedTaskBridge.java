@@ -17,36 +17,40 @@
  * under the License.
  */
 
-package org.apache.reef.bridge.driver.client;
+package org.apache.reef.bridge.driver.client.events;
 
-import org.apache.reef.bridge.driver.client.grpc.DriverClientService;
-import org.apache.reef.tang.annotations.DefaultImplementation;
-
-import java.io.IOException;
+import org.apache.reef.driver.context.ActiveContext;
+import org.apache.reef.driver.task.SuspendedTask;
 
 /**
- * Interface that driver client services implement.
+ * Suspended task bridge.
  */
-@DefaultImplementation(DriverClientService.class)
-public interface IDriverClientService {
+public final class SuspendedTaskBridge implements SuspendedTask {
 
-  /**
-   * Start the DriverClient service.
-   * @throws IOException when unable to start service
-   */
-  void start() throws IOException;
+  private final String taskId;
 
+  private final ActiveContext context;
 
-  /**
-   * Notify that the count number of evaluators have been
-   * requested by the application.
-   * @param count of the number of evaluators
-   */
-  void notifyEvaluatorRequest(final int count);
+  private final byte[] result;
 
-  /**
-   * Wait for termination of driver client service.
-   */
-  void awaitTermination() throws InterruptedException;
+  public SuspendedTaskBridge(final String taskId, final ActiveContext context, final byte[] result) {
+    this.taskId = taskId;
+    this.context = context;
+    this.result = result;
+  }
 
+  @Override
+  public ActiveContext getActiveContext() {
+    return this.context;
+  }
+
+  @Override
+  public byte[] get() {
+    return this.result;
+  }
+
+  @Override
+  public String getId() {
+    return this.taskId;
+  }
 }

@@ -50,7 +50,7 @@ public final class YarnLauncher implements IDriverLauncher {
   private YarnLauncher(){
   }
 
-  public void launch(final ClientProtocol.DriverClientConfiguration driverClientConfiguration) {
+  public LauncherStatus launch(final ClientProtocol.DriverClientConfiguration driverClientConfiguration) {
     try {
       try {
         final IDriverServiceConfigurationProvider driverConfigurationProvider =
@@ -77,6 +77,7 @@ public final class YarnLauncher implements IDriverLauncher {
           LOG.log(Level.SEVERE, status.getError().get().getMessage());
           status.getError().get().printStackTrace();
         }
+        return status;
       } catch (InjectionException e) {
         throw new RuntimeException(e);
       }

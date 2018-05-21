@@ -40,7 +40,7 @@ public final class FailedContextBridge implements FailedContext {
 
   private final Optional<ActiveContext> parentContext;
 
-  private final Optional<byte[]> data;
+  private final Optional<Throwable> reason;
 
   public FailedContextBridge(
       final String contextId,
@@ -48,13 +48,13 @@ public final class FailedContextBridge implements FailedContext {
       final String message,
       final EvaluatorDescriptor evaluatorDescriptor,
       final Optional<ActiveContext> parentContext,
-      final Optional<byte[]> data) {
+      final Optional<Throwable> reason) {
     this.contextId = contextId;
     this.evaluatorId = evaluatorId;
     this.message = message;
     this.evaluatorDescriptor = evaluatorDescriptor;
     this.parentContext = parentContext;
-    this.data = data;
+    this.reason = reason;
   }
 
   @Override
@@ -74,12 +74,12 @@ public final class FailedContextBridge implements FailedContext {
 
   @Override
   public Optional<Throwable> getReason() {
-    return Optional.<Throwable>of(new EvaluatorException(this.evaluatorId, this.message));
+    return this.reason;
   }
 
   @Override
   public Optional<byte[]> getData() {
-    return this.data;
+    return Optional.empty();
   }
 
   @Override

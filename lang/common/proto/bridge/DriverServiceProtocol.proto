@@ -59,6 +59,9 @@ message DriverClientRegistration {
 
   // The client's server port
   int32 port = 2;
+
+  // Error during initialization
+  ExceptionInfo exception = 5;
 }
 
 // The request message containing resource request.
@@ -147,9 +150,12 @@ message ActiveContextRequest {
 message RunningTaskRequest {
   string task_id = 1;
 
-  // close the task
-  bool close_task = 2;
+  bytes message = 2;
 
-  // send task a message
-  bytes message = 3;
+  enum Operation {
+    CLOSE = 0;
+    SUSPEND = 1;
+    SEND_MESSAGE = 2;
+  }
+  Operation operation = 5;
 }

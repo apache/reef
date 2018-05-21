@@ -34,6 +34,8 @@ import java.util.List;
 @DefaultImplementation(DriverServiceClient.class)
 public interface IDriverServiceClient {
 
+  void onInitializationException(final Throwable ex);
+
   /**
    * Initiate shutdown.
    */
@@ -129,4 +131,11 @@ public interface IDriverServiceClient {
    * @param message to send
    */
   void onTaskMessage(final String taskId, final byte[] message);
+
+  /**
+   * Suspend a running task.
+   * @param taskId task identifier
+   * @param message optional message
+   */
+  void onSuspendTask(final String taskId, final Optional<byte[]> message);
 }

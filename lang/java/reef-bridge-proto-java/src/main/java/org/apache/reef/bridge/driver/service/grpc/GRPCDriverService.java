@@ -22,7 +22,6 @@ import com.google.protobuf.ByteString;
 import io.grpc.*;
 import io.grpc.stub.StreamObserver;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.Validate;
 import org.apache.reef.bridge.driver.service.DriverClientException;
 import org.apache.reef.bridge.driver.service.IDriverService;
 import org.apache.reef.bridge.service.parameters.DriverClientCommand;
@@ -39,9 +38,11 @@ import org.apache.reef.driver.task.*;
 import org.apache.reef.runtime.common.driver.context.EvaluatorContext;
 import org.apache.reef.runtime.common.driver.evaluator.AllocatedEvaluatorImpl;
 import org.apache.reef.runtime.common.driver.idle.IdleMessage;
+import org.apache.reef.runtime.common.utils.ExceptionCodec;
 import org.apache.reef.tang.annotations.Parameter;
 import org.apache.reef.tang.formats.ConfigurationSerializer;
 import org.apache.reef.util.OSUtils;
+import org.apache.reef.util.Optional;
 import org.apache.reef.wake.EventHandler;
 import org.apache.reef.wake.remote.ports.TcpPortProvider;
 import org.apache.reef.wake.time.Clock;
@@ -53,9 +54,14 @@ import javax.inject.Inject;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -67,13 +73,17 @@ public final class GRPCDriverService implements IDriverService {
 
   private static final Void VOID = Void.newBuilder().build();
 
-  private Server server;
-
   private Process driverProcess;
+
+  private enum StreamType { STDOUT, STDERR }
+
+  private Server server;
 
   private DriverClientGrpc.DriverClientFutureStub clientStub;
 
   private final Clock clock;
+
+  private final ExceptionCodec exceptionCodec;
 
   private final ConfigurationSerializer configurationSerializer;
 
@@ -103,8 +113,10 @@ public final class GRPCDriverService implements IDriverService {
       final JVMProcessFactory jvmProcessFactory,
       final CLRProcessFactory clrProcessFactory,
       final TcpPortProvider tcpPortProvider,
+      final ExceptionCodec exceptionCodec,
       @Parameter(DriverClientCommand.class) final String driverClientCommand) {
     this.clock = clock;
+    this.exceptionCodec = exceptionCodec;
     this.configurationSerializer = configurationSerializer;
     this.jvmProcessFactory = jvmProcessFactory;
     this.clrProcessFactory = clrProcessFactory;
@@ -130,12 +142,19 @@ public final class GRPCDriverService implements IDriverService {
       throw new IOException("Unable to start gRPC server");
     } else {
       final String cmd = this.driverClientCommand + " " + this.server.getPort();
-      final String cmdOs = OSUtils.isWindows() ? "cmd.exe /c \"" + cmd + "\"" : cmd;
+      final List<String> cmdOs = OSUtils.isWindows() ?
+          Arrays.asList("cmd.exe", "/c", cmd) : Arrays.asList("/bin/sh", "-c", cmd);
       LOG.log(Level.INFO, "CMD: " + cmdOs);
-      this.driverProcess = Runtime.getRuntime().exec(cmdOs, null, new File(System.getProperty("user.dir")));
+      this.driverProcess = new ProcessBuilder()
+          .command(cmdOs)
+          .redirectError(new File("driverclient.stderr"))
+          .redirectOutput(new File("driverclient.stdout"))
+          .directory(new File(System.getProperty("user.dir")))
+          .start();
       synchronized (this) {
+        int attempts = 10; // give some time
         // wait for driver client process to register
-        while (this.clientStub == null && driverProcessIsAlive()) {
+        while (attempts-- > 0 && this.clientStub == null && driverProcessIsAlive()) {
           LOG.log(Level.INFO, "waiting for driver process to register");
           this.wait(1000); // a second
         }
@@ -164,10 +183,12 @@ public final class GRPCDriverService implements IDriverService {
     LOG.log(Level.INFO, "STOP: gRPC Driver Service", t);
     if (!stopped) {
       try {
-        if (t != null) {
-          clock.stop(t);
-        } else {
-          clock.stop();
+        if (!clock.isClosed()) {
+          if (t != null) {
+            clock.stop(t);
+          } else {
+            clock.stop();
+          }
         }
         if (server != null) {
           LOG.log(Level.INFO, "Shutdown gRPC");
@@ -191,35 +212,40 @@ public final class GRPCDriverService implements IDriverService {
     if (!driverProcessIsAlive()) {
       LOG.log(Level.INFO, "Exit code: " + this.driverProcess.exitValue());
     }
-    LOG.log(Level.INFO, "capturing driver process stderr");
-    StringBuffer outputBuffer = new StringBuffer();
+    dumpStream(StreamType.STDOUT);
+    dumpStream(StreamType.STDERR);
+  }
+
+  private void dumpStream(final StreamType type) {
+    StringBuffer buffer = new StringBuffer();
+
+    String name = "";
+    InputStream stream = null;
+    switch(type) {
+    case STDOUT:
+      name = "stdout";
+      stream = this.driverProcess.getInputStream();
+      break;
+    case STDERR:
+      name = "stderr";
+      stream = this.driverProcess.getErrorStream();
+      break;
+    default:
+      LOG.log(Level.WARNING, "Invalid stream type value");
+    }
+
+    LOG.log(Level.INFO, "capturing driver process " + name);
     try {
       int nextChar;
-      final InputStream errStream = this.driverProcess.getErrorStream();
-      outputBuffer.append("\nSTDERR =======================================\n");
-      while ((nextChar = errStream.read()) != -1) {
-        outputBuffer.append((char) nextChar);
+      buffer.append("\n==============================================\n");
+      while ((nextChar = stream.read()) != -1) {
+        buffer.append((char) nextChar);
       }
-      outputBuffer.append("\n==============================================\n");
-      final InputStream outStream = this.driverProcess.getInputStream();
-      outputBuffer.append("\nSTDOUT =======================================\n");
-      while ((nextChar = outStream.read()) != -1) {
-        outputBuffer.append((char) nextChar);
-      }
-      outputBuffer.append("\n==============================================\n");
+      buffer.append("\n==============================================\n");
     } catch (IOException e) {
       LOG.log(Level.WARNING, "Error while capturing output stream: " + e.getMessage());
     }
-    LOG.log(Level.INFO, outputBuffer.toString());
-  }
-
-  /**
-   * Await termination on the main thread since the grpc library uses daemon threads.
-   */
-  private void blockUntilShutdown() throws InterruptedException {
-    if (server != null) {
-      server.awaitTermination();
-    }
+    LOG.log(Level.INFO, buffer.toString());
   }
 
   /**
@@ -292,16 +318,31 @@ public final class GRPCDriverService implements IDriverService {
   @Override
   public void stopHandler(final StopTime stopTime) {
     synchronized (this) {
-      try {
-        if (clientStub != null) {
-          this.clientStub.stopHandler(
-              StopTimeInfo.newBuilder().setStopTime(stopTime.getTimestamp()).build());
+      if (clientStub != null) {
+        final Future<ExceptionInfo> callCompletion = this.clientStub.stopHandler(
+            StopTimeInfo.newBuilder().setStopTime(stopTime.getTimestamp()).build());
+        try {
+          try {
+            final ExceptionInfo error = callCompletion.get(5L, TimeUnit.MINUTES);
+            if (!error.getNoError()) {
+              final Optional<Throwable> t = parseException(error);
+              if (t.isPresent()) {
+                throw new RuntimeException("driver stop exception",
+                    t.get().getCause() != null ? t.get().getCause() : t.get());
+              } else {
+                throw new RuntimeException(error.getMessage() != null ? error.getMessage() : error.getName());
+              }
+            }
+          } catch (TimeoutException e) {
+            throw new RuntimeException("stop handler timed out", e);
+          }
+        } catch (InterruptedException | ExecutionException e) {
+          throw new RuntimeException(e);
+        } finally {
+          stop();
         }
-      } finally {
-        stop();
       }
     }
-
   }
 
   @Override
@@ -344,7 +385,7 @@ public final class GRPCDriverService implements IDriverService {
               .setEvaluatorId(context.getEvaluatorId())
               .setParentId(
                   context.getParentId().isPresent() ?
-                      context.getParentId().get() : null)
+                      context.getParentId().get() : "")
               .setEvaluatorDescriptorInfo(toEvaluatorDescriptorInfo(
                   context.getEvaluatorDescriptor()))
               .build());
@@ -369,17 +410,41 @@ public final class GRPCDriverService implements IDriverService {
   @Override
   public void failedContextHandler(final FailedContext context) {
     synchronized (this) {
-      this.activeContextMap.remove(context.getId());
-      this.clientStub.closedContextHandler(
+      final ContextInfo.Builder contextInfoBuilder =
           ContextInfo.newBuilder()
               .setContextId(context.getId())
               .setEvaluatorId(context.getEvaluatorId())
               .setParentId(
                   context.getParentContext().isPresent() ?
-                      context.getParentContext().get().getId() : null)
+                      context.getParentContext().get().getId() : "")
               .setEvaluatorDescriptorInfo(toEvaluatorDescriptorInfo(
-                  context.getEvaluatorDescriptor()))
-              .build());
+                  context.getEvaluatorDescriptor()));
+      if (context.getReason().isPresent()) {
+        final Throwable reason = context.getReason().get();
+        contextInfoBuilder.setException(ExceptionInfo.newBuilder()
+            .setName(reason.toString())
+            .setMessage(context.getMessage() != null ? context.getMessage() : "")
+            .setData(ByteString.copyFrom(exceptionCodec.toBytes(reason)))
+            .build());
+      } else if (context.getData().isPresent()) {
+        contextInfoBuilder.setException(ExceptionInfo.newBuilder()
+            .setName(context.toString())
+            .setMessage(context.getDescription().isPresent() ?
+                context.getDescription().get() :
+                context.getMessage() != null ? context.getMessage() : "")
+            .setData(ByteString.copyFrom(context.getData().get()))
+            .build());
+      } else {
+        final Throwable reason = context.asError();
+        contextInfoBuilder.setException(ExceptionInfo.newBuilder()
+            .setName(reason.toString())
+            .setMessage(context.getMessage() != null ? context.getMessage() : "")
+            .setData(ByteString.copyFrom(exceptionCodec.toBytes(reason)))
+            .build());
+
+      }
+      this.activeContextMap.remove(context.getId());
+      this.clientStub.failedContextHandler(contextInfoBuilder.build());
     }
   }
 
@@ -425,18 +490,40 @@ public final class GRPCDriverService implements IDriverService {
           !this.activeContextMap.containsKey(task.getActiveContext().get().getId())) {
         this.activeContextMap.put(task.getActiveContext().get().getId(), task.getActiveContext().get());
       }
+      final TaskInfo.Builder taskInfoBuilder = TaskInfo.newBuilder()
+          .setTaskId(task.getId());
+      if (task.getActiveContext().isPresent()) {
+        taskInfoBuilder.setContext(ContextInfo.newBuilder()
+            .setContextId(task.getActiveContext().get().getId())
+            .setEvaluatorId(task.getActiveContext().get().getEvaluatorId())
+            .setParentId(task.getActiveContext().get().getParentId().isPresent() ?
+                task.getActiveContext().get().getParentId().get() : "")
+            .build());
+      }
+      if (task.getReason().isPresent()) {
+        final Throwable reason = task.getReason().get();
+        taskInfoBuilder.setException(ExceptionInfo.newBuilder()
+            .setName(reason.toString())
+            .setMessage(task.getMessage() != null ? task.getMessage() : "")
+            .setData(ByteString.copyFrom(exceptionCodec.toBytes(reason)))
+            .build());
+      } else if (task.getData().isPresent()) {
+        final Throwable reason = task.asError();
+        taskInfoBuilder.setException(ExceptionInfo.newBuilder()
+            .setName(reason.toString())
+            .setMessage(task.getMessage() != null ? task.getMessage() : "")
+            .setData(ByteString.copyFrom(task.getData().get()))
+            .build());
+      } else {
+        final Throwable reason = task.asError();
+        taskInfoBuilder.setException(ExceptionInfo.newBuilder()
+            .setName(reason.toString())
+            .setMessage(task.getMessage() != null ? task.getMessage() : "")
+            .setData(ByteString.copyFrom(exceptionCodec.toBytes(reason)))
+            .build());
+      }
       this.runningTaskMap.remove(task.getId());
-      this.clientStub.failedTaskHandler(
-          TaskInfo.newBuilder()
-              .setTaskId(task.getId())
-              .setContext(task.getActiveContext().isPresent() ?
-                      ContextInfo.newBuilder()
-                          .setContextId(task.getActiveContext().get().getId())
-                          .setEvaluatorId(task.getActiveContext().get().getEvaluatorId())
-                          .setParentId(task.getActiveContext().get().getParentId().isPresent() ?
-                              task.getActiveContext().get().getParentId().get() : "")
-                          .build() : null)
-              .build());
+      this.clientStub.failedTaskHandler(taskInfoBuilder.build());
     }
   }
 
@@ -478,6 +565,8 @@ public final class GRPCDriverService implements IDriverService {
                   .setParentId(task.getActiveContext().getParentId().isPresent() ?
                       task.getActiveContext().getParentId().get() : "")
                   .build())
+              .setResult(task.get() == null || task.get().length == 0 ?
+                  null : ByteString.copyFrom(task.get()))
               .build());
     }
   }
@@ -606,6 +695,14 @@ public final class GRPCDriverService implements IDriverService {
     }
   }
 
+  private Optional<Throwable> parseException(final ExceptionInfo info) {
+    if (info.getData() == null || info.getData().isEmpty()) {
+      return Optional.empty();
+    } else {
+      return exceptionCodec.fromBytes(info.getData().toByteArray());
+    }
+  }
+
   private final class DriverBridgeServiceImpl
       extends DriverServiceGrpc.DriverServiceImplBase {
 
@@ -613,16 +710,31 @@ public final class GRPCDriverService implements IDriverService {
     public void registerDriverClient(
         final DriverClientRegistration request,
         final StreamObserver<Void> responseObserver) {
+      LOG.log(Level.INFO, "driver client register");
       try {
-        final ManagedChannel channel = ManagedChannelBuilder
-            .forAddress(request.getHost(), request.getPort())
-            .usePlaintext(true)
-            .build();
-        synchronized (GRPCDriverService.this) {
-          GRPCDriverService.this.clientStub = DriverClientGrpc.newFutureStub(channel);
-          GRPCDriverService.this.notifyAll();
+        if (request.hasException()) {
+          LOG.log(Level.SEVERE, "Driver client initialization exception");
+          final Optional<Throwable> ex = parseException(request.getException());
+          if (ex.isPresent()) {
+            GRPCDriverService.this.clock.stop(ex.get());
+          } else {
+            GRPCDriverService.this.clock.stop(new RuntimeException(
+                request.getException().getMessage() == null ?
+                    request.getException().getName() :
+                    request.getException().getMessage()
+            ));
+          }
+        } else {
+          final ManagedChannel channel = ManagedChannelBuilder
+              .forAddress(request.getHost(), request.getPort())
+              .usePlaintext(true)
+              .build();
+          synchronized (GRPCDriverService.this) {
+            GRPCDriverService.this.clientStub = DriverClientGrpc.newFutureStub(channel);
+            GRPCDriverService.this.notifyAll();
+          }
+          LOG.log(Level.INFO, "Driver has registered on port " + request.getPort());
         }
-        LOG.log(Level.INFO, "Driver has registered on port " + request.getPort());
       } finally {
         responseObserver.onNext(null);
         responseObserver.onCompleted();
@@ -662,13 +774,20 @@ public final class GRPCDriverService implements IDriverService {
         final ShutdownRequest request,
         final StreamObserver<Void> responseObserver) {
       try {
-        synchronized (GRPCDriverService.this) {
-          if (request.getException() != null) {
+        LOG.log(Level.INFO, "driver shutdown");
+        if (request.hasException()) {
+          final Optional<Throwable> exception = parseException(request.getException());
+          if (exception.isPresent()) {
+            LOG.log(Level.INFO, "driver exception: " + exception.get().toString());
+            GRPCDriverService.this.clock.stop(exception.get());
+          } else {
+            // exception that cannot be parsed in java
             GRPCDriverService.this.clock.stop(
                 new DriverClientException(request.getException().getMessage()));
-          } else {
-            GRPCDriverService.this.clock.stop();
           }
+        } else {
+          LOG.log(Level.INFO, "clean shutdown");
+          GRPCDriverService.this.clock.stop();
         }
       } finally {
         responseObserver.onNext(null);
@@ -681,17 +800,23 @@ public final class GRPCDriverService implements IDriverService {
         final AlarmRequest request,
         final StreamObserver<Void> responseObserver) {
       try {
-        synchronized (GRPCDriverService.this) {
-          GRPCDriverService.this.clock.scheduleAlarm(request.getTimeoutMs(), new EventHandler<Alarm>() {
-            @Override
-            public void onNext(final Alarm value) {
-              synchronized (GRPCDriverService.this) {
-                GRPCDriverService.this.clientStub.alarmTrigger(
-                    AlarmTriggerInfo.newBuilder().setAlarmId(request.getAlarmId()).build());
-              }
+        // do not synchronize when scheduling an alarm (or deadlock)
+        LOG.log(Level.INFO, "Set alarm {0} offset {1}",
+            new Object[] {request.getAlarmId(), request.getTimeoutMs()});
+        LOG.log(Level.INFO, "Alarm class " + GRPCDriverService.this.clock.getClass());
+        GRPCDriverService.this.clock.scheduleAlarm(request.getTimeoutMs(), new EventHandler<Alarm>() {
+          @Override
+          public void onNext(final Alarm value) {
+            LOG.log(Level.INFO, "Trigger alarm {0}", request.getAlarmId());
+            synchronized (GRPCDriverService.this) {
+              GRPCDriverService.this.clientStub.alarmTrigger(
+                  AlarmTriggerInfo.newBuilder().setAlarmId(request.getAlarmId()).build());
+              LOG.log(Level.INFO, "DONE: trigger alarm {0}", request.getAlarmId());
             }
-          });
-        }
+          }
+        });
+        LOG.log(Level.INFO, "Alarm {0} scheduled is idle? {1}",
+            new Object[] {request.getAlarmId(), clock.isIdle()});
       } finally {
         responseObserver.onNext(null);
         responseObserver.onCompleted();
@@ -750,10 +875,9 @@ public final class GRPCDriverService implements IDriverService {
               if (StringUtils.isEmpty(request.getEvaluatorConfiguration())) {
                 // Assume that we are running Java driver client, but this assumption could be a bug so log a warning
                 LOG.log(Level.WARNING, "No evaluator configuration detected. Assuming a Java driver client.");
-                if (request.getContextConfiguration() != null && request.getTaskConfiguration() != null) {
+                if (StringUtils.isNotEmpty(request.getContextConfiguration()) &&
+                    StringUtils.isNotEmpty(request.getTaskConfiguration())) {
                   // submit context and task
-                  Validate.notEmpty(request.getContextConfiguration(), "Context configuration not set");
-                  Validate.notEmpty(request.getTaskConfiguration(), "Task configuration not set");
                   try {
                     evaluator.submitContextAndTask(
                         configurationSerializer.fromString(request.getContextConfiguration()),
@@ -761,17 +885,15 @@ public final class GRPCDriverService implements IDriverService {
                   } catch (IOException e) {
                     throw new RuntimeException(e);
                   }
-                } else if (request.getContextConfiguration() != null) {
+                } else if (StringUtils.isNotEmpty(request.getContextConfiguration())) {
                   // submit context
-                  Validate.notEmpty(request.getContextConfiguration(), "Context configuration not set");
                   try {
                     evaluator.submitContext(configurationSerializer.fromString(request.getContextConfiguration()));
                   } catch (IOException e) {
                     throw new RuntimeException(e);
                   }
-                } else if (request.getTaskConfiguration() != null) {
+                } else if (StringUtils.isNotEmpty(request.getTaskConfiguration())) {
                   // submit task
-                  Validate.notEmpty(request.getTaskConfiguration(), "Task configuration not set");
                   try {
                     evaluator.submitTask(configurationSerializer.fromString(request.getTaskConfiguration()));
                   } catch (IOException e) {
@@ -781,26 +903,20 @@ public final class GRPCDriverService implements IDriverService {
                   throw new RuntimeException("Missing check for required evaluator configurations");
                 }
               } else {
-                if (request.getContextConfiguration() != null && request.getTaskConfiguration() != null) {
+                if (StringUtils.isNotEmpty(request.getContextConfiguration()) &&
+                    StringUtils.isNotEmpty(request.getTaskConfiguration())) {
                   // submit context and task
-                  Validate.notEmpty(request.getEvaluatorConfiguration(), "Evaluator configuration not set");
-                  Validate.notEmpty(request.getContextConfiguration(), "Context configuration not set");
-                  Validate.notEmpty(request.getTaskConfiguration(), "Task configuration not set");
                   ((AllocatedEvaluatorImpl) evaluator).submitContextAndTask(
                       request.getEvaluatorConfiguration(),
                       request.getContextConfiguration(),
                       request.getTaskConfiguration());
-                } else if (request.getContextConfiguration() != null) {
+                } else if (StringUtils.isNotEmpty(request.getContextConfiguration())) {
                   // submit context
-                  Validate.notEmpty(request.getEvaluatorConfiguration(), "Evaluator configuration not set");
-                  Validate.notEmpty(request.getContextConfiguration(), "Context configuration not set");
                   ((AllocatedEvaluatorImpl) evaluator).submitContext(
                       request.getEvaluatorConfiguration(),
                       request.getContextConfiguration());
-                } else if (request.getTaskConfiguration() != null) {
+                } else if (StringUtils.isNotEmpty(request.getTaskConfiguration())) {
                   // submit task
-                  Validate.notEmpty(request.getEvaluatorConfiguration(), "Evaluator configuration not set");
-                  Validate.notEmpty(request.getTaskConfiguration(), "Task configuration not set");
                   ((AllocatedEvaluatorImpl) evaluator).submitTask(
                       request.getEvaluatorConfiguration(),
                       request.getTaskConfiguration());
@@ -884,23 +1000,40 @@ public final class GRPCDriverService implements IDriverService {
         final StreamObserver<Void> responseObserver) {
       synchronized (GRPCDriverService.this) {
         if (!GRPCDriverService.this.runningTaskMap.containsKey(request.getTaskId())) {
+          LOG.log(Level.WARNING, "Unknown task id {0}", request.getTaskId());
           responseObserver.onError(Status.INTERNAL
               .withDescription("Task does not exist with id " + request.getTaskId()).asRuntimeException());
-        }
-        try {
-          final RunningTask task = GRPCDriverService.this.runningTaskMap.get(request.getTaskId());
-          if (request.getCloseTask()) {
-            if (request.getMessage() != null) {
-              task.close(request.getMessage().toByteArray());
-            } else {
-              task.close();
+        } else {
+          try {
+            final RunningTask task = GRPCDriverService.this.runningTaskMap.get(request.getTaskId());
+            switch (request.getOperation()) {
+            case CLOSE:
+              LOG.log(Level.INFO, "close task {0}", task.getId());
+              if (request.getMessage().isEmpty()) {
+                task.close();
+              } else {
+                task.close(request.getMessage().toByteArray());
+              }
+              break;
+            case SUSPEND:
+              LOG.log(Level.INFO, "suspend task {0}", task.getId());
+              if (request.getMessage().isEmpty()) {
+                task.suspend();
+              } else {
+                task.suspend(request.getMessage().toByteArray());
+              }
+              break;
+            case SEND_MESSAGE:
+              LOG.log(Level.INFO, "send message to task {0}", task.getId());
+              task.send(request.getMessage().toByteArray());
+              break;
+            default:
+              throw new RuntimeException("Unknown operation " + request.getOperation());
             }
-          } else if (request.getMessage() != null) {
-            task.send(request.getMessage().toByteArray());
+            responseObserver.onNext(null);
+          } finally {
+            responseObserver.onCompleted();
           }
-        } finally {
-          responseObserver.onNext(null);
-          responseObserver.onCompleted();
         }
       }
     }

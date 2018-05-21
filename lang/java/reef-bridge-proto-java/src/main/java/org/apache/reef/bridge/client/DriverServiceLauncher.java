@@ -18,6 +18,7 @@
  */
 package org.apache.reef.bridge.client;
 
+import com.google.protobuf.InvalidProtocolBufferException;
 import com.google.protobuf.util.JsonFormat;
 import org.apache.commons.lang.StringUtils;
 import org.apache.reef.bridge.driver.launch.IDriverLauncher;
@@ -28,6 +29,7 @@ import org.apache.reef.bridge.driver.service.IDriverServiceConfigurationProvider
 import org.apache.reef.bridge.driver.service.grpc.GRPCDriverServiceConfigurationProvider;
 import org.apache.reef.bridge.driver.client.JavaDriverClientLauncher;
 import org.apache.reef.bridge.proto.ClientProtocol;
+import org.apache.reef.client.LauncherStatus;
 import org.apache.reef.runtime.azbatch.AzureBatchClasspathProvider;
 import org.apache.reef.runtime.common.files.*;
 import org.apache.reef.runtime.common.launch.JavaLaunchCommandBuilder;
@@ -43,7 +45,6 @@ import org.apache.reef.tang.formats.ConfigurationSerializer;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Collections;
@@ -70,7 +71,7 @@ public final class DriverServiceLauncher {
     throw new RuntimeException("Do not instantiate this class!");
   }
 
-  public static void submit(
+  public static LauncherStatus submit(
       final ClientProtocol.DriverClientConfiguration driverClientConfigurationProto,
       final Configuration driverClientConfiguration)
       throws InjectionException, IOException {
@@ -118,22 +119,13 @@ public final class DriverServiceLauncher {
           .setClassPath(driverClientConfigurationProto.getOperatingSystem() ==
               ClientProtocol.DriverClientConfiguration.OS.WINDOWS ?
               StringUtils.join(classpathProvider.getDriverClasspath(), ";") :
-                  StringUtils.join(classpathProvider.getDriverClasspath(), ":"))
+              StringUtils.join(classpathProvider.getDriverClasspath(), ":"))
           .build();
       final String cmd = StringUtils.join(launchCommand, ' ');
       builder.setDriverClientLaunchCommand(cmd);
       builder.addLocalFiles(driverClientConfigurationFile.getAbsolutePath());
 
-      // call main()
-      final File driverClientConfFile = File.createTempFile("driverclient", ".json");
-      try {
-        try (PrintWriter out = new PrintWriter(driverClientConfFile)) {
-          out.println(JsonFormat.printer().print(builder.build()));
-        }
-        main(new String[]{driverClientConfFile.getAbsolutePath()});
-      } finally {
-        driverClientConfFile.deleteOnExit();
-      }
+      return launch(driverClientConfigurationProto);
     } finally {
       driverClientConfigurationFile.deleteOnExit();
     }
@@ -160,7 +152,7 @@ public final class DriverServiceLauncher {
         .newInjector(yarnJobSubmissionClientConfig).getInstance(YarnLauncher.class);
   }
 
-  private static IDriverLauncher getAzureBatchDriverServiceLauncher() throws  InjectionException {
+  private static IDriverLauncher getAzureBatchDriverServiceLauncher() throws InjectionException {
     final Configuration azbatchJobSubmissionClientConfig = Tang.Factory.getTang().newConfigurationBuilder()
         .bindImplementation(IDriverLauncher.class, AzureBatchLauncher.class)
         .bindImplementation(IDriverServiceConfigurationProvider.class,
@@ -169,48 +161,52 @@ public final class DriverServiceLauncher {
     return Tang.Factory.getTang().newInjector(azbatchJobSubmissionClientConfig).getInstance(AzureBatchLauncher.class);
   }
 
+  private static LauncherStatus launch(
+      final ClientProtocol.DriverClientConfiguration driverClientConfigurationProto) {
+    try {
+      switch (driverClientConfigurationProto.getRuntimeCase()) {
+      case YARN_RUNTIME:
+        final IDriverLauncher yarnDriverServiceLauncher = getYarnDriverServiceLauncher();
+        return yarnDriverServiceLauncher.launch(driverClientConfigurationProto);
+      case LOCAL_RUNTIME:
+        final IDriverLauncher localDriverServiceLauncher = getLocalDriverServiceLauncher();
+        return localDriverServiceLauncher.launch(driverClientConfigurationProto);
+      case AZBATCH_RUNTIME:
+        final IDriverLauncher azureBatchDriverServiceLauncher = getAzureBatchDriverServiceLauncher();
+        return azureBatchDriverServiceLauncher.launch(driverClientConfigurationProto);
+      default:
+        throw new RuntimeException("Unknown runtime");
+      }
+    } catch (final BindException | InjectionException ex) {
+      LOG.log(Level.SEVERE, "Job configuration error", ex);
+      throw new RuntimeException(ex);
+    }
+  }
+
   /**
    * Main method that launches the REEF job.
    *
    * @param args command line parameters.
    */
-  public static void main(final String[] args) {
-    try {
-      if (args.length != 1) {
-        LOG.log(Level.SEVERE, DriverServiceLauncher.class.getName() +
-            " accepts single argument referencing a file that contains a client protocol buffer driver configuration");
-      }
-      final String content;
-      try {
-        content = new String(Files.readAllBytes(Paths.get(args[0])));
-      } catch (IOException e) {
-        throw new RuntimeException(e);
-      }
-      final ClientProtocol.DriverClientConfiguration.Builder driverClientConfigurationProtoBuilder =
-          ClientProtocol.DriverClientConfiguration.newBuilder();
-      JsonFormat.parser()
-          .usingTypeRegistry(JsonFormat.TypeRegistry.getEmptyTypeRegistry())
-          .merge(content, driverClientConfigurationProtoBuilder);
-      final ClientProtocol.DriverClientConfiguration driverClientConfigurationProto =
-          driverClientConfigurationProtoBuilder.build();
-      switch (driverClientConfigurationProto.getRuntimeCase()) {
-      case YARN_RUNTIME:
-        final IDriverLauncher yarnDriverServiceLauncher = getYarnDriverServiceLauncher();
-        yarnDriverServiceLauncher.launch(driverClientConfigurationProto);
-        break;
-      case LOCAL_RUNTIME:
-        final IDriverLauncher localDriverServiceLauncher = getLocalDriverServiceLauncher();
-        localDriverServiceLauncher.launch(driverClientConfigurationProto);
-        break;
-      case AZBATCH_RUNTIME:
-        final IDriverLauncher azureBatchDriverServiceLauncher = getAzureBatchDriverServiceLauncher();
-        azureBatchDriverServiceLauncher.launch(driverClientConfigurationProto);
-        break;
-      default:
-      }
-      LOG.log(Level.INFO, "JavaBridge: Stop Client {0}", driverClientConfigurationProto.getJobid());
-    } catch (final BindException | InjectionException | IOException ex) {
-      LOG.log(Level.SEVERE, "Job configuration error", ex);
+  public static void main(final String[] args) throws InvalidProtocolBufferException {
+    if (args.length != 1) {
+      LOG.log(Level.SEVERE, DriverServiceLauncher.class.getName() +
+          " accepts single argument referencing a file that contains a client protocol buffer driver configuration");
     }
+    final String content;
+    try {
+      content = new String(Files.readAllBytes(Paths.get(args[0])));
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
+    final ClientProtocol.DriverClientConfiguration.Builder driverClientConfigurationProtoBuilder =
+        ClientProtocol.DriverClientConfiguration.newBuilder();
+    JsonFormat.parser()
+        .usingTypeRegistry(JsonFormat.TypeRegistry.getEmptyTypeRegistry())
+        .merge(content, driverClientConfigurationProtoBuilder);
+    final ClientProtocol.DriverClientConfiguration driverClientConfigurationProto =
+        driverClientConfigurationProtoBuilder.build();
+    final LauncherStatus status = launch(driverClientConfigurationProto);
+    LOG.log(Level.INFO, "Status: " + status.toString());
   }
 }

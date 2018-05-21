@@ -29,7 +29,9 @@ import org.junit.runners.Suite;
 //    FailTaskTest.class,
     FailDriverTest.class,
     FailDriverDelayedMsgTest.class,
-    DriverFailOnFailTest.class
+    DriverFailOnFailTest.class,
+    FailBridgeDriverTest.class,
+    FailBridgeTaskTest.class
     })
 public final class FailTestSuite {
 }

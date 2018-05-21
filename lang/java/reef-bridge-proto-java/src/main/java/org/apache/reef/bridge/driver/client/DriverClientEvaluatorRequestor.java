@@ -31,13 +31,19 @@ public final class DriverClientEvaluatorRequestor implements EvaluatorRequestor 
 
   private final IDriverServiceClient driverServiceClient;
 
+  private final IDriverClientService driverClientService;
+
   @Inject
-  private DriverClientEvaluatorRequestor(final IDriverServiceClient driverServiceClient) {
+  private DriverClientEvaluatorRequestor(
+      final IDriverServiceClient driverServiceClient,
+      final IDriverClientService driverClientService) {
     this.driverServiceClient = driverServiceClient;
+    this.driverClientService = driverClientService;
   }
 
   @Override
   public void submit(final EvaluatorRequest req) {
+    this.driverClientService.notifyEvaluatorRequest(req.getNumber());
     this.driverServiceClient.onEvaluatorRequest(req);
   }
 

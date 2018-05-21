@@ -63,10 +63,12 @@ public final class DriverClientClock implements Clock, IAlarmDispatchHandler {
 
   @Override
   public Time scheduleAlarm(final int offset, final EventHandler<Alarm> handler) {
+    LOG.log(Level.INFO, "Schedule alarm offset {0}", offset);
     final ClientAlarm alarm = new ClientAlarm(this.timer.getCurrent() + offset, handler);
     final String alarmId = UUID.randomUUID().toString();
     this.alarmMap.put(alarmId, alarm);
     this.driverServiceClient.onSetAlarm(alarmId, offset);
+    LOG.log(Level.INFO, "Alarm {0} scheduled at offset {1}", new Object[]{alarmId, offset});
     return alarm;
   }
 
@@ -117,6 +119,7 @@ public final class DriverClientClock implements Clock, IAlarmDispatchHandler {
    */
   @Override
   public void onNext(final String alarmId) {
+    LOG.log(Level.INFO, "Alarm {0} triggered", alarmId);
     if (this.alarmMap.containsKey(alarmId)) {
       final ClientAlarm clientAlarm = this.alarmMap.remove(alarmId);
       clientAlarm.run();
