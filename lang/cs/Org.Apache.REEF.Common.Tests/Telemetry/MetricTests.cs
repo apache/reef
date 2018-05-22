@@ -32,8 +32,8 @@ namespace Org.Apache.REEF.Common.Tests.Telemetry
         {
             var evalMetrics1 = TangFactory.GetTang().NewInjector().GetInstance<IEvaluatorMetrics>();
             var metrics1 = evalMetrics1.GetMetricsData();
-            metrics1.TryRegisterMetric(new Counter("counter1", "counter1 description"));
-            metrics1.TryRegisterMetric(new Counter("counter2", "counter2 description"));
+            metrics1.TryRegisterMetric(new CounterMetric("counter1", "counter1 description"));
+            metrics1.TryRegisterMetric(new CounterMetric("counter2", "counter2 description"));
             ValidateMetric(metrics1, "counter1", 0);
             ValidateMetric(metrics1, "counter2", 0);
             for (int i = 0; i < 5; i++)
@@ -59,12 +59,12 @@ namespace Org.Apache.REEF.Common.Tests.Telemetry
         public void TestMetricSetValue()
         {
             var metrics = CreateMetrics();
-            metrics.TryRegisterMetric(new IntegerGauge("int1", "metric of type int", DateTime.Now.Ticks, 0));
-            metrics.TryRegisterMetric(new DoubleGauge("dou2", "metric of type double", DateTime.Now.Ticks, 0));
+            metrics.TryRegisterMetric(new IntegerMetric("int1", "metric of type int", DateTime.Now.Ticks, 0));
+            metrics.TryRegisterMetric(new DoubleMetric("dou2", "metric of type double", DateTime.Now.Ticks, 0));
             ValidateMetric(metrics, "int1", default(int));
             ValidateMetric(metrics, "dou2", default(double));
 
-            metrics.Update(new IntegerGauge("int1", "new description", DateTime.Now.Ticks, 3));
+            metrics.Update(new IntegerMetric("int1", "new description", DateTime.Now.Ticks, 3));
             metrics.Update("dou2", 3.14);
 
             ValidateMetric(metrics, "int1", 3);
@@ -78,16 +78,16 @@ namespace Org.Apache.REEF.Common.Tests.Telemetry
         public void TestDuplicatedNames()
         {
             var metrics = CreateMetrics();
-            metrics.TryRegisterMetric(new Counter("metric1", "metric description"));
-            Assert.False(metrics.TryRegisterMetric(new Counter("metric1", "duplicate name")));
+            metrics.TryRegisterMetric(new CounterMetric("metric1", "metric description"));
+            Assert.False(metrics.TryRegisterMetric(new CounterMetric("metric1", "duplicate name")));
         }
 
         [Fact]
         public void TestUpdateMetricWithDifferentType()
         {
             var metrics = CreateMetrics();
-            metrics.TryRegisterMetric(new IntegerGauge("int1", "metric of type int", DateTime.Now.Ticks, 0));
-            Assert.Throws<ApplicationException>(() => metrics.Update(new DoubleGauge("int1", "new description", DateTime.Now.Ticks, 3)));
+            metrics.TryRegisterMetric(new IntegerMetric("int1", "metric of type int", DateTime.Now.Ticks, 0));
+            Assert.Throws<ApplicationException>(() => metrics.Update(new DoubleMetric("int1", "new description", DateTime.Now.Ticks, 3)));
         }
 
         private static void ValidateMetric(IMetrics metricSet, string name, object expectedValue)

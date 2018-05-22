@@ -31,7 +31,7 @@ namespace Org.Apache.REEF.Tests.Functional.Telemetry
         private static readonly Logger Logger = Logger.GetLogger(typeof(MetricsTask));
 
         public const string TestCounter = "TestCounter";
-        public const string TestIntGauge = "Iterations";
+        public const string TestIntMetric = "Iterations";
 
         private readonly MetricsData _metricSet;
 
@@ -39,8 +39,8 @@ namespace Org.Apache.REEF.Tests.Functional.Telemetry
         private MetricsTask(IEvaluatorMetrics evaluatorMetrics)
         {
             _metricSet = evaluatorMetrics.GetMetricsData();
-            _metricSet.TryRegisterMetric(new Counter(TestCounter, TestCounter + " description"));
-            _metricSet.TryRegisterMetric(new IntegerGauge(TestIntGauge, TestIntGauge + " description"));
+            _metricSet.TryRegisterMetric(new CounterMetric(TestCounter, TestCounter + " description"));
+            _metricSet.TryRegisterMetric(new IntegerMetric(TestIntMetric, TestIntMetric + " description"));
         }
 
         public byte[] Call(byte[] memento)
@@ -48,7 +48,7 @@ namespace Org.Apache.REEF.Tests.Functional.Telemetry
             for (int i = 0; i < 100; i++)
             {
                 _metricSet.Update(TestCounter, i);
-                _metricSet.Update(TestIntGauge, i);
+                _metricSet.Update(TestIntMetric, i);
                 Thread.Sleep(100);
             }
             return null;

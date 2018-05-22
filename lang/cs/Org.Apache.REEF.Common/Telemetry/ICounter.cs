@@ -25,7 +25,7 @@ namespace Org.Apache.REEF.Common.Telemetry
         void Increment(int number);
 
         /// <summary>
-        /// Decresae the current counter value with the number specified.
+        /// Decrease the current counter value with the number specified.
         /// </summary>
         void Decrement(int number);
     }

@@ -22,27 +22,27 @@ using Org.Apache.REEF.Utilities.Attributes;
 
 namespace Org.Apache.REEF.Common.Telemetry
 {
-    class IntegerGauge : MetricBase<int>
+    class IntegerMetric : MetricBase<int>
     {
         public override bool IsImmutable
         {
             get { return true; }
         }
 
-        public IntegerGauge(string name, string description)
+        public IntegerMetric(string name, string description)
             : base(name, description)
         {
         }
 
         [JsonConstructor]
-        internal IntegerGauge(string name, string description, long timeStamp, int value)
+        internal IntegerMetric(string name, string description, long timeStamp, int value)
             : base(name, description, timeStamp, value)
         {
         }
 
         public override IMetric CreateInstanceWithNewValue(object val)
         {
-            return new IntegerGauge(Name, Description, DateTime.Now.Ticks, (int)val);
+            return new IntegerMetric(Name, Description, DateTime.Now.Ticks, (int)val);
         }
     }
 }

@@ -16,54 +16,33 @@
 // under the License.
 
 using System;
+using System.Runtime.Serialization;
 using Newtonsoft.Json;
+using Org.Apache.REEF.Utilities.Attributes;
 
 namespace Org.Apache.REEF.Common.Telemetry
 {
-    /// <summary>
-    /// Counter implementation.
-    /// </summary>
-    internal sealed class Counter : MetricBase<int>, ICounter
+    class DoubleMetric : MetricBase<double>
     {
         public override bool IsImmutable
         {
-            get { return false; }
+            get { return true; }
         }
 
-        public Counter(string name, string description)
+        public DoubleMetric(string name, string description)
             : base(name, description)
         {
-            _timestamp = DateTime.Now.Ticks;
-            _typedValue = default(int);
         }
 
         [JsonConstructor]
-        internal Counter(string name, string description, long timeStamp, int value)
-            : base(name, description)
+        internal DoubleMetric(string name, string description, long timeStamp, double value)
+            : base(name, description, timeStamp, value)
         {
-            _timestamp = timeStamp;
-            _typedValue = value;
         }
 
         public override IMetric CreateInstanceWithNewValue(object val)
         {
-            return new Counter(Name, Description, DateTime.Now.Ticks, (int)val);
-        }
-
-        /// <summary>
-        /// Increase the counter value and update the time stamp.
-        /// </summary>
-        /// <param name="number"></param>
-        public void Increment(int number = 1)
-        {
-            _typedValue += number;
-            _timestamp = DateTime.Now.Ticks;
-        }
-
-        public void Decrement(int number = 1)
-        {
-            _typedValue -= number;
-            _timestamp = DateTime.Now.Ticks;
+            return new DoubleMetric(Name, Description, DateTime.Now.Ticks, (double)val);
         }
     }
 }
