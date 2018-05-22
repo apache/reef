@@ -162,13 +162,27 @@ namespace Org.Apache.REEF.IO.FileSystem.AzureBlob
         public IEnumerable<Uri> GetChildren(Uri directoryUri)
         {
             BlobContinuationToken blobContinuationToken = null;
-            var path = directoryUri.AbsolutePath.Trim('/');
+            string path = directoryUri.AbsolutePath.Trim('/');
+            string[] parts = path.Split('/');
+            string containerName = parts[0];
+
+            string directoryName = string.Empty;
+            if (parts.Count() > 1)
+            {
+                directoryName = path.Substring(containerName.Length + 1);
+            }
 
             do
             {
-                var listing = _client.ListBlobsSegmented(path, false,
-                    BlobListingDetails.None, null,
-                    blobContinuationToken, new BlobRequestOptions(), new OperationContext());
+                var listing = _client.ListBlobsSegmented(
+                    containerName,
+                    directoryName,
+                    useFlatListing: true,
+                    BlobListingDetails.All,
+                    maxResults: null,
+                    blobContinuationToken,
+                    new BlobRequestOptions(),
+                    new OperationContext());
 
                 if (listing.Results != null)
                 {

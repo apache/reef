@@ -18,6 +18,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.Blob;
@@ -136,6 +137,43 @@ namespace Org.Apache.REEF.IO.Tests
             Assert.True(CheckBlobExists(blob));
             _fileSystem.Delete(PathToFile(HelloFile));
             Assert.False(CheckBlobExists(blob));
+        }
+
+        [Fact(Skip = SkipMessage)]
+        public void TestGetChildrenE2E()
+        {
+            string[] parentNames = new string[] { "sample1", "sample2", "sample3" };
+            string[] folderNames = new string[] { "folder1/sample4", "folder1/sample5" };
+            string[] allNames = parentNames.Concat(folderNames).ToArray();
+
+            foreach (string uploadedBlobName in allNames)
+            {
+                CloudBlockBlob blob = _container.GetBlockBlobReference(uploadedBlobName);
+                UploadFromString(blob, "hello");
+            }
+
+            // List all files in the container
+            CloudBlobContainer container = _client.GetContainerReference(_container.Name);
+            IEnumerable<Uri> blobs = _fileSystem.GetChildren(container.Uri).ToList();
+            IEnumerable<string> allBlobNames = blobs.Select(b => b.LocalPath.Replace("/" + _container.Name + "/", string.Empty));
+
+            foreach (string blobName in allBlobNames)
+            {
+                Assert.Contains(blobName, allNames);
+            }
+
+            Assert.Equal(allNames.Count(), blobs.Count());
+
+            // List files only in the sub-folder in the container
+            Uri folderUri = _container.GetDirectoryReference("folder1").Uri;
+            IEnumerable<Uri> folderBlobs = _fileSystem.GetChildren(folderUri).ToList();
+            IEnumerable<string> folderBlobNames = folderBlobs.Select(b => b.LocalPath.Replace("/" + _container.Name + "/", string.Empty));
+
+            foreach (string blobName in folderBlobNames)
+            {
+                Assert.Contains(blobName, folderNames);
+            }
+            Assert.Equal(folderNames.Count(), folderBlobNames.Count());
         }
 
         [Fact(Skip = SkipMessage)]
