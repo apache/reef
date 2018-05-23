@@ -35,7 +35,7 @@ namespace Org.Apache.REEF.IO.Tests
     /// </summary>
     public sealed class TestAzureBlockBlobFileSystem
     {
-        private static readonly Uri FakeUri = new Uri("http://fake.com/container/file");
+        private static readonly Uri FakeUri = new Uri("http://storageacct.blob.core.windows.net/container/file");
 
         [Fact]
         public void TestCreate()
@@ -124,17 +124,69 @@ namespace Org.Apache.REEF.IO.Tests
         }
 
         [Fact]
-        public void TestCreateUriForPathNoPrefix()
+        public void TestCreateUriForPath()
         {
             var testContext = new TestContext();
-            Assert.Equal(FakeUri, testContext.GetAzureFileSystem().CreateUriForPath(FakeUri.LocalPath));
-        }
+            var tests = new[]
+            {
+                new
+                {
+                    Path = FakeUri.AbsoluteUri,
+                    Uri = FakeUri,
+                    ExpectedExceptionType = (Type)null
+                },
+                new
+                {
+                    Path = "http://storageacct.blob.core.windows.net/container/folder1/folder2/file.txt",
+                    Uri = new Uri("http://storageacct.blob.core.windows.net/container/folder1/folder2/file.txt"),
+                    ExpectedExceptionType = (Type)null
+                },
+                new
+                {
+                    Path = "container/folder1/folder2/file.txt",
+                    Uri = new Uri("http://storageacct.blob.core.windows.net/container/folder1/folder2/file.txt"),
+                    ExpectedExceptionType = (Type)null
+                },
+                new
+                {
+                    // Container name must be atleast 3 characters
+                    Path = "c1/folder1/folder2/file.txt",
+                    Uri = new Uri("http://storageacct.blob.core.windows.net/container/folder1/folder2/file.txt"),
+                    ExpectedExceptionType = typeof(ArgumentException)
+                },
+                new
+                {
+                    // Container name cannot contain a colon
+                    Path = "c:/folder1/folder2/file.txt",
+                    Uri = (Uri)null,
+                    ExpectedExceptionType = typeof(ArgumentException)
+                }
+            };
 
-        [Fact]
-        public void TestCreateUriForPathWithPrefix()
-        {
-            var testContext = new TestContext();
-            Assert.Equal(FakeUri, testContext.GetAzureFileSystem().CreateUriForPath(FakeUri.AbsoluteUri));
+            foreach (var test in tests)
+            {
+                if (test.ExpectedExceptionType == null)
+                {
+                    Exception actualException = null;
+                    Uri resultUri = null;
+
+                    try
+                    {
+                        resultUri = testContext.GetAzureFileSystem().CreateUriForPath(test.Path);
+                    }
+                    catch (Exception ex)
+                    {
+                        actualException = ex;
+                    }
+
+                    Assert.Null(actualException);
+                    Assert.True(test.Uri.AbsoluteUri == resultUri.AbsoluteUri);
+                }
+                else
+                {
+                    Assert.Throws(test.ExpectedExceptionType, delegate { testContext.GetAzureFileSystem().CreateUriForPath(test.Path); });
+                }
+            }
         }
 
         private sealed class TestContext

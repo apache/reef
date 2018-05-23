@@ -35,6 +35,8 @@ namespace Org.Apache.REEF.IO.FileSystem.AzureBlob
     {
         private readonly ICloudBlobClient _client;
 
+        private const char UrlPathSeparator = '/';
+
         [Inject]
         private AzureBlockBlobFileSystem(ICloudBlobClient client)
         {
@@ -195,8 +197,28 @@ namespace Org.Apache.REEF.IO.FileSystem.AzureBlob
             {
                 throw new ArgumentNullException(nameof(path), "Specified path is null");
             }
-            var uriPrefix = GetUriPrefix();
-            return path.StartsWith(uriPrefix) ? new Uri(path) : new Uri(uriPrefix + '/' + path.Trim('/'));
+
+            Uri resultUri = null;
+            try
+            {
+                resultUri = new Uri(path);
+            }
+            catch (UriFormatException)
+            {
+                resultUri = new Uri(_client.BaseUri, path);
+            }
+
+            string containerName = resultUri.Segments[1].Trim(UrlPathSeparator);
+            NameValidator.ValidateContainerName(containerName);
+            NameValidator.ValidateBlobName(resultUri.PathAndQuery);
+
+            // If the last segment does not end with a '/', we require it to be a valid file name.
+            if (!resultUri.PathAndQuery.EndsWith(UrlPathSeparator.ToString()))
+            {
+                NameValidator.ValidateFileName(resultUri.Segments[resultUri.Segments.Length - 1]);
+            }
+
+            return resultUri;
         }
 
         /// <summary>
@@ -220,11 +242,6 @@ namespace Org.Apache.REEF.IO.FileSystem.AzureBlob
             }
 
             return new FileStatus(lastModifiedTime.Value.DateTime, blobReference.Properties.Length);
-        }
-
-        private string GetUriPrefix()
-        {
-            return _client.BaseUri.AbsoluteUri.TrimEnd('/');
         }
     }
 }
