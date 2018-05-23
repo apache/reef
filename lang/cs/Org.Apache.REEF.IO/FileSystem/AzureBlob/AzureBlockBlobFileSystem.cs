@@ -157,28 +157,50 @@ namespace Org.Apache.REEF.IO.FileSystem.AzureBlob
         }
 
         /// <summary>
-        /// Gets the children of the blob "directory."
+        /// Gets the children of the container (if the uri has segments)
+        /// or containers in the storage account (if the uri has no segments)
         /// </summary>
         public IEnumerable<Uri> GetChildren(Uri directoryUri)
         {
+            string[] segments = directoryUri.Segments;
             BlobContinuationToken blobContinuationToken = null;
-            string path = directoryUri.AbsolutePath.Trim('/');
-            string[] parts = path.Split('/');
-            string containerName = parts[0];
 
-            string directoryName = string.Empty;
-            if (parts.Count() > 1)
+            // If at the root, return all containers
+            if (segments.Count() == 1)
             {
-                directoryName = path.Substring(containerName.Length + 1);
+                do
+                {
+                    ContainerResultSegment containerListing = _client.ListContainersSegmented(blobContinuationToken);
+
+                    if (containerListing.Results != null)
+                    {
+                        foreach (CloudBlobContainer containerItem in containerListing.Results)
+                        {
+                            yield return containerItem.Uri;
+                        }
+                    }
+
+                    blobContinuationToken = containerListing.ContinuationToken;
+                }
+                while (blobContinuationToken != null);
+                yield break;
+            }
+
+            // If not at the root folder, return all blobs within the container
+            string containerName = segments[1];
+            string relativeAddress = string.Empty;
+            if (segments.Count() > 1)
+            {
+                relativeAddress = directoryUri.PathAndQuery.Substring(containerName.Length + 1);
             }
 
             do
             {
-                var listing = _client.ListBlobsSegmented(
+                BlobResultSegment listing = _client.ListBlobsSegmented(
                     containerName,
-                    directoryName,
-                    useFlatListing: true,
-                    BlobListingDetails.All,
+                    relativeAddress,
+                    useFlatListing: false,
+                    BlobListingDetails.None,
                     maxResults: null,
                     blobContinuationToken,
                     new BlobRequestOptions(),
@@ -186,7 +208,7 @@ namespace Org.Apache.REEF.IO.FileSystem.AzureBlob
 
                 if (listing.Results != null)
                 {
-                    foreach (var listBlobItem in listing.Results)
+                    foreach (IListBlobItem listBlobItem in listing.Results)
                     {
                         yield return listBlobItem.Uri;
                     }

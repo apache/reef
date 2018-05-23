@@ -140,40 +140,51 @@ namespace Org.Apache.REEF.IO.Tests
         }
 
         [Fact(Skip = SkipMessage)]
-        public void TestGetChildrenE2E()
+        public void TestGetChildBlobsInContainerE2E()
         {
-            string[] parentNames = new string[] { "sample1", "sample2", "sample3" };
-            string[] folderNames = new string[] { "folder1/sample4", "folder1/sample5" };
-            string[] allNames = parentNames.Concat(folderNames).ToArray();
+            // setup
+            string[] parentFileNames = new string[] { "sample1", "sample2", "sample3" };
+            string[] folderfileNames = new string[] { "folder1/sample4", "folder1/sample5" };
+            string[] parentListNames = new string[] { "sample1", "sample2", "sample3", "folder1/" };
 
-            foreach (string uploadedBlobName in allNames)
+            foreach (string uploadedBlobName in parentFileNames.Concat(folderfileNames))
             {
                 CloudBlockBlob blob = _container.GetBlockBlobReference(uploadedBlobName);
                 UploadFromString(blob, "hello");
             }
 
-            // List all files in the container
-            CloudBlobContainer container = _client.GetContainerReference(_container.Name);
-            IEnumerable<Uri> blobs = _fileSystem.GetChildren(container.Uri).ToList();
-            IEnumerable<string> allBlobNames = blobs.Select(b => b.LocalPath.Replace("/" + _container.Name + "/", string.Empty));
-
-            foreach (string blobName in allBlobNames)
-            {
-                Assert.Contains(blobName, allNames);
-            }
-
-            Assert.Equal(allNames.Count(), blobs.Count());
+            // List files in the root level in container
+            ValidateChildenWithBlobs(_container.Uri, parentListNames);
 
             // List files only in the sub-folder in the container
             Uri folderUri = _container.GetDirectoryReference("folder1").Uri;
-            IEnumerable<Uri> folderBlobs = _fileSystem.GetChildren(folderUri).ToList();
-            IEnumerable<string> folderBlobNames = folderBlobs.Select(b => b.LocalPath.Replace("/" + _container.Name + "/", string.Empty));
+            ValidateChildenWithBlobs(folderUri, folderfileNames);
+        }
 
-            foreach (string blobName in folderBlobNames)
-            {
-                Assert.Contains(blobName, folderNames);
-            }
-            Assert.Equal(folderNames.Count(), folderBlobNames.Count());
+        [Fact(Skip = SkipMessage)]
+        public void TestGetChildContainerInStorageAccountE2E()
+        {
+            // List containers in the storage account
+            Uri rootUri = _fileSystem.CreateUriForPath(string.Empty);
+            ValidateChildrenWithContainers(rootUri, new string[] { _container.Name });
+        }
+
+        public void ValidateChildenWithBlobs(Uri storageBlobUri, IEnumerable<string> expectedChildBlobNames)
+        {
+            IEnumerable<Uri> blobs = _fileSystem.GetChildren(storageBlobUri).ToList();
+            IEnumerable<string> blobNames = blobs.Select(b => b.LocalPath.Replace("/" + _container.Name + "/", string.Empty));
+
+            Assert.True(expectedChildBlobNames.All(blobName => blobNames.Contains(blobName)), "blobNames has elements that are not in expectedChildBlobNames");
+            Assert.Equal(expectedChildBlobNames.Count(), blobNames.Count());
+        }
+
+        public void ValidateChildrenWithContainers(Uri rootUri, IEnumerable<string> expectedContainerNames)
+        {
+            IEnumerable<Uri> containers = _fileSystem.GetChildren(rootUri).ToList();
+            IEnumerable<string> containerNames = containers.Select(b => b.PathAndQuery.Replace("/", string.Empty));
+
+            Assert.True(expectedContainerNames.All(containerName => containerNames.Contains(containerName)), "containerNames has elements that are not in expectedContainerNames");
+            Assert.Equal(expectedContainerNames.Count(), containerNames.Count());
         }
 
         [Fact(Skip = SkipMessage)]

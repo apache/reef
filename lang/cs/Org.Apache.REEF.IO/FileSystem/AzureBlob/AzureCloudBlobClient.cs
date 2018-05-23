@@ -70,7 +70,7 @@ namespace Org.Apache.REEF.IO.FileSystem.AzureBlob
 
         public BlobResultSegment ListBlobsSegmented(
             string containerName,
-            string directoryName,
+            string relativeAddress,
             bool useFlatListing,
             BlobListingDetails blobListingDetails,
             int? maxResults,
@@ -79,15 +79,19 @@ namespace Org.Apache.REEF.IO.FileSystem.AzureBlob
             OperationContext operationContext)
         {
             CloudBlobContainer container = _client.GetContainerReference(containerName);
-            CloudBlobDirectory directory = container.GetDirectoryReference(directoryName);
-            Task<BlobResultSegment> taskResult = directory.ListBlobsSegmentedAsync(
+            CloudBlobDirectory directory = container.GetDirectoryReference(relativeAddress);
+            return directory.ListBlobsSegmented(
                 useFlatListing,
                 blobListingDetails,
                 maxResults,
                 continuationToken,
                 blobRequestOptions,
                 operationContext);
-            return taskResult.GetAwaiter().GetResult();
+        }
+
+        public ContainerResultSegment ListContainersSegmented(BlobContinuationToken continuationToken)
+        {
+            return _client.ListContainersSegmented(continuationToken);
         }
     }
 }
