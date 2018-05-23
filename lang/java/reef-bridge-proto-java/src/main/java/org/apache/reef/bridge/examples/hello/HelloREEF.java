@@ -18,9 +18,9 @@
  */
 package org.apache.reef.bridge.examples.hello;
 
+import org.apache.reef.bridge.client.grpc.JavaClientLauncher;
 import org.apache.reef.bridge.driver.client.DriverClientConfiguration;
 import org.apache.reef.bridge.proto.ClientProtocol;
-import org.apache.reef.bridge.client.DriverServiceLauncher;
 import org.apache.reef.examples.hello.HelloDriver;
 import org.apache.reef.tang.Configuration;
 import org.apache.reef.tang.exceptions.InjectionException;
@@ -61,7 +61,7 @@ public final class HelloREEF {
         .build());
     builder.addGlobalLibraries(EnvironmentUtils.getClassLocation(HelloDriver.class));
 
-    DriverServiceLauncher.submit(builder.build(), DRIVER_CONFIG);
+    JavaClientLauncher.submit(builder.build(), DRIVER_CONFIG);
     LOG.log(Level.INFO, "REEF job completed");
     ThreadLogger.logThreads(LOG, Level.FINE, "Threads running at the end of HelloREEF:");
   }

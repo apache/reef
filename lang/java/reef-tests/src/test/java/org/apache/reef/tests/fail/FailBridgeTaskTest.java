@@ -56,7 +56,7 @@ public final class FailBridgeTaskTest {
       TestUtils.assertLauncherFailure(
           BridgeClient.run(failTaskClass,
               this.testEnvironment.getRuntimeConfiguration(),
-              this.testEnvironment.getTestTimeout()),
+              2 * this.testEnvironment.getTestTimeout()),
           SimulatedTaskFailure.class);
     }
   }

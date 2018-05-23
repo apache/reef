@@ -23,7 +23,7 @@ syntax = "proto3";
 option java_multiple_files = true;
 option java_package = "org.apache.reef.bridge.proto";
 option java_outer_classname = "DriverBridgeProtocol";
-option csharp_namespace = "Org.Apache.REEF.Bridge.Proto";
+option csharp_namespace = "Org.Apache.REEF.Bridge.Core.Proto";
 
 package driverbridge;
 
@@ -82,6 +82,8 @@ message ResourceRequest {
   bool relax_locality = 7;
 
   string runtime_name = 8;
+
+  string node_label = 9;
 }
 
 // Request for an alarm to be set
@@ -115,8 +117,11 @@ message AllocatedEvaluatorRequest {
   // Context configuration
   string context_configuration = 6;
 
+  // Service configuration
+  string service_configuration = 7;
+
   // Task configuration
-  string task_configuration = 7;
+  string task_configuration = 8;
 
   message EvaluatorProcessRequest {
     int32 memory_mb = 1;
@@ -128,8 +133,15 @@ message AllocatedEvaluatorRequest {
     string standard_err = 4;
 
     repeated string options = 5;
+
+    enum Type {
+      JVM = 0;
+      CLR = 1;
+      DOTNET = 2;
+    }
+    Type process_type = 10;
   }
-  EvaluatorProcessRequest set_process = 8;
+  EvaluatorProcessRequest set_process = 10;
 }
 
 // Active context request.

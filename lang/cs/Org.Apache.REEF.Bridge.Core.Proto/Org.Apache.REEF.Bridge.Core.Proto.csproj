@@ -1,0 +1,83 @@
+<!--
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+
+http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+-->
+<Project>
+  <PropertyGroup>
+    <AssemblyName>Org.Apache.REEF.Bridge.Core.Proto</AssemblyName>
+    <Description>REEF Bridge Core Proto</Description>
+    <PackageTags>REEF Bridge Core Proto</PackageTags>
+    <TargetFramework>netstandard2.0</TargetFramework>
+  </PropertyGroup>
+
+  <Import Project="..\build.props" />
+  <ItemGroup>
+    <PackageReference Include="Google.Protobuf" Version="3.6.0" />
+    <PackageReference Include="Grpc.Tools" Version="1.13.0" />
+    <PackageReference Include="Grpc.Core" Version="1.13.0">
+       <IncludeAssets>all</IncludeAssets>
+	     <ExcludeAssets>none</ExcludeAssets>
+	     <PrivateAssets>none</PrivateAssets>
+	  </PackageReference>
+  </ItemGroup>
+  <PropertyGroup>
+    <GrpcSchemaDirectory>$(REEF_Source_Folder)\lang\common\proto\bridge</GrpcSchemaDirectory>
+	<GrpcOutputDirectory>generated-sources</GrpcOutputDirectory>
+  </PropertyGroup>
+  <!-- Settings for Linux platforms -->
+  <PropertyGroup Condition="'$(OS)' != 'Windows_NT'">
+    <GrpcToolsDirectory>$(PackagesDir)\grpc.tools\1.13.0\tools\linux_x64</GrpcToolsDirectory>
+  </PropertyGroup>
+  <!-- Settings for Windows platforms -->
+  <PropertyGroup Condition="'$(OS)' == 'Windows_NT'">
+    <GrpcToolsDirectory>$(PackagesDir)\grpc.tools\1.13.0\tools\windows_x64</GrpcToolsDirectory>
+    <GrpcToolsExtension>.exe</GrpcToolsExtension>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Grpc.Core">
+      <HintPath>$(GRrpcLibraryDirectory)\Grpc.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="Google.Protobuf">
+      <HintPath>$(PackagesDir)\Google.Protobuf.3.5.1\lib\netstandard1.0\Google.Protobuf.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+  </ItemGroup>
+
+  <Import Project="..\build.targets" />
+  
+  <PropertyGroup>  
+    <BuildDependsOn>  
+      CodeGeneration;  
+      $(BuildDependsOn)  
+    </BuildDependsOn>  
+  </PropertyGroup> 
+
+   <Import Project="$(ProjectDir)Grpc.targets" Condition="Exists('$(ProjectDir)Grpc.targets')" />
+  <Target Name="CodeGeneration">
+    <Message Text="Generating C# classes from gRPC proto files in $(GrpcSchemaDirectory) to $(ProjectDir)$(GrpcOutputDirectory) using tools directory $(GrpcToolsDirectory) with extension $(GrpcToolsExtension)" Importance="High" />
+    <GrpcToCSharp OutputDirectory="$(ProjectDir)$(GrpcOutputDirectory)" SourceFileList="DriverCommonProtocol.proto;ClientProtocol.proto;DriverClientProtocol.proto;DriverServiceProtocol.proto" GrpcSchemaDirectory="$(GrpcSchemaDirectory)" GrpcBinaryDirectory="$(GrpcToolsDirectory)" GrpcToolsExtension="$(GrpcToolsExtension)" /> 
+  </Target>
+  
+  <Target Name="UpdateCompileDependencies" AfterTargets="CodeGeneration" BeforeTargets="CoreCompile">
+    <Message Text="Update compile dependencies for gRPC proto files in $(ProjectDir)$(GrpcOutputDirectory)" Importance="High" /> 
+    <ItemGroup>
+      <Compile Include="$(ProjectDir)$(GrpcOutputDirectory)\**" />
+    </ItemGroup>
+  </Target>
+
+
+ </Project>

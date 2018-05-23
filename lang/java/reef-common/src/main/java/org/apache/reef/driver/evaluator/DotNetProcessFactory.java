@@ -16,23 +16,26 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.bridge.driver.launch;
 
-import org.apache.reef.annotations.Unstable;
-import org.apache.reef.bridge.proto.ClientProtocol;
-import org.apache.reef.client.LauncherStatus;
-import org.apache.reef.tang.exceptions.InjectionException;
+package org.apache.reef.driver.evaluator;
+
+import org.apache.reef.annotations.audience.DriverSide;
+import org.apache.reef.annotations.audience.Private;
+
+import javax.inject.Inject;
 
 /**
- * All driver launchers implement this method.
+ * Factory to setup new DotNet processes.
  */
-@Unstable
-public interface BridgeDriverLauncher {
+@Private
+@DriverSide
+public final class DotNetProcessFactory implements EvaluatorProcessFactory<DotNetProcess> {
+  @Inject
+  private DotNetProcessFactory() {
+  }
 
-  /**
-   * Launch the driver with the dynamic {@link ClientProtocol.DriverClientConfiguration}.
-   * @param driverClientConfiguration dynamic driver configuration parameters
-   */
-  LauncherStatus launch(final ClientProtocol.DriverClientConfiguration driverClientConfiguration)
-      throws InjectionException;
+  @Override
+  public DotNetProcess newEvaluatorProcess() {
+    return new DotNetProcess();
+  }
 }

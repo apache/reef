@@ -57,6 +57,7 @@ public final class GRPCDriverServiceConfigurationProvider implements DriverServi
       final ClientProtocol.DriverClientConfiguration driverConfiguration) {
     Configuration driverServiceConfiguration = DriverServiceConfiguration.CONF
         .set(DriverServiceConfiguration.DRIVER_SERVICE_IMPL, GRPCDriverService.class)
+        .set(DriverServiceConfiguration.DRIVER_IDLENESS_SOURCES, GRPCDriverService.class)
         .set(DriverServiceConfiguration.DRIVER_CLIENT_COMMAND, driverConfiguration.getDriverClientLaunchCommand())
         .build();
     return driverConfiguration.getDriverRestartEnable() ?

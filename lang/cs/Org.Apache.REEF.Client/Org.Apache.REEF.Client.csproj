@@ -93,7 +93,7 @@ under the License.
       var srcDir = @"lang\cs\Org.Apache.REEF.Client\Properties";
       var binDir = @"lang\cs\bin\.netcore";
       var resxInputPath  = Path.Combine(ProjectFolder, srcDir, "Resources.xml");      
-      var resourceDir = Path.Combine(ProjectFolder, binDir, DebugOrRelease, "Org.Apache.REEF.Bridge.JAR", "net461");
+      var resourceDir = Path.Combine(ProjectFolder, binDir, DebugOrRelease, "Org.Apache.REEF.Bridge.JAR", "netstandard2.0");
       var clrDriverDir = Path.Combine(ProjectFolder, binDir, DebugOrRelease, "Org.Apache.REEF.Bridge");
       var byteArrayType = ";System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089";
       var jarRest = reefVersion + "-shaded.jar" + byteArrayType;
@@ -153,8 +153,10 @@ under the License.
     </ItemGroup>
     <Copy SourceFiles="@(MySourceFiles)" DestinationFiles="@(MySourceFiles->'$(TargetDir)%(Filename)%(Extension)')" />
   </Target>
+  <!--
   <Target Name="RemovingTempResx" AfterTargets="AfterBuild">
-    <Message Text="Removing temporary resx file" Importance="high"/>
+    <Message Text="Removing temporary resx file" Importance="high" />
     <Delete Files="$(TempResxFile)" />
   </Target>
+  -->
 </Project>

@@ -50,7 +50,7 @@ under the License.
         <reef.log.dir>${project.build.directory}/log</reef.log.dir>
         <bundle.snappy>false</bundle.snappy>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <hadoop.version>2.7.5</hadoop.version>
+        <hadoop.version>2.7.0</hadoop.version>
         <spark.version>2.1.0</spark.version>
         <avro.version>1.8.1</avro.version>
         <parquet.version>1.9.0</parquet.version>
@@ -312,9 +312,13 @@ under the License.
                             <exclude>**/*.snk</exclude>
                             <exclude>**/*.opendb</exclude>
                             <exclude>**/*.resx</exclude>
+                            <exclude>**/*.nuspec</exclude>
+                            <exclude>**/*.json</exclude>
+                            <exclude>**/*.pubxml</exclude>
+                            <exclude>**/*.pubxml.user</exclude>
                             <!-- The below are auto generated during the .Net build -->
                             <exclude>**/bin/**</exclude>
-                            <exclude>**/generated/**</exclude>
+                            <exclude>**/generated-sources/**</exclude>
                             <exclude>**/obj/**</exclude>
                             <exclude>**/Release/**</exclude>
                             <exclude>**/Debug/**</exclude>

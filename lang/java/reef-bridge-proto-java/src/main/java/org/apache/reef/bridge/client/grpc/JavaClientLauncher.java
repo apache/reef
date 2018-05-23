@@ -16,23 +16,17 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.bridge.client;
 
-import com.google.protobuf.util.JsonFormat;
+package org.apache.reef.bridge.client.grpc;
+
 import org.apache.commons.lang.StringUtils;
-import org.apache.reef.annotations.Unstable;
-import org.apache.reef.annotations.audience.ClientSide;
-import org.apache.reef.bridge.driver.launch.BridgeDriverLauncher;
-import org.apache.reef.bridge.driver.launch.azbatch.AzureBatchLauncher;
-import org.apache.reef.bridge.driver.launch.local.LocalLauncher;
-import org.apache.reef.bridge.driver.launch.yarn.YarnLauncher;
-import org.apache.reef.bridge.driver.service.DriverServiceConfigurationProvider;
-import org.apache.reef.bridge.driver.service.grpc.GRPCDriverServiceConfigurationProvider;
 import org.apache.reef.bridge.driver.client.JavaDriverClientLauncher;
 import org.apache.reef.bridge.proto.ClientProtocol;
 import org.apache.reef.client.LauncherStatus;
 import org.apache.reef.runtime.azbatch.AzureBatchClasspathProvider;
-import org.apache.reef.runtime.common.files.*;
+import org.apache.reef.runtime.common.files.ClasspathProvider;
+import org.apache.reef.runtime.common.files.REEFFileNames;
+import org.apache.reef.runtime.common.files.RuntimeClasspathProvider;
 import org.apache.reef.runtime.common.launch.JavaLaunchCommandBuilder;
 import org.apache.reef.runtime.local.LocalClasspathProvider;
 import org.apache.reef.runtime.yarn.YarnClasspathProvider;
@@ -44,33 +38,18 @@ import org.apache.reef.tang.exceptions.InjectionException;
 import org.apache.reef.tang.formats.ConfigurationSerializer;
 
 import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
-import java.io.Reader;
 import java.util.Collections;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
- * Driver Service Launcher - main class.
+ * Java client launcher.
  */
-@ClientSide
-@Unstable
-public final class DriverServiceLauncher {
-
-  /**
-   * Standard Java logger.
-   */
-  private static final Logger LOG = Logger.getLogger(DriverServiceLauncher.class.getName());
+public final class JavaClientLauncher {
 
   private static final Tang TANG = Tang.Factory.getTang();
 
-  /**
-   * This class should not be instantiated.
-   */
-  private DriverServiceLauncher() {
-    throw new RuntimeException("Do not instantiate this class!");
+  private JavaClientLauncher() {
   }
 
   /**
@@ -135,63 +114,9 @@ public final class DriverServiceLauncher {
       builder.setDriverClientLaunchCommand(cmd);
       builder.addLocalFiles(driverClientConfigurationFile.getAbsolutePath());
 
-      return launch(driverClientConfigurationProto);
+      return ClientLauncher.submit(0, builder.build());
     } finally {
       driverClientConfigurationFile.deleteOnExit();
     }
-  }
-
-  private static LauncherStatus launch(
-      final ClientProtocol.DriverClientConfiguration driverClientConfigurationProto) throws InjectionException {
-
-    final ClientProtocol.DriverClientConfiguration.RuntimeCase runtime =
-        driverClientConfigurationProto.getRuntimeCase();
-
-    final Class<? extends BridgeDriverLauncher> launcherClass;
-    switch (runtime) {
-    case YARN_RUNTIME:
-      launcherClass = YarnLauncher.class;
-      break;
-    case LOCAL_RUNTIME:
-      launcherClass = LocalLauncher.class;
-      break;
-    case AZBATCH_RUNTIME:
-      launcherClass = AzureBatchLauncher.class;
-      break;
-    default:
-      throw new RuntimeException("Unknown runtime: " + runtime);
-    }
-    final Configuration jobSubmissionClientConfig = TANG.newConfigurationBuilder()
-        .bindImplementation(BridgeDriverLauncher.class, launcherClass)
-        .bindImplementation(DriverServiceConfigurationProvider.class,
-            GRPCDriverServiceConfigurationProvider.class)
-        .build();
-    final BridgeDriverLauncher driverServiceLauncher =
-        TANG.newInjector(jobSubmissionClientConfig).getInstance(launcherClass);
-    return driverServiceLauncher.launch(driverClientConfigurationProto);
-  }
-
-  /**
-   * Main method that launches the REEF job.
-   *
-   * @param args command line parameters.
-   */
-  public static void main(final String[] args) throws IOException, InjectionException {
-    if (args.length != 1) {
-      LOG.log(Level.SEVERE,
-          "Expected a single command line argument with a file containing client protobuf driver configuration");
-      System.exit(1);
-    }
-    final ClientProtocol.DriverClientConfiguration.Builder driverClientConfigurationProtoBuilder =
-        ClientProtocol.DriverClientConfiguration.newBuilder();
-    try (final Reader reader = new FileReader(args[0])) {
-      JsonFormat.parser()
-          .usingTypeRegistry(JsonFormat.TypeRegistry.getEmptyTypeRegistry())
-          .merge(reader, driverClientConfigurationProtoBuilder);
-    }
-    final ClientProtocol.DriverClientConfiguration driverClientConfigurationProto =
-        driverClientConfigurationProtoBuilder.build();
-    final LauncherStatus status = launch(driverClientConfigurationProto);
-    LOG.log(Level.INFO, "Status: {0}", status);
   }
 }

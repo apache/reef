@@ -20,32 +20,27 @@ package org.apache.reef.bridge.driver.launch.local;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.reef.annotations.audience.Private;
-import org.apache.reef.bridge.driver.launch.BridgeDriverLauncher;
-import org.apache.reef.bridge.driver.service.DriverServiceConfigurationProvider;
+import org.apache.reef.bridge.driver.launch.RuntimeConfigurationProvider;
 import org.apache.reef.bridge.proto.ClientProtocol;
-import org.apache.reef.client.DriverLauncher;
-import org.apache.reef.client.LauncherStatus;
 import org.apache.reef.runtime.local.client.LocalRuntimeConfiguration;
-import org.apache.reef.tang.exceptions.InjectionException;
+import org.apache.reef.tang.Configuration;
 import org.apache.reef.tang.formats.ConfigurationModule;
 
 import javax.inject.Inject;
 
 /**
- * Submits a folder containing a Driver to the local runtime.
+ * Local runtime configuration provider.
  */
 @Private
-public final class LocalLauncher implements BridgeDriverLauncher {
-
-  private final DriverServiceConfigurationProvider driverServiceConfigurationProvider;
+public final class LocalConfigurationProvider implements RuntimeConfigurationProvider {
 
   @Inject
-  private LocalLauncher(final DriverServiceConfigurationProvider driverServiceConfigurationProvider) {
-    this.driverServiceConfigurationProvider = driverServiceConfigurationProvider;
+  private LocalConfigurationProvider() {
   }
 
-  public LauncherStatus launch(final ClientProtocol.DriverClientConfiguration driverClientConfiguration)
-      throws InjectionException {
+  @Override
+  public Configuration getRuntimeConfiguration(
+      final ClientProtocol.DriverClientConfiguration driverClientConfiguration) {
     ConfigurationModule localRuntimeCM = LocalRuntimeConfiguration.CONF;
     if (driverClientConfiguration.getLocalRuntime().getMaxNumberOfEvaluators() > 0) {
       localRuntimeCM = localRuntimeCM.set(LocalRuntimeConfiguration.MAX_NUMBER_OF_EVALUATORS,
@@ -63,8 +58,6 @@ public final class LocalLauncher implements BridgeDriverLauncher {
       localRuntimeCM = localRuntimeCM.set(LocalRuntimeConfiguration.RUNTIME_ROOT_FOLDER,
           driverClientConfiguration.getDriverJobSubmissionDirectory());
     }
-    return DriverLauncher
-        .getLauncher(localRuntimeCM.build())
-        .run(driverServiceConfigurationProvider.getDriverServiceConfiguration(driverClientConfiguration));
+    return localRuntimeCM.build();
   }
 }

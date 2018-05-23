@@ -19,37 +19,27 @@
 package org.apache.reef.bridge.driver.launch.azbatch;
 
 import org.apache.reef.annotations.audience.Private;
-import org.apache.reef.bridge.driver.launch.BridgeDriverLauncher;
-import org.apache.reef.bridge.driver.service.DriverServiceConfigurationProvider;
+import org.apache.reef.bridge.driver.launch.RuntimeConfigurationProvider;
 import org.apache.reef.bridge.proto.ClientProtocol;
-import org.apache.reef.client.DriverLauncher;
-import org.apache.reef.client.LauncherStatus;
 import org.apache.reef.runtime.azbatch.client.AzureBatchRuntimeConfiguration;
 import org.apache.reef.runtime.azbatch.client.AzureBatchRuntimeConfigurationCreator;
 import org.apache.reef.tang.Configuration;
-import org.apache.reef.tang.exceptions.InjectionException;
 
 import javax.inject.Inject;
 
 /**
- * This is a bootstrap launcher for Azure Batch for submission from C#. It allows for Java Driver
- * configuration generation directly on the Driver without need of Java dependency if REST
- * submission is used.
+ * Azure batch runtime configuration provider.
  */
 @Private
-public final class AzureBatchLauncher implements BridgeDriverLauncher {
-
-  private final DriverServiceConfigurationProvider driverServiceConfigurationProvider;
+public final class AzureBatchConfigurationProvider implements RuntimeConfigurationProvider {
 
   @Inject
-  private AzureBatchLauncher(final DriverServiceConfigurationProvider driverServiceConfigurationProvider) {
-    this.driverServiceConfigurationProvider = driverServiceConfigurationProvider;
+  private AzureBatchConfigurationProvider() {
   }
 
-  public LauncherStatus launch(final ClientProtocol.DriverClientConfiguration driverClientConfiguration)
-      throws InjectionException {
-    return DriverLauncher.getLauncher(generateConfigurationFromJobSubmissionParameters(driverClientConfiguration))
-        .run(driverServiceConfigurationProvider.getDriverServiceConfiguration(driverClientConfiguration));
+  public Configuration getRuntimeConfiguration(
+      final ClientProtocol.DriverClientConfiguration driverClientConfiguration) {
+    return generateConfigurationFromJobSubmissionParameters(driverClientConfiguration);
   }
 
   private static Configuration generateConfigurationFromJobSubmissionParameters(

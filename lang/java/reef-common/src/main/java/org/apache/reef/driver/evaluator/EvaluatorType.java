@@ -31,6 +31,10 @@ public enum EvaluatorType {
    */
   CLR,
   /**
+   * Indicates an Evaluator that runs in DOTNET.
+   */
+  DOTNET,
+  /**
    * Indicates an Evaluator whose type hasn't been decided yet. This is common e.g. between Evaluator allocation
    * and launch.
    */

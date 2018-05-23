@@ -70,7 +70,7 @@ public class FailBridgeDriverTest {
       if (OSUtils.isLinux()) {
         TestUtils.assertLauncherFailure(
             FailBridgeClient.runClient(clazz,
-                this.testEnvironment.getRuntimeConfiguration(), this.testEnvironment.getTestTimeout()),
+                this.testEnvironment.getRuntimeConfiguration(), 2 * testEnvironment.getTestTimeout()),
             SimulatedDriverFailure.class);
       }
     } catch (IOException e) {

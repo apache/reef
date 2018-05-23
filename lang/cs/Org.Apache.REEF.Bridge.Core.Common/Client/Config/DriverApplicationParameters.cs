@@ -1,0 +1,161 @@
+﻿// Licensed to the Apache Software Foundation (ASF) under one
+// or more contributor license agreements.  See the NOTICE file
+// distributed with this work for additional information
+// regarding copyright ownership.  The ASF licenses this file
+// to you under the Apache License, Version 2.0 (the
+// "License"); you may not use this file except in compliance
+// with the License.  You may obtain a copy of the License at
+//
+//   http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing,
+// software distributed under the License is distributed on an
+// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+// KIND, either express or implied.  See the License for the
+// specific language governing permissions and limitations
+// under the License.
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using Org.Apache.REEF.Common.Context;
+using Org.Apache.REEF.Driver;
+using Org.Apache.REEF.Driver.Bridge;
+using Org.Apache.REEF.Driver.Context;
+using Org.Apache.REEF.Driver.Defaults;
+using Org.Apache.REEF.Driver.Evaluator;
+using Org.Apache.REEF.Driver.Task;
+using Org.Apache.REEF.Tang.Annotations;
+
+namespace Org.Apache.REEF.Bridge.Core.Common.Client.Config
+{
+    public sealed class DriverApplicationParameters
+    {
+
+        [NamedParameter(documentation: "The start point for application logic. Event fired after the Driver is done initializing.")]
+        public sealed class DriverStartedHandlers : Name<ISet<IObserver<IDriverStarted>>>
+        {
+        }
+
+        [NamedParameter(documentation: "Called when driver stops.")]
+        public sealed class DriverStopHandlers : Name<ISet<IObserver<IDriverStopped>>>
+        {
+        }
+
+        [NamedParameter(documentation: "Called when an evaluator completes.", defaultClasses: new[] { typeof(DefaultEvaluatorCompletionHandler) })]
+        public class CompletedEvaluatorHandlers : Name<ISet<IObserver<ICompletedEvaluator>>>
+        {
+        }
+
+        [NamedParameter(documentation: "Called when an allocated evaluator is given to the client.",
+            defaultClasses: new[] { typeof(DefaultEvaluatorAllocationHandler) })]
+        public sealed class AllocatedEvaluatorHandlers : Name<ISet<IObserver<IAllocatedEvaluator>>>
+        {
+        }
+
+        [NamedParameter(documentation: "Called when an exception occurs on a running evaluator.", defaultClasses: new[] { typeof(DefaultEvaluatorFailureHandler) })]
+        public class FailedEvaluatorHandlers : Name<ISet<IObserver<IFailedEvaluator>>>
+        {
+        }
+
+        [NamedParameter(documentation: "Handler for IActiveContext.", defaultClasses: new[] { typeof(DefaultContextActiveHandler) })]
+        public sealed class ActiveContextHandlers : Name<ISet<IObserver<IActiveContext>>>
+        {
+        }
+
+        [NamedParameter(documentation: "Handler for ClosedContext.", defaultClasses: new[] { typeof(DefaultContextClosureHandler) })]
+        public sealed class ClosedContextHandlers : Name<ISet<IObserver<IClosedContext>>>
+        {
+        }
+
+        [NamedParameter(documentation: "Handler for ContextMessage.", defaultClasses: new[] { typeof(DefaultContextMessageHandler) })]
+        public sealed class ContextMessageHandlers : Name<ISet<IObserver<IContextMessage>>>
+        {
+        }
+
+        [NamedParameter(documentation: "Handler for FailedContext.", defaultClasses: new[] { typeof(DefaultContextFailureHandler) })]
+        public sealed class FailedContextHandlers : Name<ISet<IObserver<IFailedContext>>>
+        {
+        }
+
+
+        [NamedParameter(documentation: "Running task handler.", defaultClasses: new[] { typeof(DefaultTaskRunningHandler) })]
+        public sealed class RunningTaskHandlers : Name<ISet<IObserver<IRunningTask>>>
+        {
+        }
+
+        [NamedParameter(documentation: "Completed task handler.", defaultClasses: new[] { typeof(DefaultTaskCompletionHandler) })]
+        public sealed class CompletedTaskHandlers : Name<ISet<IObserver<ICompletedTask>>>
+        {
+        }
+
+        [NamedParameter(documentation: "Task exception handler.", defaultClasses: new[] { typeof(DefaultTaskFailureHandler) })]
+        public sealed class FailedTaskHandlers : Name<ISet<IObserver<IFailedTask>>>
+        {
+        }
+
+        [NamedParameter(documentation: "Suspended task handler.", defaultClasses: new[] { typeof(DefaultTaskSuspensionHandler) })]
+        public sealed class SuspendedTaskHandlers : Name<ISet<IObserver<ISuspendedTask>>>
+        {
+        }
+
+        [NamedParameter(documentation: "Task message handler.", defaultClasses: new[] { typeof(DefaultTaskMessageHandler) })]
+        public class TaskMessageHandlers : Name<ISet<IObserver<ITaskMessage>>>
+        {
+        }
+
+        [NamedParameter(documentation: "Called when driver is restarted, after CLR bridge is set up.")]
+        public sealed class DriverRestartedHandlers : Name<ISet<IObserver<IDriverRestarted>>>
+        {
+        }
+
+        [NamedParameter(documentation: "Called when an evaluator has failed in the Driver Restart process.", defaultClasses: new[] { typeof(DefaultEvaluatorFailureHandler) })]
+        public sealed class DriverRestartFailedEvaluatorHandlers : Name<ISet<IObserver<IFailedEvaluator>>>
+        {
+        }
+
+        [NamedParameter(documentation: "Handler for IActiveContext received during driver restart.", defaultClasses: new[] { typeof(DefaultDriverRestartContextActiveHandler) })]
+        public sealed class DriverRestartActiveContextHandlers : Name<ISet<IObserver<IActiveContext>>>
+        {
+        }
+
+        [NamedParameter(documentation: "Called when driver restart is completed.", defaultClasses: new[] { typeof(DefaultDriverRestartCompletedHandler) })]
+        public sealed class DriverRestartCompletedHandlers : Name<ISet<IObserver<IDriverRestartCompleted>>>
+        {
+        }
+
+        [NamedParameter(documentation: "Running task during driver restart handler.", defaultClasses: new[] { typeof(DefaultDriverRestartTaskRunningHandler) })]
+        public sealed class DriverRestartRunningTaskHandlers : Name<ISet<IObserver<IRunningTask>>>
+        {
+        }
+
+        [NamedParameter("Client message handlers", defaultClasses: new[] { typeof(DefaultClientMessageHandler) })]
+        public sealed class ClientMessageHandlers : Name<ISet<IObserver<byte[]>>>
+        {
+        }
+
+        [NamedParameter("Client close with message event handlers", defaultClasses: new[] { typeof(DefaultClientCloseWithMessageHandler) })]
+        public sealed class ClientCloseWithMessageHandlers : Name<ISet<IObserver<byte[]>>>
+        {
+        }
+
+        [NamedParameter("Client close event handlers", defaultClasses: new[] { typeof(DefaultClientCloseHandler) })]
+        public sealed class ClientCloseHandlers : Name<ISet<IObserver<byte[]>>>
+        {
+        }
+
+        [NamedParameter(documentation: "Http Event Handlers.", defaultClasses: new[] { typeof(DefaultHttpHandler) })]
+        public sealed class HttpEventHandlers : Name<ISet<IHttpHandler>>
+        {
+        }
+
+        [NamedParameter("Custom Trace Level", "DriverTraceLevel", defaultValue: "Info")]
+        public class TraceLevel : Name<string>
+        {
+        }
+
+        [NamedParameter("Additional trace listeners supplied by client", "DriverTraceListeners", null, defaultClasses: new[] { typeof(DefaultCustomTraceListener) })]
+        public sealed class TraceListeners : Name<ISet<TraceListener>>
+        {
+        }
+    }
+}

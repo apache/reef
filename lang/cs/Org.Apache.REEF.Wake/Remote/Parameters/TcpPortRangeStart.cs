@@ -19,7 +19,7 @@ using Org.Apache.REEF.Tang.Annotations;
 
 namespace Org.Apache.REEF.Wake.Remote.Parameters
 {
-    [NamedParameter(Documentation = "Port number range start for listening on tcp ports", DefaultValue = "8900")]
+    [NamedParameter(Documentation = "Port number range start for listening on tcp ports", DefaultValue = "10000")]
     public sealed class TcpPortRangeStart : Name<int>
     {
     }

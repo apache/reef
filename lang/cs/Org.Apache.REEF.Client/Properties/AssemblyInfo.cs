@@ -21,6 +21,11 @@ using System.Runtime.CompilerServices;
 [assembly: InternalsVisibleTo("Org.Apache.REEF.Tests")]
 [assembly: InternalsVisibleTo("Org.Apache.REEF.Client.Tests")]
 
+// Allow bridge access to internal APIs
+[assembly: InternalsVisibleTo("Org.Apache.REEF.Bridge.Core")]
+[assembly: InternalsVisibleTo("Org.Apache.REEF.Bridge.Core.Client")]
+
+
 // Allow NSubstitute to create proxy implementations
 [assembly: InternalsVisibleTo("DynamicProxyGenAssembly2")]
 

@@ -20,6 +20,7 @@
 package org.apache.reef.bridge.driver.common.grpc;
 
 import com.google.protobuf.ByteString;
+import org.apache.commons.lang.StringUtils;
 import org.apache.reef.annotations.audience.Private;
 import org.apache.reef.bridge.proto.ContextInfo;
 import org.apache.reef.bridge.proto.EvaluatorDescriptorInfo;
@@ -65,7 +66,7 @@ public final class GRPCUtils {
   public static ExceptionInfo createExceptionInfo(final ExceptionCodec exceptionCodec, final Throwable ex)  {
     return ExceptionInfo.newBuilder()
         .setName(ex.getCause() != null ? ex.getCause().toString() : ex.toString())
-        .setMessage(ex.getMessage() == null ? ex.toString() : ex.getMessage())
+        .setMessage(StringUtils.isNotEmpty(ex.getMessage()) ? ex.toString() : ex.getMessage())
         .setData(ByteString.copyFrom(exceptionCodec.toBytes(ex)))
         .build();
   }
@@ -84,7 +85,7 @@ public final class GRPCUtils {
         EvaluatorDescriptorInfo.NodeDescriptorInfo.newBuilder()
             .setHostName(descriptor.getNodeDescriptor().getName())
             .setId(descriptor.getNodeDescriptor().getId())
-            .setIpAddress(descriptor.getNodeDescriptor().getInetSocketAddress().getAddress().toString())
+            .setIpAddress(descriptor.getNodeDescriptor().getInetSocketAddress().getAddress().getHostAddress())
             .setPort(descriptor.getNodeDescriptor().getInetSocketAddress().getPort())
             .setRackName(descriptor.getNodeDescriptor().getRackDescriptor() == null ?
                 "" : descriptor.getNodeDescriptor().getRackDescriptor().getName())

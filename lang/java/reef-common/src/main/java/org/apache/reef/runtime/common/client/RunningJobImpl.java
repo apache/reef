@@ -152,9 +152,13 @@ public final class RunningJobImpl implements RunningJob, EventHandler<JobStatusP
         Optional.<byte[]>empty();
     final Optional<Throwable> cause = this.exceptionCodec.fromBytes(data);
 
-    final String message = cause.isPresent() ?
-        cause.get().getMessage() :
-        "No Message sent by the Job";
+    final String message;
+    if (cause.isPresent() && cause.get().getMessage() != null) {
+      message = cause.get().getMessage();
+    } else {
+      message = "No Message sent by the Job in exception " + cause.get().toString();
+      LOG.log(Level.WARNING, message, cause.get());
+    }
     final Optional<String> description = Optional.of(message);
 
     final FailedJob failedJob = new FailedJob(id, message, description, cause, data);
