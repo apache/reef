@@ -143,22 +143,22 @@ namespace Org.Apache.REEF.IO.Tests
         public void TestGetChildBlobsInContainerE2E()
         {
             // setup
-            string[] parentFileNames = new string[] { "sample1", "sample2", "sample3" };
-            string[] folderfileNames = new string[] { "folder1/sample4", "folder1/sample5" };
-            string[] parentListNames = new string[] { "sample1", "sample2", "sample3", "folder1/" };
+            string[] fileNames = new string[] { "sample1", "sample2", "sample3", "folder1/sample4", "folder1/sample5" };
+            string[] expectedFolderChildren = new string[] { "folder1/sample4", "folder1/sample5" };
+            string[] expectedRootChildren = new string[] { "sample1", "sample2", "sample3", "folder1/" };
 
-            foreach (string uploadedBlobName in parentFileNames.Concat(folderfileNames))
+            foreach (string uploadedBlobName in fileNames)
             {
                 CloudBlockBlob blob = _container.GetBlockBlobReference(uploadedBlobName);
                 UploadFromString(blob, "hello");
             }
 
             // List files in the root level in container
-            ValidateChildenWithBlobs(_container.Uri, parentListNames);
+            ValidateChildenWithBlobs(_container.Uri, expectedRootChildren);
 
             // List files only in the sub-folder in the container
             Uri folderUri = _container.GetDirectoryReference("folder1").Uri;
-            ValidateChildenWithBlobs(folderUri, folderfileNames);
+            ValidateChildenWithBlobs(folderUri, expectedFolderChildren);
         }
 
         [Fact(Skip = SkipMessage)]
@@ -171,7 +171,7 @@ namespace Org.Apache.REEF.IO.Tests
 
         public void ValidateChildenWithBlobs(Uri storageBlobUri, IEnumerable<string> expectedChildBlobNames)
         {
-            IEnumerable<Uri> blobs = _fileSystem.GetChildren(storageBlobUri).ToList();
+            IEnumerable<Uri> blobs = _fileSystem.GetChildren(storageBlobUri);
             IEnumerable<string> blobNames = blobs.Select(b => b.LocalPath.Replace("/" + _container.Name + "/", string.Empty));
 
             Assert.True(expectedChildBlobNames.All(blobName => blobNames.Contains(blobName)), "blobNames has elements that are not in expectedChildBlobNames");
@@ -180,7 +180,7 @@ namespace Org.Apache.REEF.IO.Tests
 
         public void ValidateChildrenWithContainers(Uri rootUri, IEnumerable<string> expectedContainerNames)
         {
-            IEnumerable<Uri> containers = _fileSystem.GetChildren(rootUri).ToList();
+            IEnumerable<Uri> containers = _fileSystem.GetChildren(rootUri);
             IEnumerable<string> containerNames = containers.Select(b => b.PathAndQuery.Replace("/", string.Empty));
 
             Assert.True(expectedContainerNames.All(containerName => containerNames.Contains(containerName)), "containerNames has elements that are not in expectedContainerNames");

@@ -166,7 +166,7 @@ namespace Org.Apache.REEF.IO.FileSystem.AzureBlob
             BlobContinuationToken blobContinuationToken = null;
 
             // If at the root, return all containers
-            if (segments.Count() == 1)
+            if (segments.Count() <= 1)
             {
                 do
                 {
