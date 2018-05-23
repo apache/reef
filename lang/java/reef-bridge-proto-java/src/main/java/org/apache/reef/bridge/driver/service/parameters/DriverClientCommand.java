@@ -16,22 +16,16 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.tests.fail;
 
-import org.junit.runner.RunWith;
-import org.junit.runners.Suite;
+package org.apache.reef.bridge.service.parameters;
+
+import org.apache.reef.tang.annotations.Name;
+import org.apache.reef.tang.annotations.NamedParameter;
 
 /**
- * Test suite of tests covering failure scenarios.
+ * What command to use when starting bridge process.
  */
-@RunWith(Suite.class)
-@Suite.SuiteClasses({
-//    FailTaskTest.class,
-    FailDriverTest.class,
-    FailDriverDelayedMsgTest.class,
-    DriverFailOnFailTest.class,
-    FailBridgeDriverTest.class,
-    FailBridgeTaskTest.class
-    })
-public final class FailTestSuite {
+@NamedParameter(doc = "The command to launch bridge driver process",
+    short_name = "command")
+public final class DriverClientCommand implements Name<String> {
 }

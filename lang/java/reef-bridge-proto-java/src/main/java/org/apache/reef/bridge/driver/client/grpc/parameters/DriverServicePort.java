@@ -16,22 +16,14 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.tests.fail;
+package org.apache.reef.bridge.driver.client.grpc.parameters;
 
-import org.junit.runner.RunWith;
-import org.junit.runners.Suite;
+import org.apache.reef.tang.annotations.Name;
+import org.apache.reef.tang.annotations.NamedParameter;
 
 /**
- * Test suite of tests covering failure scenarios.
+ * gRPC driver service port.
  */
-@RunWith(Suite.class)
-@Suite.SuiteClasses({
-//    FailTaskTest.class,
-    FailDriverTest.class,
-    FailDriverDelayedMsgTest.class,
-    DriverFailOnFailTest.class,
-    FailBridgeDriverTest.class,
-    FailBridgeTaskTest.class
-    })
-public final class FailTestSuite {
+@NamedParameter(doc = "Driver Service Grpc port", short_name = "driver-service-port")
+public final class DriverServicePort implements Name<Integer> {
 }

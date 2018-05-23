@@ -50,7 +50,7 @@ under the License.
         <reef.log.dir>${project.build.directory}/log</reef.log.dir>
         <bundle.snappy>false</bundle.snappy>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <hadoop.version>2.7.0</hadoop.version>
+        <hadoop.version>2.7.5</hadoop.version>
         <spark.version>2.1.0</spark.version>
         <avro.version>1.8.1</avro.version>
         <parquet.version>1.9.0</parquet.version>
@@ -66,6 +66,17 @@ under the License.
         <kryo.version>3.0.3</kryo.version>
         <kryo-serializers.version>0.37</kryo-serializers.version>
         <fast-classpath-scanner.version>2.4.5</fast-classpath-scanner.version>
+        <maven.assembly>3.1.0</maven.assembly>
+        <grpc.version>1.12.0</grpc.version><!-- CURRENT_GRPC_VERSION -->
+        <guava.version>20.0</guava.version>
+        <build-helper-maven-plugin.version>1.9.1</build-helper-maven-plugin.version>
+        <maven-antrun-plugin.version>1.8</maven-antrun-plugin.version>
+        <maven-dependency-plugin.version>2.10</maven-dependency-plugin.version>
+        <maven-shade-plugin.version>2.4.2</maven-shade-plugin.version>
+        <os-maven-plugin.version>1.4.1.Final</os-maven-plugin.version>
+        <!-- do not move beyond this version since it adds an incompatible guava dependency -->
+        <xolstice.version>0.5.0</xolstice.version>
+        <commons-codec.version>1.9</commons-codec.version>
         <rootPath>${user.dir}</rootPath>
     </properties>
 
@@ -289,6 +300,8 @@ under the License.
                             <exclude>REEF_STANDALONE_RUNTIME/**</exclude>
                             <!-- Error logs -->
                             <exclude>**/*.log</exclude>
+                            <!-- Shading configuration -->
+                            <exclude>**/dependency-reduced-pom.xml</exclude>
                             <!-- The Visual Studio and Nuget build files -->
                             <exclude>**/.vs/**</exclude>
                             <exclude>**/*.sln*</exclude>
@@ -298,8 +311,10 @@ under the License.
                             <exclude>**/*.sdf*</exclude>
                             <exclude>**/*.snk</exclude>
                             <exclude>**/*.opendb</exclude>
+                            <exclude>**/*.resx</exclude>
                             <!-- The below are auto generated during the .Net build -->
                             <exclude>**/bin/**</exclude>
+                            <exclude>**/generated/**</exclude>
                             <exclude>**/obj/**</exclude>
                             <exclude>**/Release/**</exclude>
                             <exclude>**/Debug/**</exclude>
@@ -699,11 +714,27 @@ under the License.
             </dependency>
             <!-- End of SLF4J -->
 
+            <dependency>
+                <groupId>io.grpc</groupId>
+                <artifactId>grpc-all</artifactId>
+                <version>${grpc.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.google.guava</groupId>
+                <artifactId>guava</artifactId>
+                <version>${guava.version}</version>
+            </dependency>
 
             <dependency>
                 <groupId>io.netty</groupId>
                 <artifactId>netty-all</artifactId>
                 <version>4.0.23.Final</version>
+            </dependency>
+
+            <dependency>
+                <groupId>commons-codec</groupId>
+                <artifactId>commons-codec</artifactId>
+                <version>${commons-codec.version}</version>
             </dependency>
 
             <dependency>
@@ -769,6 +800,7 @@ under the License.
         <module>lang/java/reef-applications</module>
         <module>lang/java/reef-bridge-client</module>
         <module>lang/java/reef-bridge-java</module>
+        <module>lang/java/reef-bridge-proto-java</module>
         <module>lang/java/reef-checkpoint</module>
         <module>lang/java/reef-common</module>
         <module>lang/java/reef-examples</module>

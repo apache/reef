@@ -31,7 +31,7 @@ import javax.inject.Inject;
  */
 @Private
 @DriverSide
-final class EvaluatorDescriptorImpl implements EvaluatorDescriptor {
+public final class EvaluatorDescriptorImpl implements EvaluatorDescriptor {
 
   private final NodeDescriptor nodeDescriptor;
   private final int megaBytes;

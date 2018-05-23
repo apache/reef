@@ -16,22 +16,23 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.tests.fail;
+package org.apache.reef.bridge.driver.launch;
 
-import org.junit.runner.RunWith;
-import org.junit.runners.Suite;
+import org.apache.reef.annotations.Unstable;
+import org.apache.reef.bridge.proto.ClientProtocol;
+import org.apache.reef.client.LauncherStatus;
+import org.apache.reef.tang.exceptions.InjectionException;
 
 /**
- * Test suite of tests covering failure scenarios.
+ * All driver launchers implement this method.
  */
-@RunWith(Suite.class)
-@Suite.SuiteClasses({
-//    FailTaskTest.class,
-    FailDriverTest.class,
-    FailDriverDelayedMsgTest.class,
-    DriverFailOnFailTest.class,
-    FailBridgeDriverTest.class,
-    FailBridgeTaskTest.class
-    })
-public final class FailTestSuite {
+@Unstable
+public interface IDriverLauncher {
+
+  /**
+   * Launch the driver with the dynamic {@link ClientProtocol.DriverClientConfiguration}.
+   * @param driverClientConfiguration dynamic driver configuration parameters
+   */
+  LauncherStatus launch(final ClientProtocol.DriverClientConfiguration driverClientConfiguration)
+      throws InjectionException;
 }

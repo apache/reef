@@ -45,6 +45,8 @@ public final class REEFFileNames {
   private static final String EVALUATOR_FOLDER_PREFIX = "reef-evaluator-";
   private static final String DRIVER_STDERR = "driver.stderr";
   private static final String DRIVER_STDOUT = "driver.stdout";
+  private static final String DRIVER_CLIENT_STDERR = "driverclient.stderr";
+  private static final String DRIVER_CLIENT_STDOUT = "driverclient.stdout";
   private static final String EVALUATOR_STDERR = "evaluator.stderr";
   private static final String EVALUATOR_STDOUT = "evaluator.stdout";
   private static final String DRIVER_HTTP_ENDPOINT_FILE_NAME = "DriverHttpEndpoint.txt";
@@ -200,6 +202,20 @@ public final class REEFFileNames {
    */
   public String getDriverStdoutFileName() {
     return DRIVER_STDOUT;
+  }
+
+  /**
+   * @return The name used within the current working directory of the driver client to redirect stderr to.
+   */
+  public String getDriverClientStderrFileName() {
+    return DRIVER_CLIENT_STDERR;
+  }
+
+  /**
+   * @return The name used within the current working directory of the driver client to redirect stdout to.
+   */
+  public String getDriverClientStdoutFileName() {
+    return DRIVER_CLIENT_STDOUT;
   }
 
   /**

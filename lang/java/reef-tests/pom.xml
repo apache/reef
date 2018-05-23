@@ -34,6 +34,7 @@ under the License.
 
     <properties>
         <rootPath>${basedir}/../../..</rootPath>
+        <protobuf.version>3.5.1</protobuf.version>
     </properties>
 
     <dependencies>
@@ -76,6 +77,16 @@ under the License.
             <groupId>${project.groupId}</groupId>
             <artifactId>reef-io</artifactId>
             <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>reef-bridge-proto-java</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.google.protobuf</groupId>
+            <artifactId>protobuf-java</artifactId>
+            <version>${protobuf.version}</version>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>

@@ -16,22 +16,18 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.tests.fail;
+package org.apache.reef.bridge.driver.service.parameters;
 
-import org.junit.runner.RunWith;
-import org.junit.runners.Suite;
+import org.apache.reef.tang.annotations.Name;
+import org.apache.reef.tang.annotations.NamedParameter;
 
 /**
- * Test suite of tests covering failure scenarios.
+ * Number of times the HTTPStatusHandler will advance its alarm.
  */
-@RunWith(Suite.class)
-@Suite.SuiteClasses({
-//    FailTaskTest.class,
-    FailDriverTest.class,
-    FailDriverDelayedMsgTest.class,
-    DriverFailOnFailTest.class,
-    FailBridgeDriverTest.class,
-    FailBridgeTaskTest.class
-    })
-public final class FailTestSuite {
+@NamedParameter(default_value = "10", doc = "Number of times the HTTPStatusHandler will advance its alarm.")
+public final class HTTPStatusNumberOfRetries implements Name<Integer> {
+
+  private HTTPStatusNumberOfRetries() {
+    // Intentionally empty.
+  }
 }

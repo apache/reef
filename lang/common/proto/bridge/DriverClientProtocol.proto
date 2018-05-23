@@ -1,0 +1,211 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+
+syntax = "proto3";
+
+// option java_generic_services = true;
+option java_multiple_files = true;
+option java_package = "org.apache.reef.bridge.proto";
+option java_outer_classname = "DriverClientProtocol";
+option csharp_namespace = "Org.Apache.REEF.Bridge.Proto";
+
+package driverbridge;
+
+import "DriverCommonProtocol.proto";
+
+// The java driver service definition.
+service DriverClient {
+  // Inquire if idle
+  rpc IdlenessCheckHandler (Void) returns (IdleStatus) {}
+
+  // Request for resources
+  rpc StartHandler (StartTimeInfo) returns (Void) {}
+
+  rpc StopHandler (StopTimeInfo) returns (ExceptionInfo) {}
+
+  rpc AlarmTrigger (AlarmTriggerInfo) returns (Void) {}
+
+  // Evaluator handlers
+  rpc AllocatedEvaluatorHandler (EvaluatorInfo) returns (Void) {}
+
+  rpc CompletedEvaluatorHandler (EvaluatorInfo) returns (Void) {}
+
+  rpc FailedEvaluatorHandler (EvaluatorInfo) returns (Void) {}
+
+  // Context handlers
+  rpc ActiveContextHandler (ContextInfo) returns (Void) {}
+
+  rpc ClosedContextHandler (ContextInfo) returns (Void) {}
+
+  rpc FailedContextHandler (ContextInfo) returns (Void) {}
+
+  rpc ContextMessageHandler (ContextMessageInfo) returns (Void) {}
+
+  // Task handlers
+  rpc RunningTaskHandler (TaskInfo) returns (Void) {}
+
+  rpc FailedTaskHandler (TaskInfo) returns (Void) {}
+
+  rpc CompletedTaskHandler (TaskInfo) returns (Void) {}
+
+  rpc SuspendedTaskHandler (TaskInfo) returns (Void) {}
+
+  rpc TaskMessageHandler (TaskMessageInfo) returns (Void) {}
+
+  // Client Handlers
+  rpc ClientMessageHandler (ClientMessageInfo) returns (Void) {}
+
+  rpc ClientCloseHandler (Void) returns (Void) {}
+
+  rpc ClientCloseWithMessageHandler (ClientMessageInfo) returns (Void) {}
+
+  // Driver Restart Handlers
+  rpc DriverRestartHandler (DriverRestartInfo) returns (Void) {}
+
+  rpc DriverRestartActiveContextHandler (ContextInfo) returns (Void) {}
+
+  rpc DriverRestartRunningTaskHandler (TaskInfo) returns (Void) {}
+
+  rpc DriverRestartCompletedHandler (DriverRestartCompletedInfo) returns (Void) {}
+
+  rpc DriverRestartFailedEvaluatorHandler (EvaluatorInfo) returns (Void) {}
+}
+
+// Driver restart information
+message DriverRestartInfo {
+  uint32 resubmission_attempts = 1;
+
+  StartTimeInfo start_time = 2;
+
+  repeated string expected_evaluator_ids = 3;
+}
+
+// Driver restart completed information
+message DriverRestartCompletedInfo {
+  StopTimeInfo completion_time = 1;
+
+  bool is_timed_out = 2;
+}
+
+// IdleStatus response to idleness inquiry
+message IdleStatus {
+  bool is_idle = 1;
+  string reason = 2;
+}
+
+// The request message containing resource request.
+message StartTimeInfo {
+  int64 start_time = 1;
+}
+
+message StopTimeInfo {
+  int64 stop_time = 1;
+}
+
+// Information associated with an alarm that was set.
+message AlarmTriggerInfo {
+  string alarm_id = 1;
+}
+
+// Evaluator descriptor information.
+message EvaluatorDescriptorInfo {
+  // the amount of memory allocated
+  int32 memory = 1;
+
+  // the number of virtual cores allocated
+  int32 cores = 2;
+
+  // name of the runtime
+  string runtime_name = 3;
+}
+
+// Information related to an evaluator.
+message EvaluatorInfo {
+  string evaluator_id = 1;
+
+  message FailureInfo {
+     string message = 1;
+     repeated string failed_contexts = 2;
+     string failed_task_id = 3;
+  }
+  FailureInfo failure = 2;
+
+  EvaluatorDescriptorInfo descriptor_info = 3;
+}
+
+// Information associated with a context.
+message ContextInfo {
+  string context_id = 1;
+
+  string evaluator_id = 2;
+
+  string parent_id = 3;
+
+  // Carry this with us for driver restart
+  EvaluatorDescriptorInfo evaluator_descriptor_info = 4;
+
+  // Optional exception information
+  ExceptionInfo exception = 5;
+}
+
+// Context message information.
+message ContextMessageInfo {
+  string context_id = 1;
+
+  bytes payload = 2;
+
+  int64 sequence_number = 3;
+
+  string message_source_id = 4;
+}
+
+// Task information
+message TaskInfo {
+  // Task identifier.
+  string task_id = 1;
+
+  // Task result.
+  bytes result = 2;
+
+  /* Carry entire context info since client may not have received it
+   * when submitting task against allocated evalautor.
+   */
+  ContextInfo context = 5;
+
+  // Possible exception encountered in task execution.
+  ExceptionInfo exception = 10;
+}
+
+// Task message information.
+message TaskMessageInfo {
+  string task_id = 1;
+
+  bytes payload = 2;
+
+  int64 sequence_number = 3;
+
+  string context_id = 4;
+
+  string message_source_id = 5;
+}
+
+// Client message information.
+message ClientMessageInfo {
+  bytes payload = 1;
+}
