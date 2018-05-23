@@ -42,7 +42,7 @@ namespace Org.Apache.REEF.Common.Telemetry
         /// <summary>
         /// Registration of metrics
         /// </summary>
-        private IDictionary<string, MetricData> _metricsMap = new ConcurrentDictionary<string, MetricData>();
+        private ConcurrentDictionary<string, MetricData> _metricsMap = new ConcurrentDictionary<string, MetricData>();
 
         /// <summary>
         /// The lock for metrics.
@@ -64,7 +64,7 @@ namespace Org.Apache.REEF.Common.Telemetry
             var metrics = JsonConvert.DeserializeObject<IList<MetricData>>(serializedMetricsString, settings);
             foreach (var m in metrics)
             {
-                _metricsMap.Add(m.GetMetric().Name, m);
+                _metricsMap.TryAdd(m.GetMetric().Name, m);
             }
         }
 
@@ -72,7 +72,7 @@ namespace Org.Apache.REEF.Common.Telemetry
         {
             foreach (var me in metrics.GetMetrics())
             {
-                _metricsMap.Add(me.GetMetric().Name, new MetricData(me.GetMetric()));
+                _metricsMap.TryAdd(me.GetMetric().Name, new MetricData(me.GetMetric()));
             }
         }
 
@@ -85,14 +85,10 @@ namespace Org.Apache.REEF.Common.Telemetry
         /// <returns>Indicates if the metric was registered.</returns>
         public bool TryRegisterMetric(IMetric metric)
         {
-            lock (_metricLock)
+            if (!_metricsMap.TryAdd(metric.Name, new MetricData(metric)))
             {
-                if (_metricsMap.ContainsKey(metric.Name))
-                {
-                    Logger.Log(Level.Warning, "The metric [{0}] already exists.", metric.Name);
-                    return false;
-                }
-                _metricsMap.Add(metric.Name, new MetricData(metric));
+                Logger.Log(Level.Warning, "The metric [{0}] already exists.", metric.Name);
+                return false;
             }
             return true;
         }
@@ -105,15 +101,12 @@ namespace Org.Apache.REEF.Common.Telemetry
         /// <returns>Boolean indicating if a metric object was succesfully retrieved.</returns>
         public bool TryGetValue(string name, out IMetric me)
         {
-            lock (_metricLock)
+            if (!_metricsMap.TryGetValue(name, out MetricData md))
             {
-                if (!_metricsMap.TryGetValue(name, out MetricData md))
-                {
-                    me = null;
-                    return false;
-                }
-                me = md.GetMetric();
+                me = null;
+                return false;
             }
+            me = md.GetMetric();
             return true;
         }
 
@@ -138,15 +131,7 @@ namespace Org.Apache.REEF.Common.Telemetry
             {
                 foreach (var metric in metrics.GetMetrics())
                 {
-                    var me = metric.GetMetric();
-                    if (_metricsMap.TryGetValue(me.Name, out MetricData metricData))
-                    {
-                        metricData.UpdateMetric(metric);
-                    }
-                    else
-                    {
-                        _metricsMap.Add(me.Name, metric);
-                    }
+                    _metricsMap.AddOrUpdate(metric.GetMetric().Name, metric, (k, v) => metric);
                 }
             }
         }
@@ -160,6 +145,9 @@ namespace Org.Apache.REEF.Common.Telemetry
         {
             lock (_metricLock)
             {
+                _metricsMap.AddOrUpdate(me.Name, new MetricData(me), (k, v) => );
+
+
                 if (_metricsMap.TryGetValue(me.Name, out MetricData metricData))
                 {
                     metricData.UpdateMetric(me);
