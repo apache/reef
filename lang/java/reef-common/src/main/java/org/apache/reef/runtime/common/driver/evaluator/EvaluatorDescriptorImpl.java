@@ -24,6 +24,8 @@ import org.apache.reef.driver.catalog.NodeDescriptor;
 import org.apache.reef.driver.evaluator.EvaluatorDescriptor;
 import org.apache.reef.driver.evaluator.EvaluatorProcess;
 
+import javax.inject.Inject;
+
 /**
  * A simple all-data implementation of EvaluatorDescriptor.
  */
@@ -79,5 +81,85 @@ final class EvaluatorDescriptorImpl implements EvaluatorDescriptor {
   @Override
   public String getRuntimeName() {
     return this.runtimeName;
+  }
+
+  /**
+   * Evaluator descriptor builder factory that creates a  new evaluator descriptor builder impl.
+   */
+  static final class EvaluatorDescriptorBuilderFactoryImpl implements EvaluatorDescriptorBuilderFactory {
+    @Inject
+    EvaluatorDescriptorBuilderFactoryImpl() {
+    }
+
+    @Override
+    public EvaluatorDescriptorBuilder newBuilder() {
+      return new EvaluatorDescriptorBuilderImpl();
+    }
+
+    @Override
+    public EvaluatorDescriptorBuilder newBuilder(final EvaluatorDescriptor copy) {
+      return newBuilder()
+          .setNodeDescriptor(copy.getNodeDescriptor())
+          .setMemory(copy.getMemory())
+          .setNumberOfCores(copy.getNumberOfCores())
+          .setEvaluatorProcess(copy.getProcess())
+          .setRuntimeName(copy.getRuntimeName());
+    }
+  }
+
+  /**
+   * An builder for this evaluator descriptor implementation.
+   */
+  private static final class EvaluatorDescriptorBuilderImpl implements EvaluatorDescriptorBuilder {
+    private NodeDescriptor nodeDescriptor = null;
+    private int memory = 0;
+    private int numberOfCores = 0;
+    private EvaluatorProcess evaluatorProcess = null;
+    private String runtimeName = null;
+
+    @Override
+    public EvaluatorDescriptorBuilderImpl setNodeDescriptor(final NodeDescriptor nodeDescriptor) {
+      this.nodeDescriptor = nodeDescriptor;
+      return this;
+    }
+
+    @Override
+    public EvaluatorDescriptorBuilderImpl setMemory(final int megaBytes) {
+      this.memory = megaBytes;
+      return this;
+    }
+
+    @Override
+    public EvaluatorDescriptorBuilderImpl setNumberOfCores(final int numberOfCores) {
+      this.numberOfCores = numberOfCores;
+      return this;
+    }
+
+    @Override
+    public EvaluatorDescriptorBuilderImpl setEvaluatorProcess(final EvaluatorProcess evaluatorProcess) {
+      this.evaluatorProcess = evaluatorProcess;
+      return this;
+    }
+
+    @Override
+    public EvaluatorDescriptorBuilderImpl setRuntimeName(final String runtimeName) {
+      this.runtimeName = runtimeName;
+      return this;
+    }
+
+    @Override
+    public EvaluatorDescriptor build() {
+      if (this.memory == 0) {
+        throw new IllegalArgumentException("memory not set");
+      } else if (this.numberOfCores == 0) {
+        throw new IllegalArgumentException("number of cores not set");
+      }
+      return new EvaluatorDescriptorImpl(
+          this.nodeDescriptor,
+          this.memory,
+          this.numberOfCores,
+          this.evaluatorProcess,
+          this.runtimeName);
+    }
   }
 }
