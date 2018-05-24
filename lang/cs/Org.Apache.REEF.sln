@@ -74,7 +74,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Org.Apache.REEF.Tests", "Or
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Org.Apache.REEF.FatNuGet", "Org.Apache.REEF.FatNuGet\Org.Apache.REEF.FatNuGet.csproj", "{F7D5EAB5-65F8-45B5-9318-60EC311E08C6}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}}") = "Org.Apache.REEF.Bridge.CLR", "Org.Apache.REEF.Bridge.CLR\Org.Apache.REEF.Bridge.CLR.csproj", "{81575917-C673-4E6F-9CF1-0DD35FC5E717}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Org.Apache.REEF.Bridge.CLR", "Org.Apache.REEF.Bridge.CLR\Org.Apache.REEF.Bridge.CLR.csproj", "{81575917-C673-4E6F-9CF1-0DD35FC5E717}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
