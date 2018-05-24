@@ -188,11 +188,7 @@ namespace Org.Apache.REEF.IO.FileSystem.AzureBlob
 
             // If not at the root folder, return all blobs within the container
             string containerName = segments[1];
-            string relativeAddress = string.Empty;
-            if (segments.Count() > 1)
-            {
-                relativeAddress = directoryUri.PathAndQuery.Substring(containerName.Length + 1);
-            }
+            string relativeAddress = directoryUri.PathAndQuery.Substring(containerName.Length + 1);
 
             do
             {

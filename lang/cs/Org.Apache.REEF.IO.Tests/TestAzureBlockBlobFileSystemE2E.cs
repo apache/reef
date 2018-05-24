@@ -153,12 +153,14 @@ namespace Org.Apache.REEF.IO.Tests
                 UploadFromString(blob, "hello");
             }
 
+            Uri containerUri = new Uri(_container.Uri.AbsoluteUri + '/');
+
             // List files in the root level in container
-            ValidateChildenWithBlobs(_container.Uri, expectedRootChildren);
+            ValidateChildren(_container.Uri, expectedRootChildren.Select(child => new Uri(containerUri, child)));
 
             // List files only in the sub-folder in the container
             Uri folderUri = _container.GetDirectoryReference("folder1").Uri;
-            ValidateChildenWithBlobs(folderUri, expectedFolderChildren);
+            ValidateChildren(folderUri, expectedFolderChildren.Select(child => new Uri(containerUri, child)));
         }
 
         [Fact(Skip = SkipMessage)]
@@ -166,25 +168,15 @@ namespace Org.Apache.REEF.IO.Tests
         {
             // List containers in the storage account
             Uri rootUri = _fileSystem.CreateUriForPath(string.Empty);
-            ValidateChildrenWithContainers(rootUri, new string[] { _container.Name });
+            ValidateChildren(rootUri, new List<Uri> { _container.Uri });
         }
 
-        public void ValidateChildenWithBlobs(Uri storageBlobUri, IEnumerable<string> expectedChildBlobNames)
+        public void ValidateChildren(Uri storageBlobUri, IEnumerable<Uri> expectedChildBlobs)
         {
             IEnumerable<Uri> blobs = _fileSystem.GetChildren(storageBlobUri);
-            IEnumerable<string> blobNames = blobs.Select(b => b.LocalPath.Replace("/" + _container.Name + "/", string.Empty));
-
-            Assert.True(expectedChildBlobNames.All(blobName => blobNames.Contains(blobName)), "blobNames has elements that are not in expectedChildBlobNames");
-            Assert.Equal(expectedChildBlobNames.Count(), blobNames.Count());
-        }
-
-        public void ValidateChildrenWithContainers(Uri rootUri, IEnumerable<string> expectedContainerNames)
-        {
-            IEnumerable<Uri> containers = _fileSystem.GetChildren(rootUri);
-            IEnumerable<string> containerNames = containers.Select(b => b.PathAndQuery.Replace("/", string.Empty));
-
-            Assert.True(expectedContainerNames.All(containerName => containerNames.Contains(containerName)), "containerNames has elements that are not in expectedContainerNames");
-            Assert.Equal(expectedContainerNames.Count(), containerNames.Count());
+            Assert.Equal(
+                expectedChildBlobs.Select(uri => uri.AbsoluteUri).OrderBy(uri => uri),
+                blobs.Select(uri => uri.AbsoluteUri).OrderBy(uri => uri));
         }
 
         [Fact(Skip = SkipMessage)]
