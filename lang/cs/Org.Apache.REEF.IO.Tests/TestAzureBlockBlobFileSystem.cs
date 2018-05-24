@@ -37,6 +37,11 @@ namespace Org.Apache.REEF.IO.Tests
     {
         private static readonly Uri FakeUri = new Uri("http://storageacct.blob.core.windows.net/container/file");
 
+        private static Uri BaseUri
+        {
+            get { return new Uri(FakeUri.GetLeftPart(UriPartial.Authority)); }
+        }
+
         [Fact]
         public void TestCreate()
         {
@@ -124,69 +129,51 @@ namespace Org.Apache.REEF.IO.Tests
         }
 
         [Fact]
-        public void TestCreateUriForPath()
+        public void TestCreateUriForAbsolutePathInvalid()
         {
             var testContext = new TestContext();
-            var tests = new[]
-            {
-                new
-                {
-                    Path = FakeUri.AbsoluteUri,
-                    Uri = FakeUri,
-                    ExpectedExceptionType = (Type)null
-                },
-                new
-                {
-                    Path = "http://storageacct.blob.core.windows.net/container/folder1/folder2/file.txt",
-                    Uri = new Uri("http://storageacct.blob.core.windows.net/container/folder1/folder2/file.txt"),
-                    ExpectedExceptionType = (Type)null
-                },
-                new
-                {
-                    Path = "container/folder1/folder2/file.txt",
-                    Uri = new Uri("http://storageacct.blob.core.windows.net/container/folder1/folder2/file.txt"),
-                    ExpectedExceptionType = (Type)null
-                },
-                new
-                {
-                    // Container name must be atleast 3 characters
-                    Path = "c1/folder1/folder2/file.txt",
-                    Uri = new Uri("http://storageacct.blob.core.windows.net/container/folder1/folder2/file.txt"),
-                    ExpectedExceptionType = typeof(ArgumentException)
-                },
-                new
-                {
-                    // Container name cannot contain a colon
-                    Path = "c:/folder1/folder2/file.txt",
-                    Uri = (Uri)null,
-                    ExpectedExceptionType = typeof(ArgumentException)
-                }
-            };
+            Assert.Throws<ArgumentException>(() => testContext.GetAzureFileSystem().CreateUriForPath("http://www.invalidstorageaccount.com/container/folder1/file1.txt"));
+        }
 
-            foreach (var test in tests)
-            {
-                if (test.ExpectedExceptionType == null)
-                {
-                    Exception actualException = null;
-                    Uri resultUri = null;
+        [Fact]
+        public void TestCreateUriForAbsolutePath()
+        {
+            var testContext = new TestContext();
+            Uri uri = new Uri("http://storageacct.blob.core.windows.net/container/folder1/folder2/file.txt");
+            Uri resultUri = testContext.GetAzureFileSystem().CreateUriForPath(uri.AbsoluteUri);
+            Assert.Equal<Uri>(uri, resultUri);
+        }
 
-                    try
-                    {
-                        resultUri = testContext.GetAzureFileSystem().CreateUriForPath(test.Path);
-                    }
-                    catch (Exception ex)
-                    {
-                        actualException = ex;
-                    }
+        [Fact]
+        public void TestCreateUriForRelativePathValid()
+        {
+            var testContext = new TestContext();
+            string relativePath = "container/folder1/folder2/file.txt";
+            Uri expectedUri = new Uri(BaseUri, relativePath);
+            Uri resultUri = testContext.GetAzureFileSystem().CreateUriForPath(relativePath);
+            Assert.Equal<Uri>(expectedUri, resultUri);
+        }
 
-                    Assert.Null(actualException);
-                    Assert.True(test.Uri.AbsoluteUri == resultUri.AbsoluteUri);
-                }
-                else
-                {
-                    Assert.Throws(test.ExpectedExceptionType, delegate { testContext.GetAzureFileSystem().CreateUriForPath(test.Path); });
-                }
-            }
+        [Fact]
+        public void TestCreateUriForRelativePathWithContainerNameTooSmall()
+        {
+            var testContext = new TestContext();
+
+            // Container name must be atleast 3 characters.
+            string relativePath = "c1/folder1/folder2/file.txt";
+            Uri expectedUri = new Uri(BaseUri, relativePath);
+            Assert.Throws<ArgumentException>(() => testContext.GetAzureFileSystem().CreateUriForPath(relativePath));
+        }
+
+        [Fact]
+        public void TestCreateUriForRelativePathWithInvalidContainerName()
+        {
+            var testContext = new TestContext();
+
+            // Container name cannot contain a colon character.
+            string relativePath = "c:/folder1/folder2/file.txt";
+            Uri expectedUri = new Uri(BaseUri, relativePath);
+            Assert.Throws<ArgumentException>(() => testContext.GetAzureFileSystem().CreateUriForPath(relativePath));
         }
 
         private sealed class TestContext
@@ -208,7 +195,7 @@ namespace Org.Apache.REEF.IO.Tests
                 var injector = TangFactory.GetTang().NewInjector(conf);
                 injector.BindVolatileInstance(TestCloudBlobClient);
                 var fs = injector.GetInstance<AzureBlockBlobFileSystem>();
-                TestCloudBlobClient.BaseUri.ReturnsForAnyArgs(new Uri(FakeUri.GetLeftPart(UriPartial.Authority)));
+                TestCloudBlobClient.BaseUri.ReturnsForAnyArgs(BaseUri);
                 TestCloudBlockBlob.Open().Returns(TestOpenStream);
                 TestCloudBlockBlob.Create().Returns(TestCreateStream);
                 TestCloudBlockBlob.Blob.ReturnsForAnyArgs(new CloudBlockBlob(FakeUri));

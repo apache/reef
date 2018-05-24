@@ -62,13 +62,27 @@ namespace Org.Apache.REEF.IO.FileSystem.Hadoop
         /// <returns></returns>
         public Uri CreateUriForPath(string path)
         {
-            Logger.Log(Level.Info, string.Format(CultureInfo.CurrentCulture, "CreateUriForPath with path: {0}, _uriPrefix: {1}.", path, _uriPrefix));
             if (path == null)
             {
-                throw new ArgumentException("null path passed in CreateUriForPath");
+                throw new ArgumentNullException("path");
             }
-            var uri = path.StartsWith(_uriPrefix) ? new Uri(path) : new Uri(_uriPrefix + '/' + path.Trim('/'));
-            Logger.Log(Level.Info, string.Format(CultureInfo.CurrentCulture, "Uri {0} created in CreateUriForPath.", uri));
+
+            Uri uri = null;
+            try
+            {
+                uri = new Uri(path);
+            }
+            catch (UriFormatException)
+            {
+                uri = new Uri(new Uri(_uriPrefix), path);
+            }
+
+            if (!uri.AbsoluteUri.StartsWith(_uriPrefix))
+            {
+                throw new ArgumentException($"Given uri does not begin with valid prefix ({_uriPrefix})");
+            }
+
+            Logger.Log(Level.Verbose, string.Format(CultureInfo.CurrentCulture, "Uri {0} created in CreateUriForPath for path {1}.", uri, path));
             return uri;
         }
 
