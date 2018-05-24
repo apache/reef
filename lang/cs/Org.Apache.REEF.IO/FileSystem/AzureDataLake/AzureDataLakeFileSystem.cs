@@ -123,12 +123,13 @@ namespace Org.Apache.REEF.IO.FileSystem.AzureDataLake
             }
             if (status.EntriesFailed.Count != 0)
             {
-                var failedEntriesMsg = new StringBuilder();
-                foreach (var entry in status.EntriesFailed)
+                var failedEntriesBuilder = new StringBuilder();
+                for (int i = 0; i < status.EntriesFailed.Count && i < 50; i++)
                 {
-                    failedEntriesMsg.Append($"Entry {entry.EntryName} failed with error message {entry.Errors}. ");
+                    var entry = status.EntriesFailed[i];
+                    failedEntriesBuilder.Append($"Entry {entry.EntryName} failed with error message {entry.Errors}. ");
                 }
-                throw new IOException($"{status.EntriesFailed.Count} entries failed to download. {failedEntriesMsg.ToString()}");
+                throw new IOException($"{status.EntriesFailed.Count} entries failed to download. {failedEntriesBuilder.ToString()}");
             }
         }
 
@@ -149,12 +150,13 @@ namespace Org.Apache.REEF.IO.FileSystem.AzureDataLake
             }
             if (status.EntriesFailed.Count != 0)
             {
-                var failedEntriesMsg = new StringBuilder();
-                foreach (var entry in status.EntriesFailed)
+                var failedEntriesBuilder = new StringBuilder();
+                for (int i = 0; i < status.EntriesFailed.Count && i < 50; i++)
                 {
-                    failedEntriesMsg.Append($"Entry {entry.EntryName} failed with error message {entry.Errors}. ");
+                    var entry = status.EntriesFailed[i];
+                    failedEntriesBuilder.Append($"Entry {entry.EntryName} failed with error message {entry.Errors}. ");
                 }
-                throw new IOException($"{status.EntriesFailed.Count} entries failed to upload. {failedEntriesMsg.ToString()}");
+                throw new IOException($"{status.EntriesFailed.Count} entries failed to download. {failedEntriesBuilder.ToString()}");
             }
         }
 
