@@ -211,7 +211,7 @@ namespace Org.Apache.REEF.IO.FileSystem.AzureBlob
 
             if (!resultUri.AbsoluteUri.StartsWith(_client.BaseUri.AbsoluteUri))
             {
-                throw new ArgumentException($"Given uri must begin with valid prefix ({_client.BaseUri.AbsoluteUri})", nameof(path));
+                throw new ArgumentException($"Given URI must begin with valid prefix ({_client.BaseUri.AbsoluteUri})", nameof(path));
             }
 
             if (resultUri.Segments.Count() < 2)

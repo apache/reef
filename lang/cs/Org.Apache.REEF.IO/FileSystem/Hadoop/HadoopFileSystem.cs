@@ -64,7 +64,7 @@ namespace Org.Apache.REEF.IO.FileSystem.Hadoop
         {
             if (path == null)
             {
-                throw new ArgumentNullException("path");
+                throw new ArgumentNullException(nameof(path));
             }
 
             Uri uri = null;
@@ -79,10 +79,9 @@ namespace Org.Apache.REEF.IO.FileSystem.Hadoop
 
             if (!uri.AbsoluteUri.StartsWith(_uriPrefix))
             {
-                throw new ArgumentException($"Given uri does not begin with valid prefix ({_uriPrefix})");
+                throw new ArgumentException($"Given URI does not begin with valid prefix ({_uriPrefix})");
             }
 
-            Logger.Log(Level.Verbose, string.Format(CultureInfo.CurrentCulture, "Uri {0} created in CreateUriForPath for path {1}.", uri, path));
             return uri;
         }
 

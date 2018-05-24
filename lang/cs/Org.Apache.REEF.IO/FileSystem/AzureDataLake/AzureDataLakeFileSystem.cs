@@ -220,7 +220,7 @@ namespace Org.Apache.REEF.IO.FileSystem.AzureDataLake
 
             if (!resultUri.AbsoluteUri.StartsWith(this.UriPrefix))
             {
-                throw new ArgumentException($"Given uri must begin with valid prefix ({this.UriPrefix})", nameof(path));
+                throw new ArgumentException($"Given URI must begin with valid prefix ({this.UriPrefix})", nameof(path));
             }
 
             return resultUri;

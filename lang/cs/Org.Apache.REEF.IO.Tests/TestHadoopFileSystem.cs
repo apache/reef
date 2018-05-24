@@ -160,8 +160,7 @@ namespace Org.Apache.REEF.IO.Tests
         public void CreateUriForPathWithPrefix()
         {
             string uriString = "hdfs://localhost:9000/tmp/TestHadoop";
-            Uri uri = new Uri(uriString);
-            Assert.Equal(uri, _fileSystem.CreateUriForPath(uriString));
+            Assert.Equal(new Uri(uriString), _fileSystem.CreateUriForPath(uriString));
         }
 
         /// <summary>

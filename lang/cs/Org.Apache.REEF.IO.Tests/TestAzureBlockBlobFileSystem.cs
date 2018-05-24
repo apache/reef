@@ -36,16 +36,21 @@ namespace Org.Apache.REEF.IO.Tests
     public sealed class TestAzureBlockBlobFileSystem
     {
         private static readonly Uri FakeUri = new Uri("http://storageacct.blob.core.windows.net/container/file");
+        private TestContext testContext;
 
         private static Uri BaseUri
         {
             get { return new Uri(FakeUri.GetLeftPart(UriPartial.Authority)); }
         }
 
+        public TestAzureBlockBlobFileSystem()
+        {
+            this.testContext = new TestContext();
+        }
+
         [Fact]
         public void TestCreate()
         {
-            var testContext = new TestContext();
             Stream stream = testContext.GetAzureFileSystem().Create(FakeUri);
             testContext.TestCloudBlockBlob.Received(1).Create();
             Assert.Equal(testContext.TestCreateStream, stream);
@@ -54,7 +59,6 @@ namespace Org.Apache.REEF.IO.Tests
         [Fact]
         public void TestOpen()
         {
-            var testContext = new TestContext();
             Stream stream = testContext.GetAzureFileSystem().Open(FakeUri);
             testContext.TestCloudBlockBlob.Received(1).Open();
             Assert.Equal(testContext.TestOpenStream, stream);
@@ -63,7 +67,6 @@ namespace Org.Apache.REEF.IO.Tests
         [Fact]
         public void TestDelete()
         {
-            var testContext = new TestContext();
             testContext.GetAzureFileSystem().Delete(FakeUri);
             testContext.TestCloudBlockBlob.Received(1).Delete();
         }
@@ -71,7 +74,6 @@ namespace Org.Apache.REEF.IO.Tests
         [Fact]
         public void TestExists()
         {
-            var testContext = new TestContext();
             testContext.GetAzureFileSystem().Exists(FakeUri);
             testContext.TestCloudBlockBlob.Received(1).Exists();
         }
@@ -79,7 +81,6 @@ namespace Org.Apache.REEF.IO.Tests
         [Fact]
         public void TestCopyToLocal()
         {
-            var testContext = new TestContext();
             testContext.GetAzureFileSystem().CopyToLocal(FakeUri, "local");
             testContext.TestCloudBlockBlob.Received(1).DownloadToFile("local", FileMode.CreateNew);
         }
@@ -87,7 +88,6 @@ namespace Org.Apache.REEF.IO.Tests
         [Fact]
         public void TestCopyFromLocal()
         {
-            var testContext = new TestContext();
             testContext.GetAzureFileSystem().CopyFromLocal("local", FakeUri);
             testContext.TestCloudBlockBlob.Received(1).UploadFromFile("local", FileMode.Open);
         }
@@ -118,7 +118,6 @@ namespace Org.Apache.REEF.IO.Tests
         [Fact]
         public void TestDeleteDirectoryRecursive()
         {
-            var testContext = new TestContext();
             testContext.TestCloudBlobDirectory.ListBlobs(true).ReturnsForAnyArgs(Enumerable.Repeat(testContext.TestCloudBlob, 5));
             testContext.GetAzureFileSystem().DeleteDirectory(new Uri("http://test.com/container/directory/directory"));
             testContext.TestCloudBlobClient.Received(1).GetContainerReference("container");
@@ -131,14 +130,12 @@ namespace Org.Apache.REEF.IO.Tests
         [Fact]
         public void TestCreateUriForAbsolutePathInvalid()
         {
-            var testContext = new TestContext();
             Assert.Throws<ArgumentException>(() => testContext.GetAzureFileSystem().CreateUriForPath("http://www.invalidstorageaccount.com/container/folder1/file1.txt"));
         }
 
         [Fact]
         public void TestCreateUriForAbsolutePath()
         {
-            var testContext = new TestContext();
             Uri uri = new Uri("http://storageacct.blob.core.windows.net/container/folder1/folder2/file.txt");
             Uri resultUri = testContext.GetAzureFileSystem().CreateUriForPath(uri.AbsoluteUri);
             Assert.Equal<Uri>(uri, resultUri);
@@ -147,7 +144,6 @@ namespace Org.Apache.REEF.IO.Tests
         [Fact]
         public void TestCreateUriForRelativePathValid()
         {
-            var testContext = new TestContext();
             string relativePath = "container/folder1/folder2/file.txt";
             Uri expectedUri = new Uri(BaseUri, relativePath);
             Uri resultUri = testContext.GetAzureFileSystem().CreateUriForPath(relativePath);
@@ -157,8 +153,6 @@ namespace Org.Apache.REEF.IO.Tests
         [Fact]
         public void TestCreateUriForRelativePathWithContainerNameTooSmall()
         {
-            var testContext = new TestContext();
-
             // Container name must be atleast 3 characters.
             string relativePath = "c1/folder1/folder2/file.txt";
             Uri expectedUri = new Uri(BaseUri, relativePath);
@@ -168,11 +162,8 @@ namespace Org.Apache.REEF.IO.Tests
         [Fact]
         public void TestCreateUriForRelativePathWithInvalidContainerName()
         {
-            var testContext = new TestContext();
-
             // Container name cannot contain a colon character.
             string relativePath = "c:/folder1/folder2/file.txt";
-            Uri expectedUri = new Uri(BaseUri, relativePath);
             Assert.Throws<ArgumentException>(() => testContext.GetAzureFileSystem().CreateUriForPath(relativePath));
         }
 
