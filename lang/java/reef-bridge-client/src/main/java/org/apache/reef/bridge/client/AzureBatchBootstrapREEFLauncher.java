@@ -18,6 +18,11 @@
  */
 package org.apache.reef.bridge.client;
 
+import com.microsoft.azure.batch.BatchClient;
+import com.microsoft.azure.batch.auth.BatchCredentials;
+import com.microsoft.azure.batch.protocol.models.InboundNATPool;
+import com.microsoft.azure.batch.protocol.models.NetworkConfiguration;
+import com.microsoft.azure.batch.protocol.models.PoolEndpointConfiguration;
 import org.apache.avro.io.DecoderFactory;
 import org.apache.avro.io.JsonDecoder;
 import org.apache.avro.specific.SpecificDatumReader;
@@ -40,15 +45,21 @@ import org.apache.reef.runtime.common.files.RuntimeClasspathProvider;
 import org.apache.reef.runtime.common.files.RuntimePathProvider;
 import org.apache.reef.runtime.common.launch.REEFErrorHandler;
 import org.apache.reef.runtime.common.launch.REEFMessageCodec;
-import org.apache.reef.tang.Configuration;
-import org.apache.reef.tang.Tang;
+import org.apache.reef.tang.*;
 import org.apache.reef.tang.exceptions.InjectionException;
 import org.apache.reef.wake.remote.RemoteConfiguration;
+import org.apache.reef.wake.remote.ports.ListTcpPortProvider;
+import org.apache.reef.wake.remote.ports.TcpPortProvider;
+import org.apache.reef.wake.remote.ports.parameters.TcpPortList;
 import org.apache.reef.wake.time.Clock;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -90,13 +101,37 @@ public final class AzureBatchBootstrapREEFLauncher {
         TANG.newInjector(generateConfiguration(avroAzureBatchJobSubmissionParameters))
             .getInstance(AzureBatchBootstrapDriverConfigGenerator.class);
 
-    final Configuration launcherConfig =
+    final JavaConfigurationBuilder launcherConfigBuilder =
         TANG.newConfigurationBuilder()
             .bindNamedParameter(RemoteConfiguration.ManagerName.class, "AzureBatchBootstrapREEFLauncher")
             .bindNamedParameter(RemoteConfiguration.ErrorHandler.class, REEFErrorHandler.class)
             .bindNamedParameter(RemoteConfiguration.MessageCodec.class, REEFMessageCodec.class)
-            .bindSetEntry(Clock.RuntimeStartHandler.class, PIDStoreStartHandler.class)
-            .build();
+            .bindSetEntry(Clock.RuntimeStartHandler.class, PIDStoreStartHandler.class);
+
+    // Check if user has set up inbound NAT pool rules and whitelist ports to use.
+    // If set, we prefer will launch driver that binds to port in InboundNATPool.
+    final List<CharSequence> whiteListPorts = jobSubmissionParam.getAzureBatchPoolDriverPortsList();
+
+    if (whiteListPorts != null && whiteListPorts.size() != 0) {
+      final Set<String> inBoundNatPoolBackendPorts = getAzureBatchInBoundNatPoolBackendPorts(
+          injector.getInstance(SharedKeyBatchCredentialProvider.class).getCredentials(),
+          injector.getNamedInstance(AzureBatchPoolId.class));
+
+      List<String> availablePorts = new ArrayList<>();
+      for(CharSequence whitelistPort : whiteListPorts){
+        String whileListPortString = whitelistPort.toString();
+        if(inBoundNatPoolBackendPorts.contains(whileListPortString)){
+          availablePorts.add(whileListPortString);
+        }
+      }
+
+      if(availablePorts.size() > 0) {
+        launcherConfigBuilder.bindList(TcpPortList.class, availablePorts)
+            .bindImplementation(TcpPortProvider.class, ListTcpPortProvider.class);
+      }
+    }
+
+    final Configuration launcherConfig = launcherConfigBuilder.build();
 
     try (final REEFEnvironment reef = REEFEnvironment.fromConfiguration(
         azureBatchBootstrapDriverConfigGenerator.getDriverConfigurationFromParams(
@@ -142,6 +177,35 @@ public final class AzureBatchBootstrapREEFLauncher {
         .bindNamedParameter(AzureStorageContainerName.class,
             avroAzureBatchJobSubmissionParameters.getAzureStorageContainerName().toString())
         .build();
+  }
+
+  private static Set<String> getAzureBatchInBoundNatPoolBackendPorts(
+      final BatchCredentials credentials, final String poolId) {
+    final BatchClient client = BatchClient.open(credentials);
+    final NetworkConfiguration networkConfiguration;
+
+    try {
+      networkConfiguration = client.poolOperations().getPool(poolId).networkConfiguration();
+    } catch (IOException e) {
+      LOG.log(Level.WARNING, "Unable to setup Http Server with InBoundNATPool Port", e);
+      return null;
+    }
+
+    if (networkConfiguration == null) {
+      return null;
+    }
+
+    final PoolEndpointConfiguration endpointConfiguration = networkConfiguration.endpointConfiguration();
+    if (endpointConfiguration == null) {
+      return null;
+    }
+
+    final List<InboundNATPool> inboundNATpools = endpointConfiguration.inboundNATPools();
+    final Set<String> backendPorts = new HashSet<>();
+    for (InboundNATPool pool : inboundNATpools) {
+      backendPorts.add(String.valueOf(pool.backendPort()));
+    }
+    return backendPorts;
   }
 
   private static RuntimeException fatal(final String msg, final Throwable t) {

@@ -30,7 +30,6 @@ using Microsoft.Practices.TransientFaultHandling;
 #endif
 using Newtonsoft.Json;
 using Org.Apache.REEF.Client.API;
-using Org.Apache.REEF.Client.YARN.RestClient;
 using Org.Apache.REEF.Client.YARN.RestClient.DataModel;
 using Org.Apache.REEF.Utilities.Logging;
 using HttpClient = System.Net.Http.HttpClient;
@@ -48,12 +47,22 @@ namespace Org.Apache.REEF.Client.Common
         private const string AppKey = "app";
         private const string ThisIsStandbyRm = "This is standby RM";
         private const string AppJson = "application/json";
+        private const int DriverStatusIntervalInSecond = 4;
 
-        private string _driverUrl;
         protected string _appId;
 
         private readonly HttpClient _client;
         private readonly IREEFClient _reefClient;
+
+        /// <summary>
+        /// Url of http end point of the web server running in the driver
+        /// </summary>
+        private string _driverUrl;
+
+        /// <summary>
+        /// File path to the driver's http endpoint.
+        /// </summary>
+        private readonly string _filePath;
 
         /// <summary>
         /// Number of retries when connecting to the Driver's HTTP endpoint.
@@ -74,7 +83,7 @@ namespace Org.Apache.REEF.Client.Common
             };
             _client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue(AppJson));
 
-            _driverUrl = GetDriverUrl(filePath);
+            _filePath = filePath;
 
             _numberOfRetries = numberOfRetries;
             _retryInterval = TimeSpan.FromMilliseconds(retryInterval);
@@ -85,7 +94,16 @@ namespace Org.Apache.REEF.Client.Common
         /// </summary>
         public string DriverUrl
         {
-            get { return _driverUrl; }
+            get
+            {
+                if (_driverUrl != null)
+                {
+                    return _driverUrl;
+                }
+
+                _driverUrl = GetDriverUrl(_filePath);
+                return _driverUrl;
+            }
         }
 
         /// <summary>
@@ -125,9 +143,13 @@ namespace Org.Apache.REEF.Client.Common
                 // We were unable to connect to the Driver at least once.
                 throw new WebException("Unable to connect to the Driver.");
             }
-            
+
             while (status.IsActive())
             {
+                // Add sleep in while loop, whose value alligns with default heart beat interval.
+                Task.Delay(TimeSpan.FromSeconds(DriverStatusIntervalInSecond)).GetAwaiter().GetResult();
+                LOGGER.Log(Level.Info, "DriverStatus is " + status);
+
                 try
                 {
                     status = FetchDriverStatus();
