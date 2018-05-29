@@ -156,7 +156,7 @@ namespace Org.Apache.REEF.IO.FileSystem.AzureDataLake
                     var entry = status.EntriesFailed[i];
                     failedEntriesBuilder.Append($"Entry {entry.EntryName} failed with error message {entry.Errors}. ");
                 }
-                throw new IOException($"{status.EntriesFailed.Count} entries failed to download. {failedEntriesBuilder.ToString()}");
+                throw new IOException($"{status.EntriesFailed.Count} entries failed to upload. {failedEntriesBuilder.ToString()}");
             }
         }
 
