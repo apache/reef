@@ -135,7 +135,8 @@ namespace Org.Apache.REEF.Common.Telemetry
             }
             else
             {
-                _records[0] = newRecord;
+                _records.Clear();
+                _records.Add(newRecord);
             }
         }
 
