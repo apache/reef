@@ -42,7 +42,7 @@ namespace Org.Apache.REEF.Common.Telemetry
         /// <summary>
         /// Registration of metrics
         /// </summary>
-        private ConcurrentDictionary<string, MetricData> _metricsMap = new ConcurrentDictionary<string, MetricData>();
+        private ConcurrentDictionary<string, MetricTracker> _metricsMap = new ConcurrentDictionary<string, MetricTracker>();
 
         /// <summary>
         /// The lock for metrics.
@@ -61,7 +61,7 @@ namespace Org.Apache.REEF.Common.Telemetry
         [JsonConstructor]
         internal MetricsData(string serializedMetricsString)
         {
-            var metrics = JsonConvert.DeserializeObject<IList<MetricData>>(serializedMetricsString, settings);
+            var metrics = JsonConvert.DeserializeObject<IList<MetricTracker>>(serializedMetricsString, settings);
             foreach (var m in metrics)
             {
                 _metricsMap.TryAdd(m.GetMetric().Name, m);
@@ -72,7 +72,7 @@ namespace Org.Apache.REEF.Common.Telemetry
         {
             foreach (var me in metrics.GetMetrics())
             {
-                _metricsMap.TryAdd(me.GetMetric().Name, new MetricData(me.GetMetric()));
+                _metricsMap.TryAdd(me.GetMetric().Name, new MetricTracker(me.GetMetric()));
             }
         }
 
@@ -85,7 +85,7 @@ namespace Org.Apache.REEF.Common.Telemetry
         /// <returns>Indicates if the metric was registered.</returns>
         public bool TryRegisterMetric(IMetric metric)
         {
-            if (!_metricsMap.TryAdd(metric.Name, new MetricData(metric)))
+            if (!_metricsMap.TryAdd(metric.Name, new MetricTracker(metric)))
             {
                 Logger.Log(Level.Warning, "The metric [{0}] already exists.", metric.Name);
                 return false;
@@ -101,7 +101,7 @@ namespace Org.Apache.REEF.Common.Telemetry
         /// <returns>Boolean indicating if a metric object was succesfully retrieved.</returns>
         public bool TryGetValue(string name, out IMetric me)
         {
-            if (!_metricsMap.TryGetValue(name, out MetricData md))
+            if (!_metricsMap.TryGetValue(name, out MetricTracker md))
             {
                 me = null;
                 return false;
@@ -114,7 +114,7 @@ namespace Org.Apache.REEF.Common.Telemetry
         /// Gets all the registered metrics.
         /// </summary>
         /// <returns>IEnumerable of MetricData.</returns>
-        public IEnumerable<MetricData> GetMetrics()
+        public IEnumerable<MetricTracker> GetMetrics()
         {
             return _metricsMap.Values;
         }
@@ -151,16 +151,16 @@ namespace Org.Apache.REEF.Common.Telemetry
         /// Convert the metric data to a collection of IMetric for sinking.
         /// </summary>
         /// <returns>A collection of metric records.</returns>
-        internal IEnumerable<KeyValuePair<string, MetricData.MetricRecord>> GetMetricsHistory()
+        internal IEnumerable<KeyValuePair<string, MetricTracker.MetricRecord>> GetMetricsHistory()
         {
-            var records = new List<KeyValuePair<string, MetricData.MetricRecord>>();
+            var records = new List<KeyValuePair<string, MetricTracker.MetricRecord>>();
             foreach (var me in _metricsMap)
             {
                 var name = me.Key;  // name of metric
                 var data = me.Value;  // metric tracker
                 foreach (var record in data.GetMetricRecords())
                 {
-                    records.Add(new KeyValuePair<string, MetricData.MetricRecord>(name, record));
+                    records.Add(new KeyValuePair<string, MetricTracker.MetricRecord>(name, record));
                 }
             }
             return records;

@@ -43,7 +43,7 @@ namespace Org.Apache.REEF.Common.Telemetry
         /// Returns all the metrics.
         /// </summary>
         /// <returns></returns>
-        IEnumerable<MetricData> GetMetrics();
+        IEnumerable<MetricTracker> GetMetrics();
 
         /// <summary>
         /// Serialize the metrics into strings

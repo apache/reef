@@ -87,7 +87,7 @@ namespace Org.Apache.REEF.Common.Telemetry
         /// <summary>
         /// Call each Sink to sink the data in the metrics
         /// </summary>
-        private void Sink(IEnumerable<KeyValuePair<string, MetricData.MetricRecord>> metricRecords)
+        private void Sink(IEnumerable<KeyValuePair<string, MetricTracker.MetricRecord>> metricRecords)
         {
             foreach (var s in _metricsSinks)
             {

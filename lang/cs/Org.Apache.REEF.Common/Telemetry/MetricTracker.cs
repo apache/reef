@@ -29,7 +29,7 @@ namespace Org.Apache.REEF.Common.Telemetry
     /// Once the data has been processed, the records and count will reset.
     /// </summary>
     [JsonObject]
-    public sealed class MetricData : IObserver<IMetric>
+    public sealed class MetricTracker : IObserver<IMetric>
     {
         private static readonly Logger Logger = Logger.GetLogger(typeof(MetricsData));
 
@@ -55,7 +55,7 @@ namespace Org.Apache.REEF.Common.Telemetry
         /// </summary>
         /// <param name="metric"></param>
         /// <param name="initialValue"></param>
-        internal MetricData(IMetric metric)
+        internal MetricTracker(IMetric metric)
         {
             Subscribe(metric);
             _mirror = metric;
@@ -66,7 +66,7 @@ namespace Org.Apache.REEF.Common.Telemetry
         }
 
         [JsonConstructor]
-        internal MetricData(IList<MetricRecord> records, int changes)
+        internal MetricTracker(IList<MetricRecord> records, int changes)
         {
             _records = records;
             ChangesSinceLastSink = changes;
@@ -85,7 +85,7 @@ namespace Org.Apache.REEF.Common.Telemetry
         /// When new metric data is received, update the value and records so it reflects the new data.
         /// </summary>
         /// <param name="metric">Metric data received.</param>
-        internal MetricData UpdateMetric(MetricData metric)
+        internal MetricTracker UpdateMetric(MetricTracker metric)
         {
             _mirror = metric.GetMetric();
             if (metric.ChangesSinceLastSink > 0)
@@ -186,7 +186,7 @@ namespace Org.Apache.REEF.Common.Telemetry
                 Timestamp = timestamp;
             }
 
-            public MetricRecord(MetricData metricData)
+            public MetricRecord(MetricTracker metricData)
             {
                 Timestamp = metricData._mirror.Timestamp;
                 Value = metricData._mirror.ValueUntyped;

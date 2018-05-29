@@ -266,12 +266,12 @@ under the License.
     <Compile Include="Telemetry\LongMetric.cs" />
     <Compile Include="Telemetry\MessageSenderConfigurationModule.cs" />
     <Compile Include="Telemetry\MetricBase.cs" />
-    <Compile Include="Telemetry\MetricData.cs" />
     <Compile Include="Telemetry\MetricsData.cs" />
     <Compile Include="Telemetry\MetricSinks.cs" />
     <Compile Include="Telemetry\MetricSinkThreshold.cs" />
     <Compile Include="Telemetry\MetricsMessageSender.cs" />
     <Compile Include="Telemetry\MetricsService.cs" />
+    <Compile Include="Telemetry\MetricTracker.cs" />
     <Compile Include="Telemetry\StringMetric.cs" />
   </ItemGroup>
   <ItemGroup>
