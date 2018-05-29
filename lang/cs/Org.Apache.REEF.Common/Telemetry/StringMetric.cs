@@ -15,17 +15,18 @@
 // specific language governing permissions and limitations
 // under the License.
 
-using System;
+using Newtonsoft.Json;
 
 namespace Org.Apache.REEF.Common.Telemetry
 {
-    class StringMetric : MetricBase<string>
+    public class StringMetric : MetricBase<string>
     {
         public StringMetric(string name, string description, bool isImmutable = false)
             : base(name, description, isImmutable)
         {
         }
 
+        [JsonConstructor]
         internal StringMetric(string name, string description, long timeStamp, string value)
             : base(name, description, timeStamp, value)
         {

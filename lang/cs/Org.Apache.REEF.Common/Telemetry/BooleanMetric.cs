@@ -19,15 +19,15 @@ using Newtonsoft.Json;
 
 namespace Org.Apache.REEF.Common.Telemetry
 {
-    public class IntegerMetric : MetricBase<int>
+    public class BooleanMetric : MetricBase<bool>
     {
-        public IntegerMetric(string name, string description, bool isImmutable = true)
+        public BooleanMetric(string name, string description, bool isImmutable = true)
             : base(name, description, isImmutable)
         {
         }
 
         [JsonConstructor]
-        internal IntegerMetric(string name, string description, long timeStamp, int value)
+        internal BooleanMetric(string name, string description, long timeStamp, bool value)
             : base(name, description, timeStamp, value)
         {
         }
