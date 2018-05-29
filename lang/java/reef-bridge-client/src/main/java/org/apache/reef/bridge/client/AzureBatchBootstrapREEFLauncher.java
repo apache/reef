@@ -118,14 +118,14 @@ public final class AzureBatchBootstrapREEFLauncher {
           injector.getNamedInstance(AzureBatchPoolId.class));
 
       List<String> availablePorts = new ArrayList<>();
-      for(CharSequence whitelistPort : whiteListPorts){
+      for (CharSequence whitelistPort : whiteListPorts) {
         String whileListPortString = whitelistPort.toString();
-        if(inBoundNatPoolBackendPorts.contains(whileListPortString)){
+        if (inBoundNatPoolBackendPorts.contains(whileListPortString)) {
           availablePorts.add(whileListPortString);
         }
       }
 
-      if(availablePorts.size() > 0) {
+      if (availablePorts.size() > 0) {
         launcherConfigBuilder.bindList(TcpPortList.class, availablePorts)
             .bindImplementation(TcpPortProvider.class, ListTcpPortProvider.class);
       }
