@@ -31,6 +31,8 @@ namespace Org.Apache.REEF.Common.Telemetry
 
         protected long _timestamp;
 
+        protected bool _isImmutable;
+
         public string Name { get; }
 
         public string Description { get; }
@@ -53,14 +55,21 @@ namespace Org.Apache.REEF.Common.Telemetry
             }
         }
 
-        public abstract bool IsImmutable { get; }
+        public bool IsImmutable
+        {
+            get
+            {
+                return _isImmutable;
+            }
+        }
 
-        public MetricBase(string name, string description)
+        public MetricBase(string name, string description, bool isImmutable)
         {
             Name = name;
             Description = description;
             _timestamp = DateTime.Now.Ticks;
             _typedValue = default(T);
+            _isImmutable = isImmutable;
         }
 
         public MetricBase(string name, string description, long timeStamp, T value)

@@ -24,13 +24,8 @@ namespace Org.Apache.REEF.Common.Telemetry
 {
     class DoubleMetric : MetricBase<double>
     {
-        public override bool IsImmutable
-        {
-            get { return true; }
-        }
-
-        public DoubleMetric(string name, string description)
-            : base(name, description)
+        public DoubleMetric(string name, string description, bool isImmutable = true)
+            : base(name, description, isImmutable)
         {
         }
 

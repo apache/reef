@@ -21,13 +21,8 @@ namespace Org.Apache.REEF.Common.Telemetry
 {
     class StringMetric : MetricBase<string>
     {
-        public override bool IsImmutable
-        {
-            get { return false; }
-        }
-
-        public StringMetric(string name, string description)
-            : base(name, description)
+        public StringMetric(string name, string description, bool isImmutable = false)
+            : base(name, description, isImmutable)
         {
         }
 

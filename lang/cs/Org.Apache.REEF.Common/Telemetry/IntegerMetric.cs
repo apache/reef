@@ -24,13 +24,8 @@ namespace Org.Apache.REEF.Common.Telemetry
 {
     public class IntegerMetric : MetricBase<int>
     {
-        public override bool IsImmutable
-        {
-            get { return true; }
-        }
-
-        public IntegerMetric(string name, string description)
-            : base(name, description)
+        public IntegerMetric(string name, string description, bool isImmutable = true)
+            : base(name, description, isImmutable)
         {
         }
 

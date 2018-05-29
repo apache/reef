@@ -25,13 +25,8 @@ namespace Org.Apache.REEF.Common.Telemetry
     /// </summary>
     public sealed class CounterMetric : MetricBase<int>, ICounter
     {
-        public override bool IsImmutable
-        {
-            get { return false; }
-        }
-
-        public CounterMetric(string name, string description)
-            : base(name, description)
+        public CounterMetric(string name, string description, bool isImmutable = false)
+            : base(name, description, isImmutable)
         {
             _timestamp = DateTime.Now.Ticks;
             _typedValue = default(int);
@@ -39,7 +34,7 @@ namespace Org.Apache.REEF.Common.Telemetry
 
         [JsonConstructor]
         internal CounterMetric(string name, string description, long timeStamp, int value)
-            : base(name, description)
+            : base(name, description, timeStamp, value)
         {
             _timestamp = timeStamp;
             _typedValue = value;
