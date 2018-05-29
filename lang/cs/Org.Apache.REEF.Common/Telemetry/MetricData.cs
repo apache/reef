@@ -114,18 +114,6 @@ namespace Org.Apache.REEF.Common.Telemetry
             UpdateRecords();
         }
 
-        /// <summary>
-        /// Updates metric value given its name.
-        /// </summary>
-        /// <param name="name">Name of the metric to update.</param>
-        /// <param name="val">New value.</param>
-        internal void UpdateMetric(string name, object val)
-        {
-            ChangesSinceLastSink++;
-            _mirror.AssignNewValue(val);
-            UpdateRecords();
-        }
-
         private void UpdateRecords()
         {
             var newRecord = CreateMetricRecord();
