@@ -38,11 +38,11 @@ namespace Org.Apache.REEF.Common.Telemetry
         /// Simple sink for metrics data
         /// </summary>
         /// <param name="metrics">A collection of metrics.</param>
-        public void Sink(IEnumerable<IMetric> metrics)
+        public void Sink(IEnumerable<KeyValuePair<string, MetricData.MetricRecord>> metrics)
         {
             foreach (var m in metrics)
             {
-                Logger.Log(Level.Info, "Metrics - Name:{0}, Value:{1}.", m.Name, m.ValueUntyped);
+                Logger.Log(Level.Info, "Metrics - Name:{0}, Value:{1}.", m.Key, m.Value.Value);
             }
         }
 

@@ -29,21 +29,20 @@ namespace Org.Apache.REEF.Common.Telemetry
     /// Once the data has been processed, the records and count will reset.
     /// </summary>
     [JsonObject]
-    public sealed class MetricData
+    public sealed class MetricData : IObserver<IMetric>
     {
         private static readonly Logger Logger = Logger.GetLogger(typeof(MetricsData));
 
-        /// <summary>
-        /// Metric object
-        /// </summary>
+        private bool _keepUpdateHistory;
+
         [JsonProperty]
-        private IMetric _metric;
+        private IMetric _mirror;
 
         /// <summary>
-        /// List of all udpated values since last processed, including current.
+        /// List of all updated values since last processed, including current.
         /// </summary>
         [JsonProperty]
-        private IList<IMetric> _records;
+        private IList<MetricRecord> _records;
 
         /// <summary>
         /// Number of times metric has been updated since last processed.
@@ -58,16 +57,19 @@ namespace Org.Apache.REEF.Common.Telemetry
         /// <param name="initialValue"></param>
         internal MetricData(IMetric metric)
         {
-            _metric = metric;
+            Subscribe(metric);
+            _mirror = metric;
             ChangesSinceLastSink = 0;
-            _records = new List<IMetric>();
-            _records.Add(_metric);
+            _keepUpdateHistory = metric.IsImmutable;
+            _records = new List<MetricRecord>
+            {
+                CreateMetricRecord()
+            };
         }
 
         [JsonConstructor]
-        internal MetricData(IMetric metric, IList<IMetric> records, int changes)
+        internal MetricData(IList<MetricRecord> records, int changes)
         {
-            _metric = metric;
             _records = records;
             ChangesSinceLastSink = changes;
         }
@@ -75,7 +77,7 @@ namespace Org.Apache.REEF.Common.Telemetry
         /// <summary>
         /// Reset records.
         /// </summary>
-        internal void ResetChangeSinceLastSink()
+        internal void ResetChangesSinceLastSink()
         {
             ChangesSinceLastSink = 0;
             _records.Clear();
@@ -87,13 +89,16 @@ namespace Org.Apache.REEF.Common.Telemetry
         /// <param name="metric">Metric data received.</param>
         internal void UpdateMetric(MetricData metric)
         {
-            ChangesSinceLastSink++;
-            _metric = metric.GetMetric();
-            if (metric.GetMetric().IsImmutable && metric.ChangesSinceLastSink > 0)
+            _mirror = metric.GetMetric();
+            if (metric.ChangesSinceLastSink > 0)
             {
-                foreach (var r in metric._records)
+                if (_keepUpdateHistory)
                 {
-                    _records.Add(r);
+                    _records.Concat(metric._records);
+                }
+                else
+                {
+                    _records = metric.GetMetricRecords().ToList();
                 }
             }
             ChangesSinceLastSink += metric.ChangesSinceLastSink;
@@ -105,15 +110,16 @@ namespace Org.Apache.REEF.Common.Telemetry
         /// <param name="me">New metric.</param>
         internal void UpdateMetric(IMetric me)
         {
-            if (me.GetType() != _metric.GetType())
-            {
-                throw new ApplicationException("Trying to update metric of type " + _metric.GetType() + " with type " + me.GetType());
-            }
+            ////if (me.GetType() != _metric.GetType())
+            ////{
+            ////    throw new ApplicationException("Trying to update metric of type " + _metric.GetType() + " with type " + me.GetType());
+            ////}
+
             ChangesSinceLastSink++;
-            _metric = me;
-            if (_metric.IsImmutable)
+            _mirror = me;
+            if (_keepUpdateHistory)
             {
-                _records.Add(_metric);
+                _records.Add(CreateMetricRecord());
             }
         }
 
@@ -125,10 +131,10 @@ namespace Org.Apache.REEF.Common.Telemetry
         internal void UpdateMetric(string name, object val)
         {
             ChangesSinceLastSink++;
-            _metric = _metric.CreateInstanceWithNewValue(val);
-            if (_metric.IsImmutable)
+            _mirror.AssignNewValue(val);      
+            if (_keepUpdateHistory)
             {
-                _records.Add(_metric);
+                _records.Add(new MetricRecord());
             }
         }
 
@@ -138,26 +144,55 @@ namespace Org.Apache.REEF.Common.Telemetry
         /// <returns></returns>
         internal IMetric GetMetric()
         {
-            return _metric;
+            return _mirror;
         }
 
         /// <summary>
-        /// Get KeyValuePair for every record and current metric value.
+        /// Get all the metric records.
         /// </summary>
-        /// <returns>This metric's values.</returns>
-        internal IEnumerable<IMetric> GetMetricRecords()
+        /// <returns>The history of the metric values.</returns>
+        internal IEnumerable<MetricRecord> GetMetricRecords()
         {
-            var values = new List<IMetric>();
+            return _records;
+        }
 
-            if (_metric.IsImmutable)
+        // private IDisposable unsubscriber;
+        public void Subscribe(IMetric provider)
+        {
+            _mirror = provider;
+            provider.Subscribe(this);
+            //// unsubscriber = provider.Subscribe(this);
+        }
+
+        public void OnNext(IMetric metric)
+        {
+            UpdateMetric(metric);
+        }
+
+        public void OnError(Exception error)
+        {
+        }
+
+        public void OnCompleted()
+        {
+        }
+
+        private MetricRecord CreateMetricRecord()
+        {
+            return new MetricRecord(this);
+        }
+
+        public struct MetricRecord
+        {
+            public object Value { get; }
+
+            public long Timestamp { get; }
+
+            public MetricRecord(MetricData metricData)
             {
-                values.AddRange(_records.Select(r => r));
+                Timestamp = metricData._mirror.Timestamp;
+                Value = metricData._mirror.ValueUntyped;
             }
-            else
-            {
-                values.Add(_metric);
-            }
-            return values;
         }
     }
 }

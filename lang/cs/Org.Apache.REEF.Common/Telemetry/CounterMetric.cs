@@ -23,7 +23,7 @@ namespace Org.Apache.REEF.Common.Telemetry
     /// <summary>
     /// Counter implementation.
     /// </summary>
-    internal sealed class CounterMetric : MetricBase<int>, ICounter
+    public sealed class CounterMetric : MetricBase<int>, ICounter
     {
         public override bool IsImmutable
         {
@@ -45,11 +45,6 @@ namespace Org.Apache.REEF.Common.Telemetry
             _typedValue = value;
         }
 
-        public override IMetric CreateInstanceWithNewValue(object val)
-        {
-            return new CounterMetric(Name, Description, DateTime.Now.Ticks, (int)val);
-        }
-
         /// <summary>
         /// Increase the counter value and update the time stamp.
         /// </summary>
@@ -58,12 +53,14 @@ namespace Org.Apache.REEF.Common.Telemetry
         {
             _typedValue += number;
             _timestamp = DateTime.Now.Ticks;
+            _tracker.OnNext(this);
         }
 
         public void Decrement(int number = 1)
         {
             _typedValue -= number;
             _timestamp = DateTime.Now.Ticks;
+            _tracker.OnNext(this);
         }
     }
 }

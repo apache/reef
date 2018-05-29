@@ -87,14 +87,14 @@ namespace Org.Apache.REEF.Common.Telemetry
         /// <summary>
         /// Call each Sink to sink the data in the metrics
         /// </summary>
-        private void Sink(IEnumerable<IMetric> metrics)
+        private void Sink(IEnumerable<KeyValuePair<string, MetricData.MetricRecord>> metricRecords)
         {
             foreach (var s in _metricsSinks)
             {
                 try
                 {
                     //// Task.Run(() => s.Sink(metrics));
-                    s.Sink(metrics);
+                    s.Sink(metricRecords);
                 }
                 catch (Exception e)
                 {
@@ -128,11 +128,11 @@ namespace Org.Apache.REEF.Common.Telemetry
         /// <param name="driverMetrics">driver metrics data.</param>
         public void OnNext(IDriverMetrics driverMetrics)
         {
-            var ret = new List<IMetric>
-            {
-                driverMetrics.SystemState
-            };
-            Sink(ret);
+            ////var ret = new List<IMetric>
+            ////{
+            ////    driverMetrics.SystemState
+            ////};
+            ////Sink(ret);
         }
     }
 }

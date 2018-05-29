@@ -23,8 +23,10 @@ namespace Org.Apache.REEF.Common.Telemetry
     /// Base implementation of a metric object. All metrics of a specific type should derive from this base class.
     /// </summary>
     /// <typeparam name="T">Metric type.</typeparam>
-    abstract class MetricBase<T> : IMetric<T>
+    public abstract class MetricBase<T> : IMetric<T>
     {
+        protected IObserver<IMetric<T>> _tracker;
+
         protected T _typedValue;
 
         protected long _timestamp;
@@ -69,6 +71,20 @@ namespace Org.Apache.REEF.Common.Telemetry
             _typedValue = value;
         }
 
-        public abstract IMetric CreateInstanceWithNewValue(object val);
+        public void AssignNewValue(object val)
+        {
+            if (val.GetType() != _typedValue.GetType())
+            {
+                throw new ApplicationException("Cannot assign new value to metric because of type mismatch.");
+            }
+            _typedValue = (T)val;
+            _timestamp = DateTime.Now.Ticks;
+            _tracker.OnNext(this);
+        }
+
+        public void Subscribe(IObserver<IMetric> observer)
+        {
+            _tracker = observer;
+        }
     }
 }

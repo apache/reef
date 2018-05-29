@@ -15,6 +15,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
+using System;
+
 namespace Org.Apache.REEF.Common.Telemetry
 {
     /// <summary>
@@ -48,11 +50,13 @@ namespace Org.Apache.REEF.Common.Telemetry
         bool IsImmutable { get; }
 
         /// <summary>
-        /// Create a new instance of the metric object that contains a new value.
+        /// Assign a new value to the metric.
         /// </summary>
-        /// <param name="val">Value of the new metric object.</param>
+        /// <param name="val">Value to assign to the metric.</param>
         /// <returns></returns>
-        IMetric CreateInstanceWithNewValue(object val);
+        void AssignNewValue(object val);
+
+        void Subscribe(IObserver<IMetric> observer);
     }
 
     public interface IMetric<T> : IMetric

@@ -32,24 +32,20 @@ namespace Org.Apache.REEF.Common.Tests.Telemetry
         {
             var evalMetrics1 = TangFactory.GetTang().NewInjector().GetInstance<IEvaluatorMetrics>();
             var metrics1 = evalMetrics1.GetMetricsData();
-            metrics1.TryRegisterMetric(new CounterMetric("counter1", "counter1 description"));
-            metrics1.TryRegisterMetric(new CounterMetric("counter2", "counter2 description"));
+            var counter1 = new CounterMetric("counter1", "counter1 description");
+            metrics1.TryRegisterMetric(counter1);
             ValidateMetric(metrics1, "counter1", 0);
-            ValidateMetric(metrics1, "counter2", 0);
             for (int i = 0; i < 5; i++)
             {
-                metrics1.Update("counter1", i);
-                metrics1.Update("counter2", i * 2);
+                counter1.Increment();
             }
-            ValidateMetric(metrics1, "counter1", 4);
-            ValidateMetric(metrics1, "counter2", 8);
+            ValidateMetric(metrics1, "counter1", 5);
 
             var counterStr = metrics1.Serialize();
 
             var evalMetrics2 = new EvaluatorMetrics(counterStr);
             var metrics2 = evalMetrics2.GetMetricsData();
-            ValidateMetric(metrics2, "counter1", 4);
-            ValidateMetric(metrics2, "counter2", 8);
+            ValidateMetric(metrics2, "counter1", 5);
         }
 
         /// <summary>
@@ -59,16 +55,21 @@ namespace Org.Apache.REEF.Common.Tests.Telemetry
         public void TestMetricSetValue()
         {
             var metrics = CreateMetrics();
-            metrics.TryRegisterMetric(new IntegerMetric("int1", "metric of type int", DateTime.Now.Ticks, 0));
-            metrics.TryRegisterMetric(new DoubleMetric("dou2", "metric of type double", DateTime.Now.Ticks, 0));
-            ValidateMetric(metrics, "int1", default(int));
-            ValidateMetric(metrics, "dou2", default(double));
+            var intMetric = new IntegerMetric("IntMetric", "metric of type int", DateTime.Now.Ticks, 0);
+            var doubleMetric = new DoubleMetric("DouMetric", "metric of type double", DateTime.Now.Ticks, 0);
 
-            metrics.Update(new IntegerMetric("int1", "new description", DateTime.Now.Ticks, 3));
-            metrics.Update("dou2", 3.14);
+            metrics.TryRegisterMetric(intMetric);
+            metrics.TryRegisterMetric(doubleMetric);
+            ValidateMetric(metrics, "IntMetric", default(int));
+            ValidateMetric(metrics, "DouMetric", default(double));
 
-            ValidateMetric(metrics, "int1", 3);
-            ValidateMetric(metrics, "dou2", 3.14);
+            intMetric.AssignNewValue(3);
+            doubleMetric.AssignNewValue(3.0);
+            ////metrics.Update("IntMetric", 3);
+            ////metrics.Update("DouMetric", 3.0);
+
+            ValidateMetric(metrics, "IntMetric", 3);
+            ValidateMetric(metrics, "DouMetric", 3.0);
         }
 
         /// <summary>
@@ -86,8 +87,9 @@ namespace Org.Apache.REEF.Common.Tests.Telemetry
         public void TestUpdateMetricWithDifferentType()
         {
             var metrics = CreateMetrics();
-            metrics.TryRegisterMetric(new IntegerMetric("int1", "metric of type int", DateTime.Now.Ticks, 0));
-            Assert.Throws<ApplicationException>(() => metrics.Update(new DoubleMetric("int1", "new description", DateTime.Now.Ticks, 3)));
+            var douMetric = new DoubleMetric("dou", "Metric of type double.");
+            metrics.TryRegisterMetric(douMetric);
+            Assert.Throws<ApplicationException>(() => douMetric.AssignNewValue(3));
         }
 
         private static void ValidateMetric(IMetrics metricSet, string name, object expectedValue)

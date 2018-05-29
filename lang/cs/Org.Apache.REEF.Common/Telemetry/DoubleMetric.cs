@@ -39,10 +39,5 @@ namespace Org.Apache.REEF.Common.Telemetry
             : base(name, description, timeStamp, value)
         {
         }
-
-        public override IMetric CreateInstanceWithNewValue(object val)
-        {
-            return new DoubleMetric(Name, Description, DateTime.Now.Ticks, (double)val);
-        }
     }
 }

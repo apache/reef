@@ -32,6 +32,37 @@ namespace Org.Apache.REEF.Common.Telemetry
     /// </summary>
     public sealed class MetricsData : IMetrics
     {
+        private class Unsubscriber : IDisposable
+        {
+            private List<IObserver<IMetric>> _observers;
+            private IObserver<IMetric> _observer;
+
+            public Unsubscriber(List<IObserver<IMetric>> observers, IObserver<IMetric> observer)
+            {
+                _observers = observers;
+                _observer = observer;
+            }
+
+            public void Dispose()
+            {
+                if (_observer != null)
+                {
+                    _observers.Remove(_observer);
+                }
+            }
+        }
+
+        List<IObserver<IMetric>> _observers;
+
+        public IDisposable Subscribe(IObserver<IMetric> observer)
+        {
+            if (!_observers.Contains(observer))
+            {
+                _observers.Add(observer);
+            }
+            return new Unsubscriber(_observers, observer);
+        }
+
         private static readonly Logger Logger = Logger.GetLogger(typeof(MetricsData));
 
         JsonSerializerSettings settings = new JsonSerializerSettings()
@@ -52,6 +83,7 @@ namespace Org.Apache.REEF.Common.Telemetry
         [Inject]
         private MetricsData()
         {
+            _observers = new List<IObserver<IMetric>>();
         }
 
         /// <summary>
@@ -145,8 +177,7 @@ namespace Org.Apache.REEF.Common.Telemetry
         {
             lock (_metricLock)
             {
-                _metricsMap.AddOrUpdate(me.Name, new MetricData(me), (k, v) => );
-
+                //// _metricsMap.AddOrUpdate(me.Name, new MetricData(me), (k, v) => );
 
                 if (_metricsMap.TryGetValue(me.Name, out MetricData metricData))
                 {
@@ -154,7 +185,7 @@ namespace Org.Apache.REEF.Common.Telemetry
                 }
                 else
                 {
-                    _metricsMap.Add(me.Name, new MetricData(me));
+                    _metricsMap.TryAdd(me.Name, new MetricData(me));
                 }
             }
         }
@@ -190,7 +221,7 @@ namespace Org.Apache.REEF.Common.Telemetry
             {
                 foreach (var c in _metricsMap.Values)
                 {
-                    c.ResetChangeSinceLastSink();
+                    c.ResetChangesSinceLastSink();
                 }
             }
         }
@@ -199,9 +230,21 @@ namespace Org.Apache.REEF.Common.Telemetry
         /// Convert the metric data to a collection of IMetric for sinking.
         /// </summary>
         /// <returns>A collection of metric records.</returns>
-        internal IEnumerable<IMetric> GetMetricsHistory()
+        internal IEnumerable<KeyValuePair<string, MetricData.MetricRecord>> GetMetricsHistory()
         {
-            return _metricsMap.Select(metric => metric.Value.GetMetricRecords()).SelectMany(r => r);
+            var records = new List<KeyValuePair<string, MetricData.MetricRecord>>();
+            //// (name, IEnumerable<MetricHistory>)
+            foreach (var me in _metricsMap)
+            {
+                var name = me.Key;
+                var data = me.Value;
+                foreach (var record in data.GetMetricRecords())
+                {
+                    records.Add(new KeyValuePair<string, MetricData.MetricRecord>(name, record));
+                }
+            }
+            return records;
+            //// return _metricsMap.Select(metric => metric.Value.GetMetricRecords()).SelectMany(r => r);
         }
 
         /// <summary>

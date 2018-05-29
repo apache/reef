@@ -247,13 +247,12 @@ under the License.
     <Compile Include="Tasks\TaskConfiguration.cs" />
     <Compile Include="Tasks\TaskConfigurationOptions.cs" />
     <Compile Include="Tasks\TaskMessage.cs" />
-    <Compile Include="Telemetry\Counter.cs" />
+    <Compile Include="Telemetry\CounterMetric.cs" />
     <Compile Include="Telemetry\DefaultMetricsSink.cs" />
-    <Compile Include="Telemetry\DoubleGauge.cs" />
+    <Compile Include="Telemetry\DoubleMetric.cs" />
     <Compile Include="Telemetry\DriverMetrics.cs" />
     <Compile Include="Telemetry\DriverMetricsObserverConfigurationModule.cs" />
     <Compile Include="Telemetry\DriverMetricsObservers.cs" />
-    <Compile Include="Telemetry\DriverSystemState.cs" />
     <Compile Include="Telemetry\EvaluatorMetrics.cs" />
     <Compile Include="Telemetry\ICounter.cs" />
     <Compile Include="Telemetry\IDriverMetrics.cs" />
@@ -261,7 +260,7 @@ under the License.
     <Compile Include="Telemetry\IMetric.cs" />
     <Compile Include="Telemetry\IMetrics.cs" />
     <Compile Include="Telemetry\IMetricsSink.cs" />
-    <Compile Include="Telemetry\IntegerGauge.cs" />
+    <Compile Include="Telemetry\IntegerMetric.cs" />
     <Compile Include="Telemetry\MessageSenderConfigurationModule.cs" />
     <Compile Include="Telemetry\MetricBase.cs" />
     <Compile Include="Telemetry\MetricData.cs" />
@@ -270,6 +269,7 @@ under the License.
     <Compile Include="Telemetry\MetricSinkThreshold.cs" />
     <Compile Include="Telemetry\MetricsMessageSender.cs" />
     <Compile Include="Telemetry\MetricsService.cs" />
+    <Compile Include="Telemetry\StringMetric.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Avro\README.md" />
