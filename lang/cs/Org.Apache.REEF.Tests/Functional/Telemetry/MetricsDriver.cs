@@ -46,6 +46,8 @@ namespace Org.Apache.REEF.Tests.Functional.Telemetry
         private readonly IEvaluatorRequestor _evaluatorRequestor;
         internal const string EventPrefix = "TestState";
 
+        private IDriverMetrics _driverMetrics;
+
         /// <summary>
         /// a set of driver metrics observers.
         /// </summary>
@@ -67,6 +69,7 @@ namespace Org.Apache.REEF.Tests.Functional.Telemetry
 
         public void OnNext(IDriverStarted value)
         {
+            _driverMetrics = new DriverMetrics(string.Empty);
             UpdateMetrics(TestSystemState.DriverStarted);
 
             var request =
@@ -135,11 +138,11 @@ namespace Org.Apache.REEF.Tests.Functional.Telemetry
         /// </summary>
         private void UpdateMetrics(TestSystemState systemState)
         {
-            var driverMetrics = new DriverMetrics(EventPrefix + systemState, DateTime.Now);
+            _driverMetrics.SystemState.AssignNewValue(EventPrefix + systemState.ToString());
 
             foreach (var metricsObserver in _driverMetricsObservers)
             {
-                metricsObserver.OnNext(driverMetrics);
+                metricsObserver.OnNext(_driverMetrics);
             }
         }
     }

@@ -127,12 +127,9 @@ namespace Org.Apache.REEF.Common.Telemetry
         /// <param name="metrics">New metric values to be updated.</param>
         internal void Update(MetricsData metrics)
         {
-            lock (_metricLock)
+            foreach (var metric in metrics.GetMetrics())
             {
-                foreach (var metric in metrics.GetMetrics())
-                {
-                    _metricsMap.AddOrUpdate(metric.GetMetric().Name, metric, (k, v) => v.UpdateMetric(metric));
-                }
+                _metricsMap.AddOrUpdate(metric.GetMetric().Name, metric, (k, v) => v.UpdateMetric(metric));
             }
         }
 
@@ -143,9 +140,9 @@ namespace Org.Apache.REEF.Common.Telemetry
         {
             lock (_metricLock)
             {
-                foreach (var c in _metricsMap.Values)
+                foreach (var tracker in _metricsMap.Values)
                 {
-                    c.ResetChangesSinceLastSink();
+                    tracker.ResetChangesSinceLastSink();
                 }
             }
         }
