@@ -50,7 +50,7 @@ namespace Org.Apache.REEF.Common.Telemetry
         private readonly object _metricLock = new object();
 
         [Inject]
-        private MetricsData()
+        internal MetricsData()
         {
         }
 
@@ -208,7 +208,6 @@ namespace Org.Apache.REEF.Common.Telemetry
                 foreach (var record in data.GetMetricRecords())
                 {
                     records.Add(new KeyValuePair<string, MetricData.MetricRecord>(name, record));
-                    Logger.Log(Level.Info, record.Value.ToString());
                 }
             }
             return records;

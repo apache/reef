@@ -128,11 +128,8 @@ namespace Org.Apache.REEF.Common.Telemetry
         /// <param name="driverMetrics">driver metrics data.</param>
         public void OnNext(IDriverMetrics driverMetrics)
         {
-            ////var ret = new List<IMetric>
-            ////{
-            ////    driverMetrics.SystemState
-            ////};
-            ////Sink(ret);
+            var driverMetricsSet = driverMetrics.GetMetricsData().GetMetricsHistory();
+            Sink(driverMetricsSet);
         }
     }
 }

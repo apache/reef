@@ -25,5 +25,7 @@ namespace Org.Apache.REEF.Common.Telemetry
     public interface IDriverMetrics
     {
         IMetric SystemState { get; }
+
+        MetricsData GetMetricsData();
     }
 }
