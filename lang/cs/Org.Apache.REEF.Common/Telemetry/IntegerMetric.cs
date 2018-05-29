@@ -22,7 +22,7 @@ using Org.Apache.REEF.Utilities.Attributes;
 
 namespace Org.Apache.REEF.Common.Telemetry
 {
-    class IntegerMetric : MetricBase<int>
+    public class IntegerMetric : MetricBase<int>
     {
         public override bool IsImmutable
         {

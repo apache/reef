@@ -32,37 +32,6 @@ namespace Org.Apache.REEF.Common.Telemetry
     /// </summary>
     public sealed class MetricsData : IMetrics
     {
-        private class Unsubscriber : IDisposable
-        {
-            private List<IObserver<IMetric>> _observers;
-            private IObserver<IMetric> _observer;
-
-            public Unsubscriber(List<IObserver<IMetric>> observers, IObserver<IMetric> observer)
-            {
-                _observers = observers;
-                _observer = observer;
-            }
-
-            public void Dispose()
-            {
-                if (_observer != null)
-                {
-                    _observers.Remove(_observer);
-                }
-            }
-        }
-
-        List<IObserver<IMetric>> _observers;
-
-        public IDisposable Subscribe(IObserver<IMetric> observer)
-        {
-            if (!_observers.Contains(observer))
-            {
-                _observers.Add(observer);
-            }
-            return new Unsubscriber(_observers, observer);
-        }
-
         private static readonly Logger Logger = Logger.GetLogger(typeof(MetricsData));
 
         JsonSerializerSettings settings = new JsonSerializerSettings()
@@ -83,7 +52,6 @@ namespace Org.Apache.REEF.Common.Telemetry
         [Inject]
         private MetricsData()
         {
-            _observers = new List<IObserver<IMetric>>();
         }
 
         /// <summary>
@@ -163,7 +131,7 @@ namespace Org.Apache.REEF.Common.Telemetry
             {
                 foreach (var metric in metrics.GetMetrics())
                 {
-                    _metricsMap.AddOrUpdate(metric.GetMetric().Name, metric, (k, v) => metric);
+                    _metricsMap.AddOrUpdate(metric.GetMetric().Name, metric, (k, v) => v.UpdateMetric(metric));
                 }
             }
         }
@@ -233,18 +201,17 @@ namespace Org.Apache.REEF.Common.Telemetry
         internal IEnumerable<KeyValuePair<string, MetricData.MetricRecord>> GetMetricsHistory()
         {
             var records = new List<KeyValuePair<string, MetricData.MetricRecord>>();
-            //// (name, IEnumerable<MetricHistory>)
             foreach (var me in _metricsMap)
             {
-                var name = me.Key;
-                var data = me.Value;
+                var name = me.Key;  // name of metric
+                var data = me.Value;  // metric tracker
                 foreach (var record in data.GetMetricRecords())
                 {
                     records.Add(new KeyValuePair<string, MetricData.MetricRecord>(name, record));
+                    Logger.Log(Level.Info, record.Value.ToString());
                 }
             }
             return records;
-            //// return _metricsMap.Select(metric => metric.Value.GetMetricRecords()).SelectMany(r => r);
         }
 
         /// <summary>

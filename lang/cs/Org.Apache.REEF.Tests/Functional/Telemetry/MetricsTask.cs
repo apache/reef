@@ -36,26 +36,22 @@ namespace Org.Apache.REEF.Tests.Functional.Telemetry
         private readonly MetricsData _metricSet;
 
         public CounterMetric metric1 = new CounterMetric(TestCounter, TestCounter + " description");
-        public IMetric metric2 = new IntegerMetric(TestIntMetric, TestIntMetric + " description");
+        public IntegerMetric metric2 = new IntegerMetric(TestIntMetric, TestIntMetric + " description");
 
         [Inject]
         private MetricsTask(IEvaluatorMetrics evaluatorMetrics)
         {
             _metricSet = evaluatorMetrics.GetMetricsData();
-            // _metricSet.TryRegisterMetric(new CounterMetric(TestCounter, TestCounter + " description"));
-            // _metricSet.TryRegisterMetric(new IntegerMetric(TestIntMetric, TestIntMetric + " description"));
-
-            // at this point, _metricSet should create a MetricTracker(MetricData) object to track metric1
             _metricSet.TryRegisterMetric(metric1);
+            _metricSet.TryRegisterMetric(metric2);
         }
 
         public byte[] Call(byte[] memento)
         {
-            for (int i = 0; i < 100; i++)
+            for (int i = 1; i <= 100; i++)
             {
                 metric1.Increment();
-                // _metricSet.Update(TestCounter, i);
-                // _metricSet.Update(TestIntMetric, i);
+                metric2.AssignNewValue(i);
                 Thread.Sleep(100);
             }
             return null;

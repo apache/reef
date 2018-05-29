@@ -39,7 +39,7 @@ namespace Org.Apache.REEF.Common.Telemetry
         private IMetric _mirror;
 
         /// <summary>
-        /// List of all updated values since last processed, including current.
+        /// List of the history of values this metric has held. If _keepUpdateHistory is false, only holds current value.
         /// </summary>
         [JsonProperty]
         private IList<MetricRecord> _records;
@@ -61,10 +61,8 @@ namespace Org.Apache.REEF.Common.Telemetry
             _mirror = metric;
             ChangesSinceLastSink = 0;
             _keepUpdateHistory = metric.IsImmutable;
-            _records = new List<MetricRecord>
-            {
-                CreateMetricRecord()
-            };
+            _records = new List<MetricRecord>();
+            _records.Add(CreateMetricRecord());
         }
 
         [JsonConstructor]
@@ -87,7 +85,7 @@ namespace Org.Apache.REEF.Common.Telemetry
         /// When new metric data is received, update the value and records so it reflects the new data.
         /// </summary>
         /// <param name="metric">Metric data received.</param>
-        internal void UpdateMetric(MetricData metric)
+        internal MetricData UpdateMetric(MetricData metric)
         {
             _mirror = metric.GetMetric();
             if (metric.ChangesSinceLastSink > 0)
@@ -102,6 +100,7 @@ namespace Org.Apache.REEF.Common.Telemetry
                 }
             }
             ChangesSinceLastSink += metric.ChangesSinceLastSink;
+            return this;
         }
 
         /// <summary>
@@ -110,17 +109,9 @@ namespace Org.Apache.REEF.Common.Telemetry
         /// <param name="me">New metric.</param>
         internal void UpdateMetric(IMetric me)
         {
-            ////if (me.GetType() != _metric.GetType())
-            ////{
-            ////    throw new ApplicationException("Trying to update metric of type " + _metric.GetType() + " with type " + me.GetType());
-            ////}
-
             ChangesSinceLastSink++;
             _mirror = me;
-            if (_keepUpdateHistory)
-            {
-                _records.Add(CreateMetricRecord());
-            }
+            UpdateRecords();
         }
 
         /// <summary>
@@ -131,10 +122,20 @@ namespace Org.Apache.REEF.Common.Telemetry
         internal void UpdateMetric(string name, object val)
         {
             ChangesSinceLastSink++;
-            _mirror.AssignNewValue(val);      
+            _mirror.AssignNewValue(val);
+            UpdateRecords();
+        }
+
+        private void UpdateRecords()
+        {
+            var newRecord = CreateMetricRecord();
             if (_keepUpdateHistory)
             {
-                _records.Add(new MetricRecord());
+                _records.Add(newRecord);
+            }
+            else
+            {
+                _records[0] = newRecord;
             }
         }
 
@@ -156,12 +157,10 @@ namespace Org.Apache.REEF.Common.Telemetry
             return _records;
         }
 
-        // private IDisposable unsubscriber;
         public void Subscribe(IMetric provider)
         {
             _mirror = provider;
             provider.Subscribe(this);
-            //// unsubscriber = provider.Subscribe(this);
         }
 
         public void OnNext(IMetric metric)
@@ -182,11 +181,21 @@ namespace Org.Apache.REEF.Common.Telemetry
             return new MetricRecord(this);
         }
 
+        [JsonObject]
         public struct MetricRecord
         {
+            [JsonProperty]
             public object Value { get; }
 
+            [JsonProperty]
             public long Timestamp { get; }
+
+            [JsonConstructor]
+            public MetricRecord(object value, long timestamp)
+            {
+                Value = value;
+                Timestamp = timestamp;
+            }
 
             public MetricRecord(MetricData metricData)
             {

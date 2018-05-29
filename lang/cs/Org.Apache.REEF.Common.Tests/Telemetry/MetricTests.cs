@@ -65,8 +65,6 @@ namespace Org.Apache.REEF.Common.Tests.Telemetry
 
             intMetric.AssignNewValue(3);
             doubleMetric.AssignNewValue(3.0);
-            ////metrics.Update("IntMetric", 3);
-            ////metrics.Update("DouMetric", 3.0);
 
             ValidateMetric(metrics, "IntMetric", 3);
             ValidateMetric(metrics, "DouMetric", 3.0);
@@ -90,6 +88,28 @@ namespace Org.Apache.REEF.Common.Tests.Telemetry
             var douMetric = new DoubleMetric("dou", "Metric of type double.");
             metrics.TryRegisterMetric(douMetric);
             Assert.Throws<ApplicationException>(() => douMetric.AssignNewValue(3));
+        }
+
+        [Fact]
+        public void TestMetricsSimulateHeartbeat()
+        {
+            var evalMetrics1 = TangFactory.GetTang().NewInjector().GetInstance<IEvaluatorMetrics>();
+            var metrics1 = evalMetrics1.GetMetricsData();
+            var counter = new CounterMetric("counter", "counter with no records");
+            var iter = new IntegerMetric("iteration", "iteration with records");
+            metrics1.TryRegisterMetric(counter);
+            metrics1.TryRegisterMetric(iter);
+            for (int i = 0; i < 5; i++)
+            {
+                counter.Increment();
+                iter.AssignNewValue(i + 1);
+            }
+            var me1Str = metrics1.Serialize();
+            var evalMetrics2 = new EvaluatorMetrics(me1Str);
+            var metrics2 = evalMetrics2.GetMetricsData();
+
+            var sink = TangFactory.GetTang().NewInjector().GetInstance<IMetricsSink>();
+            sink.Sink(metrics2.GetMetricsHistory());
         }
 
         private static void ValidateMetric(IMetrics metricSet, string name, object expectedValue)
