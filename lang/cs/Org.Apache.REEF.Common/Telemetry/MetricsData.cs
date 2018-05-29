@@ -137,50 +137,6 @@ namespace Org.Apache.REEF.Common.Telemetry
         }
 
         /// <summary>
-        /// Updates metrics with a single metric object. If the metric has already been registered,
-        /// update the value; if not, add it to the registry.
-        /// </summary>
-        /// <param name="me">New metric object to be added or updated.</param>
-        internal void Update(IMetric me)
-        {
-            lock (_metricLock)
-            {
-                //// _metricsMap.AddOrUpdate(me.Name, new MetricData(me), (k, v) => );
-
-                if (_metricsMap.TryGetValue(me.Name, out MetricData metricData))
-                {
-                    metricData.UpdateMetric(me);
-                }
-                else
-                {
-                    _metricsMap.TryAdd(me.Name, new MetricData(me));
-                }
-            }
-        }
-
-        /// <summary>
-        /// Updates the metric to the specified value given the metric's name. If the metric name has been registered,
-        /// update the value; if not, the metric is not added and an exception is thrown.
-        /// </summary>
-        /// <param name="name">Name of the metric to update.</param>
-        /// <param name="val">New for the specified metric.</param>
-        internal void Update(string name, object val)
-        {
-            lock (_metricLock)
-            {
-                if (_metricsMap.TryGetValue(name, out MetricData me))
-                {
-                    me.UpdateMetric(name, val);
-                }
-                else
-                {
-                    Logger.Log(Level.Error, "Metric {0} needs to be registered before it can be updated with value {1}.", name, val);
-                    throw new Exception("Metric " + name + " has not been registered.");
-                }
-            }
-        }
-
-        /// <summary>
         /// Reset changed since last sink for each metric
         /// </summary>
         internal void Reset()
