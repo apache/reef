@@ -15,7 +15,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-using System;
+using System.Threading;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
@@ -85,12 +85,15 @@ namespace Org.Apache.REEF.Common.Telemetry
         /// <returns>Indicates if the metric was registered.</returns>
         public bool TryRegisterMetric(IMetric metric)
         {
-            if (!_metricsMap.TryAdd(metric.Name, new MetricTracker(metric)))
+            lock (_metricLock)
             {
-                Logger.Log(Level.Warning, "The metric [{0}] already exists.", metric.Name);
-                return false;
+                if (!_metricsMap.TryAdd(metric.Name, new MetricTracker(metric)))
+                {
+                    Logger.Log(Level.Warning, "The metric [{0}] already exists.", metric.Name);
+                    return false;
+                }
+                return true;
             }
-            return true;
         }
 
         /// <summary>
@@ -127,23 +130,23 @@ namespace Org.Apache.REEF.Common.Telemetry
         /// <param name="metrics">New metric values to be updated.</param>
         internal void Update(MetricsData metrics)
         {
-            foreach (var metric in metrics.GetMetrics())
+            lock (_metricLock)
             {
-                _metricsMap.AddOrUpdate(metric.GetMetric().Name, metric, (k, v) => v.UpdateMetric(metric));
+                foreach (var metric in metrics.GetMetrics())
+                {
+                    _metricsMap.AddOrUpdate(metric.GetMetric().Name, metric, (k, v) => v.UpdateMetric(metric));
+                }
             }
         }
 
         /// <summary>
         /// Reset changed since last sink for each metric
         /// </summary>
-        internal void Reset()
+        private void Reset()
         {
-            lock (_metricLock)
+            foreach (var tracker in _metricsMap.Values)
             {
-                foreach (var tracker in _metricsMap.Values)
-                {
-                    tracker.ResetChangesSinceLastSink();
-                }
+                tracker.ResetChangesSinceLastSink();
             }
         }
 
@@ -153,17 +156,17 @@ namespace Org.Apache.REEF.Common.Telemetry
         /// <returns>A collection of metric records.</returns>
         internal IEnumerable<KeyValuePair<string, MetricTracker.MetricRecord>> GetMetricsHistory()
         {
-            var records = new List<KeyValuePair<string, MetricTracker.MetricRecord>>();
-            foreach (var me in _metricsMap)
-            {
-                var name = me.Key;  // name of metric
-                var data = me.Value;  // metric tracker
-                foreach (var record in data.GetMetricRecords())
+                var records = new List<KeyValuePair<string, MetricTracker.MetricRecord>>();
+                foreach (var me in _metricsMap)
                 {
-                    records.Add(new KeyValuePair<string, MetricTracker.MetricRecord>(name, record));
+                    var name = me.Key;  // name of metric
+                    var data = me.Value;  // metric tracker
+                    foreach (var record in data.GetMetricRecords())
+                    {
+                        records.Add(new KeyValuePair<string, MetricTracker.MetricRecord>(name, record));
+                    }
                 }
-            }
-            return records;
+                return records;
         }
 
         /// <summary>
@@ -177,14 +180,31 @@ namespace Org.Apache.REEF.Common.Telemetry
 
         public string Serialize()
         {
-            lock (_metricLock)
+            if (_metricsMap.Count > 0)
             {
-                if (_metricsMap.Count > 0)
-                {
-                    return JsonConvert.SerializeObject(_metricsMap.Values.Where(me => me.ChangesSinceLastSink > 0).ToList(), settings);
-                }
+                return JsonConvert.SerializeObject(_metricsMap.Values.Where(me => me.ChangesSinceLastSink > 0).ToList(), settings);
             }
             return null;
+        }
+
+        internal string SerializeAndReset()
+        {
+            lock (_metricLock)
+            {
+                var str = Serialize();
+                Reset();
+                return str;
+            }
+        }
+
+        internal IEnumerable<KeyValuePair<string, MetricTracker.MetricRecord>> GetMetricsHistoryAndReset()
+        {
+            lock (_metricLock)
+            {
+                var ret = GetMetricsHistory();
+                Reset();
+                return ret;
+            }
         }
     }
 }

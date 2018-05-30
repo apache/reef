@@ -60,7 +60,6 @@ namespace Org.Apache.REEF.Common.Telemetry
             {
                 Logger.Log(Level.Info, "Getting context msg for eval metrics.");
                 var s = _evaluatorMetrics.Serialize();
-                _evaluatorMetrics.GetMetricsData().Reset();
                 if (s != null)
                 {
                     return Optional<ContextMessage>.Of(

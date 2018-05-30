@@ -41,7 +41,12 @@ namespace Org.Apache.REEF.Common.Tests.Telemetry
             }
             ValidateMetric(metrics1, "counter1", 5);
 
-            var counterStr = metrics1.Serialize();
+            var counterStr = metrics1.SerializeAndReset();
+            var trackers = metrics1.GetMetrics();
+            foreach (var t in trackers)
+            {
+                Assert.Equal(0, t.GetMetricRecords().Count);
+            }
 
             var evalMetrics2 = new EvaluatorMetrics(counterStr);
             var metrics2 = evalMetrics2.GetMetricsData();
@@ -109,7 +114,13 @@ namespace Org.Apache.REEF.Common.Tests.Telemetry
             var metrics2 = evalMetrics2.GetMetricsData();
 
             var sink = TangFactory.GetTang().NewInjector().GetInstance<IMetricsSink>();
-            sink.Sink(metrics2.GetMetricsHistory());
+            sink.Sink(metrics2.GetMetricsHistoryAndReset());
+
+            var trackers = metrics2.GetMetrics();
+            foreach (var t in trackers)
+            {
+                Assert.Equal(0, t.GetMetricRecords().Count);
+            }
         }
 
         private static void ValidateMetric(IMetrics metricSet, string name, object expectedValue)

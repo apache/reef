@@ -16,6 +16,7 @@
 // under the License.
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using Newtonsoft.Json;
@@ -42,8 +43,8 @@ namespace Org.Apache.REEF.Common.Telemetry
         /// List of the history of values this metric has held. If _keepUpdateHistory is false, only holds current value.
         /// </summary>
         [JsonProperty]
-        private IList<MetricRecord> _records;
-
+        private ConcurrentQueue<MetricRecord> _records;
+        
         /// <summary>
         /// Number of times metric has been updated since last processed.
         /// </summary>
@@ -61,15 +62,23 @@ namespace Org.Apache.REEF.Common.Telemetry
             _mirror = metric;
             ChangesSinceLastSink = 0;
             _keepUpdateHistory = metric.IsImmutable;
-            _records = new List<MetricRecord>();
-            _records.Add(CreateMetricRecord());
+            _records = new ConcurrentQueue<MetricRecord>();
+            _records.Enqueue(CreateMetricRecord());
         }
 
         [JsonConstructor]
-        internal MetricTracker(IList<MetricRecord> records, int changes)
+        internal MetricTracker(ConcurrentQueue<MetricRecord> records, int changes)
         {
             _records = records;
             ChangesSinceLastSink = changes;
+        }
+
+        private MetricTracker(IMetric mirror, ConcurrentQueue<MetricRecord> records, int changes, bool history)
+        {
+            _mirror = mirror;
+            _records = records;
+            ChangesSinceLastSink = changes;
+            _keepUpdateHistory = history;
         }
 
         /// <summary>
@@ -78,7 +87,7 @@ namespace Org.Apache.REEF.Common.Telemetry
         internal void ResetChangesSinceLastSink()
         {
             ChangesSinceLastSink = 0;
-            _records.Clear();
+            _records = new ConcurrentQueue<MetricRecord>();
         }
 
         /// <summary>
@@ -96,7 +105,8 @@ namespace Org.Apache.REEF.Common.Telemetry
                 }
                 else
                 {
-                    _records = metric.GetMetricRecords().ToList();
+                    // _records = metric.GetMetricRecords().ToList();
+                    _records = metric.GetMetricRecords();
                 }
             }
             ChangesSinceLastSink += metric.ChangesSinceLastSink;
@@ -119,12 +129,12 @@ namespace Org.Apache.REEF.Common.Telemetry
             var newRecord = CreateMetricRecord();
             if (_keepUpdateHistory)
             {
-                _records.Add(newRecord);
+                _records.Enqueue(newRecord);
             }
             else
             {
-                _records.Clear();
-                _records.Add(newRecord);
+                _records = new ConcurrentQueue<MetricRecord>();
+                _records.Enqueue(newRecord);
             }
         }
 
@@ -141,7 +151,7 @@ namespace Org.Apache.REEF.Common.Telemetry
         /// Get all the metric records.
         /// </summary>
         /// <returns>The history of the metric values.</returns>
-        internal IEnumerable<MetricRecord> GetMetricRecords()
+        internal ConcurrentQueue<MetricRecord> GetMetricRecords()
         {
             return _records;
         }

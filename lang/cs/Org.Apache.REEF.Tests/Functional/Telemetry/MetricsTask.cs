@@ -15,6 +15,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
+using System;
 using System.Threading;
 using Org.Apache.REEF.Common.Tasks;
 using Org.Apache.REEF.Common.Telemetry;
@@ -48,12 +49,15 @@ namespace Org.Apache.REEF.Tests.Functional.Telemetry
 
         public byte[] Call(byte[] memento)
         {
-            for (int i = 1; i <= 100; i++)
+            long start = DateTime.Now.Ticks;
+            for (int i = 1; i <= 3000; i++)
             {
                 metric1.Increment();
                 metric2.AssignNewValue(i);
-                Thread.Sleep(100);
+                Thread.Sleep(10);
             }
+            long end = DateTime.Now.Ticks;
+            Logger.Log(Level.Info, "Evaluator took " + (end - start) + " ticks to comeplete 3000");
             return null;
         }
 

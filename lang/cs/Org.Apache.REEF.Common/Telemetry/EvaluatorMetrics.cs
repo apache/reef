@@ -59,7 +59,7 @@ namespace Org.Apache.REEF.Common.Telemetry
         {
             if (_metrics != null)
             {
-                return _metrics.Serialize();
+                return _metrics.SerializeAndReset();
             }
             return null;
         }

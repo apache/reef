@@ -79,8 +79,7 @@ namespace Org.Apache.REEF.Common.Telemetry
 
             if (_metricsData.TriggerSink(_metricSinkThreshold))
             {
-                Sink(_metricsData.GetMetricsHistory());
-                _metricsData.Reset();
+                Sink(_metricsData.GetMetricsHistoryAndReset());
             }
         }
 
@@ -112,7 +111,7 @@ namespace Org.Apache.REEF.Common.Telemetry
         /// </summary>
         public void OnCompleted()
         {
-            Sink(_metricsData.GetMetricsHistory());
+            Sink(_metricsData.GetMetricsHistoryAndReset());
             Logger.Log(Level.Info, "Completed");
         }
 
@@ -128,8 +127,7 @@ namespace Org.Apache.REEF.Common.Telemetry
         /// <param name="driverMetrics">driver metrics data.</param>
         public void OnNext(IDriverMetrics driverMetrics)
         {
-            var driverMetricsSet = driverMetrics.GetMetricsData().GetMetricsHistory();
-            Sink(driverMetricsSet);
+            Sink(driverMetrics.GetMetricsData().GetMetricsHistoryAndReset());
         }
     }
 }
