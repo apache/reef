@@ -91,9 +91,25 @@ namespace Org.Apache.REEF.Common.Telemetry
             _tracker.OnNext(this);
         }
 
-        public void Subscribe(IObserver<IMetric> observer)
+        public IDisposable Subscribe(IObserver<IMetric> observer)
         {
             _tracker = observer;
+            return new Unsubscriber(observer);
+        }
+
+        private class Unsubscriber : IDisposable
+        {
+            private IObserver<IMetric> _observer;
+
+            public Unsubscriber(IObserver<IMetric> observer)
+            {
+                _observer = observer;
+            }
+
+            public void Dispose()
+            {
+                _observer = null;
+            }
         }
     }
 }

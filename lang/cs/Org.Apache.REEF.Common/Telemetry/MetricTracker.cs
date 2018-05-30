@@ -36,6 +36,8 @@ namespace Org.Apache.REEF.Common.Telemetry
 
         private bool _keepUpdateHistory;
 
+        private IDisposable _unsubscriber;
+
         [JsonProperty]
         private IMetric _mirror;
 
@@ -159,7 +161,12 @@ namespace Org.Apache.REEF.Common.Telemetry
         public void Subscribe(IMetric provider)
         {
             _mirror = provider;
-            provider.Subscribe(this);
+            _unsubscriber = provider.Subscribe(this);
+        }
+
+        public void Unsubscribe()
+        {
+            _unsubscriber.Dispose();
         }
 
         public void OnNext(IMetric metric)
