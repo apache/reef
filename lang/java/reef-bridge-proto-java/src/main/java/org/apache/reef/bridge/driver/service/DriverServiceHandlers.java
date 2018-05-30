@@ -252,7 +252,8 @@ public final class DriverServiceHandlers {
   public final class DriverRestartHandler implements EventHandler<DriverRestarted> {
     @Override
     public void onNext(final DriverRestarted driverRestarted) {
-
+      LOG.log(Level.INFO, "JavaBridge: driver restarted");
+      DriverServiceHandlers.this.driverBridgeService.driverRestarted(driverRestarted);
     }
   }
 
@@ -262,7 +263,8 @@ public final class DriverServiceHandlers {
   public final class DriverRestartActiveContextHandler implements EventHandler<ActiveContext> {
     @Override
     public void onNext(final ActiveContext context) {
-
+      LOG.log(Level.INFO, "JavaBridge: driver restart active context {0}", context.getId());
+      DriverServiceHandlers.this.driverBridgeService.restartActiveContext(context);
     }
   }
 
@@ -272,7 +274,8 @@ public final class DriverServiceHandlers {
   public final class DriverRestartRunningTaskHandler implements EventHandler<RunningTask> {
     @Override
     public void onNext(final RunningTask task) {
-
+      LOG.log(Level.INFO, "JavaBridge: driver restart running task {0}", task.getId());
+      DriverServiceHandlers.this.driverBridgeService.restartRunningTask(task);
     }
   }
 
@@ -282,7 +285,8 @@ public final class DriverServiceHandlers {
   public final class DriverRestartCompletedHandler implements EventHandler<DriverRestartCompleted> {
     @Override
     public void onNext(final DriverRestartCompleted driverRestartCompleted) {
-
+      LOG.log(Level.INFO, "JavaBridge: driver restart completed");
+      DriverServiceHandlers.this.driverBridgeService.driverRestartCompleted(driverRestartCompleted);
     }
   }
 
@@ -292,7 +296,8 @@ public final class DriverServiceHandlers {
   public final class DriverRestartFailedEvaluatorHandler implements EventHandler<FailedEvaluator> {
     @Override
     public void onNext(final FailedEvaluator eval) {
-
+      LOG.log(Level.INFO, "JavaBridge: driver restart failed evaluator {0}", eval.getId());
+      DriverServiceHandlers.this.driverBridgeService.restartFailedEvalautor(eval);
     }
   }
 }
