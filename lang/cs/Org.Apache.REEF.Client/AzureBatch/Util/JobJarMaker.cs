@@ -79,7 +79,7 @@ namespace Org.Apache.REEF.Client.AzureBatch.Util
 
             string localDriverFolderPath = CreateDriverFolder(azureBatchjobId);
 
-            _driverFolderPreparationHelper.PrepareDriverFolderWithGlobalBridgeJar(jobRequest.AppParameters, localDriverFolderPath);
+            _driverFolderPreparationHelper.PrepareDriverFolder(jobRequest.AppParameters, localDriverFolderPath);
             SerializeJobFile(localDriverFolderPath, _avroAzureBatchJobSubmissionParameters);
 
             return _resourceArchiveFileGenerator.CreateArchiveToUpload(localDriverFolderPath);
