@@ -20,6 +20,9 @@ using Org.Apache.REEF.Common.Telemetry;
 using Org.Apache.REEF.Tang.Implementations.Tang;
 using Xunit;
 
+using IntegerMetric = Org.Apache.REEF.Common.Telemetry.MetricBase<int>;
+using DoubleMetric = Org.Apache.REEF.Common.Telemetry.MetricBase<double>;
+
 namespace Org.Apache.REEF.Common.Tests.Telemetry
 {
     public class MetricsTests
@@ -82,7 +85,7 @@ namespace Org.Apache.REEF.Common.Tests.Telemetry
         public void TestDuplicatedNames()
         {
             var metrics = CreateMetrics();
-            metrics.TryRegisterMetric(new CounterMetric("metric1", "metric description"));
+            Assert.True(metrics.TryRegisterMetric(new CounterMetric("metric1", "metric description")));
             Assert.False(metrics.TryRegisterMetric(new CounterMetric("metric1", "duplicate name")));
         }
 

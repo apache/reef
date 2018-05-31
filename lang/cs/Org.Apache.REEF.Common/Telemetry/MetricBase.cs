@@ -16,6 +16,7 @@
 // under the License.
 
 using System;
+using Newtonsoft.Json;
 
 namespace Org.Apache.REEF.Common.Telemetry
 {
@@ -23,7 +24,7 @@ namespace Org.Apache.REEF.Common.Telemetry
     /// Base implementation of a metric object. All metrics of a specific type should derive from this base class.
     /// </summary>
     /// <typeparam name="T">Metric type.</typeparam>
-    public abstract class MetricBase<T> : IMetric<T>
+    public class MetricBase<T> : IMetric<T>
     {
         protected IObserver<IMetric<T>> _tracker;
 
@@ -63,7 +64,7 @@ namespace Org.Apache.REEF.Common.Telemetry
             }
         }
 
-        public MetricBase(string name, string description, bool isImmutable)
+        public MetricBase(string name, string description, bool isImmutable = true)
         {
             Name = name;
             Description = description;
@@ -72,6 +73,7 @@ namespace Org.Apache.REEF.Common.Telemetry
             _isImmutable = isImmutable;
         }
 
+        [JsonConstructor]
         public MetricBase(string name, string description, long timeStamp, T value)
         {
             Name = name;
