@@ -172,7 +172,7 @@ namespace Org.Apache.REEF.IO.FileSystem.AzureBlob
                 {
                     ContainerResultSegment containerListing = _client.ListContainersSegmented(blobContinuationToken);
 
-                    if (containerListing.Results != null)
+                    if (containerListing != null && containerListing.Results != null)
                     {
                         foreach (CloudBlobContainer containerItem in containerListing.Results)
                         {
@@ -202,7 +202,11 @@ namespace Org.Apache.REEF.IO.FileSystem.AzureBlob
                     new BlobRequestOptions(),
                     new OperationContext());
 
-                if (listing.Results != null)
+                if (listing == null || listing.Results.Count() == 0)
+                {
+                    throw new ArgumentException("Call to ListBlobsSegmented returned no results. Uri is invalid or does not have children.", nameof(directoryUri));
+                }
+                else
                 {
                     foreach (IListBlobItem listBlobItem in listing.Results)
                     {

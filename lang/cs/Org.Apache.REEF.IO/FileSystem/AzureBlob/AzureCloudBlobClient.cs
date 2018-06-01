@@ -80,18 +80,18 @@ namespace Org.Apache.REEF.IO.FileSystem.AzureBlob
         {
             CloudBlobContainer container = _client.GetContainerReference(containerName);
             CloudBlobDirectory directory = container.GetDirectoryReference(relativeAddress);
-            return directory.ListBlobsSegmented(
+            return directory.ListBlobsSegmentedAsync(
                 useFlatListing,
                 blobListingDetails,
                 maxResults,
                 continuationToken,
                 blobRequestOptions,
-                operationContext);
+                operationContext).GetAwaiter().GetResult();
         }
 
         public ContainerResultSegment ListContainersSegmented(BlobContinuationToken continuationToken)
         {
-            return _client.ListContainersSegmented(continuationToken);
+            return _client.ListContainersSegmentedAsync(continuationToken).GetAwaiter().GetResult();
         }
     }
 }
