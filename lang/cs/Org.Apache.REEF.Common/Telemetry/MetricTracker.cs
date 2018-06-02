@@ -183,6 +183,7 @@ namespace Org.Apache.REEF.Common.Telemetry
 
         public void OnError(Exception error)
         {
+            Logger.Log(Level.Info, error.Message);
         }
 
         public void OnCompleted()
