@@ -65,14 +65,15 @@ namespace Org.Apache.REEF.Common.Telemetry
             ChangesSinceLastSink = 0;
             _keepUpdateHistory = metric.IsImmutable;
             _records = new ConcurrentQueue<MetricRecord>();
-            _records.Enqueue(CreateMetricRecord());
+            _records.Enqueue(CreateMetricRecord(metric));
         }
 
         [JsonConstructor]
-        internal MetricTracker(ConcurrentQueue<MetricRecord> records, int changes)
+        internal MetricTracker(IMetric _mirRor, int changesSinceLastSink, ConcurrentQueue<MetricRecord> _recorDs)
         {
-            _records = records;
-            ChangesSinceLastSink = changes;
+            _mirror = _mirRor;
+            _records = new ConcurrentQueue<MetricRecord>(_recorDs);
+            ChangesSinceLastSink = changesSinceLastSink;
         }
 
         private MetricTracker(IMetric mirror, ConcurrentQueue<MetricRecord> records, int changes, bool history)
@@ -84,12 +85,18 @@ namespace Org.Apache.REEF.Common.Telemetry
         }
 
         /// <summary>
-        /// Reset records.
+        /// Flush records.
         /// </summary>
-        internal void ResetChangesSinceLastSink()
+        internal ConcurrentQueue<MetricRecord> FlushChangesSinceLastSink()
         {
+            ConcurrentQueue<MetricRecord> records = new ConcurrentQueue<MetricRecord>();
+            MetricRecord record;
+            while (_records.TryDequeue(out record))
+            {
+                records.Enqueue(record);
+            }
             ChangesSinceLastSink = 0;
-            _records = new ConcurrentQueue<MetricRecord>();
+            return records;
         }
 
         /// <summary>
@@ -128,7 +135,7 @@ namespace Org.Apache.REEF.Common.Telemetry
 
         private void UpdateRecords()
         {
-            var newRecord = CreateMetricRecord();
+            var newRecord = CreateMetricRecord(_mirror);
             if (_keepUpdateHistory)
             {
                 _records.Enqueue(newRecord);
@@ -182,9 +189,9 @@ namespace Org.Apache.REEF.Common.Telemetry
         {
         }
 
-        private MetricRecord CreateMetricRecord()
+        private MetricRecord CreateMetricRecord(IMetric metric)
         {
-            return new MetricRecord(this);
+            return new MetricRecord(metric);
         }
 
         [JsonObject]
@@ -203,10 +210,10 @@ namespace Org.Apache.REEF.Common.Telemetry
                 Timestamp = timestamp;
             }
 
-            public MetricRecord(MetricTracker metricData)
+            public MetricRecord(IMetric metric)
             {
-                Timestamp = metricData._mirror.Timestamp;
-                Value = metricData._mirror.ValueUntyped;
+                Timestamp = metric.Timestamp;
+                Value = metric.ValueUntyped;
             }
         }
     }

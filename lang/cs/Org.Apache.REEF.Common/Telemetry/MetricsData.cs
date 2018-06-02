@@ -44,11 +44,6 @@ namespace Org.Apache.REEF.Common.Telemetry
         /// </summary>
         private ConcurrentDictionary<string, MetricTracker> _metricsMap = new ConcurrentDictionary<string, MetricTracker>();
 
-        /// <summary>
-        /// The lock for metrics.
-        /// </summary>
-        private readonly object _metricLock = new object();
-
         [Inject]
         internal MetricsData()
         {
@@ -85,15 +80,12 @@ namespace Org.Apache.REEF.Common.Telemetry
         /// <returns>Indicates if the metric was registered.</returns>
         public bool TryRegisterMetric(IMetric metric)
         {
-            lock (_metricLock)
+            if (!_metricsMap.TryAdd(metric.Name, new MetricTracker(metric)))
             {
-                if (!_metricsMap.TryAdd(metric.Name, new MetricTracker(metric)))
-                {
-                    Logger.Log(Level.Warning, "The metric [{0}] already exists.", metric.Name);
-                    return false;
-                }
-                return true;
+                Logger.Log(Level.Warning, "The metric [{0}] already exists.", metric.Name);
+                return false;
             }
+            return true;
         }
 
         /// <summary>
@@ -130,24 +122,24 @@ namespace Org.Apache.REEF.Common.Telemetry
         /// <param name="metrics">New metric values to be updated.</param>
         internal void Update(MetricsData metrics)
         {
-            lock (_metricLock)
+            foreach (var metric in metrics.GetMetrics())
             {
-                foreach (var metric in metrics.GetMetrics())
-                {
-                    _metricsMap.AddOrUpdate(metric.GetMetric().Name, metric, (k, v) => v.UpdateMetric(metric));
-                }
+                _metricsMap.AddOrUpdate(metric.GetMetric().Name, metric, (k, v) => v.UpdateMetric(metric));
             }
         }
 
         /// <summary>
-        /// Reset changed since last sink for each metric
+        /// Flush changes since last sink for each metric
         /// </summary>
-        private void Reset()
+        public IEnumerable<KeyValuePair<string, MetricTracker.MetricRecord>> FlushMetricRecords()
         {
-            foreach (var tracker in _metricsMap.Values)
-            {
-                tracker.ResetChangesSinceLastSink();
-            }
+            // for each metric, flush the records and create key value pairs
+            return _metricsMap.SelectMany(kv => kv.Value.FlushChangesSinceLastSink().Select(r => new KeyValuePair<string, MetricTracker.MetricRecord>(kv.Key, r)));
+        }
+
+        public ConcurrentQueue<MetricTracker> FlushMetricTrackers()
+        {
+            return new ConcurrentQueue<MetricTracker>(_metricsMap.Select(kv => new MetricTracker(kv.Value.GetMetric(), kv.Value.ChangesSinceLastSink, kv.Value.FlushChangesSinceLastSink())));
         }
 
         /// <summary>
@@ -156,17 +148,7 @@ namespace Org.Apache.REEF.Common.Telemetry
         /// <returns>A collection of metric records.</returns>
         internal IEnumerable<KeyValuePair<string, MetricTracker.MetricRecord>> GetMetricsHistory()
         {
-                var records = new List<KeyValuePair<string, MetricTracker.MetricRecord>>();
-                foreach (var me in _metricsMap)
-                {
-                    var name = me.Key;  // name of metric
-                    var data = me.Value;  // metric tracker
-                    foreach (var record in data.GetMetricRecords())
-                    {
-                        records.Add(new KeyValuePair<string, MetricTracker.MetricRecord>(name, record));
-                    }
-                }
-                return records;
+            return _metricsMap.SelectMany(kv => kv.Value.GetMetricRecords().Select(r => new KeyValuePair<string, MetricTracker.MetricRecord>(kv.Key, r)));
         }
 
         /// <summary>
@@ -180,31 +162,17 @@ namespace Org.Apache.REEF.Common.Telemetry
 
         public string Serialize()
         {
-            if (_metricsMap.Count > 0)
-            {
-                return JsonConvert.SerializeObject(_metricsMap.Values.Where(me => me.ChangesSinceLastSink > 0).ToList(), settings);
-            }
-            return null;
+            return Serialize(_metricsMap.Values);
+        }
+
+        internal string Serialize(IEnumerable<MetricTracker> trackers)
+        {
+            return JsonConvert.SerializeObject(trackers.Where(me => me.ChangesSinceLastSink > 0).ToList(), settings);
         }
 
         internal string SerializeAndReset()
         {
-            lock (_metricLock)
-            {
-                var str = Serialize();
-                Reset();
-                return str;
-            }
-        }
-
-        internal IEnumerable<KeyValuePair<string, MetricTracker.MetricRecord>> GetMetricsHistoryAndReset()
-        {
-            lock (_metricLock)
-            {
-                var ret = GetMetricsHistory();
-                Reset();
-                return ret;
-            }
+            return Serialize(FlushMetricTrackers());
         }
     }
 }

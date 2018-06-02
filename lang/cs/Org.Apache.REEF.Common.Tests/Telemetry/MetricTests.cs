@@ -117,7 +117,7 @@ namespace Org.Apache.REEF.Common.Tests.Telemetry
             var metrics2 = evalMetrics2.GetMetricsData();
 
             var sink = TangFactory.GetTang().NewInjector().GetInstance<IMetricsSink>();
-            sink.Sink(metrics2.GetMetricsHistoryAndReset());
+            sink.Sink(metrics2.FlushMetricRecords());
 
             var trackers = metrics2.GetMetrics();
             foreach (var t in trackers)
