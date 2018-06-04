@@ -21,11 +21,7 @@ using System.IO;
 using System.Linq;
 using Microsoft.Azure.Batch;
 using Microsoft.Azure.Batch.Common;
-#if REEF_DOTNET_BUILD
 using Microsoft.Practices.EnterpriseLibrary.TransientFaultHandling;
-#else
-using Microsoft.Practices.TransientFaultHandling;
-#endif
 using Org.Apache.REEF.Client.API;
 using Org.Apache.REEF.Client.Common;
 using Org.Apache.REEF.Utilities.Logging;

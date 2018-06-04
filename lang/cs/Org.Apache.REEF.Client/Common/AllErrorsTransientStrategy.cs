@@ -16,11 +16,7 @@
 // under the License.
 
 using System;
-#if REEF_DOTNET_BUILD
 using Microsoft.Practices.EnterpriseLibrary.TransientFaultHandling;
-#else
-using Microsoft.Practices.TransientFaultHandling;
-#endif
 
 namespace Org.Apache.REEF.Client.Common
 {

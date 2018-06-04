@@ -47,7 +47,7 @@ namespace Org.Apache.REEF.Client.Common
         private const string AppKey = "app";
         private const string ThisIsStandbyRm = "This is standby RM";
         private const string AppJson = "application/json";
-        private const int DriverStatusIntervalInSecond = 4;
+        private const int DriverStatusIntervalInMilliSecond = 4000;
 
         protected string _appId;
 
@@ -96,12 +96,11 @@ namespace Org.Apache.REEF.Client.Common
         {
             get
             {
-                if (_driverUrl != null)
+                if (_driverUrl == null)
                 {
-                    return _driverUrl;
+                    _driverUrl = GetDriverUrl(_filePath);
                 }
 
-                _driverUrl = GetDriverUrl(_filePath);
                 return _driverUrl;
             }
         }
@@ -147,14 +146,14 @@ namespace Org.Apache.REEF.Client.Common
             while (status.IsActive())
             {
                 // Add sleep in while loop, whose value alligns with default heart beat interval.
-                Task.Delay(TimeSpan.FromSeconds(DriverStatusIntervalInSecond)).GetAwaiter().GetResult();
+                Thread.Sleep(DriverStatusIntervalInMilliSecond);
                 LOGGER.Log(Level.Info, "DriverStatus is " + status);
 
                 try
                 {
                     status = FetchDriverStatus();
                 }
-                catch (WebException)
+                catch (WebException e)
                 {
                     // If we no longer can reach the Driver, it must have exited.
                     status = DriverStatus.UNKNOWN_EXITED;

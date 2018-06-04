@@ -183,25 +183,25 @@ public final class AzureBatchBootstrapREEFLauncher {
       final BatchCredentials credentials, final String poolId) {
     final BatchClient client = BatchClient.open(credentials);
     final NetworkConfiguration networkConfiguration;
+    final Set<String> backendPorts = new HashSet<>();
 
     try {
       networkConfiguration = client.poolOperations().getPool(poolId).networkConfiguration();
     } catch (IOException e) {
       LOG.log(Level.WARNING, "Unable to setup Http Server with InBoundNATPool Port", e);
-      return null;
+      return backendPorts;
     }
 
     if (networkConfiguration == null) {
-      return null;
+      return backendPorts;
     }
 
     final PoolEndpointConfiguration endpointConfiguration = networkConfiguration.endpointConfiguration();
     if (endpointConfiguration == null) {
-      return null;
+      return backendPorts;
     }
 
     final List<InboundNATPool> inboundNATpools = endpointConfiguration.inboundNATPools();
-    final Set<String> backendPorts = new HashSet<>();
     for (InboundNATPool pool : inboundNATpools) {
       backendPorts.add(String.valueOf(pool.backendPort()));
     }
