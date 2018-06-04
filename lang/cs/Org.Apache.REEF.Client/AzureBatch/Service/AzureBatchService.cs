@@ -133,6 +133,17 @@ namespace Org.Apache.REEF.Client.DotNet.AzureBatch
             return this.Client.JobOperations.GetJobAsync(jobId, detailLevel);
         }
 
+        public CloudTask GetJobManagerTaskFromJobId(string jobId)
+        {
+            string driverTaskId = this.Client.JobOperations.GetJob(jobId).JobManagerTask.Id;
+            return this.Client.JobOperations.GetTask(jobId, driverTaskId);
+        }
+
+        public ComputeNode GetComputeNodeFromNodeId(string nodeId)
+        {
+            return this.Client.PoolOperations.GetComputeNode(this.PoolId, nodeId);
+        }
+
         #endregion
     }
 }

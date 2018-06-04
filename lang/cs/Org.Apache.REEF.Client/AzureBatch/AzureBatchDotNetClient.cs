@@ -47,10 +47,6 @@ namespace Org.Apache.REEF.Client.DotNet.AzureBatch
         private readonly AzureBatchService _batchService;
         private readonly JobJarMaker _jobJarMaker;
         private readonly AzureBatchFileNames _azbatchFileNames;
-        private readonly string _azureBatchAccountName;
-        private readonly string _azureBatchAccountKey;
-        private readonly string _azureBatchAccountUri;
-        private readonly string _azureBatchPoolId;
         private readonly int _retryInterval;
         private readonly int _numberOfRetries;
 
@@ -69,11 +65,7 @@ namespace Org.Apache.REEF.Client.DotNet.AzureBatch
             //// It introduces circular injection issues, as all classes constructor inherited from JobSubmissionResult has reference to IREEFClient. 
             //// TODO: [REEF-2020] Refactor IJobSubmissionResult Interface and JobSubmissionResult implementation
             [Parameter(typeof(DriverHTTPConnectionRetryInterval))]int retryInterval,
-            [Parameter(typeof(DriverHTTPConnectionAttempts))] int numberOfRetries,
-            [Parameter(typeof(AzureBatchAccountUri))] string azureBatchAccountUri,
-            [Parameter(typeof(AzureBatchAccountName))] string azureBatchAccountName,
-            [Parameter(typeof(AzureBatchAccountKey))] string azureBatchAccountKey,
-            [Parameter(typeof(AzureBatchPoolId))] string azureBatchPoolId)
+            [Parameter(typeof(DriverHTTPConnectionAttempts))] int numberOfRetries)
         {
             _injector = injector;
             _fileNames = fileNames;
@@ -83,12 +75,8 @@ namespace Org.Apache.REEF.Client.DotNet.AzureBatch
             _jobRequestBuilderFactory = jobRequestBuilderFactory;
             _batchService = batchService;
             _jobJarMaker = jobJarMaker;
-            _azureBatchAccountName = azureBatchAccountName;
-            _azureBatchAccountKey = azureBatchAccountKey;
-            _azureBatchAccountUri = azureBatchAccountUri;
             _retryInterval = retryInterval;
             _numberOfRetries = numberOfRetries;
-            _azureBatchPoolId = azureBatchPoolId;
         }
 
         public JobRequestBuilder NewJobRequestBuilder()
@@ -115,10 +103,7 @@ namespace Org.Apache.REEF.Client.DotNet.AzureBatch
                 azureJobId,
                 _numberOfRetries,
                 _retryInterval,
-                _azureBatchPoolId,
-                _azureBatchAccountUri,
-                _azureBatchAccountName,
-                _azureBatchAccountKey);
+                _batchService);
         }
 
         private string JobSubmitInternal(JobRequest jobRequest)

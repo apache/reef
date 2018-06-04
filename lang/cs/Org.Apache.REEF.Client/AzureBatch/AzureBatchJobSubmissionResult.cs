@@ -24,8 +24,8 @@ using Microsoft.Azure.Batch.Common;
 using Microsoft.Practices.EnterpriseLibrary.TransientFaultHandling;
 using Org.Apache.REEF.Client.API;
 using Org.Apache.REEF.Client.Common;
+using Org.Apache.REEF.Client.DotNet.AzureBatch;
 using Org.Apache.REEF.Utilities.Logging;
-using BatchSharedKeyCredential = Microsoft.Azure.Batch.Auth.BatchSharedKeyCredentials;
 
 namespace Org.Apache.REEF.Client.AzureBatch
 {
@@ -33,8 +33,7 @@ namespace Org.Apache.REEF.Client.AzureBatch
     {
         private static readonly Logger LOGGER = Logger.GetLogger(typeof(AzureBatchJobSubmissionResult));
         private const string AzureBatchTaskWorkDirectory = "wd";
-        private readonly BatchClient _client;
-        private readonly string _azureBatchPoolId;
+        private readonly AzureBatchService _azurebatchService;
         private readonly string _jobId;
         private readonly int _numberOfRetries;
         private readonly int _retryInterval;
@@ -44,17 +43,12 @@ namespace Org.Apache.REEF.Client.AzureBatch
             string jobId,
             int numberOfRetries,
             int retryInterval,
-            string azureBatchPoolId,
-            string azureBatchUrl,
-            string azureBatchAccountName,
-            string azureBatchAccountKey) : base(reefClient, filePath, numberOfRetries, retryInterval)
+            AzureBatchService azbatchService) : base(reefClient, filePath, numberOfRetries, retryInterval)
         {
             _jobId = jobId;
-            _azureBatchPoolId = azureBatchPoolId;
             _numberOfRetries = numberOfRetries;
             _retryInterval = retryInterval;
-            BatchSharedKeyCredential credentials = new BatchSharedKeyCredential(azureBatchUrl, azureBatchAccountName, azureBatchAccountKey);
-            _client = BatchClient.Open(credentials);
+            _azurebatchService = azbatchService;
         }
 
         protected override string GetDriverUrl(string filepath)
@@ -65,8 +59,7 @@ namespace Org.Apache.REEF.Client.AzureBatch
 
         private string GetDriverUrlInternal(string filepath)
         {
-            string driverTaskId = _client.JobOperations.GetJob(_jobId).JobManagerTask.Id;
-            CloudTask driverTask = _client.JobOperations.GetTask(_jobId, driverTaskId);
+            CloudTask driverTask = _azurebatchService.GetJobManagerTaskFromJobId(_jobId);
 
             NodeFile httpEndPointFile;
             try
@@ -88,6 +81,7 @@ namespace Org.Apache.REEF.Client.AzureBatch
             else
             {
                 LOGGER.Log(Level.Warning, "unable to get driver http endpoint. The format in remote file is not correct.");
+                //// Returns null to exit retry policy since it is not recoverable.
                 return null;
             }
 
@@ -101,6 +95,7 @@ namespace Org.Apache.REEF.Client.AzureBatch
             else
             {
                 LOGGER.Log(Level.Warning, "unable to get driver http endpoint port. The format in remote file is not correct.");
+                //// Returns null to exit retry policy since it is not recoverable.
                 return null;
             }
 
@@ -108,7 +103,7 @@ namespace Org.Apache.REEF.Client.AzureBatch
             string publicIp = "0.0.0.0";
             int frontEndPort = 0;
             string driverNodeId = driverTask.ComputeNodeInformation.ComputeNodeId;
-            ComputeNode driverNode = _client.PoolOperations.GetComputeNode(_azureBatchPoolId, driverNodeId);
+            ComputeNode driverNode = _azurebatchService.GetComputeNodeFromNodeId(driverNodeId);
             IReadOnlyList<InboundEndpoint> inboundEndpoints = driverNode.EndpointConfiguration.InboundEndpoints;
             InboundEndpoint endpoint = inboundEndpoints.FirstOrDefault(s => s.BackendPort.ToString().Equals(backendPort));
 
