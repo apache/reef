@@ -110,7 +110,7 @@ namespace Org.Apache.REEF.IO.FileSystem.Hadoop
         public void Delete(Uri fileUri)
         {
             // Delete the file via the hdfs command line.
-            _commandRunner.Run("dfs -rm " + fileUri);
+            _commandRunner.Run("dfs -rm " + fileUri.OriginalString);
         }
 
         public bool Exists(Uri fileUri)
@@ -118,38 +118,38 @@ namespace Org.Apache.REEF.IO.FileSystem.Hadoop
             // This determines the existence of a file based on the 'ls' command. 
             // Ideally, we'd use the 'test' command's return value, but we did not find a way to access that.
             return
-                _commandRunner.Run("dfs -ls " + fileUri).StdErr
+                _commandRunner.Run("dfs -ls " + fileUri.OriginalString).StdErr
                     .All(line => !NoSuchFileOrDirectoryRegEx.IsMatch(line));
         }
 
         public void Copy(Uri sourceUri, Uri destinationUri)
         {
-            _commandRunner.Run("dfs -cp " + sourceUri + " " + destinationUri);
+            _commandRunner.Run("dfs -cp " + sourceUri.OriginalString + " " + destinationUri.OriginalString);
         }
 
         public void CopyToLocal(Uri remoteFileUri, string localName)
         {
-            _commandRunner.Run("dfs -get " + remoteFileUri + " " + localName);
+            _commandRunner.Run("dfs -get " + remoteFileUri.OriginalString + " " + localName);
         }
 
         public void CopyFromLocal(string localFileName, Uri remoteFileUri)
         {
-            _commandRunner.Run("dfs -put " + localFileName + " " + remoteFileUri);
+            _commandRunner.Run("dfs -put " + localFileName + " " + remoteFileUri.OriginalString);
         }
 
         public void CreateDirectory(Uri directoryUri)
         {
-            _commandRunner.Run("dfs -mkdir " + directoryUri);
+            _commandRunner.Run("dfs -mkdir " + directoryUri.OriginalString);
         }
 
         public void DeleteDirectory(Uri directoryUri)
         {
-            _commandRunner.Run("dfs -rmdir " + directoryUri);
+            _commandRunner.Run("dfs -rmdir " + directoryUri.OriginalString);
         }
 
         public IEnumerable<Uri> GetChildren(Uri directoryUri)
         {
-            return _commandRunner.Run("dfs -ls " + directoryUri)
+            return _commandRunner.Run("dfs -ls " + directoryUri.OriginalString)
                 .StdOut.Where(line => !LsFirstLineRegex.IsMatch(line))
                 .Select(line => line.Split())
                 .Select(x => new Uri(x[x.Length - 1]));
