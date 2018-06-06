@@ -29,9 +29,9 @@ namespace Org.Apache.REEF.IO.FileSystem.AzureDataLake
         private readonly AdlsClient _adlsClient;
 
         [Inject]
-        private AzureDataLakeStoreClient([Parameter(typeof(DataLakeStorageAccountName))] string adlsAccountName, IAdlsCredentials adlsCredentials)
+        private AzureDataLakeStoreClient([Parameter(typeof(DataLakeStorageAccountFQDN))] string adlsAccountFQDN, IAdlsCredentials adlsCredentials)
         {
-            _adlsClient = AdlsClient.CreateClient(adlsAccountName, adlsCredentials.Credentials);
+            _adlsClient = AdlsClient.CreateClient(adlsAccountFQDN, adlsCredentials.Credentials);
         }
 
         public AdlsClient GetAdlsClient()

@@ -199,7 +199,7 @@ namespace Org.Apache.REEF.IO.Tests
         {
             string dirStructure = FakeFileUri.AbsolutePath;
             Uri createdUri = _fs.CreateUriForPath(dirStructure);
-            Assert.Equal(createdUri, new Uri($"adl://{_context.AdlAccountName}{dirStructure}"));
+            Assert.Equal(createdUri, new Uri($"adl://{_context.AdlAccountFQDN}{dirStructure}"));
         }
 
         [Fact]
@@ -210,13 +210,13 @@ namespace Org.Apache.REEF.IO.Tests
 
         private sealed class TestContext
         {
-            public readonly string AdlAccountName = "adlAccount";
+            public readonly string AdlAccountFQDN = "adlAccount.azuredatalakestore.net";
             public readonly AdlsClient MockAdlsClient = Microsoft.Azure.DataLake.Store.MockAdlsFileSystem.MockAdlsClient.GetMockClient();
 
             public AzureDataLakeFileSystem GetAdlsFileSystem()
             {
                 var conf = AzureDataLakeFileSystemConfiguration.ConfigurationModule
-                     .Set(AzureDataLakeFileSystemConfiguration.DataLakeStorageAccountName, "adlsAccountName")
+                     .Set(AzureDataLakeFileSystemConfiguration.DataLakeStorageAccountFQDN, "adlsAccountFQDN")
                     .Set(AzureDataLakeFileSystemConfiguration.Tenant, "tenant")
                     .Set(AzureDataLakeFileSystemConfiguration.ClientId, "clientId")
                     .Set(AzureDataLakeFileSystemConfiguration.SecretKey, "secretKey")
@@ -225,7 +225,7 @@ namespace Org.Apache.REEF.IO.Tests
                 var testDataLakeStoreClient = Substitute.For<IDataLakeStoreClient>();
                 injector.BindVolatileInstance(testDataLakeStoreClient);
                 testDataLakeStoreClient.GetAdlsClient().ReturnsForAnyArgs(MockAdlsClient);
-                testDataLakeStoreClient.AccountFQDN.Returns(AdlAccountName);
+                testDataLakeStoreClient.AccountFQDN.Returns(AdlAccountFQDN);
                 var fs = injector.GetInstance<AzureDataLakeFileSystem>();
                 return fs;
             }

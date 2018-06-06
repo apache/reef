@@ -49,7 +49,7 @@ namespace Org.Apache.REEF.IO.Tests
             // use its authentication key as the SecretKey
             // https://docs.microsoft.com/en-us/azure/azure-resource-manager/resource-group-create-service-principal-portal#get-application-id-and-authentication-key
             // Fill in before running test!
-            const string AdlsAccountName = "#####.azuredatalakestore.net";
+            const string AdlsAccountFQDN = "#####.azuredatalakestore.net";
             const string Tenant = "microsoft.onmicrosoft.com";
             const string TokenAudience = @"https://datalake.azure.net/";
             const string ClientId = "########-####-####-####-############"; // e.g. "c2897d56-5eef-4030-8b7a-46b5c0acd05c"
@@ -58,7 +58,7 @@ namespace Org.Apache.REEF.IO.Tests
             _defaultFolderName = "reef-test-folder-" + Guid.NewGuid();
 
             IConfiguration conf = AzureDataLakeFileSystemConfiguration.ConfigurationModule
-                .Set(AzureDataLakeFileSystemConfiguration.DataLakeStorageAccountName, AdlsAccountName)
+                .Set(AzureDataLakeFileSystemConfiguration.DataLakeStorageAccountFQDN, AdlsAccountFQDN)
                 .Set(AzureDataLakeFileSystemConfiguration.Tenant, Tenant)
                 .Set(AzureDataLakeFileSystemConfiguration.ClientId, ClientId)
                 .Set(AzureDataLakeFileSystemConfiguration.SecretKey, SecretKey)
@@ -67,7 +67,7 @@ namespace Org.Apache.REEF.IO.Tests
             _fileSystem = TangFactory.GetTang().NewInjector(conf).GetInstance<AzureDataLakeFileSystem>();
 
             ServiceClientCredentials adlCreds = GetCredsSpiSecretKey(Tenant, new Uri(TokenAudience), ClientId, SecretKey);
-            _adlsClient = AdlsClient.CreateClient(AdlsAccountName, adlCreds);
+            _adlsClient = AdlsClient.CreateClient(AdlsAccountFQDN, adlCreds);
         }
 
         public void Dispose()
