@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<Project>
 <!--
 Licensed to the Apache Software Foundation (ASF) under one
 or more contributor license agreements.  See the NOTICE file
@@ -7,7 +7,9 @@ regarding copyright ownership.  The ASF licenses this file
 to you under the Apache License, Version 2.0 (the
 "License"); you may not use this file except in compliance
 with the License.  You may obtain a copy of the License at
+
 http://www.apache.org/licenses/LICENSE-2.0
+
 Unless required by applicable law or agreed to in writing,
 software distributed under the License is distributed on an
 "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -15,79 +17,20 @@ KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
 -->
-<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
-    <ProjectGuid>{B1B43B60-DDD0-4805-A9B4-BA84A0CCB7C7}</ProjectGuid>
-    <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Org.Apache.REEF.Network.Examples</RootNamespace>
     <AssemblyName>Org.Apache.REEF.Network.Examples</AssemblyName>
-    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
-    <FileAlignment>512</FileAlignment>
-    <RestorePackages>true</RestorePackages>
-    <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..</SolutionDir>
+    <Description>Examples for network services for REEF</Description>
+    <PackageTags>REEF Network services examples</PackageTags>
   </PropertyGroup>
-  <PropertyGroup>
-    <StartupObject />
-  </PropertyGroup>
-  <Import Project="$(SolutionDir)\build.props" />
-  <PropertyGroup>
-    <BuildPackage>false</BuildPackage>
-  </PropertyGroup>
+  <Import Project="..\build.Library.props" />
   <ItemGroup>
-    <Reference Include="System" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Xml" />
+    <ProjectReference Include="..\Org.Apache.REEF.Common\Org.Apache.REEF.Common.csproj" />
+    <ProjectReference Include="..\Org.Apache.REEF.Driver\Org.Apache.REEF.Driver.csproj" />
+    <ProjectReference Include="..\Org.Apache.REEF.Network\Org.Apache.REEF.Network.csproj" />
+    <ProjectReference Include="..\Org.Apache.REEF.Tang\Org.Apache.REEF.Tang.csproj" />
+    <ProjectReference Include="..\Org.Apache.REEF.Utilities\Org.Apache.REEF.Utilities.csproj" />
+    <ProjectReference Include="..\Org.Apache.REEF.Wake\Org.Apache.REEF.Wake.csproj" />
   </ItemGroup>
-  <ItemGroup>
-    <Compile Include="$(SolutionDir)\SharedAssemblyInfo.cs">
-      <Link>Properties\SharedAssemblyInfo.cs</Link>
-    </Compile>
-    <Compile Include="GroupCommunication\BroadcastReduceDriverAndTasks\BroadcastReduceDriver.cs" />
-    <Compile Include="GroupCommunication\BroadcastReduceDriverAndTasks\MasterTask.cs" />
-    <Compile Include="GroupCommunication\BroadcastReduceDriverAndTasks\SlaveTask.cs" />
-    <Compile Include="GroupCommunication\GroupTestConfig.cs" />
-    <Compile Include="GroupCommunication\GroupTestConstants.cs" />
-    <Compile Include="GroupCommunication\PipelineBroadcastReduceDriverAndTasks\PipelinedBroadcastReduceDriver.cs" />
-    <Compile Include="GroupCommunication\PipelineBroadcastReduceDriverAndTasks\PipelinedMasterTask.cs" />
-    <Compile Include="GroupCommunication\PipelineBroadcastReduceDriverAndTasks\PipelinedSlaveTask.cs" />
-    <Compile Include="GroupCommunication\ScatterReduceDriverAndTasks\MasterTask.cs" />
-    <Compile Include="GroupCommunication\ScatterReduceDriverAndTasks\ScatterReduceDriver.cs" />
-    <Compile Include="GroupCommunication\ScatterReduceDriverAndTasks\SlaveTask.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="$(SolutionDir)\Org.Apache.REEF.Common\Org.Apache.REEF.Common.csproj">
-      <Project>{545a0582-4105-44ce-b99c-b1379514a630}</Project>
-      <Name>Org.Apache.REEF.Common</Name>
-    </ProjectReference>
-    <ProjectReference Include="$(SolutionDir)\Org.Apache.REEF.Driver\Org.Apache.REEF.Driver.csproj">
-      <Project>{a6baa2a7-f52f-4329-884e-1bcf711d6805}</Project>
-      <Name>Org.Apache.REEF.Driver</Name>
-    </ProjectReference>
-    <ProjectReference Include="$(SolutionDir)\Org.Apache.REEF.Network\Org.Apache.REEF.Network.csproj">
-      <Project>{883ce800-6a6a-4e0a-b7fe-c054f4f2c1dc}</Project>
-      <Name>Org.Apache.REEF.Network</Name>
-    </ProjectReference>
-    <ProjectReference Include="$(SolutionDir)\Org.Apache.REEF.Tang\Org.Apache.REEF.Tang.csproj">
-      <Project>{97dbb573-3994-417a-9f69-ffa25f00d2a6}</Project>
-      <Name>Org.Apache.REEF.Tang</Name>
-    </ProjectReference>
-    <ProjectReference Include="$(SolutionDir)\Org.Apache.REEF.Utilities\Org.Apache.REEF.Utilities.csproj">
-      <Project>{79e7f89a-1dfb-45e1-8d43-d71a954aeb98}</Project>
-      <Name>Org.Apache.REEF.Utilities</Name>
-    </ProjectReference>
-    <ProjectReference Include="$(SolutionDir)\Org.Apache.REEF.Wake\Org.Apache.REEF.Wake.csproj">
-      <Project>{cdfb3464-4041-42b1-9271-83af24cd5008}</Project>
-      <Name>Org.Apache.REEF.Wake</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
-  <Import Project="$(PackagesDir)\StyleCop.MSBuild.$(StyleCopVersion)\build\StyleCop.MSBuild.Targets" Condition="Exists('$(PackagesDir)\StyleCop.MSBuild.$(StyleCopVersion)\build\StyleCop.MSBuild.Targets')" />
+  <Import Project="..\build.targets"/>
 </Project>
+

@@ -16,21 +16,32 @@ specific language governing permissions and limitations
 under the License.
 -->
 
-<Import Project="build.DotNet.props"/>
-<Import Project="xunit.DotNet.props"/>
-<PropertyGroup>
-  <TargetFrameworks>net461</TargetFrameworks>
+<Import Project="build.props"/>
 
+<!-- Settings for Linux platforms -->
+<PropertyGroup Condition="'$(OS)' != 'Windows_NT'">
+  <TargetFrameworks>netcoreapp2.0</TargetFrameworks>
+  <OutputType>Exe</OutputType>
+  <RuntimeIdentifiers>linux-x64</RuntimeIdentifiers>
+</PropertyGroup>
+
+<!-- Settings for Windows platforms -->
+<PropertyGroup Condition="'$(OS)' == 'Windows_NT'">
+  <TargetFrameworks>net461</TargetFrameworks>
   <!-- If EnableDotNetBuild is true, override the target frameworks to include dot net core -->
   <TargetFrameworks Condition="'$(EnableDotNetBuild)' == 'true'">netcoreapp2.0;net461</TargetFrameworks>
-
-  <!-- If on Linux, override the target frameworks to netcoreapp2.0 -->
-  <TargetFrameworks Condition="'$(OS)' != 'Windows_NT'">netcoreapp2.0</TargetFrameworks>
+  <OutputType>Exe</OutputType>
 
   <!-- This is required to copy all referenced assemblies to the bin folder -->
   <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
-
-  <!-- Set this attribute to prevent test projects from being packaged -->
-  <IsTestProject>true</IsTestProject>
+  <!-- REEF-1888: win7-x64 is needed for .net46 and .net451. Target a newer version of windows once net46 and 451 are removed" -->
+  <RuntimeIdentifiers>win7-x64</RuntimeIdentifiers>
 </PropertyGroup>
+
+<ItemGroup>
+    <None Include="$(SolutionDir)App.config">
+      <Link>App.config</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+</ItemGroup>
 </Project>

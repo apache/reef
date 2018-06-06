@@ -15,23 +15,11 @@ KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
 -->
-  <Import Project="Sdk.props" Sdk="Microsoft.NET.Sdk" />
-  <Import Project="build.Common.DotNet.props" />
 
-  <!-- Allow for C# 7.2 language constructs -->
-  <PropertyGroup>
-    <LangVersion>7.2</LangVersion>
-  </PropertyGroup>
+<Import Project="build.targets"/>
+<Target Name="Test">
+  <Exec Command="$(PackagesDir)\xunit.runner.console\2.2.0\tools\xunit.console.exe $(OutputPath)\$(AssemblyName).dll -notrait Environment=Yarn -html $(OutputPath)\xunit_report.html"
+    IgnoreStandardErrorWarningFormat="true"/>
+</Target>
 
-  <PropertyGroup>
-    <AvroVersion>0.1.0</AvroVersion>
-    <MicrosoftDataLakeStoreVersion>1.1.3</MicrosoftDataLakeStoreVersion>
-    <NewtonsoftJsonVersion>10.0.3</NewtonsoftJsonVersion>
-    <ProtobufVersion>2.1.0</ProtobufVersion>
-    <SystemReactiveVersion>3.1.1</SystemReactiveVersion>
-    <StyleCopVersion>5.0.0</StyleCopVersion>
-    <TransientFaultHandlingVersion>1.0.0</TransientFaultHandlingVersion>
-    <NSubstituteVersion>3.1.0</NSubstituteVersion>
-    <WindowsAzureStorageVersion>8.1.3</WindowsAzureStorageVersion>
-  </PropertyGroup>
 </Project>

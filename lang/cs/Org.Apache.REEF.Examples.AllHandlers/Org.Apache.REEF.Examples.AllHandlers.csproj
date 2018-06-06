@@ -1,5 +1,5 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<Project>
+  <!--
 Licensed to the Apache Software Foundation (ASF) under one
 or more contributor license agreements.  See the NOTICE file
 distributed with this work for additional information
@@ -7,7 +7,9 @@ regarding copyright ownership.  The ASF licenses this file
 to you under the Apache License, Version 2.0 (the
 "License"); you may not use this file except in compliance
 with the License.  You may obtain a copy of the License at
+
 http://www.apache.org/licenses/LICENSE-2.0
+
 Unless required by applicable law or agreed to in writing,
 software distributed under the License is distributed on an
 "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -15,114 +17,22 @@ KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
 -->
-<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
-    <ProjectGuid>{159F7D70-8ACC-4D97-9F6D-2FC4CA0D8682}</ProjectGuid>
-    <OutputType>Exe</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Org.Apache.REEF.Examples.AllHandlers</RootNamespace>
     <AssemblyName>Org.Apache.REEF.Examples.AllHandlers</AssemblyName>
-    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
-    <FileAlignment>512</FileAlignment>
-    <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..</SolutionDir>
+    <Description>All handlers example for REEF.NET</Description>
+    <PackageTags>REEF Examples</PackageTags>
   </PropertyGroup>
-  <PropertyGroup>
-    <StartupObject />
-  </PropertyGroup>
-  <Import Project="$(SolutionDir)\build.props" />
-  <PropertyGroup>
-    <RestorePackages>true</RestorePackages>
-    <BuildPackage>false</BuildPackage>
-    <UseVSHostingProcess>false</UseVSHostingProcess>
-  </PropertyGroup>
+  <Import Project="..\build.App.props" />
   <ItemGroup>
-    <Reference Include="System" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Xml" />
+    <ProjectReference Include="..\Org.Apache.REEF.Client\Org.Apache.REEF.Client.csproj" />
+    <ProjectReference Include="..\Org.Apache.REEF.Common\Org.Apache.REEF.Common.csproj" />
+    <ProjectReference Include="..\Org.Apache.REEF.Driver\Org.Apache.REEF.Driver.csproj" />
+    <ProjectReference Include="..\Org.Apache.REEF.Evaluator\Org.Apache.REEF.Evaluator.csproj" />
+    <ProjectReference Include="..\Org.Apache.REEF.Examples\Org.Apache.REEF.Examples.csproj" />
+    <ProjectReference Include="..\Org.Apache.REEF.Network\Org.Apache.REEF.Network.csproj" />
+    <ProjectReference Include="..\Org.Apache.REEF.Tang\Org.Apache.REEF.Tang.csproj" />
+    <ProjectReference Include="..\Org.Apache.REEF.Utilities\Org.Apache.REEF.Utilities.csproj" />
+    <ProjectReference Include="..\Org.Apache.REEF.Wake\Org.Apache.REEF.Wake.csproj" />
   </ItemGroup>
-  <ItemGroup>
-    <Compile Include="$(SolutionDir)\SharedAssemblyInfo.cs">
-      <Link>Properties\SharedAssemblyInfo.cs</Link>
-    </Compile>
-    <Compile Include="AllHandlers.cs" />
-    <Compile Include="AnotherHelloAllocatedEvaluatorHandler.cs" />
-    <Compile Include="HelloActiveContextHandler.cs" />
-    <Compile Include="HelloAllocatedEvaluatorHandler.cs" />
-    <Compile Include="HelloCompletedEvaluatorHandler.cs" />
-    <Compile Include="HelloDriverRestartActiveContextHandler.cs" />
-    <Compile Include="HelloDriverRestartRunningTaskHandler.cs" />
-    <Compile Include="HelloDriverStartHandler.cs" />
-    <Compile Include="HelloFailedEvaluatorHandler.cs" />
-    <Compile Include="HelloFailedTaskHandler.cs" />
-    <Compile Include="HelloHttpHandler.cs" />
-    <Compile Include="HelloRestartHandler.cs" />
-    <Compile Include="HelloRunningTaskHandler.cs" />
-    <Compile Include="HelloTaskMessageHandler.cs" />
-    <Compile Include="HelloTraceListener.cs" />
-    <Compile Include="HelloTaskCompletedHandler.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="$(SolutionDir)\Org.Apache.REEF.Bridge\Org.Apache.REEF.Bridge.vcxproj">
-      <Project>{4e69d40a-26d6-4d4a-b96d-729946c07fe1}</Project>
-      <Name>Org.Apache.REEF.Bridge</Name>
-    </ProjectReference>
-    <ProjectReference Include="$(SolutionDir)\Org.Apache.REEF.Client\Org.Apache.REEF.Client.csproj">
-      <Project>{5094c35b-4fdb-4322-ac05-45d684501cbf}</Project>
-      <Name>Org.Apache.REEF.Client</Name>
-    </ProjectReference>
-    <ProjectReference Include="$(SolutionDir)\Org.Apache.REEF.Common\Org.Apache.REEF.Common.csproj">
-      <Project>{545a0582-4105-44ce-b99c-b1379514a630}</Project>
-      <Name>Org.Apache.REEF.Common</Name>
-    </ProjectReference>
-    <ProjectReference Include="$(SolutionDir)\Org.Apache.REEF.Driver\Org.Apache.REEF.Driver.csproj">
-      <Project>{a6baa2a7-f52f-4329-884e-1bcf711d6805}</Project>
-      <Name>Org.Apache.REEF.Driver</Name>
-    </ProjectReference>
-    <ProjectReference Include="$(SolutionDir)\Org.Apache.REEF.Evaluator\Org.Apache.REEF.Evaluator.csproj">
-      <Project>{1b983182-9c30-464c-948d-f87eb93a8240}</Project>
-      <Name>Org.Apache.REEF.Evaluator</Name>
-    </ProjectReference>
-    <ProjectReference Include="$(SolutionDir)\Org.Apache.REEF.Examples\Org.Apache.REEF.Examples.csproj">
-      <Project>{75503f90-7b82-4762-9997-94b5c68f15db}</Project>
-      <Name>Org.Apache.REEF.Examples</Name>
-    </ProjectReference>
-    <ProjectReference Include="$(SolutionDir)\Org.Apache.REEF.Network\Org.Apache.REEF.Network.csproj">
-      <Project>{883ce800-6a6a-4e0a-b7fe-c054f4f2c1dc}</Project>
-      <Name>Org.Apache.REEF.Network</Name>
-    </ProjectReference>
-    <ProjectReference Include="$(SolutionDir)\Org.Apache.REEF.Tang\Org.Apache.REEF.Tang.csproj">
-      <Project>{97dbb573-3994-417a-9f69-ffa25f00d2a6}</Project>
-      <Name>Org.Apache.REEF.Tang</Name>
-    </ProjectReference>
-    <ProjectReference Include="$(SolutionDir)\Org.Apache.REEF.Utilities\Org.Apache.REEF.Utilities.csproj">
-      <Project>{79e7f89a-1dfb-45e1-8d43-d71a954aeb98}</Project>
-      <Name>Org.Apache.REEF.Utilities</Name>
-    </ProjectReference>
-    <ProjectReference Include="$(SolutionDir)\Org.Apache.REEF.Wake\Org.Apache.REEF.Wake.csproj">
-      <Project>{cdfb3464-4041-42b1-9271-83af24cd5008}</Project>
-      <Name>Org.Apache.REEF.Wake</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="packages.config" />
-    <None Include="Readme.md" />
-    <None Include="$(SolutionDir)\App.config">
-      <Link>App.config</Link>
-    </None>
-  </ItemGroup>
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
-  <Import Project="$(PackagesDir)\StyleCop.MSBuild.$(StyleCopVersion)\build\StyleCop.MSBuild.Targets" Condition="Exists('$(PackagesDir)\StyleCop.MSBuild.$(StyleCopVersion)\build\StyleCop.MSBuild.Targets')" />
-  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
-    <PropertyGroup>
-      <ErrorText>This project references NuGet package(s) that are missing on this computer. Enable NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
-    </PropertyGroup>
-    <Error Condition="!Exists('$(SolutionDir)\.nuget\NuGet.targets')" Text="$([System.String]::Format('$(ErrorText)', '$(SolutionDir)\.nuget\NuGet.targets'))" />
-  </Target>
+  <Import Project="..\build.targets"/>
 </Project>

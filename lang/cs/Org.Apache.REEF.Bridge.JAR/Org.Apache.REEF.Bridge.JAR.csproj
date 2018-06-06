@@ -1,5 +1,5 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<Project>
+  <!--
 Licensed to the Apache Software Foundation (ASF) under one
 or more contributor license agreements.  See the NOTICE file
 distributed with this work for additional information
@@ -15,47 +15,42 @@ KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
 -->
-<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="12.0">
-  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
-    <!--Set configuration parameters usually set in the Solution. This is needed for build.props to work.-->
-    <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..</SolutionDir>
-    <RootNamespace>Org.Apache.REEF.Bridge.JAR</RootNamespace>
-    <ProjectGuid>{62905C7C-1A7E-4923-B78D-1BF42D7FAD40}</ProjectGuid>
     <AssemblyName>Org.Apache.REEF.Bridge.JAR</AssemblyName>
-    <RestorePackages>true</RestorePackages>
-    <BuildPackage>false</BuildPackage>
-    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
+    <Description>Helper project that builds the Bridge JAR </Description>
+    <TargetFramework>net461</TargetFramework>
   </PropertyGroup>
-  <Import Project="$(SolutionDir)\build.props" />
-  <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
-  <Import Project="$(MSBuildBinPath)\Microsoft.Common.targets" />
+  <Import Project="..\build.props" />
+  <PropertyGroup>
+    <IsPackable>false</IsPackable>
+    <OutputPath>$(BinDir)$(Configuration)\Org.Apache.REEF.Bridge.JAR\</OutputPath>
+  </PropertyGroup>
+  <Import Project="..\build.targets" />
+  <Import Project="..\pomversion.targets" />
+
   <!--
     Check that maven is installed
   -->
   <Target Name="CheckMavenInstall">
     <Error Condition=" '$(M2_HOME)' == '' " Text="$M2_HOME is not set. Please make sure that Maven is installed and configured. See https://cwiki.apache.org/confluence/display/REEF/Compiling+REEF for details." />
     <Error Condition=" '$(JAVA_HOME)' == '' " Text="$JAVA_HOME is not set. Please make sure that Java is installed and configured. See https://cwiki.apache.org/confluence/display/REEF/Compiling+REEF for details." />
-    <Message Text="Using the maven installation found in $(M2_HOME)" />
+    <Message Text="Using the maven installation found in $(M2_HOME)" Importance="high" />
   </Target>
   <Target Name="CheckJavaInstall">
     <Error Condition=" '$(JAVA_HOME)' == '' " Text="$JAVA_HOME is not set. Please make sure that Java is installed and configured. See https://cwiki.apache.org/confluence/display/REEF/Compiling+REEF for details." />
-    <Message Text="Using the java installation found in $(JAVA_HOME)" />
+    <Message Text="Using the java installation found in $(JAVA_HOME)" Importance="high" />
   </Target>
   <Target Name="CheckProtocInstall">
     <Exec ContinueOnError="True" IgnoreExitCode="true" Command="&quot;cmd /c where protoc.exe&quot;">
       <Output TaskParameter="ExitCode" PropertyName="ErrorCode" />
     </Exec>
-    <Message Text="The exit code is $(ErrorCode)" />
-    <Message Text="BuildPackage is $(BuildPackage)" />
+    <Message Text="The exit code is $(ErrorCode)" Importance="high" />
     <Error Text="protoc.exe not found. Please make sure that protoc.exe is on the path. See https://cwiki.apache.org/confluence/display/REEF/Compiling+REEF for details." Condition="'$(ErrorCode)' &gt; '0'" />
   </Target>
   <!--
     Executes 'mvn install', if the JAR does not exist.
   -->
-  <Target Name="Build"
-          DependsOnTargets="CheckMavenInstall;CheckJavaInstall;CheckProtocInstall"
-          Outputs="$(OutputPath)">
+  <Target Name="Build" DependsOnTargets="CheckMavenInstall;CheckJavaInstall;CheckProtocInstall" Outputs="$(OutputPath)">
     <PropertyGroup>
       <!--The shaded jar of the bridge (driver side) -->
       <Bridge_JAR_Name>reef-bridge-java-$(REEF_Version)-shaded.jar</Bridge_JAR_Name>
@@ -64,7 +59,8 @@ under the License.
       <Client_JAR_Name>reef-bridge-client-$(REEF_Version)-shaded.jar</Client_JAR_Name>
       <Client_JAR>$(REEF_Source_Folder)\lang\java\reef-bridge-client\target\$(Client_JAR_Name)</Client_JAR>
     </PropertyGroup>
-    <Exec Command='call "$(M2_HOME)\bin\mvn.cmd" --projects lang/java/reef-bridge-java,lang/java/reef-bridge-client --also-make -TC1 -DskipTests -P!code-quality -q install' Condition="!Exists('$(Bridge_JAR)')" WorkingDirectory="$(REEF_Source_Folder)" />
+    <Exec Command="call &quot;$(M2_HOME)\bin\mvn.cmd&quot; --projects lang/java/reef-bridge-java,lang/java/reef-bridge-client --also-make -TC1 -DskipTests -P!code-quality install" Condition="!Exists('$(Bridge_JAR)')" WorkingDirectory="$(REEF_Source_Folder)" />
+    <Message Text="Copying jar files to $(OutputPath)" Importance="high" />
     <Copy DestinationFolder="$(OutputPath)" SourceFiles="$(Bridge_JAR)" />
     <Copy DestinationFolder="$(OutputPath)" SourceFiles="$(Client_JAR)" />
   </Target>
@@ -80,14 +76,10 @@ under the License.
       <Client_JAR_Name>reef-bridge-client-$(REEF_Version)-shaded.jar</Client_JAR_Name>
       <Client_JAR>$(REEF_Source_Folder)\lang\java\reef-bridge-client\target\$(Client_JAR_Name)</Client_JAR>
     </PropertyGroup>
-    <Exec Command='call "$(M2_HOME)\bin\mvn.cmd" -TC1 -DskipTests -q clean' Condition="Exists('$(Bridge_JAR)')" WorkingDirectory="$(REEF_Source_Folder)" />
+    <Exec Command="call &quot;$(M2_HOME)\bin\mvn.cmd&quot; -TC1 -DskipTests -q clean" Condition="Exists('$(Bridge_JAR)')" WorkingDirectory="$(REEF_Source_Folder)" />
     <Delete Files="$(OutputPath)\$(Bridge_JAR_Name)" />
     <Delete Files="$(OutputPath)\$(Client_JAR_Name)" />
-
   </Target>
-  <!--
-    Standard Rebuild target: Clean, then build
-  -->
-  <Target Name="Rebuild" DependsOnTargets="Clean;Build"/>
-  <Target Name="CheckPrerequisites" DependsOnTargets="Build"/>
+  <Target Name="Rebuild" DependsOnTargets="Clean;Build" />
+  <Target Name="CheckPrerequisites" DependsOnTargets="Build" />
 </Project>
