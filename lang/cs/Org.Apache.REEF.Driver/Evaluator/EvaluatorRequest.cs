@@ -29,7 +29,7 @@ namespace Org.Apache.REEF.Driver.Evaluator
     internal class EvaluatorRequest : IEvaluatorRequest
     {
         internal EvaluatorRequest()
-            : this(0, 0, 1, string.Empty, Guid.NewGuid().ToString("N"), string.Empty, Enumerable.Empty<string>().ToList(), true, string.Empty)
+            : this(0, 0, 1, string.Empty, Guid.NewGuid().ToString("N"), string.Empty, Enumerable.Empty<string>().ToList(), true, String.Empty)
         {
         }
 
@@ -44,7 +44,7 @@ namespace Org.Apache.REEF.Driver.Evaluator
         }
 
         internal EvaluatorRequest(int number, int megaBytes, string rack)
-            : this(number, megaBytes, 1, rack, Guid.NewGuid().ToString("N"), string.Empty, Enumerable.Empty<string>().ToList(), true, string.Empty)
+            : this(number, megaBytes, 1, rack, Guid.NewGuid().ToString("N"), string.Empty, Enumerable.Empty<string>().ToList(), true, String.Empty)
         {
         }
 
