@@ -103,16 +103,18 @@ namespace Org.Apache.REEF.Examples.HelloREEF
                     return YARNClientConfiguration.ConfigurationModuleYARNRest.Build();
                 case HDInsight:
                     // To run against HDInsight please replace placeholders below, with actual values for
-                    // connection string, container name (available at Azure portal) and HDInsight
+                    // blob storage account name and key, container name (available at Azure portal) and HDInsight
                     // credentials (username and password)
-                    const string connectionString = "ConnString";
-                    const string continerName = "foo";
+                    const string blobStorageAccountName = "name";
+                    const string blobStorageAccountKey = "key";
+                    const string containerName = "foo";
                     return HDInsightClientConfiguration.ConfigurationModule
                         .Set(HDInsightClientConfiguration.HDInsightPasswordParameter, @"pwd")
                         .Set(HDInsightClientConfiguration.HDInsightUsernameParameter, @"foo")
                         .Set(HDInsightClientConfiguration.HDInsightUrlParameter, @"https://foo.azurehdinsight.net/")
-                        .Set(HDInsightClientConfiguration.JobSubmissionDirectoryPrefix, string.Format(@"/{0}/tmp", continerName))
-                        .Set(AzureBlockBlobFileSystemConfiguration.ConnectionString, connectionString)
+                        .Set(HDInsightClientConfiguration.JobSubmissionDirectoryPrefix, string.Format(@"/{0}/tmp", containerName))
+                        .Set(AzureBlobFileSystemConfiguration.AccountName, blobStorageAccountName)
+                        .Set(AzureBlobFileSystemConfiguration.AccountKey, blobStorageAccountKey)
                         .Build();
                 case AzureBatch:
                     return AzureBatchRuntimeClientConfiguration.ConfigurationModule

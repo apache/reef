@@ -19,10 +19,10 @@ using Org.Apache.REEF.Tang.Annotations;
 
 namespace Org.Apache.REEF.IO.FileSystem.AzureBlob.Parameters
 {
-    [NamedParameter("The connection string for Azure Storage")]
-    public sealed class AzureStorageConnectionString : Name<string>
+    [NamedParameter("The Azure Blob Storage account name")]
+    public sealed class AzureBlobStorageAccountName : Name<string>
     {
-        private AzureStorageConnectionString()
+        private AzureBlobStorageAccountName()
         {
         }
     }

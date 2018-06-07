@@ -39,17 +39,21 @@ namespace Org.Apache.REEF.IO.Tests
         private IFileSystem _fileSystem;
         private CloudBlobClient _client;
         private CloudBlobContainer _container;
+        private const string AzureBlobConnectionFormat = "DefaultEndpointsProtocol=https;AccountName={0};AccountKey={1};";
 
         public TestAzureBlockBlobFileSystemE2E()
         {
             // Fill in before running test!
-            const string ConnectionString = "DefaultEndpointsProtocol=http;AccountName=myAccount;AccountKey=myKey;";
+            const string AccountName = "";
+            const string AccountKey = "";
+            string ConnectionString = string.Format(AzureBlobConnectionFormat, AccountName, AccountKey);
             var defaultContainerName = "reef-test-container-" + Guid.NewGuid();
-            var conf = AzureBlockBlobFileSystemConfiguration.ConfigurationModule
-                .Set(AzureBlockBlobFileSystemConfiguration.ConnectionString, ConnectionString)
+            var conf = AzureBlobFileSystemConfiguration.ConfigurationModule
+                .Set(AzureBlobFileSystemConfiguration.AccountName, AccountName)
+                .Set(AzureBlobFileSystemConfiguration.AccountKey, AccountKey)
                 .Build();
 
-            _fileSystem = TangFactory.GetTang().NewInjector(conf).GetInstance<AzureBlockBlobFileSystem>();
+            _fileSystem = TangFactory.GetTang().NewInjector(conf).GetInstance<AzureBlobFileSystem>();
             _client = CloudStorageAccount.Parse(ConnectionString).CreateCloudBlobClient();
             _container = _client.GetContainerReference(defaultContainerName);
             _container.CreateIfNotExists();
