@@ -17,6 +17,8 @@
 
 using System;
 
+using StringMetric = Org.Apache.REEF.Common.Telemetry.MetricBase<string>;
+
 namespace Org.Apache.REEF.Common.Telemetry
 {
     /// <summary>
