@@ -239,7 +239,7 @@ namespace Org.Apache.REEF.IO.FileSystem.AzureDataLake
 
         private string GetUriPrefix()
         {
-            return $"adl://{_client.AccountFQDN}";
+            return $"adl://{_client.AccountFqdn}";
         }
     }
 }

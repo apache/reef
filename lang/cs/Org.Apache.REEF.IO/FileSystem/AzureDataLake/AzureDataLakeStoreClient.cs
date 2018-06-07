@@ -29,9 +29,9 @@ namespace Org.Apache.REEF.IO.FileSystem.AzureDataLake
         private readonly AdlsClient _adlsClient;
 
         [Inject]
-        private AzureDataLakeStoreClient([Parameter(typeof(DataLakeStorageAccountFQDN))] string adlsAccountFQDN, IAdlsCredentials adlsCredentials)
+        private AzureDataLakeStoreClient([Parameter(typeof(DataLakeStorageAccountFqdn))] string adlsAccountFqdn, IAdlsCredentials adlsCredentials)
         {
-            _adlsClient = AdlsClient.CreateClient(adlsAccountFQDN, adlsCredentials.Credentials);
+            _adlsClient = AdlsClient.CreateClient(adlsAccountFqdn, adlsCredentials.Credentials);
         }
 
         public AdlsClient GetAdlsClient()
@@ -39,6 +39,6 @@ namespace Org.Apache.REEF.IO.FileSystem.AzureDataLake
             return _adlsClient;
         }
 
-        public string AccountFQDN => _adlsClient.AccountFQDN;
+        public string AccountFqdn => _adlsClient.AccountFQDN;
     }
 }

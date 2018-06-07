@@ -35,7 +35,7 @@ namespace Org.Apache.REEF.IO.FileSystem.AzureDataLake
 
         [Inject]
         private AzureDataLakeFileSystemConfigurationProvider(
-            [Parameter(typeof(DataLakeStorageAccountFQDN))] string adlsAccountFQDN,
+            [Parameter(typeof(DataLakeStorageAccountFqdn))] string adlsAccountFqdn,
             [Parameter(typeof(Tenant))] string tenant,
             [Parameter(typeof(ClientId))] string clientId,
             [Parameter(typeof(SecretKey))] string secretKey,
@@ -44,7 +44,7 @@ namespace Org.Apache.REEF.IO.FileSystem.AzureDataLake
             _configuration = TangFactory.GetTang().NewConfigurationBuilder()
                 .BindImplementation(GenericType<IFileSystem>.Class, GenericType<AzureDataLakeFileSystem>.Class)
                 .BindImplementation(GenericType<IAdlsCredentials>.Class, GenericType<SecretKeyAdlsCredentials>.Class)
-                .BindStringNamedParam<DataLakeStorageAccountFQDN>(adlsAccountFQDN)
+                .BindStringNamedParam<DataLakeStorageAccountFqdn>(adlsAccountFqdn)
                 .BindStringNamedParam<Tenant>(tenant)
                 .BindStringNamedParam<ClientId>(clientId)
                 .BindStringNamedParam<SecretKey>(secretKey)

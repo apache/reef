@@ -31,6 +31,6 @@ namespace Org.Apache.REEF.IO.FileSystem.AzureDataLake
         /// <summary>
         /// Returns the account name for the AdlsClient.
         /// </summary>
-        string AccountFQDN { get; }
+        string AccountFqdn { get; }
     }
 }
