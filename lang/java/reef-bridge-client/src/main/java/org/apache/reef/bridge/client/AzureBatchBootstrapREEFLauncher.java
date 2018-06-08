@@ -26,7 +26,11 @@ import org.apache.reef.reef.bridge.client.avro.AvroAzureBatchJobSubmissionParame
 import org.apache.reef.runtime.azbatch.AzureBatchClasspathProvider;
 import org.apache.reef.runtime.azbatch.AzureBatchJVMPathProvider;
 import org.apache.reef.runtime.azbatch.client.AzureBatchDriverConfigurationProviderImpl;
-import org.apache.reef.runtime.azbatch.parameters.*;
+import org.apache.reef.runtime.azbatch.parameters.AzureBatchAccountName;
+import org.apache.reef.runtime.azbatch.parameters.AzureBatchAccountUri;
+import org.apache.reef.runtime.azbatch.parameters.AzureBatchPoolId;
+import org.apache.reef.runtime.azbatch.parameters.AzureStorageAccountName;
+import org.apache.reef.runtime.azbatch.parameters.AzureStorageContainerName;
 import org.apache.reef.runtime.azbatch.util.command.CommandBuilder;
 import org.apache.reef.runtime.azbatch.util.command.WindowsCommandBuilder;
 import org.apache.reef.runtime.common.REEFEnvironment;
@@ -81,9 +85,9 @@ public final class AzureBatchBootstrapREEFLauncher {
     }
 
     final AvroAzureBatchJobSubmissionParameters avroAzureBatchJobSubmissionParameters =
-        readAvroAzureBatchJobSubmissionParametersFromJsonFile(new File(args[0]));
+        readAvroJobSubmissionParameters(new File(args[0]));
     final AzureBatchBootstrapDriverConfigGenerator azureBatchBootstrapDriverConfigGenerator =
-        TANG.newInjector(generateConfigurationFromJobSubmissionParameters(avroAzureBatchJobSubmissionParameters))
+        TANG.newInjector(generateConfiguration(avroAzureBatchJobSubmissionParameters))
             .getInstance(AzureBatchBootstrapDriverConfigGenerator.class);
 
     final Configuration launcherConfig =
@@ -107,10 +111,10 @@ public final class AzureBatchBootstrapREEFLauncher {
     System.exit(0); // TODO[REEF-1715]: Should be able to exit cleanly at the end of main()
   }
 
-  private static AvroAzureBatchJobSubmissionParameters readAvroAzureBatchJobSubmissionParametersFromJsonFile(
-      final File params) throws IOException {
+  private static AvroAzureBatchJobSubmissionParameters readAvroJobSubmissionParameters(
+      final File paramsFile) throws IOException {
     final AvroAzureBatchJobSubmissionParameters avroAzureBatchJobSubmissionParameters;
-    try (final FileInputStream fileInputStream = new FileInputStream(params)) {
+    try (final FileInputStream fileInputStream = new FileInputStream(paramsFile)) {
       final JsonDecoder decoder = DecoderFactory.get().jsonDecoder(
           AvroAzureBatchJobSubmissionParameters.getClassSchema(), fileInputStream);
       final SpecificDatumReader<AvroAzureBatchJobSubmissionParameters> reader =
@@ -120,7 +124,7 @@ public final class AzureBatchBootstrapREEFLauncher {
     return avroAzureBatchJobSubmissionParameters;
   }
 
-  private static Configuration generateConfigurationFromJobSubmissionParameters(
+  private static Configuration generateConfiguration(
       final AvroAzureBatchJobSubmissionParameters avroAzureBatchJobSubmissionParameters) {
     return TANG.newConfigurationBuilder()
         .bindImplementation(DriverConfigurationProvider.class, AzureBatchDriverConfigurationProviderImpl.class)
