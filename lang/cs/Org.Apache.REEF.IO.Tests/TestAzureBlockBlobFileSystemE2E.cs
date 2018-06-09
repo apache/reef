@@ -20,6 +20,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Linq;
 using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.Blob;
 using Org.Apache.REEF.IO.FileSystem;
@@ -161,9 +162,9 @@ namespace Org.Apache.REEF.IO.Tests
         [Fact(Skip = SkipMessage)]
         public void TestGetChildContainerInStorageAccountE2E()
         {
-            // List containers in the storage account
-            Uri rootUri = _fileSystem.CreateUriForPath(string.Empty);
-            ValidateChildren(rootUri, new List<Uri> { _container.Uri });
+            // List container uris in the storage account
+            var containerUris = _client.ListContainers().Select(container => container.Uri);
+            ValidateChildren(_client.BaseUri, containerUris);
         }
 
         private void ValidateChildren(Uri storageBlobUri, IEnumerable<Uri> expectedChildBlobs)
@@ -265,6 +266,21 @@ namespace Org.Apache.REEF.IO.Tests
         }
 
         [Fact(Skip = SkipMessage)]
+        public void TestIsDirectory()
+        {
+            const string Directory1 = "dir1";
+            const string Directory2 = "dir1/dir2";
+            const string Directory3 = "dir3";
+            var blockBlobs1 = CreateTempBlobs(Directory1);
+            CreateTempBlobs(Directory2);
+
+            Assert.True(_fileSystem.IsDirectory(PathToFile(Directory1)));
+            Assert.True(_fileSystem.IsDirectory(PathToFile(Directory2)));
+            Assert.False(_fileSystem.IsDirectory(PathToFile(Directory3)));
+            Assert.False(_fileSystem.IsDirectory(blockBlobs1.First().Uri));
+        }
+
+        [Fact(Skip = SkipMessage)]
         public void TestDeleteDirectoryAtContainerE2E()
         {
             _fileSystem.DeleteDirectory(_container.Uri);
@@ -274,16 +290,8 @@ namespace Org.Apache.REEF.IO.Tests
         [Fact(Skip = SkipMessage)]
         public void TestDeleteDirectoryFirstLevelE2E()
         {
-            const string Directory = "dir";
-            var blockBlobs = new List<CloudBlockBlob>();
-            for (var i = 0; i < 3; i++)
-            {
-                var filePath = Directory + '/' + i;
-                var blockBlob = _container.GetBlockBlobReference(filePath);
-                UploadFromString(blockBlob, "hello");
-                Assert.True(CheckBlobExists(blockBlob));
-                blockBlobs.Add(blockBlob);
-            }
+            const string Directory = "dir1";
+            var blockBlobs = CreateTempBlobs(Directory);
 
             _fileSystem.DeleteDirectory(PathToFile(Directory));
 
@@ -299,24 +307,11 @@ namespace Org.Apache.REEF.IO.Tests
         public void TestDeleteDirectorySecondLevelE2E()
         {
             const string Directory1 = "dir1";
-            const string Directory2 = "dir2";
-            var blockBlobs1 = new List<CloudBlockBlob>();
-            var blockBlobs2 = new List<CloudBlockBlob>();
-            for (var i = 0; i < 3; i++)
-            {
-                var filePath1 = Directory1 + '/' + i;
-                var filePath2 = Directory1 + '/' + Directory2 + '/' + i;
-                var blockBlob1 = _container.GetBlockBlobReference(filePath1);
-                var blockBlob2 = _container.GetBlockBlobReference(filePath2);
-                UploadFromString(blockBlob1, "hello");
-                UploadFromString(blockBlob2, "hello");
-                Assert.True(CheckBlobExists(blockBlob1));
-                Assert.True(CheckBlobExists(blockBlob2));
-                blockBlobs1.Add(blockBlob1);
-                blockBlobs2.Add(blockBlob2);
-            }
+            const string Directory2 = "dir1/dir2";
+            var blockBlobs1 = CreateTempBlobs(Directory1);
+            var blockBlobs2 = CreateTempBlobs(Directory2);
 
-            _fileSystem.DeleteDirectory(PathToFile(Directory1 + '/' + Directory2));
+            _fileSystem.DeleteDirectory(PathToFile(Directory2));
 
             foreach (var blockBlob in blockBlobs2)
             {
@@ -329,6 +324,20 @@ namespace Org.Apache.REEF.IO.Tests
             }
 
             Assert.True(CheckContainerExists(_container));
+        }
+
+        private List<CloudBlockBlob> CreateTempBlobs(string directory, int fileCount = 3)
+        {
+            var blockBlobs = new List<CloudBlockBlob>();
+            for (var i = 0; i < fileCount; i++)
+            {
+                var filePath = directory + '/' + i;
+                var blockBlob = _container.GetBlockBlobReference(filePath);
+                UploadFromString(blockBlob, "hello");
+                Assert.True(CheckBlobExists(blockBlob));
+                blockBlobs.Add(blockBlob);
+            }
+            return blockBlobs;
         }
 
         private static void UploadFromString(ICloudBlob blob, string str)

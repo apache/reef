@@ -19,6 +19,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Text;
 using Microsoft.Azure.DataLake.Store;
 using Microsoft.Azure.DataLake.Store.FileTransfer;
@@ -179,13 +180,33 @@ namespace Org.Apache.REEF.IO.FileSystem.AzureDataLake
         }
 
         /// <summary>
+        /// Checks if uri is a directory uri.
+        /// </summary>
+        /// <param name="uri">uri of the directory/file</param>
+        /// <returns>true if uri is for a directory else false</returns>
+        public bool IsDirectory(Uri uri)
+        {
+            try
+            {
+                return _adlsClient.GetDirectoryEntry(uri.AbsolutePath).Type == DirectoryEntryType.DIRECTORY;
+            }
+            catch (AdlsException e)
+            {
+                if (e.HttpStatus == HttpStatusCode.NotFound)
+                {
+                    return false;
+                }
+                throw e;
+            }
+        }
+
+        /// <summary>
         /// Deletes a directory.
         /// </summary>
         /// <exception cref="IOException">If directory cannot be deleted</exception>
         public void DeleteDirectory(Uri directoryUri)
         {
-            bool deleteStatus = Exists(directoryUri) && 
-                _adlsClient.GetDirectoryEntry(directoryUri.AbsolutePath).Type == DirectoryEntryType.DIRECTORY &&
+            bool deleteStatus = IsDirectory(directoryUri) &&
                 _adlsClient.DeleteRecursive(directoryUri.AbsolutePath);
             if (!deleteStatus)
             {

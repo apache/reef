@@ -91,6 +91,13 @@ namespace Org.Apache.REEF.IO.FileSystem
         void CreateDirectory(Uri directoryUri);
 
         /// <summary>
+        /// Checks if uri is a directory uri.
+        /// </summary>
+        /// <param name="uri">uri of the directory/file</param>
+        /// <returns>true if uri is for a directory else false</returns>
+        bool IsDirectory(Uri uri);
+
+        /// <summary>
         /// Deletes a directory.
         /// </summary>
         /// <param name="directoryUri"></param>

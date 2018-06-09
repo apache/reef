@@ -137,6 +137,22 @@ namespace Org.Apache.REEF.IO.Tests
         }
 
         [Fact]
+        public void TestIsDirectory()
+        {
+            var fs = GetFileSystem();
+            var directoryUri = new Uri(Path.Combine(Path.GetTempPath(), TempFileName) + "/");
+            var fakeDirectoryUri = new Uri(Path.Combine(Path.GetTempPath(), "fakeDir") + "/");
+            fs.CreateDirectory(directoryUri);
+            var fileUri = new Uri(directoryUri, "testfile");
+            MakeRemoteTestFile(fs, fileUri);
+            Assert.True(fs.IsDirectory(directoryUri));
+            Assert.False(fs.IsDirectory(fakeDirectoryUri));
+            Assert.False(fs.IsDirectory(fileUri));
+            fs.Delete(fileUri);
+            fs.DeleteDirectory(directoryUri);
+        }
+
+        [Fact]
         public void TestGetChildren()
         {
             var fs = GetFileSystem();

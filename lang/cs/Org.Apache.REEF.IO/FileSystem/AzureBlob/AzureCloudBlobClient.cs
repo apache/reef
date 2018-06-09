@@ -70,6 +70,27 @@ namespace Org.Apache.REEF.IO.FileSystem.AzureBlob
         }
 
         public BlobResultSegment ListBlobsSegmented(
+            string prefix,
+            bool useFlatListing,
+            BlobListingDetails blobListingDetails,
+            int? maxResults,
+            BlobContinuationToken continuationToken,
+            BlobRequestOptions blobRequestOptions,
+            OperationContext operationContext)
+        {
+            var task = _client.ListBlobsSegmentedAsync(
+                prefix,
+                useFlatListing,
+                blobListingDetails,
+                maxResults,
+                continuationToken,
+                blobRequestOptions,
+                operationContext);
+            task.Wait();
+            return task.Result;
+        }
+
+        public BlobResultSegment ListDirectoryBlobsSegmented(
             string containerName,
             string relativeAddress,
             bool useFlatListing,
