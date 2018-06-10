@@ -57,6 +57,7 @@ namespace Org.Apache.REEF.Common.Telemetry
         internal MetricsData(string serializedMetricsString)
         {
             var metrics = JsonConvert.DeserializeObject<IList<MetricTracker>>(serializedMetricsString, settings);
+
             foreach (var m in metrics)
             {
                 _metricsMap.TryAdd(m.GetMetric().Name, m);
@@ -96,12 +97,12 @@ namespace Org.Apache.REEF.Common.Telemetry
         /// <returns>Boolean indicating if a metric object was succesfully retrieved.</returns>
         public bool TryGetValue(string name, out IMetric me)
         {
-            if (!_metricsMap.TryGetValue(name, out MetricTracker md))
+            if (!_metricsMap.TryGetValue(name, out MetricTracker tracker))
             {
                 me = null;
                 return false;
             }
-            me = md.GetMetric();
+            me = tracker.GetMetric();
             return true;
         }
 
@@ -129,7 +130,7 @@ namespace Org.Apache.REEF.Common.Telemetry
         }
 
         /// <summary>
-        /// Flush changes since last sink for each metric
+        /// Flush changes since last sink for each metric. Called when driver is sinking metrics.
         /// </summary>
         public IEnumerable<KeyValuePair<string, MetricTracker.MetricRecord>> FlushMetricRecords()
         {
@@ -137,18 +138,13 @@ namespace Org.Apache.REEF.Common.Telemetry
             return _metricsMap.SelectMany(kv => kv.Value.FlushChangesSinceLastSink().Select(r => new KeyValuePair<string, MetricTracker.MetricRecord>(kv.Key, r)));
         }
 
+        /// <summary>
+        /// Called when evaluator is sending metrics information to driver
+        /// </summary>
+        /// <returns></returns>
         public ConcurrentQueue<MetricTracker> FlushMetricTrackers()
         {
-            return new ConcurrentQueue<MetricTracker>(_metricsMap.Select(kv => new MetricTracker(kv.Value.GetMetric(), kv.Value.ChangesSinceLastSink, kv.Value.FlushChangesSinceLastSink())));
-        }
-
-        /// <summary>
-        /// Convert the metric data to a collection of IMetric for sinking.
-        /// </summary>
-        /// <returns>A collection of metric records.</returns>
-        internal IEnumerable<KeyValuePair<string, MetricTracker.MetricRecord>> GetMetricsHistory()
-        {
-            return _metricsMap.SelectMany(kv => kv.Value.GetMetricRecords().Select(r => new KeyValuePair<string, MetricTracker.MetricRecord>(kv.Key, r)));
+            return new ConcurrentQueue<MetricTracker>(_metricsMap.Select(kv => new MetricTracker(kv.Value.GetMetric(), kv.Value.ChangesSinceLastSink, kv.Value.FlushChangesSinceLastSink(), kv.Value.KeepUpdateHistory)));
         }
 
         /// <summary>

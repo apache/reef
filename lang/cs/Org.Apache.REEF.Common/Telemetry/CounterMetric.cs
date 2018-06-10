@@ -40,10 +40,6 @@ namespace Org.Apache.REEF.Common.Telemetry
             _typedValue = value;
         }
 
-        /// <summary>
-        /// Increase the counter value and update the time stamp.
-        /// </summary>
-        /// <param name="number"></param>
         public void Increment(int number = 1)
         {
             _typedValue += number;

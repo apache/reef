@@ -38,7 +38,7 @@ namespace Org.Apache.REEF.Tests.Functional.Telemetry
             TestRun(DriverConfigurations(), typeof(MetricsDriver), 1, "sendMessages", "local", testFolder);
             ValidateSuccessForLocalRuntime(1, testFolder: testFolder);
             string[] lines = ReadLogFile(DriverStdout, "driver", testFolder, 240);
-            var receivedCounterMessage = GetMessageCount(lines, "Received 2 metrics with context message:");
+            var receivedCounterMessage = GetMessageCount(lines, "Received 2 metrics with context message of length");
             Assert.True(receivedCounterMessage > 1);
 
             var messageCount = GetMessageCount(lines, MetricsDriver.EventPrefix);

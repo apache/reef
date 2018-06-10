@@ -16,7 +16,7 @@
 // under the License.
 
 using Org.Apache.REEF.Tang.Annotations;
-using Org.Apache.REEF.Utilities.Attributes;
+using Org.Apache.REEF.Utilities.Logging;
 
 namespace Org.Apache.REEF.Common.Telemetry
 {
@@ -25,6 +25,8 @@ namespace Org.Apache.REEF.Common.Telemetry
     /// </summary>
     internal sealed class EvaluatorMetrics : IEvaluatorMetrics
     {
+        private static readonly Logger Logger = Logger.GetLogger(typeof(EvaluatorMetrics));
+
         private readonly MetricsData _metrics;
 
         [Inject]

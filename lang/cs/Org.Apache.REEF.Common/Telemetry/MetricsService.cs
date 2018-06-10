@@ -72,8 +72,14 @@ namespace Org.Apache.REEF.Common.Telemetry
             var msgReceived = ByteUtilities.ByteArraysToString(contextMessage.Message);
             var metrics = new EvaluatorMetrics(msgReceived).GetMetricsData();
 
-            Logger.Log(Level.Info, "Received {0} metrics with context message: {1}.",
-                metrics.GetMetrics().Count(), msgReceived);
+            Logger.Log(Level.Info, "Received {0} metrics with context message of length {1}",
+                metrics.GetMetrics().Count(), msgReceived.Length);
+
+            foreach (var tracker in metrics.GetMetrics())
+            {
+                var metric = tracker.GetMetric();
+                Logger.Log(Level.Info, "eval metric {0} has {1} records", metric.Name, tracker.GetMetricRecords().Count());
+            }
 
             _metricsData.Update(metrics);
 
