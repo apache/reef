@@ -78,7 +78,6 @@ namespace Org.Apache.REEF.Common.Telemetry
             foreach (var tracker in metrics.GetMetrics())
             {
                 var metric = tracker.GetMetric();
-                Logger.Log(Level.Info, "eval metric {0} has {1} records", metric.Name, tracker.GetMetricRecords().Count());
             }
 
             _metricsData.Update(metrics);

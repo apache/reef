@@ -38,7 +38,7 @@ namespace Org.Apache.REEF.Common.Telemetry
         private IDisposable _unsubscriber;
 
         [JsonProperty]
-        private IMetric _metric;
+        internal IMetric Metric;
 
         [JsonProperty]
         internal bool KeepUpdateHistory;
@@ -47,7 +47,7 @@ namespace Org.Apache.REEF.Common.Telemetry
         /// List of the history of values this metric has held. If _keepUpdateHistory is false, only holds current value.
         /// </summary>
         [JsonProperty]
-        private ConcurrentQueue<MetricRecord> _records;
+        internal ConcurrentQueue<MetricRecord> Records;
         
         /// <summary>
         /// Number of times metric has been updated since last processed.
@@ -65,27 +65,26 @@ namespace Org.Apache.REEF.Common.Telemetry
             Subscribe(metric);
             ChangesSinceLastSink = 0;
             KeepUpdateHistory = metric.IsImmutable;
-            _records = new ConcurrentQueue<MetricRecord>();
+            Records = new ConcurrentQueue<MetricRecord>();
             if (KeepUpdateHistory)
             {
-                _records.Enqueue(CreateMetricRecord(metric));
+                Records.Enqueue(CreateMetricRecord(metric));
             }
         }
 
         [JsonConstructor]
-        internal MetricTracker(IMetric _mirRor, int changesSinceLastSink, ConcurrentQueue<MetricRecord> _recorDs, bool keepUpdateHistory)
+        internal MetricTracker(IMetric metric, int changesSinceLastSink, ConcurrentQueue<MetricRecord> records, bool keepUpdateHistory)
         {
-            _metric = _mirRor;
-            // _records = new ConcurrentQueue<MetricRecord>(_recorDs);
-            _records = _recorDs;
+            Metric = metric;
+            Records = records;
             KeepUpdateHistory = keepUpdateHistory;
             ChangesSinceLastSink = changesSinceLastSink;
         }
 
         private MetricTracker(IMetric mirror, ConcurrentQueue<MetricRecord> records, int changes, bool history)
         {
-            _metric = mirror;
-            _records = records;
+            Metric = mirror;
+            Records = records;
             ChangesSinceLastSink = changes;
             KeepUpdateHistory = history;
         }
@@ -96,18 +95,17 @@ namespace Org.Apache.REEF.Common.Telemetry
         internal ConcurrentQueue<MetricRecord> FlushChangesSinceLastSink()
         {
             ConcurrentQueue<MetricRecord> records = new ConcurrentQueue<MetricRecord>();
-            ////if (KeepUpdateHistory)
-            if(!_records.IsEmpty)
+            if(!Records.IsEmpty)
             {
-                MetricRecord record;
-                while (_records.TryDequeue(out record))
+                while (Records.TryDequeue(out MetricRecord record))
                 {
                     records.Enqueue(record);
                 }
             }
             else
             {
-                records.Enqueue(CreateMetricRecord(_metric));
+                // _records will be empty only on eval side when tracker doesn't keep history.
+                records.Enqueue(CreateMetricRecord(Metric));
             }
             ChangesSinceLastSink = 0;
             return records;
@@ -127,16 +125,12 @@ namespace Org.Apache.REEF.Common.Telemetry
                     var recordsToAdd = metric.GetMetricRecords();
                     while(recordsToAdd.TryDequeue(out MetricRecord record))
                     {
-                        _records.Enqueue(record);
+                        Records.Enqueue(record);
                     }
                 }
                 else
                 {
-                    Logger.Log(Level.Info, "There should only be one record: {0} records - {1}", metric._records.Count(), metric._records.First().Value);
-                    // Logger.Log(Level.Info, "Exchanging old record {0} for new value {1}", _records.First().Value, metric.GetMetricRecords().First().Value);
-                    _records = metric.GetMetricRecords();
-                    Logger.Log(Level.Info, "Record exchange complete: size {0} value {1}", _records.Count(), _records.First().Value);
-                    // Interlocked.Exchange(ref _records, metric.GetMetricRecords());
+                    Interlocked.Exchange(ref Records, metric.GetMetricRecords());
                 }
             }
             ChangesSinceLastSink += metric.ChangesSinceLastSink;
@@ -152,7 +146,7 @@ namespace Org.Apache.REEF.Common.Telemetry
             ChangesSinceLastSink++;
             if (KeepUpdateHistory)
             {
-                _records.Enqueue(CreateMetricRecord(_metric));
+                Records.Enqueue(CreateMetricRecord(Metric));
             }
         }
 
@@ -162,7 +156,7 @@ namespace Org.Apache.REEF.Common.Telemetry
         /// <returns></returns>
         internal IMetric GetMetric()
         {
-            return _metric;
+            return Metric;
         }
 
         /// <summary>
@@ -171,21 +165,21 @@ namespace Org.Apache.REEF.Common.Telemetry
         /// <returns>The history of the metric values.</returns>
         internal ConcurrentQueue<MetricRecord> GetMetricRecords()
         {
-            if (_records.IsEmpty)
+            if (Records.IsEmpty)
             {
                 var currentValueQ = new ConcurrentQueue<MetricRecord>();
-                currentValueQ.Enqueue(CreateMetricRecord(_metric));
+                currentValueQ.Enqueue(CreateMetricRecord(Metric));
                 return currentValueQ;
             }
             else
             {
-                return _records;
+                return Records;
             }
         }
 
         public void Subscribe(IMetric provider)
         {
-            _metric = provider;
+            Metric = provider;
             _unsubscriber = provider.Subscribe(this);
         }
 
@@ -214,7 +208,7 @@ namespace Org.Apache.REEF.Common.Telemetry
         }
 
         [JsonObject]
-        public struct MetricRecord
+        public class MetricRecord
         {
             [JsonProperty]
             public object Value { get; }
