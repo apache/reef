@@ -56,7 +56,7 @@ namespace Org.Apache.REEF.Common.Telemetry
         /// <returns></returns>
         void AssignNewValue(object val);
 
-        IDisposable Subscribe(IObserver<IMetric> observer);
+        IDisposable Subscribe(ITracker tracker);
     }
 
     public interface IMetric<T> : IMetric

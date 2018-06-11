@@ -75,11 +75,6 @@ namespace Org.Apache.REEF.Common.Telemetry
             Logger.Log(Level.Info, "Received {0} metrics with context message of length {1}",
                 metrics.GetMetrics().Count(), msgReceived.Length);
 
-            foreach (var tracker in metrics.GetMetrics())
-            {
-                var metric = tracker.GetMetric();
-            }
-
             _metricsData.Update(metrics);
 
             if (_metricsData.TriggerSink(_metricSinkThreshold))

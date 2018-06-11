@@ -16,6 +16,7 @@
 // under the License.
 
 using System;
+using System.Threading;
 using Newtonsoft.Json;
 
 namespace Org.Apache.REEF.Common.Telemetry
@@ -26,7 +27,7 @@ namespace Org.Apache.REEF.Common.Telemetry
     /// <typeparam name="T">Metric type.</typeparam>
     public class MetricBase<T> : IMetric<T>
     {
-        protected IObserver<IMetric<T>> _tracker;
+        protected ITracker _tracker;
 
         protected T _typedValue;
 
@@ -90,10 +91,10 @@ namespace Org.Apache.REEF.Common.Telemetry
             }
             _typedValue = (T)val;
             _timestamp = DateTime.Now.Ticks;
-            _tracker.OnNext(this);
+            _tracker.Track((T)val);
         }
 
-        public IDisposable Subscribe(IObserver<IMetric> observer)
+        public IDisposable Subscribe(ITracker observer)
         {
             _tracker = observer;
             return new Unsubscriber(observer);
@@ -101,16 +102,16 @@ namespace Org.Apache.REEF.Common.Telemetry
 
         private class Unsubscriber : IDisposable
         {
-            private IObserver<IMetric> _observer;
+            private ITracker _tracker;
 
-            public Unsubscriber(IObserver<IMetric> observer)
+            public Unsubscriber(ITracker tracker)
             {
-                _observer = observer;
+                _tracker = tracker;
             }
 
             public void Dispose()
             {
-                _observer = null;
+                _tracker = null;
             }
         }
     }

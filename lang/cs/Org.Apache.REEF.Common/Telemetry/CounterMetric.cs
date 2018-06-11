@@ -16,6 +16,7 @@
 // under the License.
 
 using System;
+using System.Threading;
 using Newtonsoft.Json;
 
 namespace Org.Apache.REEF.Common.Telemetry
@@ -42,16 +43,20 @@ namespace Org.Apache.REEF.Common.Telemetry
 
         public void Increment(int number = 1)
         {
-            _typedValue += number;
+            Interlocked.Add(ref _typedValue, number);
+            // _typedValue += number;
             _timestamp = DateTime.Now.Ticks;
-            _tracker.OnNext(this);
+            // _tracker.OnNext(this);
+            _tracker.Track(_typedValue);
         }
 
         public void Decrement(int number = 1)
         {
-            _typedValue -= number;
+            Interlocked.Add(ref _typedValue, -number);
+            // _typedValue -= number;
             _timestamp = DateTime.Now.Ticks;
-            _tracker.OnNext(this);
+            // _tracker.OnNext(this);
+            _tracker.Track(_typedValue);
         }
     }
 }

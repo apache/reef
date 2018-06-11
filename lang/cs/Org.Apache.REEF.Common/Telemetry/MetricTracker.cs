@@ -31,11 +31,9 @@ namespace Org.Apache.REEF.Common.Telemetry
     /// Once the data has been processed, the records and count will reset.
     /// </summary>
     [JsonObject]
-    public sealed class MetricTracker : IObserver<IMetric>
+    public sealed class MetricTracker : ITracker
     {
         private static readonly Logger Logger = Logger.GetLogger(typeof(MetricsData));
-
-        private IDisposable _unsubscriber;
 
         [JsonProperty]
         internal IMetric Metric;
@@ -54,6 +52,10 @@ namespace Org.Apache.REEF.Common.Telemetry
         /// </summary>
         [JsonProperty]
         internal int ChangesSinceLastSink;
+
+        private IDisposable _unsubscriber;
+
+        private ConcurrentQueue<MetricRecord> _cache;
 
         /// <summary>
         /// Constructor for metricData
@@ -104,7 +106,7 @@ namespace Org.Apache.REEF.Common.Telemetry
             }
             else
             {
-                // _records will be empty only on eval side when tracker doesn't keep history.
+                // Records will be empty only on eval side when tracker doesn't keep history.
                 records.Enqueue(CreateMetricRecord(Metric));
             }
             ChangesSinceLastSink = 0;
@@ -147,6 +149,15 @@ namespace Org.Apache.REEF.Common.Telemetry
             if (KeepUpdateHistory)
             {
                 Records.Enqueue(CreateMetricRecord(Metric));
+            }
+        }
+
+        internal void UpdateMetric(object val)
+        {
+            ChangesSinceLastSink++;
+            if (KeepUpdateHistory)
+            {
+                Records.Enqueue(CreateMetricRecord(val));
             }
         }
 
@@ -202,9 +213,19 @@ namespace Org.Apache.REEF.Common.Telemetry
         {
         }
 
-        private MetricRecord CreateMetricRecord(IMetric metric)
+        public void Track(object value)
+        {
+            UpdateMetric(value);
+        }
+
+        internal MetricRecord CreateMetricRecord(IMetric metric)
         {
             return new MetricRecord(metric);
+        }
+
+        internal MetricRecord CreateMetricRecord(object val)
+        {
+            return new MetricRecord(val);
         }
 
         [JsonObject]
@@ -227,6 +248,12 @@ namespace Org.Apache.REEF.Common.Telemetry
             {
                 Timestamp = metric.Timestamp;
                 Value = metric.ValueUntyped;
+            }
+
+            public MetricRecord(object val)
+            {
+                Value = val;
+                Timestamp = DateTime.Now.Ticks;
             }
         }
     }
