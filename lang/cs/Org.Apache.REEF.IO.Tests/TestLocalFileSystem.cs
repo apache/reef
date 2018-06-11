@@ -157,6 +157,27 @@ namespace Org.Apache.REEF.IO.Tests
             fs.DeleteDirectory(directoryUri);
         }
 
+        [Fact]
+        public void TestDeleteDirectory()
+        {
+            var fs = GetFileSystem();
+            var directoryUri = new Uri(Path.Combine(Path.GetTempPath(), TempFileName) + "/");
+            string childDirName = "childDir";
+            const string fileName = "testfile";
+            fs.CreateDirectory(directoryUri);
+            var childDirUri = new Uri(directoryUri, childDirName);
+            fs.CreateDirectory(childDirUri);
+            var fileUri = new Uri(directoryUri, fileName);
+            MakeRemoteTestFile(fs, fileUri);
+            var childDirFileUri = new Uri(directoryUri, $"{childDirName}/{fileName}");
+            MakeRemoteTestFile(fs, childDirFileUri);
+            fs.DeleteDirectory(directoryUri);
+            Assert.False(File.Exists(childDirFileUri.AbsolutePath));
+            Assert.False(File.Exists(fileUri.AbsolutePath));
+            Assert.False(File.Exists(childDirUri.AbsolutePath));
+            Assert.False(File.Exists(directoryUri.AbsolutePath));
+        }
+
         private IFileSystem GetFileSystem()
         {
             return TangFactory.GetTang()
