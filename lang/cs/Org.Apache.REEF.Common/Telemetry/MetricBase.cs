@@ -31,18 +31,11 @@ namespace Org.Apache.REEF.Common.Telemetry
 
         protected T _typedValue;
 
-        protected long _timestamp;
-
         protected bool _isImmutable;
 
         public string Name { get; }
 
         public string Description { get; }
-
-        public virtual long Timestamp
-        {
-            get { return _timestamp; }
-        }
 
         public virtual object ValueUntyped
         {
@@ -69,7 +62,6 @@ namespace Org.Apache.REEF.Common.Telemetry
         {
             Name = name;
             Description = description;
-            _timestamp = DateTime.Now.Ticks;
             _typedValue = default(T);
             _isImmutable = isImmutable;
         }
@@ -79,7 +71,6 @@ namespace Org.Apache.REEF.Common.Telemetry
         {
             Name = name;
             Description = description;
-            _timestamp = timeStamp;
             _typedValue = value;
         }
 
@@ -89,8 +80,8 @@ namespace Org.Apache.REEF.Common.Telemetry
             {
                 throw new ApplicationException("Cannot assign new value to metric because of type mismatch.");
             }
+            //Interlocked.Exchange(ref _typedValue, (T)val);
             _typedValue = (T)val;
-            _timestamp = DateTime.Now.Ticks;
             _tracker.Track((T)val);
         }
 

@@ -29,7 +29,6 @@ namespace Org.Apache.REEF.Common.Telemetry
         public CounterMetric(string name, string description, bool isImmutable = false)
             : base(name, description, isImmutable)
         {
-            _timestamp = DateTime.Now.Ticks;
             _typedValue = default(int);
         }
 
@@ -37,25 +36,18 @@ namespace Org.Apache.REEF.Common.Telemetry
         internal CounterMetric(string name, string description, long timeStamp, int value)
             : base(name, description, timeStamp, value)
         {
-            _timestamp = timeStamp;
             _typedValue = value;
         }
 
         public void Increment(int number = 1)
         {
             Interlocked.Add(ref _typedValue, number);
-            // _typedValue += number;
-            _timestamp = DateTime.Now.Ticks;
-            // _tracker.OnNext(this);
             _tracker.Track(_typedValue);
         }
 
         public void Decrement(int number = 1)
         {
             Interlocked.Add(ref _typedValue, -number);
-            // _typedValue -= number;
-            _timestamp = DateTime.Now.Ticks;
-            // _tracker.OnNext(this);
             _tracker.Track(_typedValue);
         }
     }

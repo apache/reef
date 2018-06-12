@@ -40,11 +40,6 @@ namespace Org.Apache.REEF.Common.Telemetry
         object ValueUntyped { get; }
 
         /// <summary>
-        /// Timestamp for when metric was last updated.
-        /// </summary>
-        long Timestamp { get; }
-
-        /// <summary>
         /// Flag for the immutability of the metric. 
         /// </summary>
         bool IsImmutable { get; }

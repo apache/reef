@@ -55,8 +55,6 @@ namespace Org.Apache.REEF.Common.Telemetry
 
         private IDisposable _unsubscriber;
 
-        private ConcurrentQueue<MetricRecord> _cache;
-
         /// <summary>
         /// Constructor for metricData
         /// </summary>
@@ -246,7 +244,7 @@ namespace Org.Apache.REEF.Common.Telemetry
 
             public MetricRecord(IMetric metric)
             {
-                Timestamp = metric.Timestamp;
+                Timestamp = DateTime.Now.Ticks;
                 Value = metric.ValueUntyped;
             }
 
