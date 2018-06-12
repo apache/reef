@@ -161,20 +161,26 @@ namespace Org.Apache.REEF.IO.Tests
         public void TestDeleteDirectory()
         {
             var fs = GetFileSystem();
+            // Create directory
             var directoryUri = new Uri(Path.Combine(Path.GetTempPath(), TempFileName) + "/");
-            string childDirName = "childDir";
-            const string fileName = "testfile";
             fs.CreateDirectory(directoryUri);
+
+            // Create sub directory
+            string childDirName = "childDir";
             var childDirUri = new Uri(directoryUri, childDirName);
             fs.CreateDirectory(childDirUri);
+
+            // Create file
+            const string fileName = "testfile";
             var fileUri = new Uri(directoryUri, fileName);
             MakeRemoteTestFile(fs, fileUri);
+
+            //Create sub directory file      
             var childDirFileUri = new Uri(directoryUri, $"{childDirName}/{fileName}");
             MakeRemoteTestFile(fs, childDirFileUri);
+
             fs.DeleteDirectory(directoryUri);
-            Assert.False(File.Exists(childDirFileUri.AbsolutePath));
-            Assert.False(File.Exists(fileUri.AbsolutePath));
-            Assert.False(File.Exists(childDirUri.AbsolutePath));
+
             Assert.False(File.Exists(directoryUri.AbsolutePath));
         }
 
