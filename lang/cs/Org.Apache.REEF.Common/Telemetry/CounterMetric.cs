@@ -41,14 +41,12 @@ namespace Org.Apache.REEF.Common.Telemetry
 
         public void Increment(int number = 1)
         {
-            Interlocked.Add(ref _typedValue, number);
-            _tracker.Track(_typedValue);
+            _tracker.Track(Interlocked.Add(ref _typedValue, number));
         }
 
         public void Decrement(int number = 1)
         {
-            Interlocked.Add(ref _typedValue, -number);
-            _tracker.Track(_typedValue);
+            _tracker.Track(Interlocked.Add(ref _typedValue, -number));
         }
     }
 }
