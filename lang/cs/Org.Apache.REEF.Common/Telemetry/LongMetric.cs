@@ -16,35 +16,32 @@
 // under the License.
 
 using System;
-
-using StringMetric = Org.Apache.REEF.Common.Telemetry.MetricClass<string>;
+using System.Threading;
+using Newtonsoft.Json;
 
 namespace Org.Apache.REEF.Common.Telemetry
 {
-    /// <summary>
-    /// A simple driver metrics implementation that contains the system state.
-    /// </summary>
-    public sealed class DriverMetrics : IDriverMetrics
+    public class LongMetric : MetricBase<long>
     {
-        private MetricsData _metrics;
-
-        public IMetric SystemState
+        public LongMetric(string name, string description, bool isImmutable = true)
+            : base(name, description, isImmutable)
         {
-            get;
         }
 
-        private string _stateMetricName = "DriverState";
-
-        public DriverMetrics(string systemState)
+        [JsonConstructor]
+        public LongMetric(string name, string description, long value)
+            : base(name, description, value)
         {
-            _metrics = new MetricsData();
-            SystemState = new StringMetric(_stateMetricName, "driver state.", systemState);
-            _metrics.TryRegisterMetric(SystemState);
         }
 
-        public MetricsData GetMetricsData()
+        public override void AssignNewValue(object val)
         {
-            return _metrics;
+            if (val.GetType() != _typedValue.GetType())
+            {
+                throw new ApplicationException("Cannot assign new value to metric because of type mismatch.");
+            }
+            Interlocked.Exchange(ref _typedValue, (long)val);
+            _tracker.Track(val);
         }
     }
 }

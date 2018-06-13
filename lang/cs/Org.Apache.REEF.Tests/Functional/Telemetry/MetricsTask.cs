@@ -22,8 +22,6 @@ using Org.Apache.REEF.Common.Telemetry;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Utilities.Logging;
 
-using IntegerMetric = Org.Apache.REEF.Common.Telemetry.MetricBase<int>;
-
 namespace Org.Apache.REEF.Tests.Functional.Telemetry
 {
     /// <summary>

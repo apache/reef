@@ -34,7 +34,7 @@ namespace Org.Apache.REEF.Common.Telemetry
 
         [JsonConstructor]
         internal CounterMetric(string name, string description, long timeStamp, int value)
-            : base(name, description, timeStamp, value)
+            : base(name, description, value)
         {
             _typedValue = value;
         }

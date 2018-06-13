@@ -20,9 +20,6 @@ using Org.Apache.REEF.Common.Telemetry;
 using Org.Apache.REEF.Tang.Implementations.Tang;
 using Xunit;
 
-using IntegerMetric = Org.Apache.REEF.Common.Telemetry.MetricBase<int>;
-using DoubleMetric = Org.Apache.REEF.Common.Telemetry.MetricBase<double>;
-
 namespace Org.Apache.REEF.Common.Tests.Telemetry
 {
     public class MetricsTests
@@ -48,7 +45,7 @@ namespace Org.Apache.REEF.Common.Tests.Telemetry
             var trackers = metrics1.GetMetrics();
             foreach (var t in trackers)
             {
-                Assert.Equal(0, t.GetMetricRecords().Count);
+                Assert.Equal(1, t.GetMetricRecords().Count);
             }
 
             var evalMetrics2 = new EvaluatorMetrics(counterStr);
@@ -63,8 +60,8 @@ namespace Org.Apache.REEF.Common.Tests.Telemetry
         public void TestMetricSetValue()
         {
             var metrics = CreateMetrics();
-            var intMetric = new IntegerMetric("IntMetric", "metric of type int", DateTime.Now.Ticks, 0);
-            var doubleMetric = new DoubleMetric("DouMetric", "metric of type double", DateTime.Now.Ticks, 0);
+            var intMetric = new IntegerMetric("IntMetric", "metric of type int", 0);
+            var doubleMetric = new DoubleMetric("DouMetric", "metric of type double", 0);
 
             metrics.TryRegisterMetric(intMetric);
             metrics.TryRegisterMetric(doubleMetric);
@@ -122,7 +119,7 @@ namespace Org.Apache.REEF.Common.Tests.Telemetry
             var trackers = metrics2.GetMetrics();
             foreach (var t in trackers)
             {
-                Assert.Equal(0, t.GetMetricRecords().Count);
+                Assert.Equal(1, t.GetMetricRecords().Count);
             }
         }
 

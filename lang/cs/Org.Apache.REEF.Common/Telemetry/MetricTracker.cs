@@ -17,8 +17,6 @@
 
 using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 using Newtonsoft.Json;
 using Org.Apache.REEF.Utilities.Logging;
@@ -138,28 +136,6 @@ namespace Org.Apache.REEF.Common.Telemetry
         }
 
         /// <summary>
-        /// Updates metric value with metric object received.
-        /// </summary>
-        /// <param name="me">New metric.</param>
-        internal void UpdateMetric(IMetric me)
-        {
-            ChangesSinceLastSink++;
-            if (KeepUpdateHistory)
-            {
-                Records.Enqueue(CreateMetricRecord(Metric));
-            }
-        }
-
-        internal void UpdateMetric(object val)
-        {
-            ChangesSinceLastSink++;
-            if (KeepUpdateHistory)
-            {
-                Records.Enqueue(CreateMetricRecord(val));
-            }
-        }
-
-        /// <summary>
         /// Get the metric with its most recent value.
         /// </summary>
         /// <returns></returns>
@@ -169,7 +145,7 @@ namespace Org.Apache.REEF.Common.Telemetry
         }
 
         /// <summary>
-        /// Get all the metric records.
+        /// If KeepUpdateHistory is true, it will return all the records; otherwise, it will returen the most recent record.
         /// </summary>
         /// <returns>The history of the metric values.</returns>
         internal ConcurrentQueue<MetricRecord> GetMetricRecords()
@@ -197,23 +173,17 @@ namespace Org.Apache.REEF.Common.Telemetry
             _unsubscriber.Dispose();
         }
 
-        public void OnNext(IMetric metric)
-        {
-            UpdateMetric(metric);
-        }
-
-        public void OnError(Exception error)
-        {
-            Logger.Log(Level.Info, error.Message);
-        }
-
-        public void OnCompleted()
-        {
-        }
-
+        /// <summary>
+        /// Creates and queues a new metric record with a value.
+        /// </summary>
+        /// <param name="value">Value of the new record.</param>
         public void Track(object value)
         {
-            UpdateMetric(value);
+            ChangesSinceLastSink++;
+            if (KeepUpdateHistory)
+            {
+                Records.Enqueue(CreateMetricRecord(value));
+            }
         }
 
         internal MetricRecord CreateMetricRecord(IMetric metric)
@@ -229,28 +199,35 @@ namespace Org.Apache.REEF.Common.Telemetry
         [JsonObject]
         public class MetricRecord
         {
-            [JsonProperty]
-            public object Value { get; }
+            private object _value;
 
+            [JsonProperty]
+            public object Value
+            {
+                get
+                {
+                    return _value;
+                }
+            }
             [JsonProperty]
             public long Timestamp { get; }
 
             [JsonConstructor]
             public MetricRecord(object value, long timestamp)
             {
-                Value = value;
+                _value = value;
                 Timestamp = timestamp;
             }
 
             public MetricRecord(IMetric metric)
             {
                 Timestamp = DateTime.Now.Ticks;
-                Value = metric.ValueUntyped;
+                Interlocked.Exchange(ref _value, metric.ValueUntyped);
             }
 
             public MetricRecord(object val)
             {
-                Value = val;
+                _value = val;
                 Timestamp = DateTime.Now.Ticks;
             }
         }

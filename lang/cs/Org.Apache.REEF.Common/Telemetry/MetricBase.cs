@@ -33,6 +33,8 @@ namespace Org.Apache.REEF.Common.Telemetry
 
         protected bool _isImmutable;
 
+        private object _metricLock = new object();
+
         public string Name { get; }
 
         public string Description { get; }
@@ -67,22 +69,25 @@ namespace Org.Apache.REEF.Common.Telemetry
         }
 
         [JsonConstructor]
-        public MetricBase(string name, string description, long timeStamp, T value)
+        public MetricBase(string name, string description, T value)
         {
             Name = name;
             Description = description;
             _typedValue = value;
         }
 
-        public void AssignNewValue(object val)
+        public virtual void AssignNewValue(object val)
         {
             if (val.GetType() != _typedValue.GetType())
             {
                 throw new ApplicationException("Cannot assign new value to metric because of type mismatch.");
             }
-            //Interlocked.Exchange(ref _typedValue, (T)val);
-            _typedValue = (T)val;
-            _tracker.Track((T)val);
+
+            lock (_metricLock)
+            {
+                _typedValue = (T)val;
+            }
+            _tracker.Track(val);
         }
 
         public IDisposable Subscribe(ITracker observer)

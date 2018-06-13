@@ -51,6 +51,11 @@ namespace Org.Apache.REEF.Common.Telemetry
         /// <returns></returns>
         void AssignNewValue(object val);
 
+        /// <summary>
+        /// Assign a tracker to track the metric.
+        /// </summary>
+        /// <param name="tracker">The metric tracker assigned to track updates.</param>
+        /// <returns></returns>
         IDisposable Subscribe(ITracker tracker);
     }
 
