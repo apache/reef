@@ -22,7 +22,7 @@ using Newtonsoft.Json;
 namespace Org.Apache.REEF.Common.Telemetry
 {
     /// <summary>
-    /// Counter implementation.
+    /// Counter metric implementation.
     /// </summary>
     public sealed class CounterMetric : MetricBase<int>, ICounter
     {

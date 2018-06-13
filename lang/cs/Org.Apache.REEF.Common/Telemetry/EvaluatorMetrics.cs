@@ -54,7 +54,7 @@ namespace Org.Apache.REEF.Common.Telemetry
         }
 
         /// <summary>
-        /// return serialized string of metrics metrics data
+        /// Serializes metric data.
         /// </summary>
         /// <returns>Returns serialized string of metrics.</returns>
         public string Serialize()

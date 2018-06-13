@@ -22,9 +22,9 @@ using Newtonsoft.Json;
 namespace Org.Apache.REEF.Common.Telemetry
 {
     /// <summary>
-    /// Base implementation of a metric object. All metrics of a specific type should derive from this base class.
+    /// Base implementation of a metric object.
     /// </summary>
-    /// <typeparam name="T">Metric type.</typeparam>
+    /// <typeparam name="T">Metric type</typeparam>
     public class MetricBase<T> : IMetric<T>
     {
         protected ITracker _tracker;

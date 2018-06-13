@@ -21,6 +21,10 @@ using Newtonsoft.Json;
 
 namespace Org.Apache.REEF.Common.Telemetry
 {
+    /// <summary>
+    /// Metrics of reference types (such as strings) should inherit from this class.
+    /// </summary>
+    /// <typeparam name="T">The type of the metric should be of reference type.</typeparam>
     public class MetricClass<T> : MetricBase<T> where T : class
     {
 

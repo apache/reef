@@ -28,24 +28,24 @@ using Org.Apache.REEF.Utilities.Logging;
 namespace Org.Apache.REEF.Common.Telemetry
 {
     /// <summary>
-    /// Metrics service. It is also a context message handler.
+    /// Metrics Service that handles metrics from the Evaluator and Driver.
     /// </summary>
     internal sealed class MetricsService : IObserver<IContextMessage>, IObserver<IDriverMetrics>
     {
         private static readonly Logger Logger = Logger.GetLogger(typeof(MetricsService));
 
         /// <summary>
-        /// Metrics received by the Metrics service
+        /// The set of metrics Metrics Service maintains.
         /// </summary>
         private readonly MetricsData _metricsData;
 
         /// <summary>
-        /// A set of metrics sinks
+        /// A set of Metric Sinks.
         /// </summary>
         private readonly ISet<IMetricsSink> _metricsSinks;
 
         /// <summary>
-        /// The threshold that triggers the sinks.
+        /// The total number of changes that has to be met to trigger the sinks.
         /// </summary>
         private readonly int _metricSinkThreshold;
 
@@ -84,7 +84,7 @@ namespace Org.Apache.REEF.Common.Telemetry
         }
 
         /// <summary>
-        /// Call each Sink to sink the data in the metrics
+        /// Call each Sink to process the cached metric records.
         /// </summary>
         private void Sink(IEnumerable<KeyValuePair<string, MetricTracker.MetricRecord>> metricRecords)
         {

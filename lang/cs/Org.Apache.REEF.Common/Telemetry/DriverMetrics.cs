@@ -22,7 +22,7 @@ using StringMetric = Org.Apache.REEF.Common.Telemetry.MetricClass<string>;
 namespace Org.Apache.REEF.Common.Telemetry
 {
     /// <summary>
-    /// A simple driver metrics implementation that contains the system state.
+    /// Driver metrics implementation that contains the system state.
     /// </summary>
     public sealed class DriverMetrics : IDriverMetrics
     {

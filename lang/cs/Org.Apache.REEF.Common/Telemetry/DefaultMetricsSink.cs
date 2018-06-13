@@ -35,7 +35,7 @@ namespace Org.Apache.REEF.Common.Telemetry
         }
 
         /// <summary>
-        /// Simple sink for metrics data
+        /// Simple sink that logs metrics.
         /// </summary>
         /// <param name="metrics">A collection of metrics.</param>
         public void Sink(IEnumerable<KeyValuePair<string, MetricTracker.MetricRecord>> metrics)

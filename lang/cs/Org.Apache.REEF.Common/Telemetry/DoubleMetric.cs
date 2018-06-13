@@ -21,6 +21,9 @@ using Newtonsoft.Json;
 
 namespace Org.Apache.REEF.Common.Telemetry
 {
+    /// <summary>
+    /// Double metric implementation.
+    /// </summary>
     public class DoubleMetric : MetricBase<double>
     {
         public DoubleMetric(string name, string description, bool isImmutable = true)

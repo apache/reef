@@ -21,6 +21,9 @@ using Newtonsoft.Json;
 
 namespace Org.Apache.REEF.Common.Telemetry
 {
+    /// <summary>
+    /// Long metric implementation.
+    /// </summary>
     public class LongMetric : MetricBase<long>
     {
         public LongMetric(string name, string description, bool isImmutable = true)

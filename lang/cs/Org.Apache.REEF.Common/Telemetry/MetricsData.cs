@@ -63,14 +63,6 @@ namespace Org.Apache.REEF.Common.Telemetry
             }
         }
 
-        internal MetricsData(IMetrics metrics)
-        {
-            foreach (var me in metrics.GetMetrics())
-            {
-                _metricsMap.TryAdd(me.GetMetric().Name, new MetricTracker(me.GetMetric()));
-            }
-        }
-
         /// <summary>
         /// Checks if the metric to be registered has a unique name. If the metric name has already been 
         /// registered, metric is not entered into the registration and method returns false. On successful
@@ -129,8 +121,10 @@ namespace Org.Apache.REEF.Common.Telemetry
         }
 
         /// <summary>
-        /// Flush changes since last sink for each metric. Called when driver is sinking metrics.
+        /// Flushes changes since last sink for each metric. 
+        /// Called when Driver is sinking metrics.
         /// </summary>
+        /// <returns>Key value pairs of metric name and record that was flushed.</returns>
         public IEnumerable<KeyValuePair<string, MetricTracker.MetricRecord>> FlushMetricRecords()
         {
             // for each metric, flush the records and create key value pairs
@@ -138,18 +132,19 @@ namespace Org.Apache.REEF.Common.Telemetry
         }
 
         /// <summary>
-        /// Called when evaluator is sending metrics information to driver
+        /// Flushes that trackers contained in the queue.
+        /// Called when Evaluator is sending metrics information to Driver.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>Queue of trackers containing metric records.</returns>
         public ConcurrentQueue<MetricTracker> FlushMetricTrackers()
         {
             return new ConcurrentQueue<MetricTracker>(_metricsMap.Select(kv => new MetricTracker(kv.Value.GetMetric(), kv.Value.ChangesSinceLastSink, kv.Value.FlushChangesSinceLastSink(), kv.Value.KeepUpdateHistory)));
         }
 
         /// <summary>
-        /// The condition that triggers the sink. The condition can be modified later.
+        /// Sums up the total changes to metrics to see if it has reached the sink threshold.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>Returns whether the sink threshold has been met.</returns>
         internal bool TriggerSink(int metricSinkThreshold)
         {
             return _metricsMap.Values.Sum(e => e.ChangesSinceLastSink) > metricSinkThreshold;

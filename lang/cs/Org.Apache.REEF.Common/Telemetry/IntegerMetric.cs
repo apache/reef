@@ -21,6 +21,9 @@ using Newtonsoft.Json;
 
 namespace Org.Apache.REEF.Common.Telemetry
 {
+    /// <summary>
+    /// Integer metric implementation.
+    /// </summary>
     public class IntegerMetric : MetricBase<int>
     {
         public IntegerMetric(string name, string description, bool isImmutable = true)

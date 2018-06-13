@@ -31,7 +31,7 @@ namespace Org.Apache.REEF.Common.Telemetry
     [JsonObject]
     public sealed class MetricTracker : ITracker
     {
-        private static readonly Logger Logger = Logger.GetLogger(typeof(MetricsData));
+        private static readonly Logger Logger = Logger.GetLogger(typeof(MetricTracker));
 
         [JsonProperty]
         internal IMetric Metric;
@@ -40,7 +40,7 @@ namespace Org.Apache.REEF.Common.Telemetry
         internal bool KeepUpdateHistory;
 
         /// <summary>
-        /// List of the history of values this metric has held. If _keepUpdateHistory is false, only holds current value.
+        /// if KeepUpdateHistory is true, keeps a history of updates.
         /// </summary>
         [JsonProperty]
         internal ConcurrentQueue<MetricRecord> Records;
@@ -79,17 +79,10 @@ namespace Org.Apache.REEF.Common.Telemetry
             ChangesSinceLastSink = changesSinceLastSink;
         }
 
-        private MetricTracker(IMetric mirror, ConcurrentQueue<MetricRecord> records, int changes, bool history)
-        {
-            Metric = mirror;
-            Records = records;
-            ChangesSinceLastSink = changes;
-            KeepUpdateHistory = history;
-        }
-
         /// <summary>
-        /// Flush records.
+        /// Flush records currently held in the records queue.
         /// </summary>
+        /// <returns>A queue containing all the flushed records.</returns>
         internal ConcurrentQueue<MetricRecord> FlushChangesSinceLastSink()
         {
             ConcurrentQueue<MetricRecord> records = new ConcurrentQueue<MetricRecord>();
@@ -111,7 +104,7 @@ namespace Org.Apache.REEF.Common.Telemetry
 
         /// <summary>
         /// When new metric data is received, update the value and records so it reflects the new data.
-        /// Called when driver receives metrics from evaluator.
+        /// Called when Driver receives metrics from Evaluator.
         /// </summary>
         /// <param name="metric">Metric data received.</param>
         internal MetricTracker UpdateMetric(MetricTracker metric)
@@ -145,9 +138,9 @@ namespace Org.Apache.REEF.Common.Telemetry
         }
 
         /// <summary>
-        /// If KeepUpdateHistory is true, it will return all the records; otherwise, it will returen the most recent record.
+        /// If KeepUpdateHistory is true, it will return all the records; otherwise, it will returen one record with the most recent value.
         /// </summary>
-        /// <returns>The history of the metric values.</returns>
+        /// <returns>The history of the metric records.</returns>
         internal ConcurrentQueue<MetricRecord> GetMetricRecords()
         {
             if (Records.IsEmpty)
@@ -162,12 +155,19 @@ namespace Org.Apache.REEF.Common.Telemetry
             }
         }
 
+        /// <summary>
+        /// Subscribes the tracker to a metric object.
+        /// </summary>
+        /// <param name="provider">The metric to track.</param>
         public void Subscribe(IMetric provider)
         {
             Metric = provider;
             _unsubscriber = provider.Subscribe(this);
         }
 
+        /// <summary>
+        /// Unsubscribes the tracker from the metric it is tracking.
+        /// </summary>
         public void Unsubscribe()
         {
             _unsubscriber.Dispose();
@@ -186,12 +186,12 @@ namespace Org.Apache.REEF.Common.Telemetry
             }
         }
 
-        internal MetricRecord CreateMetricRecord(IMetric metric)
+        private MetricRecord CreateMetricRecord(IMetric metric)
         {
             return new MetricRecord(metric);
         }
 
-        internal MetricRecord CreateMetricRecord(object val)
+        private MetricRecord CreateMetricRecord(object val)
         {
             return new MetricRecord(val);
         }

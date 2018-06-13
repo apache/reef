@@ -21,6 +21,9 @@ using Newtonsoft.Json;
 
 namespace Org.Apache.REEF.Common.Telemetry
 {
+    /// <summary>
+    /// Float Metric implementation.
+    /// </summary>
     public class FloatMetric : MetricBase<float>
     {
         public FloatMetric(string name, string description, bool isImmutable = true)
