@@ -18,11 +18,6 @@
  */
 package org.apache.reef.bridge.client;
 
-import com.microsoft.azure.batch.BatchClient;
-import com.microsoft.azure.batch.auth.BatchCredentials;
-import com.microsoft.azure.batch.protocol.models.InboundNATPool;
-import com.microsoft.azure.batch.protocol.models.NetworkConfiguration;
-import com.microsoft.azure.batch.protocol.models.PoolEndpointConfiguration;
 import org.apache.avro.io.DecoderFactory;
 import org.apache.avro.io.JsonDecoder;
 import org.apache.avro.specific.SpecificDatumReader;
@@ -56,10 +51,7 @@ import org.apache.reef.wake.time.Clock;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -95,10 +87,10 @@ public final class AzureBatchBootstrapREEFLauncher {
       throw fatal(message, new IllegalArgumentException(message));
     }
 
-    final AvroAzureBatchJobSubmissionParameters avroAzureBatchJobSubmissionParameters =
+    final AvroAzureBatchJobSubmissionParameters jobSubmissionParameters =
         readAvroJobSubmissionParameters(new File(args[0]));
     final AzureBatchBootstrapDriverConfigGenerator azureBatchBootstrapDriverConfigGenerator =
-        TANG.newInjector(generateConfiguration(avroAzureBatchJobSubmissionParameters))
+        TANG.newInjector(generateConfiguration(jobSubmissionParameters))
             .getInstance(AzureBatchBootstrapDriverConfigGenerator.class);
 
     final JavaConfigurationBuilder launcherConfigBuilder =
@@ -108,34 +100,20 @@ public final class AzureBatchBootstrapREEFLauncher {
             .bindNamedParameter(RemoteConfiguration.MessageCodec.class, REEFMessageCodec.class)
             .bindSetEntry(Clock.RuntimeStartHandler.class, PIDStoreStartHandler.class);
 
-    // Check if user has set up inbound NAT pool rules and whitelist ports to use.
-    // If set, we prefer will launch driver that binds to port in InboundNATPool.
-    final List<CharSequence> whiteListPorts = jobSubmissionParam.getAzureBatchPoolDriverPortsList();
+    // Check if user has set up preferred ports to use.
+    // If set, we prefer will launch driver that binds those ports.
+    final List<CharSequence> preferredPorts = jobSubmissionParameters.getAzureBatchPoolDriverPortsList();
 
-    if (whiteListPorts != null && whiteListPorts.size() != 0) {
-      final Set<String> inBoundNatPoolBackendPorts = getAzureBatchInBoundNatPoolBackendPorts(
-          injector.getInstance(SharedKeyBatchCredentialProvider.class).getCredentials(),
-          injector.getNamedInstance(AzureBatchPoolId.class));
-
-      List<String> availablePorts = new ArrayList<>();
-      for (CharSequence whitelistPort : whiteListPorts) {
-        String whileListPortString = whitelistPort.toString();
-        if (inBoundNatPoolBackendPorts.contains(whileListPortString)) {
-          availablePorts.add(whileListPortString);
-        }
-      }
-
-      if (availablePorts.size() > 0) {
-        launcherConfigBuilder.bindList(TcpPortList.class, availablePorts)
-            .bindImplementation(TcpPortProvider.class, ListTcpPortProvider.class);
-      }
+    if (preferredPorts.size() > 0) {
+      launcherConfigBuilder.bindList(TcpPortList.class, preferredPorts)
+          .bindImplementation(TcpPortProvider.class, ListTcpPortProvider.class);
     }
 
     final Configuration launcherConfig = launcherConfigBuilder.build();
 
     try (final REEFEnvironment reef = REEFEnvironment.fromConfiguration(
         azureBatchBootstrapDriverConfigGenerator.getDriverConfigurationFromParams(
-            avroAzureBatchJobSubmissionParameters), launcherConfig)) {
+            jobSubmissionParameters), launcherConfig)) {
       reef.run();
     } catch (final InjectionException ex) {
       throw fatal("Unable to configure and start REEFEnvironment.", ex);
@@ -177,35 +155,6 @@ public final class AzureBatchBootstrapREEFLauncher {
         .bindNamedParameter(AzureStorageContainerName.class,
             avroAzureBatchJobSubmissionParameters.getAzureStorageContainerName().toString())
         .build();
-  }
-
-  private static Set<String> getAzureBatchInBoundNatPoolBackendPorts(
-      final BatchCredentials credentials, final String poolId) {
-    final BatchClient client = BatchClient.open(credentials);
-    final NetworkConfiguration networkConfiguration;
-    final Set<String> backendPorts = new HashSet<>();
-
-    try {
-      networkConfiguration = client.poolOperations().getPool(poolId).networkConfiguration();
-    } catch (IOException e) {
-      LOG.log(Level.WARNING, "Unable to setup Http Server with InBoundNATPool Port", e);
-      return backendPorts;
-    }
-
-    if (networkConfiguration == null) {
-      return backendPorts;
-    }
-
-    final PoolEndpointConfiguration endpointConfiguration = networkConfiguration.endpointConfiguration();
-    if (endpointConfiguration == null) {
-      return backendPorts;
-    }
-
-    final List<InboundNATPool> inboundNATpools = endpointConfiguration.inboundNATPools();
-    for (InboundNATPool pool : inboundNATpools) {
-      backendPorts.add(String.valueOf(pool.backendPort()));
-    }
-    return backendPorts;
   }
 
   private static RuntimeException fatal(final String msg, final Throwable t) {
