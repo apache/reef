@@ -103,7 +103,7 @@ public final class AzureBatchBootstrapREEFLauncher {
 
     // Check if user has set up preferred ports to use.
     // If set, we prefer will launch driver that binds those ports.
-    final List<String> preferredPorts = ConvertToStringList(jobSubmissionParameters.getAzureBatchPoolDriverPortsList());
+    final List<String> preferredPorts = convertToStringList(jobSubmissionParameters.getAzureBatchPoolDriverPortsList());
 
     if (preferredPorts.size() > 0) {
       launcherConfigBuilder.bindList(TcpPortList.class, preferredPorts)
@@ -158,7 +158,7 @@ public final class AzureBatchBootstrapREEFLauncher {
         .build();
   }
 
-  private static List<String> ConvertToStringList(List<CharSequence> list) {
+  private static List<String> convertToStringList(final List<CharSequence> list) {
     List<String> result = new ArrayList<>();
     for (CharSequence sequence : list) {
       result.add(sequence.toString());
