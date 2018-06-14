@@ -24,9 +24,9 @@ import org.apache.reef.tang.annotations.Parameter;
 import org.apache.reef.wake.remote.ports.parameters.TcpPortList;
 
 import javax.inject.Inject;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -34,13 +34,21 @@ import java.util.logging.Logger;
  */
 public final class ListTcpPortProvider implements TcpPortProvider {
 
-  private static final Logger LOG = Logger.getLogger(ListTcpPortProvider.class.getName());
   private final List<Integer> tcpPortList;
 
   @Inject
   public ListTcpPortProvider(@Parameter(TcpPortList.class) final List<Integer> tcpPortList) {
     this.tcpPortList = tcpPortList;
     LOG.log(Level.FINE, "Instantiating {0}", this);
+  }
+
+  @Inject
+  public ListTcpPortProvider(@Parameter(TcpPortList.class) final String tcpPortList) {
+    this.tcpPortList = new ArrayList<>();
+    String[] ports = StringUtils.split(tcpPortList, TcpPortList.SEPARATOR);
+    for (int i = 0; i < ports.length; i++) {
+      this.tcpPortList.add(Integer.parseInt(ports[i]));
+    }
   }
 
   /**

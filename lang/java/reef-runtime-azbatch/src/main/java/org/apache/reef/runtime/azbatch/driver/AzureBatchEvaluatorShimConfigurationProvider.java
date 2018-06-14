@@ -18,10 +18,18 @@
  */
 package org.apache.reef.runtime.azbatch.driver;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.reef.annotations.audience.Private;
 import org.apache.reef.runtime.azbatch.evaluator.EvaluatorShimConfiguration;
+import org.apache.reef.runtime.azbatch.util.batch.AzureBatchHelper;
 import org.apache.reef.runtime.common.utils.RemoteManager;
 import org.apache.reef.tang.Configuration;
+import org.apache.reef.tang.exceptions.InjectionException;
+import org.apache.reef.wake.remote.address.ContainerBasedLocalAddressProvider;
+import org.apache.reef.wake.remote.address.LocalAddressProvider;
+import org.apache.reef.wake.remote.ports.ListTcpPortProvider;
+import org.apache.reef.wake.remote.ports.TcpPortProvider;
+import org.apache.reef.wake.remote.ports.parameters.TcpPortList;
 
 import javax.inject.Inject;
 
@@ -31,22 +39,41 @@ import javax.inject.Inject;
 @Private
 public class AzureBatchEvaluatorShimConfigurationProvider {
 
-  private final RemoteManager remoteManager;
+  RemoteManager remoteManager;
+  TcpPortProvider portProvider;
+  LocalAddressProvider localAddressProvider;
+  AzureBatchHelper azureBatchHelper;
 
   @Inject
-  AzureBatchEvaluatorShimConfigurationProvider(final RemoteManager remoteManager) {
+  AzureBatchEvaluatorShimConfigurationProvider(
+      final RemoteManager remoteManager,
+      final LocalAddressProvider localAddressProvider,
+      final AzureBatchHelper azureBatchHelper,
+      final TcpPortProvider portProvider) {
     this.remoteManager = remoteManager;
+    this.portProvider = portProvider;
+    this.localAddressProvider = localAddressProvider;
+    this.azureBatchHelper = azureBatchHelper;
   }
 
   /**
    * Constructs a {@link Configuration} object which will be serialized and written to shim.config and
    * used to launch the evaluator shim.
    *
-   * @param containerId id of the container for which the shim is being launched.
+   * @param containerId      id of the container for which the shim is being launched.
    * @return A {@link Configuration} object needed to launch the evaluator shim.
    */
   public Configuration getConfiguration(final String containerId) {
-    return EvaluatorShimConfiguration.CONF
+
+    String[] ports = {"2000", "2001" };
+
+    final String availablePortsList = StringUtils.join(ports, TcpPortList.SEPARATOR);
+
+    return EvaluatorShimConfiguration.CONF.getBuilder()
+        .bindImplementation(LocalAddressProvider.class, ContainerBasedLocalAddressProvider.class)
+        .bindNamedParameter(TcpPortList.class, availablePortsList)
+        .bindImplementation(TcpPortProvider.class, ListTcpPortProvider.class)
+        .build()
         .set(EvaluatorShimConfiguration.DRIVER_REMOTE_IDENTIFIER, this.remoteManager.getMyIdentifier())
         .set(EvaluatorShimConfiguration.CONTAINER_IDENTIFIER, containerId)
         .build();

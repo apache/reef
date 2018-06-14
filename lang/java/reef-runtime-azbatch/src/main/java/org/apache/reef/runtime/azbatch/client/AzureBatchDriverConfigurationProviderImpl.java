@@ -18,6 +18,7 @@
  */
 package org.apache.reef.runtime.azbatch.client;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.reef.annotations.audience.Private;
 import org.apache.reef.runtime.azbatch.driver.AzureBatchDriverConfiguration;
 import org.apache.reef.runtime.azbatch.driver.RuntimeIdentifier;
@@ -32,6 +33,11 @@ import org.apache.reef.runtime.common.parameters.JVMHeapSlack;
 import org.apache.reef.tang.Configuration;
 import org.apache.reef.tang.Configurations;
 import org.apache.reef.tang.annotations.Parameter;
+import org.apache.reef.wake.remote.address.ContainerBasedLocalAddressProvider;
+import org.apache.reef.wake.remote.address.LocalAddressProvider;
+import org.apache.reef.wake.remote.ports.ListTcpPortProvider;
+import org.apache.reef.wake.remote.ports.TcpPortProvider;
+import org.apache.reef.wake.remote.ports.parameters.TcpPortList;
 
 import javax.inject.Inject;
 import java.net.URI;
@@ -82,9 +88,18 @@ public final class AzureBatchDriverConfigurationProviderImpl implements DriverCo
                                               final String clientRemoteId,
                                               final String jobId,
                                               final Configuration applicationConfiguration) {
+
+
+    String[] ports = {"2000", "2001" };
+
+    final String availablePortsList = StringUtils.join(ports, ",");
     return Configurations.merge(
         AzureBatchDriverConfiguration.CONF.getBuilder()
-            .bindImplementation(CommandBuilder.class, this.commandBuilder.getClass()).build()
+            .bindImplementation(CommandBuilder.class, this.commandBuilder.getClass())
+            .bindImplementation(LocalAddressProvider.class, ContainerBasedLocalAddressProvider.class)
+            .bindNamedParameter(TcpPortList.class, availablePortsList)
+            .bindImplementation(TcpPortProvider.class, ListTcpPortProvider.class)
+            .build()
             .set(AzureBatchDriverConfiguration.JOB_IDENTIFIER, jobId)
             .set(AzureBatchDriverConfiguration.CLIENT_REMOTE_IDENTIFIER, clientRemoteId)
             .set(AzureBatchDriverConfiguration.JVM_HEAP_SLACK, this.jvmSlack)

@@ -24,11 +24,12 @@ import org.apache.reef.tang.annotations.NamedParameter;
 import java.util.List;
 
 /**
- * An list of tcp port numbers to try.
+ * A comma-separated list of tcp port numbers to try.
  */
-@NamedParameter(doc = "An list of tcp port numbers to try")
-public final class TcpPortList implements Name<List<Integer>> {
+@NamedParameter(doc = "A comma-separated list of tcp port numbers to try")
+public final class TcpPortList implements Name<String> {
 
+  public static final char SEPARATOR = ',';
   /**
    * Empty private constructor to prohibit instantiation of utility class.
    */
