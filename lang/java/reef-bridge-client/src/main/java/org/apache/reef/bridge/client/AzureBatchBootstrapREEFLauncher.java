@@ -51,6 +51,7 @@ import org.apache.reef.wake.time.Clock;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -102,7 +103,7 @@ public final class AzureBatchBootstrapREEFLauncher {
 
     // Check if user has set up preferred ports to use.
     // If set, we prefer will launch driver that binds those ports.
-    final List<CharSequence> preferredPorts = jobSubmissionParameters.getAzureBatchPoolDriverPortsList();
+    final List<String> preferredPorts = ConvertToStringList(jobSubmissionParameters.getAzureBatchPoolDriverPortsList());
 
     if (preferredPorts.size() > 0) {
       launcherConfigBuilder.bindList(TcpPortList.class, preferredPorts)
@@ -155,6 +156,14 @@ public final class AzureBatchBootstrapREEFLauncher {
         .bindNamedParameter(AzureStorageContainerName.class,
             avroAzureBatchJobSubmissionParameters.getAzureStorageContainerName().toString())
         .build();
+  }
+
+  private static List<String> ConvertToStringList(List<CharSequence> list) {
+    List<String> result = new ArrayList<>();
+    for (CharSequence sequence : list) {
+      result.add(sequence.toString());
+    }
+    return result;
   }
 
   private static RuntimeException fatal(final String msg, final Throwable t) {
