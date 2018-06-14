@@ -40,11 +40,9 @@ namespace Org.Apache.REEF.Client.AzureBatch.Util
             IResourceArchiveFileGenerator resourceArchiveFileGenerator,
             DriverFolderPreparationHelper driverFolderPreparationHelper,
             REEFFileNames fileNames,
-            [Parameter(typeof(AzureBatchAccountKey))] string azureBatchAccountKey,
             [Parameter(typeof(AzureBatchAccountName))] string azureBatchAccountName,
             [Parameter(typeof(AzureBatchAccountUri))] string azureBatchAccountUri,
             [Parameter(typeof(AzureBatchPoolId))] string azureBatchPoolId,
-            [Parameter(typeof(AzureStorageAccountKey))] string azureStorageAccountKey,
             [Parameter(typeof(AzureStorageAccountName))] string azureStorageAccountName,
             [Parameter(typeof(AzureStorageContainerName))] string azureStorageContainerName)
         {
@@ -53,14 +51,11 @@ namespace Org.Apache.REEF.Client.AzureBatch.Util
             _fileNames = fileNames;
             _avroAzureBatchJobSubmissionParameters = new AvroAzureBatchJobSubmissionParameters
             {
-                AzureBatchAccountKey = azureBatchAccountKey,
                 AzureBatchAccountName = azureBatchAccountName,
                 AzureBatchAccountUri = azureBatchAccountUri,
                 AzureBatchPoolId = azureBatchPoolId,
-                AzureStorageAccountKey = azureStorageAccountKey,
                 AzureStorageAccountName = azureStorageAccountName,
                 AzureStorageContainerName = azureStorageContainerName,
-                AzureBatchIsWindows = true
             };
         }
 

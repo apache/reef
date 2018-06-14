@@ -23,10 +23,21 @@ import org.apache.avro.io.JsonDecoder;
 import org.apache.avro.specific.SpecificDatumReader;
 import org.apache.reef.annotations.audience.Interop;
 import org.apache.reef.reef.bridge.client.avro.AvroAzureBatchJobSubmissionParameters;
-import org.apache.reef.runtime.azbatch.client.AzureBatchRuntimeConfiguration;
-import org.apache.reef.runtime.azbatch.client.AzureBatchRuntimeConfigurationCreator;
+import org.apache.reef.runtime.azbatch.AzureBatchClasspathProvider;
+import org.apache.reef.runtime.azbatch.AzureBatchJVMPathProvider;
+import org.apache.reef.runtime.azbatch.client.AzureBatchDriverConfigurationProviderImpl;
+import org.apache.reef.runtime.azbatch.parameters.AzureBatchAccountName;
+import org.apache.reef.runtime.azbatch.parameters.AzureBatchAccountUri;
+import org.apache.reef.runtime.azbatch.parameters.AzureBatchPoolId;
+import org.apache.reef.runtime.azbatch.parameters.AzureStorageAccountName;
+import org.apache.reef.runtime.azbatch.parameters.AzureStorageContainerName;
+import org.apache.reef.runtime.azbatch.util.command.CommandBuilder;
+import org.apache.reef.runtime.azbatch.util.command.WindowsCommandBuilder;
 import org.apache.reef.runtime.common.REEFEnvironment;
+import org.apache.reef.runtime.common.client.DriverConfigurationProvider;
 import org.apache.reef.runtime.common.evaluator.PIDStoreStartHandler;
+import org.apache.reef.runtime.common.files.RuntimeClasspathProvider;
+import org.apache.reef.runtime.common.files.RuntimePathProvider;
 import org.apache.reef.runtime.common.launch.REEFErrorHandler;
 import org.apache.reef.runtime.common.launch.REEFMessageCodec;
 import org.apache.reef.tang.Configuration;
@@ -73,9 +84,10 @@ public final class AzureBatchBootstrapREEFLauncher {
       throw fatal(message, new IllegalArgumentException(message));
     }
 
-    final File partialConfigFile = new File(args[0]);
+    final AvroAzureBatchJobSubmissionParameters avroAzureBatchJobSubmissionParameters =
+        readAvroJobSubmissionParameters(new File(args[0]));
     final AzureBatchBootstrapDriverConfigGenerator azureBatchBootstrapDriverConfigGenerator =
-        TANG.newInjector(generateConfigurationFromJobSubmissionParameters(partialConfigFile))
+        TANG.newInjector(generateConfiguration(avroAzureBatchJobSubmissionParameters))
             .getInstance(AzureBatchBootstrapDriverConfigGenerator.class);
 
     final Configuration launcherConfig =
@@ -87,7 +99,8 @@ public final class AzureBatchBootstrapREEFLauncher {
             .build();
 
     try (final REEFEnvironment reef = REEFEnvironment.fromConfiguration(
-        azureBatchBootstrapDriverConfigGenerator.getDriverConfigurationFromParams(args[0]), launcherConfig)) {
+        azureBatchBootstrapDriverConfigGenerator.getDriverConfigurationFromParams(
+            avroAzureBatchJobSubmissionParameters), launcherConfig)) {
       reef.run();
     } catch (final InjectionException ex) {
       throw fatal("Unable to configure and start REEFEnvironment.", ex);
@@ -98,33 +111,35 @@ public final class AzureBatchBootstrapREEFLauncher {
     System.exit(0); // TODO[REEF-1715]: Should be able to exit cleanly at the end of main()
   }
 
-  private static Configuration generateConfigurationFromJobSubmissionParameters(final File params) throws IOException {
-
+  private static AvroAzureBatchJobSubmissionParameters readAvroJobSubmissionParameters(
+      final File paramsFile) throws IOException {
     final AvroAzureBatchJobSubmissionParameters avroAzureBatchJobSubmissionParameters;
-
-    try (final FileInputStream fileInputStream = new FileInputStream(params)) {
+    try (final FileInputStream fileInputStream = new FileInputStream(paramsFile)) {
       final JsonDecoder decoder = DecoderFactory.get().jsonDecoder(
           AvroAzureBatchJobSubmissionParameters.getClassSchema(), fileInputStream);
       final SpecificDatumReader<AvroAzureBatchJobSubmissionParameters> reader =
           new SpecificDatumReader<>(AvroAzureBatchJobSubmissionParameters.class);
       avroAzureBatchJobSubmissionParameters = reader.read(null, decoder);
     }
+    return avroAzureBatchJobSubmissionParameters;
+  }
 
-    return AzureBatchRuntimeConfigurationCreator
-        .getOrCreateAzureBatchRuntimeConfiguration(avroAzureBatchJobSubmissionParameters.getAzureBatchIsWindows())
-        .set(AzureBatchRuntimeConfiguration.AZURE_BATCH_ACCOUNT_NAME,
+  private static Configuration generateConfiguration(
+      final AvroAzureBatchJobSubmissionParameters avroAzureBatchJobSubmissionParameters) {
+    return TANG.newConfigurationBuilder()
+        .bindImplementation(DriverConfigurationProvider.class, AzureBatchDriverConfigurationProviderImpl.class)
+        .bindImplementation(RuntimeClasspathProvider.class, AzureBatchClasspathProvider.class)
+        .bindImplementation(RuntimePathProvider.class, AzureBatchJVMPathProvider.class)
+        .bindImplementation(CommandBuilder.class, WindowsCommandBuilder.class)
+        .bindNamedParameter(AzureBatchAccountName.class,
             avroAzureBatchJobSubmissionParameters.getAzureBatchAccountName().toString())
-        .set(AzureBatchRuntimeConfiguration.AZURE_BATCH_ACCOUNT_KEY,
-            avroAzureBatchJobSubmissionParameters.getAzureBatchAccountKey().toString())
-        .set(AzureBatchRuntimeConfiguration.AZURE_BATCH_ACCOUNT_URI,
+        .bindNamedParameter(AzureBatchAccountUri.class,
             avroAzureBatchJobSubmissionParameters.getAzureBatchAccountUri().toString())
-        .set(AzureBatchRuntimeConfiguration.AZURE_BATCH_POOL_ID,
+        .bindNamedParameter(AzureBatchPoolId.class,
             avroAzureBatchJobSubmissionParameters.getAzureBatchPoolId().toString())
-        .set(AzureBatchRuntimeConfiguration.AZURE_STORAGE_ACCOUNT_NAME,
+        .bindNamedParameter(AzureStorageAccountName.class,
             avroAzureBatchJobSubmissionParameters.getAzureStorageAccountName().toString())
-        .set(AzureBatchRuntimeConfiguration.AZURE_STORAGE_ACCOUNT_KEY,
-            avroAzureBatchJobSubmissionParameters.getAzureStorageAccountKey().toString())
-        .set(AzureBatchRuntimeConfiguration.AZURE_STORAGE_CONTAINER_NAME,
+        .bindNamedParameter(AzureStorageContainerName.class,
             avroAzureBatchJobSubmissionParameters.getAzureStorageContainerName().toString())
         .build();
   }

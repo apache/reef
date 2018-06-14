@@ -18,9 +18,6 @@
  */
 package org.apache.reef.bridge.client;
 
-import org.apache.avro.io.DecoderFactory;
-import org.apache.avro.io.JsonDecoder;
-import org.apache.avro.specific.SpecificDatumReader;
 import org.apache.reef.reef.bridge.client.avro.AvroAzureBatchJobSubmissionParameters;
 import org.apache.reef.runtime.common.client.DriverConfigurationProvider;
 import org.apache.reef.runtime.common.driver.parameters.ClientRemoteIdentifier;
@@ -28,9 +25,6 @@ import org.apache.reef.tang.Configuration;
 
 import javax.inject.Inject;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -49,15 +43,10 @@ final class AzureBatchBootstrapDriverConfigGenerator {
     this.driverConfigurationProvider = driverConfigurationProvider;
   }
 
-  Configuration getDriverConfigurationFromParams(final String bootstrapJobArgsLocation) throws IOException {
-
-    final File bootstrapJobArgsFile = new File(bootstrapJobArgsLocation).getCanonicalFile();
-
-    final AvroAzureBatchJobSubmissionParameters azureBatchBootstrapJobArgs =
-        readAzureBatchJobSubmissionParametersFromFile(bootstrapJobArgsFile);
-
-    final String jobId = azureBatchBootstrapJobArgs.getSharedJobSubmissionParameters().getJobId().toString();
-    final File jobFolder = new File(azureBatchBootstrapJobArgs
+  Configuration getDriverConfigurationFromParams(
+      final AvroAzureBatchJobSubmissionParameters avroAzureBatchJobSubmissionParameters) {
+    final String jobId = avroAzureBatchJobSubmissionParameters.getSharedJobSubmissionParameters().getJobId().toString();
+    final File jobFolder = new File(avroAzureBatchJobSubmissionParameters
         .getSharedJobSubmissionParameters().getJobSubmissionFolder().toString());
 
     LOG.log(Level.INFO, "jobFolder {0} jobId {1}.", new Object[]{jobFolder.toURI(), jobId});
@@ -65,21 +54,5 @@ final class AzureBatchBootstrapDriverConfigGenerator {
     return this.driverConfigurationProvider.getDriverConfiguration(
         jobFolder.toURI(), ClientRemoteIdentifier.NONE, jobId,
         Constants.DRIVER_CONFIGURATION_WITH_HTTP_AND_NAMESERVER);
-  }
-
-  private AvroAzureBatchJobSubmissionParameters readAzureBatchJobSubmissionParametersFromFile(final File file)
-      throws IOException {
-    try (final FileInputStream fileInputStream = new FileInputStream(file)) {
-      return readAzureBatchSubmissionParametersFromInputStream(fileInputStream);
-    }
-  }
-
-  private static AvroAzureBatchJobSubmissionParameters readAzureBatchSubmissionParametersFromInputStream(
-      final InputStream inputStream) throws IOException {
-    final JsonDecoder decoder = DecoderFactory.get().jsonDecoder(
-        AvroAzureBatchJobSubmissionParameters.getClassSchema(), inputStream);
-    final SpecificDatumReader<AvroAzureBatchJobSubmissionParameters> reader = new SpecificDatumReader<>(
-        AvroAzureBatchJobSubmissionParameters.class);
-    return reader.read(null, decoder);
   }
 }
