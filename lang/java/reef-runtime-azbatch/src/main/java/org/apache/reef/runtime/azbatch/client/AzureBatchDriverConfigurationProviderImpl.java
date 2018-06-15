@@ -22,12 +22,8 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.reef.annotations.audience.Private;
 import org.apache.reef.runtime.azbatch.driver.AzureBatchDriverConfiguration;
 import org.apache.reef.runtime.azbatch.driver.RuntimeIdentifier;
-import org.apache.reef.runtime.azbatch.parameters.AzureBatchAccountName;
-import org.apache.reef.runtime.azbatch.parameters.AzureBatchPoolId;
+import org.apache.reef.runtime.azbatch.parameters.*;
 import org.apache.reef.runtime.azbatch.util.command.CommandBuilder;
-import org.apache.reef.runtime.azbatch.parameters.AzureBatchAccountUri;
-import org.apache.reef.runtime.azbatch.parameters.AzureStorageAccountName;
-import org.apache.reef.runtime.azbatch.parameters.AzureStorageContainerName;
 import org.apache.reef.runtime.common.client.DriverConfigurationProvider;
 import org.apache.reef.runtime.common.parameters.JVMHeapSlack;
 import org.apache.reef.tang.Configuration;
@@ -54,6 +50,9 @@ public final class AzureBatchDriverConfigurationProviderImpl implements DriverCo
   private final String azureBatchPoolId;
   private final String azureStorageAccountName;
   private final String azureStorageContainerName;
+  private final String containerRegistryServer;
+  private final String containerRegistryUsername;
+  private final String containerRegistryPassword;
   private final CommandBuilder commandBuilder;
 
   @Inject
@@ -64,6 +63,9 @@ public final class AzureBatchDriverConfigurationProviderImpl implements DriverCo
       @Parameter(AzureBatchPoolId.class) final String azureBatchPoolId,
       @Parameter(AzureStorageAccountName.class) final String azureStorageAccountName,
       @Parameter(AzureStorageContainerName.class) final String azureStorageContainerName,
+      @Parameter(ContainerRegistryServer.class) final String containerRegistryServer,
+      @Parameter(ContainerRegistryUsername.class) final String containerRegistryUsername,
+      @Parameter(ContainerRegistryPassword.class) final String containerRegistryPassword,
       final CommandBuilder commandBuilder) {
     this.jvmSlack = jvmSlack;
     this.azureBatchAccountUri = azureBatchAccountUri;
@@ -71,6 +73,9 @@ public final class AzureBatchDriverConfigurationProviderImpl implements DriverCo
     this.azureBatchPoolId = azureBatchPoolId;
     this.azureStorageAccountName = azureStorageAccountName;
     this.azureStorageContainerName = azureStorageContainerName;
+    this.containerRegistryServer = containerRegistryServer;
+    this.containerRegistryUsername = containerRegistryUsername;
+    this.containerRegistryPassword = containerRegistryPassword;
     this.commandBuilder = commandBuilder;
   }
 
@@ -109,6 +114,9 @@ public final class AzureBatchDriverConfigurationProviderImpl implements DriverCo
             .set(AzureBatchDriverConfiguration.AZURE_BATCH_POOL_ID, this.azureBatchPoolId)
             .set(AzureBatchDriverConfiguration.AZURE_STORAGE_ACCOUNT_NAME, this.azureStorageAccountName)
             .set(AzureBatchDriverConfiguration.AZURE_STORAGE_CONTAINER_NAME, this.azureStorageContainerName)
+            .set(AzureBatchDriverConfiguration.CONTAINER_REGISTRY_SERVER, this.containerRegistryServer)
+            .set(AzureBatchDriverConfiguration.CONTAINER_REGISTRY_USERNAME, this.containerRegistryUsername)
+            .set(AzureBatchDriverConfiguration.CONTAINER_REGISTRY_PASSWORD, this.containerRegistryPassword)
             .build(),
         applicationConfiguration);
   }

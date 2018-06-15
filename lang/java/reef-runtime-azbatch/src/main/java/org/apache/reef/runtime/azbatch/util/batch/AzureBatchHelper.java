@@ -22,6 +22,9 @@ import com.microsoft.azure.batch.BatchClient;
 import com.microsoft.azure.batch.protocol.models.*;
 
 import org.apache.reef.runtime.azbatch.parameters.AzureBatchPoolId;
+import org.apache.reef.runtime.azbatch.parameters.ContainerRegistryPassword;
+import org.apache.reef.runtime.azbatch.parameters.ContainerRegistryServer;
+import org.apache.reef.runtime.azbatch.parameters.ContainerRegistryUsername;
 import org.apache.reef.runtime.azbatch.util.AzureBatchFileNames;
 import org.apache.reef.runtime.azbatch.util.storage.SharedAccessSignatureCloudBlobClientProvider;
 import org.apache.reef.tang.annotations.Parameter;
@@ -54,18 +57,26 @@ public final class AzureBatchHelper {
   private final BatchClient client;
   private final PoolInformation poolInfo;
   private final TcpPortProvider portProvider;
+  private final ContainerRegistry containerRegistry;
 
   @Inject
   public AzureBatchHelper(
       final AzureBatchFileNames azureBatchFileNames,
       final IAzureBatchCredentialProvider credentialProvider,
       final TcpPortProvider portProvider,
+      @Parameter(ContainerRegistryServer.class) final String containerRegistryServer,
+      @Parameter(ContainerRegistryUsername.class) final String containerRegistryUsername,
+      @Parameter(ContainerRegistryPassword.class) final String containerRegistryPassword,
       @Parameter(AzureBatchPoolId.class) final String azureBatchPoolId) {
     this.azureBatchFileNames = azureBatchFileNames;
 
     this.client = BatchClient.open(credentialProvider.getCredentials());
     this.poolInfo = new PoolInformation().withPoolId(azureBatchPoolId);
     this.portProvider = portProvider;
+    this.containerRegistry = new ContainerRegistry()
+        .withRegistryServer(containerRegistryServer)
+        .withUserName(containerRegistryUsername)
+        .withPassword(containerRegistryPassword);
   }
 
   /**
@@ -94,10 +105,6 @@ public final class AzureBatchHelper {
         .withName(SharedAccessSignatureCloudBlobClientProvider.AZURE_STORAGE_CONTAINER_SAS_TOKEN_ENV)
         .withValue(storageContainerSAS);
 
-    ContainerRegistry registry = new ContainerRegistry()
-        .withRegistryServer("sharathmcontainerreg.azurecr.io")
-        .withUserName("sharathmcontainerreg")
-        .withPassword("kALVT7bI=cFlOEgQtcRDX5vHXAj42GtC");
 
     String portMappings = "";
 
@@ -109,13 +116,13 @@ public final class AzureBatchHelper {
     }
 
     TaskContainerSettings containerSettings = new TaskContainerSettings()
-        .withRegistry(registry)
+        .withRegistry(this.containerRegistry)
         .withImageName("sharathmcontainerreg.azurecr.io/ubuntuwithjdk")
-        .withContainerRunOptions("-dit --env HOST_IP_ADDR_PATH=$AZ_BATCH_NODE_SHARED_DIR/hostip.txt " + portMappings);
+        .withContainerRunOptions("-dit --env HOST_IP_ADDR_PATH=$AZ_BATCH_JOB_PREP_DIR/hostip.txt " + portMappings);
 
     String captureIpAddressCommandLine =
-        "/bin/bash -c \"rm -f $AZ_BATCH_NODE_SHARED_DIR/hostip.txt;" +
-            " echo `hostname -i` > $AZ_BATCH_NODE_SHARED_DIR/hostip.txt\"";
+        "/bin/bash -c \"rm -f $AZ_BATCH_JOB_PREP_DIR/hostip.txt;" +
+            " echo `hostname -i` > $AZ_BATCH_JOB_PREP_DIR/hostip.txt\"";
     JobPreparationTask jobPreparationTask = new JobPreparationTask()
         .withId("CaptureHostIpAddress")
         .withCommandLine(captureIpAddressCommandLine);
@@ -169,11 +176,6 @@ public final class AzureBatchHelper {
 
     LOG.log(Level.INFO, "Evaluator task command: " + command);
 
-    ContainerRegistry registry = new ContainerRegistry()
-        .withRegistryServer("sharathmcontainerreg.azurecr.io")
-        .withUserName("sharathmcontainerreg")
-        .withPassword("kALVT7bI=cFlOEgQtcRDX5vHXAj42GtC");
-
     String portMappings = "";
     Iterator<Integer> iterator = this.portProvider.iterator();
     while (iterator.hasNext()) {
@@ -183,9 +185,9 @@ public final class AzureBatchHelper {
     }
 
     TaskContainerSettings containerSettings = new TaskContainerSettings()
-        .withRegistry(registry)
+        .withRegistry(this.containerRegistry)
         .withImageName("sharathmcontainerreg.azurecr.io/ubuntuwithjdk")
-        .withContainerRunOptions("--env HOST_IP_ADDR_PATH=$AZ_BATCH_NODE_SHARED_DIR/hostip.txt " + portMappings);
+        .withContainerRunOptions("--env HOST_IP_ADDR_PATH=$AZ_BATCH_JOB_PREP_DIR/hostip.txt " + portMappings);
 
     final TaskAddParameter taskAddParameter = new TaskAddParameter()
         .withId(taskId)
