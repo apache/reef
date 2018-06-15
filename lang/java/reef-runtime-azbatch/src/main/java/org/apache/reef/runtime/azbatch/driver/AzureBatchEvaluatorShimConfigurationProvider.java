@@ -24,6 +24,7 @@ import org.apache.reef.runtime.azbatch.evaluator.EvaluatorShimConfiguration;
 import org.apache.reef.runtime.azbatch.util.batch.AzureBatchHelper;
 import org.apache.reef.runtime.common.utils.RemoteManager;
 import org.apache.reef.tang.Configuration;
+import org.apache.reef.tang.Tang;
 import org.apache.reef.tang.exceptions.InjectionException;
 import org.apache.reef.wake.remote.address.ContainerBasedLocalAddressProvider;
 import org.apache.reef.wake.remote.address.LocalAddressProvider;
@@ -32,6 +33,7 @@ import org.apache.reef.wake.remote.ports.TcpPortProvider;
 import org.apache.reef.wake.remote.ports.parameters.TcpPortList;
 
 import javax.inject.Inject;
+import java.util.ArrayList;
 
 /**
  * Configuration provider for the Azure Batch evaluator shim.
@@ -65,14 +67,17 @@ public class AzureBatchEvaluatorShimConfigurationProvider {
    */
   public Configuration getConfiguration(final String containerId) {
 
-    String[] ports = {"2000", "2001" };
+    ArrayList<Integer> ports = new ArrayList<>();
+    for(Integer port: this.portProvider) {
+      ports.add(port);
+    }
 
     final String availablePortsList = StringUtils.join(ports, TcpPortList.SEPARATOR);
 
     return EvaluatorShimConfiguration.CONF.getBuilder()
-        .bindImplementation(LocalAddressProvider.class, ContainerBasedLocalAddressProvider.class)
+        .bindImplementation(LocalAddressProvider.class, this.localAddressProvider.getClass())
         .bindNamedParameter(TcpPortList.class, availablePortsList)
-        .bindImplementation(TcpPortProvider.class, ListTcpPortProvider.class)
+        .bindImplementation(TcpPortProvider.class, this.portProvider.getClass())
         .build()
         .set(EvaluatorShimConfiguration.DRIVER_REMOTE_IDENTIFIER, this.remoteManager.getMyIdentifier())
         .set(EvaluatorShimConfiguration.CONTAINER_IDENTIFIER, containerId)

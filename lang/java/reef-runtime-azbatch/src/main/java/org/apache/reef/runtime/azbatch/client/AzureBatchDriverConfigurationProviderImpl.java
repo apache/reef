@@ -27,8 +27,10 @@ import org.apache.reef.runtime.azbatch.util.command.CommandBuilder;
 import org.apache.reef.runtime.common.client.DriverConfigurationProvider;
 import org.apache.reef.runtime.common.parameters.JVMHeapSlack;
 import org.apache.reef.tang.Configuration;
+import org.apache.reef.tang.ConfigurationBuilder;
 import org.apache.reef.tang.Configurations;
 import org.apache.reef.tang.annotations.Parameter;
+import org.apache.reef.tang.formats.ConfigurationModuleBuilder;
 import org.apache.reef.wake.remote.address.ContainerBasedLocalAddressProvider;
 import org.apache.reef.wake.remote.address.LocalAddressProvider;
 import org.apache.reef.wake.remote.ports.ListTcpPortProvider;
@@ -95,16 +97,22 @@ public final class AzureBatchDriverConfigurationProviderImpl implements DriverCo
                                               final Configuration applicationConfiguration) {
 
 
-    String[] ports = {"2000", "2001" };
 
-    final String availablePortsList = StringUtils.join(ports, ",");
-    return Configurations.merge(
-        AzureBatchDriverConfiguration.CONF.getBuilder()
-            .bindImplementation(CommandBuilder.class, this.commandBuilder.getClass())
-            .bindImplementation(LocalAddressProvider.class, ContainerBasedLocalAddressProvider.class)
-            .bindNamedParameter(TcpPortList.class, availablePortsList)
-            .bindImplementation(TcpPortProvider.class, ListTcpPortProvider.class)
-            .build()
+    ConfigurationModuleBuilder driverConfigurationBuilder = AzureBatchDriverConfiguration.CONF.getBuilder()
+            .bindImplementation(CommandBuilder.class, this.commandBuilder.getClass());
+
+    // If using docker containers, then use a different set of bindings
+    if (!StringUtils.isEmpty(this.containerRegistryServer)) {
+      String[] ports = {"2000", "2001" };
+
+      final String availablePortsList = StringUtils.join(ports, ",");
+      driverConfigurationBuilder = driverConfigurationBuilder
+          .bindImplementation(LocalAddressProvider.class, ContainerBasedLocalAddressProvider.class)
+          .bindNamedParameter(TcpPortList.class, availablePortsList)
+          .bindImplementation(TcpPortProvider.class, ListTcpPortProvider.class);
+    }
+
+    Configuration driverConfiguration = driverConfigurationBuilder.build()
             .set(AzureBatchDriverConfiguration.JOB_IDENTIFIER, jobId)
             .set(AzureBatchDriverConfiguration.CLIENT_REMOTE_IDENTIFIER, clientRemoteId)
             .set(AzureBatchDriverConfiguration.JVM_HEAP_SLACK, this.jvmSlack)
@@ -117,7 +125,7 @@ public final class AzureBatchDriverConfigurationProviderImpl implements DriverCo
             .set(AzureBatchDriverConfiguration.CONTAINER_REGISTRY_SERVER, this.containerRegistryServer)
             .set(AzureBatchDriverConfiguration.CONTAINER_REGISTRY_USERNAME, this.containerRegistryUsername)
             .set(AzureBatchDriverConfiguration.CONTAINER_REGISTRY_PASSWORD, this.containerRegistryPassword)
-            .build(),
-        applicationConfiguration);
+            .build();
+    return Configurations.merge(driverConfiguration, applicationConfiguration);
   }
 }

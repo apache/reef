@@ -24,6 +24,6 @@ import org.apache.reef.tang.annotations.NamedParameter;
 /**
  * The container registry password.
  */
-@NamedParameter(doc = "The container registry password.")
+@NamedParameter(doc = "The container registry password.", default_value = "")
 public final class ContainerRegistryPassword implements Name<String> {
 }

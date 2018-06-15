@@ -24,6 +24,6 @@ import org.apache.reef.tang.annotations.NamedParameter;
 /**
  * The container registry server name.
  */
-@NamedParameter(doc = "The container registry server name.")
+@NamedParameter(doc = "The container registry server name.", default_value = "")
 public final class ContainerRegistryServer implements Name<String> {
 }
