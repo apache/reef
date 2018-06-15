@@ -62,7 +62,7 @@ namespace Org.Apache.REEF.Common.Telemetry
         {
             Subscribe(metric);
             ChangesSinceLastSink = 0;
-            KeepUpdateHistory = metric.IsImmutable;
+            KeepUpdateHistory = metric.KeepUpdateHistory;
             Records = new ConcurrentQueue<MetricRecord>();
             if (KeepUpdateHistory)
             {

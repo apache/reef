@@ -42,7 +42,7 @@ namespace Org.Apache.REEF.Common.Telemetry
         /// <summary>
         /// Flag for the immutability of the metric. 
         /// </summary>
-        bool IsImmutable { get; }
+        bool KeepUpdateHistory { get; }
 
         /// <summary>
         /// Assign a new value to the metric.

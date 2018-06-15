@@ -31,7 +31,7 @@ namespace Org.Apache.REEF.Common.Telemetry
 
         protected T _typedValue;
 
-        protected bool _isImmutable;
+        protected bool _keepHistory;
 
         private object _metricLock = new object();
 
@@ -52,20 +52,20 @@ namespace Org.Apache.REEF.Common.Telemetry
             }
         }
 
-        public bool IsImmutable
+        public bool KeepUpdateHistory
         {
             get
             {
-                return _isImmutable;
+                return _keepHistory;
             }
         }
 
-        public MetricBase(string name, string description, bool isImmutable = true)
+        public MetricBase(string name, string description, bool keepHistory = true)
         {
             Name = name;
             Description = description;
             _typedValue = default(T);
-            _isImmutable = isImmutable;
+            _keepHistory = keepHistory;
         }
 
         [JsonConstructor]

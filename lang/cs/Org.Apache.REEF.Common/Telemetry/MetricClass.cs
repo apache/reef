@@ -28,8 +28,8 @@ namespace Org.Apache.REEF.Common.Telemetry
     public class MetricClass<T> : MetricBase<T> where T : class
     {
 
-        public MetricClass(string name, string description, bool isImmutable = true)
-            : base(name, description, isImmutable)
+        public MetricClass(string name, string description, bool keepHistory = true)
+            : base(name, description, keepHistory)
         {
         }
 

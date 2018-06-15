@@ -26,8 +26,8 @@ namespace Org.Apache.REEF.Common.Telemetry
     /// </summary>
     public class DoubleMetric : MetricBase<double>
     {
-        public DoubleMetric(string name, string description, bool isImmutable = true)
-            : base(name, description, isImmutable)
+        public DoubleMetric(string name, string description, bool keepHistory = true)
+            : base(name, description, keepHistory)
         {
         }
 
