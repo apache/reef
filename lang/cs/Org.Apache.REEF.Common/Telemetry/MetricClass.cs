@@ -41,11 +41,7 @@ namespace Org.Apache.REEF.Common.Telemetry
 
         public override void AssignNewValue(object val)
         {
-
-            if (val.GetType() != _typedValue.GetType())
-            {
-                throw new ApplicationException("Cannot assign new value to metric because of type mismatch.");
-            }
+            ValidateValueType(val);
             Interlocked.Exchange(ref _typedValue, (T)val);
             _tracker.Track(val);
         }

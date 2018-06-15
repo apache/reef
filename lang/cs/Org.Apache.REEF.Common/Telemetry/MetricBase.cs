@@ -78,16 +78,21 @@ namespace Org.Apache.REEF.Common.Telemetry
 
         public virtual void AssignNewValue(object val)
         {
-            if (val.GetType() != _typedValue.GetType())
-            {
-                throw new ApplicationException("Cannot assign new value to metric because of type mismatch.");
-            }
+            ValidateValueType(val);
 
             lock (_metricLock)
             {
                 _typedValue = (T)val;
             }
             _tracker.Track(val);
+        }
+
+        protected void ValidateValueType(object val)
+        {
+            if (val.GetType() != _typedValue.GetType())
+            {
+                throw new ApplicationException("Cannot assign new value to metric because of type mismatch.");
+            }
         }
 
         public IDisposable Subscribe(ITracker observer)
