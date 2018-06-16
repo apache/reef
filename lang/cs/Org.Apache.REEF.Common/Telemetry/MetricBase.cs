@@ -31,7 +31,7 @@ namespace Org.Apache.REEF.Common.Telemetry
 
         protected T _typedValue;
 
-        protected bool _keepHistory;
+        protected bool _keepUpdateHistory;
 
         private object _metricLock = new object();
 
@@ -56,24 +56,25 @@ namespace Org.Apache.REEF.Common.Telemetry
         {
             get
             {
-                return _keepHistory;
+                return _keepUpdateHistory;
             }
         }
 
-        public MetricBase(string name, string description, bool keepHistory = true)
+        public MetricBase(string name, string description, bool keepUpdateHistory = true)
         {
             Name = name;
             Description = description;
             _typedValue = default(T);
-            _keepHistory = keepHistory;
+            _keepUpdateHistory = keepUpdateHistory;
         }
 
         [JsonConstructor]
-        public MetricBase(string name, string description, T value)
+        public MetricBase(string name, string description, T value, bool keepUpdateHistory)
         {
             Name = name;
             Description = description;
             _typedValue = value;
+            _keepUpdateHistory = keepUpdateHistory;
         }
 
         public virtual void AssignNewValue(object val)

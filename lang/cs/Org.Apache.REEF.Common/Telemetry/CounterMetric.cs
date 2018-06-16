@@ -33,8 +33,8 @@ namespace Org.Apache.REEF.Common.Telemetry
         }
 
         [JsonConstructor]
-        internal CounterMetric(string name, string description, long timeStamp, int value)
-            : base(name, description, value)
+        internal CounterMetric(string name, string description, long timeStamp, int value, bool keepUpdateHistory)
+            : base(name, description, value, keepUpdateHistory)
         {
             _typedValue = value;
         }

@@ -32,8 +32,8 @@ namespace Org.Apache.REEF.Common.Telemetry
         }
 
         [JsonConstructor]
-        public LongMetric(string name, string description, long value)
-            : base(name, description, value)
+        public LongMetric(string name, string description, long value, bool keepUpdateHistory)
+            : base(name, description, value, keepUpdateHistory)
         {
         }
 

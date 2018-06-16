@@ -34,8 +34,8 @@ namespace Org.Apache.REEF.Common.Telemetry
         }
 
         [JsonConstructor]
-        public MetricClass(string name, string description, T value)
-            : base(name, description, value)
+        public MetricClass(string name, string description, T value, bool keepUpdateHistory)
+            : base(name, description, value, keepUpdateHistory)
         {
         }
 

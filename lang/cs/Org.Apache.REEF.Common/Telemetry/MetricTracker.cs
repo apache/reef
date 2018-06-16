@@ -16,7 +16,9 @@
 // under the License.
 
 using System;
+using System.Collections;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Threading;
 using Newtonsoft.Json;
 using Org.Apache.REEF.Utilities.Logging;
@@ -34,7 +36,7 @@ namespace Org.Apache.REEF.Common.Telemetry
         private static readonly Logger Logger = Logger.GetLogger(typeof(MetricTracker));
 
         [JsonProperty]
-        internal IMetric Metric;
+        private IMetric Metric;
 
         [JsonProperty]
         internal bool KeepUpdateHistory;
@@ -43,7 +45,7 @@ namespace Org.Apache.REEF.Common.Telemetry
         /// if KeepUpdateHistory is true, keeps a history of updates.
         /// </summary>
         [JsonProperty]
-        internal ConcurrentQueue<MetricRecord> Records;
+        private ConcurrentQueue<MetricRecord> Records;
         
         /// <summary>
         /// Number of times metric has been updated since last processed.
@@ -86,7 +88,7 @@ namespace Org.Apache.REEF.Common.Telemetry
         internal ConcurrentQueue<MetricRecord> FlushChangesSinceLastSink()
         {
             ConcurrentQueue<MetricRecord> records = new ConcurrentQueue<MetricRecord>();
-            if(!Records.IsEmpty)
+            if (!Records.IsEmpty)
             {
                 while (Records.TryDequeue(out MetricRecord record))
                 {
@@ -98,7 +100,7 @@ namespace Org.Apache.REEF.Common.Telemetry
                 // Records will be empty only on eval side when tracker doesn't keep history.
                 records.Enqueue(CreateMetricRecord(Metric));
             }
-            ChangesSinceLastSink = 0;
+            Interlocked.Exchange(ref ChangesSinceLastSink, 0);
             return records;
         }
 
@@ -111,20 +113,20 @@ namespace Org.Apache.REEF.Common.Telemetry
         {
             if (metric.ChangesSinceLastSink > 0)
             {
+                var recordsToAdd = metric.GetMetricRecords();
                 if (KeepUpdateHistory)
                 {
-                    var recordsToAdd = metric.GetMetricRecords();
-                    while(recordsToAdd.TryDequeue(out MetricRecord record))
+                    foreach(MetricRecord record in recordsToAdd)
                     {
                         Records.Enqueue(record);
                     }
                 }
                 else
                 {
-                    Interlocked.Exchange(ref Records, metric.GetMetricRecords());
+                    Interlocked.Exchange(ref Records, (ConcurrentQueue<MetricRecord>)recordsToAdd);
                 }
             }
-            ChangesSinceLastSink += metric.ChangesSinceLastSink;
+            Interlocked.Add(ref ChangesSinceLastSink, metric.ChangesSinceLastSink);
             return this;
         }
 
@@ -141,13 +143,14 @@ namespace Org.Apache.REEF.Common.Telemetry
         /// If KeepUpdateHistory is true, it will return all the records; otherwise, it will returen one record with the most recent value.
         /// </summary>
         /// <returns>The history of the metric records.</returns>
-        internal ConcurrentQueue<MetricRecord> GetMetricRecords()
+        internal ICollection GetMetricRecords()
         {
             if (Records.IsEmpty)
             {
-                var currentValueQ = new ConcurrentQueue<MetricRecord>();
-                currentValueQ.Enqueue(CreateMetricRecord(Metric));
-                return currentValueQ;
+                return new List<MetricRecord>()
+                {
+                    CreateMetricRecord(Metric)
+                };
             }
             else
             {
@@ -179,7 +182,7 @@ namespace Org.Apache.REEF.Common.Telemetry
         /// <param name="value">Value of the new record.</param>
         public void Track(object value)
         {
-            ChangesSinceLastSink++;
+            Interlocked.Increment(ref ChangesSinceLastSink);
             if (KeepUpdateHistory)
             {
                 Records.Enqueue(CreateMetricRecord(value));

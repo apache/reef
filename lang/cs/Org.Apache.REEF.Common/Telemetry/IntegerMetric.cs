@@ -32,8 +32,8 @@ namespace Org.Apache.REEF.Common.Telemetry
         }
 
         [JsonConstructor]
-        public IntegerMetric(string name, string description, int value)
-            : base(name, description, value)
+        public IntegerMetric(string name, string description, int value, bool keepUpdateHistory)
+            : base(name, description, value, keepUpdateHistory)
         {
         }
 

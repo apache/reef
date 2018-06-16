@@ -38,7 +38,7 @@ namespace Org.Apache.REEF.Common.Telemetry
         public DriverMetrics(string systemState)
         {
             _metrics = new MetricsData();
-            SystemState = new StringMetric(_stateMetricName, "driver state.", systemState);
+            SystemState = new StringMetric(_stateMetricName, "driver state.", systemState, false);
             _metrics.TryRegisterMetric(SystemState);
         }
 

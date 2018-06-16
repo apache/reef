@@ -60,8 +60,8 @@ namespace Org.Apache.REEF.Common.Tests.Telemetry
         public void TestMetricSetValue()
         {
             var metrics = CreateMetrics();
-            var intMetric = new IntegerMetric("IntMetric", "metric of type int", 0);
-            var doubleMetric = new DoubleMetric("DouMetric", "metric of type double", 0);
+            var intMetric = new IntegerMetric("IntMetric", "metric of type int", 0, true);
+            var doubleMetric = new DoubleMetric("DouMetric", "metric of type double", 0, true);
 
             metrics.TryRegisterMetric(intMetric);
             metrics.TryRegisterMetric(doubleMetric);
