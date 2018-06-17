@@ -28,6 +28,7 @@ import org.apache.reef.tang.formats.RequiredParameter;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
 
 /**
  * Configuration Module for the Azure Batch runtime.

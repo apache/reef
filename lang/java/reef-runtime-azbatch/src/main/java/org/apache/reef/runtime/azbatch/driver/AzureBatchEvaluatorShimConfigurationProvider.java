@@ -67,16 +67,8 @@ public class AzureBatchEvaluatorShimConfigurationProvider {
    */
   public Configuration getConfiguration(final String containerId) {
 
-    ArrayList<Integer> ports = new ArrayList<>();
-    for(Integer port: this.portProvider) {
-      ports.add(port);
-    }
-
-    final String availablePortsList = StringUtils.join(ports, TcpPortList.SEPARATOR);
-
     return EvaluatorShimConfiguration.CONF.getBuilder()
         .bindImplementation(LocalAddressProvider.class, this.localAddressProvider.getClass())
-        .bindNamedParameter(TcpPortList.class, availablePortsList)
         .bindImplementation(TcpPortProvider.class, this.portProvider.getClass())
         .build()
         .set(EvaluatorShimConfiguration.DRIVER_REMOTE_IDENTIFIER, this.remoteManager.getMyIdentifier())

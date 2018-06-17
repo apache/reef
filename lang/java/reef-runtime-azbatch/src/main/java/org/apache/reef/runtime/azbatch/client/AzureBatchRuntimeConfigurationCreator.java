@@ -25,6 +25,9 @@ import org.apache.reef.runtime.azbatch.util.command.LinuxCommandBuilder;
 import org.apache.reef.runtime.azbatch.util.command.WindowsCommandBuilder;
 import org.apache.reef.tang.formats.ConfigurationModule;
 import org.apache.reef.tang.formats.ConfigurationModuleBuilder;
+import org.apache.reef.wake.remote.ports.ListTcpPortProvider;
+import org.apache.reef.wake.remote.ports.TcpPortProvider;
+import org.apache.reef.wake.remote.ports.parameters.TcpPortList;
 
 /**
  * Class that builds the ConfigurationModule for Azure Batch runtime.
@@ -41,21 +44,28 @@ public final class AzureBatchRuntimeConfigurationCreator {
    * Get or create a {@link ConfigurationModule} for the Azure Batch runtime.
    *
    * @param isWindows true if Azure Batch pool nodes run Windows, false otherwise.
+   * @param isDockerContainer true if Azure Batch pool nodes are container-based, false otherwise.
    * @return the configuration module object.
    */
-  public static ConfigurationModule getOrCreateAzureBatchRuntimeConfiguration(final boolean isWindows) {
+  public static ConfigurationModule getOrCreateAzureBatchRuntimeConfiguration(
+      final boolean isWindows,
+      final boolean isDockerContainer) {
 
     if (AzureBatchRuntimeConfigurationCreator.conf == null) {
       ConfigurationModuleBuilder builder = AzureBatchRuntimeConfigurationStatic.CONF;
-      ConfigurationModule module;
+
       if (isWindows) {
-        module = builder.bindImplementation(CommandBuilder.class, WindowsCommandBuilder.class).build();
+        builder = builder.bindImplementation(CommandBuilder.class, WindowsCommandBuilder.class);
       } else {
-        module = builder.bindImplementation(CommandBuilder.class, LinuxCommandBuilder.class).build();
+        builder = builder.bindImplementation(CommandBuilder.class, LinuxCommandBuilder.class);
+      }
+
+      if (isDockerContainer) {
+        builder = builder.bindImplementation(TcpPortProvider.class, ListTcpPortProvider.class);
       }
 
       AzureBatchRuntimeConfigurationCreator.conf = new AzureBatchRuntimeConfiguration()
-          .merge(module)
+          .merge(builder.build())
           .bindNamedParameter(AzureBatchAccountName.class, AzureBatchRuntimeConfiguration.AZURE_BATCH_ACCOUNT_NAME)
           .bindNamedParameter(AzureBatchAccountUri.class, AzureBatchRuntimeConfiguration.AZURE_BATCH_ACCOUNT_URI)
           .bindNamedParameter(AzureBatchAccountKey.class, AzureBatchRuntimeConfiguration.AZURE_BATCH_ACCOUNT_KEY)

@@ -21,7 +21,6 @@ package org.apache.reef.bridge.client;
 import org.apache.avro.io.DecoderFactory;
 import org.apache.avro.io.JsonDecoder;
 import org.apache.avro.specific.SpecificDatumReader;
-import org.apache.commons.lang.StringUtils;
 import org.apache.reef.annotations.audience.Interop;
 import org.apache.reef.reef.bridge.client.avro.AvroAzureBatchJobSubmissionParameters;
 import org.apache.reef.runtime.azbatch.AzureBatchClasspathProvider;
@@ -142,12 +141,12 @@ public final class AzureBatchBootstrapREEFLauncher {
 
   private static Configuration generateConfiguration(
       final AvroAzureBatchJobSubmissionParameters avroAzureBatchJobSubmissionParameters) {
-    return TANG.newConfigurationBuilder()
-        .bindImplementation(DriverConfigurationProvider.class, AzureBatchDriverConfigurationProviderImpl.class)
-        .bindImplementation(RuntimeClasspathProvider.class, AzureBatchClasspathProvider.class)
-        .bindImplementation(RuntimePathProvider.class, AzureBatchJVMPathProvider.class)
-        .bindImplementation(CommandBuilder.class, WindowsCommandBuilder.class)
-        .bindNamedParameter(AzureBatchAccountName.class,
+      Boolean isDockerContainer = avroAzureBatchJobSubmissionParameters.getAzureBatchPoolDriverPortsList().size() > 0;
+      return AzureBatchRuntimeConfigurationCreator
+        .getOrCreateAzureBatchRuntimeConfiguration(
+            avroAzureBatchJobSubmissionParameters.getAzureBatchIsWindows(),
+            isDockerContainer)
+        .set(AzureBatchRuntimeConfiguration.AZURE_BATCH_ACCOUNT_NAME,
             avroAzureBatchJobSubmissionParameters.getAzureBatchAccountName().toString())
         .bindNamedParameter(AzureBatchAccountUri.class,
             avroAzureBatchJobSubmissionParameters.getAzureBatchAccountUri().toString())

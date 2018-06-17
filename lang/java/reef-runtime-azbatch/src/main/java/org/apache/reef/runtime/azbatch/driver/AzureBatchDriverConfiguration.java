@@ -41,6 +41,9 @@ import org.apache.reef.tang.formats.ConfigurationModule;
 import org.apache.reef.tang.formats.ConfigurationModuleBuilder;
 import org.apache.reef.tang.formats.OptionalParameter;
 import org.apache.reef.tang.formats.RequiredParameter;
+import org.apache.reef.wake.remote.ports.parameters.TcpPortList;
+
+import java.util.List;
 
 /**
  * ConfigurationModule to create Azure Batch Driver configurations.
@@ -95,6 +98,7 @@ public final class AzureBatchDriverConfiguration extends ConfigurationModuleBuil
   public static final RequiredParameter<String> AZURE_STORAGE_CONTAINER_NAME = new RequiredParameter<>();
 
   /**
+<<<<<<< Updated upstream
    * Container Registry Server.
    */
   public static final OptionalParameter<String> CONTAINER_REGISTRY_SERVER = new OptionalParameter<>();
@@ -108,6 +112,16 @@ public final class AzureBatchDriverConfiguration extends ConfigurationModuleBuil
    * Container Registry password.
    */
   public static final OptionalParameter<String> CONTAINER_REGISTRY_PASSWORD = new OptionalParameter<>();
+
+  /**
+   * The pool is docker container based.
+   */
+  public static final RequiredParameter<Boolean> IS_CONTAINER_BASED_POOL = new RequiredParameter<>();
+
+  /**
+   * The comma-separated list of ports for Azure Batch containers.
+   */
+  public static final OptionalParameter<List> AZURE_BATCH_CONTAINER_PORT_LIST = new OptionalParameter<>();
 
   /**
    * The fraction of the container memory NOT to use for the Java Heap.
@@ -142,6 +156,8 @@ public final class AzureBatchDriverConfiguration extends ConfigurationModuleBuil
       .bindNamedParameter(ClientRemoteIdentifier.class, CLIENT_REMOTE_IDENTIFIER)
       .bindNamedParameter(ErrorHandlerRID.class, CLIENT_REMOTE_IDENTIFIER)
       .bindNamedParameter(JVMHeapSlack.class, JVM_HEAP_SLACK)
+      .bindList(TcpPortList.class, AZURE_BATCH_CONTAINER_PORT_LIST)
+      .bindNamedParameter(IsContainerBased.class, IS_CONTAINER_BASED_POOL)
       .bindImplementation(RuntimeClasspathProvider.class, AzureBatchClasspathProvider.class)
       .bindImplementation(RuntimePathProvider.class, AzureBatchJVMPathProvider.class)
       .bindSetEntry(DefinedRuntimes.class, RUNTIME_NAME)

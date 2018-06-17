@@ -24,9 +24,9 @@ import org.apache.reef.tang.annotations.Parameter;
 import org.apache.reef.wake.remote.ports.parameters.TcpPortList;
 
 import javax.inject.Inject;
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -34,6 +34,7 @@ import java.util.logging.Logger;
  */
 public final class ListTcpPortProvider implements TcpPortProvider {
 
+  private static final Logger LOG = Logger.getLogger(ListTcpPortProvider.class.getName());
   private final List<Integer> tcpPortList;
 
   @Inject
