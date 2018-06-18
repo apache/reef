@@ -40,7 +40,7 @@ public final class ListTcpPortProvider implements TcpPortProvider {
   @Inject
   public ListTcpPortProvider(@Parameter(TcpPortList.class) final List<Integer> tcpPortList) {
     this.tcpPortList = tcpPortList;
-    LOG.log(Level.FINE, "Instantiating " + this);
+    LOG.log(Level.FINE, "Instantiating {0}", this);
   }
 
   /**

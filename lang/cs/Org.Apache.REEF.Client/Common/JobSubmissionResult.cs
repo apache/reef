@@ -147,13 +147,13 @@ namespace Org.Apache.REEF.Client.Common
             {
                 // Add sleep in while loop, whose value alligns with default heart beat interval.
                 Thread.Sleep(DriverStatusIntervalInMilliSecond);
-                LOGGER.Log(Level.Info, "DriverStatus is " + status);
+                LOGGER.Log(Level.Info, "DriverStatus is {0}", status);
 
                 try
                 {
                     status = FetchDriverStatus();
                 }
-                catch (WebException e)
+                catch (WebException)
                 {
                     // If we no longer can reach the Driver, it must have exited.
                     status = DriverStatus.UNKNOWN_EXITED;

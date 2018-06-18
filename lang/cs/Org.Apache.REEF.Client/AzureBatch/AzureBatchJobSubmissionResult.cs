@@ -35,8 +35,7 @@ namespace Org.Apache.REEF.Client.AzureBatch
         private const string AzureBatchTaskWorkDirectory = "wd";
         private readonly AzureBatchService _azurebatchService;
         private readonly string _jobId;
-        private readonly int _numberOfRetries;
-        private readonly int _retryInterval;
+        private readonly RetryPolicy _policy;
 
         internal AzureBatchJobSubmissionResult(IREEFClient reefClient,
             string filePath,
@@ -46,15 +45,13 @@ namespace Org.Apache.REEF.Client.AzureBatch
             AzureBatchService azbatchService) : base(reefClient, filePath, numberOfRetries, retryInterval)
         {
             _jobId = jobId;
-            _numberOfRetries = numberOfRetries;
-            _retryInterval = retryInterval;
             _azurebatchService = azbatchService;
+            _policy = new RetryPolicy<AllErrorsTransientStrategy>(numberOfRetries, TimeSpan.FromMilliseconds(retryInterval));
         }
 
         protected override string GetDriverUrl(string filepath)
         {
-            var policy = new RetryPolicy<AllErrorsTransientStrategy>(_numberOfRetries, TimeSpan.FromMilliseconds(_retryInterval));
-            return policy.ExecuteAction(() => GetDriverUrlInternal(filepath));
+            return _policy.ExecuteAction(() => GetDriverUrlInternal(filepath));
         }
 
         private string GetDriverUrlInternal(string filepath)
@@ -71,31 +68,13 @@ namespace Org.Apache.REEF.Client.AzureBatch
                 throw new InvalidOperationException("driver http endpoint file is not ready.", e);
             }
 
-            string driverHostData = httpEndPointFile.ReadAsString();
-            string driverHost;
-            if (driverHostData.Length > 0)
-            {
-                //// Remove last charactor '\n'
-                driverHost = driverHostData.Substring(0, driverHostData.Length - 1);
-            }
-            else
-            {
-                LOGGER.Log(Level.Warning, "unable to get driver http endpoint. The format in remote file is not correct.");
-                //// Returns null to exit retry policy since it is not recoverable.
-                return null;
-            }
+            string driverHost = httpEndPointFile.ReadAsString().TrimEnd('\r', '\n', ' ');
 
             //// Get port
             string[] driverIpAndPorts = driverHost.Split(':');
-            string backendPort;
-            if (driverIpAndPorts.Length > 1)
+            if (driverIpAndPorts.Length <= 1 || !int.TryParse(driverIpAndPorts[1], out int backendPort))
             {
-                backendPort = driverIpAndPorts[1];
-            }
-            else
-            {
-                LOGGER.Log(Level.Warning, "unable to get driver http endpoint port. The format in remote file is not correct.");
-                //// Returns null to exit retry policy since it is not recoverable.
+                LOGGER.Log(Level.Warning, "Unable to get driver http endpoint port from: {0}", driverHost);
                 return null;
             }
 
@@ -105,7 +84,7 @@ namespace Org.Apache.REEF.Client.AzureBatch
             string driverNodeId = driverTask.ComputeNodeInformation.ComputeNodeId;
             ComputeNode driverNode = _azurebatchService.GetComputeNodeFromNodeId(driverNodeId);
             IReadOnlyList<InboundEndpoint> inboundEndpoints = driverNode.EndpointConfiguration.InboundEndpoints;
-            InboundEndpoint endpoint = inboundEndpoints.FirstOrDefault(s => s.BackendPort.ToString().Equals(backendPort));
+            InboundEndpoint endpoint = inboundEndpoints.FirstOrDefault(s => s.BackendPort == backendPort);
 
             if (endpoint != null)
             {
