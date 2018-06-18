@@ -26,10 +26,15 @@ namespace Org.Apache.REEF.Common.Telemetry
     /// </summary>
     public sealed class CounterMetric : MetricBase<int>, ICounter
     {
-        public CounterMetric(string name, string description, bool keepHistory = false)
+        public CounterMetric() : base()
+        {
+            _typedValue = default;
+        }
+
+        internal CounterMetric(string name, string description, bool keepHistory = false)
             : base(name, description, keepHistory)
         {
-            _typedValue = default(int);
+            _typedValue = default;
         }
 
         [JsonConstructor]

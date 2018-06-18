@@ -36,20 +36,20 @@ namespace Org.Apache.REEF.Tests.Functional.Telemetry
 
         private readonly MetricsData _metricSet;
 
-        public CounterMetric metric1 = new CounterMetric(TestCounter, TestCounter + " description");
-        public IntegerMetric metric2 = new IntegerMetric(TestIntMetric, TestIntMetric + " description");
+        public CounterMetric metric1;
+        public IntegerMetric metric2;
 
         [Inject]
         private MetricsTask(IEvaluatorMetrics evaluatorMetrics)
         {
             _metricSet = evaluatorMetrics.GetMetricsData();
-            _metricSet.TryRegisterMetric(metric1);
-            _metricSet.TryRegisterMetric(metric2);
+            metric1 = (CounterMetric)evaluatorMetrics.CreateAndRegisterMetric<CounterMetric, int>(TestCounter, TestCounter + " description", false);
+            metric2 = (IntegerMetric)evaluatorMetrics.CreateAndRegisterMetric<IntegerMetric, int>(TestIntMetric, TestIntMetric + " description", true);
         }
 
         public byte[] Call(byte[] memento)
         {
-            for (int i = 1; i <= 3000; i++)
+            for (int i = 1; i <= 2000; i++)
             {
                 metric1.Increment();
                 metric2.AssignNewValue(i);

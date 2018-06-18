@@ -26,6 +26,8 @@ namespace Org.Apache.REEF.Common.Telemetry
     /// </summary>
     public class FloatMetric : MetricBase<float>
     {
+        public FloatMetric() : base() { }
+
         public FloatMetric(string name, string description, bool keepUpdateHistory = true)
             : base(name, description, keepUpdateHistory)
         {

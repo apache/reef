@@ -34,5 +34,8 @@ namespace Org.Apache.REEF.Common.Telemetry
         /// </summary>
         /// <returns>Returns serialized string of metrics</returns>
         string Serialize();
+
+        IMetric CreateAndRegisterMetric<T, U>(string name, string description, bool keepUpateHistory)
+            where T : MetricBase<U>, new();
     }
 }

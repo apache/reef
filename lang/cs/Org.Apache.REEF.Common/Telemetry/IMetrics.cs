@@ -22,14 +22,16 @@ using Org.Apache.REEF.Utilities.Attributes;
 
 namespace Org.Apache.REEF.Common.Telemetry
 {
+    /// <summary>
+    /// Interface for a collection of metrics.
+    /// </summary>
     public interface IMetrics
     {
         /// <summary>
         /// Register a new metric.
         /// </summary>
         /// <param name="metric">The metric to be registered.</param>
-        /// <returns>Returns a boolean to indicate if the metric has been added.</returns>
-        bool TryRegisterMetric(IMetric metric);
+        void RegisterMetric(IMetric metric);
 
         /// <summary>
         /// Get metric value given the metric name.

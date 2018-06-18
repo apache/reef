@@ -29,15 +29,15 @@ namespace Org.Apache.REEF.Common.Telemetry
     {
         protected ITracker _tracker;
 
-        protected T _typedValue;
+        internal T _typedValue;
 
-        protected bool _keepUpdateHistory;
+        internal bool _keepUpdateHistory;
 
         private object _metricLock = new object();
 
-        public string Name { get; }
+        public string Name { get; internal set; }
 
-        public string Description { get; }
+        public string Description { get; internal set; }
 
         public virtual object ValueUntyped
         {
@@ -58,6 +58,10 @@ namespace Org.Apache.REEF.Common.Telemetry
             {
                 return _keepUpdateHistory;
             }
+        }
+
+        public MetricBase()
+        {
         }
 
         public MetricBase(string name, string description, bool keepUpdateHistory = true)

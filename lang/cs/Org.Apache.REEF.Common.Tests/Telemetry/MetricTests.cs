@@ -25,32 +25,29 @@ namespace Org.Apache.REEF.Common.Tests.Telemetry
     public class MetricsTests
     {
         /// <summary>
-        /// Test IMetrics, ICounters and IEvaluatorMetrics API.
+        /// Creates and registers a counter metric without tracking to the Evaluator metrics, alters the values, then serializes and deserializes.
         /// </summary>
         [Fact]
         public void TestEvaluatorMetricsCountersOnly()
         {
             var evalMetrics1 = TangFactory.GetTang().NewInjector().GetInstance<IEvaluatorMetrics>();
-            var metrics1 = evalMetrics1.GetMetricsData();
-            var counter1 = new CounterMetric("counter1", "counter1 description");
-            metrics1.TryRegisterMetric(counter1);
-            ValidateMetric(metrics1, "counter1", 0);
+            var counter1 = (CounterMetric)evalMetrics1.CreateAndRegisterMetric<CounterMetric, int>("counter1", "Counter1 description", false);
             for (int i = 0; i < 5; i++)
             {
                 counter1.Increment();
             }
-            ValidateMetric(metrics1, "counter1", 5);
+            var metricsSet = evalMetrics1.GetMetricsData();
+            ValidateMetric(metricsSet, "counter1", 5);
 
-            var counterStr = metrics1.SerializeAndReset();
-            var trackers = metrics1.GetMetrics();
+            var trackers = metricsSet.GetMetrics();
             foreach (var t in trackers)
             {
                 Assert.Equal(1, t.GetMetricRecords().Count);
             }
 
-            var evalMetrics2 = new EvaluatorMetrics(counterStr);
-            var metrics2 = evalMetrics2.GetMetricsData();
-            ValidateMetric(metrics2, "counter1", 5);
+            var metricsStr = evalMetrics1.Serialize();
+            var evalMetrics2 = new EvaluatorMetrics(metricsStr);
+            ValidateMetric(evalMetrics2.GetMetricsData(), "counter1", 5);
         }
 
         /// <summary>
@@ -59,12 +56,10 @@ namespace Org.Apache.REEF.Common.Tests.Telemetry
         [Fact]
         public void TestMetricSetValue()
         {
-            var metrics = CreateMetrics();
-            var intMetric = new IntegerMetric("IntMetric", "metric of type int", 0, true);
-            var doubleMetric = new DoubleMetric("DouMetric", "metric of type double", 0, true);
-
-            metrics.TryRegisterMetric(intMetric);
-            metrics.TryRegisterMetric(doubleMetric);
+            var evalMetrics1 = TangFactory.GetTang().NewInjector().GetInstance<IEvaluatorMetrics>();
+            var intMetric = (IntegerMetric)evalMetrics1.CreateAndRegisterMetric<IntegerMetric, int>("IntMetric", "metric of type int", true);
+            var doubleMetric = (DoubleMetric)evalMetrics1.CreateAndRegisterMetric<DoubleMetric, double>("DouMetric", "metric of type double", true);
+            var metrics = evalMetrics1.GetMetricsData();
             ValidateMetric(metrics, "IntMetric", default(int));
             ValidateMetric(metrics, "DouMetric", default(double));
 
@@ -82,8 +77,8 @@ namespace Org.Apache.REEF.Common.Tests.Telemetry
         public void TestDuplicatedNames()
         {
             var metrics = CreateMetrics();
-            Assert.True(metrics.TryRegisterMetric(new CounterMetric("metric1", "metric description")));
-            Assert.False(metrics.TryRegisterMetric(new CounterMetric("metric1", "duplicate name")));
+            metrics.RegisterMetric(new CounterMetric("metric1", "metric description"));
+            Assert.Throws<ArgumentException>(() => metrics.RegisterMetric(new CounterMetric("metric1", "duplicate name")));
         }
 
         [Fact]
@@ -91,7 +86,7 @@ namespace Org.Apache.REEF.Common.Tests.Telemetry
         {
             var metrics = CreateMetrics();
             var douMetric = new DoubleMetric("dou", "Metric of type double.");
-            metrics.TryRegisterMetric(douMetric);
+            metrics.RegisterMetric(douMetric);
             Assert.Throws<ApplicationException>(() => douMetric.AssignNewValue(3));
         }
 
@@ -102,8 +97,8 @@ namespace Org.Apache.REEF.Common.Tests.Telemetry
             var metrics1 = evalMetrics1.GetMetricsData();
             var counter = new CounterMetric("counter", "counter with no records");
             var iter = new IntegerMetric("iteration", "iteration with records");
-            metrics1.TryRegisterMetric(counter);
-            metrics1.TryRegisterMetric(iter);
+            metrics1.RegisterMetric(counter);
+            metrics1.RegisterMetric(iter);
             for (int i = 0; i < 5; i++)
             {
                 counter.Increment();

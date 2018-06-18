@@ -39,7 +39,7 @@ namespace Org.Apache.REEF.Common.Telemetry
         {
             _metrics = new MetricsData();
             SystemState = new StringMetric(_stateMetricName, "driver state.", systemState, false);
-            _metrics.TryRegisterMetric(SystemState);
+            _metrics.RegisterMetric(SystemState);
         }
 
         public MetricsData GetMetricsData()

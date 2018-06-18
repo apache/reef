@@ -15,6 +15,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
@@ -70,14 +71,12 @@ namespace Org.Apache.REEF.Common.Telemetry
         /// </summary>
         /// <param name="metric">Metric to register.</param>
         /// <returns>Indicates if the metric was registered.</returns>
-        public bool TryRegisterMetric(IMetric metric)
+        public void RegisterMetric(IMetric metric)
         {
             if (!_metricsMap.TryAdd(metric.Name, new MetricTracker(metric)))
             {
-                Logger.Log(Level.Warning, "The metric [{0}] already exists.", metric.Name);
-                return false;
+                throw new ArgumentException("The metric [{0}] already exists.", metric.Name);
             }
-            return true;
         }
 
         /// <summary>
