@@ -59,7 +59,6 @@ public final class AzureBatchDriverConfigurationProviderImpl implements DriverCo
   private final String containerRegistryPassword;
   private final CommandBuilder commandBuilder;
   private final List<String> azureBatchContainerPortList;
-  private final Boolean isDockerContainer;
   private final static String SEPARATOR = ",";
 
   @Inject
@@ -89,12 +88,6 @@ public final class AzureBatchDriverConfigurationProviderImpl implements DriverCo
     String[] ports = StringUtils.split(azureBatchContainerPortList, SEPARATOR);
     for (int i = 0; i < ports.length; i++) {
       this.azureBatchContainerPortList.add(ports[i]);
-    }
-
-    if (ports.length > 0) {
-      this.isDockerContainer = true;
-    } else {
-      this.isDockerContainer = false;
     }
   }
 
@@ -138,7 +131,6 @@ public final class AzureBatchDriverConfigurationProviderImpl implements DriverCo
             .set(AzureBatchDriverConfiguration.CONTAINER_REGISTRY_USERNAME, this.containerRegistryUsername)
             .set(AzureBatchDriverConfiguration.CONTAINER_REGISTRY_PASSWORD, this.containerRegistryPassword)
             .set(AzureBatchDriverConfiguration.AZURE_BATCH_CONTAINER_PORT_LIST, this.azureBatchContainerPortList)
-            .set(AzureBatchDriverConfiguration.IS_CONTAINER_BASED_POOL, this.isDockerContainer)
             .build();
     return Configurations.merge(driverConfiguration, applicationConfiguration);
   }

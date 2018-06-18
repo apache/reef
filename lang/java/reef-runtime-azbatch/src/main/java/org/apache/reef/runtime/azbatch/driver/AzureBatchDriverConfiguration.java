@@ -114,11 +114,6 @@ public final class AzureBatchDriverConfiguration extends ConfigurationModuleBuil
   public static final OptionalParameter<String> CONTAINER_REGISTRY_PASSWORD = new OptionalParameter<>();
 
   /**
-   * The pool is docker container based.
-   */
-  public static final RequiredParameter<Boolean> IS_CONTAINER_BASED_POOL = new RequiredParameter<>();
-
-  /**
    * The comma-separated list of ports for Azure Batch containers.
    */
   public static final OptionalParameter<List> AZURE_BATCH_CONTAINER_PORT_LIST = new OptionalParameter<>();
@@ -157,7 +152,6 @@ public final class AzureBatchDriverConfiguration extends ConfigurationModuleBuil
       .bindNamedParameter(ErrorHandlerRID.class, CLIENT_REMOTE_IDENTIFIER)
       .bindNamedParameter(JVMHeapSlack.class, JVM_HEAP_SLACK)
       .bindList(TcpPortList.class, AZURE_BATCH_CONTAINER_PORT_LIST)
-      .bindNamedParameter(IsContainerBased.class, IS_CONTAINER_BASED_POOL)
       .bindImplementation(RuntimeClasspathProvider.class, AzureBatchClasspathProvider.class)
       .bindImplementation(RuntimePathProvider.class, AzureBatchJVMPathProvider.class)
       .bindSetEntry(DefinedRuntimes.class, RUNTIME_NAME)
