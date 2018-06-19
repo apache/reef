@@ -153,10 +153,11 @@ namespace Org.Apache.REEF.Client.Common
                 {
                     status = FetchDriverStatus();
                 }
-                catch (WebException)
+                catch (WebException e)
                 {
                     // If we no longer can reach the Driver, it must have exited.
                     status = DriverStatus.UNKNOWN_EXITED;
+                    LOGGER.Log(Level.Warning, "Driver unreacheable. Exiting now.", e);
                 }
             }
         }
