@@ -22,10 +22,7 @@ import com.microsoft.azure.batch.BatchClient;
 import com.microsoft.azure.batch.protocol.models.*;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.reef.runtime.azbatch.parameters.AzureBatchPoolId;
-import org.apache.reef.runtime.azbatch.parameters.ContainerRegistryPassword;
-import org.apache.reef.runtime.azbatch.parameters.ContainerRegistryServer;
-import org.apache.reef.runtime.azbatch.parameters.ContainerRegistryUsername;
+import org.apache.reef.runtime.azbatch.parameters.*;
 import org.apache.reef.runtime.azbatch.util.AzureBatchFileNames;
 import org.apache.reef.runtime.azbatch.util.storage.SharedAccessSignatureCloudBlobClientProvider;
 import org.apache.reef.tang.annotations.Parameter;
@@ -59,6 +56,7 @@ public final class AzureBatchHelper {
   private final PoolInformation poolInfo;
   private final TcpPortProvider portProvider;
   private final ContainerRegistry containerRegistry;
+  private final String containerImageName;
 
   @Inject
   public AzureBatchHelper(
@@ -68,6 +66,7 @@ public final class AzureBatchHelper {
       @Parameter(ContainerRegistryServer.class) final String containerRegistryServer,
       @Parameter(ContainerRegistryUsername.class) final String containerRegistryUsername,
       @Parameter(ContainerRegistryPassword.class) final String containerRegistryPassword,
+      @Parameter(ContainerImageName.class) final String containerImageName,
       @Parameter(AzureBatchPoolId.class) final String azureBatchPoolId) {
     this.azureBatchFileNames = azureBatchFileNames;
 
@@ -79,8 +78,10 @@ public final class AzureBatchHelper {
           .withRegistryServer(containerRegistryServer)
           .withUserName(containerRegistryUsername)
           .withPassword(containerRegistryPassword);
+      this.containerImageName = containerImageName;
     } else {
       this.containerRegistry = null;
+      this.containerImageName = null;
     }
   }
 
@@ -125,7 +126,7 @@ public final class AzureBatchHelper {
     if (this.containerRegistry != null) {
       containerSettings = new TaskContainerSettings()
           .withRegistry(this.containerRegistry)
-          .withImageName("sharathmcontainerreg.azurecr.io/ubuntuwithjdk")
+          .withImageName(this.containerImageName)
           .withContainerRunOptions("-dit --env HOST_IP_ADDR_PATH=$AZ_BATCH_JOB_PREP_DIR/hostip.txt " + portMappings);
       String captureIpAddressCommandLine =
           "/bin/bash -c \"rm -f $AZ_BATCH_JOB_PREP_DIR/hostip.txt;" +
@@ -196,7 +197,7 @@ public final class AzureBatchHelper {
     if (this.containerRegistry != null) {
       containerSettings = new TaskContainerSettings()
           .withRegistry(this.containerRegistry)
-          .withImageName("sharathmcontainerreg.azurecr.io/ubuntuwithjdk")
+          .withImageName(this.containerImageName)
           .withContainerRunOptions("--env HOST_IP_ADDR_PATH=$AZ_BATCH_JOB_PREP_DIR/hostip.txt " + portMappings);
     }
 

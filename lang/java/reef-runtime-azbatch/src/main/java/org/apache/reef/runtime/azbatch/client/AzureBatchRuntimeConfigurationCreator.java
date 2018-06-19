@@ -27,7 +27,7 @@ import org.apache.reef.tang.formats.ConfigurationModule;
 import org.apache.reef.tang.formats.ConfigurationModuleBuilder;
 import org.apache.reef.wake.remote.ports.ListTcpPortProvider;
 import org.apache.reef.wake.remote.ports.TcpPortProvider;
-import org.apache.reef.wake.remote.ports.parameters.TcpPortList;
+import org.apache.reef.wake.remote.ports.parameters.TcpPortListString;
 
 /**
  * Class that builds the ConfigurationModule for Azure Batch runtime.
@@ -75,6 +75,8 @@ public final class AzureBatchRuntimeConfigurationCreator {
           .bindNamedParameter(ContainerRegistryServer.class, AzureBatchRuntimeConfiguration.CONTAINER_REGISTRY_SERVER)
           .bindNamedParameter(ContainerRegistryUsername.class, AzureBatchRuntimeConfiguration.CONTAINER_REGISTRY_USERNAME)
           .bindNamedParameter(ContainerRegistryPassword.class, AzureBatchRuntimeConfiguration.CONTAINER_REGISTRY_PASSWORD)
+          .bindNamedParameter(ContainerImageName.class, AzureBatchRuntimeConfiguration.CONTAINER_IMAGE_NAME)
+          .bindNamedParameter(TcpPortListString.class, AzureBatchRuntimeConfiguration.TCP_PORT_LIST_STRING)
           .bindNamedParameter(
               AzureStorageContainerName.class, AzureBatchRuntimeConfiguration.AZURE_STORAGE_CONTAINER_NAME)
           .build();

@@ -27,7 +27,6 @@ import org.apache.reef.runtime.azbatch.util.command.CommandBuilder;
 import org.apache.reef.runtime.common.client.DriverConfigurationProvider;
 import org.apache.reef.runtime.common.parameters.JVMHeapSlack;
 import org.apache.reef.tang.Configuration;
-import org.apache.reef.tang.ConfigurationBuilder;
 import org.apache.reef.tang.Configurations;
 import org.apache.reef.tang.annotations.Parameter;
 import org.apache.reef.tang.formats.ConfigurationModuleBuilder;
@@ -35,7 +34,7 @@ import org.apache.reef.wake.remote.address.ContainerBasedLocalAddressProvider;
 import org.apache.reef.wake.remote.address.LocalAddressProvider;
 import org.apache.reef.wake.remote.ports.ListTcpPortProvider;
 import org.apache.reef.wake.remote.ports.TcpPortProvider;
-import org.apache.reef.wake.remote.ports.parameters.TcpPortList;
+import org.apache.reef.wake.remote.ports.parameters.TcpPortListString;
 
 import javax.inject.Inject;
 import java.net.URI;
@@ -57,9 +56,9 @@ public final class AzureBatchDriverConfigurationProviderImpl implements DriverCo
   private final String containerRegistryServer;
   private final String containerRegistryUsername;
   private final String containerRegistryPassword;
+  private final String containerImageName;
   private final CommandBuilder commandBuilder;
-  private final List<String> azureBatchContainerPortList;
-  private final static String SEPARATOR = ",";
+  private final String tcpPortListString;
 
   @Inject
   private AzureBatchDriverConfigurationProviderImpl(
@@ -72,7 +71,8 @@ public final class AzureBatchDriverConfigurationProviderImpl implements DriverCo
       @Parameter(ContainerRegistryServer.class) final String containerRegistryServer,
       @Parameter(ContainerRegistryUsername.class) final String containerRegistryUsername,
       @Parameter(ContainerRegistryPassword.class) final String containerRegistryPassword,
-      @Parameter(AzureBatchContainerPortList.class) final String azureBatchContainerPortList,
+      @Parameter(ContainerImageName.class) final String containerImageName,
+      @Parameter(TcpPortListString.class) final String tcpPortListString,
       final CommandBuilder commandBuilder) {
     this.jvmSlack = jvmSlack;
     this.azureBatchAccountUri = azureBatchAccountUri;
@@ -83,12 +83,9 @@ public final class AzureBatchDriverConfigurationProviderImpl implements DriverCo
     this.containerRegistryServer = containerRegistryServer;
     this.containerRegistryUsername = containerRegistryUsername;
     this.containerRegistryPassword = containerRegistryPassword;
+    this.containerImageName = containerImageName;
     this.commandBuilder = commandBuilder;
-    this.azureBatchContainerPortList = new ArrayList<>();
-    String[] ports = StringUtils.split(azureBatchContainerPortList, SEPARATOR);
-    for (int i = 0; i < ports.length; i++) {
-      this.azureBatchContainerPortList.add(ports[i]);
-    }
+    this.tcpPortListString = tcpPortListString;
   }
 
   /**
@@ -108,7 +105,7 @@ public final class AzureBatchDriverConfigurationProviderImpl implements DriverCo
 
 
     ConfigurationModuleBuilder driverConfigurationBuilder = AzureBatchDriverConfiguration.CONF.getBuilder()
-            .bindImplementation(CommandBuilder.class, this.commandBuilder.getClass());
+        .bindImplementation(CommandBuilder.class, this.commandBuilder.getClass());
 
     // If using docker containers, then use a different set of bindings
     if (!StringUtils.isEmpty(this.containerRegistryServer)) {
@@ -118,20 +115,21 @@ public final class AzureBatchDriverConfigurationProviderImpl implements DriverCo
     }
 
     Configuration driverConfiguration = driverConfigurationBuilder.build()
-            .set(AzureBatchDriverConfiguration.JOB_IDENTIFIER, jobId)
-            .set(AzureBatchDriverConfiguration.CLIENT_REMOTE_IDENTIFIER, clientRemoteId)
-            .set(AzureBatchDriverConfiguration.JVM_HEAP_SLACK, this.jvmSlack)
-            .set(AzureBatchDriverConfiguration.RUNTIME_NAME, RuntimeIdentifier.RUNTIME_NAME)
-            .set(AzureBatchDriverConfiguration.AZURE_BATCH_ACCOUNT_URI, this.azureBatchAccountUri)
-            .set(AzureBatchDriverConfiguration.AZURE_BATCH_ACCOUNT_NAME, this.azureBatchAccountName)
-            .set(AzureBatchDriverConfiguration.AZURE_BATCH_POOL_ID, this.azureBatchPoolId)
-            .set(AzureBatchDriverConfiguration.AZURE_STORAGE_ACCOUNT_NAME, this.azureStorageAccountName)
-            .set(AzureBatchDriverConfiguration.AZURE_STORAGE_CONTAINER_NAME, this.azureStorageContainerName)
-            .set(AzureBatchDriverConfiguration.CONTAINER_REGISTRY_SERVER, this.containerRegistryServer)
-            .set(AzureBatchDriverConfiguration.CONTAINER_REGISTRY_USERNAME, this.containerRegistryUsername)
-            .set(AzureBatchDriverConfiguration.CONTAINER_REGISTRY_PASSWORD, this.containerRegistryPassword)
-            .set(AzureBatchDriverConfiguration.AZURE_BATCH_CONTAINER_PORT_LIST, this.azureBatchContainerPortList)
-            .build();
+        .set(AzureBatchDriverConfiguration.JOB_IDENTIFIER, jobId)
+        .set(AzureBatchDriverConfiguration.CLIENT_REMOTE_IDENTIFIER, clientRemoteId)
+        .set(AzureBatchDriverConfiguration.JVM_HEAP_SLACK, this.jvmSlack)
+        .set(AzureBatchDriverConfiguration.RUNTIME_NAME, RuntimeIdentifier.RUNTIME_NAME)
+        .set(AzureBatchDriverConfiguration.AZURE_BATCH_ACCOUNT_URI, this.azureBatchAccountUri)
+        .set(AzureBatchDriverConfiguration.AZURE_BATCH_ACCOUNT_NAME, this.azureBatchAccountName)
+        .set(AzureBatchDriverConfiguration.AZURE_BATCH_POOL_ID, this.azureBatchPoolId)
+        .set(AzureBatchDriverConfiguration.AZURE_STORAGE_ACCOUNT_NAME, this.azureStorageAccountName)
+        .set(AzureBatchDriverConfiguration.AZURE_STORAGE_CONTAINER_NAME, this.azureStorageContainerName)
+        .set(AzureBatchDriverConfiguration.CONTAINER_REGISTRY_SERVER, this.containerRegistryServer)
+        .set(AzureBatchDriverConfiguration.CONTAINER_REGISTRY_USERNAME, this.containerRegistryUsername)
+        .set(AzureBatchDriverConfiguration.CONTAINER_REGISTRY_PASSWORD, this.containerRegistryPassword)
+        .set(AzureBatchDriverConfiguration.CONTAINER_IMAGE_NAME, this.containerImageName)
+        .set(AzureBatchDriverConfiguration.TCP_PORT_LIST_STRING, this.tcpPortListString)
+        .build();
     return Configurations.merge(driverConfiguration, applicationConfiguration);
   }
 }

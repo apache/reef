@@ -41,7 +41,7 @@ import org.apache.reef.tang.formats.ConfigurationModule;
 import org.apache.reef.tang.formats.ConfigurationModuleBuilder;
 import org.apache.reef.tang.formats.OptionalParameter;
 import org.apache.reef.tang.formats.RequiredParameter;
-import org.apache.reef.wake.remote.ports.parameters.TcpPortList;
+import org.apache.reef.wake.remote.ports.parameters.TcpPortListString;
 
 import java.util.List;
 
@@ -114,9 +114,14 @@ public final class AzureBatchDriverConfiguration extends ConfigurationModuleBuil
   public static final OptionalParameter<String> CONTAINER_REGISTRY_PASSWORD = new OptionalParameter<>();
 
   /**
-   * The comma-separated list of ports for Azure Batch containers.
+   * Container Image name.
    */
-  public static final OptionalParameter<List> AZURE_BATCH_CONTAINER_PORT_LIST = new OptionalParameter<>();
+  public static final OptionalParameter<String> CONTAINER_IMAGE_NAME = new OptionalParameter<>();
+
+  /**
+   * Comma-separated list of ports to bind to the container.
+   */
+  public static final OptionalParameter<String> TCP_PORT_LIST_STRING = new OptionalParameter<>();
 
   /**
    * The fraction of the container memory NOT to use for the Java Heap.
@@ -143,6 +148,8 @@ public final class AzureBatchDriverConfiguration extends ConfigurationModuleBuil
       .bindNamedParameter(ContainerRegistryServer.class, CONTAINER_REGISTRY_SERVER)
       .bindNamedParameter(ContainerRegistryUsername.class, CONTAINER_REGISTRY_USERNAME)
       .bindNamedParameter(ContainerRegistryPassword.class, CONTAINER_REGISTRY_PASSWORD)
+      .bindNamedParameter(ContainerImageName.class, CONTAINER_IMAGE_NAME)
+      .bindNamedParameter(TcpPortListString.class, TCP_PORT_LIST_STRING)
 
       // Bind the fields bound in AbstractDriverRuntimeConfiguration
       .bindNamedParameter(JobIdentifier.class, JOB_IDENTIFIER)
@@ -151,7 +158,6 @@ public final class AzureBatchDriverConfiguration extends ConfigurationModuleBuil
       .bindNamedParameter(ClientRemoteIdentifier.class, CLIENT_REMOTE_IDENTIFIER)
       .bindNamedParameter(ErrorHandlerRID.class, CLIENT_REMOTE_IDENTIFIER)
       .bindNamedParameter(JVMHeapSlack.class, JVM_HEAP_SLACK)
-      .bindList(TcpPortList.class, AZURE_BATCH_CONTAINER_PORT_LIST)
       .bindImplementation(RuntimeClasspathProvider.class, AzureBatchClasspathProvider.class)
       .bindImplementation(RuntimePathProvider.class, AzureBatchJVMPathProvider.class)
       .bindSetEntry(DefinedRuntimes.class, RUNTIME_NAME)

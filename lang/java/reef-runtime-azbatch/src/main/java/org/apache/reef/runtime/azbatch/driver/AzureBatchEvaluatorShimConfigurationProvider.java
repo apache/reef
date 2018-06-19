@@ -18,19 +18,16 @@
  */
 package org.apache.reef.runtime.azbatch.driver;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.reef.annotations.audience.Private;
 import org.apache.reef.runtime.azbatch.evaluator.EvaluatorShimConfiguration;
+import org.apache.reef.runtime.azbatch.parameters.ContainerIdentifier;
 import org.apache.reef.runtime.azbatch.util.batch.AzureBatchHelper;
 import org.apache.reef.runtime.common.utils.RemoteManager;
 import org.apache.reef.tang.Configuration;
-import org.apache.reef.tang.Tang;
-import org.apache.reef.tang.exceptions.InjectionException;
-import org.apache.reef.wake.remote.address.ContainerBasedLocalAddressProvider;
+import org.apache.reef.tang.annotations.Parameter;
 import org.apache.reef.wake.remote.address.LocalAddressProvider;
-import org.apache.reef.wake.remote.ports.ListTcpPortProvider;
 import org.apache.reef.wake.remote.ports.TcpPortProvider;
-import org.apache.reef.wake.remote.ports.parameters.TcpPortList;
+import org.apache.reef.wake.remote.ports.parameters.TcpPortListString;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
@@ -45,17 +42,20 @@ public class AzureBatchEvaluatorShimConfigurationProvider {
   TcpPortProvider portProvider;
   LocalAddressProvider localAddressProvider;
   AzureBatchHelper azureBatchHelper;
+  String tcpPortListString;
 
   @Inject
   AzureBatchEvaluatorShimConfigurationProvider(
       final RemoteManager remoteManager,
       final LocalAddressProvider localAddressProvider,
       final AzureBatchHelper azureBatchHelper,
-      final TcpPortProvider portProvider) {
+      final TcpPortProvider portProvider,
+      @Parameter(TcpPortListString.class) final String tcpPortListString) {
     this.remoteManager = remoteManager;
     this.portProvider = portProvider;
     this.localAddressProvider = localAddressProvider;
     this.azureBatchHelper = azureBatchHelper;
+    this.tcpPortListString = tcpPortListString;
   }
 
   /**
@@ -73,6 +73,8 @@ public class AzureBatchEvaluatorShimConfigurationProvider {
         .build()
         .set(EvaluatorShimConfiguration.DRIVER_REMOTE_IDENTIFIER, this.remoteManager.getMyIdentifier())
         .set(EvaluatorShimConfiguration.CONTAINER_IDENTIFIER, containerId)
+        .set(EvaluatorShimConfiguration.TCP_PORT_LIST_STRING, tcpPortListString)
         .build();
   }
 }
+
