@@ -40,15 +40,20 @@ import org.apache.reef.runtime.common.files.RuntimeClasspathProvider;
 import org.apache.reef.runtime.common.files.RuntimePathProvider;
 import org.apache.reef.runtime.common.launch.REEFErrorHandler;
 import org.apache.reef.runtime.common.launch.REEFMessageCodec;
-import org.apache.reef.tang.Configuration;
-import org.apache.reef.tang.Tang;
+import org.apache.reef.tang.*;
 import org.apache.reef.tang.exceptions.InjectionException;
 import org.apache.reef.wake.remote.RemoteConfiguration;
+import org.apache.reef.wake.remote.ports.ListTcpPortProvider;
+import org.apache.reef.wake.remote.ports.TcpPortProvider;
+import org.apache.reef.wake.remote.ports.parameters.TcpPortList;
 import org.apache.reef.wake.time.Clock;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -84,23 +89,33 @@ public final class AzureBatchBootstrapREEFLauncher {
       throw fatal(message, new IllegalArgumentException(message));
     }
 
-    final AvroAzureBatchJobSubmissionParameters avroAzureBatchJobSubmissionParameters =
+    final AvroAzureBatchJobSubmissionParameters jobSubmissionParameters =
         readAvroJobSubmissionParameters(new File(args[0]));
     final AzureBatchBootstrapDriverConfigGenerator azureBatchBootstrapDriverConfigGenerator =
-        TANG.newInjector(generateConfiguration(avroAzureBatchJobSubmissionParameters))
+        TANG.newInjector(generateConfiguration(jobSubmissionParameters))
             .getInstance(AzureBatchBootstrapDriverConfigGenerator.class);
 
-    final Configuration launcherConfig =
+    final JavaConfigurationBuilder launcherConfigBuilder =
         TANG.newConfigurationBuilder()
             .bindNamedParameter(RemoteConfiguration.ManagerName.class, "AzureBatchBootstrapREEFLauncher")
             .bindNamedParameter(RemoteConfiguration.ErrorHandler.class, REEFErrorHandler.class)
             .bindNamedParameter(RemoteConfiguration.MessageCodec.class, REEFMessageCodec.class)
-            .bindSetEntry(Clock.RuntimeStartHandler.class, PIDStoreStartHandler.class)
-            .build();
+            .bindSetEntry(Clock.RuntimeStartHandler.class, PIDStoreStartHandler.class);
+
+    // Check if user has set up preferred ports to use.
+    // If set, we prefer will launch driver that binds those ports.
+    final List<String> preferredPorts = asStringList(jobSubmissionParameters.getAzureBatchPoolDriverPortsList());
+
+    if (preferredPorts.size() > 0) {
+      launcherConfigBuilder.bindList(TcpPortList.class, preferredPorts)
+          .bindImplementation(TcpPortProvider.class, ListTcpPortProvider.class);
+    }
+
+    final Configuration launcherConfig = launcherConfigBuilder.build();
 
     try (final REEFEnvironment reef = REEFEnvironment.fromConfiguration(
         azureBatchBootstrapDriverConfigGenerator.getDriverConfigurationFromParams(
-            avroAzureBatchJobSubmissionParameters), launcherConfig)) {
+            jobSubmissionParameters), launcherConfig)) {
       reef.run();
     } catch (final InjectionException ex) {
       throw fatal("Unable to configure and start REEFEnvironment.", ex);
@@ -142,6 +157,14 @@ public final class AzureBatchBootstrapREEFLauncher {
         .bindNamedParameter(AzureStorageContainerName.class,
             avroAzureBatchJobSubmissionParameters.getAzureStorageContainerName().toString())
         .build();
+  }
+
+  private static List<String> asStringList(final Collection<? extends CharSequence> list) {
+    final List<String> result = new ArrayList<>(list.size());
+    for (final CharSequence sequence : list) {
+      result.add(sequence.toString());
+    }
+    return result;
   }
 
   private static RuntimeException fatal(final String msg, final Throwable t) {

@@ -94,23 +94,6 @@ namespace Org.Apache.REEF.Client.Common
         }
 
         /// <summary>
-        /// Prepares the working directory for a Driver in driverFolderPath.
-        /// </summary>
-        /// <param name="appParameters"></param>
-        /// <param name="driverFolderPath"></param>
-        internal void PrepareDriverFolderWithGlobalBridgeJar(AppParameters appParameters, string driverFolderPath)
-        {
-            // Add the appParameters into that folder structure
-            _fileSets.AddJobFiles(appParameters);
-
-            // Add the reef-bridge-client jar to the global files in the manner of JavaClientLauncher.cs.
-            _fileSets.AddToGlobalFiles(Directory.GetFiles(JarFolder)
-                .Where(jarFile => Path.GetFileName(jarFile).ToLower().StartsWith(ClientConstants.ClientJarFilePrefix)));
-
-            InternalPrepareDriverFolder(appParameters, driverFolderPath);
-        }
-
-        /// <summary>
         /// Merges the Configurations in appParameters and serializes them into the right place within driverFolderPath,
         /// assuming
         /// that points to a Driver's working directory.

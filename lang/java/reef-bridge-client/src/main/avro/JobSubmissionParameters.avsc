@@ -77,7 +77,8 @@
         { "name": "AzureBatchAccountUri", "type": "string" },
         { "name": "AzureBatchPoolId", "type": "string" },
         { "name": "AzureStorageAccountName", "type": "string" },
-        { "name": "AzureStorageContainerName", "type": "string" }
+        { "name": "AzureStorageContainerName", "type": "string" },
+        { "name": "AzureBatchPoolDriverPortsList", "type": {"type": "array", "items": "string"}}
       ]
   }
 ]

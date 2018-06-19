@@ -27,6 +27,8 @@ using Org.Apache.REEF.Common.Files;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Utilities.Logging;
+using Org.Apache.REEF.Client.AzureBatch.Parameters;
+using Org.Apache.REEF.Client.API.Parameters;
 
 namespace Org.Apache.REEF.Client.DotNet.AzureBatch
 {
@@ -45,6 +47,8 @@ namespace Org.Apache.REEF.Client.DotNet.AzureBatch
         private readonly AzureBatchService _batchService;
         private readonly JobJarMaker _jobJarMaker;
         private readonly AzureBatchFileNames _azbatchFileNames;
+        private readonly int _retryInterval;
+        private readonly int _numberOfRetries;
 
         [Inject]
         private AzureBatchDotNetClient(
@@ -56,7 +60,12 @@ namespace Org.Apache.REEF.Client.DotNet.AzureBatch
             AzureBatchFileNames azbatchFileNames,
             JobRequestBuilderFactory jobRequestBuilderFactory,
             AzureBatchService batchService,
-            JobJarMaker jobJarMaker)
+            JobJarMaker jobJarMaker,
+            //// Those parameters are used in AzureBatchJobSubmissionResult, but could not be injected there.
+            //// It introduces circular injection issues, as all classes constructor inherited from JobSubmissionResult has reference to IREEFClient. 
+            //// TODO: [REEF-2020] Refactor IJobSubmissionResult Interface and JobSubmissionResult implementation
+            [Parameter(typeof(DriverHTTPConnectionRetryInterval))]int retryInterval,
+            [Parameter(typeof(DriverHTTPConnectionAttempts))] int numberOfRetries)
         {
             _injector = injector;
             _fileNames = fileNames;
@@ -66,6 +75,8 @@ namespace Org.Apache.REEF.Client.DotNet.AzureBatch
             _jobRequestBuilderFactory = jobRequestBuilderFactory;
             _batchService = batchService;
             _jobJarMaker = jobJarMaker;
+            _retryInterval = retryInterval;
+            _numberOfRetries = numberOfRetries;
         }
 
         public JobRequestBuilder NewJobRequestBuilder()
@@ -81,6 +92,22 @@ namespace Org.Apache.REEF.Client.DotNet.AzureBatch
 
         public void Submit(JobRequest jobRequest)
         {
+            JobSubmitInternal(jobRequest);
+        }
+
+        public IJobSubmissionResult SubmitAndGetJobStatus(JobRequest jobRequest)
+        {
+            string azureJobId = JobSubmitInternal(jobRequest);
+            return new AzureBatchJobSubmissionResult(this,
+                _fileNames.DriverHttpEndpoint,
+                azureJobId,
+                _numberOfRetries,
+                _retryInterval,
+                _batchService);
+        }
+
+        private string JobSubmitInternal(JobRequest jobRequest)
+        {
             var configModule = AzureBatchRuntimeClientConfiguration.ConfigurationModule;
             string jobId = jobRequest.JobIdentifier;
             string azureBatchjobId = CreateAzureJobId(jobId);
@@ -90,6 +117,7 @@ namespace Org.Apache.REEF.Client.DotNet.AzureBatch
             Uri blobUri = _azureStorageClient.UploadFile(destination, jarPath).Result;
             string sasToken = _azureStorageClient.CreateContainerSharedAccessSignature();
             _batchService.CreateJob(azureBatchjobId, blobUri, commandLine, sasToken);
+            return azureBatchjobId;
         }
 
         private string GetCommand(JobParameters jobParameters)
@@ -119,13 +147,6 @@ namespace Org.Apache.REEF.Client.DotNet.AzureBatch
             var command = azureBatchJobCommandBuilder.BuildDriverCommand(jobParameters.DriverMemoryInMB);
 
             return command;
-        }
-
-        public IJobSubmissionResult SubmitAndGetJobStatus(JobRequest jobRequest)
-        {
-            Submit(jobRequest);
-            /// Azure Batch is not able to comminicate to client through driver end point. It behaves the same as Submit(JobRequest jobRequest).
-            return null;
         }
 
         private string CreateAzureJobId(string jobId)

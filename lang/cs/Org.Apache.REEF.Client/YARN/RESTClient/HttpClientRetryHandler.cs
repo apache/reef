@@ -19,6 +19,7 @@ using System;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
+using Org.Apache.REEF.Client.Common;
 
 #if REEF_DOTNET_BUILD
 using Microsoft.Practices.EnterpriseLibrary.TransientFaultHandling;
@@ -60,14 +61,6 @@ namespace Org.Apache.REEF.Client.YARN.RestClient
             return await this._retryPolicy.ExecuteAsync(
                 async () => await base.SendAsync(request, cancellationToken),
                 cancellationToken);
-        }
-    }
-
-    internal class AllErrorsTransientStrategy : ITransientErrorDetectionStrategy
-    {
-        public bool IsTransient(Exception ex)
-        {
-            return true;
         }
     }
 }

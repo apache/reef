@@ -24,6 +24,7 @@ using Org.Apache.REEF.Common.Avro;
 using Org.Apache.REEF.Common.Files;
 using Org.Apache.REEF.Tang.Annotations;
 using System;
+using System.Collections.Generic;
 using System.IO;
 
 namespace Org.Apache.REEF.Client.AzureBatch.Util
@@ -44,7 +45,8 @@ namespace Org.Apache.REEF.Client.AzureBatch.Util
             [Parameter(typeof(AzureBatchAccountUri))] string azureBatchAccountUri,
             [Parameter(typeof(AzureBatchPoolId))] string azureBatchPoolId,
             [Parameter(typeof(AzureStorageAccountName))] string azureStorageAccountName,
-            [Parameter(typeof(AzureStorageContainerName))] string azureStorageContainerName)
+            [Parameter(typeof(AzureStorageContainerName))] string azureStorageContainerName,
+            [Parameter(typeof(AzureBatchPoolDriverPortsList))] List<string> azureBatchPoolDriverPortsList)
         {
             _resourceArchiveFileGenerator = resourceArchiveFileGenerator;
             _driverFolderPreparationHelper = driverFolderPreparationHelper;
@@ -56,6 +58,7 @@ namespace Org.Apache.REEF.Client.AzureBatch.Util
                 AzureBatchPoolId = azureBatchPoolId,
                 AzureStorageAccountName = azureStorageAccountName,
                 AzureStorageContainerName = azureStorageContainerName,
+                AzureBatchPoolDriverPortsList = azureBatchPoolDriverPortsList,
             };
         }
 
@@ -76,7 +79,7 @@ namespace Org.Apache.REEF.Client.AzureBatch.Util
 
             string localDriverFolderPath = CreateDriverFolder(azureBatchjobId);
 
-            _driverFolderPreparationHelper.PrepareDriverFolderWithGlobalBridgeJar(jobRequest.AppParameters, localDriverFolderPath);
+            _driverFolderPreparationHelper.PrepareDriverFolder(jobRequest.AppParameters, localDriverFolderPath);
             SerializeJobFile(localDriverFolderPath, _avroAzureBatchJobSubmissionParameters);
 
             return _resourceArchiveFileGenerator.CreateArchiveToUpload(localDriverFolderPath);
