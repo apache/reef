@@ -27,5 +27,8 @@ namespace Org.Apache.REEF.Common.Telemetry
         IMetric SystemState { get; }
 
         MetricsData GetMetricsData();
+
+        IMetric CreateAndRegisterMetric<T, U>(string name, string description, bool keepUpateHistory)
+            where T : MetricBase<U>, new();
     }
 }

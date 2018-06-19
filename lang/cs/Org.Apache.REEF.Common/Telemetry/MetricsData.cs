@@ -71,7 +71,7 @@ namespace Org.Apache.REEF.Common.Telemetry
         /// </summary>
         /// <param name="metric">Metric to register.</param>
         /// <returns>Indicates if the metric was registered.</returns>
-        public void RegisterMetric(IMetric metric)
+        internal void RegisterMetric(IMetric metric)
         {
             if (!_metricsMap.TryAdd(metric.Name, new MetricTracker(metric)))
             {
@@ -85,7 +85,7 @@ namespace Org.Apache.REEF.Common.Telemetry
         /// <param name="name">Name of the metric.</param>
         /// <param name="me">The metric object returned.</param>
         /// <returns>Boolean indicating if a metric object was succesfully retrieved.</returns>
-        public bool TryGetValue(string name, out IMetric me)
+        public bool TryGetMetric(string name, out IMetric me)
         {
             if (!_metricsMap.TryGetValue(name, out MetricTracker tracker))
             {
@@ -100,7 +100,7 @@ namespace Org.Apache.REEF.Common.Telemetry
         /// Gets all the registered metrics.
         /// </summary>
         /// <returns>IEnumerable of MetricData.</returns>
-        public IEnumerable<MetricTracker> GetMetrics()
+        public IEnumerable<MetricTracker> GetMetricTrackers()
         {
             return _metricsMap.Values;
         }
@@ -113,9 +113,9 @@ namespace Org.Apache.REEF.Common.Telemetry
         /// <param name="metrics">New metric values to be updated.</param>
         internal void Update(MetricsData metrics)
         {
-            foreach (var metric in metrics.GetMetrics())
+            foreach (var tracker in metrics.GetMetricTrackers())
             {
-                _metricsMap.AddOrUpdate(metric.GetMetric().Name, metric, (k, v) => v.UpdateMetric(metric));
+                _metricsMap.AddOrUpdate(tracker.GetMetric().Name, tracker, (k, v) => v.UpdateMetric(tracker));
             }
         }
 

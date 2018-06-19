@@ -36,11 +36,10 @@ namespace Org.Apache.REEF.Common.Tests.Telemetry
             {
                 counter1.Increment();
             }
-            var metricsSet = evalMetrics1.GetMetricsData();
-            ValidateMetric(metricsSet, "counter1", 5);
+            var evalMetricsData = evalMetrics1.GetMetricsData();
+            ValidateMetric(evalMetricsData, "counter1", 5);
 
-            var trackers = metricsSet.GetMetrics();
-            foreach (var t in trackers)
+            foreach (var t in evalMetricsData.GetMetricTrackers())
             {
                 Assert.Equal(1, t.GetMetricRecords().Count);
             }
@@ -56,18 +55,18 @@ namespace Org.Apache.REEF.Common.Tests.Telemetry
         [Fact]
         public void TestMetricSetValue()
         {
-            var evalMetrics1 = TangFactory.GetTang().NewInjector().GetInstance<IEvaluatorMetrics>();
-            var intMetric = (IntegerMetric)evalMetrics1.CreateAndRegisterMetric<IntegerMetric, int>("IntMetric", "metric of type int", true);
-            var doubleMetric = (DoubleMetric)evalMetrics1.CreateAndRegisterMetric<DoubleMetric, double>("DouMetric", "metric of type double", true);
-            var metrics = evalMetrics1.GetMetricsData();
-            ValidateMetric(metrics, "IntMetric", default(int));
-            ValidateMetric(metrics, "DouMetric", default(double));
+            var evalMetrics = TangFactory.GetTang().NewInjector().GetInstance<IEvaluatorMetrics>();
+            var intMetric = (IntegerMetric)evalMetrics.CreateAndRegisterMetric<IntegerMetric, int>("IntMetric", "metric of type int", true);
+            var doubleMetric = (DoubleMetric)evalMetrics.CreateAndRegisterMetric<DoubleMetric, double>("DouMetric", "metric of type double", true);
+            var evalMetricsData = evalMetrics.GetMetricsData();
+            ValidateMetric(evalMetricsData, "IntMetric", default(int));
+            ValidateMetric(evalMetricsData, "DouMetric", default(double));
 
             intMetric.AssignNewValue(3);
             doubleMetric.AssignNewValue(3.0);
 
-            ValidateMetric(metrics, "IntMetric", 3);
-            ValidateMetric(metrics, "DouMetric", 3.0);
+            ValidateMetric(evalMetricsData, "IntMetric", 3);
+            ValidateMetric(evalMetricsData, "DouMetric", 3.0);
         }
 
         /// <summary>
@@ -106,13 +105,12 @@ namespace Org.Apache.REEF.Common.Tests.Telemetry
             }
             var me1Str = metrics1.Serialize();
             var evalMetrics2 = new EvaluatorMetrics(me1Str);
-            var metrics2 = evalMetrics2.GetMetricsData();
+            var metricsData2 = evalMetrics2.GetMetricsData();
 
             var sink = TangFactory.GetTang().NewInjector().GetInstance<IMetricsSink>();
-            sink.Sink(metrics2.FlushMetricRecords());
+            sink.Sink(metricsData2.FlushMetricRecords());
 
-            var trackers = metrics2.GetMetrics();
-            foreach (var t in trackers)
+            foreach (var t in metricsData2.GetMetricTrackers())
             {
                 Assert.Equal(1, t.GetMetricRecords().Count);
             }
@@ -120,7 +118,7 @@ namespace Org.Apache.REEF.Common.Tests.Telemetry
 
         private static void ValidateMetric(IMetrics metricSet, string name, object expectedValue)
         {
-            metricSet.TryGetValue(name, out IMetric metric);
+            metricSet.TryGetMetric(name, out IMetric metric);
             Assert.Equal(expectedValue, metric.ValueUntyped);
         }
 

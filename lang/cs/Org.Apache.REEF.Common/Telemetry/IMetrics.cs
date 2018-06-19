@@ -28,29 +28,17 @@ namespace Org.Apache.REEF.Common.Telemetry
     public interface IMetrics
     {
         /// <summary>
-        /// Register a new metric.
-        /// </summary>
-        /// <param name="metric">The metric to be registered.</param>
-        void RegisterMetric(IMetric metric);
-
-        /// <summary>
         /// Get metric value given the metric name.
         /// </summary>
         /// <param name="name">Name of the metric</param>
         /// <param name="metric">The metric object returned</param>
         /// <returns>Returns a boolean to indicate if the value is found.</returns>
-        bool TryGetValue(string name, out IMetric metric);
+        bool TryGetMetric(string name, out IMetric metric);
 
         /// <summary>
         /// Returns all the metrics.
         /// </summary>
         /// <returns></returns>
-        IEnumerable<MetricTracker> GetMetrics();
-
-        /// <summary>
-        /// Serialize the metrics into strings
-        /// </summary>
-        /// <returns>Returns serialized string of the metrics.</returns>
-        string Serialize();
+        IEnumerable<MetricTracker> GetMetricTrackers();
     }
 }

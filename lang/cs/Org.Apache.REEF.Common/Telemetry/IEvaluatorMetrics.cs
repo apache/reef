@@ -15,6 +15,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
+using System.Collections.Generic;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Utilities.Attributes;
 
@@ -23,19 +24,17 @@ namespace Org.Apache.REEF.Common.Telemetry
     [DefaultImplementation(typeof(EvaluatorMetrics))]
     public interface IEvaluatorMetrics
     {
-        /// <summary>
-        /// Returns the evaluator metrics.
-        /// </summary>
-        /// <returns>Returns ICounters.</returns>
+        IMetric CreateAndRegisterMetric<T, U>(string name, string description, bool keepUpateHistory)
+            where T : MetricBase<U>, new();
+
         MetricsData GetMetricsData();
+
+        bool TryGetMetric(string name, out IMetric me);
 
         /// <summary>
         /// Serializes the metrics data into a string.
         /// </summary>
         /// <returns>Returns serialized string of metrics</returns>
         string Serialize();
-
-        IMetric CreateAndRegisterMetric<T, U>(string name, string description, bool keepUpateHistory)
-            where T : MetricBase<U>, new();
     }
 }

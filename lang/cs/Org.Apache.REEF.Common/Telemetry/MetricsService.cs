@@ -70,12 +70,13 @@ namespace Org.Apache.REEF.Common.Telemetry
         public void OnNext(IContextMessage contextMessage)
         {
             var msgReceived = ByteUtilities.ByteArraysToString(contextMessage.Message);
-            var metrics = new EvaluatorMetrics(msgReceived).GetMetricsData();
+            var evalMetrics = new EvaluatorMetrics(msgReceived);
+            var metricsData = evalMetrics.GetMetricsData();
 
             Logger.Log(Level.Info, "Received {0} metrics with context message of length {1}",
-                metrics.GetMetrics().Count(), msgReceived.Length);
+                metricsData.GetMetricTrackers().Count(), msgReceived.Length);
 
-            _metricsData.Update(metrics);
+            _metricsData.Update(metricsData);
 
             if (_metricsData.TriggerSink(_metricSinkThreshold))
             {

@@ -15,6 +15,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
+using System.Collections.Generic;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Utilities.Logging;
 
@@ -27,12 +28,12 @@ namespace Org.Apache.REEF.Common.Telemetry
     {
         private static readonly Logger Logger = Logger.GetLogger(typeof(EvaluatorMetrics));
 
-        private readonly MetricsData _metrics;
+        private readonly MetricsData _metricsData;
 
         [Inject]
         private EvaluatorMetrics(MetricsData metrics)
         {
-            _metrics = metrics;
+            _metricsData = metrics;
         }
 
         /// <summary>
@@ -41,7 +42,7 @@ namespace Org.Apache.REEF.Common.Telemetry
         /// <param name="serializedMsg"></param>
         internal EvaluatorMetrics(string serializedMsg)
         {
-            _metrics = new MetricsData(serializedMsg);
+            _metricsData = new MetricsData(serializedMsg);
         }
 
         public IMetric CreateAndRegisterMetric<T, U>(string name, string description, bool keepUpdateHistory)
@@ -54,17 +55,13 @@ namespace Org.Apache.REEF.Common.Telemetry
                 _typedValue = default,
                 _keepUpdateHistory = keepUpdateHistory
             };
-            _metrics.RegisterMetric(metric);
+            _metricsData.RegisterMetric(metric);
             return metric;
         }
 
-        /// <summary>
-        /// Returns metrics
-        /// </summary>
-        /// <returns>Returns metrics.</returns>
         public MetricsData GetMetricsData()
         {
-            return _metrics;
+            return _metricsData;
         }
 
         /// <summary>
@@ -73,11 +70,18 @@ namespace Org.Apache.REEF.Common.Telemetry
         /// <returns>Returns serialized string of metrics.</returns>
         public string Serialize()
         {
-            if (_metrics != null)
+            if (_metricsData != null)
             {
-                return _metrics.SerializeAndReset();
+                return _metricsData.SerializeAndReset();
             }
             return null;
+        }
+
+        public bool TryGetMetric(string name, out IMetric metric)
+        {
+            var ret = _metricsData.TryGetMetric(name, out IMetric me);
+            metric = me;
+            return ret;
         }
     }
 }

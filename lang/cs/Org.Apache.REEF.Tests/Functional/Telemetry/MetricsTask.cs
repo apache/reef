@@ -34,7 +34,7 @@ namespace Org.Apache.REEF.Tests.Functional.Telemetry
         public const string TestCounter = "TestCounter";
         public const string TestIntMetric = "Iterations";
 
-        private readonly MetricsData _metricSet;
+        private readonly IEvaluatorMetrics _evaluatorMetrics;
 
         public CounterMetric metric1;
         public IntegerMetric metric2;
@@ -42,9 +42,10 @@ namespace Org.Apache.REEF.Tests.Functional.Telemetry
         [Inject]
         private MetricsTask(IEvaluatorMetrics evaluatorMetrics)
         {
-            _metricSet = evaluatorMetrics.GetMetricsData();
-            metric1 = (CounterMetric)evaluatorMetrics.CreateAndRegisterMetric<CounterMetric, int>(TestCounter, TestCounter + " description", false);
-            metric2 = (IntegerMetric)evaluatorMetrics.CreateAndRegisterMetric<IntegerMetric, int>(TestIntMetric, TestIntMetric + " description", true);
+            // _metricSet = evaluatorMetrics.GetMetricsData();
+            _evaluatorMetrics = evaluatorMetrics;
+            metric1 = (CounterMetric)_evaluatorMetrics.CreateAndRegisterMetric<CounterMetric, int>(TestCounter, TestCounter + " description", false);
+            metric2 = (IntegerMetric)_evaluatorMetrics.CreateAndRegisterMetric<IntegerMetric, int>(TestIntMetric, TestIntMetric + " description", true);
         }
 
         public byte[] Call(byte[] memento)

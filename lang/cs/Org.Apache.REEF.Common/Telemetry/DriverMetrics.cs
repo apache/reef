@@ -16,7 +16,7 @@
 // under the License.
 
 using System;
-
+using System.Collections.Generic;
 using StringMetric = Org.Apache.REEF.Common.Telemetry.MetricClass<string>;
 
 namespace Org.Apache.REEF.Common.Telemetry
@@ -26,7 +26,7 @@ namespace Org.Apache.REEF.Common.Telemetry
     /// </summary>
     public sealed class DriverMetrics : IDriverMetrics
     {
-        private MetricsData _metrics;
+        internal MetricsData _metricsData;
 
         public IMetric SystemState
         {
@@ -37,14 +37,28 @@ namespace Org.Apache.REEF.Common.Telemetry
 
         public DriverMetrics(string systemState)
         {
-            _metrics = new MetricsData();
+            _metricsData = new MetricsData();
             SystemState = new StringMetric(_stateMetricName, "driver state.", systemState, false);
-            _metrics.RegisterMetric(SystemState);
+            _metricsData.RegisterMetric(SystemState);
         }
 
         public MetricsData GetMetricsData()
         {
-            return _metrics;
+            return _metricsData;
+        }
+
+        public IMetric CreateAndRegisterMetric<T, U>(string name, string description, bool keepUpdateHistory) 
+            where T : MetricBase<U>, new()
+        {
+            var metric = new T
+            {
+                Name = name,
+                Description = description,
+                _typedValue = default,
+                _keepUpdateHistory = keepUpdateHistory
+            };
+            _metricsData.RegisterMetric(metric);
+            return metric;
         }
     }
 }
