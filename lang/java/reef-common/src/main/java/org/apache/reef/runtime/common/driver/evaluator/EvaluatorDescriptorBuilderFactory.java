@@ -25,7 +25,7 @@ import org.apache.reef.tang.annotations.DefaultImplementation;
 /**
  * Evaluator descriptor builder factory interface.
  */
-@DefaultImplementation(EvaluatorDescriptorImpl.EvaluatorDescriptorBuilderFactoryImpl.class)
+@DefaultImplementation(EvaluatorDescriptorImpl.BuilderFactory.class)
 public interface EvaluatorDescriptorBuilderFactory {
   /**
    * Create a new evaluator descriptor builder.

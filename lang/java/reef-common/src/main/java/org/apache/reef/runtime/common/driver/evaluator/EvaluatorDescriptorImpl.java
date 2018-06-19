@@ -39,11 +39,12 @@ final class EvaluatorDescriptorImpl implements EvaluatorDescriptor {
   private EvaluatorProcess process;
   private final String runtimeName;
 
-  EvaluatorDescriptorImpl(final NodeDescriptor nodeDescriptor,
-                          final int megaBytes,
-                          final int numberOfCores,
-                          final EvaluatorProcess process,
-                          final String runtimeName) {
+  private EvaluatorDescriptorImpl(
+      final NodeDescriptor nodeDescriptor,
+      final int megaBytes,
+      final int numberOfCores,
+      final EvaluatorProcess process,
+      final String runtimeName) {
     this.nodeDescriptor = nodeDescriptor;
     this.megaBytes = megaBytes;
     this.numberOfCores = numberOfCores;
@@ -86,14 +87,14 @@ final class EvaluatorDescriptorImpl implements EvaluatorDescriptor {
   /**
    * Evaluator descriptor builder factory that creates a  new evaluator descriptor builder impl.
    */
-  static final class EvaluatorDescriptorBuilderFactoryImpl implements EvaluatorDescriptorBuilderFactory {
+  static final class BuilderFactory implements EvaluatorDescriptorBuilderFactory {
     @Inject
-    EvaluatorDescriptorBuilderFactoryImpl() {
+    private BuilderFactory() {
     }
 
     @Override
     public EvaluatorDescriptorBuilder newBuilder() {
-      return new EvaluatorDescriptorBuilderImpl();
+      return new Builder();
     }
 
     @Override
@@ -110,7 +111,7 @@ final class EvaluatorDescriptorImpl implements EvaluatorDescriptor {
   /**
    * An builder for this evaluator descriptor implementation.
    */
-  private static final class EvaluatorDescriptorBuilderImpl implements EvaluatorDescriptorBuilder {
+  private static final class Builder implements EvaluatorDescriptorBuilder {
     private NodeDescriptor nodeDescriptor = null;
     private int memory = 0;
     private int numberOfCores = 0;
@@ -118,31 +119,31 @@ final class EvaluatorDescriptorImpl implements EvaluatorDescriptor {
     private String runtimeName = null;
 
     @Override
-    public EvaluatorDescriptorBuilderImpl setNodeDescriptor(final NodeDescriptor nodeDescriptor) {
+    public Builder setNodeDescriptor(final NodeDescriptor nodeDescriptor) {
       this.nodeDescriptor = nodeDescriptor;
       return this;
     }
 
     @Override
-    public EvaluatorDescriptorBuilderImpl setMemory(final int megaBytes) {
+    public Builder setMemory(final int megaBytes) {
       this.memory = megaBytes;
       return this;
     }
 
     @Override
-    public EvaluatorDescriptorBuilderImpl setNumberOfCores(final int numberOfCores) {
+    public Builder setNumberOfCores(final int numberOfCores) {
       this.numberOfCores = numberOfCores;
       return this;
     }
 
     @Override
-    public EvaluatorDescriptorBuilderImpl setEvaluatorProcess(final EvaluatorProcess evaluatorProcess) {
+    public Builder setEvaluatorProcess(final EvaluatorProcess evaluatorProcess) {
       this.evaluatorProcess = evaluatorProcess;
       return this;
     }
 
     @Override
-    public EvaluatorDescriptorBuilderImpl setRuntimeName(final String runtimeName) {
+    public Builder setRuntimeName(final String runtimeName) {
       this.runtimeName = runtimeName;
       return this;
     }
