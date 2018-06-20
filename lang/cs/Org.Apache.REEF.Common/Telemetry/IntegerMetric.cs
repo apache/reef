@@ -26,7 +26,10 @@ namespace Org.Apache.REEF.Common.Telemetry
     /// </summary>
     public class IntegerMetric : MetricBase<int>
     {
-        public IntegerMetric() : base() { }
+        public IntegerMetric() : base()
+        {
+            _typedValue = default;
+        }
 
         public IntegerMetric(string name, string description, bool keepHistory = true)
             : base(name, description, keepHistory)

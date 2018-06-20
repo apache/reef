@@ -39,7 +39,7 @@ namespace Org.Apache.REEF.Common.Telemetry
         {
             _metricsData = new MetricsData();
             SystemState = new StringMetric(_stateMetricName, "driver state.", systemState, false);
-            _metricsData.RegisterMetric(SystemState);
+            _metricsData.RegisterMetric((MetricBase)SystemState);
         }
 
         public MetricsData GetMetricsData()
@@ -47,14 +47,13 @@ namespace Org.Apache.REEF.Common.Telemetry
             return _metricsData;
         }
 
-        public IMetric CreateAndRegisterMetric<T, U>(string name, string description, bool keepUpdateHistory) 
-            where T : MetricBase<U>, new()
+        public IMetric CreateAndRegisterMetric<T>(string name, string description, bool keepUpdateHistory) 
+            where T : MetricBase, new()
         {
             var metric = new T
             {
-                Name = name,
-                Description = description,
-                _typedValue = default,
+                _name = name,
+                _description = description,
                 _keepUpdateHistory = keepUpdateHistory
             };
             _metricsData.RegisterMetric(metric);

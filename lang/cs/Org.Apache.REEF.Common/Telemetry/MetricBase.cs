@@ -25,40 +25,27 @@ namespace Org.Apache.REEF.Common.Telemetry
     /// Base implementation of a metric object.
     /// </summary>
     /// <typeparam name="T">Metric type</typeparam>
-    public class MetricBase<T> : IMetric<T>
+    public class MetricBase : IMetric
     {
         protected ITracker _tracker;
 
-        internal T _typedValue;
+        internal string _name;
+
+        internal string _description;
 
         internal bool _keepUpdateHistory;
 
-        private object _metricLock = new object();
+        protected object _value;
 
-        public string Name { get; internal set; }
+        protected object _metricLock = new object();
 
-        public string Description { get; internal set; }
+        public string Name { get { return _name; } }
 
-        public virtual object ValueUntyped
-        {
-            get { return _typedValue; }
-        }
+        public string Description { get { return _description; } }
 
-        public virtual T Value
-        {
-            get
-            {
-                return _typedValue;
-            }
-        }
+        public virtual object ValueUntyped { get { return _value; } }
 
-        public bool KeepUpdateHistory
-        {
-            get
-            {
-                return _keepUpdateHistory;
-            }
-        }
+        public bool KeepUpdateHistory { get { return _keepUpdateHistory; } }
 
         public MetricBase()
         {
@@ -66,38 +53,28 @@ namespace Org.Apache.REEF.Common.Telemetry
 
         public MetricBase(string name, string description, bool keepUpdateHistory = true)
         {
-            Name = name;
-            Description = description;
-            _typedValue = default(T);
+            _name = name;
+            _description = description;
             _keepUpdateHistory = keepUpdateHistory;
+            _value = default;
         }
 
         [JsonConstructor]
-        public MetricBase(string name, string description, T value, bool keepUpdateHistory)
+        public MetricBase(string name, string description, object value, bool keepUpdateHistory)
         {
-            Name = name;
-            Description = description;
-            _typedValue = value;
+            _name = name;
+            _description = description;
+            _value = value;
             _keepUpdateHistory = keepUpdateHistory;
         }
 
-        public virtual void AssignNewValue(object val)
+        public virtual void AssignNewValue(object value)
         {
-            ValidateValueType(val);
-
             lock (_metricLock)
             {
-                _typedValue = (T)val;
+                _value = value;
             }
-            _tracker.Track(val);
-        }
-
-        protected void ValidateValueType(object val)
-        {
-            if (val.GetType() != _typedValue.GetType())
-            {
-                throw new ApplicationException("Cannot assign new value to metric because of type mismatch.");
-            }
+            _tracker.Track(value);
         }
 
         public IDisposable Subscribe(ITracker observer)
@@ -119,6 +96,50 @@ namespace Org.Apache.REEF.Common.Telemetry
             {
                 _tracker = null;
             }
+        }
+    }
+
+    public class MetricBase<T> : MetricBase
+    {
+        protected T _typedValue;
+
+        public T Value { get { return _typedValue; } }
+
+        public override object ValueUntyped { get { return _typedValue; } }
+
+        public MetricBase() : base()
+        {
+            _typedValue = default;
+        }
+
+        public MetricBase(string name, string description, bool keepUpdateHistory = true)
+            : base(name, description, keepUpdateHistory)
+        {
+            _typedValue = default;
+        }
+
+        [JsonConstructor]
+        public MetricBase(string name, string description, T value, bool keepUpdateHistory)
+            : base(name, description, value, keepUpdateHistory)
+        {
+            _typedValue = value;
+        }
+
+        protected void ValidateValueType(object val)
+        {
+            if (val.GetType() != _typedValue.GetType())
+            {
+                throw new ApplicationException("Cannot assign new value to metric because of type mismatch.");
+            }
+        }
+
+        public override void AssignNewValue(object value)
+        {
+            lock (_metricLock)
+            {
+                _typedValue = (T)value;
+            }
+            _tracker.Track(_typedValue);
         }
     }
 }

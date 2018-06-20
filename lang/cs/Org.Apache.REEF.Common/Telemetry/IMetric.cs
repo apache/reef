@@ -59,11 +59,4 @@ namespace Org.Apache.REEF.Common.Telemetry
         IDisposable Subscribe(ITracker tracker);
     }
 
-    public interface IMetric<T> : IMetric
-    {
-        /// <summary>
-        /// Typed value of the metric.
-        /// </summary>
-        T Value { get; }
-    }
 }

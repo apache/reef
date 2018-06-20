@@ -24,8 +24,8 @@ namespace Org.Apache.REEF.Common.Telemetry
     [DefaultImplementation(typeof(EvaluatorMetrics))]
     public interface IEvaluatorMetrics
     {
-        IMetric CreateAndRegisterMetric<T, U>(string name, string description, bool keepUpateHistory)
-            where T : MetricBase<U>, new();
+        T CreateAndRegisterMetric<T>(string name, string description, bool keepUpateHistory)
+            where T : MetricBase, new();
 
         MetricsData GetMetricsData();
 

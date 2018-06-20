@@ -45,14 +45,13 @@ namespace Org.Apache.REEF.Common.Telemetry
             _metricsData = new MetricsData(serializedMsg);
         }
 
-        public IMetric CreateAndRegisterMetric<T, U>(string name, string description, bool keepUpdateHistory)
-            where T : MetricBase<U>, new()
+        public T CreateAndRegisterMetric<T>(string name, string description, bool keepUpdateHistory)
+            where T : MetricBase, new()
         {
             var metric = new T
             {
-                Name = name,
-                Description = description,
-                _typedValue = default,
+                _name = name,
+                _description = description,
                 _keepUpdateHistory = keepUpdateHistory
             };
             _metricsData.RegisterMetric(metric);

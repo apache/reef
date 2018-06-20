@@ -71,7 +71,7 @@ namespace Org.Apache.REEF.Common.Telemetry
         /// </summary>
         /// <param name="metric">Metric to register.</param>
         /// <returns>Indicates if the metric was registered.</returns>
-        internal void RegisterMetric(IMetric metric)
+        internal void RegisterMetric(MetricBase metric)
         {
             if (!_metricsMap.TryAdd(metric.Name, new MetricTracker(metric)))
             {
