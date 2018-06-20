@@ -29,7 +29,7 @@ namespace Org.Apache.REEF.IO.FileSystem.AzureDataLake
         AdlsClient GetAdlsClient();
 
         /// <summary>
-        /// Returns the account name for the AdlsClient.
+        /// Returns the account FQDN for the AdlsClient.
         /// </summary>
         string AccountFqdn { get; }
     }
