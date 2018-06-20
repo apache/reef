@@ -44,7 +44,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.List;
@@ -277,9 +277,14 @@ public final class EvaluatorShim
   private void extractFiles(final File zipFile) throws IOException {
     try (ZipFile zipFileHandle = new ZipFile(zipFile)) {
       Enumeration<? extends ZipEntry> zipEntries = zipFileHandle.entries();
+      Path reefPath = this.reefFileNames.getREEFFolder().toPath();
       while (zipEntries.hasMoreElements()) {
         ZipEntry zipEntry = zipEntries.nextElement();
-        File file = new File(this.reefFileNames.getREEFFolderName() + '/' + zipEntry.getName());
+        Path destination = new File(this.reefFileNames.getREEFFolder(), zipEntry.getName()).toPath();
+        if (!destination.startsWith(reefPath)) {
+          throw new IOException("Trying to unzip a file outside of the destination folder: " + destination);
+        }
+        File file = destination.toFile();
         if (file.exists()) {
           LOG.log(Level.INFO, "Skipping entry {0} because the file already exists.", zipEntry.getName());
         } else {
@@ -292,7 +297,7 @@ public final class EvaluatorShim
           } else {
             try (InputStream inputStream = zipFileHandle.getInputStream(zipEntry)) {
               LOG.log(Level.INFO, "Extracting {0}.", zipEntry.getName());
-              Files.copy(inputStream, Paths.get(this.reefFileNames.getREEFFolderName() + '/' + zipEntry.getName()));
+              Files.copy(inputStream, destination);
               LOG.log(Level.INFO, "Extracting {0} completed.", zipEntry.getName());
             }
           }

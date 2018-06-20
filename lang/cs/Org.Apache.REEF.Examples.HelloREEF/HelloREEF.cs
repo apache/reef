@@ -16,6 +16,7 @@
 // under the License.
 
 using System;
+using System.Collections.Generic;
 using System.Globalization;
 using Org.Apache.REEF.Client.API;
 using Org.Apache.REEF.Client.AzureBatch;
@@ -125,6 +126,11 @@ namespace Org.Apache.REEF.Examples.HelloREEF
                         .Set(AzureBatchRuntimeClientConfiguration.AzureStorageAccountKey, @"##########################################")
                         .Set(AzureBatchRuntimeClientConfiguration.AzureStorageAccountName, @"############")
                         .Set(AzureBatchRuntimeClientConfiguration.AzureStorageContainerName, @"###########")
+                        //// Extend default retry interval in Azure Batch
+                        .Set(AzureBatchRuntimeClientConfiguration.DriverHTTPConnectionRetryInterval, "20000")
+                        //// To allow Driver - Client communication, please specify the ports to use to set up driver http server.
+                        //// These ports must be defined in Azure Batch InBoundNATPool.
+                        .Set(AzureBatchRuntimeClientConfiguration.AzureBatchPoolDriverPortsList, new List<string>(new string[] { "123", "456" }))
                         .Build();
 
                 default:

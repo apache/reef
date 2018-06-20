@@ -35,6 +35,8 @@ namespace Org.Apache.REEF.IO.FileSystem.AzureBlob
     {
         private readonly ICloudBlobClient _client;
 
+        private const char UrlPathSeparator = '/';
+
         [Inject]
         private AzureBlobFileSystem(ICloudBlobClient client)
         {
@@ -186,12 +188,48 @@ namespace Org.Apache.REEF.IO.FileSystem.AzureBlob
         /// <summary>
         /// Creates a Uri using the relative path to the remote file (including the container),
         /// getting the absolute URI from the Blob client's base URI.
+        /// If path is null or the prefix doesn't match the base uri in the FileSystem, throw ArgumentException.
         /// </summary>
-        /// <param name="path">The relative path to the remote file, including the container</param>
+        /// <param name="path">The relative or absolute path to the remote file, including the container</param>
         /// <returns>The URI to the remote file</returns>
         public Uri CreateUriForPath(string path)
         {
-            return new Uri(_client.BaseUri.AbsoluteUri.TrimEnd('/') + '/' + path.Trim('/'));
+            if (path == null)
+            {
+                throw new ArgumentNullException(nameof(path), "Specified path is null");
+            }
+
+            Uri resultUri = null;
+            try
+            {
+                resultUri = new Uri(path);
+            }
+            catch (UriFormatException)
+            {
+                resultUri = new Uri(_client.BaseUri, path);
+            }
+
+            if (!resultUri.AbsoluteUri.StartsWith(_client.BaseUri.AbsoluteUri))
+            {
+                throw new ArgumentException($"Given URI must begin with valid prefix ({_client.BaseUri.AbsoluteUri})", nameof(path));
+            }
+
+            if (resultUri.Segments.Count() < 2)
+            {
+                throw new ArgumentException("Input path must have a container name", nameof(path));
+            }
+
+            string containerName = resultUri.Segments[1].Trim(UrlPathSeparator);
+            NameValidator.ValidateContainerName(containerName);
+            NameValidator.ValidateBlobName(resultUri.PathAndQuery);
+
+            // If the last segment does not end with a '/', we require it to be a valid file name.
+            if (!resultUri.PathAndQuery.EndsWith(UrlPathSeparator.ToString()))
+            {
+                NameValidator.ValidateFileName(resultUri.Segments[resultUri.Segments.Length - 1]);
+            }
+
+            return resultUri;
         }
 
         /// <summary>

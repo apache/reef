@@ -73,14 +73,12 @@
       "doc": "Cross-language submission parameters to the Azure Batch runtime",
       "fields": [
         { "name": "sharedJobSubmissionParameters", "type": "AvroJobSubmissionParameters" },
-        { "name": "AzureBatchAccountKey", "type": "string" },
         { "name": "AzureBatchAccountName", "type": "string" },
         { "name": "AzureBatchAccountUri", "type": "string" },
         { "name": "AzureBatchPoolId", "type": "string" },
-        { "name": "AzureStorageAccountKey", "type": "string" },
         { "name": "AzureStorageAccountName", "type": "string" },
         { "name": "AzureStorageContainerName", "type": "string" },
-        { "name": "AzureBatchIsWindows", "type": "boolean" }
+        { "name": "AzureBatchPoolDriverPortsList", "type": {"type": "array", "items": "string"}}
       ]
   }
 ]

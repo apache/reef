@@ -34,6 +34,11 @@ namespace Org.Apache.REEF.IO.FileSystem.AzureDataLake
         private readonly IDataLakeStoreClient _client;
         private readonly AdlsClient _adlsClient;
 
+        private string UriPrefix
+        {
+            get { return $"adl://{_client.AccountFQDN}"; }
+        }
+
         [Inject]
         private AzureDataLakeFileSystem(IDataLakeStoreClient client)
         {
@@ -205,7 +210,7 @@ namespace Org.Apache.REEF.IO.FileSystem.AzureDataLake
         /// <summary>
         /// Create Uri from a given file path.
         /// The file path can be full with prefix or relative without prefix.
-        /// If null is passed as the path, ArgumentException will be thrown.
+        /// If path is null or the prefix doesn't match the prefix in the FileSystem, throw ArgumentException.
         /// </summary>
         /// <exception cref="ArgumentNullException">If specified path is null</exception>
         public Uri CreateUriForPath(string path)
@@ -214,7 +219,24 @@ namespace Org.Apache.REEF.IO.FileSystem.AzureDataLake
             {
                 throw new ArgumentNullException(nameof(path), "Specified path is null");
             }
-            return new Uri($"{GetUriPrefix()}/{path.TrimStart('/')}");
+
+            Uri resultUri = null;
+
+            try
+            {
+                resultUri = new Uri(path);
+            }
+            catch (UriFormatException)
+            {
+                resultUri = new Uri(new Uri(this.UriPrefix), path);
+            }
+
+            if (!resultUri.AbsoluteUri.StartsWith(this.UriPrefix))
+            {
+                throw new ArgumentException($"Given URI must begin with valid prefix ({this.UriPrefix})", nameof(path));
+            }
+
+            return resultUri;
         }
 
         /// <summary>
@@ -235,11 +257,6 @@ namespace Org.Apache.REEF.IO.FileSystem.AzureDataLake
             }
 
             return new FileStatus(entrySummary.LastModifiedTime.Value, entrySummary.Length);
-        }
-
-        private string GetUriPrefix()
-        {
-            return $"adl://{_client.AccountFQDN}";
         }
     }
 }
