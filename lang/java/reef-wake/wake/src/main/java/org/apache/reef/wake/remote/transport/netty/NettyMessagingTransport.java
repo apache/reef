@@ -154,7 +154,7 @@ public final class NettyMessagingTransport implements Transport {
         .option(ChannelOption.SO_REUSEADDR, true)
         .childOption(ChannelOption.SO_KEEPALIVE, true);
 
-    LOG.log(Level.INFO, "Binding to {0}:{1}", new Object[] {host, listenPort});
+    LOG.log(Level.FINE, "Binding to {0}:{1}", new Object[] {host, listenPort});
 
 
       try {
@@ -165,7 +165,7 @@ public final class NettyMessagingTransport implements Transport {
           InetSocketAddress socketAddr = null;
           Channel acceptorFound = null;
           for (int port : tcpPortProvider) {
-            LOG.log(Level.INFO, "Try host {0} and port {1}", new Object[] {host, port});
+            LOG.log(Level.FINEST, "Try host {0} and port {1}", new Object[] {host, port});
             try {
               socketAddr = new InetSocketAddress(host, port);
               acceptorFound = serverBootstrap.bind(socketAddr).sync().channel();

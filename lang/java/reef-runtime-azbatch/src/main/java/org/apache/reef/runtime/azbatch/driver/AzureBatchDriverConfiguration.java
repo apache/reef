@@ -98,7 +98,6 @@ public final class AzureBatchDriverConfiguration extends ConfigurationModuleBuil
   public static final RequiredParameter<String> AZURE_STORAGE_CONTAINER_NAME = new RequiredParameter<>();
 
   /**
-<<<<<<< Updated upstream
    * Container Registry Server.
    */
   public static final OptionalParameter<String> CONTAINER_REGISTRY_SERVER = new OptionalParameter<>();

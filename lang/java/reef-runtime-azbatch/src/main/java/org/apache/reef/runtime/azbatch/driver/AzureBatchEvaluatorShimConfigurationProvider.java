@@ -38,11 +38,11 @@ import java.util.ArrayList;
 @Private
 public class AzureBatchEvaluatorShimConfigurationProvider {
 
-  RemoteManager remoteManager;
-  TcpPortProvider portProvider;
-  LocalAddressProvider localAddressProvider;
-  AzureBatchHelper azureBatchHelper;
-  String tcpPortListString;
+  private final RemoteManager remoteManager;
+  private final TcpPortProvider portProvider;
+  private final LocalAddressProvider localAddressProvider;
+  private final AzureBatchHelper azureBatchHelper;
+  private final String tcpPortListString;
 
   @Inject
   AzureBatchEvaluatorShimConfigurationProvider(
@@ -62,7 +62,7 @@ public class AzureBatchEvaluatorShimConfigurationProvider {
    * Constructs a {@link Configuration} object which will be serialized and written to shim.config and
    * used to launch the evaluator shim.
    *
-   * @param containerId      id of the container for which the shim is being launched.
+   * @param containerId id of the container for which the shim is being launched.
    * @return A {@link Configuration} object needed to launch the evaluator shim.
    */
   public Configuration getConfiguration(final String containerId) {

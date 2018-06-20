@@ -35,7 +35,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * A LocalAddressProvider that uses <code>Inet4Address.getLocalHost().getHostAddress()</code>.
+ * A LocalAddressProvider that reads the contents of the file at HOST_IP_ADDR_PATH and uses it to be the ip address.
  */
 public final class ContainerBasedLocalAddressProvider implements LocalAddressProvider {
 

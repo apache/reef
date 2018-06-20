@@ -24,6 +24,7 @@ import com.microsoft.azure.batch.protocol.models.*;
 import org.apache.commons.lang.StringUtils;
 import org.apache.reef.runtime.azbatch.parameters.*;
 import org.apache.reef.runtime.azbatch.util.AzureBatchFileNames;
+import org.apache.reef.runtime.azbatch.util.command.CommandBuilder;
 import org.apache.reef.runtime.azbatch.util.storage.SharedAccessSignatureCloudBlobClientProvider;
 import org.apache.reef.tang.annotations.Parameter;
 import org.apache.reef.wake.remote.ports.TcpPortProvider;
@@ -54,6 +55,7 @@ public final class AzureBatchHelper {
 
   private final BatchClient client;
   private final PoolInformation poolInfo;
+  private CommandBuilder commandBuilder;
   private final TcpPortProvider portProvider;
   private final ContainerRegistry containerRegistry;
   private final String containerImageName;
@@ -63,6 +65,7 @@ public final class AzureBatchHelper {
       final AzureBatchFileNames azureBatchFileNames,
       final IAzureBatchCredentialProvider credentialProvider,
       final TcpPortProvider portProvider,
+      final CommandBuilder commandBuilder,
       @Parameter(ContainerRegistryServer.class) final String containerRegistryServer,
       @Parameter(ContainerRegistryUsername.class) final String containerRegistryUsername,
       @Parameter(ContainerRegistryPassword.class) final String containerRegistryPassword,
@@ -72,6 +75,7 @@ public final class AzureBatchHelper {
 
     this.client = BatchClient.open(credentialProvider.getCredentials());
     this.poolInfo = new PoolInformation().withPoolId(azureBatchPoolId);
+    this.commandBuilder = commandBuilder;
     this.portProvider = portProvider;
     if (!StringUtils.isEmpty(containerRegistryServer)) {
       this.containerRegistry = new ContainerRegistry()
@@ -112,38 +116,14 @@ public final class AzureBatchHelper {
         .withValue(storageContainerSAS);
 
 
-    String portMappings = "";
-
-    Iterator<Integer> iterator = this.portProvider.iterator();
-    while (iterator.hasNext()) {
-      Integer port = iterator.next();
-      System.out.println("iter port is " + port);
-      portMappings += String.format("-p %d:%d ", port, port);
-    }
-
-    TaskContainerSettings containerSettings = null;
-    JobPreparationTask jobPreparationTask = null;
-    if (this.containerRegistry != null) {
-      containerSettings = new TaskContainerSettings()
-          .withRegistry(this.containerRegistry)
-          .withImageName(this.containerImageName)
-          .withContainerRunOptions("-dit --env HOST_IP_ADDR_PATH=$AZ_BATCH_JOB_PREP_DIR/hostip.txt " + portMappings);
-      String captureIpAddressCommandLine =
-          "/bin/bash -c \"rm -f $AZ_BATCH_JOB_PREP_DIR/hostip.txt;" +
-              " echo `hostname -i` > $AZ_BATCH_JOB_PREP_DIR/hostip.txt\"";
-      jobPreparationTask = new JobPreparationTask()
-          .withId("CaptureHostIpAddress")
-          .withCommandLine(captureIpAddressCommandLine);
-    }
-
     JobManagerTask jobManagerTask = new JobManagerTask()
         .withRunExclusive(false)
         .withId(applicationId)
         .withResourceFiles(Collections.singletonList(jarResourceFile))
         .withEnvironmentSettings(Collections.singletonList(environmentSetting))
         .withAuthenticationTokenSettings(authenticationTokenSettings)
-        .withKillJobOnCompletion(false)
-        .withContainerSettings(containerSettings)
+        .withKillJobOnCompletion(true)
+        .withContainerSettings(getTaskContainerSettings())
         .withCommandLine(command);
 
     LOG.log(Level.INFO, "Job Manager (aka driver) task command: " + command);
@@ -151,7 +131,7 @@ public final class AzureBatchHelper {
     JobAddParameter jobAddParameter = new JobAddParameter()
         .withId(applicationId)
         .withJobManagerTask(jobManagerTask)
-        .withJobPreparationTask(jobPreparationTask)
+        .withJobPreparationTask(getJobPreparationTask())
         .withPoolInfo(poolInfo);
 
     client.jobOperations().createJob(jobAddParameter);
@@ -185,26 +165,10 @@ public final class AzureBatchHelper {
 
     LOG.log(Level.INFO, "Evaluator task command: " + command);
 
-    String portMappings = "";
-    Iterator<Integer> iterator = this.portProvider.iterator();
-    while (iterator.hasNext()) {
-      Integer port = iterator.next();
-      System.out.println("iter port is " + port);
-      portMappings += String.format("-p %d:%d ", port, port);
-    }
-
-    TaskContainerSettings containerSettings = null;
-    if (this.containerRegistry != null) {
-      containerSettings = new TaskContainerSettings()
-          .withRegistry(this.containerRegistry)
-          .withImageName(this.containerImageName)
-          .withContainerRunOptions("--env HOST_IP_ADDR_PATH=$AZ_BATCH_JOB_PREP_DIR/hostip.txt " + portMappings);
-    }
-
     final TaskAddParameter taskAddParameter = new TaskAddParameter()
         .withId(taskId)
         .withResourceFiles(resources)
-        .withContainerSettings(containerSettings)
+        .withContainerSettings(getTaskContainerSettings())
         .withCommandLine(command);
 
     this.client.taskOperations().createTask(jobId, taskAddParameter);
@@ -234,5 +198,38 @@ public final class AzureBatchHelper {
    */
   public String getAzureBatchJobId() {
     return System.getenv(AZ_BATCH_JOB_ID_ENV);
+  }
+
+  private TaskContainerSettings getTaskContainerSettings() {
+    if (this.containerRegistry == null) {
+      return null;
+    }
+
+    StringBuilder portMappings = new StringBuilder();
+    Iterator<Integer> iterator = this.portProvider.iterator();
+    while (iterator.hasNext()) {
+      Integer port = iterator.next();
+      portMappings.append(String.format("-p %d:%d ", port, port));
+    }
+
+    return new TaskContainerSettings()
+        .withRegistry(this.containerRegistry)
+        .withImageName(this.containerImageName)
+        .withContainerRunOptions(
+            String.format(
+                "-dit --env HOST_IP_ADDR_PATH=%s %s",
+                this.commandBuilder.getIpAddressFilePath(),
+                portMappings));
+  }
+
+  private JobPreparationTask getJobPreparationTask() {
+    if (this.containerRegistry == null) {
+      return null;
+    }
+
+    String captureIpAddressCommandLine = this.commandBuilder.captureIpAddressCommandLine();
+    return new JobPreparationTask()
+        .withId("CaptureHostIpAddress")
+        .withCommandLine(captureIpAddressCommandLine);
   }
 }

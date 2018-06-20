@@ -71,4 +71,15 @@ public class WindowsCommandBuilder extends AbstractCommandBuilder {
     return String.format("'%s'", StringUtils.join(
         super.classpathProvider.getEvaluatorClasspath(), CLASSPATH_SEPARATOR_CHAR));
   }
+
+  @Override
+  public String getIpAddressFilePath() {
+    return "%AZ_BATCH_TASK_WORKING_DIR%\\hostip.txt";
+  }
+
+  @Override
+  public String captureIpAddressCommandLine() {
+    String filePath = getIpAddressFilePath();
+    return String.format("powershell /c \"Set-Content -Path %s -Value (Get-WmiObject Win32_NetworkAdapterConfiguration|Where {$_.Ipaddress.length -gt 1}).ipaddress[0] -NoNewline -Force\"", filePath);
+  }
 }

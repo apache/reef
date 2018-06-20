@@ -53,4 +53,18 @@ public interface CommandBuilder {
    */
   String buildEvaluatorCommand(final ResourceLaunchEvent resourceLaunchEvent,
                                final int containerMemory, final double jvmHeapFactor);
+
+  /**
+   * Returns the path to a file where the ip address is persisted.
+   *
+   * @return path to the file.
+   */
+  String getIpAddressFilePath();
+
+  /**
+   * Returns a command line that saves the ip address of the host to a file.
+   *
+   * @return command line string.
+   */
+  String captureIpAddressCommandLine();
 }

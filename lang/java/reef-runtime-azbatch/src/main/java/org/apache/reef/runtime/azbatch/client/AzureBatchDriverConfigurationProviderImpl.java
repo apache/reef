@@ -82,6 +82,9 @@ public final class AzureBatchDriverConfigurationProviderImpl implements DriverCo
     this.azureStorageContainerName = azureStorageContainerName;
     this.containerRegistryServer = containerRegistryServer;
     this.containerRegistryUsername = containerRegistryUsername;
+
+    // TODO: Secure the password by encrypting it and using
+    // Azure Batch certificates to decrypt on the driver side.
     this.containerRegistryPassword = containerRegistryPassword;
     this.containerImageName = containerImageName;
     this.commandBuilder = commandBuilder;
