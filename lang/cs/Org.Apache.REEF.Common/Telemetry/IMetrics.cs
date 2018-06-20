@@ -15,18 +15,23 @@
 // specific language governing permissions and limitations
 // under the License.
 
-using System;
 using System.Collections.Generic;
 using Org.Apache.REEF.Tang.Annotations;
-using Org.Apache.REEF.Utilities.Attributes;
 
 namespace Org.Apache.REEF.Common.Telemetry
 {
     /// <summary>
     /// Interface for a collection of metrics.
     /// </summary>
+    [DefaultImplementation(typeof(MetricsData))]
     public interface IMetrics
     {
+        /// <summary>
+        /// Add a metric object to this collection.
+        /// </summary>
+        /// <param name="me">The metric object to add.</param>
+        void RegisterMetric(IMetric me);
+
         /// <summary>
         /// Get metric value given the metric name.
         /// </summary>
@@ -36,9 +41,21 @@ namespace Org.Apache.REEF.Common.Telemetry
         bool TryGetMetric(string name, out IMetric metric);
 
         /// <summary>
-        /// Returns all the metrics.
+        /// Returns all the metric trackers.
         /// </summary>
         /// <returns></returns>
         IEnumerable<MetricTracker> GetMetricTrackers();
+
+        /// <summary>
+        /// Empties the cached records for each metric.
+        /// </summary>
+        /// <returns>Key Value pair of metric name and record.</returns>
+        IEnumerable<KeyValuePair<string, MetricTracker.MetricRecord>> FlushMetricRecords();
+
+        /// <summary>
+        /// Serializes the metrics data.
+        /// </summary>
+        /// <returns>Serialized string.</returns>
+        string Serialize();
     }
 }

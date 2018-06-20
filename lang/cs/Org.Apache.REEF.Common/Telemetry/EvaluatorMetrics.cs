@@ -15,7 +15,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-using System.Collections.Generic;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Utilities.Logging;
 
@@ -50,23 +49,19 @@ namespace Org.Apache.REEF.Common.Telemetry
         {
             var metric = new T
             {
-                _name = name,
-                _description = description,
-                _keepUpdateHistory = keepUpdateHistory
+                Name = name,
+                Description = description,
+                KeepUpdateHistory = keepUpdateHistory
             };
             _metricsData.RegisterMetric(metric);
             return metric;
         }
 
-        public MetricsData GetMetricsData()
+        public IMetrics GetMetricsData()
         {
             return _metricsData;
         }
 
-        /// <summary>
-        /// Serializes metric data.
-        /// </summary>
-        /// <returns>Returns serialized string of metrics.</returns>
         public string Serialize()
         {
             if (_metricsData != null)

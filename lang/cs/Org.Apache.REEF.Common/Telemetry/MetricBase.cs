@@ -22,30 +22,38 @@ using Newtonsoft.Json;
 namespace Org.Apache.REEF.Common.Telemetry
 {
     /// <summary>
-    /// Base implementation of a metric object.
+    /// Base implementation of a metric with untyped value.
     /// </summary>
-    /// <typeparam name="T">Metric type</typeparam>
     public class MetricBase : IMetric
     {
         protected ITracker _tracker;
 
-        internal string _name;
-
-        internal string _description;
-
-        internal bool _keepUpdateHistory;
-
-        protected object _value;
+        private object _value;
 
         protected object _metricLock = new object();
 
-        public string Name { get { return _name; } }
+        public string Name
+        {
+            get; internal set;
+        }
 
-        public string Description { get { return _description; } }
+        public string Description
+        {
+            get; internal set;
+        }
 
-        public virtual object ValueUntyped { get { return _value; } }
+        public bool KeepUpdateHistory
+        {
+            get; internal set;
+        }
 
-        public bool KeepUpdateHistory { get { return _keepUpdateHistory; } }
+        public virtual object ValueUntyped
+        {
+            get
+            {
+                return _value;
+            }
+        }
 
         public MetricBase()
         {
@@ -53,19 +61,19 @@ namespace Org.Apache.REEF.Common.Telemetry
 
         public MetricBase(string name, string description, bool keepUpdateHistory = true)
         {
-            _name = name;
-            _description = description;
-            _keepUpdateHistory = keepUpdateHistory;
+            Name = name;
+            Description = description;
+            KeepUpdateHistory = keepUpdateHistory;
             _value = default;
         }
 
         [JsonConstructor]
         public MetricBase(string name, string description, object value, bool keepUpdateHistory)
         {
-            _name = name;
-            _description = description;
+            Name = name;
+            Description = description;
+            KeepUpdateHistory = keepUpdateHistory;
             _value = value;
-            _keepUpdateHistory = keepUpdateHistory;
         }
 
         public virtual void AssignNewValue(object value)
@@ -99,13 +107,23 @@ namespace Org.Apache.REEF.Common.Telemetry
         }
     }
 
+    /// <summary>
+    /// Base implementation with a generic value type.
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
     public class MetricBase<T> : MetricBase
     {
         protected T _typedValue;
 
-        public T Value { get { return _typedValue; } }
+        public T Value
+        {
+            get { return _typedValue; }
+        }
 
-        public override object ValueUntyped { get { return _typedValue; } }
+        public override object ValueUntyped
+        {
+            get { return _typedValue; }
+        }
 
         public MetricBase() : base()
         {
@@ -133,6 +151,11 @@ namespace Org.Apache.REEF.Common.Telemetry
             }
         }
 
+        /// <summary>
+        /// Assign and track the new value to metric. 
+        /// In most cases, this method should be overridden in derived classes using Interlocked.
+        /// </summary>
+        /// <param name="value">Value to assign the metric.</param>
         public override void AssignNewValue(object value)
         {
             lock (_metricLock)

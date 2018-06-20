@@ -29,13 +29,13 @@ namespace Org.Apache.REEF.Common.Telemetry
     {
         public MetricClass() : base() { }
 
-        public MetricClass(string name, string description, bool keepHistory = true)
+        internal MetricClass(string name, string description, bool keepHistory = true)
             : base(name, description, keepHistory)
         {
         }
 
         [JsonConstructor]
-        public MetricClass(string name, string description, T value, bool keepUpdateHistory)
+        internal MetricClass(string name, string description, T value, bool keepUpdateHistory)
             : base(name, description, value, keepUpdateHistory)
         {
         }

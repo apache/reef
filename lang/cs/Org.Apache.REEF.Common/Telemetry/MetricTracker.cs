@@ -85,7 +85,7 @@ namespace Org.Apache.REEF.Common.Telemetry
         /// Flush records currently held in the records queue.
         /// </summary>
         /// <returns>A queue containing all the flushed records.</returns>
-        internal ConcurrentQueue<MetricRecord> FlushChangesSinceLastSink()
+        internal IEnumerable<MetricRecord> FlushChangesSinceLastSink()
         {
             ConcurrentQueue<MetricRecord> records = new ConcurrentQueue<MetricRecord>();
             if (!Records.IsEmpty)

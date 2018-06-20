@@ -31,13 +31,13 @@ namespace Org.Apache.REEF.Common.Telemetry
             _typedValue = default;
         }
 
-        public IntegerMetric(string name, string description, bool keepHistory = true)
+        internal IntegerMetric(string name, string description, bool keepHistory = true)
             : base(name, description, keepHistory)
         {
         }
 
         [JsonConstructor]
-        public IntegerMetric(string name, string description, int value, bool keepUpdateHistory)
+        internal IntegerMetric(string name, string description, int value, bool keepUpdateHistory)
             : base(name, description, value, keepUpdateHistory)
         {
         }

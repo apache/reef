@@ -15,8 +15,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-using System;
-using System.Collections.Generic;
 using StringMetric = Org.Apache.REEF.Common.Telemetry.MetricClass<string>;
 
 namespace Org.Apache.REEF.Common.Telemetry
@@ -39,22 +37,22 @@ namespace Org.Apache.REEF.Common.Telemetry
         {
             _metricsData = new MetricsData();
             SystemState = new StringMetric(_stateMetricName, "driver state.", systemState, false);
-            _metricsData.RegisterMetric((MetricBase)SystemState);
+            _metricsData.RegisterMetric(SystemState);
         }
 
-        public MetricsData GetMetricsData()
+        public IMetrics GetMetricsData()
         {
             return _metricsData;
         }
 
-        public IMetric CreateAndRegisterMetric<T>(string name, string description, bool keepUpdateHistory) 
+        public T CreateAndRegisterMetric<T>(string name, string description, bool keepUpdateHistory) 
             where T : MetricBase, new()
         {
             var metric = new T
             {
-                _name = name,
-                _description = description,
-                _keepUpdateHistory = keepUpdateHistory
+                Name = name,
+                Description = description,
+                KeepUpdateHistory = keepUpdateHistory
             };
             _metricsData.RegisterMetric(metric);
             return metric;

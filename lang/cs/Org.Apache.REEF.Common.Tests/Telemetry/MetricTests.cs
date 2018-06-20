@@ -58,13 +58,13 @@ namespace Org.Apache.REEF.Common.Tests.Telemetry
             var evalMetrics = TangFactory.GetTang().NewInjector().GetInstance<IEvaluatorMetrics>();
             var intMetric = evalMetrics.CreateAndRegisterMetric<IntegerMetric>("IntMetric", "metric of type int", true);
             var doubleMetric = evalMetrics.CreateAndRegisterMetric<DoubleMetric>("DouMetric", "metric of type double", true);
+
             var evalMetricsData = evalMetrics.GetMetricsData();
             ValidateMetric(evalMetricsData, "IntMetric", default(int));
             ValidateMetric(evalMetricsData, "DouMetric", default(double));
 
             intMetric.AssignNewValue(3);
             doubleMetric.AssignNewValue(3.0);
-
             ValidateMetric(evalMetricsData, "IntMetric", 3);
             ValidateMetric(evalMetricsData, "DouMetric", 3.0);
         }
@@ -93,17 +93,19 @@ namespace Org.Apache.REEF.Common.Tests.Telemetry
         public void TestMetricsSimulateHeartbeat()
         {
             var evalMetrics1 = TangFactory.GetTang().NewInjector().GetInstance<IEvaluatorMetrics>();
-            var metrics1 = evalMetrics1.GetMetricsData();
-            var counter = new CounterMetric("counter", "counter with no records");
-            var iter = new IntegerMetric("iteration", "iteration with records");
-            metrics1.RegisterMetric(counter);
-            metrics1.RegisterMetric(iter);
+            evalMetrics1.CreateAndRegisterMetric<CounterMetric>("counter", "counter with no records", false);
+            evalMetrics1.CreateAndRegisterMetric<IntegerMetric>("iteration", "iteration with records", true);
+            evalMetrics1.TryGetMetric("counter", out IMetric me1);
+            evalMetrics1.TryGetMetric("iteration", out IMetric me2);
+            var counter = (CounterMetric)me1;
+            var iter = (IntegerMetric)me2;
             for (int i = 0; i < 5; i++)
             {
                 counter.Increment();
                 iter.AssignNewValue(i + 1);
             }
-            var me1Str = metrics1.Serialize();
+
+            var me1Str = evalMetrics1.Serialize();
             var evalMetrics2 = new EvaluatorMetrics(me1Str);
             var metricsData2 = evalMetrics2.GetMetricsData();
 
@@ -118,11 +120,11 @@ namespace Org.Apache.REEF.Common.Tests.Telemetry
 
         private static void ValidateMetric(IMetrics metricSet, string name, object expectedValue)
         {
-            metricSet.TryGetMetric(name, out IMetric metric);
+            Assert.True(metricSet.TryGetMetric(name, out IMetric metric));
             Assert.Equal(expectedValue, metric.ValueUntyped);
         }
 
-        private static MetricsData CreateMetrics()
+        private static IMetrics CreateMetrics()
         {
             var m = TangFactory.GetTang().NewInjector().GetInstance<IEvaluatorMetrics>();
             var c = m.GetMetricsData();

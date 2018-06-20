@@ -52,7 +52,7 @@ namespace Org.Apache.REEF.Common.Telemetry
         /// <summary>
         /// Deserialization.
         /// </summary>
-        /// <param name="serializedMetricsString"></param>
+        /// <param name="serializedMetricsString">string to Deserialize.</param>
         [JsonConstructor]
         internal MetricsData(string serializedMetricsString)
         {
@@ -64,14 +64,7 @@ namespace Org.Apache.REEF.Common.Telemetry
             }
         }
 
-        /// <summary>
-        /// Checks if the metric to be registered has a unique name. If the metric name has already been 
-        /// registered, metric is not entered into the registration and method returns false. On successful
-        /// registration, method returns true.
-        /// </summary>
-        /// <param name="metric">Metric to register.</param>
-        /// <returns>Indicates if the metric was registered.</returns>
-        internal void RegisterMetric(MetricBase metric)
+        public void RegisterMetric(IMetric metric)
         {
             if (!_metricsMap.TryAdd(metric.Name, new MetricTracker(metric)))
             {
@@ -79,12 +72,6 @@ namespace Org.Apache.REEF.Common.Telemetry
             }
         }
 
-        /// <summary>
-        /// Gets a metric given a name.
-        /// </summary>
-        /// <param name="name">Name of the metric.</param>
-        /// <param name="me">The metric object returned.</param>
-        /// <returns>Boolean indicating if a metric object was succesfully retrieved.</returns>
         public bool TryGetMetric(string name, out IMetric me)
         {
             if (!_metricsMap.TryGetValue(name, out MetricTracker tracker))
@@ -96,27 +83,9 @@ namespace Org.Apache.REEF.Common.Telemetry
             return true;
         }
 
-        /// <summary>
-        /// Gets all the registered metrics.
-        /// </summary>
-        /// <returns>IEnumerable of MetricData.</returns>
         public IEnumerable<MetricTracker> GetMetricTrackers()
         {
             return _metricsMap.Values;
-        }
-
-        /// <summary>
-        /// Updates metrics given another <see cref="MetricsData"/> object.
-        /// For every metric in the new set, if it is registered then update the value,
-        /// if it is not then add it to the registration.
-        /// </summary>
-        /// <param name="metrics">New metric values to be updated.</param>
-        internal void Update(MetricsData metrics)
-        {
-            foreach (var tracker in metrics.GetMetricTrackers())
-            {
-                _metricsMap.AddOrUpdate(tracker.GetMetric().Name, tracker, (k, v) => v.UpdateMetric(tracker));
-            }
         }
 
         /// <summary>
@@ -131,13 +100,27 @@ namespace Org.Apache.REEF.Common.Telemetry
         }
 
         /// <summary>
+        /// Updates metrics given another <see cref="MetricsData"/> object.
+        /// For every metric in the new set, if it is registered then update the value,
+        /// if it is not then add it to the registration.
+        /// </summary>
+        /// <param name="metrics">New metric values to be updated.</param>
+        internal void Update(IMetrics metrics)
+        {
+            foreach (var tracker in metrics.GetMetricTrackers())
+            {
+                _metricsMap.AddOrUpdate(tracker.GetMetric().Name, tracker, (k, v) => v.UpdateMetric(tracker));
+            }
+        }
+
+        /// <summary>
         /// Flushes that trackers contained in the queue.
         /// Called when Evaluator is sending metrics information to Driver.
         /// </summary>
         /// <returns>Queue of trackers containing metric records.</returns>
-        public ConcurrentQueue<MetricTracker> FlushMetricTrackers()
+        internal IEnumerable<MetricTracker> FlushMetricTrackers()
         {
-            return new ConcurrentQueue<MetricTracker>(_metricsMap.Select(kv => new MetricTracker(kv.Value.GetMetric(), kv.Value.ChangesSinceLastSink, kv.Value.FlushChangesSinceLastSink(), kv.Value.KeepUpdateHistory)));
+            return new ConcurrentQueue<MetricTracker>(_metricsMap.Select(kv => new MetricTracker(kv.Value.GetMetric(), kv.Value.ChangesSinceLastSink, (ConcurrentQueue<MetricTracker.MetricRecord>)kv.Value.FlushChangesSinceLastSink(), kv.Value.KeepUpdateHistory)));
         }
 
         /// <summary>

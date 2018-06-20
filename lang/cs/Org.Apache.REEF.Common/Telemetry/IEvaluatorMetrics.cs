@@ -24,11 +24,29 @@ namespace Org.Apache.REEF.Common.Telemetry
     [DefaultImplementation(typeof(EvaluatorMetrics))]
     public interface IEvaluatorMetrics
     {
-        T CreateAndRegisterMetric<T>(string name, string description, bool keepUpateHistory)
+        /// <summary>
+        /// Creates an evaluator metric.
+        /// </summary>
+        /// <typeparam name="T">Type of the metric object.</typeparam>
+        /// <param name="name">Name of the metric.</param>
+        /// <param name="description">Description of the metric.</param>
+        /// <param name="keepUpdateHistory">whether to keep a history of updates on this metric.</param>
+        /// <returns></returns>
+        T CreateAndRegisterMetric<T>(string name, string description, bool keepUpdateHistory)
             where T : MetricBase, new();
 
-        MetricsData GetMetricsData();
+        /// <summary>
+        /// Method that returns the collection of metric data.
+        /// </summary>
+        /// <returns></returns>
+        IMetrics GetMetricsData();
 
+        /// <summary>
+        /// Extracts the metric object if it has been registered.
+        /// </summary>
+        /// <param name="name">Name of the metric.</param>
+        /// <param name="me">The registered metric. null if not found.</param>
+        /// <returns></returns>
         bool TryGetMetric(string name, out IMetric me);
 
         /// <summary>

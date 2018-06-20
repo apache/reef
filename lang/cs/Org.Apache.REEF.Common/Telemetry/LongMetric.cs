@@ -28,13 +28,13 @@ namespace Org.Apache.REEF.Common.Telemetry
     {
         public LongMetric() : base() { }
 
-        public LongMetric(string name, string description, bool keepHistory = true)
+        internal LongMetric(string name, string description, bool keepHistory = true)
             : base(name, description, keepHistory)
         {
         }
 
         [JsonConstructor]
-        public LongMetric(string name, string description, long value, bool keepUpdateHistory)
+        internal LongMetric(string name, string description, long value, bool keepUpdateHistory)
             : base(name, description, value, keepUpdateHistory)
         {
         }

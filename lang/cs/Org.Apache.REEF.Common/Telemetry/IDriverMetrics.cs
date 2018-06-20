@@ -24,11 +24,18 @@ namespace Org.Apache.REEF.Common.Telemetry
     [DefaultImplementation(typeof(DriverMetrics))]
     public interface IDriverMetrics
     {
+        /// <summary>
+        /// A metric representing the state of the Driver.
+        /// </summary>
         IMetric SystemState { get; }
 
-        MetricsData GetMetricsData();
+        /// <summary>
+        /// Method that returns the collection of metric data.
+        /// </summary>
+        /// <returns></returns>
+        IMetrics GetMetricsData();
 
-        IMetric CreateAndRegisterMetric<T>(string name, string description, bool keepUpateHistory)
+        T CreateAndRegisterMetric<T>(string name, string description, bool keepUpateHistory)
             where T : MetricBase, new();
     }
 }
