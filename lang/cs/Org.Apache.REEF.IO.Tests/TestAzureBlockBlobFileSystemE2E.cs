@@ -171,7 +171,7 @@ namespace Org.Apache.REEF.IO.Tests
             ValidateChildren(rootUri, new List<Uri> { _container.Uri });
         }
 
-        public void ValidateChildren(Uri storageBlobUri, IEnumerable<Uri> expectedChildBlobs)
+        private void ValidateChildren(Uri storageBlobUri, IEnumerable<Uri> expectedChildBlobs)
         {
             IEnumerable<Uri> blobs = _fileSystem.GetChildren(storageBlobUri);
             Assert.Equal(

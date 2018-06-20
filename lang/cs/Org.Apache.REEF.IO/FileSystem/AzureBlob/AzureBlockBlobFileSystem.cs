@@ -132,7 +132,9 @@ namespace Org.Apache.REEF.IO.FileSystem.AzureBlob
             var uriSplit = directoryUri.AbsolutePath.Split(new[] { "/" }, StringSplitOptions.RemoveEmptyEntries);
             if (!uriSplit.Any())
             {
-                throw new StorageException(string.Format("URI {0} must contain at least the container.", directoryUri));
+                throw new StorageException(
+                    string.Format("URI {0} must contain at least the container.",
+                    directoryUri));
             }
 
             var containerName = uriSplit[0];
@@ -150,10 +152,11 @@ namespace Org.Apache.REEF.IO.FileSystem.AzureBlob
                 directory = directory.GetDirectoryReference(uriSplit[i]);
             }
 
-            foreach (var blob in directory.ListBlobs(true).OfType<ICloudBlob>())
-            {
-                blob.DeleteIfExistsAsync().Wait();
-            }
+            Task.WaitAll(directory
+                .ListBlobs(true)
+                .OfType<ICloudBlob>()
+                .Select(blob => blob.DeleteIfExistsAsync())
+                .ToArray());
         }
 
         /// <summary>
@@ -166,13 +169,13 @@ namespace Org.Apache.REEF.IO.FileSystem.AzureBlob
             BlobContinuationToken blobContinuationToken = null;
 
             // If at the root, return all containers
-            if (segments.Count() <= 1)
+            if (segments.Length <= 1)
             {
                 do
                 {
                     ContainerResultSegment containerListing = _client.ListContainersSegmented(blobContinuationToken);
 
-                    if (containerListing != null && containerListing.Results != null)
+                    if (containerListing?.Results != null)
                     {
                         foreach (CloudBlobContainer containerItem in containerListing.Results)
                         {
@@ -180,7 +183,7 @@ namespace Org.Apache.REEF.IO.FileSystem.AzureBlob
                         }
                     }
 
-                    blobContinuationToken = containerListing.ContinuationToken;
+                    blobContinuationToken = containerListing?.ContinuationToken;
                 }
                 while (blobContinuationToken != null);
                 yield break;
@@ -204,14 +207,14 @@ namespace Org.Apache.REEF.IO.FileSystem.AzureBlob
 
                 if (listing == null || listing.Results.Count() == 0)
                 {
-                    throw new ArgumentException("Call to ListBlobsSegmented returned no results. Uri is invalid or does not have children.", nameof(directoryUri));
+                    throw new ArgumentException(
+                        "Call to ListBlobsSegmented returned no results. Uri is invalid or does not have children.",
+                        nameof(directoryUri));
                 }
-                else
+
+                foreach (IListBlobItem listBlobItem in listing.Results)
                 {
-                    foreach (IListBlobItem listBlobItem in listing.Results)
-                    {
-                        yield return listBlobItem.Uri;
-                    }
+                    yield return listBlobItem.Uri;
                 }
 
                 blobContinuationToken = listing.ContinuationToken;
