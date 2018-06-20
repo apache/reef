@@ -18,11 +18,11 @@
  */
 package org.apache.reef.runtime.azbatch.client;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.reef.annotations.audience.Private;
 import org.apache.reef.runtime.azbatch.driver.AzureBatchDriverConfiguration;
 import org.apache.reef.runtime.azbatch.driver.RuntimeIdentifier;
 import org.apache.reef.runtime.azbatch.parameters.*;
+import org.apache.reef.runtime.azbatch.util.batch.ContainerRegistryProvider;
 import org.apache.reef.runtime.azbatch.util.command.CommandBuilder;
 import org.apache.reef.runtime.common.client.DriverConfigurationProvider;
 import org.apache.reef.runtime.common.parameters.JVMHeapSlack;
@@ -38,8 +38,6 @@ import org.apache.reef.wake.remote.ports.parameters.TcpPortListString;
 
 import javax.inject.Inject;
 import java.net.URI;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Configuration provider for the Azure Batch runtime.
@@ -53,10 +51,7 @@ public final class AzureBatchDriverConfigurationProviderImpl implements DriverCo
   private final String azureBatchPoolId;
   private final String azureStorageAccountName;
   private final String azureStorageContainerName;
-  private final String containerRegistryServer;
-  private final String containerRegistryUsername;
-  private final String containerRegistryPassword;
-  private final String containerImageName;
+  private final ContainerRegistryProvider containerRegistryProvider;
   private final CommandBuilder commandBuilder;
   private final String tcpPortListString;
 
@@ -68,10 +63,7 @@ public final class AzureBatchDriverConfigurationProviderImpl implements DriverCo
       @Parameter(AzureBatchPoolId.class) final String azureBatchPoolId,
       @Parameter(AzureStorageAccountName.class) final String azureStorageAccountName,
       @Parameter(AzureStorageContainerName.class) final String azureStorageContainerName,
-      @Parameter(ContainerRegistryServer.class) final String containerRegistryServer,
-      @Parameter(ContainerRegistryUsername.class) final String containerRegistryUsername,
-      @Parameter(ContainerRegistryPassword.class) final String containerRegistryPassword,
-      @Parameter(ContainerImageName.class) final String containerImageName,
+      final ContainerRegistryProvider containerRegistryProvider,
       @Parameter(TcpPortListString.class) final String tcpPortListString,
       final CommandBuilder commandBuilder) {
     this.jvmSlack = jvmSlack;
@@ -80,13 +72,8 @@ public final class AzureBatchDriverConfigurationProviderImpl implements DriverCo
     this.azureBatchPoolId = azureBatchPoolId;
     this.azureStorageAccountName = azureStorageAccountName;
     this.azureStorageContainerName = azureStorageContainerName;
-    this.containerRegistryServer = containerRegistryServer;
-    this.containerRegistryUsername = containerRegistryUsername;
+    this.containerRegistryProvider = containerRegistryProvider;
 
-    // TODO: Secure the password by encrypting it and using
-    // Azure Batch certificates to decrypt on the driver side.
-    this.containerRegistryPassword = containerRegistryPassword;
-    this.containerImageName = containerImageName;
     this.commandBuilder = commandBuilder;
     this.tcpPortListString = tcpPortListString;
   }
@@ -105,13 +92,11 @@ public final class AzureBatchDriverConfigurationProviderImpl implements DriverCo
                                               final String clientRemoteId,
                                               final String jobId,
                                               final Configuration applicationConfiguration) {
-
-
     ConfigurationModuleBuilder driverConfigurationBuilder = AzureBatchDriverConfiguration.CONF.getBuilder()
         .bindImplementation(CommandBuilder.class, this.commandBuilder.getClass());
 
     // If using docker containers, then use a different set of bindings
-    if (!StringUtils.isEmpty(this.containerRegistryServer)) {
+    if (this.containerRegistryProvider.isValid()) {
       driverConfigurationBuilder = driverConfigurationBuilder
           .bindImplementation(LocalAddressProvider.class, ContainerBasedLocalAddressProvider.class)
           .bindImplementation(TcpPortProvider.class, ListTcpPortProvider.class);
@@ -127,10 +112,14 @@ public final class AzureBatchDriverConfigurationProviderImpl implements DriverCo
         .set(AzureBatchDriverConfiguration.AZURE_BATCH_POOL_ID, this.azureBatchPoolId)
         .set(AzureBatchDriverConfiguration.AZURE_STORAGE_ACCOUNT_NAME, this.azureStorageAccountName)
         .set(AzureBatchDriverConfiguration.AZURE_STORAGE_CONTAINER_NAME, this.azureStorageContainerName)
-        .set(AzureBatchDriverConfiguration.CONTAINER_REGISTRY_SERVER, this.containerRegistryServer)
-        .set(AzureBatchDriverConfiguration.CONTAINER_REGISTRY_USERNAME, this.containerRegistryUsername)
-        .set(AzureBatchDriverConfiguration.CONTAINER_REGISTRY_PASSWORD, this.containerRegistryPassword)
-        .set(AzureBatchDriverConfiguration.CONTAINER_IMAGE_NAME, this.containerImageName)
+        .set(AzureBatchDriverConfiguration.CONTAINER_REGISTRY_SERVER,
+            this.containerRegistryProvider.getContainerRegistryServer())
+        .set(AzureBatchDriverConfiguration.CONTAINER_REGISTRY_USERNAME,
+            this.containerRegistryProvider.getContainerRegistryUsername())
+        .set(AzureBatchDriverConfiguration.CONTAINER_REGISTRY_PASSWORD,
+            this.containerRegistryProvider.getContainerRegistryPassword())
+        .set(AzureBatchDriverConfiguration.CONTAINER_IMAGE_NAME,
+            this.containerRegistryProvider.getContainerImageName())
         .set(AzureBatchDriverConfiguration.TCP_PORT_LIST_STRING, this.tcpPortListString)
         .build();
     return Configurations.merge(driverConfiguration, applicationConfiguration);

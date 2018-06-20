@@ -21,7 +21,6 @@ package org.apache.reef.runtime.azbatch.util.batch;
 import com.microsoft.azure.batch.BatchClient;
 import com.microsoft.azure.batch.protocol.models.*;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.reef.runtime.azbatch.parameters.*;
 import org.apache.reef.runtime.azbatch.util.AzureBatchFileNames;
 import org.apache.reef.runtime.azbatch.util.command.CommandBuilder;
@@ -58,7 +57,7 @@ public final class AzureBatchHelper {
   private CommandBuilder commandBuilder;
   private final TcpPortProvider portProvider;
   private final ContainerRegistry containerRegistry;
-  private final String containerImageName;
+  private final ContainerRegistryProvider containerRegistryProvider;
 
   @Inject
   public AzureBatchHelper(
@@ -66,26 +65,22 @@ public final class AzureBatchHelper {
       final IAzureBatchCredentialProvider credentialProvider,
       final TcpPortProvider portProvider,
       final CommandBuilder commandBuilder,
-      @Parameter(ContainerRegistryServer.class) final String containerRegistryServer,
-      @Parameter(ContainerRegistryUsername.class) final String containerRegistryUsername,
-      @Parameter(ContainerRegistryPassword.class) final String containerRegistryPassword,
-      @Parameter(ContainerImageName.class) final String containerImageName,
+      final ContainerRegistryProvider containerRegistryProvider,
       @Parameter(AzureBatchPoolId.class) final String azureBatchPoolId) {
     this.azureBatchFileNames = azureBatchFileNames;
 
     this.client = BatchClient.open(credentialProvider.getCredentials());
     this.poolInfo = new PoolInformation().withPoolId(azureBatchPoolId);
     this.commandBuilder = commandBuilder;
+    this.containerRegistryProvider = containerRegistryProvider;
     this.portProvider = portProvider;
-    if (!StringUtils.isEmpty(containerRegistryServer)) {
+    if (this.containerRegistryProvider.isValid()) {
       this.containerRegistry = new ContainerRegistry()
-          .withRegistryServer(containerRegistryServer)
-          .withUserName(containerRegistryUsername)
-          .withPassword(containerRegistryPassword);
-      this.containerImageName = containerImageName;
+          .withRegistryServer(this.containerRegistryProvider.getContainerRegistryServer())
+          .withUserName(this.containerRegistryProvider.getContainerRegistryUsername())
+          .withPassword(this.containerRegistryProvider.getContainerRegistryPassword());
     } else {
       this.containerRegistry = null;
-      this.containerImageName = null;
     }
   }
 
@@ -214,7 +209,7 @@ public final class AzureBatchHelper {
 
     return new TaskContainerSettings()
         .withRegistry(this.containerRegistry)
-        .withImageName(this.containerImageName)
+        .withImageName(this.containerRegistryProvider.getContainerImageName())
         .withContainerRunOptions(
             String.format(
                 "-dit --env HOST_IP_ADDR_PATH=%s %s",
