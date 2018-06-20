@@ -15,6 +15,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
+using System.Collections.Generic;
 using System.Runtime.Serialization;
 using Org.Apache.REEF.Utilities.Attributes;
 
@@ -30,7 +31,7 @@ namespace Org.Apache.REEF.Client.Avro.AzureBatch
     [DataContract(Namespace = "org.apache.reef.reef.bridge.client.avro")]
     public sealed class AvroAzureBatchJobSubmissionParameters
     {
-        private const string JsonSchema = @"{""type"":""record"",""name"":""org.apache.reef.reef.bridge.client.avro.AvroAzureBatchJobSubmissionParameters"",""doc"":""Job submission parameters used by the Azure Batch runtime"",""fields"":[{""name"":""sharedJobSubmissionParameters"",""type"":{""type"":""record"",""name"":""org.apache.reef.reef.bridge.client.avro.AvroJobSubmissionParameters"",""doc"":""General cross-language job submission parameters shared by all runtimes"",""fields"":[{""name"":""jobId"",""type"":""string""},{""name"":""jobSubmissionFolder"",""type"":""string""}]}},{""name"":""AzureBatchAccountKey"",""type"":""string""},{""name"":""AzureBatchAccountName"",""type"":""string""},{""name"":""AzureBatchAccountUri"",""type"":""string""},{""name"":""AzureBatchPoolId"",""type"":""string""},{""name"":""AzureStorageAccountKey"",""type"":""string""},{""name"":""AzureStorageAccountName"",""type"":""string""},{""name"":""AzureStorageContainerName"",""type"":""string""},{""name"":""AzureBatchIsWindows"",""type"":""boolean""}]}";
+        private const string JsonSchema = @"{""type"":""record"",""name"":""org.apache.reef.reef.bridge.client.avro.AvroAzureBatchJobSubmissionParameters"",""doc"":""Job submission parameters used by the Azure Batch runtime"",""fields"":[{""name"":""sharedJobSubmissionParameters"",""type"":{""type"":""record"",""name"":""org.apache.reef.reef.bridge.client.avro.AvroJobSubmissionParameters"",""doc"":""General cross-language job submission parameters shared by all runtimes"",""fields"":[{""name"":""jobId"",""type"":""string""},{""name"":""jobSubmissionFolder"",""type"":""string""}]}},{""name"":""AzureBatchAccountName"",""type"":""string""},{""name"":""AzureBatchAccountUri"",""type"":""string""},{""name"":""AzureBatchPoolId"",""type"":""string""},{""name"":""AzureStorageAccountName"",""type"":""string""},{""name"":""AzureStorageContainerName"",""type"":""string""},{""name"":""AzureBatchPoolDriverPortsList"",""type"":{""type"": ""array"", ""items"": ""string""}}]}";
 
         /// <summary>
         /// Gets the schema.
@@ -48,12 +49,6 @@ namespace Org.Apache.REEF.Client.Avro.AzureBatch
         /// </summary>
         [DataMember]
         public AvroJobSubmissionParameters sharedJobSubmissionParameters { get; set; }
-
-        /// <summary>
-        /// Gets or sets the AzureBatchAccountKey field.
-        /// </summary>
-        [DataMember]
-        public string AzureBatchAccountKey { get; set; }
 
         /// <summary>
         /// Gets or sets the AzureBatchAccountName field.
@@ -74,12 +69,6 @@ namespace Org.Apache.REEF.Client.Avro.AzureBatch
         public string AzureBatchPoolId { get; set; }
 
         /// <summary>
-        /// Gets or sets the AzureStorageAccountKey field.
-        /// </summary>
-        [DataMember]
-        public string AzureStorageAccountKey { get; set; }
-
-        /// <summary>
         /// Gets or sets the AzureStorageAccountName field.
         /// </summary>
         [DataMember]
@@ -92,10 +81,10 @@ namespace Org.Apache.REEF.Client.Avro.AzureBatch
         public string AzureStorageContainerName { get; set; }
 
         /// <summary>
-        /// Gets or sets the AzureBatchIsWindows field.
+        /// Gets or sets the AzureBatchPoolDriverPortsList field.
         /// </summary>
         [DataMember]
-        public bool AzureBatchIsWindows { get; set; }
+        public IList<string> AzureBatchPoolDriverPortsList { get; set; }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="AvroAzureBatchJobSubmissionParameters"/> class.

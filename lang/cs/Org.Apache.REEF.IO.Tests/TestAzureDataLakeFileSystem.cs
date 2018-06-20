@@ -28,9 +28,21 @@ namespace Org.Apache.REEF.IO.Tests
 {
     public sealed class TestAzureDataLakeFileSystem
     {
-        private static readonly Uri FakeBaseUri = new Uri("http://fakeadls.com");
-        private static readonly Uri FakeDirUri = new Uri(FakeBaseUri, "dir");
-        private static readonly Uri FakeFileUri = new Uri($"{FakeDirUri}/fakefile");
+        private Uri FakeBaseUri
+        {
+            get { return new Uri("adl://" + new TestContext().AdlsAccountFqdn); }
+        }
+
+        private Uri FakeDirUri
+        {
+            get { return new Uri(FakeBaseUri, "dir"); }
+        }
+
+        private Uri FakeFileUri
+        {
+            get { return new Uri($"{FakeDirUri}/fakefile"); }
+        }
+
         private readonly TestContext _context = new TestContext();
         private readonly AzureDataLakeFileSystem _fs;
 
@@ -195,11 +207,25 @@ namespace Org.Apache.REEF.IO.Tests
         }
 
         [Fact]
-        public void TestCreateUriForPath()
+        public void TestCreateUriForPathNoPrefix()
         {
             string dirStructure = FakeFileUri.AbsolutePath;
             Uri createdUri = _fs.CreateUriForPath(dirStructure);
-            Assert.Equal(createdUri, new Uri($"adl://{_context.AdlsAccountFqdn}{dirStructure}"));
+            Assert.Equal(new Uri(FakeBaseUri, dirStructure), createdUri);
+        }
+
+        [Fact]
+        public void TestCreateUriForPathWithPrefix()
+        {
+            Uri createdUri = _fs.CreateUriForPath(FakeFileUri.AbsolutePath);
+            Assert.Equal(FakeFileUri, createdUri);
+        }
+
+        [Fact]
+        public void TestCreateUriForPathWithInvalidPrefix()
+        {
+            // Scheme for adl accounts must start with adl and not http
+            Assert.Throws<ArgumentException>(() => _fs.CreateUriForPath("http://invalidadlaccount.net/driver3.txt"));
         }
 
         [Fact]
@@ -216,7 +242,7 @@ namespace Org.Apache.REEF.IO.Tests
             public AzureDataLakeFileSystem GetAdlsFileSystem()
             {
                 var conf = AzureDataLakeFileSystemConfiguration.ConfigurationModule
-                     .Set(AzureDataLakeFileSystemConfiguration.DataLakeStorageAccountFqdn, "adlsAccountFqdn")
+                     .Set(AzureDataLakeFileSystemConfiguration.DataLakeStorageAccountFqdn, AdlsAccountFqdn)
                     .Set(AzureDataLakeFileSystemConfiguration.Tenant, "tenant")
                     .Set(AzureDataLakeFileSystemConfiguration.ClientId, "clientId")
                     .Set(AzureDataLakeFileSystemConfiguration.SecretKey, "secretKey")
