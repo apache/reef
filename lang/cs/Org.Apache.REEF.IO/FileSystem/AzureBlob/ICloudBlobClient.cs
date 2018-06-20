@@ -56,9 +56,23 @@ namespace Org.Apache.REEF.IO.FileSystem.AzureBlob
         ICloudBlockBlob GetBlockBlobReference(Uri uri);
 
         /// <summary>
-        /// Paginates a blob listing with prefix.
+        /// Paginates a blob listing with container and relative path.
         /// </summary>
-        BlobResultSegment ListBlobsSegmented(string prefix, bool useFlatListing, BlobListingDetails blobListingDetails, int? maxResults, 
-            BlobContinuationToken continuationToken, BlobRequestOptions blobRequestOptions, OperationContext operationContext);
+        BlobResultSegment ListBlobsSegmented(
+            string containerName,
+            string relativeAddress,
+            bool useFlatListing,
+            BlobListingDetails blobListingDetails,
+            int? maxResults, 
+            BlobContinuationToken continuationToken,
+            BlobRequestOptions blobRequestOptions,
+            OperationContext operationContext);
+
+        /// <summary>
+        /// Paginates a container listing.
+        /// </summary>
+        /// <param name="continuationToken">Continuation token for pagination</param>
+        /// <returns>List of containers</returns>
+        ContainerResultSegment ListContainersSegmented(BlobContinuationToken continuationToken);
     }
 }

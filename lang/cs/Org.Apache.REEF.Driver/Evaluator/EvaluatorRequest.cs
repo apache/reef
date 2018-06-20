@@ -28,44 +28,92 @@ namespace Org.Apache.REEF.Driver.Evaluator
     [DataContract]
     internal class EvaluatorRequest : IEvaluatorRequest
     {
-        internal EvaluatorRequest()
-            : this(0, 0, 1, string.Empty, Guid.NewGuid().ToString("N"), string.Empty, Enumerable.Empty<string>().ToList(), true, String.Empty)
+        internal EvaluatorRequest() : this(number: 0, megaBytes: 0)
         {
         }
 
-        internal EvaluatorRequest(int number, int megaBytes)
-            : this(number, megaBytes, 1, string.Empty, Guid.NewGuid().ToString("N"), string.Empty, Enumerable.Empty<string>().ToList(), true, string.Empty)
+        internal EvaluatorRequest(int number, int megaBytes) : this(number: number, megaBytes: megaBytes, core: 1)
         {
         }
 
         internal EvaluatorRequest(int number, int megaBytes, int core)
-            : this(number, megaBytes, core, string.Empty, Guid.NewGuid().ToString("N"), string.Empty, Enumerable.Empty<string>().ToList(), true, string.Empty)
+            : this(
+                  number: number,
+                  megaBytes: megaBytes,
+                  core: core,
+                  rack: string.Empty)
         {
         }
 
         internal EvaluatorRequest(int number, int megaBytes, string rack)
-            : this(number, megaBytes, 1, rack, Guid.NewGuid().ToString("N"), string.Empty, Enumerable.Empty<string>().ToList(), true, String.Empty)
+            : this(
+                  number: number,
+                  megaBytes: megaBytes,
+                  core: 1,
+                  rack: rack)
         {
         }
 
         internal EvaluatorRequest(int number, int megaBytes, int core, string rack)
-            : this(number, megaBytes, core, rack, Guid.NewGuid().ToString("N"), string.Empty, Enumerable.Empty<string>().ToList(), true, string.Empty)
+            : this(
+                  number: number,
+                  megaBytes: megaBytes,
+                  core: core,
+                  rack: rack,
+                  evaluatorBatchId: Guid.NewGuid().ToString("N"),
+                  nodeNames: new string[] { })
         {
         }
 
-        internal EvaluatorRequest(int number, int megaBytes, int core, string rack, string evaluatorBatchId, ICollection<string> nodeNames)
-            : this(number, megaBytes, core, rack, evaluatorBatchId, string.Empty, nodeNames, true, string.Empty)
-
+        internal EvaluatorRequest(
+            int number,
+            int megaBytes,
+            int core,
+            string rack,
+            string evaluatorBatchId,
+            ICollection<string> nodeNames)
+                : this(
+                number: number,
+                megaBytes: megaBytes,
+                core: core,
+                rack: rack,
+                evaluatorBatchId: evaluatorBatchId,
+                nodeNames: nodeNames,
+                relaxLocality: true)
         {
         }
 
-        internal EvaluatorRequest(int number, int megaBytes, int core, string rack, string evaluatorBatchId, ICollection<string> nodeNames, bool relaxLocality)
-           : this(number, megaBytes, core, rack, evaluatorBatchId, string.Empty, nodeNames, relaxLocality, string.Empty)
-
+        internal EvaluatorRequest(
+            int number,
+            int megaBytes,
+            int core,
+            string rack,
+            string evaluatorBatchId,
+            ICollection<string> nodeNames,
+            bool relaxLocality)
+                : this(
+                number: number,
+                megaBytes: megaBytes,
+                core: core,
+                rack: rack,
+                evaluatorBatchId: evaluatorBatchId,
+                runtimeName: string.Empty,
+                nodeNames: nodeNames,
+                relaxLocality: relaxLocality,
+                nodeLabelExpression: string.Empty)
         {
         }
 
-        internal EvaluatorRequest(int number, int megaBytes, int core, string rack, string evaluatorBatchId, string runtimeName, ICollection<string> nodeNames, bool relaxLocality, string nodeLabelExpression)
+        internal EvaluatorRequest(
+            int number,
+            int megaBytes,
+            int core,
+            string rack,
+            string evaluatorBatchId,
+            string runtimeName,
+            ICollection<string> nodeNames,
+            bool relaxLocality,
+            string nodeLabelExpression)
         {
             Number = number;
             MemoryMegaBytes = megaBytes;
