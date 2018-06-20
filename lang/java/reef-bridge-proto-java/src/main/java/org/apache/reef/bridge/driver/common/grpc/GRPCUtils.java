@@ -77,10 +77,23 @@ public final class GRPCUtils {
    */
   public static EvaluatorDescriptorInfo toEvaluatorDescriptorInfo(
       final EvaluatorDescriptor descriptor) {
-    return descriptor == null ? null : EvaluatorDescriptorInfo.newBuilder()
+    if (descriptor == null) {
+      return null;
+    }
+    EvaluatorDescriptorInfo.NodeDescriptorInfo nodeDescriptorInfo = descriptor.getNodeDescriptor() == null ? null :
+        EvaluatorDescriptorInfo.NodeDescriptorInfo.newBuilder()
+            .setHostName(descriptor.getNodeDescriptor().getName())
+            .setId(descriptor.getNodeDescriptor().getId())
+            .setIpAddress(descriptor.getNodeDescriptor().getInetSocketAddress().getAddress().toString())
+            .setPort(descriptor.getNodeDescriptor().getInetSocketAddress().getPort())
+            .setRackName(descriptor.getNodeDescriptor().getRackDescriptor() == null ?
+                "" : descriptor.getNodeDescriptor().getRackDescriptor().getName())
+            .build();
+    return EvaluatorDescriptorInfo.newBuilder()
         .setCores(descriptor.getNumberOfCores())
         .setMemory(descriptor.getMemory())
         .setRuntimeName(descriptor.getRuntimeName())
+        .setNodeDescriptorInfo(nodeDescriptorInfo)
         .build();
   }
 

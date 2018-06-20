@@ -34,6 +34,8 @@ import org.apache.reef.bridge.driver.common.grpc.GRPCUtils;
 import org.apache.reef.bridge.driver.common.grpc.ObserverCleanup;
 import org.apache.reef.bridge.proto.*;
 import org.apache.reef.bridge.proto.Void;
+import org.apache.reef.driver.catalog.NodeDescriptor;
+import org.apache.reef.driver.catalog.RackDescriptor;
 import org.apache.reef.driver.context.ActiveContext;
 import org.apache.reef.driver.context.FailedContext;
 import org.apache.reef.driver.evaluator.EvaluatorDescriptor;
@@ -41,7 +43,7 @@ import org.apache.reef.driver.restart.DriverRestartCompleted;
 import org.apache.reef.driver.restart.DriverRestarted;
 import org.apache.reef.driver.task.FailedTask;
 import org.apache.reef.exception.EvaluatorException;
-import org.apache.reef.runtime.common.driver.evaluator.EvaluatorDescriptorImpl;
+import org.apache.reef.runtime.common.driver.evaluator.EvaluatorDescriptorBuilderFactory;
 import org.apache.reef.runtime.common.utils.ExceptionCodec;
 import org.apache.reef.tang.InjectionFuture;
 import org.apache.reef.util.Optional;
@@ -53,6 +55,7 @@ import org.apache.reef.wake.time.event.StopTime;
 
 import javax.inject.Inject;
 import java.io.IOException;
+import java.net.InetSocketAddress;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -79,6 +82,8 @@ public final class DriverClientService extends DriverClientGrpc.DriverClientImpl
 
   private final TcpPortProvider tcpPortProvider;
 
+  private final EvaluatorDescriptorBuilderFactory evaluatorDescriptorBuilderFactory;
+
   private final InjectionFuture<DriverClientDispatcher> clientDriverDispatcher;
 
   private final Map<String, AllocatedEvaluatorBridge> evaluatorBridgeMap = new HashMap<>();
@@ -89,11 +94,13 @@ public final class DriverClientService extends DriverClientGrpc.DriverClientImpl
 
   @Inject
   private DriverClientService(
+      final EvaluatorDescriptorBuilderFactory evaluatorDescriptorBuilderFactory,
       final ExceptionCodec exceptionCodec,
       final DriverServiceClient driverServiceClient,
       final TcpPortProvider tcpPortProvider,
       final InjectionFuture<Clock> clock,
       final InjectionFuture<DriverClientDispatcher> clientDriverDispatcher) {
+    this.evaluatorDescriptorBuilderFactory = evaluatorDescriptorBuilderFactory;
     this.exceptionCodec = exceptionCodec;
     this.driverServiceClient = driverServiceClient;
     this.tcpPortProvider = tcpPortProvider;
@@ -567,12 +574,46 @@ public final class DriverClientService extends DriverClientGrpc.DriverClientImpl
   }
 
   private EvaluatorDescriptor toEvaluatorDescriptor(final EvaluatorDescriptorInfo info) {
-    return new EvaluatorDescriptorImpl(
-        null,
-        info.getMemory(),
-        info.getCores(),
-        new JVMClientProcess(),
-        info.getRuntimeName());
+    final NodeDescriptor nodeDescriptor = new NodeDescriptor() {
+      @Override
+      public InetSocketAddress getInetSocketAddress() {
+        return InetSocketAddress.createUnresolved(
+            info.getNodeDescriptorInfo().getIpAddress(),
+            info.getNodeDescriptorInfo().getPort());
+      }
+
+      @Override
+      public RackDescriptor getRackDescriptor() {
+        return new RackDescriptor() {
+          @Override
+          public List<NodeDescriptor> getNodes() {
+            return Lists.newArrayList();
+          }
+
+          @Override
+          public String getName() {
+            return info.getNodeDescriptorInfo().getRackName();
+          }
+        };
+      }
+
+      @Override
+      public String getName() {
+        return info.getNodeDescriptorInfo().getHostName();
+      }
+
+      @Override
+      public String getId() {
+        return info.getNodeDescriptorInfo().getId();
+      }
+    };
+    return this.evaluatorDescriptorBuilderFactory.newBuilder()
+        .setNodeDescriptor(nodeDescriptor)
+        .setMemory(info.getMemory())
+        .setNumberOfCores(info.getCores())
+        .setEvaluatorProcess(new JVMClientProcess())
+        .setRuntimeName(info.getRuntimeName())
+        .build();
   }
 
   private ActiveContextBridge toActiveContext(final ContextInfo contextInfo) {

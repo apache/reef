@@ -133,6 +133,19 @@ message EvaluatorDescriptorInfo {
 
   // name of the runtime
   string runtime_name = 3;
+
+  // node descriptor info
+  message NodeDescriptorInfo {
+      string id = 1;
+
+      string ip_address = 5;
+      string host_name = 6;
+      int32 port = 7;
+
+      // rack info
+      string rack_name = 10;
+  }
+  NodeDescriptorInfo node_descriptor_info = 5;
 }
 
 // Information related to an evaluator.
