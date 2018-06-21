@@ -91,7 +91,7 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
   private final ResourceReleaseHandler resourceReleaseHandler;
   private final ResourceLaunchHandler resourceLaunchHandler;
   private final String evaluatorId;
-  private final EvaluatorDescriptorImpl evaluatorDescriptor;
+  private final EvaluatorDescriptorBuilderFactory evaluatorDescriptorBuilderFactory;
   private final ContextRepresenters contextRepresenters;
   private final EvaluatorMessageDispatcher messageDispatcher;
   private final EvaluatorControlHandler evaluatorControlHandler;
@@ -107,6 +107,7 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
   private final EvaluatorIdlenessThreadPool idlenessThreadPool;
 
   // Mutable fields
+  private EvaluatorDescriptor evaluatorDescriptor;
   private Optional<TaskRepresenter> task = Optional.empty();
   private boolean resourceNotReleased = true;
   private boolean allocationNotFired = true;
@@ -114,7 +115,7 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
   @Inject
   private EvaluatorManager(
       @Parameter(EvaluatorIdentifier.class) final String evaluatorId,
-      @Parameter(EvaluatorDescriptorName.class) final EvaluatorDescriptorImpl evaluatorDescriptor,
+      @Parameter(EvaluatorDescriptorName.class) final EvaluatorDescriptor evaluatorDescriptor,
       @Parameter(EvaluatorConfigurationProviders.class)
         final Set<ConfigurationProvider> evaluatorConfigurationProviders,
       final Clock clock,
@@ -131,12 +132,14 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
       final EventHandlerIdlenessSource idlenessSource,
       final LoggingScopeFactory loggingScopeFactory,
       final DriverRestartManager driverRestartManager,
-      final EvaluatorIdlenessThreadPool idlenessThreadPool) {
+      final EvaluatorIdlenessThreadPool idlenessThreadPool,
+      final EvaluatorDescriptorBuilderFactory evaluatorDescriptorBuilderFactory) {
 
     LOG.log(Level.FINEST, "Instantiating 'EvaluatorManager' for evaluator: {0}", evaluatorId);
 
     this.evaluatorId = evaluatorId;
     this.evaluatorDescriptor = evaluatorDescriptor;
+    this.evaluatorDescriptorBuilderFactory = evaluatorDescriptorBuilderFactory;
     this.evaluatorConfigurationProviders = evaluatorConfigurationProviders;
 
     this.clock = clock;
@@ -209,7 +212,9 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
   }
 
   public void setProcess(final EvaluatorProcess process) {
-    this.evaluatorDescriptor.setProcess(process);
+    this.evaluatorDescriptor = this.evaluatorDescriptorBuilderFactory.newBuilder(this.evaluatorDescriptor)
+        .setEvaluatorProcess(process)
+        .build();
   }
 
   public EvaluatorDescriptor getEvaluatorDescriptor() {
@@ -708,6 +713,6 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
    * The Evaluator Host.
    */
   @NamedParameter(doc = "The Evaluator Host.")
-  public static final class EvaluatorDescriptorName implements Name<EvaluatorDescriptorImpl> {
+  public static final class EvaluatorDescriptorName implements Name<EvaluatorDescriptor> {
   }
 }

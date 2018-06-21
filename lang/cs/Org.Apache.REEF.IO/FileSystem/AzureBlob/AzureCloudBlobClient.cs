@@ -16,6 +16,7 @@
 // under the License.
 
 using System;
+using System.Threading.Tasks;
 using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.Auth;
 using Microsoft.WindowsAzure.Storage.Blob;
@@ -67,14 +68,30 @@ namespace Org.Apache.REEF.IO.FileSystem.AzureBlob
             return new AzureCloudBlockBlob(uri, _client.Credentials);
         }
 
-        public BlobResultSegment ListBlobsSegmented(string prefix, bool useFlatListing, BlobListingDetails blobListingDetails,
-            int? maxResults, BlobContinuationToken continuationToken, BlobRequestOptions blobRequestOptions,
+        public BlobResultSegment ListBlobsSegmented(
+            string containerName,
+            string relativeAddress,
+            bool useFlatListing,
+            BlobListingDetails blobListingDetails,
+            int? maxResults,
+            BlobContinuationToken continuationToken,
+            BlobRequestOptions blobRequestOptions,
             OperationContext operationContext)
         {
-            var task = _client.ListBlobsSegmentedAsync(prefix, useFlatListing, blobListingDetails, maxResults,  continuationToken, 
-                                                        blobRequestOptions, operationContext);
-            task.Wait();
-            return task.Result;
+            CloudBlobContainer container = _client.GetContainerReference(containerName);
+            CloudBlobDirectory directory = container.GetDirectoryReference(relativeAddress);
+            return directory.ListBlobsSegmentedAsync(
+                useFlatListing,
+                blobListingDetails,
+                maxResults,
+                continuationToken,
+                blobRequestOptions,
+                operationContext).GetAwaiter().GetResult();
+        }
+
+        public ContainerResultSegment ListContainersSegmented(BlobContinuationToken continuationToken)
+        {
+            return _client.ListContainersSegmentedAsync(continuationToken).GetAwaiter().GetResult();
         }
     }
 }
