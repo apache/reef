@@ -24,11 +24,11 @@ namespace Org.Apache.REEF.Common.Telemetry
     /// <summary>
     /// Base implementation of a metric with untyped value.
     /// </summary>
-    public class MetricBase : IMetric
+    public abstract class MetricBase : IMetric
     {
         protected ITracker _tracker;
 
-        private object _value;
+        // protected object _value;
 
         protected object _metricLock = new object();
 
@@ -47,12 +47,9 @@ namespace Org.Apache.REEF.Common.Telemetry
             get; internal set;
         }
 
-        public virtual object ValueUntyped
+        public abstract object ValueUntyped
         {
-            get
-            {
-                return _value;
-            }
+            get;
         }
 
         public MetricBase()
@@ -64,24 +61,18 @@ namespace Org.Apache.REEF.Common.Telemetry
             Name = name;
             Description = description;
             KeepUpdateHistory = keepUpdateHistory;
-            _value = default;
         }
 
         [JsonConstructor]
-        public MetricBase(string name, string description, object value, bool keepUpdateHistory)
+        public MetricBase(string name, string description, object valueUntyped, bool keepUpdateHistory)
         {
             Name = name;
             Description = description;
             KeepUpdateHistory = keepUpdateHistory;
-            _value = value;
         }
 
         public virtual void AssignNewValue(object value)
         {
-            lock (_metricLock)
-            {
-                _value = value;
-            }
             _tracker.Track(value);
         }
 
