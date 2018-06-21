@@ -18,6 +18,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.Blob;
@@ -140,6 +141,46 @@ namespace Org.Apache.REEF.IO.Tests
             Assert.True(CheckBlobExists(blob));
             _fileSystem.Delete(PathToFile(HelloFile));
             Assert.False(CheckBlobExists(blob));
+        }
+
+        [Fact(Skip = SkipMessage)]
+        public void TestGetChildBlobsInContainerE2E()
+        {
+            // setup
+            string[] fileNames = new string[] { "sample1", "sample2", "sample3", "folder1/sample4", "folder1/sample5" };
+            string[] expectedFolderChildren = new string[] { "folder1/sample4", "folder1/sample5" };
+            string[] expectedRootChildren = new string[] { "sample1", "sample2", "sample3", "folder1/" };
+
+            foreach (string uploadedBlobName in fileNames)
+            {
+                CloudBlockBlob blob = _container.GetBlockBlobReference(uploadedBlobName);
+                UploadFromString(blob, "hello");
+            }
+
+            Uri containerUri = new Uri(_container.Uri.AbsoluteUri + '/');
+
+            // List files in the root level in container
+            ValidateChildren(_container.Uri, expectedRootChildren.Select(child => new Uri(containerUri, child)));
+
+            // List files only in the sub-folder in the container
+            Uri folderUri = _container.GetDirectoryReference("folder1").Uri;
+            ValidateChildren(folderUri, expectedFolderChildren.Select(child => new Uri(containerUri, child)));
+        }
+
+        [Fact(Skip = SkipMessage)]
+        public void TestGetChildContainerInStorageAccountE2E()
+        {
+            // List containers in the storage account
+            Uri rootUri = _fileSystem.CreateUriForPath(string.Empty);
+            ValidateChildren(rootUri, new List<Uri> { _container.Uri });
+        }
+
+        private void ValidateChildren(Uri storageBlobUri, IEnumerable<Uri> expectedChildBlobs)
+        {
+            IEnumerable<Uri> blobs = _fileSystem.GetChildren(storageBlobUri);
+            Assert.Equal(
+                expectedChildBlobs.Select(uri => uri.AbsoluteUri).OrderBy(uri => uri),
+                blobs.Select(uri => uri.AbsoluteUri).OrderBy(uri => uri));
         }
 
         [Fact(Skip = SkipMessage)]

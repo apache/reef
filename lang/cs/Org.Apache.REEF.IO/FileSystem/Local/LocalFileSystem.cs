@@ -107,7 +107,7 @@ namespace Org.Apache.REEF.IO.FileSystem.Local
 
         public void DeleteDirectory(Uri directoryUri)
         {
-            Directory.Delete(directoryUri.LocalPath);
+            Directory.Delete(directoryUri.LocalPath, true);
         }
 
         public IEnumerable<Uri> GetChildren(Uri directoryUri)

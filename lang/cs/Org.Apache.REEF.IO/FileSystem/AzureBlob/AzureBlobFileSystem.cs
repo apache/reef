@@ -134,7 +134,9 @@ namespace Org.Apache.REEF.IO.FileSystem.AzureBlob
             var uriSplit = directoryUri.AbsolutePath.Split(new[] { "/" }, StringSplitOptions.RemoveEmptyEntries);
             if (!uriSplit.Any())
             {
-                throw new StorageException(string.Format("URI {0} must contain at least the container.", directoryUri));
+                throw new StorageException(
+                    string.Format("URI {0} must contain at least the container.",
+                    directoryUri));
             }
 
             var containerName = uriSplit[0];
@@ -152,32 +154,69 @@ namespace Org.Apache.REEF.IO.FileSystem.AzureBlob
                 directory = directory.GetDirectoryReference(uriSplit[i]);
             }
 
-            foreach (var blob in directory.ListBlobs(true).OfType<ICloudBlob>())
-            {
-                blob.DeleteIfExistsAsync().Wait();
-            }
+            Task.WaitAll(directory
+                .ListBlobs(true)
+                .OfType<ICloudBlob>()
+                .Select(blob => blob.DeleteIfExistsAsync())
+                .ToArray());
         }
 
         /// <summary>
-        /// Gets the children of the blob "directory."
+        /// Gets the children of the container (if the uri has segments)
+        /// or containers in the storage account (if the uri has no segments)
         /// </summary>
         public IEnumerable<Uri> GetChildren(Uri directoryUri)
         {
+            string[] segments = directoryUri.Segments;
             BlobContinuationToken blobContinuationToken = null;
-            var path = directoryUri.AbsolutePath.Trim('/');
+
+            // If at the root, return all containers
+            if (segments.Length <= 1)
+            {
+                do
+                {
+                    ContainerResultSegment containerListing = _client.ListContainersSegmented(blobContinuationToken);
+
+                    if (containerListing?.Results != null)
+                    {
+                        foreach (CloudBlobContainer containerItem in containerListing.Results)
+                        {
+                            yield return containerItem.Uri;
+                        }
+                    }
+
+                    blobContinuationToken = containerListing?.ContinuationToken;
+                }
+                while (blobContinuationToken != null);
+                yield break;
+            }
+
+            // If not at the root folder, return all blobs within the container
+            string containerName = segments[1];
+            string relativeAddress = directoryUri.PathAndQuery.Substring(containerName.Length + 1);
 
             do
             {
-                var listing = _client.ListBlobsSegmented(path, false,
-                    BlobListingDetails.None, null,
-                    blobContinuationToken, new BlobRequestOptions(), new OperationContext());
+                BlobResultSegment listing = _client.ListBlobsSegmented(
+                    containerName,
+                    relativeAddress,
+                    useFlatListing: false,
+                    BlobListingDetails.None,
+                    maxResults: null,
+                    blobContinuationToken,
+                    new BlobRequestOptions(),
+                    new OperationContext());
 
-                if (listing.Results != null)
+                if (listing == null || listing.Results.Count() == 0)
                 {
-                    foreach (var listBlobItem in listing.Results)
-                    {
-                        yield return listBlobItem.Uri;
-                    }
+                    throw new ArgumentException(
+                        "Call to ListBlobsSegmented returned no results. Uri is invalid or does not have children.",
+                        nameof(directoryUri));
+                }
+
+                foreach (IListBlobItem listBlobItem in listing.Results)
+                {
+                    yield return listBlobItem.Uri;
                 }
 
                 blobContinuationToken = listing.ContinuationToken;

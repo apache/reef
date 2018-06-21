@@ -23,6 +23,7 @@ import org.apache.reef.annotations.audience.DriverSide;
 import org.apache.reef.annotations.audience.Private;
 import org.apache.reef.driver.catalog.NodeDescriptor;
 import org.apache.reef.driver.catalog.ResourceCatalog;
+import org.apache.reef.driver.evaluator.EvaluatorDescriptor;
 import org.apache.reef.driver.evaluator.EvaluatorProcessFactory;
 import org.apache.reef.runtime.common.driver.catalog.ResourceCatalogImpl;
 import org.apache.reef.runtime.common.driver.resourcemanager.*;
@@ -45,14 +46,17 @@ public final class EvaluatorManagerFactory {
   private final Injector injector;
   private final ResourceCatalog resourceCatalog;
   private final EvaluatorProcessFactory processFactory;
+  private final EvaluatorDescriptorBuilderFactory evaluatorDescriptorBuilderFactory;
 
   @Inject
   EvaluatorManagerFactory(final Injector injector,
                           final ResourceCatalog resourceCatalog,
-                          final EvaluatorProcessFactory processFactory) {
+                          final EvaluatorProcessFactory processFactory,
+                          final EvaluatorDescriptorBuilderFactory evaluatorDescriptorBuilderFactory) {
     this.injector = injector;
     this.resourceCatalog = resourceCatalog;
     this.processFactory = processFactory;
+    this.evaluatorDescriptorBuilderFactory = evaluatorDescriptorBuilderFactory;
   }
 
   private EvaluatorManager getNewEvaluatorManagerInstanceForResource(
@@ -72,10 +76,13 @@ public final class EvaluatorManagerFactory {
       ((ResourceCatalogImpl) resourceCatalog).handle(nodeDescriptorEvent);
       nodeDescriptor = this.resourceCatalog.getNode(nodeId);
     }
-    final EvaluatorDescriptorImpl evaluatorDescriptor = new EvaluatorDescriptorImpl(nodeDescriptor,
-        resourceEvent.getResourceMemory(), resourceEvent.getVirtualCores().get(),
-        processFactory.newEvaluatorProcess(), resourceEvent.getRuntimeName());
-
+    final EvaluatorDescriptor evaluatorDescriptor = evaluatorDescriptorBuilderFactory.newBuilder()
+        .setNodeDescriptor(nodeDescriptor)
+        .setMemory(resourceEvent.getResourceMemory())
+        .setNumberOfCores(resourceEvent.getVirtualCores().get())
+        .setEvaluatorProcess(processFactory.newEvaluatorProcess())
+        .setRuntimeName(resourceEvent.getRuntimeName())
+        .build();
     LOG.log(Level.FINEST, "Resource allocation: new evaluator id[{0}]", resourceEvent.getIdentifier());
     final EvaluatorManager evaluatorManager =
         getNewEvaluatorManagerInstance(resourceEvent.getIdentifier(), evaluatorDescriptor);
@@ -90,7 +97,7 @@ public final class EvaluatorManagerFactory {
    * @param desc NodeDescriptor on which the Evaluator executes.
    * @return a new EvaluatorManager instance.
    */
-  private EvaluatorManager getNewEvaluatorManagerInstance(final String id, final EvaluatorDescriptorImpl desc) {
+  private EvaluatorManager getNewEvaluatorManagerInstance(final String id, final EvaluatorDescriptor desc) {
     LOG.log(Level.FINEST, "Creating Evaluator Manager for Evaluator ID {0}", id);
     final Injector child = this.injector.forkInjector();
 
@@ -134,8 +141,12 @@ public final class EvaluatorManagerFactory {
   public EvaluatorManager getNewEvaluatorManagerForEvaluatorFailedDuringDriverRestart(
       final ResourceStatusEvent resourceStatusEvent) {
     return getNewEvaluatorManagerInstance(resourceStatusEvent.getIdentifier(),
-        new EvaluatorDescriptorImpl(null, 128, 1, processFactory.newEvaluatorProcess(),
-                resourceStatusEvent.getRuntimeName()));
+        this.evaluatorDescriptorBuilderFactory.newBuilder()
+            .setMemory(128)
+            .setNumberOfCores(1)
+            .setEvaluatorProcess(processFactory.newEvaluatorProcess())
+            .setRuntimeName(resourceStatusEvent.getRuntimeName())
+            .build());
   }
 
   /**
