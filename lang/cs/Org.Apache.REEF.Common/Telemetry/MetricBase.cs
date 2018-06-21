@@ -69,8 +69,6 @@ namespace Org.Apache.REEF.Common.Telemetry
             KeepUpdateHistory = keepUpdateHistory;
         }
 
-        public abstract void AssignNewValue(object value);
-
         public IDisposable Subscribe(ITracker observer)
         {
             _tracker = observer;
@@ -129,24 +127,16 @@ namespace Org.Apache.REEF.Common.Telemetry
             _typedValue = value;
         }
 
-        protected void ValidateValueType(object val)
-        {
-            if (val.GetType() != _typedValue.GetType())
-            {
-                throw new ApplicationException("Cannot assign new value to metric because of type mismatch.");
-            }
-        }
-
         /// <summary>
         /// Assign and track the new value to metric. 
         /// In most cases, this method should be overridden in derived classes using Interlocked.
         /// </summary>
         /// <param name="value">Value to assign the metric.</param>
-        public override void AssignNewValue(object value)
+        public virtual void AssignNewValue(T value)
         {
             lock (_metricLock)
             {
-                _typedValue = (T)value;
+                _typedValue = value;
             }
             _tracker.Track(_typedValue);
         }

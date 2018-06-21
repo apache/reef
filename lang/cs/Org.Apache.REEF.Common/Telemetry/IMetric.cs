@@ -45,18 +45,10 @@ namespace Org.Apache.REEF.Common.Telemetry
         bool KeepUpdateHistory { get; }
 
         /// <summary>
-        /// Assign a new value to the metric.
-        /// </summary>
-        /// <param name="val">Value to assign to the metric.</param>
-        /// <returns></returns>
-        void AssignNewValue(object val);
-
-        /// <summary>
         /// Assign a tracker to track the metric.
         /// </summary>
         /// <param name="tracker">The metric tracker assigned to track updates.</param>
         /// <returns></returns>
         IDisposable Subscribe(ITracker tracker);
     }
-
 }

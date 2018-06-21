@@ -42,10 +42,9 @@ namespace Org.Apache.REEF.Common.Telemetry
         {
         }
 
-        public override void AssignNewValue(object val)
+        public override void AssignNewValue(T val)
         {
-            ValidateValueType(val);
-            Interlocked.Exchange(ref _typedValue, (T)val);
+            Interlocked.Exchange(ref _typedValue, val);
             _tracker.Track(val);
         }
     }
