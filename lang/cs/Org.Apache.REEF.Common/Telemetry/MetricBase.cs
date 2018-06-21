@@ -22,13 +22,11 @@ using Newtonsoft.Json;
 namespace Org.Apache.REEF.Common.Telemetry
 {
     /// <summary>
-    /// Base implementation of a metric with untyped value.
+    /// Provides a base implementation. Value of metric should be provided in derived classes. 
     /// </summary>
     public abstract class MetricBase : IMetric
     {
         protected ITracker _tracker;
-
-        // protected object _value;
 
         protected object _metricLock = new object();
 
@@ -106,12 +104,12 @@ namespace Org.Apache.REEF.Common.Telemetry
     {
         protected T _typedValue;
 
-        public T Value
+        public override object ValueUntyped
         {
             get { return _typedValue; }
         }
 
-        public override object ValueUntyped
+        public T Value
         {
             get { return _typedValue; }
         }
