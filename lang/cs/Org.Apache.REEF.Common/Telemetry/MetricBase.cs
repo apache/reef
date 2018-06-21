@@ -69,10 +69,7 @@ namespace Org.Apache.REEF.Common.Telemetry
             KeepUpdateHistory = keepUpdateHistory;
         }
 
-        public virtual void AssignNewValue(object value)
-        {
-            _tracker.Track(value);
-        }
+        public abstract void AssignNewValue(object value);
 
         public IDisposable Subscribe(ITracker observer)
         {
