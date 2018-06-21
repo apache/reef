@@ -26,7 +26,9 @@ namespace Org.Apache.REEF.Common.Telemetry
     /// </summary>
     public class LongMetric : MetricBase<long>
     {
-        public LongMetric() : base() { }
+        public LongMetric() : base()
+        {
+        }
 
         internal LongMetric(string name, string description, bool keepHistory = true)
             : base(name, description, keepHistory)

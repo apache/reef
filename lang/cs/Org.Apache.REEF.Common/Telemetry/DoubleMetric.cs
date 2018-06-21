@@ -26,7 +26,9 @@ namespace Org.Apache.REEF.Common.Telemetry
     /// </summary>
     public class DoubleMetric : MetricBase<double>
     {
-        public DoubleMetric() : base() { }
+        public DoubleMetric() : base()
+        {
+        }
 
         internal DoubleMetric(string name, string description, bool keepUpdateHistory = true)
             : base(name, description, keepUpdateHistory)

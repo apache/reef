@@ -27,7 +27,9 @@ namespace Org.Apache.REEF.Common.Telemetry
     /// <typeparam name="T">The type of the metric should be of reference type.</typeparam>
     public class MetricClass<T> : MetricBase<T> where T : class
     {
-        public MetricClass() : base() { }
+        public MetricClass() : base()
+        {
+        }
 
         internal MetricClass(string name, string description, bool keepHistory = true)
             : base(name, description, keepHistory)

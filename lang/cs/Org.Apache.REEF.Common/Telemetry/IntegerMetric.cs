@@ -28,7 +28,6 @@ namespace Org.Apache.REEF.Common.Telemetry
     {
         public IntegerMetric() : base()
         {
-            _typedValue = default;
         }
 
         internal IntegerMetric(string name, string description, bool keepHistory = true)

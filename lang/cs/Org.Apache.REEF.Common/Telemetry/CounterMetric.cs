@@ -28,20 +28,17 @@ namespace Org.Apache.REEF.Common.Telemetry
     {
         public CounterMetric() : base()
         {
-            _typedValue = default;
         }
 
         internal CounterMetric(string name, string description, bool keepHistory = false)
             : base(name, description, keepHistory)
         {
-            _typedValue = default;
         }
 
         [JsonConstructor]
         internal CounterMetric(string name, string description, long timeStamp, int value, bool keepUpdateHistory)
             : base(name, description, value, keepUpdateHistory)
         {
-            _typedValue = value;
         }
 
         public void Increment(int number = 1)
