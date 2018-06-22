@@ -50,5 +50,11 @@ namespace Org.Apache.REEF.Common.Telemetry
         {
             _tracker.Track(Interlocked.Add(ref _typedValue, -number));
         }
+
+        public override void AssignNewValue(int value)
+        {
+            Interlocked.Exchange(ref _typedValue, value);
+            _tracker.Track(value);
+        }
     }
 }

@@ -43,7 +43,7 @@ namespace Org.Apache.REEF.Common.Telemetry
 
         public override void AssignNewValue(double val)
         {
-            Interlocked.Exchange(ref _typedValue, (double)val);
+            Interlocked.Exchange(ref _typedValue, val);
             _tracker.Track(val);
         }
     }
