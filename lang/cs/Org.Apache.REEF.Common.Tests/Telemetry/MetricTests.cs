@@ -81,15 +81,6 @@ namespace Org.Apache.REEF.Common.Tests.Telemetry
         }
 
         [Fact]
-        public void TestUpdateMetricWithDifferentType()
-        {
-            var metrics = CreateMetrics();
-            var douMetric = new DoubleMetric("dou", "Metric of type double.");
-            metrics.RegisterMetric(douMetric);
-            Assert.Throws<ApplicationException>(() => douMetric.AssignNewValue(3));
-        }
-
-        [Fact]
         public void TestMetricsSimulateHeartbeat()
         {
             var evalMetrics1 = TangFactory.GetTang().NewInjector().GetInstance<IEvaluatorMetrics>();
