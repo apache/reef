@@ -95,7 +95,7 @@ namespace Org.Apache.REEF.Common.Telemetry
     /// Base implementation with a generic value type.
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public class MetricBase<T> : MetricBase
+    public abstract class MetricBase<T> : MetricBase
     {
         protected T _typedValue;
 
@@ -132,13 +132,6 @@ namespace Org.Apache.REEF.Common.Telemetry
         /// In most cases, this method should be overridden in derived classes using Interlocked.
         /// </summary>
         /// <param name="value">Value to assign the metric.</param>
-        public virtual void AssignNewValue(T value)
-        {
-            lock (_metricLock)
-            {
-                _typedValue = value;
-            }
-            _tracker.Track(_typedValue);
-        }
+        public abstract void AssignNewValue(T value);
     }
 }
