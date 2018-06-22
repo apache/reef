@@ -23,7 +23,7 @@ namespace Org.Apache.REEF.IO.FileSystem.AzureDataLake.Parameters
     /// The account FQDN to be used to connect to the data lake store
     /// </summary>
     [NamedParameter("The account FQDN to be used to connect to the data lake store")]
-    internal sealed class DataLakeStorageAccountName : Name<string>
+    internal sealed class DataLakeStorageAccountFqdn : Name<string>
     {
     }
 }

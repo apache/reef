@@ -31,7 +31,7 @@ namespace Org.Apache.REEF.IO.FileSystem.AzureDataLake
         /// <summary>
         /// The account FQDN to be used to connect to the data lake store
         /// </summary>
-        public static readonly RequiredParameter<string> DataLakeStorageAccountName = new RequiredParameter<string>();
+        public static readonly RequiredParameter<string> DataLakeStorageAccountFqdn = new RequiredParameter<string>();
 
         /// <summary>
         /// The Tenant to be used to authenticate with Azure
@@ -61,7 +61,7 @@ namespace Org.Apache.REEF.IO.FileSystem.AzureDataLake
             .BindSetEntry<DriverConfigurationProviders, AzureDataLakeFileSystemConfigurationProvider, IConfigurationProvider>(
                 GenericType<DriverConfigurationProviders>.Class, GenericType<AzureDataLakeFileSystemConfigurationProvider>.Class)
             .BindImplementation(GenericType<IFileSystem>.Class, GenericType<AzureDataLakeFileSystem>.Class)
-            .BindNamedParameter(GenericType<DataLakeStorageAccountName>.Class, DataLakeStorageAccountName)
+            .BindNamedParameter(GenericType<DataLakeStorageAccountFqdn>.Class, DataLakeStorageAccountFqdn)
             .BindNamedParameter(GenericType<Tenant>.Class, Tenant)
             .BindNamedParameter(GenericType<ClientId>.Class, ClientId)
             .BindNamedParameter(GenericType<SecretKey>.Class, SecretKey)
