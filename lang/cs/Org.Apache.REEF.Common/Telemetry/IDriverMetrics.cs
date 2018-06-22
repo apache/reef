@@ -25,15 +25,18 @@ namespace Org.Apache.REEF.Common.Telemetry
     public interface IDriverMetrics
     {
         /// <summary>
-        /// A metric representing the state of the Driver.
-        /// </summary>
-        IMetric SystemState { get; }
-
-        /// <summary>
         /// Method that returns the collection of metric data.
         /// </summary>
         /// <returns></returns>
         IMetrics GetMetricsData();
+
+        /// <summary>
+        /// Extracts the metric object if it has been registered.
+        /// </summary>
+        /// <param name="name">Name of the metric.</param>
+        /// <param name="me">The registered metric. null if not found.</param>
+        /// <returns></returns>
+        bool TryGetMetric(string name, out IMetric me);
 
         T CreateAndRegisterMetric<T>(string name, string description, bool keepUpateHistory)
             where T : MetricBase, new();

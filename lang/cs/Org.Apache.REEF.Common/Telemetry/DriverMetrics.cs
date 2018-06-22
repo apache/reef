@@ -24,20 +24,13 @@ namespace Org.Apache.REEF.Common.Telemetry
     /// </summary>
     public sealed class DriverMetrics : IDriverMetrics
     {
-        internal MetricsData _metricsData;
+        private MetricsData _metricsData;
+        public static string DriverStateMetric = "DriverState";
 
-        public IMetric SystemState
-        {
-            get;
-        }
-
-        private string _stateMetricName = "DriverState";
-
-        public DriverMetrics(string systemState)
+        public DriverMetrics()
         {
             _metricsData = new MetricsData();
-            SystemState = new StringMetric(_stateMetricName, "driver state.", systemState, false);
-            _metricsData.RegisterMetric(SystemState);
+            var stateMetric = CreateAndRegisterMetric<StringMetric>(DriverStateMetric, "driver state.", false);
         }
 
         public IMetrics GetMetricsData()
@@ -56,6 +49,13 @@ namespace Org.Apache.REEF.Common.Telemetry
             };
             _metricsData.RegisterMetric(metric);
             return metric;
+        }
+
+        public bool TryGetMetric(string name, out IMetric metric)
+        {
+            var ret = _metricsData.TryGetMetric(name, out IMetric me);
+            metric = me;
+            return ret;
         }
     }
 }

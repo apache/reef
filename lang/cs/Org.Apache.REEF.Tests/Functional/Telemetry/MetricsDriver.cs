@@ -30,6 +30,7 @@ using Org.Apache.REEF.Tang.Implementations.Configuration;
 using Org.Apache.REEF.Tang.Util;
 using Org.Apache.REEF.Tests.Functional.Messaging;
 using Org.Apache.REEF.Utilities.Logging;
+using StringMetric = Org.Apache.REEF.Common.Telemetry.MetricClass<string>;
 
 namespace Org.Apache.REEF.Tests.Functional.Telemetry
 {
@@ -69,7 +70,7 @@ namespace Org.Apache.REEF.Tests.Functional.Telemetry
 
         public void OnNext(IDriverStarted value)
         {
-            _driverMetrics = new DriverMetrics(string.Empty);
+            _driverMetrics = new DriverMetrics();
             UpdateMetrics(TestSystemState.DriverStarted);
 
             var request =
@@ -138,7 +139,8 @@ namespace Org.Apache.REEF.Tests.Functional.Telemetry
         /// </summary>
         private void UpdateMetrics(TestSystemState systemState)
         {
-            _driverMetrics.SystemState.AssignNewValue(EventPrefix + systemState.ToString());
+            _driverMetrics.TryGetMetric(DriverMetrics.DriverStateMetric, out IMetric stateMetric);
+            ((StringMetric)stateMetric).AssignNewValue(EventPrefix + systemState.ToString());
 
             foreach (var metricsObserver in _driverMetricsObservers)
             {
