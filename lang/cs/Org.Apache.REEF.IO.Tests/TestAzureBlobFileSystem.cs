@@ -180,8 +180,8 @@ namespace Org.Apache.REEF.IO.Tests
             public IFileSystem GetAzureFileSystem()
             {
                 var conf = AzureBlobFileSystemConfiguration.ConfigurationModule
-                    .Set(AzureBlobFileSystemConfiguration.AccountName, "devstoreaccount1")
-                    .Set(AzureBlobFileSystemConfiguration.AccountKey, "Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==")
+                    .Set(AzureBlobFileSystemConfiguration.AccountName, "accountName")
+                    .Set(AzureBlobFileSystemConfiguration.AccountKey, "accountKey")
                     .Build();
 
                 var injector = TangFactory.GetTang().NewInjector(conf);

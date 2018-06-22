@@ -113,7 +113,7 @@ namespace Org.Apache.REEF.Examples.HelloREEF
                         .Set(HDInsightClientConfiguration.HDInsightPasswordParameter, @"pwd")
                         .Set(HDInsightClientConfiguration.HDInsightUsernameParameter, @"foo")
                         .Set(HDInsightClientConfiguration.HDInsightUrlParameter, @"https://foo.azurehdinsight.net/")
-                        .Set(HDInsightClientConfiguration.JobSubmissionDirectoryPrefix, string.Format(@"/{0}/tmp", containerName))
+                        .Set(HDInsightClientConfiguration.JobSubmissionDirectoryPrefix, $@"/{containerName}/tmp")
                         .Set(AzureBlobFileSystemConfiguration.AccountName, blobStorageAccountName)
                         .Set(AzureBlobFileSystemConfiguration.AccountKey, blobStorageAccountKey)
                         .Build();
