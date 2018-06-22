@@ -123,6 +123,7 @@ public final class NettyMessagingTransport implements Transport {
     if (listenPort < 0) {
       throw new RemoteRuntimeException("Invalid server port: " + listenPort);
     }
+
     final String host = UNKNOWN_HOST_NAME.equals(hostAddress) ? localAddressProvider.getLocalAddress() : hostAddress;
 
     this.numberOfTries = numberOfTries;
@@ -156,28 +157,27 @@ public final class NettyMessagingTransport implements Transport {
 
     LOG.log(Level.FINE, "Binding to {0}:{1}", new Object[] {host, listenPort});
 
-
-      try {
-        if (listenPort > 0) {
-          this.localAddress = new InetSocketAddress(host, listenPort);
-          this.acceptor = serverBootstrap.bind(this.localAddress).sync().channel();
-        } else {
-          InetSocketAddress socketAddr = null;
-          Channel acceptorFound = null;
-          for (int port : tcpPortProvider) {
-            LOG.log(Level.FINEST, "Try host {0} and port {1}", new Object[] {host, port});
-            try {
-              socketAddr = new InetSocketAddress(host, port);
-              acceptorFound = serverBootstrap.bind(socketAddr).sync().channel();
-              break;
-            } catch (final Exception ex) {
-              if (ex instanceof BindException) { // Not visible to catch :(
-                LOG.log(Level.FINEST, "The port {0} is already bound. Try again", port);
-              } else {
-                throw ex;
-              }
+    try {
+      if (listenPort > 0) {
+        this.localAddress = new InetSocketAddress(host, listenPort);
+        this.acceptor = serverBootstrap.bind(this.localAddress).sync().channel();
+      } else {
+        InetSocketAddress socketAddr = null;
+        Channel acceptorFound = null;
+        for (int port : tcpPortProvider) {
+          LOG.log(Level.FINEST, "Try port {0}", port);
+          try {
+            socketAddr = new InetSocketAddress(host, port);
+            acceptorFound = serverBootstrap.bind(socketAddr).sync().channel();
+            break;
+          } catch (final Exception ex) {
+            if (ex instanceof BindException) { // Not visible to catch :(
+              LOG.log(Level.FINEST, "The port {0} is already bound. Try again", port);
+            } else {
+              throw ex;
             }
           }
+        }
         if (acceptorFound == null) {
           throw new IllegalStateException("TcpPortProvider could not find a free port.");
         }

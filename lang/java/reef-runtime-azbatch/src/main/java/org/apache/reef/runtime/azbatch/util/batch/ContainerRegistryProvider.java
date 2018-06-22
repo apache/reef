@@ -1,5 +1,6 @@
 package org.apache.reef.runtime.azbatch.util.batch;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.reef.runtime.azbatch.parameters.ContainerImageName;
 import org.apache.reef.runtime.azbatch.parameters.ContainerRegistryPassword;
 import org.apache.reef.runtime.azbatch.parameters.ContainerRegistryServer;
@@ -32,7 +33,7 @@ public final class ContainerRegistryProvider {
   }
 
   public boolean isValid() {
-    return this.containerRegistryServer != null;
+    return !StringUtils.isEmpty(this.containerRegistryServer);
   }
 
   public String getContainerRegistryServer() {

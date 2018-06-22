@@ -18,6 +18,7 @@
  */
 package org.apache.reef.wake.remote.address;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.reef.tang.Configuration;
 import org.apache.reef.tang.Tang;
 
@@ -53,34 +54,35 @@ public final class ContainerBasedLocalAddressProvider implements LocalAddressPro
 
   @Override
   public synchronized String getLocalAddress() {
-    if (null == cached) {
-      String ipAddressPath = System.getenv("HOST_IP_ADDR_PATH");
-      LOG.log(Level.INFO, "IpAddressPath is {0}", ipAddressPath);
-      if (ipAddressPath != null) {
-        File ipAddressFile = new File(ipAddressPath);
-        if (ipAddressFile.exists() && ipAddressFile.isFile()) {
-          String filePath = expandEnvironmentVariables(ipAddressPath);
-          try {
-            cached = readFile(filePath, StandardCharsets.UTF_8);
-          } catch (IOException e) {
-            String message = String.format("Exception when attempting to read file %s", filePath);
-            LOG.log(Level.SEVERE, message, e);
-            throw new RuntimeException(message);
-          }
-        } else {
-          final String message = "HOST_IP_ADDR_PATH points to invalid path.";
-          LOG.log(Level.SEVERE, message);
-          throw new RuntimeException(message);
-        }
-      } else {
-        final String message = "Environment variable must be set for HOST_IP_ADDR_PATH";
-        LOG.log(Level.SEVERE, message);
-        throw new RuntimeException(message);
-      }
+    if (cached != null) {
+      LOG.log(Level.FINEST, "Returning ContainerBasedLocalAddressProvider.getLocalAddress() as " + cached);
+      return cached;
     }
-    assert null != cached;
-    LOG.log(Level.INFO, "Returning ContainerBasedLocalAddressProvider.getLocalAddress() as " + cached);
-    return cached;
+
+    String ipAddressPath = System.getenv("HOST_IP_ADDR_PATH");
+    LOG.log(Level.FINE, "IpAddressPath is {0}", ipAddressPath);
+    if (StringUtils.isEmpty(ipAddressPath)) {
+      final String message = "Environment variable must be set for HOST_IP_ADDR_PATH";
+      LOG.log(Level.SEVERE, message);
+      throw new RuntimeException(message);
+    }
+
+    File ipAddressFile = new File(ipAddressPath);
+    if (!ipAddressFile.exists() || !ipAddressFile.isFile()) {
+      final String message = String.format("HOST_IP_ADDR_PATH points to invalid path: %s", ipAddressPath);
+      LOG.log(Level.SEVERE, message);
+      throw new RuntimeException(message);
+    }
+
+    String filePath = expandEnvironmentVariables(ipAddressPath);
+    try {
+      cached = readFile(filePath, StandardCharsets.UTF_8);
+      return cached;
+    } catch (IOException e) {
+      String message = String.format("Exception when attempting to read file %s", filePath);
+      LOG.log(Level.SEVERE, message, e);
+      throw new RuntimeException(message);
+    }
   }
 
   @Override
