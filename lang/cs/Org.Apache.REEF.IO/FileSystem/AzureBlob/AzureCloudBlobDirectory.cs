@@ -40,7 +40,6 @@ namespace Org.Apache.REEF.IO.FileSystem.AzureBlob
         public IEnumerable<IListBlobItem> ListBlobs(bool useFlatListing = false)
         {
             var task = _directory.ListBlobsSegmentedAsync(useFlatListing, BlobListingDetails.All, null, null, null, null);
-            task.Wait();
             return task.Result.Results;
         }
     }

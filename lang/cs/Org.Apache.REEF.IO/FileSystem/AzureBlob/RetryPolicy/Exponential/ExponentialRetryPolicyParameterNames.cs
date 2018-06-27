@@ -15,32 +15,20 @@
 // specific language governing permissions and limitations
 // under the License.
 
-using System;
-using Microsoft.WindowsAzure.Storage;
-using Microsoft.WindowsAzure.Storage.RetryPolicies;
 using Org.Apache.REEF.Tang.Annotations;
 
-namespace Org.Apache.REEF.IO.FileSystem.AzureBlob.RetryPolicy
+namespace Org.Apache.REEF.IO.FileSystem.AzureBlob.RetryPolicy.Exponential
 {
-    internal class DefaultAzureBlobRetryPolicy : IAzureBlobRetryPolicy
+    public static class ExponentialRetryPolicyParameterNames
     {
-        private readonly IRetryPolicy _retryPolicy;
-
-        [Inject]
-        private DefaultAzureBlobRetryPolicy()
+        [NamedParameter("The exponential retry count", "retryCount", defaultValue: "3")]
+        public class RetryCount : Name<int>
         {
-            _retryPolicy = new ExponentialRetry();
-        } 
-
-        public IRetryPolicy CreateInstance()
-        {
-            return _retryPolicy;
         }
 
-        public bool ShouldRetry(int currentRetryCount, int statusCode, Exception lastException, out TimeSpan retryInterval,
-            OperationContext operationContext)
+        [NamedParameter("The exponential retry interval in seconds", "retryInterval", defaultValue: "4")]
+        public class RetryInterval : Name<double>
         {
-            return _retryPolicy.ShouldRetry(currentRetryCount, statusCode, lastException, out retryInterval, operationContext);
         }
     }
 }

@@ -25,22 +25,23 @@ namespace Org.Apache.REEF.IO.FileSystem.AzureBlob
     internal sealed class AzureCloudBlobContainer : ICloudBlobContainer
     {
         private readonly CloudBlobContainer _container;
+        private readonly BlobRequestOptions _requestOptions;
 
-        public AzureCloudBlobContainer(CloudBlobContainer container)
+        public AzureCloudBlobContainer(CloudBlobContainer container, BlobRequestOptions requestOptions)
         {
             _container = container;
+            _requestOptions = requestOptions;
         }
 
         public bool CreateIfNotExists()
         {
-            var task = _container.CreateIfNotExistsAsync();
-            task.Wait();
+            var task = _container.CreateIfNotExistsAsync(_requestOptions, null);
             return task.Result;
         }
 
         public void DeleteIfExists()
         {
-            _container.DeleteIfExistsAsync().Wait();
+            _container.DeleteIfExistsAsync(null, _requestOptions, null).Wait();
         }
 
         public ICloudBlobDirectory GetDirectoryReference(string directoryName)

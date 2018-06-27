@@ -19,6 +19,8 @@ using System;
 using System.IO;
 using Microsoft.WindowsAzure.Storage.Auth;
 using Microsoft.WindowsAzure.Storage.Blob;
+using Microsoft.WindowsAzure.Storage.RetryPolicies;
+using Org.Apache.REEF.IO.FileSystem.AzureBlob.RetryPolicy;
 
 namespace Org.Apache.REEF.IO.FileSystem.AzureBlob
 {
@@ -29,6 +31,7 @@ namespace Org.Apache.REEF.IO.FileSystem.AzureBlob
     internal sealed class AzureCloudBlockBlob : ICloudBlockBlob
     {
         private readonly CloudBlockBlob _blob;
+        private readonly BlobRequestOptions _requestOptions;
 
         public ICloudBlob Blob
         {
@@ -54,70 +57,67 @@ namespace Org.Apache.REEF.IO.FileSystem.AzureBlob
             }
         }
 
-        public AzureCloudBlockBlob(Uri uri, StorageCredentials credentials)
+        public AzureCloudBlockBlob(Uri uri, StorageCredentials credentials, BlobRequestOptions requestOptions)
         {
             _blob = new CloudBlockBlob(uri, credentials);
+            _requestOptions = requestOptions;
         }
 
         public Stream Open()
         {
             #if REEF_DOTNET_BUILD
-                var task = _blob.OpenReadAsync();
-                task.Wait();
+                var task = _blob.OpenReadAsync(null, _requestOptions, null);
                 return task.Result;
             #else
-                return _blob.OpenRead();
+                return _blob.OpenRead(null, _requestOptions, null);
             #endif
         }
 
         public Stream Create()
         {
             #if REEF_DOTNET_BUILD
-                var task = _blob.OpenWriteAsync();
-                task.Wait();
+                var task = _blob.OpenWriteAsync(null, _requestOptions, null);
                 return task.Result;
             #else
-                return _blob.OpenWrite();
+                return _blob.OpenWrite(null, _requestOptions, null);
             #endif
         }
 
         public bool Exists()
         {
-            var task = _blob.ExistsAsync();
-            task.Wait();
+            var task = _blob.ExistsAsync(_requestOptions, null);
             return task.Result;
         }
 
         public void Delete()
         {
-            _blob.DeleteAsync().Wait();
+            _blob.DeleteAsync(DeleteSnapshotsOption.IncludeSnapshots, null, _requestOptions, null).Wait();
         }
 
         public void DeleteIfExists()
         {
-            _blob.DeleteIfExistsAsync().Wait();
+            _blob.DeleteIfExistsAsync(DeleteSnapshotsOption.IncludeSnapshots, null, _requestOptions, null).Wait();
         }
 
         public string StartCopy(Uri source)
         {
-            var task = _blob.StartCopyAsync(source);
-            task.Wait();
+            var task = _blob.StartCopyAsync(source, null, null, _requestOptions, null);
             return task.Result;
         }
 
         public void DownloadToFile(string path, FileMode mode)
         {
-            _blob.DownloadToFileAsync(path, mode).Wait();
+            _blob.DownloadToFileAsync(path, mode, null, _requestOptions, null).Wait();
         }
 
         public void UploadFromFile(string path, FileMode mode)
         {
-            _blob.UploadFromFileAsync(path).Wait();
+            _blob.UploadFromFileAsync(path, null, _requestOptions, null).Wait();
         }
 
         public void FetchAttributes()
         {
-            _blob.FetchAttributesAsync().Wait();
+            _blob.FetchAttributesAsync(null, _requestOptions, null).Wait();
         }
     }
 }

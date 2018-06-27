@@ -20,17 +20,23 @@ using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.RetryPolicies;
 using Org.Apache.REEF.Tang.Annotations;
 
-namespace Org.Apache.REEF.IO.FileSystem.AzureBlob.RetryPolicy
+namespace Org.Apache.REEF.IO.FileSystem.AzureBlob.RetryPolicy.Exponential
 {
-    internal class DefaultAzureBlobRetryPolicy : IAzureBlobRetryPolicy
+    /// <summary>
+    /// Represents a retry policy that performs a specified number of retries,
+    /// using a randomized exponential back off scheme to determine the interval between retries.
+    /// </summary>
+    internal sealed class ExponentialRetryPolicy : IAzureBlobRetryPolicy
     {
         private readonly IRetryPolicy _retryPolicy;
 
         [Inject]
-        private DefaultAzureBlobRetryPolicy()
+        private ExponentialRetryPolicy(
+            [Parameter(typeof(ExponentialRetryPolicyParameterNames.RetryCount))] int retryCount,
+            [Parameter(typeof(ExponentialRetryPolicyParameterNames.RetryInterval))] double retryInterval)
         {
-            _retryPolicy = new ExponentialRetry();
-        } 
+            _retryPolicy = new ExponentialRetry(TimeSpan.FromSeconds(retryInterval), retryCount);
+        }
 
         public IRetryPolicy CreateInstance()
         {
@@ -41,6 +47,7 @@ namespace Org.Apache.REEF.IO.FileSystem.AzureBlob.RetryPolicy
             OperationContext operationContext)
         {
             return _retryPolicy.ShouldRetry(currentRetryCount, statusCode, lastException, out retryInterval, operationContext);
+
         }
     }
 }
