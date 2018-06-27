@@ -36,7 +36,9 @@ namespace Org.Apache.REEF.IO.Tests
     /// </summary>
     public sealed class TestAzureBlockBlobFileSystemE2E : IDisposable
     {
-        private const string SkipMessage = "Fill in credentials before running test"; // Use null to run tests
+        // Uncomment SkipMessage = null to run tests
+        private const string SkipMessage = "Fill in credentials before running test";
+        // private const string SkipMessage = null;
         private const string HelloFile = "hello";
         private IFileSystem _fileSystem;
         private CloudBlobClient _client;

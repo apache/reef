@@ -86,7 +86,6 @@ namespace Org.Apache.REEF.IO.FileSystem.AzureBlob
                 continuationToken,
                 blobRequestOptions,
                 operationContext);
-            task.Wait();
             return task.Result;
         }
 
