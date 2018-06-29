@@ -17,13 +17,18 @@
 
 using Org.Apache.REEF.Tang.Annotations;
 
-namespace Org.Apache.REEF.IO.FileSystem.AzureDataLake.Parameters
+namespace Org.Apache.REEF.IO.FileSystem.AzureBlob.RetryPolicy.Exponential
 {
-    /// <summary>
-    /// The account FQDN to be used to connect to the data lake store
-    /// </summary>
-    [NamedParameter("The account FQDN to be used to connect to the data lake store")]
-    internal sealed class DataLakeStorageAccountName : Name<string>
+    public static class ExponentialRetryPolicyParameterNames
     {
+        [NamedParameter("The exponential retry count", "retryCount", defaultValue: "3")]
+        public class RetryCount : Name<int>
+        {
+        }
+
+        [NamedParameter("The exponential retry interval in seconds", "retryInterval", defaultValue: "4")]
+        public class RetryInterval : Name<double>
+        {
+        }
     }
 }

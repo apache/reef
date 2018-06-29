@@ -36,7 +36,7 @@ namespace Org.Apache.REEF.IO.FileSystem.AzureDataLake
 
         private string UriPrefix
         {
-            get { return $"adl://{_client.AccountFQDN}"; }
+            get { return $"adl://{_client.AccountFqdn}"; }
         }
 
         [Inject]

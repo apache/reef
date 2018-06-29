@@ -71,28 +71,24 @@ namespace Org.Apache.REEF.IO.Tests
         private bool CheckBlobExists(ICloudBlob blob)
         {
             var task = blob.ExistsAsync();
-            task.Wait();
             return task.Result;
         }
 
         private bool CheckContainerExists(CloudBlobContainer container)
         {
             var task = container.ExistsAsync();
-            task.Wait();
             return task.Result;
         }
 
         private ICloudBlob GetBlobReferenceFromServer(CloudBlobContainer container, string blobName)
         {
             var task = container.GetBlobReferenceFromServerAsync(blobName);
-            task.Wait();
             return task.Result;
         }
 
         private string DownloadText(CloudBlockBlob blob)
         {
             var task = blob.DownloadTextAsync();
-            task.Wait();
             return task.Result;
         }
 
@@ -124,7 +120,6 @@ namespace Org.Apache.REEF.IO.Tests
             blob = container.GetBlockBlobReference(HelloFile);
             Assert.True(CheckBlobExists(blob));
             var readTask = blob.OpenReadAsync();
-            readTask.Wait();
             using (var reader = new StreamReader(readTask.Result))
             {
                 string streamText = reader.ReadToEnd();

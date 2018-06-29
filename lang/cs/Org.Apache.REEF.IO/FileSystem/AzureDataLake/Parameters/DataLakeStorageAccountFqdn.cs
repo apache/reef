@@ -15,22 +15,15 @@
 // specific language governing permissions and limitations
 // under the License.
 
-using Microsoft.Azure.DataLake.Store;
 using Org.Apache.REEF.Tang.Annotations;
 
-namespace Org.Apache.REEF.IO.FileSystem.AzureDataLake
+namespace Org.Apache.REEF.IO.FileSystem.AzureDataLake.Parameters
 {
     /// <summary>
-    /// A proxy interface for AzureDataLakeStoreClient, mainly in order to fake for unit testing.
+    /// The account FQDN to be used to connect to the data lake store
     /// </summary>
-    [DefaultImplementation(typeof(AzureDataLakeStoreClient))]
-    internal interface IDataLakeStoreClient
+    [NamedParameter("The account FQDN to be used to connect to the data lake store")]
+    internal sealed class DataLakeStorageAccountFqdn : Name<string>
     {
-        AdlsClient GetAdlsClient();
-
-        /// <summary>
-        /// Returns the account FQDN for the AdlsClient.
-        /// </summary>
-        string AccountFqdn { get; }
     }
 }

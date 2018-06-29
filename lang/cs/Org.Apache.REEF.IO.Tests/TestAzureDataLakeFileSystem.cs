@@ -30,7 +30,7 @@ namespace Org.Apache.REEF.IO.Tests
     {
         private Uri FakeBaseUri
         {
-            get { return new Uri("adl://" + new TestContext().AdlAccountFQDN); }
+            get { return new Uri("adl://" + new TestContext().AdlsAccountFqdn); }
         }
 
         private Uri FakeDirUri
@@ -236,18 +236,13 @@ namespace Org.Apache.REEF.IO.Tests
 
         private sealed class TestContext
         {
-            public readonly string AdlAccountName = "adlaccount";
+            public readonly string AdlsAccountFqdn = "adlsAccount.azuredatalakestore.net";
             public readonly AdlsClient MockAdlsClient = Microsoft.Azure.DataLake.Store.MockAdlsFileSystem.MockAdlsClient.GetMockClient();
-
-            public string AdlAccountFQDN
-            {
-                get { return $"{AdlAccountName}.azuredatalakestore.net"; }
-            }
 
             public AzureDataLakeFileSystem GetAdlsFileSystem()
             {
                 var conf = AzureDataLakeFileSystemConfiguration.ConfigurationModule
-                     .Set(AzureDataLakeFileSystemConfiguration.DataLakeStorageAccountName, AdlAccountFQDN)
+                     .Set(AzureDataLakeFileSystemConfiguration.DataLakeStorageAccountFqdn, AdlsAccountFqdn)
                     .Set(AzureDataLakeFileSystemConfiguration.Tenant, "tenant")
                     .Set(AzureDataLakeFileSystemConfiguration.ClientId, "clientId")
                     .Set(AzureDataLakeFileSystemConfiguration.SecretKey, "secretKey")
@@ -256,7 +251,7 @@ namespace Org.Apache.REEF.IO.Tests
                 var testDataLakeStoreClient = Substitute.For<IDataLakeStoreClient>();
                 injector.BindVolatileInstance(testDataLakeStoreClient);
                 testDataLakeStoreClient.GetAdlsClient().ReturnsForAnyArgs(MockAdlsClient);
-                testDataLakeStoreClient.AccountFQDN.Returns(AdlAccountFQDN);
+                testDataLakeStoreClient.AccountFqdn.Returns(AdlsAccountFqdn);
                 var fs = injector.GetInstance<AzureDataLakeFileSystem>();
                 return fs;
             }
