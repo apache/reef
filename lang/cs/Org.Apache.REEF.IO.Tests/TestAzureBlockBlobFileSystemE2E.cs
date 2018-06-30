@@ -20,7 +20,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
-using System.Linq;
 using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.Blob;
 using Org.Apache.REEF.IO.FileSystem;
@@ -40,9 +39,9 @@ namespace Org.Apache.REEF.IO.Tests
         private const string SkipMessage = "Fill in credentials before running test";
         // private const string SkipMessage = null;
         private const string HelloFile = "hello";
-        private IFileSystem _fileSystem;
-        private CloudBlobClient _client;
-        private CloudBlobContainer _container;
+        private readonly IFileSystem _fileSystem;
+        private readonly CloudBlobClient _client;
+        private readonly CloudBlobContainer _container;
 
         public TestAzureBlockBlobFileSystemE2E()
         {

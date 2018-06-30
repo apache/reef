@@ -155,7 +155,7 @@ namespace Org.Apache.REEF.IO.FileSystem.Hadoop
         {
             // TODO[JIRA REEF - 2039]: HadoopFileSystem .IsDirectory() check needs to work on linux machines.
             var stdOut = _commandRunner.Run("dfs -test -d " + uri + "& call echo %^errorlevel%").StdOut;
-            return stdOut.Any() && stdOut.First() == "0";
+            return stdOut.FirstOrDefault() == "0";
         }
 
         public void DeleteDirectory(Uri directoryUri)
