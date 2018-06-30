@@ -59,7 +59,7 @@ namespace Org.Apache.REEF.IO.FileSystem.AzureBlob
         /// Paginates a blob listing with prefix.
         /// </summary>
         BlobResultSegment ListBlobsSegmented(
-            string path,
+            string prefix,
             bool useFlatListing,
             BlobListingDetails blobListingDetails,
             int? maxResults,

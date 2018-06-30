@@ -165,29 +165,47 @@ namespace Org.Apache.REEF.IO.Tests
         }
 
         /// <summary>
-        /// Tests whether .IsDirectory() works.
+        /// Tests whether .IsDirectory() works for valid directory.
         /// </summary>
         [Fact(Skip = SkipMessage)]
-        public void TestIsDirectory()
+        public void TestIsDirectoryValidDirectory()
         {
             // Create directory
             var remoteDirUri = GetTempUri();
             _fileSystem.CreateDirectory(remoteDirUri);
 
+            Assert.True(_fileSystem.IsDirectory(remoteDirUri));
+
+            // Clean up
+            _fileSystem.DeleteDirectory(remoteDirUri);
+        }
+
+        /// <summary>
+        /// Tests whether .IsDirectory() works for fake directory.
+        /// </summary>
+        [Fact(Skip = SkipMessage)]
+        public void TestIsDirectoryFakeDirectory()
+        {
             // Create fake directory uri
             var remoteFakeuri = GetTempUri();
 
+            Assert.False(_fileSystem.IsDirectory(remoteFakeuri));
+        }
+
+        /// <summary>
+        /// Tests whether .IsDirectory() works for file.
+        /// </summary>
+        [Fact(Skip = SkipMessage)]
+        public void TestIsDirectoryFile()
+        {
             // Create file
             var remoteFileUri = GetTempUri();
             var localFile = FileSystemTestUtilities.MakeLocalTempFile();
             _fileSystem.CopyFromLocal(localFile, remoteFileUri);
 
-            Assert.True(_fileSystem.IsDirectory(remoteDirUri));
-            Assert.False(_fileSystem.IsDirectory(remoteFakeuri));
             Assert.False(_fileSystem.IsDirectory(remoteFileUri));
 
             // Clean up
-            _fileSystem.DeleteDirectory(remoteDirUri);
             _fileSystem.Delete(remoteFileUri);
             File.Delete(localFile);
         }

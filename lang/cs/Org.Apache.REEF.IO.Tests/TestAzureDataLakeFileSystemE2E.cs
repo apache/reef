@@ -195,16 +195,24 @@ namespace Org.Apache.REEF.IO.Tests
         }
 
         [Fact(Skip = SkipMessage)]
-        public void TestIsDirectoryE2E()
+        public void TestIsDirectoryValidDirectoryE2E()
         {
             string dirName = $"/{_defaultFolderName}";
-            string fakeDirName = $"/fakeDir";
-
             _adlsClient.CreateDirectory(dirName);
-            string fileName = UploadFromString(ContentsText);
+            Assert.True(_fileSystem.IsDirectory(PathToFile(dirName))); 
+        }
 
-            Assert.True(_fileSystem.IsDirectory(PathToFile(dirName)));
+        [Fact(Skip = SkipMessage)]
+        public void TestIsDirectoryFakeDirectoryE2E()
+        {
+            string fakeDirName = $"/fakeDir";
             Assert.False(_fileSystem.IsDirectory(PathToFile(fakeDirName)));
+        }
+
+        [Fact(Skip = SkipMessage)]
+        public void TestIsDirectoryFileE2E()
+        {
+            string fileName = UploadFromString(ContentsText);
             Assert.False(_fileSystem.IsDirectory(PathToFile(fileName)));
         }
 

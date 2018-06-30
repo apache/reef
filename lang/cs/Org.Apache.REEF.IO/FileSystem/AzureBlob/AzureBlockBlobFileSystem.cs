@@ -133,9 +133,15 @@ namespace Org.Apache.REEF.IO.FileSystem.AzureBlob
         public bool IsDirectory(Uri uri)
         {
             var path = uri.AbsolutePath.TrimStart('/');
-            const int maxBlobResults = 1;
-            var blobItems = _client.ListBlobsSegmented(path, false, BlobListingDetails.Metadata, maxBlobResults, null, null, null).Results;
-            return blobItems.Any() && blobItems.First() is CloudBlobDirectory;
+            var blobItems = _client.ListBlobsSegmented(
+                path,
+                useFlatListing: false,
+                BlobListingDetails.Metadata,
+                maxResults: 1,
+                continuationToken: null,
+                blobRequestOptions: null,
+                operationContext: null).Results;
+            return blobItems.OfType<CloudBlobDirectory>().Any();
         }
 
         /// <summary>

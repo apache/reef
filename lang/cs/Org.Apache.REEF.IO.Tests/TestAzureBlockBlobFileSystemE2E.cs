@@ -69,26 +69,22 @@ namespace Org.Apache.REEF.IO.Tests
 
         private bool CheckBlobExists(ICloudBlob blob)
         {
-            var task = blob.ExistsAsync();
-            return task.Result;
+            return blob.ExistsAsync().GetAwaiter().GetResult();
         }
 
         private bool CheckContainerExists(CloudBlobContainer container)
         {
-            var task = container.ExistsAsync();
-            return task.Result;
+            return container.ExistsAsync().GetAwaiter().GetResult();
         }
 
         private ICloudBlob GetBlobReferenceFromServer(CloudBlobContainer container, string blobName)
         {
-            var task = container.GetBlobReferenceFromServerAsync(blobName);
-            return task.Result;
+            return container.GetBlobReferenceFromServerAsync(blobName).GetAwaiter().GetResult();
         }
 
         private string DownloadText(CloudBlockBlob blob)
         {
-            var task = blob.DownloadTextAsync();
-            return task.Result;
+            return blob.DownloadTextAsync().GetAwaiter().GetResult();
         }
 
         [Fact(Skip = SkipMessage)]
@@ -268,18 +264,34 @@ namespace Org.Apache.REEF.IO.Tests
         }
 
         [Fact(Skip = SkipMessage)]
-        public void TestIsDirectory()
+        public void TestIsDirectoryValidDirectoryLevel1E2E()
         {
-            const string Directory1 = "dir1";
-            const string Directory2 = "dir1/dir2";
-            const string Directory3 = "dir3";
-            var blockBlobs1 = CreateTempBlobs(Directory1);
-            CreateTempBlobs(Directory2);
+            const string Directory = "dir";
+            CreateTempBlobs(Directory);
+            Assert.True(_fileSystem.IsDirectory(PathToFile(Directory)));
+        }
 
-            Assert.True(_fileSystem.IsDirectory(PathToFile(Directory1)));
-            Assert.True(_fileSystem.IsDirectory(PathToFile(Directory2)));
-            Assert.False(_fileSystem.IsDirectory(PathToFile(Directory3)));
-            Assert.False(_fileSystem.IsDirectory(blockBlobs1.First().Uri));
+        [Fact(Skip = SkipMessage)]
+        public void TestIsDirectoryValidDirectoryLevel2E2E()
+        {
+            const string Directory = "dir1/dir2";
+            CreateTempBlobs(Directory);
+            Assert.True(_fileSystem.IsDirectory(PathToFile(Directory)));
+        }
+
+        [Fact(Skip = SkipMessage)]
+        public void TestIsDirectoryFakeDirectoryE2E()
+        {
+            const string Directory = "dir";
+            Assert.False(_fileSystem.IsDirectory(PathToFile(Directory)));
+        }
+
+        [Fact(Skip = SkipMessage)]
+        public void TestIsDirectoryFileE2E()
+        {
+            const string Directory = "dir";
+            var blockBlobs = CreateTempBlobs(Directory);
+            Assert.False(_fileSystem.IsDirectory(blockBlobs.First().Uri));
         }
 
         [Fact(Skip = SkipMessage)]
@@ -328,18 +340,16 @@ namespace Org.Apache.REEF.IO.Tests
             Assert.True(CheckContainerExists(_container));
         }
 
-        private List<CloudBlockBlob> CreateTempBlobs(string directory, int fileCount = 3)
+        private IEnumerable<CloudBlockBlob> CreateTempBlobs(string directory, int fileCount = 3)
         {
-            var blockBlobs = new List<CloudBlockBlob>();
-            for (var i = 0; i < fileCount; i++)
+            return Enumerable.Range(0, fileCount).Select(i =>
             {
                 var filePath = directory + '/' + i;
                 var blockBlob = _container.GetBlockBlobReference(filePath);
                 UploadFromString(blockBlob, "hello");
-                Assert.True(CheckBlobExists(blockBlob));
-                blockBlobs.Add(blockBlob);
-            }
-            return blockBlobs;
+                Assert.True(CheckBlobExists(blockBlob), "Blob does not exist: " + filePath);
+                return blockBlob;
+            });
         }
 
         private static void UploadFromString(ICloudBlob blob, string str)

@@ -67,7 +67,7 @@ namespace Org.Apache.REEF.IO.FileSystem.AzureBlob
         {
             #if REEF_DOTNET_BUILD
                 var task = _blob.OpenReadAsync(null, _requestOptions, null);
-                return task.Result;
+                return task.GetAwaiter().GetResult();
             #else
                 return _blob.OpenRead(null, _requestOptions, null);
             #endif
@@ -76,8 +76,7 @@ namespace Org.Apache.REEF.IO.FileSystem.AzureBlob
         public Stream Create()
         {
             #if REEF_DOTNET_BUILD
-                var task = _blob.OpenWriteAsync(null, _requestOptions, null);
-                return task.Result;
+                return _blob.OpenWriteAsync(null, _requestOptions, null).GetAwaiter().GetResult();
             #else
                 return _blob.OpenWrite(null, _requestOptions, null);
             #endif
@@ -85,8 +84,7 @@ namespace Org.Apache.REEF.IO.FileSystem.AzureBlob
 
         public bool Exists()
         {
-            var task = _blob.ExistsAsync(_requestOptions, null);
-            return task.Result;
+            return _blob.ExistsAsync(_requestOptions, null).GetAwaiter().GetResult();
         }
 
         public void Delete()
@@ -101,8 +99,7 @@ namespace Org.Apache.REEF.IO.FileSystem.AzureBlob
 
         public string StartCopy(Uri source)
         {
-            var task = _blob.StartCopyAsync(source, null, null, _requestOptions, null);
-            return task.Result;
+            return _blob.StartCopyAsync(source, null, null, _requestOptions, null).GetAwaiter().GetResult();
         }
 
         public void DownloadToFile(string path, FileMode mode)

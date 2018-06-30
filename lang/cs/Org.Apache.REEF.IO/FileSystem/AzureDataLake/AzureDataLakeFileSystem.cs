@@ -17,6 +17,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -249,10 +250,10 @@ namespace Org.Apache.REEF.IO.FileSystem.AzureDataLake
             }
             catch (UriFormatException)
             {
-                resultUri = new Uri(new Uri(this.UriPrefix), path);
+                resultUri = new Uri(new Uri(UriPrefix), path);
             }
 
-            if (!resultUri.AbsoluteUri.StartsWith(this.UriPrefix))
+            if (!resultUri.AbsoluteUri.StartsWith(UriPrefix, true, CultureInfo.InvariantCulture))
             {
                 throw new ArgumentException($"Given URI must begin with valid prefix ({this.UriPrefix})", nameof(path));
             }
