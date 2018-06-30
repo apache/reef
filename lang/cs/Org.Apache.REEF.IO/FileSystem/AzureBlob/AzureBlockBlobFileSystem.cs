@@ -126,12 +126,31 @@ namespace Org.Apache.REEF.IO.FileSystem.AzureBlob
         }
 
         /// <summary>
+        /// Checks if uri is a directory uri.
+        /// </summary>
+        /// <param name="uri">uri of the directory/file</param>
+        /// <returns>true if uri is for a directory else false</returns>
+        public bool IsDirectory(Uri uri)
+        {
+            var path = uri.AbsolutePath.TrimStart(UrlPathSeparator);
+            var blobItems = _client.ListBlobsSegmented(
+                path,
+                useFlatListing: false,
+                BlobListingDetails.Metadata,
+                maxResults: 1,
+                continuationToken: null,
+                blobRequestOptions: null,
+                operationContext: null).Results;
+            return blobItems.OfType<CloudBlobDirectory>().Any();
+        }
+
+        /// <summary>
         /// Recursively deletes blobs under a specified "directory URI."
         /// If only the container is specified, the entire container is deleted.
         /// </summary>
         public void DeleteDirectory(Uri directoryUri)
         {
-            var uriSplit = directoryUri.AbsolutePath.Split(new[] { "/" }, StringSplitOptions.RemoveEmptyEntries);
+            var uriSplit = directoryUri.AbsolutePath.Split(new[] { UrlPathSeparator }, StringSplitOptions.RemoveEmptyEntries);
             if (!uriSplit.Any())
             {
                 throw new StorageException(
@@ -197,7 +216,7 @@ namespace Org.Apache.REEF.IO.FileSystem.AzureBlob
 
             do
             {
-                BlobResultSegment listing = _client.ListBlobsSegmented(
+                BlobResultSegment listing = _client.ListDirectoryBlobsSegmented(
                     containerName,
                     relativeAddress,
                     useFlatListing: false,

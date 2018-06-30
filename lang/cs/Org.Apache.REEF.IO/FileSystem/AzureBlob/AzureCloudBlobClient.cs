@@ -55,8 +55,7 @@ namespace Org.Apache.REEF.IO.FileSystem.AzureBlob
 
         public ICloudBlob GetBlobReferenceFromServer(Uri blobUri)
         {
-            var task = _client.GetBlobReferenceFromServerAsync(blobUri);
-            return task.Result;
+            return _client.GetBlobReferenceFromServerAsync(blobUri).GetAwaiter().GetResult();
         }
 
         public ICloudBlobContainer GetContainerReference(string containerName)
@@ -70,6 +69,25 @@ namespace Org.Apache.REEF.IO.FileSystem.AzureBlob
         }
 
         public BlobResultSegment ListBlobsSegmented(
+            string prefix,
+            bool useFlatListing,
+            BlobListingDetails blobListingDetails,
+            int? maxResults,
+            BlobContinuationToken continuationToken,
+            BlobRequestOptions blobRequestOptions,
+            OperationContext operationContext)
+        {
+            return _client.ListBlobsSegmentedAsync(
+                prefix,
+                useFlatListing,
+                blobListingDetails,
+                maxResults,
+                continuationToken,
+                blobRequestOptions,
+                operationContext).GetAwaiter().GetResult();
+        }
+
+        public BlobResultSegment ListDirectoryBlobsSegmented(
             string containerName,
             string relativeAddress,
             bool useFlatListing,

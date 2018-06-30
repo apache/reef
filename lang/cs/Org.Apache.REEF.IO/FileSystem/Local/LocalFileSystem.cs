@@ -105,6 +105,11 @@ namespace Org.Apache.REEF.IO.FileSystem.Local
             Directory.CreateDirectory(directoryUri.LocalPath);
         }
 
+        public bool IsDirectory(Uri uri)
+        {
+            return Directory.Exists(uri.LocalPath);
+        }
+
         public void DeleteDirectory(Uri directoryUri)
         {
             Directory.Delete(directoryUri.LocalPath, true);
