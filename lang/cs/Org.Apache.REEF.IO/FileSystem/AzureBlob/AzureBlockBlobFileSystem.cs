@@ -132,7 +132,7 @@ namespace Org.Apache.REEF.IO.FileSystem.AzureBlob
         /// <returns>true if uri is for a directory else false</returns>
         public bool IsDirectory(Uri uri)
         {
-            var path = uri.AbsolutePath.TrimStart('/');
+            var path = uri.AbsolutePath.TrimStart(UrlPathSeparator);
             var blobItems = _client.ListBlobsSegmented(
                 path,
                 useFlatListing: false,
@@ -150,7 +150,7 @@ namespace Org.Apache.REEF.IO.FileSystem.AzureBlob
         /// </summary>
         public void DeleteDirectory(Uri directoryUri)
         {
-            var uriSplit = directoryUri.AbsolutePath.Split(new[] { "/" }, StringSplitOptions.RemoveEmptyEntries);
+            var uriSplit = directoryUri.AbsolutePath.Split(new[] { UrlPathSeparator }, StringSplitOptions.RemoveEmptyEntries);
             if (!uriSplit.Any())
             {
                 throw new StorageException(
