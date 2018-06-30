@@ -141,7 +141,7 @@ namespace Org.Apache.REEF.IO.Tests
         {
             var fs = GetFileSystem();
             // Directory check
-            var directoryUri = new Uri(Path.Combine(Path.GetTempPath(), TempFileName));
+            var directoryUri = new Uri(Path.Combine(Path.GetTempPath(), "dir"));
             fs.CreateDirectory(directoryUri);
             Assert.True(fs.IsDirectory(directoryUri), ".IsDirectory() failed on: " + directoryUri);
 
