@@ -26,6 +26,7 @@ import org.apache.reef.runtime.azbatch.util.AzureBatchFileNames;
 import org.apache.reef.runtime.azbatch.util.command.CommandBuilder;
 import org.apache.reef.runtime.azbatch.util.storage.SharedAccessSignatureCloudBlobClientProvider;
 import org.apache.reef.tang.annotations.Parameter;
+import org.apache.reef.wake.remote.address.ContainerBasedLocalAddressProvider;
 import org.apache.reef.wake.remote.ports.TcpPortProvider;
 
 import javax.inject.Inject;
@@ -56,8 +57,8 @@ public final class AzureBatchHelper {
   private final PoolInformation poolInfo;
   private CommandBuilder commandBuilder;
   private final TcpPortProvider portProvider;
-  private final ContainerRegistry containerRegistry;
   private final ContainerRegistryProvider containerRegistryProvider;
+  private final boolean areContainersEnabled;
 
   @Inject
   public AzureBatchHelper(
@@ -74,14 +75,7 @@ public final class AzureBatchHelper {
     this.commandBuilder = commandBuilder;
     this.containerRegistryProvider = containerRegistryProvider;
     this.portProvider = portProvider;
-    if (this.containerRegistryProvider.isValid()) {
-      this.containerRegistry = new ContainerRegistry()
-          .withRegistryServer(this.containerRegistryProvider.getContainerRegistryServer())
-          .withUserName(this.containerRegistryProvider.getContainerRegistryUsername())
-          .withPassword(this.containerRegistryProvider.getContainerRegistryPassword());
-    } else {
-      this.containerRegistry = null;
-    }
+    this.areContainersEnabled = this.containerRegistryProvider.isValid();
   }
 
   /**
@@ -110,7 +104,6 @@ public final class AzureBatchHelper {
         .withName(SharedAccessSignatureCloudBlobClientProvider.AZURE_STORAGE_CONTAINER_SAS_TOKEN_ENV)
         .withValue(storageContainerSAS);
 
-
     JobManagerTask jobManagerTask = new JobManagerTask()
         .withRunExclusive(false)
         .withId(applicationId)
@@ -118,7 +111,7 @@ public final class AzureBatchHelper {
         .withEnvironmentSettings(Collections.singletonList(environmentSetting))
         .withAuthenticationTokenSettings(authenticationTokenSettings)
         .withKillJobOnCompletion(true)
-        .withContainerSettings(getTaskContainerSettings())
+        .withContainerSettings(createTaskContainerSettings())
         .withCommandLine(command);
 
     LOG.log(Level.INFO, "Job Manager (aka driver) task command: " + command);
@@ -126,7 +119,7 @@ public final class AzureBatchHelper {
     JobAddParameter jobAddParameter = new JobAddParameter()
         .withId(applicationId)
         .withJobManagerTask(jobManagerTask)
-        .withJobPreparationTask(getJobPreparationTask())
+        .withJobPreparationTask(createJobPreparationTask())
         .withPoolInfo(poolInfo);
 
     client.jobOperations().createJob(jobAddParameter);
@@ -163,8 +156,10 @@ public final class AzureBatchHelper {
     final TaskAddParameter taskAddParameter = new TaskAddParameter()
         .withId(taskId)
         .withResourceFiles(resources)
-        .withContainerSettings(getTaskContainerSettings())
-        .withCommandLine(command);
+        .withContainerSettings(createTaskContainerSettings())
+        .withCommandLine(command)
+        .withUserIdentity(
+            new UserIdentity().withAutoUser(new AutoUserSpecification().withElevationLevel(ElevationLevel.ADMIN)));
 
     this.client.taskOperations().createTask(jobId, taskAddParameter);
   }
@@ -195,8 +190,8 @@ public final class AzureBatchHelper {
     return System.getenv(AZ_BATCH_JOB_ID_ENV);
   }
 
-  private TaskContainerSettings getTaskContainerSettings() {
-    if (this.containerRegistry == null) {
+  private TaskContainerSettings createTaskContainerSettings() {
+    if (!this.areContainersEnabled) {
       return null;
     }
 
@@ -208,17 +203,18 @@ public final class AzureBatchHelper {
     }
 
     return new TaskContainerSettings()
-        .withRegistry(this.containerRegistry)
+        .withRegistry(this.containerRegistryProvider.getContainerRegistry())
         .withImageName(this.containerRegistryProvider.getContainerImageName())
         .withContainerRunOptions(
             String.format(
-                "-dit --env HOST_IP_ADDR_PATH=%s %s",
+                "-dit --env %s=%s %s",
+                ContainerBasedLocalAddressProvider.HOST_IP_ADDR_PATH_ENV,
                 this.commandBuilder.getIpAddressFilePath(),
                 portMappings));
   }
 
-  private JobPreparationTask getJobPreparationTask() {
-    if (this.containerRegistry == null) {
+  private JobPreparationTask createJobPreparationTask() {
+    if (!this.areContainersEnabled) {
       return null;
     }
 

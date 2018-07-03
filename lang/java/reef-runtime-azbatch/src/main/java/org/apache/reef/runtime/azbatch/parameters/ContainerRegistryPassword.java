@@ -21,7 +21,7 @@ package org.apache.reef.runtime.azbatch.parameters;
 import org.apache.reef.tang.annotations.Name;
 import org.apache.reef.tang.annotations.NamedParameter;
 
-// TODO: Secure the password by encrypting it and using
+// TODO[JIRA REEF-TBD]: Secure the password by encrypting it and using
 // Azure Batch certificates to decrypt on the driver side.
 
 /**

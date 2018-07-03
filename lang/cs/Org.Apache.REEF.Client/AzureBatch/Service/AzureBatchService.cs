@@ -17,6 +17,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Azure.Batch;
 using Microsoft.Azure.Batch.Common;
@@ -24,11 +25,12 @@ using Org.Apache.REEF.Client.AzureBatch.Parameters;
 using Org.Apache.REEF.Client.AzureBatch.Util;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Utilities.Logging;
+using Org.Apache.REEF.Wake.Remote;
 using BatchSharedKeyCredential = Microsoft.Azure.Batch.Auth.BatchSharedKeyCredentials;
 
 namespace Org.Apache.REEF.Client.DotNet.AzureBatch
 {
-    public sealed class AzureBatchService : IDisposable
+    internal sealed class AzureBatchService : IDisposable
     {
         private static readonly Logger LOGGER = Logger.GetLogger(typeof(AzureBatchService));
         private static readonly TimeSpan RetryDeltaBackOff = TimeSpan.FromSeconds(5);
@@ -39,10 +41,18 @@ namespace Org.Apache.REEF.Client.DotNet.AzureBatch
         public string PoolId { get; private set; }
 
         private BatchClient Client { get; set; }
+        private ContainerRegistryProvider ContainerRegistryProvider { get; set; }
+        private ITcpPortProvider PortProvider { get; set; }
+        private ICommandBuilder CommandBuilder { get; set; }
+
+        private bool areContainersEnabled;
         private bool disposed;
 
         [Inject]
         public AzureBatchService(
+            ITcpPortProvider portProvider,
+            ContainerRegistryProvider containerRegistryProvider,
+            ICommandBuilder commandBuilder,
             [Parameter(typeof(AzureBatchAccountUri))] string azureBatchAccountUri,
             [Parameter(typeof(AzureBatchAccountName))] string azureBatchAccountName,
             [Parameter(typeof(AzureBatchAccountKey))] string azureBatchAccountKey,
@@ -53,7 +63,11 @@ namespace Org.Apache.REEF.Client.DotNet.AzureBatch
             this.Client = BatchClient.Open(credentials);
             this.Credentials = credentials;
             this.PoolId = azureBatchPoolId;
+            this.ContainerRegistryProvider = containerRegistryProvider;
+            this.PortProvider = portProvider;
             this.Client.CustomBehaviors.Add(new RetryPolicyProvider(new ExponentialRetry(RetryDeltaBackOff, MaxRetries)));
+            this.areContainersEnabled = this.ContainerRegistryProvider.IsValid();
+            this.CommandBuilder = commandBuilder;
         }
 
         /// <summary>
@@ -95,6 +109,7 @@ namespace Org.Apache.REEF.Client.DotNet.AzureBatch
             CloudJob unboundJob = this.Client.JobOperations.CreateJob();
             unboundJob.Id = jobId;
             unboundJob.PoolInformation = new PoolInformation() { PoolId = this.PoolId };
+            unboundJob.JobPreparationTask = CreateJobPreparationTask();
             unboundJob.JobManagerTask = new JobManagerTask()
             {
                 Id = jobId,
@@ -111,12 +126,41 @@ namespace Org.Apache.REEF.Client.DotNet.AzureBatch
                 // to the Job Manager Task (aka the Driver) as an environment variable.
                 // For more info, see
                 // https://docs.microsoft.com/en-us/dotnet/api/microsoft.azure.batch.cloudtask.authenticationtokensettings
-                AuthenticationTokenSettings = new AuthenticationTokenSettings() { Access = AccessScope.Job }
+                AuthenticationTokenSettings = new AuthenticationTokenSettings() { Access = AccessScope.Job },
+                ContainerSettings = CreateTaskContainerSettings(),
+                UserIdentity = new UserIdentity(autoUserSpecification: new AutoUserSpecification(elevationLevel: ElevationLevel.Admin)),
             };
 
             unboundJob.Commit();
 
             LOGGER.Log(Level.Info, "Submitted job {0}, commandLine {1} ", jobId, commandLine);
+        }
+
+        private JobPreparationTask CreateJobPreparationTask()
+        {
+            if (!this.areContainersEnabled)
+            {
+                return null;
+            }
+
+            return new JobPreparationTask() { Id = "CaptureHostIpAddress", CommandLine = this.CommandBuilder.CaptureIpAddressCommandLine() };
+        }
+
+        private TaskContainerSettings CreateTaskContainerSettings()
+        {
+            if (!this.areContainersEnabled)
+            {
+                return null;
+            }
+
+            string portMappings = this.PortProvider
+                .Select(x => x.ToString())
+                .Aggregate(seed: string.Empty, func: (aggregator, port) => $"{aggregator}  -p {port}:{port}");
+
+            return new TaskContainerSettings(
+                imageName: this.ContainerRegistryProvider.ContainerImageName,
+                containerRunOptions: $"-dit --env HOST_IP_ADDR_PATH={this.CommandBuilder.GetIpAddressFilePath()} {portMappings}",
+                registry: this.ContainerRegistryProvider.GetContainerRegistry());
         }
 
         public CloudJob GetJob(string jobId, DetailLevel detailLevel)

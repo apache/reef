@@ -15,6 +15,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
+using System;
 using System.Collections.Generic;
 using Org.Apache.REEF.Common.Files;
 using Org.Apache.REEF.Tang.Annotations;
@@ -47,6 +48,16 @@ namespace Org.Apache.REEF.Client.AzureBatch.Util
             };
 
             return string.Format("'{0};'", string.Join(ClassPathSeparator, classpathList));
+        }
+
+        public override string GetIpAddressFilePath()
+        {
+            return "%AZ_BATCH_JOB_PREP_WORKING_DIR%\\hostip.txt";
+        }
+
+        public override string CaptureIpAddressCommandLine()
+        {
+            return $"powershell /c \"Set-Content -Path hostip.txt -Value ((Test-Connection -ComputerName $Env:ComputerName -Count 1).IPV4Address.IPAddressToString) -NoNewline -Force\"";
         }
     }
 }

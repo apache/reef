@@ -21,12 +21,10 @@ package org.apache.reef.wake.remote.ports;
 import org.apache.commons.lang.StringUtils;
 import org.apache.reef.tang.annotations.Parameter;
 import org.apache.reef.wake.remote.ports.parameters.TcpPortList;
-import org.apache.reef.wake.remote.ports.parameters.TcpPortListString;
 
 import javax.inject.Inject;
-import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.List;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -36,23 +34,12 @@ import java.util.logging.Logger;
 public final class ListTcpPortProvider implements TcpPortProvider {
 
   private static final Logger LOG = Logger.getLogger(ListTcpPortProvider.class.getName());
-  private final List<Integer> tcpPortList;
+  private final Set<Integer> tcpPortList;
 
-  /* TODO: Comment out for now due to TANG issue. Must be addressed prior to finalizing pull request.
   @Inject
-  public ListTcpPortProvider(@Parameter(TcpPortList.class) final List<Integer> tcpPortList) {
+  public ListTcpPortProvider(@Parameter(TcpPortList.class) final Set<Integer> tcpPortList) {
     this.tcpPortList = tcpPortList;
     LOG.log(Level.FINE, "Instantiating {0}", this);
-  }
-  */
-
-  @Inject
-  public ListTcpPortProvider(@Parameter(TcpPortListString.class) final String tcpPortListSting) {
-    this.tcpPortList = new ArrayList<>();
-    for (String port: StringUtils.split(tcpPortListSting, ",")) {
-      this.tcpPortList.add(Integer.parseInt(port));
-    }
-    LOG.log(Level.INFO, "Instantiating " + this);
   }
 
   /**

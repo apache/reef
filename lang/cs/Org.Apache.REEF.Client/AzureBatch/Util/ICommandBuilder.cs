@@ -31,5 +31,17 @@ namespace Org.Apache.REEF.Client.AzureBatch.Util
         /// <param name="driverMemory">The memory in megabytes used by driver.</param>
         /// <returns>The command string.</returns>
         string BuildDriverCommand(int driverMemory);
+
+        /// <summary>
+        /// Returns the path to a file where the ip address is persisted.
+        /// </summary>
+        /// <returns>Path to the file.</returns>
+        string GetIpAddressFilePath();
+
+        /// <summary>
+        /// Returns a command line that saves the ip address of the host to a file.
+        /// </summary>
+        /// <returns>The command line string.</returns>
+        string CaptureIpAddressCommandLine();
     }
 }

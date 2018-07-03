@@ -20,14 +20,13 @@ package org.apache.reef.wake.remote.ports.parameters;
 
 import org.apache.reef.tang.annotations.Name;
 import org.apache.reef.tang.annotations.NamedParameter;
-
-import java.util.List;
+import java.util.Set;
 
 /**
  * An list of tcp port numbers to try.
  */
 @NamedParameter(doc = "An list of tcp port numbers to try")
-public final class TcpPortList implements Name<List<Integer>> {
+public final class TcpPortList implements Name<Set<Integer>> {
 
   /**
    * Empty private constructor to prohibit instantiation of utility class.

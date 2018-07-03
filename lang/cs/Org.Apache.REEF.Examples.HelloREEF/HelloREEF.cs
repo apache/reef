@@ -27,10 +27,13 @@ using Org.Apache.REEF.Client.YARN.HDI;
 using Org.Apache.REEF.Driver;
 using Org.Apache.REEF.IO.FileSystem.AzureBlob;
 using Org.Apache.REEF.Tang.Annotations;
+using Org.Apache.REEF.Tang.Implementations.Configuration;
 using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Tang.Util;
 using Org.Apache.REEF.Utilities.Logging;
+using Org.Apache.REEF.Wake.Remote;
+using Org.Apache.REEF.Wake.Remote.Impl;
 
 namespace Org.Apache.REEF.Examples.HelloREEF
 {
@@ -118,7 +121,8 @@ namespace Org.Apache.REEF.Examples.HelloREEF
                         .Set(AzureBlobFileSystemConfiguration.AccountKey, blobStorageAccountKey)
                         .Build();
                 case AzureBatch:
-                    return AzureBatchRuntimeClientConfiguration.ConfigurationModule
+                    List<string> ports = new List<string> { "2000", "2001", "2002", "2003", "2004" };
+                    return AzureBatchRuntimeClientConfiguration.GetConfigurationModule(ports)
                         .Set(AzureBatchRuntimeClientConfiguration.AzureBatchAccountKey, @"##########################################")
                         .Set(AzureBatchRuntimeClientConfiguration.AzureBatchAccountName, @"######")
                         .Set(AzureBatchRuntimeClientConfiguration.AzureBatchAccountUri, @"######################")
@@ -127,10 +131,15 @@ namespace Org.Apache.REEF.Examples.HelloREEF
                         .Set(AzureBatchRuntimeClientConfiguration.AzureStorageAccountName, @"############")
                         .Set(AzureBatchRuntimeClientConfiguration.AzureStorageContainerName, @"###########")
                         //// Extend default retry interval in Azure Batch
-                        .Set(AzureBatchRuntimeClientConfiguration.DriverHTTPConnectionRetryInterval, "20000")
+                        .Set(AzureBatchRuntimeClientConfiguration.DriverHTTPConnectionRetryInterval, "2000")
                         //// To allow Driver - Client communication, please specify the ports to use to set up driver http server.
                         //// These ports must be defined in Azure Batch InBoundNATPool.
-                        .Set(AzureBatchRuntimeClientConfiguration.AzureBatchPoolDriverPortsList, new List<string>(new string[] { "123", "456" }))
+                        .Set(AzureBatchRuntimeClientConfiguration.AzureBatchPoolDriverPortsList, new List<string>(ports))
+                        // Bind to Container Registry properties if present
+                        .Set(AzureBatchRuntimeClientConfiguration.ContainerRegistryServer, @"###############")
+                        .Set(AzureBatchRuntimeClientConfiguration.ContainerRegistryUsername, @"###############")
+                        .Set(AzureBatchRuntimeClientConfiguration.ContainerRegistryPassword, @"###############")
+                        .Set(AzureBatchRuntimeClientConfiguration.ContainerImageName, @"###############")
                         .Build();
 
                 default:
@@ -140,7 +149,7 @@ namespace Org.Apache.REEF.Examples.HelloREEF
 
         public static void MainSimple(string[] args)
         {
-            var runtime = args.Length > 0 ? args[0] : Local;
+            var runtime = args.Length > 0 ? args[0] : AzureBatch;
 
             // Execute the HelloREEF, with these parameters injected
             TangFactory.GetTang()

@@ -33,6 +33,7 @@ import org.apache.reef.wake.remote.Codec;
 import org.apache.reef.wake.remote.RemoteConfiguration;
 import org.apache.reef.wake.remote.address.LocalAddressProvider;
 import org.apache.reef.wake.remote.impl.TransportEvent;
+import org.apache.reef.wake.remote.ports.TcpPortProvider;
 import org.apache.reef.wake.remote.transport.Transport;
 import org.apache.reef.wake.remote.transport.netty.NettyMessagingTransport;
 import org.apache.reef.webserver.ReefEventStateManager;
@@ -48,6 +49,7 @@ import java.util.logging.Logger;
  */
 public final class NameServerImpl implements NameServer {
 
+  public static final String UNKNOWN_HOST_NAME = "##UNKNOWN##";
   private static final Logger LOG = Logger.getLogger(NameServer.class.getName());
 
   private final Transport transport;
@@ -64,8 +66,10 @@ public final class NameServerImpl implements NameServer {
    */
   @Inject
   private NameServerImpl(
+      @Parameter(RemoteConfiguration.HostAddress.class) final String hostAddress,
       @Parameter(NameServerParameters.NameServerPort.class) final int port,
       @Parameter(NameServerParameters.NameServerIdentifierFactory.class) final IdentifierFactory factory,
+      final TcpPortProvider portProvider,
       final LocalAddressProvider localAddressProvider) {
 
     final Injector injector = Tang.Factory.getTang().newInjector();
@@ -75,8 +79,10 @@ public final class NameServerImpl implements NameServer {
     final Codec<NamingMessage> codec = NamingCodecFactory.createFullCodec(factory);
     final EventHandler<NamingMessage> handler = createEventHandler(codec);
 
-    injector.bindVolatileParameter(RemoteConfiguration.HostAddress.class, localAddressProvider.getLocalAddress());
+    String host = UNKNOWN_HOST_NAME.equals(hostAddress) ? localAddressProvider.getLocalAddress() : hostAddress;
+    injector.bindVolatileParameter(RemoteConfiguration.HostAddress.class, host);
     injector.bindVolatileParameter(RemoteConfiguration.Port.class, port);
+    injector.bindVolatileInstance(TcpPortProvider.class, portProvider);
     injector.bindVolatileParameter(RemoteConfiguration.RemoteServerStage.class,
         new SyncStage<>(new NamingServerHandler(handler, codec)));
 

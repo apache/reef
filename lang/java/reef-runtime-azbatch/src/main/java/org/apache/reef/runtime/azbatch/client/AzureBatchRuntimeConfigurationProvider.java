@@ -23,10 +23,11 @@ import org.apache.reef.runtime.azbatch.parameters.*;
 import org.apache.reef.runtime.azbatch.util.batch.ContainerRegistryProvider;
 import org.apache.reef.tang.Configuration;
 import org.apache.reef.tang.annotations.Parameter;
-import org.apache.reef.tang.formats.ConfigurationModule;
-import org.apache.reef.wake.remote.ports.parameters.TcpPortListString;
+import org.apache.reef.wake.remote.ports.parameters.TcpPortList;
 
 import javax.inject.Inject;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Class that provides the runtime configuration for Azure Batch.
@@ -42,7 +43,7 @@ public final class AzureBatchRuntimeConfigurationProvider {
   private final String azureStorageContainerName;
   private final ContainerRegistryProvider containerRegistryProvider;
   private final Boolean isWindows;
-  private final String tcpPortListString;
+  private final Set<String> tcpPortList;
 
   /**
    * Private constructor.
@@ -56,9 +57,9 @@ public final class AzureBatchRuntimeConfigurationProvider {
       @Parameter(AzureStorageAccountName.class) final String azureStorageAccountName,
       @Parameter(AzureStorageAccountKey.class) final String azureStorageAccountKey,
       @Parameter(AzureStorageContainerName.class) final String azureStorageContainerName,
-      final ContainerRegistryProvider containerRegistryProvider,
-      @Parameter(TcpPortListString.class) final String tcpPortListString,
-      @Parameter(IsWindows.class) final Boolean isWindows) {
+      @Parameter(IsWindows.class) final Boolean isWindows,
+      @Parameter(TcpPortList.class) final Set<Integer> tcpPortList,
+      final ContainerRegistryProvider containerRegistryProvider) {
     this.azureBatchAccountName = azureBatchAccountName;
     this.azureBatchAccountKey = azureBatchAccountKey;
     this.azureBatchAccountUri = azureBatchAccountUri;
@@ -67,12 +68,15 @@ public final class AzureBatchRuntimeConfigurationProvider {
     this.azureStorageAccountKey = azureStorageAccountKey;
     this.azureStorageContainerName = azureStorageContainerName;
     this.containerRegistryProvider = containerRegistryProvider;
-    this.tcpPortListString = tcpPortListString;
     this.isWindows = isWindows;
+    this.tcpPortList = new HashSet<String>(tcpPortList.size());
+    for (int port: tcpPortList) {
+      this.tcpPortList.add(Integer.toString(port));
+    }
   }
 
   public Configuration getAzureBatchRuntimeConfiguration() {
-    ConfigurationModule module = AzureBatchRuntimeConfigurationCreator
+    return AzureBatchRuntimeConfigurationCreator
         .getOrCreateAzureBatchRuntimeConfiguration(
             this.isWindows,
             this.containerRegistryProvider.isValid())
@@ -83,15 +87,15 @@ public final class AzureBatchRuntimeConfigurationProvider {
         .set(AzureBatchRuntimeConfiguration.AZURE_STORAGE_ACCOUNT_NAME, this.azureStorageAccountName)
         .set(AzureBatchRuntimeConfiguration.AZURE_STORAGE_ACCOUNT_KEY, this.azureStorageAccountKey)
         .set(AzureBatchRuntimeConfiguration.AZURE_STORAGE_CONTAINER_NAME, this.azureStorageContainerName)
-        .set(AzureBatchRuntimeConfiguration.CONTAINER_REGISTRY_SERVER, this.containerRegistryProvider.getContainerRegistryServer())
-        .set(AzureBatchRuntimeConfiguration.CONTAINER_REGISTRY_USERNAME, this.containerRegistryProvider.getContainerRegistryUsername())
-        .set(AzureBatchRuntimeConfiguration.CONTAINER_REGISTRY_PASSWORD, this.containerRegistryProvider.getContainerRegistryPassword())
-        .set(AzureBatchRuntimeConfiguration.CONTAINER_IMAGE_NAME, this.containerRegistryProvider.getContainerImageName());
-
-    if (this.containerRegistryProvider.isValid()) {
-      module = module.set(AzureBatchRuntimeConfiguration.TCP_PORT_LIST_STRING, this.tcpPortListString);
-    }
-
-    return module.build();
+        .set(AzureBatchRuntimeConfiguration.CONTAINER_REGISTRY_SERVER,
+            this.containerRegistryProvider.getContainerRegistryServer())
+        .set(AzureBatchRuntimeConfiguration.CONTAINER_REGISTRY_USERNAME,
+            this.containerRegistryProvider.getContainerRegistryUsername())
+        .set(AzureBatchRuntimeConfiguration.CONTAINER_REGISTRY_PASSWORD,
+            this.containerRegistryProvider.getContainerRegistryPassword())
+        .set(AzureBatchRuntimeConfiguration.CONTAINER_IMAGE_NAME,
+            this.containerRegistryProvider.getContainerImageName())
+        .setMultiple(AzureBatchRuntimeConfiguration.TCP_PORT_LIST, this.tcpPortList)
+        .build();
   }
 }

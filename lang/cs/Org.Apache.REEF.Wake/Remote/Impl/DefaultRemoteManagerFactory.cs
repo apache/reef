@@ -52,7 +52,7 @@ namespace Org.Apache.REEF.Wake.Impl
         /// <returns>IRemoteManager instance</returns>
         public IRemoteManager<T> GetInstance<T>(IPAddress localAddress, int port, ICodec<T> codec)
         {
-            return new DefaultRemoteManager<T>(localAddress, port, codec, _tcpPortProvider, _tcpClientFactory);
+            return new DefaultRemoteManager<T>(localAddress, port, codec, _tcpPortProvider, _localAddressProvider, _tcpClientFactory);
         }
 
         /// <summary>
@@ -64,7 +64,7 @@ namespace Org.Apache.REEF.Wake.Impl
         /// <returns>IRemoteManager instance</returns>
         public IRemoteManager<T> GetInstance<T>(IPAddress localAddress, ICodec<T> codec)
         {
-            return new DefaultRemoteManager<T>(localAddress, 0, codec, _tcpPortProvider, _tcpClientFactory);
+            return new DefaultRemoteManager<T>(localAddress, 0, codec, _tcpPortProvider, _localAddressProvider, _tcpClientFactory);
         }
 
         /// <summary>

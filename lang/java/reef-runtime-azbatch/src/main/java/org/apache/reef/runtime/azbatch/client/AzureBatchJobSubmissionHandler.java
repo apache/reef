@@ -21,6 +21,7 @@ package org.apache.reef.runtime.azbatch.client;
 import org.apache.reef.annotations.audience.Private;
 import org.apache.reef.runtime.azbatch.util.AzureBatchFileNames;
 import org.apache.reef.runtime.azbatch.util.batch.AzureBatchHelper;
+import org.apache.reef.runtime.azbatch.util.batch.ContainerRegistryProvider;
 import org.apache.reef.runtime.azbatch.util.storage.AzureStorageClient;
 import org.apache.reef.runtime.azbatch.util.command.CommandBuilder;
 import org.apache.reef.runtime.common.client.DriverConfigurationProvider;
@@ -58,6 +59,7 @@ public final class AzureBatchJobSubmissionHandler implements JobSubmissionHandle
   private final CommandBuilder launchCommandBuilder;
   private final AzureBatchFileNames azureBatchFileNames;
   private final AzureBatchHelper azureBatchHelper;
+  private final ContainerRegistryProvider containerRegistryProvider;
 
   @Inject
   AzureBatchJobSubmissionHandler(
@@ -66,13 +68,15 @@ public final class AzureBatchJobSubmissionHandler implements JobSubmissionHandle
       final JobJarMaker jobJarMaker,
       final CommandBuilder launchCommandBuilder,
       final AzureBatchFileNames azureBatchFileNames,
-      final AzureBatchHelper azureBatchHelper) {
+      final AzureBatchHelper azureBatchHelper,
+      final ContainerRegistryProvider containerRegistryProvider) {
     this.azureStorageClient = azureStorageClient;
     this.driverConfigurationProvider = driverConfigurationProvider;
     this.jobJarMaker = jobJarMaker;
     this.launchCommandBuilder = launchCommandBuilder;
     this.azureBatchHelper = azureBatchHelper;
     this.azureBatchFileNames = azureBatchFileNames;
+    this.containerRegistryProvider = containerRegistryProvider;
   }
 
   /**
@@ -147,7 +151,7 @@ public final class AzureBatchJobSubmissionHandler implements JobSubmissionHandle
 
   private String createApplicationId(final JobSubmissionEvent jobSubmissionEvent) {
     String uuid = UUID.randomUUID().toString();
-    String jobIdentifier  = jobSubmissionEvent.getIdentifier();
+    String jobIdentifier = jobSubmissionEvent.getIdentifier();
     String jobNameShort = jobIdentifier.length() + 1 + uuid.length() < MAX_CHARS_JOB_NAME ?
         jobIdentifier : jobIdentifier.substring(0, MAX_CHARS_JOB_NAME - uuid.length() - 1);
     return jobNameShort + "-" + uuid;

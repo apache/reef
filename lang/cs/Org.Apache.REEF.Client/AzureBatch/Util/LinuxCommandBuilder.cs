@@ -40,5 +40,16 @@ namespace Org.Apache.REEF.Client.AzureBatch.Util
         {
             throw new NotImplementedException();
         }
+
+        public override string GetIpAddressFilePath()
+        {
+            return "$AZ_BATCH_JOB_PREP_WORKING_DIR/hostip.txt";
+        }
+
+        public override string CaptureIpAddressCommandLine()
+        {
+            string filePath = GetIpAddressFilePath();
+            return $"/bin/bash -c \"rm -f {filePath}; echo `hostname -i` > {filePath}\"";
+        }
     }
 }

@@ -41,9 +41,7 @@ import org.apache.reef.tang.formats.ConfigurationModule;
 import org.apache.reef.tang.formats.ConfigurationModuleBuilder;
 import org.apache.reef.tang.formats.OptionalParameter;
 import org.apache.reef.tang.formats.RequiredParameter;
-import org.apache.reef.wake.remote.ports.parameters.TcpPortListString;
-
-import java.util.List;
+import org.apache.reef.wake.remote.ports.parameters.TcpPortList;
 
 /**
  * ConfigurationModule to create Azure Batch Driver configurations.
@@ -118,9 +116,9 @@ public final class AzureBatchDriverConfiguration extends ConfigurationModuleBuil
   public static final OptionalParameter<String> CONTAINER_IMAGE_NAME = new OptionalParameter<>();
 
   /**
-   * Comma-separated list of ports to bind to the container.
+   * List of Tcp Ports.
    */
-  public static final OptionalParameter<String> TCP_PORT_LIST_STRING = new OptionalParameter<>();
+  public static final OptionalParameter<Integer> TCP_PORT_LIST = new OptionalParameter<>();
 
   /**
    * The fraction of the container memory NOT to use for the Java Heap.
@@ -148,7 +146,6 @@ public final class AzureBatchDriverConfiguration extends ConfigurationModuleBuil
       .bindNamedParameter(ContainerRegistryUsername.class, CONTAINER_REGISTRY_USERNAME)
       .bindNamedParameter(ContainerRegistryPassword.class, CONTAINER_REGISTRY_PASSWORD)
       .bindNamedParameter(ContainerImageName.class, CONTAINER_IMAGE_NAME)
-      .bindNamedParameter(TcpPortListString.class, TCP_PORT_LIST_STRING)
 
       // Bind the fields bound in AbstractDriverRuntimeConfiguration
       .bindNamedParameter(JobIdentifier.class, JOB_IDENTIFIER)
@@ -160,5 +157,6 @@ public final class AzureBatchDriverConfiguration extends ConfigurationModuleBuil
       .bindImplementation(RuntimeClasspathProvider.class, AzureBatchClasspathProvider.class)
       .bindImplementation(RuntimePathProvider.class, AzureBatchJVMPathProvider.class)
       .bindSetEntry(DefinedRuntimes.class, RUNTIME_NAME)
+      .bindSetEntry(TcpPortList.class, TCP_PORT_LIST)
       .build();
 }

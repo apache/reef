@@ -22,6 +22,8 @@ using Org.Apache.REEF.Client.DotNet.AzureBatch;
 using Org.Apache.REEF.Tang.Formats;
 using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Tang.Util;
+using Org.Apache.REEF.Wake.Remote;
+using Org.Apache.REEF.Wake.Remote.Parameters;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -49,8 +51,14 @@ namespace Org.Apache.REEF.Client.AzureBatch
 
         public static readonly OptionalParameter<IList<string>> AzureBatchPoolDriverPortsList = new OptionalParameter<IList<string>>();
 
+        public static readonly OptionalParameter<string> ContainerRegistryServer = new OptionalParameter<string>();
+        public static readonly OptionalParameter<string> ContainerRegistryUsername = new OptionalParameter<string>();
+        public static readonly OptionalParameter<string> ContainerRegistryPassword = new OptionalParameter<string>();
+        public static readonly OptionalParameter<string> ContainerImageName = new OptionalParameter<string>();
+
         public static ConfigurationModule ConfigurationModule = new AzureBatchRuntimeClientConfiguration()
             .BindImplementation(GenericType<IREEFClient>.Class, GenericType<AzureBatchDotNetClient>.Class)
+            .BindImplementation(GenericType<ITcpPortProvider>.Class, GenericType<ListTcpPortProvider>.Class)
             .BindNamedParameter(GenericType<AzureBatchAccountUri>.Class, AzureBatchAccountUri)
             .BindNamedParameter(GenericType<AzureBatchAccountName>.Class, AzureBatchAccountName)
             .BindNamedParameter(GenericType<AzureBatchAccountKey>.Class, AzureBatchAccountKey)
@@ -61,11 +69,27 @@ namespace Org.Apache.REEF.Client.AzureBatch
             .BindNamedParameter(GenericType<DriverHTTPConnectionRetryInterval>.Class, DriverHTTPConnectionRetryInterval)
             .BindNamedParameter(GenericType<DriverHTTPConnectionAttempts>.Class, DriverHTTPConnectionAttempts)
             .BindNamedParameter(GenericType<AzureBatchPoolDriverPortsList>.Class, AzureBatchPoolDriverPortsList)
+            .BindNamedParameter(GenericType<ContainerRegistryServer>.Class, ContainerRegistryServer)
+            .BindNamedParameter(GenericType<ContainerRegistryUsername>.Class, ContainerRegistryUsername)
+            .BindNamedParameter(GenericType<ContainerRegistryPassword>.Class, ContainerRegistryPassword)
+            .BindNamedParameter(GenericType<ContainerImageName>.Class, ContainerImageName)
             .Build();
 
         public static IConfiguration FromTextFile(string file)
         {
             return new AvroConfigurationSerializer().FromFile(file);
+        }
+
+        public static ConfigurationModule GetConfigurationModule(List<string> ports)
+        {
+            ConfigurationModuleBuilder moduleBuilder = AzureBatchRuntimeClientConfiguration.ConfigurationModule.Builder;
+
+            foreach (string port in ports)
+            {
+                moduleBuilder = moduleBuilder.BindSetEntry<TcpPortList, int>(GenericType<TcpPortList>.Class, port);
+            }
+
+            return moduleBuilder.Build();
         }
 
         public static IConfiguration FromEnvironment()

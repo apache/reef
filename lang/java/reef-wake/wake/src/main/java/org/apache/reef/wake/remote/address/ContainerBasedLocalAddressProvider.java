@@ -25,13 +25,10 @@ import org.apache.reef.tang.Tang;
 import javax.inject.Inject;
 import java.io.File;
 import java.io.IOException;
-import java.net.Inet4Address;
-import java.net.UnknownHostException;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -40,9 +37,10 @@ import java.util.logging.Logger;
  */
 public final class ContainerBasedLocalAddressProvider implements LocalAddressProvider {
 
+  public static final String HOST_IP_ADDR_PATH_ENV = "HOST_IP_ADDR_PATH";
   private static final Logger LOG = Logger.getLogger(ContainerBasedLocalAddressProvider.class.getName());
 
-  private String cached = null;
+  private String cachedLocalAddress = null;
 
   /**
    * The constructor is for Tang only.
@@ -54,42 +52,40 @@ public final class ContainerBasedLocalAddressProvider implements LocalAddressPro
 
   @Override
   public synchronized String getLocalAddress() {
-    if (cached != null) {
-      LOG.log(Level.FINEST, "Returning ContainerBasedLocalAddressProvider.getLocalAddress() as " + cached);
-      return cached;
+    if (cachedLocalAddress != null) {
+      return cachedLocalAddress;
     }
 
-    String ipAddressPath = System.getenv("HOST_IP_ADDR_PATH");
+    String ipAddressPath = System.getenv(HOST_IP_ADDR_PATH_ENV);
     LOG.log(Level.FINE, "IpAddressPath is {0}", ipAddressPath);
     if (StringUtils.isEmpty(ipAddressPath)) {
-      final String message = "Environment variable must be set for HOST_IP_ADDR_PATH";
+      final String message = String.format("Environment variable must be set for %s", HOST_IP_ADDR_PATH_ENV);
       LOG.log(Level.SEVERE, message);
       throw new RuntimeException(message);
     }
 
     File ipAddressFile = new File(ipAddressPath);
     if (!ipAddressFile.exists() || !ipAddressFile.isFile()) {
-      final String message = String.format("HOST_IP_ADDR_PATH points to invalid path: %s", ipAddressPath);
+      final String message = String.format("%s points to invalid path: %s", HOST_IP_ADDR_PATH_ENV, ipAddressPath);
       LOG.log(Level.SEVERE, message);
       throw new RuntimeException(message);
     }
 
-    String filePath = expandEnvironmentVariables(ipAddressPath);
     try {
-      cached = readFile(filePath, StandardCharsets.UTF_8);
-      return cached;
+      cachedLocalAddress = readFile(ipAddressPath, StandardCharsets.UTF_8);
+      return cachedLocalAddress;
     } catch (IOException e) {
-      String message = String.format("Exception when attempting to read file %s", filePath);
+      String message = String.format("Exception when attempting to read file %s", ipAddressPath);
       LOG.log(Level.SEVERE, message, e);
-      throw new RuntimeException(message);
+      throw new RuntimeException(message, e);
     }
   }
 
   @Override
   public Configuration getConfiguration() {
-    return Tang.Factory.getTang().newConfigurationBuilder()
-        .bind(LocalAddressProvider.class, ContainerBasedLocalAddressProvider.class)
-        .build();
+      return Tang.Factory.getTang().newConfigurationBuilder()
+          .bind(LocalAddressProvider.class, ContainerBasedLocalAddressProvider.class)
+          .build();
   }
 
   @Override
@@ -97,19 +93,8 @@ public final class ContainerBasedLocalAddressProvider implements LocalAddressPro
     return "ContainerBasedLocalAddressProvider:" + this.getLocalAddress();
   }
 
-  public static String expandEnvironmentVariables(String text) {
-    Map<String, String> envMap = System.getenv();
-    for (Map.Entry<String, String> entry : envMap.entrySet()) {
-      String key = entry.getKey();
-      String value = entry.getValue();
-      text = text.replaceAll("%" + key + "%", value);
-    }
-    return text;
-  }
-
-  static String readFile(String path, Charset encoding)
-      throws IOException
-  {
+  private String readFile(final String path, final Charset encoding)
+      throws IOException {
     byte[] encoded = Files.readAllBytes(Paths.get(path));
     return new String(encoded, encoding);
   }

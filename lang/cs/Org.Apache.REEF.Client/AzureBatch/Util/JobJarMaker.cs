@@ -46,7 +46,11 @@ namespace Org.Apache.REEF.Client.AzureBatch.Util
             [Parameter(typeof(AzureBatchPoolId))] string azureBatchPoolId,
             [Parameter(typeof(AzureStorageAccountName))] string azureStorageAccountName,
             [Parameter(typeof(AzureStorageContainerName))] string azureStorageContainerName,
-            [Parameter(typeof(AzureBatchPoolDriverPortsList))] List<string> azureBatchPoolDriverPortsList)
+            [Parameter(typeof(AzureBatchPoolDriverPortsList))] List<string> azureBatchPoolDriverPortsList,
+            [Parameter(typeof(ContainerRegistryServer))] string containerRegistryServer,
+            [Parameter(typeof(ContainerRegistryUsername))] string containerRegistryUsername,
+            [Parameter(typeof(ContainerRegistryPassword))] string containerRegistryPassword,
+            [Parameter(typeof(ContainerImageName))] string containerImageName)
         {
             _resourceArchiveFileGenerator = resourceArchiveFileGenerator;
             _driverFolderPreparationHelper = driverFolderPreparationHelper;
@@ -59,6 +63,10 @@ namespace Org.Apache.REEF.Client.AzureBatch.Util
                 AzureStorageAccountName = azureStorageAccountName,
                 AzureStorageContainerName = azureStorageContainerName,
                 AzureBatchPoolDriverPortsList = azureBatchPoolDriverPortsList,
+                ContainerRegistryServer = containerRegistryServer,
+                ContainerRegistryUsername = containerRegistryUsername,
+                ContainerRegistryPassword = containerRegistryPassword,
+                ContainerImageName = containerImageName,
             };
         }
 

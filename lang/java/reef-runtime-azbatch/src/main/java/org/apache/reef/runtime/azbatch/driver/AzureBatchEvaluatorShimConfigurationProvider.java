@@ -20,17 +20,16 @@ package org.apache.reef.runtime.azbatch.driver;
 
 import org.apache.reef.annotations.audience.Private;
 import org.apache.reef.runtime.azbatch.evaluator.EvaluatorShimConfiguration;
-import org.apache.reef.runtime.azbatch.parameters.ContainerIdentifier;
-import org.apache.reef.runtime.azbatch.util.batch.AzureBatchHelper;
 import org.apache.reef.runtime.common.utils.RemoteManager;
 import org.apache.reef.tang.Configuration;
 import org.apache.reef.tang.annotations.Parameter;
 import org.apache.reef.wake.remote.address.LocalAddressProvider;
 import org.apache.reef.wake.remote.ports.TcpPortProvider;
-import org.apache.reef.wake.remote.ports.parameters.TcpPortListString;
+import org.apache.reef.wake.remote.ports.parameters.TcpPortList;
 
 import javax.inject.Inject;
-import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Configuration provider for the Azure Batch evaluator shim.
@@ -41,21 +40,21 @@ public class AzureBatchEvaluatorShimConfigurationProvider {
   private final RemoteManager remoteManager;
   private final TcpPortProvider portProvider;
   private final LocalAddressProvider localAddressProvider;
-  private final AzureBatchHelper azureBatchHelper;
-  private final String tcpPortListString;
+  private final Set<String> tcpPortList;
 
   @Inject
   AzureBatchEvaluatorShimConfigurationProvider(
+      @Parameter(TcpPortList.class) final Set<Integer> tcpPortList,
       final RemoteManager remoteManager,
       final LocalAddressProvider localAddressProvider,
-      final AzureBatchHelper azureBatchHelper,
-      final TcpPortProvider portProvider,
-      @Parameter(TcpPortListString.class) final String tcpPortListString) {
+      final TcpPortProvider portProvider) {
     this.remoteManager = remoteManager;
     this.portProvider = portProvider;
     this.localAddressProvider = localAddressProvider;
-    this.azureBatchHelper = azureBatchHelper;
-    this.tcpPortListString = tcpPortListString;
+    this.tcpPortList = new HashSet<String>(tcpPortList.size());
+    for (int port: tcpPortList) {
+      this.tcpPortList.add(Integer.toString(port));
+    }
   }
 
   /**
@@ -73,7 +72,7 @@ public class AzureBatchEvaluatorShimConfigurationProvider {
         .build()
         .set(EvaluatorShimConfiguration.DRIVER_REMOTE_IDENTIFIER, this.remoteManager.getMyIdentifier())
         .set(EvaluatorShimConfiguration.CONTAINER_IDENTIFIER, containerId)
-        .set(EvaluatorShimConfiguration.TCP_PORT_LIST_STRING, tcpPortListString)
+        .setMultiple(EvaluatorShimConfiguration.TCP_PORT_LIST, this.tcpPortList)
         .build();
   }
 }

@@ -34,10 +34,12 @@ import org.apache.reef.wake.remote.address.ContainerBasedLocalAddressProvider;
 import org.apache.reef.wake.remote.address.LocalAddressProvider;
 import org.apache.reef.wake.remote.ports.ListTcpPortProvider;
 import org.apache.reef.wake.remote.ports.TcpPortProvider;
-import org.apache.reef.wake.remote.ports.parameters.TcpPortListString;
+import org.apache.reef.wake.remote.ports.parameters.TcpPortList;
 
 import javax.inject.Inject;
 import java.net.URI;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Configuration provider for the Azure Batch runtime.
@@ -53,7 +55,7 @@ public final class AzureBatchDriverConfigurationProviderImpl implements DriverCo
   private final String azureStorageContainerName;
   private final ContainerRegistryProvider containerRegistryProvider;
   private final CommandBuilder commandBuilder;
-  private final String tcpPortListString;
+  private final Set<String> tcpPortList;
 
   @Inject
   private AzureBatchDriverConfigurationProviderImpl(
@@ -63,8 +65,8 @@ public final class AzureBatchDriverConfigurationProviderImpl implements DriverCo
       @Parameter(AzureBatchPoolId.class) final String azureBatchPoolId,
       @Parameter(AzureStorageAccountName.class) final String azureStorageAccountName,
       @Parameter(AzureStorageContainerName.class) final String azureStorageContainerName,
+      @Parameter(TcpPortList.class) final Set<Integer> tcpPortList,
       final ContainerRegistryProvider containerRegistryProvider,
-      @Parameter(TcpPortListString.class) final String tcpPortListString,
       final CommandBuilder commandBuilder) {
     this.jvmSlack = jvmSlack;
     this.azureBatchAccountUri = azureBatchAccountUri;
@@ -75,7 +77,11 @@ public final class AzureBatchDriverConfigurationProviderImpl implements DriverCo
     this.containerRegistryProvider = containerRegistryProvider;
 
     this.commandBuilder = commandBuilder;
-    this.tcpPortListString = tcpPortListString;
+    this.tcpPortList = new HashSet<String>(tcpPortList.size());
+    for (int port: tcpPortList) {
+      this.tcpPortList.add(Integer.toString(port));
+    }
+
   }
 
   /**
@@ -120,7 +126,7 @@ public final class AzureBatchDriverConfigurationProviderImpl implements DriverCo
             this.containerRegistryProvider.getContainerRegistryPassword())
         .set(AzureBatchDriverConfiguration.CONTAINER_IMAGE_NAME,
             this.containerRegistryProvider.getContainerImageName())
-        .set(AzureBatchDriverConfiguration.TCP_PORT_LIST_STRING, this.tcpPortListString)
+        .setMultiple(AzureBatchDriverConfiguration.TCP_PORT_LIST, this.tcpPortList)
         .build();
     return Configurations.merge(driverConfiguration, applicationConfiguration);
   }

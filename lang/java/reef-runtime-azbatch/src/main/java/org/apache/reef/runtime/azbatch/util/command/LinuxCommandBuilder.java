@@ -68,12 +68,12 @@ public class LinuxCommandBuilder extends AbstractCommandBuilder {
 
   @Override
   public String getIpAddressFilePath() {
-    return "$AZ_BATCH_JOB_PREP_DIR/hostip.txt";
+    return "$AZ_BATCH_JOB_PREP_WORKING_DIR/hostip.txt";
   }
 
   @Override
   public String captureIpAddressCommandLine() {
     String filePath = getIpAddressFilePath();
-    return String.format("/bin/bash -c \"rm -f %s; echo `hostname -i` > $AZ_BATCH_JOB_PREP_DIR/hostip.txt\"", filePath);
+    return String.format("/bin/bash -c \"rm -f %s; echo `hostname -i` > %s\"", filePath, filePath);
   }
 }

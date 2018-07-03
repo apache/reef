@@ -31,7 +31,7 @@ namespace Org.Apache.REEF.Client.Avro.AzureBatch
     [DataContract(Namespace = "org.apache.reef.reef.bridge.client.avro")]
     public sealed class AvroAzureBatchJobSubmissionParameters
     {
-        private const string JsonSchema = @"{""type"":""record"",""name"":""org.apache.reef.reef.bridge.client.avro.AvroAzureBatchJobSubmissionParameters"",""doc"":""Job submission parameters used by the Azure Batch runtime"",""fields"":[{""name"":""sharedJobSubmissionParameters"",""type"":{""type"":""record"",""name"":""org.apache.reef.reef.bridge.client.avro.AvroJobSubmissionParameters"",""doc"":""General cross-language job submission parameters shared by all runtimes"",""fields"":[{""name"":""jobId"",""type"":""string""},{""name"":""jobSubmissionFolder"",""type"":""string""}]}},{""name"":""AzureBatchAccountName"",""type"":""string""},{""name"":""AzureBatchAccountUri"",""type"":""string""},{""name"":""AzureBatchPoolId"",""type"":""string""},{""name"":""AzureStorageAccountName"",""type"":""string""},{""name"":""AzureStorageContainerName"",""type"":""string""},{""name"":""AzureBatchPoolDriverPortsList"",""type"":{""type"": ""array"", ""items"": ""string""}}]}";
+        private const string JsonSchema = @"{""type"":""record"",""name"":""org.apache.reef.reef.bridge.client.avro.AvroAzureBatchJobSubmissionParameters"",""doc"":""Job submission parameters used by the Azure Batch runtime"",""fields"":[{""name"":""sharedJobSubmissionParameters"",""type"":{""type"":""record"",""name"":""org.apache.reef.reef.bridge.client.avro.AvroJobSubmissionParameters"",""doc"":""General cross-language job submission parameters shared by all runtimes"",""fields"":[{""name"":""jobId"",""type"":""string""},{""name"":""jobSubmissionFolder"",""type"":""string""}]}},{""name"":""AzureBatchAccountName"",""type"":""string""},{""name"":""AzureBatchAccountUri"",""type"":""string""},{""name"":""AzureBatchPoolId"",""type"":""string""},{""name"":""AzureStorageAccountName"",""type"":""string""},{""name"":""AzureStorageContainerName"",""type"":""string""},{""name"":""AzureBatchPoolDriverPortsList"",""type"":{""type"": ""array"", ""items"": ""string""}},{""name"":""ContainerRegistryServer"",""type"":""string""},{""name"":""ContainerRegistryUsername"",""type"":""string""},{""name"":""ContainerRegistryPassword"",""type"":""string""},{""name"":""ContainerImageName"",""type"":""string""}]}";
 
         /// <summary>
         /// Gets the schema.
@@ -85,6 +85,30 @@ namespace Org.Apache.REEF.Client.Avro.AzureBatch
         /// </summary>
         [DataMember]
         public IList<string> AzureBatchPoolDriverPortsList { get; set; }
+
+        /// <summary>
+        /// Gets or sets the ContainerRegistryServer field.
+        /// </summary>
+        [DataMember]
+        public string ContainerRegistryServer { get; set; }
+
+        /// <summary>
+        /// Gets or sets the ContainerRegistryUsername field.
+        /// </summary>
+        [DataMember]
+        public string ContainerRegistryUsername { get; set; }
+
+        /// <summary>
+        /// Gets or sets the ContainerRegistryPassword field.
+        /// </summary>
+        [DataMember]
+        public string ContainerRegistryPassword { get; set; }
+
+        /// <summary>
+        /// Gets or sets the ContainerImageName field.
+        /// </summary>
+        [DataMember]
+        public string ContainerImageName { get; set; }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="AvroAzureBatchJobSubmissionParameters"/> class.

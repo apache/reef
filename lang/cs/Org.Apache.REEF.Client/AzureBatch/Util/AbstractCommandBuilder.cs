@@ -63,6 +63,10 @@ namespace Org.Apache.REEF.Client.AzureBatch.Util
             return string.Format(_osCommandFormat, _commandPrefix + sb.ToString());
         }
 
+        public abstract string CaptureIpAddressCommandLine();
+
+        public abstract string GetIpAddressFilePath();
+
         /// <summary>
         /// Returns the driver classpath string which is compatible with the intricacies of the OS.
         /// </summary>

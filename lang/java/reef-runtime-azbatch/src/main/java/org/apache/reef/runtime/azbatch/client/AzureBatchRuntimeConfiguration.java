@@ -28,7 +28,6 @@ import org.apache.reef.tang.formats.RequiredParameter;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.List;
 
 /**
  * Configuration Module for the Azure Batch runtime.
@@ -97,9 +96,9 @@ public final class AzureBatchRuntimeConfiguration extends ConfigurationModuleBui
   public static final OptionalParameter<String> CONTAINER_IMAGE_NAME = new OptionalParameter<>();
 
   /**
-   * Comma-separated list of ports to bind to the container.
+   * List of Tcp Ports.
    */
-  public static final OptionalParameter<String> TCP_PORT_LIST_STRING = new OptionalParameter<>();
+  public static final OptionalParameter<Integer> TCP_PORT_LIST = new OptionalParameter<>();
 
   /**
    * Create a {@link Configuration} object from an Avro configuration file.

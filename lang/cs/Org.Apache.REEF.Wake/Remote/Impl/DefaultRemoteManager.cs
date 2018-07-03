@@ -49,6 +49,7 @@ namespace Org.Apache.REEF.Wake.Remote.Impl
             int port,
             ICodec<T> codec,
             ITcpPortProvider tcpPortProvider,
+            ILocalAddressProvider localAddressProvider,
             ITcpClientConnectionFactory tcpClientFactory)
         {
             if (localAddress == null)
@@ -79,7 +80,8 @@ namespace Org.Apache.REEF.Wake.Remote.Impl
             _server.Run();
 
             LocalEndpoint = _server.LocalEndpoint;
-            Identifier = new SocketRemoteIdentifier(LocalEndpoint);
+            IPEndPoint address = new IPEndPoint(localAddressProvider.LocalAddress, _server.LocalEndpoint.Port);
+            Identifier = new SocketRemoteIdentifier(address);
         }
 
         /// <summary>

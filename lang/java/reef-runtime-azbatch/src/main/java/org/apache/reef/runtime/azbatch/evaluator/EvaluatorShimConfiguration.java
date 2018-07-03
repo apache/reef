@@ -28,7 +28,7 @@ import org.apache.reef.tang.formats.ConfigurationModuleBuilder;
 import org.apache.reef.tang.formats.OptionalParameter;
 import org.apache.reef.tang.formats.RequiredParameter;
 import org.apache.reef.wake.remote.RemoteConfiguration;
-import org.apache.reef.wake.remote.ports.parameters.TcpPortListString;
+import org.apache.reef.wake.remote.ports.parameters.TcpPortList;
 
 /**
  * ConfigurationModule to create evaluator shim configurations.
@@ -48,14 +48,14 @@ public final class EvaluatorShimConfiguration extends ConfigurationModuleBuilder
   public static final RequiredParameter<String> CONTAINER_IDENTIFIER = new RequiredParameter<>();
 
   /**
-   * Comma-separated list of ports to bind to the container.
+   * List of Tcp Ports.
    */
-  public static final OptionalParameter<String> TCP_PORT_LIST_STRING = new OptionalParameter<>();
+  public static final OptionalParameter<Integer> TCP_PORT_LIST = new OptionalParameter<>();
 
   public static final ConfigurationModule CONF = new EvaluatorShimConfiguration()
       .bindNamedParameter(RemoteConfiguration.MessageCodec.class, REEFMessageCodec.class)
       .bindNamedParameter(DriverRemoteIdentifier.class, DRIVER_REMOTE_IDENTIFIER)
       .bindNamedParameter(ContainerIdentifier.class, CONTAINER_IDENTIFIER)
-      .bindNamedParameter(TcpPortListString.class, TCP_PORT_LIST_STRING)
+      .bindSetEntry(TcpPortList.class, TCP_PORT_LIST)
       .build();
 }
