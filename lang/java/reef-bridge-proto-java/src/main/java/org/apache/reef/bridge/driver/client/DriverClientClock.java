@@ -43,9 +43,9 @@ public final class DriverClientClock implements Clock, AlarmDispatchHandler {
 
   private static final Logger LOG = Logger.getLogger(DriverClientClock.class.getName());
 
-  private final IDriverClientService driverClientService;
+  private final DriverClientService driverClientService;
 
-  private final IDriverServiceClient driverServiceClient;
+  private final DriverServiceClient driverServiceClient;
 
   private final Timer timer;
 
@@ -56,8 +56,8 @@ public final class DriverClientClock implements Clock, AlarmDispatchHandler {
   @Inject
   private DriverClientClock(
       final Timer timer,
-      final IDriverClientService driverClientService,
-      final IDriverServiceClient driverServiceClient) {
+      final DriverClientService driverClientService,
+      final DriverServiceClient driverServiceClient) {
     this.timer = timer;
     this.driverClientService = driverClientService;
     this.driverServiceClient = driverServiceClient;

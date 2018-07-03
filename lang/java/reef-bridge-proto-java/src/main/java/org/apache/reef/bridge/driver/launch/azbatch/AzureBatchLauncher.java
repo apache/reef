@@ -19,8 +19,8 @@
 package org.apache.reef.bridge.driver.launch.azbatch;
 
 import org.apache.reef.annotations.audience.Private;
-import org.apache.reef.bridge.driver.launch.IDriverLauncher;
-import org.apache.reef.bridge.driver.service.IDriverServiceConfigurationProvider;
+import org.apache.reef.bridge.driver.launch.BridgeDriverLauncher;
+import org.apache.reef.bridge.driver.service.DriverServiceConfigurationProvider;
 import org.apache.reef.bridge.proto.ClientProtocol;
 import org.apache.reef.client.DriverLauncher;
 import org.apache.reef.client.LauncherStatus;
@@ -37,12 +37,12 @@ import javax.inject.Inject;
  * submission is used.
  */
 @Private
-public final class AzureBatchLauncher implements IDriverLauncher {
+public final class AzureBatchLauncher implements BridgeDriverLauncher {
 
-  private final IDriverServiceConfigurationProvider driverServiceConfigurationProvider;
+  private final DriverServiceConfigurationProvider driverServiceConfigurationProvider;
 
   @Inject
-  private AzureBatchLauncher(final IDriverServiceConfigurationProvider driverServiceConfigurationProvider) {
+  private AzureBatchLauncher(final DriverServiceConfigurationProvider driverServiceConfigurationProvider) {
     this.driverServiceConfigurationProvider = driverServiceConfigurationProvider;
   }
 

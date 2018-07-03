@@ -16,23 +16,36 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.bridge.driver.launch;
 
-import org.apache.reef.annotations.Unstable;
-import org.apache.reef.bridge.proto.ClientProtocol;
-import org.apache.reef.client.LauncherStatus;
-import org.apache.reef.tang.exceptions.InjectionException;
+package org.apache.reef.bridge.driver.client;
+
+import org.apache.reef.annotations.audience.Private;
+
+import java.io.IOException;
 
 /**
- * All driver launchers implement this method.
+ * Interface that driver client services implement.
  */
-@Unstable
-public interface IDriverLauncher {
+@Private
+public interface DriverClientService {
 
   /**
-   * Launch the driver with the dynamic {@link ClientProtocol.DriverClientConfiguration}.
-   * @param driverClientConfiguration dynamic driver configuration parameters
+   * Start the DriverClient service.
+   * @throws IOException when unable to start service
    */
-  LauncherStatus launch(final ClientProtocol.DriverClientConfiguration driverClientConfiguration)
-      throws InjectionException;
+  void start() throws IOException;
+
+
+  /**
+   * Notify that the count number of evaluators have been
+   * requested by the application.
+   * @param count of the number of evaluators
+   */
+  void notifyEvaluatorRequest(final int count);
+
+  /**
+   * Wait for termination of driver client service.
+   */
+  void awaitTermination() throws InterruptedException;
+
 }

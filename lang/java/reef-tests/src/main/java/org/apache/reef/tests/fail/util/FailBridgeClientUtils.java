@@ -23,7 +23,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.reef.annotations.audience.ClientSide;
 import org.apache.reef.annotations.audience.Private;
 import org.apache.reef.bridge.driver.client.JavaDriverClientLauncher;
-import org.apache.reef.bridge.driver.service.IDriverServiceConfigurationProvider;
+import org.apache.reef.bridge.driver.service.DriverServiceConfigurationProvider;
 import org.apache.reef.bridge.driver.service.grpc.GRPCDriverServiceConfigurationProvider;
 import org.apache.reef.bridge.proto.ClientProtocol;
 import org.apache.reef.runtime.common.files.ClasspathProvider;
@@ -88,12 +88,12 @@ public final class FailBridgeClientUtils {
             .setDriverClientLaunchCommand(cmd)
             .addLocalFiles(driverClientConfigurationFile.getAbsolutePath())
             .build();
-    final IDriverServiceConfigurationProvider driverServiceConfigurationProvider = TANG.newInjector(
+    final DriverServiceConfigurationProvider driverServiceConfigurationProvider = TANG.newInjector(
         TANG.newConfigurationBuilder()
-            .bindImplementation(IDriverServiceConfigurationProvider.class,
+            .bindImplementation(DriverServiceConfigurationProvider.class,
                 GRPCDriverServiceConfigurationProvider.class)
             .build())
-        .getInstance(IDriverServiceConfigurationProvider.class);
+        .getInstance(DriverServiceConfigurationProvider.class);
     return driverServiceConfigurationProvider.getDriverServiceConfiguration(driverServiceConfiguration);
   }
 

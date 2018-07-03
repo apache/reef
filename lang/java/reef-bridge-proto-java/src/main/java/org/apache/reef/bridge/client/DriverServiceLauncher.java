@@ -22,11 +22,11 @@ import com.google.protobuf.util.JsonFormat;
 import org.apache.commons.lang.StringUtils;
 import org.apache.reef.annotations.Unstable;
 import org.apache.reef.annotations.audience.ClientSide;
-import org.apache.reef.bridge.driver.launch.IDriverLauncher;
+import org.apache.reef.bridge.driver.launch.BridgeDriverLauncher;
 import org.apache.reef.bridge.driver.launch.azbatch.AzureBatchLauncher;
 import org.apache.reef.bridge.driver.launch.local.LocalLauncher;
 import org.apache.reef.bridge.driver.launch.yarn.YarnLauncher;
-import org.apache.reef.bridge.driver.service.IDriverServiceConfigurationProvider;
+import org.apache.reef.bridge.driver.service.DriverServiceConfigurationProvider;
 import org.apache.reef.bridge.driver.service.grpc.GRPCDriverServiceConfigurationProvider;
 import org.apache.reef.bridge.driver.client.JavaDriverClientLauncher;
 import org.apache.reef.bridge.proto.ClientProtocol;
@@ -147,7 +147,7 @@ public final class DriverServiceLauncher {
     final ClientProtocol.DriverClientConfiguration.RuntimeCase runtime =
         driverClientConfigurationProto.getRuntimeCase();
 
-    final Class<? extends IDriverLauncher> launcherClass;
+    final Class<? extends BridgeDriverLauncher> launcherClass;
     switch (runtime) {
     case YARN_RUNTIME:
       launcherClass = YarnLauncher.class;
@@ -162,11 +162,11 @@ public final class DriverServiceLauncher {
       throw new RuntimeException("Unknown runtime: " + runtime);
     }
     final Configuration jobSubmissionClientConfig = TANG.newConfigurationBuilder()
-        .bindImplementation(IDriverLauncher.class, launcherClass)
-        .bindImplementation(IDriverServiceConfigurationProvider.class,
+        .bindImplementation(BridgeDriverLauncher.class, launcherClass)
+        .bindImplementation(DriverServiceConfigurationProvider.class,
             GRPCDriverServiceConfigurationProvider.class)
         .build();
-    final IDriverLauncher driverServiceLauncher =
+    final BridgeDriverLauncher driverServiceLauncher =
         TANG.newInjector(jobSubmissionClientConfig).getInstance(launcherClass);
     return driverServiceLauncher.launch(driverClientConfigurationProto);
   }

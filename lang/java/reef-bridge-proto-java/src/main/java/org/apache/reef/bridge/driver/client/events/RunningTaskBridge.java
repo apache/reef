@@ -20,7 +20,7 @@
 package org.apache.reef.bridge.driver.client.events;
 
 import org.apache.reef.annotations.audience.Private;
-import org.apache.reef.bridge.driver.client.IDriverServiceClient;
+import org.apache.reef.bridge.driver.client.DriverServiceClient;
 import org.apache.reef.driver.context.ActiveContext;
 import org.apache.reef.driver.task.RunningTask;
 import org.apache.reef.runtime.common.driver.task.TaskRepresenter;
@@ -32,7 +32,7 @@ import org.apache.reef.util.Optional;
 @Private
 public final class RunningTaskBridge implements RunningTask {
 
-  private final IDriverServiceClient driverServiceClient;
+  private final DriverServiceClient driverServiceClient;
 
   private final String taskId;
 
@@ -40,7 +40,7 @@ public final class RunningTaskBridge implements RunningTask {
 
 
   public RunningTaskBridge(
-      final IDriverServiceClient driverServiceClient,
+      final DriverServiceClient driverServiceClient,
       final String taskId,
       final ActiveContext context) {
     this.driverServiceClient = driverServiceClient;

@@ -50,11 +50,11 @@ public final class DriverServiceHandlers {
 
   private static final Logger LOG = Logger.getLogger(DriverServiceHandlers.class.getName());
 
-  private final IDriverService driverBridgeService;
+  private final DriverService driverBridgeService;
 
   @Inject
   private DriverServiceHandlers(
-      final IDriverService driverBridgeService) {
+      final DriverService driverBridgeService) {
     this.driverBridgeService = driverBridgeService;
   }
 

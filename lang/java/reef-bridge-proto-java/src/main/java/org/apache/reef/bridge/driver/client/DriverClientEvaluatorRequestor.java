@@ -31,14 +31,14 @@ import javax.inject.Inject;
 @Private
 public final class DriverClientEvaluatorRequestor implements EvaluatorRequestor {
 
-  private final IDriverServiceClient driverServiceClient;
+  private final DriverServiceClient driverServiceClient;
 
-  private final IDriverClientService driverClientService;
+  private final DriverClientService driverClientService;
 
   @Inject
   private DriverClientEvaluatorRequestor(
-      final IDriverServiceClient driverServiceClient,
-      final IDriverClientService driverClientService) {
+      final DriverServiceClient driverServiceClient,
+      final DriverClientService driverClientService) {
     this.driverServiceClient = driverServiceClient;
     this.driverClientService = driverClientService;
   }

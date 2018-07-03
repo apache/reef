@@ -27,7 +27,7 @@ import io.grpc.stub.StreamObserver;
 import org.apache.commons.lang.StringUtils;
 import org.apache.reef.annotations.audience.Private;
 import org.apache.reef.bridge.driver.client.DriverClientDispatcher;
-import org.apache.reef.bridge.driver.client.IDriverClientService;
+import org.apache.reef.bridge.driver.client.DriverClientService;
 import org.apache.reef.bridge.driver.client.JVMClientProcess;
 import org.apache.reef.bridge.driver.client.events.*;
 import org.apache.reef.bridge.driver.common.grpc.GRPCUtils;
@@ -65,10 +65,10 @@ import java.util.logging.Logger;
  * dispatches appropriate objects to the application.
  */
 @Private
-public final class DriverClientService extends DriverClientGrpc.DriverClientImplBase
-    implements IDriverClientService {
+public final class GRPCDriverClientService extends DriverClientGrpc.DriverClientImplBase
+    implements DriverClientService {
 
-  private static final Logger LOG = Logger.getLogger(DriverClientService.class.getName());
+  private static final Logger LOG = Logger.getLogger(GRPCDriverClientService.class.getName());
 
   private Server server;
 
@@ -78,7 +78,7 @@ public final class DriverClientService extends DriverClientGrpc.DriverClientImpl
 
   private final ExceptionCodec exceptionCodec;
 
-  private final DriverServiceClient driverServiceClient;
+  private final GRPCDriverServiceClient driverServiceClient;
 
   private final TcpPortProvider tcpPortProvider;
 
@@ -93,10 +93,10 @@ public final class DriverClientService extends DriverClientGrpc.DriverClientImpl
   private int outstandingEvaluatorCount = 0;
 
   @Inject
-  private DriverClientService(
+  private GRPCDriverClientService(
       final EvaluatorDescriptorBuilderFactory evaluatorDescriptorBuilderFactory,
       final ExceptionCodec exceptionCodec,
-      final DriverServiceClient driverServiceClient,
+      final GRPCDriverServiceClient driverServiceClient,
       final TcpPortProvider tcpPortProvider,
       final InjectionFuture<Clock> clock,
       final InjectionFuture<DriverClientDispatcher> clientDriverDispatcher) {

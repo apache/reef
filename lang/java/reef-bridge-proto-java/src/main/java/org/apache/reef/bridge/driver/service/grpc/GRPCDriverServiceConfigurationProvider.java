@@ -23,7 +23,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.reef.annotations.audience.Private;
 import org.apache.reef.bridge.driver.service.DriverServiceConfiguration;
 import org.apache.reef.bridge.driver.service.DriverServiceHandlers;
-import org.apache.reef.bridge.driver.service.IDriverServiceConfigurationProvider;
+import org.apache.reef.bridge.driver.service.DriverServiceConfigurationProvider;
 import org.apache.reef.bridge.proto.ClientProtocol;
 import org.apache.reef.client.DriverConfiguration;
 import org.apache.reef.client.DriverRestartConfiguration;
@@ -46,7 +46,7 @@ import java.util.List;
  * GRPC driver service configuration provider.
  */
 @Private
-public final class GRPCDriverServiceConfigurationProvider implements IDriverServiceConfigurationProvider {
+public final class GRPCDriverServiceConfigurationProvider implements DriverServiceConfigurationProvider {
 
   @Inject
   private GRPCDriverServiceConfigurationProvider() {

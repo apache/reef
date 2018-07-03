@@ -26,7 +26,7 @@ import org.apache.reef.annotations.audience.Private;
 import org.apache.reef.bridge.driver.common.grpc.GRPCUtils;
 import org.apache.reef.bridge.driver.common.grpc.ObserverCleanup;
 import org.apache.reef.bridge.driver.service.DriverClientException;
-import org.apache.reef.bridge.driver.service.IDriverService;
+import org.apache.reef.bridge.driver.service.DriverService;
 import org.apache.reef.bridge.service.parameters.DriverClientCommand;
 import org.apache.reef.bridge.proto.*;
 import org.apache.reef.bridge.proto.Void;
@@ -68,7 +68,7 @@ import java.util.logging.Logger;
  * GRPC DriverBridgeService that interacts with higher-level languages.
  */
 @Private
-public final class GRPCDriverService implements IDriverService {
+public final class GRPCDriverService implements DriverService {
   private static final Logger LOG = Logger.getLogger(GRPCDriverService.class.getName());
 
   private static final Void VOID = Void.newBuilder().build();

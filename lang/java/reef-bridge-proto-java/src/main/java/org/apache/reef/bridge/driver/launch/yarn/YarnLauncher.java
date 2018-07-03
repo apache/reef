@@ -21,8 +21,8 @@ package org.apache.reef.bridge.driver.launch.yarn;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.reef.annotations.audience.Private;
-import org.apache.reef.bridge.driver.launch.IDriverLauncher;
-import org.apache.reef.bridge.driver.service.IDriverServiceConfigurationProvider;
+import org.apache.reef.bridge.driver.launch.BridgeDriverLauncher;
+import org.apache.reef.bridge.driver.service.DriverServiceConfigurationProvider;
 import org.apache.reef.bridge.driver.service.grpc.GRPCDriverServiceConfigurationProvider;
 import org.apache.reef.bridge.proto.ClientProtocol;
 import org.apache.reef.client.DriverLauncher;
@@ -45,7 +45,7 @@ import java.util.logging.Logger;
  * submission is used.
  */
 @Private
-public final class YarnLauncher implements IDriverLauncher {
+public final class YarnLauncher implements BridgeDriverLauncher {
   private static final Logger LOG = Logger.getLogger(YarnLauncher.class.getName());
 
   @Inject
@@ -54,12 +54,12 @@ public final class YarnLauncher implements IDriverLauncher {
 
   public LauncherStatus launch(final ClientProtocol.DriverClientConfiguration driverClientConfiguration)
       throws InjectionException {
-    final IDriverServiceConfigurationProvider driverConfigurationProvider =
+    final DriverServiceConfigurationProvider driverConfigurationProvider =
         Tang.Factory.getTang().newInjector(Tang.Factory.getTang().newConfigurationBuilder()
-            .bindImplementation(IDriverServiceConfigurationProvider.class,
+            .bindImplementation(DriverServiceConfigurationProvider.class,
                 GRPCDriverServiceConfigurationProvider.class)
             .build()
-        ).getInstance(IDriverServiceConfigurationProvider.class);
+        ).getInstance(DriverServiceConfigurationProvider.class);
     Configuration yarnConfiguration = YarnClientConfiguration.CONF
         .set(YarnClientConfiguration.UNMANAGED_DRIVER,
             driverClientConfiguration.getYarnRuntime().getUnmangedDriver())

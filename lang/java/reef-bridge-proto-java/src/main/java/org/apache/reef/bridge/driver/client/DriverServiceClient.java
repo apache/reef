@@ -20,10 +20,8 @@
 package org.apache.reef.bridge.driver.client;
 
 import org.apache.reef.annotations.audience.Private;
-import org.apache.reef.bridge.driver.client.grpc.DriverServiceClient;
 import org.apache.reef.driver.evaluator.EvaluatorRequest;
 import org.apache.reef.tang.Configuration;
-import org.apache.reef.tang.annotations.DefaultImplementation;
 import org.apache.reef.util.Optional;
 
 import java.io.File;
@@ -33,8 +31,7 @@ import java.util.List;
  * Forwards application requests to driver server.
  */
 @Private
-@DefaultImplementation(DriverServiceClient.class)
-public interface IDriverServiceClient {
+public interface DriverServiceClient {
 
   void onInitializationException(final Throwable ex);
 

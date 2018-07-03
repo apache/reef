@@ -20,7 +20,7 @@
 package org.apache.reef.bridge.driver.client.events;
 
 import org.apache.reef.annotations.audience.Private;
-import org.apache.reef.bridge.driver.client.IDriverServiceClient;
+import org.apache.reef.bridge.driver.client.DriverServiceClient;
 import org.apache.reef.driver.context.ActiveContext;
 import org.apache.reef.driver.evaluator.EvaluatorDescriptor;
 import org.apache.reef.tang.Configuration;
@@ -37,7 +37,7 @@ public final class ActiveContextBridge implements ActiveContext {
 
   private static final Logger LOG = Logger.getLogger(ActiveContextBridge.class.getName());
 
-  private final IDriverServiceClient driverServiceClient;
+  private final DriverServiceClient driverServiceClient;
 
   private final String contextId;
 
@@ -48,7 +48,7 @@ public final class ActiveContextBridge implements ActiveContext {
   private final EvaluatorDescriptor evaluatorDescriptor;
 
   public ActiveContextBridge(
-      final IDriverServiceClient driverServiceClient,
+      final DriverServiceClient driverServiceClient,
       final String contextId,
       final Optional<String> parentId,
       final String evaluatorId,

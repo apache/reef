@@ -42,15 +42,15 @@ import org.apache.reef.webserver.ReefEventStateManager;
 @Private
 public final class DriverServiceConfiguration extends ConfigurationModuleBuilder {
 
-  public static final RequiredImpl<IDriverService> DRIVER_SERVICE_IMPL = new RequiredImpl<>();
+  public static final RequiredImpl<DriverService> DRIVER_SERVICE_IMPL = new RequiredImpl<>();
 
   public static final RequiredParameter<String> DRIVER_CLIENT_COMMAND = new RequiredParameter<>();
 
   /** Configuration module that binds all driver handlers. */
   public static final ConfigurationModule CONF = new DriverServiceConfiguration()
-      .bindImplementation(IDriverService.class, DRIVER_SERVICE_IMPL)
+      .bindImplementation(DriverService.class, DRIVER_SERVICE_IMPL)
       .bindNamedParameter(DriverClientCommand.class, DRIVER_CLIENT_COMMAND)
-      .bindSetEntry(DriverIdleSources.class, IDriverService.class)
+      .bindSetEntry(DriverIdleSources.class, DriverService.class)
       .build();
 
 

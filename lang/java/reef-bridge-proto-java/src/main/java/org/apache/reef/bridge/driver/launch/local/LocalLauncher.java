@@ -20,8 +20,8 @@ package org.apache.reef.bridge.driver.launch.local;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.reef.annotations.audience.Private;
-import org.apache.reef.bridge.driver.launch.IDriverLauncher;
-import org.apache.reef.bridge.driver.service.IDriverServiceConfigurationProvider;
+import org.apache.reef.bridge.driver.launch.BridgeDriverLauncher;
+import org.apache.reef.bridge.driver.service.DriverServiceConfigurationProvider;
 import org.apache.reef.bridge.proto.ClientProtocol;
 import org.apache.reef.client.DriverLauncher;
 import org.apache.reef.client.LauncherStatus;
@@ -35,12 +35,12 @@ import javax.inject.Inject;
  * Submits a folder containing a Driver to the local runtime.
  */
 @Private
-public final class LocalLauncher implements IDriverLauncher {
+public final class LocalLauncher implements BridgeDriverLauncher {
 
-  private final IDriverServiceConfigurationProvider driverServiceConfigurationProvider;
+  private final DriverServiceConfigurationProvider driverServiceConfigurationProvider;
 
   @Inject
-  private LocalLauncher(final IDriverServiceConfigurationProvider driverServiceConfigurationProvider) {
+  private LocalLauncher(final DriverServiceConfigurationProvider driverServiceConfigurationProvider) {
     this.driverServiceConfigurationProvider = driverServiceConfigurationProvider;
   }
 

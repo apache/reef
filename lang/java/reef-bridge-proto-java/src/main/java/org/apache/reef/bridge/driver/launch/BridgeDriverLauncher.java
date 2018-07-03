@@ -16,21 +16,23 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+package org.apache.reef.bridge.driver.launch;
 
-package org.apache.reef.bridge.driver.service;
-
-import org.apache.reef.annotations.audience.Private;
-import org.apache.reef.bridge.driver.service.grpc.GRPCDriverServiceConfigurationProvider;
+import org.apache.reef.annotations.Unstable;
 import org.apache.reef.bridge.proto.ClientProtocol;
-import org.apache.reef.tang.Configuration;
-import org.apache.reef.tang.annotations.DefaultImplementation;
+import org.apache.reef.client.LauncherStatus;
+import org.apache.reef.tang.exceptions.InjectionException;
 
 /**
- * Configuration provider for the driver service.
+ * All driver launchers implement this method.
  */
-@Private
-@DefaultImplementation(GRPCDriverServiceConfigurationProvider.class)
-public interface IDriverServiceConfigurationProvider {
+@Unstable
+public interface BridgeDriverLauncher {
 
-  Configuration getDriverServiceConfiguration(final ClientProtocol.DriverClientConfiguration driverClientConfiguration);
+  /**
+   * Launch the driver with the dynamic {@link ClientProtocol.DriverClientConfiguration}.
+   * @param driverClientConfiguration dynamic driver configuration parameters
+   */
+  LauncherStatus launch(final ClientProtocol.DriverClientConfiguration driverClientConfiguration)
+      throws InjectionException;
 }

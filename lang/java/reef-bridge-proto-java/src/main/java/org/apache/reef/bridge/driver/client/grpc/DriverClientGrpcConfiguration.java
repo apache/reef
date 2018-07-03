@@ -20,8 +20,8 @@
 package org.apache.reef.bridge.driver.client.grpc;
 
 import org.apache.reef.annotations.Unstable;
-import org.apache.reef.bridge.driver.client.IDriverClientService;
-import org.apache.reef.bridge.driver.client.IDriverServiceClient;
+import org.apache.reef.bridge.driver.client.DriverClientService;
+import org.apache.reef.bridge.driver.client.DriverServiceClient;
 import org.apache.reef.bridge.driver.client.grpc.parameters.DriverRegistrationTimeout;
 import org.apache.reef.bridge.driver.client.grpc.parameters.DriverServicePort;
 import org.apache.reef.tang.formats.ConfigurationModule;
@@ -40,8 +40,8 @@ public final class DriverClientGrpcConfiguration extends ConfigurationModuleBuil
   public static final OptionalParameter<Integer> DRIVER_CLIENT_REGISTRATION_TIMEOUT = new OptionalParameter<>();
 
   public static final ConfigurationModule CONF = new DriverClientGrpcConfiguration()
-      .bindImplementation(IDriverClientService.class, DriverClientService.class)
-      .bindImplementation(IDriverServiceClient.class, DriverServiceClient.class)
+      .bindImplementation(DriverClientService.class, GRPCDriverClientService.class)
+      .bindImplementation(DriverServiceClient.class, GRPCDriverServiceClient.class)
       .bindNamedParameter(DriverServicePort.class, DRIVER_SERVICE_PORT)
       .bindNamedParameter(DriverRegistrationTimeout.class, DRIVER_CLIENT_REGISTRATION_TIMEOUT)
       .build();

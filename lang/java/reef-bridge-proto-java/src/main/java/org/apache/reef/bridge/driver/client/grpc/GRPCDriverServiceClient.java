@@ -23,7 +23,7 @@ import com.google.protobuf.ByteString;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import org.apache.reef.annotations.audience.Private;
-import org.apache.reef.bridge.driver.client.IDriverServiceClient;
+import org.apache.reef.bridge.driver.client.DriverServiceClient;
 import org.apache.reef.bridge.driver.client.JVMClientProcess;
 import org.apache.reef.bridge.driver.client.grpc.parameters.DriverRegistrationTimeout;
 import org.apache.reef.bridge.driver.client.grpc.parameters.DriverServicePort;
@@ -53,9 +53,9 @@ import java.util.logging.Logger;
  * driver service.
  */
 @Private
-public final class DriverServiceClient implements IDriverServiceClient {
+public final class GRPCDriverServiceClient implements DriverServiceClient {
 
-  private static final Logger LOG = Logger.getLogger(DriverServiceClient.class.getName());
+  private static final Logger LOG = Logger.getLogger(GRPCDriverServiceClient.class.getName());
 
   private final ExceptionCodec exceptionCodec;
 
@@ -66,7 +66,7 @@ public final class DriverServiceClient implements IDriverServiceClient {
   private final int driverRegistrationTimeout;
 
   @Inject
-  private DriverServiceClient(
+  private GRPCDriverServiceClient(
       final ConfigurationSerializer configurationSerializer,
       final ExceptionCodec exceptionCodec,
       @Parameter(DriverServicePort.class) final int driverServicePort,

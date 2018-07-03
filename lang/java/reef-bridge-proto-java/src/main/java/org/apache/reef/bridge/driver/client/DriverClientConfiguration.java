@@ -154,12 +154,12 @@ public final class DriverClientConfiguration extends ConfigurationModuleBuilder 
   /**
    * Default to gRPC Driver Client Service.
    */
-  public static final OptionalImpl<IDriverClientService> DRIVER_CLIENT_SERVICE = new OptionalImpl<>();
+  public static final OptionalImpl<DriverClientService> DRIVER_CLIENT_SERVICE = new OptionalImpl<>();
 
   /**
    * Default to gRPC Driver Service Client.
    */
-  public static final OptionalImpl<IDriverServiceClient> DRIVER_SERVICE_CLIENT = new OptionalImpl<>();
+  public static final OptionalImpl<DriverServiceClient> DRIVER_SERVICE_CLIENT = new OptionalImpl<>();
 
   /**
    * ConfigurationModule to fill out to get a legal Driver Configuration.
@@ -168,8 +168,8 @@ public final class DriverClientConfiguration extends ConfigurationModuleBuilder 
       .bindImplementation(Clock.class, DriverClientClock.class)
       .bindImplementation(EvaluatorRequestor.class, DriverClientEvaluatorRequestor.class)
       .bindImplementation(AlarmDispatchHandler.class, ALARM_DISPATCH_HANDLER)
-      .bindImplementation(IDriverClientService.class, DRIVER_CLIENT_SERVICE)
-      .bindImplementation(IDriverServiceClient.class, DRIVER_SERVICE_CLIENT)
+      .bindImplementation(DriverClientService.class, DRIVER_CLIENT_SERVICE)
+      .bindImplementation(DriverServiceClient.class, DRIVER_SERVICE_CLIENT)
 
       .bindNamedParameter(DriverClientDispatchThreadCount.class, CLIENT_DRIVER_DISPATCH_THREAD_COUNT)
 

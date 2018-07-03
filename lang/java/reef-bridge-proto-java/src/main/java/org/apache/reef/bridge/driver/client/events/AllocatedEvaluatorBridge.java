@@ -19,7 +19,7 @@
 package org.apache.reef.bridge.driver.client.events;
 
 import org.apache.reef.annotations.audience.Private;
-import org.apache.reef.bridge.driver.client.IDriverServiceClient;
+import org.apache.reef.bridge.driver.client.DriverServiceClient;
 import org.apache.reef.bridge.driver.client.JVMClientProcess;
 import org.apache.reef.driver.evaluator.AllocatedEvaluator;
 import org.apache.reef.driver.evaluator.EvaluatorDescriptor;
@@ -41,7 +41,7 @@ public final class AllocatedEvaluatorBridge implements AllocatedEvaluator {
 
   private final EvaluatorDescriptor evaluatorDescriptor;
 
-  private final IDriverServiceClient driverServiceClient;
+  private final DriverServiceClient driverServiceClient;
 
   private final List<File> addFileList = new ArrayList<>();
 
@@ -52,7 +52,7 @@ public final class AllocatedEvaluatorBridge implements AllocatedEvaluator {
   public AllocatedEvaluatorBridge(
       final String evaluatorId,
       final EvaluatorDescriptor evaluatorDescriptor,
-      final IDriverServiceClient driverServiceClient) {
+      final DriverServiceClient driverServiceClient) {
     this.evaluatorId = evaluatorId;
     this.evaluatorDescriptor = evaluatorDescriptor;
     this.driverServiceClient = driverServiceClient;

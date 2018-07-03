@@ -187,7 +187,7 @@ public final class JavaDriverClientLauncher {
     Thread.setDefaultUncaughtExceptionHandler(new REEFUncaughtExceptionHandler(launcher.envConfig));
     final Injector injector = TANG.newInjector(launcher.envConfig);
     try {
-      final IDriverServiceClient driverServiceClient = injector.getInstance(IDriverServiceClient.class);
+      final DriverServiceClient driverServiceClient = injector.getInstance(DriverServiceClient.class);
       try (final Clock reef = injector.getInstance(Clock.class)) {
         reef.run();
       } catch (final InjectionException ex) {

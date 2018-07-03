@@ -37,7 +37,7 @@ import org.apache.reef.wake.time.event.StopTime;
  * Interface implemented by a Driver Service.
  */
 @Private
-public interface IDriverService extends DriverIdlenessSource {
+public interface DriverService extends DriverIdlenessSource {
 
   /**
    * Driver restart handler.
