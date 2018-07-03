@@ -28,5 +28,5 @@ import org.apache.reef.wake.EventHandler;
  */
 @Private
 @DefaultImplementation(DriverClientClock.class)
-public interface IAlarmDispatchHandler extends EventHandler<String> {
+public interface AlarmDispatchHandler extends EventHandler<String> {
 }

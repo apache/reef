@@ -44,9 +44,9 @@ import org.apache.reef.tang.exceptions.InjectionException;
 import org.apache.reef.tang.formats.ConfigurationSerializer;
 
 import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.io.Reader;
 import java.util.Collections;
 import java.util.List;
 import java.util.logging.Level;
@@ -141,54 +141,34 @@ public final class DriverServiceLauncher {
     }
   }
 
-  private static IDriverLauncher getLocalDriverServiceLauncher() throws InjectionException {
-    final Configuration localJobSubmissionClientConfig = TANG.newConfigurationBuilder()
-        .bindImplementation(IDriverLauncher.class, LocalLauncher.class)
-        .bindImplementation(IDriverServiceConfigurationProvider.class,
-            GRPCDriverServiceConfigurationProvider.class)
-        .build();
-    return TANG.newInjector(localJobSubmissionClientConfig).getInstance(LocalLauncher.class);
-  }
-
-
-  private static IDriverLauncher getYarnDriverServiceLauncher() throws InjectionException {
-    final Configuration yarnJobSubmissionClientConfig = TANG.newConfigurationBuilder()
-        .bindImplementation(IDriverLauncher.class, YarnLauncher.class)
-        .bindImplementation(IDriverServiceConfigurationProvider.class,
-            GRPCDriverServiceConfigurationProvider.class)
-        .build();
-    return TANG.newInjector(yarnJobSubmissionClientConfig).getInstance(YarnLauncher.class);
-  }
-
-  private static IDriverLauncher getAzureBatchDriverServiceLauncher() throws InjectionException {
-    final Configuration azbatchJobSubmissionClientConfig = TANG.newConfigurationBuilder()
-        .bindImplementation(IDriverLauncher.class, AzureBatchLauncher.class)
-        .bindImplementation(IDriverServiceConfigurationProvider.class,
-            GRPCDriverServiceConfigurationProvider.class)
-        .build();
-    return TANG.newInjector(azbatchJobSubmissionClientConfig).getInstance(AzureBatchLauncher.class);
-  }
-
   private static LauncherStatus launch(
-      final ClientProtocol.DriverClientConfiguration driverClientConfigurationProto) {
-    try {
-      switch (driverClientConfigurationProto.getRuntimeCase()) {
-      case YARN_RUNTIME:
-        final IDriverLauncher yarnDriverServiceLauncher = getYarnDriverServiceLauncher();
-        return yarnDriverServiceLauncher.launch(driverClientConfigurationProto);
-      case LOCAL_RUNTIME:
-        final IDriverLauncher localDriverServiceLauncher = getLocalDriverServiceLauncher();
-        return localDriverServiceLauncher.launch(driverClientConfigurationProto);
-      case AZBATCH_RUNTIME:
-        final IDriverLauncher azureBatchDriverServiceLauncher = getAzureBatchDriverServiceLauncher();
-        return azureBatchDriverServiceLauncher.launch(driverClientConfigurationProto);
-      default:
-        throw new RuntimeException("Unknown runtime");
-      }
-    } catch (final InjectionException ex) {
-      LOG.log(Level.SEVERE, "Job configuration error", ex);
-      throw new RuntimeException(ex);
+      final ClientProtocol.DriverClientConfiguration driverClientConfigurationProto) throws InjectionException {
+
+    final ClientProtocol.DriverClientConfiguration.RuntimeCase runtime =
+        driverClientConfigurationProto.getRuntimeCase();
+
+    final Class<? extends IDriverLauncher> launcherClass;
+    switch (runtime) {
+    case YARN_RUNTIME:
+      launcherClass = YarnLauncher.class;
+      break;
+    case LOCAL_RUNTIME:
+      launcherClass = LocalLauncher.class;
+      break;
+    case AZBATCH_RUNTIME:
+      launcherClass = AzureBatchLauncher.class;
+      break;
+    default:
+      throw new RuntimeException("Unknown runtime: " + runtime);
     }
+    final Configuration jobSubmissionClientConfig = TANG.newConfigurationBuilder()
+        .bindImplementation(IDriverLauncher.class, launcherClass)
+        .bindImplementation(IDriverServiceConfigurationProvider.class,
+            GRPCDriverServiceConfigurationProvider.class)
+        .build();
+    final IDriverLauncher driverServiceLauncher =
+        TANG.newInjector(jobSubmissionClientConfig).getInstance(launcherClass);
+    return driverServiceLauncher.launch(driverClientConfigurationProto);
   }
 
   /**
@@ -196,18 +176,19 @@ public final class DriverServiceLauncher {
    *
    * @param args command line parameters.
    */
-  public static void main(final String[] args) throws IOException {
+  public static void main(final String[] args) throws IOException, InjectionException {
     if (args.length != 1) {
-      LOG.log(Level.SEVERE, DriverServiceLauncher.class.getName() +
-          " accepts single argument referencing a file that contains a client protocol buffer driver configuration");
+      LOG.log(Level.SEVERE,
+          "Expected a single command line argument with a file containing client protobuf driver configuration");
       System.exit(1);
     }
-    final String content = new String(Files.readAllBytes(Paths.get(args[0])));
     final ClientProtocol.DriverClientConfiguration.Builder driverClientConfigurationProtoBuilder =
         ClientProtocol.DriverClientConfiguration.newBuilder();
-    JsonFormat.parser()
-        .usingTypeRegistry(JsonFormat.TypeRegistry.getEmptyTypeRegistry())
-        .merge(content, driverClientConfigurationProtoBuilder);
+    try (final Reader reader = new FileReader(args[0])) {
+      JsonFormat.parser()
+          .usingTypeRegistry(JsonFormat.TypeRegistry.getEmptyTypeRegistry())
+          .merge(reader, driverClientConfigurationProtoBuilder);
+    }
     final ClientProtocol.DriverClientConfiguration driverClientConfigurationProto =
         driverClientConfigurationProtoBuilder.build();
     final LauncherStatus status = launch(driverClientConfigurationProto);

@@ -42,7 +42,6 @@ public final class DriverClientExceptionHandler implements EventHandler<Throwabl
     this.clock = clock;
   }
 
-
   @Override
   public void onNext(final Throwable throwable) {
     LOG.log(Level.SEVERE, "Exception in DriverClient - stopping", throwable);

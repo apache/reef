@@ -45,6 +45,8 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * The client that exposes methods for communicating back to the
@@ -52,6 +54,8 @@ import java.util.concurrent.TimeoutException;
  */
 @Private
 public final class DriverServiceClient implements IDriverServiceClient {
+
+  private static final Logger LOG = Logger.getLogger(DriverServiceClient.class.getName());
 
   private final ExceptionCodec exceptionCodec;
 
@@ -78,6 +82,7 @@ public final class DriverServiceClient implements IDriverServiceClient {
   }
 
   public void registerDriverClientService(final String host, final int port) {
+    LOG.log(Level.INFO, "Driver client register with driver service on port {0}", port);
     this.serviceStub.registerDriverClient(
         DriverClientRegistration.newBuilder()
             .setHost(host)

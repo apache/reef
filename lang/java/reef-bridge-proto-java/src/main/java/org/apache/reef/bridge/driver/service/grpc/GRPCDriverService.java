@@ -155,7 +155,7 @@ public final class GRPCDriverService implements IDriverService {
         .redirectOutput(new File(this.reefFileNames.getDriverClientStdoutFileName()))
         .start();
     synchronized (this) {
-      int attempts = 10; // give some time
+      int attempts = 30; // give some time
       /* wait for driver client process to register
        * Note: attempts and wait time have been given reasonable hardcoded values for a driver
        * client to register with the driver service (us). Making these values configurable would

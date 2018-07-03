@@ -149,7 +149,7 @@ public final class DriverClientConfiguration extends ConfigurationModuleBuilder 
   /**
    * Alarm dispatch handler.
    */
-  public static final OptionalImpl<IAlarmDispatchHandler> ALARM_DISPATCH_HANDLER = new OptionalImpl<>();
+  public static final OptionalImpl<AlarmDispatchHandler> ALARM_DISPATCH_HANDLER = new OptionalImpl<>();
 
   /**
    * Default to gRPC Driver Client Service.
@@ -167,7 +167,7 @@ public final class DriverClientConfiguration extends ConfigurationModuleBuilder 
   public static final ConfigurationModule CONF = new DriverClientConfiguration()
       .bindImplementation(Clock.class, DriverClientClock.class)
       .bindImplementation(EvaluatorRequestor.class, DriverClientEvaluatorRequestor.class)
-      .bindImplementation(IAlarmDispatchHandler.class, ALARM_DISPATCH_HANDLER)
+      .bindImplementation(AlarmDispatchHandler.class, ALARM_DISPATCH_HANDLER)
       .bindImplementation(IDriverClientService.class, DRIVER_CLIENT_SERVICE)
       .bindImplementation(IDriverServiceClient.class, DRIVER_SERVICE_CLIENT)
 

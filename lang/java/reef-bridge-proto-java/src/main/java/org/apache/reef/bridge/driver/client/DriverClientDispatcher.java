@@ -88,7 +88,7 @@ public final class DriverClientDispatcher {
   @Inject
   private DriverClientDispatcher(
       final DriverClientExceptionHandler driverExceptionHandler,
-      final IAlarmDispatchHandler alarmDispatchHandler,
+      final AlarmDispatchHandler alarmDispatchHandler,
       @Parameter(DriverClientDispatchThreadCount.class)
       final Integer numberOfThreads,
       // Application-provided start and stop handlers
@@ -175,7 +175,7 @@ public final class DriverClientDispatcher {
   @Inject
   private DriverClientDispatcher(
       final DriverClientExceptionHandler driverExceptionHandler,
-      final IAlarmDispatchHandler alarmDispatchHandler,
+      final AlarmDispatchHandler alarmDispatchHandler,
       @Parameter(DriverClientDispatchThreadCount.class)
       final Integer numberOfThreads,
       // Application-provided start and stop handlers

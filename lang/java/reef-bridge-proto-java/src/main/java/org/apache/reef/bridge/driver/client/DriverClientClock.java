@@ -39,7 +39,7 @@ import java.util.logging.Logger;
  * The bridge driver client clock.
  */
 @Private
-public final class DriverClientClock implements Clock, IAlarmDispatchHandler {
+public final class DriverClientClock implements Clock, AlarmDispatchHandler {
 
   private static final Logger LOG = Logger.getLogger(DriverClientClock.class.getName());
 
