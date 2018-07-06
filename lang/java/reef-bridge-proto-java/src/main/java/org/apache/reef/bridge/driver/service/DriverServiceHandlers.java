@@ -252,7 +252,6 @@ public final class DriverServiceHandlers {
   public final class DriverRestartHandler implements EventHandler<DriverRestarted> {
     @Override
     public void onNext(final DriverRestarted driverRestarted) {
-
     }
   }
 
@@ -262,7 +261,6 @@ public final class DriverServiceHandlers {
   public final class DriverRestartActiveContextHandler implements EventHandler<ActiveContext> {
     @Override
     public void onNext(final ActiveContext context) {
-
     }
   }
 
@@ -272,7 +270,6 @@ public final class DriverServiceHandlers {
   public final class DriverRestartRunningTaskHandler implements EventHandler<RunningTask> {
     @Override
     public void onNext(final RunningTask task) {
-
     }
   }
 
@@ -282,7 +279,6 @@ public final class DriverServiceHandlers {
   public final class DriverRestartCompletedHandler implements EventHandler<DriverRestartCompleted> {
     @Override
     public void onNext(final DriverRestartCompleted driverRestartCompleted) {
-
     }
   }
 
@@ -292,7 +288,6 @@ public final class DriverServiceHandlers {
   public final class DriverRestartFailedEvaluatorHandler implements EventHandler<FailedEvaluator> {
     @Override
     public void onNext(final FailedEvaluator eval) {
-
     }
   }
 }

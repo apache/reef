@@ -35,7 +35,6 @@ public interface DriverClientService {
    */
   void start() throws IOException;
 
-
   /**
    * Notify that the count number of evaluators have been
    * requested by the application.
@@ -47,5 +46,4 @@ public interface DriverClientService {
    * Wait for termination of driver client service.
    */
   void awaitTermination() throws InterruptedException;
-
 }

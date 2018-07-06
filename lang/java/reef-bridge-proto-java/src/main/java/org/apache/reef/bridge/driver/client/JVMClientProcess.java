@@ -27,7 +27,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Stub class for Evaluator Process on driver client.
+ * Stub class for Client Process.
  */
 @Private
 public final class JVMClientProcess implements EvaluatorProcess {
@@ -49,7 +49,7 @@ public final class JVMClientProcess implements EvaluatorProcess {
 
   @Override
   public List<String> getCommandLine() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException("Getting command line on the client is not supported.");
   }
 
   @Override
@@ -117,5 +117,4 @@ public final class JVMClientProcess implements EvaluatorProcess {
   public List<String> getOptions() {
     return this.optionList;
   }
-
 }

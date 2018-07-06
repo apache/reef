@@ -38,7 +38,6 @@ public final class RunningTaskBridge implements RunningTask {
 
   private final ActiveContext context;
 
-
   public RunningTaskBridge(
       final DriverServiceClient driverServiceClient,
       final String taskId,

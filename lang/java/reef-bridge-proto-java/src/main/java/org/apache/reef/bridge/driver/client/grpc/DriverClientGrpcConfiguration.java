@@ -45,5 +45,4 @@ public final class DriverClientGrpcConfiguration extends ConfigurationModuleBuil
       .bindNamedParameter(DriverServicePort.class, DRIVER_SERVICE_PORT)
       .bindNamedParameter(DriverRegistrationTimeout.class, DRIVER_CLIENT_REGISTRATION_TIMEOUT)
       .build();
-
 }

@@ -73,7 +73,6 @@ message AzureBatchRuntimeParameters {
  * Mesos runtime parameters.
  */
 message MesosRuntimeParameters {
-
 }
 
 /*
