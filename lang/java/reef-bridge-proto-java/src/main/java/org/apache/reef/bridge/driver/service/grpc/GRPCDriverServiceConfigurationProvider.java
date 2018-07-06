@@ -52,7 +52,6 @@ public final class GRPCDriverServiceConfigurationProvider implements DriverServi
   private GRPCDriverServiceConfigurationProvider() {
   }
 
-
   @Override
   public Configuration getDriverServiceConfiguration(
       final ClientProtocol.DriverClientConfiguration driverConfiguration) {

@@ -19,7 +19,6 @@
 
 package org.apache.reef.tests.fail.driver;
 
-
 import org.apache.reef.annotations.audience.ClientSide;
 import org.apache.reef.annotations.audience.Private;
 import org.apache.reef.bridge.driver.client.DriverClientConfiguration;
@@ -96,7 +95,6 @@ public final class FailBridgeClient {
             driverClientConfiguration);
     return TestDriverLauncher.getLauncher(runtimeConfig).run(driverServiceConfiguration, timeOut);
   }
-
 
   private FailBridgeClient() {
   }

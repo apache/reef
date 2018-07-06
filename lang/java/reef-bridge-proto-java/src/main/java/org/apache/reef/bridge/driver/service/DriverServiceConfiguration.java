@@ -53,7 +53,6 @@ public final class DriverServiceConfiguration extends ConfigurationModuleBuilder
       .bindSetEntry(DriverIdleSources.class, DriverService.class)
       .build();
 
-
   public static final ConfigurationModule STATIC_DRIVER_CONF_MODULE = DriverConfiguration.CONF
       .set(DriverConfiguration.ON_DRIVER_STARTED, DriverServiceHandlers.StartHandler.class)
       .set(DriverConfiguration.ON_DRIVER_STOP, DriverServiceHandlers.StopHandler.class)

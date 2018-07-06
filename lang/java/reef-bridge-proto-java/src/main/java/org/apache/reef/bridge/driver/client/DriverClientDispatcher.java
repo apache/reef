@@ -79,7 +79,6 @@ public final class DriverClientDispatcher {
    */
   private final DispatchingEStage driverRestartDispatcher;
 
-
   /**
    * Synchronous set of stop handlers.
    */
