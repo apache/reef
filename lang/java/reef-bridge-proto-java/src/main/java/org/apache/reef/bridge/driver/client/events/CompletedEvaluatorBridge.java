@@ -16,22 +16,26 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.tests.fail;
 
-import org.junit.runner.RunWith;
-import org.junit.runners.Suite;
+package org.apache.reef.bridge.driver.client.events;
+
+import org.apache.reef.annotations.audience.Private;
+import org.apache.reef.driver.evaluator.CompletedEvaluator;
 
 /**
- * Test suite of tests covering failure scenarios.
+ * Completed Evaluator bridge.
  */
-@RunWith(Suite.class)
-@Suite.SuiteClasses({
-//    FailTaskTest.class,
-    FailDriverTest.class,
-    FailDriverDelayedMsgTest.class,
-    DriverFailOnFailTest.class,
-    FailBridgeDriverTest.class,
-    FailBridgeTaskTest.class
-    })
-public final class FailTestSuite {
+@Private
+public final class CompletedEvaluatorBridge implements CompletedEvaluator {
+
+  private final String id;
+
+  public CompletedEvaluatorBridge(final String id) {
+    this.id = id;
+  }
+
+  @Override
+  public String getId() {
+    return this.id;
+  }
 }

@@ -16,22 +16,17 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.tests.fail;
 
-import org.junit.runner.RunWith;
-import org.junit.runners.Suite;
+package org.apache.reef.bridge.driver.client;
+
+import org.apache.reef.annotations.audience.Private;
+import org.apache.reef.tang.annotations.DefaultImplementation;
+import org.apache.reef.wake.EventHandler;
 
 /**
- * Test suite of tests covering failure scenarios.
+ * Alarm dispatch handler.
  */
-@RunWith(Suite.class)
-@Suite.SuiteClasses({
-//    FailTaskTest.class,
-    FailDriverTest.class,
-    FailDriverDelayedMsgTest.class,
-    DriverFailOnFailTest.class,
-    FailBridgeDriverTest.class,
-    FailBridgeTaskTest.class
-    })
-public final class FailTestSuite {
+@Private
+@DefaultImplementation(DriverClientClock.class)
+public interface AlarmDispatchHandler extends EventHandler<String> {
 }

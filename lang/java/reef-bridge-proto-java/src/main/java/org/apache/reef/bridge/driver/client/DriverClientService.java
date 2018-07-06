@@ -16,22 +16,34 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.tests.fail;
 
-import org.junit.runner.RunWith;
-import org.junit.runners.Suite;
+package org.apache.reef.bridge.driver.client;
+
+import org.apache.reef.annotations.audience.Private;
+
+import java.io.IOException;
 
 /**
- * Test suite of tests covering failure scenarios.
+ * Interface that driver client services implement.
  */
-@RunWith(Suite.class)
-@Suite.SuiteClasses({
-//    FailTaskTest.class,
-    FailDriverTest.class,
-    FailDriverDelayedMsgTest.class,
-    DriverFailOnFailTest.class,
-    FailBridgeDriverTest.class,
-    FailBridgeTaskTest.class
-    })
-public final class FailTestSuite {
+@Private
+public interface DriverClientService {
+
+  /**
+   * Start the DriverClient service.
+   * @throws IOException when unable to start service
+   */
+  void start() throws IOException;
+
+  /**
+   * Notify that the count number of evaluators have been
+   * requested by the application.
+   * @param count of the number of evaluators
+   */
+  void notifyEvaluatorRequest(final int count);
+
+  /**
+   * Wait for termination of driver client service.
+   */
+  void awaitTermination() throws InterruptedException;
 }

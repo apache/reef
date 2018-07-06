@@ -16,22 +16,30 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.tests.fail;
 
-import org.junit.runner.RunWith;
-import org.junit.runners.Suite;
+package org.apache.reef.bridge.driver.client;
+
+import org.apache.reef.annotations.audience.Private;
+import org.apache.reef.wake.EventHandler;
+import org.apache.reef.wake.time.event.StopTime;
+
+import javax.inject.Inject;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
- * Test suite of tests covering failure scenarios.
+ * Default java client driver stop handler.
  */
-@RunWith(Suite.class)
-@Suite.SuiteClasses({
-//    FailTaskTest.class,
-    FailDriverTest.class,
-    FailDriverDelayedMsgTest.class,
-    DriverFailOnFailTest.class,
-    FailBridgeDriverTest.class,
-    FailBridgeTaskTest.class
-    })
-public final class FailTestSuite {
+@Private
+public final class DefaultDriverClientStopHandler implements EventHandler<StopTime> {
+
+  private static final Logger LOG = Logger.getLogger(DefaultDriverClientStopHandler.class.getName());
+
+  @Inject
+  private DefaultDriverClientStopHandler() {}
+
+  @Override
+  public void onNext(final StopTime value) {
+    LOG.log(Level.FINEST, "Stop time {0}", value);
+  }
 }

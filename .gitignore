@@ -11,6 +11,7 @@ target
 generated
 build
 StyleCop.Cache
+dependency-reduced-pom.xml
 #
 # ----------------------------------------------------------------------
 # IDE settings

@@ -41,11 +41,13 @@ final class DefaultExceptionCodec implements ExceptionCodec {
   @Override
   public Optional<Throwable> fromBytes(final byte[] bytes) {
     try {
-      return Optional.<Throwable>of((Throwable) SerializationUtils.deserialize(bytes));
-    } catch (SerializationException | IllegalArgumentException e) {
-      LOG.log(Level.FINE, "Unable to deserialize a Throwable.", e);
-      return Optional.empty();
+      if (bytes != null && bytes.length > 0) {
+        return Optional.of((Throwable) SerializationUtils.deserialize(bytes));
+      }
+    } catch (final SerializationException | IllegalArgumentException e) {
+      LOG.log(Level.WARNING, "Unable to deserialize a Throwable.", e);
     }
+    return Optional.empty();
   }
 
   @Override

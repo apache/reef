@@ -1,0 +1,127 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+
+syntax = "proto3";
+
+option java_package = "org.apache.reef.bridge.proto";
+option java_outer_classname = "ClientProtocol";
+option csharp_namespace = "Org.Apache.REEF.Bridge.Proto";
+
+package driverbridge;
+
+/*
+ * Local runtime parameters.
+ */
+message LocalRuntimeParameters {
+  uint32 max_number_of_evaluators = 1;
+  string runtime_root_folder = 2;
+  float jvm_heap_slack = 3;
+  repeated string rack_names = 4;
+}
+
+/*
+ * Yarn runtime parameters.
+ */
+message YarnRuntimeParameters {
+  string queue = 1;
+  uint32 priority = 2;
+  bool unmanged_driver = 3;
+
+  // providers
+  string filesystem_url = 5;
+  string job_submission_directory_prefix = 6;
+}
+
+/*
+ * Azure batch runtime parameters.
+ */
+message AzureBatchRuntimeParameters {
+  // Azure Batch Account Information
+  string azure_batch_account_name = 1;
+
+  string azure_batch_account_key = 2;
+
+  string azure_batch_account_uri = 3;
+
+  string azure_batch_pool_id = 4;
+
+  // Azure Storage Account Information
+  string azure_storage_account_name = 10;
+
+  string azure_storage_account_key = 11;
+
+  string azure_storage_container_name = 12;
+}
+
+/*
+ * Mesos runtime parameters.
+ */
+message MesosRuntimeParameters {
+}
+
+/*
+ * Parameters related to the creation of a driver runtime.
+ */
+message DriverClientConfiguration {
+  string jobid = 1;
+
+  // driver machine resources
+  uint32 cpu_cores = 2;
+  uint32 memory_mb = 3;
+
+  string driver_job_submission_directory = 4;
+
+  // the runtime on which to launch
+  oneof runtime {
+    LocalRuntimeParameters local_runtime = 5;
+    YarnRuntimeParameters yarn_runtime = 6;
+    AzureBatchRuntimeParameters azbatch_runtime = 7;
+    MesosRuntimeParameters mesos_runtime = 8;
+  }
+
+  // The command to launch the driver client
+  string driver_client_launch_command = 10;
+
+  // Enable driver restart?
+  bool driver_restart_enable = 11;
+
+  // Driver restart evaluator recovery seconds (optional)
+  uint32 driver_restart_evaluator_recovery_seconds = 12;
+
+  // TCP port range
+  uint32 tcp_port_range_begin = 15;
+  uint32 tcp_port_range_count = 16;
+  uint32 tcp_port_range_try_count = 17;
+
+  // file dependencies
+  repeated string global_files = 20;
+  repeated string local_files = 21;
+  repeated string global_libraries = 22;
+  repeated string local_libraries = 23;
+
+  // enable http driver
+  bool enable_http_driver = 25;
+
+  // General information
+  enum OS {
+    WINDOWS = 0;
+    LINUX = 1;
+  }
+  OS operating_system = 30;
+}

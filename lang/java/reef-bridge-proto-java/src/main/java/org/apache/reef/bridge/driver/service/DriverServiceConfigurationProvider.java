@@ -16,22 +16,21 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.tests.fail;
 
-import org.junit.runner.RunWith;
-import org.junit.runners.Suite;
+package org.apache.reef.bridge.driver.service;
+
+import org.apache.reef.annotations.audience.Private;
+import org.apache.reef.bridge.driver.service.grpc.GRPCDriverServiceConfigurationProvider;
+import org.apache.reef.bridge.proto.ClientProtocol;
+import org.apache.reef.tang.Configuration;
+import org.apache.reef.tang.annotations.DefaultImplementation;
 
 /**
- * Test suite of tests covering failure scenarios.
+ * Configuration provider for the driver service.
  */
-@RunWith(Suite.class)
-@Suite.SuiteClasses({
-//    FailTaskTest.class,
-    FailDriverTest.class,
-    FailDriverDelayedMsgTest.class,
-    DriverFailOnFailTest.class,
-    FailBridgeDriverTest.class,
-    FailBridgeTaskTest.class
-    })
-public final class FailTestSuite {
+@Private
+@DefaultImplementation(GRPCDriverServiceConfigurationProvider.class)
+public interface DriverServiceConfigurationProvider {
+
+  Configuration getDriverServiceConfiguration(final ClientProtocol.DriverClientConfiguration driverClientConfiguration);
 }
