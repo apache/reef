@@ -25,7 +25,7 @@ import java.util.Set;
 /**
  * A set of tcp port numbers to try.
  */
-@NamedParameter(doc = "A set of tcp port numbers to try")
+@NamedParameter(doc = "Set of tcp port numbers")
 public final class TcpPortSet implements Name<Set<Integer>> {
 
   /**

@@ -76,12 +76,12 @@ public final class AzureBatchRuntimeConfiguration extends ConfigurationModuleBui
   public static final RequiredParameter<String> AZURE_STORAGE_CONTAINER_NAME = new RequiredParameter<>();
 
   /**
-   * Container Registry Server.
+   * Container Registry server.
    */
   public static final OptionalParameter<String> CONTAINER_REGISTRY_SERVER = new OptionalParameter<>();
 
   /**
-   * Container Registry Username.
+   * Container Registry username.
    */
   public static final OptionalParameter<String> CONTAINER_REGISTRY_USERNAME = new OptionalParameter<>();
 
@@ -91,12 +91,12 @@ public final class AzureBatchRuntimeConfiguration extends ConfigurationModuleBui
   public static final OptionalParameter<String> CONTAINER_REGISTRY_PASSWORD = new OptionalParameter<>();
 
   /**
-   * Container Image Name.
+   * Container Image name.
    */
   public static final OptionalParameter<String> CONTAINER_IMAGE_NAME = new OptionalParameter<>();
 
   /**
-   * Set of Tcp Ports.
+   * Set of tcp ports.
    */
   public static final OptionalParameter<Integer> TCP_PORT_SET = new OptionalParameter<>();
 

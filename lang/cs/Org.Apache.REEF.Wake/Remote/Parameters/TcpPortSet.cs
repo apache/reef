@@ -20,7 +20,7 @@ using System.Collections.Generic;
 
 namespace Org.Apache.REEF.Wake.Remote.Parameters
 {
-    [NamedParameter(Documentation = "Set of ports to try")]
+    [NamedParameter(Documentation = "Set of tcp port numbers")]
     public class TcpPortSet : Name<ISet<int>>
     {
     }

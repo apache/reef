@@ -149,7 +149,7 @@ namespace Org.Apache.REEF.Examples.HelloREEF
                         .Set(AzureBatchRuntimeClientConfiguration.DriverHTTPConnectionRetryInterval, "20000")
                         //// To allow Driver - Client communication, please specify the ports to use to set up driver http server.
                         //// These ports must be defined in Azure Batch InBoundNATPool.
-                        .Set(AzureBatchRuntimeClientConfiguration.AzureBatchPoolDriverPortsList, new List<string>(ports))
+                        .Set(AzureBatchRuntimeClientConfiguration.AzureBatchPoolDriverPortsList, ports)
                         // Bind to Container Registry properties if present
                         .Set(AzureBatchRuntimeClientConfiguration.ContainerRegistryServer, @"###############")
                         .Set(AzureBatchRuntimeClientConfiguration.ContainerRegistryUsername, @"###############")

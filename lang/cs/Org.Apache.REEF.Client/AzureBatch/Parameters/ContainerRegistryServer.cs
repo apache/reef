@@ -19,7 +19,7 @@ using Org.Apache.REEF.Tang.Annotations;
 
 namespace Org.Apache.REEF.Client.AzureBatch.Parameters
 {
-    [NamedParameter(Documentation = "Container Registry Server for docker images")]
+    [NamedParameter(Documentation = "Container Registry Server for Docker Images")]
     public sealed class ContainerRegistryServer : Name<string>
     {
     }

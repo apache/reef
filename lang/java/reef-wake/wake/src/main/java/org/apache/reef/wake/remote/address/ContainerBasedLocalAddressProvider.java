@@ -103,7 +103,7 @@ public final class ContainerBasedLocalAddressProvider implements LocalAddressPro
     byte[] encoded = Files.readAllBytes(Paths.get(path));
     final String ipString = new String(encoded, encoding);
     Pattern pattern = Pattern.compile(IPADDRESS_PATTERN);
-    Matcher matcher = pattern.matcher(ipString);
+    Matcher matcher = pattern.matcher(StringUtils.trim(ipString));
 
     if (!matcher.matches()) {
       throw new RuntimeException(String.format("File at location %s has invalid ip address", path));

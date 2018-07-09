@@ -19,7 +19,7 @@ using Org.Apache.REEF.Tang.Annotations;
 
 namespace Org.Apache.REEF.Client.AzureBatch.Parameters
 {
-    [NamedParameter(Documentation = "Container Registry Password for docker images")]
+    [NamedParameter(Documentation = "Container Registry Password for Docker Images")]
     public sealed class ContainerRegistryPassword : Name<string>
     {
     }
