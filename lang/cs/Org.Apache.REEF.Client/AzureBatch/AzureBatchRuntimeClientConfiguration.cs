@@ -58,7 +58,6 @@ namespace Org.Apache.REEF.Client.AzureBatch
 
         public static ConfigurationModule ConfigurationModule = new AzureBatchRuntimeClientConfiguration()
             .BindImplementation(GenericType<IREEFClient>.Class, GenericType<AzureBatchDotNetClient>.Class)
-            .BindImplementation(GenericType<ITcpPortProvider>.Class, GenericType<ListTcpPortProvider>.Class)
             .BindNamedParameter(GenericType<AzureBatchAccountUri>.Class, AzureBatchAccountUri)
             .BindNamedParameter(GenericType<AzureBatchAccountName>.Class, AzureBatchAccountName)
             .BindNamedParameter(GenericType<AzureBatchAccountKey>.Class, AzureBatchAccountKey)
@@ -86,7 +85,7 @@ namespace Org.Apache.REEF.Client.AzureBatch
 
             foreach (string port in ports)
             {
-                moduleBuilder = moduleBuilder.BindSetEntry<TcpPortList, int>(GenericType<TcpPortList>.Class, port);
+                moduleBuilder = moduleBuilder.BindSetEntry<TcpPortSet, int>(GenericType<TcpPortSet>.Class, port);
             }
 
             return moduleBuilder.Build();

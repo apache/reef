@@ -40,13 +40,12 @@ import org.apache.reef.tang.*;
 import org.apache.reef.tang.exceptions.InjectionException;
 import org.apache.reef.wake.remote.RemoteConfiguration;
 import org.apache.reef.wake.remote.address.LocalAddressProvider;
-import org.apache.reef.wake.remote.ports.parameters.TcpPortList;
+import org.apache.reef.wake.remote.ports.parameters.TcpPortSet;
 import org.apache.reef.wake.time.Clock;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -88,7 +87,7 @@ public final class AzureBatchBootstrapREEFLauncher {
         TANG.newInjector(generateConfiguration(jobSubmissionParameters))
             .getInstance(AzureBatchBootstrapDriverConfigGenerator.class);
 
-    LocalAddressProvider defaultLocalAddressProvider =
+    final LocalAddressProvider defaultLocalAddressProvider =
         Tang.Factory.getTang().newInjector().getInstance(LocalAddressProvider.class);
 
     final JavaConfigurationBuilder launcherConfigBuilder =
@@ -102,11 +101,9 @@ public final class AzureBatchBootstrapREEFLauncher {
 
     // Check if user has set up preferred ports to use.
     // If set, we prefer will launch driver that binds those ports.
-    final Set<String> preferredPorts = asStringList(jobSubmissionParameters.getAzureBatchPoolDriverPortsList());
-
     if (jobSubmissionParameters.getAzureBatchPoolDriverPortsList().size() > 0) {
       for (CharSequence port : jobSubmissionParameters.getAzureBatchPoolDriverPortsList()) {
-        launcherConfigBuilder.bindSetEntry(TcpPortList.class, port.toString());
+        launcherConfigBuilder.bindSetEntry(TcpPortSet.class, port.toString());
       }
     }
 
@@ -164,14 +161,6 @@ public final class AzureBatchBootstrapREEFLauncher {
         .bindNamedParameter(ContainerImageName.class,
             avroAzureBatchJobSubmissionParameters.getContainerImageName().toString())
         .build();
-  }
-
-  private static HashSet<String> asStringList(final Collection<? extends CharSequence> list) {
-    final HashSet<String> result = new HashSet<>(list.size());
-    for (final CharSequence sequence : list) {
-      result.add(sequence.toString());
-    }
-    return result;
   }
 
   private static RuntimeException fatal(final String msg, final Throwable t) {

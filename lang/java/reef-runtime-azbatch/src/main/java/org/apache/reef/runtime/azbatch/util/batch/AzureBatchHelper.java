@@ -50,13 +50,14 @@ public final class AzureBatchHelper {
    * Environment variable that contains the Azure Batch jobId.
    */
   private static final String AZ_BATCH_JOB_ID_ENV = "AZ_BATCH_JOB_ID";
+  private static final String CAPTURE_HOST_IP_ADDRESS_TASK_NAME = "CaptureHostIpAddress";
 
   private final AzureBatchFileNames azureBatchFileNames;
 
   private final BatchClient client;
   private final PoolInformation poolInfo;
   private CommandBuilder commandBuilder;
-  private final TcpPortProvider portProvider;
+  private TcpPortProvider portProvider;
   private final ContainerRegistryProvider containerRegistryProvider;
   private final boolean areContainersEnabled;
 
@@ -76,6 +77,11 @@ public final class AzureBatchHelper {
     this.containerRegistryProvider = containerRegistryProvider;
     this.portProvider = portProvider;
     this.areContainersEnabled = this.containerRegistryProvider.isValid();
+  }
+
+  public AzureBatchHelper setTcpPortProvider(TcpPortProvider portProvider) {
+    this.portProvider = portProvider;
+    return this;
   }
 
   /**
@@ -153,13 +159,16 @@ public final class AzureBatchHelper {
 
     LOG.log(Level.INFO, "Evaluator task command: " + command);
 
-    final TaskAddParameter taskAddParameter = new TaskAddParameter()
+    TaskAddParameter taskAddParameter = new TaskAddParameter()
         .withId(taskId)
         .withResourceFiles(resources)
         .withContainerSettings(createTaskContainerSettings())
-        .withCommandLine(command)
-        .withUserIdentity(
-            new UserIdentity().withAutoUser(new AutoUserSpecification().withElevationLevel(ElevationLevel.ADMIN)));
+        .withCommandLine(command);
+
+    if (this.areContainersEnabled) {
+      taskAddParameter = taskAddParameter.withUserIdentity(
+          new UserIdentity().withAutoUser(new AutoUserSpecification().withElevationLevel(ElevationLevel.ADMIN)));
+    }
 
     this.client.taskOperations().createTask(jobId, taskAddParameter);
   }
@@ -218,9 +227,9 @@ public final class AzureBatchHelper {
       return null;
     }
 
-    String captureIpAddressCommandLine = this.commandBuilder.captureIpAddressCommandLine();
+    final String captureIpAddressCommandLine = this.commandBuilder.captureIpAddressCommandLine();
     return new JobPreparationTask()
-        .withId("CaptureHostIpAddress")
+        .withId(CAPTURE_HOST_IP_ADDRESS_TASK_NAME)
         .withCommandLine(captureIpAddressCommandLine);
   }
 }

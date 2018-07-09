@@ -22,9 +22,13 @@ import org.apache.reef.client.DriverConfiguration;
 import org.apache.reef.client.LauncherStatus;
 import org.apache.reef.examples.hello.HelloDriver;
 import org.apache.reef.tang.Configuration;
+import org.apache.reef.tang.Configurations;
+import org.apache.reef.tang.Tang;
 import org.apache.reef.tests.TestEnvironment;
 import org.apache.reef.tests.TestEnvironmentFactory;
 import org.apache.reef.util.EnvironmentUtils;
+import org.apache.reef.wake.remote.ports.SetTcpPortProvider;
+import org.apache.reef.wake.remote.ports.TcpPortProvider;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -48,14 +52,28 @@ public class TestHelloREEF {
 
   @Test
   public void testHelloREEF() {
-    final Configuration driverConf = DriverConfiguration.CONF
+    final Configuration driverConf = getDefaultDriverConfiguration();
+    final LauncherStatus state = this.testEnvironment.run(driverConf);
+    Assert.assertTrue("Job state after execution: " + state, state.isSuccess());
+  }
+
+  @Test
+  public void testHelloREEFOnDockerContainers() {
+    final Configuration containerConfiguration = Tang.Factory.getTang().newConfigurationBuilder()
+        .bindImplementation(TcpPortProvider.class, SetTcpPortProvider.class)
+        .build();
+    final Configuration driverConf = Configurations.merge(containerConfiguration, getDefaultDriverConfiguration());
+    final LauncherStatus state = this.testEnvironment.run(driverConf);
+    Assert.assertTrue("Job state after execution of test on docker container: " + state, state.isSuccess());
+  }
+
+  private Configuration getDefaultDriverConfiguration() {
+    return DriverConfiguration.CONF
         .set(DriverConfiguration.GLOBAL_LIBRARIES, EnvironmentUtils.getClassLocation(this.getClass()))
         .set(DriverConfiguration.DRIVER_IDENTIFIER, "TEST_HelloREEF")
         .set(DriverConfiguration.ON_DRIVER_STARTED, HelloDriver.StartHandler.class)
         .set(DriverConfiguration.ON_EVALUATOR_ALLOCATED, HelloDriver.EvaluatorAllocatedHandler.class)
         .build();
-    final LauncherStatus state = this.testEnvironment.run(driverConf);
-    Assert.assertTrue("Job state after execution: " + state, state.isSuccess());
-  }
 
+  }
 }

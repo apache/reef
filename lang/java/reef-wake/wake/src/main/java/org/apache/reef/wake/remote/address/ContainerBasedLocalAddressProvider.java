@@ -31,11 +31,16 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * A LocalAddressProvider that reads the contents of the file at HOST_IP_ADDR_PATH and uses it to be the ip address.
  */
 public final class ContainerBasedLocalAddressProvider implements LocalAddressProvider {
+
+  public static final String IPADDRESS_PATTERN =
+      "(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)";
 
   public static final String HOST_IP_ADDR_PATH_ENV = "HOST_IP_ADDR_PATH";
   private static final Logger LOG = Logger.getLogger(ContainerBasedLocalAddressProvider.class.getName());
@@ -96,6 +101,14 @@ public final class ContainerBasedLocalAddressProvider implements LocalAddressPro
   private String readFile(final String path, final Charset encoding)
       throws IOException {
     byte[] encoded = Files.readAllBytes(Paths.get(path));
-    return new String(encoded, encoding);
+    final String ipString = new String(encoded, encoding);
+    Pattern pattern = Pattern.compile(IPADDRESS_PATTERN);
+    Matcher matcher = pattern.matcher(ipString);
+
+    if (!matcher.matches()) {
+      throw new RuntimeException(String.format("File at location %s has invalid ip address", path));
+    }
+
+    return matcher.group();
   }
 }

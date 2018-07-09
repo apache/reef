@@ -20,7 +20,7 @@ package org.apache.reef.wake.remote.ports;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.reef.tang.annotations.Parameter;
-import org.apache.reef.wake.remote.ports.parameters.TcpPortList;
+import org.apache.reef.wake.remote.ports.parameters.TcpPortSet;
 
 import javax.inject.Inject;
 import java.util.Iterator;
@@ -29,16 +29,16 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * A TcpPortProvider which gives out ports in a range.
+ * A TcpPortProvider which gives out ports in a set.
  */
-public final class ListTcpPortProvider implements TcpPortProvider {
+public final class SetTcpPortProvider implements TcpPortProvider {
 
-  private static final Logger LOG = Logger.getLogger(ListTcpPortProvider.class.getName());
-  private final Set<Integer> tcpPortList;
+  private static final Logger LOG = Logger.getLogger(SetTcpPortProvider.class.getName());
+  private final Set<Integer> tcpPortSet;
 
   @Inject
-  public ListTcpPortProvider(@Parameter(TcpPortList.class) final Set<Integer> tcpPortList) {
-    this.tcpPortList = tcpPortList;
+  public SetTcpPortProvider(@Parameter(TcpPortSet.class) final Set<Integer> tcpPortSet) {
+    this.tcpPortSet = tcpPortSet;
     LOG.log(Level.FINE, "Instantiating {0}", this);
   }
 
@@ -49,11 +49,11 @@ public final class ListTcpPortProvider implements TcpPortProvider {
    */
   @Override
   public Iterator<Integer> iterator() {
-    return this.tcpPortList.iterator();
+    return this.tcpPortSet.iterator();
   }
 
   @Override
   public String toString() {
-    return "ListTcpPortProvider{" + StringUtils.join(this.tcpPortList, ',') + '}';
+    return "SetTcpPortProvider{" + StringUtils.join(this.tcpPortSet, ',') + '}';
   }
 }

@@ -73,7 +73,7 @@ public final class ContainerRegistryProvider {
 
   public ContainerRegistry getContainerRegistry() {
     if (!this.isValid()) {
-      return null;
+      throw new RuntimeException("Container registry is invalid");
     }
 
     return new ContainerRegistry()

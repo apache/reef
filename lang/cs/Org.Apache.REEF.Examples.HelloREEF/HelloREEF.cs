@@ -20,6 +20,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using Org.Apache.REEF.Client.API;
 using Org.Apache.REEF.Client.AzureBatch;
+using Org.Apache.REEF.Client.AzureBatch.Parameters;
 using Org.Apache.REEF.Client.Common;
 using Org.Apache.REEF.Client.Local;
 using Org.Apache.REEF.Client.Yarn;
@@ -34,6 +35,7 @@ using Org.Apache.REEF.Tang.Util;
 using Org.Apache.REEF.Utilities.Logging;
 using Org.Apache.REEF.Wake.Remote;
 using Org.Apache.REEF.Wake.Remote.Impl;
+using Org.Apache.REEF.Wake.Remote.Parameters;
 
 namespace Org.Apache.REEF.Examples.HelloREEF
 {
@@ -58,7 +60,7 @@ namespace Org.Apache.REEF.Examples.HelloREEF
         /// <summary>
         /// Runs HelloREEF using the IREEFClient passed into the constructor.
         /// </summary>
-        private void Run()
+        private void Run(bool includeContainerConfiguration, ISet<int> ports)
         {
             // The driver configuration contains all the needed bindings.
             var helloDriverConfiguration = DriverConfiguration.ConfigurationModule
@@ -66,6 +68,19 @@ namespace Org.Apache.REEF.Examples.HelloREEF
                 .Set(DriverConfiguration.OnDriverStarted, GenericType<HelloDriver>.Class)
                 .Set(DriverConfiguration.CustomTraceLevel, Level.Verbose.ToString())
                 .Build();
+
+            if (includeContainerConfiguration)
+            {
+                ICsConfigurationBuilder containerConfigurationBuilder = TangFactory.GetTang().NewConfigurationBuilder()
+                    .BindImplementation(typeof(ITcpPortProvider), typeof(SetTcpPortProvider));
+
+                foreach (int port in ports)
+                {
+                    containerConfigurationBuilder.BindSetEntry<TcpPortSet, int>(port.ToString());
+                }
+                IConfiguration containerConfiguration = containerConfigurationBuilder.Build();
+                helloDriverConfiguration = Configurations.Merge(containerConfiguration, helloDriverConfiguration);
+            }
 
             string applicationId = GetApplicationId();
 
@@ -131,7 +146,7 @@ namespace Org.Apache.REEF.Examples.HelloREEF
                         .Set(AzureBatchRuntimeClientConfiguration.AzureStorageAccountName, @"############")
                         .Set(AzureBatchRuntimeClientConfiguration.AzureStorageContainerName, @"###########")
                         //// Extend default retry interval in Azure Batch
-                        .Set(AzureBatchRuntimeClientConfiguration.DriverHTTPConnectionRetryInterval, "2000")
+                        .Set(AzureBatchRuntimeClientConfiguration.DriverHTTPConnectionRetryInterval, "20000")
                         //// To allow Driver - Client communication, please specify the ports to use to set up driver http server.
                         //// These ports must be defined in Azure Batch InBoundNATPool.
                         .Set(AzureBatchRuntimeClientConfiguration.AzureBatchPoolDriverPortsList, new List<string>(ports))
@@ -149,13 +164,15 @@ namespace Org.Apache.REEF.Examples.HelloREEF
 
         public static void MainSimple(string[] args)
         {
-            var runtime = args.Length > 0 ? args[0] : AzureBatch;
+            var runtime = args.Length > 0 ? args[0] : Local;
 
             // Execute the HelloREEF, with these parameters injected
-            TangFactory.GetTang()
-                .NewInjector(GetRuntimeConfiguration(runtime))
-                .GetInstance<HelloREEF>()
-                .Run();
+            var injector = TangFactory.GetTang()
+                .NewInjector(GetRuntimeConfiguration(runtime));
+            string containerRegistryServer = injector.GetNamedInstance<ContainerRegistryServer, string>(GenericType<ContainerRegistryServer>.Class);
+            ISet<int> ports = injector.GetNamedInstance<TcpPortSet, ISet<int>>(GenericType<TcpPortSet>.Class);
+                injector.GetInstance<HelloREEF>()
+                .Run(!String.IsNullOrEmpty(containerRegistryServer), ports);
         }
     }
 }

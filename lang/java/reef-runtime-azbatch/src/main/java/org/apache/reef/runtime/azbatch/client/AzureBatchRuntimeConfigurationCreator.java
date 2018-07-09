@@ -25,9 +25,7 @@ import org.apache.reef.runtime.azbatch.util.command.LinuxCommandBuilder;
 import org.apache.reef.runtime.azbatch.util.command.WindowsCommandBuilder;
 import org.apache.reef.tang.formats.ConfigurationModule;
 import org.apache.reef.tang.formats.ConfigurationModuleBuilder;
-import org.apache.reef.wake.remote.ports.ListTcpPortProvider;
-import org.apache.reef.wake.remote.ports.TcpPortProvider;
-import org.apache.reef.wake.remote.ports.parameters.TcpPortList;
+import org.apache.reef.wake.remote.ports.parameters.TcpPortSet;
 
 /**
  * Class that builds the ConfigurationModule for Azure Batch runtime.
@@ -44,12 +42,10 @@ public final class AzureBatchRuntimeConfigurationCreator {
    * Get or create a {@link ConfigurationModule} for the Azure Batch runtime.
    *
    * @param isWindows true if Azure Batch pool nodes run Windows, false otherwise.
-   * @param isDockerContainer true if Azure Batch pool nodes are container-based, false otherwise.
    * @return the configuration module object.
    */
   public static ConfigurationModule getOrCreateAzureBatchRuntimeConfiguration(
-      final boolean isWindows,
-      final boolean isDockerContainer) {
+      final boolean isWindows) {
 
     if (AzureBatchRuntimeConfigurationCreator.conf == null) {
       ConfigurationModuleBuilder builder = AzureBatchRuntimeConfigurationStatic.CONF;
@@ -58,10 +54,6 @@ public final class AzureBatchRuntimeConfigurationCreator {
         builder = builder.bindImplementation(CommandBuilder.class, WindowsCommandBuilder.class);
       } else {
         builder = builder.bindImplementation(CommandBuilder.class, LinuxCommandBuilder.class);
-      }
-
-      if (isDockerContainer) {
-        builder = builder.bindImplementation(TcpPortProvider.class, ListTcpPortProvider.class);
       }
 
       AzureBatchRuntimeConfigurationCreator.conf = new AzureBatchRuntimeConfiguration()
@@ -80,7 +72,7 @@ public final class AzureBatchRuntimeConfigurationCreator {
           .bindNamedParameter(ContainerImageName.class, AzureBatchRuntimeConfiguration.CONTAINER_IMAGE_NAME)
           .bindNamedParameter(
               AzureStorageContainerName.class, AzureBatchRuntimeConfiguration.AZURE_STORAGE_CONTAINER_NAME)
-          .bindSetEntry(TcpPortList.class, AzureBatchRuntimeConfiguration.TCP_PORT_LIST)
+          .bindSetEntry(TcpPortSet.class, AzureBatchRuntimeConfiguration.TCP_PORT_SET)
           .build();
     }
 

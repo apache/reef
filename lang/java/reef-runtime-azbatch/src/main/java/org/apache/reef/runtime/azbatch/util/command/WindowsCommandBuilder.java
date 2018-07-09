@@ -82,7 +82,6 @@ public class WindowsCommandBuilder extends AbstractCommandBuilder {
 
   @Override
   public String captureIpAddressCommandLine() {
-    LOG.log(Level.INFO, "Inside java code for WindowsCommandBuilder");
     return String.format("powershell /c \"Set-Content -Path %s -Value "
         + "((Test-Connection -ComputerName $Env:ComputerName -Count 1).IPV4Address.IPAddressToString) "
         + " -NoNewline -Force\"", getIpAddressFilePath());

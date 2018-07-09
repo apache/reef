@@ -49,7 +49,7 @@ import java.util.logging.Logger;
  */
 public final class NameServerImpl implements NameServer {
 
-  public static final String UNKNOWN_HOST_NAME = "##UNKNOWN##";
+  private static final String UNKNOWN_HOST_NAME = "##UNKNOWN##";
   private static final Logger LOG = Logger.getLogger(NameServer.class.getName());
 
   private final Transport transport;

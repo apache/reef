@@ -18,15 +18,20 @@
  */
 package org.apache.reef.examples.hello;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.reef.client.DriverConfiguration;
 import org.apache.reef.client.REEF;
 import org.apache.reef.runtime.azbatch.client.AzureBatchRuntimeConfiguration;
 import org.apache.reef.runtime.azbatch.client.AzureBatchRuntimeConfigurationProvider;
+import org.apache.reef.runtime.azbatch.parameters.ContainerRegistryServer;
 import org.apache.reef.tang.Configuration;
+import org.apache.reef.tang.Configurations;
 import org.apache.reef.tang.Injector;
 import org.apache.reef.tang.Tang;
 import org.apache.reef.tang.exceptions.InjectionException;
 import org.apache.reef.util.EnvironmentUtils;
+import org.apache.reef.wake.remote.ports.SetTcpPortProvider;
+import org.apache.reef.wake.remote.ports.TcpPortProvider;
 
 import java.io.IOException;
 import java.util.logging.Level;
@@ -54,13 +59,22 @@ public final class HelloReefAzBatch {
    *
    * @return the configuration of the HelloREEF driver.
    */
-  private static Configuration getDriverConfiguration() {
-    return DriverConfiguration.CONF
+  private static Configuration getDriverConfiguration(boolean includeContainerConfiguration) {
+    Configuration driverConfiguration = DriverConfiguration.CONF
         .set(DriverConfiguration.DRIVER_IDENTIFIER, "HelloREEF")
         .set(DriverConfiguration.GLOBAL_LIBRARIES, EnvironmentUtils.getClassLocation(HelloDriver.class))
         .set(DriverConfiguration.ON_DRIVER_STARTED, HelloDriver.StartHandler.class)
         .set(DriverConfiguration.ON_EVALUATOR_ALLOCATED, HelloDriver.EvaluatorAllocatedHandler.class)
         .build();
+
+    if (!includeContainerConfiguration) {
+      return driverConfiguration;
+    } else {
+      final Configuration containerConfiguration = Tang.Factory.getTang().newConfigurationBuilder()
+          .bindImplementation(TcpPortProvider.class, SetTcpPortProvider.class)
+          .build();
+      return Configurations.merge(containerConfiguration, driverConfiguration);
+    }
   }
 
   /**
@@ -74,9 +88,10 @@ public final class HelloReefAzBatch {
 
     final Configuration partialConfiguration = getEnvironmentConfiguration();
     final Injector injector = Tang.Factory.getTang().newInjector(partialConfiguration);
+    final String containerRegistryServer = injector.getNamedInstance(ContainerRegistryServer.class);
     final AzureBatchRuntimeConfigurationProvider runtimeConfigurationProvider =
         injector.getInstance(AzureBatchRuntimeConfigurationProvider.class);
-    final Configuration driverConfiguration = getDriverConfiguration();
+    final Configuration driverConfiguration = getDriverConfiguration(!StringUtils.isEmpty(containerRegistryServer));
 
     try (final REEF reef = Tang.Factory.getTang().newInjector(
         runtimeConfigurationProvider.getAzureBatchRuntimeConfiguration()).getInstance(REEF.class)) {

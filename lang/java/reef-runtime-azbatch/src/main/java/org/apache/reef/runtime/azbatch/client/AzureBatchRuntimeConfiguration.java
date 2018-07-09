@@ -96,9 +96,9 @@ public final class AzureBatchRuntimeConfiguration extends ConfigurationModuleBui
   public static final OptionalParameter<String> CONTAINER_IMAGE_NAME = new OptionalParameter<>();
 
   /**
-   * List of Tcp Ports.
+   * Set of Tcp Ports.
    */
-  public static final OptionalParameter<Integer> TCP_PORT_LIST = new OptionalParameter<>();
+  public static final OptionalParameter<Integer> TCP_PORT_SET = new OptionalParameter<>();
 
   /**
    * Create a {@link Configuration} object from an Avro configuration file.

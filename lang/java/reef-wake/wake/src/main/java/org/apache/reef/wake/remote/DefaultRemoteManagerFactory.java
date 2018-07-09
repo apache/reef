@@ -68,7 +68,7 @@ final class DefaultRemoteManagerFactory implements RemoteManagerFactory {
 
   @Override
   public RemoteManager getInstance(final String newRmName) {
-    return getInstance(newRmName + "1", 0, this.codec, this.errorHandler);
+    return getInstance(newRmName, 0, this.codec, this.errorHandler);
   }
 
   @Override

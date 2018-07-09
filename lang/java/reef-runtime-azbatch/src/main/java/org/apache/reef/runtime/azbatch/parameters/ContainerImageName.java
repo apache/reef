@@ -22,7 +22,7 @@ import org.apache.reef.tang.annotations.Name;
 import org.apache.reef.tang.annotations.NamedParameter;
 
 /**
- * The container registry user name.
+ * The container registry image name.
  */
 @NamedParameter(doc = "The container image name.", default_value = "")
 public final class ContainerImageName implements Name<String> {

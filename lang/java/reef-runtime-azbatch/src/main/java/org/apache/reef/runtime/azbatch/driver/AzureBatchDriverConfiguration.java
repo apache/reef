@@ -41,7 +41,7 @@ import org.apache.reef.tang.formats.ConfigurationModule;
 import org.apache.reef.tang.formats.ConfigurationModuleBuilder;
 import org.apache.reef.tang.formats.OptionalParameter;
 import org.apache.reef.tang.formats.RequiredParameter;
-import org.apache.reef.wake.remote.ports.parameters.TcpPortList;
+import org.apache.reef.wake.remote.ports.parameters.TcpPortSet;
 
 /**
  * ConfigurationModule to create Azure Batch Driver configurations.
@@ -116,9 +116,9 @@ public final class AzureBatchDriverConfiguration extends ConfigurationModuleBuil
   public static final OptionalParameter<String> CONTAINER_IMAGE_NAME = new OptionalParameter<>();
 
   /**
-   * List of Tcp Ports.
+   * Set of Tcp Ports.
    */
-  public static final OptionalParameter<Integer> TCP_PORT_LIST = new OptionalParameter<>();
+  public static final OptionalParameter<Integer> TCP_PORT_SET = new OptionalParameter<>();
 
   /**
    * The fraction of the container memory NOT to use for the Java Heap.
@@ -157,6 +157,6 @@ public final class AzureBatchDriverConfiguration extends ConfigurationModuleBuil
       .bindImplementation(RuntimeClasspathProvider.class, AzureBatchClasspathProvider.class)
       .bindImplementation(RuntimePathProvider.class, AzureBatchJVMPathProvider.class)
       .bindSetEntry(DefinedRuntimes.class, RUNTIME_NAME)
-      .bindSetEntry(TcpPortList.class, TCP_PORT_LIST)
+      .bindSetEntry(TcpPortSet.class, TCP_PORT_SET)
       .build();
 }

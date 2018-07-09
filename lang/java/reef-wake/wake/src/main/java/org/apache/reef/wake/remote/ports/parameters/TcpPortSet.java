@@ -23,14 +23,14 @@ import org.apache.reef.tang.annotations.NamedParameter;
 import java.util.Set;
 
 /**
- * An list of tcp port numbers to try.
+ * A set of tcp port numbers to try.
  */
-@NamedParameter(doc = "An list of tcp port numbers to try")
-public final class TcpPortList implements Name<Set<Integer>> {
+@NamedParameter(doc = "A set of tcp port numbers to try")
+public final class TcpPortSet implements Name<Set<Integer>> {
 
   /**
    * Empty private constructor to prohibit instantiation of utility class.
    */
-  private TcpPortList() {
+  private TcpPortSet() {
   }
 }

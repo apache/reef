@@ -42,7 +42,7 @@ public final class HttpServerImpl implements HttpServer {
   /**
    * Indicates a hostname that isn't set or known.
    */
-  public static final String UNKNOWN_HOST_NAME = "##UNKNOWN##";
+  private static final String UNKNOWN_HOST_NAME = "##UNKNOWN##";
 
   /**
    * Standard Java logger.

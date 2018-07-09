@@ -15,10 +15,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.Azure.Batch;
 using Microsoft.Azure.Batch.Common;
 using Org.Apache.REEF.Client.AzureBatch.Parameters;
@@ -26,6 +22,10 @@ using Org.Apache.REEF.Client.AzureBatch.Util;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Utilities.Logging;
 using Org.Apache.REEF.Wake.Remote;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using BatchSharedKeyCredential = Microsoft.Azure.Batch.Auth.BatchSharedKeyCredentials;
 
 namespace Org.Apache.REEF.Client.DotNet.AzureBatch
@@ -42,10 +42,16 @@ namespace Org.Apache.REEF.Client.DotNet.AzureBatch
 
         private BatchClient Client { get; set; }
         private ContainerRegistryProvider ContainerRegistryProvider { get; set; }
-        private ITcpPortProvider PortProvider { get; set; }
+        internal ITcpPortProvider PortProvider { get; set; }
         private ICommandBuilder CommandBuilder { get; set; }
+        private bool AreContainersEnabled
+        {
+            get
+            {
+                return this.ContainerRegistryProvider.IsValid();
+            }
+        }
 
-        private bool areContainersEnabled;
         private bool disposed;
 
         [Inject]
@@ -66,7 +72,6 @@ namespace Org.Apache.REEF.Client.DotNet.AzureBatch
             this.ContainerRegistryProvider = containerRegistryProvider;
             this.PortProvider = portProvider;
             this.Client.CustomBehaviors.Add(new RetryPolicyProvider(new ExponentialRetry(RetryDeltaBackOff, MaxRetries)));
-            this.areContainersEnabled = this.ContainerRegistryProvider.IsValid();
             this.CommandBuilder = commandBuilder;
         }
 
@@ -128,8 +133,13 @@ namespace Org.Apache.REEF.Client.DotNet.AzureBatch
                 // https://docs.microsoft.com/en-us/dotnet/api/microsoft.azure.batch.cloudtask.authenticationtokensettings
                 AuthenticationTokenSettings = new AuthenticationTokenSettings() { Access = AccessScope.Job },
                 ContainerSettings = CreateTaskContainerSettings(),
-                UserIdentity = new UserIdentity(autoUserSpecification: new AutoUserSpecification(elevationLevel: ElevationLevel.Admin)),
+                
             };
+
+            if (this.AreContainersEnabled)
+            {
+                unboundJob.JobManagerTask.UserIdentity = new UserIdentity(autoUserSpecification: new AutoUserSpecification(elevationLevel: ElevationLevel.Admin));
+            }
 
             unboundJob.Commit();
 
@@ -138,7 +148,7 @@ namespace Org.Apache.REEF.Client.DotNet.AzureBatch
 
         private JobPreparationTask CreateJobPreparationTask()
         {
-            if (!this.areContainersEnabled)
+            if (!this.AreContainersEnabled)
             {
                 return null;
             }
@@ -148,14 +158,14 @@ namespace Org.Apache.REEF.Client.DotNet.AzureBatch
 
         private TaskContainerSettings CreateTaskContainerSettings()
         {
-            if (!this.areContainersEnabled)
+            if (!this.AreContainersEnabled)
             {
                 return null;
             }
 
             string portMappings = this.PortProvider
                 .Select(x => x.ToString())
-                .Aggregate(seed: string.Empty, func: (aggregator, port) => $"{aggregator}  -p {port}:{port}");
+                .Aggregate(seed: string.Empty, func: (aggregator, port) => $"{aggregator} -p {port}:{port}");
 
             return new TaskContainerSettings(
                 imageName: this.ContainerRegistryProvider.ContainerImageName,

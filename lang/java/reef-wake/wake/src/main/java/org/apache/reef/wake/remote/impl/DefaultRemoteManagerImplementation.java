@@ -53,11 +53,6 @@ public final class DefaultRemoteManagerImplementation implements RemoteManager {
    */
   private static final long CLOSE_EXECUTOR_TIMEOUT = 10000; //ms
 
-  /**
-   * Indicates a hostname that isn't set or known.
-   */
-  public static final String UNKNOWN_HOST_NAME = NettyMessagingTransport.UNKNOWN_HOST_NAME;
-
   private final AtomicBoolean closed = new AtomicBoolean(false);
   private final RemoteSeqNumGenerator seqGen = new RemoteSeqNumGenerator();
 

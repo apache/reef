@@ -15,13 +15,32 @@
 // specific language governing permissions and limitations
 // under the License.
 
-using Org.Apache.REEF.Tang.Annotations;
+using System;
+using System.Collections;
 using System.Collections.Generic;
+using Org.Apache.REEF.Tang.Annotations;
+using Org.Apache.REEF.Wake.Remote.Parameters;
 
-namespace Org.Apache.REEF.Wake.Remote.Parameters
+namespace Org.Apache.REEF.Wake.Remote
 {
-    [NamedParameter(Documentation = "Set of ports to try")]
-    public class TcpPortList : Name<ISet<int>>
-    {
+    public sealed class SetTcpPortProvider : ITcpPortProvider
+     {
+        private readonly ISet<int> _tcpPortSet;
+
+        [Inject]
+        public SetTcpPortProvider([Parameter(typeof(TcpPortSet))] ISet<int> tcpPortSet)
+        {
+            _tcpPortSet = tcpPortSet;
+        }
+
+        IEnumerator<int> IEnumerable<int>.GetEnumerator()
+        {
+            return _tcpPortSet.GetEnumerator();
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return _tcpPortSet.GetEnumerator();
+        }
     }
 }

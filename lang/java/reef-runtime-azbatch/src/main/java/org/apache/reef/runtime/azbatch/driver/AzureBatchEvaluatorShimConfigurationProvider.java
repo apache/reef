@@ -25,7 +25,7 @@ import org.apache.reef.tang.Configuration;
 import org.apache.reef.tang.annotations.Parameter;
 import org.apache.reef.wake.remote.address.LocalAddressProvider;
 import org.apache.reef.wake.remote.ports.TcpPortProvider;
-import org.apache.reef.wake.remote.ports.parameters.TcpPortList;
+import org.apache.reef.wake.remote.ports.parameters.TcpPortSet;
 
 import javax.inject.Inject;
 import java.util.HashSet;
@@ -40,20 +40,20 @@ public class AzureBatchEvaluatorShimConfigurationProvider {
   private final RemoteManager remoteManager;
   private final TcpPortProvider portProvider;
   private final LocalAddressProvider localAddressProvider;
-  private final Set<String> tcpPortList;
+  private final Set<String> tcpPortSet;
 
   @Inject
   AzureBatchEvaluatorShimConfigurationProvider(
-      @Parameter(TcpPortList.class) final Set<Integer> tcpPortList,
+      @Parameter(TcpPortSet.class) final Set<Integer> tcpPortSet,
       final RemoteManager remoteManager,
       final LocalAddressProvider localAddressProvider,
       final TcpPortProvider portProvider) {
     this.remoteManager = remoteManager;
     this.portProvider = portProvider;
     this.localAddressProvider = localAddressProvider;
-    this.tcpPortList = new HashSet<String>(tcpPortList.size());
-    for (int port: tcpPortList) {
-      this.tcpPortList.add(Integer.toString(port));
+    this.tcpPortSet = new HashSet<String>(tcpPortSet.size());
+    for (int port: tcpPortSet) {
+      this.tcpPortSet.add(Integer.toString(port));
     }
   }
 
@@ -72,7 +72,7 @@ public class AzureBatchEvaluatorShimConfigurationProvider {
         .build()
         .set(EvaluatorShimConfiguration.DRIVER_REMOTE_IDENTIFIER, this.remoteManager.getMyIdentifier())
         .set(EvaluatorShimConfiguration.CONTAINER_IDENTIFIER, containerId)
-        .setMultiple(EvaluatorShimConfiguration.TCP_PORT_LIST, this.tcpPortList)
+        .setMultiple(EvaluatorShimConfiguration.TCP_PORT_SET, this.tcpPortSet)
         .build();
   }
 }
