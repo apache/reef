@@ -30,9 +30,10 @@ namespace Org.Apache.REEF.IO.FileSystem.AzureBlob
     /// <remarks>
     /// Stream-based operations are not supported.
     /// </remarks>
-    public sealed class AzureBlockBlobFileSystemConfiguration : ConfigurationModuleBuilder
+    public sealed class AzureBlobFileSystemConfiguration : ConfigurationModuleBuilder
     {
-        public static readonly RequiredParameter<string> ConnectionString = new RequiredParameter<string>();
+        public static readonly RequiredParameter<string> AccountName = new RequiredParameter<string>();
+        public static readonly RequiredParameter<string> AccountKey = new RequiredParameter<string>();
 
         public static readonly OptionalImpl<IAzureBlobRetryPolicy> RetryPolicy = new OptionalImpl<IAzureBlobRetryPolicy>(); 
 
@@ -40,11 +41,12 @@ namespace Org.Apache.REEF.IO.FileSystem.AzureBlob
         /// Set AzureBlockBlobFileSystemProvider to DriverConfigurationProviders.
         /// Set all the parameters needed for injecting AzureBlockBlobFileSystemProvider.
         /// </summary>
-        public static readonly ConfigurationModule ConfigurationModule = new AzureBlockBlobFileSystemConfiguration()
-            .BindSetEntry<DriverConfigurationProviders, AzureBlockBlobFileSystemConfigurationProvider, IConfigurationProvider>(
-                GenericType<DriverConfigurationProviders>.Class, GenericType<AzureBlockBlobFileSystemConfigurationProvider>.Class)
-            .BindImplementation(GenericType<IFileSystem>.Class, GenericType<AzureBlockBlobFileSystem>.Class)
-            .BindNamedParameter(GenericType<AzureStorageConnectionString>.Class, ConnectionString)
+        public static readonly ConfigurationModule ConfigurationModule = new AzureBlobFileSystemConfiguration()
+            .BindSetEntry<DriverConfigurationProviders, AzureBlobFileSystemConfigurationProvider, IConfigurationProvider>(
+                GenericType<DriverConfigurationProviders>.Class, GenericType<AzureBlobFileSystemConfigurationProvider>.Class)
+            .BindImplementation(GenericType<IFileSystem>.Class, GenericType<AzureBlobFileSystem>.Class)
+            .BindNamedParameter(GenericType<AzureBlobStorageAccountName>.Class, AccountName)
+            .BindNamedParameter(GenericType<AzureBlobStorageAccountKey>.Class, AccountKey)
             .BindImplementation(GenericType<IAzureBlobRetryPolicy>.Class, RetryPolicy)
             .Build();
     }

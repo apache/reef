@@ -31,14 +31,14 @@ namespace Org.Apache.REEF.IO.FileSystem.AzureBlob
     /// This particular File System implementation only supports 
     /// block blob operations
     /// </summary>
-    internal sealed class AzureBlockBlobFileSystem : IFileSystem
+    internal sealed class AzureBlobFileSystem : IFileSystem
     {
         private readonly ICloudBlobClient _client;
 
         private const char UrlPathSeparator = '/';
 
         [Inject]
-        private AzureBlockBlobFileSystem(ICloudBlobClient client)
+        private AzureBlobFileSystem(ICloudBlobClient client)
         {
             _client = client;
         }

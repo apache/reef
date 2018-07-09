@@ -76,7 +76,7 @@ namespace Org.Apache.REEF.Client.YARN.HDI
                 GenericType<HDInsightCommandLineEnvironment>.Class)
             .BindImplementation(GenericType<IResourceFileRemoteUrlToClusterUrlConverter>.Class,
                 GenericType<HDInsightResourceFileRemoteUrlToClusterUrlConverter>.Class)
-            .Merge(AzureBlockBlobFileSystemConfiguration.ConfigurationModule)
+            .Merge(AzureBlobFileSystemConfiguration.ConfigurationModule)
             .Build();
     }
 }

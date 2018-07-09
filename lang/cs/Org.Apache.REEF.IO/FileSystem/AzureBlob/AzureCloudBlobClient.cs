@@ -32,6 +32,7 @@ namespace Org.Apache.REEF.IO.FileSystem.AzureBlob
     internal sealed class AzureCloudBlobClient : ICloudBlobClient
     {
         private readonly CloudBlobClient _client;
+        private const string AzureBlobConnectionFormat = "DefaultEndpointsProtocol=https;AccountName={0};AccountKey={1};";
         private readonly BlobRequestOptions _requestOptions;
 
         public StorageCredentials Credentials 
@@ -40,9 +41,11 @@ namespace Org.Apache.REEF.IO.FileSystem.AzureBlob
         }
 
         [Inject]
-        private AzureCloudBlobClient([Parameter(typeof(AzureStorageConnectionString))] string connectionString,
+        private AzureCloudBlobClient([Parameter(typeof(AzureBlobStorageAccountName))] string accountName,
+                                     [Parameter(typeof(AzureBlobStorageAccountKey))] string accountKey,
                                      IAzureBlobRetryPolicy retryPolicy)
         {
+            var connectionString = string.Format(AzureBlobConnectionFormat, accountName, accountKey);
             _client = CloudStorageAccount.Parse(connectionString).CreateCloudBlobClient();
             _client.DefaultRequestOptions.RetryPolicy = retryPolicy;
             _requestOptions = new BlobRequestOptions() { RetryPolicy = retryPolicy };

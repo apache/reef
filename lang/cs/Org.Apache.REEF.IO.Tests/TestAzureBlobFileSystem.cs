@@ -179,13 +179,14 @@ namespace Org.Apache.REEF.IO.Tests
 
             public IFileSystem GetAzureFileSystem()
             {
-                var conf = AzureBlockBlobFileSystemConfiguration.ConfigurationModule
-                    .Set(AzureBlockBlobFileSystemConfiguration.ConnectionString, "DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;")
+                var conf = AzureBlobFileSystemConfiguration.ConfigurationModule
+                    .Set(AzureBlobFileSystemConfiguration.AccountName, "accountName")
+                    .Set(AzureBlobFileSystemConfiguration.AccountKey, "accountKey")
                     .Build();
 
                 var injector = TangFactory.GetTang().NewInjector(conf);
                 injector.BindVolatileInstance(TestCloudBlobClient);
-                var fs = injector.GetInstance<AzureBlockBlobFileSystem>();
+                var fs = injector.GetInstance<AzureBlobFileSystem>();
                 TestCloudBlobClient.BaseUri.ReturnsForAnyArgs(BaseUri);
                 TestCloudBlockBlob.Open().Returns(TestOpenStream);
                 TestCloudBlockBlob.Create().Returns(TestCreateStream);

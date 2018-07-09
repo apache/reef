@@ -30,20 +30,22 @@ namespace Org.Apache.REEF.IO.FileSystem.AzureBlob
     /// The client that is going to use AzureBlockBlobFileSystem in its driver and evaluators should set 
     /// configuration data through AzureBlockBlobFileSystem configuration module in the client's configuration
     /// </summary>
-    internal sealed class AzureBlockBlobFileSystemConfigurationProvider : IConfigurationProvider
+    internal sealed class AzureBlobFileSystemConfigurationProvider : IConfigurationProvider
     {
         private readonly IConfiguration _configuration;
 
         [Inject]
-        private AzureBlockBlobFileSystemConfigurationProvider(
-            [Parameter(typeof(AzureStorageConnectionString))] string connectionString,
+        private AzureBlobFileSystemConfigurationProvider(
+            [Parameter(typeof(AzureBlobStorageAccountName))] string accountName,
+            [Parameter(typeof(AzureBlobStorageAccountKey))] string accountKey,
             IAzureBlobRetryPolicy retryPolicy)
         {
             _configuration = TangFactory.GetTang().NewConfigurationBuilder()
-                .BindImplementation(GenericType<IFileSystem>.Class, GenericType<AzureBlockBlobFileSystem>.Class)
+                .BindImplementation(GenericType<IFileSystem>.Class, GenericType<AzureBlobFileSystem>.Class)
                 .BindImplementation(typeof(IAzureBlobRetryPolicy), retryPolicy.GetType())
-                .BindStringNamedParam<AzureStorageConnectionString>(connectionString)
-                .BindSetEntry<EvaluatorConfigurationProviders, AzureBlockBlobFileSystemConfigurationProvider, IConfigurationProvider>()
+                .BindStringNamedParam<AzureBlobStorageAccountName>(accountName)
+                .BindStringNamedParam<AzureBlobStorageAccountKey>(accountKey)
+                .BindSetEntry<EvaluatorConfigurationProviders, AzureBlobFileSystemConfigurationProvider, IConfigurationProvider>()
                 .Build();
         }
 
