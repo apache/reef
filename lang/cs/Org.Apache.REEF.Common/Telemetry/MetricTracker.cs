@@ -56,7 +56,7 @@ namespace Org.Apache.REEF.Common.Telemetry
         private IDisposable _unsubscriber;
 
         /// <summary>
-        /// Constructor for metricData
+        /// Constructor for MetricData called when metric is registered.
         /// </summary>
         /// <param name="metric"></param>
         /// <param name="initialValue"></param>
@@ -65,11 +65,8 @@ namespace Org.Apache.REEF.Common.Telemetry
             Subscribe(metric);
             ChangesSinceLastSink = 0;
             KeepUpdateHistory = metric.KeepUpdateHistory;
-            Records = new ConcurrentQueue<MetricRecord>();
-            if (KeepUpdateHistory)
-            {
-                Records.Enqueue(CreateMetricRecord(metric));
-            }
+            Records = KeepUpdateHistory ? new ConcurrentQueue<MetricRecord>() : null;
+            Records?.Enqueue(CreateMetricRecord(metric));
         }
 
         [JsonConstructor]
@@ -88,7 +85,7 @@ namespace Org.Apache.REEF.Common.Telemetry
         internal IEnumerable<MetricRecord> FlushChangesSinceLastSink()
         {
             ConcurrentQueue<MetricRecord> records = new ConcurrentQueue<MetricRecord>();
-            if (!Records.IsEmpty)
+            if (Records != null)
             {
                 while (Records.TryDequeue(out MetricRecord record))
                 {
@@ -183,10 +180,7 @@ namespace Org.Apache.REEF.Common.Telemetry
         public void Track(object value)
         {
             Interlocked.Increment(ref ChangesSinceLastSink);
-            if (KeepUpdateHistory)
-            {
-                Records.Enqueue(CreateMetricRecord(value));
-            }
+            Records?.Enqueue(CreateMetricRecord(value));
         }
 
         private MetricRecord CreateMetricRecord(IMetric metric)
