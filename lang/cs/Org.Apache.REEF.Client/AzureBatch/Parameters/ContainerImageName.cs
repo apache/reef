@@ -19,7 +19,7 @@ using Org.Apache.REEF.Tang.Annotations;
 
 namespace Org.Apache.REEF.Client.AzureBatch.Parameters
 {
-    [NamedParameter(Documentation = "Docker Container Image Name")]
+    [NamedParameter(Documentation = "Docker Container Image Name", DefaultValue = "")]
     public sealed class ContainerImageName : Name<string>
     {
     }

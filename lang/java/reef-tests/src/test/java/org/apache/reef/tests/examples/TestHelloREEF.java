@@ -57,16 +57,6 @@ public class TestHelloREEF {
     Assert.assertTrue("Job state after execution: " + state, state.isSuccess());
   }
 
-  @Test
-  public void testHelloREEFOnDockerContainers() {
-    final Configuration containerConfiguration = Tang.Factory.getTang().newConfigurationBuilder()
-        .bindImplementation(TcpPortProvider.class, SetTcpPortProvider.class)
-        .build();
-    final Configuration driverConf = Configurations.merge(containerConfiguration, getDefaultDriverConfiguration());
-    final LauncherStatus state = this.testEnvironment.run(driverConf);
-    Assert.assertTrue("Job state after execution of test on docker container: " + state, state.isSuccess());
-  }
-
   private Configuration getDefaultDriverConfiguration() {
     return DriverConfiguration.CONF
         .set(DriverConfiguration.GLOBAL_LIBRARIES, EnvironmentUtils.getClassLocation(this.getClass()))

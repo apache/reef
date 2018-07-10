@@ -32,6 +32,8 @@ import org.apache.reef.tang.annotations.Parameter;
 import org.apache.reef.tang.formats.ConfigurationModuleBuilder;
 import org.apache.reef.wake.remote.address.ContainerBasedLocalAddressProvider;
 import org.apache.reef.wake.remote.address.LocalAddressProvider;
+import org.apache.reef.wake.remote.ports.SetTcpPortProvider;
+import org.apache.reef.wake.remote.ports.TcpPortProvider;
 import org.apache.reef.wake.remote.ports.parameters.TcpPortSet;
 
 import javax.inject.Inject;
@@ -102,7 +104,8 @@ public final class AzureBatchDriverConfigurationProviderImpl implements DriverCo
     // If using docker containers, then use a different set of bindings
     if (this.containerRegistryProvider.isValid()) {
       driverConfigurationBuilder = driverConfigurationBuilder
-          .bindImplementation(LocalAddressProvider.class, ContainerBasedLocalAddressProvider.class);
+          .bindImplementation(LocalAddressProvider.class, ContainerBasedLocalAddressProvider.class)
+          .bindImplementation(TcpPortProvider.class, SetTcpPortProvider.class);
     }
 
     final Configuration driverConfiguration = driverConfigurationBuilder.build()

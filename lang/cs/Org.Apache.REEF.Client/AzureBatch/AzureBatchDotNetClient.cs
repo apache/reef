@@ -111,11 +111,6 @@ namespace Org.Apache.REEF.Client.DotNet.AzureBatch
 
         private string JobSubmitInternal(JobRequest jobRequest)
         {
-            var portProvider = (ITcpPortProvider)TangFactory
-                .GetTang()
-                .NewInjector(jobRequest.DriverConfigurations.ToArray())
-                .GetInstance(typeof(ITcpPortProvider));
-
             var configModule = AzureBatchRuntimeClientConfiguration.ConfigurationModule;
             string jobId = jobRequest.JobIdentifier;
             string azureBatchjobId = CreateAzureJobId(jobId);
@@ -124,9 +119,6 @@ namespace Org.Apache.REEF.Client.DotNet.AzureBatch
             string destination = _azbatchFileNames.GetStorageJobFolder(azureBatchjobId);
             Uri blobUri = _azureStorageClient.UploadFile(destination, jarPath).Result;
             string sasToken = _azureStorageClient.CreateContainerSharedAccessSignature();
-
-            // In the case of containers, the port provider must be read from the driver configuration.
-            _batchService.PortProvider = portProvider;
             _batchService.CreateJob(azureBatchjobId, blobUri, commandLine, sasToken);
             return azureBatchjobId;
         }

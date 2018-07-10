@@ -83,6 +83,11 @@ namespace Org.Apache.REEF.Client.AzureBatch
         {
             ConfigurationModuleBuilder moduleBuilder = AzureBatchRuntimeClientConfiguration.ConfigurationModule.Builder;
 
+            if (ports.Count > 0)
+            {
+                moduleBuilder = moduleBuilder.BindImplementation(GenericType<ITcpPortProvider>.Class, GenericType<SetTcpPortProvider>.Class);
+            }
+
             foreach (string port in ports)
             {
                 moduleBuilder = moduleBuilder.BindSetEntry<TcpPortSet, int>(GenericType<TcpPortSet>.Class, port);
