@@ -39,7 +39,7 @@ namespace Org.Apache.REEF.Common.Telemetry
         private IMetric Metric;
 
         [JsonProperty]
-        internal bool KeepUpdateHistory;
+        internal readonly bool KeepUpdateHistory;
 
         /// <summary>
         /// if KeepUpdateHistory is true, keeps a history of updates.
@@ -143,7 +143,7 @@ namespace Org.Apache.REEF.Common.Telemetry
         /// If KeepUpdateHistory is true, it will return all the records; otherwise, it will returen one record with the most recent value.
         /// </summary>
         /// <returns>The history of the metric records.</returns>
-        internal ICollection GetMetricRecords()
+        internal IEnumerable<MetricRecord> GetMetricRecords()
         {
             if (Records.IsEmpty)
             {

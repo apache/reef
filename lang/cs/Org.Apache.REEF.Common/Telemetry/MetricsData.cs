@@ -42,7 +42,7 @@ namespace Org.Apache.REEF.Common.Telemetry
         /// <summary>
         /// Registration of metrics
         /// </summary>
-        private ConcurrentDictionary<string, MetricTracker> _metricsMap = new ConcurrentDictionary<string, MetricTracker>();
+        private readonly ConcurrentDictionary<string, MetricTracker> _metricsMap = new ConcurrentDictionary<string, MetricTracker>();
 
         [Inject]
         internal MetricsData()

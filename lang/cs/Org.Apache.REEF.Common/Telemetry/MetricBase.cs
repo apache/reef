@@ -28,8 +28,6 @@ namespace Org.Apache.REEF.Common.Telemetry
     {
         protected ITracker _tracker;
 
-        protected object _metricLock = new object();
-
         public string Name
         {
             get; internal set;
