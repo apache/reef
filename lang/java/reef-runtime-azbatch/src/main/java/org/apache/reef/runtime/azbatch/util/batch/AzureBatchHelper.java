@@ -56,10 +56,10 @@ public final class AzureBatchHelper {
 
   private final BatchClient client;
   private final PoolInformation poolInfo;
-  private CommandBuilder commandBuilder;
-  private TcpPortProvider portProvider;
+  private final CommandBuilder commandBuilder;
   private final ContainerRegistryProvider containerRegistryProvider;
   private final boolean areContainersEnabled;
+  private TcpPortProvider portProvider;
 
   @Inject
   public AzureBatchHelper(
@@ -79,8 +79,8 @@ public final class AzureBatchHelper {
     this.areContainersEnabled = this.containerRegistryProvider.isValid();
   }
 
-  public AzureBatchHelper setTcpPortProvider(TcpPortProvider portProvider) {
-    this.portProvider = portProvider;
+  public AzureBatchHelper setTcpPortProvider(final TcpPortProvider value) {
+    this.portProvider = value;
     return this;
   }
 
@@ -216,7 +216,7 @@ public final class AzureBatchHelper {
         .withImageName(this.containerRegistryProvider.getContainerImageName())
         .withContainerRunOptions(
             String.format(
-                "-dit --env %s=%s %s",
+                "-d --rm --env %s=%s %s",
                 ContainerBasedLocalAddressProvider.HOST_IP_ADDR_PATH_ENV,
                 this.commandBuilder.getIpAddressFilePath(),
                 portMappings));

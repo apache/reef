@@ -116,7 +116,7 @@ public final class AzureBatchDriverConfiguration extends ConfigurationModuleBuil
   public static final OptionalParameter<String> CONTAINER_IMAGE_NAME = new OptionalParameter<>();
 
   /**
-   * Set of Tcp Ports.
+   * Set of TCP Ports.
    */
   public static final OptionalParameter<Integer> TCP_PORT_SET = new OptionalParameter<>();
 

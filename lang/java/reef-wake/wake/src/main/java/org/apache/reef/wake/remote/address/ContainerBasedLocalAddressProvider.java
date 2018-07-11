@@ -88,9 +88,9 @@ public final class ContainerBasedLocalAddressProvider implements LocalAddressPro
 
   @Override
   public Configuration getConfiguration() {
-      return Tang.Factory.getTang().newConfigurationBuilder()
-          .bind(LocalAddressProvider.class, ContainerBasedLocalAddressProvider.class)
-          .build();
+    return Tang.Factory.getTang().newConfigurationBuilder()
+        .bind(LocalAddressProvider.class, ContainerBasedLocalAddressProvider.class)
+        .build();
   }
 
   @Override

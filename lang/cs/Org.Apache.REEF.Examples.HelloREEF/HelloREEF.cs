@@ -27,13 +27,10 @@ using Org.Apache.REEF.Client.YARN.HDI;
 using Org.Apache.REEF.Driver;
 using Org.Apache.REEF.IO.FileSystem.AzureBlob;
 using Org.Apache.REEF.Tang.Annotations;
-using Org.Apache.REEF.Tang.Implementations.Configuration;
 using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Tang.Util;
 using Org.Apache.REEF.Utilities.Logging;
-using Org.Apache.REEF.Wake.Remote;
-using Org.Apache.REEF.Wake.Remote.Parameters;
 
 namespace Org.Apache.REEF.Examples.HelloREEF
 {
@@ -121,8 +118,16 @@ namespace Org.Apache.REEF.Examples.HelloREEF
                         .Set(AzureBlobFileSystemConfiguration.AccountKey, blobStorageAccountKey)
                         .Build();
                 case AzureBatch:
+                    //// Following list of ports is required to enable the following options:
+                    //// 1. To enable communication between driver and client:
+                    ////        The ports will be used to set up driver http server endpoint.
+                    ////        In addition, these ports must also be defined in Azure Batch InBoundNATPool to enable communication.
+                    //// 2. To enable communication between docker containers:
+                    ////        These ports will be mapped between the container and host to
+                    ////        allow the communication between the containers.
+                    ////        In addition, the Azure Batch pool must be created as a container pool to use this feature.
                     List<string> ports = new List<string> { "2000", "2001", "2002", "2003", "2004" };
-                    return AzureBatchRuntimeClientConfiguration.GetConfigurationModule(ports)
+                    return AzureBatchRuntimeClientConfiguration.ConfigurationModule
                         .Set(AzureBatchRuntimeClientConfiguration.AzureBatchAccountKey, @"##########################################")
                         .Set(AzureBatchRuntimeClientConfiguration.AzureBatchAccountName, @"######")
                         .Set(AzureBatchRuntimeClientConfiguration.AzureBatchAccountUri, @"######################")
@@ -132,8 +137,6 @@ namespace Org.Apache.REEF.Examples.HelloREEF
                         .Set(AzureBatchRuntimeClientConfiguration.AzureStorageContainerName, @"###########")
                         //// Extend default retry interval in Azure Batch
                         .Set(AzureBatchRuntimeClientConfiguration.DriverHTTPConnectionRetryInterval, "20000")
-                        //// To allow Driver - Client communication, please specify the ports to use to set up driver http server.
-                        //// These ports must be defined in Azure Batch InBoundNATPool.
                         .Set(AzureBatchRuntimeClientConfiguration.AzureBatchPoolDriverPortsList, ports)
                         // Bind to Container Registry properties if present
                         // .Set(AzureBatchRuntimeClientConfiguration.ContainerRegistryServer, @"###############")

@@ -18,12 +18,10 @@
  */
 package org.apache.reef.examples.hello;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.reef.client.DriverConfiguration;
 import org.apache.reef.client.REEF;
 import org.apache.reef.runtime.azbatch.client.AzureBatchRuntimeConfiguration;
 import org.apache.reef.runtime.azbatch.client.AzureBatchRuntimeConfigurationProvider;
-import org.apache.reef.runtime.azbatch.parameters.ContainerRegistryServer;
 import org.apache.reef.tang.Configuration;
 import org.apache.reef.tang.Injector;
 import org.apache.reef.tang.Tang;

@@ -42,7 +42,7 @@ namespace Org.Apache.REEF.Client.DotNet.AzureBatch
 
         private BatchClient Client { get; set; }
         private ContainerRegistryProvider ContainerRegistryProvider { get; set; }
-        internal ITcpPortProvider PortProvider { get; set; }
+        private IList<string> Ports { get; set; }
         private ICommandBuilder CommandBuilder { get; set; }
         private bool AreContainersEnabled
         {
@@ -62,15 +62,17 @@ namespace Org.Apache.REEF.Client.DotNet.AzureBatch
             [Parameter(typeof(AzureBatchAccountUri))] string azureBatchAccountUri,
             [Parameter(typeof(AzureBatchAccountName))] string azureBatchAccountName,
             [Parameter(typeof(AzureBatchAccountKey))] string azureBatchAccountKey,
-            [Parameter(typeof(AzureBatchPoolId))] string azureBatchPoolId)
+            [Parameter(typeof(AzureBatchPoolId))] string azureBatchPoolId,
+            [Parameter(typeof(AzureBatchPoolDriverPortsList))] IList<string> ports)
         {
-            BatchSharedKeyCredential credentials = new BatchSharedKeyCredential(azureBatchAccountUri, azureBatchAccountName, azureBatchAccountKey);
+            BatchSharedKeyCredential credentials = 
+                new BatchSharedKeyCredential(azureBatchAccountUri, azureBatchAccountName, azureBatchAccountKey);
 
+            this.Ports = ports;
             this.Client = BatchClient.Open(credentials);
             this.Credentials = credentials;
             this.PoolId = azureBatchPoolId;
             this.ContainerRegistryProvider = containerRegistryProvider;
-            this.PortProvider = portProvider;
             this.Client.CustomBehaviors.Add(new RetryPolicyProvider(new ExponentialRetry(RetryDeltaBackOff, MaxRetries)));
             this.CommandBuilder = commandBuilder;
         }
@@ -122,10 +124,16 @@ namespace Org.Apache.REEF.Client.DotNet.AzureBatch
                 RunExclusive = false,
 
                 ResourceFiles = resourceFile != null
-                    ? new List<ResourceFile>() { new ResourceFile(resourceFile.AbsoluteUri, AzureBatchFileNames.GetTaskJarFileName()) }
+                    ? new List<ResourceFile>()
+                    {
+                        new ResourceFile(resourceFile.AbsoluteUri, AzureBatchFileNames.GetTaskJarFileName())
+                    }
                     : new List<ResourceFile>(),
 
-                EnvironmentSettings = new List<EnvironmentSetting> { new EnvironmentSetting(AzureStorageContainerSasToken, storageContainerSAS) },
+                EnvironmentSettings = new List<EnvironmentSetting>
+                {
+                    new EnvironmentSetting(AzureStorageContainerSasToken, storageContainerSAS)
+                },
 
                 // This setting will signal Batch to generate an access token and pass it
                 // to the Job Manager Task (aka the Driver) as an environment variable.
@@ -138,7 +146,8 @@ namespace Org.Apache.REEF.Client.DotNet.AzureBatch
 
             if (this.AreContainersEnabled)
             {
-                unboundJob.JobManagerTask.UserIdentity = new UserIdentity(autoUserSpecification: new AutoUserSpecification(elevationLevel: ElevationLevel.Admin));
+                unboundJob.JobManagerTask.UserIdentity =
+                    new UserIdentity(autoUserSpecification: new AutoUserSpecification(elevationLevel: ElevationLevel.Admin));
             }
 
             unboundJob.Commit();
@@ -153,7 +162,11 @@ namespace Org.Apache.REEF.Client.DotNet.AzureBatch
                 return null;
             }
 
-            return new JobPreparationTask() { Id = "CaptureHostIpAddress", CommandLine = this.CommandBuilder.CaptureIpAddressCommandLine() };
+            return new JobPreparationTask()
+            {
+                Id = "CaptureHostIpAddress",
+                CommandLine = this.CommandBuilder.CaptureIpAddressCommandLine()
+            };
         }
 
         private TaskContainerSettings CreateTaskContainerSettings()
@@ -163,13 +176,13 @@ namespace Org.Apache.REEF.Client.DotNet.AzureBatch
                 return null;
             }
 
-            string portMappings = this.PortProvider
-                .Select(x => x.ToString())
+            string portMappings = this.Ports
                 .Aggregate(seed: string.Empty, func: (aggregator, port) => $"{aggregator} -p {port}:{port}");
 
             return new TaskContainerSettings(
                 imageName: this.ContainerRegistryProvider.ContainerImageName,
-                containerRunOptions: $"-dit --env HOST_IP_ADDR_PATH={this.CommandBuilder.GetIpAddressFilePath()} {portMappings}",
+                containerRunOptions:
+                    $"-d --rm --env HOST_IP_ADDR_PATH={this.CommandBuilder.GetIpAddressFilePath()} {portMappings}",
                 registry: this.ContainerRegistryProvider.GetContainerRegistry());
         }
 

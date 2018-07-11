@@ -27,7 +27,6 @@ import org.apache.reef.wake.remote.address.LocalAddressProvider;
 import org.apache.reef.wake.remote.ports.TcpPortProvider;
 import org.apache.reef.wake.remote.transport.Transport;
 import org.apache.reef.wake.remote.transport.TransportFactory;
-import org.apache.reef.wake.remote.transport.netty.NettyMessagingTransport;
 
 import javax.inject.Inject;
 import java.net.InetSocketAddress;

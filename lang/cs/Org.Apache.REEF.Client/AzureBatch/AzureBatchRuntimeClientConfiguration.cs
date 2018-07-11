@@ -79,23 +79,6 @@ namespace Org.Apache.REEF.Client.AzureBatch
             return new AvroConfigurationSerializer().FromFile(file);
         }
 
-        public static ConfigurationModule GetConfigurationModule(List<string> ports)
-        {
-            ConfigurationModuleBuilder moduleBuilder = AzureBatchRuntimeClientConfiguration.ConfigurationModule.Builder;
-
-            if (ports.Count > 0)
-            {
-                moduleBuilder = moduleBuilder.BindImplementation(GenericType<ITcpPortProvider>.Class, GenericType<SetTcpPortProvider>.Class);
-            }
-
-            foreach (string port in ports)
-            {
-                moduleBuilder = moduleBuilder.BindSetEntry<TcpPortSet, int>(GenericType<TcpPortSet>.Class, port);
-            }
-
-            return moduleBuilder.Build();
-        }
-
         public static IConfiguration FromEnvironment()
         {
             string configurationPath = Environment.GetEnvironmentVariable(AzBatchConfigurationFileEnvironmentVariable);

@@ -48,7 +48,7 @@ public final class EvaluatorShimConfiguration extends ConfigurationModuleBuilder
   public static final RequiredParameter<String> CONTAINER_IDENTIFIER = new RequiredParameter<>();
 
   /**
-   * Set of Tcp Ports.
+   * Set of TCP Ports.
    */
   public static final OptionalParameter<Integer> TCP_PORT_SET = new OptionalParameter<>();
 
