@@ -96,7 +96,9 @@ namespace Org.Apache.REEF.Common.Telemetry
         public IEnumerable<KeyValuePair<string, MetricTracker.MetricRecord>> FlushMetricRecords()
         {
             // for each metric, flush the records and create key value pairs
-            return _metricsMap.SelectMany(kv => kv.Value.FlushChangesSinceLastSink().Select(r => new KeyValuePair<string, MetricTracker.MetricRecord>(kv.Key, r)));
+            return _metricsMap.SelectMany(
+                kv => kv.Value.FlushChangesSinceLastSink().Select(
+                    r => new KeyValuePair<string, MetricTracker.MetricRecord>(kv.Key, r)));
         }
 
         /// <summary>
@@ -109,7 +111,10 @@ namespace Org.Apache.REEF.Common.Telemetry
         {
             foreach (var tracker in metrics.GetMetricTrackers())
             {
-                _metricsMap.AddOrUpdate(tracker.GetMetric().Name, tracker, (k, v) => v.UpdateMetric(tracker));
+                _metricsMap.AddOrUpdate(
+                    tracker.GetMetric().Name,
+                    tracker,
+                    (k, v) => v.UpdateMetric(tracker));
             }
         }
 
@@ -120,7 +125,12 @@ namespace Org.Apache.REEF.Common.Telemetry
         /// <returns>Queue of trackers containing metric records.</returns>
         internal IEnumerable<MetricTracker> FlushMetricTrackers()
         {
-            return new ConcurrentQueue<MetricTracker>(_metricsMap.Select(kv => new MetricTracker(kv.Value.GetMetric(), kv.Value.ChangesSinceLastSink, (ConcurrentQueue<MetricTracker.MetricRecord>)kv.Value.FlushChangesSinceLastSink(), kv.Value.KeepUpdateHistory)));
+            return new ConcurrentQueue<MetricTracker>(_metricsMap.Select(
+                kv => new MetricTracker(
+                    kv.Value.GetMetric(),
+                    kv.Value.ChangesSinceLastSink,
+                    (ConcurrentQueue<MetricTracker.MetricRecord>)kv.Value.FlushChangesSinceLastSink(),
+                    kv.Value.KeepUpdateHistory)));
         }
 
         /// <summary>
@@ -139,7 +149,9 @@ namespace Org.Apache.REEF.Common.Telemetry
 
         internal string Serialize(IEnumerable<MetricTracker> trackers)
         {
-            return JsonConvert.SerializeObject(trackers.Where(me => me.ChangesSinceLastSink > 0).ToList(), settings);
+            return JsonConvert.SerializeObject(
+                trackers.Where(me => me.ChangesSinceLastSink > 0).ToList(),
+                settings);
         }
 
         internal string SerializeAndReset()

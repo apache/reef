@@ -25,7 +25,8 @@ using Org.Apache.REEF.Utilities.Logging;
 namespace Org.Apache.REEF.Common.Telemetry
 {
     /// <summary>
-    /// This class implements IContextMessageSource that is responsible to send Evaluator metrics as a context message to the Driver.
+    /// This class implements IContextMessageSource that is responsible to send Evaluator
+    /// metrics as a context message to the Driver.
     /// </summary>
     internal sealed class MetricsMessageSender : IContextMessageSource
     {

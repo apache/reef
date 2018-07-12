@@ -39,7 +39,8 @@ namespace Org.Apache.REEF.Common.Telemetry
         /// </summary>
         public readonly static ConfigurationModule ConfigurationModule = new DriverMetricsObserverConfigurationModule()
             .BindSetEntry(GenericType<DriverMetricsObservers>.Class, OnDriverMetrics)
-            .BindSetEntry<DriverMetricsObservers, MetricsService, IObserver<IDriverMetrics>>(GenericType<DriverMetricsObservers>.Class, GenericType<MetricsService>.Class)
+            .BindSetEntry<DriverMetricsObservers, MetricsService, IObserver<IDriverMetrics>>(
+                GenericType<DriverMetricsObservers>.Class, GenericType<MetricsService>.Class)
             .Build();
     }
 }

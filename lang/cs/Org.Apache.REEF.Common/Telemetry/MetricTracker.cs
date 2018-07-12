@@ -46,7 +46,7 @@ namespace Org.Apache.REEF.Common.Telemetry
         /// </summary>
         [JsonProperty]
         private ConcurrentQueue<MetricRecord> Records;
-        
+
         /// <summary>
         /// Number of times metric has been updated since last processed.
         /// </summary>
@@ -70,7 +70,11 @@ namespace Org.Apache.REEF.Common.Telemetry
         }
 
         [JsonConstructor]
-        internal MetricTracker(IMetric metric, int changesSinceLastSink, ConcurrentQueue<MetricRecord> records, bool keepUpdateHistory)
+        internal MetricTracker(
+            IMetric metric,
+            int changesSinceLastSink,
+            ConcurrentQueue<MetricRecord> records,
+            bool keepUpdateHistory)
         {
             Metric = metric;
             Records = records;
@@ -113,7 +117,7 @@ namespace Org.Apache.REEF.Common.Telemetry
                 var recordsToAdd = metric.GetMetricRecords();
                 if (KeepUpdateHistory)
                 {
-                    foreach(MetricRecord record in recordsToAdd)
+                    foreach (MetricRecord record in recordsToAdd)
                     {
                         Records.Enqueue(record);
                     }
