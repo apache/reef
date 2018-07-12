@@ -25,8 +25,6 @@ namespace Org.Apache.REEF.Common.Telemetry
     /// </summary>
     internal sealed class EvaluatorMetrics : IEvaluatorMetrics
     {
-        private static readonly Logger Logger = Logger.GetLogger(typeof(EvaluatorMetrics));
-
         private readonly MetricsData _metricsData;
 
         [Inject]

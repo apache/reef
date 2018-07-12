@@ -29,8 +29,8 @@ namespace Org.Apache.REEF.Common.Telemetry
         /// <summary>
         /// Add a metric object to this collection.
         /// </summary>
-        /// <param name="me">The metric object to add.</param>
-        void RegisterMetric(IMetric me);
+        /// <param name="metric">The metric object to add.</param>
+        void RegisterMetric(IMetric metric);
 
         /// <summary>
         /// Get metric value given the metric name.

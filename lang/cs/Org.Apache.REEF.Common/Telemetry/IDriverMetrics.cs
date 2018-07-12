@@ -32,9 +32,9 @@ namespace Org.Apache.REEF.Common.Telemetry
         /// Extracts the metric object if it has been registered.
         /// </summary>
         /// <param name="name">Name of the metric.</param>
-        /// <param name="me">The registered metric. null if not found.</param>
+        /// <param name="metric">The registered metric. null if not found.</param>
         /// <returns></returns>
-        bool TryGetMetric(string name, out IMetric me);
+        bool TryGetMetric(string name, out IMetric metric);
 
         T CreateAndRegisterMetric<T>(string name, string description, bool keepUpateHistory)
             where T : MetricBase, new();

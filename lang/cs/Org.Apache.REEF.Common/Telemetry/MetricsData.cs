@@ -69,14 +69,14 @@ namespace Org.Apache.REEF.Common.Telemetry
             }
         }
 
-        public bool TryGetMetric(string name, out IMetric me)
+        public bool TryGetMetric(string name, out IMetric metric)
         {
             if (!_metricsMap.TryGetValue(name, out MetricTracker tracker))
             {
-                me = null;
+                metric = null;
                 return false;
             }
-            me = tracker.GetMetric();
+            metric = tracker.GetMetric();
             return true;
         }
 
@@ -147,7 +147,7 @@ namespace Org.Apache.REEF.Common.Telemetry
         internal string Serialize(IEnumerable<MetricTracker> trackers)
         {
             return JsonConvert.SerializeObject(
-                trackers.Where(me => me.ChangesSinceLastSink > 0).ToList(),
+                trackers.Where(tracker => tracker.ChangesSinceLastSink > 0).ToList(),
                 settings);
         }
 

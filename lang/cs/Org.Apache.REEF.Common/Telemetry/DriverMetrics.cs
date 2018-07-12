@@ -24,7 +24,8 @@ namespace Org.Apache.REEF.Common.Telemetry
     /// </summary>
     public sealed class DriverMetrics : IDriverMetrics
     {
-        private MetricsData _metricsData;
+        private readonly MetricsData _metricsData;
+
         public static string DriverStateMetric = "DriverState";
 
         public DriverMetrics()

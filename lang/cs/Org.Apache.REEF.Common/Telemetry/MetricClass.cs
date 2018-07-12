@@ -27,7 +27,7 @@ namespace Org.Apache.REEF.Common.Telemetry
     /// <typeparam name="T">The type of the metric should be of reference type.</typeparam>
     public class MetricClass<T> : MetricBase<T> where T : class
     {
-        public MetricClass() : base()
+        public MetricClass()
         {
         }
 
@@ -42,10 +42,10 @@ namespace Org.Apache.REEF.Common.Telemetry
         {
         }
 
-        public override void AssignNewValue(T val)
+        public override void AssignNewValue(T value)
         {
-            Interlocked.Exchange(ref _typedValue, val);
-            _tracker.Track(val);
+            Interlocked.Exchange(ref _typedValue, value);
+            _tracker.Track(value);
         }
     }
 }
