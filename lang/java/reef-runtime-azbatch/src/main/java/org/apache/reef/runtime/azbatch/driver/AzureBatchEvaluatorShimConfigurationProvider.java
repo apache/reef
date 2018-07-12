@@ -51,7 +51,9 @@ public class AzureBatchEvaluatorShimConfigurationProvider {
     this.remoteManager = remoteManager;
     this.portProvider = portProvider;
     this.localAddressProvider = localAddressProvider;
-    this.tcpPortSet = new HashSet<String>(tcpPortSet.size());
+
+    // Binding a parameter to a set is only allowed for strings, so we cast to strings.
+    this.tcpPortSet = new HashSet(tcpPortSet.size());
     for (int port: tcpPortSet) {
       this.tcpPortSet.add(Integer.toString(port));
     }

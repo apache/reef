@@ -124,7 +124,8 @@ public final class HttpServerImpl implements HttpServer {
       LOG.log(Level.INFO, "Jetty Server started with port: {0}", portNumber);
     } catch (final BindException ex) {
       srv = null;
-      LOG.log(Level.INFO, String.format("Cannot use host:%s,port: %s. Will try another", this.hostAddress, portNumber));
+      LOG.log(Level.FINEST,
+          String.format("Cannot use host:%s,port: %s. Will try another", this.hostAddress, portNumber));
     }
     return srv;
   }

@@ -21,7 +21,6 @@ using Org.Apache.REEF.Client.AzureBatch.Parameters;
 using Org.Apache.REEF.Client.AzureBatch.Util;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Utilities.Logging;
-using Org.Apache.REEF.Wake.Remote;
 using BatchSharedKeyCredential = Microsoft.Azure.Batch.Auth.BatchSharedKeyCredentials;
 using System;
 using System.Collections.Generic;
@@ -56,7 +55,6 @@ namespace Org.Apache.REEF.Client.DotNet.AzureBatch
 
         [Inject]
         public AzureBatchService(
-            ITcpPortProvider portProvider,
             ContainerRegistryProvider containerRegistryProvider,
             ICommandBuilder commandBuilder,
             [Parameter(typeof(AzureBatchAccountUri))] string azureBatchAccountUri,

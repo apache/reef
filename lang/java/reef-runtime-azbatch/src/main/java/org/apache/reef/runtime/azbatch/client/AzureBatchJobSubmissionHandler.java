@@ -21,7 +21,6 @@ package org.apache.reef.runtime.azbatch.client;
 import org.apache.reef.annotations.audience.Private;
 import org.apache.reef.runtime.azbatch.util.AzureBatchFileNames;
 import org.apache.reef.runtime.azbatch.util.batch.AzureBatchHelper;
-import org.apache.reef.runtime.azbatch.util.batch.ContainerRegistryProvider;
 import org.apache.reef.runtime.azbatch.util.storage.AzureStorageClient;
 import org.apache.reef.runtime.azbatch.util.command.CommandBuilder;
 import org.apache.reef.runtime.common.client.DriverConfigurationProvider;
@@ -62,7 +61,6 @@ public final class AzureBatchJobSubmissionHandler implements JobSubmissionHandle
   private final CommandBuilder launchCommandBuilder;
   private final AzureBatchFileNames azureBatchFileNames;
   private final AzureBatchHelper azureBatchHelper;
-  private final ContainerRegistryProvider containerRegistryProvider;
 
   @Inject
   AzureBatchJobSubmissionHandler(
@@ -71,15 +69,13 @@ public final class AzureBatchJobSubmissionHandler implements JobSubmissionHandle
       final JobJarMaker jobJarMaker,
       final CommandBuilder launchCommandBuilder,
       final AzureBatchFileNames azureBatchFileNames,
-      final AzureBatchHelper azureBatchHelper,
-      final ContainerRegistryProvider containerRegistryProvider) {
+      final AzureBatchHelper azureBatchHelper) {
     this.azureStorageClient = azureStorageClient;
     this.driverConfigurationProvider = driverConfigurationProvider;
     this.jobJarMaker = jobJarMaker;
     this.launchCommandBuilder = launchCommandBuilder;
     this.azureBatchHelper = azureBatchHelper;
     this.azureBatchFileNames = azureBatchFileNames;
-    this.containerRegistryProvider = containerRegistryProvider;
   }
 
   /**
@@ -136,16 +132,9 @@ public final class AzureBatchJobSubmissionHandler implements JobSubmissionHandle
       LOG.log(Level.FINE, "Assembling application submission.");
       final String command = this.launchCommandBuilder.buildDriverCommand(jobSubmissionEvent);
 
-      // In the case of containers, the port provider must be read from the driver configuration.
-      TcpPortProvider portProvider = Tang.Factory
-          .getTang()
-          .newInjector(driverConfiguration)
-          .getInstance(TcpPortProvider.class);
-      this.azureBatchHelper
-          .setTcpPortProvider(portProvider)
-          .submitJob(getApplicationId(), storageContainerSAS, jobJarSasUri, command);
+      this.azureBatchHelper.submitJob(getApplicationId(), storageContainerSAS, jobJarSasUri, command);
 
-    } catch (final IOException | InjectionException e) {
+    } catch (final IOException e) {
       LOG.log(Level.SEVERE, "Error submitting Azure Batch request: {0}", e);
       throw new RuntimeException(e);
     }

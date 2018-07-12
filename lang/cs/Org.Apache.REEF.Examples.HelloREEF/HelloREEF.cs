@@ -152,7 +152,7 @@ namespace Org.Apache.REEF.Examples.HelloREEF
 
         public static void MainSimple(string[] args)
         {
-            var runtime = args.Length > 0 ? args[0] : AzureBatch;
+            var runtime = args.Length > 0 ? args[0] : Local;
 
             // Execute the HelloREEF, with these parameters injected
             TangFactory.GetTang()

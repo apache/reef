@@ -22,8 +22,6 @@ using Org.Apache.REEF.Client.DotNet.AzureBatch;
 using Org.Apache.REEF.Tang.Formats;
 using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Tang.Util;
-using Org.Apache.REEF.Wake.Remote;
-using Org.Apache.REEF.Wake.Remote.Parameters;
 using System;
 using System.Collections.Generic;
 using System.IO;

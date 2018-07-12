@@ -28,14 +28,12 @@ import org.apache.reef.runtime.azbatch.util.storage.SharedAccessSignatureCloudBl
 import org.apache.reef.tang.annotations.Parameter;
 import org.apache.reef.wake.remote.address.ContainerBasedLocalAddressProvider;
 import org.apache.reef.wake.remote.ports.TcpPortProvider;
+import org.apache.reef.wake.remote.ports.parameters.TcpPortSet;
 
 import javax.inject.Inject;
 import java.io.IOException;
 import java.net.URI;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -59,15 +57,15 @@ public final class AzureBatchHelper {
   private final CommandBuilder commandBuilder;
   private final ContainerRegistryProvider containerRegistryProvider;
   private final boolean areContainersEnabled;
-  private TcpPortProvider portProvider;
+  private final Set<Integer> ports;
 
   @Inject
   public AzureBatchHelper(
       final AzureBatchFileNames azureBatchFileNames,
       final IAzureBatchCredentialProvider credentialProvider,
-      final TcpPortProvider portProvider,
       final CommandBuilder commandBuilder,
       final ContainerRegistryProvider containerRegistryProvider,
+      @Parameter(TcpPortSet.class) final Set<Integer> ports,
       @Parameter(AzureBatchPoolId.class) final String azureBatchPoolId) {
     this.azureBatchFileNames = azureBatchFileNames;
 
@@ -75,13 +73,8 @@ public final class AzureBatchHelper {
     this.poolInfo = new PoolInformation().withPoolId(azureBatchPoolId);
     this.commandBuilder = commandBuilder;
     this.containerRegistryProvider = containerRegistryProvider;
-    this.portProvider = portProvider;
+    this.ports = ports;
     this.areContainersEnabled = this.containerRegistryProvider.isValid();
-  }
-
-  public AzureBatchHelper setTcpPortProvider(final TcpPortProvider value) {
-    this.portProvider = value;
-    return this;
   }
 
   /**
@@ -205,7 +198,7 @@ public final class AzureBatchHelper {
     }
 
     StringBuilder portMappings = new StringBuilder();
-    Iterator<Integer> iterator = this.portProvider.iterator();
+    Iterator<Integer> iterator = this.ports.iterator();
     while (iterator.hasNext()) {
       Integer port = iterator.next();
       portMappings.append(String.format("-p %d:%d ", port, port));

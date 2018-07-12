@@ -48,18 +48,14 @@ public class TestHelloREEF {
 
   @Test
   public void testHelloREEF() {
-    final Configuration driverConf = getDefaultDriverConfiguration();
-    final LauncherStatus state = this.testEnvironment.run(driverConf);
-    Assert.assertTrue("Job state after execution: " + state, state.isSuccess());
-  }
-
-  private Configuration getDefaultDriverConfiguration() {
-    return DriverConfiguration.CONF
+    final Configuration driverConf = DriverConfiguration.CONF
         .set(DriverConfiguration.GLOBAL_LIBRARIES, EnvironmentUtils.getClassLocation(this.getClass()))
         .set(DriverConfiguration.DRIVER_IDENTIFIER, "TEST_HelloREEF")
         .set(DriverConfiguration.ON_DRIVER_STARTED, HelloDriver.StartHandler.class)
         .set(DriverConfiguration.ON_EVALUATOR_ALLOCATED, HelloDriver.EvaluatorAllocatedHandler.class)
         .build();
-
+    final LauncherStatus state = this.testEnvironment.run(driverConf);
+    Assert.assertTrue("Job state after execution: " + state, state.isSuccess());
   }
+
 }
