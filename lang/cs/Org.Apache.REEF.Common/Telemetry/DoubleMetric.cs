@@ -25,7 +25,7 @@ namespace Org.Apache.REEF.Common.Telemetry
     /// </summary>
     public class DoubleMetric : MetricBase<double>
     {
-        public DoubleMetric() : base()
+        public DoubleMetric()
         {
         }
 
@@ -40,10 +40,10 @@ namespace Org.Apache.REEF.Common.Telemetry
         {
         }
 
-        public override void AssignNewValue(double val)
+        public override void AssignNewValue(double value)
         {
-            Interlocked.Exchange(ref _typedValue, val);
-            _tracker.Track(val);
+            Interlocked.Exchange(ref _typedValue, value);
+            _tracker.Track(value);
         }
     }
 }

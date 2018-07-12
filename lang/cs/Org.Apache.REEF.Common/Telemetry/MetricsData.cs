@@ -20,7 +20,6 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using Org.Apache.REEF.Tang.Annotations;
-using Org.Apache.REEF.Utilities.Logging;
 using Newtonsoft.Json;
 
 namespace Org.Apache.REEF.Common.Telemetry
@@ -32,9 +31,7 @@ namespace Org.Apache.REEF.Common.Telemetry
     /// </summary>
     public sealed class MetricsData : IMetrics
     {
-        private static readonly Logger Logger = Logger.GetLogger(typeof(MetricsData));
-
-        JsonSerializerSettings settings = new JsonSerializerSettings()
+        private readonly JsonSerializerSettings settings = new JsonSerializerSettings()
         {
             TypeNameHandling = TypeNameHandling.All
         };

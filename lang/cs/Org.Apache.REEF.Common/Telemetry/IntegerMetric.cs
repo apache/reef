@@ -26,7 +26,7 @@ namespace Org.Apache.REEF.Common.Telemetry
     /// </summary>
     public class IntegerMetric : MetricBase<int>
     {
-        public IntegerMetric() : base()
+        public IntegerMetric()
         {
         }
 
@@ -41,10 +41,10 @@ namespace Org.Apache.REEF.Common.Telemetry
         {
         }
 
-        public override void AssignNewValue(int val)
+        public override void AssignNewValue(int value)
         {
-            Interlocked.Exchange(ref _typedValue, val);
-            _tracker.Track(val);
+            Interlocked.Exchange(ref _typedValue, value);
+            _tracker.Track(value);
         }
     }
 }

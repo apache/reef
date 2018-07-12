@@ -25,7 +25,7 @@ namespace Org.Apache.REEF.Common.Telemetry
     /// </summary>
     public class FloatMetric : MetricBase<float>
     {
-        public FloatMetric() : base()
+        public FloatMetric()
         {
         }
 
@@ -40,10 +40,10 @@ namespace Org.Apache.REEF.Common.Telemetry
         {
         }
 
-        public override void AssignNewValue(float val)
+        public override void AssignNewValue(float value)
         {
-            Interlocked.Exchange(ref _typedValue, val);
-            _tracker.Track(val);
+            Interlocked.Exchange(ref _typedValue, value);
+            _tracker.Track(value);
         }
     }
 }

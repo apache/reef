@@ -25,7 +25,7 @@ namespace Org.Apache.REEF.Common.Telemetry
     /// </summary>
     public sealed class CounterMetric : MetricBase<int>, ICounter
     {
-        public CounterMetric() : base()
+        public CounterMetric()
         {
         }
 

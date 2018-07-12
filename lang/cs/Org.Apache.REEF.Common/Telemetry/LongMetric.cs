@@ -26,7 +26,7 @@ namespace Org.Apache.REEF.Common.Telemetry
     /// </summary>
     public class LongMetric : MetricBase<long>
     {
-        public LongMetric() : base()
+        public LongMetric()
         {
         }
 
@@ -41,10 +41,10 @@ namespace Org.Apache.REEF.Common.Telemetry
         {
         }
 
-        public override void AssignNewValue(long val)
+        public override void AssignNewValue(long value)
         {
-            Interlocked.Exchange(ref _typedValue, val);
-            _tracker.Track(val);
+            Interlocked.Exchange(ref _typedValue, value);
+            _tracker.Track(value);
         }
     }
 }
