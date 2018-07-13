@@ -27,7 +27,6 @@ import org.apache.reef.runtime.azbatch.util.command.CommandBuilder;
 import org.apache.reef.runtime.azbatch.util.storage.SharedAccessSignatureCloudBlobClientProvider;
 import org.apache.reef.tang.annotations.Parameter;
 import org.apache.reef.wake.remote.address.ContainerBasedLocalAddressProvider;
-import org.apache.reef.wake.remote.ports.TcpPortProvider;
 import org.apache.reef.wake.remote.ports.parameters.TcpPortSet;
 
 import javax.inject.Inject;
@@ -110,7 +109,7 @@ public final class AzureBatchHelper {
         .withEnvironmentSettings(Collections.singletonList(environmentSetting))
         .withAuthenticationTokenSettings(authenticationTokenSettings)
         .withKillJobOnCompletion(true)
-        .withContainerSettings(createTaskContainerSettings())
+        .withContainerSettings(createTaskContainerSettings(applicationId))
         .withCommandLine(command);
 
     LOG.log(Level.INFO, "Job Manager (aka driver) task command: " + command);
@@ -155,7 +154,7 @@ public final class AzureBatchHelper {
     TaskAddParameter taskAddParameter = new TaskAddParameter()
         .withId(taskId)
         .withResourceFiles(resources)
-        .withContainerSettings(createTaskContainerSettings())
+        .withContainerSettings(createTaskContainerSettings(taskId))
         .withCommandLine(command);
 
     if (this.areContainersEnabled) {
@@ -192,7 +191,7 @@ public final class AzureBatchHelper {
     return System.getenv(AZ_BATCH_JOB_ID_ENV);
   }
 
-  private TaskContainerSettings createTaskContainerSettings() {
+  private TaskContainerSettings createTaskContainerSettings(String dockerContainerId) {
     if (!this.areContainersEnabled) {
       return null;
     }
@@ -209,7 +208,8 @@ public final class AzureBatchHelper {
         .withImageName(this.containerRegistryProvider.getContainerImageName())
         .withContainerRunOptions(
             String.format(
-                "-d --rm --env %s=%s %s",
+                "-d --rm --name %s --env %s=%s %s",
+                dockerContainerId,
                 ContainerBasedLocalAddressProvider.HOST_IP_ADDR_PATH_ENV,
                 this.commandBuilder.getIpAddressFilePath(),
                 portMappings));

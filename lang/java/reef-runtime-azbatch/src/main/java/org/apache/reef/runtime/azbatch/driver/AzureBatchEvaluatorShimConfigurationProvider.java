@@ -20,11 +20,10 @@ package org.apache.reef.runtime.azbatch.driver;
 
 import org.apache.reef.annotations.audience.Private;
 import org.apache.reef.runtime.azbatch.evaluator.EvaluatorShimConfiguration;
+import org.apache.reef.runtime.azbatch.util.batch.ContainerRegistryProvider;
 import org.apache.reef.runtime.common.utils.RemoteManager;
 import org.apache.reef.tang.Configuration;
 import org.apache.reef.tang.annotations.Parameter;
-import org.apache.reef.wake.remote.address.LocalAddressProvider;
-import org.apache.reef.wake.remote.ports.TcpPortProvider;
 import org.apache.reef.wake.remote.ports.parameters.TcpPortSet;
 
 import javax.inject.Inject;
@@ -38,20 +37,16 @@ import java.util.Set;
 public class AzureBatchEvaluatorShimConfigurationProvider {
 
   private final RemoteManager remoteManager;
-  private final TcpPortProvider portProvider;
-  private final LocalAddressProvider localAddressProvider;
   private final Set<String> tcpPortSet;
+  private final ContainerRegistryProvider containerRegistryProvider;
 
   @Inject
   AzureBatchEvaluatorShimConfigurationProvider(
       @Parameter(TcpPortSet.class) final Set<Integer> tcpPortSet,
-      final RemoteManager remoteManager,
-      final LocalAddressProvider localAddressProvider,
-      final TcpPortProvider portProvider) {
+      final ContainerRegistryProvider containerRegistryProvider,
+      final RemoteManager remoteManager) {
     this.remoteManager = remoteManager;
-    this.portProvider = portProvider;
-    this.localAddressProvider = localAddressProvider;
-
+    this.containerRegistryProvider = containerRegistryProvider;
     // Binding a parameter to a set is only allowed for strings, so we cast to strings.
     this.tcpPortSet = new HashSet(tcpPortSet.size());
     for (int port: tcpPortSet) {
@@ -68,10 +63,8 @@ public class AzureBatchEvaluatorShimConfigurationProvider {
    */
   public Configuration getConfiguration(final String containerId) {
 
-    return EvaluatorShimConfiguration.CONF.getBuilder()
-        .bindImplementation(LocalAddressProvider.class, this.localAddressProvider.getClass())
-        .bindImplementation(TcpPortProvider.class, this.portProvider.getClass())
-        .build()
+    return EvaluatorShimConfiguration
+        .getConfigurationModule(this.containerRegistryProvider.isValid())
         .set(EvaluatorShimConfiguration.DRIVER_REMOTE_IDENTIFIER, this.remoteManager.getMyIdentifier())
         .set(EvaluatorShimConfiguration.CONTAINER_IDENTIFIER, containerId)
         .setMultiple(EvaluatorShimConfiguration.TCP_PORT_SET, this.tcpPortSet)

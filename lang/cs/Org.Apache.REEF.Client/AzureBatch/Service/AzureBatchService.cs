@@ -138,7 +138,7 @@ namespace Org.Apache.REEF.Client.DotNet.AzureBatch
                 // For more info, see
                 // https://docs.microsoft.com/en-us/dotnet/api/microsoft.azure.batch.cloudtask.authenticationtokensettings
                 AuthenticationTokenSettings = new AuthenticationTokenSettings() { Access = AccessScope.Job },
-                ContainerSettings = CreateTaskContainerSettings(),
+                ContainerSettings = CreateTaskContainerSettings(jobId),
                 
             };
 
@@ -167,7 +167,7 @@ namespace Org.Apache.REEF.Client.DotNet.AzureBatch
             };
         }
 
-        private TaskContainerSettings CreateTaskContainerSettings()
+        private TaskContainerSettings CreateTaskContainerSettings(string dockerContainerId)
         {
             if (!this.AreContainersEnabled)
             {
@@ -180,7 +180,7 @@ namespace Org.Apache.REEF.Client.DotNet.AzureBatch
             return new TaskContainerSettings(
                 imageName: this.ContainerRegistryProvider.ContainerImageName,
                 containerRunOptions:
-                    $"-d --rm --env HOST_IP_ADDR_PATH={this.CommandBuilder.GetIpAddressFilePath()} {portMappings}",
+                    $"-d --rm --name {dockerContainerId} --env HOST_IP_ADDR_PATH={this.CommandBuilder.GetIpAddressFilePath()} {portMappings}",
                 registry: this.ContainerRegistryProvider.GetContainerRegistry());
         }
 
