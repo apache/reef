@@ -16,6 +16,7 @@
 // under the License.
 
 using System;
+using System.Linq;
 using Org.Apache.REEF.Common.Telemetry;
 using Org.Apache.REEF.Tang.Implementations.Tang;
 using Xunit;
@@ -41,7 +42,7 @@ namespace Org.Apache.REEF.Common.Tests.Telemetry
 
             foreach (var t in evalMetricsData.GetMetricTrackers())
             {
-                Assert.Equal(1, t.GetMetricRecords().Count);
+                Assert.Equal(1, t.GetMetricRecords().ToList().Count);
             }
 
             var metricsStr = evalMetrics1.Serialize();
@@ -86,10 +87,8 @@ namespace Org.Apache.REEF.Common.Tests.Telemetry
             var evalMetrics1 = TangFactory.GetTang().NewInjector().GetInstance<IEvaluatorMetrics>();
             evalMetrics1.CreateAndRegisterMetric<CounterMetric>("counter", "counter with no records", false);
             evalMetrics1.CreateAndRegisterMetric<IntegerMetric>("iteration", "iteration with records", true);
-            evalMetrics1.TryGetMetric("counter", out IMetric me1);
-            evalMetrics1.TryGetMetric("iteration", out IMetric me2);
-            var counter = (CounterMetric)me1;
-            var iter = (IntegerMetric)me2;
+            evalMetrics1.TryGetMetric("counter", out CounterMetric counter);
+            evalMetrics1.TryGetMetric("iteration", out IntegerMetric iter);
             for (int i = 0; i < 5; i++)
             {
                 counter.Increment();
@@ -105,17 +104,17 @@ namespace Org.Apache.REEF.Common.Tests.Telemetry
 
             foreach (var t in metricsData2.GetMetricTrackers())
             {
-                Assert.Equal(1, t.GetMetricRecords().Count);
+                Assert.Equal(1, t.GetMetricRecords().ToList().Count);
             }
         }
 
-        private static void ValidateMetric(IMetrics metricSet, string name, object expectedValue)
+        private static void ValidateMetric(IMetricSet metricSet, string name, object expectedValue)
         {
             Assert.True(metricSet.TryGetMetric(name, out IMetric metric));
             Assert.Equal(expectedValue, metric.ValueUntyped);
         }
 
-        private static IMetrics CreateMetrics()
+        private static IMetricSet CreateMetrics()
         {
             var m = TangFactory.GetTang().NewInjector().GetInstance<IEvaluatorMetrics>();
             var c = m.GetMetricsData();

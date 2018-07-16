@@ -29,9 +29,9 @@ namespace Org.Apache.REEF.Common.Telemetry
     /// When new metric data is received, the data in the collection will be updated.
     /// After the data is processed, the changes since last process will be reset.
     /// </summary>
-    public sealed class MetricsData : IMetrics
+    public sealed class MetricsData : IMetricSet
     {
-        private readonly JsonSerializerSettings settings = new JsonSerializerSettings()
+        private static readonly JsonSerializerSettings settings = new JsonSerializerSettings()
         {
             TypeNameHandling = TypeNameHandling.All
         };
@@ -69,15 +69,12 @@ namespace Org.Apache.REEF.Common.Telemetry
             }
         }
 
-        public bool TryGetMetric(string name, out IMetric metric)
+        public bool TryGetMetric<T>(string name, out T metric)
+            where T : IMetric
         {
-            if (!_metricsMap.TryGetValue(name, out MetricTracker tracker))
-            {
-                metric = null;
-                return false;
-            }
-            metric = tracker.GetMetric();
-            return true;
+            bool success = _metricsMap.TryGetValue(name, out MetricTracker tracker);
+            metric = (T)tracker?.GetMetric();
+            return success;
         }
 
         public IEnumerable<MetricTracker> GetMetricTrackers()
@@ -104,7 +101,7 @@ namespace Org.Apache.REEF.Common.Telemetry
         /// if it is not then add it to the registration.
         /// </summary>
         /// <param name="metrics">New metric values to be updated.</param>
-        internal void Update(IMetrics metrics)
+        internal void Update(IMetricSet metrics)
         {
             foreach (var tracker in metrics.GetMetricTrackers())
             {

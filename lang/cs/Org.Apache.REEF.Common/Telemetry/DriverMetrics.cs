@@ -34,7 +34,7 @@ namespace Org.Apache.REEF.Common.Telemetry
             var stateMetric = CreateAndRegisterMetric<StringMetric>(DriverStateMetric, "driver state.", false);
         }
 
-        public IMetrics GetMetricsData()
+        public IMetricSet GetMetricsData()
         {
             return _metricsData;
         }
@@ -52,10 +52,11 @@ namespace Org.Apache.REEF.Common.Telemetry
             return metric;
         }
 
-        public bool TryGetMetric(string name, out IMetric metric)
+        public bool TryGetMetric<T>(string name, out T metric)
+            where T : IMetric
         {
             var ret = _metricsData.TryGetMetric(name, out IMetric me);
-            metric = me;
+            metric = (T)me;
             return ret;
         }
     }

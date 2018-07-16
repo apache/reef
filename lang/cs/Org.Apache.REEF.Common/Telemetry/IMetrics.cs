@@ -5,9 +5,9 @@
 // to you under the Apache License, Version 2.0 (the
 // "License"); you may not use this file except in compliance
 // with the License.  You may obtain a copy of the License at
-//
+// 
 //   http://www.apache.org/licenses/LICENSE-2.0
-//
+// 
 // Unless required by applicable law or agreed to in writing,
 // software distributed under the License is distributed on an
 // "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -15,47 +15,34 @@
 // specific language governing permissions and limitations
 // under the License.
 
-using System.Collections.Generic;
-using Org.Apache.REEF.Tang.Annotations;
-
 namespace Org.Apache.REEF.Common.Telemetry
 {
-    /// <summary>
-    /// Interface for a collection of metrics.
-    /// </summary>
-    [DefaultImplementation(typeof(MetricsData))]
     public interface IMetrics
     {
         /// <summary>
-        /// Add a metric object to this collection.
+        /// Creates a system metric.
         /// </summary>
-        /// <param name="metric">The metric object to add.</param>
-        void RegisterMetric(IMetric metric);
+        /// <typeparam name="T">Type of the metric object.</typeparam>
+        /// <param name="name">Name of the metric.</param>
+        /// <param name="description">Description of the metric.</param>
+        /// <param name="keepUpdateHistory">whether to keep a history of updates on this metric.</param>
+        /// <returns></returns>
+        T CreateAndRegisterMetric<T>(string name, string description, bool keepUpdateHistory)
+            where T : MetricBase, new();
 
         /// <summary>
-        /// Get metric value given the metric name.
-        /// </summary>
-        /// <param name="name">Name of the metric</param>
-        /// <param name="metric">The metric object returned</param>
-        /// <returns>Returns a boolean to indicate if the value is found.</returns>
-        bool TryGetMetric(string name, out IMetric metric);
-
-        /// <summary>
-        /// Returns all the metric trackers.
+        /// Method that returns the collection of metric data.
         /// </summary>
         /// <returns></returns>
-        IEnumerable<MetricTracker> GetMetricTrackers();
+        IMetricSet GetMetricsData();
 
         /// <summary>
-        /// Empties the cached records for each metric.
+        /// Extracts the metric object if it has been registered.
         /// </summary>
-        /// <returns>Key Value pair of metric name and record.</returns>
-        IEnumerable<KeyValuePair<string, MetricTracker.MetricRecord>> FlushMetricRecords();
-
-        /// <summary>
-        /// Serializes the metrics data.
-        /// </summary>
-        /// <returns>Serialized string.</returns>
-        string Serialize();
+        /// <param name="name">Name of the metric.</param>
+        /// <param name="metric">The registered metric. null if not found.</param>
+        /// <returns></returns>
+        bool TryGetMetric<T>(string name, out T metric)
+            where T : IMetric;
     }
 }

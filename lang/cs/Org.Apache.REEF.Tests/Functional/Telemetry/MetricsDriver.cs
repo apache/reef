@@ -139,8 +139,8 @@ namespace Org.Apache.REEF.Tests.Functional.Telemetry
         /// </summary>
         private void UpdateMetrics(TestSystemState systemState)
         {
-            _driverMetrics.TryGetMetric(DriverMetrics.DriverStateMetric, out IMetric stateMetric);
-            ((StringMetric)stateMetric).AssignNewValue(EventPrefix + systemState.ToString());
+            _driverMetrics.TryGetMetric(DriverMetrics.DriverStateMetric, out StringMetric stateMetric);
+            stateMetric.AssignNewValue(EventPrefix + systemState.ToString());
 
             foreach (var metricsObserver in _driverMetricsObservers)
             {

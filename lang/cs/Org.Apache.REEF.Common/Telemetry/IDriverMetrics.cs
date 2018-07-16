@@ -20,23 +20,7 @@ using Org.Apache.REEF.Tang.Annotations;
 namespace Org.Apache.REEF.Common.Telemetry
 {
     [DefaultImplementation(typeof(DriverMetrics))]
-    public interface IDriverMetrics
+    public interface IDriverMetrics : IMetrics
     {
-        /// <summary>
-        /// Method that returns the collection of metric data.
-        /// </summary>
-        /// <returns></returns>
-        IMetrics GetMetricsData();
-
-        /// <summary>
-        /// Extracts the metric object if it has been registered.
-        /// </summary>
-        /// <param name="name">Name of the metric.</param>
-        /// <param name="metric">The registered metric. null if not found.</param>
-        /// <returns></returns>
-        bool TryGetMetric(string name, out IMetric metric);
-
-        T CreateAndRegisterMetric<T>(string name, string description, bool keepUpateHistory)
-            where T : MetricBase, new();
     }
 }

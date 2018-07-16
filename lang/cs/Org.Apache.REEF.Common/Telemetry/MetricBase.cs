@@ -16,7 +16,6 @@
 // under the License.
 
 using System;
-using System.Threading;
 using Newtonsoft.Json;
 
 namespace Org.Apache.REEF.Common.Telemetry
@@ -48,11 +47,11 @@ namespace Org.Apache.REEF.Common.Telemetry
             get;
         }
 
-        public MetricBase()
+        protected MetricBase()
         {
         }
 
-        public MetricBase(string name, string description, bool keepUpdateHistory = true)
+        protected MetricBase(string name, string description, bool keepUpdateHistory = true)
         {
             Name = name;
             Description = description;
@@ -60,17 +59,17 @@ namespace Org.Apache.REEF.Common.Telemetry
         }
 
         [JsonConstructor]
-        public MetricBase(string name, string description, object valueUntyped, bool keepUpdateHistory)
+        protected MetricBase(string name, string description, object valueUntyped, bool keepUpdateHistory)
         {
             Name = name;
             Description = description;
             KeepUpdateHistory = keepUpdateHistory;
         }
 
-        public IDisposable Subscribe(ITracker observer)
+        public IDisposable Subscribe(ITracker tracker)
         {
-            _tracker = observer;
-            return new Unsubscriber(observer);
+            _tracker = tracker;
+            return new Unsubscriber(tracker);
         }
 
         private class Unsubscriber : IDisposable
@@ -107,19 +106,19 @@ namespace Org.Apache.REEF.Common.Telemetry
             get { return _typedValue; }
         }
 
-        public MetricBase() : base()
+        public MetricBase()
         {
             _typedValue = default;
         }
 
-        public MetricBase(string name, string description, bool keepUpdateHistory = true)
+        protected MetricBase(string name, string description, bool keepUpdateHistory = true)
             : base(name, description, keepUpdateHistory)
         {
             _typedValue = default;
         }
 
         [JsonConstructor]
-        public MetricBase(string name, string description, T value, bool keepUpdateHistory)
+        protected MetricBase(string name, string description, T value, bool keepUpdateHistory)
             : base(name, description, value, keepUpdateHistory)
         {
             _typedValue = value;
