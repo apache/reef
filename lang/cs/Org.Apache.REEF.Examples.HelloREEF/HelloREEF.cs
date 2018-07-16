@@ -118,15 +118,6 @@ namespace Org.Apache.REEF.Examples.HelloREEF
                         .Set(AzureBlobFileSystemConfiguration.AccountKey, blobStorageAccountKey)
                         .Build();
                 case AzureBatch:
-                    //// Following list of ports is required to enable the following options:
-                    //// 1. To enable communication between driver and client:
-                    ////        The ports will be used to set up driver http server endpoint.
-                    ////        In addition, these ports must also be defined in Azure Batch InBoundNATPool to enable communication.
-                    //// 2. To enable communication between docker containers:
-                    ////        These ports will be mapped between the container and host to
-                    ////        allow the communication between the containers.
-                    ////        In addition, the Azure Batch pool must be created as a container pool to use this feature.
-                    List<string> ports = new List<string> { "2000", "2001", "2002", "2003", "2004" };
                     return AzureBatchRuntimeClientConfiguration.ConfigurationModule
                         .Set(AzureBatchRuntimeClientConfiguration.AzureBatchAccountKey, @"##########################################")
                         .Set(AzureBatchRuntimeClientConfiguration.AzureBatchAccountName, @"######")
@@ -137,8 +128,16 @@ namespace Org.Apache.REEF.Examples.HelloREEF
                         .Set(AzureBatchRuntimeClientConfiguration.AzureStorageContainerName, @"###########")
                         //// Extend default retry interval in Azure Batch
                         .Set(AzureBatchRuntimeClientConfiguration.DriverHTTPConnectionRetryInterval, "20000")
-                        .Set(AzureBatchRuntimeClientConfiguration.AzureBatchPoolDriverPortsList, ports)
-                        // Bind to Container Registry properties if present
+                        //// Following list of ports is required to enable the following options:
+                        //// 1. To enable communication between driver and client:
+                        ////        The ports will be used to set up driver http server endpoint.
+                        ////        In addition, these ports must also be defined in Azure Batch InBoundNATPool to enable communication.
+                        //// 2. To enable communication between docker containers:
+                        ////        These ports will be mapped between the container and host to
+                        ////        allow the communication between the containers.
+                        ////        In addition, the Azure Batch pool must be created as a container pool to use this feature.
+                        // .Set(AzureBatchRuntimeClientConfiguration.AzureBatchPoolDriverPortsList, new List<string> { "2000", "2001", "2002" })
+                        //// Bind to Container Registry properties if present
                         // .Set(AzureBatchRuntimeClientConfiguration.ContainerRegistryServer, @"###############")
                         // .Set(AzureBatchRuntimeClientConfiguration.ContainerRegistryUsername, @"###############")
                         // .Set(AzureBatchRuntimeClientConfiguration.ContainerRegistryPassword, @"###############")

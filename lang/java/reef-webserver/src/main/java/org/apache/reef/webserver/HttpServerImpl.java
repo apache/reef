@@ -70,7 +70,7 @@ public final class HttpServerImpl implements HttpServer {
   private final LoggingScopeFactory loggingScopeFactory;
 
   /**
-   * The host name for the HTTPServer.
+   * The host address for the HTTPServer.
    */
   private final String hostAddress;
 
