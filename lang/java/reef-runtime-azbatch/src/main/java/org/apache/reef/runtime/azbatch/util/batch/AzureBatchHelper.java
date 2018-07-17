@@ -191,7 +191,7 @@ public final class AzureBatchHelper {
     return System.getenv(AZ_BATCH_JOB_ID_ENV);
   }
 
-  private TaskContainerSettings createTaskContainerSettings(String dockerContainerId) {
+  private TaskContainerSettings createTaskContainerSettings(final String dockerContainerId) {
     if (!this.areContainersEnabled) {
       return null;
     }

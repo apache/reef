@@ -63,7 +63,7 @@ public final class EvaluatorShimConfiguration extends ConfigurationModuleBuilder
       .bindSetEntry(TcpPortSet.class, TCP_PORT_SET)
       .build();
 
-  public static final ConfigurationModule getConfigurationModule(boolean includeContainerConfiguration) {
+  public static ConfigurationModule getConfigurationModule(final boolean includeContainerConfiguration) {
     ConfigurationModuleBuilder shimConfigurationBuilder = EvaluatorShimConfiguration.CONF.getBuilder();
 
     // If using docker containers, then use a different set of bindings
