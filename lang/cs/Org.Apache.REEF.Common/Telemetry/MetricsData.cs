@@ -53,7 +53,7 @@ namespace Org.Apache.REEF.Common.Telemetry
         [JsonConstructor]
         internal MetricsData(string serializedMetricsString)
         {
-            var metrics = JsonConvert.DeserializeObject<IList<MetricTracker>>(serializedMetricsString, settings);
+            var metrics = JsonConvert.DeserializeObject<IEnumerable<MetricTracker>>(serializedMetricsString, settings);
 
             foreach (var m in metrics)
             {
@@ -91,7 +91,7 @@ namespace Org.Apache.REEF.Common.Telemetry
         {
             // for each metric, flush the records and create key value pairs
             return _metricsMap.SelectMany(
-                kv => kv.Value.FlushChangesSinceLastSink().Select(
+                kv => kv.Value.FlushRecordsCache().Select(
                     r => new KeyValuePair<string, MetricTracker.MetricRecord>(kv.Key, r)));
         }
 
@@ -122,8 +122,7 @@ namespace Org.Apache.REEF.Common.Telemetry
             return new ConcurrentQueue<MetricTracker>(_metricsMap.Select(
                 kv => new MetricTracker(
                     kv.Value.GetMetric(),
-                    kv.Value.ChangesSinceLastSink,
-                    (ConcurrentQueue<MetricTracker.MetricRecord>)kv.Value.FlushChangesSinceLastSink(),
+                    (ConcurrentQueue<MetricTracker.MetricRecord>)kv.Value.FlushRecordsCache(),
                     kv.Value.KeepUpdateHistory)));
         }
 
@@ -133,7 +132,7 @@ namespace Org.Apache.REEF.Common.Telemetry
         /// <returns>Returns whether the sink threshold has been met.</returns>
         internal bool TriggerSink(int metricSinkThreshold)
         {
-            return _metricsMap.Values.Sum(e => e.ChangesSinceLastSink) > metricSinkThreshold;
+            return _metricsMap.Values.Sum(e => e.GetRecordCount()) > metricSinkThreshold;
         }
 
         public string Serialize()
@@ -143,9 +142,7 @@ namespace Org.Apache.REEF.Common.Telemetry
 
         internal string Serialize(IEnumerable<MetricTracker> trackers)
         {
-            return JsonConvert.SerializeObject(
-                trackers.Where(tracker => tracker.ChangesSinceLastSink > 0).ToList(),
-                settings);
+            return JsonConvert.SerializeObject(trackers, settings);
         }
 
         internal string SerializeAndReset()

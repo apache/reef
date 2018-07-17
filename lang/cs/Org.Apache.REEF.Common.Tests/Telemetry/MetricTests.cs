@@ -87,12 +87,12 @@ namespace Org.Apache.REEF.Common.Tests.Telemetry
             var evalMetrics1 = TangFactory.GetTang().NewInjector().GetInstance<IEvaluatorMetrics>();
             evalMetrics1.CreateAndRegisterMetric<CounterMetric>("counter", "counter with no records", false);
             evalMetrics1.CreateAndRegisterMetric<IntegerMetric>("iteration", "iteration with records", true);
-            evalMetrics1.TryGetMetric("counter", out CounterMetric counter);
-            evalMetrics1.TryGetMetric("iteration", out IntegerMetric iter);
-            for (int i = 0; i < 5; i++)
+            Assert.True(evalMetrics1.TryGetMetric("counter", out CounterMetric counter));
+            Assert.True(evalMetrics1.TryGetMetric("iteration", out IntegerMetric iter));
+            for (int i = 1; i <= 5; i++)
             {
                 counter.Increment();
-                iter.AssignNewValue(i + 1);
+                iter.AssignNewValue(i);
             }
 
             var me1Str = evalMetrics1.Serialize();
