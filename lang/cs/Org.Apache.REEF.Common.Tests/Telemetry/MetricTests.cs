@@ -26,14 +26,18 @@ namespace Org.Apache.REEF.Common.Tests.Telemetry
     public class MetricsTests
     {
         /// <summary>
-        /// Creates and registers a counter metric without tracking to the Evaluator metrics, alters the values,
-        /// then serializes and deserializes.
+        /// Creates and registers a counter metric without tracking to the Evaluator metrics,
+        /// alters the values, then serializes and deserializes.
         /// </summary>
         [Fact]
         public void TestEvaluatorMetricsCountersOnly()
         {
             var evalMetrics1 = TangFactory.GetTang().NewInjector().GetInstance<IEvaluatorMetrics>();
-            var counter1 = evalMetrics1.CreateAndRegisterMetric<CounterMetric>("counter1", "Counter1 description", false);
+            var counter1 = evalMetrics1.CreateAndRegisterMetric<CounterMetric>(
+                "counter1",
+                "Counter1 description",
+                false);
+
             for (int i = 0; i < 5; i++)
             {
                 counter1.Increment();
@@ -60,8 +64,14 @@ namespace Org.Apache.REEF.Common.Tests.Telemetry
         public void TestMetricSetValue()
         {
             var evalMetrics = TangFactory.GetTang().NewInjector().GetInstance<IEvaluatorMetrics>();
-            var intMetric = evalMetrics.CreateAndRegisterMetric<IntegerMetric>("IntMetric", "metric of type int", true);
-            var doubleMetric = evalMetrics.CreateAndRegisterMetric<DoubleMetric>("DouMetric", "metric of type double", true);
+            var intMetric = evalMetrics.CreateAndRegisterMetric<IntegerMetric>(
+                "IntMetric",
+                "metric of type int",
+                true);
+            var doubleMetric = evalMetrics.CreateAndRegisterMetric<DoubleMetric>(
+                "DouMetric",
+                "metric of type double",
+                true);
 
             var evalMetricsData = evalMetrics.GetMetricsData();
             ValidateMetric(evalMetricsData, "IntMetric", default(int));
@@ -81,7 +91,8 @@ namespace Org.Apache.REEF.Common.Tests.Telemetry
         {
             var metrics = CreateMetrics();
             metrics.RegisterMetric(new CounterMetric("metric1", "metric description"));
-            Assert.Throws<ArgumentException>(() => metrics.RegisterMetric(new CounterMetric("metric1", "duplicate name")));
+            Assert.Throws<ArgumentException>(
+                () => metrics.RegisterMetric(new CounterMetric("metric1", "duplicate name")));
         }
 
         [Fact]

@@ -25,9 +25,9 @@ using Org.Apache.REEF.Utilities.Logging;
 namespace Org.Apache.REEF.Common.Telemetry
 {
     /// <summary>
-    /// MetricData class maintains the current value of a single metric and keeps count of the number
-    /// of times this metric has been updated. If the metric is immutable, it keeps a record of updates.
-    /// Once the data has been processed, the records and count will reset.
+    /// MetricData class maintains the current value of a single metric and keeps count of the
+    /// number of times this metric has been updated. If the metric is immutable, it keeps a
+    /// record of updates. Once the data has been processed, the records and count will reset.
     /// </summary>
     [JsonObject]
     public sealed class MetricTracker : ITracker
@@ -98,8 +98,8 @@ namespace Org.Apache.REEF.Common.Telemetry
         }
 
         /// <summary>
-        /// When new metric data is received, update the value and records so it reflects the new data.
-        /// Called when Driver receives metrics from Evaluator.
+        /// When new metric data is received, update the value and records so it reflects the
+        /// new data. Called when Driver receives metrics from Evaluator.
         /// </summary>
         /// <param name="metric">Metric data received.</param>
         internal MetricTracker UpdateMetric(MetricTracker metric)
@@ -116,7 +116,9 @@ namespace Org.Apache.REEF.Common.Telemetry
                 }
                 else
                 {
-                    Interlocked.Exchange(ref Records, new ConcurrentQueue<MetricRecord>(recordsToAdd));
+                    Interlocked.Exchange(
+                        ref Records,
+                        new ConcurrentQueue<MetricRecord>(recordsToAdd));
                 }
             }
             return this;
@@ -137,8 +139,8 @@ namespace Org.Apache.REEF.Common.Telemetry
         }
 
         /// <summary>
-        /// If KeepUpdateHistory is true, it will return all the records; otherwise, it will return
-        /// one record with the most recent value.
+        /// If KeepUpdateHistory is true, it will return all the records; otherwise, it will
+        /// return one record with the most recent value.
         /// </summary>
         /// <returns>The history of the metric records.</returns>
         internal IEnumerable<MetricRecord> GetMetricRecords()
