@@ -111,7 +111,7 @@ namespace Org.Apache.REEF.Common.Telemetry
         public void OnCompleted()
         {
             Sink(_metricsData.FlushMetricRecords());
-            Logger.Log(Level.Info, "Completed");
+            Logger.Log(Level.Info, "MetricsService completed");
         }
 
         public void OnError(Exception error)

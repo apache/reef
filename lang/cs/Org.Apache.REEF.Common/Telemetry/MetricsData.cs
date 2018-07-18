@@ -122,7 +122,7 @@ namespace Org.Apache.REEF.Common.Telemetry
             return new ConcurrentQueue<MetricTracker>(_metricsMap.Select(
                 kv => new MetricTracker(
                     kv.Value.GetMetric(),
-                    (ConcurrentQueue<MetricTracker.MetricRecord>)kv.Value.FlushRecordsCache(),
+                    kv.Value.FlushRecordsCache(),
                     kv.Value.KeepUpdateHistory)));
         }
 

@@ -120,7 +120,7 @@ namespace Org.Apache.REEF.Tests.Functional.Telemetry
         {
             Logger.Log(Level.Info, "Received ICompletedTask");
             UpdateMetrics(TestSystemState.TaskCompleted);
-
+            FlushMetricsCache();
             value.ActiveContext.Dispose();
         }
 
@@ -145,6 +145,14 @@ namespace Org.Apache.REEF.Tests.Functional.Telemetry
             foreach (var metricsObserver in _driverMetricsObservers)
             {
                 metricsObserver.OnNext(_driverMetrics);
+            }
+        }
+
+        private void FlushMetricsCache()
+        {
+            foreach(var metricsObserver in _driverMetricsObservers)
+            {
+                metricsObserver.OnCompleted();
             }
         }
     }

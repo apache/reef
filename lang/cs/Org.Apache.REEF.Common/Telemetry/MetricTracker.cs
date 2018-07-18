@@ -64,11 +64,11 @@ namespace Org.Apache.REEF.Common.Telemetry
         [JsonConstructor]
         internal MetricTracker(
             IMetric metric,
-            ConcurrentQueue<MetricRecord> records,
+            IEnumerable<MetricRecord> records,
             bool keepUpdateHistory)
         {
             Metric = metric;
-            Records = records;
+            Records = new ConcurrentQueue<MetricRecord>(records);
             KeepUpdateHistory = keepUpdateHistory;
         }
 
@@ -134,7 +134,8 @@ namespace Org.Apache.REEF.Common.Telemetry
         }
 
         /// <summary>
-        /// If KeepUpdateHistory is true, it will return all the records; otherwise, it will return one record with the most recent value.
+        /// If KeepUpdateHistory is true, it will return all the records; otherwise, it will return
+        /// one record with the most recent value.
         /// </summary>
         /// <returns>The history of the metric records.</returns>
         internal IEnumerable<MetricRecord> GetMetricRecords()
