@@ -35,7 +35,7 @@ namespace Org.Apache.REEF.Common.Telemetry
         private static readonly Logger Logger = Logger.GetLogger(typeof(MetricTracker));
 
         [JsonProperty]
-        private IMetric Metric;
+        public string MetricName;
 
         [JsonProperty]
         internal readonly bool KeepUpdateHistory;
@@ -46,6 +46,8 @@ namespace Org.Apache.REEF.Common.Telemetry
         [JsonProperty]
         private ConcurrentQueue<MetricRecord> Records;
 
+        private IMetric Metric;
+
         private IDisposable _unsubscriber;
 
         /// <summary>
@@ -55,6 +57,7 @@ namespace Org.Apache.REEF.Common.Telemetry
         /// <param name="initialValue"></param>
         internal MetricTracker(IMetric metric)
         {
+            MetricName = metric.Name;
             Subscribe(metric);
             KeepUpdateHistory = metric.KeepUpdateHistory;
             Records = KeepUpdateHistory ? new ConcurrentQueue<MetricRecord>() : null;
@@ -63,11 +66,11 @@ namespace Org.Apache.REEF.Common.Telemetry
 
         [JsonConstructor]
         internal MetricTracker(
-            IMetric metric,
+            string metricName,
             IEnumerable<MetricRecord> records,
             bool keepUpdateHistory)
         {
-            Metric = metric;
+            MetricName = metricName;
             Records = new ConcurrentQueue<MetricRecord>(records);
             KeepUpdateHistory = keepUpdateHistory;
         }
@@ -140,15 +143,7 @@ namespace Org.Apache.REEF.Common.Telemetry
         /// <returns>The history of the metric records.</returns>
         internal IEnumerable<MetricRecord> GetMetricRecords()
         {
-            if (Records == null || Records.IsEmpty)
-            {
-
-                return new[] { CreateMetricRecord(Metric) };
-            }
-            else
-            {
-                return Records;
-            }
+            return Records;
         }
 
         /// <summary>

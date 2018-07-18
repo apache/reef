@@ -39,7 +39,8 @@ namespace Org.Apache.REEF.Common.Telemetry
         /// <summary>
         /// Registration of metrics
         /// </summary>
-        private readonly ConcurrentDictionary<string, MetricTracker> _metricsMap = new ConcurrentDictionary<string, MetricTracker>();
+        private readonly ConcurrentDictionary<string, MetricTracker> _metricsMap =
+            new ConcurrentDictionary<string, MetricTracker>();
 
         [Inject]
         internal MetricsData()
@@ -53,11 +54,13 @@ namespace Org.Apache.REEF.Common.Telemetry
         [JsonConstructor]
         internal MetricsData(string serializedMetricsString)
         {
-            var metrics = JsonConvert.DeserializeObject<IEnumerable<MetricTracker>>(serializedMetricsString, settings);
+            var metrics = JsonConvert.DeserializeObject<IEnumerable<MetricTracker>>(
+                serializedMetricsString,
+                settings);
 
             foreach (var m in metrics)
             {
-                _metricsMap.TryAdd(m.GetMetric().Name, m);
+                _metricsMap.TryAdd(m.MetricName, m);
             }
         }
 
@@ -74,7 +77,7 @@ namespace Org.Apache.REEF.Common.Telemetry
         {
             bool success = _metricsMap.TryGetValue(name, out MetricTracker tracker);
             metric = (T)tracker?.GetMetric();
-            return success;
+            return success && metric != null;
         }
 
         public IEnumerable<MetricTracker> GetMetricTrackers()
@@ -106,7 +109,7 @@ namespace Org.Apache.REEF.Common.Telemetry
             foreach (var tracker in metrics.GetMetricTrackers())
             {
                 _metricsMap.AddOrUpdate(
-                    tracker.GetMetric().Name,
+                    tracker.MetricName,
                     tracker,
                     (k, v) => v.UpdateMetric(tracker));
             }
@@ -121,7 +124,7 @@ namespace Org.Apache.REEF.Common.Telemetry
         {
             return new ConcurrentQueue<MetricTracker>(_metricsMap.Select(
                 kv => new MetricTracker(
-                    kv.Value.GetMetric(),
+                    kv.Value.MetricName,
                     kv.Value.FlushRecordsCache(),
                     kv.Value.KeepUpdateHistory)));
         }

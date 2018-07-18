@@ -34,12 +34,6 @@ namespace Org.Apache.REEF.Common.Telemetry
         {
         }
 
-        [JsonConstructor]
-        internal LongMetric(string name, string description, long value, bool keepUpdateHistory)
-            : base(name, description, value, keepUpdateHistory)
-        {
-        }
-
         public override void AssignNewValue(long value)
         {
             Interlocked.Exchange(ref _typedValue, value);

@@ -58,14 +58,6 @@ namespace Org.Apache.REEF.Common.Telemetry
             KeepUpdateHistory = keepUpdateHistory;
         }
 
-        [JsonConstructor]
-        protected MetricBase(string name, string description, object valueUntyped, bool keepUpdateHistory)
-        {
-            Name = name;
-            Description = description;
-            KeepUpdateHistory = keepUpdateHistory;
-        }
-
         public IDisposable Subscribe(ITracker tracker)
         {
             _tracker = tracker;
@@ -115,13 +107,6 @@ namespace Org.Apache.REEF.Common.Telemetry
             : base(name, description, keepUpdateHistory)
         {
             _typedValue = default;
-        }
-
-        [JsonConstructor]
-        protected MetricBase(string name, string description, T value, bool keepUpdateHistory)
-            : base(name, description, value, keepUpdateHistory)
-        {
-            _typedValue = value;
         }
 
         /// <summary>

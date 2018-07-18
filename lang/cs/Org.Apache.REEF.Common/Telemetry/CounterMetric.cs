@@ -34,12 +34,6 @@ namespace Org.Apache.REEF.Common.Telemetry
         {
         }
 
-        [JsonConstructor]
-        internal CounterMetric(string name, string description, long timeStamp, int value, bool keepUpdateHistory)
-            : base(name, description, value, keepUpdateHistory)
-        {
-        }
-
         public void Increment(int number = 1)
         {
             _tracker.Track(Interlocked.Add(ref _typedValue, number));

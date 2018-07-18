@@ -26,7 +26,8 @@ namespace Org.Apache.REEF.Common.Tests.Telemetry
     public class MetricsTests
     {
         /// <summary>
-        /// Creates and registers a counter metric without tracking to the Evaluator metrics, alters the values, then serializes and deserializes.
+        /// Creates and registers a counter metric without tracking to the Evaluator metrics, alters the values,
+        /// then serializes and deserializes.
         /// </summary>
         [Fact]
         public void TestEvaluatorMetricsCountersOnly()
@@ -42,12 +43,14 @@ namespace Org.Apache.REEF.Common.Tests.Telemetry
 
             foreach (var t in evalMetricsData.GetMetricTrackers())
             {
-                Assert.Equal(1, t.GetMetricRecords().ToList().Count);
+                // Records for counter1 should be null because KeepUpdateHistory is false.
+                Assert.Null(t.GetMetricRecords());
             }
 
             var metricsStr = evalMetrics1.Serialize();
             var evalMetrics2 = new EvaluatorMetrics(metricsStr);
-            ValidateMetric(evalMetrics2.GetMetricsData(), "counter1", 5);
+            Assert.False(evalMetrics2.GetMetricsData().TryGetMetric("counter1", out CounterMetric metricObj));
+            Assert.Null(metricObj);
         }
 
         /// <summary>
@@ -104,7 +107,7 @@ namespace Org.Apache.REEF.Common.Tests.Telemetry
 
             foreach (var t in metricsData2.GetMetricTrackers())
             {
-                Assert.Equal(1, t.GetMetricRecords().ToList().Count);
+                Assert.Equal(0, t.GetMetricRecords().ToList().Count);
             }
         }
 

@@ -34,12 +34,6 @@ namespace Org.Apache.REEF.Common.Telemetry
         {
         }
 
-        [JsonConstructor]
-        internal FloatMetric(string name, string description, float value, bool keepUpdateHistory)
-            : base(name, description, value, keepUpdateHistory)
-        {
-        }
-
         public override void AssignNewValue(float value)
         {
             Interlocked.Exchange(ref _typedValue, value);
