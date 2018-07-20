@@ -5,9 +5,9 @@
 // to you under the Apache License, Version 2.0 (the
 // "License"); you may not use this file except in compliance
 // with the License.  You may obtain a copy of the License at
-// 
+//
 //   http://www.apache.org/licenses/LICENSE-2.0
-// 
+//
 // Unless required by applicable law or agreed to in writing,
 // software distributed under the License is distributed on an
 // "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -22,9 +22,9 @@ using Org.Apache.REEF.Utilities.Attributes;
 namespace Org.Apache.REEF.Client.Avro.AzureBatch
 {
     /// <summary>
-    /// Used to serialize and deserialize Avro record 
+    /// Used to serialize and deserialize Avro record
     /// org.apache.reef.reef.bridge.client.avro.AvroAzureBatchJobSubmissionParameters.
-    /// This is a (mostly) auto-generated class. 
+    /// This is a (mostly) auto-generated class.
     /// For instructions on how to regenerate, please view the README.md in the same folder.
     /// </summary>
     [Private]

@@ -19,15 +19,14 @@ using Microsoft.Azure.Batch;
 using Org.Apache.REEF.Client.AzureBatch.Parameters;
 using Org.Apache.REEF.Tang.Annotations;
 
-
 namespace Org.Apache.REEF.Client.DotNet.AzureBatch
 {
-    public class ContainerRegistryProvider
+    public sealed class ContainerRegistryProvider
     {
-        public string ContainerRegistryServer { get; private set; }
-        public string ContainerRegistryUsername { get; private set; }
-        public string ContainerRegistryPassword { get; private set; }
-        public string ContainerImageName { get; private set; }
+        public string ContainerRegistryServer { get; }
+        public string ContainerRegistryUsername { get; }
+        public string ContainerRegistryPassword { get; }
+        public string ContainerImageName { get; }
 
         [Inject]
         public ContainerRegistryProvider(
@@ -62,4 +61,3 @@ namespace Org.Apache.REEF.Client.DotNet.AzureBatch
         }
     }
 }
-

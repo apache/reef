@@ -15,6 +15,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
+using System.Collections.Generic;
+using System.IO;
 using Org.Apache.REEF.Client.API;
 using Org.Apache.REEF.Client.Avro;
 using Org.Apache.REEF.Client.Avro.AzureBatch;
@@ -23,9 +25,6 @@ using Org.Apache.REEF.Client.Common;
 using Org.Apache.REEF.Common.Avro;
 using Org.Apache.REEF.Common.Files;
 using Org.Apache.REEF.Tang.Annotations;
-using System;
-using System.Collections.Generic;
-using System.IO;
 
 namespace Org.Apache.REEF.Client.AzureBatch.Util
 {
@@ -37,7 +36,7 @@ namespace Org.Apache.REEF.Client.AzureBatch.Util
         private readonly REEFFileNames _fileNames;
 
         [Inject]
-        JobJarMaker(
+        private JobJarMaker(
             IResourceArchiveFileGenerator resourceArchiveFileGenerator,
             DriverFolderPreparationHelper driverFolderPreparationHelper,
             REEFFileNames fileNames,

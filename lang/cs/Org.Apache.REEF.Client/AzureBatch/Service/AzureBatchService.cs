@@ -15,6 +15,10 @@
 // specific language governing permissions and limitations
 // under the License.
 
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.Azure.Batch;
 using Microsoft.Azure.Batch.Common;
 using Org.Apache.REEF.Client.AzureBatch.Parameters;
@@ -22,10 +26,6 @@ using Org.Apache.REEF.Client.AzureBatch.Util;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Utilities.Logging;
 using BatchSharedKeyCredential = Microsoft.Azure.Batch.Auth.BatchSharedKeyCredentials;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace Org.Apache.REEF.Client.DotNet.AzureBatch
 {
@@ -37,19 +37,13 @@ namespace Org.Apache.REEF.Client.DotNet.AzureBatch
         private const int MaxRetries = 3;
 
         public BatchSharedKeyCredential Credentials { get; private set; }
-        public string PoolId { get; private set; }
+        public string PoolId { get; }
 
-        private BatchClient Client { get; set; }
-        private ContainerRegistryProvider ContainerRegistryProvider { get; set; }
-        private IList<string> Ports { get; set; }
-        private ICommandBuilder CommandBuilder { get; set; }
-        private bool AreContainersEnabled
-        {
-            get
-            {
-                return this.ContainerRegistryProvider.IsValid();
-            }
-        }
+        private BatchClient Client { get; }
+        private ContainerRegistryProvider ContainerRegistryProvider { get; }
+        private IList<string> Ports { get; }
+        private ICommandBuilder CommandBuilder { get; }
+        private bool AreContainersEnabled => this.ContainerRegistryProvider.IsValid();
 
         private bool disposed;
 
@@ -63,7 +57,7 @@ namespace Org.Apache.REEF.Client.DotNet.AzureBatch
             [Parameter(typeof(AzureBatchPoolId))] string azureBatchPoolId,
             [Parameter(typeof(AzureBatchPoolDriverPortsList))] IList<string> ports)
         {
-            BatchSharedKeyCredential credentials = 
+            BatchSharedKeyCredential credentials =
                 new BatchSharedKeyCredential(azureBatchAccountUri, azureBatchAccountName, azureBatchAccountKey);
 
             this.Ports = ports;
@@ -139,7 +133,6 @@ namespace Org.Apache.REEF.Client.DotNet.AzureBatch
                 // https://docs.microsoft.com/en-us/dotnet/api/microsoft.azure.batch.cloudtask.authenticationtokensettings
                 AuthenticationTokenSettings = new AuthenticationTokenSettings() { Access = AccessScope.Job },
                 ContainerSettings = CreateTaskContainerSettings(jobId),
-                
             };
 
             if (this.AreContainersEnabled)
@@ -209,6 +202,6 @@ namespace Org.Apache.REEF.Client.DotNet.AzureBatch
             return this.Client.PoolOperations.GetComputeNode(this.PoolId, nodeId);
         }
 
-        #endregion
+        #endregion Job related operations
     }
 }

@@ -18,8 +18,9 @@
 using System;
 using System.Threading.Tasks;
 using Org.Apache.REEF.Client.API;
-using Org.Apache.REEF.Client.AzureBatch.Storage;
+using Org.Apache.REEF.Client.API.Parameters;
 using Org.Apache.REEF.Client.AzureBatch;
+using Org.Apache.REEF.Client.AzureBatch.Storage;
 using Org.Apache.REEF.Client.AzureBatch.Util;
 using Org.Apache.REEF.Client.Common;
 using Org.Apache.REEF.Client.YARN.RestClient.DataModel;
@@ -27,7 +28,6 @@ using Org.Apache.REEF.Common.Files;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Utilities.Logging;
-using Org.Apache.REEF.Client.API.Parameters;
 
 namespace Org.Apache.REEF.Client.DotNet.AzureBatch
 {
@@ -61,7 +61,7 @@ namespace Org.Apache.REEF.Client.DotNet.AzureBatch
             AzureBatchService batchService,
             JobJarMaker jobJarMaker,
             //// Those parameters are used in AzureBatchJobSubmissionResult, but could not be injected there.
-            //// It introduces circular injection issues, as all classes constructor inherited from JobSubmissionResult has reference to IREEFClient. 
+            //// It introduces circular injection issues, as all classes constructor inherited from JobSubmissionResult has reference to IREEFClient.
             //// TODO: [REEF-2020] Refactor IJobSubmissionResult Interface and JobSubmissionResult implementation
             [Parameter(typeof(DriverHTTPConnectionRetryInterval))]int retryInterval,
             [Parameter(typeof(DriverHTTPConnectionAttempts))] int numberOfRetries)

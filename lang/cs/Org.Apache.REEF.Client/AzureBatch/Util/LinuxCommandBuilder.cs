@@ -25,6 +25,7 @@ namespace Org.Apache.REEF.Client.AzureBatch.Util
     {
         private static readonly string CommandPrefix =
             "unzip " + AzureBatchFileNames.GetTaskJarFileName() + " -d 'reef/'" + ";";
+
         private const string ClassPathSeparator = ":";
         private const string OsCommandFormat = "/bin/sh c \"{0}\"";
 

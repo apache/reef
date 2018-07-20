@@ -16,7 +16,6 @@
 // under the License.
 
 using System;
-using System.Collections.Generic;
 using System.Globalization;
 using Org.Apache.REEF.Client.API;
 using Org.Apache.REEF.Client.AzureBatch;
@@ -98,10 +97,13 @@ namespace Org.Apache.REEF.Examples.HelloREEF
                     return LocalRuntimeClientConfiguration.ConfigurationModule
                         .Set(LocalRuntimeClientConfiguration.NumberOfEvaluators, "2")
                         .Build();
+
                 case YARN:
                     return YARNClientConfiguration.ConfigurationModule.Build();
+
                 case YARNRest:
                     return YARNClientConfiguration.ConfigurationModuleYARNRest.Build();
+
                 case HDInsight:
                     // To run against HDInsight please replace placeholders below, with actual values for
                     // blob storage account name and key, container name (available at Azure portal) and HDInsight
@@ -117,6 +119,7 @@ namespace Org.Apache.REEF.Examples.HelloREEF
                         .Set(AzureBlobFileSystemConfiguration.AccountName, blobStorageAccountName)
                         .Set(AzureBlobFileSystemConfiguration.AccountKey, blobStorageAccountKey)
                         .Build();
+
                 case AzureBatch:
                     return AzureBatchRuntimeClientConfiguration.ConfigurationModule
                         .Set(AzureBatchRuntimeClientConfiguration.AzureBatchAccountKey, @"##########################################")
