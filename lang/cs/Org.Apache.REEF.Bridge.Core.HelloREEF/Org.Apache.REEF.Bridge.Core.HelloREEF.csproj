@@ -20,7 +20,6 @@ under the License.
   <PropertyGroup>
     <AssemblyName>Org.Apache.REEF.Bridge.Core.HelloREEF</AssemblyName>
     <Description>Hello World Example for REEF.NET Bridge Core</Description>
-    <PackageTags>REEF Examples</PackageTags>
   </PropertyGroup>
   <Import Project="..\build.App.props" />
 
@@ -41,9 +40,6 @@ under the License.
     <ProjectReference Include="..\Org.Apache.REEF.Utilities\Org.Apache.REEF.Utilities.csproj" />
     <ProjectReference Include="..\Org.Apache.REEF.Wake\Org.Apache.REEF.Wake.csproj" />
     <ProjectReference Include="..\Org.Apache.REEF.IO\Org.Apache.REEF.IO.csproj" />
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Properties\" />
   </ItemGroup>
   <Import Project="..\build.targets" />
 </Project>
