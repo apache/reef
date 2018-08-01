@@ -36,28 +36,28 @@ namespace Org.Apache.REEF.Client.DotNet.AzureBatch
             [Parameter(typeof(ContainerImageName))] string containerImageName
       )
         {
-            this.ContainerRegistryServer = containerRegistryServer;
-            this.ContainerRegistryUsername = containerRegistryUsername;
-            this.ContainerRegistryPassword = containerRegistryPassword;
-            this.ContainerImageName = containerImageName;
+            ContainerRegistryServer = containerRegistryServer;
+            ContainerRegistryUsername = containerRegistryUsername;
+            ContainerRegistryPassword = containerRegistryPassword;
+            ContainerImageName = containerImageName;
         }
 
         public bool IsValid()
         {
-            return !string.IsNullOrEmpty(this.ContainerRegistryServer);
+            return !string.IsNullOrEmpty(ContainerRegistryServer);
         }
 
         public ContainerRegistry GetContainerRegistry()
         {
-            if (!this.IsValid())
+            if (!IsValid())
             {
                 return null;
             }
 
             return new ContainerRegistry(
-                userName: this.ContainerRegistryUsername,
-                registryServer: this.ContainerRegistryServer,
-                password: this.ContainerRegistryPassword);
+                userName: ContainerRegistryUsername,
+                registryServer: ContainerRegistryServer,
+                password: ContainerRegistryPassword);
         }
     }
 }

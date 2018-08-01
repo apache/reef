@@ -43,7 +43,7 @@ namespace Org.Apache.REEF.Client.DotNet.AzureBatch
         private ContainerRegistryProvider ContainerRegistryProvider { get; }
         private IList<string> Ports { get; }
         private ICommandBuilder CommandBuilder { get; }
-        private bool AreContainersEnabled => this.ContainerRegistryProvider.IsValid();
+        private bool AreContainersEnabled => ContainerRegistryProvider.IsValid();
 
         private bool disposed;
 
@@ -60,13 +60,13 @@ namespace Org.Apache.REEF.Client.DotNet.AzureBatch
             BatchSharedKeyCredential credentials =
                 new BatchSharedKeyCredential(azureBatchAccountUri, azureBatchAccountName, azureBatchAccountKey);
 
-            this.Ports = ports;
-            this.Client = BatchClient.Open(credentials);
-            this.Credentials = credentials;
-            this.PoolId = azureBatchPoolId;
-            this.ContainerRegistryProvider = containerRegistryProvider;
-            this.Client.CustomBehaviors.Add(new RetryPolicyProvider(new ExponentialRetry(RetryDeltaBackOff, MaxRetries)));
-            this.CommandBuilder = commandBuilder;
+            Ports = ports;
+            Client = BatchClient.Open(credentials);
+            Credentials = credentials;
+            PoolId = azureBatchPoolId;
+            ContainerRegistryProvider = containerRegistryProvider;
+            Client.CustomBehaviors.Add(new RetryPolicyProvider(new ExponentialRetry(RetryDeltaBackOff, MaxRetries)));
+            CommandBuilder = commandBuilder;
         }
 
         /// <summary>
@@ -74,13 +74,13 @@ namespace Org.Apache.REEF.Client.DotNet.AzureBatch
         /// </summary>
         public void Dispose()
         {
-            this.Dispose(true);
+            Dispose(true);
             GC.SuppressFinalize(this);
         }
 
         ~AzureBatchService()
         {
-            this.Dispose(false);
+            Dispose(false);
         }
 
         /// <summary>
@@ -88,26 +88,26 @@ namespace Org.Apache.REEF.Client.DotNet.AzureBatch
         /// </summary>
         private void Dispose(bool disposing)
         {
-            if (this.disposed)
+            if (disposed)
             {
                 return;
             }
 
             if (disposing)
             {
-                this.Client.Dispose();
+                Client.Dispose();
             }
 
-            this.disposed = true;
+            disposed = true;
         }
 
         #region Job related operations
 
         public void CreateJob(string jobId, Uri resourceFile, string commandLine, string storageContainerSAS)
         {
-            CloudJob unboundJob = this.Client.JobOperations.CreateJob();
+            CloudJob unboundJob = Client.JobOperations.CreateJob();
             unboundJob.Id = jobId;
-            unboundJob.PoolInformation = new PoolInformation() { PoolId = this.PoolId };
+            unboundJob.PoolInformation = new PoolInformation() { PoolId = PoolId };
             unboundJob.JobPreparationTask = CreateJobPreparationTask();
             unboundJob.JobManagerTask = new JobManagerTask()
             {
@@ -135,7 +135,7 @@ namespace Org.Apache.REEF.Client.DotNet.AzureBatch
                 ContainerSettings = CreateTaskContainerSettings(jobId),
             };
 
-            if (this.AreContainersEnabled)
+            if (AreContainersEnabled)
             {
                 unboundJob.JobManagerTask.UserIdentity =
                     new UserIdentity(autoUserSpecification: new AutoUserSpecification(elevationLevel: ElevationLevel.Admin));
@@ -148,7 +148,7 @@ namespace Org.Apache.REEF.Client.DotNet.AzureBatch
 
         private JobPreparationTask CreateJobPreparationTask()
         {
-            if (!this.AreContainersEnabled)
+            if (!AreContainersEnabled)
             {
                 return null;
             }
@@ -156,30 +156,30 @@ namespace Org.Apache.REEF.Client.DotNet.AzureBatch
             return new JobPreparationTask()
             {
                 Id = "CaptureHostIpAddress",
-                CommandLine = this.CommandBuilder.CaptureIpAddressCommandLine()
+                CommandLine = CommandBuilder.CaptureIpAddressCommandLine()
             };
         }
 
         private TaskContainerSettings CreateTaskContainerSettings(string dockerContainerId)
         {
-            if (!this.AreContainersEnabled)
+            if (!AreContainersEnabled)
             {
                 return null;
             }
 
-            string portMappings = this.Ports
+            string portMappings = Ports
                 .Aggregate(seed: string.Empty, func: (aggregator, port) => $"{aggregator} -p {port}:{port}");
 
             return new TaskContainerSettings(
-                imageName: this.ContainerRegistryProvider.ContainerImageName,
+                imageName: ContainerRegistryProvider.ContainerImageName,
                 containerRunOptions:
-                    $"-d --rm --name {dockerContainerId} --env HOST_IP_ADDR_PATH={this.CommandBuilder.GetIpAddressFilePath()} {portMappings}",
-                registry: this.ContainerRegistryProvider.GetContainerRegistry());
+                    $"-d --rm --name {dockerContainerId} --env HOST_IP_ADDR_PATH={CommandBuilder.GetIpAddressFilePath()} {portMappings}",
+                registry: ContainerRegistryProvider.GetContainerRegistry());
         }
 
         public CloudJob GetJob(string jobId, DetailLevel detailLevel)
         {
-            using (Task<CloudJob> getJobTask = this.GetJobAsync(jobId, detailLevel))
+            using (Task<CloudJob> getJobTask = GetJobAsync(jobId, detailLevel))
             {
                 getJobTask.Wait();
                 return getJobTask.Result;
@@ -188,18 +188,18 @@ namespace Org.Apache.REEF.Client.DotNet.AzureBatch
 
         public Task<CloudJob> GetJobAsync(string jobId, DetailLevel detailLevel)
         {
-            return this.Client.JobOperations.GetJobAsync(jobId, detailLevel);
+            return Client.JobOperations.GetJobAsync(jobId, detailLevel);
         }
 
         public CloudTask GetJobManagerTaskFromJobId(string jobId)
         {
-            string driverTaskId = this.Client.JobOperations.GetJob(jobId).JobManagerTask.Id;
-            return this.Client.JobOperations.GetTask(jobId, driverTaskId);
+            string driverTaskId = Client.JobOperations.GetJob(jobId).JobManagerTask.Id;
+            return Client.JobOperations.GetTask(jobId, driverTaskId);
         }
 
         public ComputeNode GetComputeNodeFromNodeId(string nodeId)
         {
-            return this.Client.PoolOperations.GetComputeNode(this.PoolId, nodeId);
+            return Client.PoolOperations.GetComputeNode(PoolId, nodeId);
         }
 
         #endregion Job related operations
