@@ -20,7 +20,6 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Threading;
 using Newtonsoft.Json;
-using Org.Apache.REEF.Utilities.Logging;
 
 namespace Org.Apache.REEF.Common.Telemetry
 {
@@ -32,10 +31,8 @@ namespace Org.Apache.REEF.Common.Telemetry
     [JsonObject]
     public sealed class MetricTracker : ITracker
     {
-        private static readonly Logger Logger = Logger.GetLogger(typeof(MetricTracker));
-
         [JsonProperty]
-        public string MetricName;
+        public readonly string MetricName;
 
         [JsonProperty]
         internal readonly bool KeepUpdateHistory;
@@ -46,7 +43,7 @@ namespace Org.Apache.REEF.Common.Telemetry
         [JsonProperty]
         private ConcurrentQueue<MetricRecord> Records;
 
-        private IMetric Metric;
+        private IMetric _metric;
 
         private IDisposable _unsubscriber;
 
@@ -92,7 +89,7 @@ namespace Org.Apache.REEF.Common.Telemetry
             else
             {
                 // Records will be empty only on eval side when tracker doesn't keep history.
-                records.Enqueue(CreateMetricRecord(Metric));
+                records.Enqueue(CreateMetricRecord(_metric));
             }
             return records;
         }
@@ -130,7 +127,7 @@ namespace Org.Apache.REEF.Common.Telemetry
         /// <return></returns>
         internal IMetric GetMetric()
         {
-            return Metric;
+            return _metric;
         }
 
         internal int GetRecordCount()
@@ -154,7 +151,7 @@ namespace Org.Apache.REEF.Common.Telemetry
         /// <param name="provider">The metric to track.</param>
         public void Subscribe(IMetric provider)
         {
-            Metric = provider;
+            _metric = provider;
             _unsubscriber = provider.Subscribe(this);
         }
 
@@ -175,12 +172,12 @@ namespace Org.Apache.REEF.Common.Telemetry
             Records?.Enqueue(CreateMetricRecord(value));
         }
 
-        private MetricRecord CreateMetricRecord(IMetric metric)
+        private static MetricRecord CreateMetricRecord(IMetric metric)
         {
             return new MetricRecord(metric);
         }
 
-        private MetricRecord CreateMetricRecord(object val)
+        private static MetricRecord CreateMetricRecord(object val)
         {
             return new MetricRecord(val);
         }

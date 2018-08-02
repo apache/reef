@@ -18,7 +18,7 @@
 namespace Org.Apache.REEF.Common.Telemetry
 {
     public interface ICounter
-    { 
+    {
         /// <summary>
         /// Increase the current counter value with the number specified.
         /// </summary>

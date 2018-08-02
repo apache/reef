@@ -21,7 +21,7 @@ using Newtonsoft.Json;
 namespace Org.Apache.REEF.Common.Telemetry
 {
     /// <summary>
-    /// Provides a base implementation. Value of metric should be provided in derived classes. 
+    /// Provides a base implementation. Value of metric should be provided in derived classes.
     /// </summary>
     public abstract class MetricBase : IMetric
     {
@@ -110,7 +110,7 @@ namespace Org.Apache.REEF.Common.Telemetry
         }
 
         /// <summary>
-        /// Assign and track the new value to metric. 
+        /// Assign and track the new value to metric.
         /// In most cases, this method should be overridden in derived classes using Interlocked.
         /// </summary>
         /// <param name="value">Value to assign the metric.</param>

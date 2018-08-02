@@ -56,7 +56,7 @@ namespace Org.Apache.REEF.Tests.Functional.Telemetry
 
         /// <summary>
         /// This driver inject DriverMetricsObservers and IDriverMetrics.
-        /// It keeps updating the driver metrics when receiving events. 
+        /// It keeps updating the driver metrics when receiving events.
         /// </summary>
         /// <param name="evaluatorRequestor"></param>
         /// <param name="driverMetricsObservers"></param>

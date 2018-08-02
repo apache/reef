@@ -38,7 +38,7 @@ namespace Org.Apache.REEF.Common.Telemetry
         /// <param name="name">Name of the metric</param>
         /// <param name="metric">The metric object returned</param>
         /// <returns>Returns a boolean to indicate if the value is found.</returns>
-        bool TryGetMetric<T>(string name, out T metric) 
+        bool TryGetMetric<T>(string name, out T metric)
             where T : IMetric;
 
         /// <summary>

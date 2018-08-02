@@ -40,7 +40,7 @@ namespace Org.Apache.REEF.Common.Telemetry
         object ValueUntyped { get; }
 
         /// <summary>
-        /// Flag for the immutability of the metric. 
+        /// Flag for the immutability of the metric.
         /// </summary>
         bool KeepUpdateHistory { get; }
 

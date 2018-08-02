@@ -25,7 +25,7 @@ using Newtonsoft.Json;
 namespace Org.Apache.REEF.Common.Telemetry
 {
     /// <summary>
-    /// This class maintains a collection of the data for all the metrics for metrics service. 
+    /// This class maintains a collection of the data for all the metrics for metrics service.
     /// When new metric data is received, the data in the collection will be updated.
     /// After the data is processed, the changes since last process will be reset.
     /// </summary>
@@ -86,7 +86,7 @@ namespace Org.Apache.REEF.Common.Telemetry
         }
 
         /// <summary>
-        /// Flushes changes since last sink for each metric. 
+        /// Flushes changes since last sink for each metric.
         /// Called when Driver is sinking metrics.
         /// </summary>
         /// <returns>Key value pairs of metric name and record that was flushed.</returns>
