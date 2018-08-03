@@ -185,36 +185,22 @@ namespace Org.Apache.REEF.Common.Telemetry
         [JsonObject]
         public class MetricRecord
         {
-            private readonly object _value;
+            [JsonProperty]
+            public readonly object Value;
 
             [JsonProperty]
-            public object Value
-            {
-                get
-                {
-                    return _value;
-                }
-            }
-
-            [JsonProperty]
-            public long Timestamp { get; }
+            public readonly long Timestamp;
 
             [JsonConstructor]
-            public MetricRecord(object value, long timestamp)
+            public MetricRecord(object value, long? timestamp = null)
             {
-                _value = value;
-                Timestamp = timestamp;
+                Value = value;
+                Timestamp = timestamp.GetValueOrDefault(DateTime.Now.Ticks);
             }
 
             public MetricRecord(IMetric metric)
             {
-                Timestamp = DateTime.Now.Ticks;
-                Interlocked.Exchange(ref _value, metric.ValueUntyped);
-            }
-
-            public MetricRecord(object val)
-            {
-                _value = val;
+                Value = metric.ValueUntyped;
                 Timestamp = DateTime.Now.Ticks;
             }
         }
