@@ -87,7 +87,7 @@ public final class AzureBatchHelper {
    */
   public void submitJob(final String applicationId, final String storageContainerSAS, final URI jobJarUri,
                         final String command) throws IOException {
-    ResourceFile jarResourceFile = new ResourceFile()
+    final ResourceFile jarResourceFile = new ResourceFile()
         .withBlobSource(jobJarUri.toString())
         .withFilePath(AzureBatchFileNames.getTaskJarFileName());
 
@@ -95,14 +95,14 @@ public final class AzureBatchHelper {
     // as an environment variable.
     // See https://docs.microsoft.com/en-us/dotnet/api/microsoft.azure.batch.cloudtask.authenticationtokensettings
     // for more info.
-    AuthenticationTokenSettings authenticationTokenSettings = new AuthenticationTokenSettings();
+    final AuthenticationTokenSettings authenticationTokenSettings = new AuthenticationTokenSettings();
     authenticationTokenSettings.withAccess(Collections.singletonList(AccessScope.JOB));
 
-    EnvironmentSetting environmentSetting = new EnvironmentSetting()
+    final EnvironmentSetting environmentSetting = new EnvironmentSetting()
         .withName(SharedAccessSignatureCloudBlobClientProvider.AZURE_STORAGE_CONTAINER_SAS_TOKEN_ENV)
         .withValue(storageContainerSAS);
 
-    JobManagerTask jobManagerTask = new JobManagerTask()
+    final JobManagerTask jobManagerTask = new JobManagerTask()
         .withRunExclusive(false)
         .withId(applicationId)
         .withResourceFiles(Collections.singletonList(jarResourceFile))
@@ -112,9 +112,9 @@ public final class AzureBatchHelper {
         .withContainerSettings(createTaskContainerSettings(applicationId))
         .withCommandLine(command);
 
-    LOG.log(Level.INFO, "Job Manager (aka driver) task command: " + command);
+    LOG.log(Level.INFO, "Job Manager (aka driver) task command: {0}", command);
 
-    JobAddParameter jobAddParameter = new JobAddParameter()
+    final JobAddParameter jobAddParameter = new JobAddParameter()
         .withId(applicationId)
         .withJobManagerTask(jobManagerTask)
         .withJobPreparationTask(createJobPreparationTask())
@@ -149,7 +149,7 @@ public final class AzureBatchHelper {
         .withFilePath(this.azureBatchFileNames.getEvaluatorShimConfigurationPath());
     resources.add(confSourceFile);
 
-    LOG.log(Level.INFO, "Evaluator task command: " + command);
+    LOG.log(Level.INFO, "Evaluator task command: {0}", command);
 
     TaskAddParameter taskAddParameter = new TaskAddParameter()
         .withId(taskId)
@@ -196,23 +196,20 @@ public final class AzureBatchHelper {
       return null;
     }
 
-    StringBuilder portMappings = new StringBuilder();
-    Iterator<Integer> iterator = this.ports.iterator();
-    while (iterator.hasNext()) {
-      Integer port = iterator.next();
-      portMappings.append(String.format("-p %d:%d ", port, port));
+    final StringBuilder runOptions = new StringBuilder(String.format(
+        "-d --rm --name %s --env %s=%s ",
+        dockerContainerId,
+        ContainerBasedLocalAddressProvider.HOST_IP_ADDR_PATH_ENV,
+        this.commandBuilder.getIpAddressFilePath()));
+
+    for (final int port : this.ports) {
+      runOptions.append(String.format("-p %d:%d ", port, port));
     }
 
     return new TaskContainerSettings()
         .withRegistry(this.containerRegistryProvider.getContainerRegistry())
         .withImageName(this.containerRegistryProvider.getContainerImageName())
-        .withContainerRunOptions(
-            String.format(
-                "-d --rm --name %s --env %s=%s %s",
-                dockerContainerId,
-                ContainerBasedLocalAddressProvider.HOST_IP_ADDR_PATH_ENV,
-                this.commandBuilder.getIpAddressFilePath(),
-                portMappings));
+        .withContainerRunOptions(runOptions.toString());
   }
 
   private JobPreparationTask createJobPreparationTask() {
@@ -224,5 +221,13 @@ public final class AzureBatchHelper {
     return new JobPreparationTask()
         .withId(CAPTURE_HOST_IP_ADDRESS_TASK_NAME)
         .withCommandLine(captureIpAddressCommandLine);
+  }
+
+  public static Set<String> toStringSet(final Collection<?> items) {
+    final Set<String> set = new HashSet<>(items.size());
+    for (final Object elem: items) {
+      set.add(elem.toString());
+    }
+    return Collections.unmodifiableSet(set);
   }
 }

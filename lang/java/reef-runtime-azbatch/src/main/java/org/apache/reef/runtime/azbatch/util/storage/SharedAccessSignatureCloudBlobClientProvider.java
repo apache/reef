@@ -100,7 +100,7 @@ public final class SharedAccessSignatureCloudBlobClientProvider implements IClou
       }
 
       URI result = builder.addToURI(uri);
-      LOG.log(Level.INFO, "Here's the URI: " + result);
+      LOG.log(Level.INFO, "Here's the URI: {0}", result);
 
       return result;
     } catch (StorageException | URISyntaxException e) {

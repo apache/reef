@@ -93,7 +93,7 @@ public final class AzureBatchJobSubmissionHandler implements JobSubmissionHandle
    */
   @Override
   public void close() throws Exception {
-    LOG.log(Level.INFO, "Closing " + AzureBatchJobSubmissionHandler.class.getName());
+    LOG.log(Level.INFO, "Closing {0}", AzureBatchJobSubmissionHandler.class.getName());
   }
 
   /**

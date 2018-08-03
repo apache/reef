@@ -24,14 +24,12 @@ import org.apache.reef.util.logging.LoggingScopeFactory;
 import org.apache.reef.wake.remote.RemoteConfiguration;
 import org.apache.reef.wake.remote.address.LocalAddressProvider;
 import org.apache.reef.wake.remote.ports.TcpPortProvider;
-import org.apache.reef.wake.remote.ports.parameters.TcpPortRangeBegin;
 import org.mortbay.jetty.Connector;
 import org.mortbay.jetty.Server;
 import org.mortbay.jetty.bio.SocketConnector;
 
 import javax.inject.Inject;
 import java.net.BindException;
-import java.util.Iterator;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -78,28 +76,28 @@ public final class HttpServerImpl implements HttpServer {
    * Constructor of HttpServer that wraps Jetty Server.
    *
    * @param jettyHandler
-   * @param portNumber
    * @throws Exception
    */
   @Inject
   HttpServerImpl(@Parameter(RemoteConfiguration.HostAddress.class) final String hostAddress,
-                 @Parameter(TcpPortRangeBegin.class)final int portNumber,
                  final JettyHandler jettyHandler,
                  final LocalAddressProvider addressProvider,
                  final TcpPortProvider tcpPortProvider,
                  final LoggingScopeFactory loggingScopeFactory) throws Exception {
     this.loggingScopeFactory = loggingScopeFactory;
     this.jettyHandler = jettyHandler;
-    int availablePort = portNumber;
-    Server srv = null;
 
     this.hostAddress = UNKNOWN_HOST_NAME.equals(hostAddress) ? addressProvider.getLocalAddress() : hostAddress;
     try (final LoggingScope ls = this.loggingScopeFactory.httpServer()) {
 
-      final Iterator<Integer> ports = tcpPortProvider.iterator();
-      while (ports.hasNext() && srv  == null) {
-        availablePort = ports.next();
-        srv = tryPort(availablePort);
+      Server srv = null;
+      int availablePort = -1;
+      for (final int p : tcpPortProvider) {
+        srv = tryPort(p);
+        if (srv != null) {
+          availablePort = p;
+          break;
+        }
       }
 
       if (srv  != null) {
@@ -124,8 +122,8 @@ public final class HttpServerImpl implements HttpServer {
       LOG.log(Level.INFO, "Jetty Server started with port: {0}", portNumber);
     } catch (final BindException ex) {
       srv = null;
-      LOG.log(Level.FINEST,
-          String.format("Cannot use host:%s,port: %s. Will try another", this.hostAddress, portNumber));
+      LOG.log(Level.FINEST, "Cannot use host: {0},port: {1}. Will try another",
+          new Object[] {this.hostAddress, portNumber});
     }
     return srv;
   }

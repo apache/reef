@@ -22,6 +22,7 @@ import org.apache.reef.annotations.audience.Private;
 import org.apache.reef.runtime.azbatch.driver.AzureBatchDriverConfiguration;
 import org.apache.reef.runtime.azbatch.driver.RuntimeIdentifier;
 import org.apache.reef.runtime.azbatch.parameters.*;
+import org.apache.reef.runtime.azbatch.util.batch.AzureBatchHelper;
 import org.apache.reef.runtime.azbatch.util.batch.ContainerRegistryProvider;
 import org.apache.reef.runtime.azbatch.util.command.CommandBuilder;
 import org.apache.reef.runtime.common.client.DriverConfigurationProvider;
@@ -38,7 +39,6 @@ import org.apache.reef.wake.remote.ports.parameters.TcpPortSet;
 
 import javax.inject.Inject;
 import java.net.URI;
-import java.util.HashSet;
 import java.util.Set;
 
 /**
@@ -78,11 +78,7 @@ public final class AzureBatchDriverConfigurationProviderImpl implements DriverCo
     this.commandBuilder = commandBuilder;
 
     // Binding a parameter to a set is only allowed for strings, so we cast to strings.
-    this.tcpPortSet = new HashSet(tcpPortSet.size());
-    for (int port: tcpPortSet) {
-      this.tcpPortSet.add(Integer.toString(port));
-    }
-
+    this.tcpPortSet = AzureBatchHelper.toStringSet(tcpPortSet);
   }
 
   /**

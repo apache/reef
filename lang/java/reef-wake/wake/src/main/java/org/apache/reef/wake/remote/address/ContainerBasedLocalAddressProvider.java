@@ -39,8 +39,8 @@ import java.util.regex.Pattern;
  */
 public final class ContainerBasedLocalAddressProvider implements LocalAddressProvider {
 
-  public static final String IPADDRESS_PATTERN =
-      "(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)";
+  private static final Pattern IPADDRESS_PATTERN = Pattern.compile(
+      "(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)");
 
   public static final String HOST_IP_ADDR_PATH_ENV = "HOST_IP_ADDR_PATH";
   private static final Logger LOG = Logger.getLogger(ContainerBasedLocalAddressProvider.class.getName());
@@ -61,7 +61,7 @@ public final class ContainerBasedLocalAddressProvider implements LocalAddressPro
       return cachedLocalAddress;
     }
 
-    String ipAddressPath = System.getenv(HOST_IP_ADDR_PATH_ENV);
+    final String ipAddressPath = System.getenv(HOST_IP_ADDR_PATH_ENV);
     LOG.log(Level.FINE, "IpAddressPath is {0}", ipAddressPath);
     if (StringUtils.isEmpty(ipAddressPath)) {
       final String message = String.format("Environment variable must be set for %s", HOST_IP_ADDR_PATH_ENV);
@@ -69,7 +69,7 @@ public final class ContainerBasedLocalAddressProvider implements LocalAddressPro
       throw new RuntimeException(message);
     }
 
-    File ipAddressFile = new File(ipAddressPath);
+    final File ipAddressFile = new File(ipAddressPath);
     if (!ipAddressFile.exists() || !ipAddressFile.isFile()) {
       final String message = String.format("%s points to invalid path: %s", HOST_IP_ADDR_PATH_ENV, ipAddressPath);
       LOG.log(Level.SEVERE, message);
@@ -80,7 +80,7 @@ public final class ContainerBasedLocalAddressProvider implements LocalAddressPro
       cachedLocalAddress = readFile(ipAddressPath, StandardCharsets.UTF_8);
       return cachedLocalAddress;
     } catch (IOException e) {
-      String message = String.format("Exception when attempting to read file %s", ipAddressPath);
+      final String message = String.format("Exception when attempting to read file %s", ipAddressPath);
       LOG.log(Level.SEVERE, message, e);
       throw new RuntimeException(message, e);
     }
@@ -100,10 +100,9 @@ public final class ContainerBasedLocalAddressProvider implements LocalAddressPro
 
   private String readFile(final String path, final Charset encoding)
       throws IOException {
-    byte[] encoded = Files.readAllBytes(Paths.get(path));
+    final byte[] encoded = Files.readAllBytes(Paths.get(path));
     final String ipString = new String(encoded, encoding);
-    Pattern pattern = Pattern.compile(IPADDRESS_PATTERN);
-    Matcher matcher = pattern.matcher(StringUtils.trim(ipString));
+    final Matcher matcher = IPADDRESS_PATTERN.matcher(StringUtils.trim(ipString));
 
     if (!matcher.matches()) {
       throw new RuntimeException(String.format("File at location %s has invalid ip address", path));
