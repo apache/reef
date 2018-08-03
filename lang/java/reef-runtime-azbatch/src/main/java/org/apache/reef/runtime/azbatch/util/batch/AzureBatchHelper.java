@@ -95,8 +95,8 @@ public final class AzureBatchHelper {
     // as an environment variable.
     // See https://docs.microsoft.com/en-us/dotnet/api/microsoft.azure.batch.cloudtask.authenticationtokensettings
     // for more info.
-    final AuthenticationTokenSettings authenticationTokenSettings = new AuthenticationTokenSettings();
-    authenticationTokenSettings.withAccess(Collections.singletonList(AccessScope.JOB));
+    final AuthenticationTokenSettings authenticationTokenSettings = new AuthenticationTokenSettings()
+        .withAccess(Collections.singletonList(AccessScope.JOB));
 
     final EnvironmentSetting environmentSetting = new EnvironmentSetting()
         .withName(SharedAccessSignatureCloudBlobClientProvider.AZURE_STORAGE_CONTAINER_SAS_TOKEN_ENV)
