@@ -23,6 +23,7 @@ import org.apache.reef.tang.Configuration;
 import org.apache.reef.tang.formats.AvroConfigurationSerializer;
 
 import org.apache.reef.tang.formats.ConfigurationModuleBuilder;
+import org.apache.reef.tang.formats.OptionalParameter;
 import org.apache.reef.tang.formats.RequiredParameter;
 
 import java.io.File;
@@ -73,6 +74,31 @@ public final class AzureBatchRuntimeConfiguration extends ConfigurationModuleBui
    * The Azure Storage container name.
    */
   public static final RequiredParameter<String> AZURE_STORAGE_CONTAINER_NAME = new RequiredParameter<>();
+
+  /**
+   * Container Registry server.
+   */
+  public static final OptionalParameter<String> CONTAINER_REGISTRY_SERVER = new OptionalParameter<>();
+
+  /**
+   * Container Registry username.
+   */
+  public static final OptionalParameter<String> CONTAINER_REGISTRY_USERNAME = new OptionalParameter<>();
+
+  /**
+   * Container Registry password.
+   */
+  public static final OptionalParameter<String> CONTAINER_REGISTRY_PASSWORD = new OptionalParameter<>();
+
+  /**
+   * Container Image name.
+   */
+  public static final OptionalParameter<String> CONTAINER_IMAGE_NAME = new OptionalParameter<>();
+
+  /**
+   * Set of tcp ports.
+   */
+  public static final OptionalParameter<Integer> TCP_PORT_SET = new OptionalParameter<>();
 
   /**
    * Create a {@link Configuration} object from an Avro configuration file.

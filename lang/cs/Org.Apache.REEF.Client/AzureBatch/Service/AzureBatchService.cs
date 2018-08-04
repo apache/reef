@@ -17,6 +17,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Azure.Batch;
 using Microsoft.Azure.Batch.Common;
@@ -28,7 +29,7 @@ using BatchSharedKeyCredential = Microsoft.Azure.Batch.Auth.BatchSharedKeyCreden
 
 namespace Org.Apache.REEF.Client.DotNet.AzureBatch
 {
-    public sealed class AzureBatchService : IDisposable
+    internal sealed class AzureBatchService : IDisposable
     {
         private static readonly Logger LOGGER = Logger.GetLogger(typeof(AzureBatchService));
         private static readonly TimeSpan RetryDeltaBackOff = TimeSpan.FromSeconds(5);
@@ -36,24 +37,36 @@ namespace Org.Apache.REEF.Client.DotNet.AzureBatch
         private const int MaxRetries = 3;
 
         public BatchSharedKeyCredential Credentials { get; private set; }
-        public string PoolId { get; private set; }
+        public string PoolId { get; }
 
-        private BatchClient Client { get; set; }
+        private BatchClient Client { get; }
+        private ContainerRegistryProvider ContainerRegistryProvider { get; }
+        private IList<string> Ports { get; }
+        private ICommandBuilder CommandBuilder { get; }
+        private bool AreContainersEnabled => ContainerRegistryProvider.IsValid();
+
         private bool disposed;
 
         [Inject]
         public AzureBatchService(
+            ContainerRegistryProvider containerRegistryProvider,
+            ICommandBuilder commandBuilder,
             [Parameter(typeof(AzureBatchAccountUri))] string azureBatchAccountUri,
             [Parameter(typeof(AzureBatchAccountName))] string azureBatchAccountName,
             [Parameter(typeof(AzureBatchAccountKey))] string azureBatchAccountKey,
-            [Parameter(typeof(AzureBatchPoolId))] string azureBatchPoolId)
+            [Parameter(typeof(AzureBatchPoolId))] string azureBatchPoolId,
+            [Parameter(typeof(AzureBatchPoolDriverPortsList))] IList<string> ports)
         {
-            BatchSharedKeyCredential credentials = new BatchSharedKeyCredential(azureBatchAccountUri, azureBatchAccountName, azureBatchAccountKey);
+            BatchSharedKeyCredential credentials =
+                new BatchSharedKeyCredential(azureBatchAccountUri, azureBatchAccountName, azureBatchAccountKey);
 
-            this.Client = BatchClient.Open(credentials);
-            this.Credentials = credentials;
-            this.PoolId = azureBatchPoolId;
-            this.Client.CustomBehaviors.Add(new RetryPolicyProvider(new ExponentialRetry(RetryDeltaBackOff, MaxRetries)));
+            Ports = ports;
+            Client = BatchClient.Open(credentials);
+            Credentials = credentials;
+            PoolId = azureBatchPoolId;
+            ContainerRegistryProvider = containerRegistryProvider;
+            Client.CustomBehaviors.Add(new RetryPolicyProvider(new ExponentialRetry(RetryDeltaBackOff, MaxRetries)));
+            CommandBuilder = commandBuilder;
         }
 
         /// <summary>
@@ -61,13 +74,13 @@ namespace Org.Apache.REEF.Client.DotNet.AzureBatch
         /// </summary>
         public void Dispose()
         {
-            this.Dispose(true);
+            Dispose(true);
             GC.SuppressFinalize(this);
         }
 
         ~AzureBatchService()
         {
-            this.Dispose(false);
+            Dispose(false);
         }
 
         /// <summary>
@@ -75,26 +88,27 @@ namespace Org.Apache.REEF.Client.DotNet.AzureBatch
         /// </summary>
         private void Dispose(bool disposing)
         {
-            if (this.disposed)
+            if (disposed)
             {
                 return;
             }
 
             if (disposing)
             {
-                this.Client.Dispose();
+                Client.Dispose();
             }
 
-            this.disposed = true;
+            disposed = true;
         }
 
         #region Job related operations
 
         public void CreateJob(string jobId, Uri resourceFile, string commandLine, string storageContainerSAS)
         {
-            CloudJob unboundJob = this.Client.JobOperations.CreateJob();
+            CloudJob unboundJob = Client.JobOperations.CreateJob();
             unboundJob.Id = jobId;
-            unboundJob.PoolInformation = new PoolInformation() { PoolId = this.PoolId };
+            unboundJob.PoolInformation = new PoolInformation() { PoolId = PoolId };
+            unboundJob.JobPreparationTask = CreateJobPreparationTask();
             unboundJob.JobManagerTask = new JobManagerTask()
             {
                 Id = jobId,
@@ -102,26 +116,70 @@ namespace Org.Apache.REEF.Client.DotNet.AzureBatch
                 RunExclusive = false,
 
                 ResourceFiles = resourceFile != null
-                    ? new List<ResourceFile>() { new ResourceFile(resourceFile.AbsoluteUri, AzureBatchFileNames.GetTaskJarFileName()) }
+                    ? new List<ResourceFile>()
+                    {
+                        new ResourceFile(resourceFile.AbsoluteUri, AzureBatchFileNames.GetTaskJarFileName())
+                    }
                     : new List<ResourceFile>(),
 
-                EnvironmentSettings = new List<EnvironmentSetting> { new EnvironmentSetting(AzureStorageContainerSasToken, storageContainerSAS) },
+                EnvironmentSettings = new List<EnvironmentSetting>
+                {
+                    new EnvironmentSetting(AzureStorageContainerSasToken, storageContainerSAS)
+                },
 
                 // This setting will signal Batch to generate an access token and pass it
                 // to the Job Manager Task (aka the Driver) as an environment variable.
                 // For more info, see
                 // https://docs.microsoft.com/en-us/dotnet/api/microsoft.azure.batch.cloudtask.authenticationtokensettings
-                AuthenticationTokenSettings = new AuthenticationTokenSettings() { Access = AccessScope.Job }
+                AuthenticationTokenSettings = new AuthenticationTokenSettings() { Access = AccessScope.Job },
+                ContainerSettings = CreateTaskContainerSettings(jobId),
             };
+
+            if (AreContainersEnabled)
+            {
+                unboundJob.JobManagerTask.UserIdentity =
+                    new UserIdentity(autoUserSpecification: new AutoUserSpecification(elevationLevel: ElevationLevel.Admin));
+            }
 
             unboundJob.Commit();
 
             LOGGER.Log(Level.Info, "Submitted job {0}, commandLine {1} ", jobId, commandLine);
         }
 
+        private JobPreparationTask CreateJobPreparationTask()
+        {
+            if (!AreContainersEnabled)
+            {
+                return null;
+            }
+
+            return new JobPreparationTask()
+            {
+                Id = "CaptureHostIpAddress",
+                CommandLine = CommandBuilder.CaptureIpAddressCommandLine()
+            };
+        }
+
+        private TaskContainerSettings CreateTaskContainerSettings(string dockerContainerId)
+        {
+            if (!AreContainersEnabled)
+            {
+                return null;
+            }
+
+            string portMappings = Ports
+                .Aggregate(seed: string.Empty, func: (aggregator, port) => $"{aggregator} -p {port}:{port}");
+
+            return new TaskContainerSettings(
+                imageName: ContainerRegistryProvider.ContainerImageName,
+                containerRunOptions:
+                    $"-d --rm --name {dockerContainerId} --env HOST_IP_ADDR_PATH={CommandBuilder.GetIpAddressFilePath()} {portMappings}",
+                registry: ContainerRegistryProvider.GetContainerRegistry());
+        }
+
         public CloudJob GetJob(string jobId, DetailLevel detailLevel)
         {
-            using (Task<CloudJob> getJobTask = this.GetJobAsync(jobId, detailLevel))
+            using (Task<CloudJob> getJobTask = GetJobAsync(jobId, detailLevel))
             {
                 getJobTask.Wait();
                 return getJobTask.Result;
@@ -130,20 +188,20 @@ namespace Org.Apache.REEF.Client.DotNet.AzureBatch
 
         public Task<CloudJob> GetJobAsync(string jobId, DetailLevel detailLevel)
         {
-            return this.Client.JobOperations.GetJobAsync(jobId, detailLevel);
+            return Client.JobOperations.GetJobAsync(jobId, detailLevel);
         }
 
         public CloudTask GetJobManagerTaskFromJobId(string jobId)
         {
-            string driverTaskId = this.Client.JobOperations.GetJob(jobId).JobManagerTask.Id;
-            return this.Client.JobOperations.GetTask(jobId, driverTaskId);
+            string driverTaskId = Client.JobOperations.GetJob(jobId).JobManagerTask.Id;
+            return Client.JobOperations.GetTask(jobId, driverTaskId);
         }
 
         public ComputeNode GetComputeNodeFromNodeId(string nodeId)
         {
-            return this.Client.PoolOperations.GetComputeNode(this.PoolId, nodeId);
+            return Client.PoolOperations.GetComputeNode(PoolId, nodeId);
         }
 
-        #endregion
+        #endregion Job related operations
     }
 }

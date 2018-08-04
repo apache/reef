@@ -15,6 +15,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
+using System.Collections.Generic;
+using System.IO;
 using Org.Apache.REEF.Client.API;
 using Org.Apache.REEF.Client.Avro;
 using Org.Apache.REEF.Client.Avro.AzureBatch;
@@ -23,9 +25,6 @@ using Org.Apache.REEF.Client.Common;
 using Org.Apache.REEF.Common.Avro;
 using Org.Apache.REEF.Common.Files;
 using Org.Apache.REEF.Tang.Annotations;
-using System;
-using System.Collections.Generic;
-using System.IO;
 
 namespace Org.Apache.REEF.Client.AzureBatch.Util
 {
@@ -37,7 +36,7 @@ namespace Org.Apache.REEF.Client.AzureBatch.Util
         private readonly REEFFileNames _fileNames;
 
         [Inject]
-        JobJarMaker(
+        private JobJarMaker(
             IResourceArchiveFileGenerator resourceArchiveFileGenerator,
             DriverFolderPreparationHelper driverFolderPreparationHelper,
             REEFFileNames fileNames,
@@ -46,7 +45,11 @@ namespace Org.Apache.REEF.Client.AzureBatch.Util
             [Parameter(typeof(AzureBatchPoolId))] string azureBatchPoolId,
             [Parameter(typeof(AzureStorageAccountName))] string azureStorageAccountName,
             [Parameter(typeof(AzureStorageContainerName))] string azureStorageContainerName,
-            [Parameter(typeof(AzureBatchPoolDriverPortsList))] List<string> azureBatchPoolDriverPortsList)
+            [Parameter(typeof(AzureBatchPoolDriverPortsList))] List<string> azureBatchPoolDriverPortsList,
+            [Parameter(typeof(ContainerRegistryServer))] string containerRegistryServer,
+            [Parameter(typeof(ContainerRegistryUsername))] string containerRegistryUsername,
+            [Parameter(typeof(ContainerRegistryPassword))] string containerRegistryPassword,
+            [Parameter(typeof(ContainerImageName))] string containerImageName)
         {
             _resourceArchiveFileGenerator = resourceArchiveFileGenerator;
             _driverFolderPreparationHelper = driverFolderPreparationHelper;
@@ -59,6 +62,10 @@ namespace Org.Apache.REEF.Client.AzureBatch.Util
                 AzureStorageAccountName = azureStorageAccountName,
                 AzureStorageContainerName = azureStorageContainerName,
                 AzureBatchPoolDriverPortsList = azureBatchPoolDriverPortsList,
+                ContainerRegistryServer = containerRegistryServer,
+                ContainerRegistryUsername = containerRegistryUsername,
+                ContainerRegistryPassword = containerRegistryPassword,
+                ContainerImageName = containerImageName,
             };
         }
 

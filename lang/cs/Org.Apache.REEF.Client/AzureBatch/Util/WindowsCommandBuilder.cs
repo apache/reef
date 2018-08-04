@@ -5,9 +5,9 @@
 // to you under the Apache License, Version 2.0 (the
 // "License"); you may not use this file except in compliance
 // with the License.  You may obtain a copy of the License at
-// 
+//
 //   http://www.apache.org/licenses/LICENSE-2.0
-// 
+//
 // Unless required by applicable law or agreed to in writing,
 // software distributed under the License is distributed on an
 // "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -27,6 +27,7 @@ namespace Org.Apache.REEF.Client.AzureBatch.Util
           "[System.IO.Compression.ZipFile]::ExtractToDirectory(\\\"$env:AZ_BATCH_TASK_WORKING_DIR\\" +
               AzureBatchFileNames.GetTaskJarFileName() + "\\\", " +
               "\\\"$env:AZ_BATCH_TASK_WORKING_DIR\\reef\\\");";
+
         private const string ClassPathSeparator = ";";
         private const string OsCommandFormat = "powershell.exe /c \"{0}\";";
 
@@ -47,6 +48,16 @@ namespace Org.Apache.REEF.Client.AzureBatch.Util
             };
 
             return string.Format("'{0};'", string.Join(ClassPathSeparator, classpathList));
+        }
+
+        public override string GetIpAddressFilePath()
+        {
+            return "%AZ_BATCH_JOB_PREP_WORKING_DIR%\\hostip.txt";
+        }
+
+        public override string CaptureIpAddressCommandLine()
+        {
+            return $"powershell /c \"Set-Content -Path hostip.txt -Value ((Test-Connection -ComputerName $Env:ComputerName -Count 1).IPV4Address.IPAddressToString) -NoNewline -Force\"";
         }
     }
 }

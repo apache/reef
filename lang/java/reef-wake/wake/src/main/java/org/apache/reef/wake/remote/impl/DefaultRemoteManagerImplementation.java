@@ -27,7 +27,6 @@ import org.apache.reef.wake.remote.address.LocalAddressProvider;
 import org.apache.reef.wake.remote.ports.TcpPortProvider;
 import org.apache.reef.wake.remote.transport.Transport;
 import org.apache.reef.wake.remote.transport.TransportFactory;
-import org.apache.reef.wake.remote.transport.netty.NettyMessagingTransport;
 
 import javax.inject.Inject;
 import java.net.InetSocketAddress;
@@ -52,11 +51,6 @@ public final class DefaultRemoteManagerImplementation implements RemoteManager {
    * The timeout used for the execute running in close().
    */
   private static final long CLOSE_EXECUTOR_TIMEOUT = 10000; //ms
-
-  /**
-   * Indicates a hostname that isn't set or known.
-   */
-  public static final String UNKNOWN_HOST_NAME = NettyMessagingTransport.UNKNOWN_HOST_NAME;
 
   private final AtomicBoolean closed = new AtomicBoolean(false);
   private final RemoteSeqNumGenerator seqGen = new RemoteSeqNumGenerator();
@@ -95,7 +89,10 @@ public final class DefaultRemoteManagerImplementation implements RemoteManager {
 
     this.handlerContainer.setTransport(this.transport);
 
-    this.myIdentifier = new SocketRemoteIdentifier((InetSocketAddress)this.transport.getLocalAddress());
+    InetSocketAddress address = new InetSocketAddress(
+        localAddressProvider.getLocalAddress(),
+        this.transport.getListeningPort());
+    this.myIdentifier = new SocketRemoteIdentifier(address);
 
     this.reSendStage = new RemoteSenderStage(codec, this.transport, 10);
 

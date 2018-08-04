@@ -71,4 +71,16 @@ public class WindowsCommandBuilder extends AbstractCommandBuilder {
     return String.format("'%s'", StringUtils.join(
         super.classpathProvider.getEvaluatorClasspath(), CLASSPATH_SEPARATOR_CHAR));
   }
+
+  @Override
+  public String getIpAddressFilePath() {
+    return "%AZ_BATCH_JOB_PREP_WORKING_DIR%\\hostip.txt";
+  }
+
+  @Override
+  public String captureIpAddressCommandLine() {
+    return String.format("powershell /c \"Set-Content -Path %s -Value "
+        + "((Test-Connection -ComputerName $Env:ComputerName -Count 1).IPV4Address.IPAddressToString) "
+        + " -NoNewline -Force\"", getIpAddressFilePath());
+  }
 }

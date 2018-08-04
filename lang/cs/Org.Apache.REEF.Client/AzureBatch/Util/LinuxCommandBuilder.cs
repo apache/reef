@@ -25,6 +25,7 @@ namespace Org.Apache.REEF.Client.AzureBatch.Util
     {
         private static readonly string CommandPrefix =
             "unzip " + AzureBatchFileNames.GetTaskJarFileName() + " -d 'reef/'" + ";";
+
         private const string ClassPathSeparator = ":";
         private const string OsCommandFormat = "/bin/sh c \"{0}\"";
 
@@ -39,6 +40,17 @@ namespace Org.Apache.REEF.Client.AzureBatch.Util
         protected override string GetDriverClasspath()
         {
             throw new NotImplementedException();
+        }
+
+        public override string GetIpAddressFilePath()
+        {
+            return "$AZ_BATCH_JOB_PREP_WORKING_DIR/hostip.txt";
+        }
+
+        public override string CaptureIpAddressCommandLine()
+        {
+            string filePath = GetIpAddressFilePath();
+            return $"/bin/bash -c \"rm -f {filePath}; echo `hostname -i` > {filePath}\"";
         }
     }
 }

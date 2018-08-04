@@ -20,10 +20,15 @@ package org.apache.reef.runtime.azbatch.driver;
 
 import org.apache.reef.annotations.audience.Private;
 import org.apache.reef.runtime.azbatch.evaluator.EvaluatorShimConfiguration;
+import org.apache.reef.runtime.azbatch.util.batch.AzureBatchHelper;
+import org.apache.reef.runtime.azbatch.util.batch.ContainerRegistryProvider;
 import org.apache.reef.runtime.common.utils.RemoteManager;
 import org.apache.reef.tang.Configuration;
+import org.apache.reef.tang.annotations.Parameter;
+import org.apache.reef.wake.remote.ports.parameters.TcpPortSet;
 
 import javax.inject.Inject;
+import java.util.Set;
 
 /**
  * Configuration provider for the Azure Batch evaluator shim.
@@ -32,10 +37,18 @@ import javax.inject.Inject;
 public class AzureBatchEvaluatorShimConfigurationProvider {
 
   private final RemoteManager remoteManager;
+  private final Set<String> tcpPortSet;
+  private final ContainerRegistryProvider containerRegistryProvider;
 
   @Inject
-  AzureBatchEvaluatorShimConfigurationProvider(final RemoteManager remoteManager) {
+  AzureBatchEvaluatorShimConfigurationProvider(
+      @Parameter(TcpPortSet.class) final Set<Integer> tcpPortSet,
+      final ContainerRegistryProvider containerRegistryProvider,
+      final RemoteManager remoteManager) {
     this.remoteManager = remoteManager;
+    this.containerRegistryProvider = containerRegistryProvider;
+    // Binding a parameter to a set is only allowed for strings, so we cast to strings.
+    this.tcpPortSet = AzureBatchHelper.toStringSet(tcpPortSet);
   }
 
   /**
@@ -46,9 +59,13 @@ public class AzureBatchEvaluatorShimConfigurationProvider {
    * @return A {@link Configuration} object needed to launch the evaluator shim.
    */
   public Configuration getConfiguration(final String containerId) {
-    return EvaluatorShimConfiguration.CONF
+
+    return EvaluatorShimConfiguration
+        .getConfigurationModule(this.containerRegistryProvider.isValid())
         .set(EvaluatorShimConfiguration.DRIVER_REMOTE_IDENTIFIER, this.remoteManager.getMyIdentifier())
         .set(EvaluatorShimConfiguration.CONTAINER_IDENTIFIER, containerId)
+        .setMultiple(EvaluatorShimConfiguration.TCP_PORT_SET, this.tcpPortSet)
         .build();
   }
 }
+

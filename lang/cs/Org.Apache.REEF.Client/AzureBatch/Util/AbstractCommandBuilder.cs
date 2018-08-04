@@ -5,9 +5,9 @@
 // to you under the Apache License, Version 2.0 (the
 // "License"); you may not use this file except in compliance
 // with the License.  You may obtain a copy of the License at
-// 
+//
 //   http://www.apache.org/licenses/LICENSE-2.0
-// 
+//
 // Unless required by applicable law or agreed to in writing,
 // software distributed under the License is distributed on an
 // "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -62,6 +62,10 @@ namespace Org.Apache.REEF.Client.AzureBatch.Util
               .Append(" " + Path.Combine(_fileNames.GetReefFolderName(), _fileNames.GetJobSubmissionParametersFile()));
             return string.Format(_osCommandFormat, _commandPrefix + sb.ToString());
         }
+
+        public abstract string CaptureIpAddressCommandLine();
+
+        public abstract string GetIpAddressFilePath();
 
         /// <summary>
         /// Returns the driver classpath string which is compatible with the intricacies of the OS.

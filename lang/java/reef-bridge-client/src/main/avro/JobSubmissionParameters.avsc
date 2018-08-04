@@ -78,7 +78,11 @@
         { "name": "AzureBatchPoolId", "type": "string" },
         { "name": "AzureStorageAccountName", "type": "string" },
         { "name": "AzureStorageContainerName", "type": "string" },
-        { "name": "AzureBatchPoolDriverPortsList", "type": {"type": "array", "items": "string"}}
+        { "name": "AzureBatchPoolDriverPortsList", "type": {"type": "array", "items": "string"}},
+        { "name": "ContainerRegistryServer", "type": "string" },
+        { "name": "ContainerRegistryUsername", "type": "string" },
+        { "name": "ContainerRegistryPassword", "type": "string" },
+        { "name": "ContainerImageName", "type": "string" }
       ]
   }
 ]

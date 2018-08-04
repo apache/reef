@@ -255,9 +255,9 @@ public final class NettyMessagingTransport implements Transport {
           return link;
         }
       }
-      
+
       if (i == this.numberOfTries) {
-        // Connection failure 
+        // Connection failure
         throw new ConnectException("Connection to " + remoteAddr + " refused");
       }
 
@@ -323,7 +323,7 @@ public final class NettyMessagingTransport implements Transport {
         }
       }
     }
-    
+
     return link;
   }
 

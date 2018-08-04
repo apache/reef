@@ -65,4 +65,15 @@ public class LinuxCommandBuilder extends AbstractCommandBuilder {
   protected String getEvaluatorShimClasspath() {
     return StringUtils.join(super.classpathProvider.getEvaluatorClasspath(), CLASSPATH_SEPARATOR_CHAR);
   }
+
+  @Override
+  public String getIpAddressFilePath() {
+    return "$AZ_BATCH_JOB_PREP_WORKING_DIR/hostip.txt";
+  }
+
+  @Override
+  public String captureIpAddressCommandLine() {
+    final String filePath = getIpAddressFilePath();
+    return String.format("/bin/bash -c \"rm -f %s; echo `hostname -i` > %s\"", filePath, filePath);
+  }
 }
