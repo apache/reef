@@ -15,12 +15,30 @@
 // specific language governing permissions and limitations
 // under the License.
 
-using Org.Apache.REEF.Tang.Annotations;
+using System.Threading;
+using Newtonsoft.Json;
 
 namespace Org.Apache.REEF.Common.Telemetry
 {
-    [DefaultImplementation(typeof(DriverMetrics))]
-    public interface IDriverMetrics : IMetrics
+    /// <summary>
+    /// Metrics of reference types (such as strings) should inherit from this class.
+    /// </summary>
+    /// <typeparam name="T">The type of the metric should be of reference type.</typeparam>
+    public class MetricClass<T> : MetricBase<T> where T : class
     {
+        public MetricClass()
+        {
+        }
+
+        internal MetricClass(string name, string description, bool keepHistory = true)
+            : base(name, description, keepHistory)
+        {
+        }
+
+        public override void AssignNewValue(T value)
+        {
+            Interlocked.Exchange(ref _typedValue, value);
+            _tracker.Track(value);
+        }
     }
 }

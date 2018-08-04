@@ -16,17 +16,39 @@
 // under the License.
 
 using System;
-using System.Collections.Generic;
-using Org.Apache.REEF.Tang.Annotations;
 
 namespace Org.Apache.REEF.Common.Telemetry
 {
     /// <summary>
-    /// Interface for metrics sink.
+    /// Metric interface. A generic interface for individual metrics.
     /// </summary>
-    [DefaultImplementation(typeof(DefaultMetricsSink))]
-    public interface IMetricsSink : IDisposable
+    public interface IMetric
     {
-        void Sink(IEnumerable<KeyValuePair<string, MetricTracker.MetricRecord>> metrics);
+        /// <summary>
+        /// Name of the metric.
+        /// </summary>
+        string Name { get; }
+
+        /// <summary>
+        /// Description of the metric.
+        /// </summary>
+        string Description { get; }
+
+        /// <summary>
+        /// Value of the metric, stored as object.
+        /// </summary>
+        object ValueUntyped { get; }
+
+        /// <summary>
+        /// Flag for the immutability of the metric.
+        /// </summary>
+        bool KeepUpdateHistory { get; }
+
+        /// <summary>
+        /// Assign a tracker to track the metric.
+        /// </summary>
+        /// <param name="tracker">The metric tracker assigned to track updates.</param>
+        /// <returns></returns>
+        IDisposable Subscribe(ITracker tracker);
     }
 }

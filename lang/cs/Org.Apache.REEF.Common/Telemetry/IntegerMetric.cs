@@ -15,12 +15,29 @@
 // specific language governing permissions and limitations
 // under the License.
 
-using Org.Apache.REEF.Tang.Annotations;
+using System.Threading;
+using Newtonsoft.Json;
 
 namespace Org.Apache.REEF.Common.Telemetry
 {
-    [DefaultImplementation(typeof(DriverMetrics))]
-    public interface IDriverMetrics : IMetrics
+    /// <summary>
+    /// Integer metric implementation.
+    /// </summary>
+    public class IntegerMetric : MetricBase<int>
     {
+        public IntegerMetric()
+        {
+        }
+
+        internal IntegerMetric(string name, string description, bool keepHistory = true)
+            : base(name, description, keepHistory)
+        {
+        }
+
+        public override void AssignNewValue(int value)
+        {
+            Interlocked.Exchange(ref _typedValue, value);
+            _tracker.Track(value);
+        }
     }
 }

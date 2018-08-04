@@ -19,8 +19,8 @@ using Org.Apache.REEF.Tang.Annotations;
 
 namespace Org.Apache.REEF.Common.Telemetry
 {
-    [DefaultImplementation(typeof(DriverMetrics))]
-    public interface IDriverMetrics : IMetrics
+    [NamedParameter(Documentation = "Threshold to trigger the sink.", ShortName = "MetricSinkThreshold", DefaultValue = "1")]
+    public class MetricSinkThreshold : Name<int>
     {
     }
 }

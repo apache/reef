@@ -15,12 +15,13 @@
 // specific language governing permissions and limitations
 // under the License.
 
-using Org.Apache.REEF.Tang.Annotations;
-
 namespace Org.Apache.REEF.Common.Telemetry
 {
-    [DefaultImplementation(typeof(DriverMetrics))]
-    public interface IDriverMetrics : IMetrics
+    /// <summary>
+    /// Tracker interface to track metrics.
+    /// </summary>
+    public interface ITracker
     {
+        void Track(object value);
     }
 }

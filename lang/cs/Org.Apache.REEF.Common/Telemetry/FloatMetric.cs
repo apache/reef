@@ -15,12 +15,29 @@
 // specific language governing permissions and limitations
 // under the License.
 
-using Org.Apache.REEF.Tang.Annotations;
+using System.Threading;
+using Newtonsoft.Json;
 
 namespace Org.Apache.REEF.Common.Telemetry
 {
-    [DefaultImplementation(typeof(DriverMetrics))]
-    public interface IDriverMetrics : IMetrics
+    /// <summary>
+    /// Float Metric implementation.
+    /// </summary>
+    public class FloatMetric : MetricBase<float>
     {
+        public FloatMetric()
+        {
+        }
+
+        internal FloatMetric(string name, string description, bool keepUpdateHistory = true)
+            : base(name, description, keepUpdateHistory)
+        {
+        }
+
+        public override void AssignNewValue(float value)
+        {
+            Interlocked.Exchange(ref _typedValue, value);
+            _tracker.Track(value);
+        }
     }
 }

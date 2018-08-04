@@ -15,12 +15,39 @@
 // specific language governing permissions and limitations
 // under the License.
 
-using Org.Apache.REEF.Tang.Annotations;
+using System.Threading;
+using Newtonsoft.Json;
 
 namespace Org.Apache.REEF.Common.Telemetry
 {
-    [DefaultImplementation(typeof(DriverMetrics))]
-    public interface IDriverMetrics : IMetrics
+    /// <summary>
+    /// Counter metric implementation.
+    /// </summary>
+    public sealed class CounterMetric : MetricBase<int>, ICounter
     {
+        public CounterMetric()
+        {
+        }
+
+        internal CounterMetric(string name, string description, bool keepHistory = false)
+            : base(name, description, keepHistory)
+        {
+        }
+
+        public void Increment(int number = 1)
+        {
+            _tracker.Track(Interlocked.Add(ref _typedValue, number));
+        }
+
+        public void Decrement(int number = 1)
+        {
+            _tracker.Track(Interlocked.Add(ref _typedValue, -number));
+        }
+
+        public override void AssignNewValue(int value)
+        {
+            Interlocked.Exchange(ref _typedValue, value);
+            _tracker.Track(value);
+        }
     }
 }

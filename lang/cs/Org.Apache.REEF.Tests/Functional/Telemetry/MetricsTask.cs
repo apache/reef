@@ -30,26 +30,29 @@ namespace Org.Apache.REEF.Tests.Functional.Telemetry
     {
         private static readonly Logger Logger = Logger.GetLogger(typeof(MetricsTask));
 
-        public const string TestCounter1 = "TestCounter1";
-        public const string TestCounter2 = "TestCounter2";
+        public const string TestCounter = "TestCounter";
+        public const string TestIntMetric = "Iterations";
 
-        private readonly ICounters _counters;
+        private readonly IEvaluatorMetrics _evaluatorMetrics;
+
+        public CounterMetric metric1;
+        public IntegerMetric metric2;
 
         [Inject]
         private MetricsTask(IEvaluatorMetrics evaluatorMetrics)
         {
-            _counters = evaluatorMetrics.GetMetricsCounters();
-            _counters.TryRegisterCounter(TestCounter1, "This is " + TestCounter1);
-            _counters.TryRegisterCounter(TestCounter2, "This is " + TestCounter2);
+            _evaluatorMetrics = evaluatorMetrics;
+            metric1 = _evaluatorMetrics.CreateAndRegisterMetric<CounterMetric>(TestCounter, TestCounter + " description", false);
+            metric2 = _evaluatorMetrics.CreateAndRegisterMetric<IntegerMetric>(TestIntMetric, TestIntMetric + " description", true);
         }
 
         public byte[] Call(byte[] memento)
         {
-            for (int i = 0; i < 100; i++)
+            for (int i = 1; i <= 2000; i++)
             {
-                _counters.Increment(TestCounter1, 1);
-                _counters.Increment(TestCounter2, 2);
-                Thread.Sleep(100);
+                metric1.Increment();
+                metric2.AssignNewValue(i);
+                Thread.Sleep(10);
             }
             return null;
         }

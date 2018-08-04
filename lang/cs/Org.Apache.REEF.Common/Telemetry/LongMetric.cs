@@ -15,12 +15,29 @@
 // specific language governing permissions and limitations
 // under the License.
 
-using Org.Apache.REEF.Tang.Annotations;
+using System.Threading;
+using Newtonsoft.Json;
 
 namespace Org.Apache.REEF.Common.Telemetry
 {
-    [NamedParameter(Documentation = "Threshold to trigger the sink.", ShortName = "CounterSinkThreshold", DefaultValue = "1")]
-    public class CounterSinkThreshold : Name<int>
+    /// <summary>
+    /// Long metric implementation.
+    /// </summary>
+    public class LongMetric : MetricBase<long>
     {
+        public LongMetric()
+        {
+        }
+
+        internal LongMetric(string name, string description, bool keepHistory = true)
+            : base(name, description, keepHistory)
+        {
+        }
+
+        public override void AssignNewValue(long value)
+        {
+            Interlocked.Exchange(ref _typedValue, value);
+            _tracker.Track(value);
+        }
     }
 }
