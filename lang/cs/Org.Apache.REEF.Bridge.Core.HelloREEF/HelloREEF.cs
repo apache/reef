@@ -104,30 +104,26 @@ namespace Org.Apache.REEF.Bridge.Core.HelloREEF
                         .Build();
                 case YARN:
                     return YarnRuntimeConfiguration.ConfigurationModule.Build();
-                /*
                 case HDInsight:
                     // To run against HDInsight please replace placeholders below, with actual values for
                     // connection string, container name (available at Azure portal) and HDInsight
                     // credentials (username and password)
                     const string connectionString = "ConnString";
                     const string continerName = "foo";
-                    return HDInsightClientConfiguration.ConfigurationModule
-                        .Set(HDInsightClientConfiguration.HDInsightPasswordParameter, @"pwd")
-                        .Set(HDInsightClientConfiguration.HDInsightUsernameParameter, @"foo")
-                        .Set(HDInsightClientConfiguration.HDInsightUrlParameter, @"https://foo.azurehdinsight.net/")
-                        .Set(HDInsightClientConfiguration.JobSubmissionDirectoryPrefix, string.Format(@"/{0}/tmp", continerName))
-                        .Set(AzureBlockBlobFileSystemConfiguration.ConnectionString, connectionString)
+                    return HdInsightRuntimeConfiguration.ConfigurationModule
+                        .Set(HdInsightRuntimeConfiguration.HdInsightPassword, @"pwd")
+                        .Set(HdInsightRuntimeConfiguration.HdInsightUserName, @"foo")
+                        .Set(HdInsightRuntimeConfiguration.HdInsightUrl, @"https://foo.azurehdinsight.net/")
                         .Build();
-                */
                 case AzureBatch:
                     return AzureBatchRuntimeConfiguration.ConfigurationModule
-                        .Set(AzureBatchRuntimeConfiguration.AzureBatchAccountKey, "UgrzArOQEUJPdehpX8sbn9UMYi5cpegroDC2LiU+XS2qQ2OQIFT8W3fURcTgrKsh90DfcSOzih7u+JlmAFfycA==")
-                        .Set(AzureBatchRuntimeConfiguration.AzureBatchAccountName, "tcondie")
-                        .Set(AzureBatchRuntimeConfiguration.AzureBatchAccountUri, "https://tcondie.eastus.batch.azure.com")
-                        .Set(AzureBatchRuntimeConfiguration.AzureBatchPoolId, "tcondie")
-                        .Set(AzureBatchRuntimeConfiguration.AzureStorageAccountKey, "BuESN3/A5qA2+knXgdDzjl1q2gmFgaQi3kcaBryWGBvRbz47Q+zITlhMfmLtyCCiZ+t6ZoshAa+H6GMgrQNdWA==")
-                        .Set(AzureBatchRuntimeConfiguration.AzureStorageAccountName, "tcondie")
-                        .Set(AzureBatchRuntimeConfiguration.AzureStorageContainerName, "batch-tcondie")
+                        .Set(AzureBatchRuntimeConfiguration.AzureBatchAccountKey, "###")
+                        .Set(AzureBatchRuntimeConfiguration.AzureBatchAccountName, "###")
+                        .Set(AzureBatchRuntimeConfiguration.AzureBatchAccountUri, "###")
+                        .Set(AzureBatchRuntimeConfiguration.AzureBatchPoolId, "###")
+                        .Set(AzureBatchRuntimeConfiguration.AzureStorageAccountKey, "###")
+                        .Set(AzureBatchRuntimeConfiguration.AzureStorageAccountName, "###")
+                        .Set(AzureBatchRuntimeConfiguration.AzureStorageContainerName, "###")
                         .Build();
                 default:
                     throw new Exception("Unknown runtime: " + name);
