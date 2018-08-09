@@ -15,14 +15,14 @@
 // specific language governing permissions and limitations
 // under the License.
 
-using System;
-using System.Collections.Generic;
-using System.IO;
 using Org.Apache.REEF.Common.Context;
 using Org.Apache.REEF.Common.Evaluator;
 using Org.Apache.REEF.Driver.Evaluator;
 using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Utilities;
+using System;
+using System.Collections.Generic;
+using System.IO;
 
 namespace Org.Apache.REEF.Bridge.Core.Common.Driver.Events
 {
@@ -40,7 +40,7 @@ namespace Org.Apache.REEF.Bridge.Core.Common.Driver.Events
 
         public EvaluatorType Type
         {
-            get { return EvaluatorType.CLR;  }
+            get { return EvaluatorType.CLR; }
             set
             {
                 throw new NotImplementedException();
@@ -73,7 +73,7 @@ namespace Org.Apache.REEF.Bridge.Core.Common.Driver.Events
 
         public BridgeAllocatedEvaluator(
             string id,
-            IDriverServiceClient driverServiceClient, 
+            IDriverServiceClient driverServiceClient,
             IEvaluatorDescriptor evaluatorDescriptor)
         {
             Id = id;
@@ -86,33 +86,33 @@ namespace Org.Apache.REEF.Bridge.Core.Common.Driver.Events
             _driverServiceClient.OnEvaluatorClose(Id);
         }
 
-       public void SubmitContext(IConfiguration contextConfiguration)
+        public void SubmitContext(IConfiguration contextConfiguration)
         {
             _driverServiceClient.OnEvaluatorSubmit(
-                Id, 
-                contextConfiguration, 
-                Optional<IConfiguration>.Empty(), 
-                Optional<IConfiguration>.Empty(), 
+                Id,
+                contextConfiguration,
+                Optional<IConfiguration>.Empty(),
+                Optional<IConfiguration>.Empty(),
                 _addFiles, _addLibraries);
         }
 
         public void SubmitContextAndService(IConfiguration contextConfiguration, IConfiguration serviceConfiguration)
         {
             _driverServiceClient.OnEvaluatorSubmit(
-                Id, 
-                contextConfiguration, 
-                Optional<IConfiguration>.Of(serviceConfiguration), 
-                Optional<IConfiguration>.Empty(), 
+                Id,
+                contextConfiguration,
+                Optional<IConfiguration>.Of(serviceConfiguration),
+                Optional<IConfiguration>.Empty(),
                 _addFiles, _addLibraries);
         }
 
         public void SubmitContextAndTask(IConfiguration contextConfiguration, IConfiguration taskConfiguration)
         {
             _driverServiceClient.OnEvaluatorSubmit(
-                Id, 
+                Id,
                 contextConfiguration,
-                Optional<IConfiguration>.Empty(), 
-                Optional<IConfiguration>.Of(taskConfiguration), 
+                Optional<IConfiguration>.Empty(),
+                Optional<IConfiguration>.Of(taskConfiguration),
                 _addFiles, _addLibraries);
         }
 
@@ -120,10 +120,10 @@ namespace Org.Apache.REEF.Bridge.Core.Common.Driver.Events
             IConfiguration taskConfiguration)
         {
             _driverServiceClient.OnEvaluatorSubmit(
-                Id, 
-                contextConfiguration, 
-                Optional<IConfiguration>.Of(serviceConfiguration), 
-                Optional<IConfiguration>.Of(taskConfiguration), 
+                Id,
+                contextConfiguration,
+                Optional<IConfiguration>.Of(serviceConfiguration),
+                Optional<IConfiguration>.Of(taskConfiguration),
                 _addFiles, _addLibraries);
         }
 
@@ -133,13 +133,12 @@ namespace Org.Apache.REEF.Bridge.Core.Common.Driver.Events
                 ContextConfiguration.ConfigurationModule.Set(
                     ContextConfiguration.Identifier, "RootContext_" + Id).Build();
             _driverServiceClient.OnEvaluatorSubmit(
-                Id, 
-                contextConfiguration, 
-                Optional<IConfiguration>.Empty(), 
-                Optional<IConfiguration>.Of(taskConf), 
+                Id,
+                contextConfiguration,
+                Optional<IConfiguration>.Empty(),
+                Optional<IConfiguration>.Of(taskConf),
                 _addFiles, _addLibraries);
         }
-
 
         public IEvaluatorDescriptor GetEvaluatorDescriptor()
         {

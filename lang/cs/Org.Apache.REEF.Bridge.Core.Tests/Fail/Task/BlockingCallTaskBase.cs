@@ -14,16 +14,15 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
-using System;
-using System.Threading;
 using Org.Apache.REEF.Common.Tasks;
 using Org.Apache.REEF.Utilities.Logging;
+using System;
+using System.Threading;
 
 namespace Org.Apache.REEF.Bridge.Core.Tests.Fail.Task
 {
     internal abstract class BlockingCallTaskBase : ITask
     {
-
         private static readonly Logger Log = Logger.GetLogger(typeof(BlockingCallTaskBase));
 
         private bool _isRunning = true;

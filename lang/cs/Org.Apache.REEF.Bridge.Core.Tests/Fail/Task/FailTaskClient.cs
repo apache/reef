@@ -14,14 +14,14 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
-using System;
-using System.Threading;
 using Org.Apache.REEF.Bridge.Core.Common.Client.Config;
 using Org.Apache.REEF.Bridge.Core.Grpc.Client;
 using Org.Apache.REEF.Common.Client;
 using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Tang.Util;
+using System;
+using System.Threading;
 
 namespace Org.Apache.REEF.Bridge.Core.Tests.Fail.Task
 {
@@ -49,6 +49,7 @@ namespace Org.Apache.REEF.Bridge.Core.Tests.Fail.Task
          * @return launcher status - usually FAIL.
          * @throws InjectionException configuration error.
          */
+
         public static LauncherStatus Run(Type failTaskType, IConfiguration runtimeConfig, TimeSpan timeout)
         {
             var driverRuntimeConfiguration = DriverRuntimeConfiguration.ConfigurationModule

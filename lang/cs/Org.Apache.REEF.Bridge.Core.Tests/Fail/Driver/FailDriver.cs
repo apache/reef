@@ -15,10 +15,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
 using Org.Apache.REEF.Bridge.Core.Tests.Fail.ThreadInterruptedException;
 using Org.Apache.REEF.Common.Context;
 using Org.Apache.REEF.Common.Tasks;
@@ -33,21 +29,25 @@ using Org.Apache.REEF.Utilities;
 using Org.Apache.REEF.Utilities.Logging;
 using Org.Apache.REEF.Wake.Time;
 using Org.Apache.REEF.Wake.Time.Event;
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
 
 namespace Org.Apache.REEF.Bridge.Core.Tests.Fail.Driver
 {
-    internal sealed class FailDriver : 
+    internal sealed class FailDriver :
         IObserver<IAllocatedEvaluator>,
         IObserver<ICompletedEvaluator>,
         IObserver<IFailedEvaluator>,
-        IObserver<IRunningTask>, 
-        IObserver<ICompletedTask>, 
-        IObserver<IFailedTask>, 
-        IObserver<ITaskMessage>, 
-        IObserver<ISuspendedTask>, 
-        IObserver<IFailedContext>, 
-        IObserver<IClosedContext>, 
-        IObserver<IContextMessage>, 
+        IObserver<IRunningTask>,
+        IObserver<ICompletedTask>,
+        IObserver<IFailedTask>,
+        IObserver<ITaskMessage>,
+        IObserver<ISuspendedTask>,
+        IObserver<IFailedContext>,
+        IObserver<IClosedContext>,
+        IObserver<IContextMessage>,
         IObserver<IActiveContext>,
         IObserver<IDriverStarted>,
         IObserver<IDriverStopped>,
@@ -64,7 +64,6 @@ namespace Org.Apache.REEF.Bridge.Core.Tests.Fail.Driver
         {
             Init, SendMsg, Suspend, Resume, Close, Failed
         }
-
 
         private static readonly byte[] HelloStringByteArray = ByteUtilities.StringToByteArrays("MESSAGE::HELLO");
 
@@ -150,8 +149,8 @@ namespace Org.Apache.REEF.Bridge.Core.Tests.Fail.Driver
         private void CheckMsgOrder(object obj)
         {
             string msgClassName = _failMsgClass.FullName;
-            Log.Log(Level.Info, "Driver state {0} event sequence {1} message obj type {2}", 
-                new object[] { _state, EventSequence[_expectIdx].Type, obj.GetType()});
+            Log.Log(Level.Info, "Driver state {0} event sequence {1} message obj type {2}",
+                new object[] { _state, EventSequence[_expectIdx].Type, obj.GetType() });
 
             if (_state == DriverState.Failed)
             {
@@ -171,21 +170,21 @@ namespace Org.Apache.REEF.Bridge.Core.Tests.Fail.Driver
             {
                 if (EventSequence[_expectIdx].Type.IsInstanceOfType(obj))
                 {
-                    Log.Log(Level.Info, "Object type {0} is instance of expected type {1}", new object[] {obj.GetType(), EventSequence[_expectIdx].Type});
+                    Log.Log(Level.Info, "Object type {0} is instance of expected type {1}", new object[] { obj.GetType(), EventSequence[_expectIdx].Type });
                     notFound = false;
                     break;
                 }
                 else if (EventSequence[_expectIdx].Flag == ExpectedMessage.RequiredFlag.Required)
                 {
-                    Log.Log(Level.Info, "Object type {0} is NOT instance of expected type {1}", new object[] {obj.GetType(), EventSequence[_expectIdx].Type});
+                    Log.Log(Level.Info, "Object type {0} is NOT instance of expected type {1}", new object[] { obj.GetType(), EventSequence[_expectIdx].Type });
                     break;
                 }
             }
 
             if (notFound)
             {
-                Log.Log(Level.Info, "Event out of sequence: Driver state {0} event sequence {1} message obj type {2}", 
-                    new object[] { _state, EventSequence[_expectIdx].Type, obj.GetType()});
+                Log.Log(Level.Info, "Event out of sequence: Driver state {0} event sequence {1} message obj type {2}",
+                    new object[] { _state, EventSequence[_expectIdx].Type, obj.GetType() });
                 throw new DriverSideFailure("Event out of sequence: " + msgClassName);
             }
 
@@ -202,7 +201,6 @@ namespace Org.Apache.REEF.Bridge.Core.Tests.Fail.Driver
                 throw ex;
             }
         }
-
 
         private sealed class ExpectedMessage
         {
@@ -274,13 +272,11 @@ namespace Org.Apache.REEF.Bridge.Core.Tests.Fail.Driver
             }
         }
 
-
         public void OnNext(IContextMessage message)
         {
             CheckMsgOrder(message);
             // noop
         }
-
 
         public void OnNext(IClosedContext context)
         {
@@ -288,13 +284,11 @@ namespace Org.Apache.REEF.Bridge.Core.Tests.Fail.Driver
             // noop
         }
 
-
         public void OnNext(IFailedContext context)
         {
             Log.Log(Level.Warning, "Context failed: " + context.Id);
             CheckMsgOrder(context);
         }
-
 
         public void OnNext(IRunningTask runningTask)
         {
@@ -306,10 +300,12 @@ namespace Org.Apache.REEF.Bridge.Core.Tests.Fail.Driver
                     Log.Log(Level.Info, "Move to state {0}", DriverState.SendMsg);
                     _state = DriverState.SendMsg;
                     break;
+
                 case DriverState.Resume:
                     Log.Log(Level.Info, "Move to state {0}", DriverState.Close);
                     _state = DriverState.Close;
                     break;
+
                 default:
                     Log.Log(Level.Warning, "Unexpected state at TaskRuntime: {0}", _state);
                     throw new DriverSideFailure("Unexpected state: " + _state);
@@ -318,7 +314,6 @@ namespace Org.Apache.REEF.Bridge.Core.Tests.Fail.Driver
             // After a delay, send message or suspend the task:
             _clock.ScheduleAlarm(MsgDelay, this);
         }
-
 
         public void OnNext(ISuspendedTask suspendedTask)
         {
@@ -385,14 +380,17 @@ namespace Org.Apache.REEF.Bridge.Core.Tests.Fail.Driver
                     Log.Log(Level.Info, "Send message to task {0}", _task.Id);
                     _task.Send(HelloStringByteArray);
                     break;
+
                 case DriverState.Suspend:
                     Log.Log(Level.Info, "Suspend task {0}", _task.Id);
                     _task.Suspend();
                     break;
+
                 case DriverState.Close:
                     Log.Log(Level.Info, "Close task {0}", _task.Id);
                     _task.Dispose();
                     break;
+
                 default:
                     Log.Log(Level.Warning, "Unexpected state at AlarmHandler: {0}", _state);
                     throw new DriverSideFailure("Unexpected state: " + _state);

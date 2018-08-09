@@ -15,10 +15,10 @@
 // specific language governing permissions and limitations
 // under the License.
 
-using System;
 using Org.Apache.REEF.Common.Client;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Utilities.Logging;
+using System;
 
 namespace Org.Apache.REEF.Bridge.Core.Common.Client.Default
 {

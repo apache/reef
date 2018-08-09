@@ -15,11 +15,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-using System;
-using System.IO;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using Google.Protobuf;
 using Grpc.Core;
 using Org.Apache.REEF.Bridge.Core.Common.Client;
@@ -36,6 +31,11 @@ using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Tang.Util;
 using Org.Apache.REEF.Utilities;
 using Org.Apache.REEF.Utilities.Logging;
+using System;
+using System.IO;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Org.Apache.REEF.Bridge.Core.Grpc.Client
 {
@@ -116,7 +116,7 @@ namespace Org.Apache.REEF.Bridge.Core.Grpc.Client
         }
 
         public async Task<LauncherStatus> SubmitAsync(
-            IConfiguration driverAppConfiguration, 
+            IConfiguration driverAppConfiguration,
             CancellationToken cancellationToken)
         {
             var driverClientConfiguration =
@@ -132,15 +132,17 @@ namespace Org.Apache.REEF.Bridge.Core.Grpc.Client
             // Launch command
             if (File.Exists(DriverExe))
             {
-                _driverClientConfiguration.DriverClientLaunchCommand = 
-                    "cmd.exe /c " + Path.Combine(_reefFileNames.GetGlobalFolderPath(), DriverExe) + " " + 
-                    _reefFileNames.GetClrDriverConfigurationPath();
+                _driverClientConfiguration.DriverClientLaunchCommand = string.Format(
+                    @"cmd.exe /c {0} {1}",
+                    Path.Combine(_reefFileNames.GetGlobalFolderPath(), DriverExe),
+                    _reefFileNames.GetClrDriverConfigurationPath());
             }
             else
             {
-                _driverClientConfiguration.DriverClientLaunchCommand = 
-                    "dotnet " + Path.Combine(_reefFileNames.GetGlobalFolderPath(), DriverDll) + " " + 
-                    _reefFileNames.GetClrDriverConfigurationPath();
+                _driverClientConfiguration.DriverClientLaunchCommand = string.Format(
+                    @"dotnet /c {0} {1}",
+                    Path.Combine(_reefFileNames.GetGlobalFolderPath(), DriverDll),
+                    _reefFileNames.GetClrDriverConfigurationPath());
             }
 
             var driverClientConfigFile = Path.Combine(jobFolder.FullName, "driverclient.json");
@@ -149,7 +151,7 @@ namespace Org.Apache.REEF.Bridge.Core.Grpc.Client
                 outputFile.Write(JsonFormatter.Default.Format(_driverClientConfiguration));
             }
             // Submit a new job
-            _clientService.Reset(); 
+            _clientService.Reset();
             var task = _javaClientLauncher.LaunchAsync(JavaLoggingSetting.Info,
                 JavaClientLauncherClass,
                 new[] { driverClientConfigFile, _grpcServerPort.ToString() },
@@ -197,10 +199,8 @@ namespace Org.Apache.REEF.Bridge.Core.Grpc.Client
                 if (Directory.Exists(directory))
                 {
                     // For input paths that are directories, extract only files of a predetermined type
-                    foreach (var assembly in Directory.GetFiles(directory).Where(IsAssemblyToCopy))
-                    {
-                        _driverClientConfiguration.GlobalFiles.Add(assembly);
-                    }
+                    _driverClientConfiguration.GlobalFiles.Add(
+                        Directory.GetFiles(directory).Where(IsAssemblyToCopy));
                 }
                 else
                 {

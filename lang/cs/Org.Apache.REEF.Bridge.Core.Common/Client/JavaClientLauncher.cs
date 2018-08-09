@@ -15,6 +15,9 @@
 // specific language governing permissions and limitations
 // under the License.
 
+using Org.Apache.REEF.Tang.Annotations;
+using Org.Apache.REEF.Tang.Exceptions;
+using Org.Apache.REEF.Utilities.Logging;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -23,16 +26,13 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Org.Apache.REEF.Tang.Annotations;
-using Org.Apache.REEF.Tang.Exceptions;
-using Org.Apache.REEF.Utilities.Logging;
 
 namespace Org.Apache.REEF.Bridge.Core.Common.Client
 {
     /// <summary>
     /// Helper class to launch the java side of the various clients.
     /// </summary>
-    internal sealed class JavaClientLauncher 
+    internal sealed class JavaClientLauncher
     {
         /// <summary>
         /// The folder in which we search for the client jar.
@@ -54,9 +54,9 @@ namespace Org.Apache.REEF.Bridge.Core.Common.Client
         /// <param name="parameters">Parameters associated with the Java main class</param>
         /// <param name="cancellationToken">Token to cancel the launch</param>
         public Task LaunchAsync(
-            JavaLoggingSetting javaLogLevel, 
-            string javaClassName, 
-            string[] parameters, 
+            JavaLoggingSetting javaLogLevel,
+            string javaClassName,
+            string[] parameters,
             CancellationToken cancellationToken = default)
         {
             var startInfo = new ProcessStartInfo
@@ -66,12 +66,8 @@ namespace Org.Apache.REEF.Bridge.Core.Common.Client
                 UseShellExecute = false,
                 RedirectStandardOutput = true,
                 RedirectStandardError = true,
-
             };
-            var msg = string.Format(CultureInfo.CurrentCulture, "Launch Java with command: {0} {1}",
-                startInfo.FileName, startInfo.Arguments);
-            Log.Log(Level.Info, msg);
-
+            Log.Log(Level.Info, "Launch Java with command: {0} {1}", startInfo.FileName, startInfo.Arguments);
             var processExitTracker = new TaskCompletionSource<bool>();
             var process = new Process
             {
@@ -83,14 +79,14 @@ namespace Org.Apache.REEF.Bridge.Core.Common.Client
             {
                 cancellationToken.Register(processExitTracker.SetCanceled);
             }
-            process.OutputDataReceived += delegate(object sender, DataReceivedEventArgs e)
+            process.OutputDataReceived += delegate (object sender, DataReceivedEventArgs e)
             {
                 if (!string.IsNullOrWhiteSpace(e.Data))
                 {
                     Log.Log(Level.Info, e.Data);
                 }
             };
-            process.ErrorDataReceived += delegate(object sender, DataReceivedEventArgs e)
+            process.ErrorDataReceived += delegate (object sender, DataReceivedEventArgs e)
             {
                 if (!string.IsNullOrWhiteSpace(e.Data))
                 {
@@ -128,11 +124,7 @@ namespace Org.Apache.REEF.Bridge.Core.Common.Client
             arguments.Add("-cp");
             arguments.Add(GetClientClasspath());
             arguments.Add(javaClassName);
-            foreach (var parameter in parameters)
-            {
-                arguments.Add(parameter);
-            }
-            return string.Join(" ", arguments);
+            return string.Join(" ", arguments.Concat(parameters));
         }
 
         /// <summary>
@@ -180,7 +172,6 @@ namespace Org.Apache.REEF.Bridge.Core.Common.Client
         private static string GetClientClasspath()
         {
             var files = Directory.GetFiles(JarFolder)
-                .Where(x => (!string.IsNullOrWhiteSpace(x)))
                 .Where(e => Path.GetFileName(e).ToLower().Contains("reef-bridge-proto-java"))
                 .ToList();
             if (files.Count == 0)

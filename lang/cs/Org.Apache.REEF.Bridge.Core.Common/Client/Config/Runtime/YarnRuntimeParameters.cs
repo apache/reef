@@ -14,8 +14,8 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
-using System.Collections.Generic;
 using Org.Apache.REEF.Tang.Annotations;
+using System.Collections.Generic;
 
 namespace Org.Apache.REEF.Bridge.Core.Common.Client.Config.Runtime
 {

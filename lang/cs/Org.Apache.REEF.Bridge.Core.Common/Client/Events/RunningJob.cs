@@ -21,7 +21,6 @@ namespace Org.Apache.REEF.Bridge.Core.Common.Client.Events
 {
     internal sealed class RunningJob : IRunningJob
     {
-
         private readonly IClientService _clientService;
 
         public RunningJob(IClientService clientService, string jobId)
@@ -29,6 +28,7 @@ namespace Org.Apache.REEF.Bridge.Core.Common.Client.Events
             _clientService = clientService;
             Id = jobId;
         }
+
         public string Id { get; }
 
         public void Dispose()

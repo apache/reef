@@ -22,7 +22,6 @@ namespace Org.Apache.REEF.Bridge.Core.Common.Driver
 {
     internal sealed class DriverBridgeConfiguration : ConfigurationModuleBuilder
     {
-
         public static readonly RequiredImpl<IDriverClientService> DriverClientService = new RequiredImpl<IDriverClientService>();
 
         public static readonly RequiredImpl<IDriverServiceClient> DriverServiceClient = new RequiredImpl<IDriverServiceClient>();

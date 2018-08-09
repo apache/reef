@@ -24,7 +24,6 @@ namespace Org.Apache.REEF.Bridge.Core.Tests.Fail.Task
 {
     internal class FailTask : ITask
     {
-
         private static readonly Logger Log = Logger.GetLogger(typeof(FailTask));
 
         [Inject]

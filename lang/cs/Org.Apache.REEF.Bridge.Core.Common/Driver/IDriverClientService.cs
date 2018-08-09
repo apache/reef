@@ -26,7 +26,6 @@ namespace Org.Apache.REEF.Bridge.Core.Common.Driver
         /// </summary>
         void Start();
 
-
         /// <summary>
         /// Await for termination.
         /// </summary>

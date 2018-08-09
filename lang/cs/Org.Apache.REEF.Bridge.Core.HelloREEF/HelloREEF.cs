@@ -15,8 +15,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-using System;
-using System.Globalization;
 using Org.Apache.REEF.Bridge.Core.Common.Client.Config;
 using Org.Apache.REEF.Bridge.Core.Common.Client.Config.Runtime;
 using Org.Apache.REEF.Bridge.Core.Grpc.Client;
@@ -25,6 +23,8 @@ using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Tang.Util;
 using Org.Apache.REEF.Utilities.Logging;
+using System;
+using System.Globalization;
 
 namespace Org.Apache.REEF.Bridge.Core.HelloREEF
 {
@@ -102,8 +102,10 @@ namespace Org.Apache.REEF.Bridge.Core.HelloREEF
                     return LocalRuntimeConfiguration.ConfigurationModule
                         .Set(LocalRuntimeConfiguration.NumberOfEvaluators, "2")
                         .Build();
+
                 case YARN:
                     return YarnRuntimeConfiguration.ConfigurationModule.Build();
+
                 case HDInsight:
                     // To run against HDInsight please replace placeholders below, with actual values for
                     // connection string, container name (available at Azure portal) and HDInsight
@@ -115,6 +117,7 @@ namespace Org.Apache.REEF.Bridge.Core.HelloREEF
                         .Set(HdInsightRuntimeConfiguration.HdInsightUserName, @"foo")
                         .Set(HdInsightRuntimeConfiguration.HdInsightUrl, @"https://foo.azurehdinsight.net/")
                         .Build();
+
                 case AzureBatch:
                     return AzureBatchRuntimeConfiguration.ConfigurationModule
                         .Set(AzureBatchRuntimeConfiguration.AzureBatchAccountKey, "###")
@@ -125,6 +128,7 @@ namespace Org.Apache.REEF.Bridge.Core.HelloREEF
                         .Set(AzureBatchRuntimeConfiguration.AzureStorageAccountName, "###")
                         .Set(AzureBatchRuntimeConfiguration.AzureStorageContainerName, "###")
                         .Build();
+
                 default:
                     throw new Exception("Unknown runtime: " + name);
             }

@@ -15,7 +15,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-using System;
 using Org.Apache.REEF.Common.Tasks;
 using Org.Apache.REEF.Driver;
 using Org.Apache.REEF.Driver.Context;
@@ -25,21 +24,22 @@ using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Tang.Util;
 using Org.Apache.REEF.Utilities.Logging;
 using Org.Apache.REEF.Wake.Time;
+using System;
 
 namespace Org.Apache.REEF.Bridge.Core.HelloREEF
 {
     /// <summary>
     /// The Driver for HelloREEF: It requests a single Evaluator and then submits the HelloTask to it.
     /// </summary>
-    public sealed class HelloDriver : 
-        IObserver<IAllocatedEvaluator>, 
+    public sealed class HelloDriver :
+        IObserver<IAllocatedEvaluator>,
         IObserver<IFailedEvaluator>,
         IObserver<ICompletedEvaluator>,
-        IObserver<IDriverStarted>, 
-        IObserver<IDriverStopped>, 
-        IObserver<IRunningTask>, 
-        IObserver<IActiveContext>, 
-        IObserver<ICompletedTask>, 
+        IObserver<IDriverStarted>,
+        IObserver<IDriverStopped>,
+        IObserver<IRunningTask>,
+        IObserver<IActiveContext>,
+        IObserver<ICompletedTask>,
         IObserver<IFailedTask>
     {
         private static readonly Logger _Logger = Logger.GetLogger(typeof(HelloDriver));
@@ -123,7 +123,7 @@ namespace Org.Apache.REEF.Bridge.Core.HelloREEF
 
         public void OnNext(IFailedTask value)
         {
-            _Logger.Log(Level.Info, "HelloDriver received failed task {0} with active context {0}", new object[] {value.Id, value.GetActiveContext().Value.Id});
+            _Logger.Log(Level.Info, "HelloDriver received failed task {0} with active context {0}", new object[] { value.Id, value.GetActiveContext().Value.Id });
             value.GetActiveContext().Value.Dispose();
             _Logger.Log(Level.Info, "HelloDriver closed active context {0}", value.GetActiveContext().Value.Id);
         }

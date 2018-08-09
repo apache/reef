@@ -15,16 +15,15 @@
 // specific language governing permissions and limitations
 // under the License.
 
-using System;
 using Org.Apache.REEF.Common.Client;
 using Org.Apache.REEF.Tang.Formats;
 using Org.Apache.REEF.Tang.Util;
+using System;
 
 namespace Org.Apache.REEF.Bridge.Core.Common.Client.Config
 {
     public sealed class ClientConfiguration : ConfigurationModuleBuilder
     {
-
         public static readonly OptionalParameter<IObserver<IRunningJob>> OnRunningJob = new OptionalParameter<IObserver<IRunningJob>>();
 
         public static readonly OptionalParameter<IObserver<ISubmittedJob>> OnSubmittedJob = new OptionalParameter<IObserver<ISubmittedJob>>();

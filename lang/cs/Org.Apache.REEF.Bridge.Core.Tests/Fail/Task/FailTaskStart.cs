@@ -14,11 +14,11 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
-using System;
 using Org.Apache.REEF.Bridge.Core.Tests.Fail.ThreadInterruptedException;
 using Org.Apache.REEF.Common.Tasks.Events;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Utilities.Logging;
+using System;
 
 namespace Org.Apache.REEF.Bridge.Core.Tests.Fail.Task
 {

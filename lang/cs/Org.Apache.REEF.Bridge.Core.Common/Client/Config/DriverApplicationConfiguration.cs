@@ -15,8 +15,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-using System;
-using System.Diagnostics;
 using Org.Apache.REEF.Bridge.Core.Common.Driver;
 using Org.Apache.REEF.Common.Context;
 using Org.Apache.REEF.Driver;
@@ -27,6 +25,8 @@ using Org.Apache.REEF.Tang.Formats;
 using Org.Apache.REEF.Tang.Util;
 using Org.Apache.REEF.Utilities.Attributes;
 using Org.Apache.REEF.Wake.Time;
+using System;
+using System.Diagnostics;
 
 namespace Org.Apache.REEF.Bridge.Core.Common.Client.Config
 {

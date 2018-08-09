@@ -14,10 +14,10 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
-using System;
 using Org.Apache.REEF.Bridge.Core.Common.Client.Config.Runtime;
-using Org.Apache.REEF.Bridge.Core.Tests.Fail.ThreadInterruptedException;
 using Org.Apache.REEF.Bridge.Core.Tests.Fail.Task;
+using Org.Apache.REEF.Bridge.Core.Tests.Fail.ThreadInterruptedException;
+using System;
 using Xunit;
 
 namespace Org.Apache.REEF.Bridge.Core.Tests.Fail.Test
@@ -33,37 +33,44 @@ namespace Org.Apache.REEF.Bridge.Core.Tests.Fail.Test
         }
 
         [Fact]
-        public void TestFailTask() {
+        public void TestFailTask()
+        {
             FailOn(typeof(FailTask));
         }
 
         [Fact]
-        public void TestFailTaskCall() {
+        public void TestFailTaskCall()
+        {
             FailOn(typeof(FailTaskCall));
         }
 
         [Fact]
-        public void TestFailTaskMsg() {
+        public void TestFailTaskMsg()
+        {
             FailOn(typeof(FailTaskMsg));
         }
 
         [Fact]
-        public void TestFailTaskSuspend() {
+        public void TestFailTaskSuspend()
+        {
             FailOn(typeof(FailTaskSuspend));
         }
 
         [Fact]
-        public void TestFailTaskStart() {
+        public void TestFailTaskStart()
+        {
             FailOn(typeof(FailTaskStart));
         }
 
         [Fact]
-        public void TestFailTaskStop() {
+        public void TestFailTaskStop()
+        {
             FailOn(typeof(FailTaskStop));
         }
 
         [Fact]
-        public void TestFailTaskClose() {
+        public void TestFailTaskClose()
+        {
             FailOn(typeof(FailTaskClose));
         }
     }

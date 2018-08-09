@@ -15,11 +15,11 @@
 // specific language governing permissions and limitations
 // under the License.
 
-using System;
 using Org.Apache.REEF.Common.Catalog;
 using Org.Apache.REEF.Common.Evaluator;
 using Org.Apache.REEF.Common.Runtime;
 using Org.Apache.REEF.Driver.Evaluator;
+using System;
 
 namespace Org.Apache.REEF.Bridge.Core.Common.Driver.Events
 {
@@ -43,9 +43,9 @@ namespace Org.Apache.REEF.Bridge.Core.Common.Driver.Events
         public RuntimeName RuntimeName { get; }
 
         public EvaluatorDescriptor(
-            INodeDescriptor nodeDescriptor, 
-            int memory, 
-            int virtualCore, 
+            INodeDescriptor nodeDescriptor,
+            int memory,
+            int virtualCore,
             RuntimeName runtimeName = RuntimeName.Local)
         {
             NodeDescriptor = nodeDescriptor;

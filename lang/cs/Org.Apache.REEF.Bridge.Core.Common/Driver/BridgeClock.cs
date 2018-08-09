@@ -15,16 +15,16 @@
 // specific language governing permissions and limitations
 // under the License.
 
-using System;
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Tang.Implementations.InjectionPlan;
 using Org.Apache.REEF.Utilities.Logging;
 using Org.Apache.REEF.Wake.Time;
 using Org.Apache.REEF.Wake.Time.Event;
 using Org.Apache.REEF.Wake.Time.Runtime.Event;
+using System;
+using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Org.Apache.REEF.Bridge.Core.Common.Driver
 {
@@ -69,15 +69,15 @@ namespace Org.Apache.REEF.Bridge.Core.Common.Driver
 
         public bool IsIdle()
         {
-           return _outstandingAlarms == 0 && _alarmDictionary.Count == 0;
+            return _outstandingAlarms == 0 && _alarmDictionary.Count == 0;
         }
 
         public void ScheduleAlarm(long offset, IObserver<Alarm> handler)
         {
-            Guid alarmId = Guid.NewGuid();
-            _alarmDictionary[alarmId.ToString()] = handler;
-            Log.Log(Level.Info, "Schedule alarm id {0}", alarmId);
-            _driverServiceClient.Get().OnSetAlarm(alarmId.ToString(), offset);
+            var alarmId = Guid.NewGuid().ToString();
+            _alarmDictionary[alarmId] = handler;
+            Log.Log(Level.Info, "Schedule alarm id {0} for {1}", alarmId, offset);
+            _driverServiceClient.Get().OnSetAlarm(alarmId, offset);
         }
 
         public void Run()
@@ -95,17 +95,18 @@ namespace Org.Apache.REEF.Bridge.Core.Common.Driver
         public async Task OnNextAsync(AlarmInfo alarmInfo)
         {
             Log.Log(Level.Info, "scheduling alarm id {0}", alarmInfo.AlarmId);
-            if (_alarmDictionary.ContainsKey(alarmInfo.AlarmId))
+            if (_alarmDictionary.TryGetValue(alarmInfo.AlarmId, out IObserver<Alarm> alarmObserver))
             {
                 Interlocked.Increment(ref _outstandingAlarms);
                 try
                 {
-                    var alarm = new RuntimeAlarm(alarmInfo.Timestamp, _alarmDictionary[alarmInfo.AlarmId]);
+                    var alarm = new RuntimeAlarm(alarmInfo.Timestamp, alarmObserver);
                     _alarmDictionary.Remove(alarmInfo.AlarmId);
                     await Task.Run(() => alarm.Handle());
                 }
                 catch (Exception ex)
                 {
+                    Log.Log(Level.Error, "Alarm handler raised exception", ex);
                     Dispose(ex);
                 }
                 finally

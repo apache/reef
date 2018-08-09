@@ -15,9 +15,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-using System;
-using System.Threading;
-using System.Threading.Tasks;
 using Google.Protobuf;
 using Grpc.Core;
 using Org.Apache.REEF.Bridge.Core.Common.Client;
@@ -29,6 +26,9 @@ using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Tang.Exceptions;
 using Org.Apache.REEF.Utilities;
 using Org.Apache.REEF.Utilities.Logging;
+using System;
+using System.Threading;
+using System.Threading.Tasks;
 using Void = Org.Apache.REEF.Bridge.Core.Proto.Void;
 
 namespace Org.Apache.REEF.Bridge.Core.Grpc.Client
@@ -38,7 +38,6 @@ namespace Org.Apache.REEF.Bridge.Core.Grpc.Client
     /// </summary>
     internal sealed class ClientService : BridgeClient.BridgeClientBase, IClientService
     {
-
         private static readonly Logger Log = Logger.GetLogger(typeof(ClientService));
 
         private static readonly Void Void = new Void();
@@ -89,7 +88,6 @@ namespace Org.Apache.REEF.Bridge.Core.Grpc.Client
         }
 
         public LauncherStatus LauncherStatus { get; private set; }
-
 
         public void Close(byte[] message = null)
         {

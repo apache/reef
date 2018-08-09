@@ -15,22 +15,22 @@
 // specific language governing permissions and limitations
 // under the License.
 
-using System;
-using System.Threading;
 using Org.Apache.REEF.Common.Tasks;
 using Org.Apache.REEF.Common.Tasks.Events;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Utilities;
 using Org.Apache.REEF.Utilities.Logging;
+using System;
+using System.Threading;
 
 namespace Org.Apache.REEF.Bridge.Core.Tests.Fail.Driver
 {
-    internal sealed class NoopTask : 
-        ITask, 
-        ITaskMessageSource, 
-        IDriverMessageHandler, 
-        IObserver<ISuspendEvent>, 
-        IObserver<ITaskStop>, 
+    internal sealed class NoopTask :
+        ITask,
+        ITaskMessageSource,
+        IDriverMessageHandler,
+        IObserver<ISuspendEvent>,
+        IObserver<ITaskStop>,
         IObserver<ICloseEvent>
     {
         private static readonly Logger Log = Logger.GetLogger(typeof(NoopTask));
@@ -71,8 +71,6 @@ namespace Org.Apache.REEF.Bridge.Core.Tests.Fail.Driver
                 ByteUtilities.ByteArraysToString(_message.OrElse(InitMessage).Message));
             return _message.OrElse(InitMessage).Message;
         }
-
-
 
         public Optional<TaskMessage> Message
         {

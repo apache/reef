@@ -14,9 +14,6 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
 using Org.Apache.REEF.Common.Context;
 using Org.Apache.REEF.Driver;
 using Org.Apache.REEF.Driver.Bridge;
@@ -25,12 +22,14 @@ using Org.Apache.REEF.Driver.Defaults;
 using Org.Apache.REEF.Driver.Evaluator;
 using Org.Apache.REEF.Driver.Task;
 using Org.Apache.REEF.Tang.Annotations;
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
 
 namespace Org.Apache.REEF.Bridge.Core.Common.Client.Config
 {
     public sealed class DriverApplicationParameters
     {
-
         [NamedParameter(documentation: "The start point for application logic. Event fired after the Driver is done initializing.")]
         public sealed class DriverStartedHandlers : Name<ISet<IObserver<IDriverStarted>>>
         {
@@ -77,7 +76,6 @@ namespace Org.Apache.REEF.Bridge.Core.Common.Client.Config
         {
         }
 
-
         [NamedParameter(documentation: "Running task handler.", defaultClasses: new[] { typeof(DefaultTaskRunningHandler) })]
         public sealed class RunningTaskHandlers : Name<ISet<IObserver<IRunningTask>>>
         {
@@ -108,22 +106,26 @@ namespace Org.Apache.REEF.Bridge.Core.Common.Client.Config
         {
         }
 
-        [NamedParameter(documentation: "Called when an evaluator has failed in the Driver Restart process.", defaultClasses: new[] { typeof(DefaultEvaluatorFailureHandler) })]
+        [NamedParameter(documentation: "Called when an evaluator has failed in the Driver Restart process.",
+            defaultClasses: new[] { typeof(DefaultEvaluatorFailureHandler) })]
         public sealed class DriverRestartFailedEvaluatorHandlers : Name<ISet<IObserver<IFailedEvaluator>>>
         {
         }
 
-        [NamedParameter(documentation: "Handler for IActiveContext received during driver restart.", defaultClasses: new[] { typeof(DefaultDriverRestartContextActiveHandler) })]
+        [NamedParameter(documentation: "Handler for IActiveContext received during driver restart.",
+            defaultClasses: new[] { typeof(DefaultDriverRestartContextActiveHandler) })]
         public sealed class DriverRestartActiveContextHandlers : Name<ISet<IObserver<IActiveContext>>>
         {
         }
 
-        [NamedParameter(documentation: "Called when driver restart is completed.", defaultClasses: new[] { typeof(DefaultDriverRestartCompletedHandler) })]
+        [NamedParameter(documentation: "Called when driver restart is completed.",
+            defaultClasses: new[] { typeof(DefaultDriverRestartCompletedHandler) })]
         public sealed class DriverRestartCompletedHandlers : Name<ISet<IObserver<IDriverRestartCompleted>>>
         {
         }
 
-        [NamedParameter(documentation: "Running task during driver restart handler.", defaultClasses: new[] { typeof(DefaultDriverRestartTaskRunningHandler) })]
+        [NamedParameter(documentation: "Running task during driver restart handler.",
+            defaultClasses: new[] { typeof(DefaultDriverRestartTaskRunningHandler) })]
         public sealed class DriverRestartRunningTaskHandlers : Name<ISet<IObserver<IRunningTask>>>
         {
         }
@@ -153,7 +155,8 @@ namespace Org.Apache.REEF.Bridge.Core.Common.Client.Config
         {
         }
 
-        [NamedParameter("Additional trace listeners supplied by client", "DriverTraceListeners", null, defaultClasses: new[] { typeof(DefaultCustomTraceListener) })]
+        [NamedParameter("Additional trace listeners supplied by client", "DriverTraceListeners", null,
+            defaultClasses: new[] { typeof(DefaultCustomTraceListener) })]
         public sealed class TraceListeners : Name<ISet<TraceListener>>
         {
         }

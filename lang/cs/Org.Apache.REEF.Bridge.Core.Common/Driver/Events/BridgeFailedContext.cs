@@ -30,18 +30,16 @@ namespace Org.Apache.REEF.Bridge.Core.Common.Driver.Events
         public Optional<IActiveContext> ParentContext { get; }
 
         public BridgeFailedContext(
-            string id, 
-            string evaluatorId, 
-            IEvaluatorDescriptor evaluatorDescriptor, 
+            string id,
+            string evaluatorId,
+            IEvaluatorDescriptor evaluatorDescriptor,
             Optional<IActiveContext> parentContext)
         {
             Id = id;
             EvaluatorId = evaluatorId;
-            ParentId = parentContext.IsPresent() ? Optional<string>.Of(parentContext.Value.Id) : Optional<string>.Empty();
+            ParentId = Optional<string>.OfNullable(parentContext.OrElse(null)?.Id);
             EvaluatorDescriptor = evaluatorDescriptor;
             ParentContext = parentContext;
         }
-
-
     }
 }

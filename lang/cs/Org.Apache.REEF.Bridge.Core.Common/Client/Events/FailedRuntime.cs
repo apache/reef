@@ -15,11 +15,11 @@
 // specific language governing permissions and limitations
 // under the License.
 
-using System;
-using System.Runtime.Serialization;
 using Org.Apache.REEF.Common.Client;
 using Org.Apache.REEF.Common.Exceptions;
 using Org.Apache.REEF.Utilities;
+using System;
+using System.Runtime.Serialization;
 
 namespace Org.Apache.REEF.Bridge.Core.Common.Client.Events
 {
@@ -45,7 +45,7 @@ namespace Org.Apache.REEF.Bridge.Core.Common.Client.Events
                 Exception inner;
                 try
                 {
-                    inner = (Exception) ByteUtilities.DeserializeFromBinaryFormat(Data.Value);
+                    inner = (Exception)ByteUtilities.DeserializeFromBinaryFormat(Data.Value);
                 }
                 catch (SerializationException se)
                 {

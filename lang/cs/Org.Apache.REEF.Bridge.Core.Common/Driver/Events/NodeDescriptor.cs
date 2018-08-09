@@ -15,10 +15,10 @@
 // specific language governing permissions and limitations
 // under the License.
 
-using System.Net;
 using Org.Apache.REEF.Common.Catalog;
 using Org.Apache.REEF.Common.Catalog.Capabilities;
 using Org.Apache.REEF.Utilities.Logging;
+using System.Net;
 
 namespace Org.Apache.REEF.Bridge.Core.Common.Driver.Events
 {
@@ -54,6 +54,5 @@ namespace Org.Apache.REEF.Bridge.Core.Common.Driver.Events
             Cpu = cpu;
             Ram = ram;
         }
-
     }
 }

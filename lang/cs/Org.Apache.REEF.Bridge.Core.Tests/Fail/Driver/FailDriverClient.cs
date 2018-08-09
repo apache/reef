@@ -15,14 +15,14 @@
 // specific language governing permissions and limitations
 // under the License.
 
-using System;
-using System.Threading;
 using Org.Apache.REEF.Bridge.Core.Common.Client.Config;
 using Org.Apache.REEF.Bridge.Core.Grpc.Client;
 using Org.Apache.REEF.Common.Client;
 using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Tang.Util;
+using System;
+using System.Threading;
 
 namespace Org.Apache.REEF.Bridge.Core.Tests.Fail.Driver
 {
@@ -60,6 +60,7 @@ namespace Org.Apache.REEF.Bridge.Core.Tests.Fail.Driver
          * @return launcher status - usually FAIL.
          * @throws InjectionException configuration error.
          */
+
         public static LauncherStatus RunClient(Type failMsgClass, IConfiguration runtimeConfig, TimeSpan timeout)
         {
             // The JobSubmission contains the Driver configuration as well as the files needed on the Driver.

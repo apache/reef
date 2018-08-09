@@ -15,12 +15,12 @@
 // specific language governing permissions and limitations
 // under the License.
 
-using System;
-using System.Collections.Generic;
-using System.IO;
 using Org.Apache.REEF.Driver.Evaluator;
 using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Utilities;
+using System;
+using System.Collections.Generic;
+using System.IO;
 
 namespace Org.Apache.REEF.Bridge.Core.Common.Driver
 {
@@ -40,7 +40,6 @@ namespace Org.Apache.REEF.Bridge.Core.Common.Driver
         /// <param name="ex">exception</param>
         void OnShutdown(Exception ex);
 
-
         /// <summary>
         /// Set an alarm that will timeout it the given
         /// amount of milliseconds.
@@ -48,7 +47,6 @@ namespace Org.Apache.REEF.Bridge.Core.Common.Driver
         /// <param name="alarmId">Identifies the alarm</param>
         /// <param name="timeoutMs">When to tigger the alarm in the future</param>
         void OnSetAlarm(string alarmId, long timeoutMs);
-
 
         /// <summary>
         /// Request evalautor resources.

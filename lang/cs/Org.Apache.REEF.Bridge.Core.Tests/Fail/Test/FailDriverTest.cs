@@ -14,7 +14,6 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
-using System;
 using Org.Apache.REEF.Bridge.Core.Common.Client.Config.Runtime;
 using Org.Apache.REEF.Bridge.Core.Tests.Fail.Driver;
 using Org.Apache.REEF.Bridge.Core.Tests.Fail.ThreadInterruptedException;
@@ -24,6 +23,7 @@ using Org.Apache.REEF.Driver.Context;
 using Org.Apache.REEF.Driver.Evaluator;
 using Org.Apache.REEF.Driver.Task;
 using Org.Apache.REEF.Wake.Time.Event;
+using System;
 using Xunit;
 
 namespace Org.Apache.REEF.Bridge.Core.Tests.Fail.Test
@@ -39,64 +39,76 @@ namespace Org.Apache.REEF.Bridge.Core.Tests.Fail.Test
         }
 
         [Fact]
-        public void TestFailDriverConstructor()  {
+        public void TestFailDriverConstructor()
+        {
             FailOn(typeof(FailDriver));
         }
 
         [Fact]
-        public void TestFailDriverStart()  {
+        public void TestFailDriverStart()
+        {
             FailOn(typeof(IDriverStarted));
         }
 
         [Fact]
-        public void TestFailDriverAllocatedEvaluator()  {
+        public void TestFailDriverAllocatedEvaluator()
+        {
             FailOn(typeof(IAllocatedEvaluator));
         }
 
         [Fact]
-        public void TestFailDriverActiveContext()  {
+        public void TestFailDriverActiveContext()
+        {
             FailOn(typeof(IActiveContext));
         }
 
         [Fact]
-        public void TestFailDriverRunningTask()  {
+        public void TestFailDriverRunningTask()
+        {
             FailOn(typeof(IRunningTask));
         }
 
         [Fact]
-        public void TestFailDriverTaskMessage()  {
+        public void TestFailDriverTaskMessage()
+        {
             FailOn(typeof(ITaskMessage));
         }
 
         [Fact]
-        public void TestFailDriverSuspendedTask()  {
+        public void TestFailDriverSuspendedTask()
+        {
             FailOn(typeof(ISuspendedTask));
         }
 
         [Fact]
-        public void TestFailDriverCompletedTask()  {
+        public void TestFailDriverCompletedTask()
+        {
             FailOn(typeof(ICompletedTask));
         }
 
         [Fact]
-        public void TestFailDriverCompletedEvaluator()  {
+        public void TestFailDriverCompletedEvaluator()
+        {
             FailOn(typeof(ICompletedEvaluator));
         }
 
         [Fact]
-        public void TestFailDriverAlarm()  {
+        public void TestFailDriverAlarm()
+        {
             FailOn(typeof(Alarm));
         }
 
         [Fact]
-        public void TestFailDriverStop() {
+        public void TestFailDriverStop()
+        {
             FailOn(typeof(IDriverStopped));
         }
 
         [Fact]
-        public void TestDriverCompleted()  {
+        public void TestDriverCompleted()
+        {
             // NoopTask can be replaced with any other class never used in FailDriver
-            LauncherStatus status = FailDriverClient.RunClient(typeof(NoopTask), 
+            LauncherStatus status = FailDriverClient.RunClient(typeof(NoopTask),
                 LocalRuntimeConfiguration.ConfigurationModule.Build(), JobTimeout);
             Assert.Equal(LauncherStatus.CompletedStatus, status);
         }

@@ -15,20 +15,20 @@
 // specific language governing permissions and limitations
 // under the License.
 
-using System.Collections.Generic;
 using Org.Apache.REEF.Driver.Context;
 using Org.Apache.REEF.Driver.Evaluator;
 using Org.Apache.REEF.Driver.Task;
 using Org.Apache.REEF.Utilities;
+using System.Collections.Generic;
 
 namespace Org.Apache.REEF.Bridge.Core.Common.Driver.Events
 {
     internal sealed class BridgeFailedEvaluator : IFailedEvaluator
     {
         public BridgeFailedEvaluator(
-            string id, 
-            EvaluatorException evaluatorException, 
-            IList<IFailedContext> failedContexts, 
+            string id,
+            EvaluatorException evaluatorException,
+            IList<IFailedContext> failedContexts,
             Optional<IFailedTask> failedTask)
         {
             Id = id;

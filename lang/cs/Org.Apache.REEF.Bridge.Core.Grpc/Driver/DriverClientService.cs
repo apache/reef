@@ -15,10 +15,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-using System;
-using System.Collections.Generic;
-using System.Runtime.Serialization;
-using System.Threading.Tasks;
 using Grpc.Core;
 using Org.Apache.REEF.Bridge.Core.Common.Driver;
 using Org.Apache.REEF.Bridge.Core.Common.Driver.Events;
@@ -33,6 +29,10 @@ using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Utilities;
 using Org.Apache.REEF.Utilities.Logging;
+using System;
+using System.Collections.Generic;
+using System.Runtime.Serialization;
+using System.Threading.Tasks;
 using Void = Org.Apache.REEF.Bridge.Core.Proto.Void;
 
 namespace Org.Apache.REEF.Bridge.Core.Grpc.Driver
@@ -98,7 +98,7 @@ namespace Org.Apache.REEF.Bridge.Core.Grpc.Driver
                 _serverPort = serverPort.BoundPort;
             }
 
-            Logger.Log(Level.Info, $"Client service started on port {_serverPort}");
+            Logger.Log(Level.Info, "Client service started on port {0}", _serverPort);
         }
 
         #region Driver Client Service implementation
@@ -126,7 +126,7 @@ namespace Org.Apache.REEF.Bridge.Core.Grpc.Driver
             Logger.Log(Level.Info, "Client server terminated");
         }
 
-        #endregion
+        #endregion Driver Client Service implementation
 
         public override async Task<Void> AlarmTrigger(AlarmTriggerInfo request, ServerCallContext context)
         {
@@ -240,9 +240,8 @@ namespace Org.Apache.REEF.Bridge.Core.Grpc.Driver
             try
             {
                 Logger.Log(Level.Info, "Failed context event id {0}", request.ContextId);
-                if (_activeContexts.ContainsKey(request.ContextId))
+                if (_activeContexts.TryGetValue(request.ContextId, out BridgeActiveContext activeContext))
                 {
-                    var activeContext = _activeContexts[request.ContextId];
                     _activeContexts.Remove(request.ContextId);
                     var parentContext = activeContext.ParentId.IsPresent()
                         ? _activeContexts[activeContext.ParentId.Value]
@@ -353,7 +352,7 @@ namespace Org.Apache.REEF.Bridge.Core.Grpc.Driver
             try
             {
                 Logger.Log(Level.Info, "Failed task {0}", request.TaskId);
-                var failedTask = CreateFailedTaskAndForget(request.TaskId, request.Exception, 
+                var failedTask = CreateFailedTaskAndForget(request.TaskId, request.Exception,
                     Optional<IActiveContext>.OfNullable(GetOrCreateActiveContext(request.Context)));
                 Logger.Log(Level.Info, "Dispatch failed task {0}", request.TaskId);
                 await _driverBridge.DispatchFailedTaskEvent(failedTask);
@@ -400,7 +399,7 @@ namespace Org.Apache.REEF.Bridge.Core.Grpc.Driver
             return Void;
         }
 
-        #endregion
+        #endregion Task handlers
 
         #region Client handlers
 
@@ -443,7 +442,7 @@ namespace Org.Apache.REEF.Bridge.Core.Grpc.Driver
             return Void;
         }
 
-        #endregion
+        #endregion Client handlers
 
         #region Driver Restart Handlers
 
@@ -455,7 +454,7 @@ namespace Org.Apache.REEF.Bridge.Core.Grpc.Driver
                 await _driverBridge.DispatchDriverRestartedEvent(new BridgeDriverRestarted(
                     new DateTime(request.StartTime.StartTime),
                     expectedEvaluatorIds,
-                    (int) request.ResubmissionAttempts));
+                    (int)request.ResubmissionAttempts));
             }
             catch (Exception ex)
             {
@@ -523,27 +522,32 @@ namespace Org.Apache.REEF.Bridge.Core.Grpc.Driver
             return Void;
         }
 
-        #endregion
+        #endregion Driver Restart Handlers
 
         #region helper methods
-
-      
 
         private BridgeActiveContext GetOrCreateActiveContext(ContextInfo info)
         {
             lock (_lock)
             {
-                Logger.Log(Level.Verbose, "Do we know context {0}? {1}",
-                    info.ContextId, _activeContexts.ContainsKey(info.ContextId));
-                if (_activeContexts.ContainsKey(info.ContextId)) return _activeContexts[info.ContextId];
+                if (_activeContexts.TryGetValue(info.ContextId, out BridgeActiveContext context))
+                {
+                    Logger.Log(Level.Verbose, "Context already exists, use it: {0}", info.ContextId);
+                    return context;
+                }
+
                 Logger.Log(Level.Verbose, "Create active context {0}", info.ContextId);
-                _activeContexts[info.ContextId] = new BridgeActiveContext(
+
+                context = new BridgeActiveContext(
                     _driverServiceClient,
                     info.ContextId,
                     info.EvaluatorId,
                     Optional<string>.OfNullable(info.ParentId.Length == 0 ? null : info.ParentId),
                     CreateEvaluatorDescriptor(info.EvaluatorDescriptorInfo));
-                return _activeContexts[info.ContextId];
+
+                _activeContexts.Add(info.ContextId, context);
+
+                return context;
             }
         }
 
@@ -551,13 +555,14 @@ namespace Org.Apache.REEF.Bridge.Core.Grpc.Driver
         {
             lock (_lock)
             {
-                Logger.Log(Level.Verbose, "Do we know task {0}? {1}",
-                    task.TaskId, _runningTasks.ContainsKey(task.TaskId));
-                if (_runningTasks.ContainsKey(task.TaskId)) return _runningTasks[task.TaskId];
+                if (_runningTasks.TryGetValue(task.TaskId, out BridgeRunningTask runningTask))
+                {
+                    return runningTask;
+                }
                 var activeContext = GetOrCreateActiveContext(task.Context);
-                var runningTask = new BridgeRunningTask(_driverServiceClient, task.TaskId, activeContext);
+                runningTask = new BridgeRunningTask(_driverServiceClient, task.TaskId, activeContext);
                 _runningTasks[task.TaskId] = runningTask;
-                return _runningTasks[task.TaskId];
+                return runningTask;
             }
         }
 
@@ -565,10 +570,9 @@ namespace Org.Apache.REEF.Bridge.Core.Grpc.Driver
         {
             lock (_lock)
             {
-                if (_runningTasks.ContainsKey(taskId))
+                if (_runningTasks.TryGetValue(taskId, out BridgeRunningTask task))
                 {
                     Logger.Log(Level.Info, "Create failed task {0}", taskId);
-                    var task = _runningTasks[taskId];
                     _runningTasks.Remove(taskId);
                     return new BridgeFailedTask(
                         Optional<IActiveContext>.Of(task.ActiveContext),
@@ -582,8 +586,8 @@ namespace Org.Apache.REEF.Bridge.Core.Grpc.Driver
                         taskId, !info.Data.IsEmpty);
                     return new BridgeFailedTask(
                         context,
-                        taskId, 
-                        info.Message, 
+                        taskId,
+                        info.Message,
                         info.Data.ToByteArray());
                 }
             }
@@ -594,9 +598,8 @@ namespace Org.Apache.REEF.Bridge.Core.Grpc.Driver
             lock (_lock)
             {
                 var evaluatorId = info.EvaluatorId;
-                if (_activeContexts.ContainsKey(contextId))
+                if (_activeContexts.TryGetValue(contextId, out BridgeActiveContext activeContext))
                 {
-                    var activeContext = _activeContexts[contextId];
                     _activeContexts.Remove(contextId);
                     var parentContext = activeContext.ParentId.IsPresent()
                         ? _activeContexts[activeContext.ParentId.Value]
@@ -620,9 +623,8 @@ namespace Org.Apache.REEF.Bridge.Core.Grpc.Driver
         {
             lock (_lock)
             {
-                if (_activeContexts.ContainsKey(request.ContextId))
+                if (_activeContexts.TryGetValue(request.ContextId, out BridgeActiveContext activeContext))
                 {
-                    var activeContext = _activeContexts[request.ContextId];
                     _activeContexts.Remove(request.ContextId);
                     var parentContext = _activeContexts[activeContext.ParentId.Value];
                     return new BridgeClosedContext(
@@ -695,7 +697,7 @@ namespace Org.Apache.REEF.Bridge.Core.Grpc.Driver
             Exception inner;
             try
             {
-                inner = (Exception) ByteUtilities.DeserializeFromBinaryFormat(errorBytes);
+                inner = (Exception)ByteUtilities.DeserializeFromBinaryFormat(errorBytes);
             }
             catch (SerializationException se)
             {
@@ -720,7 +722,7 @@ namespace Org.Apache.REEF.Bridge.Core.Grpc.Driver
                 Logger.Log(Level.Warning, "Node Descriptor not present in Evalautor Descriptor");
                 return null;
             }
-            var nodeDescriptor =  new NodeDescriptor(
+            var nodeDescriptor = new NodeDescriptor(
                 descriptorInfo.NodeDescriptorInfo.IpAddress,
                 descriptorInfo.NodeDescriptorInfo.Port,
                 descriptorInfo.NodeDescriptorInfo.HostName,
@@ -729,6 +731,6 @@ namespace Org.Apache.REEF.Bridge.Core.Grpc.Driver
             return new EvaluatorDescriptor(nodeDescriptor, descriptorInfo.Memory, descriptorInfo.Cores, runtimeName);
         }
 
-        #endregion
+        #endregion helper methods
     }
 }

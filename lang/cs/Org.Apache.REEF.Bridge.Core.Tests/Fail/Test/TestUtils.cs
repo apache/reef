@@ -14,9 +14,9 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
-using System;
 using Org.Apache.REEF.Common.Client;
 using Org.Apache.REEF.Utilities.Logging;
+using System;
 using Xunit;
 
 namespace Org.Apache.REEF.Bridge.Core.Tests.Fail.Test

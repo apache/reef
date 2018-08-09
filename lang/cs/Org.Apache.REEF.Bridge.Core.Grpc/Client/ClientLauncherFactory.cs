@@ -16,8 +16,6 @@
 // under the License.
 
 using Org.Apache.REEF.Bridge.Core.Common.Client;
-using Org.Apache.REEF.Bridge.Core.Common.Client.Config;
-using Org.Apache.REEF.Bridge.Core.Common.Client.Default;
 using Org.Apache.REEF.Tang.Implementations.Configuration;
 using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Tang.Interface;

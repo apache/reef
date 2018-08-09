@@ -36,7 +36,7 @@ namespace Org.Apache.REEF.Bridge.Core.Common.Client.Config.Runtime.Proto
             }
             _localRuntimeParameters = new Core.Proto.LocalRuntimeParameters()
             {
-                MaxNumberOfEvaluators = (uint) numberOfEvaluators,
+                MaxNumberOfEvaluators = (uint)numberOfEvaluators,
                 RuntimeRootFolder = localRuntimeDirectory
             };
         }

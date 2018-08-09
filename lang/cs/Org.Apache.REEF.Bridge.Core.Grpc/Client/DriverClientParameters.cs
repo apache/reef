@@ -15,11 +15,11 @@
 // specific language governing permissions and limitations
 // under the License.
 
-using System.Collections.Generic;
 using Org.Apache.REEF.Bridge.Core.Common.Client.Config;
 using Org.Apache.REEF.Bridge.Core.Proto;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Tang.Exceptions;
+using System.Collections.Generic;
 
 namespace Org.Apache.REEF.Bridge.Core.Grpc.Client
 {
@@ -48,13 +48,13 @@ namespace Org.Apache.REEF.Bridge.Core.Grpc.Client
             {
                 Jobid = jobId,
                 DriverJobSubmissionDirectory = jobSubmissionDirectory,
-                CpuCores = (uint) driverCpuCores,
-                MemoryMb = (uint) driverMemory,
+                CpuCores = (uint)driverCpuCores,
+                MemoryMb = (uint)driverMemory,
                 DriverRestartEnable = enableDriverRestart,
-                DriverRestartEvaluatorRecoverySeconds = (uint) restartEvaluatorRecoverySeconds,
-                TcpPortRangeBegin = (uint) tcpPortRangeBegin,
-                TcpPortRangeCount = (uint) tcpPortRangeCount,
-                TcpPortRangeTryCount = (uint) tcpPortRangeTryCount
+                DriverRestartEvaluatorRecoverySeconds = (uint)restartEvaluatorRecoverySeconds,
+                TcpPortRangeBegin = (uint)tcpPortRangeBegin,
+                TcpPortRangeCount = (uint)tcpPortRangeCount,
+                TcpPortRangeTryCount = (uint)tcpPortRangeTryCount
             };
             Proto.GlobalLibraries.Add(globalAssemblies);
             Proto.GlobalFiles.Add(globalFiles);
@@ -65,9 +65,11 @@ namespace Org.Apache.REEF.Bridge.Core.Grpc.Client
                 case OsType.Os.Windows:
                     Proto.OperatingSystem = DriverClientConfiguration.Types.OS.Windows;
                     break;
+
                 case OsType.Os.Linux:
                     Proto.OperatingSystem = DriverClientConfiguration.Types.OS.Linux;
                     break;
+
                 default:
                     throw new IllegalStateException("Unknown operating system type " + osType.Type);
             }

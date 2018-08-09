@@ -14,8 +14,6 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
-using System;
-using System.IO;
 using Org.Apache.REEF.Bridge.Core.Common.Client.Config.Runtime.Proto;
 using Org.Apache.REEF.Tang.Formats;
 using Org.Apache.REEF.Tang.Interface;
@@ -76,24 +74,9 @@ namespace Org.Apache.REEF.Bridge.Core.Common.Client.Config.Runtime
             .BindNamedParameter(GenericType<HdInsightRuntimeParameters.HdInsightUnsafeDeployment>.Class, HdInsightUnsafeDeployment)
             .Build();
 
-        public static IConfiguration FromTextFile(string file)
-        {
-            return new AvroConfigurationSerializer().FromFile(file);
-        }
-
         public static IConfiguration FromEnvironment()
         {
-            var configurationPath = Environment.GetEnvironmentVariable(HdiConfigurationFileEnvironmentVariable);
-            if (configurationPath == null)
-            {
-                throw new ArgumentException($"Environment Variable {HdiConfigurationFileEnvironmentVariable} not set");
-            }
-
-            if (!File.Exists(configurationPath))
-            {
-                throw new ArgumentException($"File located by Environment Variable {HdiConfigurationFileEnvironmentVariable} cannot be read.");
-            }
-            return FromTextFile(configurationPath);
+            return Utils.FromEnvironment(HdiConfigurationFileEnvironmentVariable);
         }
     }
 }

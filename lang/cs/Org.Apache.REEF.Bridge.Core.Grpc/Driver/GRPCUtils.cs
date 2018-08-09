@@ -15,13 +15,13 @@
 // specific language governing permissions and limitations
 // under the License.
 
-using System;
-using System.Runtime.Serialization;
 using Google.Protobuf;
 using Org.Apache.REEF.Bridge.Core.Proto;
 using Org.Apache.REEF.Common.Exceptions;
 using Org.Apache.REEF.Utilities;
 using Org.Apache.REEF.Utilities.Logging;
+using System;
+using System.Runtime.Serialization;
 
 namespace Org.Apache.REEF.Bridge.Core.Grpc.Driver
 {

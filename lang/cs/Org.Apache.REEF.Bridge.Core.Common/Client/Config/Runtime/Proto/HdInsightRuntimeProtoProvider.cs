@@ -21,7 +21,6 @@ namespace Org.Apache.REEF.Bridge.Core.Common.Client.Config.Runtime.Proto
 {
     internal sealed class HdInsightRuntimeProtoProvider : IRuntimeProtoProvider
     {
-
         private readonly HDIRuntimeParameters _hdiRuntimeParameters;
 
         [Inject]

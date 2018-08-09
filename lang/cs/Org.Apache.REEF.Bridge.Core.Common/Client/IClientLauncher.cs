@@ -15,11 +15,11 @@
 // specific language governing permissions and limitations
 // under the License.
 
+using Org.Apache.REEF.Common.Client;
+using Org.Apache.REEF.Tang.Interface;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using Org.Apache.REEF.Common.Client;
-using Org.Apache.REEF.Tang.Interface;
 
 namespace Org.Apache.REEF.Bridge.Core.Common.Client
 {
@@ -31,7 +31,7 @@ namespace Org.Apache.REEF.Bridge.Core.Common.Client
     public interface IClientLauncher : IDisposable
     {
         Task<LauncherStatus> SubmitAsync(
-            IConfiguration driverAppConfiguration, 
+            IConfiguration driverAppConfiguration,
             CancellationToken cancellationToken = default);
     }
 }

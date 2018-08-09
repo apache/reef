@@ -26,7 +26,7 @@ namespace Org.Apache.REEF.Bridge.Core.Common.Driver.Events
         private readonly IDriverServiceClient _driverServiceClient;
 
         public string Id { get; }
-        
+
         public IActiveContext ActiveContext { get; }
 
         public BridgeRunningTask(IDriverServiceClient driverServiceClient, string id, IActiveContext context)

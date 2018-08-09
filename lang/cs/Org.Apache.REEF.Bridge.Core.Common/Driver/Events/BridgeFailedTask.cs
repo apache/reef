@@ -15,15 +15,14 @@
 // specific language governing permissions and limitations
 // under the License.
 
-using System;
-using System.Runtime.Serialization;
 using Org.Apache.REEF.Common.Avro;
 using Org.Apache.REEF.Common.Exceptions;
-using Org.Apache.REEF.Common.Runtime.Evaluator.Task;
 using Org.Apache.REEF.Driver.Context;
 using Org.Apache.REEF.Driver.Task;
 using Org.Apache.REEF.Utilities;
 using Org.Apache.REEF.Utilities.Logging;
+using System;
+using System.Runtime.Serialization;
 
 namespace Org.Apache.REEF.Bridge.Core.Common.Driver.Events
 {
@@ -41,11 +40,11 @@ namespace Org.Apache.REEF.Bridge.Core.Common.Driver.Events
         }
 
         public BridgeFailedTask(
-            Optional<IActiveContext> activeContext, 
-            string id, 
-            string message, 
-            string description, 
-            string reason, 
+            Optional<IActiveContext> activeContext,
+            string id,
+            string message,
+            string description,
+            string reason,
             byte[] data)
         {
             _activeContext = activeContext;
@@ -59,8 +58,7 @@ namespace Org.Apache.REEF.Bridge.Core.Common.Driver.Events
 
                 if (!id.Equals(avroFailedTask.identifier))
                 {
-                    Log.Log(Level.Error, "Task error id {0} does not match task id {1}", 
-                        new object[] {avroFailedTask.identifier, id});
+                    Log.Log(Level.Error, "Task error id {0} does not match task id {1}", avroFailedTask.identifier, id);
                 }
 
                 // Data is simply the serialized Exception.ToString.
@@ -100,10 +98,10 @@ namespace Org.Apache.REEF.Bridge.Core.Common.Driver.Events
         /// </summary>
         /// <returns>the Exception causing the Failed Task.</returns>
         /// <remarks>
-        /// If the Exception was caused by a control flow error (start, stop, suspend), 
+        /// If the Exception was caused by a control flow error (start, stop, suspend),
         /// a <see cref="TaskClientCodeException"/> is expected.
         /// If the original Exception was not serializable, a <see cref="NonSerializableTaskException"/> is expected.
-        /// If the Exception was missing, presumably caused by a failed Evaluator, a 
+        /// If the Exception was missing, presumably caused by a failed Evaluator, a
         /// <see cref="TaskExceptionMissingException"/> is expected.
         /// </remarks>
         public Exception AsError()

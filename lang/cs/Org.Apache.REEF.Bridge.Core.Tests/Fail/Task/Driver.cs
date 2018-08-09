@@ -14,7 +14,6 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
-using System;
 using Org.Apache.REEF.Bridge.Core.Tests.Fail.ThreadInterruptedException;
 using Org.Apache.REEF.Common.Context;
 using Org.Apache.REEF.Common.Tasks;
@@ -28,10 +27,10 @@ using Org.Apache.REEF.Tang.Formats;
 using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Tang.Util;
 using Org.Apache.REEF.Utilities.Logging;
+using System;
 
 namespace Org.Apache.REEF.Bridge.Core.Tests.Fail.Task
 {
-
     internal sealed class Driver :
         IObserver<IAllocatedEvaluator>,
         IObserver<IRunningTask>,
@@ -88,35 +87,42 @@ namespace Org.Apache.REEF.Bridge.Core.Tests.Fail.Task
                     case "FailTask":
                         taskConfig = taskConfig.Set(TaskConfiguration.Task, GenericType<FailTask>.Class);
                         break;
+
                     case "FailTaskCall":
                         taskConfig = taskConfig.Set(TaskConfiguration.Task, GenericType<FailTaskCall>.Class);
                         break;
+
                     case "FailTaskMsg":
                         taskConfig = taskConfig
                             .Set(TaskConfiguration.Task, GenericType<FailTaskMsg>.Class)
                             .Set(TaskConfiguration.OnMessage, GenericType<FailTaskMsg>.Class);
                         break;
+
                     case "FailTaskSuspend":
                         taskConfig = taskConfig
                             .Set(TaskConfiguration.Task, GenericType<FailTaskSuspend>.Class)
                             .Set(TaskConfiguration.OnSuspend, GenericType<FailTaskSuspend>.Class);
                         break;
+
                     case "FailTaskStart":
                         taskConfig = taskConfig
                             .Set(TaskConfiguration.Task, GenericType<FailTaskStart>.Class)
                             .Set(TaskConfiguration.OnTaskStart, GenericType<FailTaskStart>.Class);
                         break;
+
                     case "FailTaskStop":
                         taskConfig = taskConfig
                             .Set(TaskConfiguration.Task, GenericType<FailTaskStop>.Class)
                             .Set(TaskConfiguration.OnTaskStop, GenericType<FailTaskStop>.Class)
                             .Set(TaskConfiguration.OnClose, GenericType<FailTaskStop>.Class);
                         break;
+
                     case "FailTaskClose":
                         taskConfig = taskConfig
                             .Set(TaskConfiguration.Task, GenericType<FailTaskClose>.Class)
                             .Set(TaskConfiguration.OnClose, GenericType<FailTaskClose>.Class);
                         break;
+
                     default:
                         break;
                 }
@@ -147,15 +153,18 @@ namespace Org.Apache.REEF.Bridge.Core.Tests.Fail.Task
                     Log.Log(Level.Info, "TaskRuntime: Send message: {0}", task);
                     task.Send(new byte[0]);
                     break;
+
                 case "FailTaskSuspend":
                     Log.Log(Level.Info, "TaskRuntime: Suspend: {0}", task);
                     task.Suspend();
                     break;
+
                 case "FailTaskStop":
                 case "FailTaskClose":
                     Log.Log(Level.Info, "TaskRuntime: Stop/Close: {0}", task);
                     task.Dispose();
                     break;
+
                 default:
                     break;
             }

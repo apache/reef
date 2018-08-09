@@ -23,7 +23,6 @@ namespace Org.Apache.REEF.Bridge.Core.Common.Client.Config.Runtime
 {
     public sealed class YarnRuntimeConfiguration : ConfigurationModuleBuilder
     {
-
         public static readonly OptionalParameter<int> JobPriority = new OptionalParameter<int>();
         public static readonly OptionalParameter<string> JobQueue = new OptionalParameter<string>();
         public static readonly OptionalParameter<string> JobSubmissionDirectoryPrefix = new OptionalParameter<string>();
@@ -31,7 +30,7 @@ namespace Org.Apache.REEF.Bridge.Core.Common.Client.Config.Runtime
         public static readonly OptionalParameter<bool> UnmanagedDriver = new OptionalParameter<bool>();
 
         /// <summary>
-        /// URL for store. For Hadoop file system, it is set in fs.defaultFS as default by YARN environment. Client doesn't need to 
+        /// URL for store. For Hadoop file system, it is set in fs.defaultFS as default by YARN environment. Client doesn't need to
         /// specify it. For Data Lake, Yarn applications are required to set the complete path by themselves
         /// e.g. adl://reefadl.azuredatalakestore.net
         /// </summary>

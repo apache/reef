@@ -23,7 +23,6 @@ namespace Org.Apache.REEF.Bridge.Core.Common.Driver
 {
     internal sealed class DriverBridgeEvaluatorRequestor : IEvaluatorRequestor
     {
-
         private readonly IDriverServiceClient _driverServiceClient;
 
         [Inject]
@@ -31,7 +30,6 @@ namespace Org.Apache.REEF.Bridge.Core.Common.Driver
         {
             _driverServiceClient = driverServiceClient;
         }
-
 
         public IResourceCatalog ResourceCatalog { get; }
 

@@ -15,11 +15,11 @@
 // specific language governing permissions and limitations
 // under the License.
 
-using System;
 using Org.Apache.REEF.Driver.Context;
 using Org.Apache.REEF.Driver.Evaluator;
 using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Utilities;
+using System;
 
 namespace Org.Apache.REEF.Bridge.Core.Common.Driver.Events
 {
@@ -33,10 +33,10 @@ namespace Org.Apache.REEF.Bridge.Core.Common.Driver.Events
         public IEvaluatorDescriptor EvaluatorDescriptor { get; }
 
         public BridgeActiveContext(
-            IDriverServiceClient driverServiceClient, 
-            string id, 
-            string evaluatorId, 
-            Optional<string> parentId, 
+            IDriverServiceClient driverServiceClient,
+            string id,
+            string evaluatorId,
+            Optional<string> parentId,
             IEvaluatorDescriptor evaluatorDescriptor)
         {
             _driverServiceClient = driverServiceClient;
@@ -50,6 +50,7 @@ namespace Org.Apache.REEF.Bridge.Core.Common.Driver.Events
         {
             _driverServiceClient.OnContextClose(Id);
         }
+
         public void SubmitTask(IConfiguration taskConf)
         {
             _driverServiceClient.OnContextSubmitTask(Id, taskConf);

@@ -15,9 +15,9 @@
 // specific language governing permissions and limitations
 // under the License.
 
-using System;
 using Org.Apache.REEF.Common.Tasks;
 using Org.Apache.REEF.Tang.Annotations;
+using System;
 
 namespace Org.Apache.REEF.Bridge.Core.HelloREEF
 {

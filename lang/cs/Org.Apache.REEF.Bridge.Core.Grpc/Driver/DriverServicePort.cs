@@ -22,7 +22,7 @@ namespace Org.Apache.REEF.Bridge.Core.Grpc.Driver
     /// Driver serivce port represents the Java driver server port
     /// that clients should connect to.
     /// </summary>
-    [NamedParameter(documentation:"the driver service port")]
+    [NamedParameter(documentation: "the driver service port")]
     public sealed class DriverServicePort : Name<int>
     {
     }

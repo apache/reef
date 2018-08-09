@@ -15,10 +15,10 @@
 // specific language governing permissions and limitations
 // under the License.
 
-using System;
 using Org.Apache.REEF.Bridge.Core.Common.Client.Default;
 using Org.Apache.REEF.Common.Client;
 using Org.Apache.REEF.Tang.Annotations;
+using System;
 
 namespace Org.Apache.REEF.Bridge.Core.Common.Client.Config
 {
@@ -27,7 +27,6 @@ namespace Org.Apache.REEF.Bridge.Core.Common.Client.Config
     /// </summary>
     public sealed class ClientParameters
     {
-
         [NamedParameter("completed job handler", defaultClass: typeof(DefaultCompletedJobHandler))]
         public sealed class CompletedJobHandler : Name<IObserver<ICompletedJob>>
         {

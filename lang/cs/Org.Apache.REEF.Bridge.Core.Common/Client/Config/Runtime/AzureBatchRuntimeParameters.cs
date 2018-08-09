@@ -14,16 +14,12 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
-using System;
-using System.Collections.Generic;
-using System.Text;
 using Org.Apache.REEF.Tang.Annotations;
 
 namespace Org.Apache.REEF.Bridge.Core.Common.Client.Config.Runtime
 {
     internal sealed class AzureBatchRuntimeParameters
     {
-
         [NamedParameter(Documentation = "The Azure Batch Account Key")]
         public sealed class AzureBatchAccountKey : Name<string>
         {

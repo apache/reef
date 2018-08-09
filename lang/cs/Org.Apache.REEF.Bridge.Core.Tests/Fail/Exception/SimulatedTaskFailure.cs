@@ -15,18 +15,13 @@
 // // specific language governing permissions and limitations
 // // under the License.
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Runtime.Serialization;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Org.Apache.REEF.Bridge.Core.Tests.Fail.ThreadInterruptedException
 {
     [Serializable]
     internal sealed class SimulatedTaskFailure : System.Exception
     {
-
         public SimulatedTaskFailure(string message) : base(message)
         {
         }

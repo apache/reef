@@ -36,6 +36,7 @@ namespace Org.Apache.REEF.Bridge.Core.Common.Client.Config
         private OsLinux()
         {
         }
+
         public override Os Type => Os.Linux;
     }
 
@@ -45,6 +46,7 @@ namespace Org.Apache.REEF.Bridge.Core.Common.Client.Config
         private OsWindows()
         {
         }
+
         public override Os Type => Os.Windows;
     }
 }

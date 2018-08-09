@@ -15,16 +15,15 @@
 // specific language governing permissions and limitations
 // under the License.
 
-using System.Collections.Generic;
 using Org.Apache.REEF.Bridge.Core.Proto;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Tang.Exceptions;
+using System.Collections.Generic;
 
 namespace Org.Apache.REEF.Bridge.Core.Common.Client.Config.Runtime.Proto
 {
     internal sealed class YarnRuntimeProtoProvider : IRuntimeProtoProvider
     {
-
         private readonly Core.Proto.YarnRuntimeParameters _yarnRuntimeParameters;
 
         [Inject]
@@ -42,7 +41,7 @@ namespace Org.Apache.REEF.Bridge.Core.Common.Client.Config.Runtime.Proto
             }
             _yarnRuntimeParameters = new Core.Proto.YarnRuntimeParameters()
             {
-                Priority = (uint) jobPriority,
+                Priority = (uint)jobPriority,
                 Queue = jobQueue,
                 JobSubmissionDirectoryPrefix = jobSubmissionDirectoryPrefix,
                 UnmangedDriver = unmanagedDriver,

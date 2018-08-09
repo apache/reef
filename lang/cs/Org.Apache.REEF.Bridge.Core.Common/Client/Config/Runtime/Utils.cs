@@ -14,20 +14,34 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
-using Org.Apache.REEF.Tang.Annotations;
+
+using Org.Apache.REEF.Tang.Formats;
+using Org.Apache.REEF.Tang.Interface;
+using System;
+using System.IO;
 
 namespace Org.Apache.REEF.Bridge.Core.Common.Client.Config.Runtime
 {
-    internal sealed class LocalRuntimeParameters
+    internal static class Utils
     {
-        [NamedParameter("The directory in which the local runtime will store its execution.", defaultValue: "")]
-        public class LocalRuntimeDirectory : Name<string>
+        public static IConfiguration FromTextFile(string file)
         {
+            return new AvroConfigurationSerializer().FromFile(file);
         }
 
-        [NamedParameter(defaultValue: "2")]
-        public class NumberOfEvaluators : Name<int>
+        public static IConfiguration FromEnvironment(string environmentVariable)
         {
+            var configurationPath = Environment.GetEnvironmentVariable(environmentVariable);
+            if (configurationPath == null)
+            {
+                throw new ArgumentException($"Environment Variable {environmentVariable} not set");
+            }
+
+            if (!File.Exists(configurationPath))
+            {
+                throw new ArgumentException($"File located by Environment Variable {environmentVariable} cannot be read.");
+            }
+            return FromTextFile(configurationPath);
         }
     }
 }

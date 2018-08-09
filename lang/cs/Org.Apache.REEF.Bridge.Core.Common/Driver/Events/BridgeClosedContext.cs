@@ -30,10 +30,10 @@ namespace Org.Apache.REEF.Bridge.Core.Common.Driver.Events
         public IActiveContext ParentContext { get; }
 
         public BridgeClosedContext(
-            string id, 
-            string evaluatorId, 
-            Optional<string> parentId, 
-            IEvaluatorDescriptor evaluatorDescriptor, 
+            string id,
+            string evaluatorId,
+            Optional<string> parentId,
+            IEvaluatorDescriptor evaluatorDescriptor,
             IActiveContext parentContext)
         {
             Id = id;

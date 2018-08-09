@@ -15,11 +15,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Runtime.Serialization;
 using Google.Protobuf;
 using Grpc.Core;
 using Org.Apache.REEF.Bridge.Core.Common.Driver;
@@ -32,12 +27,16 @@ using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Utilities;
 using Org.Apache.REEF.Utilities.Logging;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Runtime.Serialization;
 
 namespace Org.Apache.REEF.Bridge.Core.Grpc.Driver
 {
     internal class DriverServiceClient : IDriverServiceClient
     {
-
         private static readonly Logger Logger = Logger.GetLogger(typeof(DriverServiceClient));
 
         private readonly IConfigurationSerializer _configurationSerializer;
@@ -115,7 +114,7 @@ namespace Org.Apache.REEF.Bridge.Core.Grpc.Driver
             _driverServiceStub.SetAlarm(new AlarmRequest()
             {
                 AlarmId = alarmId,
-                TimeoutMs = (int) timeoutMs
+                TimeoutMs = (int)timeoutMs
             });
         }
 
@@ -152,9 +151,9 @@ namespace Org.Apache.REEF.Bridge.Core.Grpc.Driver
         }
 
         public void OnEvaluatorSubmit(
-            string evaluatorId, 
-            IConfiguration contextConfiguration, 
-            Optional<IConfiguration> serviceConfiguration, 
+            string evaluatorId,
+            IConfiguration contextConfiguration,
+            Optional<IConfiguration> serviceConfiguration,
             Optional<IConfiguration> taskConfiguration,
             List<FileInfo> addFileList, List<FileInfo> addLibraryList)
         {

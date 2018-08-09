@@ -15,12 +15,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Globalization;
-using System.Threading;
-using System.Threading.Tasks;
 using Org.Apache.REEF.Bridge.Core.Common.Client.Config;
 using Org.Apache.REEF.Common.Context;
 using Org.Apache.REEF.Driver;
@@ -29,6 +23,12 @@ using Org.Apache.REEF.Driver.Evaluator;
 using Org.Apache.REEF.Driver.Task;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Utilities.Logging;
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Globalization;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Org.Apache.REEF.Bridge.Core.Common.Driver
 {
@@ -42,7 +42,7 @@ namespace Org.Apache.REEF.Bridge.Core.Common.Driver
     {
         private static readonly Logger Log = Logger.GetLogger(typeof(DriverBridge));
 
-        // Control event dispatchers 
+        // Control event dispatchers
 
         private readonly DispatchEventHandler<IDriverStarted> _driverStartedDispatcher;
 
@@ -147,7 +147,7 @@ namespace Org.Apache.REEF.Bridge.Core.Common.Driver
             ISet<IObserver<IDriverRestartCompleted>> driverRestartCompletedHandlers,
             [Parameter(Value = typeof(DriverApplicationParameters.DriverRestartFailedEvaluatorHandlers))]
             ISet<IObserver<IFailedEvaluator>> driverRestartFailedEvaluatorHandlers,
-            // Client event 
+            // Client event
             [Parameter(Value = typeof(DriverApplicationParameters.ClientCloseWithMessageHandlers))]
             ISet<IObserver<byte[]>> clientCloseWithMessageHandlers,
             [Parameter(Value = typeof(DriverApplicationParameters.ClientCloseHandlers))]
@@ -189,189 +189,130 @@ namespace Org.Apache.REEF.Bridge.Core.Common.Driver
             }
             Log.Log(Level.Info, "Constructing DriverBridge");
 
-            if (!Enum.TryParse(traceLevel.ToString(CultureInfo.InvariantCulture), out Level level))
+            if (Enum.TryParse(traceLevel.ToString(CultureInfo.InvariantCulture), out Level level))
             {
-                Log.Log(Level.Warning, string.Format(CultureInfo.InvariantCulture, 
-                    "Invalid trace level {0} provided, will by default use verbose level", traceLevel));
+                Logger.SetCustomLevel(level);
             }
             else
             {
-                Logger.SetCustomLevel(level);
+                Log.Log(Level.Warning, "Invalid trace level {0} provided, will by default use verbose level", traceLevel);
             }
             s_activeDispatchCounter = 0;
         }
 
         public async Task DispatchDriverRestartFailedEvaluatorEvent(IFailedEvaluator failedEvaluatorEvent)
         {
-            using (var operation = new DisposableOperation(() => _driverRestartFailedEvaluatorDispatcher.OnNext(failedEvaluatorEvent)))
-            {
-                await operation.Run();
-            }
+            await DispatchAsync(_driverRestartFailedEvaluatorDispatcher, failedEvaluatorEvent);
         }
 
         public async Task DispatchDriverRestartCompletedEvent(IDriverRestartCompleted driverRestartCompletedEvent)
         {
-            using (var operation = new DisposableOperation(() => _driverRestartCompletedDispatcher.OnNext(driverRestartCompletedEvent)))
-            {
-                await operation.Run();
-            }
+            await DispatchAsync(_driverRestartCompletedDispatcher, driverRestartCompletedEvent);
         }
 
         public async Task DispatchDriverRestartRunningTaskEvent(IRunningTask runningTaskEvent)
         {
-            using (var operation = new DisposableOperation(() => _driverRestartRunningTaskDispatcher.OnNext(runningTaskEvent)))
-            {
-                await operation.Run();
-            }
+            await DispatchAsync(_driverRestartRunningTaskDispatcher, runningTaskEvent);
         }
 
         public async Task DispatchDriverRestartActiveContextEvent(IActiveContext activeContextEvent)
         {
-            using (var operation = new DisposableOperation(() => _driverRestartActiveContextDispatcher.OnNext(activeContextEvent)))
-            {
-                await operation.Run();
-            }
+            await DispatchAsync(_driverRestartActiveContextDispatcher, activeContextEvent);
         }
 
         public async Task DispatchDriverRestartedEvent(IDriverRestarted driverRestartedEvent)
         {
-            using (var operation = new DisposableOperation(() => _driverRestartedDispatcher.OnNext(driverRestartedEvent)))
-            {
-                await operation.Run();
-            }
+            await DispatchAsync(_driverRestartedDispatcher, driverRestartedEvent);
         }
 
         public async Task DispatchCompletedTaskEvent(ICompletedTask completedTaskEvent)
         {
-            using (var operation = new DisposableOperation(() => _completedTaskDispatcher.OnNext(completedTaskEvent)))
-            {
-                await operation.Run();
-            }
+            await DispatchAsync(_completedTaskDispatcher, completedTaskEvent);
         }
 
         public async Task DispatchRunningTaskEvent(IRunningTask runningTaskEvent)
         {
-            using (var operation = new DisposableOperation(() => _runningTaskDispatcher.OnNext(runningTaskEvent)))
-            {
-                await operation.Run();
-            }
+            await DispatchAsync(_runningTaskDispatcher, runningTaskEvent);
         }
 
         public async Task DispatchFailedTaskEvent(IFailedTask failedTaskEvent)
         {
-            using (var operation = new DisposableOperation(() => _failedTaskDispatcher.OnNext(failedTaskEvent)))
-            {
-                await operation.Run();
-            }
+            await DispatchAsync(_failedTaskDispatcher, failedTaskEvent);
         }
 
         public async Task DispatchTaskMessageEvent(ITaskMessage taskMessageEvent)
         {
-            using (var operation = new DisposableOperation(() => _taskMessageDispatcher.OnNext(taskMessageEvent)))
-            {
-                await operation.Run();
-            }
+            await DispatchAsync(_taskMessageDispatcher, taskMessageEvent);
         }
 
         public async Task DispatchSuspendedTaskEvent(ISuspendedTask suspendedTask)
         {
-            using (var operation = new DisposableOperation(() => _suspendedTaskDispatcher.OnNext(suspendedTask)))
-            {
-                await operation.Run();
-            }
+            await DispatchAsync(_suspendedTaskDispatcher, suspendedTask);
         }
 
         public async Task DispatchContextMessageEvent(IContextMessage contextMessageEvent)
         {
-            using (var operation = new DisposableOperation(() => _contextMessageDispatcher.OnNext(contextMessageEvent)))
-            {
-                await operation.Run();
-            }
+            await DispatchAsync(_contextMessageDispatcher, contextMessageEvent);
         }
 
         public async Task DispatchFailedContextEvent(IFailedContext failedContextEvent)
         {
-            using (var operation = new DisposableOperation(() => _failedContextDispatcher.OnNext(failedContextEvent)))
-            {
-                await operation.Run();
-            }
+            await DispatchAsync(_failedContextDispatcher, failedContextEvent);
         }
 
         public async Task DispatchClosedContextEvent(IClosedContext closedContextEvent)
         {
-            using (var operation = new DisposableOperation(() => _closedContextDispatcher.OnNext(closedContextEvent)))
-            {
-                await operation.Run();
-            }
+            await DispatchAsync(_closedContextDispatcher, closedContextEvent);
         }
 
         public async Task DispatchActiveContextEvent(IActiveContext activeContextEvent)
         {
-            using (var operation = new DisposableOperation(() => _activeContextDispatcher.OnNext(activeContextEvent)))
-            {
-                await operation.Run();
-            }
+            await DispatchAsync(_activeContextDispatcher, activeContextEvent);
         }
 
         public async Task DispatchCompletedEvaluatorEvent(ICompletedEvaluator completedEvaluatorEvent)
         {
-            using (var operation = new DisposableOperation(() => _completedEvaluatorDispatcher.OnNext(completedEvaluatorEvent)))
-            {
-                await operation.Run();
-            }
+            await DispatchAsync(_completedEvaluatorDispatcher, completedEvaluatorEvent);
         }
 
         public async Task DispatchFailedEvaluatorEvent(IFailedEvaluator failedEvaluatorEvent)
         {
-            using (var operation = new DisposableOperation(() => _failedEvaluatorDispatcher.OnNext(failedEvaluatorEvent)))
-            {
-                await operation.Run();
-            }
+            await DispatchAsync(_failedEvaluatorDispatcher, failedEvaluatorEvent);
         }
 
         public async Task DispatchAllocatedEvaluatorEventAsync(IAllocatedEvaluator allocatedEvaluatorEvent)
         {
-            using (var operation = new DisposableOperation(() => _allocatedEvaluatorDispatcher.OnNext(allocatedEvaluatorEvent)))
-            {
-                await operation.Run();
-            }
+            await DispatchAsync(_allocatedEvaluatorDispatcher, allocatedEvaluatorEvent);
         }
 
         public async Task DispatchStartEventAsync(IDriverStarted startEvent)
         {
-            using (var operation = new DisposableOperation(() => _driverStartedDispatcher.OnNext(startEvent)))
-            {
-                await operation.Run();
-            }
+            await DispatchAsync(_driverStartedDispatcher, startEvent);
         }
 
         public async Task DispatchStopEvent(IDriverStopped stopEvent)
         {
-            using (var operation = new DisposableOperation(() => _driverStoppedDispatcher.OnNext(stopEvent)))
-            {
-                await operation.Run();
-            }
+            await DispatchAsync(_driverStoppedDispatcher, stopEvent);
         }
 
         public async Task DispatchClientCloseEvent()
         {
-            using (var operation = new DisposableOperation(() => _clientCloseDispatcher.OnNext(null)))
-            {
-                await operation.Run();
-            }
+            await DispatchAsync(_clientCloseDispatcher, null);
         }
 
         public async Task DispatchClientCloseWithMessageEvent(byte[] message)
         {
-            using (var operation = new DisposableOperation(() => _clientCloseWithMessageDispatcher.OnNext(message)))
-            {
-                await operation.Run();
-            }
+            await DispatchAsync(_clientCloseWithMessageDispatcher, message);
         }
 
         public async Task DispatchClientMessageEvent(byte[] message)
         {
-            using (var operation = new DisposableOperation(() => _clientMessageDispatcher.OnNext(message)))
+            await DispatchAsync(_clientMessageDispatcher, message);
+        }
+
+        private static async Task DispatchAsync<T>(DispatchEventHandler<T> handler, T message)
+        {
+            using (var operation = new DisposableOperation(() => handler.OnNext(message)))
             {
                 await operation.Run();
             }

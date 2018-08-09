@@ -15,11 +15,11 @@
 // specific language governing permissions and limitations
 // under the License.
 
-using System;
-using System.Runtime.Serialization;
 using Org.Apache.REEF.Common.Client;
 using Org.Apache.REEF.Common.Exceptions;
 using Org.Apache.REEF.Utilities;
+using System;
+using System.Runtime.Serialization;
 
 namespace Org.Apache.REEF.Bridge.Core.Common.Client.Events
 {
@@ -41,6 +41,7 @@ namespace Org.Apache.REEF.Bridge.Core.Common.Client.Events
         public Optional<string> Description { get; set; }
         public Optional<string> Reason { get; set; }
         public Optional<byte[]> Data { get; set; }
+
         public Exception AsError()
         {
             if (Data.IsPresent())

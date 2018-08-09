@@ -15,8 +15,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
-using System;
 using Org.Apache.REEF.Driver;
+using System;
 
 namespace Org.Apache.REEF.Bridge.Core.Common.Driver.Events
 {

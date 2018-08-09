@@ -45,7 +45,6 @@ namespace Org.Apache.REEF.Bridge.Core.Common.Client.Config.Runtime.Proto
             };
         }
 
-
         public void SetParameters(DriverClientConfiguration driverClientConfiguration)
         {
             driverClientConfiguration.AzbatchRuntime = _azureBatchRuntimeParameters;
