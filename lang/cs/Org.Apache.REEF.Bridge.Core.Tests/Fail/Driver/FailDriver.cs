@@ -150,7 +150,7 @@ namespace Org.Apache.REEF.Bridge.Core.Tests.Fail.Driver
         {
             string msgClassName = _failMsgClass.FullName;
             Log.Log(Level.Info, "Driver state {0} event sequence {1} message obj type {2}",
-                new object[] { _state, EventSequence[_expectIdx].Type, obj.GetType() });
+                _state, EventSequence[_expectIdx].Type, obj.GetType());
 
             if (_state == DriverState.Failed)
             {

@@ -31,6 +31,7 @@ using Org.Apache.REEF.Utilities;
 using Org.Apache.REEF.Utilities.Logging;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.Serialization;
 using System.Threading.Tasks;
 using Void = Org.Apache.REEF.Bridge.Core.Proto.Void;
@@ -651,18 +652,9 @@ namespace Org.Apache.REEF.Bridge.Core.Grpc.Driver
         {
             try
             {
-                Logger.Log(Level.Info, "evaluator failure {0}", info.Failure);
-                Logger.Log(Level.Info, "failed task id {0}", info.Failure.FailedTaskId);
-                Logger.Log(Level.Info, "failed context count {0}", info.Failure.FailedContexts.Count);
-                Logger.Log(Level.Info, "failed exception {0}", info.Failure.Exception);
-
-                List<IFailedContext> failedContexts = new List<IFailedContext>();
-                foreach (var failedContextId in info.Failure.FailedContexts)
-                {
-                    failedContexts.Add(CreateFailedContextAndForget(info, failedContextId));
-                }
-
-                Optional<IFailedTask> failedTask = info.Failure.FailedTaskId.Equals(string.Empty)
+                var failedContexts = info.Failure.FailedContexts.Select(contextId =>
+                    CreateFailedContextAndForget(info, contextId)).Cast<IFailedContext>().ToList();
+                var failedTask = string.IsNullOrEmpty(info.Failure.FailedTaskId)
                     ? Optional<IFailedTask>.Empty()
                     : Optional<IFailedTask>.Of(CreateFailedTaskAndForget(info.Failure.FailedTaskId,
                         info.Failure.Exception,
@@ -687,7 +679,7 @@ namespace Org.Apache.REEF.Bridge.Core.Grpc.Driver
             var errorBytes = failureInfo.Exception.Data.ToByteArray();
             if (errorBytes == null || errorBytes.Length == 0)
             {
-                Logger.Log(Level.Error, $"Exception without object details: {failureInfo.Exception.Message}");
+                Logger.Log(Level.Error, "Exception without object details: {0}", failureInfo.Exception.Message);
                 return new EvaluatorException(
                     eval.EvaluatorId,
                     failureInfo.Exception.Message,

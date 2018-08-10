@@ -23,7 +23,6 @@ using Org.Apache.REEF.Driver.Task;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Tang.Util;
 using Org.Apache.REEF.Utilities.Logging;
-using Org.Apache.REEF.Wake.Time;
 using System;
 
 namespace Org.Apache.REEF.Bridge.Core.HelloREEF
@@ -42,15 +41,12 @@ namespace Org.Apache.REEF.Bridge.Core.HelloREEF
         IObserver<ICompletedTask>,
         IObserver<IFailedTask>
     {
-        private static readonly Logger _Logger = Logger.GetLogger(typeof(HelloDriver));
+        private static readonly Logger Logger = Logger.GetLogger(typeof(HelloDriver));
         private readonly IEvaluatorRequestor _evaluatorRequestor;
 
-        private readonly IClock _clock;
-
         [Inject]
-        private HelloDriver(IClock clock, IEvaluatorRequestor evaluatorRequestor)
+        private HelloDriver(IEvaluatorRequestor evaluatorRequestor)
         {
-            _clock = clock;
             _evaluatorRequestor = evaluatorRequestor;
         }
 
@@ -60,26 +56,26 @@ namespace Org.Apache.REEF.Bridge.Core.HelloREEF
         /// <param name="allocatedEvaluator">Newly allocated evaluator's proxy object.</param>
         public void OnNext(IAllocatedEvaluator allocatedEvaluator)
         {
-            _Logger.Log(Level.Info, "Evaluator allocated: {0}", allocatedEvaluator);
+            Logger.Log(Level.Info, "Evaluator allocated: {0}", allocatedEvaluator);
 
             var taskConfiguration = TaskConfiguration.ConfigurationModule
                 .Set(TaskConfiguration.Identifier, "HelloTask")
                 .Set(TaskConfiguration.Task, GenericType<HelloTask>.Class)
                 .Build();
 
-            _Logger.Log(Level.Verbose, "Submit task: {0}", taskConfiguration);
+            Logger.Log(Level.Verbose, "Submit task: {0}", taskConfiguration);
             allocatedEvaluator.SubmitTask(taskConfiguration);
         }
 
         public void OnNext(IFailedEvaluator value)
         {
-            _Logger.Log(Level.Info, "Failed Evaluator: {0}", value.Id);
+            Logger.Log(Level.Info, "Failed Evaluator: {0}", value.Id);
             throw value.EvaluatorException;
         }
 
         public void OnNext(ICompletedEvaluator value)
         {
-            _Logger.Log(Level.Info, "Completed Evaluator: {0}", value.Id);
+            Logger.Log(Level.Info, "Completed Evaluator: {0}", value.Id);
         }
 
         public void OnError(Exception error)
@@ -93,7 +89,7 @@ namespace Org.Apache.REEF.Bridge.Core.HelloREEF
 
         public void OnNext(IDriverStopped value)
         {
-            _Logger.Log(Level.Info, "HelloDriver stopped at {0}", value.StopTime);
+            Logger.Log(Level.Info, "HelloDriver stopped at {0}", value.StopTime);
         }
 
         /// <summary>
@@ -102,18 +98,18 @@ namespace Org.Apache.REEF.Bridge.Core.HelloREEF
         /// <param name="driverStarted">Notification that the Driver is up and running.</param>
         public void OnNext(IDriverStarted driverStarted)
         {
-            _Logger.Log(Level.Info, "HelloDriver started at {0}", driverStarted.StartTime);
+            Logger.Log(Level.Info, "HelloDriver started at {0}", driverStarted.StartTime);
             _evaluatorRequestor.Submit(_evaluatorRequestor.NewBuilder().SetMegabytes(64).Build());
         }
 
         public void OnNext(IRunningTask value)
         {
-            _Logger.Log(Level.Info, "HelloDriver received running task {0}", value.Id);
+            Logger.Log(Level.Info, "HelloDriver received running task {0}", value.Id);
         }
 
         public void OnNext(ICompletedTask value)
         {
-            _Logger.Log(Level.Info, "HelloDriver received completed task {0}", value.Id);
+            Logger.Log(Level.Info, "HelloDriver received completed task {0}", value.Id);
             var taskConfiguration = TaskConfiguration.ConfigurationModule
                 .Set(TaskConfiguration.Identifier, "FailedTask")
                 .Set(TaskConfiguration.Task, GenericType<FailedTask>.Class)
@@ -123,14 +119,15 @@ namespace Org.Apache.REEF.Bridge.Core.HelloREEF
 
         public void OnNext(IFailedTask value)
         {
-            _Logger.Log(Level.Info, "HelloDriver received failed task {0} with active context {0}", new object[] { value.Id, value.GetActiveContext().Value.Id });
+            Logger.Log(Level.Info, "HelloDriver received failed task {0} with active context {1}", 
+                value.Id, value.GetActiveContext().Value.Id);
             value.GetActiveContext().Value.Dispose();
-            _Logger.Log(Level.Info, "HelloDriver closed active context {0}", value.GetActiveContext().Value.Id);
+            Logger.Log(Level.Info, "HelloDriver closed active context {0}", value.GetActiveContext().Value.Id);
         }
 
         public void OnNext(IActiveContext value)
         {
-            _Logger.Log(Level.Info, "HelloDriver received active context {0}", value.Id);
+            Logger.Log(Level.Info, "HelloDriver received active context {0}", value.Id);
         }
     }
 }

@@ -57,7 +57,7 @@ namespace Org.Apache.REEF.Bridge.Core.Grpc.Driver
 
         public void RegisterDriverClientService(Exception exception)
         {
-            Logger.Log(Level.Info, $"Register driver client error {exception}");
+            Logger.Log(Level.Info, "Register driver client error", exception);
             var registration = new DriverClientRegistration
             {
                 Exception = GrpcUtils.SerializeException(exception)
@@ -67,7 +67,7 @@ namespace Org.Apache.REEF.Bridge.Core.Grpc.Driver
 
         public void RegisterDriverClientService(string host, int port)
         {
-            Logger.Log(Level.Info, $"Register driver client at host {host}, port {port}");
+            Logger.Log(Level.Info, "Register driver client at host {0} port {1}", host, port);
             var registration = new DriverClientRegistration
             {
                 Host = host,
@@ -129,15 +129,11 @@ namespace Org.Apache.REEF.Bridge.Core.Grpc.Driver
                 RuntimeName = evaluatorRequest.RuntimeName,
                 NodeLabel = evaluatorRequest.NodeLabelExpression
             };
-            if (!string.Empty.Equals(evaluatorRequest.Rack))
+            if (!string.IsNullOrEmpty(evaluatorRequest.Rack))
             {
                 request.RackNameList.Add(evaluatorRequest.Rack);
             }
-
-            if (evaluatorRequest.NodeNames.Count > 0)
-            {
-                request.NodeNameList.Add(evaluatorRequest.NodeNames);
-            }
+            request.NodeNameList.Add(evaluatorRequest.NodeNames);
             _driverServiceStub.RequestResources(request);
         }
 

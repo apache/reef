@@ -58,12 +58,10 @@ under the License.
           string grpcOutputDirectory = Path.GetFullPath(OutputDirectory);
           string grpcPluginName = Path.Combine(GrpcBinaryDirectory, grpcCSharpPlugin);
 
-          if (!Directory.Exists(grpcOutputDirectory)) {
-            Directory.CreateDirectory(grpcOutputDirectory);
-          }
+          Directory.CreateDirectory(grpcOutputDirectory);
            
           // Get the list of names of .proto files
-          string[] sourceFiles = SourceFileList.Split(new char[]{';'});
+          string[] sourceFiles = SourceFileList.Split(';');
 
           // Setup the conversion process.
           ProcessStartInfo rProcInfo = new ProcessStartInfo()
@@ -89,24 +87,16 @@ under the License.
                         + " " + fullFileName + " --grpc_out " + grpcOutputDirectory
                         + " --plugin=protoc-gen-grpc=" + grpcPluginName;
                     logWriter.WriteLine("Command: {0}", rProcInfo.Arguments);
-
                     StringBuilder stdOutBuilder = new StringBuilder();
                     StringBuilder stdErrBuilder = new StringBuilder();
-
-                  
                     using (Process rProc = Process.Start(rProcInfo))
                     {
                       var stdOutTask = System.Threading.Tasks.Task.Run(
                         () => stdOutBuilder.Append(rProc.StandardOutput.ReadToEnd()));
                       var stdErrTask = System.Threading.Tasks.Task.Run(
                         () => stdErrBuilder.Append(rProc.StandardError.ReadToEnd()));
-
                       rProc.WaitForExit();
-                      if (rProc.ExitCode != 0)
-                      {
-                        conversionError = true;
-                      }
-  
+                      conversionError = rProc.ExitCode != 0;
                       // Wait for std out and error readers.
                       stdOutTask.Wait();
                       stdErrTask.Wait();
