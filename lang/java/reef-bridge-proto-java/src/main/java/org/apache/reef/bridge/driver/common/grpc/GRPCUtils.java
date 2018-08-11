@@ -66,7 +66,7 @@ public final class GRPCUtils {
   public static ExceptionInfo createExceptionInfo(final ExceptionCodec exceptionCodec, final Throwable ex)  {
     return ExceptionInfo.newBuilder()
         .setName(ex.getCause() != null ? ex.getCause().toString() : ex.toString())
-        .setMessage(StringUtils.isNotEmpty(ex.getMessage()) ? ex.toString() : ex.getMessage())
+        .setMessage(StringUtils.isNotEmpty(ex.getMessage()) ? ex.getMessage() : ex.toString())
         .setData(ByteString.copyFrom(exceptionCodec.toBytes(ex)))
         .build();
   }

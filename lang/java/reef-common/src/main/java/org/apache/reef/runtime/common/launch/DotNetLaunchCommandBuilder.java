@@ -21,9 +21,9 @@ package org.apache.reef.runtime.common.launch;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.reef.util.OSUtils;
-import org.apache.reef.util.Optional;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.logging.Level;
@@ -39,8 +39,7 @@ public final class DotNetLaunchCommandBuilder implements LaunchCommandBuilder {
 
   private String standardErrPath = null;
   private String standardOutPath = null;
-  private int megaBytes = 0;
-  private Optional<List<String>> evaluatorConfigurationPaths = Optional.empty();
+  private List<String> evaluatorConfigurationPaths = new ArrayList<>();
 
   @Override
   public List<String> build() {
@@ -57,15 +56,11 @@ public final class DotNetLaunchCommandBuilder implements LaunchCommandBuilder {
     } else {
       LOG.log(Level.WARNING, "executable file can NOT be found");
     }
-    if (evaluatorConfigurationPaths.isPresent()) {
-      for (final String evaluatorConfigurationPath : evaluatorConfigurationPaths.get()) {
-        result.add(evaluatorConfigurationPath);
-      }
-    }
-    if (null != this.standardOutPath && !standardOutPath.isEmpty()) {
+    result.addAll(evaluatorConfigurationPaths);
+    if (StringUtils.isNotEmpty(this.standardOutPath)) {
       result.add(">" + this.standardOutPath);
     }
-    if (null != this.standardErrPath && !standardErrPath.isEmpty()) {
+    if (StringUtils.isNotEmpty(this.standardErrPath)) {
       result.add("2>" + this.standardErrPath);
     }
     LOG.log(Level.INFO, "Launch Exe: {0}", StringUtils.join(result, ' '));
@@ -75,13 +70,12 @@ public final class DotNetLaunchCommandBuilder implements LaunchCommandBuilder {
   @Override
   @SuppressWarnings("checkstyle:hiddenfield")
   public DotNetLaunchCommandBuilder setMemory(final int megaBytes) {
-    this.megaBytes = megaBytes;
     return this;
   }
 
   @Override
   public DotNetLaunchCommandBuilder setConfigurationFilePaths(final List<String> configurationFilePaths) {
-    this.evaluatorConfigurationPaths = Optional.of(configurationFilePaths);
+    this.evaluatorConfigurationPaths.addAll(configurationFilePaths);
     return this;
   }
 

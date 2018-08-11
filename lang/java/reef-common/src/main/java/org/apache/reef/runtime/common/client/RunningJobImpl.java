@@ -156,7 +156,7 @@ public final class RunningJobImpl implements RunningJob, EventHandler<JobStatusP
     if (cause.isPresent() && cause.get().getMessage() != null) {
       message = cause.get().getMessage();
     } else {
-      message = "No Message sent by the Job in exception " + cause.get().toString();
+      message = "No Message sent by the Job in exception " + cause.get();
       LOG.log(Level.WARNING, message, cause.get());
     }
     final Optional<String> description = Optional.of(message);
