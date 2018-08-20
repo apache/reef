@@ -241,12 +241,21 @@ namespace Org.Apache.REEF.Bridge.Core.Grpc.Driver
             try
             {
                 Logger.Log(Level.Info, "Failed context event id {0}", request.ContextId);
-                if (_activeContexts.TryGetValue(request.ContextId, out BridgeActiveContext activeContext))
+                BridgeActiveContext activeContext; 
+                BridgeActiveContext parentContext = null;
+                lock (_lock)
                 {
-                    _activeContexts.Remove(request.ContextId);
-                    var parentContext = activeContext.ParentId.IsPresent()
-                        ? _activeContexts[activeContext.ParentId.Value]
-                        : null;
+                    if (_activeContexts.TryGetValue(request.ContextId, out activeContext))
+                    {
+                        _activeContexts.Remove(request.ContextId);
+                        parentContext = activeContext.ParentId.IsPresent()
+                            ? _activeContexts[activeContext.ParentId.Value]
+                            : null;
+                    }
+                }
+
+                if (activeContext != null)
+                {
                     await _driverBridge.DispatchFailedContextEvent(
                         new BridgeFailedContext(
                             activeContext.Id,
@@ -334,8 +343,11 @@ namespace Org.Apache.REEF.Bridge.Core.Grpc.Driver
         {
             try
             {
-                Logger.Log(Level.Info, "Completed task {0}", request.TaskId);
-                _runningTasks.Remove(request.TaskId);
+                lock (_lock)
+                {
+                    Logger.Log(Level.Info, "Completed task {0}", request.TaskId);
+                    _runningTasks.Remove(request.TaskId);
+                }
                 var activeContext = GetOrCreateActiveContext(request.Context);
                 await _driverBridge.DispatchCompletedTaskEvent(new BridgeCompletedTask(request.Result.ToByteArray(),
                     request.TaskId,
@@ -388,7 +400,7 @@ namespace Org.Apache.REEF.Bridge.Core.Grpc.Driver
             try
             {
                 Logger.Log(Level.Info, "Suspended task {0}", request.TaskId);
-                var activeContext = _activeContexts[request.Context.ContextId];
+                var activeContext = GetOrCreateActiveContext(request.Context);
                 await _driverBridge.DispatchSuspendedTaskEvent(new BridgeSuspendedTask(request.Result.ToByteArray(),
                     request.TaskId,
                     activeContext));
@@ -482,9 +494,7 @@ namespace Org.Apache.REEF.Bridge.Core.Grpc.Driver
         {
             try
             {
-                var activeContext = GetOrCreateActiveContext(request.Context);
-                var runningTask = new BridgeRunningTask(_driverServiceClient, request.TaskId, activeContext);
-                _runningTasks[runningTask.Id] = runningTask;
+                var runningTask = GetOrCreateRunningTask(request);
                 await _driverBridge.DispatchDriverRestartRunningTaskEvent(runningTask);
             }
             catch (Exception ex)

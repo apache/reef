@@ -45,7 +45,7 @@ namespace Org.Apache.REEF.Bridge.Core.Grpc.Driver
             return new ExceptionInfo()
             {
                 NoError = false,
-                Name = ex.ToString(),
+                Name = ex.GetType().ToString(),
                 Message = ex.Message,
                 Data = serializedException
             };

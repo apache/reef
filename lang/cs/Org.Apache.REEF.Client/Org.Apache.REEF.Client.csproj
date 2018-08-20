@@ -153,10 +153,8 @@ under the License.
     </ItemGroup>
     <Copy SourceFiles="@(MySourceFiles)" DestinationFiles="@(MySourceFiles->'$(TargetDir)%(Filename)%(Extension)')" />
   </Target>
-  <!--
   <Target Name="RemovingTempResx" AfterTargets="AfterBuild">
     <Message Text="Removing temporary resx file" Importance="high" />
     <Delete Files="$(TempResxFile)" />
   </Target>
-  -->
 </Project>

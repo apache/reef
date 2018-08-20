@@ -22,13 +22,15 @@ under the License.
     <Description>REEF Bridge Core Proto</Description>
     <PackageTags>REEF Bridge Core Proto</PackageTags>
     <TargetFramework>netstandard2.0</TargetFramework>
+	<ProtoVersion>3.6.0</ProtoVersion>
+	<GrpcVersion>1.13.0</GrpcVersion>
   </PropertyGroup>
 
   <Import Project="..\build.props" />
   <ItemGroup>
-    <PackageReference Include="Google.Protobuf" Version="3.6.0" />
-    <PackageReference Include="Grpc.Tools" Version="1.13.0" />
-    <PackageReference Include="Grpc.Core" Version="1.13.0">
+    <PackageReference Include="Google.Protobuf" Version="$(ProtoVersion)" />
+    <PackageReference Include="Grpc.Tools" Version="$(GrpcVersion)" />
+    <PackageReference Include="Grpc.Core" Version="$(GrpcVersion)">
        <IncludeAssets>all</IncludeAssets>
 	     <ExcludeAssets>none</ExcludeAssets>
 	     <PrivateAssets>none</PrivateAssets>
@@ -40,11 +42,11 @@ under the License.
   </PropertyGroup>
   <!-- Settings for Linux platforms -->
   <PropertyGroup Condition="'$(OS)' != 'Windows_NT'">
-    <GrpcToolsDirectory>$(PackagesDir)\grpc.tools\1.13.0\tools\linux_x64</GrpcToolsDirectory>
+    <GrpcToolsDirectory>$(PackagesDir)\grpc.tools\$(GrpcVersion)\tools\linux_x64</GrpcToolsDirectory>
   </PropertyGroup>
   <!-- Settings for Windows platforms -->
   <PropertyGroup Condition="'$(OS)' == 'Windows_NT'">
-    <GrpcToolsDirectory>$(PackagesDir)\grpc.tools\1.13.0\tools\windows_x64</GrpcToolsDirectory>
+    <GrpcToolsDirectory>$(PackagesDir)\grpc.tools\$(GrpcVersion)\tools\windows_x64</GrpcToolsDirectory>
     <GrpcToolsExtension>.exe</GrpcToolsExtension>
   </PropertyGroup>
   <ItemGroup>
@@ -52,7 +54,7 @@ under the License.
       <HintPath>$(GRrpcLibraryDirectory)\Grpc.Core.dll</HintPath>
     </Reference>
     <Reference Include="Google.Protobuf">
-      <HintPath>$(PackagesDir)\Google.Protobuf.3.5.1\lib\netstandard1.0\Google.Protobuf.dll</HintPath>
+      <HintPath>$(PackagesDir)\google.protobuf\$(ProtoVersion)\lib\netstandard1.0\Google.Protobuf.dll</HintPath>
       <Private>True</Private>
     </Reference>
   </ItemGroup>

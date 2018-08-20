@@ -153,7 +153,7 @@ namespace Org.Apache.REEF.Bridge.Core.Grpc.Driver
             Optional<IConfiguration> taskConfiguration,
             List<FileInfo> addFileList, List<FileInfo> addLibraryList)
         {
-            Logger.Log(Level.Info, "Submitting allocated evaluator");
+            Logger.Log(Level.Info, "Submitting allocated evaluator {0}", evaluatorId);
 
             var evaluatorConf =
                 _configurationSerializer.ToString(TangFactory.GetTang().NewConfigurationBuilder().Build());

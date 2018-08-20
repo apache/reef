@@ -110,7 +110,7 @@ under the License.
           }
           if (!conversionError)
           {
-            // Directory.Delete(tempDir, recursive : true);
+            Directory.Delete(tempDir, recursive : true);
           }
       ]]>
       </Code>
