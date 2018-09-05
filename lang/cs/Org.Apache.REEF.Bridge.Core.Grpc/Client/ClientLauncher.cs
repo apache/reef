@@ -140,7 +140,7 @@ namespace Org.Apache.REEF.Bridge.Core.Grpc.Client
             else
             {
                 _driverClientConfiguration.DriverClientLaunchCommand = string.Format(
-                    @"dotnet /c {0} {1}",
+                    @"dotnet {0} {1}",
                     Path.Combine(_reefFileNames.GetGlobalFolderPath(), DriverDll),
                     _reefFileNames.GetClrDriverConfigurationPath());
             }
