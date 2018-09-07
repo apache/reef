@@ -75,7 +75,7 @@ namespace Org.Apache.REEF.Tests.Functional.FaultTolerant
         {
             string testFolder = DefaultRuntimeFolder + TestId;
             TestRun(DriverConfigurations(), typeof(ResubmitTaskTestDriver), 2, "TestResubimitTask", "local", testFolder);
-            ValidateSuccessForLocalRuntime(1, 0, 1, testFolder);
+            ValidateSuccessForLocalRuntime(1, 1, 0, testFolder);
             CleanUp(testFolder);
         }
 
@@ -91,7 +91,7 @@ namespace Org.Apache.REEF.Tests.Functional.FaultTolerant
                 .Set(DriverConfiguration.OnContextActive, GenericType<ResubmitTaskTestDriver>.Class)
                 .Set(DriverConfiguration.OnTaskRunning, GenericType<ResubmitTaskTestDriver>.Class)
                 .Set(DriverConfiguration.OnTaskCompleted, GenericType<ResubmitTaskTestDriver>.Class)
-                .Set(DriverConfiguration.OnEvaluatorFailed, GenericType<ResubmitTaskTestDriver>.Class)
+                .Set(DriverConfiguration.OnTaskFailed, GenericType<ResubmitTaskTestDriver>.Class)
                 .Build();
         }
 
@@ -103,14 +103,13 @@ namespace Org.Apache.REEF.Tests.Functional.FaultTolerant
             IObserver<IAllocatedEvaluator>,
             IObserver<IActiveContext>,
             IObserver<ICompletedTask>,
-            IObserver<IFailedEvaluator>,
+            IObserver<IFailedTask>,
             IObserver<IRunningTask>
         {
             private readonly IEvaluatorRequestor _requestor;
             private const string TaskId = "TaskId";
             private int _taskNumber = 1;
             private const string ContextId = "ContextId";
-            private int _contextNumber = 1;
             private readonly IDictionary<string, string> _taskContextMapping = new Dictionary<string, string>();
             private readonly object _lock = new object();
 
@@ -127,55 +126,33 @@ namespace Org.Apache.REEF.Tests.Functional.FaultTolerant
 
             public void OnNext(IAllocatedEvaluator value)
             {
-                lock (_lock)
-                {
-                    value.SubmitContext(
-                        ContextConfiguration.ConfigurationModule
-                            .Set(ContextConfiguration.Identifier, ContextId + _contextNumber)
-                            .Build());
-                    _contextNumber++;
-                }
+                value.SubmitContext(
+                    ContextConfiguration.ConfigurationModule
+                        .Set(ContextConfiguration.Identifier, ContextId)
+                        .Build());
             }
 
             public void OnNext(IActiveContext value)
             {
-                lock (_lock)
-                {
-                    value.SubmitTask(GetTaskConfigurationForCloseTask(TaskId + _taskNumber));
-                    _taskContextMapping.Add(TaskId + _taskNumber, value.Id);
-                    _taskNumber++;
-                }
+                value.SubmitTask(GetTaskConfigurationForCloseTask(TaskId + _taskNumber));
+                _taskContextMapping.Add(TaskId + _taskNumber, value.Id);
+                _taskNumber++;
             }
 
             public void OnNext(ICompletedTask value)
             {
                 Logger.Log(Level.Info, "Task completed: " + value.Id);
-                VerifyContextTaskMapping(value.Id, value.ActiveContext.Id);
                 value.ActiveContext.Dispose();
             }
 
             /// <summary>
             /// Verify when exception is shown in TaskCloseHandler, IFailedEvaluator will be received here with the message set in the task
             /// </summary>
-            public void OnNext(IFailedEvaluator value)
+            public void OnNext(IFailedTask value)
             {
-                Assert.True(value.FailedTask.IsPresent());
-                var failedExeption = value.EvaluatorException.InnerException;
-                Assert.Contains(TaskKilledByDriver, failedExeption.Message);
-
-                Logger.Log(Level.Error, "In IFailedEvaluator: " + failedExeption);
-
-                VerifyContextTaskMapping(value.FailedTask.Value.Id, value.FailedContexts.Single().Id);
-            }
-
-            private void VerifyContextTaskMapping(string taskId, string contextId)
-            {
-                lock (_lock)
-                {
-                    string expectedContextId;
-                    _taskContextMapping.TryGetValue(taskId, out expectedContextId);
-                    Assert.Equal(expectedContextId, contextId);
-                }
+                value.GetActiveContext().Value.SubmitTask(GetTaskConfigurationForCloseTask(TaskId + _taskNumber));
+                _taskContextMapping.Add(TaskId + _taskNumber, value.Id);
+                _taskNumber++;
             }
 
             /// <summary>

@@ -20,6 +20,7 @@ using System.Collections.Generic;
 using Org.Apache.REEF.Common.Tasks;
 using Org.Apache.REEF.Common.Tasks.Events;
 using Org.Apache.REEF.Driver;
+using Org.Apache.REEF.Driver.Context;
 using Org.Apache.REEF.Driver.Evaluator;
 using Org.Apache.REEF.Driver.Task;
 using Org.Apache.REEF.Tang.Annotations;
@@ -56,18 +57,12 @@ namespace Org.Apache.REEF.Tests.Functional.Failure.User
             TestRun(DriverConfiguration.ConfigurationModule
                 .Set(DriverConfiguration.OnDriverStarted, GenericType<TaskCloseExceptionTestDriver>.Class)
                 .Set(DriverConfiguration.OnEvaluatorAllocated, GenericType<TaskCloseExceptionTestDriver>.Class)
-                .Set(DriverConfiguration.OnEvaluatorFailed, GenericType<TaskCloseExceptionTestDriver>.Class)
+                .Set(DriverConfiguration.OnTaskFailed, GenericType<TaskCloseExceptionTestDriver>.Class)
                 .Set(DriverConfiguration.OnTaskRunning, GenericType<TaskCloseExceptionTestDriver>.Class)
+                .Set(DriverConfiguration.OnContextClosed, GenericType<TaskCloseExceptionTestDriver>.Class)
                 .Build(), typeof(TaskCloseExceptionTestDriver), 1, "testCloseTaskWithExceptionOnLocalRuntime", "local", testFolder);
 
-            var driverMessages = new List<string>
-            {
-                FailedEvaluatorReceived
-            };
-
-            ValidateSuccessForLocalRuntime(numberOfContextsToClose: 0, numberOfEvaluatorsToFail: 1, testFolder: testFolder);
-            ValidateMessagesSuccessfullyLoggedForDriver(driverMessages, testFolder, 1);
-            ValidateMessageSuccessfullyLogged(driverMessages, "driver", DriverStdout, testFolder, 1);
+            ValidateSuccessForLocalRuntime(numberOfContextsToClose: 2, numberOfTasksToFail: 2, numberOfEvaluatorsToFail: 0, testFolder: testFolder);
             CleanUp(testFolder);
         }
 
@@ -75,7 +70,8 @@ namespace Org.Apache.REEF.Tests.Functional.Failure.User
             IObserver<IDriverStarted>,
             IObserver<IAllocatedEvaluator>,
             IObserver<IRunningTask>,
-            IObserver<IFailedEvaluator>
+            IObserver<IFailedTask>,
+            IObserver<IClosedContext>
         {
             private static readonly string TaskId = "TaskId";
 
@@ -90,6 +86,11 @@ namespace Org.Apache.REEF.Tests.Functional.Failure.User
             public void OnNext(IDriverStarted value)
             {
                 _requestor.Submit(_requestor.NewBuilder().Build());
+            }
+
+            public void OnNext(IClosedContext context)
+            {
+
             }
 
             public void OnNext(IAllocatedEvaluator value)
@@ -110,34 +111,9 @@ namespace Org.Apache.REEF.Tests.Functional.Failure.User
                 }
             }
 
-            public void OnNext(IFailedEvaluator value)
+            public void OnNext(IFailedTask value)
             {
-                Assert.True(value.FailedTask.IsPresent());
-                var failedTask = value.FailedTask.Value;
-
-                Assert.Equal(TaskId, failedTask.Id);
-
-                // Check that Exceptions are deserialized correctly.
-                var ex = value.EvaluatorException.InnerException;
-                if (ex == null)
-                {
-                    throw new Exception("Exception was not expected to be null.");
-                }
-
-                var taskCloseEx = ex as TestSerializableException;
-
-                if (taskCloseEx == null)
-                {
-                    throw new Exception("Expected Exception to be of type TaskCloseExceptionTestException, but instead got type " + ex.GetType().Name);
-                }
-
-                if (taskCloseEx.Message != TaskCloseExceptionMessage)
-                {
-                    throw new Exception(
-                        "Expected message to be " + TaskCloseExceptionMessage + " but instead got " + taskCloseEx.Message + ".");
-                }
-
-                Logger.Log(Level.Info, FailedEvaluatorReceived);
+                value.GetActiveContext().Value.Dispose();
             }
 
             public void OnError(Exception error)
