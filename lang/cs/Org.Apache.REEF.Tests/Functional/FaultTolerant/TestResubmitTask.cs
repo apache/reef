@@ -75,7 +75,7 @@ namespace Org.Apache.REEF.Tests.Functional.FaultTolerant
         {
             string testFolder = DefaultRuntimeFolder + TestId;
             TestRun(DriverConfigurations(), typeof(ResubmitTaskTestDriver), 2, "TestResubimitTask", "local", testFolder);
-            ValidateSuccessForLocalRuntime(1, 1, 0, testFolder);
+            ValidateSuccessForLocalRuntime(2, 1, 0, testFolder);
             CleanUp(testFolder);
         }
 
