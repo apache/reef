@@ -15,8 +15,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-using System;
-using System.Collections.Generic;
 using Org.Apache.REEF.Common.Tasks;
 using Org.Apache.REEF.Examples.Tasks.HelloTask;
 using Org.Apache.REEF.Tang.Annotations;
@@ -31,6 +29,9 @@ using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Tang.Protobuf;
 using Org.Apache.REEF.Tang.Tests.ScenarioTest;
 using Org.Apache.REEF.Tang.Util;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using Xunit;
 
 namespace Org.Apache.REEF.Tang.Tests.Configuration
@@ -426,6 +427,77 @@ namespace Org.Apache.REEF.Tang.Tests.Configuration
         }
 
         [Fact]
+        public void TestListConfig()
+        {
+            IList<string> stringList1 = new List<string>();
+            stringList1.Add("foo");
+            stringList1.Add("bar");
+
+            IList<string> stringList2 = new List<string>();
+            stringList2.Add("test1");
+            stringList2.Add("test2");
+            stringList2.Add("test3");
+            stringList2.Add("test4");
+
+            IConfiguration conf = TangFactory.GetTang().NewConfigurationBuilder()
+                .BindList<ListOfStrings, string>(GenericType<ListOfStrings>.Class, stringList1)
+                .BindList<ListOfStrings2, string>(GenericType<ListOfStrings2>.Class, stringList2)
+                .Build();
+
+            ConfigurationFile.WriteConfigurationFile(conf, "ListOfStringsConf.txt");
+
+            string s = ConfigurationFile.ToConfigurationString(conf);
+            IConfiguration conf2 = ConfigurationFile.GetConfiguration(s);
+
+            ListInjectTest injectTest = (ListInjectTest)TangFactory.GetTang().
+                    NewInjector(conf2).GetInstance(typeof(ListInjectTest));
+
+            Assert.Equal(stringList1, injectTest.List1);
+            Assert.Equal(stringList2, injectTest.List2);
+        }
+
+        [Fact]
+        public void TestListConfigWithAvroSerialization()
+        {
+            IList<string> stringList = new List<string>();
+            stringList.Add("foo");
+            stringList.Add("bar");
+            IConfiguration conf = TangFactory.GetTang().NewConfigurationBuilder()
+                    .BindList<ListOfStrings, string>(GenericType<ListOfStrings>.Class, stringList)
+                    .Build();
+
+            var serializer = new AvroConfigurationSerializer();
+            byte[] bytes = serializer.ToByteArray(conf);
+            IConfiguration conf2 = serializer.FromByteArray(bytes);
+            Assert.Equal(1, conf2.GetBoundList().Count);
+
+            var actualList = conf2.GetBoundList().First().Value;
+            Assert.Equal(stringList, actualList);
+        }
+
+        [Fact]
+        public void TestListSerializeNullStringValue()
+        {
+            string msg = null;
+            IList<string> stringList = new List<string>();
+            stringList.Add(null);
+
+            try
+            {
+                IConfiguration conf = TangFactory.GetTang().NewConfigurationBuilder()
+                    .BindList<ListOfStrings, string>(GenericType<ListOfStrings>.Class, stringList)
+                    .Build();
+                var serializer = new AvroConfigurationSerializer();
+                byte[] bytes = serializer.ToByteArray(conf);
+            }
+            catch (IllegalStateException e)
+            {
+                msg = e.Message;
+            }
+            Assert.NotNull(msg);
+        }
+
+        [Fact]
         public void TestSetConfig()
         {
             IConfiguration conf = TangFactory.GetTang().NewConfigurationBuilder()
@@ -447,6 +519,7 @@ namespace Org.Apache.REEF.Tang.Tests.Configuration
             Assert.True(actual.Contains("five"));
             Assert.True(actual.Contains("six"));
         }
+
 
         [Fact]
         public void TestSetConfigWithAvroSerialization()
@@ -470,6 +543,7 @@ namespace Org.Apache.REEF.Tang.Tests.Configuration
             Assert.True(actual.Contains("five"));
             Assert.True(actual.Contains("six"));
         }
+
 
         [Fact]
         public void TestNullStringValue()
@@ -508,10 +582,37 @@ namespace Org.Apache.REEF.Tang.Tests.Configuration
         }
     }
 
+    [NamedParameter]
+    class ListOfStrings : Name<IList<string>>
+    {
+
+    }
+
+    [NamedParameter]
+    class ListOfStrings2 : Name<IList<string>>
+    {
+
+    }
+
+    class ListInjectTest
+    {
+        public IList<string> List1;
+        public IList<string> List2;
+
+        [Inject]
+        ListInjectTest([Parameter(typeof(ListOfStrings))] IList<string> list1,
+                       [Parameter(typeof(ListOfStrings2))] IList<string> list2)
+        {
+            this.List1 = list1;
+            this.List2 = list2;
+        }
+    }
+
     [NamedParameter(DefaultValues = new string[] { "one", "two", "three" })]
     class SetOfNumbers : Name<ISet<string>>
     {
     }
+
 
     class Box
     {

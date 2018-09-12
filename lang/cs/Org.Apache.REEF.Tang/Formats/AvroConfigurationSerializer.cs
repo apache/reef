@@ -15,13 +15,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Runtime.Serialization;
-using System.Text;
 using Microsoft.Hadoop.Avro;
 using Microsoft.Hadoop.Avro.Container;
 using Newtonsoft.Json;
@@ -34,6 +27,13 @@ using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Tang.Types;
 using Org.Apache.REEF.Tang.Util;
 using Org.Apache.REEF.Utilities.Logging;
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Runtime.Serialization;
+using System.Text;
 
 namespace Org.Apache.REEF.Tang.Formats
 {
@@ -260,6 +260,28 @@ namespace Org.Apache.REEF.Tang.Formats
                 l.Add(new ConfigurationEntry(e.Key.GetFullName(), val));
             }
 
+            IEnumerator bl = conf.GetBoundList().GetEnumerator();
+            while (bl.MoveNext())
+            {
+                KeyValuePair<INamedParameterNode, IList<object>> e = (KeyValuePair<INamedParameterNode, IList<object>>)bl.Current;
+                foreach (var item in e.Value)
+                {
+                    string val = null;
+                    if (item is string)
+                    {
+                        val = (string)item;
+                    }
+                    else if (item is INode)
+                    {
+                        val = ((INode)item).GetFullName();
+                    }
+                    else
+                    {
+                        Org.Apache.REEF.Utilities.Diagnostics.Exceptions.Throw(new IllegalStateException(), LOGGER);
+                    }
+                    l.Add(new ConfigurationEntry(e.Key.GetFullName(), val));
+                }
+            }
             return new AvroConfiguration(Language.Cs.ToString(), l);
         }
         

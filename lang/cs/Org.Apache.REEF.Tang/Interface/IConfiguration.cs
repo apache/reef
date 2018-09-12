@@ -39,6 +39,7 @@ namespace Org.Apache.REEF.Tang.Interface
         ICollection<IClassNode> GetLegacyConstructors();
 
         IEnumerator<KeyValuePair<INamedParameterNode, object>> GetBoundSets();
+
         IDictionary<INamedParameterNode, IList<object>> GetBoundList();
     }
 }

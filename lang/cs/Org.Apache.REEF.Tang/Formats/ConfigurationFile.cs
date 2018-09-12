@@ -15,12 +15,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
 using Org.Apache.REEF.Tang.Exceptions;
 using Org.Apache.REEF.Tang.Implementations.Configuration;
 using Org.Apache.REEF.Tang.Implementations.Tang;
@@ -28,6 +22,12 @@ using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Tang.Types;
 using Org.Apache.REEF.Tang.Util;
 using Org.Apache.REEF.Utilities.Logging;
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Text;
 
 namespace Org.Apache.REEF.Tang.Formats
 {
@@ -137,6 +137,29 @@ namespace Org.Apache.REEF.Tang.Formats
                 }
                 
                 l.Add(GetFullName(e.Key) + '=' + Escape(val));
+            }
+
+            IEnumerator bl = conf.GetBoundList().GetEnumerator();
+            while (bl.MoveNext())
+            {
+                KeyValuePair<INamedParameterNode, IList<object>> e = (KeyValuePair<INamedParameterNode, IList<object>>)bl.Current;
+                foreach (var item in e.Value)
+                {
+                    string val = null;
+                    if (item is string)
+                    {
+                        val = GetFullName((string)item);
+                    }
+                    else if (e.Value is INode)
+                    {
+                        val = GetFullName((INode)e.Value);
+                    }
+                    else
+                    {
+                        Org.Apache.REEF.Utilities.Diagnostics.Exceptions.Throw(new IllegalStateException(), LOGGER);
+                    }
+                    l.Add(GetFullName(e.Key) + '=' + Escape(val));
+                }
             }
 
             return l;

@@ -15,9 +15,9 @@
 // specific language governing permissions and limitations
 // under the License.
 
-using System.Collections.Generic;
 using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Tang.Types;
+using System.Collections.Generic;
 
 namespace Org.Apache.REEF.Tang.Implementations.Configuration
 {
@@ -39,7 +39,7 @@ namespace Org.Apache.REEF.Tang.Implementations.Configuration
         {
             return ((ConfigurationImpl)Builder.Build()).Builder;
         }
-           
+
         public ICollection<IClassNode> GetBoundImplementations()
         {
             return Builder.BoundImpls.Keys;
@@ -95,12 +95,12 @@ namespace Org.Apache.REEF.Tang.Implementations.Configuration
             return Builder.LegacyConstructors.Keys;
         }
 
-        public ISet<object> GetBoundSet(INamedParameterNode np) 
+        public ISet<object> GetBoundSet(INamedParameterNode np)
         {
             return Builder.BoundSetEntries.GetValuesForKey(np);
         }
 
-        public IEnumerator<KeyValuePair<INamedParameterNode, object>> GetBoundSets() 
+        public IEnumerator<KeyValuePair<INamedParameterNode, object>> GetBoundSets()
         {
             return Builder.BoundSetEntries.GetEnumerator();
         }
