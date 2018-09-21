@@ -73,7 +73,7 @@ public final class LocalTestEnvironment extends TestEnvironmentBase implements T
 
   @Override
   public int getTestTimeout() {
-    return 1200000; // 2 min.
+    return 120000; // 2 min.
   }
 
   @Override

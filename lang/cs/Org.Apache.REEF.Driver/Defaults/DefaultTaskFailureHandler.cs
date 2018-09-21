@@ -16,7 +16,6 @@
 // under the License.
 
 using System;
-using System.Globalization;
 using Org.Apache.REEF.Driver.Task;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Utilities.Logging;
@@ -39,7 +38,7 @@ namespace Org.Apache.REEF.Driver.Defaults
         {
             if (value.Data.IsPresent())
             {
-                Log.Log(Level.Error, "Task {0} failed with exception", value.Id, value.AsError());
+                Log.Log(Level.Error, $"Task {value.Id} failed with exception", value.AsError());
                 throw new InvalidOperationException(
                     $"Task {value.Id} has failed on {value.Message}, and no handler was bound for IFailedTask",
                     value.AsError());

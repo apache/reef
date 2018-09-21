@@ -241,7 +241,7 @@ namespace Org.Apache.REEF.Bridge.Core.Grpc.Driver
             try
             {
                 Logger.Log(Level.Info, "Failed context event id {0}", request.ContextId);
-                BridgeActiveContext activeContext; 
+                BridgeActiveContext activeContext;
                 BridgeActiveContext parentContext = null;
                 lock (_lock)
                 {
