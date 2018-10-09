@@ -30,7 +30,7 @@ namespace Org.Apache.REEF.Driver
     public sealed class MetricsServiceConfigurationModule : ConfigurationModuleBuilder
     {
         public static readonly OptionalImpl<IMetricsSink> OnMetricsSink = new OptionalImpl<IMetricsSink>();
-        public static readonly OptionalParameter<int> CounterSinkThreshold = new OptionalParameter<int>();
+        public static readonly OptionalParameter<int> MetricSinkThreshold = new OptionalParameter<int>();
 
         /// <summary>
         /// It provides the configuration for MetricsService
@@ -40,7 +40,7 @@ namespace Org.Apache.REEF.Driver
                 GenericType<DriverBridgeConfigurationOptions.ContextMessageHandlers>.Class,
                 GenericType<MetricsService>.Class)
             .BindSetEntry(GenericType<MetricSinks>.Class, OnMetricsSink)
-            .BindNamedParameter(GenericType<CounterSinkThreshold>.Class, CounterSinkThreshold)
+            .BindNamedParameter(GenericType<MetricSinkThreshold>.Class, MetricSinkThreshold)
             .Build();
     }
 }

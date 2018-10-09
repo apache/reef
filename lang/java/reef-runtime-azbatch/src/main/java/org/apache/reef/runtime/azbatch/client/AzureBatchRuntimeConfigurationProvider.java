@@ -20,17 +20,20 @@ package org.apache.reef.runtime.azbatch.client;
 
 import org.apache.reef.annotations.audience.Public;
 import org.apache.reef.runtime.azbatch.parameters.*;
+import org.apache.reef.runtime.azbatch.util.batch.AzureBatchHelper;
+import org.apache.reef.runtime.azbatch.util.batch.ContainerRegistryProvider;
 import org.apache.reef.tang.Configuration;
 import org.apache.reef.tang.annotations.Parameter;
+import org.apache.reef.wake.remote.ports.parameters.TcpPortSet;
 
 import javax.inject.Inject;
+import java.util.Set;
 
 /**
  * Class that provides the runtime configuration for Azure Batch.
  */
 @Public
 public final class AzureBatchRuntimeConfigurationProvider {
-
   private final String azureBatchAccountName;
   private final String azureBatchAccountKey;
   private final String azureBatchAccountUri;
@@ -38,7 +41,9 @@ public final class AzureBatchRuntimeConfigurationProvider {
   private final String azureStorageAccountName;
   private final String azureStorageAccountKey;
   private final String azureStorageContainerName;
+  private final ContainerRegistryProvider containerRegistryProvider;
   private final Boolean isWindows;
+  private final Set<String> tcpPortSet;
 
   /**
    * Private constructor.
@@ -52,7 +57,9 @@ public final class AzureBatchRuntimeConfigurationProvider {
       @Parameter(AzureStorageAccountName.class) final String azureStorageAccountName,
       @Parameter(AzureStorageAccountKey.class) final String azureStorageAccountKey,
       @Parameter(AzureStorageContainerName.class) final String azureStorageContainerName,
-      @Parameter(IsWindows.class) final Boolean isWindows) {
+      @Parameter(IsWindows.class) final Boolean isWindows,
+      @Parameter(TcpPortSet.class) final Set<Integer> tcpPortSet,
+      final ContainerRegistryProvider containerRegistryProvider) {
     this.azureBatchAccountName = azureBatchAccountName;
     this.azureBatchAccountKey = azureBatchAccountKey;
     this.azureBatchAccountUri = azureBatchAccountUri;
@@ -60,7 +67,11 @@ public final class AzureBatchRuntimeConfigurationProvider {
     this.azureStorageAccountName = azureStorageAccountName;
     this.azureStorageAccountKey = azureStorageAccountKey;
     this.azureStorageContainerName = azureStorageContainerName;
+    this.containerRegistryProvider = containerRegistryProvider;
     this.isWindows = isWindows;
+
+    // Binding a parameter to a set is only allowed for strings, so we cast to strings.
+    this.tcpPortSet = AzureBatchHelper.toStringSet(tcpPortSet);
   }
 
   public Configuration getAzureBatchRuntimeConfiguration() {
@@ -73,6 +84,15 @@ public final class AzureBatchRuntimeConfigurationProvider {
         .set(AzureBatchRuntimeConfiguration.AZURE_STORAGE_ACCOUNT_NAME, this.azureStorageAccountName)
         .set(AzureBatchRuntimeConfiguration.AZURE_STORAGE_ACCOUNT_KEY, this.azureStorageAccountKey)
         .set(AzureBatchRuntimeConfiguration.AZURE_STORAGE_CONTAINER_NAME, this.azureStorageContainerName)
+        .set(AzureBatchRuntimeConfiguration.CONTAINER_REGISTRY_SERVER,
+            this.containerRegistryProvider.getContainerRegistryServer())
+        .set(AzureBatchRuntimeConfiguration.CONTAINER_REGISTRY_USERNAME,
+            this.containerRegistryProvider.getContainerRegistryUsername())
+        .set(AzureBatchRuntimeConfiguration.CONTAINER_REGISTRY_PASSWORD,
+            this.containerRegistryProvider.getContainerRegistryPassword())
+        .set(AzureBatchRuntimeConfiguration.CONTAINER_IMAGE_NAME,
+            this.containerRegistryProvider.getContainerImageName())
+        .setMultiple(AzureBatchRuntimeConfiguration.TCP_PORT_SET, this.tcpPortSet)
         .build();
   }
 }

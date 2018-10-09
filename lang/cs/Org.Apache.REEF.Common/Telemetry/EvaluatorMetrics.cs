@@ -16,19 +16,20 @@
 // under the License.
 
 using Org.Apache.REEF.Tang.Annotations;
-using Org.Apache.REEF.Utilities.Attributes;
 
 namespace Org.Apache.REEF.Common.Telemetry
 {
-    [Unstable("0.16", "This is to build a simple metrics with counters only. More metrics will be added in future.")]
+    /// <summary>
+    /// An evaluator metrics implementation that maintains a collection of metrics.
+    /// </summary>
     internal sealed class EvaluatorMetrics : IEvaluatorMetrics
     {
-        private readonly Counters _counters;
+        private readonly MetricsData _metricsData;
 
         [Inject]
-        private EvaluatorMetrics(Counters counters)
+        private EvaluatorMetrics(MetricsData metrics)
         {
-            _counters = counters;
+            _metricsData = metrics;
         }
 
         /// <summary>
@@ -37,29 +38,42 @@ namespace Org.Apache.REEF.Common.Telemetry
         /// <param name="serializedMsg"></param>
         internal EvaluatorMetrics(string serializedMsg)
         {
-            _counters = new Counters(serializedMsg);
+            _metricsData = new MetricsData(serializedMsg);
         }
 
-        /// <summary>
-        /// Returns counters
-        /// </summary>
-        /// <returns>Returns counters.</returns>
-        public ICounters GetMetricsCounters()
+        public T CreateAndRegisterMetric<T>(string name, string description, bool keepUpdateHistory)
+            where T : MetricBase, new()
         {
-            return _counters;
+            var metric = new T
+            {
+                Name = name,
+                Description = description,
+                KeepUpdateHistory = keepUpdateHistory
+            };
+            _metricsData.RegisterMetric(metric);
+            return metric;
         }
 
-        /// <summary>
-        /// return serialized string of metrics counters data
-        /// </summary>
-        /// <returns>Returns serialized string of counters.</returns>
+        public IMetricSet GetMetricsData()
+        {
+            return _metricsData;
+        }
+
         public string Serialize()
         {
-            if (_counters != null)
+            if (_metricsData != null)
             {
-                return _counters.Serialize();
+                return _metricsData.SerializeAndReset();
             }
             return null;
+        }
+
+        public bool TryGetMetric<T>(string name, out T metric)
+            where T : IMetric
+        {
+            var ret = _metricsData.TryGetMetric(name, out IMetric me);
+            metric = (T)me;
+            return ret;
         }
     }
 }

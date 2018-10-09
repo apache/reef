@@ -5,9 +5,9 @@
 // to you under the Apache License, Version 2.0 (the
 // "License"); you may not use this file except in compliance
 // with the License.  You may obtain a copy of the License at
-// 
+//
 //   http://www.apache.org/licenses/LICENSE-2.0
-// 
+//
 // Unless required by applicable law or agreed to in writing,
 // software distributed under the License is distributed on an
 // "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -18,15 +18,14 @@
 using Org.Apache.REEF.Common.Context;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Utilities;
-using Org.Apache.REEF.Utilities.Attributes;
 using Org.Apache.REEF.Utilities.Logging;
 
 namespace Org.Apache.REEF.Common.Telemetry
 {
     /// <summary>
-    /// This class implements IContextMessageSource that is responsible to send context message
+    /// This class implements IContextMessageSource that is responsible to send Evaluator
+    /// metrics as a context message to the Driver.
     /// </summary>
-    [Unstable("0.16", "The metrics API is in development.")]
     internal sealed class MetricsMessageSender : IContextMessageSource
     {
         private static readonly Logger Logger = Logger.GetLogger(typeof(MetricsMessageSender));
@@ -58,6 +57,7 @@ namespace Org.Apache.REEF.Common.Telemetry
         {
             get
             {
+                Logger.Log(Level.Info, "Getting context msg for eval metrics.");
                 var s = _evaluatorMetrics.Serialize();
                 if (s != null)
                 {

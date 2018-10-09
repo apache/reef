@@ -5,9 +5,9 @@
 // to you under the Apache License, Version 2.0 (the
 // "License"); you may not use this file except in compliance
 // with the License.  You may obtain a copy of the License at
-// 
+//
 //   http://www.apache.org/licenses/LICENSE-2.0
-// 
+//
 // Unless required by applicable law or agreed to in writing,
 // software distributed under the License is distributed on an
 // "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -31,5 +31,17 @@ namespace Org.Apache.REEF.Client.AzureBatch.Util
         /// <param name="driverMemory">The memory in megabytes used by driver.</param>
         /// <returns>The command string.</returns>
         string BuildDriverCommand(int driverMemory);
+
+        /// <summary>
+        /// Returns the path to a file where the ip address is persisted.
+        /// </summary>
+        /// <returns>Path to the file.</returns>
+        string GetIpAddressFilePath();
+
+        /// <summary>
+        /// Returns a command line that saves the ip address of the host to a file.
+        /// </summary>
+        /// <returns>The command line string.</returns>
+        string CaptureIpAddressCommandLine();
     }
 }

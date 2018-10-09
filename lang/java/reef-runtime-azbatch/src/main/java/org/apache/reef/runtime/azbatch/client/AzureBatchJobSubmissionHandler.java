@@ -93,7 +93,7 @@ public final class AzureBatchJobSubmissionHandler implements JobSubmissionHandle
    */
   @Override
   public void close() throws Exception {
-    LOG.log(Level.INFO, "Closing " + AzureBatchJobSubmissionHandler.class.getName());
+    LOG.log(Level.INFO, "Closing {0}", AzureBatchJobSubmissionHandler.class.getName());
   }
 
   /**
@@ -147,7 +147,7 @@ public final class AzureBatchJobSubmissionHandler implements JobSubmissionHandle
 
   private String createApplicationId(final JobSubmissionEvent jobSubmissionEvent) {
     String uuid = UUID.randomUUID().toString();
-    String jobIdentifier  = jobSubmissionEvent.getIdentifier();
+    String jobIdentifier = jobSubmissionEvent.getIdentifier();
     String jobNameShort = jobIdentifier.length() + 1 + uuid.length() < MAX_CHARS_JOB_NAME ?
         jobIdentifier : jobIdentifier.substring(0, MAX_CHARS_JOB_NAME - uuid.length() - 1);
     return jobNameShort + "-" + uuid;

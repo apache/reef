@@ -5,9 +5,9 @@
 // to you under the Apache License, Version 2.0 (the
 // "License"); you may not use this file except in compliance
 // with the License.  You may obtain a copy of the License at
-// 
+//
 //   http://www.apache.org/licenses/LICENSE-2.0
-// 
+//
 // Unless required by applicable law or agreed to in writing,
 // software distributed under the License is distributed on an
 // "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -22,35 +22,31 @@ using System.Threading.Tasks;
 using Org.Apache.REEF.Common.Context;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Utilities;
-using Org.Apache.REEF.Utilities.Attributes;
 using Org.Apache.REEF.Utilities.Logging;
 
 namespace Org.Apache.REEF.Common.Telemetry
 {
     /// <summary>
-    /// Metrics service. It is also a context message handler.
+    /// Metrics Service that handles metrics from the Evaluator and Driver.
     /// </summary>
-    [Unstable("0.16", "This is a simple MetricsService. More functionalities will be added.")]
     internal sealed class MetricsService : IObserver<IContextMessage>, IObserver<IDriverMetrics>
     {
         private static readonly Logger Logger = Logger.GetLogger(typeof(MetricsService));
 
         /// <summary>
-        /// Contains Counters received in the Metrics service
+        /// The set of metrics Metrics Service maintains.
         /// </summary>
-        private readonly CountersData _countersData;
+        private readonly MetricsData _metricsData;
 
         /// <summary>
-        /// A set of metrics sinks
+        /// A set of Metric Sinks.
         /// </summary>
         private readonly ISet<IMetricsSink> _metricsSinks;
 
         /// <summary>
-        /// The threshold that triggers the sinks. 
-        /// Currently only one threshold is defined for all the counters.
-        /// Later, it can be extended to define a threshold per counter.
+        /// The total number of changes that has to be met to trigger the sinks.
         /// </summary>
-        private readonly int _counterSinkThreshold;
+        private readonly int _metricSinkThreshold;
 
         /// <summary>
         /// It can be bound with driver configuration as a context message handler
@@ -58,45 +54,45 @@ namespace Org.Apache.REEF.Common.Telemetry
         [Inject]
         private MetricsService(
             [Parameter(typeof(MetricSinks))] ISet<IMetricsSink> metricsSinks,
-            [Parameter(typeof(CounterSinkThreshold))] int counterSinkThreshold,
-            CountersData countersData)
+            [Parameter(typeof(MetricSinkThreshold))] int metricSinkThreshold,
+            MetricsData metricsData)
         {
             _metricsSinks = metricsSinks;
-            _counterSinkThreshold = counterSinkThreshold;
-            _countersData = countersData;
+            _metricSinkThreshold = metricSinkThreshold;
+            _metricsData = metricsData;
         }
 
         /// <summary>
-        /// It is called whenever context message is received
+        /// Called whenever context message is received
         /// </summary>
         /// <param name="contextMessage">Serialized EvaluatorMetrics</param>
         public void OnNext(IContextMessage contextMessage)
         {
             var msgReceived = ByteUtilities.ByteArraysToString(contextMessage.Message);
-            var counters = new EvaluatorMetrics(msgReceived).GetMetricsCounters();
+            var evalMetrics = new EvaluatorMetrics(msgReceived);
+            var metricsData = evalMetrics.GetMetricsData();
 
-            Logger.Log(Level.Info, "Received {0} counters with context message: {1}.",
-                counters.GetCounters().Count(), msgReceived);
+            Logger.Log(Level.Info, "Received {0} metrics with context message of length {1}",
+                metricsData.GetMetricTrackers().Count(), msgReceived.Length);
 
-            _countersData.Update(counters);
+            _metricsData.Update(metricsData);
 
-            if (_countersData.TriggerSink(_counterSinkThreshold))
+            if (_metricsData.TriggerSink(_metricSinkThreshold))
             {
-                Sink(_countersData.GetCounterData());
-                _countersData.Reset();
+                Sink(_metricsData.FlushMetricRecords());
             }
         }
 
         /// <summary>
-        /// Call each Sink to sink the data in the counters
+        /// Call each Sink to process the cached metric records.
         /// </summary>
-        private void Sink(IEnumerable<KeyValuePair<string, string>> metrics)
+        private void Sink(IEnumerable<KeyValuePair<string, MetricTracker.MetricRecord>> metricRecords)
         {
             foreach (var s in _metricsSinks)
             {
                 try
                 {
-                    Task.Run(() => s.Sink(metrics));
+                    Task.Run(() => s.Sink(metricRecords));
                 }
                 catch (Exception e)
                 {
@@ -109,9 +105,13 @@ namespace Org.Apache.REEF.Common.Telemetry
             }
         }
 
+        /// <summary>
+        /// Called when task is completed to sink cached metrics.
+        /// </summary>
         public void OnCompleted()
         {
-            Logger.Log(Level.Info, "Completed");
+            Sink(_metricsData.FlushMetricRecords());
+            Logger.Log(Level.Info, "MetricsService completed");
         }
 
         public void OnError(Exception error)
@@ -121,17 +121,12 @@ namespace Org.Apache.REEF.Common.Telemetry
 
         /// <summary>
         /// Observer of IDriverMetrics.
-        /// When Driver metrics data is changed, this method will be called.
-        /// It calls Sink to store/log the metrics data.
+        /// Called when Driver metrics data is changed.
         /// </summary>
         /// <param name="driverMetrics">driver metrics data.</param>
         public void OnNext(IDriverMetrics driverMetrics)
         {
-            Sink(new Dictionary<string, string>()
-            {
-                { "SystemState", driverMetrics.SystemState },
-                { "TimeUpdated", driverMetrics.TimeUpdated.ToLongTimeString() }
-            });
+            Sink(driverMetrics.GetMetricsData().FlushMetricRecords());
         }
     }
 }

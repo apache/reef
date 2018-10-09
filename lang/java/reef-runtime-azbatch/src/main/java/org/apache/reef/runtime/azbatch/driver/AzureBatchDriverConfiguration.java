@@ -41,6 +41,7 @@ import org.apache.reef.tang.formats.ConfigurationModule;
 import org.apache.reef.tang.formats.ConfigurationModuleBuilder;
 import org.apache.reef.tang.formats.OptionalParameter;
 import org.apache.reef.tang.formats.RequiredParameter;
+import org.apache.reef.wake.remote.ports.parameters.TcpPortSet;
 
 /**
  * ConfigurationModule to create Azure Batch Driver configurations.
@@ -95,6 +96,31 @@ public final class AzureBatchDriverConfiguration extends ConfigurationModuleBuil
   public static final RequiredParameter<String> AZURE_STORAGE_CONTAINER_NAME = new RequiredParameter<>();
 
   /**
+   * Container Registry Server.
+   */
+  public static final OptionalParameter<String> CONTAINER_REGISTRY_SERVER = new OptionalParameter<>();
+
+  /**
+   * Container Registry Username.
+   */
+  public static final OptionalParameter<String> CONTAINER_REGISTRY_USERNAME = new OptionalParameter<>();
+
+  /**
+   * Container Registry password.
+   */
+  public static final OptionalParameter<String> CONTAINER_REGISTRY_PASSWORD = new OptionalParameter<>();
+
+  /**
+   * Container Image name.
+   */
+  public static final OptionalParameter<String> CONTAINER_IMAGE_NAME = new OptionalParameter<>();
+
+  /**
+   * Set of TCP Ports.
+   */
+  public static final OptionalParameter<Integer> TCP_PORT_SET = new OptionalParameter<>();
+
+  /**
    * The fraction of the container memory NOT to use for the Java Heap.
    */
   public static final OptionalParameter<Double> JVM_HEAP_SLACK = new OptionalParameter<>();
@@ -115,6 +141,12 @@ public final class AzureBatchDriverConfiguration extends ConfigurationModuleBuil
       .bindNamedParameter(AzureStorageAccountName.class, AZURE_STORAGE_ACCOUNT_NAME)
       .bindNamedParameter(AzureStorageContainerName.class, AZURE_STORAGE_CONTAINER_NAME)
 
+      // Bind Azure Container Parameters
+      .bindNamedParameter(ContainerRegistryServer.class, CONTAINER_REGISTRY_SERVER)
+      .bindNamedParameter(ContainerRegistryUsername.class, CONTAINER_REGISTRY_USERNAME)
+      .bindNamedParameter(ContainerRegistryPassword.class, CONTAINER_REGISTRY_PASSWORD)
+      .bindNamedParameter(ContainerImageName.class, CONTAINER_IMAGE_NAME)
+
       // Bind the fields bound in AbstractDriverRuntimeConfiguration
       .bindNamedParameter(JobIdentifier.class, JOB_IDENTIFIER)
       .bindNamedParameter(LaunchID.class, JOB_IDENTIFIER)
@@ -125,5 +157,6 @@ public final class AzureBatchDriverConfiguration extends ConfigurationModuleBuil
       .bindImplementation(RuntimeClasspathProvider.class, AzureBatchClasspathProvider.class)
       .bindImplementation(RuntimePathProvider.class, AzureBatchJVMPathProvider.class)
       .bindSetEntry(DefinedRuntimes.class, RUNTIME_NAME)
+      .bindSetEntry(TcpPortSet.class, TCP_PORT_SET)
       .build();
 }
