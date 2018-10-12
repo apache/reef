@@ -55,7 +55,7 @@ public final class BridgeClient  {
       final int timeOut) throws IOException, InjectionException {
     ClientProtocol.DriverClientConfiguration.Builder builder =
         ClientProtocol.DriverClientConfiguration.newBuilder()
-            .setJobid("Fail_" + failTaskClass.getSimpleName())
+            .setJobid("FailBridge_" + failTaskClass.getSimpleName())
             .addGlobalLibraries(EnvironmentUtils.getClassLocation(Driver.class));
     builder.setOperatingSystem(
         OSUtils.isWindows() ?

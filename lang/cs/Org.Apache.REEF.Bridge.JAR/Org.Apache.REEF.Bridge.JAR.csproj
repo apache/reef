@@ -18,7 +18,7 @@ under the License.
   <PropertyGroup>
     <AssemblyName>Org.Apache.REEF.Bridge.JAR</AssemblyName>
     <Description>Helper project that builds the Bridge JAR </Description>
-    <TargetFramework>net461</TargetFramework>
+    <TargetFramework>netstandard2.0</TargetFramework>
   </PropertyGroup>
   <Import Project="..\build.props" />
   <PropertyGroup>
@@ -58,11 +58,15 @@ under the License.
       <!--The shaded jar of the bridge (client side) -->
       <Client_JAR_Name>reef-bridge-client-$(REEF_Version)-shaded.jar</Client_JAR_Name>
       <Client_JAR>$(REEF_Source_Folder)\lang\java\reef-bridge-client\target\$(Client_JAR_Name)</Client_JAR>
+	  <!--The shaded jar of the bridge core -->
+      <BridgeCore_JAR_Name>reef-bridge-proto-java-$(REEF_Version)-jar-with-dependencies.jar</BridgeCore_JAR_Name>
+      <BridgeCore_JAR>$(REEF_Source_Folder)\lang\java\reef-bridge-proto-java\target\$(BridgeCore_JAR_Name)</BridgeCore_JAR>
     </PropertyGroup>
-    <Exec Command="call &quot;$(M2_HOME)\bin\mvn.cmd&quot; --projects lang/java/reef-bridge-java,lang/java/reef-bridge-client --also-make -TC1 -DskipTests -P!code-quality install" Condition="!Exists('$(Bridge_JAR)')" WorkingDirectory="$(REEF_Source_Folder)" />
+    <Exec Command="call &quot;$(M2_HOME)\bin\mvn.cmd&quot; --projects lang/java/reef-bridge-java,lang/java/reef-bridge-client,lang/java/reef-bridge-proto-java --also-make -TC1 -DskipTests -P!code-quality install" Condition="!Exists('$(Bridge_JAR)') Or !Exists('$(BridgeCore_JAR)')" WorkingDirectory="$(REEF_Source_Folder)" />
     <Message Text="Copying jar files to $(OutputPath)" Importance="high" />
     <Copy DestinationFolder="$(OutputPath)" SourceFiles="$(Bridge_JAR)" />
     <Copy DestinationFolder="$(OutputPath)" SourceFiles="$(Client_JAR)" />
+	<Copy DestinationFolder="$(OutputPath)" SourceFiles="$(BridgeCore_JAR)" />
   </Target>
   <!--
     Executes 'mvn clean', if the JAR exists.
@@ -75,10 +79,14 @@ under the License.
       <!--The shaded jar of the bridge (client side) -->
       <Client_JAR_Name>reef-bridge-client-$(REEF_Version)-shaded.jar</Client_JAR_Name>
       <Client_JAR>$(REEF_Source_Folder)\lang\java\reef-bridge-client\target\$(Client_JAR_Name)</Client_JAR>
+	  <!--The shaded jar of the bridge core -->
+      <BridgeCore_JAR_Name>reef-bridge-proto-java-$(REEF_Version)-jar-with-dependencies.jar</BridgeCore_JAR_Name>
+      <BridgeCore_JAR>$(REEF_Source_Folder)\lang\java\reef-bridge-proto-java\target\$(Client_JAR_Name)</BridgeCore_JAR>
     </PropertyGroup>
-    <Exec Command="call &quot;$(M2_HOME)\bin\mvn.cmd&quot; -TC1 -DskipTests -q clean" Condition="Exists('$(Bridge_JAR)')" WorkingDirectory="$(REEF_Source_Folder)" />
+    <Exec Command="call &quot;$(M2_HOME)\bin\mvn.cmd&quot; -TC1 -DskipTests -q clean" Condition="Exists('$(Bridge_JAR)') Or Exists('$(BridgeCore_JAR)')" WorkingDirectory="$(REEF_Source_Folder)" />
     <Delete Files="$(OutputPath)\$(Bridge_JAR_Name)" />
     <Delete Files="$(OutputPath)\$(Client_JAR_Name)" />
+	    <Delete Files="$(OutputPath)\$(BridgeCore_JAR_Name)" />
   </Target>
   <Target Name="Rebuild" DependsOnTargets="Clean;Build" />
   <Target Name="CheckPrerequisites" DependsOnTargets="Build" />

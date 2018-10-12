@@ -29,7 +29,6 @@ import org.apache.reef.driver.evaluator.FailedEvaluator;
 import org.apache.reef.driver.restart.DriverRestartCompleted;
 import org.apache.reef.driver.restart.DriverRestarted;
 import org.apache.reef.driver.task.*;
-import org.apache.reef.runtime.common.driver.idle.DriverIdlenessSource;
 import org.apache.reef.wake.time.event.StartTime;
 import org.apache.reef.wake.time.event.StopTime;
 
@@ -37,7 +36,7 @@ import org.apache.reef.wake.time.event.StopTime;
  * Interface implemented by a Driver Service.
  */
 @Private
-public interface DriverService extends DriverIdlenessSource {
+public interface DriverService {
 
   /**
    * Driver restart handler.

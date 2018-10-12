@@ -24,6 +24,10 @@ using System.Runtime.CompilerServices;
 // Common and Driver share APIs that should not be exposed to the user
 [assembly: InternalsVisibleTo("Org.Apache.REEF.Driver")]
 
+// Bridge needs access to internal objects
+[assembly: InternalsVisibleTo("Org.Apache.REEF.Bridge.Core.Common")]
+[assembly: InternalsVisibleTo("Org.Apache.REEF.Bridge.Core.Grpc")]
+
 // Common and IO share APIs that should not be exposed to the user
 [assembly: InternalsVisibleTo("Org.Apache.REEF.IO")]
 

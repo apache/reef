@@ -27,6 +27,7 @@ namespace Org.Apache.REEF.Client.API
     {
         private string _jobIdentifier;
         private int _maxApplicationSubmissions = 1;
+        private int _driverCpuCores = 1;
         private int _driverMemory = 512;
         private string _stdoutFilePath = null;
         private string _stderrFilePath = null;
@@ -55,6 +56,7 @@ namespace Org.Apache.REEF.Client.API
                 _jobIdentifier, 
                 _maxApplicationSubmissions, 
                 _driverMemory,
+                _driverCpuCores,
                 _jobSubmissionMap,
                 _stdoutFilePath,
                 _stderrFilePath,
@@ -88,6 +90,17 @@ namespace Org.Apache.REEF.Client.API
         public JobParametersBuilder SetDriverMemory(int driverMemoryInMb)
         {
             _driverMemory = driverMemoryInMb;
+            return this;
+        }
+
+        /// <summary>
+        /// The number of cores to allocated for the driver
+        /// </summary>
+        /// <param name="driverCpuCores">number of cores</param>
+        /// <returns></returns>
+        public JobParametersBuilder SetDriverCpuCores(int driverCpuCores)
+        {
+            _driverCpuCores = driverCpuCores;
             return this;
         }
 

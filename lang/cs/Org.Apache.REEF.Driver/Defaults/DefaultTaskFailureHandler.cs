@@ -16,9 +16,9 @@
 // under the License.
 
 using System;
-using System.Globalization;
 using Org.Apache.REEF.Driver.Task;
 using Org.Apache.REEF.Tang.Annotations;
+using Org.Apache.REEF.Utilities.Logging;
 
 namespace Org.Apache.REEF.Driver.Defaults
 {
@@ -27,6 +27,8 @@ namespace Org.Apache.REEF.Driver.Defaults
     /// </summary>
     public class DefaultTaskFailureHandler : IObserver<IFailedTask>
     {
+        private static readonly Logger Log = Logger.GetLogger(typeof(DefaultTaskFailureHandler));
+
         [Inject]
         public DefaultTaskFailureHandler()
         {
@@ -34,7 +36,17 @@ namespace Org.Apache.REEF.Driver.Defaults
 
         public void OnNext(IFailedTask value)
         {
-            throw new InvalidOperationException(string.Format(CultureInfo.InvariantCulture, "Task {0} has failed, and no handler was bound for IFailedTask", value.Id));
+            if (value.Data.IsPresent())
+            {
+                Log.Log(Level.Error, $"Task {value.Id} failed with exception", value.AsError());
+                throw new InvalidOperationException(
+                    $"Task {value.Id} has failed on {value.Message}, and no handler was bound for IFailedTask",
+                    value.AsError());
+            }
+
+            Log.Log(Level.Error, "Task {0} failed with NO exception information", value.Id);
+            throw new InvalidOperationException(
+                $"Task {value.Id} has failed on {value.Message}, and no handler was bound for IFailedTask");
         }
 
         public void OnError(Exception error)

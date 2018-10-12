@@ -25,13 +25,11 @@ import org.apache.reef.client.DriverRestartConfiguration;
 import org.apache.reef.driver.parameters.DriverIdleSources;
 import org.apache.reef.io.network.naming.NameServerConfiguration;
 import org.apache.reef.runtime.common.driver.client.JobStatusHandler;
+import org.apache.reef.runtime.common.driver.idle.DriverIdlenessSource;
 import org.apache.reef.tang.Configuration;
 import org.apache.reef.tang.Configurations;
 import org.apache.reef.tang.Tang;
-import org.apache.reef.tang.formats.ConfigurationModule;
-import org.apache.reef.tang.formats.ConfigurationModuleBuilder;
-import org.apache.reef.tang.formats.RequiredImpl;
-import org.apache.reef.tang.formats.RequiredParameter;
+import org.apache.reef.tang.formats.*;
 import org.apache.reef.webserver.HttpHandlerConfiguration;
 import org.apache.reef.webserver.HttpServerReefEventHandler;
 import org.apache.reef.webserver.ReefEventStateManager;
@@ -46,11 +44,13 @@ public final class DriverServiceConfiguration extends ConfigurationModuleBuilder
 
   public static final RequiredParameter<String> DRIVER_CLIENT_COMMAND = new RequiredParameter<>();
 
+  public static final OptionalImpl<DriverIdlenessSource> DRIVER_IDLENESS_SOURCES = new OptionalImpl<>();
+
   /** Configuration module that binds all driver handlers. */
   public static final ConfigurationModule CONF = new DriverServiceConfiguration()
       .bindImplementation(DriverService.class, DRIVER_SERVICE_IMPL)
       .bindNamedParameter(DriverClientCommand.class, DRIVER_CLIENT_COMMAND)
-      .bindSetEntry(DriverIdleSources.class, DriverService.class)
+      .bindSetEntry(DriverIdleSources.class, DRIVER_IDLENESS_SOURCES)
       .build();
 
   public static final ConfigurationModule STATIC_DRIVER_CONF_MODULE = DriverConfiguration.CONF

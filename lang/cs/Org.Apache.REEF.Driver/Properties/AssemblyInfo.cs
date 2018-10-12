@@ -19,4 +19,5 @@ using System.Runtime.CompilerServices;
 
 // Allow the bridge access to `internal` APIs
 [assembly: InternalsVisibleTo("Org.Apache.REEF.Bridge")]
-
+[assembly: InternalsVisibleTo("Org.Apache.REEF.Bridge.Core.Common")]
+[assembly: InternalsVisibleTo("Org.Apache.REEF.Bridge.Core.Grpc")]

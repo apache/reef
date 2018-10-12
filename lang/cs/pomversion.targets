@@ -15,17 +15,17 @@ KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
 -->
-<Project InitialTargets="ExtractPOMVersion" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project InitialTargets="PrintMessage" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <PackageReference Include="RoslynCodeTaskFactory" Version="2.0.7" />
+  </ItemGroup>
   <!--
        ########################################################################
          Extract the REEF Version from the POM file 
        ######################################################################## 
   -->
   <!--A Task that extracts the version from the pom in a given folder.-->
-  <UsingTask
-    TaskName="GetMavenProjectVersion"
-    TaskFactory="CodeTaskFactory"
-    AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.v4.0.dll" >
+  <UsingTask TaskName="GetMavenProjectVersion" TaskFactory="CodeTaskFactory" AssemblyFile="$(RoslynCodeTaskFactory)" Condition=" '$(RoslynCodeTaskFactory)' != '' ">
     <ParameterGroup>
       <SnapshotNumber/>
       <ProjectFolder Required="true"/>
@@ -39,7 +39,7 @@ under the License.
       <Using Namespace="System.IO"/>
       <Using Namespace="System.Linq"/>
       <Using Namespace="System.Xml.Linq"/>
-      <Code Type="Fragment" Language="cs">
+      <Code Type="Fragment" Language="C#">
         <![CDATA[
           Version = XDocument.Load(Path.Combine(ProjectFolder, "pom.xml")).Descendants()
             .Where(x => x.Name.ToString().Contains("version"))
@@ -50,10 +50,14 @@ under the License.
       </Code>
     </Task>
   </UsingTask>
+  
+  <Target Name="PrintMessage">
+    <Message Text="Roslyn code task factory is $(RoslynCodeTaskFactory)" Importance="high"/>
+  </Target>
   <!--
     A Target that extract the REEF version from the pom and makes it available as REEF_Version
   -->
-  <Target Name="ExtractPOMVersion">
+  <Target Name="ExtractPOMVersion" BeforeTargets="Build">
     <Message Text="MSBuildProjectName is $(MSBuildProjectName)" />
     <Message Text="MSBuildProjectDirectory is $(MSBuildProjectDirectory)" />
     <Message Text="SnapshotNumber is $(SnapshotNumber)" />
