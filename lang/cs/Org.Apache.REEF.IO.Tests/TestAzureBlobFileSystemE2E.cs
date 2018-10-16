@@ -57,7 +57,8 @@ namespace Org.Apache.REEF.IO.Tests
             _fileSystem = TangFactory.GetTang().NewInjector(conf).GetInstance<AzureBlobFileSystem>();
             _client = CloudStorageAccount.Parse(ConnectionString).CreateCloudBlobClient();
             _container = _client.GetContainerReference(defaultContainerName);
-            _container.CreateIfNotExists();
+            var t = _container.CreateIfNotExistsAsync();
+            t.Wait();
         }
 
         public void Dispose()

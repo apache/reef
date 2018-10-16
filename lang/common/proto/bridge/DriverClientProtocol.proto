@@ -23,7 +23,7 @@ syntax = "proto3";
 option java_multiple_files = true;
 option java_package = "org.apache.reef.bridge.proto";
 option java_outer_classname = "DriverClientProtocol";
-option csharp_namespace = "Org.Apache.REEF.Bridge.Proto";
+option csharp_namespace = "Org.Apache.REEF.Bridge.Core.Proto";
 
 package driverbridge;
 
@@ -121,6 +121,7 @@ message StopTimeInfo {
 // Information associated with an alarm that was set.
 message AlarmTriggerInfo {
   string alarm_id = 1;
+  int64 timestamp = 2;
 }
 
 // Evaluator descriptor information.
@@ -156,6 +157,9 @@ message EvaluatorInfo {
      string message = 1;
      repeated string failed_contexts = 2;
      string failed_task_id = 3;
+
+     // Exception specific to failed evaluator
+     ExceptionInfo exception = 5;
   }
   FailureInfo failure = 2;
 

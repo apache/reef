@@ -21,9 +21,76 @@ syntax = "proto3";
 
 option java_package = "org.apache.reef.bridge.proto";
 option java_outer_classname = "ClientProtocol";
-option csharp_namespace = "Org.Apache.REEF.Bridge.Proto";
+option csharp_namespace = "Org.Apache.REEF.Bridge.Core.Proto";
 
 package driverbridge;
+
+import "DriverCommonProtocol.proto";
+
+// Bridge Client RPC and messages
+service BridgeClient {
+
+  rpc RegisterREEFClient (REEFClientRegistration) returns (Void) {}
+
+  rpc JobMessageHandler (JobMessageEvent) returns (Void) {}
+
+  rpc JobSumittedHandler (JobSubmittedEvent) returns (Void) {}
+
+  rpc JobRunningHandler (JobRunningEvent) returns (Void) {}
+
+  rpc JobCompletedHandler (JobCompletedEvent) returns (Void) {}
+
+  rpc JobFailedHandler (JobFailedEvent) returns (Void) {}
+
+  rpc RuntimeErrorHandler (ExceptionInfo) returns (Void) {}
+
+  rpc WakeErrorHandler (ExceptionInfo) returns (Void) {}
+}
+
+message REEFClientRegistration {
+  string hostname = 1;
+  uint32 port = 2;
+}
+
+message JobMessageEvent {
+  string job_id = 1;
+  bytes message = 2;
+}
+
+message JobSubmittedEvent {
+  string job_id = 1;
+}
+
+message JobRunningEvent {
+  string job_id = 1;
+}
+
+message JobCompletedEvent {
+  string job_id = 1;
+}
+
+message JobFailedEvent {
+  string job_id = 1;
+  ExceptionInfo exception = 2;
+}
+
+// REEF Client RPC and messages
+service REEFClient {
+
+  rpc DriverControlHandler (DriverControlOp) returns (Void) {}
+}
+
+message DriverControlOp {
+  string job_id = 1;
+
+  bytes message = 2;
+
+  enum Operation {
+    CLOSE = 0;
+    MESSAGE = 1;
+  }
+  Operation operation = 3;
+}
 
 /*
  * Local runtime parameters.
@@ -70,9 +137,24 @@ message AzureBatchRuntimeParameters {
 }
 
 /*
- * Mesos runtime parameters.
+ * HD Insight runtime parameters.
  */
-message MesosRuntimeParameters {
+message HDIRuntimeParameters {
+  bool unsafe = 1;
+
+  // HD Insight Account Information
+  string hdi_user_name = 2;
+
+  string hdi_password = 3;
+
+  string hdi_url = 4;
+
+  // Azure Storage Account Information
+  string azure_storage_account_name = 5;
+
+  string azure_storage_account_key = 6;
+
+  string azure_storage_container_name = 7;
 }
 
 /*
@@ -92,7 +174,7 @@ message DriverClientConfiguration {
     LocalRuntimeParameters local_runtime = 5;
     YarnRuntimeParameters yarn_runtime = 6;
     AzureBatchRuntimeParameters azbatch_runtime = 7;
-    MesosRuntimeParameters mesos_runtime = 8;
+    HDIRuntimeParameters hdi_runtime = 8;
   }
 
   // The command to launch the driver client

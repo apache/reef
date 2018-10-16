@@ -68,6 +68,7 @@ public final class EvaluatorConfiguration extends ConfigurationModuleBuilder {
    */
   public static final ConfigurationModule CONFCLR = EVALUATOR_CONFIG_MODULE_BUILDER.build();
 
+  public static final ConfigurationModule CONFDOTNET = EVALUATOR_CONFIG_MODULE_BUILDER.build();
   /**
    * This is ConfigurationModule for Java Evaluator.
    */

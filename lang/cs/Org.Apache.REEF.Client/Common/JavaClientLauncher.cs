@@ -154,8 +154,15 @@ namespace Org.Apache.REEF.Client.Common
             var javaPath = Path.Combine(javaBinPath, "java.exe");
             if (!File.Exists(javaPath))
             {
-                throw new JavaNotFoundException(
-                    "Could not find java.exe on this machine. Is Java installed and JAVA_HOME set?", javaPath);
+                var linuxJavaPath = Path.Combine(javaBinPath, "java");
+                if (!File.Exists(linuxJavaPath))
+                {
+                    throw new JavaNotFoundException(
+                        "Could not find java executable on this machine. Is Java installed and JAVA_HOME set?",
+                        javaPath);
+                }
+
+                return linuxJavaPath;
             }
             return javaPath;
         }

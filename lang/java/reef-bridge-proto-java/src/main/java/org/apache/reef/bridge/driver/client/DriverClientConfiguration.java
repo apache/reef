@@ -170,7 +170,6 @@ public final class DriverClientConfiguration extends ConfigurationModuleBuilder 
       .bindImplementation(AlarmDispatchHandler.class, ALARM_DISPATCH_HANDLER)
       .bindImplementation(DriverClientService.class, DRIVER_CLIENT_SERVICE)
       .bindImplementation(DriverServiceClient.class, DRIVER_SERVICE_CLIENT)
-
       .bindNamedParameter(DriverClientDispatchThreadCount.class, CLIENT_DRIVER_DISPATCH_THREAD_COUNT)
 
       // Driver start/stop handlers

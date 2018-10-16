@@ -8,10 +8,9 @@ REEF_MESOS_RUNTIME
 # Files generated during builds
 # ----------------------------------------------------------------------
 target
-generated
+generated-sources
 build
 StyleCop.Cache
-dependency-reduced-pom.xml
 #
 # ----------------------------------------------------------------------
 # IDE settings

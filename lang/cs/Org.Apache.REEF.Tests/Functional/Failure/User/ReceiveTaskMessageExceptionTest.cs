@@ -54,11 +54,11 @@ namespace Org.Apache.REEF.Tests.Functional.Failure.User
                 .Set(DriverConfiguration.OnEvaluatorAllocated, GenericType<TestReceiveTaskMessageExceptionDriver>.Class)
                 .Set(DriverConfiguration.OnEvaluatorFailed, GenericType<TestReceiveTaskMessageExceptionDriver>.Class)
                 .Set(DriverConfiguration.OnTaskRunning, GenericType<TestReceiveTaskMessageExceptionDriver>.Class)
+                .Set(DriverConfiguration.OnTaskFailed, GenericType<TestReceiveTaskMessageExceptionDriver>.Class)
                 .Build(),
                 typeof(TestReceiveTaskMessageExceptionDriver), 1, "ReceiveTaskMessageExceptionTest", "local", testFolder);
 
-            ValidateSuccessForLocalRuntime(0, 0, 1, testFolder);
-            ValidateMessageSuccessfullyLoggedForDriver(ReceivedFailedEvaluator, testFolder);
+            ValidateSuccessForLocalRuntime(1, 1, 0, testFolder);
             CleanUp(testFolder);
         }
 
@@ -66,7 +66,8 @@ namespace Org.Apache.REEF.Tests.Functional.Failure.User
             IObserver<IDriverStarted>,
             IObserver<IAllocatedEvaluator>,
             IObserver<IFailedEvaluator>,
-            IObserver<IRunningTask>
+            IObserver<IRunningTask>,
+            IObserver<IFailedTask>
         {
             private readonly IEvaluatorRequestor _requestor;
 
@@ -89,6 +90,11 @@ namespace Org.Apache.REEF.Tests.Functional.Failure.User
                         .Set(TaskConfiguration.Task, GenericType<TestTask>.Class)
                         .Set(TaskConfiguration.OnMessage, GenericType<ReceiveTaskMessageExceptionHandler>.Class)
                         .Build());
+            }
+
+            public void OnNext(IFailedTask task)
+            {
+                task.GetActiveContext().Value.Dispose();
             }
 
             /// <summary>

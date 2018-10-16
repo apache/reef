@@ -116,15 +116,24 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Task
                     resultReturnedByTask = _userTask.Call(null);
                     Logger.Log(Level.Info, "Task Call Finished");
 
-                    // Run the handlers for `TaskStop`
-                    _currentStatus.RunTaskStopHandlers();
-
-                    // Log the result
-                    const Level resultLogLevel = Level.Verbose;
-                    if (Logger.IsLoggable(resultLogLevel) && resultReturnedByTask != null && resultReturnedByTask.Length > 0)
+                    if (!_currentStatus.HasEnded())
                     {
-                        Logger.Log(resultLogLevel,
-                            "Task running result:\r\n" + System.Text.Encoding.Default.GetString(resultReturnedByTask));
+                        Logger.Log(Level.Info, "Run the task stop handlers");
+                        _currentStatus.RunTaskStopHandlers();
+                        // Log the result
+                        const Level resultLogLevel = Level.Verbose;
+                        if (Logger.IsLoggable(resultLogLevel) && resultReturnedByTask != null &&
+                            resultReturnedByTask.Length > 0)
+                        {
+                            Logger.Log(resultLogLevel,
+                                "Task running result:\r\n" +
+                                System.Text.Encoding.Default.GetString(resultReturnedByTask));
+                        }
+                    }
+                    else
+                    {
+                        Logger.Log(Level.Info, "Task not running current state {0}", _currentStatus.State);
+                        returnResultToDriver = false;
                     }
                 }
                 catch (TaskStartHandlerException e)
@@ -149,7 +158,9 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Task
                 {
                     try
                     {
+                        Logger.Log(Level.Info, "Try to dispose of task");
                         _userTask.Dispose();
+                        Logger.Log(Level.Info, "task diposed");
                     }
                     catch (Exception e)
                     {
@@ -216,7 +227,8 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Task
             }
             catch (Exception e)
             {
-                Utilities.Diagnostics.Exceptions.CaughtAndThrow(e, Level.Error, "Error during Close.", Logger);
+                Logger.Log(Level.Info, "TaskRuntime::TaskClose exception", e);
+                _currentStatus.SetException(e);
             }
             finally
             {
@@ -247,8 +259,17 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Task
             }
             
             // An Exception in suspend should crash the Evaluator.
-            OnNext(new SuspendEventImpl(message));
-            _currentStatus.SetSuspendRequested();
+            try
+            {
+                OnNext(new SuspendEventImpl(message));
+                _currentStatus.SetSuspendRequested();
+            }
+            catch (Exception e)
+            {
+                Logger.Log(Level.Info, "TaskRuntime::TaskSuspendHandler exception", e);
+                _currentStatus.SetException(e);
+                _userTask.Dispose();
+            }
         }
 
         public void Deliver(byte[] message)
@@ -259,7 +280,16 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Task
                 return;
             }
 
-            OnNext(new DriverMessageImpl(message));
+            try
+            {
+                OnNext(new DriverMessageImpl(message));
+            }
+            catch (Exception e)
+            {
+                Logger.Log(Level.Error, "TaskRuntime::Deliver message excxeption", e);
+                _currentStatus.SetException(e);
+                _userTask.Dispose();
+            }
         }
 
         public void OnNext(ICloseEvent value)

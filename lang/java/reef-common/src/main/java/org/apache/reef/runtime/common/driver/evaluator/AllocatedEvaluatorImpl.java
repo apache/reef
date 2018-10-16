@@ -246,7 +246,10 @@ public final class AllocatedEvaluatorImpl implements AllocatedEvaluator {
     try (final LoggingScope lb = loggingScopeFactory.evaluatorLaunch(this.getId())) {
       final Configuration submissionEvaluatorConfiguration =
           makeEvaluatorConfiguration(
-              contextConfiguration, Optional.of(evaluatorConfiguration), serviceConfiguration, taskConfiguration);
+              contextConfiguration,
+              Optional.ofNullable(evaluatorConfiguration),
+              serviceConfiguration,
+              taskConfiguration);
 
       resourceBuildAndLaunch(submissionEvaluatorConfiguration);
     }
@@ -313,6 +316,8 @@ public final class AllocatedEvaluatorImpl implements AllocatedEvaluator {
     final ConfigurationModule evaluatorConfigModule;
     if (this.evaluatorManager.getEvaluatorDescriptor().getProcess() instanceof CLRProcess) {
       evaluatorConfigModule = EvaluatorConfiguration.CONFCLR;
+    } else if (this.evaluatorManager.getEvaluatorDescriptor().getProcess() instanceof DotNetProcess) {
+      evaluatorConfigModule = EvaluatorConfiguration.CONFDOTNET;
     } else {
       evaluatorConfigModule = EvaluatorConfiguration.CONF;
     }

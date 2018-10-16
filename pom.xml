@@ -312,9 +312,13 @@ under the License.
                             <exclude>**/*.snk</exclude>
                             <exclude>**/*.opendb</exclude>
                             <exclude>**/*.resx</exclude>
+                            <exclude>**/*.nuspec</exclude>
+                            <exclude>**/*.json</exclude>
+                            <exclude>**/*.pubxml</exclude>
+                            <exclude>**/*.pubxml.user</exclude>
                             <!-- The below are auto generated during the .Net build -->
                             <exclude>**/bin/**</exclude>
-                            <exclude>**/generated/**</exclude>
+                            <exclude>**/generated-sources/**</exclude>
                             <exclude>**/obj/**</exclude>
                             <exclude>**/Release/**</exclude>
                             <exclude>**/Debug/**</exclude>

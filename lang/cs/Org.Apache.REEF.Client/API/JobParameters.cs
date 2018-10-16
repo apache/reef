@@ -32,6 +32,7 @@ namespace Org.Apache.REEF.Client.API
         private readonly string _jobIdentifier;
         private readonly int _maxApplicationSubmissions;
         private readonly int _driverMemory;
+        private readonly int _driverCpuCores;
         private IDictionary<string, string> _jobSubmissionEnvMap;
         private readonly Optional<string> _stdoutFilePath;
         private readonly Optional<string> _stderrFilePath;
@@ -41,6 +42,7 @@ namespace Org.Apache.REEF.Client.API
             string jobIdentifier, 
             int maxApplicationSubmissions, 
             int driverMemory,
+            int driverCpuCores,
             IDictionary<string, string> jobSubmissionEnvMap, 
             string stdoutFilePath,
             string stderrFilePath,
@@ -49,6 +51,7 @@ namespace Org.Apache.REEF.Client.API
             _jobIdentifier = jobIdentifier;
             _maxApplicationSubmissions = maxApplicationSubmissions;
             _driverMemory = driverMemory;
+            _driverCpuCores = driverCpuCores;
             _jobSubmissionEnvMap = jobSubmissionEnvMap;
 
             _stdoutFilePath = string.IsNullOrWhiteSpace(stdoutFilePath) ? 
@@ -83,6 +86,14 @@ namespace Org.Apache.REEF.Client.API
         public int DriverMemoryInMB
         {
             get { return _driverMemory; }
+        }
+
+        /// <summary>
+        /// The number of driver CPU cores.
+        /// </summary>
+        public int DriverCpuCores
+        {
+            get { return _driverCpuCores;  }
         }
 
         /// <summary>

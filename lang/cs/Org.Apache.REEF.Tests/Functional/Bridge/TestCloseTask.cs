@@ -98,7 +98,7 @@ namespace Org.Apache.REEF.Tests.Functional.Bridge
         [Fact]
         public void TestTaskWithNoCloseHandlerOnLocalRuntime()
         {
-            const string closeHandlerNoBound = "ExceptionCaught TaskCloseHandlerNotBoundException";
+            const string closeHandlerNoBound = "TaskCloseHandlerNotBoundException";
 
             string testFolder = DefaultRuntimeFolder + Guid.NewGuid().ToString("N").Substring(0, 4);
             TestRun(DriverConfigurations(DisposeMessageFromDriver, GetTaskConfigurationForNoCloseHandlerTask()), typeof(CloseTaskTestDriver), 1, "testStopTaskWithNoCloseHandler", "local", testFolder);

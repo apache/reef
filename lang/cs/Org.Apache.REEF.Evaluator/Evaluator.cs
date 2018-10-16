@@ -89,6 +89,7 @@ namespace Org.Apache.REEF.Evaluator
                     .BindSetEntry<RuntimeStartHandler, EvaluatorRuntime, IObserver<RuntimeStart>>()
                     .BindSetEntry<RuntimeStopHandler, EvaluatorRuntime, IObserver<RuntimeStop>>()
                     .Build();
+            logger.Log(Level.Info, "Creating the Evaluator instance");
             var evaluator = injector.ForkInjector(rootEvaluatorConfiguration).GetInstance<Evaluator>();
 
             evaluator.Run();
@@ -140,9 +141,10 @@ namespace Org.Apache.REEF.Evaluator
                 Utilities.Diagnostics.Exceptions.Throw(new FileNotFoundException("cannot find file " + evaluatorConfigFile), logger);
             }
 
+            logger.Log(Level.Info, "Assembly name for evaluator configuration: {0}", typeof(ApplicationIdentifier).Assembly.GetName().Name);
             AvroConfigurationSerializer serializer = new AvroConfigurationSerializer();
             var classHierarchy = TangFactory.GetTang()
-                .GetClassHierarchy(new string[] { typeof(ApplicationIdentifier).GetTypeInfo().Assembly.GetName().Name });
+                .GetClassHierarchy(new string[] { typeof(ApplicationIdentifier).Assembly.GetName().Name });
             var evaluatorConfiguration = serializer.FromFile(evaluatorConfigFile, classHierarchy);
 
             logger.Log(Level.Info, 
