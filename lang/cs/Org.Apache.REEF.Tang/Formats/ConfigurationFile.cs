@@ -133,32 +133,30 @@ namespace Org.Apache.REEF.Tang.Formats
                 } 
                 else 
                 {
-                    Org.Apache.REEF.Utilities.Diagnostics.Exceptions.Throw(new IllegalStateException(), LOGGER);
+                    throw new BindException($"Failed to serialize set of unsupported type {e.Value.GetType()}");
                 }
                 
                 l.Add(GetFullName(e.Key) + '=' + Escape(val));
             }
 
-            IEnumerator bl = conf.GetBoundList().GetEnumerator();
-            while (bl.MoveNext())
+            foreach(var kvp in conf.GetBoundList())
             {
-                KeyValuePair<INamedParameterNode, IList<object>> e = (KeyValuePair<INamedParameterNode, IList<object>>)bl.Current;
-                foreach (var item in e.Value)
+                foreach (var item in kvp.Value)
                 {
                     string val = null;
                     if (item is string)
                     {
                         val = GetFullName((string)item);
                     }
-                    else if (e.Value is INode)
+                    else if (kvp.Value is INode)
                     {
-                        val = GetFullName((INode)e.Value);
+                        val = GetFullName((INode)kvp.Value);
                     }
                     else
                     {
-                        Org.Apache.REEF.Utilities.Diagnostics.Exceptions.Throw(new IllegalStateException(), LOGGER);
+                       throw new BindException($"Failed to serialize list of unsupported type {item.GetType()}");
                     }
-                    l.Add(GetFullName(e.Key) + '=' + Escape(val));
+                    l.Add(GetFullName(kvp.Key) + '=' + Escape(val));
                 }
             }
 

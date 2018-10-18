@@ -254,17 +254,15 @@ namespace Org.Apache.REEF.Tang.Formats
                 }
                 else
                 {
-                    Org.Apache.REEF.Utilities.Diagnostics.Exceptions.Throw(new IllegalStateException(), LOGGER);
+                    throw new TangApplicationException("Unable to serialize set of type {e.Value.GetType()}");
                 }
 
                 l.Add(new ConfigurationEntry(e.Key.GetFullName(), val));
             }
 
-            IEnumerator bl = conf.GetBoundList().GetEnumerator();
-            while (bl.MoveNext())
+            foreach (var kvp in conf.GetBoundList())
             {
-                KeyValuePair<INamedParameterNode, IList<object>> e = (KeyValuePair<INamedParameterNode, IList<object>>)bl.Current;
-                foreach (var item in e.Value)
+                foreach (var item in kvp.Value)
                 {
                     string val = null;
                     if (item is string)
@@ -277,9 +275,9 @@ namespace Org.Apache.REEF.Tang.Formats
                     }
                     else
                     {
-                        Org.Apache.REEF.Utilities.Diagnostics.Exceptions.Throw(new IllegalStateException(), LOGGER);
+                        throw new TangApplicationException("Unable to serialize list of type {item.GetType()}");
                     }
-                    l.Add(new ConfigurationEntry(e.Key.GetFullName(), val));
+                    l.Add(new ConfigurationEntry(kvp.Key.GetFullName(), val));
                 }
             }
             return new AvroConfiguration(Language.Cs.ToString(), l);

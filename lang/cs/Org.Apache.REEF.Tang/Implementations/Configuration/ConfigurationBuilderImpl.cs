@@ -352,6 +352,11 @@ namespace Org.Apache.REEF.Tang.Implementations.Configuration
             IList<object> l = new List<object>();
             foreach (var n in impl)
             {
+                if (string.IsNullOrEmpty(n))
+                {
+                    throw new ArgumentException("List cannot contain string that are null or empty");
+                }
+
                 l.Add((object)n);
             }
             BoundLists.Add(iface, l);

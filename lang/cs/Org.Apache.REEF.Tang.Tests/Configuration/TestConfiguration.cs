@@ -444,8 +444,6 @@ namespace Org.Apache.REEF.Tang.Tests.Configuration
                 .BindList<ListOfStrings2, string>(GenericType<ListOfStrings2>.Class, stringList2)
                 .Build();
 
-            ConfigurationFile.WriteConfigurationFile(conf, "ListOfStringsConf.txt");
-
             string s = ConfigurationFile.ToConfigurationString(conf);
             IConfiguration conf2 = ConfigurationFile.GetConfiguration(s);
 
@@ -457,22 +455,83 @@ namespace Org.Apache.REEF.Tang.Tests.Configuration
         }
 
         [Fact]
-        public void TestListConfigWithAvroSerialization()
+        public void TestListConfigWithEmptyList()
         {
-            IList<string> stringList = new List<string>();
-            stringList.Add("foo");
-            stringList.Add("bar");
+            IList<string> stringList1 = new List<string>();
+
             IConfiguration conf = TangFactory.GetTang().NewConfigurationBuilder()
-                    .BindList<ListOfStrings, string>(GenericType<ListOfStrings>.Class, stringList)
+                .BindList<ListOfStrings, string>(GenericType<ListOfStrings>.Class, stringList1)
+                .Build();
+            string s = ConfigurationFile.ToConfigurationString(conf);
+            // string will be empty since there is nothing to save
+            Assert.Equal(0, s.Length);
+        }
+
+        [Fact]
+        public void TestListConfigWithEmptyString()
+        {
+            IList<string> stringList1 = new List<string>();
+            stringList1.Add("");
+
+            try
+            {
+                IConfiguration conf = TangFactory.GetTang().NewConfigurationBuilder()
+                    .BindList<ListOfStrings, string>(GenericType<ListOfStrings>.Class, stringList1)
+                    .Build();
+            }
+            catch(BindException)
+            {
+                return;
+            }
+
+            Assert.True(false, "Failed to throw expected exception.");
+
+        }
+
+        [Fact]
+        public void TestListConfigWithNullStringValue()
+        {
+            IList<string> stringList1 = new List<string>();
+            stringList1.Add(null);
+
+            try
+            {
+                IConfiguration conf = TangFactory.GetTang().NewConfigurationBuilder()
+                    .BindList<ListOfStrings, string>(GenericType<ListOfStrings>.Class, stringList1)
+                    .Build();
+            }
+            catch(BindException)
+            {
+                return;
+            }
+
+            Assert.True(false, "Failed to throw expected exception.");
+        }
+
+        private void TestSerializeListHelper(IList<string> items, int expectedLists = 1)
+        {
+            IConfiguration conf = TangFactory.GetTang().NewConfigurationBuilder()
+                    .BindList<ListOfStrings, string>(GenericType<ListOfStrings>.Class, items)
                     .Build();
 
             var serializer = new AvroConfigurationSerializer();
             byte[] bytes = serializer.ToByteArray(conf);
             IConfiguration conf2 = serializer.FromByteArray(bytes);
-            Assert.Equal(1, conf2.GetBoundList().Count);
+            Assert.Equal(expectedLists, conf2.GetBoundList().Count);
+            if (expectedLists > 1)
+            {
+                var actualList = conf2.GetBoundList().First().Value;
+                Assert.Equal(items, actualList);
+            }
+        }
 
-            var actualList = conf2.GetBoundList().First().Value;
-            Assert.Equal(stringList, actualList);
+        [Fact]
+        public void TestListSerialize()
+        {
+            IList<string> stringList = new List<string>();
+            stringList.Add("foo");
+            stringList.Add("bar");
+            TestSerializeListHelper(stringList);
         }
 
         [Fact]
@@ -490,11 +549,28 @@ namespace Org.Apache.REEF.Tang.Tests.Configuration
                 var serializer = new AvroConfigurationSerializer();
                 byte[] bytes = serializer.ToByteArray(conf);
             }
-            catch (IllegalStateException e)
+            catch (TangApplicationException e)
             {
                 msg = e.Message;
             }
             Assert.NotNull(msg);
+        }
+
+        [Fact]
+        public void TestListSerializeEmptyList()
+        {
+            IList<string> stringList = new List<string>();
+            TestSerializeListHelper(stringList, 0);
+        }
+
+        [Fact]
+        public void TestListSerializeEmptyStrings()
+        {
+            string msg = null;
+            IList<string> stringList = new List<string>();
+            stringList.Add("");
+            stringList.Add("");
+            TestSerializeListHelper(stringList);
         }
 
         [Fact]
