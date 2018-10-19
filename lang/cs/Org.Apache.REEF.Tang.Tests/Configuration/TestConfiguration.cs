@@ -541,19 +541,8 @@ namespace Org.Apache.REEF.Tang.Tests.Configuration
             IList<string> stringList = new List<string>();
             stringList.Add(null);
 
-            try
-            {
-                IConfiguration conf = TangFactory.GetTang().NewConfigurationBuilder()
-                    .BindList<ListOfStrings, string>(GenericType<ListOfStrings>.Class, stringList)
-                    .Build();
-                var serializer = new AvroConfigurationSerializer();
-                byte[] bytes = serializer.ToByteArray(conf);
-            }
-            catch (TangApplicationException e)
-            {
-                msg = e.Message;
-            }
-            Assert.NotNull(msg);
+            var builder = TangFactory.GetTang().NewConfigurationBuilder();
+            Assert.Throws<BindException>(() => builder.BindList<ListOfStrings, string>(GenericType<ListOfStrings>.Class, stringList));
         }
 
         [Fact]
@@ -570,7 +559,9 @@ namespace Org.Apache.REEF.Tang.Tests.Configuration
             IList<string> stringList = new List<string>();
             stringList.Add("");
             stringList.Add("");
-            TestSerializeListHelper(stringList);
+
+            var builder = TangFactory.GetTang().NewConfigurationBuilder();
+            Assert.Throws<BindException>(() => builder.BindList<ListOfStrings, string>(GenericType<ListOfStrings>.Class, stringList));
         }
 
         [Fact]
