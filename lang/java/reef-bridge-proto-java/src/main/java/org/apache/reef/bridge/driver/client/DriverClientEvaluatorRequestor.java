@@ -51,7 +51,7 @@ public final class DriverClientEvaluatorRequestor implements EvaluatorRequestor 
   }
 
   @Override
-  public void remove(String requestId) {
+  public void remove(final String requestId) {
     // The driver service will need to properly handle the remove flag.
     EvaluatorRequest request = EvaluatorRequest.newBuilder()
         .setNumber(EvaluatorRequestorImpl.REMOVE_FLAG)
