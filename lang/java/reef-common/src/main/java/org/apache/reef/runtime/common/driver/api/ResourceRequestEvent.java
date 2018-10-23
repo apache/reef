@@ -35,6 +35,11 @@ import java.util.List;
 public interface ResourceRequestEvent {
 
   /**
+   * @return The request id.
+   */
+  String getRequestId();
+
+  /**
    * @return The number of resources requested
    */
   int getResourceCount();

@@ -25,6 +25,8 @@ namespace Org.Apache.REEF.Driver.Bridge.Clr2java
     {
         void Submit(IEvaluatorRequest evaluatorRequest);
 
+        void Remove(string requestId);
+
         byte[] GetDefinedRuntimes();
     }
 }

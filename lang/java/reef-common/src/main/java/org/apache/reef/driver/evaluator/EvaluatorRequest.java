@@ -34,6 +34,7 @@ import java.util.List;
 @Provided
 public final class EvaluatorRequest {
 
+  private final String requestId;
   private final int megaBytes;
   private final int number;
   private final int cores;
@@ -57,11 +58,10 @@ public final class EvaluatorRequest {
                    final List<String> nodeNames,
                    final List<String> rackNames,
                    final String runtimeName) {
-    this(number, megaBytes, cores, nodeNames, rackNames, runtimeName, true, null);
+    this("", number, megaBytes, cores, nodeNames, rackNames, runtimeName, true, null);
   }
-
-
-  EvaluatorRequest(final int number,
+  EvaluatorRequest(final String requestId,
+                   final int number,
                    final int megaBytes,
                    final int cores,
                    final List<String> nodeNames,
@@ -69,6 +69,7 @@ public final class EvaluatorRequest {
                    final String runtimeName,
                    final boolean relaxLocality,
                    final String nodeLabelExpression) {
+    this.requestId = requestId;
     this.number = number;
     this.megaBytes = megaBytes;
     this.cores = cores;
@@ -96,6 +97,15 @@ public final class EvaluatorRequest {
    */
   public static Builder newBuilder(final EvaluatorRequest request) {
     return new Builder(request);
+  }
+
+  /**
+   * Access the request id of Evaluators requested.
+   *
+   * @return The request id.
+   */
+  public String getRequestId() {
+    return this.requestId;
   }
 
   /**
@@ -175,6 +185,7 @@ public final class EvaluatorRequest {
   public static class Builder<T extends Builder> implements org.apache.reef.util.Builder<EvaluatorRequest> {
 
     private int n = 1;
+    private String requestId = "";
     private int megaBytes = -1;
     private int cores = 1; //if not set, default to 1
     private final List<String> nodeNames = new ArrayList<>();
@@ -194,6 +205,7 @@ public final class EvaluatorRequest {
      * @return this Builder
      */
     private Builder(final EvaluatorRequest request) {
+      setRequestId(request.getRequestId());
       setNumber(request.getNumber());
       setMemory(request.getMegaBytes());
       setNumberOfCores(request.getNumberOfCores());
@@ -206,6 +218,18 @@ public final class EvaluatorRequest {
         addRackName(rackName);
       }
       setNodeLabelExpression(request.getNodeLabelExpression());
+    }
+
+    /**
+     * Set the request id.
+     *
+     * @param requestId for the Evaluator request.
+     * @return this builder
+     */
+    @SuppressWarnings("checkstyle:hiddenfield")
+    public T setRequestId(final String requestId) {
+      this.requestId = requestId;
+      return (T) this;
     }
 
     /**
@@ -326,9 +350,8 @@ public final class EvaluatorRequest {
      */
     @Override
     public EvaluatorRequest build() {
-      return new EvaluatorRequest(this.n, this.megaBytes, this.cores, this.nodeNames,
-          this.rackNames, this.runtimeName, this.relaxLocality,
-          this.nodeLabelExpression);
+      return new EvaluatorRequest(this.requestId, this.n, this.megaBytes, this.cores, this.nodeNames,
+          this.rackNames, this.runtimeName, this.relaxLocality, this.nodeLabelExpression);
     }
 
     /**

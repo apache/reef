@@ -31,5 +31,14 @@ public interface YarnContainerRequestHandler {
    *
    * @param containerRequests set of container requests
    */
+  void onContainerRequest(final String requestId, final AMRMClient.ContainerRequest... containerRequests);
+
+  /**
+   * Container requests without request id. Will be deprecated in 0.18.
+   * @param containerRequests
+   */
+  @Deprecated
   void onContainerRequest(final AMRMClient.ContainerRequest... containerRequests);
+
+  void onContainerRequestRemove(String requestId);
 }

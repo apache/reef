@@ -53,26 +53,47 @@ namespace Org {
               ManagedLog::LOGGER->LogStart("EvaluatorRequestorClr2Java::Submit");
               JNIEnv *env = RetrieveEnv(_jvm);
               jclass jclassEvaluatorRequestor = env->GetObjectClass(_jobjectEvaluatorRequestor);
-              jmethodID jmidSubmit = env->GetMethodID(jclassEvaluatorRequestor, "submit", "(IIIZLjava/lang/String;Ljava/lang/String;Ljava/util/ArrayList;Ljava/lang/String;)V");
+			  jmethodID jmidSubmit = env->GetMethodID(jclassEvaluatorRequestor, "submit", "(Ljava/lang/String;IIIZLjava/lang/String;Ljava/lang/String;Ljava/util/ArrayList;Ljava/lang/String;)V");
 
+			  ManagedLog::LOGGER->LogStart("EvaluatorRequestorClr2Java::Submit2");
               if (jmidSubmit == NULL) {
                 fprintf(stdout, " jmidSubmit is NULL\n");
                 fflush(stdout);
                 return;
               }
-              env->CallObjectMethod(
+			  ManagedLog::LOGGER->LogStart("EvaluatorRequestorClr2Java::Submit3:RequestId:" + request->RequestId);
+			  env->CallObjectMethod(
                 _jobjectEvaluatorRequestor,
                 jmidSubmit,
+				JavaStringFromManagedString(env, request->RequestId),
                 request->Number,
                 request->MemoryMegaBytes,
                 request->VirtualCore,
-                request->RelaxLocality,
+				request->RelaxLocality,
                 JavaStringFromManagedString(env, request->Rack),
                 JavaStringFromManagedString(env, request->RuntimeName),
                 JavaArrayListFromManagedList(env, request->NodeNames),
 				JavaStringFromManagedString(env, request->NodeLabelExpression));
               ManagedLog::LOGGER->LogStop("EvaluatorRequestorClr2Java::Submit");
             }
+
+			void EvaluatorRequestorClr2Java::Remove(String^ requestId) {
+				ManagedLog::LOGGER->LogStart("EvaluatorRequestorClr2Java::Remove");
+				JNIEnv *env = RetrieveEnv(_jvm);
+				jclass jclassEvaluatorRequestor = env->GetObjectClass(_jobjectEvaluatorRequestor);
+				jmethodID jmidRemove = env->GetMethodID(jclassEvaluatorRequestor, "remove", "(Ljava/lang/String;)V");
+
+				if (jmidRemove == NULL) {
+					fprintf(stdout, " jmidRemove is NULL\n");
+					fflush(stdout);
+					return;
+				}
+				env->CallObjectMethod(
+					_jobjectEvaluatorRequestor,
+					jmidRemove,
+					JavaStringFromManagedString(env, requestId));
+				ManagedLog::LOGGER->LogStop("EvaluatorRequestorClr2Java::Remove");
+			}
 
             array<byte>^ EvaluatorRequestorClr2Java::GetDefinedRuntimes() {
               ManagedLog::LOGGER->LogStart("EvaluatorRequestorClr2Java::GetDefinedRuntimes");

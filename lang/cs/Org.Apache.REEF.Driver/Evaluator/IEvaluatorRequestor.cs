@@ -36,6 +36,12 @@ namespace Org.Apache.REEF.Driver.Evaluator
         void Submit(IEvaluatorRequest request);
 
         /// <summary>
+        /// Remove an evaluator request for specified request id.
+        /// </summary>
+        /// <param name="requestId">Request Id to be removed.</param>
+        void Remove(string requestId);
+
+        /// <summary>
         /// Returns a builder for new Evaluator requests.
         /// </summary>
         /// <returns></returns>

@@ -39,6 +39,8 @@ namespace Org.Apache.REEF.Tests.Performance.TestHelloREEF
         private static readonly Logger Logger = Logger.GetLogger(typeof(TestHelloDriver));
         private readonly IEvaluatorRequestor _evaluatorRequestor;
 
+        private const string RequestIdPrefix = "RequestId-";
+
         /// <summary>
         /// Specify if the desired node names is relaxed
         /// </summary>
@@ -90,7 +92,9 @@ namespace Org.Apache.REEF.Tests.Performance.TestHelloREEF
         {
             Logger.Log(Level.Info, "Received IDriverStarted, numberOfContainers: {0}", _numberOfContainers);
 
+            var requestId = RequestIdPrefix + Guid.NewGuid();
             _evaluatorRequestor.Submit(_evaluatorRequestor.NewBuilder()
+                .SetRequestId(requestId)
                 .SetMegabytes(64)
                 .SetNumber(_numberOfContainers)
                 .SetRelaxLocality(_relaxLocality)

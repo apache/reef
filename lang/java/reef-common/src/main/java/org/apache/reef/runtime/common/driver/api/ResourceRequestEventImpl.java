@@ -29,6 +29,7 @@ import java.util.List;
  * Use newBuilder to construct an instance.
  */
 public final class ResourceRequestEventImpl implements ResourceRequestEvent {
+  private final String requestId;
   private final int resourceCount;
   private final List<String> nodeNameList;
   private final List<String> rackNameList;
@@ -40,6 +41,7 @@ public final class ResourceRequestEventImpl implements ResourceRequestEvent {
   private final String runtimeName;
 
   private ResourceRequestEventImpl(final Builder builder) {
+    this.requestId = builder.requestId == null ? "" : builder.requestId;
     this.resourceCount = BuilderUtils.notNull(builder.resourceCount);
     this.nodeNameList = BuilderUtils.notNull(builder.nodeNameList);
     this.rackNameList = BuilderUtils.notNull(builder.rackNameList);
@@ -49,6 +51,11 @@ public final class ResourceRequestEventImpl implements ResourceRequestEvent {
     this.relaxLocality = Optional.ofNullable(builder.relaxLocality);
     this.nodeLabelExpression = Optional.ofNullable(builder.nodeLabelExpression);
     this.runtimeName = builder.runtimeName == null ? "" : builder.runtimeName;
+  }
+
+  @Override
+  public String getRequestId() {
+    return requestId;
   }
 
   @Override
@@ -104,6 +111,7 @@ public final class ResourceRequestEventImpl implements ResourceRequestEvent {
    * Builder used to create ResourceRequestEvent instances.
    */
   public static final class Builder implements org.apache.reef.util.Builder<ResourceRequestEvent> {
+    private String requestId;
     private Integer resourceCount;
     private List<String> nodeNameList = new ArrayList<>();
     private List<String> rackNameList = new ArrayList<>();
@@ -118,6 +126,7 @@ public final class ResourceRequestEventImpl implements ResourceRequestEvent {
      * Create a builder from an existing ResourceRequestEvent.
      */
     public Builder mergeFrom(final ResourceRequestEvent resourceRequestEvent) {
+      this.requestId = resourceRequestEvent.getRequestId();
       this.resourceCount = resourceRequestEvent.getResourceCount();
       this.nodeNameList = resourceRequestEvent.getNodeNameList();
       this.rackNameList = resourceRequestEvent.getRackNameList();
@@ -129,6 +138,14 @@ public final class ResourceRequestEventImpl implements ResourceRequestEvent {
       this.nodeLabelExpression = resourceRequestEvent
           .getNodeLabelExpression()
           .orElse(null);
+      return this;
+    }
+
+    /**
+     * @see ResourceRequestEvent#getRequestId()
+     */
+    public Builder setRequestId(final String requestId) {
+      this.requestId = requestId;
       return this;
     }
 

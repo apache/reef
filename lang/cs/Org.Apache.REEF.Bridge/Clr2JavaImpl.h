@@ -104,7 +104,8 @@ namespace Org {
                             !EvaluatorRequestorClr2Java();
                             virtual void OnError(String^ message);
                             virtual void Submit(IEvaluatorRequest^ request);
-                            virtual array<byte>^ GetDefinedRuntimes();
+							virtual void Remove(String^ requestId);
+							virtual array<byte>^ GetDefinedRuntimes();
                         };
 
                         public ref class TaskMessageClr2Java : public ITaskMessageClr2Java {

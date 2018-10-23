@@ -33,6 +33,7 @@ namespace Org.Apache.REEF.Driver.Evaluator
 
         internal EvaluatorRequestBuilder(IEvaluatorRequest request)
         {
+            RequestId = request.RequestId;
             Number = request.Number;
             MegaBytes = request.MemoryMegaBytes;
             VirtualCore = request.VirtualCore;
@@ -46,6 +47,7 @@ namespace Org.Apache.REEF.Driver.Evaluator
 
         internal EvaluatorRequestBuilder()
         {
+            RequestId = "RequestId-" + Guid.NewGuid().ToString("N");
             Number = 1;
             VirtualCore = 1;
             MegaBytes = 64;
@@ -57,9 +59,22 @@ namespace Org.Apache.REEF.Driver.Evaluator
             _nodeLabelExpression = string.Empty;
         }
 
+        public string RequestId { get; private set; }
+
         public int Number { get; private set; }
         public int MegaBytes { get; private set; }
         public int VirtualCore { get; private set; }
+
+        /// <summary>
+        /// Set the request id for the evaluator request.
+        /// </summary>
+        /// <param name="requestId"></param>
+        /// <returns></returns>
+        public EvaluatorRequestBuilder SetRequestId(string requestId)
+        {
+            RequestId = requestId;
+            return this;
+        }
 
         /// <summary>
         /// Set the number of evaluators to request.
@@ -177,7 +192,9 @@ namespace Org.Apache.REEF.Driver.Evaluator
         /// <returns></returns>
         public IEvaluatorRequest Build()
         {
-            return new EvaluatorRequest(Number, MegaBytes, VirtualCore, rack: _rackName, evaluatorBatchId: _evaluatorBatchId, runtimeName: _runtimeName, nodeNames: _nodeNames, relaxLocality: _relaxLocality, nodeLabelExpression: _nodeLabelExpression);
+            return new EvaluatorRequest(RequestId, Number, MegaBytes, VirtualCore, rack: _rackName,
+                evaluatorBatchId: _evaluatorBatchId, runtimeName: _runtimeName, nodeNames: _nodeNames,
+                relaxLocality: _relaxLocality, nodeLabelExpression: _nodeLabelExpression);
         }
     }
 }

@@ -63,6 +63,7 @@ namespace Org.Apache.REEF.Tests.Performance.TestHelloREEF
             int driverMemory = 1024;
             string testFolder = DefaultRuntimeFolder + TestId;
             TestRun(GetRuntimeConfigurationForLocal(numberOfContainers, testFolder), driverMemory);
+            ValidateSuccessForLocalRuntime(numberOfContainers, testFolder: testFolder);
             CleanUp(testFolder);
         }
 

@@ -25,6 +25,11 @@ namespace Org.Apache.REEF.Driver.Evaluator
     public interface IEvaluatorRequest
     {
         /// <summary>
+        /// Evaluator request id.
+        /// </summary>
+        string RequestId { get; }
+
+        /// <summary>
         /// Memory for the Evaluator in megabytes.
         /// </summary>
         int MemoryMegaBytes { get; }
