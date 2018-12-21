@@ -120,7 +120,7 @@ namespace Org.Apache.REEF.Network.Group.Task.Impl
                 return;
             }
 
-            var gcMessage = value.Data.First();
+            var gcMessage = value.Data;
 
             IObserver<NsMessage<GeneralGroupCommunicationMessage>> observer;
             if (!_observers.TryGetValue(NodeObserverIdentifier.FromMessage(gcMessage), out observer))

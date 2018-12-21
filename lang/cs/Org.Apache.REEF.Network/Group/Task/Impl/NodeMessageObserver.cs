@@ -39,13 +39,10 @@ namespace Org.Apache.REEF.Network.Group.Task.Impl
         /// <param name="value"></param>
         public void OnNext(NsMessage<GeneralGroupCommunicationMessage> value)
         {
-            foreach (var data in value.Data)
+            var gcMessage = value.Data as GroupCommunicationMessage<T>;
+            if (gcMessage != null && gcMessage.Data != null && gcMessage.Data.Length > 0)
             {
-                var gcMessage = data as GroupCommunicationMessage<T>;
-                if (gcMessage != null && gcMessage.Data != null && gcMessage.Data.Length > 0)
-                {
-                    _nodeStruct.AddData(gcMessage);
-                }
+                _nodeStruct.AddData(gcMessage);
             }
         }
 

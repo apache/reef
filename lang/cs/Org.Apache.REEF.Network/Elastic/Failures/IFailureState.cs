@@ -29,7 +29,6 @@ namespace Org.Apache.REEF.Network.Elastic.Failures
         /// The current failure state. It is assumed that bigger values mean worst
         /// failure state.
         /// </summary>
-        /// <returns>A value identifing the failure state</returns>
         int FailureState { get; set; }
 
         /// <summary>

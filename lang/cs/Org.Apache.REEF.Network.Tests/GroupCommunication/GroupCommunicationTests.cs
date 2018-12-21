@@ -69,9 +69,9 @@ namespace Org.Apache.REEF.Network.Tests.GroupCommunication
                     new BlockingCollection<GeneralGroupCommunicationMessage>();
 
                 var handler1 =
-                    Observer.Create<NsMessage<GeneralGroupCommunicationMessage>>(msg => messages1.Add(msg.Data.First()));
+                    Observer.Create<NsMessage<GeneralGroupCommunicationMessage>>(msg => messages1.Add(msg.Data));
                 var handler2 =
-                    Observer.Create<NsMessage<GeneralGroupCommunicationMessage>>(msg => messages2.Add(msg.Data.First()));
+                    Observer.Create<NsMessage<GeneralGroupCommunicationMessage>>(msg => messages2.Add(msg.Data));
 
                 var networkServiceInjector1 = BuildNetworkServiceInjector(endpoint, handler1);
                 var networkServiceInjector2 = BuildNetworkServiceInjector(endpoint, handler2);

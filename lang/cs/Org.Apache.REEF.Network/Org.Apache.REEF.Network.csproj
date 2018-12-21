@@ -31,12 +31,13 @@ under the License.
     <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="1.1.2" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Org.Apache.REEF.IO\Org.Apache.REEF.IO.csproj" />
     <ProjectReference Include="..\Org.Apache.REEF.Tang\Org.Apache.REEF.Tang.csproj" />
     <ProjectReference Include="..\Org.Apache.REEF.Utilities\Org.Apache.REEF.Utilities.csproj" />
     <ProjectReference Include="..\Org.Apache.REEF.Common\Org.Apache.REEF.Common.csproj" />
     <ProjectReference Include="..\Org.Apache.REEF.Driver\Org.Apache.REEF.Driver.csproj" />
     <ProjectReference Include="..\Org.Apache.REEF.Wake\Org.Apache.REEF.Wake.csproj" />
   </ItemGroup>
-  <Import Project="..\build.targets"/>
+  <Import Project="..\build.targets" />
 </Project>
 
