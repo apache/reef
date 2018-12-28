@@ -38,7 +38,6 @@ namespace Org.Apache.REEF.Network.Elastic.Operators.Physical.Impl
     {
         private static readonly Logger LOGGER = Logger.GetLogger(typeof(DefaultOneToN<>));
 
-        private readonly ICheckpointableState _checkpointableState;
         internal readonly OneToNTopology _topology;
         internal volatile PositionTracker _position;
 
@@ -51,10 +50,9 @@ namespace Org.Apache.REEF.Network.Elastic.Operators.Physical.Impl
         /// <param name="level">The checkpoint level for the operator</param>
         /// <param name="isLast">Whether this operator is the last in the pipeline</param>
         /// <param name="topology">The operator topology layer</param>
-        internal DefaultOneToN(int id, bool isLast, ICheckpointableState checkpointableState, OneToNTopology topology)
+        internal DefaultOneToN(int id, bool isLast, OneToNTopology topology)
         {
             OperatorId = id;
-            _checkpointableState = checkpointableState;
             _isLast = isLast;
             _topology = topology;
             _position = PositionTracker.Nil;
@@ -147,8 +145,6 @@ namespace Org.Apache.REEF.Network.Elastic.Operators.Physical.Impl
                 IteratorReference.SyncIteration(typedDataMessage.Iteration);
             }
 
-            Checkpoint(dataMessage, dataMessage.Iteration);
-
             _position = PositionTracker.AfterReceive;
 
             return typedDataMessage.Data;
@@ -193,22 +189,6 @@ namespace Org.Apache.REEF.Network.Elastic.Operators.Physical.Impl
                 _topology.StageComplete();
             }
             _topology.Dispose();
-        }
-
-        /// <summary>
-        /// Checkpoint the input data for the input iteration using the defined checkpoint level.
-        /// </summary>
-        /// <param name="data">The messages to checkpoint</param>
-        /// <param name="iteration">The iteration of the checkpoint</param>
-        internal void Checkpoint(ElasticGroupCommunicationMessage data, int iteration)
-        {
-            if (_checkpointableState.Level > CheckpointLevel.None)
-            {
-                var state = _checkpointableState.Create();
-
-                state.MakeCheckpointable(data);
-                _topology.Checkpoint(state, iteration);
-            }
         }
     }
 }

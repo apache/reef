@@ -42,10 +42,6 @@ namespace Org.Apache.REEF.Network.Elastic.Config
                 GenericType<DataMessageStreamingCodec<T>>.Class)
             .BindImplementation(GenericType<IStreamingCodec<DataMessageWithTopology<T>>>.Class,
                 GenericType<DataMessageWithTopologyStreamingCodec<T>>.Class)
-            .BindImplementation(GenericType<IStreamingCodec<CheckpointMessage>>.Class,
-                GenericType<CheckpointMessageStreamingCodec<T>>.Class)
-            .BindImplementation(GenericType<IStreamingCodec<CheckpointMessageRequest>>.Class,
-                GenericType<CheckpointMessageRequestStreamingCodec>.Class)
             .Build();
     }
 }

@@ -37,11 +37,10 @@ namespace Org.Apache.REEF.Network.Elastic.Topology.Physical.Impl
     /// Base class for topologies following a one to N communication pattern.
     /// </summary>
     [Unstable("0.16", "API may change")]
-    internal abstract class OneToNTopology : OperatorTopologyWithCommunication, ICheckpointingTopology
+    internal abstract class OneToNTopology : OperatorTopologyWithCommunication
     {
         protected static readonly Logger LOGGER = Logger.GetLogger(typeof(OneToNTopology));
 
-        private readonly ICheckpointLayer _checkpointLayer;
         protected readonly ConcurrentDictionary<string, byte> _nodesToRemove;
 
         protected readonly ManualResetEvent _topologyUpdateReceived;
@@ -71,10 +70,8 @@ namespace Org.Apache.REEF.Network.Elastic.Topology.Physical.Impl
             int retry,
             int timeout,
             int disposeTimeout,
-            CommunicationLayer commLayer,
-            ICheckpointLayer checkpointLayer) : base(stageName, taskId, rootTaskId, operatorId, commLayer, retry, timeout, disposeTimeout)
+            CommunicationLayer commLayer) : base(stageName, taskId, rootTaskId, operatorId, commLayer, retry, timeout, disposeTimeout)
         {
-            _checkpointLayer = checkpointLayer;
             _nodesToRemove = new ConcurrentDictionary<string, byte>();
             _topologyUpdateReceived = new ManualResetEvent(RootTaskId == taskId ? false : true);
 
@@ -92,66 +89,11 @@ namespace Org.Apache.REEF.Network.Elastic.Topology.Physical.Impl
         }
 
         /// <summary>
-        /// An internal (to the topology) checkpoint. This can be used to implement
-        /// ephemeral level checkpoints.
-        /// </summary>
-        public ICheckpointState InternalCheckpoint { get; private set; }
-
-        /// <summary>
         /// Whether the topology is still sending messages or not.
         /// </summary>
         public bool IsSending
         {
             get { return !_sendQueue.IsEmpty; }
-        }
-
-        /// <summary>
-        /// Checkpoint the input state for the given iteration.
-        /// </summary>
-        /// <param name="state">The state to checkpoint</param>
-        /// <param name="iteration">The iteration in which the checkpoint is happening</param>
-
-        public void Checkpoint(ICheckpointableState state, int iteration)
-        {
-            ICheckpointState checkpoint;
-
-            switch (state.Level)
-            {
-                case CheckpointLevel.None:
-                    break;
-                case CheckpointLevel.EphemeralMaster:
-                    if (TaskId == RootTaskId)
-                    {
-                        InternalCheckpoint = state.Checkpoint();
-                        InternalCheckpoint.Iteration = iteration;
-                    }
-                    break;
-                case CheckpointLevel.EphemeralAll:
-                    InternalCheckpoint = state.Checkpoint();
-                    InternalCheckpoint.Iteration = iteration;
-                    break;
-                default:
-                    throw new IllegalStateException($"Checkpoint level {state.Level} not supported.");
-            }
-        }
-
-        /// <summary>
-        /// Retrieve a previously saved checkpoint.
-        /// The iteration number specificy which cehckpoint to retrieve, where -1
-        /// is used by default to indicate the latest available checkpoint.
-        /// </summary>
-        /// <param name="checkpoint">The retrieved checkpoint</param>
-        /// <param name="iteration">The iteration number for the checkpoint to retrieve.</param>
-        /// <returns></returns>
-        public bool GetCheckpoint(out ICheckpointState checkpoint, int iteration = -1)
-        {
-            if (InternalCheckpoint != null && (iteration == -1 || InternalCheckpoint.Iteration == iteration))
-            {
-                checkpoint = InternalCheckpoint;
-                return true;
-            }
-
-            return _checkpointLayer.GetCheckpoint(out checkpoint, TaskId, StageName, OperatorId, iteration, false);
         }
 
         /// <summary>

@@ -26,9 +26,5 @@ namespace Org.Apache.REEF.Network.Elastic.Failures.Enum
     public enum CheckpointLevel : int
     {
         None = 0, // No checkpointing
-
-        EphemeralMaster = 10, // Checkpointing on the master task, not tolerant to task failures
-
-        EphemeralAll = 11, // Checkpointing on all tasks, not tolerant to task failures
     }
 }

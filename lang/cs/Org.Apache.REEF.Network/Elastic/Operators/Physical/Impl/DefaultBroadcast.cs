@@ -40,8 +40,7 @@ namespace Org.Apache.REEF.Network.Elastic.Operators.Physical.Impl
         private DefaultBroadcast(
             [Parameter(typeof(OperatorParameters.OperatorId))] int id,
             [Parameter(typeof(OperatorParameters.IsLast))] bool isLast,
-            ICheckpointableState checkpointableState,
-            DefaultBroadcastTopology topology) : base(id, isLast, checkpointableState, topology)
+            DefaultBroadcastTopology topology) : base(id, isLast, topology)
         {
             OperatorName = Constants.Broadcast;
         }
@@ -64,8 +63,6 @@ namespace Org.Apache.REEF.Network.Elastic.Operators.Physical.Impl
 
             int iteration = IteratorReference == null ? 0 : (int)IteratorReference.Current;
             var message = _topology.GetDataMessage(iteration, new[] { data });
-
-            Checkpoint(message, message.Iteration);
 
             _topology.Send(message, CancellationSource);
 
