@@ -30,6 +30,6 @@ namespace Org.Apache.REEF.Network.Elastic.Comm.Enum
 
         NextDataRequest = 3,
 
-        CompleteSubscription = 4
+        CompleteStage = 4
     }
 }

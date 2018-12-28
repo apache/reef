@@ -31,11 +31,11 @@ namespace Org.Apache.REEF.Network.Elastic.Comm.Impl
         /// <summary>
         /// Constructor for the base untyped data message with topology.
         /// </summary>
-        /// <param name="subscriptionName">The name of the subscription for the message</param>
+        /// <param name="stageName">The name of the stage for the message</param>
         /// <param name="operatorId">The operator sending the message</param>
         /// <param name="iteration">The iteration in which the message is sent/valid</param>
-        public DataMessageWithTopology(string subscriptionName, int operatorId, int iteration)
-            : base(subscriptionName, operatorId, iteration)
+        public DataMessageWithTopology(string stageName, int operatorId, int iteration)
+            : base(stageName, operatorId, iteration)
         {
         }
 
@@ -50,22 +50,22 @@ namespace Org.Apache.REEF.Network.Elastic.Comm.Impl
     /// </summary>
     /// <typeparam name="T"></typeparam>
     [Unstable("0.16", "API may change")]
-    internal class DataMessageWithTopology<T> : DataMessageWithTopology
+    internal class DataMessageWithTopology<T> : DataMessageWithTopology, ITypedDataMessage<T>
     {
         /// <summary>
         /// Main constructor for data messages with topology information.
         /// </summary>
-        /// <param name="subscriptionName">The name of the subscription for the message</param>
+        /// <param name="stageName">The name of the stage for the message</param>
         /// <param name="operatorId">The operator sending the message</param>
         /// <param name="iteration">The iteration in which the message is sent/valid</param>
         /// <param name="data">The data contained in the message</param>
         /// <param name="updates">The topology updates being transmitted with the data</param>
         public DataMessageWithTopology(
-            string subscriptionName,
+            string stageName,
             int operatorId,
             int iteration,
             T data,
-            List<TopologyUpdate> updates) : base(subscriptionName, operatorId, iteration)
+            List<TopologyUpdate> updates) : base(stageName, operatorId, iteration)
         {
             Data = data;
             TopologyUpdates = updates;
@@ -74,21 +74,21 @@ namespace Org.Apache.REEF.Network.Elastic.Comm.Impl
         /// <summary>
         /// Constructor for a data message with topology but without topology updates.
         /// </summary>
-        /// <param name="subscriptionName">The name of the subscription for the message</param>
+        /// <param name="stageName">The name of the stage for the message</param>
         /// <param name="operatorId">The operator sending the message</param>
         /// <param name="iteration">The iteration in which the message is sent/valid</param>
         /// <param name="data">The data contained in the message</param>
         public DataMessageWithTopology(
-            string subscriptionName,
+            string stageName,
             int operatorId,
             int iteration,
-            T data) : this(subscriptionName, operatorId, iteration, data, new List<TopologyUpdate>())
+            T data) : this(stageName, operatorId, iteration, data, new List<TopologyUpdate>())
         {
         }
 
         /// <summary>
         /// The data contained in the message.
         /// </summary>
-        internal T Data { get; set; }
+        public T Data { get; set; }
     }
 }

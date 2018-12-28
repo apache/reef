@@ -61,8 +61,8 @@ namespace Org.Apache.REEF.Network.Elastic.Config
         {
         }
 
-        [NamedParameter("Default Group name", defaultValue: "Subscription1")]
-        public sealed class DefaultSubscriptionName : Name<string>
+        [NamedParameter("Default Group name", defaultValue: "Stage1")]
+        public sealed class DefaultStageName : Name<string>
         {
         }
 
@@ -71,8 +71,8 @@ namespace Org.Apache.REEF.Network.Elastic.Config
         {
         }
 
-        [NamedParameter("Serialized subscriptions configuration")]
-        public sealed class SerializedSubscriptionConfigs : Name<ISet<string>>
+        [NamedParameter("Serialized stages configuration")]
+        public sealed class SerializedStageConfigs : Name<ISet<string>>
         {
         }
 
@@ -96,12 +96,17 @@ namespace Org.Apache.REEF.Network.Elastic.Config
         {
         }
 
-        [NamedParameter(Documentation = "Rack name used when a new evaluator is requested after a failure", DefaultValue = "WonderlandRack")]
+        [NamedParameter("Number of failures before an evaluator abort the task set", defaultValue: "3")]
+        public sealed class NumEvaluatorFailures : Name<int>
+        {
+        }
+
+        [NamedParameter(Documentation = "Rack name used when a new evaluator is requested", DefaultValue = "WonderlandRack")]
         public sealed class NewEvaluatorRackName : Name<string>
         {
         }
 
-        [NamedParameter(Documentation = "Batch id used when a new evaluator is requested after a failure", DefaultValue = "IterateBroadcast")]
+        [NamedParameter(Documentation = "Batch id used when a new evaluator is requested", DefaultValue = "IterateBroadcast")]
         public sealed class NewEvaluatorBatchId : Name<string>
         {
         }
@@ -111,7 +116,7 @@ namespace Org.Apache.REEF.Network.Elastic.Config
         {
         }
 
-        [NamedParameter(Documentation = "Memory size used when a new evaluator is requested after a failure", DefaultValue = "512")]
+        [NamedParameter(Documentation = "Memory size used when a new evaluator is requested", DefaultValue = "512")]
         public sealed class NewEvaluatorMemorySize : Name<int>
         {
         }

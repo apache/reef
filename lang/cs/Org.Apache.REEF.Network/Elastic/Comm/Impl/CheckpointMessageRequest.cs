@@ -16,43 +16,40 @@
 // under the License.
 
 using Org.Apache.REEF.Utilities.Attributes;
-using System;
 
 namespace Org.Apache.REEF.Network.Elastic.Comm.Impl
 {
     /// <summary>
-    /// Message sent by Group Communication operators. 
+    /// Message sent to checkpoint service to retrieve a remote checkpoint.
     /// </summary>
     [Unstable("0.16", "API may change")]
-    public abstract class GroupCommunicationMessage : ICloneable
+    internal sealed class CheckpointMessageRequest : ElasticGroupCommunicationMessage
     {
         /// <summary>
-        /// Create a new Group Communication Message.
+        /// Constructor.
         /// </summary>
-        /// <param name="subscriptionName">The name of the subscription</param>
-        /// <param name="operatorId">The id of the operator sending the message</param>
-        protected GroupCommunicationMessage(
-            string subscriptionName,
-            int operatorId)
+        /// <param name="stageName">The stage name ffor the checkpoint to retrieve</param>
+        /// <param name="operatorId">The operator identifier</param>
+        /// <param name="iteration">The iteration of the checkpoint of interest</param>
+        public CheckpointMessageRequest(
+           string stageName,
+           int operatorId,
+           int iteration) : base(stageName, operatorId)
         {
-            SubscriptionName = subscriptionName;
-            OperatorId = operatorId;
+            Iteration = iteration;
         }
+
+        /// <summary>
+        /// Iteration number for the checkpoint of interest.
+        /// </summary>
+        public int Iteration { get; set; }
 
         /// <summary>
         /// Clone the message.
         /// </summary>
-        /// <returns>An object containing the shallow copy of the message.</returns>
-        public abstract object Clone();
-
-        /// <summary>
-        /// Returns the Subscription.
-        /// </summary>
-        internal string SubscriptionName { get; private set; }
-
-        /// <summary>
-        /// Returns the Operator id.
-        /// </summary>
-        internal int OperatorId { get; private set; }
+        public override object Clone()
+        {
+            return new CheckpointMessageRequest(StageName, OperatorId, Iteration);
+        }
     }
 }

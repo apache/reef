@@ -37,9 +37,9 @@ namespace Org.Apache.REEF.Network.Elastic.Topology.Logical
         int OperatorId { get; set; }
 
         /// <summary>
-        /// The subscription of the operator using the topology.
+        /// The stage of the operator using the topology.
         /// </summary>
-        string SubscriptionName { get; set; }
+        string StageName { get; set; }
 
         /// <summary>
         /// Adds a new task to the topology.
@@ -89,7 +89,8 @@ namespace Org.Apache.REEF.Network.Elastic.Topology.Logical
         string LogTopologyState();
 
         /// <summary>
-        /// This method is triggered when a node detects a change in the topology and asks the driver for an update.
+        /// This method is triggered when a node contacts the driver to synchronize the remote topology
+        /// with the driver's one.
         /// </summary>
         /// <param name="taskId">The identifier of the task asking for the update</param>
         /// <param name="returnMessages">A list of message containing the topology update</param>
@@ -108,7 +109,7 @@ namespace Org.Apache.REEF.Network.Elastic.Topology.Logical
         /// <param name="taskId">The task id responsible for the topology change</param>
         /// <param name="info">Some additional topology-specific information</param>
         /// <param name="iteration">The optional iteration number in which the event occurred</param>
-        /// <returns>One or more messages for reconfiguring the Tasks</returns>
+        /// <returns>One or more messages for reconfiguring the tasks</returns>
         IList<IElasticDriverMessage> Reconfigure(string taskId, Optional<string> info, Optional<int> iteration);
 
         /// <summary>

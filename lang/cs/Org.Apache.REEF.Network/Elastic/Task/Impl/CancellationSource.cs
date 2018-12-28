@@ -15,38 +15,46 @@
 // specific language governing permissions and limitations
 // under the License.
 
-using Org.Apache.REEF.Network.Elastic.Failures;
+using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Utilities.Attributes;
+using System.Threading;
 
-namespace Org.Apache.REEF.Network.Elastic.Comm.Impl
+namespace Org.Apache.REEF.Network.Elastic.Task.Impl
 {
     /// <summary>
-    /// Message used to communicate checkpoints between nodes in order to
-    /// recover execution.
+    /// Generic cancellation source for task operations.
+    /// This class basically wraps <see cref="CancellationTokenSource"/> and uses Tang
+    /// to inject the same source through the elastic communication services.
     /// </summary>
     [Unstable("0.16", "API may change")]
-    internal sealed class CheckpointMessage : ElasticGroupCommunicationMessage
+    internal sealed class CancellationSource
     {
-        /// <summary>
-        /// Constructor for a message containig a checkpoint.
-        /// </summary>
-        /// <param name="checkpoint">The checkpoint state</param>
-        public CheckpointMessage(ICheckpointState checkpoint) : base(checkpoint.StageName, checkpoint.OperatorId)
+        [Inject]
+        public CancellationSource()
         {
-            Checkpoint = checkpoint;
+            Source = new CancellationTokenSource();
         }
 
         /// <summary>
-        /// The checkpoint contained in the message.
+        /// The wrapped cancellation source.
         /// </summary>
-        public ICheckpointState Checkpoint { get; internal set; }
+        public CancellationTokenSource Source { get; private set; }
 
         /// <summary>
-        /// Clone the message.
+        /// Whether the operation is cancelled.
         /// </summary>
-        public override object Clone()
+        /// <returns></returns>
+        public bool IsCancelled
         {
-            return new CheckpointMessage(Checkpoint);
+            get { return Source.IsCancellationRequested; }
+        }
+
+        /// <summary>
+        /// Cancel the currently running computation.
+        /// </summary>
+        public void Cancel()
+        {
+            Source.Cancel();
         }
     }
 }

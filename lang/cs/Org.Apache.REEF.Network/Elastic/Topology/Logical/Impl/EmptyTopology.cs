@@ -50,9 +50,9 @@ namespace Org.Apache.REEF.Network.Elastic.Topology.Logical.Impl
         public int OperatorId { get; set; }
 
         /// <summary>
-        /// The subscription of the operator using the topology.
+        /// The stage of the operator using the topology.
         /// </summary>
-        public string SubscriptionName { get; set; }
+        public string StageName { get; set; }
 
         /// <summary>
         /// Adds a new task to the topology.
@@ -102,9 +102,9 @@ namespace Org.Apache.REEF.Network.Elastic.Topology.Logical.Impl
                 throw new IllegalStateException("Topology cannot be built because not linked to any operator");
             }
 
-            if (SubscriptionName == string.Empty)
+            if (StageName == string.Empty)
             {
-                throw new IllegalStateException("Topology cannot be built because not linked to any subscription");
+                throw new IllegalStateException("Topology cannot be built because not linked to any stage");
             }
 
             _finalized = true;

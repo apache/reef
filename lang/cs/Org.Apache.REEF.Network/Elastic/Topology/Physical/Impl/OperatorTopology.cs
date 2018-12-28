@@ -29,23 +29,22 @@ namespace Org.Apache.REEF.Network.Elastic.Topology.Physical.Impl
         /// <summary>
         /// Constructor for an operator topology.
         /// </summary>
+        /// <param name="stageName">The stage name the topology is working on</param>
         /// <param name="taskId">The identifier of the task the topology is running on</param>
         /// <param name="rootTaskId">The identifier of the root note in the topology</param>
-        /// <param name="subscriptionName">The subscription name the topology is working on</param>
         /// <param name="operatorId">The identifier of the operator for this topology</param>
-        public OperatorTopology(string taskId, string rootTaskId, string subscriptionName, int operatorId)
+        public OperatorTopology(string stageName, string taskId, string rootTaskId, int operatorId)
         {
+            StageName = stageName;
             TaskId = taskId;
-            SubscriptionName = subscriptionName;
-            OperatorId = operatorId;
-
             RootTaskId = rootTaskId;
+            OperatorId = operatorId;
         }
 
         /// <summary>
-        /// The subscription name context in which the topology is running.
+        /// The stage name context in which the topology is running.
         /// </summary>
-        public string SubscriptionName { get; private set; }
+        public string StageName { get; private set; }
 
         /// <summary>
         /// The identifier of the operator in which the topology is running.

@@ -28,16 +28,16 @@ namespace Org.Apache.REEF.Network.Elastic.Driver
 {
     /// <summary>
     /// Used to group elastic operators into logical units. 
-    /// All operators in the same subscriptions share similar semantics and behavior 
-    /// under failures. Subscriptions can only be created by a service.
+    /// All operators in the same stages share similar semantics and behavior 
+    /// under failures. Stages can only be created by a context.
     /// </summary>
     [Unstable("0.16", "API may change")]
-    public interface IElasticTaskSetSubscription : IFailureResponse, ITaskMessageResponse
+    public interface IElasticStage : IFailureResponse, ITaskMessageResponse
     {
         /// <summary>
-        /// The name of the subscriptions.
+        /// The name of the stages.
         /// </summary>
-        string SubscriptionName { get; }
+        string StageName { get; }
 
         /// <summary>
         /// The operator at the beginning of the computation workflow.
@@ -45,68 +45,68 @@ namespace Org.Apache.REEF.Network.Elastic.Driver
         ElasticOperator RootOperator { get; }
 
         /// <summary>
-        /// The failure state of the target subscriptions. 
+        /// The failure state of the target stages. 
         /// </summary>
         IFailureState FailureState { get; }
 
         /// <summary>
-        /// The service managing the subscriptions.
+        /// The context where the stage is created.
         /// </summary>
-        IElasticTaskSetService Service { get; }
+        IElasticContext Context { get; }
 
         /// <summary>
-        /// Whether the subscriptions is completed or not.
+        /// Whether the stages is completed or not.
         /// </summary>
         bool IsCompleted { get; set; }
 
         /// <summary>
-        /// Whether the subscriptions contains iterations or not.
+        /// Whether the stages contains iterations or not.
         /// </summary>
         bool IsIterative { get; set; }
 
         /// <summary>
-        /// Generates an id to uniquely identify Operators in the subscriptions.
+        /// Generates an id to uniquely identify operators in the stages.
         /// </summary>
         /// <returns>A new unique id</returns>
         int GetNextOperatorId();
 
         /// <summary>
-        /// Add a partitioned dataset to the subscription.
+        /// Add a partitioned dataset to the stage.
         /// </summary>
         /// <param name="inputDataSet">The partitioned dataset</param>
         /// <param name="isMasterGettingInputData">Whether the master node should get a partition</param>
         void AddDataset(IPartitionedInputDataSet inputDataSet, bool isMasterGettingInputData = false);
 
         /// <summary>
-        /// Add a set of datasets to the subscription.
+        /// Add a set of datasets to the stage.
         /// </summary>
         /// <param name="inputDataSet">The configuration for the datasets</param>
         /// <param name="isMasterGettingInputData">Whether the master node should get a partition</param>
         void AddDataset(IConfiguration[] inputDataSet, bool isMasterGettingInputData = false);
 
         /// <summary>
-        /// Finalizes the subscriptions.
-        /// After the subscriptions has been finalized, no more operators can
+        /// Finalizes the stages.
+        /// After the stages has been finalized, no more operators can
         /// be added to the group.
         /// </summary>
-        /// <returns>The same finalized subscriptions</returns>
-        IElasticTaskSetSubscription Build();
+        /// <returns>The same finalized stages</returns>
+        IElasticStage Build();
 
         /// <summary>
-        /// Add a task to the subscriptions.
-        /// The subscriptions must have been buit before tasks can be added.
+        /// Add a task to the stages.
+        /// The stages must have been buit before tasks can be added.
         /// </summary>
         /// <param name="taskId">The id of the task to add</param>
-        /// <returns>True if the task is correctly added to the subscriptions</returns>
+        /// <returns>True if the task is correctly added to the stages</returns>
         bool AddTask(string taskId);
 
         /// <summary>
-        /// Decides if the tasks added to the subscriptions can be scheduled for execution
+        /// Decides if the tasks added to the stages can be scheduled for execution
         /// or not. This method is used for implementing different policies for 
         /// triggering the scheduling of tasks.
         /// </summary>
         /// <returns>True if the previously added tasks can be scheduled for execution</returns>
-        bool ScheduleSubscription();
+        bool ScheduleStage();
 
         /// <summary>
         /// Whether the input activeContext is the one of the master tasks.
@@ -117,11 +117,11 @@ namespace Org.Apache.REEF.Network.Elastic.Driver
 
         /// <summary>
         /// Creates the Configuration for the input task.
-        /// Must be called only after all tasks have been added to the subscriptions.
+        /// Must be called only after all tasks have been added to the stages.
         /// </summary>
         /// <param name="builder">The configuration builder the configuration will be appended to</param>
-        /// <param name="taskId">The task id of the task that belongs to this subscriptions</param>
-        /// <returns>The configuration for the Task with added subscriptions informations</returns>
+        /// <param name="taskId">The task id of the task that belongs to this stages</param>
+        /// <returns>The configuration for the Task with added stages informations</returns>
         IConfiguration GetTaskConfiguration(ref ICsConfigurationBuilder builder, int taskId);
 
         /// <summary>
@@ -129,14 +129,14 @@ namespace Org.Apache.REEF.Network.Elastic.Driver
         /// (if any).
         /// </summary>
         /// <param name="taskId">The task id of the task we wanto to retrieve the data partition. 
-        /// The task is required to belong to thq subscriptions</param>
+        /// The task is required to belong to thq stages</param>
         /// <returns>The configuration of the data partition (if any) of the task</returns>
         Optional<IConfiguration> GetPartitionConf(string taskId);
 
         /// <summary>
         /// Retrieve the log the final statistics of the computation: this is the sum of all 
-        /// the stats of all the Operators compising the subscription. This method can be called
-        /// only once the subscriptions is completed.
+        /// the stats of all the Operators compising the stage. This method can be called
+        /// only once the stages is completed.
         /// </summary>
         /// <returns>The final statistics for the computation</returns>
         string LogFinalStatistics();

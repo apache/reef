@@ -39,31 +39,31 @@ namespace Org.Apache.REEF.Network.Elastic
         }
 
         /// <summary>
-        /// Gets the subscriptions associated with the active context id.
+        /// Gets the stages associated with the active context id.
         /// </summary>
         /// <param name="activeContext">The active context to check</param>
-        /// <returns>The subscription names associated with the active context id</returns>
-        public static string GetContextSubscriptions(IActiveContext activeContext)
+        /// <returns>The stage names associated with the active context id</returns>
+        public static string GetContextStages(IActiveContext activeContext)
         {
             return GetValue(1, activeContext.Id);
         }
 
         /// <summary>
-        /// Gets the subscriptions associated with the context id.
+        /// Gets the stages associated with the context id.
         /// </summary>
         /// <param name="id">The context id to check</param>
-        /// <returns>The subscription names associated with the context id</returns>
-        public static string GetContextSubscriptions(string id)
+        /// <returns>The stage names associated with the context id</returns>
+        public static string GetContextStages(string id)
         {
             return GetValue(1, id);
         }
 
         /// <summary>
-        /// Gets the subscriptions associated with the Task id.
+        /// Gets the stages associated with the Task id.
         /// </summary>
         /// <param name="taskId">The task id to check</param>
-        /// <returns>The subscription names associated with the task id</returns>
-        public static string GetTaskSubscriptions(string taskId)
+        /// <returns>The stage names associated with the task id</returns>
+        public static string GetTaskStages(string taskId)
         {
             return GetValue(1, taskId);
         }
@@ -79,25 +79,25 @@ namespace Org.Apache.REEF.Network.Elastic
         }
 
         /// <summary>
-        /// Builds a context identifier out of a subscription(s) and a context number.
+        /// Builds a context identifier out of a stage(s) and a context number.
         /// </summary>
-        /// <param name="subscriptionName">The subscriptions active in the context</param>
+        /// <param name="stageName">The stages active in the context</param>
         /// <param name="contextNum">The context number</param>
         /// <returns>The context identifier</returns>
-        public static string BuildContextId(string subscriptionName, int contextNum)
+        public static string BuildContextId(string stageName, int contextNum)
         {
-            return BuildIdentifier("Context", subscriptionName, contextNum);
+            return BuildIdentifier("Context", stageName, contextNum);
         }
 
         /// <summary>
-        /// Builds a task identifier out of a subscription(s) and an id.
+        /// Builds a task identifier out of a stage(s) and an id.
         /// </summary>
-        /// <param name="subscriptionName">The subscriptions active in the task</param>
+        /// <param name="stageName">The stages active in the task</param>
         /// <param name="id">The task id</param>
         /// <returns>The task identifier</returns>
-        public static string BuildTaskId(string subscriptionName, int id)
+        public static string BuildTaskId(string stageName, int id)
         {
-            return BuildIdentifier("Task", subscriptionName, id);
+            return BuildIdentifier("Task", stageName, id);
         }
 
         /// <summary>

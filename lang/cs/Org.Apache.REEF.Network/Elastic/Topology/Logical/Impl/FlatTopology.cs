@@ -43,7 +43,7 @@ namespace Org.Apache.REEF.Network.Elastic.Topology.Logical.Impl
 
         private string _rootTaskId;
         private int _rootId;
-        private string _taskSubscription;
+        private string _taskStage;
         private volatile int _iteration;
         private bool _finalized;
         private readonly bool _sorted;
@@ -67,7 +67,7 @@ namespace Org.Apache.REEF.Network.Elastic.Topology.Logical.Impl
         public FlatTopology(int rootId, bool sorted = false)
         {
             _rootTaskId = string.Empty;
-            _taskSubscription = string.Empty;
+            _taskStage = string.Empty;
             _rootId = rootId;
             _finalized = false;
             _sorted = sorted;
@@ -89,9 +89,9 @@ namespace Org.Apache.REEF.Network.Elastic.Topology.Logical.Impl
         public int OperatorId { get; set; }
 
         /// <summary>
-        /// The subscription of the operator using the topology.
+        /// The stage of the operator using the topology.
         /// </summary>
-        public string SubscriptionName { get; set; }
+        public string StageName { get; set; }
 
         /// <summary>
         /// Adds a new task to the topology.
@@ -146,9 +146,9 @@ namespace Org.Apache.REEF.Network.Elastic.Topology.Logical.Impl
                 }
 
                 // This is required later in order to build the topology
-                if (_taskSubscription == string.Empty)
+                if (_taskStage == string.Empty)
                 {
-                    _taskSubscription = Utils.GetTaskSubscriptions(taskId);
+                    _taskStage = Utils.GetTaskStages(taskId);
                 }
             }
 
@@ -234,14 +234,14 @@ namespace Org.Apache.REEF.Network.Elastic.Topology.Logical.Impl
                 throw new IllegalStateException("Topology cannot be built because not linked to any operator");
             }
 
-            if (SubscriptionName == string.Empty)
+            if (StageName == string.Empty)
             {
-                throw new IllegalStateException("Topology cannot be built because not linked to any subscription");
+                throw new IllegalStateException("Topology cannot be built because not linked to any stage");
             }
 
             BuildTopology();
 
-            _rootTaskId = Utils.BuildTaskId(_taskSubscription, _rootId);
+            _rootTaskId = Utils.BuildTaskId(_taskStage, _rootId);
             _finalized = true;
 
             return this;
@@ -323,7 +323,7 @@ namespace Org.Apache.REEF.Network.Elastic.Topology.Logical.Impl
             {
                 var list = _nodesWaitingToJoinTopology.ToList();
                 var update = new TopologyUpdate(_rootTaskId, list);
-                var data = new UpdateMessagePayload(new List<TopologyUpdate>() { update }, SubscriptionName, OperatorId, _iteration);
+                var data = new UpdateMessagePayload(new List<TopologyUpdate>() { update }, StageName, OperatorId, _iteration);
                 var returnMessage = new ElasticDriverMessageImpl(_rootTaskId, data);
 
                 returnMessages.Add(returnMessage);
@@ -397,7 +397,7 @@ namespace Org.Apache.REEF.Network.Elastic.Topology.Logical.Impl
                 {
                     new TopologyUpdate(_rootTaskId, children)
                 };
-                var data = new FailureMessagePayload(update, SubscriptionName, OperatorId, -1);
+                var data = new FailureMessagePayload(update, StageName, OperatorId, -1);
                 var returnMessage = new ElasticDriverMessageImpl(_rootTaskId, data);
 
                 LOGGER.Log(Level.Info, $"Task {taskId} is removed from topology");

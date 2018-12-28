@@ -26,16 +26,16 @@ namespace Org.Apache.REEF.Network.Elastic.Comm.Impl
     /// communication layers that are type-agnostic.
     /// </summary>
     [Unstable("0.16", "API may change")]
-    internal abstract class DataMessage : GroupCommunicationMessage
+    internal abstract class DataMessage : ElasticGroupCommunicationMessage
     {
         /// <summary>
         /// Constructor for an untyped data message.
         /// </summary>
-        /// <param name="subscriptionName">The name of the subscription for the message</param>
+        /// <param name="stageName">The name of the stage for the message</param>
         /// <param name="operatorId">The operator sending the message</param>
         /// <param name="iteration">The iteration in which the message is sent/valid</param>
-        public DataMessage(string subscriptionName, int operatorId, int iteration)
-            : base(subscriptionName, operatorId)
+        public DataMessage(string stageName, int operatorId, int iteration)
+            : base(stageName, operatorId)
         {
             Iteration = iteration;
         }
@@ -43,7 +43,7 @@ namespace Org.Apache.REEF.Network.Elastic.Comm.Impl
         /// <summary>
         /// The iteration number for the message.
         /// </summary>
-        internal int Iteration { get; set; }
+        public int Iteration { get; set; }
 
         /// <summary>
         /// Clone the message.
@@ -60,20 +60,20 @@ namespace Org.Apache.REEF.Network.Elastic.Comm.Impl
     /// </summary>
     /// <typeparam name="T">The type for the data message</typeparam>
     [Unstable("0.16", "API may change")]
-    internal sealed class DataMessage<T> : DataMessage
+    internal sealed class DataMessage<T> : DataMessage, ITypedDataMessage<T>
     {
         /// <summary>
         /// Constructor of a typed data message.
         /// </summary>
-        /// <param name="subscriptionName">The name of the subscription for the message</param>
+        /// <param name="stageName">The name of the stage for the message</param>
         /// <param name="operatorId">The operator sending the message</param>
         /// <param name="iteration">The iteration in which the message is sent/valid</param>
         /// <param name="data">The data contained in the message</param>
         public DataMessage(
-            string subscriptionName,
+            string stageName,
             int operatorId,
             int iteration, //// For the moment we consider iterations as ints. Maybe this would change in the future
-            T data) : base(subscriptionName, operatorId, iteration)
+            T data) : base(stageName, operatorId, iteration)
         {
             Data = data;
         }
@@ -81,6 +81,6 @@ namespace Org.Apache.REEF.Network.Elastic.Comm.Impl
         /// <summary>
         /// The data contained in the message.
         /// </summary>
-        internal T Data { get; set; }
+        public T Data { get; set; }
     }
 }

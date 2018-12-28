@@ -33,7 +33,7 @@ namespace Org.Apache.REEF.Network.Elastic.Failures
         {
             Iteration = -1;
             OperatorId = -1;
-            SubscriptionName = string.Empty;
+            StageName = string.Empty;
         }
 
         /// <summary>
@@ -47,9 +47,9 @@ namespace Org.Apache.REEF.Network.Elastic.Failures
         public int OperatorId { get; set; }
 
         /// <summary>
-        /// The subscription name of the checkpoint.
+        /// The stage name of the checkpoint.
         /// </summary>
-        public string SubscriptionName { get; set; }
+        public string StageName { get; set; }
 
         /// <summary>
         /// The actual state of the checkpoint.
@@ -74,7 +74,7 @@ namespace Org.Apache.REEF.Network.Elastic.Failures
         /// to be sent among nodes to recover computation.
         /// </summary>
         /// <returns>A checkpoint ready to be communicated</returns>
-        public GroupCommunicationMessage ToMessage()
+        public ElasticGroupCommunicationMessage ToMessage()
         {
             return new CheckpointMessage(this);
         }

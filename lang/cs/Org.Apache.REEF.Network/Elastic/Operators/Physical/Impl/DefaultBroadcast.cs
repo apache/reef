@@ -63,7 +63,7 @@ namespace Org.Apache.REEF.Network.Elastic.Operators.Physical.Impl
             _position = PositionTracker.InSend;
 
             int iteration = IteratorReference == null ? 0 : (int)IteratorReference.Current;
-            var message = _topology.AssembleDataMessage(iteration, new[] { data });
+            var message = _topology.GetDataMessage(iteration, new[] { data });
 
             Checkpoint(message, message.Iteration);
 

@@ -29,6 +29,7 @@ using System.Collections.Concurrent;
 using System.Linq;
 using Org.Apache.REEF.Network.Elastic.Failures.Enum;
 using Org.Apache.REEF.Utilities.Attributes;
+using Org.Apache.REEF.Network.Elastic.Task;
 
 namespace Org.Apache.REEF.Network.Elastic.Topology.Physical.Impl
 {
@@ -40,7 +41,7 @@ namespace Org.Apache.REEF.Network.Elastic.Topology.Physical.Impl
     {
         protected static readonly Logger LOGGER = Logger.GetLogger(typeof(OneToNTopology));
 
-        private readonly CheckpointService _checkpointService;
+        private readonly ICheckpointLayer _checkpointLayer;
         protected readonly ConcurrentDictionary<string, byte> _nodesToRemove;
 
         protected readonly ManualResetEvent _topologyUpdateReceived;
@@ -49,42 +50,42 @@ namespace Org.Apache.REEF.Network.Elastic.Topology.Physical.Impl
         /// <summary>
         /// Construct a one to N topology.
         /// </summary>
+        /// <param name="stageName">The stage name the topology is working on</param>
         /// <param name="taskId">The identifier of the task the topology is running on</param>
         /// <param name="rootTaskId">The identifier of the root note in the topology</param>
-        /// <param name="subscriptionName">The subscription name the topology is working on</param>
         /// <param name="operatorId">The identifier of the operator for this topology</param>
         /// <param name="children">The list of nodes this task has to send messages to</param>
         /// <param name="piggyback">Whether to piggyback topology update messages to data message</param>
         /// <param name="retry">How many times the topology will retry to send a message</param>
         /// <param name="timeout">After how long the topology waits for an event</param>
         /// <param name="disposeTimeout">Maximum wait time for topology disposal</param>
-        /// <param name="commService">Service responsible for communication</param>
-        /// <param name="checkpointService">Service responsible for saving and retrieving checkpoints</param>
+        /// <param name="commLayer">Layer responsible for communication</param>
+        /// <param name="checkpointLayer">Layer responsible for saving and retrieving checkpoints</param>
         public OneToNTopology(
+            string stageName,
             string taskId,
             string rootTaskId,
-            string subscriptionName,
             int operatorId,
             ISet<int> children,
             bool piggyback,
             int retry,
             int timeout,
             int disposeTimeout,
-            CommunicationService commService,
-            CheckpointService checkpointService) : base(taskId, rootTaskId, subscriptionName, operatorId, commService, retry, timeout, disposeTimeout)
+            CommunicationLayer commLayer,
+            ICheckpointLayer checkpointLayer) : base(stageName, taskId, rootTaskId, operatorId, commLayer, retry, timeout, disposeTimeout)
         {
-            _checkpointService = checkpointService;
+            _checkpointLayer = checkpointLayer;
             _nodesToRemove = new ConcurrentDictionary<string, byte>();
             _topologyUpdateReceived = new ManualResetEvent(RootTaskId == taskId ? false : true);
 
-            _commService.RegisterOperatorTopologyForTask(this);
-            _commService.RegisterOperatorTopologyForDriver(this);
+            _commLayer.RegisterOperatorTopologyForTask(this);
+            _commLayer.RegisterOperatorTopologyForDriver(this);
 
             _piggybackTopologyUpdates = piggyback;
 
             foreach (var child in children)
             {
-                var childTaskId = Utils.BuildTaskId(SubscriptionName, child);
+                var childTaskId = Utils.BuildTaskId(StageName, child);
 
                 _children.TryAdd(child, childTaskId);
             }
@@ -112,6 +113,8 @@ namespace Org.Apache.REEF.Network.Elastic.Topology.Physical.Impl
 
         public void Checkpoint(ICheckpointableState state, int iteration)
         {
+            ICheckpointState checkpoint;
+
             switch (state.Level)
             {
                 case CheckpointLevel.None:
@@ -148,7 +151,7 @@ namespace Org.Apache.REEF.Network.Elastic.Topology.Physical.Impl
                 return true;
             }
 
-            return _checkpointService.GetCheckpoint(out checkpoint, TaskId, SubscriptionName, OperatorId, iteration, false);
+            return _checkpointLayer.GetCheckpoint(out checkpoint, TaskId, StageName, OperatorId, iteration, false);
         }
 
         /// <summary>
@@ -160,7 +163,7 @@ namespace Org.Apache.REEF.Network.Elastic.Topology.Physical.Impl
             {
                 foreach (var node in _children.Values)
                 {
-                    while (_commService.Lookup(node) && !cancellationSource.IsCancellationRequested)
+                    while (_commLayer.Lookup(node) && !cancellationSource.IsCancellationRequested)
                     {
                         Thread.Sleep(100);
                     }
@@ -168,7 +171,7 @@ namespace Org.Apache.REEF.Network.Elastic.Topology.Physical.Impl
             }
         }
 
-        public abstract DataMessage AssembleDataMessage<T>(int iteration, T[] data);
+        public abstract DataMessage GetDataMessage<T>(int iteration, T[] data);
 
         /// <summary>
         /// Initializes the communication group.
@@ -179,7 +182,7 @@ namespace Org.Apache.REEF.Network.Elastic.Topology.Physical.Impl
         {
             try
             {
-                _commService.WaitForTaskRegistration(_children.Values.ToList(), cancellationSource, _nodesToRemove);
+                _commLayer.WaitForTaskRegistration(_children.Values.ToList(), cancellationSource, _nodesToRemove);
             }
             catch (Exception e)
             {
@@ -195,7 +198,7 @@ namespace Org.Apache.REEF.Network.Elastic.Topology.Physical.Impl
         /// Handler for incoming messages from other topology nodes.
         /// </summary>
         /// <param name="message">The message that need to be devlivered to the operator</param>
-        public override void OnNext(NsMessage<GroupCommunicationMessage> message)
+        public override void OnNext(NsMessage<ElasticGroupCommunicationMessage> message)
         {
             if (_messageQueue.IsAddingCompleted)
             {
@@ -241,7 +244,7 @@ namespace Org.Apache.REEF.Network.Elastic.Topology.Physical.Impl
                             foreach (var node in updates.Children)
                             {
                                 _nodesToRemove.TryAdd(node, new byte());
-                                _commService.RemoveConnection(node);
+                                _commLayer.RemoveConnection(node);
                             }
                         }
                         break;
@@ -250,7 +253,7 @@ namespace Org.Apache.REEF.Network.Elastic.Topology.Physical.Impl
                     {
                         if (_sendQueue.Count > 0)
                         {
-                            if (_sendQueue.TryPeek(out GroupCommunicationMessage toSendmsg))
+                            if (_sendQueue.TryPeek(out ElasticGroupCommunicationMessage toSendmsg))
                             {
                                 var rmsg = message as TopologyMessagePayload;
 

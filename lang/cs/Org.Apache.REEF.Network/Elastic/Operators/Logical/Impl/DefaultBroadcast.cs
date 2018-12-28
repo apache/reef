@@ -66,7 +66,7 @@ namespace Org.Apache.REEF.Network.Elastic.Operators.Logical.Impl
         {
             confBuilder
                 .BindImplementation(GenericType<IElasticTypedOperator<T>>.Class, GenericType<Physical.Impl.DefaultBroadcast<T>>.Class)
-                .BindImplementation(GenericType<ICheckpointableState>.Class, GenericType<CheckpointableImmutableObject<GroupCommunicationMessage>>.Class);
+                .BindImplementation(GenericType<ICheckpointableState>.Class, GenericType<CheckpointableImmutableObject<ElasticGroupCommunicationMessage>>.Class);
             SetMessageType(typeof(Physical.Impl.DefaultBroadcast<T>), ref confBuilder);
         }
     }

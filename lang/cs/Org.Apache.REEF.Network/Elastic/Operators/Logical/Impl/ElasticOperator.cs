@@ -36,12 +36,13 @@ using System.Linq;
 using Org.Apache.REEF.Utilities.Attributes;
 using Org.Apache.REEF.Network.Elastic.Failures.Enum;
 using Org.Apache.REEF.Network.Elastic.Topology.Logical.Enum;
+using Org.Apache.REEF.Wake.StreamingCodec.CommonStreamingCodecs;
 
 namespace Org.Apache.REEF.Network.Elastic.Operators.Logical.Impl
 {
     /// <summary>
     /// Basic implementation for logical operators.
-    /// Each operator is part of a subscription and is parametrized by a topology, a failure
+    /// Each operator is part of a stage and is parametrized by a topology, a failure
     /// state machine and a checkpoint policy.
     /// Operators are composed into pipelines.
     /// Once a pipeline is finalized, tasks can be added to the operator, which
@@ -53,6 +54,31 @@ namespace Org.Apache.REEF.Network.Elastic.Operators.Logical.Impl
     public abstract class ElasticOperator : IFailureResponse, ITaskMessageResponse
     {
         private static readonly Logger LOGGER = Logger.GetLogger(typeof(ElasticOperator));
+
+        protected static readonly Dictionary<Type, IConfiguration> CODECMAP = new Dictionary<Type, IConfiguration>()
+        {
+            {
+                typeof(int), StreamingCodecConfiguration<int>.Conf
+                .Set(StreamingCodecConfiguration<int>.Codec, GenericType<IntStreamingCodec>.Class)
+                .Build()
+            },
+            {
+                typeof(int[]), StreamingCodecConfiguration<int[]>.Conf
+                .Set(StreamingCodecConfiguration<int[]>.Codec, GenericType<IntArrayStreamingCodec>.Class)
+                .Build()
+            },
+            {
+                typeof(float), StreamingCodecConfiguration<float>.Conf
+                .Set(StreamingCodecConfiguration<float>.Codec, GenericType<FloatStreamingCodec>.Class)
+                .Build()
+            },
+            {
+                typeof(float[]), StreamingCodecConfiguration<float[]>.Conf
+                .Set(StreamingCodecConfiguration<float[]>.Codec, GenericType<FloatArrayStreamingCodec>.Class)
+                .Build()
+            }
+
+        };
 
         // For the moment we consider only linear sequences (pipelines) of operators (no branching for e.g., joins)
         protected ElasticOperator _next = null;
@@ -66,28 +92,28 @@ namespace Org.Apache.REEF.Network.Elastic.Operators.Logical.Impl
 
         protected bool _operatorFinalized;
         protected volatile bool _operatorStateFinalized;
-        protected IElasticTaskSetSubscription _subscription;
+        protected IElasticStage _stage;
 
         /// <summary>
         /// Specification for generic elastic operators.
         /// </summary>
-        /// <param name="subscription">The subscription this operator is part of</param>
+        /// <param name="stage">The stage this operator is part of</param>
         /// <param name="prev">The previous operator in the pipeline</param>
         /// <param name="topology">The topology of the operator</param>
         /// <param name="failureMachine">The behavior of the operator under failures</param>
         /// <param name="checkpointLevel">The checkpoint policy for the operator</param>
         /// <param name="configurations">Additional configuration parameters</param>
         public ElasticOperator(
-            IElasticTaskSetSubscription subscription,
+            IElasticStage stage,
             ElasticOperator prev,
             ITopology topology,
             IFailureStateMachine failureMachine,
             CheckpointLevel checkpointLevel = CheckpointLevel.None,
             params IConfiguration[] configurations)
         {
-            _subscription = subscription;
+            _stage = stage;
             _prev = prev;
-            _id = Subscription.GetNextOperatorId();
+            _id = Stage.GetNextOperatorId();
             _topology = topology;
             _failureMachine = failureMachine;
             _checkpointLevel = checkpointLevel;
@@ -96,7 +122,7 @@ namespace Org.Apache.REEF.Network.Elastic.Operators.Logical.Impl
             _operatorStateFinalized = false;
 
             _topology.OperatorId = _id;
-            _topology.SubscriptionName = Subscription.SubscriptionName;
+            _topology.StageName = Stage.StageName;
         }
 
         /// <summary>
@@ -115,25 +141,25 @@ namespace Org.Apache.REEF.Network.Elastic.Operators.Logical.Impl
         public bool WithinIteration { get; protected set; }
 
         /// <summary>
-        /// The subscription this operator is part of.
+        /// The stage this operator is part of.
         /// </summary>
-        public IElasticTaskSetSubscription Subscription
+        public IElasticStage Stage
         {
             get
             {
-                if (_subscription == null)
+                if (_stage == null)
                 {
                     if (_prev == null)
                     {
-                        throw new IllegalStateException("The reference to the parent subscription is lost.");
+                        throw new IllegalStateException("The reference to the parent stage is lost.");
                     }
 
-                    _subscription = _prev.Subscription;
+                    _stage = _prev.Stage;
 
-                    return _prev.Subscription;
+                    return _prev.Stage;
                 }
 
-                return _subscription;
+                return _stage;
             }
         }
 
@@ -261,6 +287,14 @@ namespace Org.Apache.REEF.Network.Elastic.Operators.Logical.Impl
             return this;
         }
 
+        internal virtual void GetCodecConfiguration(ref IConfiguration confBuilder)
+        {
+            if (_next != null)
+            {
+                _next.GetCodecConfiguration(ref confBuilder);
+            }
+        }
+
         /// <summary>
         /// Whether this is the last iterator in the pipeline.
         /// </summary>
@@ -301,7 +335,7 @@ namespace Org.Apache.REEF.Network.Elastic.Operators.Logical.Impl
         /// </summary>
         /// <param name="alarm">The alarm triggering the timeput</param>
         /// <param name="msgs">A list of messages encoding how remote Tasks need to reach</param>
-        /// /// <param name="nextTimeouts">The next timeouts to be scheduled</param>
+        /// <param name="nextTimeouts">The next timeouts to be scheduled</param>
         public abstract void OnTimeout(Alarm alarm, ref List<IElasticDriverMessage> msgs, ref List<ITimeout> nextTimeouts);
 
         /// <summary>
@@ -355,6 +389,41 @@ namespace Org.Apache.REEF.Network.Elastic.Operators.Logical.Impl
         }
 
         /// <summary>
+        /// Utility method gathering the set of master task ids of the operators in the current pipeline.
+        /// </summary>
+        /// <param name="masterTasks">The id of the master tasks of the current and successive operators</param>
+        internal virtual void GatherMasterIds(ref HashSet<string> masterTasks)
+        {
+            if (_operatorFinalized != true)
+            {
+                throw new IllegalStateException("Operator need to be build before gathering information.");
+            }
+
+            masterTasks.Add(Utils.BuildTaskId(Stage.StageName, MasterId));
+
+            if (_next != null)
+            {
+                _next.GatherMasterIds(ref masterTasks);
+            }
+        }
+
+        /// <summary>
+        /// Log the final statistics of the operator.
+        /// This is called when the pipeline execution is completed.
+        /// </summary>
+        internal virtual string LogFinalStatistics()
+        {
+            var str = LogInternalStatistics();
+
+            if (_next != null)
+            {
+                str += _next.LogFinalStatistics();
+            }
+
+            return str;
+        }
+
+        /// <summary>
         /// Appends the message type to the configuration. 
         /// </summary>
         /// <param name="operatorType">The type of the messages the operator is configured to accept</param>
@@ -401,7 +470,7 @@ namespace Org.Apache.REEF.Network.Elastic.Operators.Logical.Impl
 
             PhysicalOperatorConfiguration(ref operatorBuilder);
 
-            if (!Subscription.IsIterative && _next == null)
+            if (!Stage.IsIterative && _next == null)
             {
                 operatorBuilder.BindNamedParameter<OperatorParameters.IsLast, bool>(
                     GenericType<OperatorParameters.IsLast>.Class,
@@ -422,7 +491,7 @@ namespace Org.Apache.REEF.Network.Elastic.Operators.Logical.Impl
                 operatorConf = Configurations.Merge(operatorConf, conf);
             }
 
-            Subscription.Service.SerializeOperatorConfiguration(ref serializedOperatorsConfs, operatorConf);
+            Stage.Context.SerializeOperatorConfiguration(ref serializedOperatorsConfs, operatorConf);
         }
 
         /// <summary>
@@ -446,57 +515,16 @@ namespace Org.Apache.REEF.Network.Elastic.Operators.Logical.Impl
         }
 
         /// <summary>
-        /// Utility method gathering the set of master task ids of the operators in the current pipeline.
-        /// </summary>
-        /// <param name="masterTasks">The id of the master tasks of the current and successive operators</param>
-        internal virtual void GatherMasterIds(ref HashSet<string> masterTasks)
-        {
-            if (_operatorFinalized != true)
-            {
-                throw new IllegalStateException("Operator need to be build before gathering information.");
-            }
-
-            masterTasks.Add(Utils.BuildTaskId(Subscription.SubscriptionName, MasterId));
-
-            if (_next != null)
-            {
-                _next.GatherMasterIds(ref masterTasks);
-            }
-        }
-
-        /// <summary>
         /// Logs the current operator state. 
         /// </summary>
         protected virtual void LogOperatorState()
         {
-            string intro = $"State for Operator {OperatorName} in Subscription {Subscription.SubscriptionName}:\n";
+            string intro = $"State for Operator {OperatorName} in Stage {Stage.StageName}:\n";
             string topologyState = $"Topology:\n{_topology.LogTopologyState()}";
             string failureMachineState = "Failure State: " + _failureMachine.State.FailureState +
                     "\nFailure(s) Reported: " + _failureMachine.NumOfFailedDataPoints;
 
             LOGGER.Log(Level.Info, intro + topologyState + failureMachineState);
-        }
-
-        /// <summary>
-        /// Binding from logical to physical operator. 
-        /// </summary>
-        /// <param name="builder">The configuration builder the binding will be added to</param>
-        protected abstract void PhysicalOperatorConfiguration(ref ICsConfigurationBuilder builder);
-
-        /// <summary>
-        /// Log the final statistics of the operator.
-        /// This is called when the pipeline execution is completed.
-        /// </summary>
-        internal virtual string LogFinalStatistics()
-        {
-            var str = LogInternalStatistics();
-
-            if (_next != null)
-            {
-                str += _next.LogFinalStatistics();
-            }
-
-            return str;
         }
 
         /// <summary>
@@ -506,6 +534,12 @@ namespace Org.Apache.REEF.Network.Elastic.Operators.Logical.Impl
         {
             return _topology.LogFinalStatistics();
         }
+
+        /// <summary>
+        /// Binding from logical to physical operator. 
+        /// </summary>
+        /// <param name="builder">The configuration builder the binding will be added to</param>
+        protected abstract void PhysicalOperatorConfiguration(ref ICsConfigurationBuilder builder);
 
         private ITopology GetTopology(TopologyType topologyType)
         {

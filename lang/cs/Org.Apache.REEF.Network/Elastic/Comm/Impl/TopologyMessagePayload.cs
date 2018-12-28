@@ -36,11 +36,11 @@ namespace Org.Apache.REEF.Network.Elastic.Comm.Impl
         /// </summary>
         /// <param name="updates">The topology updates</param>
         /// <param name="toRemove">Whether the updates are additions to the current topology state or nodes removal</param>
-        /// <param name="subscriptionName">The subscription context for the message</param>
+        /// <param name="stageName">The stage context for the message</param>
         /// <param name="operatorId">The id of the operator receiving the topology update</param>
         /// <param name="iteration">The iteration in which the update takes effect</param>
-        public TopologyMessagePayload(DriverMessagePayloadType type, List<TopologyUpdate> updates, string subscriptionName, int operatorId, int iteration)
-            : base(subscriptionName, operatorId, iteration)
+        public TopologyMessagePayload(DriverMessagePayloadType type, List<TopologyUpdate> updates, string stageName, int operatorId, int iteration)
+            : base(stageName, operatorId, iteration)
         {
             PayloadType = type;
             TopologyUpdates = updates;
@@ -60,7 +60,7 @@ namespace Org.Apache.REEF.Network.Elastic.Comm.Impl
                 updatesClone.Add(update);
             }
 
-            return TopologyMessageBuilder(PayloadType, updatesClone, SubscriptionName, OperatorId, Iteration);
+            return TopologyMessageBuilder(PayloadType, updatesClone, StageName, OperatorId, Iteration);
         }
 
         /// <summary>
@@ -83,13 +83,13 @@ namespace Org.Apache.REEF.Network.Elastic.Comm.Impl
 
             length = BitConverter.ToInt32(data, offset);
             offset += sizeof(int);
-            string subscription = ByteUtilities.ByteArraysToString(data, offset, length);
+            string stage = ByteUtilities.ByteArraysToString(data, offset, length);
             offset += length;
             int operatorId = BitConverter.ToInt32(data, offset);
             offset += sizeof(int);
             int iteration = BitConverter.ToInt32(data, offset);
 
-            return TopologyMessageBuilder(type, updates, subscription, operatorId, iteration);
+            return TopologyMessageBuilder(type, updates, stage, operatorId, iteration);
         }
 
         /// <summary>
@@ -98,20 +98,20 @@ namespace Org.Apache.REEF.Network.Elastic.Comm.Impl
         /// <returns>The serialized payload</returns>
         internal override byte[] Serialize()
         {
-            byte[] subscriptionBytes = ByteUtilities.StringToByteArrays(SubscriptionName);
+            byte[] stageBytes = ByteUtilities.StringToByteArrays(StageName);
             int offset = 0;
             var totalLengthUpdates = TopologyUpdates.Sum(x => x.Size);
-            byte[] buffer = new byte[sizeof(int) + totalLengthUpdates + sizeof(int) + subscriptionBytes.Length + sizeof(bool) + sizeof(int) + sizeof(int)];
+            byte[] buffer = new byte[sizeof(int) + totalLengthUpdates + sizeof(int) + stageBytes.Length + sizeof(bool) + sizeof(int) + sizeof(int)];
 
             Buffer.BlockCopy(BitConverter.GetBytes(totalLengthUpdates), 0, buffer, offset, sizeof(int));
             offset += sizeof(int);
 
             TopologyUpdate.Serialize(buffer, ref offset, TopologyUpdates);
 
-            Buffer.BlockCopy(BitConverter.GetBytes(subscriptionBytes.Length), 0, buffer, offset, sizeof(int));
+            Buffer.BlockCopy(BitConverter.GetBytes(stageBytes.Length), 0, buffer, offset, sizeof(int));
             offset += sizeof(int);
-            Buffer.BlockCopy(subscriptionBytes, 0, buffer, offset, subscriptionBytes.Length);
-            offset += subscriptionBytes.Length;
+            Buffer.BlockCopy(stageBytes, 0, buffer, offset, stageBytes.Length);
+            offset += stageBytes.Length;
             Buffer.BlockCopy(BitConverter.GetBytes(OperatorId), 0, buffer, offset, sizeof(int));
             offset += sizeof(int);
             Buffer.BlockCopy(BitConverter.GetBytes(Iteration), 0, buffer, offset, sizeof(int));
@@ -119,14 +119,14 @@ namespace Org.Apache.REEF.Network.Elastic.Comm.Impl
             return buffer;
         }
 
-        private static DriverMessagePayload TopologyMessageBuilder(DriverMessagePayloadType type, List<TopologyUpdate> updates, string subscriptionName, int operatorId, int iteration)
+        private static DriverMessagePayload TopologyMessageBuilder(DriverMessagePayloadType type, List<TopologyUpdate> updates, string stageName, int operatorId, int iteration)
         {
             switch (type)
             {
                 case DriverMessagePayloadType.Update:
-                    return new UpdateMessagePayload(updates, subscriptionName, operatorId, iteration);
+                    return new UpdateMessagePayload(updates, stageName, operatorId, iteration);
                 case DriverMessagePayloadType.Failure:
-                    return new FailureMessagePayload(updates, subscriptionName, operatorId, iteration);
+                    return new FailureMessagePayload(updates, stageName, operatorId, iteration);
                 default:
                     throw new IllegalStateException($"Topology message type {type} not found.");
             }

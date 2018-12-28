@@ -40,8 +40,8 @@ namespace Org.Apache.REEF.Network.Elastic.Config
         {
         }
 
-        [NamedParameter("Name of the subscriptions")]
-        public sealed class SubscriptionName : Name<string>
+        [NamedParameter("Name of the stage")]
+        public sealed class StageName : Name<string>
         {
         }
 
@@ -80,7 +80,7 @@ namespace Org.Apache.REEF.Network.Elastic.Config
         {
         }
 
-        [NamedParameter("Whether the operator is the last to be executed in the subscription", defaultValue: "false")]
+        [NamedParameter("Whether the operator is the last to be executed in the stage", defaultValue: "false")]
         public sealed class IsLast : Name<bool>
         {
         }

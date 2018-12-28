@@ -44,19 +44,19 @@ namespace Org.Apache.REEF.Network.Elastic.Operators.Logical.Impl
         /// <summary>
         /// Base constructor for an abstract operator implementing the default failure logic.
         /// </summary>
-        /// <param name="subscription">The subscription the operator is part of</param>
+        /// <param name="stage">The stage the operator is part of</param>
         /// <param name="prev">The previous operator in the pipelines</param>
         /// <param name="topology">The topology for the operator</param>
         /// <param name="failureMachine">The failure machine of the operator</param>
         /// <param name="level">The chckpoint level for the opearator</param>
         /// <param name="configurations">Additonal opeartor specific configurations</param>
         protected ElasticOperatorWithDefaultDispatcher(
-            IElasticTaskSetSubscription subscription,
+            IElasticStage stage,
             ElasticOperator prev, ITopology topology,
             IFailureStateMachine failureMachine,
             CheckpointLevel checkpointLevel = CheckpointLevel.None,
             params IConfiguration[] configurations) :
-        base(subscription, prev, topology, failureMachine, checkpointLevel, configurations)
+        base(stage, prev, topology, failureMachine, checkpointLevel, configurations)
         {
         }
 
@@ -242,7 +242,7 @@ namespace Org.Apache.REEF.Network.Elastic.Operators.Logical.Impl
         /// </summary>
         protected override void LogOperatorState()
         {
-            string intro = $"State for Operator {OperatorName} in Subscription {Subscription.SubscriptionName}:\n";
+            string intro = $"State for Operator {OperatorName} in Stage {Stage.StageName}:\n";
             string topologyState = $"Topology:\n{_topology.LogTopologyState()}\n";
             string failureMachineState = $"Failure State: {(DefaultFailureStates)_failureMachine.State.FailureState}" +
                     $"\nFailure(s) Reported: {_failureMachine.NumOfFailedDataPoints}/{_failureMachine.NumOfDataPoints}";

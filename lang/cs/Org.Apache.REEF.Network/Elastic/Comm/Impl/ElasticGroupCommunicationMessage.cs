@@ -15,38 +15,42 @@
 // specific language governing permissions and limitations
 // under the License.
 
-using Org.Apache.REEF.Network.Elastic.Failures;
 using Org.Apache.REEF.Utilities.Attributes;
+using System;
 
 namespace Org.Apache.REEF.Network.Elastic.Comm.Impl
 {
     /// <summary>
-    /// Message used to communicate checkpoints between nodes in order to
-    /// recover execution.
+    /// Message sent by Group Communication operators. 
     /// </summary>
     [Unstable("0.16", "API may change")]
-    internal sealed class CheckpointMessage : ElasticGroupCommunicationMessage
+    public abstract class ElasticGroupCommunicationMessage : ICloneable
     {
         /// <summary>
-        /// Constructor for a message containig a checkpoint.
+        /// Create a new elastic group communication message.
         /// </summary>
-        /// <param name="checkpoint">The checkpoint state</param>
-        public CheckpointMessage(ICheckpointState checkpoint) : base(checkpoint.StageName, checkpoint.OperatorId)
+        /// <param name="stageName">The name of the stage</param>
+        /// <param name="operatorId">The id of the operator sending the message</param>
+        protected ElasticGroupCommunicationMessage(
+            string stageName,
+            int operatorId)
         {
-            Checkpoint = checkpoint;
+            StageName = stageName;
+            OperatorId = operatorId;
         }
-
-        /// <summary>
-        /// The checkpoint contained in the message.
-        /// </summary>
-        public ICheckpointState Checkpoint { get; internal set; }
 
         /// <summary>
         /// Clone the message.
         /// </summary>
-        public override object Clone()
-        {
-            return new CheckpointMessage(Checkpoint);
-        }
+        public abstract object Clone();
+
+        /// <summary>
+        /// Returns the stage.
+        internal string StageName { get; private set; }
+
+        /// <summary>
+        /// Returns the operator id.
+        /// </summary>
+        internal int OperatorId { get; private set; }
     }
 }

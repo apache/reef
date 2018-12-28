@@ -35,10 +35,10 @@ namespace Org.Apache.REEF.Network.Elastic.Operators.Logical.Impl
         /// <summary>
         /// Basic constructor for the empty operator.
         /// </summary>
-        /// <param name="subscription">The subscription the operator is part of</param>
+        /// <param name="stage">The stage the operator is part of</param>
         /// <param name="failureMachine">The failure machine goverining the opeartor</param>
-        public DefaultEmpty(IElasticTaskSetSubscription subscription, IFailureStateMachine failureMachine) :
-            base(subscription, null, new EmptyTopology(), failureMachine)
+        public DefaultEmpty(IElasticStage stage, IFailureStateMachine failureMachine) :
+            base(stage, null, new EmptyTopology(), failureMachine)
         {
             OperatorName = Constants.Empty;
             MasterId = 1;
@@ -85,7 +85,7 @@ namespace Org.Apache.REEF.Network.Elastic.Operators.Logical.Impl
         {
             if (!_operatorFinalized)
             {
-                throw new IllegalStateException("Operator need to be build before finalizing the subscription");
+                throw new IllegalStateException("Operator need to be build before finalizing the stage");
             }
 
             if (_next != null)

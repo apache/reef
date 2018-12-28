@@ -26,6 +26,7 @@ using Org.Apache.REEF.Utilities.Logging;
 using System.Linq;
 using Org.Apache.REEF.Utilities.Attributes;
 using Org.Apache.REEF.Network.Elastic.Failures.Impl;
+using Org.Apache.REEF.Network.Elastic.Task;
 
 namespace Org.Apache.REEF.Network.Elastic.Topology.Physical.Impl
 {
@@ -37,7 +38,7 @@ namespace Org.Apache.REEF.Network.Elastic.Topology.Physical.Impl
     {
         [Inject]
         private DefaultBroadcastTopology(
-            [Parameter(typeof(OperatorParameters.SubscriptionName))] string subscriptionName,
+            [Parameter(typeof(OperatorParameters.StageName))] string stageName,
             [Parameter(typeof(OperatorParameters.TopologyRootTaskId))] int rootId,
             [Parameter(typeof(OperatorParameters.TopologyChildTaskIds))] ISet<int> children,
             [Parameter(typeof(OperatorParameters.PiggybackTopologyUpdates))] bool piggyback,
@@ -46,11 +47,11 @@ namespace Org.Apache.REEF.Network.Elastic.Topology.Physical.Impl
             [Parameter(typeof(GroupCommunicationConfigurationOptions.Retry))] int retry,
             [Parameter(typeof(GroupCommunicationConfigurationOptions.Timeout))] int timeout,
             [Parameter(typeof(GroupCommunicationConfigurationOptions.DisposeTimeout))] int disposeTimeout,
-            CommunicationService commLayer,
-            CheckpointService checkpointService) : base(
-                subscriptionName,
+            CommunicationLayer commLayer,
+            ICheckpointLayer checkpointLayer) : base(
+                stageName,
                 taskId,
-                Utils.BuildTaskId(subscriptionName, rootId),
+                Utils.BuildTaskId(stageName, rootId),
                 operatorId,
                 children,
                 piggyback,
@@ -58,19 +59,19 @@ namespace Org.Apache.REEF.Network.Elastic.Topology.Physical.Impl
                 timeout,
                 disposeTimeout,
                 commLayer,
-                checkpointService)
+                checkpointLayer)
         {
         }
 
-        public override DataMessage AssembleDataMessage<T>(int iteration, T[] data)
+        public override DataMessage GetDataMessage<T>(int iteration, T[] data)
         {
             if (_piggybackTopologyUpdates)
             {
-                return new DataMessageWithTopology<T>(SubscriptionName, OperatorId, iteration, data[0]);
+                return new DataMessageWithTopology<T>(StageName, OperatorId, iteration, data[0]);
             }
             else
             {
-                return new DataMessage<T>(SubscriptionName, OperatorId, iteration, data[0]);
+                return new DataMessage<T>(StageName, OperatorId, iteration, data[0]);
             }
         }
 
@@ -80,7 +81,7 @@ namespace Org.Apache.REEF.Network.Elastic.Topology.Physical.Impl
         /// <param name="cancellationSource">The source in case the task is cancelled</param>
         protected override void Send(CancellationTokenSource cancellationSource)
         {
-            GroupCommunicationMessage message;
+            ElasticGroupCommunicationMessage message;
             int retry = 0;
 
             // Check if we have a message to send
@@ -121,7 +122,7 @@ namespace Org.Apache.REEF.Network.Elastic.Topology.Physical.Impl
                 // Deliver the message to the commonication layer.
                 foreach (var node in _children.Where(x => !_nodesToRemove.TryGetValue(x.Value, out byte val)))
                 {
-                    _commService.Send(node.Value, message, cancellationSource);
+                    _commLayer.Send(node.Value, message, cancellationSource);
                 }
             }
         }

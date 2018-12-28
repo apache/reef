@@ -15,9 +15,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-using System;
 using System.Collections.Generic;
-using Org.Apache.REEF.Driver.Context;
 using Org.Apache.REEF.Driver.Task;
 using Org.Apache.REEF.Utilities;
 using Org.Apache.REEF.Network.Elastic.Comm;
@@ -76,12 +74,13 @@ namespace Org.Apache.REEF.Network.Elastic.Failures.Impl
         public Optional<int> Iteration { get; set; }
 
         /// <summary>
-        /// The response message generated to react to the failure event.
+        /// Messages implementing the response from the driver to the tasks
+        /// to reconfigure the compution.
         /// </summary>
         public List<IElasticDriverMessage> FailureResponse { get; private set; }
 
         /// <summary>
-        /// The configurations for the subscriptions of the task.
+        /// The configurations for the stages of the task.
         /// </summary>
         public Dictionary<string, IList<IConfiguration>> RescheduleTaskConfigurations { get; private set; }
 

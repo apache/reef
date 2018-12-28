@@ -33,34 +33,44 @@ using Org.Apache.REEF.Utilities.Logging;
 using Org.Apache.REEF.Network.Elastic.Config;
 using Org.Apache.REEF.Network.Elastic.Failures;
 using Org.Apache.REEF.Network.Elastic.Failures.Impl;
-using Org.Apache.REEF.Driver.Context;
 using Org.Apache.REEF.Network.Elastic.Comm.Impl;
 using Org.Apache.REEF.Network.Elastic.Comm;
 using Org.Apache.REEF.Wake.Time.Event;
 using Org.Apache.REEF.Network.Elastic.Failures.Enum;
 using Org.Apache.REEF.Utilities.Attributes;
+using Org.Apache.REEF.Wake.Remote.Parameters;
+using Org.Apache.REEF.Common.Tasks;
+using Org.Apache.REEF.Network.Elastic.Task.Impl;
+using Org.Apache.REEF.Driver.Evaluator;
 
 namespace Org.Apache.REEF.Network.Elastic.Driver.Impl
 {
     /// <summary>
-    /// Default implementation for the task service.
-    /// This is mainly used to create subscription.
-    /// Also manages configurations for Elastic Group Communication operators/services.
+    /// Default implementation for the task context.
+    /// This is mainly used to create stage.
+    /// Also manages configurations for Elastic Group Communication operators/contexts.
     /// </summary>
     [Unstable("0.16", "API may change")]
-    public sealed class DefaultTaskSetService : IElasticTaskSetService, IDefaultFailureEventResponse
+    public sealed class DefaultElasticContext : IElasticContext, IDefaultFailureEventResponse
     {
-        private static readonly Logger LOGGER = Logger.GetLogger(typeof(DefaultTaskSetService));
+        private static readonly Logger LOGGER = Logger.GetLogger(typeof(DefaultElasticContext));
 
+        private readonly int _startingPort;
+        private readonly int _portRange;
         private readonly string _driverId;
         private readonly int _numEvaluators;
         private readonly string _nameServerAddr;
         private readonly int _nameServerPort;
         private readonly INameServer _nameServer;
-        private readonly string _defaultSubscriptionName;
+        private readonly string _defaultStageName;
         private readonly IFailureStateMachine _defaultFailureMachine;
+        private readonly IEvaluatorRequestor _evaluatorRequestor;
+        private readonly int _memory;
+        private readonly int _cores;
+        private readonly string _batchId;
+        private readonly string _rackName;
 
-        private readonly Dictionary<string, IElasticTaskSetSubscription> _subscriptions;
+        private readonly Dictionary<string, IElasticStage> _stages;
         private readonly AvroConfigurationSerializer _configSerializer;
 
         private readonly object _subsLock = new object();
@@ -69,22 +79,36 @@ namespace Org.Apache.REEF.Network.Elastic.Driver.Impl
         private IFailureState _failureStatus;
 
         [Inject]
-        private DefaultTaskSetService(
+        private DefaultElasticContext(
+            [Parameter(typeof(ElasticServiceConfigurationOptions.StartingPort))] int startingPort,
+            [Parameter(typeof(ElasticServiceConfigurationOptions.PortRange))] int portRange,
             [Parameter(typeof(ElasticServiceConfigurationOptions.DriverId))] string driverId,
-            [Parameter(typeof(ElasticServiceConfigurationOptions.DefaultSubscriptionName))] string defaultSubscriptionName,
+            [Parameter(typeof(ElasticServiceConfigurationOptions.DefaultStageName))] string defaultStageName,
             [Parameter(typeof(ElasticServiceConfigurationOptions.NumEvaluators))] int numEvaluators,
+            [Parameter(typeof(ElasticServiceConfigurationOptions.NewEvaluatorMemorySize))] int memory,
+            [Parameter(typeof(ElasticServiceConfigurationOptions.NewEvaluatorNumCores))] int cores,
+            [Parameter(typeof(ElasticServiceConfigurationOptions.NewEvaluatorBatchId))] string batchId,
+            [Parameter(typeof(ElasticServiceConfigurationOptions.NewEvaluatorRackName))] string rackName,
             AvroConfigurationSerializer configSerializer,
+            IEvaluatorRequestor evaluatorRequestor,
             INameServer nameServer,
             IFailureStateMachine defaultFailureStateMachine)
         {
+            _startingPort = startingPort;
+            _portRange = portRange;
             _driverId = driverId;
             _numEvaluators = numEvaluators;
-            _defaultSubscriptionName = defaultSubscriptionName;
+            _defaultStageName = defaultStageName;
             _defaultFailureMachine = defaultFailureStateMachine;
+            _evaluatorRequestor = evaluatorRequestor;
+            _memory = memory;
+            _cores = cores;
+            _batchId = batchId;
+            _rackName = rackName;
 
             _failureStatus = new DefaultFailureState();
             _configSerializer = configSerializer;
-            _subscriptions = new Dictionary<string, IElasticTaskSetSubscription>();
+            _stages = new Dictionary<string, IElasticStage>();
 
             _nameServer = nameServer;
             IPEndPoint localEndpoint = nameServer.LocalEndpoint;
@@ -93,41 +117,41 @@ namespace Org.Apache.REEF.Network.Elastic.Driver.Impl
         }
 
         /// <summary>
-        /// Returns a subscription with the default settings (default name and failure machine).
+        /// Returns a stage with the default settings (default name and failure machine).
         /// </summary>
-        /// <returns>A subscription with default settings</returns>
-        public IElasticTaskSetSubscription DefaultTaskSetSubscription()
+        /// <returns>A stage with default settings</returns>
+        public IElasticStage DefaultStage()
         {
             lock (_subsLock)
             {
-                IElasticTaskSetSubscription defaultSubscription;
-                _subscriptions.TryGetValue(_defaultSubscriptionName, out defaultSubscription);
+                IElasticStage defaultStage;
+                _stages.TryGetValue(_defaultStageName, out defaultStage);
 
-                if (defaultSubscription == null)
+                if (defaultStage == null)
                 {
-                    NewTaskSetSubscription(_defaultSubscriptionName, _numEvaluators, _defaultFailureMachine.Clone(_numEvaluators, (int)DefaultFailureStates.Fail));
+                    CreateNewStage(_defaultStageName, _numEvaluators, _defaultFailureMachine.Clone(_numEvaluators, (int)DefaultFailureStates.Fail));
                 }
 
-                return _subscriptions[_defaultSubscriptionName];
+                return _stages[_defaultStageName];
             }
         }
 
         /// <summary>
-        /// Creates a new subscription.
-        ///  The subscription lifecicle is managed by the service.
+        /// Creates a new stage.
+        ///  The stage lifecicle is managed by the context.
         /// </summary>
-        /// <param name="subscriptionName">The name of the subscription</param>
-        /// <param name="numTasks">The number of tasks required by the subscription</param>
-        /// <param name="failureMachine">An optional failure machine governing the subscription</param>
+        /// <param name="stageName">The name of the stage</param>
+        /// <param name="numTasks">The number of tasks required by the stage</param>
+        /// <param name="failureMachine">An optional failure machine governing the stage</param>
         /// <returns>The new task Set subscrption</returns>
-        public IElasticTaskSetSubscription NewTaskSetSubscription(
-            string subscriptionName,
+        public IElasticStage CreateNewStage(
+            string stageName,
             int numTasks,
             IFailureStateMachine failureMachine = null)
         {
-            if (string.IsNullOrEmpty(subscriptionName))
+            if (string.IsNullOrEmpty(stageName))
             {
-                throw new ArgumentNullException($"{nameof(subscriptionName)} cannot be null.");
+                throw new ArgumentNullException($"{nameof(stageName)} cannot be null.");
             }
 
             if (numTasks <= 0)
@@ -137,62 +161,107 @@ namespace Org.Apache.REEF.Network.Elastic.Driver.Impl
 
             lock (_subsLock)
             {
-                if (_subscriptions.ContainsKey(subscriptionName))
+                if (_stages.ContainsKey(stageName))
                 {
-                    throw new ArgumentException($"Subscription {subscriptionName} already registered with the service.");
+                    throw new ArgumentException($"Stage {stageName} already registered with the context.");
                 }
 
-                var subscription = new DefaultTaskSetSubscription(
-                    subscriptionName,
+                var stage = new DefaultElasticStage(
+                    stageName,
                     numTasks,
                     this,
                     failureMachine ?? _defaultFailureMachine.Clone(numTasks, (int)DefaultFailureStates.Fail));
-                _subscriptions[subscriptionName] = subscription;
+                _stages[stageName] = stage;
 
-                return subscription;
+                return stage;
             }
         }
 
         /// <summary>
-        /// Remove a task Set subscription from the service.
+        /// Remove a task Set stage from the context.
         /// </summary>
-        /// <param name="subscriptionName">The name of the subscription to be removed</param>
-        public void RemoveTaskSetSubscription(string subscriptionName)
+        /// <param name="stageName">The name of the stage to be removed</param>
+        public void RemoveElasticStage(string stageName)
         {
             lock (_subsLock)
             {
-                if (!_subscriptions.ContainsKey(subscriptionName))
+                if (!_stages.ContainsKey(stageName))
                 {
-                    throw new ArgumentException($"Subscription {subscriptionName} is not registered with the service.");
+                    throw new ArgumentException($"Stage {stageName} is not registered with the context.");
                 }
 
-                _subscriptions.Remove(subscriptionName);
+                _stages.Remove(stageName);
             }
         }
 
         /// <summary>
-        /// Get the subscriptions names from the context.
+        /// Generate the base configuration module for tasks. 
+        /// This method is method can be used to generate configurations for the task set menager.
         /// </summary>
-        /// <param name="activeContext">An activeContext</param>
-        /// <returns>The subscriptions representented in the context</returns>
-        public string GetContextSubscriptions(IActiveContext activeContext)
+        /// <param name="taskId">The id of the task the configuration is generate for</param>
+        /// <returns>The module with the service properly set up for the task</returns>
+        public ConfigurationModule GetTaskConfigurationModule(string taskId)
         {
-            return Utils.GetContextSubscriptions(activeContext);
+            return TaskConfiguration.ConfigurationModule
+                    .Set(TaskConfiguration.Identifier, taskId)
+                    .Set(TaskConfiguration.OnMessage, GenericType<DriverMessageHandler>.Class)
+                    .Set(TaskConfiguration.OnClose, GenericType<Task.Impl.DefaultElasticContext>.Class);
         }
 
         /// <summary>
-        /// Generate the service configuration object.
-        /// This method is used to properly configure Contexts with the service.
+        /// Start the elastic group communicatio context.
+        /// This will trigger requests for resources as specified by the parameters.
         /// </summary>
-        /// <returns>The service Configuration</returns>
-        public IConfiguration GetServiceConfiguration()
+        public void Start()
         {
-            IConfiguration serviceConfig = ServiceConfiguration.ConfigurationModule
-                .Set(ServiceConfiguration.Services,
-                    GenericType<StreamingNetworkService<GroupCommunicationMessage>>.Class)
+            var request = _evaluatorRequestor.NewBuilder()
+                .SetNumber(_numEvaluators)
+                .SetMegabytes(_memory)
+                .SetCores(_cores)
+                .SetRackName(_rackName)
+                .SetEvaluatorBatchId(_batchId)
                 .Build();
 
-            return TangFactory.GetTang().NewConfigurationBuilder(serviceConfig)
+            _evaluatorRequestor.Submit(request);
+        }
+
+        /// <summary>
+        /// Create a new task set manager.
+        /// </summary>
+        /// <param name="masterTaskConfiguration">The configuration for the master task</param>
+        /// <param name="slaveTaskConfiguration">The configuration for the slave task</param>
+        /// <returns>A new task set manager</returns>
+
+        public IElasticTaskSetManager CreateNewTaskSetManager(Func<string, IConfiguration> masterTaskConfiguration, Func<string, IConfiguration> slaveTaskConfiguration = null)
+        {
+            return CreateNewTaskSetManager(_numEvaluators, masterTaskConfiguration, slaveTaskConfiguration);
+        }
+
+        /// <summary>
+        /// Create a new task set manager.
+        /// </summary>
+        /// <param name="numOfTasks">The number of tasks the task set should manager</param>
+        /// <param name="masterTaskConfiguration">The configuration for the master task</param>
+        /// <param name="slaveTaskConfiguration">The configuration for the slave task</param>
+        /// <returns>A new task set manager</returns>
+        public IElasticTaskSetManager CreateNewTaskSetManager(int numOfTasks, Func<string, IConfiguration> masterTaskConfiguration, Func<string, IConfiguration> slaveTaskConfiguration = null)
+        {
+            return new DefaultElasticTaskSetManager(numOfTasks, _evaluatorRequestor, _driverId, masterTaskConfiguration, slaveTaskConfiguration);
+        }
+
+        /// <summary>
+        /// Generate the elastic service configuration object.
+        /// This method is used to properly configure task contexts with the elastic service.
+        /// </summary>
+        /// <returns>The ealstic service configuration</returns>
+        public IConfiguration GetElasticServiceConfiguration()
+        {
+            IConfiguration contextConfig = ServiceConfiguration.ConfigurationModule
+                .Set(ServiceConfiguration.Services,
+                    GenericType<StreamingNetworkService<ElasticGroupCommunicationMessage>>.Class)
+                .Build();
+
+            return TangFactory.GetTang().NewConfigurationBuilder(contextConfig)
                 .BindNamedParameter<NamingConfigurationOptions.NameServerAddress, string>(
                     GenericType<NamingConfigurationOptions.NameServerAddress>.Class,
                     _nameServerAddr)
@@ -201,42 +270,31 @@ namespace Org.Apache.REEF.Network.Elastic.Driver.Impl
                     _nameServerPort.ToString(CultureInfo.InvariantCulture))
                 .BindImplementation(GenericType<INameClient>.Class,
                     GenericType<NameClient>.Class)
-
+                .BindNamedParameter<TcpPortRangeStart, int>(GenericType<TcpPortRangeStart>.Class,
+                    _startingPort.ToString(CultureInfo.InvariantCulture))
+                .BindNamedParameter<TcpPortRangeCount, int>(GenericType<TcpPortRangeCount>.Class,
+                    _portRange.ToString(CultureInfo.InvariantCulture))
                 .Build();
         }
 
         /// <summary>
-        /// Creates a generic task Configuration object for the tasks registering to the service.
+        /// Appends a stage configuration to a configuration builder object.
         /// </summary>
-        /// <param name="subscriptionsConf">The configuration of the subscription the task will register to</param>
-        /// <returns>The configuration for the task with added service parameters</returns>
-        public IConfiguration GetTaskConfiguration(ICsConfigurationBuilder subscriptionsConf)
+        /// <param name="confBuilder">The configuration where the stage configuration will be appended to</param>
+        /// <param name="stageConf">The stage configuration at hand</param>
+        /// <returns>The configuration containing the serialized stage configuration</returns>
+        public void SerializeStageConfiguration(ref ICsConfigurationBuilder confBuilder, IConfiguration stageConfiguration)
         {
-            return subscriptionsConf
-                .BindNamedParameter<ElasticServiceConfigurationOptions.DriverId, string>(
-                    GenericType<ElasticServiceConfigurationOptions.DriverId>.Class,
-                    _driverId)
-                .Build();
-        }
-
-        /// <summary>
-        /// Appends a subscription configuration to a configuration builder object.
-        /// </summary>
-        /// <param name="confBuilder">The configuration where the subscription configuration will be appended to</param>
-        /// <param name="subscriptionConf">The subscription configuration at hand</param>
-        /// <returns>The configuration containing the serialized subscription configuration</returns>
-        public void SerializeSubscriptionConfiguration(ref ICsConfigurationBuilder confBuilder, IConfiguration subscriptionConfiguration)
-        {
-            confBuilder.BindSetEntry<ElasticServiceConfigurationOptions.SerializedSubscriptionConfigs, string>(
-                GenericType<ElasticServiceConfigurationOptions.SerializedSubscriptionConfigs>.Class,
-                _configSerializer.ToString(subscriptionConfiguration));
+            confBuilder.BindSetEntry<ElasticServiceConfigurationOptions.SerializedStageConfigs, string>(
+                GenericType<ElasticServiceConfigurationOptions.SerializedStageConfigs>.Class,
+                _configSerializer.ToString(stageConfiguration));
         }
 
         /// <summary>
         /// Append an operator configuration to a configuration builder object.
         /// </summary>
         /// <param name="serializedOperatorsConfs">The list where the operator configuration will be appended to</param>
-        /// <param name="subscriptionConf">The operator configuration at hand</param>
+        /// <param name="stageConf">The operator configuration at hand</param>
         /// <returns>The configuration containing the serialized operator configuration</returns>
         public void SerializeOperatorConfiguration(ref IList<string> serializedOperatorsConfs, IConfiguration operatorConfiguration)
         {
@@ -262,7 +320,7 @@ namespace Org.Apache.REEF.Network.Elastic.Driver.Impl
         /// </summary>
         /// <param name="alarm">The alarm triggering the timeput</param>
         /// <param name="msgs">A list of messages encoding how remote Tasks need to reach</param>
-        /// /// <param name="nextTimeouts">The next timeouts to be scheduled</param>
+        /// <param name="nextTimeouts">The next timeouts to be scheduled</param>
         public void OnTimeout(Alarm alarm, ref List<IElasticDriverMessage> msgs, ref List<ITimeout> nextTimeouts)
         {
         }
@@ -303,7 +361,7 @@ namespace Org.Apache.REEF.Network.Elastic.Driver.Impl
         /// Mechanism to execute when a reconfigure event is triggered.
         /// <paramref name="reconfigureEvent"/>
         /// </summary>
-        public void OnReconfigure(ref IReconfigure info)
+        public void OnReconfigure(ref IReconfigure reconfigureEvent)
         {
             lock (_statusLock)
             {

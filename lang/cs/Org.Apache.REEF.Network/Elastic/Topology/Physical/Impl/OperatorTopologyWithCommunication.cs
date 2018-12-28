@@ -37,48 +37,48 @@ namespace Org.Apache.REEF.Network.Elastic.Topology.Physical.Impl
         DriverAwareOperatorTopology,
         IWaitForTaskRegistration,
         IDisposable,
-        IObserver<NsMessage<GroupCommunicationMessage>>
+        IObserver<NsMessage<ElasticGroupCommunicationMessage>>
     {
         protected bool _initialized;
 
-        protected CommunicationService _commService;
+        protected CommunicationLayer _commLayer;
 
         protected readonly int _disposeTimeout;
         protected readonly int _timeout;
         protected readonly int _retry;
 
-        protected ConcurrentQueue<GroupCommunicationMessage> _sendQueue;
-        protected BlockingCollection<GroupCommunicationMessage> _messageQueue;
+        protected ConcurrentQueue<ElasticGroupCommunicationMessage> _sendQueue;
+        protected BlockingCollection<ElasticGroupCommunicationMessage> _messageQueue;
         protected readonly ConcurrentDictionary<int, string> _children;
         protected readonly CancellationTokenSource _cancellationSignal;
 
         /// <summary>
         /// Constructor for a communicating topology.
         /// </summary>
-        //// <param name="taskId">The identifier of the task the topology is running on</param>
+        /// <param name="stageName">The stage name the topology is working on</param>
+        /// <param name="taskId">The identifier of the task the topology is running on</param>
         /// <param name="rootTaskId">The identifier of the root note in the topology</param>
-        /// <param name="subscriptionName">The subscription name the topology is working on</param>
         /// <param name="operatorId">The identifier of the operator for this topology</param>
         /// <param name="retry">How many times the topology will retry to send a message</param>
         /// <param name="timeout">After how long the topology waits for an event</param>
         /// <param name="disposeTimeout">Maximum wait time for topology disposal</param>
-        /// <param name="commService">Class responsible for communication</param>
+        /// <param name="commLayer">Class responsible for communication</param>
         public OperatorTopologyWithCommunication(
+            string stageName,
             string taskId,
             string rootTaskId,
-            string subscription,
             int operatorId,
-            CommunicationService commService,
+            CommunicationLayer commLayer,
             int retry,
             int timeout,
-            int disposeTimeout) : base(taskId, rootTaskId, subscription, operatorId)
+            int disposeTimeout) : base(stageName, taskId, rootTaskId, operatorId)
         {
             _initialized = false;
-            _commService = commService;
+            _commLayer = commLayer;
 
             _children = new ConcurrentDictionary<int, string>();
-            _messageQueue = new BlockingCollection<GroupCommunicationMessage>();
-            _sendQueue = new ConcurrentQueue<GroupCommunicationMessage>();
+            _messageQueue = new BlockingCollection<ElasticGroupCommunicationMessage>();
+            _sendQueue = new ConcurrentQueue<ElasticGroupCommunicationMessage>();
 
             _cancellationSignal = new CancellationTokenSource();
 
@@ -91,11 +91,11 @@ namespace Org.Apache.REEF.Network.Elastic.Topology.Physical.Impl
         /// Communicate to the driver that the current subscrition has completed its
         /// execution.
         /// </summary>
-        public void SubscriptionComplete()
+        public void StageComplete()
         {
             if (TaskId == RootTaskId)
             {
-                _commService.SubscriptionComplete(TaskId);
+                _commLayer.StageComplete(TaskId);
             }
         }
 
@@ -104,7 +104,7 @@ namespace Org.Apache.REEF.Network.Elastic.Topology.Physical.Impl
         /// </summary>
         public void TopologyUpdateRequest()
         {
-            _commService.TopologyUpdateRequest(TaskId, OperatorId);
+            _commLayer.TopologyUpdateRequest(TaskId, OperatorId);
         }
 
         /// <summary>
@@ -126,7 +126,7 @@ namespace Org.Apache.REEF.Network.Elastic.Topology.Physical.Impl
         /// </summary>
         public virtual void JoinTopology()
         {
-            _commService.JoinTopology(TaskId, OperatorId);
+            _commLayer.JoinTopology(TaskId, OperatorId);
         }
 
         /// <summary>
@@ -138,7 +138,7 @@ namespace Org.Apache.REEF.Network.Elastic.Topology.Physical.Impl
         {
             try
             {
-                _commService.WaitForTaskRegistration(_children.Values.ToList(), cancellationSource);
+                _commLayer.WaitForTaskRegistration(_children.Values.ToList(), cancellationSource);
             }
             catch (Exception e)
             {
@@ -156,9 +156,9 @@ namespace Org.Apache.REEF.Network.Elastic.Topology.Physical.Impl
         /// </summary>
         /// <param name="cancellationSource">The signal that the operation is cacelled</param>
         /// <returns></returns>
-        public virtual GroupCommunicationMessage Receive(CancellationTokenSource cancellationSource)
+        public virtual ElasticGroupCommunicationMessage Receive(CancellationTokenSource cancellationSource)
         {
-            GroupCommunicationMessage message;
+            ElasticGroupCommunicationMessage message;
             int retry = 1;
 
             while (!_messageQueue.TryTake(out message, _timeout, cancellationSource.Token))
@@ -173,7 +173,7 @@ namespace Org.Apache.REEF.Network.Elastic.Topology.Physical.Impl
                     throw new Exception($"Failed to receive message after {_retry} try.");
                 }
 
-                _commService.NextDataRequest(TaskId, -1);
+                _commLayer.NextDataRequest(TaskId, -1);
             }
 
             return message;
@@ -184,7 +184,7 @@ namespace Org.Apache.REEF.Network.Elastic.Topology.Physical.Impl
         /// </summary>
         /// <param name="message">The message to communicate</param>
         /// <param name="cancellationSource">The signal for cancelling the operation</param>
-        public virtual void Send(GroupCommunicationMessage message, CancellationTokenSource cancellationSource)
+        public virtual void Send(ElasticGroupCommunicationMessage message, CancellationTokenSource cancellationSource)
         {
             _sendQueue.Enqueue(message);
 
@@ -198,7 +198,7 @@ namespace Org.Apache.REEF.Network.Elastic.Topology.Physical.Impl
         /// Handler for incoming messages from other topology nodes.
         /// </summary>
         /// <param name="message">The message that need to be devlivered to the operator</param>
-        public virtual void OnNext(NsMessage<GroupCommunicationMessage> message)
+        public virtual void OnNext(NsMessage<ElasticGroupCommunicationMessage> message)
         {
             if (_messageQueue.IsAddingCompleted)
             {
@@ -207,7 +207,7 @@ namespace Org.Apache.REEF.Network.Elastic.Topology.Physical.Impl
                     throw new IllegalStateException("Trying to add messages to a closed non-empty queue.");
                 }
 
-                _messageQueue = new BlockingCollection<GroupCommunicationMessage>();
+                _messageQueue = new BlockingCollection<ElasticGroupCommunicationMessage>();
             }
 
             _messageQueue.Add(message.Data);
@@ -233,7 +233,7 @@ namespace Org.Apache.REEF.Network.Elastic.Topology.Physical.Impl
 
             _cancellationSignal.Cancel();
 
-            _commService.Dispose();
+            _commLayer.Dispose();
         }
 
         /// <summary>
@@ -260,12 +260,12 @@ namespace Org.Apache.REEF.Network.Elastic.Topology.Physical.Impl
         /// <param name="cancellationSource">The singal in case the task is cancelled</param>
         protected virtual void Send(CancellationTokenSource cancellationSource)
         {
-            GroupCommunicationMessage message;
+            ElasticGroupCommunicationMessage message;
             while (_sendQueue.TryDequeue(out message) && !cancellationSource.IsCancellationRequested)
             {
                 foreach (var child in _children.Values)
                 {
-                    _commService.Send(child, message, cancellationSource);
+                    _commLayer.Send(child, message, cancellationSource);
                 }
             }
         }

@@ -19,6 +19,7 @@ using Org.Apache.REEF.Driver.Context;
 using Org.Apache.REEF.Driver.Evaluator;
 using Org.Apache.REEF.Driver.Task;
 using Org.Apache.REEF.Network.Elastic.Failures;
+using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Utilities.Attributes;
 using System;
 using System.Collections.Generic;
@@ -27,23 +28,23 @@ namespace Org.Apache.REEF.Network.Elastic.Driver
 {
     /// <summary>
     /// Class defining how groups of tasks sharing similar scheduling semantics are managed.
-    /// Task set managers subscribe to subscriptions in order to define tasks logic.
+    /// Task set managers subscribe to stages in order to define tasks logic.
     /// Task set managers schedule and manage group of tasks running in the cluster.
     /// </summary>
     [Unstable("0.16", "API may change")]
-    public interface ITaskSetManager : IFailureResponse, IDisposable
+    public interface IElasticTaskSetManager : IFailureResponse, IDisposable
     {
         /// <summary>
-        /// An identifier for the set of Subscriptions the Task Manager is subscribed to.
-        /// The task set has to be built before retrieving its subscriptions id.
+        /// An identifier for the set of Stages the Task Manager is subscribed to.
+        /// The task set has to be built before retrieving its stages id.
         /// </summary>
-        string SubscriptionsId { get; }
+        string StagesId { get; }
 
         /// <summary>
-        /// Subscribe the current task set manager to a new subscription.
+        /// Subscribe the current task set manager to a new stage.
         /// </summary>
-        /// <param name="subscription">The subscription to subscribe to</param>
-        void AddTaskSetSubscription(IElasticTaskSetSubscription subscription);
+        /// <param name="stage">The stage to subscribe to</param>
+        void AddStage(IElasticStage stage);
 
         /// <summary>
         /// Decides whether more contexts have to be added to this Task Manger or not.
@@ -68,18 +69,25 @@ namespace Org.Apache.REEF.Network.Elastic.Driver
 
         /// <summary>
         /// Finalizes the task set manager.
-        /// After the task set has been finalized, no more subscriptions can be added.
+        /// After the task set has been finalized, no more stages can be added.
         /// </summary>
         /// <returns>The same finalized task set manager</returns>
-        ITaskSetManager Build();
+        IElasticTaskSetManager Build();
 
         /// <summary>
-        /// Retrieves all subscriptions having the context passed as a parameter
+        /// Retrieves all stages having the context passed as a parameter
         /// as master task context.
         /// </summary>
         /// <param name="context">The target context</param>
-        /// <returns>A list of subscriptions having the master task running on context</returns>
-        IEnumerable<IElasticTaskSetSubscription> IsMasterTaskContext(IActiveContext context);
+        /// <returns>A list of stages having the master task running on context</returns>
+        IEnumerable<IElasticStage> IsMasterTaskContext(IActiveContext context);
+
+        /// <summary>
+        /// Get the configuration of the codecs used for data transmission.
+        /// The codecs are automatically generated from the operator pipeline.
+        /// </summary>
+        /// <returns>A configuration object with the codecs for data transmission</returns>
+        IConfiguration GetCodecConfiguration();
 
         /// <summary>
         /// Method implementing how the task set manager should react when a new context is active.

@@ -28,7 +28,7 @@ namespace Org.Apache.REEF.Network.Elastic.Failures
     public interface IReschedule : IReconfigure
     {
         /// <summary>
-        /// The configurations for the subscriptions of the task.
+        /// The configurations for the stages of the task.
         /// </summary>
         Dictionary<string, IList<IConfiguration>> RescheduleTaskConfigurations { get; }
 

@@ -39,14 +39,14 @@ namespace Org.Apache.REEF.Network.Elastic.Driver.Impl
 {
     /// <summary>
     /// Used to group elastic operators into logical units. 
-    /// All operators in the same subscriptions share similar semantics and behavior 
-    /// under failures. Subscriptions can only be created by a service.
-    /// This class is used to create subscriptions able to manage default failure events.
+    /// All operators in the same stages share similar semantics and behavior 
+    /// under failures. Stages can only be created by a service.
+    /// This class is used to create stages able to manage default failure events.
     /// </summary>
     [Unstable("0.16", "API may change")]
-    public sealed class DefaultTaskSetSubscription : IElasticTaskSetSubscription, IDefaultFailureEventResponse
+    public sealed class DefaultElasticStage : IElasticStage, IDefaultFailureEventResponse
     {
-        private static readonly Logger LOGGER = Logger.GetLogger(typeof(DefaultTaskSetSubscription));
+        private static readonly Logger LOGGER = Logger.GetLogger(typeof(DefaultElasticStage));
 
         private bool _finalized;
         private volatile bool _scheduled;
@@ -65,19 +65,19 @@ namespace Org.Apache.REEF.Network.Elastic.Driver.Impl
         private readonly object _statusLock = new object();
 
         /// <summary>
-        /// Create a new subscription with the input settings.
+        /// Create a new stage with the input settings.
         /// </summary>
-        /// <param name="subscriptionName">The name of the subscription</param>
-        /// <param name="numTasks">The number of tasks managed by the subscription</param>
-        /// <param name="elasticService">The service managing the subscription</param>
-        /// <param name="failureMachine">The failure machine for the subscription</param>
-        internal DefaultTaskSetSubscription(
-            string subscriptionName,
+        /// <param name="stageName">The name of the stage</param>
+        /// <param name="numTasks">The number of tasks managed by the stage</param>
+        /// <param name="elasticService">The service managing the stage</param>
+        /// <param name="failureMachine">The failure machine for the stage</param>
+        internal DefaultElasticStage(
+            string stageName,
             int numTasks,
-            IElasticTaskSetService elasticService,
+            IElasticContext elasticService,
             IFailureStateMachine failureMachine = null)
         {
-            SubscriptionName = subscriptionName;
+            StageName = stageName;
             _finalized = false;
             _scheduled = false;
             _numTasks = numTasks;
@@ -85,7 +85,7 @@ namespace Org.Apache.REEF.Network.Elastic.Driver.Impl
             _masterTasks = new HashSet<string>();
             _datasetConfiguration = Optional<IConfiguration[]>.Empty();
             IsCompleted = false;
-            Service = elasticService;
+            Context = elasticService;
             _defaultFailureMachine = failureMachine ?? new DefaultFailureStateMachine(numTasks, DefaultFailureStates.Fail);
             FailureState = _defaultFailureMachine.State;
             RootOperator = new DefaultEmpty(this, _defaultFailureMachine.Clone());
@@ -94,9 +94,9 @@ namespace Org.Apache.REEF.Network.Elastic.Driver.Impl
         }
 
         /// <summary>
-        /// The name of the subscriptions.
+        /// The name of the stages.
         /// </summary>
-        public string SubscriptionName { get; set; }
+        public string StageName { get; set; }
 
         /// <summary>
         /// The operator at the beginning of the computation workflow.
@@ -104,27 +104,27 @@ namespace Org.Apache.REEF.Network.Elastic.Driver.Impl
         public ElasticOperator RootOperator { get; private set; }
 
         /// <summary>
-        /// The service managing the subscriptions.
+        /// The service managing the stages.
         /// </summary
-        public IElasticTaskSetService Service { get; private set; }
+        public IElasticContext Context { get; private set; }
 
         /// <summary>
-        /// Whether the subscriptions contains iterations or not.
+        /// Whether the stages contains iterations or not.
         /// </summary>
         public bool IsIterative { get; set; }
 
         /// <summary>
-        /// The failure state of the target subscriptions. 
+        /// The failure state of the target stages. 
         /// </summary>
         public IFailureState FailureState { get; private set; }
 
         /// <summary>
-        /// Whether the subscriptions is completed or not.
+        /// Whether the stages is completed or not.
         /// </summary>
         public bool IsCompleted { get; set; }
 
         /// <summary>
-        /// Generates an id to uniquely identify operators in the subscriptions.
+        /// Generates an id to uniquely identify operators in the stages.
         /// </summary>
         /// <returns>A new unique id</returns>
         public int GetNextOperatorId()
@@ -133,7 +133,7 @@ namespace Org.Apache.REEF.Network.Elastic.Driver.Impl
         }
 
         /// <summary>
-        /// Add a partitioned dataset to the subscription.
+        /// Add a partitioned dataset to the stage.
         /// </summary>
         /// <param name="inputDataSet">The partitioned dataset</param>
         /// <param name="isMasterGettingInputData">Whether the master node should get a partition</param>
@@ -143,7 +143,7 @@ namespace Org.Apache.REEF.Network.Elastic.Driver.Impl
         }
 
         /// <summary>
-        /// Add a set of datasets to the subscription.
+        /// Add a set of datasets to the stage.
         /// </summary>
         /// <param name="inputDataSet">The configuration for the datasets</param>
         /// <param name="isMasterGettingInputData">Whether the master node should get a partition</param>
@@ -155,16 +155,16 @@ namespace Org.Apache.REEF.Network.Elastic.Driver.Impl
         }
 
         /// <summary>
-        /// Finalizes the subscriptions.
-        /// After the subscriptions has been finalized, no more operators can
+        /// Finalizes the stages.
+        /// After the stages has been finalized, no more operators can
         /// be added to the group.
         /// </summary>
-        /// <returns>The same finalized subscriptions</returns>
-        public IElasticTaskSetSubscription Build()
+        /// <returns>The same finalized stages</returns>
+        public IElasticStage Build()
         {
             if (_finalized == true)
             {
-                throw new IllegalStateException("Subscription cannot be built more than once");
+                throw new IllegalStateException("Stage cannot be built more than once");
             }
 
             if (_datasetConfiguration.IsPresent())
@@ -186,11 +186,11 @@ namespace Org.Apache.REEF.Network.Elastic.Driver.Impl
         }
 
         /// <summary>
-        /// Add a task to the subscriptions.
-        /// The subscriptions must have been buit before tasks can be added.
+        /// Add a task to the stages.
+        /// The stages must have been buit before tasks can be added.
         /// </summary>
         /// <param name="taskId">The id of the task to add</param>
-        /// <returns>True if the task is correctly added to the subscriptions</returns>
+        /// <returns>True if the task is correctly added to the stages</returns>
         public bool AddTask(string taskId)
         {
             if (taskId == string.Empty)
@@ -206,7 +206,7 @@ namespace Org.Apache.REEF.Network.Elastic.Driver.Impl
 
             if (!_finalized)
             {
-                throw new IllegalStateException("Subscription must be finalized before adding tasks.");
+                throw new IllegalStateException("Stage must be finalized before adding tasks.");
             }
 
             lock (_tasksLock)
@@ -246,14 +246,14 @@ namespace Org.Apache.REEF.Network.Elastic.Driver.Impl
         }
 
         /// <summary>
-        /// Decides if the tasks added to the subscriptions can be scheduled for execution
+        /// Decides if the tasks added to the stages can be scheduled for execution
         /// or not. This method is used for implementing different policies for 
         /// triggering the scheduling of tasks.
         /// </summary>
         /// <returns>True if the previously added tasks can be scheduled for execution</returns>
-        public bool ScheduleSubscription()
+        public bool ScheduleStage()
         {
-            // Schedule if we reach the number of requested tasks or the subscription contains an iterative pipeline that is ready to be scheduled and the 
+            // Schedule if we reach the number of requested tasks or the stage contains an iterative pipeline that is ready to be scheduled and the 
             // policy requested by the user allow early start with ramp up.
             if (!_scheduled && (_numTasks == _tasksAdded || (IsIterative && _defaultFailureMachine.State.FailureState < (int)DefaultFailureStates.StopAndReschedule && RootOperator.CanBeScheduled())))
             {
@@ -283,18 +283,18 @@ namespace Org.Apache.REEF.Network.Elastic.Driver.Impl
 
         /// <summary>
         /// Creates the Configuration for the input task.
-        /// Must be called only after all tasks have been added to the subscriptions.
+        /// Must be called only after all tasks have been added to the stages.
         /// </summary>
         /// <param name="builder">The configuration builder the configuration will be appended to</param>
-        /// <param name="taskId">The task id of the task that belongs to this subscriptions</param>
-        /// <returns>The configuration for the Task with added subscriptions informations</returns>
+        /// <param name="taskId">The task id of the task that belongs to this stages</param>
+        /// <returns>The configuration for the Task with added stages informations</returns>
         public IConfiguration GetTaskConfiguration(ref ICsConfigurationBuilder builder, int taskId)
         {
             IList<string> serializedOperatorsConfs = new List<string>();
             builder = builder
-                .BindNamedParameter<Config.OperatorParameters.SubscriptionName, string>(
-                    GenericType<Config.OperatorParameters.SubscriptionName>.Class,
-                    SubscriptionName);
+                .BindNamedParameter<Config.OperatorParameters.StageName, string>(
+                    GenericType<Config.OperatorParameters.StageName>.Class,
+                    StageName);
 
             RootOperator.GetTaskConfiguration(ref serializedOperatorsConfs, taskId);
 
@@ -312,7 +312,7 @@ namespace Org.Apache.REEF.Network.Elastic.Driver.Impl
         /// (if any).
         /// </summary>
         /// <param name="taskId">The task id of the task we wanto to retrieve the data partition. 
-        /// The task is required to belong to thq subscriptions</param>
+        /// The task is required to belong to thq stages</param>
         /// <returns>The configuration of the data partition (if any) of the task</returns>
         public Optional<IConfiguration> GetPartitionConf(string taskId)
         {
@@ -334,15 +334,15 @@ namespace Org.Apache.REEF.Network.Elastic.Driver.Impl
 
         /// <summary>
         /// Retrieve the log the final statistics of the computation: this is the sum of all 
-        /// the stats of all the Operators compising the subscription. This method can be called
-        /// only once the subscriptions is completed.
+        /// the stats of all the Operators compising the stage. This method can be called
+        /// only once the stages is completed.
         /// </summary>
         /// <returns>The final statistics for the computation</returns>
         public string LogFinalStatistics()
         {
             if (!IsCompleted)
             {
-                throw new IllegalStateException($"Cannot log statistics before Subscription {SubscriptionName} is completed");
+                throw new IllegalStateException($"Cannot log statistics before Stage {StageName} is completed");
             }
 
             return RootOperator.LogFinalStatistics();

@@ -24,16 +24,16 @@ namespace Org.Apache.REEF.Network.Elastic.Comm
     /// Payload for messages going from the driver to tasks.
     /// </summary>
     [Unstable("0.16", "API may change")]
-    public abstract class DriverMessagePayload : GroupCommunicationMessage
+    public abstract class DriverMessagePayload : ElasticGroupCommunicationMessage
     {
         /// <summary>
         /// Construct a payload for messages created at the driver and directed to tasks.
         /// </summary>
-        /// <param name="subscriptionName">The name of the subsription</param>
-        /// <param name="operatorId">The id of the operator within the subscription</param>
+        /// <param name="stageName">The name of the subsription</param>
+        /// <param name="operatorId">The id of the operator within the stage</param>
         /// <param name="iteration">The iteration number in which the message is sent</param>
-        public DriverMessagePayload(string subscriptionName, int operatorId, int iteration)
-            : base(subscriptionName, operatorId)
+        public DriverMessagePayload(string stageName, int operatorId, int iteration)
+            : base(stageName, operatorId)
         {
             Iteration = iteration;
         }

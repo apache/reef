@@ -25,7 +25,7 @@ namespace Org.Apache.REEF.Network.Elastic.Failures
 {
     /// <summary>
     /// Entry point for classes expected to be aware and act over failures.
-    /// Used to propagate failures through operators, subscriptions and the service.
+    /// Used to propagate failures through operators, stages and the context.
     /// </summary>
     [Unstable("0.16", "API may change")]
     public interface IFailureResponse
@@ -44,7 +44,7 @@ namespace Org.Apache.REEF.Network.Elastic.Failures
         /// </summary>
         /// <param name="alarm">The alarm triggering the timeput</param>
         /// <param name="msgs">A list of messages encoding how remote Tasks need to reach</param>
-        /// /// <param name="nextTimeouts">The next timeouts to be scheduled</param>
+        /// <param name="nextTimeouts">The next timeouts to be scheduled</param>
         void OnTimeout(Alarm alarm, ref List<IElasticDriverMessage> msgs, ref List<ITimeout> nextTimeouts);
 
         /// <summary>

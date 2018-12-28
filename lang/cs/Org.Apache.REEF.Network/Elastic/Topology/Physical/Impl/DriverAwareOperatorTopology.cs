@@ -30,12 +30,12 @@ namespace Org.Apache.REEF.Network.Elastic.Topology.Physical.Impl
         /// <summary>
         /// Constructor.
         /// </summary>
+        /// <param name="stageName">The stage name the topology is working on</param>
         /// <param name="taskId">The identifier of the task the topology is running on</param>
         /// <param name="rootTaskId">The identifier of the root note in the topology</param>
-        /// <param name="subscriptionName">The subscription name the topology is working on</param>
         /// <param name="operatorId">The identifier of the operator for this topology</param>
-        public DriverAwareOperatorTopology(string taskId, string rootTaskId, string subscriptionName, int operatorId)
-            : base(taskId, rootTaskId, subscriptionName, operatorId)
+        public DriverAwareOperatorTopology(string stageName, string taskId, string rootTaskId, int operatorId)
+            : base(stageName, taskId, rootTaskId, operatorId)
         {
         }
 
