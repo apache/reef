@@ -40,10 +40,9 @@ namespace Org.Apache.REEF.Network.Elastic.Failures
 
         /// <summary>
         /// Used to react when a timeout event is triggered.
-        /// It gets a failed task as input and in response it produces zero or more failure events.
         /// </summary>
         /// <param name="alarm">The alarm triggering the timeput</param>
-        /// <param name="msgs">A list of messages encoding how remote Tasks need to reach</param>
+        /// <param name="msgs">A list of messages encoding how remote tasks need to react</param>
         /// <param name="nextTimeouts">The next timeouts to be scheduled</param>
         void OnTimeout(Alarm alarm, ref List<IElasticDriverMessage> msgs, ref List<ITimeout> nextTimeouts);
 

@@ -16,7 +16,7 @@
 // under the License.
 
 using Org.Apache.REEF.Tang.Interface;
-using Org.Apache.REEF.Network.Elastic.Operators.Logical.Impl;
+using Org.Apache.REEF.Network.Elastic.Operators.Logical;
 using Org.Apache.REEF.Driver.Context;
 using Org.Apache.REEF.Network.Elastic.Failures;
 using Org.Apache.REEF.Utilities;
