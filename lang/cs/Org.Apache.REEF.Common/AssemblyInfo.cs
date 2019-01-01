@@ -15,20 +15,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-using Org.Apache.REEF.Utilities.Attributes;
+using System.Runtime.CompilerServices;
 
-namespace Org.Apache.REEF.Network.Elastic.Comm.Enum
-{
-    /// <summary>
-    /// Supported type of messages between task and driver.
-    /// </summary>
-    [Unstable("0.16", "Types may change")]
-    internal enum TaskMessageType : ushort
-    {
-        JoinTopology = 0,
-
-        TopologyUpdateRequest = 1,
-
-        CompleteStage = 2
-    }
-}
+[assembly: InternalsVisibleTo("Org.Apache.REEF.Network")]

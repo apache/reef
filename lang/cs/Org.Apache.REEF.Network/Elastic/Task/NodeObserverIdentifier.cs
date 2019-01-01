@@ -17,14 +17,13 @@
 
 using Org.Apache.REEF.Network.Elastic.Comm.Impl;
 using Org.Apache.REEF.Network.Elastic.Topology.Physical;
-using Org.Apache.REEF.Network.Elastic.Topology.Physical.Default;
 
-namespace Org.Apache.REEF.Network.Elastic.Task
+namespace Org.Apache.REEF.Network.Elastic.Task.Impl
 {
     /// <summary>
-    /// An identifier for a given node in the group communication graph.
+    /// An identifier for a given node in the group communication topology.
     /// A node is uniquely identifiable by a combination of its 
-    /// <see cref="StageName"/>, and <see cref="OperatorName"/>.
+    /// <see cref="StageName"/>, and <see cref="OperatorId"/>.
     /// </summary>
     internal sealed class NodeObserverIdentifier
     {
@@ -32,15 +31,15 @@ namespace Org.Apache.REEF.Network.Elastic.Task
         private readonly int _operatorId;
 
         /// <summary>
-        /// Creates a NodeObserverIdentifier from an observer.
+        /// Creates an identifier from an operator topology with communication.
         /// </summary>
-        public static NodeObserverIdentifier FromObserver(OperatorTopologyWithDefaultCommunication observer)
+        public static NodeObserverIdentifier FromObserver(IOperatorTopologyWithCommunication observer)
         {
             return new NodeObserverIdentifier(observer.StageName, observer.OperatorId);
         }
 
         /// <summary>
-        /// Creates a NodeObserverIdentifier from an observer.
+        /// Creates an from a driver aware topology.
         /// </summary>
         public static NodeObserverIdentifier FromObserver(DriverAwareOperatorTopology observer)
         {
@@ -48,7 +47,7 @@ namespace Org.Apache.REEF.Network.Elastic.Task
         }
 
         /// <summary>
-        /// Creates a NodeObserverIdentifier from a group communication message.
+        /// Creates an identifier from a group communication message.
         /// </summary>
         public static NodeObserverIdentifier FromMessage(ElasticGroupCommunicationMessage message)
         {

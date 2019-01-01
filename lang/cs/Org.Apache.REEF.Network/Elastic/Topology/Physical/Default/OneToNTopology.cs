@@ -68,7 +68,7 @@ namespace Org.Apache.REEF.Network.Elastic.Topology.Physical.Default
             int retry,
             int timeout,
             int disposeTimeout,
-            CommunicationLayer commLayer) : base(stageName, taskId, rootTaskId, operatorId, commLayer, retry, timeout, disposeTimeout)
+            DefaultCommunicationLayer commLayer) : base(stageName, taskId, rootTaskId, operatorId, commLayer, retry, timeout, disposeTimeout)
         {
             _nodesToRemove = new ConcurrentDictionary<string, byte>();
             _topologyUpdateReceived = new ManualResetEvent(RootTaskId == taskId ? false : true);

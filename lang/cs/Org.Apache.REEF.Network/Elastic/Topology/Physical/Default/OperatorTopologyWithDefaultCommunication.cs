@@ -35,13 +35,11 @@ namespace Org.Apache.REEF.Network.Elastic.Topology.Physical.Default
     [Unstable("0.16", "API may change")]
     internal abstract class OperatorTopologyWithDefaultCommunication :
         DriverAwareOperatorTopology,
-        IWaitForTaskRegistration,
-        IDisposable,
-        IObserver<NsMessage<ElasticGroupCommunicationMessage>>
+        IOperatorTopologyWithCommunication
     {
         protected bool _initialized;
 
-        protected CommunicationLayer _commLayer;
+        protected DefaultCommunicationLayer _commLayer;
 
         protected readonly int _disposeTimeout;
         protected readonly int _timeout;
@@ -68,7 +66,7 @@ namespace Org.Apache.REEF.Network.Elastic.Topology.Physical.Default
             string taskId,
             string rootTaskId,
             int operatorId,
-            CommunicationLayer commLayer,
+            DefaultCommunicationLayer commLayer,
             int retry,
             int timeout,
             int disposeTimeout) : base(stageName, taskId, rootTaskId, operatorId)
@@ -95,7 +93,7 @@ namespace Org.Apache.REEF.Network.Elastic.Topology.Physical.Default
         {
             if (TaskId == RootTaskId)
             {
-                _commLayer.StageComplete(TaskId);
+                _commLayer.StageComplete(TaskId, StageName);
             }
         }
 
@@ -104,7 +102,7 @@ namespace Org.Apache.REEF.Network.Elastic.Topology.Physical.Default
         /// </summary>
         public void TopologyUpdateRequest()
         {
-            _commLayer.TopologyUpdateRequest(TaskId, OperatorId);
+            _commLayer.TopologyUpdateRequest(TaskId, StageName, OperatorId);
         }
 
         /// <summary>
@@ -126,7 +124,7 @@ namespace Org.Apache.REEF.Network.Elastic.Topology.Physical.Default
         /// </summary>
         public virtual void JoinTopology()
         {
-            _commLayer.JoinTopology(TaskId, OperatorId);
+            _commLayer.JoinTopology(TaskId, StageName, OperatorId);
         }
 
         /// <summary>
@@ -172,8 +170,6 @@ namespace Org.Apache.REEF.Network.Elastic.Topology.Physical.Default
                 {
                     throw new Exception($"Failed to receive message after {_retry} try.");
                 }
-
-                _commLayer.NextDataRequest(TaskId, -1);
             }
 
             return message;

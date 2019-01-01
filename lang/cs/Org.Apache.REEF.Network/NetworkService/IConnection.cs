@@ -25,6 +25,11 @@ namespace Org.Apache.REEF.Network.NetworkService
     public interface IConnection<T> : IDisposable
     {
         /// <summary>
+        /// Whether the connection is open or not.
+        /// </summary>
+        bool IsOpen { get; }
+
+        /// <summary>
         /// Opens the connection
         /// </summary>
         void Open();

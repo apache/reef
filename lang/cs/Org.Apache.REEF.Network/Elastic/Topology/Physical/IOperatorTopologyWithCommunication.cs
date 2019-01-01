@@ -15,20 +15,29 @@
 // specific language governing permissions and limitations
 // under the License.
 
-using Org.Apache.REEF.Utilities.Attributes;
+using Org.Apache.REEF.Network.Elastic.Comm.Impl;
+using Org.Apache.REEF.Network.Elastic.Task;
+using Org.Apache.REEF.Network.NetworkService;
+using System;
 
-namespace Org.Apache.REEF.Network.Elastic.Comm.Enum
+namespace Org.Apache.REEF.Network.Elastic.Topology.Physical
 {
     /// <summary>
-    /// Supported type of messages between task and driver.
+    /// Base interface for topologies where nodes communicate betwen themselves.
     /// </summary>
-    [Unstable("0.16", "Types may change")]
-    internal enum TaskMessageType : ushort
+    internal interface IOperatorTopologyWithCommunication :
+        IWaitForTaskRegistration,
+        IDisposable,
+        IObserver<NsMessage<ElasticGroupCommunicationMessage>>
     {
-        JoinTopology = 0,
+        /// <summary>
+        /// The stage name context in which the topology is running.
+        /// </summary>
+        string StageName { get; }
 
-        TopologyUpdateRequest = 1,
-
-        CompleteStage = 2
+        /// <summary>
+        /// The identifier of the operator in which the topology is running.
+        /// </summary>
+        int OperatorId { get; }
     }
 }

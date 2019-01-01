@@ -163,6 +163,20 @@ namespace Org.Apache.REEF.Network.NetworkService
         }
 
         /// <summary>
+        /// Remove the connection to the destination node from the connection map.
+        /// </summary>
+        /// <param name="destinationId">The id of the node to disconnect</param>
+        public void RemoveConnection(IIdentifier destinationId)
+        {
+            IConnection<T> connection;
+            if (_connectionMap.TryGetValue(destinationId, out connection))
+            {
+                connection.Dispose();
+                _connectionMap.Remove(destinationId);
+            }
+        }
+
+        /// <summary>
         /// Register the identifier for the NetworkService with the NameService.
         /// </summary>
         /// <param name="id">The identifier to register</param>

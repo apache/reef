@@ -80,13 +80,16 @@ namespace Org.Apache.REEF.Network.Elastic.Operators.Logical.Default
         /// <returns>True if the operator has reacted to the task message</returns>
         protected override bool ReactOnTaskMessage(ITaskMessage message, ref List<IElasticDriverMessage> returnMessages)
         {
-            var msgReceived = (TaskMessageType)BitConverter.ToUInt16(message.Message, 0);
+            var offset = BitConverter.ToUInt16(message.Message, 0);
+            offset += sizeof(ushort);
+            var msgReceived = (TaskMessageType)BitConverter.ToUInt16(message.Message, offset);
+            offset += sizeof(ushort);
 
             switch (msgReceived)
             {
                 case TaskMessageType.JoinTopology:
                     {
-                        var operatorId = BitConverter.ToInt16(message.Message, sizeof(ushort));
+                        var operatorId = BitConverter.ToInt16(message.Message, offset);
 
                         if (operatorId != _id)
                         {
@@ -105,7 +108,7 @@ namespace Org.Apache.REEF.Network.Elastic.Operators.Logical.Default
                     }
                 case TaskMessageType.TopologyUpdateRequest:
                     {
-                        var operatorId = BitConverter.ToInt16(message.Message, sizeof(ushort));
+                        var operatorId = BitConverter.ToInt16(message.Message, offset);
 
                         if (operatorId != _id)
                         {

@@ -40,7 +40,6 @@ namespace Org.Apache.REEF.Network.NetworkService
         private readonly IIdentifier _destId;
         private readonly INameClient _nameClient;
         private readonly IRemoteManager<NsMessage<T>> _remoteManager; 
-        private readonly Dictionary<IIdentifier, IConnection<T>> _connectionMap;
         private IObserver<NsMessage<T>> _remoteSender;
 
         /// <summary>
@@ -63,8 +62,13 @@ namespace Org.Apache.REEF.Network.NetworkService
             _destId = destId;
             _nameClient = nameClient;
             _remoteManager = remoteManager;
-            _connectionMap = connectionMap;
+            IsOpen = false;
         }
+
+        /// <summary>
+        /// Whether the connection is open or not.
+        /// </summary>
+        public bool IsOpen { get; private set; }
 
         /// <summary>
         /// Opens the connection to the remote host.
@@ -83,6 +87,7 @@ namespace Org.Apache.REEF.Network.NetworkService
             try
             {
                 _remoteSender = _remoteManager.GetRemoteObserver(destAddr);
+                IsOpen = true;
                 LOGGER.Log(Level.Verbose, "Network service completed connection to {0}.", destStr);
             }
             catch (SocketException)
@@ -129,7 +134,12 @@ namespace Org.Apache.REEF.Network.NetworkService
         /// </summary>
         public void Dispose()
         {
-            _connectionMap.Remove(_destId);
+            if (_remoteSender != null)
+            {
+                IsOpen = false;
+                var disposable = _remoteSender as IDisposable;
+                disposable.Dispose();
+            }
         }
     }
 }

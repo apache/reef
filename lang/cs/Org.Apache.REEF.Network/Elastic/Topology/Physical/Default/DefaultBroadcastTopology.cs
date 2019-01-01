@@ -47,7 +47,7 @@ namespace Org.Apache.REEF.Network.Elastic.Topology.Physical.Default
             [Parameter(typeof(GroupCommunicationConfigurationOptions.Retry))] int retry,
             [Parameter(typeof(GroupCommunicationConfigurationOptions.Timeout))] int timeout,
             [Parameter(typeof(GroupCommunicationConfigurationOptions.DisposeTimeout))] int disposeTimeout,
-            CommunicationLayer commLayer) : base(
+            DefaultCommunicationLayer commLayer) : base(
                 stageName,
                 taskId,
                 Utils.BuildTaskId(stageName, rootId),

@@ -355,8 +355,17 @@ namespace Org.Apache.REEF.Network.Elastic.Driver.Default
         /// <param name="returnMessages">A list of messages containing the instructions for the task</param>
         public void OnTaskMessage(ITaskMessage message, ref List<IElasticDriverMessage> returnMessages)
         {
-            // Messages have to be propagated down to the operators
-            RootOperator.OnTaskMessage(message, ref returnMessages);
+            int offset = 0;
+            var length = BitConverter.ToUInt16(message.Message, offset);
+            offset += sizeof(ushort);
+            var stageName = BitConverter.ToString(message.Message, sizeof(ushort), length);
+            offset += length;
+
+            if (stageName == StageName)
+            {
+                // Messages have to be propagated down to the operators
+                RootOperator.OnTaskMessage(message, ref returnMessages);
+            }
         }
 
         #region Failure Response
