@@ -22,6 +22,8 @@ using Org.Apache.REEF.Network.Elastic.Operators.Physical;
 using Org.Apache.REEF.Network.Elastic.Topology.Logical;
 using Org.Apache.REEF.Network.Elastic.Failures.Enum;
 using Org.Apache.REEF.Utilities.Attributes;
+using Org.Apache.REEF.Tang.Exceptions;
+using Org.Apache.REEF.Tang.Implementations.Configuration;
 
 namespace Org.Apache.REEF.Network.Elastic.Operators.Logical.Default
 {
@@ -58,9 +60,26 @@ namespace Org.Apache.REEF.Network.Elastic.Operators.Logical.Default
         }
 
         /// <summary>
+        /// Generate the data serializer configuration for the target operator.
+        /// </summary>
+        /// <param name="confBuilder">The conf builder where to attach the codec configuration</param>
+        internal override void GetCodecConfiguration(ref IConfiguration conf)
+        {
+            if (CODECMAP.TryGetValue(typeof(T), out IConfiguration codecConf))
+            {
+                conf = Configurations.Merge(conf, codecConf);
+                base.GetCodecConfiguration(ref conf);
+            }
+            else
+            {
+                throw new IllegalStateException($"Codec for type {typeof(T)} not found.");
+            }
+        }
+
+        /// <summary>
         /// Binding from logical to physical operator. 
         /// </summary>
-        /// <param name="builder">The configuration builder the binding will be added to</param>
+        /// <param name="confBuilder">The configuration builder the binding will be added to</param>
         protected override void PhysicalOperatorConfiguration(ref ICsConfigurationBuilder confBuilder)
         {
             confBuilder

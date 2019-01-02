@@ -347,7 +347,7 @@ namespace Org.Apache.REEF.Network.Elastic.Topology.Logical.Impl
         }
 
         /// <summary>
-        /// Action to trigger when the operator recdeives a notification that a new iteration is started.
+        /// Action to trigger when the operator receives a notification that a new iteration is started.
         /// </summary>
         /// <param name="iteration">The new iteration number</param>
         public void OnNewIteration(int iteration)
@@ -414,7 +414,7 @@ namespace Org.Apache.REEF.Network.Elastic.Topology.Logical.Impl
         /// </summary>
         public string LogFinalStatistics()
         {
-            return $"\nAverage number of nodes in the topology of Operator {OperatorId}: {(float)_totNumberofNodes / (_iteration > 2 ? _iteration - 1 : 1)}";
+            return $"\nAverage number of nodes in the topology of Operator {OperatorId}: {(_iteration >= 2 ? (float)_totNumberofNodes / (_iteration - 1) : _availableDataPoints)}";
         }
 
         private void BuildTopology()

@@ -24,7 +24,7 @@ namespace Org.Apache.REEF.Network.Elastic.Task
     /// <summary>
     ///  Used by tasks to fetch the workflow of the stages configured in the driver.
     /// </summary>
-    //[DefaultImplementation(typeof(DefaultTaskSetStage))]
+    [DefaultImplementation(typeof(DefaultElasticStage))]
     public interface IElasticStage : IWaitForTaskRegistration, IDisposable
     {
         /// <summary>

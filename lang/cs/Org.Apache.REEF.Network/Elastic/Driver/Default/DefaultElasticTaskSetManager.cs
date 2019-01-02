@@ -1212,8 +1212,7 @@ namespace Org.Apache.REEF.Network.Elastic.Driver.Default
 
                 foreach (var stage in stages)
                 {
-                    ICsConfigurationBuilder confSubBuilder = TangFactory.GetTang().NewConfigurationBuilder();
-                    var confSub = stage.GetTaskConfiguration(ref confSubBuilder, id + 1);
+                    var confSub = stage.GetTaskConfiguration(id + 1);
 
                     if (rescheduleConfs.TryGetValue(stage.StageName, out var confs))
                     {

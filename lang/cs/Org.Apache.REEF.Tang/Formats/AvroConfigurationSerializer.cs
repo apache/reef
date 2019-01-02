@@ -15,13 +15,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Runtime.Serialization;
-using System.Text;
 using Microsoft.Hadoop.Avro;
 using Microsoft.Hadoop.Avro.Container;
 using Newtonsoft.Json;
@@ -34,6 +27,13 @@ using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Tang.Types;
 using Org.Apache.REEF.Tang.Util;
 using Org.Apache.REEF.Utilities.Logging;
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Runtime.Serialization;
+using System.Text;
 
 namespace Org.Apache.REEF.Tang.Formats
 {
@@ -99,7 +99,7 @@ namespace Org.Apache.REEF.Tang.Formats
                     var e = new TangApplicationException("Error during file operation. Quitting method: " + fileName);
                     Org.Apache.REEF.Utilities.Diagnostics.Exceptions.Throw(e, LOGGER);
                 }
-            }          
+            }
         }
 
         public IConfiguration FromByteArray(byte[] bytes)
@@ -178,7 +178,7 @@ namespace Org.Apache.REEF.Tang.Formats
                     }
 
                     buffer.Seek(0, SeekOrigin.Begin);
-                    using (var reader = new SequentialReader<AvroConfiguration>(AvroContainer.CreateReader<AvroConfiguration>(buffer, true))) 
+                    using (var reader = new SequentialReader<AvroConfiguration>(AvroContainer.CreateReader<AvroConfiguration>(buffer, true)))
                     {
                         var results = reader.Objects;
 
@@ -254,15 +254,35 @@ namespace Org.Apache.REEF.Tang.Formats
                 }
                 else
                 {
-                    Org.Apache.REEF.Utilities.Diagnostics.Exceptions.Throw(new IllegalStateException(), LOGGER);
+                    throw new TangApplicationException("Unable to serialize set of type {e.Value.GetType()}");
                 }
 
                 l.Add(new ConfigurationEntry(e.Key.GetFullName(), val));
             }
 
+            foreach (var kvp in conf.GetBoundList())
+            {
+                foreach (var item in kvp.Value)
+                {
+                    string val = null;
+                    if (item is string)
+                    {
+                        val = (string)item;
+                    }
+                    else if (item is INode)
+                    {
+                        val = ((INode)item).GetFullName();
+                    }
+                    else
+                    {
+                        throw new TangApplicationException("Unable to serialize list of type {item.GetType()}");
+                    }
+                    l.Add(new ConfigurationEntry(kvp.Key.GetFullName(), val));
+                }
+            }
             return new AvroConfiguration(Language.Cs.ToString(), l);
         }
-        
+
         private byte[] AvroSerialize(AvroConfiguration obj)
         {
             var serializer = AvroSerializer.Create<AvroConfiguration>();
@@ -327,7 +347,7 @@ namespace Org.Apache.REEF.Tang.Formats
             {
                 settings.Add(new KeyValuePair<string, string>(e.key, e.value));
             }
-            ConfigurationFile.ProcessConfigData(cb, settings, avroConfiguration.language); 
+            ConfigurationFile.ProcessConfigData(cb, settings, avroConfiguration.language);
             return cb.Build();
         }
     }

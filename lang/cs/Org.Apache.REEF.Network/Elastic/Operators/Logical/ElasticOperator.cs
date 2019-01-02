@@ -32,7 +32,6 @@ using Org.Apache.REEF.Network.Elastic.Topology.Logical.Impl;
 using Org.Apache.REEF.Network.Elastic.Config;
 using Org.Apache.REEF.Network.Elastic.Comm;
 using Org.Apache.REEF.Wake.Time.Event;
-using System.Linq;
 using Org.Apache.REEF.Utilities.Attributes;
 using Org.Apache.REEF.Network.Elastic.Failures.Enum;
 using Org.Apache.REEF.Network.Elastic.Topology.Logical.Enum;
@@ -287,6 +286,10 @@ namespace Org.Apache.REEF.Network.Elastic.Operators.Logical
             return this;
         }
 
+        /// <summary>
+        /// Generate the data serializer configuration for the target operator.
+        /// </summary>
+        /// <param name="confBuilder">The conf builder where to attach the codec configuration</param>
         internal virtual void GetCodecConfiguration(ref IConfiguration confBuilder)
         {
             if (_next != null)

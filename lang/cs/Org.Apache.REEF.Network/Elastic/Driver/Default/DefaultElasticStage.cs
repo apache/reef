@@ -34,6 +34,7 @@ using Org.Apache.REEF.Utilities.Attributes;
 using Org.Apache.REEF.Network.Elastic.Failures.Default;
 using Org.Apache.REEF.Network.Elastic.Operators.Logical.Default;
 using Org.Apache.REEF.Network.Elastic.Operators.Logical;
+using Org.Apache.REEF.Tang.Implementations.Tang;
 
 namespace Org.Apache.REEF.Network.Elastic.Driver.Default
 {
@@ -288,23 +289,22 @@ namespace Org.Apache.REEF.Network.Elastic.Driver.Default
         /// <param name="builder">The configuration builder the configuration will be appended to</param>
         /// <param name="taskId">The task id of the task that belongs to this stages</param>
         /// <returns>The configuration for the Task with added stages informations</returns>
-        public IConfiguration GetTaskConfiguration(ref ICsConfigurationBuilder builder, int taskId)
+        public IConfiguration GetTaskConfiguration(int taskId)
         {
+            ICsConfigurationBuilder confBuilder = TangFactory.GetTang().NewConfigurationBuilder();
             IList<string> serializedOperatorsConfs = new List<string>();
-            builder = builder
-                .BindNamedParameter<Config.OperatorParameters.StageName, string>(
+
+            confBuilder.BindNamedParameter<Config.OperatorParameters.StageName, string>(
                     GenericType<Config.OperatorParameters.StageName>.Class,
                     StageName);
 
             RootOperator.GetTaskConfiguration(ref serializedOperatorsConfs, taskId);
 
-            var subConf = builder
+            return confBuilder
                 .BindList<Config.OperatorParameters.SerializedOperatorConfigs, string>(
                     GenericType<Config.OperatorParameters.SerializedOperatorConfigs>.Class,
                     serializedOperatorsConfs)
                 .Build();
-
-            return subConf;
         }
 
         /// <summary>
@@ -358,7 +358,7 @@ namespace Org.Apache.REEF.Network.Elastic.Driver.Default
             int offset = 0;
             var length = BitConverter.ToUInt16(message.Message, offset);
             offset += sizeof(ushort);
-            var stageName = BitConverter.ToString(message.Message, sizeof(ushort), length);
+            var stageName = ByteUtilities.ByteArraysToString(message.Message, offset, length);
             offset += length;
 
             if (stageName == StageName)

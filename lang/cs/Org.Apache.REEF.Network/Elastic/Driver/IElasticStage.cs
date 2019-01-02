@@ -122,7 +122,7 @@ namespace Org.Apache.REEF.Network.Elastic.Driver
         /// <param name="builder">The configuration builder the configuration will be appended to</param>
         /// <param name="taskId">The task id of the task that belongs to this stages</param>
         /// <returns>The configuration for the Task with added stages informations</returns>
-        IConfiguration GetTaskConfiguration(ref ICsConfigurationBuilder builder, int taskId);
+        IConfiguration GetTaskConfiguration(int taskId);
 
         /// <summary>
         /// Given a task id, this method returns the configuration of the task's data partition

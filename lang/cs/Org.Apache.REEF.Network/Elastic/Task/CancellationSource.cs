@@ -27,10 +27,10 @@ namespace Org.Apache.REEF.Network.Elastic.Task
     /// to inject the same source through the elastic communication services.
     /// </summary>
     [Unstable("0.16", "API may change")]
-    internal sealed class CancellationSource
+    public sealed class CancellationSource
     {
         [Inject]
-        public CancellationSource()
+        private CancellationSource()
         {
             Source = new CancellationTokenSource();
         }

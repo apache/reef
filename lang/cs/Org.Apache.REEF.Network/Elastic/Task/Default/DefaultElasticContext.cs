@@ -69,6 +69,8 @@ namespace Org.Apache.REEF.Network.Elastic.Task.Impl
             _disposed = false;
             _lock = new object();
 
+            System.Threading.Thread.Sleep(10000);
+
             foreach (string serializedGroupConfig in stageConfigs)
             {
                 IConfiguration stageConfig = configSerializer.FromString(serializedGroupConfig);

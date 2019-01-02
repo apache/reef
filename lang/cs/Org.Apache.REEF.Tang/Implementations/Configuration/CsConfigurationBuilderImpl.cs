@@ -49,7 +49,7 @@ namespace Org.Apache.REEF.Tang.Implementations.Configuration
             : base(classHierarchy)
         {
         }
-        
+
         public CsConfigurationBuilderImpl(string[] assemblies)
             : base(assemblies)
         {
@@ -225,13 +225,13 @@ namespace Org.Apache.REEF.Tang.Implementations.Configuration
             {
                 implTypes.Add(item.TypeT);
             }
-            return ((ICsInternalConfigurationBuilder)this).BindList(typeof(U), implTypes); 
+            return ((ICsInternalConfigurationBuilder)this).BindList(typeof(U), implTypes);
         }
 
         public ICsConfigurationBuilder BindList<U, T>(GenericType<U> iface, IList<string> impl)
             where U : Name<IList<T>>
         {
-            return ((ICsInternalConfigurationBuilder)this).BindList(typeof(U), impl); 
+            return ((ICsInternalConfigurationBuilder)this).BindList(typeof(U), impl);
         }
 
         public ICsConfigurationBuilder BindList(Type iface, IList<Type> implList)
@@ -399,7 +399,15 @@ namespace Org.Apache.REEF.Tang.Implementations.Configuration
                 Org.Apache.REEF.Utilities.Diagnostics.Exceptions.Throw(ex, LOGGER);
             }
 
-            BindList((INamedParameterNode)n, implList);
+            try
+            {
+                BindList((INamedParameterNode)n, implList);
+            }
+            catch (ArgumentException ex)
+            {
+                throw new BindException($"BindList failed to bind for {iface.Name}, reason: {ex.Message}");
+            }
+
             return this;
         }
 
@@ -433,7 +441,7 @@ namespace Org.Apache.REEF.Tang.Implementations.Configuration
         #endregion ICsInternalConfigurationBuilder
 
         #region extension methods
-        
+
         public ICsConfigurationBuilder BindNamedParam<TName, TType>(string str) where TName : Name<TType>
         {
             return BindNamedParameter<TName, TType>(GenericType<TName>.Class, str);

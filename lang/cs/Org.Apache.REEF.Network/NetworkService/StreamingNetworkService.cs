@@ -56,12 +56,11 @@ namespace Org.Apache.REEF.Network.NetworkService
         /// <param name="localAddressProvider">The local address provider</param>
         [Inject]
         private StreamingNetworkService(
-            IObserver<NsMessage<T>> universalObserver,
             INameClient nameClient,
             StreamingRemoteManagerFactory remoteManagerFactory,
             NsMessageStreamingCodec<T> codec,
             ILocalAddressProvider localAddressProvider)
-            : this(universalObserver, null, nameClient, remoteManagerFactory, codec, localAddressProvider)
+            : this(null, null, nameClient, remoteManagerFactory, codec, localAddressProvider)
         {
         }
 
