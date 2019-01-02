@@ -126,7 +126,7 @@ namespace Org.Apache.REEF.Network.Elastic.Task.Impl
             }
             if (string.IsNullOrEmpty(destination))
             {
-                throw new ArgumentException("Message destination cannot be null or empty.");
+                throw new ArgumentNullException(nameof(destination));
             }
             if (_disposed)
             {
