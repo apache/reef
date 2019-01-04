@@ -92,7 +92,7 @@ namespace Org.Apache.REEF.Network.Elastic.Operators.Logical.Default
             }
             else
             {
-                LOGGER.Log(Level.Info, $"Failure from {task.Id} cannot be properly managed: failing");
+                LOGGER.Log(Level.Info, $"Failure from {task.Id} cannot be properly managed: failing.");
                 failureEvents.Add(new FailEvent(task.Id));
             }
 
@@ -159,7 +159,7 @@ namespace Org.Apache.REEF.Network.Elastic.Operators.Logical.Default
         /// <param name="event">The failure event to react upon</param>
         public override void EventDispatcher(ref IFailureEvent @event)
         {
-            if (@event.OperatorId == _id || (@event.OperatorId < 0 && WithinIteration))
+            if (@event.OperatorId == _id || @event.OperatorId < 0)
             {
                 switch ((DefaultFailureStateEvents)@event.FailureEvent)
                 {

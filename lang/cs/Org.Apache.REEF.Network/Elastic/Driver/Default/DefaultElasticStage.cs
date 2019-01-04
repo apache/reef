@@ -56,7 +56,7 @@ namespace Org.Apache.REEF.Network.Elastic.Driver.Default
         private int _tasksAdded;
         private HashSet<string> _missingMasterTasks;
         private HashSet<string> _masterTasks;
-        private readonly IFailureStateMachine _defaultFailureMachine;
+        private readonly IFailureStateMachine _failureMachine;
 
         private int _numOperators;
         private Optional<IConfiguration[]> _datasetConfiguration;
@@ -87,9 +87,9 @@ namespace Org.Apache.REEF.Network.Elastic.Driver.Default
             _datasetConfiguration = Optional<IConfiguration[]>.Empty();
             IsCompleted = false;
             Context = elasticService;
-            _defaultFailureMachine = failureMachine ?? new DefaultFailureStateMachine(numTasks, DefaultFailureStates.Fail);
-            FailureState = _defaultFailureMachine.State;
-            RootOperator = new DefaultEmpty(this, _defaultFailureMachine.Clone());
+            _failureMachine = failureMachine ?? new DefaultFailureStateMachine(numTasks, DefaultFailureStates.Fail);
+            FailureState = _failureMachine.State;
+            PipelineRoot = new DefaultEmpty(this, _failureMachine.Clone());
 
             IsIterative = false;
         }
@@ -102,7 +102,7 @@ namespace Org.Apache.REEF.Network.Elastic.Driver.Default
         /// <summary>
         /// The operator at the beginning of the computation workflow.
         /// </summary>
-        public ElasticOperator RootOperator { get; private set; }
+        public ElasticOperator PipelineRoot { get; private set; }
 
         /// <summary>
         /// The service managing the stages.
@@ -178,7 +178,7 @@ namespace Org.Apache.REEF.Network.Elastic.Driver.Default
                 }
             }
 
-            RootOperator.GatherMasterIds(ref _masterTasks);
+            PipelineRoot.GatherMasterIds(ref _masterTasks);
             _missingMasterTasks = new HashSet<string>(_masterTasks);
 
             _finalized = true;
@@ -188,7 +188,7 @@ namespace Org.Apache.REEF.Network.Elastic.Driver.Default
 
         /// <summary>
         /// Add a task to the stages.
-        /// The stages must have been buit before tasks can be added.
+        /// The stages must have been built before tasks can be added.
         /// </summary>
         /// <param name="taskId">The id of the task to add</param>
         /// <returns>True if the task is correctly added to the stages</returns>
@@ -231,7 +231,7 @@ namespace Org.Apache.REEF.Network.Elastic.Driver.Default
                     return false;
                 }
 
-                if (!RootOperator.AddTask(taskId))
+                if (!PipelineRoot.AddTask(taskId))
                 {
                     return true;
                 }
@@ -240,7 +240,7 @@ namespace Org.Apache.REEF.Network.Elastic.Driver.Default
 
                 _missingMasterTasks.Remove(taskId);
 
-                _defaultFailureMachine.AddDataPoints(1, false);
+                _failureMachine.AddDataPoints(1, false);
             }
 
             return true;
@@ -256,11 +256,11 @@ namespace Org.Apache.REEF.Network.Elastic.Driver.Default
         {
             // Schedule if we reach the number of requested tasks or the stage contains an iterative pipeline that is ready to be scheduled and the 
             // policy requested by the user allow early start with ramp up.
-            if (!_scheduled && (_numTasks == _tasksAdded || (IsIterative && _defaultFailureMachine.State.FailureState < (int)DefaultFailureStates.StopAndReschedule && RootOperator.CanBeScheduled())))
+            if (!_scheduled && (_numTasks == _tasksAdded || (IsIterative && _failureMachine.State.FailureState < (int)DefaultFailureStates.StopAndReschedule && PipelineRoot.CanBeScheduled())))
             {
                 _scheduled = true;
 
-                RootOperator.BuildState();
+                PipelineRoot.BuildState();
             }
 
             return _scheduled;
@@ -298,7 +298,7 @@ namespace Org.Apache.REEF.Network.Elastic.Driver.Default
                     GenericType<Config.OperatorParameters.StageName>.Class,
                     StageName);
 
-            RootOperator.GetTaskConfiguration(ref serializedOperatorsConfs, taskId);
+            PipelineRoot.GetTaskConfiguration(ref serializedOperatorsConfs, taskId);
 
             return confBuilder
                 .BindList<Config.OperatorParameters.SerializedOperatorConfigs, string>(
@@ -340,12 +340,14 @@ namespace Org.Apache.REEF.Network.Elastic.Driver.Default
         /// <returns>The final statistics for the computation</returns>
         public string LogFinalStatistics()
         {
-            if (!IsCompleted)
+            if (IsCompleted || FailureState.FailureState == (int)DefaultFailureStates.Fail)
             {
-                throw new IllegalStateException($"Cannot log statistics before Stage {StageName} is completed");
+                return PipelineRoot.LogFinalStatistics();
             }
-
-            return RootOperator.LogFinalStatistics();
+            else
+            {
+                throw new IllegalStateException($"Cannot log statistics before Stage {StageName} is completed or failed.");
+            }
         }
 
         /// <summary>
@@ -364,7 +366,7 @@ namespace Org.Apache.REEF.Network.Elastic.Driver.Default
             if (stageName == StageName)
             {
                 // Messages have to be propagated down to the operators
-                RootOperator.OnTaskMessage(message, ref returnMessages);
+                PipelineRoot.OnTaskMessage(message, ref returnMessages);
             }
         }
 
@@ -378,7 +380,7 @@ namespace Org.Apache.REEF.Network.Elastic.Driver.Default
         /// <param name="nextTimeouts">The next timeouts to be scheduled</param>
         public void OnTimeout(Alarm alarm, ref List<IElasticDriverMessage> msgs, ref List<ITimeout> nextTimeouts)
         {
-            RootOperator.OnTimeout(alarm, ref msgs, ref nextTimeouts);
+            PipelineRoot.OnTimeout(alarm, ref msgs, ref nextTimeouts);
         }
 
         /// <summary>
@@ -390,7 +392,7 @@ namespace Org.Apache.REEF.Network.Elastic.Driver.Default
         public void OnTaskFailure(IFailedTask task, ref List<IFailureEvent> failureEvents)
         {
             // Failures have to be propagated down to the operators
-            RootOperator.OnTaskFailure(task, ref failureEvents);
+            PipelineRoot.OnTaskFailure(task, ref failureEvents);
         }
 
         /// <summary>
@@ -421,7 +423,7 @@ namespace Org.Apache.REEF.Network.Elastic.Driver.Default
                     break;
             }
 
-            RootOperator.EventDispatcher(ref @event);
+            PipelineRoot.EventDispatcher(ref @event);
         }
 
         #endregion

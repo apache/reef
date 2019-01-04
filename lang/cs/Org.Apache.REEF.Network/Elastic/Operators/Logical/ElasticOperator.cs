@@ -195,6 +195,7 @@ namespace Org.Apache.REEF.Network.Elastic.Operators.Logical
         /// </summary>
         /// <param name="message">The task message for the operator</param>
         /// <param name="returnMessages">A list of messages containing the instructions for the task</param>
+        /// <returns>True if the message was managed correctly, false otherwise</returns>
         public void OnTaskMessage(ITaskMessage message, ref List<IElasticDriverMessage> returnMessages)
         {
             var hasReacted = ReactOnTaskMessage(message, ref returnMessages);
@@ -207,7 +208,7 @@ namespace Org.Apache.REEF.Network.Elastic.Operators.Logical
 
         /// <summary>
         /// Add a task to the operator.
-        /// The bperator must have called Build() before adding tasks.
+        /// The operator must have called Build() before adding tasks.
         /// </summary>
         /// <param name="taskId">The id of the task to add</param>
         /// <returns>True if the task is new and is added to the operator</returns>
@@ -218,10 +219,10 @@ namespace Org.Apache.REEF.Network.Elastic.Operators.Logical
                 throw new IllegalStateException("Operator needs to be finalized before adding tasks.");
             }
 
-            if (_operatorStateFinalized)
-            {
-                throw new IllegalStateException("Task cannot be added to an operator with finalized state.");
-            }
+            //if (_operatorStateFinalized)
+            //{
+            //    throw new IllegalStateException("Task cannot be added to an operator with finalized state.");
+            //}
 
             var newTask = _topology.AddTask(taskId, _failureMachine);
 

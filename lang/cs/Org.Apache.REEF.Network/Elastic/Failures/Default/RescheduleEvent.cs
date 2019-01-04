@@ -26,7 +26,7 @@ namespace Org.Apache.REEF.Network.Elastic.Failures.Default
     /// reschedule a new task.
     /// </summary>
     [Unstable("0.16", "API may change")]
-    public sealed class RescheduleEvent : ReconfigureEvent
+    public class RescheduleEvent : ReconfigureEvent
     {
         /// <summary>
         /// Constructor for the reschedule event.

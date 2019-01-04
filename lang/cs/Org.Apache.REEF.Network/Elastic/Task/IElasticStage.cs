@@ -15,8 +15,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
-using Org.Apache.REEF.Network.Elastic.Task.Impl;
 using Org.Apache.REEF.Tang.Annotations;
+using Org.Apache.REEF.Utilities.Attributes;
 using System;
 
 namespace Org.Apache.REEF.Network.Elastic.Task
@@ -24,6 +24,7 @@ namespace Org.Apache.REEF.Network.Elastic.Task
     /// <summary>
     ///  Used by tasks to fetch the workflow of the stages configured in the driver.
     /// </summary>
+    [Unstable("0.16", "API may change")]
     [DefaultImplementation(typeof(DefaultElasticStage))]
     public interface IElasticStage : IWaitForTaskRegistration, IDisposable
     {

@@ -25,7 +25,7 @@ using System;
 namespace Org.Apache.REEF.Network.Elastic.Failures.Default
 {
     [Unstable("0.16", "API may change")]
-    internal sealed class DefaultFailureState : IFailureState
+    public sealed class DefaultFailureState : IFailureState
     {
         /// <summary>
         /// Create a default failure state for 0 (Continue).

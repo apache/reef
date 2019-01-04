@@ -24,18 +24,33 @@ using Org.Apache.REEF.Network.Elastic.Driver;
 using Org.Apache.REEF.Common.Tasks;
 using Org.Apache.REEF.Network.Elastic.Topology.Logical.Enum;
 using Org.Apache.REEF.Network.Elastic.Driver.Default;
+using Org.Apache.REEF.Network.Elastic.Failures;
+using Org.Apache.REEF.Network.Elastic.Failures.Default;
+using Org.Apache.REEF.Network.Elastic.Config;
 
 namespace Org.Apache.REEF.Network.Examples.Elastic
 {
     /// <summary>
     /// Example implementation of broadcasting using the elastic group communication service.
     /// </summary>
-    public class ElasticBroadcastDriver : DefaultElasticDriver
+    public abstract class ElasticBroadcastDriverWithFailures : DefaultElasticDriver
     {
-        [Inject]
-        protected ElasticBroadcastDriver(IElasticContext context) : base(context)
+        protected ElasticBroadcastDriverWithFailures(
+            string stageName,
+            int numEvaluators,
+            IElasticContext context) : base(context)
         {
-            IElasticStage stage = Context.DefaultStage();
+            IFailureStateMachine failureMachine = new DefaultFailureStateMachine();
+
+            failureMachine.SetThreasholds(new Tuple<IFailureState, float>[]
+            {
+                Tuple.Create(new DefaultFailureState((int)DefaultFailureStates.ContinueAndReconfigure) as IFailureState, 0.01F),
+                Tuple.Create(new DefaultFailureState((int)DefaultFailureStates.ContinueAndReschedule) as IFailureState, 0.40F),
+                Tuple.Create(new DefaultFailureState((int)DefaultFailureStates.StopAndReschedule) as IFailureState, 0.60F),
+                Tuple.Create(new DefaultFailureState((int)DefaultFailureStates.Fail) as IFailureState, 0.80F)
+            });
+
+            IElasticStage stage = Context.CreateNewStage(stageName, numEvaluators, failureMachine);
 
             // Create and build the pipeline
             stage.PipelineRoot

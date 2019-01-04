@@ -18,11 +18,9 @@
 using System.Threading;
 using System.Collections.Generic;
 using Org.Apache.REEF.Network.Elastic.Topology.Physical.Default;
-using Org.Apache.REEF.Network.Elastic.Failures;
 using System;
 using Org.Apache.REEF.Network.Elastic.Comm.Impl;
 using Org.Apache.REEF.Utilities.Logging;
-using Org.Apache.REEF.Network.Elastic.Failures.Enum;
 using Org.Apache.REEF.Utilities.Attributes;
 using Org.Apache.REEF.Network.Elastic.Operators.Physical.Enum;
 using Org.Apache.REEF.Network.Elastic.Comm;

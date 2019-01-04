@@ -28,6 +28,10 @@ using Org.Apache.REEF.Network.Elastic.Failures.Enum;
 using Org.Apache.REEF.Utilities.Attributes;
 using Org.Apache.REEF.Network.Elastic.Comm.Enum;
 using Org.Apache.REEF.Network.Elastic.Failures.Default;
+using Org.Apache.REEF.Tang.Implementations.Tang;
+using Org.Apache.REEF.Network.Elastic.Config;
+using System.Globalization;
+using Org.Apache.REEF.Tang.Util;
 
 namespace Org.Apache.REEF.Network.Elastic.Operators.Logical.Default
 {
@@ -102,6 +106,14 @@ namespace Org.Apache.REEF.Network.Elastic.Operators.Logical.Default
                             LOGGER.Log(Level.Info, $"{taskId} joins the topology for operator {_id}");
 
                             _topology.AddTask(taskId, _failureMachine);
+
+                            if (_stop)
+                            {
+                                if (_failureMachine.State.FailureState < (int)DefaultFailureStates.Fail)
+                                {
+                                    _stop = false;
+                                }
+                            }
                         }
 
                         return true;
@@ -123,7 +135,7 @@ namespace Org.Apache.REEF.Network.Elastic.Operators.Logical.Default
                         }
                         else
                         {
-                            LOGGER.Log(Level.Info, $"Operator {OperatorName} is in stopped: Ignoring");
+                            LOGGER.Log(Level.Info, $"Operator {OperatorName} is in stopped: Waiting.");
                         }
 
                         return true;
@@ -147,11 +159,6 @@ namespace Org.Apache.REEF.Network.Elastic.Operators.Logical.Default
         public override void OnReconfigure(ref ReconfigureEvent reconfigureEvent)
         {
             LOGGER.Log(Level.Info, $"Going to reconfigure the {OperatorName} operator");
-
-            if (_stop)
-            {
-                _stop = false;
-            }
 
             if (reconfigureEvent.FailedTask.IsPresent())
             {
@@ -177,6 +184,23 @@ namespace Org.Apache.REEF.Network.Elastic.Operators.Logical.Default
         /// </summary>
         public override void OnReschedule(ref RescheduleEvent rescheduleEvent)
         {
+            // Iterators manage the re-schuedling of tasks. If not iterator exists, setup the rescheduling.
+            if (!WithinIteration)
+            {
+                LOGGER.Log(Level.Info, "Going to reschedule task " + rescheduleEvent.TaskId);
+
+                if (!rescheduleEvent.RescheduleTaskConfigurations.TryGetValue(Stage.StageName, out IList<IConfiguration> confs))
+                {
+                    confs = new List<IConfiguration>();
+                    rescheduleEvent.RescheduleTaskConfigurations.Add(Stage.StageName, confs);
+                }
+                confs.Add(TangFactory.GetTang().NewConfigurationBuilder()
+                    .BindNamedParameter<GroupCommunicationConfigurationOptions.IsRescheduled, bool>(
+                        GenericType<GroupCommunicationConfigurationOptions.IsRescheduled>.Class,
+                        true.ToString(CultureInfo.InvariantCulture))
+                    .Build());
+            }
+
             var reconfigureEvent = rescheduleEvent as ReconfigureEvent;
 
             OnReconfigure(ref reconfigureEvent);
@@ -192,6 +216,10 @@ namespace Org.Apache.REEF.Network.Elastic.Operators.Logical.Default
             {
                 _stop = true;
             }
+
+            var rescheduleEvent = stopEvent as RescheduleEvent;
+
+            OnReschedule(ref rescheduleEvent);
         }
     }
 }

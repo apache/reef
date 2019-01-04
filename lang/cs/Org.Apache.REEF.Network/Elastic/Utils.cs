@@ -26,7 +26,7 @@ namespace Org.Apache.REEF.Network.Elastic
     /// Utility class.
     /// </summary>
     [Unstable("0.16", "API may change")]
-    internal static class Utils
+    public static class Utils
     {
         /// <summary>
         /// Gets the context number associated with the active context id.

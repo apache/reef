@@ -18,6 +18,7 @@
 using Org.Apache.REEF.Network.Elastic.Comm.Impl;
 using Org.Apache.REEF.Network.Elastic.Task;
 using Org.Apache.REEF.Network.NetworkService;
+using Org.Apache.REEF.Utilities.Attributes;
 using System;
 
 namespace Org.Apache.REEF.Network.Elastic.Topology.Physical
@@ -25,6 +26,7 @@ namespace Org.Apache.REEF.Network.Elastic.Topology.Physical
     /// <summary>
     /// Base interface for topologies where nodes communicate betwen themselves.
     /// </summary>
+    [Unstable("0.16", "API may change")]
     internal interface IOperatorTopologyWithCommunication :
         IWaitForTaskRegistration,
         IDisposable,

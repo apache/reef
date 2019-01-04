@@ -27,7 +27,6 @@ using Org.Apache.REEF.Network.NetworkService;
 using System.Collections.Concurrent;
 using System.Linq;
 using Org.Apache.REEF.Utilities.Attributes;
-using Org.Apache.REEF.Network.Elastic.Task;
 
 namespace Org.Apache.REEF.Network.Elastic.Topology.Physical.Default
 {
@@ -183,6 +182,7 @@ namespace Org.Apache.REEF.Network.Elastic.Topology.Physical.Default
                         {
                             foreach (var node in updates.Children)
                             {
+                                LOGGER.Log(Level.Info, $"Removing task {node} from the topology.");
                                 _nodesToRemove.TryAdd(node, new byte());
                                 _commLayer.RemoveConnection(node);
                             }

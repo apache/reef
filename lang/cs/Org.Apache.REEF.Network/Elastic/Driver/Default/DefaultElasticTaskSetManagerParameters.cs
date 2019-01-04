@@ -19,12 +19,14 @@ using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Network.Elastic.Config;
 using System.Threading.Tasks;
 using Org.Apache.REEF.Network.Elastic.Failures;
+using Org.Apache.REEF.Utilities.Attributes;
 
 namespace Org.Apache.REEF.Network.Elastic.Driver.Default
 {
     /// <summary>
     /// Injectable class containing all the parameters for the default task set manager.
     /// </summary>
+    [Unstable("0.16", "API may change")]
     internal sealed class DefaultElasticTaskSetManagerParameters
     {
         [Inject]

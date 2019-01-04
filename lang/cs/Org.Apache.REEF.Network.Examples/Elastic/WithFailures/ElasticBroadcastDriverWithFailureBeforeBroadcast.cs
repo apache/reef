@@ -22,58 +22,30 @@ using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Tang.Util;
 using Org.Apache.REEF.Network.Elastic.Driver;
 using Org.Apache.REEF.Common.Tasks;
-using Org.Apache.REEF.Network.Elastic.Topology.Logical.Enum;
-using Org.Apache.REEF.Network.Elastic.Driver.Default;
+using Org.Apache.REEF.Network.Elastic.Config;
 
 namespace Org.Apache.REEF.Network.Examples.Elastic
 {
     /// <summary>
     /// Example implementation of broadcasting using the elastic group communication service.
     /// </summary>
-    public class ElasticBroadcastDriver : DefaultElasticDriver
+    public sealed class ElasticBroadcastDriverWithFailureBeforeBroadcast : ElasticBroadcastDriverWithFailures
     {
         [Inject]
-        protected ElasticBroadcastDriver(IElasticContext context) : base(context)
+        private ElasticBroadcastDriverWithFailureBeforeBroadcast(
+            [Parameter(typeof(ElasticServiceConfigurationOptions.DefaultStageName))] string stageName,
+            [Parameter(typeof(ElasticServiceConfigurationOptions.NumEvaluators))] int numEvaluators,
+            IElasticContext context) : base(stageName, numEvaluators, context)
         {
-            IElasticStage stage = Context.DefaultStage();
-
-            // Create and build the pipeline
-            stage.PipelineRoot
-                .Broadcast<int>(TopologyType.Flat)
-                .Build();
-
-            // Build the stage
-            stage = stage.Build();
-
-            // Create the task manager
-            TaskSetManager = Context.CreateNewTaskSetManager(MasterTaskConfiguration, SlaveTaskConfiguration);
-
-            // Register the stage to the task manager
-            TaskSetManager.AddStage(stage);
-
-            // Build the task set manager
-            TaskSetManager.Build();
         }
 
-        protected virtual Func<string, IConfiguration> MasterTaskConfiguration
+        protected override Func<string, IConfiguration> SlaveTaskConfiguration
         {
             get
             {
                 return (taskId) => TangFactory.GetTang().NewConfigurationBuilder(
                     Context.GetTaskConfigurationModule(taskId)
-                        .Set(TaskConfiguration.Task, GenericType<BroadcastMasterTask>.Class)
-                        .Build())
-                    .Build();
-            }
-        }
-
-        protected virtual Func<string, IConfiguration> SlaveTaskConfiguration
-        {
-            get
-            {
-                return (taskId) => TangFactory.GetTang().NewConfigurationBuilder(
-                    Context.GetTaskConfigurationModule(taskId)
-                        .Set(TaskConfiguration.Task, GenericType<BroadcastSlaveTask>.Class)
+                        .Set(TaskConfiguration.Task, GenericType<BroadcastSlaveTaskDieBeforeBroadcast>.Class)
                         .Build())
                     .Build();
             }

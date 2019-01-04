@@ -18,40 +18,51 @@
 using System;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Network.Elastic.Task;
-using Org.Apache.REEF.Network.Elastic.Operators;
 using Org.Apache.REEF.Network.Elastic.Operators.Physical;
+using Org.Apache.REEF.Network.Elastic.Operators;
 using Org.Apache.REEF.Network.Elastic.Task.Default;
 
 namespace Org.Apache.REEF.Network.Examples.Elastic
 {
-    public sealed class BroadcastMasterTask : DefaultElasticTask
+    public sealed class BroadcastSlaveTaskDieMultiple : DefaultElasticTask
     {
+        private const int _failProb = 80;
+        private readonly Random _rand = new Random();
+
         [Inject]
-        private BroadcastMasterTask(CancellationSource source, IElasticContext context)
+        public BroadcastSlaveTaskDieMultiple(
+            CancellationSource source, IElasticContext context)
             : base(source, context, "Broadcast")
         {
         }
 
         protected override void Execute(byte[] memento, Workflow workflow)
         {
-            var rand = new Random();
-            int number = 0;
+            if (_rand.Next(100) < _failProb)
+            {
+                throw new Exception("Die.");
+            }
 
             while (workflow.MoveNext())
             {
-                number = rand.Next();
-
                 switch (workflow.Current.OperatorName)
                 {
                     case Constants.Broadcast:
-                        var sender = workflow.Current as IElasticBroadcast<int>;
 
-                        sender.Send(number);
+                        if (_rand.Next(100) < _failProb)
+                        {
+                            throw new Exception("Die");
+                        }
 
-                        Console.WriteLine($"Master has sent {number}");
+                        var receiver = workflow.Current as IElasticBroadcast<int>;
+
+                        var rec = receiver.Receive();
+
+                        Console.WriteLine($"Slave has received {rec}");
+
                         break;
                     default:
-                        throw new InvalidOperationException($"Operation {workflow.Current} in workflow not implemented.");
+                        break;
                 }
             }
         }

@@ -19,12 +19,14 @@ using System;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Network.Elastic.Task.Impl;
 using Org.Apache.REEF.Common.Tasks.Events;
+using Org.Apache.REEF.Utilities.Attributes;
 
 namespace Org.Apache.REEF.Network.Elastic.Task
 {
     /// <summary>
     /// Used by REEF tasks to initialize group communication and fetch Stages.
     /// </summary>
+    [Unstable("0.16", "API may change")]
     [DefaultImplementation(typeof(DefaultElasticContext))]
     public interface IElasticContext :
         IWaitForTaskRegistration,

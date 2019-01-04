@@ -27,12 +27,14 @@ using System.Threading;
 using Org.Apache.REEF.Tang.Exceptions;
 using Org.Apache.REEF.Network.Elastic.Comm.Impl;
 using Org.Apache.REEF.Network.Elastic.Topology.Physical;
+using Org.Apache.REEF.Utilities.Attributes;
 
 namespace Org.Apache.REEF.Network.Elastic.Task.Impl
 {
     /// <summary>
     /// Handles all incoming / outcoming messages for a given task.
     /// </summary>
+    [Unstable("0.16", "API may change")]
     internal abstract class CommunicationLayer :
         IObserver<IRemoteMessage<NsMessage<ElasticGroupCommunicationMessage>>>
     {
@@ -169,6 +171,7 @@ namespace Org.Apache.REEF.Network.Elastic.Task.Impl
             }
 
             IList<string> foundList = new List<string>();
+
             for (var i = 0; i < _retryRegistration; i++)
             {
                 if (cancellationSource != null && cancellationSource.Token.IsCancellationRequested)

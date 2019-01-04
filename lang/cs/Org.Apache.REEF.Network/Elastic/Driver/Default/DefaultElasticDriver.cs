@@ -22,15 +22,17 @@ using Org.Apache.REEF.Driver.Evaluator;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Tang.Implementations.Configuration;
 using Org.Apache.REEF.Tang.Interface;
-using Org.Apache.REEF.Network.Elastic.Driver;
 using Org.Apache.REEF.Driver.Task;
 using Org.Apache.REEF.Common.Context;
+using Org.Apache.REEF.Utilities.Attributes;
+using System.Threading;
 
-namespace Org.Apache.REEF.Network.Examples.Elastic
+namespace Org.Apache.REEF.Network.Elastic.Driver.Default
 {
     /// <summary>
     /// Default implementation of the elastic driver.
     /// </summary>
+    [Unstable("0.16", "API may change")]
     public abstract class DefaultElasticDriver :
         IObserver<IAllocatedEvaluator>,
         IObserver<IActiveContext>,
@@ -58,7 +60,7 @@ namespace Org.Apache.REEF.Network.Examples.Elastic
 
         public void OnNext(IAllocatedEvaluator allocatedEvaluator)
         {
-            System.Threading.Thread.Sleep(10000);
+            Thread.Sleep(10000);
             if (TaskSetManager.TryGetNextTaskContextId(allocatedEvaluator, out string identifier))
             {
                 IConfiguration contextConf = ContextConfiguration.ConfigurationModule
@@ -78,7 +80,6 @@ namespace Org.Apache.REEF.Network.Examples.Elastic
 
         public void OnNext(IActiveContext activeContext)
         {
-            System.Threading.Thread.Sleep(10000);
             TaskSetManager.OnNewActiveContext(activeContext);
         }
 

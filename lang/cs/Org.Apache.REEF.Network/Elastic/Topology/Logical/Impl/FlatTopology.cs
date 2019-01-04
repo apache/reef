@@ -128,7 +128,7 @@ namespace Org.Apache.REEF.Network.Elastic.Topology.Logical.Impl
                         return false;
                     }
 
-                    throw new ArgumentException("Task already added to the topology");
+                    throw new ArgumentException("Task already added to the topology.");
                 }
 
                 DataNode node = new DataNode(id, false);

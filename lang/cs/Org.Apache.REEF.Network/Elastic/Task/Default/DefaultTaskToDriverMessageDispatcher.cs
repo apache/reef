@@ -21,6 +21,7 @@ using Org.Apache.REEF.Utilities.Logging;
 using Org.Apache.REEF.Network.Elastic.Comm.Enum;
 using Org.Apache.REEF.Utilities;
 using Org.Apache.REEF.Tang.Interface;
+using Org.Apache.REEF.Utilities.Attributes;
 
 namespace Org.Apache.REEF.Network.Elastic.Task.Impl
 {
@@ -28,6 +29,7 @@ namespace Org.Apache.REEF.Network.Elastic.Task.Impl
     /// Implemention of <see cref="TaskToDriverMessageDispatcher"/> with default
     /// messages dispatcher.
     /// </summary>
+    [Unstable("0.16", "API may change")]
     internal sealed class DefaultTaskToDriverMessageDispatcher : TaskToDriverMessageDispatcher, IDefaultTaskToDriverMessages
     {
         private static readonly Logger LOGGER = Logger.GetLogger(typeof(DefaultTaskToDriverMessageDispatcher));
@@ -81,7 +83,7 @@ namespace Org.Apache.REEF.Network.Elastic.Task.Impl
             offset += sizeof(ushort);
             Buffer.BlockCopy(BitConverter.GetBytes((ushort)operatorId), 0, message, offset, sizeof(ushort));
 
-            LOGGER.Log(Level.Info, string.Format("Operator {0} requesting a topology update through heartbeat", operatorId));
+            LOGGER.Log(Level.Info, string.Format($"Operator {operatorId} requesting a topology update through heartbeat."));
 
             Send(taskId, message);
         }

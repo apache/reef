@@ -21,6 +21,7 @@ using Org.Apache.REEF.Network.Elastic.Comm.Impl;
 using Org.Apache.REEF.Network.Elastic.Topology.Physical;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Tang.Exceptions;
+using Org.Apache.REEF.Utilities.Attributes;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 
@@ -29,6 +30,7 @@ namespace Org.Apache.REEF.Network.Elastic.Task.Impl
     /// <summary>
     /// Handler for incoming messages from the driver.
     /// </summary>
+    [Unstable("0.16", "API may change")]
     internal sealed class ElasticDriverMessageHandler : IDriverMessageHandler
     {
         /// <summary>

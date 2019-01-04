@@ -18,6 +18,7 @@
 using Org.Apache.REEF.Common.Runtime.Evaluator;
 using Org.Apache.REEF.Common.Protobuf.ReefProtocol;
 using Org.Apache.REEF.Tang.Interface;
+using Org.Apache.REEF.Utilities.Attributes;
 
 namespace Org.Apache.REEF.Network.Elastic.Task.Impl
 {
@@ -25,6 +26,7 @@ namespace Org.Apache.REEF.Network.Elastic.Task.Impl
     /// Class used to manage messages going from tasks to the driver.
     /// Messages are notifying through the heartbeat.
     /// </summary>
+    [Unstable("0.16", "API may change")]
     internal abstract class TaskToDriverMessageDispatcher
     {
         private readonly IHeartBeatManager _heartBeatManager;

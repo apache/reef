@@ -18,40 +18,43 @@
 using System;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Network.Elastic.Task;
-using Org.Apache.REEF.Network.Elastic.Operators;
 using Org.Apache.REEF.Network.Elastic.Operators.Physical;
+using Org.Apache.REEF.Network.Elastic.Operators;
 using Org.Apache.REEF.Network.Elastic.Task.Default;
+using Org.Apache.REEF.Common.Tasks;
+using Org.Apache.REEF.Network.Elastic;
 
 namespace Org.Apache.REEF.Network.Examples.Elastic
 {
-    public sealed class BroadcastMasterTask : DefaultElasticTask
+    public sealed class BroadcastSlaveTaskDieInConstructor : DefaultElasticTask
     {
         [Inject]
-        private BroadcastMasterTask(CancellationSource source, IElasticContext context)
+        public BroadcastSlaveTaskDieInConstructor(
+            [Parameter(typeof(TaskConfigurationOptions.Identifier))] string taskId,
+            CancellationSource source, IElasticContext context)
             : base(source, context, "Broadcast")
         {
+            if (Utils.GetTaskNum(taskId) == 2)
+            {
+                throw new Exception("Die in Constructor.");
+            }
         }
 
         protected override void Execute(byte[] memento, Workflow workflow)
         {
-            var rand = new Random();
-            int number = 0;
-
             while (workflow.MoveNext())
             {
-                number = rand.Next();
-
                 switch (workflow.Current.OperatorName)
                 {
                     case Constants.Broadcast:
-                        var sender = workflow.Current as IElasticBroadcast<int>;
+                        var receiver = workflow.Current as IElasticBroadcast<int>;
 
-                        sender.Send(number);
+                        var rec = receiver.Receive();
 
-                        Console.WriteLine($"Master has sent {number}");
+                        Console.WriteLine($"Slave has received {rec}");
                         break;
                     default:
-                        throw new InvalidOperationException($"Operation {workflow.Current} in workflow not implemented.");
+                        break;
                 }
             }
         }

@@ -26,12 +26,14 @@ using Org.Apache.REEF.Tang.Util;
 using Org.Apache.REEF.Network.Elastic.Operators.Physical;
 using Org.Apache.REEF.Utilities.Logging;
 using Org.Apache.REEF.Network.Elastic.Task.Impl;
+using Org.Apache.REEF.Utilities.Attributes;
 
 namespace Org.Apache.REEF.Network.Elastic.Task
 {
     /// <summary>
     /// Default implementation of the task-side stage.
     /// </summary>
+    [Unstable("0.16", "API may change")]
     internal sealed class DefaultElasticStage : IElasticStage
     {
         private static readonly Logger LOGGER = Logger.GetLogger(typeof(DefaultElasticStage));

@@ -17,6 +17,7 @@
 
 using Org.Apache.REEF.Network.Elastic.Comm.Impl;
 using Org.Apache.REEF.Network.Elastic.Topology.Physical;
+using Org.Apache.REEF.Utilities.Attributes;
 
 namespace Org.Apache.REEF.Network.Elastic.Task.Impl
 {
@@ -25,6 +26,7 @@ namespace Org.Apache.REEF.Network.Elastic.Task.Impl
     /// A node is uniquely identifiable by a combination of its 
     /// <see cref="StageName"/>, and <see cref="OperatorId"/>.
     /// </summary>
+    [Unstable("0.16", "API may change")]
     internal sealed class NodeObserverIdentifier
     {
         private readonly string _stageName;

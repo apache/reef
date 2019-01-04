@@ -24,12 +24,14 @@ using Org.Apache.REEF.Network.Elastic.Config;
 using Org.Apache.REEF.Utilities.Logging;
 using Org.Apache.REEF.Network.Elastic.Comm.Impl;
 using Org.Apache.REEF.Network.Elastic.Topology.Physical;
+using Org.Apache.REEF.Utilities.Attributes;
 
 namespace Org.Apache.REEF.Network.Elastic.Task.Impl
 {
     /// <summary>
     /// Implementation of the communication layer with default task to driver messages.
     /// </summary>
+    [Unstable("0.16", "API may change")]
     internal sealed class DefaultCommunicationLayer :
         CommunicationLayer,
         IDefaultTaskToDriverMessages

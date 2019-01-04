@@ -27,6 +27,7 @@ using Org.Apache.REEF.Wake.Remote.Impl;
 using Org.Apache.REEF.Network.Elastic.Config;
 using Org.Apache.REEF.Network.Elastic.Comm.Impl;
 using Org.Apache.REEF.Common.Tasks.Events;
+using Org.Apache.REEF.Utilities.Attributes;
 
 namespace Org.Apache.REEF.Network.Elastic.Task.Impl
 {
@@ -34,6 +35,7 @@ namespace Org.Apache.REEF.Network.Elastic.Task.Impl
     /// Default implementation of the task-side context.
     /// Used by REEF tasks to initialize group communication and fetch stages.
     /// </summary>
+    [Unstable("0.16", "API may change")]
     internal sealed class DefaultElasticContext : IElasticContext
     {
         private readonly Dictionary<string, IElasticStage> _stages;
@@ -68,8 +70,6 @@ namespace Org.Apache.REEF.Network.Elastic.Task.Impl
 
             _disposed = false;
             _lock = new object();
-
-            System.Threading.Thread.Sleep(10000);
 
             foreach (string serializedGroupConfig in stageConfigs)
             {

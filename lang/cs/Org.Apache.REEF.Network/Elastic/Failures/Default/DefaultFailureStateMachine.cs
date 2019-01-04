@@ -34,7 +34,7 @@ using System.Linq;
 namespace Org.Apache.REEF.Network.Elastic.Failures.Default
 {
     [Unstable("0.16", "API may change")]
-    internal sealed class DefaultFailureStateMachine : IFailureStateMachine
+    public sealed class DefaultFailureStateMachine : IFailureStateMachine
     {
         private readonly object _statusLock;
 
@@ -56,10 +56,10 @@ namespace Org.Apache.REEF.Network.Elastic.Failures.Default
 
         private readonly IDictionary<DefaultFailureStates, float> transitionWeights = new Dictionary<DefaultFailureStates, float>()
         {
-            { DefaultFailureStates.ContinueAndReconfigure, 0.0F },
-            { DefaultFailureStates.ContinueAndReschedule, 0.000001F },
-            { DefaultFailureStates.StopAndReschedule, 0.5F },
-            { DefaultFailureStates.Fail, 0.5F }
+            { DefaultFailureStates.ContinueAndReconfigure, 0.01F },
+            { DefaultFailureStates.ContinueAndReschedule, 0.40F },
+            { DefaultFailureStates.StopAndReschedule, 0.60F },
+            { DefaultFailureStates.Fail, 0.80F }
         };
 
         /// <summary>
@@ -192,12 +192,12 @@ namespace Org.Apache.REEF.Network.Elastic.Failures.Default
         {
             if (!weights.All(weight => weight.Item1 is DefaultFailureState))
             {
-                throw new ArgumentException("Input is not of type DefaultFailureStateMachine");
+                throw new ArgumentException("Input is not of type DefaultFailureStateMachine,");
             }
 
             if (weights.Any(weight => weight.Item1.FailureState == (int)DefaultFailureStates.Continue))
             {
-                throw new ArgumentException("Cannot change the threshold for Continue state");
+                throw new ArgumentException("Cannot change the threshold for Continue state.");
             }
 
             lock (_statusLock)

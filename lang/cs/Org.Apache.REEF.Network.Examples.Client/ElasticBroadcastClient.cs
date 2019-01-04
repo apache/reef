@@ -38,23 +38,12 @@ namespace Org.Apache.REEF.Network.Examples.Client
         const string Yarn = "yarn";
         const string DefaultRuntimeFolder = "REEF_LOCAL_RUNTIME";
 
-        public void RunElasticBroadcast(bool runOnYarn, int numTasks, int startingPortNo, int portRange)
+        public ElasticBroadcastClient(bool runOnYarn, int numTasks, int startingPortNo, int portRange)
         {
             const string driverId = "ElasticBroadcastDriver";
             const string stage = "Broadcast";
 
-            IConfiguration driverConfig = TangFactory.GetTang().NewConfigurationBuilder(
-                DriverConfiguration.ConfigurationModule
-                    .Set(DriverConfiguration.OnDriverStarted, GenericType<ElasticBroadcastDriver>.Class)
-                    .Set(DriverConfiguration.OnEvaluatorAllocated, GenericType<ElasticBroadcastDriver>.Class)
-                    .Set(DriverConfiguration.OnEvaluatorFailed, GenericType<ElasticBroadcastDriver>.Class)
-                    .Set(DriverConfiguration.OnContextActive, GenericType<ElasticBroadcastDriver>.Class)
-                    .Set(DriverConfiguration.OnTaskRunning, GenericType<ElasticBroadcastDriver>.Class)
-                    .Set(DriverConfiguration.OnTaskCompleted, GenericType<ElasticBroadcastDriver>.Class)
-                    .Set(DriverConfiguration.OnTaskFailed, GenericType<ElasticBroadcastDriver>.Class)
-                    .Set(DriverConfiguration.OnTaskMessage, GenericType<ElasticBroadcastDriver>.Class)
-                    .Set(DriverConfiguration.CustomTraceLevel, Level.Info.ToString())
-                    .Build())
+            IConfiguration driverConfig = TangFactory.GetTang().NewConfigurationBuilder(GetDriverConf())
                 .BindNamedParameter<ElasticServiceConfigurationOptions.NumEvaluators, int>(
                     GenericType<ElasticServiceConfigurationOptions.NumEvaluators>.Class,
                     numTasks.ToString(CultureInfo.InvariantCulture))
@@ -75,7 +64,7 @@ namespace Org.Apache.REEF.Network.Examples.Client
             IConfiguration merged = Configurations.Merge(driverConfig, elsticGroupCommServiceDriverConfig);
 
             string runPlatform = runOnYarn ? "yarn" : "local";
-            TestRun(merged, typeof(ElasticBroadcastDriver), numTasks, "ElasticBroadcastDriver", runPlatform);
+            TestRun(merged, typeof(ElasticBroadcastDriver), numTasks, JobIdentifier, runPlatform);
         }
 
         internal static void TestRun(IConfiguration driverConfig, Type globalAssemblyType, int numberOfEvaluator, string jobIdentifier = "myDriver", string runOnYarn = "local", string runtimeFolder = DefaultRuntimeFolder)
@@ -107,6 +96,26 @@ namespace Org.Apache.REEF.Network.Examples.Client
                 default:
                     throw new Exception("Unknown runtime: " + runOnYarn);
             }
+        }
+
+        protected virtual string JobIdentifier
+        {
+            get { return "ElasticBroadcast"; }
+        }
+
+        protected virtual IConfiguration GetDriverConf()
+        {
+            return DriverConfiguration.ConfigurationModule
+                    .Set(DriverConfiguration.OnDriverStarted, GenericType<ElasticBroadcastDriver>.Class)
+                    .Set(DriverConfiguration.OnEvaluatorAllocated, GenericType<ElasticBroadcastDriver>.Class)
+                    .Set(DriverConfiguration.OnEvaluatorFailed, GenericType<ElasticBroadcastDriver>.Class)
+                    .Set(DriverConfiguration.OnContextActive, GenericType<ElasticBroadcastDriver>.Class)
+                    .Set(DriverConfiguration.OnTaskRunning, GenericType<ElasticBroadcastDriver>.Class)
+                    .Set(DriverConfiguration.OnTaskCompleted, GenericType<ElasticBroadcastDriver>.Class)
+                    .Set(DriverConfiguration.OnTaskFailed, GenericType<ElasticBroadcastDriver>.Class)
+                    .Set(DriverConfiguration.OnTaskMessage, GenericType<ElasticBroadcastDriver>.Class)
+                    .Set(DriverConfiguration.CustomTraceLevel, Level.Info.ToString())
+                    .Build();
         }
     }
 }

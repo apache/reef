@@ -26,10 +26,10 @@ namespace Org.Apache.REEF.Network.Examples.Client
         {
             Console.WriteLine("start running client: " + DateTime.Now);
             bool runOnYarn = false;
-            int numNodes = 3;
+            int numNodes = 5;
             int startPort = 8900;
             int portRange = 1000;
-            string testToRun = "ElasticBroadcast";
+            string testToRun = "ElasticBroadcastWithMultipleFailures";
             testToRun = testToRun.ToLower();
 
             if (args != null)
@@ -84,8 +84,51 @@ namespace Org.Apache.REEF.Network.Examples.Client
 
             if (testToRun.Equals("ElasticBroadcast".ToLower()) || testToRun.Equals("all"))
             {
-                new ElasticBroadcastClient().RunElasticBroadcast(runOnYarn, numNodes, startPort, portRange);
+                new ElasticBroadcastClient(runOnYarn, numNodes, startPort, portRange);
                 Console.WriteLine("ElasticRunBroadcast completed!!!");
+            }
+
+            if (testToRun.Equals("ElasticBroadcastWithFailureInConstructor".ToLower()) || testToRun.Equals("all"))
+            {
+                // This stage should fail
+                new ElasticBroadcastClientWithFailureInConstructor(runOnYarn, numNodes, startPort, portRange);
+                Console.WriteLine("ElasticBroadcastWithFailureInConstructor completed!!!");
+            }
+
+            if (testToRun.Equals("ElasticBroadcastWithFailureBeforeWorkflow".ToLower()) || testToRun.Equals("all"))
+            {
+                new ElasticBroadcastClientWithFailureBeforeWorkflow(runOnYarn, numNodes, startPort, portRange);
+                Console.WriteLine("ElasticBroadcastWithFailureBeforeWorkflow completed!!!");
+            }
+
+            if (testToRun.Equals("ElasticBroadcastWithFailEvaluatorBeforeWorkflow".ToLower()) || testToRun.Equals("all"))
+            {
+                new ElasticBroadcastClientWithFailEvaluatorBeforeWorkflow(runOnYarn, numNodes, startPort, portRange);
+                Console.WriteLine("ElasticBroadcastWithFailEvaluatorBeforeWorkflow completed!!!");
+            }
+
+            if (testToRun.Equals("ElasticBroadcastWithFailureBeforeBroadcast".ToLower()) || testToRun.Equals("all"))
+            {
+                new ElasticBroadcastClientWithFailureBeforeBroadcast(runOnYarn, numNodes, startPort, portRange);
+                Console.WriteLine("ElasticBroadcastWithFailureBeforeBroadcast completed!!!");
+            }
+
+            if (testToRun.Equals("ElasticBroadcastWithFailureAfterBroadcast".ToLower()) || testToRun.Equals("all"))
+            {
+                new ElasticBroadcastClientWithFailureAfterBroadcast(runOnYarn, numNodes, startPort, portRange);
+                Console.WriteLine("ElasticBroadcastWithFailureAfterBroadcast completed!!!");
+            }
+
+            if (testToRun.Equals("ElasticBroadcastWithFailureAfterBroadcast".ToLower()) || testToRun.Equals("all"))
+            {
+                new ElasticBroadcastClientWithFailureAfterBroadcast(runOnYarn, numNodes, startPort, portRange);
+                Console.WriteLine("ElasticBroadcastWithFailureAfterBroadcast completed!!!");
+            }
+
+            if (testToRun.Equals("ElasticBroadcastWithMultipleFailures".ToLower()) || testToRun.Equals("all"))
+            {
+                new ElasticBroadcastClientWithMultipleFailures(runOnYarn, numNodes, startPort, portRange);
+                Console.WriteLine("ElasticBroadcastWithMultipleFailures completed!!!");
             }
         }
     }

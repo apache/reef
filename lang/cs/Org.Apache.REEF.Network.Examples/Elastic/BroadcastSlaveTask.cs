@@ -20,7 +20,7 @@ using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Network.Elastic.Task;
 using Org.Apache.REEF.Network.Elastic.Operators.Physical;
 using Org.Apache.REEF.Network.Elastic.Operators;
-using Org.Apache.REEF.Network.Elastic.Task.Impl;
+using Org.Apache.REEF.Network.Elastic.Task.Default;
 
 namespace Org.Apache.REEF.Network.Examples.Elastic
 {
@@ -44,7 +44,7 @@ namespace Org.Apache.REEF.Network.Examples.Elastic
 
                         var rec = receiver.Receive();
 
-                        Console.WriteLine($"Slave has received {rec}", rec);
+                        Console.WriteLine($"Slave has received {rec}");
                         break;
                     default:
                         break;

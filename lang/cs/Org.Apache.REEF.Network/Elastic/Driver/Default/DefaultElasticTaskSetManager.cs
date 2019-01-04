@@ -34,12 +34,14 @@ using Org.Apache.REEF.Wake.Time.Event;
 using Org.Apache.REEF.Network.Elastic.Config;
 using Org.Apache.REEF.Tang.Util;
 using Org.Apache.REEF.Network.Elastic.Failures.Default;
+using Org.Apache.REEF.Utilities.Attributes;
 
 namespace Org.Apache.REEF.Network.Elastic.Driver.Default
 {
     /// <summary>
     /// Class managing the scheduling of tasks and task-related events.
     /// </summary>
+    [Unstable("0.16", "API may change")]
     internal sealed class DefaultElasticTaskSetManager :
         IElasticTaskSetManager,
         IDefaultFailureEventResponse,
@@ -560,7 +562,7 @@ namespace Org.Apache.REEF.Network.Elastic.Driver.Default
 
             foreach (var stage in _stages.Values)
             {
-                stage.RootOperator.GetCodecConfiguration(ref conf);
+                stage.PipelineRoot.GetCodecConfiguration(ref conf);
             }
 
             return conf;
@@ -574,12 +576,12 @@ namespace Org.Apache.REEF.Network.Elastic.Driver.Default
         {
             if (_finalized != true)
             {
-                throw new IllegalStateException("Task set have to be finalized before adding tasks");
+                throw new IllegalStateException("Task set have to be finalized before adding tasks.");
             }
 
             if (Completed() || Failed())
             {
-                LOGGER.Log(Level.Warning, "Adding tasks to already completed task set: ignoring");
+                LOGGER.Log(Level.Warning, "Adding tasks to already completed task set: ignoring.");
                 activeContext.Dispose();
                 return;
             }
@@ -591,7 +593,7 @@ namespace Org.Apache.REEF.Network.Elastic.Driver.Default
             // We reschedule the task only if the context was active (_taskInfos[id] != null) and the task was actually scheduled at least once (_taskInfos[id].TaskStatus > TaskStatus.Init)
             if (_taskInfos[id] != null && _taskInfos[id].TaskStatus > TaskState.Init)
             {
-                LOGGER.Log(Level.Info, $"{taskId} already part of task set: going to directly submit it");
+                LOGGER.Log(Level.Info, $"{taskId} already part of task set: going to directly submit it.");
 
                 lock (_taskInfos[id].Lock)
                 {
@@ -655,15 +657,15 @@ namespace Org.Apache.REEF.Network.Elastic.Driver.Default
 
                     if (Completed() || Failed())
                     {
-                        LOGGER.Log(Level.Info, $"Received running from task {task.Id} but task set is completed or failed: ignoring");
-                        _taskInfos[id].DisposeTask();
+                        LOGGER.Log(Level.Info, $"Received running from task {task.Id} but task set is completed or failed: ignoring.");
+                        _taskInfos[id].Dispose();
 
                         return;
                     }
                     if (!TaskStateUtils.IsRunnable(_taskInfos[id].TaskStatus))
                     {
-                        LOGGER.Log(Level.Info, $"Received running from task {task.Id} which is not runnable: ignoring");
-                        _taskInfos[id].DisposeTask();
+                        LOGGER.Log(Level.Info, $"Received running from task {task.Id} which is not runnable: ignoring.");
+                        _taskInfos[id].Dispose();
 
                         return;
                     }
@@ -781,13 +783,13 @@ namespace Org.Apache.REEF.Network.Elastic.Driver.Default
                 {
                     if (Completed() || Failed())
                     {
-                        LOGGER.Log(Level.Warning, "Taskset made no progress in the last {0}ms. Forcing Disposal.", _parameters.Timeout);
+                        LOGGER.Log(Level.Warning, $"Taskset made no progress in the last {_parameters.Timeout}ms. Forcing Disposal.");
                         Dispose();
                     }
                     else
                     {
-                        LOGGER.Log(Level.Error, "Taskset made no progress in the last {0}ms. Aborting.", _parameters.Timeout);
-                        OnFail();
+                        LOGGER.Log(Level.Error, $"Taskset made no progress in the last {_parameters.Timeout}ms. Aborting.");
+                        Fail();
                         return;
                     }
                 }
@@ -918,7 +920,7 @@ namespace Org.Apache.REEF.Network.Elastic.Driver.Default
                         if (cinfo.NumRetry > _parameters.NumEvaluatorFailures)
                         {
                             LOGGER.Log(Level.Error, $"Context {cinfo.Id} failed more than {_parameters.NumEvaluatorFailures} times: Aborting");
-                            OnFail();
+                            Fail();
                         }
 
                         _queuedContexts.Enqueue(cinfo);
@@ -964,7 +966,7 @@ namespace Org.Apache.REEF.Network.Elastic.Driver.Default
                     OnFail();
                     break;
                 default:
-                    throw new IllegalStateException("Failure event not recognized");
+                    throw new IllegalStateException("Failure event not recognized.");
             }
         }
 
@@ -995,27 +997,7 @@ namespace Org.Apache.REEF.Network.Elastic.Driver.Default
 
             SendToTasks(rescheduleEvent.FailureResponse);
 
-            var id = Utils.GetTaskNum(rescheduleEvent.TaskId) - 1;
-
-            lock (_taskInfos[id].Lock)
-            {
-                _taskInfos[id].NumRetry++;
-
-                if (_taskInfos[id].NumRetry > _parameters.NumTaskFailures)
-                {
-                    LOGGER.Log(Level.Error, $"Task {rescheduleEvent.TaskId} failed more than {_parameters.NumTaskFailures} times: aborting");
-                    OnFail();
-                }
-
-                if (rescheduleEvent.Reschedule)
-                {
-                    LOGGER.Log(Level.Info, $"Rescheduling task {rescheduleEvent.TaskId}");
-
-                    _taskInfos[id].RescheduleConfigurations = rescheduleEvent.RescheduleTaskConfigurations;
-
-                    SubmitTask(id);
-                }
-            }
+            Reschedule(rescheduleEvent);
         }
 
         /// <summary>
@@ -1030,6 +1012,10 @@ namespace Org.Apache.REEF.Network.Elastic.Driver.Default
             }
 
             SendToTasks(stopEvent.FailureResponse);
+
+            var rescheduleEvent = stopEvent as RescheduleEvent;
+
+            Reschedule(rescheduleEvent);
         }
 
         /// <summary>
@@ -1169,7 +1155,7 @@ namespace Org.Apache.REEF.Network.Elastic.Driver.Default
                 {
                     _scheduled = true;
 
-                    LOGGER.Log(Level.Info, string.Format("Scheduling {0} tasks from Taskset {1}", _tasksAdded, StagesId));
+                    LOGGER.Log(Level.Info, $"Scheduling {_tasksAdded} tasks from Taskset {StagesId}");
                 }
             }
 
@@ -1235,7 +1221,7 @@ namespace Org.Apache.REEF.Network.Elastic.Driver.Default
 
                 if (_taskInfos[id].IsActiveContextDisposed)
                 {
-                    LOGGER.Log(Level.Warning, string.Format("Task submit for {0} with a non-active context: spawning a new evaluator", id + 1));
+                    LOGGER.Log(Level.Warning, $"Task submit for {id + 1} with a non-active context: spawning a new evaluator.");
 
                     if (_taskInfos[id].TaskStatus == TaskState.Failed)
                     {
@@ -1300,7 +1286,7 @@ namespace Org.Apache.REEF.Network.Elastic.Driver.Default
                             else if (retry >= _parameters.Retry)
                             {
                                 LOGGER.Log(Level.Warning, msg + " Aborting");
-                                OnFail();
+                                Fail(returnMessage.Destination);
                             }
                             else
                             {
@@ -1328,6 +1314,38 @@ namespace Org.Apache.REEF.Network.Elastic.Driver.Default
                 .Build();
 
             _evaluatorRequestor.Submit(request);
+        }
+
+        private void Reschedule(RescheduleEvent rescheduleEvent)
+        {
+            var id = Utils.GetTaskNum(rescheduleEvent.TaskId) - 1;
+
+            lock (_taskInfos[id].Lock)
+            {
+                _taskInfos[id].NumRetry++;
+
+                if (_taskInfos[id].NumRetry > _parameters.NumTaskFailures)
+                {
+                    LOGGER.Log(Level.Error, $"Task {rescheduleEvent.TaskId} failed more than {_parameters.NumTaskFailures} times: aborting");
+                    Fail(rescheduleEvent.TaskId);
+                }
+
+                if (rescheduleEvent.Reschedule)
+                {
+                    LOGGER.Log(Level.Info, $"Rescheduling task {rescheduleEvent.TaskId}");
+
+                    _taskInfos[id].RescheduleConfigurations = rescheduleEvent.RescheduleTaskConfigurations;
+
+                    SubmitTask(id);
+                }
+            }
+        }
+
+        private void Fail(string taskId = "")
+        {
+            IFailureEvent @event = new FailEvent(taskId);
+
+            EventDispatcher(ref @event);
         }
 
         private void LogFinalStatistics()

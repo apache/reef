@@ -21,7 +21,6 @@ using System.Collections.Concurrent;
 using System.Threading;
 using System.Linq;
 using Org.Apache.REEF.Network.NetworkService;
-using Org.Apache.REEF.Network.Elastic.Task;
 using Org.Apache.REEF.Tang.Exceptions;
 using Org.Apache.REEF.Network.Elastic.Comm.Impl;
 using Org.Apache.REEF.Utilities.Attributes;

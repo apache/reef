@@ -17,16 +17,15 @@
 
 using System;
 using Org.Apache.REEF.Common.Tasks;
-using Org.Apache.REEF.Tang.Annotations;
-using Org.Apache.REEF.Network.Elastic.Task;
-using Org.Apache.REEF.Network.Elastic.Task.Impl;
 using Org.Apache.REEF.Common.Tasks.Events;
+using Org.Apache.REEF.Utilities.Attributes;
 
-namespace Org.Apache.REEF.Network.Examples.Elastic
+namespace Org.Apache.REEF.Network.Elastic.Task.Default
 {
     /// <summary>
     /// Default implementation of a task using the elastic group communication service.
     /// </summary>
+    [Unstable("0.16", "API may change")]
     public abstract class DefaultElasticTask : ITask, IObserver<ICloseEvent>
     {
         private readonly IElasticContext _context;
@@ -34,6 +33,12 @@ namespace Org.Apache.REEF.Network.Examples.Elastic
 
         private readonly CancellationSource _cancellationSource;
 
+        /// <summary>
+        /// Constructor for the default task implementation using the elastic group communication service.
+        /// </summary>
+        /// <param name="source">A cancellation source</param>
+        /// <param name="context">The elastic context</param>
+        /// <param name="stageName">The name of the stage to execute</param>
         public DefaultElasticTask(
             CancellationSource source,
             IElasticContext context,
@@ -45,6 +50,11 @@ namespace Org.Apache.REEF.Network.Examples.Elastic
             _stage = _context.GetStage(stageName);
         }
 
+        /// <summary>
+        /// Implementation of the Call method of <see cref="ITask"/>.
+        /// </summary>
+        /// <param name="memento"></param>
+        /// <returns></returns>
         public byte[] Call(byte[] memento)
         {
             _context.WaitForTaskRegistration(_cancellationSource.Source);
@@ -64,6 +74,9 @@ namespace Org.Apache.REEF.Network.Examples.Elastic
             return null;
         }
 
+        /// <summary>
+        /// Default implementation of the <see cref="IDisposable"/> interface.
+        /// </summary>
         public void Dispose()
         {
             _cancellationSource.Cancel();
@@ -83,6 +96,13 @@ namespace Org.Apache.REEF.Network.Examples.Elastic
         {
         }
 
+        /// <summary>
+        /// Method wrapping the actual task logic.
+        /// Whatever exception happen inside this method call is managed by
+        /// the elastic framework.
+        /// </summary>
+        /// <param name="memento">The memento object inherited from the Call method</param>
+        /// <param name="workflow">The workflow object managing the sequence of operation to execute</param>
         protected abstract void Execute(byte[] memento, Workflow workflow);
     }
 }

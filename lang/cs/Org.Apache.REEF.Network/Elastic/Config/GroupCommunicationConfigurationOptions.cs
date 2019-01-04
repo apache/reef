@@ -24,7 +24,7 @@ namespace Org.Apache.REEF.Network.Elastic.Config
     ///</summary>
     public sealed class GroupCommunicationConfigurationOptions
     {
-        [NamedParameter("Timeout for sending or receiving messages", defaultValue: "600000")]
+        [NamedParameter("Timeout for sending or receiving messages", defaultValue: "10000")]
         public class Timeout : Name<int>
         {
         }
@@ -57,6 +57,11 @@ namespace Org.Apache.REEF.Network.Elastic.Config
         /// </remarks>
         [NamedParameter("Retry times to wait for nodes to be registered", defaultValue: "30")]
         internal sealed class RetryCountWaitingForRegistration : Name<int>
+        {
+        }
+
+        [NamedParameter("Whether the operator is in a  rescheduled task", defaultValue: "false")]
+        public sealed class IsRescheduled : Name<bool>
         {
         }
     }

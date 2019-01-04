@@ -15,11 +15,14 @@
 // specific language governing permissions and limitations
 // under the License.
 
+using Org.Apache.REEF.Utilities.Attributes;
+
 namespace Org.Apache.REEF.Network.Elastic.Task
 {
     /// <summary>
     /// Interface defining the messages supported in tasks to driver communications.
     /// </summary>
+    [Unstable("0.16", "API may change")]
     internal interface IDefaultTaskToDriverMessages
     {
         /// <summary>

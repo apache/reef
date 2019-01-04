@@ -15,11 +15,13 @@
 // specific language governing permissions and limitations
 // under the License.
 
+using Org.Apache.REEF.Network.Elastic.Config;
 using Org.Apache.REEF.Network.Elastic.Failures;
 using Org.Apache.REEF.Network.Elastic.Operators;
 using Org.Apache.REEF.Network.Elastic.Operators.Physical;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Tang.Exceptions;
+using Org.Apache.REEF.Utilities.Attributes;
 using Org.Apache.REEF.Utilities.Logging;
 using System;
 using System.Collections;
@@ -27,13 +29,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 
-namespace Org.Apache.REEF.Network.Elastic.Task.Impl
+namespace Org.Apache.REEF.Network.Elastic.Task
 {
     /// <summary>
     /// Task-side representation of the the sequence of group communication operations to execute.
     /// Exception rised during execution are managed by the framework and recovered through the user-defined
     /// policies / mechanisms.
     /// </summary>
+    [Unstable("0.16", "API may change")]
     public sealed class Workflow : IEnumerator<IElasticOperator>
     {
         private static readonly Logger LOGGER = Logger.GetLogger(typeof(Workflow));
@@ -46,13 +49,16 @@ namespace Org.Apache.REEF.Network.Elastic.Task.Impl
         private readonly object _lock;
         private readonly IList<IElasticOperator> _operators;
         private readonly CancellationSource _cancellationSource;
+        private readonly bool _isRescheduled;
 
         /// <summary>
         /// Injectable constructor.
         /// </summary>
         /// <param name="cancellationSource"></param>
         [Inject]
-        private Workflow(CancellationSource cancellationSource)
+        private Workflow(
+            [Parameter(typeof(GroupCommunicationConfigurationOptions.IsRescheduled))] bool isRescheduled,
+            CancellationSource cancellationSource)
         {
             _operators = new List<IElasticOperator>();
             _failed = false;
@@ -60,6 +66,7 @@ namespace Org.Apache.REEF.Network.Elastic.Task.Impl
             _lock = new object();
             _iteratorsPosition = new List<int>();
             _cancellationSource = cancellationSource;
+            _isRescheduled = isRescheduled;
         }
 
         /// <summary>
@@ -132,6 +139,11 @@ namespace Org.Apache.REEF.Network.Elastic.Task.Impl
 
                     return MoveNext();
                 }
+            }
+
+            if (_isRescheduled)
+            {
+                Current.OnTaskRescheduled.Invoke();
             }
 
             return true;

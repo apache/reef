@@ -42,7 +42,7 @@ namespace Org.Apache.REEF.Network.Elastic.Driver
         /// <summary>
         /// The operator at the beginning of the computation workflow.
         /// </summary>
-        ElasticOperator RootOperator { get; }
+        ElasticOperator PipelineRoot { get; }
 
         /// <summary>
         /// The failure state of the target stages. 
