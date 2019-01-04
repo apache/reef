@@ -47,7 +47,7 @@ namespace Org.Apache.REEF.Network.Examples.Elastic
                 Tuple.Create(new DefaultFailureState((int)DefaultFailureStates.ContinueAndReconfigure) as IFailureState, 0.01F),
                 Tuple.Create(new DefaultFailureState((int)DefaultFailureStates.ContinueAndReschedule) as IFailureState, 0.40F),
                 Tuple.Create(new DefaultFailureState((int)DefaultFailureStates.StopAndReschedule) as IFailureState, 0.60F),
-                Tuple.Create(new DefaultFailureState((int)DefaultFailureStates.Fail) as IFailureState, 0.80F)
+                Tuple.Create(new DefaultFailureState((int)DefaultFailureStates.Fail) as IFailureState, 0.601F)
             });
 
             IElasticStage stage = Context.CreateNewStage(stageName, numEvaluators, failureMachine);

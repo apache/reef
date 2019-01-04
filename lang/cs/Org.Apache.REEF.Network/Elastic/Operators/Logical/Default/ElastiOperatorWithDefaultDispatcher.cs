@@ -81,6 +81,7 @@ namespace Org.Apache.REEF.Network.Elastic.Operators.Logical.Default
         /// </summary>
         /// <param name="task">The failed task</param>
         /// <param name="failureEvents">A list of events encoding the type of actions to be triggered so far</param>
+        /// <exception cref="Exception">If the task failure cannot be properly handled</exception>
         public override void OnTaskFailure(IFailedTask task, ref List<IFailureEvent> failureEvents)
         {
             var failedOperatorId = _id;
@@ -90,11 +91,11 @@ namespace Org.Apache.REEF.Network.Elastic.Operators.Logical.Default
                 var opException = task.AsError() as OperatorException;
                 failedOperatorId = opException.OperatorId;
             }
-            else
-            {
-                LOGGER.Log(Level.Info, $"Failure from {task.Id} cannot be properly managed: failing.");
-                failureEvents.Add(new FailEvent(task.Id));
-            }
+            //else
+            //{
+            //    LOGGER.Log(Level.Info, $"Failure from {task.Id} cannot be properly managed: failing.");
+            //    failureEvents.Add(new FailEvent(task.Id));
+            //}
 
             if (WithinIteration || failedOperatorId <= _id)
             {
@@ -117,7 +118,14 @@ namespace Org.Apache.REEF.Network.Elastic.Operators.Logical.Default
                         }
                         break;
                     case DefaultFailureStates.StopAndReschedule:
-                        failureEvents.Add(new Failures.Default.StopEvent(task.Id));
+                        {
+                            var @event = new StopEvent(task.Id);
+                            if (failedOperatorId == _id)
+                            {
+                                @event.FailedTask = Optional<IFailedTask>.Of(task);
+                            }
+                            failureEvents.Add(@event);
+                        }
                         break;
                     case DefaultFailureStates.Fail:
                         failureEvents.Add(new FailEvent(task.Id));

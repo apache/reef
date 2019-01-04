@@ -29,7 +29,7 @@ namespace Org.Apache.REEF.Network.Examples.Client
             int numNodes = 5;
             int startPort = 8900;
             int portRange = 1000;
-            string testToRun = "ElasticBroadcastWithMultipleFailures";
+            string testToRun = "ElasticBroadcastWithFailEvaluatorBeforeWorkflow";
             testToRun = testToRun.ToLower();
 
             if (args != null)
@@ -90,7 +90,6 @@ namespace Org.Apache.REEF.Network.Examples.Client
 
             if (testToRun.Equals("ElasticBroadcastWithFailureInConstructor".ToLower()) || testToRun.Equals("all"))
             {
-                // This stage should fail
                 new ElasticBroadcastClientWithFailureInConstructor(runOnYarn, numNodes, startPort, portRange);
                 Console.WriteLine("ElasticBroadcastWithFailureInConstructor completed!!!");
             }

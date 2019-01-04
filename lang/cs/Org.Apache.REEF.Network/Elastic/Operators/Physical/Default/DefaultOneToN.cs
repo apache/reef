@@ -40,6 +40,7 @@ namespace Org.Apache.REEF.Network.Elastic.Operators.Physical.Default
         internal volatile PositionTracker _position;
 
         private readonly bool _isLast;
+        private bool _cleanDisposal;
 
         /// <summary>
         /// Creates a new one to N operator.
@@ -54,6 +55,7 @@ namespace Org.Apache.REEF.Network.Elastic.Operators.Physical.Default
             _isLast = isLast;
             _topology = topology;
             _position = PositionTracker.Nil;
+            _cleanDisposal = false;
 
             OnTaskRescheduled = new Action(() =>
             {
@@ -175,6 +177,7 @@ namespace Org.Apache.REEF.Network.Elastic.Operators.Physical.Default
         public void WaitCompletionBeforeDisposing()
         {
             _topology.WaitCompletionBeforeDisposing(CancellationSource);
+            _cleanDisposal = true;
         }
 
         /// <summary>
@@ -182,7 +185,7 @@ namespace Org.Apache.REEF.Network.Elastic.Operators.Physical.Default
         /// </summary>
         public void Dispose()
         {
-            if (_isLast)
+            if (_isLast && _cleanDisposal)
             {
                 _topology.StageComplete();
             }

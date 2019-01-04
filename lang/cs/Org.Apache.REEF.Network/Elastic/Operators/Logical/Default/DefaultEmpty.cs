@@ -45,6 +45,13 @@ namespace Org.Apache.REEF.Network.Elastic.Operators.Logical.Default
             WithinIteration = false;
         }
 
+        /// <summary>
+        /// Used to react on a failure occurred on a task.
+        /// It gets a failed task as input and in response it produces zero or more failure events.
+        /// </summary>
+        /// <param name="task">The failed task</param>
+        /// <param name="failureEvents">A list of events encoding the type of actions to be triggered so far</param>
+        /// <exception cref="Exception">If the task failure cannot be properly handled</exception>
         public override void OnTaskFailure(IFailedTask task, ref List<IFailureEvent> failureEvents)
         {
             if (_next != null)

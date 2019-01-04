@@ -60,7 +60,6 @@ namespace Org.Apache.REEF.Network.Elastic.Driver.Default
 
         public void OnNext(IAllocatedEvaluator allocatedEvaluator)
         {
-            Thread.Sleep(10000);
             if (TaskSetManager.TryGetNextTaskContextId(allocatedEvaluator, out string identifier))
             {
                 IConfiguration contextConf = ContextConfiguration.ConfigurationModule

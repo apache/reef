@@ -32,6 +32,8 @@ using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Network.Elastic.Config;
 using System.Globalization;
 using Org.Apache.REEF.Tang.Util;
+using Org.Apache.REEF.Tang.Exceptions;
+using Org.Apache.REEF.Network.Elastic.Operators.Physical.Enum;
 
 namespace Org.Apache.REEF.Network.Elastic.Operators.Logical.Default
 {
@@ -106,14 +108,6 @@ namespace Org.Apache.REEF.Network.Elastic.Operators.Logical.Default
                             LOGGER.Log(Level.Info, $"{taskId} joins the topology for operator {_id}");
 
                             _topology.AddTask(taskId, _failureMachine);
-
-                            if (_stop)
-                            {
-                                if (_failureMachine.State.FailureState < (int)DefaultFailureStates.Fail)
-                                {
-                                    _stop = false;
-                                }
-                            }
                         }
 
                         return true;
@@ -129,20 +123,27 @@ namespace Org.Apache.REEF.Network.Elastic.Operators.Logical.Default
 
                         LOGGER.Log(Level.Info, $"Received topology update request for {OperatorName} {_id} from {message.TaskId}");
 
-                        if (!_stop)
+                        _topology.TopologyUpdateResponse(message.TaskId, ref returnMessages, Optional<IFailureStateMachine>.Of(_failureMachine));
+
+                        if (_stop)
                         {
-                            _topology.TopologyUpdateResponse(message.TaskId, ref returnMessages, Optional<IFailureStateMachine>.Of(_failureMachine));
-                        }
-                        else
-                        {
-                            LOGGER.Log(Level.Info, $"Operator {OperatorName} is in stopped: Waiting.");
+                            if (_failureMachine.State.FailureState < (int)DefaultFailureStates.StopAndReschedule)
+                            {
+                                _stop = false;
+                            }
+                            else
+                            {
+                                returnMessages.Clear();
+                                LOGGER.Log(Level.Info, $"Operator {OperatorName} is in stopped: Waiting.");
+                            }
                         }
 
                         return true;
                     }
                 case TaskMessageType.CompleteStage:
                     {
-                        Stage.IsCompleted = true;
+                        _failureMachine.Complete();
+                        Stage.Complete();
 
                         return true;
                     }

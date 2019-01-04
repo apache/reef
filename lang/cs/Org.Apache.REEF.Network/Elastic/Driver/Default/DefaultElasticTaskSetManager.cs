@@ -725,9 +725,17 @@ namespace Org.Apache.REEF.Network.Elastic.Driver.Default
                 var returnMessages = new List<IElasticDriverMessage>();
                 _hasProgress = true;
 
-                foreach (var stage in _stages.Values)
+                try
                 {
-                    stage.OnTaskMessage(message, ref returnMessages);
+                    foreach (var stage in _stages.Values)
+                    {
+                        stage.OnTaskMessage(message, ref returnMessages);
+                    }
+                }
+                catch (IllegalStateException e)
+                {
+                    LOGGER.Log(Level.Error, e.Message, e);
+                    Fail(message.TaskId);
                 }
 
                 SendToTasks(returnMessages);
@@ -821,6 +829,7 @@ namespace Org.Apache.REEF.Network.Elastic.Driver.Default
         /// </summary>
         /// <param name="task">The failed task</param>
         /// <param name="failureEvents">A list of events encoding the type of actions to be triggered so far</param>
+        /// <exception cref="Exception">If the task failure cannot be properly handled</exception>
 
         public void OnTaskFailure(IFailedTask task, ref List<IFailureEvent> failureEvents)
         {
@@ -856,9 +865,17 @@ namespace Org.Apache.REEF.Network.Elastic.Driver.Default
                         _taskInfos[id].SetTaskStatus(TaskState.Failed);
                     }
 
-                    foreach (var stage in _taskInfos[id].Stages)
+                    try
                     {
-                        stage.OnTaskFailure(task, ref failureEvents);
+                        foreach (var stage in _taskInfos[id].Stages)
+                        {
+                            stage.OnTaskFailure(task, ref failureEvents);
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        LOGGER.Log(Level.Error, e.Message, e);
+                        Fail(task.Id);
                     }
 
                     // Failures have to be propagated up to the context

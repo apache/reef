@@ -196,6 +196,7 @@ namespace Org.Apache.REEF.Network.Elastic.Operators.Logical
         /// <param name="message">The task message for the operator</param>
         /// <param name="returnMessages">A list of messages containing the instructions for the task</param>
         /// <returns>True if the message was managed correctly, false otherwise</returns>
+        /// <exception cref="IllegalStateException">If the message cannot be handled correctly or generate an incorrent state</exception>
         public void OnTaskMessage(ITaskMessage message, ref List<IElasticDriverMessage> returnMessages)
         {
             var hasReacted = ReactOnTaskMessage(message, ref returnMessages);
@@ -214,17 +215,18 @@ namespace Org.Apache.REEF.Network.Elastic.Operators.Logical
         /// <returns>True if the task is new and is added to the operator</returns>
         public virtual bool AddTask(string taskId)
         {
+            var newTask = false;
+
             if (!_operatorFinalized)
             {
                 throw new IllegalStateException("Operator needs to be finalized before adding tasks.");
             }
 
-            //if (_operatorStateFinalized)
-            //{
-            //    throw new IllegalStateException("Task cannot be added to an operator with finalized state.");
-            //}
-
-            var newTask = _topology.AddTask(taskId, _failureMachine);
+            if (!_operatorStateFinalized)
+            {
+                // If state is finalized tasks can join the topology only explicitly.
+                newTask = _topology.AddTask(taskId, _failureMachine);
+            }
 
             if (_next != null)
             {
@@ -331,6 +333,7 @@ namespace Org.Apache.REEF.Network.Elastic.Operators.Logical
         /// </summary>
         /// <param name="task">The failed task</param>
         /// <param name="failureEvents">A list of events encoding the type of actions to be triggered so far</param>
+        /// <exception cref="Exception">If the task failure cannot be properly handled</exception>
         public abstract void OnTaskFailure(IFailedTask task, ref List<IFailureEvent> failureEvents);
 
         /// <summary>

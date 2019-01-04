@@ -307,6 +307,7 @@ namespace Org.Apache.REEF.Network.Elastic.Driver.Default
         /// </summary>
         /// <param name="task">The failed task</param>
         /// <param name="failureEvents">A list of events encoding the type of actions to be triggered so far</param>
+        /// <exception cref="Exception">If the task failure cannot be properly handled</exception>
         public void OnTaskFailure(IFailedTask value, ref List<IFailureEvent> failureEvents)
         {
             var task = value.Id;

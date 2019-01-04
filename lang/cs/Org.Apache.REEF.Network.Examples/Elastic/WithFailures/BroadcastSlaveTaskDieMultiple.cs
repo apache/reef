@@ -26,7 +26,7 @@ namespace Org.Apache.REEF.Network.Examples.Elastic
 {
     public sealed class BroadcastSlaveTaskDieMultiple : DefaultElasticTask
     {
-        private const int _failProb = 80;
+        private const int _failProb = 70;
         private readonly Random _rand = new Random();
 
         [Inject]

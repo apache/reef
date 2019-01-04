@@ -57,7 +57,7 @@ namespace Org.Apache.REEF.Network.Elastic.Driver
         /// <summary>
         /// Whether the stages is completed or not.
         /// </summary>
-        bool IsCompleted { get; set; }
+        bool IsCompleted { get; }
 
         /// <summary>
         /// Whether the stages contains iterations or not.
@@ -132,6 +132,11 @@ namespace Org.Apache.REEF.Network.Elastic.Driver
         /// The task is required to belong to thq stages</param>
         /// <returns>The configuration of the data partition (if any) of the task</returns>
         Optional<IConfiguration> GetPartitionConf(string taskId);
+
+        /// <summary>
+        /// Method used to signal that the stage state can be moved to complete.
+        /// </summary>
+        void Complete();
 
         /// <summary>
         /// Retrieve the log the final statistics of the computation: this is the sum of all 

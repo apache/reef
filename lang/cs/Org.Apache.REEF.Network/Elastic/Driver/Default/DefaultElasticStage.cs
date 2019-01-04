@@ -85,7 +85,6 @@ namespace Org.Apache.REEF.Network.Elastic.Driver.Default
             _tasksAdded = 0;
             _masterTasks = new HashSet<string>();
             _datasetConfiguration = Optional<IConfiguration[]>.Empty();
-            IsCompleted = false;
             Context = elasticService;
             _failureMachine = failureMachine ?? new DefaultFailureStateMachine(numTasks, DefaultFailureStates.Fail);
             FailureState = _failureMachine.State;
@@ -122,7 +121,10 @@ namespace Org.Apache.REEF.Network.Elastic.Driver.Default
         /// <summary>
         /// Whether the stages is completed or not.
         /// </summary>
-        public bool IsCompleted { get; set; }
+        public bool IsCompleted
+        {
+            get { return FailureState.FailureState == (int)DefaultFailureStates.Complete; }
+        }
 
         /// <summary>
         /// Generates an id to uniquely identify operators in the stages.
@@ -333,6 +335,17 @@ namespace Org.Apache.REEF.Network.Elastic.Driver.Default
         }
 
         /// <summary>
+        /// Method used to signal that the stage state can be moved to complete.
+        /// </summary>
+        public void Complete()
+        {
+            lock (_statusLock)
+            {
+                FailureState = FailureState.Merge(_failureMachine.Complete()); 
+            }
+        }
+
+        /// <summary>
         /// Retrieve the log the final statistics of the computation: this is the sum of all 
         /// the stats of all the Operators compising the stage. This method can be called
         /// only once the stages is completed.
@@ -355,6 +368,7 @@ namespace Org.Apache.REEF.Network.Elastic.Driver.Default
         /// </summary>
         /// <param name="message">The task message for the operator</param>
         /// <param name="returnMessages">A list of messages containing the instructions for the task</param>
+        /// <exception cref="IllegalStateException">If the message cannot be handled correctly or generate an incorrent state</exception>
         public void OnTaskMessage(ITaskMessage message, ref List<IElasticDriverMessage> returnMessages)
         {
             int offset = 0;
@@ -389,6 +403,7 @@ namespace Org.Apache.REEF.Network.Elastic.Driver.Default
         /// </summary>
         /// <param name="task">The failed task</param>
         /// <param name="failureEvents">A list of events encoding the type of actions to be triggered so far</param>
+        /// <exception cref="Exception">If the task failure cannot be properly handled</exception>
         public void OnTaskFailure(IFailedTask task, ref List<IFailureEvent> failureEvents)
         {
             // Failures have to be propagated down to the operators
@@ -438,7 +453,7 @@ namespace Org.Apache.REEF.Network.Elastic.Driver.Default
         {
             lock (_statusLock)
             {
-                FailureState.Merge(new DefaultFailureState((int)DefaultFailureStates.ContinueAndReconfigure));
+                FailureState = FailureState.Merge(new DefaultFailureState((int)DefaultFailureStates.ContinueAndReconfigure));
             }
         }
 
@@ -450,7 +465,7 @@ namespace Org.Apache.REEF.Network.Elastic.Driver.Default
         {
             lock (_statusLock)
             {
-                FailureState.Merge(new DefaultFailureState((int)DefaultFailureStates.ContinueAndReschedule));
+                FailureState = FailureState.Merge(new DefaultFailureState((int)DefaultFailureStates.ContinueAndReschedule));
             }
         }
 
@@ -462,7 +477,7 @@ namespace Org.Apache.REEF.Network.Elastic.Driver.Default
         {
             lock (_statusLock)
             {
-                FailureState.Merge(new DefaultFailureState((int)DefaultFailureStates.StopAndReschedule));
+                FailureState = FailureState.Merge(new DefaultFailureState((int)DefaultFailureStates.StopAndReschedule));
             }
         }
 

@@ -62,6 +62,19 @@ namespace Org.Apache.REEF.Network.Elastic.Failures.Default
             { DefaultFailureStates.Fail, 0.80F }
         };
 
+        private static List<int> canMoveToComplete = new List<int>()
+        {
+            (int)DefaultFailureStates.Continue,
+            (int)DefaultFailureStates.ContinueAndReconfigure,
+            (int)DefaultFailureStates.ContinueAndReschedule,
+            (int)DefaultFailureStates.Complete
+        };
+
+        private static List<int> isFinalState = new List<int>()
+        {
+            (int)DefaultFailureStates.Complete
+        };
+
         /// <summary>
         /// Default failure state machine starting with 0 data points and in continue state.
         /// </summary>
@@ -112,6 +125,11 @@ namespace Org.Apache.REEF.Network.Elastic.Failures.Default
         {
             lock (_statusLock)
             {
+                if (isFinalState.Contains(State.FailureState))
+                {
+                    return State;
+                }
+
                 if (isNew)
                 {
                     NumOfDataPoints += points;
@@ -147,6 +165,11 @@ namespace Org.Apache.REEF.Network.Elastic.Failures.Default
 
                 float currentRate = (float)NumOfFailedDataPoints / NumOfDataPoints;
 
+                if (isFinalState.Contains(State.FailureState) && currentRate >= transitionWeights[DefaultFailureStates.StopAndReschedule])
+                {
+                    throw new IllegalStateException("Received remove data point when state is complete: failing.");
+                }
+
                 while (State.FailureState < (int)DefaultFailureStates.Fail &&
                     currentRate > transitionWeights[transitionMapUp[(DefaultFailureStates)State.FailureState]])
                 {
@@ -155,6 +178,26 @@ namespace Org.Apache.REEF.Network.Elastic.Failures.Default
 
                 return State;
             }
+        }
+
+        /// <summary>
+        /// Signal the state machine to move into complete state.
+        /// </summary>
+        public IFailureState Complete()
+        {
+            lock (_statusLock)
+            {
+                if (canMoveToComplete.Contains(State.FailureState))
+                {
+                    State.FailureState = (int)DefaultFailureStates.Complete;
+                }
+                else
+                {
+                    throw new IllegalStateException($"Failure machine cannot move from state {State.FailureState} to Complete: failing.");
+                }
+            }
+
+            return State;
         }
 
         /// <summary>

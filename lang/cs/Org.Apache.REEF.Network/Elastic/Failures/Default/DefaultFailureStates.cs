@@ -34,6 +34,10 @@ namespace Org.Apache.REEF.Network.Elastic.Failures.Default
 
         StopAndReschedule = 3, // When a failre is detected, stop the computation and try to reschedule the task
 
-        Fail = 4 // Fail
+        Fail = 4, // Fail
+
+        Complete = 5 // Complete, final state
+
+
     }
 }

@@ -84,6 +84,11 @@ namespace Org.Apache.REEF.Network.Elastic.Failures
         IFailureState RemoveDataPoints(int points);
 
         /// <summary>
+        /// Signal the state machine to move into complete state.
+        /// </summary>
+        IFailureState Complete();
+
+        /// <summary>
         /// Utility method used to clone the target failure machine.
         /// Only the thresholds are cloned, while the machine state is not.
         /// </summary>

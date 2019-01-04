@@ -212,7 +212,7 @@ namespace Org.Apache.REEF.Network.Elastic.Task
                     if (_operators != null)
                     {
                         // Clean dispose, check that the computation is completed
-                        if (_failed == false)
+                        if (!_failed)
                         {
                             foreach (var op in _operators)
                             {
