@@ -76,11 +76,11 @@ namespace Org.Apache.REEF.Network.Elastic.Operators.Logical
                 .Set(StreamingCodecConfiguration<float[]>.Codec, GenericType<FloatArrayStreamingCodec>.Class)
                 .Build()
             }
-
         };
 
         // For the moment we consider only linear sequences (pipelines) of operators (no branching for e.g., joins)
         protected ElasticOperator _next = null;
+
         protected readonly ElasticOperator _prev;
 
         protected readonly IFailureStateMachine _failureMachine;
@@ -130,9 +130,9 @@ namespace Org.Apache.REEF.Network.Elastic.Operators.Logical
         public int MasterId { get; protected set; }
 
         /// <summary>
-        /// An operator type specific name.
+        /// The operator type.
         /// </summary>
-        public string OperatorName { get; protected set; }
+        public OperatorType OperatorType { get; protected set; }
 
         /// <summary>
         /// Whether the current operator is or is preeceded by an iterator operator.
@@ -190,7 +190,7 @@ namespace Org.Apache.REEF.Network.Elastic.Operators.Logical
         }
 
         /// <summary>
-        /// Method triggered when a task to driver message is received. 
+        /// Method triggered when a task to driver message is received.
         /// This method eventually propagate tasks message through the pipeline.
         /// </summary>
         /// <param name="message">The task message for the operator</param>
@@ -431,7 +431,7 @@ namespace Org.Apache.REEF.Network.Elastic.Operators.Logical
         }
 
         /// <summary>
-        /// Appends the message type to the configuration. 
+        /// Appends the message type to the configuration.
         /// </summary>
         /// <param name="operatorType">The type of the messages the operator is configured to accept</param>
         /// <param name="confBuilder">The configuration builder the message type will be added to</param>
@@ -522,11 +522,11 @@ namespace Org.Apache.REEF.Network.Elastic.Operators.Logical
         }
 
         /// <summary>
-        /// Logs the current operator state. 
+        /// Logs the current operator state.
         /// </summary>
         protected virtual void LogOperatorState()
         {
-            string intro = $"State for Operator {OperatorName} in Stage {Stage.StageName}:\n";
+            string intro = $"State for Operator {OperatorType.ToString()} in Stage {Stage.StageName}:\n";
             string topologyState = $"Topology:\n{_topology.LogTopologyState()}";
             string failureMachineState = "Failure State: " + _failureMachine.State.FailureState +
                     "\nFailure(s) Reported: " + _failureMachine.NumOfFailedDataPoints;
@@ -543,7 +543,7 @@ namespace Org.Apache.REEF.Network.Elastic.Operators.Logical
         }
 
         /// <summary>
-        /// Binding from logical to physical operator. 
+        /// Binding from logical to physical operator.
         /// </summary>
         /// <param name="builder">The configuration builder the binding will be added to</param>
         protected abstract void PhysicalOperatorConfiguration(ref ICsConfigurationBuilder builder);
@@ -557,7 +557,8 @@ namespace Org.Apache.REEF.Network.Elastic.Operators.Logical
                 case TopologyType.Flat:
                     topology = new FlatTopology(MasterId);
                     break;
-                default: throw new ArgumentException(nameof(topologyType), $"Topology type {topologyType} not supported by {OperatorName}.");
+
+                default: throw new ArgumentException(nameof(topologyType), $"Topology type {topologyType} not supported by {OperatorType.ToString()}.");
             }
 
             return topology;

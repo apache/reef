@@ -46,7 +46,8 @@ namespace Org.Apache.REEF.Network.Examples.Elastic
             stage = stage.Build();
 
             // Create the task manager
-            TaskSetManager = Context.CreateNewTaskSetManager(MasterTaskConfiguration, SlaveTaskConfiguration);
+            TaskSetManager = Context.CreateNewTaskSetManager(
+                MasterTaskConfiguration, SlaveTaskConfiguration);
 
             // Register the stage to the task manager
             TaskSetManager.AddStage(stage);

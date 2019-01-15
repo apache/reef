@@ -15,12 +15,10 @@
 // specific language governing permissions and limitations
 // under the License.
 
-using Org.Apache.REEF.Network.Elastic.Config;
 using Org.Apache.REEF.Network.Elastic.Failures;
 using Org.Apache.REEF.Network.Elastic.Operators;
 using Org.Apache.REEF.Network.Elastic.Operators.Physical;
 using Org.Apache.REEF.Tang.Annotations;
-using Org.Apache.REEF.Tang.Exceptions;
 using Org.Apache.REEF.Utilities.Attributes;
 using Org.Apache.REEF.Utilities.Logging;
 using System;
@@ -28,26 +26,27 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+using static Org.Apache.REEF.Network.Elastic.Config.GroupCommunicationConfigurationOptions;
 
 namespace Org.Apache.REEF.Network.Elastic.Task
 {
     /// <summary>
     /// Task-side representation of the the sequence of group communication operations to execute.
-    /// Exception rised during execution are managed by the framework and recovered through the user-defined
-    /// policies / mechanisms.
+    /// Exception rised during execution are managed by the framework and recovered through
+    /// the user-defined policies / mechanisms.
     /// </summary>
     [Unstable("0.16", "API may change")]
-    public sealed class Workflow : IEnumerator<IElasticOperator>
+    public sealed class Workflow : IEnumerator<IElasticOperator>, IEnumerable<IElasticOperator>
     {
         private static readonly Logger LOGGER = Logger.GetLogger(typeof(Workflow));
 
         private int _position = -1;
-        private bool _failed;
-        private bool _disposed;
-        private List<int> _iteratorsPosition;
+        private bool _failed = false;
+        private bool _disposed = false;
+        private List<int> _iteratorsPosition = new List<int>();
 
-        private readonly object _lock;
-        private readonly IList<IElasticOperator> _operators;
+        private readonly object _lock = new object();
+        private readonly IList<IElasticOperator> _operators = new List<IElasticOperator>();
         private readonly CancellationSource _cancellationSource;
         private readonly bool _isRescheduled;
 
@@ -57,36 +56,11 @@ namespace Org.Apache.REEF.Network.Elastic.Task
         /// <param name="cancellationSource"></param>
         [Inject]
         private Workflow(
-            [Parameter(typeof(GroupCommunicationConfigurationOptions.IsRescheduled))] bool isRescheduled,
+            [Parameter(typeof(IsRescheduled))] bool isRescheduled,
             CancellationSource cancellationSource)
         {
-            _operators = new List<IElasticOperator>();
-            _failed = false;
-            _disposed = false;
-            _lock = new object();
-            _iteratorsPosition = new List<int>();
             _cancellationSource = cancellationSource;
             _isRescheduled = isRescheduled;
-        }
-
-        /// <summary>
-        /// The current iteration value.
-        /// </summary>
-        public object Iteration
-        {
-            get
-            {
-                if (_iteratorsPosition.Count == 0)
-                {
-                    return 0;
-                }
-                else
-                {
-                    var iterPos = _iteratorsPosition[0];
-                    var iterator = _operators[iterPos] as IElasticIterator;
-                    return iterator.Current;
-                }
-            }
         }
 
         /// <summary>
@@ -126,8 +100,10 @@ namespace Org.Apache.REEF.Network.Elastic.Task
                 }
             }
 
-            // In case we have one or zero iterators (or we are at the last iterator when multiple iterators exists)
-            if (_position >= _operators.Count || (_iteratorsPosition.Count > 1 && _position == _iteratorsPosition[1]))
+            // In case we have one or zero iterators
+            // (or we are at the last iterator when multiple iterators exists)
+            if (_position >= _operators.Count ||
+                (_iteratorsPosition.Count > 1 && _position == _iteratorsPosition[1]))
             {
                 if (_iteratorsPosition.Count == 0)
                 {
@@ -150,14 +126,16 @@ namespace Org.Apache.REEF.Network.Elastic.Task
         }
 
         /// <summary>
-        /// Method used to make the framework aware that an exception as been thrown during execution.
+        /// Method used to make the framework aware that an exception as been thrown
+        /// during execution.
         /// </summary>
         /// <param name="e">The rised exception</param>
         public void Throw(Exception e)
         {
             if (_cancellationSource.IsCancelled)
             {
-                LOGGER.Log(Level.Warning, "Workflow captured an exception while cancellation source was true.", e);
+                LOGGER.Log(Level.Warning,
+                    "Workflow captured an exception while cancellation source was true.", e);
             }
             else
             {
@@ -216,26 +194,18 @@ namespace Org.Apache.REEF.Network.Elastic.Task
                         {
                             foreach (var op in _operators)
                             {
-                                if (op != null)
-                                {
-                                    op.WaitCompletionBeforeDisposing();
-                                }
-                            }
-                        }
-
-                        foreach (var op in _operators)
-                        {
-                            if (op != null)
-                            {
-                                var disposableOperator = op as IDisposable;
-
-                                disposableOperator.Dispose();
+                                op?.WaitCompletionBeforeDisposing();
                             }
                         }
                     }
 
-                    _disposed = true;
+                    foreach (var op in _operators)
+                    {
+                        op?.Dispose();
+                    }
                 }
+
+                _disposed = true;
             }
         }
 
@@ -258,7 +228,7 @@ namespace Org.Apache.REEF.Network.Elastic.Task
                 iterator.RegisterActionOnTaskRescheduled(op.OnTaskRescheduled);
             }
 
-            if (op.OperatorName == Constants.Iterate)
+            if (op.OperatorType == OperatorType.Iterate)
             {
                 _iteratorsPosition.Add(_operators.Count - 1);
             }
@@ -271,16 +241,9 @@ namespace Org.Apache.REEF.Network.Elastic.Task
         /// <param name="cancellationSource">The signal to cancel the operation</param>
         internal void WaitForTaskRegistration(CancellationTokenSource cancellationSource = null)
         {
-            try
+            foreach (var op in _operators)
             {
-                foreach (var op in _operators)
-                {
-                    op.WaitForTaskRegistration(cancellationSource);
-                }
-            }
-            catch (OperationCanceledException e)
-            {
-                throw e;
+                op.WaitForTaskRegistration(cancellationSource);
             }
         }
 
@@ -293,6 +256,16 @@ namespace Org.Apache.REEF.Network.Elastic.Task
             {
                 _operators[pos].ResetPosition();
             }
+        }
+
+        public IEnumerator<IElasticOperator> GetEnumerator()
+        {
+            return this;
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return this;
         }
     }
 }

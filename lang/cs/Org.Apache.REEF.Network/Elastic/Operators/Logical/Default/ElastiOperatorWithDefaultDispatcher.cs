@@ -107,6 +107,7 @@ namespace Org.Apache.REEF.Network.Elastic.Operators.Logical.Default
                     case DefaultFailureStates.ContinueAndReconfigure:
                         failureEvents.Add(new ReconfigureEvent(task, _id));
                         break;
+
                     case DefaultFailureStates.ContinueAndReschedule:
                         if (failedOperatorId == _id)
                         {
@@ -117,6 +118,7 @@ namespace Org.Apache.REEF.Network.Elastic.Operators.Logical.Default
                             failureEvents.Add(@event);
                         }
                         break;
+
                     case DefaultFailureStates.StopAndReschedule:
                         {
                             var @event = new StopEvent(task.Id);
@@ -127,9 +129,11 @@ namespace Org.Apache.REEF.Network.Elastic.Operators.Logical.Default
                             failureEvents.Add(@event);
                         }
                         break;
+
                     case DefaultFailureStates.Fail:
                         failureEvents.Add(new FailEvent(task.Id));
                         break;
+
                     default:
                         LOGGER.Log(Level.Info, $"Failure from {task.Id} requires no action");
                         break;
@@ -175,14 +179,17 @@ namespace Org.Apache.REEF.Network.Elastic.Operators.Logical.Default
                         var rec = @event as ReconfigureEvent;
                         OnReconfigure(ref rec);
                         break;
+
                     case DefaultFailureStateEvents.Reschedule:
                         var res = @event as RescheduleEvent;
                         OnReschedule(ref res);
                         break;
+
                     case DefaultFailureStateEvents.Stop:
                         var stp = @event as StopEvent;
                         OnStop(ref stp);
                         break;
+
                     default:
                         OnFail();
                         break;
@@ -238,17 +245,18 @@ namespace Org.Apache.REEF.Network.Elastic.Operators.Logical.Default
                 case (int)DefaultFailureStates.ContinueAndReconfigure:
                 case (int)DefaultFailureStates.ContinueAndReschedule:
                     return true;
+
                 default:
                     return false;
             }
         }
 
         /// <summary>
-        /// Logs the current operator state. 
+        /// Logs the current operator state.
         /// </summary>
         protected override void LogOperatorState()
         {
-            string intro = $"State for Operator {OperatorName} in Stage {Stage.StageName}:\n";
+            string intro = $"State for Operator {OperatorType.ToString()} in Stage {Stage.StageName}:\n";
             string topologyState = $"Topology:\n{_topology.LogTopologyState()}\n";
             string failureMachineState = $"Failure State: {(DefaultFailureStates)_failureMachine.State.FailureState}" +
                     $"\nFailure(s) Reported: {_failureMachine.NumOfFailedDataPoints}/{_failureMachine.NumOfDataPoints}";

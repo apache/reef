@@ -16,6 +16,7 @@
 // under the License.
 
 using Org.Apache.REEF.Utilities.Attributes;
+using System;
 
 namespace Org.Apache.REEF.Network.Elastic.Operators
 {
@@ -23,14 +24,32 @@ namespace Org.Apache.REEF.Network.Elastic.Operators
     /// Constants labeling the set of available operators.
     /// </summary>
     [Unstable("0.16", "Constants may change")]
-    public static class Constants
+    public enum OperatorType : int
     {
-        public const string Broadcast = "broadcast";
-        public const string Reduce = "reduce";
-        public const string AggregationRing = "aggregation ring";
-        public const string Iterate = "iterate";
-        public const string Scatter = "scatter";
-        public const string Gather = "gather";
-        public const string Empty = "empty";
+        Empty = 0,
+        Broadcast = 1,
+        Reduce = 2,
+        AggregationRing = 3,
+        Iterate = 4,
+        Scatter = 5,
+        Gather = 6
+    }
+
+    public static class OperatorTypeToString
+    {
+        public static string ToString(this OperatorType type)
+        {
+            switch (type)
+            {
+                case OperatorType.Empty: return "Empty";
+                case OperatorType.Broadcast: return "Broadcast";
+                case OperatorType.Reduce: return "Reduce";
+                case OperatorType.AggregationRing: return "AggregationRing";
+                case OperatorType.Iterate: return "Iterate";
+                case OperatorType.Scatter: return "Scatter";
+                case OperatorType.Gather: return "Gather";
+                default: throw new ArgumentException($"Operator type {type} not found");
+            }
+        }
     }
 }

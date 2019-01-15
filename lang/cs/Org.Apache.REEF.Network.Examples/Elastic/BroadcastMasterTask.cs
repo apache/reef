@@ -21,11 +21,14 @@ using Org.Apache.REEF.Network.Elastic.Task;
 using Org.Apache.REEF.Network.Elastic.Operators;
 using Org.Apache.REEF.Network.Elastic.Operators.Physical;
 using Org.Apache.REEF.Network.Elastic.Task.Default;
+using Org.Apache.REEF.Utilities.Logging;
 
 namespace Org.Apache.REEF.Network.Examples.Elastic
 {
     public sealed class BroadcastMasterTask : DefaultElasticTask
     {
+        private static readonly Logger LOGGER = Logger.GetLogger(typeof(BroadcastMasterTask));
+
         [Inject]
         private BroadcastMasterTask(CancellationSource source, IElasticContext context)
             : base(source, context, "Broadcast")
@@ -37,21 +40,23 @@ namespace Org.Apache.REEF.Network.Examples.Elastic
             var rand = new Random();
             int number = 0;
 
-            while (workflow.MoveNext())
+            foreach (var op in workflow)
             {
                 number = rand.Next();
 
-                switch (workflow.Current.OperatorName)
+                switch (op.OperatorType)
                 {
-                    case Constants.Broadcast:
+                    case OperatorType.Broadcast:
                         var sender = workflow.Current as IElasticBroadcast<int>;
 
                         sender.Send(number);
 
-                        Console.WriteLine($"Master has sent {number}");
+                        LOGGER.Log(Level.Info, $"Master has sent {number}");
                         break;
+
                     default:
-                        throw new InvalidOperationException($"Operation {workflow.Current} in workflow not implemented.");
+                        throw new InvalidOperationException(
+                            $"Operation {workflow.Current} in workflow not implemented.");
                 }
             }
         }

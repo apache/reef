@@ -44,10 +44,18 @@ namespace Org.Apache.REEF.Network.Examples.Elastic
 
             failureMachine.SetThreasholds(new Tuple<IFailureState, float>[]
             {
-                Tuple.Create(new DefaultFailureState((int)DefaultFailureStates.ContinueAndReconfigure) as IFailureState, 0.01F),
-                Tuple.Create(new DefaultFailureState((int)DefaultFailureStates.ContinueAndReschedule) as IFailureState, 0.40F),
-                Tuple.Create(new DefaultFailureState((int)DefaultFailureStates.StopAndReschedule) as IFailureState, 0.60F),
-                Tuple.Create(new DefaultFailureState((int)DefaultFailureStates.Fail) as IFailureState, 0.601F)
+                Tuple.Create(
+                    new DefaultFailureState(
+                        (int)DefaultFailureStates.ContinueAndReconfigure) as IFailureState, 0.01F),
+                Tuple.Create(
+                    new DefaultFailureState(
+                        (int)DefaultFailureStates.ContinueAndReschedule) as IFailureState, 0.40F),
+                Tuple.Create(
+                    new DefaultFailureState(
+                        (int)DefaultFailureStates.StopAndReschedule) as IFailureState, 0.60F),
+                Tuple.Create(
+                    new DefaultFailureState(
+                        (int)DefaultFailureStates.Fail) as IFailureState, 0.80F)
             });
 
             IElasticStage stage = Context.CreateNewStage(stageName, numEvaluators, failureMachine);
@@ -61,7 +69,8 @@ namespace Org.Apache.REEF.Network.Examples.Elastic
             stage = stage.Build();
 
             // Create the task manager
-            TaskSetManager = Context.CreateNewTaskSetManager(MasterTaskConfiguration, SlaveTaskConfiguration);
+            TaskSetManager = Context.CreateNewTaskSetManager(
+                MasterTaskConfiguration, SlaveTaskConfiguration);
 
             // Register the stage to the task manager
             TaskSetManager.AddStage(stage);

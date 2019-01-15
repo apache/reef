@@ -56,7 +56,7 @@ namespace Org.Apache.REEF.Network.Elastic.Operators.Logical.Default
                 checkpointLevel,
                 configurations)
         {
-            OperatorName = Constants.Broadcast;
+            OperatorType = OperatorType.Broadcast;
         }
 
         /// <summary>
@@ -77,7 +77,7 @@ namespace Org.Apache.REEF.Network.Elastic.Operators.Logical.Default
         }
 
         /// <summary>
-        /// Binding from logical to physical operator. 
+        /// Binding from logical to physical operator.
         /// </summary>
         /// <param name="confBuilder">The configuration builder the binding will be added to</param>
         protected override void PhysicalOperatorConfiguration(ref ICsConfigurationBuilder confBuilder)

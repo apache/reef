@@ -21,11 +21,13 @@ using Org.Apache.REEF.Network.Elastic.Task;
 using Org.Apache.REEF.Network.Elastic.Operators.Physical;
 using Org.Apache.REEF.Network.Elastic.Operators;
 using Org.Apache.REEF.Network.Elastic.Task.Default;
+using Org.Apache.REEF.Utilities.Logging;
 
 namespace Org.Apache.REEF.Network.Examples.Elastic
 {
     public sealed class BroadcastSlaveTask : DefaultElasticTask
     {
+        private static readonly Logger LOGGER = Logger.GetLogger(typeof(BroadcastSlaveTask));
 
         [Inject]
         public BroadcastSlaveTask(CancellationSource source, IElasticContext context)
@@ -35,19 +37,21 @@ namespace Org.Apache.REEF.Network.Examples.Elastic
 
         protected override void Execute(byte[] memento, Workflow workflow)
         {
-            while (workflow.MoveNext())
+            foreach (var op in workflow)
             {
-                switch (workflow.Current.OperatorName)
+                switch (op.OperatorType)
                 {
-                    case Constants.Broadcast:
+                    case OperatorType.Broadcast:
                         var receiver = workflow.Current as IElasticBroadcast<int>;
 
                         var rec = receiver.Receive();
 
-                        Console.WriteLine($"Slave has received {rec}");
+                        LOGGER.Log(Level.Info, $"Slave has received {rec}");
                         break;
+
                     default:
-                        break;
+                        throw new InvalidOperationException(
+                            $"Operation {workflow.Current} in workflow not implemented.");
                 }
             }
         }

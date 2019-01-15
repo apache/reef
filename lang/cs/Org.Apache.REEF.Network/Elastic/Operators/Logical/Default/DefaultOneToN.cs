@@ -121,7 +121,7 @@ namespace Org.Apache.REEF.Network.Elastic.Operators.Logical.Default
                             return false;
                         }
 
-                        LOGGER.Log(Level.Info, $"Received topology update request for {OperatorName} {_id} from {message.TaskId}");
+                        LOGGER.Log(Level.Info, $"Received topology update request for {OperatorType.ToString()} {_id} from {message.TaskId}");
 
                         _topology.TopologyUpdateResponse(message.TaskId, ref returnMessages, Optional<IFailureStateMachine>.Of(_failureMachine));
 
@@ -134,7 +134,7 @@ namespace Org.Apache.REEF.Network.Elastic.Operators.Logical.Default
                             else
                             {
                                 returnMessages.Clear();
-                                LOGGER.Log(Level.Info, $"Operator {OperatorName} is in stopped: Waiting.");
+                                LOGGER.Log(Level.Info, $"Operator {OperatorType.ToString()} is in stopped: Waiting.");
                             }
                         }
 
@@ -159,7 +159,7 @@ namespace Org.Apache.REEF.Network.Elastic.Operators.Logical.Default
         /// </summary>
         public override void OnReconfigure(ref ReconfigureEvent reconfigureEvent)
         {
-            LOGGER.Log(Level.Info, $"Going to reconfigure the {OperatorName} operator");
+            LOGGER.Log(Level.Info, $"Going to reconfigure the {OperatorType.ToString()} operator");
 
             if (reconfigureEvent.FailedTask.IsPresent())
             {

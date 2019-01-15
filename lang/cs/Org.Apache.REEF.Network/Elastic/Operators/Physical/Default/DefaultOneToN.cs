@@ -69,9 +69,9 @@ namespace Org.Apache.REEF.Network.Elastic.Operators.Physical.Default
         public int OperatorId { get; private set; }
 
         /// <summary>
-        /// The operator name.
+        /// The operator type.
         /// </summary>
-        public string OperatorName { get; protected set; }
+        public OperatorType OperatorType { get; protected set; }
 
         /// <summary>
         /// Operator-specific information that is sent to the driver in case of failure.
@@ -166,12 +166,12 @@ namespace Org.Apache.REEF.Network.Elastic.Operators.Physical.Default
         /// <param name="cancellationSource"></param>
         public void WaitForTaskRegistration(CancellationTokenSource cancellationSource)
         {
-            LOGGER.Log(Level.Info, $"Waiting for task registration for {OperatorName} operator.");
+            LOGGER.Log(Level.Info, $"Waiting for task registration for {OperatorType.ToString()} operator.");
             _topology.WaitForTaskRegistration(cancellationSource);
         }
 
         /// <summary>
-        /// Wait until computation is globally completed for this operator 
+        /// Wait until computation is globally completed for this operator
         /// before disposing the object.
         /// </summary>
         public void WaitCompletionBeforeDisposing()

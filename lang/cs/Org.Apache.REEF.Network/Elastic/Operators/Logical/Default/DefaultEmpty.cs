@@ -30,7 +30,7 @@ namespace Org.Apache.REEF.Network.Elastic.Operators.Logical.Default
     /// Empty operator implementing the default failure logic. To use only as root of pipelines.
     /// </summary>
     [Unstable("0.16", "API may change")]
-    class DefaultEmpty : ElasticOperatorWithDefaultDispatcher
+    internal class DefaultEmpty : ElasticOperatorWithDefaultDispatcher
     {
         /// <summary>
         /// Basic constructor for the empty operator.
@@ -40,7 +40,7 @@ namespace Org.Apache.REEF.Network.Elastic.Operators.Logical.Default
         public DefaultEmpty(IElasticStage stage, IFailureStateMachine failureMachine) :
             base(stage, null, new EmptyTopology(), failureMachine)
         {
-            OperatorName = Constants.Empty;
+            OperatorType = OperatorType.Empty;
             MasterId = 1;
             WithinIteration = false;
         }
@@ -61,7 +61,7 @@ namespace Org.Apache.REEF.Network.Elastic.Operators.Logical.Default
         }
 
         /// <summary>
-        /// Logs the current operator state. 
+        /// Logs the current operator state.
         /// </summary>
         protected override void LogOperatorState()
         {
@@ -77,7 +77,7 @@ namespace Org.Apache.REEF.Network.Elastic.Operators.Logical.Default
         }
 
         /// <summary>
-        /// Binding from logical to physical operator. 
+        /// Binding from logical to physical operator.
         /// </summary>
         /// <param name="builder">The configuration builder the binding will be added to</param>
         protected override void PhysicalOperatorConfiguration(ref ICsConfigurationBuilder confBuilder)

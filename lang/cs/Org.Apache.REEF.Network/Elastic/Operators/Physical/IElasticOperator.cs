@@ -29,9 +29,9 @@ namespace Org.Apache.REEF.Network.Elastic.Operators.Physical
     public interface IElasticOperator : IWaitForTaskRegistration, IDisposable
     {
         /// <summary>
-        /// The operator name.
+        /// The operator type.
         /// </summary>
-        string OperatorName { get; }
+        OperatorType OperatorType { get; }
 
         /// <summary>
         /// The operator identifier.
@@ -54,7 +54,7 @@ namespace Org.Apache.REEF.Network.Elastic.Operators.Physical
         CancellationTokenSource CancellationSource { get; set; }
 
         /// <summary>
-        /// Wait until computation is globally completed for this operator 
+        /// Wait until computation is globally completed for this operator
         /// before disposing the object.
         /// </summary>
         void WaitCompletionBeforeDisposing();

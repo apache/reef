@@ -21,11 +21,15 @@ using Org.Apache.REEF.Network.Elastic.Task;
 using Org.Apache.REEF.Network.Elastic.Operators.Physical;
 using Org.Apache.REEF.Network.Elastic.Operators;
 using Org.Apache.REEF.Network.Elastic.Task.Default;
+using Org.Apache.REEF.Utilities.Logging;
 
 namespace Org.Apache.REEF.Network.Examples.Elastic
 {
     public sealed class BroadcastSlaveTaskDieMultiple : DefaultElasticTask
     {
+        private static readonly Logger LOGGER = Logger.GetLogger(
+           typeof(BroadcastSlaveTaskDieMultiple));
+
         private const int _failProb = 70;
         private readonly Random _rand = new Random();
 
@@ -43,11 +47,11 @@ namespace Org.Apache.REEF.Network.Examples.Elastic
                 throw new Exception("Die.");
             }
 
-            while (workflow.MoveNext())
+            foreach (var op in workflow)
             {
-                switch (workflow.Current.OperatorName)
+                switch (op.OperatorType)
                 {
-                    case Constants.Broadcast:
+                    case OperatorType.Broadcast:
 
                         if (_rand.Next(100) < _failProb)
                         {
@@ -58,9 +62,10 @@ namespace Org.Apache.REEF.Network.Examples.Elastic
 
                         var rec = receiver.Receive();
 
-                        Console.WriteLine($"Slave has received {rec}");
+                        LOGGER.Log(Level.Info, $"Slave has received {rec}");
 
                         break;
+
                     default:
                         break;
                 }

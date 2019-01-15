@@ -21,33 +21,29 @@ using Org.Apache.REEF.Network.Elastic.Task;
 using Org.Apache.REEF.Network.Elastic.Operators.Physical;
 using Org.Apache.REEF.Network.Elastic.Operators;
 using Org.Apache.REEF.Network.Elastic.Task.Default;
-using Org.Apache.REEF.Common.Tasks;
-using Org.Apache.REEF.Network.Elastic;
 using Org.Apache.REEF.Utilities.Logging;
 
 namespace Org.Apache.REEF.Network.Examples.Elastic
 {
-    public sealed class BroadcastSlaveTaskDieEvaluatorBeforeWorkflow : DefaultElasticTask
+    public sealed class BroadcastSlaveTaskDieMultipleEvaluators : DefaultElasticTask
     {
         private static readonly Logger LOGGER = Logger.GetLogger(
-           typeof(BroadcastSlaveTaskDieEvaluatorBeforeWorkflow));
+            typeof(BroadcastSlaveTaskDieMultipleEvaluators));
 
-        private readonly string _taskId;
+        private const int _failProb = 50;
+        private readonly Random _rand = new Random();
 
         [Inject]
-        public BroadcastSlaveTaskDieEvaluatorBeforeWorkflow(
-            [Parameter(typeof(TaskConfigurationOptions.Identifier))] string taskId,
+        public BroadcastSlaveTaskDieMultipleEvaluators(
             CancellationSource source, IElasticContext context)
             : base(source, context, "Broadcast")
         {
-            _taskId = taskId;
         }
 
         protected override void Execute(byte[] memento, Workflow workflow)
         {
-            if (Utils.GetTaskNum(_taskId) == 2)
+            if (_rand.Next(100) < _failProb)
             {
-                Console.WriteLine("Die before workflow.");
                 Environment.Exit(0);
             }
 
@@ -56,11 +52,22 @@ namespace Org.Apache.REEF.Network.Examples.Elastic
                 switch (op.OperatorType)
                 {
                     case OperatorType.Broadcast:
+
+                        if (_rand.Next(100) < _failProb)
+                        {
+                            Environment.Exit(0);
+                        }
+
                         var receiver = workflow.Current as IElasticBroadcast<int>;
 
                         var rec = receiver.Receive();
 
                         LOGGER.Log(Level.Info, $"Slave has received {rec}");
+
+                        if (_rand.Next(100) < _failProb)
+                        {
+                            Environment.Exit(0);
+                        }
                         break;
 
                     default:

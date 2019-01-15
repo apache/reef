@@ -22,19 +22,20 @@ using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Tang.Util;
 using Org.Apache.REEF.Network.Elastic.Driver;
 using Org.Apache.REEF.Common.Tasks;
-using Org.Apache.REEF.Network.Elastic.Config;
+using static Org.Apache.REEF.Network.Elastic.Config.ElasticServiceConfigurationOptions;
 
 namespace Org.Apache.REEF.Network.Examples.Elastic
 {
     /// <summary>
     /// Example implementation of broadcasting using the elastic group communication service.
     /// </summary>
-    public sealed class ElasticBroadcastDriverWithMultipleFailures : ElasticBroadcastDriverWithFailures
+    public sealed class ElasticBroadcastDriverWithMultipleFailures :
+        ElasticBroadcastDriverWithFailures
     {
         [Inject]
         private ElasticBroadcastDriverWithMultipleFailures(
-            [Parameter(typeof(ElasticServiceConfigurationOptions.DefaultStageName))] string stageName,
-            [Parameter(typeof(ElasticServiceConfigurationOptions.NumEvaluators))] int numEvaluators, 
+            [Parameter(typeof(DefaultStageName))] string stageName,
+            [Parameter(typeof(NumEvaluators))] int numEvaluators,
             IElasticContext context) : base(stageName, numEvaluators, context)
         {
         }

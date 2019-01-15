@@ -15,19 +15,23 @@
 // specific language governing permissions and limitations
 // under the License.
 
-using System;
-using Org.Apache.REEF.Tang.Annotations;
-using Org.Apache.REEF.Network.Elastic.Task;
-using Org.Apache.REEF.Network.Elastic.Operators.Physical;
-using Org.Apache.REEF.Network.Elastic.Operators;
-using Org.Apache.REEF.Network.Elastic.Task.Default;
 using Org.Apache.REEF.Common.Tasks;
 using Org.Apache.REEF.Network.Elastic;
+using Org.Apache.REEF.Network.Elastic.Operators;
+using Org.Apache.REEF.Network.Elastic.Operators.Physical;
+using Org.Apache.REEF.Network.Elastic.Task;
+using Org.Apache.REEF.Network.Elastic.Task.Default;
+using Org.Apache.REEF.Tang.Annotations;
+using Org.Apache.REEF.Utilities.Logging;
+using System;
 
 namespace Org.Apache.REEF.Network.Examples.Elastic
 {
     public sealed class BroadcastSlaveTaskDieAfterBroadcast : DefaultElasticTask
     {
+        private static readonly Logger LOGGER = Logger.GetLogger(
+            typeof(BroadcastSlaveTaskDieAfterBroadcast));
+
         private readonly string _taskId;
 
         [Inject]
@@ -41,17 +45,17 @@ namespace Org.Apache.REEF.Network.Examples.Elastic
 
         protected override void Execute(byte[] memento, Workflow workflow)
         {
-            while (workflow.MoveNext())
+            foreach (var op in workflow)
             {
-                switch (workflow.Current.OperatorName)
+                switch (op.OperatorType)
                 {
-                    case Constants.Broadcast:
+                    case OperatorType.Broadcast:
 
                         var receiver = workflow.Current as IElasticBroadcast<int>;
 
                         var rec = receiver.Receive();
 
-                        Console.WriteLine($"Slave has received {rec}");
+                        LOGGER.Log(Level.Info, $"Slave has received {rec}");
 
                         if (Utils.GetTaskNum(_taskId) == 2)
                         {
@@ -59,6 +63,7 @@ namespace Org.Apache.REEF.Network.Examples.Elastic
                         }
 
                         break;
+
                     default:
                         break;
                 }

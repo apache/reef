@@ -23,11 +23,15 @@ using Org.Apache.REEF.Network.Elastic.Operators;
 using Org.Apache.REEF.Network.Elastic.Task.Default;
 using Org.Apache.REEF.Common.Tasks;
 using Org.Apache.REEF.Network.Elastic;
+using Org.Apache.REEF.Utilities.Logging;
 
 namespace Org.Apache.REEF.Network.Examples.Elastic
 {
     public sealed class BroadcastSlaveTaskDieBeforeWorkflow : DefaultElasticTask
     {
+        private static readonly Logger LOGGER = Logger.GetLogger(
+           typeof(BroadcastSlaveTaskDieBeforeWorkflow));
+
         private readonly string _taskId;
 
         [Inject]
@@ -46,17 +50,18 @@ namespace Org.Apache.REEF.Network.Examples.Elastic
                 throw new Exception("Die before workflow.");
             }
 
-            while (workflow.MoveNext())
+            foreach (var op in workflow)
             {
-                switch (workflow.Current.OperatorName)
+                switch (op.OperatorType)
                 {
-                    case Constants.Broadcast:
+                    case OperatorType.Broadcast:
                         var receiver = workflow.Current as IElasticBroadcast<int>;
 
                         var rec = receiver.Receive();
 
-                        Console.WriteLine($"Slave has received {rec}");
+                        LOGGER.Log(Level.Info, $"Slave has received {rec}");
                         break;
+
                     default:
                         break;
                 }

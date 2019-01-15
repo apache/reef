@@ -25,7 +25,6 @@ using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Driver.Task;
 using Org.Apache.REEF.Common.Context;
 using Org.Apache.REEF.Utilities.Attributes;
-using System.Threading;
 
 namespace Org.Apache.REEF.Network.Elastic.Driver.Default
 {
