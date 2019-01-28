@@ -82,7 +82,7 @@ under the License.
 
     <scm>
         <connection>scm:git:git@github.com:apache/reef</connection>
-        <developerConnection>scm:git:https://git-wip-us.apache.org/repos/asf/reef</developerConnection>
+        <developerConnection>scm:git:https://gitbox.apache.org/repos/asf/reef</developerConnection>
         <url>scm:git:git@github.com:apache/reef</url>
         <tag>HEAD</tag>
     </scm>

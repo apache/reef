@@ -59,8 +59,8 @@ under the License.
     </release>
     <repository>
       <GitRepository>
-        <location rdf:resource="https://git-wip-us.apache.org/repos/asf/reef.git"/>
-        <browse rdf:resource="https://git-wip-us.apache.org/repos/asf?p=reef.git"/>
+        <location rdf:resource="https://gitbox.apache.org/repos/asf/reef.git"/>
+        <browse rdf:resource="https://gitbox.apache.org/repos/asf?p=reef.git"/>
       </GitRepository>
     </repository>
   </Project>
