@@ -38,7 +38,7 @@ namespace Org.Apache.REEF.Network.Elastic.Task
     [Unstable("0.16", "API may change")]
     public sealed class Workflow : IEnumerator<IElasticOperator>, IEnumerable<IElasticOperator>
     {
-        private static readonly Logger LOGGER = Logger.GetLogger(typeof(Workflow));
+        private static readonly Logger Log = Logger.GetLogger(typeof(Workflow));
 
         private int _position = -1;
         private bool _failed = false;
@@ -134,12 +134,12 @@ namespace Org.Apache.REEF.Network.Elastic.Task
         {
             if (_cancellationSource.IsCancelled)
             {
-                LOGGER.Log(Level.Warning,
+                Log.Log(Level.Warning,
                     "Workflow captured an exception while cancellation source was true.", e);
             }
             else
             {
-                LOGGER.Log(Level.Error, "Workflow captured an exception.", e);
+                Log.Log(Level.Error, "Workflow captured an exception.", e);
                 _failed = true;
 
                 throw new OperatorException(

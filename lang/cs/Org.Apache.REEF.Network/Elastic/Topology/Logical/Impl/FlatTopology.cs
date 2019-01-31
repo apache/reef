@@ -39,7 +39,7 @@ namespace Org.Apache.REEF.Network.Elastic.Topology.Logical.Impl
     [Unstable("0.16", "API may change")]
     public class FlatTopology : ITopology
     {
-        private static readonly Logger LOGGER = Logger.GetLogger(typeof(FlatTopology));
+        private static readonly Logger Log = Logger.GetLogger(typeof(FlatTopology));
 
         private string _rootTaskId = string.Empty;
         private int _rootId;
@@ -322,7 +322,7 @@ namespace Org.Apache.REEF.Network.Elastic.Topology.Logical.Impl
 
                 if (_nodesWaitingToJoinTopology.Count > 0)
                 {
-                    LOGGER.Log(Level.Info,
+                    Log.Log(Level.Info,
                         "Tasks [{0}] are added to topology in iteration {1}",
                         string.Join(",", _nodesWaitingToJoinTopology),
                         _iteration);
@@ -347,7 +347,7 @@ namespace Org.Apache.REEF.Network.Elastic.Topology.Logical.Impl
         /// <param name="iteration">The new iteration number</param>
         public void OnNewIteration(int iteration)
         {
-            LOGGER.Log(Level.Info,
+            Log.Log(Level.Info,
                 "Flat Topology for Operator {0} in Iteration {1} is closed with {2} nodes",
                 OperatorId,
                 iteration - 1,
@@ -402,7 +402,7 @@ namespace Org.Apache.REEF.Network.Elastic.Topology.Logical.Impl
                 var data = new FailureMessagePayload(update, StageName, OperatorId, -1);
                 var returnMessage = new ElasticDriverMessageImpl(_rootTaskId, data);
 
-                LOGGER.Log(Level.Info, "Task {0} is removed from topology", taskId);
+                Log.Log(Level.Info, "Task {0} is removed from topology", taskId);
                 messages.Add(returnMessage);
                 _lostNodesToBeRemoved.Clear();
             }

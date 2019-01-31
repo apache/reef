@@ -27,7 +27,7 @@ namespace Org.Apache.REEF.Network.Examples.Elastic
 {
     public sealed class BroadcastSlaveTaskDieMultipleEvaluators : DefaultElasticTask
     {
-        private static readonly Logger LOGGER = Logger.GetLogger(
+        private static readonly Logger Log = Logger.GetLogger(
             typeof(BroadcastSlaveTaskDieMultipleEvaluators));
 
         private const int _failProb = 50;
@@ -62,7 +62,7 @@ namespace Org.Apache.REEF.Network.Examples.Elastic
 
                         var rec = receiver.Receive();
 
-                        LOGGER.Log(Level.Info, "Slave has received {0}", rec);
+                        Log.Log(Level.Info, "Slave has received {0}", rec);
 
                         if (_rand.Next(100) < _failProb)
                         {

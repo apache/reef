@@ -34,7 +34,7 @@ namespace Org.Apache.REEF.Network.Elastic.Operators.Physical.Default
     [Unstable("0.16", "API may change")]
     public abstract class DefaultOneToN<T>
     {
-        private static readonly Logger LOGGER = Logger.GetLogger(typeof(DefaultOneToN<>));
+        private static readonly Logger Log = Logger.GetLogger(typeof(DefaultOneToN<>));
 
         internal readonly OneToNTopology _topology;
         internal volatile PositionTracker _position;
@@ -127,7 +127,7 @@ namespace Org.Apache.REEF.Network.Elastic.Operators.Physical.Default
 
                 if (isIterative && typedDataMessage.Iteration < (int)IteratorReference.Current)
                 {
-                    LOGGER.Log(Level.Warning, "Received message for iteration {0} but I am already in iteration "
+                    Log.Log(Level.Warning, "Received message for iteration {0} but I am already in iteration "
                         + "{1}: ignoring.", typedDataMessage.Iteration, (int)IteratorReference.Current);
                 }
                 else
@@ -167,7 +167,7 @@ namespace Org.Apache.REEF.Network.Elastic.Operators.Physical.Default
         /// <param name="cancellationSource"></param>
         public void WaitForTaskRegistration(CancellationTokenSource cancellationSource)
         {
-            LOGGER.Log(Level.Info, "Waiting for task registration for {0} operator.", OperatorType.ToString());
+            Log.Log(Level.Info, "Waiting for task registration for {0} operator.", OperatorType.ToString());
             _topology.WaitForTaskRegistration(cancellationSource);
         }
 

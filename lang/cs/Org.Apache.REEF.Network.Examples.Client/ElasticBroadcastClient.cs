@@ -28,24 +28,32 @@ using Org.Apache.REEF.Client.API;
 using Org.Apache.REEF.Client.Local;
 using Org.Apache.REEF.Client.Yarn;
 using Org.Apache.REEF.Network.Elastic.Config;
-using Org.Apache.REEF.Network.Examples.Elastic;
+using Org.Apache.REEF.Network.Elastic.Driver.Default;
 
 namespace Org.Apache.REEF.Network.Examples.Client
 {
-    public class ElasticBroadcastClient
+    internal class JobIdentifiers
     {
-        const string Local = "local";
-        const string Yarn = "yarn";
-        const string DefaultRuntimeFolder = "REEF_LOCAL_RUNTIME";
+        public const string ElastiBroadcast = "ElasticBroadcast";
+        public const string ElastiBroadcastWithFailure = "ElasticBroadcastWithFailure";
+    }
+
+    public sealed class ElasticBroadcastClient<T> where T : DefaultElasticDriver
+    {
+        private const string Local = "local";
+        private const string Yarn = "yarn";
+        private const string DefaultRuntimeFolder = "REEF_LOCAL_RUNTIME";
+        private const string stage = "Broadcast";
 
         public ElasticBroadcastClient(
-            bool runOnYarn, 
-            int numTasks, 
-            int startingPortNo, 
-            int portRange)
+            bool runOnYarn,
+            int numTasks,
+            int startingPortNo,
+            int portRange,
+            string jobIdentifier)
         {
-            const string driverId = "ElasticBroadcastDriver";
-            const string stage = "Broadcast";
+            string driverId = GenericType<T>.Class.ToString();
+            JobIdentifier = jobIdentifier;
 
             IConfiguration driverConfig = TangFactory.GetTang()
                 .NewConfigurationBuilder(GetDriverConf())
@@ -72,20 +80,16 @@ namespace Org.Apache.REEF.Network.Examples.Client
                 .Merge(driverConfig, elsticGroupCommServiceDriverConfig);
 
             string runPlatform = runOnYarn ? "yarn" : "local";
-            TestRun(
-                merged, 
-                typeof(ElasticBroadcastDriver), 
-                numTasks, 
-                JobIdentifier, 
-                runPlatform);
+
+            TestRun(merged, typeof(T), numTasks, JobIdentifier, runPlatform);
         }
 
-        internal static void TestRun(
-            IConfiguration driverConfig, 
-            Type globalAssemblyType, 
-            int numberOfEvaluator, 
-            string jobIdentifier = "myDriver", 
-            string runOnYarn = "local", 
+        private static void TestRun(
+            IConfiguration driverConfig,
+            Type globalAssemblyType,
+            int numberOfEvaluator,
+            string jobIdentifier = "myDriver",
+            string runOnYarn = "local",
             string runtimeFolder = DefaultRuntimeFolder)
         {
             IInjector injector = TangFactory.GetTang()
@@ -101,9 +105,9 @@ namespace Org.Apache.REEF.Network.Examples.Client
             reefClient.SubmitAndGetJobStatus(jobSubmission);
         }
 
-        internal static IConfiguration GetRuntimeConfiguration(
-            string runOnYarn, 
-            int numberOfEvaluator, 
+        private static IConfiguration GetRuntimeConfiguration(
+            string runOnYarn,
+            int numberOfEvaluator,
             string runtimeFolder)
         {
             switch (runOnYarn)
@@ -112,33 +116,32 @@ namespace Org.Apache.REEF.Network.Examples.Client
                     var dir = Path.Combine(".", runtimeFolder);
                     return LocalRuntimeClientConfiguration.ConfigurationModule
                         .Set(
-                            LocalRuntimeClientConfiguration.NumberOfEvaluators, 
+                            LocalRuntimeClientConfiguration.NumberOfEvaluators,
                             numberOfEvaluator.ToString())
                         .Set(LocalRuntimeClientConfiguration.RuntimeFolder, dir)
                         .Build();
+
                 case Yarn:
                     return YARNClientConfiguration.ConfigurationModule.Build();
+
                 default:
                     throw new ArgumentException("Unknown runtime: " + runOnYarn);
             }
         }
 
-        protected virtual string JobIdentifier
-        {
-            get { return "ElasticBroadcast"; }
-        }
+        private string JobIdentifier { get; set; }
 
-        protected virtual IConfiguration GetDriverConf()
+        private IConfiguration GetDriverConf()
         {
             return DriverConfiguration.ConfigurationModule
-                .Set(DriverConfiguration.OnDriverStarted, GenericType<ElasticBroadcastDriver>.Class)
-                .Set(DriverConfiguration.OnEvaluatorAllocated, GenericType<ElasticBroadcastDriver>.Class)
-                .Set(DriverConfiguration.OnEvaluatorFailed, GenericType<ElasticBroadcastDriver>.Class)
-                .Set(DriverConfiguration.OnContextActive, GenericType<ElasticBroadcastDriver>.Class)
-                .Set(DriverConfiguration.OnTaskRunning, GenericType<ElasticBroadcastDriver>.Class)
-                .Set(DriverConfiguration.OnTaskCompleted, GenericType<ElasticBroadcastDriver>.Class)
-                .Set(DriverConfiguration.OnTaskFailed, GenericType<ElasticBroadcastDriver>.Class)
-                .Set(DriverConfiguration.OnTaskMessage, GenericType<ElasticBroadcastDriver>.Class)
+                .Set(DriverConfiguration.OnDriverStarted, GenericType<T>.Class)
+                .Set(DriverConfiguration.OnEvaluatorAllocated, GenericType<T>.Class)
+                .Set(DriverConfiguration.OnEvaluatorFailed, GenericType<T>.Class)
+                .Set(DriverConfiguration.OnContextActive, GenericType<T>.Class)
+                .Set(DriverConfiguration.OnTaskRunning, GenericType<T>.Class)
+                .Set(DriverConfiguration.OnTaskCompleted, GenericType<T>.Class)
+                .Set(DriverConfiguration.OnTaskFailed, GenericType<T>.Class)
+                .Set(DriverConfiguration.OnTaskMessage, GenericType<T>.Class)
                 .Set(DriverConfiguration.CustomTraceLevel, Level.Info.ToString())
                 .Build();
         }

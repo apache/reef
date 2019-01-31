@@ -37,10 +37,10 @@ using Org.Apache.REEF.Wake.StreamingCodec.CommonStreamingCodecs;
 
 namespace Org.Apache.REEF.Network.Examples.GroupCommunication.ScatterReduceDriverAndTasks
 {
-    public class ScatterReduceDriver : 
-        IObserver<IAllocatedEvaluator>, 
-        IObserver<IActiveContext>, 
-        IObserver<IFailedEvaluator>, 
+    public class ScatterReduceDriver :
+        IObserver<IAllocatedEvaluator>,
+        IObserver<IActiveContext>,
+        IObserver<IFailedEvaluator>,
         IObserver<IDriverStarted>
     {
         private static readonly Logger LOGGER = Logger.GetLogger(typeof(ScatterReduceDriver));
@@ -79,12 +79,12 @@ namespace Org.Apache.REEF.Network.Examples.GroupCommunication.ScatterReduceDrive
                     .AddScatter<int>(
                         GroupTestConstants.ScatterOperatorName,
                             GroupTestConstants.MasterTaskId,
-                            TopologyTypes.Tree, 
+                            TopologyTypes.Tree,
                             dataConverterConfig)
                     .AddReduce<int>(
                         GroupTestConstants.ReduceOperatorName,
                         GroupTestConstants.MasterTaskId,
-                        TopologyTypes.Tree, 
+                        TopologyTypes.Tree,
                         reduceFunctionConfig,
                         dataConverterConfig)
 
@@ -142,7 +142,7 @@ namespace Org.Apache.REEF.Network.Examples.GroupCommunication.ScatterReduceDrive
                     .SetMegabytes(512)
                     .SetCores(2)
                     .SetRackName("WonderlandRack")
-                    .SetEvaluatorBatchId("BroadcastEvaluator").Build();   
+                    .SetEvaluatorBatchId("BroadcastEvaluator").Build();
             _evaluatorRequestor.Submit(request);
         }
 

@@ -38,7 +38,7 @@ namespace Org.Apache.REEF.Network.Elastic.Failures
     /// </summary>
     internal sealed class FailuresClock : IClock
     {
-        private static readonly Logger LOGGER = Logger.GetLogger(typeof(FailuresClock));
+        private static readonly Logger Log = Logger.GetLogger(typeof(FailuresClock));
 
         private static int numberOfInstantiations = 0;
 
@@ -85,7 +85,7 @@ namespace Org.Apache.REEF.Network.Elastic.Failures
             ++numberOfInstantiations;
             if (numberOfInstantiations > 1)
             {
-                LOGGER.Log(Level.Warning, "Instantiated `RuntimeClock` instance number {0}", numberOfInstantiations);
+                Log.Log(Level.Warning, "Instantiated `RuntimeClock` instance number {0}", numberOfInstantiations);
             }
         }
 

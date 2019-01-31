@@ -24,16 +24,17 @@ using Org.Apache.REEF.Network.Elastic.Driver;
 using Org.Apache.REEF.Common.Tasks;
 using Org.Apache.REEF.Network.Elastic.Topology.Logical.Enum;
 using Org.Apache.REEF.Network.Elastic.Driver.Default;
+using Org.Apache.REEF.Network.Elastic.Task.Default;
 
 namespace Org.Apache.REEF.Network.Examples.Elastic
 {
     /// <summary>
     /// Example implementation of broadcasting using the elastic group communication service.
     /// </summary>
-    public class ElasticBroadcastDriver : DefaultElasticDriver
+    public sealed class ElasticBroadcastDriver : DefaultElasticDriver
     {
         [Inject]
-        protected ElasticBroadcastDriver(IElasticContext context) : base(context)
+        private ElasticBroadcastDriver(IElasticContext context) : base(context)
         {
             IElasticStage stage = Context.DefaultStage();
 
@@ -56,7 +57,7 @@ namespace Org.Apache.REEF.Network.Examples.Elastic
             TaskSetManager.Build();
         }
 
-        protected virtual Func<string, IConfiguration> MasterTaskConfiguration
+        private Func<string, IConfiguration> MasterTaskConfiguration
         {
             get
             {
@@ -68,7 +69,7 @@ namespace Org.Apache.REEF.Network.Examples.Elastic
             }
         }
 
-        protected virtual Func<string, IConfiguration> SlaveTaskConfiguration
+        private Func<string, IConfiguration> SlaveTaskConfiguration
         {
             get
             {

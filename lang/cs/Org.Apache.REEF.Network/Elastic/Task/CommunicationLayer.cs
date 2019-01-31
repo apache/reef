@@ -38,7 +38,7 @@ namespace Org.Apache.REEF.Network.Elastic.Task.Impl
     internal abstract class CommunicationLayer :
         IObserver<IRemoteMessage<NsMessage<ElasticGroupCommunicationMessage>>>
     {
-        private static readonly Logger LOGGER = Logger.GetLogger(typeof(CommunicationLayer));
+        private static readonly Logger Log = Logger.GetLogger(typeof(CommunicationLayer));
 
         private readonly int _timeout;
         private readonly int _retryRegistration;
@@ -135,7 +135,7 @@ namespace Org.Apache.REEF.Network.Elastic.Task.Impl
             }
             if (_disposed)
             {
-                LOGGER.Log(Level.Warning, "Received send message request after disposing: Ignoring.");
+                Log.Log(Level.Warning, "Received send message request after disposing: Ignoring.");
                 return;
             }
 
@@ -183,31 +183,31 @@ namespace Org.Apache.REEF.Network.Elastic.Task.Impl
             {
                 if (cancellationSource != null && cancellationSource.Token.IsCancellationRequested)
                 {
-                    LOGGER.Log(Level.Warning, "WaitForTaskRegistration is canceled in retryCount {0}.", i);
+                    Log.Log(Level.Warning, "WaitForTaskRegistration is canceled in retryCount {0}.", i);
                     throw new OperationCanceledException("WaitForTaskRegistration is canceled");
                 }
 
-                LOGGER.Log(Level.Info, "WaitForTaskRegistration, in retryCount {0}.", i);
+                Log.Log(Level.Info, "WaitForTaskRegistration, in retryCount {0}.", i);
                 foreach (var identifier in identifiers)
                 {
                     var notFound = !foundList.Contains(identifier);
                     if (notFound && removed.ContainsKey(identifier))
                     {
                         foundList.Add(identifier);
-                        LOGGER.Log(Level.Verbose,
+                        Log.Log(Level.Verbose,
                             "WaitForTaskRegistration, dependent id {0} was removed at loop {1}.", identifier, i);
                     }
                     else if (notFound && Lookup(identifier))
                     {
                         foundList.Add(identifier);
-                        LOGGER.Log(Level.Verbose,
+                        Log.Log(Level.Verbose,
                             "WaitForTaskRegistration, find a dependent id {0} at loop {1}.", identifier, i);
                     }
                 }
 
                 if (foundList.Count >= identifiers.Count)
                 {
-                    LOGGER.Log(Level.Info,
+                    Log.Log(Level.Info,
                         "WaitForTaskRegistration, found all {0} dependent ids at loop {1}.", foundList.Count, i);
                     return;
                 }
@@ -219,7 +219,7 @@ namespace Org.Apache.REEF.Network.Elastic.Task.Impl
                 foundList.Count == 0 ? identifiers : identifiers.Where(e => !foundList.Contains(e)).ToList();
             var msg = string.Join(",", leftovers);
 
-            LOGGER.Log(Level.Error, "Cannot find registered parent/children: {0}.", msg);
+            Log.Log(Level.Error, "Cannot find registered parent/children: {0}.", msg);
             throw new Exception("Failed to find parent/children nodes");
         }
 
@@ -274,7 +274,7 @@ namespace Org.Apache.REEF.Network.Elastic.Task.Impl
 
                 _disposed = true;
 
-                LOGGER.Log(Level.Info, "Communication layer disposed.");
+                Log.Log(Level.Info, "Communication layer disposed.");
             }
         }
 
@@ -293,7 +293,7 @@ namespace Org.Apache.REEF.Network.Elastic.Task.Impl
             }
             catch (Exception e)
             {
-                LOGGER.Log(Level.Warning, "Unable to send message " + e.Message);
+                Log.Log(Level.Warning, "Unable to send message " + e.Message);
                 connection.Dispose();
                 return false;
             }

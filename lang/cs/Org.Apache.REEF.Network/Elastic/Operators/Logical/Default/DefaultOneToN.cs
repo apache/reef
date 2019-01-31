@@ -42,7 +42,7 @@ namespace Org.Apache.REEF.Network.Elastic.Operators.Logical.Default
     [Unstable("0.16", "API may change")]
     internal abstract class DefaultOneToN<T> : ElasticOperatorWithDefaultDispatcher
     {
-        private static readonly Logger LOGGER = Logger.GetLogger(typeof(DefaultOneToN<>));
+        private static readonly Logger Log = Logger.GetLogger(typeof(DefaultOneToN<>));
 
         private volatile bool _stop = false;
 
@@ -103,7 +103,7 @@ namespace Org.Apache.REEF.Network.Elastic.Operators.Logical.Default
                         if (!Stage.IsCompleted && _failureMachine.State.FailureState < (int)DefaultFailureStates.Fail)
                         {
                             var taskId = message.TaskId;
-                            LOGGER.Log(Level.Info, "{0} joins the topology for operator {1}", taskId, _id);
+                            Log.Log(Level.Info, "{0} joins the topology for operator {1}", taskId, _id);
 
                             _topology.AddTask(taskId, _failureMachine);
                         }
@@ -119,7 +119,7 @@ namespace Org.Apache.REEF.Network.Elastic.Operators.Logical.Default
                             return false;
                         }
 
-                        LOGGER.Log(Level.Info, "Received topology update request for {0} {1} from {2}",
+                        Log.Log(Level.Info, "Received topology update request for {0} {1} from {2}",
                             OperatorType.ToString(), _id, message.TaskId);
 
                         _topology.TopologyUpdateResponse(
@@ -136,7 +136,7 @@ namespace Org.Apache.REEF.Network.Elastic.Operators.Logical.Default
                             else
                             {
                                 returnMessages.Clear();
-                                LOGGER.Log(Level.Info, "Operator {0} is in stopped: Waiting.",
+                                Log.Log(Level.Info, "Operator {0} is in stopped: Waiting.",
                                     OperatorType.ToString());
                             }
                         }
@@ -162,7 +162,7 @@ namespace Org.Apache.REEF.Network.Elastic.Operators.Logical.Default
         /// </summary>
         public override void OnReconfigure(ref ReconfigureEvent reconfigureEvent)
         {
-            LOGGER.Log(Level.Info, "Going to reconfigure the {0} operator", OperatorType.ToString());
+            Log.Log(Level.Info, "Going to reconfigure the {0} operator", OperatorType.ToString());
 
             if (reconfigureEvent.FailedTask.IsPresent())
             {
@@ -198,7 +198,7 @@ namespace Org.Apache.REEF.Network.Elastic.Operators.Logical.Default
             // Iterators manage the re-schuedling of tasks. If not iterator exists, setup the rescheduling.
             if (!WithinIteration)
             {
-                LOGGER.Log(Level.Info, "Going to reschedule task {0}", rescheduleEvent.TaskId);
+                Log.Log(Level.Info, "Going to reschedule task {0}", rescheduleEvent.TaskId);
 
                 if (!rescheduleEvent.RescheduleTaskConfigurations.TryGetValue(
                     Stage.StageName,

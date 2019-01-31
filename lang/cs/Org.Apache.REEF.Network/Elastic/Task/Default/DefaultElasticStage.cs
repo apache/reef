@@ -36,7 +36,7 @@ namespace Org.Apache.REEF.Network.Elastic.Task
     [Unstable("0.16", "API may change")]
     internal sealed class DefaultElasticStage : IElasticStage
     {
-        private static readonly Logger LOGGER = Logger.GetLogger(typeof(DefaultElasticStage));
+        private static readonly Logger Log = Logger.GetLogger(typeof(DefaultElasticStage));
 
         private readonly CancellationSource _cancellationSource;
 
@@ -104,7 +104,7 @@ namespace Org.Apache.REEF.Network.Elastic.Task
             }
             catch (OperationCanceledException e)
             {
-                LOGGER.Log(Level.Error, "Stage {0} failed during registration.", StageName);
+                Log.Log(Level.Error, "Stage {0} failed during registration.", StageName);
                 throw e;
             }
         }
@@ -137,7 +137,7 @@ namespace Org.Apache.REEF.Network.Elastic.Task
             {
                 _cancellationSource.Cancel();
 
-                LOGGER.Log(Level.Info, "Received request to close stage ", StageName);
+                Log.Log(Level.Info, "Received request to close stage ", StageName);
             }
         }
     }

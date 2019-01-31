@@ -26,15 +26,19 @@ using Org.Apache.REEF.Network.Elastic.Topology.Logical.Enum;
 using Org.Apache.REEF.Network.Elastic.Driver.Default;
 using Org.Apache.REEF.Network.Elastic.Failures;
 using Org.Apache.REEF.Network.Elastic.Failures.Default;
+using Org.Apache.REEF.Network.Elastic.Task.Default;
 
 namespace Org.Apache.REEF.Network.Examples.Elastic
 {
     /// <summary>
     /// Example implementation of broadcasting using the elastic group communication service.
     /// </summary>
-    public abstract class ElasticBroadcastDriverWithFailures : DefaultElasticDriver
+    public sealed class ElasticBroadcastDriverWithFailures<TSlave>
+        : DefaultElasticDriver
+        where TSlave : DefaultElasticTask
     {
-        protected ElasticBroadcastDriverWithFailures(
+        [Inject]
+        private ElasticBroadcastDriverWithFailures(
             string stageName,
             int numEvaluators,
             IElasticContext context) : base(context)
@@ -78,7 +82,7 @@ namespace Org.Apache.REEF.Network.Examples.Elastic
             TaskSetManager.Build();
         }
 
-        protected virtual Func<string, IConfiguration> MasterTaskConfiguration
+        private Func<string, IConfiguration> MasterTaskConfiguration
         {
             get
             {
@@ -90,13 +94,13 @@ namespace Org.Apache.REEF.Network.Examples.Elastic
             }
         }
 
-        protected virtual Func<string, IConfiguration> SlaveTaskConfiguration
+        private Func<string, IConfiguration> SlaveTaskConfiguration
         {
             get
             {
                 return (taskId) => TangFactory.GetTang().NewConfigurationBuilder(
                     Context.GetTaskConfigurationModule(taskId)
-                        .Set(TaskConfiguration.Task, GenericType<BroadcastSlaveTask>.Class)
+                        .Set(TaskConfiguration.Task, GenericType<TSlave>.Class)
                         .Build())
                     .Build();
             }

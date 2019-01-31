@@ -27,7 +27,7 @@ namespace Org.Apache.REEF.Network.Utilities
 {
     internal class Utils
     {
-        private static readonly Logger LOGGER = Logger.GetLogger(typeof(Utils));
+        private static readonly Logger Log = Logger.GetLogger(typeof(Utils));
 
         /// <summary>
         /// Returns the TaskIdentifier from the Configuration.
@@ -44,7 +44,7 @@ namespace Org.Apache.REEF.Network.Utilities
             }
             catch (InjectionException)
             {
-                LOGGER.Log(Level.Error, "Unable to find task identifier");
+                Log.Log(Level.Error, "Unable to find task identifier");
                 throw;
             }
         }
@@ -64,7 +64,7 @@ namespace Org.Apache.REEF.Network.Utilities
             }
             catch (InjectionException)
             {
-                LOGGER.Log(Level.Error, "Unable to find task identifier");
+                Log.Log(Level.Error, "Unable to find task identifier");
                 throw;
             }
         }

@@ -52,7 +52,7 @@ namespace Org.Apache.REEF.Network.Elastic.Operators.Logical
     [Unstable("0.16", "API may change")]
     public abstract class ElasticOperator : IFailureResponse, ITaskMessageResponse
     {
-        private static readonly Logger LOGGER = Logger.GetLogger(typeof(ElasticOperator));
+        private static readonly Logger Log = Logger.GetLogger(typeof(ElasticOperator));
 
         protected static readonly Dictionary<Type, IConfiguration> CODECMAP = new Dictionary<Type, IConfiguration>()
         {
@@ -552,7 +552,7 @@ namespace Org.Apache.REEF.Network.Elastic.Operators.Logical
             string failureMachineState = "Failure State: " + _failureMachine.State.FailureState +
                     "\nFailure(s) Reported: " + _failureMachine.NumOfFailedDataPoints;
 
-            LOGGER.Log(Level.Info, intro + topologyState + failureMachineState);
+            Log.Log(Level.Info, intro + topologyState + failureMachineState);
         }
 
         /// <summary>

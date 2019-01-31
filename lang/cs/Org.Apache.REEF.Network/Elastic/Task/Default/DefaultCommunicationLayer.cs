@@ -37,7 +37,7 @@ namespace Org.Apache.REEF.Network.Elastic.Task.Impl
         CommunicationLayer,
         IDefaultTaskToDriverMessages
     {
-        private static readonly Logger LOGGER = Logger.GetLogger(typeof(DefaultCommunicationLayer));
+        private static readonly Logger Log = Logger.GetLogger(typeof(DefaultCommunicationLayer));
 
         /// <summary>
         /// Creates a new communication layer.
@@ -71,7 +71,7 @@ namespace Org.Apache.REEF.Network.Elastic.Task.Impl
         {
             if (_disposed)
             {
-                LOGGER.Log(Level.Warning, "Received message after disposing: Ignoring.");
+                Log.Log(Level.Warning, "Received message after disposing: Ignoring.");
                 return;
             }
 

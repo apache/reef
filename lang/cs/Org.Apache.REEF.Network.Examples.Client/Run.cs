@@ -15,6 +15,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
+using Org.Apache.REEF.Network.Examples.Elastic;
 using Org.Apache.REEF.Network.Examples.GroupCommunication;
 using System;
 
@@ -42,7 +43,7 @@ namespace Org.Apache.REEF.Network.Examples.Client
             int numNodes = 5;
             int startPort = 8900;
             int portRange = 1000;
-            string testToRun = "ElasticBroadcastWithFailEvaluatorBeforeWorkflow";
+            string testToRun = TestType.ElasticBroadcastWithFailEvaluatorBeforeWorkflow.ToString();
 
             if (args != null)
             {
@@ -84,11 +85,11 @@ namespace Org.Apache.REEF.Network.Examples.Client
                 }
 
                 new PipelineBroadcastAndReduceClient().RunPipelineBroadcastAndReduce(
-                    runOnYarn, 
-                    numNodes, 
+                    runOnYarn,
+                    numNodes,
                     startPort,
-                    portRange, 
-                    arraySize, 
+                    portRange,
+                    arraySize,
                     chunkSize);
                 Console.WriteLine("PipelineBroadcastAndReduce completed!!!");
             }
@@ -96,76 +97,87 @@ namespace Org.Apache.REEF.Network.Examples.Client
             if (TestType.BroadcastAndReduce.Match(testToRun))
             {
                 new BroadcastAndReduceClient().RunBroadcastAndReduce(
-                    runOnYarn, 
-                    numNodes, 
-                    startPort, 
+                    runOnYarn,
+                    numNodes,
+                    startPort,
                     portRange);
                 Console.WriteLine("BroadcastAndReduce completed!!!");
             }
 
             if (TestType.ElasticBroadcast.Match(testToRun))
             {
-                new ElasticBroadcastClient(runOnYarn, numNodes, startPort, portRange);
+                new ElasticBroadcastClient<ElasticBroadcastDriver>(
+                    runOnYarn,
+                    numNodes,
+                    startPort,
+                    portRange,
+                    JobIdentifiers.ElastiBroadcast);
                 Console.WriteLine("ElasticBroadcast completed!!!");
             }
 
             if (TestType.ElasticBroadcastWithFailureInConstructor.Match(testToRun))
             {
-                new ElasticBroadcastClientWithFailureInConstructor(
-                    runOnYarn, 
-                    numNodes, 
-                    startPort, 
-                    portRange);
+                new ElasticBroadcastClient<ElasticBroadcastDriverWithFailures<BroadcastSlaveTaskDieInConstructor>>(
+                    runOnYarn,
+                    numNodes,
+                    startPort,
+                    portRange,
+                    JobIdentifiers.ElastiBroadcastWithFailure);
                 Console.WriteLine("ElasticBroadcastWithFailureInConstructor completed!!!");
             }
 
             if (TestType.ElasticBroadcastWithFailureBeforeWorkflow.Match(testToRun))
             {
-                new ElasticBroadcastClientWithFailureBeforeWorkflow(
-                    runOnYarn, 
-                    numNodes, 
-                    startPort, 
-                    portRange);
+                new ElasticBroadcastClient<ElasticBroadcastDriverWithFailures<BroadcastSlaveTaskDieBeforeWorkflow>>(
+                    runOnYarn,
+                    numNodes,
+                    startPort,
+                    portRange,
+                    JobIdentifiers.ElastiBroadcastWithFailure);
                 Console.WriteLine("ElasticBroadcastWithFailureBeforeWorkflow completed!!!");
             }
 
             if (TestType.ElasticBroadcastWithFailEvaluatorBeforeWorkflow.Match(testToRun))
             {
-                new ElasticBroadcastClientWithFailEvaluatorBeforeWorkflow(
-                    runOnYarn, 
-                    numNodes, 
-                    startPort, 
-                    portRange);
+                new ElasticBroadcastClient<ElasticBroadcastDriverWithFailures<BroadcastSlaveTaskDieEvaluatorBeforeWorkflow>>(
+                    runOnYarn,
+                    numNodes,
+                    startPort,
+                    portRange,
+                    JobIdentifiers.ElastiBroadcastWithFailure);
                 Console.WriteLine("ElasticBroadcastWithFailEvaluatorBeforeWorkflow completed!!!");
             }
 
             if (TestType.ElasticBroadcastWithFailureBeforeBroadcast.Match(testToRun))
             {
-                new ElasticBroadcastClientWithFailureBeforeBroadcast(
-                    runOnYarn, 
-                    numNodes, 
-                    startPort, 
-                    portRange);
+                new ElasticBroadcastClient<ElasticBroadcastDriverWithFailures<BroadcastSlaveTaskDieBeforeWorkflow>>(
+                    runOnYarn,
+                    numNodes,
+                    startPort,
+                    portRange,
+                    JobIdentifiers.ElastiBroadcastWithFailure);
                 Console.WriteLine("ElasticBroadcastWithFailureBeforeBroadcast completed!!!");
             }
 
             if (TestType.ElasticBroadcastWithFailureAfterBroadcast.Match(testToRun))
             {
-                new ElasticBroadcastClientWithFailureAfterBroadcast(
-                    runOnYarn, 
-                    numNodes, 
-                    startPort, 
-                    portRange);
+                new ElasticBroadcastClient<ElasticBroadcastDriverWithFailures<BroadcastSlaveTaskDieAfterBroadcast>>(
+                    runOnYarn,
+                    numNodes,
+                    startPort,
+                    portRange,
+                    JobIdentifiers.ElastiBroadcastWithFailure);
                 Console.WriteLine("ElasticBroadcastWithFailureAfterBroadcast completed!!!");
             }
 
             if (TestType.ElasticBroadcastWithMultipleFailures.Match(testToRun))
             {
-                new ElasticBroadcastClientWithMultipleFailures(
-                    runOnYarn, 
-                    numNodes, 
-                    startPort, 
-                    portRange);
+                new ElasticBroadcastClient<ElasticBroadcastDriverWithFailures<BroadcastSlaveTaskDieMultiple>>(
+                    runOnYarn,
+                    numNodes,
+                    startPort,
+                    portRange,
+                    JobIdentifiers.ElastiBroadcastWithFailure);
                 Console.WriteLine("ElasticBroadcastWithMultipleFailures completed!!!");
             }
         }

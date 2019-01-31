@@ -94,7 +94,7 @@ namespace Org.Apache.REEF.Network.Elastic.Topology.Physical.Default
                     // If we are here, we weren't able to receive a topology update on time. Retry.
                     if (cancellationSource.IsCancellationRequested)
                     {
-                        LOGGER.Log(Level.Warning, "Received cancellation request: stop sending");
+                        Log.Log(Level.Warning, "Received cancellation request: stop sending");
                         return;
                     }
 

@@ -34,7 +34,7 @@ namespace Org.Apache.REEF.Network.Elastic.Task.Impl
         TaskToDriverMessageDispatcher,
         IDefaultTaskToDriverMessages
     {
-        private static readonly Logger LOGGER = Logger.GetLogger(typeof(DefaultTaskToDriverMessageDispatcher));
+        private static readonly Logger Log = Logger.GetLogger(typeof(DefaultTaskToDriverMessageDispatcher));
 
         /// <summary>
         /// Injectable constrcutor.
@@ -64,7 +64,7 @@ namespace Org.Apache.REEF.Network.Elastic.Task.Impl
             offset += sizeof(ushort);
             Buffer.BlockCopy(BitConverter.GetBytes((ushort)operatorId), 0, message, offset, sizeof(ushort));
 
-            LOGGER.Log(Level.Info, "Operator {0} requesting to join the topology through heartbeat.", operatorId);
+            Log.Log(Level.Info, "Operator {0} requesting to join the topology through heartbeat.", operatorId);
 
             Send(taskId, message);
         }
@@ -91,7 +91,7 @@ namespace Org.Apache.REEF.Network.Elastic.Task.Impl
             offset += sizeof(ushort);
             Buffer.BlockCopy(BitConverter.GetBytes((ushort)operatorId), 0, message, offset, sizeof(ushort));
 
-            LOGGER.Log(Level.Info, "Operator {0} requesting a topology update through heartbeat.", operatorId);
+            Log.Log(Level.Info, "Operator {0} requesting a topology update through heartbeat.", operatorId);
 
             Send(taskId, message);
         }
@@ -111,7 +111,7 @@ namespace Org.Apache.REEF.Network.Elastic.Task.Impl
             Buffer.BlockCopy(
                 BitConverter.GetBytes((ushort)TaskMessageType.CompleteStage), 0, message, offset, sizeof(ushort));
 
-            LOGGER.Log(Level.Info, "Sending notification that the stage is completed.");
+            Log.Log(Level.Info, "Sending notification that the stage is completed.");
 
             Send(taskId, message);
         }

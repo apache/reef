@@ -38,7 +38,7 @@ namespace Org.Apache.REEF.Network.Elastic.Operators.Logical.Default
     [Unstable("0.16", "API may change")]
     internal abstract class ElasticOperatorWithDefaultDispatcher : ElasticOperator, IDefaultFailureEventResponse
     {
-        private static readonly Logger LOGGER = Logger.GetLogger(typeof(ElasticOperatorWithDefaultDispatcher));
+        private static readonly Logger Log = Logger.GetLogger(typeof(ElasticOperatorWithDefaultDispatcher));
 
         /// <summary>
         /// Base constructor for an abstract operator implementing the default failure logic.
@@ -135,7 +135,7 @@ namespace Org.Apache.REEF.Network.Elastic.Operators.Logical.Default
                         break;
 
                     default:
-                        LOGGER.Log(Level.Info, "Failure from {0} requires no action", task.Id);
+                        Log.Log(Level.Info, "Failure from {0} requires no action", task.Id);
                         break;
                 }
 
@@ -264,7 +264,7 @@ namespace Org.Apache.REEF.Network.Elastic.Operators.Logical.Default
             string failureMachineState = $"Failure State: {(DefaultFailureStates)_failureMachine.State.FailureState}" +
                     $"\nFailure(s) Reported: {_failureMachine.NumOfFailedDataPoints}/{_failureMachine.NumOfDataPoints}";
 
-            LOGGER.Log(Level.Info, intro + topologyState + failureMachineState);
+            Log.Log(Level.Info, intro + topologyState + failureMachineState);
         }
     }
 }

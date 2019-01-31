@@ -29,7 +29,7 @@ namespace Org.Apache.REEF.Network.Examples.Elastic
 {
     public sealed class BroadcastSlaveTaskDieBeforeWorkflow : DefaultElasticTask
     {
-        private static readonly Logger LOGGER = Logger.GetLogger(
+        private static readonly Logger Log = Logger.GetLogger(
            typeof(BroadcastSlaveTaskDieBeforeWorkflow));
 
         private readonly string _taskId;
@@ -59,7 +59,7 @@ namespace Org.Apache.REEF.Network.Examples.Elastic
 
                         var rec = receiver.Receive();
 
-                        LOGGER.Log(Level.Info, "Slave has received {0}", rec);
+                        Log.Log(Level.Info, "Slave has received {0}", rec);
                         break;
 
                     default:

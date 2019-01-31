@@ -47,7 +47,7 @@ namespace Org.Apache.REEF.Network.Elastic.Driver.Default
     [Unstable("0.16", "API may change")]
     internal sealed class DefaultElasticStage : IElasticStage, IDefaultFailureEventResponse
     {
-        private static readonly Logger LOGGER = Logger.GetLogger(typeof(DefaultElasticStage));
+        private static readonly Logger Log = Logger.GetLogger(typeof(DefaultElasticStage));
 
         private bool _finalized = false;
         private volatile bool _scheduled = false;
@@ -200,7 +200,7 @@ namespace Org.Apache.REEF.Network.Elastic.Driver.Default
 
             if (IsCompleted || (_scheduled && FailureState.FailureState == (int)DefaultFailureStates.Fail))
             {
-                LOGGER.Log(Level.Warning, "Taskset " + (IsCompleted ? "completed." : "failed."));
+                Log.Log(Level.Warning, "Taskset " + (IsCompleted ? "completed." : "failed."));
                 return false;
             }
 
@@ -220,13 +220,13 @@ namespace Org.Apache.REEF.Network.Elastic.Driver.Default
                 {
                     if (tooManyTasks)
                     {
-                        LOGGER.Log(Level.Warning,
+                        Log.Log(Level.Warning,
                             "Already added {0} tasks when total tasks request is {1}", _tasksAdded, _numTasks);
                     }
 
                     if (notAddingMaster)
                     {
-                        LOGGER.Log(Level.Warning,
+                        Log.Log(Level.Warning,
                             "Already added {0} over {1} but missing master task(s)", _tasksAdded, _numTasks);
                     }
 

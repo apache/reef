@@ -27,7 +27,7 @@ namespace Org.Apache.REEF.Network.Examples.Elastic
 {
     public sealed class BroadcastMasterTask : DefaultElasticTask
     {
-        private static readonly Logger LOGGER = Logger.GetLogger(typeof(BroadcastMasterTask));
+        private static readonly Logger Log = Logger.GetLogger(typeof(BroadcastMasterTask));
 
         [Inject]
         private BroadcastMasterTask(CancellationSource source, IElasticContext context)
@@ -51,7 +51,7 @@ namespace Org.Apache.REEF.Network.Examples.Elastic
 
                         sender.Send(number);
 
-                        LOGGER.Log(Level.Info, "Master has sent {0}", number);
+                        Log.Log(Level.Info, "Master has sent {0}", number);
                         break;
 
                     default:

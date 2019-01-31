@@ -27,7 +27,7 @@ namespace Org.Apache.REEF.Network.Examples.Elastic
 {
     public sealed class BroadcastSlaveTask : DefaultElasticTask
     {
-        private static readonly Logger LOGGER = Logger.GetLogger(typeof(BroadcastSlaveTask));
+        private static readonly Logger Log = Logger.GetLogger(typeof(BroadcastSlaveTask));
 
         [Inject]
         public BroadcastSlaveTask(CancellationSource source, IElasticContext context)
@@ -46,7 +46,7 @@ namespace Org.Apache.REEF.Network.Examples.Elastic
 
                         var rec = receiver.Receive();
 
-                        LOGGER.Log(Level.Info, $"Slave has received {rec}");
+                        Log.Log(Level.Info, $"Slave has received {rec}");
                         break;
 
                     default:

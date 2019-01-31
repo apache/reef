@@ -36,7 +36,7 @@ namespace Org.Apache.REEF.Network.Elastic.Topology.Physical.Default
     [Unstable("0.16", "API may change")]
     internal abstract class OneToNTopology : OperatorTopologyWithDefaultCommunication
     {
-        protected static readonly Logger LOGGER = Logger.GetLogger(typeof(OneToNTopology));
+        protected static readonly Logger Log = Logger.GetLogger(typeof(OneToNTopology));
 
         protected readonly ConcurrentDictionary<string, byte> _nodesToRemove =
             new ConcurrentDictionary<string, byte>();
@@ -191,7 +191,7 @@ namespace Org.Apache.REEF.Network.Elastic.Topology.Physical.Default
                         {
                             foreach (var node in updates.Children)
                             {
-                                LOGGER.Log(Level.Info, "Removing task {0} from the topology.", node);
+                                Log.Log(Level.Info, "Removing task {0} from the topology.", node);
                                 _nodesToRemove.TryAdd(node, new byte());
                                 _commLayer.RemoveConnection(node);
                             }
@@ -228,7 +228,7 @@ namespace Org.Apache.REEF.Network.Elastic.Topology.Physical.Default
                         }
                         else
                         {
-                            LOGGER.Log(Level.Warning, "Received a topology update message from driver "
+                            Log.Log(Level.Warning, "Received a topology update message from driver "
                                 + "but sending queue is empty: ignoring.");
                         }
                     }
