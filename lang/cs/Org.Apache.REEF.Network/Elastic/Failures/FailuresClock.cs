@@ -85,7 +85,7 @@ namespace Org.Apache.REEF.Network.Elastic.Failures
             ++numberOfInstantiations;
             if (numberOfInstantiations > 1)
             {
-                LOGGER.Log(Level.Warning, "Instantiated `RuntimeClock` instance number " + numberOfInstantiations);
+                LOGGER.Log(Level.Warning, "Instantiated `RuntimeClock` instance number {0}", numberOfInstantiations);
             }
         }
 
@@ -193,7 +193,8 @@ namespace Org.Apache.REEF.Network.Elastic.Failures
             }
             catch (Exception e)
             {
-                runtimeException = Optional<Exception>.Of(new ReefRuntimeException("Caught Exception in clock, failing the Evaluator.", e));
+                runtimeException = Optional<Exception>.Of(
+                    new ReefRuntimeException("Caught Exception in clock, failing the Evaluator.", e));
             }
 
             var runtimeStop = runtimeException.IsPresent()
@@ -253,7 +254,7 @@ namespace Org.Apache.REEF.Network.Elastic.Failures
         }
 
         /// <summary>
-        /// Process the next Time event. 
+        /// Process the next Time event.
         /// </summary>
         /// <param name="time">The Time event to handle</param>
         private void ProcessEvent(Time time)

@@ -41,22 +41,22 @@ namespace Org.Apache.REEF.Network.Elastic.Topology.Logical.Impl
     {
         private static readonly Logger LOGGER = Logger.GetLogger(typeof(FlatTopology));
 
-        private string _rootTaskId;
+        private string _rootTaskId = string.Empty;
         private int _rootId;
-        private string _taskStage;
-        private volatile int _iteration;
-        private bool _finalized;
+        private string _taskStage = string.Empty;
+        private volatile int _iteration = 1;
+        private bool _finalized = false;
         private readonly bool _sorted;
 
-        private readonly Dictionary<int, DataNode> _nodes;
-        private readonly HashSet<string> _lostNodesToBeRemoved;
-        private HashSet<string> _nodesWaitingToJoinTopologyNextIteration;
-        private HashSet<string> _nodesWaitingToJoinTopology;
+        private readonly Dictionary<int, DataNode> _nodes = new Dictionary<int, DataNode>();
+        private readonly HashSet<string> _lostNodesToBeRemoved = new HashSet<string>();
+        private HashSet<string> _nodesWaitingToJoinTopologyNextIteration = new HashSet<string>();
+        private HashSet<string> _nodesWaitingToJoinTopology = new HashSet<string>();
 
-        private volatile int _availableDataPoints;
+        private volatile int _availableDataPoints = 0;
         private int _totNumberofNodes;
 
-        private readonly object _lock;
+        private readonly object _lock = new object();
 
         /// <summary>
         /// Constructor for flat topology. After construction the graph is empty
@@ -66,21 +66,9 @@ namespace Org.Apache.REEF.Network.Elastic.Topology.Logical.Impl
         /// <param name="sorted">Whether the leaf nodes need to be ordered or not</param>
         public FlatTopology(int rootId, bool sorted = false)
         {
-            _rootTaskId = string.Empty;
-            _taskStage = string.Empty;
             _rootId = rootId;
-            _finalized = false;
             _sorted = sorted;
             OperatorId = -1;
-            _iteration = 1;
-            _availableDataPoints = 0;
-
-            _lock = new object();
-
-            _nodes = new Dictionary<int, DataNode>();
-            _lostNodesToBeRemoved = new HashSet<string>();
-            _nodesWaitingToJoinTopologyNextIteration = new HashSet<string>();
-            _nodesWaitingToJoinTopology = new HashSet<string>();
         }
 
         /// <summary>
@@ -307,7 +295,10 @@ namespace Org.Apache.REEF.Network.Elastic.Topology.Logical.Impl
         /// <param name="taskId">The identifier of the task asking for the update</param>
         /// <param name="returnMessages">A list of message containing the topology update</param>
         /// <param name="failureStateMachine">An optional failure machine to log updates</param>
-        public void TopologyUpdateResponse(string taskId, ref List<IElasticDriverMessage> returnMessages, Optional<IFailureStateMachine> failureStateMachine)
+        public void TopologyUpdateResponse(
+            string taskId,
+            ref List<IElasticDriverMessage> returnMessages,
+            Optional<IFailureStateMachine> failureStateMachine)
         {
             if (taskId != _rootTaskId)
             {
@@ -323,14 +314,18 @@ namespace Org.Apache.REEF.Network.Elastic.Topology.Logical.Impl
             {
                 var list = _nodesWaitingToJoinTopology.ToList();
                 var update = new TopologyUpdate(_rootTaskId, list);
-                var data = new UpdateMessagePayload(new List<TopologyUpdate>() { update }, StageName, OperatorId, _iteration);
+                var data = new UpdateMessagePayload(
+                    new List<TopologyUpdate>() { update }, StageName, OperatorId, _iteration);
                 var returnMessage = new ElasticDriverMessageImpl(_rootTaskId, data);
 
                 returnMessages.Add(returnMessage);
 
                 if (_nodesWaitingToJoinTopology.Count > 0)
                 {
-                    LOGGER.Log(Level.Info, $"Tasks [{string.Join(",", _nodesWaitingToJoinTopology)}] are added to topology in iteration {_iteration}");
+                    LOGGER.Log(Level.Info,
+                        "Tasks [{0}] are added to topology in iteration {1}",
+                        string.Join(",", _nodesWaitingToJoinTopology),
+                        _iteration);
 
                     _availableDataPoints += _nodesWaitingToJoinTopology.Count;
                     failureStateMachine.Value.AddDataPoints(_nodesWaitingToJoinTopology.Count, false);
@@ -352,7 +347,11 @@ namespace Org.Apache.REEF.Network.Elastic.Topology.Logical.Impl
         /// <param name="iteration">The new iteration number</param>
         public void OnNewIteration(int iteration)
         {
-            LOGGER.Log(Level.Info, $"Flat Topology for Operator {OperatorId} in Iteration {iteration - 1} is closed with {_availableDataPoints} nodes");
+            LOGGER.Log(Level.Info,
+                "Flat Topology for Operator {0} in Iteration {1} is closed with {2} nodes",
+                OperatorId,
+                iteration - 1,
+                _availableDataPoints);
             _iteration = iteration;
             _totNumberofNodes += _availableDataPoints;
 
@@ -370,7 +369,10 @@ namespace Org.Apache.REEF.Network.Elastic.Topology.Logical.Impl
         /// <param name="info">Some additional topology-specific information</param>
         /// <param name="iteration">The optional iteration number in which the event occurred</param>
         /// <returns>One or more messages for reconfiguring the Tasks</returns>
-        public IList<IElasticDriverMessage> Reconfigure(string taskId, Optional<string> info, Optional<int> iteration)
+        public IList<IElasticDriverMessage> Reconfigure(
+            string taskId,
+            Optional<string> info,
+            Optional<int> iteration)
         {
             if (taskId == _rootTaskId)
             {
@@ -400,7 +402,7 @@ namespace Org.Apache.REEF.Network.Elastic.Topology.Logical.Impl
                 var data = new FailureMessagePayload(update, StageName, OperatorId, -1);
                 var returnMessage = new ElasticDriverMessageImpl(_rootTaskId, data);
 
-                LOGGER.Log(Level.Info, $"Task {taskId} is removed from topology");
+                LOGGER.Log(Level.Info, "Task {0} is removed from topology", taskId);
                 messages.Add(returnMessage);
                 _lostNodesToBeRemoved.Clear();
             }
@@ -414,12 +416,18 @@ namespace Org.Apache.REEF.Network.Elastic.Topology.Logical.Impl
         /// </summary>
         public string LogFinalStatistics()
         {
-            return $"\nAverage number of nodes in the topology of Operator {OperatorId}: {(_iteration >= 2 ? (float)_totNumberofNodes / (_iteration - 1) : _availableDataPoints)}";
+            return string.Format(
+                "\nAverage number of nodes in the topology of Operator {0}: {1}",
+                OperatorId,
+                _iteration >= 2 ? (float)_totNumberofNodes / (_iteration - 1) : _availableDataPoints);
         }
 
         private void BuildTopology()
         {
-            IEnumerator<DataNode> iter = _sorted ? _nodes.OrderBy(kv => kv.Key).Select(kv => kv.Value).GetEnumerator() : _nodes.Values.GetEnumerator();
+            IEnumerator<DataNode> iter =
+                _sorted ?
+                    _nodes.OrderBy(kv => kv.Key).Select(kv => kv.Value).GetEnumerator() :
+                    _nodes.Values.GetEnumerator();
             var root = _nodes[_rootId];
 
             while (iter.MoveNext())

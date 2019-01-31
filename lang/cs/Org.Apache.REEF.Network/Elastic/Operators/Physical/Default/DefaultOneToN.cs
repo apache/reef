@@ -127,7 +127,8 @@ namespace Org.Apache.REEF.Network.Elastic.Operators.Physical.Default
 
                 if (isIterative && typedDataMessage.Iteration < (int)IteratorReference.Current)
                 {
-                    LOGGER.Log(Level.Warning, $"Received message for iteration {typedDataMessage.Iteration} but I am already in iteration {(int)IteratorReference.Current}: ignoring.");
+                    LOGGER.Log(Level.Warning, "Received message for iteration {0} but I am already in iteration "
+                        + "{1}: ignoring.", typedDataMessage.Iteration, (int)IteratorReference.Current);
                 }
                 else
                 {
@@ -166,7 +167,7 @@ namespace Org.Apache.REEF.Network.Elastic.Operators.Physical.Default
         /// <param name="cancellationSource"></param>
         public void WaitForTaskRegistration(CancellationTokenSource cancellationSource)
         {
-            LOGGER.Log(Level.Info, $"Waiting for task registration for {OperatorType.ToString()} operator.");
+            LOGGER.Log(Level.Info, "Waiting for task registration for {0} operator.", OperatorType.ToString());
             _topology.WaitForTaskRegistration(cancellationSource);
         }
 

@@ -89,7 +89,7 @@ namespace Org.Apache.REEF.Network.Elastic.Driver.Default
             Completed = 7
         }
 
-        #endregion
+        #endregion Private structs
 
         #region Private classes
 
@@ -98,9 +98,9 @@ namespace Org.Apache.REEF.Network.Elastic.Driver.Default
         /// </summary>
         private sealed class TaskInfo : IDisposable
         {
-            private volatile bool _isTaskDisposed;
-            private volatile bool _isActiveContextDisposed;
-            private volatile bool _isDisposed;
+            private volatile bool _isTaskDisposed = false;
+            private volatile bool _isActiveContextDisposed = false;
+            private volatile bool _isDisposed = false;
 
             /// <summary>
             /// Constructor.
@@ -110,11 +110,13 @@ namespace Org.Apache.REEF.Network.Elastic.Driver.Default
             /// <param name="evaluatorId">The evalutor id</param>
             /// <param name="status">The task status</param>
             /// <param name="stages">The stage the task belongs to</param>
-            public TaskInfo(IConfiguration config, IActiveContext context, string evaluatorId, TaskState status, IList<IElasticStage> stages)
+            public TaskInfo(
+                IConfiguration config,
+                IActiveContext context,
+                string evaluatorId,
+                TaskState status,
+                IList<IElasticStage> stages)
             {
-                _isTaskDisposed = false;
-                _isActiveContextDisposed = false;
-                _isDisposed = false;
                 TaskConfiguration = config;
                 ActiveContext = context;
                 EvaluatorId = evaluatorId;
@@ -256,7 +258,7 @@ namespace Org.Apache.REEF.Network.Elastic.Driver.Default
             }
 
             /// <summary>
-            /// Dipose the task info. 
+            /// Dipose the task info.
             /// </summary>
             public void Dispose()
             {
@@ -276,9 +278,15 @@ namespace Org.Apache.REEF.Network.Elastic.Driver.Default
         /// </summary>
         private static class TaskStateUtils
         {
-            private static List<TaskState> recoverable = new List<TaskState>() { TaskState.Failed, TaskState.Queued };
+            private static List<TaskState> recoverable = new List<TaskState>()
+            {
+                TaskState.Failed, TaskState.Queued
+            };
 
-            private static List<TaskState> notRunnable = new List<TaskState>() { TaskState.Failed, TaskState.Completed };
+            private static List<TaskState> notRunnable = new List<TaskState>()
+            {
+                TaskState.Failed, TaskState.Completed
+            };
 
             /// <summary>
             /// Whether a task is recoverable or not.
@@ -347,21 +355,21 @@ namespace Org.Apache.REEF.Network.Elastic.Driver.Default
             }
         }
 
-        #endregion
+        #endregion Private classes
 
         private static readonly Logger LOGGER = Logger.GetLogger(typeof(DefaultElasticTaskSetManager));
 
-        private bool _finalized;
-        private volatile bool _disposed;
-        private volatile bool _scheduled;
-        private volatile bool _completed;
+        private bool _finalized = false;
+        private volatile bool _disposed = false;
+        private volatile bool _scheduled = false;
+        private volatile bool _completed = false;
         private readonly DefaultElasticTaskSetManagerParameters _parameters;
 
-        private volatile int _contextsAdded;
-        private int _tasksAdded;
-        private int _tasksRunning;
-        private volatile int _totFailedTasks;
-        private volatile int _totFailedEvaluators;
+        private volatile int _contextsAdded = 0;
+        private int _tasksAdded = 0;
+        private int _tasksRunning = 0;
+        private volatile int _totFailedTasks = 0;
+        private volatile int _totFailedEvaluators = 0;
 
         private readonly int _numTasks;
         private readonly IEvaluatorRequestor _evaluatorRequestor;
@@ -371,19 +379,22 @@ namespace Org.Apache.REEF.Network.Elastic.Driver.Default
 
         // Task info 0-indexed
         private readonly List<TaskInfo> _taskInfos;
-        private readonly Dictionary<string, IElasticStage> _stages;
-        private readonly ConcurrentQueue<int> _queuedTasks;
-        private readonly ConcurrentQueue<ContextInfo> _queuedContexts;
 
-        // Used both for knowing which evaluator the task set is responsible for and to 
+        private readonly Dictionary<string, IElasticStage> _stages = new Dictionary<string, IElasticStage>();
+        private readonly ConcurrentQueue<int> _queuedTasks = new ConcurrentQueue<int>();
+        private readonly ConcurrentQueue<ContextInfo> _queuedContexts = new ConcurrentQueue<ContextInfo>();
+
+        // Used both for knowing which evaluator the task set is responsible for and to
         // maintain a mapping betwween evaluators and contextes.
         // This latter is necessary because evaluators may fail between context init
         // and the time when the context is installed on the evaluator
-        private readonly ConcurrentDictionary<string, ContextInfo> _evaluatorToContextIdMapping;
-        private IFailureState _failureStatus;
-        private volatile bool _hasProgress;
+        private readonly ConcurrentDictionary<string, ContextInfo> _evaluatorToContextIdMapping =
+            new ConcurrentDictionary<string, ContextInfo>();
 
-        private readonly object _statusLock;
+        private IFailureState _failureStatus = new DefaultFailureState();
+        private volatile bool _hasProgress = true;
+
+        private readonly object _statusLock = new object();
 
         /// <summary>
         /// Constructor for the task set manager.
@@ -402,17 +413,6 @@ namespace Org.Apache.REEF.Network.Elastic.Driver.Default
             Func<string, IConfiguration> slaveTaskConfiguration = null,
             params IConfiguration[] confs)
         {
-            _finalized = false;
-            _scheduled = false;
-            _disposed = false;
-            _completed = false;
-
-            _contextsAdded = 0;
-            _tasksAdded = 0;
-            _tasksRunning = 0;
-            _totFailedTasks = 0;
-            _totFailedEvaluators = 0;
-
             _numTasks = numTasks;
             _evaluatorRequestor = evaluatorRequestor;
             _driverId = driverId;
@@ -420,14 +420,6 @@ namespace Org.Apache.REEF.Network.Elastic.Driver.Default
             _slaveTaskConfiguration = slaveTaskConfiguration ?? masterTaskConfiguration;
 
             _taskInfos = new List<TaskInfo>(numTasks);
-            _stages = new Dictionary<string, IElasticStage>();
-            _queuedTasks = new ConcurrentQueue<int>();
-            _queuedContexts = new ConcurrentQueue<ContextInfo>();
-            _evaluatorToContextIdMapping = new ConcurrentDictionary<string, ContextInfo>();
-            _failureStatus = new DefaultFailureState();
-            _hasProgress = true;
-
-            _statusLock = new object();
 
             for (int i = 0; i < numTasks; i++)
             {
@@ -525,7 +517,9 @@ namespace Org.Apache.REEF.Network.Elastic.Driver.Default
             cinfo = new ContextInfo(id);
             _evaluatorToContextIdMapping.TryAdd(evaluator.Id, cinfo);
 
-            LOGGER.Log(Level.Info, $"Evaluator {evaluator.Id} is scheduled on node {evaluator.GetEvaluatorDescriptor().NodeDescriptor.HostName}");
+            LOGGER.Log(Level.Info, "Evaluator {0} is scheduled on node {1}",
+                evaluator.Id,
+                evaluator.GetEvaluatorDescriptor().NodeDescriptor.HostName);
 
             return true;
         }
@@ -590,10 +584,11 @@ namespace Org.Apache.REEF.Network.Elastic.Driver.Default
             var id = Utils.GetContextNum(activeContext) - 1;
             var taskId = Utils.BuildTaskId(StagesId, id + 1);
 
-            // We reschedule the task only if the context was active (_taskInfos[id] != null) and the task was actually scheduled at least once (_taskInfos[id].TaskStatus > TaskStatus.Init)
+            // We reschedule the task only if the context was active (_taskInfos[id] != null) and the task was
+            // actually scheduled at least once (_taskInfos[id].TaskStatus > TaskStatus.Init)
             if (_taskInfos[id] != null && _taskInfos[id].TaskStatus > TaskState.Init)
             {
-                LOGGER.Log(Level.Info, $"{taskId} already part of task set: going to directly submit it.");
+                LOGGER.Log(Level.Info, "{0} already part of task set: going to directly submit it.", taskId);
 
                 lock (_taskInfos[id].Lock)
                 {
@@ -606,7 +601,7 @@ namespace Org.Apache.REEF.Network.Elastic.Driver.Default
             {
                 bool isMaster = IsMasterTaskContext(activeContext).Any();
 
-                LOGGER.Log(Level.Info, $"Task {taskId} to be scheduled on {activeContext.EvaluatorId}");
+                LOGGER.Log(Level.Info, "Task {0} to be scheduled on {1}", taskId, activeContext.EvaluatorId);
 
                 List<IConfiguration> partialTaskConfs = new List<IConfiguration>();
 
@@ -641,7 +636,8 @@ namespace Org.Apache.REEF.Network.Elastic.Driver.Default
         }
 
         /// <summary>
-        /// Method implementing how the task set manager should react when a notification that a task is running is received.
+        /// Method implementing how the task set manager should react when a notification that a task is
+        /// running is received.
         /// </summary>
         /// <param name="task">The running task</param>
         public void OnTaskRunning(IRunningTask task)
@@ -657,14 +653,16 @@ namespace Org.Apache.REEF.Network.Elastic.Driver.Default
 
                     if (Completed() || Failed())
                     {
-                        LOGGER.Log(Level.Info, $"Received running from task {task.Id} but task set is completed or failed: ignoring.");
+                        LOGGER.Log(Level.Info, "Received running from task {0} but task set is completed "
+                            + "or failed: ignoring.", task.Id);
                         _taskInfos[id].Dispose();
 
                         return;
                     }
                     if (!TaskStateUtils.IsRunnable(_taskInfos[id].TaskStatus))
                     {
-                        LOGGER.Log(Level.Info, $"Received running from task {task.Id} which is not runnable: ignoring.");
+                        LOGGER.Log(Level.Info, "Received running from task {0} which is not runnable: ignoring.",
+                            task.Id);
                         _taskInfos[id].Dispose();
 
                         return;
@@ -688,7 +686,8 @@ namespace Org.Apache.REEF.Network.Elastic.Driver.Default
         }
 
         /// <summary>
-        /// Method implementing how the task set manager should react when a notification that a task is completed is received.
+        /// Method implementing how the task set manager should react when a notification that a task
+        /// is completed is received.
         /// </summary>
         /// <param name="task">The completed task</param>
         public void OnTaskCompleted(ICompletedTask taskInfo)
@@ -791,12 +790,14 @@ namespace Org.Apache.REEF.Network.Elastic.Driver.Default
                 {
                     if (Completed() || Failed())
                     {
-                        LOGGER.Log(Level.Warning, $"Taskset made no progress in the last {_parameters.Timeout}ms. Forcing Disposal.");
+                        LOGGER.Log(Level.Warning, "Taskset made no progress in the last {0}ms. Forcing Disposal.",
+                            _parameters.Timeout);
                         Dispose();
                     }
                     else
                     {
-                        LOGGER.Log(Level.Error, $"Taskset made no progress in the last {_parameters.Timeout}ms. Aborting.");
+                        LOGGER.Log(Level.Error, "Taskset made no progress in the last {0}ms. Aborting.",
+                            _parameters.Timeout);
                         Fail();
                         return;
                     }
@@ -835,7 +836,7 @@ namespace Org.Apache.REEF.Network.Elastic.Driver.Default
         {
             if (IsTaskManagedBy(task.Id))
             {
-                LOGGER.Log(Level.Info, "Received a failure from " + task.Id, task.AsError());
+                LOGGER.Log(Level.Info, "Received a failure from {0}", task.Id, task.AsError());
 
                 Interlocked.Decrement(ref _tasksRunning);
                 _totFailedTasks++;
@@ -844,7 +845,8 @@ namespace Org.Apache.REEF.Network.Elastic.Driver.Default
 
                 if (Completed() || Failed())
                 {
-                    LOGGER.Log(Level.Info, $"Received a failure from task {task.Id} but the task set is completed or failed: ignoring the failure", task.AsError());
+                    LOGGER.Log(Level.Info, "Received a failure from task {0} but the task set is completed or "
+                        + "failed: ignoring the failure", task.Id, task.AsError());
 
                     lock (_taskInfos[id].Lock)
                     {
@@ -896,7 +898,7 @@ namespace Org.Apache.REEF.Network.Elastic.Driver.Default
         /// <param name="evaluator">The failed evaluator</param>
         public void OnEvaluatorFailure(IFailedEvaluator evaluator)
         {
-            LOGGER.Log(Level.Info, "Received a failure from " + evaluator.Id, evaluator.EvaluatorException);
+            LOGGER.Log(Level.Info, "Received a failure from {0}", evaluator.Id, evaluator.EvaluatorException);
 
             _totFailedEvaluators++;
 
@@ -936,7 +938,9 @@ namespace Org.Apache.REEF.Network.Elastic.Driver.Default
 
                         if (cinfo.NumRetry > _parameters.NumEvaluatorFailures)
                         {
-                            LOGGER.Log(Level.Error, $"Context {cinfo.Id} failed more than {_parameters.NumEvaluatorFailures} times: Aborting");
+                            LOGGER.Log(Level.Error, "Context {0} failed more than {1} times: Aborting",
+                                cinfo.Id,
+                                _parameters.NumEvaluatorFailures);
                             Fail();
                         }
 
@@ -971,17 +975,21 @@ namespace Org.Apache.REEF.Network.Elastic.Driver.Default
                     var rec = @event as ReconfigureEvent;
                     OnReconfigure(ref rec);
                     break;
+
                 case DefaultFailureStateEvents.Reschedule:
                     var res = @event as RescheduleEvent;
                     OnReschedule(ref res);
                     break;
+
                 case DefaultFailureStateEvents.Stop:
                     var stp = @event as StopEvent;
                     OnStop(ref stp);
                     break;
+
                 case DefaultFailureStateEvents.Fail:
                     OnFail();
                     break;
+
                 default:
                     throw new IllegalStateException("Failure event not recognized.");
             }
@@ -995,7 +1003,8 @@ namespace Org.Apache.REEF.Network.Elastic.Driver.Default
         {
             lock (_statusLock)
             {
-                _failureStatus = _failureStatus.Merge(new DefaultFailureState((int)DefaultFailureStates.ContinueAndReconfigure));
+                _failureStatus = _failureStatus.Merge(
+                    new DefaultFailureState((int)DefaultFailureStates.ContinueAndReconfigure));
             }
 
             SendToTasks(reconfigureEvent.FailureResponse);
@@ -1009,7 +1018,8 @@ namespace Org.Apache.REEF.Network.Elastic.Driver.Default
         {
             lock (_statusLock)
             {
-                _failureStatus = _failureStatus.Merge(new DefaultFailureState((int)DefaultFailureStates.ContinueAndReschedule));
+                _failureStatus = _failureStatus.Merge(
+                    new DefaultFailureState((int)DefaultFailureStates.ContinueAndReschedule));
             }
 
             SendToTasks(rescheduleEvent.FailureResponse);
@@ -1025,7 +1035,8 @@ namespace Org.Apache.REEF.Network.Elastic.Driver.Default
         {
             lock (_statusLock)
             {
-                _failureStatus = _failureStatus.Merge(new DefaultFailureState((int)DefaultFailureStates.StopAndReschedule));
+                _failureStatus = _failureStatus.Merge(
+                    new DefaultFailureState((int)DefaultFailureStates.StopAndReschedule));
             }
 
             SendToTasks(stopEvent.FailureResponse);
@@ -1050,7 +1061,7 @@ namespace Org.Apache.REEF.Network.Elastic.Driver.Default
             Dispose();
         }
 
-        #endregion
+        #endregion Failure Response
 
         public void Dispose()
         {
@@ -1139,7 +1150,7 @@ namespace Org.Apache.REEF.Network.Elastic.Driver.Default
                 }
                 else
                 {
-                    LOGGER.Log(Level.Warning, $"{taskId} cannot be added to stage " + stage.Key);
+                    LOGGER.Log(Level.Warning, "{0} cannot be added to stage {1}", taskId, stage.Key);
                     activeContext.Dispose();
                     return;
                 }
@@ -1147,7 +1158,12 @@ namespace Org.Apache.REEF.Network.Elastic.Driver.Default
 
             var aggregatedConfs = partialTaskConfigs.Aggregate((x, y) => Configurations.Merge(x, y));
 
-            _taskInfos[id] = new TaskInfo(aggregatedConfs, activeContext, activeContext.EvaluatorId, TaskState.Init, stageList);
+            _taskInfos[id] = new TaskInfo(
+                aggregatedConfs,
+                activeContext,
+                activeContext.EvaluatorId,
+                TaskState.Init,
+                stageList);
 
             if (_scheduled)
             {
@@ -1172,7 +1188,7 @@ namespace Org.Apache.REEF.Network.Elastic.Driver.Default
                 {
                     _scheduled = true;
 
-                    LOGGER.Log(Level.Info, $"Scheduling {_tasksAdded} tasks from Taskset {StagesId}");
+                    LOGGER.Log(Level.Info, "Scheduling {0} tasks from Taskset {1}", _tasksAdded, StagesId);
                 }
             }
 
@@ -1202,8 +1218,8 @@ namespace Org.Apache.REEF.Network.Elastic.Driver.Default
 
             lock (_taskInfos[id].Lock)
             {
-                // Check that the task was not already submitted. This may happen for instance if _scheduled is set to true
-                // and a new active context message is received.
+                // Check that the task was not already submitted. This may happen for instance if
+                // _scheduled is set to true and a new active context message is received.
                 if (_taskInfos[id].TaskStatus == TaskState.Submitted)
                 {
                     return;
@@ -1238,7 +1254,8 @@ namespace Org.Apache.REEF.Network.Elastic.Driver.Default
 
                 if (_taskInfos[id].IsActiveContextDisposed)
                 {
-                    LOGGER.Log(Level.Warning, $"Task submit for {id + 1} with a non-active context: spawning a new evaluator.");
+                    LOGGER.Log(Level.Warning,
+                        "Task submit for {0} with a non-active context: spawning a new evaluator.", id + 1);
 
                     if (_taskInfos[id].TaskStatus == TaskState.Failed)
                     {
@@ -1321,7 +1338,7 @@ namespace Org.Apache.REEF.Network.Elastic.Driver.Default
 
         private void SpawnNewEvaluator(int id)
         {
-            LOGGER.Log(Level.Warning, $"Spawning new evaluator for id {id}");
+            LOGGER.Log(Level.Warning, "Spawning new evaluator for id {0}", id);
 
             var request = _evaluatorRequestor.NewBuilder()
                 .SetNumber(1)
@@ -1343,13 +1360,15 @@ namespace Org.Apache.REEF.Network.Elastic.Driver.Default
 
                 if (_taskInfos[id].NumRetry > _parameters.NumTaskFailures)
                 {
-                    LOGGER.Log(Level.Error, $"Task {rescheduleEvent.TaskId} failed more than {_parameters.NumTaskFailures} times: aborting");
+                    LOGGER.Log(Level.Error, "Task {0} failed more than {1} times: aborting",
+                        rescheduleEvent.TaskId,
+                        _parameters.NumTaskFailures);
                     Fail(rescheduleEvent.TaskId);
                 }
 
                 if (rescheduleEvent.Reschedule)
                 {
-                    LOGGER.Log(Level.Info, $"Rescheduling task {rescheduleEvent.TaskId}");
+                    LOGGER.Log(Level.Info, "Rescheduling task {0}", rescheduleEvent.TaskId);
 
                     _taskInfos[id].RescheduleConfigurations = rescheduleEvent.RescheduleTaskConfigurations;
 
@@ -1367,7 +1386,9 @@ namespace Org.Apache.REEF.Network.Elastic.Driver.Default
 
         private void LogFinalStatistics()
         {
-            var msg = string.Format("Total Failed Tasks: {0}\nTotal Failed Evaluators: {1}", _totFailedTasks, _totFailedEvaluators);
+            var msg = string.Format("Total Failed Tasks: {0}\nTotal Failed Evaluators: {1}",
+                _totFailedTasks,
+                _totFailedEvaluators);
             msg += _stages.Select(x => x.Value.LogFinalStatistics()).Aggregate((a, b) => a + "\n" + b);
             LOGGER.Log(Level.Info, msg);
         }

@@ -32,8 +32,6 @@ using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Network.Elastic.Config;
 using System.Globalization;
 using Org.Apache.REEF.Tang.Util;
-using Org.Apache.REEF.Tang.Exceptions;
-using Org.Apache.REEF.Network.Elastic.Operators.Physical.Enum;
 
 namespace Org.Apache.REEF.Network.Elastic.Operators.Logical.Default
 {
@@ -46,7 +44,7 @@ namespace Org.Apache.REEF.Network.Elastic.Operators.Logical.Default
     {
         private static readonly Logger LOGGER = Logger.GetLogger(typeof(DefaultOneToN<>));
 
-        private volatile bool _stop;
+        private volatile bool _stop = false;
 
         /// <summary>
         /// Constructor for an operator where one node sends to N nodes and with default
@@ -74,8 +72,6 @@ namespace Org.Apache.REEF.Network.Elastic.Operators.Logical.Default
         {
             MasterId = senderId;
             WithinIteration = prev.WithinIteration;
-
-            _stop = false;
         }
 
         /// <summary>
@@ -84,7 +80,9 @@ namespace Org.Apache.REEF.Network.Elastic.Operators.Logical.Default
         /// <param name="message">Incoming message from a task</param>
         /// <param name="returnMessages">Zero or more reply messages for the task</param>
         /// <returns>True if the operator has reacted to the task message</returns>
-        protected override bool ReactOnTaskMessage(ITaskMessage message, ref List<IElasticDriverMessage> returnMessages)
+        protected override bool ReactOnTaskMessage(
+            ITaskMessage message,
+            ref List<IElasticDriverMessage> returnMessages)
         {
             var offset = BitConverter.ToUInt16(message.Message, 0);
             offset += sizeof(ushort);
@@ -105,7 +103,7 @@ namespace Org.Apache.REEF.Network.Elastic.Operators.Logical.Default
                         if (!Stage.IsCompleted && _failureMachine.State.FailureState < (int)DefaultFailureStates.Fail)
                         {
                             var taskId = message.TaskId;
-                            LOGGER.Log(Level.Info, $"{taskId} joins the topology for operator {_id}");
+                            LOGGER.Log(Level.Info, "{0} joins the topology for operator {1}", taskId, _id);
 
                             _topology.AddTask(taskId, _failureMachine);
                         }
@@ -121,9 +119,13 @@ namespace Org.Apache.REEF.Network.Elastic.Operators.Logical.Default
                             return false;
                         }
 
-                        LOGGER.Log(Level.Info, $"Received topology update request for {OperatorType.ToString()} {_id} from {message.TaskId}");
+                        LOGGER.Log(Level.Info, "Received topology update request for {0} {1} from {2}",
+                            OperatorType.ToString(), _id, message.TaskId);
 
-                        _topology.TopologyUpdateResponse(message.TaskId, ref returnMessages, Optional<IFailureStateMachine>.Of(_failureMachine));
+                        _topology.TopologyUpdateResponse(
+                            message.TaskId,
+                            ref returnMessages,
+                            Optional<IFailureStateMachine>.Of(_failureMachine));
 
                         if (_stop)
                         {
@@ -134,7 +136,8 @@ namespace Org.Apache.REEF.Network.Elastic.Operators.Logical.Default
                             else
                             {
                                 returnMessages.Clear();
-                                LOGGER.Log(Level.Info, $"Operator {OperatorType.ToString()} is in stopped: Waiting.");
+                                LOGGER.Log(Level.Info, "Operator {0} is in stopped: Waiting.",
+                                    OperatorType.ToString());
                             }
                         }
 
@@ -159,20 +162,27 @@ namespace Org.Apache.REEF.Network.Elastic.Operators.Logical.Default
         /// </summary>
         public override void OnReconfigure(ref ReconfigureEvent reconfigureEvent)
         {
-            LOGGER.Log(Level.Info, $"Going to reconfigure the {OperatorType.ToString()} operator");
+            LOGGER.Log(Level.Info, "Going to reconfigure the {0} operator", OperatorType.ToString());
 
             if (reconfigureEvent.FailedTask.IsPresent())
             {
                 if (reconfigureEvent.FailedTask.Value.AsError() is OperatorException)
                 {
-                    var info = Optional<string>.Of(((OperatorException)reconfigureEvent.FailedTask.Value.AsError()).AdditionalInfo);
-                    var msg = _topology.Reconfigure(reconfigureEvent.FailedTask.Value.Id, info, reconfigureEvent.Iteration);
+                    var info = Optional<string>.Of(
+                        ((OperatorException)reconfigureEvent.FailedTask.Value.AsError()).AdditionalInfo);
+                    var msg = _topology.Reconfigure(
+                        reconfigureEvent.FailedTask.Value.Id,
+                        info,
+                        reconfigureEvent.Iteration);
 
                     reconfigureEvent.FailureResponse.AddRange(msg);
                 }
                 else
                 {
-                    var msg = _topology.Reconfigure(reconfigureEvent.FailedTask.Value.Id, Optional<string>.Empty(), reconfigureEvent.Iteration);
+                    var msg = _topology.Reconfigure(
+                        reconfigureEvent.FailedTask.Value.Id,
+                        Optional<string>.Empty(),
+                        reconfigureEvent.Iteration);
 
                     reconfigureEvent.FailureResponse.AddRange(msg);
                 }
@@ -188,9 +198,11 @@ namespace Org.Apache.REEF.Network.Elastic.Operators.Logical.Default
             // Iterators manage the re-schuedling of tasks. If not iterator exists, setup the rescheduling.
             if (!WithinIteration)
             {
-                LOGGER.Log(Level.Info, "Going to reschedule task " + rescheduleEvent.TaskId);
+                LOGGER.Log(Level.Info, "Going to reschedule task {0}", rescheduleEvent.TaskId);
 
-                if (!rescheduleEvent.RescheduleTaskConfigurations.TryGetValue(Stage.StageName, out IList<IConfiguration> confs))
+                if (!rescheduleEvent.RescheduleTaskConfigurations.TryGetValue(
+                    Stage.StageName,
+                    out IList<IConfiguration> confs))
                 {
                     confs = new List<IConfiguration>();
                     rescheduleEvent.RescheduleTaskConfigurations.Add(Stage.StageName, confs);

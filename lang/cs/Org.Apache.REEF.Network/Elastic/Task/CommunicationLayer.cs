@@ -51,7 +51,7 @@ namespace Org.Apache.REEF.Network.Elastic.Task.Impl
         private IDisposable _communicationObserver;
         private readonly ConcurrentDictionary<NodeObserverIdentifier, DriverAwareOperatorTopology> _driverMessageObservers;
 
-        protected bool _disposed;
+        protected bool _disposed = false;
 
         protected readonly ConcurrentDictionary<NodeObserverIdentifier, IOperatorTopologyWithCommunication> _groupMessageObservers =
             new ConcurrentDictionary<NodeObserverIdentifier, IOperatorTopologyWithCommunication>();
@@ -77,8 +77,6 @@ namespace Org.Apache.REEF.Network.Elastic.Task.Impl
             _taskToDriverDispatcher = taskToDriverDispatcher;
             _driverMessagesHandler = driverMessagesHandler;
             _idFactory = idFactory;
-
-            _disposed = false;
 
             _communicationObserver = _networkService.RemoteManager.RegisterObserver(this);
             _driverMessageObservers = _driverMessagesHandler.DriverMessageObservers;
@@ -119,8 +117,13 @@ namespace Org.Apache.REEF.Network.Elastic.Task.Impl
         /// <summary>
         /// Send the communication message to the task whose name is included in the message.
         /// </summary>
+        /// <param name="destination">The destination node for the message</param>
         /// <param name="message">The message to send</param>
-        internal void Send(string destination, ElasticGroupCommunicationMessage message, CancellationTokenSource cancellationSource)
+        /// <param name="cancellationSource">The token to cancel the operation</param>
+        internal void Send(
+            string destination,
+            ElasticGroupCommunicationMessage message,
+            CancellationTokenSource cancellationSource)
         {
             if (message == null)
             {
@@ -163,7 +166,11 @@ namespace Org.Apache.REEF.Network.Elastic.Task.Impl
         /// </summary>
         /// <param name="identifiers">The identifier to look up</param>
         /// <param name="cancellationSource">The token to cancel the operation</param>
-        public void WaitForTaskRegistration(IList<string> identifiers, CancellationTokenSource cancellationSource, ConcurrentDictionary<string, byte> removed = null)
+        /// <param name="removed">Nodes that got removed during task registration</param>
+        public void WaitForTaskRegistration(
+            IList<string> identifiers,
+            CancellationTokenSource cancellationSource,
+            ConcurrentDictionary<string, byte> removed = null)
         {
             if (removed == null)
             {
@@ -176,36 +183,40 @@ namespace Org.Apache.REEF.Network.Elastic.Task.Impl
             {
                 if (cancellationSource != null && cancellationSource.Token.IsCancellationRequested)
                 {
-                    LOGGER.Log(Level.Warning, $"WaitForTaskRegistration is canceled in retryCount {i}.");
+                    LOGGER.Log(Level.Warning, "WaitForTaskRegistration is canceled in retryCount {0}.", i);
                     throw new OperationCanceledException("WaitForTaskRegistration is canceled");
                 }
 
-                LOGGER.Log(Level.Info, $"WaitForTaskRegistration, in retryCount {i}.");
+                LOGGER.Log(Level.Info, "WaitForTaskRegistration, in retryCount {0}.", i);
                 foreach (var identifier in identifiers)
                 {
                     var notFound = !foundList.Contains(identifier);
                     if (notFound && removed.ContainsKey(identifier))
                     {
                         foundList.Add(identifier);
-                        LOGGER.Log(Level.Verbose, $"WaitForTaskRegistration, dependent id {identifier} was removed at loop {i}.");
+                        LOGGER.Log(Level.Verbose,
+                            "WaitForTaskRegistration, dependent id {0} was removed at loop {1}.", identifier, i);
                     }
                     else if (notFound && Lookup(identifier))
                     {
                         foundList.Add(identifier);
-                        LOGGER.Log(Level.Verbose, $"WaitForTaskRegistration, find a dependent id {identifier} at loop {i}.");
+                        LOGGER.Log(Level.Verbose,
+                            "WaitForTaskRegistration, find a dependent id {0} at loop {1}.", identifier, i);
                     }
                 }
 
                 if (foundList.Count >= identifiers.Count)
                 {
-                    LOGGER.Log(Level.Info, $"WaitForTaskRegistration, found all {foundList.Count} dependent ids at loop {i}.");
+                    LOGGER.Log(Level.Info,
+                        "WaitForTaskRegistration, found all {0} dependent ids at loop {1}.", foundList.Count, i);
                     return;
                 }
 
                 Thread.Sleep(_sleepTime);
             }
 
-            ICollection<string> leftovers = foundList.Count == 0 ? identifiers : identifiers.Where(e => !foundList.Contains(e)).ToList();
+            ICollection<string> leftovers =
+                foundList.Count == 0 ? identifiers : identifiers.Where(e => !foundList.Contains(e)).ToList();
             var msg = string.Join(",", leftovers);
 
             LOGGER.Log(Level.Error, "Cannot find registered parent/children: {0}.", msg);
@@ -279,7 +290,6 @@ namespace Org.Apache.REEF.Network.Elastic.Task.Impl
                 }
 
                 connection.Write(message);
-                LOGGER.Log(Level.Verbose, $"message sent to {destId}");
             }
             catch (Exception e)
             {

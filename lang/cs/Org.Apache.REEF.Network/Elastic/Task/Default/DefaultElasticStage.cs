@@ -73,7 +73,8 @@ namespace Org.Apache.REEF.Network.Elastic.Task
                     GenericType<OperatorParameters.MessageType>.Class);
 
                 Type groupCommOperatorGenericInterface = typeof(IElasticTypedOperator<>);
-                Type groupCommOperatorInterface = groupCommOperatorGenericInterface.MakeGenericType(Type.GetType(msgType));
+                Type groupCommOperatorInterface =
+                    groupCommOperatorGenericInterface.MakeGenericType(Type.GetType(msgType));
                 var operatorObj = operatorInjector.GetInstance(groupCommOperatorInterface);
 
                 Workflow.Add(operatorObj as IElasticOperator);
@@ -103,7 +104,7 @@ namespace Org.Apache.REEF.Network.Elastic.Task
             }
             catch (OperationCanceledException e)
             {
-                LOGGER.Log(Level.Error, $"Stage {StageName} failed during registration.");
+                LOGGER.Log(Level.Error, "Stage {0} failed during registration.", StageName);
                 throw e;
             }
         }

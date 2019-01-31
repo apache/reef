@@ -69,7 +69,12 @@ namespace Org.Apache.REEF.Network.Elastic.Operators.Logical.Default
         /// <param name="checkpointLevel">The checkpoint policy for the operator</param>
         /// <param name="configurations">Additional configurations for the operator</param>
         /// <returns>The same operator pipeline with the added broadcast operator</returns>
-        public override ElasticOperator Broadcast<T>(int senderId, ITopology topology, IFailureStateMachine failureMachine, CheckpointLevel checkpointLevel, params IConfiguration[] configurations)
+        public override ElasticOperator Broadcast<T>(
+            int senderId,
+            ITopology topology,
+            IFailureStateMachine failureMachine,
+            CheckpointLevel checkpointLevel,
+            params IConfiguration[] configurations)
         {
             _next = new DefaultBroadcast<T>(senderId, this, topology, failureMachine, checkpointLevel, configurations);
             return _next;
@@ -91,11 +96,6 @@ namespace Org.Apache.REEF.Network.Elastic.Operators.Logical.Default
                 var opException = task.AsError() as OperatorException;
                 failedOperatorId = opException.OperatorId;
             }
-            //else
-            //{
-            //    LOGGER.Log(Level.Info, $"Failure from {task.Id} cannot be properly managed: failing.");
-            //    failureEvents.Add(new FailEvent(task.Id));
-            //}
 
             if (WithinIteration || failedOperatorId <= _id)
             {
@@ -135,7 +135,7 @@ namespace Org.Apache.REEF.Network.Elastic.Operators.Logical.Default
                         break;
 
                     default:
-                        LOGGER.Log(Level.Info, $"Failure from {task.Id} requires no action");
+                        LOGGER.Log(Level.Info, "Failure from {0} requires no action", task.Id);
                         break;
                 }
 
@@ -154,7 +154,10 @@ namespace Org.Apache.REEF.Network.Elastic.Operators.Logical.Default
         /// <param name="alarm">The alarm triggering the timeput</param>
         /// <param name="msgs">A list of messages encoding how remote tasks need to react</param>
         /// <param name="nextTimeouts">The next timeouts to be scheduled</param>
-        public override void OnTimeout(Alarm alarm, ref List<IElasticDriverMessage> msgs, ref List<ITimeout> nextTimeouts)
+        public override void OnTimeout(
+            Alarm alarm,
+            ref List<IElasticDriverMessage> msgs,
+            ref List<ITimeout> nextTimeouts)
         {
             if (_next != null)
             {

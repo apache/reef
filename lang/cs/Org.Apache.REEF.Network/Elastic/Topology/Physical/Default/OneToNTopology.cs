@@ -38,7 +38,8 @@ namespace Org.Apache.REEF.Network.Elastic.Topology.Physical.Default
     {
         protected static readonly Logger LOGGER = Logger.GetLogger(typeof(OneToNTopology));
 
-        protected readonly ConcurrentDictionary<string, byte> _nodesToRemove;
+        protected readonly ConcurrentDictionary<string, byte> _nodesToRemove =
+            new ConcurrentDictionary<string, byte>();
 
         protected readonly ManualResetEvent _topologyUpdateReceived;
         protected readonly bool _piggybackTopologyUpdates;
@@ -67,9 +68,16 @@ namespace Org.Apache.REEF.Network.Elastic.Topology.Physical.Default
             int retry,
             int timeout,
             int disposeTimeout,
-            DefaultCommunicationLayer commLayer) : base(stageName, taskId, rootTaskId, operatorId, commLayer, retry, timeout, disposeTimeout)
+            DefaultCommunicationLayer commLayer) : base(
+                stageName,
+                taskId,
+                rootTaskId,
+                operatorId,
+                commLayer,
+                retry,
+                timeout,
+                disposeTimeout)
         {
-            _nodesToRemove = new ConcurrentDictionary<string, byte>();
             _topologyUpdateReceived = new ManualResetEvent(RootTaskId == taskId ? false : true);
 
             _commLayer.RegisterOperatorTopologyForTask(this);
@@ -94,7 +102,7 @@ namespace Org.Apache.REEF.Network.Elastic.Topology.Physical.Default
         }
 
         /// <summary>
-        /// Waiting logic before disposing topologies. 
+        /// Waiting logic before disposing topologies.
         /// </summary>
         public void WaitCompletionBeforeDisposing(CancellationTokenSource cancellationSource)
         {
@@ -125,7 +133,8 @@ namespace Org.Apache.REEF.Network.Elastic.Topology.Physical.Default
             }
             catch (Exception e)
             {
-                throw new IllegalStateException("Failed to find parent/children nodes in operator topology for node: " + TaskId, e);
+                throw new IllegalStateException(
+                    "Failed to find parent/children nodes in operator topology for node: " + TaskId, e);
             }
 
             _initialized = true;
@@ -182,7 +191,7 @@ namespace Org.Apache.REEF.Network.Elastic.Topology.Physical.Default
                         {
                             foreach (var node in updates.Children)
                             {
-                                LOGGER.Log(Level.Info, $"Removing task {node} from the topology.");
+                                LOGGER.Log(Level.Info, "Removing task {0} from the topology.", node);
                                 _nodesToRemove.TryAdd(node, new byte());
                                 _commLayer.RemoveConnection(node);
                             }
@@ -219,12 +228,15 @@ namespace Org.Apache.REEF.Network.Elastic.Topology.Physical.Default
                         }
                         else
                         {
-                            LOGGER.Log(Level.Warning, "Received a topology update message from driver but sending queue is empty: ignoring.");
+                            LOGGER.Log(Level.Warning, "Received a topology update message from driver "
+                                + "but sending queue is empty: ignoring.");
                         }
                     }
                     break;
+
                 default:
-                    throw new ArgumentException($"Message type {message.PayloadType} not supported by N to one topologies.");
+                    throw new ArgumentException(
+                        $"Message type {message.PayloadType} not supported by N to one topologies.");
             }
         }
 

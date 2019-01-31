@@ -51,7 +51,7 @@ namespace Org.Apache.REEF.Network.Examples.Elastic
 
                         sender.Send(number);
 
-                        LOGGER.Log(Level.Info, $"Master has sent {number}");
+                        LOGGER.Log(Level.Info, "Master has sent {0}", number);
                         break;
 
                     default:

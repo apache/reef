@@ -62,7 +62,7 @@ namespace Org.Apache.REEF.Network.Examples.Elastic
 
                         var rec = receiver.Receive();
 
-                        LOGGER.Log(Level.Info, $"Slave has received {rec}");
+                        LOGGER.Log(Level.Info, "Slave has received {0}", rec);
 
                         if (_rand.Next(100) < _failProb)
                         {

@@ -43,7 +43,7 @@ namespace Org.Apache.REEF.Network.Elastic.Task
         private int _position = -1;
         private bool _failed = false;
         private bool _disposed = false;
-        private List<int> _iteratorsPosition = new List<int>();
+        private readonly List<int> _iteratorsPosition = new List<int>();
 
         private readonly object _lock = new object();
         private readonly IList<IElasticOperator> _operators = new List<IElasticOperator>();

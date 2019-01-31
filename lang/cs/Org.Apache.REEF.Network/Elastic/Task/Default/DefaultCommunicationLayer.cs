@@ -25,6 +25,7 @@ using Org.Apache.REEF.Utilities.Logging;
 using Org.Apache.REEF.Network.Elastic.Comm.Impl;
 using Org.Apache.REEF.Network.Elastic.Topology.Physical;
 using Org.Apache.REEF.Utilities.Attributes;
+using static Org.Apache.REEF.Network.Elastic.Config.GroupCommunicationConfigurationOptions;
 
 namespace Org.Apache.REEF.Network.Elastic.Task.Impl
 {
@@ -43,9 +44,9 @@ namespace Org.Apache.REEF.Network.Elastic.Task.Impl
         /// </summary>
         [Inject]
         private DefaultCommunicationLayer(
-            [Parameter(typeof(GroupCommunicationConfigurationOptions.Timeout))] int timeout,
-            [Parameter(typeof(GroupCommunicationConfigurationOptions.RetryCountWaitingForRegistration))] int retryRegistration,
-            [Parameter(typeof(GroupCommunicationConfigurationOptions.SleepTimeWaitingForRegistration))] int sleepTime,
+            [Parameter(typeof(Timeout))] int timeout,
+            [Parameter(typeof(RetryCountWaitingForRegistration))] int retryRegistration,
+            [Parameter(typeof(SleepTimeWaitingForRegistration))] int sleepTime,
             [Parameter(typeof(ElasticServiceConfigurationOptions.SendRetry))] int retrySending,
             StreamingNetworkService<ElasticGroupCommunicationMessage> networkService,
             DefaultTaskToDriverMessageDispatcher taskToDriverDispatcher,
@@ -84,7 +85,8 @@ namespace Org.Apache.REEF.Network.Elastic.Task.Impl
 
             if (!_groupMessageObservers.TryGetValue(id, out operatorObserver))
             {
-                throw new KeyNotFoundException($"Unable to find registered operator topology for stage {gcm.StageName} operator {gcm.OperatorId}");
+                throw new KeyNotFoundException(
+                    $"Unable to find registered operator topology for stage {gcm.StageName} operator {gcm.OperatorId}");
             }
 
             operatorObserver.OnNext(nsMessage);

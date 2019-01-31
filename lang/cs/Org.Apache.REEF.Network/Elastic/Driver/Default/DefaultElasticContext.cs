@@ -52,8 +52,6 @@ namespace Org.Apache.REEF.Network.Elastic.Driver.Default
     [Unstable("0.16", "API may change")]
     internal sealed class DefaultElasticContext : IElasticContext, IDefaultFailureEventResponse
     {
-        private static readonly Logger LOGGER = Logger.GetLogger(typeof(DefaultElasticContext));
-
         private readonly int _startingPort;
         private readonly int _portRange;
         private readonly string _driverId;
@@ -69,13 +67,13 @@ namespace Org.Apache.REEF.Network.Elastic.Driver.Default
         private readonly string _batchId;
         private readonly string _rackName;
 
-        private readonly Dictionary<string, IElasticStage> _stages;
+        private readonly Dictionary<string, IElasticStage> _stages = new Dictionary<string, IElasticStage>();
         private readonly AvroConfigurationSerializer _configSerializer;
 
         private readonly object _subsLock = new object();
         private readonly object _statusLock = new object();
 
-        private IFailureState _failureStatus;
+        private IFailureState _failureStatus = new DefaultFailureState();
 
         [Inject]
         private DefaultElasticContext(
@@ -104,11 +102,7 @@ namespace Org.Apache.REEF.Network.Elastic.Driver.Default
             _cores = cores;
             _batchId = batchId;
             _rackName = rackName;
-
-            _failureStatus = new DefaultFailureState();
             _configSerializer = configSerializer;
-            _stages = new Dictionary<string, IElasticStage>();
-
             _nameServer = nameServer;
             IPEndPoint localEndpoint = nameServer.LocalEndpoint;
             _nameServerAddr = localEndpoint.Address.ToString();
@@ -128,7 +122,10 @@ namespace Org.Apache.REEF.Network.Elastic.Driver.Default
 
                 if (defaultStage == null)
                 {
-                    CreateNewStage(_defaultStageName, _numEvaluators, _defaultFailureMachine.Clone(_numEvaluators, (int)DefaultFailureStates.Fail));
+                    CreateNewStage(
+                        _defaultStageName,
+                        _numEvaluators,
+                        _defaultFailureMachine.Clone(_numEvaluators, (int)DefaultFailureStates.Fail));
                 }
 
                 return _stages[_defaultStageName];
@@ -194,7 +191,7 @@ namespace Org.Apache.REEF.Network.Elastic.Driver.Default
         }
 
         /// <summary>
-        /// Generate the base configuration module for tasks. 
+        /// Generate the base configuration module for tasks.
         /// This method is method can be used to generate configurations for the task set menager.
         /// </summary>
         /// <param name="taskId">The id of the task the configuration is generate for</param>
@@ -231,7 +228,9 @@ namespace Org.Apache.REEF.Network.Elastic.Driver.Default
         /// <param name="slaveTaskConfiguration">The configuration for the slave task</param>
         /// <returns>A new task set manager</returns>
 
-        public IElasticTaskSetManager CreateNewTaskSetManager(Func<string, IConfiguration> masterTaskConfiguration, Func<string, IConfiguration> slaveTaskConfiguration = null)
+        public IElasticTaskSetManager CreateNewTaskSetManager(
+            Func<string, IConfiguration> masterTaskConfiguration,
+            Func<string, IConfiguration> slaveTaskConfiguration = null)
         {
             return CreateNewTaskSetManager(_numEvaluators, masterTaskConfiguration, slaveTaskConfiguration);
         }
@@ -243,9 +242,17 @@ namespace Org.Apache.REEF.Network.Elastic.Driver.Default
         /// <param name="masterTaskConfiguration">The configuration for the master task</param>
         /// <param name="slaveTaskConfiguration">The configuration for the slave task</param>
         /// <returns>A new task set manager</returns>
-        public IElasticTaskSetManager CreateNewTaskSetManager(int numOfTasks, Func<string, IConfiguration> masterTaskConfiguration, Func<string, IConfiguration> slaveTaskConfiguration = null)
+        public IElasticTaskSetManager CreateNewTaskSetManager(
+            int numOfTasks,
+            Func<string, IConfiguration> masterTaskConfiguration,
+            Func<string, IConfiguration> slaveTaskConfiguration = null)
         {
-            return new DefaultElasticTaskSetManager(numOfTasks, _evaluatorRequestor, _driverId, masterTaskConfiguration, slaveTaskConfiguration);
+            return new DefaultElasticTaskSetManager(
+                numOfTasks,
+                _evaluatorRequestor,
+                _driverId,
+                masterTaskConfiguration,
+                slaveTaskConfiguration);
         }
 
         /// <summary>
@@ -282,7 +289,9 @@ namespace Org.Apache.REEF.Network.Elastic.Driver.Default
         /// <param name="confBuilder">The configuration where the stage configuration will be appended to</param>
         /// <param name="stageConf">The stage configuration at hand</param>
         /// <returns>The configuration containing the serialized stage configuration</returns>
-        public void SerializeStageConfiguration(ref ICsConfigurationBuilder confBuilder, IConfiguration stageConfiguration)
+        public void SerializeStageConfiguration(
+            ref ICsConfigurationBuilder confBuilder,
+            IConfiguration stageConfiguration)
         {
             confBuilder.BindSetEntry<ElasticServiceConfigurationOptions.SerializedStageConfigs, string>(
                 GenericType<ElasticServiceConfigurationOptions.SerializedStageConfigs>.Class,
@@ -292,15 +301,19 @@ namespace Org.Apache.REEF.Network.Elastic.Driver.Default
         /// <summary>
         /// Append an operator configuration to a configuration builder object.
         /// </summary>
-        /// <param name="serializedOperatorsConfs">The list where the operator configuration will be appended to</param>
+        /// <param name="serializedOperatorsConfs">The list where the operator configuration
+        /// will be appended to</param>
         /// <param name="stageConf">The operator configuration at hand</param>
         /// <returns>The configuration containing the serialized operator configuration</returns>
-        public void SerializeOperatorConfiguration(ref IList<string> serializedOperatorsConfs, IConfiguration operatorConfiguration)
+        public void SerializeOperatorConfiguration(
+            ref IList<string> serializedOperatorsConfs,
+            IConfiguration operatorConfiguration)
         {
             serializedOperatorsConfs.Add(_configSerializer.ToString(operatorConfiguration));
         }
 
         #region Failure Response
+
         /// <summary>
         /// Used to react on a failure occurred on a task.
         /// It gets a failed task as input and in response it produces zero or more failure events.
@@ -340,23 +353,27 @@ namespace Org.Apache.REEF.Network.Elastic.Driver.Default
                     var rec = @event as ReconfigureEvent;
                     OnReconfigure(ref rec);
                     break;
+
                 case DefaultFailureStateEvents.Reschedule:
                     var res = @event as RescheduleEvent;
                     OnReschedule(ref res);
                     break;
+
                 case DefaultFailureStateEvents.Stop:
                     var stp = @event as StopEvent;
                     OnStop(ref stp);
                     break;
+
                 default:
                     OnFail();
                     break;
             }
         }
 
-        #endregion
+        #endregion Failure Response
 
         #region Default Failure event Response
+
         /// <summary>
         /// Mechanism to execute when a reconfigure event is triggered.
         /// <paramref name="reconfigureEvent"/>
@@ -365,7 +382,8 @@ namespace Org.Apache.REEF.Network.Elastic.Driver.Default
         {
             lock (_statusLock)
             {
-                _failureStatus = _failureStatus.Merge(new DefaultFailureState((int)DefaultFailureStates.ContinueAndReconfigure));
+                _failureStatus = _failureStatus.Merge(
+                    new DefaultFailureState((int)DefaultFailureStates.ContinueAndReconfigure));
             }
         }
 
@@ -377,7 +395,8 @@ namespace Org.Apache.REEF.Network.Elastic.Driver.Default
         {
             lock (_statusLock)
             {
-                _failureStatus = _failureStatus.Merge(new DefaultFailureState((int)DefaultFailureStates.ContinueAndReschedule));
+                _failureStatus = _failureStatus.Merge(
+                    new DefaultFailureState((int)DefaultFailureStates.ContinueAndReschedule));
             }
         }
 
@@ -403,6 +422,7 @@ namespace Org.Apache.REEF.Network.Elastic.Driver.Default
                 _failureStatus = _failureStatus.Merge(new DefaultFailureState((int)DefaultFailureStates.Fail));
             }
         }
-        #endregion
+
+        #endregion Default Failure event Response
     }
 }

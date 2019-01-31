@@ -30,7 +30,9 @@ namespace Org.Apache.REEF.Network.Elastic.Task.Impl
     /// messages dispatcher.
     /// </summary>
     [Unstable("0.16", "API may change")]
-    internal sealed class DefaultTaskToDriverMessageDispatcher : TaskToDriverMessageDispatcher, IDefaultTaskToDriverMessages
+    internal sealed class DefaultTaskToDriverMessageDispatcher :
+        TaskToDriverMessageDispatcher,
+        IDefaultTaskToDriverMessages
     {
         private static readonly Logger LOGGER = Logger.GetLogger(typeof(DefaultTaskToDriverMessageDispatcher));
 
@@ -57,11 +59,12 @@ namespace Org.Apache.REEF.Network.Elastic.Task.Impl
             offset += sizeof(ushort);
             Buffer.BlockCopy(ByteUtilities.StringToByteArrays(stageName), 0, message, offset, stageName.Length);
             offset += stageName.Length;
-            Buffer.BlockCopy(BitConverter.GetBytes((ushort)TaskMessageType.JoinTopology), 0, message, offset, sizeof(ushort));
+            Buffer.BlockCopy(
+                BitConverter.GetBytes((ushort)TaskMessageType.JoinTopology), 0, message, offset, sizeof(ushort));
             offset += sizeof(ushort);
             Buffer.BlockCopy(BitConverter.GetBytes((ushort)operatorId), 0, message, offset, sizeof(ushort));
 
-            LOGGER.Log(Level.Info, $"Operator {operatorId} requesting to join the topology through heartbeat.");
+            LOGGER.Log(Level.Info, "Operator {0} requesting to join the topology through heartbeat.", operatorId);
 
             Send(taskId, message);
         }
@@ -79,11 +82,16 @@ namespace Org.Apache.REEF.Network.Elastic.Task.Impl
             offset += sizeof(ushort);
             Buffer.BlockCopy(ByteUtilities.StringToByteArrays(stageName), 0, message, offset, stageName.Length);
             offset += stageName.Length;
-            Buffer.BlockCopy(BitConverter.GetBytes((ushort)TaskMessageType.TopologyUpdateRequest), 0, message, offset, sizeof(ushort));
+            Buffer.BlockCopy(
+                BitConverter.GetBytes((ushort)TaskMessageType.TopologyUpdateRequest),
+                0,
+                message,
+                offset,
+                sizeof(ushort));
             offset += sizeof(ushort);
             Buffer.BlockCopy(BitConverter.GetBytes((ushort)operatorId), 0, message, offset, sizeof(ushort));
 
-            LOGGER.Log(Level.Info, string.Format($"Operator {operatorId} requesting a topology update through heartbeat."));
+            LOGGER.Log(Level.Info, "Operator {0} requesting a topology update through heartbeat.", operatorId);
 
             Send(taskId, message);
         }
@@ -100,7 +108,8 @@ namespace Org.Apache.REEF.Network.Elastic.Task.Impl
             offset += sizeof(ushort);
             Buffer.BlockCopy(ByteUtilities.StringToByteArrays(stageName), 0, message, offset, stageName.Length);
             offset += stageName.Length;
-            Buffer.BlockCopy(BitConverter.GetBytes((ushort)TaskMessageType.CompleteStage), 0, message, offset, sizeof(ushort));
+            Buffer.BlockCopy(
+                BitConverter.GetBytes((ushort)TaskMessageType.CompleteStage), 0, message, offset, sizeof(ushort));
 
             LOGGER.Log(Level.Info, "Sending notification that the stage is completed.");
 

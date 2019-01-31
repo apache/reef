@@ -39,8 +39,8 @@ using Org.Apache.REEF.Tang.Implementations.Tang;
 namespace Org.Apache.REEF.Network.Elastic.Driver.Default
 {
     /// <summary>
-    /// Used to group elastic operators into logical units. 
-    /// All operators in the same stages share similar semantics and behavior 
+    /// Used to group elastic operators into logical units.
+    /// All operators in the same stages share similar semantics and behavior
     /// under failures. Stages can only be created by a service.
     /// This class is used to create stages able to manage default failure events.
     /// </summary>
@@ -49,13 +49,13 @@ namespace Org.Apache.REEF.Network.Elastic.Driver.Default
     {
         private static readonly Logger LOGGER = Logger.GetLogger(typeof(DefaultElasticStage));
 
-        private bool _finalized;
-        private volatile bool _scheduled;
+        private bool _finalized = false;
+        private volatile bool _scheduled = false;
 
         private readonly int _numTasks;
-        private int _tasksAdded;
-        private HashSet<string> _missingMasterTasks;
-        private HashSet<string> _masterTasks;
+        private int _tasksAdded = 0;
+        private HashSet<string> _missingMasterTasks = new HashSet<string>();
+        private HashSet<string> _masterTasks = new HashSet<string>();
         private readonly IFailureStateMachine _failureMachine;
 
         private int _numOperators;
@@ -79,11 +79,7 @@ namespace Org.Apache.REEF.Network.Elastic.Driver.Default
             IFailureStateMachine failureMachine = null)
         {
             StageName = stageName;
-            _finalized = false;
-            _scheduled = false;
             _numTasks = numTasks;
-            _tasksAdded = 0;
-            _masterTasks = new HashSet<string>();
             _datasetConfiguration = Optional<IConfiguration[]>.Empty();
             Context = elasticService;
             _failureMachine = failureMachine ?? new DefaultFailureStateMachine(numTasks, DefaultFailureStates.Fail);
@@ -114,7 +110,7 @@ namespace Org.Apache.REEF.Network.Elastic.Driver.Default
         public bool IsIterative { get; set; }
 
         /// <summary>
-        /// The failure state of the target stages. 
+        /// The failure state of the target stages.
         /// </summary>
         public IFailureState FailureState { get; private set; }
 
@@ -176,12 +172,13 @@ namespace Org.Apache.REEF.Network.Elastic.Driver.Default
 
                 if (_datasetConfiguration.Value.Length + adjust < _numTasks)
                 {
-                    throw new IllegalStateException($"Dataset is smaller than the number of tasks: re-submit with {_datasetConfiguration.Value.Length + adjust} tasks");
+                    throw new IllegalStateException(
+                        $"Dataset is smaller than the number of tasks: "
+                        + "re-submit with {_datasetConfiguration.Value.Length + adjust} tasks");
                 }
             }
 
             PipelineRoot.GatherMasterIds(ref _masterTasks);
-            _missingMasterTasks = new HashSet<string>(_masterTasks);
 
             _finalized = true;
 
@@ -216,18 +213,21 @@ namespace Org.Apache.REEF.Network.Elastic.Driver.Default
             {
                 // We don't add a task if eventually we end up by not adding the master task
                 var tooManyTasks = _tasksAdded >= _numTasks;
-                var notAddingMaster = _tasksAdded + _missingMasterTasks.Count >= _numTasks && !_missingMasterTasks.Contains(taskId);
+                var notAddingMaster = _tasksAdded + _missingMasterTasks.Count >= _numTasks &&
+                    !_missingMasterTasks.Contains(taskId);
 
                 if (!_scheduled && (tooManyTasks || notAddingMaster))
                 {
                     if (tooManyTasks)
                     {
-                        LOGGER.Log(Level.Warning, $"Already added {_tasksAdded} tasks when total tasks request is {_numTasks}");
+                        LOGGER.Log(Level.Warning,
+                            "Already added {0} tasks when total tasks request is {1}", _tasksAdded, _numTasks);
                     }
 
                     if (notAddingMaster)
                     {
-                        LOGGER.Log(Level.Warning, $"Already added {_tasksAdded} over {_numTasks} but missing master task(s)");
+                        LOGGER.Log(Level.Warning,
+                            "Already added {0} over {1} but missing master task(s)", _tasksAdded, _numTasks);
                     }
 
                     return false;
@@ -250,15 +250,19 @@ namespace Org.Apache.REEF.Network.Elastic.Driver.Default
 
         /// <summary>
         /// Decides if the tasks added to the stages can be scheduled for execution
-        /// or not. This method is used for implementing different policies for 
+        /// or not. This method is used for implementing different policies for
         /// triggering the scheduling of tasks.
         /// </summary>
         /// <returns>True if the previously added tasks can be scheduled for execution</returns>
         public bool ScheduleStage()
         {
-            // Schedule if we reach the number of requested tasks or the stage contains an iterative pipeline that is ready to be scheduled and the 
-            // policy requested by the user allow early start with ramp up.
-            if (!_scheduled && (_numTasks == _tasksAdded || (IsIterative && _failureMachine.State.FailureState < (int)DefaultFailureStates.StopAndReschedule && PipelineRoot.CanBeScheduled())))
+            // Schedule if we reach the number of requested tasks or the stage contains an iterative pipeline
+            // that is ready to be scheduled and the policy requested by the user allow early start with ramp up.
+            if (!_scheduled &&
+                (_numTasks == _tasksAdded ||
+                    (IsIterative &&
+                        _failureMachine.State.FailureState < (int)DefaultFailureStates.StopAndReschedule &&
+                        PipelineRoot.CanBeScheduled())))
             {
                 _scheduled = true;
 
@@ -313,7 +317,7 @@ namespace Org.Apache.REEF.Network.Elastic.Driver.Default
         /// Given a task id, this method returns the configuration of the task's data partition
         /// (if any).
         /// </summary>
-        /// <param name="taskId">The task id of the task we wanto to retrieve the data partition. 
+        /// <param name="taskId">The task id of the task we wanto to retrieve the data partition.
         /// The task is required to belong to thq stages</param>
         /// <returns>The configuration of the data partition (if any) of the task</returns>
         public Optional<IConfiguration> GetPartitionConf(string taskId)
@@ -341,12 +345,12 @@ namespace Org.Apache.REEF.Network.Elastic.Driver.Default
         {
             lock (_statusLock)
             {
-                FailureState = FailureState.Merge(_failureMachine.Complete()); 
+                FailureState = FailureState.Merge(_failureMachine.Complete());
             }
         }
 
         /// <summary>
-        /// Retrieve the log the final statistics of the computation: this is the sum of all 
+        /// Retrieve the log the final statistics of the computation: this is the sum of all
         /// the stats of all the Operators compising the stage. This method can be called
         /// only once the stages is completed.
         /// </summary>
@@ -359,16 +363,18 @@ namespace Org.Apache.REEF.Network.Elastic.Driver.Default
             }
             else
             {
-                throw new IllegalStateException($"Cannot log statistics before Stage {StageName} is completed or failed.");
+                throw new IllegalStateException(
+                    $"Cannot log statistics before Stage {StageName} is completed or failed.");
             }
         }
 
         /// <summary>
-        /// Method triggered when a task to driver message is received. 
+        /// Method triggered when a task to driver message is received.
         /// </summary>
         /// <param name="message">The task message for the operator</param>
         /// <param name="returnMessages">A list of messages containing the instructions for the task</param>
-        /// <exception cref="IllegalStateException">If the message cannot be handled correctly or generate an incorrent state</exception>
+        /// <exception cref="IllegalStateException">If the message cannot be handled correctly or generate
+        /// an incorrent state</exception>
         public void OnTaskMessage(ITaskMessage message, ref List<IElasticDriverMessage> returnMessages)
         {
             int offset = 0;
@@ -425,14 +431,17 @@ namespace Org.Apache.REEF.Network.Elastic.Driver.Default
                     var rec = @event as ReconfigureEvent;
                     OnReconfigure(ref rec);
                     break;
+
                 case DefaultFailureStateEvents.Reschedule:
                     var res = @event as RescheduleEvent;
                     OnReschedule(ref res);
                     break;
+
                 case DefaultFailureStateEvents.Stop:
                     var stp = @event as StopEvent;
                     OnStop(ref stp);
                     break;
+
                 default:
                     OnFail();
                     break;
@@ -441,7 +450,7 @@ namespace Org.Apache.REEF.Network.Elastic.Driver.Default
             PipelineRoot.EventDispatcher(ref @event);
         }
 
-        #endregion
+        #endregion Failure Response
 
         #region Default Failure Events Response
 
@@ -453,7 +462,8 @@ namespace Org.Apache.REEF.Network.Elastic.Driver.Default
         {
             lock (_statusLock)
             {
-                FailureState = FailureState.Merge(new DefaultFailureState((int)DefaultFailureStates.ContinueAndReconfigure));
+                FailureState = FailureState.Merge(
+                    new DefaultFailureState((int)DefaultFailureStates.ContinueAndReconfigure));
             }
         }
 
@@ -465,7 +475,8 @@ namespace Org.Apache.REEF.Network.Elastic.Driver.Default
         {
             lock (_statusLock)
             {
-                FailureState = FailureState.Merge(new DefaultFailureState((int)DefaultFailureStates.ContinueAndReschedule));
+                FailureState = FailureState.Merge(
+                    new DefaultFailureState((int)DefaultFailureStates.ContinueAndReschedule));
             }
         }
 
@@ -477,7 +488,8 @@ namespace Org.Apache.REEF.Network.Elastic.Driver.Default
         {
             lock (_statusLock)
             {
-                FailureState = FailureState.Merge(new DefaultFailureState((int)DefaultFailureStates.StopAndReschedule));
+                FailureState = FailureState.Merge(
+                    new DefaultFailureState((int)DefaultFailureStates.StopAndReschedule));
             }
         }
 
@@ -492,6 +504,6 @@ namespace Org.Apache.REEF.Network.Elastic.Driver.Default
             }
         }
 
-        #endregion
+        #endregion Default Failure Events Response
     }
 }

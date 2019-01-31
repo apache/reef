@@ -89,8 +89,8 @@ namespace Org.Apache.REEF.Network.Elastic.Operators.Logical
         protected readonly int _id;
         protected readonly IConfiguration[] _configurations;
 
-        protected bool _operatorFinalized;
-        protected volatile bool _operatorStateFinalized;
+        protected bool _operatorFinalized = false;
+        protected volatile bool _operatorStateFinalized = false;
         protected IElasticStage _stage;
 
         /// <summary>
@@ -117,8 +117,6 @@ namespace Org.Apache.REEF.Network.Elastic.Operators.Logical
             _failureMachine = failureMachine;
             _checkpointLevel = checkpointLevel;
             _configurations = configurations;
-            _operatorFinalized = false;
-            _operatorStateFinalized = false;
 
             _topology.OperatorId = _id;
             _topology.StageName = Stage.StageName;
@@ -172,7 +170,12 @@ namespace Org.Apache.REEF.Network.Elastic.Operators.Logical
         /// <returns>The same operator pipeline with the added broadcast operator</returns>
         public ElasticOperator Broadcast<T>(TopologyType topology, params IConfiguration[] configurations)
         {
-            return Broadcast<T>(MasterId, GetTopology(topology), _failureMachine.Clone(), CheckpointLevel.None, configurations);
+            return Broadcast<T>(
+                MasterId,
+                GetTopology(topology),
+                _failureMachine.Clone(),
+                CheckpointLevel.None,
+                configurations);
         }
 
         /// <summary>
@@ -184,9 +187,17 @@ namespace Org.Apache.REEF.Network.Elastic.Operators.Logical
         /// <param name="checkpointLevel">The checkpoint policy for the operator</param>
         /// <param name="configurations">Additional configurations for the operator</param>
         /// <returns>The same operator pipeline with the added broadcast operator</returns>
-        public ElasticOperator Broadcast<T>(TopologyType topology, CheckpointLevel checkpointLevel, params IConfiguration[] configurations)
+        public ElasticOperator Broadcast<T>(
+            TopologyType topology,
+            CheckpointLevel checkpointLevel,
+            params IConfiguration[] configurations)
         {
-            return Broadcast<T>(MasterId, GetTopology(topology), _failureMachine.Clone(), checkpointLevel, configurations);
+            return Broadcast<T>(
+                MasterId,
+                GetTopology(topology),
+                _failureMachine.Clone(),
+                checkpointLevel,
+                configurations);
         }
 
         /// <summary>
@@ -196,7 +207,8 @@ namespace Org.Apache.REEF.Network.Elastic.Operators.Logical
         /// <param name="message">The task message for the operator</param>
         /// <param name="returnMessages">A list of messages containing the instructions for the task</param>
         /// <returns>True if the message was managed correctly, false otherwise</returns>
-        /// <exception cref="IllegalStateException">If the message cannot be handled correctly or generate an incorrent state</exception>
+        /// <exception cref="IllegalStateException">If the message cannot be handled correctly or
+        /// generate an incorrent state</exception>
         public void OnTaskMessage(ITaskMessage message, ref List<IElasticDriverMessage> returnMessages)
         {
             var hasReacted = ReactOnTaskMessage(message, ref returnMessages);
@@ -325,7 +337,12 @@ namespace Org.Apache.REEF.Network.Elastic.Operators.Logical
         /// <param name="checkpointLevel">The checkpoint policy for the operator</param>
         /// <param name="configurations">Additional configurations for the operator</param>
         /// <returns>The same operator pipeline with the added broadcast operator</returns>
-        public abstract ElasticOperator Broadcast<T>(int senderId, ITopology topology, IFailureStateMachine failureMachine, CheckpointLevel checkpointLevel = CheckpointLevel.None, params IConfiguration[] configurations);
+        public abstract ElasticOperator Broadcast<T>(
+            int senderId,
+            ITopology topology,
+            IFailureStateMachine failureMachine,
+            CheckpointLevel checkpointLevel = CheckpointLevel.None,
+            params IConfiguration[] configurations);
 
         /// <summary>
         /// Used to react on a failure occurred on a task.
@@ -343,7 +360,10 @@ namespace Org.Apache.REEF.Network.Elastic.Operators.Logical
         /// <param name="alarm">The alarm triggering the timeput</param>
         /// <param name="msgs">A list of messages encoding how remote Tasks need to reach</param>
         /// <param name="nextTimeouts">The next timeouts to be scheduled</param>
-        public abstract void OnTimeout(Alarm alarm, ref List<IElasticDriverMessage> msgs, ref List<ITimeout> nextTimeouts);
+        public abstract void OnTimeout(
+            Alarm alarm,
+            ref List<IElasticDriverMessage> msgs,
+            ref List<ITimeout> nextTimeouts);
 
         /// <summary>
         /// When a new failure state is reached, this method is used to dispatch
@@ -467,7 +487,8 @@ namespace Org.Apache.REEF.Network.Elastic.Operators.Logical
         /// <summary>
         /// This method is operator specific and serializes the operator configuration into the input list.
         /// </summary>
-        /// <param name="serializedOperatorsConfs">A list the serialized operator configuration will be appended to</param>
+        /// <param name="serializedOperatorsConfs">A list the serialized operator configuration will be
+        /// appended to</param>
         /// <param name="taskId">The task id of the task that belongs to this operator</param>
         protected virtual void GetOperatorConfiguration(ref IList<string> serializedOperatorsConfs, int taskId)
         {
@@ -558,7 +579,10 @@ namespace Org.Apache.REEF.Network.Elastic.Operators.Logical
                     topology = new FlatTopology(MasterId);
                     break;
 
-                default: throw new ArgumentException(nameof(topologyType), $"Topology type {topologyType} not supported by {OperatorType.ToString()}.");
+                default:
+                    throw new ArgumentException(
+               nameof(topologyType),
+               $"Topology type {topologyType} not supported by {OperatorType.ToString()}.");
             }
 
             return topology;
