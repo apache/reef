@@ -207,7 +207,7 @@ namespace Org.Apache.REEF.Network.Elastic.Failures.Default
         /// </summary>
         /// <param name="level">The failure state we want to change</param>
         /// <param name="threshold">A [0, 1] value specifying when the failure level is reached</param>
-        public void SetThreashold(IFailureState level, float threshold)
+        public void SetThreshold(IFailureState level, float threshold)
         {
             if (!(level is DefaultFailureState))
             {
@@ -231,7 +231,7 @@ namespace Org.Apache.REEF.Network.Elastic.Failures.Default
         /// A utility method for setting multiple threshold at once.
         /// </summary>
         /// <param name="weights">Pairs of failure states with related new thresholds</param>
-        public void SetThreasholds(Tuple<IFailureState, float>[] weights)
+        public void SetThresholds(Tuple<IFailureState, float>[] weights)
         {
             if (!weights.All(weight => weight.Item1 is DefaultFailureState))
             {
@@ -267,7 +267,7 @@ namespace Org.Apache.REEF.Network.Elastic.Failures.Default
 
             foreach (DefaultFailureStates state in transitionWeights.Keys.OrderByDescending(x => x))
             {
-                newMachine.SetThreashold(new DefaultFailureState((int)state), transitionWeights[state]);
+                newMachine.SetThreshold(new DefaultFailureState((int)state), transitionWeights[state]);
             }
 
             return newMachine;

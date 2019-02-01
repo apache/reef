@@ -60,5 +60,10 @@ namespace Org.Apache.REEF.Network.Elastic.Failures.Default
         {
             return new DefaultFailureState(Math.Max(FailureState, that.FailureState));
         }
+
+        public static Tuple<IFailureState, float> Threshold(DefaultFailureStates state, float weight)
+        {
+            return new Tuple<IFailureState, float>(new DefaultFailureState((int)state), weight);
+        }
     }
 }

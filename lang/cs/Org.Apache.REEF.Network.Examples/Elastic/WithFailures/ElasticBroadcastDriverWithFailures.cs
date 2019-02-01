@@ -45,20 +45,12 @@ namespace Org.Apache.REEF.Network.Examples.Elastic
         {
             IFailureStateMachine failureMachine = new DefaultFailureStateMachine();
 
-            failureMachine.SetThreasholds(new Tuple<IFailureState, float>[]
+            failureMachine.SetThresholds(new Tuple<IFailureState, float>[]
             {
-                Tuple.Create(
-                    new DefaultFailureState(
-                        (int)DefaultFailureStates.ContinueAndReconfigure) as IFailureState, 0.01F),
-                Tuple.Create(
-                    new DefaultFailureState(
-                        (int)DefaultFailureStates.ContinueAndReschedule) as IFailureState, 0.40F),
-                Tuple.Create(
-                    new DefaultFailureState(
-                        (int)DefaultFailureStates.StopAndReschedule) as IFailureState, 0.60F),
-                Tuple.Create(
-                    new DefaultFailureState(
-                        (int)DefaultFailureStates.Fail) as IFailureState, 0.80F)
+                DefaultFailureState.Threshold(DefaultFailureStates.ContinueAndReconfigure, 0.01F),
+                DefaultFailureState.Threshold(DefaultFailureStates.ContinueAndReschedule, 0.40F),
+                DefaultFailureState.Threshold(DefaultFailureStates.StopAndReschedule, 0.60F),
+                DefaultFailureState.Threshold(DefaultFailureStates.Fail, 0.80F)
             });
 
             IElasticStage stage = Context.CreateNewStage(stageName, numEvaluators, failureMachine);

@@ -53,17 +53,19 @@ namespace Org.Apache.REEF.Network.Elastic.Failures
         /// <summary>
         /// Method used to set or update the current threshold connected with
         /// a target failure state. The assumption is that higher failure states
-        /// have higher thresholds.
+        /// have higher thresholds. If multiple threshould need to be changed, use
+        /// the SetThresholds method instead.
         /// </summary>
         /// <param name="level">The failure state we want to change</param>
         /// <param name="threshold">A [0, 1] value specifying when the failure level is reached</param>
-        void SetThreashold(IFailureState level, float threshold);
+        void SetThreshold(IFailureState level, float threshold);
 
         /// <summary>
         /// A utility method for setting multiple threshold at once.
+        /// This method is appropriate when multiple threshould needs to be setted at once.
         /// </summary>
         /// <param name="weights">Pairs of failure states with related new thresholds</param>
-        void SetThreasholds(Tuple<IFailureState, float>[] weights);
+        void SetThresholds(Tuple<IFailureState, float>[] weights);
 
         /// <summary>
         /// Add new data point(s) to the failure machine.
