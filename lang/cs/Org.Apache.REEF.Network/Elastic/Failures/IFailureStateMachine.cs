@@ -65,7 +65,7 @@ namespace Org.Apache.REEF.Network.Elastic.Failures
         /// This method is appropriate when multiple threshould needs to be setted at once.
         /// </summary>
         /// <param name="weights">Pairs of failure states with related new thresholds</param>
-        void SetThresholds(Tuple<IFailureState, float>[] weights);
+        void SetThresholds(params Tuple<IFailureState, float>[] weights);
 
         /// <summary>
         /// Add new data point(s) to the failure machine.

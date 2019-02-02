@@ -45,13 +45,11 @@ namespace Org.Apache.REEF.Network.Examples.Elastic
         {
             IFailureStateMachine failureMachine = new DefaultFailureStateMachine();
 
-            failureMachine.SetThresholds(new Tuple<IFailureState, float>[]
-            {
+            failureMachine.SetThresholds(
                 DefaultFailureState.Threshold(DefaultFailureStates.ContinueAndReconfigure, 0.01F),
                 DefaultFailureState.Threshold(DefaultFailureStates.ContinueAndReschedule, 0.40F),
                 DefaultFailureState.Threshold(DefaultFailureStates.StopAndReschedule, 0.60F),
-                DefaultFailureState.Threshold(DefaultFailureStates.Fail, 0.80F)
-            });
+                DefaultFailureState.Threshold(DefaultFailureStates.Fail, 0.80F));
 
             IElasticStage stage = Context.CreateNewStage(stageName, numEvaluators, failureMachine);
 
@@ -74,28 +72,22 @@ namespace Org.Apache.REEF.Network.Examples.Elastic
             TaskSetManager.Build();
         }
 
-        private Func<string, IConfiguration> MasterTaskConfiguration
+        private IConfiguration MasterTaskConfiguration(string taskId)
         {
-            get
-            {
-                return (taskId) => TangFactory.GetTang().NewConfigurationBuilder(
-                    Context.GetTaskConfigurationModule(taskId)
-                        .Set(TaskConfiguration.Task, GenericType<BroadcastMasterTask>.Class)
-                        .Build())
-                    .Build();
-            }
+            return TangFactory.GetTang().NewConfigurationBuilder(
+                Context.GetTaskConfigurationModule(taskId)
+                    .Set(TaskConfiguration.Task, GenericType<BroadcastMasterTask>.Class)
+                    .Build())
+                .Build();
         }
 
-        private Func<string, IConfiguration> SlaveTaskConfiguration
+        private IConfiguration SlaveTaskConfiguration(string taskId)
         {
-            get
-            {
-                return (taskId) => TangFactory.GetTang().NewConfigurationBuilder(
-                    Context.GetTaskConfigurationModule(taskId)
-                        .Set(TaskConfiguration.Task, GenericType<TSlave>.Class)
-                        .Build())
-                    .Build();
-            }
+            return TangFactory.GetTang().NewConfigurationBuilder(
+                Context.GetTaskConfigurationModule(taskId)
+                    .Set(TaskConfiguration.Task, GenericType<TSlave>.Class)
+                    .Build())
+                .Build();
         }
     }
 }

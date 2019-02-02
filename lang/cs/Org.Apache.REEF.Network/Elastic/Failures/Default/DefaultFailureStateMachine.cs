@@ -231,7 +231,7 @@ namespace Org.Apache.REEF.Network.Elastic.Failures.Default
         /// A utility method for setting multiple threshold at once.
         /// </summary>
         /// <param name="weights">Pairs of failure states with related new thresholds</param>
-        public void SetThresholds(Tuple<IFailureState, float>[] weights)
+        public void SetThresholds(params Tuple<IFailureState, float>[] weights)
         {
             if (!weights.All(weight => weight.Item1 is DefaultFailureState))
             {

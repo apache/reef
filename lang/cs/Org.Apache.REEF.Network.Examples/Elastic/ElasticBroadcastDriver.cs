@@ -24,7 +24,6 @@ using Org.Apache.REEF.Network.Elastic.Driver;
 using Org.Apache.REEF.Common.Tasks;
 using Org.Apache.REEF.Network.Elastic.Topology.Logical.Enum;
 using Org.Apache.REEF.Network.Elastic.Driver.Default;
-using Org.Apache.REEF.Network.Elastic.Task.Default;
 
 namespace Org.Apache.REEF.Network.Examples.Elastic
 {
@@ -57,28 +56,22 @@ namespace Org.Apache.REEF.Network.Examples.Elastic
             TaskSetManager.Build();
         }
 
-        private Func<string, IConfiguration> MasterTaskConfiguration
+        private IConfiguration MasterTaskConfiguration(string taskId)
         {
-            get
-            {
-                return (taskId) => TangFactory.GetTang().NewConfigurationBuilder(
-                    Context.GetTaskConfigurationModule(taskId)
-                        .Set(TaskConfiguration.Task, GenericType<BroadcastMasterTask>.Class)
-                        .Build())
-                    .Build();
-            }
+            return  TangFactory.GetTang().NewConfigurationBuilder(
+                Context.GetTaskConfigurationModule(taskId)
+                    .Set(TaskConfiguration.Task, GenericType<BroadcastMasterTask>.Class)
+                    .Build())
+                .Build();
         }
 
-        private Func<string, IConfiguration> SlaveTaskConfiguration
+        private IConfiguration SlaveTaskConfiguration(string taskId)
         {
-            get
-            {
-                return (taskId) => TangFactory.GetTang().NewConfigurationBuilder(
-                    Context.GetTaskConfigurationModule(taskId)
-                        .Set(TaskConfiguration.Task, GenericType<BroadcastSlaveTask>.Class)
-                        .Build())
-                    .Build();
-            }
+            return TangFactory.GetTang().NewConfigurationBuilder(
+                Context.GetTaskConfigurationModule(taskId)
+                    .Set(TaskConfiguration.Task, GenericType<BroadcastSlaveTask>.Class)
+                    .Build())
+                .Build();
         }
     }
 }

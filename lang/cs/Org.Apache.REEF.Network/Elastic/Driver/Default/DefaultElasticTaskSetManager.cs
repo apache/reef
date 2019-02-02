@@ -374,8 +374,8 @@ namespace Org.Apache.REEF.Network.Elastic.Driver.Default
         private readonly int _numTasks;
         private readonly IEvaluatorRequestor _evaluatorRequestor;
         private readonly string _driverId;
-        private readonly Func<string, IConfiguration> _masterTaskConfiguration;
-        private readonly Func<string, IConfiguration> _slaveTaskConfiguration;
+        private readonly TaskConfigurator _masterTaskConfiguration;
+        private readonly TaskConfigurator _slaveTaskConfiguration;
 
         // Task info 0-indexed
         private readonly List<TaskInfo> _taskInfos;
@@ -409,8 +409,8 @@ namespace Org.Apache.REEF.Network.Elastic.Driver.Default
             int numTasks,
             IEvaluatorRequestor evaluatorRequestor,
             string driverId,
-            Func<string, IConfiguration> masterTaskConfiguration,
-            Func<string, IConfiguration> slaveTaskConfiguration = null,
+            TaskConfigurator masterTaskConfiguration,
+            TaskConfigurator slaveTaskConfiguration = null,
             params IConfiguration[] confs)
         {
             _numTasks = numTasks;

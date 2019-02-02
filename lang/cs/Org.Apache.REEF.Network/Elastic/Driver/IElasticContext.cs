@@ -21,11 +21,17 @@ using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Tang.Formats;
 using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Utilities.Attributes;
-using System;
 using System.Collections.Generic;
 
 namespace Org.Apache.REEF.Network.Elastic.Driver
 {
+    /// <summary>
+    /// Delegate used to generate the task configuration for the input task.
+    /// </summary>
+    /// <param name="taskId">The identifier for the task</param>
+    /// <returns></returns>
+    public delegate IConfiguration TaskConfigurator(string taskId);
+
     /// <summary>
     /// This is the entry point for enabling the Elastic Group Communication.
     /// The workflow is the following:
@@ -68,7 +74,7 @@ namespace Org.Apache.REEF.Network.Elastic.Driver
 
         /// <summary>
         /// Generate the base configuration module for tasks. 
-        /// This method is method can be used to generate configurations for the task set menager.
+        /// This method can be used to generate configurations for the task set menager.
         /// </summary>
         /// <param name="taskId">The id of the task the configuration is generate for</param>
         /// <returns>The module with the service properly set up for the task</returns>
@@ -86,7 +92,9 @@ namespace Org.Apache.REEF.Network.Elastic.Driver
         /// <param name="masterTaskConfiguration">The configuration for the master task</param>
         /// <param name="slaveTaskConfiguration">The configuration for the slave task</param>
         /// <returns>A new task set manager</returns>
-        IElasticTaskSetManager CreateNewTaskSetManager(Func<string, IConfiguration> masterTaskConfiguration, Func<string, IConfiguration> slaveTaskConfiguration = null);
+        IElasticTaskSetManager CreateNewTaskSetManager(
+            TaskConfigurator masterTaskConfiguration,
+            TaskConfigurator slaveTaskConfiguration = null);
 
         /// <summary>
         /// Create a new task set manager.
@@ -95,7 +103,10 @@ namespace Org.Apache.REEF.Network.Elastic.Driver
         /// <param name="masterTaskConfiguration">The configuration for the master task</param>
         /// <param name="slaveTaskConfiguration">The configuration for the slave task</param>
         /// <returns>A new task set manager</returns>
-        IElasticTaskSetManager CreateNewTaskSetManager(int numOfTasks, Func<string, IConfiguration> masterTaskConfiguration, Func<string, IConfiguration> slaveTaskConfiguration = null);
+        IElasticTaskSetManager CreateNewTaskSetManager(
+            int numOfTasks,
+            TaskConfigurator masterTaskConfiguration,
+            TaskConfigurator slaveTaskConfiguration = null);
 
         /// <summary>
         /// Generate the elastic service configuration object.

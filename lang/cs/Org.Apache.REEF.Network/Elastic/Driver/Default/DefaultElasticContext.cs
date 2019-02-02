@@ -229,8 +229,8 @@ namespace Org.Apache.REEF.Network.Elastic.Driver.Default
         /// <returns>A new task set manager</returns>
 
         public IElasticTaskSetManager CreateNewTaskSetManager(
-            Func<string, IConfiguration> masterTaskConfiguration,
-            Func<string, IConfiguration> slaveTaskConfiguration = null)
+            TaskConfigurator masterTaskConfiguration,
+            TaskConfigurator slaveTaskConfiguration = null)
         {
             return CreateNewTaskSetManager(_numEvaluators, masterTaskConfiguration, slaveTaskConfiguration);
         }
@@ -244,8 +244,8 @@ namespace Org.Apache.REEF.Network.Elastic.Driver.Default
         /// <returns>A new task set manager</returns>
         public IElasticTaskSetManager CreateNewTaskSetManager(
             int numOfTasks,
-            Func<string, IConfiguration> masterTaskConfiguration,
-            Func<string, IConfiguration> slaveTaskConfiguration = null)
+            TaskConfigurator masterTaskConfiguration,
+            TaskConfigurator slaveTaskConfiguration = null)
         {
             return new DefaultElasticTaskSetManager(
                 numOfTasks,
