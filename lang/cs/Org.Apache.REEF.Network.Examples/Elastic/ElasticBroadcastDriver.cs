@@ -45,32 +45,24 @@ namespace Org.Apache.REEF.Network.Examples.Elastic
             // Build the stage
             stage = stage.Build();
 
-            // Create the task manager
-            TaskSetManager = Context.CreateNewTaskSetManager(
-                MasterTaskConfiguration, SlaveTaskConfiguration);
-
-            // Register the stage to the task manager
-            TaskSetManager.AddStage(stage);
-
-            // Build the task set manager
-            TaskSetManager.Build();
+            // Create the task manager, register the stage to the task manager, build the task set manager
+            TaskSetManager = Context
+                .CreateNewTaskSetManager(MasterTaskConfiguration, SlaveTaskConfiguration)
+                .AddStage(stage)
+                .Build();
         }
 
         private IConfiguration MasterTaskConfiguration(string taskId)
         {
-            return  TangFactory.GetTang().NewConfigurationBuilder(
-                Context.GetTaskConfigurationModule(taskId)
-                    .Set(TaskConfiguration.Task, GenericType<BroadcastMasterTask>.Class)
-                    .Build())
+            return Context.GetTaskConfigurationModule(taskId)
+                .Set(TaskConfiguration.Task, GenericType<BroadcastMasterTask>.Class)
                 .Build();
         }
 
         private IConfiguration SlaveTaskConfiguration(string taskId)
         {
-            return TangFactory.GetTang().NewConfigurationBuilder(
-                Context.GetTaskConfigurationModule(taskId)
-                    .Set(TaskConfiguration.Task, GenericType<BroadcastSlaveTask>.Class)
-                    .Build())
+            return Context.GetTaskConfigurationModule(taskId)
+                .Set(TaskConfiguration.Task, GenericType<BroadcastSlaveTask>.Class)
                 .Build();
         }
     }

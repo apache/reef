@@ -36,9 +36,10 @@ namespace Org.Apache.REEF.Network.Elastic.Failures.Default
     [Unstable("0.16", "API may change")]
     public sealed class DefaultFailureStateMachine : IFailureStateMachine
     {
-        private readonly object _statusLock;
+        private readonly object _statusLock = new object();
 
-        private readonly SortedDictionary<DefaultFailureStates, DefaultFailureStates> transitionMapUp = new SortedDictionary<DefaultFailureStates, DefaultFailureStates>()
+        private readonly SortedDictionary<DefaultFailureStates, DefaultFailureStates> transitionMapUp = 
+            new SortedDictionary<DefaultFailureStates, DefaultFailureStates>()
         {
             { DefaultFailureStates.Continue, DefaultFailureStates.ContinueAndReconfigure },
             { DefaultFailureStates.ContinueAndReconfigure, DefaultFailureStates.ContinueAndReschedule },
@@ -46,7 +47,8 @@ namespace Org.Apache.REEF.Network.Elastic.Failures.Default
             { DefaultFailureStates.StopAndReschedule, DefaultFailureStates.Fail }
         };
 
-        private readonly SortedDictionary<DefaultFailureStates, DefaultFailureStates> transitionMapDown = new SortedDictionary<DefaultFailureStates, DefaultFailureStates>()
+        private readonly SortedDictionary<DefaultFailureStates, DefaultFailureStates> transitionMapDown = 
+            new SortedDictionary<DefaultFailureStates, DefaultFailureStates>()
         {
             { DefaultFailureStates.ContinueAndReconfigure, DefaultFailureStates.Continue },
             { DefaultFailureStates.ContinueAndReschedule, DefaultFailureStates.ContinueAndReconfigure },
@@ -54,7 +56,8 @@ namespace Org.Apache.REEF.Network.Elastic.Failures.Default
             { DefaultFailureStates.Fail, DefaultFailureStates.StopAndReschedule }
         };
 
-        private readonly IDictionary<DefaultFailureStates, float> transitionWeights = new Dictionary<DefaultFailureStates, float>()
+        private readonly IDictionary<DefaultFailureStates, float> transitionWeights = 
+            new Dictionary<DefaultFailureStates, float>()
         {
             { DefaultFailureStates.ContinueAndReconfigure, 0.01F },
             { DefaultFailureStates.ContinueAndReschedule, 0.40F },
@@ -84,17 +87,18 @@ namespace Org.Apache.REEF.Network.Elastic.Failures.Default
         }
 
         /// <summary>
-        /// Default failure stata machine starting with a given amount of data points and a given intial state.
+        /// Default failure stata machine starting with a given amount of data points and a given
+        /// intial state.
         /// </summary>
         /// <param name="initalPoints">The number of initial data points for the machine, 0 by default</param>
         /// <param name="initalState">The initial state, continue by default</param>
-        public DefaultFailureStateMachine(int initalPoints = 0, DefaultFailureStates initalState = DefaultFailureStates.Continue)
+        public DefaultFailureStateMachine(
+            int initalPoints = 0, 
+            DefaultFailureStates initalState = DefaultFailureStates.Continue)
         {
             NumOfDataPoints = initalPoints;
             NumOfFailedDataPoints = initalPoints;
             State = new DefaultFailureState((int)initalState);
-
-            _statusLock = new object();
         }
 
         /// <summary>
@@ -138,11 +142,13 @@ namespace Org.Apache.REEF.Network.Elastic.Failures.Default
                 {
                     NumOfFailedDataPoints -= points;
                 }
-                if (State.FailureState > (int)DefaultFailureStates.Continue && State.FailureState <= (int)DefaultFailureStates.Fail)
+                if (State.FailureState > (int)DefaultFailureStates.Continue && 
+                    State.FailureState <= (int)DefaultFailureStates.Fail)
                 {
                     float currentRate = (float)NumOfFailedDataPoints / NumOfDataPoints;
 
-                    while (State.FailureState > (int)DefaultFailureStates.Continue && currentRate < transitionWeights[(DefaultFailureStates)State.FailureState])
+                    while (State.FailureState > (int)DefaultFailureStates.Continue && 
+                        currentRate < transitionWeights[(DefaultFailureStates)State.FailureState])
                     {
                         State.FailureState = (int)transitionMapDown[(DefaultFailureStates)State.FailureState];
                     }
@@ -165,7 +171,8 @@ namespace Org.Apache.REEF.Network.Elastic.Failures.Default
 
                 float currentRate = (float)NumOfFailedDataPoints / NumOfDataPoints;
 
-                if (isFinalState.Contains(State.FailureState) && currentRate >= transitionWeights[DefaultFailureStates.StopAndReschedule])
+                if (isFinalState.Contains(State.FailureState) && 
+                    currentRate >= transitionWeights[DefaultFailureStates.StopAndReschedule])
                 {
                     throw new IllegalStateException("Received remove data point when state is complete: failing.");
                 }
@@ -193,7 +200,8 @@ namespace Org.Apache.REEF.Network.Elastic.Failures.Default
                 }
                 else
                 {
-                    throw new IllegalStateException($"Failure machine cannot move from state {State.FailureState} to Complete: failing.");
+                    throw new IllegalStateException(
+                        $"Failure machine cannot move from state {State.FailureState} to Complete: failing.");
                 }
             }
 
@@ -261,7 +269,9 @@ namespace Org.Apache.REEF.Network.Elastic.Failures.Default
         /// <param name="initalPoints">How many data points are avaialble in the new state machine</param>
         /// <param name="initalState">The state from which the new machine should start</param>
         /// <returns>A new failure machine with the same settings</returns>
-        public IFailureStateMachine Clone(int initalPoints = 0, int initalState = (int)DefaultFailureStates.Continue)
+        public IFailureStateMachine Clone(
+            int initalPoints = 0, 
+            int initalState = (int)DefaultFailureStates.Continue)
         {
             var newMachine = new DefaultFailureStateMachine(initalPoints, (DefaultFailureStates)initalState);
 
@@ -274,8 +284,8 @@ namespace Org.Apache.REEF.Network.Elastic.Failures.Default
         }
 
         /// <summary>
-        /// Check if the states and related thresholds and consistent: i.e., each state can move up or down to only
-        /// one other state.
+        /// Check if the states and related thresholds and consistent: i.e., each state can move 
+        /// up or down to only one other state.
         /// </summary>
         private void CheckConsistency()
         {
@@ -290,7 +300,8 @@ namespace Org.Apache.REEF.Network.Elastic.Failures.Default
                 {
                     if (nextWeight < prevWeight)
                     {
-                        throw new IllegalStateException($"State {transitionMapDown[state]} weight is bigger than state {state}.");
+                        throw new IllegalStateException(
+                            $"State {transitionMapDown[state]} weight is bigger than state {state}.");
                     }
 
                     prevWeight = nextWeight;

@@ -44,7 +44,8 @@ namespace Org.Apache.REEF.Network.Elastic.Driver
         /// Subscribe the current task set manager to a new stage.
         /// </summary>
         /// <param name="stage">The stage to subscribe to</param>
-        void AddStage(IElasticStage stage);
+        /// <returns>The task manager with the added stage</returns>
+        IElasticTaskSetManager AddStage(IElasticStage stage);
 
         /// <summary>
         /// Decides whether more contexts have to be added to this Task Manger or not.

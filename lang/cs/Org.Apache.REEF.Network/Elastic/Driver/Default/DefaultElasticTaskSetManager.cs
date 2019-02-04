@@ -458,7 +458,8 @@ namespace Org.Apache.REEF.Network.Elastic.Driver.Default
         /// Subscribe the current task set manager to a new stage.
         /// </summary>
         /// <param name="stage">The stage to subscribe to</param>
-        public void AddStage(IElasticStage stage)
+        /// <returns>The same finalized task set manager</returns>
+        public IElasticTaskSetManager AddStage(IElasticStage stage)
         {
             if (_finalized == true)
             {
@@ -466,6 +467,8 @@ namespace Org.Apache.REEF.Network.Elastic.Driver.Default
             }
 
             _stages.Add(stage.StageName, stage);
+
+            return this;
         }
 
         /// <summary>
