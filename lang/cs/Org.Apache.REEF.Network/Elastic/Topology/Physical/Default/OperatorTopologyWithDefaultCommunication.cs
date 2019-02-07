@@ -36,7 +36,7 @@ namespace Org.Apache.REEF.Network.Elastic.Topology.Physical.Default
         DriverAwareOperatorTopology,
         IOperatorTopologyWithCommunication
     {
-        protected bool _initialized;
+        protected bool _initialized = false;
 
         protected DefaultCommunicationLayer _commLayer;
 
@@ -44,10 +44,10 @@ namespace Org.Apache.REEF.Network.Elastic.Topology.Physical.Default
         protected readonly int _timeout;
         protected readonly int _retry;
 
-        protected ConcurrentQueue<ElasticGroupCommunicationMessage> _sendQueue;
-        protected BlockingCollection<ElasticGroupCommunicationMessage> _messageQueue;
-        protected readonly ConcurrentDictionary<int, string> _children;
-        protected readonly CancellationTokenSource _cancellationSignal;
+        protected readonly ConcurrentQueue<ElasticGroupCommunicationMessage> _sendQueue = new ConcurrentQueue<ElasticGroupCommunicationMessage>();
+        protected BlockingCollection<ElasticGroupCommunicationMessage> _messageQueue = new BlockingCollection<ElasticGroupCommunicationMessage>();
+        protected readonly ConcurrentDictionary<int, string> _children = new ConcurrentDictionary<int, string>();
+        protected readonly CancellationTokenSource _cancellationSignal = new CancellationTokenSource();
 
         /// <summary>
         /// Constructor for a communicating topology.
@@ -70,15 +70,8 @@ namespace Org.Apache.REEF.Network.Elastic.Topology.Physical.Default
             int timeout,
             int disposeTimeout) : base(stageName, taskId, rootTaskId, operatorId)
         {
-            _initialized = false;
             _commLayer = commLayer;
-
-            _children = new ConcurrentDictionary<int, string>();
-            _messageQueue = new BlockingCollection<ElasticGroupCommunicationMessage>();
-            _sendQueue = new ConcurrentQueue<ElasticGroupCommunicationMessage>();
-
-            _cancellationSignal = new CancellationTokenSource();
-
+ 
             _retry = retry;
             _timeout = timeout;
             _disposeTimeout = disposeTimeout;
@@ -109,12 +102,12 @@ namespace Org.Apache.REEF.Network.Elastic.Topology.Physical.Default
         /// </summary>
         public override void WaitCompletionBeforeDisposing()
         {
-            var elapsedTime = 0;
-            while (_sendQueue.Count > 0 && elapsedTime < _disposeTimeout)
+            var tsEnd = DateTime.Now.AddMilliseconds(_disposeTimeout);
+            while (_sendQueue.Count > 0 && DateTime.Now < tsEnd)
             {
                 // The topology is still trying to send messages, wait.
                 Thread.Sleep(100);
-                elapsedTime += 100;
+                
             }
         }
 

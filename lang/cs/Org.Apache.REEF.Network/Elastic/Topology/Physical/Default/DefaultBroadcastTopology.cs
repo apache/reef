@@ -79,14 +79,11 @@ namespace Org.Apache.REEF.Network.Elastic.Topology.Physical.Default
         /// <param name="cancellationSource">The source in case the task is cancelled</param>
         protected override void Send(CancellationTokenSource cancellationSource)
         {
-            ElasticGroupCommunicationMessage message;
             int retry = 0;
 
             // Check if we have a message to send
-            if (_sendQueue.TryPeek(out message))
+            if (_sendQueue.TryPeek(out ElasticGroupCommunicationMessage message))
             {
-                var dm = message as DataMessage;
-
                 // Broadcast topology require the driver to send topology updates to the root node
                 // in order to have the most update topology at each boradcast round.
                 while (!_topologyUpdateReceived.WaitOne(_timeout))
@@ -102,7 +99,7 @@ namespace Org.Apache.REEF.Network.Elastic.Topology.Physical.Default
 
                     if (retry > _retry)
                     {
-                        throw new OperatorException($"Iteration {dm.Iteration}: Failed to send message to the next node in the ring after {_retry} try.", OperatorId);
+                        throw new OperatorException($"Iteration {((DataMessage)message).Iteration}: Failed to send message to the next node in the ring after {_retry} try.", OperatorId);
                     }
 
                     TopologyUpdateRequest();

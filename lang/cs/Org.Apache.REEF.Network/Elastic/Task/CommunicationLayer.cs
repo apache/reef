@@ -36,7 +36,8 @@ namespace Org.Apache.REEF.Network.Elastic.Task.Impl
     /// </summary>
     [Unstable("0.16", "API may change")]
     internal abstract class CommunicationLayer :
-        IObserver<IRemoteMessage<NsMessage<ElasticGroupCommunicationMessage>>>
+        IObserver<IRemoteMessage<NsMessage<ElasticGroupCommunicationMessage>>>,
+        IDisposable
     {
         private static readonly Logger Log = Logger.GetLogger(typeof(CommunicationLayer));
 
@@ -48,7 +49,7 @@ namespace Org.Apache.REEF.Network.Elastic.Task.Impl
         protected readonly DefaultTaskToDriverMessageDispatcher _taskToDriverDispatcher;
         private readonly ElasticDriverMessageHandler _driverMessagesHandler;
         private readonly IIdentifierFactory _idFactory;
-        private IDisposable _communicationObserver;
+        private readonly IDisposable _communicationObserver;
         private readonly ConcurrentDictionary<NodeObserverIdentifier, DriverAwareOperatorTopology> _driverMessageObservers;
 
         protected bool _disposed = false;
@@ -90,12 +91,10 @@ namespace Org.Apache.REEF.Network.Elastic.Task.Impl
         {
             var id = NodeObserverIdentifier.FromObserver(operatorObserver);
 
-            if (_groupMessageObservers.ContainsKey(id))
+            if (_groupMessageObservers.TryAdd(id, operatorObserver))
             {
                 throw new IllegalStateException($"Topology for id {id} already added among listeners.");
             }
-
-            _groupMessageObservers.TryAdd(id, operatorObserver);
         }
 
         /// <summary>
@@ -106,12 +105,10 @@ namespace Org.Apache.REEF.Network.Elastic.Task.Impl
         {
             var id = NodeObserverIdentifier.FromObserver(operatorObserver);
 
-            if (_driverMessageObservers.ContainsKey(id))
+            if (!_driverMessageObservers.TryAdd(id, operatorObserver))
             {
                 throw new IllegalStateException($"Topology for id {id} already added among driver listeners.");
             }
-
-            _driverMessageObservers.TryAdd(id, operatorObserver);
         }
 
         /// <summary>
@@ -140,17 +137,14 @@ namespace Org.Apache.REEF.Network.Elastic.Task.Impl
             }
 
             IIdentifier destId = _idFactory.Create(destination);
-            int retry = 0;
 
-            while (!Send(destId, message))
+            for (int retry = 0;  !Send(destId, message); retry++)
             {
                 if (retry > _retrySending)
                 {
                     throw new IllegalStateException($"Unable to send message after retying {retry} times.");
                 }
                 Thread.Sleep(_timeout);
-
-                retry++;
             }
         }
 
@@ -168,16 +162,11 @@ namespace Org.Apache.REEF.Network.Elastic.Task.Impl
         /// <param name="cancellationSource">The token to cancel the operation</param>
         /// <param name="removed">Nodes that got removed during task registration</param>
         public void WaitForTaskRegistration(
-            IList<string> identifiers,
+            ICollection<string> identifiers,
             CancellationTokenSource cancellationSource,
-            ConcurrentDictionary<string, byte> removed = null)
+            IDictionary<string, byte> removed = null)
         {
-            if (removed == null)
-            {
-                removed = new ConcurrentDictionary<string, byte>();
-            }
-
-            IList<string> foundList = new List<string>();
+            ISet<string> foundSet = new HashSet<string>();
 
             for (var i = 0; i < _retryRegistration; i++)
             {
@@ -190,34 +179,32 @@ namespace Org.Apache.REEF.Network.Elastic.Task.Impl
                 Log.Log(Level.Info, "WaitForTaskRegistration, in retryCount {0}.", i);
                 foreach (var identifier in identifiers)
                 {
-                    var notFound = !foundList.Contains(identifier);
-                    if (notFound && removed.ContainsKey(identifier))
+                    var notFound = !foundSet.Contains(identifier);
+                    if (notFound && removed != null ? removed.ContainsKey(identifier) : false)
                     {
-                        foundList.Add(identifier);
+                        foundSet.Add(identifier);
                         Log.Log(Level.Verbose,
                             "WaitForTaskRegistration, dependent id {0} was removed at loop {1}.", identifier, i);
                     }
                     else if (notFound && Lookup(identifier))
                     {
-                        foundList.Add(identifier);
+                        foundSet.Add(identifier);
                         Log.Log(Level.Verbose,
                             "WaitForTaskRegistration, find a dependent id {0} at loop {1}.", identifier, i);
                     }
                 }
 
-                if (foundList.Count >= identifiers.Count)
+                if (foundSet.Count >= identifiers.Count)
                 {
                     Log.Log(Level.Info,
-                        "WaitForTaskRegistration, found all {0} dependent ids at loop {1}.", foundList.Count, i);
+                        "WaitForTaskRegistration, found all {0} dependent ids at loop {1}.", foundSet.Count, i);
                     return;
                 }
 
                 Thread.Sleep(_sleepTime);
             }
 
-            ICollection<string> leftovers =
-                foundList.Count == 0 ? identifiers : identifiers.Where(e => !foundList.Contains(e)).ToList();
-            var msg = string.Join(",", leftovers);
+            var msg = string.Join(",", identifiers.Except(foundSet));
 
             Log.Log(Level.Error, "Cannot find registered parent/children: {0}.", msg);
             throw new Exception("Failed to find parent/children nodes");
@@ -230,11 +217,7 @@ namespace Org.Apache.REEF.Network.Elastic.Task.Impl
         /// <returns></returns>
         public bool Lookup(string identifier)
         {
-            if (_disposed || _networkService == null)
-            {
-                return false;
-            }
-            return _networkService.NamingClient.Lookup(identifier) != null;
+            return !_disposed && _networkService?.NamingClient.Lookup(identifier) != null;
         }
 
         /// <summary>

@@ -35,14 +35,15 @@ namespace Org.Apache.REEF.Network.Examples.Elastic
         {
         }
 
+        private readonly Random _rand = new Random();
+
         protected override void Execute(byte[] memento, Workflow workflow)
         {
-            var rand = new Random();
             int number = 0;
 
             foreach (var op in workflow)
             {
-                number = rand.Next();
+                number = _rand.Next();
 
                 switch (op.OperatorType)
                 {

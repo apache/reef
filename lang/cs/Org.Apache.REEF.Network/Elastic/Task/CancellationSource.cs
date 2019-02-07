@@ -17,6 +17,7 @@
 
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Utilities.Attributes;
+using System;
 using System.Threading;
 
 namespace Org.Apache.REEF.Network.Elastic.Task
@@ -27,18 +28,17 @@ namespace Org.Apache.REEF.Network.Elastic.Task
     /// to inject the same source through the elastic communication services.
     /// </summary>
     [Unstable("0.16", "API may change")]
-    public sealed class CancellationSource
+    public sealed class CancellationSource : IDisposable
     {
         [Inject]
         private CancellationSource()
         {
-            Source = new CancellationTokenSource();
         }
 
         /// <summary>
         /// The wrapped cancellation source.
         /// </summary>
-        public CancellationTokenSource Source { get; private set; }
+        public readonly CancellationTokenSource Source = new CancellationTokenSource();
 
         /// <summary>
         /// Whether the operation is cancelled.
@@ -55,6 +55,11 @@ namespace Org.Apache.REEF.Network.Elastic.Task
         public void Cancel()
         {
             Source.Cancel();
+        }
+
+        public void Dispose()
+        {
+            Source.Dispose();
         }
     }
 }
