@@ -37,10 +37,10 @@ namespace Org.Apache.REEF.Network.Elastic.Operators.Physical.Default
         private static readonly Logger Log = Logger.GetLogger(typeof(DefaultOneToN<>));
 
         internal readonly OneToNTopology _topology;
-        internal volatile PositionTracker _position;
+        internal volatile PositionTracker _position = PositionTracker.Nil;
 
         private readonly bool _isLast;
-        private bool _cleanDisposal;
+        private bool _cleanDisposal = false;
 
         /// <summary>
         /// Creates a new one to N operator.
@@ -54,13 +54,8 @@ namespace Org.Apache.REEF.Network.Elastic.Operators.Physical.Default
             OperatorId = id;
             _isLast = isLast;
             _topology = topology;
-            _position = PositionTracker.Nil;
-            _cleanDisposal = false;
 
-            OnTaskRescheduled = new Action(() =>
-            {
-                _topology.JoinTopology();
-            });
+            OnTaskRescheduled = _topology.JoinTopology;
         }
 
         /// <summary>
@@ -80,10 +75,7 @@ namespace Org.Apache.REEF.Network.Elastic.Operators.Physical.Default
         {
             get
             {
-                string iteration = IteratorReference == null ? "-1" : IteratorReference.Current.ToString();
-                string position = ((int)_position).ToString() + ":";
-                string isSending = _topology.IsSending ? "1" : "0";
-                return iteration + ":" + position + ":" + isSending;
+                return $"{IteratorReference?.Current ?? -1:d}:{_position:d}:{_topology.IsSending:d}";
             }
         }
 
@@ -116,14 +108,12 @@ namespace Org.Apache.REEF.Network.Elastic.Operators.Physical.Default
             _position = PositionTracker.InReceive;
 
             var received = false;
-            DataMessage dataMessage = null;
             ITypedDataMessage<T> typedDataMessage = null;
             var isIterative = IteratorReference != null;
 
             while (!received && !CancellationSource.IsCancellationRequested)
             {
-                dataMessage = _topology.Receive(CancellationSource) as DataMessage;
-                typedDataMessage = dataMessage as ITypedDataMessage<T>;
+                typedDataMessage = (ITypedDataMessage<T>)_topology.Receive(CancellationSource);
 
                 if (isIterative && typedDataMessage.Iteration < (int)IteratorReference.Current)
                 {

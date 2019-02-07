@@ -45,7 +45,7 @@ namespace Org.Apache.REEF.Network.Elastic.Task
         private bool _disposed = false;
         private readonly List<int> _iteratorsPosition = new List<int>();
 
-        private readonly object _lock = new object();
+        private readonly object disposeLock = new object();
         private readonly IList<IElasticOperator> _operators = new List<IElasticOperator>();
         private readonly CancellationSource _cancellationSource;
         private readonly bool _isRescheduled;
@@ -79,7 +79,7 @@ namespace Org.Apache.REEF.Network.Elastic.Task
             // Check if we need to iterate
             if (_iteratorsPosition.Count > 0 && _position == _iteratorsPosition[0])
             {
-                var iteratorOperator = _operators[_position] as IElasticIterator;
+                IElasticIterator iteratorOperator = _operators[_position] as IElasticIterator;
 
                 if (iteratorOperator.MoveNext())
                 {
@@ -152,14 +152,7 @@ namespace Org.Apache.REEF.Network.Elastic.Task
         /// </summary>
         public void Reset()
         {
-            if (_iteratorsPosition.Count > 0)
-            {
-                _position = _iteratorsPosition[0];
-            }
-            else
-            {
-                _position = 0;
-            }
+            _position = _iteratorsPosition.FirstOrDefault(); // default for int is 0
         }
 
         /// <summary>
@@ -169,7 +162,7 @@ namespace Org.Apache.REEF.Network.Elastic.Task
         {
             get
             {
-                return _position == -1 ? _operators[0] : _operators[_position];
+                return _operators[_position < 0 ? 0 : _position];
             }
         }
 
@@ -183,19 +176,16 @@ namespace Org.Apache.REEF.Network.Elastic.Task
         /// </summary>
         public void Dispose()
         {
-            lock (_lock)
+            lock (disposeLock)
             {
                 if (!_disposed)
                 {
-                    if (_operators != null)
+                    // Clean dispose, check that the computation is completed
+                    if (!_failed)
                     {
-                        // Clean dispose, check that the computation is completed
-                        if (!_failed)
+                        foreach (var op in _operators)
                         {
-                            foreach (var op in _operators)
-                            {
-                                op?.WaitCompletionBeforeDisposing();
-                            }
+                            op?.WaitCompletionBeforeDisposing();
                         }
                     }
 
