@@ -258,17 +258,17 @@ namespace Org.Apache.REEF.Network.Elastic.Topology.Physical.Default
         {
             var update = updates.Find(elem => elem.Node == TaskId);
 
-            foreach (var child in update.Children)
-            {
-                if (!_nodesToRemove.TryRemove(child, out byte value))
-                {
-                    var id = Utils.GetTaskNum(child);
-                    _children.TryAdd(id, child);
-                }
-            }
-
             if (update != null)
             {
+                foreach (var child in update.Children)
+                {
+                    if (!_nodesToRemove.TryRemove(child, out byte value))
+                    {
+                        var id = Utils.GetTaskNum(child);
+                        _children.TryAdd(id, child);
+                    }
+                }
+
                 updates.Remove(update);
             }
         }
