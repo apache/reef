@@ -29,10 +29,7 @@ namespace Org.Apache.REEF.Network.Elastic.Task.Impl
     [Unstable("0.16", "API may change")]
     internal sealed class NodeObserverIdentifier
     {
-        private readonly string _stageName;
-        private readonly int _operatorId;
-
-        /// <summary>
+         /// <summary>
         /// Creates an identifier from an operator topology with communication.
         /// </summary>
         public static NodeObserverIdentifier FromObserver(IOperatorTopologyWithCommunication observer)
@@ -63,25 +60,19 @@ namespace Org.Apache.REEF.Network.Elastic.Task.Impl
         /// <param name="operatorId">The identifier of the operator</param>
         private NodeObserverIdentifier(string stageName, int operatorId)
         {
-            _stageName = stageName;
-            _operatorId = operatorId;
+            StageName = stageName;
+            OperatorId = operatorId;
         }
 
         /// <summary>
         /// The stage name.
         /// </summary>
-        public string StageName
-        {
-            get { return _stageName; }
-        }
+        public string StageName { get; }
 
         /// <summary>
         /// The operator name.
         /// </summary>
-        public int OperatorId
-        {
-            get { return _operatorId; }
-        }
+        public int OperatorId { get; }
 
         /// <summary>
         /// Overrides <see cref="Equals"/>. Simply compares equivalence of instance fields.
@@ -107,8 +98,8 @@ namespace Org.Apache.REEF.Network.Elastic.Task.Impl
         public override int GetHashCode()
         {
             int hash = 17;
-            hash = (hash * 31) + _stageName.GetHashCode();
-            return (hash * 31) + _operatorId.GetHashCode();
+            hash = (hash * 31) + StageName.GetHashCode();
+            return (hash * 31) + OperatorId.GetHashCode();
         }
 
         /// <summary>
@@ -116,8 +107,8 @@ namespace Org.Apache.REEF.Network.Elastic.Task.Impl
         /// </summary>
         private bool Equals(NodeObserverIdentifier other)
         {
-            return _stageName.Equals(other.StageName) &&
-                _operatorId.Equals(other.OperatorId);
+            return StageName.Equals(other.StageName) &&
+                OperatorId.Equals(other.OperatorId);
         }
     }
 }

@@ -45,7 +45,7 @@ namespace Org.Apache.REEF.Network.Elastic.Topology.Physical.Default
         protected readonly int _retry;
 
         protected readonly ConcurrentQueue<ElasticGroupCommunicationMessage> _sendQueue = new ConcurrentQueue<ElasticGroupCommunicationMessage>();
-        protected BlockingCollection<ElasticGroupCommunicationMessage> _messageQueue = new BlockingCollection<ElasticGroupCommunicationMessage>();
+        protected readonly BlockingCollection<ElasticGroupCommunicationMessage> _messageQueue = new BlockingCollection<ElasticGroupCommunicationMessage>();
         protected readonly ConcurrentDictionary<int, string> _children = new ConcurrentDictionary<int, string>();
         protected readonly CancellationTokenSource _cancellationSignal = new CancellationTokenSource();
 
@@ -194,8 +194,6 @@ namespace Org.Apache.REEF.Network.Elastic.Topology.Physical.Default
                 {
                     throw new IllegalStateException("Trying to add messages to a closed non-empty queue.");
                 }
-
-                _messageQueue = new BlockingCollection<ElasticGroupCommunicationMessage>();
             }
 
             _messageQueue.Add(message.Data);

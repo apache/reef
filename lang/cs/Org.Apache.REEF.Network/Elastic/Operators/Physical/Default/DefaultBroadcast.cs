@@ -60,8 +60,8 @@ namespace Org.Apache.REEF.Network.Elastic.Operators.Physical.Default
 
             _position = PositionTracker.InSend;
 
-            int iteration = IteratorReference == null ? 0 : (int)IteratorReference.Current;
-            var message = _topology.GetDataMessage(iteration, new[] { data });
+            int iteration = (int)(IteratorReference?.Current ?? 0);
+            var message = _topology.GetDataMessage(iteration, data);
 
             _topology.Send(message, CancellationSource);
 

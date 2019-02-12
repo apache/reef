@@ -88,16 +88,14 @@ namespace Org.Apache.REEF.Network.Elastic.Task
 
                     return true;
                 }
-                else
+                
+                if (_iteratorsPosition.Count > 1)
                 {
-                    if (_iteratorsPosition.Count > 1)
-                    {
-                        _iteratorsPosition.RemoveAt(0);
-                        _position = _iteratorsPosition[0] - 1;
-                    }
-
-                    return false;
+                    _iteratorsPosition.RemoveAt(0);
+                    _position = _iteratorsPosition[0] - 1;
                 }
+
+                return false;
             }
 
             // In case we have one or zero iterators
@@ -109,12 +107,10 @@ namespace Org.Apache.REEF.Network.Elastic.Task
                 {
                     return false;
                 }
-                else
-                {
-                    _position = _iteratorsPosition[0] - 1;
 
-                    return MoveNext();
-                }
+                _position = _iteratorsPosition[0] - 1;
+
+                return MoveNext();
             }
 
             if (_isRescheduled)

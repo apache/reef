@@ -142,7 +142,7 @@ namespace Org.Apache.REEF.Network.Elastic.Task.Impl
             {
                 if (retry > _retrySending)
                 {
-                    throw new IllegalStateException($"Unable to send message after retying {retry} times.");
+                    throw new IllegalStateException($"Unable to send message after retrying {retry} times.");
                 }
                 Thread.Sleep(_timeout);
             }
@@ -180,7 +180,7 @@ namespace Org.Apache.REEF.Network.Elastic.Task.Impl
                 foreach (var identifier in identifiers)
                 {
                     var notFound = !foundSet.Contains(identifier);
-                    if (notFound && removed != null ? removed.ContainsKey(identifier) : false)
+                    if (notFound && removed != null && removed.ContainsKey(identifier))
                     {
                         foundSet.Add(identifier);
                         Log.Log(Level.Verbose,
@@ -276,7 +276,7 @@ namespace Org.Apache.REEF.Network.Elastic.Task.Impl
             }
             catch (Exception e)
             {
-                Log.Log(Level.Warning, "Unable to send message " + e.Message);
+                Log.Log(Level.Warning, "Unable to send message to " + destId, e.Message);
                 connection.Dispose();
                 return false;
             }

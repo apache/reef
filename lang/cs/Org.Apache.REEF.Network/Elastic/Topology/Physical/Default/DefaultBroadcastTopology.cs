@@ -27,6 +27,7 @@ using System.Linq;
 using Org.Apache.REEF.Utilities.Attributes;
 using Org.Apache.REEF.Network.Elastic.Task;
 using Org.Apache.REEF.Network.Elastic.Failures;
+using System;
 
 namespace Org.Apache.REEF.Network.Elastic.Topology.Physical.Default
 {
@@ -61,16 +62,31 @@ namespace Org.Apache.REEF.Network.Elastic.Topology.Physical.Default
         {
         }
 
-        public override DataMessage GetDataMessage<T>(int iteration, T[] data)
+        /// <summary>
+        /// Creates a DataMessage out of some input data.
+        /// </summary>
+        /// <param name="iteration">The iteration number of this message</param>
+        /// <param name="data">The data to communicate</param>
+        /// <returns>A properly configured DataMessage</returns>
+        public override DataMessage GetDataMessage<T>(int iteration, T data)
         {
             if (_piggybackTopologyUpdates)
             {
-                return new DataMessageWithTopology<T>(StageName, OperatorId, iteration, data[0]);
+                return new DataMessageWithTopology<T>(StageName, OperatorId, iteration, data);
             }
-            else
-            {
-                return new DataMessage<T>(StageName, OperatorId, iteration, data[0]);
-            }
+            
+            return new DataMessage<T>(StageName, OperatorId, iteration, data);
+        }
+
+        /// <summary>
+        /// Creates a DataMessage out of some input data.
+        /// </summary>
+        /// <param name="iteration">The iteration number of this message</param>
+        /// <param name="data">The data to communicate</param>
+        /// <returns>A properly configured DataMessage</returns>
+        public override DataMessage GetDataMessage<T>(int iteration, params T[] data)
+        {
+            throw new NotImplementedException("Broadcast is allowed to send only one piece of data at a time");
         }
 
         /// <summary>
@@ -99,14 +115,18 @@ namespace Org.Apache.REEF.Network.Elastic.Topology.Physical.Default
 
                     if (retry > _retry)
                     {
-                        throw new OperatorException($"Iteration {((DataMessage)message).Iteration}: Failed to send message to the next node in the ring after {_retry} try.", OperatorId);
+                        throw new OperatorException(
+                            $"Iteration {((DataMessage)message).Iteration}: " +
+                                $"Failed to send message to the next node in the ring after {_retry} try."
+                            , OperatorId);
                     }
 
                     TopologyUpdateRequest();
                 }
 
-                // Get the actual message to send. Note that altough message sending is asynchronous, broadcast rounds should not overlap.
-                _sendQueue.TryDequeue(out message);
+                // Get the actual message to send. Note that altough message sending is asynchronous, 
+                // broadcast rounds should not overlap.
+                var canSend = _sendQueue.TryDequeue(out message);
 
                 if (TaskId == RootTaskId)
                 {
@@ -114,10 +134,13 @@ namespace Org.Apache.REEF.Network.Elastic.Topology.Physical.Default
                     _topologyUpdateReceived.Reset();
                 }
 
-                // Deliver the message to the commonication layer.
-                foreach (var node in _children.Where(x => !_nodesToRemove.TryGetValue(x.Value, out byte val)))
+                if (canSend)
                 {
-                    _commLayer.Send(node.Value, message, cancellationSource);
+                    // Deliver the message to the communication layer.
+                    foreach (var destination in _children.Values.Except(_nodesToRemove.Keys))
+                    {
+                        _commLayer.Send(destination, message, cancellationSource);
+                    }
                 }
             }
         }

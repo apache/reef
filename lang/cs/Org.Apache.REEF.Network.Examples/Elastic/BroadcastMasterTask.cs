@@ -39,16 +39,13 @@ namespace Org.Apache.REEF.Network.Examples.Elastic
 
         protected override void Execute(byte[] memento, Workflow workflow)
         {
-            int number = 0;
-
             foreach (var op in workflow)
             {
-                number = _rand.Next();
-
                 switch (op.OperatorType)
                 {
                     case OperatorType.Broadcast:
                         var sender = workflow.Current as IElasticBroadcast<int>;
+                        int number = _rand.Next();
 
                         sender.Send(number);
 

@@ -78,7 +78,7 @@ namespace Org.Apache.REEF.Network.Elastic.Topology.Physical.Default
                 timeout,
                 disposeTimeout)
         {
-            _topologyUpdateReceived = new ManualResetEvent(RootTaskId == taskId ? false : true);
+            _topologyUpdateReceived = new ManualResetEvent(RootTaskId != taskId);
 
             _commLayer.RegisterOperatorTopologyForTask(this);
             _commLayer.RegisterOperatorTopologyForDriver(this);
@@ -118,7 +118,21 @@ namespace Org.Apache.REEF.Network.Elastic.Topology.Physical.Default
             }
         }
 
-        public abstract DataMessage GetDataMessage<T>(int iteration, T[] data);
+        /// <summary>
+        /// Creates a DataMessage out of some input data.
+        /// </summary>
+        /// <param name="iteration">The iteration number of this message</param>
+        /// <param name="data">The data to communicate</param>
+        /// <returns>A properly configured DataMessage</returns>
+        public abstract DataMessage GetDataMessage<T>(int iteration, T data);
+
+        /// <summary>
+        /// Creates a DataMessage out of some input data.
+        /// </summary>
+        /// <param name="iteration">The iteration number of this message</param>
+        /// <param name="data">The data to communicate</param>
+        /// <returns>A properly configured DataMessage</returns>
+        public abstract DataMessage GetDataMessage<T>(int iteration, params T[] data);
 
         /// <summary>
         /// Initializes the communication group.
@@ -192,7 +206,7 @@ namespace Org.Apache.REEF.Network.Elastic.Topology.Physical.Default
                             foreach (var node in updates.Children)
                             {
                                 Log.Log(Level.Info, "Removing task {0} from the topology.", node);
-                                _nodesToRemove.TryAdd(node, new byte());
+                                _nodesToRemove.TryAdd(node, 0);
                                 _commLayer.RemoveConnection(node);
                             }
                         }
@@ -242,27 +256,20 @@ namespace Org.Apache.REEF.Network.Elastic.Topology.Physical.Default
 
         private void UpdateTopology(ref List<TopologyUpdate> updates)
         {
-            TopologyUpdate toRemove = null;
-            foreach (var update in updates)
+            var update = updates.Find(elem => elem.Node == TaskId);
+
+            foreach (var child in update.Children)
             {
-                if (update.Node == TaskId)
+                if (!_nodesToRemove.TryRemove(child, out byte value))
                 {
-                    toRemove = update;
-                    foreach (var child in update.Children)
-                    {
-                        if (!_nodesToRemove.TryRemove(child, out byte value))
-                        {
-                            var id = Utils.GetTaskNum(child);
-                            _children.TryAdd(id, child);
-                        }
-                    }
-                    break;
+                    var id = Utils.GetTaskNum(child);
+                    _children.TryAdd(id, child);
                 }
             }
 
-            if (toRemove != null)
+            if (update != null)
             {
-                updates.Remove(toRemove);
+                updates.Remove(update);
             }
         }
     }
