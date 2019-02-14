@@ -32,7 +32,7 @@ namespace Org.Apache.REEF.Network.Elastic.Operators.Physical.Default
     /// </summary>
     /// <typeparam name="T">The type of message being sent.</typeparam>
     [Unstable("0.16", "API may change")]
-    public abstract class DefaultOneToN<T>
+    public abstract class DefaultOneToN<T> : IDisposable
     {
         private static readonly Logger Log = Logger.GetLogger(typeof(DefaultOneToN<>));
 
@@ -157,7 +157,7 @@ namespace Org.Apache.REEF.Network.Elastic.Operators.Physical.Default
         /// <param name="cancellationSource"></param>
         public void WaitForTaskRegistration(CancellationTokenSource cancellationSource)
         {
-            Log.Log(Level.Info, "Waiting for task registration for {0} operator.", OperatorType.ToString());
+            Log.Log(Level.Info, "Waiting for task registration for {0} operator.", OperatorType);
             _topology.WaitForTaskRegistration(cancellationSource);
         }
 

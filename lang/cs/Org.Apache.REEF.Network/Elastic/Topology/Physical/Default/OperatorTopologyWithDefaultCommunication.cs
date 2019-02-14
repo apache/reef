@@ -44,8 +44,10 @@ namespace Org.Apache.REEF.Network.Elastic.Topology.Physical.Default
         protected readonly int _timeout;
         protected readonly int _retry;
 
-        protected readonly ConcurrentQueue<ElasticGroupCommunicationMessage> _sendQueue = new ConcurrentQueue<ElasticGroupCommunicationMessage>();
-        protected readonly BlockingCollection<ElasticGroupCommunicationMessage> _messageQueue = new BlockingCollection<ElasticGroupCommunicationMessage>();
+        protected readonly ConcurrentQueue<ElasticGroupCommunicationMessage> _sendQueue = 
+            new ConcurrentQueue<ElasticGroupCommunicationMessage>();
+        protected readonly BlockingCollection<ElasticGroupCommunicationMessage> _messageQueue = 
+            new BlockingCollection<ElasticGroupCommunicationMessage>();
         protected readonly ConcurrentDictionary<int, string> _children = new ConcurrentDictionary<int, string>();
         protected readonly CancellationTokenSource _cancellationSignal = new CancellationTokenSource();
 
@@ -132,7 +134,8 @@ namespace Org.Apache.REEF.Network.Elastic.Topology.Physical.Default
             }
             catch (Exception e)
             {
-                throw new OperationCanceledException("Failed to find parent/children nodes in operator topology for node: " + TaskId, e);
+                throw new OperationCanceledException(
+                    "Failed to find parent/children nodes in operator topology for node: " + TaskId, e);
             }
 
             _initialized = true;

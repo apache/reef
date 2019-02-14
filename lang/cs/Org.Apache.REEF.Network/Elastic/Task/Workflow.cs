@@ -208,7 +208,7 @@ namespace Org.Apache.REEF.Network.Elastic.Task
             if (_iteratorsPosition.Count > 0)
             {
                 var iterPos = _iteratorsPosition.Last();
-                var iterator = _operators[iterPos] as IElasticIterator;
+                var iterator = (IElasticIterator)_operators[iterPos];
 
                 op.IteratorReference = iterator;
                 iterator.RegisterActionOnTaskRescheduled(op.OnTaskRescheduled);

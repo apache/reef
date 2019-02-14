@@ -59,16 +59,15 @@ namespace Org.Apache.REEF.Network.Elastic.Comm.Impl
         /// <returns>The serialized message</returns>
         public byte[] Serialize()
         {
-            List<byte[]> buffer = new List<byte[]>();
+            List<byte> buffer = new List<byte>();
 
-            byte[] destinationBytes = ByteUtilities.StringToByteArrays(Destination);
+            var destinationBytes = ByteUtilities.StringToByteArrays(Destination);
+            buffer.AddRange(BitConverter.GetBytes(destinationBytes.Length));
+            buffer.AddRange(destinationBytes);
+            buffer.AddRange(BitConverter.GetBytes((short)Message.PayloadType));
+            buffer.AddRange(Message.Serialize());
 
-            buffer.Add(BitConverter.GetBytes(destinationBytes.Length));
-            buffer.Add(destinationBytes);
-            buffer.Add(BitConverter.GetBytes((short)Message.PayloadType));
-            buffer.Add(Message.Serialize());
-
-            return buffer.SelectMany(i => i).ToArray();
+            return buffer.ToArray();
         }
 
         /// <summary>

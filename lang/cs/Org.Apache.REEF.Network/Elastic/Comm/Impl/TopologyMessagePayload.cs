@@ -35,11 +35,15 @@ namespace Org.Apache.REEF.Network.Elastic.Comm.Impl
         /// Create a driver message payload containing topology updates.
         /// </summary>
         /// <param name="updates">The topology updates</param>
-        /// <param name="toRemove">Whether the updates are additions to the current topology state or nodes removal</param>
         /// <param name="stageName">The stage context for the message</param>
         /// <param name="operatorId">The id of the operator receiving the topology update</param>
         /// <param name="iteration">The iteration in which the update takes effect</param>
-        public TopologyMessagePayload(DriverMessagePayloadType type, List<TopologyUpdate> updates, string stageName, int operatorId, int iteration)
+        public TopologyMessagePayload(
+            DriverMessagePayloadType type, 
+            List<TopologyUpdate> updates, 
+            string stageName, 
+            int operatorId, 
+            int iteration)
             : base(stageName, operatorId, iteration)
         {
             PayloadType = type;
@@ -52,13 +56,7 @@ namespace Org.Apache.REEF.Network.Elastic.Comm.Impl
         /// <returns>An object containing the shallow copy of the message.</returns>
         public override object Clone()
         {
-            var updatesClone = new List<TopologyUpdate>();
-
-            foreach (var update in TopologyUpdates)
-            {
-                var clone = new TopologyUpdate(update.Node, update.Children, update.Root);
-                updatesClone.Add(update);
-            }
+            var updatesClone = TopologyUpdates.Select(up => (TopologyUpdate)up.Clone()).ToList();
 
             return TopologyMessageBuilder(PayloadType, updatesClone, StageName, OperatorId, Iteration);
         }
@@ -101,7 +99,13 @@ namespace Org.Apache.REEF.Network.Elastic.Comm.Impl
             byte[] stageBytes = ByteUtilities.StringToByteArrays(StageName);
             int offset = 0;
             var totalLengthUpdates = TopologyUpdates.Sum(x => x.Size);
-            byte[] buffer = new byte[sizeof(int) + totalLengthUpdates + sizeof(int) + stageBytes.Length + sizeof(bool) + sizeof(int) + sizeof(int)];
+            byte[] buffer = new byte[sizeof(int) + 
+                totalLengthUpdates + 
+                sizeof(int) + 
+                stageBytes.Length + 
+                sizeof(bool) + 
+                sizeof(int) + 
+                sizeof(int)];
 
             Buffer.BlockCopy(BitConverter.GetBytes(totalLengthUpdates), 0, buffer, offset, sizeof(int));
             offset += sizeof(int);
@@ -119,7 +123,12 @@ namespace Org.Apache.REEF.Network.Elastic.Comm.Impl
             return buffer;
         }
 
-        private static DriverMessagePayload TopologyMessageBuilder(DriverMessagePayloadType type, List<TopologyUpdate> updates, string stageName, int operatorId, int iteration)
+        private static DriverMessagePayload TopologyMessageBuilder(
+            DriverMessagePayloadType type, 
+            List<TopologyUpdate> updates, 
+            string stageName, 
+            int operatorId, 
+            int iteration)
         {
             switch (type)
             {

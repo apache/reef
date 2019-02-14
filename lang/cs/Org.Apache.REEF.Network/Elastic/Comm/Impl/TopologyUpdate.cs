@@ -27,7 +27,7 @@ namespace Org.Apache.REEF.Network.Elastic.Comm.Impl
     /// Class defining the updates of the topology for a running task.
     /// </summary>
     [Unstable("0.16", "API may change")]
-    internal sealed class TopologyUpdate
+    internal sealed class TopologyUpdate : ICloneable
     {
         /// <summary>
         /// Create an update for a node containing both the list of children and the root node.
@@ -102,7 +102,7 @@ namespace Org.Apache.REEF.Network.Elastic.Comm.Impl
         /// <param name="buffer">The memory space where to copy the serialized update</param>
         /// <param name="offset">Where to start writing in the buffer</param>
         /// <param name="updates">The updates to serialize</param>
-        internal static void Serialize(byte[] buffer, ref int offset, List<TopologyUpdate> updates)
+        internal static void Serialize(byte[] buffer, ref int offset, IEnumerable<TopologyUpdate> updates)
         {
             byte[] tmpBuffer;
 
@@ -191,6 +191,11 @@ namespace Org.Apache.REEF.Network.Elastic.Comm.Impl
             }
 
             return result;
+        }
+
+        public object Clone()
+        {
+            return new TopologyUpdate(Node, Children, Root);
         }
     }
 }
