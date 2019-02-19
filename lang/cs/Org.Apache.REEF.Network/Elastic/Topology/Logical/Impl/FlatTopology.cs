@@ -29,6 +29,7 @@ using Org.Apache.REEF.Utilities;
 using Org.Apache.REEF.Network.Elastic.Comm.Impl;
 using Org.Apache.REEF.Utilities.Attributes;
 using Org.Apache.REEF.Network.Elastic.Topology.Logical.Enum;
+using Org.Apache.REEF.Tang.Implementations.Tang;
 
 namespace Org.Apache.REEF.Network.Elastic.Topology.Logical.Impl
 {
@@ -263,14 +264,16 @@ namespace Org.Apache.REEF.Network.Elastic.Topology.Logical.Impl
         /// Adds the topology configuration for the input task to the input builder.
         /// Must be called only after all tasks have been added to the topology, i.e., after build.
         /// </summary>
-        /// <param name="builder">The configuration builder the configuration will be appended to</param>
         /// <param name="taskId">The task id of the task that belongs to this Topology</param>
-        public void GetTaskConfiguration(ref ICsConfigurationBuilder confBuilder, int taskId)
+        /// <returns>The task configuration</returns>
+        public IConfiguration GetTaskConfiguration(int taskId)
         {
             if (!_finalized)
             {
                 throw new IllegalStateException("Cannot get task configuration from a not finalized topology.");
             }
+
+            var confBuilder = TangFactory.GetTang().NewConfigurationBuilder();
 
             if (taskId == _rootId)
             {
@@ -283,9 +286,12 @@ namespace Org.Apache.REEF.Network.Elastic.Topology.Logical.Impl
                         tId.TaskId.ToString(CultureInfo.InvariantCulture));
                 }
             }
-            confBuilder.BindNamedParameter<Config.OperatorParameters.TopologyRootTaskId, int>(
+
+            return confBuilder
+                .BindNamedParameter<Config.OperatorParameters.TopologyRootTaskId, int>(
                     GenericType<Config.OperatorParameters.TopologyRootTaskId>.Class,
-                    _rootId.ToString(CultureInfo.InvariantCulture));
+                    _rootId.ToString(CultureInfo.InvariantCulture))
+                 .Build();
         }
 
         /// <summary>

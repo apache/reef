@@ -90,7 +90,7 @@ namespace Org.Apache.REEF.Network.Elastic.Driver.Default
         {
             TaskSetManager.OnTaskCompleted(value);
 
-            if (TaskSetManager.IsCompleted())
+            if (TaskSetManager.IsCompleted)
             {
                 TaskSetManager.Dispose();
             }
@@ -100,7 +100,7 @@ namespace Org.Apache.REEF.Network.Elastic.Driver.Default
         {
             TaskSetManager.OnEvaluatorFailure(failedEvaluator);
 
-            if (TaskSetManager.IsCompleted())
+            if (TaskSetManager.IsCompleted)
             {
                 TaskSetManager.Dispose();
             }
@@ -110,7 +110,7 @@ namespace Org.Apache.REEF.Network.Elastic.Driver.Default
         {
             TaskSetManager.OnTaskFailure(failedTask);
 
-            if (TaskSetManager.IsCompleted())
+            if (TaskSetManager.IsCompleted)
             {
                 TaskSetManager.Dispose();
             }

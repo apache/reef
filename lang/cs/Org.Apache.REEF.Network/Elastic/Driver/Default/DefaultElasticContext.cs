@@ -181,12 +181,10 @@ namespace Org.Apache.REEF.Network.Elastic.Driver.Default
         {
             lock (_subsLock)
             {
-                if (!_stages.ContainsKey(stageName))
+                if (!_stages.Remove(stageName))
                 {
                     throw new ArgumentException($"Stage {stageName} is not registered with the context.");
                 }
-
-                _stages.Remove(stageName);
             }
         }
 
@@ -268,18 +266,11 @@ namespace Org.Apache.REEF.Network.Elastic.Driver.Default
                 .Build();
 
             return TangFactory.GetTang().NewConfigurationBuilder(contextConfig)
-                .BindNamedParameter<NamingConfigurationOptions.NameServerAddress, string>(
-                    GenericType<NamingConfigurationOptions.NameServerAddress>.Class,
-                    _nameServerAddr)
-                .BindNamedParameter<NamingConfigurationOptions.NameServerPort, int>(
-                    GenericType<NamingConfigurationOptions.NameServerPort>.Class,
-                    _nameServerPort.ToString(CultureInfo.InvariantCulture))
-                .BindImplementation(GenericType<INameClient>.Class,
-                    GenericType<NameClient>.Class)
-                .BindNamedParameter<TcpPortRangeStart, int>(GenericType<TcpPortRangeStart>.Class,
-                    _startingPort.ToString(CultureInfo.InvariantCulture))
-                .BindNamedParameter<TcpPortRangeCount, int>(GenericType<TcpPortRangeCount>.Class,
-                    _portRange.ToString(CultureInfo.InvariantCulture))
+                .BindStringNamedParam<NamingConfigurationOptions.NameServerAddress>(_nameServerAddr)
+                .BindIntNamedParam<NamingConfigurationOptions.NameServerPort>("" + _nameServerPort)
+                .BindImplementation<INameClient, NameClient>()
+                .BindIntNamedParam<TcpPortRangeStart>("" + _startingPort)
+                .BindIntNamedParam<TcpPortRangeCount>("" + _portRange)
                 .Build();
         }
 

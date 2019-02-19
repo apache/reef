@@ -24,6 +24,7 @@ using Org.Apache.REEF.Network.Elastic.Failures.Enum;
 using Org.Apache.REEF.Utilities.Attributes;
 using Org.Apache.REEF.Tang.Exceptions;
 using Org.Apache.REEF.Tang.Implementations.Configuration;
+using Org.Apache.REEF.Tang.Implementations.Tang;
 
 namespace Org.Apache.REEF.Network.Elastic.Operators.Logical.Default
 {
@@ -80,11 +81,15 @@ namespace Org.Apache.REEF.Network.Elastic.Operators.Logical.Default
         /// Binding from logical to physical operator.
         /// </summary>
         /// <param name="confBuilder">The configuration builder the binding will be added to</param>
-        protected override void PhysicalOperatorConfiguration(ref ICsConfigurationBuilder confBuilder)
+        /// <returns>The physcal operator configurations</returns>
+        protected override IConfiguration PhysicalOperatorConfiguration()
         {
-            confBuilder
-                .BindImplementation(GenericType<IElasticTypedOperator<T>>.Class, GenericType<Physical.Default.DefaultBroadcast<T>>.Class);
-            SetMessageType(typeof(Physical.Default.DefaultBroadcast<T>), ref confBuilder);
+            var physicalOperatorConf = TangFactory.GetTang().NewConfigurationBuilder()
+                .BindImplementation(GenericType<IElasticTypedOperator<T>>.Class, GenericType<Physical.Default.DefaultBroadcast<T>>.Class)
+                .Build();
+            var messageconf = SetMessageType(typeof(Physical.Default.DefaultBroadcast<T>));
+
+            return Configurations.Merge(physicalOperatorConf, messageconf);
         }
     }
 }

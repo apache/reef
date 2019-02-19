@@ -53,7 +53,7 @@ namespace Org.Apache.REEF.Network.Elastic.Driver.Default
             NewEvaluatorNumCores = numCores;
             NewEvaluatorMemorySize = memorySize;
 
-            System.Threading.Tasks.Task.Factory.StartNew(() => Clock.Run(), TaskCreationOptions.LongRunning);
+            System.Threading.Tasks.Task.Factory.StartNew(Clock.Run, TaskCreationOptions.LongRunning);
         }
 
         /// <summary>

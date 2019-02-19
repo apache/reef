@@ -77,9 +77,9 @@ namespace Org.Apache.REEF.Network.Elastic.Topology.Logical
         /// Adds the topology configuration for the input task to the input builder.
         /// Must be called only after all tasks have been added to the topology, i.e., after build.
         /// </summary>
-        /// <param name="builder">The configuration builder the configuration will be appended to</param>
         /// <param name="taskId">The task id of the task that belongs to this Topology</param>
-        void GetTaskConfiguration(ref ICsConfigurationBuilder builder, int taskId);
+        /// <returns>The task configuration</returns>
+        IConfiguration GetTaskConfiguration(int taskId);
 
         /// <summary>
         /// Utility method for logging the topology state.

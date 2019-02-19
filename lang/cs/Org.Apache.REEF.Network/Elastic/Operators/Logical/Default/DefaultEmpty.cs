@@ -20,6 +20,7 @@ using Org.Apache.REEF.Network.Elastic.Driver;
 using Org.Apache.REEF.Network.Elastic.Failures;
 using Org.Apache.REEF.Network.Elastic.Topology.Logical.Impl;
 using Org.Apache.REEF.Tang.Exceptions;
+using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Utilities.Attributes;
 using System.Collections.Generic;
@@ -80,8 +81,10 @@ namespace Org.Apache.REEF.Network.Elastic.Operators.Logical.Default
         /// Binding from logical to physical operator.
         /// </summary>
         /// <param name="builder">The configuration builder the binding will be added to</param>
-        protected override void PhysicalOperatorConfiguration(ref ICsConfigurationBuilder confBuilder)
+        /// <returns>The physcal operator configurations</returns>
+        protected override IConfiguration PhysicalOperatorConfiguration()
         {
+            return TangFactory.GetTang().NewConfigurationBuilder().Build();
         }
 
         /// <summary>

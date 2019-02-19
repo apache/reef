@@ -304,13 +304,10 @@ namespace Org.Apache.REEF.Network.Elastic.Operators.Logical
         /// <summary>
         /// Generate the data serializer configuration for the target operator.
         /// </summary>
-        /// <param name="confBuilder">The conf builder where to attach the codec configuration</param>
-        internal virtual void GetCodecConfiguration(ref IConfiguration confBuilder)
+        /// <param name="conf">The conf builder where to attach the codec configuration</param>
+        internal virtual void GetCodecConfiguration(ref IConfiguration conf)
         {
-            if (_next != null)
-            {
-                _next.GetCodecConfiguration(ref confBuilder);
-            }
+            _next?.GetCodecConfiguration(ref conf);
         }
 
         /// <summary>
@@ -319,12 +316,7 @@ namespace Org.Apache.REEF.Network.Elastic.Operators.Logical
         /// <returns>True if this is the last iterator</returns>
         public virtual bool CheckIfLastIterator()
         {
-            if (_next == null)
-            {
-                return true;
-            }
-
-            return _next.CheckIfLastIterator();
+            return _next?.CheckIfLastIterator() ?? true;
         }
 
         /// <summary>
@@ -388,10 +380,7 @@ namespace Org.Apache.REEF.Network.Elastic.Operators.Logical
             {
                 GetOperatorConfiguration(ref serializedOperatorsConfs, taskId);
 
-                if (_next != null)
-                {
-                    _next.GetTaskConfiguration(ref serializedOperatorsConfs, taskId);
-                }
+                _next?.GetTaskConfiguration(ref serializedOperatorsConfs, taskId);
             }
             else
             {
@@ -405,14 +394,7 @@ namespace Org.Apache.REEF.Network.Elastic.Operators.Logical
         /// <returns>True if the operator is ready to be scheduled</returns>
         internal bool CanBeScheduled()
         {
-            bool canBeScheduled = _topology.CanBeScheduled();
-
-            if (canBeScheduled && _next != null)
-            {
-                return _next.CanBeScheduled();
-            }
-
-            return canBeScheduled;
+            return _topology.CanBeScheduled() && (_next?.CanBeScheduled() ?? true);
         }
 
         /// <summary>
@@ -421,17 +403,14 @@ namespace Org.Apache.REEF.Network.Elastic.Operators.Logical
         /// <param name="masterTasks">The id of the master tasks of the current and successive operators</param>
         internal virtual void GatherMasterIds(ref HashSet<string> masterTasks)
         {
-            if (_operatorFinalized != true)
+            if (!_operatorFinalized)
             {
                 throw new IllegalStateException("Operator need to be build before gathering information.");
             }
 
             masterTasks.Add(Utils.BuildTaskId(Stage.StageName, MasterId));
 
-            if (_next != null)
-            {
-                _next.GatherMasterIds(ref masterTasks);
-            }
+            _next?.GatherMasterIds(ref masterTasks);
         }
 
         /// <summary>
@@ -440,29 +419,24 @@ namespace Org.Apache.REEF.Network.Elastic.Operators.Logical
         /// </summary>
         internal virtual string LogFinalStatistics()
         {
-            var str = LogInternalStatistics();
-
-            if (_next != null)
-            {
-                str += _next.LogFinalStatistics();
-            }
-
-            return str;
+            return LogInternalStatistics() + _next?.LogFinalStatistics();
         }
 
         /// <summary>
         /// Appends the message type to the configuration.
         /// </summary>
         /// <param name="operatorType">The type of the messages the operator is configured to accept</param>
-        /// <param name="confBuilder">The configuration builder the message type will be added to</param>
-        protected void SetMessageType(Type operatorType, ref ICsConfigurationBuilder confBuilder)
+        /// <returns>The conf builder with added the message type</returns>
+        protected IConfiguration SetMessageType(Type operatorType)
         {
             if (operatorType.IsGenericType)
             {
                 var genericTypes = operatorType.GenericTypeArguments;
                 var msgType = genericTypes[0];
-                confBuilder.BindNamedParameter<OperatorParameters.MessageType, string>(
-                    GenericType<OperatorParameters.MessageType>.Class, msgType.AssemblyQualifiedName);
+
+                return TangFactory.GetTang().NewConfigurationBuilder()
+                    .BindStringNamedParam<OperatorParameters.MessageType>(msgType.AssemblyQualifiedName)
+                    .Build();
             }
             else
             {
@@ -492,32 +466,19 @@ namespace Org.Apache.REEF.Network.Elastic.Operators.Logical
         /// <param name="taskId">The task id of the task that belongs to this operator</param>
         protected virtual void GetOperatorConfiguration(ref IList<string> serializedOperatorsConfs, int taskId)
         {
-            ICsConfigurationBuilder operatorBuilder = TangFactory.GetTang().NewConfigurationBuilder();
-
-            _topology.GetTaskConfiguration(ref operatorBuilder, taskId);
-
-            PhysicalOperatorConfiguration(ref operatorBuilder);
-
-            if (!Stage.IsIterative && _next == null)
-            {
-                operatorBuilder.BindNamedParameter<OperatorParameters.IsLast, bool>(
-                    GenericType<OperatorParameters.IsLast>.Class,
-                    true.ToString(CultureInfo.InvariantCulture));
-            }
-
-            IConfiguration operatorConf = operatorBuilder
-                .BindNamedParameter<OperatorParameters.OperatorId, int>(
-                    GenericType<OperatorParameters.OperatorId>.Class,
-                    _id.ToString(CultureInfo.InvariantCulture))
-                .BindNamedParameter<OperatorParameters.Checkpointing, int>(
-                    GenericType<OperatorParameters.Checkpointing>.Class,
-                    ((int)_checkpointLevel).ToString(CultureInfo.InvariantCulture))
+            var operatorBuilderWithTaskConf = _topology.GetTaskConfiguration(taskId);
+            var operatorBuilderWithTaskAndPhysicalConf = PhysicalOperatorConfiguration();
+            IConfiguration operatorConf = TangFactory.GetTang().NewConfigurationBuilder()
+                .BindNamedParam<OperatorParameters.IsLast, bool>("" + (!Stage.IsIterative && _next == null))
+                .BindIntNamedParam<OperatorParameters.OperatorId>("" + _id)
+                .BindIntNamedParam<OperatorParameters.Checkpointing>("" + (int)_checkpointLevel)
                 .Build();
 
-            foreach (var conf in _configurations)
-            {
-                operatorConf = Configurations.Merge(operatorConf, conf);
-            }
+            operatorConf = Configurations.Merge(
+                operatorConf,
+                operatorBuilderWithTaskConf,
+                operatorBuilderWithTaskAndPhysicalConf,
+                Configurations.Merge(_configurations));
 
             Stage.Context.SerializeOperatorConfiguration(ref serializedOperatorsConfs, operatorConf);
         }
@@ -566,8 +527,8 @@ namespace Org.Apache.REEF.Network.Elastic.Operators.Logical
         /// <summary>
         /// Binding from logical to physical operator.
         /// </summary>
-        /// <param name="builder">The configuration builder the binding will be added to</param>
-        protected abstract void PhysicalOperatorConfiguration(ref ICsConfigurationBuilder builder);
+        /// <returns>The physcal operator configuration</returns>
+        protected abstract IConfiguration PhysicalOperatorConfiguration();
 
         private ITopology GetTopology(TopologyType topologyType)
         {
@@ -581,8 +542,8 @@ namespace Org.Apache.REEF.Network.Elastic.Operators.Logical
 
                 default:
                     throw new ArgumentException(
-               nameof(topologyType),
-               $"Topology type {topologyType} not supported by {OperatorType.ToString()}.");
+                        nameof(topologyType),
+                        $"Topology type {topologyType} not supported by {OperatorType.ToString()}.");
             }
 
             return topology;

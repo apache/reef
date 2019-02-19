@@ -41,17 +41,22 @@ namespace Org.Apache.REEF.Network.Elastic.Driver
         string StagesId { get; }
 
         /// <summary>
+        /// Decides whether more contexts have to be added to this Task Manger or not.
+        /// </summary>
+        /// <returns>True if the number of added contexts is less than the available slots</returns>
+        bool HasMoreContextToAdd { get; }
+
+        /// <summary>
+        /// Whether this task set manger is done.
+        /// </summary>
+        bool IsCompleted { get; }
+
+        /// <summary>
         /// Subscribe the current task set manager to a new stage.
         /// </summary>
         /// <param name="stage">The stage to subscribe to</param>
         /// <returns>The task manager with the added stage</returns>
         IElasticTaskSetManager AddStage(IElasticStage stage);
-
-        /// <summary>
-        /// Decides whether more contexts have to be added to this Task Manger or not.
-        /// </summary>
-        /// <returns>True if the number of added contexts is less than the available slots</returns>
-        bool HasMoreContextToAdd();
 
         /// <summary>
         /// Method used to generate unique context ids.
@@ -131,11 +136,6 @@ namespace Org.Apache.REEF.Network.Elastic.Driver
         /// </summary>
         /// <param name="id">The context identifier</param>
         bool IsEvaluatorManagedBy(string id);
-
-        /// <summary>
-        /// Whether this task set manger is done.
-        /// </summary>
-        bool IsCompleted();
 
         /// <summary>
         /// Used to react on a task failure.

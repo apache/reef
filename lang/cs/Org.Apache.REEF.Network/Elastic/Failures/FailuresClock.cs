@@ -43,8 +43,8 @@ namespace Org.Apache.REEF.Network.Elastic.Failures
         private static int numberOfInstantiations = 0;
 
         private readonly ITimer _timer;
-        private readonly PubSubSubject<Time> _handlers;
-        private readonly PriorityQueue<Time> _schedule;
+        private readonly PubSubSubject<Time> _handlers = new PubSubSubject<Time>();
+        private readonly PriorityQueue<Time> _schedule = new PriorityQueue<Time>();
 
         private readonly IInjectionFuture<ISet<IObserver<StartTime>>> _startHandler;
         private readonly IInjectionFuture<ISet<IObserver<StopTime>>> _stopHandler;
@@ -73,9 +73,6 @@ namespace Org.Apache.REEF.Network.Elastic.Failures
             [Parameter(typeof(Wake.Time.Parameters.IdleHandler))] IInjectionFuture<ISet<IObserver<IdleClock>>> idleHandler)
         {
             _timer = timer;
-            _schedule = new PriorityQueue<Time>();
-            _handlers = new PubSubSubject<Time>();
-
             _startHandler = startHandler;
             _stopHandler = stopHandler;
             _runtimeStartHandler = runtimeStartHandler;
@@ -165,13 +162,15 @@ namespace Org.Apache.REEF.Network.Elastic.Failures
         {
             SubscribeHandlers();
 
-            var runtimeException = Optional<Exception>.Empty();
+            Exception runtimeException = null;
             try
             {
                 _handlers.OnNext(new RuntimeStart(_timer.CurrentTime));
                 _handlers.OnNext(new StartTime(_timer.CurrentTime));
 
-                while (true)
+                Time alarm = null;
+
+                while (!(alarm is StopTime))
                 {
                     lock (_schedule)
                     {
@@ -181,27 +180,17 @@ namespace Org.Apache.REEF.Network.Elastic.Failures
                         }
 
                         // Blocks and releases lock until it receives the next event
-                        Time alarm = GetNextEvent();
+                        alarm = GetNextEvent();
                         ProcessEvent(alarm);
-
-                        if (alarm is StopTime)
-                        {
-                            break;
-                        }
                     }
                 }
             }
             catch (Exception e)
             {
-                runtimeException = Optional<Exception>.Of(
-                    new ReefRuntimeException("Caught Exception in clock, failing the Evaluator.", e));
+                runtimeException = new ReefRuntimeException("Caught Exception in clock, failing the Evaluator.", e);
             }
 
-            var runtimeStop = runtimeException.IsPresent()
-                ? new RuntimeStop(_timer.CurrentTime, runtimeException.Value)
-                : new RuntimeStop(_timer.CurrentTime);
-
-            _handlers.OnNext(runtimeStop);
+            _handlers.OnNext(new RuntimeStop(_timer.CurrentTime, runtimeException));
         }
 
         /// <summary>
@@ -259,9 +248,8 @@ namespace Org.Apache.REEF.Network.Elastic.Failures
         /// <param name="time">The Time event to handle</param>
         private void ProcessEvent(Time time)
         {
-            if (time is Alarm)
+            if (time is Alarm alarm)
             {
-                Alarm alarm = (Alarm)time;
                 alarm.Handle();
             }
             else

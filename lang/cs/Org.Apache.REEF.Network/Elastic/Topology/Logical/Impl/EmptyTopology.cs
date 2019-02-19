@@ -23,6 +23,7 @@ using System;
 using Org.Apache.REEF.Network.Elastic.Failures;
 using Org.Apache.REEF.Utilities;
 using Org.Apache.REEF.Utilities.Attributes;
+using Org.Apache.REEF.Tang.Implementations.Tang;
 
 namespace Org.Apache.REEF.Network.Elastic.Topology.Logical.Impl
 {
@@ -116,10 +117,11 @@ namespace Org.Apache.REEF.Network.Elastic.Topology.Logical.Impl
         /// Adds the topology configuration for the input task to the input builder.
         /// This method does nothig.
         /// </summary>
-        /// <param name="builder">The configuration builder the configuration will be appended to</param>
         /// <param name="taskId">The task id of the task that belongs to this Topology</param>
-        public void GetTaskConfiguration(ref ICsConfigurationBuilder confBuilder, int taskId)
+        /// <returns>The task configuration</returns>
+        public IConfiguration GetTaskConfiguration(int taskId)
         {
+            return TangFactory.GetTang().NewConfigurationBuilder().Build();
         }
 
         /// <summary>

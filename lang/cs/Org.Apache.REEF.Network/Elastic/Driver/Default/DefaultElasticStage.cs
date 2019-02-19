@@ -173,8 +173,8 @@ namespace Org.Apache.REEF.Network.Elastic.Driver.Default
                 if (_datasetConfiguration.Value.Length + adjust < _numTasks)
                 {
                     throw new IllegalStateException(
-                        $"Dataset is smaller than the number of tasks: "
-                        + "re-submit with {_datasetConfiguration.Value.Length + adjust} tasks");
+                        "Dataset is smaller than the number of tasks: "
+                        + $"re-submit with {_datasetConfiguration.Value.Length + adjust} tasks");
                 }
             }
 
@@ -193,14 +193,14 @@ namespace Org.Apache.REEF.Network.Elastic.Driver.Default
         /// <returns>True if the task is correctly added to the stages</returns>
         public bool AddTask(string taskId)
         {
-            if (taskId == string.Empty)
+            if (string.IsNullOrEmpty(taskId))
             {
                 throw new ArgumentException($"{nameof(taskId)} cannot be empty.");
             }
 
             if (IsCompleted || (_scheduled && FailureState.FailureState == (int)DefaultFailureStates.Fail))
             {
-                Log.Log(Level.Warning, "Taskset " + (IsCompleted ? "completed." : "failed."));
+                Log.Log(Level.Warning, "Taskset {0}." ,IsCompleted ? "completed." : "failed.");
                 return false;
             }
 
@@ -233,16 +233,12 @@ namespace Org.Apache.REEF.Network.Elastic.Driver.Default
                     return false;
                 }
 
-                if (!PipelineRoot.AddTask(taskId))
+                if (PipelineRoot.AddTask(taskId))
                 {
-                    return true;
+                    _tasksAdded++;
+                    _missingMasterTasks.Remove(taskId);
+                    _failureMachine.AddDataPoints(1, false);
                 }
-
-                _tasksAdded++;
-
-                _missingMasterTasks.Remove(taskId);
-
-                _failureMachine.AddDataPoints(1, false);
             }
 
             return true;
@@ -285,7 +281,7 @@ namespace Org.Apache.REEF.Network.Elastic.Driver.Default
             }
 
             int id = Utils.GetContextNum(activeContext);
-            return _masterTasks.Select(Utils.GetTaskNum).Any(x => x == id);
+            return _masterTasks.Any(task => Utils.GetTaskNum(task) == id);
         }
 
         /// <summary>
@@ -300,16 +296,11 @@ namespace Org.Apache.REEF.Network.Elastic.Driver.Default
             ICsConfigurationBuilder confBuilder = TangFactory.GetTang().NewConfigurationBuilder();
             IList<string> serializedOperatorsConfs = new List<string>();
 
-            confBuilder.BindNamedParameter<Config.OperatorParameters.StageName, string>(
-                    GenericType<Config.OperatorParameters.StageName>.Class,
-                    StageName);
-
             PipelineRoot.GetTaskConfiguration(ref serializedOperatorsConfs, taskId);
 
             return confBuilder
-                .BindList<Config.OperatorParameters.SerializedOperatorConfigs, string>(
-                    GenericType<Config.OperatorParameters.SerializedOperatorConfigs>.Class,
-                    serializedOperatorsConfs)
+                .BindStringNamedParam<Config.OperatorParameters.StageName>(StageName)
+                .BindList<Config.OperatorParameters.SerializedOperatorConfigs, string>(serializedOperatorsConfs)
                 .Build();
         }
 
