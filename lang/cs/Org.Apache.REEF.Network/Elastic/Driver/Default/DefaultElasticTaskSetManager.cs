@@ -159,6 +159,11 @@ namespace Org.Apache.REEF.Network.Elastic.Driver.Default
             /// <param name="taskRunner">The reference to the remote running task</param>
             public void SetTaskRunner(IRunningTask taskRunner)
             {
+                if (_isDisposed)
+                {
+                    throw new IllegalStateException("Cannot set task runner for a disposed task.");
+                }
+
                 TaskRunner = taskRunner;
                 _isTaskDisposed = false;
             }
@@ -179,9 +184,13 @@ namespace Org.Apache.REEF.Network.Elastic.Driver.Default
             /// <param name="evaluatorId">The id of the evaluator</param>
             public void UpdateRuntime(IActiveContext newActiveContext, string evaluatorId)
             {
+                if (_isDisposed)
+                {
+                    throw new IllegalStateException("Cannot update runtime for a disposed task.");
+                }
                 if (!_isActiveContextDisposed)
                 {
-                    throw new IllegalStateException("Updating Task with not disposed active context");
+                    throw new IllegalStateException("Updating Task with not disposed active context.");
                 }
 
                 ActiveContext = newActiveContext;
@@ -205,9 +214,9 @@ namespace Org.Apache.REEF.Network.Elastic.Driver.Default
             {
                 if (!_isTaskDisposed)
                 {
-                    TaskRunner?.Dispose();
-
                     _isTaskDisposed = true;
+
+                    TaskRunner?.Dispose();
                 }
             }
 
@@ -218,9 +227,9 @@ namespace Org.Apache.REEF.Network.Elastic.Driver.Default
             {
                 if (!_isActiveContextDisposed)
                 {
-                    ActiveContext?.Dispose();
-
                     _isActiveContextDisposed = true;
+
+                    ActiveContext?.Dispose();
                 }
             }
 
@@ -231,11 +240,11 @@ namespace Org.Apache.REEF.Network.Elastic.Driver.Default
             {
                 if (!_isDisposed)
                 {
+                    _isDisposed = true;
+
                     DisposeTask();
 
                     DisposeActiveContext();
-
-                    _isDisposed = true;
                 }
             }
         }
@@ -1230,7 +1239,7 @@ namespace Org.Apache.REEF.Network.Elastic.Driver.Default
                             Log.Log(Level.Warning, "Task submit for a completed or failed Task Set: ignoring.");
                             taskInfo.DisposeTask();
 
-                            return;
+                            continue;
                         }
                         if (taskInfo.TaskStatus != TaskState.Running ||
                             taskInfo.TaskRunner == null)
@@ -1315,10 +1324,13 @@ namespace Org.Apache.REEF.Network.Elastic.Driver.Default
 
         private void LogFinalStatistics()
         {
-            Log.Log(Level.Info, "Total Failed Tasks: {0}\nTotal Failed Evaluators: {1}\n{2}",
+            if (Log.IsLoggable(Level.Info))
+            {
+                Log.Log(Level.Info, "Total Failed Tasks: {0}\nTotal Failed Evaluators: {1}\n{2}",
                 _totFailedTasks,
                 _totFailedEvaluators,
                 string.Join("\n", _stages.Select(x => x.Value.LogFinalStatistics())));
+            }
         }
 
         private bool Completed()

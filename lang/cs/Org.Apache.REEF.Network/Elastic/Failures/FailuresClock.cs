@@ -52,7 +52,7 @@ namespace Org.Apache.REEF.Network.Elastic.Failures
         private readonly IInjectionFuture<ISet<IObserver<RuntimeStop>>> _runtimeStopHandler;
         private readonly IInjectionFuture<ISet<IObserver<IdleClock>>> _idleHandler;
 
-        private bool _disposed;
+        private volatile bool _disposed;
 
         /// <summary>
         /// Create a new failure clock with injectable IObservers.
@@ -145,12 +145,18 @@ namespace Org.Apache.REEF.Network.Elastic.Failures
         /// </summary>
         public void Dispose()
         {
+            if (_disposed)
+            {
+                return;
+            }
+
+            _disposed = true;
+
             lock (_schedule)
             {
                 _schedule.Clear();
                 _schedule.Add(new StopTime(_timer.CurrentTime));
                 Monitor.PulseAll(_schedule);
-                _disposed = true;
             }
         }
 
