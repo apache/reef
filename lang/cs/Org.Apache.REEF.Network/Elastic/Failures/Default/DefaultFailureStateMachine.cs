@@ -56,8 +56,8 @@ namespace Org.Apache.REEF.Network.Elastic.Failures.Default
             { DefaultFailureStates.Fail, DefaultFailureStates.StopAndReschedule }
         };
 
-        private readonly IDictionary<DefaultFailureStates, float> transitionWeights = 
-            new Dictionary<DefaultFailureStates, float>()
+        private readonly SortedDictionary<DefaultFailureStates, float> transitionWeights = 
+            new SortedDictionary<DefaultFailureStates, float>()
         {
             { DefaultFailureStates.ContinueAndReconfigure, 0.01F },
             { DefaultFailureStates.ContinueAndReschedule, 0.40F },
@@ -241,14 +241,16 @@ namespace Org.Apache.REEF.Network.Elastic.Failures.Default
         /// <param name="weights">Pairs of failure states with related new thresholds</param>
         public void SetThresholds(params Tuple<IFailureState, float>[] weights)
         {
-            if (!weights.All(weight => weight.Item1 is DefaultFailureState))
+            foreach (var weight in weights)
             {
-                throw new ArgumentException("Input is not of type DefaultFailureStateMachine,");
-            }
-
-            if (weights.Any(weight => weight.Item1.FailureState == (int)DefaultFailureStates.Continue))
-            {
-                throw new ArgumentException("Cannot change the threshold for Continue state.");
+                if (!(weight.Item1 is DefaultFailureState))
+                {
+                    throw new ArgumentException("Input is not of type DefaultFailureStateMachine.");
+                }
+                if (weight.Item1.FailureState == (int)DefaultFailureStates.Continue)
+                {
+                    throw new ArgumentException("Cannot change the threshold for Continue state.");
+                }
             }
 
             lock (_statusLock)
@@ -275,7 +277,7 @@ namespace Org.Apache.REEF.Network.Elastic.Failures.Default
         {
             var newMachine = new DefaultFailureStateMachine(initalPoints, (DefaultFailureStates)initalState);
 
-            foreach (DefaultFailureStates state in transitionWeights.Keys.OrderByDescending(x => x))
+            foreach (DefaultFailureStates state in transitionWeights.Keys)
             {
                 newMachine.SetThreshold(new DefaultFailureState((int)state), transitionWeights[state]);
             }
@@ -294,9 +296,8 @@ namespace Org.Apache.REEF.Network.Elastic.Failures.Default
                 var state = DefaultFailureStates.ContinueAndReconfigure;
                 float prevWeight = transitionWeights[state];
                 state = transitionMapUp[state];
-                float nextWeight = transitionWeights[state];
 
-                while (nextWeight >= 0)
+                while (transitionWeights.TryGetValue(state, out float nextWeight))
                 {
                     if (nextWeight < prevWeight)
                     {
@@ -312,7 +313,6 @@ namespace Org.Apache.REEF.Network.Elastic.Failures.Default
                     }
 
                     state = transitionMapUp[state];
-                    transitionWeights.TryGetValue(state, out nextWeight);
                 }
             }
         }

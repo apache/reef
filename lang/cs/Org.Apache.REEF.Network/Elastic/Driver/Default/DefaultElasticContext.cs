@@ -117,18 +117,15 @@ namespace Org.Apache.REEF.Network.Elastic.Driver.Default
         {
             lock (_subsLock)
             {
-                IElasticStage defaultStage;
-                _stages.TryGetValue(_defaultStageName, out defaultStage);
-
-                if (defaultStage == null)
+                if (_stages.TryGetValue(_defaultStageName, out IElasticStage defaultStage))
                 {
-                    CreateNewStage(
-                        _defaultStageName,
-                        _numEvaluators,
-                        _defaultFailureMachine.Clone(_numEvaluators, (int)DefaultFailureStates.Fail));
+                    return defaultStage;
                 }
 
-                return _stages[_defaultStageName];
+                return CreateNewStage(
+                    _defaultStageName,
+                    _numEvaluators,
+                    _defaultFailureMachine.Clone(_numEvaluators, (int)DefaultFailureStates.Fail));
             }
         }
 

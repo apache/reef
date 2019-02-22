@@ -557,16 +557,10 @@ namespace Org.Apache.REEF.Network.Elastic.Driver.Default
 
                 Log.Log(Level.Info, "Task {0} to be scheduled on {1}", taskId, activeContext.EvaluatorId);
 
-                List<IConfiguration> partialTaskConfs = new List<IConfiguration>();
-
-                if (isMaster)
+                List<IConfiguration> partialTaskConfs = new List<IConfiguration>
                 {
-                    partialTaskConfs.Add(_masterTaskConfiguration(taskId));
-                }
-                else
-                {
-                    partialTaskConfs.Add(_slaveTaskConfiguration(taskId));
-                }
+                    isMaster ? _masterTaskConfiguration(taskId) : _slaveTaskConfiguration(taskId)
+                };
 
                 AddTask(taskId, activeContext, partialTaskConfs);
             }
@@ -658,7 +652,7 @@ namespace Org.Apache.REEF.Network.Elastic.Driver.Default
                 }
                 if (Completed())
                 {
-                    foreach (var info in _taskInfos.Where(info => info != null && info.TaskStatus < TaskState.Failed))
+                    foreach (var info in _taskInfos.Where(info =>info?.TaskStatus < TaskState.Failed))
                     {
                         info.DisposeTask();
                     }
@@ -870,13 +864,14 @@ namespace Org.Apache.REEF.Network.Elastic.Driver.Default
                     if (_evaluatorToContextIdMapping.TryRemove(evaluator.Id, out ContextInfo cinfo))
                     {
                         int id = cinfo.Id - 1;
+                        var taskInfo = _taskInfos[id];
 
-                        if (_taskInfos[id] != null)
+                        if (taskInfo != null)
                         {
-                            lock (_taskInfos[id])
+                            lock (taskInfo)
                             {
-                                _taskInfos[id].DropRuntime();
-                                _taskInfos[id].SetTaskStatus(TaskState.Failed);
+                                taskInfo.DropRuntime();
+                                taskInfo.SetTaskStatus(TaskState.Failed);
                             }
                         }
 
