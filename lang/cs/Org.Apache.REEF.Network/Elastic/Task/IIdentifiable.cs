@@ -16,27 +16,18 @@
 // under the License.
 
 using Org.Apache.REEF.Utilities.Attributes;
-using System;
-using System.Collections;
 
-namespace Org.Apache.REEF.Network.Elastic.Operators.Physical
+namespace Org.Apache.REEF.Network.Elastic.Task
 {
     /// <summary>
-    /// Group communication operator used to for iterations.
+    /// Interface used to return an identfiable object from a class.
     /// </summary>
     [Unstable("0.16", "API may change")]
-    public interface IElasticIterator : IElasticOperator, IEnumerator
+    public interface IIdentifiable
     {
         /// <summary>
-        /// Synchronize the current iteration with the input one.
+        /// The identifier for the node.
         /// </summary>
-        /// <param name="iteration">The state in which the iterator will be moved</param>
-        void SyncIteration(int iteration);
-
-        /// <summary>
-        /// Register the action to trigger when a task is rescheduled.
-        /// </summary>
-        /// <param name="action">Some code to execute upon task rescheduling</param>
-        void RegisterActionOnTaskRescheduled(Action action);
+        NodeIdentifier NodeId { get; }
     }
 }

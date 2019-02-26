@@ -44,8 +44,8 @@ namespace Org.Apache.REEF.Network.Elastic.Task.Impl
         /// <summary>
         /// Observers of incoming messages from the driver.
         /// </summary>
-        internal readonly ConcurrentDictionary<NodeObserverIdentifier, DriverAwareOperatorTopology> DriverMessageObservers =
-            new ConcurrentDictionary<NodeObserverIdentifier, DriverAwareOperatorTopology>();
+        internal readonly ConcurrentDictionary<NodeIdentifier, DriverAwareOperatorTopology> DriverMessageObservers =
+            new ConcurrentDictionary<NodeIdentifier, DriverAwareOperatorTopology>();
 
         /// <summary>
         /// Handle an incoming message.
@@ -60,10 +60,8 @@ namespace Org.Apache.REEF.Network.Elastic.Task.Impl
             }
 
             var edm = ElasticDriverMessageImpl.From(message.Message.Value);
-            var id = NodeObserverIdentifier.FromMessage(edm.Message);
-            DriverAwareOperatorTopology operatorObserver;
 
-            if (!DriverMessageObservers.TryGetValue(id, out operatorObserver))
+            if (!DriverMessageObservers.TryGetValue(edm.Message.NodeId, out DriverAwareOperatorTopology operatorObserver))
             {
                 throw new KeyNotFoundException("Unable to find registered operator topology for stage " +
                     edm.Message.StageName + " operator " + edm.Message.OperatorId);

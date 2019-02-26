@@ -34,7 +34,6 @@ namespace Org.Apache.REEF.Network.Elastic.Failures.Default
         public FailEvent(string taskId)
         {
             TaskId = taskId;
-            FailureResponse = new List<IElasticDriverMessage>();
         }
 
         /// <summary>
@@ -62,6 +61,6 @@ namespace Org.Apache.REEF.Network.Elastic.Failures.Default
         /// Messages implementing the response from the driver to the tasks
         /// to reconfigure the compution.
         /// </summary>
-        public List<IElasticDriverMessage> FailureResponse { get; private set; }
+        public List<IElasticDriverMessage> FailureResponse { get; } = new List<IElasticDriverMessage>();
     }
 }

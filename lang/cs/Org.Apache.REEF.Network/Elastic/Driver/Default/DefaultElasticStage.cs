@@ -119,7 +119,7 @@ namespace Org.Apache.REEF.Network.Elastic.Driver.Default
         /// </summary>
         public bool IsCompleted
         {
-            get { return FailureState.FailureState == (int)DefaultFailureStates.Complete; }
+            get { return FailureState.FailureState.IsComplete(); }
         }
 
         /// <summary>
@@ -198,7 +198,7 @@ namespace Org.Apache.REEF.Network.Elastic.Driver.Default
                 throw new ArgumentException($"{nameof(taskId)} cannot be empty.");
             }
 
-            if (IsCompleted || (_scheduled && FailureState.FailureState == (int)DefaultFailureStates.Fail))
+            if (IsCompleted || (_scheduled && FailureState.FailureState.IsFail()))
             {
                 Log.Log(Level.Warning, "Taskset {0}." ,IsCompleted ? "completed." : "failed.");
                 return false;
@@ -348,7 +348,7 @@ namespace Org.Apache.REEF.Network.Elastic.Driver.Default
         /// <returns>The final statistics for the computation</returns>
         public string LogFinalStatistics()
         {
-            if (IsCompleted || FailureState.FailureState == (int)DefaultFailureStates.Fail)
+            if (IsCompleted || FailureState.FailureState.IsFail())
             {
                 return PipelineRoot.LogFinalStatistics();
             }

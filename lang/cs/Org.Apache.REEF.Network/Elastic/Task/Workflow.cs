@@ -115,7 +115,7 @@ namespace Org.Apache.REEF.Network.Elastic.Task
 
             if (_isRescheduled)
             {
-                Current.OnTaskRescheduled.Invoke();
+                Current.OnTaskRescheduled().Invoke();
             }
 
             return true;
@@ -211,7 +211,7 @@ namespace Org.Apache.REEF.Network.Elastic.Task
                 var iterator = (IElasticIterator)_operators[iterPos];
 
                 op.IteratorReference = iterator;
-                iterator.RegisterActionOnTaskRescheduled(op.OnTaskRescheduled);
+                iterator.RegisterActionOnTaskRescheduled(op.OnTaskRescheduled());
             }
 
             if (op.OperatorType == OperatorType.Iterate)
@@ -240,7 +240,7 @@ namespace Org.Apache.REEF.Network.Elastic.Task
         {
             for (int pos = _position; pos < _operators.Count; pos++)
             {
-                _operators[pos].ResetPosition();
+                _operators[pos].Reset();
             }
         }
 

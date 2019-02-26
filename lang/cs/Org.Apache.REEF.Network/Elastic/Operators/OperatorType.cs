@@ -34,22 +34,4 @@ namespace Org.Apache.REEF.Network.Elastic.Operators
         Scatter = 5,
         Gather = 6
     }
-
-    public static class OperatorTypeToString
-    {
-        public static string ToString(this OperatorType type)
-        {
-            switch (type)
-            {
-                case OperatorType.Empty: return "Empty";
-                case OperatorType.Broadcast: return "Broadcast";
-                case OperatorType.Reduce: return "Reduce";
-                case OperatorType.AggregationRing: return "AggregationRing";
-                case OperatorType.Iterate: return "Iterate";
-                case OperatorType.Scatter: return "Scatter";
-                case OperatorType.Gather: return "Gather";
-                default: throw new ArgumentException($"Operator type {type} not found");
-            }
-        }
-    }
 }

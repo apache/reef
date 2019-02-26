@@ -89,13 +89,7 @@ namespace Org.Apache.REEF.Network.Elastic.Operators.Logical.Default
         /// <exception cref="Exception">If the task failure cannot be properly handled</exception>
         public override void OnTaskFailure(IFailedTask task, ref List<IFailureEvent> failureEvents)
         {
-            var failedOperatorId = _id;
-
-            if (task.AsError() is OperatorException)
-            {
-                var opException = task.AsError() as OperatorException;
-                failedOperatorId = opException.OperatorId;
-            }
+            var failedOperatorId = (task.AsError() as OperatorException)?.OperatorId ?? _id;
 
             if (WithinIteration || failedOperatorId <= _id)
             {
@@ -142,9 +136,9 @@ namespace Org.Apache.REEF.Network.Elastic.Operators.Logical.Default
                 LogOperatorState();
             }
 
-            if (PropagateFailureDownstream() && _next != null)
+            if (PropagateFailureDownstream())
             {
-                _next.OnTaskFailure(task, ref failureEvents);
+                _next?.OnTaskFailure(task, ref failureEvents);
             }
         }
 
@@ -159,10 +153,7 @@ namespace Org.Apache.REEF.Network.Elastic.Operators.Logical.Default
             ref List<IElasticDriverMessage> msgs,
             ref List<ITimeout> nextTimeouts)
         {
-            if (_next != null)
-            {
-                _next.OnTimeout(alarm, ref msgs, ref nextTimeouts);
-            }
+            _next?.OnTimeout(alarm, ref msgs, ref nextTimeouts);
         }
 
         /// <summary>
@@ -199,9 +190,9 @@ namespace Org.Apache.REEF.Network.Elastic.Operators.Logical.Default
                 }
             }
 
-            if (_next != null && (@event.OperatorId == -1 || @event.OperatorId > _id))
+            if (@event.OperatorId == -1 || @event.OperatorId > _id)
             {
-                _next.EventDispatcher(ref @event);
+                _next?.EventDispatcher(ref @event);
             }
         }
 
@@ -242,16 +233,9 @@ namespace Org.Apache.REEF.Network.Elastic.Operators.Logical.Default
         /// <returns>True if the failure has to be sent downstream</returns>
         protected override bool PropagateFailureDownstream()
         {
-            switch (_failureMachine.State.FailureState)
-            {
-                case (int)DefaultFailureStates.Continue:
-                case (int)DefaultFailureStates.ContinueAndReconfigure:
-                case (int)DefaultFailureStates.ContinueAndReschedule:
-                    return true;
-
-                default:
-                    return false;
-            }
+            return _failureMachine.State.FailureState.IsContinue() || 
+                _failureMachine.State.FailureState.IsContinueAndReconfigure() ||
+                _failureMachine.State.FailureState.IsContinueAndReschedule();
         }
 
         /// <summary>
@@ -259,12 +243,17 @@ namespace Org.Apache.REEF.Network.Elastic.Operators.Logical.Default
         /// </summary>
         protected override void LogOperatorState()
         {
-            string intro = $"State for Operator {OperatorType.ToString()} in Stage {Stage.StageName}:\n";
-            string topologyState = $"Topology:\n{_topology.LogTopologyState()}\n";
-            string failureMachineState = $"Failure State: {(DefaultFailureStates)_failureMachine.State.FailureState}" +
-                    $"\nFailure(s) Reported: {_failureMachine.NumOfFailedDataPoints}/{_failureMachine.NumOfDataPoints}";
-
-            Log.Log(Level.Info, intro + topologyState + failureMachineState);
+            if (Log.IsLoggable(Level.Info))
+            {
+                Log.Log(Level.Info,
+                    "State for Operator {0} in Stage {1}:\n" +
+                    "Topology:\n{2}\n" +
+                    "Failure State: {3}\n" +
+                    "Failure(s) Reported: {4}/{5}",
+                    OperatorType, Stage.StageName, _topology.LogTopologyState(),
+                     (DefaultFailureStates)_failureMachine.State.FailureState,
+                    _failureMachine.NumOfFailedDataPoints, _failureMachine.NumOfDataPoints);
+            }
         }
     }
 }

@@ -24,7 +24,7 @@ namespace Org.Apache.REEF.Network.Elastic.Operators.Physical
     /// </summary>
     /// <typeparam name="T">The data type of the message</typeparam>
     [Unstable("0.16", "API may change")]
-    public interface ISender<T>
+    public interface ISender<in T>
     {
         /// <summary>
         /// Send the data to all child receivers.

@@ -27,6 +27,7 @@ using Org.Apache.REEF.Network.Elastic.Driver.Default;
 using Org.Apache.REEF.Network.Elastic.Failures;
 using Org.Apache.REEF.Network.Elastic.Failures.Default;
 using Org.Apache.REEF.Network.Elastic.Task.Default;
+using Org.Apache.REEF.Network.Elastic.Config;
 
 namespace Org.Apache.REEF.Network.Examples.Elastic
 {
@@ -39,8 +40,8 @@ namespace Org.Apache.REEF.Network.Examples.Elastic
     {
         [Inject]
         private ElasticBroadcastDriverWithFailures(
-            string stageName,
-            int numEvaluators,
+            [Parameter(typeof(ElasticServiceConfigurationOptions.DefaultStageName))] string stageName,
+            [Parameter(typeof(ElasticServiceConfigurationOptions.NumEvaluators))] int numEvaluators,
             IElasticContext context) : base(context)
         {
             IFailureStateMachine failureMachine = new DefaultFailureStateMachine();

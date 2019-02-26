@@ -19,6 +19,7 @@ using Org.Apache.REEF.Common.Runtime.Evaluator;
 using Org.Apache.REEF.Common.Protobuf.ReefProtocol;
 using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Utilities.Attributes;
+using static Org.Apache.REEF.Common.Protobuf.ReefProtocol.TaskStatusProto;
 
 namespace Org.Apache.REEF.Network.Elastic.Task.Impl
 {
@@ -35,9 +36,9 @@ namespace Org.Apache.REEF.Network.Elastic.Task.Impl
         /// Constrcutor.
         /// </summary>
         /// <param name="heartBeatManager">Reference to the heartbeat manager</param>
-        protected TaskToDriverMessageDispatcher(IInjector subInjector)
+        protected TaskToDriverMessageDispatcher(IHeartBeatManager heartBeatManager)
         {
-            _heartBeatManager = subInjector.GetInstance<IHeartBeatManager>();
+            _heartBeatManager = heartBeatManager;
         }
 
         /// <summary>
@@ -50,16 +51,9 @@ namespace Org.Apache.REEF.Network.Elastic.Task.Impl
             TaskStatusProto taskStatusProto = new TaskStatusProto()
             {
                 task_id = taskId,
-                context_id = Utils.GetContextIdFromTaskId(taskId)
+                context_id = Utils.GetContextIdFromTaskId(taskId),
+                task_message = { new TaskMessageProto { source_id = taskId, message = message } }
             };
-
-            TaskStatusProto.TaskMessageProto taskMessageProto = new TaskStatusProto.TaskMessageProto()
-            {
-                source_id = taskId,
-                message = message,
-            };
-
-            taskStatusProto.task_message.Add(taskMessageProto);
 
             Heartbeat(taskStatusProto);
         }

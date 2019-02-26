@@ -36,6 +36,8 @@ using Org.Apache.REEF.Utilities.Attributes;
 using Org.Apache.REEF.Network.Elastic.Failures.Enum;
 using Org.Apache.REEF.Network.Elastic.Topology.Logical.Enum;
 using Org.Apache.REEF.Wake.StreamingCodec.CommonStreamingCodecs;
+using Org.Apache.REEF.Wake.StreamingCodec;
+using System.Linq;
 
 namespace Org.Apache.REEF.Network.Elastic.Operators.Logical
 {
@@ -54,29 +56,27 @@ namespace Org.Apache.REEF.Network.Elastic.Operators.Logical
     {
         private static readonly Logger Log = Logger.GetLogger(typeof(ElasticOperator));
 
-        protected static readonly Dictionary<Type, IConfiguration> CODECMAP = new Dictionary<Type, IConfiguration>()
+        private static KeyValuePair<Type, IConfiguration> Codec<TType, TCodec>()
+            where TCodec : IStreamingCodec<TType>
         {
-            {
-                typeof(int), StreamingCodecConfiguration<int>.Conf
-                .Set(StreamingCodecConfiguration<int>.Codec, GenericType<IntStreamingCodec>.Class)
-                .Build()
-            },
-            {
-                typeof(int[]), StreamingCodecConfiguration<int[]>.Conf
-                .Set(StreamingCodecConfiguration<int[]>.Codec, GenericType<IntArrayStreamingCodec>.Class)
-                .Build()
-            },
-            {
-                typeof(float), StreamingCodecConfiguration<float>.Conf
-                .Set(StreamingCodecConfiguration<float>.Codec, GenericType<FloatStreamingCodec>.Class)
-                .Build()
-            },
-            {
-                typeof(float[]), StreamingCodecConfiguration<float[]>.Conf
-                .Set(StreamingCodecConfiguration<float[]>.Codec, GenericType<FloatArrayStreamingCodec>.Class)
-                .Build()
-            }
-        };
+            return new KeyValuePair<Type, IConfiguration>(
+                typeof(TType), StreamingCodecConfiguration<TType>.Conf
+                    .Set(StreamingCodecConfiguration<TType>.Codec, GenericType<TCodec>.Class)
+                    .Build());
+        }
+
+        private static Dictionary<TKey, TValue> AsDictionary<TKey, TValue>(
+            params KeyValuePair<TKey, TValue>[] values)
+        {
+            return values.ToDictionary(kv => kv.Key, kv => kv.Value);
+        }
+
+        protected static readonly Dictionary<Type, IConfiguration> CodecMap = AsDictionary(
+            Codec<int, IntStreamingCodec>(),
+            Codec<int[], IntArrayStreamingCodec>(),
+            Codec<float, FloatStreamingCodec>(),
+            Codec<float[], FloatArrayStreamingCodec>()
+        );
 
         // For the moment we consider only linear sequences (pipelines) of operators (no branching for e.g., joins)
         protected ElasticOperator _next = null;
@@ -146,12 +146,8 @@ namespace Org.Apache.REEF.Network.Elastic.Operators.Logical
             {
                 if (_stage == null)
                 {
-                    if (_prev == null)
-                    {
-                        throw new IllegalStateException("The reference to the parent stage is lost.");
-                    }
 
-                    _stage = _prev.Stage;
+                    _stage = _prev?.Stage ?? throw new IllegalStateException("The reference to the parent stage is lost.");
 
                     return _prev.Stage;
                 }
@@ -211,11 +207,9 @@ namespace Org.Apache.REEF.Network.Elastic.Operators.Logical
         /// generate an incorrent state</exception>
         public void OnTaskMessage(ITaskMessage message, ref List<IElasticDriverMessage> returnMessages)
         {
-            var hasReacted = ReactOnTaskMessage(message, ref returnMessages);
-
-            if (!hasReacted && _next != null)
+            if (!ReactOnTaskMessage(message, ref returnMessages))
             {
-                _next.OnTaskMessage(message, ref returnMessages);
+                _next?.OnTaskMessage(message, ref returnMessages);
             }
         }
 
@@ -234,19 +228,11 @@ namespace Org.Apache.REEF.Network.Elastic.Operators.Logical
                 throw new IllegalStateException("Operator needs to be finalized before adding tasks.");
             }
 
-            if (!_operatorStateFinalized)
-            {
-                // If state is finalized tasks can join the topology only explicitly.
-                newTask = _topology.AddTask(taskId, _failureMachine);
-            }
+            // If state is finalized, tasks can join the topology only explicitly.
+            newTask = _operatorStateFinalized || _topology.AddTask(taskId, _failureMachine);
 
-            if (_next != null)
-            {
-                // A task is new if it got added by at least one operator
-                return _next.AddTask(taskId) || newTask;
-            }
-
-            return newTask;
+            // A task is new if it got added by at least one operator.
+            return (_next?.AddTask(taskId) ?? true) || newTask;
         }
 
         /// <summary>
@@ -260,10 +246,7 @@ namespace Org.Apache.REEF.Network.Elastic.Operators.Logical
                 throw new IllegalStateException("Operator cannot be built more than once.");
             }
 
-            if (_prev != null)
-            {
-                _prev.Build();
-            }
+            _prev?.Build();
 
             _operatorFinalized = true;
 
@@ -287,10 +270,7 @@ namespace Org.Apache.REEF.Network.Elastic.Operators.Logical
                 throw new IllegalStateException("Operator need to be build before finalizing its state.");
             }
 
-            if (_next != null)
-            {
-                _next.BuildState();
-            }
+            _next?.BuildState();
 
             _topology.Build();
 
@@ -425,23 +405,12 @@ namespace Org.Apache.REEF.Network.Elastic.Operators.Logical
         /// <summary>
         /// Appends the message type to the configuration.
         /// </summary>
-        /// <param name="operatorType">The type of the messages the operator is configured to accept</param>
         /// <returns>The conf builder with added the message type</returns>
-        protected IConfiguration SetMessageType(Type operatorType)
+        protected IConfiguration SetMessageType<TMsg>()
         {
-            if (operatorType.IsGenericType)
-            {
-                var genericTypes = operatorType.GenericTypeArguments;
-                var msgType = genericTypes[0];
-
-                return TangFactory.GetTang().NewConfigurationBuilder()
-                    .BindStringNamedParam<OperatorParameters.MessageType>(msgType.AssemblyQualifiedName)
-                    .Build();
-            }
-            else
-            {
-                throw new IllegalStateException("Expecting a generic type for the message.");
-            }
+            return TangFactory.GetTang().NewConfigurationBuilder()
+                .BindStringNamedParam<OperatorParameters.MessageType>(typeof(TMsg).AssemblyQualifiedName)
+                .Build();
         }
 
         /// <summary>
@@ -452,10 +421,7 @@ namespace Org.Apache.REEF.Network.Elastic.Operators.Logical
         {
             _topology.OnNewIteration(iteration);
 
-            if (_next != null)
-            {
-                _next.OnNewIteration(iteration);
-            }
+            _next?.OnNewIteration(iteration);
         }
 
         /// <summary>
@@ -508,12 +474,16 @@ namespace Org.Apache.REEF.Network.Elastic.Operators.Logical
         /// </summary>
         protected virtual void LogOperatorState()
         {
-            string intro = $"State for Operator {OperatorType.ToString()} in Stage {Stage.StageName}:\n";
-            string topologyState = $"Topology:\n{_topology.LogTopologyState()}";
-            string failureMachineState = "Failure State: " + _failureMachine.State.FailureState +
-                    "\nFailure(s) Reported: " + _failureMachine.NumOfFailedDataPoints;
-
-            Log.Log(Level.Info, intro + topologyState + failureMachineState);
+            if (Log.IsLoggable(Level.Info))
+            {
+                Log.Log(Level.Info,
+                    "State for Operator {0} in Stage {1}:\n" +
+                    "Topology:\n{2}" +
+                    "Failure State: {3}\n" +
+                    "Failure(s) Reported: {4}",
+                   OperatorType, Stage.StageName, _topology.LogTopologyState(),
+                   _failureMachine.State.FailureState, _failureMachine.NumOfFailedDataPoints);
+            }
         }
 
         /// <summary>
@@ -543,7 +513,7 @@ namespace Org.Apache.REEF.Network.Elastic.Operators.Logical
                 default:
                     throw new ArgumentException(
                         nameof(topologyType),
-                        $"Topology type {topologyType} not supported by {OperatorType.ToString()}.");
+                        $"Topology type {topologyType} not supported by {OperatorType}.");
             }
 
             return topology;

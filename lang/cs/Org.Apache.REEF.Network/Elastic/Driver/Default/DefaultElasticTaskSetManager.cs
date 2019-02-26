@@ -1345,7 +1345,7 @@ namespace Org.Apache.REEF.Network.Elastic.Driver.Default
 
         private bool Failed()
         {
-            return _failureStatus.FailureState == (int)DefaultFailureStates.Fail;
+            return _failureStatus.FailureState.IsFail();
         }
     }
 }

@@ -22,6 +22,7 @@ using Org.Apache.REEF.Network.Elastic.Comm.Enum;
 using Org.Apache.REEF.Utilities;
 using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Utilities.Attributes;
+using Org.Apache.REEF.Common.Runtime.Evaluator;
 
 namespace Org.Apache.REEF.Network.Elastic.Task.Impl
 {
@@ -41,7 +42,7 @@ namespace Org.Apache.REEF.Network.Elastic.Task.Impl
         /// </summary>
         /// <param name="heartBeatManager"></param>
         [Inject]
-        private DefaultTaskToDriverMessageDispatcher(IInjector injector) : base(injector)
+        private DefaultTaskToDriverMessageDispatcher(IHeartBeatManager heartBeatManager) : base(heartBeatManager)
         {
         }
 

@@ -52,7 +52,7 @@ namespace Org.Apache.REEF.Network.Examples.Client
             int portRange,
             string jobIdentifier)
         {
-            string driverId = GenericType<T>.Class.ToString();
+            string driverId = typeof(T).Name;
             JobIdentifier = jobIdentifier;
 
             IConfiguration driverConfig = TangFactory.GetTang()

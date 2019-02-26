@@ -55,10 +55,7 @@ namespace Org.Apache.REEF.Network.Elastic.Operators.Logical.Default
         /// <exception cref="Exception">If the task failure cannot be properly handled</exception>
         public override void OnTaskFailure(IFailedTask task, ref List<IFailureEvent> failureEvents)
         {
-            if (_next != null)
-            {
-                _next.OnTaskFailure(task, ref failureEvents);
-            }
+            _next?.OnTaskFailure(task, ref failureEvents);
         }
 
         /// <summary>
@@ -98,10 +95,7 @@ namespace Org.Apache.REEF.Network.Elastic.Operators.Logical.Default
                 throw new IllegalStateException("Operator need to be build before finalizing the stage");
             }
 
-            if (_next != null)
-            {
-                _next.GatherMasterIds(ref masterTasks);
-            }
+            _next?.GatherMasterIds(ref masterTasks);
         }
     }
 }

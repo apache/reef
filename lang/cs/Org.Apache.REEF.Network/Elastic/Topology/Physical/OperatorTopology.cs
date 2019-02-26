@@ -15,6 +15,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
+using Org.Apache.REEF.Network.Elastic.Task;
 using Org.Apache.REEF.Utilities.Attributes;
 
 namespace Org.Apache.REEF.Network.Elastic.Topology.Physical
@@ -24,7 +25,7 @@ namespace Org.Apache.REEF.Network.Elastic.Topology.Physical
     /// not generic but directly related to the operators using them to communicate data.
     /// </summary>
     [Unstable("0.16", "API may change")]
-    public abstract class OperatorTopology
+    public abstract class OperatorTopology : INodeIdentifier, IIdentifiable
     {
         /// <summary>
         /// Constructor for an operator topology.
@@ -39,6 +40,7 @@ namespace Org.Apache.REEF.Network.Elastic.Topology.Physical
             TaskId = taskId;
             RootTaskId = rootTaskId;
             OperatorId = operatorId;
+            NodeId = new NodeIdentifier(StageName, OperatorId);
         }
 
         /// <summary>
@@ -50,6 +52,11 @@ namespace Org.Apache.REEF.Network.Elastic.Topology.Physical
         /// The identifier of the operator in which the topology is running.
         /// </summary>
         public int OperatorId { get; private set; }
+
+        /// <summary>
+        /// The idenfier for the node.
+        /// </summary>
+        public NodeIdentifier NodeId { get; private set;}
 
         /// <summary>
         /// The identifier of the task in which the topology is running.

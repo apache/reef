@@ -5,9 +5,9 @@
 // to you under the Apache License, Version 2.0 (the
 // "License"); you may not use this file except in compliance
 // with the License.  You may obtain a copy of the License at
-//
+// 
 //   http://www.apache.org/licenses/LICENSE-2.0
-//
+// 
 // Unless required by applicable law or agreed to in writing,
 // software distributed under the License is distributed on an
 // "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -16,27 +16,36 @@
 // under the License.
 
 using Org.Apache.REEF.Utilities.Attributes;
-using System;
-using System.Collections;
 
-namespace Org.Apache.REEF.Network.Elastic.Operators.Physical
+namespace Org.Apache.REEF.Network.Elastic.Task
 {
     /// <summary>
-    /// Group communication operator used to for iterations.
+    /// An identifier for a given node in the group communication topology.
+    /// A node is uniquely identifiable by a combination of its 
+    /// <see cref="StageName"/>, and <see cref="OperatorId"/>.
     /// </summary>
     [Unstable("0.16", "API may change")]
-    public interface IElasticIterator : IElasticOperator, IEnumerator
+    public struct NodeIdentifier : INodeIdentifier
     {
         /// <summary>
-        /// Synchronize the current iteration with the input one.
+        /// The stage name.
         /// </summary>
-        /// <param name="iteration">The state in which the iterator will be moved</param>
-        void SyncIteration(int iteration);
+        public string StageName { get; private set; }
 
         /// <summary>
-        /// Register the action to trigger when a task is rescheduled.
+        /// The operator name.
         /// </summary>
-        /// <param name="action">Some code to execute upon task rescheduling</param>
-        void RegisterActionOnTaskRescheduled(Action action);
+        public int OperatorId { get; private set; }
+
+        /// <summary>
+        /// Constructor.
+        /// </summary>
+        /// <param name="stageName"></param>
+        /// <param name="operatorId"></param>
+        public NodeIdentifier(string stageName, int operatorId)
+        {
+            StageName = stageName;
+            OperatorId = operatorId;
+        }
     }
 }

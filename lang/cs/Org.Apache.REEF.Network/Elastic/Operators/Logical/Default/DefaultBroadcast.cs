@@ -66,7 +66,7 @@ namespace Org.Apache.REEF.Network.Elastic.Operators.Logical.Default
         /// <param name="confBuilder">The conf builder where to attach the codec configuration</param>
         internal override void GetCodecConfiguration(ref IConfiguration conf)
         {
-            if (CODECMAP.TryGetValue(typeof(T), out IConfiguration codecConf))
+            if (CodecMap.TryGetValue(typeof(T), out IConfiguration codecConf))
             {
                 conf = Configurations.Merge(conf, codecConf);
                 base.GetCodecConfiguration(ref conf);
@@ -85,9 +85,9 @@ namespace Org.Apache.REEF.Network.Elastic.Operators.Logical.Default
         protected override IConfiguration PhysicalOperatorConfiguration()
         {
             var physicalOperatorConf = TangFactory.GetTang().NewConfigurationBuilder()
-                .BindImplementation(GenericType<IElasticTypedOperator<T>>.Class, GenericType<Physical.Default.DefaultBroadcast<T>>.Class)
+                .BindImplementation<IElasticTypedOperator<T>, Physical.Default.DefaultBroadcast<T>>()
                 .Build();
-            var messageconf = SetMessageType(typeof(Physical.Default.DefaultBroadcast<T>));
+            var messageconf = SetMessageType<T>();
 
             return Configurations.Merge(physicalOperatorConf, messageconf);
         }

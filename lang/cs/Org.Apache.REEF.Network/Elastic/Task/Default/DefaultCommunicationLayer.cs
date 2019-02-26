@@ -79,11 +79,7 @@ namespace Org.Apache.REEF.Network.Elastic.Task.Impl
             var gcm = nsMessage.Data;
             var gcMessageTaskSource = nsMessage.SourceId.ToString();
 
-            // Data message
-            var id = NodeObserverIdentifier.FromMessage(gcm);
-            IOperatorTopologyWithCommunication operatorObserver;
-
-            if (!_groupMessageObservers.TryGetValue(id, out operatorObserver))
+            if (!_groupMessageObservers.TryGetValue(gcm.NodeId, out IOperatorTopologyWithCommunication operatorObserver))
             {
                 throw new KeyNotFoundException(
                     $"Unable to find registered operator topology for stage {gcm.StageName} operator {gcm.OperatorId}");

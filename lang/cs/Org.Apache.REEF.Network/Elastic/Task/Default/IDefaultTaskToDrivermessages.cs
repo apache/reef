@@ -30,6 +30,7 @@ namespace Org.Apache.REEF.Network.Elastic.Task
         /// group communication topology.
         /// </summary>
         /// <param name="taskId">The current task</param>
+        /// <param name="stageName">The name of the stage</param>
         /// <param name="operatorId">The identifier of the operator ready to join the topology</param>
         void JoinTopology(string taskId, string stageName, int operatorId);
 
@@ -37,6 +38,7 @@ namespace Org.Apache.REEF.Network.Elastic.Task
         /// Send a notification to the driver for an update on topology state.
         /// </summary>
         /// <param name="taskId">The current task id</param>
+        /// <param name="stageName">The name of the stage</param>
         /// <param name="operatorId">The operator requiring the topology update</param>
         void TopologyUpdateRequest(string taskId, string stageName, int operatorId);
 
@@ -44,6 +46,7 @@ namespace Org.Apache.REEF.Network.Elastic.Task
         /// Signal the driver that the current stage is completed.
         /// </summary>
         /// <param name="taskId">The current task identifier</param>
+        /// <param name="stageName">The name of the stage</param>
         void StageComplete(string taskId, string stageName);
     }
 }

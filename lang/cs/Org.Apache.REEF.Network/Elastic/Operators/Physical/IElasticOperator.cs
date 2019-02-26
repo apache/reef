@@ -26,7 +26,7 @@ namespace Org.Apache.REEF.Network.Elastic.Operators.Physical
     /// Base class for task-side, physical, group communication operators.
     /// </summary>
     [Unstable("0.16", "API may change")]
-    public interface IElasticOperator : IWaitForTaskRegistration, IDisposable
+    public interface IElasticOperator : IWaitForTaskRegistration, IReschedulable, IDisposable
     {
         /// <summary>
         /// The operator type.
@@ -63,11 +63,6 @@ namespace Org.Apache.REEF.Network.Elastic.Operators.Physical
         /// Reset the internal position tracker. This should be called
         /// every time a new iteration start in the workflow.
         /// </summary>
-        void ResetPosition();
-
-        /// <summary>
-        /// Action to execute when a task is re-scheduled.
-        /// </summary>
-        Action OnTaskRescheduled { get; }
+        void Reset();
     }
 }

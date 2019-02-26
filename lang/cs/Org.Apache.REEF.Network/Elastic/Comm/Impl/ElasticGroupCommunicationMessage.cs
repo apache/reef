@@ -15,6 +15,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
+using Org.Apache.REEF.Network.Elastic.Task;
 using Org.Apache.REEF.Utilities.Attributes;
 using System;
 
@@ -24,7 +25,7 @@ namespace Org.Apache.REEF.Network.Elastic.Comm.Impl
     /// Message sent by Group Communication operators. 
     /// </summary>
     [Unstable("0.16", "API may change")]
-    public abstract class ElasticGroupCommunicationMessage : ICloneable
+    public abstract class ElasticGroupCommunicationMessage : ICloneable, INodeIdentifier, IIdentifiable
     {
         /// <summary>
         /// Create a new elastic group communication message.
@@ -37,6 +38,7 @@ namespace Org.Apache.REEF.Network.Elastic.Comm.Impl
         {
             StageName = stageName;
             OperatorId = operatorId;
+            NodeId = new NodeIdentifier(StageName, OperatorId);
         }
 
         /// <summary>
@@ -46,11 +48,16 @@ namespace Org.Apache.REEF.Network.Elastic.Comm.Impl
 
         /// <summary>
         /// Returns the stage.
-        internal string StageName { get; private set; }
+        public string StageName { get; private set; }
 
         /// <summary>
         /// Returns the operator id.
         /// </summary>
-        internal int OperatorId { get; private set; }
+        public int OperatorId { get; private set; }
+
+        /// <summary>
+        /// The identifier for the node.
+        /// </summary>
+        public NodeIdentifier NodeId { get; private set; }
     }
 }

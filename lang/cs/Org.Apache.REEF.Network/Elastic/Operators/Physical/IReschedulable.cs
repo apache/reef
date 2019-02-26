@@ -17,26 +17,18 @@
 
 using Org.Apache.REEF.Utilities.Attributes;
 using System;
-using System.Collections;
 
 namespace Org.Apache.REEF.Network.Elastic.Operators.Physical
 {
     /// <summary>
-    /// Group communication operator used to for iterations.
+    /// Interface used when an action needs to triggered after a rescheduling event.
     /// </summary>
     [Unstable("0.16", "API may change")]
-    public interface IElasticIterator : IElasticOperator, IEnumerator
+    public interface IReschedulable
     {
         /// <summary>
-        /// Synchronize the current iteration with the input one.
+        /// Action to execute when a task is re-scheduled.
         /// </summary>
-        /// <param name="iteration">The state in which the iterator will be moved</param>
-        void SyncIteration(int iteration);
-
-        /// <summary>
-        /// Register the action to trigger when a task is rescheduled.
-        /// </summary>
-        /// <param name="action">Some code to execute upon task rescheduling</param>
-        void RegisterActionOnTaskRescheduled(Action action);
+        Action OnTaskRescheduled();
     }
 }

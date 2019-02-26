@@ -120,7 +120,7 @@ namespace Org.Apache.REEF.Network.Elastic.Operators.Logical.Default
                         }
 
                         Log.Log(Level.Info, "Received topology update request for {0} {1} from {2}",
-                            OperatorType.ToString(), _id, message.TaskId);
+                            OperatorType, _id, message.TaskId);
 
                         _topology.TopologyUpdateResponse(
                             message.TaskId,
@@ -136,8 +136,7 @@ namespace Org.Apache.REEF.Network.Elastic.Operators.Logical.Default
                             else
                             {
                                 returnMessages.Clear();
-                                Log.Log(Level.Info, "Operator {0} is in stopped: Waiting.",
-                                    OperatorType.ToString());
+                                Log.Log(Level.Info, "Operator {0} is in stopped: Waiting.", OperatorType);
                             }
                         }
 
@@ -162,30 +161,17 @@ namespace Org.Apache.REEF.Network.Elastic.Operators.Logical.Default
         /// </summary>
         public override void OnReconfigure(ref ReconfigureEvent reconfigureEvent)
         {
-            Log.Log(Level.Info, "Going to reconfigure the {0} operator", OperatorType.ToString());
+            Log.Log(Level.Info, "Going to reconfigure the {0} operator", OperatorType);
 
             if (reconfigureEvent.FailedTask.IsPresent())
             {
-                if (reconfigureEvent.FailedTask.Value.AsError() is OperatorException)
-                {
-                    var info = Optional<string>.Of(
-                        ((OperatorException)reconfigureEvent.FailedTask.Value.AsError()).AdditionalInfo);
-                    var msg = _topology.Reconfigure(
-                        reconfigureEvent.FailedTask.Value.Id,
-                        info,
-                        reconfigureEvent.Iteration);
+                var error = reconfigureEvent.FailedTask.Value.AsError() as OperatorException;
 
-                    reconfigureEvent.FailureResponse.AddRange(msg);
-                }
-                else
-                {
-                    var msg = _topology.Reconfigure(
+                reconfigureEvent.FailureResponse.AddRange(
+                    _topology.Reconfigure(
                         reconfigureEvent.FailedTask.Value.Id,
-                        Optional<string>.Empty(),
-                        reconfigureEvent.Iteration);
-
-                    reconfigureEvent.FailureResponse.AddRange(msg);
-                }
+                        Optional<string>.OfNullable(error?.AdditionalInfo),
+                         reconfigureEvent.Iteration));
             }
         }
 
@@ -208,9 +194,7 @@ namespace Org.Apache.REEF.Network.Elastic.Operators.Logical.Default
                     rescheduleEvent.RescheduleTaskConfigurations.Add(Stage.StageName, confs);
                 }
                 confs.Add(TangFactory.GetTang().NewConfigurationBuilder()
-                    .BindNamedParameter<GroupCommunicationConfigurationOptions.IsRescheduled, bool>(
-                        GenericType<GroupCommunicationConfigurationOptions.IsRescheduled>.Class,
-                        true.ToString(CultureInfo.InvariantCulture))
+                    .BindNamedParam<GroupCommunicationConfigurationOptions.IsRescheduled, bool>("true")
                     .Build());
             }
 
@@ -225,10 +209,7 @@ namespace Org.Apache.REEF.Network.Elastic.Operators.Logical.Default
         /// </summary>
         public override void OnStop(ref StopEvent stopEvent)
         {
-            if (!_stop)
-            {
-                _stop = true;
-            }
+            _stop = true;
 
             var rescheduleEvent = stopEvent as RescheduleEvent;
 

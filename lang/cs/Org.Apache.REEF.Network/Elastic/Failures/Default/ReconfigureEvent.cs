@@ -33,22 +33,12 @@ namespace Org.Apache.REEF.Network.Elastic.Failures.Default
         /// Constructor for a reconfigure event.
         /// </summary>
         /// <param name="failedTask">The failed task</param>
-        /// <param name="opertorId">The operator identifier in which the event was detected</param>
-        public ReconfigureEvent(IFailedTask failedTask, int opertorId)
+        /// <param name="operatorId">The operator identifier in which the event was detected</param>
+        public ReconfigureEvent(IFailedTask failedTask, int operatorId)
         {
-            if (failedTask != null)
-            {
-                FailedTask = Optional<IFailedTask>.Of(failedTask);
-                TaskId = failedTask.Id;
-            }
-            else
-            {
-                FailedTask = Optional<IFailedTask>.Empty();
-            }
-            
-            OperatorId = opertorId;
-            FailureResponse = new List<IElasticDriverMessage>();
-            Iteration = Optional<int>.Empty();
+            FailedTask = Optional<IFailedTask>.OfNullable(failedTask);
+            TaskId = failedTask?.Id;
+            OperatorId = operatorId;
         }
 
         /// <summary>
@@ -67,7 +57,7 @@ namespace Org.Apache.REEF.Network.Elastic.Failures.Default
         /// <summary>
         /// The iteration in which the failure is rised.
         /// </summary>
-        public Optional<int> Iteration { get; set; }
+        public Optional<int> Iteration { get; set; } = Optional<int>.Empty();
 
         /// <summary>
         /// The identifier of the task triggering the event.
@@ -82,6 +72,6 @@ namespace Org.Apache.REEF.Network.Elastic.Failures.Default
         /// <summary>
         /// The response message generated to react to the failure event.
         /// </summary>
-        public List<IElasticDriverMessage> FailureResponse { get; protected set; }
+        public List<IElasticDriverMessage> FailureResponse { get; protected set; } = new List<IElasticDriverMessage>();
     }
 }

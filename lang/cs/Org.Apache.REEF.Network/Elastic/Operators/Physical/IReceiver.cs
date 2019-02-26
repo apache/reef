@@ -24,7 +24,7 @@ namespace Org.Apache.REEF.Network.Elastic.Operators.Physical
     /// </summary>
     /// <typeparam name="T">The type of data being receive.</typeparam>
     [Unstable("0.16", "API may change")]
-    public interface IReceiver<T>
+    public interface IReceiver<out T>
     {
         /// <summary>
         /// Receive a message from a sender task.

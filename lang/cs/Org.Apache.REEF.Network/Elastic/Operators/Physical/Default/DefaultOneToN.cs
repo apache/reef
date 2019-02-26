@@ -32,7 +32,7 @@ namespace Org.Apache.REEF.Network.Elastic.Operators.Physical.Default
     /// </summary>
     /// <typeparam name="T">The type of message being sent.</typeparam>
     [Unstable("0.16", "API may change")]
-    public abstract class DefaultOneToN<T> : IDisposable
+    public abstract class DefaultOneToN<T> : IDisposable, IReschedulable
     {
         private static readonly Logger Log = Logger.GetLogger(typeof(DefaultOneToN<>));
 
@@ -54,8 +54,6 @@ namespace Org.Apache.REEF.Network.Elastic.Operators.Physical.Default
             OperatorId = id;
             _isLast = isLast;
             _topology = topology;
-
-            OnTaskRescheduled = _topology.JoinTopology;
         }
 
         /// <summary>
@@ -92,7 +90,10 @@ namespace Org.Apache.REEF.Network.Elastic.Operators.Physical.Default
         /// <summary>
         /// Action to execute when a task is re-scheduled.
         /// </summary>
-        public Action OnTaskRescheduled { get; private set; }
+        public Action OnTaskRescheduled()
+        {
+            return _topology.JoinTopology;
+        }
 
         /// <summary>
         /// The set of messages checkpointed in memory.
@@ -145,7 +146,7 @@ namespace Org.Apache.REEF.Network.Elastic.Operators.Physical.Default
         /// Reset the internal position tracker. This should be called
         /// every time a new iteration start in the workflow.
         /// </summary>
-        public void ResetPosition()
+        public void Reset()
         {
             _position = PositionTracker.Nil;
         }

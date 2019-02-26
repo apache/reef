@@ -40,4 +40,60 @@ namespace Org.Apache.REEF.Network.Elastic.Failures.Default
 
 
     }
+
+    /// <summary>
+    /// Extension methods for default failure states.
+    /// </summary>
+    public static class DefaultFailureStateExtensions
+    {
+        /// <summary>
+        /// Whether the current failure state is Continue.
+        /// </summary>
+        /// <param name="state">The current failure state</param>
+        /// <returns>True if is Continue</returns>
+        public static bool IsContinue(this int state)
+        {
+            return state == (int)DefaultFailureStates.Continue;
+        }
+
+        /// <summary>
+        /// Whether the current failure state is ContinueAndReconfigure.
+        /// </summary>
+        /// <param name="state">The current failure state</param>
+        /// <returns>True if is ContinueAndReconfigure</returns>
+        public static bool IsContinueAndReconfigure(this int state)
+        {
+            return state == (int)DefaultFailureStates.ContinueAndReconfigure;
+        }
+
+        /// <summary>
+        /// Whether the current failure state is ContinueAndReschedule.
+        /// </summary>
+        /// <param name="state">The current failure state</param>
+        /// <returns>True if is ContinueAndReschedule</returns>
+        public static bool IsContinueAndReschedule(this int state)
+        {
+            return state == (int)DefaultFailureStates.ContinueAndReschedule;
+        }
+
+        /// <summary>
+        /// Whether the current failure state is Fail.
+        /// </summary>
+        /// <param name="state">The current failure state</param>
+        /// <returns>True if is Fail</returns>
+        public static bool IsFail(this int state)
+        {
+            return state == (int)DefaultFailureStates.Fail;
+        }
+
+        /// <summary>
+        /// Whether the current failure state is Complete.
+        /// </summary>
+        /// <param name="state">The current failure state</param>
+        /// <returns>True if is Complete</returns>
+        public static bool IsComplete(this int state)
+        {
+            return state == (int)DefaultFailureStates.Complete;
+        }
+    }
 }

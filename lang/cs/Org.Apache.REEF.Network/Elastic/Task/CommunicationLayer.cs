@@ -50,12 +50,12 @@ namespace Org.Apache.REEF.Network.Elastic.Task.Impl
         private readonly ElasticDriverMessageHandler _driverMessagesHandler;
         private readonly IIdentifierFactory _idFactory;
         private readonly IDisposable _communicationObserver;
-        private readonly ConcurrentDictionary<NodeObserverIdentifier, DriverAwareOperatorTopology> _driverMessageObservers;
+        private readonly ConcurrentDictionary<NodeIdentifier, DriverAwareOperatorTopology> _driverMessageObservers;
 
         protected bool _disposed = false;
 
-        protected readonly ConcurrentDictionary<NodeObserverIdentifier, IOperatorTopologyWithCommunication> _groupMessageObservers =
-            new ConcurrentDictionary<NodeObserverIdentifier, IOperatorTopologyWithCommunication>();
+        protected readonly ConcurrentDictionary<NodeIdentifier, IOperatorTopologyWithCommunication> _groupMessageObservers =
+            new ConcurrentDictionary<NodeIdentifier, IOperatorTopologyWithCommunication>();
 
         /// <summary>
         /// Creates a new communication layer.
@@ -89,11 +89,9 @@ namespace Org.Apache.REEF.Network.Elastic.Task.Impl
         /// <param name="operatorObserver">The observer of the communicating topology operator</param>
         public void RegisterOperatorTopologyForTask(IOperatorTopologyWithCommunication operatorObserver)
         {
-            var id = NodeObserverIdentifier.FromObserver(operatorObserver);
-
-            if (_groupMessageObservers.TryAdd(id, operatorObserver))
+            if (!_groupMessageObservers.TryAdd(operatorObserver.NodeId, operatorObserver))
             {
-                throw new IllegalStateException($"Topology for id {id} already added among listeners.");
+                throw new IllegalStateException($"Topology for id {operatorObserver.NodeId} already added among listeners.");
             }
         }
 
@@ -103,11 +101,9 @@ namespace Org.Apache.REEF.Network.Elastic.Task.Impl
         /// <param name="operatorObserver">The observer of the driver aware topology</param>
         internal void RegisterOperatorTopologyForDriver(DriverAwareOperatorTopology operatorObserver)
         {
-            var id = NodeObserverIdentifier.FromObserver(operatorObserver);
-
-            if (!_driverMessageObservers.TryAdd(id, operatorObserver))
+            if (!_driverMessageObservers.TryAdd(operatorObserver.NodeId, operatorObserver))
             {
-                throw new IllegalStateException($"Topology for id {id} already added among driver listeners.");
+                throw new IllegalStateException($"Topology for id {operatorObserver.NodeId} already added among driver listeners.");
             }
         }
 

@@ -29,17 +29,10 @@ namespace Org.Apache.REEF.Network.Elastic.Topology.Physical
     [Unstable("0.16", "API may change")]
     internal interface IOperatorTopologyWithCommunication :
         IWaitForTaskRegistration,
+        INodeIdentifier,
+        IIdentifiable,
         IDisposable,
         IObserver<NsMessage<ElasticGroupCommunicationMessage>>
     {
-        /// <summary>
-        /// The stage name context in which the topology is running.
-        /// </summary>
-        string StageName { get; }
-
-        /// <summary>
-        /// The identifier of the operator in which the topology is running.
-        /// </summary>
-        int OperatorId { get; }
     }
 }

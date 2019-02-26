@@ -38,8 +38,8 @@ namespace Org.Apache.REEF.Network.Elastic.Failures.Default
     {
         private readonly object _statusLock = new object();
 
-        private readonly SortedDictionary<DefaultFailureStates, DefaultFailureStates> transitionMapUp = 
-            new SortedDictionary<DefaultFailureStates, DefaultFailureStates>()
+        private readonly static SortedDictionary<DefaultFailureStates, DefaultFailureStates> TransitionMapUp = 
+            new SortedDictionary<DefaultFailureStates, DefaultFailureStates>
         {
             { DefaultFailureStates.Continue, DefaultFailureStates.ContinueAndReconfigure },
             { DefaultFailureStates.ContinueAndReconfigure, DefaultFailureStates.ContinueAndReschedule },
@@ -47,8 +47,8 @@ namespace Org.Apache.REEF.Network.Elastic.Failures.Default
             { DefaultFailureStates.StopAndReschedule, DefaultFailureStates.Fail }
         };
 
-        private readonly SortedDictionary<DefaultFailureStates, DefaultFailureStates> transitionMapDown = 
-            new SortedDictionary<DefaultFailureStates, DefaultFailureStates>()
+        private readonly static SortedDictionary<DefaultFailureStates, DefaultFailureStates> TransitionMapDown = 
+            new SortedDictionary<DefaultFailureStates, DefaultFailureStates>
         {
             { DefaultFailureStates.ContinueAndReconfigure, DefaultFailureStates.Continue },
             { DefaultFailureStates.ContinueAndReschedule, DefaultFailureStates.ContinueAndReconfigure },
@@ -57,7 +57,7 @@ namespace Org.Apache.REEF.Network.Elastic.Failures.Default
         };
 
         private readonly SortedDictionary<DefaultFailureStates, float> transitionWeights = 
-            new SortedDictionary<DefaultFailureStates, float>()
+            new SortedDictionary<DefaultFailureStates, float>
         {
             { DefaultFailureStates.ContinueAndReconfigure, 0.01F },
             { DefaultFailureStates.ContinueAndReschedule, 0.40F },
@@ -65,7 +65,7 @@ namespace Org.Apache.REEF.Network.Elastic.Failures.Default
             { DefaultFailureStates.Fail, 0.80F }
         };
 
-        private static List<int> canMoveToComplete = new List<int>()
+        private readonly static int[] CanMoveToComplete = new int[]
         {
             (int)DefaultFailureStates.Continue,
             (int)DefaultFailureStates.ContinueAndReconfigure,
@@ -73,7 +73,7 @@ namespace Org.Apache.REEF.Network.Elastic.Failures.Default
             (int)DefaultFailureStates.Complete
         };
 
-        private static List<int> isFinalState = new List<int>()
+        private readonly static int[] IsFinalState = new int[]
         {
             (int)DefaultFailureStates.Complete
         };
@@ -129,7 +129,7 @@ namespace Org.Apache.REEF.Network.Elastic.Failures.Default
         {
             lock (_statusLock)
             {
-                if (isFinalState.Contains(State.FailureState))
+                if (IsFinalState.Contains(State.FailureState))
                 {
                     return State;
                 }
@@ -150,7 +150,7 @@ namespace Org.Apache.REEF.Network.Elastic.Failures.Default
                     while (State.FailureState > (int)DefaultFailureStates.Continue && 
                         currentRate < transitionWeights[(DefaultFailureStates)State.FailureState])
                     {
-                        State.FailureState = (int)transitionMapDown[(DefaultFailureStates)State.FailureState];
+                        State.FailureState = (int)TransitionMapDown[(DefaultFailureStates)State.FailureState];
                     }
                 }
 
@@ -171,16 +171,16 @@ namespace Org.Apache.REEF.Network.Elastic.Failures.Default
 
                 float currentRate = (float)NumOfFailedDataPoints / NumOfDataPoints;
 
-                if (isFinalState.Contains(State.FailureState) && 
+                if (IsFinalState.Contains(State.FailureState) && 
                     currentRate >= transitionWeights[DefaultFailureStates.StopAndReschedule])
                 {
                     throw new IllegalStateException("Received remove data point when state is complete: failing.");
                 }
 
                 while (State.FailureState < (int)DefaultFailureStates.Fail &&
-                    currentRate > transitionWeights[transitionMapUp[(DefaultFailureStates)State.FailureState]])
+                    currentRate > transitionWeights[TransitionMapUp[(DefaultFailureStates)State.FailureState]])
                 {
-                    State.FailureState = (int)transitionMapUp[(DefaultFailureStates)State.FailureState];
+                    State.FailureState = (int)TransitionMapUp[(DefaultFailureStates)State.FailureState];
                 }
 
                 return State;
@@ -194,7 +194,7 @@ namespace Org.Apache.REEF.Network.Elastic.Failures.Default
         {
             lock (_statusLock)
             {
-                if (canMoveToComplete.Contains(State.FailureState))
+                if (CanMoveToComplete.Contains(State.FailureState))
                 {
                     State.FailureState = (int)DefaultFailureStates.Complete;
                 }
@@ -219,12 +219,12 @@ namespace Org.Apache.REEF.Network.Elastic.Failures.Default
         {
             if (!(level is DefaultFailureState))
             {
-                throw new ArgumentException(level.GetType() + " is not DefaultFailureStateMachine");
+                throw new ArgumentException(level.GetType() + " is not DefaultFailureState.");
             }
 
-            if (level.FailureState == (int)DefaultFailureStates.Continue)
+            if (level.FailureState.IsContinue())
             {
-                throw new ArgumentException("Cannot change the threshold for Continue state");
+                throw new ArgumentException("Cannot change the threshold for Continue state.");
             }
 
             lock (_statusLock)
@@ -245,9 +245,9 @@ namespace Org.Apache.REEF.Network.Elastic.Failures.Default
             {
                 if (!(weight.Item1 is DefaultFailureState))
                 {
-                    throw new ArgumentException("Input is not of type DefaultFailureStateMachine.");
+                    throw new ArgumentException("Input is not of type DefaultFailureState.");
                 }
-                if (weight.Item1.FailureState == (int)DefaultFailureStates.Continue)
+                if (weight.Item1.FailureState.IsContinue())
                 {
                     throw new ArgumentException("Cannot change the threshold for Continue state.");
                 }
@@ -295,14 +295,14 @@ namespace Org.Apache.REEF.Network.Elastic.Failures.Default
             {
                 var state = DefaultFailureStates.ContinueAndReconfigure;
                 float prevWeight = transitionWeights[state];
-                state = transitionMapUp[state];
+                state = TransitionMapUp[state];
 
                 while (transitionWeights.TryGetValue(state, out float nextWeight))
                 {
                     if (nextWeight < prevWeight)
                     {
                         throw new IllegalStateException(
-                            $"State {transitionMapDown[state]} weight is bigger than state {state}.");
+                            $"State {TransitionMapDown[state]} weight is bigger than state {state}.");
                     }
 
                     prevWeight = nextWeight;
@@ -312,7 +312,7 @@ namespace Org.Apache.REEF.Network.Elastic.Failures.Default
                         return;
                     }
 
-                    state = transitionMapUp[state];
+                    state = TransitionMapUp[state];
                 }
             }
         }
