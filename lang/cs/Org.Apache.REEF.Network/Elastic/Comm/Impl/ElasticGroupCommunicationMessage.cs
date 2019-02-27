@@ -25,7 +25,7 @@ namespace Org.Apache.REEF.Network.Elastic.Comm.Impl
     /// Message sent by Group Communication operators. 
     /// </summary>
     [Unstable("0.16", "API may change")]
-    public abstract class ElasticGroupCommunicationMessage : ICloneable, INodeIdentifier, IIdentifiable
+    public abstract class ElasticGroupCommunicationMessage : ICloneable, INodeIdentifier
     {
         /// <summary>
         /// Create a new elastic group communication message.
@@ -38,7 +38,6 @@ namespace Org.Apache.REEF.Network.Elastic.Comm.Impl
         {
             StageName = stageName;
             OperatorId = operatorId;
-            NodeId = new NodeIdentifier(StageName, OperatorId);
         }
 
         /// <summary>
@@ -54,10 +53,5 @@ namespace Org.Apache.REEF.Network.Elastic.Comm.Impl
         /// Returns the operator id.
         /// </summary>
         public int OperatorId { get; private set; }
-
-        /// <summary>
-        /// The identifier for the node.
-        /// </summary>
-        public NodeIdentifier NodeId { get; private set; }
     }
 }

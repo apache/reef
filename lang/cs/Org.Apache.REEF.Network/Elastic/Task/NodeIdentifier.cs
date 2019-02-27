@@ -47,5 +47,18 @@ namespace Org.Apache.REEF.Network.Elastic.Task
             StageName = stageName;
             OperatorId = operatorId;
         }
+
+        public override string ToString()
+        {
+            return $"{StageName}-{OperatorId}";
+        }
+    }
+
+    public static class NodeIdentifierExtensions
+    {
+        public static NodeIdentifier NodeId(this INodeIdentifier id)
+        {
+            return new NodeIdentifier(id.StageName, id.OperatorId);
+        }
     }
 }

@@ -30,7 +30,6 @@ namespace Org.Apache.REEF.Network.Elastic.Topology.Physical
     internal interface IOperatorTopologyWithCommunication :
         IWaitForTaskRegistration,
         INodeIdentifier,
-        IIdentifiable,
         IDisposable,
         IObserver<NsMessage<ElasticGroupCommunicationMessage>>
     {

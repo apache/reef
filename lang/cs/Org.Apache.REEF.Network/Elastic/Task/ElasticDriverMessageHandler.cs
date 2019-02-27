@@ -61,10 +61,9 @@ namespace Org.Apache.REEF.Network.Elastic.Task.Impl
 
             var edm = ElasticDriverMessageImpl.From(message.Message.Value);
 
-            if (!DriverMessageObservers.TryGetValue(edm.Message.NodeId, out DriverAwareOperatorTopology operatorObserver))
+            if (!DriverMessageObservers.TryGetValue(edm.Message.NodeId(), out DriverAwareOperatorTopology operatorObserver))
             {
-                throw new KeyNotFoundException("Unable to find registered operator topology for stage " +
-                    edm.Message.StageName + " operator " + edm.Message.OperatorId);
+                throw new KeyNotFoundException("Unable to find registered operator topology for " + edm.Message.NodeId());
             }
 
             operatorObserver.OnNext(edm.Message);

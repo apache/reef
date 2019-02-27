@@ -89,9 +89,9 @@ namespace Org.Apache.REEF.Network.Elastic.Task.Impl
         /// <param name="operatorObserver">The observer of the communicating topology operator</param>
         public void RegisterOperatorTopologyForTask(IOperatorTopologyWithCommunication operatorObserver)
         {
-            if (!_groupMessageObservers.TryAdd(operatorObserver.NodeId, operatorObserver))
+            if (!_groupMessageObservers.TryAdd(operatorObserver.NodeId(), operatorObserver))
             {
-                throw new IllegalStateException($"Topology for id {operatorObserver.NodeId} already added among listeners.");
+                throw new IllegalStateException($"Topology for id {operatorObserver.NodeId()} already added among listeners.");
             }
         }
 
@@ -101,9 +101,9 @@ namespace Org.Apache.REEF.Network.Elastic.Task.Impl
         /// <param name="operatorObserver">The observer of the driver aware topology</param>
         internal void RegisterOperatorTopologyForDriver(DriverAwareOperatorTopology operatorObserver)
         {
-            if (!_driverMessageObservers.TryAdd(operatorObserver.NodeId, operatorObserver))
+            if (!_driverMessageObservers.TryAdd(operatorObserver.NodeId(), operatorObserver))
             {
-                throw new IllegalStateException($"Topology for id {operatorObserver.NodeId} already added among driver listeners.");
+                throw new IllegalStateException($"Topology for id {operatorObserver.NodeId()} already added among driver listeners.");
             }
         }
 
