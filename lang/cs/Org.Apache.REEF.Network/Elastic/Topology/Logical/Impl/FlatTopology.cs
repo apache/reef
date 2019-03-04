@@ -49,7 +49,7 @@ namespace Org.Apache.REEF.Network.Elastic.Topology.Logical.Impl
         private bool _finalized = false;
         private readonly bool _sorted;
 
-        private readonly Dictionary<int, DataNode> _nodes = new Dictionary<int, DataNode>();
+        private readonly IDictionary<int, DataNode> _nodes;
         private readonly HashSet<string> _lostNodesToBeRemoved = new HashSet<string>();
         private HashSet<string> _nodesWaitingToJoinTopologyNextIteration = new HashSet<string>();
         private HashSet<string> _nodesWaitingToJoinTopology = new HashSet<string>();
@@ -70,6 +70,15 @@ namespace Org.Apache.REEF.Network.Elastic.Topology.Logical.Impl
             _rootId = rootId;
             _sorted = sorted;
             OperatorId = -1;
+
+            if (_sorted)
+            {
+                _nodes = new SortedDictionary<int, DataNode>();
+            }
+            else
+            {
+                _nodes = new Dictionary<int, DataNode>();
+            }
         }
 
         /// <summary>
@@ -107,21 +116,21 @@ namespace Org.Apache.REEF.Network.Elastic.Topology.Logical.Impl
 
             lock (_lock)
             {
-                if (_nodes.ContainsKey(id))
+                if (_nodes.TryGetValue(id, out DataNode node))
                 {
-                    if (_nodes[id].FailState != DataNodeState.Reachable)
+                    if (node.FailState != DataNodeState.Reachable)
                     {
                         // This is node already added to the topology and which probably failed.
                         _nodesWaitingToJoinTopologyNextIteration.Add(taskId);
-                        _nodes[id].FailState = DataNodeState.Unreachable;
+                        node.FailState = DataNodeState.Unreachable;
                         return false;
                     }
 
                     throw new ArgumentException("Task already added to the topology.");
                 }
 
-                DataNode node = new DataNode(id, false);
-                _nodes[id] = node;
+                DataNode dnode = new DataNode(id, false);
+                _nodes[id] = dnode;
 
                 if (_finalized)
                 {
@@ -281,17 +290,13 @@ namespace Org.Apache.REEF.Network.Elastic.Topology.Logical.Impl
 
                 foreach (var tId in root.Children)
                 {
-                    confBuilder.BindSetEntry<Config.OperatorParameters.TopologyChildTaskIds, int>(
-                        GenericType<Config.OperatorParameters.TopologyChildTaskIds>.Class,
-                        tId.TaskId.ToString(CultureInfo.InvariantCulture));
+                    confBuilder.BindSetEntry<Config.OperatorParameters.TopologyChildTaskIds, int>("" + tId.TaskId);
                 }
             }
 
             return confBuilder
-                .BindNamedParameter<Config.OperatorParameters.TopologyRootTaskId, int>(
-                    GenericType<Config.OperatorParameters.TopologyRootTaskId>.Class,
-                    _rootId.ToString(CultureInfo.InvariantCulture))
-                 .Build();
+                .BindNamedParam<Config.OperatorParameters.TopologyRootTaskId, int>("" + _rootId)
+                .Build();
         }
 
         /// <summary>
@@ -328,10 +333,13 @@ namespace Org.Apache.REEF.Network.Elastic.Topology.Logical.Impl
 
                 if (_nodesWaitingToJoinTopology.Count > 0)
                 {
-                    Log.Log(Level.Info,
-                        "Tasks [{0}] are added to topology in iteration {1}",
-                        string.Join(",", _nodesWaitingToJoinTopology),
-                        _iteration);
+                    if (Log.IsLoggable(Level.Info))
+                    {
+                        Log.Log(Level.Info,
+                            "Tasks [{0}] are added to topology in iteration {1}",
+                            string.Join(",", _nodesWaitingToJoinTopology),
+                            _iteration);
+                    }
 
                     _availableDataPoints += _nodesWaitingToJoinTopology.Count;
                     failureStateMachine.Value.AddDataPoints(_nodesWaitingToJoinTopology.Count, false);
@@ -388,18 +396,8 @@ namespace Org.Apache.REEF.Network.Elastic.Topology.Logical.Impl
             List<IElasticDriverMessage> messages = new List<IElasticDriverMessage>();
 
             lock (_lock)
-            {
-                int iter;
-
-                if (info.IsPresent())
-                {
-                    iter = int.Parse(info.Value.Split(':')[0]);
-                }
-                else
-                {
-                    iter = iteration.Value;
-                }
-
+            { 
+                int iter = info.IsPresent() ? int.Parse(info.Value.Split(':')[0]) : iteration.Value;
                 var children = _lostNodesToBeRemoved.ToList();
                 var update = new List<TopologyUpdate>()
                 {
@@ -430,19 +428,7 @@ namespace Org.Apache.REEF.Network.Elastic.Topology.Logical.Impl
 
         private void BuildTopology()
         {
-            IEnumerator<DataNode> iter =
-                _sorted ?
-                    _nodes.OrderBy(kv => kv.Key).Select(kv => kv.Value).GetEnumerator() :
-                    _nodes.Values.GetEnumerator();
-            var root = _nodes[_rootId];
-
-            while (iter.MoveNext())
-            {
-                if (iter.Current.TaskId != _rootId)
-                {
-                    root.AddChild(iter.Current);
-                }
-            }
+            _nodes[_rootId].AddChild(_nodes.Values.Where(n => n.TaskId != _rootId));
         }
     }
 }

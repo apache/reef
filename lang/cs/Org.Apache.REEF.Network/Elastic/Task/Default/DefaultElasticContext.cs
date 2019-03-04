@@ -28,6 +28,7 @@ using Org.Apache.REEF.Network.Elastic.Config;
 using Org.Apache.REEF.Network.Elastic.Comm.Impl;
 using Org.Apache.REEF.Common.Tasks.Events;
 using Org.Apache.REEF.Utilities.Attributes;
+using System.Linq;
 
 namespace Org.Apache.REEF.Network.Elastic.Task.Impl
 {
@@ -38,13 +39,13 @@ namespace Org.Apache.REEF.Network.Elastic.Task.Impl
     [Unstable("0.16", "API may change")]
     internal sealed class DefaultElasticContext : IElasticContext
     {
-        private readonly Dictionary<string, IElasticStage> _stages;
+        private readonly Dictionary<string, IElasticStage> _stages = new Dictionary<string, IElasticStage>();
         private readonly string _taskId;
 
         private readonly INetworkService<ElasticGroupCommunicationMessage> _networkService;
 
-        private readonly object _lock;
-        private bool _disposed;
+        private readonly object _disposeLock = new object();
+        private bool _disposed = false;
 
         /// <summary>
         /// Creates a new elastic context and registers the task id with the Name Server.
@@ -64,22 +65,13 @@ namespace Org.Apache.REEF.Network.Elastic.Task.Impl
             ElasticDriverMessageHandler driverMessageHandler,
             IInjector injector)
         {
-            _stages = new Dictionary<string, IElasticStage>();
             _networkService = networkService;
             _taskId = taskId;
 
-            _disposed = false;
-            _lock = new object();
-
-            foreach (string serializedGroupConfig in stageConfigs)
-            {
-                IConfiguration stageConfig = configSerializer.FromString(serializedGroupConfig);
-                IInjector subInjector = injector.ForkInjector(stageConfig);
-
-                var stageClient = subInjector.GetInstance<IElasticStage>();
-
-                _stages[stageClient.StageName] = stageClient;
-            }
+            _stages = stageConfigs
+                .Select(config => 
+                    injector.ForkInjector(configSerializer.FromString(config)).GetInstance<IElasticStage>())
+                .ToDictionary(stage => stage.StageName, stage => stage);
 
             _networkService.Register(new StringIdentifier(_taskId));
         }
@@ -99,20 +91,16 @@ namespace Org.Apache.REEF.Network.Elastic.Task.Impl
         /// <summary>
         /// Gets the stage object for the given stage name.
         /// </summary>
-        /// <param name="stagepName">The name of the stage</param>
+        /// <param name="stageName">The name of the stage</param>
         /// <returns>The task-side stage object</returns>
-        public IElasticStage GetStage(string stagepName)
+        public IElasticStage GetStage(string stageName)
         {
-            if (string.IsNullOrEmpty(stagepName))
+            if (!_stages.TryGetValue(stageName, out IElasticStage stage))
             {
-                throw new ArgumentNullException("stagepName");
-            }
-            if (!_stages.ContainsKey(stagepName))
-            {
-                throw new ArgumentException("No stage with name: " + stagepName);
+                return stage;
             }
 
-            return _stages[stagepName];
+            throw new ArgumentException($"No stage with name: {stageName}.");
         }
 
         /// <summary>
@@ -120,7 +108,7 @@ namespace Org.Apache.REEF.Network.Elastic.Task.Impl
         /// </summary>
         public void Dispose()
         {
-            lock (_lock)
+            lock (_disposeLock)
             {
                 if (!_disposed)
                 {

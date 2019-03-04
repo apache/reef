@@ -76,12 +76,11 @@ namespace Org.Apache.REEF.Network.Elastic.Task.Impl
             }
 
             var nsMessage = remoteMessage.Message;
-            var gcm = nsMessage.Data;
-            var gcMessageTaskSource = nsMessage.SourceId.ToString();
+            var nodeId = nsMessage.Data.NodeId();
 
-            if (!_groupMessageObservers.TryGetValue(gcm.NodeId(), out IOperatorTopologyWithCommunication operatorObserver))
+            if (!_groupMessageObservers.TryGetValue(nodeId, out IOperatorTopologyWithCommunication operatorObserver))
             {
-                throw new KeyNotFoundException($"Unable to find registered operator topology for {gcm.NodeId()}");
+                throw new KeyNotFoundException($"Unable to find registered operator topology for {nodeId}");
             }
 
             operatorObserver.OnNext(nsMessage);

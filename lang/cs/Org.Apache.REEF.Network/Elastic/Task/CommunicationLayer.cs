@@ -158,42 +158,42 @@ namespace Org.Apache.REEF.Network.Elastic.Task.Impl
         /// <param name="cancellationSource">The token to cancel the operation</param>
         /// <param name="removed">Nodes that got removed during task registration</param>
         public void WaitForTaskRegistration(
-            ICollection<string> identifiers,
+            IEnumerable<string> identifiers,
             CancellationTokenSource cancellationSource,
             IDictionary<string, byte> removed = null)
         {
             ISet<string> foundSet = new HashSet<string>();
+            var count = identifiers.Count();
 
             for (var i = 0; i < _retryRegistration; i++)
             {
-                if (cancellationSource != null && cancellationSource.Token.IsCancellationRequested)
+                if ((cancellationSource?.Token.IsCancellationRequested) ?? false)
                 {
                     Log.Log(Level.Warning, "WaitForTaskRegistration is canceled in retryCount {0}.", i);
                     throw new OperationCanceledException("WaitForTaskRegistration is canceled");
                 }
 
-                Log.Log(Level.Info, "WaitForTaskRegistration, in retryCount {0}.", i);
-                foreach (var identifier in identifiers)
+                Log.Log(Level.Info, "In retryCount {0}.", i);
+                foreach (var identifier in identifiers.Except(foundSet))
                 {
-                    var notFound = !foundSet.Contains(identifier);
-                    if (notFound && removed != null && removed.ContainsKey(identifier))
+                    if (removed?.ContainsKey(identifier) ?? false)
                     {
                         foundSet.Add(identifier);
                         Log.Log(Level.Verbose,
-                            "WaitForTaskRegistration, dependent id {0} was removed at loop {1}.", identifier, i);
+                            "Dependent id {0} was removed at loop {1}.", identifier, i);
                     }
-                    else if (notFound && Lookup(identifier))
+                    else if (Lookup(identifier))
                     {
                         foundSet.Add(identifier);
                         Log.Log(Level.Verbose,
-                            "WaitForTaskRegistration, find a dependent id {0} at loop {1}.", identifier, i);
+                            "Find a dependent id {0} at loop {1}.", identifier, i);
                     }
                 }
 
-                if (foundSet.Count >= identifiers.Count)
+                if (foundSet.Count >= count)
                 {
                     Log.Log(Level.Info,
-                        "WaitForTaskRegistration, found all {0} dependent ids at loop {1}.", foundSet.Count, i);
+                        "Found all {0} dependent ids at loop {1}.", foundSet.Count, i);
                     return;
                 }
 

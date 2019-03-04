@@ -143,7 +143,7 @@ namespace Org.Apache.REEF.Network.Elastic.Topology.Physical.Default
         {
             try
             {
-                _commLayer.WaitForTaskRegistration(_children.Values.ToList(), cancellationSource, _nodesToRemove);
+                _commLayer.WaitForTaskRegistration(_children.Values, cancellationSource, _nodesToRemove);
             }
             catch (Exception e)
             {
@@ -231,10 +231,9 @@ namespace Org.Apache.REEF.Network.Elastic.Topology.Physical.Default
 
                                 foreach (var taskId in _nodesToRemove.Keys)
                                 {
-                                    var id = Utils.GetTaskNum(taskId);
-                                    _nodesToRemove.TryRemove(taskId, out byte val);
-                                    _children.TryRemove(id, out string str);
+                                    _children.TryRemove(Utils.GetTaskNum(taskId), out string str);
                                 }
+                                _nodesToRemove.Clear();
                             }
 
                             // Unblock this broadcast round.

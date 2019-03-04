@@ -109,7 +109,6 @@ namespace Org.Apache.REEF.Network.Elastic.Topology.Physical.Default
             {
                 // The topology is still trying to send messages, wait.
                 Thread.Sleep(100);
-                
             }
         }
 
@@ -130,7 +129,7 @@ namespace Org.Apache.REEF.Network.Elastic.Topology.Physical.Default
         {
             try
             {
-                _commLayer.WaitForTaskRegistration(_children.Values.ToList(), cancellationSource);
+                _commLayer.WaitForTaskRegistration(_children.Values, cancellationSource);
             }
             catch (Exception e)
             {
@@ -151,23 +150,20 @@ namespace Org.Apache.REEF.Network.Elastic.Topology.Physical.Default
         /// <returns></returns>
         public virtual ElasticGroupCommunicationMessage Receive(CancellationTokenSource cancellationSource)
         {
-            ElasticGroupCommunicationMessage message;
-            int retry = 1;
-
-            while (!_messageQueue.TryTake(out message, _timeout, cancellationSource.Token))
+            for (int retry = 0; retry < _retry; ++retry)
             {
+                if (_messageQueue.TryTake(out ElasticGroupCommunicationMessage message, _timeout, cancellationSource.Token))
+                {
+                    return message;
+                }
+
                 if (cancellationSource.IsCancellationRequested)
                 {
                     throw new OperationCanceledException("Received cancellation request: stop receiving.");
                 }
-
-                if (retry++ > _retry)
-                {
-                    throw new Exception($"Failed to receive message after {_retry} try.");
-                }
             }
 
-            return message;
+            throw new TimeoutException($"Failed to receive message after {_retry} try.");
         }
 
         /// <summary>
@@ -191,12 +187,9 @@ namespace Org.Apache.REEF.Network.Elastic.Topology.Physical.Default
         /// <param name="message">The message that need to be devlivered to the operator</param>
         public virtual void OnNext(NsMessage<ElasticGroupCommunicationMessage> message)
         {
-            if (_messageQueue.IsAddingCompleted)
+            if (_messageQueue.IsAddingCompleted && _messageQueue.Count > 0)
             {
-                if (_messageQueue.Count > 0)
-                {
-                    throw new IllegalStateException("Trying to add messages to a closed non-empty queue.");
-                }
+                throw new IllegalStateException("Trying to add messages to a closed non-empty queue.");
             }
 
             _messageQueue.Add(message.Data);
@@ -249,8 +242,7 @@ namespace Org.Apache.REEF.Network.Elastic.Topology.Physical.Default
         /// <param name="cancellationSource">The singal in case the task is cancelled</param>
         protected virtual void Send(CancellationTokenSource cancellationSource)
         {
-            ElasticGroupCommunicationMessage message;
-            while (_sendQueue.TryDequeue(out message) && !cancellationSource.IsCancellationRequested)
+            while (_sendQueue.TryDequeue(out ElasticGroupCommunicationMessage message) && !cancellationSource.IsCancellationRequested)
             {
                 foreach (var child in _children.Values)
                 {

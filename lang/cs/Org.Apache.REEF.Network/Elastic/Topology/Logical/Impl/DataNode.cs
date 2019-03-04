@@ -28,12 +28,8 @@ namespace Org.Apache.REEF.Network.Elastic.Topology.Logical.Impl
     [Unstable("0.16", "API may change")]
     internal sealed class DataNode
     {
-        private readonly int _taskId;
         private readonly bool _isRoot;
         private readonly List<DataNode> _children;
-
-        private DataNode _parent;
-        private DataNodeState _state;
 
         /// <summary>
         /// Construct a node using a given task id.
@@ -44,9 +40,9 @@ namespace Org.Apache.REEF.Network.Elastic.Topology.Logical.Impl
             int taskId,
             bool isRoot)
         {
-            _taskId = taskId;
+            TaskId = taskId;
             _isRoot = isRoot;
-            _state = DataNodeState.Reachable;
+            FailState = DataNodeState.Reachable;
 
             _children = new List<DataNode>();
         }
@@ -54,36 +50,25 @@ namespace Org.Apache.REEF.Network.Elastic.Topology.Logical.Impl
         /// <summary>
         /// The current state for the node.
         /// </summary>
-        public DataNodeState FailState
-        {
-            get { return _state; }
-            set { _state = value; }
-        }
+        public DataNodeState FailState { get; set; }
 
         /// <summary>
         /// The parent of the target node.
         /// </summary>
-        public DataNode Parent
-        {
-            get { return _parent; }
-            set { _parent = value; }
-        }
+        public DataNode Parent { get; set; }
 
         /// <summary>
         /// Add a node to the list of children nodes of the current one.
         /// </summary>
-        public void AddChild(DataNode child)
+        public void AddChild(IEnumerable<DataNode> child)
         {
-            _children.Add(child);
+            _children.AddRange(child);
         }
 
         /// <summary>
         /// The task id represented by the data node.
         /// </summary>
-        public int TaskId
-        {
-            get { return _taskId; }
-        }
+        public int TaskId { get; }
 
         /// <summary>
         /// Return how many children the current node has.

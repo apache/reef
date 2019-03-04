@@ -40,8 +40,8 @@ namespace Org.Apache.REEF.Network.Elastic.Task
 
         private readonly CancellationSource _cancellationSource;
 
-        private readonly object _lock;
-        private bool _disposed;
+        private readonly object _disposeLock = new object();
+        private bool _disposed = false;
 
         /// <summary>
         /// Injectable constructor.
@@ -59,25 +59,20 @@ namespace Org.Apache.REEF.Network.Elastic.Task
         {
             StageName = stageName;
             Workflow = workflow;
-
+     
             _cancellationSource = cancellationSource;
-            _disposed = false;
-            _lock = new object();
 
             foreach (string operatorConfigStr in operatorConfigs)
             {
                 IConfiguration operatorConfig = configSerializer.FromString(operatorConfigStr);
-
                 IInjector operatorInjector = injector.ForkInjector(operatorConfig);
-                string msgType = operatorInjector.GetNamedInstance<OperatorParameters.MessageType, string>(
-                    GenericType<OperatorParameters.MessageType>.Class);
-
+                string msgType = operatorInjector.GetNamedInstance<OperatorParameters.MessageType, string>();
                 Type groupCommOperatorGenericInterface = typeof(IElasticTypedOperator<>);
                 Type groupCommOperatorInterface =
                     groupCommOperatorGenericInterface.MakeGenericType(Type.GetType(msgType));
                 var operatorObj = operatorInjector.GetInstance(groupCommOperatorInterface);
 
-                Workflow.Add(operatorObj as IElasticOperator);
+                Workflow.Add((IElasticOperator)operatorObj);
             }
         }
 
@@ -104,7 +99,7 @@ namespace Org.Apache.REEF.Network.Elastic.Task
             }
             catch (OperationCanceledException e)
             {
-                Log.Log(Level.Error, "Stage {0} failed during registration.", StageName);
+                Log.Log(Level.Error, "Stage " + StageName + " failed during registration.", e);
                 throw e;
             }
         }
@@ -114,14 +109,11 @@ namespace Org.Apache.REEF.Network.Elastic.Task
         /// </summary>
         public void Dispose()
         {
-            lock (_lock)
+            lock (_disposeLock)
             {
                 if (!_disposed)
                 {
-                    if (Workflow != null)
-                    {
-                        Workflow.Dispose();
-                    }
+                    Workflow?.Dispose();
 
                     _disposed = true;
                 }
@@ -137,7 +129,7 @@ namespace Org.Apache.REEF.Network.Elastic.Task
             {
                 _cancellationSource.Cancel();
 
-                Log.Log(Level.Info, "Received request to close stage ", StageName);
+                Log.Log(Level.Info, "Received request to close stage {0}", StageName);
             }
         }
     }

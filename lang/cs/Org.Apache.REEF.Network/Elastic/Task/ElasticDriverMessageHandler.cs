@@ -59,14 +59,14 @@ namespace Org.Apache.REEF.Network.Elastic.Task.Impl
                 throw new IllegalStateException("Received message with no payload.");
             }
 
-            var edm = ElasticDriverMessageImpl.From(message.Message.Value);
+            var edm = ElasticDriverMessageImpl.From(message.Message.Value).Message;
 
-            if (!DriverMessageObservers.TryGetValue(edm.Message.NodeId(), out DriverAwareOperatorTopology operatorObserver))
+            if (!DriverMessageObservers.TryGetValue(edm.NodeId(), out DriverAwareOperatorTopology operatorObserver))
             {
-                throw new KeyNotFoundException("Unable to find registered operator topology for " + edm.Message.NodeId());
+                throw new KeyNotFoundException("Unable to find registered operator topology for " + edm.NodeId());
             }
 
-            operatorObserver.OnNext(edm.Message);
+            operatorObserver.OnNext(edm);
         }
     }
 }
