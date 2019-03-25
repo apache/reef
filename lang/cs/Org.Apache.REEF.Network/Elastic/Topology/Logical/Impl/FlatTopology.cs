@@ -18,8 +18,6 @@
 using System;
 using Org.Apache.REEF.Tang.Interface;
 using System.Collections.Generic;
-using Org.Apache.REEF.Tang.Util;
-using System.Globalization;
 using Org.Apache.REEF.Tang.Exceptions;
 using Org.Apache.REEF.Utilities.Logging;
 using System.Linq;
@@ -42,20 +40,20 @@ namespace Org.Apache.REEF.Network.Elastic.Topology.Logical.Impl
     {
         private static readonly Logger Log = Logger.GetLogger(typeof(FlatTopology));
 
-        private string _rootTaskId = string.Empty;
-        private int _rootId;
-        private string _taskStage = string.Empty;
+        private string _rootTaskId = null;
+        private readonly int _rootId;
+        private string _taskStage = null;
         private volatile int _iteration = 1;
         private bool _finalized = false;
-        private readonly bool _sorted;
 
         private readonly IDictionary<int, DataNode> _nodes;
+        private DataNode _root; // This is just for caching
         private readonly HashSet<string> _lostNodesToBeRemoved = new HashSet<string>();
         private HashSet<string> _nodesWaitingToJoinTopologyNextIteration = new HashSet<string>();
         private HashSet<string> _nodesWaitingToJoinTopology = new HashSet<string>();
 
         private volatile int _availableDataPoints = 0;
-        private int _totNumberofNodes;
+        private int _totalDataPoints = 0;
 
         private readonly object _lock = new object();
 
@@ -68,10 +66,9 @@ namespace Org.Apache.REEF.Network.Elastic.Topology.Logical.Impl
         public FlatTopology(int rootId, bool sorted = false)
         {
             _rootId = rootId;
-            _sorted = sorted;
             OperatorId = -1;
 
-            if (_sorted)
+            if (sorted)
             {
                 _nodes = new SortedDictionary<int, DataNode>();
             }
@@ -137,7 +134,7 @@ namespace Org.Apache.REEF.Network.Elastic.Topology.Logical.Impl
                     // New node but elastically added. It should be gracefully added to the topology.
                     _nodesWaitingToJoinTopologyNextIteration.Add(taskId);
                     _nodes[id].FailState = DataNodeState.Unreachable;
-                    _nodes[_rootId].Children.Add(_nodes[id]);
+                    _root.Children.Add(_nodes[id]);
                     failureMachine.AddDataPoints(1, true);
                     failureMachine.RemoveDataPoints(1);
                     return false;
@@ -206,7 +203,7 @@ namespace Org.Apache.REEF.Network.Elastic.Topology.Logical.Impl
         /// <returns>True if the topology is ready to be scheduled</returns>
         public bool CanBeScheduled()
         {
-            return _nodes.ContainsKey(_rootId);
+            return _root != null;
         }
 
         /// <summary>
@@ -222,7 +219,7 @@ namespace Org.Apache.REEF.Network.Elastic.Topology.Logical.Impl
                 throw new IllegalStateException("Topology cannot be built more than once");
             }
 
-            if (!_nodes.ContainsKey(_rootId))
+            if (_root == null)
             {
                 throw new IllegalStateException("Topology cannot be built because the root node is missing");
             }
@@ -252,8 +249,7 @@ namespace Org.Apache.REEF.Network.Elastic.Topology.Logical.Impl
         /// </summary>
         public string LogTopologyState()
         {
-            var root = _nodes[_rootId];
-            var children = root.Children.GetEnumerator();
+            var children = _root.Children.GetEnumerator();
             string output = _rootId + "\n";
             while (children.MoveNext())
             {
@@ -286,9 +282,7 @@ namespace Org.Apache.REEF.Network.Elastic.Topology.Logical.Impl
 
             if (taskId == _rootId)
             {
-                var root = _nodes[_rootId];
-
-                foreach (var tId in root.Children)
+                foreach (var tId in _root.Children)
                 {
                     confBuilder.BindSetEntry<Config.OperatorParameters.TopologyChildTaskIds, int>("" + tId.TaskId);
                 }
@@ -367,7 +361,7 @@ namespace Org.Apache.REEF.Network.Elastic.Topology.Logical.Impl
                 iteration - 1,
                 _availableDataPoints);
             _iteration = iteration;
-            _totNumberofNodes += _availableDataPoints;
+            _totalDataPoints += _availableDataPoints;
 
             lock (_lock)
             {
@@ -423,12 +417,13 @@ namespace Org.Apache.REEF.Network.Elastic.Topology.Logical.Impl
             return string.Format(
                 "\nAverage number of nodes in the topology of Operator {0}: {1}",
                 OperatorId,
-                _iteration >= 2 ? (float)_totNumberofNodes / (_iteration - 1) : _availableDataPoints);
+                _iteration >= 2 ? (float)_totalDataPoints / (_iteration - 1) : _availableDataPoints);
         }
 
         private void BuildTopology()
         {
-            _nodes[_rootId].AddChild(_nodes.Values.Where(n => n.TaskId != _rootId));
+            _root = _nodes[_rootId];
+            _root.AddChild(_nodes.Values.Where(n => n.TaskId != _rootId));
         }
     }
 }

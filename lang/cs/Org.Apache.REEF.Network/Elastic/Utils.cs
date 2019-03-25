@@ -119,7 +119,7 @@ namespace Org.Apache.REEF.Network.Elastic
         /// <returns>An id merging the three fields</returns>
         private static string BuildIdentifier(string first, string second, int third)
         {
-            return string.Format(CultureInfo.InvariantCulture, "{0}-{1}-{2}", first, second, third);
+            return $"{first}-{second}-{third}";
         }
 
         /// <summary>
