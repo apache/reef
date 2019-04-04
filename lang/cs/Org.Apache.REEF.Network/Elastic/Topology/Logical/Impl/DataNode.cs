@@ -29,7 +29,6 @@ namespace Org.Apache.REEF.Network.Elastic.Topology.Logical.Impl
     internal sealed class DataNode
     {
         private readonly bool _isRoot;
-        private readonly List<DataNode> _children;
 
         /// <summary>
         /// Construct a node using a given task id.
@@ -42,15 +41,12 @@ namespace Org.Apache.REEF.Network.Elastic.Topology.Logical.Impl
         {
             TaskId = taskId;
             _isRoot = isRoot;
-            FailState = DataNodeState.Reachable;
-
-            _children = new List<DataNode>();
         }
 
         /// <summary>
         /// The current state for the node.
         /// </summary>
-        public DataNodeState FailState { get; set; }
+        public DataNodeState FailState { get; set; } = DataNodeState.Reachable;
 
         /// <summary>
         /// The parent of the target node.
@@ -60,9 +56,9 @@ namespace Org.Apache.REEF.Network.Elastic.Topology.Logical.Impl
         /// <summary>
         /// Add a node to the list of children nodes of the current one.
         /// </summary>
-        public void AddChild(IEnumerable<DataNode> child)
+        public void AddChildren(IEnumerable<DataNode> child)
         {
-            _children.AddRange(child);
+            Children.AddRange(child);
         }
 
         /// <summary>
@@ -73,17 +69,11 @@ namespace Org.Apache.REEF.Network.Elastic.Topology.Logical.Impl
         /// <summary>
         /// Return how many children the current node has.
         /// </summary>
-        public int NumberOfChildren
-        {
-            get { return _children.Count; }
-        }
+        public int NumberOfChildren => Children.Count; 
 
         /// <summary>
         /// Return the list of children fro the current node.
         /// </summary>
-        public IList<DataNode> Children
-        {
-            get { return _children; }
-        }
+        public List<DataNode> Children { get; } = new List<DataNode>();
     }
 }

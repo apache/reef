@@ -39,15 +39,15 @@ namespace Org.Apache.REEF.Network.Elastic.Comm.Impl
         /// <param name="operatorId">The id of the operator receiving the topology update</param>
         /// <param name="iteration">The iteration in which the update takes effect</param>
         public TopologyMessagePayload(
-            DriverMessagePayloadType type, 
-            List<TopologyUpdate> updates, 
+            DriverMessagePayloadType type,
+            IEnumerable<TopologyUpdate> updates, 
             string stageName, 
             int operatorId, 
             int iteration)
             : base(stageName, operatorId, iteration)
         {
             PayloadType = type;
-            TopologyUpdates = updates;
+            TopologyUpdates = updates.ToList();
         }
 
         /// <summary>
@@ -64,7 +64,7 @@ namespace Org.Apache.REEF.Network.Elastic.Comm.Impl
         /// <summary>
         /// The updates for the topology.
         /// </summary>
-        internal List<TopologyUpdate> TopologyUpdates { get; private set; }
+        internal List<TopologyUpdate> TopologyUpdates { get; }
 
         /// <summary>
         /// Creates a topology message payload out of memory buffer. 

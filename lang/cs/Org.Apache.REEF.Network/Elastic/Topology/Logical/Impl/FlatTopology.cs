@@ -133,8 +133,8 @@ namespace Org.Apache.REEF.Network.Elastic.Topology.Logical.Impl
                 {
                     // New node but elastically added. It should be gracefully added to the topology.
                     _nodesWaitingToJoinTopologyNextIteration.Add(taskId);
-                    _nodes[id].FailState = DataNodeState.Unreachable;
-                    _root.Children.Add(_nodes[id]);
+                    dnode.FailState = DataNodeState.Unreachable;
+                    _root.Children.Add(dnode);
                     failureMachine.AddDataPoints(1, true);
                     failureMachine.RemoveDataPoints(1);
                     return false;
@@ -174,12 +174,11 @@ namespace Org.Apache.REEF.Network.Elastic.Topology.Logical.Impl
 
             lock (_lock)
             {
-                if (!_nodes.ContainsKey(id))
+                if (!_nodes.TryGetValue(id, out DataNode node))
                 {
                     throw new ArgumentException("Task is not part of this topology");
                 }
 
-                DataNode node = _nodes[id];
                 var prevState = node.FailState;
                 node.FailState = DataNodeState.Lost;
                 _nodesWaitingToJoinTopologyNextIteration.Remove(taskId);
@@ -214,7 +213,7 @@ namespace Org.Apache.REEF.Network.Elastic.Topology.Logical.Impl
         /// <returns>The same finalized topology</returns>
         public ITopology Build()
         {
-            if (_finalized == true)
+            if (_finalized)
             {
                 throw new IllegalStateException("Topology cannot be built more than once");
             }
@@ -249,20 +248,8 @@ namespace Org.Apache.REEF.Network.Elastic.Topology.Logical.Impl
         /// </summary>
         public string LogTopologyState()
         {
-            var children = _root.Children.GetEnumerator();
-            string output = _rootId + "\n";
-            while (children.MoveNext())
-            {
-                var rep = "X";
-                if (children.Current.FailState == DataNodeState.Reachable)
-                {
-                    rep = children.Current.TaskId.ToString();
-                }
-
-                output += rep + " ";
-            }
-
-            return output;
+            return _rootId + "\n" + string.Join(" ", _root.Children.Select(node =>
+                node.FailState == DataNodeState.Reachable ? "" + node.TaskId : "X"));
         }
 
         /// <summary>
@@ -298,11 +285,9 @@ namespace Org.Apache.REEF.Network.Elastic.Topology.Logical.Impl
         /// with the driver's one.
         /// </summary>
         /// <param name="taskId">The identifier of the task asking for the update</param>
-        /// <param name="returnMessages">A list of message containing the topology update</param>
         /// <param name="failureStateMachine">An optional failure machine to log updates</param>
-        public void TopologyUpdateResponse(
+        public IEnumerable<IElasticDriverMessage> TopologyUpdateResponse(
             string taskId,
-            ref List<IElasticDriverMessage> returnMessages,
             Optional<IFailureStateMachine> failureStateMachine)
         {
             if (taskId != _rootTaskId)
@@ -317,13 +302,9 @@ namespace Org.Apache.REEF.Network.Elastic.Topology.Logical.Impl
 
             lock (_lock)
             {
-                var list = _nodesWaitingToJoinTopology.ToList();
-                var update = new TopologyUpdate(_rootTaskId, list);
-                var data = new UpdateMessagePayload(
-                    new List<TopologyUpdate>() { update }, StageName, OperatorId, _iteration);
+                var update = new TopologyUpdate(_rootTaskId, _nodesWaitingToJoinTopology);
+                var data = new UpdateMessagePayload( new[]{ update }, StageName, OperatorId, _iteration);
                 var returnMessage = new ElasticDriverMessageImpl(_rootTaskId, data);
-
-                returnMessages.Add(returnMessage);
 
                 if (_nodesWaitingToJoinTopology.Count > 0)
                 {
@@ -346,6 +327,8 @@ namespace Org.Apache.REEF.Network.Elastic.Topology.Logical.Impl
 
                     _nodesWaitingToJoinTopology.Clear();
                 }
+
+                return new[] { returnMessage };
             }
         }
 
@@ -377,10 +360,10 @@ namespace Org.Apache.REEF.Network.Elastic.Topology.Logical.Impl
         /// <param name="info">Some additional topology-specific information</param>
         /// <param name="iteration">The optional iteration number in which the event occurred</param>
         /// <returns>One or more messages for reconfiguring the Tasks</returns>
-        public IList<IElasticDriverMessage> Reconfigure(
+        public IEnumerable<IElasticDriverMessage> Reconfigure(
             string taskId,
-            Optional<string> info,
-            Optional<int> iteration)
+            string info = null, 
+            int? iteration = null)
         {
             if (taskId == _rootTaskId)
             {
@@ -390,14 +373,9 @@ namespace Org.Apache.REEF.Network.Elastic.Topology.Logical.Impl
             List<IElasticDriverMessage> messages = new List<IElasticDriverMessage>();
 
             lock (_lock)
-            { 
-                int iter = info.IsPresent() ? int.Parse(info.Value.Split(':')[0]) : iteration.Value;
-                var children = _lostNodesToBeRemoved.ToList();
-                var update = new List<TopologyUpdate>()
-                {
-                    new TopologyUpdate(_rootTaskId, children)
-                };
-                var data = new FailureMessagePayload(update, StageName, OperatorId, -1);
+            {
+                var update = new TopologyUpdate(_rootTaskId, _lostNodesToBeRemoved);
+                var data = new FailureMessagePayload(new[] { update }, StageName, OperatorId, -1);
                 var returnMessage = new ElasticDriverMessageImpl(_rootTaskId, data);
 
                 Log.Log(Level.Info, "Task {0} is removed from topology", taskId);
@@ -423,7 +401,7 @@ namespace Org.Apache.REEF.Network.Elastic.Topology.Logical.Impl
         private void BuildTopology()
         {
             _root = _nodes[_rootId];
-            _root.AddChild(_nodes.Values.Where(n => n.TaskId != _rootId));
+            _root.AddChildren(_nodes.Values.Where(n => n.TaskId != _rootId));
         }
     }
 }

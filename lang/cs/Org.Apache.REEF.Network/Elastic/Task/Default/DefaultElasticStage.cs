@@ -79,12 +79,12 @@ namespace Org.Apache.REEF.Network.Elastic.Task
         /// <summary>
         /// The stage name.
         /// </summary>
-        public string StageName { get; private set; }
+        public string StageName { get; }
 
         /// <summary>
         /// The workflow of the stage.
         /// </summary>
-        public Workflow Workflow { get; private set; }
+        public Workflow Workflow { get; }
 
         /// <summary>
         /// Initializes the communication group.

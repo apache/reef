@@ -34,7 +34,7 @@ namespace Org.Apache.REEF.Network.Elastic.Topology.Physical
         /// <param name="taskId">The identifier of the task the topology is running on</param>
         /// <param name="rootTaskId">The identifier of the root note in the topology</param>
         /// <param name="operatorId">The identifier of the operator for this topology</param>
-        public OperatorTopology(string stageName, string taskId, string rootTaskId, int operatorId)
+        protected OperatorTopology(string stageName, string taskId, string rootTaskId, int operatorId)
         {
             StageName = stageName;
             TaskId = taskId;
@@ -45,17 +45,17 @@ namespace Org.Apache.REEF.Network.Elastic.Topology.Physical
         /// <summary>
         /// The stage name context in which the topology is running.
         /// </summary>
-        public string StageName { get; private set; }
+        public string StageName { get; }
 
         /// <summary>
         /// The identifier of the operator in which the topology is running.
         /// </summary>
-        public int OperatorId { get; private set; }
+        public int OperatorId { get;  }
 
         /// <summary>
         /// The identifier of the task in which the topology is running.
         /// </summary>
-        protected string TaskId { get; private set; }
+        protected string TaskId { get; }
 
         /// <summary>
         /// The task identifier of the root node of the topology.

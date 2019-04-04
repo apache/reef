@@ -59,51 +59,51 @@ namespace Org.Apache.REEF.Network.Elastic.Driver.Default
         /// <summary>
         /// The clock for scheduling alarms.
         /// </summary>
-        public FailuresClock Clock { get; private set; }
+        public FailuresClock Clock { get; }
 
         /// <summary>
         /// Timeout after which computation is considered inactive.
         /// </summary>
-        public int Timeout { get; private set; }
+        public int Timeout { get; }
 
         /// <summary>
         /// How many times a message communication can be retried.
         /// </summary>
-        public int Retry { get; private set; }
+        public int Retry { get; }
 
         /// <summary>
         /// How much time to wait between messages retry.
         /// </summary>
-        public int WaitTime { get; private set; }
+        public int WaitTime { get; }
 
         /// <summary>
         /// Supported number of task failures.
         /// </summary>
-        public int NumTaskFailures { get; private set; }
+        public int NumTaskFailures { get; }
 
         /// <summary>
         /// Supported number of evaluator failures.
         /// </summary>
-        public int NumEvaluatorFailures { get; private set; }
+        public int NumEvaluatorFailures { get; }
 
         /// <summary>
         /// The rack name when spawning new evaluators.
         /// </summary>
-        public string NewEvaluatorRackName { get; private set; }
+        public string NewEvaluatorRackName { get; }
 
         /// <summary>
         /// The batch id when spawning new evaluators.
         /// </summary>
-        public string NewEvaluatorBatchId { get; private set; }
+        public string NewEvaluatorBatchId { get; }
 
         /// <summary>
         /// Number of cores for new evaluators.
         /// </summary>
-        public int NewEvaluatorNumCores { get; private set; }
+        public int NewEvaluatorNumCores { get; }
 
         /// <summary>
         /// Memory size for new evaluators.
         /// </summary>
-        public int NewEvaluatorMemorySize { get; private set; }
+        public int NewEvaluatorMemorySize { get; }
     }
 }

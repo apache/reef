@@ -35,10 +35,10 @@ namespace Org.Apache.REEF.Network.Elastic.Comm.Impl
         /// <param name="node">The node receiving the update</param>
         /// <param name="children">The update to the children of the node</param>
         /// <param name="root">The update for the root of the node</param>
-        public TopologyUpdate(string node, List<string> children, string root)
+        public TopologyUpdate(string node, IEnumerable<string> children, string root)
         {
             Node = node;
-            Children = children;
+            Children = children.ToList();
             Root = root;
         }
 
@@ -47,7 +47,7 @@ namespace Org.Apache.REEF.Network.Elastic.Comm.Impl
         /// </summary>
         /// <param name="node">The node receiving the update</param>
         /// <param name="children">The update to the children of the node</param>
-        public TopologyUpdate(string node, List<string> children) : this(node, children, string.Empty)
+        public TopologyUpdate(string node, IEnumerable<string> children) : this(node, children, string.Empty)
         {
         }
 
@@ -63,7 +63,7 @@ namespace Org.Apache.REEF.Network.Elastic.Comm.Impl
         /// <summary>
         /// The node receiving the update.
         /// </summary>
-        public string Node { get; private set; }
+        public string Node { get; }
 
         /// <summary>
         /// The updates for the children.
@@ -73,7 +73,7 @@ namespace Org.Apache.REEF.Network.Elastic.Comm.Impl
         /// <summary>
         /// The updates for the root.
         /// </summary>
-        public string Root { get; private set; }
+        public string Root { get; }
 
         /// <summary>
         /// The total memory size for the update (used for serialization).

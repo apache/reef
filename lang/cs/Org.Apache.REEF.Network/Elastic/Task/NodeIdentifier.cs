@@ -30,12 +30,12 @@ namespace Org.Apache.REEF.Network.Elastic.Task
         /// <summary>
         /// The stage name.
         /// </summary>
-        public string StageName { get; private set; }
+        public string StageName { get; }
 
         /// <summary>
         /// The operator name.
         /// </summary>
-        public int OperatorId { get; private set; }
+        public int OperatorId { get; }
 
         /// <summary>
         /// Constructor.

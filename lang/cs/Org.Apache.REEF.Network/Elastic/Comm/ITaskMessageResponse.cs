@@ -31,9 +31,8 @@ namespace Org.Apache.REEF.Network.Elastic.Comm
         /// Method triggered when a task to driver message is received. 
         /// </summary>
         /// <param name="message">The task message for the operator</param>
-        /// <param name="returnMessages">A list of messages containing the instructions for the task</param>
         /// <exception cref="IllegalStateException">If the message cannot be handled correctly or 
         /// generate an incorrect state</exception>
-        void OnTaskMessage(ITaskMessage message, ref List<IElasticDriverMessage> returnMessages);
+        IEnumerable<IElasticDriverMessage> OnTaskMessage(ITaskMessage message);
     }
 }

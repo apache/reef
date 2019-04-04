@@ -30,8 +30,7 @@ using Org.Apache.REEF.Network.Elastic.Comm.Enum;
 using Org.Apache.REEF.Network.Elastic.Failures.Default;
 using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Network.Elastic.Config;
-using System.Globalization;
-using Org.Apache.REEF.Tang.Util;
+using System.Linq;
 
 namespace Org.Apache.REEF.Network.Elastic.Operators.Logical.Default
 {
@@ -82,12 +81,14 @@ namespace Org.Apache.REEF.Network.Elastic.Operators.Logical.Default
         /// <returns>True if the operator has reacted to the task message</returns>
         protected override bool ReactOnTaskMessage(
             ITaskMessage message,
-            ref List<IElasticDriverMessage> returnMessages)
+            out IEnumerable<IElasticDriverMessage> returnMessages)
         {
             var offset = BitConverter.ToUInt16(message.Message, 0);
             offset += sizeof(ushort);
             var msgReceived = (TaskMessageType)BitConverter.ToUInt16(message.Message, offset);
             offset += sizeof(ushort);
+
+            returnMessages = new List<IElasticDriverMessage>();
 
             switch (msgReceived)
             {
@@ -122,10 +123,9 @@ namespace Org.Apache.REEF.Network.Elastic.Operators.Logical.Default
                         Log.Log(Level.Info, "Received topology update request for {0} {1} from {2}",
                             OperatorType, _id, message.TaskId);
 
-                        _topology.TopologyUpdateResponse(
+                        ((List<IElasticDriverMessage>)returnMessages).AddRange(_topology.TopologyUpdateResponse(
                             message.TaskId,
-                            ref returnMessages,
-                            Optional<IFailureStateMachine>.Of(_failureMachine));
+                            Optional<IFailureStateMachine>.Of(_failureMachine)));
 
                         if (_stop)
                         {
@@ -135,7 +135,7 @@ namespace Org.Apache.REEF.Network.Elastic.Operators.Logical.Default
                             }
                             else
                             {
-                                returnMessages.Clear();
+                                ((List<IElasticDriverMessage>)returnMessages).Clear(); // Remove all messages.
                                 Log.Log(Level.Info, "Operator {0} is in stopped: Waiting.", OperatorType);
                             }
                         }
@@ -170,7 +170,7 @@ namespace Org.Apache.REEF.Network.Elastic.Operators.Logical.Default
                 reconfigureEvent.FailureResponse.AddRange(
                     _topology.Reconfigure(
                         reconfigureEvent.FailedTask.Value.Id,
-                        Optional<string>.OfNullable(error?.AdditionalInfo),
+                        error?.AdditionalInfo,
                          reconfigureEvent.Iteration));
             }
         }

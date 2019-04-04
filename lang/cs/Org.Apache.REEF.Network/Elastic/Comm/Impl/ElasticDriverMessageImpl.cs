@@ -46,12 +46,12 @@ namespace Org.Apache.REEF.Network.Elastic.Comm.Impl
 
         /// <summary>
         /// The destination task of the message.
-        public string Destination { get; private set; }
+        public string Destination { get; }
 
         /// <summary>
         /// Operator and event specific payload of the message.
         /// </summary>
-        public DriverMessagePayload Message { get; private set; }
+        public DriverMessagePayload Message { get; }
 
         /// <summary>
         /// Utility method to serialize the message for communication over the network.

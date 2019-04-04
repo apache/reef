@@ -205,12 +205,14 @@ namespace Org.Apache.REEF.Network.Elastic.Operators.Logical
         /// <returns>True if the message was managed correctly, false otherwise</returns>
         /// <exception cref="IllegalStateException">If the message cannot be handled correctly or
         /// generate an incorrent state</exception>
-        public void OnTaskMessage(ITaskMessage message, ref List<IElasticDriverMessage> returnMessages)
+        public IEnumerable<IElasticDriverMessage> OnTaskMessage(ITaskMessage message)
         {
-            if (!ReactOnTaskMessage(message, ref returnMessages))
+            if (!ReactOnTaskMessage(message, out IEnumerable<IElasticDriverMessage> returnMessages))
             {
-                _next?.OnTaskMessage(message, ref returnMessages);
+               return returnMessages.Concat(_next?.OnTaskMessage(message));
             }
+
+            return returnMessages;
         }
 
         /// <summary>
@@ -464,8 +466,9 @@ namespace Org.Apache.REEF.Network.Elastic.Operators.Logical
         /// <param name="message">Incoming message from a task</param>
         /// <param name="returnMessages">Zero or more reply messages for the task</param>
         /// <returns>True if the operator has reacted to the task message</returns>
-        protected virtual bool ReactOnTaskMessage(ITaskMessage message, ref List<IElasticDriverMessage> returnMessages)
+        protected virtual bool ReactOnTaskMessage(ITaskMessage message, out IEnumerable<IElasticDriverMessage> returnMessages)
         {
+            returnMessages = new IElasticDriverMessage[] { };
             return false;
         }
 

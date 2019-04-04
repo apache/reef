@@ -363,10 +363,9 @@ namespace Org.Apache.REEF.Network.Elastic.Driver.Default
         /// Method triggered when a task to driver message is received.
         /// </summary>
         /// <param name="message">The task message for the operator</param>
-        /// <param name="returnMessages">A list of messages containing the instructions for the task</param>
         /// <exception cref="IllegalStateException">If the message cannot be handled correctly or generate
         /// an incorrent state</exception>
-        public void OnTaskMessage(ITaskMessage message, ref List<IElasticDriverMessage> returnMessages)
+        public IEnumerable<IElasticDriverMessage> OnTaskMessage(ITaskMessage message)
         {
             int offset = 0;
             var length = BitConverter.ToUInt16(message.Message, offset);
@@ -377,8 +376,10 @@ namespace Org.Apache.REEF.Network.Elastic.Driver.Default
             if (stageName == StageName)
             {
                 // Messages have to be propagated down to the operators
-                PipelineRoot.OnTaskMessage(message, ref returnMessages);
+                return PipelineRoot.OnTaskMessage(message);
             }
+
+            return new IElasticDriverMessage[] { };
         }
 
         #region Failure Response

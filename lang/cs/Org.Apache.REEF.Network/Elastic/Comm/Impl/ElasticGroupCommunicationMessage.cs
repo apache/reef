@@ -47,11 +47,11 @@ namespace Org.Apache.REEF.Network.Elastic.Comm.Impl
 
         /// <summary>
         /// Returns the stage.
-        public string StageName { get; private set; }
+        public string StageName { get; }
 
         /// <summary>
         /// Returns the operator id.
         /// </summary>
-        public int OperatorId { get; private set; }
+        public int OperatorId { get; }
     }
 }

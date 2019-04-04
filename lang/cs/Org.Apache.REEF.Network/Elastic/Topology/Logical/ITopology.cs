@@ -93,9 +93,8 @@ namespace Org.Apache.REEF.Network.Elastic.Topology.Logical
         /// with the driver's one.
         /// </summary>
         /// <param name="taskId">The identifier of the task asking for the update</param>
-        /// <param name="returnMessages">A list of message containing the topology update</param>
         /// <param name="failureStateMachine">An optional failure machine to log updates</param>
-        void TopologyUpdateResponse(string taskId, ref List<IElasticDriverMessage> returnMessages, Optional<IFailureStateMachine> failureStateMachine);
+        IEnumerable<IElasticDriverMessage> TopologyUpdateResponse(string taskId, Optional<IFailureStateMachine> failureStateMachine);
 
         /// <summary>
         /// Action to trigger when the operator recdeives a notification that a new iteration is started.
@@ -110,7 +109,7 @@ namespace Org.Apache.REEF.Network.Elastic.Topology.Logical
         /// <param name="info">Some additional topology-specific information</param>
         /// <param name="iteration">The optional iteration number in which the event occurred</param>
         /// <returns>One or more messages for reconfiguring the tasks</returns>
-        IList<IElasticDriverMessage> Reconfigure(string taskId, Optional<string> info, Optional<int> iteration);
+        IEnumerable<IElasticDriverMessage> Reconfigure(string taskId,string info = null, int? iteration = null);
 
         /// <summary>
         /// Log the final statistics of the operator.

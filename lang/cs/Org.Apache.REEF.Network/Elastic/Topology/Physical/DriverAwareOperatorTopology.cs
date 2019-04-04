@@ -34,7 +34,7 @@ namespace Org.Apache.REEF.Network.Elastic.Topology.Physical
         /// <param name="taskId">The identifier of the task the topology is running on</param>
         /// <param name="rootTaskId">The identifier of the root note in the topology</param>
         /// <param name="operatorId">The identifier of the operator for this topology</param>
-        public DriverAwareOperatorTopology(string stageName, string taskId, string rootTaskId, int operatorId)
+        protected DriverAwareOperatorTopology(string stageName, string taskId, string rootTaskId, int operatorId)
             : base(stageName, taskId, rootTaskId, operatorId)
         {
         }

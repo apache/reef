@@ -34,7 +34,7 @@ namespace Org.Apache.REEF.Network.Elastic.Comm.Impl
         /// <param name="stageName">The stage context for the message</param>
         /// <param name="operatorId">The id of the operator receiving the topology update</param>
         /// <param name="iteration">The iteration in which the update takes effect</param>
-        public UpdateMessagePayload(List<TopologyUpdate> updates, string stageName, int operatorId, int iteration)
+        public UpdateMessagePayload(IEnumerable<TopologyUpdate> updates, string stageName, int operatorId, int iteration)
             : base(DriverMessagePayloadType.Update, updates, stageName, operatorId, iteration)
         {
         }

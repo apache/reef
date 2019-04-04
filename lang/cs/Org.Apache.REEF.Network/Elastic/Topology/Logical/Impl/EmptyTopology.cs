@@ -19,7 +19,6 @@ using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Tang.Exceptions;
 using System.Collections.Generic;
 using Org.Apache.REEF.Network.Elastic.Comm;
-using System;
 using Org.Apache.REEF.Network.Elastic.Failures;
 using Org.Apache.REEF.Utilities;
 using Org.Apache.REEF.Utilities.Attributes;
@@ -32,23 +31,14 @@ namespace Org.Apache.REEF.Network.Elastic.Topology.Logical.Impl
     /// Used as a placeholder when no topology is required.
     /// </summary>
     [Unstable("0.16", "API may change")]
-    class EmptyTopology : ITopology
+    internal class EmptyTopology : ITopology
     {
-        private bool _finalized;
-
-        /// <summary>
-        /// Constructor for the empty topology.
-        /// </summary>
-        public EmptyTopology()
-        {
-            _finalized = false;
-            OperatorId = -1;
-        }
+        private bool _finalized = false;
 
         /// <summary>
         /// The identifier of the operator using the topology.
         /// </summary>
-        public int OperatorId { get; set; }
+        public int OperatorId { get; set; } = -1;
 
         /// <summary>
         /// The stage of the operator using the topology.
@@ -93,7 +83,7 @@ namespace Org.Apache.REEF.Network.Elastic.Topology.Logical.Impl
         /// <returns>The same finalized topology</returns>
         public ITopology Build()
         {
-            if (_finalized == true)
+            if (_finalized)
             {
                 throw new IllegalStateException("Topology cannot be built more than once");
             }
@@ -103,7 +93,7 @@ namespace Org.Apache.REEF.Network.Elastic.Topology.Logical.Impl
                 throw new IllegalStateException("Topology cannot be built because not linked to any operator");
             }
 
-            if (StageName == string.Empty)
+            if (StageName == null)
             {
                 throw new IllegalStateException("Topology cannot be built because not linked to any stage");
             }
@@ -138,10 +128,10 @@ namespace Org.Apache.REEF.Network.Elastic.Topology.Logical.Impl
         /// This method is triggered when a node detects a change in the topology and asks the driver for an update.
         /// </summary>
         /// <param name="taskId">The identifier of the task asking for the update</param>
-        /// <param name="returnMessages">A list of message containing the topology update</param>
         /// <param name="failureStateMachine">An optional failure machine to log updates</param>
-        public void TopologyUpdateResponse(string taskId, ref List<IElasticDriverMessage> returnMessages, Optional<IFailureStateMachine> failureStateMachine)
+        public IEnumerable<IElasticDriverMessage> TopologyUpdateResponse(string taskId, Optional<IFailureStateMachine> failureStateMachine)
         {
+            return new IElasticDriverMessage[] { };
         }
 
         /// <summary>
@@ -160,9 +150,9 @@ namespace Org.Apache.REEF.Network.Elastic.Topology.Logical.Impl
         /// <param name="info">Some additional topology-specific information</param>
         /// <param name="iteration">The optional iteration number in which the event occurred</param>
         /// <returns>An empty list of messages</returns>
-        public IList<IElasticDriverMessage> Reconfigure(string taskId, Optional<string> info, Optional<int> iteration)
+        public IEnumerable<IElasticDriverMessage> Reconfigure(string taskId, string info = null, int? iteration = null)
         {
-            return new List<IElasticDriverMessage>();
+            return new IElasticDriverMessage[] { };
         }
 
         /// <summary>

@@ -58,12 +58,12 @@ namespace Org.Apache.REEF.Network.Elastic.Topology.Physical.Default
         /// <param name="disposeTimeout">Maximum wait time for topology disposal</param>
         /// <param name="commLayer">Layer responsible for communication</param>
         /// <param name="checkpointLayer">Layer responsible for saving and retrieving checkpoints</param>
-        public OneToNTopology(
+        protected OneToNTopology(
             string stageName,
             string taskId,
             string rootTaskId,
             int operatorId,
-            ISet<int> children,
+            IEnumerable<int> children,
             bool piggyback,
             int retry,
             int timeout,

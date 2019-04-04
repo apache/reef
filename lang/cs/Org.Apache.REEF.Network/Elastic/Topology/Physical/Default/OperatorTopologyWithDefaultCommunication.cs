@@ -19,11 +19,11 @@ using Org.Apache.REEF.Network.Elastic.Task.Impl;
 using System;
 using System.Collections.Concurrent;
 using System.Threading;
-using System.Linq;
 using Org.Apache.REEF.Network.NetworkService;
 using Org.Apache.REEF.Tang.Exceptions;
 using Org.Apache.REEF.Network.Elastic.Comm.Impl;
 using Org.Apache.REEF.Utilities.Attributes;
+using System.Collections.Generic;
 
 namespace Org.Apache.REEF.Network.Elastic.Topology.Physical.Default
 {
@@ -46,8 +46,10 @@ namespace Org.Apache.REEF.Network.Elastic.Topology.Physical.Default
 
         protected readonly ConcurrentQueue<ElasticGroupCommunicationMessage> _sendQueue = 
             new ConcurrentQueue<ElasticGroupCommunicationMessage>();
+
         protected readonly BlockingCollection<ElasticGroupCommunicationMessage> _messageQueue = 
             new BlockingCollection<ElasticGroupCommunicationMessage>();
+
         protected readonly ConcurrentDictionary<int, string> _children = new ConcurrentDictionary<int, string>();
         protected readonly CancellationTokenSource _cancellationSignal = new CancellationTokenSource();
 
@@ -62,7 +64,7 @@ namespace Org.Apache.REEF.Network.Elastic.Topology.Physical.Default
         /// <param name="timeout">After how long the topology waits for an event</param>
         /// <param name="disposeTimeout">Maximum wait time for topology disposal</param>
         /// <param name="commLayer">Class responsible for communication</param>
-        public OperatorTopologyWithDefaultCommunication(
+        protected OperatorTopologyWithDefaultCommunication(
             string stageName,
             string taskId,
             string rootTaskId,

@@ -676,7 +676,7 @@ namespace Org.Apache.REEF.Network.Elastic.Driver.Default
                 {
                     foreach (var stage in _stages.Values)
                     {
-                        stage.OnTaskMessage(message, ref returnMessages);
+                        returnMessages.AddRange(stage.OnTaskMessage(message));
                     }
                 }
                 catch (IllegalStateException e)

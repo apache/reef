@@ -47,7 +47,7 @@ namespace Org.Apache.REEF.Network.Elastic.Failures.Default
         /// <summary>
         /// The identifier of the task triggering the event.
         /// </summary>
-        public string TaskId { get; private set; }
+        public string TaskId { get; }
 
         /// <summary>
         /// The opeartor id in which the failure is rised.

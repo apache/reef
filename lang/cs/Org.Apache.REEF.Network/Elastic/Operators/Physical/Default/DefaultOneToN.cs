@@ -59,7 +59,7 @@ namespace Org.Apache.REEF.Network.Elastic.Operators.Physical.Default
         /// <summary>
         /// The operator identifier.
         /// </summary>
-        public int OperatorId { get; private set; }
+        public int OperatorId { get; }
 
         /// <summary>
         /// The operator type.

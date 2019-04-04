@@ -57,7 +57,7 @@ namespace Org.Apache.REEF.Network.Elastic.Failures.Default
         /// <summary>
         /// The iteration in which the failure is rised.
         /// </summary>
-        public Optional<int> Iteration { get; set; } = Optional<int>.Empty();
+        public int? Iteration { get; set; } = null;
 
         /// <summary>
         /// The identifier of the task triggering the event.
