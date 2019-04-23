@@ -77,6 +77,7 @@ under the License.
         <!-- do not move beyond this version since it adds an incompatible guava dependency -->
         <xolstice.version>0.5.0</xolstice.version>
         <commons-codec.version>1.9</commons-codec.version>
+        <asm.version>5.0.3</asm.version>
         <rootPath>${user.dir}</rootPath>
     </properties>
 
@@ -795,7 +796,14 @@ under the License.
                 <artifactId>azure-batch</artifactId>
                 <version>3.0.0</version>
             </dependency>
-        </dependencies>
+                 
+            <!-- asm -->
+            <dependency>
+                <groupId>org.ow2.asm</groupId>
+                <artifactId>asm</artifactId>
+                <version>${asm.version}</version>
+                </dependency>       
+            </dependencies>
     </dependencyManagement>
 
     <modules>

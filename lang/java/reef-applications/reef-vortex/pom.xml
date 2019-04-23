@@ -60,6 +60,10 @@ under the License.
             <artifactId>kryo-serializers</artifactId>
             <version>${kryo-serializers.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.ow2.asm</groupId>
+            <artifactId>asm</artifactId>
+        </dependency>
     </dependencies>
 
     <build>
