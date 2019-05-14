@@ -80,7 +80,7 @@ namespace Org.Apache.REEF.Network.Group.Task.Impl
         public void OnNext(IRemoteMessage<NsMessage<GeneralGroupCommunicationMessage>> remoteMessage)
         {
             var nsMessage = remoteMessage.Message;
-            var gcm = nsMessage.Data.First();
+            var gcm = nsMessage.Data;
             var gcMessageTaskSource = gcm.Source;
             TaskMessageObserver observer;
             if (!_taskMessageObservers.TryGetValue(gcMessageTaskSource, out observer))

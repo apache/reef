@@ -172,7 +172,7 @@ namespace Org.Apache.REEF.Network.Tests.NetworkService
 
             public void OnNext(NsMessage<string> value)
             {
-                _queue.Add(value.Data.First());
+                _queue.Add(value.Data);
             }
 
             public void OnError(Exception error)

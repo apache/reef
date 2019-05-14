@@ -50,6 +50,14 @@ namespace Org.Apache.REEF.Utilities
         }
 
         /// <summary>
+        /// Converts from a UTF-8 encoded byte array to a string.
+        /// </summary>
+        public static string ByteArraysToString(byte[] b, int start, int length)
+        {
+            return Encoding.UTF8.GetString(b, start, length);
+        }
+
+        /// <summary>
         /// Performs a deep copy of a byte array.
         /// </summary>
         public static byte[] CopyBytesFrom(byte[] from)

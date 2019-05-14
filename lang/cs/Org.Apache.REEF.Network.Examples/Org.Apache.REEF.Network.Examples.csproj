@@ -24,6 +24,7 @@ under the License.
   </PropertyGroup>
   <Import Project="..\build.Library.props" />
   <ItemGroup>
+    <ProjectReference Include="..\Org.Apache.REEF.Client\Org.Apache.REEF.Client.csproj" />
     <ProjectReference Include="..\Org.Apache.REEF.Common\Org.Apache.REEF.Common.csproj" />
     <ProjectReference Include="..\Org.Apache.REEF.Driver\Org.Apache.REEF.Driver.csproj" />
     <ProjectReference Include="..\Org.Apache.REEF.Network\Org.Apache.REEF.Network.csproj" />
@@ -31,6 +32,6 @@ under the License.
     <ProjectReference Include="..\Org.Apache.REEF.Utilities\Org.Apache.REEF.Utilities.csproj" />
     <ProjectReference Include="..\Org.Apache.REEF.Wake\Org.Apache.REEF.Wake.csproj" />
   </ItemGroup>
-  <Import Project="..\build.targets"/>
+  <Import Project="..\build.targets" />
 </Project>
 

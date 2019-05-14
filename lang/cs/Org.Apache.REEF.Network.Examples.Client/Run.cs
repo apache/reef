@@ -15,22 +15,35 @@
 // specific language governing permissions and limitations
 // under the License.
 
-using System;
+using Org.Apache.REEF.Network.Examples.Elastic;
 using Org.Apache.REEF.Network.Examples.GroupCommunication;
+using System;
 
 namespace Org.Apache.REEF.Network.Examples.Client
 {
+    internal enum TestType
+    {
+        PipelineBroadcastAndReduce,
+        BroadcastAndReduce,
+        ElasticBroadcast,
+        ElasticBroadcastWithFailureInConstructor,
+        ElasticBroadcastWithFailureBeforeWorkflow,
+        ElasticBroadcastWithFailEvaluatorBeforeWorkflow,
+        ElasticBroadcastWithFailureBeforeBroadcast,
+        ElasticBroadcastWithFailureAfterBroadcast,
+        ElasticBroadcastWithMultipleFailures
+    }
+
     public class Run
     {
         public static void Main(string[] args)
         {
             Console.WriteLine("start running client: " + DateTime.Now);
             bool runOnYarn = false;
-            int numNodes = 9;
+            int numNodes = 5;
             int startPort = 8900;
             int portRange = 1000;
-            string testToRun = "RunBroadcastAndReduce";
-            testToRun = testToRun.ToLower();
+            string testToRun = TestType.ElasticBroadcastWithFailEvaluatorBeforeWorkflow.ToString();
 
             if (args != null)
             {
@@ -56,11 +69,11 @@ namespace Org.Apache.REEF.Network.Examples.Client
 
                 if (args.Length > 4)
                 {
-                    testToRun = args[4].ToLower();
+                    testToRun = args[4];
                 }
             }
 
-            if (testToRun.Equals("RunPipelineBroadcastAndReduce".ToLower()) || testToRun.Equals("all"))
+            if (TestType.PipelineBroadcastAndReduce.Match(testToRun))
             {
                 int arraySize = GroupTestConstants.ArrayLength;
                 int chunkSize = GroupTestConstants.ChunkSize;
@@ -71,16 +84,111 @@ namespace Org.Apache.REEF.Network.Examples.Client
                     chunkSize = int.Parse(args[6]);
                 }
 
-                new PipelineBroadcastAndReduceClient().RunPipelineBroadcastAndReduce(runOnYarn, numNodes, startPort,
-                    portRange, arraySize, chunkSize);
-                Console.WriteLine("RunPipelineBroadcastAndReduce completed!!!");
+                new PipelineBroadcastAndReduceClient().RunPipelineBroadcastAndReduce(
+                    runOnYarn,
+                    numNodes,
+                    startPort,
+                    portRange,
+                    arraySize,
+                    chunkSize);
+                Console.WriteLine("PipelineBroadcastAndReduce completed!!!");
             }
 
-            if (testToRun.Equals("RunBroadcastAndReduce".ToLower()) || testToRun.Equals("all"))
+            if (TestType.BroadcastAndReduce.Match(testToRun))
             {
-                new BroadcastAndReduceClient().RunBroadcastAndReduce(runOnYarn, numNodes, startPort, portRange);
-                Console.WriteLine("RunBroadcastAndReduce completed!!!");
-            }           
+                new BroadcastAndReduceClient().RunBroadcastAndReduce(
+                    runOnYarn,
+                    numNodes,
+                    startPort,
+                    portRange);
+                Console.WriteLine("BroadcastAndReduce completed!!!");
+            }
+
+            if (TestType.ElasticBroadcast.Match(testToRun))
+            {
+                new ElasticBroadcastClient<ElasticBroadcastDriver>(
+                    runOnYarn,
+                    numNodes,
+                    startPort,
+                    portRange,
+                    JobIdentifiers.ElastiBroadcast);
+                Console.WriteLine("ElasticBroadcast completed!!!");
+            }
+
+            if (TestType.ElasticBroadcastWithFailureInConstructor.Match(testToRun))
+            {
+                new ElasticBroadcastClient<ElasticBroadcastDriverWithFailures<BroadcastSlaveTaskDieInConstructor>>(
+                    runOnYarn,
+                    numNodes,
+                    startPort,
+                    portRange,
+                    JobIdentifiers.ElastiBroadcastWithFailure);
+                Console.WriteLine("ElasticBroadcastWithFailureInConstructor completed!!!");
+            }
+
+            if (TestType.ElasticBroadcastWithFailureBeforeWorkflow.Match(testToRun))
+            {
+                new ElasticBroadcastClient<ElasticBroadcastDriverWithFailures<BroadcastSlaveTaskDieBeforeWorkflow>>(
+                    runOnYarn,
+                    numNodes,
+                    startPort,
+                    portRange,
+                    JobIdentifiers.ElastiBroadcastWithFailure);
+                Console.WriteLine("ElasticBroadcastWithFailureBeforeWorkflow completed!!!");
+            }
+
+            if (TestType.ElasticBroadcastWithFailEvaluatorBeforeWorkflow.Match(testToRun))
+            {
+                new ElasticBroadcastClient<ElasticBroadcastDriverWithFailures<BroadcastSlaveTaskDieEvaluatorBeforeWorkflow>>(
+                    runOnYarn,
+                    numNodes,
+                    startPort,
+                    portRange,
+                    JobIdentifiers.ElastiBroadcastWithFailure);
+                Console.WriteLine("ElasticBroadcastWithFailEvaluatorBeforeWorkflow completed!!!");
+            }
+
+            if (TestType.ElasticBroadcastWithFailureBeforeBroadcast.Match(testToRun))
+            {
+                new ElasticBroadcastClient<ElasticBroadcastDriverWithFailures<BroadcastSlaveTaskDieBeforeWorkflow>>(
+                    runOnYarn,
+                    numNodes,
+                    startPort,
+                    portRange,
+                    JobIdentifiers.ElastiBroadcastWithFailure);
+                Console.WriteLine("ElasticBroadcastWithFailureBeforeBroadcast completed!!!");
+            }
+
+            if (TestType.ElasticBroadcastWithFailureAfterBroadcast.Match(testToRun))
+            {
+                new ElasticBroadcastClient<ElasticBroadcastDriverWithFailures<BroadcastSlaveTaskDieAfterBroadcast>>(
+                    runOnYarn,
+                    numNodes,
+                    startPort,
+                    portRange,
+                    JobIdentifiers.ElastiBroadcastWithFailure);
+                Console.WriteLine("ElasticBroadcastWithFailureAfterBroadcast completed!!!");
+            }
+
+            if (TestType.ElasticBroadcastWithMultipleFailures.Match(testToRun))
+            {
+                new ElasticBroadcastClient<ElasticBroadcastDriverWithFailures<BroadcastSlaveTaskDieMultiple>>(
+                    runOnYarn,
+                    numNodes,
+                    startPort,
+                    portRange,
+                    JobIdentifiers.ElastiBroadcastWithFailure);
+                Console.WriteLine("ElasticBroadcastWithMultipleFailures completed!!!");
+            }
+        }
+    }
+
+    internal static class TestTypeMatcher
+    {
+        public static bool Match(this TestType test, string name)
+        {
+            name = name.ToLower();
+            return name.Equals("all") || test.ToString().ToLower().Equals(name);
         }
     }
 }

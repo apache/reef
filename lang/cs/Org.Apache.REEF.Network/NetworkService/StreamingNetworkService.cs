@@ -56,12 +56,11 @@ namespace Org.Apache.REEF.Network.NetworkService
         /// <param name="localAddressProvider">The local address provider</param>
         [Inject]
         private StreamingNetworkService(
-            IObserver<NsMessage<T>> universalObserver,
             INameClient nameClient,
             StreamingRemoteManagerFactory remoteManagerFactory,
             NsMessageStreamingCodec<T> codec,
             ILocalAddressProvider localAddressProvider)
-            : this(universalObserver, null, nameClient, remoteManagerFactory, codec, localAddressProvider)
+            : this(null, null, nameClient, remoteManagerFactory, codec, localAddressProvider)
         {
         }
 
@@ -159,6 +158,20 @@ namespace Org.Apache.REEF.Network.NetworkService
 
                 _connectionMap[destinationId] = connection;
                 return connection;
+            }
+        }
+
+        /// <summary>
+        /// Remove the connection to the destination node from the connection map.
+        /// </summary>
+        /// <param name="destinationId">The id of the node to disconnect</param>
+        public void RemoveConnection(IIdentifier destinationId)
+        {
+            IConnection<T> connection;
+            if (_connectionMap.TryGetValue(destinationId, out connection))
+            {
+                connection.Dispose();
+                _connectionMap.Remove(destinationId);
             }
         }
 

@@ -15,7 +15,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-using System.Collections.Generic;
 using Org.Apache.REEF.Wake;
 
 namespace Org.Apache.REEF.Network.NetworkService
@@ -27,18 +26,6 @@ namespace Org.Apache.REEF.Network.NetworkService
     public class NsMessage<T>
     {
         /// <summary>
-        /// Create a new NsMessage with no data.
-        /// </summary>
-        /// <param name="sourceId">The identifier of the sender</param>
-        /// <param name="destId">The identifier of the receiver</param>
-        public NsMessage(IIdentifier sourceId, IIdentifier destId)
-        {
-            SourceId = sourceId;
-            DestId = destId;
-            Data = new List<T>();
-        }
-
-        /// <summary>
         /// Create a new NsMessage with data.
         /// </summary>
         /// <param name="sourceId">The identifier of the sender</param>
@@ -48,7 +35,7 @@ namespace Org.Apache.REEF.Network.NetworkService
         {
             SourceId = sourceId;
             DestId = destId;
-            Data = new List<T> { message };
+            Data =  message;
         }
 
         /// <summary>
@@ -64,6 +51,6 @@ namespace Org.Apache.REEF.Network.NetworkService
         /// <summary>
         /// A list of data being sent in the message.
         /// </summary>
-        public List<T> Data { get; private set; } 
+        public T Data { get; private set; } 
     }
 }

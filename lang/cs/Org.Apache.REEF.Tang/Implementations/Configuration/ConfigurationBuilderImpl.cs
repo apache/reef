@@ -44,7 +44,7 @@ namespace Org.Apache.REEF.Tang.Implementations.Configuration
         public const string DuplicatedEntryForNamedParamater = "Duplicated entries: ";
         private static readonly Logger LOGGER = Logger.GetLogger(typeof(ConfigurationBuilderImpl));
 
-        protected ConfigurationBuilderImpl() 
+        protected ConfigurationBuilderImpl()
         {
             this.ClassHierarchy = TangFactory.GetTang().GetDefaultClassHierarchy();
         }
@@ -57,28 +57,28 @@ namespace Org.Apache.REEF.Tang.Implementations.Configuration
         protected ConfigurationBuilderImpl(string[] assemblies, IConfiguration[] confs, Type[] parsers)
         {
             this.ClassHierarchy = TangFactory.GetTang().GetDefaultClassHierarchy(assemblies, parsers);
-            foreach (IConfiguration tc in confs) 
+            foreach (IConfiguration tc in confs)
             {
                 if (tc == null)
                 {
                     throw new ArgumentNullException("One of specified configurations is null");
-                } 
-                
+                }
+
                 AddConfiguration((ConfigurationImpl)tc);
             }
         }
 
-        public ConfigurationBuilderImpl(ConfigurationBuilderImpl t) 
+        public ConfigurationBuilderImpl(ConfigurationBuilderImpl t)
         {
             this.ClassHierarchy = t.GetClassHierarchy();
-            try 
+            try
             {
                 AddConfiguration(t.GetClassHierarchy(), t);
-            } 
-            catch (BindException e) 
+            }
+            catch (BindException e)
             {
                 Org.Apache.REEF.Utilities.Diagnostics.Exceptions.Caught(e, Level.Error, LOGGER);
-                Org.Apache.REEF.Utilities.Diagnostics.Exceptions.Throw(new IllegalStateException("Could not copy builder", e), LOGGER); 
+                Org.Apache.REEF.Utilities.Diagnostics.Exceptions.Throw(new IllegalStateException("Could not copy builder", e), LOGGER);
             }
         }
 
@@ -98,20 +98,20 @@ namespace Org.Apache.REEF.Tang.Implementations.Configuration
         private void AddConfiguration(IClassHierarchy ns, ConfigurationBuilderImpl builder)
         {
             this.ClassHierarchy = this.ClassHierarchy.Merge(ns);
-            
-            if (ClassHierarchy is ClassHierarchyImpl || builder.ClassHierarchy is ClassHierarchyImpl) 
+
+            if (ClassHierarchy is ClassHierarchyImpl || builder.ClassHierarchy is ClassHierarchyImpl)
             {
                 if (ClassHierarchy is ClassHierarchyImpl && builder.ClassHierarchy is ClassHierarchyImpl)
                 {
                     ((ClassHierarchyImpl)ClassHierarchy).Parameterparser.MergeIn(((ClassHierarchyImpl)builder.ClassHierarchy).Parameterparser);
-                } 
-                else 
+                }
+                else
                 {
                     Org.Apache.REEF.Utilities.Diagnostics.Exceptions.Throw(new ArgumentException("Attempt to merge Java and non-Java class hierarchy!  Not supported."), LOGGER);
                 }
             }
 
-            foreach (IClassNode cn in builder.BoundImpls.Keys) 
+            foreach (IClassNode cn in builder.BoundImpls.Keys)
             {
                 IClassNode n = null;
                 builder.BoundImpls.TryGetValue(cn, out n);
@@ -121,7 +121,7 @@ namespace Org.Apache.REEF.Tang.Implementations.Configuration
                 }
             }
 
-            foreach (IClassNode cn in builder.BoundConstructors.Keys) 
+            foreach (IClassNode cn in builder.BoundConstructors.Keys)
             {
                 IClassNode n = null;
                 builder.BoundConstructors.TryGetValue(cn, out n);
@@ -134,32 +134,32 @@ namespace Org.Apache.REEF.Tang.Implementations.Configuration
             // The namedParameters set contains the strings that can be used to
             // instantiate new
             // named parameter instances. Create new ones where we can.
-            foreach (INamedParameterNode np in builder.NamedParameters.Keys) 
+            foreach (INamedParameterNode np in builder.NamedParameters.Keys)
             {
                 string v = null;
                 builder.NamedParameters.TryGetValue(np, out v);
                 Bind(np.GetFullName(), v);
             }
-    
-            foreach (IClassNode cn in builder.LegacyConstructors.Keys) 
+
+            foreach (IClassNode cn in builder.LegacyConstructors.Keys)
             {
                 IConstructorDef cd = null;
                 builder.LegacyConstructors.TryGetValue(cn, out cd);
-                RegisterLegacyConstructor(cn, cd.GetArgs());  
+                RegisterLegacyConstructor(cn, cd.GetArgs());
             }
 
-            foreach (KeyValuePair<INamedParameterNode, object> e in builder.BoundSetEntries) 
+            foreach (KeyValuePair<INamedParameterNode, object> e in builder.BoundSetEntries)
             {
                 string name = ((INamedParameterNode)e.Key).GetFullName();
-                if (e.Value is INode) 
+                if (e.Value is INode)
                 {
                     BindSetEntry(name, (INode)e.Value);
-                } 
-                else if (e.Value is string) 
+                }
+                else if (e.Value is string)
                 {
                     BindSetEntry(name, (string)e.Value);
-                } 
-                else 
+                }
+                else
                 {
                     var ex = new IllegalStateException(string.Format(CultureInfo.CurrentCulture, "The value {0} set to the named parameter {1} is illegel.", e.Value, name));
                     Org.Apache.REEF.Utilities.Diagnostics.Exceptions.Throw(ex, LOGGER);
@@ -266,16 +266,20 @@ namespace Org.Apache.REEF.Tang.Implementations.Configuration
         public void BindParameter(INamedParameterNode name, string value)
         {
             /* Parse and discard value; this is just for type checking, skip for now*/
-            if (this.ClassHierarchy is ICsClassHierarchy) 
+            if (this.ClassHierarchy is ICsClassHierarchy)
             {
                 ((ICsClassHierarchy)ClassHierarchy).Parse(name, value);
             }
 
-            if (name.IsSet()) 
+            if (name.IsSet())
             {
                 BindSetEntry((INamedParameterNode)name, value);
-            } 
-            else 
+            }
+            else if (name.IsList())
+            {
+                BindList((INamedParameterNode)name, value);
+            }
+            else
             {
                 try
                 {
@@ -287,6 +291,17 @@ namespace Org.Apache.REEF.Tang.Implementations.Configuration
                     Utilities.Diagnostics.Exceptions.Throw(new ArgumentException(msg + e.Message), LOGGER);
                 }
             }
+        }
+
+        public void BindList(INamedParameterNode iface, string impl)
+        {
+            IList<object> l;
+            if (!BoundLists.TryGetValue(iface, out l))
+            {
+                l = new List<object>();
+                BoundLists.Add(iface, l);
+            }
+            l.Add((object)impl);
         }
 
         public void BindImplementation(IClassNode n, IClassNode m)
@@ -337,6 +352,11 @@ namespace Org.Apache.REEF.Tang.Implementations.Configuration
             IList<object> l = new List<object>();
             foreach (var n in impl)
             {
+                if (string.IsNullOrEmpty(n))
+                {
+                    throw new ArgumentException("List cannot contain string that are null or empty");
+                }
+
                 l.Add((object)n);
             }
             BoundLists.Add(iface, l);
@@ -344,7 +364,7 @@ namespace Org.Apache.REEF.Tang.Implementations.Configuration
 
         public void BindList(string iface, IList<INode> impl)
         {
-            BindList((INamedParameterNode)ClassHierarchy.GetNode(iface), impl);            
+            BindList((INamedParameterNode)ClassHierarchy.GetNode(iface), impl);
         }
 
         public void BindList(string iface, IList<string> impl)
