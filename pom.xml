@@ -766,7 +766,7 @@ under the License.
             <dependency>
                 <groupId>org.apache.httpcomponents</groupId>
                 <artifactId>httpclient</artifactId>
-                <version>4.3.4</version>
+                <version>4.3.6</version>
             </dependency>
             <!-- End of Apache HTTP components -->
 
