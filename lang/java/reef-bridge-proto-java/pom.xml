@@ -39,7 +39,6 @@ under the License.
         <protobuf.output.directory>${project.build.directory}/generated-sources</protobuf.output.directory>
         <!-- override parent versions -->
         <protobuf.version>3.5.1</protobuf.version>
-        <netty.version>4.1.25.Final</netty.version>
     </properties>
 
     <dependencies>
@@ -92,9 +91,13 @@ under the License.
             <version>${protobuf.version}</version>
         </dependency>
         <dependency>
+            <groupId>com.google.protobuf</groupId>
+            <artifactId>protobuf-java-util</artifactId>
+            <version>${protobuf.version}</version>
+        </dependency>
+        <dependency>
             <groupId>io.netty</groupId>
             <artifactId>netty-all</artifactId>
-            <version>${netty.version}</version>
         </dependency>
         <dependency>
             <groupId>io.grpc</groupId>
@@ -253,12 +256,6 @@ under the License.
                         </goals>
                         <configuration>
                             <createDependencyReducedPom>false</createDependencyReducedPom>
-                            <relocations>
-                                <relocation>
-                                    <pattern>io.netty</pattern>
-                                    <shadedPattern>${project.groupId}.${project.artifactId}.shaded.netty</shadedPattern>
-                                </relocation>
-                            </relocations>
                         </configuration>
                     </execution>
                 </executions>

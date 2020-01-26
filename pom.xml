@@ -50,12 +50,14 @@ under the License.
         <reef.log.dir>${project.build.directory}/log</reef.log.dir>
         <bundle.snappy>false</bundle.snappy>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <hadoop.version>2.9.1</hadoop.version>
-        <spark.version>2.1.0</spark.version>
-        <avro.version>1.8.1</avro.version>
+        <hadoop.version>3.2.1</hadoop.version>
+        <spark.version>2.4.4</spark.version>
+        <avro.version>1.8.2</avro.version>
         <parquet.version>1.9.0</parquet.version>
         <jetty.version>6.1.26</jetty.version>
-        <jackson.version>1.9.13</jackson.version>
+        <netty.version>4.1.42.Final</netty.version>
+        <httpclient.version>4.5.6</httpclient.version>
+        <jackson.version>2.10.2</jackson.version>
         <protobuf.version>2.5.0</protobuf.version>
         <maven-checkstyle-plugin.version>2.17</maven-checkstyle-plugin.version>
         <sevntu.checkstyle.plugin.version>1.20.0</sevntu.checkstyle.plugin.version>
@@ -67,12 +69,12 @@ under the License.
         <kryo-serializers.version>0.37</kryo-serializers.version>
         <fast-classpath-scanner.version>2.4.5</fast-classpath-scanner.version>
         <maven.assembly>3.1.0</maven.assembly>
-        <grpc.version>1.12.0</grpc.version><!-- CURRENT_GRPC_VERSION -->
+        <grpc.version>1.26.0</grpc.version><!-- CURRENT_GRPC_VERSION -->
         <guava.version>20.0</guava.version>
         <build-helper-maven-plugin.version>1.9.1</build-helper-maven-plugin.version>
         <maven-antrun-plugin.version>1.8</maven-antrun-plugin.version>
-        <maven-dependency-plugin.version>2.10</maven-dependency-plugin.version>
-        <maven-shade-plugin.version>2.4.2</maven-shade-plugin.version>
+        <maven-dependency-plugin.version>3.1.1</maven-dependency-plugin.version>
+        <maven-shade-plugin.version>3.2.1</maven-shade-plugin.version>
         <os-maven-plugin.version>1.4.1.Final</os-maven-plugin.version>
         <!-- do not move beyond this version since it adds an incompatible guava dependency -->
         <xolstice.version>0.5.0</xolstice.version>
@@ -733,7 +735,7 @@ under the License.
             <dependency>
                 <groupId>io.netty</groupId>
                 <artifactId>netty-all</artifactId>
-                <version>4.0.23.Final</version>
+                <version>${netty.version}</version>
             </dependency>
 
             <dependency>
@@ -766,20 +768,20 @@ under the License.
             <dependency>
                 <groupId>org.apache.httpcomponents</groupId>
                 <artifactId>httpclient</artifactId>
-                <version>4.3.4</version>
+                <version>${httpclient.version}</version>
             </dependency>
             <!-- End of Apache HTTP components -->
 
 
             <!-- Jackson -->
             <dependency>
-                <groupId>org.codehaus.jackson</groupId>
-                <artifactId>jackson-mapper-asl</artifactId>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-databind</artifactId>
                 <version>${jackson.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.codehaus.jackson</groupId>
-                <artifactId>jackson-core-asl</artifactId>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-core</artifactId>
                 <version>${jackson.version}</version>
             </dependency>
             <!-- End of Jackson -->
