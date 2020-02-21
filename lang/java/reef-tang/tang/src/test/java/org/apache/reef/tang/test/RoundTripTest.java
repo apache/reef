@@ -31,9 +31,9 @@ import org.junit.Test;
  */
 public abstract class RoundTripTest {
 
-  public abstract Configuration roundTrip(final Configuration configuration) throws Exception;
+  public abstract Configuration roundTrip(Configuration configuration) throws Exception;
 
-  public abstract Configuration roundTrip(final Configuration configuration, final ClassHierarchy classHierarchy)
+  public abstract Configuration roundTrip(Configuration configuration, ClassHierarchy classHierarchy)
       throws Exception;
 
   @Test

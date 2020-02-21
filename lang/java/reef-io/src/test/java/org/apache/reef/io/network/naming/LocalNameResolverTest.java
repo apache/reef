@@ -48,7 +48,7 @@ public class LocalNameResolverTest {
   public final void testClose() throws Exception {
     final String localAddress = localAddressProvider.getLocalAddress();
     final IdentifierFactory factory = new StringIdentifierFactory();
-    try (final NameResolver resolver = Tang.Factory.getTang().newInjector(LocalNameResolverConfiguration.CONF
+    try (NameResolver resolver = Tang.Factory.getTang().newInjector(LocalNameResolverConfiguration.CONF
         .set(LocalNameResolverConfiguration.CACHE_TIMEOUT, 10000)
         .build()).getInstance(NameResolver.class)) {
       final Identifier id = factory.getNewInstance("Task1");
@@ -69,7 +69,7 @@ public class LocalNameResolverTest {
   public final void testLookup() throws Exception {
     final IdentifierFactory factory = new StringIdentifierFactory();
     final String localAddress = localAddressProvider.getLocalAddress();
-    try (final NameResolver resolver = Tang.Factory.getTang().newInjector(LocalNameResolverConfiguration.CONF
+    try (NameResolver resolver = Tang.Factory.getTang().newInjector(LocalNameResolverConfiguration.CONF
         .set(LocalNameResolverConfiguration.CACHE_TIMEOUT, 150)
         .build()).getInstance(NameResolver.class)) {
       final Identifier id = factory.getNewInstance("Task1");

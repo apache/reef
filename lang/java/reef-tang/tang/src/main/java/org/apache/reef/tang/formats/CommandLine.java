@@ -220,6 +220,6 @@ public final class CommandLine {
   }
 
   public interface CommandLineCallback {
-    void process(final Option option);
+    void process(Option option);
   }
 }

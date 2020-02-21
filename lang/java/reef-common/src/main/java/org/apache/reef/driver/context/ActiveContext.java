@@ -52,13 +52,13 @@ public interface ActiveContext extends Identifiable, AutoCloseable, ContextBase,
   void close();
 
   @Override
-  void submitTask(final Configuration taskConf);
+  void submitTask(Configuration taskConf);
 
   @Override
-  void submitContext(final Configuration contextConfiguration);
+  void submitContext(Configuration contextConfiguration);
 
   @Override
-  void submitContextAndService(final Configuration contextConfiguration, final Configuration serviceConfiguration);
+  void submitContextAndService(Configuration contextConfiguration, Configuration serviceConfiguration);
 
   /**
    * Send the active context the message, which will be delivered to all registered
@@ -66,6 +66,6 @@ public interface ActiveContext extends Identifiable, AutoCloseable, ContextBase,
    *
    * @param message The message to be sent.
    */
-  void sendMessage(final byte[] message);
+  void sendMessage(byte[] message);
 
 }

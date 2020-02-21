@@ -35,8 +35,8 @@ public interface DriverConfigurationProvider {
    * @return Generated driver configuration.
    */
   Configuration getDriverConfiguration(
-          final URI jobFolder,
-          final String clientRemoteId,
-          final String jobId,
-          final Configuration applicationConfiguration);
+          URI jobFolder,
+          String clientRemoteId,
+          String jobId,
+          Configuration applicationConfiguration);
 }

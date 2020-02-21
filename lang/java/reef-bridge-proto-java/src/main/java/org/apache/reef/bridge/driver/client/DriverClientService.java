@@ -40,7 +40,7 @@ public interface DriverClientService {
    * requested by the application.
    * @param count of the number of evaluators
    */
-  void notifyEvaluatorRequest(final int count);
+  void notifyEvaluatorRequest(int count);
 
   /**
    * Wait for termination of driver client service.

@@ -56,11 +56,11 @@ public interface TransportFactory {
    * @param retryTimeout    retry timeout
    * @return transport
    */
-  Transport newInstance(final String hostAddress, int port,
-                        final EStage<TransportEvent> clientStage,
-                        final EStage<TransportEvent> serverStage,
-                        final int numberOfTries,
-                        final int retryTimeout);
+  Transport newInstance(String hostAddress, int port,
+                        EStage<TransportEvent> clientStage,
+                        EStage<TransportEvent> serverStage,
+                        int numberOfTries,
+                        int retryTimeout);
 
   /**
    * Creates a transport.
@@ -74,13 +74,13 @@ public interface TransportFactory {
    * @param tcpPortProvider tcpPortProvider
    * @return transport
    */
-  Transport newInstance(final String hostAddress,
+  Transport newInstance(String hostAddress,
                         int port,
-                        final EStage<TransportEvent> clientStage,
-                        final EStage<TransportEvent> serverStage,
-                        final int numberOfTries,
-                        final int retryTimeout,
-                        final TcpPortProvider tcpPortProvider);
+                        EStage<TransportEvent> clientStage,
+                        EStage<TransportEvent> serverStage,
+                        int numberOfTries,
+                        int retryTimeout,
+                        TcpPortProvider tcpPortProvider);
 
 
 }

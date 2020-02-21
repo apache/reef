@@ -34,7 +34,7 @@ public interface OutputStreamProvider {
    * @return created output stream
    * @throws java.io.IOException
    */
-  DataOutputStream create(final String name) throws IOException;
+  DataOutputStream create(String name) throws IOException;
 
   /**
    * release resources.

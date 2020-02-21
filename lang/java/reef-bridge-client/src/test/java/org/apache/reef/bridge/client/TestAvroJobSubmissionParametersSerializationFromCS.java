@@ -236,8 +236,8 @@ public final class TestAvroJobSubmissionParametersSerializationFromCS {
    */
   @Test
   public void testAvroYarnParametersSerialization() throws IOException {
-    try (final ByteArrayOutputStream appOutputStream = new ByteArrayOutputStream()) {
-      try (final ByteArrayOutputStream jobOutputStream = new ByteArrayOutputStream()) {
+    try (ByteArrayOutputStream appOutputStream = new ByteArrayOutputStream()) {
+      try (ByteArrayOutputStream jobOutputStream = new ByteArrayOutputStream()) {
         final YarnClusterSubmissionFromCS clusterSubmissionFromCS = createYarnClusterSubmissionFromCS();
         YarnSubmissionParametersFileGenerator.writeAvroYarnAppSubmissionParametersToOutputStream(
             clusterSubmissionFromCS, appOutputStream);
@@ -247,8 +247,8 @@ public final class TestAvroJobSubmissionParametersSerializationFromCS {
         final byte[] jobContent = jobOutputStream.toByteArray();
         final byte[] appContent = appOutputStream.toByteArray();
 
-        try (final InputStream appStream = new ByteArrayInputStream(appContent)) {
-          try (final InputStream jobStream = new ByteArrayInputStream(jobContent)) {
+        try (InputStream appStream = new ByteArrayInputStream(appContent)) {
+          try (InputStream jobStream = new ByteArrayInputStream(jobContent)) {
             verifyYarnJobSubmissionParams(
                 YarnBootstrapDriverConfigGenerator.readYarnJobSubmissionParametersFromInputStream(jobStream),
                 YarnBootstrapDriverConfigGenerator.readYarnAppSubmissionParametersFromInputStream(appStream));
@@ -279,7 +279,7 @@ public final class TestAvroJobSubmissionParametersSerializationFromCS {
   }
 
   private static AvroYarnAppSubmissionParameters createAvroYarnAppSubmissionParameters() throws IOException {
-    try (final InputStream stream =
+    try (InputStream stream =
              new ByteArrayInputStream(AVRO_YARN_APP_PARAMETERS_SERIALIZED_STRING.getBytes(StandardCharsets.UTF_8))) {
       return YarnBootstrapDriverConfigGenerator.readYarnAppSubmissionParametersFromInputStream(stream);
     }
@@ -287,7 +287,7 @@ public final class TestAvroJobSubmissionParametersSerializationFromCS {
 
   private static AvroMultiRuntimeAppSubmissionParameters createAvroMultiruntimeAppSubmissionParameters()
           throws IOException, InjectionException {
-    try (final InputStream stream =
+    try (InputStream stream =
                  new ByteArrayInputStream(
                          AVRO_YARN_MULTIRUNTIME_APP_PARAMETERS_SERIALIZED_STRING.getBytes(StandardCharsets.UTF_8))) {
       return Tang.Factory.getTang().newInjector().getInstance(AvroMultiRuntimeAppSubmissionParametersSerializer.class)
@@ -297,7 +297,7 @@ public final class TestAvroJobSubmissionParametersSerializationFromCS {
 
   private static AvroMultiRuntimeAppSubmissionParameters createAvroMultiruntimeYarnOnlyAppSubmissionParameters()
           throws IOException, InjectionException {
-    try (final InputStream stream =
+    try (InputStream stream =
                  new ByteArrayInputStream(
                          AVRO_YARN_MULTIRUNTIME_YARNONLY_APP_PARAMETERS_SERIALIZED_STRING.getBytes(StandardCharsets
                                  .UTF_8))) {
@@ -308,7 +308,7 @@ public final class TestAvroJobSubmissionParametersSerializationFromCS {
 
   private static AvroMultiRuntimeAppSubmissionParameters createAvroMultiruntimeLocalOnlyAppSubmissionParameters()
           throws IOException, InjectionException {
-    try (final InputStream stream =
+    try (InputStream stream =
                  new ByteArrayInputStream(
                          AVRO_YARN_MULTIRUNTIME_LOCALONLY_APP_PARAMETERS_SERIALIZED_STRING.getBytes(StandardCharsets
                                  .UTF_8))) {
@@ -318,17 +318,17 @@ public final class TestAvroJobSubmissionParametersSerializationFromCS {
   }
 
   private static AvroYarnJobSubmissionParameters createAvroYarnJobSubmissionParameters() throws IOException {
-    try (final InputStream stream =
+    try (InputStream stream =
              new ByteArrayInputStream(AVRO_YARN_JOB_PARAMETERS_SERIALIZED_STRING.getBytes(StandardCharsets.UTF_8))) {
       return YarnBootstrapDriverConfigGenerator.readYarnJobSubmissionParametersFromInputStream(stream);
     }
   }
 
   private static YarnClusterSubmissionFromCS createYarnClusterSubmissionFromCS() throws IOException {
-    try (final InputStream appStream =
+    try (InputStream appStream =
              new ByteArrayInputStream(
                  AVRO_YARN_APP_PARAMETERS_SERIALIZED_STRING.getBytes(StandardCharsets.UTF_8))) {
-      try (final InputStream jobStream =
+      try (InputStream jobStream =
                new ByteArrayInputStream(
                    AVRO_YARN_CLUSTER_JOB_PARAMETERS_SERIALIZED_STRING.getBytes(StandardCharsets.UTF_8))) {
         return YarnClusterSubmissionFromCS.readYarnClusterSubmissionFromCSFromInputStream(appStream, jobStream);

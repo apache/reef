@@ -44,7 +44,7 @@ public interface UserCredentials {
    * @param other Credentials of another user.
    * @throws IOException if unable to copy.
    */
-  void set(final String name, final UserCredentials other) throws IOException;
+  void set(String name, UserCredentials other) throws IOException;
 
   /**
    * Check if the user credentials had been set.
@@ -60,5 +60,5 @@ public interface UserCredentials {
    * @return result of an action.
    * @throws Exception whatever the action can throw.
    */
-  <T> T doAs(final PrivilegedExceptionAction<T> action) throws Exception;
+  <T> T doAs(PrivilegedExceptionAction<T> action) throws Exception;
 }

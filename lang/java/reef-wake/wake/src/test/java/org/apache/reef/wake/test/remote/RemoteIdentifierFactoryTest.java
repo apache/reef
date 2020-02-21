@@ -70,7 +70,7 @@ public class RemoteIdentifierFactoryTest {
     final Codec<?> codec = new MultiCodec<Object>(clazzToCodecMap);
 
 
-    try (final RemoteManager rm =
+    try (RemoteManager rm =
              remoteManagerFactory.getInstance("TestRemoteManager", 0, codec, new LoggingEventHandler<Throwable>())) {
       final RemoteIdentifier id = rm.getMyIdentifier();
 

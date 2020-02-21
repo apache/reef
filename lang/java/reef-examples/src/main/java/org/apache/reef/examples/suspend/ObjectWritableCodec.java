@@ -61,8 +61,8 @@ public class ObjectWritableCodec<T extends Writable> implements Codec<T> {
    */
   @Override
   public byte[] encode(final T writable) {
-    try (final ByteArrayOutputStream bos = new ByteArrayOutputStream();
-         final DataOutputStream dos = new DataOutputStream(bos)) {
+    try (ByteArrayOutputStream bos = new ByteArrayOutputStream();
+         DataOutputStream dos = new DataOutputStream(bos)) {
       writable.write(dos);
       return bos.toByteArray();
     } catch (final IOException ex) {
@@ -80,8 +80,8 @@ public class ObjectWritableCodec<T extends Writable> implements Codec<T> {
    */
   @Override
   public T decode(final byte[] buffer) {
-    try (final ByteArrayInputStream bis = new ByteArrayInputStream(buffer);
-         final DataInputStream dis = new DataInputStream(bis)) {
+    try (ByteArrayInputStream bis = new ByteArrayInputStream(buffer);
+         DataInputStream dis = new DataInputStream(bis)) {
       final T writable = this.writableClass.newInstance();
       writable.readFields(dis);
       return writable;

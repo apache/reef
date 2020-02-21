@@ -18,12 +18,15 @@
  */
 
 package org.apache.reef.util.exception;
+
 /**
  * Generated when the identifier passed to MultiAsyncToSync.release is
  * invalid.
  */
 public final class InvalidIdentifierException extends Exception {
-  final long identifier;
+
+  private final long identifier;
+
   /**:
    * See java.lang.Exception.
    */

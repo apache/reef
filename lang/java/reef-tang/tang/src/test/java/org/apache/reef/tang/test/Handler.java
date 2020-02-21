@@ -25,6 +25,6 @@ package org.apache.reef.tang.test;
  */
 interface Handler<T> {
 
-  void process(final T value);
+  void process(T value);
 
 }

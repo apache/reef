@@ -85,7 +85,7 @@ public class ValidateConfiguration {
 
     // TODO[JIRA REEF-400] Use the AvroClassHierarchySerializer
     final ClassHierarchyProto.Node root;
-    try (final InputStream chin = new FileInputStream(this.ch)) {
+    try (InputStream chin = new FileInputStream(this.ch)) {
       root = ClassHierarchyProto.Node.parseFrom(chin);
     }
 

@@ -42,5 +42,5 @@ public interface Task {
    * @throws Exception whenever the Task encounters an unsolved issue.
    *                   This Exception will be thrown at the Driver's event handler.
    */
-  byte[] call(final byte[] memento) throws Exception;
+  byte[] call(byte[] memento) throws Exception;
 }

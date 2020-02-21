@@ -86,7 +86,7 @@ public final class LocalJobSubmissionHandler implements JobSubmissionHandler {
 
   @Override
   public void onNext(final JobSubmissionEvent t) {
-    try (final LoggingScope lf = loggingScopeFactory.localJobSubmission()) {
+    try (LoggingScope lf = loggingScopeFactory.localJobSubmission()) {
       try {
         LOG.log(Level.FINEST, "Starting local job {0}", t.getIdentifier());
 

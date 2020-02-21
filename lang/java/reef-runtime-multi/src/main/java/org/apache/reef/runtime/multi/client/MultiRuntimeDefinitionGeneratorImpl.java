@@ -150,8 +150,8 @@ final class MultiRuntimeDefinitionGeneratorImpl implements MultiRuntimeDefinitio
   }
 
   private interface ConfigurationModuleBuilder {
-    Configuration getConfiguration(final URI jobFolder,
-                                   final String clientRemoteId,
-                                   final String jobId);
+    Configuration getConfiguration(URI jobFolder,
+                                   String clientRemoteId,
+                                   String jobId);
   }
 }

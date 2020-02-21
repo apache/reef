@@ -117,7 +117,7 @@ public final class AvroConfigurationSerializer implements ConfigurationSerialize
 
   private static AvroConfiguration avroFromFile(final File file) throws IOException {
     final AvroConfiguration avroConfiguration;
-    try (final DataFileReader<AvroConfiguration> dataFileReader =
+    try (DataFileReader<AvroConfiguration> dataFileReader =
              new DataFileReader<>(file, new SpecificDatumReader<>(AvroConfiguration.class))) {
       avroConfiguration = dataFileReader.next();
     }
@@ -204,7 +204,7 @@ public final class AvroConfigurationSerializer implements ConfigurationSerialize
 
   @Override
   public void toTextFile(final Configuration conf, final File file) throws IOException {
-    try (final Writer w = new OutputStreamWriter(new FileOutputStream(file), JSON_CHARSET)) {
+    try (Writer w = new OutputStreamWriter(new FileOutputStream(file), JSON_CHARSET)) {
       w.write(this.toString(conf));
     }
   }
@@ -213,7 +213,7 @@ public final class AvroConfigurationSerializer implements ConfigurationSerialize
   public byte[] toByteArray(final Configuration conf) throws IOException {
     final DatumWriter<AvroConfiguration> configurationWriter = new SpecificDatumWriter<>(AvroConfiguration.class);
     final byte[] theBytes;
-    try (final ByteArrayOutputStream out = new ByteArrayOutputStream()) {
+    try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
       final BinaryEncoder encoder = EncoderFactory.get().binaryEncoder(out, null);
       configurationWriter.write(toAvro(conf), encoder);
       encoder.flush();
@@ -243,7 +243,7 @@ public final class AvroConfigurationSerializer implements ConfigurationSerialize
   public String toString(final Configuration configuration, final boolean prettyPrint) {
     final DatumWriter<AvroConfiguration> configurationWriter = new SpecificDatumWriter<>(AvroConfiguration.class);
     final String result;
-    try (final ByteArrayOutputStream out = new ByteArrayOutputStream()) {
+    try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
       // TODO [REEF-1536] Re-enable pretty printing when Avro 1.7.5 available on all environments:
       final JsonEncoder encoder = EncoderFactory.get().jsonEncoder(AvroConfiguration.SCHEMA$, out); //, prettyPrint);
       configurationWriter.write(toAvro(configuration), encoder);
@@ -308,7 +308,7 @@ public final class AvroConfigurationSerializer implements ConfigurationSerialize
 
   private StringBuilder readFromTextFile(final File file) throws IOException {
     final StringBuilder result = new StringBuilder();
-    try (final BufferedReader reader =
+    try (BufferedReader reader =
              new BufferedReader(new InputStreamReader(new FileInputStream(file), JSON_CHARSET))) {
       String line = reader.readLine();
       while (line != null) {

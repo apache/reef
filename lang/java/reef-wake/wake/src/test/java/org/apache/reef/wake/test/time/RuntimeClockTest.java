@@ -77,7 +77,7 @@ public class RuntimeClockTest {
 
     LoggingUtils.setLoggingLevel(Level.FINEST);
 
-    try (final RuntimeClock clock = buildClock(RealTimer.class)) {
+    try (RuntimeClock clock = buildClock(RealTimer.class)) {
 
       new Thread(clock).start();
 
@@ -101,7 +101,7 @@ public class RuntimeClockTest {
 
     LoggingUtils.setLoggingLevel(Level.FINEST);
 
-    try (final RuntimeClock clock = buildClock(RealTimer.class)) {
+    try (RuntimeClock clock = buildClock(RealTimer.class)) {
 
       new Thread(clock).start();
 
@@ -140,7 +140,7 @@ public class RuntimeClockTest {
     final int numThreads = 3;
     final CountDownLatch eventCountLatch = new CountDownLatch(numThreads);
 
-    try (final RuntimeClock clock = buildClock(RealTimer.class)) {
+    try (RuntimeClock clock = buildClock(RealTimer.class)) {
 
       final EventHandler<Alarm> handler = new EventHandler<Alarm>() {
         @Override
@@ -152,7 +152,7 @@ public class RuntimeClockTest {
 
       new Thread(clock).start();
 
-      try (final ThreadPoolStage<Alarm> stage = new ThreadPoolStage<>(handler, numThreads)) {
+      try (ThreadPoolStage<Alarm> stage = new ThreadPoolStage<>(handler, numThreads)) {
 
         for (int i = 0; i < numThreads; ++i) {
           stage.onNext(null);
@@ -171,7 +171,7 @@ public class RuntimeClockTest {
     final int expectedEvent = 2;
     final CountDownLatch eventCountLatch = new CountDownLatch(expectedEvent);
 
-    try (final RuntimeClock clock = buildClock(LogicalTimer.class)) {
+    try (RuntimeClock clock = buildClock(LogicalTimer.class)) {
 
       new Thread(clock).start();
 
@@ -197,7 +197,7 @@ public class RuntimeClockTest {
 
     final long[] expected = new long[numAlarms];
 
-    try (final RuntimeClock clock = buildClock(RealTimer.class)) {
+    try (RuntimeClock clock = buildClock(RealTimer.class)) {
 
       new Thread(clock).start();
 

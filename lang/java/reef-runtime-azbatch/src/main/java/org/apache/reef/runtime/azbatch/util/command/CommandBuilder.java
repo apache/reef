@@ -51,8 +51,8 @@ public interface CommandBuilder {
    * @param jvmHeapFactor a multiplicative factor to increase the container memory.
    * @return the command string.
    */
-  String buildEvaluatorCommand(final ResourceLaunchEvent resourceLaunchEvent,
-                               final int containerMemory, final double jvmHeapFactor);
+  String buildEvaluatorCommand(ResourceLaunchEvent resourceLaunchEvent,
+                               int containerMemory, double jvmHeapFactor);
 
   /**
    * Returns the path to a file where the ip address is persisted.

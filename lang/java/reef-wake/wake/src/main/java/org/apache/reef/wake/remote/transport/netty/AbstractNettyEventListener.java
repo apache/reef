@@ -85,9 +85,9 @@ abstract class AbstractNettyEventListener implements NettyEventListener {
     this.closeChannel(ctx.channel());
   }
 
-  protected abstract TransportEvent getTransportEvent(final byte[] message, final Channel channel);
+  protected abstract TransportEvent getTransportEvent(byte[] message, Channel channel);
 
-  protected abstract void exceptionCleanup(final ChannelHandlerContext ctx, Throwable cause);
+  protected abstract void exceptionCleanup(ChannelHandlerContext ctx, Throwable cause);
 
   protected void closeChannel(final Channel channel) {
     final LinkReference refRemoved =

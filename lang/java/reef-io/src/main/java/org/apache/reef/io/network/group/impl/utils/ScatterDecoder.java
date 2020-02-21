@@ -40,7 +40,7 @@ public final class ScatterDecoder implements Decoder<ScatterData> {
   }
 
   public ScatterData decode(final byte[] data) {
-    try (final DataInputStream dstream = new DataInputStream(new ByteArrayInputStream(data))) {
+    try (DataInputStream dstream = new DataInputStream(new ByteArrayInputStream(data))) {
       final int elementCount = dstream.readInt();
 
       // first read data that I should receive

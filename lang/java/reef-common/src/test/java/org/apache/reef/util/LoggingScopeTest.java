@@ -51,7 +51,7 @@ public class LoggingScopeTest {
    */
   @Test
   public void testGetNewLoggingScope() throws InjectionException {
-    try (final LoggingScope ls = logFactory.getNewLoggingScope("test")) {
+    try (LoggingScope ls = logFactory.getNewLoggingScope("test")) {
       Assert.assertTrue(true);
     }
   }
@@ -62,7 +62,7 @@ public class LoggingScopeTest {
    */
   @Test
   public void testGetNewLoggingScopeWithParam() throws InjectionException {
-    try (final LoggingScope ls = logFactory.getNewLoggingScope("test first string = {0}, second = {1}",
+    try (LoggingScope ls = logFactory.getNewLoggingScope("test first string = {0}, second = {1}",
         new Object[] {"first", "second"})) {
       Assert.assertTrue(true);
     }
@@ -75,7 +75,7 @@ public class LoggingScopeTest {
    */
   @Test
   public void testLoggingScopeFactory() {
-    try (final LoggingScope ls = logFactory.activeContextReceived("test")) {
+    try (LoggingScope ls = logFactory.activeContextReceived("test")) {
       Assert.assertTrue(true);
     }
   }
@@ -89,7 +89,7 @@ public class LoggingScopeTest {
     final Injector i = Tang.Factory.getTang().newInjector(Tang.Factory.getTang().newConfigurationBuilder().build());
     final LoggingScopeFactory localLogFactory = i.getInstance(LoggingScopeFactory.class);
 
-    try (final LoggingScope ls = localLogFactory.activeContextReceived("test")) {
+    try (LoggingScope ls = localLogFactory.activeContextReceived("test")) {
       Assert.assertTrue(true);
     }
   }

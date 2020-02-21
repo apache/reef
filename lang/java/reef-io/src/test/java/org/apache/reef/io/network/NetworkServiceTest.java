@@ -80,7 +80,7 @@ public class NetworkServiceTest {
     injector.bindVolatileParameter(NameServerParameters.NameServerIdentifierFactory.class, factory);
     injector.bindVolatileInstance(LocalAddressProvider.class, this.localAddressProvider);
 
-    try (final NameServer server = injector.getInstance(NameServer.class)) {
+    try (NameServer server = injector.getInstance(NameServer.class)) {
       final int nameServerPort = server.getPort();
 
       final int numMessages = 10;
@@ -100,7 +100,7 @@ public class NetworkServiceTest {
 
       LOG.log(Level.FINEST, "=== Test network service receiver start");
       LOG.log(Level.FINEST, "=== Test network service sender start");
-      try (final NameResolver nameResolver = injector2.getInstance(NameResolver.class)) {
+      try (NameResolver nameResolver = injector2.getInstance(NameResolver.class)) {
         injector2.bindVolatileParameter(NetworkServiceParameters.NetworkServiceIdentifierFactory.class, factory);
         injector2.bindVolatileInstance(NameResolver.class, nameResolver);
         injector2.bindVolatileParameter(NetworkServiceParameters.NetworkServiceCodec.class, new StringCodec());
@@ -129,7 +129,7 @@ public class NetworkServiceTest {
 
         final Identifier destId = factory.getNewInstance(name2);
 
-        try (final Connection<String> conn = ns1.newConnection(destId)) {
+        try (Connection<String> conn = ns1.newConnection(destId)) {
           conn.open();
           for (int count = 0; count < numMessages; ++count) {
             conn.write("hello! " + count);
@@ -160,7 +160,7 @@ public class NetworkServiceTest {
     injector.bindVolatileParameter(NameServerParameters.NameServerIdentifierFactory.class, factory);
     injector.bindVolatileInstance(LocalAddressProvider.class, this.localAddressProvider);
 
-    try (final NameServer server = injector.getInstance(NameServer.class)) {
+    try (NameServer server = injector.getInstance(NameServer.class)) {
       final int nameServerPort = server.getPort();
 
       final int[] messageSizes = {1, 16, 32, 64, 512, 64 * 1024, 1024 * 1024};
@@ -183,7 +183,7 @@ public class NetworkServiceTest {
 
         LOG.log(Level.FINEST, "=== Test network service receiver start");
         LOG.log(Level.FINEST, "=== Test network service sender start");
-        try (final NameResolver nameResolver = injector2.getInstance(NameResolver.class)) {
+        try (NameResolver nameResolver = injector2.getInstance(NameResolver.class)) {
           injector2.bindVolatileParameter(NetworkServiceParameters.NetworkServiceIdentifierFactory.class, factory);
           injector2.bindVolatileInstance(NameResolver.class, nameResolver);
           injector2.bindVolatileParameter(NetworkServiceParameters.NetworkServiceCodec.class, new StringCodec());
@@ -249,7 +249,7 @@ public class NetworkServiceTest {
     injector.bindVolatileParameter(NameServerParameters.NameServerIdentifierFactory.class, factory);
     injector.bindVolatileInstance(LocalAddressProvider.class, this.localAddressProvider);
 
-    try (final NameServer server = injector.getInstance(NameServer.class)) {
+    try (NameServer server = injector.getInstance(NameServer.class)) {
       final int nameServerPort = server.getPort();
 
       final BlockingQueue<Object> barrier = new LinkedBlockingQueue<>();
@@ -283,7 +283,7 @@ public class NetworkServiceTest {
 
               LOG.log(Level.FINEST, "=== Test network service receiver start");
               LOG.log(Level.FINEST, "=== Test network service sender start");
-              try (final NameResolver nameResolver = injector.getInstance(NameResolver.class)) {
+              try (NameResolver nameResolver = injector.getInstance(NameResolver.class)) {
                 injector.bindVolatileParameter(NetworkServiceParameters.NetworkServiceIdentifierFactory.class, factory);
                 injector.bindVolatileInstance(NameResolver.class, nameResolver);
                 injector.bindVolatileParameter(NetworkServiceParameters.NetworkServiceCodec.class, new StringCodec());
@@ -360,7 +360,7 @@ public class NetworkServiceTest {
     final Injector injector = Tang.Factory.getTang().newInjector();
     injector.bindVolatileParameter(NameServerParameters.NameServerIdentifierFactory.class, factory);
     injector.bindVolatileInstance(LocalAddressProvider.class, this.localAddressProvider);
-    try (final NameServer server = injector.getInstance(NameServer.class)) {
+    try (NameServer server = injector.getInstance(NameServer.class)) {
       final int nameServerPort = server.getPort();
 
       final int[] messageSizes = {2000}; // {1,16,32,64,512,64*1024,1024*1024};
@@ -386,7 +386,7 @@ public class NetworkServiceTest {
 
         LOG.log(Level.FINEST, "=== Test network service receiver start");
         LOG.log(Level.FINEST, "=== Test network service sender start");
-        try (final NameResolver nameResolver = injector2.getInstance(NameResolver.class)) {
+        try (NameResolver nameResolver = injector2.getInstance(NameResolver.class)) {
           injector2.bindVolatileParameter(NetworkServiceParameters.NetworkServiceIdentifierFactory.class, factory);
           injector2.bindVolatileInstance(NameResolver.class, nameResolver);
           injector2.bindVolatileParameter(NetworkServiceParameters.NetworkServiceCodec.class, new StringCodec());
@@ -415,7 +415,7 @@ public class NetworkServiceTest {
 
           final Identifier destId = factory.getNewInstance(name2);
 
-          try (final Connection<String> conn = ns1.newConnection(destId)) {
+          try (Connection<String> conn = ns1.newConnection(destId)) {
             conn.open();
 
             final String message = StringUtils.repeat('1', size);
@@ -466,7 +466,7 @@ public class NetworkServiceTest {
     injector.bindVolatileParameter(NameServerParameters.NameServerIdentifierFactory.class, factory);
     injector.bindVolatileInstance(LocalAddressProvider.class, this.localAddressProvider);
 
-    try (final NameServer server = injector.getInstance(NameServer.class)) {
+    try (NameServer server = injector.getInstance(NameServer.class)) {
       final int nameServerPort = server.getPort();
 
       final int batchSize = 1024 * 1024;
@@ -490,7 +490,7 @@ public class NetworkServiceTest {
 
         LOG.log(Level.FINEST, "=== Test network service receiver start");
         LOG.log(Level.FINEST, "=== Test network service sender start");
-        try (final NameResolver nameResolver = injector2.getInstance(NameResolver.class)) {
+        try (NameResolver nameResolver = injector2.getInstance(NameResolver.class)) {
           injector2.bindVolatileParameter(NetworkServiceParameters.NetworkServiceIdentifierFactory.class, factory);
           injector2.bindVolatileInstance(NameResolver.class, nameResolver);
           injector2.bindVolatileParameter(NetworkServiceParameters.NetworkServiceCodec.class, new StringCodec());

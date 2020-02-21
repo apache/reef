@@ -48,7 +48,7 @@ public interface Clock extends Runnable, AutoCloseable {
    * @return Newly scheduled alarm.
    * @throws IllegalStateException When the clock has been already closed.
    */
-  Time scheduleAlarm(final int offset, final EventHandler<Alarm> handler);
+  Time scheduleAlarm(int offset, EventHandler<Alarm> handler);
 
   /**
    * This will stop the clock after all client alarms
@@ -68,7 +68,7 @@ public interface Clock extends Runnable, AutoCloseable {
    * client alarms to finish. Stops with an exception that
    * is propagated to RuntimeStopHandlers.
    */
-  void stop(final Throwable exception);
+  void stop(Throwable exception);
 
   /**
    * Clock is idle if it has no future Alarms set.

@@ -48,7 +48,7 @@ public interface MockRuntime extends MockFailure {
    * @param isTimeout used to fill in {@link DriverRestartCompleted#isTimedOut()}
    * @param duration recover time duration (added to start time)
    */
-  void restart(final MockDriverRestartContext restartContext, final boolean isTimeout, final long duration);
+  void restart(MockDriverRestartContext restartContext, boolean isTimeout, long duration);
 
   /**
    * @return true if there is an outstanding ProcessRequest
@@ -73,7 +73,7 @@ public interface MockRuntime extends MockFailure {
    *
    * @param request to be processed successfully
    */
-  void succeed(final ProcessRequest request);
+  void succeed(ProcessRequest request);
 
   /**
    * The driver will be informed that the operation corresponding
@@ -82,11 +82,11 @@ public interface MockRuntime extends MockFailure {
    *
    * @param request to be failed.
    */
-  void fail(final ProcessRequest request);
+  void fail(ProcessRequest request);
 
   /**
    * Publish a context message to the application event handlers.
    * @param contextMessage to be published
    */
-  void publish(final ContextMessage contextMessage);
+  void publish(ContextMessage contextMessage);
 }

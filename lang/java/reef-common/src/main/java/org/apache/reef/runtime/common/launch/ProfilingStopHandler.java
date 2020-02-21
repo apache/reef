@@ -50,7 +50,7 @@ public final class ProfilingStopHandler implements EventHandler<StopTime> {
 
   @Override
   public void onNext(final StopTime stopTime) {
-    try (final PrintWriter out = new PrintWriter("profile-" + launchID + ".json", "UTF-8")) {
+    try (PrintWriter out = new PrintWriter("profile-" + launchID + ".json", "UTF-8")) {
       out.print(profiler.objectGraphToString());
     } catch (final FileNotFoundException | UnsupportedEncodingException e) {
       LOG.log(Level.WARNING, "Unable to write the profile", e);

@@ -45,8 +45,8 @@ public final class TopologySerializer {
    * @return encoded byte array
    */
   public static byte[] encode(final TaskNode root) {
-    try (final ByteArrayOutputStream bstream = new ByteArrayOutputStream();
-         final DataOutputStream dstream = new DataOutputStream(bstream)) {
+    try (ByteArrayOutputStream bstream = new ByteArrayOutputStream();
+         DataOutputStream dstream = new DataOutputStream(bstream)) {
       encodeHelper(dstream, root);
       return bstream.toByteArray();
 
@@ -75,7 +75,7 @@ public final class TopologySerializer {
       final byte[] data,
       final IdentifierFactory ifac) {
 
-    try (final DataInputStream dstream = new DataInputStream(new ByteArrayInputStream(data))) {
+    try (DataInputStream dstream = new DataInputStream(new ByteArrayInputStream(data))) {
       final List<Identifier> activeSlaveTasks = new LinkedList<>();
       final TopologySimpleNode retNode = decodeHelper(dstream, activeSlaveTasks, ifac);
       return new Pair<>(retNode, activeSlaveTasks);

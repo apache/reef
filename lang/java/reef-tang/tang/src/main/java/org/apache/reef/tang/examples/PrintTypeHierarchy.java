@@ -77,7 +77,7 @@ public final class PrintTypeHierarchy {
     final Injector injector = tang.newInjector(config);
     final PrintTypeHierarchy myself = injector.getInstance(PrintTypeHierarchy.class);
 
-    try (final Writer out = new OutputStreamWriter(
+    try (Writer out = new OutputStreamWriter(
             new FileOutputStream("type-hierarchy.dot"), StandardCharsets.UTF_8)) {
       out.write(GraphvizConfigVisitor.getGraphvizString(config, true, true));
     }
@@ -85,7 +85,7 @@ public final class PrintTypeHierarchy {
     final InjectionPlan<PrintTypeHierarchy> plan =
         injector.getInjectionPlan(PrintTypeHierarchy.class);
 
-    try (final Writer out = new OutputStreamWriter(
+    try (Writer out = new OutputStreamWriter(
             new FileOutputStream("injection-plan.dot"), StandardCharsets.UTF_8)) {
       out.write(GraphvizInjectionPlanVisitor.getGraphvizString(plan, true));
     }

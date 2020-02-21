@@ -43,14 +43,14 @@ public interface AllocatedEvaluator
    *
    * @param file the file to be copied
    */
-  void addFile(final File file);
+  void addFile(File file);
 
   /**
    * Puts the given file into the working directory of the Evaluator and adds it to its classpath.
    *
    * @param file the file to be copied
    */
-  void addLibrary(final File file);
+  void addLibrary(File file);
 
   /**
    * @return the evaluator descriptor of this evaluator.
@@ -63,7 +63,7 @@ public interface AllocatedEvaluator
    *
    * @param process
    */
-  void setProcess(final EvaluatorProcess process);
+  void setProcess(EvaluatorProcess process);
 
   /**
    * Releases the allocated evaluator back to the resource manager.
@@ -79,21 +79,21 @@ public interface AllocatedEvaluator
    * @param taskConfiguration the Configuration. See TaskConfiguration for details.
    */
   @Override
-  void submitTask(final Configuration taskConfiguration);
+  void submitTask(Configuration taskConfiguration);
 
   @Override
-  void submitContext(final Configuration contextConfiguration);
+  void submitContext(Configuration contextConfiguration);
 
   @Override
-  void submitContextAndService(final Configuration contextConfiguration,
-                               final Configuration serviceConfiguration);
+  void submitContextAndService(Configuration contextConfiguration,
+                               Configuration serviceConfiguration);
 
   @Override
-  void submitContextAndTask(final Configuration contextConfiguration,
-                            final Configuration taskConfiguration);
+  void submitContextAndTask(Configuration contextConfiguration,
+                            Configuration taskConfiguration);
 
   @Override
-  void submitContextAndServiceAndTask(final Configuration contextConfiguration,
-                                      final Configuration serviceConfiguration,
-                                      final Configuration taskConfiguration);
+  void submitContextAndServiceAndTask(Configuration contextConfiguration,
+                                      Configuration serviceConfiguration,
+                                      Configuration taskConfiguration);
 }

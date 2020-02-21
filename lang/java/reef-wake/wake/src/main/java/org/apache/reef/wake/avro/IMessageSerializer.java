@@ -35,7 +35,5 @@ public interface IMessageSerializer {
    * @throws IOException An error occurred writing the message to the outputStream.
    */
   void serialize(ByteArrayOutputStream outputStream, SpecificRecord message, long sequence)
-    throws IOException;
+      throws IOException;
 }
-
-

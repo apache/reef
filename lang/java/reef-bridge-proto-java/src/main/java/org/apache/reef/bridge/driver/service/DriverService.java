@@ -42,121 +42,121 @@ public interface DriverService {
    * Driver restart handler.
    * @param restart event
    */
-  void driverRestarted(final DriverRestarted restart);
+  void driverRestarted(DriverRestarted restart);
 
   /**
    * Restart running task.
    * @param task running
    */
-  void restartRunningTask(final RunningTask task);
+  void restartRunningTask(RunningTask task);
 
   /**
    * Restart active context.
    * @param context restart
    */
-  void restartActiveContext(final ActiveContext context);
+  void restartActiveContext(ActiveContext context);
 
   /**
    * Driver restart completed.
    * @param restartCompleted event
    */
-  void driverRestartCompleted(final DriverRestartCompleted restartCompleted);
+  void driverRestartCompleted(DriverRestartCompleted restartCompleted);
 
   /**
    * Failed to restart evaluator.
    * @param evaluator that failed.
    */
-  void restartFailedEvalautor(final FailedEvaluator evaluator);
+  void restartFailedEvalautor(FailedEvaluator evaluator);
 
   /**
    * Handle start time event.
    * @param startTime event
    */
-  void startHandler(final StartTime startTime);
+  void startHandler(StartTime startTime);
 
   /**
    * Handle stop event.
    * @param stopTime event
    */
-  void stopHandler(final StopTime stopTime);
+  void stopHandler(StopTime stopTime);
 
   /**
    * Handle allocated evaluator event.
    * @param eval allocated
    */
-  void allocatedEvaluatorHandler(final AllocatedEvaluator eval);
+  void allocatedEvaluatorHandler(AllocatedEvaluator eval);
 
   /**
    * Handle completed evaluator event.
    * @param eval that completed
    */
-  void completedEvaluatorHandler(final CompletedEvaluator eval);
+  void completedEvaluatorHandler(CompletedEvaluator eval);
 
   /**
    * Handle failed evaluator event.
    * @param eval that failed
    */
-  void failedEvaluatorHandler(final FailedEvaluator eval);
+  void failedEvaluatorHandler(FailedEvaluator eval);
 
   /**
    * Handle active context.
    * @param context activated
    */
-  void activeContextHandler(final ActiveContext context);
+  void activeContextHandler(ActiveContext context);
 
   /**
    * Handle closed context event.
    * @param context that closed
    */
-  void closedContextHandler(final ClosedContext context);
+  void closedContextHandler(ClosedContext context);
 
   /**
    * Handle context message event.
    * @param message sent by context
    */
-  void contextMessageHandler(final ContextMessage message);
+  void contextMessageHandler(ContextMessage message);
 
   /**
    * Handled failed context event.
    * @param context that failed
    */
-  void failedContextHandler(final FailedContext context);
+  void failedContextHandler(FailedContext context);
 
   /**
    * Handle running task event.
    * @param task that is now running
    */
-  void runningTaskHandler(final RunningTask task);
+  void runningTaskHandler(RunningTask task);
 
   /**
    * Handle failed task event.
    * @param task that failed
    */
-  void failedTaskHandler(final FailedTask task);
+  void failedTaskHandler(FailedTask task);
 
   /**
    * Handle completed task event.
    * @param task that completed
    */
-  void completedTaskHandler(final CompletedTask task);
+  void completedTaskHandler(CompletedTask task);
 
   /**
    * Handle suspended task event.
    * @param task that is suspended
    */
-  void suspendedTaskHandler(final SuspendedTask task);
+  void suspendedTaskHandler(SuspendedTask task);
 
   /**
    * Handle task message event.
    * @param message sent by task
    */
-  void taskMessageHandler(final TaskMessage message);
+  void taskMessageHandler(TaskMessage message);
 
   /**
    * Handle client message event.
    * @param message sent by client
    */
-  void clientMessageHandler(final byte[] message);
+  void clientMessageHandler(byte[] message);
 
   /**
    * Handle client close event.
@@ -167,5 +167,5 @@ public interface DriverService {
    * Handle client close event with message.
    * @param message sent by client
    */
-  void clientCloseWithMessageHandler(final byte[] message);
+  void clientCloseWithMessageHandler(byte[] message);
 }

@@ -76,7 +76,7 @@ public class SVMLightParser implements Parser<String> {
     for (int i = 0; i < 10; i++) {
       final List<SparseExample> examples = new ArrayList<>();
       float avgFtLen = 0;
-      try (final BufferedReader br = new BufferedReader(new InputStreamReader(
+      try (BufferedReader br = new BufferedReader(new InputStreamReader(
               new FileInputStream("C:\\Users\\shravan\\data\\splice\\hdi\\hdi_uncomp\\part-r-0000" + i),
               StandardCharsets.UTF_8))) {
         String line;

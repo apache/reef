@@ -36,25 +36,25 @@ public interface VortexFutureDelegate<TOutput> {
   /**
    * A Tasklet associated with the future has completed with a result.
    */
-  void completed(final int taskletId, TOutput result);
+  void completed(int taskletId, TOutput result);
 
   /**
    * The list of aggregated Tasklets associated with the Future that have completed with a result.
    */
-  void aggregationCompleted(final List<Integer> taskletIds, final TOutput result);
+  void aggregationCompleted(List<Integer> taskletIds, TOutput result);
 
   /**
    * A Tasklet associated with the Future has thrown an Exception.
    */
-  void threwException(final int taskletId, final Exception exception);
+  void threwException(int taskletId, Exception exception);
 
   /**
    * The list of Tasklets associated with the Future that have thrown an Exception.
    */
-  void aggregationThrewException(final List<Integer> taskletIds, final Exception exception);
+  void aggregationThrewException(List<Integer> taskletIds, Exception exception);
 
   /**
    * A Tasklet associated with the Future has been cancelled.
    */
-  void cancelled(final int taskletId);
+  void cancelled(int taskletId);
 }

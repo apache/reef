@@ -132,7 +132,7 @@ public abstract class AbstractEvaluatorToPartitionStrategy implements EvaluatorT
    * @param numberedSplit
    *          the numberedSplit
    */
-  protected abstract void updateLocations(final NumberedSplit<InputSplit> numberedSplit);
+  protected abstract void updateLocations(NumberedSplit<InputSplit> numberedSplit);
 
   /**
    * Tries to allocate a split in an evaluator based on some particular rule.

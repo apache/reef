@@ -36,7 +36,7 @@ public interface AutoCompletable {
    * Set auto complete.
    * @param value to set
    */
-  void setAutoComplete(final boolean value);
+  void setAutoComplete(boolean value);
 
   /**
    * @return auto complete process request

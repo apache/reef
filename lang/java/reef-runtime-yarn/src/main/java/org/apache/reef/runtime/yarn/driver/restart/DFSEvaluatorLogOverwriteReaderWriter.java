@@ -69,7 +69,7 @@ public final class DFSEvaluatorLogOverwriteReaderWriter implements DFSEvaluatorL
     // readPath is always not the writePath.
     final Path readPath = getAlternativePath(writePath);
 
-    try (final FSDataOutputStream outputStream = this.fileSystem.create(writePath, true)) {
+    try (FSDataOutputStream outputStream = this.fileSystem.create(writePath, true)) {
       InputStream inputStream = null;
       try {
         final InputStream newEntryInputStream = new ByteArrayInputStream(

@@ -70,7 +70,7 @@ abstract class AbstractImmutableVector implements ImmutableVector {
   @Override
   public String toString() {
     final StringBuilder b = new StringBuilder("DenseVector(");
-    try (final Formatter formatter = new Formatter(b, Locale.US)) {
+    try (Formatter formatter = new Formatter(b, Locale.US)) {
       final int size = Math.min(25, this.size());
       for (int i = 0; i < size; ++i) {
         if (i < size - 1) {

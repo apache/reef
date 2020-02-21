@@ -30,11 +30,11 @@ public interface FutureCallback<V> {
    * Invoked with the result of the Tasklet computation on success.
    * @param result the result.
    */
-  void onSuccess(final V result);
+  void onSuccess(V result);
 
   /**
    * Invoked with the error of the Tasklet computation on failure.
    * @param t the error.
    */
-  void onFailure(final Throwable t);
+  void onFailure(Throwable t);
 }

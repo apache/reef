@@ -32,5 +32,5 @@ public interface RuntimeConfigurationProvider {
    * Generate driver runtime configuration with the dynamic {@link ClientProtocol.DriverClientConfiguration}.
    * @param driverClientConfiguration dynamic driver configuration parameters
    */
-  Configuration getRuntimeConfiguration(final ClientProtocol.DriverClientConfiguration driverClientConfiguration);
+  Configuration getRuntimeConfiguration(ClientProtocol.DriverClientConfiguration driverClientConfiguration);
 }

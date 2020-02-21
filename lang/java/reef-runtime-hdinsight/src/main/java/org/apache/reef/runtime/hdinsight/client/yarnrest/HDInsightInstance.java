@@ -90,7 +90,7 @@ public final class HDInsightInstance {
   public ApplicationID getApplicationID() throws IOException {
     final String url = "ws/v1/cluster/apps/new-application";
     final HttpPost post = preparePost(url);
-    try (final CloseableHttpResponse response = this.httpClient.execute(post, this.httpClientContext)) {
+    try (CloseableHttpResponse response = this.httpClient.execute(post, this.httpClientContext)) {
       final String message = IOUtils.toString(response.getEntity().getContent());
       final ApplicationID result = this.objectMapper.readValue(message, ApplicationID.class);
       return result;
@@ -117,7 +117,7 @@ public final class HDInsightInstance {
     LOG.log(Level.FINE, "Sending:\n{0}", message.replace("\n", "\n\t"));
     post.setEntity(new StringEntity(message, ContentType.APPLICATION_JSON));
 
-    try (final CloseableHttpResponse response = this.httpClient.execute(post, this.httpClientContext)) {
+    try (CloseableHttpResponse response = this.httpClient.execute(post, this.httpClientContext)) {
       final String responseMessage = IOUtils.toString(response.getEntity().getContent());
       LOG.log(Level.FINE, "Response: {0}", responseMessage.replace("\n", "\n\t"));
     }
@@ -143,7 +143,7 @@ public final class HDInsightInstance {
   public ApplicationState getApplication(final String applicationId) throws IOException {
     final String url = this.getApplicationURL(applicationId);
     final HttpGet get = prepareGet(url);
-    try (final CloseableHttpResponse response = this.httpClient.execute(get, this.httpClientContext)) {
+    try (CloseableHttpResponse response = this.httpClient.execute(get, this.httpClientContext)) {
       final String message = IOUtils.toString(response.getEntity().getContent());
       final ApplicationResponse result = this.objectMapper.readValue(message, ApplicationResponse.class);
       return result.getApplicationState();
@@ -153,7 +153,7 @@ public final class HDInsightInstance {
   public List<ApplicationState> listApplications() throws IOException {
     final String url = "ws/v1/cluster/apps";
     final HttpGet get = prepareGet(url);
-    try (final CloseableHttpResponse response = this.httpClient.execute(get, this.httpClientContext)) {
+    try (CloseableHttpResponse response = this.httpClient.execute(get, this.httpClientContext)) {
       final String message = IOUtils.toString(response.getEntity().getContent());
       final ListApplicationResponse result = this.objectMapper.readValue(message, ListApplicationResponse.class);
       return result.getApplicationStates();
@@ -233,7 +233,7 @@ public final class HDInsightInstance {
     final HttpGet httpget = new HttpGet("/");
 
     // Prime the cache
-    try (final CloseableHttpResponse response = this.httpClient.execute(targetHost, httpget, result)) {
+    try (CloseableHttpResponse response = this.httpClient.execute(targetHost, httpget, result)) {
       // empty try block used to automatically close resources
     }
     return result;

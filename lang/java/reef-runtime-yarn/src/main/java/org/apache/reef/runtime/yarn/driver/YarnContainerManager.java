@@ -345,7 +345,7 @@ final class YarnContainerManager implements AMRMClientAsync.CallbackHandler, NMC
       final FileSystem fs = FileSystem.get(this.yarnConf);
       final Path outputFileName = new Path(this.jobSubmissionDirectory, this.reefFileNames.getDriverHttpEndpoint());
 
-      try (final FSDataOutputStream out = fs.create(outputFileName)) {
+      try (FSDataOutputStream out = fs.create(outputFileName)) {
         out.writeBytes(this.trackingUrl + '\n');
       }
 

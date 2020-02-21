@@ -172,7 +172,7 @@ final class LocalSubmissionFromCS {
 
     final AvroLocalJobSubmissionParameters localJobSubmissionParameters;
 
-    try (final FileInputStream fileInputStream = new FileInputStream(localJobSubmissionParametersFile)) {
+    try (FileInputStream fileInputStream = new FileInputStream(localJobSubmissionParametersFile)) {
       final JsonDecoder decoder = DecoderFactory.get().jsonDecoder(
           AvroLocalJobSubmissionParameters.getClassSchema(), fileInputStream);
       final SpecificDatumReader<AvroLocalJobSubmissionParameters> reader =
@@ -180,7 +180,7 @@ final class LocalSubmissionFromCS {
       localJobSubmissionParameters = reader.read(null, decoder);
     }
 
-    try (final FileInputStream fileInputStream = new FileInputStream(localAppSubmissionParametersFile)) {
+    try (FileInputStream fileInputStream = new FileInputStream(localAppSubmissionParametersFile)) {
       final JsonDecoder decoder = DecoderFactory.get().jsonDecoder(
           AvroLocalAppSubmissionParameters.getClassSchema(), fileInputStream);
       final SpecificDatumReader<AvroLocalAppSubmissionParameters> reader =

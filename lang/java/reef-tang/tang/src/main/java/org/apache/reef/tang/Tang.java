@@ -37,8 +37,7 @@ public interface Tang {
    * @return an injector
    * @throws BindException If the confs conflict, a BindException will be thrown.
    */
-  Injector newInjector(final Configuration... confs)
-      throws BindException;
+  Injector newInjector(Configuration... confs) throws BindException;
 
   /**
    * Returns an Injector for the given Configuration.
@@ -46,7 +45,7 @@ public interface Tang {
    * @param confs a configuration
    * @return an injector
    */
-  Injector newInjector(final Configuration confs);
+  Injector newInjector(Configuration confs);
 
   /**
    * Returns an Injector based on an empty Configuration.
@@ -124,9 +123,8 @@ public interface Tang {
    * @param parameterParsers the parsers for parameters
    * @return a configuration builder
    */
-  JavaConfigurationBuilder newConfigurationBuilder(URL[] jars,
-                                                   Configuration[] confs,
-                                                   Class<? extends ExternalConstructor<?>>[] parameterParsers)
+  JavaConfigurationBuilder newConfigurationBuilder(
+      URL[] jars, Configuration[] confs, Class<? extends ExternalConstructor<?>>[] parameterParsers)
       throws BindException;
 
   /**
@@ -162,7 +160,7 @@ public interface Tang {
   /**
    * A factory that returns the default implementation of the Tang interface.
    */
-  final class Factory {
+  class Factory {
     /**
      * Return an instance of the default implementation of Tang.
      *
@@ -178,5 +176,4 @@ public interface Tang {
     private Factory() {
     }
   }
-
 }

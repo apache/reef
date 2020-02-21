@@ -163,7 +163,7 @@ public class JobClient {
   }
 
   public void addCLRFiles(final File folder) throws BindException {
-    try (final LoggingScope ls = this.loggingScopeFactory.getNewLoggingScope("JobClient::addCLRFiles")) {
+    try (LoggingScope ls = this.loggingScopeFactory.getNewLoggingScope("JobClient::addCLRFiles")) {
       ConfigurationModule result = this.driverConfigModule;
       final File[] files = folder.listFiles();
       if (files != null) {
@@ -211,7 +211,7 @@ public class JobClient {
    */
   public void submit(final File clrFolder, final boolean submitDriver,
                      final boolean local, final Configuration clientConfig) {
-    try (final LoggingScope ls = this.loggingScopeFactory.driverSubmit(submitDriver)) {
+    try (LoggingScope ls = this.loggingScopeFactory.driverSubmit(submitDriver)) {
       if (!local) {
         this.driverConfiguration = Configurations.merge(this.driverConfiguration, getYarnConfiguration());
       }

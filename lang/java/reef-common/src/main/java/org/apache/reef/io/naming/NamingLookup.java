@@ -37,6 +37,6 @@ public interface NamingLookup {
    * @return the Inet address
    * @throws java.io.IOException
    */
-  InetSocketAddress lookup(final Identifier id) throws Exception;
+  InetSocketAddress lookup(Identifier id) throws Exception;
 
 }

@@ -46,6 +46,6 @@ public interface ICloudBlobClientProvider {
    * @return            a Shared Access Key URI for the given {@link CloudBlob}.
    * @throws IOException
    */
-  URI generateSharedAccessSignature(final CloudBlob cloudBlob, final SharedAccessBlobPolicy policy)
+  URI generateSharedAccessSignature(CloudBlob cloudBlob, SharedAccessBlobPolicy policy)
       throws IOException;
 }

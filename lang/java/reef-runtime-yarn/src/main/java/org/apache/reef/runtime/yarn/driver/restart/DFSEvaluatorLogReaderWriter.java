@@ -35,7 +35,7 @@ public interface DFSEvaluatorLogReaderWriter extends AutoCloseable {
    * @param formattedEntry The formatted entry (entry with evaluator ID and addition/removal information)
    * @throws IOException
    */
-  void writeToEvaluatorLog(final String formattedEntry) throws IOException;
+  void writeToEvaluatorLog(String formattedEntry) throws IOException;
 
   /**
    * Reads a formatted entry (addition or removal) from the DFS evaluator log.

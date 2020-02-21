@@ -31,5 +31,5 @@ public interface YarnContainerRequestHandler {
    *
    * @param containerRequests set of container requests
    */
-  void onContainerRequest(final AMRMClient.ContainerRequest... containerRequests);
+  void onContainerRequest(AMRMClient.ContainerRequest... containerRequests);
 }

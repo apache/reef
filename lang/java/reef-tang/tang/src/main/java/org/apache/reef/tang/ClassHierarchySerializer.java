@@ -35,7 +35,7 @@ public interface ClassHierarchySerializer {
    * @param file the file to store the ClassHierarchy
    * @throws IOException if there is an error in the process
    */
-  void toFile(final ClassHierarchy classHierarchy, final File file) throws IOException;
+  void toFile(ClassHierarchy classHierarchy, File file) throws IOException;
 
   /**
    * Writes a ClassHierarchy into a text file.
@@ -44,7 +44,7 @@ public interface ClassHierarchySerializer {
    * @param file the text file to store the ClassHierarchy
    * @throws IOException if there is an error in the process
    */
-  void toTextFile(final ClassHierarchy classHierarchy, final File file) throws IOException;
+  void toTextFile(ClassHierarchy classHierarchy, File file) throws IOException;
 
    /**
    * Serializes a ClassHierarchy as a byte[].
@@ -53,7 +53,7 @@ public interface ClassHierarchySerializer {
    * @return the byte array containing the serialized class hierarchy
    * @throws IOException if there is an error in the process
    */
-  byte[] toByteArray(final ClassHierarchy classHierarchy) throws IOException;
+  byte[] toByteArray(ClassHierarchy classHierarchy) throws IOException;
 
   /**
    * Serializes a ClassHierarchy as a String.
@@ -62,7 +62,7 @@ public interface ClassHierarchySerializer {
    * @return the string containing the serialized class hierarchy
    * @throws IOException if there is an error in the process
    */
-  String toString(final ClassHierarchy classHierarchy) throws IOException;
+  String toString(ClassHierarchy classHierarchy) throws IOException;
 
   /**
    * Loads a ClassHierarchy from a file created with toFile().
@@ -71,7 +71,7 @@ public interface ClassHierarchySerializer {
    * @return the class hierarchy
    * @throws IOException if the File can't be read or parsed
    */
-  ClassHierarchy fromFile(final File file) throws IOException;
+  ClassHierarchy fromFile(File file) throws IOException;
 
   /**
    * Loads a ClassHierarchy from a text file created with toTextFile().
@@ -80,7 +80,7 @@ public interface ClassHierarchySerializer {
    * @return the class hierarchy
    * @throws IOException if the File can't be read or parsed
    */
-  ClassHierarchy fromTextFile(final File file) throws IOException;
+  ClassHierarchy fromTextFile(File file) throws IOException;
 
   /**
    * Deserializes a ClassHierarchy from a byte[] created with toByteArray().
@@ -89,7 +89,7 @@ public interface ClassHierarchySerializer {
    * @return the class hierarchy
    * @throws IOException if the byte[] can't be read or parsed
    */
-  ClassHierarchy fromByteArray(final byte[] theBytes) throws IOException;
+  ClassHierarchy fromByteArray(byte[] theBytes) throws IOException;
 
   /**
    * Deserializes a ClassHierarchy from a String created with toString().
@@ -98,5 +98,5 @@ public interface ClassHierarchySerializer {
    * @return the class hierarchy
    * @throws IOException if the String can't be read or parsed
    */
-  ClassHierarchy fromString(final String theString) throws IOException;
+  ClassHierarchy fromString(String theString) throws IOException;
 }

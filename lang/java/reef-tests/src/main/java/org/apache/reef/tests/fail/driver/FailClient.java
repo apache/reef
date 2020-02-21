@@ -99,7 +99,7 @@ public final class FailClient {
             .bindNamedParameter(RemoteConfiguration.MessageCodec.class, REEFMessageCodec.class)
             .build();
 
-    try (final REEFEnvironment reef = REEFEnvironment.fromConfiguration(runtimeConfig, driverConfig)) {
+    try (REEFEnvironment reef = REEFEnvironment.fromConfiguration(runtimeConfig, driverConfig)) {
       reef.run();
       return reef.getLastStatus();
     }

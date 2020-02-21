@@ -94,14 +94,14 @@ public class NamingTest {
     final Injector injector = Tang.Factory.getTang().newInjector();
     injector.bindVolatileParameter(NameServerParameters.NameServerIdentifierFactory.class, this.factory);
     injector.bindVolatileInstance(LocalAddressProvider.class, this.localAddressProvider);
-    try (final NameServer server = injector.getInstance(NameServer.class)) {
+    try (NameServer server = injector.getInstance(NameServer.class)) {
       this.port = server.getPort();
       for (final Identifier id : idToAddrMap.keySet()) {
         server.register(id, idToAddrMap.get(id));
       }
 
       // run a client
-      try (final NameLookupClient client =
+      try (NameLookupClient client =
                getNewNameLookupClient(localAddress, port, TTL, RETRY_COUNT, RETRY_TIMEOUT,
                    Optional.of(this.localAddressProvider), Optional.of(this.factory))) {
 
@@ -179,14 +179,14 @@ public class NamingTest {
       final Injector injector = Tang.Factory.getTang().newInjector();
       injector.bindVolatileParameter(NameServerParameters.NameServerIdentifierFactory.class, this.factory);
       injector.bindVolatileInstance(LocalAddressProvider.class, this.localAddressProvider);
-      try (final NameServer server = injector.getInstance(NameServer.class)) {
+      try (NameServer server = injector.getInstance(NameServer.class)) {
         this.port = server.getPort();
         for (final Identifier id : idToAddrMap.keySet()) {
           server.register(id, idToAddrMap.get(id));
         }
 
         // run a client
-        try (final NameLookupClient client =
+        try (NameLookupClient client =
             getNewNameLookupClient(localAddress, port, TTL, RETRY_COUNT, RETRY_TIMEOUT,
                 Optional.of(this.localAddressProvider), Optional.of(this.factory))) {
           final Identifier id1 = this.factory.getNewInstance("task1");
@@ -264,7 +264,7 @@ public class NamingTest {
     final Injector injector = Tang.Factory.getTang().newInjector();
     injector.bindVolatileParameter(NameServerParameters.NameServerIdentifierFactory.class, this.factory);
     injector.bindVolatileInstance(LocalAddressProvider.class, this.localAddressProvider);
-    try (final NameServer server = injector.getInstance(NameServer.class)) {
+    try (NameServer server = injector.getInstance(NameServer.class)) {
       this.port = server.getPort();
       final String localAddress = localAddressProvider.getLocalAddress();
 
@@ -275,7 +275,7 @@ public class NamingTest {
 
       // registration
       // invoke registration from the client side
-      try (final NameRegistryClient client = 
+      try (NameRegistryClient client = 
           new NameRegistryClient(localAddress, this.port, this.factory, this.localAddressProvider)) {
         for (final Identifier id : idToAddrMap.keySet()) {
           client.register(id, idToAddrMap.get(id));
@@ -330,7 +330,7 @@ public class NamingTest {
     final Injector injector = Tang.Factory.getTang().newInjector();
     injector.bindVolatileParameter(NameServerParameters.NameServerIdentifierFactory.class, this.factory);
     injector.bindVolatileInstance(LocalAddressProvider.class, this.localAddressProvider);
-    try (final NameServer server = injector.getInstance(NameServer.class)) {
+    try (NameServer server = injector.getInstance(NameServer.class)) {
       this.port = server.getPort();
 
       final Map<Identifier, InetSocketAddress> idToAddrMap = new HashMap<>();
@@ -347,7 +347,7 @@ public class NamingTest {
           .set(NameResolverConfiguration.RETRY_COUNT, RETRY_COUNT)
           .build();
 
-      try (final NameResolver client
+      try (NameResolver client
                = Tang.Factory.getTang().newInjector(nameResolverConf).getInstance(NameClient.class)) {
         for (final Identifier id : idToAddrMap.keySet()) {
           client.register(id, idToAddrMap.get(id));

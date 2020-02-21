@@ -71,7 +71,7 @@ public final class TestHelloREEFYarnUnmanagedAM {
 
     LOG.log(Level.FINE, "Launching Unmanaged AM: {0}", JAR_PATH);
 
-    try (final DriverLauncher client = DriverLauncher.getLauncher(RUNTIME_CONFIG)) {
+    try (DriverLauncher client = DriverLauncher.getLauncher(RUNTIME_CONFIG)) {
 
       final String appId = client.submit(DRIVER_CONFIG, 10000);
       LOG.log(Level.INFO, "Job submitted: {0}", appId);
@@ -81,7 +81,7 @@ public final class TestHelloREEFYarnUnmanagedAM {
           .set(UnmanagedAmYarnDriverConfiguration.JOB_SUBMISSION_DIRECTORY, DRIVER_ROOT_PATH)
           .build();
 
-      try (final REEFEnvironment reef = REEFEnvironment.fromConfiguration(yarnAmConfig, DRIVER_CONFIG)) {
+      try (REEFEnvironment reef = REEFEnvironment.fromConfiguration(yarnAmConfig, DRIVER_CONFIG)) {
 
         reef.run();
 

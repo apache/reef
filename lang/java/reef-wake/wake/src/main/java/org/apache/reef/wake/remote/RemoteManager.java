@@ -38,7 +38,7 @@ public interface RemoteManager extends Stage {
    * @param messageType           a message class type
    * @return an event handler
    */
-  <T> EventHandler<T> getHandler(final RemoteIdentifier destinationIdentifier, final Class<? extends T> messageType);
+  <T> EventHandler<T> getHandler(RemoteIdentifier destinationIdentifier, Class<? extends T> messageType);
 
   /**
    * Registers the given EventHandler to be invoked when messages of Type T
@@ -53,9 +53,9 @@ public interface RemoteManager extends Stage {
    * @param theHandler       the event handler
    * @return the subscription that can be used to unsubscribe later
    */
-  <T, U extends T> AutoCloseable registerHandler(final RemoteIdentifier sourceIdentifier,
-                                                 final Class<U> messageType,
-                                                 final EventHandler<T> theHandler);
+  <T, U extends T> AutoCloseable registerHandler(RemoteIdentifier sourceIdentifier,
+                                                 Class<U> messageType,
+                                                 EventHandler<T> theHandler);
 
   /**
    * Registers the given EventHandler to be called for the given message type
@@ -69,8 +69,8 @@ public interface RemoteManager extends Stage {
    * @param theHandler  the event handler
    * @return the subscription that can be used to unsubscribe later
    */
-  <T, U extends T> AutoCloseable registerHandler(final Class<U> messageType,
-                                                 final EventHandler<RemoteMessage<T>> theHandler);
+  <T, U extends T> AutoCloseable registerHandler(Class<U> messageType,
+                                                 EventHandler<RemoteMessage<T>> theHandler);
 
   /**
    * Access the Identifier of this.

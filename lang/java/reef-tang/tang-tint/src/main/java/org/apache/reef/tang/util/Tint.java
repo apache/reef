@@ -317,7 +317,7 @@ public class Tint {
     }
 
     if (doc != null) {
-      try (final PrintStream out = new PrintStream(doc, "UTF-8")) {
+      try (PrintStream out = new PrintStream(doc, "UTF-8")) {
         out.println("<html><head><title>TangDoc</title>");
 
         out.println("<style>");

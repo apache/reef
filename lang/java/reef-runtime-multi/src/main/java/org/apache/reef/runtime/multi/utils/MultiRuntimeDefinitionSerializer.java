@@ -43,7 +43,7 @@ public final class MultiRuntimeDefinitionSerializer {
     final DatumWriter<AvroMultiRuntimeDefinition> configurationWriter =
             new SpecificDatumWriter<>(AvroMultiRuntimeDefinition.class);
     final String serializedConfiguration;
-    try (final ByteArrayOutputStream out = new ByteArrayOutputStream()) {
+    try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
       final JsonEncoder encoder = EncoderFactory.get().jsonEncoder(runtimeDefinition.getSchema(), out);
       configurationWriter.write(runtimeDefinition, encoder);
       encoder.flush();

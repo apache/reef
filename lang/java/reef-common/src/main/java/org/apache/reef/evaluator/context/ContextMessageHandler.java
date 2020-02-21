@@ -35,5 +35,5 @@ public interface ContextMessageHandler extends EventHandler<byte[]> {
    * @param message sent by the driver to this context
    */
   @Override
-  void onNext(final byte[] message);
+  void onNext(byte[] message);
 }

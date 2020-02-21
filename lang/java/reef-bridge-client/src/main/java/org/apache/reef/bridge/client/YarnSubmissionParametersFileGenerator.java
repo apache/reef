@@ -60,8 +60,8 @@ final class YarnSubmissionParametersFileGenerator {
     final File yarnJobParametersFile = new File(yarnClusterSubmissionFromCS.getDriverFolder(),
         fileNames.getYarnBootstrapJobParamFilePath());
 
-    try (final FileOutputStream appFileOutputStream = new FileOutputStream(yarnAppParametersFile)) {
-      try (final FileOutputStream jobFileOutputStream = new FileOutputStream(yarnJobParametersFile)) {
+    try (FileOutputStream appFileOutputStream = new FileOutputStream(yarnAppParametersFile)) {
+      try (FileOutputStream jobFileOutputStream = new FileOutputStream(yarnJobParametersFile)) {
         // this is mainly a test hook.
         writeAvroYarnAppSubmissionParametersToOutputStream(yarnClusterSubmissionFromCS, appFileOutputStream);
         writeAvroYarnJobSubmissionParametersToOutputStream(

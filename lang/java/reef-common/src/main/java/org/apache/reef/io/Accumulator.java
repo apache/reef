@@ -38,7 +38,7 @@ public interface Accumulator<T> extends AutoCloseable {
    * @param datum the datum to be added
    * @throws ServiceException
    */
-  void add(final T datum) throws ServiceException;
+  void add(T datum) throws ServiceException;
 
   @Override
   void close() throws ServiceException;

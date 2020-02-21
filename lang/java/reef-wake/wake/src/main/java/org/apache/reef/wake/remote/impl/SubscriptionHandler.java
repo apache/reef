@@ -25,7 +25,7 @@ package org.apache.reef.wake.remote.impl;
 class SubscriptionHandler<T> implements AutoCloseable {
 
   interface Unsubscriber<T> {
-    void unsubscribe(final T token);
+    void unsubscribe(T token);
   }
 
   private final T token;

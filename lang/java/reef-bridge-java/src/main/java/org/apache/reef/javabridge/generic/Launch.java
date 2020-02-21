@@ -104,7 +104,7 @@ public final class Launch {
   private static Configuration getClientConfiguration(final String[] args)
       throws BindException, InjectionException, IOException {
 
-    try (final LoggingScope ls = LoggingScopeFactory.getNewLoggingScope(Level.INFO, "Launch::getClientConfiguration")) {
+    try (LoggingScope ls = LoggingScopeFactory.getNewLoggingScope(Level.INFO, "Launch::getClientConfiguration")) {
       final Configuration commandLineConf = parseCommandLine(args);
 
       final Configuration clientConfiguration = ClientConfiguration.CONF

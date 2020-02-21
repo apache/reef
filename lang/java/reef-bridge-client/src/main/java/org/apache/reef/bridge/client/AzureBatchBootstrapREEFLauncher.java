@@ -109,7 +109,7 @@ public final class AzureBatchBootstrapREEFLauncher {
 
     final Configuration launcherConfig = launcherConfigBuilder.build();
 
-    try (final REEFEnvironment reef = REEFEnvironment.fromConfiguration(
+    try (REEFEnvironment reef = REEFEnvironment.fromConfiguration(
         azureBatchBootstrapDriverConfigGenerator.getDriverConfigurationFromParams(
             jobSubmissionParameters), launcherConfig)) {
       reef.run();
@@ -125,7 +125,7 @@ public final class AzureBatchBootstrapREEFLauncher {
   private static AvroAzureBatchJobSubmissionParameters readAvroJobSubmissionParameters(
       final File paramsFile) throws IOException {
     final AvroAzureBatchJobSubmissionParameters avroAzureBatchJobSubmissionParameters;
-    try (final FileInputStream fileInputStream = new FileInputStream(paramsFile)) {
+    try (FileInputStream fileInputStream = new FileInputStream(paramsFile)) {
       final JsonDecoder decoder = DecoderFactory.get().jsonDecoder(
           AvroAzureBatchJobSubmissionParameters.getClassSchema(), fileInputStream);
       final SpecificDatumReader<AvroAzureBatchJobSubmissionParameters> reader =

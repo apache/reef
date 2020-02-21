@@ -37,5 +37,5 @@ public interface RackNameFormatter {
   /**
    * The rack name of the Container.
    */
-  String getRackName(final Container container);
+  String getRackName(Container container);
 }
