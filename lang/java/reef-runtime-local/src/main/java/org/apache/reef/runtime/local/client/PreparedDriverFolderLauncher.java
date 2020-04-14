@@ -94,6 +94,7 @@ public class PreparedDriverFolderLauncher {
     try {
       this.executor.submit(process).get();
     } catch (InterruptedException | ExecutionException e) {
+      LOG.log(Level.SEVERE, "Driver process failed");
       throw new RuntimeException("Driver process failed", e);
     } finally {
       this.executor.shutdown();
