@@ -26,9 +26,13 @@ import org.apache.hadoop.yarn.client.api.AMRMClient;
 import org.apache.reef.tang.Tang;
 import org.apache.reef.tang.exceptions.InjectionException;
 import org.apache.reef.util.logging.LoggingScopeFactory;
-import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.Mockito;
+import org.junit.Assert;
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Tests for YarnResourceRequestHandler.
@@ -46,9 +50,22 @@ public final class YarnResourceRequestHandlerTest {
   private class MockContainerRequestHandler implements YarnContainerRequestHandler {
     private AMRMClient.ContainerRequest[] requests;
 
+    private ConcurrentHashMap<String, List<AMRMClient.ContainerRequest>> indexedRequest = new ConcurrentHashMap<>();
+
     @Override
     public void onContainerRequest(final AMRMClient.ContainerRequest... containerRequests) {
       this.requests = containerRequests;
+    }
+
+    @Override
+    public void onContainerRequest(final String requestId, final AMRMClient.ContainerRequest... containerRequests) {
+      this.indexedRequest.put(requestId, Arrays.asList(containerRequests));
+      this.requests = containerRequests;
+    }
+
+    @Override
+    public void onContainerRequestRemove(final String requestId) {
+      this.indexedRequest.remove(requestId);
     }
 
     AMRMClient.ContainerRequest[] getRequests() {

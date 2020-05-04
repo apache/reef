@@ -22,6 +22,7 @@ package org.apache.reef.bridge.driver.client;
 import org.apache.reef.annotations.audience.Private;
 import org.apache.reef.driver.evaluator.EvaluatorRequest;
 import org.apache.reef.driver.evaluator.EvaluatorRequestor;
+import org.apache.reef.runtime.common.driver.EvaluatorRequestorImpl;
 
 import javax.inject.Inject;
 
@@ -47,6 +48,16 @@ public final class DriverClientEvaluatorRequestor implements EvaluatorRequestor 
   public void submit(final EvaluatorRequest req) {
     this.driverClientService.notifyEvaluatorRequest(req.getNumber());
     this.driverServiceClient.onEvaluatorRequest(req);
+  }
+
+  @Override
+  public void remove(final String requestId) {
+    // The driver service will need to properly handle the remove flag.
+    EvaluatorRequest request = EvaluatorRequest.newBuilder()
+        .setNumber(EvaluatorRequestorImpl.REMOVE_FLAG)
+        .setRequestId(requestId)
+        .build();
+    this.driverServiceClient.onEvaluatorRequest(request);
   }
 
   @Override

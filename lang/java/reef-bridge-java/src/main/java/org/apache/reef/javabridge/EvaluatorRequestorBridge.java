@@ -71,6 +71,17 @@ public final class EvaluatorRequestorBridge extends NativeBridge {
                      final String runtimeName,
                      final ArrayList<String> nodeNames,
                      final String nodeLabelExpression) {
+    submit("", evaluatorsNumber, memory, virtualCore, relaxLocality, rack, runtimeName, nodeNames, nodeLabelExpression);
+  }
+  public void submit(final String requestId,
+                     final int evaluatorsNumber,
+                     final int memory,
+                     final int virtualCore,
+                     final boolean relaxLocality,
+                     final String rack,
+                     final String runtimeName,
+                     final ArrayList<String> nodeNames,
+                     final String nodeLabelExpression) {
     if (this.isBlocked) {
       throw new RuntimeException("Cannot request additional Evaluator, this is probably because " +
           "the Driver has crashed and restarted, and cannot ask for new container due to YARN-2433.");
@@ -84,6 +95,7 @@ public final class EvaluatorRequestorBridge extends NativeBridge {
       clrEvaluatorsNumber += evaluatorsNumber;
 
       final EvaluatorRequest request = EvaluatorRequest.newBuilder()
+          .setRequestId(requestId)
           .setNumber(evaluatorsNumber)
           .setMemory(memory)
           .setNumberOfCores(virtualCore)
@@ -93,9 +105,15 @@ public final class EvaluatorRequestorBridge extends NativeBridge {
           .setNodeLabelExpression(nodeLabelExpression)
           .build();
 
-      LOG.log(Level.FINE, "submitting evaluator request {0}", request);
+      LOG.log(Level.FINE, "EvaluatorRequestorBridge.submit(), requestId {0}, evaluatorsNumber:{1}",
+          new Object[] {requestId, evaluatorsNumber});
       jevaluatorRequestor.submit(request);
     }
+  }
+
+  public void remove(final String evaluatorRequestId) {
+    LOG.log(Level.INFO, "Received remove request for id {0}.", evaluatorRequestId);
+    jevaluatorRequestor.remove(evaluatorRequestId);
   }
 
   public int getEvaluatorNumber() {

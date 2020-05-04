@@ -64,6 +64,11 @@ public final class MockEvaluatorRequestor implements EvaluatorRequestor {
   }
 
   @Override
+  public void remove(final String requestId) {
+    // NOOP: all requests are immediately satisfied.
+  }
+
+  @Override
   public Builder newRequest() {
     if (this.clock.get().isClosed()) {
       throw new IllegalStateException("clock closed");

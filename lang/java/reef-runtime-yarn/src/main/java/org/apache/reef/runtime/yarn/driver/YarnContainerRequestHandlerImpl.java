@@ -39,9 +39,26 @@ public final class YarnContainerRequestHandlerImpl implements YarnContainerReque
     LOG.log(Level.FINEST, "Instantiated 'YarnContainerRequestHandler'");
   }
 
+  /**
+   * Container requests without request id. Will be deprecated in 0.18.
+   * @param containerRequests
+   */
+  @Deprecated
   @Override
   public void onContainerRequest(final AMRMClient.ContainerRequest... containerRequests) {
     LOG.log(Level.FINEST, "Sending container requests to YarnContainerManager.");
     this.containerManager.onContainerRequest(containerRequests);
+  }
+
+  @Override
+  public void onContainerRequest(final String requestId, final AMRMClient.ContainerRequest... containerRequests) {
+    LOG.log(Level.FINEST, "Sending container requests to YarnContainerManager.");
+    this.containerManager.onContainerRequest(requestId, containerRequests);
+  }
+
+  @Override
+  public void onContainerRequestRemove(final String requestId) {
+    LOG.log(Level.FINEST, "Sending container request remove to YarnContainerManager.");
+    this.containerManager.onContainerRequestRemove(requestId);
   }
 }

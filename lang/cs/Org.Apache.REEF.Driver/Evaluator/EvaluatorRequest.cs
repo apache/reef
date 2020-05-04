@@ -19,6 +19,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
+using Org.Apache.REEF.Driver.Bridge.Events;
+using Org.Apache.REEF.Utilities.Logging;
 
 namespace Org.Apache.REEF.Driver.Evaluator
 {
@@ -28,11 +30,16 @@ namespace Org.Apache.REEF.Driver.Evaluator
     [DataContract]
     internal class EvaluatorRequest : IEvaluatorRequest
     {
-        internal EvaluatorRequest() : this(number: 0, megaBytes: 0)
-        {
-        }
+        internal EvaluatorRequest()
+            : this(number: 0, megaBytes: 0)
 
-        internal EvaluatorRequest(int number, int megaBytes) : this(number: number, megaBytes: megaBytes, core: 1)
+        private static readonly Logger Logger = Logger.GetLogger(typeof(EvaluatorRequest));
+
+        internal EvaluatorRequest(int number, int megaBytes)
+            : this(
+                  number: number,
+                  megaBytes: megaBytes,
+                  core: 1)
         {
         }
 
@@ -92,19 +99,21 @@ namespace Org.Apache.REEF.Driver.Evaluator
             ICollection<string> nodeNames,
             bool relaxLocality)
                 : this(
-                number: number,
-                megaBytes: megaBytes,
-                core: core,
-                rack: rack,
-                evaluatorBatchId: evaluatorBatchId,
-                runtimeName: string.Empty,
-                nodeNames: nodeNames,
-                relaxLocality: relaxLocality,
-                nodeLabelExpression: string.Empty)
+                    requestId: string.Empty,
+                    number: number,
+                    megaBytes: megaBytes,
+                    core: core,
+                    rack: rack,
+                    evaluatorBatchId: evaluatorBatchId,
+                    runtimeName: string.Empty,
+                    nodeNames: nodeNames,
+                    relaxLocality: relaxLocality,
+                    nodeLabelExpression: string.Empty)
         {
         }
 
         internal EvaluatorRequest(
+            string requestId,
             int number,
             int megaBytes,
             int core,
@@ -115,9 +124,12 @@ namespace Org.Apache.REEF.Driver.Evaluator
             bool relaxLocality,
             string nodeLabelExpression)
         {
+            Logger.Log(Level.Verbose, "EvaluatorRequest constructor: RequestId {0}, Number: {1},  Priority: {2}.", requestId, number, priority);
+            RequestId = requestId;
             Number = number;
             MemoryMegaBytes = megaBytes;
             VirtualCore = core;
+            Priority = priority;
             Rack = rack;
             EvaluatorBatchId = evaluatorBatchId;
             RuntimeName = runtimeName;
@@ -125,6 +137,9 @@ namespace Org.Apache.REEF.Driver.Evaluator
             RelaxLocality = relaxLocality;
             NodeLabelExpression = nodeLabelExpression;
         }
+
+        [DataMember]
+        public string RequestId { get; private set; }
 
         [DataMember]
         public int MemoryMegaBytes { get; private set; }

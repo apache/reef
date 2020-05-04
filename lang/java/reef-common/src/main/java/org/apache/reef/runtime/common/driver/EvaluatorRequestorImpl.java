@@ -44,6 +44,7 @@ public final class EvaluatorRequestorImpl implements EvaluatorRequestor {
   private final ResourceCatalog resourceCatalog;
   private final ResourceRequestHandler resourceRequestHandler;
   private final LoggingScopeFactory loggingScopeFactory;
+  public static final int REMOVE_FLAG = -100;
 
   /**
    * @param resourceCatalog
@@ -62,8 +63,8 @@ public final class EvaluatorRequestorImpl implements EvaluatorRequestor {
   @Override
   public synchronized void submit(final EvaluatorRequest req) {
     if (LOG.isLoggable(Level.FINEST)) {
-      LOG.log(Level.FINEST, "Got an EvaluatorRequest: number: {0}, memory = {1}, cores = {2}.",
-          new Object[] {req.getNumber(), req.getMegaBytes(), req.getNumberOfCores()});
+      LOG.log(Level.FINEST, "Got an EvaluatorRequest:number:{0}, memory:{1}, cores:{2}, requestId:{3}.",
+          new Object[] {req.getNumber(), req.getMegaBytes(), req.getNumberOfCores(), req.getRequestId()});
       LOG.log(Level.FINEST, "Node names: " + Arrays.toString(req.getNodeNames().toArray()));
     }
 
@@ -102,6 +103,7 @@ public final class EvaluatorRequestorImpl implements EvaluatorRequestor {
     try (LoggingScope ls = this.loggingScopeFactory.evaluatorSubmit(req.getNumber())) {
       final ResourceRequestEvent request = ResourceRequestEventImpl
           .newBuilder()
+          .setRequestId(req.getRequestId())
           .setResourceCount(req.getNumber())
           .setVirtualCores(req.getNumberOfCores())
           .setMemorySize(req.getMegaBytes())
@@ -113,6 +115,20 @@ public final class EvaluatorRequestorImpl implements EvaluatorRequestor {
           .build();
       this.resourceRequestHandler.onNext(request);
     }
+  }
+
+  @Override
+  public synchronized void remove(final String requestId) {
+    LOG.log(Level.FINE, "EvaluatorRequestorImpl.remove request for id {0}.", requestId);
+    if (requestId == null || requestId.equals("")) {
+      throw new IllegalArgumentException("Given null or empty request id for removing a request.");
+    }
+    final ResourceRequestEvent request = ResourceRequestEventImpl
+        .newBuilder()
+        .setRequestId(requestId)
+        .setResourceCount(REMOVE_FLAG)
+        .build();
+    this.resourceRequestHandler.onNext(request);
   }
 
   /**

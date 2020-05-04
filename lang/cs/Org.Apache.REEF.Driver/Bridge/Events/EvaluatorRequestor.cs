@@ -65,8 +65,8 @@ namespace Org.Apache.REEF.Driver.Bridge.Events
 
         public void Submit(IEvaluatorRequest request)
         {
-            LOGGER.Log(Level.Info, "Submitting request for {0} evaluators and {1} MB memory and  {2} core to rack {3} runtime {4}, nodeNames to schedule {5} and RelaxLocality is {6}.",
-                request.Number, request.MemoryMegaBytes, request.VirtualCore, request.Rack, request.RuntimeName, string.Join(",", request.NodeNames.ToArray()), request.RelaxLocality);
+            LOGGER.Log(Level.Info, "Submitting request for {0} evaluators and {1} MB memory and  {2} core to rack {3} runtime {4}, nodeNames to schedule {5} and RelaxLocality is {6}, requestId {7}.",
+                request.Number, request.MemoryMegaBytes, request.VirtualCore, request.Rack, request.RuntimeName, string.Join(",", request.NodeNames.ToArray()), request.RelaxLocality, request.RequestId);
             lock (Evaluators)
             {
                 for (var i = 0; i < request.Number; i++)
@@ -94,6 +94,11 @@ namespace Org.Apache.REEF.Driver.Bridge.Events
             }
 
             Clr2Java.Submit(request);
+        }
+
+        public void Remove(string requestId)
+        {
+            Clr2Java.Remove(requestId);
         }
 
         public EvaluatorRequestBuilder NewBuilder()

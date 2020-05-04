@@ -253,6 +253,11 @@ namespace Org.Apache.REEF.IMRU.Tests
                 // but can't throw exception here as Driver calls this method before cancellation flow can be initiated.
             }
 
+            public void Remove(string requestId)
+            {
+                // for test we don't really remove evaluator request,
+            }
+
             public EvaluatorRequestBuilder NewBuilder()
             {
                 var builder = Activator.CreateInstance(

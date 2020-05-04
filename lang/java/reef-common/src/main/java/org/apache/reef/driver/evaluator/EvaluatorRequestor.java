@@ -37,6 +37,12 @@ public interface EvaluatorRequestor {
   void submit(final EvaluatorRequest req);
 
   /**
+   * Remove the submitted EvaluatorRequest.
+   * @param requestId to be removed.
+   */
+  void remove(final String requestId);
+
+  /**
    * Get a new Builder for the evaluator with fluid interface.
    * @return Builder for the evaluator
    */
