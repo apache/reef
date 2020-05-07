@@ -111,7 +111,7 @@ public final class ProtocolSerializer {
   public byte[] write(final SpecificRecord message, final long sequence) {
 
     final String classId = getClassId(message.getClass());
-    try (final ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
+    try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
 
       LOG.log(Level.FINEST, "Serializing message: {0}", classId);
 
@@ -135,7 +135,7 @@ public final class ProtocolSerializer {
    */
   public void read(final byte[] messageBytes, final MultiObserver observer) {
 
-    try (final InputStream inputStream = new ByteArrayInputStream(messageBytes)) {
+    try (InputStream inputStream = new ByteArrayInputStream(messageBytes)) {
 
       // Binary decoder for both the header and the message.
       final BinaryDecoder decoder = DecoderFactory.get().binaryDecoder(inputStream, null);

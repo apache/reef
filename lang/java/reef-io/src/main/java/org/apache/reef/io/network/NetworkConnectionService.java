@@ -66,25 +66,25 @@ public interface NetworkConnectionService extends AutoCloseable {
    * @param localEndPointId a local end point id
    * @return the registered connection factory
    */
-  <T> ConnectionFactory<T> registerConnectionFactory(final Identifier connectionFactoryId,
-                                     final Codec<T> codec,
-                                     final EventHandler<Message<T>> eventHandler,
-                                     final LinkListener<Message<T>> linkListener,
-                                     final Identifier localEndPointId);
+  <T> ConnectionFactory<T> registerConnectionFactory(Identifier connectionFactoryId,
+                                     Codec<T> codec,
+                                     EventHandler<Message<T>> eventHandler,
+                                     LinkListener<Message<T>> linkListener,
+                                     Identifier localEndPointId);
 
   /**
    * Unregisters a connectionFactory corresponding to the connectionFactoryId
    * and removes the localEndPointID of the connection factory from NameServer.
    * @param connectionFactoryId a connection factory id
    */
-  void unregisterConnectionFactory(final Identifier connectionFactoryId);
+  void unregisterConnectionFactory(Identifier connectionFactoryId);
 
   /**
    * Gets an instance of ConnectionFactory which is registered by the registerConnectionFactory method.
    *
    * @param connectionFactoryId a connection factory id
    */
-  <T> ConnectionFactory<T> getConnectionFactory(final Identifier connectionFactoryId);
+  <T> ConnectionFactory<T> getConnectionFactory(Identifier connectionFactoryId);
 
   /**
    * Closes all resources and unregisters all registered connection factories.

@@ -38,5 +38,5 @@ public interface IMessageDeserializer {
    * @throws InvocationTargetException Subclass threw and exception.
    */
   void deserialize(BinaryDecoder decoder, MultiObserver observer, long sequence)
-   throws IOException, IllegalAccessException, InvocationTargetException;
+      throws IOException, IllegalAccessException, InvocationTargetException;
 }

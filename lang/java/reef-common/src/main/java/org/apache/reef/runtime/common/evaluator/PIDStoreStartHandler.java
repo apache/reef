@@ -62,7 +62,7 @@ public final class PIDStoreStartHandler implements EventHandler<RuntimeStart> {
       final long pid = OSUtils.getPID();
       final File outfile = new File(PID_FILE_NAME);
       LOG.log(Level.FINEST, "Storing pid `" + pid + "` in file " + outfile.getAbsolutePath());
-      try (final PrintWriter p = new PrintWriter(PID_FILE_NAME, "UTF-8")) {
+      try (PrintWriter p = new PrintWriter(PID_FILE_NAME, "UTF-8")) {
         p.write(String.valueOf(pid));
         p.write("\n");
       } catch (final FileNotFoundException | UnsupportedEncodingException e) {

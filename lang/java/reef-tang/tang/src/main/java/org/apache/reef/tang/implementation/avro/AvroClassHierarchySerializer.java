@@ -190,7 +190,7 @@ public final class AvroClassHierarchySerializer implements ClassHierarchySeriali
   public void toFile(final ClassHierarchy classHierarchy, final File file) throws IOException {
     final AvroNode avroNode = toAvro(classHierarchy);
     final DatumWriter<AvroNode> avroNodeWriter = new SpecificDatumWriter<>(AvroNode.class);
-    try (final DataFileWriter<AvroNode> dataFileWriter = new DataFileWriter<>(avroNodeWriter)) {
+    try (DataFileWriter<AvroNode> dataFileWriter = new DataFileWriter<>(avroNodeWriter)) {
       dataFileWriter.create(avroNode.getSchema(), file);
       dataFileWriter.append(avroNode);
     }
@@ -199,7 +199,7 @@ public final class AvroClassHierarchySerializer implements ClassHierarchySeriali
   @Override
   public byte[] toByteArray(final ClassHierarchy classHierarchy) throws IOException {
     final DatumWriter<AvroNode> requestWriter = new SpecificDatumWriter<>(AvroNode.class);
-    try (final ByteArrayOutputStream out = new ByteArrayOutputStream()) {
+    try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
       final BinaryEncoder encoder = EncoderFactory.get().binaryEncoder(out, null);
       requestWriter.write(toAvro(classHierarchy), encoder);
       encoder.flush();
@@ -210,7 +210,7 @@ public final class AvroClassHierarchySerializer implements ClassHierarchySeriali
   @Override
   public String toString(final ClassHierarchy classHierarchy) throws IOException {
     final DatumWriter<AvroNode> classHierarchyWriter = new SpecificDatumWriter<>(AvroNode.class);
-    try (final ByteArrayOutputStream out = new ByteArrayOutputStream()) {
+    try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
       final JsonEncoder encoder = EncoderFactory.get().jsonEncoder(AvroNode.SCHEMA$, out);
       classHierarchyWriter.write(toAvro(classHierarchy), encoder);
       encoder.flush();
@@ -221,7 +221,7 @@ public final class AvroClassHierarchySerializer implements ClassHierarchySeriali
 
   @Override
   public void toTextFile(final ClassHierarchy classHierarchy, final File file) throws IOException {
-    try (final Writer w = new FileWriter(file)) {
+    try (Writer w = new FileWriter(file)) {
       w.write(this.toString(classHierarchy));
     }
   }
@@ -229,7 +229,7 @@ public final class AvroClassHierarchySerializer implements ClassHierarchySeriali
   @Override
   public ClassHierarchy fromFile(final File file) throws IOException {
     final AvroNode avroNode;
-    try (final DataFileReader<AvroNode> dataFileReader =
+    try (DataFileReader<AvroNode> dataFileReader =
                  new DataFileReader<>(file, new SpecificDatumReader<>(AvroNode.class))) {
       avroNode = dataFileReader.next();
     }
@@ -253,7 +253,7 @@ public final class AvroClassHierarchySerializer implements ClassHierarchySeriali
   @Override
   public ClassHierarchy fromTextFile(final File file) throws IOException {
     final StringBuilder stringBuilder = new StringBuilder();
-    try (final BufferedReader reader = new BufferedReader(new FileReader(file))) {
+    try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
       String line = reader.readLine();
       while (line != null) {
         stringBuilder.append(line);

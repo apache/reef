@@ -92,7 +92,7 @@ public class AvroEvaluatorInfoSerializer implements EvaluatorInfoSerializer {
   @Override
   public String toString(final AvroEvaluatorsInfo avroEvaluatorsInfo) {
     final DatumWriter<AvroEvaluatorsInfo> evaluatorWriter = new SpecificDatumWriter<>(AvroEvaluatorsInfo.class);
-    try (final ByteArrayOutputStream out = new ByteArrayOutputStream()) {
+    try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
       final JsonEncoder encoder = EncoderFactory.get().jsonEncoder(avroEvaluatorsInfo.getSchema(), out);
       evaluatorWriter.write(avroEvaluatorsInfo, encoder);
       encoder.flush();

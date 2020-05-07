@@ -43,13 +43,13 @@ interface RunningJobs {
    *
    * @param message
    */
-  void onJobStatusMessage(final RemoteMessage<ReefServiceProtos.JobStatusProto> message);
+  void onJobStatusMessage(RemoteMessage<ReefServiceProtos.JobStatusProto> message);
 
   /**
    * Processes a error message from the resource manager.
    *
    * @param runtimeFailure
    */
-  void onRuntimeErrorMessage(final RemoteMessage<ReefServiceProtos.RuntimeErrorProto> runtimeFailure);
+  void onRuntimeErrorMessage(RemoteMessage<ReefServiceProtos.RuntimeErrorProto> runtimeFailure);
 
 }

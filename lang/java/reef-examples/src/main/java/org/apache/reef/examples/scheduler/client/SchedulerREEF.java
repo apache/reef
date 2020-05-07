@@ -89,7 +89,7 @@ public final class SchedulerREEF {
    * @throws java.io.IOException
    */
   public static void runTaskScheduler(final Configuration runtimeConf, final String[] args)
-    throws InjectionException, IOException, ParseException {
+      throws InjectionException, IOException, ParseException {
     final Tang tang = Tang.Factory.getTang();
 
     final Configuration commandLineConf = CommandLine.parseToConfiguration(args, Retain.class);

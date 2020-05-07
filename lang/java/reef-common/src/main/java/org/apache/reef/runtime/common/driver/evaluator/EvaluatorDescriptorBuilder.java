@@ -33,33 +33,33 @@ public interface EvaluatorDescriptorBuilder extends org.apache.reef.util.Builder
    * @param nodeDescriptor for this evaluator
    * @return this
    */
-  EvaluatorDescriptorBuilder setNodeDescriptor(final NodeDescriptor nodeDescriptor);
+  EvaluatorDescriptorBuilder setNodeDescriptor(NodeDescriptor nodeDescriptor);
 
   /**
    * Amount of memory dedicated to this evaluator.
    * @param megaBytes of dedicated memory
    * @return this
    */
-  EvaluatorDescriptorBuilder setMemory(final int megaBytes);
+  EvaluatorDescriptorBuilder setMemory(int megaBytes);
 
   /**
    * Set the number of cores.
    * @param numberOfCores dedicated for this evaluator
    * @return this
    */
-  EvaluatorDescriptorBuilder setNumberOfCores(final int numberOfCores);
+  EvaluatorDescriptorBuilder setNumberOfCores(int numberOfCores);
 
   /**
    * The process used to run this evaluator.
    * @param evaluatorProcess for this evaluator
    * @return this
    */
-  EvaluatorDescriptorBuilder setEvaluatorProcess(final EvaluatorProcess evaluatorProcess);
+  EvaluatorDescriptorBuilder setEvaluatorProcess(EvaluatorProcess evaluatorProcess);
 
   /**
    * The runtime name for this evaluator.
    * @param runtimeName for this evaluator
    * @return this
    */
-  EvaluatorDescriptorBuilder setRuntimeName(final String runtimeName);
+  EvaluatorDescriptorBuilder setRuntimeName(String runtimeName);
 }

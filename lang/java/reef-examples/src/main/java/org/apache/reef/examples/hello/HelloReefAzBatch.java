@@ -78,7 +78,7 @@ public final class HelloReefAzBatch {
         injector.getInstance(AzureBatchRuntimeConfigurationProvider.class);
     final Configuration driverConfiguration = getDriverConfiguration();
 
-    try (final REEF reef = Tang.Factory.getTang().newInjector(
+    try (REEF reef = Tang.Factory.getTang().newInjector(
         runtimeConfigurationProvider.getAzureBatchRuntimeConfiguration()).getInstance(REEF.class)) {
       reef.submit(driverConfiguration);
     }

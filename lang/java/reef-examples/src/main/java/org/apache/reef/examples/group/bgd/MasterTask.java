@@ -100,7 +100,7 @@ public class MasterTask implements Task {
 
     double gradientNorm = Double.MAX_VALUE;
     for (int iteration = 1; !converged(iteration, gradientNorm); ++iteration) {
-      try (final Timer t = new Timer("Current Iteration(" + iteration + ")")) {
+      try (Timer t = new Timer("Current Iteration(" + iteration + ")")) {
         final Pair<Double, Vector> lossAndGradient = computeLossAndGradient();
         losses.add(lossAndGradient.getFirst());
         final Vector descentDirection = getDescentDirection(lossAndGradient.getSecond());
@@ -120,7 +120,7 @@ public class MasterTask implements Task {
   }
 
   private void updateModel(final Vector descentDirection) throws NetworkException, InterruptedException {
-    try (final Timer t = new Timer("GetDescentDirection + FindMinEta + UpdateModel")) {
+    try (Timer t = new Timer("GetDescentDirection + FindMinEta + UpdateModel")) {
       final Vector lineSearchEvals = lineSearch(descentDirection);
       minEta = findMinEta(model, descentDirection, lineSearchEvals);
       model.multAdd(minEta, descentDirection);
@@ -133,7 +133,7 @@ public class MasterTask implements Task {
     Vector lineSearchResults = null;
     boolean allDead = false;
     do {
-      try (final Timer t = new Timer("LineSearch - Broadcast("
+      try (Timer t = new Timer("LineSearch - Broadcast("
           + (sendModel ? "ModelAndDescentDirection" : "DescentDirection") + ") + Reduce(LossEvalsInLineSearch)")) {
         if (sendModel) {
           LOG.log(Level.INFO, "OUT: DoLineSearchWithModel");
@@ -166,7 +166,7 @@ public class MasterTask implements Task {
     Pair<Double, Vector> returnValue = null;
     boolean allDead = false;
     do {
-      try (final Timer t = new Timer("Broadcast(" + (sendModel ? "Model" : "MinEta") + ") + Reduce(LossAndGradient)")) {
+      try (Timer t = new Timer("Broadcast(" + (sendModel ? "Model" : "MinEta") + ") + Reduce(LossAndGradient)")) {
         if (sendModel) {
           LOG.log(Level.INFO, "OUT: ComputeGradientWithModel");
           controlMessageBroadcaster.send(ControlMessages.ComputeGradientWithModel);

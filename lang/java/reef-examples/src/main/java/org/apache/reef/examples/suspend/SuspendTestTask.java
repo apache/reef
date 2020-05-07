@@ -144,7 +144,7 @@ public class SuspendTestTask implements Task, TaskMessageSource {
    * @return checkpoint ID (serialized)
    */
   private synchronized byte[] save() throws IOException, InterruptedException {
-    try (final CheckpointWriteChannel channel = this.checkpointService.create()) {
+    try (CheckpointWriteChannel channel = this.checkpointService.create()) {
       channel.write(ByteBuffer.wrap(this.codecInt.encode(this.counter)));
       return this.codecCheckpoint.encode(this.checkpointService.commit(channel));
     }
@@ -157,7 +157,7 @@ public class SuspendTestTask implements Task, TaskMessageSource {
    */
   private synchronized void restore(final byte[] memento) throws IOException, InterruptedException {
     final CheckpointID checkpointId = this.codecCheckpoint.decode(memento);
-    try (final CheckpointReadChannel channel = this.checkpointService.open(checkpointId)) {
+    try (CheckpointReadChannel channel = this.checkpointService.open(checkpointId)) {
       final ByteBuffer buffer = ByteBuffer.wrap(this.codecInt.encode(this.counter));
       channel.read(buffer);
       this.counter = this.codecInt.decode(buffer.array());

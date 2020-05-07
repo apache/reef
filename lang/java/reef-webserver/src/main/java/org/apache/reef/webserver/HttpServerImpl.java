@@ -88,7 +88,7 @@ public final class HttpServerImpl implements HttpServer {
     this.jettyHandler = jettyHandler;
 
     this.hostAddress = UNKNOWN_HOST_NAME.equals(hostAddress) ? addressProvider.getLocalAddress() : hostAddress;
-    try (final LoggingScope ls = this.loggingScopeFactory.httpServer()) {
+    try (LoggingScope ls = this.loggingScopeFactory.httpServer()) {
 
       Server srv = null;
       int availablePort = -1;

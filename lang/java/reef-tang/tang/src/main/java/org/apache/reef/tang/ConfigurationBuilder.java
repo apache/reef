@@ -72,7 +72,7 @@ public interface ConfigurationBuilder {
    *
    * @param c the configuration to be added
    */
-  void addConfiguration(final Configuration c) throws BindException;
+  void addConfiguration(Configuration c) throws BindException;
 
   /**
    * Each ConfigurationBuilder instance is associated with a ClassHierarchy.

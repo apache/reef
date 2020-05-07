@@ -34,7 +34,7 @@ public interface NamingRegistry {
    * @param addr
    * @throws Exception
    */
-  void register(final Identifier id, final InetSocketAddress addr) throws Exception;
+  void register(Identifier id, InetSocketAddress addr) throws Exception;
 
   /**
    * Unregister the given Identifier from the registry.
@@ -42,5 +42,5 @@ public interface NamingRegistry {
    * @param id
    * @throws Exception
    */
-  void unregister(final Identifier id) throws Exception;
+  void unregister(Identifier id) throws Exception;
 }

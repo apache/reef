@@ -38,5 +38,5 @@ public interface EvaluatorDescriptorBuilderFactory {
    * @param copy to initialize builder
    * @return evaluator descriptor builder initialized to copy
    */
-  EvaluatorDescriptorBuilder newBuilder(final EvaluatorDescriptor copy);
+  EvaluatorDescriptorBuilder newBuilder(EvaluatorDescriptor copy);
 }

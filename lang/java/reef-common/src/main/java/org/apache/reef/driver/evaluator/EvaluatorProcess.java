@@ -43,7 +43,7 @@ public interface EvaluatorProcess {
    * @param megaBytes
    * @return this
    */
-  EvaluatorProcess setMemory(final int megaBytes);
+  EvaluatorProcess setMemory(int megaBytes);
 
   /**
    * Check whether custom options have been set for the process.
@@ -61,7 +61,7 @@ public interface EvaluatorProcess {
    * @param configurationFileName
    * @return this
    */
-  EvaluatorProcess setConfigurationFileName(final String configurationFileName);
+  EvaluatorProcess setConfigurationFileName(String configurationFileName);
 
   /**
    * Names a file to which stdout will be redirected.
@@ -69,7 +69,7 @@ public interface EvaluatorProcess {
    * @param standardOut
    * @return this
    */
-  EvaluatorProcess setStandardOut(final String standardOut);
+  EvaluatorProcess setStandardOut(String standardOut);
 
   /**
    * Names a file to which stderr will be redirected.
@@ -77,5 +77,5 @@ public interface EvaluatorProcess {
    * @param standardErr
    * @return this
    */
-  EvaluatorProcess setStandardErr(final String standardErr);
+  EvaluatorProcess setStandardErr(String standardErr);
 }

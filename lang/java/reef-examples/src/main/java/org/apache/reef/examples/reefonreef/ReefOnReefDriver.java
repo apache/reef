@@ -74,7 +74,7 @@ final class ReefOnReefDriver implements EventHandler<StartTime> {
     LOG.log(Level.INFO, "Driver started: app {0} :: {1}", new Object[] {this.hostApplicationId, startTime});
     LOG.log(Level.FINE, "Launching Unmanaged AM: {0}", JAR_PATH);
 
-    try (final DriverLauncher client = DriverLauncher.getLauncher(RUNTIME_CONFIG)) {
+    try (DriverLauncher client = DriverLauncher.getLauncher(RUNTIME_CONFIG)) {
 
       final String innerApplicationId = client.submit(DRIVER_CONFIG, 10000);
       LOG.log(Level.INFO, "REEF-on-REEF job submitted: host app {0} new app {1}",
@@ -85,7 +85,7 @@ final class ReefOnReefDriver implements EventHandler<StartTime> {
           .set(UnmanagedAmYarnDriverConfiguration.JOB_SUBMISSION_DIRECTORY, DRIVER_ROOT_PATH)
           .build();
 
-      try (final REEFEnvironment reef =
+      try (REEFEnvironment reef =
           REEFEnvironment.fromConfiguration(client.getUser(), yarnAmConfig, DRIVER_CONFIG)) {
 
         reef.run();

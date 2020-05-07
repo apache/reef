@@ -36,16 +36,16 @@ public interface Container extends AutoCloseable {
    *
    * @param commandLine the command line to execute. It will typically be joined by spaces to form the command line.
    */
-  void run(final List<String> commandLine);
+  void run(List<String> commandLine);
 
   /**
    * Copies the files to the working directory of the container.
    *
    * @param files the files to be added to the container.
    */
-  void addLocalFiles(final Iterable<File> files);
+  void addLocalFiles(Iterable<File> files);
 
-  void addGlobalFiles(final File globalFolder);
+  void addGlobalFiles(File globalFolder);
 
   /**
    * @return true if the Container is currently executing, false otherwise.

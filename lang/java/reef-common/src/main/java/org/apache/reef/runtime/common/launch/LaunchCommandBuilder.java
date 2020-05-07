@@ -36,7 +36,7 @@ public interface LaunchCommandBuilder {
    * @param megaBytes
    * @return this
    */
-  LaunchCommandBuilder setMemory(final int megaBytes);
+  LaunchCommandBuilder setMemory(int megaBytes);
 
   /**
    * Set the name of the configuration file for the Launcher. This file is assumed to exist in the working directory of
@@ -45,7 +45,7 @@ public interface LaunchCommandBuilder {
    * @param configurationFilePaths
    * @return this
    */
-  LaunchCommandBuilder setConfigurationFilePaths(final List<String> configurationFilePaths);
+  LaunchCommandBuilder setConfigurationFilePaths(List<String> configurationFilePaths);
 
   /**
    * Names a file to which stdout will be redirected.
@@ -53,7 +53,7 @@ public interface LaunchCommandBuilder {
    * @param standardOut
    * @return this
    */
-  LaunchCommandBuilder setStandardOut(final String standardOut);
+  LaunchCommandBuilder setStandardOut(String standardOut);
 
   /**
    * Names a file to which stderr will be redirected.
@@ -61,7 +61,7 @@ public interface LaunchCommandBuilder {
    * @param standardErr
    * @return this
    */
-  LaunchCommandBuilder setStandardErr(final String standardErr);
+  LaunchCommandBuilder setStandardErr(String standardErr);
 
 
 }

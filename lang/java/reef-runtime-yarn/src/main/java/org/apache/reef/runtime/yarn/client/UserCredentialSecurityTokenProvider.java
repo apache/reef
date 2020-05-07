@@ -51,7 +51,7 @@ public final class UserCredentialSecurityTokenProvider implements SecurityTokenP
       LOG.log(Level.FINEST, "Got {0} tokens for user {1}", new Object[] {credentials.numberOfTokens(), ugi});
 
       if (credentials.numberOfTokens() > 0) {
-        try (final DataOutputBuffer dob = new DataOutputBuffer()) {
+        try (DataOutputBuffer dob = new DataOutputBuffer()) {
           credentials.writeTokenStorageToStream(dob);
           return dob.getData();
         }
@@ -72,7 +72,7 @@ public final class UserCredentialSecurityTokenProvider implements SecurityTokenP
   @Override
   public void addTokens(final byte[] tokens) {
 
-    try (final DataInputBuffer buf = new DataInputBuffer()) {
+    try (DataInputBuffer buf = new DataInputBuffer()) {
 
       buf.reset(tokens, tokens.length);
       final Credentials credentials = new Credentials();
@@ -94,7 +94,7 @@ public final class UserCredentialSecurityTokenProvider implements SecurityTokenP
    * @return ByteBuffer that contains the token. It is compatible with addTokens() method.
    */
   public static byte[] serializeToken(final Token<AMRMTokenIdentifier> token) {
-    try (final DataOutputBuffer dob = new DataOutputBuffer()) {
+    try (DataOutputBuffer dob = new DataOutputBuffer()) {
       final Credentials credentials = new Credentials();
       credentials.addToken(token.getService(), token);
       credentials.writeTokenStorageToStream(dob);

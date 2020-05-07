@@ -23,9 +23,10 @@ import org.apache.reef.tang.types.Node;
 import java.util.*;
 
 public final class Subplan<T> extends InjectionPlan<T> {
-  final InjectionPlan<? extends T>[] alternatives;
-  final int numAlternatives;
-  final int selectedIndex;
+
+  private final InjectionPlan<? extends T>[] alternatives;
+  private final int numAlternatives;
+  private final int selectedIndex;
 
   @SafeVarargs
   public Subplan(final Node node, final int selectedIndex, final InjectionPlan<T>... alternatives) {

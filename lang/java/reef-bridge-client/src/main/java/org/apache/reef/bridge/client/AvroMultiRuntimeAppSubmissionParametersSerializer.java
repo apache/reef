@@ -45,7 +45,7 @@ final class AvroMultiRuntimeAppSubmissionParametersSerializer {
    * @throws IOException
    */
   AvroMultiRuntimeAppSubmissionParameters fromFile(final File file) throws IOException {
-    try (final FileInputStream fileInputStream = new FileInputStream(file)) {
+    try (FileInputStream fileInputStream = new FileInputStream(file)) {
       // This is mainly a test hook.
       return fromInputStream(fileInputStream);
     }

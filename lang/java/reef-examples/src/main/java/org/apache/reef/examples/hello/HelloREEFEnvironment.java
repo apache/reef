@@ -71,7 +71,7 @@ public final class HelloREEFEnvironment {
    */
   public static void main(final String[] args) throws InjectionException {
 
-    try (final REEFEnvironment reef = REEFEnvironment.fromConfiguration(
+    try (REEFEnvironment reef = REEFEnvironment.fromConfiguration(
         LOCAL_DRIVER_MODULE, DRIVER_CONFIG, ENVIRONMENT_CONFIG)) {
       reef.run();
       final ReefServiceProtos.JobStatusProto status = reef.getLastStatus();

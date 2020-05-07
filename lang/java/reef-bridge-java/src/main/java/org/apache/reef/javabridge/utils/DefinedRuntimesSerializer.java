@@ -44,7 +44,7 @@ public final class DefinedRuntimesSerializer {
   public byte[] toBytes(final DefinedRuntimes definedRuntimes){
     final DatumWriter<DefinedRuntimes> configurationWriter =
             new SpecificDatumWriter<>(DefinedRuntimes.class);
-    try (final ByteArrayOutputStream out = new ByteArrayOutputStream()) {
+    try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
       final BinaryEncoder binaryEncoder = EncoderFactory.get().binaryEncoder(out, null);
       configurationWriter.write(definedRuntimes, binaryEncoder);
       binaryEncoder.flush();

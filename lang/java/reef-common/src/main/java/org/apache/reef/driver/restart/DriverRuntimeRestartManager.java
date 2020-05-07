@@ -49,13 +49,13 @@ public interface DriverRuntimeRestartManager {
    * Records the evaluators when it is allocated.
    * @param id The evaluator ID of the allocated evaluator.
    */
-  void recordAllocatedEvaluator(final String id);
+  void recordAllocatedEvaluator(String id);
 
   /**
    * Records a removed evaluator into the evaluator log.
    * @param id The evaluator ID of the removed evaluator.
    */
-  void recordRemovedEvaluator(final String id);
+  void recordRemovedEvaluator(String id);
 
   /**
    * Gets the sets of alive and failed evaluators based on the runtime implementation.
@@ -67,5 +67,5 @@ public interface DriverRuntimeRestartManager {
    * Informs the necessary components about failed evaluators. The implementation is runtime dependent.
    * @param failedEvaluatorIds The set of evaluator IDs of evaluators that failed during restart.
    */
-  void informAboutEvaluatorFailures(final Set<String> failedEvaluatorIds);
+  void informAboutEvaluatorFailures(Set<String> failedEvaluatorIds);
 }

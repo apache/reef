@@ -274,7 +274,7 @@ public final class RunnableProcess implements Runnable {
    */
   private long readPID() throws IOException {
     final String pidFileName = this.folder.getAbsolutePath() + "/" + PIDStoreStartHandler.PID_FILE_NAME;
-    try (final BufferedReader r = new BufferedReader(
+    try (BufferedReader r = new BufferedReader(
         new InputStreamReader(new FileInputStream(pidFileName), StandardCharsets.UTF_8))) {
       return Long.parseLong(r.readLine());
     }

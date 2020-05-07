@@ -29,9 +29,9 @@ import org.apache.reef.wake.time.runtime.event.RuntimeStop;
  */
 interface Runtime {
   String getRuntimeName();
-  void onResourceLaunch(final ResourceLaunchEvent value);
-  void onRuntimeStart(final RuntimeStart value);
-  void onRuntimeStop(final RuntimeStop value);
-  void onResourceRelease(final ResourceReleaseEvent value);
-  void onResourceRequest(final ResourceRequestEvent value);
+  void onResourceLaunch(ResourceLaunchEvent value);
+  void onRuntimeStart(RuntimeStart value);
+  void onRuntimeStop(RuntimeStop value);
+  void onResourceRelease(ResourceReleaseEvent value);
+  void onResourceRequest(ResourceRequestEvent value);
 }

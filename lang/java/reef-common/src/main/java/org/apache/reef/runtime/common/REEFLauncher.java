@@ -177,7 +177,7 @@ public final class REEFLauncher {
 
     Thread.setDefaultUncaughtExceptionHandler(new REEFUncaughtExceptionHandler(launcher.envConfig));
 
-    try (final REEFEnvironment reef = REEFEnvironment.fromConfiguration(launcher.envConfig)) {
+    try (REEFEnvironment reef = REEFEnvironment.fromConfiguration(launcher.envConfig)) {
       reef.run();
     } catch (final Throwable ex) {
       throw fatal("Unable to configure and start REEFEnvironment.", ex);

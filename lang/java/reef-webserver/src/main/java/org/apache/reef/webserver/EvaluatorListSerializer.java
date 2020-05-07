@@ -36,9 +36,9 @@ public interface EvaluatorListSerializer {
    * @param startTime
    * @return
    */
-  AvroEvaluatorList toAvro(final Map<String, EvaluatorDescriptor> evaluatorMap,
-                           final int totalEvaluators,
-                           final String startTime);
+  AvroEvaluatorList toAvro(Map<String, EvaluatorDescriptor> evaluatorMap,
+                           int totalEvaluators,
+                           String startTime);
 
   /**
    * Convert AvroEvaluatorList to JSon string.
@@ -46,5 +46,5 @@ public interface EvaluatorListSerializer {
    * @param avroEvaluatorList
    * @return
    */
-  String toString(final AvroEvaluatorList avroEvaluatorList);
+  String toString(AvroEvaluatorList avroEvaluatorList);
 }

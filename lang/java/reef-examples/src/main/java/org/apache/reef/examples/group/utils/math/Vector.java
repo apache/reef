@@ -31,14 +31,14 @@ public interface Vector extends ImmutableVector, Serializable {
    * @param i the index
    * @param v value
    */
-  void set(final int i, final double v);
+  void set(int i, double v);
 
   /**
    * Adds the Vector that to this one in place: this += that.
    *
    * @param that
    */
-  void add(final Vector that);
+  void add(Vector that);
 
   /**
    * this += factor * that.
@@ -46,14 +46,14 @@ public interface Vector extends ImmutableVector, Serializable {
    * @param factor
    * @param that
    */
-  void multAdd(final double factor, final ImmutableVector that);
+  void multAdd(double factor, ImmutableVector that);
 
   /**
    * Scales this Vector: this *= factor.
    *
    * @param factor the scaling factor.
    */
-  void scale(final double factor);
+  void scale(double factor);
 
 
   /**

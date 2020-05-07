@@ -39,12 +39,12 @@ public interface DataLoadingService {
   /**
    * @return the context configuration for the given Evaluator.
    */
-  Configuration getContextConfiguration(final AllocatedEvaluator allocatedEvaluator);
+  Configuration getContextConfiguration(AllocatedEvaluator allocatedEvaluator);
 
   /**
    * @return the service configuration for the given Evaluator.
    */
-  Configuration getServiceConfiguration(final AllocatedEvaluator allocatedEvaluator);
+  Configuration getServiceConfiguration(AllocatedEvaluator allocatedEvaluator);
 
   /**
    * @return Return the prefix to be used to enumerate

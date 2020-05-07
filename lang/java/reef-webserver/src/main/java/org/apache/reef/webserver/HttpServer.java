@@ -52,5 +52,5 @@ public interface HttpServer {
    *
    * @param httpHandler
    */
-  void addHttpHandler(final HttpHandler httpHandler);
+  void addHttpHandler(HttpHandler httpHandler);
 }

@@ -68,7 +68,7 @@ public final class REEFVersion {
 
   private static String loadVersion() {
     String version;
-    try (final InputStream is = Thread.currentThread().getContextClassLoader().getResourceAsStream(FILENAME)) {
+    try (InputStream is = Thread.currentThread().getContextClassLoader().getResourceAsStream(FILENAME)) {
       if (is == null) {
         throw new IOException(FILENAME + " not found");
       }

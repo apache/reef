@@ -134,7 +134,7 @@ public final class DFSEvaluatorPreserver implements EvaluatorPreserver, AutoClos
         return expectedContainers;
       }
 
-      try (final CloseableIterable<String> evaluatorLogIterable = readerWriter.readFromEvaluatorLog()) {
+      try (CloseableIterable<String> evaluatorLogIterable = readerWriter.readFromEvaluatorLog()) {
         for (final String line : evaluatorLogIterable) {
           if (line.startsWith(ADD_FLAG)) {
             final String containerId = line.substring(ADD_FLAG.length());

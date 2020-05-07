@@ -33,18 +33,18 @@ public interface ExceptionCodec {
    * @param bytes
    * @return the Throwable or Optional.empty() if the deserialization fails.
    */
-  Optional<Throwable> fromBytes(final byte[] bytes);
+  Optional<Throwable> fromBytes(byte[] bytes);
 
   /**
    * @param bytes
    * @return fromBytes(bytes.get()) or Optional.empty()
    */
-  Optional<Throwable> fromBytes(final Optional<byte[]> bytes);
+  Optional<Throwable> fromBytes(Optional<byte[]> bytes);
 
   /**
    * @param throwable
    * @return the serialized form of the given Throwable.
    */
-  byte[] toBytes(final Throwable throwable);
+  byte[] toBytes(Throwable throwable);
 
 }

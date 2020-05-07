@@ -55,7 +55,7 @@ public interface TaskNodeStatus {
    * As this is called from the TaskNodeImpl use srcId of msg
    * In TaskNodeImpl while processMsg        use dstId of msg
    */
-  void expectAckFor(final Type msgType, final String srcId);
+  void expectAckFor(Type msgType, String srcId);
 
   /**
    * Used when the task has failed to clear all.

@@ -110,7 +110,7 @@ final class AzureUploader {
 
       final CloudBlockBlob jobJarBlob = this.container.getBlockBlobReference(destination);
 
-      try (final BufferedInputStream in = new BufferedInputStream(new FileInputStream(file))) {
+      try (BufferedInputStream in = new BufferedInputStream(new FileInputStream(file))) {
         jobJarBlob.upload(in, file.length());
       }
 

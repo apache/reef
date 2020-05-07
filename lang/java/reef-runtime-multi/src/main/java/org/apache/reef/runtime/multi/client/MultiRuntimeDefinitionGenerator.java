@@ -41,8 +41,8 @@ public interface MultiRuntimeDefinitionGenerator {
    * @param jobId          the job id
    * @return Instance of <code>MultiRuntimeDefinition</code>
    */
-  AvroMultiRuntimeDefinition getMultiRuntimeDefinition(final URI jobFolder,
-                                                       final String clientRemoteId,
-                                                       final String jobId);
+  AvroMultiRuntimeDefinition getMultiRuntimeDefinition(URI jobFolder,
+                                                       String clientRemoteId,
+                                                       String jobId);
 
 }

@@ -41,11 +41,11 @@ public interface EvaluatorPreserver {
   /**
    * Called when an evaluator is to be preserved.
    */
-  void recordAllocatedEvaluator(final String id);
+  void recordAllocatedEvaluator(String id);
 
   /**
    * Called when an evaluator is to be removed.
    * @param id
    */
-  void recordRemovedEvaluator(final String id);
+  void recordRemovedEvaluator(String id);
 }
