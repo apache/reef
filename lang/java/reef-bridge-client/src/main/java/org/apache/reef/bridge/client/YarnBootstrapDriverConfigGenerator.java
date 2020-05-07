@@ -146,7 +146,7 @@ final class YarnBootstrapDriverConfigGenerator {
 
   static AvroYarnAppSubmissionParameters readYarnAppSubmissionParametersFromFile(final File file)
       throws IOException {
-    try (final FileInputStream fileInputStream = new FileInputStream(file)) {
+    try (FileInputStream fileInputStream = new FileInputStream(file)) {
       // This is mainly a test hook.
       return readYarnAppSubmissionParametersFromInputStream(fileInputStream);
     }
@@ -163,7 +163,7 @@ final class YarnBootstrapDriverConfigGenerator {
 
   static AvroYarnJobSubmissionParameters readYarnJobSubmissionParametersFromFile(final File file)
       throws IOException {
-    try (final FileInputStream fileInputStream = new FileInputStream(file)) {
+    try (FileInputStream fileInputStream = new FileInputStream(file)) {
       // This is mainly a test hook.
       return readYarnJobSubmissionParametersFromInputStream(fileInputStream);
     }

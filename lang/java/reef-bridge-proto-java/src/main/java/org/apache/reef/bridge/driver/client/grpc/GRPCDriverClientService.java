@@ -164,7 +164,7 @@ public final class GRPCDriverClientService extends DriverClientGrpc.DriverClient
 
   @Override
   public void startHandler(final StartTimeInfo request, final StreamObserver<Void> responseObserver) {
-    try (final ObserverCleanup _cleanup = ObserverCleanup.of(responseObserver)) {
+    try (ObserverCleanup cleanup = ObserverCleanup.of(responseObserver)) {
       LOG.log(Level.INFO, "StartHandler at time {0}", request.getStartTime());
       final StartTime startTime = new StartTime(request.getStartTime());
       this.clientDriverDispatcher.get().dispatch(startTime);
@@ -190,7 +190,7 @@ public final class GRPCDriverClientService extends DriverClientGrpc.DriverClient
 
   @Override
   public void alarmTrigger(final AlarmTriggerInfo request, final StreamObserver<Void> responseObserver) {
-    try (final ObserverCleanup _cleanup = ObserverCleanup.of(responseObserver)) {
+    try (ObserverCleanup cleanup = ObserverCleanup.of(responseObserver)) {
       LOG.log(Level.INFO, "Alarm Trigger id {0}", request.getAlarmId());
       this.clientDriverDispatcher.get().dispatchAlarm(request.getAlarmId());
     }
@@ -198,7 +198,7 @@ public final class GRPCDriverClientService extends DriverClientGrpc.DriverClient
 
   @Override
   public void allocatedEvaluatorHandler(final EvaluatorInfo request, final StreamObserver<Void> responseObserver) {
-    try (final ObserverCleanup _cleanup = ObserverCleanup.of(responseObserver)) {
+    try (ObserverCleanup cleanup = ObserverCleanup.of(responseObserver)) {
       synchronized (this.lock) {
         assert this.outstandingEvaluatorCount > 0;
         this.outstandingEvaluatorCount--;
@@ -215,7 +215,7 @@ public final class GRPCDriverClientService extends DriverClientGrpc.DriverClient
 
   @Override
   public void completedEvaluatorHandler(final EvaluatorInfo request, final StreamObserver<Void> responseObserver) {
-    try (final ObserverCleanup _cleanup = ObserverCleanup.of(responseObserver)) {
+    try (ObserverCleanup cleanup = ObserverCleanup.of(responseObserver)) {
       LOG.log(Level.INFO, "Completed Evaluator id {0}", request.getEvaluatorId());
       this.evaluatorBridgeMap.remove(request.getEvaluatorId());
       this.clientDriverDispatcher.get().dispatch(new CompletedEvaluatorBridge(request.getEvaluatorId()));
@@ -224,7 +224,7 @@ public final class GRPCDriverClientService extends DriverClientGrpc.DriverClient
 
   @Override
   public void failedEvaluatorHandler(final EvaluatorInfo request, final StreamObserver<Void> responseObserver) {
-    try (final ObserverCleanup _cleanup = ObserverCleanup.of(responseObserver)) {
+    try (ObserverCleanup cleanup = ObserverCleanup.of(responseObserver)) {
       if (!this.evaluatorBridgeMap.containsKey(request.getEvaluatorId())) {
         LOG.log(Level.INFO, "Failed evalautor that we were not allocated");
         synchronized (this.lock) {
@@ -271,7 +271,7 @@ public final class GRPCDriverClientService extends DriverClientGrpc.DriverClient
 
   @Override
   public void activeContextHandler(final ContextInfo request, final StreamObserver<Void> responseObserver) {
-    try (final ObserverCleanup _cleanup = ObserverCleanup.of(responseObserver)) {
+    try (ObserverCleanup cleanup = ObserverCleanup.of(responseObserver)) {
       LOG.log(Level.INFO, "Active context id {0}", request.getContextId());
       final AllocatedEvaluatorBridge eval = this.evaluatorBridgeMap.get(request.getEvaluatorId());
       final ActiveContextBridge context = new ActiveContextBridge(
@@ -289,7 +289,7 @@ public final class GRPCDriverClientService extends DriverClientGrpc.DriverClient
   public void closedContextHandler(final ContextInfo request, final StreamObserver<Void> responseObserver) {
     if (this.activeContextBridgeMap.containsKey(request.getContextId())) {
       LOG.log(Level.INFO, "Closed context id {0}", request.getContextId());
-      try (final ObserverCleanup _cleanup = ObserverCleanup.of(responseObserver)) {
+      try (ObserverCleanup cleanup = ObserverCleanup.of(responseObserver)) {
         final ActiveContextBridge context = this.activeContextBridgeMap.remove(request.getContextId());
         this.clientDriverDispatcher.get().dispatch(
             new ClosedContextBridge(
@@ -309,7 +309,7 @@ public final class GRPCDriverClientService extends DriverClientGrpc.DriverClient
   public void failedContextHandler(final ContextInfo request, final StreamObserver<Void> responseObserver) {
     if (this.activeContextBridgeMap.containsKey(request.getContextId())) {
       LOG.log(Level.INFO, "Failed context id {0}", request.getContextId());
-      try (final ObserverCleanup _cleanup = ObserverCleanup.of(responseObserver)) {
+      try (ObserverCleanup cleanup = ObserverCleanup.of(responseObserver)) {
         final ActiveContextBridge context = this.activeContextBridgeMap.remove(request.getContextId());
         final Optional<ActiveContext> parent =
             Optional.<ActiveContext>ofNullable(this.activeContextBridgeMap.get(context.getParentId().get()));
@@ -336,7 +336,7 @@ public final class GRPCDriverClientService extends DriverClientGrpc.DriverClient
   public void contextMessageHandler(final ContextMessageInfo request, final StreamObserver<Void> responseObserver) {
     if (this.activeContextBridgeMap.containsKey(request.getContextId())) {
       LOG.log(Level.INFO, "Message context id {0}", request.getContextId());
-      try (final ObserverCleanup _cleanup = ObserverCleanup.of(responseObserver)) {
+      try (ObserverCleanup cleanup = ObserverCleanup.of(responseObserver)) {
         this.clientDriverDispatcher.get().dispatch(
             new ContextMessageBridge(
                 request.getContextId(),
@@ -354,7 +354,7 @@ public final class GRPCDriverClientService extends DriverClientGrpc.DriverClient
 
   @Override
   public void runningTaskHandler(final TaskInfo request, final StreamObserver<Void> responseObserver) {
-    try (final ObserverCleanup _cleanup = ObserverCleanup.of(responseObserver)) {
+    try (ObserverCleanup cleanup = ObserverCleanup.of(responseObserver)) {
       LOG.log(Level.INFO, "Running task id {0}", request.getTaskId());
       final ContextInfo contextInfo = request.getContext();
       final ActiveContextBridge context = addContextIfMissing(contextInfo);
@@ -365,7 +365,7 @@ public final class GRPCDriverClientService extends DriverClientGrpc.DriverClient
 
   @Override
   public void failedTaskHandler(final TaskInfo request, final StreamObserver<Void> responseObserver) {
-    try (final ObserverCleanup _cleanup = ObserverCleanup.of(responseObserver)) {
+    try (ObserverCleanup cleanup = ObserverCleanup.of(responseObserver)) {
       LOG.log(Level.INFO, "Failed task id {0}", request.getTaskId());
       ActiveContextBridge context = request.hasContext() ?
           addContextIfMissing(request.getContext()) : null;
@@ -384,7 +384,7 @@ public final class GRPCDriverClientService extends DriverClientGrpc.DriverClient
 
   @Override
   public void completedTaskHandler(final TaskInfo request, final StreamObserver<Void> responseObserver) {
-    try (final ObserverCleanup _cleanup = ObserverCleanup.of(responseObserver)) {
+    try (ObserverCleanup cleanup = ObserverCleanup.of(responseObserver)) {
       LOG.log(Level.INFO, "Completed task id {0}", request.getTaskId());
       final ContextInfo contextInfo = request.getContext();
       ActiveContextBridge context = addContextIfMissing(contextInfo);
@@ -398,7 +398,7 @@ public final class GRPCDriverClientService extends DriverClientGrpc.DriverClient
 
   @Override
   public void suspendedTaskHandler(final TaskInfo request, final StreamObserver<Void> responseObserver) {
-    try (final ObserverCleanup _cleanup = ObserverCleanup.of(responseObserver)) {
+    try (ObserverCleanup cleanup = ObserverCleanup.of(responseObserver)) {
       LOG.log(Level.INFO, "Suspended task id {0}", request.getTaskId());
       final ContextInfo contextInfo = request.getContext();
       ActiveContextBridge context = addContextIfMissing(contextInfo);
@@ -414,7 +414,7 @@ public final class GRPCDriverClientService extends DriverClientGrpc.DriverClient
   public void taskMessageHandler(final TaskMessageInfo request, final StreamObserver<Void> responseObserver) {
     if (this.activeContextBridgeMap.containsKey(request.getContextId())) {
       LOG.log(Level.INFO, "Message task id {0}", request.getTaskId());
-      try (final ObserverCleanup _cleanup = ObserverCleanup.of(responseObserver)) {
+      try (ObserverCleanup cleanup = ObserverCleanup.of(responseObserver)) {
         this.clientDriverDispatcher.get().dispatch(
             new TaskMessageBridge(
                 request.getTaskId(),
@@ -434,7 +434,7 @@ public final class GRPCDriverClientService extends DriverClientGrpc.DriverClient
   @Override
   public void clientMessageHandler(final ClientMessageInfo request, final StreamObserver<Void> responseObserver) {
     LOG.log(Level.INFO, "Client message");
-    try (final ObserverCleanup _cleanup = ObserverCleanup.of(responseObserver)) {
+    try (ObserverCleanup cleanup = ObserverCleanup.of(responseObserver)) {
       this.clientDriverDispatcher.get().clientMessageDispatch(request.getPayload().toByteArray());
     }
   }
@@ -442,7 +442,7 @@ public final class GRPCDriverClientService extends DriverClientGrpc.DriverClient
   @Override
   public void clientCloseHandler(final Void request, final StreamObserver<Void> responseObserver) {
     LOG.log(Level.INFO, "Client close");
-    try (final ObserverCleanup _cleanup = ObserverCleanup.of(responseObserver)) {
+    try (ObserverCleanup cleanup = ObserverCleanup.of(responseObserver)) {
       this.clientDriverDispatcher.get().clientCloseDispatch();
     }
   }
@@ -452,7 +452,7 @@ public final class GRPCDriverClientService extends DriverClientGrpc.DriverClient
       final ClientMessageInfo request,
       final StreamObserver<Void> responseObserver) {
     LOG.log(Level.INFO, "Client close with message");
-    try (final ObserverCleanup _cleanup = ObserverCleanup.of(responseObserver)) {
+    try (ObserverCleanup cleanup = ObserverCleanup.of(responseObserver)) {
       this.clientDriverDispatcher.get().clientCloseWithMessageDispatch(request.getPayload().toByteArray());
     }
   }
@@ -460,7 +460,7 @@ public final class GRPCDriverClientService extends DriverClientGrpc.DriverClient
   @Override
   public void driverRestartHandler(final DriverRestartInfo request, final StreamObserver<Void> responseObserver) {
     LOG.log(Level.INFO, "Driver restarted");
-    try (final ObserverCleanup _cleanup = ObserverCleanup.of(responseObserver)) {
+    try (ObserverCleanup cleanup = ObserverCleanup.of(responseObserver)) {
       final DriverRestarted driverRestarted = new DriverRestarted() {
         @Override
         public int getResubmissionAttempts() {
@@ -485,7 +485,7 @@ public final class GRPCDriverClientService extends DriverClientGrpc.DriverClient
   public void driverRestartActiveContextHandler(
       final ContextInfo request,
       final StreamObserver<Void> responseObserver) {
-    try (final ObserverCleanup _cleanup = ObserverCleanup.of(responseObserver)) {
+    try (ObserverCleanup cleanup = ObserverCleanup.of(responseObserver)) {
       LOG.log(Level.INFO, "Driver restarted active context {0}", request.getContextId());
       if (!this.evaluatorBridgeMap.containsKey(request.getEvaluatorId())) {
         final AllocatedEvaluatorBridge eval = new AllocatedEvaluatorBridge(
@@ -503,7 +503,7 @@ public final class GRPCDriverClientService extends DriverClientGrpc.DriverClient
   public void driverRestartRunningTaskHandler(
       final TaskInfo request,
       final StreamObserver<Void> responseObserver) {
-    try (final ObserverCleanup _cleanup = ObserverCleanup.of(responseObserver)) {
+    try (ObserverCleanup cleanup = ObserverCleanup.of(responseObserver)) {
       LOG.log(Level.INFO, "Driver restarted running task {0}", request.getTaskId());
       if (!this.evaluatorBridgeMap.containsKey(request.getContext().getEvaluatorId())) {
         final AllocatedEvaluatorBridge eval = new AllocatedEvaluatorBridge(
@@ -522,7 +522,7 @@ public final class GRPCDriverClientService extends DriverClientGrpc.DriverClient
   public void driverRestartCompletedHandler(
       final DriverRestartCompletedInfo request,
       final StreamObserver<Void> responseObserver) {
-    try (final ObserverCleanup _cleanup = ObserverCleanup.of(responseObserver)) {
+    try (ObserverCleanup cleanup = ObserverCleanup.of(responseObserver)) {
       this.clientDriverDispatcher.get().dispatchRestart(new DriverRestartCompleted() {
         @Override
         public Time getCompletedTime() {
@@ -541,7 +541,7 @@ public final class GRPCDriverClientService extends DriverClientGrpc.DriverClient
   public void driverRestartFailedEvaluatorHandler(
       final EvaluatorInfo request,
       final StreamObserver<Void> responseObserver) {
-    try (final ObserverCleanup _cleanup = ObserverCleanup.of(responseObserver)) {
+    try (ObserverCleanup cleanup = ObserverCleanup.of(responseObserver)) {
       this.clientDriverDispatcher.get().dispatchRestart(new FailedEvaluatorBridge(
           request.getEvaluatorId(),
           new EvaluatorException(request.getFailure() != null ?

@@ -84,7 +84,7 @@ public class NameClientTest {
     injector.bindVolatileParameter(NameServerParameters.NameServerIdentifierFactory.class, factory);
     injector.bindVolatileInstance(LocalAddressProvider.class, this.localAddressProvider);
 
-    try (final NameServer server = injector.getInstance(NameServer.class)) {
+    try (NameServer server = injector.getInstance(NameServer.class)) {
       final int serverPort = server.getPort();
       final Configuration nameResolverConf = NameResolverConfiguration.CONF
           .set(NameResolverConfiguration.NAME_SERVER_HOSTNAME, localAddress)
@@ -94,7 +94,7 @@ public class NameClientTest {
           .set(NameResolverConfiguration.RETRY_COUNT, RETRY_COUNT)
           .build();
 
-      try (final NameResolver client =
+      try (NameResolver client =
                Tang.Factory.getTang().newInjector(nameResolverConf).getInstance(NameClient.class)) {
         final Identifier id = factory.getNewInstance("Task1");
         client.register(id, new InetSocketAddress(localAddress, 7001));
@@ -119,7 +119,7 @@ public class NameClientTest {
     injector.bindVolatileParameter(NameServerParameters.NameServerIdentifierFactory.class, factory);
     injector.bindVolatileInstance(LocalAddressProvider.class, this.localAddressProvider);
 
-    try (final NameServer server = injector.getInstance(NameServer.class)) {
+    try (NameServer server = injector.getInstance(NameServer.class)) {
       final int serverPort = server.getPort();
       final Configuration nameResolverConf = NameResolverConfiguration.CONF
           .set(NameResolverConfiguration.NAME_SERVER_HOSTNAME, localAddress)
@@ -129,7 +129,7 @@ public class NameClientTest {
           .set(NameResolverConfiguration.RETRY_COUNT, RETRY_COUNT)
           .build();
 
-      try (final NameResolver client =
+      try (NameResolver client =
                Tang.Factory.getTang().newInjector(nameResolverConf).getInstance(NameClient.class)) {
         final Identifier id = factory.getNewInstance("Task1");
         client.register(id, new InetSocketAddress(localAddress, 7001));

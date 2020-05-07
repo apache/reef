@@ -35,7 +35,7 @@ public interface RemoteManagerFactory {
    * @param name the name of used by the returned RemoteManager to determine the address to bind to. to instantiate.
    * @return a new instance of RemoteManager with all parameters but the given one injected via Tang.
    */
-  RemoteManager getInstance(final String name);
+  RemoteManager getInstance(String name);
 
   /**
    * @param name         the name of the returned RemoteManager to instantiate.
@@ -44,9 +44,9 @@ public interface RemoteManagerFactory {
    * @param <T>          the message type sent / received by the returned RemoteManager.
    * @return a new instance of RemoteManager with all parameters but the given one injected via Tang.
    */
-  <T> RemoteManager getInstance(final String name,
-                                final Codec<T> codec,
-                                final EventHandler<Throwable> errorHandler);
+  <T> RemoteManager getInstance(String name,
+                                Codec<T> codec,
+                                EventHandler<Throwable> errorHandler);
 
   /**
    * @param name          the name of the returned RemoteManager to instantiate.
@@ -56,10 +56,10 @@ public interface RemoteManagerFactory {
    * @param <T>           the message type sent / received by the returned RemoteManager.
    * @return a new instance of RemoteManager with all parameters but the given one injected via Tang.
    */
-  <T> RemoteManager getInstance(final String name,
-                                final int listeningPort,
-                                final Codec<T> codec,
-                                final EventHandler<Throwable> errorHandler);
+  <T> RemoteManager getInstance(String name,
+                                int listeningPort,
+                                Codec<T> codec,
+                                EventHandler<Throwable> errorHandler);
 
   /**
    * @param name                 the name of the returned RemoteManager to instantiate.
@@ -69,10 +69,10 @@ public interface RemoteManagerFactory {
    * @param <T>                  the message type sent / received by the returned RemoteManager.
    * @return a new instance of RemoteManager with all parameters but the given one injected via Tang.
    */
-  <T> RemoteManager getInstance(final String name,
-                                final String hostAddress,
-                                final int listeningPort,
-                                final Codec<T> codec);
+  <T> RemoteManager getInstance(String name,
+                                String hostAddress,
+                                int listeningPort,
+                                Codec<T> codec);
 
   /**
    * The old constructor of DefaultRemoteManagerImplementation. Avoid if you can.
@@ -89,14 +89,14 @@ public interface RemoteManagerFactory {
    * @param <T>               the message type sent / received by the returned RemoteManager.
    * @return a new instance of RemoteManager with all parameters but the given one injected via Tang.
    */
-  <T> RemoteManager getInstance(final String name,
-                                final String hostAddress,
-                                final int listeningPort,
-                                final Codec<T> codec,
-                                final EventHandler<Throwable> errorHandler,
-                                final boolean orderingGuarantee,
-                                final int numberOfTries,
-                                final int retryTimeout);
+  <T> RemoteManager getInstance(String name,
+                                String hostAddress,
+                                int listeningPort,
+                                Codec<T> codec,
+                                EventHandler<Throwable> errorHandler,
+                                boolean orderingGuarantee,
+                                int numberOfTries,
+                                int retryTimeout);
 
   /**
    * The all-out constructor of DefaultRemoteManagerImplementation. Avoid if you can.
@@ -117,16 +117,16 @@ public interface RemoteManagerFactory {
    * @param <T>                  the message type sent / received by the returned RemoteManager.
    * @return a new instance of RemoteManager with all parameters but the given one injected via Tang.
    */
-  <T> RemoteManager getInstance(final String name,
-                                final String hostAddress,
-                                final int listeningPort,
-                                final Codec<T> codec,
-                                final EventHandler<Throwable> errorHandler,
-                                final boolean orderingGuarantee,
-                                final int numberOfTries,
-                                final int retryTimeout,
-                                final LocalAddressProvider localAddressProvider,
-                                final TcpPortProvider tcpPortProvider);
+  <T> RemoteManager getInstance(String name,
+                                String hostAddress,
+                                int listeningPort,
+                                Codec<T> codec,
+                                EventHandler<Throwable> errorHandler,
+                                boolean orderingGuarantee,
+                                int numberOfTries,
+                                int retryTimeout,
+                                LocalAddressProvider localAddressProvider,
+                                TcpPortProvider tcpPortProvider);
 
 
 }

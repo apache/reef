@@ -129,7 +129,7 @@ public final class YarnJobSubmissionClient {
 
     // ------------------------------------------------------------------------
     // Get an application ID
-    try (final YarnSubmissionHelper submissionHelper = new YarnSubmissionHelper(
+    try (YarnSubmissionHelper submissionHelper = new YarnSubmissionHelper(
         this.yarnConfiguration, this.fileNames, this.classpath, this.yarnProxyUser,
         this.tokenProvider, this.isUnmanaged, this.commandPrefixList)) {
 

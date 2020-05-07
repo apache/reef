@@ -45,7 +45,7 @@ public interface RunningJob extends Identifiable, AutoCloseable {
    *
    * @param message delivered along with cancel request.
    */
-  void close(final byte[] message);
+  void close(byte[] message);
 
   /**
    * @return the ID of the running job.
@@ -58,5 +58,5 @@ public interface RunningJob extends Identifiable, AutoCloseable {
    *
    * @param message to send to the running driver
    */
-  void send(final byte[] message);
+  void send(byte[] message);
 }

@@ -220,8 +220,8 @@ public class ProtocolBufferClassHierarchy implements ClassHierarchy {
    */
   public static void serialize(final File file, final ClassHierarchy classHierarchy) throws IOException {
     final ClassHierarchyProto.Node node = serializeNode(classHierarchy.getNamespace());
-    try (final FileOutputStream output = new FileOutputStream(file)) {
-      try (final DataOutputStream dos = new DataOutputStream(output)) {
+    try (FileOutputStream output = new FileOutputStream(file)) {
+      try (DataOutputStream dos = new DataOutputStream(output)) {
         node.writeTo(dos);
       }
     }
@@ -236,7 +236,7 @@ public class ProtocolBufferClassHierarchy implements ClassHierarchy {
    * @deprecated in 0.12. Use AvroClassHierarchySerializer instead
    */
   public static ClassHierarchy deserialize(final File file) throws IOException {
-    try (final InputStream stream = new FileInputStream(file)) {
+    try (InputStream stream = new FileInputStream(file)) {
       final ClassHierarchyProto.Node root = ClassHierarchyProto.Node.parseFrom(stream);
       return new ProtocolBufferClassHierarchy(root);
     }

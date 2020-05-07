@@ -73,8 +73,8 @@ final class NetworkConnectionServiceMessageCodec implements Codec<NetworkConnect
       isStreamingCodecMap.putIfAbsent(codec, isStreamingCodec);
     }
 
-    try (final ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
-      try (final DataOutputStream daos = new DataOutputStream(baos)) {
+    try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
+      try (DataOutputStream daos = new DataOutputStream(baos)) {
         daos.writeUTF(obj.getConnectionFactoryId());
         daos.writeUTF(obj.getSrcId().toString());
         daos.writeUTF(obj.getDestId().toString());
@@ -107,8 +107,8 @@ final class NetworkConnectionServiceMessageCodec implements Codec<NetworkConnect
    */
   @Override
   public NetworkConnectionServiceMessage decode(final byte[] data) {
-    try (final ByteArrayInputStream bais = new ByteArrayInputStream(data)) {
-      try (final DataInputStream dais = new DataInputStream(bais)) {
+    try (ByteArrayInputStream bais = new ByteArrayInputStream(data)) {
+      try (DataInputStream dais = new DataInputStream(bais)) {
         final String connFactoryId = dais.readUTF();
         final Identifier srcId = factory.getNewInstance(dais.readUTF());
         final Identifier destId = factory.getNewInstance(dais.readUTF());

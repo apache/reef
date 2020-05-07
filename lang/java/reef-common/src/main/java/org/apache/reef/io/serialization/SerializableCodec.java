@@ -42,8 +42,8 @@ public class SerializableCodec<T extends Serializable> implements Codec<T> {
 
   @Override
   public byte[] encode(final T obj) {
-    try (final ByteArrayOutputStream bout = new ByteArrayOutputStream()) {
-      try (final ObjectOutputStream out = new ObjectOutputStream(bout)) {
+    try (ByteArrayOutputStream bout = new ByteArrayOutputStream()) {
+      try (ObjectOutputStream out = new ObjectOutputStream(bout)) {
         out.writeObject(obj);
       }
       return bout.toByteArray();
@@ -55,7 +55,7 @@ public class SerializableCodec<T extends Serializable> implements Codec<T> {
   @Override
   public T decode(final byte[] buf) {
     try {
-      try (final ObjectInputStream oin = new ObjectInputStream(new ByteArrayInputStream(buf))) {
+      try (ObjectInputStream oin = new ObjectInputStream(new ByteArrayInputStream(buf))) {
         final T result = (T) oin.readObject();
         return result;
       }

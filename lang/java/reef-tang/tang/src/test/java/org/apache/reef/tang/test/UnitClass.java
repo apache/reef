@@ -72,7 +72,7 @@ final class UnitClass {
   }
 
   final class IntegerHandler implements Handler<Integer> {
-    final int foo = 42;
+    private final int foo = 42;
 
     @Override
     public void process(final Integer value) {
@@ -104,7 +104,7 @@ final class UnitClass {
   }
 
   final class StringHandler implements Handler<String> {
-    final int bar = -42;
+    private final int bar = -42;
 
     @Override
     public void process(final String value) {

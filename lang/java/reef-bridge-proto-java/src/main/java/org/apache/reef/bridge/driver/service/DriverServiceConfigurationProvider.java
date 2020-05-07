@@ -32,5 +32,5 @@ import org.apache.reef.tang.annotations.DefaultImplementation;
 @DefaultImplementation(GRPCDriverServiceConfigurationProvider.class)
 public interface DriverServiceConfigurationProvider {
 
-  Configuration getDriverServiceConfiguration(final ClientProtocol.DriverClientConfiguration driverClientConfiguration);
+  Configuration getDriverServiceConfiguration(ClientProtocol.DriverClientConfiguration driverClientConfiguration);
 }

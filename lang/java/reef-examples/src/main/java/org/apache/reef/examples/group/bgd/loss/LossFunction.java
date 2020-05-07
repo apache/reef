@@ -33,7 +33,7 @@ public interface LossFunction {
    * @param f the prediction
    * @return the loss incurred by predicting f, if y is the true label.
    */
-  double computeLoss(final double y, final double f);
+  double computeLoss(double y, double f);
 
   /**
    * Computes the gradient with respect to f, if y is the true label.
@@ -42,5 +42,5 @@ public interface LossFunction {
    * @param f the prediction
    * @return the gradient with respect to f
    */
-  double computeGradient(final double y, final double f);
+  double computeGradient(double y, double f);
 }

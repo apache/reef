@@ -36,7 +36,7 @@ public interface HttpHandler {
   /**
    * Set specification of the handler. e.g Reef
    */
-  void setUriSpecification(final String s);
+  void setUriSpecification(String s);
 
   /**
    * Will be called when request comes.
@@ -44,6 +44,6 @@ public interface HttpHandler {
    * @param parsedHttpRequest
    * @param response
    */
-  void onHttpRequest(final ParsedHttpRequest parsedHttpRequest, final HttpServletResponse response)
+  void onHttpRequest(ParsedHttpRequest parsedHttpRequest, HttpServletResponse response)
       throws IOException, ServletException;
 }

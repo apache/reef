@@ -93,7 +93,7 @@ public final class Control {
           }
         });
 
-    try (final Transport transport = tpFactory.newInstance("localhost", 0, stage, stage, 1, 10000)) {
+    try (Transport transport = tpFactory.newInstance("localhost", 0, stage, stage, 1, 10000)) {
       final Link link = transport.open(new InetSocketAddress("localhost", this.port), codec, null);
       link.write(this.command + " " + this.taskId);
     }

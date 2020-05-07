@@ -119,7 +119,7 @@ final class DriverStatusHTTPHandler implements HttpHandler, JobStatusHandler {
   @Override
   public void onHttpRequest(final ParsedHttpRequest parsedHttpRequest, final HttpServletResponse response)
       throws IOException, ServletException {
-    try (final PrintWriter writer = response.getWriter()) {
+    try (PrintWriter writer = response.getWriter()) {
       writer.write(waitAndGetMessage());
       this.wasCalledViaHTTP = true;
     }

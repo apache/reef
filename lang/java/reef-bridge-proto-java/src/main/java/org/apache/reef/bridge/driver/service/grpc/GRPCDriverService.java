@@ -256,7 +256,7 @@ public final class GRPCDriverService implements DriverService, DriverIdlenessSou
     LOG.log(Level.INFO, "capturing driver process {0}", name);
     try {
       stringBuilder.append("\n==============================================\n");
-      try (final BufferedReader reader = new BufferedReader(new InputStreamReader(stream))) {
+      try (BufferedReader reader = new BufferedReader(new InputStreamReader(stream))) {
         while (reader.ready()) {
           stringBuilder.append(reader.readLine()).append('\n');
         }
@@ -727,7 +727,7 @@ public final class GRPCDriverService implements DriverService, DriverIdlenessSou
         final StreamObserver<Void> responseObserver) {
       LOG.log(Level.INFO, "driver client register");
       synchronized (GRPCDriverService.this) {
-        try (final ObserverCleanup _cleanup = ObserverCleanup.of(responseObserver)) {
+        try (ObserverCleanup cleanup = ObserverCleanup.of(responseObserver)) {
           if (request.hasException()) {
             LOG.log(Level.SEVERE, "Driver client initialization exception");
             final Optional<Throwable> optionalEx = parseException(request.getException());
@@ -759,7 +759,7 @@ public final class GRPCDriverService implements DriverService, DriverIdlenessSou
     public void requestResources(
         final ResourceRequest request,
         final StreamObserver<Void> responseObserver) {
-      try (final ObserverCleanup _cleanup = ObserverCleanup.of(responseObserver)) {
+      try (ObserverCleanup cleanup = ObserverCleanup.of(responseObserver)) {
         synchronized (GRPCDriverService.this) {
           EvaluatorRequest.Builder requestBuilder = GRPCDriverService.this.evaluatorRequestor.newRequest();
           requestBuilder.setNumber(request.getResourceCount());
@@ -784,7 +784,7 @@ public final class GRPCDriverService implements DriverService, DriverIdlenessSou
     public void shutdown(
         final ShutdownRequest request,
         final StreamObserver<Void> responseObserver) {
-      try (final ObserverCleanup _cleanup = ObserverCleanup.of(responseObserver)) {
+      try (ObserverCleanup cleanup = ObserverCleanup.of(responseObserver)) {
         LOG.log(Level.INFO, "driver shutdown");
         if (request.hasException()) {
           final Optional<Throwable> exception = parseException(request.getException());
@@ -809,7 +809,7 @@ public final class GRPCDriverService implements DriverService, DriverIdlenessSou
     public void setAlarm(
         final AlarmRequest request,
         final StreamObserver<Void> responseObserver) {
-      try (final ObserverCleanup _cleanup = ObserverCleanup.of(responseObserver)) {
+      try (ObserverCleanup cleanup = ObserverCleanup.of(responseObserver)) {
         // do not synchronize when scheduling an alarm (or deadlock)
         LOG.log(Level.INFO, "Set alarm {0} offset {1}",
             new Object[] {request.getAlarmId(), request.getTimeoutMs()});
@@ -834,7 +834,7 @@ public final class GRPCDriverService implements DriverService, DriverIdlenessSou
     public void allocatedEvaluatorOp(
         final AllocatedEvaluatorRequest request,
         final StreamObserver<Void> responseObserver) {
-      try (final ObserverCleanup _cleanup = ObserverCleanup.of(responseObserver)) {
+      try (ObserverCleanup cleanup = ObserverCleanup.of(responseObserver)) {
         synchronized (GRPCDriverService.this) {
           final AllocatedEvaluator evaluator =
               GRPCDriverService.this.allocatedEvaluatorMap.get(request.getEvaluatorId());
@@ -955,7 +955,7 @@ public final class GRPCDriverService implements DriverService, DriverIdlenessSou
         switch (request.getOperationCase()) {
         case CLOSE_CONTEXT:
           if (request.getCloseContext()) {
-            try (final ObserverCleanup _cleanup = ObserverCleanup.of(responseObserver)) {
+            try (ObserverCleanup cleanup = ObserverCleanup.of(responseObserver)) {
               LOG.log(Level.INFO, "closing context {0}", context.getId());
               context.close();
             }
@@ -968,7 +968,7 @@ public final class GRPCDriverService implements DriverService, DriverIdlenessSou
           break;
         case MESSAGE:
           if (request.getMessage() != null) {
-            try (final ObserverCleanup _cleanup = ObserverCleanup.of(responseObserver)) {
+            try (ObserverCleanup cleanup = ObserverCleanup.of(responseObserver)) {
               LOG.log(Level.INFO, "send message to context {0}", context.getId());
               context.sendMessage(request.getMessage().toByteArray());
             }
@@ -978,13 +978,13 @@ public final class GRPCDriverService implements DriverService, DriverIdlenessSou
           }
           break;
         case NEW_CONTEXT_REQUEST:
-          try (final ObserverCleanup _cleanup = ObserverCleanup.of(responseObserver)) {
+          try (ObserverCleanup cleanup = ObserverCleanup.of(responseObserver)) {
             LOG.log(Level.INFO, "submitting child context to context {0}", context.getId());
             ((EvaluatorContext) context).submitContext(request.getNewContextRequest());
           }
           break;
         case NEW_TASK_REQUEST:
-          try (final ObserverCleanup _cleanup = ObserverCleanup.of(responseObserver)) {
+          try (ObserverCleanup cleanup = ObserverCleanup.of(responseObserver)) {
             LOG.log(Level.INFO, "submitting task to context {0}", context.getId());
             ((EvaluatorContext) context).submitTask(request.getNewTaskRequest());
           }
@@ -1005,7 +1005,7 @@ public final class GRPCDriverService implements DriverService, DriverIdlenessSou
           responseObserver.onError(Status.INTERNAL
               .withDescription("Task does not exist with id " + request.getTaskId()).asRuntimeException());
         } else {
-          try (final ObserverCleanup _cleanup = ObserverCleanup.of(responseObserver)) {
+          try (ObserverCleanup cleanup = ObserverCleanup.of(responseObserver)) {
             final RunningTask task = GRPCDriverService.this.runningTaskMap.get(request.getTaskId());
             switch (request.getOperation()) {
             case CLOSE:

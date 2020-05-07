@@ -61,7 +61,7 @@ final class SecurityTokensReader {
   void addTokensFromFile(final UserGroupInformation ugi) throws IOException {
     LOG.log(Level.FINE, "Reading security tokens from file: {0}", this.securityTokensFile);
 
-    try (final FileInputStream stream = new FileInputStream(securityTokensFile)) {
+    try (FileInputStream stream = new FileInputStream(securityTokensFile)) {
       final BinaryDecoder decoder = decoderFactory.binaryDecoder(stream, null);
 
       while (!decoder.isEnd()) {

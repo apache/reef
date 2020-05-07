@@ -75,7 +75,7 @@ public final class FailedTaskBridge extends NativeBridge {
 
     if (jfailedTask.getData() != null && jfailedTask.getData().isPresent()) {
       // Deserialize what was passed in from C#.
-      try (final ByteArrayInputStream fileInputStream = new ByteArrayInputStream(jfailedTask.getData().get())) {
+      try (ByteArrayInputStream fileInputStream = new ByteArrayInputStream(jfailedTask.getData().get())) {
         final JsonDecoder decoder = DecoderFactory.get().jsonDecoder(
             AvroFailedTask.getClassSchema(), fileInputStream);
         final SpecificDatumReader<AvroFailedTask> reader =
@@ -101,7 +101,7 @@ public final class FailedTaskBridge extends NativeBridge {
 
     final DatumWriter<AvroFailedTask> datumWriter = new SpecificDatumWriter<>(AvroFailedTask.class);
 
-    try (final ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
+    try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
       final JsonEncoder encoder = EncoderFactory.get().jsonEncoder(avroFailedTask.getSchema(), outputStream);
       datumWriter.write(avroFailedTask, encoder);
       encoder.flush();

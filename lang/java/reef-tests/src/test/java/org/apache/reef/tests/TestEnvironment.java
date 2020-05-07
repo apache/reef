@@ -54,7 +54,7 @@ public interface TestEnvironment {
    */
   int getTestTimeout();
 
-  LauncherStatus run(final Configuration driverConfiguration);
+  LauncherStatus run(Configuration driverConfiguration);
 
   /**
    * Returns the runtimeName for the environment.

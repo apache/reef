@@ -42,7 +42,7 @@ public interface ContextAndTaskSubmittable {
    * @param contextConfiguration the Configuration of the EvaluatorContext. See ContextConfiguration for details.
    * @param taskConfiguration    the Configuration of the Task. See TaskConfiguration for details.
    */
-  void submitContextAndTask(final Configuration contextConfiguration, final Configuration taskConfiguration);
+  void submitContextAndTask(Configuration contextConfiguration, Configuration taskConfiguration);
 
   /**
    * Submit a Context with Services and a Task.
@@ -57,8 +57,8 @@ public interface ContextAndTaskSubmittable {
    * @param serviceConfiguration
    * @param taskConfiguration
    */
-  void submitContextAndServiceAndTask(final Configuration contextConfiguration,
-                                      final Configuration serviceConfiguration,
-                                      final Configuration taskConfiguration);
+  void submitContextAndServiceAndTask(Configuration contextConfiguration,
+                                      Configuration serviceConfiguration,
+                                      Configuration taskConfiguration);
 
 }

@@ -36,7 +36,7 @@ public interface ExternalMap<T> {
    * @param key
    * @return true, if an entry with the given key exists
    */
-  boolean containsKey(final CharSequence key);
+  boolean containsKey(CharSequence key);
 
   /**
    * Element access.
@@ -44,7 +44,7 @@ public interface ExternalMap<T> {
    * @param key
    * @return the object stored under key nor null if no such object exists
    */
-  T get(final CharSequence key);
+  T get(CharSequence key);
 
   /**
    * Put a record into the map.
@@ -55,7 +55,7 @@ public interface ExternalMap<T> {
    * mapping for key. (A null return can also indicate that the map previously
    * associated null with key, if the implementation supports null values.)
    */
-  T put(final CharSequence key, final T value);
+  T put(CharSequence key, T value);
 
   /**
    * Removes the mapping for a key from this map if it is present (optional
@@ -76,7 +76,7 @@ public interface ExternalMap<T> {
    * @return the previous value associated with key, or null if there was no
    * mapping for key.
    */
-  T remove(final CharSequence key);
+  T remove(CharSequence key);
 
   /**
    * Copies all of the mappings from the specified map to this map (optional
@@ -87,7 +87,7 @@ public interface ExternalMap<T> {
    *
    * @param m
    */
-  void putAll(final Map<? extends CharSequence, ? extends T> m);
+  void putAll(Map<? extends CharSequence, ? extends T> m);
 
   Iterable<Map.Entry<CharSequence, T>> getAll(Set<? extends CharSequence> keys);
 }

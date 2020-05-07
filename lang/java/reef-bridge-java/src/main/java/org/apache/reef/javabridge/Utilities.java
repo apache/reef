@@ -49,7 +49,7 @@ public final class Utilities {
       throw new RuntimeException("cannot find file " + p.toAbsolutePath());
     }
     // TODO[JIRA REEF-400] Use the AvroClassHierarchySerializer in place of protobuf
-    try (final InputStream chin = new FileInputStream(p.toAbsolutePath().toString())) {
+    try (InputStream chin = new FileInputStream(p.toAbsolutePath().toString())) {
       final ClassHierarchyProto.Node root = ClassHierarchyProto.Node.parseFrom(chin);
       final ClassHierarchy ch = new ProtocolBufferClassHierarchy(root);
       return ch;

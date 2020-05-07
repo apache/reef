@@ -104,7 +104,7 @@ final class YarnJobSubmissionHandler implements JobSubmissionHandler {
     LOG.log(Level.FINEST, "Submitting{0} job: {1}",
         new Object[] {this.isUnmanaged ? " UNMANAGED AM" : "", jobSubmissionEvent});
 
-    try (final YarnSubmissionHelper submissionHelper = new YarnSubmissionHelper(this.yarnConfiguration,
+    try (YarnSubmissionHelper submissionHelper = new YarnSubmissionHelper(this.yarnConfiguration,
         this.fileNames, this.classpath, this.yarnProxyUser, this.tokenProvider, this.isUnmanaged)) {
 
       LOG.log(Level.FINE, "Assembling submission JAR for the Driver.");

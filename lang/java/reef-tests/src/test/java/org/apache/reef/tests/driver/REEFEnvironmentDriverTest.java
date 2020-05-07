@@ -54,7 +54,7 @@ public final class REEFEnvironmentDriverTest {
   @Test
   public void testREEFEnvironmentDriver() throws BindException, InjectionException {
 
-    try (final REEFEnvironment reef = REEFEnvironment.fromConfiguration(LOCAL_DRIVER_MODULE, DRIVER_CONFIG)) {
+    try (REEFEnvironment reef = REEFEnvironment.fromConfiguration(LOCAL_DRIVER_MODULE, DRIVER_CONFIG)) {
 
       reef.run();
       final ReefServiceProtos.JobStatusProto status = reef.getLastStatus();

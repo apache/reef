@@ -40,7 +40,7 @@ public interface ConfigurationSerializer {
    * @param file the file to store the Configuration in
    * @throws java.io.IOException if there is an IO error in the process.
    */
-  void toFile(final Configuration conf, final File file) throws IOException;
+  void toFile(Configuration conf, File file) throws IOException;
 
   /**
    * Stores the given Configuration in the given Text File.
@@ -49,7 +49,7 @@ public interface ConfigurationSerializer {
    * @param file the file to store the Configuration in
    * @throws java.io.IOException if there is an IO error in the process.
    */
-  void toTextFile(final Configuration conf, final File file) throws IOException;
+  void toTextFile(Configuration conf, File file) throws IOException;
 
   /**
    * Writes the Configuration to a byte[].
@@ -58,7 +58,7 @@ public interface ConfigurationSerializer {
    * @return the byte array
    * @throws IOException if encoding fails to write
    */
-  byte[] toByteArray(final Configuration conf) throws IOException;
+  byte[] toByteArray(Configuration conf) throws IOException;
 
   /**
    * Writes the Configuration as a String.
@@ -66,7 +66,7 @@ public interface ConfigurationSerializer {
    * @param configuration the Configuration to be converted
    * @return a String representation of the Configuration
    */
-  String toString(final Configuration configuration);
+  String toString(Configuration configuration);
 
 
   /**
@@ -77,7 +77,7 @@ public interface ConfigurationSerializer {
    * @throws IOException   if the File can't be read or parsed
    * @throws BindException if the file contains an illegal Configuration
    */
-  Configuration fromFile(final File file) throws IOException, BindException;
+  Configuration fromFile(File file) throws IOException, BindException;
 
   /**
    * Loads a Configuration from a File created with toFile().
@@ -87,7 +87,7 @@ public interface ConfigurationSerializer {
    * @throws IOException   if the File can't be read or parsed
    * @throws BindException if the file contains an illegal Configuration
    */
-  Configuration fromTextFile(final File file) throws IOException, BindException;
+  Configuration fromTextFile(File file) throws IOException, BindException;
 
   /**
    * Loads a Configuration from a File created with toFile() with ClassHierarchy.
@@ -97,7 +97,7 @@ public interface ConfigurationSerializer {
    * @return the Configuration stored in the file.
    * @throws IOException if the File can't be read or parsed
    */
-  Configuration fromTextFile(final File file, final ClassHierarchy classHierarchy) throws IOException;
+  Configuration fromTextFile(File file, ClassHierarchy classHierarchy) throws IOException;
 
   /**
    * Loads a Configuration from a File created with toFile().
@@ -108,7 +108,7 @@ public interface ConfigurationSerializer {
    * @throws IOException   if the File can't be read or parsed
    * @throws BindException if the file contains an illegal Configuration
    */
-  Configuration fromFile(final File file, final ClassHierarchy classHierarchy) throws IOException, BindException;
+  Configuration fromFile(File file, ClassHierarchy classHierarchy) throws IOException, BindException;
 
   /**
    * Loads a Configuration from a byte[] created with toByteArray().
@@ -118,7 +118,7 @@ public interface ConfigurationSerializer {
    * @throws IOException   if the byte[] can't be deserialized
    * @throws BindException if the byte[] contains an illegal Configuration.
    */
-  Configuration fromByteArray(final byte[] theBytes) throws IOException, BindException;
+  Configuration fromByteArray(byte[] theBytes) throws IOException, BindException;
 
   /**
    * Loads a Configuration from a byte[] created with toByteArray().
@@ -129,7 +129,7 @@ public interface ConfigurationSerializer {
    * @throws IOException   if the byte[] can't be deserialized
    * @throws BindException if the byte[] contains an illegal Configuration.
    */
-  Configuration fromByteArray(final byte[] theBytes, final ClassHierarchy classHierarchy)
+  Configuration fromByteArray(byte[] theBytes, ClassHierarchy classHierarchy)
       throws IOException, BindException;
 
   /**
@@ -140,7 +140,7 @@ public interface ConfigurationSerializer {
    * @throws IOException   if theString can't be parsed.
    * @throws BindException if theString contains an illegal Configuration.
    */
-  Configuration fromString(final String theString) throws IOException, BindException;
+  Configuration fromString(String theString) throws IOException, BindException;
 
   /**
    * Decodes a String generated via toString().
@@ -151,6 +151,6 @@ public interface ConfigurationSerializer {
    * @throws IOException   if theString can't be parsed.
    * @throws BindException if theString contains an illegal Configuration.
    */
-  Configuration fromString(final String theString, final ClassHierarchy classHierarchy)
+  Configuration fromString(String theString, ClassHierarchy classHierarchy)
       throws IOException, BindException;
 }

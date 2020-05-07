@@ -258,7 +258,7 @@ public final class DataLoadingRequestBuilder
     }
 
     jcb.bindNamedParameter(LoadDataIntoMemory.class, Boolean.toString(this.inMemory))
-       .bindNamedParameter(JobConfExternalConstructor.InputFormatClass.class, inputFormatClass);
+        .bindNamedParameter(JobConfExternalConstructor.InputFormatClass.class, inputFormatClass);
 
     final Iterator<DistributedDataSetPartition> partitions = this.distributedDataSet.iterator();
     while (partitions.hasNext()) {

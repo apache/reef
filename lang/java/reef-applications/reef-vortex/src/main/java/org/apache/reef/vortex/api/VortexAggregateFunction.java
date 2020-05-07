@@ -38,5 +38,5 @@ public interface VortexAggregateFunction<TOutput> {
    * @return the aggregated output of Tasklets.
    * @throws Exception
    */
-  TOutput call(final List<TOutput> taskletOutputs) throws VortexAggregateException;
+  TOutput call(List<TOutput> taskletOutputs) throws VortexAggregateException;
 }

@@ -40,5 +40,5 @@ public interface MockTaskReturnValueProvider {
    * @param task that is to be provided with a return value
    * @return {@link org.apache.reef.task.Task#call(byte[])} return value
    */
-  byte[] getReturnValue(final MockRunningTask task);
+  byte[] getReturnValue(MockRunningTask task);
 }

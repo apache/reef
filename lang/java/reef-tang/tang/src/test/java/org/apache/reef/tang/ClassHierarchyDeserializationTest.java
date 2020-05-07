@@ -47,7 +47,7 @@ public class ClassHierarchyDeserializationTest {
   @Test
   public void testDeserializationForTasks() {
     // TODO: The file should be written by Avro (REEF-400)
-    try (final InputStream chin = Thread.currentThread().getContextClassLoader()
+    try (InputStream chin = Thread.currentThread().getContextClassLoader()
         .getResourceAsStream("Task.bin")) {
       // TODO: Use AvroClassHierarchySerializer instead (REEF-400)
       final ClassHierarchyProto.Node root = ClassHierarchyProto.Node.parseFrom(chin);
@@ -85,7 +85,7 @@ public class ClassHierarchyDeserializationTest {
     final ConfigurationBuilder eventConfigurationBuilder;
 
     // TODO: The file should be written by Avro (REEF-400)
-    try (final InputStream chin = Thread.currentThread().getContextClassLoader()
+    try (InputStream chin = Thread.currentThread().getContextClassLoader()
         .getResourceAsStream("Task.bin")) {
       // TODO: Use AvroClassHierarchySerializer instead (REEF-400)
       final ClassHierarchyProto.Node root = ClassHierarchyProto.Node.parseFrom(chin);
@@ -97,7 +97,7 @@ public class ClassHierarchyDeserializationTest {
     }
 
     // TODO: The file should be written by Avro (REEF-400)
-    try (final InputStream chin = Thread.currentThread().getContextClassLoader()
+    try (InputStream chin = Thread.currentThread().getContextClassLoader()
         .getResourceAsStream("Event.bin")) {
       // TODO: Use AvroClassHierarchySerializer instead (REEF-400)
       final ClassHierarchyProto.Node root = ClassHierarchyProto.Node.parseFrom(chin);
@@ -117,7 +117,7 @@ public class ClassHierarchyDeserializationTest {
   @Test
   public void testDeserializationForEvent() {
     // TODO: The file should be written by Avro (REEF-400)
-    try (final InputStream chin = Thread.currentThread().getContextClassLoader()
+    try (InputStream chin = Thread.currentThread().getContextClassLoader()
         .getResourceAsStream("Event.bin")) {
       // TODO: Use AvroClassHierarchySerializer instead (REEF-400)
       final ClassHierarchyProto.Node root = ClassHierarchyProto.Node.parseFrom(chin);

@@ -42,7 +42,7 @@ public interface MockFailure {
    * Fail an allocated evaluator.
    * @param evaluator to be failed
    */
-  void fail(final AllocatedEvaluator evaluator);
+  void fail(AllocatedEvaluator evaluator);
 
   /**
    * @return current Collection of active contexts
@@ -53,7 +53,7 @@ public interface MockFailure {
    * Fail an ActiveContext.
    * @param context to be failed
    */
-  void fail(final ActiveContext context);
+  void fail(ActiveContext context);
 
   /**
    * @return current Collection of running tasks
@@ -64,11 +64,11 @@ public interface MockFailure {
    * Fail a running task.
    * @param task to be failed
    */
-  void fail(final RunningTask task);
+  void fail(RunningTask task);
 
   /**
    * Fail the driver.
    * @return the state of the driver at the time of the failure
    */
-  MockDriverRestartContext failDriver(final int attempt, final StartTime startTime);
+  MockDriverRestartContext failDriver(int attempt, StartTime startTime);
 }

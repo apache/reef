@@ -241,9 +241,9 @@ public final class JavaLaunchCommandBuilder implements LaunchCommandBuilder {
     static final Pattern EQUALS = Pattern.compile("(.+)=(.+)");
     static final Pattern MEMORY = Pattern.compile("(\\-Xm[nsx])(.+)");
 
-    public final String option;
-    public final String value;
-    public final String separator;
+    final String option;
+    final String value;
+    final String separator;
 
     private JVMOption(final String option, final String value,
                      final String separator) {

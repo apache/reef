@@ -188,7 +188,7 @@ public final class JavaDriverClientLauncher {
     final Injector injector = TANG.newInjector(launcher.envConfig);
     try {
       final DriverServiceClient driverServiceClient = injector.getInstance(DriverServiceClient.class);
-      try (final Clock reef = injector.getInstance(Clock.class)) {
+      try (Clock reef = injector.getInstance(Clock.class)) {
         reef.run();
       } catch (final InjectionException ex) {
         LOG.log(Level.SEVERE, "Unable to configure driver client.");

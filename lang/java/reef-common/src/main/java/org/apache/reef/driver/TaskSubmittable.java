@@ -36,5 +36,5 @@ public interface TaskSubmittable {
    *
    * @param taskConf the Configuration. See TaskConfiguration for details
    */
-  void submitTask(final Configuration taskConf);
+  void submitTask(Configuration taskConf);
 }

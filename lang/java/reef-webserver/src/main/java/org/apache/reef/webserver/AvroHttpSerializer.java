@@ -61,7 +61,7 @@ public class AvroHttpSerializer {
    */
   public String toString(final AvroHttpRequest request) {
     final DatumWriter<AvroHttpRequest> configurationWriter = new SpecificDatumWriter<>(AvroHttpRequest.class);
-    try (final ByteArrayOutputStream out = new ByteArrayOutputStream()) {
+    try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
       final JsonEncoder encoder = EncoderFactory.get().jsonEncoder(AvroHttpRequest.SCHEMA$, out);
       configurationWriter.write(request, encoder);
       encoder.flush();
@@ -76,7 +76,7 @@ public class AvroHttpSerializer {
    */
   public byte[] toBytes(final AvroHttpRequest request) {
     final DatumWriter<AvroHttpRequest> requestWriter = new SpecificDatumWriter<>(AvroHttpRequest.class);
-    try (final ByteArrayOutputStream out = new ByteArrayOutputStream()) {
+    try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
       final BinaryEncoder encoder = EncoderFactory.get().binaryEncoder(out, null);
       requestWriter.write(request, encoder);
       encoder.flush();
@@ -95,7 +95,7 @@ public class AvroHttpSerializer {
    */
   public void toFile(final AvroHttpRequest avroHttpRequest, final File file) throws IOException, ServletException {
     final DatumWriter<AvroHttpRequest> httpWriter = new SpecificDatumWriter<>(AvroHttpRequest.class);
-    try (final DataFileWriter<AvroHttpRequest> dataFileWriter = new DataFileWriter<>(httpWriter)) {
+    try (DataFileWriter<AvroHttpRequest> dataFileWriter = new DataFileWriter<>(httpWriter)) {
       dataFileWriter.create(avroHttpRequest.getSchema(), file);
       dataFileWriter.append(avroHttpRequest);
     }
@@ -109,7 +109,7 @@ public class AvroHttpSerializer {
    */
   public AvroHttpRequest fromFile(final File file) throws IOException {
     final AvroHttpRequest avrohttpRequest;
-    try (final DataFileReader<AvroHttpRequest> dataFileReader =
+    try (DataFileReader<AvroHttpRequest> dataFileReader =
                  new DataFileReader<>(file, new SpecificDatumReader<>(AvroHttpRequest.class))) {
       avrohttpRequest = dataFileReader.next();
     }

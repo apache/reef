@@ -56,7 +56,7 @@ public final class KryoUtils {
   }
 
   public byte[] serialize(final Object object) {
-    try (final Output out = new Output(new ByteArrayOutputStream())) {
+    try (Output out = new Output(new ByteArrayOutputStream())) {
       final Kryo kryo = kryoPool.borrow();
       kryo.writeClassAndObject(out, object);
       kryoPool.release(kryo);
@@ -65,7 +65,7 @@ public final class KryoUtils {
   }
 
   public Object deserialize(final byte[] bytes) {
-    try (final Input input = new Input(new ByteArrayInputStream(bytes))) {
+    try (Input input = new Input(new ByteArrayInputStream(bytes))) {
       final Kryo kryo = kryoPool.borrow();
       final Object object = kryo.readClassAndObject(input);
       kryoPool.release(kryo);

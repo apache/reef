@@ -45,14 +45,14 @@ public interface RunningTask extends Identifiable, AutoCloseable {
    *
    * @param message to be sent to the running task
    */
-  void send(final byte[] message);
+  void send(byte[] message);
 
   /**
    * Signal the task to suspend.
    *
    * @param message a message that is sent to the Task.
    */
-  void suspend(final byte[] message);
+  void suspend(byte[] message);
 
   /**
    * Signal the task to suspend.
@@ -64,7 +64,7 @@ public interface RunningTask extends Identifiable, AutoCloseable {
    *
    * @param message a message that is sent to the Task.
    */
-  void close(final byte[] message);
+  void close(byte[] message);
 
   /**
    * Signal the task to shut down.

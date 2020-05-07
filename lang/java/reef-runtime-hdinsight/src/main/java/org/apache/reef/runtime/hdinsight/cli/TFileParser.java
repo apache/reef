@@ -50,7 +50,7 @@ final class TFileParser {
    * @throws IOException
    */
   void parseOneFile(final Path inputPath, final Writer outputWriter) throws IOException {
-    try (final TFile.Reader.Scanner scanner = this.getScanner(inputPath)) {
+    try (TFile.Reader.Scanner scanner = this.getScanner(inputPath)) {
       while (!scanner.atEnd()) {
         new LogFileEntry(scanner.entry()).write(outputWriter);
         scanner.advance();
@@ -67,7 +67,7 @@ final class TFileParser {
    * @throws IOException
    */
   void parseOneFile(final Path inputPath, final File outputFolder) throws IOException {
-    try (final TFile.Reader.Scanner scanner = this.getScanner(inputPath)) {
+    try (TFile.Reader.Scanner scanner = this.getScanner(inputPath)) {
       while (!scanner.atEnd()) {
         new LogFileEntry(scanner.entry()).write(outputFolder);
         scanner.advance();

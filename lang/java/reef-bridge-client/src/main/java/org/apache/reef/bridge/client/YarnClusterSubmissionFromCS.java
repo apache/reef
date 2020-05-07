@@ -255,8 +255,8 @@ final class YarnClusterSubmissionFromCS {
   static YarnClusterSubmissionFromCS fromJobSubmissionParametersFile(final File yarnClusterAppSubmissionParametersFile,
                                                                      final File yarnClusterJobSubmissionParametersFile)
       throws IOException {
-    try (final FileInputStream appFileInputStream = new FileInputStream(yarnClusterAppSubmissionParametersFile)) {
-      try (final FileInputStream jobFileInputStream = new FileInputStream(yarnClusterJobSubmissionParametersFile)) {
+    try (FileInputStream appFileInputStream = new FileInputStream(yarnClusterAppSubmissionParametersFile)) {
+      try (FileInputStream jobFileInputStream = new FileInputStream(yarnClusterJobSubmissionParametersFile)) {
         // this is mainly a test hook
         return readYarnClusterSubmissionFromCSFromInputStream(appFileInputStream, jobFileInputStream);
       }

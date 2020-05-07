@@ -85,7 +85,7 @@ public final class OSUtils {
         if (exitCode != 0) {
           LOG.log(Level.SEVERE, "Unable to determine PID. Exit code = {0}", exitCode);
           final StringBuilder errorMsg = new StringBuilder();
-          try (final BufferedReader reader = new BufferedReader(
+          try (BufferedReader reader = new BufferedReader(
               new InputStreamReader(process.getErrorStream(), StandardCharsets.UTF_8))) {
             for (int i = 0; i < 10 && reader.ready(); ++i) { // Read the first 10 lines from stderr
               errorMsg.append(reader.readLine()).append('\n');

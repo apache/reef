@@ -76,7 +76,7 @@ public final class AvroEvaluatorRequestSerializer {
   public static String toString(final EvaluatorRequest request) {
     AvroEvaluatorRequest avroRequest = toAvro(request);
     final DatumWriter<AvroEvaluatorRequest> datumWriter = new SpecificDatumWriter<>(AvroEvaluatorRequest.class);
-    try (final ByteArrayOutputStream out = new ByteArrayOutputStream()) {
+    try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
       final JsonEncoder encoder = EncoderFactory.get().jsonEncoder(avroRequest.getSchema(), out);
       datumWriter.write(avroRequest, encoder);
       encoder.flush();

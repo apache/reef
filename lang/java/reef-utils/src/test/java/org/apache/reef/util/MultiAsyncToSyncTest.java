@@ -170,8 +170,7 @@ public final class MultiAsyncToSyncTest {
     final long timeoutPeriodSeconds = 4;
     final int input = 1;
 
-    try (final SynchronousApi apiObject =
-           new SynchronousApi(incrementerSleepTimeSeconds, timeoutPeriodSeconds, 2)) {
+    try (SynchronousApi apiObject = new SynchronousApi(incrementerSleepTimeSeconds, timeoutPeriodSeconds, 2)) {
       final int result = apiObject.apiCall(input);
       Assert.assertEquals("Value incremented by one", input + 1, result);
     }
@@ -189,8 +188,7 @@ public final class MultiAsyncToSyncTest {
     final long timeoutPeriodSeconds = 2;
     final int input = 1;
 
-    try (final SynchronousApi apiObject =
-           new SynchronousApi(incrementerSleepTimeSeconds, timeoutPeriodSeconds, 2)) {
+    try (SynchronousApi apiObject = new SynchronousApi(incrementerSleepTimeSeconds, timeoutPeriodSeconds, 2)) {
       final int result = apiObject.apiCall(input);
       Assert.assertEquals("Timeout occurred", result, 0);
     }
@@ -209,8 +207,7 @@ public final class MultiAsyncToSyncTest {
     final int incrementerSleepTimeSeconds = 2;
     final long timeoutPeriodSeconds = 4;
 
-    try (final SynchronousApi apiObject =
-           new SynchronousApi(incrementerSleepTimeSeconds, timeoutPeriodSeconds, 2)) {
+    try (SynchronousApi apiObject = new SynchronousApi(incrementerSleepTimeSeconds, timeoutPeriodSeconds, 2)) {
       final String function = "apiCall";
       final int input = 1;
       final FutureTask<Integer> task1 =
@@ -251,8 +248,7 @@ public final class MultiAsyncToSyncTest {
     final FutureTask[] tasks = new FutureTask[nTasks];
     final ExecutorService executor = Executors.newFixedThreadPool(10);
 
-    try (final SynchronousApi apiObject =
-           new SynchronousApi(incrementerSleepTimeSeconds, timeoutPeriodSeconds, 10)) {
+    try (SynchronousApi apiObject = new SynchronousApi(incrementerSleepTimeSeconds, timeoutPeriodSeconds, 10)) {
 
       for (int idx = 0; idx < nTasks; ++idx) {
         tasks[idx] = new FutureTask<>(new MethodCallable<Integer>(apiObject, function, idx));

@@ -33,7 +33,7 @@ import java.util.List;
 @Private
 public interface DriverServiceClient {
 
-  void onInitializationException(final Throwable ex);
+  void onInitializationException(Throwable ex);
 
   /**
    * Initiate shutdown.
@@ -44,26 +44,26 @@ public interface DriverServiceClient {
    * Initiate shutdown with error.
    * @param ex exception error
    */
-  void onShutdown(final Throwable ex);
+  void onShutdown(Throwable ex);
 
   /**
    * Set alarm.
    * @param alarmId alarm identifier
    * @param timeoutMS timeout in milliseconds
    */
-  void onSetAlarm(final String alarmId, final int timeoutMS);
+  void onSetAlarm(String alarmId, int timeoutMS);
 
   /**
    * Request evaluators.
    * @param evaluatorRequest event
    */
-  void onEvaluatorRequest(final EvaluatorRequest evaluatorRequest);
+  void onEvaluatorRequest(EvaluatorRequest evaluatorRequest);
 
   /**
    * Close evaluator.
    * @param evalautorId to close
    */
-  void onEvaluatorClose(final String evalautorId);
+  void onEvaluatorClose(String evalautorId);
 
   /**
    * Submit context and/or task.
@@ -75,12 +75,12 @@ public interface DriverServiceClient {
    * @param addLibraryList to include
    */
   void onEvaluatorSubmit(
-      final String evaluatorId,
-      final Optional<Configuration> contextConfiguration,
-      final Optional<Configuration> taskConfiguration,
-      final Optional<JVMClientProcess> evaluatorProcess,
-      final List<File> addFileList,
-      final List<File> addLibraryList);
+      String evaluatorId,
+      Optional<Configuration> contextConfiguration,
+      Optional<Configuration> taskConfiguration,
+      Optional<JVMClientProcess> evaluatorProcess,
+      List<File> addFileList,
+      List<File> addLibraryList);
 
   // Context Operations
 
@@ -88,7 +88,7 @@ public interface DriverServiceClient {
    * Close context.
    * @param contextId to close
    */
-  void onContextClose(final String contextId);
+  void onContextClose(String contextId);
 
   /**
    * Submit child context.
@@ -96,8 +96,8 @@ public interface DriverServiceClient {
    * @param contextConfiguration for child context
    */
   void onContextSubmitContext(
-      final String contextId,
-      final Configuration contextConfiguration);
+      String contextId,
+      Configuration contextConfiguration);
 
   /**
    * Submit task.
@@ -105,15 +105,15 @@ public interface DriverServiceClient {
    * @param taskConfiguration for task
    */
   void onContextSubmitTask(
-      final String contextId,
-      final Configuration taskConfiguration);
+      String contextId,
+      Configuration taskConfiguration);
 
   /**
    * Send message to context.
    * @param contextId to destination context
    * @param message to send
    */
-  void onContextMessage(final String contextId, final byte[] message);
+  void onContextMessage(String contextId, byte[] message);
 
   // Task operations
 
@@ -122,19 +122,19 @@ public interface DriverServiceClient {
    * @param taskId to close
    * @param message optional message to include
    */
-  void onTaskClose(final String taskId, final Optional<byte[]> message);
+  void onTaskClose(String taskId, Optional<byte[]> message);
 
   /**
    * Send task a message.
    * @param taskId of destination task
    * @param message to send
    */
-  void onTaskMessage(final String taskId, final byte[] message);
+  void onTaskMessage(String taskId, byte[] message);
 
   /**
    * Suspend a running task.
    * @param taskId task identifier
    * @param message optional message
    */
-  void onSuspendTask(final String taskId, final Optional<byte[]> message);
+  void onSuspendTask(String taskId, Optional<byte[]> message);
 }

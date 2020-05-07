@@ -33,25 +33,25 @@ interface SchedulingPolicy {
    * @param tasklet to schedule
    * @return the worker onto which the tasklet should be scheduled, null if there's none
    */
-  Optional<String> trySchedule(final Tasklet tasklet);
+  Optional<String> trySchedule(Tasklet tasklet);
 
   /**
    * Worker added.
    */
-  void workerAdded(final VortexWorkerManager vortexWorker);
+  void workerAdded(VortexWorkerManager vortexWorker);
 
   /**
    * Worker removed.
    */
-  void workerRemoved(final VortexWorkerManager vortexWorker);
+  void workerRemoved(VortexWorkerManager vortexWorker);
 
   /**
    * Tasklet launched.
    */
-  void taskletLaunched(final VortexWorkerManager vortexWorker, final Tasklet tasklet);
+  void taskletLaunched(VortexWorkerManager vortexWorker, Tasklet tasklet);
 
   /**
    * Tasklets completed.
    */
-  void taskletsDone(final VortexWorkerManager vortexWorker, final List<Tasklet> tasklets);
+  void taskletsDone(VortexWorkerManager vortexWorker, List<Tasklet> tasklets);
 }

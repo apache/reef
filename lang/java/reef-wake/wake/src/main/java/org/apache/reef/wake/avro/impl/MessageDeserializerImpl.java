@@ -53,7 +53,7 @@ public class MessageDeserializerImpl<TMessage> implements IMessageDeserializer {
    * @throws InvocationTargetException Subclass threw and exception.
    */
   public void deserialize(final BinaryDecoder decoder, final MultiObserver observer, final long sequence)
-    throws IOException, IllegalAccessException, InvocationTargetException {
+      throws IOException, IllegalAccessException, InvocationTargetException {
 
     final TMessage message = messageReader.read(null, decoder);
     if (message != null) {

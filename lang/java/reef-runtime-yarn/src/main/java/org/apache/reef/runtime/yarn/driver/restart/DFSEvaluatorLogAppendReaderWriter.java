@@ -56,8 +56,7 @@ public final class DFSEvaluatorLogAppendReaderWriter implements DFSEvaluatorLogR
   public synchronized void writeToEvaluatorLog(final String formattedEntry) throws IOException {
     final boolean fileCreated = this.fileSystem.exists(this.changelogPath);
 
-    try (
-        final BufferedWriter bw = fileCreated ?
+    try (BufferedWriter bw = fileCreated ?
             new BufferedWriter(new OutputStreamWriter(
                 this.fileSystem.append(this.changelogPath), StandardCharsets.UTF_8)) :
             new BufferedWriter(new OutputStreamWriter(

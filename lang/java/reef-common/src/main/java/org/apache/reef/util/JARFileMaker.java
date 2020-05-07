@@ -79,7 +79,7 @@ public class JARFileMaker implements AutoCloseable {
         this.add(nestedFile, fileNameInJAR);
       }
     } else {
-      try (final BufferedInputStream in = new BufferedInputStream(new FileInputStream(inputFile))) {
+      try (BufferedInputStream in = new BufferedInputStream(new FileInputStream(inputFile))) {
         IOUtils.copy(in, this.jarOutputStream);
       } catch (final FileNotFoundException ex) {
         LOG.log(Level.WARNING, "Skip the file: " + inputFile, ex);

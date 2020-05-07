@@ -32,7 +32,7 @@ public interface Observer<T> {
    *
    * @param value
    */
-  void onNext(final T value);
+  void onNext(T value);
 
   /**
    * Notifies the observer that the provider has experienced an error
@@ -40,7 +40,7 @@ public interface Observer<T> {
    *
    * @param error
    */
-  void onError(final Exception error);
+  void onError(Exception error);
 
   /**
    * Notifies the observer that the provider has finished sending push-based

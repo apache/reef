@@ -30,5 +30,5 @@ public interface VortexStart {
    * Your implementation of this interface will be instantiated by Tang
    * and this method will be called upon the start of REEF Driver.
    */
-  void start(final VortexThreadPool vortexThreadPool);
+  void start(VortexThreadPool vortexThreadPool);
 }

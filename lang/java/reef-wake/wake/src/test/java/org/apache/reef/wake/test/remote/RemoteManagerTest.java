@@ -268,7 +268,7 @@ public class RemoteManagerTest {
 
     final ExceptionHandler errorHandler = new ExceptionHandler(monitor);
 
-    try (final RemoteManager rm = remoteManagerFactory.getInstance("name", 0, codec, errorHandler)) {
+    try (RemoteManager rm = remoteManagerFactory.getInstance("name", 0, codec, errorHandler)) {
       final RemoteIdentifier remoteId = rm.getMyIdentifier();
 
       final EventHandler<StartEvent> proxyConnection = rm.getHandler(remoteId, StartEvent.class);

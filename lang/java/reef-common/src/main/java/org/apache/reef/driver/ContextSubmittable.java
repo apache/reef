@@ -36,7 +36,7 @@ public interface ContextSubmittable {
    *
    * @param contextConfiguration the Configuration of the EvaluatorContext. See ContextConfiguration for details.
    */
-  void submitContext(final Configuration contextConfiguration);
+  void submitContext(Configuration contextConfiguration);
 
   /**
    * Submit a Context and a Service Configuration.
@@ -44,6 +44,6 @@ public interface ContextSubmittable {
    * @param contextConfiguration the Configuration of the EvaluatorContext. See ContextConfiguration for details.
    * @param serviceConfiguration the Configuration for the Services. See ServiceConfiguration for details.
    */
-  void submitContextAndService(final Configuration contextConfiguration, final Configuration serviceConfiguration);
+  void submitContextAndService(Configuration contextConfiguration, Configuration serviceConfiguration);
 
 }

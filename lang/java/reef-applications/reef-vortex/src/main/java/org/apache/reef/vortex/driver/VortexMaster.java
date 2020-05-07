@@ -39,19 +39,19 @@ public interface VortexMaster {
    * Submit a new Tasklet to be run sometime in the future, with an optional callback function on the result.
    */
   <TInput, TOutput> VortexFuture<TOutput>
-      enqueueTasklet(final VortexFunction<TInput, TOutput> vortexFunction, final TInput input,
-                     final Optional<FutureCallback<TOutput>> callback);
+      enqueueTasklet(VortexFunction<TInput, TOutput> vortexFunction, TInput input,
+                     Optional<FutureCallback<TOutput>> callback);
 
   /**
    * Submits aggregate-able Tasklets to be run sometime in the future, with an optional callback function on
    * the aggregation progress.
    */
   <TInput, TOutput> VortexAggregateFuture<TInput, TOutput>
-      enqueueTasklets(final VortexAggregateFunction<TOutput> aggregateFunction,
-                      final VortexFunction<TInput, TOutput> vortexFunction,
-                      final VortexAggregatePolicy policy,
-                      final List<TInput> inputs,
-                      final Optional<FutureCallback<AggregateResult<TInput, TOutput>>> callback);
+      enqueueTasklets(VortexAggregateFunction<TOutput> aggregateFunction,
+                      VortexFunction<TInput, TOutput> vortexFunction,
+                      VortexAggregatePolicy policy,
+                      List<TInput> inputs,
+                      Optional<FutureCallback<AggregateResult<TInput, TOutput>>> callback);
 
   /**
    * Call this when a Tasklet is to be cancelled.
@@ -59,22 +59,22 @@ public interface VortexMaster {
    *                              prevent a pending Tasklet from running.
    * @param taskletId the ID of the Tasklet.
    */
-  void cancelTasklet(final boolean mayInterruptIfRunning, final int taskletId);
+  void cancelTasklet(boolean mayInterruptIfRunning, int taskletId);
 
   /**
    * Call this when a new worker is up and running.
    */
-  void workerAllocated(final VortexWorkerManager vortexWorkerManager);
+  void workerAllocated(VortexWorkerManager vortexWorkerManager);
 
   /**
    * Call this when a worker is preempted.
    */
-  void workerPreempted(final String id);
+  void workerPreempted(String id);
 
   /**
    * Call this when a worker has reported back.
    */
-  void workerReported(final String workerId, final WorkerToMasterReports workerToMasterReports);
+  void workerReported(String workerId, WorkerToMasterReports workerToMasterReports);
 
   /**
    * Release all resources and shut down.

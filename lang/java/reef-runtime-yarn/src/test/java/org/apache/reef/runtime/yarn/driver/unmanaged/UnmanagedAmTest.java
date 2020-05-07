@@ -145,7 +145,7 @@ public final class UnmanagedAmTest implements AMRMClientAsync.CallbackHandler, N
     final UserGroupInformation ugi = UserGroupInformation.getCurrentUser();
     final Credentials credentials = ugi.getCredentials();
 
-    try (final DataOutputBuffer dob = new DataOutputBuffer()) {
+    try (DataOutputBuffer dob = new DataOutputBuffer()) {
       credentials.writeTokenStorageToStream(dob);
       return ByteBuffer.wrap(dob.getData());
     }

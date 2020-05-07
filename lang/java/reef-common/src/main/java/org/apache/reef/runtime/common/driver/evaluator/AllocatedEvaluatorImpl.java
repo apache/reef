@@ -221,7 +221,7 @@ public final class AllocatedEvaluatorImpl implements AllocatedEvaluator {
   private void launch(final Configuration contextConfiguration,
                       final Optional<Configuration> serviceConfiguration,
                       final Optional<Configuration> taskConfiguration) {
-    try (final LoggingScope lb = loggingScopeFactory.evaluatorLaunch(this.getId())) {
+    try (LoggingScope lb = loggingScopeFactory.evaluatorLaunch(this.getId())) {
       final Configuration evaluatorConfiguration =
           makeEvaluatorConfiguration(contextConfiguration, serviceConfiguration, taskConfiguration);
 
@@ -243,7 +243,7 @@ public final class AllocatedEvaluatorImpl implements AllocatedEvaluator {
       final String contextConfiguration,
       final Optional<String> serviceConfiguration,
       final Optional<String> taskConfiguration) {
-    try (final LoggingScope lb = loggingScopeFactory.evaluatorLaunch(this.getId())) {
+    try (LoggingScope lb = loggingScopeFactory.evaluatorLaunch(this.getId())) {
       final Configuration submissionEvaluatorConfiguration =
           makeEvaluatorConfiguration(
               contextConfiguration,

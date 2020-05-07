@@ -175,7 +175,7 @@ public final class JobDriver {
     // Signal to the clr buffered log handler that the driver has started and that
     // we can begin logging
     LOG.log(Level.INFO, "Initializing CLRBufferedLogHandler...");
-    try (final LoggingScope lb = this.loggingScopeFactory.setupBridge()) {
+    try (LoggingScope lb = this.loggingScopeFactory.setupBridge()) {
       final CLRBufferedLogHandler handler = getCLRBufferedLogHandler();
       if (handler == null) {
         LOG.log(Level.WARNING, "CLRBufferedLogHandler could not be initialized");
@@ -204,7 +204,7 @@ public final class JobDriver {
       NativeInterop.clrSystemSetupBridgeHandlerManager(portNumber,
           JobDriver.this.handlerManager, evaluatorRequestorBridge);
 
-      try (final LoggingScope lp =
+      try (LoggingScope lp =
                this.loggingScopeFactory.getNewLoggingScope("setupBridge::clrSystemHttpServerHandlerOnNext")) {
         final HttpServerEventBridge httpServerEventBridge = new HttpServerEventBridge("SPEC");
         NativeInterop.clrSystemHttpServerHandlerOnNext(JobDriver.this.handlerManager.getHttpServerEventHandler(),
@@ -251,7 +251,7 @@ public final class JobDriver {
   }
 
   private void handleFailedEvaluator(final FailedEvaluator eval, final boolean isRestartFailed) {
-    try (final LoggingScope ls = loggingScopeFactory.evaluatorFailed(eval.getId())) {
+    try (LoggingScope ls = loggingScopeFactory.evaluatorFailed(eval.getId())) {
       LOG.log(Level.SEVERE, "FailedEvaluator", eval);
       for (final FailedContext failedContext : eval.getFailedContextList()) {
         final String failedContextId = failedContext.getId();
@@ -349,7 +349,7 @@ public final class JobDriver {
   public final class AllocatedEvaluatorHandler implements EventHandler<AllocatedEvaluator> {
     @Override
     public void onNext(final AllocatedEvaluator allocatedEvaluator) {
-      try (final LoggingScope ls = loggingScopeFactory.evaluatorAllocated(allocatedEvaluator.getId())) {
+      try (LoggingScope ls = loggingScopeFactory.evaluatorAllocated(allocatedEvaluator.getId())) {
         LOG.log(Level.INFO, "AllocatedEvaluatorHandler.OnNext");
         JobDriver.this.submitEvaluator(allocatedEvaluator, clrProcessFactory.newEvaluatorProcess());
       }
@@ -362,7 +362,7 @@ public final class JobDriver {
   public final class ActiveContextHandler implements EventHandler<ActiveContext> {
     @Override
     public void onNext(final ActiveContext context) {
-      try (final LoggingScope ls = loggingScopeFactory.activeContextReceived(context.getId())) {
+      try (LoggingScope ls = loggingScopeFactory.activeContextReceived(context.getId())) {
         LOG.log(Level.INFO, "ActiveContextHandler: Context available: {0}",
             new Object[]{context.getId()});
         JobDriver.this.contexts.put(context.getId(), context);
@@ -378,7 +378,7 @@ public final class JobDriver {
     @Override
     public void onNext(final CompletedTask task) {
       LOG.log(Level.INFO, "Completed task: {0}", task.getId());
-      try (final LoggingScope ls = loggingScopeFactory.taskCompleted(task.getId())) {
+      try (LoggingScope ls = loggingScopeFactory.taskCompleted(task.getId())) {
         // Take the message returned by the task and add it to the running result.
         String result = "default result";
         try {
@@ -443,7 +443,7 @@ public final class JobDriver {
     public void onHttpRequest(final ParsedHttpRequest parsedHttpRequest, final HttpServletResponse response)
         throws IOException, ServletException {
       LOG.log(Level.INFO, "HttpServerBridgeEventHandler onHttpRequest: {0}", parsedHttpRequest.getRequestUri());
-      try (final LoggingScope ls = loggingScopeFactory.httpRequest(parsedHttpRequest.getRequestUri())) {
+      try (LoggingScope ls = loggingScopeFactory.httpRequest(parsedHttpRequest.getRequestUri())) {
         final AvroHttpSerializer httpSerializer = new AvroHttpSerializer();
         final AvroHttpRequest avroHttpRequest = httpSerializer.toAvro(parsedHttpRequest);
 
@@ -493,7 +493,7 @@ public final class JobDriver {
   public final class RunningTaskHandler implements EventHandler<RunningTask> {
     @Override
     public void onNext(final RunningTask task) {
-      try (final LoggingScope ls = loggingScopeFactory.taskRunning(task.getId())) {
+      try (LoggingScope ls = loggingScopeFactory.taskRunning(task.getId())) {
         if (JobDriver.this.handlerManager.getRunningTaskHandler() == 0) {
           LOG.log(Level.INFO, "RunningTask event received but no CLR handler was bound. Exiting handler.");
         } else {
@@ -517,7 +517,7 @@ public final class JobDriver {
   public final class DriverRestartRunningTaskHandler implements EventHandler<RunningTask> {
     @Override
     public void onNext(final RunningTask task) {
-      try (final LoggingScope ls = loggingScopeFactory.driverRestartRunningTask(task.getId())) {
+      try (LoggingScope ls = loggingScopeFactory.driverRestartRunningTask(task.getId())) {
         clock.scheduleAlarm(0, new EventHandler<Alarm>() {
           @Override
           public void onNext(final Alarm time) {
@@ -548,7 +548,7 @@ public final class JobDriver {
   public final class DriverRestartActiveContextHandler implements EventHandler<ActiveContext> {
     @Override
     public void onNext(final ActiveContext context) {
-      try (final LoggingScope ls = loggingScopeFactory.driverRestartActiveContextReceived(context.getId())) {
+      try (LoggingScope ls = loggingScopeFactory.driverRestartActiveContextReceived(context.getId())) {
         JobDriver.this.contexts.put(context.getId(), context);
         LOG.log(Level.INFO, "DriverRestartActiveContextHandler event received: " + context.getId());
         clock.scheduleAlarm(0, new EventHandler<Alarm>() {
@@ -581,7 +581,7 @@ public final class JobDriver {
   public final class StartHandler implements EventHandler<StartTime> {
     @Override
     public void onNext(final StartTime startTime) {
-      try (final LoggingScope ls = loggingScopeFactory.driverStart(startTime)) {
+      try (LoggingScope ls = loggingScopeFactory.driverStart(startTime)) {
         // CLR bridge setup must be done before other event handlers try to access the CLR bridge
         // thus we grab a lock on this instance
         synchronized (JobDriver.this) {
@@ -602,7 +602,7 @@ public final class JobDriver {
   public final class RestartHandler implements EventHandler<DriverRestarted> {
     @Override
     public void onNext(final DriverRestarted driverRestarted) {
-      try (final LoggingScope ls = loggingScopeFactory.driverRestart(driverRestarted.getStartTime())) {
+      try (LoggingScope ls = loggingScopeFactory.driverRestart(driverRestarted.getStartTime())) {
         // CLR bridge setup must be done before other event handlers try to access the CLR bridge
         // thus we lock on this instance
         synchronized (JobDriver.this) {
@@ -625,7 +625,7 @@ public final class JobDriver {
     public void onNext(final DriverRestartCompleted driverRestartCompleted) {
       LOG.log(Level.INFO, "Java DriverRestartCompleted event received at time [{0}]. ",
           driverRestartCompleted.getCompletedTime());
-      try (final LoggingScope ls = loggingScopeFactory.driverRestartCompleted(
+      try (LoggingScope ls = loggingScopeFactory.driverRestartCompleted(
           driverRestartCompleted.getCompletedTime().getTimestamp())) {
         if (JobDriver.this.handlerManager.getDriverRestartCompletedHandler() != 0) {
           LOG.log(Level.INFO, "CLR driver restart handler implemented, now handle it in CLR.");
@@ -647,7 +647,7 @@ public final class JobDriver {
     @Override
     public void onNext(final StopTime time) {
       LOG.log(Level.INFO, " StopTime: {0}", new Object[]{time});
-      try (final LoggingScope ls = loggingScopeFactory.driverStop(time.getTimestamp())) {
+      try (LoggingScope ls = loggingScopeFactory.driverStop(time.getTimestamp())) {
         for (final ActiveContext context : contexts.values()) {
           context.close();
         }
@@ -682,7 +682,7 @@ public final class JobDriver {
     public void onNext(final SuspendedTask task) {
       final String message = "Received notification that task [" + task.getId() + "] has been suspended.";
       LOG.log(Level.INFO, message);
-      try (final LoggingScope ls = loggingScopeFactory.taskSuspended(task.getId())) {
+      try (LoggingScope ls = loggingScopeFactory.taskSuspended(task.getId())) {
         if (JobDriver.this.handlerManager.getSuspendedTaskHandler() != 0) {
           final SuspendedTaskBridge suspendedTaskBridge = new SuspendedTaskBridge(task, activeContextBridgeFactory);
           // if CLR implements the suspended task handler, handle it in CLR
@@ -702,7 +702,7 @@ public final class JobDriver {
     @Override
     public void onNext(final CompletedEvaluator evaluator) {
       LOG.log(Level.INFO, " Completed Evaluator {0}", evaluator.getId());
-      try (final LoggingScope ls = loggingScopeFactory.evaluatorCompleted(evaluator.getId())) {
+      try (LoggingScope ls = loggingScopeFactory.evaluatorCompleted(evaluator.getId())) {
         if (JobDriver.this.handlerManager.getCompletedEvaluatorHandler() != 0) {
           final CompletedEvaluatorBridge completedEvaluatorBridge = new CompletedEvaluatorBridge(evaluator);
           // if CLR implements the completed evaluator handler, handle it in CLR
@@ -724,7 +724,7 @@ public final class JobDriver {
     @Override
     public void onNext(final ClosedContext context) {
       LOG.log(Level.INFO, "Completed Context: {0}", context.getId());
-      try (final LoggingScope ls = loggingScopeFactory.closedContext(context.getId())) {
+      try (LoggingScope ls = loggingScopeFactory.closedContext(context.getId())) {
         if (JobDriver.this.handlerManager.getClosedContextHandler() != 0) {
           final ClosedContextBridge closedContextBridge = new ClosedContextBridge(context, activeContextBridgeFactory);
           // if CLR implements the closed context handler, handle it in CLR
@@ -746,7 +746,7 @@ public final class JobDriver {
     @Override
     public void onNext(final FailedContext context) {
       LOG.log(Level.SEVERE, "FailedContext", context);
-      try (final LoggingScope ls = loggingScopeFactory.evaluatorFailed(context.getId())) {
+      try (LoggingScope ls = loggingScopeFactory.evaluatorFailed(context.getId())) {
         if (JobDriver.this.handlerManager.getFailedContextHandler() != 0) {
           final FailedContextBridge failedContextBridge = new FailedContextBridge(context, activeContextBridgeFactory);
           // if CLR implements the failed context handler, handle it in CLR
@@ -770,7 +770,7 @@ public final class JobDriver {
     @Override
     public void onNext(final ContextMessage message) {
       LOG.log(Level.SEVERE, "Received ContextMessage:", message.get());
-      try (final LoggingScope ls =
+      try (LoggingScope ls =
                loggingScopeFactory.contextMessageReceived(new String(message.get(), StandardCharsets.UTF_8))) {
         if (JobDriver.this.handlerManager.getContextMessageHandler() != 0) {
           final ContextMessageBridge contextMessageBridge = new ContextMessageBridge(message);

@@ -43,8 +43,8 @@ final class LogFileEntry {
    * @throws IOException
    */
   public void write(final Writer outputWriter) throws IOException {
-    try (final DataInputStream keyStream = entry.getKeyStream();
-         final DataInputStream valueStream = entry.getValueStream();) {
+    try (DataInputStream keyStream = entry.getKeyStream();
+         DataInputStream valueStream = entry.getValueStream()) {
       outputWriter.write("Container: ");
       outputWriter.write(keyStream.readUTF());
       outputWriter.write("\n");
@@ -59,10 +59,10 @@ final class LogFileEntry {
    * @throws IOException
    */
   public void write(final File folder) throws IOException {
-    try (final DataInputStream keyStream = entry.getKeyStream();
-         final DataInputStream valueStream = entry.getValueStream();) {
+    try (DataInputStream keyStream = entry.getKeyStream();
+         DataInputStream valueStream = entry.getValueStream()) {
       final String containerId = keyStream.readUTF();
-      try (final Writer outputWriter = new OutputStreamWriter(
+      try (Writer outputWriter = new OutputStreamWriter(
           new FileOutputStream(new File(folder, containerId + ".txt")), StandardCharsets.UTF_8)) {
         this.writeFiles(valueStream, outputWriter);
       }

@@ -34,10 +34,10 @@ public interface EvaluatorInfoSerializer {
    * Build AvroEvaluatorsInfo object from raw data.
    */
   AvroEvaluatorsInfo toAvro(
-      final List<String> ids, final Map<String, EvaluatorDescriptor> evaluators);
+      List<String> ids, Map<String, EvaluatorDescriptor> evaluators);
 
   /**
    * Convert AvroEvaluatorsInfo object to JSON string.
    */
-  String toString(final AvroEvaluatorsInfo avroEvaluatorsInfo);
+  String toString(AvroEvaluatorsInfo avroEvaluatorsInfo);
 }

@@ -40,7 +40,7 @@ public final class CommandUtils {
       final String cmd = OSUtils.isWindows() ? "cmd.exe /c " + command : command;
       final Process proc = Runtime.getRuntime().exec(cmd);
 
-      try (final BufferedReader input =
+      try (BufferedReader input =
                new BufferedReader(new InputStreamReader(proc.getInputStream(), StandardCharsets.UTF_8))) {
         String line;
         while ((line = input.readLine()) != null) {

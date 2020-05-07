@@ -80,7 +80,7 @@ public final class WritableSerializer {
     @Override
     public byte[] encode(final E writable) {
       final ByteArrayOutputStream baos = new ByteArrayOutputStream();
-      try (final DataOutputStream daos = new DataOutputStream(baos)) {
+      try (DataOutputStream daos = new DataOutputStream(baos)) {
         daos.writeUTF(writable.getClass().getName());
         writable.write(daos);
         return baos.toByteArray();

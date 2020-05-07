@@ -27,6 +27,6 @@ import org.apache.reef.examples.group.bgd.data.Example;
  */
 public interface Parser<T> {
 
-  Example parse(final T input);
+  Example parse(T input);
 
 }

@@ -44,8 +44,8 @@ public class ObjectSerializableCodec<T> implements Codec<T> {
    */
   @Override
   public byte[] encode(final T obj) {
-    try (final ByteArrayOutputStream bos = new ByteArrayOutputStream();
-         final ObjectOutputStream out = new ObjectOutputStream(bos)) {
+    try (ByteArrayOutputStream bos = new ByteArrayOutputStream();
+         ObjectOutputStream out = new ObjectOutputStream(bos)) {
       out.writeObject(obj);
       return bos.toByteArray();
     } catch (final IOException ex) {
@@ -63,7 +63,7 @@ public class ObjectSerializableCodec<T> implements Codec<T> {
   @SuppressWarnings("unchecked")
   @Override
   public T decode(final byte[] buf) {
-    try (final ObjectInputStream in = new ObjectInputStream(new ByteArrayInputStream(buf))) {
+    try (ObjectInputStream in = new ObjectInputStream(new ByteArrayInputStream(buf))) {
       return (T) in.readObject();
     } catch (final ClassNotFoundException | IOException ex) {
       throw new RemoteRuntimeException(ex);

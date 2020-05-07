@@ -56,7 +56,7 @@ public final class OutputServiceTask implements Task {
    */
   @Override
   public byte[] call(final byte[] memento) throws IOException {
-    try (final DataOutputStream outputStream = outputStreamProvider.create("hello")) {
+    try (DataOutputStream outputStream = outputStreamProvider.create("hello")) {
       outputStream.writeBytes("Hello REEF!");
     }
     return null;

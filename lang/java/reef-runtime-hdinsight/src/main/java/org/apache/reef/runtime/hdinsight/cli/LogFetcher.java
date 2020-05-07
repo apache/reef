@@ -125,7 +125,7 @@ final class LogFetcher {
     int fileCounter = 0;
     for (final ListBlobItem blobItem : logFolder.listBlobs()) {
       if (blobItem instanceof CloudBlob) {
-        try (final OutputStream outputStream = new FileOutputStream(new File(outputFolder, "File-" + fileCounter))) {
+        try (OutputStream outputStream = new FileOutputStream(new File(outputFolder, "File-" + fileCounter))) {
           ((CloudBlob) blobItem).download(outputStream);
           ++fileCounter;
         }

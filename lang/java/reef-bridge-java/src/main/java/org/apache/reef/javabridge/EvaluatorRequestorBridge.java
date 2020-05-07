@@ -80,7 +80,7 @@ public final class EvaluatorRequestorBridge extends NativeBridge {
       LOG.log(Level.WARNING, "Ignoring rack preference.");
     }
 
-    try (final LoggingScope ls = loggingScopeFactory.evaluatorRequestSubmitToJavaDriver(evaluatorsNumber)) {
+    try (LoggingScope ls = loggingScopeFactory.evaluatorRequestSubmitToJavaDriver(evaluatorsNumber)) {
       clrEvaluatorsNumber += evaluatorsNumber;
 
       final EvaluatorRequest request = EvaluatorRequest.newBuilder()

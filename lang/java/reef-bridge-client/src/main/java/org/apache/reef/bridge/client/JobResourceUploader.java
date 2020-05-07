@@ -77,7 +77,7 @@ public final class JobResourceUploader {
         resource.getPort(), resource.getFile(), localResource.getTimestamp(), localResource.getSize());
     LOG.log(Level.INFO, "Writing output: " + outputString);
     try (Writer writer = new BufferedWriter(new OutputStreamWriter(
-      new FileOutputStream(localOutputPath), "utf-8"))) {
+        new FileOutputStream(localOutputPath), "utf-8"))) {
       writer.write(outputString);
     }
 

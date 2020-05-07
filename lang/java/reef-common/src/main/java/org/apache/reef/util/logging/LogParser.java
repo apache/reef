@@ -68,7 +68,7 @@ public final class LogParser {
                                                            final String removeBeforeToken,
                                                            final String removeAfterToken) throws IOException{
     final ArrayList<String> filteredLines = new ArrayList<>();
-    try (final BufferedReader in = new BufferedReader(
+    try (BufferedReader in = new BufferedReader(
             new InputStreamReader(new FileInputStream(fileName), StandardCharsets.UTF_8))) {
       String line = "";
       while ((line = in.readLine()) != null) {
