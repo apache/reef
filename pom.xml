@@ -62,7 +62,7 @@ under the License.
         <maven-checkstyle-plugin.version>3.1.0</maven-checkstyle-plugin.version>
         <sevntu.checkstyle.plugin.version>1.35.0</sevntu.checkstyle.plugin.version>
         <checkstyle.version>8.29</checkstyle.version>
-        <findbugs.version>3.0.4</findbugs.version>
+        <spotbugs.version>3.1.12.2</spotbugs.version>
         <reflections.version>0.9.9-RC1</reflections.version>
         <jsr305.version>3.0.1</jsr305.version>
         <kryo.version>3.0.3</kryo.version>
@@ -361,16 +361,17 @@ under the License.
                         <includeTestSourceDirectory>true</includeTestSourceDirectory>
                     </configuration>
                 </plugin>
+
                 <plugin>
-                    <groupId>org.codehaus.mojo</groupId>
-                    <artifactId>findbugs-maven-plugin</artifactId>
-                    <version>${findbugs.version}</version>
+                    <groupId>com.github.spotbugs</groupId>
+                    <artifactId>spotbugs-maven-plugin</artifactId>
+                    <version>${spotbugs.version}</version>
                     <configuration>
                         <effort>Max</effort>
                         <threshold>Default</threshold>
                         <failOnError>true</failOnError>
-                        <findbugsXmlOutputDirectory>${project.build.directory}/findbugs</findbugsXmlOutputDirectory>
-                        <excludeFilterFile>${rootPath}/lang/java/reef-common/src/main/resources/findbugs-exclude.xml</excludeFilterFile>
+                        <spotbugsXmlOutputDirectory>${project.build.directory}/spotbugs</spotbugsXmlOutputDirectory>
+                        <excludeFilterFile>${rootPath}/lang/java/reef-common/src/main/resources/spotbugs-exclude.xml</excludeFilterFile>
                     </configuration>
                 </plugin>
                 <plugin>
@@ -379,19 +380,19 @@ under the License.
                     <version>1.0</version>
                     <dependencies>
                         <dependency>
-                            <groupId>org.codehaus.mojo</groupId>
-                            <artifactId>findbugs-maven-plugin</artifactId>
-                            <version>${findbugs.version}</version>
+                            <groupId>com.github.spotbugs</groupId>
+                            <artifactId>spotbugs-maven-plugin</artifactId>
+                            <version>${spotbugs.version}</version>
                         </dependency>
                     </dependencies>
                     <configuration>
                         <transformationSets>
                             <transformationSet>
-                                <dir>${project.build.directory}/findbugs</dir>
+                                <dir>${project.build.directory}/spotbugs</dir>
                                 <includes>
-                                    <include>findbugsXml.xml</include>
+                                    <include>spotbugsXml.xml</include>
                                 </includes>
-                                <outputDir>${project.build.directory}/findbugs</outputDir>
+                                <outputDir>${project.build.directory}/spotbugs</outputDir>
                                 <stylesheet>default.xsl</stylesheet>
                                 <fileMappers>
                                     <!-- Configures the file extension of the output files. -->
@@ -903,8 +904,8 @@ under the License.
                         </executions>
                     </plugin>
                     <plugin>
-                        <groupId>org.codehaus.mojo</groupId>
-                        <artifactId>findbugs-maven-plugin</artifactId>
+                        <groupId>com.github.spotbugs</groupId>
+                        <artifactId>spotbugs-maven-plugin</artifactId>
                         <executions>
                             <execution>
                                 <id>analyze-compile</id>
