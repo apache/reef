@@ -24,7 +24,7 @@ RUN \
   gpg --keyserver pgp.mit.edu --recv-keys B9733A7A07513CAD && \
   gpg -a --export 07513CAD | apt-key add - && \
   apt-get update && \
-  apt-get install -y hadoop-2-3-2* && \
+  apt-get install --yes --no-upgrade --no-install-recommends --no-install-suggests hadoop-2-3-2* && \
   apt-get clean
 ENV HADOOP_PREFIX /usr/hdp/2.3.2.0-2950/hadoop
 

@@ -25,7 +25,7 @@ RUN \
   apt-key adv --keyserver keyserver.ubuntu.com --recv E56151BF && \
   echo "deb http://repos.mesosphere.io/ubuntu precise main" > /etc/apt/sources.list.d/mesosphere.list && \
   apt-get -y update && \
-  apt-get install -y mesos=0.26.0-0.2.145.ubuntu1204 && \
+  apt-get install --yes --no-upgrade --no-install-recommends --no-install-suggests mesos=0.26.0-0.2.145.ubuntu1204 && \
   apt-get clean && \
   rm -rf /var/lib/apt/lists/*
 ENV HADOOP_HOME=$HADOOP_PREFIX
