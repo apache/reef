@@ -20,7 +20,7 @@ MAINTAINER Apache REEF <dev@reef.apache.org>
 
 RUN \
   apt-get update && \
-  apt-get install -y openssh-server python-software-properties && \
+  apt-get install --yes --no-upgrade --no-install-recommends --no-install-suggests openssh-server python-software-properties && \
   apt-get clean
 
 RUN \
@@ -36,7 +36,7 @@ RUN \
   echo oracle-java7-installer shared/accepted-oracle-license-v1-1 select true | debconf-set-selections && \
   add-apt-repository -y ppa:webupd8team/java && \
   apt-get update && \
-  apt-get install -y oracle-java7-installer && \
+  apt-get install --yes --no-upgrade --no-install-recommends --no-install-suggests oracle-java7-installer && \
   apt-get clean && \
   rm -rf /var/lib/apt/lists/* && \
   rm -rf /var/cache/oracle-jdk7-installer
