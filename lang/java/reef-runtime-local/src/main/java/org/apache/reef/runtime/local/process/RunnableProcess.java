@@ -200,7 +200,6 @@ public final class RunnableProcess implements Runnable {
 
       } catch (final IOException ex) {
         LOG.log(Level.SEVERE, "Unable to spawn process " + this.id + " with command " + this.command, ex);
-        throw new RuntimeException("Unable to spawn process " + this.id + " with command " + this.command, ex);
       }
 
     } finally {
