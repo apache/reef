@@ -30,7 +30,6 @@ import javax.inject.Inject;
 import java.io.File;
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -90,15 +89,8 @@ public class PreparedDriverFolderLauncher {
         new LoggingRunnableProcessObserver(),
         stdoutFilePath,
         stderrFilePath);
-
-    try {
-      this.executor.submit(process).get();
-    } catch (InterruptedException | ExecutionException e) {
-      LOG.log(Level.SEVERE, "Driver process failed");
-      throw new RuntimeException("Driver process failed", e);
-    } finally {
-      this.executor.shutdown();
-    }
+    this.executor.submit(process);
+    this.executor.shutdown();
   }
 
   private List<String> makeLaunchCommand() {
