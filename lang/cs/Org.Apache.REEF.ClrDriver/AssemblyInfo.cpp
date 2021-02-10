@@ -47,8 +47,8 @@ using namespace System::Security::Permissions;
 // You can specify all the value or you can default the Revision and Build Numbers
 // by using the '*' as shown below:
 
-[assembly:AssemblyVersion("0.14.0.0")]
-[assembly:AssemblyFileVersion("0.17.0.0")]
+[assembly:AssemblyVersion("0.16.1.0")]
+[assembly:AssemblyFileVersion("0.16.1.0")]
 
 [assembly:ComVisible(false)];
 

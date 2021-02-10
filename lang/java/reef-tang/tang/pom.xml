@@ -23,7 +23,7 @@ under the License.
     <parent>
         <groupId>org.apache.reef</groupId>
         <artifactId>tang-project</artifactId>
-        <version>0.17.0-SNAPSHOT</version>
+        <version>0.16.1</version>
     </parent>
 
     <artifactId>tang</artifactId>

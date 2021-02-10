@@ -39,7 +39,7 @@ import java.util.logging.Logger;
 
 /**
  * The Client for Hello REEF example on standalone environment.
- * This can be run with the command: `java -cp lang/java/reef-examples/target/reef-examples-*-SNAPSHOT-shaded.jar
+ * This can be run with the command: `java -cp lang/java/reef-examples/target/reef-examples-*-shaded.jar
  *     org.apache.reef.examples.hello.HelloREEFStandalone -nodelist ../NodeList.txt -port 22`
  * Here, we assume that the list of nodes is saved in the ../Nodelist.txt file, with each line containing ssh addresses
  * (i.e. `username@147.12.0.16`), and `~/.ssh/id_dsa` is set up on your local, with `~/.ssh/authorized_keys` containing

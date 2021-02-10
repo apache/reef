@@ -18,8 +18,8 @@ under the License.
 
   <PropertyGroup>
     <SnapshotNumber>01</SnapshotNumber>
-    <IsSnapshot>true</IsSnapshot>
-    <VersionPrefix>0.17.0</VersionPrefix>
+    <IsSnapshot>false</IsSnapshot>
+    <VersionPrefix>0.16.1</VersionPrefix>
     <VersionSuffix Condition="'$(IsSnapshot)' == true">SNAPSHOT-$(SnapshotNumber)</VersionSuffix>
 
     <Authors>Apache Software Foundation</Authors>

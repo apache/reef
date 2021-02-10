@@ -18,17 +18,17 @@
 # under the License.
 #
 
-# EXAMPLE USAGE 
-# . ./bin/runazuretests.sh 
-# "./lang/java/reef-examples/target/reef-examples-0.17.0-SNAPSHOT-shaded.jar;
-# ./lang/java/reef-tests/target/reef-tests-0.17.0-SNAPSHOT-test-jar-with-dependencies.jar" 
+# EXAMPLE USAGE
+# . ./bin/runazuretests.sh
+# "./lang/java/reef-examples/target/reef-examples-0.16.1-shaded.jar;
+# ./lang/java/reef-tests/target/reef-tests-0.16.1-test-jar-with-dependencies.jar"
 # org.apache.reef.tests.examples.TestHelloREEF
 
 
 # RUNTIME
 
 if [ $# -ne 2 ];
-then 
+then
     echo "Only 2 arguments are accepted - CLASSPATH and TESTCLASS"
     exit 1;
 fi
