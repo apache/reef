@@ -20,8 +20,8 @@ Directions
 6. Use the NuGet to install all dependencies necessary to build the project
 7. Add the following `References` to the .csproj file
 ```
-<Reference Include="Org.Apache.REEF.Evaluator, Version=0.16.0.0, Culture=neutral, PublicKeyToken=c27bf5b2e9a7ddb9, processorArchitecture=AMD64\">
-  <HintPath>packages/Org.Apache.REEF.Evaluator.0.16.0/tools/Org.Apache.REEF.Evaluator.exe</HintPath>
+<Reference Include="Org.Apache.REEF.Evaluator, Version=0.16.1.0, Culture=neutral, PublicKeyToken=c27bf5b2e9a7ddb9, processorArchitecture=AMD64\">
+  <HintPath>packages/Org.Apache.REEF.Evaluator.0.16.1/tools/Org.Apache.REEF.Evaluator.exe</HintPath>
 </Reference>
 ```
 8. Build the project one last time
