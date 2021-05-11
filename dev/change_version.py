@@ -147,7 +147,7 @@ def change_assembly_info_cs(file, new_version):
     f.close()
 
 """
-Change Version in lang/cs/build.DotNet.props
+Change Version in lang/cs/build.Common.props
 """
 def change_dotnet_props_cs(file, new_version):
     changed_str = ""
@@ -360,8 +360,8 @@ def change_version(reef_home, new_version, pom_only):
         change_project_number_Doxyfile(reef_home + "/Doxyfile", new_version)
         print reef_home + "/Doxyfile"
 
-        change_dotnet_props_cs(reef_home + "/lang/cs/build.DotNet.props", new_version)
-        print reef_home + "/lang/cs/build.DotNet.props"
+        change_dotnet_props_cs(reef_home + "/lang/cs/build.Common.props", new_version)
+        print reef_home + "/lang/cs/build.Common.props"
 
         change_reef_on_spark_scala(reef_home + "/lang/scala/reef-examples-scala/src/main/scala/org/apache/reef/examples/hellospark/ReefOnSpark.scala", new_version)
         print reef_home + "/lang/scala/reef-examples-scala/src/main/scala/org/apache/reef/examples/hellospark/ReefOnSpark.scala"
