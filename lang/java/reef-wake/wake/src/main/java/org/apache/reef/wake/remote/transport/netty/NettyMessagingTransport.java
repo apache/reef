@@ -45,14 +45,12 @@ import org.apache.reef.wake.remote.ports.TcpPortProvider;
 import org.apache.reef.wake.remote.transport.Link;
 import org.apache.reef.wake.remote.transport.LinkListener;
 import org.apache.reef.wake.remote.transport.Transport;
+import org.apache.reef.wake.remote.transport.TransportFactory.ProtocolType;
 import org.apache.reef.wake.remote.transport.exception.TransportRuntimeException;
 
 import javax.inject.Inject;
 import java.io.IOException;
-import java.net.BindException;
-import java.net.ConnectException;
-import java.net.InetSocketAddress;
-import java.net.SocketAddress;
+import java.net.*;
 import java.util.ArrayList;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -61,7 +59,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Messaging transport implementation with Netty.
+ * Messaging transport implementation with Netty and Http.
  */
 public final class NettyMessagingTransport implements Transport {
 
@@ -92,8 +90,10 @@ public final class NettyMessagingTransport implements Transport {
 
   private final InetSocketAddress localAddress;
 
-  private final NettyClientEventListener clientEventListener;
-  private final NettyServerEventListener serverEventListener;
+  private final AbstractNettyEventListener clientEventListener;
+  private final AbstractNettyEventListener serverEventListener;
+
+  private final URI uri;
 
   private final int numberOfTries;
   private final int retryTimeout;
@@ -108,6 +108,7 @@ public final class NettyMessagingTransport implements Transport {
    * @param numberOfTries the number of tries of connection
    * @param retryTimeout  the timeout of reconnection
    * @param tcpPortProvider  gives an iterator that produces random tcp ports in a range
+   * @param protocolType  the protocol to use for transport
    */
   @Inject
   private NettyMessagingTransport(
@@ -118,7 +119,8 @@ public final class NettyMessagingTransport implements Transport {
       @Parameter(RemoteConfiguration.NumberOfTries.class) final int numberOfTries,
       @Parameter(RemoteConfiguration.RetryTimeout.class) final int retryTimeout,
       final TcpPortProvider tcpPortProvider,
-      final LocalAddressProvider localAddressProvider) {
+      final LocalAddressProvider localAddressProvider,
+      @Parameter(RemoteConfiguration.Protocol.class) final ProtocolType protocolType) {
 
     if (listenPort < 0) {
       throw new RemoteRuntimeException("Invalid server port: " + listenPort);
@@ -126,10 +128,29 @@ public final class NettyMessagingTransport implements Transport {
 
     final String host = UNKNOWN_HOST_NAME.equals(hostAddress) ? localAddressProvider.getLocalAddress() : hostAddress;
 
+    //TODO[JIRA REEF-1871] Implement HTTPS with sslContext.
+
+    // for HTTP and default Netty
+    if (protocolType == ProtocolType.HTTP) {
+      try{
+        this.uri = URI.create("http://" + host);
+      } catch (final IllegalArgumentException e){
+        throw new RemoteRuntimeException("Invalid host address: " + host, e);
+      }
+    } else {
+      this.uri = null;
+    }
+
     this.numberOfTries = numberOfTries;
     this.retryTimeout = retryTimeout;
-    this.clientEventListener = new NettyClientEventListener(this.addrToLinkRefMap, clientStage);
-    this.serverEventListener = new NettyServerEventListener(this.addrToLinkRefMap, serverStage);
+    if (protocolType == ProtocolType.TCP) {
+      this.clientEventListener = new NettyClientEventListener(this.addrToLinkRefMap, clientStage);
+      this.serverEventListener = new NettyServerEventListener(this.addrToLinkRefMap, serverStage);
+    } else {
+      this.clientEventListener = new NettyHttpClientEventListener(this.addrToLinkRefMap, clientStage);
+      this.serverEventListener = new NettyHttpServerEventListener(this.addrToLinkRefMap, serverStage, this.uri);
+    }
+
 
     this.serverBossGroup = new NioEventLoopGroup(SERVER_BOSS_NUM_THREADS,
         new DefaultThreadFactory(CLASS_NAME + ":ServerBoss"));
@@ -142,7 +163,7 @@ public final class NettyMessagingTransport implements Transport {
         .group(this.clientWorkerGroup)
         .channel(NioSocketChannel.class)
         .handler(new NettyChannelInitializer(new NettyDefaultChannelHandlerFactory("client",
-            this.clientChannelGroup, this.clientEventListener)))
+            this.clientChannelGroup, this.clientEventListener), protocolType))
         .option(ChannelOption.SO_REUSEADDR, true)
         .option(ChannelOption.SO_KEEPALIVE, true);
 
@@ -150,7 +171,7 @@ public final class NettyMessagingTransport implements Transport {
         .group(this.serverBossGroup, this.serverWorkerGroup)
         .channel(NioServerSocketChannel.class)
         .childHandler(new NettyChannelInitializer(new NettyDefaultChannelHandlerFactory("server",
-            this.serverChannelGroup, this.serverEventListener)))
+            this.serverChannelGroup, this.serverEventListener), protocolType, true))
         .option(ChannelOption.SO_BACKLOG, 128)
         .option(ChannelOption.SO_REUSEADDR, true)
         .childOption(ChannelOption.SO_KEEPALIVE, true);
@@ -294,7 +315,10 @@ public final class NettyMessagingTransport implements Transport {
         connectFuture = this.clientBootstrap.connect(remoteAddr);
         connectFuture.syncUninterruptibly();
 
-        link = new NettyLink<>(connectFuture.channel(), encoder, listener);
+        final NettyLinkFactory linkFactory =
+                uri == null ? new NettyDefaultLinkFactory<>() : new NettyHttpLinkFactory(uri);
+
+        link = linkFactory.newInstance(connectFuture.channel(), encoder, listener);
         linkRef.setLink(link);
 
         synchronized (flag) {

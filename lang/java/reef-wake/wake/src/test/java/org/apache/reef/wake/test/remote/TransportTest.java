@@ -19,12 +19,14 @@
 package org.apache.reef.wake.test.remote;
 
 import org.apache.reef.tang.Injector;
+import org.apache.reef.tang.JavaConfigurationBuilder;
 import org.apache.reef.tang.Tang;
 import org.apache.reef.tang.exceptions.InjectionException;
 import org.apache.reef.wake.EStage;
 import org.apache.reef.wake.impl.LoggingUtils;
 import org.apache.reef.wake.impl.TimerStage;
 import org.apache.reef.wake.remote.Codec;
+import org.apache.reef.wake.remote.RemoteConfiguration;
 import org.apache.reef.wake.remote.address.LocalAddressProvider;
 import org.apache.reef.wake.remote.impl.ObjectSerializableCodec;
 import org.apache.reef.wake.remote.impl.TransportEvent;
@@ -32,6 +34,7 @@ import org.apache.reef.wake.remote.transport.Link;
 import org.apache.reef.wake.remote.transport.Transport;
 import org.apache.reef.wake.remote.transport.netty.LoggingLinkListener;
 import org.apache.reef.wake.remote.transport.TransportFactory;
+import org.apache.reef.wake.remote.transport.netty.MessagingTransportFactory;
 import org.apache.reef.wake.test.util.Monitor;
 import org.apache.reef.wake.test.util.TimeoutHandler;
 import org.junit.Assert;
@@ -49,12 +52,20 @@ import java.util.logging.Level;
  */
 public class TransportTest {
   private final LocalAddressProvider localAddressProvider;
-  private final TransportFactory tpFactory;
+  private final TransportFactory tpTcpFactory;
+  private final TransportFactory tpHttpFactory;
 
   public TransportTest() throws InjectionException {
-    final Injector injector = Tang.Factory.getTang().newInjector();
+    final Tang tang = Tang.Factory.getTang();
+
+    final Injector injector = tang.newInjector();
     this.localAddressProvider = injector.getInstance(LocalAddressProvider.class);
-    this.tpFactory = injector.getInstance(TransportFactory.class);
+    this.tpTcpFactory = injector.getInstance(TransportFactory.class);
+
+    //for set protocol to HTTP
+    final JavaConfigurationBuilder jcb = tang.newConfigurationBuilder();
+    jcb.bindNamedParameter(RemoteConfiguration.Protocol.class, TransportFactory.ProtocolType.HTTP.name());
+    this.tpHttpFactory = tang.newInjector(jcb.build()).getInstance(MessagingTransportFactory.class);
   }
 
   private static final String LOG_PREFIX = "TEST ";
@@ -63,6 +74,25 @@ public class TransportTest {
 
   @Test
   public void testTransportString() throws Exception {
+    transportString(tpTcpFactory);
+  }
+
+  @Test
+  public void testTransportTestEvent() throws Exception {
+    transportTestEvent(tpTcpFactory);
+  }
+
+  @Test
+  public void testHttpTransportString() throws Exception {
+    transportString(tpHttpFactory);
+  }
+
+  @Test
+  public void testHttpTransportTestEvent() throws Exception {
+    transportTestEvent(tpHttpFactory);
+  }
+
+  private void transportString(final TransportFactory tpFactory) throws Exception{
     System.out.println(LOG_PREFIX + name.getMethodName());
     LoggingUtils.setLoggingLevel(Level.INFO);
 
@@ -93,8 +123,7 @@ public class TransportTest {
     Assert.assertEquals(expected, stage.getCount());
   }
 
-  @Test
-  public void testTransportTestEvent() throws Exception {
+  private void transportTestEvent(final TransportFactory tpFactory) throws Exception{
     System.out.println(LOG_PREFIX + name.getMethodName());
     LoggingUtils.setLoggingLevel(Level.INFO);
 

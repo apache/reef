@@ -32,6 +32,13 @@ import org.apache.reef.wake.remote.transport.netty.MessagingTransportFactory;
 public interface TransportFactory {
 
   /**
+   * Types of protocol used in Transport.
+   */
+  enum ProtocolType {
+    TCP, HTTP
+  }
+
+  /**
    * Creates a transport.
    *
    * @param port          a listening port

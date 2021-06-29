@@ -26,6 +26,7 @@ import org.apache.reef.wake.WakeParameters;
 import org.apache.reef.wake.remote.impl.DefaultTransportEStage;
 import org.apache.reef.wake.remote.impl.ObjectSerializableCodec;
 import org.apache.reef.wake.remote.impl.TransportEvent;
+import org.apache.reef.wake.remote.transport.TransportFactory.ProtocolType;
 
 /**
  * Configuration options and helper methods for Wake remoting.
@@ -130,6 +131,15 @@ public final class RemoteConfiguration {
    */
   @NamedParameter(doc = "Server stage for messaging transport.", default_class = DefaultTransportEStage.class)
   public static final class RemoteServerStage implements Name<EStage<TransportEvent>> {
+    // Intentionally empty
+  }
+
+  /**
+   * Option for use http.
+   * Default value must be ProtocolType.TCP.name().
+   */
+  @NamedParameter(doc = "Option for use http.", default_value = "TCP")
+  public static final class Protocol implements Name<ProtocolType> {
     // Intentionally empty
   }
 }
