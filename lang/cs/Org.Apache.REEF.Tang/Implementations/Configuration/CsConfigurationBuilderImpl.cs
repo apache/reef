@@ -399,7 +399,15 @@ namespace Org.Apache.REEF.Tang.Implementations.Configuration
                 Org.Apache.REEF.Utilities.Diagnostics.Exceptions.Throw(ex, LOGGER);
             }
 
-            BindList((INamedParameterNode)n, implList);
+            try
+            {
+                BindList((INamedParameterNode)n, implList);
+            }
+            catch(ArgumentException ex)
+            {
+                throw new BindException($"BindList failed to bind for {iface.Name}, reason: {ex.Message}");
+            } 
+
             return this;
         }
 

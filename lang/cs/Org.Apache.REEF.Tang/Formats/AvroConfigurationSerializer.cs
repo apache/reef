@@ -15,13 +15,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Runtime.Serialization;
-using System.Text;
 using Microsoft.Hadoop.Avro;
 using Microsoft.Hadoop.Avro.Container;
 using Newtonsoft.Json;
@@ -34,6 +27,13 @@ using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Tang.Types;
 using Org.Apache.REEF.Tang.Util;
 using Org.Apache.REEF.Utilities.Logging;
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Runtime.Serialization;
+using System.Text;
 
 namespace Org.Apache.REEF.Tang.Formats
 {
@@ -254,12 +254,32 @@ namespace Org.Apache.REEF.Tang.Formats
                 }
                 else
                 {
-                    Org.Apache.REEF.Utilities.Diagnostics.Exceptions.Throw(new IllegalStateException(), LOGGER);
+                    throw new TangApplicationException("Unable to serialize set of type {e.Value.GetType()}");
                 }
 
                 l.Add(new ConfigurationEntry(e.Key.GetFullName(), val));
             }
 
+            foreach (var kvp in conf.GetBoundList())
+            {
+                foreach (var item in kvp.Value)
+                {
+                    string val = null;
+                    if (item is string)
+                    {
+                        val = (string)item;
+                    }
+                    else if (item is INode)
+                    {
+                        val = ((INode)item).GetFullName();
+                    }
+                    else
+                    {
+                        throw new TangApplicationException("Unable to serialize list of type {item.GetType()}");
+                    }
+                    l.Add(new ConfigurationEntry(kvp.Key.GetFullName(), val));
+                }
+            }
             return new AvroConfiguration(Language.Cs.ToString(), l);
         }
         

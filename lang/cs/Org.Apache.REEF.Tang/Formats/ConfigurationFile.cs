@@ -15,12 +15,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
 using Org.Apache.REEF.Tang.Exceptions;
 using Org.Apache.REEF.Tang.Implementations.Configuration;
 using Org.Apache.REEF.Tang.Implementations.Tang;
@@ -28,6 +22,12 @@ using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Tang.Types;
 using Org.Apache.REEF.Tang.Util;
 using Org.Apache.REEF.Utilities.Logging;
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Text;
 
 namespace Org.Apache.REEF.Tang.Formats
 {
@@ -133,10 +133,31 @@ namespace Org.Apache.REEF.Tang.Formats
                 } 
                 else 
                 {
-                    Org.Apache.REEF.Utilities.Diagnostics.Exceptions.Throw(new IllegalStateException(), LOGGER);
+                    throw new BindException($"Failed to serialize set of unsupported type {e.Value.GetType()}");
                 }
                 
                 l.Add(GetFullName(e.Key) + '=' + Escape(val));
+            }
+
+            foreach(var kvp in conf.GetBoundList())
+            {
+                foreach (var item in kvp.Value)
+                {
+                    string val = null;
+                    if (item is string)
+                    {
+                        val = GetFullName((string)item);
+                    }
+                    else if (kvp.Value is INode)
+                    {
+                        val = GetFullName((INode)kvp.Value);
+                    }
+                    else
+                    {
+                       throw new BindException($"Failed to serialize list of unsupported type {item.GetType()}");
+                    }
+                    l.Add(GetFullName(kvp.Key) + '=' + Escape(val));
+                }
             }
 
             return l;
