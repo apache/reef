@@ -27,7 +27,7 @@ under the License.
     <parent>
         <groupId>org.apache.reef</groupId>
         <artifactId>wake-project</artifactId>
-        <version>0.16.1</version>
+        <version>0.16.1-SNAPSHOT</version>
     </parent>
 
     <properties>
